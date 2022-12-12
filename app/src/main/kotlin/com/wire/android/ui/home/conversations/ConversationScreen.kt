@@ -438,7 +438,7 @@ private fun ConversationScreenContent(
         messageComposerState = messageComposerInnerState,
         keyboardHeight = keyboardHeight,
         fullScreenHeight = fullScreenHeight,
-        content = {
+        messageContent = {
             MessageList(
                 lazyPagingMessages = lazyPagingMessages,
                 lazyListState = lazyListState,

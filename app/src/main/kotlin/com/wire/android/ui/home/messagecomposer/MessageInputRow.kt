@@ -140,9 +140,6 @@ fun ColumnScope.MessageComposerInputRow(
                 )
             }
         }
-        if (membersToMention.isNotEmpty() && messageComposerState.messageComposeInputState == MessageComposeInputState.FullScreen)
-            DropDownMentionsSuggestions(currentSelectedLineIndex, cursorCoordinateY, membersToMention, onMentionPicked)
-
     }
 }
 

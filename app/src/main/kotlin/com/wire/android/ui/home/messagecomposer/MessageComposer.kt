@@ -68,7 +68,7 @@ fun MessageComposer(
     messageComposerState: MessageComposerInnerState,
     keyboardHeight: KeyboardHeight,
     fullScreenHeight: Dp,
-    content: @Composable () -> Unit,
+    messageContent: @Composable () -> Unit,
     onSendTextMessage: (String, List<UiMention>, messageId: String?) -> Unit,
     onSendAttachment: (AttachmentBundle?) -> Unit,
     onMentionMember: (String?) -> Unit,
@@ -120,16 +120,16 @@ fun MessageComposer(
         }
 
         MessageComposer(
-            messageContent = content,
+            messagesContent = messageContent,
             messageComposerState = messageComposerState,
-            onSendButtonClicked = onSendButtonClicked,
-            onSendAttachmentClicked = onSendAttachmentClicked,
-            onMessageComposerError = onMessageComposerError,
             isFileSharingEnabled = isFileSharingEnabled,
-            interactionAvailability = interactionAvailability,
             tempCachePath = tempCachePath,
-            securityClassificationType = securityClassificationType,
+            interactionAvailability = interactionAvailability,
             membersToMention = membersToMention,
+            onMessageComposerError = onMessageComposerError,
+            onSendAttachmentClicked = onSendAttachmentClicked,
+            securityClassificationType = securityClassificationType,
+            onSendButtonClicked = onSendButtonClicked,
             onMentionPicked = onMentionPicked
         )
     }
@@ -144,16 +144,16 @@ fun MessageComposer(
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 private fun MessageComposer(
-    messageContent: @Composable () -> Unit,
+    messagesContent: @Composable () -> Unit,
     messageComposerState: MessageComposerInnerState,
-    onSendButtonClicked: () -> Unit,
-    onSendAttachmentClicked: (AttachmentBundle?) -> Unit,
-    onMessageComposerError: (ConversationSnackbarMessages) -> Unit,
     isFileSharingEnabled: Boolean,
-    interactionAvailability: InteractionAvailability,
     tempCachePath: Path,
-    securityClassificationType: SecurityClassificationType,
+    interactionAvailability: InteractionAvailability,
     membersToMention: List<Contact>,
+    onMessageComposerError: (ConversationSnackbarMessages) -> Unit,
+    onSendAttachmentClicked: (AttachmentBundle?) -> Unit,
+    securityClassificationType: SecurityClassificationType,
+    onSendButtonClicked: () -> Unit,
     onMentionPicked: (Contact) -> Unit
 ) {
     val focusManager = LocalFocusManager.current
@@ -212,36 +212,11 @@ private fun MessageComposer(
                         .weight(1f)
                         .padding(bottom = dimensions().spacing8x)
                 ) {
-                    messageContent()
-                    Column(
-                        modifier = Modifier
-                            .fillMaxHeight()
-                            .animateContentSize()
-                    ) {
-                        LazyColumn(
-                            modifier = Modifier.background(Color.White),
-                            reverseLayout = true
-                        ) {
-                            membersToMention.forEach {
-                                if (it.membership != Membership.Service) {
-                                    item {
-                                        MemberItemToMention(
-                                            avatarData = it.avatarData,
-                                            name = it.name,
-                                            label = it.label,
-                                            membership = it.membership,
-                                            clickable = Clickable(enabled = true) { onMentionPicked(it) },
-                                            modifier = Modifier
-                                        )
-                                        Divider(
-                                            color = MaterialTheme.wireColorScheme.divider,
-                                            thickness = Dp.Hairline
-                                        )
-                                    }
-                                }
-                            }
-                        }
-                    }
+                    messagesContent()
+                    MembersMentionList(
+                        membersToMention = membersToMention,
+                        onMentionPicked = onMentionPicked
+                    )
                 }
 
                 // THIS IS MESSAGE COMPOSE INPUT
@@ -250,7 +225,6 @@ private fun MessageComposer(
                     InteractionAvailability.DELETED_USER -> DeletedUserMessage()
                     InteractionAvailability.NOT_MEMBER, InteractionAvailability.DISABLED -> {}
                     InteractionAvailability.ENABLED -> {
-                        // Column wrapping CollapseIconButton and MessageComposerInput
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -289,17 +263,19 @@ private fun MessageComposer(
                                 interactionAvailability = interactionAvailability,
                                 onSendButtonClicked = onSendButtonClicked,
                             )
-
-                            // THIS IS MESSAGE COMPOSE ACTIONS
-                            // Box wrapping MessageComposeActions() so that we can constrain it to the bottom of MessageComposerInput and after that
-                            // constrain our SendActions to it
-                            MessageComposeActionsBox(
-                                transition = transition,
-                                messageComposerState = messageComposerState,
-                                focusManager = focusManager,
-                                isMentionActive = membersToMention.isNotEmpty()
-                            )
                         }
+                        Column {
+
+                            MessageInput(
+                                transition = transition,
+                                securityClassificationType = securityClassificationType,
+                            )
+
+                            if (membersToMention.isNotEmpty() && messageComposerState.messageComposeInputState == MessageComposeInputState.FullScreen)
+                                DropDownMentionsSuggestions(currentSelectedLineIndex, cursorCoordinateY, membersToMention, onMentionPicked)
+                        }
+
+
                     }
                 }
             }
@@ -328,11 +304,99 @@ private fun MessageComposer(
     }
 }
 
+@OptIn(ExperimentalAnimationApi::class)
+@Composable
+private fun MessageInput(
+    transition: Transition<MessageComposeInputState>,
+    messageComposerState: MessageComposerInnerState,
+
+    cancelReply: () -> Unit,
+    toggleFullScreen: () -> Unit,
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .wrapContentHeight()
+    ) {
+        val isClassifiedConversation = securityClassificationType != SecurityClassificationType.NONE
+        if (isClassifiedConversation) {
+            Box(Modifier.wrapContentSize()) {
+                VerticalSpace.x8()
+                SecurityClassificationBanner(securityClassificationType = securityClassificationType)
+            }
+        }
+        Divider()
+        CollapseIconButtonBox(
+            transition = transition,
+            toggleFullScreen = messageComposerState::toggleFullScreen
+        )
+        val quotedMessageData = messageComposerState.quotedMessageData
+
+        if (quotedMessageData != null) {
+            Row(modifier = Modifier.padding(horizontal = dimensions().spacing8x)) {
+                QuotedMessagePreview(
+                    quotedMessageData = quotedMessageData,
+                    onCancelReply = messageComposerState::cancelReply
+                )
+            }
+        }
+        // Row wrapping the AdditionalOptionButton() when we are in Enabled state and MessageComposerInput()
+        // when we are in the Fullscreen state, we want to align the TextField to Top of the Row,
+        // when other we center it vertically. Once we go to Fullscreen, we set the weight to 1f
+        // so that it fills the whole Row which is = height of the whole screen - height of TopBar -
+        // - height of container with additional options
+        MessageComposerInputRow(
+            transition = transition,
+            messageComposerState = messageComposerState,
+            membersToMention = membersToMention,
+            onMentionPicked = onMentionPicked,
+            interactionAvailability = interactionAvailability,
+            onSendButtonClicked = onSendButtonClicked,
+        )
+    }
+}
+
+@Composable
+private fun MembersMentionList(
+    membersToMention: List<Contact>,
+    onMentionPicked: (Contact) -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxHeight()
+            .animateContentSize()
+    ) {
+        LazyColumn(
+            modifier = Modifier.background(Color.White),
+            reverseLayout = true
+        ) {
+            membersToMention.forEach {
+                if (it.membership != Membership.Service) {
+                    item {
+                        MemberItemToMention(
+                            avatarData = it.avatarData,
+                            name = it.name,
+                            label = it.label,
+                            membership = it.membership,
+                            clickable = Clickable(enabled = true) { onMentionPicked(it) },
+                            modifier = Modifier
+                        )
+                        Divider(
+                            color = MaterialTheme.wireColorScheme.divider,
+                            thickness = Dp.Hairline
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
 @ExperimentalAnimationApi
 @Composable
 private fun CollapseIconButtonBox(
     transition: Transition<MessageComposeInputState>,
-    messageComposerState: MessageComposerInnerState
+    toggleFullScreen: () -> Unit
 ) {
     transition.AnimatedVisibility(visible = { state -> (state != MessageComposeInputState.Enabled) }) {
         Box(
@@ -350,7 +414,7 @@ private fun CollapseIconButtonBox(
                 }
             }
             CollapseIconButton(
-                onCollapseClick = messageComposerState::toggleFullScreen,
+                onCollapseClick = toggleFullScreen,
                 collapseRotation = collapseButtonRotationDegree
             )
         }

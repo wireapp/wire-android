@@ -83,7 +83,10 @@ fun ColumnScope.MessageComposerInputRow(
         // wrapping the whole content when in the FullScreen state we are giving it max height
         // when in active state we limit the height to max 82.dp
         // other we let it wrap the content of the height, which will be equivalent to the text
-        Box(Modifier.wrapContentSize().background(Color.Red)) {
+        Box(
+            Modifier
+                .wrapContentSize()
+                .background(Color.Red)) {
             MessageComposerInput(
                 messageText = messageComposerState.messageText,
                 onMessageTextChanged = messageComposerState::setMessageTextValue,
@@ -130,7 +133,8 @@ fun ColumnScope.MessageComposerInputRow(
                 SendActions(
                     messageComposerState = messageComposerState,
                     transition = transition,
-                    onSendButtonClicked = onSendButtonClicked
+                    onSendButtonClicked = onSendButtonClicked,
+                    modifier = Modifier.align(Alignment.BottomEnd)
                 )
             }
         }

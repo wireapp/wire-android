@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+
 import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -23,6 +24,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material.Divider
 import androidx.compose.material.Divider
 import androidx.compose.material.Surface
 import androidx.compose.material3.Icon
@@ -181,7 +183,7 @@ private fun MessageComposer(
 
             val messageComposer = createRef()
 
-            ConstraintLayout(
+            Column(
                 Modifier
                     .constrainAs(messageComposer) {
                         top.linkTo(parent.top)
@@ -195,8 +197,6 @@ private fun MessageComposer(
                         height = Dimension.fillToConstraints
                     }
             ) {
-                val (messageContent, messageInput) = createRefs()
-
                 Box(
                     Modifier
                         .pointerInput(Unit) {
@@ -210,15 +210,8 @@ private fun MessageComposer(
                                 onTap = { /* Called on Tap */ }
                             )
                         }
-                        .constrainAs(messageContent) {
-                            top.linkTo(parent.top)
-                            // we want to align the elements to the guideline only when we display attachmentOptions
-                            // or we are having focus on the TextInput field
-                            bottom.linkTo(messageInput.top)
-
-                            height = Dimension.fillToConstraints
-                        }
                         .fillMaxWidth()
+                        .weight(1f)
                         .padding(bottom = dimensions().spacing8x)
                 ) {
                     messageContent()
@@ -262,15 +255,8 @@ private fun MessageComposer(
                         // Column wrapping CollapseIconButton and MessageComposerInput
                         Column(
                             modifier = Modifier
-                                .constrainAs(messageInput) {
-                                    top.linkTo(messageContent.bottom)
-                                    // we want to align the elements to the guideline only when we display attachmentOptions
-                                    // or we are having focus on the TextInput field
-                                    bottom.linkTo(parent.bottom)
-
-                                    height = Dimension.wrapContent
-                                }
                                 .fillMaxWidth()
+                                .wrapContentHeight()
                                 .animateContentSize()
                         ) {
                             val isClassifiedConversation = securityClassificationType != SecurityClassificationType.NONE
@@ -319,8 +305,6 @@ private fun MessageComposer(
                         }
                     }
                 }
-
-
             }
             // Box wrapping for additional options content
             // we want to offset the AttachmentOptionsComponent equal to where

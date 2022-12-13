@@ -21,7 +21,12 @@ class NotificationChannelsManager @Inject constructor(
     private val context: Context,
     private val notificationManagerCompat: NotificationManagerCompat
 ) {
-    private val incomingCallSoundUri by lazy { Uri.parse("${ContentResolver.SCHEME_ANDROID_RESOURCE}://${context.packageName}/raw/ringing_from_them") }
+    private val incomingCallSoundUri by lazy {
+        Uri.parse(
+            "${ContentResolver.SCHEME_ANDROID_RESOURCE}://" +
+                    "${context.packageName}/raw/ringing_from_them"
+        )
+    }
 
     fun createNotificationChannels(allUsers: List<SelfUser>) {
         appLogger.i("${TAG}: creating all the channels for ${allUsers.size} users")

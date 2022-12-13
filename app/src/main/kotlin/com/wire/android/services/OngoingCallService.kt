@@ -57,10 +57,7 @@ class OngoingCallService : Service() {
             val userId = qualifiedIdMapper.fromStringToQualifiedID(userIdString)
 
             scope.launch {
-                coreLogic.getSessionScope(userId)
-                    .calls
-                    .establishedCall()
-                    .collect { establishedCall ->
+                coreLogic.getSessionScope(userId).calls.establishedCall().collect { establishedCall ->
                         if (establishedCall.isEmpty()) {
                             appLogger.i("$TAG: stopSelf. Reason: call was ended")
                             stopSelf()
@@ -72,7 +69,9 @@ class OngoingCallService : Service() {
         } else {
             appLogger.w(
                 "$TAG: stopSelf. Reason: some of the parameter is absent. " +
-                        "userIdString: ${userIdString?.obfuscateId()}, conversationIdString: ${conversationIdString?.obfuscateId()}, callName: $callName"
+                        "userIdString: ${userIdString?.obfuscateId()}, " +
+                        "conversationIdString: ${conversationIdString?.obfuscateId()}, " +
+                        "callName: $callName"
             )
             stopSelf()
         }

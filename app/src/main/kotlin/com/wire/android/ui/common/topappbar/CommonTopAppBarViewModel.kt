@@ -34,6 +34,7 @@ class CommonTopAppBarViewModel @Inject constructor(
 ) : CommonTopAppBarBaseViewModel() {
 
     var connectivityState by mutableStateOf(ConnectivityUIState(ConnectivityUIState.Info.None))
+
     init {
         viewModelScope.launch {
             combine(activeCallFlow(), currentScreenFlow(), connectivityFlow()) { activeCall, currentScreen, connectivity ->
@@ -98,8 +99,10 @@ class CommonTopAppBarViewModel @Inject constructor(
     private suspend fun activeCallFlow() = establishedCalls().map { calls ->
         calls.firstOrNull()
         /**
-         * Adding some delay here to avoid some bad UX : ongoing call banner displayed and hided in a short time when the user hangs up the call
-         * Call events could take some time to be received and this function could be called when the screen is changed, so we delayed
+         * Adding some delay here to avoid some bad UX : ongoing call banner displayed and
+         * hided in a short time when the user hangs up the call
+         * Call events could take some time to be received and this function
+         * could be called when the screen is changed, so we delayed
          * showing the banner until getting the correct calling values
          */
     }.debounce(WAITING_TIME_TO_SHOW_ONGOING_CALL_BANNER)

@@ -16,6 +16,7 @@ import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.notification.NotificationChannelsManager
 import com.wire.android.ui.userprofile.self.dialog.StatusDialogData
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.WireSessionImageLoader
@@ -69,7 +70,8 @@ class SelfUserProfileViewModel @Inject constructor(
     private val otherAccountMapper: OtherAccountMapper,
     private val observeEstablishedCalls: ObserveEstablishedCallsUseCase,
     private val accountSwitch: AccountSwitchUseCase,
-    private val endCall: EndCallUseCase
+    private val endCall: EndCallUseCase,
+    private val notificationChannelsManager: NotificationChannelsManager
 ) : ViewModel() {
 
     var userProfileState by mutableStateOf(SelfUserProfileState())
@@ -175,20 +177,16 @@ class SelfUserProfileViewModel @Inject constructor(
                 }
             }.join()
 
-            launch {
-                getSelf()
-                    .collect {
-                        // TODO delete notificationChannelGroup
-                        println("cyka logout selfUser: ${it.id}")
-                    }
-            }
-
             val logoutReason = if (wipeData) LogoutReason.SELF_HARD_LOGOUT else LogoutReason.SELF_SOFT_LOGOUT
             logout(logoutReason)
             if (wipeData) {
                 // TODO this should be moved to some service that will clear all the data in the app
                 dataStore.clear()
             }
+
+            launch {
+                getSelf().collect { notificationChannelsManager.deleteChannelGroup(it.id) }
+            }.join()
             accountSwitch(SwitchAccountParam.SwitchToNextAccountOrWelcome)
         }
     }

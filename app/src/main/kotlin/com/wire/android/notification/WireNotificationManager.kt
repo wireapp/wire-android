@@ -237,7 +237,7 @@ class WireNotificationManager @Inject constructor(
                 }
 
                 when (screens) {
-                    is CurrentScreen.Conversation -> messagesNotificationManager.hideNotification(screens.id)
+                    is CurrentScreen.Conversation -> messagesNotificationManager.hideNotification(screens.id, userId)
                     is CurrentScreen.OtherUserProfile -> hideConnectionRequestNotification(userId, screens.id)
                     is CurrentScreen.IncomingCallScreen -> callNotificationManager.hideIncomingCallNotification()
                     else -> {}
@@ -297,6 +297,10 @@ class WireNotificationManager @Inject constructor(
         userIdFlow
             .flatMapLatest { userId ->
                 userId?.let {
+                    val observeSelfUser = coreLogic.getSessionScope(userId)
+                        .users
+                        .getSelfUser()
+
                     coreLogic.getSessionScope(userId)
                         .messages
                         .getNotifications()
@@ -306,25 +310,27 @@ class WireNotificationManager @Inject constructor(
                             appLogger.i("$TAG filtering notifications ${it.size}")
                             it.isNotEmpty()
                         }
-                        .map { newNotifications ->
+                        .combine(observeSelfUser) { newNotifications, selfUser ->
                             // we don't want to display notifications for the Conversation that user currently in.
                             val notificationsList = filterAccordingToScreenAndUpdateNotifyDate(
                                 currentScreenState.value,
                                 userId,
                                 newNotifications
                             )
+                            val userName = selfUser.handle ?: selfUser.name ?: ""
+
                             // combining all the data that is necessary for Notifications into small data class,
                             // just to make it more readable than
                             // Pair<List<LocalNotificationConversation>, QualifiedID>
-                            MessagesNotificationsData(notificationsList, userId)
+                            MessagesNotificationsData(notificationsList, userId, userName)
                         }
                 } ?: flowOf(null)
             }
             .cancellable()
             .filterNotNull()
-            .collect { (newNotifications, userId) ->
+            .collect { (newNotifications, userId, userName) ->
                 appLogger.d("$TAG got ${newNotifications.size} notifications")
-                messagesNotificationManager.handleNotification(newNotifications, userId)
+                messagesNotificationManager.handleNotification(newNotifications, userId, userName)
                 markMessagesAsNotified(userId, null)
                 markConnectionAsNotified(userId, null)
             }
@@ -413,14 +419,15 @@ class WireNotificationManager @Inject constructor(
                 ?.conversation
                 ?.id
                 ?.let { conversationId ->
-                    messagesNotificationManager.hideNotification(conversationId)
+                    messagesNotificationManager.hideNotification(conversationId, userId)
                 }
         }
     }
 
     data class MessagesNotificationsData(
         val newNotifications: List<LocalNotificationConversation>,
-        val userId: QualifiedID
+        val userId: QualifiedID,
+        val userName: String
     )
 
     private data class OngoingCallData(val notificationTitle: String, val conversationId: ConversationId, val userId: UserId)

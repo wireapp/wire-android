@@ -48,7 +48,7 @@ class CallNotificationManager @Inject constructor(private val context: Context) 
         val userIdString = userId.toString()
         val title = getNotificationTitle(call)
         val content = getNotificationBody(call)
-        val channelId = NotificationChannelsManager.getChanelIdForUser(userId, NotificationConstants.INCOMING_CALL_CHANNEL_ID)
+        val channelId = NotificationConstants.getIncomingChannelId(userId)
 
         val notification = NotificationCompat.Builder(context, channelId)
             .setPriority(NotificationCompat.PRIORITY_MAX)
@@ -75,7 +75,7 @@ class CallNotificationManager @Inject constructor(private val context: Context) 
     }
 
     fun getOngoingCallNotification(callName: String, conversationId: String, userId: UserId): Notification {
-        val channelId = NotificationChannelsManager.getChanelIdForUser(userId, NotificationConstants.ONGOING_CALL_CHANNEL_ID)
+        val channelId = NotificationConstants.getOngoingChannelId(userId)
         return NotificationCompat.Builder(context, channelId)
             .setContentTitle(callName)
             .setContentText(context.getString(R.string.notification_ongoing_call_content))

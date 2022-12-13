@@ -112,6 +112,7 @@ class WireActivityViewModel @Inject constructor(
         viewModelScope.launch(dispatchers.io()) {
             observeValidAccounts()
                 .onStart { emit(listOf()) }
+                .distinctUntilChanged()
                 .collect { list ->
                     notificationChannelsManager.createNotificationChannels(list.map { it.first })
                 }

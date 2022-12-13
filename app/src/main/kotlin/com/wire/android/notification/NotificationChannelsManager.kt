@@ -10,6 +10,7 @@ import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationChannelCompat
 import androidx.core.app.NotificationManagerCompat
 import com.wire.android.appLogger
+import com.wire.kalium.logger.obfuscateId
 import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.data.user.UserId
 import javax.inject.Inject
@@ -46,7 +47,8 @@ class NotificationChannelsManager @Inject constructor(
      * Use it on logout.
      */
     fun deleteChannelGroup(userId: UserId) {
-        notificationManagerCompat.deleteNotificationChannelGroup(getChanelGroupIdForUser(userId))
+        appLogger.i("${TAG}: deleting notification channels for ${userId.toString().obfuscateId()} user")
+        notificationManagerCompat.deleteNotificationChannelGroup(NotificationConstants.getChanelGroupIdForUser(userId))
     }
 
     /**
@@ -54,7 +56,7 @@ class NotificationChannelsManager @Inject constructor(
      */
     @RequiresApi(Build.VERSION_CODES.O)
     private fun createNotificationChannelGroup(userId: UserId, userName: String): String {
-        val chanelGroupId = getChanelGroupIdForUser(userId)
+        val chanelGroupId = NotificationConstants.getChanelGroupIdForUser(userId)
         val channelGroup = NotificationChannelGroup(
             chanelGroupId,
             getChanelGroupNameForUser(userName)
@@ -70,7 +72,7 @@ class NotificationChannelsManager @Inject constructor(
             .setUsage(getAudioAttributeUsageByOsLevel())
             .build()
 
-        val chanelId = getChanelIdForUser(userId, NotificationConstants.INCOMING_CALL_CHANNEL_ID)
+        val chanelId = NotificationConstants.getIncomingChannelId(userId)
         val notificationChannel = NotificationChannelCompat
             .Builder(chanelId, NotificationManagerCompat.IMPORTANCE_HIGH)
             .setName(NotificationConstants.INCOMING_CALL_CHANNEL_NAME)
@@ -84,7 +86,7 @@ class NotificationChannelsManager @Inject constructor(
     }
 
     private fun createOngoingNotificationChannel(groupId: String, userId: UserId) {
-        val chanelId = getChanelIdForUser(userId, NotificationConstants.ONGOING_CALL_CHANNEL_ID)
+        val chanelId = NotificationConstants.getOngoingChannelId(userId)
         val notificationChannel = NotificationChannelCompat
             .Builder(chanelId, NotificationManagerCompat.IMPORTANCE_MAX)
             .setName(NotificationConstants.ONGOING_CALL_CHANNEL_NAME)
@@ -99,7 +101,7 @@ class NotificationChannelsManager @Inject constructor(
 
     private fun createMessagesNotificationChannel(userId: UserId, channelGroupId: String) {
         val notificationChannel = NotificationChannelCompat
-            .Builder(getChanelIdForUser(userId, NotificationConstants.MESSAGE_CHANNEL_ID), NotificationManagerCompat.IMPORTANCE_HIGH)
+            .Builder(NotificationConstants.getMessagesChannelId(userId), NotificationManagerCompat.IMPORTANCE_HIGH)
             .setName(NotificationConstants.MESSAGE_CHANNEL_NAME)
             .setGroup(channelGroupId)
             .build()
@@ -124,17 +126,7 @@ class NotificationChannelsManager @Inject constructor(
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) AudioAttributes.USAGE_NOTIFICATION_RINGTONE else AudioAttributes.USAGE_MEDIA
 
     companion object {
-        /**
-         * @return NotificationChannelId [String] specific for user, use it to post a notifications.
-         * @param userId [UserId] which received the notification
-         * @param channelIdPrefix prefix of the NotificationChannelId,
-         * one of [NotificationConstants.ONGOING_CALL_CHANNEL_ID], [NotificationConstants.INCOMING_CALL_CHANNEL_ID],
-         * [NotificationConstants.MESSAGE_CHANNEL_ID].
-         */
-        fun getChanelIdForUser(userId: UserId, channelIdPrefix: String): String = "$channelIdPrefix.$userId"
-
-        private fun getChanelGroupIdForUser(userId: UserId): String = "${NotificationConstants.CHANNEL_GROUP_ID}.$userId"
-        private fun getChanelGroupNameForUser(userName: String): String = "${NotificationConstants.CHANNEL_GROUP_NAME} $userName"
+        private fun getChanelGroupNameForUser(userName: String): String = userName
 
         private const val TAG = "NotificationChannelsManager"
     }

@@ -32,12 +32,12 @@ class MessageNotificationManager
     private val notificationManagerCompat: NotificationManagerCompat,
     private val notificationManager: NotificationManager
 ) {
-    fun handleNotification(newNotifications: List<LocalNotificationConversation>, userId: QualifiedID) {
+    fun handleNotification(newNotifications: List<LocalNotificationConversation>, userId: QualifiedID, userName: String) {
         if (newNotifications.isEmpty()) return
 
         val activeNotifications: Array<StatusBarNotification> = notificationManager.activeNotifications ?: arrayOf()
 
-        showSummaryIfNeeded(userId, activeNotifications)
+        showSummaryIfNeeded(userId, activeNotifications, userName)
         newNotifications.forEach {
             showConversationNotification(it.intoNotificationConversation(), userId, activeNotifications)
         }
@@ -45,26 +45,32 @@ class MessageNotificationManager
         appLogger.i("$TAG: handled notifications: newNotifications size ${newNotifications.size}; ")
     }
 
-    fun hideNotification(conversationsId: ConversationId) {
+    fun hideNotification(conversationsId: ConversationId, userId: QualifiedID) {
         val notificationId = getConversationNotificationId(conversationsId)
 
-        if (isThereAnyOtherWireNotification(notificationId)) {
+        if (isThereAnyOtherWireNotification(notificationId, userId)) {
             notificationManagerCompat.cancel(notificationId)
         } else {
-            hideAllNotifications()
+            hideAllNotificationsForUser(userId)
         }
     }
 
     fun hideAllNotifications() {
-        // removing groupSummary removes all the notifications in a group
-        notificationManagerCompat.cancel(NotificationConstants.MESSAGE_SUMMARY_ID)
+        notificationManager.activeNotifications
+            ?.filter { it.groupKey.contains(NotificationConstants.getMessagesGroupKey(null)) }
+            ?.forEach { notificationManagerCompat.cancel(it.id) }
     }
 
-    private fun showSummaryIfNeeded(userId: QualifiedID, activeNotifications: Array<StatusBarNotification>) {
-        if (activeNotifications.find { it.id == NotificationConstants.MESSAGE_SUMMARY_ID } != null) return
+    fun hideAllNotificationsForUser(userId: QualifiedID) {
+        // removing groupSummary removes all the notifications in a group
+        notificationManagerCompat.cancel(NotificationConstants.getMessagesSummaryId(userId))
+    }
+
+    private fun showSummaryIfNeeded(userId: QualifiedID, activeNotifications: Array<StatusBarNotification>, userName: String) {
+        if (activeNotifications.find { it.id == NotificationConstants.getMessagesSummaryId(userId) } != null) return
 
         appLogger.i("$TAG adding groupSummary")
-        notificationManager.notify(NotificationConstants.MESSAGE_SUMMARY_ID, getSummaryNotification(userId))
+        notificationManager.notify(NotificationConstants.getMessagesSummaryId(userId), getSummaryNotification(userId, userName))
     }
 
     private fun showConversationNotification(
@@ -79,11 +85,12 @@ class MessageNotificationManager
         }
     }
 
-    private fun getSummaryNotification(userId: QualifiedID): Notification {
-        val channelId = NotificationChannelsManager.getChanelIdForUser(userId, NotificationConstants.MESSAGE_CHANNEL_ID)
+    private fun getSummaryNotification(userId: QualifiedID, userName: String): Notification {
+        val channelId = NotificationConstants.getMessagesChannelId(userId)
         return NotificationCompat.Builder(context, channelId)
             .setSmallIcon(R.drawable.notification_icon_small)
-            .setGroup(NotificationConstants.MESSAGE_GROUP_KEY)
+            .setGroup(NotificationConstants.getMessagesGroupKey(userId))
+            .setStyle(NotificationCompat.InboxStyle().setSummaryText(userName))
             .setGroupSummary(true)
             .setAutoCancel(true)
             .setDefaults(NotificationCompat.DEFAULT_ALL)
@@ -228,12 +235,12 @@ class MessageNotificationManager
      * @return true if there is at least one Wire message notification except the Summary notification
      * and notification with id [exceptNotificationId]
      */
-    private fun isThereAnyOtherWireNotification(exceptNotificationId: Int): Boolean {
+    private fun isThereAnyOtherWireNotification(exceptNotificationId: Int, userId: QualifiedID): Boolean {
         return notificationManager.activeNotifications
             ?.any {
-                it.groupKey.endsWith(NotificationConstants.MESSAGE_GROUP_KEY)
+                it.groupKey.endsWith(NotificationConstants.getMessagesGroupKey(userId))
                         && it.id != exceptNotificationId
-                        && it.id != NotificationConstants.MESSAGE_SUMMARY_ID
+                        && it.id != NotificationConstants.getMessagesSummaryId(userId)
             }
             ?: false
     }
@@ -298,7 +305,7 @@ class MessageNotificationManager
          * @return resulted [NotificationCompat.Builder] so we can set other specific parameters and build it.
          */
         private fun setUpNotificationBuilder(context: Context, userId: QualifiedID): NotificationCompat.Builder {
-            val channelId = NotificationChannelsManager.getChanelIdForUser(userId, NotificationConstants.MESSAGE_CHANNEL_ID)
+            val channelId = NotificationConstants.getMessagesChannelId(userId)
             return NotificationCompat.Builder(context, channelId).apply {
                 setDefaults(NotificationCompat.DEFAULT_ALL)
 
@@ -306,7 +313,7 @@ class MessageNotificationManager
                 setCategory(NotificationCompat.CATEGORY_MESSAGE)
 
                 setSmallIcon(R.drawable.notification_icon_small)
-                setGroup(NotificationConstants.MESSAGE_GROUP_KEY)
+                setGroup(NotificationConstants.getMessagesGroupKey(userId))
                 setAutoCancel(true)
             }
         }

@@ -13,6 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import com.wire.android.R
 import com.wire.android.ui.common.colorsScheme
@@ -21,7 +22,7 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.stringWithStyledArgs
 
 @Composable
-fun DeletedUserMessage() {
+fun BlockedUserComposerInput() {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
@@ -39,11 +40,12 @@ fun DeletedUserMessage() {
         )
         Text(
             text = LocalContext.current.resources.stringWithStyledArgs(
-                R.string.label_system_message_user_not_available,
+                R.string.label_system_message_blocked_user,
                 MaterialTheme.wireTypography.body01,
                 MaterialTheme.wireTypography.body02,
                 colorsScheme().secondaryText,
                 colorsScheme().onBackground,
+                stringResource(id = R.string.member_name_you_label_titlecase)
             ),
             style = MaterialTheme.wireTypography.body01,
             maxLines = 1,

@@ -57,6 +57,7 @@ import com.wire.android.ui.home.conversations.ConversationSnackbarMessages
 import com.wire.android.ui.home.conversations.mention.MemberItemToMention
 import com.wire.android.ui.home.conversations.messages.QuotedMessagePreview
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
+import com.wire.android.ui.home.conversations.model.QuotedMessageUIData
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.messagecomposer.attachment.AttachmentOptions
 import com.wire.android.ui.home.newconversation.model.Contact
@@ -137,13 +138,6 @@ fun MessageComposer(
     }
 }
 
-/*
-* Message composer is a UI widget that handles the UI logic of sending messages,
-* it is a wrapper around the "hosting" widget. It receives a [messageText] and
-* exposes a [onMessageChanged] lambda, giving us the option to control its Message Text from outside the Widget.
-* it also exposes [onSendButtonClicked] lambda's giving us the option to handle the different message actions
-* */
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 private fun MessageComposer(
     messagesContent: @Composable () -> Unit,
@@ -166,17 +160,9 @@ private fun MessageComposer(
             targetState = messageComposerState.messageComposeInputState,
             label = stringResource(R.string.animation_label_messagecomposeinput_state_transistion)
         )
-        // ConstraintLayout wrapping the whole content to give us the possibility to constrain SendButton to top of AdditionalOptions, which
-        // constrains to bottom of MessageComposerInput
-        // so that MessageComposerInput is the only component animating freely, when going to Fullscreen mode
         ConstraintLayout(
             Modifier.fillMaxSize()
         ) {
-            // This guide line is used was when the attachment options are visible
-            // we need to use it to correctly offset the MessageComposerInput so that it is on a static place on the screen
-            // to avoid reposition when the keyboard is hiding, this guideline makes space for the keyboard as well as for the
-            // AttachmentOptions, the offset is set to DEFAULT_KEYBOARD_TOP_SCREEN_OFFSET as default, whenever the keyboard pops up
-            // we are able to calculate the actual needed offset, so that it is equal to the height of the keyboard the user is using
             val topOfKeyboardGuideLine = createGuidelineFromTop(
                 offset = messageComposerState.fullScreenHeight - messageComposerState.keyboardHeight.height
             )
@@ -211,8 +197,8 @@ private fun MessageComposer(
                             )
                         }
                         .fillMaxWidth()
-                        .weight(1f)
                         .padding(bottom = dimensions().spacing8x)
+                        .weight(1f)
                 ) {
                     messagesContent()
                     MembersMentionList(
@@ -221,83 +207,35 @@ private fun MessageComposer(
                     )
                 }
 
-                when (interactionAvailability) {
-                    InteractionAvailability.BLOCKED_USER -> BlockedUserMessage()
-                    InteractionAvailability.DELETED_USER -> DeletedUserMessage()
-                    InteractionAvailability.NOT_MEMBER, InteractionAvailability.DISABLED -> {}
-                    InteractionAvailability.ENABLED -> {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .wrapContentHeight()
-                        ) {
-                            val isClassifiedConversation = securityClassificationType != SecurityClassificationType.NONE
-                            if (isClassifiedConversation) {
-                                Box(Modifier.wrapContentSize()) {
-                                    VerticalSpace.x8()
-                                    SecurityClassificationBanner(securityClassificationType = securityClassificationType)
-                                }
-                            }
-                            Divider()
-                            CollapseIconButtonBox(
-                                transition = transition,
-                                messageComposerState = messageComposerState
-                            )
-                            if (messageReplyState != null) {
-                                Row(modifier = Modifier.padding(horizontal = dimensions().spacing8x)) {
-                                    QuotedMessagePreview(
-                                        quotedMessageData = messageReplyState,
-                                        onCancelReply = messageComposerState::cancelReply
-                                    )
-                                }
-                            }
-                            // Row wrapping the AdditionalOptionButton() when we are in Enabled state and MessageComposerInput()
-                            // when we are in the Fullscreen state, we want to align the TextField to Top of the Row,
-                            // when other we center it vertically. Once we go to Fullscreen, we set the weight to 1f
-                            // so that it fills the whole Row which is = height of the whole screen - height of TopBar -
-                            // - height of container with additional options
-                        }
-                        Column {
-                            var currentSelectedLineIndex by remember {
-                                mutableStateOf(0)
-                            }
-
-                            var cursorCoordinateY by remember {
-                                mutableStateOf(0F)
-                            }
-
-                            MessageInput(
-                                transition = transition,
-                                messageComposerState = messageComposerState,
-                                interactionAvailability = interactionAvailability,
-                                onSendButtonClicked = onSendButtonClicked,
-                                onLineBottomYCoordinateChanged = { },
-                                onSelectedLineIndexChanged = { }
-                            )
-
-                            if (membersToMention.isNotEmpty() && messageComposerState.messageComposeInputState == MessageComposeInputState.FullScreen)
-                                DropDownMentionsSuggestions(currentSelectedLineIndex, cursorCoordinateY, membersToMention, onMentionPicked)
-                        }
-                    }
-                }
-            }
-            // Box wrapping for additional options content
-            // we want to offset the AttachmentOptionsComponent equal to where
-            // the device keyboard is displayed, so that when the keyboard is closed,
-            // we get the effect of overlapping it
-            if (messageComposerState.attachmentOptionsDisplayed && interactionAvailability == InteractionAvailability.ENABLED) {
-                AttachmentOptions(
-                    messageComposerState = messageComposerState,
-                    onSendAttachment = onSendAttachmentClicked,
-                    onMessageComposerError = onMessageComposerError,
-                    isFileSharingEnabled = isFileSharingEnabled,
-                    tempCachePath = tempCachePath,
-                    Modifier
-                        .fillMaxWidth()
-                        .height(messageComposerState.keyboardHeight.height)
-                        .absoluteOffset(y = messageComposerState.fullScreenHeight - messageComposerState.keyboardHeight.height)
+                MessageComposerInput(
+                    transition = transition,
+                    messageComposerInnerState = messageComposerState,
+                    interactionAvailability = interactionAvailability,
+                    securityClassificationType = securityClassificationType,
+                    membersToMention = membersToMention,
+                    onMentionPicked = onMentionPicked,
+                    onSendButtonClicked = onSendButtonClicked,
+                    onToggleFullScreen = messageComposerState::toggleFullScreen,
+                    onCancelReply = messageComposerState::cancelReply,
                 )
             }
+        }
+        // Box wrapping for additional options content
+        // we want to offset the AttachmentOptionsComponent equal to where
+        // the device keyboard is displayed, so that when the keyboard is closed,
+        // we get the effect of overlapping it
+        if (messageComposerState.attachmentOptionsDisplayed && interactionAvailability == InteractionAvailability.ENABLED) {
+            AttachmentOptions(
+                messageComposerState = messageComposerState,
+                onSendAttachment = onSendAttachmentClicked,
+                onMessageComposerError = onMessageComposerError,
+                isFileSharingEnabled = isFileSharingEnabled,
+                tempCachePath = tempCachePath,
+                Modifier
+                    .fillMaxWidth()
+                    .height(messageComposerState.keyboardHeight.height)
+                    .absoluteOffset(y = messageComposerState.fullScreenHeight - messageComposerState.keyboardHeight.height)
+            )
         }
     }
 
@@ -306,14 +244,64 @@ private fun MessageComposer(
     }
 }
 
+@Composable
+fun MessageComposerInput(
+    transition: Transition<MessageComposeInputState>,
+    interactionAvailability: InteractionAvailability,
+    securityClassificationType: SecurityClassificationType,
+    messageComposerInnerState: MessageComposerInnerState,
+    membersToMention: List<Contact>,
+    onSendButtonClicked: () -> Unit,
+    onToggleFullScreen: () -> Unit,
+    onMentionPicked: (Contact) -> Unit,
+    onCancelReply: () -> Unit
+) {
+    when (interactionAvailability) {
+        InteractionAvailability.BLOCKED_USER -> BlockedUserComposerInput()
+        InteractionAvailability.DELETED_USER -> DeletedUserComposerInput()
+        InteractionAvailability.NOT_MEMBER, InteractionAvailability.DISABLED -> {}
+        InteractionAvailability.ENABLED -> {
+            Column {
+                var currentSelectedLineIndex by remember {
+                    mutableStateOf(0)
+                }
+
+                var cursorCoordinateY by remember {
+                    mutableStateOf(0F)
+                }
+
+                MessageComposeInput(
+                    transition = transition,
+                    messageComposerState = messageComposerInnerState,
+                    quotedMessageData = messageComposerInnerState.quotedMessageData,
+                    securityClassificationType = securityClassificationType,
+                    onCancelReply = onCancelReply,
+                    onToggleFullScreen = onToggleFullScreen,
+                    onSendButtonClicked = onSendButtonClicked,
+                    onSelectedLineIndexChange = { currentSelectedLineIndex = it },
+                    onLineBottomCoordinateChange = { cursorCoordinateY = it },
+                )
+
+                if (membersToMention.isNotEmpty() && messageComposerInnerState.messageComposeInputState == MessageComposeInputState.FullScreen)
+                    DropDownMentionsSuggestions(currentSelectedLineIndex, cursorCoordinateY, membersToMention, onMentionPicked)
+            }
+        }
+    }
+}
+
+
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
-private fun MessageInput(
+private fun MessageComposeInput(
     transition: Transition<MessageComposeInputState>,
     messageComposerState: MessageComposerInnerState,
-
-    cancelReply: () -> Unit,
-    toggleFullScreen: () -> Unit,
+    quotedMessageData: QuotedMessageUIData?,
+    securityClassificationType: SecurityClassificationType,
+    onCancelReply: () -> Unit,
+    onToggleFullScreen: () -> Unit,
+    onSendButtonClicked: () -> Unit,
+    onSelectedLineIndexChange: (Int) -> Unit,
+    onLineBottomCoordinateChange: (Float) -> Unit,
 ) {
     Column(
         modifier = Modifier
@@ -330,15 +318,14 @@ private fun MessageInput(
         Divider()
         CollapseIconButtonBox(
             transition = transition,
-            toggleFullScreen = messageComposerState::toggleFullScreen
+            toggleFullScreen = onToggleFullScreen
         )
-        val quotedMessageData = messageComposerState.quotedMessageData
 
         if (quotedMessageData != null) {
             Row(modifier = Modifier.padding(horizontal = dimensions().spacing8x)) {
                 QuotedMessagePreview(
                     quotedMessageData = quotedMessageData,
-                    onCancelReply = messageComposerState::cancelReply
+                    onCancelReply = onCancelReply
                 )
             }
         }
@@ -350,10 +337,9 @@ private fun MessageInput(
         MessageComposerInputRow(
             transition = transition,
             messageComposerState = messageComposerState,
-            membersToMention = membersToMention,
-            onMentionPicked = onMentionPicked,
-            interactionAvailability = interactionAvailability,
             onSendButtonClicked = onSendButtonClicked,
+            onSelectedLineIndexChanged = onSelectedLineIndexChange,
+            onLineBottomYCoordinateChanged = onLineBottomCoordinateChange,
         )
     }
 }

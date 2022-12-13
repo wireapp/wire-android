@@ -4,7 +4,6 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Transition
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
@@ -16,10 +15,6 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
@@ -30,9 +25,7 @@ import com.wire.android.R
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.wireTextFieldColors
-import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.ui.theme.wireTypography
-import com.wire.kalium.logic.feature.conversation.InteractionAvailability
 
 @ExperimentalAnimationApi
 @Composable
@@ -59,7 +52,7 @@ fun ColumnScope.MessageComposerInputRow(
             )
     ) {
         transition.AnimatedVisibility(
-            visible = { messageComposerState.messageComposeInputState == MessageComposeInputState.Enabled }
+            visible = { it == MessageComposeInputState.Enabled }
         ) {
             Box(modifier = Modifier.padding(start = dimensions().spacing8x)) {
                 AdditionalOptionButton(messageComposerState.attachmentOptionsDisplayed) {
@@ -108,18 +101,14 @@ fun ColumnScope.MessageComposerInputRow(
                         }
                     )
                     .animateContentSize(),
-                onSelectedLineIndexChanged = {
-                    currentSelectedLineIndex = it
-                },
-                onLineBottomYCoordinateChanged = {
-                    cursorCoordinateY = it
-                }
+                onSelectedLineIndexChanged = onSelectedLineIndexChanged,
+                onLineBottomYCoordinateChanged = onLineBottomYCoordinateChanged
             )
 
             SendActions(
-                messageComposerState = messageComposerState,
                 transition = transition,
                 onSendButtonClicked = onSendButtonClicked,
+                sendButtonEnabled = messageComposerState.sendButtonEnabled,
                 modifier = Modifier.align(Alignment.BottomEnd)
             )
         }

@@ -37,6 +37,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.focus.FocusManager
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
@@ -153,7 +155,6 @@ private fun MessageComposer(
     onMentionPicked: (Contact) -> Unit
 ) {
     val focusManager = LocalFocusManager.current
-    val messageReplyState = messageComposerState.quotedMessageData
 
     Surface {
         val transition = updateTransition(
@@ -211,6 +212,7 @@ private fun MessageComposer(
                 MessageComposerInput(
                     transition = transition,
                     messageComposerInnerState = messageComposerState,
+                    focusManager = focusManager,
                     interactionAvailability = interactionAvailability,
                     securityClassificationType = securityClassificationType,
                     membersToMention = membersToMention,
@@ -245,10 +247,12 @@ private fun MessageComposer(
     }
 }
 
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun MessageComposerInput(
     transition: Transition<MessageComposeInputState>,
     interactionAvailability: InteractionAvailability,
+    focusManager: FocusManager,
     securityClassificationType: SecurityClassificationType,
     messageComposerInnerState: MessageComposerInnerState,
     membersToMention: List<Contact>,
@@ -282,7 +286,12 @@ fun MessageComposerInput(
                     onSelectedLineIndexChange = { currentSelectedLineIndex = it },
                     onLineBottomCoordinateChange = { cursorCoordinateY = it },
                 )
-
+                MessageComposeActionsBox(
+                    transition,
+                    messageComposerInnerState,
+                    focusManager,
+                    membersToMention.isNotEmpty()
+                )
                 if (membersToMention.isNotEmpty() && messageComposerInnerState.messageComposeInputState == MessageComposeInputState.FullScreen)
                     DropDownMentionsSuggestions(currentSelectedLineIndex, cursorCoordinateY, membersToMention, onMentionPicked)
             }

@@ -120,7 +120,7 @@ class MessageMapper @Inject constructor(
             is OtherUser -> sender.isUnavailableUser
             is SelfUser, null -> false
         },
-        clientId = (message as? Message.Sendable)?.senderClientId
+        clientId = (message as Message.Regular).senderClientId
     )
 
     private fun getMessageStatus(message: Message.Standalone) = when {

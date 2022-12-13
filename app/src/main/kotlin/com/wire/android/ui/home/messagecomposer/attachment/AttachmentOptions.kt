@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.absoluteOffset
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -89,7 +90,7 @@ private fun AttachmentOptionsComponent(
 
     LazyVerticalGrid(
         columns = GridCells.Adaptive(dimensions().spacing80x),
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxSize(),
         contentPadding = PaddingValues(dimensions().spacing8x),
         verticalArrangement = Arrangement.SpaceEvenly,
         horizontalArrangement = Arrangement.Center

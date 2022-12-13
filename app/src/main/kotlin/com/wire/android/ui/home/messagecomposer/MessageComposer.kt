@@ -123,6 +123,7 @@ fun MessageComposer(
             if (!isKeyboardVisible && !messageComposerState.attachmentOptionsDisplayed) {
                 messageComposerState.toEnabled()
                 messageComposerState.focusManager.clearFocus()
+                messageComposerState.cancelReply()
             }
         }
 
@@ -168,7 +169,7 @@ private fun MessageComposer(
                 offset = messageComposerState.fullScreenHeight - messageComposerState.keyboardHeight.height
             )
 
-            val messageComposer = createRef()
+            val (messageComposer, attachmentOptions) = createRefs()
 
             Column(
                 Modifier
@@ -183,6 +184,7 @@ private fun MessageComposer(
 
                         height = Dimension.fillToConstraints
                     }
+                    .wrapContentHeight()
                     .fillMaxWidth()
             ) {
                 Box(
@@ -199,6 +201,7 @@ private fun MessageComposer(
                             )
                         }
                         .fillMaxWidth()
+                        .wrapContentHeight()
                         .padding(bottom = dimensions().spacing8x)
                         .weight(1f)
                 ) {
@@ -221,29 +224,39 @@ private fun MessageComposer(
                     onCancelReply = messageComposerState::cancelReply,
                 )
             }
+
+            // Box wrapping for additional options content
+            // we want to offset the AttachmentOptionsComponent equal to where
+            // the device keyboard is displayed, so that when the keyboard is closed,
+            // we get the effect of overlapping it
+            if (messageComposerState.attachmentOptionsDisplayed && interactionAvailability == InteractionAvailability.ENABLED) {
+                AttachmentOptions(
+                    attachmentInnerState = messageComposerState.attachmentInnerState,
+                    onSendAttachment = onSendAttachmentClicked,
+                    onMessageComposerError = onMessageComposerError,
+                    isFileSharingEnabled = isFileSharingEnabled,
+                    tempCachePath = tempCachePath,
+                    Modifier
+                        .constrainAs(attachmentOptions) {
+                            top.linkTo(topOfKeyboardGuideLine)
+                            bottom.linkTo(parent.bottom)
+                            start.linkTo(parent.start)
+                            end.linkTo(parent.end)
+
+                            height = Dimension.fillToConstraints
+                        }
+                        .fillMaxWidth()
+
+                )
+            }
         }
-        // Box wrapping for additional options content
-        // we want to offset the AttachmentOptionsComponent equal to where
-        // the device keyboard is displayed, so that when the keyboard is closed,
-        // we get the effect of overlapping it
-        if (messageComposerState.attachmentOptionsDisplayed && interactionAvailability == InteractionAvailability.ENABLED) {
-            AttachmentOptions(
-                attachmentInnerState = messageComposerState.attachmentInnerState,
-                onSendAttachment = onSendAttachmentClicked,
-                onMessageComposerError = onMessageComposerError,
-                isFileSharingEnabled = isFileSharingEnabled,
-                tempCachePath = tempCachePath,
-                Modifier
-                    .fillMaxWidth()
-                    .height(messageComposerState.keyboardHeight.height)
-                    .absoluteOffset(y = messageComposerState.fullScreenHeight - messageComposerState.keyboardHeight.height)
-            )
-        }
+
     }
 
     BackHandler(messageComposerState.attachmentOptionsDisplayed) {
         messageComposerState.hideAttachmentOptions()
         messageComposerState.toEnabled()
+        messageComposerState.cancelReply()
     }
 }
 

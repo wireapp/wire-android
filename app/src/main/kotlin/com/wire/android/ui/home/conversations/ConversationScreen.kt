@@ -39,6 +39,7 @@ import com.wire.android.navigation.hiltSavedStateViewModel
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
 import com.wire.android.ui.common.dialogs.CallingFeatureUnavailableDialog
 import com.wire.android.ui.common.dialogs.OngoingActiveCallDialog
+import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.error.CoreFailureErrorDialog
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.common.topappbar.CommonTopAppBar

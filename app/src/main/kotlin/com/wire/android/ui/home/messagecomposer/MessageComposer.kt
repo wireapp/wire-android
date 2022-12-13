@@ -243,6 +243,7 @@ private fun MessageComposer(
 
     BackHandler(messageComposerState.attachmentOptionsDisplayed) {
         messageComposerState.hideAttachmentOptions()
+        messageComposerState.toEnabled()
     }
 }
 

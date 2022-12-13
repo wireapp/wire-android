@@ -339,6 +339,8 @@ private fun ConversationScreen(
                 keyboardHeight = KeyboardHeight.Known(keyboardOffset)
             }
 
+            val isKeyboardVisible = currentScreenHeight != fullScreenHeight
+
             Scaffold(
                 topBar = {
                     Column {
@@ -373,25 +375,26 @@ private fun ConversationScreen(
                             tempCachePath = tempCachePath,
                             fullScreenHeight = fullScreenHeight,
                             keyboardHeight = keyboardHeight,
-                            membersToMention = membersToMention,
-                            isFileSharingEnabled = conversationViewState.isFileSharingEnabled,
-                            lastUnreadMessageInstant = conversationMessagesViewState.firstUnreadInstant,
-                            conversationState = conversationViewState,
-                            conversationScreenState = conversationScreenState,
-                            messageComposerInnerState = messageComposerInnerState,
-                            messages = conversationMessagesViewState.messages,
-                            onSendMessage = onSendMessage,
-                            onSendAttachment = onSendAttachment,
-                            onMentionMember = onMentionMember,
-                            onDownloadAsset = onDownloadAsset,
-                            onImageFullScreenMode = onImageFullScreenMode,
-                            onReactionClicked = onReactionClick,
-                            onOpenProfile = onOpenProfile,
-                            onUpdateConversationReadDate = onUpdateConversationReadDate,
-                            onMessageComposerError = onSnackbarMessage,
-                            onShowContextMenu = conversationScreenState::showEditContextMenu,
-                            onSnackbarMessageShown = onSnackbarMessageShown,
-                            snackbarMessage = conversationViewState.snackbarMessage ?: conversationMessagesViewState.snackbarMessage
+                            isKeyboardVisible = isKeyboardVisible,
+                        membersToMention = membersToMention,
+                        isFileSharingEnabled = conversationViewState.isFileSharingEnabled,
+                        lastUnreadMessageInstant = conversationMessagesViewState.firstUnreadInstant,
+                        conversationState = conversationViewState,
+                        conversationScreenState = conversationScreenState,
+                        messageComposerInnerState = messageComposerInnerState,
+                        messages = conversationMessagesViewState.messages,
+                        onSendMessage = onSendMessage,
+                        onSendAttachment = onSendAttachment,
+                        onMentionMember = onMentionMember,
+                        onDownloadAsset = onDownloadAsset,
+                        onImageFullScreenMode = onImageFullScreenMode,
+                        onReactionClicked = onReactionClick,
+                        onOpenProfile = onOpenProfile,
+                        onUpdateConversationReadDate = onUpdateConversationReadDate,
+                        onMessageComposerError = onSnackbarMessage,
+                        onShowContextMenu = conversationScreenState::showEditContextMenu,
+                        onSnackbarMessageShown = onSnackbarMessageShown,
+                        snackbarMessage = conversationViewState.snackbarMessage ?: conversationMessagesViewState.snackbarMessage
                         )
                     }
                 }
@@ -406,6 +409,7 @@ private fun ConversationScreenContent(
     interactionAvailability: InteractionAvailability,
     tempCachePath: Path,
     keyboardHeight: KeyboardHeight,
+    isKeyboardVisible: Boolean,
     fullScreenHeight: Dp,
     membersToMention: List<Contact>,
     isFileSharingEnabled: Boolean,
@@ -437,6 +441,7 @@ private fun ConversationScreenContent(
     MessageComposer(
         messageComposerState = messageComposerInnerState,
         keyboardHeight = keyboardHeight,
+        isKeyboardVisible = isKeyboardVisible,
         fullScreenHeight = fullScreenHeight,
         messageContent = {
             MessageList(

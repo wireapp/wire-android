@@ -37,10 +37,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
@@ -71,6 +69,7 @@ import okio.Path
 fun MessageComposer(
     messageComposerState: MessageComposerInnerState,
     keyboardHeight: KeyboardHeight,
+    isKeyboardVisible: Boolean,
     fullScreenHeight: Dp,
     messageContent: @Composable () -> Unit,
     onSendTextMessage: (String, List<UiMention>, messageId: String?) -> Unit,
@@ -84,7 +83,6 @@ fun MessageComposer(
     membersToMention: List<Contact>
 ) {
     messageComposerState.fullScreenHeight = fullScreenHeight
-    messageComposerState.keyboardHeight = keyboardHeight
 
     BoxWithConstraints {
         val onSendButtonClicked = remember {
@@ -118,8 +116,13 @@ fun MessageComposer(
         }
 
         LaunchedEffect(keyboardHeight) {
-            if (keyboardHeight is KeyboardHeight.Known) {
-                val test = messageComposerState.fullScreenHeight
+            messageComposerState.keyboardHeight = keyboardHeight
+        }
+
+        LaunchedEffect(isKeyboardVisible) {
+            if (!isKeyboardVisible && !messageComposerState.attachmentOptionsDisplayed) {
+                messageComposerState.toEnabled()
+                messageComposerState.focusManager.clearFocus()
             }
         }
 
@@ -153,8 +156,6 @@ private fun MessageComposer(
     onSendButtonClicked: () -> Unit,
     onMentionPicked: (Contact) -> Unit
 ) {
-    val focusManager = LocalFocusManager.current
-
     Surface {
         val transition = updateTransition(
             targetState = messageComposerState.messageComposeInputState,
@@ -189,7 +190,7 @@ private fun MessageComposer(
                         .pointerInput(Unit) {
                             detectTapGestures(
                                 onPress = {
-                                    focusManager.clearFocus()
+                                    messageComposerState.focusManager.clearFocus()
                                     messageComposerState.toEnabled()
                                 },
                                 onDoubleTap = { /* Called on Double Tap */ },
@@ -211,7 +212,6 @@ private fun MessageComposer(
                 MessageComposerInput(
                     transition = transition,
                     messageComposerInnerState = messageComposerState,
-                    focusManager = focusManager,
                     interactionAvailability = interactionAvailability,
                     securityClassificationType = securityClassificationType,
                     membersToMention = membersToMention,
@@ -251,7 +251,6 @@ private fun MessageComposer(
 fun MessageComposerInput(
     transition: Transition<MessageComposeInputState>,
     interactionAvailability: InteractionAvailability,
-    focusManager: FocusManager,
     securityClassificationType: SecurityClassificationType,
     messageComposerInnerState: MessageComposerInnerState,
     membersToMention: List<Contact>,
@@ -288,7 +287,6 @@ fun MessageComposerInput(
                 MessageComposeActionsBox(
                     transition,
                     messageComposerInnerState,
-                    focusManager,
                     membersToMention.isNotEmpty()
                 )
                 if (membersToMention.isNotEmpty()

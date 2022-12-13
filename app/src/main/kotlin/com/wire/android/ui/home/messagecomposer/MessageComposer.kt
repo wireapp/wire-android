@@ -38,7 +38,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.focus.FocusManager
-import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
@@ -292,8 +291,11 @@ fun MessageComposerInput(
                     focusManager,
                     membersToMention.isNotEmpty()
                 )
-                if (membersToMention.isNotEmpty() && messageComposerInnerState.messageComposeInputState == MessageComposeInputState.FullScreen)
+                if (membersToMention.isNotEmpty()
+                    && messageComposerInnerState.messageComposeInputState == MessageComposeInputState.FullScreen
+                ) {
                     DropDownMentionsSuggestions(currentSelectedLineIndex, cursorCoordinateY, membersToMention, onMentionPicked)
+                }
             }
         }
     }

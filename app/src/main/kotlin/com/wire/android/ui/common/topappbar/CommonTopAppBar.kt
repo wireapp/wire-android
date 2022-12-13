@@ -17,7 +17,6 @@ import androidx.compose.material.Text
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -35,7 +34,6 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.kalium.logic.data.id.ConversationId
-import kotlinx.coroutines.delay
 
 @Composable
 fun CommonTopAppBar(
@@ -70,23 +68,11 @@ private fun ConnectivityStatusBar(
 
         ConnectivityUIState.Info.None -> lastVisibleBackgroundColor
     }
-
-    /**
-     * Adding some delay here to avoid some bad UX : ongoing call banner displayed and hided in a short time when the user hangs up the call
-     * Call events could take some time to be received and this function could be called when the screen is changed, so we delayed
-     * showing the banner until getting the correct calling values
-     */
-    var shouldRunAfterDelay by remember { mutableStateOf(false) }
-    LaunchedEffect(key1 = Unit) {
-        if (connectivityInfo is ConnectivityUIState.Info.EstablishedCall)
-            delay(WAITING_TIME_TO_SHOW_ONGOING_CALL_BANNER)
-        shouldRunAfterDelay = isVisible
-    }
-    if (!isVisible && shouldRunAfterDelay) {
+    if (!isVisible) {
         clearStatusBarColor()
     }
 
-    if (isVisible && shouldRunAfterDelay) {
+    if (isVisible) {
         lastVisibleBackgroundColor = backgroundColor
         val darkIcons = MaterialTheme.wireColorScheme.connectivityBarShouldUseDarkIcons
         rememberSystemUiController().setStatusBarColor(
@@ -105,7 +91,7 @@ private fun ConnectivityStatusBar(
         }
 
     AnimatedVisibility(
-        visible = isVisible && shouldRunAfterDelay,
+        visible = isVisible,
         enter = expandIn(initialSize = { fullSize -> IntSize(fullSize.width, 0) }),
         exit = shrinkOut(targetSize = { fullSize -> IntSize(fullSize.width, 0) })
     ) {
@@ -247,4 +233,3 @@ fun CommonTopAppConnectionStatusIsNone() {
         onReturnToCallClick = { }
     )
 }
-private const val WAITING_TIME_TO_SHOW_ONGOING_CALL_BANNER = 500L

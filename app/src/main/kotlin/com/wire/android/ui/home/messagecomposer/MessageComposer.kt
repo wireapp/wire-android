@@ -182,6 +182,7 @@ private fun MessageComposer(
 
                         height = Dimension.fillToConstraints
                     }
+                    .fillMaxWidth()
             ) {
                 Box(
                     Modifier
@@ -226,7 +227,7 @@ private fun MessageComposer(
         // we get the effect of overlapping it
         if (messageComposerState.attachmentOptionsDisplayed && interactionAvailability == InteractionAvailability.ENABLED) {
             AttachmentOptions(
-                messageComposerState = messageComposerState,
+                attachmentInnerState = messageComposerState.attachmentInnerState,
                 onSendAttachment = onSendAttachmentClicked,
                 onMessageComposerError = onMessageComposerError,
                 isFileSharingEnabled = isFileSharingEnabled,
@@ -288,7 +289,6 @@ fun MessageComposerInput(
         }
     }
 }
-
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable

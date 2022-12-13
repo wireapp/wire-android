@@ -49,7 +49,7 @@ import okio.Path.Companion.toPath
 
 @Composable
 fun AttachmentOptions(
-    messageComposerState: MessageComposerInnerState,
+    attachmentInnerState: AttachmentInnerState,
     onSendAttachment: (AttachmentBundle?) -> Unit,
     onMessageComposerError: (ConversationSnackbarMessages) -> Unit,
     isFileSharingEnabled: Boolean,
@@ -61,7 +61,7 @@ fun AttachmentOptions(
     ) {
         Divider()
         AttachmentOptionsComponent(
-            messageComposerState.attachmentInnerState,
+            attachmentInnerState,
             onSendAttachment,
             onMessageComposerError,
             isFileSharingEnabled,

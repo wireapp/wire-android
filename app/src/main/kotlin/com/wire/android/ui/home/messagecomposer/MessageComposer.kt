@@ -260,9 +260,8 @@ private fun MessageComposer(
     }
 }
 
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
-fun MessageComposerInput(
+private fun MessageComposerInput(
     transition: Transition<MessageComposeInputState>,
     interactionAvailability: InteractionAvailability,
     securityClassificationType: SecurityClassificationType,
@@ -292,8 +291,9 @@ fun MessageComposerInput(
     }
 }
 
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
-fun EnabledMessageComposerInput(
+private fun EnabledMessageComposerInput(
     transition: Transition<MessageComposeInputState>,
     securityClassificationType: SecurityClassificationType,
     messageComposerInnerState: MessageComposerInnerState,

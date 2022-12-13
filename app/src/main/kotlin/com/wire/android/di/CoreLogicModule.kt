@@ -58,6 +58,7 @@ import com.wire.kalium.logic.feature.server.ServerConfigForAccountUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.GetSessionsUseCase
 import com.wire.kalium.logic.feature.session.UpdateCurrentSessionUseCase
+import com.wire.kalium.logic.feature.sessionreset.ResetSessionUseCase
 import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.GetUserInfoUseCase
@@ -842,9 +843,13 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
-    fun providesIsSelfTeamMemberUseCase(
+    fun provideIsSelfTeamMemberUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
     ): IsSelfATeamMemberUseCase = coreLogic.getSessionScope(currentAccount).team.isSelfATeamMember
 
+    @ViewModelScoped
+    @Provides
+    fun provideResetSessionUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId): ResetSessionUseCase =
+        coreLogic.getSessionScope(currentAccount).messages.resetSession
 }

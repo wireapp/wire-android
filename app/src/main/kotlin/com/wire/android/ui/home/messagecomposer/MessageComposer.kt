@@ -278,37 +278,60 @@ fun MessageComposerInput(
         InteractionAvailability.DELETED_USER -> DeletedUserComposerInput()
         InteractionAvailability.NOT_MEMBER, InteractionAvailability.DISABLED -> {}
         InteractionAvailability.ENABLED -> {
-            Column {
-                var currentSelectedLineIndex by remember {
-                    mutableStateOf(0)
-                }
+            EnabledMessageComposerInput(
+                transition = transition,
+                securityClassificationType = securityClassificationType,
+                messageComposerInnerState = messageComposerInnerState,
+                membersToMention = membersToMention,
+                onSendButtonClicked = onSendButtonClicked,
+                onToggleFullScreen = onToggleFullScreen,
+                onMentionPicked = onMentionPicked,
+                onCancelReply = onCancelReply
+            )
+        }
+    }
+}
 
-                var cursorCoordinateY by remember {
-                    mutableStateOf(0F)
-                }
+@Composable
+fun EnabledMessageComposerInput(
+    transition: Transition<MessageComposeInputState>,
+    securityClassificationType: SecurityClassificationType,
+    messageComposerInnerState: MessageComposerInnerState,
+    membersToMention: List<Contact>,
+    onSendButtonClicked: () -> Unit,
+    onToggleFullScreen: () -> Unit,
+    onMentionPicked: (Contact) -> Unit,
+    onCancelReply: () -> Unit
+) {
+    Column {
+        var currentSelectedLineIndex by remember {
+            mutableStateOf(0)
+        }
 
-                MessageComposeInput(
-                    transition = transition,
-                    messageComposerState = messageComposerInnerState,
-                    quotedMessageData = messageComposerInnerState.quotedMessageData,
-                    securityClassificationType = securityClassificationType,
-                    onCancelReply = onCancelReply,
-                    onToggleFullScreen = onToggleFullScreen,
-                    onSendButtonClicked = onSendButtonClicked,
-                    onSelectedLineIndexChange = { currentSelectedLineIndex = it },
-                    onLineBottomCoordinateChange = { cursorCoordinateY = it },
-                )
-                MessageComposeActionsBox(
-                    transition,
-                    messageComposerInnerState,
-                    membersToMention.isNotEmpty()
-                )
-                if (membersToMention.isNotEmpty()
-                    && messageComposerInnerState.messageComposeInputState == MessageComposeInputState.FullScreen
-                ) {
-                    DropDownMentionsSuggestions(currentSelectedLineIndex, cursorCoordinateY, membersToMention, onMentionPicked)
-                }
-            }
+        var cursorCoordinateY by remember {
+            mutableStateOf(0F)
+        }
+
+        MessageComposeInput(
+            transition = transition,
+            messageComposerState = messageComposerInnerState,
+            quotedMessageData = messageComposerInnerState.quotedMessageData,
+            securityClassificationType = securityClassificationType,
+            onCancelReply = onCancelReply,
+            onToggleFullScreen = onToggleFullScreen,
+            onSendButtonClicked = onSendButtonClicked,
+            onSelectedLineIndexChange = { currentSelectedLineIndex = it },
+            onLineBottomCoordinateChange = { cursorCoordinateY = it },
+        )
+        MessageComposeActionsBox(
+            transition,
+            messageComposerInnerState,
+            membersToMention.isNotEmpty()
+        )
+        if (membersToMention.isNotEmpty()
+            && messageComposerInnerState.messageComposeInputState == MessageComposeInputState.FullScreen
+        ) {
+            DropDownMentionsSuggestions(currentSelectedLineIndex, cursorCoordinateY, membersToMention, onMentionPicked)
         }
     }
 }

@@ -149,6 +149,7 @@ class BackupAndRestoreViewModel
         delay(250)
         val fileValidationState = state.restoreFileValidation
         if (fileValidationState is RestoreFileValidation.PasswordRequired) {
+            state = state.copy(restorePasswordValidation = PasswordValidation.Entered)
             when (val result = importBackup(latestImportedBackupTempPath, restorePassword.text)) {
                 RestoreBackupResult.Success -> {
                     state = state.copy(
@@ -169,6 +170,7 @@ class BackupAndRestoreViewModel
     private fun mapBackupRestoreFailure(failure: RestoreBackupResult.BackupRestoreFailure) = when (failure) {
         InvalidPassword -> state = state.copy(
             backupRestoreProgress = BackupRestoreProgress.Failed,
+            restoreFileValidation = RestoreFileValidation.PasswordRequired,
             restorePasswordValidation = PasswordValidation.NotValid,
         )
 
@@ -189,10 +191,6 @@ class BackupAndRestoreViewModel
             restoreFileValidation = RestoreFileValidation.GeneralFailure,
             restorePasswordValidation = PasswordValidation.Valid
         )
-    }
-
-    fun validateBackupCreationPassword(backupPassword: TextFieldValue) {
-        // TODO: modify in case the password requirements change
     }
 
     fun cancelBackupCreation() {

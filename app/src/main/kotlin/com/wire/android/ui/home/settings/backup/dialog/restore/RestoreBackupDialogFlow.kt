@@ -122,6 +122,7 @@ fun EnterPasswordStep(
         when (backUpAndRestoreState.restorePasswordValidation) {
             PasswordValidation.NotValid -> showWrongPassword = true
             PasswordValidation.NotVerified -> showWrongPassword = false
+            PasswordValidation.Entered -> restoreDialogStateHolder.toRestoreBackup()
             PasswordValidation.Valid -> restoreDialogStateHolder.toRestoreBackup()
         }
     }
@@ -148,12 +149,16 @@ fun RestoreBackupStep(
         LaunchedEffect(backUpAndRestoreState.backupRestoreProgress) {
             when (val progress = backUpAndRestoreState.backupRestoreProgress) {
                 BackupRestoreProgress.Failed -> {
-                    val failureType = when (backUpAndRestoreState.restoreFileValidation) {
-                        is RestoreFileValidation.PasswordRequired, RestoreFileValidation.GeneralFailure, RestoreFileValidation.Pending, RestoreFileValidation.ValidNonEncryptedBackup -> RestoreFailure.GeneralFailure
-                        RestoreFileValidation.IncompatibleBackup -> RestoreFailure.IncompatibleBackup
-                        RestoreFileValidation.WrongBackup -> RestoreFailure.WrongBackup
+                    if (backUpAndRestoreState.restorePasswordValidation == PasswordValidation.NotValid) {
+                        restoreDialogStateHolder.toEnterPassword()
+                    } else {
+                        val failureType = when (backUpAndRestoreState.restoreFileValidation) {
+                            RestoreFileValidation.IncompatibleBackup -> RestoreFailure.IncompatibleBackup
+                            RestoreFileValidation.WrongBackup -> RestoreFailure.WrongBackup
+                            else -> RestoreFailure.GeneralFailure
+                        }
+                        restoreDialogStateHolder.toRestoreFailure(failureType)
                     }
-                    restoreDialogStateHolder.toRestoreFailure(failureType)
                 }
                 BackupRestoreProgress.Finished -> restoreDialogStateHolder.toFinished()
                 is BackupRestoreProgress.InProgress -> {

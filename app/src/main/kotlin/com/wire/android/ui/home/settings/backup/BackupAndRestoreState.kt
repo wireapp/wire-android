@@ -24,6 +24,7 @@ data class BackupAndRestoreState(
 
 sealed interface PasswordValidation {
     object NotVerified : PasswordValidation
+    object Entered : PasswordValidation
     object NotValid : PasswordValidation
     object Valid : PasswordValidation
 }

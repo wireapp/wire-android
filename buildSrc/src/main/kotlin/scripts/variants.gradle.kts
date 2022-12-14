@@ -85,9 +85,11 @@ android {
                 signingConfig = signingConfigs.getByName("release")
         }
         create(BuildTypes.COMPAT) {
+            initWith(getByName(BuildTypes.RELEASE))
             isMinifyEnabled = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
             isDebuggable = false
+            matchingFallbacks.add("release")
             if (enableSigning)
                 signingConfig = signingConfigs.getByName("compat")
         }

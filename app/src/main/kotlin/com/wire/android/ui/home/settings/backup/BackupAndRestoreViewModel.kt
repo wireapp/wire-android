@@ -1,21 +1,18 @@
 package com.wire.android.ui.home.settings.backup
 
-import android.app.Application
 import android.net.Uri
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.WireApplication
 import com.wire.android.appLogger
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.util.FileManager
-import com.wire.android.util.copyToTempPath
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.feature.backup.CreateBackupResult
 import com.wire.kalium.logic.feature.backup.CreateBackupUseCase
@@ -43,10 +40,9 @@ class BackupAndRestoreViewModel
     private val importBackup: RestoreBackupUseCase,
     private val createBackupFile: CreateBackupUseCase,
     private val verifyBackup: VerifyBackupUseCase,
-    private val fileManager: FileManager,
     private val kaliumFileSystem: KaliumFileSystem,
-    wireApplication: WireApplication
-) : AndroidViewModel(wireApplication) {
+    private val fileManager: FileManager
+) : ViewModel() {
 
     var state by mutableStateOf(BackupAndRestoreState.INITIAL_STATE)
     private var latestCreatedBackup: BackupAndRestoreState.CreatedBackup? = null
@@ -92,7 +88,7 @@ class BackupAndRestoreViewModel
     fun chooseBackupFileToRestore(uri: Uri) {
         viewModelScope.launch {
             latestImportedBackupTempPath = kaliumFileSystem.tempFilePath(TEMP_IMPORTED_BACKUP_FILE_NAME)
-            uri.copyToTempPath(getApplication<Application>().applicationContext, latestImportedBackupTempPath)
+            fileManager.copyToTempPath(uri, latestImportedBackupTempPath)
             checkIfBackupEncrypted(latestImportedBackupTempPath)
         }
     }

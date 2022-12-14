@@ -124,18 +124,6 @@ suspend fun Uri.resampleImageAndCopyToTempPath(
     }
 }
 
-fun Uri.copyToTempPath(context: Context, tempCachePath: Path): Long {
-    val file = tempCachePath.toFile()
-    var size: Long
-    file.setWritable(true)
-    context.contentResolver.openInputStream(this).use { inputStream ->
-        file.outputStream().use {
-            size = inputStream?.copyTo(it) ?: -1L
-        }
-    }
-    return size
-}
-
 fun Context.getFileName(uri: Uri): String? = when (uri.scheme) {
     ContentResolver.SCHEME_CONTENT -> getContentFileName(uri)
     else -> uri.path?.let(::File)?.name
@@ -242,11 +230,11 @@ fun shareAssetFileWithExternalApp(assetDataPath: Path, context: Context, assetEx
 
 @Suppress("MagicNumber")
 fun Context.getDeviceId(): String? {
-    
+
     if (Build.VERSION.SDK_INT >= 26) {
         return Settings.Secure.getString(this.contentResolver, Settings.Secure.ANDROID_ID)
     }
-    
+
     return null
 }
 

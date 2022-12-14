@@ -1,13 +1,16 @@
 package com.wire.android.ui.home.settings.backup
 
+import android.app.Application
 import android.content.Context
 import android.net.Uri
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.WireApplication
 import com.wire.android.appLogger
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
@@ -29,11 +32,13 @@ import com.wire.kalium.logic.feature.backup.VerifyBackupResult
 import com.wire.kalium.logic.feature.backup.VerifyBackupUseCase
 import com.wire.kalium.logic.util.fileExtension
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import okio.Path
 import javax.inject.Inject
 
+@Suppress("LongParameterList")
 @HiltViewModel
 class BackupAndRestoreViewModel
 @Inject constructor(
@@ -43,7 +48,7 @@ class BackupAndRestoreViewModel
     private val verifyBackup: VerifyBackupUseCase,
     private val fileManager: FileManager,
     private val kaliumFileSystem: KaliumFileSystem,
-    private val context: Context
+    @ApplicationContext private val appContext: Context
 ) : ViewModel() {
 
     var state by mutableStateOf(BackupAndRestoreState.INITIAL_STATE)
@@ -55,9 +60,9 @@ class BackupAndRestoreViewModel
         viewModelScope.launch {
             // TODO: Find a way to update the create progress more faithfully. For now we will just show this small delays to mimic the
             //  progress also for small backups
-            state = state.copy(backupCreationProgress = BackupCreationProgress.InProgress(0.25f))
+            state = state.copy(backupCreationProgress = BackupCreationProgress.InProgress(PROGRESS_25))
             delay(SMALL_DELAY)
-            state = state.copy(backupCreationProgress = BackupCreationProgress.InProgress(0.50f))
+            state = state.copy(backupCreationProgress = BackupCreationProgress.InProgress(PROGRESS_50))
             delay(SMALL_DELAY)
 
             when (val result = createBackupFile(password)) {
@@ -90,7 +95,7 @@ class BackupAndRestoreViewModel
     fun chooseBackupFileToRestore(uri: Uri) {
         viewModelScope.launch {
             latestImportedBackupTempPath = kaliumFileSystem.tempFilePath(TEMP_IMPORTED_BACKUP_FILE_NAME)
-            uri.copyToTempPath(context, latestImportedBackupTempPath)
+            uri.copyToTempPath(appContext, latestImportedBackupTempPath)
             checkIfBackupEncrypted(latestImportedBackupTempPath)
         }
     }
@@ -122,11 +127,11 @@ class BackupAndRestoreViewModel
     private suspend fun importDatabase(importedBackupPath: Path) {
         state = state.copy(
             restoreFileValidation = RestoreFileValidation.ValidNonEncryptedBackup,
-            backupRestoreProgress = BackupRestoreProgress.InProgress(0.75f)
+            backupRestoreProgress = BackupRestoreProgress.InProgress(PROGRESS_75)
         )
         when (importBackup(importedBackupPath, null)) {
             RestoreBackupResult.Success -> {
-                state = state.copy(backupRestoreProgress = BackupRestoreProgress.InProgress(0.75f))
+                state = state.copy(backupRestoreProgress = BackupRestoreProgress.InProgress(PROGRESS_75))
                 delay(SMALL_DELAY)
                 state = state.copy(backupRestoreProgress = BackupRestoreProgress.Finished)
             }
@@ -225,7 +230,10 @@ class BackupAndRestoreViewModel
 
     private companion object {
         const val TEMP_IMPORTED_BACKUP_FILE_NAME = "tempImportedBackup.zip"
-        const val SMALL_DELAY = 300
+        const val SMALL_DELAY = 300L
+        const val PROGRESS_25 = 0.25f
+        const val PROGRESS_50 = 0.50f
+        const val PROGRESS_75 = 0.75f
     }
 }
 

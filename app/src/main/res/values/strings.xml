@@ -24,6 +24,8 @@
     <string name="label_message_receive_failure">Download Error</string>
     <string name="label_message_decryption_failure_message">Message could not be decrypted.</string>
     <string name="label_try_again">Try again</string>
+    <string name="label_reset_session">Reset Session</string>
+    <string name="label_reset_session_success">Session successfully reset</string>
     <string name="label_federated_membership">Federated</string>
     <string name="label_update">Update</string>
     <string name="label_close">Close</string>
@@ -287,7 +289,9 @@
     <string name="sent_a_message_with_content">sent a message with %s content</string>
     <string name="new_group_title">New Group</string>
     <string name="new_group_description">Up to 500 people can join a group conversation.</string>
-    <string name="group_name">Group name</string>
+    <string name="group_name_title">Group Name</string>
+    <string name="group_name_placeholder">Enter a name</string>
+    <string name="group_name_description">Give this group a meaningful name.</string>
     <string name="protocol">Protocol</string>
     <string name="mls">MLS</string>
     <string name="cipher_suite">Cipher Suite</string>
@@ -554,6 +558,8 @@
     <string name="notification_shared_file">Shared a file</string>
     <string name="notification_reacted">Added a reaction</string>
     <string name="notification_missed_call">Missed call</string>
+    <string name="notification_knock">Pinged</string>
+    <string name="notification_reply">Reply: %1$s</string>
     <string name="notification_not_supported_issue">Something not supported in notifications</string>
     <string name="notification_connection_request">Wants to connect</string>
     <string name="notification_conversation_deleted">Deleted the group</string>

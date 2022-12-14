@@ -51,7 +51,7 @@ fun GroupNameScreen(
             WireCenterAlignedTopAppBar(
                 onNavigationPressed = onBackPressed,
                 elevation = 0.dp,
-                title = if (mode == CREATION) stringResource(id = R.string.new_group_title) else newGroupState.groupName.text
+                title =  stringResource(id = if (mode == CREATION) R.string.new_group_title else R.string.group_name_title)
             )
         }) { internalPadding ->
             ConstraintLayout(
@@ -62,7 +62,7 @@ fun GroupNameScreen(
                 val (textField, text, button, protocol) = createRefs()
                 val keyboardController = LocalSoftwareKeyboardController.current
                 Text(
-                    text = stringResource(id = R.string.new_group_description),
+                    text = stringResource(id = R.string.group_name_description),
                     style = MaterialTheme.wireTypography.body01,
                     modifier = Modifier
                         .fillMaxWidth()
@@ -89,8 +89,8 @@ fun GroupNameScreen(
                         WireTextField(
                             value = groupName,
                             onValueChange = onGroupNameChange,
-                            placeholderText = stringResource(R.string.group_name),
-                            labelText = stringResource(R.string.group_name).uppercase(),
+                            placeholderText = stringResource(R.string.group_name_placeholder),
+                            labelText = stringResource(R.string.group_name_title).uppercase(),
                             state = computeGroupMetadataState(error),
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Done),
                             keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),

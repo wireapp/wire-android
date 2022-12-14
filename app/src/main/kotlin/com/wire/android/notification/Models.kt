@@ -17,7 +17,12 @@ data class NotificationConversation(
 )
 
 sealed class NotificationMessage(open val author: NotificationMessageAuthor, open val time: Long) {
-    data class Text(override val author: NotificationMessageAuthor, override val time: Long, val text: String) :
+    data class Text(
+        override val author: NotificationMessageAuthor,
+        override val time: Long,
+        val text: String,
+        val isQuotingSelfUser: Boolean
+    ) :
         NotificationMessage(author, time)
 
     // shared file, picture, reaction
@@ -38,7 +43,8 @@ enum class CommentResId(@StringRes val value: Int) {
     FILE(R.string.notification_shared_file),
     REACTION(R.string.notification_reacted),
     MISSED_CALL(R.string.notification_missed_call),
-    NOT_SUPPORTED(R.string.notification_not_supported_issue)
+    KNOCK(R.string.notification_knock),
+    NOT_SUPPORTED(R.string.notification_not_supported_issue),
 }
 
 fun LocalNotificationConversation.intoNotificationConversation(): NotificationConversation {
@@ -62,7 +68,12 @@ fun LocalNotificationMessage.intoNotificationMessage(): NotificationMessage {
     val notificationMessageTime = time.toTimeInMillis()
 
     return when (this) {
-        is LocalNotificationMessage.Text -> NotificationMessage.Text(notificationMessageAuthor, notificationMessageTime, text)
+        is LocalNotificationMessage.Text -> NotificationMessage.Text(
+            author = notificationMessageAuthor,
+            time = notificationMessageTime,
+            text = text,
+            isQuotingSelfUser = isQuotingSelfUser
+        )
         is LocalNotificationMessage.Comment -> NotificationMessage.Comment(
             notificationMessageAuthor,
             notificationMessageTime,
@@ -82,11 +93,12 @@ fun LocalNotificationMessage.intoNotificationMessage(): NotificationMessage {
     }
 }
 
-fun LocalNotificationCommentType.intoCommentResId(): CommentResId = when (this) {
-    LocalNotificationCommentType.PICTURE -> CommentResId.PICTURE
-    LocalNotificationCommentType.FILE -> CommentResId.FILE
-    LocalNotificationCommentType.REACTION -> CommentResId.REACTION
-    LocalNotificationCommentType.MISSED_CALL -> CommentResId.MISSED_CALL
-    LocalNotificationCommentType.NOT_SUPPORTED_YET -> CommentResId.NOT_SUPPORTED
-    LocalNotificationCommentType.KNOCK -> CommentResId.NOT_SUPPORTED
-}
+fun LocalNotificationCommentType.intoCommentResId(): CommentResId =
+    when (this) {
+        LocalNotificationCommentType.PICTURE -> CommentResId.PICTURE
+        LocalNotificationCommentType.FILE -> CommentResId.FILE
+        LocalNotificationCommentType.REACTION -> CommentResId.REACTION
+        LocalNotificationCommentType.MISSED_CALL -> CommentResId.MISSED_CALL
+        LocalNotificationCommentType.KNOCK -> CommentResId.KNOCK
+        LocalNotificationCommentType.NOT_SUPPORTED_YET -> CommentResId.NOT_SUPPORTED
+    }

@@ -222,7 +222,7 @@ class MessageNotificationManager
             .build()
 
         val message = when (this) {
-            is NotificationMessage.Text -> text
+            is NotificationMessage.Text -> if (isQuotingSelfUser) context.getString(R.string.notification_reply, text) else text
             is NotificationMessage.Comment -> italicTextFromResId(textResId.value)
             is NotificationMessage.ConnectionRequest -> italicTextFromResId(R.string.notification_connection_request)
             is NotificationMessage.ConversationDeleted -> italicTextFromResId(R.string.notification_conversation_deleted)

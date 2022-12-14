@@ -13,6 +13,7 @@ import com.wire.android.ui.home.conversations.model.MessageStatus.SendFailure
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.uiMessageDateTime
+import com.wire.kalium.logic.data.conversation.ClientId
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.MessageContent
 import com.wire.kalium.logic.data.user.AssetId
@@ -28,8 +29,9 @@ data class UIMessage(
 ) {
     val isDeleted: Boolean = messageHeader.messageStatus == Deleted
     val sendingFailed: Boolean = messageHeader.messageStatus == SendFailure
-    val decryptionFailed: Boolean = messageHeader.messageStatus == DecryptionFailure
+    val decryptionFailed: Boolean = messageHeader.messageStatus is DecryptionFailure
     val receivingFailed: Boolean = messageHeader.messageStatus == ReceiveFailure || decryptionFailed
+    val isAvailable: Boolean = !isDeleted && !sendingFailed && !receivingFailed
 }
 
 @Stable
@@ -43,7 +45,8 @@ data class MessageHeader(
     val userId: UserId? = null,
     val connectionState: ConnectionState?,
     val isSenderDeleted: Boolean,
-    val isSenderUnavailable: Boolean
+    val isSenderUnavailable: Boolean,
+    val clientId: ClientId? = null
 )
 
 @Stable
@@ -61,7 +64,8 @@ sealed class MessageStatus(val text: UIText) {
 
     object SendFailure : MessageStatus(UIText.StringResource(R.string.label_message_sent_failure))
     object ReceiveFailure : MessageStatus(UIText.StringResource(R.string.label_message_receive_failure))
-    object DecryptionFailure : MessageStatus(UIText.StringResource(R.string.label_message_decryption_failure_message))
+    data class DecryptionFailure(val isDecryptionResolved: Boolean) :
+        MessageStatus(UIText.StringResource(R.string.label_message_decryption_failure_message))
 }
 
 @Stable

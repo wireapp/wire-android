@@ -119,6 +119,10 @@ class MessageMapper @Inject constructor(
         isSenderUnavailable = when (sender) {
             is OtherUser -> sender.isUnavailableUser
             is SelfUser, null -> false
+        },
+        clientId = when (message) {
+            is Message.Regular -> message.senderClientId
+            is Message.System -> null
         }
     )
 
@@ -131,7 +135,8 @@ class MessageMapper @Inject constructor(
                     utcISO = (message.editStatus as Message.EditStatus.Edited).lastTimeStamp
                 )
             )
-
+        message is Message.Regular && message.content is MessageContent.FailedDecryption ->
+            MessageStatus.DecryptionFailure((message.content as MessageContent.FailedDecryption).isDecryptionResolved)
         else -> MessageStatus.Untouched
     }
 

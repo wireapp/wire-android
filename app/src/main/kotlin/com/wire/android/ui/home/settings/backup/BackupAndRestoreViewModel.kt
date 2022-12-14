@@ -1,14 +1,12 @@
 package com.wire.android.ui.home.settings.backup
 
 import android.app.Application
-import android.content.Context
 import android.net.Uri
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.WireApplication
 import com.wire.android.appLogger
@@ -32,7 +30,6 @@ import com.wire.kalium.logic.feature.backup.VerifyBackupResult
 import com.wire.kalium.logic.feature.backup.VerifyBackupUseCase
 import com.wire.kalium.logic.util.fileExtension
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import okio.Path
@@ -48,8 +45,8 @@ class BackupAndRestoreViewModel
     private val verifyBackup: VerifyBackupUseCase,
     private val fileManager: FileManager,
     private val kaliumFileSystem: KaliumFileSystem,
-    @ApplicationContext private val appContext: Context
-) : ViewModel() {
+    wireApplication: WireApplication
+) : AndroidViewModel(wireApplication) {
 
     var state by mutableStateOf(BackupAndRestoreState.INITIAL_STATE)
     private var latestCreatedBackup: BackupAndRestoreState.CreatedBackup? = null
@@ -95,7 +92,7 @@ class BackupAndRestoreViewModel
     fun chooseBackupFileToRestore(uri: Uri) {
         viewModelScope.launch {
             latestImportedBackupTempPath = kaliumFileSystem.tempFilePath(TEMP_IMPORTED_BACKUP_FILE_NAME)
-            uri.copyToTempPath(appContext, latestImportedBackupTempPath)
+            uri.copyToTempPath(getApplication<Application>().applicationContext, latestImportedBackupTempPath)
             checkIfBackupEncrypted(latestImportedBackupTempPath)
         }
     }

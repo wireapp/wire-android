@@ -23,7 +23,7 @@ def defineBuildType() {
     }
     def flavor = defineFlavor()
     if (flavor == "Dev") {
-        return "Debug"
+        return "Prod_debug"
     }
     return "Release"
 }

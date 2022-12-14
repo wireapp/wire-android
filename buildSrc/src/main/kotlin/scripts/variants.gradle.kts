@@ -17,6 +17,8 @@ plugins { id("com.android.application") apply false }
 object BuildTypes {
     const val DEBUG = "debug"
     const val RELEASE = "release"
+    const val PROD_DEBUG = "prod_debug"
+    const val PROD_RELEASE = "prodd_release"
 }
 
 object ProductFlavors {
@@ -57,6 +59,22 @@ android {
                 keyAlias = System.getenv("KEYSTORE_KEY_NAME_DEBUG")
                 keyPassword = System.getenv("KEYPWD_DEBUG")
             }
+
+            maybeCreate(BuildTypes.PROD_DEBUG).apply {
+                // TODO: Add scala debug keystore
+                storeFile = file(System.getenv("KEYSTORE_FILE_PATH_PROD_DEBUG"))
+                storePassword = System.getenv("KEYSTOREPWD_PROD_DEBUG")
+                keyAlias = System.getenv("KEYSTORE_KEY_NAME_PROD_DEBUG")
+                keyPassword = System.getenv("KEYPWD_PROD_DEBUG")
+            }
+
+            maybeCreate(BuildTypes.PROD_RELEASE).apply {
+                // TODO: Add scala release keystore
+                storeFile = file(System.getenv("KEYSTORE_FILE_PATH_PROD_RELEASE"))
+                storePassword = System.getenv("KEYSTOREPWD_PROD_RELEASE")
+                keyAlias = System.getenv("KEYSTORE_KEY_NAME_PROD_RELEASE")
+                keyPassword = System.getenv("KEYPWD_PROD_RELEASE")
+            }
         }
     }
 
@@ -76,6 +94,24 @@ android {
             isDebuggable = false
             if (enableSigning)
                 signingConfig = signingConfigs.getByName("release")
+        }
+
+        create(BuildTypes.PROD_DEBUG) {
+            isMinifyEnabled = false
+            applicationIdSuffix = ".${BuildTypes.DEBUG}"
+            isDebuggable = true
+            // Just in case a developer is trying to debug some prod crashes by turning on minify
+            if (isMinifyEnabled) proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            if (enableSigning)
+                signingConfig = signingConfigs.getByName("prod_debug")
+        }
+
+        create(BuildTypes.PROD_RELEASE) {
+            isMinifyEnabled = true
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            isDebuggable = false
+            if (enableSigning)
+                signingConfig = signingConfigs.getByName("prod_release")
         }
     }
 

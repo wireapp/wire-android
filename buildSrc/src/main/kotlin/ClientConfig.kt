@@ -22,6 +22,11 @@ object ClientConfig {
         BuildTypes.RELEASE to mapOf(
             ConfigFields.SUPPORT_URL to """"https://support.wire.com"""",
             ConfigFields.SENDER_ID to """"782078216207""""
+        ),
+        BuildTypes.PROD_DEBUG to ConfigFields.values().associate { Pair(it, it.defaultValue) },
+        BuildTypes.PROD_RELEASE to mapOf(
+            ConfigFields.SUPPORT_URL to """"https://support.wire.com"""",
+            ConfigFields.SENDER_ID to """"782078216207""""
         )
     )
 }

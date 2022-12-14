@@ -7,7 +7,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.appLogger
 import com.wire.android.datastore.UserDataStore
+import com.wire.android.feature.AccountSwitchUseCase
+import com.wire.android.feature.SwitchAccountParam
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
@@ -15,13 +18,19 @@ import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.authentication.devices.model.Device
 import com.wire.kalium.logic.data.client.ClientType
 import com.wire.kalium.logic.data.client.DeleteClientParam
+import com.wire.kalium.logic.feature.auth.AccountInfo
 import com.wire.kalium.logic.feature.client.DeleteClientResult
 import com.wire.kalium.logic.feature.client.DeleteClientUseCase
+import com.wire.kalium.logic.feature.client.GetOrRegisterClientUseCase
 import com.wire.kalium.logic.feature.client.RegisterClientResult
 import com.wire.kalium.logic.feature.client.RegisterClientUseCase
-import com.wire.kalium.logic.feature.client.GetOrRegisterClientUseCase
 import com.wire.kalium.logic.feature.client.SelfClientsResult
 import com.wire.kalium.logic.feature.client.SelfClientsUseCase
+import com.wire.kalium.logic.feature.session.CurrentSessionResult
+import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
+import com.wire.kalium.logic.feature.session.DeleteSessionUseCase
+import com.wire.kalium.logic.feature.session.GetAllSessionsResult
+import com.wire.kalium.logic.feature.session.GetSessionsUseCase
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
@@ -30,13 +39,18 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
+@Suppress("TooManyFunctions", "LongParameterList")
 class RemoveDeviceViewModel @Inject constructor(
     private val navigationManager: NavigationManager,
     private val selfClientsUseCase: SelfClientsUseCase,
     private val deleteClientUseCase: DeleteClientUseCase,
     private val registerClientUseCase: GetOrRegisterClientUseCase,
     private val isPasswordRequired: IsPasswordRequiredUseCase,
-    private val userDataStore: UserDataStore
+    private val userDataStore: UserDataStore,
+    private val getSessions: GetSessionsUseCase,
+    private val currentSession: CurrentSessionUseCase,
+    private val deleteSession: DeleteSessionUseCase,
+    private val switchAccount: AccountSwitchUseCase
 ) : ViewModel() {
 
     var state: RemoveDeviceState by mutableStateOf(
@@ -46,6 +60,7 @@ class RemoveDeviceViewModel @Inject constructor(
 
     init {
         loadClientsList()
+        checkNumberOfSessions()
     }
 
     private fun loadClientsList() {
@@ -77,6 +92,63 @@ class RemoveDeviceViewModel @Inject constructor(
 
     fun clearDeleteClientError() {
         updateStateIfDialogVisible { state.copy(error = RemoveDeviceError.None) }
+    }
+
+    fun onBackButtonClicked() {
+        if (!state.isFirstAccount) {
+            state = state.copy(showCancelLoginDialog = true)
+        }
+    }
+
+    fun onProceedLoginClicked() {
+        state = state.copy(showCancelLoginDialog = false)
+    }
+
+    fun onCancelLoginClicked() {
+        state = state.copy(showCancelLoginDialog = false)
+        viewModelScope.launch {
+            currentSession().let {
+                when (it) {
+                    is CurrentSessionResult.Success -> {
+                        deleteSession(it.accountInfo.userId)
+                    }
+                    is CurrentSessionResult.Failure.Generic -> {
+                        appLogger.e("failed to delete session")
+                    }
+                    CurrentSessionResult.Failure.SessionNotFound -> {
+                        appLogger.e("session not found")
+
+                    }
+                }
+            }
+        }.invokeOnCompletion {
+            viewModelScope.launch {
+                switchAccount(
+                    SwitchAccountParam.SwitchToNextAccountOrWelcome
+                )
+            }
+        }
+    }
+
+    private fun checkNumberOfSessions() {
+        viewModelScope.launch {
+            getSessions().let {
+                when (it) {
+                    is GetAllSessionsResult.Success -> {
+                        it.sessions[0].userId
+                        state = if (it.sessions.filterIsInstance<AccountInfo.Valid>().size > 1) {
+                            state.copy(isFirstAccount = false)
+                        } else {
+                            state.copy(isFirstAccount = true)
+                        }
+                    }
+                    is GetAllSessionsResult.Failure.Generic -> {}
+                    GetAllSessionsResult.Failure.NoSessionFound -> {
+                        state = state.copy(isFirstAccount = true)
+                    }
+                }
+            }
+        }
     }
 
     fun onItemClicked(device: Device) {

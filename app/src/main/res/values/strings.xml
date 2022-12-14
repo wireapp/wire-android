@@ -782,5 +782,8 @@
     <string name="update_app_dialog_title">Update required</string>
     <string name="update_app_dialog_body">You are missing out on new features. Update to the latest version of Wire to continue using the app with this account.</string>
     <string name="update_app_dialog_button">Update</string>
+    <string name="cancel_login_button_label">Cancel and Log Out</string>
+    <string name="cancel_login_dialog_description">If you cancel this step, you will be logged out of your account.</string>
+    <string name="cancel_login_dialog_title">Do you want to Cancel?</string>
 
 </resources>

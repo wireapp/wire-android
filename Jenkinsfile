@@ -22,9 +22,6 @@ def defineBuildType() {
         return overwrite
     }
     def flavor = defineFlavor()
-    if (flavor == "Dev") {
-        return "Debug"
-    }
     return "Release"
 }
 

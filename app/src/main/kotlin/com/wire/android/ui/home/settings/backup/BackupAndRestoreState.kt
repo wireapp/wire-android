@@ -14,7 +14,7 @@ data class BackupAndRestoreState(
     companion object {
         val INITIAL_STATE = BackupAndRestoreState(
             backupRestoreProgress = BackupRestoreProgress.InProgress(),
-            restoreFileValidation = RestoreFileValidation.Pending,
+            restoreFileValidation = RestoreFileValidation.Initial,
             backupCreationProgress = BackupCreationProgress.InProgress(),
             restorePasswordValidation = PasswordValidation.NotVerified,
             backupCreationPasswordValidation = PasswordValidation.Valid,
@@ -42,7 +42,7 @@ sealed interface BackupRestoreProgress {
 }
 
 sealed class RestoreFileValidation {
-    object Pending : RestoreFileValidation()
+    object Initial : RestoreFileValidation()
     object ValidNonEncryptedBackup : RestoreFileValidation()
     object IncompatibleBackup : RestoreFileValidation()
     object WrongBackup : RestoreFileValidation()

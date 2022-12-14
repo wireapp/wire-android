@@ -56,9 +56,9 @@ class BackupAndRestoreViewModel
             // TODO: Find a way to update the create progress more faithfully. For now we will just show this small delays to mimic the
             //  progress also for small backups
             state = state.copy(backupCreationProgress = BackupCreationProgress.InProgress(0.25f))
-            delay(300)
+            delay(SMALL_DELAY)
             state = state.copy(backupCreationProgress = BackupCreationProgress.InProgress(0.50f))
-            delay(300)
+            delay(SMALL_DELAY)
 
             when (val result = createBackupFile(password)) {
                 is CreateBackupResult.Success -> {
@@ -127,7 +127,7 @@ class BackupAndRestoreViewModel
         when (importBackup(importedBackupPath, null)) {
             RestoreBackupResult.Success -> {
                 state = state.copy(backupRestoreProgress = BackupRestoreProgress.InProgress(0.75f))
-                delay(300)
+                delay(SMALL_DELAY)
                 state = state.copy(backupRestoreProgress = BackupRestoreProgress.Finished)
             }
             is RestoreBackupResult.Failure -> {
@@ -150,7 +150,7 @@ class BackupAndRestoreViewModel
             backupRestoreProgress = BackupRestoreProgress.InProgress(0.50f),
             restorePasswordValidation = PasswordValidation.NotVerified
         )
-        delay(250)
+        delay(SMALL_DELAY)
         val fileValidationState = state.restoreFileValidation
         if (fileValidationState is RestoreFileValidation.PasswordRequired) {
             state = state.copy(restorePasswordValidation = PasswordValidation.Entered)
@@ -203,13 +203,13 @@ class BackupAndRestoreViewModel
 
     fun cancelBackupCreation() {
         state = state.copy(
-            backupCreationProgress = BackupCreationProgress.InProgress(),
+            backupCreationProgress = BackupCreationProgress.InProgress(0f), // reset progress, aka initial state
         )
     }
 
     fun cancelBackupRestore() {
         state = state.copy(
-            restoreFileValidation = RestoreFileValidation.Pending,
+            restoreFileValidation = RestoreFileValidation.Initial,
             backupRestoreProgress = BackupRestoreProgress.InProgress(),
             restorePasswordValidation = PasswordValidation.NotVerified
         )
@@ -225,6 +225,7 @@ class BackupAndRestoreViewModel
 
     private companion object {
         const val TEMP_IMPORTED_BACKUP_FILE_NAME = "tempImportedBackup.zip"
+        const val SMALL_DELAY = 300
     }
 }
 

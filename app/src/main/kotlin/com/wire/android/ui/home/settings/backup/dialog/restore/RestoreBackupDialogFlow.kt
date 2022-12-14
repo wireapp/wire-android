@@ -80,7 +80,7 @@ private fun ChooseBackupFileStep(
 ) {
     LaunchedEffect(backUpAndRestoreState.restoreFileValidation) {
         when (backUpAndRestoreState.restoreFileValidation) {
-            RestoreFileValidation.Pending -> {}
+            RestoreFileValidation.Initial -> {}
             RestoreFileValidation.ValidNonEncryptedBackup -> {
                 restoreDialogStateHolder.toRestoreBackup()
             }

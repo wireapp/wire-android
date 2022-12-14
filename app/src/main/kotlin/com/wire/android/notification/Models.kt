@@ -82,11 +82,11 @@ fun LocalNotificationMessage.intoNotificationMessage(): NotificationMessage {
     }
 }
 
-fun LocalNotificationCommentType.intoCommentResId(): CommentResId =
-    when (this) {
-        LocalNotificationCommentType.PICTURE -> CommentResId.PICTURE
-        LocalNotificationCommentType.FILE -> CommentResId.FILE
-        LocalNotificationCommentType.REACTION -> CommentResId.REACTION
-        LocalNotificationCommentType.MISSED_CALL -> CommentResId.MISSED_CALL
-        LocalNotificationCommentType.NOT_SUPPORTED_YET -> CommentResId.NOT_SUPPORTED
-    }
+fun LocalNotificationCommentType.intoCommentResId(): CommentResId = when (this) {
+    LocalNotificationCommentType.PICTURE -> CommentResId.PICTURE
+    LocalNotificationCommentType.FILE -> CommentResId.FILE
+    LocalNotificationCommentType.REACTION -> CommentResId.REACTION
+    LocalNotificationCommentType.MISSED_CALL -> CommentResId.MISSED_CALL
+    LocalNotificationCommentType.NOT_SUPPORTED_YET -> CommentResId.NOT_SUPPORTED
+    LocalNotificationCommentType.KNOCK -> CommentResId.NOT_SUPPORTED
+}

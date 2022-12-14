@@ -721,7 +721,7 @@
     <string name="label_reactions">Reactions</string>
     <string name="label_more_comming_soon">(more coming soon)</string>
     <string name="label_wait_until_synchronised">Please wait until the app is synchronised</string>
-    <string name="label_textfield_optional_password">PASSWORD (OPTIONAL)</string>
+    <string name="label_textfield_optional_password">Password (optional)</string>
     <!--create and restore backup-->
     <string name="dialog_create_backup_inform_title">Set an email and password</string>
     <string name="backup_dialog_create_backup_inform_message">You need an email and a password in order to back up your conversation history. You can do it from the account page in Settings.</string>

@@ -809,8 +809,8 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
-    fun provideIsBackupEncryptedUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
-        coreLogic.getSessionScope(currentAccount).isBackupEncryptedUseCase
+    fun provideVerifyBackupUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).verifyBackupUseCase
 
     @ViewModelScoped
     @Provides

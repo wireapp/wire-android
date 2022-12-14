@@ -18,8 +18,6 @@ import com.wire.android.util.copyToTempPath
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.feature.backup.CreateBackupResult
 import com.wire.kalium.logic.feature.backup.CreateBackupUseCase
-import com.wire.kalium.logic.feature.backup.IsBackupEncryptedResult
-import com.wire.kalium.logic.feature.backup.IsBackupEncryptedUseCase
 import com.wire.kalium.logic.feature.backup.RestoreBackupResult
 import com.wire.kalium.logic.feature.backup.RestoreBackupResult.BackupRestoreFailure.BackupIOFailure
 import com.wire.kalium.logic.feature.backup.RestoreBackupResult.BackupRestoreFailure.DecryptionFailure
@@ -27,6 +25,8 @@ import com.wire.kalium.logic.feature.backup.RestoreBackupResult.BackupRestoreFai
 import com.wire.kalium.logic.feature.backup.RestoreBackupResult.BackupRestoreFailure.InvalidPassword
 import com.wire.kalium.logic.feature.backup.RestoreBackupResult.BackupRestoreFailure.InvalidUserId
 import com.wire.kalium.logic.feature.backup.RestoreBackupUseCase
+import com.wire.kalium.logic.feature.backup.VerifyBackupResult
+import com.wire.kalium.logic.feature.backup.VerifyBackupUseCase
 import com.wire.kalium.logic.util.fileExtension
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
@@ -40,7 +40,7 @@ class BackupAndRestoreViewModel
     private val navigationManager: NavigationManager,
     private val importBackup: RestoreBackupUseCase,
     private val createBackupFile: CreateBackupUseCase,
-    private val isBackupEncrypted: IsBackupEncryptedUseCase,
+    private val verifyBackup: VerifyBackupUseCase,
     private val fileManager: FileManager,
     private val kaliumFileSystem: KaliumFileSystem,
     private val context: Context
@@ -100,17 +100,21 @@ class BackupAndRestoreViewModel
     }
 
     private suspend fun checkIfBackupEncrypted(importedBackupPath: Path) {
-        when (val result = isBackupEncrypted(importedBackupPath)) {
-            is IsBackupEncryptedResult.Success -> {
-                if (result.isEncrypted) {
-                    showPasswordDialog()
-                } else {
-                    importDatabase(importedBackupPath)
+        when (val result = verifyBackup(importedBackupPath)) {
+            is VerifyBackupResult.Success -> {
+                when (result) {
+                    is VerifyBackupResult.Success.Encrypted -> showPasswordDialog()
+                    is VerifyBackupResult.Success.NotEncrypted -> importDatabase(importedBackupPath)
                 }
             }
-            is IsBackupEncryptedResult.Failure -> {
+            is VerifyBackupResult.Failure -> {
                 state = state.copy(restoreFileValidation = RestoreFileValidation.IncompatibleBackup)
-                appLogger.e("Failed to extract backup files: ${result.error}")
+                val errorMessage = when (result) {
+                    is VerifyBackupResult.Failure.Generic -> result.error.toString()
+                    VerifyBackupResult.Failure.InvalidBackupFile -> "No valid files found in the backup"
+                }
+
+                appLogger.e("Failed to extract backup files: $errorMessage")
             }
         }
     }
@@ -191,6 +195,10 @@ class BackupAndRestoreViewModel
             restoreFileValidation = RestoreFileValidation.GeneralFailure,
             restorePasswordValidation = PasswordValidation.Valid
         )
+    }
+
+    fun validateBackupCreationPassword(backupPassword: TextFieldValue) {
+        // TODO: modify in case the password requirements change
     }
 
     fun cancelBackupCreation() {

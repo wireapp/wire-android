@@ -60,6 +60,16 @@ class MessageContentMapper @Inject constructor(
         is MessageContent.MissedCall -> mapMissedCallMessage(message.senderUserId, members)
         is MessageContent.ConversationRenamed -> mapConversationRenamedMessage(message.senderUserId, content, members)
         is MessageContent.TeamMemberRemoved -> mapTeamMemberRemovedMessage(content)
+        is MessageContent.CryptoSessionReset -> mapResetSession(message.senderUserId, members)
+    }
+
+    private fun mapResetSession(
+        senderUserId: UserId,
+        userList: List<User>
+    ): UIMessageContent.SystemMessage {
+        val sender = userList.findUser(userId = senderUserId)
+        val authorName = toSystemMessageMemberName(user = sender, type = SelfNameType.ResourceTitleCase)
+        return UIMessageContent.SystemMessage.CryptoSessionReset(authorName)
     }
 
     private fun mapMissedCallMessage(

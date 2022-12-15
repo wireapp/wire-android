@@ -751,4 +751,7 @@
     <string name="update_app_dialog_body">You are missing out on new features. Update to the latest version of Wire to continue using the app with this account.</string>
     <string name="update_app_dialog_button">Update</string>
 
+    <!--    session reset-->
+    <string name="label_system_message_session_reset">%1$s was unable to decrypt some of your messages but has solved the issue. This affected all conversations you share together.</string>
+
 </resources>

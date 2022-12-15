@@ -149,6 +149,9 @@ sealed class UIMessageContent {
         data class TeamMemberRemoved(val content: MessageContent.TeamMemberRemoved) :
             SystemMessage(R.drawable.ic_minus, R.string.label_system_message_team_member_left, true, content.userName)
 
+        data class CryptoSessionReset(val author: UIText) :
+            SystemMessage(R.drawable.ic_info, R.string.label_system_message_session_reset, true)
+
     }
 }
 

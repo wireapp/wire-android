@@ -1,5 +1,4 @@
 private object Dependencies {
-    const val androidBuildTools = "com.android.tools.build:gradle:7.2.2"
     const val kotlinGradlePlugin = "org.jetbrains.kotlin:kotlin-gradle-plugin:1.7.20"
     const val detektGradlePlugin = "io.gitlab.arturbosch.detekt:detekt-gradle-plugin:1.19.0"
     const val junit = "junit:junit:4.13"
@@ -21,7 +20,7 @@ repositories {
     mavenCentral()
 }
 dependencies {
-    implementation(Dependencies.androidBuildTools)
+    implementation("com.android.tools.build:gradle:${klibs.versions.agp.get()}")
     implementation(Dependencies.kotlinGradlePlugin)
     implementation(Dependencies.detektGradlePlugin)
     implementation(Dependencies.spotless)

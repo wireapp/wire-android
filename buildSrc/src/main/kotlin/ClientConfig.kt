@@ -5,7 +5,7 @@ import scripts.Variants_gradle.BuildTypes
  */
 enum class ConfigFields(val defaultValue: String) {
     SUPPORT_URL(""""https://support.wire.com""""),
-    SENDER_ID(""""782078216207"""")
+    SENDER_ID(""""723990470614"""")
 }
 
 /**
@@ -22,7 +22,7 @@ object ClientConfig {
         // TODO: Certificate pinning, change backend based on flavour
         BuildTypes.RELEASE to mapOf(
             ConfigFields.SUPPORT_URL to """"https://support.wire.com"""",
-            ConfigFields.SENDER_ID to """"782078216207""""
+            ConfigFields.SENDER_ID to """"723990470614""""
         )
     )
 }

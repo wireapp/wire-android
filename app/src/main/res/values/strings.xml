@@ -784,4 +784,7 @@
     <string name="cancel_login_dialog_description">If you cancel this step, you will be logged out of your account.</string>
     <string name="cancel_login_dialog_title">Do you want to Cancel?</string>
 
+    <!--    session reset-->
+    <string name="label_system_message_session_reset">%1$s was unable to decrypt some of your messages but has solved the issue. This affected all conversations you share together.</string>
+
 </resources>

@@ -50,8 +50,8 @@ import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMess
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
-import com.wire.kalium.logic.data.conversation.ClientId
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.data.conversation.ClientId
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -292,6 +292,7 @@ private fun MessageContent(
         is UIMessageContent.SystemMessage.MemberRemoved -> {}
         is UIMessageContent.SystemMessage.RenamedConversation -> {}
         is UIMessageContent.SystemMessage.TeamMemberRemoved -> {}
+        is UIMessageContent.SystemMessage.CryptoSessionReset -> {}
         is UIMessageContent.RestrictedAsset -> {
             when {
                 messageContent.mimeType.contains("image/") -> {

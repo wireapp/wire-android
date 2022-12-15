@@ -7,6 +7,7 @@ import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.UnreadEventCount
 import com.wire.kalium.logic.data.message.AssetType
 import com.wire.kalium.logic.data.message.MessagePreview
+import com.wire.kalium.logic.data.message.MessagePreviewContent
 import com.wire.kalium.logic.data.message.MessagePreviewContent.Unknown
 import com.wire.kalium.logic.data.message.MessagePreviewContent.WithUser
 import com.wire.kalium.logic.data.message.UnreadEventType
@@ -117,6 +118,7 @@ private fun MessagePreview.uiLastMessageContent(): UILastMessageContent {
                 )
             }
         }
+        MessagePreviewContent.CryptoSessionReset -> UILastMessageContent.None
         Unknown -> UILastMessageContent.None
     }
 }

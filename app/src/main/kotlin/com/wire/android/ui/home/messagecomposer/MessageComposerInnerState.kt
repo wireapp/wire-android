@@ -16,7 +16,6 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.wire.android.appLogger
-import com.wire.android.model.ImageAsset
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.conversations.model.AttachmentType
 import com.wire.android.ui.home.conversations.model.QuotedMessageUIData
@@ -26,10 +25,10 @@ import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.util.DEFAULT_FILE_MIME_TYPE
 import com.wire.android.util.EMPTY
+import com.wire.android.util.FileManager
 import com.wire.android.util.MENTION_SYMBOL
 import com.wire.android.util.NEW_LINE_SYMBOL
 import com.wire.android.util.WHITE_SPACE
-import com.wire.android.util.copyToTempPath
 import com.wire.android.util.getFileName
 import com.wire.android.util.getMimeType
 import com.wire.android.util.orDefault
@@ -324,6 +323,7 @@ class AttachmentInnerState(val context: Context) {
     var attachmentState by mutableStateOf<AttachmentState>(AttachmentState.NotPicked)
 
     suspend fun pickAttachment(attachmentUri: Uri, tempCachePath: Path) {
+        val fileManager = FileManager(context)
         attachmentState = try {
             val fullTempAssetPath = "$tempCachePath/${UUID.randomUUID()}".toPath()
             val assetFileName = context.getFileName(attachmentUri) ?: throw IOException("The selected asset has an invalid name")
@@ -331,7 +331,7 @@ class AttachmentInnerState(val context: Context) {
             val attachmentType = AttachmentType.fromMimeTypeString(mimeType)
             val assetSize = if (attachmentType == AttachmentType.IMAGE)
                 attachmentUri.resampleImageAndCopyToTempPath(context, fullTempAssetPath)
-            else attachmentUri.copyToTempPath(context, fullTempAssetPath)
+            else fileManager.copyToTempPath(attachmentUri, fullTempAssetPath)
             val attachment = AttachmentBundle(mimeType, fullTempAssetPath, assetSize, assetFileName, attachmentType)
             AttachmentState.Picked(attachment)
         } catch (e: IOException) {

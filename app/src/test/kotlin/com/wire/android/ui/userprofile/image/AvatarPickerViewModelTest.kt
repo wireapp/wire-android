@@ -10,7 +10,7 @@ import com.wire.android.framework.FakeKaliumFileSystem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.userprofile.avatarpicker.AvatarPickerViewModel
 import com.wire.android.util.AvatarImageManager
-import com.wire.android.util.copyToTempPath
+import com.wire.android.util.FileManager
 import com.wire.android.util.resampleImageAndCopyToTempPath
 import com.wire.android.util.toByteArray
 import com.wire.kalium.logic.CoreFailure.Unknown
@@ -35,7 +35,6 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.test.runTest
 import okio.buffer
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -123,6 +122,8 @@ class AvatarPickerViewModelTest {
 
         val context = mockk<Context>()
 
+        val fileManager = FileManager(context)
+
         @MockK
         private lateinit var qualifiedIdMapper: QualifiedIdMapper
 
@@ -163,7 +164,6 @@ class AvatarPickerViewModelTest {
             coEvery { any<Uri>().resampleImageAndCopyToTempPath(any(), any(), any(), any()) } returns 1L
             coEvery { any<Uri>().toByteArray(any(), any()) } returns ByteArray(5)
             every { userDataStore.avatarAssetId } returns flow { emit(avatarAssetId) }
-            every { mockUri.copyToTempPath(any(), any()) } returns 1L
             every { qualifiedIdMapper.fromStringToQualifiedID(any()) } returns QualifiedID("avatar-value", "avatar-domain")
 
             return this

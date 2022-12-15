@@ -124,18 +124,6 @@ suspend fun Uri.resampleImageAndCopyToTempPath(
     }
 }
 
-fun Uri.copyToTempPath(context: Context, tempCachePath: Path): Long {
-    val file = tempCachePath.toFile()
-    var size: Long
-    file.setWritable(true)
-    context.contentResolver.openInputStream(this).use { inputStream ->
-        file.outputStream().use {
-            size = inputStream?.copyTo(it) ?: -1L
-        }
-    }
-    return size
-}
-
 fun Context.getFileName(uri: Uri): String? = when (uri.scheme) {
     ContentResolver.SCHEME_CONTENT -> getContentFileName(uri)
     else -> uri.path?.let(::File)?.name
@@ -217,13 +205,36 @@ fun openAssetFileWithExternalApp(assetDataPath: Path, context: Context, assetExt
     }
 }
 
+fun shareAssetFileWithExternalApp(assetDataPath: Path, context: Context, assetExtension: String?, onError: () -> Unit) {
+    try {
+        val assetUri = context.pathToUri(assetDataPath)
+        val mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(assetExtension)
+        // Set intent and launch
+        val intent = Intent()
+        intent.apply {
+            action = Intent.ACTION_SEND
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            setDataAndType(assetUri, mimeType)
+            putExtra(Intent.EXTRA_STREAM, assetUri)
+        }
+        context.startActivity(intent)
+    } catch (e: java.lang.IllegalArgumentException) {
+        appLogger.e("The file couldn't be found on the internal storage \n$e")
+        onError()
+    } catch (noActivityFoundException: ActivityNotFoundException) {
+        appLogger.e("Couldn't find a proper app to process the asset")
+        onError()
+    }
+}
+
 @Suppress("MagicNumber")
 fun Context.getDeviceId(): String? {
-    
+
     if (Build.VERSION.SDK_INT >= 26) {
         return Settings.Secure.getString(this.contentResolver, Settings.Secure.ANDROID_ID)
     }
-    
+
     return null
 }
 

@@ -315,6 +315,7 @@ private fun ConversationScreen(
         menuItems = EditMessageMenuItems(
             isCopyable = conversationScreenState.isTextMessage,
             isEditable = conversationScreenState.isMyMessage && localFeatureVisibilityFlags.MessageEditIcon,
+            isAvailable = conversationScreenState.selectedMessage?.isAvailable ?: false,
             onCopyMessage = conversationScreenState::copyMessage,
             onDeleteMessage = menuModalOnDeleteMessage,
             onReactionClick = menuModalOnReactionClick,

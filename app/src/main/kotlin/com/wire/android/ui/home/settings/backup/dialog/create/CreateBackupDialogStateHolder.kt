@@ -11,14 +11,10 @@ import androidx.compose.ui.text.input.TextFieldValue
 @Stable
 class CreateBackupDialogStateHolder {
     companion object {
-        val INITIAL_STEP = BackUpDialogStep.Inform
+        val INITIAL_STEP = BackUpDialogStep.SetPassword
     }
 
     var currentBackupDialogStep: BackUpDialogStep by mutableStateOf(INITIAL_STEP)
-
-    var backupPassword: TextFieldValue by mutableStateOf(TextFieldValue(""))
-
-    var isBackupPasswordValid: Boolean by mutableStateOf(false)
 
     var isBackupFinished: Boolean by mutableStateOf(false)
 
@@ -26,10 +22,6 @@ class CreateBackupDialogStateHolder {
 
     fun toCreateBackup() {
         currentBackupDialogStep = BackUpDialogStep.CreatingBackup
-    }
-
-    fun toBackupPassword() {
-        currentBackupDialogStep = BackUpDialogStep.SetPassword
     }
 
     fun toBackupFailure() {
@@ -40,7 +32,6 @@ class CreateBackupDialogStateHolder {
         isBackupFinished = true
         backupProgress = 1.0f
     }
-
 }
 
 @Composable
@@ -49,7 +40,6 @@ fun rememberBackUpDialogState(): CreateBackupDialogStateHolder {
 }
 
 sealed interface BackUpDialogStep {
-    object Inform : BackUpDialogStep
     object SetPassword : BackUpDialogStep
     object CreatingBackup : BackUpDialogStep
     object Failure : BackUpDialogStep

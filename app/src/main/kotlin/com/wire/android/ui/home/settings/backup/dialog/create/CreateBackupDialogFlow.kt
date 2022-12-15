@@ -23,13 +23,6 @@ fun CreateBackupDialogFlow(
 
     with(backupDialogStateHolder) {
         when (currentBackupDialogStep) {
-            BackUpDialogStep.Inform -> {
-                InformBackupDialog(
-                    onAcknowledgeBackup = ::toBackupPassword,
-                    onDismissDialog = onCancelCreateBackup
-                )
-            }
-
             BackUpDialogStep.SetPassword -> {
                 SetBackupPasswordDialog(
                     isBackupPasswordValid = backUpAndRestoreState.backupCreationPasswordValidation is PasswordValidation.Valid,

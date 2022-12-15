@@ -28,23 +28,6 @@ import com.wire.android.ui.theme.wireTypography
 import java.util.Locale
 import kotlin.math.roundToInt
 
-@Composable
-fun InformBackupDialog(
-    onAcknowledgeBackup: () -> Unit,
-    onDismissDialog: () -> Unit
-) {
-    WireDialog(
-        title = stringResource(R.string.dialog_create_backup_inform_title),
-        text = stringResource(R.string.backup_dialog_create_backup_inform_message),
-        onDismiss = onDismissDialog,
-        optionButton1Properties = WireDialogButtonProperties(
-            onClick = onAcknowledgeBackup,
-            text = stringResource(id = R.string.label_ok),
-            type = WireDialogButtonType.Primary,
-        )
-    )
-}
-
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun SetBackupPasswordDialog(

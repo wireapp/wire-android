@@ -3,6 +3,7 @@ package com.wire.android.framework
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.kalium.logic.data.asset.AssetsStorageFolder
 import com.wire.kalium.logic.data.asset.CacheFolder
+import com.wire.kalium.logic.data.asset.DBFolder
 import com.wire.kalium.logic.data.asset.DataStoragePaths
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import kotlinx.coroutines.withContext
@@ -24,9 +25,11 @@ class FakeKaliumFileSystem(
 
     private val rootCacheSystemPath = CacheFolder("$userHomePath/cache")
 
+    private val rootDBSystemPath = DBFolder("$userHomePath/database")
+
     private val fakeFileSystem = FakeFileSystem()
 
-    private val dataStoragePaths = DataStoragePaths(rootFileSystemPath, rootCacheSystemPath)
+    private val dataStoragePaths = DataStoragePaths(rootFileSystemPath, rootCacheSystemPath, rootDBSystemPath)
 
     init {
         fakeFileSystem.allowDeletingOpenFiles = true
@@ -38,6 +41,8 @@ class FakeKaliumFileSystem(
 
     override val rootCachePath: Path = dataStoragePaths.cachePath.value.toPath()
 
+    override val rootDBPath: Path = dataStoragePaths.dbPath.value.toPath()
+
     override fun sink(outputPath: Path, mustCreate: Boolean): Sink = fakeFileSystem.sink(outputPath, mustCreate)
 
     override fun source(inputPath: Path): Source = fakeFileSystem.source(inputPath)
@@ -47,6 +52,8 @@ class FakeKaliumFileSystem(
     override fun createDirectory(dir: Path, mustCreate: Boolean) = fakeFileSystem.createDirectory(dir, mustCreate)
 
     override fun delete(path: Path, mustExist: Boolean) = fakeFileSystem.delete(path, mustExist)
+
+    override fun deleteContents(dir: Path, mustExist: Boolean) = fakeFileSystem.deleteRecursively(dir, mustExist)
 
     override fun exists(path: Path): Boolean = fakeFileSystem.exists(path)
 
@@ -78,4 +85,7 @@ class FakeKaliumFileSystem(
     }
 
     override fun selfUserAvatarPath(): Path = providePersistentAssetPath("self_user_avatar.jpg")
+
+    override suspend fun listDirectories(dir: Path): List<Path> = fakeFileSystem.list(dir)
+
 }

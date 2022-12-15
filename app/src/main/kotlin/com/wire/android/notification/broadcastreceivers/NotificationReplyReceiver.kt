@@ -10,6 +10,7 @@ import com.wire.android.notification.MessageNotificationManager
 import com.wire.android.notification.NotificationConstants
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.CoreLogic
+import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.functional.fold
 import dagger.hilt.android.AndroidEntryPoint
@@ -46,15 +47,15 @@ class NotificationReplyReceiver : BroadcastReceiver() { // requires zero argumen
                 CoroutineScope(coroutineContext + dispatcherProvider.io()).launch {
                     messages.sendTextMessage(qualifiedConversationId, replyText)
                         .fold(
-                            { updateNotification(context, conversationId, userId, null) },
-                            { updateNotification(context, conversationId, userId, replyText) }
+                            { updateNotification(context, conversationId, qualifiedUserId, null) },
+                            { updateNotification(context, conversationId, qualifiedUserId, replyText) }
                         )
                 }
             }
         }
     }
 
-    private fun updateNotification(context: Context, conversationId: String, userId: String, replyText: String?) =
+    private fun updateNotification(context: Context, conversationId: String, userId: QualifiedID, replyText: String?) =
         MessageNotificationManager.updateNotificationAfterQuickReply(context, conversationId, userId, replyText)
 
     companion object {

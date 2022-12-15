@@ -806,6 +806,21 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
+    fun provideCreateBackupUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).createBackup
+
+    @ViewModelScoped
+    @Provides
+    fun provideVerifyBackupUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).verifyBackupUseCase
+
+    @ViewModelScoped
+    @Provides
+    fun provideRestoreBackupUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).restoreBackup
+
+    @ViewModelScoped
+    @Provides
     fun provideIsEligibleToStartCall(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
         coreLogic.getSessionScope(currentAccount).calls.isEligibleToStartCall
 

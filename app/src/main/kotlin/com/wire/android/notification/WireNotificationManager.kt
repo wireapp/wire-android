@@ -16,9 +16,7 @@ import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.notification.LocalNotificationConversation
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.call.Call
-import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
-import com.wire.kalium.logic.util.toStringDate
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -81,10 +79,6 @@ class WireNotificationManager @Inject constructor(
     suspend fun fetchAndShowNotificationsOnce(userIdValue: String) {
         val jobForUser = fetchOnceMutex.withLock {
             // Use the lock to create a new coroutine if needed
-            if (isNotCurrentUser(userIdValue)) {
-                appLogger.d("$TAG Ignoring notification for user=${userIdValue.obfuscateId()}, because not current user")
-                return@withLock null
-            }
             val currentJobForUser = fetchOnceJobs[userIdValue]
             val isJobRunningForUser = currentJobForUser?.run {
                 // Coroutine started, or didn't start yet, and it's waiting to be started
@@ -109,13 +103,6 @@ class WireNotificationManager @Inject constructor(
         // Join the job for the user, waiting for its completion
         jobForUser?.start()
         jobForUser?.join()
-    }
-
-    private fun isNotCurrentUser(userId: String): Boolean {
-        return when (val result = coreLogic.getGlobalScope().session.currentSession()) {
-            is CurrentSessionResult.Success -> result.accountInfo.userId.value != userId
-            else -> true // Fallback to display notifications anyway in case of unexpected error
-        }
     }
 
     private suspend fun triggerSyncForUserIfAuthenticated(userIdValue: String) {
@@ -250,7 +237,7 @@ class WireNotificationManager @Inject constructor(
                 }
 
                 when (screens) {
-                    is CurrentScreen.Conversation -> messagesNotificationManager.hideNotification(screens.id)
+                    is CurrentScreen.Conversation -> messagesNotificationManager.hideNotification(screens.id, userId)
                     is CurrentScreen.OtherUserProfile -> hideConnectionRequestNotification(userId, screens.id)
                     is CurrentScreen.IncomingCallScreen -> callNotificationManager.hideIncomingCallNotification()
                     else -> {}
@@ -310,6 +297,10 @@ class WireNotificationManager @Inject constructor(
         userIdFlow
             .flatMapLatest { userId ->
                 userId?.let {
+                    val observeSelfUser = coreLogic.getSessionScope(userId)
+                        .users
+                        .getSelfUser()
+
                     coreLogic.getSessionScope(userId)
                         .messages
                         .getNotifications()
@@ -319,25 +310,27 @@ class WireNotificationManager @Inject constructor(
                             appLogger.i("$TAG filtering notifications ${it.size}")
                             it.isNotEmpty()
                         }
-                        .map { newNotifications ->
+                        .combine(observeSelfUser) { newNotifications, selfUser ->
                             // we don't want to display notifications for the Conversation that user currently in.
                             val notificationsList = filterAccordingToScreenAndUpdateNotifyDate(
                                 currentScreenState.value,
                                 userId,
                                 newNotifications
                             )
+                            val userName = selfUser.handle ?: selfUser.name ?: ""
+
                             // combining all the data that is necessary for Notifications into small data class,
                             // just to make it more readable than
-                            // Pair<List<LocalNotificationConversation>, QualifiedID?>
-                            MessagesNotificationsData(notificationsList, userId)
+                            // Pair<List<LocalNotificationConversation>, QualifiedID>
+                            MessagesNotificationsData(notificationsList, userId, userName)
                         }
                 } ?: flowOf(null)
             }
             .cancellable()
             .filterNotNull()
-            .collect { (newNotifications, userId) ->
+            .collect { (newNotifications, userId, userName) ->
                 appLogger.d("$TAG got ${newNotifications.size} notifications")
-                messagesNotificationManager.handleNotification(newNotifications, userId)
+                messagesNotificationManager.handleNotification(newNotifications, userId, userName)
                 markMessagesAsNotified(userId, null)
                 markConnectionAsNotified(userId, null)
             }
@@ -426,14 +419,15 @@ class WireNotificationManager @Inject constructor(
                 ?.conversation
                 ?.id
                 ?.let { conversationId ->
-                    messagesNotificationManager.hideNotification(conversationId)
+                    messagesNotificationManager.hideNotification(conversationId, userId)
                 }
         }
     }
 
     data class MessagesNotificationsData(
         val newNotifications: List<LocalNotificationConversation>,
-        val userId: QualifiedID?
+        val userId: QualifiedID,
+        val userName: String
     )
 
     private data class OngoingCallData(val notificationTitle: String, val conversationId: ConversationId, val userId: UserId)

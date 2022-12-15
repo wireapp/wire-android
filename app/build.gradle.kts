@@ -49,7 +49,7 @@ android {
     }
 
     composeOptions {
-        kotlinCompilerExtensionVersion = Libraries.Versions.compose
+        kotlinCompilerExtensionVersion = Libraries.Versions.composeCompiler
     }
 
     sourceSets {
@@ -70,6 +70,7 @@ android {
 
     packagingOptions {
         resources.pickFirsts.add("google/protobuf/*.proto")
+        jniLibs.pickFirsts.add("**/libsodium.so")
     }
 
     testOptions {

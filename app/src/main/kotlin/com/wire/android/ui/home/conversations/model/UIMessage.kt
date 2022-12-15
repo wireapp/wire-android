@@ -31,6 +31,7 @@ data class UIMessage(
     val sendingFailed: Boolean = messageHeader.messageStatus == SendFailure
     val decryptionFailed: Boolean = messageHeader.messageStatus is DecryptionFailure
     val receivingFailed: Boolean = messageHeader.messageStatus == ReceiveFailure || decryptionFailed
+    val isAvailable: Boolean = !isDeleted && !sendingFailed && !receivingFailed
 }
 
 @Stable

@@ -11,8 +11,10 @@ import com.wire.android.di.NoSession
 import com.wire.android.notification.CallNotificationManager
 import com.wire.android.notification.NotificationConstants.CALL_ONGOING_NOTIFICATION_ID
 import com.wire.android.util.dispatchers.DispatcherProvider
+import com.wire.kalium.logger.obfuscateId
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
+import com.wire.kalium.logic.data.user.UserId
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
@@ -55,10 +57,7 @@ class OngoingCallService : Service() {
             val userId = qualifiedIdMapper.fromStringToQualifiedID(userIdString)
 
             scope.launch {
-                coreLogic.getSessionScope(userId)
-                    .calls
-                    .establishedCall()
-                    .collect { establishedCall ->
+                coreLogic.getSessionScope(userId).calls.establishedCall().collect { establishedCall ->
                         if (establishedCall.isEmpty()) {
                             appLogger.i("$TAG: stopSelf. Reason: call was ended")
                             stopSelf()
@@ -66,11 +65,13 @@ class OngoingCallService : Service() {
                     }
             }
 
-            generateForegroundNotification(callName, conversationIdString, userIdString)
+            generateForegroundNotification(callName, conversationIdString, userId)
         } else {
             appLogger.w(
                 "$TAG: stopSelf. Reason: some of the parameter is absent. " +
-                        "userIdString: $userIdString, conversationIdString: $conversationIdString, callName: $callName"
+                        "userIdString: ${userIdString?.obfuscateId()}, " +
+                        "conversationIdString: ${conversationIdString?.obfuscateId()}, " +
+                        "callName: $callName"
             )
             stopSelf()
         }
@@ -83,9 +84,7 @@ class OngoingCallService : Service() {
         appLogger.i("$TAG: onDestroy")
     }
 
-    private fun generateForegroundNotification(callName: String, conversationId: String, userId: String) {
-        callNotificationManager.createOngoingNotificationChannel()
-
+    private fun generateForegroundNotification(callName: String, conversationId: String, userId: UserId) {
         val notification: Notification = callNotificationManager.getOngoingCallNotification(callName, conversationId, userId)
         startForeground(CALL_ONGOING_NOTIFICATION_ID, notification)
     }

@@ -17,6 +17,7 @@ plugins { id("com.android.application") apply false }
 object BuildTypes {
     const val DEBUG = "debug"
     const val RELEASE = "release"
+    const val COMPAT = "compat"
 }
 
 object ProductFlavors {
@@ -57,6 +58,12 @@ android {
                 keyAlias = System.getenv("KEYSTORE_KEY_NAME_DEBUG")
                 keyPassword = System.getenv("KEYPWD_DEBUG")
             }
+            maybeCreate(BuildTypes.COMPAT).apply {
+                storeFile = file(System.getenv("KEYSTORE_FILE_PATH_COMPAT"))
+                storePassword = System.getenv("KEYSTOREPWD_COMPAT")
+                keyAlias = System.getenv("KEYSTORE_KEY_NAME_COMPAT")
+                keyPassword = System.getenv("KEYPWD_COMPAT")
+            }
         }
     }
 
@@ -76,6 +83,15 @@ android {
             isDebuggable = false
             if (enableSigning)
                 signingConfig = signingConfigs.getByName("release")
+        }
+        create(BuildTypes.COMPAT) {
+            initWith(getByName(BuildTypes.RELEASE))
+            isMinifyEnabled = true
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            isDebuggable = false
+            matchingFallbacks.add("release")
+            if (enableSigning)
+                signingConfig = signingConfigs.getByName("compat")
         }
     }
 

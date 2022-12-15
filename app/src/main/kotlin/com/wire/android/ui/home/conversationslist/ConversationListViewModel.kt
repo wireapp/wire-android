@@ -511,6 +511,7 @@ private fun parseConversationEventType(
         when {
             unreadEventCount.containsKey(UnreadEventType.MENTION) -> BadgeEventType.UnreadMention
             unreadEventCount.containsKey(UnreadEventType.REPLY) -> BadgeEventType.UnreadReply
+            unreadEventCount.containsKey(UnreadEventType.MISSED_CALL) -> BadgeEventType.MissedCall
             else -> BadgeEventType.None
         }
     else -> {

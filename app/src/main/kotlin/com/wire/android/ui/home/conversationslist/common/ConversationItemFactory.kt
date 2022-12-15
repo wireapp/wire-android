@@ -9,8 +9,8 @@ import com.wire.android.ui.calling.controlbuttons.JoinButton
 import com.wire.android.ui.common.RowItemTemplate
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.conversationColor
+import com.wire.android.ui.common.spacers.HorizontalSpace
 import com.wire.android.ui.home.conversations.model.UILastMessageContent
-import com.wire.android.ui.home.conversationslist.MutedConversationBadge
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.model.toUserInfoLabel
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
@@ -101,6 +101,7 @@ private fun GeneralConversationItem(
                             JoinButton(buttonClick = onJoinCallClick)
                         else if (mutedStatus != MutedConversationStatus.AllAllowed) {
                             MutedConversationBadge(onMutedIconClick)
+                            HorizontalSpace.x8()
                         }
                     },
                 )
@@ -123,6 +124,7 @@ private fun GeneralConversationItem(
                     trailingIcon = {
                         if (mutedStatus != MutedConversationStatus.AllAllowed) {
                             MutedConversationBadge(onMutedIconClick)
+                            HorizontalSpace.x8()
                         }
                     }
                 )

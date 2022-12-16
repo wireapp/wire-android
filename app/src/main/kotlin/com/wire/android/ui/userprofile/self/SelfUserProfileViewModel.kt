@@ -184,9 +184,7 @@ class SelfUserProfileViewModel @Inject constructor(
                 dataStore.clear()
             }
 
-            launch {
-                getSelf().collect { notificationChannelsManager.deleteChannelGroup(it.id) }
-            }.join()
+            getSelf().first().let { notificationChannelsManager.deleteChannelGroup(it.id) }
             accountSwitch(SwitchAccountParam.SwitchToNextAccountOrWelcome)
         }
     }

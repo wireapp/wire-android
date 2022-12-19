@@ -59,7 +59,8 @@ class MigrationMapper @Inject constructor() {
                 lastReadDate = LocalDateTime.MIN.toString(),
                 lastModifiedDate = LocalDateTime.MIN.toString(),
                 lastNotificationDate = LocalDateTime.MIN.toString(),
-                creatorId = creatorId
+                creatorId = creatorId,
+                receiptMode = Conversation.ReceiptMode.ENABLED
             )
         }
     }

@@ -366,6 +366,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     override fun onBlockUser(blockUserState: BlockUserDialogState) {
         viewModelScope.launch {
             requestInProgress = true
+            _closeBottomSheet.emit(Unit)
             when (val result = withContext(dispatchers.io()) { blockUser(userId) }) {
                 BlockUserResult.Success -> {
                     appLogger.i("User $userId was blocked")
@@ -384,10 +385,10 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     override fun onUnblockUser(userId: UserId) {
         viewModelScope.launch {
             requestInProgress = true
+            _closeBottomSheet.emit(Unit)
             when (val result = withContext(dispatchers.io()) { unblockUser(userId) }) {
                 UnblockUserResult.Success -> {
                     appLogger.i("User $userId was unblocked")
-                    _closeBottomSheet.emit(Unit)
                 }
 
                 is UnblockUserResult.Failure -> {

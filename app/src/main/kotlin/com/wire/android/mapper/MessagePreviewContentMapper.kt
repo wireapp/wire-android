@@ -112,9 +112,8 @@ private fun MessagePreview.uiLastMessageContent(): UILastMessageContent {
                     message = UIText.DynamicString((content as WithUser.Text).messageBody),
                     separator = ": "
                 )
-                is WithUser.MissedCall -> UILastMessageContent.SenderWithMessage(
-                    userUIText,
-                    UIText.StringResource(R.string.last_message_call)
+                is WithUser.MissedCall -> UILastMessageContent.TextMessage(
+                    MessageBody(UIText.PluralResource(R.plurals.unread_event_call, 1, 1))
                 )
             }
         }

@@ -491,8 +491,8 @@
         <item quantity="other">%1$d pings</item>
     </plurals>
     <plurals name="unread_event_call">
-        <item quantity="one">%1$d call</item>
-        <item quantity="other">%1$d calls</item>
+        <item quantity="one">%1$d missed call</item>
+        <item quantity="other">%1$d missed calls</item>
     </plurals>
     <plurals name="unread_event_mention">
         <item quantity="one">%1$d mention</item>

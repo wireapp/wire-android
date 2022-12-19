@@ -59,7 +59,11 @@ class MigrationMapper @Inject constructor() {
                 lastReadDate = LocalDateTime.MIN.toString(),
                 lastModifiedDate = LocalDateTime.MIN.toString(),
                 lastNotificationDate = LocalDateTime.MIN.toString(),
-                creatorId = creatorId
+                creatorId = creatorId,
+                // when migrating conversations from scala to AR, we do not care about the receiptMode
+                // and any value here swill not change the data in the database
+                // and it is only applicable to deleted conversations that are not part of the sync proccess
+                receiptMode = Conversation.ReceiptMode.ENABLED
             )
         }
     }

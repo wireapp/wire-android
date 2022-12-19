@@ -9,6 +9,7 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
 import com.wire.android.datastore.UserDataStore
 import com.wire.android.di.AuthServerConfigProvider
+import com.wire.android.di.CurrentAccount
 import com.wire.android.feature.AccountSwitchUseCase
 import com.wire.android.feature.SwitchAccountParam
 import com.wire.android.mapper.OtherAccountMapper
@@ -55,6 +56,7 @@ import javax.inject.Inject
 @ExperimentalMaterial3Api
 @HiltViewModel
 class SelfUserProfileViewModel @Inject constructor(
+    @CurrentAccount private val selfUserId: UserId,
     private val navigationManager: NavigationManager,
     private val dataStore: UserDataStore,
     private val getSelf: GetSelfUserUseCase,
@@ -184,9 +186,7 @@ class SelfUserProfileViewModel @Inject constructor(
                 dataStore.clear()
             }
 
-            launch {
-                getSelf().collect { notificationChannelsManager.deleteChannelGroup(it.id) }
-            }.join()
+            notificationChannelsManager.deleteChannelGroup(selfUserId)
             accountSwitch(SwitchAccountParam.SwitchToNextAccountOrWelcome)
         }
     }

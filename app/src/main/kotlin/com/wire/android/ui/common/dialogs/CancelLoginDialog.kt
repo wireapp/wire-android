@@ -19,7 +19,8 @@ fun CancelLoginDialogContent(
         WireDialog(
             title = stringResource(R.string.cancel_login_dialog_title),
             text = stringResource(R.string.cancel_login_dialog_description),
-            onDismiss = dialogState::dismiss,
+            // this dialog can not be dismissed by clicking outside of it
+            onDismiss = { },
             optionButton1Properties =
             WireDialogButtonProperties(
                 onClick = onActionButtonClicked,

@@ -26,7 +26,8 @@ object TestConversation {
         lastReadDate = "2022-03-30T15:36:00.000Z",
         access = listOf(Conversation.Access.CODE, Conversation.Access.INVITE),
         accessRole = listOf(Conversation.AccessRole.NON_TEAM_MEMBER, Conversation.AccessRole.GUEST),
-        creatorId = null
+        creatorId = null,
+        receiptMode = Conversation.ReceiptMode.ENABLED
     )
     val SELF = Conversation(
         ID.copy(value = "SELF ID"),
@@ -41,7 +42,8 @@ object TestConversation {
         lastReadDate = "2022-03-30T15:36:00.000Z",
         access = listOf(Conversation.Access.CODE, Conversation.Access.INVITE),
         accessRole = listOf(Conversation.AccessRole.NON_TEAM_MEMBER, Conversation.AccessRole.GUEST),
-        creatorId = null
+        creatorId = null,
+        receiptMode = Conversation.ReceiptMode.ENABLED
     )
 
     fun GROUP(protocolInfo: ProtocolInfo = ProtocolInfo.Proteus) = Conversation(
@@ -57,7 +59,8 @@ object TestConversation {
         lastReadDate = "2022-03-30T15:36:00.000Z",
         access = listOf(Conversation.Access.CODE, Conversation.Access.INVITE),
         accessRole = listOf(Conversation.AccessRole.NON_TEAM_MEMBER, Conversation.AccessRole.GUEST),
-        creatorId = null
+        creatorId = null,
+        receiptMode = Conversation.ReceiptMode.ENABLED
     )
 
 
@@ -74,7 +77,8 @@ object TestConversation {
         lastReadDate = "2022-03-30T15:36:00.000Z",
         access = listOf(Conversation.Access.CODE, Conversation.Access.INVITE),
         accessRole = listOf(Conversation.AccessRole.NON_TEAM_MEMBER, Conversation.AccessRole.GUEST),
-        creatorId = null
+        creatorId = null,
+        receiptMode = Conversation.ReceiptMode.ENABLED
     )
 
     val USER_1 = UserId("member1", "domainMember")
@@ -97,7 +101,8 @@ object TestConversation {
         access = listOf(Conversation.Access.CODE, Conversation.Access.INVITE),
         accessRole = listOf(Conversation.AccessRole.NON_TEAM_MEMBER, Conversation.AccessRole.GUEST),
         lastReadDate = "2022-03-30T15:36:00.000Z",
-        creatorId = null
+        creatorId = null,
+        receiptMode =  Conversation.ReceiptMode.ENABLED
     )
 
 }

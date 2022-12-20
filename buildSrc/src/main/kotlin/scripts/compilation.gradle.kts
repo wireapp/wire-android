@@ -44,7 +44,7 @@ dependencies {
 }
 
 project.tasks.register("includeGitBuildIdentifier", IncludeGitBuildTask::class) {
-    println("> Task: Registering :includeGitBuildIdentifier")
+    println("> Registering Task :includeGitBuildIdentifier")
 }
 
 project.afterEvaluate {

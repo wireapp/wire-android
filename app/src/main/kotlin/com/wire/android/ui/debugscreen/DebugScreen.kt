@@ -177,7 +177,7 @@ private fun LogOptions(
 
         val codeBuildNumber = LocalContext.current.getGitBuildId()
         if (codeBuildNumber.isNotBlank()) {
-            SettingsItem(title = stringResource(R.string.label_code_build_id, codeBuildNumber))
+            SettingsItem(title = stringResource(R.string.label_code_commit_id, codeBuildNumber))
         }
 
         if (deviceId != null) {

@@ -155,7 +155,7 @@ private fun QuotedMessageContent(
         horizontalArrangement = Arrangement.spacedBy(dimensions().spacing4x),
         modifier = modifier
             .background(
-                color = MaterialTheme.wireColorScheme.surface,
+                color = MaterialTheme.wireColorScheme.surfaceVariant,
                 shape = quoteOutlineShape
             )
             .border(

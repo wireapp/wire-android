@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.BottomSheetScaffold
 import androidx.compose.material.ExperimentalMaterialApi
@@ -28,12 +29,8 @@ import com.wire.android.ui.calling.common.CallVideoPreview
 import com.wire.android.ui.calling.common.CallerDetails
 import com.wire.android.ui.calling.controlbuttons.AcceptButton
 import com.wire.android.ui.calling.controlbuttons.CallOptionsControls
-import com.wire.android.ui.calling.controlbuttons.DeclineButton
-import com.wire.android.ui.common.WireDialog
-import com.wire.android.ui.common.WireDialogButtonProperties
-import com.wire.android.ui.common.WireDialogButtonType
-import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.theme.wireColorScheme
+import com.wire.android.ui.calling.controlbuttons.HangUpButton
+import com.wire.android.ui.common.*
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.permission.rememberCallingRecordAudioBluetoothRequestFlow
 import com.wire.kalium.logic.data.call.ConversationType
@@ -108,9 +105,10 @@ private fun IncomingCallContent(
 
     BottomSheetScaffold(
         sheetShape = RoundedCornerShape(dimensions().corner16x, dimensions().corner16x, 0.dp, 0.dp),
-        backgroundColor = MaterialTheme.wireColorScheme.callingIncomingBackground,
+        backgroundColor = colorsScheme().background,
         sheetGesturesEnabled = false,
         scaffoldState = scaffoldState,
+        sheetBackgroundColor = colorsScheme().surface,
         sheetPeekHeight = dimensions().defaultIncomingCallSheetPeekHeight,
         sheetContent = {
             CallOptionsControls(
@@ -134,9 +132,13 @@ private fun IncomingCallContent(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier.align(alignment = Alignment.CenterStart)
                 ) {
-                    DeclineButton { declineCall() }
+                    HangUpButton(
+                        modifier = Modifier.size(dimensions().initiatingCallHangUpButtonSize),
+                        onHangUpButtonClicked = { declineCall() }
+                    )
                     Text(
                         text = stringResource(id = R.string.calling_button_label_decline),
+                        color = colorsScheme().onSurface,
                         style = MaterialTheme.wireTypography.body03,
                         modifier = Modifier.padding(
                             top = dimensions().spacing8x,
@@ -149,9 +151,12 @@ private fun IncomingCallContent(
                     modifier = Modifier
                         .align(alignment = Alignment.CenterEnd)
                 ) {
-                    AcceptButton { acceptCall() }
+                    AcceptButton(
+                        buttonClicked = acceptCall
+                    )
                     Text(
                         text = stringResource(id = R.string.calling_button_label_accept),
+                        color = colorsScheme().onSurface,
                         style = MaterialTheme.wireTypography.body03,
                         modifier = Modifier.padding(
                             top = dimensions().spacing8x,

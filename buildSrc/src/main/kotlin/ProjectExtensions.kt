@@ -24,7 +24,8 @@ internal fun <T> getLocalProperty(propertyName: String, defaultValue: T, project
     }
 
     val localValue = localProperties.getOrDefault(propertyName, defaultValue) as? T ?: defaultValue
-    println("> Reading local prop '$propertyName' with value: $localValue")
+    println("> Reading local prop '$propertyName'")
+
     return localValue
 }
 

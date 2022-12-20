@@ -4,7 +4,7 @@ import java.io.File
 import java.io.FileOutputStream
 
 /**
- * This task will try to get the hash from the environment log entries and write it to an asset file.
+ * This task will try to get the hash from the environment git log entries and write it to an asset file.
  * This file will be located at [VERSION_FILE] for the app usage.
  */
 open class IncludeGitBuildTask : DefaultTask() {

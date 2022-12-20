@@ -89,7 +89,7 @@ class WireApplication : Application(), Configuration.Provider {
         appLogger.d(
             "Device info: App version=${BuildConfig.VERSION_NAME} " +
                     "| OS Version=${Build.VERSION.SDK_INT} " +
-                    "| Phone Model=${Build.BRAND}/${Build.MODEL}" +
+                    "| Phone Model=${Build.BRAND}/${Build.MODEL} " +
                     "| Commit hash=${applicationContext.getGitBuildId()}"
         )
     }

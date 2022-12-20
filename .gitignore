@@ -90,3 +90,5 @@ lint/tmp/
 # lint/reports/
 
 .DS_Store
+
+app/src/main/res/raw/version.txt

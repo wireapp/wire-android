@@ -1,5 +1,6 @@
 package com.wire.android.ui.authentication.devices.register
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -23,25 +24,37 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
+import com.wire.android.ui.authentication.devices.common.ClearSessionState
+import com.wire.android.ui.authentication.devices.common.ClearSessionViewModel
 import com.wire.android.ui.common.button.WireButtonState
+import com.wire.android.ui.common.button.WirePrimaryButton
+import com.wire.android.ui.common.dialogs.CancelLoginDialogContent
+import com.wire.android.ui.common.dialogs.CancelLoginDialogState
 import com.wire.android.ui.common.error.CoreFailureErrorDialog
 import com.wire.android.ui.common.textfield.WirePasswordTextField
-import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.common.textfield.clearAutofillTree
+import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 
 @Composable
 fun RegisterDeviceScreen() {
     val viewModel: RegisterDeviceViewModel = hiltViewModel()
+    val clearSessionViewModel: ClearSessionViewModel = hiltViewModel()
+    val clearSessionState: ClearSessionState = clearSessionViewModel.state
     clearAutofillTree()
     RegisterDeviceContent(
         state = viewModel.state,
+        clearSessionState = clearSessionState,
         onPasswordChange = viewModel::onPasswordChange,
         onContinuePressed = viewModel::onContinue,
-        onErrorDismiss = viewModel::onErrorDismiss
+        onErrorDismiss = viewModel::onErrorDismiss,
+        onBackButtonClicked = clearSessionViewModel::onBackButtonClicked,
+        onCancelLoginClicked = clearSessionViewModel::onCancelLoginClicked,
+        onProceedLoginClicked = clearSessionViewModel::onProceedLoginClicked
     )
 }
 
@@ -49,16 +62,43 @@ fun RegisterDeviceScreen() {
 @Composable
 private fun RegisterDeviceContent(
     state: RegisterDeviceState,
+    clearSessionState: ClearSessionState,
     onPasswordChange: (TextFieldValue) -> Unit,
     onContinuePressed: () -> Unit,
-    onErrorDismiss: () -> Unit
+    onErrorDismiss: () -> Unit,
+    onBackButtonClicked: () -> Unit,
+    onCancelLoginClicked: () -> Unit,
+    onProceedLoginClicked: () -> Unit
 ) {
+    BackHandler {
+        onBackButtonClicked()
+    }
+    val cancelLoginDialogState = rememberVisibilityState<CancelLoginDialogState>()
+    CancelLoginDialogContent(
+        dialogState = cancelLoginDialogState,
+        onActionButtonClicked = {
+            cancelLoginDialogState.dismiss()
+            onCancelLoginClicked()
+        },
+        onProceedButtonClicked = {
+            cancelLoginDialogState.dismiss()
+            onProceedLoginClicked()
+        }
+    )
+    if (clearSessionState.showCancelLoginDialog) {
+        cancelLoginDialogState.show(
+            cancelLoginDialogState.savedState ?: CancelLoginDialogState
+        )
+    }
+
+
     Scaffold(
         topBar = {
             WireCenterAlignedTopAppBar(
                 elevation = 0.dp,
                 title = stringResource(id = R.string.register_device_title),
-                navigationIconType = null
+                navigationIconType = NavigationIconType.Close,
+                onNavigationPressed = onBackButtonClicked
             )
         },
     ) { internalPadding ->
@@ -120,5 +160,5 @@ private fun PasswordTextField(state: RegisterDeviceState, onPasswordChange: (Tex
 @Composable
 @Preview
 private fun RegisterDeviceScreenPreview() {
-    RegisterDeviceContent(RegisterDeviceState(), {}, {}, {})
+    RegisterDeviceContent(RegisterDeviceState(), ClearSessionState(), {}, {}, {}, {}, {}, {})
 }

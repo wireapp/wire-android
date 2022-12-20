@@ -51,7 +51,6 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.data.conversation.ClientId
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -372,23 +371,25 @@ private fun MessageDecryptionFailure(
         LocalTextStyle provides MaterialTheme.typography.labelSmall
     ) {
         Column {
-            Row {
-                Spacer(Modifier.height(dimensions().spacing4x))
-                Text(
-                    text = decryptionStatus.text.asString(),
-                    style = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.error)
-                )
-                Spacer(Modifier.width(dimensions().spacing4x))
-                Text(
-                    modifier = Modifier
-                        .clickable { CustomTabsHelper.launchUrl(context, learnMoreUrl) },
-                    style = LocalTextStyle.current.copy(
-                        color = MaterialTheme.wireColorScheme.onTertiaryButtonSelected,
-                        textDecoration = TextDecoration.Underline
-                    ),
-                    text = stringResource(R.string.label_learn_more),
-                )
-            }
+            VerticalSpace.x4()
+            Text(
+                text = decryptionStatus.text.asString(),
+                style = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.error)
+            )
+            Text(
+                modifier = Modifier
+                    .clickable { CustomTabsHelper.launchUrl(context, learnMoreUrl) },
+                style = LocalTextStyle.current.copy(
+                    color = MaterialTheme.wireColorScheme.onTertiaryButtonSelected,
+                    textDecoration = TextDecoration.Underline
+                ),
+                text = stringResource(R.string.label_learn_more),
+            )
+            VerticalSpace.x4()
+            Text(
+                text = stringResource(R.string.label_message_decryption_failure_informative_message),
+                style = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.error)
+            )
             if (!decryptionStatus.isDecryptionResolved) {
                 Row {
                     WireSecondaryButton(

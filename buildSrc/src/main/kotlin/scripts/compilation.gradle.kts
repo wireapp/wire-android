@@ -1,5 +1,8 @@
 package scripts
 
+import IncludeGitBuildTask
+import Libraries
+
 plugins {
     id("com.android.application") apply false
     id("kotlin-android") apply false
@@ -32,10 +35,20 @@ android {
 
     kotlinOptions {
         jvmTarget = JavaVersion.VERSION_1_8.toString()
-        freeCompilerArgs += "-Xopt-in=kotlin.RequiresOptIn"
+        freeCompilerArgs += "-opt-in=kotlin.RequiresOptIn"
     }
 }
 
 dependencies {
     coreLibraryDesugaring(Libraries.desugaring)
+}
+
+project.tasks.register("includeGitBuildIdentifier", IncludeGitBuildTask::class) {
+    println("> Task: Registering :includeGitBuildIdentifier")
+}
+
+project.afterEvaluate {
+    project.tasks.matching { it.name.startsWith("bundle") || it.name.startsWith("assemble") }.configureEach {
+        dependsOn("includeGitBuildIdentifier")
+    }
 }

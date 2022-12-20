@@ -91,4 +91,4 @@ lint/tmp/
 
 .DS_Store
 
-app/src/main/res/raw/version.txt
+app/src/main/assets/version.txt

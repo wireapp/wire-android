@@ -89,6 +89,7 @@
     "supportEmail": "support@wire.com",
     "firebasePushSenderId": "782078216207",
     "firebaseAppId": "1:782078216207:android:d3db2443512d2055",
+    "googleApiKey": "AIzaSyDm5X3eLROMO9tM-jc2-RVUZqaYbNByg2I",
     "submitCrashReports": true,
     "allowMarketingCommunication": true,
     "enableBlacklist": true,

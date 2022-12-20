@@ -12,6 +12,7 @@ import com.datadog.android.privacy.TrackingConsent
 import com.datadog.android.rum.GlobalRum
 import com.datadog.android.rum.RumMonitor
 import com.google.firebase.FirebaseApp
+import com.google.firebase.FirebaseOptions
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.util.DataDogLogger
 import com.wire.android.util.LogFileWriter
@@ -56,7 +57,13 @@ class WireApplication : Application(), Configuration.Provider {
     override fun onCreate() {
         super.onCreate()
         if (this.isGoogleServicesAvailable()) {
-            FirebaseApp.initializeApp(this)
+            val firebaseOptions =  FirebaseOptions.Builder()
+                .setApplicationId(BuildConfig.FIREBASE_APP_ID)
+                .setGcmSenderId(BuildConfig.FIREBASE_PUSH_SENDER_ID)
+                .setApiKey(BuildConfig.GOOGLE_API_KEY)
+                .setProjectId("w966768976")
+                .build()
+            FirebaseApp.initializeApp(this, firebaseOptions, this.packageName)
         }
 
         initializeApplicationLoggingFrameworks()

@@ -140,7 +140,7 @@ object WireColorPalette {
     @Stable val DarkYellow800 = Color(0xFF66550F)
     @Stable val DarkYellow900 = Color(0xFF4D400B)
 
-    @Stable val Gray10  = Color(0xFFFAFAFA)
+    @Stable val Gray10 = Color(0xFFFAFAFA)
     @Stable val Gray20 = Color(0xFFEDEFF0)
     @Stable val Gray30 = Color(0xFFE5E8EA)
     @Stable val Gray40 = Color(0xFFDCE0E3)
@@ -149,9 +149,10 @@ object WireColorPalette {
     @Stable val Gray70 = Color(0xFF676B71)
     @Stable val Gray80 = Color(0xFF54585F)
     @Stable val Gray90 = Color(0xFF34373D)
+    @Stable val Gray95 = Color(0xFF26272C)
     @Stable val Gray100 = Color(0xFF17181A)
 
-    @Stable val GrayRed900  = Color(0xFF390000)
+    @Stable val GrayRed900 = Color(0xFF390000)
 
     @Stable val messageMentionBackground = Color(0x1A0772DE)
     @Stable val messageMentionText = Color(0xFF0772DE)

@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -24,29 +23,31 @@ fun MicrophoneButton(
     isMuted: Boolean,
     onMicrophoneButtonClicked: () -> Unit
 ) {
-    IconButton(
-        modifier = modifier,
-        onClick = {}
-    ) {
+    WireCallControlButton(
+        isSelected = !isMuted,
+        modifier = modifier
+    ) { iconColor ->
         Icon(
-            modifier = Modifier
+            modifier = modifier
                 .wrapContentSize()
-                .clickable(interactionSource = remember { MutableInteractionSource() },
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
                     indication = rememberRipple(bounded = false, radius = dimensions().defaultCallingControlsSize / 2),
                     role = Role.Button,
-                    onClick = { onMicrophoneButtonClicked() }),
+                    onClick = { onMicrophoneButtonClicked() }
+                ),
             painter = painterResource(
                 id = if (isMuted) {
-                    R.drawable.ic_muted
+                    R.drawable.ic_microphone_off
                 } else {
-                    R.drawable.ic_unmuted
+                    R.drawable.ic_microphone_on
                 }
             ),
             contentDescription = stringResource(
                 id = if (isMuted) R.string.content_description_calling_unmute_call
                 else R.string.content_description_calling_mute_call
             ),
-            tint = Color.Unspecified
+            tint = iconColor
         )
     }
 }

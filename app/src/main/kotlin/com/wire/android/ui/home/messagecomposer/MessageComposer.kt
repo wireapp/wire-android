@@ -34,7 +34,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
@@ -153,7 +152,7 @@ private fun MessageComposer(
     val focusManager = LocalFocusManager.current
     val messageReplyState = messageComposerState.quotedMessageData
 
-    Surface {
+    Surface(color = colorsScheme().messageComposerBackgroundColor) {
         val transition = updateTransition(
             targetState = messageComposerState.messageComposeInputState,
             label = stringResource(R.string.animation_label_messagecomposeinput_state_transistion)
@@ -162,7 +161,7 @@ private fun MessageComposer(
         // constrains to bottom of MessageComposerInput
         // so that MessageComposerInput is the only component animating freely, when going to Fullscreen mode
         ConstraintLayout(Modifier.fillMaxSize()) {
-            // This guide line is used was when the attachment options are visible
+            // This guideline is used was when the attachment options are visible
             // we need to use it to correctly offset the MessageComposerInput so that it is on a static place on the screen
             // to avoid reposition when the keyboard is hiding, this guideline makes space for the keyboard as well as for the
             // AttachmentOptions, the offset is set to DEFAULT_KEYBOARD_TOP_SCREEN_OFFSET as default, whenever the keyboard pops up
@@ -186,7 +185,8 @@ private fun MessageComposer(
                         }
 
                         height = Dimension.fillToConstraints
-                    }) {
+                    }
+            ) {
 
                 val (additionalActions, sendActions, messageInput) = createRefs()
                 // Column wrapping the content passed as Box with weight = 1f as @Composable lambda and the MessageComposerInput with
@@ -211,7 +211,7 @@ private fun MessageComposer(
                                     },
                                     onDoubleTap = { /* Called on Double Tap */ },
                                     onLongPress = { /* Called on Long Press */ },
-                                    onTap = {  /* Called on Tap */ }
+                                    onTap = { /* Called on Tap */ }
                                 )
                             }
                             .background(color = colorsScheme().backgroundVariant)
@@ -226,7 +226,7 @@ private fun MessageComposer(
                             Spacer(modifier = Modifier.weight(1f))
 
                             LazyColumn(
-                                modifier = Modifier.background(Color.White),
+                                modifier = Modifier.background(color = colorsScheme().background),
                                 reverseLayout = true
                             ) {
                                 membersToMention.forEach {
@@ -377,7 +377,7 @@ private fun CollapseIconButtonBox(
 }
 
 // if attachment is visible we want to align the bottom of the compose actions
-// to top of the guide line
+// to top of the guideline
 @Composable
 private fun CollapseIconButton(onCollapseClick: () -> Unit, modifier: Modifier = Modifier, collapseRotation: Float = 0f) {
     IconButton(

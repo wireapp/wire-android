@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -25,6 +26,7 @@ fun Logo() {
                 vertical = MaterialTheme.wireDimensions.homeDrawerLogoVerticalPadding
             )
             .width(MaterialTheme.wireDimensions.homeDrawerLogoWidth)
-            .height(MaterialTheme.wireDimensions.homeDrawerLogoHeight)
+            .height(MaterialTheme.wireDimensions.homeDrawerLogoHeight),
+        colorFilter = ColorFilter.tint(colorsScheme().onSurface)
     )
 }

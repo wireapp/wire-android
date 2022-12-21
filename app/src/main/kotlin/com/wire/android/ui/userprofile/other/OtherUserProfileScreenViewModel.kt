@@ -49,7 +49,6 @@ import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.id.toQualifiedID
 import com.wire.kalium.logic.data.user.ConnectionState
-import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.client.GetOtherUserClientsResult
 import com.wire.kalium.logic.feature.client.GetOtherUserClientsUseCase
@@ -80,11 +79,16 @@ import com.wire.kalium.logic.feature.user.ObserveUserInfoUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.Date
@@ -144,75 +148,86 @@ class OtherUserProfileScreenViewModel @Inject constructor(
 
     private fun observeUserInfoAndUpdateViewState() {
         viewModelScope.launch {
-            observeUserInfo(userId)
-                .combine(observeGroupInfo(), ::Pair)
-                .flowOn(dispatchers.io()).collect { (userResult, groupInfo) ->
-                    when (userResult) {
-                        is GetUserInfoResult.Failure -> {
-                            appLogger.d("Couldn't not find the user with provided id: $userId")
-                            closeBottomSheetAndShowInfoMessage(LoadUserInformationError)
-                        }
+            val observeUserInfo = observeUserInfo(userId).shareIn(viewModelScope, SharingStarted.WhileSubscribed(), 1)
 
-                        is GetUserInfoResult.Success -> {
-                            val otherUser = userResult.otherUser
-                            val userAvatarAsset = otherUser.completePicture
-                                ?.let { pic -> ImageAsset.UserAvatarAsset(wireSessionImageLoader, pic) }
+            viewModelScope.launch {
+                observeUserInfo
+                    .combine(observeGroupInfo(), ::Pair)
+                    .flowOn(dispatchers.io()).collect { (userResult, groupInfo) ->
+                        when (userResult) {
+                            is GetUserInfoResult.Failure -> {
+                                appLogger.d("Couldn't not find the user with provided id: $userId")
+                                closeBottomSheetAndShowInfoMessage(LoadUserInformationError)
+                            }
 
-                            // TODO yamil: this block could be removed from here. we should loaded on user click
-                            observeConversationSheetContentIfNeeded(otherUser, userAvatarAsset)
+                            is GetUserInfoResult.Success -> {
+                                val otherUser = userResult.otherUser
+                                val userAvatarAsset = otherUser.completePicture
+                                    ?.let { pic -> ImageAsset.UserAvatarAsset(wireSessionImageLoader, pic) }
 
-                            state = state.copy(
-                                isDataLoading = false,
-                                isAvatarLoading = false,
-                                userAvatarAsset = userAvatarAsset,
-                                fullName = otherUser.name.orEmpty(),
-                                userName = mapUserLabel(otherUser),
-                                teamName = userResult.team?.name.orEmpty(),
-                                email = otherUser.email.orEmpty(),
-                                phone = otherUser.phone.orEmpty(),
-                                connectionState = otherUser.connectionStatus,
-                                membership = userTypeMapper.toMembership(otherUser.userType),
-                                groupState = groupInfo,
-                                botService = otherUser.botService,
-                            )
+                                state = state.copy(
+                                    isDataLoading = false,
+                                    isAvatarLoading = false,
+                                    userAvatarAsset = userAvatarAsset,
+                                    fullName = otherUser.name.orEmpty(),
+                                    userName = mapUserLabel(otherUser),
+                                    teamName = userResult.team?.name.orEmpty(),
+                                    email = otherUser.email.orEmpty(),
+                                    phone = otherUser.phone.orEmpty(),
+                                    connectionState = otherUser.connectionStatus,
+                                    membership = userTypeMapper.toMembership(otherUser.userType),
+                                    groupState = groupInfo,
+                                    botService = otherUser.botService,
+                                )
+                            }
                         }
                     }
-                }
+            }
+
+            // TODO yamil: this block could be removed from here. we should loaded on user click
+            observeConversationSheetContentIfNeeded(observeUserInfo)
         }
     }
 
     // TODO This could be loaded on demand not on init.
-    private fun observeConversationSheetContentIfNeeded(otherUser: OtherUser, userAvatarAsset: ImageAsset.UserAvatarAsset?) {
-        // if we are not connected with that user, or that user is already blocked ->
-        // -> we don't have a direct conversation ->
-        // -> no need to load data for ConversationBottomSheet
-        if (otherUser.connectionStatus != ConnectionState.ACCEPTED && otherUser.connectionStatus != ConnectionState.BLOCKED) return
-
+    private fun observeConversationSheetContentIfNeeded(otherUserFlow: Flow<GetUserInfoResult>) {
         viewModelScope.launch {
-            getConversation(userId)
-                .collect { conversationResult ->
-                    when (conversationResult) {
-                        is GetOneToOneConversationUseCase.Result.Failure -> {
-                            appLogger.d("Couldn't not getOrCreateOneToOneConversation for user id: $userId")
-                        }
+            otherUserFlow
+                .distinctUntilChanged()
+                .flowOn(dispatchers.io())
+                .filterIsInstance<GetUserInfoResult.Success>()
+                .flatMapLatest { userResult ->
+                    val otherUser = userResult.otherUser
 
-                        is GetOneToOneConversationUseCase.Result.Success -> {
-                            state = state.copy(
-                                conversationSheetContent = ConversationSheetContent(
-                                    title = otherUser.name.orEmpty(),
-                                    conversationId = conversationResult.conversation.id,
-                                    mutingConversationState = conversationResult.conversation.mutedStatus,
-                                    conversationTypeDetail = ConversationTypeDetail.Private(
-                                        userAvatarAsset,
-                                        userId,
-                                        otherUser.BlockState
-                                    ),
-                                    isTeamConversation = conversationResult.conversation.isTeamGroup(),
-                                    selfRole = Conversation.Member.Role.Member
-                                )
-                            )
-                        }
+                    if (otherUser.connectionStatus !in listOf(ConnectionState.ACCEPTED, ConnectionState.BLOCKED)) {
+                        // if we are not connected with that user, or that user is not already blocked ->
+                        // -> we don't have a direct conversation ->
+                        // -> no need to load data for ConversationBottomSheet
+                        flowOf()
+                    } else {
+                        getConversation(userId)
+                            .filterIsInstance<GetOneToOneConversationUseCase.Result.Success>()
+                            .distinctUntilChanged()
+                            .map { otherUser to it }
                     }
+                }
+                .collect { (otherUser, conversationResult) ->
+                    val userAvatarAsset = otherUser.completePicture
+                        ?.let { pic -> ImageAsset.UserAvatarAsset(wireSessionImageLoader, pic) }
+                    state = state.copy(
+                        conversationSheetContent = ConversationSheetContent(
+                            title = otherUser.name.orEmpty(),
+                            conversationId = conversationResult.conversation.id,
+                            mutingConversationState = conversationResult.conversation.mutedStatus,
+                            conversationTypeDetail = ConversationTypeDetail.Private(
+                                userAvatarAsset,
+                                userId,
+                                otherUser.BlockState
+                            ),
+                            isTeamConversation = conversationResult.conversation.isTeamGroup(),
+                            selfRole = Conversation.Member.Role.Member
+                        )
+                    )
                 }
         }
     }

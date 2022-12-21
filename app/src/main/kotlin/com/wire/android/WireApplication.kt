@@ -18,6 +18,7 @@ import com.wire.android.util.DataDogLogger
 import com.wire.android.util.LogFileWriter
 import com.wire.android.util.extension.isGoogleServicesAvailable
 import com.wire.android.util.getDeviceId
+import com.wire.android.util.getGitBuildId
 import com.wire.android.util.lifecycle.ConnectionPolicyManager
 import com.wire.android.util.sha256
 import com.wire.android.workmanager.WireWorkerFactory
@@ -93,9 +94,13 @@ class WireApplication : Application(), Configuration.Provider {
 
     private fun logDeviceInformation() {
         appLogger.d(
-            "Device info: App version=${BuildConfig.VERSION_NAME} " +
-                    "| OS Version=${Build.VERSION.SDK_INT} " +
-                    "| Phone Model=${Build.BRAND}/${Build.MODEL}"
+            """
+            > Device info: 
+                App version=${BuildConfig.VERSION_NAME} 
+                OS version=${Build.VERSION.SDK_INT}
+                Phone model=${Build.BRAND}/${Build.MODEL}
+                Commit hash=${applicationContext.getGitBuildId()}
+        """.trimIndent()
         )
     }
 

@@ -39,6 +39,7 @@ import com.wire.android.ui.calling.model.UICallParticipant
 import com.wire.android.ui.calling.ongoing.participantsview.VerticalCallingPager
 import com.wire.android.ui.common.SecurityClassificationBanner
 import com.wire.android.ui.common.WireCircularProgressIndicator
+import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.topappbar.CommonTopAppBar
 import com.wire.android.ui.common.topappbar.CommonTopAppBarViewModel
@@ -107,6 +108,8 @@ private fun OngoingCallContent(
         bottomSheetState = sheetState
     )
     BottomSheetScaffold(
+        sheetBackgroundColor = colorsScheme().background,
+        backgroundColor = colorsScheme().background,
         topBar = {
             CommonTopAppBar(
                 connectivityUIState = connectivityState,

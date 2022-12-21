@@ -62,7 +62,7 @@ class WireApplication : Application(), Configuration.Provider {
                 .setApplicationId(BuildConfig.FIREBASE_APP_ID)
                 .setGcmSenderId(BuildConfig.FIREBASE_PUSH_SENDER_ID)
                 .setApiKey(BuildConfig.GOOGLE_API_KEY)
-                .setProjectId("w966768976")
+                .setProjectId(BuildConfig.FCM_PROJECT_ID)
                 .build()
             FirebaseApp.initializeApp(this, firebaseOptions, this.packageName)
         }

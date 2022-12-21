@@ -27,6 +27,7 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
     FIREBASE_APP_ID("firebaseAppId", ConfigType.STRING),
     FIREBASE_PUSH_SENDER_ID("firebasePushSenderId", ConfigType.STRING),
     GOOGLE_API_KEY("googleApiKey", ConfigType.STRING),
+    FCM_PROJECT_ID("fcmProjectID", ConfigType.STRING),
     FORCE_APP_LOCK("force_app_lock", ConfigType.BOOLEAN),
     FORCE_CONSTANT_BITRATE_CALLS("force_constant_bitrate_calls", ConfigType.BOOLEAN),
     FORCE_HIDE_SCREEN_CONTENT("force_hide_screen_content", ConfigType.BOOLEAN),

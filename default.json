@@ -90,6 +90,7 @@
     "firebasePushSenderId": "782078216207",
     "firebaseAppId": "1:782078216207:android:d3db2443512d2055",
     "googleApiKey": "AIzaSyDm5X3eLROMO9tM-jc2-RVUZqaYbNByg2I",
+    "fcmProjectID": "w966768976",
     "submitCrashReports": true,
     "allowMarketingCommunication": true,
     "enableBlacklist": true,

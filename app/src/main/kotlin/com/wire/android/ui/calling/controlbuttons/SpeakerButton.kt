@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -24,12 +23,12 @@ fun SpeakerButton(
     isSpeakerOn: Boolean,
     onSpeakerButtonClicked: () -> Unit
 ) {
-    IconButton(
-        modifier = modifier,
-        onClick = {}
-    ) {
+    WireCallControlButton(
+        isSelected = isSpeakerOn,
+        modifier = modifier
+    ) { iconColor ->
         Icon(
-            modifier = Modifier
+            modifier = modifier
                 .wrapContentSize()
                 .clickable(
                     interactionSource = remember { MutableInteractionSource() },
@@ -46,7 +45,7 @@ fun SpeakerButton(
                 id = if (isSpeakerOn) R.string.content_description_calling_turn_speaker_off
                 else R.string.content_description_calling_turn_speaker_on
             ),
-            tint = Color.Unspecified
+            tint = iconColor
         )
     }
 }

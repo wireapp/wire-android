@@ -2,6 +2,7 @@ package com.wire.android.ui.home.conversations
 
 import android.app.DownloadManager
 import android.content.Intent
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -37,6 +38,7 @@ import androidx.paging.compose.items
 import com.wire.android.R
 import com.wire.android.navigation.hiltSavedStateViewModel
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
+import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dialogs.CallingFeatureUnavailableDialog
 import com.wire.android.ui.common.dialogs.OngoingActiveCallDialog
 import com.wire.android.ui.common.error.CoreFailureErrorDialog
@@ -562,6 +564,7 @@ fun MessageList(
         modifier = Modifier
             .fillMaxHeight()
             .fillMaxWidth()
+            .background(colorsScheme().backgroundVariant)
     ) {
         items(lazyPagingMessages, key = { uiMessage ->
             uiMessage.messageHeader.messageId

@@ -1,6 +1,7 @@
 package com.wire.android.ui.common.bottomsheet
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
@@ -16,6 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.dp
+import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -44,7 +46,8 @@ fun WireModalSheetLayout(
                 thickness = 4.dp
             )
             sheetContent()
-        }
+        },
+        sheetBackgroundColor = colorsScheme().surface
     ) {
         content()
     }

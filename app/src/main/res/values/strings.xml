@@ -718,6 +718,7 @@
     <string name="label_debug_title">Debug</string>
     <string name="label_client_option_title">Client ID</string>
     <string name="label_device_id">Device ID: %1$s</string>
+    <string name="label_code_commit_id">Commit Hash: %1$s</string>
     <string name="label_client_id">Client ID: %1$s</string>
     <string name="label_key_packages_count">Key-packages count: %1$s</string>
     <string name="label_mls_client_id">MLS-client ID: %1$s</string>

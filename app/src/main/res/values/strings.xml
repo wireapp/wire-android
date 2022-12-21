@@ -23,6 +23,7 @@
     <string name="label_message_sent_failure">Message could not be sent.</string>
     <string name="label_message_receive_failure">Download Error</string>
     <string name="label_message_decryption_failure_message">Message could not be decrypted.</string>
+    <string name="label_message_decryption_failure_informative_message">Try resetting the session to generate new encryption keys.</string>
     <string name="label_try_again">Try again</string>
     <string name="label_reset_session">Reset Session</string>
     <string name="label_reset_session_success">Session successfully reset</string>
@@ -717,6 +718,7 @@
     <string name="label_debug_title">Debug</string>
     <string name="label_client_option_title">Client ID</string>
     <string name="label_device_id">Device ID: %1$s</string>
+    <string name="label_code_commit_id">Commit Hash: %1$s</string>
     <string name="label_client_id">Client ID: %1$s</string>
     <string name="label_key_packages_count">Key-packages count: %1$s</string>
     <string name="label_mls_client_id">MLS-client ID: %1$s</string>

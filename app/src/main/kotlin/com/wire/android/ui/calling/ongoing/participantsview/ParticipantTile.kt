@@ -38,6 +38,7 @@ import com.wire.android.R
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.calling.model.UICallParticipant
 import com.wire.android.ui.common.UserProfileAvatar
+import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.theme.wireColorScheme
@@ -56,7 +57,7 @@ fun ParticipantTile(
 ) {
     Surface(
         modifier = modifier,
-        color = MaterialTheme.wireColorScheme.ongoingCallBackground,
+        color = colorsScheme().surface,
         shape = RoundedCornerShape(dimensions().corner6x)
     ) {
 

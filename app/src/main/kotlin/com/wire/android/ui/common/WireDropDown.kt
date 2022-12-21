@@ -165,7 +165,9 @@ private fun MenuPopUp(
             )
 
             List(items.size) { index ->
-                Divider()
+                Divider(
+                    color = colorsScheme().divider
+                )
 
                 DropdownItem(
                     text = items[index] + LocalContext.current.defaultTextIndicator(

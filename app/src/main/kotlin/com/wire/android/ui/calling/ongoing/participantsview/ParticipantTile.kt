@@ -115,7 +115,7 @@ fun ParticipantTile(
 
             UsernameTile(
                 modifier = Modifier
-                    .padding(bottom = dimensions().spacing6x)
+                    .padding(bottom = dimensions().spacing8x)
                     .constrainAs(userName) {
                         bottom.linkTo(parent.bottom)
                         start.linkTo(parent.start)
@@ -202,7 +202,7 @@ private fun UsernameTile(
         Text(
             color = Color.White,
             style = MaterialTheme.wireTypography.label01,
-            modifier = Modifier.padding(3.dp),
+            modifier = Modifier.padding(4.dp),
             text = name,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis

@@ -253,7 +253,7 @@ data class MessageComposerInnerState(
     }
 
     fun reply(uiMessage: UIMessage) {
-        val authorName = uiMessage.messageHeader.username.asString(context.resources)
+        val authorName = uiMessage.messageHeader.username
         val authorId = uiMessage.messageHeader.userId ?: return
 
         val content = when (val content = uiMessage.messageContent) {

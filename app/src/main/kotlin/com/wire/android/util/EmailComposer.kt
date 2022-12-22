@@ -9,8 +9,8 @@ sealed interface EmailComposer {
     companion object {
 
         // TODO(localization): localize if needed
-        fun reportBugEmailTemplate(deviceHash: String? = "unavailable"): String = """
-        ${emailDebugHeader(deviceHash)}
+        fun reportBugEmailTemplate(deviceHash: String? = "unavailable", commitHash: String? = "unavailable"): String = """
+        ${emailDebugHeader(deviceHash, commitHash)}
 
         Please fill in the following
 
@@ -25,21 +25,23 @@ sealed interface EmailComposer {
         """.trimIndent()
 
         // TODO(localization): localize if needed
-        fun giveFeedbackEmailTemplate(deviceHash: String? = "unavailable"): String = """
-        ${emailDebugHeader(deviceHash)}
+        fun giveFeedbackEmailTemplate(deviceHash: String? = "unavailable", commitHash: String? = "unavailable"): String = """
+        ${emailDebugHeader(deviceHash, commitHash)}
 
         Thank you for taking interest from the Wire Team!
 
         """.trimIndent()
 
-        private fun emailDebugHeader(deviceHash: String?): String = """
+        private fun emailDebugHeader(deviceHash: String?, commitHash: String? = "unavailable"): String = """
         --- DO NOT EDIT---
         App Version: ${BuildConfig.VERSION_NAME}
         Device Hash: $deviceHash
         Device: ${Build.MANUFACTURER} - ${Build.MODEL}
         SDK: ${Build.VERSION.RELEASE}
         Date: ${Date()}
+        Commit Hash: $commitHash
         ------------------
         """
     }
+
 }

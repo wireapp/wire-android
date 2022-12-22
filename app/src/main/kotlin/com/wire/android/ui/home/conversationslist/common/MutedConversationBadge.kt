@@ -15,6 +15,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.ui.common.button.WireSecondaryButton
+import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 
 @Composable
@@ -28,7 +29,8 @@ fun MutedConversationBadge(onClick: () -> Unit) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_mute),
                     contentDescription = stringResource(R.string.content_description_muted_conversation),
-                    modifier = Modifier.size(dimensions().spacing12x)
+                    modifier = Modifier.size(dimensions().spacing12x),
+                    tint = colorsScheme().onSecondaryButtonEnabled
                 )
             },
             fillMaxWidth = false,

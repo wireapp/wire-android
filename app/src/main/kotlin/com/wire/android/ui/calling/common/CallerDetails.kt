@@ -24,6 +24,7 @@ import com.wire.android.ui.calling.ConversationName
 import com.wire.android.ui.common.SecurityClassificationBanner
 import com.wire.android.ui.common.MembershipQualifierLabel
 import com.wire.android.ui.common.UserProfileAvatar
+import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.home.conversationslist.model.Membership
@@ -69,11 +70,13 @@ fun CallerDetails(
                 is ConversationName.Unknown -> stringResource(id = conversationName.resourceId)
                 else -> ""
             },
+            color = colorsScheme().onBackground,
             style = MaterialTheme.wireTypography.title01,
             modifier = Modifier.padding(top = dimensions().spacing24x)
         )
         Text(
             text = callingLabel,
+            color = colorsScheme().onBackground,
             style = MaterialTheme.wireTypography.body01,
             modifier = Modifier.padding(top = dimensions().spacing8x)
         )

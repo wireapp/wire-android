@@ -162,7 +162,9 @@ private fun QuotedMessageContent(
                 width = 1.dp,
                 color = MaterialTheme.wireColorScheme.divider,
                 shape = quoteOutlineShape
-            ).padding(dimensions().spacing4x).fillMaxWidth()
+            )
+            .padding(dimensions().spacing4x)
+            .fillMaxWidth()
     ) {
         Box(modifier = Modifier.padding(start = dimensions().spacing4x)) {
             startContent()
@@ -184,10 +186,15 @@ private fun QuotedMessageContent(
         }
 
         // Make sure the end content is all the way to the end by spacing it
-        Spacer(modifier = modifier.weight(1f).fillMaxWidth())
+        Spacer(
+            modifier = modifier
+                .weight(1f)
+                .fillMaxWidth()
+        )
         val endContentExtraPadding = if (style == COMPLETE) dimensions().spacing4x else dimensions().spacing0x
         Box(
-            modifier = Modifier.align(Alignment.CenterVertically)
+            modifier = Modifier
+                .align(Alignment.CenterVertically)
                 .padding(bottom = endContentExtraPadding, top = endContentExtraPadding, end = endContentExtraPadding)
         ) {
             endContent()
@@ -227,14 +234,14 @@ private fun QuotedInvalid(style: QuotedMessageStyle) {
 
 @Composable
 private fun QuotedDeleted(
-    senderName: String,
+    senderName: UIText,
     originalDateDescription: UIText,
     style: QuotedMessageStyle,
     modifier: Modifier = Modifier,
     startContent: @Composable () -> Unit = {},
 ) {
     QuotedMessageContent(
-        senderName,
+        senderName.asString(),
         style = style,
         modifier = modifier,
         startContent = {
@@ -252,13 +259,13 @@ private fun QuotedText(
     text: String,
     editedTimeDescription: UIText?,
     originalDateTimeDescription: UIText,
-    senderName: String,
+    senderName: UIText,
     modifier: Modifier = Modifier,
     startContent: @Composable () -> Unit = {},
     style: QuotedMessageStyle
 ) {
     QuotedMessageContent(
-        senderName,
+        senderName.asString(),
         style = style,
         modifier = modifier,
         startContent = {
@@ -285,7 +292,7 @@ private fun QuotedMessageOriginalDate(
 
 @Composable
 private fun QuotedImage(
-    senderName: String,
+    senderName: UIText,
     asset: ImageAsset.PrivateAsset,
     originalDateTimeText: UIText,
     startContent: @Composable () -> Unit = {},
@@ -293,7 +300,7 @@ private fun QuotedImage(
     modifier: Modifier
 ) {
     val imageDimension = if (style == COMPLETE) dimensions().spacing56x else dimensions().spacing40x
-    QuotedMessageContent(senderName, style = style, modifier = modifier, endContent = {
+    QuotedMessageContent(senderName.asString(), style = style, modifier = modifier, endContent = {
         Image(
             painter = asset.paint(),
             contentDescription = stringResource(R.string.content_description_image_message),
@@ -326,7 +333,7 @@ private fun MainContentText(text: String) {
 
 @Composable
 private fun QuotedGenericAsset(
-    senderName: String,
+    senderName: UIText,
     originalDateTimeText: UIText,
     assetName: String?,
     style: QuotedMessageStyle,
@@ -334,7 +341,7 @@ private fun QuotedGenericAsset(
     modifier: Modifier
 ) {
     QuotedMessageContent(
-        senderName = senderName, style = style, modifier = modifier, centerContent = {
+        senderName = senderName.asString(), style = style, modifier = modifier, centerContent = {
             assetName?.let {
                 MainContentText(it)
             }

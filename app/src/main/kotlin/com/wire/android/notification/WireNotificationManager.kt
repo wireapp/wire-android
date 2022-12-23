@@ -30,7 +30,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.cancellable
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
@@ -304,11 +303,6 @@ class WireNotificationManager @Inject constructor(
                         .messages
                         .getNotifications()
                         .cancellable()
-                        // no need to do the whole work if there is no notifications
-                        .filter {
-                            appLogger.i("$TAG filtering notifications ${it.size}")
-                            it.isNotEmpty()
-                        }
                         .combine(observeSelfUser) { newNotifications, selfUser ->
                             // we don't want to display notifications for the Conversation that user currently in.
                             val notificationsList = filterAccordingToScreenAndUpdateNotifyDate(

@@ -9,6 +9,7 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
 import com.wire.android.datastore.UserDataStore
 import com.wire.android.di.AuthServerConfigProvider
+import com.wire.android.di.CurrentAccount
 import com.wire.android.feature.AccountSwitchUseCase
 import com.wire.android.feature.SwitchAccountParam
 import com.wire.android.mapper.OtherAccountMapper
@@ -16,6 +17,7 @@ import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.notification.NotificationChannelsManager
 import com.wire.android.ui.userprofile.self.dialog.StatusDialogData
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.WireSessionImageLoader
@@ -54,6 +56,7 @@ import javax.inject.Inject
 @ExperimentalMaterial3Api
 @HiltViewModel
 class SelfUserProfileViewModel @Inject constructor(
+    @CurrentAccount private val selfUserId: UserId,
     private val navigationManager: NavigationManager,
     private val dataStore: UserDataStore,
     private val getSelf: GetSelfUserUseCase,
@@ -69,7 +72,8 @@ class SelfUserProfileViewModel @Inject constructor(
     private val otherAccountMapper: OtherAccountMapper,
     private val observeEstablishedCalls: ObserveEstablishedCallsUseCase,
     private val accountSwitch: AccountSwitchUseCase,
-    private val endCall: EndCallUseCase
+    private val endCall: EndCallUseCase,
+    private val notificationChannelsManager: NotificationChannelsManager
 ) : ViewModel() {
 
     var userProfileState by mutableStateOf(SelfUserProfileState())
@@ -177,7 +181,12 @@ class SelfUserProfileViewModel @Inject constructor(
 
             val logoutReason = if (wipeData) LogoutReason.SELF_HARD_LOGOUT else LogoutReason.SELF_SOFT_LOGOUT
             logout(logoutReason)
-            if (wipeData) dataStore.clear() // TODO this should be moved to some service that will clear all the data in the app
+            if (wipeData) {
+                // TODO this should be moved to some service that will clear all the data in the app
+                dataStore.clear()
+            }
+
+            notificationChannelsManager.deleteChannelGroup(selfUserId)
             accountSwitch(SwitchAccountParam.SwitchToNextAccountOrWelcome)
         }
     }

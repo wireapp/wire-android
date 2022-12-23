@@ -30,6 +30,7 @@ import com.wire.android.ui.common.LegalHoldIndicator
 import com.wire.android.ui.common.StatusBox
 import com.wire.android.ui.common.UserBadge
 import com.wire.android.ui.common.UserProfileAvatar
+import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.home.conversations.messages.QuotedMessage
@@ -49,6 +50,7 @@ import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMess
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
+import com.wire.kalium.logic.data.user.UserId
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -58,7 +60,8 @@ fun MessageItem(
     onAssetMessageClicked: (String) -> Unit,
     onImageMessageClicked: (String, Boolean) -> Unit,
     onOpenProfile: (String) -> Unit,
-    onReactionClicked: (String, String) -> Unit
+    onReactionClicked: (String, String) -> Unit,
+    onResetSessionClicked: (senderUserId: UserId, clientId: String?) -> Unit
 ) {
     with(message) {
         val fullAvatarOuterPadding = dimensions().userAvatarClickablePadding + dimensions().userAvatarStatusBorderSize
@@ -133,8 +136,11 @@ fun MessageItem(
                             onReactionClicked
                         )
                     } else {
-                        // Decryption failed for this message
-                        MessageDecryptionFailure()
+                        MessageDecryptionFailure(
+                            messageHeader = messageHeader,
+                            decryptionStatus = messageHeader.messageStatus as MessageStatus.DecryptionFailure,
+                            onResetSessionClicked = onResetSessionClicked
+                        )
                     }
                 }
 
@@ -285,6 +291,7 @@ private fun MessageContent(
         is UIMessageContent.SystemMessage.MemberRemoved -> {}
         is UIMessageContent.SystemMessage.RenamedConversation -> {}
         is UIMessageContent.SystemMessage.TeamMemberRemoved -> {}
+        is UIMessageContent.SystemMessage.CryptoSessionReset -> {}
         is UIMessageContent.RestrictedAsset -> {
             when {
                 messageContent.mimeType.contains("image/") -> {
@@ -321,7 +328,8 @@ private fun MessageStatusLabel(messageStatus: MessageStatus) {
         is MessageStatus.Edited,
         MessageStatus.ReceiveFailure -> StatusBox(messageStatus.text.asString())
 
-        MessageStatus.SendFailure, MessageStatus.Untouched, MessageStatus.DecryptionFailure -> {
+        is MessageStatus.DecryptionFailure,
+        MessageStatus.SendFailure, MessageStatus.Untouched -> {
             /** Don't display anything **/
         }
     }
@@ -352,19 +360,22 @@ private fun MessageSendFailureWarning() {
 }
 
 @Composable
-private fun MessageDecryptionFailure() {
+private fun MessageDecryptionFailure(
+    messageHeader: MessageHeader,
+    decryptionStatus: MessageStatus.DecryptionFailure,
+    onResetSessionClicked: (senderUserId: UserId, clientId: String?) -> Unit
+) {
     val context = LocalContext.current
     val learnMoreUrl = stringResource(R.string.url_decryption_failure_learn_more)
     CompositionLocalProvider(
         LocalTextStyle provides MaterialTheme.typography.labelSmall
     ) {
-        Row {
-            Spacer(Modifier.height(dimensions().spacing4x))
+        Column {
+            VerticalSpace.x4()
             Text(
-                text = MessageStatus.DecryptionFailure.text.asString(),
+                text = decryptionStatus.text.asString(),
                 style = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.error)
             )
-            Spacer(Modifier.width(dimensions().spacing4x))
             Text(
                 modifier = Modifier
                     .clickable { CustomTabsHelper.launchUrl(context, learnMoreUrl) },
@@ -374,6 +385,23 @@ private fun MessageDecryptionFailure() {
                 ),
                 text = stringResource(R.string.label_learn_more),
             )
+            VerticalSpace.x4()
+            Text(
+                text = stringResource(R.string.label_message_decryption_failure_informative_message),
+                style = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.error)
+            )
+            if (!decryptionStatus.isDecryptionResolved) {
+                Row {
+                    WireSecondaryButton(
+                        text = stringResource(R.string.label_reset_session),
+                        onClick = { messageHeader.userId?.let { userId -> onResetSessionClicked(userId, messageHeader.clientId?.value) } },
+                        minHeight = dimensions().spacing32x,
+                        fillMaxWidth = false,
+                    )
+                }
+            } else {
+                VerticalSpace.x8()
+            }
         }
     }
 }

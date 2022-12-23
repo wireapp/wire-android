@@ -2,6 +2,7 @@ package com.wire.android.notification
 
 import com.wire.android.common.runTestWithCancellation
 import com.wire.android.config.TestDispatcherProvider
+import com.wire.android.framework.TestUser
 import com.wire.android.services.ServicesManager
 import com.wire.android.util.CurrentScreen
 import com.wire.android.util.CurrentScreenManager
@@ -34,6 +35,8 @@ import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import com.wire.kalium.logic.feature.session.GetSessionsUseCase
 import com.wire.kalium.logic.feature.session.SessionScope
+import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
+import com.wire.kalium.logic.feature.user.UserScope
 import com.wire.kalium.logic.sync.SyncManager
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -69,7 +72,11 @@ class WireNotificationManagerTest {
         advanceUntilIdle()
 
         verify(exactly = 0) { arrangement.coreLogic.getSessionScope(any()) }
-        verify(exactly = 0) { arrangement.messageNotificationManager.handleNotification(any(), any()) }
+        verify(exactly = 0) { arrangement.messageNotificationManager.handleNotification(
+            any(),
+            any(),
+            TestUser.SELF_USER.handle!!
+        ) }
         verify(exactly = 0) { arrangement.callNotificationManager.handleIncomingCallNotifications(any(), any()) }
     }
 
@@ -88,7 +95,11 @@ class WireNotificationManagerTest {
 
             verify(atLeast = 1) { arrangement.coreLogic.getSessionScope(any()) }
             coVerify(exactly = 1) { arrangement.connectionPolicyManager.handleConnectionOnPushNotification(TEST_AUTH_TOKEN.userId) }
-            verify(exactly = 0) { arrangement.messageNotificationManager.handleNotification(listOf(), any()) }
+            verify(exactly = 0) { arrangement.messageNotificationManager.handleNotification(
+                listOf(),
+                any(),
+                TestUser.SELF_USER.handle!!
+            ) }
             verify(exactly = 1) { arrangement.callNotificationManager.handleIncomingCallNotifications(listOf(), any()) }
         }
 
@@ -162,7 +173,11 @@ class WireNotificationManagerTest {
         runCurrent()
 
         verify(exactly = 0) { arrangement.coreLogic.getSessionScope(any()) }
-        verify(exactly = 0) { arrangement.messageNotificationManager.handleNotification(listOf(), any()) }
+        verify(exactly = 0) { arrangement.messageNotificationManager.handleNotification(
+            listOf(),
+            any(),
+            TestUser.SELF_USER.handle!!
+        ) }
         verify(exactly = 1) { arrangement.callNotificationManager.hideAllNotifications() }
     }
 
@@ -178,7 +193,11 @@ class WireNotificationManagerTest {
         runCurrent()
 
         verify(exactly = 0) { arrangement.coreLogic.getSessionScope(any()) }
-        verify(exactly = 0) { arrangement.messageNotificationManager.handleNotification(listOf(), any()) }
+        verify(exactly = 0) { arrangement.messageNotificationManager.handleNotification(
+            listOf(),
+            any(),
+            TestUser.SELF_USER.handle!!
+        ) }
         verify(exactly = 1) { arrangement.callNotificationManager.hideAllNotifications() }
     }
 
@@ -193,7 +212,11 @@ class WireNotificationManagerTest {
         manager.observeNotificationsAndCalls(flowOf(provideUserId()), this) {}
         runCurrent()
 
-        verify(exactly = 1) { arrangement.messageNotificationManager.handleNotification(any(), any()) }
+        verify(exactly = 1) { arrangement.messageNotificationManager.handleNotification(
+            any(),
+            any(),
+            TestUser.SELF_USER.handle!!
+        ) }
     }
 
     @Test
@@ -216,7 +239,11 @@ class WireNotificationManagerTest {
             manager.observeNotificationsAndCalls(flowOf(provideUserId()), this) {}
             runCurrent()
 
-            verify(exactly = 1) { arrangement.messageNotificationManager.handleNotification(listOf(), any()) }
+            verify(exactly = 1) { arrangement.messageNotificationManager.handleNotification(
+                listOf(),
+                any(),
+                TestUser.SELF_USER.handle!!
+            ) }
             coVerify(atLeast = 1) { arrangement.markMessagesAsNotified(conversationId, any()) }
         }
 
@@ -233,7 +260,7 @@ class WireNotificationManagerTest {
             manager.observeNotificationsAndCalls(flowOf(provideUserId()), this) {}
             runCurrent()
 
-            coVerify(atLeast = 1) { arrangement.messageNotificationManager.hideNotification(conversationId) }
+            coVerify(atLeast = 1) { arrangement.messageNotificationManager.hideNotification(conversationId, provideUserId()) }
         }
 
     @Test
@@ -331,6 +358,9 @@ class WireNotificationManagerTest {
         lateinit var conversationScope: ConversationScope
 
         @MockK
+        lateinit var userScope: UserScope
+
+        @MockK
         lateinit var syncManager: SyncManager
 
         @MockK
@@ -369,6 +399,9 @@ class WireNotificationManagerTest {
         @MockK
         lateinit var currentSessionUseCase: CurrentSessionUseCase
 
+        @MockK
+        lateinit var getSelfUser: GetSelfUserUseCase
+
         val wireNotificationManager by lazy {
             WireNotificationManager(
                 coreLogic,
@@ -388,13 +421,15 @@ class WireNotificationManagerTest {
             coEvery { userSessionScope.messages } returns messageScope
             coEvery { userSessionScope.syncManager } returns syncManager
             coEvery { userSessionScope.conversations } returns conversationScope
+            coEvery { userSessionScope.users } returns userScope
             coEvery { conversationScope.markConnectionRequestAsNotified } returns markConnectionRequestAsNotified
+            coEvery { userScope.getSelfUser } returns getSelfUser
             coEvery { markConnectionRequestAsNotified(any()) } returns Unit
             coEvery { syncManager.waitUntilLive() } returns Unit
             coEvery { globalKaliumScope.getSessions } returns getSessionsUseCase
             coEvery { coreLogic.getSessionScope(any()) } returns userSessionScope
             coEvery { coreLogic.getGlobalScope() } returns globalKaliumScope
-            coEvery { messageNotificationManager.handleNotification(any(), any()) } returns Unit
+            coEvery { messageNotificationManager.handleNotification(any(), any(), any()) } returns Unit
             coEvery { callsScope.getIncomingCalls } returns getIncomingCallsUseCase
             coEvery { callsScope.establishedCall } returns establishedCall
             coEvery { callNotificationManager.handleIncomingCallNotifications(any(), any()) } returns Unit
@@ -404,6 +439,7 @@ class WireNotificationManagerTest {
             coEvery { messageScope.markMessagesAsNotified } returns markMessagesAsNotified
             coEvery { markMessagesAsNotified(any(), any()) } returns Result.Success
             coEvery { globalKaliumScope.session } returns sessionScope
+            coEvery { getSelfUser.invoke() } returns flowOf(TestUser.SELF_USER)
             coEvery { sessionScope.currentSession } returns currentSessionUseCase
             every { servicesManager.startOngoingCallService(any(), any(), any()) } returns Unit
             every { servicesManager.stopOngoingCallService() } returns Unit

@@ -1,9 +1,7 @@
 package com.wire.android.workmanager.worker
 
 import android.content.Context
-import androidx.core.app.NotificationChannelCompat
 import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationManagerCompat
 import androidx.hilt.work.HiltWorker
 import androidx.lifecycle.asFlow
 import androidx.work.BackoffPolicy
@@ -34,8 +32,7 @@ class MigrationWorker
 @AssistedInject constructor(
     @Assisted appContext: Context,
     @Assisted workerParams: WorkerParameters,
-    private val migrationManager: MigrationManager,
-    private val notificationManager: NotificationManagerCompat
+    private val migrationManager: MigrationManager
 ) : CoroutineWorker(appContext, workerParams) {
 
     override suspend fun doWork(): Result = migrationManager.migrate().let {
@@ -46,8 +43,6 @@ class MigrationWorker
     }
 
     override suspend fun getForegroundInfo(): ForegroundInfo {
-        createNotificationChannel()
-
         val notification = NotificationCompat.Builder(applicationContext, NotificationConstants.OTHER_CHANNEL_ID)
             .setSmallIcon(R.drawable.notification_icon_small)
             .setAutoCancel(true)
@@ -60,15 +55,6 @@ class MigrationWorker
             .build()
 
         return ForegroundInfo(NotificationConstants.MIGRATION_NOTIFICATION_ID, notification)
-    }
-
-    private fun createNotificationChannel() {
-        val notificationChannel = NotificationChannelCompat
-            .Builder(NotificationConstants.OTHER_CHANNEL_ID, NotificationManagerCompat.IMPORTANCE_MIN)
-            .setName(NotificationConstants.OTHER_CHANNEL_NAME)
-            .build()
-
-        notificationManager.createNotificationChannel(notificationChannel)
     }
 
     companion object {

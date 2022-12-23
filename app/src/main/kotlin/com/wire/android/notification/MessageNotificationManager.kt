@@ -9,7 +9,6 @@ import android.service.notification.StatusBarNotification
 import android.text.Spannable
 import android.text.style.StyleSpan
 import androidx.annotation.StringRes
-import androidx.core.app.NotificationChannelCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.Person
@@ -33,73 +32,72 @@ class MessageNotificationManager
     private val notificationManagerCompat: NotificationManagerCompat,
     private val notificationManager: NotificationManager
 ) {
-    fun handleNotification(newNotifications: List<LocalNotificationConversation>, userId: QualifiedID?) {
+    fun handleNotification(newNotifications: List<LocalNotificationConversation>, userId: QualifiedID, userName: String) {
         if (newNotifications.isEmpty()) return
 
         val activeNotifications: Array<StatusBarNotification> = notificationManager.activeNotifications ?: arrayOf()
-        val userIdString = userId?.toString()
 
-        createNotificationChannel()
-        showSummaryIfNeeded(activeNotifications)
+        showSummaryIfNeeded(userId, activeNotifications, userName)
         newNotifications.forEach {
-            showConversationNotification(it.intoNotificationConversation(), userIdString, activeNotifications)
+            showConversationNotification(it.intoNotificationConversation(), userId, activeNotifications)
         }
 
         appLogger.i("$TAG: handled notifications: newNotifications size ${newNotifications.size}; ")
     }
 
-    fun hideNotification(conversationsId: ConversationId) {
+    fun hideNotification(conversationsId: ConversationId, userId: QualifiedID) {
         val notificationId = getConversationNotificationId(conversationsId)
 
-        if (isThereAnyOtherWireNotification(notificationId)) {
+        if (isThereAnyOtherWireNotification(notificationId, userId)) {
             notificationManagerCompat.cancel(notificationId)
         } else {
-            hideAllNotifications()
+            hideAllNotificationsForUser(userId)
         }
     }
 
     fun hideAllNotifications() {
+        notificationManager.activeNotifications
+            ?.filter { it.groupKey.contains(NotificationConstants.getMessagesGroupKey(null)) }
+            ?.forEach { notificationManagerCompat.cancel(it.id) }
+    }
+
+    fun hideAllNotificationsForUser(userId: QualifiedID) {
         // removing groupSummary removes all the notifications in a group
-        notificationManagerCompat.cancel(NotificationConstants.MESSAGE_SUMMARY_ID)
+        notificationManagerCompat.cancel(NotificationConstants.getMessagesSummaryId(userId))
     }
 
-    private fun createNotificationChannel() {
-        val notificationChannel = NotificationChannelCompat
-            .Builder(NotificationConstants.MESSAGE_CHANNEL_ID, NotificationManagerCompat.IMPORTANCE_MAX)
-            .setName(NotificationConstants.MESSAGE_CHANNEL_NAME)
-            .build()
-
-        notificationManagerCompat.createNotificationChannel(notificationChannel)
-    }
-
-    private fun showSummaryIfNeeded(activeNotifications: Array<StatusBarNotification>) {
-        if (activeNotifications.find { it.id == NotificationConstants.MESSAGE_SUMMARY_ID } != null) return
+    private fun showSummaryIfNeeded(userId: QualifiedID, activeNotifications: Array<StatusBarNotification>, userName: String) {
+        if (activeNotifications.find { it.id == NotificationConstants.getMessagesSummaryId(userId) } != null) return
 
         appLogger.i("$TAG adding groupSummary")
-        notificationManager.notify(NotificationConstants.MESSAGE_SUMMARY_ID, getSummaryNotification())
+        notificationManager.notify(NotificationConstants.getMessagesSummaryId(userId), getSummaryNotification(userId, userName))
     }
 
     private fun showConversationNotification(
         conversation: NotificationConversation,
-        userId: String?,
+        userId: QualifiedID,
         activeNotifications: Array<StatusBarNotification>
     ) {
-        val notificationId = getConversationNotificationId(conversation.id)
+        val notificationId = getConversationNotificationId(conversation.id + userId.toString())
         getConversationNotification(conversation, userId, activeNotifications)?.let { notification ->
             appLogger.i("$TAG adding ConversationNotification")
             notificationManagerCompat.notify(notificationId, notification)
         }
     }
 
-    private fun getSummaryNotification() = NotificationCompat.Builder(context, NotificationConstants.MESSAGE_CHANNEL_ID)
-        .setSmallIcon(R.drawable.notification_icon_small)
-        .setGroup(NotificationConstants.MESSAGE_GROUP_KEY)
-        .setGroupSummary(true)
-        .setAutoCancel(true)
-        .setDefaults(NotificationCompat.DEFAULT_ALL)
-        .setPriority(NotificationCompat.PRIORITY_MAX)
-        .setContentIntent(summaryMessagePendingIntent(context))
-        .build()
+    private fun getSummaryNotification(userId: QualifiedID, userName: String): Notification {
+        val channelId = NotificationConstants.getMessagesChannelId(userId)
+        return NotificationCompat.Builder(context, channelId)
+            .setSmallIcon(R.drawable.notification_icon_small)
+            .setGroup(NotificationConstants.getMessagesGroupKey(userId))
+            .setStyle(NotificationCompat.InboxStyle().setSummaryText(userName))
+            .setGroupSummary(true)
+            .setAutoCancel(true)
+            .setDefaults(NotificationCompat.DEFAULT_ALL)
+            .setPriority(NotificationCompat.PRIORITY_MAX)
+            .setContentIntent(summaryMessagePendingIntent(context))
+            .build()
+    }
 
     /**
      * Creates or updates existing [Notification]
@@ -111,13 +109,14 @@ class MessageNotificationManager
      */
     private fun getConversationNotification(
         conversation: NotificationConversation,
-        userId: String?,
+        userId: QualifiedID,
         activeNotifications: Array<StatusBarNotification>
     ): Notification? {
 
-        val updatedMessageStyle = getUpdatedMessageStyle(conversation, activeNotifications) ?: return null
+        val userIdString = userId.toString()
+        val updatedMessageStyle = getUpdatedMessageStyle(conversation, userIdString, activeNotifications) ?: return null
 
-        return setUpNotificationBuilder(context).apply {
+        return setUpNotificationBuilder(context, userId).apply {
             conversation.messages
                 .firstOrNull()
                 .let {
@@ -131,9 +130,9 @@ class MessageNotificationManager
                         }
 
                         else -> {
-                            setContentIntent(messagePendingIntent(context, conversation.id, userId))
-                            addAction(getActionCall(context, conversation.id, userId))
-                            addAction(getActionReply(context, conversation.id, userId))
+                            setContentIntent(messagePendingIntent(context, conversation.id, userIdString))
+                            addAction(getActionCall(context, conversation.id, userIdString))
+                            addAction(getActionReply(context, conversation.id, userIdString))
                         }
                     }
                 }
@@ -152,11 +151,12 @@ class MessageNotificationManager
      */
     private fun getUpdatedMessageStyle(
         conversation: NotificationConversation,
+        userId: String?,
         activeNotifications: Array<StatusBarNotification>
     ): NotificationCompat.Style? {
 
         val activeMessages = activeNotifications
-            .find { it.id == getConversationNotificationId(conversation.id) }
+            .find { it.id == getConversationNotificationId(conversation.id + userId) }
             ?.notification
             ?.let { NotificationCompat.MessagingStyle.extractMessagingStyleFromNotification(it) }
             ?.messages
@@ -222,7 +222,7 @@ class MessageNotificationManager
             .build()
 
         val message = when (this) {
-            is NotificationMessage.Text -> text
+            is NotificationMessage.Text -> if (isQuotingSelfUser) context.getString(R.string.notification_reply, text) else text
             is NotificationMessage.Comment -> italicTextFromResId(textResId.value)
             is NotificationMessage.ConnectionRequest -> italicTextFromResId(R.string.notification_connection_request)
             is NotificationMessage.ConversationDeleted -> italicTextFromResId(R.string.notification_conversation_deleted)
@@ -235,12 +235,12 @@ class MessageNotificationManager
      * @return true if there is at least one Wire message notification except the Summary notification
      * and notification with id [exceptNotificationId]
      */
-    private fun isThereAnyOtherWireNotification(exceptNotificationId: Int): Boolean {
+    private fun isThereAnyOtherWireNotification(exceptNotificationId: Int, userId: QualifiedID): Boolean {
         return notificationManager.activeNotifications
             ?.any {
-                it.groupKey.endsWith(NotificationConstants.MESSAGE_GROUP_KEY)
+                it.groupKey.endsWith(NotificationConstants.getMessagesGroupKey(userId))
                         && it.id != exceptNotificationId
-                        && it.id != NotificationConstants.MESSAGE_SUMMARY_ID
+                        && it.id != NotificationConstants.getMessagesSummaryId(userId)
             }
             ?: false
     }
@@ -261,10 +261,11 @@ class MessageNotificationManager
         fun updateNotificationAfterQuickReply(
             context: Context,
             conversationId: String,
-            userId: String,
+            userId: QualifiedID,
             replyText: String?
         ) {
             val conversationNotificationId = getConversationNotificationId(conversationId)
+            val userIdString = userId.toString()
 
             val currentNotification = (context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager)
                 .activeNotifications
@@ -284,10 +285,10 @@ class MessageNotificationManager
                 messagesStyle.addMessage(replyMessage)
             }
 
-            val notification = setUpNotificationBuilder(context).apply {
-                setContentIntent(messagePendingIntent(context, conversationId, userId))
-                addAction(getActionCall(context, conversationId, userId))
-                addAction(getActionReply(context, conversationId, userId))
+            val notification = setUpNotificationBuilder(context, userId).apply {
+                setContentIntent(messagePendingIntent(context, conversationId, userIdString))
+                addAction(getActionCall(context, conversationId, userIdString))
+                addAction(getActionReply(context, conversationId, userIdString))
 
                 setWhen(System.currentTimeMillis())
 
@@ -303,16 +304,18 @@ class MessageNotificationManager
          * Create NotificationBuilder and set all the parameters that are common for any MessageNotification
          * @return resulted [NotificationCompat.Builder] so we can set other specific parameters and build it.
          */
-        private fun setUpNotificationBuilder(context: Context) =
-            NotificationCompat.Builder(context, NotificationConstants.MESSAGE_CHANNEL_ID).apply {
+        private fun setUpNotificationBuilder(context: Context, userId: QualifiedID): NotificationCompat.Builder {
+            val channelId = NotificationConstants.getMessagesChannelId(userId)
+            return NotificationCompat.Builder(context, channelId).apply {
                 setDefaults(NotificationCompat.DEFAULT_ALL)
 
                 priority = NotificationCompat.PRIORITY_MAX
                 setCategory(NotificationCompat.CATEGORY_MESSAGE)
 
                 setSmallIcon(R.drawable.notification_icon_small)
-                setGroup(NotificationConstants.MESSAGE_GROUP_KEY)
+                setGroup(NotificationConstants.getMessagesGroupKey(userId))
                 setAutoCancel(true)
             }
+        }
     }
 }

@@ -18,6 +18,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.dp
+import com.wire.android.ui.common.colorsScheme
+import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -51,7 +53,8 @@ fun WireModalSheetLayout(
                 )
                 sheetContent()
             }
-        }
+        },
+        sheetBackgroundColor = colorsScheme().surface
     ) {
         content()
     }

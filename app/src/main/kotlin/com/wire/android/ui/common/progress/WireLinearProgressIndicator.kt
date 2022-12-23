@@ -1,4 +1,4 @@
-package com.wire.android.ui.common
+package com.wire.android.ui.common.progress
 
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.runtime.Composable

@@ -5,9 +5,7 @@ import android.content.Intent
 import android.widget.Toast
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -30,7 +28,6 @@ import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.RowItemTemplate
 import com.wire.android.ui.common.WireSwitch
-import com.wire.android.ui.common.button.WireButton
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.topappbar.NavigationIconType
@@ -40,6 +37,7 @@ import com.wire.android.ui.home.settings.SettingsItem
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.getDeviceId
+import com.wire.android.util.getGitBuildId
 import com.wire.android.util.getMimeType
 import com.wire.android.util.getUrisOfFilesInDirectory
 import com.wire.android.util.multipleFileSharingIntent
@@ -176,6 +174,11 @@ private fun LogOptions(
                 onClick = onDeleteLogs
             )
         )
+
+        val codeBuildNumber = LocalContext.current.getGitBuildId()
+        if (codeBuildNumber.isNotBlank()) {
+            SettingsItem(title = stringResource(R.string.label_code_commit_id, codeBuildNumber))
+        }
 
         if (deviceId != null) {
             SettingsItem(

@@ -173,6 +173,7 @@ private val SystemMessage.expandable
         is SystemMessage.MissedCall -> false
         is SystemMessage.RenamedConversation -> false
         is SystemMessage.TeamMemberRemoved -> false
+        is SystemMessage.CryptoSessionReset -> false
     }
 
 private fun List<String>.toUserNamesListString(res: Resources) = when {
@@ -214,6 +215,7 @@ fun SystemMessage.annotatedString(
         is SystemMessage.MissedCall -> arrayOf(author.asString(res))
         is SystemMessage.RenamedConversation -> arrayOf(author.asString(res), additionalContent)
         is SystemMessage.TeamMemberRemoved -> arrayOf(content.userName)
+        is SystemMessage.CryptoSessionReset -> arrayOf(author.asString(res))
     }
     return res.stringWithStyledArgs(stringResId, normalStyle, boldStyle, normalColor, boldColor, *args)
 }

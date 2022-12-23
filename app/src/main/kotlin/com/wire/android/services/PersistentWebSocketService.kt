@@ -4,11 +4,8 @@ import android.app.Notification
 import android.app.Service
 import android.content.Context
 import android.content.Intent
-import android.location.Location
 import android.os.IBinder
-import androidx.core.app.NotificationChannelCompat
 import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationManagerCompat
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.di.CurrentSessionFlowService
@@ -18,7 +15,6 @@ import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.notification.NotificationConstants.PERSISTENT_NOTIFICATION_ID
 import com.wire.android.notification.NotificationConstants.WEB_SOCKET_CHANNEL_ID
-import com.wire.android.notification.NotificationConstants.WEB_SOCKET_CHANNEL_NAME
 import com.wire.android.notification.WireNotificationManager
 import com.wire.android.notification.openAppPendingIntent
 import com.wire.android.util.dispatchers.DispatcherProvider
@@ -120,14 +116,6 @@ class PersistentWebSocketService : Service() {
     }
 
     private fun generateForegroundNotification() {
-        val notificationManager = NotificationManagerCompat.from(this)
-        val notificationChannel = NotificationChannelCompat
-            .Builder(WEB_SOCKET_CHANNEL_ID, NotificationManagerCompat.IMPORTANCE_HIGH)
-            .setName(WEB_SOCKET_CHANNEL_NAME)
-            .build()
-
-        notificationManager.createNotificationChannel(notificationChannel)
-
         val notification: Notification = Notification.Builder(this, WEB_SOCKET_CHANNEL_ID)
             .setContentTitle("${resources.getString(R.string.app_name)} ${resources.getString(R.string.settings_service_is_running)}")
             .setSmallIcon(R.drawable.websocket_notification_icon_small)

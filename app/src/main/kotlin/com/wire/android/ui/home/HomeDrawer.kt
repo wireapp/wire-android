@@ -3,8 +3,6 @@ package com.wire.android.ui.home
 import android.content.Intent
 import android.content.Intent.ACTION_SENDTO
 import android.net.Uri
-import android.provider.ContactsContract.CommonDataKinds.Email
-import android.os.Build
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.animation.ExperimentalAnimationApi
@@ -45,13 +43,14 @@ import com.wire.android.ui.common.selectableBackground
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
-import com.wire.android.util.EmailComposer
+import com.wire.android.util.EmailComposer.Companion.giveFeedbackEmailTemplate
+import com.wire.android.util.EmailComposer.Companion.reportBugEmailTemplate
 import com.wire.android.util.getDeviceId
+import com.wire.android.util.getGitBuildId
 import com.wire.android.util.getUrisOfFilesInDirectory
 import com.wire.android.util.multipleFileSharingIntent
 import com.wire.android.util.sha256
 import java.io.File
-import java.util.Date
 
 @ExperimentalMaterialApi
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
@@ -89,7 +88,7 @@ fun HomeDrawer(
             onCloseDrawer()
         }
 
-       val topItems = listOf(HomeNavigationItem.Conversations)
+        val topItems = listOf(HomeNavigationItem.Conversations)
         // TODO: Re-enable once we have Archive & Vault
         // listOf(HomeNavigationItem.Conversations, HomeNavigationItem.Archive, HomeNavigationItem.Vault)
 
@@ -120,14 +119,13 @@ fun HomeDrawer(
             data = DrawerItemData(R.string.give_feedback_screen_title, R.drawable.ic_emoticon),
             selected = false,
             onItemClick = {
-
                 val intent = Intent(Intent.ACTION_SEND)
                 intent.putExtra(Intent.EXTRA_EMAIL, arrayOf("wire-newandroid-feedback@wearezeta.zendesk.com"))
                 intent.putExtra(Intent.EXTRA_SUBJECT, "Feedback - Wire Beta")
-                intent.putExtra(Intent.EXTRA_TEXT, EmailComposer.giveFeedbackEmailTemplate(context.getDeviceId()?.sha256()))
+                intent.putExtra(Intent.EXTRA_TEXT, giveFeedbackEmailTemplate(context.getDeviceId()?.sha256(), context.getGitBuildId()))
 
                 intent.selector = Intent(ACTION_SENDTO).setData(Uri.parse("mailto:"))
-                context.startActivity(Intent.createChooser(intent,"Choose an Email client: "))
+                context.startActivity(Intent.createChooser(intent, context.getString(R.string.send_feedback_choose_email)))
             })
 
         DrawerItem(
@@ -141,10 +139,10 @@ fun HomeDrawer(
                     val intent = context.multipleFileSharingIntent(logsUris)
                     intent.putExtra(Intent.EXTRA_EMAIL, arrayOf("wire-newandroid@wearezeta.zendesk.com"))
                     intent.putExtra(Intent.EXTRA_SUBJECT, "Bug Report - Wire Beta")
-                    intent.putExtra(Intent.EXTRA_TEXT, EmailComposer.reportBugEmailTemplate(context.getDeviceId()?.sha256()))
+                    intent.putExtra(Intent.EXTRA_TEXT, reportBugEmailTemplate(context.getDeviceId()?.sha256(), context.getGitBuildId()))
                     intent.type = "message/rfc822"
 
-                    context.startActivity(Intent.createChooser(intent, "Choose an Email client: "))
+                    context.startActivity(Intent.createChooser(intent, context.getString(R.string.send_feedback_choose_email)))
                 }
             }
         )
@@ -156,28 +154,6 @@ fun HomeDrawer(
         )
     }
 }
-
-// TODO:Mateusz: this should not belong here nor in ViewModel
-private fun reportBugEmailTemplate(deviceHash: String? = "unavailable"): String = """
-        --- DO NOT EDIT---
-        App Version: ${BuildConfig.VERSION_NAME}
-        Device Hash: $deviceHash
-        Device: ${Build.MANUFACTURER} - ${Build.MODEL}
-        SDK: ${Build.VERSION.RELEASE}
-        Date: ${Date()}
-        ------------------
-
-        Please fill in the following
-
-        - Date & Time of when the issue occurred:
-
-
-        - What happened:
-
-
-        - Steps to reproduce (if relevant):
-        
-    """.trimIndent()
 
 @Composable
 fun DrawerItem(data: DrawerItemData, selected: Boolean, onItemClick: () -> Unit) {

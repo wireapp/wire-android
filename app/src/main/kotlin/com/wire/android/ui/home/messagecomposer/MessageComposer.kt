@@ -150,7 +150,7 @@ private fun MessageComposer(
     onSendButtonClicked: () -> Unit,
     onMentionPicked: (Contact) -> Unit
 ) {
-    Surface {
+    Surface(color = colorsScheme().messageComposerBackgroundColor) {
         val transition = updateTransition(
             targetState = messageComposerState.messageComposeInputState,
             label = stringResource(R.string.animation_label_messagecomposeinput_state_transistion)
@@ -191,8 +191,8 @@ private fun MessageComposer(
                                 onTap = { /* Called on Tap */ }
                             )
                         }
+                        .background(color = colorsScheme().backgroundVariant)
                         .fillMaxWidth()
-                        .wrapContentHeight()
                         .weight(1f)
                 ) {
                     messagesContent()
@@ -451,7 +451,7 @@ private fun CollapseIconButtonBox(
 }
 
 // if attachment is visible we want to align the bottom of the compose actions
-// to top of the guide line
+// to top of the guideline
 @Composable
 private fun CollapseIconButton(onCollapseClick: () -> Unit, modifier: Modifier = Modifier, collapseRotation: Float = 0f) {
     IconButton(

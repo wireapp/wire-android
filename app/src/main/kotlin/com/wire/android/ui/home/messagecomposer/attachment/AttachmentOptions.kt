@@ -124,7 +124,7 @@ private fun configureStateHandling(
 }
 
 @Composable
-private fun FileBrowserFlow(onFilePicked: (Uri) -> Unit): UseStorageRequestFlow {
+fun FileBrowserFlow(onFilePicked: (Uri) -> Unit): UseStorageRequestFlow {
     return rememberOpenFileBrowserFlow(
         onFileBrowserItemPicked = onFilePicked,
         onPermissionDenied = { /* TODO: Implement denied permission rationale */ }

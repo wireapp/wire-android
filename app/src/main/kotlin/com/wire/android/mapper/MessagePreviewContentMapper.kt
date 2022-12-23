@@ -7,6 +7,7 @@ import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.UnreadEventCount
 import com.wire.kalium.logic.data.message.AssetType
 import com.wire.kalium.logic.data.message.MessagePreview
+import com.wire.kalium.logic.data.message.MessagePreviewContent
 import com.wire.kalium.logic.data.message.MessagePreviewContent.Unknown
 import com.wire.kalium.logic.data.message.MessagePreviewContent.WithUser
 import com.wire.kalium.logic.data.message.UnreadEventType
@@ -46,7 +47,7 @@ fun MessagePreview?.toUIPreview(unreadEventCount: UnreadEventCount): UILastMessa
     return uiLastMessageContent()
 }
 
-fun String?.userUiText(isSelfMessage: Boolean): UIText = when {
+private fun String?.userUiText(isSelfMessage: Boolean): UIText = when {
     isSelfMessage -> UIText.StringResource(R.string.member_name_you_label_titlecase)
     this != null -> UIText.DynamicString(this)
     else -> UIText.StringResource(R.string.username_unavailable_label)
@@ -111,12 +112,12 @@ private fun MessagePreview.uiLastMessageContent(): UILastMessageContent {
                     message = UIText.DynamicString((content as WithUser.Text).messageBody),
                     separator = ": "
                 )
-                is WithUser.MissedCall -> UILastMessageContent.SenderWithMessage(
-                    userUIText,
-                    UIText.StringResource(R.string.last_message_call)
+                is WithUser.MissedCall -> UILastMessageContent.TextMessage(
+                    MessageBody(UIText.PluralResource(R.plurals.unread_event_call, 1, 1))
                 )
             }
         }
+        MessagePreviewContent.CryptoSessionReset -> UILastMessageContent.None
         Unknown -> UILastMessageContent.None
     }
 }

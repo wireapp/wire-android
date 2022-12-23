@@ -17,6 +17,7 @@ import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.notification.NotificationChannelsManager
 import com.wire.android.notification.WireNotificationManager
 import com.wire.android.services.ServicesManager
 import com.wire.android.ui.common.dialogs.CustomBEDeeplinkDialogState
@@ -36,6 +37,7 @@ import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import com.wire.kalium.logic.feature.session.GetSessionsUseCase
+import com.wire.kalium.logic.feature.user.ObserveValidAccountsUseCase
 import com.wire.kalium.logic.feature.user.webSocketStatus.ObservePersistentWebSocketConnectionStatusUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -49,6 +51,7 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -72,7 +75,9 @@ class WireActivityViewModel @Inject constructor(
     private val migrationManager: MigrationManager,
     private val servicesManager: ServicesManager,
     private val observeSyncStateUseCaseProviderFactory: ObserveSyncStateUseCaseProvider.Factory,
-    private val observeIfAppUpdateRequired: ObserveIfAppUpdateRequiredUseCase
+    private val observeIfAppUpdateRequired: ObserveIfAppUpdateRequiredUseCase,
+    private val observeValidAccounts: ObserveValidAccountsUseCase,
+    private val notificationChannelsManager: NotificationChannelsManager
 ) : ViewModel() {
 
     private val navigationArguments = mutableMapOf<String, Any>(SERVER_CONFIG_ARG to ServerConfig.DEFAULT)
@@ -104,6 +109,14 @@ class WireActivityViewModel @Inject constructor(
     val observeSyncFlowState: StateFlow<SyncState?> = _observeSyncFlowState
 
     init {
+        viewModelScope.launch(dispatchers.io()) {
+            observeValidAccounts()
+                .onStart { emit(listOf()) }
+                .distinctUntilChanged()
+                .collect { list ->
+                    notificationChannelsManager.createNotificationChannels(list.map { it.first })
+                }
+        }
         viewModelScope.launch(dispatchers.io()) {
             observePersistentWebSocketConnectionStatus().let {
                 when (it) {

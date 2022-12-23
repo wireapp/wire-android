@@ -21,6 +21,11 @@ def defineBuildType() {
     if(overwrite != null) {
         return overwrite
     }
+    // use the scala client signing keys for testing upgrades.
+    def flavor = defineFlavor()
+    if (flavor == "Dev") {
+        return "Compat"
+    }
     return "Release"
 }
 
@@ -125,10 +130,12 @@ pipeline {
     stage('Fetch Signing Files') {
       steps {
         configFileProvider([
+         configFile(fileId: env.COMPAT_KEYSTORE_FILE_ID, targetLocation: env.COMPAT_ENC_TARGET_LOCATION),
          configFile(fileId: env.DEBUG_KEYSTORE_FILE_ID, targetLocation: env.DEBUG_ENC_TARGET_LOCATION),
          configFile(fileId: env.RELEASE_KEYSTORE_FILE_ID, targetLocation: env.RELEASE_ENC_TARGET_LOCATION),
         ]) {
           sh '''
+            base64 --decode $COMPAT_ENC_TARGET_LOCATION > $COMPAT_DEC_TARGET_LOCATION
             base64 --decode $DEBUG_ENC_TARGET_LOCATION > $DEBUG_DEC_TARGET_LOCATION
             base64 --decode $RELEASE_ENC_TARGET_LOCATION > $RELEASE_DEC_TARGET_LOCATION
           '''

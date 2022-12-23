@@ -16,6 +16,8 @@ import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.sync.ObserveSyncStateUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -32,11 +34,21 @@ class CommonTopAppBarViewModel @Inject constructor(
 ) : CommonTopAppBarBaseViewModel() {
 
     var connectivityState by mutableStateOf(ConnectivityUIState(ConnectivityUIState.Info.None))
+
     init {
         viewModelScope.launch {
             combine(activeCallFlow(), currentScreenFlow(), connectivityFlow()) { activeCall, currentScreen, connectivity ->
                 mapToUIState(currentScreen, connectivity, activeCall)
-            }.collect {
+            }.collectLatest {
+                /**
+                 * Adding some delay here to avoid some bad UX : ongoing call banner displayed and
+                 * hided in a short time when the user hangs up the call
+                 * Call events could take some time to be received and this function
+                 * could be called when the screen is changed, so we delayed
+                 * showing the banner until getting the correct calling values
+                 */
+                if (it is ConnectivityUIState.Info.EstablishedCall)
+                    delay(WAITING_TIME_TO_SHOW_ONGOING_CALL_BANNER)
                 connectivityState = connectivityState.copy(info = it)
             }
         }
@@ -98,4 +110,8 @@ class CommonTopAppBarViewModel @Inject constructor(
 
     @OptIn(ExperimentalCoroutinesApi::class)
     private suspend fun currentScreenFlow() = currentScreenManager.observeCurrentScreen(viewModelScope)
+
+    private companion object {
+        const val WAITING_TIME_TO_SHOW_ONGOING_CALL_BANNER = 600L
+    }
 }

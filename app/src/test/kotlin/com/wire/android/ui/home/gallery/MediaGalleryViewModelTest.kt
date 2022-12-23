@@ -70,12 +70,11 @@ class MediaGalleryViewModelTest {
         // Given
         val mockedConversation = mockedConversationDetails()
         val mockedImage = "mocked-image".toByteArray()
-        val mockedImageName = "mocked-name"
         val dummyDataPath = "dummy-path".toPath()
         val (arrangement, viewModel) = Arrangement()
             .withStoredData(mockedImage, dummyDataPath)
             .withConversationDetails(mockedConversation)
-            .withSuccessfulImageData(dummyDataPath, mockedImage.size.toLong(), mockedImageName)
+            .withSuccessfulImageData(dummyDataPath, mockedImage.size.toLong())
             .arrange()
 
         // When
@@ -111,12 +110,11 @@ class MediaGalleryViewModelTest {
         // Given
         val mockedConversation = mockedConversationDetails()
         val mockedImage = "mocked-image".toByteArray()
-        val mockedImageName = "mocked-name"
         val dummyDataPath = fakeKaliumFileSystem.tempFilePath("dummy-path")
         val (arrangement, viewModel) = Arrangement()
             .withStoredData(mockedImage, dummyDataPath)
             .withConversationDetails(mockedConversation)
-            .withSuccessfulImageData(dummyDataPath, mockedImage.size.toLong(), mockedImageName)
+            .withSuccessfulImageData(dummyDataPath, mockedImage.size.toLong())
             .arrange()
 
         // When
@@ -133,12 +131,11 @@ class MediaGalleryViewModelTest {
         // Given
         val mockedConversation = mockedConversationDetails()
         val mockedImage = "mocked-image".toByteArray()
-        val mockedImageName = "mocked-name"
         val imagePath = fakeKaliumFileSystem.providePersistentAssetPath("dummy-path")
         val (_, viewModel) = Arrangement()
             .withStoredData(mockedImage, imagePath)
             .withConversationDetails(mockedConversation)
-            .withSuccessfulImageData(imagePath, mockedImage.size.toLong(), mockedImageName)
+            .withSuccessfulImageData(imagePath, mockedImage.size.toLong())
             .arrange()
 
         // When
@@ -155,12 +152,11 @@ class MediaGalleryViewModelTest {
         // Given
         val mockedConversation = mockedConversationDetails()
         val mockedImage = "mocked-image".toByteArray()
-        val mockedImageName = "mocked-name"
         val imagePath = fakeKaliumFileSystem.providePersistentAssetPath("dummy-path")
         val (arrangement, viewModel) = Arrangement()
             .withStoredData(mockedImage, imagePath)
             .withConversationDetails(mockedConversation)
-            .withSuccessfulImageData(imagePath, mockedImage.size.toLong(), mockedImageName)
+            .withSuccessfulImageData(imagePath, mockedImage.size.toLong())
             .arrange()
 
         // When
@@ -175,12 +171,11 @@ class MediaGalleryViewModelTest {
         // Given
         val mockedConversation = mockedConversationDetails()
         val mockedImage = "mocked-image".toByteArray()
-        val mockedImageName = "mocked-name"
         val imagePath = fakeKaliumFileSystem.providePersistentAssetPath("dummy-path")
         val (arrangement, viewModel) = Arrangement()
             .withStoredData(mockedImage, imagePath)
             .withConversationDetails(mockedConversation)
-            .withSuccessfulImageData(imagePath, mockedImage.size.toLong(), mockedImageName)
+            .withSuccessfulImageData(imagePath, mockedImage.size.toLong())
             .withFailedMessageDeleting()
             .arrange()
 
@@ -242,14 +237,6 @@ class MediaGalleryViewModelTest {
             return this
         }
 
-        fun withSuccessfulImageData(imageDataPath: Path, imageSize: Long, imageName: String): Arrangement {
-            coEvery { getImageData(any(), any()) } returns CompletableDeferred(
-                MessageAssetResult.Success(
-                    imageDataPath,
-                    imageSize,
-                    imageName
-                )
-            )
         fun withSuccessfulImageData(imageDataPath: Path, imageSize: Long, assetName: String = "name"): Arrangement {
             coEvery { getImageData(any(), any()) } returns CompletableDeferred(
                 MessageAssetResult.Success(

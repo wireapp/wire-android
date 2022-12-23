@@ -119,8 +119,14 @@ class ConversationMessagesViewModelArrangement {
         coEvery { getMessageById(any(), any()) } returns GetMessageByIdUseCase.Result.Success(message)
     }
 
-    fun withGetMessageAssetUseCaseReturning(decodedAssetPath: Path, assetSize: Long) = apply {
-        coEvery { getMessageAsset(any(), any()) } returns CompletableDeferred(MessageAssetResult.Success(decodedAssetPath, assetSize))
+    fun withGetMessageAssetUseCaseReturning(decodedAssetPath: Path, assetSize: Long, assetName: String) = apply {
+        coEvery { getMessageAsset(any(), any()) } returns CompletableDeferred(
+            MessageAssetResult.Success(
+                decodedAssetPath,
+                assetSize,
+                assetName
+            )
+        )
     }
 
     suspend fun withPaginatedMessagesReturning(pagingDataFlow: PagingData<UIMessage>) = apply {

@@ -29,10 +29,11 @@ internal class AssetImageFetcherTest {
         // Given
         val someUserAssetId = AssetId("value", "domain")
         val someDummyData = "some-dummy-data".toByteArray()
+        val someDummyName = "some-dummy-name"
         val data = ImageAsset.UserAvatarAsset(mockk(), someUserAssetId)
         val avatarPath = fakeKaliumFileSystem.selfUserAvatarPath()
         val (arrangement, assetImageFetcher) = Arrangement()
-            .withSuccessfulImageData(data, avatarPath, someDummyData.size.toLong())
+            .withSuccessfulImageData(data, avatarPath, someDummyData.size.toLong(), someDummyName)
             .withStoredData(someDummyData, avatarPath)
             .arrange()
 
@@ -49,10 +50,11 @@ internal class AssetImageFetcherTest {
         val someConversationId = ConversationId("some-value", "some-domain")
         val someMessageId = "some-message-id"
         val someDummyData = "some-dummy-data".toByteArray()
+        val someDummyName = "some-dummy-name"
         val data = ImageAsset.PrivateAsset(mockk(), someConversationId, someMessageId, true)
         val avatarPath = fakeKaliumFileSystem.selfUserAvatarPath()
         val (arrangement, assetImageFetcher) = Arrangement()
-            .withSuccessfulImageData(data, avatarPath, 1)
+            .withSuccessfulImageData(data, avatarPath, 1, someDummyName)
             .withStoredData(someDummyData, avatarPath)
             .arrange()
 

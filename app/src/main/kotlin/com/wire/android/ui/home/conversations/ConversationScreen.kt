@@ -2,7 +2,6 @@ package com.wire.android.ui.home.conversations
 
 import android.app.DownloadManager
 import android.content.Intent
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -38,7 +37,6 @@ import androidx.paging.compose.items
 import com.wire.android.R
 import com.wire.android.navigation.hiltSavedStateViewModel
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
-import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dialogs.CallingFeatureUnavailableDialog
 import com.wire.android.ui.common.dialogs.OngoingActiveCallDialog
 import com.wire.android.ui.common.error.CoreFailureErrorDialog
@@ -80,7 +78,6 @@ import com.wire.android.util.permission.CallingAudioRequestFlow
 import com.wire.android.util.permission.rememberCallingRecordAudioBluetoothRequestFlow
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.NetworkFailure
-import com.wire.kalium.logic.data.conversation.ClientId
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.call.usecase.ConferenceCallingResult
@@ -437,6 +434,8 @@ private fun ConversationScreenContent(
     onSnackbarMessageShown: () -> Unit,
     snackbarMessage: ConversationSnackbarMessages?
 ) {
+    val scope = rememberCoroutineScope()
+
     val lazyPagingMessages = messages.collectAsLazyPagingItems()
 
     val lazyListState = rememberSaveable(lazyPagingMessages, saver = LazyListState.Saver) {
@@ -461,8 +460,18 @@ private fun ConversationScreenContent(
                 onShowContextMenu = onShowContextMenu
             )
         },
-        onSendTextMessage = onSendMessage,
-        onSendAttachment = onSendAttachment,
+        onSendTextMessage = { message, mentions, messageId ->
+            scope.launch {
+                lazyListState.animateScrollToItem(0)
+            }
+            onSendMessage(message, mentions, messageId)
+        },
+        onSendAttachment = {
+            scope.launch {
+                lazyListState.animateScrollToItem(0)
+            }
+            onSendAttachment(it)
+        },
         onMentionMember = onMentionMember,
         onMessageComposerError = onMessageComposerError,
         isFileSharingEnabled = isFileSharingEnabled,
@@ -564,7 +573,6 @@ fun MessageList(
         modifier = Modifier
             .fillMaxHeight()
             .fillMaxWidth()
-            .background(colorsScheme().backgroundVariant)
     ) {
         items(lazyPagingMessages, key = { uiMessage ->
             uiMessage.messageHeader.messageId

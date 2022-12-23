@@ -462,13 +462,13 @@ private fun ConversationScreenContent(
         },
         onSendTextMessage = { message, mentions, messageId ->
             scope.launch {
-                lazyListState.animateScrollToItem(0)
+                lazyListState.scrollToItem(0)
             }
             onSendMessage(message, mentions, messageId)
         },
         onSendAttachment = {
             scope.launch {
-                lazyListState.animateScrollToItem(0)
+                lazyListState.scrollToItem(0)
             }
             onSendAttachment(it)
         },

@@ -3,31 +3,29 @@ package com.wire.android.ui.home.messagecomposer
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Transition
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.Divider
-import androidx.compose.material.Surface
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -37,7 +35,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -70,7 +67,6 @@ fun MessageComposer(
     messageComposerState: MessageComposerInnerState,
     keyboardHeight: KeyboardHeight,
     isKeyboardVisible: Boolean,
-    fullScreenHeight: Dp,
     messageContent: @Composable () -> Unit,
     onSendTextMessage: (String, List<UiMention>, messageId: String?) -> Unit,
     onSendAttachment: (AttachmentBundle?) -> Unit,
@@ -82,8 +78,6 @@ fun MessageComposer(
     securityClassificationType: SecurityClassificationType,
     membersToMention: List<Contact>
 ) {
-    messageComposerState.fullScreenHeight = fullScreenHeight
-
     BoxWithConstraints {
         val onSendButtonClicked = remember {
             {
@@ -123,7 +117,6 @@ fun MessageComposer(
             if (!isKeyboardVisible && !messageComposerState.attachmentOptionsDisplayed) {
                 messageComposerState.toEnabled()
                 messageComposerState.focusManager.clearFocus()
-                messageComposerState.cancelReply()
             }
         }
 
@@ -165,9 +158,7 @@ private fun MessageComposer(
         ConstraintLayout(
             Modifier.fillMaxSize()
         ) {
-            val topOfKeyboardGuideLine = createGuidelineFromTop(
-                offset = messageComposerState.fullScreenHeight - messageComposerState.keyboardHeight.height
-            )
+            val topOfKeyboardGuideLine = createGuidelineFromBottom(messageComposerState.keyboardHeight.height)
 
             val (messageComposer, attachmentOptions) = createRefs()
 
@@ -202,7 +193,6 @@ private fun MessageComposer(
                         }
                         .fillMaxWidth()
                         .wrapContentHeight()
-                        .padding(bottom = dimensions().spacing8x)
                         .weight(1f)
                 ) {
                     messagesContent()
@@ -256,7 +246,6 @@ private fun MessageComposer(
     BackHandler(messageComposerState.attachmentOptionsDisplayed) {
         messageComposerState.hideAttachmentOptions()
         messageComposerState.toEnabled()
-        messageComposerState.cancelReply()
     }
 }
 
@@ -322,6 +311,14 @@ private fun EnabledMessageComposerInput(
             onSendButtonClicked = onSendButtonClicked,
             onSelectedLineIndexChange = { currentSelectedLineIndex = it },
             onLineBottomCoordinateChange = { cursorCoordinateY = it },
+            modifier = Modifier
+                .fillMaxWidth()
+                .let {
+                    if (messageComposerInnerState.messageComposeInputState == MessageComposeInputState.FullScreen)
+                        it.weight(1f)
+                    else
+                        it.wrapContentHeight()
+                }
         )
         MessageComposeActionsBox(
             transition,
@@ -348,12 +345,9 @@ private fun MessageComposeInput(
     onSendButtonClicked: () -> Unit,
     onSelectedLineIndexChange: (Int) -> Unit,
     onLineBottomCoordinateChange: (Float) -> Unit,
+    modifier: Modifier
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .wrapContentHeight()
-    ) {
+    Column(modifier = modifier) {
         val isClassifiedConversation = securityClassificationType != SecurityClassificationType.NONE
         if (isClassifiedConversation) {
             Box(Modifier.wrapContentSize()) {
@@ -396,12 +390,13 @@ private fun MembersMentionList(
     onMentionPicked: (Contact) -> Unit
 ) {
     Column(
-        modifier = Modifier
-            .fillMaxHeight()
-            .animateContentSize()
+        modifier = Modifier.fillMaxHeight(),
+        verticalArrangement = Arrangement.Bottom
     ) {
+        if (membersToMention.isNotEmpty())
+            Divider()
         LazyColumn(
-            modifier = Modifier.background(Color.White),
+            modifier = Modifier.background(colorsScheme().background),
             reverseLayout = true
         ) {
             membersToMention.forEach {

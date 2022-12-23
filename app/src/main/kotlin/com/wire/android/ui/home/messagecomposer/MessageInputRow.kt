@@ -5,7 +5,6 @@ import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Transition
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -29,7 +28,7 @@ import com.wire.android.ui.theme.wireTypography
 
 @ExperimentalAnimationApi
 @Composable
-fun ColumnScope.MessageComposerInputRow(
+fun MessageComposerInputRow(
     transition: Transition<MessageComposeInputState>,
     messageComposerState: MessageComposerInnerState,
     onSendButtonClicked: () -> Unit = { },
@@ -42,14 +41,7 @@ fun ColumnScope.MessageComposerInputRow(
             Alignment.Top
         else
             Alignment.CenterVertically,
-        modifier = Modifier
-            .fillMaxWidth()
-            .then(
-                if (messageComposerState.messageComposeInputState == MessageComposeInputState.FullScreen)
-                    Modifier.weight(1f)
-                else
-                    Modifier
-            )
+        modifier = Modifier.fillMaxWidth()
     ) {
         transition.AnimatedVisibility(
             visible = { it == MessageComposeInputState.Enabled }
@@ -130,7 +122,8 @@ private fun MessageComposerInput(
         onValueChange = onMessageTextChanged,
         colors = wireTextFieldColors(
             borderColor = Color.Transparent,
-            focusColor = Color.Transparent
+            focusColor = Color.Transparent,
+            backgroundColor = Color.Transparent
         ),
         singleLine = messageComposerInputState == MessageComposeInputState.Enabled,
         maxLines = Int.MAX_VALUE,

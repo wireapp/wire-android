@@ -3,10 +3,15 @@ package com.wire.android.ui.home.conversations
 import android.app.DownloadManager
 import android.content.Intent
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.ime
+import androidx.compose.foundation.layout.isImeVisible
+import androidx.compose.foundation.layout.navigationBarsIgnoringVisibility
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
@@ -25,10 +30,9 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
@@ -39,7 +43,6 @@ import com.wire.android.navigation.hiltSavedStateViewModel
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
 import com.wire.android.ui.common.dialogs.CallingFeatureUnavailableDialog
 import com.wire.android.ui.common.dialogs.OngoingActiveCallDialog
-import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.error.CoreFailureErrorDialog
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.common.topappbar.CommonTopAppBar
@@ -235,7 +238,7 @@ private fun StartCallAudioBluetoothPermissionCheckFlow(
     //TODO display an error dialog
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class, ExperimentalLayoutApi::class)
 @Suppress("LongParameterList")
 @Composable
 private fun ConversationScreen(
@@ -322,61 +325,60 @@ private fun ConversationScreen(
             }
         )
     ) {
-        BoxWithConstraints {
-            val currentScreenHeight: Dp = with(LocalDensity.current) { constraints.maxHeight.toDp() }
-            val fullScreenHeight: Dp = remember { currentScreenHeight }
+        // when ConversationScreen is composed for the first time we do not know the height
+        // until users opens the keyboard
+        var keyboardHeight: KeyboardHeight by remember {
+            mutableStateOf(KeyboardHeight.NotKnown)
+        }
 
-            // when ConversationScreen is composed for the first time we do not know the height
-            // until users opens the keyboard
-            var keyboardHeight: KeyboardHeight by remember {
-                mutableStateOf(KeyboardHeight.NotKnown)
-            }
+        val isKeyboardVisible = WindowInsets.isImeVisible
 
-            // if the currentScreenHeight is smaller than the initial fullScreenHeight,
-            // and we don't know the keyboard height yet
-            // calculated at the first composition of the ConversationScreen, then we know the keyboard size
-            if (currentScreenHeight < fullScreenHeight) {
-                val keyboardOffset = fullScreenHeight - currentScreenHeight
-                keyboardHeight = KeyboardHeight.Known(keyboardOffset)
-            }
+        // this means that keyboard is visible
+        if (isKeyboardVisible) {
+            // ime covers also the navigation bar so we need to subtract navigation bars height
+            val calculatedImeHeight = WindowInsets.ime.asPaddingValues().calculateBottomPadding()
+            val calculatedNavBarHeight = WindowInsets.navigationBarsIgnoringVisibility.asPaddingValues().calculateBottomPadding()
+            val calculatedKeyboardHeight = calculatedImeHeight - calculatedNavBarHeight
+            if ((keyboardHeight is KeyboardHeight.NotKnown && calculatedKeyboardHeight > 0.dp) ||
+                (keyboardHeight is KeyboardHeight.Known && keyboardHeight.height != calculatedKeyboardHeight)
+            )
+                keyboardHeight = KeyboardHeight.Known(calculatedKeyboardHeight)
+        }
 
-            val isKeyboardVisible = currentScreenHeight != fullScreenHeight
-
-            Scaffold(
-                topBar = {
-                    Column {
-                        CommonTopAppBar(
-                            connectivityUIState = connectivityUIState,
-                            onReturnToCallClick = onOpenOngoingCallScreen,
-                        )
-                        ConversationScreenTopAppBar(
-                            conversationInfoViewState = conversationInfoViewState,
-                            onBackButtonClick = onBackButtonClick,
-                            onDropDownClick = onDropDownClick,
-                            isDropDownEnabled = conversationInfoViewState.hasUserPermissionToEdit,
-                            onSearchButtonClick = { },
-                            onPhoneButtonClick = onStartCall,
-                            hasOngoingCall = conversationCallViewState.hasOngoingCall,
-                            onJoinCallButtonClick = onJoinCall,
-                            isInteractionEnabled = interactionAvailability == InteractionAvailability.ENABLED
-                        )
-                        ConversationBanner(bannerMessage)
-                    }
-                },
-                snackbarHost = {
-                    SwipeDismissSnackbarHost(
-                        hostState = conversationScreenState.snackBarHostState,
-                        modifier = Modifier.fillMaxWidth()
+        Scaffold(
+            topBar = {
+                Column {
+                    CommonTopAppBar(
+                        connectivityUIState = connectivityUIState,
+                        onReturnToCallClick = onOpenOngoingCallScreen,
                     )
-                },
-                content = { internalPadding ->
-                    Box(modifier = Modifier.padding(internalPadding)) {
-                        ConversationScreenContent(
-                            interactionAvailability = interactionAvailability,
-                            tempCachePath = tempCachePath,
-                            fullScreenHeight = fullScreenHeight,
-                            keyboardHeight = keyboardHeight,
-                            isKeyboardVisible = isKeyboardVisible,
+                    ConversationScreenTopAppBar(
+                        conversationInfoViewState = conversationInfoViewState,
+                        onBackButtonClick = onBackButtonClick,
+                        onDropDownClick = onDropDownClick,
+                        isDropDownEnabled = conversationInfoViewState.hasUserPermissionToEdit,
+                        onSearchButtonClick = { },
+                        onPhoneButtonClick = onStartCall,
+                        hasOngoingCall = conversationCallViewState.hasOngoingCall,
+                        onJoinCallButtonClick = onJoinCall,
+                        isInteractionEnabled = interactionAvailability == InteractionAvailability.ENABLED
+                    )
+                    ConversationBanner(bannerMessage)
+                }
+            },
+            snackbarHost = {
+                SwipeDismissSnackbarHost(
+                    hostState = conversationScreenState.snackBarHostState,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            },
+            content = { internalPadding ->
+                Box(modifier = Modifier.padding(internalPadding)) {
+                    ConversationScreenContent(
+                        interactionAvailability = interactionAvailability,
+                        tempCachePath = tempCachePath,
+                        keyboardHeight = keyboardHeight,
+                        isKeyboardVisible = isKeyboardVisible,
                         membersToMention = membersToMention,
                         isFileSharingEnabled = conversationViewState.isFileSharingEnabled,
                         lastUnreadMessageInstant = conversationMessagesViewState.firstUnreadInstant,
@@ -396,11 +398,10 @@ private fun ConversationScreen(
                         onShowContextMenu = conversationScreenState::showEditContextMenu,
                         onSnackbarMessageShown = onSnackbarMessageShown,
                         snackbarMessage = conversationViewState.snackbarMessage ?: conversationMessagesViewState.snackbarMessage
-                        )
-                    }
+                    )
                 }
-            )
-        }
+            }
+        )
     }
 }
 
@@ -411,7 +412,6 @@ private fun ConversationScreenContent(
     tempCachePath: Path,
     keyboardHeight: KeyboardHeight,
     isKeyboardVisible: Boolean,
-    fullScreenHeight: Dp,
     membersToMention: List<Contact>,
     isFileSharingEnabled: Boolean,
     lastUnreadMessageInstant: Instant?,
@@ -443,7 +443,6 @@ private fun ConversationScreenContent(
         messageComposerState = messageComposerInnerState,
         keyboardHeight = keyboardHeight,
         isKeyboardVisible = isKeyboardVisible,
-        fullScreenHeight = fullScreenHeight,
         messageContent = {
             MessageList(
                 lazyPagingMessages = lazyPagingMessages,
@@ -564,7 +563,7 @@ fun MessageList(
             uiMessage.messageHeader.messageId
         }) { message ->
             if (message == null) {
-                // We can draw a placeholder here, as we fetch the next page of messages
+                // We can draw a pl§aceholder here, as we fetch the next page of messages
                 return@items
             }
             if (message.messageContent is UIMessageContent.SystemMessage) {

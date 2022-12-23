@@ -1,6 +1,7 @@
 package com.wire.android.ui.common.bottomsheet
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
@@ -14,6 +15,7 @@ import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.dp
 import com.wire.android.ui.common.dimensions
@@ -36,14 +38,19 @@ fun WireModalSheetLayout(
         sheetState = sheetState,
         sheetShape = sheetShape,
         sheetContent = {
-            Spacer(modifier = Modifier.height(8.dp))
-            Divider(
-                modifier = Modifier
-                    .width(width = dimensions().modalBottomSheetDividerWidth)
-                    .align(alignment = Alignment.CenterHorizontally),
-                thickness = 4.dp
-            )
-            sheetContent()
+            val alpha =
+                if (sheetState.currentValue != ModalBottomSheetValue.Hidden || sheetState.targetValue != ModalBottomSheetValue.Hidden) 1f
+                else 0f
+            Column(modifier = Modifier.alpha(alpha)) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Divider(
+                    modifier = Modifier
+                        .width(width = dimensions().modalBottomSheetDividerWidth)
+                        .align(alignment = Alignment.CenterHorizontally),
+                    thickness = 4.dp
+                )
+                sheetContent()
+            }
         }
     ) {
         content()

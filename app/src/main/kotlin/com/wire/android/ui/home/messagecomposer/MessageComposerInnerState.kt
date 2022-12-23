@@ -15,8 +15,6 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
 import com.wire.android.appLogger
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.conversations.model.AttachmentType
@@ -94,8 +92,6 @@ data class MessageComposerInnerState(
 
     val isEnabled: Boolean
         get() = messageComposeInputState == MessageComposeInputState.Enabled
-
-    var fullScreenHeight: Dp by mutableStateOf(0.0.dp)
 
     var keyboardHeight: KeyboardHeight by mutableStateOf(KeyboardHeight.NotKnown)
 

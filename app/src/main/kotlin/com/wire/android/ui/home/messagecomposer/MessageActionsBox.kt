@@ -1,10 +1,13 @@
 package com.wire.android.ui.home.messagecomposer
 
-import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.Transition
+import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.with
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -37,14 +40,15 @@ fun MessageComposeActionsBox(
     ) {
         Divider()
         Box(Modifier.wrapContentSize()) {
-            transition.AnimatedVisibility(
-                visible = { messageComposerState.messageComposeInputState != MessageComposeInputState.Enabled },
-                // we are animating the exit, so that the MessageComposeActions go down
-                exit = slideOutVertically(
-                    targetOffsetY = { fullHeight -> fullHeight / 2 }
-                ) + fadeOut()
-            ) {
-                MessageComposeActions(messageComposerState, isMentionActive)
+            transition.AnimatedContent(
+                contentKey = { state -> state != MessageComposeInputState.Enabled },
+                transitionSpec = {
+                    slideInVertically { fullHeight -> fullHeight / 2 } + fadeIn() with
+                            slideOutVertically { fullHeight -> fullHeight / 2 } + fadeOut()
+                }
+            ) { state ->
+                if (state != MessageComposeInputState.Enabled)
+                    MessageComposeActions(messageComposerState, isMentionActive)
             }
         }
     }

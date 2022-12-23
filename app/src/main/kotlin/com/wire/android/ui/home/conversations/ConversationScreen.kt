@@ -346,9 +346,9 @@ private fun ConversationScreen(
             val calculatedImeHeight = WindowInsets.ime.asPaddingValues().calculateBottomPadding()
             val calculatedNavBarHeight = WindowInsets.navigationBarsIgnoringVisibility.asPaddingValues().calculateBottomPadding()
             val calculatedKeyboardHeight = calculatedImeHeight - calculatedNavBarHeight
-            if ((keyboardHeight is KeyboardHeight.NotKnown && calculatedKeyboardHeight > 0.dp) ||
-                (keyboardHeight is KeyboardHeight.Known && keyboardHeight.height != calculatedKeyboardHeight)
-            )
+            val notKnownAndCalculated = keyboardHeight is KeyboardHeight.NotKnown && calculatedKeyboardHeight > 0.dp
+            val knownAndDifferent = keyboardHeight is KeyboardHeight.Known && keyboardHeight.height != calculatedKeyboardHeight
+            if (notKnownAndCalculated || knownAndDifferent)
                 keyboardHeight = KeyboardHeight.Known(calculatedKeyboardHeight)
         }
 

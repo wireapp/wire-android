@@ -103,7 +103,12 @@ internal class AssetImageFetcherTest {
         val mockFetchResult = mockk<FetchResult>()
         lateinit var imageData: ImageAsset
 
-        fun withSuccessfulImageData(data: ImageAsset, expectedAssetPath: Path, expectedAssetSize: Long, expectedName: String): Arrangement {
+        fun withSuccessfulImageData(
+            data: ImageAsset,
+            expectedAssetPath: Path,
+            expectedAssetSize: Long,
+            assetName: String = "name"
+        ): Arrangement {
             imageData = data
             coEvery { getPublicAsset.invoke((any())) }.returns(PublicAssetResult.Success(expectedAssetPath))
             coEvery { getPrivateAsset.invoke(any(), any()) }.returns(
@@ -111,7 +116,7 @@ internal class AssetImageFetcherTest {
                     MessageAssetResult.Success(
                         expectedAssetPath,
                         expectedAssetSize,
-                        expectedName,
+                        assetName
                     )
                 )
             )

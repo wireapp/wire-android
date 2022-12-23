@@ -119,7 +119,7 @@ class ConversationMessagesViewModelArrangement {
         coEvery { getMessageById(any(), any()) } returns GetMessageByIdUseCase.Result.Success(message)
     }
 
-    fun withGetMessageAssetUseCaseReturning(decodedAssetPath: Path, assetSize: Long, assetName: String) = apply {
+    fun withGetMessageAssetUseCaseReturning(decodedAssetPath: Path, assetSize: Long, assetName: String = "name") = apply {
         coEvery { getMessageAsset(any(), any()) } returns CompletableDeferred(
             MessageAssetResult.Success(
                 decodedAssetPath,

@@ -102,8 +102,7 @@ class MediaGalleryViewModel @Inject constructor(
             withContext(dispatchers.io()) {
                 val imageData = getImageData(imageAssetId.conversationId, imageAssetId.messageId).await()
                 if (imageData is Success) {
-                    val defaultImageName = "Wire downloaded image ${getCurrentParsedDateTime()}.jpeg"
-                    fileManager.saveToExternalStorage(defaultImageName, imageData.decodedAssetPath, imageData.assetSize) {
+                    fileManager.saveToExternalStorage(imageData.assetName, imageData.decodedAssetPath, imageData.assetSize) {
                         onImageSavedToExternalStorage()
                     }
                 } else {

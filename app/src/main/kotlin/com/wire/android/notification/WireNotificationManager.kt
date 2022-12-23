@@ -16,6 +16,7 @@ import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.notification.LocalNotificationConversation
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.call.Call
+import com.wire.kalium.logic.feature.message.MarkMessagesAsNotifiedUseCase
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
@@ -382,9 +383,14 @@ class WireNotificationManager @Inject constructor(
 
     private suspend fun markMessagesAsNotified(userId: QualifiedID?, conversationId: ConversationId?) {
         userId?.let {
+            val markNotified = if (conversationId == null) {
+                MarkMessagesAsNotifiedUseCase.UpdateTarget.AllConversations
+            } else {
+                MarkMessagesAsNotifiedUseCase.UpdateTarget.SingleConversation(conversationId)
+            }
             coreLogic.getSessionScope(it)
                 .messages
-                .markMessagesAsNotified(conversationId)
+                .markMessagesAsNotified(markNotified)
         }
     }
 

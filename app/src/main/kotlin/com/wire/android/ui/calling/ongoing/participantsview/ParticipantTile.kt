@@ -202,7 +202,7 @@ private fun UsernameTile(
         Text(
             color = Color.White,
             style = MaterialTheme.wireTypography.label01,
-            modifier = Modifier.padding(4.dp),
+            modifier = Modifier.padding(dimensions().spacing4x),
             text = name,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis

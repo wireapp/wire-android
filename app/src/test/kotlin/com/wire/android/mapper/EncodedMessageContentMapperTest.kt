@@ -156,9 +156,10 @@ class EncodedMessageContentMapperTest {
     @Test
     fun givenAssetContent_whenMappingToUIMessageContent_thenCorrectValuesShouldBeReturned() = runTest {
         // Given
+
         val dummyPath = fakeKaliumFileSystem.providePersistentAssetPath("dummy-path")
         val (arrangement, mapper) = Arrangement()
-            .withSuccessfulGetMessageAssetResult(dummyPath, 1)
+            .withSuccessfulGetMessageAssetResult(dummyPath, 1, "name1")
             .arrange()
         val unknownImageMessageContent = AssetContent(
             0L,
@@ -226,7 +227,7 @@ class EncodedMessageContentMapperTest {
         // Given
         val dummyPath = "some-dummy-path".toPath()
         val (arrangement, mapper) = Arrangement()
-            .withSuccessfulGetMessageAssetResult(dummyPath, 1)
+            .withSuccessfulGetMessageAssetResult(dummyPath, 1, "name1")
             .arrange()
         val contentImage1 = AssetContent(
             0L,
@@ -311,7 +312,7 @@ class EncodedMessageContentMapperTest {
             every { messageResourceProvider.sentAMessageWithContent } returns 45407124
         }
 
-        fun withSuccessfulGetMessageAssetResult(expectedAssetPath: Path, expectedAssetSize: Long): Arrangement {
+        fun withSuccessfulGetMessageAssetResult(expectedAssetPath: Path, expectedAssetSize: Long, assetName: String): Arrangement {
             val dummyData = "dummy-data".toByteArray()
             fakeKaliumFileSystem.sink(expectedAssetPath).buffer().use {
                 it.write(dummyData)
@@ -321,7 +322,7 @@ class EncodedMessageContentMapperTest {
                     any(),
                     any()
                 )
-            } returns CompletableDeferred(MessageAssetResult.Success(expectedAssetPath, expectedAssetSize))
+            } returns CompletableDeferred(MessageAssetResult.Success(expectedAssetPath, expectedAssetSize, assetName))
             return this
         }
 

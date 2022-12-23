@@ -42,6 +42,7 @@ import androidx.paging.compose.items
 import com.wire.android.R
 import com.wire.android.navigation.hiltSavedStateViewModel
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
+import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dialogs.CallingFeatureUnavailableDialog
 import com.wire.android.ui.common.dialogs.OngoingActiveCallDialog
 import com.wire.android.ui.common.error.CoreFailureErrorDialog
@@ -83,7 +84,6 @@ import com.wire.android.util.permission.CallingAudioRequestFlow
 import com.wire.android.util.permission.rememberCallingRecordAudioBluetoothRequestFlow
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.NetworkFailure
-import com.wire.kalium.logic.data.conversation.ClientId
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.call.usecase.ConferenceCallingResult

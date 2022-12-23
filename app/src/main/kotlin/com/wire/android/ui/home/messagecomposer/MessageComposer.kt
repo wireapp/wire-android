@@ -34,6 +34,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.painterResource
@@ -131,7 +132,8 @@ fun MessageComposer(
             onSendAttachmentClicked = onSendAttachmentClicked,
             securityClassificationType = securityClassificationType,
             onSendButtonClicked = onSendButtonClicked,
-            onMentionPicked = onMentionPicked
+            onMentionPicked = onMentionPicked,
+            isKeyboardVisible = isKeyboardVisible
         )
     }
 }
@@ -148,7 +150,8 @@ private fun MessageComposer(
     onSendAttachmentClicked: (AttachmentBundle?) -> Unit,
     securityClassificationType: SecurityClassificationType,
     onSendButtonClicked: () -> Unit,
-    onMentionPicked: (Contact) -> Unit
+    onMentionPicked: (Contact) -> Unit,
+    isKeyboardVisible: Boolean
 ) {
     Surface(color = colorsScheme().messageComposerBackgroundColor) {
         val transition = updateTransition(
@@ -196,10 +199,11 @@ private fun MessageComposer(
                         .weight(1f)
                 ) {
                     messagesContent()
-                    MembersMentionList(
-                        membersToMention = membersToMention,
-                        onMentionPicked = onMentionPicked
-                    )
+                    if (membersToMention.isNotEmpty())
+                        MembersMentionList(
+                            membersToMention = membersToMention,
+                            onMentionPicked = onMentionPicked
+                        )
                 }
 
                 MessageComposerInput(
@@ -226,7 +230,7 @@ private fun MessageComposer(
                     onMessageComposerError = onMessageComposerError,
                     isFileSharingEnabled = isFileSharingEnabled,
                     tempCachePath = tempCachePath,
-                    Modifier
+                    modifier = Modifier
                         .constrainAs(attachmentOptions) {
                             top.linkTo(topOfKeyboardGuideLine)
                             bottom.linkTo(parent.bottom)
@@ -236,11 +240,10 @@ private fun MessageComposer(
                             height = Dimension.fillToConstraints
                         }
                         .fillMaxWidth()
-
+                        .alpha(if (isKeyboardVisible) 0f else 1f)
                 )
             }
         }
-
     }
 
     BackHandler(messageComposerState.attachmentOptionsDisplayed) {

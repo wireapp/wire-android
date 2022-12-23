@@ -123,8 +123,7 @@ private fun MessageComposerInput(
         colors = wireTextFieldColors(
             backgroundColor = Color.Transparent,
             borderColor = Color.Transparent,
-            focusColor = Color.Transparent,
-            backgroundColor = Color.Transparent
+            focusColor = Color.Transparent
         ),
         singleLine = messageComposerInputState == MessageComposeInputState.Enabled,
         maxLines = Int.MAX_VALUE,

@@ -165,7 +165,7 @@ class MessageContentMapper @Inject constructor(
     private fun mapQuoteData(conversationId: ConversationId, it: MessageContent.QuotedMessageDetails) = QuotedMessageUIData(
         it.messageId,
         it.senderId,
-        it.senderName,
+        it.senderName.orUnknownName(),
         UIText.StringResource(R.string.label_quote_original_message_date, isoFormatter.fromISO8601ToTimeFormat(it.timeInstant.toString())),
         it.editInstant?.let { instant ->
             UIText.StringResource(R.string.label_message_status_edited_with_date, isoFormatter.fromISO8601ToTimeFormat(instant.toString()))
@@ -284,3 +284,9 @@ data class MessageResourceProvider(
     @StringRes val memberNameYouTitlecase: Int = R.string.member_name_you_label_titlecase,
     @StringRes val sentAMessageWithContent: Int = R.string.sent_a_message_with_content
 )
+
+private fun String?.orUnknownName(): UIText = when {
+    this != null -> UIText.DynamicString(this)
+    else -> UIText.StringResource(R.string.username_unavailable_label)
+
+}

@@ -237,8 +237,14 @@ class MediaGalleryViewModelTest {
             return this
         }
 
-        fun withSuccessfulImageData(imageDataPath: Path, imageSize: Long): Arrangement {
-            coEvery { getImageData(any(), any()) } returns CompletableDeferred(MessageAssetResult.Success(imageDataPath, imageSize))
+        fun withSuccessfulImageData(imageDataPath: Path, imageSize: Long, assetName: String = "name"): Arrangement {
+            coEvery { getImageData(any(), any()) } returns CompletableDeferred(
+                MessageAssetResult.Success(
+                    imageDataPath,
+                    imageSize,
+                    assetName
+                )
+            )
             return this
         }
 

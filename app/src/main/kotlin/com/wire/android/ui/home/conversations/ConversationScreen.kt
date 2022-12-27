@@ -6,13 +6,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.ime
-import androidx.compose.foundation.layout.isImeVisible
-import androidx.compose.foundation.layout.navigationBarsIgnoringVisibility
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
@@ -23,17 +18,14 @@ import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
@@ -73,7 +65,6 @@ import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewS
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent
-import com.wire.android.ui.home.messagecomposer.KeyboardHeight
 import com.wire.android.ui.home.messagecomposer.MessageComposer
 import com.wire.android.ui.home.messagecomposer.MessageComposerInnerState
 import com.wire.android.ui.home.messagecomposer.UiMention
@@ -332,26 +323,6 @@ private fun ConversationScreen(
             }
         )
     ) {
-        // when ConversationScreen is composed for the first time we do not know the height
-        // until users opens the keyboard
-        var keyboardHeight: KeyboardHeight by remember {
-            mutableStateOf(KeyboardHeight.NotKnown)
-        }
-
-        val isKeyboardVisible = WindowInsets.isImeVisible
-
-        // this means that keyboard is visible
-        if (isKeyboardVisible) {
-            // ime covers also the navigation bar so we need to subtract navigation bars height
-            val calculatedImeHeight = WindowInsets.ime.asPaddingValues().calculateBottomPadding()
-            val calculatedNavBarHeight = WindowInsets.navigationBarsIgnoringVisibility.asPaddingValues().calculateBottomPadding()
-            val calculatedKeyboardHeight = calculatedImeHeight - calculatedNavBarHeight
-            val notKnownAndCalculated = keyboardHeight is KeyboardHeight.NotKnown && calculatedKeyboardHeight > 0.dp
-            val knownAndDifferent = keyboardHeight is KeyboardHeight.Known && keyboardHeight.height != calculatedKeyboardHeight
-            if (notKnownAndCalculated || knownAndDifferent)
-                keyboardHeight = KeyboardHeight.Known(calculatedKeyboardHeight)
-        }
-
         Scaffold(
             topBar = {
                 Column {
@@ -384,8 +355,6 @@ private fun ConversationScreen(
                     ConversationScreenContent(
                         interactionAvailability = interactionAvailability,
                         tempCachePath = tempCachePath,
-                        keyboardHeight = keyboardHeight,
-                        isKeyboardVisible = isKeyboardVisible,
                         membersToMention = membersToMention,
                         isFileSharingEnabled = conversationViewState.isFileSharingEnabled,
                         lastUnreadMessageInstant = conversationMessagesViewState.firstUnreadInstant,
@@ -417,8 +386,6 @@ private fun ConversationScreen(
 private fun ConversationScreenContent(
     interactionAvailability: InteractionAvailability,
     tempCachePath: Path,
-    keyboardHeight: KeyboardHeight,
-    isKeyboardVisible: Boolean,
     membersToMention: List<Contact>,
     isFileSharingEnabled: Boolean,
     lastUnreadMessageInstant: Instant?,
@@ -449,8 +416,6 @@ private fun ConversationScreenContent(
 
     MessageComposer(
         messageComposerState = messageComposerInnerState,
-        keyboardHeight = keyboardHeight,
-        isKeyboardVisible = isKeyboardVisible,
         messageContent = {
             MessageList(
                 lazyPagingMessages = lazyPagingMessages,

@@ -12,10 +12,17 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.ime
+import androidx.compose.foundation.layout.isImeVisible
+import androidx.compose.foundation.layout.navigationBarsIgnoringVisibility
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
@@ -28,22 +35,21 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.constraintlayout.compose.ConstraintLayout
-import androidx.constraintlayout.compose.Dimension
 import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.SecurityClassificationBanner
@@ -66,8 +72,6 @@ import okio.Path
 @Composable
 fun MessageComposer(
     messageComposerState: MessageComposerInnerState,
-    keyboardHeight: KeyboardHeight,
-    isKeyboardVisible: Boolean,
     messageContent: @Composable () -> Unit,
     onSendTextMessage: (String, List<UiMention>, messageId: String?) -> Unit,
     onSendAttachment: (AttachmentBundle?) -> Unit,
@@ -110,17 +114,6 @@ fun MessageComposer(
                 .collect { onMentionMember(it) }
         }
 
-        LaunchedEffect(keyboardHeight) {
-            messageComposerState.keyboardHeight = keyboardHeight
-        }
-
-        LaunchedEffect(isKeyboardVisible) {
-            if (!isKeyboardVisible && !messageComposerState.attachmentOptionsDisplayed) {
-                messageComposerState.toEnabled()
-                messageComposerState.focusManager.clearFocus()
-            }
-        }
-
         MessageComposer(
             messagesContent = messageContent,
             messageComposerState = messageComposerState,
@@ -133,11 +126,11 @@ fun MessageComposer(
             securityClassificationType = securityClassificationType,
             onSendButtonClicked = onSendButtonClicked,
             onMentionPicked = onMentionPicked,
-            isKeyboardVisible = isKeyboardVisible
         )
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun MessageComposer(
     messagesContent: @Composable () -> Unit,
@@ -151,97 +144,122 @@ private fun MessageComposer(
     securityClassificationType: SecurityClassificationType,
     onSendButtonClicked: () -> Unit,
     onMentionPicked: (Contact) -> Unit,
-    isKeyboardVisible: Boolean
 ) {
     Surface(color = colorsScheme().messageComposerBackgroundColor) {
         val transition = updateTransition(
             targetState = messageComposerState.messageComposeInputState,
             label = stringResource(R.string.animation_label_messagecomposeinput_state_transistion)
         )
-        ConstraintLayout(
-            Modifier.fillMaxSize()
-        ) {
-            val topOfKeyboardGuideLine = createGuidelineFromBottom(messageComposerState.keyboardHeight.height)
 
-            val (messageComposer, attachmentOptions) = createRefs()
+        BoxWithConstraints(Modifier.fillMaxSize()) {
+            val currentScreenHeight: Dp = with(LocalDensity.current) { constraints.maxHeight.toDp() }
 
-            Column(
-                Modifier
-                    .constrainAs(messageComposer) {
-                        top.linkTo(parent.top)
+            Column(Modifier.fillMaxSize()) {
 
-                        if (messageComposerState.attachmentOptionsDisplayed) {
-                            bottom.linkTo(topOfKeyboardGuideLine)
-                        } else {
-                            bottom.linkTo(parent.bottom)
-                        }
-
-                        height = Dimension.fillToConstraints
+                // when MessageComposer is composed for the first time we do not know the height until users opens the keyboard
+                var keyboardHeight: KeyboardHeight by remember { mutableStateOf(KeyboardHeight.NotKnown) }
+                val isKeyboardVisible = WindowInsets.isImeVisible
+                if (isKeyboardVisible) {
+                    // ime covers also the navigation bar so we need to subtract navigation bars height
+                    val calculatedImeHeight = WindowInsets.ime.asPaddingValues().calculateBottomPadding()
+                    val calculatedNavBarHeight = WindowInsets.navigationBarsIgnoringVisibility.asPaddingValues().calculateBottomPadding()
+                    val calculatedKeyboardHeight = calculatedImeHeight - calculatedNavBarHeight
+                    val notKnownAndCalculated = keyboardHeight is KeyboardHeight.NotKnown && calculatedKeyboardHeight > 0.dp
+                    val knownAndDifferent = keyboardHeight is KeyboardHeight.Known && keyboardHeight.height != calculatedKeyboardHeight
+                    if (notKnownAndCalculated || knownAndDifferent)
+                        keyboardHeight = KeyboardHeight.Known(calculatedKeyboardHeight)
+                }
+                val attachmentOptionsVisible = messageComposerState.attachmentOptionsDisplayed
+                        && !isKeyboardVisible
+                        && interactionAvailability == InteractionAvailability.ENABLED
+                val contentHeight by remember(keyboardHeight, currentScreenHeight) {
+                    derivedStateOf {
+                        if (attachmentOptionsVisible) currentScreenHeight - keyboardHeight.height
+                        else currentScreenHeight
                     }
-                    .wrapContentHeight()
-                    .fillMaxWidth()
-            ) {
-                Box(
-                    Modifier
-                        .pointerInput(Unit) {
-                            detectTapGestures(
-                                onPress = {
-                                    messageComposerState.focusManager.clearFocus()
-                                    messageComposerState.toEnabled()
-                                },
-                                onDoubleTap = { /* Called on Double Tap */ },
-                                onLongPress = { /* Called on Long Press */ },
-                                onTap = { /* Called on Tap */ }
-                            )
-                        }
-                        .background(color = colorsScheme().backgroundVariant)
-                        .fillMaxWidth()
-                        .weight(1f)
-                ) {
-                    messagesContent()
-                    if (membersToMention.isNotEmpty())
-                        MembersMentionList(
-                            membersToMention = membersToMention,
-                            onMentionPicked = onMentionPicked
-                        )
                 }
 
-                MessageComposerInput(
-                    transition = transition,
-                    messageComposerInnerState = messageComposerState,
-                    interactionAvailability = interactionAvailability,
-                    securityClassificationType = securityClassificationType,
-                    membersToMention = membersToMention,
-                    onMentionPicked = onMentionPicked,
-                    onSendButtonClicked = onSendButtonClicked,
-                    onToggleFullScreen = messageComposerState::toggleFullScreen,
-                    onCancelReply = messageComposerState::cancelReply,
-                )
-            }
 
-            // Box wrapping for additional options content
-            // we want to offset the AttachmentOptionsComponent equal to where
-            // the device keyboard is displayed, so that when the keyboard is closed,
-            // we get the effect of overlapping it
-            if (messageComposerState.attachmentOptionsDisplayed && interactionAvailability == InteractionAvailability.ENABLED) {
-                AttachmentOptions(
-                    attachmentInnerState = messageComposerState.attachmentInnerState,
-                    onSendAttachment = onSendAttachmentClicked,
-                    onMessageComposerError = onMessageComposerError,
-                    isFileSharingEnabled = isFileSharingEnabled,
-                    tempCachePath = tempCachePath,
-                    modifier = Modifier
-                        .constrainAs(attachmentOptions) {
-                            top.linkTo(topOfKeyboardGuideLine)
-                            bottom.linkTo(parent.bottom)
-                            start.linkTo(parent.start)
-                            end.linkTo(parent.end)
+                LaunchedEffect(isKeyboardVisible) {
+                    if (!isKeyboardVisible && !messageComposerState.attachmentOptionsDisplayed) {
+                        messageComposerState.toEnabled()
+                        messageComposerState.focusManager.clearFocus()
+                    }
+                }
 
-                            height = Dimension.fillToConstraints
-                        }
+                Column(
+                    Modifier
+                        .height(contentHeight)
                         .fillMaxWidth()
-                        .alpha(if (isKeyboardVisible) 0f else 1f)
-                )
+                ) {
+                    Box(
+                        Modifier
+                            .pointerInput(Unit) {
+                                detectTapGestures(
+                                    onPress = {
+                                        messageComposerState.focusManager.clearFocus()
+                                        messageComposerState.toEnabled()
+                                    },
+                                    onDoubleTap = { /* Called on Double Tap */ },
+                                    onLongPress = { /* Called on Long Press */ },
+                                    onTap = { /* Called on Tap */ }
+                                )
+                            }
+                            .background(color = colorsScheme().backgroundVariant)
+                            .fillMaxWidth()
+                            .weight(1f)
+                    ) {
+                        messagesContent()
+                        if (membersToMention.isNotEmpty())
+                            MembersMentionList(
+                                membersToMention = membersToMention,
+                                onMentionPicked = onMentionPicked
+                            )
+                    }
+
+                    MessageComposerInput(
+                        transition = transition,
+                        messageComposerInnerState = messageComposerState,
+                        interactionAvailability = interactionAvailability,
+                        securityClassificationType = securityClassificationType,
+                        membersToMention = membersToMention,
+                        onMentionPicked = onMentionPicked,
+                        onSendButtonClicked = onSendButtonClicked,
+                        onToggleFullScreen = messageComposerState::toggleFullScreen,
+                        onCancelReply = messageComposerState::cancelReply,
+                    )
+                }
+
+                // Box wrapping for additional options content
+                // we want to offset the AttachmentOptionsComponent equal to where
+                // the device keyboard is displayed, so that when the keyboard is closed,
+                // we get the effect of overlapping it
+                if (attachmentOptionsVisible) {
+                    AttachmentOptions(
+                        attachmentInnerState = messageComposerState.attachmentInnerState,
+                        onSendAttachment = onSendAttachmentClicked,
+                        onMessageComposerError = onMessageComposerError,
+                        isFileSharingEnabled = isFileSharingEnabled,
+                        tempCachePath = tempCachePath,
+                        modifier = Modifier
+                            .height(keyboardHeight.height)
+                            .fillMaxWidth()
+                            .background(colorsScheme().messageComposerBackgroundColor)
+                    )
+                }
+                // This covers the situation when the user switches from attachment options to the input keyboard - there is a moment when
+                // both attachmentOptionsDisplayed and isKeyboardVisible are false, but right after that keyboard shows, so if we know that
+                // the input already has a focus, we can show an empty Box which has a height of the keyboard to prevent flickering.
+                else if (!messageComposerState.attachmentOptionsDisplayed &&
+                        !isKeyboardVisible &&
+                        messageComposerState.messageComposeInputFocused &&
+                        interactionAvailability == InteractionAvailability.ENABLED) {
+                    Box(
+                        modifier = Modifier
+                            .height(keyboardHeight.height)
+                            .fillMaxWidth()
+                    )
+                }
             }
         }
     }

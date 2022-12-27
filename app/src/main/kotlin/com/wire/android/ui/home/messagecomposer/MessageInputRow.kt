@@ -66,9 +66,12 @@ fun MessageComposerInputRow(
                 messageText = messageComposerState.messageText,
                 onMessageTextChanged = messageComposerState::setMessageTextValue,
                 messageComposerInputState = messageComposerState.messageComposeInputState,
-                onIsFocused = {
-                    messageComposerState.toActive()
-                    messageComposerState.hideAttachmentOptions()
+                onFocusChanged = { isFocused ->
+                    messageComposerState.messageComposeInputFocusChange(isFocused)
+                    if (isFocused) {
+                        messageComposerState.toActive()
+                        messageComposerState.hideAttachmentOptions()
+                    }
                 },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -112,7 +115,7 @@ private fun MessageComposerInput(
     messageText: TextFieldValue,
     onMessageTextChanged: (TextFieldValue) -> Unit,
     messageComposerInputState: MessageComposeInputState,
-    onIsFocused: () -> Unit,
+    onFocusChanged: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
     onSelectedLineIndexChanged: (Int) -> Unit = { },
     onLineBottomYCoordinateChanged: (Float) -> Unit = { }
@@ -133,9 +136,7 @@ private fun MessageComposerInput(
         modifier = modifier.then(
             Modifier
                 .onFocusChanged { focusState ->
-                    if (focusState.isFocused) {
-                        onIsFocused()
-                    }
+                    onFocusChanged(focusState.isFocused)
                 }
         ),
         onSelectedLineIndexChanged = onSelectedLineIndexChanged,

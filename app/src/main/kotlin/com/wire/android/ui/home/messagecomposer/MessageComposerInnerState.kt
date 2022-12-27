@@ -79,6 +79,9 @@ data class MessageComposerInnerState(
     var attachmentOptionsDisplayed by mutableStateOf(false)
         private set
 
+    var messageComposeInputFocused by mutableStateOf(false)
+        private set
+
     val sendButtonEnabled: Boolean
         get() = if (messageComposeInputState == MessageComposeInputState.Enabled) {
             false
@@ -92,8 +95,6 @@ data class MessageComposerInnerState(
 
     val isEnabled: Boolean
         get() = messageComposeInputState == MessageComposeInputState.Enabled
-
-    var keyboardHeight: KeyboardHeight by mutableStateOf(KeyboardHeight.NotKnown)
 
     var messageText by mutableStateOf(TextFieldValue(""))
         private set
@@ -164,6 +165,10 @@ data class MessageComposerInnerState(
 
     fun toActive() {
         messageComposeInputState = MessageComposeInputState.Active
+    }
+
+    fun messageComposeInputFocusChange(isFocused: Boolean) {
+        messageComposeInputFocused = isFocused
     }
 
     fun toggleFullScreen() {

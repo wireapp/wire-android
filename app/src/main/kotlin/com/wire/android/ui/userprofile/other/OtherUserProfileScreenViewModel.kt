@@ -49,6 +49,7 @@ import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.id.toQualifiedID
 import com.wire.kalium.logic.data.user.ConnectionState
+import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.client.GetOtherUserClientsResult
 import com.wire.kalium.logic.feature.client.GetOtherUserClientsUseCase
@@ -79,6 +80,7 @@ import com.wire.kalium.logic.feature.user.ObserveUserInfoUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.combine
@@ -136,7 +138,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     init {
         state = state.copy(isDataLoading = true, isAvatarLoading = true)
 
-        observeUserInfoAndUpdateViewState()
+        observeUserInfoAndConversationInfo()
         persistClients()
     }
 
@@ -146,46 +148,32 @@ class OtherUserProfileScreenViewModel @Inject constructor(
         }
     }
 
-    private fun observeUserInfoAndUpdateViewState() {
+    private fun observeUserInfoAndConversationInfo() {
         viewModelScope.launch {
             val observeUserInfo = observeUserInfo(userId).shareIn(viewModelScope, SharingStarted.WhileSubscribed(), 1)
 
-            viewModelScope.launch {
-                observeUserInfo
-                    .combine(observeGroupInfo(), ::Pair)
-                    .flowOn(dispatchers.io()).collect { (userResult, groupInfo) ->
-                        when (userResult) {
-                            is GetUserInfoResult.Failure -> {
-                                appLogger.d("Couldn't not find the user with provided id: $userId")
-                                closeBottomSheetAndShowInfoMessage(LoadUserInformationError)
-                            }
-
-                            is GetUserInfoResult.Success -> {
-                                val otherUser = userResult.otherUser
-                                val userAvatarAsset = otherUser.completePicture
-                                    ?.let { pic -> ImageAsset.UserAvatarAsset(wireSessionImageLoader, pic) }
-
-                                state = state.copy(
-                                    isDataLoading = false,
-                                    isAvatarLoading = false,
-                                    userAvatarAsset = userAvatarAsset,
-                                    fullName = otherUser.name.orEmpty(),
-                                    userName = mapUserLabel(otherUser),
-                                    teamName = userResult.team?.name.orEmpty(),
-                                    email = otherUser.email.orEmpty(),
-                                    phone = otherUser.phone.orEmpty(),
-                                    connectionState = otherUser.connectionStatus,
-                                    membership = userTypeMapper.toMembership(otherUser.userType),
-                                    groupState = groupInfo,
-                                    botService = otherUser.botService,
-                                )
-                            }
-                        }
-                    }
-            }
-
+            observeUserInfoAndUpdateViewState(observeUserInfo)
             // TODO yamil: this block could be removed from here. we should loaded on user click
             observeConversationSheetContentIfNeeded(observeUserInfo)
+        }
+    }
+
+    private fun observeUserInfoAndUpdateViewState(observeUserInfo: SharedFlow<GetUserInfoResult>) {
+        viewModelScope.launch {
+            observeUserInfo
+                .combine(observeGroupInfo(), ::Pair)
+                .flowOn(dispatchers.io())
+                .collect { (userResult, groupInfo) ->
+                    when (userResult) {
+                        is GetUserInfoResult.Failure -> {
+                            appLogger.d("Couldn't not find the user with provided id: $userId")
+                            closeBottomSheetAndShowInfoMessage(LoadUserInformationError)
+                        }
+                        is GetUserInfoResult.Success -> {
+                            updateUserInfoState(userResult, groupInfo)
+                        }
+                    }
+                }
         }
     }
 
@@ -194,7 +182,6 @@ class OtherUserProfileScreenViewModel @Inject constructor(
         viewModelScope.launch {
             otherUserFlow
                 .distinctUntilChanged()
-                .flowOn(dispatchers.io())
                 .filterIsInstance<GetUserInfoResult.Success>()
                 .flatMapLatest { userResult ->
                     val otherUser = userResult.otherUser
@@ -211,23 +198,9 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                             .map { otherUser to it }
                     }
                 }
+                .flowOn(dispatchers.io())
                 .collect { (otherUser, conversationResult) ->
-                    val userAvatarAsset = otherUser.completePicture
-                        ?.let { pic -> ImageAsset.UserAvatarAsset(wireSessionImageLoader, pic) }
-                    state = state.copy(
-                        conversationSheetContent = ConversationSheetContent(
-                            title = otherUser.name.orEmpty(),
-                            conversationId = conversationResult.conversation.id,
-                            mutingConversationState = conversationResult.conversation.mutedStatus,
-                            conversationTypeDetail = ConversationTypeDetail.Private(
-                                userAvatarAsset,
-                                userId,
-                                otherUser.BlockState
-                            ),
-                            isTeamConversation = conversationResult.conversation.isTeamGroup(),
-                            selfRole = Conversation.Member.Role.Member
-                        )
-                    )
+                    updateConversationMenuState(otherUser, conversationResult)
                 }
         }
     }
@@ -471,6 +444,49 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    private fun updateUserInfoState(userResult: GetUserInfoResult.Success, groupInfo: OtherUserProfileGroupState?) {
+        val otherUser = userResult.otherUser
+        val userAvatarAsset = otherUser.completePicture
+            ?.let { pic -> ImageAsset.UserAvatarAsset(wireSessionImageLoader, pic) }
+
+        state = state.copy(
+            isDataLoading = false,
+            isAvatarLoading = false,
+            userAvatarAsset = userAvatarAsset,
+            fullName = otherUser.name.orEmpty(),
+            userName = mapUserLabel(otherUser),
+            teamName = userResult.team?.name.orEmpty(),
+            email = otherUser.email.orEmpty(),
+            phone = otherUser.phone.orEmpty(),
+            connectionState = otherUser.connectionStatus,
+            membership = userTypeMapper.toMembership(otherUser.userType),
+            groupState = groupInfo,
+            botService = otherUser.botService,
+        )
+    }
+
+    private fun updateConversationMenuState(
+        otherUser: OtherUser,
+        conversationResult: GetOneToOneConversationUseCase.Result.Success
+    ) {
+        val userAvatarAsset = otherUser.completePicture
+            ?.let { pic -> ImageAsset.UserAvatarAsset(wireSessionImageLoader, pic) }
+        state = state.copy(
+            conversationSheetContent = ConversationSheetContent(
+                title = otherUser.name.orEmpty(),
+                conversationId = conversationResult.conversation.id,
+                mutingConversationState = conversationResult.conversation.mutedStatus,
+                conversationTypeDetail = ConversationTypeDetail.Private(
+                    userAvatarAsset,
+                    userId,
+                    otherUser.BlockState
+                ),
+                isTeamConversation = conversationResult.conversation.isTeamGroup(),
+                selfRole = Conversation.Member.Role.Member
+            )
+        )
     }
 
     override fun navigateBack() = viewModelScope.launch { navigationManager.navigateBack() }

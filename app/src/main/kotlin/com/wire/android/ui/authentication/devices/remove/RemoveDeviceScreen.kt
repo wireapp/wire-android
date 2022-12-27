@@ -93,11 +93,9 @@ private fun RemoveDeviceContent(
     CancelLoginDialogContent(
         dialogState = cancelLoginDialogState,
         onActionButtonClicked = {
-            cancelLoginDialogState.dismiss()
             onCancelLoginClicked()
         },
         onProceedButtonClicked = {
-            cancelLoginDialogState.dismiss()
             onProceedLoginClicked()
         }
     )
@@ -105,6 +103,8 @@ private fun RemoveDeviceContent(
         cancelLoginDialogState.show(
             cancelLoginDialogState.savedState ?: CancelLoginDialogState
         )
+    } else {
+        cancelLoginDialogState.dismiss()
     }
 
     val lazyListState = rememberLazyListState()

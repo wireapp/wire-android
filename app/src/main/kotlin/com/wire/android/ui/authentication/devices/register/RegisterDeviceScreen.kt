@@ -77,11 +77,9 @@ private fun RegisterDeviceContent(
     CancelLoginDialogContent(
         dialogState = cancelLoginDialogState,
         onActionButtonClicked = {
-            cancelLoginDialogState.dismiss()
             onCancelLoginClicked()
         },
         onProceedButtonClicked = {
-            cancelLoginDialogState.dismiss()
             onProceedLoginClicked()
         }
     )
@@ -89,8 +87,9 @@ private fun RegisterDeviceContent(
         cancelLoginDialogState.show(
             cancelLoginDialogState.savedState ?: CancelLoginDialogState
         )
+    } else {
+        cancelLoginDialogState.dismiss()
     }
-
 
     Scaffold(
         topBar = {

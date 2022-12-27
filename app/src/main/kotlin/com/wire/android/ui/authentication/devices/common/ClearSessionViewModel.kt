@@ -26,7 +26,6 @@ class ClearSessionViewModel @Inject constructor(
     )
         private set
 
-
     fun onBackButtonClicked() {
         state = state.copy(showCancelLoginDialog = true)
     }
@@ -59,5 +58,4 @@ class ClearSessionViewModel @Inject constructor(
             }
         }
     }
-
 }

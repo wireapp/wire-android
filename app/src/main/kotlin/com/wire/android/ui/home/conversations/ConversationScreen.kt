@@ -493,7 +493,7 @@ private fun SnackBarMessage(
             message = message,
             actionLabel = actionLabel
         )
-        appLogger.d("**--Showing Snackbar message with $snackbarResult")
+
         when {
             // Show downloads folder when clicking on Snackbar cta button
             messageCode is OnFileDownloaded && snackbarResult == SnackbarResult.ActionPerformed -> {

@@ -9,8 +9,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.constraintlayout.compose.ConstrainedLayoutReference
 import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.constraintlayout.compose.ConstraintLayoutScope
 import com.wire.android.R
+import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
@@ -40,17 +43,7 @@ fun CallOptionsControls(
             isMuted = isMuted,
             onMicrophoneButtonClicked = toggleMute
         )
-        Text(
-            text = stringResource(id = R.string.calling_button_label_microphone).uppercase(),
-            style = MaterialTheme.wireTypography.label01,
-            modifier = Modifier
-                .padding(top = MaterialTheme.wireDimensions.spacing8x)
-                .constrainAs(microphoneText) {
-                    start.linkTo(microphoneIcon.start)
-                    end.linkTo(microphoneIcon.end)
-                    top.linkTo(microphoneIcon.bottom)
-                },
-        )
+        CallControlLabel(stringResource(id = R.string.calling_button_label_microphone), microphoneText, microphoneIcon)
         CameraButton(
             modifier = Modifier
                 .size(dimensions().defaultCallingControlsSize)
@@ -62,18 +55,7 @@ fun CallOptionsControls(
             onCameraPermissionDenied = { },
             onCameraButtonClicked = toggleVideo
         )
-        Text(
-            text = stringResource(id = R.string.calling_button_label_camera).uppercase(),
-            style = MaterialTheme.wireTypography.label01,
-            modifier = Modifier
-                .padding(top = MaterialTheme.wireDimensions.spacing8x)
-                .constrainAs(cameraText) {
-                    start.linkTo(cameraIcon.start)
-                    end.linkTo(cameraIcon.end)
-                    top.linkTo(cameraIcon.bottom)
-                },
-        )
-
+        CallControlLabel(stringResource(id = R.string.calling_button_label_camera), cameraText, cameraIcon)
         SpeakerButton(
             modifier = Modifier
                 .size(dimensions().defaultCallingControlsSize)
@@ -84,18 +66,28 @@ fun CallOptionsControls(
             isSpeakerOn = isSpeakerOn,
             onSpeakerButtonClicked = toggleSpeaker
         )
-        Text(
-            text = stringResource(id = R.string.calling_button_label_speaker).uppercase(),
-            style = MaterialTheme.wireTypography.label01,
-            modifier = Modifier
-                .padding(top = MaterialTheme.wireDimensions.spacing8x)
-                .constrainAs(speakerText) {
-                    start.linkTo(speakerIcon.start)
-                    end.linkTo(speakerIcon.end)
-                    top.linkTo(speakerIcon.bottom)
-                },
-        )
+        CallControlLabel(stringResource(id = R.string.calling_button_label_speaker), speakerText, speakerIcon)
     }
+}
+
+@Composable
+private fun ConstraintLayoutScope.CallControlLabel(
+    stringResource: String,
+    constraints: ConstrainedLayoutReference,
+    linkedButton: ConstrainedLayoutReference
+) {
+    Text(
+        text = stringResource.uppercase(),
+        color = colorsScheme().onSurface,
+        style = MaterialTheme.wireTypography.label01,
+        modifier = Modifier
+            .padding(top = MaterialTheme.wireDimensions.spacing8x)
+            .constrainAs(constraints) {
+                start.linkTo(linkedButton.start)
+                end.linkTo(linkedButton.end)
+                top.linkTo(linkedButton.bottom)
+            },
+    )
 }
 
 @Preview

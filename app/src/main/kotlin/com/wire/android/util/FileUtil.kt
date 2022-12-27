@@ -238,6 +238,12 @@ fun Context.getDeviceId(): String? {
     return null
 }
 
+fun Context.getGitBuildId(): String = runCatching {
+    assets.open("version.txt").use { inputStream ->
+        inputStream.bufferedReader().use { it.readText() }
+    }
+}.getOrDefault("")
+
 fun Context.getProviderAuthority() = "${packageName}.provider"
 
 private const val TEMP_IMG_ATTACHMENT_FILENAME = "temp_img_attachment.jpg"

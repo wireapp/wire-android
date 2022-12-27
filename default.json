@@ -10,7 +10,11 @@
         "safe_logging": false,
         "private_build": false,
         "development_api_enabled": false,
-        "mls_support_enabled": false
+        "mls_support_enabled": false,
+        "firebasePushSenderId": "782078216207",
+        "firebaseAppId": "1:782078216207:android:d3db2443512d2055",
+        "googleApiKey": "AIzaSyDm5X3eLROMO9tM-jc2-RVUZqaYbNByg2I",
+        "fcmProjectID": "w966768976"
     },
     "dev": {
         "applicationId": "com.waz.zclient.dev",
@@ -24,20 +28,29 @@
         "safe_logging": false,
         "private_build": true,
         "development_api_enabled": true,
-        "mls_support_enabled": true
+        "mls_support_enabled": true,
+        "firebasePushSenderId": "782078216207",
+        "firebaseAppId": "1:782078216207:android:d3db2443512d2055",
+        "googleApiKey": "AIzaSyDm5X3eLROMO9tM-jc2-RVUZqaYbNByg2I",
+        "fcmProjectID": "w966768976"
     },
-    "candidate": {
-        "applicationId": "com.wire.candidate",
+    "staging": {
+        "applicationId": "com.waz.zclient.dev",
         "userId": "",
         "_comment": "appName must match the value of 'app_name' in strings.xml",
-        "appName": "Wire Candidate",
-        "launcherIcon": "ic_launcher_wire_candidate",
+        "appName": "Wire Dev",
+        "launcherIcon": "ic_launcher_wire_dev",
+        "version_name_postfix": "-dev",
         "developer_features_enabled": true,
         "logging_enabled": true,
-        "safe_logging": true,
-        "private_build": false,
-        "development_api_enabled": false,
-        "mls_support_enabled": false
+        "safe_logging": false,
+        "private_build": true,
+        "development_api_enabled": true,
+        "mls_support_enabled": true,
+        "firebasePushSenderId": "723990470614",
+        "firebaseAppId": "1:723990470614:android:9a1527f79aa62284",
+        "googleApiKey": "AIzaSyAGCoJGUtDBLJJiQPLxHQRrdkbyI0wlbo8",
+        "fcmProjectID": "wiregcmpushstaging"
     },
     "internal": {
         "applicationId": "com.wire.internal",
@@ -51,21 +64,11 @@
         "safe_logging": true,
         "private_build": true,
         "development_api_enabled": false,
-        "mls_support_enabled": false
-    },
-    "experimental": {
-        "applicationId": "com.wire.x",
-        "userId": "",
-        "_comment": "appName must match the value of 'app_name' in strings.xml",
-        "appName": "Wire Exp",
-        "launcherIcon": "ic_launcher_wire_playground",
-        "version_name_postfix": "-exp",
-        "developer_features_enabled": true,
-        "logging_enabled": true,
-        "safe_logging": true,
-        "private_build": true,
-        "development_api_enabled": false,
-        "mls_support_enabled": false
+        "mls_support_enabled": false,
+        "firebasePushSenderId": "782078216207",
+        "firebaseAppId": "1:782078216207:android:d3db2443512d2055",
+        "googleApiKey": "AIzaSyDm5X3eLROMO9tM-jc2-RVUZqaYbNByg2I",
+        "fcmProjectID": "w966768976"
     },
     "fdroid": {
         "applicationId": "com.wire",
@@ -79,7 +82,11 @@
         "keep_websocket_on": true,
         "private_build": false,
         "development_api_enabled": false,
-        "mls_support_enabled": false
+        "mls_support_enabled": false,
+        "firebasePushSenderId": "782078216207",
+        "firebaseAppId": "1:782078216207:android:d3db2443512d2055",
+        "googleApiKey": "AIzaSyDm5X3eLROMO9tM-jc2-RVUZqaYbNByg2I",
+        "fcmProjectID": "w966768976"
     },
     "maxAccounts": 3,
     "backendUrl": "https://prod-nginz-https.wire.com",
@@ -87,10 +94,6 @@
     "allow_account_creation": true,
     "allowSSO": true,
     "supportEmail": "support@wire.com",
-    "firebasePushSenderId": "782078216207",
-    "firebaseAppId": "1:782078216207:android:d3db2443512d2055",
-    "googleApiKey": "AIzaSyDm5X3eLROMO9tM-jc2-RVUZqaYbNByg2I",
-    "fcmProjectID": "w966768976",
     "submitCrashReports": true,
     "allowMarketingCommunication": true,
     "enableBlacklist": true,

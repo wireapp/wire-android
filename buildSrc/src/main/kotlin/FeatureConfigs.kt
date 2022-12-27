@@ -24,10 +24,6 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
     FILE_RESTRICTION_ENABLED("file_restriction_enabled", ConfigType.BOOLEAN),
     FILE_RESTRICTION_LIST("file_restriction_list", ConfigType.STRING),
     MLS_SUPPORT_ENABLED("mls_support_enabled", ConfigType.BOOLEAN),
-    FIREBASE_APP_ID("firebaseAppId", ConfigType.STRING),
-    FIREBASE_PUSH_SENDER_ID("firebasePushSenderId", ConfigType.STRING),
-    GOOGLE_API_KEY("googleApiKey", ConfigType.STRING),
-    FCM_PROJECT_ID("fcmProjectID", ConfigType.STRING),
     FORCE_APP_LOCK("force_app_lock", ConfigType.BOOLEAN),
     FORCE_CONSTANT_BITRATE_CALLS("force_constant_bitrate_calls", ConfigType.BOOLEAN),
     FORCE_HIDE_SCREEN_CONTENT("force_hide_screen_content", ConfigType.BOOLEAN),
@@ -75,6 +71,9 @@ enum class FlavourConfigs(val value: String, val configType: ConfigType) {
     SAFE_LOGGING("safe_logging", ConfigType.BOOLEAN),
     PRIVATE_BUILD("private_build", ConfigType.BOOLEAN),
     DEVELOPMENT_API_ENABLED("development_api_enabled", ConfigType.BOOLEAN),
+    FIREBASE_APP_ID("firebaseAppId", ConfigType.STRING),
+    FIREBASE_PUSH_SENDER_ID("firebasePushSenderId", ConfigType.STRING),
+    GOOGLE_API_KEY("googleApiKey", ConfigType.STRING),
+    FCM_PROJECT_ID("fcmProjectID", ConfigType.STRING),
     USER_ID("userId", ConfigType.STRING);
-
 }

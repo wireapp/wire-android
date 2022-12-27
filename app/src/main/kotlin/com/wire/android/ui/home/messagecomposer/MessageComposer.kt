@@ -130,6 +130,7 @@ fun MessageComposer(
     }
 }
 
+@Suppress("ComplexMethod", "ComplexCondition")
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun MessageComposer(
@@ -250,10 +251,10 @@ private fun MessageComposer(
                 // This covers the situation when the user switches from attachment options to the input keyboard - there is a moment when
                 // both attachmentOptionsDisplayed and isKeyboardVisible are false, but right after that keyboard shows, so if we know that
                 // the input already has a focus, we can show an empty Box which has a height of the keyboard to prevent flickering.
-                else if (!messageComposerState.attachmentOptionsDisplayed &&
-                        !isKeyboardVisible &&
-                        messageComposerState.messageComposeInputFocused &&
-                        interactionAvailability == InteractionAvailability.ENABLED) {
+
+                else if (!messageComposerState.attachmentOptionsDisplayed && !isKeyboardVisible &&
+                    messageComposerState.messageComposeInputFocused && interactionAvailability == InteractionAvailability.ENABLED
+                ) {
                     Box(
                         modifier = Modifier
                             .height(keyboardHeight.height)

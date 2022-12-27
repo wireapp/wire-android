@@ -159,10 +159,8 @@ class ConversationMessagesViewModel @Inject constructor(
             )
     }
 
-    fun onSnackbarMessage(msgCode: ConversationSnackbarMessages) {
-        viewModelScope.launch(dispatchers.main()) {
-            conversationViewState = conversationViewState.copy(snackbarMessage = msgCode)
-        }
+    fun onSnackbarMessage(msgCode: ConversationSnackbarMessages) = viewModelScope.launch(dispatchers.main()) {
+        conversationViewState = conversationViewState.copy(snackbarMessage = msgCode)
     }
 
     fun hideOnAssetDownloadedDialog() {
@@ -193,6 +191,7 @@ class ConversationMessagesViewModel @Inject constructor(
                 when (resetSession(conversationId, userId, ClientId(clientId.orEmpty()))) {
                     is ResetSessionResult.Failure ->
                         conversationViewState.copy(snackbarMessage = OnResetSession(UIText.StringResource(R.string.label_general_error)))
+
                     is ResetSessionResult.Success -> conversationViewState.copy(
                         snackbarMessage = OnResetSession(UIText.StringResource(R.string.label_reset_session_success))
                     )
@@ -201,17 +200,13 @@ class ConversationMessagesViewModel @Inject constructor(
     }
 
     // region Private
-    private suspend fun assetDataPath(conversationId: QualifiedID, messageId: String): Path? {
-        getMessageAsset(
-            conversationId = conversationId,
-            messageId = messageId
-        ).await().run {
+    private suspend fun assetDataPath(conversationId: QualifiedID, messageId: String): Path? =
+        getMessageAsset(conversationId, messageId).await().run {
             return when (this) {
                 is MessageAssetResult.Success -> decodedAssetPath
                 else -> null
             }
         }
-    }
 
     private fun onOpenFileError() {
         conversationViewState = conversationViewState.copy(snackbarMessage = ConversationSnackbarMessages.ErrorOpeningAssetFile)
@@ -219,6 +214,10 @@ class ConversationMessagesViewModel @Inject constructor(
 
     private fun onFileSavedToExternalStorage(assetName: String?) {
         onSnackbarMessage(ConversationSnackbarMessages.OnFileDownloaded(assetName))
+    }
+
+    fun clearSnackbarMessage() = viewModelScope.launch(dispatchers.main()) {
+        conversationViewState = conversationViewState.copy(snackbarMessage = null)
     }
 
     // endregion

@@ -57,6 +57,7 @@ import okio.buffer
 import javax.inject.Inject
 import com.wire.kalium.logic.data.id.QualifiedID as ConversationId
 import com.wire.kalium.logic.feature.conversation.MembersToMentionUseCase
+import kotlinx.coroutines.delay
 
 @Suppress("LongParameterList", "TooManyFunctions")
 @HiltViewModel

@@ -36,6 +36,7 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.items
 import com.wire.android.R
+import com.wire.android.appLogger
 import com.wire.android.navigation.hiltSavedStateViewModel
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
 import com.wire.android.ui.common.colorsScheme
@@ -182,7 +183,10 @@ fun ConversationScreen(
         onUpdateConversationReadDate = messageComposerViewModel::updateConversationReadDate,
         onDropDownClick = conversationInfoViewModel::navigateToDetails,
         onSnackbarMessage = messageComposerViewModel::onSnackbarMessage,
-        onSnackbarMessageShown = messageComposerViewModel::clearSnackbarMessage,
+        onSnackbarMessageShown = {
+            messageComposerViewModel.clearSnackbarMessage()
+            conversationMessagesViewModel.clearSnackbarMessage()
+        },
         onBackButtonClick = messageComposerViewModel::navigateBack,
     )
     DeleteMessageDialog(
@@ -489,6 +493,7 @@ private fun SnackBarMessage(
             message = message,
             actionLabel = actionLabel
         )
+        appLogger.d("**--Showing Snackbar message with $snackbarResult")
         when {
             // Show downloads folder when clicking on Snackbar cta button
             messageCode is OnFileDownloaded && snackbarResult == SnackbarResult.ActionPerformed -> {

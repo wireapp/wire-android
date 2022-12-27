@@ -37,8 +37,7 @@ object NotificationConstants {
     // MessagesSummaryNotification ID depends on User, use fun getMessagesSummaryId(userId: UserId) to get it
     private const val MESSAGE_SUMMARY_ID_STRING = "wire_messages_summary_notification"
 
-    fun getConversationNotificationId(conversationId: ConversationId) = getConversationNotificationId(conversationId.toString())
-    fun getConversationNotificationId(conversationIdString: String) = conversationIdString.hashCode()
+    fun getConversationNotificationId(conversationIdString: String, userIdString: String) = (conversationIdString + userIdString).hashCode()
     fun getMessagesGroupKey(userId: UserId?): String = "$MESSAGE_GROUP_KEY_PREFIX${userId?.toString() ?: ""}"
     fun getMessagesSummaryId(userId: UserId): Int = "$MESSAGE_SUMMARY_ID_STRING${userId.toString()}".hashCode()
     fun getChanelGroupIdForUser(userId: UserId): String = "${CHANNEL_GROUP_ID_PREFIX}.$userId"

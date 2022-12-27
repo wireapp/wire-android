@@ -46,7 +46,7 @@ class MessageNotificationManager
     }
 
     fun hideNotification(conversationsId: ConversationId, userId: QualifiedID) {
-        val notificationId = getConversationNotificationId(conversationsId)
+        val notificationId = getConversationNotificationId(conversationsId.toString() + userId.toString())
 
         if (isThereAnyOtherWireNotification(notificationId, userId)) {
             notificationManagerCompat.cancel(notificationId)

@@ -17,11 +17,11 @@ import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 
 @Composable
-fun RemoveDeviceTopBar(elevation: Dp, shouldShowBackButton: Boolean, onBackButtonClicked: () -> Unit) {
+fun RemoveDeviceTopBar(elevation: Dp, onBackButtonClicked: () -> Unit) {
     WireCenterAlignedTopAppBar(
         elevation = elevation,
         title = stringResource(R.string.remove_device_title),
-        navigationIconType = if (shouldShowBackButton) NavigationIconType.Close else null,
+        navigationIconType = NavigationIconType.Close,
         onNavigationPressed = onBackButtonClicked
     ) {
         Text(
@@ -48,5 +48,5 @@ fun RemoveDeviceTopBar(elevation: Dp, shouldShowBackButton: Boolean, onBackButto
 @Preview(showBackground = false)
 @Composable
 private fun LoginTopBarPreview() {
-    RemoveDeviceTopBar(0.dp, true) {}
+    RemoveDeviceTopBar(0.dp) {}
 }

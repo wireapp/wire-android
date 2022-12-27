@@ -46,7 +46,7 @@ class MessageNotificationManager
     }
 
     fun hideNotification(conversationsId: ConversationId, userId: QualifiedID) {
-        val notificationId = getConversationNotificationId(conversationsId)
+        val notificationId = getConversationNotificationId(conversationsId.toString(), userId.toString())
 
         if (isThereAnyOtherWireNotification(notificationId, userId)) {
             notificationManagerCompat.cancel(notificationId)
@@ -78,7 +78,7 @@ class MessageNotificationManager
         userId: QualifiedID,
         activeNotifications: Array<StatusBarNotification>
     ) {
-        val notificationId = getConversationNotificationId(conversation.id + userId.toString())
+        val notificationId = getConversationNotificationId(conversation.id, userId.toString())
         getConversationNotification(conversation, userId, activeNotifications)?.let { notification ->
             appLogger.i("$TAG adding ConversationNotification")
             notificationManagerCompat.notify(notificationId, notification)
@@ -156,7 +156,7 @@ class MessageNotificationManager
     ): NotificationCompat.Style? {
 
         val activeMessages = activeNotifications
-            .find { it.id == getConversationNotificationId(conversation.id + userId) }
+            .find { it.id == getConversationNotificationId(conversation.id, userId.orEmpty()) }
             ?.notification
             ?.let { NotificationCompat.MessagingStyle.extractMessagingStyleFromNotification(it) }
             ?.messages
@@ -264,7 +264,7 @@ class MessageNotificationManager
             userId: QualifiedID,
             replyText: String?
         ) {
-            val conversationNotificationId = getConversationNotificationId(conversationId)
+            val conversationNotificationId = getConversationNotificationId(conversationId, userId.toString())
             val userIdString = userId.toString()
 
             val currentNotification = (context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager)

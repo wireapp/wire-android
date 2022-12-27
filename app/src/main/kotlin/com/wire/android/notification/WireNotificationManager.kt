@@ -16,6 +16,7 @@ import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.notification.LocalNotificationConversation
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.call.Call
+import com.wire.kalium.logic.feature.message.MarkMessagesAsNotifiedUseCase
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
@@ -30,7 +31,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.cancellable
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
@@ -43,7 +43,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withTimeout
-import kotlinx.datetime.Clock
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.time.Duration.Companion.seconds
@@ -305,11 +304,6 @@ class WireNotificationManager @Inject constructor(
                         .messages
                         .getNotifications()
                         .cancellable()
-                        // no need to do the whole work if there is no notifications
-                        .filter {
-                            appLogger.i("$TAG filtering notifications ${it.size}")
-                            it.isNotEmpty()
-                        }
                         .combine(observeSelfUser) { newNotifications, selfUser ->
                             // we don't want to display notifications for the Conversation that user currently in.
                             val notificationsList = filterAccordingToScreenAndUpdateNotifyDate(
@@ -389,9 +383,14 @@ class WireNotificationManager @Inject constructor(
 
     private suspend fun markMessagesAsNotified(userId: QualifiedID?, conversationId: ConversationId?) {
         userId?.let {
+            val markNotified = if (conversationId == null) {
+                MarkMessagesAsNotifiedUseCase.UpdateTarget.AllConversations
+            } else {
+                MarkMessagesAsNotifiedUseCase.UpdateTarget.SingleConversation(conversationId)
+            }
             coreLogic.getSessionScope(it)
                 .messages
-                .markMessagesAsNotified(conversationId, Clock.System.now().toString())
+                .markMessagesAsNotified(markNotified)
         }
     }
 

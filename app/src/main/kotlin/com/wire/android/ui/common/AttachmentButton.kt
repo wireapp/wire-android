@@ -56,7 +56,7 @@ fun AttachmentButton(
                 modifier = Modifier
                     .padding(dimensions().spacing8x)
                     .align(Alignment.Center),
-                colorFilter = ColorFilter.tint(MaterialTheme.wireColorScheme.secondaryButtonEnabled)
+                colorFilter = ColorFilter.tint(MaterialTheme.wireColorScheme.onPrimaryButtonEnabled)
             )
         }
         Text(

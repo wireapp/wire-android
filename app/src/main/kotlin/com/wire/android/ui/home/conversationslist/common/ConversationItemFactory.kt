@@ -1,5 +1,6 @@
 package com.wire.android.ui.home.conversationslist.common
 
+import androidx.compose.foundation.layout.Row
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.res.stringResource
@@ -97,11 +98,19 @@ private fun GeneralConversationItem(
                     eventType = conversation.badgeEventType,
                     clickable = onConversationItemClick,
                     trailingIcon = {
-                        if (hasOnGoingCall)
-                            JoinButton(buttonClick = onJoinCallClick)
-                        else if (mutedStatus != MutedConversationStatus.AllAllowed) {
-                            MutedConversationBadge(onMutedIconClick)
-                            HorizontalSpace.x8()
+                        Row {
+                            if (hasOnGoingCall) {
+                                HorizontalSpace.x8()
+                                JoinButton(buttonClick = onJoinCallClick)
+                                HorizontalSpace.x8()
+                            }
+                            else if (mutedStatus != MutedConversationStatus.AllAllowed) {
+                                HorizontalSpace.x8()
+                                MutedConversationBadge(onMutedIconClick)
+                                HorizontalSpace.x8()
+                            } else {
+                                HorizontalSpace.x48()
+                            }
                         }
                     },
                 )

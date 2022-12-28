@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.cachedIn
 import com.wire.android.R
 import com.wire.android.appLogger
+import com.wire.android.model.SnackBarMessage
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
@@ -35,6 +36,8 @@ import com.wire.kalium.logic.feature.message.ToggleReactionUseCase
 import com.wire.kalium.logic.feature.sessionreset.ResetSessionResult
 import com.wire.kalium.logic.feature.sessionreset.ResetSessionUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -65,6 +68,9 @@ class ConversationMessagesViewModel @Inject constructor(
         savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)!!
     )
 
+    private val _infoMessage = MutableSharedFlow<SnackBarMessage>()
+    val infoMessage = _infoMessage.asSharedFlow()
+
     init {
         loadPaginatedMessages()
         loadLastMessageInstant()
@@ -88,6 +94,10 @@ class ConversationMessagesViewModel @Inject constructor(
                     conversationViewState = conversationViewState.copy(firstUnreadInstant = lastUnreadInstant)
                 }
             }
+    }
+
+    fun onSnackbarMessage(type: SnackBarMessage) = viewModelScope.launch {
+        _infoMessage.emit(type)
     }
 
     // This will download the asset remotely to an internal temporary storage or fetch it from the local database if it had been previously
@@ -157,10 +167,6 @@ class ConversationMessagesViewModel @Inject constructor(
                     messageId
                 )
             )
-    }
-
-    fun onSnackbarMessage(msgCode: ConversationSnackbarMessages) = viewModelScope.launch(dispatchers.main()) {
-        conversationViewState = conversationViewState.copy(snackbarMessage = msgCode)
     }
 
     fun hideOnAssetDownloadedDialog() {

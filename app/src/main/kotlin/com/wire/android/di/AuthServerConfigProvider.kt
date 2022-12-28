@@ -10,8 +10,8 @@ import javax.inject.Singleton
 @Singleton
 class AuthServerConfigProvider @Inject constructor() {
     //todo check with soft logout
-    val DEFAULT = if (BuildConfig.IS_STAGING) ServerConfig.STAGING else ServerConfig.PRODUCTION
-    private val _authServer: MutableStateFlow<ServerConfig.Links> = MutableStateFlow(DEFAULT)
+    private val serverConfigDefaultLinks = if (BuildConfig.IS_STAGING) ServerConfig.STAGING else ServerConfig.PRODUCTION
+    private val _authServer: MutableStateFlow<ServerConfig.Links> = MutableStateFlow(serverConfigDefaultLinks)
     val authServer: StateFlow<ServerConfig.Links> = _authServer
 
     fun updateAuthServer(serverLinks: ServerConfig.Links) {

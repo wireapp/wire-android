@@ -48,7 +48,6 @@ class AddMembersToConversationViewModel @Inject constructor(
     navigationManager: NavigationManager,
     qualifiedIdMapper: QualifiedIdMapper
 ) : KnownPeopleSearchViewModel(
-    dispatcher = dispatchers,
     navigationManager = navigationManager
 ) {
 

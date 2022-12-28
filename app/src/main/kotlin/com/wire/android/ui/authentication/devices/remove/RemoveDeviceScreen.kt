@@ -31,6 +31,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.ui.authentication.devices.DeviceItem
+import com.wire.android.ui.authentication.devices.common.ClearSessionState
+import com.wire.android.ui.authentication.devices.common.ClearSessionViewModel
 import com.wire.android.ui.authentication.devices.model.Device
 import com.wire.android.ui.common.SurfaceBackgroundWrapper
 import com.wire.android.ui.common.WireDialog
@@ -51,18 +53,22 @@ import com.wire.android.util.formatMediumDateTime
 @Composable
 fun RemoveDeviceScreen() {
     val viewModel: RemoveDeviceViewModel = hiltViewModel()
+    val clearSessionViewModel: ClearSessionViewModel = hiltViewModel()
     val state: RemoveDeviceState = viewModel.state
+    val clearSessionState: ClearSessionState = clearSessionViewModel.state
+
     clearAutofillTree()
     RemoveDeviceContent(
         state = state,
+        clearSessionState = clearSessionState,
         onItemClicked = viewModel::onItemClicked,
         onPasswordChange = viewModel::onPasswordChange,
         onRemoveConfirm = viewModel::onRemoveConfirmed,
         onDialogDismiss = viewModel::onDialogDismissed,
         onErrorDialogDismiss = viewModel::clearDeleteClientError,
-        onBackButtonClicked = viewModel::onBackButtonClicked,
-        onCancelLoginClicked = viewModel::onCancelLoginClicked,
-        onProceedLoginClicked = viewModel::onProceedLoginClicked
+        onBackButtonClicked = clearSessionViewModel::onBackButtonClicked,
+        onCancelLoginClicked = clearSessionViewModel::onCancelLoginClicked,
+        onProceedLoginClicked = clearSessionViewModel::onProceedLoginClicked
     )
 }
 
@@ -70,6 +76,7 @@ fun RemoveDeviceScreen() {
 @Composable
 private fun RemoveDeviceContent(
     state: RemoveDeviceState,
+    clearSessionState: ClearSessionState,
     onItemClicked: (Device) -> Unit,
     onPasswordChange: (TextFieldValue) -> Unit,
     onRemoveConfirm: () -> Unit,
@@ -86,25 +93,24 @@ private fun RemoveDeviceContent(
     CancelLoginDialogContent(
         dialogState = cancelLoginDialogState,
         onActionButtonClicked = {
-            cancelLoginDialogState.dismiss()
             onCancelLoginClicked()
         },
         onProceedButtonClicked = {
-            cancelLoginDialogState.dismiss()
             onProceedLoginClicked()
         }
     )
-    if (state.showCancelLoginDialog) {
+    if (clearSessionState.showCancelLoginDialog) {
         cancelLoginDialogState.show(
             cancelLoginDialogState.savedState ?: CancelLoginDialogState
         )
+    } else {
+        cancelLoginDialogState.dismiss()
     }
 
     val lazyListState = rememberLazyListState()
     Scaffold(topBar = {
         RemoveDeviceTopBar(
             elevation = lazyListState.rememberTopBarElevationState().value,
-            shouldShowBackButton = !state.isFirstAccount,
             onBackButtonClicked = onBackButtonClicked
         )
     }) { internalPadding ->
@@ -242,6 +248,7 @@ private fun RemoveDeviceScreenPreview() {
             RemoveDeviceDialogState.Hidden,
             isLoadingClientsList = false
         ),
+        clearSessionState = ClearSessionState(),
         onItemClicked = {},
         onPasswordChange = {},
         onRemoveConfirm = {},

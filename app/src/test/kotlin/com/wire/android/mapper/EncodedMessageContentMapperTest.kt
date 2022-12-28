@@ -157,8 +157,9 @@ class EncodedMessageContentMapperTest {
     fun givenAssetContent_whenMappingToUIMessageContent_thenCorrectValuesShouldBeReturned() = runTest {
         // Given
         val dummyPath = fakeKaliumFileSystem.providePersistentAssetPath("dummy-path")
+        val dummyName = "some-dummy-name"
         val (arrangement, mapper) = Arrangement()
-            .withSuccessfulGetMessageAssetResult(dummyPath, 1)
+            .withSuccessfulGetMessageAssetResult(dummyPath, 1, dummyName)
             .arrange()
         val unknownImageMessageContent = AssetContent(
             0L,
@@ -225,8 +226,9 @@ class EncodedMessageContentMapperTest {
     fun givenPNGImageAssetContentWith0Width_whenMappingToUIMessageContent_thenIsMappedToAssetMessage() = runTest {
         // Given
         val dummyPath = "some-dummy-path".toPath()
+        val dummyName = "some-dummy-name"
         val (arrangement, mapper) = Arrangement()
-            .withSuccessfulGetMessageAssetResult(dummyPath, 1)
+            .withSuccessfulGetMessageAssetResult(dummyPath, 1, dummyName)
             .arrange()
         val contentImage1 = AssetContent(
             0L,
@@ -311,7 +313,7 @@ class EncodedMessageContentMapperTest {
             every { messageResourceProvider.sentAMessageWithContent } returns 45407124
         }
 
-        fun withSuccessfulGetMessageAssetResult(expectedAssetPath: Path, expectedAssetSize: Long): Arrangement {
+        fun withSuccessfulGetMessageAssetResult(expectedAssetPath: Path, expectedAssetSize: Long, expectedAssetName: String): Arrangement {
             val dummyData = "dummy-data".toByteArray()
             fakeKaliumFileSystem.sink(expectedAssetPath).buffer().use {
                 it.write(dummyData)
@@ -321,7 +323,7 @@ class EncodedMessageContentMapperTest {
                     any(),
                     any()
                 )
-            } returns CompletableDeferred(MessageAssetResult.Success(expectedAssetPath, expectedAssetSize))
+            } returns CompletableDeferred(MessageAssetResult.Success(expectedAssetPath, expectedAssetSize, expectedAssetName))
             return this
         }
 

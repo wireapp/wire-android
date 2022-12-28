@@ -11,7 +11,6 @@ import okio.Path
 import com.wire.kalium.logic.data.id.QualifiedID as ConversationId
 
 data class ConversationViewState(
-    val snackbarMessage: ConversationSnackbarMessages? = null,
     val userTeam: Team? = null,
     val isFileSharingEnabled: Boolean = true,
     val securityClassificationType: SecurityClassificationType = SecurityClassificationType.NONE

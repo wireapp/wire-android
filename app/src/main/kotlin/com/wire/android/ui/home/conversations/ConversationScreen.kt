@@ -32,6 +32,7 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.items
 import com.wire.android.R
+import com.wire.android.model.SnackBarMessage
 import com.wire.android.navigation.hiltSavedStateViewModel
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
 import com.wire.android.ui.common.colorsScheme
@@ -42,16 +43,8 @@ import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.common.topappbar.CommonTopAppBar
 import com.wire.android.ui.common.topappbar.CommonTopAppBarViewModel
 import com.wire.android.ui.common.topappbar.ConnectivityUIState
-import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorDeletingMessage
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorDownloadingAsset
-import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorMaxAssetSize
-import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorMaxImageSize
-import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorOpeningAssetFile
-import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorPickingAttachment
-import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorSendingAsset
-import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorSendingImage
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.OnFileDownloaded
-import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.OnResetSession
 import com.wire.android.ui.home.conversations.banner.ConversationBanner
 import com.wire.android.ui.home.conversations.banner.ConversationBannerViewModel
 import com.wire.android.ui.home.conversations.call.ConversationCallViewModel
@@ -82,6 +75,8 @@ import com.wire.kalium.logic.feature.conversation.InteractionAvailability
 import kotlinx.collections.immutable.ImmutableMap
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Instant
 import okio.Path
@@ -176,8 +171,9 @@ fun ConversationScreen(
         onUpdateConversationReadDate = messageComposerViewModel::updateConversationReadDate,
         onDropDownClick = conversationInfoViewModel::navigateToDetails,
         onSnackbarMessage = messageComposerViewModel::onSnackbarMessage,
-        onSnackbarMessageShown = messageComposerViewModel::clearSnackbarMessage,
         onBackButtonClick = messageComposerViewModel::navigateBack,
+        composerMessages = messageComposerViewModel.infoMessage,
+        conversationMessages = conversationMessagesViewModel.infoMessage
     )
     DeleteMessageDialog(
         state = messageComposerViewModel.deleteMessageDialogsState,
@@ -263,8 +259,9 @@ private fun ConversationScreen(
     onUpdateConversationReadDate: (String) -> Unit,
     onDropDownClick: () -> Unit,
     onSnackbarMessage: (ConversationSnackbarMessages) -> Unit,
-    onSnackbarMessageShown: () -> Unit,
-    onBackButtonClick: () -> Unit
+    onBackButtonClick: () -> Unit,
+    composerMessages: SharedFlow<SnackBarMessage>,
+    conversationMessages: SharedFlow<SnackBarMessage>,
 ) {
     val conversationScreenState = rememberConversationScreenState()
     val messageComposerInnerState = rememberMessageComposerInnerState()
@@ -359,7 +356,7 @@ private fun ConversationScreen(
                         isFileSharingEnabled = conversationViewState.isFileSharingEnabled,
                         lastUnreadMessageInstant = conversationMessagesViewState.firstUnreadInstant,
                         conversationState = conversationViewState,
-                        conversationScreenState = conversationScreenState,
+
                         messageComposerInnerState = messageComposerInnerState,
                         messages = conversationMessagesViewState.messages,
                         onSendMessage = onSendMessage,
@@ -371,14 +368,13 @@ private fun ConversationScreen(
                         onResetSessionClicked = onResetSessionClick,onOpenProfile = onOpenProfile,
                         onUpdateConversationReadDate = onUpdateConversationReadDate,
                         onMessageComposerError = onSnackbarMessage,
-                        onShowContextMenu = conversationScreenState::showEditContextMenu,
-                        onSnackbarMessageShown = onSnackbarMessageShown,
-                        snackbarMessage = conversationViewState.snackbarMessage ?: conversationMessagesViewState.snackbarMessage
+                        onShowContextMenu = conversationScreenState::showEditContextMenu
                     )
                 }
             }
         )
     }
+    SnackBarMessage(composerMessages, conversationMessages, conversationScreenState)
 }
 
 @Suppress("LongParameterList")
@@ -390,7 +386,6 @@ private fun ConversationScreenContent(
     isFileSharingEnabled: Boolean,
     lastUnreadMessageInstant: Instant?,
     conversationState: ConversationViewState,
-    conversationScreenState: ConversationScreenState,
     messageComposerInnerState: MessageComposerInnerState,
     messages: Flow<PagingData<UIMessage>>,
     onSendMessage: (String, List<UiMention>, String?) -> Unit,
@@ -404,8 +399,6 @@ private fun ConversationScreenContent(
     onUpdateConversationReadDate: (String) -> Unit,
     onMessageComposerError: (ConversationSnackbarMessages) -> Unit,
     onShowContextMenu: (UIMessage) -> Unit,
-    onSnackbarMessageShown: () -> Unit,
-    snackbarMessage: ConversationSnackbarMessages?
 ) {
     val lazyPagingMessages = messages.collectAsLazyPagingItems()
 
@@ -440,56 +433,34 @@ private fun ConversationScreenContent(
         securityClassificationType = conversationState.securityClassificationType,
         membersToMention = membersToMention
     )
-
-    SnackBarMessage(snackbarMessage, conversationState, conversationScreenState, onSnackbarMessageShown)
 }
 
 @Composable
 private fun SnackBarMessage(
-    snackbarMessage: ConversationSnackbarMessages?,
-    conversationState: ConversationViewState,
-    conversationScreenState: ConversationScreenState,
-    onSnackbarMessageShown: () -> Unit
-): Unit? = snackbarMessage?.let { messageCode ->
-    val (message, actionLabel) = getSnackbarMessage(messageCode)
+    composerMessages: SharedFlow<SnackBarMessage>,
+    conversationMessages: SharedFlow<SnackBarMessage>,
+    conversationScreenState: ConversationScreenState
+) {
+    val showLabel = stringResource(R.string.label_show)
     val context = LocalContext.current
 
-    LaunchedEffect(conversationState.snackbarMessage) {
-        val snackbarResult = conversationScreenState.snackBarHostState.showSnackbar(
-            message = message,
-            actionLabel = actionLabel
-        )
-        when {
-            // Show downloads folder when clicking on Snackbar cta button
-            messageCode is OnFileDownloaded && snackbarResult == SnackbarResult.ActionPerformed -> {
-                context.startActivity(Intent(DownloadManager.ACTION_VIEW_DOWNLOADS))
-                onSnackbarMessageShown()
-            }
+    LaunchedEffect(Unit) {
+        composerMessages.collect { conversationScreenState.snackBarHostState.showSnackbar(message = it.uiText.asString(context.resources)) }
+    }
 
-            snackbarResult == SnackbarResult.Dismissed -> onSnackbarMessageShown()
+    LaunchedEffect(Unit) {
+        conversationMessages.collect {
+            val actionLabel = if (it is OnFileDownloaded) showLabel else null
+            val snackbarResult = conversationScreenState.snackBarHostState.showSnackbar(
+                message = it.uiText.asString(context.resources),
+                actionLabel = actionLabel
+            )
+            // Show downloads folder when clicking on Snackbar cta button
+            if (it is OnFileDownloaded && snackbarResult == SnackbarResult.ActionPerformed) {
+                context.startActivity(Intent(DownloadManager.ACTION_VIEW_DOWNLOADS))
+            }
         }
     }
-}
-
-@Composable
-private fun getSnackbarMessage(messageCode: ConversationSnackbarMessages): Pair<String, String?> {
-    val msg = when (messageCode) {
-        is OnResetSession -> messageCode.text.asString()
-        is OnFileDownloaded -> stringResource(R.string.conversation_on_file_downloaded, messageCode.assetName ?: "")
-        is ErrorMaxAssetSize -> stringResource(R.string.error_conversation_max_asset_size_limit, messageCode.maxLimitInMB)
-        ErrorMaxImageSize -> stringResource(R.string.error_conversation_max_image_size_limit)
-        ErrorSendingImage -> stringResource(R.string.error_conversation_sending_image)
-        ErrorSendingAsset -> stringResource(R.string.error_conversation_sending_asset)
-        ErrorDownloadingAsset -> stringResource(R.string.error_conversation_downloading_asset)
-        ErrorOpeningAssetFile -> stringResource(R.string.error_conversation_opening_asset_file)
-        ErrorDeletingMessage -> stringResource(R.string.error_conversation_deleting_message)
-        ErrorPickingAttachment -> stringResource(R.string.error_conversation_generic)
-    }
-    val actionLabel = when (messageCode) {
-        is OnFileDownloaded -> stringResource(R.string.label_show)
-        else -> null
-    }
-    return msg to actionLabel
 }
 
 @Composable
@@ -584,11 +555,13 @@ fun ConversationScreenPreview() {
         onStartCall = { },
         onJoinCall = { },
         onReactionClick = { _, _ -> },
+        onResetSessionClick = { _, _ -> },
         onMentionMember = { },
         onUpdateConversationReadDate = { },
         onDropDownClick = { },
-        onSnackbarMessage = { },
-        onSnackbarMessageShown = { },
-        onResetSessionClick = { _, _ -> },
-    ) { }
+        onSnackbarMessage = { _ -> },
+        onBackButtonClick = {},
+        composerMessages = MutableStateFlow(ErrorDownloadingAsset),
+        conversationMessages = MutableStateFlow(ErrorDownloadingAsset),
+    )
 }

@@ -53,6 +53,7 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
     FDROID("fdroid", ConfigType.FLAVOUR_CONFIG),
     DEV("dev", ConfigType.FLAVOUR_CONFIG),
     INTERNAL("internal", ConfigType.FLAVOUR_CONFIG),
+    STAGING("staging", ConfigType.FLAVOUR_CONFIG),
     PROD("prod", ConfigType.FLAVOUR_CONFIG);
 }
 
@@ -75,5 +76,6 @@ enum class FlavourConfigs(val value: String, val configType: ConfigType) {
     FIREBASE_PUSH_SENDER_ID("firebasePushSenderId", ConfigType.STRING),
     GOOGLE_API_KEY("googleApiKey", ConfigType.STRING),
     FCM_PROJECT_ID("fcmProjectID", ConfigType.STRING),
+    IS_STAGING("isStaging", ConfigType.BOOLEAN),
     USER_ID("userId", ConfigType.STRING);
 }

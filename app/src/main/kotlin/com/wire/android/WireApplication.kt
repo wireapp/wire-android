@@ -64,7 +64,7 @@ class WireApplication : Application(), Configuration.Provider {
                 .setApiKey(BuildConfig.GOOGLE_API_KEY)
                 .setProjectId(BuildConfig.FCM_PROJECT_ID)
                 .build()
-            FirebaseApp.initializeApp(this, firebaseOptions, this.packageName)
+            FirebaseApp.initializeApp(this, firebaseOptions)
         }
 
         initializeApplicationLoggingFrameworks()

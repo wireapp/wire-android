@@ -91,16 +91,9 @@ private fun AttachmentOptionsComponent(
         val minColumnWidth: Dp = dimensions().spacing80x
         val minPadding: Dp = dimensions().spacing8x
         val visibleAttachmentOptions = attachmentOptions.filter { it.shouldShow }
-        val params by remember (fullWidth, visibleAttachmentOptions) {
+        val params by remember (fullWidth, visibleAttachmentOptions.size) {
             derivedStateOf {
-                val availableWidth = fullWidth - (minPadding * 2)
-                val currentMaxColumns = availableWidth / minColumnWidth
-                if (currentMaxColumns <= visibleAttachmentOptions.size) {
-                    GridCells.Adaptive(minColumnWidth) to PaddingValues(minPadding)
-                } else {
-                    val currentPadding = (availableWidth - (minColumnWidth * visibleAttachmentOptions.size)) / 2
-                    GridCells.Fixed(visibleAttachmentOptions.size) to PaddingValues(vertical = minPadding, horizontal = currentPadding)
-                }
+                calculateGridParams(minPadding, minColumnWidth, fullWidth, visibleAttachmentOptions.size)
             }
         }
         val (columns, contentPadding) = params
@@ -119,7 +112,17 @@ private fun AttachmentOptionsComponent(
             }
         }
     }
+}
 
+private fun calculateGridParams(minPadding: Dp, minColumnWidth: Dp, fullWidth: Dp, itemsCount: Int): Pair<GridCells, PaddingValues> {
+    val availableWidth = fullWidth - (minPadding * 2)
+    val currentMaxColumns = availableWidth / minColumnWidth
+    return if (currentMaxColumns <= itemsCount) {
+        GridCells.Adaptive(minColumnWidth) to PaddingValues(minPadding)
+    } else {
+        val currentPadding = (availableWidth - (minColumnWidth * itemsCount)) / 2
+        GridCells.Fixed(itemsCount) to PaddingValues(vertical = minPadding, horizontal = currentPadding)
+    }
 }
 
 @Composable

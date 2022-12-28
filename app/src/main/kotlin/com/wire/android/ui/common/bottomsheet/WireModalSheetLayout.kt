@@ -47,12 +47,12 @@ fun WireModalSheetLayout(
             Column(
                 modifier = Modifier.alpha(if (visibleContent) 1f else 0f)
             ) {
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(dimensions().spacing8x))
                 Divider(
                     modifier = Modifier
                         .width(width = dimensions().modalBottomSheetDividerWidth)
                         .align(alignment = Alignment.CenterHorizontally),
-                    thickness = 4.dp
+                    thickness = dimensions().spacing4x
                 )
                 sheetContent()
             }

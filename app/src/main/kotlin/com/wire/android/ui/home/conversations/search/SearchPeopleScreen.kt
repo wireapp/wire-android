@@ -12,6 +12,8 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -27,6 +29,8 @@ import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.search.widget.SearchFailureBox
 import com.wire.android.ui.home.newconversation.model.Contact
+import com.wire.android.ui.theme.wireColorScheme
+import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.extension.folderWithElements
 
 private const val DEFAULT_SEARCH_RESULT_ITEM_SIZE = 4
@@ -46,7 +50,7 @@ fun SearchAllPeopleScreen(
         EmptySearchQueryScreen()
     } else {
         if (noneSearchSucceed) {
-            // TODO : all failed we want to display a general error
+            SearchFailureBox(R.string.label_no_results_found)
         } else {
             Column {
                 SearchResult(
@@ -96,6 +100,7 @@ private fun SearchResult(
                             onAddContactClicked = onAddContactClicked
                         )
                     }
+
                     is ContactSearchResult.InternalContact -> {
                         internalSearchResults(
                             searchTitle = context.getString(searchTitle.stringRes),
@@ -131,6 +136,7 @@ private fun LazyListScope.internalSearchResults(
         SearchResultState.InProgress -> {
             inProgressItem()
         }
+
         is SearchResultState.Success -> {
             internalSuccessItem(
                 searchTitle = searchTitle,
@@ -144,6 +150,7 @@ private fun LazyListScope.internalSearchResults(
                 onOpenUserProfile = onOpenUserProfile
             )
         }
+
         is SearchResultState.Failure -> {
             failureItem(
                 failureMessage = searchResult.failureString
@@ -169,6 +176,7 @@ private fun LazyListScope.externalSearchResults(
         SearchResultState.InProgress -> {
             inProgressItem()
         }
+
         is SearchResultState.Success -> {
             externalSuccessItem(
                 searchTitle = searchTitle,
@@ -180,6 +188,7 @@ private fun LazyListScope.externalSearchResults(
                 onAddContactClicked = onAddContactClicked
             )
         }
+
         is SearchResultState.Failure -> {
             failureItem(
                 failureMessage = searchResult.failureString
@@ -254,6 +263,7 @@ private fun LazyListScope.externalSuccessItem(
     onAddContactClicked: (Contact) -> Unit,
 ) {
     val itemsList = if (showAllItems) searchResult else searchResult.take(DEFAULT_SEARCH_RESULT_ITEM_SIZE)
+
     folderWithElements(
         header = searchTitle,
         items = itemsList.associateBy { it.id }

@@ -116,7 +116,6 @@ fun OtherUserProfileScreen(viewModel: OtherUserProfileScreenViewModel = hiltView
     ExperimentalMaterialApi::class,
     ExperimentalPagerApi::class,
     ExperimentalMaterial3Api::class,
-    InternalCoroutinesApi::class,
 )
 @Composable
 fun OtherProfileScreenContent(

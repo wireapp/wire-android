@@ -382,7 +382,6 @@ private fun ConversationScreen(
                             isFileSharingEnabled = conversationViewState.isFileSharingEnabled,
                             lastUnreadMessageInstant = conversationMessagesViewState.firstUnreadInstant,
                             conversationState = conversationViewState,
-                            conversationScreenState = conversationScreenState,
                             messageComposerInnerState = messageComposerInnerState,
                             messages = conversationMessagesViewState.messages,
                             onSendMessage = onSendMessage,
@@ -395,15 +394,14 @@ private fun ConversationScreen(
                             onOpenProfile = onOpenProfile,
                             onUpdateConversationReadDate = onUpdateConversationReadDate,
                             onMessageComposerError = onSnackbarMessage,
-                            onShowContextMenu = conversationScreenState::showEditContextMenu,
-                            composerMessages = composerMessages,
-                            conversationMessages = conversationMessages
+                            onShowContextMenu = conversationScreenState::showEditContextMenu
                         )
                     }
                 }
             )
         }
     }
+    SnackBarMessage(composerMessages, conversationMessages, conversationScreenState)
 }
 
 @Suppress("LongParameterList")
@@ -416,7 +414,6 @@ private fun ConversationScreenContent(
     isFileSharingEnabled: Boolean,
     lastUnreadMessageInstant: Instant?,
     conversationState: ConversationViewState,
-    conversationScreenState: ConversationScreenState,
     messageComposerInnerState: MessageComposerInnerState,
     messages: Flow<PagingData<UIMessage>>,
     onSendMessage: (String, List<UiMention>, String?) -> Unit,
@@ -430,8 +427,6 @@ private fun ConversationScreenContent(
     onUpdateConversationReadDate: (String) -> Unit,
     onMessageComposerError: (ConversationSnackbarMessages) -> Unit,
     onShowContextMenu: (UIMessage) -> Unit,
-    composerMessages: SharedFlow<SnackBarMessage>,
-    conversationMessages: SharedFlow<SnackBarMessage>,
 ) {
     val lazyPagingMessages = messages.collectAsLazyPagingItems()
 
@@ -467,8 +462,6 @@ private fun ConversationScreenContent(
         securityClassificationType = conversationState.securityClassificationType,
         membersToMention = membersToMention
     )
-
-    SnackBarMessage(composerMessages, conversationMessages, conversationScreenState)
 }
 
 @Composable

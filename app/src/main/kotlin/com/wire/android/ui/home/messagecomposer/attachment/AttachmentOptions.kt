@@ -3,25 +3,25 @@ package com.wire.android.ui.home.messagecomposer.attachment
 import android.net.Uri
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material.Divider
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.ui.common.AttachmentButton
@@ -31,8 +31,6 @@ import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.Error
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.messagecomposer.AttachmentInnerState
 import com.wire.android.ui.home.messagecomposer.AttachmentState
-import com.wire.android.ui.home.messagecomposer.KeyboardHeight
-import com.wire.android.ui.home.messagecomposer.MessageComposerInnerState
 import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 import com.wire.android.util.getTempWritableImageUri
 import com.wire.android.util.getTempWritableVideoUri
@@ -88,19 +86,40 @@ private fun AttachmentOptionsComponent(
     }
     configureStateHandling(attachmentInnerState, onSendAttachment, onError)
 
-    LazyVerticalGrid(
-        columns = GridCells.Adaptive(dimensions().spacing80x),
-        modifier = modifier.fillMaxSize(),
-        contentPadding = PaddingValues(dimensions().spacing8x),
-        verticalArrangement = Arrangement.SpaceEvenly,
-        horizontalArrangement = Arrangement.Center
-    ) {
-        attachmentOptions.forEach { option ->
-            if (option.shouldShow) {
-                item { AttachmentButton(stringResource(option.text), option.icon) { option.onClick() } }
+    BoxWithConstraints(Modifier.fillMaxSize()) {
+        val fullWidth: Dp = with(LocalDensity.current) { constraints.maxWidth.toDp() }
+        val minColumnWidth: Dp = dimensions().spacing80x
+        val minPadding: Dp = dimensions().spacing8x
+        val visibleAttachmentOptions = attachmentOptions.filter { it.shouldShow }
+        val params by remember (fullWidth, visibleAttachmentOptions) {
+            derivedStateOf {
+                val availableWidth = fullWidth - (minPadding * 2)
+                val currentMaxColumns = availableWidth / minColumnWidth
+                if (currentMaxColumns <= visibleAttachmentOptions.size) {
+                    GridCells.Adaptive(minColumnWidth) to PaddingValues(minPadding)
+                } else {
+                    val currentPadding = (availableWidth - (minColumnWidth * visibleAttachmentOptions.size)) / 2
+                    GridCells.Fixed(visibleAttachmentOptions.size) to PaddingValues(vertical = minPadding, horizontal = currentPadding)
+                }
+            }
+        }
+        val (columns, contentPadding) = params
+
+        LazyVerticalGrid(
+            columns = columns,
+            modifier = modifier.fillMaxSize(),
+            contentPadding = contentPadding,
+            verticalArrangement = Arrangement.SpaceEvenly,
+            horizontalArrangement = Arrangement.Center
+        ) {
+            visibleAttachmentOptions.forEach { option ->
+                if (option.shouldShow) {
+                    item{ AttachmentButton(stringResource(option.text), option.icon) { option.onClick() } }
+                }
             }
         }
     }
+
 }
 
 @Composable

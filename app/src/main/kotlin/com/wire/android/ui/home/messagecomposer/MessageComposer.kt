@@ -173,7 +173,7 @@ private fun MessageComposer(
                 val attachmentOptionsVisible = messageComposerState.attachmentOptionsDisplayed
                         && !isKeyboardVisible
                         && interactionAvailability == InteractionAvailability.ENABLED
-                val contentHeight by remember(keyboardHeight, currentScreenHeight) {
+                val contentHeight by remember(keyboardHeight, currentScreenHeight, attachmentOptionsVisible) {
                     derivedStateOf {
                         if (attachmentOptionsVisible) currentScreenHeight - keyboardHeight.height
                         else currentScreenHeight
@@ -181,7 +181,7 @@ private fun MessageComposer(
                 }
 
 
-                LaunchedEffect(isKeyboardVisible) {
+                LaunchedEffect(isKeyboardVisible, messageComposerState.attachmentOptionsDisplayed) {
                     if (!isKeyboardVisible && !messageComposerState.attachmentOptionsDisplayed) {
                         messageComposerState.toEnabled()
                         messageComposerState.focusManager.clearFocus()

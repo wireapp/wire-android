@@ -47,7 +47,7 @@ fun MessagePreview?.toUIPreview(unreadEventCount: UnreadEventCount): UILastMessa
     return uiLastMessageContent()
 }
 
-fun String?.userUiText(isSelfMessage: Boolean): UIText = when {
+private fun String?.userUiText(isSelfMessage: Boolean): UIText = when {
     isSelfMessage -> UIText.StringResource(R.string.member_name_you_label_titlecase)
     this != null -> UIText.DynamicString(this)
     else -> UIText.StringResource(R.string.username_unavailable_label)

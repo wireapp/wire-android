@@ -8,9 +8,7 @@ data class RemoveDeviceState(
     val deviceList: List<Device>,
     val removeDeviceDialogState: RemoveDeviceDialogState = RemoveDeviceDialogState.Hidden,
     val isLoadingClientsList: Boolean,
-    val error: RemoveDeviceError = RemoveDeviceError.None,
-    val isFirstAccount: Boolean = true,
-    val showCancelLoginDialog: Boolean = false
+    val error: RemoveDeviceError = RemoveDeviceError.None
 )
 
 sealed class RemoveDeviceDialogState {

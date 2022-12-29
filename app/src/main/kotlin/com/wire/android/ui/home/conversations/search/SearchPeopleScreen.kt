@@ -12,8 +12,6 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -29,8 +27,6 @@ import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.search.widget.SearchFailureBox
 import com.wire.android.ui.home.newconversation.model.Contact
-import com.wire.android.ui.theme.wireColorScheme
-import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.extension.folderWithElements
 
 private const val DEFAULT_SEARCH_RESULT_ITEM_SIZE = 4
@@ -156,9 +152,10 @@ private fun LazyListScope.internalSearchResults(
                 failureMessage = searchResult.failureString
             )
         }
-        // We do not display anything on Initial state
-        SearchResultState.Initial -> {
+        // We do not display anything on Initial or Empty state
+        SearchResultState.Initial, SearchResultState.EmptyResult -> {
         }
+
     }
 }
 
@@ -194,8 +191,8 @@ private fun LazyListScope.externalSearchResults(
                 failureMessage = searchResult.failureString
             )
         }
-        // We do not display anything on Initial state
-        SearchResultState.Initial -> {
+        // We do not display anything on Initial or Empty state
+        SearchResultState.Initial, SearchResultState.EmptyResult -> {
         }
     }
 }

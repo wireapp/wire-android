@@ -15,7 +15,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryIconButton
@@ -25,10 +24,10 @@ import com.wire.android.ui.common.dimensions
 @ExperimentalAnimationApi
 @Composable
 fun SendActions(
-    modifier: Modifier,
-    messageComposerState: MessageComposerInnerState,
     transition: Transition<MessageComposeInputState>,
-    onSendButtonClicked: () -> Unit
+    sendButtonEnabled: Boolean,
+    onSendButtonClicked: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     Box(modifier) {
         Row(Modifier.padding(end = dimensions().spacing8x)) {
@@ -36,12 +35,12 @@ fun SendActions(
 //                ScheduleMessageButton()
 //            }
             transition.AnimatedVisibility(
-                visible = { messageComposerState.messageComposeInputState != MessageComposeInputState.Enabled },
+                visible = { it != MessageComposeInputState.Enabled },
                 enter = fadeIn(),
                 exit = fadeOut()
             ) {
                 SendButton(
-                    isEnabled = messageComposerState.sendButtonEnabled,
+                    isEnabled = sendButtonEnabled,
                     onSendButtonClicked = onSendButtonClicked
                 )
             }

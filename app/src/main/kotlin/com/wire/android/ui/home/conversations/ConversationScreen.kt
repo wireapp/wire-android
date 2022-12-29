@@ -4,8 +4,8 @@ import android.app.DownloadManager
 import android.content.Intent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -18,24 +18,21 @@ import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.items
 import com.wire.android.R
+import com.wire.android.model.SnackBarMessage
 import com.wire.android.navigation.hiltSavedStateViewModel
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
 import com.wire.android.ui.common.colorsScheme
@@ -46,16 +43,8 @@ import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.common.topappbar.CommonTopAppBar
 import com.wire.android.ui.common.topappbar.CommonTopAppBarViewModel
 import com.wire.android.ui.common.topappbar.ConnectivityUIState
-import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorDeletingMessage
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorDownloadingAsset
-import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorMaxAssetSize
-import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorMaxImageSize
-import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorOpeningAssetFile
-import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorPickingAttachment
-import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorSendingAsset
-import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorSendingImage
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.OnFileDownloaded
-import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.OnResetSession
 import com.wire.android.ui.home.conversations.banner.ConversationBanner
 import com.wire.android.ui.home.conversations.banner.ConversationBannerViewModel
 import com.wire.android.ui.home.conversations.call.ConversationCallViewModel
@@ -69,7 +58,6 @@ import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewS
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent
-import com.wire.android.ui.home.messagecomposer.KeyboardHeight
 import com.wire.android.ui.home.messagecomposer.MessageComposer
 import com.wire.android.ui.home.messagecomposer.MessageComposerInnerState
 import com.wire.android.ui.home.messagecomposer.UiMention
@@ -80,7 +68,6 @@ import com.wire.android.util.permission.CallingAudioRequestFlow
 import com.wire.android.util.permission.rememberCallingRecordAudioBluetoothRequestFlow
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.NetworkFailure
-import com.wire.kalium.logic.data.conversation.ClientId
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.call.usecase.ConferenceCallingResult
@@ -88,6 +75,8 @@ import com.wire.kalium.logic.feature.conversation.InteractionAvailability
 import kotlinx.collections.immutable.ImmutableMap
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Instant
 import okio.Path
@@ -182,8 +171,9 @@ fun ConversationScreen(
         onUpdateConversationReadDate = messageComposerViewModel::updateConversationReadDate,
         onDropDownClick = conversationInfoViewModel::navigateToDetails,
         onSnackbarMessage = messageComposerViewModel::onSnackbarMessage,
-        onSnackbarMessageShown = messageComposerViewModel::clearSnackbarMessage,
         onBackButtonClick = messageComposerViewModel::navigateBack,
+        composerMessages = messageComposerViewModel.infoMessage,
+        conversationMessages = conversationMessagesViewModel.infoMessage
     )
     DeleteMessageDialog(
         state = messageComposerViewModel.deleteMessageDialogsState,
@@ -240,7 +230,7 @@ private fun StartCallAudioBluetoothPermissionCheckFlow(
     //TODO display an error dialog
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class, ExperimentalLayoutApi::class)
 @Suppress("LongParameterList")
 @Composable
 private fun ConversationScreen(
@@ -269,11 +259,11 @@ private fun ConversationScreen(
     onUpdateConversationReadDate: (String) -> Unit,
     onDropDownClick: () -> Unit,
     onSnackbarMessage: (ConversationSnackbarMessages) -> Unit,
-    onSnackbarMessageShown: () -> Unit,
-    onBackButtonClick: () -> Unit
+    onBackButtonClick: () -> Unit,
+    composerMessages: SharedFlow<SnackBarMessage>,
+    conversationMessages: SharedFlow<SnackBarMessage>,
 ) {
     val conversationScreenState = rememberConversationScreenState()
-
     val messageComposerInnerState = rememberMessageComposerInnerState()
 
     val menuModalOnDeleteMessage = remember {
@@ -330,84 +320,61 @@ private fun ConversationScreen(
             }
         )
     ) {
-        BoxWithConstraints {
-            val currentScreenHeight: Dp = with(LocalDensity.current) { constraints.maxHeight.toDp() }
-            val fullScreenHeight: Dp = remember { currentScreenHeight }
-
-            // when ConversationScreen is composed for the first time we do not know the height
-            // until users opens the keyboard
-            var keyboardHeight: KeyboardHeight by remember {
-                mutableStateOf(KeyboardHeight.NotKnown)
-            }
-
-            // if the currentScreenHeight is smaller than the initial fullScreenHeight,
-            // and we don't know the keyboard height yet
-            // calculated at the first composition of the ConversationScreen, then we know the keyboard size
-            if (keyboardHeight is KeyboardHeight.NotKnown && currentScreenHeight < fullScreenHeight) {
-                val difference = fullScreenHeight - currentScreenHeight
-                if (difference > KeyboardHeight.DEFAULT_KEYBOARD_TOP_SCREEN_OFFSET)
-                    keyboardHeight = KeyboardHeight.Known(difference)
-            }
-
-            Scaffold(
-                topBar = {
-                    Column {
-                        CommonTopAppBar(
-                            connectivityUIState = connectivityUIState,
-                            onReturnToCallClick = onOpenOngoingCallScreen,
-                        )
-                        ConversationScreenTopAppBar(
-                            conversationInfoViewState = conversationInfoViewState,
-                            onBackButtonClick = onBackButtonClick,
-                            onDropDownClick = onDropDownClick,
-                            isDropDownEnabled = conversationInfoViewState.hasUserPermissionToEdit,
-                            onSearchButtonClick = { },
-                            onPhoneButtonClick = onStartCall,
-                            hasOngoingCall = conversationCallViewState.hasOngoingCall,
-                            onJoinCallButtonClick = onJoinCall,
-                            isInteractionEnabled = interactionAvailability == InteractionAvailability.ENABLED
-                        )
-                        ConversationBanner(bannerMessage)
-                    }
-                },
-                snackbarHost = {
-                    SwipeDismissSnackbarHost(
-                        hostState = conversationScreenState.snackBarHostState,
-                        modifier = Modifier.fillMaxWidth()
+        Scaffold(
+            topBar = {
+                Column {
+                    CommonTopAppBar(
+                        connectivityUIState = connectivityUIState,
+                        onReturnToCallClick = onOpenOngoingCallScreen,
                     )
-                },
-                content = { internalPadding ->
-                    Box(modifier = Modifier.padding(internalPadding)) {
-                        ConversationScreenContent(
-                            interactionAvailability = interactionAvailability,
-                            tempCachePath = tempCachePath,
-                            keyboardHeight = keyboardHeight,
-                            membersToMention = membersToMention,
-                            isFileSharingEnabled = conversationViewState.isFileSharingEnabled,
-                            lastUnreadMessageInstant = conversationMessagesViewState.firstUnreadInstant,
-                            conversationState = conversationViewState,
-                            conversationScreenState = conversationScreenState,
-                            messageComposerInnerState = messageComposerInnerState,
-                            messages = conversationMessagesViewState.messages,
-                            onSendMessage = onSendMessage,
-                            onSendAttachment = onSendAttachment,
-                            onMentionMember = onMentionMember,
-                            onDownloadAsset = onDownloadAsset,
-                            onImageFullScreenMode = onImageFullScreenMode,
-                            onReactionClicked = onReactionClick,
-                            onResetSessionClicked = onResetSessionClick,
-                            onOpenProfile = onOpenProfile,
-                            onUpdateConversationReadDate = onUpdateConversationReadDate,
-                            onMessageComposerError = onSnackbarMessage,
-                            onShowContextMenu = conversationScreenState::showEditContextMenu,
-                            onSnackbarMessageShown = onSnackbarMessageShown,
-                            snackbarMessage = conversationViewState.snackbarMessage ?: conversationMessagesViewState.snackbarMessage
-                        )
-                    }
+                    ConversationScreenTopAppBar(
+                        conversationInfoViewState = conversationInfoViewState,
+                        onBackButtonClick = onBackButtonClick,
+                        onDropDownClick = onDropDownClick,
+                        isDropDownEnabled = conversationInfoViewState.hasUserPermissionToEdit,
+                        onSearchButtonClick = { },
+                        onPhoneButtonClick = onStartCall,
+                        hasOngoingCall = conversationCallViewState.hasOngoingCall,
+                        onJoinCallButtonClick = onJoinCall,
+                        isInteractionEnabled = interactionAvailability == InteractionAvailability.ENABLED
+                    )
+                    ConversationBanner(bannerMessage)
                 }
-            )
-        }
+            },
+            snackbarHost = {
+                SwipeDismissSnackbarHost(
+                    hostState = conversationScreenState.snackBarHostState,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            },
+            content = { internalPadding ->
+                Box(modifier = Modifier.padding(internalPadding)) {
+                    ConversationScreenContent(
+                        interactionAvailability = interactionAvailability,
+                        tempCachePath = tempCachePath,
+                        membersToMention = membersToMention,
+                        isFileSharingEnabled = conversationViewState.isFileSharingEnabled,
+                        lastUnreadMessageInstant = conversationMessagesViewState.firstUnreadInstant,
+                        conversationState = conversationViewState,
+
+                        messageComposerInnerState = messageComposerInnerState,
+                        messages = conversationMessagesViewState.messages,
+                        onSendMessage = onSendMessage,
+                        onSendAttachment = onSendAttachment,
+                        onMentionMember = onMentionMember,
+                        onDownloadAsset = onDownloadAsset,
+                        onImageFullScreenMode = onImageFullScreenMode,
+                        onReactionClicked = onReactionClick,
+                        onResetSessionClicked = onResetSessionClick,onOpenProfile = onOpenProfile,
+                        onUpdateConversationReadDate = onUpdateConversationReadDate,
+                        onMessageComposerError = onSnackbarMessage,
+                        onShowContextMenu = conversationScreenState::showEditContextMenu
+                    )
+                }
+            }
+        )
     }
+    SnackBarMessage(composerMessages, conversationMessages, conversationScreenState)
 }
 
 @Suppress("LongParameterList")
@@ -415,12 +382,10 @@ private fun ConversationScreen(
 private fun ConversationScreenContent(
     interactionAvailability: InteractionAvailability,
     tempCachePath: Path,
-    keyboardHeight: KeyboardHeight,
     membersToMention: List<Contact>,
     isFileSharingEnabled: Boolean,
     lastUnreadMessageInstant: Instant?,
     conversationState: ConversationViewState,
-    conversationScreenState: ConversationScreenState,
     messageComposerInnerState: MessageComposerInnerState,
     messages: Flow<PagingData<UIMessage>>,
     onSendMessage: (String, List<UiMention>, String?) -> Unit,
@@ -434,8 +399,6 @@ private fun ConversationScreenContent(
     onUpdateConversationReadDate: (String) -> Unit,
     onMessageComposerError: (ConversationSnackbarMessages) -> Unit,
     onShowContextMenu: (UIMessage) -> Unit,
-    onSnackbarMessageShown: () -> Unit,
-    snackbarMessage: ConversationSnackbarMessages?
 ) {
     val lazyPagingMessages = messages.collectAsLazyPagingItems()
 
@@ -446,8 +409,7 @@ private fun ConversationScreenContent(
 
     MessageComposer(
         messageComposerState = messageComposerInnerState,
-        keyboardHeight = keyboardHeight,
-        content = {
+        messageContent = {
             MessageList(
                 lazyPagingMessages = lazyPagingMessages,
                 lazyListState = lazyListState,
@@ -471,55 +433,34 @@ private fun ConversationScreenContent(
         securityClassificationType = conversationState.securityClassificationType,
         membersToMention = membersToMention
     )
-
-    SnackBarMessage(snackbarMessage, conversationState, conversationScreenState, onSnackbarMessageShown)
 }
 
 @Composable
 private fun SnackBarMessage(
-    snackbarMessage: ConversationSnackbarMessages?,
-    conversationState: ConversationViewState,
-    conversationScreenState: ConversationScreenState,
-    onSnackbarMessageShown: () -> Unit
-): Unit? = snackbarMessage?.let { messageCode ->
-    val (message, actionLabel) = getSnackbarMessage(messageCode)
+    composerMessages: SharedFlow<SnackBarMessage>,
+    conversationMessages: SharedFlow<SnackBarMessage>,
+    conversationScreenState: ConversationScreenState
+) {
+    val showLabel = stringResource(R.string.label_show)
     val context = LocalContext.current
-    LaunchedEffect(conversationState.snackbarMessage) {
-        val snackbarResult = conversationScreenState.snackBarHostState.showSnackbar(
-            message = message,
-            actionLabel = actionLabel
-        )
-        when {
-            // Show downloads folder when clicking on Snackbar cta button
-            messageCode is OnFileDownloaded && snackbarResult == SnackbarResult.ActionPerformed -> {
-                context.startActivity(Intent(DownloadManager.ACTION_VIEW_DOWNLOADS))
-                onSnackbarMessageShown()
-            }
 
-            snackbarResult == SnackbarResult.Dismissed -> onSnackbarMessageShown()
+    LaunchedEffect(Unit) {
+        composerMessages.collect { conversationScreenState.snackBarHostState.showSnackbar(message = it.uiText.asString(context.resources)) }
+    }
+
+    LaunchedEffect(Unit) {
+        conversationMessages.collect {
+            val actionLabel = if (it is OnFileDownloaded) showLabel else null
+            val snackbarResult = conversationScreenState.snackBarHostState.showSnackbar(
+                message = it.uiText.asString(context.resources),
+                actionLabel = actionLabel
+            )
+            // Show downloads folder when clicking on Snackbar cta button
+            if (it is OnFileDownloaded && snackbarResult == SnackbarResult.ActionPerformed) {
+                context.startActivity(Intent(DownloadManager.ACTION_VIEW_DOWNLOADS))
+            }
         }
     }
-}
-
-@Composable
-private fun getSnackbarMessage(messageCode: ConversationSnackbarMessages): Pair<String, String?> {
-    val msg = when (messageCode) {
-        is OnResetSession -> messageCode.text.asString()
-        is OnFileDownloaded -> stringResource(R.string.conversation_on_file_downloaded, messageCode.assetName ?: "")
-        is ErrorMaxAssetSize -> stringResource(R.string.error_conversation_max_asset_size_limit, messageCode.maxLimitInMB)
-        ErrorMaxImageSize -> stringResource(R.string.error_conversation_max_image_size_limit)
-        ErrorSendingImage -> stringResource(R.string.error_conversation_sending_image)
-        ErrorSendingAsset -> stringResource(R.string.error_conversation_sending_asset)
-        ErrorDownloadingAsset -> stringResource(R.string.error_conversation_downloading_asset)
-        ErrorOpeningAssetFile -> stringResource(R.string.error_conversation_opening_asset_file)
-        ErrorDeletingMessage -> stringResource(R.string.error_conversation_deleting_message)
-        ErrorPickingAttachment -> stringResource(R.string.error_conversation_generic)
-    }
-    val actionLabel = when (messageCode) {
-        is OnFileDownloaded -> stringResource(R.string.label_show)
-        else -> null
-    }
-    return msg to actionLabel
 }
 
 @Composable
@@ -614,11 +555,13 @@ fun ConversationScreenPreview() {
         onStartCall = { },
         onJoinCall = { },
         onReactionClick = { _, _ -> },
+        onResetSessionClick = { _, _ -> },
         onMentionMember = { },
         onUpdateConversationReadDate = { },
         onDropDownClick = { },
-        onSnackbarMessage = { },
-        onSnackbarMessageShown = { },
-        onResetSessionClick = { _, _ -> },
-    ) { }
+        onSnackbarMessage = { _ -> },
+        onBackButtonClick = {},
+        composerMessages = MutableStateFlow(ErrorDownloadingAsset),
+        conversationMessages = MutableStateFlow(ErrorDownloadingAsset),
+    )
 }

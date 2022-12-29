@@ -8,13 +8,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
 import com.wire.android.appLogger
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.conversations.model.AttachmentType
@@ -54,9 +54,12 @@ fun rememberMessageComposerInnerState(): MessageComposerInnerState {
         background = MaterialTheme.wireColorScheme.messageMentionBackground
     )
 
+    val focusManager = LocalFocusManager.current
+
     return remember {
         MessageComposerInnerState(
             context = context,
+            focusManager = focusManager,
             attachmentInnerState = defaultAttachmentInnerState,
             mentionSpanStyle = mentionSpanStyle
         )
@@ -67,12 +70,16 @@ fun rememberMessageComposerInnerState(): MessageComposerInnerState {
 data class MessageComposerInnerState(
     val context: Context,
     val attachmentInnerState: AttachmentInnerState,
+    val focusManager: FocusManager,
     private val mentionSpanStyle: SpanStyle
 ) {
     var messageComposeInputState by mutableStateOf(MessageComposeInputState.Enabled)
         private set
 
     var attachmentOptionsDisplayed by mutableStateOf(false)
+        private set
+
+    var messageComposeInputFocused by mutableStateOf(false)
         private set
 
     val sendButtonEnabled: Boolean
@@ -83,7 +90,11 @@ data class MessageComposerInnerState(
                 .isNotBlank()
         }
 
-    var fullScreenHeight: Dp by mutableStateOf(0.0.dp)
+    val isActive: Boolean
+        get() = messageComposeInputState == MessageComposeInputState.Active
+
+    val isEnabled: Boolean
+        get() = messageComposeInputState == MessageComposeInputState.Enabled
 
     var messageText by mutableStateOf(TextFieldValue(""))
         private set
@@ -140,14 +151,8 @@ data class MessageComposerInnerState(
         attachmentOptionsDisplayed = !attachmentOptionsDisplayed
     }
 
-    private fun toEnabled() {
+    fun toEnabled() {
         messageComposeInputState = MessageComposeInputState.Enabled
-    }
-
-    fun clickOutSideMessageComposer() {
-        if (messageText.text.filter { !it.isWhitespace() }.isBlank()) {
-            toEnabled()
-        }
     }
 
     fun showAttachmentOptions() {
@@ -160,6 +165,10 @@ data class MessageComposerInnerState(
 
     fun toActive() {
         messageComposeInputState = MessageComposeInputState.Active
+    }
+
+    fun messageComposeInputFocusChange(isFocused: Boolean) {
+        messageComposeInputFocused = isFocused
     }
 
     fun toggleFullScreen() {

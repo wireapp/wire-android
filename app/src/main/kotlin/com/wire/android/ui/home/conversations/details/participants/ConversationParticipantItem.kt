@@ -90,8 +90,7 @@ fun ConversationParticipantItem(
                 }
             }
         },
-        clickable = clickable,
-        modifier = Modifier.padding(start = dimensions().spacing8x)
+        clickable = clickable
     )
 }
 

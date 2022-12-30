@@ -63,6 +63,7 @@ class EditConversationMetadataViewModel @Inject constructor(
                 .collectLatest {
                     editConversationState = editConversationState.copy(
                         groupName = TextFieldValue(it.conversation.name.orEmpty()),
+                        originalGroupName = it.conversation.name.orEmpty()
                     )
                 }
         }

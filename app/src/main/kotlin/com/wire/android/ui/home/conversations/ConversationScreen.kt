@@ -2,7 +2,6 @@ package com.wire.android.ui.home.conversations
 
 import android.app.DownloadManager
 import android.content.Intent
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -35,7 +34,6 @@ import com.wire.android.R
 import com.wire.android.model.SnackBarMessage
 import com.wire.android.navigation.hiltSavedStateViewModel
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
-import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dialogs.CallingFeatureUnavailableDialog
 import com.wire.android.ui.common.dialogs.OngoingActiveCallDialog
 import com.wire.android.ui.common.error.CoreFailureErrorDialog
@@ -400,6 +398,8 @@ private fun ConversationScreenContent(
     onMessageComposerError: (ConversationSnackbarMessages) -> Unit,
     onShowContextMenu: (UIMessage) -> Unit,
 ) {
+    val scope = rememberCoroutineScope()
+
     val lazyPagingMessages = messages.collectAsLazyPagingItems()
 
     val lazyListState = rememberSaveable(lazyPagingMessages, saver = LazyListState.Saver) {
@@ -423,8 +423,18 @@ private fun ConversationScreenContent(
                 onShowContextMenu = onShowContextMenu
             )
         },
-        onSendTextMessage = onSendMessage,
-        onSendAttachment = onSendAttachment,
+        onSendTextMessage = { message, mentions, messageId ->
+            scope.launch {
+                lazyListState.scrollToItem(0)
+            }
+            onSendMessage(message, mentions, messageId)
+        },
+        onSendAttachment = {
+            scope.launch {
+                lazyListState.scrollToItem(0)
+            }
+            onSendAttachment(it)
+        },
         onMentionMember = onMentionMember,
         onMessageComposerError = onMessageComposerError,
         isFileSharingEnabled = isFileSharingEnabled,
@@ -505,7 +515,6 @@ fun MessageList(
         modifier = Modifier
             .fillMaxHeight()
             .fillMaxWidth()
-            .background(colorsScheme().backgroundVariant)
     ) {
         items(lazyPagingMessages, key = { uiMessage ->
             uiMessage.messageHeader.messageId

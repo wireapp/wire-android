@@ -49,7 +49,6 @@ open class SearchAllPeopleViewModel(
     navigationManager: NavigationManager,
 ) : PublicWithKnownPeopleSearchViewModel(
     sendConnectionRequest = sendConnectionRequest,
-    dispatcher = dispatcher,
     navigationManager = navigationManager
 ) {
 
@@ -71,8 +70,11 @@ open class SearchAllPeopleViewModel(
                         SearchResultTitle(R.string.label_contacts) to knownResult,
                         SearchResultTitle(R.string.label_public_wire) to publicResult.filterContacts(knownResult)
                     ),
-                    noneSearchSucceed = publicResult.searchResultState is SearchResultState.Failure &&
-                        knownResult.searchResultState is SearchResultState.Failure,
+                    noneSearchSucceed =
+                    (publicResult.searchResultState is SearchResultState.Failure
+                            || publicResult.searchResultState is SearchResultState.EmptyResult)
+                            && (knownResult.searchResultState is SearchResultState.Failure
+                            || knownResult.searchResultState is SearchResultState.EmptyResult),
                     contactsAddedToGroup = selectedContacts.toImmutableList(),
                     isGroupCreationContext = true
                 )
@@ -95,10 +97,13 @@ open class SearchAllPeopleViewModel(
             when (result) {
                 is SearchUsersResult.Failure.Generic, SearchUsersResult.Failure.InvalidRequest ->
                     ContactSearchResult.InternalContact(SearchResultState.Failure(R.string.label_general_error))
+
                 SearchUsersResult.Failure.InvalidQuery ->
                     ContactSearchResult.InternalContact(SearchResultState.Failure(R.string.label_no_results_found))
+
                 is SearchUsersResult.Success -> ContactSearchResult.InternalContact(
-                    SearchResultState.Success(result.userSearchResult.result.map(contactMapper::fromOtherUser).toImmutableList())
+                    if (result.userSearchResult.result.isEmpty()) SearchResultState.EmptyResult
+                    else SearchResultState.Success(result.userSearchResult.result.map(contactMapper::fromOtherUser).toImmutableList())
                 )
             }
         }
@@ -110,11 +115,14 @@ open class SearchAllPeopleViewModel(
                     ContactSearchResult.ExternalContact(
                         SearchResultState.Failure(R.string.label_general_error)
                     )
+
                 SearchUsersResult.Failure.InvalidQuery -> ContactSearchResult.ExternalContact(
                     SearchResultState.Failure(R.string.label_no_results_found)
                 )
+
                 is SearchUsersResult.Success -> ContactSearchResult.ExternalContact(
-                    SearchResultState.Success(result.userSearchResult.result.map(contactMapper::fromOtherUser).toImmutableList())
+                    if (result.userSearchResult.result.isEmpty()) SearchResultState.EmptyResult
+                    else SearchResultState.Success(result.userSearchResult.result.map(contactMapper::fromOtherUser).toImmutableList())
                 )
             }
         }
@@ -142,10 +150,8 @@ open class SearchAllPeopleViewModel(
 
 abstract class PublicWithKnownPeopleSearchViewModel(
     private val sendConnectionRequest: SendConnectionRequestUseCase,
-    dispatcher: DispatcherProvider,
     navigationManager: NavigationManager
 ) : KnownPeopleSearchViewModel(
-    dispatcher = dispatcher,
     navigationManager = navigationManager
 ) {
 
@@ -165,6 +171,7 @@ abstract class PublicWithKnownPeopleSearchViewModel(
                 is SendConnectionRequestResult.Failure -> {
                     appLogger.d(("Couldn't send a connect request to user $userId"))
                 }
+
                 is SendConnectionRequestResult.Success -> {
                     snackbarMessageState = NewConversationSnackbarState.SuccessSendConnectionRequest
                 }
@@ -175,14 +182,10 @@ abstract class PublicWithKnownPeopleSearchViewModel(
     abstract suspend fun searchPublicPeople(searchTerm: String): Flow<ContactSearchResult.ExternalContact>
 }
 
-data class PublicRefresh(val withProgress: Boolean = true)
-
 @OptIn(ExperimentalCoroutinesApi::class)
 abstract class KnownPeopleSearchViewModel(
-    dispatcher: DispatcherProvider,
     navigationManager: NavigationManager
 ) : SearchPeopleViewModel(
-    dispatcher = dispatcher,
     navigationManager = navigationManager
 ) {
 
@@ -198,7 +201,6 @@ abstract class KnownPeopleSearchViewModel(
 }
 
 abstract class SearchPeopleViewModel(
-    dispatcher: DispatcherProvider,
     val navigationManager: NavigationManager
 ) : ViewModel() {
     companion object {
@@ -216,6 +218,7 @@ abstract class SearchPeopleViewModel(
             is SearchResult.Failure -> {
                 SearchResultState.Failure(result.failureString)
             }
+
             is SearchResult.Success -> {
                 SearchResultState.Success(result.contacts.toImmutableList())
             }

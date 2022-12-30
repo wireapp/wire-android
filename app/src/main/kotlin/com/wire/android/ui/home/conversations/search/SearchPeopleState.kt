@@ -34,6 +34,8 @@ sealed class SearchResultState {
     object InProgress : SearchResultState()
     data class Failure(@StringRes val failureString: Int) : SearchResultState()
 
+    object EmptyResult : SearchResultState()
+
     data class Success(val result: ImmutableList<Contact>) : SearchResultState()
 }
 

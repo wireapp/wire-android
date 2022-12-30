@@ -46,7 +46,7 @@ fun SearchAllPeopleScreen(
         EmptySearchQueryScreen()
     } else {
         if (noneSearchSucceed) {
-            // TODO : all failed we want to display a general error
+            SearchFailureBox(R.string.label_no_results_found)
         } else {
             Column {
                 SearchResult(
@@ -96,6 +96,7 @@ private fun SearchResult(
                             onAddContactClicked = onAddContactClicked
                         )
                     }
+
                     is ContactSearchResult.InternalContact -> {
                         internalSearchResults(
                             searchTitle = context.getString(searchTitle.stringRes),
@@ -131,6 +132,7 @@ private fun LazyListScope.internalSearchResults(
         SearchResultState.InProgress -> {
             inProgressItem()
         }
+
         is SearchResultState.Success -> {
             internalSuccessItem(
                 searchTitle = searchTitle,
@@ -144,14 +146,16 @@ private fun LazyListScope.internalSearchResults(
                 onOpenUserProfile = onOpenUserProfile
             )
         }
+
         is SearchResultState.Failure -> {
             failureItem(
                 failureMessage = searchResult.failureString
             )
         }
-        // We do not display anything on Initial state
-        SearchResultState.Initial -> {
+        // We do not display anything on Initial or Empty state
+        SearchResultState.Initial, SearchResultState.EmptyResult -> {
         }
+
     }
 }
 
@@ -169,6 +173,7 @@ private fun LazyListScope.externalSearchResults(
         SearchResultState.InProgress -> {
             inProgressItem()
         }
+
         is SearchResultState.Success -> {
             externalSuccessItem(
                 searchTitle = searchTitle,
@@ -180,13 +185,14 @@ private fun LazyListScope.externalSearchResults(
                 onAddContactClicked = onAddContactClicked
             )
         }
+
         is SearchResultState.Failure -> {
             failureItem(
                 failureMessage = searchResult.failureString
             )
         }
-        // We do not display anything on Initial state
-        SearchResultState.Initial -> {
+        // We do not display anything on Initial or Empty state
+        SearchResultState.Initial, SearchResultState.EmptyResult -> {
         }
     }
 }
@@ -254,6 +260,7 @@ private fun LazyListScope.externalSuccessItem(
     onAddContactClicked: (Contact) -> Unit,
 ) {
     val itemsList = if (showAllItems) searchResult else searchResult.take(DEFAULT_SEARCH_RESULT_ITEM_SIZE)
+
     folderWithElements(
         header = searchTitle,
         items = itemsList.associateBy { it.id }

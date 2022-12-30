@@ -48,6 +48,7 @@ fun ContactsScreen(
         SearchResultState.Initial, SearchResultState.InProgress -> {
             CenteredCircularProgressBarIndicator()
         }
+
         is SearchResultState.Success -> {
             val lazyListState = rememberLazyListState()
 
@@ -80,8 +81,14 @@ fun ContactsScreen(
                 }
             }
         }
+
         is SearchResultState.Failure -> {
             SearchFailureBox(failureMessage = allKnownContactResult.failureString)
+        }
+
+        //TODO: what to do when user has no contacts ?
+        SearchResultState.EmptyResult -> {
+
         }
     }
 }

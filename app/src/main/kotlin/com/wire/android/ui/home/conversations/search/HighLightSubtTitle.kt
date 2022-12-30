@@ -35,7 +35,7 @@ fun HighlightSubtitle(
     SideEffect {
         scope.launch {
             highlightIndexes = QueryMatchExtractor.extractQueryMatchIndexes(
-                matchText = searchQuery,
+                matchText = searchQuery.validateSearchQuery(),
                 text = subTitle
             )
         }
@@ -61,7 +61,6 @@ fun HighlightSubtitle(
                             style = SpanStyle(
                                 background = MaterialTheme.wireColorScheme.highLight.copy(alpha = 0.5f),
                             ),
-                            // add 1 because of the "@" prefix
                             start = highLightIndexes.startIndex + suffix.length,
                             end = highLightIndexes.endIndex + suffix.length
                         )
@@ -81,3 +80,10 @@ fun HighlightSubtitle(
     }
 }
 
+private fun String.validateSearchQuery(): String {
+    if (startsWith("@")) {
+        return removePrefix("@")
+    } else {
+        return this
+    }
+}

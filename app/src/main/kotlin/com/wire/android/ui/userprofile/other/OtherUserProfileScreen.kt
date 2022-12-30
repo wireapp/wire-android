@@ -70,7 +70,6 @@ import com.wire.android.ui.userprofile.other.bottomsheet.OtherUserBottomSheetSta
 import com.wire.android.ui.userprofile.other.bottomsheet.OtherUserProfileBottomSheetContent
 import com.wire.kalium.logic.data.user.ConnectionState
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.launch
 
@@ -140,6 +139,7 @@ fun OtherProfileScreenContent(
     bottomSheetState.setContents(state.conversationSheetContent, state.groupState)
     val openConversationBottomSheet: () -> Unit = remember(bottomSheetState) {
         {
+            bottomSheetEventsHandler.loadConversationBottomSheetContent()
             bottomSheetState.toConversation()
             openBottomSheet()
         }

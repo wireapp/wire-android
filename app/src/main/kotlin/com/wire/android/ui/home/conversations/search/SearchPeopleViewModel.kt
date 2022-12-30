@@ -70,8 +70,11 @@ open class SearchAllPeopleViewModel(
                         SearchResultTitle(R.string.label_contacts) to knownResult,
                         SearchResultTitle(R.string.label_public_wire) to publicResult.filterContacts(knownResult)
                     ),
-                    noneSearchSucceed = publicResult.searchResultState is SearchResultState.Failure &&
-                            knownResult.searchResultState is SearchResultState.Failure,
+                    noneSearchSucceed =
+                    (publicResult.searchResultState is SearchResultState.Failure
+                            || publicResult.searchResultState is SearchResultState.EmptyResult)
+                            && (knownResult.searchResultState is SearchResultState.Failure
+                            || knownResult.searchResultState is SearchResultState.EmptyResult),
                     contactsAddedToGroup = selectedContacts.toImmutableList(),
                     isGroupCreationContext = true
                 )
@@ -99,7 +102,7 @@ open class SearchAllPeopleViewModel(
                     ContactSearchResult.InternalContact(SearchResultState.Failure(R.string.label_no_results_found))
 
                 is SearchUsersResult.Success -> ContactSearchResult.InternalContact(
-                    if (result.userSearchResult.result.isEmpty()) SearchResultState.Failure(R.string.label_no_results_found)
+                    if (result.userSearchResult.result.isEmpty()) SearchResultState.EmptyResult
                     else SearchResultState.Success(result.userSearchResult.result.map(contactMapper::fromOtherUser).toImmutableList())
                 )
             }
@@ -118,7 +121,7 @@ open class SearchAllPeopleViewModel(
                 )
 
                 is SearchUsersResult.Success -> ContactSearchResult.ExternalContact(
-                    if (result.userSearchResult.result.isEmpty()) SearchResultState.Failure(R.string.label_no_results_found)
+                    if (result.userSearchResult.result.isEmpty()) SearchResultState.EmptyResult
                     else SearchResultState.Success(result.userSearchResult.result.map(contactMapper::fromOtherUser).toImmutableList())
                 )
             }

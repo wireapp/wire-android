@@ -38,7 +38,14 @@ fun ConversationParticipantItem(
     showRightArrow: Boolean = true
 ) {
     RowItemTemplate(
-        leadingIcon = { UserProfileAvatar(uiParticipant.avatarData) },
+        leadingIcon = {
+            UserProfileAvatar(
+                uiParticipant.avatarData,
+                modifier = Modifier.padding(
+                    start = dimensions().spacing8x
+                )
+            )
+        },
         title = {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 HighlightName(
@@ -90,8 +97,7 @@ fun ConversationParticipantItem(
                 }
             }
         },
-        clickable = clickable,
-        modifier = Modifier.padding(start = dimensions().spacing8x)
+        clickable = clickable
     )
 }
 

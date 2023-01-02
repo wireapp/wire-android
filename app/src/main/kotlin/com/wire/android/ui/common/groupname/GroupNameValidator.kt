@@ -27,6 +27,14 @@ object GroupNameValidator {
                     error = GroupMetadataState.NewGroupError.TextFieldError.GroupNameExceedLimitError
                 )
             }
+            cleanText == currentGroupState.originalGroupName -> {
+                currentGroupState.copy(
+                    animatedGroupNameError = false,
+                    groupName = newText,
+                    continueEnabled = false,
+                    error = GroupMetadataState.NewGroupError.None
+                )
+            }
             else -> {
                 currentGroupState.copy(
                     animatedGroupNameError = false,

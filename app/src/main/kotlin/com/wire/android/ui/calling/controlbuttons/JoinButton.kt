@@ -37,9 +37,8 @@ fun JoinButton(
         minHeight = minHeight,
         minWidth = minWidth,
         modifier = modifier.padding(
-            top = dimensions().spacing12x,
-            bottom = dimensions().spacing12x,
-            end = dimensions().spacing8x
+            vertical = dimensions().spacing12x,
+            horizontal = dimensions().spacing8x
         ),
         contentPadding = PaddingValues(
             horizontal = dimensions().spacing8x,

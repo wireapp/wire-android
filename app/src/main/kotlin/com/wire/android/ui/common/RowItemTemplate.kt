@@ -51,7 +51,6 @@ fun RowItemTemplate(
     leadingIcon: @Composable () -> Unit,
     title: @Composable () -> Unit,
     subTitle: @Composable () -> Unit = {},
-    eventType: BadgeEventType = BadgeEventType.None,
     clickable: Clickable,
     trailingIcon: @Composable () -> Unit = { },
     modifier: Modifier = Modifier
@@ -69,9 +68,5 @@ fun RowItemTemplate(
             subTitle()
         }
         trailingIcon()
-        if (eventType != BadgeEventType.None) {
-            EventBadgeFactory(eventType = eventType)
-            HorizontalSpace.x8()
-        }
     }
 }

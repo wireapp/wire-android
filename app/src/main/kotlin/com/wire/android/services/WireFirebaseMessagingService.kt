@@ -91,7 +91,7 @@ class WireFirebaseMessagingService : FirebaseMessagingService() {
         super.onNewToken(p0)
         scope.launch {
             coreLogic.globalScope {
-                saveNotificationToken(p0, "GCM", BuildConfig.SENDER_ID)
+                saveNotificationToken(p0, "GCM", BuildConfig.FIREBASE_PUSH_SENDER_ID)
             }.let { result ->
                 when (result) {
                     is Result.Failure.Generic ->

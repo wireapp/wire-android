@@ -18,7 +18,6 @@ plugins {
     id(ScriptPlugins.compilation)
     id(ScriptPlugins.testing)
     id(ScriptPlugins.spotless)
-    id(BuildPlugins.gms)
 }
 
 repositories {

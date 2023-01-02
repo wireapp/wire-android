@@ -193,15 +193,15 @@ class ConversationMessagesViewModel @Inject constructor(
 
     fun onResetSession(userId: UserId, clientId: String?) {
         viewModelScope.launch {
-            conversationViewState =
-                when (resetSession(conversationId, userId, ClientId(clientId.orEmpty()))) {
-                    is ResetSessionResult.Failure ->
-                        conversationViewState.copy(snackbarMessage = OnResetSession(UIText.StringResource(R.string.label_general_error)))
-
-                    is ResetSessionResult.Success -> conversationViewState.copy(
-                        snackbarMessage = OnResetSession(UIText.StringResource(R.string.label_reset_session_success))
-                    )
+            when (resetSession(conversationId, userId, ClientId(clientId.orEmpty()))) {
+                is ResetSessionResult.Failure -> {
+                    onSnackbarMessage(OnResetSession(UIText.StringResource(R.string.label_general_error)))
                 }
+
+                is ResetSessionResult.Success -> {
+                    onSnackbarMessage(OnResetSession(UIText.StringResource(R.string.label_reset_session_success)))
+                }
+            }
         }
     }
 
@@ -215,15 +215,11 @@ class ConversationMessagesViewModel @Inject constructor(
         }
 
     private fun onOpenFileError() {
-        conversationViewState = conversationViewState.copy(snackbarMessage = ConversationSnackbarMessages.ErrorOpeningAssetFile)
+        onSnackbarMessage(ConversationSnackbarMessages.ErrorOpeningAssetFile)
     }
 
     private fun onFileSavedToExternalStorage(assetName: String?) {
         onSnackbarMessage(ConversationSnackbarMessages.OnFileDownloaded(assetName))
-    }
-
-    fun clearSnackbarMessage() = viewModelScope.launch(dispatchers.main()) {
-        conversationViewState = conversationViewState.copy(snackbarMessage = null)
     }
 
     // endregion

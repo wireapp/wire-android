@@ -24,7 +24,6 @@ import com.wire.kalium.logic.feature.connection.CancelConnectionRequestUseCaseRe
 import com.wire.kalium.logic.feature.connection.IgnoreConnectionRequestUseCaseResult
 import com.wire.kalium.logic.feature.connection.SendConnectionRequestResult
 import com.wire.kalium.logic.feature.conversation.CreateConversationResult
-import com.wire.kalium.logic.feature.conversation.GetOneToOneConversationUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleResult
 import com.wire.kalium.logic.feature.user.GetUserInfoResult
 import io.mockk.Called
@@ -335,36 +334,40 @@ class OtherUserProfileScreenViewModelTest {
     }
 
     @Test
-    fun `given connected user, then direct conversation data is requested`() = runTest {
+    fun `given connected user, when click on menu button, then direct conversation data is requested`() = runTest {
         // given
         val (arrangement, viewModel) = OtherUserProfileViewModelArrangement()
             .withUserInfo(
                 GetUserInfoResult.Success(OTHER_USER.copy(connectionStatus = ConnectionState.ACCEPTED), TEAM)
             )
-            .withGetConversationDetails(GetOneToOneConversationUseCase.Result.Success(CONVERSATION))
+            .withGetOneToOneConversation(CreateConversationResult.Success(CONVERSATION))
             .arrange()
+
+        //when
+        viewModel.loadConversationBottomSheetContent()
 
         // then
         coVerify {
-            arrangement.getConversationUseCase(USER_ID)
+            arrangement.getOrCreateOneToOneConversation(USER_ID)
         }
     }
 
     @Test
-    fun `given connected user AND direct conversation data error, then the other data is displayed`() = runTest {
+    fun `given connected user AND direct conversation data error, when click on menu button, then the other data is displayed`() = runTest {
         // given
         val (arrangement, viewModel) = OtherUserProfileViewModelArrangement()
             .withUserInfo(
                 GetUserInfoResult.Success(OTHER_USER.copy(connectionStatus = ConnectionState.ACCEPTED), TEAM)
             )
             .withGetOneToOneConversation(CreateConversationResult.Failure(Unknown(RuntimeException("some error"))))
-            .withGetConversationDetails(GetOneToOneConversationUseCase.Result.Failure)
             .arrange()
+
+        //when
+        viewModel.loadConversationBottomSheetContent()
 
         // then
         coVerify {
-            arrangement.getConversationUseCase(USER_ID)
-            arrangement.getOrCreateOneToOneConversation(USER_ID) wasNot Called
+            arrangement.getOrCreateOneToOneConversation(USER_ID)
         }
 
         assertEquals(false, viewModel.state.isDataLoading)

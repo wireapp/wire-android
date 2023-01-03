@@ -2,6 +2,7 @@ package com.wire.android.ui.userprofile.other
 
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationSheetContent
+import com.wire.android.ui.home.conversationslist.model.BlockingState
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.kalium.logic.data.client.OtherUserClient
 import com.wire.kalium.logic.data.conversation.Conversation.Member
@@ -27,7 +28,8 @@ data class OtherUserProfileState(
     val groupState: OtherUserProfileGroupState? = null,
     val botService: BotService? = null,
     val conversationSheetContent: ConversationSheetContent? = null,
-    val otherUserClients: List<OtherUserClient> = listOf()
+    val otherUserClients: List<OtherUserClient> = listOf(),
+    val blockingState: BlockingState = BlockingState.CAN_NOT_BE_BLOCKED
 ) {
     fun updateMuteStatus(status: MutedConversationStatus): OtherUserProfileState {
         return conversationSheetContent?.let {

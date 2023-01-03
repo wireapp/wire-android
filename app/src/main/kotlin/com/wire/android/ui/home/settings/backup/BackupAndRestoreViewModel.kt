@@ -1,6 +1,7 @@
 package com.wire.android.ui.home.settings.backup
 
 import android.net.Uri
+import androidx.annotation.VisibleForTesting
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -44,8 +45,9 @@ class BackupAndRestoreViewModel
     private val fileManager: FileManager
 ) : ViewModel() {
 
+    @VisibleForTesting
+    internal var latestCreatedBackup: BackupAndRestoreState.CreatedBackup? = null
     var state by mutableStateOf(BackupAndRestoreState.INITIAL_STATE)
-    private var latestCreatedBackup: BackupAndRestoreState.CreatedBackup? = null
     private lateinit var latestImportedBackupTempPath: Path
 
     @Suppress("MagicNumber")

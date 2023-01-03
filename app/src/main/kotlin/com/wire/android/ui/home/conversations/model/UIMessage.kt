@@ -105,6 +105,16 @@ sealed class UIMessageContent {
         val downloadStatus: Message.DownloadStatus
     ) : UIMessageContent()
 
+    @Stable
+    data class AudioAssetMessage(
+        val assetName: String,
+        val assetExtension: String,
+        val assetId: AssetId,
+        val assetSizeInBytes: Long,
+        val uploadStatus: Message.UploadStatus,
+        val downloadStatus: Message.DownloadStatus
+    ) : UIMessageContent()
+
     data class ImageMessage(
         val assetId: AssetId,
         val asset: ImageAsset.PrivateAsset?,

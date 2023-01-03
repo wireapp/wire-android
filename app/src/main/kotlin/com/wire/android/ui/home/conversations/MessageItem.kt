@@ -286,12 +286,6 @@ private fun MessageContent(
             onAssetClick = onAssetClick
         )
 
-        is UIMessageContent.SystemMessage.MemberAdded -> {}
-        is UIMessageContent.SystemMessage.MemberLeft -> {}
-        is UIMessageContent.SystemMessage.MemberRemoved -> {}
-        is UIMessageContent.SystemMessage.RenamedConversation -> {}
-        is UIMessageContent.SystemMessage.TeamMemberRemoved -> {}
-        is UIMessageContent.SystemMessage.CryptoSessionReset -> {}
         is UIMessageContent.RestrictedAsset -> {
             when {
                 messageContent.mimeType.contains("image/") -> {
@@ -312,6 +306,14 @@ private fun MessageContent(
             }
         }
 
+        is UIMessageContent.AudioAssetMessage -> Text("This is audio")
+
+        is UIMessageContent.SystemMessage.MemberAdded -> {}
+        is UIMessageContent.SystemMessage.MemberLeft -> {}
+        is UIMessageContent.SystemMessage.MemberRemoved -> {}
+        is UIMessageContent.SystemMessage.RenamedConversation -> {}
+        is UIMessageContent.SystemMessage.TeamMemberRemoved -> {}
+        is UIMessageContent.SystemMessage.CryptoSessionReset -> {}
         is UIMessageContent.PreviewAssetMessage -> {}
         is UIMessageContent.SystemMessage.MissedCall.YouCalled -> {}
         is UIMessageContent.SystemMessage.MissedCall.OtherCalled -> {}

@@ -14,6 +14,7 @@ import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.util.FileManager
+import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.feature.backup.CreateBackupResult
 import com.wire.kalium.logic.feature.backup.CreateBackupUseCase
@@ -30,6 +31,7 @@ import com.wire.kalium.logic.util.fileExtension
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import okio.Path
 import javax.inject.Inject
 
@@ -42,7 +44,8 @@ class BackupAndRestoreViewModel
     private val createBackupFile: CreateBackupUseCase,
     private val verifyBackup: VerifyBackupUseCase,
     private val kaliumFileSystem: KaliumFileSystem,
-    private val fileManager: FileManager
+    private val fileManager: FileManager,
+    private val dispatcher: DispatcherProvider,
 ) : ViewModel() {
 
     @VisibleForTesting
@@ -51,12 +54,12 @@ class BackupAndRestoreViewModel
     private lateinit var latestImportedBackupTempPath: Path
 
     @Suppress("MagicNumber")
-    fun createBackup(password: String) = viewModelScope.launch {
+    fun createBackup(password: String) = viewModelScope.launch(dispatcher.main()) {
         // TODO: Find a way to update the create progress more faithfully. For now we will just show this small delays to mimic the
         //  progress also for small backups
-        state = state.copy(backupCreationProgress = BackupCreationProgress.InProgress(PROGRESS_25))
+        updateCreationProgress(PROGRESS_25)
         delay(SMALL_DELAY)
-        state = state.copy(backupCreationProgress = BackupCreationProgress.InProgress(PROGRESS_50))
+        updateCreationProgress(PROGRESS_50)
         delay(SMALL_DELAY)
 
         when (val result = createBackupFile(password)) {
@@ -77,9 +80,11 @@ class BackupAndRestoreViewModel
         }
     }
 
-    fun saveBackup() = viewModelScope.launch {
+    fun saveBackup() = viewModelScope.launch(dispatcher.main()) {
         latestCreatedBackup?.let { backupData ->
-            fileManager.shareWithExternalApp(backupData.path, backupData.assetName.fileExtension()) {}
+            withContext(dispatcher.io()) {
+                fileManager.shareWithExternalApp(backupData.path, backupData.assetName.fileExtension()) {}
+            }
         }
         state = BackupAndRestoreState.INITIAL_STATE
     }
@@ -119,7 +124,7 @@ class BackupAndRestoreViewModel
         )
         when (importBackup(importedBackupPath, null)) {
             RestoreBackupResult.Success -> {
-                state = state.copy(backupRestoreProgress = BackupRestoreProgress.InProgress(PROGRESS_75))
+                updateCreationProgress(PROGRESS_75)
                 delay(SMALL_DELAY)
                 state = state.copy(backupRestoreProgress = BackupRestoreProgress.Finished)
             }
@@ -194,10 +199,8 @@ class BackupAndRestoreViewModel
         // TODO: modify in case the password requirements change
     }
 
-    fun cancelBackupCreation() {
-        state = state.copy(
-            backupCreationProgress = BackupCreationProgress.InProgress(0f), // reset progress, aka initial state
-        )
+    fun cancelBackupCreation() = viewModelScope.launch(dispatcher.main()) {
+        updateCreationProgress(0f)
     }
 
     fun cancelBackupRestore() {
@@ -208,6 +211,10 @@ class BackupAndRestoreViewModel
         )
         if (kaliumFileSystem.exists(latestImportedBackupTempPath))
             kaliumFileSystem.delete(latestImportedBackupTempPath)
+    }
+
+    private suspend fun updateCreationProgress(progress: Float) = withContext(dispatcher.main()) {
+        state = state.copy(backupCreationProgress = BackupCreationProgress.InProgress(progress))
     }
 
     fun navigateToConversations() {

@@ -1,5 +1,6 @@
 package com.wire.android.ui.home.settings.home
 
+import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.framework.FakeKaliumFileSystem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.settings.backup.BackupAndRestoreState
@@ -9,12 +10,16 @@ import com.wire.android.util.FileManager
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.feature.backup.CreateBackupResult
 import com.wire.kalium.logic.feature.backup.CreateBackupUseCase
+import com.wire.kalium.logic.feature.backup.RestoreBackupResult
 import com.wire.kalium.logic.feature.backup.RestoreBackupUseCase
+import com.wire.kalium.logic.feature.backup.VerifyBackupResult
 import com.wire.kalium.logic.feature.backup.VerifyBackupUseCase
+import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import okio.IOException
 import okio.Path.Companion.toPath
@@ -23,8 +28,11 @@ import org.junit.jupiter.api.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class BackupAndRestoreViewModelTest {
+
+    private val dispatcherProvider = TestDispatcherProvider()
+
     @Test
-    fun givenAnEmptyPassword_whenCreatingABackup_thenItCreatesItSuccessfully() = runTest {
+    fun givenAnEmptyPassword_whenCreatingABackup_thenItCreatesItSuccessfully() = runTest(dispatcherProvider.main()) {
         // Given
         val emptyPassword = ""
         val (arrangement, backupAndRestoreViewModel) = Arrangement()
@@ -33,15 +41,16 @@ class BackupAndRestoreViewModelTest {
 
         // When
         backupAndRestoreViewModel.createBackup(emptyPassword)
+        advanceUntilIdle()
 
         // Then
         assert(backupAndRestoreViewModel.latestCreatedBackup?.isEncrypted == false)
-        assertEquals(backupAndRestoreViewModel.state.backupRestoreProgress, BackupCreationProgress.Finished)
+        assertEquals(backupAndRestoreViewModel.state.backupCreationProgress, BackupCreationProgress.Finished)
         coVerify(exactly = 1) { arrangement.createBackupFile(password = emptyPassword) }
     }
 
     @Test
-    fun givenANonEmptyPassword_whenCreatingABackup_thenItCreatesItSuccessfully() = runTest {
+    fun givenANonEmptyPassword_whenCreatingABackup_thenItCreatesItSuccessfully() = runTest(dispatcherProvider.main()) {
         // Given
         val password = "mayTh3ForceBeWIthYou"
         val (arrangement, backupAndRestoreViewModel) = Arrangement()
@@ -50,15 +59,16 @@ class BackupAndRestoreViewModelTest {
 
         // When
         backupAndRestoreViewModel.createBackup(password)
+        advanceUntilIdle()
 
         // Then
         assert(backupAndRestoreViewModel.latestCreatedBackup?.isEncrypted == true)
-        assertEquals(backupAndRestoreViewModel.state.backupRestoreProgress, BackupCreationProgress.Finished)
+        assertEquals(backupAndRestoreViewModel.state.backupCreationProgress, BackupCreationProgress.Finished)
         coVerify(exactly = 1) { arrangement.createBackupFile(password = password) }
     }
 
     @Test
-    fun givenANonEmptyPassword_whenCreatingABackupWithAGivenError_thenItReturnsAFailure() = runTest {
+    fun givenANonEmptyPassword_whenCreatingABackupWithAGivenError_thenItReturnsAFailure() = runTest(dispatcherProvider.main()) {
         // Given
         val password = "mayTh3ForceBeWIthYou"
         val (arrangement, backupAndRestoreViewModel) = Arrangement()
@@ -67,18 +77,17 @@ class BackupAndRestoreViewModelTest {
 
         // When
         backupAndRestoreViewModel.createBackup(password)
+        advanceUntilIdle()
 
         // Then
-        assertEquals(backupAndRestoreViewModel.state.backupRestoreProgress, BackupCreationProgress.Failed)
+        assertEquals(backupAndRestoreViewModel.state.backupCreationProgress, BackupCreationProgress.Failed)
         assert(backupAndRestoreViewModel.latestCreatedBackup == null)
         coVerify(exactly = 1) { arrangement.createBackupFile(password = password) }
     }
 
     @Test
-    fun givenACreatedBackup_whenSavingIt_thenTheStateIsReset() = runTest {
+    fun givenACreatedBackup_whenSavingIt_thenTheStateIsReset() = runTest(dispatcherProvider.main()) {
         // Given
-        val password = "mayTh3ForceBeWIthYou"
-
         val storedBackup = BackupAndRestoreState.CreatedBackup("backupFilePath".toPath(), "backupName.zip", 100L, true)
         val (arrangement, backupAndRestoreViewModel) = Arrangement()
             .withPreviouslyCreatedBackup(storedBackup)
@@ -86,13 +95,23 @@ class BackupAndRestoreViewModelTest {
 
         // When
         backupAndRestoreViewModel.saveBackup()
+        advanceUntilIdle()
 
         // Then
         assert(backupAndRestoreViewModel.latestCreatedBackup == storedBackup)
-        coVerify(exactly = 1) { arrangement.createBackupFile(password = password) }
+        assert(backupAndRestoreViewModel.state == BackupAndRestoreState.INITIAL_STATE)
+        coVerify(exactly = 1) { arrangement.fileManager.shareWithExternalApp(any(), any(), any()) }
     }
 
     private inner class Arrangement {
+
+        init {
+            // Tests setup
+            MockKAnnotations.init(this, relaxUnitFun = true)
+            coEvery { importBackup(any(), any()) } returns RestoreBackupResult.Success
+            coEvery { createBackupFile(any()) } returns CreateBackupResult.Success("".toPath(), 0L, "")
+            coEvery { verifyBackup(any()) } returns VerifyBackupResult.Success.Encrypted
+        }
 
         @MockK
         private lateinit var importBackup: RestoreBackupUseCase
@@ -104,7 +123,7 @@ class BackupAndRestoreViewModelTest {
         private lateinit var verifyBackup: VerifyBackupUseCase
 
         @MockK
-        private lateinit var fileManager: FileManager
+        lateinit var fileManager: FileManager
 
         private val fakeKaliumFileSystem = FakeKaliumFileSystem()
 
@@ -114,23 +133,28 @@ class BackupAndRestoreViewModelTest {
             createBackupFile = createBackupFile,
             verifyBackup = verifyBackup,
             kaliumFileSystem = fakeKaliumFileSystem,
+            dispatcher = dispatcherProvider,
             fileManager = fileManager
         )
 
-        fun withSuccessfulCreation(password: String): Arrangement = apply {
+        fun withSuccessfulCreation(password: String) = apply {
             val backupFilePath = "some-file-path".toPath()
             val backupSize = 1000L
             val backupName = "some-backup.zip"
             coEvery { createBackupFile(eq(password)) } returns CreateBackupResult.Success(backupFilePath, backupSize, backupName)
         }
 
-        fun withFailedCreation(password: String): Arrangement = apply {
+        fun withFailedCreation(password: String) = apply {
             coEvery { createBackupFile(eq(password)) } returns CreateBackupResult.Failure(CoreFailure.Unknown(IOException("Some db error")))
         }
 
-        fun withPreviouslyCreatedBackup(backup: BackupAndRestoreState.CreatedBackup): Arrangement = apply {
+        fun withPreviouslyCreatedBackup(backup: BackupAndRestoreState.CreatedBackup) = apply {
             viewModel.latestCreatedBackup = backup
             viewModel.state = BackupAndRestoreState.INITIAL_STATE.copy(backupCreationProgress = BackupCreationProgress.Finished)
+        }
+
+        fun withSuccessfulBackupRestore() = apply {
+            coEvery { importBackup(any(), any()) } returns RestoreBackupResult.Success
         }
 
         fun arrange() = this to viewModel

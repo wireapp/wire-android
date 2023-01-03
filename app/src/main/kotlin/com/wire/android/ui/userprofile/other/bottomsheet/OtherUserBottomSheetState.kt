@@ -10,12 +10,12 @@ class OtherUserBottomSheetState {
 
     private var conversationSheetContent: ConversationSheetContent? by mutableStateOf(null)
     private var groupState: OtherUserProfileGroupState? by mutableStateOf(null)
-    private var flag: OtherUserBottomSheetContentFlag = OtherUserBottomSheetContentFlag.NONE
+    private var contentFlag: OtherUserBottomSheetContentFlag = OtherUserBottomSheetContentFlag.NONE
     var bottomSheetContentState: BottomSheetContent? by mutableStateOf(null)
 
     fun toConversation() {
         conversationSheetContent?.let { bottomSheetContentState = BottomSheetContent.Conversation(it) }
-        flag = OtherUserBottomSheetContentFlag.CONVERSATION
+        contentFlag = OtherUserBottomSheetContentFlag.CONVERSATION
     }
 
     fun setContents(conversationSheetContent: ConversationSheetContent?, groupState: OtherUserProfileGroupState?) {
@@ -25,21 +25,21 @@ class OtherUserBottomSheetState {
     }
 
     private fun updateBottomSheetContentIfNeeded() {
-        when (flag) {
+        when (contentFlag) {
             OtherUserBottomSheetContentFlag.CONVERSATION -> toConversation()
             OtherUserBottomSheetContentFlag.CHANGE_ROLE -> toChangeRole()
-            else -> {}
+            OtherUserBottomSheetContentFlag.NONE -> {}
         }
     }
 
     fun toChangeRole() {
         groupState?.let { bottomSheetContentState = BottomSheetContent.ChangeRole(it) }
-        flag = OtherUserBottomSheetContentFlag.CHANGE_ROLE
+        contentFlag = OtherUserBottomSheetContentFlag.CHANGE_ROLE
     }
 
     fun clearBottomSheetState() {
         bottomSheetContentState = null
-        flag = OtherUserBottomSheetContentFlag.NONE
+        contentFlag = OtherUserBottomSheetContentFlag.NONE
     }
 
 }

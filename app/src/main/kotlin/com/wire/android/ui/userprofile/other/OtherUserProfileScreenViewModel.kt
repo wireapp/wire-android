@@ -366,11 +366,11 @@ class OtherUserProfileScreenViewModel @Inject constructor(
 
     override fun loadConversationBottomSheetContent() {
         viewModelScope.launch {
-            val conversationResult = getOrCreateOneToOneConversation(userId)
+            val conversationResult = withContext(dispatchers.io()) { getOrCreateOneToOneConversation(userId) }
             if (conversationResult is CreateConversationResult.Success) {
                 updateConversationMenuState(conversationResult.conversation)
             } else {
-                appLogger.d(("Couldn't retrieve or create the conversation, while opening BottomSheetMenu"))
+                appLogger.d("Couldn't retrieve or create the conversation, while opening BottomSheetMenu")
             }
         }
     }
@@ -433,7 +433,6 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     }
 
     private fun updateConversationMenuState(conversation: Conversation) {
-        println("cyka updateConversationMenuState")
         state = state.copy(
             conversationSheetContent = ConversationSheetContent(
                 title = state.fullName,

@@ -25,10 +25,12 @@ object ProductFlavors {
     const val INTERNAL = "internal"
     const val PUBLIC = "public"
     const val FDROID = "fdroid"
+    const val STAGING = "staging"
 }
 
 object ApplicationId {
     const val DEV = "com.waz.zclient.dev"
+    const val STAGING_DEV = DEV
 }
 
 private object FlavorDimensions {
@@ -102,13 +104,15 @@ android {
             applicationId = ApplicationId.DEV
             versionNameSuffix = "-${ProductFlavors.DEV}"
         }
+        create(ProductFlavors.STAGING) {
+            dimension = FlavorDimensions.DEFAULT
+            applicationId = ApplicationId.STAGING_DEV
+            versionNameSuffix = "-${ProductFlavors.STAGING}"
+        }
         create(ProductFlavors.INTERNAL) {
             dimension = FlavorDimensions.DEFAULT
             applicationIdSuffix = ".${ProductFlavors.INTERNAL}"
             versionNameSuffix = "-${ProductFlavors.INTERNAL}"
-        }
-        create(ProductFlavors.PUBLIC) {
-            dimension = FlavorDimensions.DEFAULT
         }
     }
 
@@ -245,4 +249,3 @@ fun buildNonStringConfig(productFlavour: ProductFlavor, type: String, name: Stri
     )
 
 }
-

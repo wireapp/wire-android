@@ -86,18 +86,30 @@ private fun MessagePreview.uiLastMessageContent(): UILastMessageContent {
                     userUIText,
                     UIText.PluralResource(
                         R.plurals.last_message_people_added,
-                        (content as WithUser.MembersAdded).count,
-                        (content as WithUser.MembersAdded).count,
+                        (content as WithUser.MembersAdded).userIdList.size,
+                        (content as WithUser.MembersAdded).userIdList.size,
                     )
                 )
-                is WithUser.MembersRemoved -> UILastMessageContent.SenderWithMessage(
-                    userUIText,
-                    UIText.PluralResource(
-                        R.plurals.last_message_people_removed,
-                        (content as WithUser.MembersRemoved).count,
-                        (content as WithUser.MembersRemoved).count
-                    )
-                )
+
+                is WithUser.MembersRemoved -> {
+                    val membersRemovedContent = (content as WithUser.MembersRemoved)
+                    val isSelfLeft = isSelfMessage && membersRemovedContent.userIdList.contains(selfUserId)
+
+                    if (isSelfLeft) {
+                        UILastMessageContent.TextMessage(
+                            MessageBody(UIText.StringResource(R.string.left_conversation_group_success))
+                        )
+                    } else {
+                        UILastMessageContent.SenderWithMessage(
+                            userUIText,
+                            UIText.PluralResource(
+                                R.plurals.last_message_people_removed,
+                                membersRemovedContent.userIdList.size,
+                                membersRemovedContent.userIdList.size
+                            )
+                        )
+                    }
+                }
                 is WithUser.MentionedSelf -> UILastMessageContent.SenderWithMessage(
                     userUIText,
                     UIText.StringResource(R.string.last_message_mentioned)

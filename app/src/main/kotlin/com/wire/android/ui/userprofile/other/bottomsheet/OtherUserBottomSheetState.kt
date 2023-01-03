@@ -10,9 +10,13 @@ class OtherUserBottomSheetState {
 
     private var conversationSheetContent: ConversationSheetContent? by mutableStateOf(null)
     private var groupState: OtherUserProfileGroupState? by mutableStateOf(null)
+    private var contentFlag: OtherUserBottomSheetContentFlag = OtherUserBottomSheetContentFlag.NONE
     var bottomSheetContentState: BottomSheetContent? by mutableStateOf(null)
 
-    fun toConversation() = conversationSheetContent?.let { bottomSheetContentState = BottomSheetContent.Conversation(it) }
+    fun toConversation() {
+        conversationSheetContent?.let { bottomSheetContentState = BottomSheetContent.Conversation(it) }
+        contentFlag = OtherUserBottomSheetContentFlag.CONVERSATION
+    }
 
     fun setContents(conversationSheetContent: ConversationSheetContent?, groupState: OtherUserProfileGroupState?) {
         this.conversationSheetContent = conversationSheetContent
@@ -21,19 +25,27 @@ class OtherUserBottomSheetState {
     }
 
     private fun updateBottomSheetContentIfNeeded() {
-        when (bottomSheetContentState) {
-            is BottomSheetContent.Conversation -> toConversation()
-            is BottomSheetContent.ChangeRole -> toChangeRole()
-            null -> {}
+        when (contentFlag) {
+            OtherUserBottomSheetContentFlag.CONVERSATION -> toConversation()
+            OtherUserBottomSheetContentFlag.CHANGE_ROLE -> toChangeRole()
+            OtherUserBottomSheetContentFlag.NONE -> {}
         }
     }
 
-    fun toChangeRole() = groupState?.let { bottomSheetContentState = BottomSheetContent.ChangeRole(it) }
+    fun toChangeRole() {
+        groupState?.let { bottomSheetContentState = BottomSheetContent.ChangeRole(it) }
+        contentFlag = OtherUserBottomSheetContentFlag.CHANGE_ROLE
+    }
 
     fun clearBottomSheetState() {
         bottomSheetContentState = null
+        contentFlag = OtherUserBottomSheetContentFlag.NONE
     }
 
+}
+
+enum class OtherUserBottomSheetContentFlag {
+    NONE, CHANGE_ROLE, CONVERSATION
 }
 
 sealed class BottomSheetContent {

@@ -16,9 +16,11 @@ plugins {
 }
 
 repositories {
+    mavenLocal()
     google()
     mavenCentral()
 }
+
 dependencies {
     implementation("com.android.tools.build:gradle:${klibs.versions.agp.get()}")
     implementation(Dependencies.kotlinGradlePlugin)

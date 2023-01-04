@@ -9,8 +9,9 @@ import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.data.user.User
 import com.wire.kalium.logic.data.user.UserId
+import javax.inject.Inject
 
-class SystemMessageContentMapper(
+class SystemMessageContentMapper @Inject constructor(
     private val messageResourceProvider: MessageResourceProvider
 ) {
 

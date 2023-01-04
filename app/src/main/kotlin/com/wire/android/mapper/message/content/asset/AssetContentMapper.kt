@@ -11,8 +11,9 @@ import com.wire.kalium.logic.data.user.AssetId
 import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.data.user.User
 import com.wire.kalium.logic.util.isGreaterThan
+import javax.inject.Inject
 
-class AssetContentMapper(
+class AssetContentMapper @Inject constructor(
     private val wireSessionImageLoader: WireSessionImageLoader
 ) {
 

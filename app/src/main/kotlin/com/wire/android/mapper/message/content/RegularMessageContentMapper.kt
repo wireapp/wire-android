@@ -7,8 +7,9 @@ import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.MessageContent
 import com.wire.kalium.logic.data.user.User
+import javax.inject.Inject
 
-class RegularMessageContentMapper(
+class RegularMessageContentMapper @Inject constructor(
     private val messageTextContentMapper: MessageTextContentMapper,
     private val assetContentMapper: AssetContentMapper,
     private val restrictedAssetMapper: RestrictedAssetMapper

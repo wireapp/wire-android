@@ -791,7 +791,7 @@ class UseCaseModule {
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
     ): ObserveSecurityClassificationLabelUseCase =
-        coreLogic.getSessionScope(currentAccount).getSecurityClassificationType
+        coreLogic.getSessionScope(currentAccount).observeSecurityClassificationLabel
 
     @ViewModelScoped
     @Provides

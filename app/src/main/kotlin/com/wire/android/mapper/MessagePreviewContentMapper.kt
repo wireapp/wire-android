@@ -55,7 +55,7 @@ private fun String?.userUiText(isSelfMessage: Boolean): UIText = when {
 }
 
 @Suppress("LongMethod", "ComplexMethod")
-private fun MessagePreview.uiLastMessageContent(): UILastMessageContent {
+fun MessagePreview.uiLastMessageContent(): UILastMessageContent {
     return when (content) {
         is WithUser -> {
             val userContent = (content as WithUser)
@@ -93,14 +93,18 @@ private fun MessagePreview.uiLastMessageContent(): UILastMessageContent {
 
                 is WithUser.MembersRemoved -> {
                     val membersRemovedContent = (content as WithUser.MembersRemoved)
-                    val isSelfLeft = isSelfMessage && membersRemovedContent.userIdList.contains(selfUserId)
+                    val isSelfRemoved = membersRemovedContent.userIdList.contains(selfUserId)
+                    val isSelfLeft = isSelfMessage && isSelfRemoved
 
-                    if (isSelfLeft) {
-                        UILastMessageContent.TextMessage(
+                    when {
+                        isSelfLeft -> UILastMessageContent.TextMessage(
                             MessageBody(UIText.StringResource(R.string.left_conversation_group_success))
                         )
-                    } else {
-                        UILastMessageContent.SenderWithMessage(
+                        isSelfRemoved -> UILastMessageContent.SenderWithMessage(
+                            userUIText,
+                            UIText.StringResource(R.string.last_message_self_removed)
+                        )
+                        else -> UILastMessageContent.SenderWithMessage(
                             userUIText,
                             UIText.PluralResource(
                                 R.plurals.last_message_people_removed,

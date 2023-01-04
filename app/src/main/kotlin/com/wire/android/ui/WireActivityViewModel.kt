@@ -9,6 +9,7 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.BuildConfig
 import com.wire.android.appLogger
 import com.wire.android.di.AuthServerConfigProvider
+import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.di.ObserveSyncStateUseCaseProvider
 import com.wire.android.feature.AccountSwitchUseCase
 import com.wire.android.feature.SwitchAccountParam
@@ -24,6 +25,7 @@ import com.wire.android.ui.common.dialogs.CustomBEDeeplinkDialogState
 import com.wire.android.util.deeplink.DeepLinkProcessor
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.android.util.dispatchers.DispatcherProvider
+import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
@@ -31,6 +33,7 @@ import com.wire.kalium.logic.data.logout.LogoutReason
 import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.feature.appVersioning.ObserveIfAppUpdateRequiredUseCase
 import com.wire.kalium.logic.feature.auth.AccountInfo
+import com.wire.kalium.logic.feature.conversation.JoinConversationViaCodeUseCase
 import com.wire.kalium.logic.feature.server.GetServerConfigResult
 import com.wire.kalium.logic.feature.server.GetServerConfigUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
@@ -63,7 +66,7 @@ import javax.inject.Inject
 @HiltViewModel
 class WireActivityViewModel @Inject constructor(
     private val dispatchers: DispatcherProvider,
-    val currentSessionFlow: CurrentSessionFlowUseCase,
+    private val currentSessionFlow: CurrentSessionFlowUseCase,
     private val getServerConfigUseCase: GetServerConfigUseCase,
     private val deepLinkProcessor: DeepLinkProcessor,
     private val notificationManager: WireNotificationManager,
@@ -77,7 +80,8 @@ class WireActivityViewModel @Inject constructor(
     private val observeSyncStateUseCaseProviderFactory: ObserveSyncStateUseCaseProvider.Factory,
     private val observeIfAppUpdateRequired: ObserveIfAppUpdateRequiredUseCase,
     private val observeValidAccounts: ObserveValidAccountsUseCase,
-    private val notificationChannelsManager: NotificationChannelsManager
+    private val notificationChannelsManager: NotificationChannelsManager,
+    @KaliumCoreLogic private val coreLogic: CoreLogic
 ) : ViewModel() {
 
     private val navigationArguments = mutableMapOf<String, Any>(SERVER_CONFIG_ARG to ServerConfig.DEFAULT)
@@ -123,6 +127,7 @@ class WireActivityViewModel @Inject constructor(
                     is ObservePersistentWebSocketConnectionStatusUseCase.Result.Failure -> {
                         appLogger.e("Failure while fetching persistent web socket status flow from wire activity")
                     }
+
                     is ObservePersistentWebSocketConnectionStatusUseCase.Result.Success -> {
                         it.persistentWebSocketStatusListFlow.collect {
                             it.map { persistentWebSocketStatus ->
@@ -167,10 +172,13 @@ class WireActivityViewModel @Inject constructor(
                 LogoutReason.SELF_SOFT_LOGOUT, LogoutReason.SELF_HARD_LOGOUT -> {
                     // Self logout is handled from the Self user profile screen directly
                 }
+
                 LogoutReason.REMOVED_CLIENT ->
                     globalAppState = globalAppState.copy(blockUserUI = CurrentSessionErrorState.RemovedClient)
+
                 LogoutReason.DELETED_ACCOUNT ->
                     globalAppState = globalAppState.copy(blockUserUI = CurrentSessionErrorState.DeletedAccount)
+
                 LogoutReason.SESSION_EXPIRED ->
                     globalAppState = globalAppState.copy(blockUserUI = CurrentSessionErrorState.SessionExpired)
             }
@@ -195,6 +203,14 @@ class WireActivityViewModel @Inject constructor(
     fun handleDeepLink(intent: Intent?) {
         intent?.data?.let { deepLink ->
             viewModelScope.launch {
+                if (isLaunchedFromHistory(intent)) {
+                    //We don't need to handle deepLink, if activity was launched from history.
+                    //For example: user opened app by deepLink, then closed it by back button click,
+                    //then open the app from the "Recent Apps"
+                    appLogger.d("Deep link is launched from history, ignoring")
+                    return@launch
+                }
+
                 when (val result = deepLinkProcessor(deepLink)) {
                     is DeepLinkResult.CustomServerConfig -> loadServerConfig(result.url)?.let { serverLinks ->
                         globalAppState = globalAppState.copy(
@@ -203,52 +219,38 @@ class WireActivityViewModel @Inject constructor(
                                 serverLinks = serverLinks
                             )
                         )
-                        navigationArguments.put(SERVER_CONFIG_ARG, serverLinks)
+                        navigationArguments[SERVER_CONFIG_ARG] = serverLinks
                     }
 
-                    is DeepLinkResult.SSOLogin -> navigationArguments.put(SSO_DEEPLINK_ARG, result)
+                    is DeepLinkResult.SSOLogin -> navigationArguments[SSO_DEEPLINK_ARG] = result
 
-                    is DeepLinkResult.IncomingCall -> {
-                        if (isLaunchedFromHistory(intent)) {
-                            //We don't need to handle deepLink, if activity was launched from history.
-                            //For example: user opened app by deepLink, then closed it by back button click,
-                            //then open the app from the "Recent Apps"
-                            appLogger.i("IncomingCall deepLink launched from the history")
-                        } else {
-                            navigationArguments.put(INCOMING_CALL_CONVERSATION_ID_ARG, result.conversationsId)
+                    is DeepLinkResult.IncomingCall -> navigationArguments[INCOMING_CALL_CONVERSATION_ID_ARG] = result.conversationsId
+
+                    is DeepLinkResult.OngoingCall -> navigationArguments[ONGOING_CALL_CONVERSATION_ID_ARG] = result.conversationsId
+
+                    is DeepLinkResult.OpenConversation -> navigationArguments[OPEN_CONVERSATION_ID_ARG] = result.conversationsId
+
+                    is DeepLinkResult.OpenOtherUserProfile -> navigationArguments[OPEN_OTHER_USER_PROFILE_ARG] = result.userId
+
+                    is DeepLinkResult.JoinConversation -> {
+                        when (val joinConversationResult = joinConversation(result.code, result.key, result.domain)) {
+                            is JoinConversationViaCodeUseCase.Result.Success.Changed -> {
+                                appLogger.d("Join conversation via code success, changed = ${joinConversationResult.conversationId}")
+                                // navigate to conversation
+                            }
+
+                            is JoinConversationViaCodeUseCase.Result.Success.Unchanged -> {
+                                appLogger.d("Join conversation via code success, unchanged = ${joinConversationResult.conversationId}")
+                                // navigate to conversation
+                            }
+
+                            null -> {// display error
+                            }
                         }
                     }
 
-                    is DeepLinkResult.OngoingCall -> {
-                        if (isLaunchedFromHistory(intent)) {
-                            //We don't need to handle deepLink, if activity was launched from history.
-                            //For example: user opened app by deepLink, then closed it by back button click,
-                            //then open the app from the "Recent Apps"
-                            appLogger.i("IncomingCall deepLink launched from the history")
-                        } else {
-                            navigationArguments.put(ONGOING_CALL_CONVERSATION_ID_ARG, result.conversationsId)
-                        }
-                    }
+                    DeepLinkResult.Unknown -> appLogger.e("unknown deeplink result $result")
 
-                    is DeepLinkResult.OpenConversation -> {
-                        if (isLaunchedFromHistory(intent)) {
-                            appLogger.i("OpenConversation deepLink launched from the history")
-                        } else {
-                            navigationArguments.put(OPEN_CONVERSATION_ID_ARG, result.conversationsId)
-                        }
-                    }
-
-                    is DeepLinkResult.OpenOtherUserProfile -> {
-                        if (isLaunchedFromHistory(intent)) {
-                            appLogger.i("OpenOtherUserProfile deepLink launched from the history")
-                        } else {
-                            navigationArguments.put(OPEN_OTHER_USER_PROFILE_ARG, result.userId)
-                        }
-                    }
-
-                    DeepLinkResult.Unknown -> {
-                        appLogger.e("unknown deeplink result $result")
-                    }
                 }
             }
         }
@@ -269,6 +271,7 @@ class WireActivityViewModel @Inject constructor(
             remove(OPEN_CONVERSATION_ID_ARG)
             remove(OPEN_OTHER_USER_PROFILE_ARG)
             remove(SSO_DEEPLINK_ARG)
+            remove(JOIN_CONVERSATION_ARG)
         }
 
         handleDeepLink(intent)
@@ -295,6 +298,7 @@ class WireActivityViewModel @Inject constructor(
                 openOtherUserProfile(navigationArguments[OPEN_OTHER_USER_PROFILE_ARG] as QualifiedID)
                 false
             }
+
             isServerConfigOnPremises() -> false
 
             intent == null -> false
@@ -324,6 +328,7 @@ class WireActivityViewModel @Inject constructor(
                 is GetAllSessionsResult.Success -> {
                     it.sessions.filterIsInstance<AccountInfo.Valid>().size
                 }
+
                 is GetAllSessionsResult.Failure.Generic -> 0
                 GetAllSessionsResult.Failure.NoSessionFound -> 0
             }
@@ -363,6 +368,29 @@ class WireActivityViewModel @Inject constructor(
             null
         }
     }
+
+    private suspend fun joinConversation(
+        code: String,
+        key: String,
+        domain: String?
+    ): JoinConversationViaCodeUseCase.Result.Success? =
+        when (val currentSession = coreLogic.getGlobalScope().session.currentSession()) {
+            is CurrentSessionResult.Failure.Generic -> null
+            CurrentSessionResult.Failure.SessionNotFound -> null
+            is CurrentSessionResult.Success -> {
+                coreLogic.sessionScope(currentSession.accountInfo.userId) {
+                    when (val result = conversations.joinConversationViaCode(code, key, domain)) {
+                        is JoinConversationViaCodeUseCase.Result.Failure -> {
+                            appLogger.e("something went wrong during handling the join conversation deep link: ${result.failure}")
+                            null
+                        }
+                        is JoinConversationViaCodeUseCase.Result.Success.Changed -> result
+                        is JoinConversationViaCodeUseCase.Result.Success.Unchanged -> result
+                    }
+                }
+            }
+        }
+
 
     private fun isServerConfigOnPremises(): Boolean =
         (navigationArguments[SERVER_CONFIG_ARG] as? ServerConfig.Links) != ServerConfig.DEFAULT
@@ -416,6 +444,7 @@ class WireActivityViewModel @Inject constructor(
         private const val ONGOING_CALL_CONVERSATION_ID_ARG = "ongoing_call_conversation_id"
         private const val OPEN_CONVERSATION_ID_ARG = "open_conversation_id"
         private const val OPEN_OTHER_USER_PROFILE_ARG = "open_other_user_id"
+        private const val JOIN_CONVERSATION_ARG = "join_conversation"
     }
 }
 
@@ -429,5 +458,7 @@ data class GlobalAppState(
     val customBackendDialog: CustomBEDeeplinkDialogState = CustomBEDeeplinkDialogState(),
     val maxAccountDialog: Boolean = false,
     val blockUserUI: CurrentSessionErrorState? = null,
-    val updateAppDialog: Boolean = false
+    val updateAppDialog: Boolean = false,
+    val conversationJoinedDialog: Boolean = false,
+    val conversationUnchanged: Boolean = false
 )

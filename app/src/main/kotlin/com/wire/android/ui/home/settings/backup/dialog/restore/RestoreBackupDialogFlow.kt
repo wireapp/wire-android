@@ -21,7 +21,7 @@ import com.wire.android.ui.home.settings.backup.dialog.common.FailureDialog
 fun RestoreBackupDialogFlow(
     backUpAndRestoreState: BackupAndRestoreState,
     onChooseBackupFile: (Uri) -> Unit,
-    onRestoreBackup: (TextFieldValue) -> Unit,
+    onRestoreBackup: (String) -> Unit,
     onOpenConversations: () -> Unit,
     onCancelBackupRestore: () -> Unit
 ) {
@@ -112,7 +112,7 @@ private fun ChooseBackupFileStep(
 fun EnterPasswordStep(
     backUpAndRestoreState: BackupAndRestoreState,
     restoreDialogStateHolder: RestoreDialogStateHolder,
-    onRestoreBackup: (TextFieldValue) -> Unit,
+    onRestoreBackup: (String) -> Unit,
     onCancelBackupRestore: () -> Unit
 ) {
     var showWrongPassword by remember { mutableStateOf(false) }

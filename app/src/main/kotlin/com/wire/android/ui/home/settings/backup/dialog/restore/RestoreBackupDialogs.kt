@@ -1,7 +1,6 @@
 package com.wire.android.ui.home.settings.backup.dialog.restore
 
 import android.net.Uri
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -9,7 +8,6 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -19,7 +17,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
 import com.wire.android.R
-import com.wire.android.appLogger
 import com.wire.android.ui.common.WireCheckIcon
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
@@ -28,11 +25,6 @@ import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.common.textfield.WirePasswordTextField
 import com.wire.android.ui.home.messagecomposer.attachment.FileBrowserFlow
-import com.wire.android.ui.home.settings.backup.BackupAndRestoreState
-import com.wire.android.ui.home.settings.backup.BackupRestoreProgress
-import com.wire.android.ui.home.settings.backup.PasswordValidation
-import com.wire.android.ui.home.settings.backup.RestoreFileValidation
-import com.wire.android.ui.home.settings.backup.dialog.common.FailureDialog
 import com.wire.android.ui.theme.wireTypography
 import kotlin.math.roundToInt
 
@@ -60,7 +52,7 @@ fun PickRestoreFileDialog(
 @Composable
 fun EnterRestorePasswordDialog(
     isWrongPassword: Boolean,
-    onRestoreBackupFile: (TextFieldValue) -> Unit,
+    onRestoreBackupFile: (String) -> Unit,
     onAcknowledgeWrongPassword: () -> Unit,
     onCancelBackupRestore: () -> Unit
 ) {
@@ -77,7 +69,7 @@ fun EnterRestorePasswordDialog(
                 state = WireButtonState.Default
             ),
             optionButton1Properties = WireDialogButtonProperties(
-                onClick = { onRestoreBackupFile(restorePassword) },
+                onClick = { onRestoreBackupFile(restorePassword.text) },
                 text = stringResource(id = R.string.label_continue),
                 type = WireDialogButtonType.Primary,
                 state = if (restorePassword.text.isEmpty()) WireButtonState.Disabled else WireButtonState.Default

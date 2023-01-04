@@ -48,10 +48,13 @@ class BackupAndRestoreViewModel
     private val dispatcher: DispatcherProvider,
 ) : ViewModel() {
 
+    var state by mutableStateOf(BackupAndRestoreState.INITIAL_STATE)
+
     @VisibleForTesting
     internal var latestCreatedBackup: BackupAndRestoreState.CreatedBackup? = null
-    var state by mutableStateOf(BackupAndRestoreState.INITIAL_STATE)
-    private lateinit var latestImportedBackupTempPath: Path
+
+    @VisibleForTesting
+    internal lateinit var latestImportedBackupTempPath: Path
 
     @Suppress("MagicNumber")
     fun createBackup(password: String) = viewModelScope.launch(dispatcher.main()) {
@@ -89,7 +92,7 @@ class BackupAndRestoreViewModel
         state = BackupAndRestoreState.INITIAL_STATE
     }
 
-    fun chooseBackupFileToRestore(uri: Uri) = viewModelScope.launch {
+    fun chooseBackupFileToRestore(uri: Uri) = viewModelScope.launch(dispatcher.io()) {
         latestImportedBackupTempPath = kaliumFileSystem.tempFilePath(TEMP_IMPORTED_BACKUP_FILE_NAME)
         fileManager.copyToTempPath(uri, latestImportedBackupTempPath)
         checkIfBackupEncrypted(latestImportedBackupTempPath)
@@ -99,21 +102,23 @@ class BackupAndRestoreViewModel
         state = state.copy(restoreFileValidation = RestoreFileValidation.PasswordRequired)
     }
 
-    private suspend fun checkIfBackupEncrypted(importedBackupPath: Path) = when (val result = verifyBackup(importedBackupPath)) {
-        is VerifyBackupResult.Success -> {
-            when (result) {
-                is VerifyBackupResult.Success.Encrypted -> showPasswordDialog()
-                is VerifyBackupResult.Success.NotEncrypted -> importDatabase(importedBackupPath)
+    private suspend fun checkIfBackupEncrypted(importedBackupPath: Path) = withContext(dispatcher.main()) {
+        when (val result = verifyBackup(importedBackupPath)) {
+            is VerifyBackupResult.Success -> {
+                when (result) {
+                    is VerifyBackupResult.Success.Encrypted -> showPasswordDialog()
+                    is VerifyBackupResult.Success.NotEncrypted -> importDatabase(importedBackupPath)
+                }
             }
-        }
 
-        is VerifyBackupResult.Failure -> {
-            state = state.copy(restoreFileValidation = RestoreFileValidation.IncompatibleBackup)
-            val errorMessage = when (result) {
-                is VerifyBackupResult.Failure.Generic -> result.error.toString()
-                VerifyBackupResult.Failure.InvalidBackupFile -> "No valid files found in the backup"
+            is VerifyBackupResult.Failure -> {
+                state = state.copy(restoreFileValidation = RestoreFileValidation.IncompatibleBackup)
+                val errorMessage = when (result) {
+                    is VerifyBackupResult.Failure.Generic -> result.error.toString()
+                    VerifyBackupResult.Failure.InvalidBackupFile -> "No valid files found in the backup"
+                }
+                appLogger.e("Failed to extract backup files: $errorMessage")
             }
-            appLogger.e("Failed to extract backup files: $errorMessage")
         }
     }
 
@@ -142,17 +147,16 @@ class BackupAndRestoreViewModel
         }
     }
 
-    @Suppress("MagicNumber")
-    fun restorePasswordProtectedBackup(restorePassword: TextFieldValue) = viewModelScope.launch {
+    fun restorePasswordProtectedBackup(restorePassword: String) = viewModelScope.launch(dispatcher.main()) {
         state = state.copy(
-            backupRestoreProgress = BackupRestoreProgress.InProgress(0.50f),
+            backupRestoreProgress = BackupRestoreProgress.InProgress(PROGRESS_50),
             restorePasswordValidation = PasswordValidation.NotVerified
         )
         delay(SMALL_DELAY)
         val fileValidationState = state.restoreFileValidation
         if (fileValidationState is RestoreFileValidation.PasswordRequired) {
             state = state.copy(restorePasswordValidation = PasswordValidation.Entered)
-            when (val result = importBackup(latestImportedBackupTempPath, restorePassword.text)) {
+            when (val result = importBackup(latestImportedBackupTempPath, restorePassword)) {
                 RestoreBackupResult.Success -> {
                     state = state.copy(
                         backupRestoreProgress = BackupRestoreProgress.Finished,
@@ -225,7 +229,7 @@ class BackupAndRestoreViewModel
 
     fun navigateBack() = viewModelScope.launch { navigationManager.navigateBack() }
 
-    private companion object {
+    internal companion object {
         const val TEMP_IMPORTED_BACKUP_FILE_NAME = "tempImportedBackup.zip"
         const val SMALL_DELAY = 300L
         const val PROGRESS_25 = 0.25f

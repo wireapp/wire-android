@@ -307,7 +307,6 @@ private fun MessageContent(
         }
 
         is UIMessageContent.AudioAssetMessage -> Text("This is audio")
-
         is UIMessageContent.SystemMessage.MemberAdded -> {}
         is UIMessageContent.SystemMessage.MemberLeft -> {}
         is UIMessageContent.SystemMessage.MemberRemoved -> {}

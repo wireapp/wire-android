@@ -1,6 +1,8 @@
-package com.wire.android.mapper
+package com.wire.android.mapper.message
 
 import com.wire.android.R
+import com.wire.android.mapper.message.content.MessageContentMapper
+import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.home.conversations.findUser
 import com.wire.android.ui.home.conversations.model.MessageFooter
@@ -12,7 +14,6 @@ import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.conversations.previewAsset
 import com.wire.android.ui.home.conversationslist.model.Membership
-import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.time.ISOFormatter
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.WireSessionImageLoader
@@ -27,7 +28,6 @@ import com.wire.kalium.logic.data.user.UserId
 import javax.inject.Inject
 
 class MessageMapper @Inject constructor(
-    private val dispatcherProvider: DispatcherProvider,
     private val userTypeMapper: UserTypeMapper,
     private val messageContentMapper: MessageContentMapper,
     private val isoFormatter: ISOFormatter,
@@ -132,8 +132,10 @@ class MessageMapper @Inject constructor(
                     utcISO = (message.editStatus as Message.EditStatus.Edited).lastTimeStamp
                 )
             )
+
         message is Message.Regular && message.content is MessageContent.FailedDecryption ->
             MessageStatus.DecryptionFailure((message.content as MessageContent.FailedDecryption).isDecryptionResolved)
+
         else -> MessageStatus.Untouched
     }
 

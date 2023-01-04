@@ -4,7 +4,7 @@ import android.app.NotificationManager
 import android.content.Context
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.core.app.NotificationManagerCompat
-import com.wire.android.mapper.MessageResourceProvider
+import com.wire.android.mapper.message.content.MessageResourceProvider
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.util.dispatchers.DefaultDispatcherProvider
 import com.wire.android.util.dispatchers.DispatcherProvider

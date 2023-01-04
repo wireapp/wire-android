@@ -4,6 +4,8 @@ import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.framework.TestMessage
 import com.wire.android.framework.TestUser
+import com.wire.android.mapper.message.MessageMapper
+import com.wire.android.mapper.message.content.MessageContentMapper
 import com.wire.android.ui.home.conversations.model.MessageBody
 import com.wire.android.ui.home.conversations.model.UIMessageContent.TextMessage
 import com.wire.android.ui.home.conversations.model.MessageSource
@@ -22,7 +24,6 @@ import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test

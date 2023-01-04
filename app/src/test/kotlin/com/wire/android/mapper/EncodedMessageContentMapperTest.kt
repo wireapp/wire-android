@@ -8,6 +8,9 @@ import com.wire.android.framework.TestConversation
 import com.wire.android.framework.TestMessage
 import com.wire.android.framework.TestMessage.buildAssetMessage
 import com.wire.android.framework.TestUser
+import com.wire.android.mapper.message.content.AssetMessageContentMetadata
+import com.wire.android.mapper.message.content.MessageContentMapper
+import com.wire.android.mapper.message.content.MessageResourceProvider
 import com.wire.android.ui.home.conversations.model.UIMessageContent.AssetMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent.PreviewAssetMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent.SystemMessage
@@ -82,8 +85,8 @@ class EncodedMessageContentMapperTest {
         val textContent = MessageContent.Text("text-message")
         val nonTextContent = MessageContent.Unknown("type-name")
         // When
-        val resultText = mapper.toText(TestConversation.ID, textContent)
-        val resultNonText = mapper.toText(TestConversation.ID, nonTextContent)
+        val resultText = mapper.toMessageBody(TestConversation.ID, textContent)
+        val resultNonText = mapper.toMessageBody(TestConversation.ID, nonTextContent)
         with(resultText) {
             assertTrue(
                 messageBody.message is UIText.DynamicString &&

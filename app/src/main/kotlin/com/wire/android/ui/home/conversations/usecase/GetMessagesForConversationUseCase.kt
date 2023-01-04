@@ -3,7 +3,7 @@ package com.wire.android.ui.home.conversations.usecase
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.flatMap
-import com.wire.android.mapper.MessageMapper
+import com.wire.android.mapper.message.MessageMapper
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.id.ConversationId

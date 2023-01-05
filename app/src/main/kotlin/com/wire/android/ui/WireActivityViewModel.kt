@@ -1,9 +1,15 @@
 package com.wire.android.ui
 
+import android.content.Context
 import android.content.Intent
+import android.net.Uri
+import android.os.Parcelable
+import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.core.app.ShareCompat
+import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.BuildConfig
@@ -24,6 +30,13 @@ import com.wire.android.ui.common.dialogs.CustomBEDeeplinkDialogState
 import com.wire.android.util.deeplink.DeepLinkProcessor
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.android.util.dispatchers.DispatcherProvider
+import com.wire.android.util.getBitmapFromUri
+import com.wire.android.util.getMimeType
+import com.wire.android.util.isAudioFile
+import com.wire.android.util.isImageFile
+import com.wire.android.util.isText
+import com.wire.android.util.isVideoFile
+import com.wire.android.util.parcelableArrayList
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
@@ -408,6 +421,54 @@ class WireActivityViewModel @Inject constructor(
     fun appWasUpdate() {
         globalAppState = globalAppState.copy(updateAppDialog = false)
     }
+
+    fun handleReceivedDataFromSharingIntent(intent: Intent, activity: AppCompatActivity) {
+        val incomingIntent = ShareCompat.IntentReader(activity)
+        if (incomingIntent.isShareIntent) {
+            when (incomingIntent.streamCount) {
+                0 -> {
+                    // if stream count is 0 the type will be text, we check the type to double check if it is text
+                    if (isText(incomingIntent.type)) {
+                        // todo : handle the text , we can get the text from incomingIntent.text
+                    }
+                }
+                1 -> {
+                    // ACTION_SEND
+                    incomingIntent.stream?.let { handleMimeType(activity, incomingIntent.type, it) }
+                }
+                else -> {
+                    // ACTION_SEND_MULTIPLE
+                    intent.parcelableArrayList<Parcelable>(Intent.EXTRA_STREAM)?.forEach {
+                        handleMimeType(activity, getMimeType(activity, it.toString().toUri()).toString(), it.toString().toUri())
+                    }
+                }
+            }
+        }
+    }
+
+    private fun handleMimeType(context: Context, type: String?, uri: Uri) {
+        when {
+            isImageFile(type) -> {
+                val bitmap = getBitmapFromUri(context, uri)
+                appLogger.d("imageFile $bitmap")
+                // todo : handle the image
+            }
+
+            isVideoFile(type) -> {
+                appLogger.d("videoFile")
+                // todo : handle the video
+            }
+            isAudioFile(type) -> {
+                appLogger.d("audioFile")
+                // todo : handle the audio
+            }
+            else -> {
+                appLogger.d("other mime types ")
+                // todo : handle the other types
+            }
+        }
+    }
+
 
     companion object {
         private const val SERVER_CONFIG_ARG = "server_config"

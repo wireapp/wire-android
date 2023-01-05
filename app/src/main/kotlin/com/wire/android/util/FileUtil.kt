@@ -7,9 +7,12 @@ import android.content.ContentResolver
 import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Build
 import android.os.Environment.DIRECTORY_DOWNLOADS
+import android.os.Parcelable
 import android.provider.MediaStore
 import android.provider.OpenableColumns
 import android.provider.Settings
@@ -26,7 +29,9 @@ import kotlinx.coroutines.withContext
 import okio.Path
 import okio.Path.Companion.toPath
 import java.io.File
+import java.io.FileNotFoundException
 import java.io.InputStream
+import java.util.Locale
 
 /**
  * Gets the uri of any drawable or given resource
@@ -227,6 +232,58 @@ fun shareAssetFileWithExternalApp(assetDataPath: Path, context: Context, assetEx
         onError()
     }
 }
+
+fun getMimeType(context: Context, uri: Uri): String? {
+    val extension: String? = if (uri.scheme == ContentResolver.SCHEME_CONTENT) {
+        context.contentResolver.getType(uri)
+    } else {
+        //If scheme is a File
+        //This will replace white spaces with %20 and also other special characters. This will avoid returning null values on file name with spaces and special characters.
+        val fileExtension = MimeTypeMap.getFileExtensionFromUrl(Uri.fromFile(uri.path?.let { File(it) }).toString())
+        MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileExtension.lowercase(Locale.getDefault()))
+    }
+    return extension
+}
+
+fun getBitmapFromUri(context: Context, uri: Uri): Bitmap? {
+    var bitmap: Bitmap? = null
+    try {
+        // Works with content://, file://, or android.resource:// URIs
+        val inputStream: InputStream? = context.contentResolver.openInputStream(uri)
+        bitmap = BitmapFactory.decodeStream(inputStream)
+    } catch (e: FileNotFoundException) {
+        appLogger.e("File not found: $uri")
+    }
+    return bitmap
+}
+
+inline fun <reified T : Parcelable> Intent.parcelable(key: String): T? = when {
+    Build.VERSION.SDK_INT >= 33 -> getParcelableExtra(key, T::class.java)
+    else -> @Suppress("DEPRECATION") getParcelableExtra(key) as? T
+}
+
+
+inline fun <reified T : Parcelable> Intent.parcelableArrayList(key: String): ArrayList<T>? = when {
+    Build.VERSION.SDK_INT >= 33 -> getParcelableArrayListExtra(key, T::class.java)
+    else -> @Suppress("DEPRECATION") getParcelableArrayListExtra(key)
+}
+
+fun isImageFile(mimeType: String?): Boolean {
+    return mimeType != null && mimeType.startsWith("image/")
+}
+
+fun isVideoFile(mimeType: String?): Boolean {
+    return mimeType != null && mimeType.startsWith("video/")
+}
+
+fun isAudioFile(mimeType: String?): Boolean {
+    return mimeType != null && mimeType.startsWith("audio/")
+}
+
+fun isText(mimeType: String?): Boolean {
+    return mimeType != null && mimeType.startsWith("text/")
+}
+
 
 @Suppress("MagicNumber")
 fun Context.getDeviceId(): String? {

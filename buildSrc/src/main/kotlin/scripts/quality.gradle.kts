@@ -1,12 +1,22 @@
 package scripts
 
 import io.gitlab.arturbosch.detekt.Detekt
+import io.gitlab.arturbosch.detekt.DetektCreateBaselineTask
 import scripts.Variants_gradle.Default
 
 plugins {
     id("com.android.application") apply false
     id("jacoco")
     id("io.gitlab.arturbosch.detekt")
+}
+
+dependencies {
+    val detektVersion = "1.19.0"
+    detekt("io.gitlab.arturbosch.detekt:detekt-cli:$detektVersion")
+    detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:$detektVersion")
+    detektPlugins("com.wire:detekt-rules:1.0.0-SNAPSHOT") {
+        isChanging = true
+    }
 }
 
 // Lint Configuration
@@ -25,17 +35,19 @@ android {
 // Detekt Configuration
 val detektAll by tasks.registering(Detekt::class) {
     group = "Quality"
-    description = "Runs a detekt code analysis ruleset on the Wire Android codebase "
+    description = "Runs a detekt code analysis ruleset on the Wire Android codebase"
     parallel = true
     buildUponDefaultConfig = true
 
-    val outputFile = "${project.buildDir}/staticAnalysis/index.html"
+    val outputFile = "$buildDir/staticAnalysis/index.html"
 
-    setSource(files(project.projectDir))
-    config.setFrom("${project.rootDir}/config/detekt/detekt.yml")
+    setSource(files(projectDir))
+    config.setFrom("$rootDir/config/detekt/detekt.yml")
 
     include("**/*.kt")
     exclude("**/*.kts", "*/build/*", "/buildSrc")
+
+    baseline.set(file("$rootDir/config/detekt/baseline.xml"))
 
     reports {
         xml.required.set(true)
@@ -47,6 +59,19 @@ val detektAll by tasks.registering(Detekt::class) {
     val reportFile = "Static Analysis Report: $outputFile \n"
     doFirst { println(reportFile) }
     doLast { println(reportFile) }
+}
+
+tasks.withType(DetektCreateBaselineTask::class) {
+    description = "Overrides current baseline."
+    buildUponDefaultConfig.set(true)
+    ignoreFailures.set(true)
+    parallel.set(true)
+    setSource(files(projectDir))
+    config.setFrom(files("$rootDir/config/detekt/detekt.yml"))
+    baseline.set(file("$rootDir/config/detekt/baseline.xml"))
+
+    include("**/*.kt")
+    exclude("**/*.kts", "*/build/*", "/buildSrc")
 }
 
 tasks.register("staticCodeAnalysis") {
@@ -97,7 +122,7 @@ val jacocoReport by tasks.registering(JacocoReport::class) {
                 "**/mock/**",
                 "**/theme/**/*.*", // Ignores jetpack compose theme related code
                 "**/common/**/*.*", // Ignores jetpack compose common components related code
-                "**/navigation/**/*.*", // Ignores jetpack navigation related code
+                "**/navigation/**/*.*" // Ignores jetpack navigation related code
             )
         }
     )

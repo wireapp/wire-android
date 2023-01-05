@@ -105,9 +105,6 @@ internal class OtherUserProfileViewModelArrangement {
     lateinit var persistOtherUserClientsUseCase: PersistOtherUserClientsUseCase
 
     @MockK
-    lateinit var getConversationUseCase: GetOneToOneConversationUseCase
-
-    @MockK
     lateinit var clearConversationContent: ClearConversationContentUseCase
 
     private val viewModel by lazy {
@@ -118,7 +115,6 @@ internal class OtherUserProfileViewModelArrangement {
             blockUser,
             unblockUser,
             getOrCreateOneToOneConversation,
-            getConversationUseCase,
             observeUserInfo,
             sendConnectionRequest,
             cancelConnectionRequest,
@@ -197,10 +193,6 @@ internal class OtherUserProfileViewModelArrangement {
 
     suspend fun withUserInfo(result: GetUserInfoResult) = apply {
         coEvery { observeUserInfo(any()) } returns flowOf(result)
-    }
-
-    fun withGetConversationDetails(result: GetOneToOneConversationUseCase.Result) = apply {
-        coEvery { getConversationUseCase(any()) } returns flowOf(result)
     }
 
     fun arrange() = this to viewModel

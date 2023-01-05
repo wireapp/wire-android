@@ -641,13 +641,15 @@ class UseCaseModule {
     @ViewModelScoped
     @Provides
     fun providePersistPersistentWebSocketConnectionStatusUseCase(
-        @KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
     ) = coreLogic.getSessionScope(currentAccount).persistPersistentWebSocketConnectionStatus
 
     @ViewModelScoped
     @Provides
     fun provideGetPersistentWebSocketStatusUseCase(
-        @KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
     ) = coreLogic.getSessionScope(currentAccount).getPersistentWebSocketStatus
 
     @ViewModelScoped

@@ -145,7 +145,7 @@ class LoginEmailViewModelTest {
     fun `given button is clicked, when logging in, then show loading`() {
         val scheduler = TestCoroutineScheduler()
         Dispatchers.setMain(StandardTestDispatcher(scheduler))
-        coEvery { loginUseCase(any(), any(), any()) } returns AuthenticationResult.Failure.InvalidCredentials
+        coEvery { loginUseCase(any(), any(), any(), any()) } returns AuthenticationResult.Failure.InvalidCredentials
         coEvery { addAuthenticatedUserUseCase(any(), any(), any(), any()) } returns AddAuthenticatedUserUseCase.Result.Success(userId)
 
         loginViewModel.onPasswordChange(TextFieldValue("abc"))
@@ -165,7 +165,7 @@ class LoginEmailViewModelTest {
         val scheduler = TestCoroutineScheduler()
         val password = "abc"
         Dispatchers.setMain(StandardTestDispatcher(scheduler))
-        coEvery { loginUseCase(any(), any(), any()) } returns AuthenticationResult.Success(AUTH_TOKEN, SSO_ID, SERVER_CONFIG.id, null)
+        coEvery { loginUseCase(any(), any(), any(), any()) } returns AuthenticationResult.Success(AUTH_TOKEN, SSO_ID, SERVER_CONFIG.id, null)
         coEvery { addAuthenticatedUserUseCase(any(), any(), any(), any()) } returns AddAuthenticatedUserUseCase.Result.Success(userId)
         coEvery { navigationManager.navigate(any()) } returns Unit
         coEvery { getOrRegisterClientUseCase(any()) } returns RegisterClientResult.Success(CLIENT)
@@ -174,7 +174,7 @@ class LoginEmailViewModelTest {
         loginViewModel.onPasswordChange(TextFieldValue(password))
 
         runTest { loginViewModel.login() }
-        coVerify(exactly = 1) { loginUseCase(any(), any(), any()) }
+        coVerify(exactly = 1) { loginUseCase(any(), any(), any(), any()) }
         coVerify(exactly = 1) { getOrRegisterClientUseCase(any()) }
         coVerify(exactly = 1) {
             navigationManager.navigate(
@@ -191,7 +191,7 @@ class LoginEmailViewModelTest {
         val scheduler = TestCoroutineScheduler()
         val password = "abc"
         Dispatchers.setMain(StandardTestDispatcher(scheduler))
-        coEvery { loginUseCase(any(), any(), any()) } returns AuthenticationResult.Success(AUTH_TOKEN, SSO_ID, SERVER_CONFIG.id, null)
+        coEvery { loginUseCase(any(), any(), any(), any()) } returns AuthenticationResult.Success(AUTH_TOKEN, SSO_ID, SERVER_CONFIG.id, null)
         coEvery { addAuthenticatedUserUseCase(any(), any(), any(), any()) } returns AddAuthenticatedUserUseCase.Result.Success(userId)
         coEvery { navigationManager.navigate(any()) } returns Unit
         coEvery { getOrRegisterClientUseCase(any()) } returns RegisterClientResult.Success(CLIENT)
@@ -200,7 +200,7 @@ class LoginEmailViewModelTest {
         loginViewModel.onPasswordChange(TextFieldValue(password))
 
         runTest { loginViewModel.login() }
-        coVerify(exactly = 1) { loginUseCase(any(), any(), any()) }
+        coVerify(exactly = 1) { loginUseCase(any(), any(), any(), any()) }
         coVerify(exactly = 1) { getOrRegisterClientUseCase(any()) }
         coVerify(exactly = 1) {
             navigationManager.navigate(
@@ -214,7 +214,7 @@ class LoginEmailViewModelTest {
 
     @Test
     fun `given button is clicked, when login returns InvalidUserIdentifier error, then InvalidUserIdentifierError is passed`() {
-        coEvery { loginUseCase(any(), any(), any()) } returns AuthenticationResult.Failure.InvalidUserIdentifier
+        coEvery { loginUseCase(any(), any(), any(), any()) } returns AuthenticationResult.Failure.InvalidUserIdentifier
 
         runTest { loginViewModel.login() }
 
@@ -223,7 +223,7 @@ class LoginEmailViewModelTest {
 
     @Test
     fun `given button is clicked, when login returns InvalidCredentials error, then InvalidCredentialsError is passed`() {
-        coEvery { loginUseCase(any(), any(), any()) } returns AuthenticationResult.Failure.InvalidCredentials
+        coEvery { loginUseCase(any(), any(), any(), any()) } returns AuthenticationResult.Failure.InvalidCredentials
 
         runTest { loginViewModel.login() }
 
@@ -233,7 +233,7 @@ class LoginEmailViewModelTest {
     @Test
     fun `given button is clicked, when login returns Generic error, then GenericError is passed`() {
         val networkFailure = NetworkFailure.NoNetworkConnection(null)
-        coEvery { loginUseCase(any(), any(), any()) } returns
+        coEvery { loginUseCase(any(), any(), any(), any()) } returns
                 AuthenticationResult.Failure.Generic(networkFailure)
 
         runTest { loginViewModel.login() }
@@ -244,7 +244,7 @@ class LoginEmailViewModelTest {
 
     @Test
     fun `given dialog is dismissed, when login returns DialogError, then hide error`() {
-        coEvery { loginUseCase(any(), any(), any()) } returns AuthenticationResult.Failure.InvalidCredentials
+        coEvery { loginUseCase(any(), any(), any(), any()) } returns AuthenticationResult.Failure.InvalidCredentials
 
         runTest { loginViewModel.login() }
 
@@ -255,7 +255,7 @@ class LoginEmailViewModelTest {
 
     @Test
     fun `given button is clicked, when addAuthenticatedUser returns UserAlreadyExists error, then UserAlreadyExists is passed`() {
-        coEvery { loginUseCase(any(), any(), any()) } returns AuthenticationResult.Success(AUTH_TOKEN, SSO_ID, SERVER_CONFIG.id, null)
+        coEvery { loginUseCase(any(), any(), any(), any()) } returns AuthenticationResult.Success(AUTH_TOKEN, SSO_ID, SERVER_CONFIG.id, null)
         coEvery {
             addAuthenticatedUserUseCase(
                 any(),

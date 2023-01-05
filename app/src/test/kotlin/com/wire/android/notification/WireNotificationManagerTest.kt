@@ -113,7 +113,7 @@ class WireNotificationManagerTest {
             .withCurrentScreen(CurrentScreen.SomeOther)
             .arrange()
 
-        manager.observeNotificationsAndCalls(flowOf(null), this) {}
+        manager.observeNotificationsAndCalls(listOf(), this) {}
         advanceUntilIdle()
 
         verify(exactly = 0) { arrangement.coreLogic.getSessionScope(any()) }
@@ -128,7 +128,7 @@ class WireNotificationManagerTest {
             .withCurrentScreen(CurrentScreen.SomeOther)
             .arrange()
 
-        manager.observeNotificationsAndCalls(flowOf(provideUserId()), this) {}
+        manager.observeNotificationsAndCalls(listOf(provideUserId()), this) {}
         runCurrent()
 
         verify(exactly = 1) { arrangement.callNotificationManager.hideIncomingCallNotification() }
@@ -143,7 +143,7 @@ class WireNotificationManagerTest {
             .withEstablishedCall(listOf())
             .arrange()
 
-        manager.observeNotificationsAndCalls(flowOf(provideUserId()), this) {}
+        manager.observeNotificationsAndCalls(listOf(provideUserId()), this) {}
         runCurrent()
 
         verify(exactly = 0) { arrangement.callNotificationManager.hideIncomingCallNotification() }
@@ -158,7 +158,7 @@ class WireNotificationManagerTest {
             .withMessageNotifications(listOf())
             .arrange()
 
-        manager.observeNotificationsAndCalls(flowOf(provideUserId()), this) {}
+        manager.observeNotificationsAndCalls(listOf(provideUserId()), this) {}
         runCurrent()
 
         verify(exactly = 1) { arrangement.callNotificationManager.hideIncomingCallNotification() }
@@ -173,7 +173,7 @@ class WireNotificationManagerTest {
             .withCurrentScreen(CurrentScreen.SomeOther)
             .arrange()
 
-        manager.observeNotificationsAndCalls(flowOf(null), this) {}
+        manager.observeNotificationsAndCalls(listOf(), this) {}
         runCurrent()
 
         verify(exactly = 0) { arrangement.coreLogic.getSessionScope(any()) }
@@ -193,7 +193,7 @@ class WireNotificationManagerTest {
             .withCurrentScreen(CurrentScreen.InBackground)
             .arrange()
 
-        manager.observeNotificationsAndCalls(flowOf(null), this) {}
+        manager.observeNotificationsAndCalls(listOf(), this) {}
         runCurrent()
 
         verify(exactly = 0) { arrangement.coreLogic.getSessionScope(any()) }
@@ -213,7 +213,7 @@ class WireNotificationManagerTest {
             .withCurrentScreen(CurrentScreen.SomeOther)
             .arrange()
 
-        manager.observeNotificationsAndCalls(flowOf(provideUserId()), this) {}
+        manager.observeNotificationsAndCalls(listOf(provideUserId()), this) {}
         runCurrent()
 
         verify(exactly = 1) { arrangement.messageNotificationManager.handleNotification(
@@ -240,7 +240,7 @@ class WireNotificationManagerTest {
                 .withCurrentScreen(CurrentScreen.Conversation(conversationId))
                 .arrange()
 
-            manager.observeNotificationsAndCalls(flowOf(provideUserId()), this) {}
+            manager.observeNotificationsAndCalls(listOf(provideUserId()), this) {}
             runCurrent()
 
             verify(exactly = 1) {
@@ -269,7 +269,7 @@ class WireNotificationManagerTest {
                 .withCurrentScreen(CurrentScreen.Conversation(conversationId))
                 .arrange()
 
-            manager.observeNotificationsAndCalls(flowOf(provideUserId()), this) {}
+            manager.observeNotificationsAndCalls(listOf(provideUserId()), this) {}
             runCurrent()
 
             coVerify(atLeast = 1) { arrangement.messageNotificationManager.hideNotification(conversationId, provideUserId()) }
@@ -341,7 +341,7 @@ class WireNotificationManagerTest {
             .withEstablishedCall(listOf(provideCall().copy(status = CallStatus.ESTABLISHED)))
             .arrange()
 
-        manager.observeNotificationsAndCalls(flowOf(provideUserId()), this) {}
+        manager.observeNotificationsAndCalls(listOf(provideUserId()), this) {}
         runCurrent()
 
         verify(exactly = 1) { arrangement.servicesManager.startOngoingCallService(any(), any(), any()) }

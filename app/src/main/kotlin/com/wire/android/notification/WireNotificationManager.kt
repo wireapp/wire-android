@@ -25,7 +25,6 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.cancellable
@@ -63,6 +62,7 @@ class WireNotificationManager @Inject constructor(
     private val scope = CoroutineScope(SupervisorJob() + dispatcherProvider.default())
     private val fetchOnceMutex = Mutex()
     private val fetchOnceJobs = hashMapOf<String, Job>()
+    private val observingJobs = hashMapOf<UserId, List<Job>>()
 
     /**
      * Become online, process all the Pending events,
@@ -108,8 +108,12 @@ class WireNotificationManager @Inject constructor(
         checkIfUserIsAuthenticated(userId = userIdValue)?.let { userId ->
             appLogger.d("$TAG checking the notifications once")
 
-            val observeMessagesJob = scope.launch {
-                observeMessageNotifications(flowOf(userId), MutableStateFlow(CurrentScreen.InBackground))
+            val observeMessagesJob = if (observingJobs[userId] != null) {
+                // App is running in background -> notifications are already observed, just need to connect to websocket.
+                appLogger.d("$TAG checking the notifications once, but notifications are already observed, no need to start a new job")
+                null
+            } else {
+                scope.launch { observeMessageNotifications(userId, MutableStateFlow(CurrentScreen.InBackground)) }
             }
 
             appLogger.d("$TAG start syncing")
@@ -125,7 +129,7 @@ class WireNotificationManager @Inject constructor(
             }
 
             appLogger.d("$TAG checked the notifications once, canceling observing.")
-            observeMessagesJob.cancel("$TAG checked the notifications once, canceling observing.")
+            observeMessagesJob?.cancel("$TAG checked the notifications once, canceling observing.")
         }
     }
 
@@ -198,21 +202,50 @@ class WireNotificationManager @Inject constructor(
     /**
      * Infinitely listen for the new IncomingCalls, CurrentScreen changes and Message Notifications
      * Notify user and mark Conversations as notified when it's needed.
-     * @param userIdFlow Flow of QualifiedID of User
+     * @param userIds List<QualifiedID> of Users that we need to observe notifications for
      * @param scope CoroutineScope used for observing CurrentScreen
      * @param doIfCallCameAndAppVisible action that should be done when incoming call comes and app is in foreground
      */
     suspend fun observeNotificationsAndCalls(
-        userIdFlow: Flow<UserId?>,
+        userIds: List<UserId>,
         scope: CoroutineScope,
         doIfCallCameAndAppVisible: (Call) -> Unit
     ) {
         val currentScreenState = currentScreenManager.observeCurrentScreen(scope)
 
-        scope.launch { observeCurrentScreenAndHideNotifications(currentScreenState, userIdFlow) }
-        scope.launch { observeIncomingCalls(currentScreenState, userIdFlow, doIfCallCameAndAppVisible) }
-        scope.launch { observeMessageNotifications(userIdFlow, currentScreenState) }
-        scope.launch { observeOngoingCalls(currentScreenState, userIdFlow) }
+        // removing notifications and stop observing it for the users that are not logged in anymore
+        val userIdsToCancelJobs = observingJobs.keys.filter { !userIds.contains(it) }
+        userIdsToCancelJobs
+            .forEach { userId ->
+                messagesNotificationManager.hideAllNotificationsForUser(userId)
+                observingJobs[userId]?.forEach { it.cancel() }
+                observingJobs.remove(userId)
+            }
+
+        if (userIds.isEmpty()) {
+            // userIds.isEmpty() means there is no current user (logged out e.g.)
+            // so we need to unsubscribe from the notification changes (done by canceling all the jobs above)
+            // and remove the notifications that were displayed previously
+            appLogger.i("$TAG no Users -> hide all the notifications")
+            messagesNotificationManager.hideAllNotifications()
+            callNotificationManager.hideAllNotifications()
+            servicesManager.stopOngoingCallService()
+
+            return
+        }
+
+        // start observing notifications only for new users
+        userIds
+            .filter { !observingJobs.keys.contains(it) }
+            .forEach { userId ->
+                val jobs = listOf(
+                    scope.launch { observeCurrentScreenAndHideNotifications(currentScreenState, userId) },
+                    scope.launch { observeIncomingCalls(currentScreenState, userId, doIfCallCameAndAppVisible) },
+                    scope.launch { observeMessageNotifications(userId, currentScreenState) },
+                    scope.launch { observeOngoingCalls(currentScreenState, userId) }
+                )
+                observingJobs[userId] = jobs
+            }
     }
 
     /**
@@ -220,21 +253,10 @@ class WireNotificationManager @Inject constructor(
      */
     private suspend fun observeCurrentScreenAndHideNotifications(
         currentScreenState: StateFlow<CurrentScreen>,
-        userIdFlow: Flow<UserId?>
+        userId: UserId
     ) {
         currentScreenState
-            .combine(userIdFlow, ::Pair)
-            .collect { (screens, userId) ->
-                if (userId == null) {
-                    // if userId == null means there is no current user (logged out e.g.)
-                    // so we need to unsubscribe from the notification changes (it's done by flatMapLatest)
-                    // and remove the notifications that were displayed previously
-                    appLogger.i("$TAG no UserId -> hide all the notifications")
-                    messagesNotificationManager.hideAllNotifications()
-                    callNotificationManager.hideAllNotifications()
-                    return@collect
-                }
-
+            .collect { screens ->
                 when (screens) {
                     is CurrentScreen.Conversation -> messagesNotificationManager.hideNotification(screens.id, userId)
                     is CurrentScreen.OtherUserProfile -> hideConnectionRequestNotification(userId, screens.id)
@@ -247,28 +269,21 @@ class WireNotificationManager @Inject constructor(
     /**
      * Infinitely listen for the new IncomingCalls, notify about it and do additional actions if needed.
      * Can be used for listening for the Notifications when the app is running.
-     * @param observeUserId Flow of QualifiedID of User
+     * @param userId QualifiedID of User that we want to observe for
      * @param currentScreenState StateFlow that informs which screen is currently visible,
      * so we can decide: should we show notification, or run a @param[doIfCallCameAndAppVisible]
      */
     private suspend fun observeIncomingCalls(
         currentScreenState: StateFlow<CurrentScreen>,
-        observeUserId: Flow<UserId?>,
+        userId: UserId,
         doIfCallCameAndAppVisible: (Call) -> Unit
     ) {
         appLogger.d("$TAG observe incoming calls")
-        observeUserId
-            .flatMapLatest { userId ->
-                if (userId == null) {
-                    appLogger.d("$TAG userId is empty for incoming calls")
-                    flowOf(listOf())
-                } else {
-                    coreLogic.getSessionScope(userId)
-                        .calls
-                        .getIncomingCalls()
-                }.map { list -> list to userId }
-            }
-            .collect { (calls, userId) ->
+
+        coreLogic.getSessionScope(userId)
+            .calls
+            .getIncomingCalls()
+            .collect { calls ->
                 if (currentScreenState.value != CurrentScreen.InBackground) {
                     calls.firstOrNull()?.run {
                         appLogger.d("$TAG got some call while app is visible")
@@ -284,41 +299,36 @@ class WireNotificationManager @Inject constructor(
     /**
      * Infinitely listen for the new Message notifications and show it.
      * Can be used for listening for the Notifications when the app is running.
-     * @param userIdFlow Flow of QualifiedID of User
+     * @param userId QualifiedID of User that we want to observe for
      * @param currentScreenState StateFlow that informs which screen is currently visible,
      * so we can filter the notifications if user is in the Conversation that receives a new messages
      */
     @ExperimentalCoroutinesApi
     private suspend fun observeMessageNotifications(
-        userIdFlow: Flow<UserId?>,
+        userId: UserId,
         currentScreenState: StateFlow<CurrentScreen>
     ) {
-        userIdFlow
-            .flatMapLatest { userId ->
-                userId?.let {
-                    val observeSelfUser = coreLogic.getSessionScope(userId)
-                        .users
-                        .getSelfUser()
+        val observeSelfUser = coreLogic.getSessionScope(userId)
+            .users
+            .getSelfUser()
 
-                    coreLogic.getSessionScope(userId)
-                        .messages
-                        .getNotifications()
-                        .cancellable()
-                        .combine(observeSelfUser) { newNotifications, selfUser ->
-                            // we don't want to display notifications for the Conversation that user currently in.
-                            val notificationsList = filterAccordingToScreenAndUpdateNotifyDate(
-                                currentScreenState.value,
-                                userId,
-                                newNotifications
-                            )
-                            val userName = selfUser.handle ?: selfUser.name ?: ""
+        coreLogic.getSessionScope(userId)
+            .messages
+            .getNotifications()
+            .cancellable()
+            .combine(observeSelfUser) { newNotifications, selfUser ->
+                // we don't want to display notifications for the Conversation that user currently in.
+                val notificationsList = filterAccordingToScreenAndUpdateNotifyDate(
+                    currentScreenState.value,
+                    userId,
+                    newNotifications
+                )
+                val userName = selfUser.handle ?: selfUser.name ?: ""
 
-                            // combining all the data that is necessary for Notifications into small data class,
-                            // just to make it more readable than
-                            // Pair<List<LocalNotificationConversation>, QualifiedID>
-                            MessagesNotificationsData(notificationsList, userId, userName)
-                        }
-                } ?: flowOf(null)
+                // combining all the data that is necessary for Notifications into small data class,
+                // just to make it more readable than
+                // Pair<List<LocalNotificationConversation>, QualifiedID>
+                MessagesNotificationsData(notificationsList, userId, userName)
             }
             .cancellable()
             .filterNotNull()
@@ -333,18 +343,17 @@ class WireNotificationManager @Inject constructor(
     /**
      * Infinitely listen for the established calls and run OngoingCall foreground Service
      * to show corresponding notification and do not lose a call.
-     * @param userIdFlow Flow of QualifiedID of User
+     * @param userId QualifiedID of User that we want to observe for
      * @param currentScreenState StateFlow that informs which screen is currently visible,
      * so we can listen established calls only when the app is in background.
      */
     private suspend fun observeOngoingCalls(
         currentScreenState: StateFlow<CurrentScreen>,
-        userIdFlow: Flow<UserId?>
+        userId: UserId
     ) {
         currentScreenState
-            .combine(userIdFlow, ::Pair)
-            .flatMapLatest { (currentScreen, userId) ->
-                if (userId == null || currentScreen !is CurrentScreen.InBackground) {
+            .flatMapLatest { currentScreen ->
+                if (currentScreen !is CurrentScreen.InBackground) {
                     flowOf(null)
                 } else {
                     coreLogic.getSessionScope(userId).calls

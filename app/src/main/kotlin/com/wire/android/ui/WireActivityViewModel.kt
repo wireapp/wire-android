@@ -118,21 +118,21 @@ class WireActivityViewModel @Inject constructor(
                 }
         }
         viewModelScope.launch(dispatchers.io()) {
-            observePersistentWebSocketConnectionStatus().let {
-                when (it) {
+            observePersistentWebSocketConnectionStatus().let { result ->
+                when (result) {
                     is ObservePersistentWebSocketConnectionStatusUseCase.Result.Failure -> {
                         appLogger.e("Failure while fetching persistent web socket status flow from wire activity")
                     }
                     is ObservePersistentWebSocketConnectionStatusUseCase.Result.Success -> {
-                        it.persistentWebSocketStatusListFlow.collect {
-                            it.map { persistentWebSocketStatus ->
-                                if (!persistentWebSocketStatus.isPersistentWebSocketEnabled) {
-                                    notificationManager.observeNotificationsAndCalls(observeUserId, viewModelScope)
-                                    { openIncomingCall(it.conversationId) }
-                                }
-                            }
+                        result.persistentWebSocketStatusListFlow.collect { statuses ->
+                            val usersToObserve = statuses
+                                .filter { !it.isPersistentWebSocketEnabled }
+                                .map { it.userId }
 
-                            if (it.map { it.isPersistentWebSocketEnabled }.contains(true)) {
+                            notificationManager.observeNotificationsAndCalls(usersToObserve, viewModelScope)
+                            { call -> openIncomingCall(call.conversationId) }
+
+                            if (statuses.any { it.isPersistentWebSocketEnabled }) {
                                 if (!servicesManager.isPersistentWebSocketServiceRunning()) {
                                     servicesManager.startPersistentWebSocketService()
                                 }

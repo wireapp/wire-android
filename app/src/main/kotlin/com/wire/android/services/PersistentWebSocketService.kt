@@ -28,7 +28,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
@@ -70,27 +69,27 @@ class PersistentWebSocketService : Service() {
     @OptIn(ExperimentalCoroutinesApi::class)
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         scope.launch {
-            coreLogic.getGlobalScope().observePersistentWebSocketConnectionStatus().let {
-                when (it) {
+            coreLogic.getGlobalScope().observePersistentWebSocketConnectionStatus().let { result ->
+                when (result) {
                     is ObservePersistentWebSocketConnectionStatusUseCase.Result.Failure -> {
                         appLogger.e("Failure while fetching persistent web socket status flow from service")
                     }
                     is ObservePersistentWebSocketConnectionStatusUseCase.Result.Success -> {
-                        it.persistentWebSocketStatusListFlow.collect {
-                            it.map { persistentWebSocketStatus ->
+                        result.persistentWebSocketStatusListFlow.collect { statuses ->
+
+                            val usersToObserve = statuses
+                                .filter { it.isPersistentWebSocketEnabled }
+                                .map { it.userId }
+
+                            notificationManager.observeNotificationsAndCalls(usersToObserve, scope)
+                            { call -> openIncomingCall(call.conversationId) }
+
+                            statuses.map { persistentWebSocketStatus ->
                                 if (persistentWebSocketStatus.isPersistentWebSocketEnabled) {
                                     runBlocking {
                                         coreLogic.getSessionScope(persistentWebSocketStatus.userId)
                                             .setConnectionPolicy(ConnectionPolicy.KEEP_ALIVE)
                                     }
-                                    notificationManager.observeNotificationsAndCalls(
-                                        flowOf(
-                                            persistentWebSocketStatus.userId
-                                        ), scope
-                                    ) {
-                                        openIncomingCall(it.conversationId)
-                                    }
-
                                 } else {
                                     runBlocking {
                                         coreLogic.getSessionScope(persistentWebSocketStatus.userId)

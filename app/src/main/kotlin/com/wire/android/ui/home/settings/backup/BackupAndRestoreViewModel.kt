@@ -35,7 +35,7 @@ import kotlinx.coroutines.withContext
 import okio.Path
 import javax.inject.Inject
 
-@Suppress("LongParameterList")
+@Suppress("LongParameterList", "TooManyFunctions")
 @HiltViewModel
 class BackupAndRestoreViewModel
 @Inject constructor(

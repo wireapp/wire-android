@@ -10,10 +10,16 @@ import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.model.ImageAsset
 import com.wire.android.ui.common.LinkifyText
@@ -25,6 +31,7 @@ import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMess
 import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMessageParams
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.Message.DownloadStatus.DOWNLOAD_IN_PROGRESS
 import com.wire.kalium.logic.data.message.Message.DownloadStatus.FAILED_DOWNLOAD
@@ -50,6 +57,28 @@ internal fun MessageBody(
     )
 }
 
+@Composable
+fun MessageKnock(username: UIText) {
+    val annotatedString = buildAnnotatedString {
+        withStyle(
+            style = SpanStyle(
+                fontWeight = MaterialTheme.wireTypography.body02.fontWeight
+            )
+        ) {
+            append("${username.asString()} ")
+        }
+        withStyle(
+            style = SpanStyle(
+                color = MaterialTheme.wireColorScheme.secondaryText
+            )
+        ) {
+            append(stringResource(R.string.label_message_knock))
+        }
+    }
+
+    Text(text = annotatedString, style = MaterialTheme.wireTypography.body01)
+}
+
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun MessageImage(
@@ -60,17 +89,22 @@ fun MessageImage(
     onImageClick: Clickable,
 ) {
     Box(
-        Modifier.clip(shape = RoundedCornerShape(dimensions().messageAssetBorderRadius)).background(
-            color = MaterialTheme.wireColorScheme.onPrimary, shape = RoundedCornerShape(dimensions().messageAssetBorderRadius)
-        ).border(
-            width = 1.dp,
-            color = MaterialTheme.wireColorScheme.secondaryButtonDisabledOutline,
-            shape = RoundedCornerShape(dimensions().messageAssetBorderRadius)
-        ).wrapContentSize().combinedClickable(
-            enabled = onImageClick.enabled,
-            onClick = onImageClick.onClick,
-            onLongClick = onImageClick.onLongClick,
-        )
+        Modifier
+            .clip(shape = RoundedCornerShape(dimensions().messageAssetBorderRadius))
+            .background(
+                color = MaterialTheme.wireColorScheme.onPrimary, shape = RoundedCornerShape(dimensions().messageAssetBorderRadius)
+            )
+            .border(
+                width = 1.dp,
+                color = MaterialTheme.wireColorScheme.secondaryButtonDisabledOutline,
+                shape = RoundedCornerShape(dimensions().messageAssetBorderRadius)
+            )
+            .wrapContentSize()
+            .combinedClickable(
+                enabled = onImageClick.enabled,
+                onClick = onImageClick.onClick,
+                onLongClick = onImageClick.onLongClick,
+            )
     ) {
         when {
             asset != null -> DisplayableImageMessage(asset, imgParams)

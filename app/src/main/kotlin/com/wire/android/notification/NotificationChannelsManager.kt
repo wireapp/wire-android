@@ -28,6 +28,13 @@ class NotificationChannelsManager @Inject constructor(
         )
     }
 
+    private val knockSoundUri by lazy {
+        Uri.parse(
+            "${ContentResolver.SCHEME_ANDROID_RESOURCE}://" +
+                    "${context.packageName}/raw/ping_from_them"
+        )
+    }
+
     fun createNotificationChannels(allUsers: List<SelfUser>) {
         appLogger.i("${TAG}: creating all the channels for ${allUsers.size} users")
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
@@ -44,6 +51,7 @@ class NotificationChannelsManager @Inject constructor(
             createIncomingCallsChannel(groupId, user.id)
             createOngoingNotificationChannel(groupId, user.id)
             createMessagesNotificationChannel(user.id, groupId)
+            createPingNotificationChannel(user.id, groupId)
         }
     }
 
@@ -73,7 +81,6 @@ class NotificationChannelsManager @Inject constructor(
     private fun createIncomingCallsChannel(groupId: String, userId: UserId) {
         val audioAttributes = AudioAttributes.Builder()
             .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-            .setUsage(AudioAttributes.USAGE_NOTIFICATION_RINGTONE)
             .setUsage(getAudioAttributeUsageByOsLevel())
             .build()
 
@@ -109,6 +116,22 @@ class NotificationChannelsManager @Inject constructor(
             .Builder(NotificationConstants.getMessagesChannelId(userId), NotificationManagerCompat.IMPORTANCE_HIGH)
             .setName(NotificationConstants.MESSAGE_CHANNEL_NAME)
             .setGroup(channelGroupId)
+            .build()
+
+        notificationManagerCompat.createNotificationChannel(notificationChannel)
+    }
+
+    private fun createPingNotificationChannel(userId: UserId, channelGroupId: String) {
+        val audioAttributes = AudioAttributes.Builder()
+            .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+            .setUsage(AudioAttributes.USAGE_NOTIFICATION)
+            .build()
+
+        val notificationChannel = NotificationChannelCompat
+            .Builder(NotificationConstants.getPingsChannelId(userId), NotificationManagerCompat.IMPORTANCE_HIGH)
+            .setName(NotificationConstants.PING_CHANNEL_NAME)
+            .setGroup(channelGroupId)
+            .setSound(knockSoundUri, audioAttributes)
             .build()
 
         notificationManagerCompat.createNotificationChannel(notificationChannel)

@@ -32,15 +32,17 @@ class MessageNotificationManager
     private val notificationManagerCompat: NotificationManagerCompat,
     private val notificationManager: NotificationManager
 ) {
+
     fun handleNotification(newNotifications: List<LocalNotificationConversation>, userId: QualifiedID, userName: String) {
         if (newNotifications.isEmpty()) return
 
         val activeNotifications: Array<StatusBarNotification> = notificationManager.activeNotifications ?: arrayOf()
 
-        showSummaryIfNeeded(userId, activeNotifications, userName)
         newNotifications.forEach {
             showConversationNotification(it.intoNotificationConversation(), userId, activeNotifications)
         }
+
+        showSummaryIfNeeded(userId, activeNotifications, userName)
 
         appLogger.i("$TAG: handled notifications: newNotifications size ${newNotifications.size}; ")
     }
@@ -116,32 +118,42 @@ class MessageNotificationManager
         val userIdString = userId.toString()
         val updatedMessageStyle = getUpdatedMessageStyle(conversation, userIdString, activeNotifications) ?: return null
 
-        return setUpNotificationBuilder(context, userId).apply {
-            conversation.messages
-                .firstOrNull()
-                .let {
-                    when (it) {
-                        is NotificationMessage.ConnectionRequest -> {
-                            setContentIntent(otherUserProfilePendingIntent(context, it.authorId))
-                        }
-
-                        is NotificationMessage.ConversationDeleted -> {
-                            setContentIntent(openAppPendingIntent(context))
-                        }
-
-                        else -> {
-                            setContentIntent(messagePendingIntent(context, conversation.id, userIdString))
-                            addAction(getActionReply(context, conversation.id, userIdString))
+        return setUpNotificationBuilder(context, userId)
+            .apply {
+                conversation.messages.firstOrNull()
+                    .let {
+                        when (it) {
+                            is NotificationMessage.ConnectionRequest -> {
+                                setContentIntent(otherUserProfilePendingIntent(context, it.authorId))
+                            }
+                            is NotificationMessage.ConversationDeleted -> {
+                                setContentIntent(openAppPendingIntent(context))
+                            }
+                            is NotificationMessage.Comment -> {
+                                setContentIntent(messagePendingIntent(context, conversation.id, userIdString))
+                                addAction(getActionReply(context, conversation.id, userIdString))
+                            }
+                            is NotificationMessage.Knock -> {
+                                setChannelId(NotificationConstants.getPingsChannelId(userId))
+                                setContentIntent(messagePendingIntent(context, conversation.id, userIdString))
+                            }
+                            is NotificationMessage.Text -> {
+                                setContentIntent(messagePendingIntent(context, conversation.id, userIdString))
+                                addAction(getActionReply(context, conversation.id, userIdString))
+                            }
+                            null -> {
+                                setContentIntent(messagePendingIntent(context, conversation.id, userIdString))
+                                addAction(getActionReply(context, conversation.id, userIdString))
+                            }
                         }
                     }
-                }
 
-            setWhen(conversation.lastMessageTime)
+                setWhen(conversation.lastMessageTime)
 
-            setLargeIcon(conversation.image?.toBitmap())
+                setLargeIcon(conversation.image?.toBitmap())
 
-            setStyle(updatedMessageStyle)
-        }.build()
+                setStyle(updatedMessageStyle)
+            }.build()
     }
 
     /**
@@ -225,6 +237,7 @@ class MessageNotificationManager
             is NotificationMessage.Comment -> italicTextFromResId(textResId.value)
             is NotificationMessage.ConnectionRequest -> italicTextFromResId(R.string.notification_connection_request)
             is NotificationMessage.ConversationDeleted -> italicTextFromResId(R.string.notification_conversation_deleted)
+            is NotificationMessage.Knock -> italicTextFromResId(R.string.notification_knock)
         }
         return NotificationCompat.MessagingStyle.Message(message, time, sender)
 

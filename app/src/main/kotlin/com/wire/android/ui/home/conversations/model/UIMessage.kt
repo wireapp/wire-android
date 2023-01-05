@@ -114,6 +114,8 @@ sealed class UIMessageContent {
         val downloadStatus: Message.DownloadStatus
     ) : UIMessageContent()
 
+    data class Knock(val author: UIText) : UIMessageContent()
+
     sealed class SystemMessage(
         @DrawableRes val iconResId: Int?,
         @StringRes open val stringResId: Int,

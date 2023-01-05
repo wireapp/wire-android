@@ -38,7 +38,8 @@ class MigrateActiveAccountsUseCase @Inject constructor(
                         userId = userId,
                         accessToken = activeAccount.accessToken?.token!!,
                         tokenType = activeAccount.accessToken.tokenType,
-                        refreshToken = activeAccount.refreshToken
+                        refreshToken = activeAccount.refreshToken,
+                        cookieLabel = null
                     )
                 )
             } else {

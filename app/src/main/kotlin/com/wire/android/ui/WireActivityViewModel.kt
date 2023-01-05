@@ -129,7 +129,7 @@ class WireActivityViewModel @Inject constructor(
                                 .filter { !it.isPersistentWebSocketEnabled }
                                 .map { it.userId }
 
-                            notificationManager.observeNotificationsAndCalls(usersToObserve, viewModelScope)
+                            notificationManager.observeNotificationsAndCallsWhileRunning(usersToObserve, viewModelScope)
                             { call -> openIncomingCall(call.conversationId) }
 
                             if (statuses.any { it.isPersistentWebSocketEnabled }) {

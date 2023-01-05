@@ -81,7 +81,7 @@ class PersistentWebSocketService : Service() {
                                 .filter { it.isPersistentWebSocketEnabled }
                                 .map { it.userId }
 
-                            notificationManager.observeNotificationsAndCalls(usersToObserve, scope)
+                            notificationManager.observeNotificationsAndCallsPersistently(usersToObserve, scope)
                             { call -> openIncomingCall(call.conversationId) }
 
                             statuses.map { persistentWebSocketStatus ->

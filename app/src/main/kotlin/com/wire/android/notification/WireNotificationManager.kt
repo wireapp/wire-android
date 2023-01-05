@@ -62,7 +62,8 @@ class WireNotificationManager @Inject constructor(
     private val scope = CoroutineScope(SupervisorJob() + dispatcherProvider.default())
     private val fetchOnceMutex = Mutex()
     private val fetchOnceJobs = hashMapOf<String, Job>()
-    private val observingJobs = hashMapOf<UserId, List<Job>>()
+    private val observingWhileRunningJobs = hashMapOf<UserId, ObservingJobs>()
+    private val observingPersistentlyJobs = hashMapOf<UserId, ObservingJobs>()
 
     /**
      * Become online, process all the Pending events,
@@ -108,8 +109,13 @@ class WireNotificationManager @Inject constructor(
         checkIfUserIsAuthenticated(userId = userIdValue)?.let { userId ->
             appLogger.d("$TAG checking the notifications once")
 
-            val observeMessagesJob = if (observingJobs[userId] != null) {
-                // App is running in background -> notifications are already observed, just need to connect to websocket.
+            val isMessagesAlreadyObserving =
+                observingWhileRunningJobs[userId]?.run { messagesJob.isActive }
+                    ?: observingPersistentlyJobs[userId]?.run { messagesJob.isActive }
+                    ?: false
+
+            val observeMessagesJob = if (isMessagesAlreadyObserving) {
+                // notifications are already observed, just need to connect to websocket.
                 appLogger.d("$TAG checking the notifications once, but notifications are already observed, no need to start a new job")
                 null
             } else {
@@ -199,6 +205,18 @@ class WireNotificationManager @Inject constructor(
             }
         }
 
+    suspend fun observeNotificationsAndCallsWhileRunning(
+        userIds: List<UserId>,
+        scope: CoroutineScope,
+        doIfCallCameAndAppVisible: (Call) -> Unit
+    ) = observeNotificationsAndCalls(userIds, scope, doIfCallCameAndAppVisible, observingWhileRunningJobs)
+
+    suspend fun observeNotificationsAndCallsPersistently(
+        userIds: List<UserId>,
+        scope: CoroutineScope,
+        doIfCallCameAndAppVisible: (Call) -> Unit
+    ) = observeNotificationsAndCalls(userIds, scope, doIfCallCameAndAppVisible, observingPersistentlyJobs)
+
     /**
      * Infinitely listen for the new IncomingCalls, CurrentScreen changes and Message Notifications
      * Notify user and mark Conversations as notified when it's needed.
@@ -206,10 +224,11 @@ class WireNotificationManager @Inject constructor(
      * @param scope CoroutineScope used for observing CurrentScreen
      * @param doIfCallCameAndAppVisible action that should be done when incoming call comes and app is in foreground
      */
-    suspend fun observeNotificationsAndCalls(
+    private suspend fun observeNotificationsAndCalls(
         userIds: List<UserId>,
         scope: CoroutineScope,
-        doIfCallCameAndAppVisible: (Call) -> Unit
+        doIfCallCameAndAppVisible: (Call) -> Unit,
+        observingJobs: HashMap<UserId, ObservingJobs>
     ) {
         val currentScreenState = currentScreenManager.observeCurrentScreen(scope)
 
@@ -218,7 +237,7 @@ class WireNotificationManager @Inject constructor(
         userIdsToCancelJobs
             .forEach { userId ->
                 messagesNotificationManager.hideAllNotificationsForUser(userId)
-                observingJobs[userId]?.forEach { it.cancel() }
+                observingJobs[userId]?.cancelAll()
                 observingJobs.remove(userId)
             }
 
@@ -236,13 +255,13 @@ class WireNotificationManager @Inject constructor(
 
         // start observing notifications only for new users
         userIds
-            .filter { !observingJobs.keys.contains(it) }
+            .filter { observingJobs[it]?.isAllActive() != true }
             .forEach { userId ->
-                val jobs = listOf(
-                    scope.launch { observeCurrentScreenAndHideNotifications(currentScreenState, userId) },
-                    scope.launch { observeIncomingCalls(currentScreenState, userId, doIfCallCameAndAppVisible) },
-                    scope.launch { observeMessageNotifications(userId, currentScreenState) },
-                    scope.launch { observeOngoingCalls(currentScreenState, userId) }
+                val jobs = ObservingJobs(
+                    currentScreenJob = scope.launch { observeCurrentScreenAndHideNotifications(currentScreenState, userId) },
+                    incomingCallsJob = scope.launch { observeIncomingCalls(currentScreenState, userId, doIfCallCameAndAppVisible) },
+                    messagesJob = scope.launch { observeMessageNotifications(userId, currentScreenState) },
+                    ongoingCallJob = scope.launch { observeOngoingCalls(currentScreenState, userId) }
                 )
                 observingJobs[userId] = jobs
             }
@@ -439,6 +458,23 @@ class WireNotificationManager @Inject constructor(
     )
 
     private data class OngoingCallData(val notificationTitle: String, val conversationId: ConversationId, val userId: UserId)
+
+    private data class ObservingJobs(
+        val currentScreenJob: Job,
+        val incomingCallsJob: Job,
+        val messagesJob: Job,
+        val ongoingCallJob: Job,
+    ) {
+        fun cancelAll() {
+            currentScreenJob.cancel()
+            incomingCallsJob.cancel()
+            messagesJob.cancel()
+            ongoingCallJob.cancel()
+        }
+
+        fun isAllActive(): Boolean =
+            currentScreenJob.isActive && incomingCallsJob.isActive && messagesJob.isActive && ongoingCallJob.isActive
+    }
 
     companion object {
         private const val CHECK_INCOMING_CALLS_PERIOD_MS = 1000L

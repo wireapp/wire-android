@@ -281,7 +281,8 @@ class LoginEmailViewModelTest {
             userId = UserId("user_id", "domain"),
             accessToken = "access_token",
             refreshToken = "refresh_token",
-            tokenType = "token_type"
+            tokenType = "token_type",
+            cookieLabel = "cookie_label"
         )
         val SERVER_CONFIG = ServerConfig(
             id = "config",

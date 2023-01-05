@@ -212,8 +212,7 @@ class BackupAndRestoreViewModel
             backupRestoreProgress = BackupRestoreProgress.InProgress(),
             restorePasswordValidation = PasswordValidation.NotVerified
         )
-        if (kaliumFileSystem.exists(latestImportedBackupTempPath))
-            kaliumFileSystem.delete(latestImportedBackupTempPath)
+        if (kaliumFileSystem.exists(latestImportedBackupTempPath)) kaliumFileSystem.delete(latestImportedBackupTempPath)
     }
 
     private suspend fun updateCreationProgress(progress: Float) = withContext(dispatcher.main()) {

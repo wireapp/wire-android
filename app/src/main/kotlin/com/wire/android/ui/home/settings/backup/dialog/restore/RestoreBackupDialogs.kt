@@ -28,7 +28,6 @@ import com.wire.android.ui.home.messagecomposer.attachment.FileBrowserFlow
 import com.wire.android.ui.theme.wireTypography
 import kotlin.math.roundToInt
 
-
 @Composable
 fun PickRestoreFileDialog(
     onChooseBackupFile: (Uri) -> Unit,
@@ -133,4 +132,3 @@ fun RestoreProgressDialog(
         }
     }
 }
-

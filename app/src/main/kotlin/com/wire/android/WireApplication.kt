@@ -3,6 +3,7 @@ package com.wire.android
 import android.app.Application
 import android.content.ComponentCallbacks2
 import android.os.Build
+import android.os.StrictMode
 import androidx.work.Configuration
 import co.touchlab.kermit.platformLogWriter
 import com.datadog.android.Datadog
@@ -57,8 +58,11 @@ class WireApplication : Application(), Configuration.Provider {
 
     override fun onCreate() {
         super.onCreate()
+
+        enableStrictMode()
+
         if (this.isGoogleServicesAvailable()) {
-            val firebaseOptions =  FirebaseOptions.Builder()
+            val firebaseOptions = FirebaseOptions.Builder()
                 .setApplicationId(BuildConfig.FIREBASE_APP_ID)
                 .setGcmSenderId(BuildConfig.FIREBASE_PUSH_SENDER_ID)
                 .setApiKey(BuildConfig.GOOGLE_API_KEY)
@@ -72,6 +76,27 @@ class WireApplication : Application(), Configuration.Provider {
 
         // TODO: Can be handled in one of Sync steps
         coreLogic.updateApiVersionsScheduler.schedulePeriodicApiVersionUpdate()
+    }
+
+    private fun enableStrictMode() {
+        StrictMode.setThreadPolicy(
+            StrictMode.ThreadPolicy.Builder()
+                .detectDiskReads()
+                .detectDiskWrites()
+                .detectNetwork()
+                .penaltyLog()
+                //.penaltyDeath() TODO: add it later after fixing reported violations
+                .build()
+        )
+        StrictMode.setVmPolicy(
+            StrictMode.VmPolicy.Builder()
+                .detectLeakedSqlLiteObjects()
+                .detectLeakedClosableObjects()
+                .detectAll()
+                .penaltyLog()
+                //.penaltyDeath() TODO: add it later after fixing reported violations
+                .build()
+        )
     }
 
     private fun initializeApplicationLoggingFrameworks() {

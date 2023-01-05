@@ -356,7 +356,8 @@ class LoginSSOViewModelTest {
             userId = UserId("user_id", "domain"),
             accessToken = "access_token",
             refreshToken = "refresh_token",
-            tokenType = "token_type"
+            tokenType = "token_type",
+            cookieLabel = null
         )
         val SERVER_CONFIG = ServerConfig(
             id = "config",

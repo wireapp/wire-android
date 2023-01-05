@@ -30,7 +30,6 @@ import com.wire.kalium.logic.CoreLogic
 import dagger.hilt.android.HiltAndroidApp
 import javax.inject.Inject
 
-
 // App wide global logger, carefully initialized when our application is "onCreate"
 var appLogger: KaliumLogger = KaliumLogger.disabled()
 
@@ -85,7 +84,7 @@ class WireApplication : Application(), Configuration.Provider {
                 .detectDiskWrites()
                 .detectNetwork()
                 .penaltyLog()
-                //.penaltyDeath() TODO: add it later after fixing reported violations
+                // .penaltyDeath() TODO: add it later after fixing reported violations
                 .build()
         )
         StrictMode.setVmPolicy(
@@ -94,7 +93,7 @@ class WireApplication : Application(), Configuration.Provider {
                 .detectLeakedClosableObjects()
                 .detectAll()
                 .penaltyLog()
-                //.penaltyDeath() TODO: add it later after fixing reported violations
+                // .penaltyDeath() TODO: add it later after fixing reported violations
                 .build()
         )
     }

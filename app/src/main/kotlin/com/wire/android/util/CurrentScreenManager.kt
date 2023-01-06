@@ -1,3 +1,5 @@
+@file:Suppress("StringTemplate")
+
 package com.wire.android.util
 
 import android.content.Context
@@ -54,14 +56,12 @@ class CurrentScreenManager @Inject constructor(
      */
     fun isAppOnForegroundFlow(): StateFlow<Boolean> = isOnForegroundFlow
 
-    @Suppress("StringTemplate")
     override fun onResume(owner: LifecycleOwner) {
         super.onResume(owner)
         appLogger.i("${TAG}: onResume called")
         isOnForegroundFlow.value = true
     }
 
-    @Suppress("StringTemplate")
     override fun onStop(owner: LifecycleOwner) {
         super.onStop(owner)
         appLogger.i("${TAG}: onStop called")

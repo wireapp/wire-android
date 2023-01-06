@@ -10,6 +10,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -23,14 +24,15 @@ import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
-import com.wire.android.ui.home.conversations.model.MessageGenericAsset
-import com.wire.kalium.logic.data.message.Message
+import com.wire.android.util.extension.getActivity
 
 @Composable
 fun ImportMediaScreen(
     importMediaViewModel: ImportMediaViewModel = hiltViewModel()
 ) {
+    val context = LocalContext.current
     ImportMediaScreen(importMediaState = importMediaViewModel.importMediaState, onBackPressed = importMediaViewModel::navigateBack)
+    context.getActivity()?.let { importMediaViewModel.handleReceivedDataFromSharingIntent(it) }
 }
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalPagerApi::class)
@@ -58,7 +60,7 @@ fun ImportMediaScreen(importMediaState: ImportMediaState, onBackPressed: () -> U
         ) {
             HorizontalPager(
                 state = pagerState, count = importedItemsList.size, modifier = Modifier.fillMaxWidth()
-            ) {page ->
+            ) { page ->
                 ImportedMediaItemView(importedItemsList[page])
             }
         }

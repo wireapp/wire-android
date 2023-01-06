@@ -15,6 +15,7 @@ import com.wire.kalium.logic.feature.session.GetSessionsUseCase
 import com.wire.kalium.logic.feature.user.ObserveFileSharingStatusUseCase
 import com.wire.kalium.logic.sync.ObserveSyncStateUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -76,6 +77,7 @@ class FeatureFlagNotificationViewModel @Inject constructor(
             val incomingIntent = ShareCompat.IntentReader(activity)
             if (incomingIntent.isShareIntent) {
                 if (checkNumberOfSessions() > 0) {
+                    delay(100)
                     featureFlagState = if (!featureFlagState.isFileSharingEnabledState) {
                         featureFlagState.copy(showFileSharingRestrictedDialog = true)
                     } else {

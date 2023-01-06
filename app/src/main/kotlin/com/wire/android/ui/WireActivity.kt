@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.annotation.StringRes
@@ -51,7 +50,6 @@ import com.wire.android.util.ui.updateScreenSettings
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import javax.inject.Inject
@@ -89,7 +87,6 @@ class WireActivity : AppCompatActivity() {
         setComposableContent()
 
         featureFlagNotificationViewModel.checkIfSharingAllowed(this)
-//        viewModel.handleReceivedDataFromSharingIntent(intent, this)
     }
 
     override fun onNewIntent(intent: Intent?) {
@@ -134,21 +131,16 @@ class WireActivity : AppCompatActivity() {
 
     @Composable
     private fun handleFileSharingRestrictedDialog() {
-        Log.e("aaa", "333333")
-
         val fileSharingRestrictedDialogState = rememberVisibilityState<FileSharingRestrictedDialogState>()
         FileSharingRestrictedDialogContent(
             dialogState = fileSharingRestrictedDialogState
         )
         if (featureFlagNotificationViewModel.featureFlagState.showFileSharingRestrictedDialog) {
-            Log.e("aaa", "1111111")
-
             fileSharingRestrictedDialogState.show(
                 fileSharingRestrictedDialogState.savedState ?: FileSharingRestrictedDialogState
             )
         }
         if (featureFlagNotificationViewModel.featureFlagState.openImportMediaScreen) {
-            Log.e("aaa", "222222")
             viewModel.navigateToImportMediaScreen()
         }
     }

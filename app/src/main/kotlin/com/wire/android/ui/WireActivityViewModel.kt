@@ -54,6 +54,7 @@ import com.wire.kalium.logic.feature.user.ObserveValidAccountsUseCase
 import com.wire.kalium.logic.feature.user.webSocketStatus.ObservePersistentWebSocketConnectionStatusUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -469,6 +470,16 @@ class WireActivityViewModel @Inject constructor(
         }
     }
 
+    fun navigateToImportMediaScreen() {
+        viewModelScope.launch {
+            delay(100)
+            navigationManager.navigate(
+                command = NavigationCommand(
+                    destination = NavigationItem.ImportMedia.getRouteWithArgs()
+                )
+            )
+        }
+    }
 
     companion object {
         private const val SERVER_CONFIG_ARG = "server_config"

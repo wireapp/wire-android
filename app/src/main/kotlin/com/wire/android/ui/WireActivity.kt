@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.annotation.StringRes
@@ -35,6 +36,10 @@ import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.dialogs.CustomBEDeeplinkDialog
+import com.wire.android.ui.common.dialogs.FileSharingRestrictedDialogContent
+import com.wire.android.ui.common.dialogs.FileSharingRestrictedDialogState
+import com.wire.android.ui.common.visbility.rememberVisibilityState
+import com.wire.android.ui.home.sync.FeatureFlagNotificationViewModel
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.userprofile.self.MaxAccountReachedDialog
 import com.wire.android.util.CurrentScreenManager
@@ -46,6 +51,7 @@ import com.wire.android.util.ui.updateScreenSettings
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import javax.inject.Inject
@@ -71,6 +77,7 @@ class WireActivity : AppCompatActivity() {
     lateinit var proximitySensorManager: ProximitySensorManager
 
     val viewModel: WireActivityViewModel by viewModels()
+    private val featureFlagNotificationViewModel: FeatureFlagNotificationViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
@@ -81,7 +88,8 @@ class WireActivity : AppCompatActivity() {
         viewModel.handleDeepLink(intent)
         setComposableContent()
 
-        viewModel.handleReceivedDataFromSharingIntent(intent, this)
+        featureFlagNotificationViewModel.checkIfSharingAllowed(this)
+//        viewModel.handleReceivedDataFromSharingIntent(intent, this)
     }
 
     override fun onNewIntent(intent: Intent?) {
@@ -117,8 +125,31 @@ class WireActivity : AppCompatActivity() {
                         viewModel.globalAppState.updateAppDialog
                     )
                     AccountLongedOutDialog(viewModel.globalAppState.blockUserUI, viewModel::navigateToNextAccountOrWelcome)
+
+                    handleFileSharingRestrictedDialog()
                 }
             }
+        }
+    }
+
+    @Composable
+    private fun handleFileSharingRestrictedDialog() {
+        Log.e("aaa", "333333")
+
+        val fileSharingRestrictedDialogState = rememberVisibilityState<FileSharingRestrictedDialogState>()
+        FileSharingRestrictedDialogContent(
+            dialogState = fileSharingRestrictedDialogState
+        )
+        if (featureFlagNotificationViewModel.featureFlagState.showFileSharingRestrictedDialog) {
+            Log.e("aaa", "1111111")
+
+            fileSharingRestrictedDialogState.show(
+                fileSharingRestrictedDialogState.savedState ?: FileSharingRestrictedDialogState
+            )
+        }
+        if (featureFlagNotificationViewModel.featureFlagState.openImportMediaScreen) {
+            Log.e("aaa", "222222")
+            viewModel.navigateToImportMediaScreen()
         }
     }
 

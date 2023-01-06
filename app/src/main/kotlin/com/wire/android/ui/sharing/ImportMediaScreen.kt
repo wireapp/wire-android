@@ -33,6 +33,7 @@ fun ImportMediaScreen(
     val context = LocalContext.current
     ImportMediaScreen(importMediaState = importMediaViewModel.importMediaState, onBackPressed = importMediaViewModel::navigateBack)
     context.getActivity()?.let { importMediaViewModel.handleReceivedDataFromSharingIntent(it) }
+    // todo : as the screen been recomposed twice this is been triggered twice, need to find a way to trigger it only once
 }
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalPagerApi::class)

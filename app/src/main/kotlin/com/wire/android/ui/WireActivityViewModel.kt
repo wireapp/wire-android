@@ -410,13 +410,7 @@ class WireActivityViewModel @Inject constructor(
     }
 
     fun navigateToImportMediaScreen() {
-        viewModelScope.launch {
-            navigationManager.navigate(
-                command = NavigationCommand(
-                    destination = NavigationItem.ImportMedia.getRouteWithArgs()
-                )
-            )
-        }
+        navigateTo(NavigationCommand(NavigationItem.ImportMedia.getRouteWithArgs()))
     }
 
     companion object {

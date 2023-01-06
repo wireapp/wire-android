@@ -20,10 +20,8 @@ import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.getBitmapFromUri
 import com.wire.android.util.getMetaDataFromUri
 import com.wire.android.util.getMimeType
-import com.wire.android.util.isAudioFile
 import com.wire.android.util.isImageFile
 import com.wire.android.util.isText
-import com.wire.android.util.isVideoFile
 import com.wire.android.util.parcelableArrayList
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.feature.connection.SendConnectionRequestUseCase
@@ -57,30 +55,7 @@ class ImportMediaViewModel @Inject constructor(
     navigationManager = navigationManager
 ) {
     var importMediaState by mutableStateOf(
-        ImportMediaState(
-            importedAssets = listOf(
-                ImportedMediaAsset.GenericAsset(
-                    "Some dummy assetº.zip",
-                    1238L,
-                    "application/zip"
-                ),
-                ImportedMediaAsset.GenericAsset(
-                    "Some dummy videoº.mp4",
-                    7444L,
-                    "video/mp4"
-                ),
-                ImportedMediaAsset.GenericAsset(
-                    "Some dummy asset1.zip",
-                    921251L,
-                    "application/zip"
-                ),
-                ImportedMediaAsset.GenericAsset(
-                    "Some dummy video2.mp4",
-                    21L,
-                    "video/mp4"
-                ),
-            )
-        )
+        ImportMediaState()
     )
         private set
 
@@ -104,6 +79,7 @@ class ImportMediaViewModel @Inject constructor(
     fun handleReceivedDataFromSharingIntent(activity: AppCompatActivity) {
         val incomingIntent = ShareCompat.IntentReader(activity)
         if (incomingIntent.isShareIntent) {
+            appLogger.e("Received data from sharing intent ${incomingIntent.streamCount}")
             when (incomingIntent.streamCount) {
                 0 -> {
                     // if stream count is 0 the type will be text, we check the type to double check if it is text
@@ -113,7 +89,7 @@ class ImportMediaViewModel @Inject constructor(
                 }
                 1 -> {
                     // ACTION_SEND
-                    incomingIntent.stream?.let { handleMimeType(activity, incomingIntent.type, it) }
+                    incomingIntent.stream?.let { incomingIntent.type?.let { it1 -> handleMimeType(activity, it1, it) } }
                 }
                 else -> {
                     // ACTION_SEND_MULTIPLE
@@ -126,30 +102,35 @@ class ImportMediaViewModel @Inject constructor(
         }
     }
 
-    private fun handleMimeType(context: Context, type: String?, uri: Uri) {
+    private fun handleMimeType(context: Context, type: String, uri: Uri) {
         when {
             isImageFile(type) -> {
                 val bitmap = uri.getBitmapFromUri(context)
                 appLogger.d("imageFile $bitmap")
-                // todo : handle the image
-            }
+                uri.getMetaDataFromUri(context).apply {
+                    appLogger.d("image type $this")
 
-            isVideoFile(type) -> {
-                appLogger.d("videoFile $uri")
-                uri.getMetaDataFromUri(context).let {
-                    appLogger.d("videoFile $it")
+                    importMediaState.importedAssets.add(
+                        ImportedMediaAsset.Image(
+                            name = this.name,
+                            size = this.size,
+                            mimeType = type
+                        )
+                    )
                 }
 
-
-                // todo : handle the video
-            }
-            isAudioFile(type) -> {
-                appLogger.d("audioFile $uri")
-                // todo : handle the audio
             }
             else -> {
-                appLogger.d("other mime types $uri")
-                // todo : handle the other types
+                uri.getMetaDataFromUri(context).let {
+                    importMediaState.importedAssets.add(
+                        ImportedMediaAsset.GenericAsset(
+                            name = it.name,
+                            size = it.size,
+                            mimeType = type
+                        )
+                    )
+                    appLogger.d("other types $it")
+                }
             }
         }
     }
@@ -157,5 +138,5 @@ class ImportMediaViewModel @Inject constructor(
 
 data class ImportMediaState(
     val avatarAsset: ImageAsset.UserAvatarAsset? = null,
-    val importedAssets: List<ImportedMediaAsset> = listOf()
+    val importedAssets: ArrayList<ImportedMediaAsset> = arrayListOf()
 )

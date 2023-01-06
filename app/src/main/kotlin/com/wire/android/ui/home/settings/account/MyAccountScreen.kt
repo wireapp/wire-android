@@ -18,6 +18,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
+import com.wire.android.appLogger
 import com.wire.android.ui.common.Icon
 import com.wire.android.ui.common.RowItemTemplate
 import com.wire.android.ui.common.button.WirePrimaryButton
@@ -34,7 +35,7 @@ fun MyAccountScreen(viewModel: MyAccountViewModel = hiltViewModel()) {
         MyAccountContent(
             accountDetailItems = mapToUISections(this),
             forgotPasswordUrl = this.changePasswordUrl,
-            onNavigateBack = viewModel::navigateBack,
+            onNavigateBack = viewModel::navigateBack
         )
     }
 }
@@ -43,8 +44,8 @@ fun MyAccountScreen(viewModel: MyAccountViewModel = hiltViewModel()) {
 private fun mapToUISections(state: MyAccountState): List<AccountDetailsItem> {
     return with(state) {
         listOfNotNull(
-            if (fullName.isNotBlank()) AccountDetailsItem.DisplayName(fullName) else null,
-            if (userName.isNotBlank()) AccountDetailsItem.Username("@${userName}") else null,
+            if (fullName.isNotBlank()) AccountDetailsItem.DisplayName(fullName) { appLogger.i("going to edit ") } else null,
+            if (userName.isNotBlank()) AccountDetailsItem.Username("@$userName") else null,
             if (email.isNotBlank()) AccountDetailsItem.Email(email) else null,
             if (teamName.isNotBlank()) AccountDetailsItem.Team(teamName) else null,
             if (domain.isNotBlank()) AccountDetailsItem.Domain(domain) else null
@@ -57,7 +58,7 @@ private fun mapToUISections(state: MyAccountState): List<AccountDetailsItem> {
 fun MyAccountContent(
     accountDetailItems: List<AccountDetailsItem> = emptyList(),
     forgotPasswordUrl: String?,
-    onNavigateBack: () -> Unit = {},
+    onNavigateBack: () -> Unit = {}
 ) {
     val context = LocalContext.current
     Scaffold(
@@ -67,7 +68,8 @@ fun MyAccountContent(
                 elevation = 0.dp,
                 title = stringResource(id = R.string.settings_your_account_label)
             )
-        }, bottomBar = {
+        },
+        bottomBar = {
             if (forgotPasswordUrl?.isNotBlank() == true) {
                 WirePrimaryButton(
                     text = stringResource(R.string.settings_myaccount_reset_password),
@@ -116,13 +118,13 @@ fun MyAccountContent(
 
 @Preview(showBackground = true)
 @Composable
-fun MyAccountScreenPreview() {
+fun PreviewMyAccountScreen() {
     MyAccountContent(
         accountDetailItems = listOf(
             AccountDetailsItem.DisplayName("Bob"),
             AccountDetailsItem.Username("@bob_wire"),
             AccountDetailsItem.Email("bob@wire.com"),
-            AccountDetailsItem.Team("Wire"),
+            AccountDetailsItem.Team("Wire")
         ),
         forgotPasswordUrl = "http://wire.com"
     )

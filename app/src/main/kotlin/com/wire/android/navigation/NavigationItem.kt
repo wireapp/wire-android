@@ -18,6 +18,7 @@ import com.wire.android.navigation.NavigationItemDestinationsRoutes.CREATE_PERSO
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.CREATE_TEAM
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.DEBUG
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.EDIT_CONVERSATION_NAME
+import com.wire.android.navigation.NavigationItemDestinationsRoutes.EDIT_DISPLAY_NAME
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.GROUP_CONVERSATION_ALL_PARTICIPANTS
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.GROUP_CONVERSATION_DETAILS
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.HOME
@@ -191,6 +192,11 @@ enum class NavigationItem(
     Debug(
         primaryRoute = DEBUG,
         content = { DebugScreen() },
+    ),
+
+    EditDisplayName(
+        primaryRoute = EDIT_DISPLAY_NAME,
+        content = { EditConversationNameScreen() }
     ),
 
     NetworkSettings(
@@ -423,6 +429,7 @@ object NavigationItemDestinationsRoutes {
     const val PRIVACY_SETTINGS = "privacy_settings"
     const val BACKUP_AND_RESTORE = "backup_and_restore_screen"
     const val MY_ACCOUNT = "my_account_screen"
+    const val EDIT_DISPLAY_NAME = "edit_display_name_screen"
     const val DEBUG = "debug_screen"
     const val REMOVE_DEVICES = "remove_devices_screen"
     const val REGISTER_DEVICE = "register_device_screen"

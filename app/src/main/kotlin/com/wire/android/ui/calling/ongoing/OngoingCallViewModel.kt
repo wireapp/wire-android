@@ -54,8 +54,9 @@ class OngoingCallViewModel @OptIn(ExperimentalCoroutinesApi::class)
                 val currentScreen = currentScreenManager.observeCurrentScreen(viewModelScope).first()
                 val isCurrentlyOnOngoingScreen = currentScreen is CurrentScreen.OngoingCallScreen
                 val isOnBackground = currentScreen is CurrentScreen.InBackground
-                if (currentCall == null && (isCurrentlyOnOngoingScreen || isOnBackground))
+                if (currentCall == null && (isCurrentlyOnOngoingScreen || isOnBackground)) {
                     navigateBack()
+                }
             }
     }
 
@@ -71,5 +72,4 @@ class OngoingCallViewModel @OptIn(ExperimentalCoroutinesApi::class)
     private suspend fun navigateBack() {
         navigationManager.navigateBack()
     }
-
 }

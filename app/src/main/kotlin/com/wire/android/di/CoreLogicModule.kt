@@ -3,7 +3,6 @@ package com.wire.android.di
 import android.content.Context
 import androidx.work.WorkManager
 import com.wire.android.datastore.UserDataStoreProvider
-import com.wire.android.util.DeviceLabel
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.data.id.FederatedIdMapper
@@ -106,12 +105,10 @@ class CoreLogicModule {
     @Provides
     fun provideCoreLogic(@ApplicationContext context: Context, kaliumConfigs: KaliumConfigs): CoreLogic {
         val rootPath = context.getDir("accounts", Context.MODE_PRIVATE).path
-        val deviceLabel = DeviceLabel.label
 
         return CoreLogic(
             appContext = context,
             rootPath = rootPath,
-            clientLabel = deviceLabel,
             kaliumConfigs = kaliumConfigs
         )
     }

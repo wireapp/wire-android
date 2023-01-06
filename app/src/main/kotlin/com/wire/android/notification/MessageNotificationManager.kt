@@ -56,12 +56,10 @@ class MessageNotificationManager
     }
 
     fun hideAllNotifications() {
-        notificationManager.activeNotifications
-            ?.filter { it.groupKey.contains(NotificationConstants.getMessagesGroupKey(null)) }
-            ?.forEach { notificationManagerCompat.cancel(it.id) }
+        notificationManager.cancelAll()
     }
 
-    fun hideAllNotificationsForUser(userId: QualifiedID) {
+    private fun hideAllNotificationsForUser(userId: QualifiedID) {
         // removing groupSummary removes all the notifications in a group
         notificationManagerCompat.cancel(NotificationConstants.getMessagesSummaryId(userId))
     }

@@ -8,7 +8,6 @@ import androidx.navigation.NavController
 import androidx.navigation.NavDestination
 import com.wire.android.appLogger
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
-import com.wire.android.navigation.EXTRA_USER_ID
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.getCurrentNavigationItem
 import com.wire.kalium.logic.data.id.ConversationId
@@ -89,6 +88,9 @@ sealed class CurrentScreen {
     // Another User Profile Screen is opened
     data class OtherUserProfile(val id: QualifiedID) : CurrentScreen()
 
+    // Another User Profile Screen is opened
+    data class ConnectionRequest(val id: ConversationId) : CurrentScreen()
+
     // Ongoing call screen is opened
     data class OngoingCallScreen(val id: QualifiedID) : CurrentScreen()
 
@@ -118,9 +120,9 @@ sealed class CurrentScreen {
                         ?: SomeOther
                 }
                 NavigationItem.OtherUserProfile -> {
-                    arguments?.getString(EXTRA_USER_ID)
+                    arguments?.getString(EXTRA_CONVERSATION_ID)
                         ?.toQualifiedID(qualifiedIdMapper)
-                        ?.let { OtherUserProfile(it) }
+                        ?.let { ConnectionRequest(it) }
                         ?: SomeOther
                 }
                 NavigationItem.OngoingCall -> {

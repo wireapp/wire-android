@@ -10,7 +10,6 @@ import com.wire.android.util.extension.intervalFlow
 import com.wire.android.util.lifecycle.ConnectionPolicyManager
 import com.wire.kalium.logger.obfuscateId
 import com.wire.kalium.logic.CoreLogic
-import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.notification.LocalNotificationConversation
@@ -237,7 +236,7 @@ class WireNotificationManager @Inject constructor(
 
                 when (screens) {
                     is CurrentScreen.Conversation -> messagesNotificationManager.hideNotification(screens.id, userId)
-                    is CurrentScreen.OtherUserProfile -> hideConnectionRequestNotification(userId, screens.id)
+                    is CurrentScreen.ConnectionRequest -> messagesNotificationManager.hideNotification(screens.id, userId)
                     is CurrentScreen.IncomingCallScreen -> callNotificationManager.hideIncomingCallNotification()
                     else -> {}
                 }
@@ -325,8 +324,8 @@ class WireNotificationManager @Inject constructor(
             .collect { (newNotifications, userId, userName) ->
                 appLogger.d("$TAG got ${newNotifications.size} notifications")
                 messagesNotificationManager.handleNotification(newNotifications, userId, userName)
-                markMessagesAsNotified(userId, null)
-                markConnectionAsNotified(userId, null)
+                markMessagesAsNotified(userId)
+                markConnectionAsNotified(userId)
             }
     }
 
@@ -381,45 +380,23 @@ class WireNotificationManager @Inject constructor(
             newNotifications
         }
 
-    private suspend fun markMessagesAsNotified(userId: QualifiedID?, conversationId: ConversationId?) {
+    private suspend fun markMessagesAsNotified(userId: QualifiedID?, conversationId: ConversationId? = null) {
         userId?.let {
-            val markNotified = if (conversationId == null) {
-                MarkMessagesAsNotifiedUseCase.UpdateTarget.AllConversations
-            } else {
+            val markNotified = conversationId?.let {
                 MarkMessagesAsNotifiedUseCase.UpdateTarget.SingleConversation(conversationId)
-            }
+            } ?: MarkMessagesAsNotifiedUseCase.UpdateTarget.AllConversations
             coreLogic.getSessionScope(it)
                 .messages
                 .markMessagesAsNotified(markNotified)
         }
     }
 
-    private suspend fun markConnectionAsNotified(userId: QualifiedID?, connectionRequestUserId: QualifiedID?) {
+    private suspend fun markConnectionAsNotified(userId: QualifiedID?, connectionRequestUserId: QualifiedID? = null) {
         appLogger.d("$TAG markConnectionAsNotified")
         userId?.let {
             coreLogic.getSessionScope(it)
                 .conversations
                 .markConnectionRequestAsNotified(connectionRequestUserId)
-        }
-    }
-
-    private suspend fun hideConnectionRequestNotification(userId: QualifiedID?, connectionRequestUserId: QualifiedID?) {
-        // to hide ConnectionRequestNotification we need to get conversationId for it
-        // cause it's used as Notification ID
-        userId?.let {
-            coreLogic.getSessionScope(it)
-                .conversations
-                .observeConnectionList()
-                .first()
-                .firstOrNull { conversationDetails ->
-                    conversationDetails is ConversationDetails.Connection
-                            && conversationDetails.otherUser?.id == connectionRequestUserId
-                }
-                ?.conversation
-                ?.id
-                ?.let { conversationId ->
-                    messagesNotificationManager.hideNotification(conversationId, userId)
-                }
         }
     }
 

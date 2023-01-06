@@ -18,6 +18,7 @@ import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.conversations.search.SearchAllPeopleViewModel
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.getBitmapFromUri
+import com.wire.android.util.getMetaDataFromUri
 import com.wire.android.util.getMimeType
 import com.wire.android.util.isAudioFile
 import com.wire.android.util.isImageFile
@@ -117,7 +118,8 @@ class ImportMediaViewModel @Inject constructor(
                 else -> {
                     // ACTION_SEND_MULTIPLE
                     activity.intent.parcelableArrayList<Parcelable>(Intent.EXTRA_STREAM)?.forEach {
-                        handleMimeType(activity, getMimeType(activity, it.toString().toUri()).toString(), it.toString().toUri())
+                        val fileUri = it.toString().toUri()
+                        handleMimeType(activity, fileUri.getMimeType(activity).toString(), fileUri)
                     }
                 }
             }
@@ -127,13 +129,18 @@ class ImportMediaViewModel @Inject constructor(
     private fun handleMimeType(context: Context, type: String?, uri: Uri) {
         when {
             isImageFile(type) -> {
-                val bitmap = getBitmapFromUri(context, uri)
+                val bitmap = uri.getBitmapFromUri(context)
                 appLogger.d("imageFile $bitmap")
                 // todo : handle the image
             }
 
             isVideoFile(type) -> {
                 appLogger.d("videoFile $uri")
+                uri.getMetaDataFromUri(context).let {
+                    appLogger.d("videoFile $it")
+                }
+
+
                 // todo : handle the video
             }
             isAudioFile(type) -> {

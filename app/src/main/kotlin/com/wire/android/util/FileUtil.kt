@@ -104,9 +104,15 @@ private fun Context.saveFileDataToDownloadsFolder(assetName: String, downloadedD
 fun Context.pathToUri(assetDataPath: Path): Uri = FileProvider.getUriForFile(this, getProviderAuthority(), assetDataPath.toFile())
 
 fun Uri.getMimeType(context: Context): String? {
-    val extension = MimeTypeMap.getFileExtensionFromUrl(path)
-    return context.contentResolver.getType(this)
-        ?: MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension)
+    val extension: String? = if (this.scheme == ContentResolver.SCHEME_CONTENT) {
+        context.contentResolver.getType(this)
+    } else {
+        //If scheme is a File
+        //This will replace white spaces with %20 and also other special characters. This will avoid returning null values on file name with spaces and special characters.
+        val fileExtension = MimeTypeMap.getFileExtensionFromUrl(Uri.fromFile(this.path?.let { File(it) }).toString())
+        MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileExtension.lowercase(Locale.getDefault()))
+    }
+    return extension
 }
 
 suspend fun Uri.resampleImageAndCopyToTempPath(
@@ -233,26 +239,15 @@ fun shareAssetFileWithExternalApp(assetDataPath: Path, context: Context, assetEx
     }
 }
 
-fun getMimeType(context: Context, uri: Uri): String? {
-    val extension: String? = if (uri.scheme == ContentResolver.SCHEME_CONTENT) {
-        context.contentResolver.getType(uri)
-    } else {
-        //If scheme is a File
-        //This will replace white spaces with %20 and also other special characters. This will avoid returning null values on file name with spaces and special characters.
-        val fileExtension = MimeTypeMap.getFileExtensionFromUrl(Uri.fromFile(uri.path?.let { File(it) }).toString())
-        MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileExtension.lowercase(Locale.getDefault()))
-    }
-    return extension
-}
 
-fun getBitmapFromUri(context: Context, uri: Uri): Bitmap? {
+fun Uri.getBitmapFromUri(context: Context): Bitmap? {
     var bitmap: Bitmap? = null
     try {
         // Works with content://, file://, or android.resource:// URIs
-        val inputStream: InputStream? = context.contentResolver.openInputStream(uri)
+        val inputStream: InputStream? = context.contentResolver.openInputStream(this)
         bitmap = BitmapFactory.decodeStream(inputStream)
     } catch (e: FileNotFoundException) {
-        appLogger.e("File not found: $uri")
+        appLogger.e("File not found: $this")
     }
     return bitmap
 }
@@ -267,6 +262,20 @@ inline fun <reified T : Parcelable> Intent.parcelableArrayList(key: String): Arr
     Build.VERSION.SDK_INT >= 33 -> getParcelableArrayListExtra(key, T::class.java)
     else -> @Suppress("DEPRECATION") getParcelableArrayListExtra(key)
 }
+
+fun Uri.getMetaDataFromUri(context: Context): FileMetaData {
+    context.contentResolver.query(this, null, null, null, null)?.use { cursor ->
+        if (cursor.moveToFirst()) {
+            val displayName =
+                cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DISPLAY_NAME))
+            val size = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.SIZE))
+            return FileMetaData(displayName, size)
+        }
+    }
+    return FileMetaData()
+}
+
+data class FileMetaData(val name: String = "", val size: Long = 0L)
 
 fun isImageFile(mimeType: String?): Boolean {
     return mimeType != null && mimeType.startsWith("image/")

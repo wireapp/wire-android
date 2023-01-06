@@ -22,6 +22,7 @@ import com.wire.android.notification.NotificationChannelsManager
 import com.wire.android.notification.WireNotificationManager
 import com.wire.android.services.ServicesManager
 import com.wire.android.ui.common.dialogs.CustomBEDeeplinkDialogState
+import com.wire.android.ui.joinConversation.JoinConversationViaCodeState
 import com.wire.android.util.deeplink.DeepLinkProcessor
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.android.util.dispatchers.DispatcherProvider
@@ -33,6 +34,7 @@ import com.wire.kalium.logic.data.logout.LogoutReason
 import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.feature.appVersioning.ObserveIfAppUpdateRequiredUseCase
 import com.wire.kalium.logic.feature.auth.AccountInfo
+import com.wire.kalium.logic.feature.conversation.CheckConversationInviteCodeUseCase
 import com.wire.kalium.logic.feature.conversation.JoinConversationViaCodeUseCase
 import com.wire.kalium.logic.feature.server.GetServerConfigResult
 import com.wire.kalium.logic.feature.server.GetServerConfigUseCase
@@ -232,22 +234,7 @@ class WireActivityViewModel @Inject constructor(
 
                     is DeepLinkResult.OpenOtherUserProfile -> navigationArguments[OPEN_OTHER_USER_PROFILE_ARG] = result.userId
 
-                    is DeepLinkResult.JoinConversation -> {
-                        when (val joinConversationResult = joinConversation(result.code, result.key, result.domain)) {
-                            is JoinConversationViaCodeUseCase.Result.Success.Changed -> {
-                                appLogger.d("Join conversation via code success, changed = ${joinConversationResult.conversationId}")
-                                // navigate to conversation
-                            }
-
-                            is JoinConversationViaCodeUseCase.Result.Success.Unchanged -> {
-                                appLogger.d("Join conversation via code success, unchanged = ${joinConversationResult.conversationId}")
-                                // navigate to conversation
-                            }
-
-                            null -> {// display error
-                            }
-                        }
-                    }
+                    is DeepLinkResult.JoinConversation -> onConversationInviteDeepLink(result.code, result.key, result.domain)
 
                     DeepLinkResult.Unknown -> appLogger.e("unknown deeplink result $result")
 
@@ -369,28 +356,79 @@ class WireActivityViewModel @Inject constructor(
         }
     }
 
-    private suspend fun joinConversation(
+    private suspend fun onConversationInviteDeepLink(
         code: String,
         key: String,
         domain: String?
-    ): JoinConversationViaCodeUseCase.Result.Success? =
+    ) =
         when (val currentSession = coreLogic.getGlobalScope().session.currentSession()) {
             is CurrentSessionResult.Failure.Generic -> null
             CurrentSessionResult.Failure.SessionNotFound -> null
             is CurrentSessionResult.Success -> {
                 coreLogic.sessionScope(currentSession.accountInfo.userId) {
-                    when (val result = conversations.joinConversationViaCode(code, key, domain)) {
-                        is JoinConversationViaCodeUseCase.Result.Failure -> {
-                            appLogger.e("something went wrong during handling the join conversation deep link: ${result.failure}")
-                            null
+                    when (val result = conversations.checkIConversationInviteCode(code, key, domain)) {
+                        is CheckConversationInviteCodeUseCase.Result.Success -> {
+                            if (result.isSelfMember) {
+                                // TODO; display messsage that user is already a member and ask if they want to navigate to the conversation
+                                openConversation(result.conversationId)
+                            } else {
+                                globalAppState =
+                                    globalAppState.copy(
+                                        conversationJoinedDialog = JoinConversationViaCodeState.Show(
+                                            result.name,
+                                            code,
+                                            key,
+                                            domain
+                                        )
+                                    )
+                            }
                         }
-                        is JoinConversationViaCodeUseCase.Result.Success.Changed -> result
-                        is JoinConversationViaCodeUseCase.Result.Success.Unchanged -> result
+
+                        is CheckConversationInviteCodeUseCase.Result.Failure -> globalAppState =
+                            globalAppState.copy(conversationJoinedDialog = JoinConversationViaCodeState.Error(result))
                     }
                 }
             }
         }
 
+    fun joinConversationViaCode(
+        code: String,
+        key: String,
+        domain: String?
+    ) = viewModelScope.launch {
+        when (val currentSession = coreLogic.getGlobalScope().session.currentSession()) {
+            is CurrentSessionResult.Failure.Generic -> globalAppState = globalAppState.copy(conversationJoinedDialog = null)
+
+            CurrentSessionResult.Failure.SessionNotFound -> globalAppState = globalAppState.copy(conversationJoinedDialog = null)
+
+            is CurrentSessionResult.Success -> {
+                coreLogic.sessionScope(currentSession.accountInfo.userId) {
+                    when (val result = conversations.joinConversationViaCode(code, key, domain)) {
+                        is JoinConversationViaCodeUseCase.Result.Failure -> {
+                            appLogger.e("something went wrong during handling the join conversation deep link: ${result.failure}")
+                            globalAppState = globalAppState.copy(conversationJoinedDialog = null)
+                        }
+
+                        is JoinConversationViaCodeUseCase.Result.Success -> {
+                            globalAppState = globalAppState.copy(conversationJoinedDialog = null)
+                            result.conversationId?.let {
+                                openConversation(it)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }.invokeOnCompletion {
+        // in case of failure, we need to dismiss the dialog
+        it?.let {
+            globalAppState = globalAppState.copy(conversationJoinedDialog = null)
+        }
+    }
+
+    fun cancelJoinConversation() {
+        globalAppState = globalAppState.copy(conversationJoinedDialog = null)
+    }
 
     private fun isServerConfigOnPremises(): Boolean =
         (navigationArguments[SERVER_CONFIG_ARG] as? ServerConfig.Links) != ServerConfig.DEFAULT
@@ -459,6 +497,6 @@ data class GlobalAppState(
     val maxAccountDialog: Boolean = false,
     val blockUserUI: CurrentSessionErrorState? = null,
     val updateAppDialog: Boolean = false,
-    val conversationJoinedDialog: Boolean = false,
+    val conversationJoinedDialog: JoinConversationViaCodeState? = null,
     val conversationUnchanged: Boolean = false
 )

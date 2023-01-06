@@ -155,7 +155,7 @@ class NewConversationViewModel @Inject constructor(
                 userIdList = state.contactsAddedToGroup.map { contact -> UserId(contact.id, contact.domain) },
                 options = ConversationOptions().copy(
                     protocol = ConversationOptions.Protocol.PROTEUS,
-                    readReceiptsEnabled = null,
+                    readReceiptsEnabled = false,
                     accessRole = null
                 )
             )

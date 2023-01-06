@@ -216,9 +216,9 @@ class WireActivityViewModel @Inject constructor(
 
                     is DeepLinkResult.IncomingCall -> {
                         if (isLaunchedFromHistory(intent)) {
-                            //We don't need to handle deepLink, if activity was launched from history.
-                            //For example: user opened app by deepLink, then closed it by back button click,
-                            //then open the app from the "Recent Apps"
+                            // We don't need to handle deepLink, if activity was launched from history.
+                            // For example: user opened app by deepLink, then closed it by back button click,
+                            // then open the app from the "Recent Apps"
                             appLogger.i("IncomingCall deepLink launched from the history")
                         } else {
                             navigationArguments.put(INCOMING_CALL_CONVERSATION_ID_ARG, result.conversationsId)
@@ -227,9 +227,9 @@ class WireActivityViewModel @Inject constructor(
 
                     is DeepLinkResult.OngoingCall -> {
                         if (isLaunchedFromHistory(intent)) {
-                            //We don't need to handle deepLink, if activity was launched from history.
-                            //For example: user opened app by deepLink, then closed it by back button click,
-                            //then open the app from the "Recent Apps"
+                            // We don't need to handle deepLink, if activity was launched from history.
+                            // For example: user opened app by deepLink, then closed it by back button click,
+                            // then open the app from the "Recent Apps"
                             appLogger.i("IncomingCall deepLink launched from the history")
                         } else {
                             navigationArguments.put(ONGOING_CALL_CONVERSATION_ID_ARG, result.conversationsId)
@@ -268,7 +268,7 @@ class WireActivityViewModel @Inject constructor(
      */
     fun handleDeepLinkOnNewIntent(intent: Intent?): Boolean {
 
-        //removing arguments that could be there from prev deeplink handling
+        // removing arguments that could be there from prev deeplink handling
         navigationArguments.apply {
             remove(INCOMING_CALL_CONVERSATION_ID_ARG)
             remove(ONGOING_CALL_CONVERSATION_ID_ARG)

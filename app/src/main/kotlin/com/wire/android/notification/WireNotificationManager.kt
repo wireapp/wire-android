@@ -175,18 +175,14 @@ class WireNotificationManager @Inject constructor(
      */
     @Suppress("NestedBlockDepth")
     private suspend fun checkIfUserIsAuthenticated(userId: String): QualifiedID? =
-        coreLogic.globalScope { getSessions() }.let {
-            when (it) {
+        coreLogic.globalScope { getSessions() }.let { sessionsResult ->
+            when (sessionsResult) {
                 is GetAllSessionsResult.Success -> {
-                    for (sessions in it.sessions) {
-                        if (sessions.userId.value == userId)
-                            return@let sessions.userId
-                    }
-                    null
+                    return@let sessionsResult.sessions.firstOrNull { it.userId.value == userId }?.userId
                 }
 
                 is GetAllSessionsResult.Failure.Generic -> {
-                    appLogger.e("get sessions failed ${it.genericFailure} ")
+                    appLogger.e("get sessions failed ${sessionsResult.genericFailure} ")
                     null
                 }
 

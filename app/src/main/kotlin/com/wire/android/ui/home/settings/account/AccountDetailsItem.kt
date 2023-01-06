@@ -9,14 +9,14 @@ sealed class AccountDetailsItem(
     val title: UIText.StringResource,
     open val text: String,
     val navigationItem: NavigationItem,
-    val clickable: Clickable
+    open val clickable: Clickable
 ) {
 
-    data class DisplayName(override val text: String, val navigation: () -> Unit = {}) : AccountDetailsItem(
+    data class DisplayName(override val text: String, override val clickable: Clickable) : AccountDetailsItem(
         title = UIText.StringResource(R.string.settings_myaccount_display_name),
         text = text,
         navigationItem = NavigationItem.EditDisplayName,
-        clickable = Clickable(enabled = true) { navigation.invoke() }
+        clickable = clickable
     )
 
     data class Username(override val text: String) : AccountDetailsItem(

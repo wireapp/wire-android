@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.appLogger
+import com.wire.android.model.Clickable
 import com.wire.android.ui.common.Icon
 import com.wire.android.ui.common.RowItemTemplate
 import com.wire.android.ui.common.button.WirePrimaryButton
@@ -44,7 +45,10 @@ fun MyAccountScreen(viewModel: MyAccountViewModel = hiltViewModel()) {
 private fun mapToUISections(state: MyAccountState): List<AccountDetailsItem> {
     return with(state) {
         listOfNotNull(
-            if (fullName.isNotBlank()) AccountDetailsItem.DisplayName(fullName) { appLogger.i("going to edit ") } else null,
+            if (fullName.isNotBlank()) AccountDetailsItem.DisplayName(
+                fullName,
+                Clickable { appLogger.i("Display name clicked") }
+            ) else null,
             if (userName.isNotBlank()) AccountDetailsItem.Username("@$userName") else null,
             if (email.isNotBlank()) AccountDetailsItem.Email(email) else null,
             if (teamName.isNotBlank()) AccountDetailsItem.Team(teamName) else null,
@@ -121,7 +125,7 @@ fun MyAccountContent(
 fun PreviewMyAccountScreen() {
     MyAccountContent(
         accountDetailItems = listOf(
-            AccountDetailsItem.DisplayName("Bob"),
+            AccountDetailsItem.DisplayName("Bob", Clickable(enabled = true) {}),
             AccountDetailsItem.Username("@bob_wire"),
             AccountDetailsItem.Email("bob@wire.com"),
             AccountDetailsItem.Team("Wire")

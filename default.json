@@ -28,8 +28,8 @@
         "logging_enabled": true,
         "safe_logging": false,
         "private_build": true,
-        "development_api_enabled": false,
-        "mls_support_enabled": false,
+        "development_api_enabled": true,
+        "mls_support_enabled": true,
         "firebasePushSenderId": "782078216207",
         "firebaseAppId": "1:782078216207:android:d3db2443512d2055",
         "googleApiKey": "AIzaSyBXtNKuX6GCKv2jDtsFImUaxCRL21DTLEQ",
@@ -55,7 +55,7 @@
         "fcmProjectID": "wiregcmpushstaging",
         "isStaging": true
     },
-    "internal": {
+    "beta": {
         "applicationId": "com.wire.internal",
         "userId": "",
         "_comment": "appName must match the value of 'app_name' in strings.xml",
@@ -74,7 +74,7 @@
         "fcmProjectID": "w966768976",
         "isStaging": false
     },
-    "internal-compat": {
+    "internal": {
         "applicationId": "com.wire.internal",
         "userId": "",
         "_comment": "appName must match the value of 'app_name' in strings.xml",

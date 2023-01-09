@@ -38,8 +38,10 @@ def defineTrackName() {
     def overwrite = env.CUSTOM_TRACK
     if(overwrite != null) {
         return overwrite
+    } else if (branchName == "main") {
+        return 'internal'
     }
-    return 'internal'
+    return 'None'
 }
 
 String shellQuote(String s) {

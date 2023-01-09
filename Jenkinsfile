@@ -369,7 +369,7 @@ pipeline {
           }
           stage('Playstore') {
             when {
-              expression { env.trackName != 'None' && env.flavor != 'Dev' && env.CHANGE_ID == null }
+              expression { env.trackName != 'None' && env.flavor == 'Beta' && env.CHANGE_ID == null }
             }
             steps {
               echo 'Checking folder before playstore upload'

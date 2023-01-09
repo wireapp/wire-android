@@ -16,15 +16,14 @@ object FeatureFlags {
     val activated = mapOf(
 
         //Enabled Features for DEV Product Flavor
-        ProductFlavors.DEV to setOf(
+        ProductFlavors.Dev to setOf(
             Features.FEATURE_SEARCH,
-            Features.FEATURE_CONVERSATIONS),
+            Features.FEATURE_CONVERSATIONS
+        ),
 
         //Enabled Features for INTERNAL Product Flavor
-        ProductFlavors.INTERNAL to setOf(
-            Features.FEATURE_CONVERSATIONS),
-
-        //Enabled Features for PUBLIC Product Flavor
-        ProductFlavors.PUBLIC to setOf(
-            Features.FEATURE_SEARCH))
+        ProductFlavors.Internal to setOf(
+            Features.FEATURE_CONVERSATIONS
+        )
+    )
 }

@@ -213,7 +213,6 @@ class MessageNotificationManager
             }
     }
 
-
     private fun NotificationMessage.intoStyledMessage(): NotificationCompat.MessagingStyle.Message {
         val sender = Person.Builder()
             .apply {
@@ -231,7 +230,6 @@ class MessageNotificationManager
             is NotificationMessage.ConversationDeleted -> italicTextFromResId(R.string.notification_conversation_deleted)
         }
         return NotificationCompat.MessagingStyle.Message(message, time, sender)
-
     }
 
     /**

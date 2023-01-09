@@ -189,11 +189,9 @@ class WireNotificationManager @Inject constructor(
         coreLogic.globalScope { getSessions() }.let {
             when (it) {
                 is GetAllSessionsResult.Success -> {
-                    for (sessions in it.sessions) {
-                        if (sessions.userId.value == userId)
-                            return@let sessions.userId
-                    }
-                    null
+                    it.sessions
+                        .firstOrNull { accInfo -> accInfo.userId.value == userId }
+                        ?.userId
                 }
 
                 is GetAllSessionsResult.Failure.Generic -> {

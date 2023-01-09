@@ -81,8 +81,10 @@ class PersistentWebSocketService : Service() {
                                 .filter { it.isPersistentWebSocketEnabled }
                                 .map { it.userId }
 
-                            notificationManager.observeNotificationsAndCallsPersistently(usersToObserve, scope)
-                            { call -> openIncomingCall(call.conversationId) }
+                            notificationManager.observeNotificationsAndCallsPersistently(
+                                usersToObserve,
+                                scope
+                            ) { call -> openIncomingCall(call.conversationId) }
 
                             statuses.map { persistentWebSocketStatus ->
                                 if (persistentWebSocketStatus.isPersistentWebSocketEnabled) {
@@ -101,11 +103,9 @@ class PersistentWebSocketService : Service() {
                     }
                 }
             }
-
         }
         generateForegroundNotification()
         return START_STICKY
-
     }
 
     private fun openIncomingCall(conversationId: ConversationId) {
@@ -131,12 +131,12 @@ class PersistentWebSocketService : Service() {
         super.onDestroy()
         scope.cancel("PersistentWebSocketService was destroyed")
         isServiceStarted = false
-
     }
 
     companion object {
         fun newIntent(context: Context?): Intent =
             Intent(context, PersistentWebSocketService::class.java)
+
         var isServiceStarted = false
     }
 }

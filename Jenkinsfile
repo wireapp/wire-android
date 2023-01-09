@@ -13,7 +13,7 @@ def defineFlavor() {
         return 'Dev'
     } else if(branchName == "release") {
         return 'Public'
-    } else if (branchName == "internal") {
+    } else if(branchName == "internal") {
         return 'Internal'
     }
     return 'Dev'
@@ -36,6 +36,8 @@ def defineBuildType() {
 
 def defineTrackName() {
     def overwrite = env.CUSTOM_TRACK
+    def branchName = env.BRANCH_NAME
+
     if(overwrite != null) {
         return overwrite
     } else if (branchName == "main") {

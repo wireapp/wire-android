@@ -472,7 +472,6 @@
     <string name="notification_not_supported_issue">Something not supported in notifications</string>
     <string name="notification_connection_request">Möchte Sie als Kontakt hinzufügen</string>
     <string name="notification_conversation_deleted">Hat die Gruppe gelöscht</string>
-    <string name="notification_action_call">Anruf</string>
     <string name="notification_action_reply">Antworten</string>
     <string name="notification_receiver_name">Sie</string>
     <string name="label_type_a_message">Eine Nachricht schreiben</string>

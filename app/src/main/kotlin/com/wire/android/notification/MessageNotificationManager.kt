@@ -131,7 +131,6 @@ class MessageNotificationManager
 
                         else -> {
                             setContentIntent(messagePendingIntent(context, conversation.id, userIdString))
-                            addAction(getActionCall(context, conversation.id, userIdString))
                             addAction(getActionReply(context, conversation.id, userIdString))
                         }
                     }
@@ -287,7 +286,6 @@ class MessageNotificationManager
 
             val notification = setUpNotificationBuilder(context, userId).apply {
                 setContentIntent(messagePendingIntent(context, conversationId, userIdString))
-                addAction(getActionCall(context, conversationId, userIdString))
                 addAction(getActionReply(context, conversationId, userIdString))
 
                 setWhen(System.currentTimeMillis())

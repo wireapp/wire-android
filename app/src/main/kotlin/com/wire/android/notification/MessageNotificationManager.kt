@@ -56,9 +56,7 @@ class MessageNotificationManager
     }
 
     fun hideAllNotifications() {
-        notificationManager.activeNotifications
-            ?.filter { it.groupKey.contains(NotificationConstants.getMessagesGroupKey(null)) }
-            ?.forEach { notificationManagerCompat.cancel(it.id) }
+        notificationManager.cancelAll()
     }
 
     fun hideAllNotificationsForUser(userId: QualifiedID) {
@@ -209,7 +207,6 @@ class MessageNotificationManager
             }
     }
 
-
     private fun NotificationMessage.intoStyledMessage(): NotificationCompat.MessagingStyle.Message {
         val sender = Person.Builder()
             .apply {
@@ -227,7 +224,6 @@ class MessageNotificationManager
             is NotificationMessage.ConversationDeleted -> italicTextFromResId(R.string.notification_conversation_deleted)
         }
         return NotificationCompat.MessagingStyle.Message(message, time, sender)
-
     }
 
     /**

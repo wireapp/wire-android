@@ -30,6 +30,7 @@ import com.wire.kalium.logic.util.isGreaterThan
 import javax.inject.Inject
 
 // TODO: splits mapping into more classes
+@Suppress("TooManyFunctions")
 class MessageContentMapper @Inject constructor(
     private val messageResourceProvider: MessageResourceProvider,
     private val wireSessionImageLoader: WireSessionImageLoader,
@@ -300,5 +301,4 @@ data class MessageResourceProvider(
 private fun String?.orUnknownName(): UIText = when {
     this != null -> UIText.DynamicString(this)
     else -> UIText.StringResource(R.string.username_unavailable_label)
-
 }

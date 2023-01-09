@@ -34,8 +34,8 @@ import com.wire.kalium.logic.feature.conversation.ClearConversationContentUseCas
 import com.wire.kalium.logic.feature.conversation.CreateGroupConversationUseCase
 import com.wire.kalium.logic.feature.conversation.GetAllContactsNotInConversationUseCase
 import com.wire.kalium.logic.feature.conversation.GetOrCreateOneToOneConversationUseCase
-import com.wire.kalium.logic.feature.conversation.GetSecurityClassificationTypeUseCase
 import com.wire.kalium.logic.feature.conversation.LeaveConversationUseCase
+import com.wire.kalium.logic.feature.conversation.ObserveSecurityClassificationLabelUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveUserListByIdUseCase
 import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationAccessRoleUseCase
@@ -76,9 +76,9 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.scopes.ServiceScoped
 import dagger.hilt.android.scopes.ViewModelScoped
 import dagger.hilt.components.SingletonComponent
-import kotlinx.coroutines.runBlocking
 import javax.inject.Qualifier
 import javax.inject.Singleton
+import kotlinx.coroutines.runBlocking
 
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
@@ -146,10 +146,10 @@ class CoreLogicModule {
 @Module
 @InstallIn(ViewModelComponent::class)
 class SessionModule {
+    // TODO: can be improved by caching the current session in kalium or changing the scope to ActivityRetainedScoped
     @CurrentAccount
     @ViewModelScoped
     @Provides
-    // TODO: can be improved by caching the current session in kalium or changing the scope to ActivityRetainedScoped
     fun provideCurrentSession(@KaliumCoreLogic coreLogic: CoreLogic): UserId {
         return runBlocking {
             return@runBlocking when (val result = coreLogic.getGlobalScope().session.currentSession.invoke()) {
@@ -784,11 +784,11 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
-    fun provideGetConversationClassifiedTypeUseCase(
+    fun observeSecurityClassificationLabelUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
-    ): GetSecurityClassificationTypeUseCase =
-        coreLogic.getSessionScope(currentAccount).getSecurityClassificationType
+    ): ObserveSecurityClassificationLabelUseCase =
+        coreLogic.getSessionScope(currentAccount).observeSecurityClassificationLabel
 
     @ViewModelScoped
     @Provides

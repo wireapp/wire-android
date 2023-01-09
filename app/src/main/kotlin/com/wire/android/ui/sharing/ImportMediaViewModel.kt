@@ -103,13 +103,13 @@ class ImportMediaViewModel @Inject constructor(
             isImageFile(type) -> {
                 val bitmap = uri.getBitmapFromUri(context)
                 appLogger.d("imageFile $bitmap")
-                uri.getMetaDataFromUri(context).apply {
-                    appLogger.d("image type $this")
+                uri.getMetaDataFromUri(context).let {
+                    appLogger.d("image type $it")
 
                     importMediaState.importedAssets.add(
                         ImportedMediaAsset.Image(
-                            name = this.name,
-                            size = this.size,
+                            name = it.name,
+                            size = it.size,
                             mimeType = type
                         )
                     )

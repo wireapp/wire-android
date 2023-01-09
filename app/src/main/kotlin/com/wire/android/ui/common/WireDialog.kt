@@ -34,7 +34,7 @@ import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.button.WireTertiaryButton
 import com.wire.android.ui.common.textfield.WirePasswordTextField
-import com.wire.android.ui.common.textfield.WirePrimaryButton
+import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
@@ -199,6 +199,7 @@ private fun WireDialogButtonProperties?.getButton(modifier: Modifier = Modifier)
     }
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Preview(showBackground = true)
 @Composable
 private fun WireDialogPreview() {
@@ -239,6 +240,7 @@ private fun WireDialogPreview() {
     }
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Preview(showBackground = true)
 @Composable
 private fun WireDialogPreviewWith2OptionButtons() {

@@ -22,14 +22,13 @@ import com.wire.kalium.logic.feature.call.usecase.TurnLoudSpeakerOffUseCase
 import com.wire.kalium.logic.feature.call.usecase.TurnLoudSpeakerOnUseCase
 import com.wire.kalium.logic.feature.call.usecase.UnMuteCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.UpdateVideoStateUseCase
-import com.wire.kalium.logic.feature.conversation.GetSecurityClassificationTypeUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
+import com.wire.kalium.logic.feature.conversation.ObserveSecurityClassificationLabelUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
-import io.mockk.verify
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestCoroutineScheduler
@@ -96,7 +95,7 @@ class SharedCallingViewModelTest {
     private lateinit var currentScreenManager: CurrentScreenManager
 
     @MockK
-    private lateinit var getConversationClassifiedType: GetSecurityClassificationTypeUseCase
+    private lateinit var observeSecurityClassificationLabel: ObserveSecurityClassificationLabelUseCase
 
     private val uiCallParticipantMapper: UICallParticipantMapper by lazy { UICallParticipantMapper(wireSessionImageLoader, userTypeMapper) }
 
@@ -133,7 +132,7 @@ class SharedCallingViewModelTest {
             userTypeMapper = userTypeMapper,
             currentScreenManager = currentScreenManager,
             qualifiedIdMapper = qualifiedIdMapper,
-            getConversationClassifiedType = getConversationClassifiedType,
+            observeSecurityClassificationLabel = observeSecurityClassificationLabel,
             dispatchers = TestDispatcherProvider()
         )
     }
@@ -181,25 +180,23 @@ class SharedCallingViewModelTest {
     }
 
     @Test
-    fun `given camera is turned on, when toggling video, then turn off video and speaker`() {
+    fun `given camera is turned on, when toggling video, then turn off video`() {
         sharedCallingViewModel.callState = sharedCallingViewModel.callState.copy(isCameraOn = true)
         coEvery { updateVideoState(any(), any()) } returns Unit
 
         runTest { sharedCallingViewModel.toggleVideo() }
 
         sharedCallingViewModel.callState.isCameraOn shouldBeEqualTo false
-        sharedCallingViewModel.callState.isSpeakerOn shouldBeEqualTo false
     }
 
     @Test
-    fun `given camera is turned off, when toggling video, then turn on video and speaker`() {
+    fun `given camera is turned off, when toggling video, then turn on video`() {
         sharedCallingViewModel.callState = sharedCallingViewModel.callState.copy(isCameraOn = false)
         coEvery { updateVideoState(any(), any()) } returns Unit
 
         runTest { sharedCallingViewModel.toggleVideo() }
 
         sharedCallingViewModel.callState.isCameraOn shouldBeEqualTo true
-        sharedCallingViewModel.callState.isSpeakerOn shouldBeEqualTo true
     }
 
     @Test

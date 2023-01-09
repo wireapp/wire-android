@@ -12,6 +12,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.wire.android.ui.common.LegalHoldIndicator
+import com.wire.android.ui.home.conversations.search.HighlightName
 import com.wire.android.ui.theme.wireTypography
 
 @Composable
@@ -19,19 +20,24 @@ fun ConversationTitle(
     name: String,
     isLegalHold: Boolean = false,
     modifier: Modifier = Modifier,
-    badges: @Composable () -> Unit = {}
+    badges: @Composable () -> Unit = {},
+    searchQuery: String
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
     ) {
-        Text(
-            text = name,
-            style = MaterialTheme.wireTypography.body02,
-            overflow = TextOverflow.Ellipsis,
-            maxLines = 1,
-            modifier = Modifier.weight(weight = 1f, fill = false)
-        )
+        if (searchQuery.isEmpty()) {
+            Text(
+                text = name,
+                style = MaterialTheme.wireTypography.body02,
+                overflow = TextOverflow.Ellipsis,
+                maxLines = 1,
+                modifier = Modifier.weight(weight = 1f, fill = false)
+            )
+        } else {
+            HighlightName(name = name, searchQuery = searchQuery)
+        }
         badges()
         if (isLegalHold) {
             Spacer(modifier = Modifier.width(6.dp))
@@ -43,5 +49,5 @@ fun ConversationTitle(
 @Preview(widthDp = 200)
 @Composable
 fun ConversationTitlePreview() {
-    ConversationTitle("very very loooooooooooong name", true)
+    ConversationTitle("very very loooooooooooong name", true, searchQuery = "test")
 }

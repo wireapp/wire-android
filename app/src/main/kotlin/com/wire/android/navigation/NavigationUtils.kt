@@ -49,7 +49,7 @@ internal fun NavController.popWithArguments(arguments: Map<String, Any>?): Boole
         it.savedStateHandle.remove<Map<String, Any>>(EXTRA_BACK_NAVIGATION_ARGUMENTS)
         arguments?.let { arguments ->
             appLogger.d("Destination is ${it.destination}")
-            it.savedStateHandle[EXTRA_BACK_NAVIGATION_ARGUMENTS] = arguments
+            it.savedStateHandle[EXTRA_BACK_NAVIGATION_ARGUMENTS] = arguments.toMap()
         }
     }
     return popBackStack()

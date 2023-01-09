@@ -1,31 +1,39 @@
 package com.wire.android.ui.home.conversationslist.model
 
 import com.wire.android.model.UserAvatarData
+import com.wire.android.ui.home.conversations.model.UILastMessageContent
 import com.wire.android.ui.home.conversationslist.common.UserInfoLabel
+import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.TeamId
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.data.user.type.isTeammate
 
 sealed class ConversationItem {
     abstract val conversationId: ConversationId
     abstract val mutedStatus: MutedConversationStatus
     abstract val isLegalHold: Boolean
-    abstract val lastEvent: ConversationLastEvent
+    abstract val lastMessageContent: UILastMessageContent?
     abstract val badgeEventType: BadgeEventType
+    abstract val teamId: TeamId?
+
+    val isTeamConversation get() = teamId != null
 
     data class GroupConversation(
         val groupName: String,
         override val conversationId: ConversationId,
         override val mutedStatus: MutedConversationStatus,
         override val isLegalHold: Boolean = false,
-        override val lastEvent: ConversationLastEvent,
+        override val lastMessageContent: UILastMessageContent?,
         override val badgeEventType: BadgeEventType,
+        override val teamId: TeamId?,
         val hasOnGoingCall: Boolean = false,
-        val isCreator: Boolean = false,
-        val isSelfUserMember: Boolean = true
+        val isSelfUserCreator: Boolean = false,
+        val selfMemberRole: Conversation.Member.Role?,
+        val isSelfUserMember: Boolean = true,
     ) : ConversationItem()
 
     data class PrivateConversation(
@@ -36,8 +44,9 @@ sealed class ConversationItem {
         override val conversationId: ConversationId,
         override val mutedStatus: MutedConversationStatus,
         override val isLegalHold: Boolean = false,
-        override val lastEvent: ConversationLastEvent,
+        override val lastMessageContent: UILastMessageContent?,
         override val badgeEventType: BadgeEventType,
+        override val teamId: TeamId?
     ) : ConversationItem()
 
     data class ConnectionConversation(
@@ -46,15 +55,17 @@ sealed class ConversationItem {
         override val conversationId: ConversationId,
         override val mutedStatus: MutedConversationStatus,
         override val isLegalHold: Boolean = false,
-        override val lastEvent: ConversationLastEvent,
-        override val badgeEventType: BadgeEventType
-    ) : ConversationItem()
+        override val lastMessageContent: UILastMessageContent?,
+        override val badgeEventType: BadgeEventType,
+    ) : ConversationItem() {
+        override val teamId: TeamId? = null
+    }
 }
 
 data class ConversationInfo(
     val name: String,
     val membership: Membership = Membership.None,
-    val unavailable: Boolean = false
+    val isSenderUnavailable: Boolean = false
 )
 
 enum class BlockingState {
@@ -63,19 +74,20 @@ enum class BlockingState {
     NOT_BLOCKED
 }
 
-fun OtherUser.getBlockingState(selfTeamId: TeamId?): BlockingState =
-    when {
-        connectionStatus == ConnectionState.BLOCKED -> BlockingState.BLOCKED
-        teamId == selfTeamId -> BlockingState.CAN_NOT_BE_BLOCKED
-        else -> BlockingState.NOT_BLOCKED
-    }
+val OtherUser.BlockState: BlockingState
+    get() =
+        when {
+            userType.isTeammate() -> BlockingState.CAN_NOT_BE_BLOCKED
+            connectionStatus == ConnectionState.BLOCKED -> BlockingState.BLOCKED
+            else -> BlockingState.NOT_BLOCKED
+        }
 
 fun ConversationItem.PrivateConversation.toUserInfoLabel() =
     UserInfoLabel(
         labelName = conversationInfo.name,
         isLegalHold = isLegalHold,
         membership = conversationInfo.membership,
-        unavailable = conversationInfo.unavailable
+        unavailable = conversationInfo.isSenderUnavailable
     )
 
 fun ConversationItem.ConnectionConversation.toUserInfoLabel() =

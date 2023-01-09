@@ -1,15 +1,14 @@
 package com.wire.android.ui.authentication.login.email
 
 import android.content.Context
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
@@ -17,6 +16,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -24,6 +24,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.autofill.AutofillType
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
@@ -40,13 +41,16 @@ import com.wire.android.appLogger
 import com.wire.android.ui.authentication.login.LoginError
 import com.wire.android.ui.authentication.login.LoginErrorDialog
 import com.wire.android.ui.authentication.login.LoginState
-
 import com.wire.android.ui.common.button.WireButtonState
+import com.wire.android.ui.common.button.WirePrimaryButton
+import com.wire.android.ui.common.colorsScheme
+import com.wire.android.ui.common.rememberBottomBarElevationState
+import com.wire.android.ui.common.textfield.AutoFillTextField
 import com.wire.android.ui.common.textfield.WirePasswordTextField
-import com.wire.android.ui.common.textfield.WirePrimaryButton
-import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
+import com.wire.android.ui.common.textfield.clearAutofillTree
 import com.wire.android.ui.theme.WireTheme
+import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
@@ -61,6 +65,9 @@ fun LoginEmailScreen(
     val scope = rememberCoroutineScope()
     val loginEmailViewModel: LoginEmailViewModel = hiltViewModel()
     val loginEmailState: LoginState = loginEmailViewModel.loginState
+
+    clearAutofillTree()
+
     LoginEmailContent(
         scrollState = scrollState,
         loginState = loginEmailState,
@@ -69,6 +76,7 @@ fun LoginEmailScreen(
         onDialogDismiss = loginEmailViewModel::onDialogDismiss,
         onRemoveDeviceOpen = loginEmailViewModel::onTooManyDevicesError,
         onLoginButtonClick = suspend { loginEmailViewModel.login() },
+        onUpdateApp = loginEmailViewModel::updateTheApp,
         forgotPasswordUrl = loginEmailViewModel.serverConfig.forgotPassword,
         scope = scope
     )
@@ -83,60 +91,91 @@ private fun LoginEmailContent(
     onDialogDismiss: () -> Unit,
     onRemoveDeviceOpen: () -> Unit,
     onLoginButtonClick: suspend () -> Unit,
+    onUpdateApp: () -> Unit,
     forgotPasswordUrl: String,
     scope: CoroutineScope
 ) {
     Column(
         modifier = Modifier
             .fillMaxHeight()
-            .verticalScroll(scrollState)
-            .padding(MaterialTheme.wireDimensions.spacing16x)
     ) {
-        Spacer(modifier = Modifier.height(MaterialTheme.wireDimensions.spacing32x))
-        UserIdentifierInput(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = MaterialTheme.wireDimensions.spacing16x),
-            userIdentifier = loginState.userIdentifier,
-            onUserIdentifierChange = onUserIdentifierChange,
-            error = when (loginState.loginError) {
-                LoginError.TextFieldError.InvalidValue -> stringResource(R.string.login_error_invalid_user_identifier)
-                else -> null
-            }
-        )
-        PasswordInput(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = MaterialTheme.wireDimensions.spacing16x),
-            password = loginState.password,
-            onPasswordChange = onPasswordChange
-        )
-        ForgotPasswordLabel(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = MaterialTheme.wireDimensions.spacing16x),
-            forgotPasswordUrl = forgotPasswordUrl
-        )
-        Spacer(modifier = Modifier.weight(1f))
 
-        LoginButton(
-            modifier = Modifier.fillMaxWidth(),
-            loading = loginState.emailLoginLoading,
-            enabled = loginState.emailLoginEnabled
+        Column(
+            modifier = Modifier
+                .weight(weight = 1f, fill = true)
+                .verticalScroll(scrollState)
+                .padding(MaterialTheme.wireDimensions.spacing16x)
         ) {
-            scope.launch {
-                onLoginButtonClick()
+            if (loginState.isProxyAuthRequired) {
+                Text(
+                    text = stringResource(R.string.label_wire_credentials),
+                    style = MaterialTheme.wireTypography.title03.copy(
+                        color = colorsScheme().labelText
+                    ),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(
+                            vertical = MaterialTheme.wireDimensions.spacing16x
+                        )
+                )
+            }
+            UserIdentifierInput(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = MaterialTheme.wireDimensions.spacing16x),
+                userIdentifier = loginState.userIdentifier,
+                onUserIdentifierChange = onUserIdentifierChange,
+                error = when (loginState.loginError) {
+                    LoginError.TextFieldError.InvalidValue -> stringResource(R.string.login_error_invalid_user_identifier)
+                    else -> null
+                }
+            )
+            PasswordInput(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = MaterialTheme.wireDimensions.spacing16x),
+                password = loginState.password,
+                onPasswordChange = onPasswordChange
+            )
+            ForgotPasswordLabel(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = MaterialTheme.wireDimensions.spacing16x),
+                forgotPasswordUrl = forgotPasswordUrl
+            )
+            if (loginState.isProxyAuthRequired) {
+                ProxyScreen()
+            }
+
+            Spacer(modifier = Modifier.weight(1f))
+        }
+
+        Surface(
+            shadowElevation = scrollState.rememberBottomBarElevationState().value,
+            color = MaterialTheme.wireColorScheme.background
+        ) {
+            Box(modifier = Modifier.padding(MaterialTheme.wireDimensions.spacing16x)) {
+                LoginButton(
+                    modifier = Modifier.fillMaxWidth(),
+                    loading = loginState.emailLoginLoading,
+                    enabled = loginState.emailLoginEnabled
+                ) {
+                    scope.launch {
+                        onLoginButtonClick()
+                    }
+                }
             }
         }
     }
 
     if (loginState.loginError is LoginError.DialogError) {
-        LoginErrorDialog(loginState.loginError, onDialogDismiss)
+        LoginErrorDialog(loginState.loginError, onDialogDismiss, onUpdateApp)
     } else if (loginState.loginError is LoginError.TooManyDevicesError) {
         onRemoveDeviceOpen()
     }
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun UserIdentifierInput(
     modifier: Modifier,
@@ -144,7 +183,8 @@ private fun UserIdentifierInput(
     error: String?,
     onUserIdentifierChange: (TextFieldValue) -> Unit,
 ) {
-    WireTextField(
+    AutoFillTextField(
+        autofillTypes = listOf(AutofillType.EmailAddress, AutofillType.Username),
         value = userIdentifier,
         onValueChange = onUserIdentifierChange,
         placeholderText = stringResource(R.string.login_user_identifier_placeholder),
@@ -196,7 +236,6 @@ private fun openForgotPasswordPage(context: Context, forgotPasswordUrl: String) 
     }
 }
 
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 private fun LoginButton(modifier: Modifier, loading: Boolean, enabled: Boolean, onClick: () -> Unit) {
     val interactionSource = remember { MutableInteractionSource() }
@@ -228,6 +267,7 @@ private fun LoginEmailScreenPreview() {
             onDialogDismiss = { },
             onRemoveDeviceOpen = { },
             onLoginButtonClick = suspend { },
+            onUpdateApp = {},
             forgotPasswordUrl = "",
             scope = scope
         )

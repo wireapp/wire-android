@@ -29,6 +29,7 @@ import android.text.util.Linkify
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.material.LocalTextStyle
 import androidx.compose.material.Text
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -48,10 +49,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.TextUnit
+import com.wire.android.ui.theme.wireColorScheme
+import com.wire.android.util.ui.UIText
 
 @Composable
 fun LinkifyText(
-    text: String,
+    text: UIText,
     mask: Int = Linkify.ALL,
     modifier: Modifier = Modifier,
     linkColor: Color = Color.Blue,
@@ -72,12 +75,15 @@ fun LinkifyText(
     style: TextStyle = LocalTextStyle.current,
     clickable: Boolean = true,
     onClickLink: ((linkText: String) -> Unit)? = null,
-    onLongClick: (() -> Unit)? = null
+    onLongClick: (() -> Unit)? = null,
+    onOpenProfile: (String) -> Unit
 ) {
+    val textAsString = text.asString()
     val uriHandler = LocalUriHandler.current
-    val linkInfos = if (linkEntire) listOf(LinkInfo(text, 0, text.length)) else SpannableStr.getLinkInfos(text, mask)
+    val linkInfos = if (linkEntire) listOf(LinkInfo(textAsString, 0, textAsString.length)) else
+        SpannableStr.getLinkInfos(textAsString, mask)
     val annotatedString = buildAnnotatedString {
-        append(text)
+        append(textAsString)
         linkInfos.forEach {
             addStyle(
                 style = SpanStyle(
@@ -88,11 +94,29 @@ fun LinkifyText(
                 end = it.end
             )
             addStringAnnotation(
-                tag = "tag",
+                tag = "linkTag",
                 annotation = it.url,
                 start = it.start,
                 end = it.end
             )
+        }
+        if (text is UIText.DynamicString && text.mentions.isNotEmpty()) {
+            text.mentions.forEach {
+                addStyle(
+                    style = SpanStyle(
+                        color = MaterialTheme.wireColorScheme.messageMentionText,
+                        background = MaterialTheme.wireColorScheme.messageMentionBackground
+                    ),
+                    start = it.start,
+                    end = it.start + it.length
+                )
+                addStringAnnotation(
+                    tag = "mentionTag",
+                    annotation = it.userId.toString(),
+                    start = it.start,
+                    end = it.start + it.length
+                )
+            }
         }
     }
     if (clickable) {
@@ -115,6 +139,7 @@ fun LinkifyText(
             style = style,
             onClick = { offset ->
                 annotatedString.getStringAnnotations(
+                    tag = "linkTag",
                     start = offset,
                     end = offset,
                 ).firstOrNull()?.let { result ->
@@ -124,6 +149,14 @@ fun LinkifyText(
                         uriHandler.openUri(result.item)
                         onClickLink?.invoke(annotatedString.substring(result.start, result.end))
                     }
+                }
+
+                annotatedString.getStringAnnotations(
+                    tag = "mentionTag",
+                    start = offset,
+                    end = offset
+                ).firstOrNull()?.let { result ->
+                    onOpenProfile(result.item)
                 }
             },
             onLongClick = onLongClick

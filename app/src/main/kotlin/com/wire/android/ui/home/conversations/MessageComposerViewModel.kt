@@ -6,7 +6,9 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
+import com.wire.android.mapper.ContactMapper
 import com.wire.android.model.ImageAsset.PrivateAsset
+import com.wire.android.model.SnackBarMessage
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.EXTRA_GROUP_DELETED_NAME
 import com.wire.android.navigation.EXTRA_LEFT_GROUP
@@ -26,17 +28,22 @@ import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogHelper
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogsState
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.conversations.model.AttachmentType
+import com.wire.android.ui.home.messagecomposer.UiMention
+import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.util.ImageUtil
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
+import com.wire.kalium.logic.data.id.QualifiedID as ConversationId
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
-import com.wire.kalium.logic.feature.asset.SendAssetMessageResult
-import com.wire.kalium.logic.feature.asset.SendAssetMessageUseCase
-import com.wire.kalium.logic.feature.conversation.GetSecurityClassificationTypeUseCase
-import com.wire.kalium.logic.feature.conversation.IsSelfUserMemberResult
-import com.wire.kalium.logic.feature.conversation.ObserveIsSelfUserMemberUseCase
-import com.wire.kalium.logic.feature.conversation.SecurityClassificationTypeResult
+import com.wire.kalium.logic.data.user.OtherUser
+import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageResult
+import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageUseCase
+import com.wire.kalium.logic.feature.conversation.InteractionAvailability
+import com.wire.kalium.logic.feature.conversation.IsInteractionAvailableResult
+import com.wire.kalium.logic.feature.conversation.MembersToMentionUseCase
+import com.wire.kalium.logic.feature.conversation.ObserveConversationInteractionAvailabilityUseCase
+import com.wire.kalium.logic.feature.conversation.ObserveSecurityClassificationLabelUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationReadDateUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
@@ -44,13 +51,14 @@ import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
 import com.wire.kalium.logic.feature.user.IsFileSharingEnabledUseCase
 import com.wire.kalium.logic.functional.onFailure
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.Instant
 import okio.Path
 import okio.buffer
-import javax.inject.Inject
-import com.wire.kalium.logic.data.id.QualifiedID as ConversationId
 
 @Suppress("LongParameterList", "TooManyFunctions")
 @HiltViewModel
@@ -58,23 +66,27 @@ class MessageComposerViewModel @Inject constructor(
     qualifiedIdMapper: QualifiedIdMapper,
     override val savedStateHandle: SavedStateHandle,
     private val navigationManager: NavigationManager,
-    private val sendAssetMessage: SendAssetMessageUseCase,
+    private val sendAssetMessage: ScheduleNewAssetMessageUseCase,
     private val sendTextMessage: SendTextMessageUseCase,
     private val deleteMessage: DeleteMessageUseCase,
     private val dispatchers: DispatcherProvider,
     private val getSelfUserTeam: GetSelfTeamUseCase,
     private val isFileSharingEnabled: IsFileSharingEnabledUseCase,
-    private val observeIsSelfConversationMember: ObserveIsSelfUserMemberUseCase,
+    private val observeConversationInteractionAvailability: ObserveConversationInteractionAvailabilityUseCase,
     private val wireSessionImageLoader: WireSessionImageLoader,
     private val kaliumFileSystem: KaliumFileSystem,
     private val updateConversationReadDateUseCase: UpdateConversationReadDateUseCase,
-    private val getConversationClassifiedType: GetSecurityClassificationTypeUseCase
+    private val observeSecurityClassificationLabel: ObserveSecurityClassificationLabelUseCase,
+    private val contactMapper: ContactMapper,
+    private val membersToMention: MembersToMentionUseCase
 ) : SavedStateViewModel(savedStateHandle) {
 
     var conversationViewState by mutableStateOf(ConversationViewState())
         private set
 
-    var isSendingMessagesAllowed by mutableStateOf(true)
+    var interactionAvailability by mutableStateOf(InteractionAvailability.ENABLED)
+
+    var mentionsToSelect by mutableStateOf<List<Contact>>(listOf())
 
     var deleteMessageDialogsState: DeleteMessageDialogsState by mutableStateOf(
         DeleteMessageDialogsState.States(
@@ -97,18 +109,25 @@ class MessageComposerViewModel @Inject constructor(
             .onFailure { onSnackbarMessage(ErrorDeletingMessage) }
     }
 
+    private val _infoMessage = MutableSharedFlow<SnackBarMessage>()
+    val infoMessage = _infoMessage.asSharedFlow()
+
     init {
-        observeIfSelfIsConversationMember()
+        observeIsTypingAvailable()
         fetchSelfUserTeam()
         fetchConversationClassificationType()
         setFileSharingStatus()
     }
 
-    private fun observeIfSelfIsConversationMember() = viewModelScope.launch {
-        observeIsSelfConversationMember(conversationId).collect { result ->
-            when (result) {
-                is IsSelfUserMemberResult.Failure -> isSendingMessagesAllowed = false
-                is IsSelfUserMemberResult.Success -> isSendingMessagesAllowed = result.isMember
+    fun onSnackbarMessage(type: SnackBarMessage) = viewModelScope.launch {
+        _infoMessage.emit(type)
+    }
+
+    private fun observeIsTypingAvailable() = viewModelScope.launch {
+        observeConversationInteractionAvailability(conversationId).collect { result ->
+            interactionAvailability = when (result) {
+                is IsInteractionAvailableResult.Failure -> InteractionAvailability.DISABLED
+                is IsInteractionAvailableResult.Success -> result.interactionAvailability
             }
         }
     }
@@ -120,14 +139,8 @@ class MessageComposerViewModel @Inject constructor(
     }
 
     private fun fetchConversationClassificationType() = viewModelScope.launch {
-        when (val result = getConversationClassifiedType(conversationId)) {
-            is SecurityClassificationTypeResult.Success -> {
-                conversationViewState = conversationViewState.copy(securityClassificationType = result.classificationType)
-            }
-
-            is SecurityClassificationTypeResult.Failure -> {
-                appLogger.e("There was an error when fetching the security classification type of conversation $conversationId")
-            }
+        observeSecurityClassificationLabel(conversationId).collect { classificationType ->
+            conversationViewState = conversationViewState.copy(securityClassificationType = classificationType)
         }
     }
 
@@ -150,12 +163,20 @@ class MessageComposerViewModel @Inject constructor(
         if (leftGroup || groupDeletedName != null) {
             navigateBack(savedStateHandle.getBackNavArgs())
         }
-
     }
 
-    fun sendMessage(message: String) {
+    fun sendMessage(
+        message: String,
+        mentions: List<UiMention>,
+        quotedMessageId: String?
+    ) {
         viewModelScope.launch {
-            sendTextMessage(conversationId, message)
+            sendTextMessage(
+                conversationId = conversationId,
+                text = message,
+                mentions = mentions.map { it.intoMessageMention() },
+                quotedMessageId = quotedMessageId
+            )
         }
     }
 
@@ -168,9 +189,11 @@ class MessageComposerViewModel @Inject constructor(
                         AttachmentType.IMAGE -> {
                             if (dataSize > IMAGE_SIZE_LIMIT_BYTES) onSnackbarMessage(ErrorMaxImageSize)
                             else {
-                                val (imgWidth, imgHeight) = ImageUtil.extractImageWidthAndHeight(
-                                    kaliumFileSystem.source(attachmentBundle.dataPath).buffer().inputStream()
-                                )
+                                val (imgWidth, imgHeight) =
+                                    ImageUtil.extractImageWidthAndHeight(
+                                        kaliumFileSystem.source(attachmentBundle.dataPath).buffer().inputStream(),
+                                        mimeType
+                                    )
                                 val result = sendAssetMessage(
                                     conversationId = conversationId,
                                     assetDataPath = dataPath,
@@ -180,7 +203,7 @@ class MessageComposerViewModel @Inject constructor(
                                     assetDataSize = dataSize,
                                     assetMimeType = mimeType
                                 )
-                                if (result is SendAssetMessageResult.Failure) {
+                                if (result is ScheduleNewAssetMessageResult.Failure) {
                                     onSnackbarMessage(ConversationSnackbarMessages.ErrorSendingImage)
                                 }
                             }
@@ -204,7 +227,7 @@ class MessageComposerViewModel @Inject constructor(
                                         assetHeight = null,
                                         assetWidth = null
                                     )
-                                    if (result is SendAssetMessageResult.Failure) {
+                                    if (result is ScheduleNewAssetMessageResult.Failure) {
                                         onSnackbarMessage(ConversationSnackbarMessages.ErrorSendingAsset)
                                     }
                                 } catch (e: OutOfMemoryError) {
@@ -214,6 +237,19 @@ class MessageComposerViewModel @Inject constructor(
                             }
                         }
                     }
+                }
+            }
+        }
+    }
+
+    fun mentionMember(searchQuery: String?) {
+        viewModelScope.launch(dispatchers.io()) {
+            mentionsToSelect = if (searchQuery == null) {
+                listOf()
+            } else {
+                val members = membersToMention(conversationId, searchQuery)
+                members.map {
+                    contactMapper.fromOtherUser(it.user as OtherUser)
                 }
             }
         }
@@ -236,18 +272,6 @@ class MessageComposerViewModel @Inject constructor(
         } ?: ASSET_SIZE_DEFAULT_LIMIT_BYTES
     }
 
-    fun onSnackbarMessage(msgCode: ConversationSnackbarMessages) {
-        viewModelScope.launch(dispatchers.main()) {
-            conversationViewState = conversationViewState.copy(snackbarMessage = msgCode)
-        }
-    }
-
-    fun clearSnackbarMessage() {
-        viewModelScope.launch(dispatchers.main()) {
-            conversationViewState = conversationViewState.copy(snackbarMessage = null)
-        }
-    }
-
     fun showDeleteMessageDialog(messageId: String, isMyMessage: Boolean) =
         if (isMyMessage) {
             updateDeleteDialogState {
@@ -268,7 +292,6 @@ class MessageComposerViewModel @Inject constructor(
                 )
             }
         }
-
 
     private fun updateDeleteDialogState(newValue: (DeleteMessageDialogsState.States) -> DeleteMessageDialogsState) =
         (deleteMessageDialogsState as? DeleteMessageDialogsState.States)?.let { deleteMessageDialogsState = newValue(it) }

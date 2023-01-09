@@ -2,6 +2,7 @@ package com.wire.android.ui.authentication.create.details
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -16,6 +17,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -36,13 +38,16 @@ import com.wire.android.R
 import com.wire.android.ui.authentication.ServerTitle
 import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
 import com.wire.android.ui.common.button.WireButtonState
+import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.error.CoreFailureErrorDialog
+import com.wire.android.ui.common.rememberBottomBarElevationState
 import com.wire.android.ui.common.rememberTopBarElevationState
 import com.wire.android.ui.common.textfield.WirePasswordTextField
-import com.wire.android.ui.common.textfield.WirePrimaryButton
 import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
+import com.wire.android.ui.common.textfield.clearAutofillTree
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.kalium.logic.configuration.server.ServerConfig
@@ -51,6 +56,7 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun CreateAccountDetailsScreen(viewModel: CreateAccountDetailsViewModel, serverConfig: ServerConfig.Links) {
+    clearAutofillTree()
     DetailsContent(
         state = viewModel.detailsState,
         onFirstNameChange = { viewModel.onDetailsChange(it, CreateAccountDetailsViewModel.DetailsFieldType.FirstName) },
@@ -99,36 +105,48 @@ private fun DetailsContent(
         },
     ) { internalPadding ->
         Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Top,
             modifier = Modifier
                 .padding(internalPadding)
                 .fillMaxHeight()
-                .verticalScroll(scrollState)
         ) {
-            Text(
-                text = stringResource(R.string.create_personal_account_details_text),
-                style = MaterialTheme.wireTypography.body01,
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Top,
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(
-                        horizontal = MaterialTheme.wireDimensions.spacing16x,
-                        vertical = MaterialTheme.wireDimensions.spacing24x
+                    .weight(weight = 1f, fill = true)
+                    .verticalScroll(scrollState)
+            ) {
+                Text(
+                    text = stringResource(R.string.create_personal_account_details_text),
+                    style = MaterialTheme.wireTypography.body01,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(
+                            horizontal = MaterialTheme.wireDimensions.spacing16x,
+                            vertical = MaterialTheme.wireDimensions.spacing24x
+                        )
+                )
+                NameTextFields(state, onFirstNameChange, onLastNameChange, onTeamNameChange, coroutineScope)
+                PasswordTextFields(state, onPasswordChange, onConfirmPasswordChange, coroutineScope)
+                Spacer(modifier = Modifier.weight(1f))
+
+            }
+
+            Surface(
+                shadowElevation = scrollState.rememberBottomBarElevationState().value,
+                color = MaterialTheme.wireColorScheme.background
+            ) {
+                Box(modifier = Modifier.padding(MaterialTheme.wireDimensions.spacing16x)) {
+                    WirePrimaryButton(
+                        text = stringResource(R.string.label_continue),
+                        onClick = onContinuePressed,
+                        fillMaxWidth = true,
+                        loading = state.loading,
+                        state = if (state.continueEnabled) WireButtonState.Default else WireButtonState.Disabled,
+                        modifier = Modifier.fillMaxWidth()
                     )
-            )
-            NameTextFields(state, onFirstNameChange, onLastNameChange, onTeamNameChange, coroutineScope)
-            PasswordTextFields(state, onPasswordChange, onConfirmPasswordChange, coroutineScope)
-            Spacer(modifier = Modifier.weight(1f))
-            WirePrimaryButton(
-                text = stringResource(R.string.label_continue),
-                onClick = onContinuePressed,
-                fillMaxWidth = true,
-                loading = state.loading,
-                state = if (state.continueEnabled) WireButtonState.Default else WireButtonState.Disabled,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(MaterialTheme.wireDimensions.spacing16x),
-            )
+                }
+            }
         }
     }
     if (state.error is CreateAccountDetailsViewState.DetailsError.DialogError.GenericError)
@@ -214,12 +232,16 @@ private fun PasswordTextFields(
         labelMandatoryIcon = true,
         descriptionText = stringResource(R.string.create_account_details_password_description),
         imeAction = ImeAction.Next,
+        autofillTypes = listOf(),
         modifier = Modifier
             .padding(horizontal = MaterialTheme.wireDimensions.spacing16x)
             .bringIntoViewOnFocus(coroutineScope)
             .testTag("password"),
-        state = if (state.error is CreateAccountDetailsViewState.DetailsError.None) WireTextFieldState.Default
-        else WireTextFieldState.Error()
+        state = if (state.error is CreateAccountDetailsViewState.DetailsError.TextFieldError.InvalidPasswordError){
+            WireTextFieldState.Error()
+        } else {
+            WireTextFieldState.Default
+        }
     )
     WirePasswordTextField(
         value = state.confirmPassword,
@@ -228,6 +250,7 @@ private fun PasswordTextFields(
         labelMandatoryIcon = true,
         imeAction = ImeAction.Done,
         keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
+        autofillTypes = listOf(),
         modifier = Modifier
             .padding(
                 horizontal = MaterialTheme.wireDimensions.spacing16x,

@@ -5,25 +5,35 @@ import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
 import com.wire.android.di.AuthServerConfigProvider
+import com.wire.android.di.ObserveSyncStateUseCaseProvider
 import com.wire.android.feature.AccountSwitchUseCase
+import com.wire.android.framework.TestUser
+import com.wire.android.migration.MigrationManager
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.notification.NotificationChannelsManager
 import com.wire.android.notification.WireNotificationManager
+import com.wire.android.services.ServicesManager
 import com.wire.android.util.deeplink.DeepLinkProcessor
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.android.util.newServerConfig
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
+import com.wire.kalium.logic.data.team.Team
+import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.appVersioning.ObserveIfAppUpdateRequiredUseCase
 import com.wire.kalium.logic.feature.auth.AccountInfo
 import com.wire.kalium.logic.feature.server.GetServerConfigResult
 import com.wire.kalium.logic.feature.server.GetServerConfigUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.GetSessionsUseCase
+import com.wire.kalium.logic.feature.user.ObserveValidAccountsUseCase
 import com.wire.kalium.logic.feature.user.webSocketStatus.ObservePersistentWebSocketConnectionStatusUseCase
+import com.wire.kalium.logic.sync.ObserveSyncStateUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -31,6 +41,7 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
 import org.amshove.kluent.internal.assertEquals
 import org.junit.jupiter.api.Test
@@ -347,6 +358,31 @@ class WireActivityViewModelTest {
         coVerify(exactly = 0) { arrangement.navigationManager.navigate(any()) }
     }
 
+    @Test
+    fun `given appUpdate is required, then should show the appUpdate dialog`() {
+        val (_, viewModel) = Arrangement()
+            .withNoCurrentSession()
+            .withAppUpdateRequired(true)
+            .arrange()
+
+        assertEquals(true, viewModel.globalAppState.updateAppDialog)
+    }
+
+    @Test
+    fun `given few valid accounts, then notificationChannels creating is called`() {
+        val accs = listOf(
+            TestUser.SELF_USER,
+            TestUser.SELF_USER.copy(id = TestUser.USER_ID.copy(value = "something else"))
+        )
+        val (arrangement, _) = Arrangement()
+            .withSomeCurrentSession()
+            .withValidAccounts(accs.map { it to null })
+            .arrange()
+
+        coVerify(exactly = 1) { arrangement.notificationChannelsManager.createNotificationChannels(listOf()) }
+        coVerify(exactly = 1) { arrangement.notificationChannelsManager.createNotificationChannels(accs) }
+    }
+
     private class Arrangement {
         init {
             // Tests setup
@@ -357,10 +393,19 @@ class WireActivityViewModelTest {
             coEvery { currentSessionFlow() } returns flowOf()
             coEvery { getServerConfigUseCase(any()) } returns GetServerConfigResult.Success(newServerConfig(1).links)
             coEvery { deepLinkProcessor(any()) } returns DeepLinkResult.Unknown
-            coEvery { notificationManager.observeNotificationsAndCalls(any(), any(), any()) } returns Unit
+            coEvery { notificationManager.observeNotificationsAndCallsWhileRunning(any(), any(), any()) } returns Unit
             coEvery { navigationManager.navigate(any()) } returns Unit
-            coEvery { observePersistentWebSocketConnectionStatus() } returns flowOf(true)
+            coEvery { observePersistentWebSocketConnectionStatus() } returns
+                    ObservePersistentWebSocketConnectionStatusUseCase.Result.Success(
+                        flowOf(listOf())
+                    )
             coEvery { getSessionsUseCase.invoke() }
+            coEvery { migrationManager.shouldMigrate() } returns false
+            every { observeSyncStateUseCaseProviderFactory.create(any()).observeSyncState } returns observeSyncStateUseCase
+            every { observeSyncStateUseCase() } returns emptyFlow()
+            coEvery { observeIfAppUpdateRequired(any()) } returns flowOf(false)
+            every { notificationChannelsManager.createNotificationChannels(any()) } returns Unit
+            coEvery { observeValidAccounts() } returns flowOf(listOf())
         }
 
         @MockK
@@ -390,6 +435,27 @@ class WireActivityViewModelTest {
         @MockK
         private lateinit var switchAccount: AccountSwitchUseCase
 
+        @MockK
+        private lateinit var migrationManager: MigrationManager
+
+        @MockK
+        private lateinit var observeSyncStateUseCase: ObserveSyncStateUseCase
+
+        @MockK
+        private lateinit var observeSyncStateUseCaseProviderFactory: ObserveSyncStateUseCaseProvider.Factory
+
+        @MockK
+        lateinit var servicesManager: ServicesManager
+
+        @MockK
+        lateinit var observeIfAppUpdateRequired: ObserveIfAppUpdateRequiredUseCase
+
+        @MockK
+        lateinit var observeValidAccounts: ObserveValidAccountsUseCase
+
+        @MockK
+        lateinit var notificationChannelsManager: NotificationChannelsManager
+
         private val viewModel by lazy {
             WireActivityViewModel(
                 dispatchers = TestDispatcherProvider(),
@@ -401,7 +467,13 @@ class WireActivityViewModelTest {
                 authServerConfigProvider = authServerConfigProvider,
                 observePersistentWebSocketConnectionStatus = observePersistentWebSocketConnectionStatus,
                 getSessions = getSessionsUseCase,
-                accountSwitch = switchAccount
+                accountSwitch = switchAccount,
+                migrationManager = migrationManager,
+                observeSyncStateUseCaseProviderFactory = observeSyncStateUseCaseProviderFactory,
+                servicesManager = servicesManager,
+                observeIfAppUpdateRequired = observeIfAppUpdateRequired,
+                observeValidAccounts = observeValidAccounts,
+                notificationChannelsManager = notificationChannelsManager
             )
         }
 
@@ -418,6 +490,14 @@ class WireActivityViewModelTest {
         fun withDeepLinkResult(result: DeepLinkResult): Arrangement {
             coEvery { deepLinkProcessor(any()) } returns result
             return this
+        }
+
+        fun withAppUpdateRequired(result: Boolean): Arrangement = apply {
+            coEvery { observeIfAppUpdateRequired(any()) } returns flowOf(result)
+        }
+
+        fun withValidAccounts(list: List<Pair<SelfUser, Team?>>): Arrangement = apply {
+            coEvery { observeValidAccounts() } returns flowOf(list)
         }
 
         fun arrange() = this to viewModel

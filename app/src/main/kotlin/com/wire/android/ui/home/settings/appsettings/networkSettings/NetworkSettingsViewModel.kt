@@ -5,8 +5,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.appLogger
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.services.ServicesManager
+import com.wire.kalium.logic.configuration.server.ServerConfig
+import com.wire.kalium.logic.feature.session.CurrentSessionResult
+import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
 import com.wire.kalium.logic.feature.user.webSocketStatus.ObservePersistentWebSocketConnectionStatusUseCase
 import com.wire.kalium.logic.feature.user.webSocketStatus.PersistPersistentWebSocketConnectionStatusUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -19,9 +23,12 @@ class NetworkSettingsViewModel
     private val servicesManager: ServicesManager,
     private val navigationManager: NavigationManager,
     private val persistPersistentWebSocketConnectionStatus: PersistPersistentWebSocketConnectionStatusUseCase,
-    private val observePersistentWebSocketConnectionStatus: ObservePersistentWebSocketConnectionStatusUseCase
+    private val observePersistentWebSocketConnectionStatus: ObservePersistentWebSocketConnectionStatusUseCase,
+    private val currentSession: CurrentSessionUseCase
 ) : ViewModel() {
     var networkSettingsState by mutableStateOf(NetworkSettingsState())
+
+    val backendName = ServerConfig.DEFAULT.title
 
     init {
         observePersistentWebSocketConnection()
@@ -33,19 +40,48 @@ class NetworkSettingsViewModel
 
     private fun observePersistentWebSocketConnection() =
         viewModelScope.launch {
-            observePersistentWebSocketConnectionStatus().collect {
-                networkSettingsState = networkSettingsState.copy(isPersistentWebSocketConnectionEnabled = it)
+
+            when (val currentSession = currentSession()) {
+                is CurrentSessionResult.Success -> {
+                    val userId = currentSession.accountInfo.userId
+
+                    observePersistentWebSocketConnectionStatus().let {
+                        when (it) {
+                            is ObservePersistentWebSocketConnectionStatusUseCase.Result.Failure -> {
+                                appLogger.e("Failure while fetching persistent web socket status flow from network settings")
+                            }
+                            is ObservePersistentWebSocketConnectionStatusUseCase.Result.Success -> {
+                                it.persistentWebSocketStatusListFlow.collect {
+                                    it.map { persistentWebSocketStatus ->
+                                        if (persistentWebSocketStatus.userId == userId) {
+                                            networkSettingsState =
+                                                networkSettingsState.copy(
+                                                    isPersistentWebSocketConnectionEnabled =
+                                                    persistentWebSocketStatus.isPersistentWebSocketEnabled
+                                                )
+                                        }
+                                    }
+                                    if (it.map { it.isPersistentWebSocketEnabled }.contains(true)) {
+                                        if (!servicesManager.isPersistentWebSocketServiceRunning()) {
+                                            servicesManager.startPersistentWebSocketService()
+                                        }
+                                    } else {
+                                        servicesManager.stopPersistentWebSocketService()
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                else -> {
+                    // NO SESSION - Nothing to do
+                }
             }
         }
 
     fun setWebSocketState(isEnabled: Boolean) {
-        persistPersistentWebSocketConnectionStatus(isEnabled)
-        networkSettingsState = networkSettingsState.copy(isPersistentWebSocketConnectionEnabled = isEnabled)
-        if (isEnabled) {
-            servicesManager.startPersistentWebSocketService()
-        } else {
-            // TODO FIXME when we'll have a multi-accounts, this will stop all the PersistedWebSockets for all accounts!!!
-            servicesManager.stopPersistentWebSocketService()
+        viewModelScope.launch {
+            persistPersistentWebSocketConnectionStatus(isEnabled)
         }
     }
 }

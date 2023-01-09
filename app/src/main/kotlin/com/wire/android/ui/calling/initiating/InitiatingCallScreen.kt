@@ -25,8 +25,9 @@ import com.wire.android.ui.calling.CallState
 import com.wire.android.ui.calling.SharedCallingViewModel
 import com.wire.android.ui.calling.common.CallVideoPreview
 import com.wire.android.ui.calling.common.CallerDetails
-import com.wire.android.ui.calling.controlButtons.CallOptionsControls
-import com.wire.android.ui.calling.controlButtons.HangUpButton
+import com.wire.android.ui.calling.controlbuttons.CallOptionsControls
+import com.wire.android.ui.calling.controlbuttons.HangUpButton
+import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
@@ -64,7 +65,8 @@ private fun InitiatingCallContent(
 
     BottomSheetScaffold(
         sheetShape = RoundedCornerShape(topStart = dimensions().corner16x, topEnd = dimensions().corner16x),
-        backgroundColor = MaterialTheme.wireColorScheme.initiatingCallBackground,
+        backgroundColor = colorsScheme().background,
+        sheetBackgroundColor = colorsScheme().surface,
         scaffoldState = scaffoldState,
         sheetGesturesEnabled = false,
         sheetPeekHeight = dimensions().defaultInitiatingCallSheetPeekHeight,

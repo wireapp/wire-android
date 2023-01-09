@@ -4,6 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.paging.PagingData
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
+import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.usecase.GetMessagesForConversationUseCase
 import com.wire.android.util.FileManager
@@ -18,10 +19,13 @@ import com.wire.kalium.logic.feature.asset.UpdateAssetMessageDownloadStatusUseCa
 import com.wire.kalium.logic.feature.asset.UpdateDownloadStatusResult
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.message.GetMessageByIdUseCase
+import com.wire.kalium.logic.feature.message.ToggleReactionUseCase
+import com.wire.kalium.logic.feature.sessionreset.ResetSessionUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.flow.flowOf
@@ -35,6 +39,9 @@ class ConversationMessagesViewModelArrangement {
     private val messagesChannel = Channel<PagingData<UIMessage>>(capacity = Channel.UNLIMITED)
 
     val conversationDetailsChannel = Channel<ConversationDetails>(capacity = Channel.UNLIMITED)
+
+    @MockK
+    lateinit var navigationManager: NavigationManager
 
     @MockK
     lateinit var qualifiedIdMapper: QualifiedIdMapper
@@ -60,8 +67,15 @@ class ConversationMessagesViewModelArrangement {
     @MockK
     lateinit var updateAssetMessageDownloadStatus: UpdateAssetMessageDownloadStatusUseCase
 
+    @MockK
+    lateinit var toggleReaction: ToggleReactionUseCase
+
+    @MockK
+    lateinit var resetSession: ResetSessionUseCase
+
     private val viewModel: ConversationMessagesViewModel by lazy {
         ConversationMessagesViewModel(
+            navigationManager,
             qualifiedIdMapper,
             savedStateHandle,
             observeConversationDetails,
@@ -70,7 +84,9 @@ class ConversationMessagesViewModelArrangement {
             updateAssetMessageDownloadStatus,
             fileManager,
             TestDispatcherProvider(),
-            getMessagesForConversationUseCase
+            getMessagesForConversationUseCase,
+            toggleReaction,
+            resetSession
         )
     }
 
@@ -103,8 +119,14 @@ class ConversationMessagesViewModelArrangement {
         coEvery { getMessageById(any(), any()) } returns GetMessageByIdUseCase.Result.Success(message)
     }
 
-    fun withGetMessageAssetUseCaseReturning(decodedAssetPath: Path, assetSize: Long) = apply {
-        coEvery { getMessageAsset(any(), any()) } returns MessageAssetResult.Success(decodedAssetPath, assetSize)
+    fun withGetMessageAssetUseCaseReturning(decodedAssetPath: Path, assetSize: Long, assetName: String = "name") = apply {
+        coEvery { getMessageAsset(any(), any()) } returns CompletableDeferred(
+            MessageAssetResult.Success(
+                decodedAssetPath,
+                assetSize,
+                assetName
+            )
+        )
     }
 
     suspend fun withPaginatedMessagesReturning(pagingDataFlow: PagingData<UIMessage>) = apply {

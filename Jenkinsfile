@@ -21,6 +21,11 @@ def defineBuildType() {
     if(overwrite != null) {
         return overwrite
     }
+    // use the scala client signing keys for testing upgrades.
+    def flavor = defineFlavor()
+    if (flavor == "Dev") {
+        return "Compat"
+    }
     return "Release"
 }
 
@@ -92,15 +97,21 @@ pipeline {
 
         stage('Create properties file') {
           steps {
-            sh '''FILE=/${propertiesFile}
-                        if test -f "$FILE"; then
-                            echo "${propertiesFile} exists already"
-                        else
-                            echo "sdk.dir="$ANDROID_HOME >> ${propertiesFile}
-                            echo "ndk.dir="$NDK_HOME >> ${propertiesFile}
-                            echo "nexus.url=$NEXUS_URL" >> ${propertiesFile}
-                        fi
-                    '''
+           withCredentials([
+                    string(credentialsId: 'GITHUB_PACKAGES_USER', variable: 'GITHUB_USER'),
+                    string(credentialsId: 'GITHUB_PACKAGES_TOKEN', variable: 'GITHUB_TOKEN')
+                  ]) {
+                    sh '''FILE=/${propertiesFile}
+                          if test -f "$FILE"; then
+                              echo "${propertiesFile} exists already, deleting"
+                              rm {$propertiesFile}
+                          fi
+                          echo "sdk.dir="$ANDROID_HOME >> ${propertiesFile}
+                          echo "ndk.dir="$NDK_HOME >> ${propertiesFile}
+                          echo "github.package_registry.user="$GITHUB_USER >> ${propertiesFile}
+                          echo "github.package_registry.token="$GITHUB_TOKEN >> ${propertiesFile}
+                       '''
+             }
           }
         }
       }
@@ -119,10 +130,12 @@ pipeline {
     stage('Fetch Signing Files') {
       steps {
         configFileProvider([
+         configFile(fileId: env.COMPAT_KEYSTORE_FILE_ID, targetLocation: env.COMPAT_ENC_TARGET_LOCATION),
          configFile(fileId: env.DEBUG_KEYSTORE_FILE_ID, targetLocation: env.DEBUG_ENC_TARGET_LOCATION),
          configFile(fileId: env.RELEASE_KEYSTORE_FILE_ID, targetLocation: env.RELEASE_ENC_TARGET_LOCATION),
         ]) {
           sh '''
+            base64 --decode $COMPAT_ENC_TARGET_LOCATION > $COMPAT_DEC_TARGET_LOCATION
             base64 --decode $DEBUG_ENC_TARGET_LOCATION > $DEBUG_DEC_TARGET_LOCATION
             base64 --decode $RELEASE_ENC_TARGET_LOCATION > $RELEASE_DEC_TARGET_LOCATION
           '''
@@ -135,6 +148,12 @@ pipeline {
         stage('Fetch submodules') {
           steps {
             sh 'git submodule update --init --recursive'
+          }
+        }
+
+        stage('Copy local.properties to Kalium') {
+          steps {
+            sh '\\cp -f ${propertiesFile} kalium/${propertiesFile}'
           }
         }
 

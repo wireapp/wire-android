@@ -35,6 +35,7 @@ import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 import com.wire.android.util.ifNotEmpty
 import com.wire.kalium.logic.data.user.ConnectionState
 
@@ -63,7 +64,12 @@ fun UserProfileInfo(
             UserProfileAvatar(
                 size = dimensions().userAvatarDefaultBigSize,
                 avatarData = UserAvatarData(asset = avatarAsset, connectionState = connection),
-                clickable = remember { Clickable(enabled = editableState is EditableState.IsEditable) { onUserProfileClick?.invoke() } }
+                clickable = remember(editableState) {
+                    Clickable(
+                        enabled = editableState is EditableState.IsEditable,
+                        blockUntilSynced = true
+                    ) { onUserProfileClick?.invoke() }
+                }
             )
             if (isLoading) {
                 Box(
@@ -114,18 +120,21 @@ fun UserProfileInfo(
                 )
                 UserBadge(membership, connection, topPadding = dimensions().spacing8x)
             }
+            val localFeatureVisibilityFlags = LocalFeatureVisibilityFlags.current
 
-            if (editableState is EditableState.IsEditable) {
-                ManageMemberButton(
-                    modifier = Modifier
-                        .padding(start = dimensions().spacing16x)
-                        .constrainAs(editButton) {
-                            top.linkTo(userDescription.top)
-                            bottom.linkTo(userDescription.bottom)
-                            end.linkTo(userDescription.end)
-                        },
-                    onEditClick = editableState.onEditClick
-                )
+            if (localFeatureVisibilityFlags.UserProfileEditIcon) {
+                if (editableState is EditableState.IsEditable) {
+                    ManageMemberButton(
+                        modifier = Modifier
+                            .padding(start = dimensions().spacing16x)
+                            .constrainAs(editButton) {
+                                top.linkTo(userDescription.top)
+                                bottom.linkTo(userDescription.bottom)
+                                end.linkTo(userDescription.end)
+                            },
+                        onEditClick = editableState.onEditClick
+                    )
+                }
             }
 
             if (teamName != null) {

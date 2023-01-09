@@ -8,7 +8,6 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.appLogger
 import com.wire.android.mapper.UICallParticipantMapper
 import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.media.CallRinger
@@ -35,11 +34,11 @@ import com.wire.kalium.logic.feature.call.usecase.TurnLoudSpeakerOffUseCase
 import com.wire.kalium.logic.feature.call.usecase.TurnLoudSpeakerOnUseCase
 import com.wire.kalium.logic.feature.call.usecase.UnMuteCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.UpdateVideoStateUseCase
-import com.wire.kalium.logic.feature.conversation.GetSecurityClassificationTypeUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
-import com.wire.kalium.logic.feature.conversation.SecurityClassificationTypeResult
+import com.wire.kalium.logic.feature.conversation.ObserveSecurityClassificationLabelUseCase
 import com.wire.kalium.logic.util.PlatformView
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.SharedFlow
@@ -52,7 +51,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
 
 @Suppress("LongParameterList", "TooManyFunctions")
 @HiltViewModel
@@ -75,8 +73,8 @@ class SharedCallingViewModel @Inject constructor(
     private val wireSessionImageLoader: WireSessionImageLoader,
     private val userTypeMapper: UserTypeMapper,
     private val currentScreenManager: CurrentScreenManager,
-    private val getConversationClassifiedType: GetSecurityClassificationTypeUseCase,
-    private val dispatchers: DispatcherProvider,
+    private val observeSecurityClassificationLabel: ObserveSecurityClassificationLabelUseCase,
+    private val dispatchers: DispatcherProvider
 ) : ViewModel() {
 
     var callState by mutableStateOf(CallState())
@@ -92,8 +90,8 @@ class SharedCallingViewModel @Inject constructor(
             val allCallsSharedFlow = allCalls().map {
                 it.find { call ->
                     call.conversationId == conversationId &&
-                            call.status != CallStatus.CLOSED &&
-                            call.status != CallStatus.MISSED
+                        call.status != CallStatus.CLOSED &&
+                        call.status != CallStatus.MISSED
                 }
             }.flowOn(dispatchers.io()).shareIn(this, started = SharingStarted.Lazily)
 
@@ -122,11 +120,8 @@ class SharedCallingViewModel @Inject constructor(
     }
 
     private suspend fun setClassificationType() {
-        when (val result = getConversationClassifiedType(conversationId)) {
-            is SecurityClassificationTypeResult.Failure -> appLogger.e("Could not determine the classification type")
-            is SecurityClassificationTypeResult.Success -> {
-                callState = callState.copy(securityClassificationType = result.classificationType)
-            }
+        observeSecurityClassificationLabel(conversationId).collect { classificationType ->
+            callState = callState.copy(securityClassificationType = classificationType)
         }
     }
 
@@ -180,7 +175,7 @@ class SharedCallingViewModel @Inject constructor(
     }
 
     private suspend fun observeOnMute() {
-        //We should only mute established calls
+        // We should only mute established calls
         snapshotFlow { callState.isMuted to callState.callStatus }.collectLatest { (isMuted, callStatus) ->
             if (callStatus == CallStatus.ESTABLISHED) {
                 isMuted?.let {
@@ -199,7 +194,7 @@ class SharedCallingViewModel @Inject constructor(
             callState = callState.copy(
                 callStatus = call.status,
                 callerName = call.callerName,
-                isCameraOn = call.isCameraOn,
+                isCameraOn = call.isCameraOn
             )
         }
     }
@@ -226,6 +221,7 @@ class SharedCallingViewModel @Inject constructor(
 
     fun hangUpCall() {
         viewModelScope.launch {
+            navigateBack()
             endCall(conversationId)
             muteCall(conversationId)
             callRinger.stop()
@@ -261,17 +257,9 @@ class SharedCallingViewModel @Inject constructor(
     fun toggleVideo() {
         viewModelScope.launch {
             callState.isCameraOn?.let {
-                callState = if (it) {
-                    callState.copy(
-                        isCameraOn = false,
-                        isSpeakerOn = false
-                    )
-                } else {
-                    callState.copy(
-                        isCameraOn = true,
-                        isSpeakerOn = true
-                    )
-                }
+                callState = callState.copy(
+                    isCameraOn = !it
+                )
             }
         }
     }

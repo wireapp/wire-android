@@ -6,7 +6,8 @@ import com.wire.kalium.logic.data.conversation.ClientId
 data class Device(
     val name: String = "",
     val clientId: ClientId = ClientId(""),
-    val registrationTime: String = ""
+    val registrationTime: String = "",
+    val isValid: Boolean = true
 ) {
-    constructor(client: Client): this(client.name, client.id, client.registrationTime)
+    constructor(client: Client) : this(client.name, client.id, client.registrationTime, true)
 }

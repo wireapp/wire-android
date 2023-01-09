@@ -61,6 +61,9 @@ jobs:
         with:
           api-level: ${{ matrix.api-level }}
           script: ./gradlew runAcceptanceTests
+        env:
+            GITHUB_USER: ${{ github.actor }}
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
             
       - name: Cleanup Gradle Cache
         # Remove some files from the Gradle cache, so they aren't cached by GitHub Actions.

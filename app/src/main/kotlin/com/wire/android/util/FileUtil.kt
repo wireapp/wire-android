@@ -124,18 +124,6 @@ suspend fun Uri.resampleImageAndCopyToTempPath(
     }
 }
 
-fun Uri.copyToTempPath(context: Context, tempCachePath: Path): Long {
-    val file = tempCachePath.toFile()
-    var size: Long
-    file.setWritable(true)
-    context.contentResolver.openInputStream(this).use { inputStream ->
-        file.outputStream().use {
-            size = inputStream?.copyTo(it) ?: -1L
-        }
-    }
-    return size
-}
-
 fun Context.getFileName(uri: Uri): String? = when (uri.scheme) {
     ContentResolver.SCHEME_CONTENT -> getContentFileName(uri)
     else -> uri.path?.let(::File)?.name
@@ -172,21 +160,19 @@ fun saveFileToDownloadsFolder(assetName: String, assetDataPath: Path, assetDataS
     context.saveFileDataToDownloadsFolder(assetName, assetDataPath, assetDataSize)
 }
 
-fun Context.startMultipleFileSharingIntent(path: String) {
-    val file = File(path)
+fun Context.multipleFileSharingIntent(uris: ArrayList<Uri>): Intent {
 
-    val fileURI = FileProvider.getUriForFile(
-        this, getProviderAuthority(),
-        file
-    )
+    val intent = Intent(Intent.ACTION_SEND_MULTIPLE)
+    intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+    intent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, uris)
+    return intent
+}
 
-    val intent = Intent()
-    intent.action = Intent.ACTION_SEND_MULTIPLE
-    intent.type = fileURI.getMimeType(context = this)
+fun Context.getUrisOfFilesInDirectory(dir: File): ArrayList<Uri> {
 
     val files = ArrayList<Uri>()
 
-    file.parentFile.listFiles()?.map {
+    dir.listFiles()?.map {
         val uri = FileProvider.getUriForFile(
             this, getProviderAuthority(),
             it
@@ -194,9 +180,7 @@ fun Context.startMultipleFileSharingIntent(path: String) {
         files.add(uri)
     }
 
-    intent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, files)
-
-    startActivity(intent)
+    return files
 }
 
 fun openAssetFileWithExternalApp(assetDataPath: Path, context: Context, assetExtension: String?, onError: () -> Unit) {
@@ -221,16 +205,44 @@ fun openAssetFileWithExternalApp(assetDataPath: Path, context: Context, assetExt
     }
 }
 
+fun shareAssetFileWithExternalApp(assetDataPath: Path, context: Context, assetExtension: String?, onError: () -> Unit) {
+    try {
+        val assetUri = context.pathToUri(assetDataPath)
+        val mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(assetExtension)
+        // Set intent and launch
+        val intent = Intent()
+        intent.apply {
+            action = Intent.ACTION_SEND
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            setDataAndType(assetUri, mimeType)
+            putExtra(Intent.EXTRA_STREAM, assetUri)
+        }
+        context.startActivity(intent)
+    } catch (e: java.lang.IllegalArgumentException) {
+        appLogger.e("The file couldn't be found on the internal storage \n$e")
+        onError()
+    } catch (noActivityFoundException: ActivityNotFoundException) {
+        appLogger.e("Couldn't find a proper app to process the asset")
+        onError()
+    }
+}
 
 @Suppress("MagicNumber")
-fun getDeviceId(context: Context): String? {
-    
-    if (android.os.Build.VERSION.SDK_INT >= 26) {
-        return Settings.Secure.getString(context.contentResolver, Settings.Secure.ANDROID_ID)
+fun Context.getDeviceId(): String? {
+
+    if (Build.VERSION.SDK_INT >= 26) {
+        return Settings.Secure.getString(this.contentResolver, Settings.Secure.ANDROID_ID)
     }
-    
+
     return null
 }
+
+fun Context.getGitBuildId(): String = runCatching {
+    assets.open("version.txt").use { inputStream ->
+        inputStream.bufferedReader().use { it.readText() }
+    }
+}.getOrDefault("")
 
 fun Context.getProviderAuthority() = "${packageName}.provider"
 

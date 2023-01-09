@@ -6,25 +6,38 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.paging.cachedIn
+import com.wire.android.R
 import com.wire.android.appLogger
+import com.wire.android.model.SnackBarMessage
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
+import com.wire.android.navigation.NavigationCommand
+import com.wire.android.navigation.NavigationItem
+import com.wire.android.navigation.NavigationManager
 import com.wire.android.navigation.SavedStateViewModel
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages
+import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.OnResetSession
 import com.wire.android.ui.home.conversations.DownloadedAssetDialogVisibilityState
 import com.wire.android.ui.home.conversations.usecase.GetMessagesForConversationUseCase
 import com.wire.android.util.FileManager
 import com.wire.android.util.dispatchers.DispatcherProvider
-import com.wire.kalium.logic.data.conversation.ConversationDetails
+import com.wire.android.util.ui.UIText
+import com.wire.kalium.logic.data.conversation.ClientId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.MessageContent
+import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
 import com.wire.kalium.logic.feature.asset.UpdateAssetMessageDownloadStatusUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.message.GetMessageByIdUseCase
+import com.wire.kalium.logic.feature.message.ToggleReactionUseCase
+import com.wire.kalium.logic.feature.sessionreset.ResetSessionResult
+import com.wire.kalium.logic.feature.sessionreset.ResetSessionUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -33,8 +46,9 @@ import okio.Path
 import javax.inject.Inject
 
 @HiltViewModel
-@Suppress("LongParameterList")
+@Suppress("LongParameterList", "TooManyFunctions")
 class ConversationMessagesViewModel @Inject constructor(
+    private val navigationManager: NavigationManager,
     qualifiedIdMapper: QualifiedIdMapper,
     override val savedStateHandle: SavedStateHandle,
     private val observeConversationDetails: ObserveConversationDetailsUseCase,
@@ -44,6 +58,8 @@ class ConversationMessagesViewModel @Inject constructor(
     private val fileManager: FileManager,
     private val dispatchers: DispatcherProvider,
     private val getMessageForConversation: GetMessagesForConversationUseCase,
+    private val toggleReaction: ToggleReactionUseCase,
+    private val resetSession: ResetSessionUseCase
 ) : SavedStateViewModel(savedStateHandle) {
 
     var conversationViewState by mutableStateOf(ConversationMessagesViewState())
@@ -51,6 +67,9 @@ class ConversationMessagesViewModel @Inject constructor(
     val conversationId: QualifiedID = qualifiedIdMapper.fromStringToQualifiedID(
         savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)!!
     )
+
+    private val _infoMessage = MutableSharedFlow<SnackBarMessage>()
+    val infoMessage = _infoMessage.asSharedFlow()
 
     init {
         loadPaginatedMessages()
@@ -69,17 +88,16 @@ class ConversationMessagesViewModel @Inject constructor(
             .flowOn(dispatchers.io())
             .collect { conversationDetailsResult ->
                 if (conversationDetailsResult is ObserveConversationDetailsUseCase.Result.Success) {
-                    val lastUnreadMessage = when (val details = conversationDetailsResult.conversationDetails) {
-                        is ConversationDetails.OneOne -> details.lastUnreadMessage
-                        is ConversationDetails.Group -> details.lastUnreadMessage
-                        else -> null
+                    val lastUnreadInstant = conversationDetailsResult.conversationDetails.conversation.lastReadDate.let {
+                        Instant.parse(it)
                     }
-                    val lastUnreadInstant = lastUnreadMessage?.let {
-                        Instant.parse(lastUnreadMessage.date)
-                    }
-                    conversationViewState = conversationViewState.copy(lastUnreadMessageInstant = lastUnreadInstant)
+                    conversationViewState = conversationViewState.copy(firstUnreadInstant = lastUnreadInstant)
                 }
             }
+    }
+
+    fun onSnackbarMessage(type: SnackBarMessage) = viewModelScope.launch {
+        _infoMessage.emit(type)
     }
 
     // This will download the asset remotely to an internal temporary storage or fetch it from the local database if it had been previously
@@ -91,7 +109,7 @@ class ConversationMessagesViewModel @Inject constructor(
             } catch (e: OutOfMemoryError) {
                 appLogger.e("There was an OutOfMemory error while downloading the asset")
                 onSnackbarMessage(ConversationSnackbarMessages.ErrorDownloadingAsset)
-                updateAssetMessageDownloadStatus(Message.DownloadStatus.FAILED, conversationId, messageId)
+                updateAssetMessageDownloadStatus(Message.DownloadStatus.FAILED_DOWNLOAD, conversationId, messageId)
             }
         }
     }
@@ -111,20 +129,7 @@ class ConversationMessagesViewModel @Inject constructor(
             return
         }
         val assetContent = messageContent.value
-        val downloadStatus = assetContent.downloadStatus
-        val isAssetDownloadedInternally = downloadStatus == Message.DownloadStatus.SAVED_INTERNALLY ||
-                downloadStatus == Message.DownloadStatus.IN_PROGRESS
-
-        if (!isAssetDownloadedInternally)
-        // TODO: Refactor. UseCase responsible for downloading should update to IN_PROGRESS status.
-            updateAssetMessageDownloadStatus(Message.DownloadStatus.IN_PROGRESS, conversationId, messageId)
-
         val resultData = assetDataPath(conversationId, messageId)
-        updateAssetMessageDownloadStatus(
-            if (resultData != null) Message.DownloadStatus.SAVED_INTERNALLY else Message.DownloadStatus.FAILED,
-            conversationId,
-            messageId
-        )
 
         if (resultData != null) {
             showOnAssetDownloadedDialog(assetContent.name ?: "", resultData, assetContent.sizeInBytes, messageId)
@@ -164,34 +169,58 @@ class ConversationMessagesViewModel @Inject constructor(
             )
     }
 
-    fun onSnackbarMessage(msgCode: ConversationSnackbarMessages) {
-        viewModelScope.launch(dispatchers.main()) {
-            conversationViewState = conversationViewState.copy(snackbarMessage = msgCode)
-        }
-    }
-
     fun hideOnAssetDownloadedDialog() {
         conversationViewState = conversationViewState.copy(downloadedAssetDialogState = DownloadedAssetDialogVisibilityState.Hidden)
     }
 
-    private suspend fun assetDataPath(conversationId: QualifiedID, messageId: String): Path? {
-        getMessageAsset(
-            conversationId = conversationId,
-            messageId = messageId
-        ).run {
+    fun toggleReaction(messageId: String, reactionEmoji: String) {
+        viewModelScope.launch {
+            toggleReaction(conversationId, messageId, reactionEmoji)
+        }
+    }
+
+    fun openMessageDetails(messageId: String, isSelfMessage: Boolean) {
+        viewModelScope.launch {
+            navigationManager.navigate(
+                command = NavigationCommand(
+                    destination = NavigationItem.MessageDetails.getRouteWithArgs(
+                        listOf(conversationId, messageId, isSelfMessage)
+                    )
+                )
+            )
+        }
+    }
+
+    fun onResetSession(userId: UserId, clientId: String?) {
+        viewModelScope.launch {
+            when (resetSession(conversationId, userId, ClientId(clientId.orEmpty()))) {
+                is ResetSessionResult.Failure -> {
+                    onSnackbarMessage(OnResetSession(UIText.StringResource(R.string.label_general_error)))
+                }
+
+                is ResetSessionResult.Success -> {
+                    onSnackbarMessage(OnResetSession(UIText.StringResource(R.string.label_reset_session_success)))
+                }
+            }
+        }
+    }
+
+    // region Private
+    private suspend fun assetDataPath(conversationId: QualifiedID, messageId: String): Path? =
+        getMessageAsset(conversationId, messageId).await().run {
             return when (this) {
                 is MessageAssetResult.Success -> decodedAssetPath
                 else -> null
             }
         }
-    }
 
     private fun onOpenFileError() {
-        conversationViewState = conversationViewState.copy(snackbarMessage = ConversationSnackbarMessages.ErrorOpeningAssetFile)
+        onSnackbarMessage(ConversationSnackbarMessages.ErrorOpeningAssetFile)
     }
 
     private fun onFileSavedToExternalStorage(assetName: String?) {
         onSnackbarMessage(ConversationSnackbarMessages.OnFileDownloaded(assetName))
     }
 
+    // endregion
 }

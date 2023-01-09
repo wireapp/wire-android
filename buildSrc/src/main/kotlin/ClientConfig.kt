@@ -16,6 +16,7 @@ object ClientConfig {
 
         // Config field values for DEBUG Build Type
         BuildTypes.DEBUG to ConfigFields.values().associate { Pair(it, it.defaultValue) },
+        BuildTypes.COMPAT to ConfigFields.values().associate { Pair(it, it.defaultValue) },
 
         // Config field values for RELEASE Build Type
         // TODO: Certificate pinning, change backend based on flavour

@@ -31,7 +31,7 @@ fun UnblockUserDialogContent(
                 MaterialTheme.wireTypography.body02,
                 colorsScheme().onBackground,
                 colorsScheme().onBackground,
-                state.username
+                state.userName
             ),
             onDismiss = dialogState::dismiss,
             optionButton1Properties = WireDialogButtonProperties(

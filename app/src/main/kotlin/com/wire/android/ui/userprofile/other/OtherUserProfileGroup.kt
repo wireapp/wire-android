@@ -19,7 +19,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.RowItemTemplate
-import com.wire.android.ui.common.button.WireIconButton
+import com.wire.android.ui.common.button.WireSecondaryIconButton
 import com.wire.android.ui.common.SurfaceBackgroundWrapper
 import com.wire.android.ui.common.button.WireButton
 import com.wire.android.ui.common.dimensions
@@ -139,7 +139,7 @@ private fun UserRoleInformation(
 
 @Composable
 fun EditButton(onEditClicked: () -> Unit, modifier: Modifier = Modifier) {
-    WireIconButton(
+    WireSecondaryIconButton(
         onButtonClicked = onEditClicked,
         iconResource = R.drawable.ic_edit,
         contentDescription = R.string.content_description_edit,

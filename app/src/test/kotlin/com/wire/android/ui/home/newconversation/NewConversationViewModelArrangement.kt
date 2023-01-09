@@ -15,7 +15,6 @@ import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
-import com.wire.kalium.logic.data.id.PlainId
 import com.wire.kalium.logic.data.id.TeamId
 import com.wire.kalium.logic.data.publicuser.model.UserSearchResult
 import com.wire.kalium.logic.data.user.ConnectionState
@@ -27,12 +26,14 @@ import com.wire.kalium.logic.feature.connection.SendConnectionRequestUseCase
 import com.wire.kalium.logic.feature.conversation.CreateGroupConversationUseCase
 import com.wire.kalium.logic.feature.publicuser.GetAllContactsResult
 import com.wire.kalium.logic.feature.publicuser.GetAllContactsUseCase
-import com.wire.kalium.logic.feature.publicuser.search.SearchUsersResult
 import com.wire.kalium.logic.feature.publicuser.search.SearchKnownUsersUseCase
 import com.wire.kalium.logic.feature.publicuser.search.SearchPublicUsersUseCase
+import com.wire.kalium.logic.feature.publicuser.search.SearchUsersResult
 import com.wire.kalium.logic.feature.user.IsMLSEnabledUseCase
+import com.wire.kalium.logic.feature.user.IsSelfATeamMemberUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
+import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.flow.flowOf
 
@@ -49,9 +50,9 @@ internal class NewConversationViewModelArrangement {
         coEvery { searchKnownUsers(any()) } returns flowOf(
             SearchUsersResult.Success(userSearchResult = UserSearchResult(listOf(KNOWN_USER)))
         )
-        coEvery { getAllKnownUsers() } returns GetAllContactsResult.Success(listOf())
+//        coEvery { getAllKnownUsers() } returns flowOf(GetAllContactsResult.Success(listOf()))
         coEvery { createGroupConversation(any(), any(), any()) } returns CreateGroupConversationUseCase.Result.Success(CONVERSATION)
-        coEvery { contactMapper.fromOtherUser(PUBLIC_USER) } returns Contact(
+        every { contactMapper.fromOtherUser(PUBLIC_USER) } returns Contact(
             id = "publicValue",
             domain = "domain",
             name = "publicUsername",
@@ -64,7 +65,7 @@ internal class NewConversationViewModelArrangement {
             membership = Membership.Federated
         )
 
-        coEvery { contactMapper.fromOtherUser(KNOWN_USER) } returns Contact(
+        every { contactMapper.fromOtherUser(KNOWN_USER) } returns Contact(
             id = "knownValue",
             domain = "domain",
             name = "knownUsername",
@@ -76,6 +77,8 @@ internal class NewConversationViewModelArrangement {
             connectionState = ConnectionState.NOT_CONNECTED,
             membership = Membership.Federated
         )
+
+        coEvery { getAllKnownUsers() } returns flowOf(GetAllContactsResult.Success(listOf(KNOWN_USER)))
     }
 
     @MockK
@@ -106,6 +109,9 @@ internal class NewConversationViewModelArrangement {
     lateinit var wireSessionImageLoader: WireSessionImageLoader
 
     @MockK
+    lateinit var isSelfTeamMember: IsSelfATeamMemberUseCase
+
+    @MockK
     private lateinit var savedStateHandle: SavedStateHandle
 
     private companion object {
@@ -123,7 +129,8 @@ internal class NewConversationViewModelArrangement {
             lastReadDate = "2022-04-04T16:11:28.388Z",
             access = listOf(Conversation.Access.INVITE),
             accessRole = listOf(Conversation.AccessRole.NON_TEAM_MEMBER),
-            creatorId = PlainId("")
+            creatorId = null,
+            receiptMode = Conversation.ReceiptMode.ENABLED
         )
 
         val PUBLIC_USER = OtherUser(
@@ -171,7 +178,8 @@ internal class NewConversationViewModelArrangement {
             contactMapper = contactMapper,
             sendConnectionRequest = sendConnectionRequestUseCase,
             dispatchers = TestDispatcherProvider(),
-            isMLSEnabled = isMLSEnabledUseCase
+            isMLSEnabled = isMLSEnabledUseCase,
+            isSelfATeamMember = isSelfTeamMember
         )
     }
 
@@ -191,6 +199,10 @@ internal class NewConversationViewModelArrangement {
         coEvery { createGroupConversation(any(), any(), any()) } returns CreateGroupConversationUseCase.Result.UnknownFailure(
             CoreFailure.MissingClientRegistration
         )
+    }
+
+    fun withIsSelfTeamMember(result: Boolean) = apply {
+        coEvery { isSelfTeamMember() } returns result
     }
 
     fun arrange() = this to viewModel

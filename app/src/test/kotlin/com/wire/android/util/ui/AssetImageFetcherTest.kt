@@ -14,6 +14,7 @@ import com.wire.kalium.logic.feature.asset.PublicAssetResult
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import okio.Path
@@ -28,10 +29,11 @@ internal class AssetImageFetcherTest {
         // Given
         val someUserAssetId = AssetId("value", "domain")
         val someDummyData = "some-dummy-data".toByteArray()
+        val someDummyName = "some-dummy-name"
         val data = ImageAsset.UserAvatarAsset(mockk(), someUserAssetId)
         val avatarPath = fakeKaliumFileSystem.selfUserAvatarPath()
         val (arrangement, assetImageFetcher) = Arrangement()
-            .withSuccessfulImageData(data, avatarPath, someDummyData.size.toLong())
+            .withSuccessfulImageData(data, avatarPath, someDummyData.size.toLong(), someDummyName)
             .withStoredData(someDummyData, avatarPath)
             .arrange()
 
@@ -48,10 +50,11 @@ internal class AssetImageFetcherTest {
         val someConversationId = ConversationId("some-value", "some-domain")
         val someMessageId = "some-message-id"
         val someDummyData = "some-dummy-data".toByteArray()
+        val someDummyName = "some-dummy-name"
         val data = ImageAsset.PrivateAsset(mockk(), someConversationId, someMessageId, true)
         val avatarPath = fakeKaliumFileSystem.selfUserAvatarPath()
         val (arrangement, assetImageFetcher) = Arrangement()
-            .withSuccessfulImageData(data, avatarPath, 1)
+            .withSuccessfulImageData(data, avatarPath, 1, someDummyName)
             .withStoredData(someDummyData, avatarPath)
             .arrange()
 
@@ -100,10 +103,23 @@ internal class AssetImageFetcherTest {
         val mockFetchResult = mockk<FetchResult>()
         lateinit var imageData: ImageAsset
 
-        fun withSuccessfulImageData(data: ImageAsset, expectedAssetPath: Path, expectedAssetSize: Long): Arrangement {
+        fun withSuccessfulImageData(
+            data: ImageAsset,
+            expectedAssetPath: Path,
+            expectedAssetSize: Long,
+            assetName: String = "name"
+        ): Arrangement {
             imageData = data
             coEvery { getPublicAsset.invoke((any())) }.returns(PublicAssetResult.Success(expectedAssetPath))
-            coEvery { getPrivateAsset.invoke(any(), any()) }.returns(MessageAssetResult.Success(expectedAssetPath, expectedAssetSize))
+            coEvery { getPrivateAsset.invoke(any(), any()) }.returns(
+                CompletableDeferred(
+                    MessageAssetResult.Success(
+                        expectedAssetPath,
+                        expectedAssetSize,
+                        assetName
+                    )
+                )
+            )
             coEvery { drawableResultWrapper.toFetchResult(any()) }.returns(mockFetchResult)
 
             return this
@@ -120,7 +136,12 @@ internal class AssetImageFetcherTest {
         fun withErrorResponse(data: ImageAsset): Arrangement {
             imageData = data
             coEvery { getPublicAsset.invoke((any())) }.returns(PublicAssetResult.Failure(CoreFailure.Unknown(null)))
-            coEvery { getPrivateAsset.invoke(any(), any()) }.returns(MessageAssetResult.Failure(CoreFailure.Unknown(null)))
+            coEvery {
+                getPrivateAsset.invoke(
+                    any(),
+                    any()
+                )
+            }.returns(CompletableDeferred(MessageAssetResult.Failure(CoreFailure.Unknown(null))))
 
             return this
         }
@@ -131,7 +152,6 @@ internal class AssetImageFetcherTest {
             getPrivateAsset = getPrivateAsset,
             resources = resources,
             drawableResultWrapper = drawableResultWrapper,
-            kaliumFileSystem = fakeKaliumFileSystem
         )
     }
 

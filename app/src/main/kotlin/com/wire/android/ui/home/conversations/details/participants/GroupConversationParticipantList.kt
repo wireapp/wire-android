@@ -9,8 +9,8 @@ import androidx.compose.ui.unit.Dp
 import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.ui.home.conversations.details.participants.model.UIParticipant
-import com.wire.android.ui.home.conversationslist.folderWithElements
 import com.wire.android.ui.theme.wireColorScheme
+import com.wire.android.util.extension.folderWithElements
 
 fun LazyListScope.participantsFoldersWithElements(
     context: Context,
@@ -32,14 +32,16 @@ fun LazyListScope.participantsFoldersWithElements(
 fun LazyListScope.folderWithElements(
     header: String,
     items: List<UIParticipant>,
-    onRowItemClicked: (UIParticipant) -> Unit
+    onRowItemClicked: (UIParticipant) -> Unit,
+    showRightArrow: Boolean = true
 ) = folderWithElements(
     header = header,
     items = items.associateBy { it.id.toString() },
     factory = {
-        GroupConversationParticipantItem(
+        ConversationParticipantItem(
             uiParticipant = it,
-            clickable = remember { Clickable(enabled = true) { onRowItemClicked(it) } }
+            clickable = remember { Clickable(enabled = true) { onRowItemClicked(it) } },
+            showRightArrow = showRightArrow
         )
     },
     divider = {

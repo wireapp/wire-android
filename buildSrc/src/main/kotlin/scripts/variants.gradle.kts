@@ -17,6 +17,7 @@ plugins { id("com.android.application") apply false }
 object BuildTypes {
     const val DEBUG = "debug"
     const val RELEASE = "release"
+    const val COMPAT = "compat"
 }
 
 object ProductFlavors {
@@ -24,6 +25,12 @@ object ProductFlavors {
     const val INTERNAL = "internal"
     const val PUBLIC = "public"
     const val FDROID = "fdroid"
+    const val STAGING = "staging"
+}
+
+object ApplicationId {
+    const val DEV = "com.waz.zclient.dev"
+    const val STAGING_DEV = DEV
 }
 
 private object FlavorDimensions {
@@ -53,6 +60,12 @@ android {
                 keyAlias = System.getenv("KEYSTORE_KEY_NAME_DEBUG")
                 keyPassword = System.getenv("KEYPWD_DEBUG")
             }
+            maybeCreate(BuildTypes.COMPAT).apply {
+                storeFile = file(System.getenv("KEYSTORE_FILE_PATH_COMPAT"))
+                storePassword = System.getenv("KEYSTOREPWD_COMPAT")
+                keyAlias = System.getenv("KEYSTORE_KEY_NAME_COMPAT")
+                keyPassword = System.getenv("KEYPWD_COMPAT")
+            }
         }
     }
 
@@ -73,22 +86,33 @@ android {
             if (enableSigning)
                 signingConfig = signingConfigs.getByName("release")
         }
+        create(BuildTypes.COMPAT) {
+            initWith(getByName(BuildTypes.RELEASE))
+            isMinifyEnabled = true
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            isDebuggable = false
+            matchingFallbacks.add("release")
+            if (enableSigning)
+                signingConfig = signingConfigs.getByName("compat")
+        }
     }
 
     flavorDimensions(FlavorDimensions.DEFAULT)
     productFlavors {
         create(ProductFlavors.DEV) {
             dimension = FlavorDimensions.DEFAULT
-            applicationIdSuffix = ".${ProductFlavors.DEV}"
+            applicationId = ApplicationId.DEV
             versionNameSuffix = "-${ProductFlavors.DEV}"
+        }
+        create(ProductFlavors.STAGING) {
+            dimension = FlavorDimensions.DEFAULT
+            applicationId = ApplicationId.STAGING_DEV
+            versionNameSuffix = "-${ProductFlavors.STAGING}"
         }
         create(ProductFlavors.INTERNAL) {
             dimension = FlavorDimensions.DEFAULT
             applicationIdSuffix = ".${ProductFlavors.INTERNAL}"
             versionNameSuffix = "-${ProductFlavors.INTERNAL}"
-        }
-        create(ProductFlavors.PUBLIC) {
-            dimension = FlavorDimensions.DEFAULT
         }
     }
 
@@ -154,7 +178,11 @@ android {
 
 }
 
-fun buildFlavorConfig(productFlavour: ProductFlavor, configs: FeatureConfigs, buildTimeConfiguration: Customization.BuildTimeConfiguration?) {
+fun buildFlavorConfig(
+    productFlavour: ProductFlavor,
+    configs: FeatureConfigs,
+    buildTimeConfiguration: Customization.BuildTimeConfiguration?
+) {
     if (configs.value == productFlavour.name.toLowerCase()) {
         val falvourMap = buildTimeConfiguration?.configuration?.get(productFlavour.name.toLowerCase()) as Map<*, *>
 
@@ -221,4 +249,3 @@ fun buildNonStringConfig(productFlavour: ProductFlavor, type: String, name: Stri
     )
 
 }
-

@@ -11,7 +11,6 @@ import okio.Path
 import com.wire.kalium.logic.data.id.QualifiedID as ConversationId
 
 data class ConversationViewState(
-    val snackbarMessage: ConversationSnackbarMessages? = null,
     val userTeam: Team? = null,
     val isFileSharingEnabled: Boolean = true,
     val securityClassificationType: SecurityClassificationType = SecurityClassificationType.NONE
@@ -31,6 +30,7 @@ sealed class DownloadedAssetDialogVisibilityState {
 
 sealed class ConversationDetailsData {
     object None : ConversationDetailsData()
-    data class OneOne(val otherUserId: UserId, val connectionState: ConnectionState) : ConversationDetailsData()
+    data class OneOne(val otherUserId: UserId, val connectionState: ConnectionState, val isBlocked: Boolean, val isDeleted: Boolean) :
+        ConversationDetailsData()
     data class Group(val conversationId: QualifiedID) : ConversationDetailsData()
 }

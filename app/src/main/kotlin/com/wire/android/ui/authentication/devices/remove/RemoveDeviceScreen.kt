@@ -1,5 +1,6 @@
 package com.wire.android.ui.authentication.devices.remove
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -29,15 +30,22 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
+import com.wire.android.ui.authentication.devices.DeviceItem
+import com.wire.android.ui.authentication.devices.common.ClearSessionState
+import com.wire.android.ui.authentication.devices.common.ClearSessionViewModel
 import com.wire.android.ui.authentication.devices.model.Device
 import com.wire.android.ui.common.SurfaceBackgroundWrapper
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.button.WireButtonState
+import com.wire.android.ui.common.dialogs.CancelLoginDialogContent
+import com.wire.android.ui.common.dialogs.CancelLoginDialogState
 import com.wire.android.ui.common.rememberTopBarElevationState
 import com.wire.android.ui.common.textfield.WirePasswordTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
+import com.wire.android.ui.common.textfield.clearAutofillTree
+import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.util.dialogErrorStrings
 import com.wire.android.util.formatMediumDateTime
@@ -45,31 +53,67 @@ import com.wire.android.util.formatMediumDateTime
 @Composable
 fun RemoveDeviceScreen() {
     val viewModel: RemoveDeviceViewModel = hiltViewModel()
+    val clearSessionViewModel: ClearSessionViewModel = hiltViewModel()
     val state: RemoveDeviceState = viewModel.state
+    val clearSessionState: ClearSessionState = clearSessionViewModel.state
+
+    clearAutofillTree()
     RemoveDeviceContent(
         state = state,
+        clearSessionState = clearSessionState,
         onItemClicked = viewModel::onItemClicked,
         onPasswordChange = viewModel::onPasswordChange,
         onRemoveConfirm = viewModel::onRemoveConfirmed,
         onDialogDismiss = viewModel::onDialogDismissed,
         onErrorDialogDismiss = viewModel::clearDeleteClientError,
+        onBackButtonClicked = clearSessionViewModel::onBackButtonClicked,
+        onCancelLoginClicked = clearSessionViewModel::onCancelLoginClicked,
+        onProceedLoginClicked = clearSessionViewModel::onProceedLoginClicked
     )
 }
-
-typealias HideKeyboard = () -> Unit
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun RemoveDeviceContent(
     state: RemoveDeviceState,
+    clearSessionState: ClearSessionState,
     onItemClicked: (Device) -> Unit,
     onPasswordChange: (TextFieldValue) -> Unit,
     onRemoveConfirm: () -> Unit,
     onDialogDismiss: () -> Unit,
     onErrorDialogDismiss: () -> Unit,
+    onBackButtonClicked: () -> Unit,
+    onCancelLoginClicked: () -> Unit,
+    onProceedLoginClicked: () -> Unit
 ) {
+    BackHandler {
+        onBackButtonClicked()
+    }
+    val cancelLoginDialogState = rememberVisibilityState<CancelLoginDialogState>()
+    CancelLoginDialogContent(
+        dialogState = cancelLoginDialogState,
+        onActionButtonClicked = {
+            onCancelLoginClicked()
+        },
+        onProceedButtonClicked = {
+            onProceedLoginClicked()
+        }
+    )
+    if (clearSessionState.showCancelLoginDialog) {
+        cancelLoginDialogState.show(
+            cancelLoginDialogState.savedState ?: CancelLoginDialogState
+        )
+    } else {
+        cancelLoginDialogState.dismiss()
+    }
+
     val lazyListState = rememberLazyListState()
-    Scaffold(topBar = { RemoveDeviceTopBar(elevation = lazyListState.rememberTopBarElevationState().value) }) { internalPadding ->
+    Scaffold(topBar = {
+        RemoveDeviceTopBar(
+            elevation = lazyListState.rememberTopBarElevationState().value,
+            onBackButtonClicked = onBackButtonClicked
+        )
+    }) { internalPadding ->
         Box(modifier = Modifier.padding(internalPadding)) {
             when (state.isLoadingClientsList) {
                 true -> RemoveDeviceItemsList(lazyListState, List(10) { Device() }, true, onItemClicked)
@@ -88,6 +132,7 @@ private fun RemoveDeviceContent(
             )
             if (state.error is RemoveDeviceError.GenericError) {
                 val (title, message) = state.error.coreFailure.dialogErrorStrings(LocalContext.current.resources)
+
                 WireDialog(
                     title = title,
                     text = message,
@@ -116,7 +161,11 @@ private fun RemoveDeviceItemsList(
             modifier = Modifier.fillMaxWidth()
         ) {
             itemsIndexed(items) { index, device ->
-                RemoveDeviceItem(device, placeholders, onItemClicked)
+                DeviceItem(
+                    device = device,
+                    placeholder = placeholders,
+                    onRemoveDeviceClick = onItemClicked
+                )
                 if (index < items.lastIndex) Divider()
             }
         }
@@ -172,6 +221,7 @@ private fun RemoveDeviceDialog(
                 state = when {
                     errorState is RemoveDeviceError.InvalidCredentialsError ->
                         WireTextFieldState.Error(stringResource(id = R.string.remove_device_invalid_password))
+
                     state.loading -> WireTextFieldState.Disabled
                     else -> WireTextFieldState.Default
                 },
@@ -198,10 +248,14 @@ private fun RemoveDeviceScreenPreview() {
             RemoveDeviceDialogState.Hidden,
             isLoadingClientsList = false
         ),
+        clearSessionState = ClearSessionState(),
         onItemClicked = {},
         onPasswordChange = {},
         onRemoveConfirm = {},
         onDialogDismiss = {},
-        onErrorDialogDismiss = {}
+        onErrorDialogDismiss = {},
+        onBackButtonClicked = {},
+        onCancelLoginClicked = {},
+        onProceedLoginClicked = {}
     )
 }

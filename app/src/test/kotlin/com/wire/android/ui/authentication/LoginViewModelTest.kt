@@ -3,6 +3,7 @@ package com.wire.android.ui.authentication
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
+import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.di.ClientScopeProvider
 import com.wire.android.navigation.NavigationManager
@@ -39,6 +40,9 @@ class LoginViewModelTest {
     @MockK
     private lateinit var authServerConfigProvider: AuthServerConfigProvider
 
+    @MockK
+    private lateinit var userDataStoreProvider: UserDataStoreProvider
+
     private lateinit var loginViewModel: LoginViewModel
 
     @BeforeEach
@@ -51,7 +55,8 @@ class LoginViewModelTest {
             savedStateHandle,
             navigationManager,
             clientScopeProviderFactory,
-            authServerConfigProvider
+            authServerConfigProvider,
+            userDataStoreProvider
         )
     }
 

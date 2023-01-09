@@ -1,5 +1,6 @@
 package com.wire.android.feature
 
+import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
@@ -7,6 +8,7 @@ import com.wire.android.navigation.NavigationManager
 import com.wire.kalium.logic.data.logout.LogoutReason
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.AccountInfo
+import com.wire.kalium.logic.feature.server.ServerConfigForAccountUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
 import com.wire.kalium.logic.feature.session.DeleteSessionUseCase
@@ -138,6 +140,11 @@ class AccountSwitchUseCaseTest {
         @Mock
         lateinit var deleteSession: DeleteSessionUseCase
 
+        @Mock
+        lateinit var serverConfigForAccount: ServerConfigForAccountUseCase
+
+        @Mock
+        lateinit var authServerProvider: AuthServerConfigProvider
 
         @OptIn(ExperimentalCoroutinesApi::class)
         var accountSwitchUseCase: AccountSwitchUseCase = AccountSwitchUseCase(
@@ -146,6 +153,8 @@ class AccountSwitchUseCaseTest {
             getSessions,
             currentSession,
             deleteSession,
+            authServerProvider,
+            serverConfigForAccount,
             TestScope()
         )
 

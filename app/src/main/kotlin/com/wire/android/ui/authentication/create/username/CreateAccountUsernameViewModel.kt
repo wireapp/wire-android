@@ -1,6 +1,5 @@
 package com.wire.android.ui.authentication.create.username
 
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -80,7 +79,7 @@ class CreateAccountUsernameViewModel @Inject constructor(
             }
             state = state.copy(loading = false, continueEnabled = true, error = usernameError)
             if (usernameError is CreateAccountUsernameViewState.UsernameError.None)
-                navigationManager.navigate(NavigationCommand(NavigationItem.Home.getRouteWithArgs(), BackStackMode.CLEAR_WHOLE))
+                navigationManager.navigate(NavigationCommand(NavigationItem.InitialSync.getRouteWithArgs(), BackStackMode.CLEAR_WHOLE))
         }
     }
 

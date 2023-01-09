@@ -16,23 +16,24 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.model.Clickable
+import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.ArrowRightIcon
 import com.wire.android.ui.common.RowItemTemplate
-import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.UserBadge
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.WireCheckbox
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.common.loading.CenteredCircularProgressBarIndicator
+import com.wire.android.ui.common.progress.CenteredCircularProgressBarIndicator
 import com.wire.android.ui.home.conversations.search.SearchResultState
 import com.wire.android.ui.home.conversations.search.widget.SearchFailureBox
-import com.wire.android.ui.home.conversationslist.folderWithElements
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.extension.folderWithElements
 import com.wire.kalium.logic.data.user.ConnectionState
 
 @Composable
@@ -47,6 +48,7 @@ fun ContactsScreen(
         SearchResultState.Initial, SearchResultState.InProgress -> {
             CenteredCircularProgressBarIndicator()
         }
+
         is SearchResultState.Success -> {
             val lazyListState = rememberLazyListState()
 
@@ -79,8 +81,14 @@ fun ContactsScreen(
                 }
             }
         }
+
         is SearchResultState.Failure -> {
             SearchFailureBox(failureMessage = allKnownContactResult.failureString)
+        }
+
+        //TODO: what to do when user has no contacts ?
+        SearchResultState.EmptyResult -> {
+
         }
     }
 }
@@ -139,5 +147,20 @@ private fun ContactItem(
             }
         },
         clickable = clickable
+    )
+}
+
+@Preview
+@Composable
+fun ContactItemPreview() {
+    ContactItem(
+        name = "Name",
+        avatarData = UserAvatarData(),
+        membership = Membership.Admin,
+        belongsToGroup = true,
+        connectionState = ConnectionState.ACCEPTED,
+        addToGroup = { },
+        removeFromGroup = { },
+        openUserProfile = { }
     )
 }

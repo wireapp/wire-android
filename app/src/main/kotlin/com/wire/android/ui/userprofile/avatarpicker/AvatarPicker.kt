@@ -24,6 +24,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.ui.common.ArrowRightIcon
 import com.wire.android.ui.common.bottomsheet.MenuBottomSheetItem
@@ -35,7 +36,7 @@ import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.imagepreview.BulletHoleImagePreview
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
-import com.wire.android.ui.common.textfield.WirePrimaryButton
+import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.userprofile.avatarpicker.AvatarPickerViewModel.PictureState
@@ -43,15 +44,13 @@ import com.wire.android.util.ImageUtil
 import com.wire.android.util.resampleImageAndCopyToTempPath
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import okhttp3.Dispatcher
 import okio.Path
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun AvatarPickerScreen(viewModel: AvatarPickerViewModel) {
+fun AvatarPickerScreen(viewModel: AvatarPickerViewModel = hiltViewModel()) {
     val context = LocalContext.current
 
     val targetAvatarPath = viewModel.defaultAvatarPath

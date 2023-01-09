@@ -5,7 +5,7 @@ import com.wire.android.R
 import com.wire.kalium.logic.data.notification.LocalNotificationCommentType
 import com.wire.kalium.logic.data.notification.LocalNotificationConversation
 import com.wire.kalium.logic.data.notification.LocalNotificationMessage
-import com.wire.kalium.logic.util.toTimeInMillis
+import kotlinx.datetime.Instant
 
 data class NotificationConversation(
     val id: String,
@@ -17,7 +17,12 @@ data class NotificationConversation(
 )
 
 sealed class NotificationMessage(open val author: NotificationMessageAuthor, open val time: Long) {
-    data class Text(override val author: NotificationMessageAuthor, override val time: Long, val text: String) :
+    data class Text(
+        override val author: NotificationMessageAuthor,
+        override val time: Long,
+        val text: String,
+        val isQuotingSelfUser: Boolean
+    ) :
         NotificationMessage(author, time)
 
     // shared file, picture, reaction
@@ -38,13 +43,14 @@ enum class CommentResId(@StringRes val value: Int) {
     FILE(R.string.notification_shared_file),
     REACTION(R.string.notification_reacted),
     MISSED_CALL(R.string.notification_missed_call),
-    NOT_SUPPORTED(R.string.notification_not_supported_issue)
+    KNOCK(R.string.notification_knock),
+    NOT_SUPPORTED(R.string.notification_not_supported_issue),
 }
 
 fun LocalNotificationConversation.intoNotificationConversation(): NotificationConversation {
 
     val notificationMessages = this.messages.map { it.intoNotificationMessage() }.sortedBy { it.time }
-    val lastMessageTime = this.messages.maxOfOrNull { it.time.toTimeInMillis() } ?: 0
+    val lastMessageTime = this.messages.maxOfOrNull { Instant.parse(it.time).toEpochMilliseconds() } ?: 0
 
     return NotificationConversation(
         id = id.toString(),
@@ -59,10 +65,15 @@ fun LocalNotificationConversation.intoNotificationConversation(): NotificationCo
 fun LocalNotificationMessage.intoNotificationMessage(): NotificationMessage {
 
     val notificationMessageAuthor = NotificationMessageAuthor(author.name, null) // TODO image
-    val notificationMessageTime = time.toTimeInMillis()
+    val notificationMessageTime = Instant.parse(time).toEpochMilliseconds()
 
     return when (this) {
-        is LocalNotificationMessage.Text -> NotificationMessage.Text(notificationMessageAuthor, notificationMessageTime, text)
+        is LocalNotificationMessage.Text -> NotificationMessage.Text(
+            author = notificationMessageAuthor,
+            time = notificationMessageTime,
+            text = text,
+            isQuotingSelfUser = isQuotingSelfUser
+        )
         is LocalNotificationMessage.Comment -> NotificationMessage.Comment(
             notificationMessageAuthor,
             notificationMessageTime,
@@ -88,5 +99,6 @@ fun LocalNotificationCommentType.intoCommentResId(): CommentResId =
         LocalNotificationCommentType.FILE -> CommentResId.FILE
         LocalNotificationCommentType.REACTION -> CommentResId.REACTION
         LocalNotificationCommentType.MISSED_CALL -> CommentResId.MISSED_CALL
+        LocalNotificationCommentType.KNOCK -> CommentResId.KNOCK
         LocalNotificationCommentType.NOT_SUPPORTED_YET -> CommentResId.NOT_SUPPORTED
     }

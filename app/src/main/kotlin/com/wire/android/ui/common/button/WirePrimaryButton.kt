@@ -1,4 +1,4 @@
-package com.wire.android.ui.common.textfield
+package com.wire.android.ui.common.button
 
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.PaddingValues
@@ -23,11 +23,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.wire.android.ui.common.Icon
-import com.wire.android.ui.common.button.IconAlignment
-import com.wire.android.ui.common.button.WireButton
-import com.wire.android.ui.common.button.WireButtonColors
-import com.wire.android.ui.common.button.WireButtonState
-import com.wire.android.ui.common.button.wirePrimaryButtonColors
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 
@@ -43,6 +38,7 @@ fun WirePrimaryButton(
     fillMaxWidth: Boolean = true,
     textStyle: TextStyle = if(fillMaxWidth) MaterialTheme.wireTypography.button02 else MaterialTheme.wireTypography.button03,
     state: WireButtonState = WireButtonState.Default,
+    blockUntilSynced: Boolean = false,
     minHeight: Dp = MaterialTheme.wireDimensions.buttonMinSize.height,
     minWidth: Dp = MaterialTheme.wireDimensions.buttonMinSize.width,
     shape: Shape = RoundedCornerShape(MaterialTheme.wireDimensions.buttonCornerSize),
@@ -65,6 +61,7 @@ fun WirePrimaryButton(
     text = text,
     textStyle = textStyle,
     state = state,
+    blockUntilSynced = blockUntilSynced,
     minHeight = minHeight,
     minWidth = minWidth,
     fillMaxWidth = fillMaxWidth,

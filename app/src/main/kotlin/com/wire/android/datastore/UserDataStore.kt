@@ -8,26 +8,13 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
-import dagger.hilt.android.qualifiers.ApplicationContext
-import javax.inject.Inject
-import javax.inject.Singleton
+import com.wire.kalium.logic.data.user.UserId
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
-@Singleton
-class UserDataStore @Inject constructor(@ApplicationContext private val context: Context) {
+class UserDataStore(private val context: Context, userId: UserId) {
 
-    companion object {
-        private const val PREFERENCES_NAME = "user_data"
-
-        // keys
-        private val SHOW_STATUS_RATIONALE_AVAILABLE = booleanPreferencesKey("show_status_rationale_available")
-        private val SHOW_STATUS_RATIONALE_BUSY = booleanPreferencesKey("show_status_rationale_busy")
-        private val SHOW_STATUS_RATIONALE_AWAY = booleanPreferencesKey("show_status_rationale_away")
-        private val SHOW_STATUS_RATIONALE_NONE = booleanPreferencesKey("show_status_rationale_none")
-        private val USER_AVATAR_ASSET_ID = stringPreferencesKey("user_avatar_asset_id")
-        private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = PREFERENCES_NAME)
-    }
+    private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "${PREFERENCES_NAME}_$userId")
 
     suspend fun dontShowStatusRationaleAgain(status: UserAvailabilityStatus) {
         context.dataStore.edit { preferences ->
@@ -61,4 +48,21 @@ class UserDataStore @Inject constructor(@ApplicationContext private val context:
         UserAvailabilityStatus.AWAY -> SHOW_STATUS_RATIONALE_AWAY
         UserAvailabilityStatus.NONE -> SHOW_STATUS_RATIONALE_NONE
     }
+
+    val initialSyncCompleted: Flow<Boolean> = context.dataStore.data.map { it[INITIAL_SYNC_COMPLETED] ?: false }
+
+    suspend fun setInitialSyncCompleted() { context.dataStore.edit { it[INITIAL_SYNC_COMPLETED] = true } }
+
+    companion object {
+        private const val PREFERENCES_NAME = "user_data"
+
+        // keys
+        private val SHOW_STATUS_RATIONALE_AVAILABLE = booleanPreferencesKey("show_status_rationale_available")
+        private val SHOW_STATUS_RATIONALE_BUSY = booleanPreferencesKey("show_status_rationale_busy")
+        private val SHOW_STATUS_RATIONALE_AWAY = booleanPreferencesKey("show_status_rationale_away")
+        private val SHOW_STATUS_RATIONALE_NONE = booleanPreferencesKey("show_status_rationale_none")
+        private val USER_AVATAR_ASSET_ID = stringPreferencesKey("user_avatar_asset_id")
+        private val INITIAL_SYNC_COMPLETED = booleanPreferencesKey("initial_sync_completed")
+    }
+
 }

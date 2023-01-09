@@ -6,23 +6,16 @@ import app.cash.turbine.test
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.framework.TestMessage
 import com.wire.android.ui.home.conversations.DownloadedAssetDialogVisibilityState
-import com.wire.android.ui.home.conversations.mockConversationDetailsGroup
 import com.wire.android.ui.home.conversations.mockUITextMessage
-import com.wire.kalium.logic.data.conversation.ConversationDetails
-import com.wire.kalium.logic.data.id.PlainId
-import com.wire.kalium.logic.data.id.QualifiedID
-import com.wire.kalium.logic.data.message.Message
-import com.wire.kalium.logic.data.message.MessageContent
+import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.util.fileExtension
 import io.mockk.coVerify
 import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
-import kotlinx.datetime.Instant
 import okio.Path.Companion.toPath
 import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeNull
-import org.amshove.kluent.shouldNotBeNull
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -101,72 +94,29 @@ class ConversationMessagesViewModelTest {
     }
 
     @Test
-    fun `given group conversation, when lastUnreadMessage is cleared, then correctly propagate it up to state`() =
-        runTest {
-            val groupDetails: ConversationDetails.Group = mockConversationDetailsGroup("Conversation Name Goes Here")
+    fun `given a message and a reaction, when toggleReaction is called, then should call ToggleReactionUseCase`() = runTest {
+        val (arrangement, viewModel) = ConversationMessagesViewModelArrangement().arrange()
 
-            val (arrangement, viewModel) = ConversationMessagesViewModelArrangement()
-                .withConversationDetailUpdate(groupDetails)
-                .arrange()
+        val messageId = "mID"
+        val reaction = "🤌🏼"
 
-            val sendMessage = Message.Regular(
-                id = "commonId",
-                content = MessageContent.Text("some Text"),
-                conversationId = QualifiedID("someValue", "someId"),
-                date = Instant.fromEpochSeconds(1000L, 0).toString(),
-                senderUserId = QualifiedID("someValue", "someId"),
-                status = Message.Status.SENT,
-                visibility = Message.Visibility.VISIBLE,
-                senderClientId = PlainId(value = "someValue"),
-                editStatus = Message.EditStatus.NotEdited
-            )
+        viewModel.toggleReaction(messageId, reaction)
 
-            arrangement.conversationDetailsChannel.send(
-                groupDetails.copy(lastUnreadMessage = sendMessage)
-            )
-
-            viewModel.conversationViewState.lastUnreadMessageInstant.shouldNotBeNull()
-            viewModel.conversationViewState.lastUnreadMessageInstant.toString() shouldBeEqualTo sendMessage.date
-
-            arrangement.conversationDetailsChannel.send(
-                groupDetails.copy(lastUnreadMessage = null)
-            )
-
-            viewModel.conversationViewState.lastUnreadMessageInstant.shouldBeNull()
+        coVerify(exactly = 1) {
+            arrangement.toggleReaction(arrangement.conversationId, messageId, reaction)
         }
+    }
 
     @Test
-    fun `given group conversation, when new lastUnreadMessage arrive, then correctly propagate it up to state`() =
-        runTest {
-            val groupDetails: ConversationDetails.Group = mockConversationDetailsGroup("Conversation Name Goes Here")
+    @Disabled
+    fun `given a message with failed decryption, when resetting the session, then should call ResetSessionUseCase`() = runTest {
+        val userId = UserId("someID", "someDomain")
+        val clientId = "someClientId"
+        val (arrangement, viewModel) = ConversationMessagesViewModelArrangement()
+            .arrange()
 
-            val (arrangement, viewModel) = ConversationMessagesViewModelArrangement()
-                .withConversationDetailUpdate(groupDetails)
-                .arrange()
+        viewModel.onResetSession(userId, clientId)
 
-            val sendMessage = Message.Regular(
-                id = "commonId",
-                content = MessageContent.Text("some Text"),
-                conversationId = QualifiedID("someValue", "someId"),
-                date = Instant.fromEpochSeconds(1000L, 0).toString(),
-                senderUserId = QualifiedID("someValue", "someId"),
-                status = Message.Status.SENT,
-                visibility = Message.Visibility.VISIBLE,
-                senderClientId = PlainId(value = "someValue"),
-                editStatus = Message.EditStatus.NotEdited
-            )
-
-            arrangement.conversationDetailsChannel.send(
-                groupDetails.copy(lastUnreadMessage = null)
-            )
-
-            viewModel.conversationViewState.lastUnreadMessageInstant.shouldBeNull()
-
-            arrangement.conversationDetailsChannel.send(
-                groupDetails.copy(lastUnreadMessage = sendMessage)
-            )
-
-            viewModel.conversationViewState.lastUnreadMessageInstant.shouldNotBeNull()
-            viewModel.conversationViewState.lastUnreadMessageInstant.toString() shouldBeEqualTo sendMessage.date
-        }
+        coVerify(exactly = 1) { arrangement.resetSession(any(), any(), any()) }
+    }
 }

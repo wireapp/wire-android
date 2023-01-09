@@ -28,12 +28,16 @@ import com.wire.kalium.logic.data.user.ConnectionState
 fun UserBadge(
     membership: Membership,
     connectionState: ConnectionState? = null,
+    isDeleted: Boolean = false,
     startPadding: Dp = dimensions().spacing0x,
     topPadding: Dp = dimensions().spacing0x
 ) {
     if (connectionState == ConnectionState.BLOCKED) {
         Spacer(modifier = Modifier.width(startPadding))
         BlockedLabel()
+    } else if (isDeleted) {
+        Spacer(modifier = Modifier.width(startPadding))
+        DeletedLabel()
     } else if (membership.hasLabel()) {
         Spacer(modifier = Modifier.width(startPadding))
         MembershipQualifierLabel(membership, Modifier.padding(top = topPadding))

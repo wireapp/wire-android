@@ -11,10 +11,11 @@ import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.ui.common.groupname.GroupMetadataState
+import com.wire.android.ui.common.groupname.GroupNameValidator
 import com.wire.android.ui.home.conversations.search.SearchAllPeopleViewModel
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.newconversation.groupOptions.GroupOptionState
-import com.wire.android.ui.home.newconversation.newgroup.NewGroupState
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationOptions
@@ -25,14 +26,17 @@ import com.wire.kalium.logic.feature.publicuser.GetAllContactsUseCase
 import com.wire.kalium.logic.feature.publicuser.search.SearchKnownUsersUseCase
 import com.wire.kalium.logic.feature.publicuser.search.SearchPublicUsersUseCase
 import com.wire.kalium.logic.feature.user.IsMLSEnabledUseCase
+import com.wire.kalium.logic.feature.user.IsSelfATeamMemberUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
 @Suppress("LongParameterList", "TooManyFunctions")
 @HiltViewModel
 class NewConversationViewModel @Inject constructor(
     private val createGroupConversation: CreateGroupConversationUseCase,
+    private val isSelfATeamMember: IsSelfATeamMemberUseCase,
     getAllKnownUsers: GetAllContactsUseCase,
     searchKnownUsers: SearchKnownUsersUseCase,
     searchPublicUsers: SearchPublicUsersUseCase,
@@ -50,41 +54,17 @@ class NewConversationViewModel @Inject constructor(
     dispatcher = dispatchers,
     navigationManager = navigationManager
 ) {
-    private companion object {
-        const val GROUP_NAME_MAX_COUNT = 64
-    }
 
-    var newGroupState: NewGroupState by mutableStateOf(NewGroupState(mlsEnabled = isMLSEnabled()))
+    var newGroupState: GroupMetadataState by mutableStateOf(
+        GroupMetadataState(
+            mlsEnabled = isMLSEnabled(),
+            isSelfTeamMember = runBlocking { isSelfATeamMember() })
+    )
 
     var groupOptionsState: GroupOptionState by mutableStateOf(GroupOptionState())
 
     fun onGroupNameChange(newText: TextFieldValue) {
-        when {
-            newText.text.trim().isEmpty() -> {
-                newGroupState = newGroupState.copy(
-                    animatedGroupNameError = true,
-                    groupName = newText,
-                    continueEnabled = false,
-                    error = NewGroupState.NewGroupError.TextFieldError.GroupNameEmptyError
-                )
-            }
-            newText.text.trim().count() > GROUP_NAME_MAX_COUNT -> {
-                newGroupState = newGroupState.copy(
-                    animatedGroupNameError = true,
-                    groupName = newText,
-                    continueEnabled = false,
-                    error = NewGroupState.NewGroupError.TextFieldError.GroupNameExceedLimitError
-                )
-            }
-            else -> {
-                newGroupState = newGroupState.copy(
-                    animatedGroupNameError = false,
-                    groupName = newText,
-                    continueEnabled = true,
-                    error = NewGroupState.NewGroupError.None
-                )
-            }
-        }
+        newGroupState = GroupNameValidator.onGroupNameChange(newText, newGroupState)
     }
 
     fun onGroupOptionsErrorDismiss() {
@@ -122,21 +102,21 @@ class NewConversationViewModel @Inject constructor(
     fun onAllowGuestsClicked() {
         onAllowGuestsDialogDismissed()
         onAllowGuestStatusChanged(true)
-        createGroup(false)
+        createGroupWithCustomOptions(false)
     }
 
     fun onNotAllowGuestClicked() {
         onAllowGuestsDialogDismissed()
         onAllowGuestStatusChanged(false)
         removeGuestsIfNotAllowed()
-        createGroup(false)
+        createGroupWithCustomOptions(false)
     }
 
     private fun removeGuestsIfNotAllowed() {
         if (!groupOptionsState.isAllowGuestEnabled) {
             for (item in state.contactsAddedToGroup) {
-                if (item.membership == Membership.Guest
-                    || item.membership == Membership.Federated
+                if (item.membership == Membership.Guest ||
+                    item.membership == Membership.Federated
                 ) {
                     removeContactFromGroup(item)
                 }
@@ -147,8 +127,8 @@ class NewConversationViewModel @Inject constructor(
     private fun checkIfGuestAdded(): Boolean {
         if (!groupOptionsState.isAllowGuestEnabled) {
             for (item in state.contactsAddedToGroup) {
-                if (item.membership == Membership.Guest
-                    || item.membership == Membership.Federated
+                if (item.membership == Membership.Guest ||
+                    item.membership == Membership.Federated
                 ) {
                     groupOptionsState = groupOptionsState.copy(showAllowGuestsDialog = true)
                     return true
@@ -158,9 +138,32 @@ class NewConversationViewModel @Inject constructor(
         return false
     }
 
-    fun createGroup(shouldCheckGuests: Boolean = true) {
-        if (shouldCheckGuests && checkIfGuestAdded())
-            return
+    fun createGroup() {
+        if (newGroupState.isSelfTeamMember) {
+            createGroupWithCustomOptions(true)
+        } else {
+            createGroupWithoutOption()
+        }
+    }
+
+    private fun createGroupWithoutOption() {
+        viewModelScope.launch {
+            newGroupState = newGroupState.copy(isLoading = true)
+            val result = createGroupConversation(
+                name = newGroupState.groupName.text,
+                // TODO: change the id in Contact to UserId instead of String
+                userIdList = state.contactsAddedToGroup.map { contact -> UserId(contact.id, contact.domain) },
+                options = ConversationOptions().copy(
+                    protocol = ConversationOptions.Protocol.PROTEUS,
+                    accessRole = null
+                )
+            )
+            handleNewGroupCreationResult(result)
+        }
+    }
+
+    private fun createGroupWithCustomOptions(shouldCheckGuests: Boolean = true) {
+        if (shouldCheckGuests && checkIfGuestAdded()) return
         viewModelScope.launch {
             newGroupState = newGroupState.copy(isLoading = true)
             val result = createGroupConversation(
@@ -202,7 +205,6 @@ class NewConversationViewModel @Inject constructor(
     }
 
     fun onGroupNameErrorAnimated() {
-        newGroupState = newGroupState.copy(animatedGroupNameError = false)
+        newGroupState = GroupNameValidator.onGroupNameErrorAnimated(newGroupState)
     }
-
 }

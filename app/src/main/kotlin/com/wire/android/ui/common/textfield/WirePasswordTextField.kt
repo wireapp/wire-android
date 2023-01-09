@@ -17,7 +17,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.autofill.AutofillType
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -34,6 +36,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.wire.android.R
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun WirePasswordTextField(
     value: TextFieldValue,
@@ -52,10 +55,12 @@ fun WirePasswordTextField(
     inputMinHeight: Dp = 48.dp,
     shape: Shape = RoundedCornerShape(16.dp),
     colors: WireTextFieldColors = wireTextFieldColors(),
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    autofillTypes: List<AutofillType>? = null
 ) {
     var passwordVisibility by remember { mutableStateOf(false) }
-    WireTextField(
+    AutoFillTextField(
+        autofillTypes = autofillTypes ?: listOf(AutofillType.Password),
         value = value,
         onValueChange = onValueChange,
         readOnly = readOnly,
@@ -95,6 +100,7 @@ fun WirePasswordTextField(
 }
 
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Preview(name = "Default WirePasswordTextField")
 @Composable
 private fun WirePasswordTextFieldPreview() {

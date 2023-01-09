@@ -11,7 +11,6 @@ import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.Conversation.Member
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
-import com.wire.kalium.logic.data.id.PlainId
 import com.wire.kalium.logic.data.id.TeamId
 import com.wire.kalium.logic.data.team.Team
 import com.wire.kalium.logic.data.user.ConnectionState
@@ -54,7 +53,7 @@ class OtherUserProfileScreenViewModelTest {
                 // then
                 coVerify { arrangement.sendConnectionRequest(eq(USER_ID)) }
                 assertEquals(ConnectionState.SENT, viewModel.state.connectionState)
-                assertEquals(InfoMessageType.SuccessConnectionSentRequest.uiText, awaitItem())
+                assertEquals(OtherUserProfileInfoMessageType.SuccessConnectionSentRequest.uiText, awaitItem())
             }
         }
 
@@ -77,7 +76,7 @@ class OtherUserProfileScreenViewModelTest {
                     arrangement.sendConnectionRequest(eq(USER_ID))
                     arrangement.navigationManager wasNot Called
                 }
-                assertEquals(InfoMessageType.ConnectionRequestError.uiText, awaitItem())
+                assertEquals(OtherUserProfileInfoMessageType.ConnectionRequestError.uiText, awaitItem())
             }
         }
 
@@ -113,7 +112,7 @@ class OtherUserProfileScreenViewModelTest {
                 // then
                 coVerify { arrangement.cancelConnectionRequest(eq(USER_ID)) }
                 assertEquals(ConnectionState.NOT_CONNECTED, viewModel.state.connectionState)
-                assertEquals(InfoMessageType.SuccessConnectionCancelRequest.uiText, awaitItem())
+                assertEquals(OtherUserProfileInfoMessageType.SuccessConnectionCancelRequest.uiText, awaitItem())
             }
         }
 
@@ -133,7 +132,7 @@ class OtherUserProfileScreenViewModelTest {
                 // then
                 coVerify { arrangement.acceptConnectionRequest(eq(USER_ID)) }
                 assertEquals(ConnectionState.ACCEPTED, viewModel.state.connectionState)
-                assertEquals(InfoMessageType.SuccessConnectionAcceptRequest.uiText, awaitItem())
+                assertEquals(OtherUserProfileInfoMessageType.SuccessConnectionAcceptRequest.uiText, awaitItem())
             }
         }
 
@@ -265,7 +264,7 @@ class OtherUserProfileScreenViewModelTest {
                     arrangement.updateConversationMemberRoleUseCase(CONVERSATION_ID, USER_ID, newRole)
                     arrangement.navigationManager wasNot Called
                 }
-                assertEquals(InfoMessageType.ChangeGroupRoleError.uiText, awaitItem())
+                assertEquals(OtherUserProfileInfoMessageType.ChangeGroupRoleError.uiText, awaitItem())
             }
         }
 
@@ -288,7 +287,7 @@ class OtherUserProfileScreenViewModelTest {
                 )
                 // then
                 coVerify { arrangement.blockUser(eq(USER_ID)) }
-                assertEquals(InfoMessageType.BlockingUserOperationError.uiText, awaitItem())
+                assertEquals(OtherUserProfileInfoMessageType.BlockingUserOperationError.uiText, awaitItem())
                 assertEquals(false, viewModel.requestInProgress)
             }
         }
@@ -316,7 +315,7 @@ class OtherUserProfileScreenViewModelTest {
                 coVerify { arrangement.blockUser(eq(USER_ID)) }
                 assertEquals(
                     (awaitItem() as UIText.StringResource).resId,
-                    (InfoMessageType.BlockingUserOperationSuccess(userName).uiText as UIText.StringResource).resId
+                    (OtherUserProfileInfoMessageType.BlockingUserOperationSuccess(userName).uiText as UIText.StringResource).resId
                 )
                 assertEquals(false, viewModel.requestInProgress)
             }
@@ -335,13 +334,17 @@ class OtherUserProfileScreenViewModelTest {
     }
 
     @Test
-    fun `given connected user, then direct conversation data is requested`() = runTest {
+    fun `given connected user, when click on menu button, then direct conversation data is requested`() = runTest {
         // given
         val (arrangement, viewModel) = OtherUserProfileViewModelArrangement()
             .withUserInfo(
                 GetUserInfoResult.Success(OTHER_USER.copy(connectionStatus = ConnectionState.ACCEPTED), TEAM)
             )
+            .withGetOneToOneConversation(CreateConversationResult.Success(CONVERSATION))
             .arrange()
+
+        //when
+        viewModel.loadConversationBottomSheetContent()
 
         // then
         coVerify {
@@ -350,7 +353,7 @@ class OtherUserProfileScreenViewModelTest {
     }
 
     @Test
-    fun `given connected user AND direct conversation data error, then the other data is displayed`() = runTest {
+    fun `given connected user AND direct conversation data error, when click on menu button, then the other data is displayed`() = runTest {
         // given
         val (arrangement, viewModel) = OtherUserProfileViewModelArrangement()
             .withUserInfo(
@@ -358,6 +361,9 @@ class OtherUserProfileScreenViewModelTest {
             )
             .withGetOneToOneConversation(CreateConversationResult.Failure(Unknown(RuntimeException("some error"))))
             .arrange()
+
+        //when
+        viewModel.loadConversationBottomSheetContent()
 
         // then
         coVerify {
@@ -393,7 +399,7 @@ class OtherUserProfileScreenViewModelTest {
             null,
             false
         )
-        val TEAM = Team("some_id", null)
+        val TEAM = Team("some_id", "name", "icon")
         val CONVERSATION = Conversation(
             id = CONVERSATION_ID,
             name = "some_name",
@@ -407,7 +413,8 @@ class OtherUserProfileScreenViewModelTest {
             lastReadDate = "2022-04-04T16:11:28.388Z",
             access = listOf(Conversation.Access.INVITE),
             accessRole = listOf(Conversation.AccessRole.NON_TEAM_MEMBER),
-            creatorId = PlainId("")
+            creatorId = null,
+            receiptMode = Conversation.ReceiptMode.ENABLED
         )
         val CONVERSATION_ROLE_DATA = ConversationRoleData(
             "some_name",

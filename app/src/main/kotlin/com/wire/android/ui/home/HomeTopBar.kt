@@ -19,17 +19,17 @@ fun HomeTopBar(
     status: UserAvailabilityStatus,
     title: String,
     elevation: Dp,
-    onOpenDrawerClicked: () -> Unit,
-    onNavigateToUserProfile: () -> Unit
+    onHamburgerMenuClick: () -> Unit,
+    onNavigateToSelfUserProfile: () -> Unit
 ) {
     WireCenterAlignedTopAppBar(
         title = title,
-        onNavigationPressed = onOpenDrawerClicked,
+        onNavigationPressed = onHamburgerMenuClick,
         navigationIconType = NavigationIconType.Menu,
         actions = {
             UserProfileAvatar(
                 avatarData = UserAvatarData(avatarAsset, status),
-                clickable = remember { Clickable(enabled = true) { onNavigateToUserProfile() } }
+                clickable = remember { Clickable(enabled = true) { onNavigateToSelfUserProfile() } }
             )
         },
         elevation = elevation,

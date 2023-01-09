@@ -10,9 +10,13 @@ import com.wire.android.ui.home.conversations.search.SearchResultTitle
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.newconversation.groupOptions.GroupOptionState
 import com.wire.android.ui.home.newconversation.model.Contact
+import com.wire.kalium.logic.data.conversation.ConversationOptions
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserAssetId
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
+import com.wire.kalium.logic.data.user.UserId
+import io.mockk.coVerify
+import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
@@ -30,7 +34,9 @@ class NewConversationViewModelTest {
     fun `when search with search query, return results for known and public search`() {
         runTest {
             // Given
-            val (arrangement, viewModel) = NewConversationViewModelArrangement().arrange()
+            val (arrangement, viewModel) = NewConversationViewModelArrangement()
+                .withIsSelfTeamMember(true)
+                .arrange()
 
             // When
             viewModel.searchQueryChanged(TextFieldValue("search"))
@@ -40,7 +46,7 @@ class NewConversationViewModelTest {
             assertEquals(
                 viewModel.state.searchResult[SearchResultTitle(R.string.label_contacts)]!!.searchResultState,
                 SearchResultState.Success(
-                    result = listOf(
+                    result = persistentListOf(
                         Contact(
                             id = "knownValue",
                             domain = "domain",
@@ -63,7 +69,7 @@ class NewConversationViewModelTest {
             assertEquals(
                 viewModel.state.searchResult[SearchResultTitle(R.string.label_public_wire)]!!.searchResultState,
                 SearchResultState.Success(
-                    result = listOf(
+                    result = persistentListOf(
                         Contact(
                             id = "publicValue",
                             domain = "domain",
@@ -88,6 +94,7 @@ class NewConversationViewModelTest {
     @Test
     fun `given sync failure, when creating group, then should update options state with connectivity error`() = runTest {
         val (_, viewModel) = NewConversationViewModelArrangement()
+            .withIsSelfTeamMember(true)
             .withSyncFailureOnCreatingGroup()
             .arrange()
 
@@ -100,6 +107,7 @@ class NewConversationViewModelTest {
     @Test
     fun `given unknown failure, when creating group, then should update options state with unknown error`() = runTest {
         val (_, viewModel) = NewConversationViewModelArrangement()
+            .withIsSelfTeamMember(true)
             .withUnknownFailureOnCreatingGroup()
             .arrange()
 
@@ -111,7 +119,9 @@ class NewConversationViewModelTest {
 
     @Test
     fun `given no failure, when creating group, then options state should have no error`() = runTest {
-        val (_, viewModel) = NewConversationViewModelArrangement().arrange()
+        val (_, viewModel) = NewConversationViewModelArrangement()
+            .withIsSelfTeamMember(true)
+            .arrange()
 
         viewModel.createGroup()
         advanceUntilIdle()
@@ -120,10 +130,31 @@ class NewConversationViewModelTest {
     }
 
     @Test
+    fun `given self is not a team member, when creating group, then the group is created with the correct values`() = runTest {
+        val (arrangement, viewModel) = NewConversationViewModelArrangement()
+            .withIsSelfTeamMember(false)
+            .arrange()
+
+        viewModel.createGroup()
+        advanceUntilIdle()
+
+        viewModel.groupOptionsState.error.shouldBeNull()
+
+        coVerify {
+            arrangement.createGroupConversation(
+                viewModel.newGroupState.groupName.text,
+                viewModel.state.contactsAddedToGroup.map { contact -> UserId(contact.id, contact.domain) },
+                ConversationOptions(null, null, false, ConversationOptions.Protocol.PROTEUS, null)
+            )
+        }
+    }
+
+    @Test
     fun `when search with search query, return failure for known and public search`() {
         runTest {
             // Given
             val (_, viewModel) = NewConversationViewModelArrangement()
+                .withIsSelfTeamMember(true)
                 .withFailureKnownSearchResponse()
                 .withFailurePublicSearchResponse()
                 .arrange()
@@ -135,12 +166,12 @@ class NewConversationViewModelTest {
             // Then
             assertEquals(
                 viewModel.state.searchResult[SearchResultTitle(R.string.label_contacts)]!!.searchResultState
-                        is SearchResultState.Failure,
+                is SearchResultState.Failure,
                 true
             )
             assertEquals(
                 viewModel.state.searchResult[SearchResultTitle(R.string.label_public_wire)]!!.searchResultState
-                        is SearchResultState.Failure,
+                is SearchResultState.Failure,
                 true
             )
         }

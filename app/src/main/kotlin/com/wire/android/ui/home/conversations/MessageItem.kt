@@ -1,12 +1,9 @@
 package com.wire.android.ui.home.conversations
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -14,8 +11,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -28,24 +23,30 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
+import com.google.accompanist.flowlayout.FlowRow
 import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.LegalHoldIndicator
+import com.wire.android.ui.common.StatusBox
 import com.wire.android.ui.common.UserBadge
 import com.wire.android.ui.common.UserProfileAvatar
+import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.home.conversations.model.ImageMessageParams
-import com.wire.android.ui.home.conversations.model.MessageAsset
+import com.wire.android.ui.common.spacers.VerticalSpace
+import com.wire.android.ui.home.conversations.messages.QuotedMessage
+import com.wire.android.ui.home.conversations.messages.ReactionPill
 import com.wire.android.ui.home.conversations.model.MessageBody
-import com.wire.android.ui.home.conversations.model.UIMessageContent
+import com.wire.android.ui.home.conversations.model.MessageFooter
+import com.wire.android.ui.home.conversations.model.MessageGenericAsset
 import com.wire.android.ui.home.conversations.model.MessageHeader
 import com.wire.android.ui.home.conversations.model.MessageImage
 import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.model.MessageStatus
-import com.wire.android.ui.home.conversations.model.RestrictedAssetMessage
-import com.wire.android.ui.home.conversations.model.RestrictedFileMessage
 import com.wire.android.ui.home.conversations.model.UIMessage
+import com.wire.android.ui.home.conversations.model.UIMessageContent
+import com.wire.android.ui.home.conversations.model.messagetypes.asset.RestrictedAssetMessage
+import com.wire.android.ui.home.conversations.model.messagetypes.asset.RestrictedGenericFileMessage
+import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMessageParams
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
@@ -58,10 +59,13 @@ fun MessageItem(
     onLongClicked: (UIMessage) -> Unit,
     onAssetMessageClicked: (String) -> Unit,
     onImageMessageClicked: (String, Boolean) -> Unit,
-    onAvatarClicked: (MessageSource, UserId) -> Unit
+    onOpenProfile: (String) -> Unit,
+    onReactionClicked: (String, String) -> Unit,
+    onResetSessionClicked: (senderUserId: UserId, clientId: String?) -> Unit
 ) {
     with(message) {
         val fullAvatarOuterPadding = dimensions().userAvatarClickablePadding + dimensions().userAvatarStatusBorderSize
+        Column { }
         Row(
             Modifier
                 .customizeMessageBackground(message)
@@ -79,9 +83,14 @@ fun MessageItem(
                 }
         ) {
             Spacer(Modifier.padding(start = dimensions().spacing8x - fullAvatarOuterPadding))
+
+            val isProfileRedirectEnabled =
+                message.messageHeader.userId != null
+                        && !(message.messageHeader.isSenderDeleted || message.messageHeader.isSenderUnavailable)
+
             val avatarClickable = remember {
-                Clickable(enabled = message.messageHeader.userId != null) {
-                    onAvatarClicked(message.messageSource, message.messageHeader.userId!!)
+                Clickable(enabled = isProfileRedirectEnabled) {
+                    onOpenProfile(message.messageHeader.userId!!.toString())
                 }
             }
             UserProfileAvatar(
@@ -119,11 +128,19 @@ fun MessageItem(
                             messageContent = messageContent,
                             onAssetClick = currentOnAssetClicked,
                             onImageClick = currentOnImageClick,
-                            onLongClick = onLongClick
+                            onLongClick = onLongClick,
+                            onOpenProfile = onOpenProfile
+                        )
+                        MessageFooter(
+                            messageFooter,
+                            onReactionClicked
                         )
                     } else {
-                        // Decryption failed for this message
-                        MessageDecryptionFailure()
+                        MessageDecryptionFailure(
+                            messageHeader = messageHeader,
+                            decryptionStatus = messageHeader.messageStatus as MessageStatus.DecryptionFailure,
+                            onResetSessionClicked = onResetSessionClicked
+                        )
                     }
                 }
 
@@ -145,7 +162,9 @@ private fun Modifier.customizeMessageBackground(
 }
 
 @Composable
-private fun MessageHeader(messageHeader: MessageHeader) {
+private fun MessageHeader(
+    messageHeader: MessageHeader,
+) {
     with(messageHeader) {
         Column {
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -158,7 +177,8 @@ private fun MessageHeader(messageHeader: MessageHeader) {
                     UserBadge(
                         membership = membership,
                         connectionState = connectionState,
-                        startPadding = dimensions().spacing6x
+                        startPadding = dimensions().spacing6x,
+                        isDeleted = isSenderDeleted
                     )
 
                     if (isLegalHold) {
@@ -172,6 +192,33 @@ private fun MessageHeader(messageHeader: MessageHeader) {
             }
             MessageStatusLabel(messageStatus = messageStatus)
         }
+    }
+}
+
+@Composable
+private fun MessageFooter(
+    messageFooter: MessageFooter,
+    onReactionClicked: (String, String) -> Unit
+) {
+    FlowRow(
+        mainAxisSpacing = dimensions().spacing4x,
+        crossAxisSpacing = dimensions().spacing6x,
+        modifier = Modifier.padding(vertical = dimensions().spacing4x)
+    ) {
+        messageFooter.reactions.entries
+            .sortedBy { it.key }
+            .forEach {
+                val reaction = it.key
+                val count = it.value
+                ReactionPill(
+                    emoji = reaction,
+                    count = count,
+                    isOwn = messageFooter.ownReactions.contains(reaction),
+                    onTap = {
+                        onReactionClicked(messageFooter.messageId, reaction)
+                    }
+                )
+            }
     }
 }
 
@@ -199,84 +246,92 @@ private fun Username(username: String, modifier: Modifier = Modifier) {
     )
 }
 
+@Suppress("ComplexMethod")
 @Composable
 private fun MessageContent(
     messageContent: UIMessageContent?,
     onAssetClick: Clickable,
     onImageClick: Clickable,
-    onLongClick: (() -> Unit)? = null
+    onLongClick: (() -> Unit)? = null,
+    onOpenProfile: (String) -> Unit
 ) {
     when (messageContent) {
         is UIMessageContent.ImageMessage -> MessageImage(
-            rawImgData = messageContent.imgData,
+            asset = messageContent.asset,
             imgParams = ImageMessageParams(messageContent.width, messageContent.height),
+            uploadStatus = messageContent.uploadStatus,
+            downloadStatus = messageContent.downloadStatus,
             onImageClick = onImageClick
         )
-        is UIMessageContent.TextMessage -> MessageBody(
-            messageBody = messageContent.messageBody,
-            onLongClick = onLongClick
-        )
-        is UIMessageContent.AssetMessage -> MessageAsset(
+
+        is UIMessageContent.TextMessage -> {
+            messageContent.messageBody.quotedMessage?.let {
+                VerticalSpace.x4()
+                QuotedMessage(it)
+                VerticalSpace.x4()
+            }
+            MessageBody(
+                messageBody = messageContent.messageBody,
+                onLongClick = onLongClick,
+                onOpenProfile = onOpenProfile
+            )
+        }
+
+        is UIMessageContent.AssetMessage -> MessageGenericAsset(
             assetName = messageContent.assetName,
             assetExtension = messageContent.assetExtension,
             assetSizeInBytes = messageContent.assetSizeInBytes,
+            assetUploadStatus = messageContent.uploadStatus,
             assetDownloadStatus = messageContent.downloadStatus,
             onAssetClick = onAssetClick
         )
+
         is UIMessageContent.SystemMessage.MemberAdded -> {}
         is UIMessageContent.SystemMessage.MemberLeft -> {}
         is UIMessageContent.SystemMessage.MemberRemoved -> {}
+        is UIMessageContent.SystemMessage.RenamedConversation -> {}
+        is UIMessageContent.SystemMessage.TeamMemberRemoved -> {}
+        is UIMessageContent.SystemMessage.CryptoSessionReset -> {}
         is UIMessageContent.RestrictedAsset -> {
             when {
                 messageContent.mimeType.contains("image/") -> {
                     RestrictedAssetMessage(R.drawable.ic_gallery, stringResource(id = R.string.prohibited_images_message))
                 }
+
                 messageContent.mimeType.contains("video/") -> {
                     RestrictedAssetMessage(R.drawable.ic_video, stringResource(id = R.string.prohibited_videos_message))
                 }
+
                 messageContent.mimeType.contains("audio/") -> {
                     RestrictedAssetMessage(R.drawable.ic_speaker_on, stringResource(id = R.string.prohibited_audio_message))
                 }
+
                 else -> {
-                    RestrictedFileMessage(messageContent.assetName, messageContent.assetSizeInBytes)
+                    RestrictedGenericFileMessage(messageContent.assetName, messageContent.assetSizeInBytes)
                 }
             }
+        }
+
+        is UIMessageContent.PreviewAssetMessage -> {}
+        is UIMessageContent.SystemMessage.MissedCall.YouCalled -> {}
+        is UIMessageContent.SystemMessage.MissedCall.OtherCalled -> {}
+        is UIMessageContent.SystemMessage.NewConversationReceiptMode -> {}
+        null -> {
+            throw NullPointerException("messageContent is null")
         }
     }
 }
 
 @Composable
 private fun MessageStatusLabel(messageStatus: MessageStatus) {
-    CompositionLocalProvider(
-        LocalTextStyle provides MaterialTheme.typography.labelSmall
-    ) {
-        when (messageStatus) {
-            MessageStatus.Deleted,
-            is MessageStatus.Edited,
-            MessageStatus.ReceiveFailure -> {
-                Box(
-                    modifier = Modifier
-                        .wrapContentSize()
-                        .border(
-                            BorderStroke(
-                                width = 1.dp,
-                                color = MaterialTheme.wireColorScheme.divider
-                            ),
-                            shape = RoundedCornerShape(size = dimensions().spacing4x)
-                        )
-                        .padding(
-                            horizontal = dimensions().spacing4x,
-                            vertical = dimensions().spacing2x
-                        )
-                ) {
-                    Text(
-                        text = messageStatus.text.asString(),
-                        style = LocalTextStyle.current.copy(color = MaterialTheme.wireColorScheme.labelText)
-                    )
-                }
-            }
-            MessageStatus.SendFailure, MessageStatus.Untouched, MessageStatus.DecryptionFailure -> {
-            }
+    when (messageStatus) {
+        MessageStatus.Deleted,
+        is MessageStatus.Edited,
+        MessageStatus.ReceiveFailure -> StatusBox(messageStatus.text.asString())
+
+        is MessageStatus.DecryptionFailure,
+        MessageStatus.SendFailure, MessageStatus.Untouched -> {
+            /** Don't display anything **/
         }
     }
 }
@@ -292,32 +347,36 @@ private fun MessageSendFailureWarning() {
                 style = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.error)
             )
             Spacer(Modifier.width(dimensions().spacing4x))
-            Text(
-                modifier = Modifier.fillMaxWidth(),
-                style = LocalTextStyle.current.copy(
-                    color = MaterialTheme.wireColorScheme.onTertiaryButtonSelected,
-                    textDecoration = TextDecoration.Underline
-                ),
-                text = stringResource(R.string.label_try_again),
-            )
+//      todo to uncomment this after we have the functionality of resend the message
+//              Text(
+//                modifier = Modifier.fillMaxWidth(),
+//                style = LocalTextStyle.current.copy(
+//                    color = MaterialTheme.wireColorScheme.onTertiaryButtonSelected,
+//                    textDecoration = TextDecoration.Underline
+//                ),
+//                text = stringResource(R.string.label_try_again),
+//            )
         }
     }
 }
 
 @Composable
-private fun MessageDecryptionFailure() {
+private fun MessageDecryptionFailure(
+    messageHeader: MessageHeader,
+    decryptionStatus: MessageStatus.DecryptionFailure,
+    onResetSessionClicked: (senderUserId: UserId, clientId: String?) -> Unit
+) {
     val context = LocalContext.current
     val learnMoreUrl = stringResource(R.string.url_decryption_failure_learn_more)
     CompositionLocalProvider(
         LocalTextStyle provides MaterialTheme.typography.labelSmall
     ) {
-        Row {
-            Spacer(Modifier.height(dimensions().spacing4x))
+        Column {
+            VerticalSpace.x4()
             Text(
-                text = MessageStatus.DecryptionFailure.text.asString(),
+                text = decryptionStatus.text.asString(),
                 style = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.error)
             )
-            Spacer(Modifier.width(dimensions().spacing4x))
             Text(
                 modifier = Modifier
                     .clickable { CustomTabsHelper.launchUrl(context, learnMoreUrl) },
@@ -327,6 +386,23 @@ private fun MessageDecryptionFailure() {
                 ),
                 text = stringResource(R.string.label_learn_more),
             )
+            VerticalSpace.x4()
+            Text(
+                text = stringResource(R.string.label_message_decryption_failure_informative_message),
+                style = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.error)
+            )
+            if (!decryptionStatus.isDecryptionResolved) {
+                Row {
+                    WireSecondaryButton(
+                        text = stringResource(R.string.label_reset_session),
+                        onClick = { messageHeader.userId?.let { userId -> onResetSessionClicked(userId, messageHeader.clientId?.value) } },
+                        minHeight = dimensions().spacing32x,
+                        fillMaxWidth = false,
+                    )
+                }
+            } else {
+                VerticalSpace.x8()
+            }
         }
     }
 }

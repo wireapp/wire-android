@@ -6,7 +6,6 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.model.ImageAsset
@@ -18,13 +17,28 @@ import com.wire.android.navigation.EXTRA_USER_ID
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.ui.common.bottomsheet.conversation.ConversationSheetContent
+import com.wire.android.ui.common.bottomsheet.conversation.ConversationTypeDetail
 import com.wire.android.ui.common.dialogs.BlockUserDialogState
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveConversationRoleForUserUseCase
-import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationSheetContent
-import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationTypeDetail
-import com.wire.android.ui.home.conversationslist.model.getBlockingState
+import com.wire.android.ui.home.conversationslist.model.BlockState
+import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.userprofile.common.UsernameMapper.mapUserLabel
 import com.wire.android.ui.userprofile.group.RemoveConversationMemberState
+import com.wire.android.ui.userprofile.other.OtherUserProfileInfoMessageType.BlockingUserOperationError
+import com.wire.android.ui.userprofile.other.OtherUserProfileInfoMessageType.BlockingUserOperationSuccess
+import com.wire.android.ui.userprofile.other.OtherUserProfileInfoMessageType.ChangeGroupRoleError
+import com.wire.android.ui.userprofile.other.OtherUserProfileInfoMessageType.ConnectionAcceptError
+import com.wire.android.ui.userprofile.other.OtherUserProfileInfoMessageType.ConnectionCancelError
+import com.wire.android.ui.userprofile.other.OtherUserProfileInfoMessageType.ConnectionIgnoreError
+import com.wire.android.ui.userprofile.other.OtherUserProfileInfoMessageType.ConnectionRequestError
+import com.wire.android.ui.userprofile.other.OtherUserProfileInfoMessageType.LoadUserInformationError
+import com.wire.android.ui.userprofile.other.OtherUserProfileInfoMessageType.MutingOperationError
+import com.wire.android.ui.userprofile.other.OtherUserProfileInfoMessageType.RemoveConversationMemberError
+import com.wire.android.ui.userprofile.other.OtherUserProfileInfoMessageType.SuccessConnectionAcceptRequest
+import com.wire.android.ui.userprofile.other.OtherUserProfileInfoMessageType.SuccessConnectionCancelRequest
+import com.wire.android.ui.userprofile.other.OtherUserProfileInfoMessageType.SuccessConnectionSentRequest
+import com.wire.android.ui.userprofile.other.OtherUserProfileInfoMessageType.UnblockingUserOperationError
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.WireSessionImageLoader
@@ -35,7 +49,6 @@ import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.id.toQualifiedID
 import com.wire.kalium.logic.data.user.ConnectionState
-import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.client.GetOtherUserClientsResult
 import com.wire.kalium.logic.feature.client.GetOtherUserClientsUseCase
@@ -52,6 +65,7 @@ import com.wire.kalium.logic.feature.connection.SendConnectionRequestResult
 import com.wire.kalium.logic.feature.connection.SendConnectionRequestUseCase
 import com.wire.kalium.logic.feature.connection.UnblockUserResult
 import com.wire.kalium.logic.feature.connection.UnblockUserUseCase
+import com.wire.kalium.logic.feature.conversation.ClearConversationContentUseCase
 import com.wire.kalium.logic.feature.conversation.ConversationUpdateStatusResult
 import com.wire.kalium.logic.feature.conversation.CreateConversationResult
 import com.wire.kalium.logic.feature.conversation.GetOrCreateOneToOneConversationUseCase
@@ -59,12 +73,16 @@ import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUs
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleResult
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
-import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.GetUserInfoResult
 import com.wire.kalium.logic.feature.user.ObserveUserInfoUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.Date
@@ -73,10 +91,8 @@ import javax.inject.Inject
 @Suppress("LongParameterList", "TooManyFunctions")
 @HiltViewModel
 class OtherUserProfileScreenViewModel @Inject constructor(
-    savedStateHandle: SavedStateHandle,
     private val navigationManager: NavigationManager,
     private val dispatchers: DispatcherProvider,
-    private val observeSelfUser: GetSelfUserUseCase,
     private val updateConversationMutedStatus: UpdateConversationMutedStatusUseCase,
     private val blockUser: BlockUserUseCase,
     private val unblockUser: UnblockUserUseCase,
@@ -93,6 +109,8 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     private val updateMemberRole: UpdateConversationMemberRoleUseCase,
     private val getOtherUserClients: GetOtherUserClientsUseCase,
     private val persistOtherUserClients: PersistOtherUserClientsUseCase,
+    private val clearConversationContentUseCase: ClearConversationContentUseCase,
+    savedStateHandle: SavedStateHandle,
     qualifiedIdMapper: QualifiedIdMapper
 ) : ViewModel(), OtherUserProfileEventsHandler, OtherUserProfileBottomSheetEventsHandler, OtherUserProfileFooterEventsHandler {
 
@@ -105,107 +123,60 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     private val _infoMessage = MutableSharedFlow<UIText>()
     val infoMessage = _infoMessage.asSharedFlow()
 
+    private val _closeBottomSheet = MutableSharedFlow<Unit>()
+    val closeBottomSheet = _closeBottomSheet.asSharedFlow()
+
     init {
-        state = state.copy(isDataLoading = true)
+        state = state.copy(isDataLoading = true, isAvatarLoading = true)
 
         observeUserInfoAndUpdateViewState()
         persistClients()
     }
 
     private fun persistClients() {
-        viewModelScope.launch {
+        viewModelScope.launch(dispatchers.io()) {
             persistOtherUserClients(userId)
         }
     }
 
     private fun observeUserInfoAndUpdateViewState() {
         viewModelScope.launch {
-            observeUserInfo(userId).collect { getInfoResult ->
-                when (getInfoResult) {
-                    is GetUserInfoResult.Failure -> {
-                        appLogger.d("Couldn't not find the user with provided id: $userId")
-                        showInfoMessage(InfoMessageType.LoadUserInformationError)
-                    }
-                    is GetUserInfoResult.Success -> {
-                        val otherUser = getInfoResult.otherUser
-                        val userAvatarAsset = otherUser.completePicture
-                            ?.let { pic -> ImageAsset.UserAvatarAsset(wireSessionImageLoader, pic) }
-
-                        observeConversationSheetContentIfNeeded(otherUser, userAvatarAsset)
-                        observeGroupStateIfNeeded()
-
-                        state = state.copy(
-                            isDataLoading = false,
-                            userAvatarAsset = userAvatarAsset,
-                            fullName = otherUser.name.orEmpty(),
-                            userName = mapUserLabel(otherUser),
-                            teamName = getInfoResult.team?.name.orEmpty(),
-                            email = otherUser.email.orEmpty(),
-                            phone = otherUser.phone.orEmpty(),
-                            connectionState = otherUser.connectionStatus,
-                            membership = userTypeMapper.toMembership(otherUser.userType),
-                            botService = otherUser.botService,
-                        )
-                    }
-                }
-            }
-        }
-    }
-
-    private fun observeConversationSheetContentIfNeeded(otherUser: OtherUser, userAvatarAsset: ImageAsset.UserAvatarAsset?) {
-
-        // if we are not connected with that user -> we don't have a direct conversation ->
-        // -> no need to load data for ConversationBottomSheet
-        if (otherUser.connectionStatus != ConnectionState.ACCEPTED) return
-
-        viewModelScope.launch {
-            when (val conversationResult = getOrCreateOneToOneConversation(userId)) {
-                is CreateConversationResult.Failure -> {
-                    appLogger.d("Couldn't not getOrCreateOneToOneConversation for user id: $userId")
-                    showInfoMessage(InfoMessageType.LoadDirectConversationError)
-                }
-                is CreateConversationResult.Success -> {
-                    observeSelfUser().collect { selfUser ->
-                        state = state.copy(
-                            conversationSheetContent = ConversationSheetContent(
-                                title = otherUser.name.orEmpty(),
-                                conversationId = conversationResult.conversation.id,
-                                mutingConversationState = conversationResult.conversation.mutedStatus,
-                                conversationTypeDetail = ConversationTypeDetail.Private(
-                                    userAvatarAsset,
-                                    userId,
-                                    otherUser.getBlockingState(selfUser.teamId)
-                                )
-                            )
-                        )
-                    }
-                }
-            }
-        }
-    }
-
-    private fun observeGroupStateIfNeeded() {
-        conversationId?.let {
-            viewModelScope.launch {
-                observeConversationRoleForUser(it, userId).collect { conversationRoleData ->
-                    state = state.copy(
-                        groupState = conversationRoleData.userRole?.let { userRole ->
-                            OtherUserProfileGroupState(
-                                groupName = conversationRoleData.conversationName,
-                                role = userRole,
-                                isSelfAdmin = conversationRoleData.selfRole is Conversation.Member.Role.Admin,
-                                conversationId = conversationRoleData.conversationId
-                            )
+            observeUserInfo(userId)
+                .combine(observeGroupInfo(), ::Pair)
+                .flowOn(dispatchers.io())
+                .collect { (userResult, groupInfo) ->
+                    when (userResult) {
+                        is GetUserInfoResult.Failure -> {
+                            appLogger.d("Couldn't not find the user with provided id: $userId")
+                            closeBottomSheetAndShowInfoMessage(LoadUserInformationError)
                         }
-                    )
+                        is GetUserInfoResult.Success -> {
+                            updateUserInfoState(userResult, groupInfo)
+                        }
+                    }
                 }
-            }
         }
+    }
+
+    private suspend fun observeGroupInfo(): Flow<OtherUserProfileGroupState?> {
+        return conversationId?.let {
+            observeConversationRoleForUser(it, userId)
+                .map { conversationRoleData ->
+                    conversationRoleData.userRole?.let { userRole ->
+                        OtherUserProfileGroupState(
+                            groupName = conversationRoleData.conversationName,
+                            role = userRole,
+                            isSelfAdmin = conversationRoleData.selfRole is Conversation.Member.Role.Admin,
+                            conversationId = conversationRoleData.conversationId
+                        )
+                    }
+                }
+        } ?: flowOf(null)
     }
 
     override fun onOpenConversation() {
         viewModelScope.launch {
-            when (val result = getOrCreateOneToOneConversation(userId)) {
+            when (val result = withContext(dispatchers.io()) { getOrCreateOneToOneConversation(userId) }) {
                 is CreateConversationResult.Failure -> appLogger.d(("Couldn't retrieve or create the conversation"))
                 is CreateConversationResult.Success ->
                     navigationManager.navigate(
@@ -223,11 +194,12 @@ class OtherUserProfileScreenViewModel @Inject constructor(
             when (sendConnectionRequest(userId)) {
                 is SendConnectionRequestResult.Failure -> {
                     appLogger.d(("Couldn't send a connect request to user $userId"))
-                    showInfoMessage(InfoMessageType.ConnectionRequestError)
+                    closeBottomSheetAndShowInfoMessage(ConnectionRequestError)
                 }
+
                 is SendConnectionRequestResult.Success -> {
                     state = state.copy(connectionState = ConnectionState.SENT)
-                    showInfoMessage(InfoMessageType.SuccessConnectionSentRequest)
+                    closeBottomSheetAndShowInfoMessage(SuccessConnectionSentRequest)
                 }
             }
         }
@@ -238,11 +210,12 @@ class OtherUserProfileScreenViewModel @Inject constructor(
             when (cancelConnectionRequest(userId)) {
                 is CancelConnectionRequestUseCaseResult.Failure -> {
                     appLogger.d(("Couldn't cancel a connect request to user $userId"))
-                    showInfoMessage(InfoMessageType.ConnectionCancelError)
+                    closeBottomSheetAndShowInfoMessage(ConnectionCancelError)
                 }
+
                 is CancelConnectionRequestUseCaseResult.Success -> {
                     state = state.copy(connectionState = ConnectionState.NOT_CONNECTED)
-                    showInfoMessage(InfoMessageType.SuccessConnectionCancelRequest)
+                    closeBottomSheetAndShowInfoMessage(SuccessConnectionCancelRequest)
                 }
             }
         }
@@ -253,11 +226,12 @@ class OtherUserProfileScreenViewModel @Inject constructor(
             when (acceptConnectionRequest(userId)) {
                 is AcceptConnectionRequestUseCaseResult.Failure -> {
                     appLogger.d(("Couldn't accept a connect request to user $userId"))
-                    showInfoMessage(InfoMessageType.ConnectionAcceptError)
+                    closeBottomSheetAndShowInfoMessage(ConnectionAcceptError)
                 }
+
                 is AcceptConnectionRequestUseCaseResult.Success -> {
                     state = state.copy(connectionState = ConnectionState.ACCEPTED)
-                    showInfoMessage(InfoMessageType.SuccessConnectionAcceptRequest)
+                    closeBottomSheetAndShowInfoMessage(SuccessConnectionAcceptRequest)
                 }
             }
         }
@@ -268,8 +242,9 @@ class OtherUserProfileScreenViewModel @Inject constructor(
             when (ignoreConnectionRequest(userId)) {
                 is IgnoreConnectionRequestUseCaseResult.Failure -> {
                     appLogger.d(("Couldn't ignore a connect request to user $userId"))
-                    showInfoMessage(InfoMessageType.ConnectionIgnoreError)
+                    closeBottomSheetAndShowInfoMessage(ConnectionIgnoreError)
                 }
+
                 is IgnoreConnectionRequestUseCaseResult.Success -> {
                     state = state.copy(connectionState = ConnectionState.IGNORED)
                     navigationManager.navigateBack(
@@ -287,13 +262,14 @@ class OtherUserProfileScreenViewModel @Inject constructor(
             if (conversationId != null) {
                 updateMemberRole(conversationId, userId, role).also {
                     if (it is UpdateConversationMemberRoleResult.Failure)
-                        showInfoMessage(InfoMessageType.ChangeGroupRoleError)
+                        closeBottomSheetAndShowInfoMessage(ChangeGroupRoleError)
                 }
             }
         }
     }
 
-    private suspend fun showInfoMessage(type: SnackBarMessage) {
+    private suspend fun closeBottomSheetAndShowInfoMessage(type: SnackBarMessage) {
+        _closeBottomSheet.emit(Unit)
         _infoMessage.emit(type.uiText)
     }
 
@@ -308,7 +284,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
             }
 
             if (response is RemoveMemberFromConversationUseCase.Result.Failure)
-                showInfoMessage(InfoMessageType.RemoveConversationMemberError)
+                closeBottomSheetAndShowInfoMessage(RemoveConversationMemberError)
 
             requestInProgress = false
         }
@@ -317,8 +293,8 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     override fun onMutingConversationStatusChange(conversationId: ConversationId?, status: MutedConversationStatus) {
         conversationId?.let {
             viewModelScope.launch {
-                when (updateConversationMutedStatus(conversationId, status, Date().time)) {
-                    ConversationUpdateStatusResult.Failure -> showInfoMessage(InfoMessageType.MutingOperationError)
+                when (withContext(dispatchers.io()) { updateConversationMutedStatus(conversationId, status, Date().time) }) {
+                    ConversationUpdateStatusResult.Failure -> closeBottomSheetAndShowInfoMessage(MutingOperationError)
                     ConversationUpdateStatusResult.Success -> {
                         state = state.updateMuteStatus(status)
                         appLogger.i("MutedStatus changed for conversation: $conversationId to $status")
@@ -329,16 +305,18 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     }
 
     override fun onBlockUser(blockUserState: BlockUserDialogState) {
-        viewModelScope.launch(dispatchers.io()) {
+        viewModelScope.launch {
             requestInProgress = true
-            when (val result = blockUser(userId)) {
+            _closeBottomSheet.emit(Unit)
+            when (val result = withContext(dispatchers.io()) { blockUser(userId) }) {
                 BlockUserResult.Success -> {
                     appLogger.i("User $userId was blocked")
-                    showInfoMessage(InfoMessageType.BlockingUserOperationSuccess(blockUserState.userName))
+                    closeBottomSheetAndShowInfoMessage(BlockingUserOperationSuccess(blockUserState.userName))
                 }
+
                 is BlockUserResult.Failure -> {
                     appLogger.e("Error while blocking user $userId ; Error ${result.coreFailure}")
-                    showInfoMessage(InfoMessageType.BlockingUserOperationError)
+                    closeBottomSheetAndShowInfoMessage(BlockingUserOperationError)
                 }
             }
             requestInProgress = false
@@ -346,15 +324,17 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     }
 
     override fun onUnblockUser(userId: UserId) {
-        viewModelScope.launch(dispatchers.io()) {
+        viewModelScope.launch {
             requestInProgress = true
-            when (val result = unblockUser(userId)) {
+            _closeBottomSheet.emit(Unit)
+            when (val result = withContext(dispatchers.io()) { unblockUser(userId) }) {
                 UnblockUserResult.Success -> {
                     appLogger.i("User $userId was unblocked")
                 }
+
                 is UnblockUserResult.Failure -> {
                     appLogger.e("Error while unblocking user $userId ; Error ${result.coreFailure}")
-                    showInfoMessage(InfoMessageType.UnblockingUserOperationError)
+                    closeBottomSheetAndShowInfoMessage(UnblockingUserOperationError)
                 }
             }
             requestInProgress = false
@@ -362,47 +342,66 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     }
 
     @Suppress("EmptyFunctionBlock")
-    override fun onAddConversationToFavourites(conversationId: ConversationId) {
+    override fun onAddConversationToFavourites(conversationId: ConversationId?) {
     }
 
     @Suppress("EmptyFunctionBlock")
-    override fun onMoveConversationToFolder(conversationId: ConversationId) {
+    override fun onMoveConversationToFolder(conversationId: ConversationId?) {
     }
 
     @Suppress("EmptyFunctionBlock")
-    override fun onMoveConversationToArchive(conversationId: ConversationId) {
+    override fun onMoveConversationToArchive(conversationId: ConversationId?) {
     }
 
-    @Suppress("EmptyFunctionBlock")
-    override fun onClearConversationContent(conversationId: ConversationId) {
+    override fun onClearConversationContent(dialogState: DialogState) {
+        viewModelScope.launch {
+            requestInProgress = true
+            with(dialogState) {
+                val result = withContext(dispatchers.io()) { clearConversationContentUseCase(conversationId) }
+                requestInProgress = false
+                clearContentSnackbarResult(result, conversationTypeDetail)
+            }
+        }
     }
 
-    override fun setBottomSheetStateToConversation() {
-        state = state.setBottomSheetStateToConversation()
+    override fun loadConversationBottomSheetContent() {
+        viewModelScope.launch {
+            val conversationResult = withContext(dispatchers.io()) { getOrCreateOneToOneConversation(userId) }
+            if (conversationResult is CreateConversationResult.Success) {
+                updateConversationMenuState(conversationResult.conversation)
+            } else {
+                appLogger.d("Couldn't retrieve or create the conversation, while opening BottomSheetMenu")
+            }
+        }
     }
 
-    override fun setBottomSheetStateToMuteOptions() {
-        state = state.setBottomSheetStateToMuteOptions()
-    }
+    private suspend fun clearContentSnackbarResult(
+        clearContentResult: ClearConversationContentUseCase.Result,
+        conversationTypeDetail: ConversationTypeDetail
+    ) {
+        if (conversationTypeDetail is ConversationTypeDetail.Connection)
+            throw IllegalStateException("Unsupported conversation type to clear content, something went wrong?")
 
-    override fun setBottomSheetStateToChangeRole() {
-        state = state.setBottomSheetStateToChangeRole()
-    }
-
-    fun clearBottomSheetState() {
-        state = state.clearBottomSheetState()
+        if (clearContentResult is ClearConversationContentUseCase.Result.Failure) {
+            closeBottomSheetAndShowInfoMessage(OtherUserProfileInfoMessageType.ConversationContentDeleteFailure)
+        } else {
+            closeBottomSheetAndShowInfoMessage(OtherUserProfileInfoMessageType.ConversationContentDeleted)
+        }
     }
 
     override fun getOtherUserClients() {
         viewModelScope.launch {
-            getOtherUserClients(userId).let {
+            val result = withContext(dispatchers.io()) { getOtherUserClients(userId) }
+            result.let {
                 when (it) {
                     is GetOtherUserClientsResult.Failure.UserNotFound -> {
                         appLogger.e("User or Domain not found while fetching user clients ")
                     }
+
                     is GetOtherUserClientsResult.Failure.Generic -> {
                         appLogger.e("Error while fetching the user clients : ${it.genericFailure}")
                     }
+
                     is GetOtherUserClientsResult.Success -> {
                         state = state.copy(otherUserClients = it.otherUserClients)
                     }
@@ -411,35 +410,44 @@ class OtherUserProfileScreenViewModel @Inject constructor(
         }
     }
 
+    private fun updateUserInfoState(userResult: GetUserInfoResult.Success, groupInfo: OtherUserProfileGroupState?) {
+        val otherUser = userResult.otherUser
+        val userAvatarAsset = otherUser.completePicture
+            ?.let { pic -> ImageAsset.UserAvatarAsset(wireSessionImageLoader, pic) }
+
+        state = state.copy(
+            isDataLoading = false,
+            isAvatarLoading = false,
+            userAvatarAsset = userAvatarAsset,
+            fullName = otherUser.name.orEmpty(),
+            userName = mapUserLabel(otherUser),
+            teamName = userResult.team?.name.orEmpty(),
+            email = otherUser.email.orEmpty(),
+            phone = otherUser.phone.orEmpty(),
+            connectionState = otherUser.connectionStatus,
+            membership = userTypeMapper.toMembership(otherUser.userType),
+            groupState = groupInfo,
+            botService = otherUser.botService,
+            blockingState = otherUser.BlockState
+        )
+    }
+
+    private fun updateConversationMenuState(conversation: Conversation) {
+        state = state.copy(
+            conversationSheetContent = ConversationSheetContent(
+                title = state.fullName,
+                conversationId = conversation.id,
+                mutingConversationState = conversation.mutedStatus,
+                conversationTypeDetail = ConversationTypeDetail.Private(
+                    state.userAvatarAsset,
+                    userId,
+                    state.blockingState
+                ),
+                isTeamConversation = conversation.isTeamGroup(),
+                selfRole = Conversation.Member.Role.Member
+            )
+        )
+    }
+
     override fun navigateBack() = viewModelScope.launch { navigationManager.navigateBack() }
-
-}
-
-sealed class InfoMessageType(override val uiText: UIText) : SnackBarMessage {
-    // connection
-    object SuccessConnectionSentRequest : InfoMessageType(UIText.StringResource(R.string.connection_request_sent))
-    object ConnectionRequestError : InfoMessageType(UIText.StringResource(R.string.connection_request_sent_error))
-    object SuccessConnectionAcceptRequest : InfoMessageType(UIText.StringResource(R.string.connection_request_accepted))
-    object ConnectionAcceptError : InfoMessageType(UIText.StringResource(R.string.connection_request_accept_error))
-    object SuccessConnectionCancelRequest : InfoMessageType(UIText.StringResource(R.string.connection_request_canceled))
-    object ConnectionCancelError : InfoMessageType(UIText.StringResource(R.string.connection_request_cancel_error))
-    object ConnectionIgnoreError : InfoMessageType(UIText.StringResource(R.string.connection_request_ignore_error))
-
-    object LoadUserInformationError : InfoMessageType(UIText.StringResource(R.string.error_unknown_message))
-    object LoadDirectConversationError : InfoMessageType(UIText.StringResource(R.string.error_unknown_message))
-
-    // change group role
-    object ChangeGroupRoleError : InfoMessageType(UIText.StringResource(R.string.user_profile_role_change_error))
-
-    // remove conversation member
-    object RemoveConversationMemberError : InfoMessageType(UIText.StringResource(R.string.dialog_remove_conversation_member_error))
-
-    // Conversation BottomSheet
-    object BlockingUserOperationError : InfoMessageType(UIText.StringResource(R.string.error_blocking_user))
-    class BlockingUserOperationSuccess(val name: String) :
-        InfoMessageType(UIText.StringResource(R.string.blocking_user_success, name))
-
-    object MutingOperationError : InfoMessageType(UIText.StringResource(R.string.error_updating_muting_setting))
-
-    object UnblockingUserOperationError : InfoMessageType(UIText.StringResource(R.string.error_unblocking_user))
 }

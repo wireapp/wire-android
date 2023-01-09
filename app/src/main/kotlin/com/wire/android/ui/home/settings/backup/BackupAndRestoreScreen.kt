@@ -55,7 +55,7 @@ fun BackupAndRestoreContent(
     onCancelBackupCreation: () -> Unit,
     onCancelBackupRestore: () -> Unit,
     onChooseBackupFile: (Uri) -> Unit,
-    onRestoreBackup: (TextFieldValue) -> Unit,
+    onRestoreBackup: (String) -> Unit,
     onOpenConversations: () -> Unit,
     onBackPressed: () -> Unit
 ) {

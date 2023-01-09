@@ -9,7 +9,9 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.util.dispatchers.DispatcherProvider
+import com.wire.kalium.logic.feature.user.DisplayNameUpdateResult
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
+import com.wire.kalium.logic.feature.user.UpdateDisplayNameUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.SharingStarted
@@ -20,6 +22,7 @@ import kotlinx.coroutines.launch
 @HiltViewModel
 class ChangeDisplayNameViewModel @Inject constructor(
     private val getSelf: GetSelfUserUseCase,
+    private val updateDisplayName: UpdateDisplayNameUseCase,
     private val navigationManager: NavigationManager,
     private val dispatchers: DispatcherProvider
 ) : ViewModel() {
@@ -81,7 +84,12 @@ class ChangeDisplayNameViewModel @Inject constructor(
     }
 
     fun saveDisplayName() {
-        appLogger.d("Saving display name...")
+        viewModelScope.launch {
+            when (val result = updateDisplayName(displayNameState.displayName.text)) {
+                is DisplayNameUpdateResult.Failure -> appLogger.e("Failed to update display name $result")
+                is DisplayNameUpdateResult.Success -> appLogger.d("Display name updated successfully")
+            }
+        }
     }
 
     fun onNameErrorAnimated() {
@@ -93,6 +101,6 @@ class ChangeDisplayNameViewModel @Inject constructor(
     }
 
     companion object {
-        private const val NAME_MAX_COUNT = 128
+        private const val NAME_MAX_COUNT = 64
     }
 }

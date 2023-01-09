@@ -7,9 +7,12 @@ import android.content.ContentResolver
 import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Build
 import android.os.Environment.DIRECTORY_DOWNLOADS
+import android.os.Parcelable
 import android.provider.MediaStore
 import android.provider.OpenableColumns
 import android.provider.Settings
@@ -26,7 +29,9 @@ import kotlinx.coroutines.withContext
 import okio.Path
 import okio.Path.Companion.toPath
 import java.io.File
+import java.io.FileNotFoundException
 import java.io.InputStream
+import java.util.Locale
 
 /**
  * Gets the uri of any drawable or given resource
@@ -99,9 +104,16 @@ private fun Context.saveFileDataToDownloadsFolder(assetName: String, downloadedD
 fun Context.pathToUri(assetDataPath: Path): Uri = FileProvider.getUriForFile(this, getProviderAuthority(), assetDataPath.toFile())
 
 fun Uri.getMimeType(context: Context): String? {
-    val extension = MimeTypeMap.getFileExtensionFromUrl(path)
-    return context.contentResolver.getType(this)
-        ?: MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension)
+    val extension: String? = if (this.scheme == ContentResolver.SCHEME_CONTENT) {
+        context.contentResolver.getType(this)
+    } else {
+        // If scheme is a File
+        // This will replace white spaces with %20 and also other special characters.
+        // This will avoid returning null values on file name with spaces and special characters.
+        val fileExtension = MimeTypeMap.getFileExtensionFromUrl(Uri.fromFile(this.path?.let { File(it) }).toString())
+        MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileExtension.lowercase(Locale.getDefault()))
+    }
+    return extension
 }
 
 suspend fun Uri.resampleImageAndCopyToTempPath(
@@ -228,6 +240,61 @@ fun shareAssetFileWithExternalApp(assetDataPath: Path, context: Context, assetEx
     }
 }
 
+
+fun Uri.getBitmapFromUri(context: Context): Bitmap? {
+    var bitmap: Bitmap? = null
+    try {
+        // Works with content://, file://, or android.resource:// URIs
+        val inputStream: InputStream? = context.contentResolver.openInputStream(this)
+        bitmap = BitmapFactory.decodeStream(inputStream)
+    } catch (e: FileNotFoundException) {
+        appLogger.e("File not found: $this")
+    }
+    return bitmap
+}
+
+inline fun <reified T : Parcelable> Intent.parcelable(key: String): T? = when {
+    Build.VERSION.SDK_INT >= SDK_VERSION -> getParcelableExtra(key, T::class.java)
+    else -> @Suppress("DEPRECATION") getParcelableExtra(key) as? T
+}
+
+
+inline fun <reified T : Parcelable> Intent.parcelableArrayList(key: String): ArrayList<T>? = when {
+    Build.VERSION.SDK_INT >= SDK_VERSION -> getParcelableArrayListExtra(key, T::class.java)
+    else -> @Suppress("DEPRECATION") getParcelableArrayListExtra(key)
+}
+
+fun Uri.getMetaDataFromUri(context: Context): FileMetaData {
+    context.contentResolver.query(this, null, null, null, null)?.use { cursor ->
+        if (cursor.moveToFirst()) {
+            val displayName =
+                cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DISPLAY_NAME))
+            val size = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.SIZE))
+            return FileMetaData(displayName, size)
+        }
+    }
+    return FileMetaData()
+}
+
+data class FileMetaData(val name: String = "", val size: Long = 0L)
+
+fun isImageFile(mimeType: String?): Boolean {
+    return mimeType != null && mimeType.startsWith("image/")
+}
+
+fun isVideoFile(mimeType: String?): Boolean {
+    return mimeType != null && mimeType.startsWith("video/")
+}
+
+fun isAudioFile(mimeType: String?): Boolean {
+    return mimeType != null && mimeType.startsWith("audio/")
+}
+
+fun isText(mimeType: String?): Boolean {
+    return mimeType != null && mimeType.startsWith("text/")
+}
+
+
 @Suppress("MagicNumber")
 fun Context.getDeviceId(): String? {
 
@@ -249,3 +316,4 @@ fun Context.getProviderAuthority() = "${packageName}.provider"
 private const val TEMP_IMG_ATTACHMENT_FILENAME = "temp_img_attachment.jpg"
 private const val TEMP_VIDEO_ATTACHMENT_FILENAME = "temp_video_attachment.mp4"
 private const val DATA_COPY_BUFFER_SIZE = 2048
+const val SDK_VERSION = 33

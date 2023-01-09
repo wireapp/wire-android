@@ -19,10 +19,12 @@ fun ImportedMediaItemView(item: ImportedMediaAsset) {
     }
 }
 
+@Composable
 fun ImportedImageView(item: ImportedMediaAsset.Image) {
     // Try to reuse the PrivateAsset class
 }
 
+@Composable
 fun ImportedGenericAssetView(item: ImportedMediaAsset.GenericAsset) {
     MessageGenericAsset(
         item.name,

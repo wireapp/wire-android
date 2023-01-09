@@ -409,6 +409,10 @@ class WireActivityViewModel @Inject constructor(
         globalAppState = globalAppState.copy(updateAppDialog = false)
     }
 
+    fun navigateToImportMediaScreen() {
+        navigateTo(NavigationCommand(NavigationItem.ImportMedia.getRouteWithArgs()))
+    }
+
     companion object {
         private const val SERVER_CONFIG_ARG = "server_config"
         private const val SSO_DEEPLINK_ARG = "sso_deeplink"

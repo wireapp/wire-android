@@ -788,5 +788,7 @@
 
     <!--    session reset-->
     <string name="label_system_message_session_reset">%1$s was unable to decrypt some of your messages but has solved the issue. This affected all conversations you share together.</string>
+    <string name="file_sharing_restricted_dialog_title">File Sharing Restrictions</string>
+    <string name="file_sharing_restricted_dialog_description">You can not share this file because this feature is disabled.</string>
 
 </resources>

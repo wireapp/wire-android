@@ -49,71 +49,64 @@ class BackupAndRestoreViewModel
     private lateinit var latestImportedBackupTempPath: Path
 
     @Suppress("MagicNumber")
-    fun createBackup(password: String) {
-        viewModelScope.launch {
-            // TODO: Find a way to update the create progress more faithfully. For now we will just show this small delays to mimic the
-            //  progress also for small backups
-            state = state.copy(backupCreationProgress = BackupCreationProgress.InProgress(PROGRESS_25))
-            delay(SMALL_DELAY)
-            state = state.copy(backupCreationProgress = BackupCreationProgress.InProgress(PROGRESS_50))
-            delay(SMALL_DELAY)
+    fun createBackup(password: String) = viewModelScope.launch {
+        // TODO: Find a way to update the create progress more faithfully. For now we will just show this small delays to mimic the
+        //  progress also for small backups
+        state = state.copy(backupCreationProgress = BackupCreationProgress.InProgress(PROGRESS_25))
+        delay(SMALL_DELAY)
+        state = state.copy(backupCreationProgress = BackupCreationProgress.InProgress(PROGRESS_50))
+        delay(SMALL_DELAY)
 
-            when (val result = createBackupFile(password)) {
-                is CreateBackupResult.Success -> {
-                    state = state.copy(backupCreationProgress = BackupCreationProgress.Finished)
-                    latestCreatedBackup = BackupAndRestoreState.CreatedBackup(
-                        result.backupFilePath,
-                        result.backupFileName,
-                        result.backupFileSize,
-                        password.isNotEmpty()
-                    )
-                }
-                is CreateBackupResult.Failure -> {
-                    state = state.copy(backupCreationProgress = BackupCreationProgress.Failed)
-                    appLogger.e("Failed to create backup: ${result.coreFailure}")
-                }
+        when (val result = createBackupFile(password)) {
+            is CreateBackupResult.Success -> {
+                state = state.copy(backupCreationProgress = BackupCreationProgress.Finished)
+                latestCreatedBackup = BackupAndRestoreState.CreatedBackup(
+                    result.backupFilePath,
+                    result.backupFileName,
+                    result.backupFileSize,
+                    password.isNotEmpty()
+                )
+            }
+
+            is CreateBackupResult.Failure -> {
+                state = state.copy(backupCreationProgress = BackupCreationProgress.Failed)
+                appLogger.e("Failed to create backup: ${result.coreFailure}")
             }
         }
     }
 
-    fun saveBackup() {
-        viewModelScope.launch {
-            latestCreatedBackup?.let { backupData ->
-                fileManager.shareWithExternalApp(backupData.path, backupData.assetName.fileExtension()) {}
-            }
-            state = BackupAndRestoreState.INITIAL_STATE
+    fun saveBackup() = viewModelScope.launch {
+        latestCreatedBackup?.let { backupData ->
+            fileManager.shareWithExternalApp(backupData.path, backupData.assetName.fileExtension()) {}
         }
+        state = BackupAndRestoreState.INITIAL_STATE
     }
 
-    fun chooseBackupFileToRestore(uri: Uri) {
-        viewModelScope.launch {
-            latestImportedBackupTempPath = kaliumFileSystem.tempFilePath(TEMP_IMPORTED_BACKUP_FILE_NAME)
-            fileManager.copyToTempPath(uri, latestImportedBackupTempPath)
-            checkIfBackupEncrypted(latestImportedBackupTempPath)
-        }
+    fun chooseBackupFileToRestore(uri: Uri) = viewModelScope.launch {
+        latestImportedBackupTempPath = kaliumFileSystem.tempFilePath(TEMP_IMPORTED_BACKUP_FILE_NAME)
+        fileManager.copyToTempPath(uri, latestImportedBackupTempPath)
+        checkIfBackupEncrypted(latestImportedBackupTempPath)
     }
 
     private fun showPasswordDialog() {
         state = state.copy(restoreFileValidation = RestoreFileValidation.PasswordRequired)
     }
 
-    private suspend fun checkIfBackupEncrypted(importedBackupPath: Path) {
-        when (val result = verifyBackup(importedBackupPath)) {
-            is VerifyBackupResult.Success -> {
-                when (result) {
-                    is VerifyBackupResult.Success.Encrypted -> showPasswordDialog()
-                    is VerifyBackupResult.Success.NotEncrypted -> importDatabase(importedBackupPath)
-                }
+    private suspend fun checkIfBackupEncrypted(importedBackupPath: Path) = when (val result = verifyBackup(importedBackupPath)) {
+        is VerifyBackupResult.Success -> {
+            when (result) {
+                is VerifyBackupResult.Success.Encrypted -> showPasswordDialog()
+                is VerifyBackupResult.Success.NotEncrypted -> importDatabase(importedBackupPath)
             }
-            is VerifyBackupResult.Failure -> {
-                state = state.copy(restoreFileValidation = RestoreFileValidation.IncompatibleBackup)
-                val errorMessage = when (result) {
-                    is VerifyBackupResult.Failure.Generic -> result.error.toString()
-                    VerifyBackupResult.Failure.InvalidBackupFile -> "No valid files found in the backup"
-                }
+        }
 
-                appLogger.e("Failed to extract backup files: $errorMessage")
+        is VerifyBackupResult.Failure -> {
+            state = state.copy(restoreFileValidation = RestoreFileValidation.IncompatibleBackup)
+            val errorMessage = when (result) {
+                is VerifyBackupResult.Failure.Generic -> result.error.toString()
+                VerifyBackupResult.Failure.InvalidBackupFile -> "No valid files found in the backup"
             }
+            appLogger.e("Failed to extract backup files: $errorMessage")
         }
     }
 
@@ -128,6 +121,7 @@ class BackupAndRestoreViewModel
                 delay(SMALL_DELAY)
                 state = state.copy(backupRestoreProgress = BackupRestoreProgress.Finished)
             }
+
             is RestoreBackupResult.Failure -> {
                 appLogger.e(
                     "Error when restoring the db file. The format or version of the backup is not compatible with this " +
@@ -139,7 +133,6 @@ class BackupAndRestoreViewModel
                 )
             }
         }
-        kaliumFileSystem.delete(importedBackupPath)
     }
 
     @Suppress("MagicNumber")
@@ -159,6 +152,7 @@ class BackupAndRestoreViewModel
                         restorePasswordValidation = PasswordValidation.Valid
                     )
                 }
+
                 is RestoreBackupResult.Failure -> {
                     mapBackupRestoreFailure(result.failure)
                 }
@@ -166,7 +160,6 @@ class BackupAndRestoreViewModel
         } else {
             state = state.copy(backupRestoreProgress = BackupRestoreProgress.Failed)
         }
-        kaliumFileSystem.delete(latestImportedBackupTempPath)
     }
 
     private fun mapBackupRestoreFailure(failure: RestoreBackupResult.BackupRestoreFailure) = when (failure) {
@@ -211,6 +204,8 @@ class BackupAndRestoreViewModel
             backupRestoreProgress = BackupRestoreProgress.InProgress(),
             restorePasswordValidation = PasswordValidation.NotVerified
         )
+        if (kaliumFileSystem.exists(latestImportedBackupTempPath))
+            kaliumFileSystem.delete(latestImportedBackupTempPath)
     }
 
     fun navigateToConversations() {
@@ -229,4 +224,3 @@ class BackupAndRestoreViewModel
         const val PROGRESS_75 = 0.75f
     }
 }
-

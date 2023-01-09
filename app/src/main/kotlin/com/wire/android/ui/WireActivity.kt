@@ -35,6 +35,10 @@ import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.dialogs.CustomBEDeeplinkDialog
+import com.wire.android.ui.common.dialogs.FileSharingRestrictedDialogContent
+import com.wire.android.ui.common.dialogs.FileSharingRestrictedDialogState
+import com.wire.android.ui.common.visbility.rememberVisibilityState
+import com.wire.android.ui.home.sync.FeatureFlagNotificationViewModel
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.userprofile.self.MaxAccountReachedDialog
 import com.wire.android.util.CurrentScreenManager
@@ -49,6 +53,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import javax.inject.Inject
+
 
 @OptIn(
     ExperimentalMaterial3Api::class,
@@ -70,6 +75,7 @@ class WireActivity : AppCompatActivity() {
     lateinit var proximitySensorManager: ProximitySensorManager
 
     val viewModel: WireActivityViewModel by viewModels()
+    private val featureFlagNotificationViewModel: FeatureFlagNotificationViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
@@ -79,6 +85,8 @@ class WireActivity : AppCompatActivity() {
 
         viewModel.handleDeepLink(intent)
         setComposableContent()
+
+        featureFlagNotificationViewModel.checkIfSharingAllowed(this)
     }
 
     override fun onNewIntent(intent: Intent?) {
@@ -114,8 +122,26 @@ class WireActivity : AppCompatActivity() {
                         viewModel.globalAppState.updateAppDialog
                     )
                     AccountLongedOutDialog(viewModel.globalAppState.blockUserUI, viewModel::navigateToNextAccountOrWelcome)
+
+                    handleFileSharingRestrictedDialog()
                 }
             }
+        }
+    }
+
+    @Composable
+    private fun handleFileSharingRestrictedDialog() {
+        val fileSharingRestrictedDialogState = rememberVisibilityState<FileSharingRestrictedDialogState>()
+        FileSharingRestrictedDialogContent(
+            dialogState = fileSharingRestrictedDialogState
+        )
+        if (featureFlagNotificationViewModel.featureFlagState.showFileSharingRestrictedDialog) {
+            fileSharingRestrictedDialogState.show(
+                fileSharingRestrictedDialogState.savedState ?: FileSharingRestrictedDialogState
+            )
+        }
+        if (featureFlagNotificationViewModel.featureFlagState.openImportMediaScreen) {
+            viewModel.navigateToImportMediaScreen()
         }
     }
 

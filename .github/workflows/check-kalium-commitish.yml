@@ -26,13 +26,13 @@ jobs:
         # In our case, if FROM is not an ancestor of TO, then it returns 1
         run: | 
           KALIUM_TO_REF="$(git rev-parse HEAD:kalium)"
-          echo "Updated Kalium Ref: $(KALIUM_TO_REF)"
+          echo "Updated Kalium Ref: $KALIUM_TO_REF"
           git fetch
           git checkout $GH_BASE_REF
           git pull
           git submodule update
           KALIUM_FROM_REF="$(git rev-parse HEAD:kalium)"
-          echo "Original Kalium Ref: $(KALIUM_FROM_REF)"
+          echo "Original Kalium Ref: $KALIUM_FROM_REF"
           echo "kalium_from=$($KALIUM_FROM_REF)" >> $GITHUB_OUTPUT
           echo "kalium_to=$($KALIUM_TO_REF)" >> $GITHUB_OUTPUT
           echo "is_kalium_rollback=$(

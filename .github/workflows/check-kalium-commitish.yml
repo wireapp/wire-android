@@ -28,7 +28,7 @@ jobs:
           git checkout $GH_BASE_REF
           git pull
           git submodule update
-          KALIUM_FROM_REF=$(git rev-parse HEAD:kalium)"
+          KALIUM_FROM_REF="$(git rev-parse HEAD:kalium)"
           echo "::set-output name=kalium_from::$($KALIUM_FROM_REF)"
           echo "::set-output name=kalium_to::$($KALIUM_TO_REF)"
           echo "::set-output name=is_kalium_rollback::$(

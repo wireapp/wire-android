@@ -21,6 +21,8 @@ plugins {
 }
 
 repositories {
+    mavenLocal()
+    wireDetektRulesRepo()
     google()
 }
 
@@ -210,5 +212,4 @@ dependencies {
     // Internal only tracking & logging
 
     implementation(Libraries.dataDog)
-
 }

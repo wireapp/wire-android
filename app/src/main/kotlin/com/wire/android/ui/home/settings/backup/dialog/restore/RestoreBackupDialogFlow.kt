@@ -9,7 +9,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.TextFieldValue
 import com.wire.android.appLogger
 import com.wire.android.ui.home.settings.backup.BackupAndRestoreState
 import com.wire.android.ui.home.settings.backup.BackupRestoreProgress
@@ -21,7 +20,7 @@ import com.wire.android.ui.home.settings.backup.dialog.common.FailureDialog
 fun RestoreBackupDialogFlow(
     backUpAndRestoreState: BackupAndRestoreState,
     onChooseBackupFile: (Uri) -> Unit,
-    onRestoreBackup: (TextFieldValue) -> Unit,
+    onRestoreBackup: (String) -> Unit,
     onOpenConversations: () -> Unit,
     onCancelBackupRestore: () -> Unit
 ) {
@@ -112,7 +111,7 @@ private fun ChooseBackupFileStep(
 fun EnterPasswordStep(
     backUpAndRestoreState: BackupAndRestoreState,
     restoreDialogStateHolder: RestoreDialogStateHolder,
-    onRestoreBackup: (TextFieldValue) -> Unit,
+    onRestoreBackup: (String) -> Unit,
     onCancelBackupRestore: () -> Unit
 ) {
     var showWrongPassword by remember { mutableStateOf(false) }
@@ -175,4 +174,3 @@ fun RestoreBackupStep(
         )
     }
 }
-

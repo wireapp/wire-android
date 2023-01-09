@@ -24,7 +24,7 @@ open class IncludeGitBuildTask : DefaultTask() {
 
     private fun extractAndWriteHashToFile() {
         runCatching {
-            val hash = "git rev-parse --short HEAD".runCommand().orEmpty()
+            val hash = "git rev-parse --short HEAD".execute().text().trim().orEmpty()
             println("\uD83D\uDD27 Git hash: $hash")
             writeToFile(hash)
         }.onFailure {

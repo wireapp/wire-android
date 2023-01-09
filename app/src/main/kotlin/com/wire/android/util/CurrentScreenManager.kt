@@ -87,10 +87,7 @@ sealed class CurrentScreen {
     data class Conversation(val id: ConversationId) : CurrentScreen()
 
     // Another User Profile Screen is opened
-    data class OtherUserProfile(val id: QualifiedID) : CurrentScreen()
-
-    // Another User Profile Screen is opened
-    data class ConnectionRequest(val id: ConversationId) : CurrentScreen()
+    data class OtherUserProfile(val id: ConversationId) : CurrentScreen()
 
     // Ongoing call screen is opened
     data class OngoingCallScreen(val id: QualifiedID) : CurrentScreen()
@@ -123,7 +120,7 @@ sealed class CurrentScreen {
                 NavigationItem.OtherUserProfile -> {
                     arguments?.getString(EXTRA_CONVERSATION_ID)
                         ?.toQualifiedID(qualifiedIdMapper)
-                        ?.let { ConnectionRequest(it) }
+                        ?.let { OtherUserProfile(it) }
                         ?: SomeOther
                 }
                 NavigationItem.OngoingCall -> {

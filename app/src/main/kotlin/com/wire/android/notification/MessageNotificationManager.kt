@@ -59,7 +59,7 @@ class MessageNotificationManager
         notificationManager.cancelAll()
     }
 
-    private fun hideAllNotificationsForUser(userId: QualifiedID) {
+    fun hideAllNotificationsForUser(userId: QualifiedID) {
         // removing groupSummary removes all the notifications in a group
         notificationManagerCompat.cancel(NotificationConstants.getMessagesSummaryId(userId))
     }

@@ -232,7 +232,7 @@ class WireNotificationManager @Inject constructor(
 
                 when (screens) {
                     is CurrentScreen.Conversation -> messagesNotificationManager.hideNotification(screens.id, userId)
-                    is CurrentScreen.ConnectionRequest -> messagesNotificationManager.hideNotification(screens.id, userId)
+                    is CurrentScreen.OtherUserProfile -> messagesNotificationManager.hideNotification(screens.id, userId)
                     is CurrentScreen.IncomingCallScreen -> callNotificationManager.hideIncomingCallNotification()
                     else -> {}
                 }

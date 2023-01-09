@@ -81,7 +81,7 @@ class WireNotificationManagerTest {
         verify(exactly = 0) { arrangement.callNotificationManager.handleIncomingCallNotifications(any(), any()) }
     }
 
-    //todo: check later with boris!
+    // todo: check later with boris!
     @Ignore
     fun givenAuthenticatedUser_whenFetchAndShowNotificationsOnceCalled_thenConnectionPolicyManagerIsCalled() =
         runTest(dispatcherProvider.main()) {
@@ -493,7 +493,6 @@ class WireNotificationManagerTest {
         private fun provideLocalNotificationMessage(): LocalNotificationMessage = LocalNotificationMessage.Text(
             LocalNotificationMessageAuthor("author", null), "", "testing text"
         )
-
 
         private fun provideUserId() = UserId("value", "domain")
 

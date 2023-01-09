@@ -21,7 +21,6 @@ import com.wire.android.util.getBitmapFromUri
 import com.wire.android.util.getMetaDataFromUri
 import com.wire.android.util.getMimeType
 import com.wire.android.util.isImageFile
-import com.wire.android.util.isText
 import com.wire.android.util.parcelableArrayList
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.feature.connection.SendConnectionRequestUseCase
@@ -35,6 +34,7 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
+@Suppress("LongParameterList")
 class ImportMediaViewModel @Inject constructor(
     private val getSelf: GetSelfUserUseCase,
     private val wireSessionImageLoader: WireSessionImageLoader,
@@ -78,25 +78,21 @@ class ImportMediaViewModel @Inject constructor(
 
     fun handleReceivedDataFromSharingIntent(activity: AppCompatActivity) {
         val incomingIntent = ShareCompat.IntentReader(activity)
-        if (incomingIntent.isShareIntent) {
-            appLogger.e("Received data from sharing intent ${incomingIntent.streamCount}")
-            when (incomingIntent.streamCount) {
-                0 -> {
-                    // if stream count is 0 the type will be text, we check the type to double check if it is text
-                    if (isText(incomingIntent.type)) {
-                        // todo : handle the text , we can get the text from incomingIntent.text
-                    }
-                }
-                1 -> {
-                    // ACTION_SEND
-                    incomingIntent.stream?.let { incomingIntent.type?.let { it1 -> handleMimeType(activity, it1, it) } }
-                }
-                else -> {
-                    // ACTION_SEND_MULTIPLE
-                    activity.intent.parcelableArrayList<Parcelable>(Intent.EXTRA_STREAM)?.forEach {
-                        val fileUri = it.toString().toUri()
-                        handleMimeType(activity, fileUri.getMimeType(activity).toString(), fileUri)
-                    }
+        appLogger.e("Received data from sharing intent ${incomingIntent.streamCount}")
+        when (incomingIntent.streamCount) {
+            0 -> {
+                // if stream count is 0 the type will be text, we check the type to double check if it is text
+                // todo : handle the text , we can get the text from incomingIntent.text
+            }
+            1 -> {
+                // ACTION_SEND
+                incomingIntent.stream?.let { incomingIntent.type?.let { it1 -> handleMimeType(activity, it1, it) } }
+            }
+            else -> {
+                // ACTION_SEND_MULTIPLE
+                activity.intent.parcelableArrayList<Parcelable>(Intent.EXTRA_STREAM)?.forEach {
+                    val fileUri = it.toString().toUri()
+                    handleMimeType(activity, fileUri.getMimeType(activity).toString(), fileUri)
                 }
             }
         }

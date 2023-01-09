@@ -107,8 +107,9 @@ fun Uri.getMimeType(context: Context): String? {
     val extension: String? = if (this.scheme == ContentResolver.SCHEME_CONTENT) {
         context.contentResolver.getType(this)
     } else {
-        //If scheme is a File
-        //This will replace white spaces with %20 and also other special characters. This will avoid returning null values on file name with spaces and special characters.
+        // If scheme is a File
+        // This will replace white spaces with %20 and also other special characters.
+        // This will avoid returning null values on file name with spaces and special characters.
         val fileExtension = MimeTypeMap.getFileExtensionFromUrl(Uri.fromFile(this.path?.let { File(it) }).toString())
         MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileExtension.lowercase(Locale.getDefault()))
     }
@@ -253,13 +254,13 @@ fun Uri.getBitmapFromUri(context: Context): Bitmap? {
 }
 
 inline fun <reified T : Parcelable> Intent.parcelable(key: String): T? = when {
-    Build.VERSION.SDK_INT >= 33 -> getParcelableExtra(key, T::class.java)
+    Build.VERSION.SDK_INT >= SDK_VERSION -> getParcelableExtra(key, T::class.java)
     else -> @Suppress("DEPRECATION") getParcelableExtra(key) as? T
 }
 
 
 inline fun <reified T : Parcelable> Intent.parcelableArrayList(key: String): ArrayList<T>? = when {
-    Build.VERSION.SDK_INT >= 33 -> getParcelableArrayListExtra(key, T::class.java)
+    Build.VERSION.SDK_INT >= SDK_VERSION -> getParcelableArrayListExtra(key, T::class.java)
     else -> @Suppress("DEPRECATION") getParcelableArrayListExtra(key)
 }
 
@@ -315,3 +316,4 @@ fun Context.getProviderAuthority() = "${packageName}.provider"
 private const val TEMP_IMG_ATTACHMENT_FILENAME = "temp_img_attachment.jpg"
 private const val TEMP_VIDEO_ATTACHMENT_FILENAME = "temp_video_attachment.mp4"
 private const val DATA_COPY_BUFFER_SIZE = 2048
+const val SDK_VERSION = 33

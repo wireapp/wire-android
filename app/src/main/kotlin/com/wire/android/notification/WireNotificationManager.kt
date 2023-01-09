@@ -29,7 +29,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.cancellable
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
@@ -253,10 +252,18 @@ class WireNotificationManager @Inject constructor(
             .filter { observingJobs[it]?.isAllActive() != true }
             .forEach { userId ->
                 val jobs = ObservingJobs(
-                    currentScreenJob = scope.launch(dispatcherProvider.default()) { observeCurrentScreenAndHideNotifications(currentScreenState, userId) },
-                    incomingCallsJob = scope.launch(dispatcherProvider.default()) { observeIncomingCalls(currentScreenState, userId, doIfCallCameAndAppVisible) },
-                    messagesJob = scope.launch(dispatcherProvider.default()) { observeMessageNotifications(userId, currentScreenState) },
-                    ongoingCallJob = scope.launch(dispatcherProvider.default()) { observeOngoingCalls(currentScreenState, userId) }
+                    currentScreenJob = scope.launch(dispatcherProvider.default()) {
+                        observeCurrentScreenAndHideNotifications(currentScreenState, userId)
+                    },
+                    incomingCallsJob = scope.launch(dispatcherProvider.default()) {
+                        observeIncomingCalls(currentScreenState, userId, doIfCallCameAndAppVisible)
+                    },
+                    messagesJob = scope.launch(dispatcherProvider.default()) {
+                        observeMessageNotifications(userId, currentScreenState)
+                    },
+                    ongoingCallJob = scope.launch(dispatcherProvider.default()) {
+                        observeOngoingCalls(currentScreenState, userId)
+                    }
                 )
                 observingJobs[userId] = jobs
             }
@@ -406,7 +413,7 @@ class WireNotificationManager @Inject constructor(
     private suspend fun markMessagesAsNotified(userId: QualifiedID, conversationId: ConversationId? = null) {
         val markNotified = conversationId?.let {
             MarkMessagesAsNotifiedUseCase.UpdateTarget.SingleConversation(conversationId)
-            } ?: MarkMessagesAsNotifiedUseCase.UpdateTarget.AllConversations
+        } ?: MarkMessagesAsNotifiedUseCase.UpdateTarget.AllConversations
         coreLogic.getSessionScope(userId)
             .messages
             .markMessagesAsNotified(markNotified)

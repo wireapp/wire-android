@@ -2,15 +2,16 @@ package com.wire.android.ui.sharing
 
 import androidx.compose.runtime.Composable
 import com.wire.android.model.Clickable
+import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.model.MessageGenericAsset
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.util.fileExtension
 
 @Composable
-fun ImportedMediaItemView(item: ImportedMediaAsset) {
+fun ImportedMediaItemView(item: ImportedMediaAsset, isMultipleItemsImport: Boolean) {
     when (item) {
         is ImportedMediaAsset.GenericAsset -> {
-            ImportedGenericAssetView(item)
+            ImportedGenericAssetView(item, isMultipleItemsImport)
         }
 
         is ImportedMediaAsset.Image -> {
@@ -25,14 +26,15 @@ fun ImportedImageView(item: ImportedMediaAsset.Image) {
 }
 
 @Composable
-fun ImportedGenericAssetView(item: ImportedMediaAsset.GenericAsset) {
+fun ImportedGenericAssetView(item: ImportedMediaAsset.GenericAsset, isMultipleItemsImport: Boolean) {
     MessageGenericAsset(
         item.name,
         item.name.fileExtension() ?: "",
         item.size,
         Clickable(enabled = false),
         Message.UploadStatus.NOT_UPLOADED,
-        Message.DownloadStatus.NOT_DOWNLOADED
+        Message.DownloadStatus.NOT_DOWNLOADED,
+        if (isMultipleItemsImport) dimensions().importedMediaAssetSize else null
     )
 }
 

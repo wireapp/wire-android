@@ -13,6 +13,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.wire.android.model.Clickable
 import com.wire.android.model.ImageAsset
@@ -95,7 +96,8 @@ internal fun MessageGenericAsset(
     assetSizeInBytes: Long,
     onAssetClick: Clickable,
     assetUploadStatus: Message.UploadStatus,
-    assetDownloadStatus: Message.DownloadStatus
+    assetDownloadStatus: Message.DownloadStatus,
+    viewSize: Dp? = null
 ) {
-    MessageAsset(assetName, assetExtension, assetSizeInBytes, onAssetClick, assetUploadStatus, assetDownloadStatus)
+    MessageAsset(assetName, assetExtension, assetSizeInBytes, onAssetClick, assetUploadStatus, assetDownloadStatus, viewSize)
 }

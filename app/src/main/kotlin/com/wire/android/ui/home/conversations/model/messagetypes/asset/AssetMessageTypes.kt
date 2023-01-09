@@ -28,6 +28,7 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import com.wire.android.R
@@ -48,7 +49,8 @@ internal fun MessageAsset(
     assetSizeInBytes: Long,
     onAssetClick: Clickable,
     assetUploadStatus: Message.UploadStatus,
-    assetDownloadStatus: Message.DownloadStatus
+    assetDownloadStatus: Message.DownloadStatus,
+    viewWidth: Dp? = null
 ) {
     val assetDescription = provideAssetDescription(assetExtension, assetSizeInBytes)
     Box(
@@ -66,8 +68,8 @@ internal fun MessageAsset(
             .clickable(if (isNotClickable(assetDownloadStatus, assetUploadStatus)) null else onAssetClick)
             .padding(dimensions().spacing8x)
     ) {
-        val shouldHideAssetMetadata = assetUploadStatus == Message.UploadStatus.UPLOAD_IN_PROGRESS
-        if (shouldHideAssetMetadata) {
+        val isUploadInProgress = assetUploadStatus == Message.UploadStatus.UPLOAD_IN_PROGRESS
+        if (isUploadInProgress) {
             UploadInProgressAssetMessage()
         } else {
             Column {
@@ -77,11 +79,11 @@ internal fun MessageAsset(
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
                 )
-                ConstraintLayout(
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(top = dimensions().spacing8x)
-                ) {
+                val assetModifier = viewWidth?.let {
+                    Modifier.padding(top = dimensions().spacing8x).size(viewWidth)
+                } ?: Modifier.padding(top = dimensions().spacing8x).fillMaxWidth()
+
+                ConstraintLayout(assetModifier) {
                     val (icon, description, downloadStatus) = createRefs()
                     Image(
                         modifier = Modifier
@@ -275,6 +277,7 @@ private fun DownloadStatusIcon(assetDownloadStatus: Message.DownloadStatus, asse
             progressColor = MaterialTheme.wireColorScheme.secondaryText,
             size = dimensions().spacing16x
         )
+
         assetUploadStatus == Message.UploadStatus.FAILED_UPLOAD -> {}
         assetDownloadStatus == Message.DownloadStatus.SAVED_INTERNALLY -> Icon(
             painter = painterResource(id = R.drawable.ic_download),
@@ -282,12 +285,14 @@ private fun DownloadStatusIcon(assetDownloadStatus: Message.DownloadStatus, asse
             modifier = Modifier.size(dimensions().wireIconButtonSize),
             tint = MaterialTheme.wireColorScheme.secondaryText
         )
+
         assetDownloadStatus == Message.DownloadStatus.SAVED_EXTERNALLY -> Icon(
             painter = painterResource(id = R.drawable.ic_check_tick),
             contentDescription = stringResource(R.string.content_description_check),
             modifier = Modifier.size(dimensions().wireIconButtonSize),
             tint = MaterialTheme.wireColorScheme.secondaryText
         )
+
         else -> {}
     }
 }
@@ -301,8 +306,10 @@ fun getDownloadStatusText(assetDownloadStatus: Message.DownloadStatus, assetUplo
         assetDownloadStatus == Message.DownloadStatus.SAVED_INTERNALLY -> stringResource(R.string.asset_message_downloaded_internally_text)
         assetDownloadStatus == Message.DownloadStatus.DOWNLOAD_IN_PROGRESS ->
             stringResource(R.string.asset_message_download_in_progress_text)
+
         assetDownloadStatus == Message.DownloadStatus.SAVED_EXTERNALLY ||
                 assetUploadStatus == Message.UploadStatus.UPLOADED -> stringResource(R.string.asset_message_saved_externally_text)
+
         assetDownloadStatus == Message.DownloadStatus.FAILED_DOWNLOAD -> stringResource(R.string.asset_message_failed_download_text)
         else -> ""
     }

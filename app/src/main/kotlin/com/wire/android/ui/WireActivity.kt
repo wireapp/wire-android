@@ -86,7 +86,7 @@ class WireActivity : AppCompatActivity() {
         viewModel.handleDeepLink(intent)
         setComposableContent()
 
-        featureFlagNotificationViewModel.checkIfSharingAllowed(this)
+        featureFlagNotificationViewModel.updateSharingStateIfNeeded(this)
     }
 
     override fun onNewIntent(intent: Intent?) {
@@ -121,7 +121,7 @@ class WireActivity : AppCompatActivity() {
                         { updateTheApp() },
                         viewModel.globalAppState.updateAppDialog
                     )
-                    AccountLongedOutDialog(viewModel.globalAppState.blockUserUI, viewModel::navigateToNextAccountOrWelcome)
+                    AccountLoggedOutDialog(viewModel.globalAppState.blockUserUI, viewModel::navigateToNextAccountOrWelcome)
 
                     handleFileSharingRestrictedDialog()
                 }
@@ -185,16 +185,18 @@ class WireActivity : AppCompatActivity() {
     }
 
     @Composable
-    fun AccountLongedOutDialog(reason: CurrentSessionErrorState?, navigateAway: () -> Unit) {
+    fun AccountLoggedOutDialog(reason: CurrentSessionErrorState?, navigateAway: () -> Unit) {
         appLogger.e("AccountLongedOutDialog: $reason")
         reason?.let {
             val (@StringRes title: Int, @StringRes text: Int) = when (reason) {
                 CurrentSessionErrorState.SessionExpired -> {
                     R.string.session_expired_error_title to R.string.session_expired_error_message
                 }
+
                 CurrentSessionErrorState.RemovedClient -> {
                     R.string.removed_client_error_title to R.string.removed_client_error_message
                 }
+
                 CurrentSessionErrorState.DeletedAccount -> {
                     R.string.deleted_user_error_title to R.string.deleted_user_error_message
                 }

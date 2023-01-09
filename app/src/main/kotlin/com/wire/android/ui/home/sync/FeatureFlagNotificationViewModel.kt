@@ -66,13 +66,14 @@ class FeatureFlagNotificationViewModel @Inject constructor(
                 is GetAllSessionsResult.Success -> {
                     it.sessions.filterIsInstance<AccountInfo.Valid>().size
                 }
+
                 is GetAllSessionsResult.Failure.Generic -> 0
                 GetAllSessionsResult.Failure.NoSessionFound -> 0
             }
         }
     }
 
-    fun checkIfSharingAllowed(activity: AppCompatActivity) {
+    fun updateSharingStateIfNeeded(activity: AppCompatActivity) {
         viewModelScope.launch {
             val incomingIntent = ShareCompat.IntentReader(activity)
             if (incomingIntent.isShareIntent) {

@@ -34,9 +34,7 @@ fun DisplayableImageMessage(imageData: ImageAsset.PrivateAsset, imgParams: Image
     Image(
         painter = imageData.paint(),
         contentDescription = stringResource(R.string.content_description_image_message),
-        modifier = modifier
-            .width(imgParams.normalizedWidth)
-            .height(imgParams.normalizedHeight),
+        modifier = modifier.width(imgParams.normalizedWidth).height(imgParams.normalizedHeight),
         alignment = Alignment.Center,
         contentScale = ContentScale.Crop
     )

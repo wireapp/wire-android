@@ -71,6 +71,7 @@ android {
 
     buildTypes {
         getByName(BuildTypes.DEBUG) {
+            matchingFallbacks.add("debug")
             isMinifyEnabled = false
             applicationIdSuffix = ".${BuildTypes.DEBUG}"
             isDebuggable = true
@@ -83,6 +84,7 @@ android {
             isMinifyEnabled = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
             isDebuggable = false
+            matchingFallbacks.add("release")
             if (enableSigning)
                 signingConfig = signingConfigs.getByName("release")
         }

@@ -163,8 +163,7 @@ class NewConversationViewModel @Inject constructor(
     }
 
     private fun createGroupWithCustomOptions(shouldCheckGuests: Boolean = true) {
-        if (shouldCheckGuests && checkIfGuestAdded())
-            return
+        if (shouldCheckGuests && checkIfGuestAdded()) return
         viewModelScope.launch {
             newGroupState = newGroupState.copy(isLoading = true)
             val result = createGroupConversation(

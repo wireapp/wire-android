@@ -196,7 +196,7 @@ enum class NavigationItem(
 
     EditDisplayName(
         primaryRoute = EDIT_DISPLAY_NAME,
-        content = { EditConversationNameScreen() }
+        content = { com.wire.android.ui.home.settings.account.displayname.ChangeDisplayNameScreen() }
     ),
 
     NetworkSettings(

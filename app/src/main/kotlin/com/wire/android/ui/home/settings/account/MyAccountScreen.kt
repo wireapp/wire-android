@@ -18,13 +18,17 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
-import com.wire.android.appLogger
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.Icon
 import com.wire.android.ui.common.RowItemTemplate
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import com.wire.android.ui.home.settings.account.AccountDetailsItem.DisplayName
+import com.wire.android.ui.home.settings.account.AccountDetailsItem.Domain
+import com.wire.android.ui.home.settings.account.AccountDetailsItem.Email
+import com.wire.android.ui.home.settings.account.AccountDetailsItem.Team
+import com.wire.android.ui.home.settings.account.AccountDetailsItem.Username
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
@@ -34,7 +38,7 @@ import com.wire.android.util.extension.folderWithElements
 fun MyAccountScreen(viewModel: MyAccountViewModel = hiltViewModel()) {
     with(viewModel.myAccountState) {
         MyAccountContent(
-            accountDetailItems = mapToUISections(this),
+            accountDetailItems = mapToUISections(viewModel, this),
             forgotPasswordUrl = this.changePasswordUrl,
             onNavigateBack = viewModel::navigateBack
         )
@@ -42,17 +46,14 @@ fun MyAccountScreen(viewModel: MyAccountViewModel = hiltViewModel()) {
 }
 
 @Stable
-private fun mapToUISections(state: MyAccountState): List<AccountDetailsItem> {
+private fun mapToUISections(viewModel: MyAccountViewModel, state: MyAccountState): List<AccountDetailsItem> {
     return with(state) {
         listOfNotNull(
-            if (fullName.isNotBlank()) AccountDetailsItem.DisplayName(
-                fullName,
-                Clickable { appLogger.i("Display name clicked") }
-            ) else null,
-            if (userName.isNotBlank()) AccountDetailsItem.Username("@$userName") else null,
-            if (email.isNotBlank()) AccountDetailsItem.Email(email) else null,
-            if (teamName.isNotBlank()) AccountDetailsItem.Team(teamName) else null,
-            if (domain.isNotBlank()) AccountDetailsItem.Domain(domain) else null
+            if (fullName.isNotBlank()) DisplayName(fullName, Clickable { viewModel.navigateToChangeDisplayName() }) else null,
+            if (userName.isNotBlank()) Username("@$userName") else null,
+            if (email.isNotBlank()) Email(email) else null,
+            if (teamName.isNotBlank()) Team(teamName) else null,
+            if (domain.isNotBlank()) Domain(domain) else null
         )
     }
 }
@@ -125,10 +126,10 @@ fun MyAccountContent(
 fun PreviewMyAccountScreen() {
     MyAccountContent(
         accountDetailItems = listOf(
-            AccountDetailsItem.DisplayName("Bob", Clickable(enabled = true) {}),
-            AccountDetailsItem.Username("@bob_wire"),
-            AccountDetailsItem.Email("bob@wire.com"),
-            AccountDetailsItem.Team("Wire")
+            DisplayName("Bob", Clickable(enabled = true) {}),
+            Username("@bob_wire"),
+            Email("bob@wire.com"),
+            Team("Wire")
         ),
         forgotPasswordUrl = "http://wire.com"
     )

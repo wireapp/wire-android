@@ -6,6 +6,9 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
+import com.wire.android.navigation.BackStackMode
+import com.wire.android.navigation.NavigationCommand
+import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.team.Team
@@ -30,7 +33,7 @@ class MyAccountViewModel @Inject constructor(
     private val serverConfig: SelfServerConfigUseCase,
     private val isPasswordRequired: IsPasswordRequiredUseCase,
     private val navigationManager: NavigationManager,
-    private val dispatchers: DispatcherProvider,
+    private val dispatchers: DispatcherProvider
 ) : ViewModel() {
 
     var myAccountState by mutableStateOf(MyAccountState())
@@ -46,7 +49,9 @@ class MyAccountViewModel @Inject constructor(
     private suspend fun loadPasswordChangeContextIfPossible() {
         viewModelScope.launch {
             when (val result = withContext(dispatchers.io()) { isPasswordRequired() }) {
-                is IsPasswordRequiredUseCase.Result.Failure -> appLogger.e("Error when fetching if user can change password")
+                is IsPasswordRequiredUseCase.Result.Failure -> appLogger.e(
+                    "Error when fetching if user can change password"
+                )
                 is IsPasswordRequiredUseCase.Result.Success -> {
                     when (result.value) {
                         true -> fetchChangePasswordUrl()
@@ -59,7 +64,9 @@ class MyAccountViewModel @Inject constructor(
 
     private suspend fun fetchChangePasswordUrl() {
         when (val result = withContext(dispatchers.io()) { serverConfig() }) {
-            is SelfServerConfigUseCase.Result.Failure -> appLogger.e("Error when fetching the accounts url for change password")
+            is SelfServerConfigUseCase.Result.Failure -> appLogger.e(
+                "Error when fetching the accounts url for change password"
+            )
             is SelfServerConfigUseCase.Result.Success ->
                 myAccountState = myAccountState.copy(changePasswordUrl = result.serverLinks.links.forgotPassword)
         }
@@ -80,6 +87,17 @@ class MyAccountViewModel @Inject constructor(
                         domain = user.id.domain
                     )
                 }
+        }
+    }
+
+    fun navigateToChangeDisplayName() {
+        viewModelScope.launch {
+            navigationManager.navigate(
+                NavigationCommand(
+                    destination = NavigationItem.EditDisplayName.getRouteWithArgs(),
+                    backStackMode = BackStackMode.NONE
+                )
+            )
         }
     }
 

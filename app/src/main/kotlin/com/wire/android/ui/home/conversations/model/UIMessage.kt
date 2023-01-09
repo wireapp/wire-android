@@ -154,7 +154,7 @@ sealed class UIMessageContent {
             SystemMessage(R.drawable.ic_info, R.string.label_system_message_session_reset, true)
 
         data class NewConversationReceiptMode(
-            val receiptMode: String
+            val receiptMode: UIText
         ) : SystemMessage(R.drawable.ic_view, R.string.label_system_message_new_conversation_receipt_mode)
     }
 }

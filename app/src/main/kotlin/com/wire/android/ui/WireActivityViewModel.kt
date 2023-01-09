@@ -124,21 +124,17 @@ class WireActivityViewModel @Inject constructor(
                         appLogger.e("Failure while fetching persistent web socket status flow from wire activity")
                     }
                     is ObservePersistentWebSocketConnectionStatusUseCase.Result.Success -> {
-                        result.persistentWebSocketStatusListFlow.collect { persistentWebSocketStatusList ->
-                            persistentWebSocketStatusList.forEach { persistentWebSocketStatus ->
-                                if (!persistentWebSocketStatus.isPersistentWebSocketEnabled) {
-                                    // FIXME: Every time persistent WebSocket settings change
-                                    //        observeNotificationsAndCalls is called again and
-                                    //        there are multiple observers there.
-                                    //        This whole part of the ViewModel could be extracted
-                                    //        to a dedicated entity, responsible only for notifications.
-                                    notificationManager.observeNotificationsAndCalls(observeUserId, this) { call ->
-                                        openIncomingCall(call.conversationId)
-                                    }
-                                }
-                            }
+                        result.persistentWebSocketStatusListFlow.collect { statuses ->
+                            val usersToObserve = statuses
+                                .filter { !it.isPersistentWebSocketEnabled }
+                                .map { it.userId }
 
-                            if (persistentWebSocketStatusList.any { it.isPersistentWebSocketEnabled }) {
+                            notificationManager.observeNotificationsAndCallsWhileRunning(
+                                usersToObserve,
+                                viewModelScope
+                            ) { call -> openIncomingCall(call.conversationId) }
+
+                            if (statuses.any { it.isPersistentWebSocketEnabled }) {
                                 if (!servicesManager.isPersistentWebSocketServiceRunning()) {
                                     servicesManager.startPersistentWebSocketService()
                                 }

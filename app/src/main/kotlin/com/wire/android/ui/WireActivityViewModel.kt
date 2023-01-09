@@ -118,21 +118,27 @@ class WireActivityViewModel @Inject constructor(
                 }
         }
         viewModelScope.launch(dispatchers.io()) {
-            observePersistentWebSocketConnectionStatus().let {
-                when (it) {
+            observePersistentWebSocketConnectionStatus().let { result ->
+                when (result) {
                     is ObservePersistentWebSocketConnectionStatusUseCase.Result.Failure -> {
                         appLogger.e("Failure while fetching persistent web socket status flow from wire activity")
                     }
                     is ObservePersistentWebSocketConnectionStatusUseCase.Result.Success -> {
-                        it.persistentWebSocketStatusListFlow.collect {
-                            it.map { persistentWebSocketStatus ->
+                        result.persistentWebSocketStatusListFlow.collect { persistentWebSocketStatusList ->
+                            persistentWebSocketStatusList.forEach { persistentWebSocketStatus ->
                                 if (!persistentWebSocketStatus.isPersistentWebSocketEnabled) {
-                                    notificationManager.observeNotificationsAndCalls(observeUserId, viewModelScope)
-                                    { openIncomingCall(it.conversationId) }
+                                    // FIXME: Every time persistent WebSocket settings change
+                                    //        observeNotificationsAndCalls is called again and
+                                    //        there are multiple observers there.
+                                    //        This whole part of the ViewModel could be extracted
+                                    //        to a dedicated entity, responsible only for notifications.
+                                    notificationManager.observeNotificationsAndCalls(observeUserId, this) { call ->
+                                        openIncomingCall(call.conversationId)
+                                    }
                                 }
                             }
 
-                            if (it.map { it.isPersistentWebSocketEnabled }.contains(true)) {
+                            if (persistentWebSocketStatusList.any { it.isPersistentWebSocketEnabled }) {
                                 if (!servicesManager.isPersistentWebSocketServiceRunning()) {
                                     servicesManager.startPersistentWebSocketService()
                                 }
@@ -210,9 +216,9 @@ class WireActivityViewModel @Inject constructor(
 
                     is DeepLinkResult.IncomingCall -> {
                         if (isLaunchedFromHistory(intent)) {
-                            //We don't need to handle deepLink, if activity was launched from history.
-                            //For example: user opened app by deepLink, then closed it by back button click,
-                            //then open the app from the "Recent Apps"
+                            // We don't need to handle deepLink, if activity was launched from history.
+                            // For example: user opened app by deepLink, then closed it by back button click,
+                            // then open the app from the "Recent Apps"
                             appLogger.i("IncomingCall deepLink launched from the history")
                         } else {
                             navigationArguments.put(INCOMING_CALL_CONVERSATION_ID_ARG, result.conversationsId)
@@ -221,9 +227,9 @@ class WireActivityViewModel @Inject constructor(
 
                     is DeepLinkResult.OngoingCall -> {
                         if (isLaunchedFromHistory(intent)) {
-                            //We don't need to handle deepLink, if activity was launched from history.
-                            //For example: user opened app by deepLink, then closed it by back button click,
-                            //then open the app from the "Recent Apps"
+                            // We don't need to handle deepLink, if activity was launched from history.
+                            // For example: user opened app by deepLink, then closed it by back button click,
+                            // then open the app from the "Recent Apps"
                             appLogger.i("IncomingCall deepLink launched from the history")
                         } else {
                             navigationArguments.put(ONGOING_CALL_CONVERSATION_ID_ARG, result.conversationsId)
@@ -262,7 +268,7 @@ class WireActivityViewModel @Inject constructor(
      */
     fun handleDeepLinkOnNewIntent(intent: Intent?): Boolean {
 
-        //removing arguments that could be there from prev deeplink handling
+        // removing arguments that could be there from prev deeplink handling
         navigationArguments.apply {
             remove(INCOMING_CALL_CONVERSATION_ID_ARG)
             remove(ONGOING_CALL_CONVERSATION_ID_ARG)

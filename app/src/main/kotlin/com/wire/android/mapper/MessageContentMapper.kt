@@ -2,7 +2,6 @@ package com.wire.android.mapper
 
 import androidx.annotation.StringRes
 import com.wire.android.R
-import com.wire.android.appLogger
 import com.wire.android.model.ImageAsset
 import com.wire.android.ui.home.conversations.findUser
 import com.wire.android.ui.home.conversations.model.AttachmentType
@@ -62,7 +61,7 @@ class MessageContentMapper @Inject constructor(
         is MessageContent.ConversationRenamed -> mapConversationRenamedMessage(message.senderUserId, content, members)
         is MessageContent.TeamMemberRemoved -> mapTeamMemberRemovedMessage(content)
         is MessageContent.CryptoSessionReset -> mapResetSession(message.senderUserId, members)
-        is MessageContent.NewConversationReceiptMode -> mapNewConversationReceiptMode(message.senderUserId, content, members)
+        is MessageContent.NewConversationReceiptMode -> mapNewConversationReceiptMode(content)
     }
 
     private fun mapResetSession(
@@ -91,16 +90,8 @@ class MessageContentMapper @Inject constructor(
     }
 
     private fun mapNewConversationReceiptMode(
-        senderUserId: UserId,
-        content: MessageContent.NewConversationReceiptMode,
-        userList: List<User>
+        content: MessageContent.NewConversationReceiptMode
     ): UIMessageContent.SystemMessage {
-//        val sender = userList.findUser(userId = senderUserId)
-//        val creatorName = toSystemMessageMemberName(
-//            user = sender,
-//            type = SelfNameType.ResourceTitleCase
-//        )
-        appLogger.d("[NCRRM][mapNewConversationReceiptMode] - content.receiptMode: [${content.receiptMode}]")
         return UIMessageContent.SystemMessage.NewConversationReceiptMode(
             receiptMode = when (content.receiptMode) {
                 true -> "on"

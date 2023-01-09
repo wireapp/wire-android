@@ -7,11 +7,13 @@ def defineFlavor() {
 
     def branchName = env.BRANCH_NAME
     if (branchName == "main") {
-        return 'Internal'
+        return 'Beta'
     } else if(branchName == "develop") {
         return 'Dev'
     } else if(branchName == "release") {
         return 'Public'
+    } else if (branchName == "internal") {
+    return 'Internal'
     }
     return 'Dev'
 }
@@ -21,12 +23,14 @@ def defineBuildType() {
     if(overwrite != null) {
         return overwrite
     }
-    // use the scala client signing keys for testing upgrades.
     def flavor = defineFlavor()
-    if (flavor == "Dev") {
-        return "Compat"
+
+    // internal is used for wire beta builds
+    if (flavor == 'Beta') {
+        return 'Release'
     }
-    return "Release"
+    // use the scala client signing keys for testing upgrades.
+    return "Compat"
 }
 
 def defineTrackName() {
@@ -34,7 +38,6 @@ def defineTrackName() {
     if(overwrite != null) {
         return overwrite
     }
-
     return 'internal'
 }
 

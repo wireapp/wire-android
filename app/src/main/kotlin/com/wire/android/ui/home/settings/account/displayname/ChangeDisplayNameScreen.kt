@@ -41,7 +41,13 @@ import com.wire.android.ui.theme.wireTypography
 @Composable
 fun ChangeDisplayNameScreen(viewModel: ChangeDisplayNameViewModel = hiltViewModel()) {
     with(viewModel) {
-        ChangeDisplayNameContent(displayNameState, ::onNameChange, ::saveDisplayName, ::onNameErrorAnimated, ::navigateBack)
+        ChangeDisplayNameContent(
+            displayNameState,
+            ::onNameChange,
+            ::saveDisplayName,
+            ::onNameErrorAnimated,
+            ::navigateBack
+        )
     }
 }
 
@@ -60,7 +66,7 @@ fun ChangeDisplayNameContent(
             WireCenterAlignedTopAppBar(
                 elevation = scrollState.rememberTopBarElevationState().value,
                 onNavigationPressed = onBackPressed,
-                title = "Your display name"
+                title = stringResource(id = R.string.settings_myaccount_display_name_title)
             )
         }) { internalPadding ->
 
@@ -77,7 +83,7 @@ fun ChangeDisplayNameContent(
                 ) {
                     val keyboardController = androidx.compose.ui.platform.LocalSoftwareKeyboardController.current
                     Text(
-                        text = stringResource(id = R.string.settings_myaccount_display_name_title),
+                        text = stringResource(id = R.string.settings_myaccount_display_name_description),
                         style = MaterialTheme.wireTypography.body01,
                         modifier = Modifier
                             .fillMaxWidth()
@@ -136,13 +142,15 @@ fun ChangeDisplayNameContent(
 
 @Composable
 private fun computeNameErrorState(error: DisplayNameState.NameError) =
-    if (error is DisplayNameState.NameError.TextFieldError) when (error) {
-        DisplayNameState.NameError.TextFieldError.NameEmptyError -> WireTextFieldState.Error(
-            stringResource(id = R.string.settings_myaccount_display_name_error)
-        )
-        DisplayNameState.NameError.TextFieldError.NameExceedLimitError -> WireTextFieldState.Error(
-            stringResource(id = R.string.settings_myaccount_display_name_exceeded_limit_error)
-        )
+    if (error is DisplayNameState.NameError.TextFieldError) {
+        when (error) {
+            DisplayNameState.NameError.TextFieldError.NameEmptyError -> WireTextFieldState.Error(
+                stringResource(id = R.string.settings_myaccount_display_name_error)
+            )
+            DisplayNameState.NameError.TextFieldError.NameExceedLimitError -> WireTextFieldState.Error(
+                stringResource(id = R.string.settings_myaccount_display_name_exceeded_limit_error)
+            )
+        }
     } else {
         WireTextFieldState.Default
     }

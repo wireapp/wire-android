@@ -38,7 +38,7 @@ fun MessagePreview?.toUIPreview(unreadEventCount: UnreadEventCount): UILastMessa
         if (unreadContentTexts.size > 1) {
             val first = unreadContentTexts.first()
             val second = unreadContentTexts.elementAt(1)
-            return UILastMessageContent.MultipleMessage(first, second)
+            return UILastMessageContent.MultipleMessage(listOf(first, second))
         } else if (unreadContentTexts.isNotEmpty()) {
             return UILastMessageContent.TextMessage(MessageBody(unreadContentTexts.first()))
         }
@@ -82,34 +82,80 @@ fun MessagePreview.uiLastMessageContent(): UILastMessageContent {
                     userUIText,
                     UIText.StringResource(R.string.last_message_knock)
                 )
-                is WithUser.MembersAdded -> UILastMessageContent.SenderWithMessage(
-                    userUIText,
-                    UIText.PluralResource(
-                        R.plurals.last_message_people_added,
-                        (content as WithUser.MembersAdded).userIdList.size,
-                        (content as WithUser.MembersAdded).userIdList.size,
-                    )
-                )
+                is WithUser.MembersAdded -> {
+                    val membersAddedContent = (content as WithUser.MembersAdded)
+                    val isSelfAdded = membersAddedContent.isSelfUserAdded
+                    val isSelfJoined = isSelfMessage && isSelfAdded
+
+                    when {
+                        isSelfJoined -> UILastMessageContent.TextMessage(
+                            MessageBody(UIText.StringResource(R.string.left_conversation_group_success))
+                        )
+                        isSelfAdded -> UILastMessageContent.MultipleMessage(
+                            listOf(
+                                userUIText,
+                                UIText.StringResource(R.string.last_message_added),
+                                UIText.StringResource(R.string.member_name_you_label_lowercase)
+                            )
+                                .plus(
+                                    if (membersAddedContent.otherUserIdList.isNotEmpty()) listOf(
+                                        UIText.StringResource(R.string.label_and),
+                                        UIText.PluralResource(
+                                            R.plurals.last_message_other_people,
+                                            membersAddedContent.otherUserIdList.size,
+                                            membersAddedContent.otherUserIdList.size
+                                        )
+                                    ) else listOf()
+                                )
+                                .plus(
+                                    UIText.StringResource(R.string.last_message_to_conversation)
+                                )
+                        )
+                        else -> UILastMessageContent.SenderWithMessage(
+                            userUIText,
+                            UIText.PluralResource(
+                                R.plurals.last_message_people_added,
+                                membersAddedContent.otherUserIdList.size,
+                                membersAddedContent.otherUserIdList.size
+                            )
+                        )
+                    }
+                }
 
                 is WithUser.MembersRemoved -> {
                     val membersRemovedContent = (content as WithUser.MembersRemoved)
-                    val isSelfRemoved = membersRemovedContent.userIdList.contains(selfUserId)
+                    val isSelfRemoved = membersRemovedContent.isSelfUserRemoved
                     val isSelfLeft = isSelfMessage && isSelfRemoved
 
                     when {
                         isSelfLeft -> UILastMessageContent.TextMessage(
                             MessageBody(UIText.StringResource(R.string.left_conversation_group_success))
                         )
-                        isSelfRemoved -> UILastMessageContent.SenderWithMessage(
-                            userUIText,
-                            UIText.StringResource(R.string.last_message_self_removed)
+                        isSelfRemoved -> UILastMessageContent.MultipleMessage(
+                            listOf(
+                                userUIText,
+                                UIText.StringResource(R.string.last_message_removed),
+                                UIText.StringResource(R.string.member_name_you_label_lowercase)
+                            )
+                                .plus(
+                                    if (membersRemovedContent.otherUserIdList.isNotEmpty()) listOf(
+                                        UIText.StringResource(R.string.label_and),
+                                        UIText.PluralResource(
+                                            R.plurals.last_message_other_people,
+                                            membersRemovedContent.otherUserIdList.size
+                                        )
+                                    ) else listOf()
+                                )
+                                .plus(
+                                    UIText.StringResource(R.string.last_message_from_conversation)
+                                )
                         )
                         else -> UILastMessageContent.SenderWithMessage(
                             userUIText,
                             UIText.PluralResource(
                                 R.plurals.last_message_people_removed,
-                                membersRemovedContent.userIdList.size,
-                                membersRemovedContent.userIdList.size
+                                membersRemovedContent.otherUserIdList.size,
+                                membersRemovedContent.otherUserIdList.size
                             )
                         )
                     }

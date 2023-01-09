@@ -6,6 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.appLogger
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
@@ -37,7 +38,61 @@ class ChangeDisplayNameViewModel @Inject constructor(
         }
     }
 
+    fun onNameChange(newText: TextFieldValue) {
+        displayNameState = validateNewNameChange(newText)
+    }
+
+    private fun validateNewNameChange(newText: TextFieldValue): DisplayNameState {
+        val cleanText = newText.text.trim()
+        return when {
+            cleanText.isEmpty() -> {
+                displayNameState.copy(
+                    animatedNameError = true,
+                    displayName = newText,
+                    continueEnabled = false,
+                    error = DisplayNameState.NameError.TextFieldError.NameEmptyError
+                )
+            }
+            cleanText.count() > NAME_MAX_COUNT -> {
+                displayNameState.copy(
+                    animatedNameError = true,
+                    displayName = newText,
+                    continueEnabled = false,
+                    error = DisplayNameState.NameError.TextFieldError.NameExceedLimitError
+                )
+            }
+            cleanText == displayNameState.originalDisplayName -> {
+                displayNameState.copy(
+                    animatedNameError = false,
+                    displayName = newText,
+                    continueEnabled = false,
+                    error = DisplayNameState.NameError.None
+                )
+            }
+            else -> {
+                displayNameState.copy(
+                    animatedNameError = false,
+                    displayName = newText,
+                    continueEnabled = true,
+                    error = DisplayNameState.NameError.None
+                )
+            }
+        }
+    }
+
+    fun saveDisplayName() {
+        appLogger.d("Saving display name...")
+    }
+
+    fun onNameErrorAnimated() {
+        displayNameState = displayNameState.copy(animatedNameError = false)
+    }
+
     fun navigateBack() {
         viewModelScope.launch { navigationManager.navigateBack() }
+    }
+
+    companion object {
+        private const val NAME_MAX_COUNT = 128
     }
 }

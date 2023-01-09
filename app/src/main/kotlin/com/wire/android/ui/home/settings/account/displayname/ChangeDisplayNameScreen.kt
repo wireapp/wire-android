@@ -41,7 +41,7 @@ import com.wire.android.ui.theme.wireTypography
 @Composable
 fun ChangeDisplayNameScreen(viewModel: ChangeDisplayNameViewModel = hiltViewModel()) {
     with(viewModel) {
-        ChangeDisplayNameContent(displayNameState, {}, {}, {}, ::navigateBack)
+        ChangeDisplayNameContent(displayNameState, ::onNameChange, ::saveDisplayName, ::onNameErrorAnimated, ::navigateBack)
     }
 }
 
@@ -99,7 +99,7 @@ fun ChangeDisplayNameContent(
                                 value = displayName,
                                 onValueChange = onNameChange,
                                 labelText = stringResource(R.string.settings_myaccount_display_name).uppercase(),
-                                state = WireTextFieldState.Default, // todo: compute
+                                state = computeNameErrorState(error),
                                 keyboardOptions = KeyboardOptions(
                                     keyboardType = androidx.compose.ui.text.input.KeyboardType.Text,
                                     imeAction = androidx.compose.ui.text.input.ImeAction.Done
@@ -134,8 +134,21 @@ fun ChangeDisplayNameContent(
     }
 }
 
+@Composable
+private fun computeNameErrorState(error: DisplayNameState.NameError) =
+    if (error is DisplayNameState.NameError.TextFieldError) when (error) {
+        DisplayNameState.NameError.TextFieldError.NameEmptyError -> WireTextFieldState.Error(
+            stringResource(id = R.string.settings_myaccount_display_name_error)
+        )
+        DisplayNameState.NameError.TextFieldError.NameExceedLimitError -> WireTextFieldState.Error(
+            stringResource(id = R.string.settings_myaccount_display_name_exceeded_limit_error)
+        )
+    } else {
+        WireTextFieldState.Default
+    }
+
 @Preview
 @Composable
 fun PreviewChangeDisplayName() {
-    ChangeDisplayNameContent(DisplayNameState("John Doe", TextFieldValue("John Doe")), {}, {}, {}, {})
+    ChangeDisplayNameContent(DisplayNameState("Bruce Wayne", TextFieldValue("Bruce Wayne")), {}, {}, {}, {})
 }

@@ -5,6 +5,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 data class DisplayNameState(
     val originalDisplayName: String = "",
     val displayName: TextFieldValue = TextFieldValue(""),
+    val error: NameError = NameError.None,
     val animatedNameError: Boolean = false,
     val continueEnabled: Boolean = false
 ) {

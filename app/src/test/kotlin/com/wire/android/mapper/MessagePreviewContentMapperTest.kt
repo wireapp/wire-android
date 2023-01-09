@@ -10,6 +10,7 @@ import com.wire.kalium.logic.data.message.MessagePreviewContent
 import com.wire.kalium.logic.data.user.UserId
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
+import org.amshove.kluent.`should contain`
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeInstanceOf
 import org.junit.jupiter.api.Test
@@ -81,12 +82,8 @@ class MessagePreviewContentMapperTest {
 
     @Test
     fun givenSelfUserLeftConversationMessage_whenMappingToUILastMessageContent_thenCorrectContentShouldBeReturned() = runTest {
-        val selfUserId = UserId("selfValue", "selfDomain")
-
         val messagePreview = TestMessage.PREVIEW.copy(
-            content = MessagePreviewContent.WithUser.MembersRemoved("admin", listOf(selfUserId)),
-            selfUserId = selfUserId,
-            senderUserId = selfUserId,
+            content = MessagePreviewContent.WithUser.MembersRemoved("admin", isSelfUserRemoved = true, listOf()),
             isSelfMessage = true
         )
 
@@ -98,19 +95,17 @@ class MessagePreviewContentMapperTest {
 
     @Test
     fun givenSelfUserWasRemovedFromConversationMessage_whenMappingToUILastMessageContent_thenCorrectContentShouldBeReturned() = runTest {
-        val selfUserId = UserId("selfValue", "selfDomain")
         val otherUserId = UserId("otherValue", "selfDomain")
 
         val messagePreview = TestMessage.PREVIEW.copy(
-            content = MessagePreviewContent.WithUser.MembersRemoved("admin", listOf(selfUserId)),
-            selfUserId = selfUserId,
-            senderUserId = otherUserId,
+            content = MessagePreviewContent.WithUser.MembersRemoved("admin", isSelfUserRemoved = true, listOf(otherUserId)),
         )
 
-        val textMessage = messagePreview.uiLastMessageContent().shouldBeInstanceOf<UILastMessageContent.SenderWithMessage>()
-        val result = textMessage.message.shouldBeInstanceOf<UIText.StringResource>()
+        val multipleMessage = messagePreview.uiLastMessageContent().shouldBeInstanceOf<UILastMessageContent.MultipleMessage>()
+        val resources = multipleMessage.messages.filterIsInstance<UIText.StringResource>().map { it.resId }
 
-        result.resId shouldBeEqualTo R.string.last_message_self_removed
+        resources `should contain` R.string.last_message_removed
+        resources `should contain` R.string.member_name_you_label_lowercase
     }
 
 }

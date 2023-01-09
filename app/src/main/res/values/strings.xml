@@ -496,10 +496,8 @@
         <item quantity="one">%1$d other person</item>
         <item quantity="other">%1$d other people</item>
     </plurals>
-    <string name="last_message_self_removed">removed you from the conversation</string>
     <string name="last_message_to_conversation">to conversation</string>
     <string name="last_message_from_conversation">from conversation</string>
-
 
     <!-- Unread Events -->
     <plurals name="unread_event_knock">

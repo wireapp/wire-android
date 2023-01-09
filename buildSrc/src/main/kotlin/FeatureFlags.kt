@@ -18,14 +18,12 @@ object FeatureFlags {
         //Enabled Features for DEV Product Flavor
         ProductFlavors.Dev to setOf(
             Features.FEATURE_SEARCH,
-            Features.FEATURE_CONVERSATIONS),
+            Features.FEATURE_CONVERSATIONS
+        ),
 
         //Enabled Features for INTERNAL Product Flavor
         ProductFlavors.Internal to setOf(
-            Features.FEATURE_CONVERSATIONS)
-
-        //Enabled Features for PUBLIC Product Flavor
-//        ProductFlavors. to setOf(
-//            Features.FEATURE_SEARCH)
-            )
+            Features.FEATURE_CONVERSATIONS
+        )
+    )
 }

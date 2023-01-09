@@ -8,6 +8,7 @@
     <string name="label_cancel">Cancel</string>
     <string name="label_confirm">Confirm</string>
     <string name="label_continue">Continue</string>
+    <string name="label_save">Save</string>
     <string name="label_get_started">Get Started</string>
     <string name="label_remove">Remove</string>
     <string name="label_proceed">Proceed</string>
@@ -686,6 +687,9 @@
     <string name="settings_myaccount_team">TEAM</string>
     <string name="settings_myaccount_domain">DOMAIN</string>
     <string name="settings_myaccount_reset_password">Reset Password</string>
+
+    <!--Settings, My Account > Display name -->
+    <string name="settings_myaccount_display_name_title">Your display name is shown in conversations, calls and in the user search. It is not unique in Wire.</string>
 
     <!--Privacy Settings -->
     <string name="settings_send_read_receipts">Send read receipts</string>

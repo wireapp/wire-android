@@ -29,7 +29,10 @@ class ChangeDisplayNameViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             getSelf().flowOn(dispatchers.io()).shareIn(this, SharingStarted.WhileSubscribed(1)).collect {
-                displayNameState = displayNameState.copy(displayName = TextFieldValue(it.name.orEmpty()))
+                displayNameState = displayNameState.copy(
+                    originalDisplayName = it.name.orEmpty(),
+                    displayName = TextFieldValue(it.name.orEmpty())
+                )
             }
         }
     }

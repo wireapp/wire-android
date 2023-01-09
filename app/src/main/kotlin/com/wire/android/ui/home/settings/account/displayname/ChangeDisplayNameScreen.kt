@@ -21,6 +21,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.ui.common.Icon
@@ -76,17 +77,17 @@ fun ChangeDisplayNameContent(
                 ) {
                     val keyboardController = androidx.compose.ui.platform.LocalSoftwareKeyboardController.current
                     Text(
-                        text = "DISPLAY NAME",
+                        text = stringResource(id = R.string.settings_myaccount_display_name_title),
                         style = MaterialTheme.wireTypography.body01,
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(
                                 horizontal = MaterialTheme.wireDimensions.spacing16x,
-                                vertical = MaterialTheme.wireDimensions.spacing24x
+                                vertical = MaterialTheme.wireDimensions.spacing16x
                             )
                     )
 
-                    Spacer(modifier = Modifier.weight(1f))
+                    Spacer(modifier = Modifier.weight(0.5f))
 
                     Box {
                         ShakeAnimation { animate ->
@@ -97,8 +98,8 @@ fun ChangeDisplayNameContent(
                             WireTextField(
                                 value = displayName,
                                 onValueChange = onNameChange,
-                                labelText = stringResource(R.string.group_name_title).uppercase(),
-                                state = WireTextFieldState.Default, // todo compute
+                                labelText = stringResource(R.string.settings_myaccount_display_name).uppercase(),
+                                state = WireTextFieldState.Default, // todo: compute
                                 keyboardOptions = KeyboardOptions(
                                     keyboardType = androidx.compose.ui.text.input.KeyboardType.Text,
                                     imeAction = androidx.compose.ui.text.input.ImeAction.Done
@@ -119,7 +120,7 @@ fun ChangeDisplayNameContent(
                 ) {
                     Box(modifier = Modifier.padding(MaterialTheme.wireDimensions.spacing16x)) {
                         WirePrimaryButton(
-                            text = stringResource(R.string.label_continue),
+                            text = stringResource(R.string.label_save),
                             onClick = onContinuePressed,
                             fillMaxWidth = true,
                             trailingIcon = androidx.compose.material.icons.Icons.Filled.ChevronRight.Icon(),
@@ -131,4 +132,10 @@ fun ChangeDisplayNameContent(
             }
         }
     }
+}
+
+@Preview
+@Composable
+fun PreviewChangeDisplayName() {
+    ChangeDisplayNameContent(DisplayNameState("John Doe", TextFieldValue("John Doe")), {}, {}, {}, {})
 }

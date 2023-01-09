@@ -7,13 +7,13 @@ def defineFlavor() {
 
     def branchName = env.BRANCH_NAME
     if (branchName == "main") {
-        return 'Internal'
+        return 'Beta'
     } else if(branchName == "develop") {
         return 'Dev'
     } else if(branchName == "release") {
         return 'Public'
-    } else if (branchName == "internal-compat") {
-    return 'internal-compat'
+    } else if (branchName == "internal") {
+    return 'Internal'
     }
     return 'Dev'
 }
@@ -25,7 +25,7 @@ def defineBuildType() {
     }
     def flavor = defineFlavor()
 
-    // interna is used for wire beta builds
+    // internal is used for wire beta builds
     if (flavor == 'Internal') {
         return 'Release'
     }

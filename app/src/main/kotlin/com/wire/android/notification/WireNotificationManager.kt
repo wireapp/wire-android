@@ -56,7 +56,7 @@ class WireNotificationManager @Inject constructor(
     private val callNotificationManager: CallNotificationManager,
     private val connectionPolicyManager: ConnectionPolicyManager,
     private val servicesManager: ServicesManager,
-    dispatcherProvider: DispatcherProvider
+    private val dispatcherProvider: DispatcherProvider
 ) {
 
     private val scope = CoroutineScope(SupervisorJob() + dispatcherProvider.default())
@@ -204,10 +204,10 @@ class WireNotificationManager @Inject constructor(
     ) {
         val currentScreenState = currentScreenManager.observeCurrentScreen(scope)
 
-        scope.launch { observeCurrentScreenAndHideNotifications(currentScreenState, userIdFlow) }
-        scope.launch { observeIncomingCalls(currentScreenState, userIdFlow, doIfCallCameAndAppVisible) }
-        scope.launch { observeMessageNotifications(userIdFlow, currentScreenState) }
-        scope.launch { observeOngoingCalls(currentScreenState, userIdFlow) }
+        scope.launch(dispatcherProvider.default()) { observeCurrentScreenAndHideNotifications(currentScreenState, userIdFlow) }
+        scope.launch(dispatcherProvider.default()) { observeIncomingCalls(currentScreenState, userIdFlow, doIfCallCameAndAppVisible) }
+        scope.launch(dispatcherProvider.default()) { observeMessageNotifications(userIdFlow, currentScreenState) }
+        scope.launch(dispatcherProvider.default()) { observeOngoingCalls(currentScreenState, userIdFlow) }
     }
 
     /**
@@ -289,34 +289,32 @@ class WireNotificationManager @Inject constructor(
         currentScreenState: StateFlow<CurrentScreen>
     ) {
         userIdFlow
+            .filterNotNull()
             .flatMapLatest { userId ->
-                userId?.let {
-                    val observeSelfUser = coreLogic.getSessionScope(userId)
-                        .users
-                        .getSelfUser()
+                val observeSelfUser = coreLogic.getSessionScope(userId)
+                    .users
+                    .getSelfUser()
 
-                    coreLogic.getSessionScope(userId)
-                        .messages
-                        .getNotifications()
-                        .cancellable()
-                        .combine(observeSelfUser) { newNotifications, selfUser ->
-                            // we don't want to display notifications for the Conversation that user currently in.
-                            val notificationsList = filterAccordingToScreenAndUpdateNotifyDate(
-                                currentScreenState.value,
-                                userId,
-                                newNotifications
-                            )
-                            val userName = selfUser.handle ?: selfUser.name ?: ""
+                coreLogic.getSessionScope(userId)
+                    .messages
+                    .getNotifications()
+                    .cancellable()
+                    .combine(observeSelfUser) { newNotifications, selfUser ->
+                        // we don't want to display notifications for the Conversation that user currently in.
+                        val notificationsList = filterAccordingToScreenAndUpdateNotifyDate(
+                            currentScreenState.value,
+                            userId,
+                            newNotifications
+                        )
+                        val userName = selfUser.handle ?: selfUser.name ?: ""
 
-                            // combining all the data that is necessary for Notifications into small data class,
-                            // just to make it more readable than
-                            // Pair<List<LocalNotificationConversation>, QualifiedID>
-                            MessagesNotificationsData(notificationsList, userId, userName)
-                        }
-                } ?: flowOf(null)
+                        // combining all the data that is necessary for Notifications into small data class,
+                        // just to make it more readable than
+                        // Pair<List<LocalNotificationConversation>, QualifiedID>
+                        MessagesNotificationsData(notificationsList, userId, userName)
+                    }
             }
             .cancellable()
-            .filterNotNull()
             .collect { (newNotifications, userId, userName) ->
                 appLogger.d("$TAG got ${newNotifications.size} notifications")
                 messagesNotificationManager.handleNotification(newNotifications, userId, userName)
@@ -366,7 +364,7 @@ class WireNotificationManager @Inject constructor(
 
     private suspend fun filterAccordingToScreenAndUpdateNotifyDate(
         currentScreen: CurrentScreen,
-        userId: UserId?,
+        userId: UserId,
         newNotifications: List<LocalNotificationConversation>
     ) =
         if (currentScreen is CurrentScreen.Conversation) {
@@ -376,15 +374,13 @@ class WireNotificationManager @Inject constructor(
             newNotifications
         }
 
-    private suspend fun markMessagesAsNotified(userId: QualifiedID?, conversationId: ConversationId? = null) {
-        userId?.let {
-            val markNotified = conversationId?.let {
-                MarkMessagesAsNotifiedUseCase.UpdateTarget.SingleConversation(conversationId)
+    private suspend fun markMessagesAsNotified(userId: QualifiedID, conversationId: ConversationId? = null) {
+        val markNotified = conversationId?.let {
+            MarkMessagesAsNotifiedUseCase.UpdateTarget.SingleConversation(conversationId)
             } ?: MarkMessagesAsNotifiedUseCase.UpdateTarget.AllConversations
-            coreLogic.getSessionScope(it)
-                .messages
-                .markMessagesAsNotified(markNotified)
-        }
+        coreLogic.getSessionScope(userId)
+            .messages
+            .markMessagesAsNotified(markNotified)
     }
 
     private suspend fun markConnectionAsNotified(userId: QualifiedID?, connectionRequestUserId: QualifiedID? = null) {

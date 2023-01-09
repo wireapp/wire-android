@@ -144,7 +144,7 @@ class NewConversationViewModelTest {
             arrangement.createGroupConversation(
                 viewModel.newGroupState.groupName.text,
                 viewModel.state.contactsAddedToGroup.map { contact -> UserId(contact.id, contact.domain) },
-                ConversationOptions(null, null, null, ConversationOptions.Protocol.PROTEUS, null)
+                ConversationOptions(null, null, false, ConversationOptions.Protocol.PROTEUS, null)
                 )
         }
     }

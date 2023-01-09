@@ -30,6 +30,7 @@ import com.wire.kalium.logic.util.isGreaterThan
 import javax.inject.Inject
 
 // TODO: splits mapping into more classes
+@Suppress("TooManyFunctions")
 class MessageContentMapper @Inject constructor(
     private val messageResourceProvider: MessageResourceProvider,
     private val wireSessionImageLoader: WireSessionImageLoader,
@@ -61,6 +62,7 @@ class MessageContentMapper @Inject constructor(
         is MessageContent.ConversationRenamed -> mapConversationRenamedMessage(message.senderUserId, content, members)
         is MessageContent.TeamMemberRemoved -> mapTeamMemberRemovedMessage(content)
         is MessageContent.CryptoSessionReset -> mapResetSession(message.senderUserId, members)
+        is MessageContent.NewConversationReceiptMode -> mapNewConversationReceiptMode(content)
     }
 
     private fun mapResetSession(
@@ -86,6 +88,17 @@ class MessageContentMapper @Inject constructor(
         } else {
             UIMessageContent.SystemMessage.MissedCall.OtherCalled(authorName)
         }
+    }
+
+    private fun mapNewConversationReceiptMode(
+        content: MessageContent.NewConversationReceiptMode
+    ): UIMessageContent.SystemMessage {
+        return UIMessageContent.SystemMessage.NewConversationReceiptMode(
+            receiptMode = when (content.receiptMode) {
+                true -> UIText.StringResource(R.string.label_system_message_receipt_mode_on)
+                else -> UIText.StringResource(R.string.label_system_message_receipt_mode_off)
+            }
+        )
     }
 
     private fun mapTeamMemberRemovedMessage(
@@ -292,5 +305,4 @@ data class MessageResourceProvider(
 private fun String?.orUnknownName(): UIText = when {
     this != null -> UIText.DynamicString(this)
     else -> UIText.StringResource(R.string.username_unavailable_label)
-
 }

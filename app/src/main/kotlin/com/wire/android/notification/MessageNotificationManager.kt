@@ -58,9 +58,7 @@ class MessageNotificationManager
     }
 
     fun hideAllNotifications() {
-        notificationManager.activeNotifications
-            ?.filter { it.groupKey.contains(NotificationConstants.getMessagesGroupKey(null)) }
-            ?.forEach { notificationManagerCompat.cancel(it.id) }
+        notificationManager.cancelAll()
     }
 
     fun hideAllNotificationsForUser(userId: QualifiedID) {
@@ -176,7 +174,11 @@ class MessageNotificationManager
             .map { it.intoStyledMessage() }
             .filter { notificationMessage ->
                 // to not notify about messages that are already there
-                activeMessages?.find { it.text == notificationMessage.text && it.timestamp == notificationMessage.timestamp } == null
+                activeMessages
+                    ?.find {
+                        it.text.toString() == notificationMessage.text.toString()
+                                && it.timestamp == notificationMessage.timestamp
+                    } == null
             }
 
         if (messagesToAdd.isEmpty()) {
@@ -221,7 +223,6 @@ class MessageNotificationManager
             }
     }
 
-
     private fun NotificationMessage.intoStyledMessage(): NotificationCompat.MessagingStyle.Message {
         val sender = Person.Builder()
             .apply {
@@ -240,7 +241,6 @@ class MessageNotificationManager
             is NotificationMessage.Knock -> italicTextFromResId(R.string.notification_knock)
         }
         return NotificationCompat.MessagingStyle.Message(message, time, sender)
-
     }
 
     /**

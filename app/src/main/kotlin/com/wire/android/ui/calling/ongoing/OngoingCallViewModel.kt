@@ -52,8 +52,11 @@ class OngoingCallViewModel @OptIn(ExperimentalCoroutinesApi::class)
             .collect { calls ->
                 val currentCall = calls.find { call -> call.conversationId == conversationId }
                 val currentScreen = currentScreenManager.observeCurrentScreen(viewModelScope).first()
-                if (currentCall == null && currentScreen is CurrentScreen.OngoingCallScreen)
+                val isCurrentlyOnOngoingScreen = currentScreen is CurrentScreen.OngoingCallScreen
+                val isOnBackground = currentScreen is CurrentScreen.InBackground
+                if (currentCall == null && (isCurrentlyOnOngoingScreen || isOnBackground)) {
                     navigateBack()
+                }
             }
     }
 
@@ -69,5 +72,4 @@ class OngoingCallViewModel @OptIn(ExperimentalCoroutinesApi::class)
     private suspend fun navigateBack() {
         navigationManager.navigateBack()
     }
-
 }

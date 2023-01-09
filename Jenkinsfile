@@ -12,6 +12,8 @@ def defineFlavor() {
         return 'Dev'
     } else if(branchName == "release") {
         return 'Public'
+    } else if (branchName == "internal-compat") {
+    return 'internal-compat'
     }
     return 'Dev'
 }
@@ -21,12 +23,14 @@ def defineBuildType() {
     if(overwrite != null) {
         return overwrite
     }
-    // use the scala client signing keys for testing upgrades.
     def flavor = defineFlavor()
-    if (flavor == "Dev") {
-        return "Compat"
+
+    // interna is used for wire beta builds
+    if (flavor == 'Internal') {
+        return 'Release'
     }
-    return "Release"
+    // use the scala client signing keys for testing upgrades.
+    return "Compat"
 }
 
 def defineTrackName() {
@@ -34,7 +38,6 @@ def defineTrackName() {
     if(overwrite != null) {
         return overwrite
     }
-
     return 'internal'
 }
 

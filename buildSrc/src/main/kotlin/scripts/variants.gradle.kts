@@ -26,11 +26,13 @@ object ProductFlavors {
     const val PUBLIC = "public"
     const val FDROID = "fdroid"
     const val STAGING = "staging"
+    const val INTERNAL_COMPAT = "internal-compat"
 }
 
 object ApplicationId {
     const val DEV = "com.waz.zclient.dev"
     const val STAGING_DEV = DEV
+    const val INTERNAL_COMPAT = "com.wire.internal"
 }
 
 private object FlavorDimensions {
@@ -113,6 +115,11 @@ android {
             dimension = FlavorDimensions.DEFAULT
             applicationIdSuffix = ".${ProductFlavors.INTERNAL}"
             versionNameSuffix = "-${ProductFlavors.INTERNAL}"
+        }
+        create(ProductFlavors.INTERNAL_COMPAT) {
+            applicationId = ApplicationId.INTERNAL_COMPAT
+            dimension = FlavorDimensions.DEFAULT
+            versionNameSuffix = "-${ProductFlavors.INTERNAL_COMPAT}"
         }
     }
 

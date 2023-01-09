@@ -1,12 +1,134 @@
 package com.wire.android.ui.home.settings.account.displayname
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.wire.android.R
+import com.wire.android.ui.common.Icon
+import com.wire.android.ui.common.ShakeAnimation
+import com.wire.android.ui.common.button.WireButtonState.Default
+import com.wire.android.ui.common.button.WireButtonState.Disabled
+import com.wire.android.ui.common.button.WirePrimaryButton
+import com.wire.android.ui.common.rememberBottomBarElevationState
+import com.wire.android.ui.common.rememberTopBarElevationState
+import com.wire.android.ui.common.textfield.WireTextField
+import com.wire.android.ui.common.textfield.WireTextFieldState
+import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import com.wire.android.ui.theme.wireColorScheme
+import com.wire.android.ui.theme.wireDimensions
+import com.wire.android.ui.theme.wireTypography
 
 @Composable
 fun ChangeDisplayNameScreen(viewModel: ChangeDisplayNameViewModel = hiltViewModel()) {
-    with(viewModel.displayNameState) {
-        Text(text = displayName.text)
+    with(viewModel) {
+        ChangeDisplayNameContent(displayNameState, {}, {}, {}, ::navigateBack)
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
+@Composable
+fun ChangeDisplayNameContent(
+    state: DisplayNameState,
+    onNameChange: (TextFieldValue) -> Unit,
+    onContinuePressed: () -> Unit,
+    onNameErrorAnimated: () -> Unit,
+    onBackPressed: () -> Unit
+) {
+    val scrollState = rememberScrollState()
+    with(state) {
+        Scaffold(topBar = {
+            WireCenterAlignedTopAppBar(
+                elevation = scrollState.rememberTopBarElevationState().value,
+                onNavigationPressed = onBackPressed,
+                title = "Your display name"
+            )
+        }) { internalPadding ->
+
+            Column(
+                modifier = Modifier
+                    .padding(internalPadding)
+                    .fillMaxSize()
+            ) {
+                Column(
+                    modifier = Modifier
+                        .weight(weight = 1f, fill = true)
+                        .fillMaxWidth()
+                        .verticalScroll(scrollState)
+                ) {
+                    val keyboardController = androidx.compose.ui.platform.LocalSoftwareKeyboardController.current
+                    Text(
+                        text = "DISPLAY NAME",
+                        style = MaterialTheme.wireTypography.body01,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(
+                                horizontal = MaterialTheme.wireDimensions.spacing16x,
+                                vertical = MaterialTheme.wireDimensions.spacing24x
+                            )
+                    )
+
+                    Spacer(modifier = Modifier.weight(1f))
+
+                    Box {
+                        ShakeAnimation { animate ->
+                            if (animatedNameError) {
+                                animate()
+                                onNameErrorAnimated()
+                            }
+                            WireTextField(
+                                value = displayName,
+                                onValueChange = onNameChange,
+                                labelText = stringResource(R.string.group_name_title).uppercase(),
+                                state = WireTextFieldState.Default, // todo compute
+                                keyboardOptions = KeyboardOptions(
+                                    keyboardType = androidx.compose.ui.text.input.KeyboardType.Text,
+                                    imeAction = androidx.compose.ui.text.input.ImeAction.Done
+                                ),
+                                keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
+                                modifier = Modifier.padding(
+                                    horizontal = MaterialTheme.wireDimensions.spacing16x
+                                )
+                            )
+                        }
+                    }
+                    Spacer(modifier = Modifier.weight(1f))
+                }
+
+                Surface(
+                    shadowElevation = scrollState.rememberBottomBarElevationState().value,
+                    color = MaterialTheme.wireColorScheme.background
+                ) {
+                    Box(modifier = Modifier.padding(MaterialTheme.wireDimensions.spacing16x)) {
+                        WirePrimaryButton(
+                            text = stringResource(R.string.label_continue),
+                            onClick = onContinuePressed,
+                            fillMaxWidth = true,
+                            trailingIcon = androidx.compose.material.icons.Icons.Filled.ChevronRight.Icon(),
+                            state = if (continueEnabled) Default else Disabled,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                }
+            }
+        }
     }
 }

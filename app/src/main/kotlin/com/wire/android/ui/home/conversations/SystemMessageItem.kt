@@ -217,7 +217,7 @@ fun SystemMessage.annotatedString(
         is SystemMessage.RenamedConversation -> arrayOf(author.asString(res), additionalContent)
         is SystemMessage.TeamMemberRemoved -> arrayOf(content.userName)
         is SystemMessage.CryptoSessionReset -> arrayOf(author.asString(res))
-        is SystemMessage.NewConversationReceiptMode -> arrayOf(receiptMode)
+        is SystemMessage.NewConversationReceiptMode -> arrayOf(receiptMode.asString(res))
     }
     return res.stringWithStyledArgs(stringResId, normalStyle, boldStyle, normalColor, boldColor, *args)
 }

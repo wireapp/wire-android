@@ -10,7 +10,6 @@ import com.wire.android.util.extension.intervalFlow
 import com.wire.android.util.lifecycle.ConnectionPolicyManager
 import com.wire.kalium.logger.obfuscateId
 import com.wire.kalium.logic.CoreLogic
-import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.notification.LocalNotificationConversation
@@ -56,7 +55,7 @@ class WireNotificationManager @Inject constructor(
     private val callNotificationManager: CallNotificationManager,
     private val connectionPolicyManager: ConnectionPolicyManager,
     private val servicesManager: ServicesManager,
-    dispatcherProvider: DispatcherProvider
+    private val dispatcherProvider: DispatcherProvider
 ) {
 
     private val scope = CoroutineScope(SupervisorJob() + dispatcherProvider.default())
@@ -186,16 +185,14 @@ class WireNotificationManager @Inject constructor(
      */
     @Suppress("NestedBlockDepth")
     private suspend fun checkIfUserIsAuthenticated(userId: String): QualifiedID? =
-        coreLogic.globalScope { getSessions() }.let {
-            when (it) {
+        coreLogic.globalScope { getSessions() }.let { sessionsResult ->
+            when (sessionsResult) {
                 is GetAllSessionsResult.Success -> {
-                    it.sessions
-                        .firstOrNull { accInfo -> accInfo.userId.value == userId }
-                        ?.userId
+                    return@let sessionsResult.sessions.firstOrNull { it.userId.value == userId }?.userId
                 }
 
                 is GetAllSessionsResult.Failure.Generic -> {
-                    appLogger.e("get sessions failed ${it.genericFailure} ")
+                    appLogger.e("get sessions failed ${sessionsResult.genericFailure} ")
                     null
                 }
 
@@ -256,10 +253,10 @@ class WireNotificationManager @Inject constructor(
             .filter { observingJobs[it]?.isAllActive() != true }
             .forEach { userId ->
                 val jobs = ObservingJobs(
-                    currentScreenJob = scope.launch { observeCurrentScreenAndHideNotifications(currentScreenState, userId) },
-                    incomingCallsJob = scope.launch { observeIncomingCalls(currentScreenState, userId, doIfCallCameAndAppVisible) },
-                    messagesJob = scope.launch { observeMessageNotifications(userId, currentScreenState) },
-                    ongoingCallJob = scope.launch { observeOngoingCalls(currentScreenState, userId) }
+                    currentScreenJob = scope.launch(dispatcherProvider.default()) { observeCurrentScreenAndHideNotifications(currentScreenState, userId) },
+                    incomingCallsJob = scope.launch(dispatcherProvider.default()) { observeIncomingCalls(currentScreenState, userId, doIfCallCameAndAppVisible) },
+                    messagesJob = scope.launch(dispatcherProvider.default()) { observeMessageNotifications(userId, currentScreenState) },
+                    ongoingCallJob = scope.launch(dispatcherProvider.default()) { observeOngoingCalls(currentScreenState, userId) }
                 )
                 observingJobs[userId] = jobs
             }
@@ -276,7 +273,7 @@ class WireNotificationManager @Inject constructor(
             .collect { screens ->
                 when (screens) {
                     is CurrentScreen.Conversation -> messagesNotificationManager.hideNotification(screens.id, userId)
-                    is CurrentScreen.OtherUserProfile -> hideConnectionRequestNotification(userId, screens.id)
+                    is CurrentScreen.OtherUserProfile -> messagesNotificationManager.hideNotification(screens.id, userId)
                     is CurrentScreen.IncomingCallScreen -> callNotificationManager.hideIncomingCallNotification()
                     else -> {}
                 }
@@ -348,12 +345,11 @@ class WireNotificationManager @Inject constructor(
                 MessagesNotificationsData(notificationsList, userId, userName)
             }
             .cancellable()
-            .filterNotNull()
             .collect { (newNotifications, userId, userName) ->
                 appLogger.d("$TAG got ${newNotifications.size} notifications")
                 messagesNotificationManager.handleNotification(newNotifications, userId, userName)
-                markMessagesAsNotified(userId, null)
-                markConnectionAsNotified(userId, null)
+                markMessagesAsNotified(userId)
+                markConnectionAsNotified(userId)
             }
     }
 
@@ -397,7 +393,7 @@ class WireNotificationManager @Inject constructor(
 
     private suspend fun filterAccordingToScreenAndUpdateNotifyDate(
         currentScreen: CurrentScreen,
-        userId: UserId?,
+        userId: UserId,
         newNotifications: List<LocalNotificationConversation>
     ) =
         if (currentScreen is CurrentScreen.Conversation) {
@@ -407,45 +403,21 @@ class WireNotificationManager @Inject constructor(
             newNotifications
         }
 
-    private suspend fun markMessagesAsNotified(userId: QualifiedID?, conversationId: ConversationId?) {
-        userId?.let {
-            val markNotified = if (conversationId == null) {
-                MarkMessagesAsNotifiedUseCase.UpdateTarget.AllConversations
-            } else {
-                MarkMessagesAsNotifiedUseCase.UpdateTarget.SingleConversation(conversationId)
-            }
-            coreLogic.getSessionScope(it)
-                .messages
-                .markMessagesAsNotified(markNotified)
-        }
+    private suspend fun markMessagesAsNotified(userId: QualifiedID, conversationId: ConversationId? = null) {
+        val markNotified = conversationId?.let {
+            MarkMessagesAsNotifiedUseCase.UpdateTarget.SingleConversation(conversationId)
+            } ?: MarkMessagesAsNotifiedUseCase.UpdateTarget.AllConversations
+        coreLogic.getSessionScope(userId)
+            .messages
+            .markMessagesAsNotified(markNotified)
     }
 
-    private suspend fun markConnectionAsNotified(userId: QualifiedID?, connectionRequestUserId: QualifiedID?) {
+    private suspend fun markConnectionAsNotified(userId: QualifiedID?, connectionRequestUserId: QualifiedID? = null) {
         appLogger.d("$TAG markConnectionAsNotified")
         userId?.let {
             coreLogic.getSessionScope(it)
                 .conversations
                 .markConnectionRequestAsNotified(connectionRequestUserId)
-        }
-    }
-
-    private suspend fun hideConnectionRequestNotification(userId: QualifiedID?, connectionRequestUserId: QualifiedID?) {
-        // to hide ConnectionRequestNotification we need to get conversationId for it
-        // cause it's used as Notification ID
-        userId?.let {
-            coreLogic.getSessionScope(it)
-                .conversations
-                .observeConnectionList()
-                .first()
-                .firstOrNull { conversationDetails ->
-                    conversationDetails is ConversationDetails.Connection
-                            && conversationDetails.otherUser?.id == connectionRequestUserId
-                }
-                ?.conversation
-                ?.id
-                ?.let { conversationId ->
-                    messagesNotificationManager.hideNotification(conversationId, userId)
-                }
         }
     }
 

@@ -23,28 +23,20 @@ jobs:
           GH_BASE_REF: ${{github.base_ref}}
         continue-on-error: true
         run: |
+          KALIUM_TO_REF="$(git rev-parse HEAD:kalium)"
           git fetch
           git checkout $GH_BASE_REF
           git pull
           git submodule update
-          git checkout ${GITHUB_REF#refs\/*}
-          git submodule update
-          echo "::set-output name=kalium_from_to::$(
-            git diff --merge-base $GH_BASE_REF kalium |
-            awk '/^i/{c=NR}NR>c+2&&/^[-+]/' |
-            awk '{split($0,words," "); print words[3];}' |
-            tr '\n' '-' |
-            rev |
-            cut -c 2- |
-            rev
-          )"
+          KALIUM_FROM_REF=$(git rev-parse HEAD:kalium)"
+          echo "::set-output name=kalium_from::$($KALIUM_FROM_REF)"
+          echo "::set-output name=kalium_to::$($KALIUM_TO_REF)"
           echo "::set-output name=is_kalium_rollback::$(
-            git diff --merge-base $GH_BASE_REF kalium |
-            awk '/^i/{c=NR}NR>c+2&&/^[-+]/' |
-            awk '{split($0,words," "); print words[3];}' |
-            xargs git -C kalium merge-base --is-ancestor
-            echo $?
+            cd kalium
+            git --merge-base $KALIUM_FROM_REF $KALIUM_TO_REF
           )"
+          unset KALIUM_TO_REF
+          unset KALIUM_FROM_REF
 
       - name: Leave a comment
         env:
@@ -55,6 +47,8 @@ jobs:
           echo "is_kalium_rollback: ${{ steps.validate_kalium.outputs.is_kalium_rollback }}"
           gh pr comment "${{github.head_ref}}" --body "@$PR_AUTHOR looks like you are rolling back kalium to a previous commitish.
 
-          Commitish change: ${{steps.validate_kalium.outputs.kalium_from_to}}
+          From: [${{steps.validate_kalium.outputs.kalium_from}}](https://github.com/wireapp/kalium/tree/${{steps.validate_kalium.outputs.kalium_from}})
+          ⬇️
+          To: [${{steps.validate_kalium.outputs.kalium_to}}](https://github.com/wireapp/kalium/tree/${{steps.validate_kalium.outputs.kalium_to}})
 
           Is this intentional?"

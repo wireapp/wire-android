@@ -10,7 +10,7 @@ def defineFlavor() {
     if (branchName == "main") {
         return 'Beta'
     } else if(branchName == "develop") {
-        return 'Dev'
+        return 'Staging'
     } else if(branchName == "release") {
         return 'Public'
     } else if(branchName == "internal") {

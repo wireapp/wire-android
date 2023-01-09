@@ -26,7 +26,7 @@ def defineBuildType() {
     def flavor = defineFlavor()
 
     // internal is used for wire beta builds
-    if (flavor == 'Internal') {
+    if (flavor == 'Beta') {
         return 'Release'
     }
     // use the scala client signing keys for testing upgrades.

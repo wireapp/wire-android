@@ -31,23 +31,10 @@ sealed class ProductFlavors(
 
     object Dev : ProductFlavors("com.waz.zclient.dev", "dev")
     object Staging : ProductFlavors("com.waz.zclient.dev", "staging")
-    object Beta : ProductFlavors("com.wire.android", "beta")
-    object Internal : ProductFlavors("com.wire.internal", "internal")
-}
-//object ProductFlavors {
-//    const val DEV = "dev"
-//    const val BETA = "beta"
-//    const val PUBLIC = "public"
-//    const val FDROID = "fdroid"
-//    const val STAGING = "staging"
-//    const val INTERNAL_COMPAT = "internal-compat"
-//}
 
-//object ApplicationId {
-//    const val DEV = "com.waz.zclient.dev"
-//    const val STAGING_DEV = DEV
-//    const val INTERNAL_COMPAT = "com.wire.internal"
-//}
+    object Beta : ProductFlavors("com.wire.android", "beta", applicaitonIdSuffix = "internal")
+    object Internal : ProductFlavors("com.wire", "internal", applicaitonIdSuffix = "internal")
+}
 
 object FlavorDimensions {
     const val DEFAULT = "default"
@@ -64,7 +51,8 @@ object Default {
     create(flavour.buildName) {
         dimension = flavour.dimentions
         applicationId = flavour.applicationId
-        flavour.applicaitonIdSuffix?.let { applicationIdSuffix = it }
+        versionNameSuffix = "-${flavour.buildName}"
+        flavour.applicaitonIdSuffix?.let { applicationIdSuffix = ".${it}" }
     }
 }
 
@@ -123,28 +111,10 @@ android {
 
     flavorDimensions(FlavorDimensions.DEFAULT)
     productFlavors {
-
         createAppFlavour(ProductFlavors.Dev)
         createAppFlavour(ProductFlavors.Staging)
         createAppFlavour(ProductFlavors.Beta)
         createAppFlavour(ProductFlavors.Internal)
-
-//
-//        create(ProductFlavors.Staging.buildName) {
-//            dimension = FlavorDimensions.DEFAULT
-//            applicationId = ApplicationId.STAGING_DEV
-//            versionNameSuffix = "-${ProductFlavors.STAGING}"
-//        }
-//        create(ProductFlavors.Beta.buildName) {
-//            dimension = FlavorDimensions.DEFAULT
-//            applicationIdSuffix = ".${ProductFlavors.BETA}"
-//            versionNameSuffix = "-${ProductFlavors.BETA}"
-//        }
-//        create(ProductFlavors.Internal.buildName) {
-//            applicationId = ApplicationId.INTERNAL_COMPAT
-//            dimension = FlavorDimensions.DEFAULT
-//            versionNameSuffix = "-${ProductFlavors.INTERNAL_COMPAT}"
-//        }
     }
 
     /**

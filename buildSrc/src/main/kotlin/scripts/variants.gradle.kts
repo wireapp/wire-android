@@ -24,16 +24,16 @@ object BuildTypes {
 sealed class ProductFlavors(
     val applicationId: String,
     val buildName: String,
-    val applicaitonIdSuffix: String? = null,
-    val dimentions: String = FlavorDimensions.DEFAULT
+    val applicationIdSuffix: String? = null,
+    val dimensions: String = FlavorDimensions.DEFAULT
 ) {
     override fun toString(): String = this.buildName
 
     object Dev : ProductFlavors("com.waz.zclient.dev", "dev")
     object Staging : ProductFlavors("com.waz.zclient.dev", "staging")
 
-    object Beta : ProductFlavors("com.wire.android", "beta", applicaitonIdSuffix = "internal")
-    object Internal : ProductFlavors("com.wire", "internal", applicaitonIdSuffix = "internal")
+    object Beta : ProductFlavors("com.wire.android", "beta", applicationIdSuffix = "internal")
+    object Internal : ProductFlavors("com.wire", "internal", applicationIdSuffix = "internal")
 }
 
 object FlavorDimensions {
@@ -49,10 +49,10 @@ object Default {
 
  fun NamedDomainObjectContainer<ApplicationProductFlavor>.createAppFlavour(flavour : ProductFlavors) {
     create(flavour.buildName) {
-        dimension = flavour.dimentions
+        dimension = flavour.dimensions
         applicationId = flavour.applicationId
         versionNameSuffix = "-${flavour.buildName}"
-        flavour.applicaitonIdSuffix?.let { applicationIdSuffix = ".${it}" }
+        flavour.applicationIdSuffix?.let { applicationIdSuffix = ".${it}" }
     }
 }
 

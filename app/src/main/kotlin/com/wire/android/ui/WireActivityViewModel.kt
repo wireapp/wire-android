@@ -124,22 +124,24 @@ class WireActivityViewModel @Inject constructor(
                 }
         }
         viewModelScope.launch(dispatchers.io()) {
-            observePersistentWebSocketConnectionStatus().let {
-                when (it) {
+            observePersistentWebSocketConnectionStatus().let { result ->
+                when (result) {
                     is ObservePersistentWebSocketConnectionStatusUseCase.Result.Failure -> {
                         appLogger.e("Failure while fetching persistent web socket status flow from wire activity")
                     }
 
                     is ObservePersistentWebSocketConnectionStatusUseCase.Result.Success -> {
-                        it.persistentWebSocketStatusListFlow.collect {
-                            it.map { persistentWebSocketStatus ->
-                                if (!persistentWebSocketStatus.isPersistentWebSocketEnabled) {
-                                    notificationManager.observeNotificationsAndCalls(observeUserId, viewModelScope)
-                                    { openIncomingCall(it.conversationId) }
-                                }
-                            }
+                        result.persistentWebSocketStatusListFlow.collect { statuses ->
+                            val usersToObserve = statuses
+                                .filter { !it.isPersistentWebSocketEnabled }
+                                .map { it.userId }
 
-                            if (it.map { it.isPersistentWebSocketEnabled }.contains(true)) {
+                            notificationManager.observeNotificationsAndCallsWhileRunning(
+                                usersToObserve,
+                                viewModelScope
+                            ) { call -> openIncomingCall(call.conversationId) }
+
+                            if (statuses.any { it.isPersistentWebSocketEnabled }) {
                                 if (!servicesManager.isPersistentWebSocketServiceRunning()) {
                                     servicesManager.startPersistentWebSocketService()
                                 }
@@ -251,7 +253,7 @@ class WireActivityViewModel @Inject constructor(
      */
     fun handleDeepLinkOnNewIntent(intent: Intent?): Boolean {
 
-        //removing arguments that could be there from prev deeplink handling
+        // removing arguments that could be there from prev deeplink handling
         navigationArguments.apply {
             remove(INCOMING_CALL_CONVERSATION_ID_ARG)
             remove(ONGOING_CALL_CONVERSATION_ID_ARG)
@@ -496,7 +498,5 @@ data class GlobalAppState(
     val customBackendDialog: CustomBEDeeplinkDialogState = CustomBEDeeplinkDialogState(),
     val maxAccountDialog: Boolean = false,
     val blockUserUI: CurrentSessionErrorState? = null,
-    val updateAppDialog: Boolean = false,
-    val conversationJoinedDialog: JoinConversationViaCodeState? = null,
-    val conversationUnchanged: Boolean = false
+    val updateAppDialog: Boolean = false
 )

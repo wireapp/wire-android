@@ -19,6 +19,7 @@ import com.wire.android.services.ServicesManager
 import com.wire.android.util.deeplink.DeepLinkProcessor
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.android.util.newServerConfig
+import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.team.Team
@@ -456,6 +457,9 @@ class WireActivityViewModelTest {
         @MockK
         lateinit var notificationChannelsManager: NotificationChannelsManager
 
+        @MockK
+        lateinit var coreLogic: CoreLogic
+
         private val viewModel by lazy {
             WireActivityViewModel(
                 dispatchers = TestDispatcherProvider(),
@@ -473,7 +477,8 @@ class WireActivityViewModelTest {
                 servicesManager = servicesManager,
                 observeIfAppUpdateRequired = observeIfAppUpdateRequired,
                 observeValidAccounts = observeValidAccounts,
-                notificationChannelsManager = notificationChannelsManager
+                notificationChannelsManager = notificationChannelsManager,
+                coreLogic = coreLogic
             )
         }
 
@@ -501,9 +506,7 @@ class WireActivityViewModelTest {
         }
 
         fun arrange() = this to viewModel
-
     }
-
 
     companion object {
         val TEST_ACCOUNT_INFO = AccountInfo.Valid(UserId("user_id", "domain.de"))

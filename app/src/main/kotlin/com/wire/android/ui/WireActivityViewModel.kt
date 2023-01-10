@@ -110,7 +110,6 @@ class WireActivityViewModel @Inject constructor(
             }
         }.distinctUntilChanged().flowOn(dispatchers.io()).shareIn(viewModelScope, SharingStarted.WhileSubscribed(), 1)
 
-
     private val _observeSyncFlowState: MutableStateFlow<SyncState?> = MutableStateFlow(null)
     val observeSyncFlowState: StateFlow<SyncState?> = _observeSyncFlowState
 
@@ -208,9 +207,9 @@ class WireActivityViewModel @Inject constructor(
         intent?.data?.let { deepLink ->
             viewModelScope.launch {
                 if (isLaunchedFromHistory(intent)) {
-                    //We don't need to handle deepLink, if activity was launched from history.
-                    //For example: user opened app by deepLink, then closed it by back button click,
-                    //then open the app from the "Recent Apps"
+                    // We don't need to handle deepLink, if activity was launched from history.
+                    // For example: user opened app by deepLink, then closed it by back button click,
+                    // then open the app from the "Recent Apps"
                     appLogger.d("Deep link is launched from history, ignoring")
                     return@launch
                 }
@@ -239,7 +238,6 @@ class WireActivityViewModel @Inject constructor(
                     is DeepLinkResult.JoinConversation -> onConversationInviteDeepLink(result.code, result.key, result.domain)
 
                     DeepLinkResult.Unknown -> appLogger.e("unknown deeplink result $result")
-
                 }
             }
         }

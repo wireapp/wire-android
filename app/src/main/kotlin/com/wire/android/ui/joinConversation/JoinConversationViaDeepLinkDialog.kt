@@ -1,3 +1,4 @@
+@file:Suppress("MatchingDeclarationName")
 package com.wire.android.ui.joinConversation
 
 import android.widget.Toast
@@ -44,11 +45,7 @@ fun JoinConversationViaDeepLinkDialog(
             onClick = { onJoinClick(state.code, state.key, state.domain) },
             text = stringResource(R.string.join_conversation_dialog_button),
             type = WireDialogButtonType.Primary,
-            state =
-            if (isLoading)
-                WireButtonState.Disabled
-            else
-                WireButtonState.Default,
+            state = if (isLoading) WireButtonState.Disabled else WireButtonState.Default,
             loading = isLoading
         )
     )
@@ -62,7 +59,6 @@ fun JoinConversationViaInviteLinkError(
     // TODO: checku[ with design about the error message copy
     Toast.makeText(context, "Failed to join conversation via deep link", Toast.LENGTH_LONG).show()
 }
-
 
 @Preview
 @Composable

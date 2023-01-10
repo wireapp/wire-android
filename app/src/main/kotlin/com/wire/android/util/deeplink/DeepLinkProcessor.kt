@@ -100,13 +100,15 @@ class DeepLinkProcessor @Inject constructor(
                 DeepLinkResult.SSOLogin.Failure(SSOFailureCodes.getByLabel(value))
             } ?: DeepLinkResult.SSOLogin.Failure(SSOFailureCodes.Unknown)
         }
+
         SSO_LOGIN_SUCCESS -> {
             val cookie = uri.getQueryParameter(SSO_LOGIN_COOKIE_PARAM)
             val location = uri.getQueryParameter(SSO_LOGIN_SERVER_CONFIG_PARAM)
-            if (cookie == null || location == null)
+            if (cookie == null || location == null) {
                 DeepLinkResult.SSOLogin.Failure(SSOFailureCodes.Unknown)
-            else
+            } else {
                 DeepLinkResult.SSOLogin.Success(cookie, location)
+            }
         }
         else -> DeepLinkResult.SSOLogin.Failure(SSOFailureCodes.Unknown)
     }
@@ -138,7 +140,6 @@ class DeepLinkProcessor @Inject constructor(
         const val JOIN_CONVERSATION_CODE_PARAM = "code"
         const val JOIN_CONVERSATION_KEY_PARAM = "key"
         const val JOIN_CONVERSATION_DOMAIN_PARAM = "domain"
-
     }
 }
 

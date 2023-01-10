@@ -246,5 +246,3 @@ class WireActivity : AppCompatActivity() {
         proximitySensorManager.unRegisterListener()
     }
 }
-
-

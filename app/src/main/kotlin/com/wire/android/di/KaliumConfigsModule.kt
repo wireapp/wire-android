@@ -21,7 +21,6 @@ class KaliumConfigsModule {
             fileRestrictionEnabled = BuildConfig.FILE_RESTRICTION_ENABLED,
             fileRestrictionList = BuildConfig.FILE_RESTRICTION_LIST,
             forceConstantBitrateCalls = BuildConfig.FORCE_CONSTANT_BITRATE_CALLS,
-            submitCrashReports = BuildConfig.SUBMIT_CRASH_REPORTS,
             domain = BuildConfig.DOMAIN,
             developerFeaturesEnabled = BuildConfig.DEVELOPER_FEATURES_ENABLED,
             isSafeLoggingEnabled = BuildConfig.SAFE_LOGGING,
@@ -37,6 +36,4 @@ class KaliumConfigsModule {
             encryptProteusStorage = BuildConfig.ENCRYPT_PROTEUS_STORAGE
         )
     }
-
-
 }

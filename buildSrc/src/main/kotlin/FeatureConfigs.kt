@@ -28,7 +28,6 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
     KEEP_WEB_SOCKET_ON("keep_websocket_on", ConfigType.BOOLEAN),
     MAX_ACCOUNTS("maxAccounts", ConfigType.INT),
     WIPE_ON_COOKIE_INVALID("wipe_on_cookie_invalid", ConfigType.BOOLEAN),
-    SUBMIT_CRASH_REPORTS("submitCrashReports", ConfigType.BOOLEAN),
     SUPPORT_EMAIL("supportEmail", ConfigType.STRING),
     TEAMS_URL("teamsUrl", ConfigType.STRING),
     WEB_LINK_PREVIEW("web_link_preview", ConfigType.BOOLEAN),

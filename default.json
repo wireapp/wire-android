@@ -66,7 +66,6 @@
     },
     "maxAccounts": 3,
     "supportEmail": "support@wire.com",
-    "submitCrashReports": true,
     "allowMarketingCommunication": true,
     "enableBlacklist": true,
     "blacklistHost": "https://clientblacklist.wire.com/prod/android",

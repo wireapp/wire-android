@@ -46,7 +46,7 @@ import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.conversations.model.messagetypes.asset.RestrictedAssetMessage
 import com.wire.android.ui.home.conversations.model.messagetypes.asset.RestrictedGenericFileMessage
-import com.wire.android.ui.home.conversations.model.messagetypes.audio.AudioMessageLoading
+import com.wire.android.ui.home.conversations.model.messagetypes.audio.AudioMessage
 import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMessageParams
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
@@ -58,8 +58,11 @@ import com.wire.kalium.logic.data.user.UserId
 fun MessageItem(
     message: UIMessage,
     onLongClicked: (UIMessage) -> Unit,
+    currentlyPlayedAudioMessage: String? = null,
+    isAudioPlaying: Boolean = false,
     onAssetMessageClicked: (String) -> Unit,
     onImageMessageClicked: (String, Boolean) -> Unit,
+    onAudioClick: (String) -> Unit,
     onOpenProfile: (String) -> Unit,
     onReactionClicked: (String, String) -> Unit,
     onResetSessionClicked: (senderUserId: UserId, clientId: String?) -> Unit
@@ -126,9 +129,13 @@ fun MessageItem(
                         val onLongClick = remember { { onLongClicked(message) } }
 
                         MessageContent(
+                            messageId = message.messageHeader.messageId,
+                            isAudioPlaying = isAudioPlaying,
+                            currentlyPlayedAudioId = currentlyPlayedAudioMessage,
                             messageContent = messageContent,
                             onAssetClick = currentOnAssetClicked,
                             onImageClick = currentOnImageClick,
+                            onAudioClick = { onAudioClick(messageHeader.messageId) },
                             onLongClick = onLongClick,
                             onOpenProfile = onOpenProfile
                         )
@@ -247,12 +254,19 @@ private fun Username(username: String, modifier: Modifier = Modifier) {
     )
 }
 
+// TODO: Mateusz: Think about a way of not providing all the clickables
+// and not needed data for the cases where it is not actually needed
+// perhaps Slot API could be a good fit here?
 @Suppress("ComplexMethod")
 @Composable
 private fun MessageContent(
+    messageId: String,
+    currentlyPlayedAudioId: String?,
+    isAudioPlaying: Boolean = false,
     messageContent: UIMessageContent?,
     onAssetClick: Clickable,
     onImageClick: Clickable,
+    onAudioClick: () -> Unit,
     onLongClick: (() -> Unit)? = null,
     onOpenProfile: (String) -> Unit
 ) {
@@ -307,7 +321,12 @@ private fun MessageContent(
             }
         }
 
-        is UIMessageContent.AudioAssetMessage -> AudioMessageLoading()
+        is UIMessageContent.AudioAssetMessage -> {
+            val isPlaying = messageId == currentlyPlayedAudioId && isAudioPlaying
+
+            AudioMessage(isPlaying) { onAudioClick() }
+        }
+
         is UIMessageContent.SystemMessage.MemberAdded -> {}
         is UIMessageContent.SystemMessage.MemberLeft -> {}
         is UIMessageContent.SystemMessage.MemberRemoved -> {}

@@ -1,5 +1,6 @@
 package com.wire.android.ui.home.conversations.messages
 
+import android.net.Uri
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -8,6 +9,8 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.cachedIn
 import com.wire.android.R
 import com.wire.android.appLogger
+import com.wire.android.media.ConversationMessageAudioPlayer
+import com.wire.android.media.AudioMediaPlayerState
 import com.wire.android.model.SnackBarMessage
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.NavigationCommand
@@ -59,12 +62,13 @@ class ConversationMessagesViewModel @Inject constructor(
     private val dispatchers: DispatcherProvider,
     private val getMessageForConversation: GetMessagesForConversationUseCase,
     private val toggleReaction: ToggleReactionUseCase,
-    private val resetSession: ResetSessionUseCase
+    private val resetSession: ResetSessionUseCase,
+    private val conversationMessageAudioPlayer: ConversationMessageAudioPlayer
 ) : SavedStateViewModel(savedStateHandle) {
 
     var conversationViewState by mutableStateOf(ConversationMessagesViewState())
 
-    val conversationId: QualifiedID = qualifiedIdMapper.fromStringToQualifiedID(
+    private val conversationId: QualifiedID = qualifiedIdMapper.fromStringToQualifiedID(
         savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)!!
     )
 
@@ -74,12 +78,28 @@ class ConversationMessagesViewModel @Inject constructor(
     init {
         loadPaginatedMessages()
         loadLastMessageInstant()
+
+        viewModelScope.launch {
+            conversationMessageAudioPlayer.audioMediaPlayerState.collect { (audioMediaPlayerState, currentlyPlayedAudioMessageId) ->
+                if (currentlyPlayedAudioMessageId != null) {
+                    conversationViewState = conversationViewState.copy(
+                        currentlyPlayedAudioMessageId = currentlyPlayedAudioMessageId,
+                        isAudioPlaying = audioMediaPlayerState == AudioMediaPlayerState.Playing
+                    )
+                }
+            }
+
+            conversationMessageAudioPlayer.currentProgress.collect {
+                println("progress $it")
+            }
+        }
     }
 
     private fun loadPaginatedMessages() = viewModelScope.launch {
         val paginatedMessagesFlow = getMessageForConversation(conversationId)
             .flowOn(dispatchers.io())
             .cachedIn(this)
+
         conversationViewState = conversationViewState.copy(messages = paginatedMessagesFlow)
     }
 
@@ -96,12 +116,12 @@ class ConversationMessagesViewModel @Inject constructor(
             }
     }
 
-    fun onSnackbarMessage(type: SnackBarMessage) = viewModelScope.launch {
+    private fun onSnackbarMessage(type: SnackBarMessage) = viewModelScope.launch {
         _infoMessage.emit(type)
     }
 
     // This will download the asset remotely to an internal temporary storage or fetch it from the local database if it had been previously
-    // downloaded. After doing so, a dialog is shown to ask the user whether he wants to open the file or download it to external storage
+// downloaded. After doing so, a dialog is shown to ask the user whether he wants to open the file or download it to external storage
     fun downloadOrFetchAssetToInternalStorage(messageId: String) = viewModelScope.launch {
         withContext(dispatchers.io()) {
             try {
@@ -205,7 +225,6 @@ class ConversationMessagesViewModel @Inject constructor(
         }
     }
 
-    // region Private
     private suspend fun assetDataPath(conversationId: QualifiedID, messageId: String): Path? =
         getMessageAsset(conversationId, messageId).await().run {
             return when (this) {
@@ -222,5 +241,15 @@ class ConversationMessagesViewModel @Inject constructor(
         onSnackbarMessage(ConversationSnackbarMessages.OnFileDownloaded(assetName))
     }
 
-    // endregion
+    fun audioClick(messageId: String) {
+        viewModelScope.launch {
+            conversationMessageAudioPlayer.play(conversationId, messageId)
+        }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        // audioMediaPlayer.close()
+    }
+
 }

@@ -14,7 +14,10 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class CallRinger @Inject constructor(private val context: Context) {
+class CallRinger
+@Inject constructor(
+    private val context: Context
+) {
 
     private var mediaPlayer: MediaPlayer? = null
     private var vibrator: Vibrator? = null

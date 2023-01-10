@@ -73,7 +73,6 @@ class AssetContentMapper @Inject constructor(
                 assetSizeInBytes = metadata.durationMs ?: 0,
                 uploadStatus = uploadStatus,
                 downloadStatus = downloadStatus
-
             )
         }
     }

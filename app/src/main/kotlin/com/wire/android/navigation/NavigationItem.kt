@@ -101,7 +101,7 @@ enum class NavigationItem(
 
     Migration(
         primaryRoute = MIGRATION,
-        content = { MigrationScreen() }
+        content = { MigrationScreen() },
     ),
 
     Login(
@@ -166,12 +166,12 @@ enum class NavigationItem(
 
     InitialSync(
         primaryRoute = INITIAL_SYNC,
-        content = { InitialSyncScreen() }
+        content = { InitialSyncScreen() },
     ),
 
     AppSettings(
         primaryRoute = APP_SETTINGS,
-        content = { AppSettingsScreen() }
+        content = { AppSettingsScreen() },
     ),
 
     SelfDevices(
@@ -191,7 +191,7 @@ enum class NavigationItem(
 
     Debug(
         primaryRoute = DEBUG,
-        content = { DebugScreen() }
+        content = { DebugScreen() },
     ),
 
     EditDisplayName(
@@ -201,12 +201,12 @@ enum class NavigationItem(
 
     NetworkSettings(
         primaryRoute = NETWORK_SETTINGS,
-        content = { NetworkSettingsScreen() }
+        content = { NetworkSettingsScreen() },
     ),
 
     Support(
         primaryRoute = BuildConfig.SUPPORT_URL,
-        content = { }
+        content = { },
     ),
 
     MyAccount(
@@ -226,8 +226,8 @@ enum class NavigationItem(
         deepLinks = listOf(
             navDeepLink {
                 uriPattern = "${DeepLinkProcessor.DEEP_LINK_SCHEME}://" +
-                    "${DeepLinkProcessor.OTHER_USER_PROFILE_DEEPLINK_HOST}/" +
-                    "{$EXTRA_USER_ID}"
+                        "${DeepLinkProcessor.OTHER_USER_PROFILE_DEEPLINK_HOST}/" +
+                        "{$EXTRA_USER_ID}"
             }
         ),
         content = { OtherUserProfileScreen() },
@@ -243,7 +243,7 @@ enum class NavigationItem(
 
     ProfileImagePicker(
         primaryRoute = IMAGE_PICKER,
-        content = { AvatarPickerScreen() }
+        content = { AvatarPickerScreen() },
     ),
 
     Conversation(
@@ -252,8 +252,8 @@ enum class NavigationItem(
         deepLinks = listOf(
             navDeepLink {
                 uriPattern = "${DeepLinkProcessor.DEEP_LINK_SCHEME}://" +
-                    "${DeepLinkProcessor.CONVERSATION_DEEPLINK_HOST}/" +
-                    "{$EXTRA_CONVERSATION_ID}"
+                        "${DeepLinkProcessor.CONVERSATION_DEEPLINK_HOST}/" +
+                        "{$EXTRA_CONVERSATION_ID}"
             }
         ),
         content = { ConversationScreen(backNavArgs = it.navBackStackEntry.savedStateHandle.getBackNavArgs()) },
@@ -269,7 +269,7 @@ enum class NavigationItem(
     MessageDetails(
         primaryRoute = MESSAGE_DETAILS,
         canonicalRoute = "$MESSAGE_DETAILS?$EXTRA_CONVERSATION_ID={$EXTRA_CONVERSATION_ID}" +
-            "&$EXTRA_MESSAGE_ID={$EXTRA_MESSAGE_ID}&$EXTRA_IS_SELF_MESSAGE={$EXTRA_IS_SELF_MESSAGE}",
+                "&$EXTRA_MESSAGE_ID={$EXTRA_MESSAGE_ID}&$EXTRA_IS_SELF_MESSAGE={$EXTRA_IS_SELF_MESSAGE}",
         content = { MessageDetailsScreen() }
     ) {
         override fun getRouteWithArgs(arguments: List<Any>): String {
@@ -279,14 +279,14 @@ enum class NavigationItem(
                 ?: "{$EXTRA_MESSAGE_ID}"
             val isSelfMessage: String = arguments.filterIsInstance<Boolean>().firstOrNull()?.toString() ?: "{$EXTRA_IS_SELF_MESSAGE}"
             return "$MESSAGE_DETAILS?$EXTRA_CONVERSATION_ID=$conversationIdString" +
-                "&$EXTRA_MESSAGE_ID=$messageIdString&$EXTRA_IS_SELF_MESSAGE=$isSelfMessage"
+                    "&$EXTRA_MESSAGE_ID=$messageIdString&$EXTRA_IS_SELF_MESSAGE=$isSelfMessage"
         }
     },
 
     GroupConversationDetails(
         primaryRoute = GROUP_CONVERSATION_DETAILS,
         canonicalRoute = "$GROUP_CONVERSATION_DETAILS/{$EXTRA_CONVERSATION_ID}",
-        content = { GroupConversationDetailsScreen(it.navBackStackEntry.savedStateHandle.getBackNavArgs()) }
+        content = { GroupConversationDetailsScreen(it.navBackStackEntry.savedStateHandle.getBackNavArgs()) },
     ) {
         override fun getRouteWithArgs(arguments: List<Any>): String = routeWithConversationIdArg(arguments)
     },
@@ -302,7 +302,7 @@ enum class NavigationItem(
     GroupConversationAllParticipants(
         primaryRoute = GROUP_CONVERSATION_ALL_PARTICIPANTS,
         canonicalRoute = "$GROUP_CONVERSATION_ALL_PARTICIPANTS/{$EXTRA_CONVERSATION_ID}",
-        content = { GroupConversationAllParticipantsScreen() }
+        content = { GroupConversationAllParticipantsScreen() },
     ) {
         override fun getRouteWithArgs(arguments: List<Any>): String = routeWithConversationIdArg(arguments)
     },
@@ -347,8 +347,8 @@ enum class NavigationItem(
         deepLinks = listOf(
             navDeepLink {
                 uriPattern = "${DeepLinkProcessor.DEEP_LINK_SCHEME}://" +
-                    "${DeepLinkProcessor.INCOMING_CALL_DEEPLINK_HOST}/" +
-                    "{$EXTRA_CONVERSATION_ID}"
+                        "${DeepLinkProcessor.INCOMING_CALL_DEEPLINK_HOST}/" +
+                        "{$EXTRA_CONVERSATION_ID}"
             }
         ),
         content = { IncomingCallScreen() },

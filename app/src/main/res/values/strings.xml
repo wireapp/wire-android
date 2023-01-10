@@ -697,6 +697,7 @@
     <string name="settings_myaccount_display_name_description">Your display name is shown in conversations, calls and in the user search. It is not unique in Wire.</string>
     <string name="settings_myaccount_display_name_error">Display name should not be empty</string>
     <string name="settings_myaccount_display_name_exceeded_limit_error">Display name should not exceed 64 characters</string>
+    <string name="settings_myaccount_display_name_updated">Your display name was updated</string>
 
     <!--Privacy Settings -->
     <string name="settings_send_read_receipts">Send read receipts</string>

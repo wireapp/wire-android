@@ -6,7 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.appLogger
+import com.wire.android.navigation.EXTRA_SETTINGS_DISPLAY_NAME_CHANGED
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.feature.user.DisplayNameUpdateResult
@@ -85,9 +85,9 @@ class ChangeDisplayNameViewModel @Inject constructor(
 
     fun saveDisplayName() {
         viewModelScope.launch {
-            when (val result = updateDisplayName(displayNameState.displayName.text)) {
-                is DisplayNameUpdateResult.Failure -> appLogger.e("Failed to update display name $result")
-                is DisplayNameUpdateResult.Success -> appLogger.d("Display name updated successfully")
+            when (updateDisplayName(displayNameState.displayName.text)) {
+                is DisplayNameUpdateResult.Failure -> navigateBack(mapOf(EXTRA_SETTINGS_DISPLAY_NAME_CHANGED to false))
+                is DisplayNameUpdateResult.Success -> navigateBack(mapOf(EXTRA_SETTINGS_DISPLAY_NAME_CHANGED to true))
             }
         }
     }
@@ -96,8 +96,8 @@ class ChangeDisplayNameViewModel @Inject constructor(
         displayNameState = displayNameState.copy(animatedNameError = false)
     }
 
-    fun navigateBack() {
-        viewModelScope.launch { navigationManager.navigateBack() }
+    fun navigateBack(args: Map<String, Boolean> = mapOf()) {
+        viewModelScope.launch { navigationManager.navigateBack(args) }
     }
 
     companion object {

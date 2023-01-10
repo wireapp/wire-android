@@ -1,6 +1,7 @@
 package com.wire.android.ui.home.settings.account
 
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
@@ -8,38 +9,49 @@ import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.model.Clickable
+import com.wire.android.navigation.hiltSavedStateViewModel
 import com.wire.android.ui.common.Icon
 import com.wire.android.ui.common.RowItemTemplate
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.home.settings.account.AccountDetailsItem.DisplayName
 import com.wire.android.ui.home.settings.account.AccountDetailsItem.Domain
 import com.wire.android.ui.home.settings.account.AccountDetailsItem.Email
 import com.wire.android.ui.home.settings.account.AccountDetailsItem.Team
 import com.wire.android.ui.home.settings.account.AccountDetailsItem.Username
+import com.wire.android.ui.home.settings.account.MyAccountViewModel.SettingsOperationResult
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.extension.folderWithElements
+import kotlinx.collections.immutable.ImmutableMap
+import kotlinx.collections.immutable.persistentMapOf
 
 @Composable
-fun MyAccountScreen(viewModel: MyAccountViewModel = hiltViewModel()) {
+fun MyAccountScreen(
+    backNavArgs: ImmutableMap<String, Any> = persistentMapOf(),
+    viewModel: MyAccountViewModel = hiltSavedStateViewModel(backNavArgs = backNavArgs)
+) {
     with(viewModel.myAccountState) {
         MyAccountContent(
             accountDetailItems = mapToUISections(viewModel, this),
             forgotPasswordUrl = this.changePasswordUrl,
+            checkPendingSnackBarMessages = viewModel::checkForPendingMessages,
             onNavigateBack = viewModel::navigateBack
         )
     }
@@ -63,9 +75,18 @@ private fun mapToUISections(viewModel: MyAccountViewModel, state: MyAccountState
 fun MyAccountContent(
     accountDetailItems: List<AccountDetailsItem> = emptyList(),
     forgotPasswordUrl: String?,
+    checkPendingSnackBarMessages: () -> SettingsOperationResult = { SettingsOperationResult.None },
     onNavigateBack: () -> Unit = {}
 ) {
     val context = LocalContext.current
+    val snackbarHostState = remember { SnackbarHostState() }
+    LaunchedEffect(Unit) {
+        val result = checkPendingSnackBarMessages()
+        if (result is SettingsOperationResult.Result) {
+            snackbarHostState.showSnackbar(result.message.asString(context.resources))
+        }
+    }
+
     Scaffold(
         topBar = {
             WireCenterAlignedTopAppBar(
@@ -82,6 +103,12 @@ fun MyAccountContent(
                     modifier = Modifier.padding(dimensions().spacing16x)
                 )
             }
+        },
+        snackbarHost = {
+            SwipeDismissSnackbarHost(
+                hostState = snackbarHostState,
+                modifier = Modifier.fillMaxWidth()
+            )
         }
     ) { internalPadding ->
         LazyColumn(

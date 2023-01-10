@@ -6,12 +6,15 @@ def defineFlavor() {
     }
 
     def branchName = env.BRANCH_NAME
+
     if (branchName == "main") {
-        return 'Internal'
+        return 'Beta'
     } else if(branchName == "develop") {
-        return 'Dev'
+        return 'Staging'
     } else if(branchName == "release") {
         return 'Public'
+    } else if(branchName == "internal") {
+        return 'Internal'
     }
     return 'Dev'
 }
@@ -21,21 +24,26 @@ def defineBuildType() {
     if(overwrite != null) {
         return overwrite
     }
-    // use the scala client signing keys for testing upgrades.
     def flavor = defineFlavor()
-    if (flavor == "Dev") {
-        return "Compat"
+
+    // internal is used for wire beta builds
+    if (flavor == 'Beta') {
+        return 'Release'
     }
-    return "Release"
+    // use the scala client signing keys for testing upgrades.
+    return "Compat"
 }
 
 def defineTrackName() {
     def overwrite = env.CUSTOM_TRACK
+    def branchName = env.BRANCH_NAME
+
     if(overwrite != null) {
         return overwrite
+    } else if (branchName == "main") {
+        return 'internal'
     }
-
-    return 'internal'
+    return 'None'
 }
 
 String shellQuote(String s) {
@@ -365,7 +373,7 @@ pipeline {
           }
           stage('Playstore') {
             when {
-              expression { env.trackName != 'None' && env.flavor != 'Dev' && env.CHANGE_ID == null }
+              expression { env.trackName != 'None' && env.flavor == 'Beta' && env.CHANGE_ID == null }
             }
             steps {
               echo 'Checking folder before playstore upload'

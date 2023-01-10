@@ -96,9 +96,7 @@ class AssetContentMapper @Inject constructor(
                     displayableImageAsset(
                         conversationId = message.conversationId,
                         messageId = message.id,
-                        imageWidth = assetMessageContentMetadata.imgWidth,
-                        imageHeight = assetMessageContentMetadata.imgHeight,
-                        assetContent = assetContent,
+                        assetMessageContentMetadata = assetMessageContentMetadata,
                         isSelfUserTheSender = sender is SelfUser
                     )
                 }
@@ -117,12 +115,10 @@ class AssetContentMapper @Inject constructor(
     private fun displayableImageAsset(
         conversationId: ConversationId,
         messageId: String,
-        imageWidth: Int,
-        imageHeight: Int,
-        assetContent: AssetContent,
+        assetMessageContentMetadata: AssetMessageContentMetadata,
         isSelfUserTheSender: Boolean,
     ): UIMessageContent.ImageMessage {
-        return with(assetContent) {
+        return with(assetMessageContentMetadata.assetMessageContent) {
             UIMessageContent.ImageMessage(
                 assetId = AssetId(remoteData.assetId, remoteData.assetDomain.orEmpty()),
                 asset = ImageAsset.PrivateAsset(
@@ -131,8 +127,8 @@ class AssetContentMapper @Inject constructor(
                     messageId = messageId,
                     isSelfAsset = isSelfUserTheSender
                 ),
-                width = imageWidth,
-                height = imageHeight,
+                width = assetMessageContentMetadata.imgWidth,
+                height = assetMessageContentMetadata.imgHeight,
                 uploadStatus = uploadStatus,
                 downloadStatus = downloadStatus
             )
@@ -166,8 +162,7 @@ class AssetContentMapper @Inject constructor(
 
 }
 
-
-class AssetMessageContentMetadata(private val assetMessageContent: AssetContent) {
+class AssetMessageContentMetadata(val assetMessageContent: AssetContent) {
     val imgWidth: Int
         get() = when (val md = assetMessageContent.metadata) {
             is AssetContent.AssetMetadata.Image -> md.width

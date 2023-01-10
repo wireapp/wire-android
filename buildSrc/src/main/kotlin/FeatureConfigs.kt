@@ -20,7 +20,6 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
     CUSTOM_URL_SCHEME("custom_url_scheme", ConfigType.STRING),
     ENABLE_BLACK_LIST("enableBlacklist", ConfigType.BOOLEAN),
     FILE_RESTRICTION_ENABLED("file_restriction_enabled", ConfigType.BOOLEAN),
-    FILE_RESTRICTION_LIST("file_restriction_list", ConfigType.STRING),
     MLS_SUPPORT_ENABLED("mls_support_enabled", ConfigType.BOOLEAN),
     FORCE_APP_LOCK("force_app_lock", ConfigType.BOOLEAN),
     FORCE_CONSTANT_BITRATE_CALLS("force_constant_bitrate_calls", ConfigType.BOOLEAN),

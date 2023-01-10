@@ -19,7 +19,6 @@ class KaliumConfigsModule {
             isLoggingEnabled = BuildConfig.LOGGING_ENABLED,
             blacklistHost = BuildConfig.BLACKLIST_HOST,
             fileRestrictionEnabled = BuildConfig.FILE_RESTRICTION_ENABLED,
-            fileRestrictionList = BuildConfig.FILE_RESTRICTION_LIST,
             forceConstantBitrateCalls = BuildConfig.FORCE_CONSTANT_BITRATE_CALLS,
             domain = BuildConfig.DOMAIN,
             developerFeaturesEnabled = BuildConfig.DEVELOPER_FEATURES_ENABLED,

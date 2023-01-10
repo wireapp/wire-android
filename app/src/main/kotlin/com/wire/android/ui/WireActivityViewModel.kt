@@ -496,5 +496,6 @@ data class GlobalAppState(
     val customBackendDialog: CustomBEDeeplinkDialogState = CustomBEDeeplinkDialogState(),
     val maxAccountDialog: Boolean = false,
     val blockUserUI: CurrentSessionErrorState? = null,
-    val updateAppDialog: Boolean = false
+    val updateAppDialog: Boolean = false,
+    val conversationJoinedDialog: JoinConversationViaCodeState? = null
 )

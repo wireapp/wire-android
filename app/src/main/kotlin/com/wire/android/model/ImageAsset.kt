@@ -1,11 +1,13 @@
 package com.wire.android.model
 
+import android.net.Uri
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.user.UserAssetId
+import java.util.UUID
 
 @Stable
 sealed class ImageAsset(private val imageLoader: WireSessionImageLoader) {
@@ -22,6 +24,17 @@ sealed class ImageAsset(private val imageLoader: WireSessionImageLoader) {
     ) : ImageAsset(imageLoader) {
         override val uniqueKey: String
             get() = userAssetId.toString()
+    }
+
+    @Stable
+    data class LocalImageAsset(
+        private val imageLoader: WireSessionImageLoader,
+        val dataUri: Uri
+    ) : ImageAsset(imageLoader) {
+
+        private val _id: String = UUID.randomUUID().toString()
+        override val uniqueKey: String
+            get() = _id
     }
 
     @Stable

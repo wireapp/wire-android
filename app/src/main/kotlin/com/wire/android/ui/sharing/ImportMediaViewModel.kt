@@ -37,7 +37,7 @@ import javax.inject.Inject
 @Suppress("LongParameterList")
 class ImportMediaViewModel @Inject constructor(
     private val getSelf: GetSelfUserUseCase,
-    private val wireSessionImageLoader: WireSessionImageLoader,
+    val wireSessionImageLoader: WireSessionImageLoader,
     val dispatchers: DispatcherProvider,
     getAllKnownUsers: GetAllContactsUseCase,
     searchKnownUsers: SearchKnownUsersUseCase,
@@ -101,8 +101,6 @@ class ImportMediaViewModel @Inject constructor(
     private fun handleMimeType(context: Context, type: String, uri: Uri) {
         when {
             isImageFile(type) -> {
-                val bitmap = uri.getBitmapFromUri(context)
-                appLogger.d("imageFile $bitmap")
                 uri.getMetaDataFromUri(context).let {
                     appLogger.d("image type $it")
 
@@ -110,7 +108,8 @@ class ImportMediaViewModel @Inject constructor(
                         ImportedMediaAsset.Image(
                             name = it.name,
                             size = it.size,
-                            mimeType = type
+                            mimeType = type,
+                            dataUri = uri
                         )
                     )
                 }
@@ -122,7 +121,8 @@ class ImportMediaViewModel @Inject constructor(
                         ImportedMediaAsset.GenericAsset(
                             name = it.name,
                             size = it.size,
-                            mimeType = type
+                            mimeType = type,
+                            dataUri = uri
                         )
                     )
                     appLogger.d("other types $it")

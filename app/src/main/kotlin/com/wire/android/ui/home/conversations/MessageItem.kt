@@ -46,6 +46,7 @@ import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.conversations.model.messagetypes.asset.RestrictedAssetMessage
 import com.wire.android.ui.home.conversations.model.messagetypes.asset.RestrictedGenericFileMessage
+import com.wire.android.ui.home.conversations.model.messagetypes.audio.AudioMessageLoading
 import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMessageParams
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
@@ -306,7 +307,7 @@ private fun MessageContent(
             }
         }
 
-        is UIMessageContent.AudioAssetMessage -> Text("This is audio")
+        is UIMessageContent.AudioAssetMessage -> AudioMessageLoading()
         is UIMessageContent.SystemMessage.MemberAdded -> {}
         is UIMessageContent.SystemMessage.MemberLeft -> {}
         is UIMessageContent.SystemMessage.MemberRemoved -> {}

@@ -24,9 +24,7 @@ import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
 import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.shareIn
@@ -43,9 +41,6 @@ class MyAccountViewModel @Inject constructor(
     private val navigationManager: NavigationManager,
     private val dispatchers: DispatcherProvider
 ) : SavedStateViewModel(savedStateHandle) {
-
-    private val _snackBarMessenger = MutableSharedFlow<UIText>()
-    val snackBarMessage = _snackBarMessenger.asSharedFlow()
 
     var myAccountState by mutableStateOf(MyAccountState())
         private set

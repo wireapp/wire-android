@@ -404,7 +404,12 @@ class WireActivityViewModelTest {
             .arrange()
 
         assert(viewModel.handleDeepLinkOnNewIntent(mockedIntent()))
-        viewModel.globalAppState.conversationJoinedDialog `should be equal to` JoinConversationViaCodeState.Show(conversationName, code, key, domain)
+        viewModel.globalAppState.conversationJoinedDialog `should be equal to` JoinConversationViaCodeState.Show(
+            conversationName,
+            code,
+            key,
+            domain
+        )
         coVerify(exactly = 0) { arrangement.navigationManager.navigate(any()) }
     }
 

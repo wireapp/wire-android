@@ -249,7 +249,7 @@ class ConversationMessagesViewModel @Inject constructor(
 
     override fun onCleared() {
         super.onCleared()
-        // audioMediaPlayer.close()
+        conversationMessageAudioPlayer.stop()
     }
 
 }

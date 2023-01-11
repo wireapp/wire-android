@@ -131,7 +131,7 @@ fun MessageItem(
                         MessageContent(
                             messageId = message.messageHeader.messageId,
                             isAudioPlaying = isAudioPlaying,
-                            currentlyPlayedAudioId = currentlyPlayedAudioMessage,
+                            currentlyPlayedAudioMessageId = currentlyPlayedAudioMessage,
                             messageContent = messageContent,
                             onAssetClick = currentOnAssetClicked,
                             onImageClick = currentOnImageClick,
@@ -261,7 +261,7 @@ private fun Username(username: String, modifier: Modifier = Modifier) {
 @Composable
 private fun MessageContent(
     messageId: String,
-    currentlyPlayedAudioId: String?,
+    currentlyPlayedAudioMessageId: String?,
     isAudioPlaying: Boolean = false,
     messageContent: UIMessageContent?,
     onAssetClick: Clickable,
@@ -322,9 +322,7 @@ private fun MessageContent(
         }
 
         is UIMessageContent.AudioAssetMessage -> {
-            val isPlaying = messageId == currentlyPlayedAudioId && isAudioPlaying
-
-            AudioMessage(isPlaying) { onAudioClick() }
+            AudioMessage(messageId == currentlyPlayedAudioMessageId && isAudioPlaying) { onAudioClick() }
         }
 
         is UIMessageContent.SystemMessage.MemberAdded -> {}

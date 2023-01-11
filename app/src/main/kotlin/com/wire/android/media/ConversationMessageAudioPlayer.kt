@@ -51,7 +51,7 @@ class ConversationMessageAudioPlayer
         }
     }
 
-    var audioMediaPlayerState = _audioMediaPlayerState.map {
+    val audioMediaPlayerState = _audioMediaPlayerState.map {
         _audioMediaPlayerState.value to currentlyPlayedMessageId
     }
 
@@ -97,6 +97,7 @@ class ConversationMessageAudioPlayer
 
                 _audioMediaPlayerState.value = AudioMediaPlayerState.Stopped
             }
+            release()
         }
     }
 

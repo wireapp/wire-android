@@ -73,7 +73,7 @@ class ConversationMessagesViewModel @Inject constructor(
         savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)!!
     )
 
-    val test = derivedStateOf { conversationMessageAudioPlayer.audioMessagesState }
+
 
     private val _infoMessage = MutableSharedFlow<SnackBarMessage>()
     val infoMessage = _infoMessage.asSharedFlow()
@@ -84,10 +84,7 @@ class ConversationMessagesViewModel @Inject constructor(
 
         viewModelScope.launch {
 
-            val dupa = snapshotFlow { conversationMessageAudioPlayer.audioMessagesState }.collect {
-                it.toMap()
 
-            }
 
 
         }

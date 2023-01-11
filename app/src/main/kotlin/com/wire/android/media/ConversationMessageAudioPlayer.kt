@@ -9,6 +9,7 @@ import androidx.compose.runtime.snapshots.SnapshotStateMap
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
+import kotlinx.coroutines.flow.MutableStateFlow
 import javax.inject.Inject
 
 class ConversationMessageAudioPlayer
@@ -17,7 +18,7 @@ class ConversationMessageAudioPlayer
     private val getMessageAsset: GetMessageAssetUseCase
 ) {
 
-    val audioMessagesState: SnapshotStateMap<String, AudioState> by mutableStateMapOf()
+    val audioMessagesState = MutableStateFlow<Map<String, AudioState>>(emptyMap())
 
     private val audioSnapshots = mutableMapOf<String, AudioSnapShot>()
 
@@ -132,7 +133,7 @@ class ConversationMessageAudioPlayer
     }
 
     private fun updateOrPutAudioState(audioMediaPlayerState: AudioMediaPlayerState) {
-        audioMessagesState[currentlyPlayedMessageId!!] = AudioState(audioMediaPlayerState = audioMediaPlayerState)
+       // audioMessagesState = AudioState(audioMediaPlayerState = audioMediaPlayerState)
     }
 
     fun close() {

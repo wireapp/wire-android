@@ -153,7 +153,6 @@
     <string name="welcome_migration_dialog_title">Welcome To Our New Android App 👋</string>
     <string name="welcome_migration_dialog_content">We rebuilt the app to make it more usable for everyone.\n\nFind out more about Wire’s redesigned app—new options and improved accessibility, with the same strong security.</string>
     <string name="welcome_migration_dialog_continue">Start Using Wire</string>
-
     <!-- API Versioning Dialogs -->
     <string name="api_versioning_client_update_required_title">Update required</string>
     <string name="api_versioning_client_update_required_message">You are missing out on new features. Update to the latest version of Wire to continue using the app with this account.</string>
@@ -348,7 +347,6 @@
     <string name="delete_group_conversation_menu_item">Delete Group…</string>
     <string name="delete_group_conversation_dialog_title">Remove “%s”?</string>
     <string name="delete_group_conversation_dialog_description">The group will be removed from your conversations list on all devices. You will no longer be able to access the group and its content.</string>
-
     <!-- Messages -->
     <string name="message_details_title">Message Details</string>
     <string name="message_details_reactions_tab">REACTIONS (%s)</string>
@@ -357,7 +355,6 @@
     <string name="message_details_reactions_empty_learn_more">Learn more about reactions</string>
     <string name="message_details_read_receipts_empty_text">No one read this message yet 👀</string>
     <string name="message_details_read_receipts_empty_learn_more">Learn more about read receipts</string>
-
     <!-- Attachment options -->
     <string name="attachment_share_file">Attach File</string>
     <string name="attachment_share_image">Attach Picture</string>
@@ -434,10 +431,8 @@
     <string name="label_delete">Delete</string>
     <string name="info_message_copied">Message copied</string>
     <string name="conversation_banner_federated_externals_guests_services_present">Federated users, Externals, guests and services are present</string>
-
     <string name="conversation_banner_federated_externals_guests_present">Federated users, Externals and guests are present</string>
     <string name="conversation_banner_federated_externals_services_present">Federated users, Externals and services are present</string>
-
     <string name="conversation_banner_federated_guests_services_present">Federated users, guests and services are present</string>
     <string name="conversation_banner_federated_services_present">Federated users and services are present</string>
     <string name="conversation_banner_federated_guests_present">Federated users and guests are present</string>
@@ -450,7 +445,6 @@
     <string name="conversation_banner_guests_present">Guests are present</string>
     <string name="conversation_banner_externals_present">Externals are present</string>
     <string name="conversation_banner_services_active">Services are active</string>
-
     <!-- System messages -->
     <string name="label_system_message_added">%1$s added %2$s to the conversation</string>
     <string name="label_system_message_removed">%1$s removed %2$s from the conversation</string>
@@ -469,7 +463,6 @@
     <string name="label_system_message_read_receipt_changed">%1$s turned read receipts %2$s for everyone</string>
     <string name="label_system_message_receipt_mode_on">on</string>
     <string name="label_system_message_receipt_mode_off">off</string>
-
     <!-- Last messages -->
     <string name="last_message_added">added</string>
     <string name="last_message_removed">removed</string>
@@ -498,10 +491,8 @@
     </plurals>
     <string name="last_message_joined_conversation">joined the conversation.</string>
     <string name="last_message_left_conversation">left the conversation.</string>
-
     <string name="last_message_to_conversation">to conversation</string>
     <string name="last_message_from_conversation">from conversation</string>
-
     <!-- Unread Events -->
     <plurals name="unread_event_knock">
         <item quantity="one">%1$d ping</item>
@@ -523,7 +514,6 @@
         <item quantity="one">%1$d message</item>
         <item quantity="other">%1$d messages</item>
     </plurals>
-
     <!--Search Contact-->
     <string name="label_contacts">CONTACTS</string>
     <string name="label_new_group">New Group</string>
@@ -672,7 +662,7 @@
     <string name="read_receipts">Read receipts</string>
     <string name="read_receipts_description">When this is on, people can see when their messages in this conversation are read.</string>
     <string name="disable_guests_dialoug_title">Not Allow Guests?</string>
-    <string name="disable_guests_dialoug_description">Any guest user selected in the previous step will not be added to the group if you do not allow guest access.</string>
+    <string name="disable_guests_dialoug_description">Guests you selected in the previous step won\'t be part of the group if you do not allow guest access.</string>
     <string name="disable_guests_dialoug_button">Not Allow Guests</string>
     <!--block user dialog -->
     <string name="block_user_dialog_title">Block user?</string>
@@ -693,7 +683,7 @@
     <string name="settings_manage_devices_label">Manage your Devices</string>
     <string name="settings_about_this_app_label">About this App</string>
     <string name="settings_keep_connection_to_websocket">Keep Connection to Websocket</string>
-    <string name="settings_keep_connection_to_websocket_description">Improve receiving of notifications by keeping a constant connection to %1$s. This replaces notification services if Google Services are not available on your device.</string>
+    <string name="settings_keep_connection_to_websocket_description">Improve receiving notifications by keeping a constant connection to %1$s. It will replace notification services if Google Services are not available on your device.</string>
     <string name="settings_service_is_running">service is running</string>
     <!--Settings, My Account -->
     <string name="settings_myaccount_title">Account Data</string>
@@ -703,16 +693,13 @@
     <string name="settings_myaccount_team">TEAM</string>
     <string name="settings_myaccount_domain">DOMAIN</string>
     <string name="settings_myaccount_reset_password">Reset Password</string>
-
     <!--Privacy Settings -->
     <string name="settings_send_read_receipts">Send read receipts</string>
     <string name="settings_send_read_receipts_description">If this is OFF, you won’t be able to see read receipts from other people. This can be overwritten by the read receipts setting in a conversation.</string>
-
     <!--Devices -->
     <string name="devices_title">Your Devices</string>
     <string name="current_device_label">Current Device</string>
     <string name="other_devices_label">Other Devices</string>
-
     <!--unblock user dialog -->
     <string name="unblock_user_dialog_title">Unblock user?</string>
     <string name="unblock_user_dialog_body">%1$s will be able to contact you or add you to group conversations. You will be able to access a 1:1 conversation with them.</string>
@@ -721,7 +708,7 @@
     <string name="max_account_reached_dialog_title">Three accounts active</string>
     <string name="max_account_reached_dialog_message">You can only be logged in with three accounts at once. Log out from one to add another.</string>
     <string name="max_account_reached_dialog_button_open_profile">Open Profile</string>
-    <string name="cant_switch_account_in_call">Can not switch accounts while in call</string>
+    <string name="cant_switch_account_in_call">You can\'t switch accounts while in a call</string>
     <string name="custom_backend_dialog_title">Redirect to an on-premises backend?</string>
     <string name="custom_backend_dialog_body">If you proceed, your client will be redirected to the following on-premises backend:\n\nBackend name:\n%1$s\n\nBackend URL:\n%2$s</string>
     <string name="label_fetching_your_messages">Receiving new messages</string>
@@ -741,7 +728,7 @@
     <string name="conversation_empty_list_description">Connect with others or create a new group to start collaborating!</string>
     <string name="conversation_empty_list_title">Welcome 👋</string>
     <string name="label_no_conversation_found">No conversations could be found.</string>
-    <string name="label_connect_with_new_users">Connect with new users or start a new conversation:</string>
+    <string name="label_connect_with_new_users">Connect with new users or start a new conversation</string>
     <string name="label_reactions">Reactions</string>
     <string name="label_more_comming_soon">(more coming soon)</string>
     <string name="label_wait_until_synchronised">Please wait until the app is synchronised</string>
@@ -757,30 +744,28 @@
     <string name="backup_label_saving_conversations">Saving conversations</string>
     <string name="backup_label_wrong_password">Wrong password</string>
     <string name="backup_label_verify_input">Please verify your input and try again</string>
-    <string name="backup_dialog_restoring_backup_title">Restoring Backup...</string>
+    <string name="backup_dialog_restoring_backup_title">Restoring backup...</string>
     <string name="backup_label_conversation_restored">Conversations have been restored</string>
     <string name="backup_label_loading_conversations">Loading conversations</string>
-    <string name="backup_dialog_restore_backup_title">Restore a Backup</string>
+    <string name="backup_dialog_restore_backup_title">Restore from backup </string>
     <string name="backup_dialog_restore_backup_message">The backup contents will replace the conversation history on this device. You can only restore history from a backup of the same platform.</string>
     <string name="backup_dialog_choose_backup_file_option">Choose Backup File</string>
     <string name="backup_label_enter_password">Enter password</string>
     <string name="backup_dialog_restore_backup_password_message">This backup is password protected.</string>
     <string name="send_feedback_choose_email">\"Choose an Email client: \"</string>
-    <string name="backup_dialog_create_backup_save">Save backup</string>
+    <string name="backup_dialog_create_backup_save">Save File</string>
     <string name="backup_dialog_restore_incompatible_version_error_title">Incompatible Backup</string>
     <string name="backup_dialog_restore_incompatible_version_error_message">This backup was created by a newer or outdated version of Wire and cannot be restored here.</string>
     <string name="backup_dialog_restore_wrong_user_error_title">Wrong Backup</string>
     <string name="backup_dialog_restore_wrong_user_error_message">You cannot restore history from a different account.</string>
     <string name="backup_dialog_restore_general_error_title">Something Went Wrong</string>
     <string name="backup_dialog_restore_general_error_message">Your history could not be restored. Please try again or contact the Wire customer support.</string>
-
     <string name="group_content_deleted">Group content was deleted</string>
     <string name="conversation_content_deleted">Conversation content was deleted</string>
     <string name="group_content_delete_failure">Group content could not be deleted</string>
     <string name="conversation_content_delete_failure">Conversation content could not be deleted</string>
     <string name="group_label">group</string>
     <string name="conversation_label">conversation</string>
-
     <string name="proxy_credential_description">This backend is configured to use the following proxy server: %1$s</string>
     <string name="label_proxy_credentials">PROXY CREDENTIALS</string>
     <string name="label_proxy_password">PROXY PASSWORD</string>
@@ -793,7 +778,6 @@
     <string name="create_personal_account_not_supported_dialog_description">Creating a new personal account on an on-premise backend with proxy support is currently not possible.</string>
     <string name="create_team_not_supported_dialog_description">Creating a new Team on an on-premise backend with proxy support is currently not possible in the Wire app.\nPlease use the Team Management (%1$s) to create a new Team on this backend.</string>
     <string name="to_team_management_action">To Team Management</string>
-
     <!-- Update App dialog -->
     <string name="update_app_dialog_title">Update required</string>
     <string name="update_app_dialog_body">You are missing out on new features. Update to the latest version of Wire to continue using the app with this account.</string>
@@ -801,8 +785,6 @@
     <string name="cancel_login_button_label">Cancel and Log Out</string>
     <string name="cancel_login_dialog_description">If you cancel this step, you will be logged out of your account.</string>
     <string name="cancel_login_dialog_title">Do you want to Cancel?</string>
-
     <!--    session reset-->
     <string name="label_system_message_session_reset">%1$s was unable to decrypt some of your messages but has solved the issue. This affected all conversations you share together.</string>
-
 </resources>

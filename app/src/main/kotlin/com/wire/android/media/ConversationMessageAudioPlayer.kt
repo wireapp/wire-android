@@ -7,10 +7,6 @@ import android.net.Uri
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 class ConversationMessageAudioPlayer
@@ -25,10 +21,6 @@ class ConversationMessageAudioPlayer
 
     private var currentlyPlayedMessageId: String? = null
 
-    private var _audioMediaPlayerState: MutableStateFlow<AudioMediaPlayerState> = MutableStateFlow(
-        AudioMediaPlayerState.Paused
-    )
-
     private val mediaPlayer = MediaPlayer().apply {
         setAudioAttributes(
             AudioAttributes.Builder()
@@ -37,20 +29,8 @@ class ConversationMessageAudioPlayer
                 .build()
         )
         setOnCompletionListener {
-            currentlyPlayedMessageId = null
+            audioSnapshots[currentlyPlayedMessageId!!] = AudioSnapShot(0)
         }
-    }
-
-    val currentProgress = flow {
-        delay(1000)
-        while (true) {
-            emit(mediaPlayer.currentPosition)
-            delay(1000)
-        }
-    }
-
-    val audioMediaPlayerState = _audioMediaPlayerState.map {
-        _audioMediaPlayerState.value to currentlyPlayedMessageId
     }
 
     suspend fun togglePlay(
@@ -58,78 +38,60 @@ class ConversationMessageAudioPlayer
         messageId: String
     ) {
         with(mediaPlayer) {
-            val isInitialPlay = currentlyPlayedMessageId == null
+            val toggleCurrentlyPlayedAudio = messageId == currentlyPlayedMessageId
 
-            if (isInitialPlay) {
-                when (val result = getMessageAsset(conversationId, messageId).await()) {
-                    is MessageAssetResult.Success -> {
-                        reset()
-
-                        setDataSource(context, Uri.parse(result.decodedAssetPath.toString()))
-                        prepare()
-                        start()
-
-                        currentlyPlayedMessageId = messageId
-                    }
-
-                    is MessageAssetResult.Failure -> {
-                        println("error")
-                    }
+            if (toggleCurrentlyPlayedAudio) {
+                if (isPlaying) {
+                    pause()
+                } else {
+                    start()
                 }
             } else {
-                val toggleCurrentlyPlayedAudio = messageId == currentlyPlayedMessageId
+                val audioSnapShot = audioSnapshots[messageId]
+                val audioSnapShotExists = audioSnapShot != null
 
-                if (toggleCurrentlyPlayedAudio) {
-                    if (isPlaying) {
-                        pause()
-                    } else {
-                        start()
-                    }
+                if (audioSnapShotExists) {
+                    switchAudioMessage(
+                        messageId = messageId,
+                        conversationId = conversationId,
+                        seekTo = audioSnapShot!!.timeStamp
+                    )
                 } else {
-                    val audioSnapShot = audioSnapshots[messageId]
-                    val audioSnapShotExists = audioSnapShot != null
-
-                    if (audioSnapShotExists) {
-                        when (val result = getMessageAsset(conversationId, messageId).await()) {
-                            is MessageAssetResult.Success -> {
-                                audioSnapshots[currentlyPlayedMessageId!!] = AudioSnapShot(currentPosition)
-
-                                reset()
-
-                                setDataSource(context, Uri.parse(result.decodedAssetPath.toString()))
-                                prepare()
-                                seekTo(audioSnapShot!!.timeStamp)
-                                start()
-
-                                currentlyPlayedMessageId = messageId
-                            }
-
-                            is MessageAssetResult.Failure -> {
-
-                            }
-                        }
-                    } else {
-                        when (val result = getMessageAsset(conversationId, messageId).await()) {
-                            is MessageAssetResult.Success -> {
-                                audioSnapshots[currentlyPlayedMessageId!!] = AudioSnapShot(currentPosition)
-
-                                reset()
-
-                                setDataSource(context, Uri.parse(result.decodedAssetPath.toString()))
-                                prepare()
-                                start()
-
-                                currentlyPlayedMessageId = messageId
-                            }
-
-                            is MessageAssetResult.Failure -> {
-                                println("error")
-                            }
-                        }
-                    }
+                    switchAudioMessage(
+                        messageId = messageId,
+                        conversationId = conversationId
+                    )
                 }
             }
         }
+    }
+
+    private suspend fun switchAudioMessage(
+        messageId: String,
+        conversationId: ConversationId,
+        seekTo: Int = 0
+    ) {
+        when (val result = getMessageAsset(conversationId, messageId).await()) {
+            is MessageAssetResult.Success -> {
+                with(mediaPlayer) {
+                    audioSnapshots[currentlyPlayedMessageId!!] = AudioSnapShot(currentPosition)
+
+                    reset()
+
+                    setDataSource(context, Uri.parse(result.decodedAssetPath.toString()))
+                    prepare()
+                    seekTo(seekTo)
+                    start()
+
+                    currentlyPlayedMessageId = messageId
+                }
+            }
+
+            is MessageAssetResult.Failure -> {
+
+            }
+        }
+
     }
 
     fun close() {
@@ -142,7 +104,6 @@ class ConversationMessageAudioPlayer
 data class AudioState(
     var audioMediaPlayerState: AudioMediaPlayerState
 )
-
 
 data class AudioSnapShot(val timeStamp: Int)
 

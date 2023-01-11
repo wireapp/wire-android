@@ -9,7 +9,6 @@ import androidx.compose.runtime.snapshots.SnapshotStateMap
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
-import kotlinx.coroutines.flow.MutableStateFlow
 import javax.inject.Inject
 
 class ConversationMessageAudioPlayer
@@ -56,8 +55,15 @@ class ConversationMessageAudioPlayer
         if (mediaPlayer.isPlaying) {
             pause()
         } else {
-            start()
+            startPlayingAudio()
         }
+    }
+
+    private fun startPlayingAudio() {
+        updateOrPutAudioState(
+            audioMediaPlayerState = AudioMediaPlayerState.Playing
+        )
+        mediaPlayer.start()
     }
 
     private fun pause() {
@@ -67,14 +73,10 @@ class ConversationMessageAudioPlayer
         mediaPlayer.pause()
     }
 
-    private fun start() {
+    private fun stopCurrentAudio() {
         updateOrPutAudioState(
-            audioMediaPlayerState = AudioMediaPlayerState.Playing
+            audioMediaPlayerState = AudioMediaPlayerState.Stopped(mediaPlayer.currentPosition)
         )
-        mediaPlayer.start()
-    }
-
-    private fun reset() {
         mediaPlayer.reset()
     }
 
@@ -84,26 +86,29 @@ class ConversationMessageAudioPlayer
     ) {
         when (val result = getMessageAsset(conversationId, messageId).await()) {
             is MessageAssetResult.Success -> {
-                reset()
+                val isAlreadyPlayingAudioMessage = currentlyPlayedMessageId == null
 
-                mediaPlayer.setDataSource(context, Uri.parse(result.decodedAssetPath.toString()))
+                if (isAlreadyPlayingAudioMessage) {
+                    saveCurrentAudioMessageSnapShot()
+                    stopCurrentAudio()
+                }
+
+                mediaPlayer.setDataSource(
+                    context,
+                    Uri.parse(result.decodedAssetPath.toString())
+                )
                 mediaPlayer.prepare()
-
-                val isInitialPlay = currentlyPlayedMessageId == null
 
                 val audioSnapShot = audioSnapshots[messageId]
                 val isSongPlayedInThePast = audioSnapShot != null
 
-                if (!isInitialPlay) {
-                    saveCurrentAudioMessageSnapShot()
-                    if (isSongPlayedInThePast) {
-                        mediaPlayer.seekTo(audioSnapShot!!.timeStamp)
-                    }
+                if (isSongPlayedInThePast) {
+                    mediaPlayer.seekTo(audioSnapShot!!.timeStamp)
                 }
 
                 currentlyPlayedMessageId = messageId
 
-                start()
+                startPlayingAudio()
             }
 
             is MessageAssetResult.Failure -> {

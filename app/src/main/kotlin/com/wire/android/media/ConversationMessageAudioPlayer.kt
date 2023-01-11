@@ -7,6 +7,8 @@ import android.net.Uri
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.update
 import javax.inject.Inject
 
 class ConversationMessageAudioPlayer
@@ -15,7 +17,7 @@ class ConversationMessageAudioPlayer
     private val getMessageAsset: GetMessageAssetUseCase
 ) {
 
-    private val audioMessageHistory = mutableMapOf<String, AudioState>()
+    val audioMessageHistory = MutableStateFlow(mutableMapOf<String, AudioState>())
 
     private val audioSnapshots = mutableMapOf<String, AudioSnapShot>()
 
@@ -37,22 +39,45 @@ class ConversationMessageAudioPlayer
         conversationId: ConversationId,
         messageId: String
     ) {
-        with(mediaPlayer) {
-            val switchAudioMessage = currentlyPlayedMessageId != messageId
+        val switchAudioMessage = currentlyPlayedMessageId != messageId
 
-            if (switchAudioMessage) {
-                switchAudioMessage(
-                    messageId = messageId,
-                    conversationId = conversationId
-                )
-            } else {
-                if (isPlaying) {
-                    pause()
-                } else {
-                    start()
-                }
-            }
+        if (switchAudioMessage) {
+            switchAudioMessage(
+                messageId = messageId,
+                conversationId = conversationId
+            )
+        } else {
+            playOrPauseCurrentAudio()
         }
+    }
+
+    private fun playOrPauseCurrentAudio() {
+        if (mediaPlayer.isPlaying) {
+            pause()
+        } else {
+            updateOrPutAudioState(
+                audioMediaPlayerState = AudioMediaPlayerState.Playing
+            )
+            start()
+        }
+    }
+
+    private fun pause() {
+        updateOrPutAudioState(
+            audioMediaPlayerState = AudioMediaPlayerState.Paused
+        )
+        mediaPlayer.pause()
+    }
+
+    private fun start() {
+        updateOrPutAudioState(
+            audioMediaPlayerState = AudioMediaPlayerState.Playing
+        )
+        mediaPlayer.start()
+    }
+
+    private fun reset() {
+
     }
 
     private suspend fun switchAudioMessage(
@@ -97,7 +122,13 @@ class ConversationMessageAudioPlayer
 
     fun close() {
         mediaPlayer.release()
-        audioMessageHistory.clear()
+    }
+
+    private fun updateOrPutAudioState(audioMediaPlayerState: AudioMediaPlayerState) {
+        audioMessageHistory.update { audioMessageHistory ->
+            audioMessageHistory[currentlyPlayedMessageId!!] = AudioState(audioMediaPlayerState)
+            audioMessageHistory
+        }
     }
 
 }

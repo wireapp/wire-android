@@ -81,18 +81,10 @@ class ConversationMessagesViewModel @Inject constructor(
         loadLastMessageInstant()
 
         viewModelScope.launch {
-//            conversationMessageAudioPlayer.audioMediaPlayerState.collect { (audioMediaPlayerState, currentlyPlayedAudioMessageId) ->
-//                if (currentlyPlayedAudioMessageId != null) {
-//                    conversationViewState = conversationViewState.copy(
-//                        currentlyPlayedAudioMessageId = currentlyPlayedAudioMessageId,
-//                        isAudioPlaying = audioMediaPlayerState == AudioMediaPlayerState.Playing
-//                    )
-//                }
-//            }
-//
-//            conversationMessageAudioPlayer.currentProgress.collect {
-//                println("progress $it")
-//            }
+
+            conversationMessageAudioPlayer.audioMessageHistory.collect {
+                println("audioMessageHistory: $it")
+            }
         }
     }
 

@@ -53,6 +53,80 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
 import com.wire.kalium.logic.data.user.UserId
 
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun MessageItemTest(
+    message: UIMessage,
+    onOpenProfile: (String) -> Unit,
+    onLongClicked: (UIMessage) -> Unit,
+    onReactionClicked: (String, String) -> Unit,
+    onResetSessionClicked: (senderUserId: UserId, clientId: String?) -> Unit,
+    messageContent: @Composable () -> Unit
+) {
+    with(message) {
+        val fullAvatarOuterPadding = dimensions().userAvatarClickablePadding + dimensions().userAvatarStatusBorderSize
+        Column { }
+        Row(
+            Modifier
+                .customizeMessageBackground(message)
+                .padding(
+                    end = dimensions().spacing16x,
+                    bottom = dimensions().messageItemBottomPadding - fullAvatarOuterPadding
+                )
+                .fillMaxWidth()
+                .let {
+                    if (!message.isDeleted) it.combinedClickable(
+                        //TODO: implement some action onClick
+                        onClick = { },
+                        onLongClick = { onLongClicked(message) }
+                    ) else it
+                }
+        ) {
+            Spacer(Modifier.padding(start = dimensions().spacing8x - fullAvatarOuterPadding))
+
+            val isProfileRedirectEnabled =
+                message.messageHeader.userId != null
+                        && !(message.messageHeader.isSenderDeleted || message.messageHeader.isSenderUnavailable)
+
+            val avatarClickable = remember {
+                Clickable(enabled = isProfileRedirectEnabled) {
+                    onOpenProfile(message.messageHeader.userId!!.toString())
+                }
+            }
+            UserProfileAvatar(
+                avatarData = message.userAvatarData,
+                clickable = avatarClickable
+            )
+            Spacer(Modifier.padding(start = dimensions().spacing16x - fullAvatarOuterPadding))
+            Column {
+                Spacer(modifier = Modifier.height(fullAvatarOuterPadding))
+                MessageHeader(messageHeader)
+
+                if (!isDeleted) {
+                    if (!decryptionFailed) {
+                        messageContent()
+                        MessageFooter(
+                            messageFooter = messageFooter,
+                            onReactionClicked = onReactionClicked
+                        )
+                    } else {
+                        MessageDecryptionFailure(
+                            messageHeader = messageHeader,
+                            decryptionStatus = messageHeader.messageStatus as MessageStatus.DecryptionFailure,
+                            onResetSessionClicked = onResetSessionClicked
+                        )
+                    }
+                }
+
+                if (message.sendingFailed) {
+                    MessageSendFailureWarning()
+                }
+            }
+        }
+    }
+}
+
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun MessageItem(
@@ -280,12 +354,7 @@ private fun MessageContent(
         )
 
         is UIMessageContent.TextMessage -> {
-            messageContent.messageBody.quotedMessage?.let {
-                VerticalSpace.x4()
-                QuotedMessage(it)
-                VerticalSpace.x4()
-            }
-            MessageBody(
+            MessageText(
                 messageBody = messageContent.messageBody,
                 onLongClick = onLongClick,
                 onOpenProfile = onOpenProfile
@@ -302,23 +371,11 @@ private fun MessageContent(
         )
 
         is UIMessageContent.RestrictedAsset -> {
-            when {
-                messageContent.mimeType.contains("image/") -> {
-                    RestrictedAssetMessage(R.drawable.ic_gallery, stringResource(id = R.string.prohibited_images_message))
-                }
-
-                messageContent.mimeType.contains("video/") -> {
-                    RestrictedAssetMessage(R.drawable.ic_video, stringResource(id = R.string.prohibited_videos_message))
-                }
-
-                messageContent.mimeType.contains("audio/") -> {
-                    RestrictedAssetMessage(R.drawable.ic_speaker_on, stringResource(id = R.string.prohibited_audio_message))
-                }
-
-                else -> {
-                    RestrictedGenericFileMessage(messageContent.assetName, messageContent.assetSizeInBytes)
-                }
-            }
+            MessageRestrictedAsset(
+                assetName = messageContent.assetName,
+                assetSizeInBytes = messageContent.assetSizeInBytes,
+                mimeType = messageContent.mimeType
+            )
         }
 
         is UIMessageContent.AudioAssetMessage -> {
@@ -336,6 +393,49 @@ private fun MessageContent(
         is UIMessageContent.SystemMessage.MissedCall.OtherCalled -> {}
         null -> {
             throw NullPointerException("messageContent is null")
+        }
+    }
+}
+
+@Composable
+fun MessageText(
+    messageBody: MessageBody,
+    onLongClick: (() -> Unit)?,
+    onOpenProfile: (String) -> Unit
+) {
+    messageBody.quotedMessage?.let {
+        VerticalSpace.x4()
+        QuotedMessage(it)
+        VerticalSpace.x4()
+    }
+    MessageBody(
+        messageBody = messageBody,
+        onLongClick = onLongClick,
+        onOpenProfile = onOpenProfile
+    )
+}
+
+@Composable
+fun MessageRestrictedAsset(
+    assetName: String,
+    assetSizeInBytes: Long,
+    mimeType: String
+) {
+    when {
+        mimeType.contains("image/") -> {
+            RestrictedAssetMessage(R.drawable.ic_gallery, stringResource(id = R.string.prohibited_images_message))
+        }
+
+        mimeType.contains("video/") -> {
+            RestrictedAssetMessage(R.drawable.ic_video, stringResource(id = R.string.prohibited_videos_message))
+        }
+
+        mimeType.contains("audio/") -> {
+            RestrictedAssetMessage(R.drawable.ic_speaker_on, stringResource(id = R.string.prohibited_audio_message))
+        }
+
+        else -> {
+            RestrictedGenericFileMessage(assetName, assetSizeInBytes)
         }
     }
 }

@@ -7,21 +7,19 @@ import android.net.Uri
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
-import kotlinx.coroutines.channels.consume
-import kotlinx.coroutines.channels.ticker
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
-import javax.inject.Singleton
 
 class ConversationMessageAudioPlayer
 @Inject constructor(
     private val context: Context,
     private val getMessageAsset: GetMessageAssetUseCase
 ) {
+
+    val audioMessagesState = mapOf<String, AudioState>()
 
     private var currentlyPlayedMessageId: String? = null
 
@@ -55,7 +53,15 @@ class ConversationMessageAudioPlayer
         _audioMediaPlayerState.value to currentlyPlayedMessageId
     }
 
-    suspend fun play(conversationId: ConversationId, messageId: String) {
+    suspend fun play(
+        conversationId: ConversationId,
+        messageId: String
+    ) {
+
+
+
+
+
         if (_audioMediaPlayerState.value is AudioMediaPlayerState.Playing) {
             stop()
         }
@@ -66,6 +72,7 @@ class ConversationMessageAudioPlayer
             is MessageAssetResult.Success -> {
                 with(mediaPlayer) {
                     reset()
+
                     setDataSource(context, Uri.parse(result.decodedAssetPath.toString()))
                     prepare()
                     start()
@@ -80,7 +87,10 @@ class ConversationMessageAudioPlayer
         }
     }
 
-    fun pause() {
+    fun pause(
+        conversationId: ConversationId,
+        messageId: String
+    ) {
         with(mediaPlayer) {
             if (isPlaying) {
                 pause()
@@ -108,6 +118,12 @@ class ConversationMessageAudioPlayer
     }
 
 }
+
+data class AudioState(
+    val audioMessageId: String,
+    var isPlaying: Boolean,
+    var currentProgress: Long
+)
 
 sealed class AudioMediaPlayerState {
     object Playing : AudioMediaPlayerState()

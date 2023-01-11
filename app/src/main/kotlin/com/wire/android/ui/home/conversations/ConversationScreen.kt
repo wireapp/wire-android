@@ -31,6 +31,7 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.items
 import com.wire.android.R
+import com.wire.android.model.Clickable
 import com.wire.android.model.SnackBarMessage
 import com.wire.android.navigation.hiltSavedStateViewModel
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
@@ -54,8 +55,13 @@ import com.wire.android.ui.home.conversations.info.ConversationInfoViewState
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewModel
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewState
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
+import com.wire.android.ui.home.conversations.model.MessageGenericAsset
+import com.wire.android.ui.home.conversations.model.MessageImage
+import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent
+import com.wire.android.ui.home.conversations.model.messagetypes.audio.AudioMessage
+import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMessageParams
 import com.wire.android.ui.home.messagecomposer.MessageComposer
 import com.wire.android.ui.home.messagecomposer.MessageComposerInnerState
 import com.wire.android.ui.home.messagecomposer.UiMention
@@ -539,17 +545,88 @@ fun MessageList(
             if (message.messageContent is UIMessageContent.SystemMessage) {
                 SystemMessageItem(message = message.messageContent)
             } else {
-                MessageItem(
+                MessageItemTest(
                     message = message,
-                    currentlyPlayedAudioMessage = currentlyPlayedAudioMessage,
-                    isAudioPlaying = isAudioPlaying,
-                    onLongClicked = onShowContextMenu,
-                    onAssetMessageClicked = onDownloadAsset,
-                    onImageMessageClicked = onImageFullScreenMode,
-                    onAudioClick = onAudioClick,
                     onOpenProfile = onOpenProfile,
+                    onLongClicked = onShowContextMenu,
                     onReactionClicked = onReactionClicked,
-                    onResetSessionClicked = onResetSessionClicked
+                    onResetSessionClicked = onResetSessionClicked,
+                    messageContent = {
+                        when (val messageContent = message.messageContent) {
+                            is UIMessageContent.ImageMessage -> {
+                                val imageClickable = remember {
+                                    Clickable(enabled = true, onClick = {
+                                        onImageFullScreenMode(
+                                            message.messageHeader.messageId,
+                                            message.messageSource == MessageSource.Self
+                                        )
+                                    }, onLongClick = {
+                                        onShowContextMenu(message)
+                                    })
+                                }
+
+                                MessageImage(
+                                    asset = messageContent.asset,
+                                    imgParams = ImageMessageParams(messageContent.width, messageContent.height),
+                                    uploadStatus = messageContent.uploadStatus,
+                                    downloadStatus = messageContent.downloadStatus,
+                                    onImageClick = imageClickable
+                                )
+                            }
+
+                            is UIMessageContent.TextMessage -> {
+                                MessageText(
+                                    messageBody = messageContent.messageBody,
+                                    onLongClick = { onShowContextMenu(message) },
+                                    onOpenProfile = onOpenProfile
+                                )
+                            }
+
+                            is UIMessageContent.AssetMessage -> {
+                                val assetClickable = remember {
+                                    Clickable(enabled = true, onClick = {
+                                        onDownloadAsset(message.messageHeader.messageId)
+                                    }, onLongClick = {
+                                        onShowContextMenu(message)
+                                    })
+                                }
+
+                                MessageGenericAsset(
+                                    assetName = messageContent.assetName,
+                                    assetExtension = messageContent.assetExtension,
+                                    assetSizeInBytes = messageContent.assetSizeInBytes,
+                                    assetUploadStatus = messageContent.uploadStatus,
+                                    assetDownloadStatus = messageContent.downloadStatus,
+                                    onAssetClick = assetClickable
+                                )
+                            }
+
+                            is UIMessageContent.RestrictedAsset -> {
+                                MessageRestrictedAsset(
+                                    assetName = messageContent.assetName,
+                                    assetSizeInBytes = messageContent.assetSizeInBytes,
+                                    mimeType = messageContent.mimeType
+                                )
+                            }
+
+                            is UIMessageContent.AudioAssetMessage -> {
+                                AudioMessage(true) { onAudioClick("test") }
+                            }
+
+                            is UIMessageContent.SystemMessage.MemberAdded -> {}
+                            is UIMessageContent.SystemMessage.MemberLeft -> {}
+                            is UIMessageContent.SystemMessage.MemberRemoved -> {}
+                            is UIMessageContent.SystemMessage.RenamedConversation -> {}
+                            is UIMessageContent.SystemMessage.TeamMemberRemoved -> {}
+                            is UIMessageContent.SystemMessage.CryptoSessionReset -> {}
+                            is UIMessageContent.PreviewAssetMessage -> {}
+                            is UIMessageContent.SystemMessage.MissedCall.YouCalled -> {}
+                            is UIMessageContent.SystemMessage.MissedCall.OtherCalled -> {}
+                            null -> {
+                                throw NullPointerException("messageContent is null")
+                            }
+                        }
+                    },
                 )
             }
         }

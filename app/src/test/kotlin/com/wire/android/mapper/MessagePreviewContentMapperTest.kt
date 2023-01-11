@@ -140,5 +140,4 @@ class MessagePreviewContentMapperTest {
             resources `should contain` R.string.member_name_you_label_lowercase
             plurals `should contain` R.plurals.last_message_people
         }
-
 }

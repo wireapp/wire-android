@@ -165,6 +165,5 @@ fun MessagePreview.uiLastMessageContent(): UILastMessageContent {
     }
 }
 
-
 fun <T> List<T>.plusIf(condition: () -> Boolean, element: T): List<T> = plus(if (condition()) listOf(element) else listOf())
 fun <T> List<T>.plusIf(condition: () -> Boolean, elements: List<T>): List<T> = plus(if (condition()) elements else listOf())

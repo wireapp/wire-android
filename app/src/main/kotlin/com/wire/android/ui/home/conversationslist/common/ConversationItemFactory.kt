@@ -64,7 +64,7 @@ fun ConversationItemFactory(
         subTitle = {
             when (val messageContent = conversation.lastMessageContent) {
                 is UILastMessageContent.TextMessage -> LastMessageSubtitle(messageContent.messageBody.message)
-                is UILastMessageContent.MultipleMessage -> LastMessagesSubtitle(messageContent.firstMessage, messageContent.secondMessage)
+                is UILastMessageContent.MultipleMessage -> LastMultipleMessages(messageContent.messages, messageContent.separator)
                 is UILastMessageContent.SenderWithMessage -> LastMessageSubtitleWithAuthor(
                     messageContent.sender,
                     messageContent.message,

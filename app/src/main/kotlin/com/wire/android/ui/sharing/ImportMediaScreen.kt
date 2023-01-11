@@ -13,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -29,6 +30,7 @@ import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.util.extension.getActivity
+import com.wire.android.util.ui.WireSessionImageLoader
 
 @Composable
 fun ImportMediaScreen(
@@ -41,13 +43,14 @@ fun ImportMediaScreen(
 
     ImportMediaScreen(
         importMediaState = importMediaViewModel.importMediaState,
+        imageLoader = importMediaViewModel.wireSessionImageLoader,
         onBackPressed = importMediaViewModel::navigateBack
     )
 }
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalPagerApi::class)
 @Composable
-fun ImportMediaScreen(importMediaState: ImportMediaState, onBackPressed: () -> Unit) {
+fun ImportMediaScreen(importMediaState: ImportMediaState, imageLoader: WireSessionImageLoader, onBackPressed: () -> Unit) {
     Scaffold(topBar = {
         WireCenterAlignedTopAppBar(
             elevation = 0.dp,
@@ -63,19 +66,23 @@ fun ImportMediaScreen(importMediaState: ImportMediaState, onBackPressed: () -> U
     }, modifier = Modifier.background(colorsScheme().background)) { internalPadding ->
         val importedItemsList: List<ImportedMediaAsset> = importMediaState.importedAssets
         val pagerState = rememberPagerState()
-        val isMultipleItemsImport = importedItemsList.size > 1
+        val isMultipleImport = importedItemsList.size > 1
         Column(
             modifier = Modifier
                 .padding(internalPadding)
                 .fillMaxSize()
         ) {
+            val horizontalPadding = dimensions().spacing16x
+            val itemWidth = dimensions().importedMediaAssetSize
+            val screenWidth = LocalConfiguration.current.screenWidthDp.dp
+            val contentPadding = PaddingValues(start = horizontalPadding, end = (screenWidth - itemWidth + horizontalPadding))
             HorizontalPager(
                 state = pagerState,
                 count = importedItemsList.size,
                 modifier = Modifier.fillMaxWidth(),
-                contentPadding = PaddingValues(horizontal = dimensions().spacing16x)
+                contentPadding = contentPadding
             ) { page ->
-                ImportedMediaItemView(importedItemsList[page], isMultipleItemsImport)
+                ImportedMediaItemView(importedItemsList[page], isMultipleImport, imageLoader)
             }
         }
     }

@@ -41,17 +41,16 @@ class WireSessionImageLoader(private val coilImageLoader: ImageLoader) {
     )
 
     class Factory(
-        context: Context,
+        val context: Context,
         private val getAvatarAsset: GetAvatarAssetUseCase,
         private val getPrivateAsset: GetMessageAssetUseCase,
     ) {
         private val defaultImageLoader = Coil.imageLoader(context)
-        private val resources = context.resources
 
         fun newImageLoader(): WireSessionImageLoader = WireSessionImageLoader(
             defaultImageLoader.newBuilder()
                 .components {
-                    add(AssetImageFetcher.Factory(getAvatarAsset, getPrivateAsset, resources))
+                    add(AssetImageFetcher.Factory(getAvatarAsset, getPrivateAsset, context))
                     if (SDK_INT >= 28) {
                         add(ImageDecoderDecoder.Factory())
                     } else {

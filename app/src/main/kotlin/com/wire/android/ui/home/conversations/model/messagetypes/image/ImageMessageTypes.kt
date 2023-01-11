@@ -24,17 +24,24 @@ import com.wire.android.R
 import com.wire.android.model.ImageAsset
 import com.wire.android.ui.common.WireCircularProgressIndicator
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.sharing.ImportedMediaAsset
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.getUriFromDrawable
 
 @Composable
-fun DisplayableImageMessage(imageData: ImageAsset.PrivateAsset, imgParams: ImageMessageParams, modifier: Modifier = Modifier) {
+fun DisplayableImageMessage(
+    imageData: ImageAsset,
+    imgParams: ImageMessageParams,
+    isImportedMediaAsset: Boolean,
+    modifier: Modifier = Modifier
+) {
     Image(
         painter = imageData.paint(),
         contentDescription = stringResource(R.string.content_description_image_message),
-        modifier = modifier.width(imgParams.normalizedWidth).height(imgParams.normalizedHeight),
+        modifier = if (isImportedMediaAsset) modifier.width(dimensions().importedMediaAssetSize).height(dimensions().importedMediaAssetSize)
+        else modifier.width(imgParams.normalizedWidth).height(imgParams.normalizedHeight),
         alignment = Alignment.Center,
         contentScale = ContentScale.Crop
     )

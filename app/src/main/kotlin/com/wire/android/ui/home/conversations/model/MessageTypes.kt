@@ -13,7 +13,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.wire.android.model.Clickable
 import com.wire.android.model.ImageAsset
@@ -24,6 +23,7 @@ import com.wire.android.ui.home.conversations.model.messagetypes.image.Displayab
 import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMessageFailed
 import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMessageInProgress
 import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMessageParams
+import com.wire.android.ui.sharing.ImportedMediaAsset
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.kalium.logic.data.message.Message
@@ -54,11 +54,12 @@ internal fun MessageBody(
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun MessageImage(
-    asset: ImageAsset.PrivateAsset?,
+    asset: ImageAsset?,
     imgParams: ImageMessageParams,
     uploadStatus: Message.UploadStatus,
     downloadStatus: Message.DownloadStatus,
     onImageClick: Clickable,
+    isImportedMediaAsset: Boolean = false
 ) {
     Box(
         Modifier.clip(shape = RoundedCornerShape(dimensions().messageAssetBorderRadius)).background(
@@ -74,7 +75,7 @@ fun MessageImage(
         )
     ) {
         when {
-            asset != null -> DisplayableImageMessage(asset, imgParams)
+            asset != null -> DisplayableImageMessage(asset, imgParams, isImportedMediaAsset)
 
             // Trying to upload the asset
             uploadStatus == UPLOAD_IN_PROGRESS || downloadStatus == DOWNLOAD_IN_PROGRESS -> {
@@ -97,7 +98,17 @@ internal fun MessageGenericAsset(
     onAssetClick: Clickable,
     assetUploadStatus: Message.UploadStatus,
     assetDownloadStatus: Message.DownloadStatus,
-    viewSize: Dp? = null
+    shouldFillMaxWidth: Boolean = true,
+    isImportedMediaAsset: Boolean = false
 ) {
-    MessageAsset(assetName, assetExtension, assetSizeInBytes, onAssetClick, assetUploadStatus, assetDownloadStatus, viewSize)
+    MessageAsset(
+        assetName,
+        assetExtension,
+        assetSizeInBytes,
+        onAssetClick,
+        assetUploadStatus,
+        assetDownloadStatus,
+        shouldFillMaxWidth,
+        isImportedMediaAsset
+    )
 }

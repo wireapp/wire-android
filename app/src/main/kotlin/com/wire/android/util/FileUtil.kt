@@ -2,13 +2,13 @@
 
 package com.wire.android.util
 
+import android.R
 import android.content.ActivityNotFoundException
 import android.content.ContentResolver
 import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
+import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Build
 import android.os.Environment.DIRECTORY_DOWNLOADS
@@ -19,6 +19,7 @@ import android.provider.Settings
 import android.webkit.MimeTypeMap
 import androidx.annotation.AnyRes
 import androidx.annotation.NonNull
+import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import com.wire.android.appLogger
 import com.wire.android.util.ImageUtil.ImageSizeClass
@@ -32,6 +33,7 @@ import java.io.File
 import java.io.FileNotFoundException
 import java.io.InputStream
 import java.util.Locale
+
 
 /**
  * Gets the uri of any drawable or given resource
@@ -57,6 +59,21 @@ suspend fun Uri.toByteArray(context: Context, dispatcher: DispatcherProvider = D
         context.contentResolver.openInputStream(this@toByteArray)?.use { it.readBytes() } ?: ByteArray(16)
     }
 }
+
+suspend fun Uri.toDrawable(context: Context, dispatcher: DispatcherProvider = DefaultDispatcherProvider()): Drawable? {
+    val dataUri = this
+    return withContext(dispatcher.io()) {
+        try {
+            context.contentResolver.openInputStream(dataUri).let { inputStream ->
+                Drawable.createFromStream(inputStream, dataUri.toString())
+            }
+        } catch (e: FileNotFoundException) {
+            defaultGalleryIcon(context)
+        }
+    }
+}
+
+private fun defaultGalleryIcon(context: Context) = ContextCompat.getDrawable(context, R.drawable.ic_menu_gallery)
 
 fun Context.getTempWritableImageUri(tempCachePath: Path): Uri {
     val tempImagePath = "$tempCachePath/$TEMP_IMG_ATTACHMENT_FILENAME".toPath()
@@ -148,26 +165,6 @@ private fun Context.getContentFileName(uri: Uri): String? = runCatching {
     }
 }.getOrNull()
 
-fun Context.startFileShareIntent(path: String) {
-    val file = File(path)
-    val fileURI = FileProvider.getUriForFile(
-        this, getProviderAuthority(),
-        file
-    )
-    val shareIntent = Intent(Intent.ACTION_SEND)
-    shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-    shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-    shareIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-    shareIntent.putExtra(
-        Intent.EXTRA_SUBJECT,
-        "Sharing Log from Wire"
-    )
-
-    shareIntent.putExtra(Intent.EXTRA_STREAM, fileURI)
-    shareIntent.type = fileURI.getMimeType(context = this)
-    startActivity(shareIntent)
-}
-
 fun saveFileToDownloadsFolder(assetName: String, assetDataPath: Path, assetDataSize: Long, context: Context) {
     context.saveFileDataToDownloadsFolder(assetName, assetDataPath, assetDataSize)
 }
@@ -238,19 +235,6 @@ fun shareAssetFileWithExternalApp(assetDataPath: Path, context: Context, assetEx
         appLogger.e("Couldn't find a proper app to process the asset")
         onError()
     }
-}
-
-
-fun Uri.getBitmapFromUri(context: Context): Bitmap? {
-    var bitmap: Bitmap? = null
-    try {
-        // Works with content://, file://, or android.resource:// URIs
-        val inputStream: InputStream? = context.contentResolver.openInputStream(this)
-        bitmap = BitmapFactory.decodeStream(inputStream)
-    } catch (e: FileNotFoundException) {
-        appLogger.e("File not found: $this")
-    }
-    return bitmap
 }
 
 inline fun <reified T : Parcelable> Intent.parcelable(key: String): T? = when {

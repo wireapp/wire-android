@@ -15,7 +15,11 @@ coverage:
                 target: auto
                 threshold: 2%
                 base: auto
-        patch: false
+        patch:
+            default:
+                informational: true # don't fail the build if patch coverage is below threshold
+                target: 80%
+                base: auto
 
 # Ignoring Paths
 # --------------
@@ -32,6 +36,8 @@ ignore:
     - ".*/theme/.*"
     - ".*/common/.*"
     - ".*/navigation/.*"
+    - ".*/di/.*"
+    - ".*/.*Screen*.kt"
 
 # Pull request comments:
 # ----------------------

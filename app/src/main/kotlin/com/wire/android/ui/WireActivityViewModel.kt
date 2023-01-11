@@ -29,6 +29,7 @@ import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.logout.LogoutReason
 import com.wire.kalium.logic.data.sync.SyncState
+import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.appVersioning.ObserveIfAppUpdateRequiredUseCase
 import com.wire.kalium.logic.feature.auth.AccountInfo
 import com.wire.kalium.logic.feature.server.GetServerConfigResult
@@ -95,6 +96,7 @@ class WireActivityViewModel @Inject constructor(
         .map { result ->
             if (result is CurrentSessionResult.Success) {
                 if (result.accountInfo.isValid()) {
+                    globalAppState = globalAppState.copy(currentUserId = result.accountInfo.userId)
                     result.accountInfo.userId
                 } else {
                     null
@@ -324,10 +326,7 @@ class WireActivityViewModel @Inject constructor(
         getSessions().let {
             return when (it) {
                 is GetAllSessionsResult.Success -> {
-                    val numberOfValidSessions = it.sessions.filterIsInstance<AccountInfo.Valid>().size
-                    globalAppState = globalAppState.copy(numberOfValidSessions = numberOfValidSessions)
-                    numberOfValidSessions
-
+                    it.sessions.filterIsInstance<AccountInfo.Valid>().size
                 }
                 is GetAllSessionsResult.Failure.Generic -> 0
                 GetAllSessionsResult.Failure.NoSessionFound -> 0
@@ -439,5 +438,5 @@ data class GlobalAppState(
     val maxAccountDialog: Boolean = false,
     val blockUserUI: CurrentSessionErrorState? = null,
     val updateAppDialog: Boolean = false,
-    val numberOfValidSessions: Int = 0
+    val currentUserId: UserId? = null
 )

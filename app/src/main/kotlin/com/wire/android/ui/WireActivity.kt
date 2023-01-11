@@ -74,7 +74,10 @@ class WireActivity : AppCompatActivity() {
     @Inject
     lateinit var proximitySensorManager: ProximitySensorManager
 
+
     val viewModel: WireActivityViewModel by viewModels()
+
+    val featureFlagNotificationViewModel: FeatureFlagNotificationViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
@@ -83,14 +86,14 @@ class WireActivity : AppCompatActivity() {
         lifecycle.addObserver(currentScreenManager)
 
         viewModel.handleDeepLink(intent)
+        setComposableContent()
 
-        if (viewModel.globalAppState.numberOfValidSessions > 0) {
-            val featureFlagNotificationViewModel: FeatureFlagNotificationViewModel by viewModels()
-            featureFlagNotificationViewModel.updateSharingStateIfNeeded(this)
-            setComposableContent(featureFlagNotificationViewModel)
-        } else {
-            setComposableContent(null)
+        viewModel.globalAppState.currentUserId?.let {
+            featureFlagNotificationViewModel.loadSync(userId = it)
+
         }
+        featureFlagNotificationViewModel.updateSharingStateIfNeeded(this)
+
     }
 
     override fun onNewIntent(intent: Intent?) {
@@ -100,7 +103,7 @@ class WireActivity : AppCompatActivity() {
         super.onNewIntent(intent)
     }
 
-    private fun setComposableContent(featureFlagNotificationViewModel: FeatureFlagNotificationViewModel?) {
+    private fun setComposableContent() {
         setContent {
             CompositionLocalProvider(
                 LocalFeatureVisibilityFlags provides FeatureVisibilityFlags,
@@ -127,14 +130,14 @@ class WireActivity : AppCompatActivity() {
                     )
                     AccountLoggedOutDialog(viewModel.globalAppState.blockUserUI, viewModel::navigateToNextAccountOrWelcome)
 
-                    featureFlagNotificationViewModel?.let { handleFileSharingRestrictedDialog(it) }
+                    handleFileSharingRestrictedDialog()
                 }
             }
         }
     }
 
     @Composable
-    private fun handleFileSharingRestrictedDialog(featureFlagNotificationViewModel: FeatureFlagNotificationViewModel) {
+    private fun handleFileSharingRestrictedDialog() {
         val fileSharingRestrictedDialogState = rememberVisibilityState<FileSharingRestrictedDialogState>()
         FileSharingRestrictedDialogContent(
             dialogState = fileSharingRestrictedDialogState

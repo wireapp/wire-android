@@ -7,13 +7,14 @@ import androidx.compose.runtime.setValue
 import androidx.core.app.ShareCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.ui.home.FeatureFlagState
+import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.sync.SyncState
+import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.AccountInfo
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import com.wire.kalium.logic.feature.session.GetSessionsUseCase
-import com.wire.kalium.logic.feature.user.ObserveFileSharingStatusUseCase
-import com.wire.kalium.logic.sync.ObserveSyncStateUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -21,31 +22,26 @@ import javax.inject.Inject
 
 @HiltViewModel
 class FeatureFlagNotificationViewModel @Inject constructor(
-    private val observeSyncState: ObserveSyncStateUseCase,
-    private val observeFileSharingStatusUseCase: ObserveFileSharingStatusUseCase,
+    @KaliumCoreLogic private val coreLogic: CoreLogic,
     private val getSessions: GetSessionsUseCase
 ) : ViewModel() {
 
     var featureFlagState by mutableStateOf(FeatureFlagState())
         private set
 
-    init {
+    fun loadSync(userId: UserId) {
         viewModelScope.launch {
-            launch { loadSync() }
-        }
-    }
-
-    private suspend fun loadSync() {
-        observeSyncState().collect { newState ->
-            if (newState == SyncState.Live) {
-                setFileSharingState()
+            coreLogic.getSessionScope(userId).observeSyncState().collect { newState ->
+                if (newState == SyncState.Live) {
+                    setFileSharingState(userId)
+                }
             }
         }
     }
 
-    private fun setFileSharingState() {
+    private fun setFileSharingState(userId: UserId) {
         viewModelScope.launch {
-            observeFileSharingStatusUseCase().collect {
+            coreLogic.getSessionScope(userId).observeFileSharingStatus().collect {
                 if (it.isFileSharingEnabled != null) {
                     featureFlagState = featureFlagState.copy(isFileSharingEnabledState = it.isFileSharingEnabled!!)
                 }

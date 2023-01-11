@@ -17,7 +17,6 @@ import com.wire.android.model.ImageAsset
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.conversations.search.SearchAllPeopleViewModel
 import com.wire.android.util.dispatchers.DispatcherProvider
-import com.wire.android.util.getBitmapFromUri
 import com.wire.android.util.getMetaDataFromUri
 import com.wire.android.util.getMimeType
 import com.wire.android.util.isImageFile

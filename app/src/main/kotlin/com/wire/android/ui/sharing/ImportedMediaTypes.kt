@@ -16,18 +16,19 @@ import com.wire.kalium.logic.util.fileExtension
 fun ImportedMediaItemView(item: ImportedMediaAsset, isMultipleImport: Boolean, imageLoader: WireSessionImageLoader) {
     when (item) {
         is ImportedMediaAsset.GenericAsset -> ImportedGenericAssetView(item, isMultipleImport)
-        is ImportedMediaAsset.Image -> ImportedImageView(item, imageLoader)
+        is ImportedMediaAsset.Image -> ImportedImageView(item, isMultipleImport, imageLoader)
     }
 }
 
 @Composable
-fun ImportedImageView(item: ImportedMediaAsset.Image, imageLoader: WireSessionImageLoader) {
+fun ImportedImageView(item: ImportedMediaAsset.Image, isMultipleImport: Boolean, imageLoader: WireSessionImageLoader) {
     MessageImage(
         asset = ImageAsset.LocalImageAsset(imageLoader, item.dataUri),
         imgParams = ImageMessageParams(0, 0),
         uploadStatus = Message.UploadStatus.NOT_UPLOADED,
         downloadStatus = Message.DownloadStatus.NOT_DOWNLOADED,
-        Clickable(enabled = false),
+        onImageClick = Clickable(enabled = false),
+        shouldFillMaxWidth = !isMultipleImport,
         isImportedMediaAsset = true
     )
 }

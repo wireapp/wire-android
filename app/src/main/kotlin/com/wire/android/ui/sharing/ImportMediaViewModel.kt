@@ -15,7 +15,9 @@ import com.wire.android.appLogger
 import com.wire.android.mapper.ContactMapper
 import com.wire.android.model.ImageAsset
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.ui.common.topappbar.search.SearchBarState
 import com.wire.android.ui.home.conversations.search.SearchAllPeopleViewModel
+import com.wire.android.ui.home.conversations.search.SearchPeopleState
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.getMetaDataFromUri
 import com.wire.android.util.getMimeType
@@ -57,6 +59,8 @@ class ImportMediaViewModel @Inject constructor(
         ImportMediaState()
     )
         private set
+
+    var searchPeopleState: SearchPeopleState by mutableStateOf(SearchPeopleState(isGroupCreationContext = false))
 
     init {
         loadUserAvatar()

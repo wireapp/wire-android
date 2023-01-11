@@ -39,7 +39,7 @@ fun AddMembersSearchRouter(
         onOpenUserProfile = addMembersToConversationViewModel::openUserProfile,
         onAddContactToGroup = addMembersToConversationViewModel::addContactToGroup,
         onRemoveContactFromGroup = addMembersToConversationViewModel::removeContactFromGroup,
-        // Members search does not has the option to add a contact
+        // Members search does not have the option to add a contact
         onAddContact = { },
         onGroupSelectionSubmitAction = addMembersToConversationViewModel::addMembersToConversation,
         onClose = addMembersToConversationViewModel::close,

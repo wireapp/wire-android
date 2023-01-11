@@ -23,6 +23,7 @@ import com.wire.android.ui.home.conversations.model.messagetypes.image.Displayab
 import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMessageFailed
 import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMessageInProgress
 import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMessageParams
+import com.wire.android.ui.home.conversations.model.messagetypes.image.ImportedImageMessage
 import com.wire.android.ui.sharing.ImportedMediaAsset
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
@@ -59,6 +60,7 @@ fun MessageImage(
     uploadStatus: Message.UploadStatus,
     downloadStatus: Message.DownloadStatus,
     onImageClick: Clickable,
+    shouldFillMaxWidth: Boolean = false,
     isImportedMediaAsset: Boolean = false
 ) {
     Box(
@@ -75,7 +77,10 @@ fun MessageImage(
         )
     ) {
         when {
-            asset != null -> DisplayableImageMessage(asset, imgParams, isImportedMediaAsset)
+            asset != null -> {
+                if (isImportedMediaAsset) ImportedImageMessage(asset, shouldFillMaxWidth)
+                else DisplayableImageMessage(asset, imgParams)
+            }
 
             // Trying to upload the asset
             uploadStatus == UPLOAD_IN_PROGRESS || downloadStatus == DOWNLOAD_IN_PROGRESS -> {

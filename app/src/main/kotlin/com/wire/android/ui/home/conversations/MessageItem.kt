@@ -55,7 +55,6 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
 import com.wire.kalium.logic.data.user.UserId
 
-
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun MessageItemTest(
@@ -345,10 +344,6 @@ private fun Username(username: String, modifier: Modifier = Modifier) {
     )
 }
 
-// TODO: Mateusz: Think about a way of not providing all the clickables
-// and not needed data for the cases where it is not actually needed
-// perhaps Slot API could be a good fit here?
-@Suppress("ComplexMethod")
 @Composable
 private fun MessageContent(
     messageId: String,

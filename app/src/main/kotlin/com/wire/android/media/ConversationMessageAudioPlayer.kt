@@ -19,7 +19,7 @@ class ConversationMessageAudioPlayer
     private val getMessageAsset: GetMessageAssetUseCase
 ) {
 
-    val audioMessagesState = mapOf<String, AudioState>()
+    private val audioMessageHistory = mutableMapOf<String, AudioState>()
 
     private var currentlyPlayedMessageId: String? = null
 
@@ -53,80 +53,79 @@ class ConversationMessageAudioPlayer
         _audioMediaPlayerState.value to currentlyPlayedMessageId
     }
 
-    suspend fun play(
+    suspend fun togglePlay(
         conversationId: ConversationId,
         messageId: String
     ) {
+        val existingAudioState = audioMessageHistory[messageId]
 
+        with(mediaPlayer) {
+            if (existingAudioState != null) {
 
+                when (val mediaPlayerState = existingAudioState.audioMediaPlayerState) {
+                    is AudioMediaPlayerState.Playing -> {
+                        pause()
+                    }
 
+                    AudioMediaPlayerState.Paused -> {
+                        start()
+                    }
 
+                    is AudioMediaPlayerState.Stopped -> {
+                        when (val result = getMessageAsset(conversationId, messageId).await()) {
+                            is MessageAssetResult.Success -> {
 
-        if (_audioMediaPlayerState.value is AudioMediaPlayerState.Playing) {
-            stop()
-        }
+                                reset()
 
-        currentlyPlayedMessageId = messageId
+                                setDataSource(context, Uri.parse(result.decodedAssetPath.toString()))
+                                prepare()
+                                seekTo(mediaPlayerState.timeStamp)
+                                start()
 
-        when (val result = getMessageAsset(conversationId, messageId).await()) {
-            is MessageAssetResult.Success -> {
-                with(mediaPlayer) {
-                    reset()
+                                _audioMediaPlayerState.value = AudioMediaPlayerState.Playing
+                            }
 
-                    setDataSource(context, Uri.parse(result.decodedAssetPath.toString()))
-                    prepare()
-                    start()
+                            is MessageAssetResult.Failure -> {
 
-                    _audioMediaPlayerState.value = AudioMediaPlayerState.Playing
+                            }
+                        }
+                    }
+                }
+            } else {
+                when (val result = getMessageAsset(conversationId, messageId).await()) {
+                    is MessageAssetResult.Success -> {
+
+                        reset()
+
+                        setDataSource(context, Uri.parse(result.decodedAssetPath.toString()))
+                        prepare()
+                        start()
+
+                        _audioMediaPlayerState.value = AudioMediaPlayerState.Playing
+                    }
+
+                    is MessageAssetResult.Failure -> {
+
+                    }
                 }
             }
-
-            is MessageAssetResult.Failure -> {
-
-            }
-        }
-    }
-
-    fun pause(
-        conversationId: ConversationId,
-        messageId: String
-    ) {
-        with(mediaPlayer) {
-            if (isPlaying) {
-                pause()
-
-                _audioMediaPlayerState.value = AudioMediaPlayerState.Paused
-            }
-        }
-    }
-
-    fun stop() {
-        with(mediaPlayer) {
-            if (isPlaying) {
-                stop()
-
-                _audioMediaPlayerState.value = AudioMediaPlayerState.Stopped
-            }
-            release()
         }
     }
 
     fun close() {
         mediaPlayer.release()
-
-        _audioMediaPlayerState.value = AudioMediaPlayerState.Paused
+        audioMessageHistory.clear()
     }
 
 }
 
 data class AudioState(
-    val audioMessageId: String,
-    var isPlaying: Boolean,
-    var currentProgress: Long
+    var audioMediaPlayerState: AudioMediaPlayerState,
 )
 
 sealed class AudioMediaPlayerState {
     object Playing : AudioMediaPlayerState()
+    data class Stopped(val timeStamp: Int) : AudioMediaPlayerState()
+
     object Paused : AudioMediaPlayerState()
-    object Stopped : AudioMediaPlayerState()
 }

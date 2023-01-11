@@ -610,7 +610,7 @@ fun MessageList(
                             }
 
                             is UIMessageContent.AudioAssetMessage -> {
-                                AudioMessage(true) { onAudioClick("test") }
+                                AudioMessage(true) { onAudioClick(message.messageHeader.messageId) }
                             }
 
                             is UIMessageContent.SystemMessage.MemberAdded -> {}

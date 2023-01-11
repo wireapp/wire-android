@@ -50,6 +50,7 @@ fun AudioMessageLoading() {
 @Composable
 fun AudioMessage(
     isPlaying: Boolean = false,
+    currentProgress: Float = 0f,
     onPlayAudioMessage: () -> Unit
 ) {
     Box {

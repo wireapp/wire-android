@@ -81,18 +81,18 @@ class ConversationMessagesViewModel @Inject constructor(
         loadLastMessageInstant()
 
         viewModelScope.launch {
-            conversationMessageAudioPlayer.audioMediaPlayerState.collect { (audioMediaPlayerState, currentlyPlayedAudioMessageId) ->
-                if (currentlyPlayedAudioMessageId != null) {
-                    conversationViewState = conversationViewState.copy(
-                        currentlyPlayedAudioMessageId = currentlyPlayedAudioMessageId,
-                        isAudioPlaying = audioMediaPlayerState == AudioMediaPlayerState.Playing
-                    )
-                }
-            }
-
-            conversationMessageAudioPlayer.currentProgress.collect {
-                println("progress $it")
-            }
+//            conversationMessageAudioPlayer.audioMediaPlayerState.collect { (audioMediaPlayerState, currentlyPlayedAudioMessageId) ->
+//                if (currentlyPlayedAudioMessageId != null) {
+//                    conversationViewState = conversationViewState.copy(
+//                        currentlyPlayedAudioMessageId = currentlyPlayedAudioMessageId,
+//                        isAudioPlaying = audioMediaPlayerState == AudioMediaPlayerState.Playing
+//                    )
+//                }
+//            }
+//
+//            conversationMessageAudioPlayer.currentProgress.collect {
+//                println("progress $it")
+//            }
         }
     }
 
@@ -244,13 +244,13 @@ class ConversationMessagesViewModel @Inject constructor(
 
     fun audioClick(messageId: String) {
         viewModelScope.launch {
-            conversationMessageAudioPlayer.play(conversationId, messageId)
+            conversationMessageAudioPlayer.togglePlay(conversationId, messageId)
         }
     }
 
     override fun onCleared() {
         super.onCleared()
-        conversationMessageAudioPlayer.stop()
+        conversationMessageAudioPlayer.close()
     }
 
 }

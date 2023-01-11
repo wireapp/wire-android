@@ -324,7 +324,10 @@ class WireActivityViewModel @Inject constructor(
         getSessions().let {
             return when (it) {
                 is GetAllSessionsResult.Success -> {
-                    it.sessions.filterIsInstance<AccountInfo.Valid>().size
+                    val numberOfValidSessions = it.sessions.filterIsInstance<AccountInfo.Valid>().size
+                    globalAppState = globalAppState.copy(numberOfValidSessions = numberOfValidSessions)
+                    numberOfValidSessions
+
                 }
                 is GetAllSessionsResult.Failure.Generic -> 0
                 GetAllSessionsResult.Failure.NoSessionFound -> 0
@@ -435,5 +438,6 @@ data class GlobalAppState(
     val customBackendDialog: CustomBEDeeplinkDialogState = CustomBEDeeplinkDialogState(),
     val maxAccountDialog: Boolean = false,
     val blockUserUI: CurrentSessionErrorState? = null,
-    val updateAppDialog: Boolean = false
+    val updateAppDialog: Boolean = false,
+    val numberOfValidSessions: Int = 0
 )

@@ -2,6 +2,7 @@ package com.wire.android.ui.home.conversations
 
 import android.app.DownloadManager
 import android.content.Intent
+import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi

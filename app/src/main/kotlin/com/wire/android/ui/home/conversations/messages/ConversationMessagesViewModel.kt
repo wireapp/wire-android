@@ -1,16 +1,16 @@
 package com.wire.android.ui.home.conversations.messages
 
-import android.net.Uri
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.paging.cachedIn
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.media.ConversationMessageAudioPlayer
-import com.wire.android.media.AudioMediaPlayerState
 import com.wire.android.model.SnackBarMessage
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.NavigationCommand
@@ -64,7 +64,7 @@ class ConversationMessagesViewModel @Inject constructor(
     private val getMessageForConversation: GetMessagesForConversationUseCase,
     private val toggleReaction: ToggleReactionUseCase,
     private val resetSession: ResetSessionUseCase,
-    private val conversationMessageAudioPlayer: ConversationMessageAudioPlayer
+    val conversationMessageAudioPlayer: ConversationMessageAudioPlayer
 ) : SavedStateViewModel(savedStateHandle) {
 
     var conversationViewState by mutableStateOf(ConversationMessagesViewState())
@@ -72,6 +72,8 @@ class ConversationMessagesViewModel @Inject constructor(
     private val conversationId: QualifiedID = qualifiedIdMapper.fromStringToQualifiedID(
         savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)!!
     )
+
+    val test = derivedStateOf { conversationMessageAudioPlayer.audioMessagesState }
 
     private val _infoMessage = MutableSharedFlow<SnackBarMessage>()
     val infoMessage = _infoMessage.asSharedFlow()
@@ -82,9 +84,12 @@ class ConversationMessagesViewModel @Inject constructor(
 
         viewModelScope.launch {
 
-            conversationMessageAudioPlayer.audioMessageHistory.collect {
-                println("audioMessageHistory: $it")
+            val dupa = snapshotFlow { conversationMessageAudioPlayer.audioMessagesState }.collect {
+                it.toMap()
+
             }
+
+
         }
     }
 

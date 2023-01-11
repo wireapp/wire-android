@@ -4,11 +4,12 @@ import android.content.Context
 import android.media.AudioAttributes
 import android.media.MediaPlayer
 import android.net.Uri
+import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.runtime.snapshots.SnapshotStateMap
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.update
 import javax.inject.Inject
 
 class ConversationMessageAudioPlayer
@@ -17,7 +18,7 @@ class ConversationMessageAudioPlayer
     private val getMessageAsset: GetMessageAssetUseCase
 ) {
 
-    val audioMessageHistory = MutableStateFlow(mutableMapOf<String, AudioState>())
+    val audioMessagesState: SnapshotStateMap<String, AudioState> by mutableStateMapOf()
 
     private val audioSnapshots = mutableMapOf<String, AudioSnapShot>()
 
@@ -55,9 +56,6 @@ class ConversationMessageAudioPlayer
         if (mediaPlayer.isPlaying) {
             pause()
         } else {
-            updateOrPutAudioState(
-                audioMediaPlayerState = AudioMediaPlayerState.Playing
-            )
             start()
         }
     }
@@ -77,7 +75,7 @@ class ConversationMessageAudioPlayer
     }
 
     private fun reset() {
-
+        mediaPlayer.reset()
     }
 
     private suspend fun switchAudioMessage(
@@ -86,28 +84,26 @@ class ConversationMessageAudioPlayer
     ) {
         when (val result = getMessageAsset(conversationId, messageId).await()) {
             is MessageAssetResult.Success -> {
-                with(mediaPlayer) {
-                    val isInitialPlay = currentlyPlayedMessageId == null
+                reset()
 
-                    if (!isInitialPlay) {
-                        saveCurrentAudioMessageSnapShot()
-                    }
+                mediaPlayer.setDataSource(context, Uri.parse(result.decodedAssetPath.toString()))
+                mediaPlayer.prepare()
 
-                    reset()
-                    setDataSource(context, Uri.parse(result.decodedAssetPath.toString()))
-                    prepare()
+                val isInitialPlay = currentlyPlayedMessageId == null
 
-                    val audioSnapShot = audioSnapshots[messageId]
-                    val isSongPlayedInThePast = audioSnapShot != null
+                val audioSnapShot = audioSnapshots[messageId]
+                val isSongPlayedInThePast = audioSnapShot != null
 
+                if (!isInitialPlay) {
+                    saveCurrentAudioMessageSnapShot()
                     if (isSongPlayedInThePast) {
-                        seekTo(audioSnapShot!!.timeStamp)
+                        mediaPlayer.seekTo(audioSnapShot!!.timeStamp)
                     }
-
-                    start()
-
-                    currentlyPlayedMessageId = messageId
                 }
+
+                currentlyPlayedMessageId = messageId
+
+                start()
             }
 
             is MessageAssetResult.Failure -> {
@@ -120,21 +116,18 @@ class ConversationMessageAudioPlayer
         audioSnapshots[currentlyPlayedMessageId!!] = AudioSnapShot(mediaPlayer.currentPosition)
     }
 
-    fun close() {
-        mediaPlayer.release()
+    private fun updateOrPutAudioState(audioMediaPlayerState: AudioMediaPlayerState) {
+        audioMessagesState[currentlyPlayedMessageId!!] = AudioState(audioMediaPlayerState = audioMediaPlayerState)
     }
 
-    private fun updateOrPutAudioState(audioMediaPlayerState: AudioMediaPlayerState) {
-        audioMessageHistory.update { audioMessageHistory ->
-            audioMessageHistory[currentlyPlayedMessageId!!] = AudioState(audioMediaPlayerState)
-            audioMessageHistory
-        }
+    fun close() {
+        mediaPlayer.release()
     }
 
 }
 
 data class AudioState(
-    var audioMediaPlayerState: AudioMediaPlayerState
+    val audioMediaPlayerState: AudioMediaPlayerState
 )
 
 data class AudioSnapShot(val timeStamp: Int)

@@ -76,7 +76,7 @@ sealed class UILastMessageContent {
 
     data class SenderWithMessage(val sender: UIText, val message: UIText, val separator: String = " ") : UILastMessageContent()
 
-    data class MultipleMessage(val firstMessage: UIText, val secondMessage: UIText) : UILastMessageContent()
+    data class MultipleMessage(val messages: List<UIText>, val separator: String = " ") : UILastMessageContent()
 
     data class Connection(val connectionState: ConnectionState, val userId: UserId) : UILastMessageContent()
 

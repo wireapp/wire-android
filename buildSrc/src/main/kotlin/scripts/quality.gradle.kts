@@ -2,7 +2,7 @@ package scripts
 
 import io.gitlab.arturbosch.detekt.Detekt
 import io.gitlab.arturbosch.detekt.DetektCreateBaselineTask
-import scripts.Variants_gradle.Default
+import org.gradle.configurationcache.extensions.capitalized
 
 plugins {
     id("com.android.application") apply false
@@ -83,10 +83,11 @@ tasks.register("staticCodeAnalysis") {
 val jacocoReport by tasks.registering(JacocoReport::class) {
     group = "Quality"
     description = "Reports code coverage on tests within the Wire Android codebase"
-    dependsOn("test${Default.BUILD_VARIANT}UnitTest")
+    val buildVariant = "internalDebug" // It's not necessary to run unit tests on every variant so we default to "internalDebug"
+    dependsOn("test${buildVariant.capitalized()}UnitTest")
 
     val outputDir = "$buildDir/jacoco/html"
-    val classPathBuildVariant = "${Default.BUILD_FLAVOR}${Default.BUILD_TYPE.capitalize()}"
+    val classPathBuildVariant = buildVariant
 
     reports {
         xml.required.set(true)
@@ -97,9 +98,7 @@ val jacocoReport by tasks.registering(JacocoReport::class) {
     classDirectories.setFrom(
         fileTree(project.buildDir) {
             include(
-                "**/classes/**/main/**",
-                "**/intermediates/classes/$classPathBuildVariant/**",
-                "**/intermediates/javac/$classPathBuildVariant/*/classes/**",
+                "**/classes/**/main/**", // This probably can be removed
                 "**/tmp/kotlin-classes/$classPathBuildVariant/**"
             )
             exclude(
@@ -118,8 +117,9 @@ val jacocoReport by tasks.registering(JacocoReport::class) {
                 "**/*Response.*",
                 "**/*Application.*",
                 "**/*Entity.*",
-                "**/*Screen.*",
                 "**/mock/**",
+                "**/*Screen*", // These are composable classes
+                "**/*Kt*", // These are "usually" kotlin generated classes
                 "**/theme/**/*.*", // Ignores jetpack compose theme related code
                 "**/common/**/*.*", // Ignores jetpack compose common components related code
                 "**/navigation/**/*.*" // Ignores jetpack navigation related code

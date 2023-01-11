@@ -158,10 +158,11 @@ class MessageContentMapper @Inject constructor(
             toUIMessageContent(assetMessageContentMetadata, message, sender)
         }
         is MessageContent.Knock -> UIMessageContent.SystemMessage.Knock( // TODO should we move Knock to System message also in DAO layer?
-            if (message.isSelfMessage)
+            if (message.isSelfMessage) {
                 UIText.StringResource(messageResourceProvider.memberNameYouTitlecase)
-            else
+            } else {
                 sender?.name.orUnknownName()
+            }
         )
         is MessageContent.RestrictedAsset -> toRestrictedAsset(content.mimeType, content.sizeInBytes, content.name)
         else -> toText(message.conversationId, content)

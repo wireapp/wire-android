@@ -76,7 +76,7 @@ fun SystemMessageItem(message: SystemMessage) {
                     Image(
                         painter = painterResource(id = message.iconResId),
                         contentDescription = null,
-                        colorFilter = if(message is SystemMessage.Knock)  ColorFilter.tint(MaterialTheme.colorScheme.primary) else null,
+                        colorFilter = if (message is SystemMessage.Knock) ColorFilter.tint(MaterialTheme.colorScheme.primary) else null,
                         modifier = Modifier.size(size),
                         contentScale = ContentScale.Crop
                     )
@@ -93,7 +93,7 @@ fun SystemMessageItem(message: SystemMessage) {
                     style = MaterialTheme.wireTypography.body01,
                     lineHeight = MaterialTheme.wireTypography.body02.lineHeight,
                     text = message.annotatedString(
-                       res = context.resources,
+                        res = context.resources,
                         expanded = it,
                         normalStyle = MaterialTheme.wireTypography.body01,
                         boldStyle = MaterialTheme.wireTypography.body02,
@@ -102,7 +102,7 @@ fun SystemMessageItem(message: SystemMessage) {
                     )
                 )
             }
-            if(message is SystemMessage.Knock) {
+            if (message is SystemMessage.Knock) {
                 VerticalSpace.x8()
             }
             if (message.expandable) {
@@ -169,6 +169,12 @@ fun SystemMessageLeftPreview() {
 @Composable
 fun SystemMessageMissedCallPreview() {
     SystemMessageItem(message = SystemMessage.MissedCall.OtherCalled(UIText.DynamicString("Barbara Cotolina")))
+}
+
+@Preview
+@Composable
+fun PreviewSystemMessageKnock() {
+    SystemMessageItem(message = SystemMessage.Knock(UIText.DynamicString("Barbara Cotolina")))
 }
 
 private val SystemMessage.expandable

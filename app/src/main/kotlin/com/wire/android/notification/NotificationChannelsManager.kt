@@ -36,7 +36,7 @@ class NotificationChannelsManager @Inject constructor(
     }
 
     fun createNotificationChannels(allUsers: List<SelfUser>) {
-        appLogger.i("${TAG}: creating all the channels for ${allUsers.size} users")
+        appLogger.i("$TAG: creating all the channels for ${allUsers.size} users")
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
 
         // creating regular NotificationChannels, that are common for all users and shouldn't be grouped.
@@ -60,7 +60,7 @@ class NotificationChannelsManager @Inject constructor(
      * Use it on logout.
      */
     fun deleteChannelGroup(userId: UserId) {
-        appLogger.i("${TAG}: deleting notification channels for ${userId.toString().obfuscateId()} user")
+        appLogger.i("$TAG: deleting notification channels for ${userId.toString().obfuscateId()} user")
         notificationManagerCompat.deleteNotificationChannelGroup(NotificationConstants.getChanelGroupIdForUser(userId))
     }
 

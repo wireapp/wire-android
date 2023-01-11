@@ -75,7 +75,7 @@ fun MessageItem(
                 .fillMaxWidth()
                 .let {
                     if (!message.isDeleted) it.combinedClickable(
-                        //TODO: implement some action onClick
+                        // TODO: implement some action onClick
                         onClick = { },
                         onLongClick = { onLongClicked(message) }
                     ) else it

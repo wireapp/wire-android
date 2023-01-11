@@ -4,8 +4,6 @@ import android.content.Context
 import android.media.AudioAttributes
 import android.media.MediaPlayer
 import android.net.Uri
-import androidx.compose.runtime.mutableStateMapOf
-import androidx.compose.runtime.snapshots.SnapshotStateMap
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
@@ -43,20 +41,20 @@ class ConversationMessageAudioPlayer
         val isCurrentlyPlayingAudioMessage = currentlyPlayedMessageId != null
 
         if (isCurrentlyPlayingAudioMessage) {
-            val isRequestAudioMessageCurrentlyPlaying = currentlyPlayedMessageId == requestedAudioMessageId
+            val isRequestedAudioMessageCurrentlyPlaying = currentlyPlayedMessageId == requestedAudioMessageId
 
-            if (isRequestAudioMessageCurrentlyPlaying) {
-                playOrPauseCurrentAudio()
+            if (isRequestedAudioMessageCurrentlyPlaying) {
+                toggleCurrentlyPlayingAudioMessage()
             } else {
                 saveCurrentAudioMessageProgress()
                 stopPlayingCurrentAudioMessage()
 
-                val previouslyStoppedProgress = audioSnapshots[requestedAudioMessageId]?.timeStamp
+                val previouslySavedProgressOrNull = audioSnapshots[requestedAudioMessageId]?.timeStamp
 
                 playAudioMessage(
                     conversationId = conversationId,
                     messageId = requestedAudioMessageId,
-                    seekTo = previouslyStoppedProgress
+                    seekTo = previouslySavedProgressOrNull
                 )
             }
         } else {
@@ -67,7 +65,7 @@ class ConversationMessageAudioPlayer
         }
     }
 
-    private fun playOrPauseCurrentAudio() {
+    private fun toggleCurrentlyPlayingAudioMessage() {
         if (mediaPlayer.isPlaying) {
             pause()
         } else {
@@ -133,7 +131,7 @@ class ConversationMessageAudioPlayer
     }
 
     private fun updateOrPutAudioState(audioMediaPlayerState: AudioMediaPlayerState) {
-       // audioMessagesState = AudioState(audioMediaPlayerState = audioMediaPlayerState)
+        // audioMessagesState = AudioState(audioMediaPlayerState = audioMediaPlayerState)
     }
 
     fun close() {

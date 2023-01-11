@@ -23,9 +23,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import com.google.accompanist.flowlayout.FlowRow
 import com.wire.android.R
 import com.wire.android.model.Clickable
+import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.LegalHoldIndicator
 import com.wire.android.ui.common.StatusBox
 import com.wire.android.ui.common.UserBadge
@@ -66,7 +68,7 @@ fun MessageItemTest(
 ) {
     with(message) {
         val fullAvatarOuterPadding = dimensions().userAvatarClickablePadding + dimensions().userAvatarStatusBorderSize
-        Column { }
+
         Row(
             Modifier
                 .customizeMessageBackground(message)
@@ -83,25 +85,15 @@ fun MessageItemTest(
                     ) else it
                 }
         ) {
-            Spacer(Modifier.padding(start = dimensions().spacing8x - fullAvatarOuterPadding))
-
-            val isProfileRedirectEnabled =
-                message.messageHeader.userId != null
-                        && !(message.messageHeader.isSenderDeleted || message.messageHeader.isSenderUnavailable)
-
-            val avatarClickable = remember {
-                Clickable(enabled = isProfileRedirectEnabled) {
-                    onOpenProfile(message.messageHeader.userId!!.toString())
-                }
-            }
-            UserProfileAvatar(
-                avatarData = message.userAvatarData,
-                clickable = avatarClickable
+            MessageAvatar(
+                fullAvatarOuterPadding = fullAvatarOuterPadding,
+                messageHeader = message.messageHeader,
+                userAvatarData = message.userAvatarData,
+                onOpenProfile = onOpenProfile
             )
-            Spacer(Modifier.padding(start = dimensions().spacing16x - fullAvatarOuterPadding))
             Column {
                 Spacer(modifier = Modifier.height(fullAvatarOuterPadding))
-                MessageHeader(messageHeader)
+                MessageHeader(messageHeader = messageHeader)
 
                 if (!isDeleted) {
                     if (!decryptionFailed) {
@@ -125,6 +117,31 @@ fun MessageItemTest(
             }
         }
     }
+}
+
+@Composable
+private fun MessageAvatar(
+    fullAvatarOuterPadding: Dp,
+    messageHeader: MessageHeader,
+    userAvatarData: UserAvatarData,
+    onOpenProfile: (String) -> Unit
+) {
+    val isProfileRedirectEnabled =
+        messageHeader.userId != null
+                && !(messageHeader.isSenderDeleted || messageHeader.isSenderUnavailable)
+
+    val avatarClickable = remember {
+        Clickable(enabled = isProfileRedirectEnabled) {
+            onOpenProfile(messageHeader.userId!!.toString())
+        }
+    }
+
+    Spacer(Modifier.padding(start = dimensions().spacing8x - fullAvatarOuterPadding))
+    UserProfileAvatar(
+        avatarData = userAvatarData,
+        clickable = avatarClickable
+    )
+    Spacer(Modifier.padding(start = dimensions().spacing16x - fullAvatarOuterPadding))
 }
 
 @OptIn(ExperimentalFoundationApi::class)

@@ -132,7 +132,6 @@ class MessagePreviewContentMapperTest {
             val resources = multipleMessage.messages.filterIsInstance<UIText.StringResource>().map { it.resId }
             val plurals = multipleMessage.messages.filterIsInstance<UIText.PluralResource>().map { it.resId }
 
-
             resources `should contain` R.string.last_message_removed
             resources `should contain` R.string.member_name_you_label_lowercase
             plurals `should contain` R.plurals.last_message_people

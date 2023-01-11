@@ -37,17 +37,7 @@ class ConversationMessageAudioPlayer
                 .build()
         )
         setOnCompletionListener {
-            reset()
             currentlyPlayedMessageId = null
-//
-//            val existingAudioState = audioMessageHistory[currentlyPlayedMessageId]
-//
-//            if (existingAudioState != null) {
-//                existingAudioState.audioMediaPlayerState = AudioMediaPlayerState.Completed
-//                audioMessageHistory.replace(currentlyPlayedMessageId!!, existingAudioState)
-//            }
-//
-//            currentlyPlayedMessageId = null
         }
     }
 
@@ -73,15 +63,13 @@ class ConversationMessageAudioPlayer
             if (isInitialPlay) {
                 when (val result = getMessageAsset(conversationId, messageId).await()) {
                     is MessageAssetResult.Success -> {
+                        reset()
+
                         setDataSource(context, Uri.parse(result.decodedAssetPath.toString()))
                         prepare()
                         start()
 
                         currentlyPlayedMessageId = messageId
-//                        audioMessageHistory.put(
-//                            messageId,
-//                            AudioState(AudioMediaPlayerState.Playing)
-//                        )
                     }
 
                     is MessageAssetResult.Failure -> {
@@ -104,6 +92,7 @@ class ConversationMessageAudioPlayer
                     if (audioSnapShotExists) {
                         when (val result = getMessageAsset(conversationId, messageId).await()) {
                             is MessageAssetResult.Success -> {
+                                audioSnapshots[currentlyPlayedMessageId!!] = AudioSnapShot(currentPosition)
 
                                 reset()
 
@@ -122,6 +111,7 @@ class ConversationMessageAudioPlayer
                     } else {
                         when (val result = getMessageAsset(conversationId, messageId).await()) {
                             is MessageAssetResult.Success -> {
+                                audioSnapshots[currentlyPlayedMessageId!!] = AudioSnapShot(currentPosition)
 
                                 reset()
 

@@ -125,7 +125,11 @@ class MessagePreviewContentMapperTest {
             val otherUserId = UserId("otherValue", "selfDomain")
 
             val messagePreview = TestMessage.PREVIEW.copy(
-                content = MessagePreviewContent.WithUser.MembersRemoved("admin", isSelfUserRemoved = true, listOf(otherUserId)),
+                content = MessagePreviewContent.WithUser.MembersRemoved(
+                    "admin",
+                    isSelfUserRemoved = true,
+                    listOf(otherUserId)
+                )
             )
 
             val multipleMessage = messagePreview.uiLastMessageContent().shouldBeInstanceOf<UILastMessageContent.MultipleMessage>()

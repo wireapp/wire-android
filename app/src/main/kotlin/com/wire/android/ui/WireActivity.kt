@@ -90,10 +90,9 @@ class WireActivity : AppCompatActivity() {
 
         viewModel.globalAppState.currentUserId?.let {
             featureFlagNotificationViewModel.loadSync(userId = it)
-
         }
-        featureFlagNotificationViewModel.updateSharingStateIfNeeded(this)
 
+        featureFlagNotificationViewModel.updateSharingStateIfNeeded(this)
     }
 
     override fun onNewIntent(intent: Intent?) {

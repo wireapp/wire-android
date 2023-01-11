@@ -10,11 +10,11 @@ import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.common.dialogs.BlockUserDialogState
+import com.wire.android.ui.home.conversations.model.UILastMessageContent
 import com.wire.android.ui.home.conversationslist.model.BadgeEventType
 import com.wire.android.ui.home.conversationslist.model.BlockingState
 import com.wire.android.ui.home.conversationslist.model.ConversationInfo
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
-import com.wire.android.ui.home.conversationslist.model.ConversationLastEvent
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
@@ -25,6 +25,7 @@ import com.wire.kalium.logic.feature.connection.BlockUserResult
 import com.wire.kalium.logic.feature.connection.BlockUserUseCase
 import com.wire.kalium.logic.feature.connection.UnblockUserResult
 import com.wire.kalium.logic.feature.connection.UnblockUserUseCase
+import com.wire.kalium.logic.feature.conversation.ClearConversationContentUseCase
 import com.wire.kalium.logic.feature.conversation.ConversationUpdateStatusResult
 import com.wire.kalium.logic.feature.conversation.LeaveConversationUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationListDetailsUseCase
@@ -73,6 +74,9 @@ class ConversationListViewModelTest {
     lateinit var unblockUser: UnblockUserUseCase
 
     @MockK
+    lateinit var clearConversationContent: ClearConversationContentUseCase
+
+    @MockK
     private lateinit var wireSessionImageLoader: WireSessionImageLoader
 
     @BeforeEach
@@ -82,17 +86,18 @@ class ConversationListViewModelTest {
         mockUri()
         conversationListViewModel =
             ConversationListViewModel(
-                navigationManager,
-                TestDispatcherProvider(),
-                updateConversationMutedStatus,
-                joinCall,
-                observeConversationListDetailsUseCase,
-                leaveConversation,
-                deleteTeamConversationUseCase,
-                blockUser,
-                unblockUser,
-                wireSessionImageLoader,
-                UserTypeMapper(),
+                navigationManager = navigationManager,
+                dispatcher = TestDispatcherProvider(),
+                updateConversationMutedStatus = updateConversationMutedStatus,
+                answerCall = joinCall,
+                observeConversationListDetails = observeConversationListDetailsUseCase,
+                leaveConversation = leaveConversation,
+                deleteTeamConversation = deleteTeamConversationUseCase,
+                blockUserUseCase = blockUser,
+                unblockUserUseCase = unblockUser,
+                clearConversationContentUseCase = clearConversationContent,
+                wireSessionImageLoader = wireSessionImageLoader,
+                userTypeMapper = UserTypeMapper(),
             )
 
         coEvery { observeConversationListDetailsUseCase() } returns flowOf(listOf())
@@ -185,10 +190,11 @@ class ConversationListViewModelTest {
             conversationId = conversationId,
             mutedStatus = MutedConversationStatus.AllAllowed,
             isLegalHold = false,
-            lastEvent = ConversationLastEvent.None,
+            lastMessageContent = UILastMessageContent.None,
             badgeEventType = BadgeEventType.None,
             userId = userId,
-            blockingState = BlockingState.CAN_NOT_BE_BLOCKED
+            blockingState = BlockingState.CAN_NOT_BE_BLOCKED,
+            teamId = null
         )
     }
 }

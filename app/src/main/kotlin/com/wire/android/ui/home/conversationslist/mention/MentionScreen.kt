@@ -8,8 +8,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import com.wire.android.R
 import com.wire.android.ui.home.conversationslist.common.ConversationItemFactory
-import com.wire.android.ui.home.conversationslist.folderWithElements
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
+import com.wire.android.util.extension.folderWithElements
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
 import androidx.compose.foundation.lazy.rememberLazyListState

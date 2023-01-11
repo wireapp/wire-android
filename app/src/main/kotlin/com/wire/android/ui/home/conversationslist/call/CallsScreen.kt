@@ -4,14 +4,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import com.wire.android.R
 import com.wire.android.ui.home.conversationslist.common.ConversationItemFactory
-import com.wire.android.ui.home.conversationslist.folderWithElements
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
+import com.wire.android.util.extension.folderWithElements
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
 

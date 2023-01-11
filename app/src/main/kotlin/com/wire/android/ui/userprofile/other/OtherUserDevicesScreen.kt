@@ -17,7 +17,9 @@ import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.ui.authentication.devices.DeviceItem
 import com.wire.android.ui.authentication.devices.model.Device
+import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.divider.WireDivider
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.ui.LinkText
@@ -53,16 +55,22 @@ fun OtherUserDevicesScreen(
                             },
                         )
                     ),
-                    modifier = Modifier
-                        .padding(
-                            all = dimensions().spacing16x,
-                        )
+                    modifier = Modifier.padding(all = dimensions().spacing16x),
+                    textColor = colorsScheme().onSurface
                 )
             }
 
             itemsIndexed(otherUserClients) { index, item ->
-                DeviceItem(Device(item.deviceType.name, ClientId(item.id), ), false, null)
-                if (index < otherUserClients.lastIndex) Divider()
+                DeviceItem(
+                    Device(
+                        name = item.deviceType.name,
+                        clientId = ClientId(item.id),
+                        isValid = item.isValid
+                    ),
+                    placeholder = false,
+                    background = null
+                )
+                if (index < otherUserClients.lastIndex) WireDivider()
             }
         }
     }

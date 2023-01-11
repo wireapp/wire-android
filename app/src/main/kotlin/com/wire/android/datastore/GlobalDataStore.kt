@@ -21,6 +21,7 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
 
         // keys
         private val MIGRATION_COMPLETED = booleanPreferencesKey("migration_completed")
+        private val WELCOME_SCREEN_PRESENTED = booleanPreferencesKey("welcome_screen_presented")
         private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = PREFERENCES_NAME)
     }
 
@@ -28,12 +29,25 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
         context.dataStore.edit { it.clear() }
     }
 
-    fun isMigrationCompletedFlow(): Flow<Boolean> = context.dataStore.data.map { it[MIGRATION_COMPLETED] ?: false }
+    private fun getBooleanPreference(key: Preferences.Key<Boolean>, defaultValue: Boolean): Flow<Boolean> =
+        context.dataStore.data.map { it[key] ?: defaultValue }
+
+    fun isMigrationCompletedFlow(): Flow<Boolean> = getBooleanPreference(MIGRATION_COMPLETED, false)
 
     suspend fun isMigrationCompleted(): Boolean = isMigrationCompletedFlow().firstOrNull() ?: false
 
 
     suspend fun setMigrationCompleted() {
         context.dataStore.edit { it[MIGRATION_COMPLETED] = true }
+    }
+
+    suspend fun isWelcomeScreenPresented(): Boolean = getBooleanPreference(WELCOME_SCREEN_PRESENTED, false).firstOrNull() ?: false
+
+    suspend fun setWelcomeScreenPresented() {
+        context.dataStore.edit { it[WELCOME_SCREEN_PRESENTED] = true }
+    }
+
+    suspend fun setWelcomeScreenNotPresented() {
+        context.dataStore.edit { it[WELCOME_SCREEN_PRESENTED] = false }
     }
 }

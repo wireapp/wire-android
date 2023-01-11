@@ -14,7 +14,7 @@ import com.wire.kalium.logic.data.client.Client
 import com.wire.kalium.logic.data.client.ClientType
 import com.wire.kalium.logic.data.conversation.ClientId
 import com.wire.kalium.logic.feature.client.RegisterClientResult
-import com.wire.kalium.logic.feature.client.RegisterClientUseCase
+import com.wire.kalium.logic.feature.client.GetOrRegisterClientUseCase
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -33,7 +33,6 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
-
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class)
 class RegisterDeviceViewModelTest {
@@ -42,7 +41,7 @@ class RegisterDeviceViewModelTest {
     private lateinit var navigationManager: NavigationManager
 
     @MockK
-    private lateinit var registerClientUseCase: RegisterClientUseCase
+    private lateinit var registerClientUseCase: GetOrRegisterClientUseCase
 
     @MockK
     private lateinit var isPasswordRequiredUseCase: IsPasswordRequiredUseCase
@@ -176,7 +175,7 @@ class RegisterDeviceViewModelTest {
         val CLIENT_ID = ClientId("test")
         val CLIENT = Client(
             CLIENT_ID, ClientType.Permanent, "time", null,
-            null, "label", "cookie", null, "model"
+            null, "label", "cookie", null, "model", emptyMap()
         )
     }
 }

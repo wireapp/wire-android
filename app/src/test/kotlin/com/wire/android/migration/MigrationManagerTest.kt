@@ -26,29 +26,33 @@ class MigrationManagerTest {
 
     @Test
     fun givenDBFileExistsAndMigrationCompleted_whenCheckingWhetherToMigrate_thenReturnFalse() = runTest {
-        val (_, manager) = Arrangement()
+        val (arrangement, manager) = Arrangement()
             .withDBFileExists(true)
             .withMigrationCompleted(true)
             .arrange()
         assert(!manager.shouldMigrate())
+        coVerify(exactly = 0) { arrangement.globalDataStore.setWelcomeScreenPresented() }
     }
 
     @Test
     fun givenDBFileNotExistsAndMigrationCompleted_whenCheckingWhetherToMigrate_thenReturnFalse() = runTest {
-        val (_, manager) = Arrangement()
+        val (arrangement, manager) = Arrangement()
             .withDBFileExists(false)
             .withMigrationCompleted(true)
             .arrange()
         assert(!manager.shouldMigrate())
+        coVerify(exactly = 0) { arrangement.globalDataStore.setWelcomeScreenPresented() }
     }
 
     @Test
     fun givenDBFileExistsAndMigrationNotCompleted_whenCheckingWhetherToMigrate_thenReturnTrue() = runTest {
-        val (_, manager) = Arrangement()
+        val (arrangement, manager) = Arrangement()
             .withDBFileExists(true)
             .withMigrationCompleted(false)
             .arrange()
+
         assert(manager.shouldMigrate())
+        coVerify(exactly = 1) { arrangement.globalDataStore.setWelcomeScreenNotPresented() }
     }
 
     @Test
@@ -58,7 +62,10 @@ class MigrationManagerTest {
             .withMigrationCompleted(false)
             .arrange()
         assert(!manager.shouldMigrate())
-        coVerify(exactly = 1) { arrangement.globalDataStore.setMigrationCompleted() }
+        coVerify(exactly = 1) {
+            arrangement.globalDataStore.setWelcomeScreenPresented()
+            arrangement.globalDataStore.setMigrationCompleted()
+        }
     }
 
     private class Arrangement {

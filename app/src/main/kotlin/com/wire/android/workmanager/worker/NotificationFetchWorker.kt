@@ -1,9 +1,7 @@
 package com.wire.android.workmanager.worker
 
 import android.content.Context
-import androidx.core.app.NotificationChannelCompat
 import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationManagerCompat
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.ForegroundInfo
@@ -22,7 +20,6 @@ class NotificationFetchWorker
     @Assisted appContext: Context,
     @Assisted workerParams: WorkerParameters,
     private val wireNotificationManager: WireNotificationManager,
-    private val notificationManager: NotificationManagerCompat
 ) : CoroutineWorker(appContext, workerParams) {
     companion object {
         const val USER_ID_INPUT_DATA = "worker_user_id_input_data"
@@ -38,8 +35,6 @@ class NotificationFetchWorker
     }
 
     override suspend fun getForegroundInfo(): ForegroundInfo {
-        createNotificationChannel()
-
         val notification = NotificationCompat.Builder(applicationContext, NotificationConstants.MESSAGE_SYNC_CHANNEL_ID)
             .setSmallIcon(R.drawable.notification_icon_small)
             .setAutoCancel(true)
@@ -51,15 +46,6 @@ class NotificationFetchWorker
             .build()
 
         return ForegroundInfo(NotificationConstants.MESSAGE_SYNC_NOTIFICATION_ID, notification)
-    }
-
-    private fun createNotificationChannel() {
-        val notificationChannel = NotificationChannelCompat
-            .Builder(NotificationConstants.MESSAGE_SYNC_CHANNEL_ID, NotificationManagerCompat.IMPORTANCE_MIN)
-            .setName(NotificationConstants.MESSAGE_SYNC_CHANNEL_NAME)
-            .build()
-
-        notificationManager.createNotificationChannel(notificationChannel)
     }
 
 }

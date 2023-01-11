@@ -27,6 +27,7 @@ import com.wire.android.ui.common.dialogs.UnblockUserDialogState
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversationslist.common.GroupConversationAvatar
 import com.wire.android.ui.home.conversationslist.model.BlockingState
+import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.home.conversationslist.model.GroupDialogState
 import com.wire.android.ui.home.conversationslist.model.getMutedStatusTextResource
 import com.wire.android.ui.theme.wireColorScheme
@@ -42,7 +43,7 @@ internal fun ConversationMainSheetContent(
 //    addConversationToFavourites: () -> Unit,
 //    moveConversationToFolder: () -> Unit,
 //    moveConversationToArchive: () -> Unit,
-//    clearConversationContent: () -> Unit,
+    clearConversationContent: (DialogState) -> Unit,
     blockUserClick: (BlockUserDialogState) -> Unit,
     unblockUserClick: (UnblockUserDialogState) -> Unit,
     leaveGroup: (GroupDialogState) -> Unit,
@@ -126,18 +127,26 @@ internal fun ConversationMainSheetContent(
 //                    onItemClick = moveConversationToArchive
 //                )
 //            }
-//            add {
-//                MenuBottomSheetItem(
-//                    icon = {
-//                        MenuItemIcon(
-//                            id = R.drawable.ic_erase,
-//                            contentDescription = stringResource(R.string.content_description_clear_content),
-//                        )
-//                    },
-//                    title = stringResource(R.string.label_clear_content),
-//                    onItemClick = clearConversationContent
-//                )
-//            }
+            add {
+                MenuBottomSheetItem(
+                    icon = {
+                        MenuItemIcon(
+                            id = R.drawable.ic_erase,
+                            contentDescription = stringResource(R.string.content_description_clear_content),
+                        )
+                    },
+                    title = stringResource(R.string.label_clear_content),
+                    onItemClick = {
+                        clearConversationContent(
+                            DialogState(
+                                conversationSheetContent.conversationId,
+                                conversationSheetContent.title,
+                                conversationSheetContent.conversationTypeDetail
+                        )
+                        )
+                    }
+                )
+            }
             if (conversationSheetContent.canBlockUser())
                 add {
                     CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.error) {

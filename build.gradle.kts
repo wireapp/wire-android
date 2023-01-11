@@ -6,12 +6,13 @@ buildscript {
     }
     dependencies {
         classpath("com.google.dagger:hilt-android-gradle-plugin:2.40")
-        classpath("com.google.gms:google-services:4.3.10")
+        classpath("com.google.gms:google-services:4.3.14")
     }
 }
 
 allprojects {
     repositories {
+        mavenLocal()
         google()
         mavenCentral()
         maven {
@@ -23,6 +24,15 @@ allprojects {
         }
         maven { url = java.net.URI("https://jitpack.io") }
         maven(url = "https://oss.sonatype.org/content/repositories/snapshots")
+
+        // fixme: this doesn't harm, buuut we should remove this after avs version is updated to proper artifactory on sonatype =)
+        val avsLocal = maven(url = uri("$rootDir/kalium/avs/localrepo/"))
+        exclusiveContent {
+            forRepositories(avsLocal)
+            filter {
+                includeModule("com.wire", "avs")
+            }
+        }
     }
 }
 

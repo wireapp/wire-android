@@ -2,7 +2,10 @@ package com.wire.android.mapper
 
 import com.wire.android.ui.home.conversations.avatar
 import com.wire.android.ui.home.conversations.details.participants.model.UIParticipant
+import com.wire.android.ui.home.conversations.previewAsset
 import com.wire.android.util.ui.WireSessionImageLoader
+import com.wire.kalium.logic.data.message.reaction.MessageReaction
+import com.wire.kalium.logic.data.message.receipt.DetailedReceipt
 import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.data.user.User
@@ -28,7 +31,34 @@ class UIParticipantMapper @Inject constructor(
             membership = userTypeMapper.toMembership(userType),
             connectionState = connectionState,
             unavailable = unavailable,
-            isDeleted = if(user is OtherUser) user.deleted else false
+            isDeleted = (user is OtherUser && user.deleted)
+        )
+    }
+
+    fun toUIParticipant(messageReaction: MessageReaction): UIParticipant = with(messageReaction) {
+        return UIParticipant(
+            id = userSummary.userId,
+            name = userSummary.userName.orEmpty(),
+            handle = userSummary.userHandle.orEmpty(),
+            avatarData = previewAsset(wireSessionImageLoader),
+            membership = userTypeMapper.toMembership(userSummary.userType),
+            unavailable = !userSummary.isUserDeleted && userSummary.userName.orEmpty().isEmpty(),
+            isDeleted = userSummary.isUserDeleted,
+            isSelf = isSelfUser
+        )
+    }
+
+    fun toUIParticipant(detailedReceipt: DetailedReceipt): UIParticipant = with(detailedReceipt) {
+        return UIParticipant(
+            id = userSummary.userId,
+            name = userSummary.userName.orEmpty(),
+            handle = userSummary.userHandle.orEmpty(),
+            avatarData = previewAsset(wireSessionImageLoader),
+            membership = userTypeMapper.toMembership(userSummary.userType),
+            unavailable = !userSummary.isUserDeleted && userSummary.userName.orEmpty().isEmpty(),
+            isDeleted = userSummary.isUserDeleted,
+            isSelf = false,
+            readReceiptDate = date
         )
     }
 }

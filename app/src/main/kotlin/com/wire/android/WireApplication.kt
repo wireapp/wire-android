@@ -3,6 +3,7 @@ package com.wire.android
 import android.app.Application
 import android.content.ComponentCallbacks2
 import android.os.Build
+import android.os.StrictMode
 import androidx.work.Configuration
 import co.touchlab.kermit.platformLogWriter
 import com.datadog.android.Datadog
@@ -12,11 +13,13 @@ import com.datadog.android.privacy.TrackingConsent
 import com.datadog.android.rum.GlobalRum
 import com.datadog.android.rum.RumMonitor
 import com.google.firebase.FirebaseApp
+import com.google.firebase.FirebaseOptions
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.util.DataDogLogger
 import com.wire.android.util.LogFileWriter
 import com.wire.android.util.extension.isGoogleServicesAvailable
 import com.wire.android.util.getDeviceId
+import com.wire.android.util.getGitBuildId
 import com.wire.android.util.lifecycle.ConnectionPolicyManager
 import com.wire.android.util.sha256
 import com.wire.android.workmanager.WireWorkerFactory
@@ -26,7 +29,6 @@ import com.wire.kalium.logic.CoreLogger
 import com.wire.kalium.logic.CoreLogic
 import dagger.hilt.android.HiltAndroidApp
 import javax.inject.Inject
-
 
 // App wide global logger, carefully initialized when our application is "onCreate"
 var appLogger: KaliumLogger = KaliumLogger.disabled()
@@ -55,8 +57,17 @@ class WireApplication : Application(), Configuration.Provider {
 
     override fun onCreate() {
         super.onCreate()
+
+        enableStrictMode()
+
         if (this.isGoogleServicesAvailable()) {
-            FirebaseApp.initializeApp(this)
+            val firebaseOptions = FirebaseOptions.Builder()
+                .setApplicationId(BuildConfig.FIREBASE_APP_ID)
+                .setGcmSenderId(BuildConfig.FIREBASE_PUSH_SENDER_ID)
+                .setApiKey(BuildConfig.GOOGLE_API_KEY)
+                .setProjectId(BuildConfig.FCM_PROJECT_ID)
+                .build()
+            FirebaseApp.initializeApp(this, firebaseOptions)
         }
 
         initializeApplicationLoggingFrameworks()
@@ -64,6 +75,27 @@ class WireApplication : Application(), Configuration.Provider {
 
         // TODO: Can be handled in one of Sync steps
         coreLogic.updateApiVersionsScheduler.schedulePeriodicApiVersionUpdate()
+    }
+
+    private fun enableStrictMode() {
+        StrictMode.setThreadPolicy(
+            StrictMode.ThreadPolicy.Builder()
+                .detectDiskReads()
+                .detectDiskWrites()
+                .detectNetwork()
+                .penaltyLog()
+                // .penaltyDeath() TODO: add it later after fixing reported violations
+                .build()
+        )
+        StrictMode.setVmPolicy(
+            StrictMode.VmPolicy.Builder()
+                .detectLeakedSqlLiteObjects()
+                .detectLeakedClosableObjects()
+                .detectAll()
+                .penaltyLog()
+                // .penaltyDeath() TODO: add it later after fixing reported violations
+                .build()
+        )
     }
 
     private fun initializeApplicationLoggingFrameworks() {
@@ -86,9 +118,13 @@ class WireApplication : Application(), Configuration.Provider {
 
     private fun logDeviceInformation() {
         appLogger.d(
-            "Device info: App version=${BuildConfig.VERSION_NAME} " +
-                    "| OS Version=${Build.VERSION.SDK_INT} " +
-                    "| Phone Model=${Build.BRAND}/${Build.MODEL}"
+            """
+            > Device info: 
+                App version=${BuildConfig.VERSION_NAME} 
+                OS version=${Build.VERSION.SDK_INT}
+                Phone model=${Build.BRAND}/${Build.MODEL}
+                Commit hash=${applicationContext.getGitBuildId()}
+        """.trimIndent()
         )
     }
 

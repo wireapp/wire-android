@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -26,7 +25,10 @@ import com.wire.android.util.extension.checkPermission
 
 @Composable
 fun CameraButton(
-    isCameraOn: Boolean = false, onCameraPermissionDenied: () -> Unit, onCameraButtonClicked: () -> Unit
+    modifier: Modifier = Modifier.size(dimensions().defaultCallingControlsSize),
+    isCameraOn: Boolean = false,
+    onCameraPermissionDenied: () -> Unit,
+    onCameraButtonClicked: () -> Unit
 ) {
     val context = LocalContext.current
 
@@ -40,10 +42,10 @@ fun CameraButton(
         }
     }
 
-    IconButton(
-        modifier = Modifier.size(dimensions().defaultCallingControlsSize),
-        onClick = { }
-    ) {
+    WireCallControlButton(
+        isSelected = isCameraOn,
+        modifier = modifier
+    ) { iconColor ->
         Icon(
             modifier = Modifier
                 .wrapContentSize()
@@ -68,7 +70,7 @@ fun CameraButton(
                 id = if (isCameraOn) R.string.content_description_calling_turn_camera_off
                 else R.string.content_description_calling_turn_camera_on
             ),
-            tint = Color.Unspecified
+            tint = iconColor
         )
     }
 }

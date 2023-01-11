@@ -5,12 +5,14 @@ import com.wire.android.ui.common.bottomsheet.conversation.ConversationSheetCont
 import com.wire.android.ui.common.bottomsheet.conversation.rememberConversationSheetState
 import com.wire.android.ui.common.dialogs.BlockUserDialogState
 import com.wire.android.ui.common.dialogs.UnblockUserDialogState
+import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.userprofile.other.OtherUserProfileBottomSheetEventsHandler
 
 @Composable
 fun OtherUserProfileBottomSheetContent(
     bottomSheetState: OtherUserBottomSheetState,
     eventsHandler: OtherUserProfileBottomSheetEventsHandler,
+    clearContent : (DialogState) -> Unit,
     blockUser: (BlockUserDialogState) -> Unit,
     unblockUser: (UnblockUserDialogState) -> Unit,
     closeBottomSheet: () -> Unit,
@@ -28,12 +30,11 @@ fun OtherUserProfileBottomSheetContent(
                         conversationSheetState.conversationId,
                         mutedConversationStatus
                     )
-                    bottomSheetState.muteConversation(mutedConversationStatus)
                 },
                 addConversationToFavourites = eventsHandler::onAddConversationToFavourites,
                 moveConversationToFolder = eventsHandler::onMoveConversationToFolder,
                 moveConversationToArchive = eventsHandler::onMoveConversationToArchive,
-                clearConversationContent = eventsHandler::onClearConversationContent,
+                clearConversationContent = clearContent,
                 blockUser = blockUser,
                 unblockUser = unblockUser,
                 leaveGroup = { },

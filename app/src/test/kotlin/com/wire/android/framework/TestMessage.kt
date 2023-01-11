@@ -4,12 +4,12 @@ import com.wire.android.mapper.AssetMessageContentMetadata
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.home.conversations.model.MessageBody
 import com.wire.android.ui.home.conversations.model.MessageFooter
-import com.wire.android.ui.home.conversations.model.UIMessageContent.TextMessage
 import com.wire.android.ui.home.conversations.model.MessageHeader
 import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.model.MessageStatus
 import com.wire.android.ui.home.conversations.model.MessageTime
 import com.wire.android.ui.home.conversations.model.UIMessage
+import com.wire.android.ui.home.conversations.model.UIMessageContent.TextMessage
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.ClientId
@@ -18,6 +18,8 @@ import com.wire.kalium.logic.data.message.AssetContent
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.MessageContent
 import com.wire.kalium.logic.data.message.MessageEncryptionAlgorithm
+import com.wire.kalium.logic.data.message.MessagePreview
+import com.wire.kalium.logic.data.message.MessagePreviewContent
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
 
@@ -59,6 +61,7 @@ object TestMessage {
         status = Message.Status.SENT,
         editStatus = Message.EditStatus.NotEdited
     )
+
     fun buildAssetMessage(assetContent: AssetContent) = Message.Regular(
         id = "messageID",
         content = MessageContent.Asset(assetContent),
@@ -97,14 +100,15 @@ object TestMessage {
         messageStatus = MessageStatus.Untouched,
         messageId = "messageID",
         connectionState = null,
-        isDeleted = false
+        isSenderDeleted = false,
+        isSenderUnavailable = false
     )
     val UI_TEXT_MESSAGE = UIMessage(
         userAvatarData = UserAvatarData(asset = null, availabilityStatus = UserAvailabilityStatus.NONE),
         messageSource = MessageSource.OtherUser,
         messageHeader = UI_MESSAGE_HEADER,
         messageContent = TextMessage(MessageBody(UIText.DynamicString("Some Text Message"))),
-        messageFooter =  MessageFooter(UI_MESSAGE_HEADER.messageId)
+        messageFooter = MessageFooter(UI_MESSAGE_HEADER.messageId)
     )
 
     val MISSED_CALL_MESSAGE = Message.System(
@@ -114,5 +118,15 @@ object TestMessage {
         date = "some-date",
         senderUserId = UserId("user-id", "domain"),
         status = Message.Status.SENT
+    )
+
+    val PREVIEW = MessagePreview(
+        id = "messageId",
+        conversationId = ConversationId("value", "domain"),
+        content = MessagePreviewContent.WithUser.MissedCall(TestUser.OTHER_USER.name),
+        isSelfMessage = false,
+        date = "2022-03-30T15:36:00.000Z",
+        visibility = Message.Visibility.VISIBLE,
+        senderUserId = TestUser.USER_ID
     )
 }

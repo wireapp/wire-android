@@ -53,9 +53,6 @@ private fun ConnectivityStatusBar(
 ) {
     val isVisible = connectivityInfo !is ConnectivityUIState.Info.None
 
-    if (!isVisible) {
-        clearStatusBarColor()
-    }
     // So it keeps the current colour while the animation is collapsing the bar
     val initialColour = MaterialTheme.wireColorScheme.connectivityBarOngoingCallBackgroundColor
     var lastVisibleBackgroundColor by remember {
@@ -70,6 +67,9 @@ private fun ConnectivityStatusBar(
             MaterialTheme.wireColorScheme.connectivityBarIssueBackgroundColor
 
         ConnectivityUIState.Info.None -> lastVisibleBackgroundColor
+    }
+    if (!isVisible) {
+        clearStatusBarColor()
     }
 
     if (isVisible) {

@@ -42,8 +42,8 @@ internal fun MutingOptionsSheetContent(
                 SelectableMenuBottomSheetItem(
                     title = stringResource(id = R.string.muting_option_only_mentions_title),
                     subLine = stringResource(id = R.string.muting_option_only_mentions_text),
-                    onItemClick = Clickable { onMuteConversation(MutedConversationStatus.OnlyMentionsAllowed) },
-                    state = if (mutingConversationState == MutedConversationStatus.OnlyMentionsAllowed)
+                    onItemClick = Clickable { onMuteConversation(MutedConversationStatus.OnlyMentionsAndRepliesAllowed) },
+                    state = if (mutingConversationState == MutedConversationStatus.OnlyMentionsAndRepliesAllowed)
                         RichMenuItemState.SELECTED else RichMenuItemState.DEFAULT
                 )
             },

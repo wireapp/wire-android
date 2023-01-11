@@ -22,6 +22,7 @@ import com.wire.android.ui.common.bottomsheet.conversation.ConversationTypeDetai
 import com.wire.android.ui.common.dialogs.BlockUserDialogState
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveConversationRoleForUserUseCase
 import com.wire.android.ui.home.conversationslist.model.BlockState
+import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.userprofile.common.UsernameMapper.mapUserLabel
 import com.wire.android.ui.userprofile.group.RemoveConversationMemberState
 import com.wire.android.ui.userprofile.other.OtherUserProfileInfoMessageType.BlockingUserOperationError
@@ -48,7 +49,6 @@ import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.id.toQualifiedID
 import com.wire.kalium.logic.data.user.ConnectionState
-import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.client.GetOtherUserClientsResult
 import com.wire.kalium.logic.feature.client.GetOtherUserClientsUseCase
@@ -65,9 +65,9 @@ import com.wire.kalium.logic.feature.connection.SendConnectionRequestResult
 import com.wire.kalium.logic.feature.connection.SendConnectionRequestUseCase
 import com.wire.kalium.logic.feature.connection.UnblockUserResult
 import com.wire.kalium.logic.feature.connection.UnblockUserUseCase
+import com.wire.kalium.logic.feature.conversation.ClearConversationContentUseCase
 import com.wire.kalium.logic.feature.conversation.ConversationUpdateStatusResult
 import com.wire.kalium.logic.feature.conversation.CreateConversationResult
-import com.wire.kalium.logic.feature.conversation.GetOneToOneConversationUseCase
 import com.wire.kalium.logic.feature.conversation.GetOrCreateOneToOneConversationUseCase
 import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleResult
@@ -91,14 +91,12 @@ import javax.inject.Inject
 @Suppress("LongParameterList", "TooManyFunctions")
 @HiltViewModel
 class OtherUserProfileScreenViewModel @Inject constructor(
-    savedStateHandle: SavedStateHandle,
     private val navigationManager: NavigationManager,
     private val dispatchers: DispatcherProvider,
     private val updateConversationMutedStatus: UpdateConversationMutedStatusUseCase,
     private val blockUser: BlockUserUseCase,
     private val unblockUser: UnblockUserUseCase,
     private val getOrCreateOneToOneConversation: GetOrCreateOneToOneConversationUseCase,
-    private val getConversation: GetOneToOneConversationUseCase,
     private val observeUserInfo: ObserveUserInfoUseCase,
     private val sendConnectionRequest: SendConnectionRequestUseCase,
     private val cancelConnectionRequest: CancelConnectionRequestUseCase,
@@ -111,6 +109,8 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     private val updateMemberRole: UpdateConversationMemberRoleUseCase,
     private val getOtherUserClients: GetOtherUserClientsUseCase,
     private val persistOtherUserClients: PersistOtherUserClientsUseCase,
+    private val clearConversationContentUseCase: ClearConversationContentUseCase,
+    savedStateHandle: SavedStateHandle,
     qualifiedIdMapper: QualifiedIdMapper
 ) : ViewModel(), OtherUserProfileEventsHandler, OtherUserProfileBottomSheetEventsHandler, OtherUserProfileFooterEventsHandler {
 
@@ -143,70 +143,18 @@ class OtherUserProfileScreenViewModel @Inject constructor(
         viewModelScope.launch {
             observeUserInfo(userId)
                 .combine(observeGroupInfo(), ::Pair)
-                .flowOn(dispatchers.io()).collect { (userResult, groupInfo) ->
+                .flowOn(dispatchers.io())
+                .collect { (userResult, groupInfo) ->
                     when (userResult) {
                         is GetUserInfoResult.Failure -> {
                             appLogger.d("Couldn't not find the user with provided id: $userId")
                             closeBottomSheetAndShowInfoMessage(LoadUserInformationError)
                         }
-
                         is GetUserInfoResult.Success -> {
-                            val otherUser = userResult.otherUser
-                            val userAvatarAsset = otherUser.completePicture
-                                ?.let { pic -> ImageAsset.UserAvatarAsset(wireSessionImageLoader, pic) }
-
-                            // TODO yamil: this block could be removed from here. we should loaded on user click
-                            observeConversationSheetContentIfNeeded(otherUser, userAvatarAsset)
-
-                            state = state.copy(
-                                isDataLoading = false,
-                                isAvatarLoading = false,
-                                userAvatarAsset = userAvatarAsset,
-                                fullName = otherUser.name.orEmpty(),
-                                userName = mapUserLabel(otherUser),
-                                teamName = userResult.team?.name.orEmpty(),
-                                email = otherUser.email.orEmpty(),
-                                phone = otherUser.phone.orEmpty(),
-                                connectionState = otherUser.connectionStatus,
-                                membership = userTypeMapper.toMembership(otherUser.userType),
-                                groupState = groupInfo,
-                                botService = otherUser.botService,
-                            )
+                            updateUserInfoState(userResult, groupInfo)
                         }
                     }
                 }
-        }
-    }
-
-    // TODO This could be loaded on demand not on init.
-    private fun observeConversationSheetContentIfNeeded(otherUser: OtherUser, userAvatarAsset: ImageAsset.UserAvatarAsset?) {
-        // if we are not connected with that user, or that user is already blocked ->
-        // -> we don't have a direct conversation ->
-        // -> no need to load data for ConversationBottomSheet
-        if (otherUser.connectionStatus != ConnectionState.ACCEPTED && otherUser.connectionStatus != ConnectionState.BLOCKED) return
-
-        viewModelScope.launch {
-            when (val conversationResult = withContext(dispatchers.io()) { getConversation(userId) }) {
-                is GetOneToOneConversationUseCase.Result.Failure -> {
-                    appLogger.d("Couldn't not getOrCreateOneToOneConversation for user id: $userId")
-                    return@launch
-                }
-
-                is GetOneToOneConversationUseCase.Result.Success -> {
-                    state = state.copy(
-                        conversationSheetContent = ConversationSheetContent(
-                            title = otherUser.name.orEmpty(),
-                            conversationId = conversationResult.conversation.id,
-                            mutingConversationState = conversationResult.conversation.mutedStatus,
-                            conversationTypeDetail = ConversationTypeDetail.Private(
-                                userAvatarAsset,
-                                userId,
-                                otherUser.BlockState
-                            )
-                        )
-                    )
-                }
-            }
         }
     }
 
@@ -359,6 +307,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     override fun onBlockUser(blockUserState: BlockUserDialogState) {
         viewModelScope.launch {
             requestInProgress = true
+            _closeBottomSheet.emit(Unit)
             when (val result = withContext(dispatchers.io()) { blockUser(userId) }) {
                 BlockUserResult.Success -> {
                     appLogger.i("User $userId was blocked")
@@ -377,10 +326,10 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     override fun onUnblockUser(userId: UserId) {
         viewModelScope.launch {
             requestInProgress = true
+            _closeBottomSheet.emit(Unit)
             when (val result = withContext(dispatchers.io()) { unblockUser(userId) }) {
                 UnblockUserResult.Success -> {
                     appLogger.i("User $userId was unblocked")
-                    _closeBottomSheet.emit(Unit)
                 }
 
                 is UnblockUserResult.Failure -> {
@@ -404,8 +353,40 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     override fun onMoveConversationToArchive(conversationId: ConversationId?) {
     }
 
-    @Suppress("EmptyFunctionBlock")
-    override fun onClearConversationContent(conversationId: ConversationId?) {
+    override fun onClearConversationContent(dialogState: DialogState) {
+        viewModelScope.launch {
+            requestInProgress = true
+            with(dialogState) {
+                val result = withContext(dispatchers.io()) { clearConversationContentUseCase(conversationId) }
+                requestInProgress = false
+                clearContentSnackbarResult(result, conversationTypeDetail)
+            }
+        }
+    }
+
+    override fun loadConversationBottomSheetContent() {
+        viewModelScope.launch {
+            val conversationResult = withContext(dispatchers.io()) { getOrCreateOneToOneConversation(userId) }
+            if (conversationResult is CreateConversationResult.Success) {
+                updateConversationMenuState(conversationResult.conversation)
+            } else {
+                appLogger.d("Couldn't retrieve or create the conversation, while opening BottomSheetMenu")
+            }
+        }
+    }
+
+    private suspend fun clearContentSnackbarResult(
+        clearContentResult: ClearConversationContentUseCase.Result,
+        conversationTypeDetail: ConversationTypeDetail
+    ) {
+        if (conversationTypeDetail is ConversationTypeDetail.Connection)
+            throw IllegalStateException("Unsupported conversation type to clear content, something went wrong?")
+
+        if (clearContentResult is ClearConversationContentUseCase.Result.Failure) {
+            closeBottomSheetAndShowInfoMessage(OtherUserProfileInfoMessageType.ConversationContentDeleteFailure)
+        } else {
+            closeBottomSheetAndShowInfoMessage(OtherUserProfileInfoMessageType.ConversationContentDeleted)
+        }
     }
 
     override fun getOtherUserClients() {
@@ -427,6 +408,45 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    private fun updateUserInfoState(userResult: GetUserInfoResult.Success, groupInfo: OtherUserProfileGroupState?) {
+        val otherUser = userResult.otherUser
+        val userAvatarAsset = otherUser.completePicture
+            ?.let { pic -> ImageAsset.UserAvatarAsset(wireSessionImageLoader, pic) }
+
+        state = state.copy(
+            isDataLoading = false,
+            isAvatarLoading = false,
+            userAvatarAsset = userAvatarAsset,
+            fullName = otherUser.name.orEmpty(),
+            userName = mapUserLabel(otherUser),
+            teamName = userResult.team?.name.orEmpty(),
+            email = otherUser.email.orEmpty(),
+            phone = otherUser.phone.orEmpty(),
+            connectionState = otherUser.connectionStatus,
+            membership = userTypeMapper.toMembership(otherUser.userType),
+            groupState = groupInfo,
+            botService = otherUser.botService,
+            blockingState = otherUser.BlockState
+        )
+    }
+
+    private fun updateConversationMenuState(conversation: Conversation) {
+        state = state.copy(
+            conversationSheetContent = ConversationSheetContent(
+                title = state.fullName,
+                conversationId = conversation.id,
+                mutingConversationState = conversation.mutedStatus,
+                conversationTypeDetail = ConversationTypeDetail.Private(
+                    state.userAvatarAsset,
+                    userId,
+                    state.blockingState
+                ),
+                isTeamConversation = conversation.isTeamGroup(),
+                selfRole = Conversation.Member.Role.Member
+            )
+        )
     }
 
     override fun navigateBack() = viewModelScope.launch { navigationManager.navigateBack() }

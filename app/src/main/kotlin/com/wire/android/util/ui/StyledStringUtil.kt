@@ -13,6 +13,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
+import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 
@@ -59,12 +60,13 @@ data class LinkTextData(
 fun LinkText(
     linkTextData: List<LinkTextData>,
     modifier: Modifier = Modifier,
+    textColor: Color = Color.Unspecified
 ) {
     val annotatedString = createAnnotatedString(linkTextData)
 
     ClickableText(
         text = annotatedString,
-        style = MaterialTheme.wireTypography.body01,
+        style = MaterialTheme.wireTypography.body01.copy(color = textColor),
         onClick = { offset ->
             linkTextData.forEach { annotatedStringData ->
                 if (annotatedStringData.tag != null && annotatedStringData.annotation != null) {

@@ -2,15 +2,16 @@ package com.wire.android.ui.home.messagecomposer
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Transition
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -27,9 +28,12 @@ import com.wire.android.ui.theme.wireTypography
 
 @ExperimentalAnimationApi
 @Composable
-fun ColumnScope.MessageComposerInputRow(
+fun MessageComposerInputRow(
     transition: Transition<MessageComposeInputState>,
     messageComposerState: MessageComposerInnerState,
+    onSendButtonClicked: () -> Unit = { },
+    onSelectedLineIndexChanged: (Int) -> Unit = { },
+    onLineBottomYCoordinateChanged: (Float) -> Unit = { }
 ) {
     Row(
         verticalAlignment =
@@ -37,21 +41,15 @@ fun ColumnScope.MessageComposerInputRow(
             Alignment.Top
         else
             Alignment.CenterVertically,
-        modifier = Modifier
-            .fillMaxWidth()
-            .then(
-                if (messageComposerState.messageComposeInputState == MessageComposeInputState.FullScreen)
-                    Modifier.weight(1f)
-                else
-                    Modifier
-            )
+        modifier = Modifier.fillMaxWidth()
     ) {
         transition.AnimatedVisibility(
-            visible = { messageComposerState.messageComposeInputState == MessageComposeInputState.Enabled }
+            visible = { it == MessageComposeInputState.Enabled }
         ) {
             Box(modifier = Modifier.padding(start = dimensions().spacing8x)) {
                 AdditionalOptionButton(messageComposerState.attachmentOptionsDisplayed) {
-                    messageComposerState.toggleAttachmentOptionsVisibility()
+                    messageComposerState.toActive()
+                    messageComposerState.showAttachmentOptions()
                 }
             }
         }
@@ -60,37 +58,55 @@ fun ColumnScope.MessageComposerInputRow(
         // wrapping the whole content when in the FullScreen state we are giving it max height
         // when in active state we limit the height to max 82.dp
         // other we let it wrap the content of the height, which will be equivalent to the text
-        MessageComposerInput(
-            messageText = messageComposerState.messageText,
-            onMessageTextChanged = messageComposerState::setMessageTextValue,
-            messageComposerInputState = messageComposerState.messageComposeInputState,
-            onIsFocused = {
-                messageComposerState.toActive()
-            },
-            onNotFocused = {
-                messageComposerState.hasFocus = false
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .then(
-                    when (messageComposerState.messageComposeInputState) {
-                        MessageComposeInputState.FullScreen ->
-                            Modifier
-                                .fillMaxHeight()
-                                .padding(end = dimensions().messageComposerPaddingEnd)
-                        MessageComposeInputState.Active -> {
-                            Modifier
-                                .heightIn(
-                                    max = dimensions().messageComposerActiveInputMaxHeight
-                                )
-                                .padding(
-                                    end = dimensions().messageComposerPaddingEnd
-                                )
-                        }
-                        else -> Modifier.wrapContentHeight()
+        Box(
+            Modifier
+                .wrapContentSize()
+        ) {
+            MessageComposerInput(
+                messageText = messageComposerState.messageText,
+                onMessageTextChanged = messageComposerState::setMessageTextValue,
+                messageComposerInputState = messageComposerState.messageComposeInputState,
+                onFocusChanged = { isFocused ->
+                    messageComposerState.messageComposeInputFocusChange(isFocused)
+                    if (isFocused) {
+                        messageComposerState.toActive()
+                        messageComposerState.hideAttachmentOptions()
                     }
-                )
-        )
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .then(
+                        when (messageComposerState.messageComposeInputState) {
+                            MessageComposeInputState.FullScreen ->
+                                Modifier
+                                    .fillMaxHeight()
+                                    .padding(end = dimensions().messageComposerPaddingEnd)
+
+                            MessageComposeInputState.Active -> {
+                                Modifier
+                                    .heightIn(
+                                        max = dimensions().messageComposerActiveInputMaxHeight
+                                    )
+                                    .padding(
+                                        end = dimensions().messageComposerPaddingEnd
+                                    )
+                            }
+
+                            else -> Modifier.wrapContentHeight()
+                        }
+                    )
+                    .animateContentSize(),
+                onSelectedLineIndexChanged = onSelectedLineIndexChanged,
+                onLineBottomYCoordinateChanged = onLineBottomYCoordinateChanged
+            )
+
+            SendActions(
+                transition = transition,
+                onSendButtonClicked = onSendButtonClicked,
+                sendButtonEnabled = messageComposerState.sendButtonEnabled,
+                modifier = Modifier.align(Alignment.BottomEnd)
+            )
+        }
     }
 }
 
@@ -99,30 +115,31 @@ private fun MessageComposerInput(
     messageText: TextFieldValue,
     onMessageTextChanged: (TextFieldValue) -> Unit,
     messageComposerInputState: MessageComposeInputState,
-    onIsFocused: () -> Unit,
-    onNotFocused: () -> Unit,
-    modifier: Modifier = Modifier
+    onFocusChanged: (Boolean) -> Unit,
+    modifier: Modifier = Modifier,
+    onSelectedLineIndexChanged: (Int) -> Unit = { },
+    onLineBottomYCoordinateChanged: (Float) -> Unit = { }
 ) {
     WireTextField(
         value = messageText,
         onValueChange = onMessageTextChanged,
         colors = wireTextFieldColors(
+            backgroundColor = Color.Transparent,
             borderColor = Color.Transparent,
             focusColor = Color.Transparent
         ),
         singleLine = messageComposerInputState == MessageComposeInputState.Enabled,
         maxLines = Int.MAX_VALUE,
         textStyle = MaterialTheme.wireTypography.body01,
-        // Add a extra space so that the a cursor is placed one space before "Type a message"
+        // Add an extra space so that the cursor is placed one space before "Type a message"
         placeholderText = " " + stringResource(R.string.label_type_a_message),
         modifier = modifier.then(
-            Modifier.onFocusChanged { focusState ->
-                if (focusState.isFocused) {
-                    onIsFocused()
-                } else {
-                    onNotFocused()
+            Modifier
+                .onFocusChanged { focusState ->
+                    onFocusChanged(focusState.isFocused)
                 }
-            }
-        )
+        ),
+        onSelectedLineIndexChanged = onSelectedLineIndexChanged,
+        onLineBottomYCoordinateChanged = onLineBottomYCoordinateChanged
     )
 }

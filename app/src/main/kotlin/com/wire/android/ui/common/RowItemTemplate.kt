@@ -8,6 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.wire.android.model.Clickable
+import com.wire.android.ui.common.spacers.HorizontalSpace
 import com.wire.android.ui.home.conversationslist.common.EventBadgeFactory
 import com.wire.android.ui.home.conversationslist.common.RowItem
 import com.wire.android.ui.home.conversationslist.model.BadgeEventType
@@ -50,7 +51,6 @@ fun RowItemTemplate(
     leadingIcon: @Composable () -> Unit,
     title: @Composable () -> Unit,
     subTitle: @Composable () -> Unit = {},
-    eventType: BadgeEventType = BadgeEventType.None,
     clickable: Clickable,
     trailingIcon: @Composable () -> Unit = { },
     modifier: Modifier = Modifier
@@ -66,15 +66,6 @@ fun RowItemTemplate(
         ) {
             title()
             subTitle()
-        }
-        Box(
-            modifier = Modifier
-                .wrapContentWidth()
-                .padding(horizontal = dimensions().spacing8x)
-        ) {
-            if (eventType != BadgeEventType.None) {
-                EventBadgeFactory(eventType = eventType, modifier = Modifier.align(Alignment.TopEnd))
-            }
         }
         trailingIcon()
     }

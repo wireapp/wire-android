@@ -49,14 +49,18 @@ import com.google.accompanist.pager.PagerState
 import com.google.accompanist.pager.rememberPagerState
 import com.wire.android.R
 import com.wire.android.ui.authentication.ServerTitle
-import com.wire.android.ui.common.button.WireSecondaryButton
-import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.button.WirePrimaryButton
+import com.wire.android.ui.common.button.WireSecondaryButton
+import com.wire.android.ui.common.dialogs.FeatureDisabledWithProxyDialogContent
+import com.wire.android.ui.common.dialogs.FeatureDisabledWithProxyDialogState
+import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.CustomTabsHelper
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -73,6 +77,9 @@ fun WelcomeScreen(viewModel: WelcomeViewModel = hiltViewModel()) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun WelcomeContent(viewModel: WelcomeViewModel) {
+    val enterpriseDisabledWithProxyDialogState = rememberVisibilityState<FeatureDisabledWithProxyDialogState>()
+    val createPersonalAccountDisabledWithProxyDialogState = rememberVisibilityState<FeatureDisabledWithProxyDialogState>()
+    val context = LocalContext.current
     Scaffold(topBar = {
         if (viewModel.isThereActiveSession) {
             WireCenterAlignedTopAppBar(
@@ -116,15 +123,36 @@ private fun WelcomeContent(viewModel: WelcomeViewModel) {
                 )
             ) {
                 LoginButton(viewModel::goToLogin)
+                FeatureDisabledWithProxyDialogContent(dialogState = enterpriseDisabledWithProxyDialogState,
+                    onActionButtonClicked = {
+                        CustomTabsHelper.launchUrl(context, viewModel.state.teams)
+                    })
+                FeatureDisabledWithProxyDialogContent(dialogState = createPersonalAccountDisabledWithProxyDialogState)
 
                 CreateEnterpriseAccountButton {
-                    viewModel.goToCreateEnterpriseAccount()
+                    if (viewModel.isProxyEnabled()) {
+                        enterpriseDisabledWithProxyDialogState.show(
+                            enterpriseDisabledWithProxyDialogState.savedState ?: FeatureDisabledWithProxyDialogState(
+                                R.string.create_team_not_supported_dialog_description, viewModel.state.teams
+                            )
+                        )
+                    } else {
+                        viewModel.goToCreateEnterpriseAccount()
+                    }
                 }
             }
 
             WelcomeFooter(modifier = Modifier.padding(horizontal = MaterialTheme.wireDimensions.welcomeTextHorizontalPadding),
                 onPrivateAccountClick = {
-                    viewModel.goToCreatePrivateAccount()
+                    if (viewModel.isProxyEnabled()) {
+                        createPersonalAccountDisabledWithProxyDialogState.show(
+                            createPersonalAccountDisabledWithProxyDialogState.savedState ?: FeatureDisabledWithProxyDialogState(
+                                R.string.create_personal_account_not_supported_dialog_description
+                            )
+                        )
+                    } else {
+                        viewModel.goToCreatePrivateAccount()
+                    }
                 })
         }
 

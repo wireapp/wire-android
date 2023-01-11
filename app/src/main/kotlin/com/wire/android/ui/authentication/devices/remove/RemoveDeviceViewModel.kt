@@ -17,6 +17,7 @@ import com.wire.kalium.logic.data.client.ClientType
 import com.wire.kalium.logic.data.client.DeleteClientParam
 import com.wire.kalium.logic.feature.client.DeleteClientResult
 import com.wire.kalium.logic.feature.client.DeleteClientUseCase
+import com.wire.kalium.logic.feature.client.GetOrRegisterClientUseCase
 import com.wire.kalium.logic.feature.client.RegisterClientResult
 import com.wire.kalium.logic.feature.client.RegisterClientUseCase
 import com.wire.kalium.logic.feature.client.SelfClientsResult
@@ -33,7 +34,7 @@ class RemoveDeviceViewModel @Inject constructor(
     private val navigationManager: NavigationManager,
     private val selfClientsUseCase: SelfClientsUseCase,
     private val deleteClientUseCase: DeleteClientUseCase,
-    private val registerClientUseCase: RegisterClientUseCase,
+    private val registerClientUseCase: GetOrRegisterClientUseCase,
     private val isPasswordRequired: IsPasswordRequiredUseCase,
     private val userDataStore: UserDataStore
 ) : ViewModel() {
@@ -47,7 +48,7 @@ class RemoveDeviceViewModel @Inject constructor(
         loadClientsList()
     }
 
-    fun loadClientsList() {
+    private fun loadClientsList() {
         viewModelScope.launch {
             state = state.copy(isLoadingClientsList = true)
             val selfClientsResult = selfClientsUseCase()

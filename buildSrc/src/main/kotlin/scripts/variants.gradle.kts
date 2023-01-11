@@ -10,6 +10,7 @@ import FeatureConfigs
 import FeatureFlags
 import Features
 import FlavourConfigs
+import com.android.build.api.dsl.ApplicationProductFlavor
 import com.android.build.api.dsl.ProductFlavor
 
 plugins { id("com.android.application") apply false }
@@ -17,24 +18,42 @@ plugins { id("com.android.application") apply false }
 object BuildTypes {
     const val DEBUG = "debug"
     const val RELEASE = "release"
+    const val COMPAT = "compat"
 }
 
-object ProductFlavors {
-    const val DEV = "dev"
-    const val INTERNAL = "internal"
-    const val PUBLIC = "public"
-    const val FDROID = "fdroid"
+sealed class ProductFlavors(
+    val applicationId: String,
+    val buildName: String,
+    val applicationIdSuffix: String? = null,
+    val dimensions: String = FlavorDimensions.DEFAULT
+) {
+    override fun toString(): String = this.buildName
+
+    object Dev : ProductFlavors("com.waz.zclient.dev", "dev")
+    object Staging : ProductFlavors("com.waz.zclient.dev", "staging")
+
+    object Beta : ProductFlavors("com.wire.android", "beta", applicationIdSuffix = "internal")
+    object Internal : ProductFlavors("com.wire", "internal", applicationIdSuffix = "internal")
 }
 
-private object FlavorDimensions {
+object FlavorDimensions {
     const val DEFAULT = "default"
 }
 
 object Default {
-    val BUILD_FLAVOR = System.getenv("flavor") ?: ProductFlavors.DEV
+    val BUILD_FLAVOR: String = System.getenv("flavor") ?: ProductFlavors.Dev.buildName
     val BUILD_TYPE = System.getenv("buildType") ?: BuildTypes.DEBUG
 
     val BUILD_VARIANT = "${BUILD_FLAVOR.capitalize()}${BUILD_TYPE.capitalize()}"
+}
+
+ fun NamedDomainObjectContainer<ApplicationProductFlavor>.createAppFlavour(flavour : ProductFlavors) {
+    create(flavour.buildName) {
+        dimension = flavour.dimensions
+        applicationId = flavour.applicationId
+        versionNameSuffix = "-${flavour.buildName}"
+        flavour.applicationIdSuffix?.let { applicationIdSuffix = ".${it}" }
+    }
 }
 
 android {
@@ -52,6 +71,12 @@ android {
                 storePassword = System.getenv("KEYSTOREPWD_DEBUG")
                 keyAlias = System.getenv("KEYSTORE_KEY_NAME_DEBUG")
                 keyPassword = System.getenv("KEYPWD_DEBUG")
+            }
+            maybeCreate(BuildTypes.COMPAT).apply {
+                storeFile = file(System.getenv("KEYSTORE_FILE_PATH_COMPAT"))
+                storePassword = System.getenv("KEYSTOREPWD_COMPAT")
+                keyAlias = System.getenv("KEYSTORE_KEY_NAME_COMPAT")
+                keyPassword = System.getenv("KEYPWD_COMPAT")
             }
         }
     }
@@ -73,23 +98,23 @@ android {
             if (enableSigning)
                 signingConfig = signingConfigs.getByName("release")
         }
+        create(BuildTypes.COMPAT) {
+            initWith(getByName(BuildTypes.RELEASE))
+            isMinifyEnabled = true
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            isDebuggable = false
+            matchingFallbacks.add("release")
+            if (enableSigning)
+                signingConfig = signingConfigs.getByName("compat")
+        }
     }
 
     flavorDimensions(FlavorDimensions.DEFAULT)
     productFlavors {
-        create(ProductFlavors.DEV) {
-            dimension = FlavorDimensions.DEFAULT
-            applicationIdSuffix = ".${ProductFlavors.DEV}"
-            versionNameSuffix = "-${ProductFlavors.DEV}"
-        }
-        create(ProductFlavors.INTERNAL) {
-            dimension = FlavorDimensions.DEFAULT
-            applicationIdSuffix = ".${ProductFlavors.INTERNAL}"
-            versionNameSuffix = "-${ProductFlavors.INTERNAL}"
-        }
-        create(ProductFlavors.PUBLIC) {
-            dimension = FlavorDimensions.DEFAULT
-        }
+        createAppFlavour(ProductFlavors.Dev)
+        createAppFlavour(ProductFlavors.Staging)
+        createAppFlavour(ProductFlavors.Beta)
+        createAppFlavour(ProductFlavors.Internal)
     }
 
     /**
@@ -133,12 +158,14 @@ android {
                         buildtimeConfiguration?.configuration?.get(configs.value).toString()
                     )
                 }
+
                 ConfigType.INT, ConfigType.BOOLEAN -> {
                     buildNonStringConfig(
                         flavor,
                         configs.configType.type, configs.name, buildtimeConfiguration?.configuration?.get(configs.value).toString()
                     )
                 }
+
                 ConfigType.CERTIFICATE_PIN -> {
                     buildCertificatePinConfig(flavor, buildtimeConfiguration)
                 }
@@ -154,7 +181,11 @@ android {
 
 }
 
-fun buildFlavorConfig(productFlavour: ProductFlavor, configs: FeatureConfigs, buildTimeConfiguration: Customization.BuildTimeConfiguration?) {
+fun buildFlavorConfig(
+    productFlavour: ProductFlavor,
+    configs: FeatureConfigs,
+    buildTimeConfiguration: Customization.BuildTimeConfiguration?
+) {
     if (configs.value == productFlavour.name.toLowerCase()) {
         val falvourMap = buildTimeConfiguration?.configuration?.get(productFlavour.name.toLowerCase()) as Map<*, *>
 
@@ -168,6 +199,7 @@ fun buildFlavorConfig(productFlavour: ProductFlavor, configs: FeatureConfigs, bu
                         falvourMap[flavourConfigs.value].toString()
                     )
                 }
+
                 ConfigType.INT, ConfigType.BOOLEAN -> {
                     buildNonStringConfig(
                         productFlavour, flavourConfigs.configType.type,
@@ -192,6 +224,7 @@ fun buildCertificatePinConfig(productFlavour: ProductFlavor, buildTimeConfigurat
                     certificatePinMap[certificatePin.value].toString()
                 )
             }
+
             ConfigType.INT, ConfigType.BOOLEAN -> {
                 buildNonStringConfig(
                     productFlavour,
@@ -221,4 +254,3 @@ fun buildNonStringConfig(productFlavour: ProductFlavor, type: String, name: Stri
     )
 
 }
-

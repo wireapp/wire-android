@@ -38,6 +38,7 @@ import com.wire.android.R
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.calling.model.UICallParticipant
 import com.wire.android.ui.common.UserProfileAvatar
+import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.theme.wireColorScheme
@@ -56,7 +57,7 @@ fun ParticipantTile(
 ) {
     Surface(
         modifier = modifier,
-        color = MaterialTheme.wireColorScheme.ongoingCallBackground,
+        color = colorsScheme().callingParticipantTileBackgroundColor ,
         shape = RoundedCornerShape(dimensions().corner6x)
     ) {
 
@@ -114,7 +115,7 @@ fun ParticipantTile(
 
             UsernameTile(
                 modifier = Modifier
-                    .padding(bottom = dimensions().spacing6x)
+                    .padding(bottom = dimensions().spacing8x)
                     .constrainAs(userName) {
                         bottom.linkTo(parent.bottom)
                         start.linkTo(parent.start)
@@ -201,7 +202,7 @@ private fun UsernameTile(
         Text(
             color = Color.White,
             style = MaterialTheme.wireTypography.label01,
-            modifier = Modifier.padding(3.dp),
+            modifier = Modifier.padding(dimensions().spacing4x),
             text = name,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis

@@ -2,6 +2,7 @@ package com.wire.android.ui
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -18,9 +19,11 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.window.DialogProperties
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.NavHostController
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
+import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.navigation.NavigationGraph
@@ -106,6 +109,10 @@ class WireActivity : AppCompatActivity() {
                         viewModel::dismissMaxAccountDialog,
                         viewModel.globalAppState.maxAccountDialog
                     )
+                    updateAppDialog(
+                        { updateTheApp() },
+                        viewModel.globalAppState.updateAppDialog
+                    )
                     AccountLongedOutDialog(viewModel.globalAppState.blockUserUI, viewModel::navigateToNextAccountOrWelcome)
                 }
             }
@@ -126,6 +133,27 @@ class WireActivity : AppCompatActivity() {
                 onConfirm = onConfirm,
                 onDismiss = onDismiss,
                 buttonText = R.string.max_account_reached_dialog_button_open_profile
+            )
+        }
+    }
+
+    @Composable
+    private fun updateAppDialog(onUpdateClick: () -> Unit, shouldShow: Boolean) {
+        if (shouldShow) {
+            WireDialog(
+                title = stringResource(id = R.string.update_app_dialog_title),
+                text = stringResource(id = R.string.update_app_dialog_body),
+                onDismiss = { },
+                optionButton1Properties = WireDialogButtonProperties(
+                    text = stringResource(id = R.string.update_app_dialog_button),
+                    onClick = onUpdateClick,
+                    type = WireDialogButtonType.Primary
+                ),
+                properties = DialogProperties(
+                    dismissOnBackPress = false,
+                    dismissOnClickOutside = false,
+                    usePlatformDefaultWidth = true
+                )
             )
         }
     }
@@ -184,6 +212,12 @@ class WireActivity : AppCompatActivity() {
 
             navController.addOnDestinationChangedListener(currentScreenManager)
         }
+    }
+
+    private fun updateTheApp() {
+        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(BuildConfig.UPDATE_APP_URL))
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        startActivity(intent)
     }
 
     override fun onResume() {

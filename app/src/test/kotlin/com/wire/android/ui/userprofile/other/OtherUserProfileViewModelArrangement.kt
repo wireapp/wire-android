@@ -26,6 +26,7 @@ import com.wire.kalium.logic.feature.connection.IgnoreConnectionRequestUseCaseRe
 import com.wire.kalium.logic.feature.connection.SendConnectionRequestResult
 import com.wire.kalium.logic.feature.connection.SendConnectionRequestUseCase
 import com.wire.kalium.logic.feature.connection.UnblockUserUseCase
+import com.wire.kalium.logic.feature.conversation.ClearConversationContentUseCase
 import com.wire.kalium.logic.feature.conversation.CreateConversationResult
 import com.wire.kalium.logic.feature.conversation.GetOneToOneConversationUseCase
 import com.wire.kalium.logic.feature.conversation.GetOrCreateOneToOneConversationUseCase
@@ -104,18 +105,16 @@ internal class OtherUserProfileViewModelArrangement {
     lateinit var persistOtherUserClientsUseCase: PersistOtherUserClientsUseCase
 
     @MockK
-    lateinit var getConversationUseCase: GetOneToOneConversationUseCase
+    lateinit var clearConversationContent: ClearConversationContentUseCase
 
     private val viewModel by lazy {
         OtherUserProfileScreenViewModel(
-            savedStateHandle,
             navigationManager,
             TestDispatcherProvider(),
             updateConversationMutedStatus,
             blockUser,
             unblockUser,
             getOrCreateOneToOneConversation,
-            getConversationUseCase,
             observeUserInfo,
             sendConnectionRequest,
             cancelConnectionRequest,
@@ -128,6 +127,8 @@ internal class OtherUserProfileViewModelArrangement {
             updateConversationMemberRoleUseCase,
             otherUserClients,
             persistOtherUserClientsUseCase,
+            clearConversationContent,
+            savedStateHandle,
             qualifiedIdMapper
         )
     }
@@ -192,10 +193,6 @@ internal class OtherUserProfileViewModelArrangement {
 
     suspend fun withUserInfo(result: GetUserInfoResult) = apply {
         coEvery { observeUserInfo(any()) } returns flowOf(result)
-    }
-
-    fun withGetConversationDetails(result: GetOneToOneConversationUseCase.Result) = apply {
-        coEvery { getConversationUseCase(any()) } returns result
     }
 
     fun arrange() = this to viewModel

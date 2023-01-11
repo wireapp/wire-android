@@ -1,5 +1,6 @@
 package com.wire.android.ui.home.conversations
 
+import app.cash.turbine.test
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.ui.home.conversations.MessageComposerViewModel.Companion.ASSET_SIZE_DEFAULT_LIMIT_BYTES
 import com.wire.android.ui.home.conversations.MessageComposerViewModel.Companion.IMAGE_SIZE_LIMIT_BYTES
@@ -13,7 +14,6 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import okio.Path.Companion.toPath
 import org.amshove.kluent.internal.assertEquals
-import org.amshove.kluent.internal.assertFalse
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -95,11 +95,15 @@ class MessageComposerViewModelTest {
             .withFailureOnDeletingMessages().arrange()
 
         viewModel.conversationViewState
-        // When
-        viewModel.deleteMessageHelper.onDeleteMessage("messageId", true)
+        viewModel.infoMessage.test {
 
-        // Then
-        assert(viewModel.conversationViewState.snackbarMessage is ConversationSnackbarMessages.ErrorDeletingMessage)
+            // when
+            expectNoEvents()
+            viewModel.deleteMessageHelper.onDeleteMessage("messageId", true)
+
+            // Then
+            assertEquals(ConversationSnackbarMessages.ErrorDeletingMessage, awaitItem())
+        }
     }
 
     @Test
@@ -191,11 +195,13 @@ class MessageComposerViewModelTest {
         )
 
         // When
-        viewModel.sendAttachmentMessage(mockedAttachment)
+        viewModel.infoMessage.test {
+            viewModel.sendAttachmentMessage(mockedAttachment)
 
-        // Then
-        coVerify(inverse = true) { arrangement.sendAssetMessage.invoke(any(), any(), any(), any(), any(), any(), any()) }
-        assert(viewModel.conversationViewState.snackbarMessage is ConversationSnackbarMessages.ErrorMaxImageSize)
+            // Then
+            coVerify(inverse = true) { arrangement.sendAssetMessage.invoke(any(), any(), any(), any(), any(), any(), any()) }
+            assertEquals(ConversationSnackbarMessages.ErrorMaxImageSize, awaitItem())
+        }
     }
 
     @Test
@@ -215,11 +221,13 @@ class MessageComposerViewModelTest {
             )
 
             // When
-            viewModel.sendAttachmentMessage(mockedAttachment)
+            viewModel.infoMessage.test {
+                viewModel.sendAttachmentMessage(mockedAttachment)
 
-            // Then
-            coVerify(inverse = true) { arrangement.sendAssetMessage.invoke(any(), any(), any(), any(), any(), any(), any()) }
-            assert(viewModel.conversationViewState.snackbarMessage is ConversationSnackbarMessages.ErrorMaxAssetSize)
+                // Then
+                coVerify(inverse = true) { arrangement.sendAssetMessage.invoke(any(), any(), any(), any(), any(), any(), any()) }
+                assert(awaitItem() is ConversationSnackbarMessages.ErrorMaxAssetSize)
+            }
         }
 
     @Test
@@ -236,12 +244,12 @@ class MessageComposerViewModelTest {
         )
 
         // When
-        viewModel.sendAttachmentMessage(mockedAttachment)
+        viewModel.infoMessage.test {
+            viewModel.sendAttachmentMessage(mockedAttachment)
 
-        // Then
-        coVerify(exactly = 1) { arrangement.sendAssetMessage.invoke(any(), any(), any(), any(), any(), any(), any()) }
-        assertFalse(viewModel.conversationViewState.snackbarMessage != null)
+            // Then
+            coVerify(exactly = 1) { arrangement.sendAssetMessage.invoke(any(), any(), any(), any(), any(), any(), any()) }
+            expectNoEvents()
+        }
     }
-
-
 }

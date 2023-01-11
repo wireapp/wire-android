@@ -105,7 +105,7 @@ class InitiatingCallViewModel @Inject constructor(
     }
 
     private suspend fun onCallEstablished() {
-        callRinger.ring(R.raw.ready_to_talk, isLooping = false)
+        callRinger.ring(R.raw.ready_to_talk, isLooping = false, isIncomingCall = false)
         navigationManager.navigate(
             command = NavigationCommand(
                 destination = NavigationItem.OngoingCall.getRouteWithArgs(listOf(conversationId)),
@@ -121,7 +121,7 @@ class InitiatingCallViewModel @Inject constructor(
             conversationType = conversationType
         )
         when (result) {
-            StartCallUseCase.Result.Success -> callRinger.ring(R.raw.ringing_from_me)
+            StartCallUseCase.Result.Success -> callRinger.ring(resource = R.raw.ringing_from_me, isIncomingCall = false)
             StartCallUseCase.Result.SyncFailure -> {} // TODO: handle case where start call fails
         }
     }

@@ -349,14 +349,15 @@ class LoginSSOViewModelTest {
         val CLIENT_ID = ClientId("test")
         val CLIENT = Client(
             CLIENT_ID, ClientType.Permanent, "time", null,
-            null, "label", "cookie", null, "model"
+            null, "label", "cookie", null, "model", emptyMap()
         )
         val SSO_ID: SsoId = SsoId("scim_id", null, null)
         val AUTH_TOKEN = AuthTokens(
             userId = UserId("user_id", "domain"),
             accessToken = "access_token",
             refreshToken = "refresh_token",
-            tokenType = "token_type"
+            tokenType = "token_type",
+            cookieLabel = null
         )
         val SERVER_CONFIG = ServerConfig(
             id = "config",

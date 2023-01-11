@@ -6,12 +6,15 @@ def defineFlavor() {
     }
 
     def branchName = env.BRANCH_NAME
+
     if (branchName == "main") {
-        return 'Internal'
+        return 'Beta'
     } else if(branchName == "develop") {
-        return 'Dev'
+        return 'Staging'
     } else if(branchName == "release") {
         return 'Public'
+    } else if(branchName == "internal") {
+        return 'Internal'
     }
     return 'Dev'
 }
@@ -21,16 +24,26 @@ def defineBuildType() {
     if(overwrite != null) {
         return overwrite
     }
-    return "Release"
+    def flavor = defineFlavor()
+
+    // internal is used for wire beta builds
+    if (flavor == 'Beta') {
+        return 'Release'
+    }
+    // use the scala client signing keys for testing upgrades.
+    return "Compat"
 }
 
 def defineTrackName() {
     def overwrite = env.CUSTOM_TRACK
+    def branchName = env.BRANCH_NAME
+
     if(overwrite != null) {
         return overwrite
+    } else if (branchName == "main") {
+        return 'internal'
     }
-
-    return 'internal'
+    return 'None'
 }
 
 String shellQuote(String s) {
@@ -125,10 +138,12 @@ pipeline {
     stage('Fetch Signing Files') {
       steps {
         configFileProvider([
+         configFile(fileId: env.COMPAT_KEYSTORE_FILE_ID, targetLocation: env.COMPAT_ENC_TARGET_LOCATION),
          configFile(fileId: env.DEBUG_KEYSTORE_FILE_ID, targetLocation: env.DEBUG_ENC_TARGET_LOCATION),
          configFile(fileId: env.RELEASE_KEYSTORE_FILE_ID, targetLocation: env.RELEASE_ENC_TARGET_LOCATION),
         ]) {
           sh '''
+            base64 --decode $COMPAT_ENC_TARGET_LOCATION > $COMPAT_DEC_TARGET_LOCATION
             base64 --decode $DEBUG_ENC_TARGET_LOCATION > $DEBUG_DEC_TARGET_LOCATION
             base64 --decode $RELEASE_ENC_TARGET_LOCATION > $RELEASE_DEC_TARGET_LOCATION
           '''
@@ -358,7 +373,7 @@ pipeline {
           }
           stage('Playstore') {
             when {
-              expression { env.trackName != 'None' && env.flavor != 'Dev' && env.CHANGE_ID == null }
+              expression { env.trackName != 'None' && env.flavor == 'Beta' && env.CHANGE_ID == null }
             }
             steps {
               echo 'Checking folder before playstore upload'

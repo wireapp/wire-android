@@ -9,23 +9,23 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
 import com.wire.android.mapper.UserTypeMapper
+import com.wire.android.mapper.toUIPreview
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.model.UserAvatarData
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.ui.common.bottomsheet.conversation.ConversationTypeDetail
 import com.wire.android.ui.common.dialogs.BlockUserDialogState
 import com.wire.android.ui.home.HomeSnackbarState
+import com.wire.android.ui.home.conversations.model.UILastMessageContent
 import com.wire.android.ui.home.conversations.search.SearchPeopleViewModel
-import com.wire.android.ui.home.conversationslist.mock.mockAllMentionList
-import com.wire.android.ui.home.conversationslist.mock.mockCallHistory
-import com.wire.android.ui.home.conversationslist.mock.mockUnreadMentionList
 import com.wire.android.ui.home.conversationslist.model.BadgeEventType
 import com.wire.android.ui.home.conversationslist.model.BlockState
 import com.wire.android.ui.home.conversationslist.model.ConversationFolder
 import com.wire.android.ui.home.conversationslist.model.ConversationInfo
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
-import com.wire.android.ui.home.conversationslist.model.ConversationLastEvent
+import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.home.conversationslist.model.GroupDialogState
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.WireSessionImageLoader
@@ -36,9 +36,9 @@ import com.wire.kalium.logic.data.conversation.ConversationDetails.OneOne
 import com.wire.kalium.logic.data.conversation.ConversationDetails.Self
 import com.wire.kalium.logic.data.conversation.LegalHoldStatus
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
-import com.wire.kalium.logic.data.conversation.UnreadContentCount
-import com.wire.kalium.logic.data.conversation.UnreadContentType
+import com.wire.kalium.logic.data.conversation.UnreadEventCount
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.message.UnreadEventType
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
@@ -47,6 +47,7 @@ import com.wire.kalium.logic.feature.connection.BlockUserResult
 import com.wire.kalium.logic.feature.connection.BlockUserUseCase
 import com.wire.kalium.logic.feature.connection.UnblockUserResult
 import com.wire.kalium.logic.feature.connection.UnblockUserUseCase
+import com.wire.kalium.logic.feature.conversation.ClearConversationContentUseCase
 import com.wire.kalium.logic.feature.conversation.ConversationUpdateStatusResult
 import com.wire.kalium.logic.feature.conversation.LeaveConversationUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationListDetailsUseCase
@@ -56,15 +57,14 @@ import com.wire.kalium.logic.feature.team.DeleteTeamConversationUseCase
 import com.wire.kalium.logic.feature.team.Result
 import com.wire.kalium.logic.functional.combine
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.collections.immutable.toImmutableList
 import kotlinx.collections.immutable.toImmutableMap
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.debounce
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.Date
@@ -83,8 +83,9 @@ class ConversationListViewModel @Inject constructor(
     private val deleteTeamConversation: DeleteTeamConversationUseCase,
     private val blockUserUseCase: BlockUserUseCase,
     private val unblockUserUseCase: UnblockUserUseCase,
+    private val clearConversationContentUseCase: ClearConversationContentUseCase,
     private val wireSessionImageLoader: WireSessionImageLoader,
-    private val userTypeMapper: UserTypeMapper
+    private val userTypeMapper: UserTypeMapper,
 ) : ViewModel() {
 
     var conversationListState by mutableStateOf(ConversationListState())
@@ -104,45 +105,89 @@ class ConversationListViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            searchQueryFlow.combine(observeConversationListDetails().onEach(::conversationListDetailsToState))
-                .flatMapLatest { (searchQuery, conversationDetails) ->
-                    flow {
-                        if (searchQuery.isEmpty()) {
-                            emit(conversationDetails to searchQuery)
-                        } else {
-                            emit(searchConversation(conversationDetails, searchQuery) to searchQuery)
-                        }
+            searchQueryFlow.combine(observeConversationListDetails()
+                .map {
+                    it.map { conversationDetails ->
+                        conversationDetails.toConversationItem(
+                            wireSessionImageLoader,
+                            userTypeMapper
+                        )
                     }
-                }.collect { (conversationSearchResult, searchQuery) ->
+                }
+            )
+                .map { (searchQuery, conversationItems) -> conversationItems.withFolders().toImmutableMap() to searchQuery }
+                .flowOn(dispatcher.io())
+                .collect { (conversationsWithFolders, searchQuery) ->
                     conversationListState = conversationListState.copy(
-                        conversationSearchResult = conversationSearchResult.toConversationsFoldersMap().toImmutableMap(),
-                        searchQuery = searchQuery
-                    )
+                        conversationSearchResult = if (searchQuery.isEmpty()) conversationsWithFolders else searchConversation(
+                            conversationsWithFolders.values.flatten(),
+                            searchQuery
+                        ).withFolders().toImmutableMap(),
+                        hasNoConversations = conversationsWithFolders.isEmpty(),
+                        foldersWithConversations = conversationsWithFolders,
+                        searchQuery = searchQuery,
+
+                        )
                 }
         }
     }
 
     // Mateusz : First iteration, just filter stuff
     // next iteration : SQL- query ?
-    private fun searchConversation(conversationDetails: List<ConversationDetails>, searchQuery: String): List<ConversationDetails> {
+    private fun searchConversation(conversationDetails: List<ConversationItem>, searchQuery: String): List<ConversationItem> {
         val matchingConversations = conversationDetails.filter { details ->
-            details.conversation.name?.contains(searchQuery, true) ?: false
+            when (details) {
+                is ConversationItem.ConnectionConversation -> details.conversationInfo.name.contains(searchQuery, true)
+                is ConversationItem.GroupConversation -> details.groupName.contains(searchQuery, true)
+                is ConversationItem.PrivateConversation -> details.conversationInfo.name.contains(searchQuery, true)
+            }
         }
-
         return matchingConversations
     }
 
     private fun conversationListDetailsToState(conversationListDetails: List<ConversationDetails>) {
         conversationListState = conversationListState.copy(
-            conversations = conversationListDetails.toConversationsFoldersMap().toImmutableMap(),
+            allConversations = conversationListDetails.map { it.toConversationItem(wireSessionImageLoader, userTypeMapper) },
+            foldersWithConversations = conversationListDetails.toConversationsFoldersMap().toImmutableMap(),
             hasNoConversations = conversationListDetails.none { it !is Self },
-            callHistory = mockCallHistory.toImmutableList(), // TODO: needs to be implemented
-            unreadMentions = mockUnreadMentionList.toImmutableList(), // TODO: needs to be implemented
-            allMentions = mockAllMentionList.toImmutableList(), // TODO: needs to be implemented
             newActivityCount = 0L,
             unreadMentionsCount = 0L, // TODO: needs to be implemented on Kalium side
             missedCallsCount = 0L // TODO: needs to be implemented on Kalium side
         )
+    }
+
+    @Suppress("ComplexMethod")
+    private fun List<ConversationItem>.withFolders(): Map<ConversationFolder, List<ConversationItem>> {
+        val unreadConversations = filter {
+            when (it.mutedStatus) {
+                MutedConversationStatus.AllAllowed -> when (it.badgeEventType) {
+                    BadgeEventType.Blocked -> false
+                    BadgeEventType.Deleted -> false
+                    BadgeEventType.Knock -> true
+                    BadgeEventType.MissedCall -> true
+                    BadgeEventType.None -> false
+                    BadgeEventType.ReceivedConnectionRequest -> true
+                    BadgeEventType.SentConnectRequest -> false
+                    BadgeEventType.UnreadMention -> true
+                    is BadgeEventType.UnreadMessage -> true
+                    BadgeEventType.UnreadReply -> true
+                }
+                MutedConversationStatus.OnlyMentionsAndRepliesAllowed -> when (it.badgeEventType) {
+                    BadgeEventType.UnreadReply -> true
+                    BadgeEventType.UnreadMention -> true
+                    BadgeEventType.ReceivedConnectionRequest -> true
+                    else -> false
+                }
+                MutedConversationStatus.AllMuted -> false
+            } || (it is ConversationItem.GroupConversation && it.hasOnGoingCall)
+        }
+
+        val remainingConversations = this - unreadConversations.toSet()
+
+        return buildMap {
+            if (unreadConversations.isNotEmpty()) put(ConversationFolder.Predefined.NewActivities, unreadConversations)
+            if (remainingConversations.isNotEmpty()) put(ConversationFolder.Predefined.Conversations, remainingConversations)
+        }
     }
 
     @Suppress("ComplexMethod")
@@ -151,15 +196,17 @@ class ConversationListViewModel @Inject constructor(
             when (it.conversation.mutedStatus) {
                 MutedConversationStatus.AllAllowed ->
                     when (it) {
-                        is Group -> it.unreadMessagesCount > 0
-                        is OneOne -> it.unreadMessagesCount > 0
+                        is Group -> it.unreadEventCount.isNotEmpty()
+                        is OneOne -> it.unreadEventCount.isNotEmpty()
                         else -> false  // TODO should connection requests also be listed on "new activities"?
                     }
 
-                MutedConversationStatus.OnlyMentionsAllowed ->
+                MutedConversationStatus.OnlyMentionsAndRepliesAllowed ->
                     when (it) {
-                        is Group -> it.unreadMentionsCount > 0
-                        is OneOne -> it.unreadMentionsCount > 0
+                        is Group -> it.unreadEventCount.containsKey(UnreadEventType.MENTION)
+                                || it.unreadEventCount.containsKey(UnreadEventType.REPLY)
+                        is OneOne -> it.unreadEventCount.containsKey(UnreadEventType.MENTION)
+                                || it.unreadEventCount.containsKey(UnreadEventType.REPLY)
                         else -> false
                     }
 
@@ -333,9 +380,31 @@ class ConversationListViewModel @Inject constructor(
     fun moveConversationToArchive(id: String = "") {
     }
 
-    // TODO: needs to be implemented
-    @Suppress("EmptyFunctionBlock")
-    fun clearConversationContent(id: String = "") {
+    fun clearConversationContent(dialogState: DialogState) {
+        viewModelScope.launch {
+            requestInProgress = true
+            with(dialogState) {
+                val result = withContext(dispatcher.io()) { clearConversationContentUseCase(conversationId) }
+                requestInProgress = false
+                clearContentSnackbarResult(result, conversationTypeDetail)
+            }
+        }
+    }
+
+    private suspend fun clearContentSnackbarResult(
+        clearContentResult: ClearConversationContentUseCase.Result,
+        conversationTypeDetail: ConversationTypeDetail
+    ) {
+        if (conversationTypeDetail is ConversationTypeDetail.Connection)
+            throw IllegalStateException("Unsupported conversation type to clear content, something went wrong?")
+
+        val isGroup = conversationTypeDetail is ConversationTypeDetail.Group
+
+        if (clearContentResult is ClearConversationContentUseCase.Result.Failure) {
+            homeSnackBarState.emit(HomeSnackbarState.ClearConversationContentFailure(isGroup))
+        } else {
+            homeSnackBarState.emit(HomeSnackbarState.ClearConversationContentSuccess(isGroup))
+        }
     }
 
 }
@@ -353,11 +422,16 @@ private fun ConversationDetails.toConversationItem(
             conversationId = conversation.id,
             mutedStatus = conversation.mutedStatus,
             isLegalHold = legalHoldStatus.showLegalHoldIndicator(),
-            lastEvent = ConversationLastEvent.None, // TODO implement unread events
-            badgeEventType = parseConversationEventType(conversation.mutedStatus, unreadMentionsCount, unreadContentCount),
+            lastMessageContent = lastMessage.toUIPreview(unreadEventCount),
+            badgeEventType = parseConversationEventType(
+                conversation.mutedStatus,
+                unreadEventCount
+            ),
             hasOnGoingCall = hasOngoingCall,
             isSelfUserCreator = isSelfUserCreator,
-            isSelfUserMember = isSelfUserMember
+            isSelfUserMember = isSelfUserMember,
+            teamId = conversation.teamId,
+            selfMemberRole = selfRole
         )
     }
 
@@ -371,19 +445,23 @@ private fun ConversationDetails.toConversationItem(
             conversationInfo = ConversationInfo(
                 name = otherUser.name.orEmpty(),
                 membership = userTypeMapper.toMembership(userType),
-                unavailable = otherUser.isUnavailableUser
+                isSenderUnavailable = otherUser.isUnavailableUser
             ),
             conversationId = conversation.id,
             mutedStatus = conversation.mutedStatus,
             isLegalHold = legalHoldStatus.showLegalHoldIndicator(),
-            lastEvent = ConversationLastEvent.None, // TODO implement unread events
+            lastMessageContent = lastMessage.toUIPreview(unreadEventCount),
             badgeEventType = parsePrivateConversationEventType(
                 otherUser.connectionStatus,
                 otherUser.deleted,
-                parseConversationEventType(conversation.mutedStatus, unreadMentionsCount, unreadContentCount)
+                parseConversationEventType(
+                    conversation.mutedStatus,
+                    unreadEventCount
+                )
             ),
             userId = otherUser.id,
-            blockingState = otherUser.BlockState
+            blockingState = otherUser.BlockState,
+            teamId = otherUser.teamId
         )
     }
 
@@ -397,7 +475,7 @@ private fun ConversationDetails.toConversationItem(
                 name = otherUser?.name.orEmpty(),
                 membership = userTypeMapper.toMembership(userType)
             ),
-            lastEvent = ConversationLastEvent.Connection(
+            lastMessageContent = UILastMessageContent.Connection(
                 connection.status,
                 connection.qualifiedToId
             ),
@@ -426,21 +504,23 @@ private fun parsePrivateConversationEventType(connectionState: ConnectionState, 
 
 private fun parseConversationEventType(
     mutedStatus: MutedConversationStatus,
-    unreadMentionsCount: Long,
-    unreadContentCount: UnreadContentCount
+    unreadEventCount: UnreadEventCount
 ): BadgeEventType = when (mutedStatus) {
     MutedConversationStatus.AllMuted -> BadgeEventType.None
-    MutedConversationStatus.OnlyMentionsAllowed ->
-        if (unreadMentionsCount > 0) BadgeEventType.UnreadMention
-        else BadgeEventType.None
-
-    else -> {
-        val unreadMessagesCount = unreadContentCount.values.sum()
+    MutedConversationStatus.OnlyMentionsAndRepliesAllowed ->
         when {
-//            unreadContentCount.containsKey(UnreadContentType.KNOCK) -> BadgeEventType.Knock TODO uncomment when icon will be available
-            unreadContentCount.containsKey(UnreadContentType.MISSED_CALL) -> BadgeEventType.MissedCall
-            unreadMentionsCount > 0 -> BadgeEventType.UnreadMention
-            // TODO handle replies
+            unreadEventCount.containsKey(UnreadEventType.MENTION) -> BadgeEventType.UnreadMention
+            unreadEventCount.containsKey(UnreadEventType.REPLY) -> BadgeEventType.UnreadReply
+            unreadEventCount.containsKey(UnreadEventType.MISSED_CALL) -> BadgeEventType.MissedCall
+            else -> BadgeEventType.None
+        }
+    else -> {
+        val unreadMessagesCount = unreadEventCount.values.sum()
+        when {
+            unreadEventCount.containsKey(UnreadEventType.KNOCK) -> BadgeEventType.Knock
+            unreadEventCount.containsKey(UnreadEventType.MISSED_CALL) -> BadgeEventType.MissedCall
+            unreadEventCount.containsKey(UnreadEventType.MENTION) -> BadgeEventType.UnreadMention
+            unreadEventCount.containsKey(UnreadEventType.REPLY) -> BadgeEventType.UnreadReply
             unreadMessagesCount > 0 -> BadgeEventType.UnreadMessage(unreadMessagesCount)
             else -> BadgeEventType.None
         }

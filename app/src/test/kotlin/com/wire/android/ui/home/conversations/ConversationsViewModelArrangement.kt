@@ -4,6 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
 import com.wire.android.framework.FakeKaliumFileSystem
+import com.wire.android.framework.TestConversation
 import com.wire.android.mapper.ContactMapper
 import com.wire.android.model.UserAvatarData
 import com.wire.android.navigation.NavigationManager
@@ -35,11 +36,11 @@ import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageUseCase
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveOngoingCallsUseCase
-import com.wire.kalium.logic.feature.conversation.GetSecurityClassificationTypeUseCase
 import com.wire.kalium.logic.feature.conversation.InteractionAvailability
 import com.wire.kalium.logic.feature.conversation.IsInteractionAvailableResult
 import com.wire.kalium.logic.feature.conversation.MembersToMentionUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationInteractionAvailabilityUseCase
+import com.wire.kalium.logic.feature.conversation.ObserveSecurityClassificationLabelUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationReadDateUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
@@ -121,7 +122,7 @@ internal class ConversationsViewModelArrangement {
     private lateinit var updateConversationReadDateUseCase: UpdateConversationReadDateUseCase
 
     @MockK
-    private lateinit var getSecurityClassificationType: GetSecurityClassificationTypeUseCase
+    private lateinit var observeSecurityClassificationType: ObserveSecurityClassificationLabelUseCase
 
     @MockK
     private lateinit var observeSyncState: ObserveSyncStateUseCase
@@ -149,7 +150,7 @@ internal class ConversationsViewModelArrangement {
             kaliumFileSystem = fakeKaliumFileSystem,
             updateConversationReadDateUseCase = updateConversationReadDateUseCase,
             observeConversationInteractionAvailability = observeConversationInteractionAvailabilityUseCase,
-            getConversationClassifiedType = getSecurityClassificationType,
+            observeSecurityClassificationLabel = observeSecurityClassificationType,
             contactMapper = contactMapper,
             membersToMention = membersToMention
         )
@@ -197,7 +198,6 @@ internal class ConversationsViewModelArrangement {
     }
 
     fun arrange() = this to viewModel
-
 }
 
 internal fun withMockConversationDetailsOneOnOne(
@@ -207,9 +207,7 @@ internal fun withMockConversationDetailsOneOnOne(
     connectionState: ConnectionState = ConnectionState.ACCEPTED,
     unavailable: Boolean = false
 ) = ConversationDetails.OneOne(
-    conversation = mockk<Conversation>().apply {
-        every { type } returns Conversation.Type.ONE_ON_ONE
-    },
+    conversation = TestConversation.ONE_ON_ONE,
     otherUser = mockk<OtherUser>().apply {
         every { id } returns senderId
         every { name } returns senderName
@@ -221,27 +219,23 @@ internal fun withMockConversationDetailsOneOnOne(
     },
     legalHoldStatus = LegalHoldStatus.DISABLED,
     userType = UserType.INTERNAL,
-    unreadMessagesCount = 0,
-    lastUnreadMessage = null,
-    unreadContentCount = emptyMap()
+    lastMessage = null,
+    unreadEventCount = emptyMap()
 )
 
 internal fun mockConversationDetailsGroup(
     conversationName: String,
     mockedConversationId: ConversationId = ConversationId("someId", "someDomain")
 ) = ConversationDetails.Group(
-    conversation = mockk<Conversation>().apply {
-        every { name } returns conversationName
-        every { id } returns mockedConversationId
-        every { type } returns Conversation.Type.GROUP
-    },
+    conversation = TestConversation.GROUP()
+        .copy(name = conversationName, id = mockedConversationId),
     legalHoldStatus = mockk(),
     hasOngoingCall = false,
-    unreadMessagesCount = 0,
-    lastUnreadMessage = null,
+    lastMessage = null,
     isSelfUserCreator = true,
     isSelfUserMember = true,
-    unreadContentCount = emptyMap()
+    unreadEventCount = emptyMap(),
+    selfRole = Conversation.Member.Role.Member
 )
 
 internal fun mockUITextMessage(id: String = "someId", userName: String = "mockUserName"): UIMessage {

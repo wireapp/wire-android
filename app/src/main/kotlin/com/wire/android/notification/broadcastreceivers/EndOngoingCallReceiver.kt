@@ -13,7 +13,7 @@ import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.id.toQualifiedID
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -36,9 +36,7 @@ class EndOngoingCallReceiver : BroadcastReceiver() {
         appLogger.i("CallNotificationDismissReceiver: onReceive, conversationId: $conversationId")
 
         val userId: QualifiedID? = intent.getStringExtra(EXTRA_RECEIVER_USER_ID)?.toQualifiedID(qualifiedIdMapper)
-
-        GlobalScope.launch(dispatcherProvider.io()) {
-            val sessionScope =
+         val sessionScope =
                 if (userId != null) {
                     coreLogic.getSessionScope(userId)
                 } else {
@@ -51,10 +49,10 @@ class EndOngoingCallReceiver : BroadcastReceiver() {
                 }
 
             sessionScope?.let {
-                it.calls.endCall(qualifiedIdMapper.fromStringToQualifiedID(conversationId))
+                it.launch(Dispatchers.IO) {
+                    it.calls.endCall(qualifiedIdMapper.fromStringToQualifiedID(conversationId))
+                }
             }
-
-        }
     }
 
     companion object {

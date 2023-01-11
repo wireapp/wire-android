@@ -13,7 +13,8 @@ data class LoginState(
     val ssoLoginEnabled: Boolean = false,
     val emailLoginEnabled: Boolean = false,
     val isProxyAuthRequired: Boolean = false,
-    val loginError: LoginError = LoginError.None
+    val loginError: LoginError = LoginError.None,
+    val isProxyEnabled: Boolean = false
 )
 
 fun LoginState.updateEmailLoginEnabled() =

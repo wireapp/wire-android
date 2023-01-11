@@ -101,7 +101,6 @@ fun ConversationScreenTopAppBar(
                 )
             }
 
-            Spacer(Modifier.width(MaterialTheme.wireDimensions.spacing6x))
             callControlButton(
                 hasOngoingCall = hasOngoingCall,
                 onJoinCallButtonClick = onJoinCallButtonClick,

@@ -53,7 +53,6 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
-
 @OptIn(ExperimentalMaterialApi::class, ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class)
 class LoginEmailViewModelTest {
@@ -146,7 +145,7 @@ class LoginEmailViewModelTest {
     fun `given button is clicked, when logging in, then show loading`() {
         val scheduler = TestCoroutineScheduler()
         Dispatchers.setMain(StandardTestDispatcher(scheduler))
-        coEvery { loginUseCase(any(), any(), any()) } returns AuthenticationResult.Failure.InvalidCredentials
+        coEvery { loginUseCase(any(), any(), any(), any()) } returns AuthenticationResult.Failure.InvalidCredentials
         coEvery { addAuthenticatedUserUseCase(any(), any(), any(), any()) } returns AddAuthenticatedUserUseCase.Result.Success(userId)
 
         loginViewModel.onPasswordChange(TextFieldValue("abc"))
@@ -166,7 +165,12 @@ class LoginEmailViewModelTest {
         val scheduler = TestCoroutineScheduler()
         val password = "abc"
         Dispatchers.setMain(StandardTestDispatcher(scheduler))
-        coEvery { loginUseCase(any(), any(), any()) } returns AuthenticationResult.Success(AUTH_TOKEN, SSO_ID, SERVER_CONFIG.id, null)
+        coEvery { loginUseCase(any(), any(), any(), any()) } returns AuthenticationResult.Success(
+            AUTH_TOKEN,
+            SSO_ID,
+            SERVER_CONFIG.id,
+            null
+        )
         coEvery { addAuthenticatedUserUseCase(any(), any(), any(), any()) } returns AddAuthenticatedUserUseCase.Result.Success(userId)
         coEvery { navigationManager.navigate(any()) } returns Unit
         coEvery { getOrRegisterClientUseCase(any()) } returns RegisterClientResult.Success(CLIENT)
@@ -175,7 +179,7 @@ class LoginEmailViewModelTest {
         loginViewModel.onPasswordChange(TextFieldValue(password))
 
         runTest { loginViewModel.login() }
-        coVerify(exactly = 1) { loginUseCase(any(), any(), any()) }
+        coVerify(exactly = 1) { loginUseCase(any(), any(), any(), any()) }
         coVerify(exactly = 1) { getOrRegisterClientUseCase(any()) }
         coVerify(exactly = 1) {
             navigationManager.navigate(
@@ -192,7 +196,12 @@ class LoginEmailViewModelTest {
         val scheduler = TestCoroutineScheduler()
         val password = "abc"
         Dispatchers.setMain(StandardTestDispatcher(scheduler))
-        coEvery { loginUseCase(any(), any(), any()) } returns AuthenticationResult.Success(AUTH_TOKEN, SSO_ID, SERVER_CONFIG.id, null)
+        coEvery { loginUseCase(any(), any(), any(), any()) } returns AuthenticationResult.Success(
+            AUTH_TOKEN,
+            SSO_ID,
+            SERVER_CONFIG.id,
+            null
+        )
         coEvery { addAuthenticatedUserUseCase(any(), any(), any(), any()) } returns AddAuthenticatedUserUseCase.Result.Success(userId)
         coEvery { navigationManager.navigate(any()) } returns Unit
         coEvery { getOrRegisterClientUseCase(any()) } returns RegisterClientResult.Success(CLIENT)
@@ -201,7 +210,7 @@ class LoginEmailViewModelTest {
         loginViewModel.onPasswordChange(TextFieldValue(password))
 
         runTest { loginViewModel.login() }
-        coVerify(exactly = 1) { loginUseCase(any(), any(), any()) }
+        coVerify(exactly = 1) { loginUseCase(any(), any(), any(), any()) }
         coVerify(exactly = 1) { getOrRegisterClientUseCase(any()) }
         coVerify(exactly = 1) {
             navigationManager.navigate(
@@ -215,7 +224,7 @@ class LoginEmailViewModelTest {
 
     @Test
     fun `given button is clicked, when login returns InvalidUserIdentifier error, then InvalidUserIdentifierError is passed`() {
-        coEvery { loginUseCase(any(), any(), any()) } returns AuthenticationResult.Failure.InvalidUserIdentifier
+        coEvery { loginUseCase(any(), any(), any(), any()) } returns AuthenticationResult.Failure.InvalidUserIdentifier
 
         runTest { loginViewModel.login() }
 
@@ -224,7 +233,7 @@ class LoginEmailViewModelTest {
 
     @Test
     fun `given button is clicked, when login returns InvalidCredentials error, then InvalidCredentialsError is passed`() {
-        coEvery { loginUseCase(any(), any(), any()) } returns AuthenticationResult.Failure.InvalidCredentials
+        coEvery { loginUseCase(any(), any(), any(), any()) } returns AuthenticationResult.Failure.InvalidCredentials
 
         runTest { loginViewModel.login() }
 
@@ -234,7 +243,7 @@ class LoginEmailViewModelTest {
     @Test
     fun `given button is clicked, when login returns Generic error, then GenericError is passed`() {
         val networkFailure = NetworkFailure.NoNetworkConnection(null)
-        coEvery { loginUseCase(any(), any(), any()) } returns
+        coEvery { loginUseCase(any(), any(), any(), any()) } returns
                 AuthenticationResult.Failure.Generic(networkFailure)
 
         runTest { loginViewModel.login() }
@@ -245,7 +254,7 @@ class LoginEmailViewModelTest {
 
     @Test
     fun `given dialog is dismissed, when login returns DialogError, then hide error`() {
-        coEvery { loginUseCase(any(), any(), any()) } returns AuthenticationResult.Failure.InvalidCredentials
+        coEvery { loginUseCase(any(), any(), any(), any()) } returns AuthenticationResult.Failure.InvalidCredentials
 
         runTest { loginViewModel.login() }
 
@@ -256,7 +265,12 @@ class LoginEmailViewModelTest {
 
     @Test
     fun `given button is clicked, when addAuthenticatedUser returns UserAlreadyExists error, then UserAlreadyExists is passed`() {
-        coEvery { loginUseCase(any(), any(), any()) } returns AuthenticationResult.Success(AUTH_TOKEN, SSO_ID, SERVER_CONFIG.id, null)
+        coEvery { loginUseCase(any(), any(), any(), any()) } returns AuthenticationResult.Success(
+            AUTH_TOKEN,
+            SSO_ID,
+            SERVER_CONFIG.id,
+            null
+        )
         coEvery {
             addAuthenticatedUserUseCase(
                 any(),
@@ -275,14 +289,15 @@ class LoginEmailViewModelTest {
         val CLIENT_ID = ClientId("test")
         val CLIENT = Client(
             CLIENT_ID, ClientType.Permanent, "time", null,
-            null, "label", "cookie", null, "model"
+            null, "label", "cookie", null, "model", emptyMap()
         )
         val SSO_ID: SsoId = SsoId("scim_id", null, null)
         val AUTH_TOKEN = AuthTokens(
             userId = UserId("user_id", "domain"),
             accessToken = "access_token",
             refreshToken = "refresh_token",
-            tokenType = "token_type"
+            tokenType = "token_type",
+            cookieLabel = "cookie_label"
         )
         val SERVER_CONFIG = ServerConfig(
             id = "config",
@@ -305,4 +320,3 @@ class LoginEmailViewModelTest {
         )
     }
 }
-

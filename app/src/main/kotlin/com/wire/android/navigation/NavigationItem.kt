@@ -18,6 +18,7 @@ import com.wire.android.navigation.NavigationItemDestinationsRoutes.CREATE_PERSO
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.CREATE_TEAM
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.DEBUG
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.EDIT_CONVERSATION_NAME
+import com.wire.android.navigation.NavigationItemDestinationsRoutes.EDIT_DISPLAY_NAME
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.GROUP_CONVERSATION_ALL_PARTICIPANTS
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.GROUP_CONVERSATION_DETAILS
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.HOME
@@ -27,12 +28,14 @@ import com.wire.android.navigation.NavigationItemDestinationsRoutes.INITIAL_SYNC
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.INITIATING_CALL
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.LOGIN
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.MEDIA_GALLERY
+import com.wire.android.navigation.NavigationItemDestinationsRoutes.MESSAGE_DETAILS
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.MIGRATION
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.MY_ACCOUNT
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.NETWORK_SETTINGS
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.NEW_CONVERSATION
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.ONGOING_CALL
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.OTHER_USER_PROFILE
+import com.wire.android.navigation.NavigationItemDestinationsRoutes.PRIVACY_SETTINGS
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.REGISTER_DEVICE
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.REMOVE_DEVICES
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.SELF_DEVICES
@@ -56,6 +59,7 @@ import com.wire.android.ui.home.conversations.ConversationScreen
 import com.wire.android.ui.home.conversations.details.GroupConversationDetailsScreen
 import com.wire.android.ui.home.conversations.details.metadata.EditConversationNameScreen
 import com.wire.android.ui.home.conversations.details.participants.GroupConversationAllParticipantsScreen
+import com.wire.android.ui.home.conversations.messagedetails.MessageDetailsScreen
 import com.wire.android.ui.home.conversations.search.AddMembersSearchRouter
 import com.wire.android.ui.home.gallery.MediaGalleryScreen
 import com.wire.android.ui.home.newconversation.NewConversationRouter
@@ -63,6 +67,7 @@ import com.wire.android.ui.home.settings.account.MyAccountScreen
 import com.wire.android.ui.home.settings.appsettings.AppSettingsScreen
 import com.wire.android.ui.home.settings.appsettings.networkSettings.NetworkSettingsScreen
 import com.wire.android.ui.home.settings.backup.BackupAndRestoreScreen
+import com.wire.android.ui.home.settings.privacy.PrivacySettingsConfigScreen
 import com.wire.android.ui.initialsync.InitialSyncScreen
 import com.wire.android.ui.migration.MigrationScreen
 import com.wire.android.ui.settings.devices.SelfDevicesScreen
@@ -174,6 +179,11 @@ enum class NavigationItem(
         content = { SelfDevicesScreen() }
     ),
 
+    PrivacySettings(
+        primaryRoute = PRIVACY_SETTINGS,
+        content = { PrivacySettingsConfigScreen() }
+    ),
+
     BackupAndRestore(
         primaryRoute = BACKUP_AND_RESTORE,
         content = { BackupAndRestoreScreen() }
@@ -182,6 +192,11 @@ enum class NavigationItem(
     Debug(
         primaryRoute = DEBUG,
         content = { DebugScreen() },
+    ),
+
+    EditDisplayName(
+        primaryRoute = EDIT_DISPLAY_NAME,
+        content = { com.wire.android.ui.home.settings.account.displayname.ChangeDisplayNameScreen() }
     ),
 
     NetworkSettings(
@@ -196,7 +211,7 @@ enum class NavigationItem(
 
     MyAccount(
         primaryRoute = MY_ACCOUNT,
-        content = { MyAccountScreen() }
+        content = { MyAccountScreen(it.navBackStackEntry.savedStateHandle.getBackNavArgs()) }
     ),
 
     SelfUserProfile(
@@ -241,13 +256,30 @@ enum class NavigationItem(
                         "{$EXTRA_CONVERSATION_ID}"
             }
         ),
-        content = { ConversationScreen(it.navBackStackEntry.savedStateHandle.getBackNavArgs()) },
+        content = { ConversationScreen(backNavArgs = it.navBackStackEntry.savedStateHandle.getBackNavArgs()) },
         animationConfig = NavigationAnimationConfig.NoAnimation
     ) {
         override fun getRouteWithArgs(arguments: List<Any>): String {
             val conversationIdString: String = arguments.filterIsInstance<ConversationId>().firstOrNull()?.toString()
                 ?: "{$EXTRA_CONVERSATION_ID}"
             return "$CONVERSATION?$EXTRA_CONVERSATION_ID=$conversationIdString"
+        }
+    },
+
+    MessageDetails(
+        primaryRoute = MESSAGE_DETAILS,
+        canonicalRoute = "$MESSAGE_DETAILS?$EXTRA_CONVERSATION_ID={$EXTRA_CONVERSATION_ID}" +
+                "&$EXTRA_MESSAGE_ID={$EXTRA_MESSAGE_ID}&$EXTRA_IS_SELF_MESSAGE={$EXTRA_IS_SELF_MESSAGE}",
+        content = { MessageDetailsScreen() }
+    ) {
+        override fun getRouteWithArgs(arguments: List<Any>): String {
+            val conversationIdString: String = arguments.filterIsInstance<ConversationId>().firstOrNull()?.toString()
+                ?: "{$EXTRA_CONVERSATION_ID}"
+            val messageIdString: String = arguments.filterIsInstance<String>().firstOrNull()?.toString()
+                ?: "{$EXTRA_MESSAGE_ID}"
+            val isSelfMessage: String = arguments.filterIsInstance<Boolean>().firstOrNull()?.toString() ?: "{$EXTRA_IS_SELF_MESSAGE}"
+            return "$MESSAGE_DETAILS?$EXTRA_CONVERSATION_ID=$conversationIdString" +
+                    "&$EXTRA_MESSAGE_ID=$messageIdString&$EXTRA_IS_SELF_MESSAGE=$isSelfMessage"
         }
     },
 
@@ -389,12 +421,15 @@ object NavigationItemDestinationsRoutes {
     const val CONVERSATION = "detailed_conversation_screen"
     const val EDIT_CONVERSATION_NAME = "edit_conversation_name_screen"
     const val GROUP_CONVERSATION_DETAILS = "group_conversation_details_screen"
+    const val MESSAGE_DETAILS = "message_details_screen"
     const val GROUP_CONVERSATION_ALL_PARTICIPANTS = "group_conversation_all_participants_screen"
     const val ADD_CONVERSATION_PARTICIPANTS = "add_conversation_participants"
     const val APP_SETTINGS = "app_settings_screen"
     const val SELF_DEVICES = "self_devices_screen"
+    const val PRIVACY_SETTINGS = "privacy_settings"
     const val BACKUP_AND_RESTORE = "backup_and_restore_screen"
     const val MY_ACCOUNT = "my_account_screen"
+    const val EDIT_DISPLAY_NAME = "edit_display_name_screen"
     const val DEBUG = "debug_screen"
     const val REMOVE_DEVICES = "remove_devices_screen"
     const val REGISTER_DEVICE = "register_device_screen"
@@ -413,6 +448,8 @@ const val EXTRA_USER_DOMAIN = "extra_user_domain"
 const val EXTRA_CONVERSATION_ID = "extra_conversation_id"
 const val EXTRA_CREATE_ACCOUNT_FLOW_TYPE = "extra_create_account_flow_type"
 const val EXTRA_IMAGE_DATA = "extra_image_data"
+const val EXTRA_MESSAGE_ID = "extra_message_id"
+const val EXTRA_IS_SELF_MESSAGE = "extra_is_self_message"
 const val EXTRA_MESSAGE_TO_DELETE_ID = "extra_message_to_delete"
 const val EXTRA_MESSAGE_TO_DELETE_IS_SELF = "extra_message_to_delete_is_self"
 
@@ -420,6 +457,7 @@ const val EXTRA_CONNECTION_IGNORED_USER_NAME = "extra_connection_ignored_user_na
 const val EXTRA_GROUP_DELETED_NAME = "extra_group_deleted_name"
 const val EXTRA_GROUP_NAME_CHANGED = "extra_group_name_changed"
 const val EXTRA_LEFT_GROUP = "extra_left_group"
+const val EXTRA_SETTINGS_DISPLAY_NAME_CHANGED = "extra_settings_display_name_changed"
 
 const val EXTRA_BACK_NAVIGATION_ARGUMENTS = "extra_back_navigation_arguments"
 

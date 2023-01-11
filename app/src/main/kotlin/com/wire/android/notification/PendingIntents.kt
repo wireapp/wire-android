@@ -1,4 +1,5 @@
 @file:Suppress("TooManyFunctions")
+
 package com.wire.android.notification
 
 import android.app.PendingIntent
@@ -11,12 +12,12 @@ import com.wire.android.notification.broadcastreceivers.NotificationReplyReceive
 import com.wire.android.ui.WireActivity
 import com.wire.android.util.deeplink.DeepLinkProcessor
 
-fun messagePendingIntent(context: Context, conversationId: String): PendingIntent {
+fun messagePendingIntent(context: Context, conversationId: String, userId: String?): PendingIntent {
     val intent = Intent(context.applicationContext, WireActivity::class.java).apply {
         data = Uri.Builder()
             .scheme(DeepLinkProcessor.DEEP_LINK_SCHEME)
             .authority(DeepLinkProcessor.CONVERSATION_DEEPLINK_HOST)
-            .appendPath(conversationId)
+            .appendPath(conversationId).appendPath(userId)
             .build()
     }
     val requestCode = getRequestCode(conversationId, OPEN_MESSAGE_REQUEST_CODE_PREFIX)
@@ -48,7 +49,8 @@ fun otherUserProfilePendingIntent(context: Context, userId: String): PendingInte
 }
 
 // TODO
-fun callMessagePendingIntent(context: Context, conversationId: String): PendingIntent = messagePendingIntent(context, conversationId)
+fun callMessagePendingIntent(context: Context, conversationId: String, userId: String?): PendingIntent =
+    messagePendingIntent(context, conversationId, userId)
 
 fun summaryMessagePendingIntent(context: Context): PendingIntent {
     val intent = Intent(context.applicationContext, WireActivity::class.java).apply {
@@ -80,6 +82,7 @@ fun openIncomingCallPendingIntent(context: Context, conversationId: String): Pen
         PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
     )
 }
+
 fun openOngoingCallPendingIntent(context: Context, conversationId: String): PendingIntent {
     val intent = openOngoingCallIntent(context, conversationId)
 
@@ -132,6 +135,7 @@ private fun openIncomingCallIntent(context: Context, conversationId: String) =
             .appendPath(conversationId)
             .build()
     }
+
 private fun openOngoingCallIntent(context: Context, conversationId: String) =
     Intent(context.applicationContext, WireActivity::class.java).apply {
         data = Uri.Builder()

@@ -59,7 +59,11 @@ class MigrationMapper @Inject constructor() {
                 lastReadDate = LocalDateTime.MIN.toString(),
                 lastModifiedDate = LocalDateTime.MIN.toString(),
                 lastNotificationDate = LocalDateTime.MIN.toString(),
-                creatorId = creatorId
+                creatorId = creatorId,
+                // when migrating conversations from scala to AR, we do not care about the receiptMode
+                // and any value here swill not change the data in the database
+                // and it is only applicable to deleted conversations that are not part of the sync proccess
+                receiptMode = Conversation.ReceiptMode.ENABLED
             )
         }
     }
@@ -88,7 +92,7 @@ class MigrationMapper @Inject constructor() {
     }
 
     private fun mapMutedStatus(status: Int): MutedConversationStatus = when (status) {
-        1 -> MutedConversationStatus.OnlyMentionsAllowed
+        1 -> MutedConversationStatus.OnlyMentionsAndRepliesAllowed
         2 -> MutedConversationStatus.AllAllowed
         3 -> MutedConversationStatus.AllMuted
         else -> MutedConversationStatus.AllAllowed
@@ -122,6 +126,7 @@ class MigrationMapper @Inject constructor() {
         else -> ConnectionState.NOT_CONNECTED
     }
 
+    @Suppress("ComplexMethod")
     fun fromScalaUserToUser(scalaUserData: ScalaUserData, selfUserId: String, selfUserDomain: String?, selfUserTeamId: String?) =
         if (scalaUserData.id == selfUserId && scalaUserData.domain == selfUserDomain) {
             SelfUser(
@@ -133,8 +138,8 @@ class MigrationMapper @Inject constructor() {
                 accentId = scalaUserData.accentId,
                 teamId = scalaUserData.teamId?.let { TeamId(it) },
                 connectionStatus = ConnectionState.ACCEPTED,
-                previewPicture = toQualifiedId(scalaUserData.pictureAssetId, scalaUserData.domain),
-                completePicture = toQualifiedId(scalaUserData.pictureAssetId, scalaUserData.domain),
+                previewPicture = scalaUserData.pictureAssetId?.let { toQualifiedId(it, scalaUserData.domain) },
+                completePicture = scalaUserData.pictureAssetId?.let { toQualifiedId(it, scalaUserData.domain) },
                 availabilityStatus = mapUserAvailabilityStatus(scalaUserData.availability)
             )
         } else {
@@ -157,13 +162,12 @@ class MigrationMapper @Inject constructor() {
                 accentId = scalaUserData.accentId,
                 teamId = scalaUserData.teamId?.let { TeamId(it) },
                 connectionStatus = mapConnectionStatus(scalaUserData.connection),
-                previewPicture = toQualifiedId(scalaUserData.pictureAssetId, scalaUserData.domain),
-                completePicture = toQualifiedId(scalaUserData.pictureAssetId, scalaUserData.domain),
+                previewPicture = scalaUserData.pictureAssetId?.let { toQualifiedId(it, scalaUserData.domain) },
+                completePicture = scalaUserData.pictureAssetId?.let { toQualifiedId(it, scalaUserData.domain) },
                 userType = userType,
                 availabilityStatus = mapUserAvailabilityStatus(scalaUserData.availability),
                 botService = botService,
                 deleted = scalaUserData.deleted
-
             )
         }
 }

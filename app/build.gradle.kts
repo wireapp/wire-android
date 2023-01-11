@@ -18,10 +18,11 @@ plugins {
     id(ScriptPlugins.compilation)
     id(ScriptPlugins.testing)
     id(ScriptPlugins.spotless)
-    id(BuildPlugins.gms)
 }
 
 repositories {
+    mavenLocal()
+    wireDetektRulesRepo()
     google()
 }
 
@@ -49,7 +50,7 @@ android {
     }
 
     composeOptions {
-        kotlinCompilerExtensionVersion = Libraries.Versions.compose
+        kotlinCompilerExtensionVersion = Libraries.Versions.composeCompiler
     }
 
     sourceSets {
@@ -70,6 +71,7 @@ android {
 
     packagingOptions {
         resources.pickFirsts.add("google/protobuf/*.proto")
+        jniLibs.pickFirsts.add("**/libsodium.so")
     }
 
     testOptions {
@@ -210,5 +212,4 @@ dependencies {
     // Internal only tracking & logging
 
     implementation(Libraries.dataDog)
-
 }

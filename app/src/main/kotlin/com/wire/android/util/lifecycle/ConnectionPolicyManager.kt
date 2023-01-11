@@ -128,10 +128,15 @@ class ConnectionPolicyManager @Inject constructor(
         wasUIInitialized: Boolean
     ) = userIdList.forEach { userId ->
         val isCurrentSession = userId == currentSessionUserId
+        val isWebSocketEnabled = coreLogic.getSessionScope(userId).getPersistentWebSocketStatus()
         val connectionPolicy = if (isCurrentSession && wasUIInitialized) {
             ConnectionPolicy.KEEP_ALIVE
         } else {
-            ConnectionPolicy.DISCONNECT_AFTER_PENDING_EVENTS
+            if (!isWebSocketEnabled){
+                ConnectionPolicy.DISCONNECT_AFTER_PENDING_EVENTS
+            }else{
+                ConnectionPolicy.KEEP_ALIVE
+            }
         }
         coreLogic.getSessionScope(userId).setConnectionPolicy(connectionPolicy)
     }

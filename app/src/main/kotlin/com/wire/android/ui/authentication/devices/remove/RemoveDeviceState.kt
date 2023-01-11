@@ -3,9 +3,8 @@ package com.wire.android.ui.authentication.devices.remove
 import androidx.compose.ui.text.input.TextFieldValue
 import com.wire.android.ui.authentication.devices.model.Device
 import com.wire.kalium.logic.CoreFailure
-import com.wire.kalium.logic.data.client.Client
 
-data class RemoveDeviceState (
+data class RemoveDeviceState(
     val deviceList: List<Device>,
     val removeDeviceDialogState: RemoveDeviceDialogState = RemoveDeviceDialogState.Hidden,
     val isLoadingClientsList: Boolean,

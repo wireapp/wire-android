@@ -4,6 +4,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import com.wire.kalium.logic.data.conversation.ConversationOptions
 
 data class GroupMetadataState(
+    val originalGroupName: String = "",
     val groupName: TextFieldValue = TextFieldValue(""),
     var groupProtocol: ConversationOptions.Protocol = ConversationOptions.Protocol.PROTEUS,
     val animatedGroupNameError: Boolean = false,
@@ -12,6 +13,7 @@ data class GroupMetadataState(
     val isLoading: Boolean = false,
     val error: NewGroupError = NewGroupError.None,
     val mode: GroupNameMode = GroupNameMode.CREATION,
+    val isSelfTeamMember: Boolean = false
 ) {
     sealed interface NewGroupError {
         object None : NewGroupError

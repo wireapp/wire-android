@@ -21,6 +21,7 @@ import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.id.TeamId
 import com.wire.kalium.logic.data.team.Team
+import com.wire.kalium.logic.feature.conversation.ClearConversationContentUseCase
 import com.wire.kalium.logic.feature.conversation.ConversationUpdateStatusResult
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
@@ -386,14 +387,15 @@ class GroupConversationDetailsViewModelTest {
             conversationId = details.conversation.id,
             mutingConversationState = details.conversation.mutedStatus,
             conversationTypeDetail = ConversationTypeDetail.Group(details.conversation.id, details.isSelfUserCreator),
-            isSelfUserMember = true
+            selfRole = Conversation.Member.Role.Member,
+            isTeamConversation = details.conversation.isTeamGroup()
         )
         // When - Then
         assertEquals(expected, viewModel.conversationSheetContent)
     }
 
     companion object {
-        val dummyConversationId = ConversationId("some-dummy-value","some.dummy.domain")
+        val dummyConversationId = ConversationId("some-dummy-value", "some.dummy.domain")
         val testGroup = ConversationDetails.Group(
             Conversation(
                 id = dummyConversationId,
@@ -408,15 +410,16 @@ class GroupConversationDetailsViewModelTest {
                 access = listOf(Conversation.Access.CODE, Conversation.Access.INVITE),
                 accessRole = listOf(Conversation.AccessRole.NON_TEAM_MEMBER, Conversation.AccessRole.GUEST),
                 lastReadDate = "2022-04-04T16:11:28.388Z",
-                creatorId = null
+                creatorId = null,
+                receiptMode = Conversation.ReceiptMode.ENABLED
             ),
             legalHoldStatus = LegalHoldStatus.DISABLED,
             hasOngoingCall = false,
-            unreadMessagesCount = 0,
-            lastUnreadMessage = null,
+            lastMessage = null,
             isSelfUserCreator = false,
             isSelfUserMember = true,
-            unreadContentCount = emptyMap()
+            unreadEventCount = emptyMap(),
+            selfRole = Conversation.Member.Role.Member
         )
     }
 }
@@ -454,6 +457,9 @@ internal class GroupConversationDetailsViewModelArrangement {
     lateinit var updateConversationMutedStatus: UpdateConversationMutedStatusUseCase
 
     @MockK
+    lateinit var clearConversationContentUseCase: ClearConversationContentUseCase
+
+    @MockK
     private lateinit var qualifiedIdMapper: QualifiedIdMapper
 
     private val conversationDetailsChannel = Channel<ConversationDetails>(capacity = Channel.UNLIMITED)
@@ -473,7 +479,8 @@ internal class GroupConversationDetailsViewModelArrangement {
             getSelfTeam = getSelfTeamUseCase,
             savedStateHandle = savedStateHandle,
             qualifiedIdMapper = qualifiedIdMapper,
-            updateConversationMutedStatus = updateConversationMutedStatus
+            updateConversationMutedStatus = updateConversationMutedStatus,
+            clearConversationContent = clearConversationContentUseCase
         )
     }
 

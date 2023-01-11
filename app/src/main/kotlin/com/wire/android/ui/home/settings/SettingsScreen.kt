@@ -28,11 +28,11 @@ import com.wire.android.navigation.isExternalRoute
 import com.wire.android.ui.common.RowItemTemplate
 import com.wire.android.ui.common.clickable
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.home.conversationslist.folderWithElements
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.debug.LocalFeatureVisibilityFlags
+import com.wire.android.util.extension.folderWithElements
 
 @Composable
 fun SettingsScreen(
@@ -71,6 +71,7 @@ fun SettingsScreenContent(
                 header = context.getString(R.string.settings_account_settings_label),
                 items = buildList {
                     add(SettingsItem.YourAccount)
+                    add(SettingsItem.PrivacySettings)
                     add(SettingsItem.ManageDevices)
                     if (BackUpSettings) {
                         add(SettingsItem.BackupAndRestore)

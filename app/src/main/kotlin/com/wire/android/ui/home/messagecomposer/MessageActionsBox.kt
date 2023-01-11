@@ -1,10 +1,13 @@
 package com.wire.android.ui.home.messagecomposer
 
-import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.Transition
+import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.with
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,7 +20,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusManager
+import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WireSecondaryIconButton
@@ -27,26 +30,25 @@ import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 @ExperimentalAnimationApi
 @Composable
 fun MessageComposeActionsBox(
-    modifier: Modifier,
     transition: Transition<MessageComposeInputState>,
     messageComposerState: MessageComposerInnerState,
-    focusManager: FocusManager,
     isMentionActive: Boolean
 ) {
     Column(
-        modifier
+        Modifier
             .wrapContentSize()
     ) {
         Divider()
         Box(Modifier.wrapContentSize()) {
-            transition.AnimatedVisibility(
-                visible = { messageComposerState.messageComposeInputState != MessageComposeInputState.Enabled },
-                // we are animating the exit, so that the MessageComposeActions go down
-                exit = slideOutVertically(
-                    targetOffsetY = { fullHeight -> fullHeight / 2 }
-                ) + fadeOut()
-            ) {
-                MessageComposeActions(messageComposerState, focusManager, isMentionActive)
+            transition.AnimatedContent(
+                contentKey = { state -> state != MessageComposeInputState.Enabled },
+                transitionSpec = {
+                    slideInVertically { fullHeight -> fullHeight / 2 } + fadeIn() with
+                            slideOutVertically { fullHeight -> fullHeight / 2 } + fadeOut()
+                }
+            ) { state ->
+                if (state != MessageComposeInputState.Enabled)
+                    MessageComposeActions(messageComposerState, isMentionActive)
             }
         }
     }
@@ -55,7 +57,6 @@ fun MessageComposeActionsBox(
 @Composable
 private fun MessageComposeActions(
     messageComposerState: MessageComposerInnerState,
-    focusManager: FocusManager,
     isMentionsSelected: Boolean
 ) {
     val localFeatureVisibilityFlags = LocalFeatureVisibilityFlags.current
@@ -69,7 +70,7 @@ private fun MessageComposeActions(
     ) {
         with(localFeatureVisibilityFlags) {
             AdditionalOptionButton(messageComposerState.attachmentOptionsDisplayed) {
-                focusManager.clearFocus()
+                messageComposerState.focusManager.clearFocus()
                 messageComposerState.toggleAttachmentOptionsVisibility()
             }
             if (RichTextIcon)
@@ -137,4 +138,23 @@ private fun PingAction() {
         iconResource = R.drawable.ic_ping,
         contentDescription = R.string.content_description_ping_everyone
     )
+}
+
+@Preview
+@Composable
+private fun MessageActionsBoxPreview() {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceEvenly,
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(dimensions().spacing56x)
+    ) {
+        AdditionalOptionButton(isSelected = false, onClick = {})
+        RichTextEditingAction()
+        AddEmojiAction()
+        AddGifAction()
+        AddMentionAction(isSelected = false, addMentionAction = {})
+        PingAction()
+    }
 }

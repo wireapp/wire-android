@@ -52,6 +52,9 @@ data class WireDimensions(
     val wireIconButtonSize: Dp,
     // Message
     val messageImageMaxWidth: Dp,
+    val messageQuoteBorderWidth: Dp,
+    val messageQuoteBorderRadius: Dp,
+    val messageQuoteIconSize: Dp,
     val messageAssetBorderRadius: Dp,
     // Message composer
     val messageComposerActiveInputMaxHeight: Dp,
@@ -197,6 +200,9 @@ private val DefaultPhonePortraitWireDimensions: WireDimensions = WireDimensions(
     conversationBottomSheetShapeCorner = 12.dp,
     wireIconButtonSize = 16.dp,
     messageImageMaxWidth = 200.dp,
+    messageQuoteBorderWidth = 1.dp,
+    messageQuoteBorderRadius = 1.dp,
+    messageQuoteIconSize = 10.dp,
     messageAssetBorderRadius = 10.dp,
     messageComposerActiveInputMaxHeight = 168.dp,
     attachmentButtonSize = 40.dp,
@@ -279,7 +285,7 @@ private val DefaultPhonePortraitWireDimensions: WireDimensions = WireDimensions(
     defaultInitiatingCallSheetPeekHeight = 281.dp,
     onGoingCallUserAvatarSize = 90.dp,
     onGoingCallUserAvatarMinimizedSize = 60.dp,
-    onGoingCallTileUsernameMaxWidth = 137.dp,
+    onGoingCallTileUsernameMaxWidth = 120.dp,
     initiatingCallUserAvatarSize = 128.dp,
     defaultIncomingCallSheetPeekHeight = 280.dp,
     callingIncomingUserAvatarSize = 128.dp,

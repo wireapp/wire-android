@@ -4,11 +4,15 @@ import androidx.annotation.StringRes
 import com.wire.android.R
 import com.wire.android.model.ImageAsset
 import com.wire.android.ui.home.conversations.findUser
+import com.wire.android.ui.home.conversations.model.AttachmentType
 import com.wire.android.ui.home.conversations.model.MessageBody
+import com.wire.android.ui.home.conversations.model.QuotedMessageUIData
 import com.wire.android.ui.home.conversations.model.UIMessageContent
+import com.wire.android.util.time.ISOFormatter
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.WireSessionImageLoader
-import com.wire.kalium.logic.data.asset.isDisplayableMimeType
+import com.wire.kalium.logic.data.asset.isDisplayableImageMimeType
+import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.message.AssetContent
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.MessageContent
@@ -26,13 +30,15 @@ import com.wire.kalium.logic.util.isGreaterThan
 import javax.inject.Inject
 
 // TODO: splits mapping into more classes
+@Suppress("TooManyFunctions")
 class MessageContentMapper @Inject constructor(
     private val messageResourceProvider: MessageResourceProvider,
-    private val wireSessionImageLoader: WireSessionImageLoader
+    private val wireSessionImageLoader: WireSessionImageLoader,
+    private val isoFormatter: ISOFormatter,
 ) {
 
     fun fromMessage(
-        message: Message,
+        message: Message.Standalone,
         userList: List<User>
     ): UIMessageContent? {
         return when (message.visibility) {
@@ -41,6 +47,7 @@ class MessageContentMapper @Inject constructor(
                     is Message.Regular -> mapRegularMessage(message, userList.findUser(message.senderUserId))
                     is Message.System -> mapSystemMessage(message, userList)
                 }
+
             Message.Visibility.DELETED, // for deleted, there is a state label displayed only
             Message.Visibility.HIDDEN -> null // we don't want to show hidden nor deleted message content in any way
         }
@@ -54,6 +61,17 @@ class MessageContentMapper @Inject constructor(
         is MessageContent.MissedCall -> mapMissedCallMessage(message.senderUserId, members)
         is MessageContent.ConversationRenamed -> mapConversationRenamedMessage(message.senderUserId, content, members)
         is MessageContent.TeamMemberRemoved -> mapTeamMemberRemovedMessage(content)
+        is MessageContent.CryptoSessionReset -> mapResetSession(message.senderUserId, members)
+        is MessageContent.NewConversationReceiptMode -> mapNewConversationReceiptMode(content)
+    }
+
+    private fun mapResetSession(
+        senderUserId: UserId,
+        userList: List<User>
+    ): UIMessageContent.SystemMessage {
+        val sender = userList.findUser(userId = senderUserId)
+        val authorName = toSystemMessageMemberName(user = sender, type = SelfNameType.ResourceTitleCase)
+        return UIMessageContent.SystemMessage.CryptoSessionReset(authorName)
     }
 
     private fun mapMissedCallMessage(
@@ -70,6 +88,17 @@ class MessageContentMapper @Inject constructor(
         } else {
             UIMessageContent.SystemMessage.MissedCall.OtherCalled(authorName)
         }
+    }
+
+    private fun mapNewConversationReceiptMode(
+        content: MessageContent.NewConversationReceiptMode
+    ): UIMessageContent.SystemMessage {
+        return UIMessageContent.SystemMessage.NewConversationReceiptMode(
+            receiptMode = when (content.receiptMode) {
+                true -> UIText.StringResource(R.string.label_system_message_receipt_mode_on)
+                else -> UIText.StringResource(R.string.label_system_message_receipt_mode_off)
+            }
+        )
     }
 
     private fun mapTeamMemberRemovedMessage(
@@ -110,6 +139,7 @@ class MessageContentMapper @Inject constructor(
                 } else {
                     UIMessageContent.SystemMessage.MemberAdded(author = authorName, memberNames = memberNameList)
                 }
+
             is Removed ->
                 if (isAuthorSelfAction) {
                     UIMessageContent.SystemMessage.MemberLeft(author = authorName)
@@ -127,20 +157,54 @@ class MessageContentMapper @Inject constructor(
             val assetMessageContentMetadata = AssetMessageContentMetadata(content.value)
             toUIMessageContent(assetMessageContentMetadata, message, sender)
         }
+
         is MessageContent.RestrictedAsset -> toRestrictedAsset(content.mimeType, content.sizeInBytes, content.name)
-        else -> toText(content)
+        else -> toText(message.conversationId, content)
     }
 
-    fun toText(content: MessageContent) = MessageBody(
+    fun toText(conversationId: ConversationId, content: MessageContent) = MessageBody(
         when (content) {
             is MessageContent.Text -> UIText.DynamicString(content.value, content.mentions)
             is MessageContent.Unknown -> UIText.StringResource(
                 messageResourceProvider.sentAMessageWithContent, content.typeName ?: "Unknown"
             )
+
             is MessageContent.FailedDecryption -> UIText.StringResource(R.string.label_message_decryption_failure_message)
             else -> UIText.StringResource(messageResourceProvider.sentAMessageWithContent, "Unknown")
-        }
+        },
+        quotedMessage = (content as? MessageContent.Text)?.quotedMessageDetails?.let { mapQuoteData(conversationId, it) }
     ).let { messageBody -> UIMessageContent.TextMessage(messageBody = messageBody) }
+
+    private fun mapQuoteData(conversationId: ConversationId, it: MessageContent.QuotedMessageDetails) = QuotedMessageUIData(
+        it.messageId,
+        it.senderId,
+        it.senderName.orUnknownName(),
+        UIText.StringResource(R.string.label_quote_original_message_date, isoFormatter.fromISO8601ToTimeFormat(it.timeInstant.toString())),
+        it.editInstant?.let { instant ->
+            UIText.StringResource(R.string.label_message_status_edited_with_date, isoFormatter.fromISO8601ToTimeFormat(instant.toString()))
+        },
+        when (val quotedContent = it.quotedContent) {
+            is MessageContent.QuotedMessageDetails.Asset -> when (AttachmentType.fromMimeTypeString(quotedContent.assetMimeType)) {
+                AttachmentType.IMAGE -> QuotedMessageUIData.DisplayableImage(
+                    ImageAsset.PrivateAsset(
+                        wireSessionImageLoader,
+                        conversationId,
+                        it.messageId,
+                        it.isQuotingSelfUser
+                    )
+                )
+
+                AttachmentType.GENERIC_FILE -> QuotedMessageUIData.GenericAsset(
+                    quotedContent.assetName,
+                    quotedContent.assetMimeType
+                )
+            }
+
+            is MessageContent.QuotedMessageDetails.Text -> QuotedMessageUIData.Text(quotedContent.value)
+            MessageContent.QuotedMessageDetails.Deleted -> QuotedMessageUIData.Deleted
+            MessageContent.QuotedMessageDetails.Invalid -> QuotedMessageUIData.Invalid
+        }
+    )
 
     fun toUIMessageContent(assetMessageContentMetadata: AssetMessageContentMetadata, message: Message, sender: User?): UIMessageContent =
         with(assetMessageContentMetadata.assetMessageContent) {
@@ -199,6 +263,7 @@ class MessageContentMapper @Inject constructor(
             SelfNameType.NameOrDeleted -> user.name?.let { UIText.DynamicString(it) }
                 ?: UIText.StringResource(messageResourceProvider.memberNameDeleted)
         }
+
         else -> UIText.StringResource(messageResourceProvider.memberNameDeleted)
     }
 
@@ -221,7 +286,7 @@ class AssetMessageContentMetadata(val assetMessageContent: AssetContent) {
             else -> 0
         }
 
-    fun isDisplayableImage(): Boolean = isDisplayableMimeType(assetMessageContent.mimeType) &&
+    fun isDisplayableImage(): Boolean = isDisplayableImageMimeType(assetMessageContent.mimeType) &&
             imgWidth.isGreaterThan(0) && imgHeight.isGreaterThan(0)
 }
 
@@ -232,3 +297,8 @@ data class MessageResourceProvider(
     @StringRes val memberNameYouTitlecase: Int = R.string.member_name_you_label_titlecase,
     @StringRes val sentAMessageWithContent: Int = R.string.sent_a_message_with_content
 )
+
+private fun String?.orUnknownName(): UIText = when {
+    this != null -> UIText.DynamicString(this)
+    else -> UIText.StringResource(R.string.username_unavailable_label)
+}

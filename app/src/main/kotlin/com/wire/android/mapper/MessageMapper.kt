@@ -43,7 +43,7 @@ class MessageMapper @Inject constructor(
         )
     }.distinct()
 
-    fun toUIMessages(userList: List<User>, messages: List<Message>): List<UIMessage> = messages.mapNotNull { message ->
+    fun toUIMessages(userList: List<User>, messages: List<Message.Standalone>): List<UIMessage> = messages.mapNotNull { message ->
         val sender = userList.findUser(message.senderUserId)
         val content = messageContentMapper.fromMessage(
             message = message,
@@ -99,7 +99,7 @@ class MessageMapper @Inject constructor(
 
     private fun isHeart(it: String) = it == "❤️" || it == "❤"
 
-    private fun provideMessageHeader(sender: User?, message: Message): MessageHeader = MessageHeader(
+    private fun provideMessageHeader(sender: User?, message: Message.Standalone): MessageHeader = MessageHeader(
         username = sender?.name?.let { UIText.DynamicString(it) }
             ?: UIText.StringResource(R.string.username_unavailable_label),
         membership = when (sender) {
@@ -112,13 +112,18 @@ class MessageMapper @Inject constructor(
         messageStatus = getMessageStatus(message),
         messageId = message.id,
         userId = sender?.id,
-        isDeleted = when (sender) {
+        isSenderDeleted = when (sender) {
             is OtherUser -> sender.deleted
             is SelfUser, null -> false
-        }
+        },
+        isSenderUnavailable = when (sender) {
+            is OtherUser -> sender.isUnavailableUser
+            is SelfUser, null -> false
+        },
+        clientId = (message as? Message.Sendable)?.senderClientId
     )
 
-    private fun getMessageStatus(message: Message) = when {
+    private fun getMessageStatus(message: Message.Standalone) = when {
         message.status == Message.Status.FAILED -> MessageStatus.SendFailure
         message.visibility == Message.Visibility.DELETED -> MessageStatus.Deleted
         message is Message.Regular && message.editStatus is Message.EditStatus.Edited ->
@@ -127,6 +132,8 @@ class MessageMapper @Inject constructor(
                     utcISO = (message.editStatus as Message.EditStatus.Edited).lastTimeStamp
                 )
             )
+        message is Message.Regular && message.content is MessageContent.FailedDecryption ->
+            MessageStatus.DecryptionFailure((message.content as MessageContent.FailedDecryption).isDecryptionResolved)
         else -> MessageStatus.Untouched
     }
 

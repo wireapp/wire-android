@@ -60,11 +60,11 @@ class ConversationScreenTest {
             activity.setContent {
                 WireTheme {
                     ConversationScreen(
-                        getViewModel(activity, MessageComposerViewModel::class),
-                        getViewModel(activity, ConversationCallViewModel::class),
-                        getViewModel(activity, ConversationInfoViewModel::class),
-                        getViewModel(activity, ConversationMessagesViewModel::class),
-                        getViewModel(activity, CommonTopAppBarViewModel::class),
+                        conversationInfoViewModel = getViewModel(activity, ConversationMessagesViewModel::class),
+                        conversationCallViewModel = getViewModel(activity, ConversationInfoViewModel::class),
+                        conversationMessagesViewModel = getViewModel(activity, CommonTopAppBarViewModel::class),
+                        messageComposerViewModel = getViewModel(activity, ConversationCallViewModel::class),
+                        backNavArgs = getViewModel(activity, MessageComposerViewModel::class),
                     )
                 }
             }

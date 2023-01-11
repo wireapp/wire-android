@@ -38,37 +38,55 @@ import com.wire.android.ui.theme.wireTypography
 fun EditMessageMenuItems(
     isCopyable: Boolean,
     isEditable: Boolean,
+    isAvailable: Boolean,
     onCopyMessage: () -> Unit,
     onDeleteMessage: () -> Unit,
     onReactionClick: (emoji: String) -> Unit,
+    onReply: () -> Unit,
+    onMessageDetailsClick: () -> Unit
 ): List<@Composable () -> Unit> {
     return buildList {
-        add { ReactionOptions(onReactionClick) }
-        add {
-            if (isCopyable) {
-                MenuBottomSheetItem(
-                    icon = {
-                        MenuItemIcon(
-                            id = R.drawable.ic_copy,
-                            contentDescription = stringResource(R.string.content_description_copy_the_message),
-                        )
-                    },
-                    title = stringResource(R.string.label_copy),
-                    onItemClick = onCopyMessage
-                )
+        if(isAvailable) {
+            add { ReactionOptions(onReactionClick) }
+            add { MessageDetails(onMessageDetailsClick) }
+            add {
+                if (isCopyable) {
+                    MenuBottomSheetItem(
+                        icon = {
+                            MenuItemIcon(
+                                id = R.drawable.ic_copy,
+                                contentDescription = stringResource(R.string.content_description_copy_the_message),
+                            )
+                        },
+                        title = stringResource(R.string.label_copy),
+                        onItemClick = onCopyMessage
+                    )
+                }
             }
-        }
-        if (isEditable) {
             add {
                 MenuBottomSheetItem(
                     icon = {
                         MenuItemIcon(
-                            id = R.drawable.ic_edit,
-                            contentDescription = stringResource(R.string.content_description_edit_the_message)
+                            id = R.drawable.ic_reply,
+                            contentDescription = stringResource(R.string.content_description_reply_to_messge),
                         )
                     },
-                    title = stringResource(R.string.label_edit),
+                    title = stringResource(R.string.notification_action_reply),
+                    onItemClick = onReply
                 )
+            }
+            if (isEditable) {
+                add {
+                    MenuBottomSheetItem(
+                        icon = {
+                            MenuItemIcon(
+                                id = R.drawable.ic_edit,
+                                contentDescription = stringResource(R.string.content_description_edit_the_message)
+                            )
+                        },
+                        title = stringResource(R.string.label_edit),
+                    )
+                }
             }
         }
         add {
@@ -106,7 +124,7 @@ private fun ReactionOptions(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            listOf("❤️", "👍",  "😁", "🙂", "☹️", "👎").forEach { emoji ->
+            listOf("❤️", "👍", "😁", "🙂", "☹️", "👎").forEach { emoji ->
                 CompositionLocalProvider(
                     LocalMinimumTouchTargetEnforcement provides false
                 ) {
@@ -149,4 +167,20 @@ private fun ReactionOptions(
             }
         }
     }
+}
+
+@Composable
+private fun MessageDetails(
+    onMessageDetailsClick: () -> Unit
+) {
+    MenuBottomSheetItem(
+        icon = {
+            MenuItemIcon(
+                id = R.drawable.ic_info,
+                contentDescription = stringResource(R.string.content_description_open_message_details),
+            )
+        },
+        title = stringResource(R.string.label_message_details),
+        onItemClick = onMessageDetailsClick
+    )
 }

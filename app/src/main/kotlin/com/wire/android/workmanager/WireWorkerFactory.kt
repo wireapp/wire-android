@@ -1,7 +1,6 @@
 package com.wire.android.workmanager
 
 import android.content.Context
-import androidx.core.app.NotificationManagerCompat
 import androidx.work.ListenableWorker
 import androidx.work.WorkerFactory
 import androidx.work.WorkerParameters
@@ -18,7 +17,6 @@ import javax.inject.Inject
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class WireWorkerFactory @Inject constructor(
-    private val notificationManagerCompat: NotificationManagerCompat,
     private val wireNotificationManager: WireNotificationManager,
     private val migrationManager: MigrationManager,
     @KaliumCoreLogic
@@ -31,9 +29,9 @@ class WireWorkerFactory @Inject constructor(
                 WrapperWorkerFactory(coreLogic, WireForegroundNotificationDetailsProvider)
                     .createWorker(appContext, workerClassName, workerParameters)
             NotificationFetchWorker::class.java.canonicalName ->
-                NotificationFetchWorker(appContext, workerParameters, wireNotificationManager, notificationManagerCompat)
+                NotificationFetchWorker(appContext, workerParameters, wireNotificationManager)
             MigrationWorker::class.java.canonicalName ->
-                MigrationWorker(appContext, workerParameters, migrationManager, notificationManagerCompat)
+                MigrationWorker(appContext, workerParameters, migrationManager)
             else -> null
         }
     }

@@ -2,7 +2,6 @@ package scripts
 
 import io.gitlab.arturbosch.detekt.Detekt
 import io.gitlab.arturbosch.detekt.DetektCreateBaselineTask
-import org.gradle.configurationcache.extensions.capitalized
 
 plugins {
     id("com.android.application") apply false
@@ -84,7 +83,7 @@ val jacocoReport by tasks.registering(JacocoReport::class) {
     group = "Quality"
     description = "Reports code coverage on tests within the Wire Android codebase"
     val buildVariant = "devDebug" // It's not necessary to run unit tests on every variant so we default to "devDebug"
-    dependsOn("test${buildVariant.capitalized()}UnitTest")
+    dependsOn("test${buildVariant.capitalize()}UnitTest")
 
     val outputDir = "$buildDir/jacoco/html"
     val classPathBuildVariant = buildVariant

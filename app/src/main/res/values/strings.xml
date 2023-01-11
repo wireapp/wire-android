@@ -42,6 +42,7 @@
     <string name="folder_lable_access">Access</string>
     <string name="folder_lable_protocol_details">Protocol details (beta)</string>
     <string name="label_user_blocked">Blocked</string>
+    <string name="label_and">and</string>
     <!-- Content descriptions https://wearezeta.atlassian.net/wiki/spaces/AR/pages/122520039/Code+Style+Guideline#Content-description-strings -->
     <string name="content_description_app_logo">App Logo</string>
     <string name="content_description_reveal_password">Show password</string>
@@ -470,6 +471,8 @@
     <string name="label_system_message_receipt_mode_off">off</string>
 
     <!-- Last messages -->
+    <string name="last_message_added">added</string>
+    <string name="last_message_removed">removed</string>
     <string name="last_message_asset">shared an asset.</string>
     <string name="last_message_image">shared an image.</string>
     <string name="last_message_video">shared a video.</string>
@@ -489,6 +492,15 @@
         <item quantity="one">removed %1$d person</item>
         <item quantity="other">removed %1$d people</item>
     </plurals>
+    <plurals name="last_message_people">
+        <item quantity="one">%1$d person</item>
+        <item quantity="other">%1$d people</item>
+    </plurals>
+    <string name="last_message_joined_conversation">joined the conversation.</string>
+    <string name="last_message_left_conversation">left the conversation.</string>
+
+    <string name="last_message_to_conversation">to conversation</string>
+    <string name="last_message_from_conversation">from conversation</string>
 
     <!-- Unread Events -->
     <plurals name="unread_event_knock">
@@ -549,6 +561,7 @@
     <string name="blocking_user_success">%s blocked</string>
     <string name="conversation_group_removed_success">“%s” removed</string>
     <string name="leave_group_conversation_error">There was an error while leaving conversation</string>
+    <string name="joined_conversation_group_success">You joined the conversation.</string>
     <string name="left_conversation_group_success">You left the conversation.</string>
     <string name="error_unblocking_user">User could not be unblocked</string>
     <string name="delete_group_conversation_error">There was an error while deleting conversation</string>

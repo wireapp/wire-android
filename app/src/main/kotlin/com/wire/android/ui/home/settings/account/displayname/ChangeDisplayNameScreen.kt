@@ -110,6 +110,7 @@ fun ChangeDisplayNameContent(
                                     keyboardType = androidx.compose.ui.text.input.KeyboardType.Text,
                                     imeAction = androidx.compose.ui.text.input.ImeAction.Done
                                 ),
+                                descriptionText = stringResource(id = R.string.settings_myaccount_display_name_exceeded_limit_error),
                                 keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
                                 modifier = Modifier.padding(
                                     horizontal = MaterialTheme.wireDimensions.spacing16x

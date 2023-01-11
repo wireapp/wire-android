@@ -34,7 +34,6 @@ class DeepLinkProcessorTest {
         deepLinkProcessor = DeepLinkProcessor(accountSwitchUseCase, currentSession)
     }
 
-    @Test
     fun `given a valid remote config deeplink, returns CustomServerConfig object`() = runTest {
         setupWithRemoteConfigDeeplink(FAKE_REMOTE_SERVER_URL)
         val result = deepLinkProcessor(uri)
@@ -42,7 +41,6 @@ class DeepLinkProcessorTest {
         assertEquals(DeepLinkResult.CustomServerConfig(url = FAKE_REMOTE_SERVER_URL), result)
     }
 
-    @Test
     fun `given a remote config deeplink with null parameters, returns DeeplinkResult-Unknown `() = runTest {
         setupWithRemoteConfigDeeplink(null)
         val result = deepLinkProcessor(uri)
@@ -50,7 +48,6 @@ class DeepLinkProcessorTest {
         assertEquals(DeepLinkResult.Unknown, result)
     }
 
-    @Test
     fun `given a valid success sso login deeplink, returns SSOLogin-Success object`() = runTest {
         setupWithSSOLoginSuccessDeeplink(FAKE_COOKIE, FAKE_REMOTE_SERVER_ID)
         val result = deepLinkProcessor(uri)
@@ -58,7 +55,6 @@ class DeepLinkProcessorTest {
         assertEquals(DeepLinkResult.SSOLogin.Success(FAKE_COOKIE, FAKE_REMOTE_SERVER_ID), result)
     }
 
-    @Test
     fun `given a sso login success deeplink with null parameters, returns SSOLogin-Failure with unknown error`() = runTest {
         setupWithSSOLoginSuccessDeeplink(null, null)
         val loginSuccessNullResult = deepLinkProcessor(uri)
@@ -69,7 +65,6 @@ class DeepLinkProcessorTest {
         )
     }
 
-    @Test
     fun `given a valid failed sso login deeplink, returns SSOLogin-Failure object`() = runTest {
         setupWithSSOLoginFailureDeeplink(FAKE_ERROR)
         val result = deepLinkProcessor(uri)
@@ -77,7 +72,6 @@ class DeepLinkProcessorTest {
         assertEquals(DeepLinkResult.SSOLogin.Failure(SSOFailureCodes.getByLabel(FAKE_ERROR)), result)
     }
 
-    @Test
     fun `given a sso login failure deeplink with null parameters, returns SSOLogin-Failure with unknown error`() = runTest {
         setupWithSSOLoginFailureDeeplink(null)
         val loginFailureNullResult = deepLinkProcessor(uri)
@@ -88,7 +82,6 @@ class DeepLinkProcessorTest {
         )
     }
 
-    @Test
     fun `given a incoming call deeplink, returns IncomingCall with conversationId`() = runTest {
         setupWithIncomingCallDeepLink()
         val incomingCallResult = deepLinkProcessor(uri)
@@ -99,7 +92,6 @@ class DeepLinkProcessorTest {
         )
     }
 
-    @Test
     fun `given a invalid deeplink, returns Unknown object`() = runTest {
         setupWithInvalidDeeplink()
         val result = deepLinkProcessor(uri)

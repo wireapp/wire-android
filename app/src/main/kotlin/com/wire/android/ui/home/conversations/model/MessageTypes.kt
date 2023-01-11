@@ -10,16 +10,10 @@ import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.model.ImageAsset
 import com.wire.android.ui.common.LinkifyText
@@ -31,7 +25,6 @@ import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMess
 import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMessageParams
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
-import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.Message.DownloadStatus.DOWNLOAD_IN_PROGRESS
 import com.wire.kalium.logic.data.message.Message.DownloadStatus.FAILED_DOWNLOAD
@@ -55,28 +48,6 @@ internal fun MessageBody(
         style = MaterialTheme.wireTypography.body01,
         onOpenProfile = onOpenProfile
     )
-}
-
-@Composable
-fun MessageKnock(username: UIText) {
-    val annotatedString = buildAnnotatedString {
-        withStyle(
-            style = SpanStyle(
-                fontWeight = MaterialTheme.wireTypography.body02.fontWeight
-            )
-        ) {
-            append("${username.asString()} ")
-        }
-        withStyle(
-            style = SpanStyle(
-                color = MaterialTheme.wireColorScheme.secondaryText
-            )
-        ) {
-            append(stringResource(R.string.label_message_knock))
-        }
-    }
-
-    Text(text = annotatedString, style = MaterialTheme.wireTypography.body01)
 }
 
 @OptIn(ExperimentalFoundationApi::class)

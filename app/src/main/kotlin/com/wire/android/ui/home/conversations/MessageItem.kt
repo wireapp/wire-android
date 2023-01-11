@@ -40,7 +40,6 @@ import com.wire.android.ui.home.conversations.model.MessageFooter
 import com.wire.android.ui.home.conversations.model.MessageGenericAsset
 import com.wire.android.ui.home.conversations.model.MessageHeader
 import com.wire.android.ui.home.conversations.model.MessageImage
-import com.wire.android.ui.home.conversations.model.MessageKnock
 import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.model.MessageStatus
 import com.wire.android.ui.home.conversations.model.UIMessage
@@ -66,7 +65,6 @@ fun MessageItem(
 ) {
     with(message) {
         val fullAvatarOuterPadding = dimensions().userAvatarClickablePadding + dimensions().userAvatarStatusBorderSize
-        Column { }
         Row(
             Modifier
                 .customizeMessageBackground(message)
@@ -320,7 +318,7 @@ private fun MessageContent(
         null -> {
             throw NullPointerException("messageContent is null")
         }
-        is UIMessageContent.Knock -> MessageKnock(messageContent.author)
+        is UIMessageContent.SystemMessage.Knock -> {}
     }
 }
 

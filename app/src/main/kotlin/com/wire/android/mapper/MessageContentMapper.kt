@@ -157,7 +157,7 @@ class MessageContentMapper @Inject constructor(
             val assetMessageContentMetadata = AssetMessageContentMetadata(content.value)
             toUIMessageContent(assetMessageContentMetadata, message, sender)
         }
-        is MessageContent.Knock -> UIMessageContent.Knock(
+        is MessageContent.Knock -> UIMessageContent.SystemMessage.Knock( // TODO should we move Knock to System message also in DAO layer?
             if (message.isSelfMessage)
                 UIText.StringResource(messageResourceProvider.memberNameYouTitlecase)
             else

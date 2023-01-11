@@ -114,14 +114,16 @@ sealed class UIMessageContent {
         val downloadStatus: Message.DownloadStatus
     ) : UIMessageContent()
 
-    data class Knock(val author: UIText) : UIMessageContent()
-
     sealed class SystemMessage(
         @DrawableRes val iconResId: Int?,
         @StringRes open val stringResId: Int,
         val isSmallIcon: Boolean = true,
         val additionalContent: String = ""
     ) : UIMessageContent() {
+
+        data class Knock(val author: UIText) : SystemMessage(
+            R.drawable.ic_ping, R.string.label_message_knock
+        )
 
         data class MemberAdded(
             val author: UIText,

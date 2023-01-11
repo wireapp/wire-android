@@ -29,7 +29,7 @@ class ConversationMessageAudioPlayer
                 .build()
         )
         setOnCompletionListener {
-            audioSnapshots[currentlyPlayedMessageId!!] = AudioSnapShot(0)
+            audioSnapshots.remove(currentlyPlayedMessageId)
         }
     }
 
@@ -38,29 +38,18 @@ class ConversationMessageAudioPlayer
         messageId: String
     ) {
         with(mediaPlayer) {
-            val toggleCurrentlyPlayedAudio = messageId == currentlyPlayedMessageId
+            val switchAudioMessage = currentlyPlayedMessageId != messageId
 
-            if (toggleCurrentlyPlayedAudio) {
+            if (switchAudioMessage) {
+                switchAudioMessage(
+                    messageId = messageId,
+                    conversationId = conversationId
+                )
+            } else {
                 if (isPlaying) {
                     pause()
                 } else {
                     start()
-                }
-            } else {
-                val audioSnapShot = audioSnapshots[messageId]
-                val audioSnapShotExists = audioSnapShot != null
-
-                if (audioSnapShotExists) {
-                    switchAudioMessage(
-                        messageId = messageId,
-                        conversationId = conversationId,
-                        seekTo = audioSnapShot!!.timeStamp
-                    )
-                } else {
-                    switchAudioMessage(
-                        messageId = messageId,
-                        conversationId = conversationId
-                    )
                 }
             }
         }
@@ -68,19 +57,28 @@ class ConversationMessageAudioPlayer
 
     private suspend fun switchAudioMessage(
         messageId: String,
-        conversationId: ConversationId,
-        seekTo: Int = 0
+        conversationId: ConversationId
     ) {
         when (val result = getMessageAsset(conversationId, messageId).await()) {
             is MessageAssetResult.Success -> {
                 with(mediaPlayer) {
-                    audioSnapshots[currentlyPlayedMessageId!!] = AudioSnapShot(currentPosition)
+                    val isInitialPlay = currentlyPlayedMessageId == null
+
+                    if (!isInitialPlay) {
+                        saveCurrentAudioMessageSnapShot()
+                    }
 
                     reset()
-
                     setDataSource(context, Uri.parse(result.decodedAssetPath.toString()))
                     prepare()
-                    seekTo(seekTo)
+
+                    val audioSnapShot = audioSnapshots[messageId]
+                    val isSongPlayedInThePast = audioSnapShot != null
+
+                    if (isSongPlayedInThePast) {
+                        seekTo(audioSnapShot!!.timeStamp)
+                    }
+
                     start()
 
                     currentlyPlayedMessageId = messageId
@@ -91,7 +89,10 @@ class ConversationMessageAudioPlayer
 
             }
         }
+    }
 
+    private fun saveCurrentAudioMessageSnapShot() {
+        audioSnapshots[currentlyPlayedMessageId!!] = AudioSnapShot(mediaPlayer.currentPosition)
     }
 
     fun close() {

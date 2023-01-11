@@ -14,7 +14,6 @@ import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.internal.assertEquals
 import org.junit.jupiter.api.Assertions.assertInstanceOf
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
 
 class DeepLinkProcessorTest {
     @MockK

@@ -83,7 +83,7 @@ tasks.register("staticCodeAnalysis") {
 val jacocoReport by tasks.registering(JacocoReport::class) {
     group = "Quality"
     description = "Reports code coverage on tests within the Wire Android codebase"
-    val buildVariant = "internalDebug" // It's not necessary to run unit tests on every variant so we default to "internalDebug"
+    val buildVariant = "devDebug" // It's not necessary to run unit tests on every variant so we default to "devDebug"
     dependsOn("test${buildVariant.capitalized()}UnitTest")
 
     val outputDir = "$buildDir/jacoco/html"

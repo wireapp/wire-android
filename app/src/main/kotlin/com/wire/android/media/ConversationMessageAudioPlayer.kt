@@ -9,7 +9,6 @@ import androidx.compose.runtime.snapshots.SnapshotStateMap
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
-import okio.Path
 import javax.inject.Inject
 
 class ConversationMessageAudioPlayer
@@ -38,17 +37,23 @@ class ConversationMessageAudioPlayer
 
     suspend fun togglePlay(
         conversationId: ConversationId,
-        messageId: String
+        requestedAudioMessageId: String
     ) {
-        val isPlayingDifferentAudioMessage = currentlyPlayedMessageId != messageId
+        val isCurrentlyPlayingAudioMessage = currentlyPlayedMessageId != null
 
-        if (isPlayingDifferentAudioMessage) {
-            switchAudioMessage(
-                messageId = messageId,
-                conversationId = conversationId
-            )
+        if (isCurrentlyPlayingAudioMessage) {
+            val isSwitchingAudioMessage = currentlyPlayedMessageId != requestedAudioMessageId
+
+            if (isSwitchingAudioMessage) {
+                saveCurrentAudioMessageProgress()
+                stopPlayingCurrentAudioMessage()
+                seekToIfPlayedInPast(requestedAudioMessageId)
+                playAudioMessage(conversationId, requestedAudioMessageId)
+            } else {
+                playOrPauseCurrentAudio()
+            }
         } else {
-            playOrPauseCurrentAudio()
+            playAudioMessage(conversationId, requestedAudioMessageId)
         }
     }
 
@@ -60,12 +65,27 @@ class ConversationMessageAudioPlayer
         }
     }
 
-    private fun playAudioMessage(messageId: String) {
-        currentlyPlayedMessageId = messageId
-        updateOrPutAudioState(
-            audioMediaPlayerState = AudioMediaPlayerState.Playing
-        )
-        mediaPlayer.start()
+    private suspend fun playAudioMessage(conversationId: ConversationId, messageId: String) {
+        when (val result = getMessageAsset(conversationId, messageId).await()) {
+            is MessageAssetResult.Success -> {
+                mediaPlayer.setDataSource(
+                    context,
+                    Uri.parse(result.decodedAssetPath.toString())
+                )
+                mediaPlayer.prepare()
+                mediaPlayer.start()
+
+                currentlyPlayedMessageId = messageId
+
+                updateOrPutAudioState(
+                    audioMediaPlayerState = AudioMediaPlayerState.Playing
+                )
+            }
+
+            is MessageAssetResult.Failure -> {
+
+            }
+        }
     }
 
     private fun resumeAudio() {
@@ -82,34 +102,11 @@ class ConversationMessageAudioPlayer
         mediaPlayer.pause()
     }
 
-    private fun stopCurrentAudio() {
+    private fun stopPlayingCurrentAudioMessage() {
         updateOrPutAudioState(
             audioMediaPlayerState = AudioMediaPlayerState.Stopped(mediaPlayer.currentPosition)
         )
         mediaPlayer.reset()
-    }
-
-    private suspend fun switchAudioMessage(
-        messageId: String,
-        conversationId: ConversationId
-    ) {
-        when (val result = getMessageAsset(conversationId, messageId).await()) {
-            is MessageAssetResult.Success -> {
-                val isAlreadyPlayingAudioMessage = currentlyPlayedMessageId == null
-
-                if (isAlreadyPlayingAudioMessage) {
-                    saveCurrentAudioMessageSnapShot()
-                    stopCurrentAudio()
-                }
-                prepareNextAudio(result.decodedAssetPath)
-                seekToIfPlayedInPast(messageId)
-                playAudioMessage(messageId)
-            }
-
-            is MessageAssetResult.Failure -> {
-
-            }
-        }
     }
 
     private fun seekToIfPlayedInPast(messageId: String) {
@@ -121,15 +118,7 @@ class ConversationMessageAudioPlayer
         }
     }
 
-    private fun prepareNextAudio(decodedAssetPath: Path) {
-        mediaPlayer.setDataSource(
-            context,
-            Uri.parse(decodedAssetPath.toString())
-        )
-        mediaPlayer.prepare()
-    }
-
-    private fun saveCurrentAudioMessageSnapShot() {
+    private fun saveCurrentAudioMessageProgress() {
         audioSnapshots[currentlyPlayedMessageId!!] = AudioSnapShot(mediaPlayer.currentPosition)
     }
 

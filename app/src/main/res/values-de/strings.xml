@@ -128,7 +128,7 @@
     <string name="debug_settings_force_api_versioning_update_button_text">Force update</string>
     <string name="support_screen_title">Hilfe</string>
     <string name="backup_and_restore_screen_title">Unterhaltungen sichern &amp; wiederherstellen</string>
-    <string name="search_bar_hint">Suche %s</string>
+    <string name="search_bar_conversations_hint">Suche %s</string>
     <string name="search_no_results">Keine Ergebnisse gefunden</string>
     <!-- Settings -->
     <string name="settings_general_group_title">General</string>

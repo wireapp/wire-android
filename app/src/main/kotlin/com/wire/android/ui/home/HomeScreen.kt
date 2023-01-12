@@ -239,7 +239,7 @@ fun HomeContent(
                                 if (currentNavigationItem.isSearchable)
                                     SearchTopBar(
                                         isSearchActive = searchBarState.isSearchActive,
-                                        searchBarHint = stringResource(R.string.search_bar_hint),
+                                        searchBarHint = stringResource(R.string.search_bar_conversations_hint),
                                         searchQuery = searchBarState.searchQuery,
                                         onSearchQueryChanged = searchBarState::searchQueryChanged,
                                         onInputClicked = searchBarState::openSearch,

@@ -88,10 +88,6 @@ class WireActivity : AppCompatActivity() {
         viewModel.handleDeepLink(intent)
         setComposableContent()
 
-        viewModel.globalAppState.currentUserId?.let {
-            featureFlagNotificationViewModel.loadSync(userId = it)
-        }
-
         featureFlagNotificationViewModel.updateSharingStateIfNeeded(this)
     }
 

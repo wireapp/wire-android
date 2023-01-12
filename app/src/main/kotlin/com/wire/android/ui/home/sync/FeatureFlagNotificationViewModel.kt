@@ -7,12 +7,15 @@ import androidx.compose.runtime.setValue
 import androidx.core.app.ShareCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.appLogger
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.ui.home.FeatureFlagState
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.AccountInfo
+import com.wire.kalium.logic.feature.session.CurrentSessionResult
+import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import com.wire.kalium.logic.feature.session.GetSessionsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -23,17 +26,27 @@ import javax.inject.Inject
 @HiltViewModel
 class FeatureFlagNotificationViewModel @Inject constructor(
     @KaliumCoreLogic private val coreLogic: CoreLogic,
-    private val getSessions: GetSessionsUseCase
+    private val getSessions: GetSessionsUseCase,
+    private val currentSessionUseCase: CurrentSessionUseCase
 ) : ViewModel() {
 
     var featureFlagState by mutableStateOf(FeatureFlagState())
         private set
 
-    fun loadSync(userId: UserId) {
+    fun loadSync() {
         viewModelScope.launch {
-            coreLogic.getSessionScope(userId).observeSyncState().collect { newState ->
-                if (newState == SyncState.Live) {
-                    setFileSharingState(userId)
+            currentSessionUseCase().let {
+                when (it) {
+                    is CurrentSessionResult.Failure -> {
+                        appLogger.e("Failure while getting current session from FeatureFlagNotificationViewModel")
+                    }
+                    is CurrentSessionResult.Success -> {
+                        coreLogic.getSessionScope(it.accountInfo.userId).observeSyncState().collect { newState ->
+                            if (newState == SyncState.Live) {
+                                setFileSharingState(it.accountInfo.userId)
+                            }
+                        }
+                    }
                 }
             }
         }

@@ -71,11 +71,11 @@ fun LoginEmailScreen(
     LoginEmailContent(
         scrollState = scrollState,
         loginState = loginEmailState,
-        onUserIdentifierChange = { loginEmailViewModel.onUserIdentifierChange(it) },
-        onPasswordChange = { loginEmailViewModel.onPasswordChange(it) },
+        onUserIdentifierChange = loginEmailViewModel::onUserIdentifierChange,
+        onPasswordChange = loginEmailViewModel::onPasswordChange,
         onDialogDismiss = loginEmailViewModel::onDialogDismiss,
         onRemoveDeviceOpen = loginEmailViewModel::onTooManyDevicesError,
-        onLoginButtonClick = suspend { loginEmailViewModel.login() },
+        onLoginButtonClick = loginEmailViewModel::login,
         onUpdateApp = loginEmailViewModel::updateTheApp,
         forgotPasswordUrl = loginEmailViewModel.serverConfig.forgotPassword,
         scope = scope
@@ -90,7 +90,7 @@ private fun LoginEmailContent(
     onPasswordChange: (TextFieldValue) -> Unit,
     onDialogDismiss: () -> Unit,
     onRemoveDeviceOpen: () -> Unit,
-    onLoginButtonClick: suspend () -> Unit,
+    onLoginButtonClick: () -> Unit,
     onUpdateApp: () -> Unit,
     forgotPasswordUrl: String,
     scope: CoroutineScope
@@ -266,7 +266,7 @@ private fun LoginEmailScreenPreview() {
             onPasswordChange = { },
             onDialogDismiss = { },
             onRemoveDeviceOpen = { },
-            onLoginButtonClick = suspend { },
+            onLoginButtonClick = { },
             onUpdateApp = {},
             forgotPasswordUrl = "",
             scope = scope

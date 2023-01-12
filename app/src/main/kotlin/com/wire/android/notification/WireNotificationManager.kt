@@ -6,7 +6,6 @@ import com.wire.android.services.ServicesManager
 import com.wire.android.util.CurrentScreen
 import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.dispatchers.DispatcherProvider
-import com.wire.android.util.extension.intervalFlow
 import com.wire.android.util.lifecycle.ConnectionPolicyManager
 import com.wire.kalium.logger.obfuscateId
 import com.wire.kalium.logic.CoreLogic
@@ -141,36 +140,13 @@ class WireNotificationManager @Inject constructor(
         // TODO: for now GetIncomingCallsUseCase() doesn't return valid data on the first try.
         //      so it's possible to have scenario, when FCM comes informing us that there is a Call,
         //      but we don't get it from the first GetIncomingCallsUseCase() call.
-        //      To cover that case we have this `intervalFlow().take(CHECK_INCOMING_CALLS_TRIES)`
-        //      to try get incoming calls 6 times, if it returns nothing we assume there is no incoming call
-        var periodicCheckCount = 0
-        val tag = "$TAG.fetchAndShowCallNotificationsOnce"
-        intervalFlow(CHECK_INCOMING_CALLS_PERIOD_MS)
-            .cancellable()
-            .onCompletion {
-                if (it != null) {
-                    appLogger.e("$tag; Completed fetching calls with exception", it)
-                } else {
-                    appLogger.d("$tag; Completed fetching calls normally")
-                }
-            }
-            .onEach {
-                periodicCheckCount++
-                appLogger.d("$tag; Periodic check on call notifications: $periodicCheckCount")
-            }
-            .map {
-                appLogger.d("$tag; Getting incoming calls for")
-                coreLogic.getSessionScope(userId)
-                    .calls
-                    .getIncomingCalls()
-                    .first().also {
-                        appLogger.d("$tag; Incoming calls result list size = ${it.size}")
-                    }
-            }
-            .take(CHECK_INCOMING_CALLS_TRIES)
+        coreLogic.getSessionScope(userId)
+            .calls
+            .getIncomingCalls()
             .distinctUntilChanged()
+            .cancellable()
             .collect { callsList ->
-                appLogger.d("$tag; Collecting call list. Terminal operation.")
+                appLogger.d(" Collecting incoming calls for user: ${userId.toString().obfuscateId()} calls : $callsList..")
                 callNotificationManager.handleIncomingCallNotifications(callsList, userId)
             }
     }

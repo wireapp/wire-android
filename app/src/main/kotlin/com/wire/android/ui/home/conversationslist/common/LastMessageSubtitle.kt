@@ -34,9 +34,9 @@ fun LastMessageSubtitleWithAuthor(author: UIText, text: UIText, separator: Strin
 }
 
 @Composable
-fun LastMessagesSubtitle(firstText: UIText, secondText: UIText) {
+fun LastMultipleMessages(messages: List<UIText>, separator: String) {
     Text(
-        text = "${firstText.asString(LocalContext.current.resources)}, ${secondText.asString(LocalContext.current.resources)}",
+        text = messages.map { it.asString() }.joinToString(separator = separator),
         style = MaterialTheme.wireTypography.subline01.copy(
             color = MaterialTheme.wireColorScheme.secondaryText
         ),

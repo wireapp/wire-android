@@ -674,9 +674,9 @@
     <string name="allow_services_description">Відкрийте цю розмову для служб. Ви завжди можете змінити це пізніше.</string>
     <string name="read_receipts">Прочитати квитанції</string>
     <string name="read_receipts_description">Коли цей параметр увімкнено, люди бачать, коли читаються їхні повідомлення в цій бесіді.</string>
-    <string name="disable_guests_dialoug_title">Не дозволяти гостям?</string>
-    <string name="disable_guests_dialoug_description">Будь-який гість, вибраний на попередньому кроці, не буде додано до групи, якщо ви не дозволите гостьовий доступ.</string>
-    <string name="disable_guests_dialoug_button">Не дозволити гостям</string>
+    <string name="disable_guests_dialog_title">Не дозволяти гостям?</string>
+    <string name="disable_guests_dialog_description">Будь-який гість, вибраний на попередньому кроці, не буде додано до групи, якщо ви не дозволите гостьовий доступ.</string>
+    <string name="disable_guests_dialog_button">Не дозволити гостям</string>
     <!--block user dialog -->
     <string name="block_user_dialog_title">Block user?</string>
     <string name="block_user_dialog_body">%1$s won’t be able to contact you or add you to group conversations. You will lose access to any 1:1 conversations with them. The other user will not be notified about this.</string>

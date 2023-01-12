@@ -657,9 +657,9 @@
     <string name="allow_services_description">Öffnen Sie diese Unterhaltung für Dienste. Diese Einstellung kann später jederzeit geändert werden.</string>
     <string name="read_receipts">Lesebestätigungen</string>
     <string name="read_receipts_description">Wenn diese Option aktiviert ist, können Sender sehen, wenn ihre Nachrichten gelesen werden.</string>
-    <string name="disable_guests_dialoug_title">Gäste nicht zulassen?</string>
-    <string name="disable_guests_dialoug_description">Guests you selected in the previous step won\'t be part of the group if you do not allow guest access.</string>
-    <string name="disable_guests_dialoug_button">Keine Gäste zulassen</string>
+    <string name="disable_guests_dialog_title">Gäste nicht zulassen?</string>
+    <string name="disable_guests_dialog_description">Guests you selected in the previous step won\'t be part of the group if you do not allow guest access.</string>
+    <string name="disable_guests_dialog_button">Keine Gäste zulassen</string>
     <!--block user dialog -->
     <string name="block_user_dialog_title">Benutzer blockieren?</string>
     <string name="block_user_dialog_body">%1$s won’t be able to contact you or add you to group conversations. You will lose access to any 1:1 conversations with them. The other user will not be notified about this.</string>

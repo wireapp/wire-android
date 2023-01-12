@@ -128,13 +128,15 @@ data class MessageComposerInnerState(
     }
 
     fun toInactive() {
-        if (messageComposeInputState !is MessageComposeInputState.Inactive)
+        if (messageComposeInputState !is MessageComposeInputState.Inactive) {
             messageComposeInputState = messageComposeInputState.toInactive()
+        }
     }
 
     fun toActive() {
-        if (messageComposeInputState !is MessageComposeInputState.Active)
+        if (messageComposeInputState !is MessageComposeInputState.Active) {
             messageComposeInputState = messageComposeInputState.toActive()
+        }
     }
 
     fun toEditMessage(messageId: String, originalText: String) {
@@ -225,8 +227,9 @@ data class MessageComposerInnerState(
 
             val prevMentionEnd = updatedMentions.lastOrNull()?.let { it.start + it.length } ?: 0
             val newIndexOfMention = newText.text.indexOf(mention.handler, prevMentionEnd)
-            if (newIndexOfMention >= 0)
+            if (newIndexOfMention >= 0) {
                 updatedMentions.add(mention.copy(start = newIndexOfMention))
+            }
         }
 
         mentions = updatedMentions.toList()
@@ -302,7 +305,6 @@ data class MessageComposerInnerState(
     fun cancelReply() {
         quotedMessageData = null
     }
-
 }
 
 private fun TextFieldValue.currentMentionStartIndex(): Int {
@@ -335,9 +337,11 @@ class AttachmentInnerState(val context: Context) {
             val assetFileName = context.getFileName(attachmentUri) ?: throw IOException("The selected asset has an invalid name")
             val mimeType = attachmentUri.getMimeType(context).orDefault(DEFAULT_FILE_MIME_TYPE)
             val attachmentType = AttachmentType.fromMimeTypeString(mimeType)
-            val assetSize = if (attachmentType == AttachmentType.IMAGE)
+            val assetSize = if (attachmentType == AttachmentType.IMAGE) {
                 attachmentUri.resampleImageAndCopyToTempPath(context, fullTempAssetPath)
-            else fileManager.copyToTempPath(attachmentUri, fullTempAssetPath)
+            } else {
+                fileManager.copyToTempPath(attachmentUri, fullTempAssetPath)
+            }
             val attachment = AttachmentBundle(mimeType, fullTempAssetPath, assetSize, assetFileName, attachmentType)
             AttachmentState.Picked(attachment)
         } catch (e: IOException) {
@@ -399,7 +403,7 @@ sealed class MessageComposeInputState {
 
 enum class MessageComposeInputSize {
     COLLAPSED, // wrap content
-    EXPANDED;  // fullscreen
+    EXPANDED; // fullscreen
 }
 
 @Stable

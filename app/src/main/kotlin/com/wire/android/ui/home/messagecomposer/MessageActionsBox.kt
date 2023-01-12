@@ -77,15 +77,11 @@ private fun MessageComposeActions(
     ) {
         with(localFeatureVisibilityFlags) {
             AdditionalOptionButton(attachmentOptionsDisplayed, onAdditionalOptionButtonClicked)
-            if (RichTextIcon)
-                RichTextEditingAction()
-            if (EmojiIcon)
-                AddEmojiAction()
-            if (GifIcon)
-                AddGifAction()
+            if (RichTextIcon) RichTextEditingAction()
+            if (EmojiIcon) AddEmojiAction()
+            if (GifIcon) AddGifAction()
             AddMentionAction(isMentionsSelected, startMention)
-            if (PingIcon)
-                PingAction()
+            if (PingIcon) PingAction()
         }
     }
 }

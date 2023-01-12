@@ -147,8 +147,9 @@ private fun MessageComposer(
                     val calculatedKeyboardHeight = calculatedImeHeight - calculatedNavBarHeight
                     val notKnownAndCalculated = keyboardHeight is KeyboardHeight.NotKnown && calculatedKeyboardHeight > 0.dp
                     val knownAndDifferent = keyboardHeight is KeyboardHeight.Known && keyboardHeight.height != calculatedKeyboardHeight
-                    if (notKnownAndCalculated || knownAndDifferent)
+                    if (notKnownAndCalculated || knownAndDifferent) {
                         keyboardHeight = KeyboardHeight.Known(calculatedKeyboardHeight)
+                    }
                 }
                 val attachmentOptionsVisible = messageComposerState.messageComposeInputState.attachmentOptionsDisplayed
                         && !isKeyboardVisible
@@ -184,11 +185,12 @@ private fun MessageComposer(
                             .weight(1f)
                     ) {
                         messagesContent()
-                        if (membersToMention.isNotEmpty())
+                        if (membersToMention.isNotEmpty()) {
                             MembersMentionList(
                                 membersToMention = membersToMention,
                                 onMentionPicked = onMentionPicked
                             )
+                        }
                     }
 
                     MessageComposerInput(
@@ -274,8 +276,7 @@ private fun MembersMentionList(
         modifier = Modifier.fillMaxHeight(),
         verticalArrangement = Arrangement.Bottom
     ) {
-        if (membersToMention.isNotEmpty())
-            Divider()
+        if (membersToMention.isNotEmpty()) Divider()
         LazyColumn(
             modifier = Modifier.background(colorsScheme().background),
             reverseLayout = true
@@ -301,7 +302,6 @@ private fun MembersMentionList(
         }
     }
 }
-
 
 sealed class KeyboardHeight(open val height: Dp) {
     object NotKnown : KeyboardHeight(DEFAULT_KEYBOARD_TOP_SCREEN_OFFSET)

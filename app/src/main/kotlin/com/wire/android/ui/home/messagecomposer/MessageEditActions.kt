@@ -45,7 +45,7 @@ fun MessageEditActions(
             )
         }
         Spacer(modifier = Modifier.weight(1f))
-        Box( 
+        Box(
             modifier = Modifier.size(width = dimensions().spacing64x, height = dimensions().spacing56x),
             contentAlignment = Alignment.CenterStart
         ) {

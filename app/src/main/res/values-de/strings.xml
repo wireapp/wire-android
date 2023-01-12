@@ -531,7 +531,7 @@
     <string name="error_socket_message">Die Proxy-Zugangsdaten sind nicht korrekt. Bitte überprüfen Sie Ihre Angaben und versuchen Sie es erneut.</string>
     <string name="error_no_network_title">Warten auf Netzwerk</string>
     <string name="error_no_network_message">Bitte Internetverbindung überprüfen und erneut versuchen</string>
-    <string name="error_downloading_user_info">There was an error downloading the user information. Please check your Internet connection</string>
+    <string name="error_downloading_self_user_profile_picture">There was an error downloading the user information. Please check your Internet connection</string>
     <string name="error_uploading_user_avatar">Bild konnte nicht hochgeladen werden</string>
     <string name="error_uploading_image_message">Bild konnte nicht hochgeladen werden</string>
     <string name="error_downloading_image_message">Bild konnte nicht heruntergeladen werden</string>

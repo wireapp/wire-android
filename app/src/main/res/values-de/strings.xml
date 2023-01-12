@@ -39,8 +39,8 @@
     <string name="label_off">AUS</string>
     <string name="label_value_copied">%s kopiert</string>
     <string name="label_disable">Deaktivieren</string>
-    <string name="folder_lable_access">Zugang</string>
-    <string name="folder_lable_protocol_details">Details zum Protokoll (Beta)</string>
+    <string name="folder_label_access">Zugang</string>
+    <string name="folder_label_protocol_details">Details zum Protokoll (Beta)</string>
     <string name="label_user_blocked">Blockiert</string>
     <string name="label_and">and</string>
     <!-- Content descriptions https://wearezeta.atlassian.net/wiki/spaces/AR/pages/122520039/Code+Style+Guideline#Content-description-strings -->
@@ -632,8 +632,8 @@
         Downloads ist ein Fehler aufgetreten. Bitte überprüfen Sie Ihre Internetverbindung und versuchen Sie es erneut
     </string>
     <!--sso dialog-->
-    <string name="sso_erro_dialog_title">Anmeldung mit SSO nicht möglich</string>
-    <string name="sso_erro_dialog_message">Bitte erneut versuchen. Falls dies nicht hilft, wenden Sie sich an Ihren
+    <string name="sso_error_dialog_title">Anmeldung mit SSO nicht möglich</string>
+    <string name="sso_error_dialog_message">Bitte erneut versuchen. Falls dies nicht hilft, wenden Sie sich an Ihren
         Admin und geben diesen Code an: \n%d
     </string>
     <string name="asset_download_dialog_default_title">Datei herunterladen</string>
@@ -664,7 +664,7 @@
     <string name="block_user_dialog_title">Benutzer blockieren?</string>
     <string name="block_user_dialog_body">%1$s won’t be able to contact you or add you to group conversations. You will lose access to any 1:1 conversations with them. The other user will not be notified about this.</string>
     <string name="block_user_dialog_confirm_button">Blockieren</string>
-    <string name="other_user_devices_decription"><![CDATA[\Wire gibt jedem Gerät einen einzigartigen Fingerabdruck. Vergleichen Sie diese mit %1$s und überprüfen Sie Ihre Unterhaltung. \]]></string>
+    <string name="other_user_devices_description"><![CDATA[\Wire gibt jedem Gerät einen einzigartigen Fingerabdruck. Vergleichen Sie diese mit %1$s und überprüfen Sie Ihre Unterhaltung. \]]></string>
     <!--Settings -->
     <string name="url_why_verify_conversation">/hc/en-us/articles/207859815-Why-should-I-verify-my-conversations</string>
     <string name="settings_general_label">Allgemein</string>

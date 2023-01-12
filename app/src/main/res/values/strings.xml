@@ -40,8 +40,8 @@
     <string name="label_off">OFF</string>
     <string name="label_value_copied">%s copied</string>
     <string name="label_disable">Disable</string>
-    <string name="folder_lable_access">Access</string>
-    <string name="folder_lable_protocol_details">Protocol details (beta)</string>
+    <string name="folder_label_access">Access</string>
+    <string name="folder_label_protocol_details">Protocol details (beta)</string>
     <string name="label_user_blocked">Blocked</string>
     <string name="label_and">and</string>
     <!-- Content descriptions https://wearezeta.atlassian.net/wiki/spaces/AR/pages/122520039/Code+Style+Guideline#Content-description-strings -->
@@ -563,8 +563,8 @@
     <string name="error_unblocking_user">User could not be unblocked</string>
     <string name="delete_group_conversation_error">There was an error while deleting conversation</string>
     <!-- Animation label -->
-    <string name="animation_label_messagecomposeinput_state_transistion" translatable="false">MessageComposeInputState transition</string>
-    <string name="animation_label_button_rotation_degree_transistion" translatable="false">Collapse button rotation degree transition</string>
+    <string name="animation_label_message_compose_input_state_transition" translatable="false">MessageComposeInputState transition</string>
+    <string name="animation_label_button_rotation_degree_transition" translatable="false">Collapse button rotation degree transition</string>
     <string name="label_open_conversation">Open Conversation</string>
     <string name="email_label">Email</string>
     <string name="phone_label">Phone</string>
@@ -643,8 +643,8 @@
         Downloads folder. Please check your Internet connection and try again
     </string>
     <!--sso dialog-->
-    <string name="sso_erro_dialog_title">Unable to log in with SSO</string>
-    <string name="sso_erro_dialog_message">Please try again. If this does not help, contact your
+    <string name="sso_error_dialog_title">Unable to log in with SSO</string>
+    <string name="sso_error_dialog_message">Please try again. If this does not help, contact your
         admin and provide this code:\n%d"
     </string>
     <string name="asset_download_dialog_default_title">Download file</string>
@@ -675,7 +675,7 @@
     <string name="block_user_dialog_title">Block user?</string>
     <string name="block_user_dialog_body">%1$s won’t be able to contact you or add you to group conversations. You will lose access to any 1:1 conversations with them. The other user will not be notified about this.</string>
     <string name="block_user_dialog_confirm_button">Block</string>
-    <string name="other_user_devices_decription"><![CDATA[\Wire gives every device a unique fingerprint. Compare them with %1$s and verify your conversation. \]]></string>
+    <string name="other_user_devices_description"><![CDATA[\Wire gives every device a unique fingerprint. Compare them with %1$s and verify your conversation. \]]></string>
     <!--Settings -->
     <string name="url_why_verify_conversation">/hc/en-us/articles/207859815-Why-should-I-verify-my-conversations</string>
     <string name="settings_general_label">General</string>

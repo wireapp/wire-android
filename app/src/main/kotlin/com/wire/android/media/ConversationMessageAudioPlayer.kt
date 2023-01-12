@@ -7,7 +7,10 @@ import android.net.Uri
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.update
 import javax.inject.Inject
 
@@ -17,8 +20,29 @@ class ConversationMessageAudioPlayer
     private val getMessageAsset: GetMessageAssetUseCase
 ) {
 
-    val audioMessagesState = MutableStateFlow<Map<String, AudioState>>(emptyMap())
+   private val audioMessagesStates = MutableStateFlow<Map<String, AudioState>>(emptyMap())
 
+    private val currentPosition = flow {
+        delay(1000)
+        while (true) {
+            if (mediaPlayer.isPlaying) {
+                emit(mediaPlayer.currentPosition)
+            }
+            delay(1000)
+        }
+    }
+
+    val test = currentPosition.combine(audioMessagesStates) { currentPosition, audioMessagesStates ->
+        audioMessagesStates[currentlyPlayedMessageId]?.let { currentAudioMessageState ->
+            if (currentAudioMessageState.audioMediaPlayerState is AudioMediaPlayerState.Playing) {
+                audioMessagesStates.toMutableMap().apply {
+                    put(currentlyPlayedMessageId!!, AudioState(AudioMediaPlayerState.Playing(currentPosition)))
+                }
+            } else {
+                audioMessagesStates
+            }
+        } ?: audioMessagesStates
+    }
 
 
     private val audioSnapshots = mutableMapOf<String, AudioSnapShot>()
@@ -98,7 +122,7 @@ class ConversationMessageAudioPlayer
                 currentlyPlayedMessageId = messageId
 
                 updateOrPutAudioState(
-                    audioMediaPlayerState = AudioMediaPlayerState.Playing
+                    audioMediaPlayerState = AudioMediaPlayerState.Playing(mediaPlayer.currentPosition)
                 )
             }
 
@@ -110,7 +134,7 @@ class ConversationMessageAudioPlayer
 
     private fun resumeAudio() {
         updateOrPutAudioState(
-            audioMediaPlayerState = AudioMediaPlayerState.Playing
+            audioMediaPlayerState = AudioMediaPlayerState.Playing(mediaPlayer.currentPosition)
         )
         mediaPlayer.start()
     }
@@ -134,7 +158,7 @@ class ConversationMessageAudioPlayer
     }
 
     private fun updateOrPutAudioState(audioMediaPlayerState: AudioMediaPlayerState) {
-        audioMessagesState.update {
+        audioMessagesStates.update {
             it.toMutableMap().apply {
                 put(currentlyPlayedMessageId!!, AudioState(audioMediaPlayerState))
             }
@@ -154,8 +178,8 @@ data class AudioState(
 data class AudioSnapShot(val timeStamp: Int)
 
 sealed class AudioMediaPlayerState {
-    object Playing : AudioMediaPlayerState()
-    data class Stopped(val timeStamp: Int) : AudioMediaPlayerState()
+    data class Playing(val currentPosition: Int) : AudioMediaPlayerState()
+    data class Stopped(val currentPosition: Int) : AudioMediaPlayerState()
 
     object Completed : AudioMediaPlayerState()
 

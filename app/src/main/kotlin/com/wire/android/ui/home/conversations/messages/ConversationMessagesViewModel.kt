@@ -1,10 +1,9 @@
 package com.wire.android.ui.home.conversations.messages
 
-import androidx.compose.runtime.derivedStateOf
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.paging.cachedIn
@@ -48,7 +47,6 @@ import kotlinx.datetime.Instant
 import okio.Path
 import javax.inject.Inject
 
-
 @HiltViewModel
 @Suppress("LongParameterList", "TooManyFunctions")
 class ConversationMessagesViewModel @Inject constructor(
@@ -64,7 +62,7 @@ class ConversationMessagesViewModel @Inject constructor(
     private val getMessageForConversation: GetMessagesForConversationUseCase,
     private val toggleReaction: ToggleReactionUseCase,
     private val resetSession: ResetSessionUseCase,
-    val conversationMessageAudioPlayer: ConversationMessageAudioPlayer
+    private val conversationMessageAudioPlayer: ConversationMessageAudioPlayer
 ) : SavedStateViewModel(savedStateHandle) {
 
     var conversationViewState by mutableStateOf(ConversationMessagesViewState())
@@ -73,7 +71,6 @@ class ConversationMessagesViewModel @Inject constructor(
         savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)!!
     )
 
-
     private val _infoMessage = MutableSharedFlow<SnackBarMessage>()
     val infoMessage = _infoMessage.asSharedFlow()
 
@@ -81,11 +78,9 @@ class ConversationMessagesViewModel @Inject constructor(
         loadPaginatedMessages()
         loadLastMessageInstant()
 
-
-
         viewModelScope.launch {
-            conversationMessageAudioPlayer.audioMessagesState.collect {
-                println("test $it'")
+            conversationMessageAudioPlayer.test.collect {
+                Log.d("TEST", "$it")
             }
         }
     }

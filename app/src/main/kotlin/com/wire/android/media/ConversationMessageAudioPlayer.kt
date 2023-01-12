@@ -20,7 +20,7 @@ class ConversationMessageAudioPlayer
     private val getMessageAsset: GetMessageAssetUseCase
 ) {
 
-   private val audioMessagesStates = MutableStateFlow<Map<String, AudioState>>(emptyMap())
+    private val audioMessagesStates = MutableStateFlow<Map<String, AudioState>>(emptyMap())
 
     private val currentPosition = flow {
         delay(1000)
@@ -43,7 +43,6 @@ class ConversationMessageAudioPlayer
             }
         } ?: audioMessagesStates
     }
-
 
     private val audioSnapshots = mutableMapOf<String, AudioSnapShot>()
 
@@ -122,7 +121,7 @@ class ConversationMessageAudioPlayer
                 currentlyPlayedMessageId = messageId
 
                 updateOrPutAudioState(
-                    audioMediaPlayerState = AudioMediaPlayerState.Playing(mediaPlayer.currentPosition)
+                    audioMediaPlayerState = AudioMediaPlayerState.Playing(seekTo ?: 0)
                 )
             }
 

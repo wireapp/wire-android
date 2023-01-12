@@ -32,6 +32,8 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.items
 import com.wire.android.R
+import com.wire.android.media.AudioMediaPlayerState
+import com.wire.android.media.AudioState
 import com.wire.android.model.Clickable
 import com.wire.android.model.SnackBarMessage
 import com.wire.android.navigation.hiltSavedStateViewModel
@@ -363,8 +365,7 @@ private fun ConversationScreen(
                         isFileSharingEnabled = conversationViewState.isFileSharingEnabled,
                         onAudioClick = onAudioClick,
                         lastUnreadMessageInstant = conversationMessagesViewState.firstUnreadInstant,
-                        currentlyPlayedAudioMessage = conversationMessagesViewState.currentlyPlayedAudioMessageId,
-                        isAudioPlaying = conversationMessagesViewState.isAudioPlaying,
+                        audioMessagesState = conversationMessagesViewState.audioMessagesState,
                         conversationState = conversationViewState,
                         messageComposerInnerState = messageComposerInnerState,
                         messages = conversationMessagesViewState.messages,
@@ -395,8 +396,7 @@ private fun ConversationScreenContent(
     isFileSharingEnabled: Boolean,
     lastUnreadMessageInstant: Instant?,
     conversationState: ConversationViewState,
-    currentlyPlayedAudioMessage: String?,
-    isAudioPlaying: Boolean = false,
+    audioMessagesState: Map<String, AudioState>,
     messageComposerInnerState: MessageComposerInnerState,
     messages: Flow<PagingData<UIMessage>>,
     onSendMessage: (String, List<UiMention>, String?) -> Unit,
@@ -428,8 +428,7 @@ private fun ConversationScreenContent(
                 lazyPagingMessages = lazyPagingMessages,
                 lazyListState = lazyListState,
                 lastUnreadMessageInstant = lastUnreadMessageInstant,
-                currentlyPlayedAudioMessage = currentlyPlayedAudioMessage,
-                isAudioPlaying = isAudioPlaying,
+                audioMessagesState = audioMessagesState,
                 onUpdateConversationReadDate = onUpdateConversationReadDate,
                 onDownloadAsset = onDownloadAsset,
                 onImageFullScreenMode = onImageFullScreenMode,
@@ -495,8 +494,7 @@ fun MessageList(
     lazyPagingMessages: LazyPagingItems<UIMessage>,
     lazyListState: LazyListState,
     lastUnreadMessageInstant: Instant?,
-    currentlyPlayedAudioMessage: String?,
-    isAudioPlaying: Boolean = false,
+    audioMessagesState: Map<String, AudioState>,
     onUpdateConversationReadDate: (String) -> Unit,
     onDownloadAsset: (String) -> Unit,
     onAudioClick: (String) -> Unit,
@@ -611,7 +609,11 @@ fun MessageList(
                             }
 
                             is UIMessageContent.AudioAssetMessage -> {
-                                AudioMessage(true) { onAudioClick(message.messageHeader.messageId) }
+                                AudioMessage(
+                                    audioState = audioMessagesState[message.messageHeader.messageId]
+                                        ?: AudioState(AudioMediaPlayerState.Paused(0)),
+                                    onPlayAudioMessage = { onAudioClick(message.messageHeader.messageId) }
+                                )
                             }
 
                             is UIMessageContent.SystemMessage.MemberAdded -> {}

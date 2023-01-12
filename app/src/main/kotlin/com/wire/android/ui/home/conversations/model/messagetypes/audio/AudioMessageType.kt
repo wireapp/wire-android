@@ -18,39 +18,18 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import com.wire.android.R
+import com.wire.android.media.AudioMediaPlayerState
+import com.wire.android.media.AudioState
 import com.wire.android.ui.common.WireCircularProgressIndicator
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 
-@Composable
-fun AudioMessageLoading() {
-    Box {
-        Row(
-            modifier = Modifier
-                .align(Alignment.Center)
-                .fillMaxWidth()
-                .height(dimensions().audioMessageHeight)
-        ) {
-            WireCircularProgressIndicator(
-                progressColor = MaterialTheme.wireColorScheme.primary,
-                size = MaterialTheme.wireDimensions.spacing24x
-            )
-            Text(
-                text = "Loading",
-                style = MaterialTheme.wireTypography.body01.copy(color = MaterialTheme.wireColorScheme.secondaryText),
-                overflow = TextOverflow.Ellipsis,
-                maxLines = 1
-            )
-        }
-    }
-}
 
 @Composable
 fun AudioMessage(
-    isPlaying: Boolean = false,
-    currentProgress: Float = 0f,
+    audioState: AudioState,
     onPlayAudioMessage: () -> Unit
 ) {
     Box {
@@ -60,7 +39,24 @@ fun AudioMessage(
                 .fillMaxWidth()
                 .height(dimensions().audioMessageHeight)
         ) {
-            if (isPlaying) Text("Audio is playing")
+            when (val test = audioState.audioMediaPlayerState) {
+                AudioMediaPlayerState.Completed -> {
+                    Text("Is Completed")
+
+                }
+
+                is AudioMediaPlayerState.Paused -> {
+                    Text("Is Paused ${test.currentPosition}")
+                }
+
+                is AudioMediaPlayerState.Playing -> {
+                    Text("Is playing ${test.currentPosition}")
+                }
+
+                is AudioMediaPlayerState.Stopped -> {
+                    Text("Is Stoppped ${test.currentPosition}")
+                }
+            }
             Image(
                 modifier = Modifier
                     .clickable { onPlayAudioMessage() }
@@ -75,9 +71,4 @@ fun AudioMessage(
             )
         }
     }
-}
-
-sealed class AudioMessageState {
-    object Loading : AudioMessageState()
-    object Loaded : AudioMessageState()
 }

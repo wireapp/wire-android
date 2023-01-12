@@ -26,6 +26,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import com.google.accompanist.flowlayout.FlowRow
 import com.wire.android.R
+import com.wire.android.media.AudioMediaPlayerState
+import com.wire.android.media.AudioState
 import com.wire.android.model.Clickable
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.LegalHoldIndicator
@@ -391,7 +393,7 @@ private fun MessageContent(
         }
 
         is UIMessageContent.AudioAssetMessage -> {
-            AudioMessage(messageId == currentlyPlayedAudioMessageId && isAudioPlaying) { onAudioClick() }
+            AudioMessage(AudioState(AudioMediaPlayerState.Paused(0))) { onAudioClick() }
         }
 
         is UIMessageContent.SystemMessage.MemberAdded -> {}

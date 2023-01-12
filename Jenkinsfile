@@ -13,7 +13,7 @@ def defineFlavor() {
     } else if(branchName == "release") {
         return 'Public'
     }
-    return 'Dev'
+    return 'Internal'
 }
 
 def defineBuildType() {
@@ -33,9 +33,13 @@ def defineTrackName() {
     def overwrite = env.CUSTOM_TRACK
     if(overwrite != null) {
         return overwrite
+    } else if (env.BRANCH_NAME.startsWith('PR-')) {
+        return 'None'
+    } else if (env.BRANCH_NAME == 'main') {
+        return 'internal'
     }
 
-    return 'internal'
+    return 'None'
 }
 
 String shellQuote(String s) {
@@ -365,7 +369,7 @@ pipeline {
           }
           stage('Playstore') {
             when {
-              expression { env.trackName != 'None' && env.flavor != 'Dev' && env.CHANGE_ID == null }
+              expression { env.trackName != 'None' && env.flavor == 'Internal' && env.CHANGE_ID == null }
             }
             steps {
               echo 'Checking folder before playstore upload'

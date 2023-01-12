@@ -144,8 +144,8 @@ class NewConversationViewModelTest {
             arrangement.createGroupConversation(
                 viewModel.newGroupState.groupName.text,
                 viewModel.state.contactsAddedToGroup.map { contact -> UserId(contact.id, contact.domain) },
-                ConversationOptions(null, null, null, ConversationOptions.Protocol.PROTEUS, null)
-                )
+                ConversationOptions(null, null, false, ConversationOptions.Protocol.PROTEUS, null)
+            )
         }
     }
 
@@ -166,12 +166,12 @@ class NewConversationViewModelTest {
             // Then
             assertEquals(
                 viewModel.state.searchResult[SearchResultTitle(R.string.label_contacts)]!!.searchResultState
-                        is SearchResultState.Failure,
+                is SearchResultState.Failure,
                 true
             )
             assertEquals(
                 viewModel.state.searchResult[SearchResultTitle(R.string.label_public_wire)]!!.searchResultState
-                        is SearchResultState.Failure,
+                is SearchResultState.Failure,
                 true
             )
         }

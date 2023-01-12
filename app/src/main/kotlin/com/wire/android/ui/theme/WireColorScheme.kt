@@ -237,7 +237,7 @@ private val DarkWireColorScheme = WireColorScheme(
     switchEnabledChecked = WireColorPalette.DarkGreen500, switchDisabledChecked = WireColorPalette.DarkGreen200,
     switchEnabledUnchecked = WireColorPalette.Gray40, switchDisabledUnchecked = WireColorPalette.Gray60,
     divider = WireColorPalette.Gray80,
-    secondaryText = WireColorPalette.Gray40,
+    secondaryText = WireColorPalette.Gray60,
     labelText = WireColorPalette.Gray30,
     badge = WireColorPalette.Gray10, onBadge = Color.Black,
     highLight = WireColorPalette.DarkYellow300,

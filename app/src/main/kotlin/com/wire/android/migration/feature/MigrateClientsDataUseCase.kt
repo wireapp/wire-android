@@ -11,8 +11,8 @@ import com.wire.kalium.logic.NetworkFailure
 import com.wire.kalium.logic.StorageFailure
 import com.wire.kalium.logic.data.conversation.ClientId
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.feature.client.RegisterClientUseCase.RegisterClientParam
 import com.wire.kalium.logic.feature.client.RegisterClientResult
+import com.wire.kalium.logic.feature.client.RegisterClientUseCase.RegisterClientParam
 import com.wire.kalium.logic.functional.Either
 import com.wire.kalium.logic.functional.flatMap
 import com.wire.kalium.logic.functional.foldToEitherWhileRight
@@ -39,6 +39,7 @@ class MigrateClientsDataUseCase @Inject constructor(
             // move crypto box files
             val scalaDir = scalaCryptoBoxDirectoryProvider.userDir(userId)
             val currentDir = File(coreLogic.rootPathsProvider.rootProteusPath(userId))
+            // TODO: if migration got interrupted after this step the next time it will fail because the files are deleted
             scalaDir.copyRecursively(target = currentDir, overwrite = false)
             scalaDir.deleteRecursively()
 

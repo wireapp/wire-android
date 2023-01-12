@@ -1,5 +1,6 @@
 package com.wire.android.ui.home.settings.account
 
+import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.navigation.NavigationManager
@@ -13,6 +14,7 @@ import io.mockk.Called
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
+import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -79,8 +81,12 @@ class MyAccountViewModelTest {
         @MockK
         lateinit var isPasswordRequiredUseCase: IsPasswordRequiredUseCase
 
+        @MockK
+        private lateinit var savedStateHandle: SavedStateHandle
+
         val viewModel by lazy {
             MyAccountViewModel(
+                savedStateHandle,
                 getSelfUserUseCase,
                 getSelfTeamUseCase,
                 selfServerConfigUseCase,
@@ -92,6 +98,7 @@ class MyAccountViewModelTest {
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
+            every { savedStateHandle.get<String>(any()) } returns "SOMETHING"
         }
 
         fun withUserRequiresPasswordResult(result: IsPasswordRequiredUseCase.Result = Success(true)) = apply {

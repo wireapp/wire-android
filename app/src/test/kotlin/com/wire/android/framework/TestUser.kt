@@ -13,8 +13,10 @@ import com.wire.kalium.logic.data.user.type.UserType
 
 object TestUser {
     val USER_ID = UserId("value", "domain")
+    val SELF_USER_ID = UserId("selfValue", "domain")
+
     val SELF_USER = SelfUser(
-        USER_ID,
+        SELF_USER_ID,
         name = "username",
         handle = "handle",
         email = "email",

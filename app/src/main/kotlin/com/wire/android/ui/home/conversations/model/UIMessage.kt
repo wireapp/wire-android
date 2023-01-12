@@ -76,7 +76,7 @@ sealed class UILastMessageContent {
 
     data class SenderWithMessage(val sender: UIText, val message: UIText, val separator: String = " ") : UILastMessageContent()
 
-    data class MultipleMessage(val firstMessage: UIText, val secondMessage: UIText) : UILastMessageContent()
+    data class MultipleMessage(val messages: List<UIText>, val separator: String = " ") : UILastMessageContent()
 
     data class Connection(val connectionState: ConnectionState, val userId: UserId) : UILastMessageContent()
 
@@ -153,6 +153,9 @@ sealed class UIMessageContent {
         data class CryptoSessionReset(val author: UIText) :
             SystemMessage(R.drawable.ic_info, R.string.label_system_message_session_reset, true)
 
+        data class NewConversationReceiptMode(
+            val receiptMode: UIText
+        ) : SystemMessage(R.drawable.ic_view, R.string.label_system_message_new_conversation_receipt_mode)
     }
 }
 

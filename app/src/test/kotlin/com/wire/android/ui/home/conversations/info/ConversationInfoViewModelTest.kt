@@ -29,7 +29,7 @@ class ConversationInfoViewModelTest {
     fun `given self user 1on1 message, when clicking on avatar, then open self profile`() = runTest {
         // Given
         val oneOneDetails = withMockConversationDetailsOneOnOne("Other User Name Goes Here")
-        val userId = TestUser.USER_ID
+        val userId = TestUser.SELF_USER_ID
         val (arrangement, viewModel) = ConversationInfoViewModelArrangement()
             .withConversationDetailUpdate(oneOneDetails)
             .withSelfUser()
@@ -46,7 +46,7 @@ class ConversationInfoViewModelTest {
     fun `given self user group message, when clicking on avatar, then open self profile`() = runTest {
         // Given
         val groupDetails = mockConversationDetailsGroup("Conversation Name Goes Here")
-        val userId = TestUser.USER_ID
+        val userId = TestUser.SELF_USER_ID
         val (arrangement, viewModel) = ConversationInfoViewModelArrangement()
             .withConversationDetailUpdate(groupDetails)
             .withSelfUser()

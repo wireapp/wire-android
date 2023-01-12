@@ -3,7 +3,6 @@ package com.wire.android.di
 import android.content.Context
 import androidx.work.WorkManager
 import com.wire.android.datastore.UserDataStoreProvider
-import com.wire.android.util.DeviceLabel
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.data.id.FederatedIdMapper
@@ -35,8 +34,8 @@ import com.wire.kalium.logic.feature.conversation.ClearConversationContentUseCas
 import com.wire.kalium.logic.feature.conversation.CreateGroupConversationUseCase
 import com.wire.kalium.logic.feature.conversation.GetAllContactsNotInConversationUseCase
 import com.wire.kalium.logic.feature.conversation.GetOrCreateOneToOneConversationUseCase
-import com.wire.kalium.logic.feature.conversation.GetSecurityClassificationTypeUseCase
 import com.wire.kalium.logic.feature.conversation.LeaveConversationUseCase
+import com.wire.kalium.logic.feature.conversation.ObserveSecurityClassificationLabelUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveUserListByIdUseCase
 import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationAccessRoleUseCase
@@ -67,6 +66,7 @@ import com.wire.kalium.logic.feature.user.IsSelfATeamMemberUseCase
 import com.wire.kalium.logic.feature.user.ObserveUserInfoUseCase
 import com.wire.kalium.logic.feature.user.ObserveValidAccountsUseCase
 import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
+import com.wire.kalium.logic.feature.user.UpdateDisplayNameUseCase
 import com.wire.kalium.logic.featureFlags.KaliumConfigs
 import dagger.Module
 import dagger.Provides
@@ -77,9 +77,9 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.scopes.ServiceScoped
 import dagger.hilt.android.scopes.ViewModelScoped
 import dagger.hilt.components.SingletonComponent
-import kotlinx.coroutines.runBlocking
 import javax.inject.Qualifier
 import javax.inject.Singleton
+import kotlinx.coroutines.runBlocking
 
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
@@ -106,12 +106,10 @@ class CoreLogicModule {
     @Provides
     fun provideCoreLogic(@ApplicationContext context: Context, kaliumConfigs: KaliumConfigs): CoreLogic {
         val rootPath = context.getDir("accounts", Context.MODE_PRIVATE).path
-        val deviceLabel = DeviceLabel.label
 
         return CoreLogic(
             appContext = context,
             rootPath = rootPath,
-            clientLabel = deviceLabel,
             kaliumConfigs = kaliumConfigs
         )
     }
@@ -149,10 +147,10 @@ class CoreLogicModule {
 @Module
 @InstallIn(ViewModelComponent::class)
 class SessionModule {
+    // TODO: can be improved by caching the current session in kalium or changing the scope to ActivityRetainedScoped
     @CurrentAccount
     @ViewModelScoped
     @Provides
-    // TODO: can be improved by caching the current session in kalium or changing the scope to ActivityRetainedScoped
     fun provideCurrentSession(@KaliumCoreLogic coreLogic: CoreLogic): UserId {
         return runBlocking {
             return@runBlocking when (val result = coreLogic.getGlobalScope().session.currentSession.invoke()) {
@@ -644,13 +642,15 @@ class UseCaseModule {
     @ViewModelScoped
     @Provides
     fun providePersistPersistentWebSocketConnectionStatusUseCase(
-        @KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
     ) = coreLogic.getSessionScope(currentAccount).persistPersistentWebSocketConnectionStatus
 
     @ViewModelScoped
     @Provides
     fun provideGetPersistentWebSocketStatusUseCase(
-        @KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
     ) = coreLogic.getSessionScope(currentAccount).getPersistentWebSocketStatus
 
     @ViewModelScoped
@@ -785,11 +785,11 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
-    fun provideGetConversationClassifiedTypeUseCase(
+    fun observeSecurityClassificationLabelUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
-    ): GetSecurityClassificationTypeUseCase =
-        coreLogic.getSessionScope(currentAccount).getSecurityClassificationType
+    ): ObserveSecurityClassificationLabelUseCase =
+        coreLogic.getSessionScope(currentAccount).observeSecurityClassificationLabel
 
     @ViewModelScoped
     @Provides
@@ -867,4 +867,12 @@ class UseCaseModule {
     @Provides
     fun provideResetSessionUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId): ResetSessionUseCase =
         coreLogic.getSessionScope(currentAccount).messages.resetSession
+
+    @ViewModelScoped
+    @Provides
+    fun provideUpdateDisplayNameUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): UpdateDisplayNameUseCase =
+        coreLogic.getSessionScope(currentAccount).users.updateDisplayName
 }

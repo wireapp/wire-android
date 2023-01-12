@@ -1,34 +1,48 @@
 # Coverage configuration
+#
+# Validate this file using the following command in root project:
+# curl -X POST --data-binary @codecov.yml https://codecov.io/validate
 # ----------------------
+codecov:
+    notify:
+        wait_for_ci: false
+
 coverage:
-  status:
-    project:
-      default:
-        # basic
-        target: auto
-        threshold: 5%
-        base: auto
-    patch: false
+    status:
+        project:
+            default:
+                target: auto
+                threshold: 2%
+                base: auto
+        patch:
+            default:
+                informational: true # don't fail the build if patch coverage is below threshold
+                target: 80%
+                base: auto
 
 # Ignoring Paths
 # --------------
 # which folders/files to ignore
 ignore:
-  - ".*/test/.*"
-  - "buildSrc/.*"
-  - "kalium/.*"
-  - ".*/androidTest/.*"
-  - ".*/_version.py"
-  - "setup.py"
-  - ".*/_Screen.kt"
-  - ".*/mock/.*"
-  - ".*/theme/.*"
-  - ".*/common/.*"
-  - ".*/navigation/.*"
+    - ".*/test/.*"
+    - "buildSrc/.*"
+    - "kalium/.*"
+    - ".*/androidTest/.*"
+    - ".*/_version.py"
+    - "setup.py"
+    - ".*/_Screen.kt"
+    - ".*/mock/.*"
+    - ".*/theme/.*"
+    - ".*/common/.*"
+    - ".*/navigation/.*"
+    - ".*/di/.*"
+    - ".*/.*Screen*.kt"
 
 # Pull request comments:
 # ----------------------
 # Diff is the Coverage Diff of the pull request.
 # Files are the files impacted by the pull request
 comment:
-  layout: diff, files  # accepted in any order: reach, diff, flags, and/or files
+    layout: diff, files, footer
+    behavior: default
+    require_changes: true

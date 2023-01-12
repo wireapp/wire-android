@@ -393,7 +393,7 @@ private fun MessageContent(
         }
 
         is UIMessageContent.AudioAssetMessage -> {
-            AudioMessage(AudioState(AudioMediaPlayerState.Paused(0))) { onAudioClick() }
+            AudioMessage(AudioState(AudioMediaPlayerState.Paused, 0 )) { onAudioClick() }
         }
 
         is UIMessageContent.SystemMessage.MemberAdded -> {}

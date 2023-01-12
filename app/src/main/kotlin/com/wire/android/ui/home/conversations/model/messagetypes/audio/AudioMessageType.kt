@@ -46,15 +46,15 @@ fun AudioMessage(
                 }
 
                 is AudioMediaPlayerState.Paused -> {
-                    Text("Is Paused ${test.currentPosition}")
+                    Text("Is Paused ${audioState.currentPosition}")
                 }
 
                 is AudioMediaPlayerState.Playing -> {
-                    Text("Is playing ${test.currentPosition}")
+                    Text("Is playing ${audioState.currentPosition}")
                 }
 
                 is AudioMediaPlayerState.Stopped -> {
-                    Text("Is Stoppped ${test.currentPosition}")
+                    Text("Is Stoppped ${audioState.currentPosition}")
                 }
             }
             Image(

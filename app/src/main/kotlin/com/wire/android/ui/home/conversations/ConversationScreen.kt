@@ -611,7 +611,7 @@ fun MessageList(
                             is UIMessageContent.AudioAssetMessage -> {
                                 AudioMessage(
                                     audioState = audioMessagesState[message.messageHeader.messageId]
-                                        ?: AudioState(AudioMediaPlayerState.Paused(0)),
+                                        ?: AudioState(AudioMediaPlayerState.Paused, 0),
                                     onPlayAudioMessage = { onAudioClick(message.messageHeader.messageId) }
                                 )
                             }

@@ -76,6 +76,7 @@ data class WireColorScheme(
     val connectivityBarTextColor: Color,
     val connectivityBarIconColor: Color,
     val messageComposerBackgroundColor: Color,
+    val messageComposerEditBackgroundColor: Color,
     val messageMentionBackground: Color,
     val messageMentionText: Color
 ) {
@@ -198,6 +199,7 @@ private val LightWireColorScheme = WireColorScheme(
     connectivityBarTextColor = Color.White,
     connectivityBarIconColor = Color.White,
     messageComposerBackgroundColor = Color.White,
+    messageComposerEditBackgroundColor = WireColorPalette.LightBlue50,
     messageMentionBackground = WireColorPalette.messageMentionBackground,
     messageMentionText = WireColorPalette.messageMentionText
 )
@@ -302,6 +304,7 @@ private val DarkWireColorScheme = WireColorScheme(
     connectivityBarTextColor = Color.White,
     connectivityBarIconColor = Color.White,
     messageComposerBackgroundColor = WireColorPalette.Gray100,
+    messageComposerEditBackgroundColor = WireColorPalette.DarkBlue800,
     messageMentionBackground = WireColorPalette.messageMentionBackground,
     messageMentionText = WireColorPalette.messageMentionText
 )

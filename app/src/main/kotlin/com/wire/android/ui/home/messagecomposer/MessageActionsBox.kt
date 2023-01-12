@@ -31,24 +31,29 @@ import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 @Composable
 fun MessageComposeActionsBox(
     transition: Transition<MessageComposeInputState>,
-    messageComposerState: MessageComposerInnerState,
-    isMentionActive: Boolean
+    messageComposeInputState: MessageComposeInputState,
+    isMentionActive: Boolean,
+    startMention: () -> Unit,
+    onAdditionalOptionButtonClicked: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
-    Column(
-        Modifier
-            .wrapContentSize()
-    ) {
+    Column(modifier.wrapContentSize()) {
         Divider()
         Box(Modifier.wrapContentSize()) {
             transition.AnimatedContent(
-                contentKey = { state -> state != MessageComposeInputState.Enabled },
+                contentKey = { state -> state is MessageComposeInputState.Active },
                 transitionSpec = {
                     slideInVertically { fullHeight -> fullHeight / 2 } + fadeIn() with
                             slideOutVertically { fullHeight -> fullHeight / 2 } + fadeOut()
                 }
             ) { state ->
-                if (state != MessageComposeInputState.Enabled)
-                    MessageComposeActions(messageComposerState, isMentionActive)
+                if (state is MessageComposeInputState.Active)
+                    MessageComposeActions(
+                        messageComposeInputState.attachmentOptionsDisplayed,
+                        isMentionActive,
+                        startMention,
+                        onAdditionalOptionButtonClicked
+                    )
             }
         }
     }
@@ -56,8 +61,10 @@ fun MessageComposeActionsBox(
 
 @Composable
 private fun MessageComposeActions(
-    messageComposerState: MessageComposerInnerState,
-    isMentionsSelected: Boolean
+    attachmentOptionsDisplayed: Boolean,
+    isMentionsSelected: Boolean,
+    startMention: () -> Unit,
+    onAdditionalOptionButtonClicked: () -> Unit,
 ) {
     val localFeatureVisibilityFlags = LocalFeatureVisibilityFlags.current
 
@@ -69,17 +76,14 @@ private fun MessageComposeActions(
             .height(dimensions().spacing56x)
     ) {
         with(localFeatureVisibilityFlags) {
-            AdditionalOptionButton(messageComposerState.attachmentOptionsDisplayed) {
-                messageComposerState.focusManager.clearFocus()
-                messageComposerState.toggleAttachmentOptionsVisibility()
-            }
+            AdditionalOptionButton(attachmentOptionsDisplayed, onAdditionalOptionButtonClicked)
             if (RichTextIcon)
                 RichTextEditingAction()
             if (EmojiIcon)
                 AddEmojiAction()
             if (GifIcon)
                 AddGifAction()
-            AddMentionAction(isMentionsSelected, messageComposerState::startMention)
+            AddMentionAction(isMentionsSelected, startMention)
             if (PingIcon)
                 PingAction()
         }

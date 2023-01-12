@@ -1,10 +1,6 @@
 package com.wire.android.ui.home.messagecomposer
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.animation.core.Transition
-import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -13,7 +9,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -23,44 +18,29 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.layout.navigationBarsIgnoringVisibility
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.Divider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.model.Clickable
-import com.wire.android.ui.common.SecurityClassificationBanner
 import com.wire.android.ui.common.colorsScheme
-import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages
 import com.wire.android.ui.home.conversations.mention.MemberItemToMention
-import com.wire.android.ui.home.conversations.messages.QuotedMessagePreview
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
-import com.wire.android.ui.home.conversations.model.QuotedMessageUIData
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.messagecomposer.attachment.AttachmentOptions
 import com.wire.android.ui.home.newconversation.model.Contact
@@ -87,7 +67,7 @@ fun MessageComposer(
         val onSendButtonClicked = remember {
             {
                 onSendTextMessage(
-                    messageComposerState.messageText.text,
+                    messageComposerState.messageComposeInputState.messageText.text,
                     messageComposerState.mentions,
                     messageComposerState.quotedMessageData?.messageId,
                 )
@@ -99,7 +79,7 @@ fun MessageComposer(
         val onSendAttachmentClicked = remember {
             { attachmentBundle: AttachmentBundle? ->
                 onSendAttachment(attachmentBundle)
-                messageComposerState.toggleAttachmentOptionsVisibility()
+                messageComposerState.hideAttachmentOptions()
             }
         }
 
@@ -155,7 +135,7 @@ private fun MessageComposer(
         BoxWithConstraints(Modifier.fillMaxSize()) {
             val currentScreenHeight: Dp = with(LocalDensity.current) { constraints.maxHeight.toDp() }
 
-            Column(Modifier.fillMaxSize()) {
+            Column(Modifier.fillMaxWidth().height(currentScreenHeight)) {
 
                 // when MessageComposer is composed for the first time we do not know the height until users opens the keyboard
                 var keyboardHeight: KeyboardHeight by remember { mutableStateOf(KeyboardHeight.NotKnown) }
@@ -170,27 +150,20 @@ private fun MessageComposer(
                     if (notKnownAndCalculated || knownAndDifferent)
                         keyboardHeight = KeyboardHeight.Known(calculatedKeyboardHeight)
                 }
-                val attachmentOptionsVisible = messageComposerState.attachmentOptionsDisplayed
+                val attachmentOptionsVisible = messageComposerState.messageComposeInputState.attachmentOptionsDisplayed
                         && !isKeyboardVisible
                         && interactionAvailability == InteractionAvailability.ENABLED
-                val contentHeight by remember(keyboardHeight, currentScreenHeight, attachmentOptionsVisible) {
-                    derivedStateOf {
-                        if (attachmentOptionsVisible) currentScreenHeight - keyboardHeight.height
-                        else currentScreenHeight
-                    }
-                }
 
-
-                LaunchedEffect(isKeyboardVisible, messageComposerState.attachmentOptionsDisplayed) {
-                    if (!isKeyboardVisible && !messageComposerState.attachmentOptionsDisplayed) {
-                        messageComposerState.toEnabled()
+                LaunchedEffect(isKeyboardVisible) {
+                    if (!isKeyboardVisible && !messageComposerState.messageComposeInputState.attachmentOptionsDisplayed) {
+                        messageComposerState.toInactive()
                         messageComposerState.focusManager.clearFocus()
                     }
                 }
 
                 Column(
                     Modifier
-                        .height(contentHeight)
+                        .weight(1f)
                         .fillMaxWidth()
                 ) {
                     Box(
@@ -199,7 +172,7 @@ private fun MessageComposer(
                                 detectTapGestures(
                                     onPress = {
                                         messageComposerState.focusManager.clearFocus()
-                                        messageComposerState.toEnabled()
+                                        messageComposerState.toInactive()
                                     },
                                     onDoubleTap = { /* Called on Double Tap */ },
                                     onLongPress = { /* Called on Long Press */ },
@@ -220,14 +193,35 @@ private fun MessageComposer(
 
                     MessageComposerInput(
                         transition = transition,
-                        messageComposerInnerState = messageComposerState,
                         interactionAvailability = interactionAvailability,
                         securityClassificationType = securityClassificationType,
+                        messageComposeInputState = messageComposerState.messageComposeInputState,
+                        quotedMessageData = messageComposerState.quotedMessageData,
                         membersToMention = membersToMention,
-                        onMentionPicked = onMentionPicked,
-                        onSendButtonClicked = onSendButtonClicked,
-                        onToggleFullScreen = messageComposerState::toggleFullScreen,
-                        onCancelReply = messageComposerState::cancelReply,
+                        actions = remember(messageComposerState) {
+                            MessageComposerInputActions(
+                                onMessageTextChanged = messageComposerState::setMessageTextValue,
+                                onMentionPicked = onMentionPicked,
+                                onSendButtonClicked = onSendButtonClicked,
+                                onToggleFullScreen = messageComposerState::toggleFullScreen,
+                                onCancelReply = messageComposerState::cancelReply,
+                                startMention = messageComposerState::startMention,
+                                onInputFocusChanged = { isFocused ->
+                                    messageComposerState.messageComposeInputFocusChange(isFocused)
+                                    if (isFocused) {
+                                        messageComposerState.toActive()
+                                        messageComposerState.hideAttachmentOptions()
+                                    }
+                                },
+                                onAdditionalOptionButtonClicked = {
+                                    messageComposerState.focusManager.clearFocus()
+                                    messageComposerState.toActive()
+                                    messageComposerState.showAttachmentOptions()
+                                },
+                                onEditSaveButtonClicked = { /* TODO */ },
+                                onEditCancelButtonClicked = messageComposerState::toInactive
+                            )
+                        }
                     )
                 }
 
@@ -251,9 +245,9 @@ private fun MessageComposer(
                 // This covers the situation when the user switches from attachment options to the input keyboard - there is a moment when
                 // both attachmentOptionsDisplayed and isKeyboardVisible are false, but right after that keyboard shows, so if we know that
                 // the input already has a focus, we can show an empty Box which has a height of the keyboard to prevent flickering.
-
-                else if (!messageComposerState.attachmentOptionsDisplayed && !isKeyboardVisible &&
-                    messageComposerState.messageComposeInputFocused && interactionAvailability == InteractionAvailability.ENABLED
+                else if (!messageComposerState.messageComposeInputState.attachmentOptionsDisplayed && !isKeyboardVisible &&
+                    keyboardHeight is KeyboardHeight.Known && messageComposerState.messageComposeInputState.inputFocused &&
+                    interactionAvailability == InteractionAvailability.ENABLED
                 ) {
                     Box(
                         modifier = Modifier
@@ -265,144 +259,9 @@ private fun MessageComposer(
         }
     }
 
-    BackHandler(messageComposerState.attachmentOptionsDisplayed) {
+    BackHandler(messageComposerState.messageComposeInputState.attachmentOptionsDisplayed) {
         messageComposerState.hideAttachmentOptions()
-        messageComposerState.toEnabled()
-    }
-}
-
-@Composable
-private fun MessageComposerInput(
-    transition: Transition<MessageComposeInputState>,
-    interactionAvailability: InteractionAvailability,
-    securityClassificationType: SecurityClassificationType,
-    messageComposerInnerState: MessageComposerInnerState,
-    membersToMention: List<Contact>,
-    onSendButtonClicked: () -> Unit,
-    onToggleFullScreen: () -> Unit,
-    onMentionPicked: (Contact) -> Unit,
-    onCancelReply: () -> Unit
-) {
-    when (interactionAvailability) {
-        InteractionAvailability.BLOCKED_USER -> BlockedUserComposerInput()
-        InteractionAvailability.DELETED_USER -> DeletedUserComposerInput()
-        InteractionAvailability.NOT_MEMBER, InteractionAvailability.DISABLED -> {}
-        InteractionAvailability.ENABLED -> {
-            EnabledMessageComposerInput(
-                transition = transition,
-                securityClassificationType = securityClassificationType,
-                messageComposerInnerState = messageComposerInnerState,
-                membersToMention = membersToMention,
-                onSendButtonClicked = onSendButtonClicked,
-                onToggleFullScreen = onToggleFullScreen,
-                onMentionPicked = onMentionPicked,
-                onCancelReply = onCancelReply
-            )
-        }
-    }
-}
-
-@OptIn(ExperimentalAnimationApi::class)
-@Composable
-private fun EnabledMessageComposerInput(
-    transition: Transition<MessageComposeInputState>,
-    securityClassificationType: SecurityClassificationType,
-    messageComposerInnerState: MessageComposerInnerState,
-    membersToMention: List<Contact>,
-    onSendButtonClicked: () -> Unit,
-    onToggleFullScreen: () -> Unit,
-    onMentionPicked: (Contact) -> Unit,
-    onCancelReply: () -> Unit
-) {
-    Column {
-        var currentSelectedLineIndex by remember {
-            mutableStateOf(0)
-        }
-
-        var cursorCoordinateY by remember {
-            mutableStateOf(0F)
-        }
-
-        MessageComposeInput(
-            transition = transition,
-            messageComposerState = messageComposerInnerState,
-            quotedMessageData = messageComposerInnerState.quotedMessageData,
-            securityClassificationType = securityClassificationType,
-            onCancelReply = onCancelReply,
-            onToggleFullScreen = onToggleFullScreen,
-            onSendButtonClicked = onSendButtonClicked,
-            onSelectedLineIndexChange = { currentSelectedLineIndex = it },
-            onLineBottomCoordinateChange = { cursorCoordinateY = it },
-            modifier = Modifier
-                .fillMaxWidth()
-                .let {
-                    if (messageComposerInnerState.messageComposeInputState == MessageComposeInputState.FullScreen)
-                        it.weight(1f)
-                    else
-                        it.wrapContentHeight()
-                }
-        )
-        MessageComposeActionsBox(
-            transition,
-            messageComposerInnerState,
-            membersToMention.isNotEmpty()
-        )
-        if (membersToMention.isNotEmpty()
-            && messageComposerInnerState.messageComposeInputState == MessageComposeInputState.FullScreen
-        ) {
-            DropDownMentionsSuggestions(currentSelectedLineIndex, cursorCoordinateY, membersToMention, onMentionPicked)
-        }
-    }
-}
-
-@OptIn(ExperimentalAnimationApi::class)
-@Composable
-private fun MessageComposeInput(
-    transition: Transition<MessageComposeInputState>,
-    messageComposerState: MessageComposerInnerState,
-    quotedMessageData: QuotedMessageUIData?,
-    securityClassificationType: SecurityClassificationType,
-    onCancelReply: () -> Unit,
-    onToggleFullScreen: () -> Unit,
-    onSendButtonClicked: () -> Unit,
-    onSelectedLineIndexChange: (Int) -> Unit,
-    onLineBottomCoordinateChange: (Float) -> Unit,
-    modifier: Modifier
-) {
-    Column(modifier = modifier) {
-        val isClassifiedConversation = securityClassificationType != SecurityClassificationType.NONE
-        if (isClassifiedConversation) {
-            Box(Modifier.wrapContentSize()) {
-                VerticalSpace.x8()
-                SecurityClassificationBanner(securityClassificationType = securityClassificationType)
-            }
-        }
-        Divider()
-        CollapseIconButtonBox(
-            transition = transition,
-            toggleFullScreen = onToggleFullScreen
-        )
-
-        if (quotedMessageData != null) {
-            Row(modifier = Modifier.padding(horizontal = dimensions().spacing8x)) {
-                QuotedMessagePreview(
-                    quotedMessageData = quotedMessageData,
-                    onCancelReply = onCancelReply
-                )
-            }
-        }
-        // Row wrapping the AdditionalOptionButton() when we are in Enabled state and MessageComposerInput()
-        // when we are in the Fullscreen state, we want to align the TextField to Top of the Row,
-        // when other we center it vertically. Once we go to Fullscreen, we set the weight to 1f
-        // so that it fills the whole Row which is = height of the whole screen - height of TopBar -
-        // - height of container with additional options
-        MessageComposerInputRow(
-            transition = transition,
-            messageComposerState = messageComposerState,
-            onSendButtonClicked = onSendButtonClicked,
-            onSelectedLineIndexChanged = onSelectedLineIndexChange,
-            onLineBottomYCoordinateChanged = onLineBottomCoordinateChange,
-        )
+        messageComposerState.toInactive()
     }
 }
 
@@ -443,51 +302,6 @@ private fun MembersMentionList(
     }
 }
 
-@ExperimentalAnimationApi
-@Composable
-private fun CollapseIconButtonBox(
-    transition: Transition<MessageComposeInputState>,
-    toggleFullScreen: () -> Unit
-) {
-    transition.AnimatedVisibility(visible = { state -> (state != MessageComposeInputState.Enabled) }) {
-        Box(
-            contentAlignment = Alignment.Center,
-            modifier = Modifier
-                .fillMaxWidth()
-                .wrapContentHeight()
-        ) {
-            val collapseButtonRotationDegree by transition.animateFloat(
-                label = stringResource(R.string.animation_label_button_rotation_degree_transistion)
-            ) { state ->
-                when (state) {
-                    MessageComposeInputState.Active, MessageComposeInputState.Enabled -> 0f
-                    MessageComposeInputState.FullScreen -> 180f
-                }
-            }
-            CollapseIconButton(
-                onCollapseClick = toggleFullScreen,
-                collapseRotation = collapseButtonRotationDegree
-            )
-        }
-    }
-}
-
-// if attachment is visible we want to align the bottom of the compose actions
-// to top of the guideline
-@Composable
-private fun CollapseIconButton(onCollapseClick: () -> Unit, modifier: Modifier = Modifier, collapseRotation: Float = 0f) {
-    IconButton(
-        onClick = onCollapseClick,
-        modifier = modifier.size(20.dp)
-    ) {
-        Icon(
-            painter = painterResource(id = R.drawable.ic_collapse),
-            contentDescription = stringResource(R.string.content_description_drop_down_icon),
-            tint = colorsScheme().onSecondaryButtonDisabled,
-            modifier = Modifier.rotate(collapseRotation)
-        )
-    }
-}
 
 sealed class KeyboardHeight(open val height: Dp) {
     object NotKnown : KeyboardHeight(DEFAULT_KEYBOARD_TOP_SCREEN_OFFSET)

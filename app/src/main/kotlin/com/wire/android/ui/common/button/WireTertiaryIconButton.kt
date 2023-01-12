@@ -21,7 +21,7 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.wireDimensions
 
 @Composable
-fun WirePrimaryIconButton(
+fun WireTertiaryIconButton(
     onButtonClicked: () -> Unit,
     @DrawableRes iconResource: Int,
     @StringRes contentDescription: Int,
@@ -29,11 +29,11 @@ fun WirePrimaryIconButton(
     minHeight: Dp = dimensions().spacing32x,
     minWidth: Dp = dimensions().spacing40x,
     state: WireButtonState = WireButtonState.Default,
-    colors: WireButtonColors = wirePrimaryButtonColors(),
+    colors: WireButtonColors = wireTertiaryButtonColors(),
     blockUntilSynced: Boolean = false,
     modifier: Modifier = Modifier
 ) {
-    WirePrimaryButton(
+    WireTertiaryButton(
         onClick = onButtonClicked,
         leadingIcon = {
             Icon(
@@ -57,11 +57,11 @@ fun WirePrimaryIconButton(
 
 @Preview
 @Composable
-fun PreviewWirePrimaryIconButton() {
-    WirePrimaryIconButton({}, R.drawable.ic_add, 0)
+fun PreviewWireTertiaryIconButton() {
+    WireTertiaryIconButton({}, R.drawable.ic_add, 0)
 }
 @Preview
 @Composable
-fun PreviewWirePrimaryIconButtonRound() {
-    WirePrimaryIconButton({}, R.drawable.ic_add, 0, CircleShape, 40.dp, 40.dp)
+fun PreviewWireTertiaryIconButtonRound() {
+    WireTertiaryIconButton({}, R.drawable.ic_add, 0, CircleShape, 40.dp, 40.dp)
 }

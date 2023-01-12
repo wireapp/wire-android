@@ -48,6 +48,6 @@ fun ConversationTitle(
 
 @Preview(widthDp = 200)
 @Composable
-fun ConversationTitlePreview() {
+fun PreviewConversationTitle() {
     ConversationTitle("very very loooooooooooong name", true, searchQuery = "test")
 }

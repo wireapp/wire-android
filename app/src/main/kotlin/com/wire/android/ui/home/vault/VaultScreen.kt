@@ -11,6 +11,6 @@ fun VaultScreen() {
 
 @Preview(showBackground = false)
 @Composable
-fun VaultScreenPreview() {
+fun PreviewVaultScreen() {
     VaultScreen()
 }

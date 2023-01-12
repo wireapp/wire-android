@@ -11,6 +11,6 @@ fun ArchiveScreen() {
 
 @Preview(showBackground = false)
 @Composable
-fun ArchiveScreenPreview() {
+fun PreviewArchiveScreen() {
     ArchiveScreen()
 }

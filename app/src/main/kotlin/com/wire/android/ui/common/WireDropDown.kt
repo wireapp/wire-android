@@ -272,7 +272,7 @@ private fun RowScope.LeadingIcon(convent: @Composable () -> Unit) {
 
 @Composable
 @Preview
-private fun WireDropdownPreviewWithLabel() {
+fun PreviewWireDropdownPreviewWithLabel() {
     WireDropDown(
         items = ConversationOptions.Protocol.values().map { it.name }, defaultItemIndex = 0, "Protocol", modifier = Modifier
     ) {}

@@ -82,6 +82,6 @@ private fun UserDetailInformation(
 
 @Composable
 @Preview
-fun OtherUserProfileDetailsPreview() {
+fun PreviewOtherUserProfileDetails() {
     OtherUserProfileDetails(OtherUserProfileState.PREVIEW)
 }

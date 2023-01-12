@@ -25,7 +25,7 @@ fun NewGroupScreen(
 
 @Composable
 @Preview
-private fun NewGroupScreenPreview() {
+fun PreviewNewGroupScreen() {
     GroupNameScreen(
         GroupMetadataState(),
         {},

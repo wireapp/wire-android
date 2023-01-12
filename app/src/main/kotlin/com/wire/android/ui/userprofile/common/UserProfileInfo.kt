@@ -183,7 +183,7 @@ sealed class EditableState {
 
 @Preview
 @Composable
-private fun UserProfileInfoPreview() {
+fun PreviewUserProfileInfo() {
     UserProfileInfo(
         isLoading = true,
         editableState = EditableState.IsEditable {},

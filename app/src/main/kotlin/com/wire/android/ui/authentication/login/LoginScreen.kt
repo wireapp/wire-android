@@ -272,7 +272,7 @@ enum class LoginTabItem(@StringRes override val titleResId: Int) : TabItem {
 @OptIn(ExperimentalMaterialApi::class)
 @Preview
 @Composable
-private fun LoginScreenPreview() {
+private fun PreviewLoginScreen() {
     WireTheme(isPreview = true) {
         LoginContent(onBackPressed = { }, hiltViewModel(), ssoLoginResult = null)
     }

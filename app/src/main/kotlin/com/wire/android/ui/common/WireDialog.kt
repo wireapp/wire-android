@@ -202,7 +202,7 @@ private fun WireDialogButtonProperties?.getButton(modifier: Modifier = Modifier)
 @OptIn(ExperimentalComposeUiApi::class)
 @Preview(showBackground = true)
 @Composable
-private fun WireDialogPreview() {
+fun PreviewWireDialog() {
     var password by remember { mutableStateOf(TextFieldValue("")) }
     WireTheme(isPreview = true) {
         Box(
@@ -243,7 +243,7 @@ private fun WireDialogPreview() {
 @OptIn(ExperimentalComposeUiApi::class)
 @Preview(showBackground = true)
 @Composable
-private fun WireDialogPreviewWith2OptionButtons() {
+fun PreviewWireDialogWith2OptionButtons() {
     var password by remember { mutableStateOf(TextFieldValue("")) }
     WireTheme(isPreview = true) {
         Box(

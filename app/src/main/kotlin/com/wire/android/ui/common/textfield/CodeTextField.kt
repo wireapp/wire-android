@@ -152,12 +152,12 @@ data class CodeFieldValue(val text: TextFieldValue, val isFullyFilled: Boolean)
 
 @Preview(name = "Success CodeTextField")
 @Composable
-private fun CodeTextFieldSuccessPreview() {
+fun PreviewCodeTextFieldSuccess() {
     CodeTextField(value = TextFieldValue("123"), onValueChange = {})
 }
 
 @Preview(name = "Error CodeTextField")
 @Composable
-private fun CodeTextFieldErrorPreview() {
+fun PreviewCodeTextFieldError() {
     CodeTextField(value = TextFieldValue("123"), onValueChange = {}, state = WireTextFieldState.Error("error text"))
 }

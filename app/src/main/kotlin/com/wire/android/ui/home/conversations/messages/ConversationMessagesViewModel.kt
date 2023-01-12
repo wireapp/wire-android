@@ -74,7 +74,6 @@ class ConversationMessagesViewModel @Inject constructor(
     )
 
 
-
     private val _infoMessage = MutableSharedFlow<SnackBarMessage>()
     val infoMessage = _infoMessage.asSharedFlow()
 
@@ -82,11 +81,12 @@ class ConversationMessagesViewModel @Inject constructor(
         loadPaginatedMessages()
         loadLastMessageInstant()
 
+
+
         viewModelScope.launch {
-
-
-
-
+            conversationMessageAudioPlayer.audioMessagesState.collect {
+                println("test $it'")
+            }
         }
     }
 

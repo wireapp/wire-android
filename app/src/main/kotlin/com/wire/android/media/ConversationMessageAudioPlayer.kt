@@ -8,6 +8,7 @@ import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.update
 import javax.inject.Inject
 
 class ConversationMessageAudioPlayer
@@ -17,6 +18,8 @@ class ConversationMessageAudioPlayer
 ) {
 
     val audioMessagesState = MutableStateFlow<Map<String, AudioState>>(emptyMap())
+
+
 
     private val audioSnapshots = mutableMapOf<String, AudioSnapShot>()
 
@@ -131,7 +134,11 @@ class ConversationMessageAudioPlayer
     }
 
     private fun updateOrPutAudioState(audioMediaPlayerState: AudioMediaPlayerState) {
-        // audioMessagesState = AudioState(audioMediaPlayerState = audioMediaPlayerState)
+        audioMessagesState.update {
+            it.toMutableMap().apply {
+                put(currentlyPlayedMessageId!!, AudioState(audioMediaPlayerState))
+            }
+        }
     }
 
     fun close() {
@@ -141,7 +148,7 @@ class ConversationMessageAudioPlayer
 }
 
 data class AudioState(
-    val audioMediaPlayerState: AudioMediaPlayerState
+    val audioMediaPlayerState: AudioMediaPlayerState,
 )
 
 data class AudioSnapShot(val timeStamp: Int)

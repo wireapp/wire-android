@@ -74,7 +74,6 @@ private fun String?.userUiText(isSelfMessage: Boolean): UIText = when {
     isSelfMessage -> UIText.StringResource(R.string.member_name_you_label_titlecase)
     this != null -> UIText.DynamicString(this)
     else -> UIText.StringResource(R.string.username_unavailable_label)
-
 }
 
 @Suppress("LongMethod", "ComplexMethod")
@@ -95,7 +94,6 @@ fun MessagePreview.uiLastMessageContent(): UILastMessageContent {
                         UILastMessageContent.SenderWithMessage(userUIText, UIText.StringResource(R.string.last_message_asset))
                     AssetType.FILE ->
                         UILastMessageContent.SenderWithMessage(userUIText, UIText.StringResource(R.string.last_message_file))
-
                 }
                 is WithUser.ConversationNameChange -> UILastMessageContent.SenderWithMessage(
                     userUIText,

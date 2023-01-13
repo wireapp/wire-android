@@ -28,12 +28,12 @@ class ConversationMessageAudioPlayer
     private val audioMessageStateUpdate = MutableSharedFlow<AudioMediaPlayerStateUpdate.AudioMediaPlayingStateUpdate>()
 
     private val mediaPlayerPosition = flow {
-        delay(1000)
+        delay(1)
         while (true) {
             if (mediaPlayer.isPlaying) {
                 emit(mediaPlayer.currentPosition)
             }
-            delay(1000)
+            delay(1)
         }
     }.distinctUntilChanged()
 
@@ -89,8 +89,12 @@ class ConversationMessageAudioPlayer
                 .build()
         )
         setOnCompletionListener {
-            it.reset()
-            currentAudioMessageId = null
+            audioMessageStateUpdate.tryEmit(
+                AudioMediaPlayerStateUpdate.AudioMediaPlayingStateUpdate(
+                    currentAudioMessageId!!,
+                    AudioMediaPlayingState.Completed
+                )
+            )
         }
     }
 
@@ -107,12 +111,18 @@ class ConversationMessageAudioPlayer
                 stop(currentAudioMessageId!!)
             }
 
-            val previouslySavedPositionsOrNull = audioMessageStateHistory[requestedAudioMessageId]?.currentPosition
+            val previouslySavedPositionOrNull = audioMessageStateHistory[requestedAudioMessageId]?.run {
+                if (audioMediaPlayingState == AudioMediaPlayingState.Completed) {
+                    0
+                } else {
+                    currentPosition
+                }
+            }
 
             playAudioMessage(
                 conversationId = conversationId,
                 messageId = requestedAudioMessageId,
-                position = previouslySavedPositionsOrNull
+                position = previouslySavedPositionOrNull
             )
         }
     }

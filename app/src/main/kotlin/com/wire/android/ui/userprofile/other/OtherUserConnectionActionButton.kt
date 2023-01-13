@@ -100,7 +100,7 @@ fun OtherUserConnectionActionButton(
 
 @Composable
 @Preview
-fun OtherUserConnectionActionButtonPreview() {
+fun PreviewOtherUserConnectionActionButton() {
     OtherUserConnectionActionButton(
         connectionStatus = ConnectionState.ACCEPTED,
         onSendConnectionRequest = {},

@@ -283,7 +283,7 @@ enum class GroupConversationDetailsTabItem(@StringRes override val titleResId: I
 
 @Preview
 @Composable
-private fun GroupConversationDetailsPreview() {
+fun PreviewGroupConversationDetails() {
     WireTheme(isPreview = true) {
         GroupConversationDetailsContent(
             conversationSheetContent = null,

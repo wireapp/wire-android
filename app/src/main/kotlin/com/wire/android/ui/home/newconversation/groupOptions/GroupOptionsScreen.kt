@@ -268,7 +268,7 @@ private fun ErrorDialog(error: GroupOptionState.Error, onErrorDismissed: () -> U
 
 @Composable
 @Preview
-private fun GroupOptionScreenPreview() {
+fun PreviewGroupOptionScreen() {
     GroupOptionScreenContent(
         GroupOptionState(),
         {}, {}, {}, {}, {}, {}, {}, {}, {}

@@ -34,6 +34,6 @@ fun AppSettingsScreen() {
 
 @Preview(showBackground = false)
 @Composable
-fun SettingsScreenPreview() {
+fun PreviewSettingsScreen() {
     AppSettingsScreen()
 }

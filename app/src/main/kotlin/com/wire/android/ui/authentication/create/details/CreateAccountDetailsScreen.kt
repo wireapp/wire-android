@@ -278,6 +278,6 @@ private fun Modifier.bringIntoViewOnFocus(coroutineScope: CoroutineScope): Modif
 
 @Composable
 @Preview
-private fun CreateAccountDetailsScreenPreview() {
+fun PreviewCreateAccountDetailsScreen() {
     DetailsContent(CreateAccountDetailsViewState(CreateAccountFlowType.CreateTeam), {}, {}, {}, {}, {}, {}, {}, {}, ServerConfig.DEFAULT)
 }

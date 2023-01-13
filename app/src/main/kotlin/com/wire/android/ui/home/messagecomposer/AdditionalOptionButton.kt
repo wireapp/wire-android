@@ -18,6 +18,6 @@ fun AdditionalOptionButton(isSelected: Boolean = false, onClick: () -> Unit) {
 
 @Preview
 @Composable
-private fun AdditionalOptionButtonPreview() {
+fun PreviewAdditionalOptionButton() {
     AdditionalOptionButton(isSelected = false, onClick = {})
 }

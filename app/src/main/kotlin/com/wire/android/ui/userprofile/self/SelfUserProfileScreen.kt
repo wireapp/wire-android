@@ -361,7 +361,7 @@ private fun OtherAccountItem(
 @Preview(widthDp = 400, heightDp = 800)
 @Preview(widthDp = 800)
 @Composable
-private fun SelfUserProfileScreenPreview() {
+fun PreviewSelfUserProfileScreen() {
     SelfUserProfileContent(
         SelfUserProfileState(
             status = UserAvailabilityStatus.BUSY,
@@ -381,6 +381,6 @@ private fun SelfUserProfileScreenPreview() {
 @Preview(widthDp = 800)
 @Preview(widthDp = 400)
 @Composable
-private fun CurrentSelfUserStatusPreview() {
+fun PreviewCurrentSelfUserStatus() {
     CurrentSelfUserStatus(UserAvailabilityStatus.AVAILABLE, onStatusClicked = {})
 }

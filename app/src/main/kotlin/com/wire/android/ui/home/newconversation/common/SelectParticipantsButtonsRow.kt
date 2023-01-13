@@ -116,18 +116,18 @@ private fun computeButtonState(count: Int = 0, shouldAllowNoSelectionContinue: B
 
 @Preview
 @Composable
-private fun SelectParticipantsButtonsRowPreview() {
+fun PreviewSelectParticipantsButtonsRow() {
     SelectParticipantsButtonsRow(count = 3, mainButtonText = "Continue", onMainButtonClick = {}, onMoreButtonClick = {})
 }
 
 @Preview
 @Composable
-private fun SelectParticipantsButtonsRowWithoutMoreButtonPreview() {
+fun PreviewSelectParticipantsButtonsRowWithoutMoreButton() {
     SelectParticipantsButtonsRow(count = 3, mainButtonText = "Continue", onMainButtonClick = {})
 }
 
 @Preview
 @Composable
-private fun SelectParticipantsButtonsRowDisabledButtonPreview() {
+fun PreviewSelectParticipantsButtonsRowDisabledButton() {
     SelectParticipantsButtonsRow(count = 0, mainButtonText = "Continue", onMainButtonClick = {})
 }

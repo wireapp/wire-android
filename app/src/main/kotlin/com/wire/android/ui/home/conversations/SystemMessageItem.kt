@@ -125,7 +125,7 @@ fun SystemMessageItem(message: SystemMessage) {
 
 @Preview
 @Composable
-fun SystemMessageAdded7UsersPreview() {
+fun PreviewSystemMessageAdded7Users() {
     SystemMessageItem(
         message = SystemMessage.MemberAdded(
             "Barbara Cotolina".toUIText(),
@@ -139,7 +139,7 @@ fun SystemMessageAdded7UsersPreview() {
 
 @Preview
 @Composable
-fun SystemMessageAdded4UsersPreview() {
+fun PreviewSystemMessageAdded4Users() {
     SystemMessageItem(
         message = SystemMessage.MemberAdded(
             "Barbara Cotolina".toUIText(),
@@ -150,7 +150,7 @@ fun SystemMessageAdded4UsersPreview() {
 
 @Preview
 @Composable
-fun SystemMessageRemoved4UsersPreview() {
+fun PreviewSystemMessageRemoved4Users() {
     SystemMessageItem(
         message = SystemMessage.MemberRemoved(
             "Barbara Cotolina".toUIText(),
@@ -161,13 +161,13 @@ fun SystemMessageRemoved4UsersPreview() {
 
 @Preview
 @Composable
-fun SystemMessageLeftPreview() {
+fun PreviewSystemMessageLeft() {
     SystemMessageItem(message = SystemMessage.MemberLeft(UIText.DynamicString("Barbara Cotolina")))
 }
 
 @Preview
 @Composable
-fun SystemMessageMissedCallPreview() {
+fun PreviewSystemMessageMissedCall() {
     SystemMessageItem(message = SystemMessage.MissedCall.OtherCalled(UIText.DynamicString("Barbara Cotolina")))
 }
 

@@ -276,7 +276,7 @@ private fun DisableConformationDialog(@StringRes title: Int, @StringRes text: In
 
 @Preview
 @Composable
-private fun AdminTeamGroupConversationOptionsPreview() {
+fun PreviewAdminTeamGroupConversationOptions() {
     GroupConversationSettings(
         GroupConversationOptionsState(
             conversationId = ConversationId("someValue", "someDomain"),
@@ -293,7 +293,7 @@ private fun AdminTeamGroupConversationOptionsPreview() {
 
 @Preview
 @Composable
-private fun GuestAdminTeamGroupConversationOptionsPreview() {
+fun PreviewGuestAdminTeamGroupConversationOptions() {
     GroupConversationSettings(
         GroupConversationOptionsState(
             conversationId = ConversationId("someValue", "someDomain"),
@@ -310,7 +310,7 @@ private fun GuestAdminTeamGroupConversationOptionsPreview() {
 
 @Preview
 @Composable
-private fun MemberTeamGroupConversationOptionsPreview() {
+fun PreviewMemberTeamGroupConversationOptions() {
     GroupConversationSettings(
         GroupConversationOptionsState(
             conversationId = ConversationId("someValue", "someDomain"),
@@ -327,7 +327,7 @@ private fun MemberTeamGroupConversationOptionsPreview() {
 
 @Preview
 @Composable
-private fun NormalGroupConversationOptionsPreview() {
+fun PreviewNormalGroupConversationOptions() {
     GroupConversationSettings(
         GroupConversationOptionsState(
             conversationId = ConversationId("someValue", "someDomain"),
@@ -340,6 +340,6 @@ private fun NormalGroupConversationOptionsPreview() {
 
 @Preview(showBackground = true)
 @Composable
-private fun DisableGuestConformationDialogPreview() {
+fun PreviewDisableGuestConformationDialog() {
     DisableGuestConfirmationDialog({}, {})
 }

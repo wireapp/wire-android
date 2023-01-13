@@ -38,6 +38,6 @@ fun DeclineButton(buttonClicked: () -> Unit) {
 
 @Preview
 @Composable
-fun ComposableDeclineButtonPreview() {
+fun PreviewComposableDeclineButton() {
     DeclineButton(buttonClicked = { })
 }

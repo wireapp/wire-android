@@ -47,6 +47,6 @@ fun RemoveDeviceTopBar(elevation: Dp, onBackButtonClicked: () -> Unit) {
 
 @Preview(showBackground = false)
 @Composable
-private fun LoginTopBarPreview() {
+fun PreviewLoginTopBar() {
     RemoveDeviceTopBar(0.dp) {}
 }

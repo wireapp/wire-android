@@ -58,6 +58,6 @@ fun DeletedLabel(modifier: Modifier = Modifier) {
 
 @Preview
 @Composable
-fun DeletedLabelPreview() {
+fun PreviewDeletedLabel() {
     DeletedLabel()
 }

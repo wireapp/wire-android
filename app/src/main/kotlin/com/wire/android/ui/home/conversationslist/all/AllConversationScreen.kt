@@ -95,7 +95,7 @@ fun ConversationListEmptyStateScreen() {
 
 @Preview
 @Composable
-fun ComposablePreview() {
+fun PreviewAllConversationScreen() {
     AllConversationScreen(
         conversations = persistentMapOf(),
         hasNoConversations = false,

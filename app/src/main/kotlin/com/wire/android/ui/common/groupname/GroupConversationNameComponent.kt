@@ -160,7 +160,7 @@ private fun computeGroupMetadataState(error: GroupMetadataState.NewGroupError) =
 
 @Preview
 @Composable
-private fun GroupNameScreenEditPreview() {
+fun PreviewGroupNameScreenEdit() {
     GroupNameScreen(
         GroupMetadataState(groupName = TextFieldValue("group name")),
         onGroupNameChange = {},

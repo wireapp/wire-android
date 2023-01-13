@@ -40,6 +40,6 @@ fun BlockedLabel(modifier: Modifier = Modifier) {
 
 @Preview
 @Composable
-fun BlockedLabelPreview() {
+fun PreviewBlockedLabel() {
     BlockedLabel()
 }

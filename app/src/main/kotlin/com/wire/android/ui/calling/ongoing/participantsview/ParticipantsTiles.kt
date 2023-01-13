@@ -126,7 +126,7 @@ private const val MAX_ITEMS_FOR_ONE_ON_ONE_VIEW = 3
 
 @Composable
 @Preview
-fun SamplePreview() {
+fun PreviewVerticalCallingPager() {
     VerticalCallingPager(
         participants = listOf(),
         isSelfUserMuted = false,

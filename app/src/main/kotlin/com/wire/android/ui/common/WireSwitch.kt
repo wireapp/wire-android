@@ -65,24 +65,24 @@ fun wireSwitchColors(
 
 @Preview("Wire switch on")
 @Composable
-fun WireSwitchOnPreview() {
+fun PreviewWireSwitchOn() {
     WireSwitch(checked = true, onCheckedChange = {})
 }
 
 @Preview("Wire switch off")
 @Composable
-fun WireSwitchOffPreview() {
+fun PreviewWireSwitchOff() {
     WireSwitch(checked = false, onCheckedChange = {})
 }
 
 @Preview("Wire switch disabled on")
 @Composable
-fun WireSwitchDisabledOnPreview() {
+fun PreviewWireSwitchDisabledOn() {
     WireSwitch(checked = true, enabled = false, onCheckedChange = {})
 }
 
 @Preview("Wire switch disabled off")
 @Composable
-fun WireSwitchDisabledOffPreview() {
+fun PreviewWireSwitchDisabledOff() {
     WireSwitch(checked = false, enabled = false, onCheckedChange = {})
 }

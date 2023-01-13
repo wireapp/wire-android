@@ -167,7 +167,7 @@ private fun DeviceItemTexts(device: Device, placeholder: Boolean, isDebug: Boole
 
 @Preview(showBackground = true)
 @Composable
-private fun DeviceItemPreview() {
+fun PreviewDeviceItem() {
     Box(modifier = Modifier.fillMaxWidth()) {
         DeviceItem(
             device = Device(),

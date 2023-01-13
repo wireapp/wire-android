@@ -82,6 +82,6 @@ private fun painter(data: UserAvatarData): Painter =
 
 @Preview
 @Composable
-fun UserProfileAvatarPreview() {
+fun PreviewUserProfileAvatar() {
     UserProfileAvatar(UserAvatarData(availabilityStatus = UserAvailabilityStatus.AVAILABLE))
 }

@@ -315,6 +315,7 @@ private fun MessageContent(
         is UIMessageContent.SystemMessage.MissedCall.YouCalled -> {}
         is UIMessageContent.SystemMessage.MissedCall.OtherCalled -> {}
         is UIMessageContent.SystemMessage.NewConversationReceiptMode -> {}
+        is UIMessageContent.SystemMessage.ConversationReceiptModeChanged -> {}
         null -> {
             throw NullPointerException("messageContent is null")
         }

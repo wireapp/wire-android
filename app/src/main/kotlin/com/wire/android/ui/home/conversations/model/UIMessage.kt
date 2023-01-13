@@ -160,6 +160,11 @@ sealed class UIMessageContent {
         data class NewConversationReceiptMode(
             val receiptMode: UIText
         ) : SystemMessage(R.drawable.ic_view, R.string.label_system_message_new_conversation_receipt_mode)
+
+        data class ConversationReceiptModeChanged(
+            val author: UIText,
+            val receiptMode: UIText
+        ) : SystemMessage(R.drawable.ic_view, R.string.label_system_message_read_receipt_changed)
     }
 }
 

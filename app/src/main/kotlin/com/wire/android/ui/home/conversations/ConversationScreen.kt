@@ -2,7 +2,6 @@ package com.wire.android.ui.home.conversations
 
 import android.app.DownloadManager
 import android.content.Intent
-import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -32,7 +31,7 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.items
 import com.wire.android.R
-import com.wire.android.media.AudioMediaPlayerState
+import com.wire.android.media.AudioMediaPlayingState
 import com.wire.android.media.AudioState
 import com.wire.android.model.Clickable
 import com.wire.android.model.SnackBarMessage
@@ -611,7 +610,7 @@ fun MessageList(
                             is UIMessageContent.AudioAssetMessage -> {
                                 AudioMessage(
                                     audioState = audioMessagesState[message.messageHeader.messageId]
-                                        ?: AudioState(AudioMediaPlayerState.Paused, 0),
+                                        ?: AudioState(AudioMediaPlayingState.Paused, 0),
                                     onPlayAudioMessage = { onAudioClick(message.messageHeader.messageId) }
                                 )
                             }

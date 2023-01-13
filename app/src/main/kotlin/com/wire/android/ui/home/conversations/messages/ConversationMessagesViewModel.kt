@@ -64,7 +64,7 @@ class ConversationMessagesViewModel @Inject constructor(
     private val getMessageForConversation: GetMessagesForConversationUseCase,
     private val toggleReaction: ToggleReactionUseCase,
     private val resetSession: ResetSessionUseCase,
-    @ApplicationContext private val context: Context
+    private val conversationMessageAudioPlayer: ConversationMessageAudioPlayer
 ) : SavedStateViewModel(savedStateHandle) {
 
     var conversationViewState by mutableStateOf(ConversationMessagesViewState())
@@ -75,9 +75,6 @@ class ConversationMessagesViewModel @Inject constructor(
 
     private val _infoMessage = MutableSharedFlow<SnackBarMessage>()
     val infoMessage = _infoMessage.asSharedFlow()
-
-    private val conversationMessageAudioPlayer: ConversationMessageAudioPlayer =
-        ConversationMessageAudioPlayer(context, getMessageAsset, viewModelScope)
 
     init {
         loadPaginatedMessages()
@@ -241,7 +238,7 @@ class ConversationMessagesViewModel @Inject constructor(
 
     fun audioClick(messageId: String) {
         viewModelScope.launch {
-            conversationMessageAudioPlayer.playAudioMessage(conversationId, messageId)
+            conversationMessageAudioPlayer.playAudio(conversationId, messageId)
         }
     }
 

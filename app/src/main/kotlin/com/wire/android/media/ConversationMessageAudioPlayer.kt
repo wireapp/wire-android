@@ -7,26 +7,27 @@ import android.net.Uri
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flattenConcat
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.merge
+import kotlinx.coroutines.flow.onEach
+import javax.inject.Inject
 
 class ConversationMessageAudioPlayer
-constructor(
+@Inject constructor(
     private val context: Context,
-    private val getMessageAsset: GetMessageAssetUseCase,
-    private val coroutineScope: CoroutineScope
-) : CoroutineScope by coroutineScope {
+    private val getMessageAsset: GetMessageAssetUseCase
+) {
 
-    private val currentAudioMessageState = MutableSharedFlow<AudioMediaPlayerState>()
+    private val audioMessageStateUpdate = MutableSharedFlow<AudioMediaPlayerStateUpdate>()
 
     private val mediaPlayerPosition = flow {
         delay(1000)
@@ -40,51 +41,55 @@ constructor(
 
     private val seekToAudioPosition = MutableSharedFlow<Int>()
 
-    private val currentAudioPosition = flowOf(mediaPlayerPosition, seekToAudioPosition).flattenConcat()
+    private val currentAudioPosition = flowOf(mediaPlayerPosition, seekToAudioPosition)
+        .flattenConcat()
+        .map { position ->
+            currentAudioMessageId?.let {
+                AudioMediaPlayerStateUpdate.PositionChangeUpdate(it, position)
+            }
+        }
 
     private var audioMessageStateHistory: Map<String, AudioState> = emptyMap()
 
     val observableAudioMessagesState: Flow<Map<String, AudioState>> =
-        currentAudioMessageState
-            .combine(currentAudioPosition) { state, position ->
-                if (currentAudioMessageId != null) {
-                    audioMessageStateHistory = audioMessageStateHistory.toMutableMap().apply {
-                        put(currentAudioMessageId!!, AudioState(state, position))
+        merge(currentAudioPosition, audioMessageStateUpdate).map { audioMessageStateUpdate ->
+            if (audioMessageStateUpdate != null) {
+                val currentState = audioMessageStateHistory[audioMessageStateUpdate.messageId]
+
+                if (currentState != null) {
+                    when (audioMessageStateUpdate) {
+                        is AudioMediaPlayerStateUpdate.AudioMediaPlayingStateUpdate -> {
+                            audioMessageStateHistory = audioMessageStateHistory.toMutableMap().apply {
+                                put(
+                                    audioMessageStateUpdate.messageId,
+                                    currentState.copy(audioMediaPlayingState = audioMessageStateUpdate.audioMediaPlayingState)
+                                )
+                            }
+                        }
+
+                        is AudioMediaPlayerStateUpdate.PositionChangeUpdate -> {
+                            audioMessageStateHistory = audioMessageStateHistory.toMutableMap().apply {
+                                put(
+                                    audioMessageStateUpdate.messageId,
+                                    currentState.copy(currentPosition = audioMessageStateUpdate.position)
+                                )
+                            }
+                        }
+
+                        null -> {}
+                    }
+
+                } else {
+                    if (audioMessageStateUpdate is AudioMediaPlayerStateUpdate.AudioMediaPlayingStateUpdate) {
+                        audioMessageStateHistory = audioMessageStateHistory.toMutableMap().apply {
+                            put(audioMessageStateUpdate.messageId, AudioState(audioMessageStateUpdate.audioMediaPlayingState, 0))
+                        }
                     }
                 }
-
-                audioMessageStateHistory
             }
 
-    private val test = Channel<Map<String, AudioState>>()
-
-    private val dupa = Channel<Test>()
-
-    init {
-        launch {
-            for (dupencia in dupa) {
-                when (dupencia) {
-                    Test.Test1 -> {}
-                    Test.Pause -> {
-                        mediaPlayer.pause()
-                    }
-
-                    Test.Resume -> {
-                        mediaPlayer.start()
-                    }
-
-                    Test.Test4 -> {}
-                }
-            }
+            audioMessageStateHistory
         }
-    }
-
-    sealed class Test {
-        object Test1 : Test()
-        object Pause : Test()
-        object Resume : Test()
-        object Test4 : Test()
-    }
 
     private var currentAudioMessageId: String? = null
 
@@ -100,17 +105,17 @@ constructor(
         }
     }
 
-    suspend fun playAudioMessage(
+    suspend fun playAudio(
         conversationId: ConversationId,
         requestedAudioMessageId: String
     ) {
         val isRequestedAudioMessageCurrentlyPlaying = currentAudioMessageId == requestedAudioMessageId
 
         if (isRequestedAudioMessageCurrentlyPlaying) {
-            toggleCurrentlyPlayingAudioMessage()
+            toggleAudioMessage(requestedAudioMessageId)
         } else {
             if (currentAudioMessageId != null) {
-                stopPlayingCurrentAudioMessage()
+                stop(currentAudioMessageId!!)
             }
 
             val previouslySavedPositionsOrNull = audioMessageStateHistory[requestedAudioMessageId]?.currentPosition
@@ -123,11 +128,11 @@ constructor(
         }
     }
 
-    private suspend fun toggleCurrentlyPlayingAudioMessage() {
+    private suspend fun toggleAudioMessage(messageId: String) {
         if (mediaPlayer.isPlaying) {
-            pause()
+            pause(messageId)
         } else {
-            resumeAudio()
+            resumeAudio(messageId)
         }
     }
 
@@ -152,7 +157,12 @@ constructor(
 
                 mediaPlayer.start()
 
-                currentAudioMessageState.emit(AudioMediaPlayerState.Playing)
+                audioMessageStateUpdate.emit(
+                    AudioMediaPlayerStateUpdate.AudioMediaPlayingStateUpdate(
+                        messageId,
+                        AudioMediaPlayingState.Playing
+                    )
+                )
             }
 
             is MessageAssetResult.Failure -> {
@@ -163,30 +173,22 @@ constructor(
 
     private suspend fun seekTo(position: Int) {
         mediaPlayer.seekTo(position)
-
         seekToAudioPosition.emit(position)
     }
 
-    private suspend fun resumeAudio() {
-        dupa.send(Test.Resume)
-//        mediaPlayer.start()
-//
-//        currentAudioMessageState.emit(AudioMediaPlayerState.Playing)
+    private suspend fun resumeAudio(messageId: String) {
+        mediaPlayer.start()
+        audioMessageStateUpdate.emit(AudioMediaPlayerStateUpdate.AudioMediaPlayingStateUpdate(messageId, AudioMediaPlayingState.Playing))
     }
 
-    private suspend fun pause() {
-        dupa.send(Test.Pause)
-//        mediaPlayer.pause()
-//
-//        currentAudioMessageState.emit(AudioMediaPlayerState.Paused)
-
-
+    private suspend fun pause(messageId: String) {
+        mediaPlayer.pause()
+        audioMessageStateUpdate.emit(AudioMediaPlayerStateUpdate.AudioMediaPlayingStateUpdate(messageId, AudioMediaPlayingState.Paused))
     }
 
-    private suspend fun stopPlayingCurrentAudioMessage() {
+    private suspend fun stop(messageId: String) {
         mediaPlayer.reset()
-
-        currentAudioMessageState.emit(AudioMediaPlayerState.Stopped)
+        audioMessageStateUpdate.emit(AudioMediaPlayerStateUpdate.AudioMediaPlayingStateUpdate(messageId, AudioMediaPlayingState.Stopped))
     }
 
     fun close() {
@@ -196,15 +198,30 @@ constructor(
 }
 
 data class AudioState(
-    val audioMediaPlayerState: AudioMediaPlayerState,
+    val audioMediaPlayingState: AudioMediaPlayingState,
     val currentPosition: Int
 )
 
-sealed class AudioMediaPlayerState {
-    object Playing : AudioMediaPlayerState()
-    object Stopped : AudioMediaPlayerState()
+sealed class AudioMediaPlayingState {
+    object Playing : AudioMediaPlayingState()
+    object Stopped : AudioMediaPlayingState()
 
-    object Completed : AudioMediaPlayerState()
+    object Completed : AudioMediaPlayingState()
 
-    object Paused : AudioMediaPlayerState()
+    object Paused : AudioMediaPlayingState()
 }
+
+sealed class AudioMediaPlayerStateUpdate(
+    open val messageId: String
+) {
+    data class AudioMediaPlayingStateUpdate(
+        override val messageId: String,
+        val audioMediaPlayingState: AudioMediaPlayingState
+    ) : AudioMediaPlayerStateUpdate(messageId)
+
+    data class PositionChangeUpdate(
+        override val messageId: String,
+        val position: Int
+    ) : AudioMediaPlayerStateUpdate(messageId)
+}
+

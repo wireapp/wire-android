@@ -16,15 +16,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextOverflow
 import com.wire.android.R
-import com.wire.android.media.AudioMediaPlayerState
+import com.wire.android.media.AudioMediaPlayingState
 import com.wire.android.media.AudioState
-import com.wire.android.ui.common.WireCircularProgressIndicator
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.wireColorScheme
-import com.wire.android.ui.theme.wireDimensions
-import com.wire.android.ui.theme.wireTypography
 
 
 @Composable
@@ -39,21 +35,21 @@ fun AudioMessage(
                 .fillMaxWidth()
                 .height(dimensions().audioMessageHeight)
         ) {
-            when (val test = audioState.audioMediaPlayerState) {
-                AudioMediaPlayerState.Completed -> {
+            when (val test = audioState.audioMediaPlayingState) {
+                AudioMediaPlayingState.Completed -> {
                     Text("Is Completed")
 
                 }
 
-                is AudioMediaPlayerState.Paused -> {
+                is AudioMediaPlayingState.Paused -> {
                     Text("Is Paused ${audioState.currentPosition}")
                 }
 
-                is AudioMediaPlayerState.Playing -> {
+                is AudioMediaPlayingState.Playing -> {
                     Text("Is playing ${audioState.currentPosition}")
                 }
 
-                is AudioMediaPlayerState.Stopped -> {
+                is AudioMediaPlayingState.Stopped -> {
                     Text("Is Stoppped ${audioState.currentPosition}")
                 }
             }

@@ -187,6 +187,7 @@ private val SystemMessage.expandable
         is SystemMessage.TeamMemberRemoved -> false
         is SystemMessage.CryptoSessionReset -> false
         is SystemMessage.NewConversationReceiptMode -> false
+        is SystemMessage.ConversationReceiptModeChanged -> false
         is SystemMessage.Knock -> false
     }
 
@@ -231,6 +232,7 @@ fun SystemMessage.annotatedString(
         is SystemMessage.TeamMemberRemoved -> arrayOf(content.userName)
         is SystemMessage.CryptoSessionReset -> arrayOf(author.asString(res))
         is SystemMessage.NewConversationReceiptMode -> arrayOf(receiptMode.asString(res))
+        is SystemMessage.ConversationReceiptModeChanged -> arrayOf(receiptMode.asString(res))
         is SystemMessage.Knock -> arrayOf(author.asString(res))
     }
     return res.stringWithStyledArgs(stringResId, normalStyle, boldStyle, normalColor, boldColor, *args)

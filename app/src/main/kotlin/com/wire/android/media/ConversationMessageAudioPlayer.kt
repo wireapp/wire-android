@@ -25,16 +25,19 @@ class ConversationMessageAudioPlayer
     private val context: Context,
     private val getMessageAsset: GetMessageAssetUseCase,
 ) {
+    private companion object {
+        const val UPDATE_POSITION_INTERVAL_IN_MS = 100L
+    }
 
     private val audioMessageStateUpdate = MutableSharedFlow<AudioMediaPlayerStateUpdate.AudioMediaPlayingStateUpdate>()
 
     private val mediaPlayerPosition = flow {
-        delay(1)
+        delay(UPDATE_POSITION_INTERVAL_IN_MS)
         while (true) {
             if (mediaPlayer.isPlaying) {
                 emit(mediaPlayer.currentPosition)
             }
-            delay(1)
+            delay(UPDATE_POSITION_INTERVAL_IN_MS)
         }
     }.distinctUntilChanged()
 

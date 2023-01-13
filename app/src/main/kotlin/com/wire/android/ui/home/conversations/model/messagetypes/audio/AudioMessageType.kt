@@ -22,7 +22,6 @@ import com.wire.android.media.AudioState
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.wireColorScheme
 
-
 @Composable
 fun AudioMessage(
     audioState: AudioState,
@@ -97,7 +96,7 @@ fun AudioMessage(
                     )
                 }
             }
-            Slider(value = audioState.currentPosition.toFloat(), onValueChange = onChangePosition)
+            Slider(value = audioState.currentPosition.toFloat(), onValueChange = onChangePosition, valueRange = 0f..100000f)
         }
     }
 }

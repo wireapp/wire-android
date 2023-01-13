@@ -25,6 +25,7 @@
     <string name="label_message_receive_failure">Download Error</string>
     <string name="label_message_decryption_failure_message">Message could not be decrypted.</string>
     <string name="label_message_decryption_failure_informative_message">Try resetting the session to generate new encryption keys.</string>
+    <string name="label_message_knock">%s pinged</string>
     <string name="label_try_again">Try again</string>
     <string name="label_reset_session">Reset Session</string>
     <string name="label_reset_session_success">Session successfully reset</string>
@@ -108,6 +109,7 @@
     <string name="content_description_show_more_options">Show more options</string>
     <string name="content_description_reply_to_messge">Reply to the message</string>
     <string name="content_description_reply_cancel">Cancel message reply</string>
+    <string name="content_description_ping_message">Ping message</string>
     <string name="content_description_copy">Copy</string>
     <string name="content_description_edit">Edit</string>
     <string name="content_description_calling_call_muted">Call Muted</string>
@@ -124,12 +126,9 @@
     <string name="give_feedback_screen_title">Give Feedback</string>
     <string name="report_bug_screen_title">Report Bug</string>
     <string name="debug_settings_screen_title">Debug Settings</string>
-    <string name="debug_settings_api_versioning_title">API VERSIONING</string>
-    <string name="debug_settings_force_api_versioning_update">Force API versioning update</string>
-    <string name="debug_settings_force_api_versioning_update_button_text">Force update</string>
     <string name="support_screen_title">Support</string>
     <string name="backup_and_restore_screen_title">Back up &amp; Restore Conversations</string>
-    <string name="search_bar_conversations_hint">Search %s</string>
+    <string name="search_bar_conversations_hint">Search conversations</string>
     <string name="search_no_results">No matches found</string>
     <!-- Settings -->
     <string name="settings_backups_group_title">Backups</string>
@@ -141,6 +140,11 @@
     <string name="welcome_footer_text">Want to chat with friends and family?</string>
     <string name="welcome_footer_link">Create a private account for free</string>
     <string name="welcome_button_create_personal_account">Create a Personal Account</string>
+    <string name="welcome_screen_carousel_item_message_1">Welcome to Wire, the most secure collaboration platform!</string>
+    <string name="welcome_screen_carousel_item_message_2">Absolute confidence your information is\u00A0secure</string>
+    <string name="welcome_screen_carousel_item_message_3">Encrypted audio &amp; video conferencing with up\u00A0to 50\u00A0participants</string>
+    <string name="welcome_screen_carousel_item_message_4">Secure file sharing with teams and\u00A0clients</string>
+    <string name="welcome_screen_carousel_item_message_5">Wire is independently audited and ISO, CCPA, GDPR, SOX-compliant</string>
     <string name="welcome_button_create_team">Create a Team</string>
     <string name="server_details_dialog_body">Backend name:\n%1$s\n\nBackend URL:\n%2$s</string>
     <string name="server_details_dialog_title">On-premises Backend</string>
@@ -564,7 +568,7 @@
     <string name="error_socket_message">The proxy credentials are incorrect. Please verify your details and try again.</string>
     <string name="error_no_network_title">Waiting for network</string>
     <string name="error_no_network_message">Please check your Internet connection and try again</string>
-    <string name="error_downloading_self_user_profile_picture">There was an error downloading the user information. Please check your Internet connection</string>
+    <string name="error_downloading_self_user_profile_picture">There was an error downloading your profile picture. Please check your Internet connection</string>
     <string name="error_uploading_user_avatar">Picture could not be uploaded</string>
     <string name="error_uploading_image_message">Image upload failed</string>
     <string name="error_downloading_image_message">Image download failed</string>
@@ -699,7 +703,7 @@
     <string name="block_user_dialog_confirm_button">Block</string>
     <string name="other_user_devices_description"><![CDATA[\Wire gives every device a unique fingerprint. Compare them with %1$s and verify your conversation. \]]></string>
     <!--Settings -->
-    <string name="url_why_verify_conversation">/hc/en-us/articles/207859815-Why-should-I-verify-my-conversations</string>
+    <string name="url_why_verify_conversation">/hc/en-us/articles/207859815</string>
     <string name="settings_general_label">General</string>
     <string name="settings_account_settings_label">Account Settings</string>
     <string name="settings_devices_label">Devices</string>

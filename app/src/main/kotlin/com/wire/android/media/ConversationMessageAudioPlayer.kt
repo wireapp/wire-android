@@ -89,7 +89,7 @@ class ConversationMessageAudioPlayer
                 .build()
         )
         setOnCompletionListener {
-            it.release()
+            it.reset()
             currentAudioMessageId = null
         }
     }

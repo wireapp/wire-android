@@ -261,7 +261,7 @@ private fun ConversationScreen(
     onOpenOngoingCallScreen: () -> Unit,
     onStartCall: () -> Unit,
     onAudioClick: (String) -> Unit,
-    onChangeAudioPosition: (Int) -> Unit,
+    onChangeAudioPosition : (String, Int) -> Unit,
     onJoinCall: () -> Unit,
     onReactionClick: (messageId: String, reactionEmoji: String) -> Unit,
     onResetSessionClick: (senderUserId: UserId, clientId: String?) -> Unit,
@@ -404,7 +404,7 @@ private fun ConversationScreenContent(
     onSendMessage: (String, List<UiMention>, String?) -> Unit,
     onSendAttachment: (AttachmentBundle?) -> Unit,
     onAudioClick: (String) -> Unit,
-    onChangeAudioPosition: (Int) -> Unit,
+    onChangeAudioPosition : (String, Int) -> Unit,
     onMentionMember: (String?) -> Unit,
     onDownloadAsset: (String) -> Unit,
     onImageFullScreenMode: (String, Boolean) -> Unit,
@@ -502,7 +502,7 @@ fun MessageList(
     onUpdateConversationReadDate: (String) -> Unit,
     onDownloadAsset: (String) -> Unit,
     onAudioClick: (String) -> Unit,
-    onChangeAudioPosition: (Int) -> Unit,
+    onChangeAudioPosition: (String, Int) -> Unit,
     onImageFullScreenMode: (String, Boolean) -> Unit,
     onOpenProfile: (String) -> Unit,
     onReactionClicked: (String, String) -> Unit,
@@ -619,7 +619,7 @@ fun MessageList(
                                         ?: AudioState(AudioMediaPlayingState.Paused, 0),
                                     onPlayAudioMessage = { onAudioClick(message.messageHeader.messageId) },
                                     onChangePosition = { position ->
-                                        onChangeAudioPosition(position.toInt())
+                                        onChangeAudioPosition(message.messageHeader.messageId, position.toInt())
                                     },
                                 )
                             }
@@ -677,6 +677,6 @@ fun ConversationScreenPreview() {
         onAudioClick = {},
         composerMessages = MutableStateFlow(ErrorDownloadingAsset),
         conversationMessages = MutableStateFlow(ErrorDownloadingAsset),
-        onChangeAudioPosition = { _ -> },
+        onChangeAudioPosition = { _, _ -> }
     )
 }

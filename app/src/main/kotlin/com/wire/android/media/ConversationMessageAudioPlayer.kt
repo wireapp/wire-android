@@ -4,7 +4,6 @@ import android.content.Context
 import android.media.AudioAttributes
 import android.media.MediaPlayer
 import android.net.Uri
-import com.wire.android.util.CurrentScreenManager
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
@@ -35,18 +34,18 @@ class ConversationMessageAudioPlayer
         delay(UPDATE_POSITION_INTERVAL_IN_MS)
         while (true) {
             if (mediaPlayer.isPlaying) {
-                emit(mediaPlayer.currentPosition)
+                emit(currentAudioMessageId to mediaPlayer.currentPosition)
             }
             delay(UPDATE_POSITION_INTERVAL_IN_MS)
         }
     }.distinctUntilChanged()
 
-    private val seekToAudioPosition = MutableSharedFlow<Int>()
+    private val seekToAudioPosition = MutableSharedFlow<Pair<String, Int>>()
 
     private val positionChangedUpdate = flowOf(mediaPlayerPosition, seekToAudioPosition)
         .flattenConcat()
-        .map { position ->
-            currentAudioMessageId?.let {
+        .map { (messageId, position) ->
+            messageId?.let {
                 AudioMediaPlayerStateUpdate.PositionChangeUpdate(it, position)
             }
         }.filterNotNull()
@@ -155,7 +154,8 @@ class ConversationMessageAudioPlayer
                 mediaPlayer.prepare()
 
                 if (position != null) {
-                    seekTo(position)
+                    mediaPlayer.seekTo(position)
+                    seekToAudioPosition.emit(messageId to position)
                 }
 
                 mediaPlayer.start()
@@ -174,9 +174,8 @@ class ConversationMessageAudioPlayer
         }
     }
 
-    suspend fun seekTo(position: Int) {
-        mediaPlayer.seekTo(position)
-        seekToAudioPosition.emit(position)
+    suspend fun seekTo(messageId: String, position: Int) {
+        seekToAudioPosition.emit(messageId to position)
     }
 
     private suspend fun resumeAudio(messageId: String) {

@@ -157,7 +157,13 @@ class MessageContentMapper @Inject constructor(
             val assetMessageContentMetadata = AssetMessageContentMetadata(content.value)
             toUIMessageContent(assetMessageContentMetadata, message, sender)
         }
-
+        is MessageContent.Knock -> UIMessageContent.SystemMessage.Knock( // TODO should we move Knock to System message also in DAO layer?
+            if (message.isSelfMessage) {
+                UIText.StringResource(messageResourceProvider.memberNameYouTitlecase)
+            } else {
+                sender?.name.orUnknownName()
+            }
+        )
         is MessageContent.RestrictedAsset -> toRestrictedAsset(content.mimeType, content.sizeInBytes, content.name)
         else -> toText(message.conversationId, content)
     }
@@ -168,7 +174,6 @@ class MessageContentMapper @Inject constructor(
             is MessageContent.Unknown -> UIText.StringResource(
                 messageResourceProvider.sentAMessageWithContent, content.typeName ?: "Unknown"
             )
-
             is MessageContent.FailedDecryption -> UIText.StringResource(R.string.label_message_decryption_failure_message)
             else -> UIText.StringResource(messageResourceProvider.sentAMessageWithContent, "Unknown")
         },

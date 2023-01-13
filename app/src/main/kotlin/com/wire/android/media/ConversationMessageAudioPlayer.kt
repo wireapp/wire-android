@@ -4,6 +4,7 @@ import android.content.Context
 import android.media.AudioAttributes
 import android.media.MediaPlayer
 import android.net.Uri
+import com.wire.android.util.CurrentScreenManager
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
@@ -22,7 +23,7 @@ import javax.inject.Inject
 class ConversationMessageAudioPlayer
 @Inject constructor(
     private val context: Context,
-    private val getMessageAsset: GetMessageAssetUseCase
+    private val getMessageAsset: GetMessageAssetUseCase,
 ) {
 
     private val audioMessageStateUpdate = MutableSharedFlow<AudioMediaPlayerStateUpdate.AudioMediaPlayingStateUpdate>()

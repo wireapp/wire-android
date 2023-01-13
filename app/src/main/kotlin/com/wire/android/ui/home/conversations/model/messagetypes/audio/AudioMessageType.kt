@@ -9,7 +9,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.material3.Slider
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -26,7 +26,8 @@ import com.wire.android.ui.theme.wireColorScheme
 @Composable
 fun AudioMessage(
     audioState: AudioState,
-    onPlayAudioMessage: () -> Unit
+    onPlayAudioMessage: () -> Unit,
+    onChangePosition: (Float) -> Unit
 ) {
     Box {
         Row(
@@ -35,36 +36,68 @@ fun AudioMessage(
                 .fillMaxWidth()
                 .height(dimensions().audioMessageHeight)
         ) {
-            when (val test = audioState.audioMediaPlayingState) {
+            when (audioState.audioMediaPlayingState) {
                 AudioMediaPlayingState.Completed -> {
-                    Text("Is Completed")
-
+                    Image(
+                        modifier = Modifier
+                            .clickable { onPlayAudioMessage() }
+                            .padding(bottom = dimensions().spacing4x)
+                            .size(height = dimensions().spacing24x, width = dimensions().spacing24x),
+                        painter = painterResource(
+                            id = R.drawable.ic_pause_button
+                        ),
+                        alignment = Alignment.Center,
+                        contentDescription = stringResource(R.string.content_description_image_message),
+                        colorFilter = ColorFilter.tint(MaterialTheme.wireColorScheme.secondaryText)
+                    )
                 }
 
                 is AudioMediaPlayingState.Paused -> {
-                    Text("Is Paused ${audioState.currentPosition}")
+                    Image(
+                        modifier = Modifier
+                            .clickable { onPlayAudioMessage() }
+                            .padding(bottom = dimensions().spacing4x)
+                            .size(height = dimensions().spacing24x, width = dimensions().spacing24x),
+                        painter = painterResource(
+                            id = R.drawable.ic_play_button
+                        ),
+                        alignment = Alignment.Center,
+                        contentDescription = stringResource(R.string.content_description_image_message),
+                        colorFilter = ColorFilter.tint(MaterialTheme.wireColorScheme.secondaryText)
+                    )
                 }
 
                 is AudioMediaPlayingState.Playing -> {
-                    Text("Is playing ${audioState.currentPosition}")
+                    Image(
+                        modifier = Modifier
+                            .clickable { onPlayAudioMessage() }
+                            .padding(bottom = dimensions().spacing4x)
+                            .size(height = dimensions().spacing24x, width = dimensions().spacing24x),
+                        painter = painterResource(
+                            id = R.drawable.ic_pause_button
+                        ),
+                        alignment = Alignment.Center,
+                        contentDescription = stringResource(R.string.content_description_image_message),
+                        colorFilter = ColorFilter.tint(MaterialTheme.wireColorScheme.secondaryText)
+                    )
                 }
 
                 is AudioMediaPlayingState.Stopped -> {
-                    Text("Is Stoppped ${audioState.currentPosition}")
+                    Image(
+                        modifier = Modifier
+                            .clickable { onPlayAudioMessage() }
+                            .padding(bottom = dimensions().spacing4x)
+                            .size(height = dimensions().spacing24x, width = dimensions().spacing24x),
+                        painter = painterResource(
+                            id = R.drawable.ic_play_button
+                        ),
+                        alignment = Alignment.Center,
+                        contentDescription = stringResource(R.string.content_description_image_message),
+                        colorFilter = ColorFilter.tint(MaterialTheme.wireColorScheme.secondaryText)
+                    )
                 }
             }
-            Image(
-                modifier = Modifier
-                    .clickable { onPlayAudioMessage() }
-                    .padding(bottom = dimensions().spacing4x)
-                    .size(height = dimensions().spacing24x, width = dimensions().spacing24x),
-                painter = painterResource(
-                    id = R.drawable.ic_speaker_on
-                ),
-                alignment = Alignment.Center,
-                contentDescription = stringResource(R.string.content_description_image_message),
-                colorFilter = ColorFilter.tint(MaterialTheme.wireColorScheme.secondaryText)
-            )
+            Slider(value = audioState.currentPosition.toFloat(), onValueChange = onChangePosition)
         }
     }
 }

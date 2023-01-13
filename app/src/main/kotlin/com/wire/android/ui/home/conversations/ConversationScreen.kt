@@ -179,6 +179,7 @@ fun ConversationScreen(
         onSnackbarMessage = messageComposerViewModel::onSnackbarMessage,
         onBackButtonClick = messageComposerViewModel::navigateBack,
         onAudioClick = conversationMessagesViewModel::audioClick,
+        onChangeAudioPosition = conversationMessagesViewModel::changeAudioPosition,
         composerMessages = messageComposerViewModel.infoMessage,
         conversationMessages = conversationMessagesViewModel.infoMessage
     )
@@ -237,7 +238,7 @@ private fun StartCallAudioBluetoothPermissionCheckFlow(
     //TODO display an error dialog
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class, ExperimentalLayoutApi::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Suppress("LongParameterList")
 @Composable
 private fun ConversationScreen(
@@ -260,6 +261,7 @@ private fun ConversationScreen(
     onOpenOngoingCallScreen: () -> Unit,
     onStartCall: () -> Unit,
     onAudioClick: (String) -> Unit,
+    onChangeAudioPosition: (Int) -> Unit,
     onJoinCall: () -> Unit,
     onReactionClick: (messageId: String, reactionEmoji: String) -> Unit,
     onResetSessionClick: (senderUserId: UserId, clientId: String?) -> Unit,
@@ -363,6 +365,7 @@ private fun ConversationScreen(
                         membersToMention = membersToMention,
                         isFileSharingEnabled = conversationViewState.isFileSharingEnabled,
                         onAudioClick = onAudioClick,
+                        onChangeAudioPosition = onChangeAudioPosition,
                         lastUnreadMessageInstant = conversationMessagesViewState.firstUnreadInstant,
                         audioMessagesState = conversationMessagesViewState.audioMessagesState,
                         conversationState = conversationViewState,
@@ -401,6 +404,7 @@ private fun ConversationScreenContent(
     onSendMessage: (String, List<UiMention>, String?) -> Unit,
     onSendAttachment: (AttachmentBundle?) -> Unit,
     onAudioClick: (String) -> Unit,
+    onChangeAudioPosition: (Int) -> Unit,
     onMentionMember: (String?) -> Unit,
     onDownloadAsset: (String) -> Unit,
     onImageFullScreenMode: (String, Boolean) -> Unit,
@@ -432,6 +436,7 @@ private fun ConversationScreenContent(
                 onDownloadAsset = onDownloadAsset,
                 onImageFullScreenMode = onImageFullScreenMode,
                 onAudioClick = onAudioClick,
+                onChangeAudioPosition = onChangeAudioPosition,
                 onOpenProfile = onOpenProfile,
                 onReactionClicked = onReactionClicked,
                 onResetSessionClicked = onResetSessionClicked,
@@ -497,6 +502,7 @@ fun MessageList(
     onUpdateConversationReadDate: (String) -> Unit,
     onDownloadAsset: (String) -> Unit,
     onAudioClick: (String) -> Unit,
+    onChangeAudioPosition: (Int) -> Unit,
     onImageFullScreenMode: (String, Boolean) -> Unit,
     onOpenProfile: (String) -> Unit,
     onReactionClicked: (String, String) -> Unit,
@@ -611,7 +617,10 @@ fun MessageList(
                                 AudioMessage(
                                     audioState = audioMessagesState[message.messageHeader.messageId]
                                         ?: AudioState(AudioMediaPlayingState.Paused, 0),
-                                    onPlayAudioMessage = { onAudioClick(message.messageHeader.messageId) }
+                                    onPlayAudioMessage = { onAudioClick(message.messageHeader.messageId) },
+                                    onChangePosition = { position ->
+                                        onChangeAudioPosition(position.toInt())
+                                    },
                                 )
                             }
 
@@ -668,5 +677,6 @@ fun ConversationScreenPreview() {
         onAudioClick = {},
         composerMessages = MutableStateFlow(ErrorDownloadingAsset),
         conversationMessages = MutableStateFlow(ErrorDownloadingAsset),
+        onChangeAudioPosition = { _ -> },
     )
 }

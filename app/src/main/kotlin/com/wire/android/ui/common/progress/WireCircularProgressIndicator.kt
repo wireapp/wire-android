@@ -1,4 +1,4 @@
-package com.wire.android.ui.common
+package com.wire.android.ui.common.progress
 
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.CircularProgressIndicator

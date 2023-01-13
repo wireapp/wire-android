@@ -174,7 +174,7 @@ class ConversationMessageAudioPlayer
         }
     }
 
-    private suspend fun seekTo(position: Int) {
+    suspend fun seekTo(position: Int) {
         mediaPlayer.seekTo(position)
         seekToAudioPosition.emit(position)
     }

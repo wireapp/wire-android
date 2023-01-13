@@ -352,6 +352,7 @@
     <!-- Import External Media -->
     <string name="import_media_content_title">Share With Wire</string>
     <string name="import_media_searchbar_title">Search for conversation</string>
+    <string name="import_media_send_button_title">Send</string>
 
     <!-- Messages -->
     <string name="message_details_title">Message Details</string>

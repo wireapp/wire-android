@@ -13,23 +13,40 @@ import androidx.core.net.toUri
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
 import com.wire.android.mapper.ContactMapper
+import com.wire.android.mapper.UserTypeMapper
+import com.wire.android.mapper.toUIPreview
 import com.wire.android.model.ImageAsset
+import com.wire.android.model.UserAvatarData
+import com.wire.android.navigation.BackStackMode
+import com.wire.android.navigation.NavigationCommand
+import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
-import com.wire.android.ui.common.topappbar.search.SearchBarState
 import com.wire.android.ui.home.conversations.search.SearchAllPeopleViewModel
-import com.wire.android.ui.home.conversations.search.SearchPeopleState
+import com.wire.android.ui.home.conversationslist.model.BlockState
+import com.wire.android.ui.home.conversationslist.model.ConversationInfo
+import com.wire.android.ui.home.conversationslist.model.ConversationItem
+import com.wire.android.ui.home.conversationslist.parseConversationEventType
+import com.wire.android.ui.home.conversationslist.parsePrivateConversationEventType
+import com.wire.android.ui.home.conversationslist.showLegalHoldIndicator
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.getMetaDataFromUri
 import com.wire.android.util.getMimeType
 import com.wire.android.util.isImageFile
 import com.wire.android.util.parcelableArrayList
 import com.wire.android.util.ui.WireSessionImageLoader
+import com.wire.kalium.logic.data.conversation.Conversation
+import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.feature.connection.SendConnectionRequestUseCase
+import com.wire.kalium.logic.feature.conversation.ObserveConversationListDetailsUseCase
 import com.wire.kalium.logic.feature.publicuser.GetAllContactsUseCase
 import com.wire.kalium.logic.feature.publicuser.search.SearchKnownUsersUseCase
 import com.wire.kalium.logic.feature.publicuser.search.SearchPublicUsersUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
+import com.wire.kalium.logic.functional.combine
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.collections.immutable.toImmutableMap
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -38,6 +55,8 @@ import javax.inject.Inject
 @Suppress("LongParameterList")
 class ImportMediaViewModel @Inject constructor(
     private val getSelf: GetSelfUserUseCase,
+    private val userTypeMapper: UserTypeMapper,
+    private val observeConversationListDetails: ObserveConversationListDetailsUseCase,
     val wireSessionImageLoader: WireSessionImageLoader,
     val dispatchers: DispatcherProvider,
     getAllKnownUsers: GetAllContactsUseCase,
@@ -60,10 +79,12 @@ class ImportMediaViewModel @Inject constructor(
     )
         private set
 
-    var searchPeopleState: SearchPeopleState by mutableStateOf(SearchPeopleState(isGroupCreationContext = false))
+    var shareableConversationListState by mutableStateOf(ShareableConversationListState())
+        private set
 
     init {
         loadUserAvatar()
+        observeConversationWithSearch()
     }
 
     private fun loadUserAvatar() = viewModelScope.launch(dispatchers.io()) {
@@ -76,8 +97,99 @@ class ImportMediaViewModel @Inject constructor(
         }
     }
 
-    fun navigateBack() = viewModelScope.launch(dispatchers.main()) { navigationManager.navigateBack() }
+    private fun observeConversationWithSearch() = viewModelScope.launch {
+        searchQueryFlow.combine(observeConversationListDetails()
+            .map {
+                it.map { conversationDetails ->
+                    conversationDetails.toConversationItem(
+                        wireSessionImageLoader,
+                        userTypeMapper
+                    )
+                }.filterNotNull()
+            })
+            .flowOn(dispatchers.io())
+            .collect { (searchQuery, conversationItems) ->
+                shareableConversationListState = shareableConversationListState.copy(
+                    conversationSearchResult = if (searchQuery.isEmpty()) conversationItems else searchShareableConversation(
+                        conversationItems,
+                        searchQuery
+                    ),
+                    hasNoConversations = conversationItems.isEmpty(),
+                    searchQuery = searchQuery
+                )
+            }
+    }
 
+    @Suppress("LongMethod")
+    private fun ConversationDetails.toConversationItem(
+        wireSessionImageLoader: WireSessionImageLoader,
+        userTypeMapper: UserTypeMapper
+    ): ConversationItem? = when (this) {
+        is ConversationDetails.Group -> {
+            ConversationItem.GroupConversation(
+                groupName = conversation.name.orEmpty(),
+                conversationId = conversation.id,
+                mutedStatus = conversation.mutedStatus,
+                isLegalHold = legalHoldStatus.showLegalHoldIndicator(),
+                lastMessageContent = lastMessage.toUIPreview(unreadEventCount),
+                badgeEventType = parseConversationEventType(
+                    conversation.mutedStatus,
+                    unreadEventCount
+                ),
+                hasOnGoingCall = hasOngoingCall,
+                isSelfUserCreator = isSelfUserCreator,
+                isSelfUserMember = isSelfUserMember,
+                teamId = conversation.teamId,
+                selfMemberRole = selfRole
+            )
+        }
+
+        is ConversationDetails.OneOne -> {
+            ConversationItem.PrivateConversation(
+                userAvatarData = UserAvatarData(
+                    otherUser.previewPicture?.let { ImageAsset.UserAvatarAsset(wireSessionImageLoader, it) },
+                    otherUser.availabilityStatus,
+                    otherUser.connectionStatus
+                ),
+                conversationInfo = ConversationInfo(
+                    name = otherUser.name.orEmpty(),
+                    membership = userTypeMapper.toMembership(userType),
+                    isSenderUnavailable = otherUser.isUnavailableUser
+                ),
+                conversationId = conversation.id,
+                mutedStatus = conversation.mutedStatus,
+                isLegalHold = legalHoldStatus.showLegalHoldIndicator(),
+                lastMessageContent = lastMessage.toUIPreview(unreadEventCount),
+                badgeEventType = parsePrivateConversationEventType(
+                    otherUser.connectionStatus,
+                    otherUser.deleted,
+                    parseConversationEventType(
+                        conversation.mutedStatus,
+                        unreadEventCount
+                    )
+                ),
+                userId = otherUser.id,
+                blockingState = otherUser.BlockState,
+                teamId = otherUser.teamId
+            )
+        }
+
+        else -> null // We don't care about connection requests
+    }
+
+    private fun searchShareableConversation(conversationDetails: List<ConversationItem>, searchQuery: String): List<ConversationItem> {
+        val matchingConversations =
+            conversationDetails.filter { details ->
+                when (details) {
+                    is ConversationItem.GroupConversation -> details.groupName.contains(searchQuery, true)
+                    is ConversationItem.PrivateConversation -> details.conversationInfo.name.contains(searchQuery, true)
+                    is ConversationItem.ConnectionConversation -> false
+                }
+            }
+        return matchingConversations
+    }
+
+    fun navigateBack() = viewModelScope.launch(dispatchers.main()) { navigationManager.navigateBack() }
 
     fun handleReceivedDataFromSharingIntent(activity: AppCompatActivity) {
         val incomingIntent = ShareCompat.IntentReader(activity)
@@ -87,10 +199,12 @@ class ImportMediaViewModel @Inject constructor(
                 // if stream count is 0 the type will be text, we check the type to double check if it is text
                 // todo : handle the text , we can get the text from incomingIntent.text
             }
+
             1 -> {
                 // ACTION_SEND
                 incomingIntent.stream?.let { incomingIntent.type?.let { it1 -> handleMimeType(activity, it1, it) } }
             }
+
             else -> {
                 // ACTION_SEND_MULTIPLE
                 activity.intent.parcelableArrayList<Parcelable>(Intent.EXTRA_STREAM)?.forEach {
@@ -99,6 +213,20 @@ class ImportMediaViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    fun onImportedMediaSent(conversationsList: List<Conversation>) = viewModelScope.launch(dispatchers.main()) {
+        navigationManager.navigate(
+            command = NavigationCommand(
+                destination = if (conversationsList.size == 1) {
+                    val conversation = conversationsList.first()
+                    NavigationItem.Conversation.getRouteWithArgs(listOf(conversation.id))
+                } else {
+                    NavigationItem.Home.getRouteWithArgs()
+                },
+                backStackMode = BackStackMode.REMOVE_CURRENT
+            )
+        )
     }
 
     private fun handleMimeType(context: Context, type: String, uri: Uri) {
@@ -118,6 +246,7 @@ class ImportMediaViewModel @Inject constructor(
                 }
 
             }
+
             else -> {
                 uri.getMetaDataFromUri(context).let {
                     importMediaState.importedAssets.add(

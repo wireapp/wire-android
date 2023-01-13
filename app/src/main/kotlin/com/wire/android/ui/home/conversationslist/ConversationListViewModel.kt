@@ -125,9 +125,8 @@ class ConversationListViewModel @Inject constructor(
                         ).withFolders().toImmutableMap(),
                         hasNoConversations = conversationsWithFolders.isEmpty(),
                         foldersWithConversations = conversationsWithFolders,
-                        searchQuery = searchQuery,
-
-                        )
+                        searchQuery = searchQuery
+                    )
                 }
         }
     }
@@ -409,7 +408,7 @@ class ConversationListViewModel @Inject constructor(
 
 }
 
-private fun LegalHoldStatus.showLegalHoldIndicator() = this == LegalHoldStatus.ENABLED
+internal fun LegalHoldStatus.showLegalHoldIndicator() = this == LegalHoldStatus.ENABLED
 
 @Suppress("LongMethod")
 private fun ConversationDetails.toConversationItem(
@@ -497,12 +496,12 @@ private fun ConversationDetails.toConversationItem(
 private fun parseConnectionEventType(connectionState: ConnectionState) =
     if (connectionState == ConnectionState.SENT) BadgeEventType.SentConnectRequest else BadgeEventType.ReceivedConnectionRequest
 
-private fun parsePrivateConversationEventType(connectionState: ConnectionState, isDeleted: Boolean, eventType: BadgeEventType) =
+internal fun parsePrivateConversationEventType(connectionState: ConnectionState, isDeleted: Boolean, eventType: BadgeEventType) =
     if (connectionState == ConnectionState.BLOCKED) BadgeEventType.Blocked
     else if (isDeleted) BadgeEventType.Deleted
     else eventType
 
-private fun parseConversationEventType(
+internal fun parseConversationEventType(
     mutedStatus: MutedConversationStatus,
     unreadEventCount: UnreadEventCount
 ): BadgeEventType = when (mutedStatus) {

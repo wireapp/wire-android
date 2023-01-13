@@ -7,27 +7,24 @@ import android.net.Uri
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
-import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flattenConcat
-import kotlinx.coroutines.flow.flattenMerge
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.merge
-import kotlinx.coroutines.flow.zip
-import javax.inject.Inject
+import kotlinx.coroutines.launch
 
 class ConversationMessageAudioPlayer
-@Inject constructor(
+constructor(
     private val context: Context,
-    private val getMessageAsset: GetMessageAssetUseCase
-) {
+    private val getMessageAsset: GetMessageAssetUseCase,
+    private val coroutineScope: CoroutineScope
+) : CoroutineScope by coroutineScope {
 
     private val currentAudioMessageState = MutableSharedFlow<AudioMediaPlayerState>()
 
@@ -59,6 +56,36 @@ class ConversationMessageAudioPlayer
                 audioMessageStateHistory
             }
 
+    private val test = Channel<Map<String, AudioState>>()
+
+    private val dupa = Channel<Test>()
+
+    init {
+        launch {
+            for (dupencia in dupa) {
+                when (dupencia) {
+                    Test.Test1 -> {}
+                    Test.Pause -> {
+                        mediaPlayer.pause()
+                    }
+
+                    Test.Resume -> {
+                        mediaPlayer.start()
+                    }
+
+                    Test.Test4 -> {}
+                }
+            }
+        }
+    }
+
+    sealed class Test {
+        object Test1 : Test()
+        object Pause : Test()
+        object Resume : Test()
+        object Test4 : Test()
+    }
+
     private var currentAudioMessageId: String? = null
 
     private val mediaPlayer = MediaPlayer().apply {
@@ -73,7 +100,7 @@ class ConversationMessageAudioPlayer
         }
     }
 
-    suspend fun togglePlay(
+    suspend fun playAudioMessage(
         conversationId: ConversationId,
         requestedAudioMessageId: String
     ) {
@@ -141,15 +168,19 @@ class ConversationMessageAudioPlayer
     }
 
     private suspend fun resumeAudio() {
-        mediaPlayer.start()
-
-        currentAudioMessageState.emit(AudioMediaPlayerState.Playing)
+        dupa.send(Test.Resume)
+//        mediaPlayer.start()
+//
+//        currentAudioMessageState.emit(AudioMediaPlayerState.Playing)
     }
 
     private suspend fun pause() {
-        mediaPlayer.pause()
+        dupa.send(Test.Pause)
+//        mediaPlayer.pause()
+//
+//        currentAudioMessageState.emit(AudioMediaPlayerState.Paused)
 
-        currentAudioMessageState.emit(AudioMediaPlayerState.Paused)
+
     }
 
     private suspend fun stopPlayingCurrentAudioMessage() {

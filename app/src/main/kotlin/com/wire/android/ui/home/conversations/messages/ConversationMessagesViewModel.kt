@@ -1,5 +1,6 @@
 package com.wire.android.ui.home.conversations.messages
 
+import android.content.Context
 import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -38,6 +39,7 @@ import com.wire.kalium.logic.feature.message.ToggleReactionUseCase
 import com.wire.kalium.logic.feature.sessionreset.ResetSessionResult
 import com.wire.kalium.logic.feature.sessionreset.ResetSessionUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.flowOn
@@ -62,7 +64,7 @@ class ConversationMessagesViewModel @Inject constructor(
     private val getMessageForConversation: GetMessagesForConversationUseCase,
     private val toggleReaction: ToggleReactionUseCase,
     private val resetSession: ResetSessionUseCase,
-    private val conversationMessageAudioPlayer: ConversationMessageAudioPlayer
+    @ApplicationContext private val context: Context
 ) : SavedStateViewModel(savedStateHandle) {
 
     var conversationViewState by mutableStateOf(ConversationMessagesViewState())
@@ -73,6 +75,9 @@ class ConversationMessagesViewModel @Inject constructor(
 
     private val _infoMessage = MutableSharedFlow<SnackBarMessage>()
     val infoMessage = _infoMessage.asSharedFlow()
+
+    private val conversationMessageAudioPlayer: ConversationMessageAudioPlayer =
+        ConversationMessageAudioPlayer(context, getMessageAsset, viewModelScope)
 
     init {
         loadPaginatedMessages()
@@ -236,7 +241,7 @@ class ConversationMessagesViewModel @Inject constructor(
 
     fun audioClick(messageId: String) {
         viewModelScope.launch {
-            conversationMessageAudioPlayer.togglePlay(conversationId, messageId)
+            conversationMessageAudioPlayer.playAudioMessage(conversationId, messageId)
         }
     }
 

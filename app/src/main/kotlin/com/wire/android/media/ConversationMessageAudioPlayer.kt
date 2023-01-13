@@ -89,12 +89,14 @@ class ConversationMessageAudioPlayer
                 .build()
         )
         setOnCompletionListener {
-            audioMessageStateUpdate.tryEmit(
-                AudioMediaPlayerStateUpdate.AudioMediaPlayingStateUpdate(
-                    currentAudioMessageId!!,
-                    AudioMediaPlayingState.Completed
+            if (currentAudioMessageId != null) {
+                audioMessageStateUpdate.tryEmit(
+                    AudioMediaPlayerStateUpdate.AudioMediaPlayingStateUpdate(
+                        currentAudioMessageId!!,
+                        AudioMediaPlayingState.Completed
+                    )
                 )
-            )
+            }
         }
     }
 

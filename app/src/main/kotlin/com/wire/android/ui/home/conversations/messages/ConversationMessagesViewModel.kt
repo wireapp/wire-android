@@ -1,6 +1,5 @@
 package com.wire.android.ui.home.conversations.messages
 
-import android.content.Context
 import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -39,7 +38,6 @@ import com.wire.kalium.logic.feature.message.ToggleReactionUseCase
 import com.wire.kalium.logic.feature.sessionreset.ResetSessionResult
 import com.wire.kalium.logic.feature.sessionreset.ResetSessionUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.flowOn
@@ -244,7 +242,7 @@ class ConversationMessagesViewModel @Inject constructor(
 
     fun changeAudioPosition(messageId: String, position: Int) {
         viewModelScope.launch {
-            conversationMessageAudioPlayer.seekTo(messageId, position)
+            conversationMessageAudioPlayer.setPosition(messageId, position)
         }
     }
 

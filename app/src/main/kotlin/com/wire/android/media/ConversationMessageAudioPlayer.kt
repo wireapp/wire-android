@@ -170,13 +170,16 @@ class ConversationMessageAudioPlayer
         }
     }
 
-    suspend fun seekTo(messageId: String, position: Int) {
+    suspend fun setPosition(messageId: String, position: Int) {
         val currentAudioState = audioMessageStateHistory[messageId]
 
         if (currentAudioState != null) {
-            val isPositionAbleToBeSet = (mediaPlayer.isPlaying || currentAudioState.audioMediaPlayingState is AudioMediaPlayingState.Paused)
             val isAudioMessageCurrentlyPlaying = currentAudioMessageId == messageId
-            if (isPositionAbleToBeSet && isAudioMessageCurrentlyPlaying) {
+
+            val isMediaPlayerPositionAbleToBeSet = isAudioMessageCurrentlyPlaying
+                    || currentAudioState.audioMediaPlayingState is AudioMediaPlayingState.Paused
+
+            if (isMediaPlayerPositionAbleToBeSet) {
                 mediaPlayer.seekTo(position)
             }
         }
@@ -228,7 +231,7 @@ sealed class AudioMediaPlayingState {
     object Paused : AudioMediaPlayingState()
 }
 
-sealed class AudioMediaPlayerStateUpdate(
+private sealed class AudioMediaPlayerStateUpdate(
     open val messageId: String
 ) {
     data class AudioMediaPlayingStateUpdate(

@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.runtime.Composable
@@ -16,9 +18,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.media.AudioMediaPlayingState
 import com.wire.android.media.AudioState
+import com.wire.android.ui.common.button.WireSecondaryIconButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.wireColorScheme
 
@@ -37,66 +41,48 @@ fun AudioMessage(
         ) {
             when (audioState.audioMediaPlayingState) {
                 AudioMediaPlayingState.Completed -> {
-                    Image(
-                        modifier = Modifier
-                            .clickable { onPlayAudioMessage() }
-                            .padding(bottom = dimensions().spacing4x)
-                            .size(height = dimensions().spacing24x, width = dimensions().spacing24x),
-                        painter = painterResource(
-                            id = R.drawable.ic_pause_button
-                        ),
-                        alignment = Alignment.Center,
-                        contentDescription = stringResource(R.string.content_description_image_message),
-                        colorFilter = ColorFilter.tint(MaterialTheme.wireColorScheme.secondaryText)
+                    WireSecondaryIconButton(
+                        minWidth = 32.dp,
+                        iconResource = R.drawable.ic_play,
+                        shape = CircleShape,
+                        contentDescription = R.string.content_description_image_message,
+                        onButtonClicked = onPlayAudioMessage
                     )
                 }
 
                 is AudioMediaPlayingState.Paused -> {
-                    Image(
-                        modifier = Modifier
-                            .clickable { onPlayAudioMessage() }
-                            .padding(bottom = dimensions().spacing4x)
-                            .size(height = dimensions().spacing24x, width = dimensions().spacing24x),
-                        painter = painterResource(
-                            id = R.drawable.ic_play_button
-                        ),
-                        alignment = Alignment.Center,
-                        contentDescription = stringResource(R.string.content_description_image_message),
-                        colorFilter = ColorFilter.tint(MaterialTheme.wireColorScheme.secondaryText)
+                    WireSecondaryIconButton(
+                        minWidth = 32.dp,
+                        iconResource = R.drawable.ic_play,
+                        shape = CircleShape,
+                        contentDescription = R.string.content_description_image_message,
+                        onButtonClicked = onPlayAudioMessage
                     )
                 }
 
                 is AudioMediaPlayingState.Playing -> {
-                    Image(
-                        modifier = Modifier
-                            .clickable { onPlayAudioMessage() }
-                            .padding(bottom = dimensions().spacing4x)
-                            .size(height = dimensions().spacing24x, width = dimensions().spacing24x),
-                        painter = painterResource(
-                            id = R.drawable.ic_pause_button
-                        ),
-                        alignment = Alignment.Center,
-                        contentDescription = stringResource(R.string.content_description_image_message),
-                        colorFilter = ColorFilter.tint(MaterialTheme.wireColorScheme.secondaryText)
+                    WireSecondaryIconButton(
+                        minWidth = 32.dp,
+                        iconResource = R.drawable.ic_pause,
+                        shape = CircleShape,
+                        contentDescription = R.string.content_description_image_message,
+                        onButtonClicked = onPlayAudioMessage
                     )
                 }
 
                 is AudioMediaPlayingState.Stopped -> {
-                    Image(
-                        modifier = Modifier
-                            .clickable { onPlayAudioMessage() }
-                            .padding(bottom = dimensions().spacing4x)
-                            .size(height = dimensions().spacing24x, width = dimensions().spacing24x),
-                        painter = painterResource(
-                            id = R.drawable.ic_play_button
-                        ),
-                        alignment = Alignment.Center,
-                        contentDescription = stringResource(R.string.content_description_image_message),
-                        colorFilter = ColorFilter.tint(MaterialTheme.wireColorScheme.secondaryText)
+                    WireSecondaryIconButton(
+                        minWidth = 32.dp,
+                        iconResource = R.drawable.ic_play,
+                        shape = CircleShape,
+                        contentDescription = R.string.content_description_image_message,
+                        onButtonClicked = onPlayAudioMessage
                     )
                 }
             }
+
             Slider(value = audioState.currentPosition.toFloat(), onValueChange = onChangePosition, valueRange = 0f..100000f)
         }
     }
 }
+

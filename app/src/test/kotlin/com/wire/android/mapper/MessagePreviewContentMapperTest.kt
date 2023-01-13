@@ -45,14 +45,75 @@ class MessagePreviewContentMapperTest {
         val messagePreview = TestMessage.PREVIEW.copy(
             content = MessagePreviewContent.WithUser.MissedCall("admin"),
         )
-        val unreadMissedCallsCount = 2
-        val unreadEventCount = mapOf(UnreadEventType.MISSED_CALL to unreadMissedCallsCount)
+        val unreadCount = 2
+        val unreadEventCount = mapOf(UnreadEventType.MISSED_CALL to unreadCount)
 
         val textMessage = messagePreview.toUIPreview(unreadEventCount).shouldBeInstanceOf<UILastMessageContent.TextMessage>()
         val result = textMessage.messageBody.message.shouldBeInstanceOf<UIText.PluralResource>()
 
         result.resId shouldBeEqualTo R.plurals.unread_event_call
-        result.count shouldBeEqualTo unreadMissedCallsCount
+        result.count shouldBeEqualTo unreadCount
+    }
+
+    @Test
+    fun givenUnreadMentions_whenMappingToUIPreview_thenCorrectUILastMessageContentShouldBeReturned() = runTest {
+        val messagePreview = TestMessage.PREVIEW.copy(
+            content = MessagePreviewContent.WithUser.MentionedSelf("admin"),
+        )
+        val unreadCount = 2
+        val unreadEventCount = mapOf(UnreadEventType.MENTION to unreadCount)
+
+        val textMessage = messagePreview.toUIPreview(unreadEventCount).shouldBeInstanceOf<UILastMessageContent.TextMessage>()
+        val result = textMessage.messageBody.message.shouldBeInstanceOf<UIText.PluralResource>()
+
+        result.resId shouldBeEqualTo R.plurals.unread_event_mention
+        result.count shouldBeEqualTo unreadCount
+    }
+
+    @Test
+    fun givenUnreadReplies_whenMappingToUIPreview_thenCorrectUILastMessageContentShouldBeReturned() = runTest {
+        val messagePreview = TestMessage.PREVIEW.copy(
+            content = MessagePreviewContent.WithUser.MentionedSelf("admin"),
+        )
+        val unreadCount = 2
+        val unreadEventCount = mapOf(UnreadEventType.REPLY to unreadCount)
+
+        val textMessage = messagePreview.toUIPreview(unreadEventCount).shouldBeInstanceOf<UILastMessageContent.TextMessage>()
+        val result = textMessage.messageBody.message.shouldBeInstanceOf<UIText.PluralResource>()
+
+        result.resId shouldBeEqualTo R.plurals.unread_event_reply
+        result.count shouldBeEqualTo unreadCount
+    }
+
+    @Test
+    fun givenUnreadPings_whenMappingToUIPreview_thenCorrectUILastMessageContentShouldBeReturned() = runTest {
+        val messagePreview = TestMessage.PREVIEW.copy(
+            content = MessagePreviewContent.WithUser.Knock("admin"),
+        )
+        val unreadCount = 2
+        val unreadEventCount = mapOf(UnreadEventType.KNOCK to unreadCount)
+
+        val textMessage = messagePreview.toUIPreview(unreadEventCount).shouldBeInstanceOf<UILastMessageContent.TextMessage>()
+        val result = textMessage.messageBody.message.shouldBeInstanceOf<UIText.PluralResource>()
+
+        result.resId shouldBeEqualTo R.plurals.unread_event_knock
+        result.count shouldBeEqualTo unreadCount
+    }
+
+    @Test
+    fun givenUnreadMessages_whenMappingToUIPreview_thenLastTextMessageContentShouldBeReturned() = runTest {
+        val lastMessage = "See ya"
+        val messagePreview = TestMessage.PREVIEW.copy(
+            content = MessagePreviewContent.WithUser.Text("admin", lastMessage),
+        )
+
+        val unreadCount = 2
+        val unreadEventCount = mapOf(UnreadEventType.MESSAGE to unreadCount)
+
+        val senderWithMessage = messagePreview.toUIPreview(unreadEventCount).shouldBeInstanceOf<UILastMessageContent.SenderWithMessage>()
+        val result = senderWithMessage.message.shouldBeInstanceOf<UIText.DynamicString>()
+
+        result.value shouldBeEqualTo lastMessage
     }
 
     @Test

@@ -61,7 +61,7 @@ fun MessagePreview?.toUIPreview(unreadEventCount: UnreadEventCount): UILastMessa
             return UILastMessageContent.MultipleMessage(listOf(first, second))
         } else if (unreadContentTexts.isNotEmpty()) {
             val unreadContent = unreadContentTexts.entries.first()
-            if (unreadContent.key == UnreadEventType.MISSED_CALL) {
+            if (unreadContent.key != UnreadEventType.MESSAGE) {
                 return UILastMessageContent.TextMessage(MessageBody(unreadContent.value))
             }
         }

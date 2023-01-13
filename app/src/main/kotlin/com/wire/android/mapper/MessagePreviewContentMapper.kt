@@ -22,25 +22,48 @@ fun MessagePreview?.toUIPreview(unreadEventCount: UnreadEventCount): UILastMessa
         .toSortedMap()
 
     // we want to show last message content instead of counter when there are only one type of unread events
-    if (sortedUnreadContent.size > 1) {
+    if (sortedUnreadContent.isNotEmpty()) {
         val unreadContentTexts = sortedUnreadContent
             .mapNotNull { type ->
                 when (type.key) {
-                    UnreadEventType.KNOCK -> UIText.PluralResource(R.plurals.unread_event_knock, type.value, type.value)
-                    UnreadEventType.MISSED_CALL -> UIText.PluralResource(R.plurals.unread_event_call, type.value, type.value)
-                    UnreadEventType.MENTION -> UIText.PluralResource(R.plurals.unread_event_mention, type.value, type.value)
-                    UnreadEventType.REPLY -> UIText.PluralResource(R.plurals.unread_event_reply, type.value, type.value)
-                    UnreadEventType.MESSAGE -> UIText.PluralResource(R.plurals.unread_event_message, type.value, type.value)
+                    UnreadEventType.KNOCK -> UnreadEventType.KNOCK to UIText.PluralResource(
+                        R.plurals.unread_event_knock,
+                        type.value,
+                        type.value
+                    )
+                    UnreadEventType.MISSED_CALL -> UnreadEventType.MISSED_CALL to UIText.PluralResource(
+                        R.plurals.unread_event_call,
+                        type.value,
+                        type.value
+                    )
+                    UnreadEventType.MENTION -> UnreadEventType.MENTION to UIText.PluralResource(
+                        R.plurals.unread_event_mention,
+                        type.value,
+                        type.value
+                    )
+                    UnreadEventType.REPLY -> UnreadEventType.REPLY to UIText.PluralResource(
+                        R.plurals.unread_event_reply,
+                        type.value,
+                        type.value
+                    )
+                    UnreadEventType.MESSAGE -> UnreadEventType.MESSAGE to UIText.PluralResource(
+                        R.plurals.unread_event_message,
+                        type.value,
+                        type.value
+                    )
                     UnreadEventType.IGNORED -> null
                     null -> null
                 }
-            }
+            }.associate { it }
         if (unreadContentTexts.size > 1) {
-            val first = unreadContentTexts.first()
-            val second = unreadContentTexts.elementAt(1)
+            val first = unreadContentTexts.values.first()
+            val second = unreadContentTexts.values.elementAt(1)
             return UILastMessageContent.MultipleMessage(listOf(first, second))
         } else if (unreadContentTexts.isNotEmpty()) {
-            return UILastMessageContent.TextMessage(MessageBody(unreadContentTexts.first()))
+            val unreadContent = unreadContentTexts.entries.first()
+            if (unreadContent.key == UnreadEventType.MISSED_CALL) {
+                return UILastMessageContent.TextMessage(MessageBody(unreadContent.value))
+            }
         }
     }
 

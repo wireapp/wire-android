@@ -219,7 +219,7 @@ private fun SelfUserProfileContent(
 @Composable
 private fun mapErrorCodeToString(errorCode: ErrorCodes): String {
     return when (errorCode) {
-        DownloadUserInfoError -> stringResource(R.string.error_downloading_user_info)
+        DownloadUserInfoError -> stringResource(R.string.error_downloading_self_user_profile_picture)
         // Add more future errors for a more granular error handling
         else -> stringResource(R.string.error_unknown_title)
     }

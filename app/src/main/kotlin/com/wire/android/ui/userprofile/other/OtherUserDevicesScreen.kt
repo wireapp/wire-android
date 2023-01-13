@@ -7,7 +7,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -44,7 +43,7 @@ fun OtherUserDevicesScreen(
                 LinkText(
                     linkTextData = listOf(
                         LinkTextData(
-                            text = stringResource(R.string.other_user_devices_decription, fullName),
+                            text = stringResource(R.string.other_user_devices_description, fullName),
                         ),
                         LinkTextData(
                             text = stringResource(id = R.string.label_learn_more),

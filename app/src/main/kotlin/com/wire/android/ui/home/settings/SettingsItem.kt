@@ -47,5 +47,4 @@ enum class SettingsItem(val id: String, val title: UIText, val navigationItem: N
         navigationItem = NavigationItem.Debug
     )
     ;
-
 }

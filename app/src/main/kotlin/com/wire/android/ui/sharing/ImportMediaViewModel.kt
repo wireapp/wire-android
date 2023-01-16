@@ -44,7 +44,6 @@ import com.wire.kalium.logic.feature.publicuser.search.SearchPublicUsersUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.functional.combine
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.collections.immutable.toImmutableMap
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -110,7 +109,7 @@ class ImportMediaViewModel @Inject constructor(
             .flowOn(dispatchers.io())
             .collect { (searchQuery, conversationItems) ->
                 shareableConversationListState = shareableConversationListState.copy(
-                    conversationSearchResult = if (searchQuery.isEmpty()) conversationItems else searchShareableConversation(
+                    searchResult = if (searchQuery.isEmpty()) conversationItems else searchShareableConversation(
                         conversationItems,
                         searchQuery
                     ),
@@ -228,6 +227,7 @@ class ImportMediaViewModel @Inject constructor(
             )
         )
     }
+
 
     private fun handleMimeType(context: Context, type: String, uri: Uri) {
         when {

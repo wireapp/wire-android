@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -35,11 +36,12 @@ import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.topappbar.search.SearchBarState
 import com.wire.android.ui.common.topappbar.search.SearchTopBar
 import com.wire.android.ui.common.topappbar.search.rememberSearchbarState
-import com.wire.android.ui.home.conversations.search.SearchAllPeopleScreen
+import com.wire.android.ui.home.conversationslist.common.ConversationList
+import com.wire.android.ui.home.conversationslist.model.ConversationFolder
 import com.wire.android.ui.home.newconversation.common.SelectParticipantsButtonsRow
-import com.wire.android.ui.home.newconversation.contacts.ContactsScreen
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.util.extension.getActivity
+import kotlinx.collections.immutable.persistentMapOf
 
 @Composable
 fun ImportMediaScreen(importMediaViewModel: ImportMediaViewModel = hiltViewModel()) {
@@ -82,6 +84,7 @@ fun ImportMediaContent(searchBarState: SearchBarState, importMediaViewModel: Imp
             val screenWidth = LocalConfiguration.current.screenWidthDp.dp
             val itemWidth = if (isMultipleImport) dimensions().importedMediaAssetSize else screenWidth - (horizontalPadding * 2)
             val contentPadding = PaddingValues(start = horizontalPadding, end = (screenWidth - itemWidth + horizontalPadding))
+            val lazyListState = rememberLazyListState()
             HorizontalPager(
                 state = pagerState,
                 count = importedItemsList.size,
@@ -107,25 +110,39 @@ fun ImportMediaContent(searchBarState: SearchBarState, importMediaViewModel: Imp
                 onCloseSearchClicked = searchBarState::closeSearch,
             )
             with(searchBarState) {
-                if (searchBarState.isSearchActive)
-                    SearchAllPeopleScreen(
-                        searchQuery = searchQuery.text,
-                        noneSearchSucceed = importMediaViewModel.state.noneSearchSucceed,
-                        searchResult = importMediaViewModel.shareableConversationListState,
-                        contactsAddedToGroup = importMediaViewModel.state.contactsAddedToGroup,
-                        onAddToGroup = importMediaViewModel::addContactToGroup,
-                        onRemoveFromGroup = importMediaViewModel::removeContactFromGroup,
-                        onOpenUserProfile = importMediaViewModel::openUserProfile,
-                        onAddContactClicked = importMediaViewModel::addContact
-                    )
-                else
-                    ContactsScreen(
-                        allKnownContactResult = importMediaViewModel.state.initialContacts,
-                        contactsAddedToGroup = importMediaViewModel.state.contactsAddedToGroup,
-                        onAddToGroup = importMediaViewModel::addContactToGroup,
-                        onRemoveFromGroup = importMediaViewModel::removeContactFromGroup,
-                        onOpenUserProfile = importMediaViewModel::openUserProfile
-                    )
+//                if (searchBarState.isSearchActive)
+//                    SearchAllPeopleScreen(
+//                        searchQuery = searchQuery.text,
+//                        noneSearchSucceed = importMediaViewModel.state.noneSearchSucceed,
+//                        searchResult = persistentMapOf(
+//                            SearchResultTitle(R.string.conversation_label_conversations) to importMediaViewModel.currentSearchResult()
+//                        ),
+//                        contactsAddedToGroup = importMediaViewModel.state.contactsAddedToGroup,
+//                        onAddToGroup = importMediaViewModel::addContactToGroup,
+//                        onRemoveFromGroup = importMediaViewModel::removeContactFromGroup,
+//                        onOpenUserProfile = importMediaViewModel::openUserProfile,
+//                        onAddContactClicked = importMediaViewModel::addContact
+//                    )
+//                else
+//                    ContactsScreen(
+//                        allKnownContactResult = importMediaViewModel.state.initialContacts,
+//                        contactsAddedToGroup = importMediaViewModel.state.contactsAddedToGroup,
+//                        onAddToGroup = importMediaViewModel::addContactToGroup,
+//                        onRemoveFromGroup = importMediaViewModel::removeContactFromGroup,
+//                        onOpenUserProfile = importMediaViewModel::openUserProfile
+//                    )
+                ConversationList(
+                    lazyListState = lazyListState,
+                    conversationListItems = persistentMapOf(
+                        ConversationFolder.Predefined.Conversations to importMediaViewModel.shareableConversationListState.searchResult
+                    ),
+                    searchQuery = "",
+                    onOpenConversation = {},
+                    onEditConversation = {},
+                    onOpenUserProfile = {},
+                    onOpenConversationNotificationsSettings = {},
+                    onJoinCall = {}
+                )
             }
             SelectParticipantsButtonsRow(
                 count = importMediaViewModel.state.contactsAddedToGroup.size,

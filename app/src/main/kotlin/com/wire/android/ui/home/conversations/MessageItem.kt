@@ -26,7 +26,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import com.google.accompanist.flowlayout.FlowRow
 import com.wire.android.R
-import com.wire.android.mapper.message.content.asset.AudioMessageDuration
 import com.wire.android.media.AudioMediaPlayingState
 import com.wire.android.model.Clickable
 import com.wire.android.model.UserAvatarData
@@ -393,10 +392,10 @@ private fun MessageContent(
         }
 
         is UIMessageContent.AudioAssetMessage -> {
-            AudioMessage(
-                audioMessageDuration = AudioMessageDuration(durationMs = 0, currentPositionMs = 0),
-                audioMediaPlayingState = AudioMediaPlayingState.Paused,
-                onPlayAudioMessage = { onAudioClick() }) { }
+//            AudioMessage(
+//                audioMessageDuration = AudioMessageDuration(durationMs = 0, currentPositionMs = 0),
+//                audioMediaPlayingState = AudioMediaPlayingState.Paused,
+//                onPlayAudioMessage = { onAudioClick() }) { }
         }
 
         is UIMessageContent.SystemMessage.MemberAdded -> {}

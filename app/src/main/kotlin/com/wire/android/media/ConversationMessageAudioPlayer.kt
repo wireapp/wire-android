@@ -18,7 +18,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 import javax.inject.Inject
 
-
 class ConversationMessageAudioPlayer
 @Inject constructor(
     private val context: Context,
@@ -28,7 +27,7 @@ class ConversationMessageAudioPlayer
         const val UPDATE_POSITION_INTERVAL_IN_MS = 1L
     }
 
-    private val audioMessageStateUpdate = MutableSharedFlow<AudioMediaPlayerStateUpdate.AudioMediaPlayingStateUpdate>()
+    private val audioMessageStateUpdate = MutableSharedFlow<AudioMediaPlayerStateUpdate>()
 
     private val mediaPlayerPosition = flow {
         delay(UPDATE_POSITION_INTERVAL_IN_MS)
@@ -56,7 +55,7 @@ class ConversationMessageAudioPlayer
             Log.d("TEST", "audioMessageStateUpdate $audioMessageStateUpdate")
             val currentState = audioMessageStateHistory.getOrDefault(
                 audioMessageStateUpdate.messageId,
-                AudioState(AudioMediaPlayingState.Paused, 0)
+                AudioState(AudioMediaPlayingState.Paused, 0, 0)
             )
 
             when (audioMessageStateUpdate) {
@@ -77,10 +76,24 @@ class ConversationMessageAudioPlayer
                         )
                     }
                 }
+
+                is AudioMediaPlayerStateUpdate.TotalTimeUpdate -> {
+                    audioMessageStateHistory = audioMessageStateHistory.toMutableMap().apply {
+                        put(
+                            audioMessageStateUpdate.messageId,
+                            currentState.copy(totalTimeInMs = audioMessageStateUpdate.totalTime)
+                        )
+                    }
+                    delay(1000)
+                }
             }
 
             audioMessageStateHistory
         }
+
+    private fun updateAudioMessageStateHistory() {
+
+    }
 
     private var currentAudioMessageId: String? = null
 
@@ -159,6 +172,13 @@ class ConversationMessageAudioPlayer
                     mediaPlayer.seekTo(position)
                 }
 
+                audioMessageStateUpdate.emit(
+                    AudioMediaPlayerStateUpdate.TotalTimeUpdate(
+                        messageId,
+                        mediaPlayer.duration
+                    )
+                )
+
                 mediaPlayer.start()
 
                 audioMessageStateUpdate.emit(
@@ -221,8 +241,27 @@ class ConversationMessageAudioPlayer
 
 data class AudioState(
     val audioMediaPlayingState: AudioMediaPlayingState,
+    val totalTimeInMs: Int,
     val currentPositionInMs: Int
-)
+) {
+    companion object {
+        val DEFAULT = AudioState(AudioMediaPlayingState.Paused, 0, 0)
+    }
+
+    private val totalTimeInSec = totalTimeInMs / 1000
+
+    private val currentPositionInSec = currentPositionInMs / 1000
+    val formattedTimeLeft
+        get() = run {
+            val timeLeft = (totalTimeInSec - currentPositionInSec)
+
+            val minutes = timeLeft / 60
+            val seconds = timeLeft % 60
+            val formattedSeconds = String.format("%02d", seconds)
+
+            "$minutes:$formattedSeconds"
+        }
+}
 
 sealed class AudioMediaPlayingState {
     object Playing : AudioMediaPlayingState()
@@ -244,5 +283,10 @@ private sealed class AudioMediaPlayerStateUpdate(
     data class PositionChangeUpdate(
         override val messageId: String,
         val position: Int
+    ) : AudioMediaPlayerStateUpdate(messageId)
+
+    data class TotalTimeUpdate(
+        override val messageId: String,
+        val totalTime: Int
     ) : AudioMediaPlayerStateUpdate(messageId)
 }

@@ -4,7 +4,7 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.runtime.Stable
 import com.wire.android.R
-import com.wire.android.mapper.message.content.asset.AudioMessageDuration
+import com.wire.android.media.AudioState
 import com.wire.android.model.ImageAsset
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.home.conversations.model.MessageStatus.DecryptionFailure
@@ -12,7 +12,6 @@ import com.wire.android.ui.home.conversations.model.MessageStatus.Deleted
 import com.wire.android.ui.home.conversations.model.MessageStatus.ReceiveFailure
 import com.wire.android.ui.home.conversations.model.MessageStatus.SendFailure
 import com.wire.android.ui.home.conversationslist.model.Membership
-import com.wire.android.util.timestampToServerDate
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.uiMessageDateTime
 import com.wire.kalium.logic.data.conversation.ClientId
@@ -112,7 +111,7 @@ sealed class UIMessageContent {
         val assetName: String,
         val assetExtension: String,
         val assetId: AssetId,
-        val audioMessageDuration: AudioMessageDuration,
+        val audioState: AudioState,
         val uploadStatus: Message.UploadStatus,
         val downloadStatus: Message.DownloadStatus
     ) : UIMessageContent()

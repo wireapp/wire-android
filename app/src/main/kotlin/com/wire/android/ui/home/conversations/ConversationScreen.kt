@@ -2,6 +2,7 @@ package com.wire.android.ui.home.conversations
 
 import android.app.DownloadManager
 import android.content.Intent
+import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -613,17 +614,13 @@ fun MessageList(
                             }
 
                             is UIMessageContent.AudioAssetMessage -> {
-                                val audioMessageState = audioMessagesState[message.messageHeader.messageId]
-
                                 AudioMessage(
-                                    audioMessageDuration = messageContent.audioMessageDuration.copy(
-                                        currentPositionMs = audioMessageState?.currentPositionInMs?.toLong() ?: 0
-                                    ),
-                                    audioMediaPlayingState = audioMessageState?.audioMediaPlayingState ?: AudioMediaPlayingState.Paused,
+                                    audioState = audioMessagesState[message.messageHeader.messageId] ?: messageContent.audioState,
                                     onPlayAudioMessage = { onAudioClick(message.messageHeader.messageId) },
-                                ) { position ->
-                                    onChangeAudioPosition(message.messageHeader.messageId, position.toInt())
-                                }
+                                    onChangePosition = { position ->
+                                        onChangeAudioPosition(message.messageHeader.messageId, position.toInt())
+                                    }
+                                )
                             }
 
                             is UIMessageContent.SystemMessage.MemberAdded -> {}

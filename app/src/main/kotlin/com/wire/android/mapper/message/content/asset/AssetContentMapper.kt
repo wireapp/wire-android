@@ -1,5 +1,6 @@
 package com.wire.android.mapper.message.content.asset
 
+import com.wire.android.media.AudioState
 import com.wire.android.model.ImageAsset
 import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.util.ui.WireSessionImageLoader
@@ -66,7 +67,7 @@ class AssetContentMapper @Inject constructor(
                 assetName = name ?: "",
                 assetExtension = mimeType,
                 assetId = AssetId(remoteData.assetId, remoteData.assetDomain.orEmpty()),
-                audioMessageDuration = AudioMessageDuration(metadata.durationMs ?: 0),
+                audioState = AudioState.DEFAULT.copy(totalTimeInMs = metadata.durationMs?.toInt() ?: 0),
                 uploadStatus = uploadStatus,
                 downloadStatus = downloadStatus
             )
@@ -172,18 +173,4 @@ class AssetMessageContentMetadata(val assetMessageContent: AssetContent) {
 
     fun isDisplayableImage(): Boolean = isDisplayableImageMimeType(assetMessageContent.mimeType) &&
             imgWidth.isGreaterThan(0) && imgHeight.isGreaterThan(0)
-}
-
-
-data class AudioMessageDuration(val durationMs: Long = 0, val currentPositionMs: Long = 0) {
-
-    private val timeInSeconds = durationMs / 1000
-    val formattedTimeLeft
-        get() = run {
-            val minutes = timeInSeconds / 60
-            val seconds = timeInSeconds % 60
-            val formattedSeconds = String.format("%02d", seconds)
-
-            "$minutes:$formattedSeconds"
-        }
 }

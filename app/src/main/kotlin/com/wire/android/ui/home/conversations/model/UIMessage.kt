@@ -4,6 +4,7 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.runtime.Stable
 import com.wire.android.R
+import com.wire.android.mapper.message.content.asset.AudioMessageDuration
 import com.wire.android.model.ImageAsset
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.home.conversations.model.MessageStatus.DecryptionFailure

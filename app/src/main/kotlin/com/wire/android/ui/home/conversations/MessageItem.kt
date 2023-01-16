@@ -26,6 +26,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import com.google.accompanist.flowlayout.FlowRow
 import com.wire.android.R
+import com.wire.android.mapper.message.content.asset.AudioMessageDuration
 import com.wire.android.media.AudioMediaPlayingState
 import com.wire.android.model.Clickable
 import com.wire.android.model.UserAvatarData
@@ -38,7 +39,6 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.home.conversations.messages.QuotedMessage
 import com.wire.android.ui.home.conversations.messages.ReactionPill
-import com.wire.android.ui.home.conversations.model.AudioMessageDuration
 import com.wire.android.ui.home.conversations.model.MessageBody
 import com.wire.android.ui.home.conversations.model.MessageFooter
 import com.wire.android.ui.home.conversations.model.MessageGenericAsset

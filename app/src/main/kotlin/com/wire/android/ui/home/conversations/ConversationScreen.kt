@@ -56,7 +56,6 @@ import com.wire.android.ui.home.conversations.info.ConversationInfoViewState
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewModel
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewState
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
-import com.wire.android.ui.home.conversations.model.AudioMessageDuration
 import com.wire.android.ui.home.conversations.model.MessageGenericAsset
 import com.wire.android.ui.home.conversations.model.MessageImage
 import com.wire.android.ui.home.conversations.model.MessageSource

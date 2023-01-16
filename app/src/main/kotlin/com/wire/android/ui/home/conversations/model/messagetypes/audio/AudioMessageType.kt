@@ -25,7 +25,6 @@ import com.wire.android.media.AudioMediaPlayingState
 import com.wire.android.ui.common.button.WireSecondaryIconButton
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.home.conversations.model.AudioMessageDuration
 import com.wire.android.ui.theme.wireColorScheme
 
 @Composable

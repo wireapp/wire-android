@@ -1,7 +1,6 @@
 package com.wire.android.mapper.message.content.asset
 
 import com.wire.android.model.ImageAsset
-import com.wire.android.ui.home.conversations.model.AudioMessageDuration
 import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.asset.isDisplayableImageMimeType

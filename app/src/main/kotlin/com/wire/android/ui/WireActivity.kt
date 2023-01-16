@@ -27,6 +27,7 @@ import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.navigation.NavigationGraph
+import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.navigation.navigateToItem
 import com.wire.android.navigation.popWithArguments
@@ -107,7 +108,12 @@ class WireActivity : AppCompatActivity() {
                 WireTheme {
                     val scope = rememberCoroutineScope()
                     val navController = rememberAnimatedNavController()
-                    val startDestination = viewModel.startNavigationRoute()
+                    val startDestination: String = if (!handleFileSharingRestrictedDialog()) {
+                        viewModel.startNavigationRoute()
+                    } else {
+                        viewModel.startNavigationRoute(NavigationItem.ImportMedia)
+                    }
+
                     Scaffold {
                         NavigationGraph(navController = navController, startDestination, viewModel.navigationArguments())
                     }
@@ -124,15 +130,13 @@ class WireActivity : AppCompatActivity() {
                         viewModel.globalAppState.updateAppDialog
                     )
                     AccountLoggedOutDialog(viewModel.globalAppState.blockUserUI, viewModel::navigateToNextAccountOrWelcome)
-
-                    handleFileSharingRestrictedDialog()
                 }
             }
         }
     }
 
     @Composable
-    private fun handleFileSharingRestrictedDialog() {
+    private fun handleFileSharingRestrictedDialog(): Boolean {
         val fileSharingRestrictedDialogState = rememberVisibilityState<FileSharingRestrictedDialogState>()
         FileSharingRestrictedDialogContent(
             dialogState = fileSharingRestrictedDialogState
@@ -143,8 +147,10 @@ class WireActivity : AppCompatActivity() {
             )
         }
         if (featureFlagNotificationViewModel.featureFlagState.openImportMediaScreen) {
-            viewModel.navigateToImportMediaScreen()
+            return true
         }
+
+        return false
     }
 
     @Composable

@@ -19,7 +19,6 @@ import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import com.wire.kalium.logic.feature.session.GetSessionsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -87,7 +86,6 @@ class FeatureFlagNotificationViewModel @Inject constructor(
             val incomingIntent = ShareCompat.IntentReader(activity)
             if (incomingIntent.isShareIntent) {
                 if (checkNumberOfSessions() > 0) {
-                    delay(DELAY_MILLIS)
                     featureFlagState = if (!featureFlagState.isFileSharingEnabledState) {
                         featureFlagState.copy(showFileSharingRestrictedDialog = true)
                     } else {
@@ -96,9 +94,5 @@ class FeatureFlagNotificationViewModel @Inject constructor(
                 }
             }
         }
-    }
-
-    companion object {
-        private const val DELAY_MILLIS = 100L
     }
 }

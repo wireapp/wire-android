@@ -81,10 +81,6 @@ class ConversationMessageAudioPlayer
             audioMessageStateHistory
         }
 
-    private fun updateAudioMessageStateHistory() {
-
-    }
-
     private var currentAudioMessageId: String? = null
 
     private val mediaPlayer = MediaPlayer().apply {

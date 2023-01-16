@@ -141,7 +141,7 @@ private fun ProxyPasswordInput(modifier: Modifier, proxyPassword: TextFieldValue
 
 @Preview
 @Composable
-private fun ProxyScreenPreview() {
+fun PreviewProxyScreen() {
     WireTheme(isPreview = true) {
         ProxyContent(
             proxyState = LoginState(),

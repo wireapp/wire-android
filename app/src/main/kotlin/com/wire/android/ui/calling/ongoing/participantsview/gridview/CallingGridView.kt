@@ -126,7 +126,7 @@ private const val MIN_SCREEN_HEIGHT = 800
 
 @Preview
 @Composable
-fun GroupCallGridPreview() {
+fun PreviewGroupCallGrid() {
     GroupCallGrid(
         participants = listOf(
             UICallParticipant(

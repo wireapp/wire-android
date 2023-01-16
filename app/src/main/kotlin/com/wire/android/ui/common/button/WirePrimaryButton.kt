@@ -77,13 +77,13 @@ fun WirePrimaryButton(
 
 @Preview(name = "Default WirePrimaryButton")
 @Composable
-private fun WirePrimaryButtonPreview() {
+fun PreviewWirePrimaryButton() {
     WirePrimaryButton(onClick = { }, text = "text")
 }
 
 @Preview(name = "Default WirePrimaryButton with icons")
 @Composable
-private fun WirePrimaryButtonWithIconsPreview() {
+fun PreviewWirePrimaryButtonWithIcons() {
     WirePrimaryButton(
         onClick = { },
         text = "text",
@@ -94,7 +94,7 @@ private fun WirePrimaryButtonWithIconsPreview() {
 
 @Preview(name = "Default narrow WirePrimaryButton with icon")
 @Composable
-private fun WirePrimaryButtonNarrowWithIconsPreview() {
+fun PreviewWirePrimaryButtonNarrowWithIcons() {
     WirePrimaryButton(
         onClick = { },
         text = "text",
@@ -106,7 +106,7 @@ private fun WirePrimaryButtonNarrowWithIconsPreview() {
 
 @Preview(name = "Default small WirePrimaryButton only icon")
 @Composable
-private fun WirePrimaryButtonSmallOnlyIconsPreview() {
+fun PreviewWirePrimaryButtonSmallOnlyIcons() {
     WirePrimaryButton(
         onClick = { },
         leadingIcon = Icons.Filled.Search.Icon(),
@@ -121,37 +121,37 @@ private fun WirePrimaryButtonSmallOnlyIconsPreview() {
 
 @Preview(name = "Default Loading WirePrimaryButton")
 @Composable
-private fun WirePrimaryButtonLoadingPreview() {
+fun PreviewWirePrimaryButtonLoading() {
     WirePrimaryButton(onClick = { }, loading = true, text = "text")
 }
 
 @Preview(name = "Disabled WirePrimaryButton")
 @Composable
-private fun WirePrimaryButtonDisabledPreview() {
+fun PreviewWirePrimaryButtonDisabled() {
     WirePrimaryButton(onClick = { }, state = WireButtonState.Disabled, text = "text")
 }
 
 @Preview(name = "Selected WirePrimaryButton")
 @Composable
-private fun WirePrimaryButtonSelectedPreview() {
+fun PreviewWirePrimaryButtonSelected() {
     WirePrimaryButton(onClick = { }, state = WireButtonState.Selected, text = "text")
 }
 
 @Preview(name = "Error WirePrimaryButton")
 @Composable
-private fun WirePrimaryButtonErrorPreview() {
+fun PreviewWirePrimaryButtonError() {
     WirePrimaryButton(onClick = { }, state = WireButtonState.Error, text = "text")
 }
 
 @Preview(name = "Positive WirePrimaryButton")
 @Composable
-private fun WirePrimaryButtonPositivePreview() {
+fun PreviewWirePrimaryButtonPositive() {
     WirePrimaryButton(onClick = { }, state = WireButtonState.Positive, text = "text")
 }
 
 @Preview(name = "Three WirePrimaryButton with different states")
 @Composable
-private fun WirePrimaryButtonSelected3Preview() {
+fun PreviewWirePrimaryButtonSelected3() {
     Row {
         WirePrimaryButton(
             onClick = { },

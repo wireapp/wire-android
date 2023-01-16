@@ -63,6 +63,7 @@ class MessageContentMapper @Inject constructor(
         is MessageContent.TeamMemberRemoved -> mapTeamMemberRemovedMessage(content)
         is MessageContent.CryptoSessionReset -> mapResetSession(message.senderUserId, members)
         is MessageContent.NewConversationReceiptMode -> mapNewConversationReceiptMode(content)
+        is MessageContent.ConversationReceiptModeChanged -> mapConversationReceiptModeChanged(message.senderUserId, content, members)
     }
 
     private fun mapResetSession(
@@ -94,6 +95,25 @@ class MessageContentMapper @Inject constructor(
         content: MessageContent.NewConversationReceiptMode
     ): UIMessageContent.SystemMessage {
         return UIMessageContent.SystemMessage.NewConversationReceiptMode(
+            receiptMode = when (content.receiptMode) {
+                true -> UIText.StringResource(R.string.label_system_message_receipt_mode_on)
+                else -> UIText.StringResource(R.string.label_system_message_receipt_mode_off)
+            }
+        )
+    }
+
+    private fun mapConversationReceiptModeChanged(
+        senderUserId: UserId,
+        content: MessageContent.ConversationReceiptModeChanged,
+        userList: List<User>
+    ): UIMessageContent.SystemMessage {
+        val sender = userList.findUser(userId = senderUserId)
+        val authorName = toSystemMessageMemberName(
+            user = sender,
+            type = SelfNameType.ResourceTitleCase
+        )
+        return UIMessageContent.SystemMessage.ConversationReceiptModeChanged(
+            author = authorName,
             receiptMode = when (content.receiptMode) {
                 true -> UIText.StringResource(R.string.label_system_message_receipt_mode_on)
                 else -> UIText.StringResource(R.string.label_system_message_receipt_mode_off)
@@ -157,7 +177,13 @@ class MessageContentMapper @Inject constructor(
             val assetMessageContentMetadata = AssetMessageContentMetadata(content.value)
             toUIMessageContent(assetMessageContentMetadata, message, sender)
         }
-
+        is MessageContent.Knock -> UIMessageContent.SystemMessage.Knock( // TODO should we move Knock to System message also in DAO layer?
+            if (message.isSelfMessage) {
+                UIText.StringResource(messageResourceProvider.memberNameYouTitlecase)
+            } else {
+                sender?.name.orUnknownName()
+            }
+        )
         is MessageContent.RestrictedAsset -> toRestrictedAsset(content.mimeType, content.sizeInBytes, content.name)
         else -> toText(message.conversationId, content)
     }
@@ -168,7 +194,6 @@ class MessageContentMapper @Inject constructor(
             is MessageContent.Unknown -> UIText.StringResource(
                 messageResourceProvider.sentAMessageWithContent, content.typeName ?: "Unknown"
             )
-
             is MessageContent.FailedDecryption -> UIText.StringResource(R.string.label_message_decryption_failure_message)
             else -> UIText.StringResource(messageResourceProvider.sentAMessageWithContent, "Unknown")
         },

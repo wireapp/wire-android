@@ -236,6 +236,6 @@ private fun CallingControls(
 
 @Composable
 @Preview
-fun ComposablePreview() {
+fun PreviewOngoingCallTopBar() {
     OngoingCallTopBar("Default") { }
 }

@@ -75,7 +75,7 @@ fun SettingUpWireScreenContent(
 
 @Preview
 @Composable
-private fun MigrationScreenPreview() {
+fun PreviewMigrationScreen() {
     SettingUpWireScreenContent()
 }
 

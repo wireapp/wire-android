@@ -154,6 +154,6 @@ private fun UsernameTextField(
 
 @Composable
 @Preview
-private fun CreateAccountUsernameScreenPreview() {
+private fun PreviewCreateAccountUsernameScreen() {
     UsernameContent(CreateAccountUsernameViewState(), {}, {}, {}, {})
 }

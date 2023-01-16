@@ -25,6 +25,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -35,6 +36,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.home.conversations.model.UIMessageContent.SystemMessage
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
@@ -74,6 +76,7 @@ fun SystemMessageItem(message: SystemMessage) {
                     Image(
                         painter = painterResource(id = message.iconResId),
                         contentDescription = null,
+                        colorFilter = if (message is SystemMessage.Knock) ColorFilter.tint(MaterialTheme.colorScheme.primary) else null,
                         modifier = Modifier.size(size),
                         contentScale = ContentScale.Crop
                     )
@@ -90,14 +93,17 @@ fun SystemMessageItem(message: SystemMessage) {
                     style = MaterialTheme.wireTypography.body01,
                     lineHeight = MaterialTheme.wireTypography.body02.lineHeight,
                     text = message.annotatedString(
-                        context.resources,
-                        it,
-                        MaterialTheme.wireTypography.body01,
-                        MaterialTheme.wireTypography.body02,
-                        MaterialTheme.wireColorScheme.secondaryText,
-                        MaterialTheme.wireColorScheme.onBackground,
+                        res = context.resources,
+                        expanded = it,
+                        normalStyle = MaterialTheme.wireTypography.body01,
+                        boldStyle = MaterialTheme.wireTypography.body02,
+                        normalColor = MaterialTheme.wireColorScheme.secondaryText,
+                        boldColor = MaterialTheme.wireColorScheme.onBackground,
                     )
                 )
+            }
+            if (message is SystemMessage.Knock) {
+                VerticalSpace.x8()
             }
             if (message.expandable) {
                 WireSecondaryButton(
@@ -119,7 +125,7 @@ fun SystemMessageItem(message: SystemMessage) {
 
 @Preview
 @Composable
-fun SystemMessageAdded7UsersPreview() {
+fun PreviewSystemMessageAdded7Users() {
     SystemMessageItem(
         message = SystemMessage.MemberAdded(
             "Barbara Cotolina".toUIText(),
@@ -133,7 +139,7 @@ fun SystemMessageAdded7UsersPreview() {
 
 @Preview
 @Composable
-fun SystemMessageAdded4UsersPreview() {
+fun PreviewSystemMessageAdded4Users() {
     SystemMessageItem(
         message = SystemMessage.MemberAdded(
             "Barbara Cotolina".toUIText(),
@@ -144,7 +150,7 @@ fun SystemMessageAdded4UsersPreview() {
 
 @Preview
 @Composable
-fun SystemMessageRemoved4UsersPreview() {
+fun PreviewSystemMessageRemoved4Users() {
     SystemMessageItem(
         message = SystemMessage.MemberRemoved(
             "Barbara Cotolina".toUIText(),
@@ -155,14 +161,20 @@ fun SystemMessageRemoved4UsersPreview() {
 
 @Preview
 @Composable
-fun SystemMessageLeftPreview() {
+fun PreviewSystemMessageLeft() {
     SystemMessageItem(message = SystemMessage.MemberLeft(UIText.DynamicString("Barbara Cotolina")))
 }
 
 @Preview
 @Composable
-fun SystemMessageMissedCallPreview() {
+fun PreviewSystemMessageMissedCall() {
     SystemMessageItem(message = SystemMessage.MissedCall.OtherCalled(UIText.DynamicString("Barbara Cotolina")))
+}
+
+@Preview
+@Composable
+fun PreviewSystemMessageKnock() {
+    SystemMessageItem(message = SystemMessage.Knock(UIText.DynamicString("Barbara Cotolina")))
 }
 
 private val SystemMessage.expandable
@@ -175,6 +187,8 @@ private val SystemMessage.expandable
         is SystemMessage.TeamMemberRemoved -> false
         is SystemMessage.CryptoSessionReset -> false
         is SystemMessage.NewConversationReceiptMode -> false
+        is SystemMessage.ConversationReceiptModeChanged -> false
+        is SystemMessage.Knock -> false
     }
 
 private fun List<String>.toUserNamesListString(res: Resources) = when {
@@ -218,6 +232,8 @@ fun SystemMessage.annotatedString(
         is SystemMessage.TeamMemberRemoved -> arrayOf(content.userName)
         is SystemMessage.CryptoSessionReset -> arrayOf(author.asString(res))
         is SystemMessage.NewConversationReceiptMode -> arrayOf(receiptMode.asString(res))
+        is SystemMessage.ConversationReceiptModeChanged -> arrayOf(receiptMode.asString(res))
+        is SystemMessage.Knock -> arrayOf(author.asString(res))
     }
     return res.stringWithStyledArgs(stringResId, normalStyle, boldStyle, normalColor, boldColor, *args)
 }

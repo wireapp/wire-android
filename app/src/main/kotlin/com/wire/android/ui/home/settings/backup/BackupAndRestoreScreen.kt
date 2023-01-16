@@ -143,7 +143,7 @@ fun BackupAndRestoreContent(
 
 @Preview
 @Composable
-fun BackupAndRestoreScreenPreview() {
+fun PreviewBackupAndRestoreScreen() {
     BackupAndRestoreContent(
         backUpAndRestoreState = BackupAndRestoreState.INITIAL_STATE,
         onValidateBackupPassword = {},

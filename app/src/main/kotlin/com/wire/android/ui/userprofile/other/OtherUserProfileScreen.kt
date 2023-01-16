@@ -430,7 +430,7 @@ enum class OtherUserProfileTabItem(@StringRes override val titleResId: Int) : Ta
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 @Preview(name = "Connected")
-fun OtherProfileScreenContentPreview() {
+fun PreviewOtherProfileScreenContent() {
     WireTheme(isPreview = true) {
         OtherProfileScreenContent(
             rememberCoroutineScope(),
@@ -445,7 +445,7 @@ fun OtherProfileScreenContentPreview() {
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 @Preview(name = "Not Connected")
-fun OtherProfileScreenContentNotConnectedPreview() {
+fun PreviewOtherProfileScreenContentNotConnected() {
     WireTheme(isPreview = true) {
         OtherProfileScreenContent(
             rememberCoroutineScope(),

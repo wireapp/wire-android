@@ -187,7 +187,7 @@ private fun clearStatusBarColor() {
 
 @Preview("is NOT muted")
 @Composable
-fun CommonTopAppBarCallIsNotMuted() {
+fun PreviewCommonTopAppBarCallIsNotMuted() {
     ConnectivityStatusBar(
         connectivityInfo = ConnectivityUIState.Info.EstablishedCall(
             ConversationId("what", "ever"), false
@@ -198,7 +198,7 @@ fun CommonTopAppBarCallIsNotMuted() {
 
 @Preview("is muted")
 @Composable
-fun CommonTopAppBarCallIsMuted() {
+fun PreviewCommonTopAppBarCallIsMuted() {
     ConnectivityStatusBar(
         connectivityInfo = ConnectivityUIState.Info.EstablishedCall(
             ConversationId("what", "ever"), true
@@ -209,7 +209,7 @@ fun CommonTopAppBarCallIsMuted() {
 
 @Preview("is connecting")
 @Composable
-fun CommonTopAppConnectionStatusIsConnecting() {
+fun PreviewCommonTopAppConnectionStatusIsConnecting() {
     ConnectivityStatusBar(
         connectivityInfo = ConnectivityUIState.Info.Connecting,
         onReturnToCallClick = { }
@@ -218,7 +218,7 @@ fun CommonTopAppConnectionStatusIsConnecting() {
 
 @Preview("is waiting connection")
 @Composable
-fun CommonTopAppConnectionStatusIsWaitingConnection() {
+fun PreviewCommonTopAppConnectionStatusIsWaitingConnection() {
     ConnectivityStatusBar(
         connectivityInfo = ConnectivityUIState.Info.WaitingConnection,
         onReturnToCallClick = { }
@@ -227,7 +227,7 @@ fun CommonTopAppConnectionStatusIsWaitingConnection() {
 
 @Preview("is None")
 @Composable
-fun CommonTopAppConnectionStatusIsNone() {
+fun PreviewCommonTopAppConnectionStatusIsNone() {
     ConnectivityStatusBar(
         connectivityInfo = ConnectivityUIState.Info.None,
         onReturnToCallClick = { }

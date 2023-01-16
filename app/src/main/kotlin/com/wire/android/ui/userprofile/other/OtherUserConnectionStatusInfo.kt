@@ -59,6 +59,6 @@ fun OtherUserConnectionStatusInfo(connectionStatus: ConnectionState, membership:
 
 @Composable
 @Preview
-fun OtherUserConnectionStatusInfoPreview() {
+fun PreviewOtherUserConnectionStatusInfo() {
     OtherUserConnectionStatusInfo(ConnectionState.NOT_CONNECTED, Membership.Guest)
 }

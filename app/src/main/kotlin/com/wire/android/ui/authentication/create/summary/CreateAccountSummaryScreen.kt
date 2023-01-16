@@ -83,6 +83,6 @@ private fun SummaryContent(
 
 @Preview
 @Composable
-private fun CreateAccountSummaryScreenPreview() {
+fun PreviewCreateAccountSummaryScreen() {
     SummaryContent(CreateAccountSummaryViewState(CreateAccountFlowType.CreatePersonalAccount), {})
 }

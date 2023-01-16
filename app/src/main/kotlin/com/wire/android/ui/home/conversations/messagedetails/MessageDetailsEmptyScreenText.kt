@@ -72,7 +72,7 @@ fun MessageDetailsEmptyScreenText(
 
 @Preview
 @Composable
-private fun MessageDetailsEmptyScreenTextPreview() {
+fun PreviewMessageDetailsEmptyScreenText() {
     MessageDetailsEmptyScreenText(
         onClick = { },
         modifier = Modifier

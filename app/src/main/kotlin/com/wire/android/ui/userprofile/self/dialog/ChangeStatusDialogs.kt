@@ -59,9 +59,8 @@ private fun ChangeStatusDialog(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Preview(showBackground = false)
 @Composable
-private fun ChangeStatusDialogPreview() {
+private fun PreviewChangeStatusDialog() {
     ChangeStatusDialogContent(StatusDialogData.StateAvailable())
 }

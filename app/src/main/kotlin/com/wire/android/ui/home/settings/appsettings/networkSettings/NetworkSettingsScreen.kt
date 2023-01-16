@@ -68,7 +68,7 @@ fun NetworkSettingsScreenContent(
 
 @Composable
 @Preview
-private fun NetworkSettingsScreenPreview() {
+fun PreviewNetworkSettingsScreen() {
     NetworkSettingsScreenContent(
         {}, true, {}, ""
     )

@@ -68,7 +68,7 @@ private fun GroupConversationAllParticipantsContent(
 
 @Preview
 @Composable
-private fun GroupConversationAllParticipantsPreview() {
+fun PreviewGroupConversationAllParticipants() {
     WireTheme(isPreview = true) {
         GroupConversationAllParticipantsContent({}, {}, GroupConversationParticipantsState.PREVIEW)
     }

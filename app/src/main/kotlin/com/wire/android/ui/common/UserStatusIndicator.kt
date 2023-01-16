@@ -19,7 +19,7 @@ fun UserStatusIndicator(status: UserAvailabilityStatus, modifier: Modifier = Mod
         UserAvailabilityStatus.AVAILABLE -> AvailableDot(modifier)
         UserAvailabilityStatus.BUSY -> BusyDot(modifier)
         UserAvailabilityStatus.AWAY -> AwayDot(modifier)
-        UserAvailabilityStatus.NONE -> None()
+        UserAvailabilityStatus.NONE -> {}
     }
 }
 
@@ -65,31 +65,26 @@ private fun AwayDot(modifier: Modifier) {
     )
 }
 
-@Composable
-private fun None() {
-    //Display nothing
-}
-
 @Preview(name = "AvailablePreview")
 @Composable
-private fun AvailablePreview() {
+fun PreviewAvailable() {
     UserStatusIndicator(UserAvailabilityStatus.AVAILABLE)
 }
 
 @Preview(name = "BusyPreview")
 @Composable
-private fun BusyPreview() {
+fun PreviewBusy() {
     UserStatusIndicator(UserAvailabilityStatus.BUSY)
 }
 
 @Preview(name = "AwayPreview")
 @Composable
-private fun AwayPreview() {
+fun PreviewAway() {
     UserStatusIndicator(UserAvailabilityStatus.AWAY)
 }
 
 @Preview(name = "NonePreview")
 @Composable
-private fun NonePreview() {
+fun PreviewNone() {
     UserStatusIndicator(UserAvailabilityStatus.NONE)
 }

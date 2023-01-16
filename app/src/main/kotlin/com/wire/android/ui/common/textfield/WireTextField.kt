@@ -220,7 +220,7 @@ private fun InnerText(
 
 @Preview(name = "Default WireTextField")
 @Composable
-private fun WireTextFieldPreview() {
+fun PreviewWireTextField() {
     WireTextField(
         value = TextFieldValue("text"),
         onValueChange = {},
@@ -230,7 +230,7 @@ private fun WireTextFieldPreview() {
 
 @Preview(name = "Default WireTextField with labels")
 @Composable
-private fun WireTextFieldLabelsPreview() {
+fun PreviewWireTextFieldLabels() {
     WireTextField(
         value = TextFieldValue("text"),
         labelText = "label",
@@ -243,7 +243,7 @@ private fun WireTextFieldLabelsPreview() {
 
 @Preview(name = "Dense Search WireTextField")
 @Composable
-private fun WireTextFieldDenseSearchPreview() {
+fun PreviewWireTextFieldDenseSearch() {
     WireTextField(
         value = TextFieldValue(""),
         placeholderText = "Search",
@@ -257,7 +257,7 @@ private fun WireTextFieldDenseSearchPreview() {
 
 @Preview(name = "Disabled WireTextField")
 @Composable
-private fun WireTextFieldDisabledPreview() {
+fun PreviewWireTextFieldDisabled() {
     WireTextField(
         value = TextFieldValue("text"),
         onValueChange = {},
@@ -268,7 +268,7 @@ private fun WireTextFieldDisabledPreview() {
 
 @Preview(name = "Error WireTextField")
 @Composable
-private fun WireTextFieldErrorPreview() {
+fun PreviewWireTextFieldError() {
     WireTextField(
         value = TextFieldValue("text"),
         onValueChange = {},
@@ -279,7 +279,7 @@ private fun WireTextFieldErrorPreview() {
 
 @Preview(name = "Success WireTextField")
 @Composable
-private fun WireTextFieldSuccessPreview() {
+fun PreviewWireTextFieldSuccess() {
     WireTextField(
         value = TextFieldValue("text"),
         onValueChange = {},

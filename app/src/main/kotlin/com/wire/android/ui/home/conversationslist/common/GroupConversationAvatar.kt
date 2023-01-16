@@ -26,6 +26,6 @@ fun GroupConversationAvatar(color: Color) {
 
 @Preview
 @Composable
-fun GroupConversationAvatarPreview() {
+fun PreviewGroupConversationAvatar() {
     GroupConversationAvatar(color = Color.Blue)
 }

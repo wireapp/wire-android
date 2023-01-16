@@ -45,7 +45,7 @@ fun WireItemLabel(
 
 @Preview(name = "Wire item label", showBackground = true)
 @Composable
-private fun WireItemLabelPreview() {
+fun PreviewWireItemLabel() {
     Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
         WireItemLabel(text = "pending")
     }

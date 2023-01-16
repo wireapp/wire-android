@@ -55,7 +55,7 @@ class ConversationMessageAudioPlayer
             Log.d("TEST", "audioMessageStateUpdate $audioMessageStateUpdate")
             val currentState = audioMessageStateHistory.getOrDefault(
                 audioMessageStateUpdate.messageId,
-                AudioState(AudioMediaPlayingState.Paused, 0, 0)
+                AudioState(AudioMediaPlayingState.Paused, 0)
             )
 
             when (audioMessageStateUpdate) {
@@ -75,16 +75,6 @@ class ConversationMessageAudioPlayer
                             currentState.copy(currentPositionInMs = audioMessageStateUpdate.position)
                         )
                     }
-                }
-
-                is AudioMediaPlayerStateUpdate.TotalTimeUpdate -> {
-                    audioMessageStateHistory = audioMessageStateHistory.toMutableMap().apply {
-                        put(
-                            audioMessageStateUpdate.messageId,
-                            currentState.copy(totalTimeInMs = audioMessageStateUpdate.totalTime)
-                        )
-                    }
-                    delay(1000)
                 }
             }
 
@@ -172,13 +162,6 @@ class ConversationMessageAudioPlayer
                     mediaPlayer.seekTo(position)
                 }
 
-                audioMessageStateUpdate.emit(
-                    AudioMediaPlayerStateUpdate.TotalTimeUpdate(
-                        messageId,
-                        mediaPlayer.duration
-                    )
-                )
-
                 mediaPlayer.start()
 
                 audioMessageStateUpdate.emit(
@@ -241,26 +224,12 @@ class ConversationMessageAudioPlayer
 
 data class AudioState(
     val audioMediaPlayingState: AudioMediaPlayingState,
-    val totalTimeInMs: Int,
     val currentPositionInMs: Int
 ) {
     companion object {
-        val DEFAULT = AudioState(AudioMediaPlayingState.Paused, 0, 0)
+        val DEFAULT = AudioState(AudioMediaPlayingState.Paused, 0)
     }
 
-    private val totalTimeInSec = totalTimeInMs / 1000
-
-    private val currentPositionInSec = currentPositionInMs / 1000
-    val formattedTimeLeft
-        get() = run {
-            val timeLeft = (totalTimeInSec - currentPositionInSec)
-
-            val minutes = timeLeft / 60
-            val seconds = timeLeft % 60
-            val formattedSeconds = String.format("%02d", seconds)
-
-            "$minutes:$formattedSeconds"
-        }
 }
 
 sealed class AudioMediaPlayingState {
@@ -283,10 +252,5 @@ private sealed class AudioMediaPlayerStateUpdate(
     data class PositionChangeUpdate(
         override val messageId: String,
         val position: Int
-    ) : AudioMediaPlayerStateUpdate(messageId)
-
-    data class TotalTimeUpdate(
-        override val messageId: String,
-        val totalTime: Int
     ) : AudioMediaPlayerStateUpdate(messageId)
 }

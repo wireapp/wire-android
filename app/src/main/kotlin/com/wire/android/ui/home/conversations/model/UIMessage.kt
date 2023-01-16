@@ -4,7 +4,6 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.runtime.Stable
 import com.wire.android.R
-import com.wire.android.media.AudioState
 import com.wire.android.model.ImageAsset
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.home.conversations.model.MessageStatus.DecryptionFailure
@@ -111,7 +110,7 @@ sealed class UIMessageContent {
         val assetName: String,
         val assetExtension: String,
         val assetId: AssetId,
-        val audioState: AudioState,
+        val audioMessageDurationInMs: Long,
         val uploadStatus: Message.UploadStatus,
         val downloadStatus: Message.DownloadStatus
     ) : UIMessageContent()

@@ -2,7 +2,6 @@ package com.wire.android.ui.home.conversations
 
 import android.app.DownloadManager
 import android.content.Intent
-import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -31,7 +30,6 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.items
 import com.wire.android.R
-import com.wire.android.media.AudioMediaPlayingState
 import com.wire.android.media.AudioState
 import com.wire.android.model.Clickable
 import com.wire.android.model.SnackBarMessage
@@ -614,8 +612,18 @@ fun MessageList(
                             }
 
                             is UIMessageContent.AudioAssetMessage -> {
+                                // in case the user did not play the audio message yet, we don't have the audio state
+                                // that is coming from ConversationMessageAudioPlayer, in that case we refer to
+                                // get the default values for the audio message, which is PAUSED state and 0 as current position
+                                // we always treat totalTimeInMs from backend as the source of truth
+                                // in order to be sure that all clients are in sync regarding the audio message duration
+                                val audioMessageState: AudioState =
+                                    audioMessagesState[message.messageHeader.messageId] ?: AudioState.DEFAULT
+
                                 AudioMessage(
-                                    audioState = audioMessagesState[message.messageHeader.messageId] ?: messageContent.audioState,
+                                    audioMediaPlayingState = audioMessageState.audioMediaPlayingState,
+                                    totalTimeInMs = messageContent.audioMessageDurationInMs.toInt(),
+                                    currentPositionInMs = audioMessageState.currentPositionInMs,
                                     onPlayAudioMessage = { onAudioClick(message.messageHeader.messageId) },
                                     onChangePosition = { position ->
                                         onChangeAudioPosition(message.messageHeader.messageId, position.toInt())

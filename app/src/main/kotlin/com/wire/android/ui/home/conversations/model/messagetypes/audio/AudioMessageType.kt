@@ -22,7 +22,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.media.AudioMediaPlayingState
-import com.wire.android.media.AudioState
 import com.wire.android.ui.common.button.WireSecondaryIconButton
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
@@ -30,62 +29,85 @@ import com.wire.android.ui.theme.wireColorScheme
 
 @Composable
 fun AudioMessage(
-    audioState: AudioState,
+    audioMediaPlayingState: AudioMediaPlayingState,
+    totalTimeInMs: Int,
+    currentPositionInMs: Int,
     onPlayAudioMessage: () -> Unit,
     onChangePosition: (Float) -> Unit
 ) {
-    with(audioState) {
-        val test by remember(currentPositionInMs) { mutableStateOf(formattedTimeLeft) }
+    val audioDuration by remember(currentPositionInMs) { mutableStateOf(AudioDuration(totalTimeInMs, currentPositionInMs)) }
 
-        Box(
+    Box(
+        modifier = Modifier
+            .padding(top = dimensions().spacing4x)
+            .background(
+                color = MaterialTheme.wireColorScheme.onPrimary,
+                shape = RoundedCornerShape(dimensions().messageAssetBorderRadius)
+            )
+            .border(
+                width = 1.dp,
+                color = MaterialTheme.wireColorScheme.secondaryButtonDisabledOutline,
+                shape = RoundedCornerShape(dimensions().messageAssetBorderRadius)
+            )
+            .padding(dimensions().spacing8x)
+    ) {
+        Row(
             modifier = Modifier
-                .padding(top = dimensions().spacing4x)
-                .background(
-                    color = MaterialTheme.wireColorScheme.onPrimary,
-                    shape = RoundedCornerShape(dimensions().messageAssetBorderRadius)
-                )
-                .border(
-                    width = 1.dp,
-                    color = MaterialTheme.wireColorScheme.secondaryButtonDisabledOutline,
-                    shape = RoundedCornerShape(dimensions().messageAssetBorderRadius)
-                )
-                .padding(dimensions().spacing8x)
+                .fillMaxWidth()
+                .height(dimensions().audioMessageHeight),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(dimensions().audioMessageHeight),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                WireSecondaryIconButton(
-                    minWidth = 32.dp,
-                    iconResource = getPlayOrPauseIcon(audioMediaPlayingState),
-                    shape = CircleShape,
-                    contentDescription = R.string.content_description_image_message,
-                    onButtonClicked = onPlayAudioMessage
-                )
+            WireSecondaryIconButton(
+                minWidth = 32.dp,
+                iconResource = getPlayOrPauseIcon(audioMediaPlayingState),
+                shape = CircleShape,
+                contentDescription = R.string.content_description_image_message,
+                onButtonClicked = onPlayAudioMessage
+            )
 
-                Slider(
-                    value = currentPositionInMs.toFloat(),
-                    onValueChange = onChangePosition,
-                    valueRange = 0f..totalTimeInMs.toFloat(),
-                    colors = SliderDefaults.colors(
-                        inactiveTrackColor = colorsScheme().secondaryButtonDisabledOutline
-                    ),
-                    modifier = Modifier.weight(1f)
-                )
+            Slider(
+                value = audioDuration.currentPositionInMs.toFloat(),
+                onValueChange = onChangePosition,
+                valueRange = 0f..audioDuration.totalDurationInMs.toFloat(),
+                colors = SliderDefaults.colors(
+                    inactiveTrackColor = colorsScheme().secondaryButtonDisabledOutline
+                ),
+                modifier = Modifier.weight(1f)
+            )
 
-                Text(
-                    text = test,
-                    style = MaterialTheme.typography.labelSmall.copy(color = MaterialTheme.wireColorScheme.secondaryText),
-                    maxLines = 1
-                )
-            }
+            Text(
+                text = audioDuration.formattedTimeLeft,
+                style = MaterialTheme.typography.labelSmall.copy(color = MaterialTheme.wireColorScheme.secondaryText),
+                maxLines = 1
+            )
         }
     }
 }
 
-//@Preview
+private fun getPlayOrPauseIcon(audioMediaPlayingState: AudioMediaPlayingState): Int {
+    return when (audioMediaPlayingState) {
+        AudioMediaPlayingState.Completed, AudioMediaPlayingState.Playing -> R.drawable.ic_pause
+        else -> R.drawable.ic_play
+    }
+}
+
+// helper wrapper class to format the time that is left
+private data class AudioDuration(val totalDurationInMs: Int, val currentPositionInMs: Int) {
+    private val totalTimeInSec = totalDurationInMs / 1000
+
+    private val currentPositionInSec = currentPositionInMs / 1000
+    val formattedTimeLeft
+        get() = run {
+            val timeLeft = (totalTimeInSec - currentPositionInSec)
+
+            val minutes = timeLeft / 60
+            val seconds = timeLeft % 60
+            val formattedSeconds = String.format("%02d", seconds)
+
+            "$minutes:$formattedSeconds"
+        }
+}
+
 //@Composable
 //private fun PreviewAudioMessage() {
 //    AudioMessage(
@@ -95,9 +117,3 @@ fun AudioMessage(
 //    ) {}
 //}
 
-private fun getPlayOrPauseIcon(audioMediaPlayingState: AudioMediaPlayingState): Int {
-    return when (audioMediaPlayingState) {
-        AudioMediaPlayingState.Completed, AudioMediaPlayingState.Playing -> R.drawable.ic_pause
-        else -> R.drawable.ic_play
-    }
-}

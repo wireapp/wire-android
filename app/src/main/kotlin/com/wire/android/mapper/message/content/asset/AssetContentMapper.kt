@@ -1,6 +1,5 @@
 package com.wire.android.mapper.message.content.asset
 
-import com.wire.android.media.AudioState
 import com.wire.android.model.ImageAsset
 import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.util.ui.WireSessionImageLoader
@@ -67,7 +66,7 @@ class AssetContentMapper @Inject constructor(
                 assetName = name ?: "",
                 assetExtension = mimeType,
                 assetId = AssetId(remoteData.assetId, remoteData.assetDomain.orEmpty()),
-                audioState = AudioState.DEFAULT.copy(totalTimeInMs = metadata.durationMs?.toInt() ?: 0),
+                audioMessageDurationInMs = metadata.durationMs ?: 0,
                 uploadStatus = uploadStatus,
                 downloadStatus = downloadStatus
             )

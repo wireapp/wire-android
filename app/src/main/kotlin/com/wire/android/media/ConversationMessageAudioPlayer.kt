@@ -24,7 +24,7 @@ class ConversationMessageAudioPlayer
     private val getMessageAsset: GetMessageAssetUseCase,
 ) {
     private companion object {
-        const val UPDATE_POSITION_INTERVAL_IN_MS = 1L
+        const val UPDATE_POSITION_INTERVAL_IN_MS = 1000L
     }
 
     private val audioMessageStateUpdate = MutableSharedFlow<AudioMediaPlayerStateUpdate>()
@@ -52,7 +52,6 @@ class ConversationMessageAudioPlayer
 
     val observableAudioMessagesState: Flow<Map<String, AudioState>> =
         merge(positionChangedUpdate, audioMessageStateUpdate).map { audioMessageStateUpdate ->
-            Log.d("TEST", "audioMessageStateUpdate $audioMessageStateUpdate")
             val currentState = audioMessageStateHistory.getOrDefault(
                 audioMessageStateUpdate.messageId,
                 AudioState(AudioMediaPlayingState.Paused, 0)

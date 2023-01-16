@@ -27,7 +27,6 @@ import androidx.compose.ui.unit.Dp
 import com.google.accompanist.flowlayout.FlowRow
 import com.wire.android.R
 import com.wire.android.media.AudioMediaPlayingState
-import com.wire.android.media.AudioState
 import com.wire.android.model.Clickable
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.LegalHoldIndicator

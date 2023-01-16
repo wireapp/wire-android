@@ -38,6 +38,7 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.home.conversations.messages.QuotedMessage
 import com.wire.android.ui.home.conversations.messages.ReactionPill
+import com.wire.android.ui.home.conversations.model.AudioMessageDuration
 import com.wire.android.ui.home.conversations.model.MessageBody
 import com.wire.android.ui.home.conversations.model.MessageFooter
 import com.wire.android.ui.home.conversations.model.MessageGenericAsset
@@ -392,7 +393,10 @@ private fun MessageContent(
         }
 
         is UIMessageContent.AudioAssetMessage -> {
-            AudioMessage(0, AudioMediaPlayingState.Paused, 0, { onAudioClick() }, { })
+            AudioMessage(
+                audioMessageDuration = AudioMessageDuration(durationMs = 0, currentPositionMs = 0),
+                audioMediaPlayingState = AudioMediaPlayingState.Paused,
+                onPlayAudioMessage = { onAudioClick() }) { }
         }
 
         is UIMessageContent.SystemMessage.MemberAdded -> {}

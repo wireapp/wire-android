@@ -11,6 +11,7 @@ import com.wire.android.ui.home.conversations.model.MessageStatus.Deleted
 import com.wire.android.ui.home.conversations.model.MessageStatus.ReceiveFailure
 import com.wire.android.ui.home.conversations.model.MessageStatus.SendFailure
 import com.wire.android.ui.home.conversationslist.model.Membership
+import com.wire.android.util.timestampToServerDate
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.uiMessageDateTime
 import com.wire.kalium.logic.data.conversation.ClientId
@@ -110,7 +111,7 @@ sealed class UIMessageContent {
         val assetName: String,
         val assetExtension: String,
         val assetId: AssetId,
-        val durationMs: Long,
+        val audioMessageDuration: AudioMessageDuration,
         val uploadStatus: Message.UploadStatus,
         val downloadStatus: Message.DownloadStatus
     ) : UIMessageContent()
@@ -203,4 +204,9 @@ enum class MessageSource {
 
 data class MessageTime(val utcISO: String) {
     val formattedDate = utcISO.uiMessageDateTime() ?: ""
+}
+
+data class AudioMessageDuration(val durationMs: Long = 0, val currentPositionMs: Long = 0) {
+
+    val formattedTimeLeft = (durationMs - currentPositionMs).toString()
 }

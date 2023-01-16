@@ -56,6 +56,7 @@ import com.wire.android.ui.home.conversations.info.ConversationInfoViewState
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewModel
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewState
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
+import com.wire.android.ui.home.conversations.model.AudioMessageDuration
 import com.wire.android.ui.home.conversations.model.MessageGenericAsset
 import com.wire.android.ui.home.conversations.model.MessageImage
 import com.wire.android.ui.home.conversations.model.MessageSource
@@ -616,14 +617,14 @@ fun MessageList(
                                 val audioMessageState = audioMessagesState[message.messageHeader.messageId]
 
                                 AudioMessage(
-                                    durationInMs = messageContent.durationMs,
+                                    audioMessageDuration = messageContent.audioMessageDuration.copy(
+                                        currentPositionMs = audioMessageState?.currentPositionInMs?.toLong() ?: 0
+                                    ),
                                     audioMediaPlayingState = audioMessageState?.audioMediaPlayingState ?: AudioMediaPlayingState.Paused,
-                                    currentPositionInMs = audioMessageState?.currentPositionInMs ?: 0,
                                     onPlayAudioMessage = { onAudioClick(message.messageHeader.messageId) },
-                                    onChangePosition = { position ->
-                                        onChangeAudioPosition(message.messageHeader.messageId, position.toInt())
-                                    },
-                                )
+                                ) { position ->
+                                    onChangeAudioPosition(message.messageHeader.messageId, position.toInt())
+                                }
                             }
 
                             is UIMessageContent.SystemMessage.MemberAdded -> {}

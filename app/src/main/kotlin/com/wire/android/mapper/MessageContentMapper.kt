@@ -64,6 +64,7 @@ class MessageContentMapper @Inject constructor(
         is MessageContent.CryptoSessionReset -> mapResetSession(message.senderUserId, members)
         is MessageContent.NewConversationReceiptMode -> mapNewConversationReceiptMode(content)
         is MessageContent.ConversationReceiptModeChanged -> mapConversationReceiptModeChanged(message.senderUserId, content, members)
+        is MessageContent.HistoryLost -> mapConversationHistoryLost()
     }
 
     private fun mapResetSession(
@@ -168,6 +169,8 @@ class MessageContentMapper @Inject constructor(
                 }
         }
     }
+
+    fun mapConversationHistoryLost(): UIMessageContent.SystemMessage = UIMessageContent.SystemMessage.HistoryLost
 
     private fun mapRegularMessage(
         message: Message.Regular,

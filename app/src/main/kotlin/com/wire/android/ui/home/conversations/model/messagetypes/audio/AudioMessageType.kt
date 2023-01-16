@@ -2,6 +2,7 @@ package com.wire.android.ui.home.conversations.model.messagetypes.audio
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -22,7 +23,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.media.AudioMediaPlayingState
+import com.wire.android.model.Clickable
 import com.wire.android.ui.common.button.WireSecondaryIconButton
+import com.wire.android.ui.common.clickable
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.wireColorScheme
@@ -33,7 +36,8 @@ fun AudioMessage(
     totalTimeInMs: Int,
     currentPositionInMs: Int,
     onPlayAudioMessage: () -> Unit,
-    onChangePosition: (Float) -> Unit
+    onChangePosition: (Float) -> Unit,
+    onLongClick: () -> Unit = {}
 ) {
     val audioDuration by remember(currentPositionInMs) { mutableStateOf(AudioDuration(totalTimeInMs, currentPositionInMs)) }
 

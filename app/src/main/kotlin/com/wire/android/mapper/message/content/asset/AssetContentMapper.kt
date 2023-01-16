@@ -25,10 +25,8 @@ class AssetContentMapper @Inject constructor(
         return when (val metadata = assetContent.metadata) {
             is AssetContent.AssetMetadata.Audio -> {
                 mapAudio(
-                    message = message,
                     assetContent = assetContent,
-                    metadata = metadata,
-                    sender = sender
+                    metadata = metadata
                 )
             }
 
@@ -60,17 +58,15 @@ class AssetContentMapper @Inject constructor(
     }
 
     private fun mapAudio(
-        message: Message,
         assetContent: AssetContent,
         metadata: AssetContent.AssetMetadata.Audio,
-        sender: User?
     ): UIMessageContent {
         with(assetContent) {
             return UIMessageContent.AudioAssetMessage(
                 assetName = name ?: "",
                 assetExtension = mimeType,
                 assetId = AssetId(remoteData.assetId, remoteData.assetDomain.orEmpty()),
-                assetSizeInBytes = metadata.durationMs ?: 0,
+                durationMs = metadata.durationMs ?: 0,
                 uploadStatus = uploadStatus,
                 downloadStatus = downloadStatus
             )

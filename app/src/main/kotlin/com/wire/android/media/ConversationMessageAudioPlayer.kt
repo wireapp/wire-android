@@ -4,6 +4,7 @@ import android.content.Context
 import android.media.AudioAttributes
 import android.media.MediaPlayer
 import android.net.Uri
+import android.util.Log
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
@@ -17,13 +18,15 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 import javax.inject.Inject
 
+
+
 class ConversationMessageAudioPlayer
 @Inject constructor(
     private val context: Context,
     private val getMessageAsset: GetMessageAssetUseCase,
 ) {
     private companion object {
-        const val UPDATE_POSITION_INTERVAL_IN_MS = 100L
+        const val UPDATE_POSITION_INTERVAL_IN_MS = 1L
     }
 
     private val audioMessageStateUpdate = MutableSharedFlow<AudioMediaPlayerStateUpdate.AudioMediaPlayingStateUpdate>()
@@ -51,6 +54,7 @@ class ConversationMessageAudioPlayer
 
     val observableAudioMessagesState: Flow<Map<String, AudioState>> =
         merge(positionChangedUpdate, audioMessageStateUpdate).map { audioMessageStateUpdate ->
+            Log.d("TEST", "audioMessageStateUpdate $audioMessageStateUpdate")
             val currentState = audioMessageStateHistory.getOrDefault(
                 audioMessageStateUpdate.messageId,
                 AudioState(AudioMediaPlayingState.Paused, 0)
@@ -70,7 +74,7 @@ class ConversationMessageAudioPlayer
                     audioMessageStateHistory = audioMessageStateHistory.toMutableMap().apply {
                         put(
                             audioMessageStateUpdate.messageId,
-                            currentState.copy(currentPosition = audioMessageStateUpdate.position)
+                            currentState.copy(currentPositionInMs = audioMessageStateUpdate.position)
                         )
                     }
                 }
@@ -117,7 +121,7 @@ class ConversationMessageAudioPlayer
                 if (audioMediaPlayingState == AudioMediaPlayingState.Completed) {
                     0
                 } else {
-                    currentPosition
+                    currentPositionInMs
                 }
             }
 
@@ -178,10 +182,7 @@ class ConversationMessageAudioPlayer
         if (currentAudioState != null) {
             val isAudioMessageCurrentlyPlaying = currentAudioMessageId == messageId
 
-            val isMediaPlayerPositionAbleToBeSet = isAudioMessageCurrentlyPlaying
-                    || currentAudioState.audioMediaPlayingState is AudioMediaPlayingState.Paused
-
-            if (isMediaPlayerPositionAbleToBeSet) {
+            if (isAudioMessageCurrentlyPlaying) {
                 mediaPlayer.seekTo(position)
             }
         }
@@ -221,7 +222,7 @@ class ConversationMessageAudioPlayer
 
 data class AudioState(
     val audioMediaPlayingState: AudioMediaPlayingState,
-    val currentPosition: Int
+    val currentPositionInMs: Int
 )
 
 sealed class AudioMediaPlayingState {

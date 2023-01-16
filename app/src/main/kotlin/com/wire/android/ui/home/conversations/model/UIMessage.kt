@@ -110,7 +110,7 @@ sealed class UIMessageContent {
         val assetName: String,
         val assetExtension: String,
         val assetId: AssetId,
-        val assetSizeInBytes: Long,
+        val durationMs: Long,
         val uploadStatus: Message.UploadStatus,
         val downloadStatus: Message.DownloadStatus
     ) : UIMessageContent()

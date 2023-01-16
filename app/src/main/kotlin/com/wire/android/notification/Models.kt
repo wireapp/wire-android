@@ -29,6 +29,9 @@ sealed class NotificationMessage(open val author: NotificationMessageAuthor, ope
     data class Comment(override val author: NotificationMessageAuthor, override val time: Long, val textResId: CommentResId) :
         NotificationMessage(author, time)
 
+    data class Knock(override val author: NotificationMessageAuthor, override val time: Long) :
+        NotificationMessage(author, time)
+
     data class ConnectionRequest(override val author: NotificationMessageAuthor, override val time: Long, val authorId: String) :
         NotificationMessage(author, time)
 
@@ -43,7 +46,6 @@ enum class CommentResId(@StringRes val value: Int) {
     FILE(R.string.notification_shared_file),
     REACTION(R.string.notification_reacted),
     MISSED_CALL(R.string.notification_missed_call),
-    KNOCK(R.string.notification_knock),
     NOT_SUPPORTED(R.string.notification_not_supported_issue),
 }
 
@@ -90,6 +92,12 @@ fun LocalNotificationMessage.intoNotificationMessage(): NotificationMessage {
                 notificationMessageTime
             )
         }
+        is LocalNotificationMessage.Knock -> {
+            NotificationMessage.Knock(
+                notificationMessageAuthor,
+                notificationMessageTime
+            )
+        }
     }
 }
 
@@ -99,6 +107,5 @@ fun LocalNotificationCommentType.intoCommentResId(): CommentResId =
         LocalNotificationCommentType.FILE -> CommentResId.FILE
         LocalNotificationCommentType.REACTION -> CommentResId.REACTION
         LocalNotificationCommentType.MISSED_CALL -> CommentResId.MISSED_CALL
-        LocalNotificationCommentType.KNOCK -> CommentResId.KNOCK
         LocalNotificationCommentType.NOT_SUPPORTED_YET -> CommentResId.NOT_SUPPORTED
     }

@@ -174,7 +174,7 @@ private fun callControlButton(
 
 @Preview("Topbar with a very long conversation title")
 @Composable
-fun ConversationScreenTopAppBarLongTitlePreview() {
+fun PreviewConversationScreenTopAppBarLongTitle() {
     ConversationScreenTopAppBar(
         ConversationInfoViewState(
             conversationName = UIText.DynamicString(
@@ -196,7 +196,7 @@ fun ConversationScreenTopAppBarLongTitlePreview() {
 
 @Preview("Topbar with a short  conversation title")
 @Composable
-fun ConversationScreenTopAppBarShortTitlePreview() {
+fun PreviewConversationScreenTopAppBarShortTitle() {
     val conversationId = QualifiedID("", "")
     ConversationScreenTopAppBar(
         ConversationInfoViewState(
@@ -217,7 +217,7 @@ fun ConversationScreenTopAppBarShortTitlePreview() {
 
 @Preview("Topbar with a short  conversation title and join group call")
 @Composable
-fun ConversationScreenTopAppBarShortTitleWithOngoingCallPreview() {
+fun PreviewConversationScreenTopAppBarShortTitleWithOngoingCall() {
     val conversationId = QualifiedID("", "")
     ConversationScreenTopAppBar(
         ConversationInfoViewState(

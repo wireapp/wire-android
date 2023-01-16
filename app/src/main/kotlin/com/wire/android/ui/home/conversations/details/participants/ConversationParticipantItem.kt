@@ -103,7 +103,7 @@ fun ConversationParticipantItem(
 
 @Preview
 @Composable
-fun GroupConversationParticipantItemPreview() {
+fun PreviewGroupConversationParticipantItem() {
     ConversationParticipantItem(
         UIParticipant(UserId("0", ""), "name", "handle", false, UserAvatarData(), Membership.Guest),
         clickable = Clickable(enabled = true) {}

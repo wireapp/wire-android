@@ -73,7 +73,7 @@ private fun getColorTextFor(securityClassificationType: SecurityClassificationTy
 
 @Preview(showBackground = true)
 @Composable
-fun ClassifiedIndicatorPreview() {
+fun PreviewClassifiedIndicator() {
     Column(modifier = Modifier.fillMaxWidth()) {
         SecurityClassificationBanner(securityClassificationType = SecurityClassificationType.CLASSIFIED)
         Divider()

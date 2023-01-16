@@ -65,7 +65,6 @@ fun MessageItem(
 ) {
     with(message) {
         val fullAvatarOuterPadding = dimensions().userAvatarClickablePadding + dimensions().userAvatarStatusBorderSize
-        Column { }
         Row(
             Modifier
                 .customizeMessageBackground(message)
@@ -76,7 +75,7 @@ fun MessageItem(
                 .fillMaxWidth()
                 .let {
                     if (!message.isDeleted) it.combinedClickable(
-                        //TODO: implement some action onClick
+                        // TODO: implement some action onClick
                         onClick = { },
                         onLongClick = { onLongClicked(message) }
                     ) else it
@@ -316,9 +315,11 @@ private fun MessageContent(
         is UIMessageContent.SystemMessage.MissedCall.YouCalled -> {}
         is UIMessageContent.SystemMessage.MissedCall.OtherCalled -> {}
         is UIMessageContent.SystemMessage.NewConversationReceiptMode -> {}
+        is UIMessageContent.SystemMessage.ConversationReceiptModeChanged -> {}
         null -> {
             throw NullPointerException("messageContent is null")
         }
+        is UIMessageContent.SystemMessage.Knock -> {}
     }
 }
 

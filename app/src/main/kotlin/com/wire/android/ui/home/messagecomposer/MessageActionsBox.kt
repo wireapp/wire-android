@@ -142,7 +142,7 @@ private fun PingAction() {
 
 @Preview
 @Composable
-private fun MessageActionsBoxPreview() {
+fun PreviewMessageActionsBox() {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceEvenly,

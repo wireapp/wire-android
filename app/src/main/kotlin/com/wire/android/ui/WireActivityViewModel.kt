@@ -188,9 +188,10 @@ class WireActivityViewModel @Inject constructor(
 
     fun navigationArguments() = navigationArguments.values.toList()
 
-    fun startNavigationRoute(): String = when {
+    fun startNavigationRoute(navigationItem: NavigationItem? = null): String = when {
         shouldGoToMigration() -> NavigationItem.Migration.getRouteWithArgs()
         shouldGoToWelcome() -> NavigationItem.Welcome.getRouteWithArgs()
+        navigationItem != null -> navigationItem.getRouteWithArgs()
         else -> NavigationItem.Home.getRouteWithArgs()
     }
 

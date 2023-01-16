@@ -222,13 +222,13 @@ private fun AllowGuestsDialog(
     onAllowGuestsClicked: () -> Unit
 ) {
     WireDialog(
-        title = stringResource(R.string.disable_guests_dialoug_title),
-        text = stringResource(R.string.disable_guests_dialoug_description),
+        title = stringResource(R.string.disable_guests_dialog_title),
+        text = stringResource(R.string.disable_guests_dialog_description),
         onDismiss = onAllowGuestsDialogDismissed,
         buttonsHorizontalAlignment = false,
         optionButton1Properties = WireDialogButtonProperties(
             onClick = onNotAllowGuestsClicked,
-            text = stringResource(id = R.string.disable_guests_dialoug_button),
+            text = stringResource(id = R.string.disable_guests_dialog_button),
             type = WireDialogButtonType.Primary
         ), optionButton2Properties = WireDialogButtonProperties(
             text = stringResource(R.string.allow_guests),
@@ -268,7 +268,7 @@ private fun ErrorDialog(error: GroupOptionState.Error, onErrorDismissed: () -> U
 
 @Composable
 @Preview
-private fun GroupOptionScreenPreview() {
+fun PreviewGroupOptionScreen() {
     GroupOptionScreenContent(
         GroupOptionState(),
         {}, {}, {}, {}, {}, {}, {}, {}, {}

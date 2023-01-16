@@ -56,7 +56,7 @@ fun MemberItemToMention(
 
 @Preview
 @Composable
-fun MemberItemToMentionPreview() {
+fun PreviewMemberItemToMention() {
     MemberItemToMention(
         avatarData = UserAvatarData(),
         name = "name",

@@ -87,6 +87,6 @@ fun GroupConversationParticipants(
 
 @Preview
 @Composable
-fun GroupConversationParticipantsPreview() {
+fun PreviewGroupConversationParticipants() {
     GroupConversationParticipants({}, {}, {}, GroupConversationParticipantsState.PREVIEW)
 }

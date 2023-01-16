@@ -49,7 +49,7 @@ fun MessageDetailsReactions(
 
 @Preview(showBackground = true)
 @Composable
-fun MessageDetailsReactionsPreview() {
+fun PreviewMessageDetailsReactions() {
     MessageDetailsReactions(
         reactionsData = MessageDetailsReactionsData(),
         onReactionsLearnMore = {}

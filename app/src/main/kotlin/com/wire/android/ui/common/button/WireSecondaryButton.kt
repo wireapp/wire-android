@@ -77,13 +77,13 @@ fun WireSecondaryButton(
 
 @Preview(name = "Default WireSecondaryButton")
 @Composable
-private fun WireSecondaryButtonPreview() {
+fun PreviewWireSecondaryButton() {
     WireSecondaryButton(onClick = { }, text = "text")
 }
 
 @Preview(name = "Default WireSecondaryButton with icons")
 @Composable
-private fun WireSecondaryButtonWithIconsPreview() {
+fun PreviewWireSecondaryButtonWithIcons() {
     WireSecondaryButton(
         onClick = { },
         text = "text",
@@ -94,7 +94,7 @@ private fun WireSecondaryButtonWithIconsPreview() {
 
 @Preview(name = "Default narrow WireSecondaryButton with icon")
 @Composable
-private fun WireSecondaryButtonNarrowWithIconsPreview() {
+fun PreviewWireSecondaryButtonNarrowWithIcons() {
     WireSecondaryButton(
         onClick = { },
         text = "text",
@@ -106,7 +106,7 @@ private fun WireSecondaryButtonNarrowWithIconsPreview() {
 
 @Preview(name = "Default small WirePrimaryButton only icon")
 @Composable
-private fun WireSecondaryButtonSmallOnlyIconsPreview() {
+fun PreviewWireSecondaryButtonSmallOnlyIcons() {
     WireSecondaryButton(
         onClick = { },
         leadingIcon = Icons.Filled.Search.Icon(),
@@ -121,31 +121,31 @@ private fun WireSecondaryButtonSmallOnlyIconsPreview() {
 
 @Preview(name = "Default Loading WireSecondaryButton")
 @Composable
-private fun WireSecondaryButtonLoadingPreview() {
+fun PreviewWireSecondaryButtonLoading() {
     WireSecondaryButton(onClick = { }, loading = true, text = "text")
 }
 
 @Preview(name = "Disabled WireSecondaryButton")
 @Composable
-private fun WireSecondaryButtonDisabledPreview() {
+fun PreviewWireSecondaryButtonDisabled() {
     WireSecondaryButton(onClick = { }, state = WireButtonState.Disabled, text = "text")
 }
 
 @Preview(name = "Selected WireSecondaryButton")
 @Composable
-private fun WireSecondaryButtonSelectedPreview() {
+fun PreviewWireSecondaryButtonSelected() {
     WireSecondaryButton(onClick = { }, state = WireButtonState.Selected, text = "text")
 }
 
 @Preview(name = "Error WireSecondaryButton")
 @Composable
-private fun WireSecondaryButtonErrorPreview() {
+fun PreviewWireSecondaryButtonError() {
     WireSecondaryButton(onClick = { }, state = WireButtonState.Error, text = "text")
 }
 
 @Preview(name = "Three WireSecondaryButtons with different states")
 @Composable
-private fun WireSecondaryButtonSelected3Preview() {
+fun PreviewWireSecondaryButtonSelected3() {
     Row {
         WireSecondaryButton(
             onClick = { },

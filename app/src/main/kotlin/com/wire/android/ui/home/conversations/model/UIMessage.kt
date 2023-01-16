@@ -206,7 +206,3 @@ data class MessageTime(val utcISO: String) {
     val formattedDate = utcISO.uiMessageDateTime() ?: ""
 }
 
-data class AudioMessageDuration(val durationMs: Long = 0, val currentPositionMs: Long = 0) {
-
-    val formattedTimeLeft = (durationMs - currentPositionMs).toString()
-}

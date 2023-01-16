@@ -174,3 +174,17 @@ class AssetMessageContentMetadata(val assetMessageContent: AssetContent) {
     fun isDisplayableImage(): Boolean = isDisplayableImageMimeType(assetMessageContent.mimeType) &&
             imgWidth.isGreaterThan(0) && imgHeight.isGreaterThan(0)
 }
+
+
+data class AudioMessageDuration(val durationMs: Long = 0, val currentPositionMs: Long = 0) {
+
+    private val timeInSeconds = durationMs / 1000
+    val formattedTimeLeft
+        get() = run {
+            val minutes = timeInSeconds / 60
+            val seconds = timeInSeconds % 60
+            val formattedSeconds = String.format("%02d", seconds)
+
+            "$minutes:$formattedSeconds"
+        }
+}

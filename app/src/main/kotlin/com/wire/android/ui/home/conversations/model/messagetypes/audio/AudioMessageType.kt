@@ -37,7 +37,7 @@ fun AudioMessage(
     currentPositionInMs: Int,
     onPlayAudioMessage: () -> Unit,
     onChangePosition: (Float) -> Unit,
-    onLongClick: () -> Unit = {}
+    onLongClick: () -> Unit = { }
 ) {
     val audioDuration by remember(currentPositionInMs) { mutableStateOf(AudioDuration(totalTimeInMs, currentPositionInMs)) }
 

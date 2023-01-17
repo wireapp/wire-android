@@ -20,6 +20,7 @@ data class ScalaMessageData(
     val assetName: String?,
     val assetSize: Int?,
 )
+
 class ScalaMessageDAO(private val db: ScalaUserDatabase) {
 
     fun messages(scalaConversations: List<ScalaConversationData>): List<ScalaMessageData> {
@@ -31,7 +32,11 @@ class ScalaMessageDAO(private val db: ScalaUserDatabase) {
     }
 
     private fun messagesFromConversation(scalaConversation: ScalaConversationData): List<ScalaMessageData> {
-        val cursor = db.rawQuery("SELECT * from $MESSAGES_TABLE_NAME LEFT JOIN $ASSETS_TABLE_NAME ON $MESSAGES_TABLE_NAME.$COLUMN_ASSET_ID = $ASSETS_TABLE_NAME.$COLUMN_ID WHERE $COLUMN_CONVERSATION_ID = ?", arrayOf(scalaConversation.id))
+        val cursor = db.rawQuery(
+            "SELECT * from $MESSAGES_TABLE_NAME " +
+                    "LEFT JOIN $ASSETS_TABLE_NAME ON $MESSAGES_TABLE_NAME.$COLUMN_ASSET_ID = $ASSETS_TABLE_NAME.$COLUMN_ID " +
+                    "WHERE $COLUMN_CONVERSATION_ID = ?", arrayOf(scalaConversation.id)
+        )
         return try {
             if (!cursor.moveToFirst()) {
                 emptyList()

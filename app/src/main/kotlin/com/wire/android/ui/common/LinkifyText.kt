@@ -79,8 +79,11 @@ fun LinkifyText(
 ) {
     val textAsString = text.asString()
     val uriHandler = LocalUriHandler.current
-    val linkInfos = if (linkEntire) listOf(LinkInfo(textAsString, 0, textAsString.length)) else
+    val linkInfos = if (linkEntire) {
+        listOf(LinkInfo(textAsString, 0, textAsString.length))
+    } else {
         SpannableStr.getLinkInfos(textAsString, mask)
+    }
     val annotatedString = buildAnnotatedString {
         append(textAsString)
         linkInfos.forEach {

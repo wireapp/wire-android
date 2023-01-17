@@ -64,6 +64,10 @@ class MessageContentMapper @Inject constructor(
         is MessageContent.CryptoSessionReset -> mapResetSession(message.senderUserId, members)
         is MessageContent.NewConversationReceiptMode -> mapNewConversationReceiptMode(content)
         is MessageContent.ConversationReceiptModeChanged -> mapConversationReceiptModeChanged(message.senderUserId, content, members)
+        is MessageContent.HistoryLost -> mapMissedCallMessage(
+            message.senderUserId,
+            members
+        ) // todo : don't merge added this to make a build only
     }
 
     private fun mapResetSession(

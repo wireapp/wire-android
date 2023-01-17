@@ -79,6 +79,7 @@ fun DropDownMentionsSuggestions(
         }
     }
 }
+
 @Suppress("ReturnCount", "NestedBlockDepth")
 private fun calculateMaxHeight(
     defaultMaxHeightDropdownMenu: Dp,
@@ -122,16 +123,19 @@ private fun updateDropDownCoordinateY(
     var coordinateY = cursorCoordinateY
     // since we are using BottomYCoordinate of the cursor, we reduce some space from Y coordinate
     // for approximately the second part of the screen.
-    if (cursorCoordinateY >= screenHeight / HALF_SCREEN)
+    if (cursorCoordinateY >= screenHeight / HALF_SCREEN) {
         coordinateY = cursorCoordinateY - THIRTY
+    }
     // If there is only one item to show, in the second part of the screen, the DropDown will be displayed above the cursor.
     // Fixing this by adding more space
-    if (membersToMentionSize == ONE && cursorCoordinateY < screenHeight * EIGHTY_PERCENT)
+    if (membersToMentionSize == ONE && cursorCoordinateY < screenHeight * EIGHTY_PERCENT) {
         coordinateY = cursorCoordinateY + TWENTY
+    }
     // For the first line, we get the wrong Y coordinate of the cursor.
     // Fixing this by adding more space
-    if (currentSelectedLineIndex == FIRST_LINE_INDEX)
+    if (currentSelectedLineIndex == FIRST_LINE_INDEX) {
         coordinateY = cursorCoordinateY + THIRTY
+    }
     return coordinateY.toInt()
 }
 

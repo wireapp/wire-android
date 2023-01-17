@@ -6,10 +6,9 @@ def defineFlavor() {
     }
 
     def branchName = env.BRANCH_NAME
-    if (env.BRANCH_NAME.startsWith("PR-") {
+    if (branchName.startsWith("PR-") {
         return 'Beta'
-    }
-    if (branchName == "main") {
+    } else if (branchName == "main") {
         return 'Beta'
     } else if(branchName == "develop") {
         return 'Staging'

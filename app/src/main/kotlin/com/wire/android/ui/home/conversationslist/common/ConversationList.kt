@@ -12,16 +12,22 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.Dp
 import com.wire.android.ui.home.conversationslist.model.ConversationFolder
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
+import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.util.extension.folderWithElements
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
 import kotlinx.collections.immutable.ImmutableMap
 
+@Suppress("LongParameterList")
 @Composable
 fun ConversationList(
     lazyListState: LazyListState = rememberLazyListState(),
     conversationListItems: ImmutableMap<ConversationFolder, List<ConversationItem>>,
     searchQuery: String,
+    isSelectableList: Boolean = false,
+    conversationsAddedToGroup: List<ConversationItem> = emptyList(),
+    onConversationAddedToGroup: (ConversationItem) -> Unit = {},
+    onConversationRemovedFromGroup: (ConversationItem) -> Unit = {},
     onOpenConversation: (ConversationId) -> Unit,
     onEditConversation: (ConversationItem) -> Unit,
     onOpenUserProfile: (UserId) -> Unit,
@@ -60,6 +66,10 @@ fun ConversationList(
                 ConversationItemFactory(
                     searchQuery = searchQuery,
                     conversation = generalConversation,
+                    isSelectableItem = isSelectableList,
+                    belongsToGroup = conversationsAddedToGroup.contains(generalConversation),
+                    onConversationAddedToGroup = onConversationAddedToGroup,
+                    onConversationRemovedFromGroup = onConversationRemovedFromGroup,
                     openConversation = onOpenConversation,
                     openMenu = onEditConversation,
                     openUserProfile = onOpenUserProfile,

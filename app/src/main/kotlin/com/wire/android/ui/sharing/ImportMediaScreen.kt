@@ -101,7 +101,7 @@ fun ImportMediaContent(searchBarState: SearchBarState, importMediaViewModel: Imp
             SearchTopBar(
                 isSearchActive = searchBarState.isSearchActive,
                 searchBarHint = stringResource(
-                    R.string.search_bar_hint,
+                    R.string.search_bar_conversations_hint,
                     stringResource(id = R.string.conversations_screen_title).lowercase()
                 ),
                 searchQuery = searchBarState.searchQuery,
@@ -109,46 +109,26 @@ fun ImportMediaContent(searchBarState: SearchBarState, importMediaViewModel: Imp
                 onInputClicked = searchBarState::openSearch,
                 onCloseSearchClicked = searchBarState::closeSearch,
             )
-            with(searchBarState) {
-//                if (searchBarState.isSearchActive)
-//                    SearchAllPeopleScreen(
-//                        searchQuery = searchQuery.text,
-//                        noneSearchSucceed = importMediaViewModel.state.noneSearchSucceed,
-//                        searchResult = persistentMapOf(
-//                            SearchResultTitle(R.string.conversation_label_conversations) to importMediaViewModel.currentSearchResult()
-//                        ),
-//                        contactsAddedToGroup = importMediaViewModel.state.contactsAddedToGroup,
-//                        onAddToGroup = importMediaViewModel::addContactToGroup,
-//                        onRemoveFromGroup = importMediaViewModel::removeContactFromGroup,
-//                        onOpenUserProfile = importMediaViewModel::openUserProfile,
-//                        onAddContactClicked = importMediaViewModel::addContact
-//                    )
-//                else
-//                    ContactsScreen(
-//                        allKnownContactResult = importMediaViewModel.state.initialContacts,
-//                        contactsAddedToGroup = importMediaViewModel.state.contactsAddedToGroup,
-//                        onAddToGroup = importMediaViewModel::addContactToGroup,
-//                        onRemoveFromGroup = importMediaViewModel::removeContactFromGroup,
-//                        onOpenUserProfile = importMediaViewModel::openUserProfile
-//                    )
-                ConversationList(
-                    lazyListState = lazyListState,
-                    conversationListItems = persistentMapOf(
-                        ConversationFolder.Predefined.Conversations to importMediaViewModel.shareableConversationListState.searchResult
-                    ),
-                    searchQuery = "",
-                    onOpenConversation = {},
-                    onEditConversation = {},
-                    onOpenUserProfile = {},
-                    onOpenConversationNotificationsSettings = {},
-                    onJoinCall = {}
-                )
-            }
+            ConversationList(
+                lazyListState = lazyListState,
+                conversationListItems = persistentMapOf(
+                    ConversationFolder.Predefined.Conversations to importMediaViewModel.shareableConversationListState.searchResult
+                ),
+                isSelectableList = true,
+                onConversationAddedToGroup = importMediaViewModel::addConversationToGroup,
+                onConversationRemovedFromGroup = importMediaViewModel::removeConversationFromGroup,
+                searchQuery = "",
+                onOpenConversation = {},
+                onEditConversation = {},
+                onOpenUserProfile = {},
+                onOpenConversationNotificationsSettings = {},
+                onJoinCall = {}
+            )
             SelectParticipantsButtonsRow(
-                count = importMediaViewModel.state.contactsAddedToGroup.size,
+                count = importMediaViewModel.shareableConversationListState.conversationsAddedToGroup.size,
                 mainButtonText = actionButtonTitle,
                 onMainButtonClick = {
-//                    importMediaViewModel.onImportedMediaSent()
+//                   importMediaViewModel.onImportedMediaSent()
                 }
             )
         }

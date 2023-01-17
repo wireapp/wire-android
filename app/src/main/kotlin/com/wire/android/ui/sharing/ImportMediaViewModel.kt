@@ -10,9 +10,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.core.app.ShareCompat
 import androidx.core.net.toUri
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
-import com.wire.android.mapper.ContactMapper
 import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.mapper.toUIPreview
 import com.wire.android.model.ImageAsset
@@ -21,7 +21,7 @@ import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
-import com.wire.android.ui.home.conversations.search.SearchAllPeopleViewModel
+import com.wire.android.ui.home.conversations.search.SearchPeopleViewModel
 import com.wire.android.ui.home.conversationslist.model.BlockState
 import com.wire.android.ui.home.conversationslist.model.ConversationInfo
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
@@ -36,18 +36,18 @@ import com.wire.android.util.parcelableArrayList
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
-import com.wire.kalium.logic.feature.connection.SendConnectionRequestUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationListDetailsUseCase
-import com.wire.kalium.logic.feature.publicuser.GetAllContactsUseCase
-import com.wire.kalium.logic.feature.publicuser.search.SearchKnownUsersUseCase
-import com.wire.kalium.logic.feature.publicuser.search.SearchPublicUsersUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
-import com.wire.kalium.logic.functional.combine
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.collections.immutable.toImmutableList
 import javax.inject.Inject
 
 @HiltViewModel
@@ -56,23 +56,10 @@ class ImportMediaViewModel @Inject constructor(
     private val getSelf: GetSelfUserUseCase,
     private val userTypeMapper: UserTypeMapper,
     private val observeConversationListDetails: ObserveConversationListDetailsUseCase,
+    private val navigationManager: NavigationManager,
     val wireSessionImageLoader: WireSessionImageLoader,
     val dispatchers: DispatcherProvider,
-    getAllKnownUsers: GetAllContactsUseCase,
-    searchKnownUsers: SearchKnownUsersUseCase,
-    searchPublicUsers: SearchPublicUsersUseCase,
-    contactMapper: ContactMapper,
-    sendConnectionRequest: SendConnectionRequestUseCase,
-    navigationManager: NavigationManager
-) : SearchAllPeopleViewModel(
-    getAllKnownUsers = getAllKnownUsers,
-    sendConnectionRequest = sendConnectionRequest,
-    searchKnownUsers = searchKnownUsers,
-    searchPublicUsers = searchPublicUsers,
-    contactMapper = contactMapper,
-    dispatcher = dispatchers,
-    navigationManager = navigationManager
-) {
+) : ViewModel() {
     var importMediaState by mutableStateOf(
         ImportMediaState()
     )
@@ -81,9 +68,19 @@ class ImportMediaViewModel @Inject constructor(
     var shareableConversationListState by mutableStateOf(ShareableConversationListState())
         private set
 
+    private val selectedConversationsFlow = MutableStateFlow(emptyList<ConversationItem>())
+
+    private val mutableSearchQueryFlow = MutableStateFlow("")
+
+    private val searchQueryFlow = mutableSearchQueryFlow
+        .asStateFlow()
+        .debounce(SearchPeopleViewModel.DEFAULT_SEARCH_QUERY_DEBOUNCE)
+
     init {
-        loadUserAvatar()
-        observeConversationWithSearch()
+        viewModelScope.launch {
+            loadUserAvatar()
+            observeConversationWithSearch()
+        }
     }
 
     private fun loadUserAvatar() = viewModelScope.launch(dispatchers.io()) {
@@ -96,27 +93,42 @@ class ImportMediaViewModel @Inject constructor(
         }
     }
 
-    private fun observeConversationWithSearch() = viewModelScope.launch {
-        searchQueryFlow.combine(observeConversationListDetails()
-            .map {
-                it.map { conversationDetails ->
-                    conversationDetails.toConversationItem(
-                        wireSessionImageLoader,
-                        userTypeMapper
-                    )
-                }.filterNotNull()
-            })
+    private suspend fun observeConversationWithSearch() = viewModelScope.launch {
+        combine(
+            observeConversationListDetails()
+                .map {
+                    it.mapNotNull { conversationDetails ->
+                        conversationDetails.toConversationItem(
+                            wireSessionImageLoader,
+                            userTypeMapper
+                        )
+                    }
+                }, searchQueryFlow, selectedConversationsFlow
+        ) { conversations, searchQuery, selectedConversations ->
+            val searchResult = if (searchQuery.isEmpty()) conversations else searchShareableConversation(
+                conversations,
+                searchQuery
+            )
+            ShareableConversationListState(
+                initialConversations = conversations,
+                searchQuery = searchQuery,
+                hasNoConversations = conversations.isEmpty(),
+                searchResult = searchResult,
+                conversationsAddedToGroup = selectedConversations.toImmutableList()
+            )
+        }
             .flowOn(dispatchers.io())
-            .collect { (searchQuery, conversationItems) ->
-                shareableConversationListState = shareableConversationListState.copy(
-                    searchResult = if (searchQuery.isEmpty()) conversationItems else searchShareableConversation(
-                        conversationItems,
-                        searchQuery
-                    ),
-                    hasNoConversations = conversationItems.isEmpty(),
-                    searchQuery = searchQuery
-                )
+            .collect { updatedState ->
+                shareableConversationListState = updatedState
             }
+    }
+
+    fun addConversationToGroup(conversation: ConversationItem) = viewModelScope.launch {
+        selectedConversationsFlow.emit(selectedConversationsFlow.value + conversation)
+    }
+
+    fun removeConversationFromGroup(conversation: ConversationItem) = viewModelScope.launch {
+        selectedConversationsFlow.emit(selectedConversationsFlow.value - conversation)
     }
 
     @Suppress("LongMethod")

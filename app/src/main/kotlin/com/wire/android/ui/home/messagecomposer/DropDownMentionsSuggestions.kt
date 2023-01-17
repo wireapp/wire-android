@@ -1,10 +1,12 @@
 package com.wire.android.ui.home.messagecomposer
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.material.DropdownMenu
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.remember
@@ -54,6 +56,7 @@ fun DropDownMentionsSuggestions(
             properties = PopupProperties(focusable = false),
             modifier = Modifier
                 .fillMaxWidth()
+                .background(MaterialTheme.colorScheme.surface)
                 .heightIn(max = maxHeight),
             expanded = true,
             onDismissRequest = {}

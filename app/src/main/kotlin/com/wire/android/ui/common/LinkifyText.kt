@@ -49,6 +49,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.TextUnit
+import com.wire.android.ui.theme.WireColorScheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.util.ui.UIText
 
@@ -87,7 +88,7 @@ fun LinkifyText(
         linkInfos.forEach {
             addStyle(
                 style = SpanStyle(
-                    color = linkColor,
+                    color = MaterialTheme.wireColorScheme.primary,
                     textDecoration = TextDecoration.Underline
                 ),
                 start = it.start,

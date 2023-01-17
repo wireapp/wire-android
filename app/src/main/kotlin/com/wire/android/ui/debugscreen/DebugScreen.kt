@@ -116,7 +116,6 @@ fun DebugContent(
                     restartSlowSyncForRecovery = restartSlowSyncForRecovery
                 )
             }
-
             LogOptions(
                 deviceId = debugContentState.deviceId,
                 isLoggingEnabled = debugScreenState.isLoggingEnabled,

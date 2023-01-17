@@ -88,12 +88,11 @@ fun AudioMessage(
     }
 }
 
-private fun getPlayOrPauseIcon(audioMediaPlayingState: AudioMediaPlayingState): Int {
-    return when (audioMediaPlayingState) {
+private fun getPlayOrPauseIcon(audioMediaPlayingState: AudioMediaPlayingState): Int =
+    when (audioMediaPlayingState) {
         AudioMediaPlayingState.Completed, AudioMediaPlayingState.Playing -> R.drawable.ic_pause
         else -> R.drawable.ic_play
     }
-}
 
 // helper wrapper class to format the time that is left
 private data class AudioDuration(val totalDurationInMs: Int, val currentPositionInMs: Int) {

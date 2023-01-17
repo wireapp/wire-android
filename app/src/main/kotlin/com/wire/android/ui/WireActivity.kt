@@ -108,16 +108,11 @@ class WireActivity : AppCompatActivity() {
                 WireTheme {
                     val scope = rememberCoroutineScope()
                     val navController = rememberAnimatedNavController()
-                    val startDestination: String = if (!handleFileSharingRestrictedDialog()) {
-                        viewModel.startNavigationRoute()
+                    if (!isThereSharingIntent()) {
+                        setUpNavigationGraph(viewModel.startNavigationRoute(), navController, scope)
                     } else {
-                        viewModel.startNavigationRoute(NavigationItem.ImportMedia)
+                        setUpNavigationGraph(viewModel.startNavigationRoute(NavigationItem.ImportMedia), navController, scope)
                     }
-
-                    Scaffold {
-                        NavigationGraph(navController = navController, startDestination, viewModel.navigationArguments())
-                    }
-                    setUpNavigation(navController, scope)
 
                     handleCustomBackendDialog(viewModel.globalAppState.customBackendDialog.shouldShowDialog)
                     maxAccountDialog(
@@ -136,7 +131,15 @@ class WireActivity : AppCompatActivity() {
     }
 
     @Composable
-    private fun handleFileSharingRestrictedDialog(): Boolean {
+    fun setUpNavigationGraph(startDestination: String, navController: NavHostController, scope: CoroutineScope) {
+        Scaffold {
+            NavigationGraph(navController = navController, startDestination, viewModel.navigationArguments())
+        }
+        setUpNavigation(navController, scope)
+    }
+
+    @Composable
+    private fun isThereSharingIntent(): Boolean {
         val fileSharingRestrictedDialogState = rememberVisibilityState<FileSharingRestrictedDialogState>()
         FileSharingRestrictedDialogContent(
             dialogState = fileSharingRestrictedDialogState

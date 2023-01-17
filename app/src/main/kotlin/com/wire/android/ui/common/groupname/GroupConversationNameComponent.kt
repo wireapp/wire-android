@@ -86,9 +86,6 @@ fun GroupNameScreen(
                                 vertical = MaterialTheme.wireDimensions.spacing24x
                             )
                     )
-
-                    Spacer(modifier = Modifier.weight(1f))
-
                     Box {
                         ShakeAnimation { animate ->
                             if (animatedGroupNameError) {
@@ -107,7 +104,7 @@ fun GroupNameScreen(
                             )
                         }
                     }
-                    if (mlsEnabled || (BuildConfig.PRIVATE_BUILD && BuildConfig.MLS_SUPPORT_ENABLED)) {
+                    if (mlsEnabled || BuildConfig.MLS_SUPPORT_ENABLED) {
                         if (mode == CREATION) {
                             WireDropDown(
                                 items =

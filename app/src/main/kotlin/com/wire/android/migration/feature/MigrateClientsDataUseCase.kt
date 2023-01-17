@@ -15,8 +15,6 @@ import com.wire.kalium.logic.feature.client.RegisterClientResult
 import com.wire.kalium.logic.feature.client.RegisterClientUseCase.RegisterClientParam
 import com.wire.kalium.logic.functional.Either
 import com.wire.kalium.logic.functional.flatMap
-import com.wire.kalium.logic.functional.foldToEitherWhileRight
-import com.wire.kalium.logic.functional.map
 import com.wire.kalium.logic.functional.onSuccess
 import kotlinx.coroutines.withTimeoutOrNull
 import java.io.File
@@ -30,28 +28,42 @@ class MigrateClientsDataUseCase @Inject constructor(
     private val scalaUserDBProvider: ScalaUserDatabaseProvider,
     private val userDataStoreProvider: UserDataStoreProvider
 ) {
-    suspend operator fun invoke(userIds: List<UserId>): Either<CoreFailure, List<UserId>> =
-        userIds.foldToEitherWhileRight(emptyList()) { userId, acc ->
+    suspend operator fun invoke(userIds: List<UserId>): Map<UserId, Either<CoreFailure, Unit>> {
 
+        val acc: MutableMap<UserId, Either<CoreFailure, Unit>> = mutableMapOf()
+
+        for (userId in userIds) {
             val clientId = scalaUserDBProvider.clientDAO(userId)?.clientInfo()?.clientId?.let { ClientId(it) }
-                ?: return Either.Left(StorageFailure.DataNotFound)
+            if (clientId == null) {
+                acc[userId] = Either.Left(StorageFailure.DataNotFound)
+                continue
+            }
 
             // move crypto box files
             val scalaDir = scalaCryptoBoxDirectoryProvider.userDir(userId)
             val currentDir = File(coreLogic.rootPathsProvider.rootProteusPath(userId))
-            // TODO: if migration got interrupted after this step the next time it will fail because the files are deleted
-            scalaDir.copyRecursively(target = currentDir, overwrite = false)
-            scalaDir.deleteRecursively()
+            if (currentDir.exists()) {
+                acc[userId] = Either.Right(Unit)
+                continue
+            }
+
+            try {
+                scalaDir.copyRecursively(target = currentDir, overwrite = false)
+            } catch (_: Exception) {
+                currentDir.deleteRecursively()
+            }
 
             // add registered client id, sync will start when the registered id is persisted
             coreLogic.sessionScope(userId) {
                 // NOTE we are passing in an RegisterClientParam will null values
                 // because we don't support deleting any existing clients when migrating
                 // from the old scala app.
-                when (val result = this.client.importClient(clientId, RegisterClientParam(
-                    password = null,
-                    capabilities = null
-                ))) {
+                when (val result = this.client.importClient(
+                    clientId, RegisterClientParam(
+                        password = null,
+                        capabilities = null
+                    )
+                )) {
                     is RegisterClientResult.Failure.Generic ->
                         Either.Left(result.genericFailure)
                     is RegisterClientResult.Failure.TooManyClients ->
@@ -68,12 +80,16 @@ class MigrateClientsDataUseCase @Inject constructor(
                             it ?: Either.Left(NetworkFailure.NoNetworkConnection(null))
                         }.flatMap {
                             syncManager.waitUntilLiveOrFailure()
-                                .map { acc + userId }
-                                .onSuccess { userDataStoreProvider.getOrCreate(userId).setInitialSyncCompleted() }
+                                .onSuccess {
+                                    acc[userId] = Either.Right(Unit)
+                                    userDataStoreProvider.getOrCreate(userId).setInitialSyncCompleted()
+                                }
                         }
                 }
             }
         }
+        return acc.toMap()
+    }
 
     companion object {
         const val SYNC_START_TIMEOUT = 20_000L

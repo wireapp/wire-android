@@ -113,7 +113,7 @@ private fun GeneralConversationItem(
                 RowItemTemplate(
                     leadingIcon = {
                         Row {
-                            WireCheckbox(
+                            if (isSelectable) WireCheckbox(
                                 checked = belongsToGroup,
                                 onCheckedChange = { isChecked ->
                                     if (isChecked) addToGroup(conversation) else removeFromGroup(conversation)
@@ -156,7 +156,7 @@ private fun GeneralConversationItem(
                 RowItemTemplate(
                     leadingIcon = {
                         Row {
-                            WireCheckbox(
+                            if (isSelectable) WireCheckbox(
                                 checked = belongsToGroup,
                                 onCheckedChange = { isChecked ->
                                     if (isChecked) addToGroup(conversation) else removeFromGroup(conversation)

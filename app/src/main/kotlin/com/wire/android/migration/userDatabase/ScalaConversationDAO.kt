@@ -21,7 +21,8 @@ data class ScalaConversationData(
     val access: String,
     val creatorId: String,
     val receiptMode: Int?,
-    val orderTime: Long?
+    val orderTime: Long?,
+    val lastReadTime: Long?
 )
 
 class ScalaConversationDAO(
@@ -44,6 +45,7 @@ class ScalaConversationDAO(
             val creatorIdIndex = cursor.getColumnIndex(COLUMN_CREATOR)
             val receiptModeIndex = cursor.getColumnIndex(COLUMN_RECEIPT_MODE).orNullIfNegative()
             val lastEventTimeIndex = cursor.getColumnIndex(COLUMN_LAST_EVENT_TIME).orNullIfNegative()
+            val lastReadTimeIndex = cursor.getColumnIndex(COLUMN_LAST_READ).orNullIfNegative()
 
             if (!cursor.moveToFirst()) {
                 return@withContext emptyList()
@@ -65,7 +67,8 @@ class ScalaConversationDAO(
                     access = cursor.getStringOrNull(accessIndex).orEmpty(),
                     creatorId = cursor.getStringOrNull(creatorIdIndex).orEmpty(),
                     receiptMode = receiptModeIndex?.let { cursor.getIntOrNull(it) },
-                    orderTime = lastEventTimeIndex?.let { cursor.getLongOrNull(it) }
+                    orderTime = lastEventTimeIndex?.let { cursor.getLongOrNull(it) },
+                    lastReadTime = lastReadTimeIndex?.let { cursor.getLongOrNull(it) }
                 )
             } while (cursor.moveToNext())
             accumulator
@@ -91,5 +94,6 @@ class ScalaConversationDAO(
         const val COLUMN_CREATOR = "creator"
         const val COLUMN_RECEIPT_MODE = "receipt_mode"
         const val COLUMN_LAST_EVENT_TIME = "last_event_time"
+        const val COLUMN_LAST_READ = "last_read"
     }
 }

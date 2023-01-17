@@ -52,6 +52,13 @@ class MigrationMapper @Inject constructor() {
                 } else {
                     DateTimeUtil.fromEpochMillisToIsoDateTimeString(orderTime)
                 }
+
+            val conversationLastReadTime = if (lastReadTime == null || lastReadTime == 0L) {
+                "1970-01-01T00:00:00.000Z"
+            } else {
+                DateTimeUtil.fromEpochMillisToIsoDateTimeString(lastReadTime)
+            }
+
             Conversation(
                 id = toQualifiedId(remoteId, domain),
                 name = name,
@@ -62,7 +69,7 @@ class MigrationMapper @Inject constructor() {
                 access = mapAccess(access),
                 accessRole = listOf(TEAM_MEMBER, NON_TEAM_MEMBER, SERVICE),
                 removedBy = null,
-                lastReadDate = DateTimeUtil.currentIsoDateTimeString(),
+                lastReadDate = conversationLastReadTime,
                 lastModifiedDate = lastEventTime,
                 lastNotificationDate = lastEventTime,
                 creatorId = creatorId,

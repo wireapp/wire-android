@@ -727,6 +727,7 @@
     <string name="label_logs_option_title">Logs</string>
     <string name="label_share_logs">Share Logs</string>
     <string name="label_delete_logs">Delete All Logs</string>
+    <string name="label_restart_slowsync_for_recovery">Restart SlowSync for Recovery</string>
     <string name="label_mls_option_title">MLS DATA</string>
     <string name="label_enable_logging">Enable Logging</string>
     <string name="label_debug_title">Debug</string>

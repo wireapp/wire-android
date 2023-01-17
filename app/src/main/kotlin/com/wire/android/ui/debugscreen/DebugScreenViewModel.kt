@@ -17,6 +17,7 @@ import com.wire.kalium.logic.feature.keypackage.MLSKeyPackageCountResult
 import com.wire.kalium.logic.feature.keypackage.MLSKeyPackageCountUseCase
 import com.wire.kalium.logic.feature.user.loggingStatus.EnableLoggingUseCase
 import com.wire.kalium.logic.feature.user.loggingStatus.IsLoggingEnabledUseCase
+import com.wire.kalium.logic.sync.incremental.RestartSlowSyncProcessForRecoveryUseCase
 import com.wire.kalium.logic.sync.periodic.UpdateApiVersionsScheduler
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -40,6 +41,7 @@ class DebugScreenViewModel
     private val logFileWriter: LogFileWriter,
     private val currentClientIdUseCase: ObserveCurrentClientIdUseCase,
     private val updateApiVersions: UpdateApiVersionsScheduler,
+    private val restartSlowSyncProcessForRecoveryUseCase: RestartSlowSyncProcessForRecoveryUseCase,
     isLoggingEnabledUseCase: IsLoggingEnabledUseCase
 ) : ViewModel() {
     val logPath: String = logFileWriter.activeLoggingFile.absolutePath
@@ -88,6 +90,10 @@ class DebugScreenViewModel
 
     fun deleteLogs() {
         logFileWriter.deleteAllLogFiles()
+    }
+
+    fun restartSlowSyncForRecovery() = viewModelScope.launch {
+        restartSlowSyncProcessForRecoveryUseCase()
     }
 
     fun setLoggingEnabledState(isEnabled: Boolean) {

@@ -170,7 +170,7 @@ class MessageContentMapper @Inject constructor(
         }
     }
 
-    fun mapConversationHistoryLost(): UIMessageContent.SystemMessage = UIMessageContent.SystemMessage.HistoryLost
+    fun mapConversationHistoryLost(): UIMessageContent.SystemMessage = UIMessageContent.SystemMessage.HistoryLost()
 
     private fun mapRegularMessage(
         message: Message.Regular,

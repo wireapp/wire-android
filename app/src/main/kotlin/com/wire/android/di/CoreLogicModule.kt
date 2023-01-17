@@ -290,7 +290,6 @@ class UseCaseModule {
     ) =
         clientScopeProviderFactory.create(currentAccount).clientScope.restartSlowSyncProcessForRecoveryUseCase
 
-
     @ViewModelScoped
     @Provides
     fun provideGetAvatarAssetUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId): GetAvatarAssetUseCase =

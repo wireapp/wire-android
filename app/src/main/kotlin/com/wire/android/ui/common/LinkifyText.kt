@@ -49,7 +49,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.TextUnit
-import com.wire.android.ui.theme.WireColorScheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.util.ui.UIText
 
@@ -58,7 +57,6 @@ fun LinkifyText(
     text: UIText,
     mask: Int = Linkify.ALL,
     modifier: Modifier = Modifier,
-    linkColor: Color = Color.Blue,
     linkEntire: Boolean = false,
     color: Color = Color.Unspecified,
     fontSize: TextUnit = TextUnit.Unspecified,

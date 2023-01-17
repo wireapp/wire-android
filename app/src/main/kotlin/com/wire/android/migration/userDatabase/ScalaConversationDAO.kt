@@ -72,7 +72,6 @@ class ScalaConversationDAO(
                 )
             } while (cursor.moveToNext())
             accumulator
-
         } catch (exception: SQLException) {
             appLogger.e("Error while querying old conversations $exception")
             emptyList()

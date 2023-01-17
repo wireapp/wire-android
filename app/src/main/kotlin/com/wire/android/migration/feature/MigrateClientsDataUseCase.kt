@@ -28,6 +28,7 @@ class MigrateClientsDataUseCase @Inject constructor(
     private val scalaUserDBProvider: ScalaUserDatabaseProvider,
     private val userDataStoreProvider: UserDataStoreProvider
 ) {
+    @Suppress("LoopWithTooManyJumpStatements", "ComplexMethod")
     suspend operator fun invoke(userIds: List<UserId>): Map<UserId, Either<CoreFailure, Unit>> {
 
         val acc: MutableMap<UserId, Either<CoreFailure, Unit>> = mutableMapOf()

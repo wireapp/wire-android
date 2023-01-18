@@ -4,7 +4,6 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -23,7 +22,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
@@ -116,7 +114,10 @@ fun ImportMediaContent(searchBarState: SearchBarState, importMediaViewModel: Imp
                     stringResource(id = R.string.conversations_screen_title).lowercase()
                 ),
                 searchQuery = searchBarState.searchQuery,
-                onSearchQueryChanged = importMediaViewModel::onSearchQueryChanged,
+                onSearchQueryChanged = {
+                    importMediaViewModel.onSearchQueryChanged(it)
+                    searchBarState.searchQueryChanged(it)
+                },
                 onInputClicked = searchBarState::openSearch,
                 onCloseSearchClicked = searchBarState::closeSearch,
             )
@@ -126,6 +127,7 @@ fun ImportMediaContent(searchBarState: SearchBarState, importMediaViewModel: Imp
                 conversationListItems = persistentMapOf(
                     ConversationFolder.Predefined.Conversations to importMediaViewModel.shareableConversationListState.searchResult
                 ),
+                conversationsAddedToGroup = importMediaViewModel.shareableConversationListState.conversationsAddedToGroup,
                 isSelectableList = true,
                 onConversationAddedToGroup = importMediaViewModel::addConversationToGroup,
                 onConversationRemovedFromGroup = importMediaViewModel::removeConversationFromGroup,

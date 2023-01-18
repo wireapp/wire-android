@@ -61,20 +61,19 @@ fun ImportMediaScreen(importMediaViewModel: ImportMediaViewModel = hiltViewModel
 @Composable
 fun ImportMediaContent(searchBarState: SearchBarState, importMediaViewModel: ImportMediaViewModel) {
     val actionButtonTitle = stringResource(R.string.import_media_send_button_title)
-    Scaffold(
-        topBar = {
-            WireCenterAlignedTopAppBar(
-                elevation = 0.dp,
-                onNavigationPressed = importMediaViewModel::navigateBack,
-                title = stringResource(id = R.string.import_media_content_title),
-                actions = {
-                    UserProfileAvatar(
-                        avatarData = UserAvatarData(importMediaViewModel.importMediaState.avatarAsset),
-                        clickable = remember { Clickable(enabled = false) { } }
-                    )
-                }
-            )
-        },
+    Scaffold(topBar = {
+        WireCenterAlignedTopAppBar(
+            elevation = 0.dp,
+            onNavigationPressed = importMediaViewModel::navigateBack,
+            title = stringResource(id = R.string.import_media_content_title),
+            actions = {
+                UserProfileAvatar(
+                    avatarData = UserAvatarData(importMediaViewModel.importMediaState.avatarAsset),
+                    clickable = remember { Clickable(enabled = false) { } }
+                )
+            },
+        )
+    },
         modifier = Modifier.background(colorsScheme().background),
         bottomBar = {
             SelectParticipantsButtonsRow(

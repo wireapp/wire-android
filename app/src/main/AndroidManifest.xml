@@ -46,7 +46,7 @@
                 android:name=".ui.WireActivity"
                 android:exported="true"
                 android:hardwareAccelerated="true"
-                android:launchMode="singleTop"
+                android:launchMode="singleTask"
                 android:screenOrientation="portrait"
                 android:showOnLockScreen="true"
                 android:theme="@style/AppTheme.SplashScreen"

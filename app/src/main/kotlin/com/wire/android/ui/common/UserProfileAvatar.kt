@@ -38,7 +38,6 @@ fun UserProfileAvatar(
     clickable: Clickable? = null
 ) {
     val painter = painter(avatarData)
-
     Box(
         contentAlignment = Alignment.Center,
         modifier = modifier
@@ -78,7 +77,6 @@ private fun painter(data: UserAvatarData): Painter =
     } else {
         data.asset.paint(getUriFromDrawable(LocalContext.current, R.drawable.ic_default_user_avatar))
     }
-
 
 @Preview
 @Composable

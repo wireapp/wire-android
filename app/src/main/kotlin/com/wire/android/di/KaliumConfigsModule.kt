@@ -35,6 +35,4 @@ class KaliumConfigsModule {
             encryptProteusStorage = BuildConfig.ENCRYPT_PROTEUS_STORAGE
         )
     }
-
-
 }

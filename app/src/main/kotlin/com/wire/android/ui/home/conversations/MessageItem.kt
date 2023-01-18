@@ -320,6 +320,7 @@ private fun MessageContent(
             throw NullPointerException("messageContent is null")
         }
         is UIMessageContent.SystemMessage.Knock -> {}
+        is UIMessageContent.SystemMessage.HistoryLost -> {}
     }
 }
 

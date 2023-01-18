@@ -60,23 +60,35 @@ fun ImportMediaScreen(importMediaViewModel: ImportMediaViewModel = hiltViewModel
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalPagerApi::class, ExperimentalFoundationApi::class)
 @Composable
 fun ImportMediaContent(searchBarState: SearchBarState, importMediaViewModel: ImportMediaViewModel) {
-    Scaffold(topBar = {
-        WireCenterAlignedTopAppBar(
-            elevation = 0.dp,
-            onNavigationPressed = importMediaViewModel::navigateBack,
-            title = stringResource(id = R.string.import_media_content_title),
-            actions = {
-                UserProfileAvatar(
-                    avatarData = UserAvatarData(importMediaViewModel.importMediaState.avatarAsset),
-                    clickable = remember { Clickable(enabled = false) { } }
-                )
-            }
-        )
-    }, modifier = Modifier.background(colorsScheme().background)) { internalPadding ->
+    val actionButtonTitle = stringResource(R.string.import_media_send_button_title)
+    Scaffold(
+        topBar = {
+            WireCenterAlignedTopAppBar(
+                elevation = 0.dp,
+                onNavigationPressed = importMediaViewModel::navigateBack,
+                title = stringResource(id = R.string.import_media_content_title),
+                actions = {
+                    UserProfileAvatar(
+                        avatarData = UserAvatarData(importMediaViewModel.importMediaState.avatarAsset),
+                        clickable = remember { Clickable(enabled = false) { } }
+                    )
+                }
+            )
+        },
+        modifier = Modifier.background(colorsScheme().background),
+        bottomBar = {
+            SelectParticipantsButtonsRow(
+                count = importMediaViewModel.shareableConversationListState.conversationsAddedToGroup.size,
+                mainButtonText = actionButtonTitle,
+                onMainButtonClick = {
+//                   importMediaViewModel.onImportedMediaSent()
+                }
+            )
+        }
+    ) { internalPadding ->
         val importedItemsList: List<ImportedMediaAsset> = importMediaViewModel.importMediaState.importedAssets
         val pagerState = rememberPagerState()
         val isMultipleImport = importedItemsList.size > 1
-        val actionButtonTitle = stringResource(R.string.import_media_send_button_title)
 
         Column(
             modifier = Modifier
@@ -109,11 +121,12 @@ fun ImportMediaContent(searchBarState: SearchBarState, importMediaViewModel: Imp
                         stringResource(id = R.string.conversations_screen_title).lowercase()
                     ),
                     searchQuery = searchBarState.searchQuery,
-                    onSearchQueryChanged = searchBarState::searchQueryChanged,
+                    onSearchQueryChanged = importMediaViewModel::onSearchQueryChanged,
                     onInputClicked = searchBarState::openSearch,
                     onCloseSearchClicked = searchBarState::closeSearch
                 )
                 ConversationList(
+                    modifier = Modifier.weight(1f),
                     lazyListState = lazyListState,
                     conversationListItems = persistentMapOf(
                         ConversationFolder.Predefined.Conversations to importMediaViewModel.shareableConversationListState.searchResult
@@ -121,19 +134,12 @@ fun ImportMediaContent(searchBarState: SearchBarState, importMediaViewModel: Imp
                     isSelectableList = true,
                     onConversationAddedToGroup = importMediaViewModel::addConversationToGroup,
                     onConversationRemovedFromGroup = importMediaViewModel::removeConversationFromGroup,
-                    searchQuery = "",
+                    searchQuery = searchBarState.searchQuery.text,
                     onOpenConversation = {},
                     onEditConversation = {},
                     onOpenUserProfile = {},
                     onOpenConversationNotificationsSettings = {},
                     onJoinCall = {}
-                )
-                SelectParticipantsButtonsRow(
-                    count = importMediaViewModel.shareableConversationListState.conversationsAddedToGroup.size,
-                    mainButtonText = actionButtonTitle,
-                    onMainButtonClick = {
-//                   importMediaViewModel.onImportedMediaSent()
-                    }
                 )
             }
         }

@@ -57,7 +57,6 @@ fun LinkifyText(
     text: UIText,
     mask: Int = Linkify.ALL,
     modifier: Modifier = Modifier,
-    linkColor: Color = Color.Blue,
     linkEntire: Boolean = false,
     color: Color = Color.Unspecified,
     fontSize: TextUnit = TextUnit.Unspecified,
@@ -80,14 +79,17 @@ fun LinkifyText(
 ) {
     val textAsString = text.asString()
     val uriHandler = LocalUriHandler.current
-    val linkInfos = if (linkEntire) listOf(LinkInfo(textAsString, 0, textAsString.length)) else
+    val linkInfos = if (linkEntire) {
+        listOf(LinkInfo(textAsString, 0, textAsString.length))
+    } else {
         SpannableStr.getLinkInfos(textAsString, mask)
+    }
     val annotatedString = buildAnnotatedString {
         append(textAsString)
         linkInfos.forEach {
             addStyle(
                 style = SpanStyle(
-                    color = linkColor,
+                    color = MaterialTheme.wireColorScheme.primary,
                     textDecoration = TextDecoration.Underline
                 ),
                 start = it.start,

@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.core.app.ShareCompat
 import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
@@ -68,7 +69,7 @@ class ImportMediaViewModel @Inject constructor(
     var shareableConversationListState by mutableStateOf(ShareableConversationListState())
         private set
 
-    private val selectedConversationsFlow = MutableStateFlow(emptyList<ConversationItem>())
+    val selectedConversationsFlow = MutableStateFlow(emptyList<ConversationItem>())
 
     private val mutableSearchQueryFlow = MutableStateFlow("")
 
@@ -121,6 +122,15 @@ class ImportMediaViewModel @Inject constructor(
             .collect { updatedState ->
                 shareableConversationListState = updatedState
             }
+    }
+
+    fun onSearchQueryChanged(searchQuery: TextFieldValue) {
+        val textQueryChanged = mutableSearchQueryFlow.value != searchQuery.text
+        // we set the state with a searchQuery, immediately to update the UI first
+        viewModelScope.launch {
+            mutableSearchQueryFlow.emit(searchQuery.text)
+            if (textQueryChanged) mutableSearchQueryFlow.emit(searchQuery.text)
+        }
     }
 
     fun addConversationToGroup(conversation: ConversationItem) = viewModelScope.launch {

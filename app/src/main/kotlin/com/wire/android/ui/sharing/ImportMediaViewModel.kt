@@ -128,8 +128,9 @@ class ImportMediaViewModel @Inject constructor(
         val textQueryChanged = mutableSearchQueryFlow.value != searchQuery.text
         // we set the state with a searchQuery, immediately to update the UI first
         viewModelScope.launch {
-            mutableSearchQueryFlow.emit(searchQuery.text)
-            if (textQueryChanged) mutableSearchQueryFlow.emit(searchQuery.text)
+            if (textQueryChanged) {
+                mutableSearchQueryFlow.emit(searchQuery.text)
+            }
         }
     }
 

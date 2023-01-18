@@ -4,6 +4,7 @@ import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.material3.CheckboxColors
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RadioButtonColors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.rememberUpdatedState
@@ -25,6 +26,30 @@ fun wireCheckBoxColors() = wireCheckBoxColors(
     disabledBorderColor = MaterialTheme.wireColorScheme.disabledCheckedBoxColor,
     disabledIndeterminateBorderColor = MaterialTheme.wireColorScheme.disabledIndeterminateCheckBoxBorderColor,
 )
+
+@Composable
+fun wireRadioButtonColors() = object : RadioButtonColors {
+
+    @Composable
+    override fun radioColor(enabled: Boolean, selected: Boolean): State<Color> {
+        val target = if (enabled) {
+            if (selected) MaterialTheme.wireColorScheme.checkedBoxColor
+            else MaterialTheme.wireColorScheme.uncheckedBoxColor
+        } else {
+            MaterialTheme.wireColorScheme.disabledUncheckedBoxColor
+        }
+
+        // If not enabled 'snap' to the disabled state, as there should be no animations between
+        // enabled / disabled.
+        return if (enabled) {
+            val duration = BOX_OUT_DURATION
+            animateColorAsState(target, tween(durationMillis = duration))
+        } else {
+            rememberUpdatedState(target)
+        }
+    }
+
+}
 
 @Composable
 fun wireCheckBoxColors(

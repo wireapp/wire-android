@@ -12,7 +12,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.Dp
 import com.wire.android.ui.home.conversationslist.model.ConversationFolder
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
-import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.util.extension.folderWithElements
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
@@ -27,8 +26,7 @@ fun ConversationList(
     searchQuery: String,
     isSelectableList: Boolean = false,
     conversationsAddedToGroup: List<ConversationItem> = emptyList(),
-    onConversationAddedToGroup: (ConversationItem) -> Unit = {},
-    onConversationRemovedFromGroup: (ConversationItem) -> Unit = {},
+    onConversationSelectedOnRadioGroup: (ConversationItem) -> Unit = {},
     onOpenConversation: (ConversationId) -> Unit,
     onEditConversation: (ConversationItem) -> Unit,
     onOpenUserProfile: (UserId) -> Unit,
@@ -69,8 +67,7 @@ fun ConversationList(
                     conversation = generalConversation,
                     isSelectableItem = isSelectableList,
                     belongsToGroup = conversationsAddedToGroup.contains(generalConversation),
-                    onConversationAddedToGroup = { onConversationAddedToGroup(generalConversation) },
-                    onConversationRemovedFromGroup = { onConversationRemovedFromGroup(generalConversation) },
+                    onConversationSelectedOnRadioGroup = { onConversationSelectedOnRadioGroup(generalConversation) },
                     openConversation = onOpenConversation,
                     openMenu = onEditConversation,
                     openUserProfile = onOpenUserProfile,

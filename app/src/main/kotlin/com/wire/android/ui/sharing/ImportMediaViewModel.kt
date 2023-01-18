@@ -134,12 +134,8 @@ class ImportMediaViewModel @Inject constructor(
         }
     }
 
-    fun addConversationToGroup(conversation: ConversationItem) = viewModelScope.launch {
-        selectedConversationsFlow.emit(selectedConversationsFlow.value + conversation)
-    }
-
-    fun removeConversationFromGroup(conversation: ConversationItem) = viewModelScope.launch {
-        selectedConversationsFlow.emit(selectedConversationsFlow.value - conversation)
+    fun selectConversationOnRadioGroup(conversation: ConversationItem) = viewModelScope.launch {
+        selectedConversationsFlow.emit(listOf(conversation))
     }
 
     @Suppress("LongMethod")

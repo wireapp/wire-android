@@ -13,7 +13,7 @@ import com.wire.android.model.Clickable
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.calling.controlbuttons.JoinButton
 import com.wire.android.ui.common.RowItemTemplate
-import com.wire.android.ui.common.WireCheckbox
+import com.wire.android.ui.common.WireRadioButton
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.conversationColor
 import com.wire.android.ui.common.dimensions
@@ -36,8 +36,7 @@ fun ConversationItemFactory(
     searchQuery: String,
     isSelectableItem: Boolean = false,
     belongsToGroup: Boolean = false,
-    onConversationAddedToGroup: () -> Unit = {},
-    onConversationRemovedFromGroup: () -> Unit = {},
+    onConversationSelectedOnRadioGroup: () -> Unit = {},
     openConversation: (ConversationId) -> Unit,
     openMenu: (ConversationItem) -> Unit,
     openUserProfile: (UserId) -> Unit,
@@ -66,8 +65,7 @@ fun ConversationItemFactory(
         searchQuery = searchQuery,
         isSelectable = isSelectableItem,
         belongsToGroup = belongsToGroup,
-        addToGroup = onConversationAddedToGroup,
-        removeFromGroup = onConversationRemovedFromGroup,
+        selectOnRadioGroup = onConversationSelectedOnRadioGroup,
         subTitle = {
             if (!isSelectableItem) {
                 when (val messageContent = conversation.lastMessageContent) {
@@ -99,8 +97,7 @@ private fun GeneralConversationItem(
     searchQuery: String,
     conversation: ConversationItem,
     belongsToGroup: Boolean,
-    addToGroup: () -> Unit = {},
-    removeFromGroup: () -> Unit = {},
+    selectOnRadioGroup: () -> Unit = {},
     isSelectable: Boolean,
     subTitle: @Composable () -> Unit = {},
     onConversationItemClick: Clickable,
@@ -114,8 +111,8 @@ private fun GeneralConversationItem(
                     leadingIcon = {
                         Row {
                             if (isSelectable) {
-                                WireCheckbox(checked = belongsToGroup, onCheckedChange = { isChecked ->
-                                    if (isChecked) addToGroup() else removeFromGroup()
+                                WireRadioButton(checked = belongsToGroup, onButtonChecked = {
+                                    selectOnRadioGroup()
                                 })
                             }
                             GroupConversationAvatar(colorsScheme().conversationColor(id = conversationId))
@@ -157,8 +154,8 @@ private fun GeneralConversationItem(
                     leadingIcon = {
                         Row {
                             if (isSelectable) {
-                                WireCheckbox(checked = belongsToGroup, onCheckedChange = { isChecked ->
-                                    if (isChecked) addToGroup() else removeFromGroup()
+                                WireRadioButton(checked = belongsToGroup, onButtonChecked = {
+                                    selectOnRadioGroup()
                                 })
                             }
                             ConversationUserAvatar(userAvatarData)
@@ -231,7 +228,7 @@ fun PreviewGroupConversationItemWithUnreadCount() {
         searchQuery = "",
         isSelectableItem = false,
         belongsToGroup = false,
-        {}, {}, {}, {}, {}, {}, {}
+        {}, {}, {}, {}, {}, {}
     )
 }
 
@@ -253,7 +250,7 @@ fun PreviewGroupConversationItemWithNoBadges() {
         searchQuery = "",
         isSelectableItem = false,
         belongsToGroup = false,
-        {}, {}, {}, {}, {}, {}, {}
+        {}, {}, {}, {}, {}, {}
     )
 }
 
@@ -275,7 +272,7 @@ fun PreviewGroupConversationItemWithMutedBadgeAndUnreadMentionBadge() {
         searchQuery = "",
         isSelectableItem = false,
         belongsToGroup = false,
-        {}, {}, {}, {}, {}, {}, {}
+        {}, {}, {}, {}, {}, {}
     )
 }
 
@@ -298,7 +295,7 @@ fun PreviewGroupConversationItemWithOngoingCall() {
         searchQuery = "",
         isSelectableItem = false,
         belongsToGroup = false,
-        {}, {}, {}, {}, {}, {}, {}
+        {}, {}, {}, {}, {}, {}
     )
 }
 
@@ -317,7 +314,7 @@ fun PreviewConnectionConversationItemWithReceivedConnectionRequestBadge() {
         searchQuery = "",
         isSelectableItem = false,
         belongsToGroup = false,
-        {}, {}, {}, {}, {}, {}, {}
+        {}, {}, {}, {}, {}, {}
     )
 }
 
@@ -336,7 +333,7 @@ fun PreviewConnectionConversationItemWithSentConnectRequestBadge() {
         searchQuery = "",
         isSelectableItem = false,
         belongsToGroup = false,
-        {}, {}, {}, {}, {}, {}, {}
+        {}, {}, {}, {}, {}, {}
     )
 }
 
@@ -358,6 +355,6 @@ fun PreviewPrivateConversationItemWithBlockedBadge() {
         searchQuery = "",
         isSelectableItem = false,
         belongsToGroup = false,
-        {}, {}, {}, {}, {}, {}, {}
+        {}, {}, {}, {}, {}, {}
     )
 }

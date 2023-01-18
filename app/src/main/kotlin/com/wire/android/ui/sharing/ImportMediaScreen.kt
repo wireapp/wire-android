@@ -96,7 +96,8 @@ fun ImportMediaContent(searchBarState: SearchBarState, importMediaViewModel: Imp
                         state = pagerState,
                         count = importedItemsList.size,
                         modifier = Modifier.fillMaxWidth(),
-                        contentPadding = contentPadding
+                        contentPadding = contentPadding,
+                        itemSpacing = dimensions().spacing8x
                     ) { page ->
                         ImportedMediaItemView(importedItemsList[page], isMultipleImport, importMediaViewModel.wireSessionImageLoader)
                     }

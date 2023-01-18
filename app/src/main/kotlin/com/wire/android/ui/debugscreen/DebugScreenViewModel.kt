@@ -41,7 +41,7 @@ class DebugScreenViewModel
     private val logFileWriter: LogFileWriter,
     private val currentClientIdUseCase: ObserveCurrentClientIdUseCase,
     private val updateApiVersions: UpdateApiVersionsScheduler,
-    private val restartSlowSyncProcessForRecoveryUseCase: RestartSlowSyncProcessForRecoveryUseCase,
+    private val restartSlowSyncProcessForRecovery: RestartSlowSyncProcessForRecoveryUseCase,
     isLoggingEnabledUseCase: IsLoggingEnabledUseCase
 ) : ViewModel() {
     val logPath: String = logFileWriter.activeLoggingFile.absolutePath
@@ -92,8 +92,10 @@ class DebugScreenViewModel
         logFileWriter.deleteAllLogFiles()
     }
 
-    fun restartSlowSyncForRecovery() = viewModelScope.launch {
-        restartSlowSyncProcessForRecoveryUseCase()
+    fun restartSlowSyncForRecovery() {
+        viewModelScope.launch {
+            restartSlowSyncProcessForRecovery()
+        }
     }
 
     fun setLoggingEnabledState(isEnabled: Boolean) {

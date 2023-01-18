@@ -36,7 +36,6 @@ import com.wire.android.model.Clickable
 import com.wire.android.ui.common.WireCircularProgressIndicator
 import com.wire.android.ui.common.clickable
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.sharing.ImportedMediaAsset
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
@@ -68,7 +67,6 @@ internal fun MessageAsset(
                 shape = RoundedCornerShape(dimensions().messageAssetBorderRadius)
             )
             .clickable(if (isNotClickable(assetDownloadStatus, assetUploadStatus)) null else onAssetClick)
-            .padding(dimensions().spacing8x)
     ) {
         val isUploadInProgress = assetUploadStatus == Message.UploadStatus.UPLOAD_IN_PROGRESS
         if (isUploadInProgress) {
@@ -76,12 +74,12 @@ internal fun MessageAsset(
         } else {
             val assetModifier = if (shouldFillMaxWidth) Modifier.fillMaxWidth()
             else Modifier.size(dimensions().importedMediaAssetSize)
-            Column(modifier = assetModifier) {
+            Column(modifier = assetModifier.padding(dimensions().spacing8x)) {
                 Text(
                     text = assetName,
                     style = MaterialTheme.wireTypography.body02,
                     maxLines = if (shouldFillMaxWidth) 2 else 4,
-                    overflow = TextOverflow.Ellipsis,
+                    overflow = TextOverflow.Ellipsis
                 )
                 val descriptionModifier = Modifier.padding(top = dimensions().spacing8x).fillMaxWidth()
                 Row(verticalAlignment = Alignment.Bottom) {
@@ -119,7 +117,7 @@ internal fun MessageAsset(
                                         top.linkTo(parent.top)
                                         end.linkTo(parent.end)
                                         bottom.linkTo(parent.bottom)
-                                    },
+                                    }
                             ) {
                                 Text(
                                     modifier = Modifier.padding(end = dimensions().spacing4x),
@@ -209,13 +207,14 @@ fun RestrictedGenericFileMessage(fileName: String, fileSize: Long) {
     ) {
         val assetName = fileName.split(".").dropLast(1).joinToString(".")
         val assetDescription = provideAssetDescription(
-            fileName.split(".").last(), fileSize
+            fileName.split(".").last(),
+            fileSize
         )
 
         ConstraintLayout(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(dimensions().spacing8x),
+                .padding(dimensions().spacing8x)
         ) {
             val (
                 name, icon, size, message
@@ -247,7 +246,7 @@ fun RestrictedGenericFileMessage(fileName: String, fileSize: Long) {
                 ),
                 alignment = Alignment.Center,
                 contentDescription = stringResource(R.string.content_description_image_message),
-                colorFilter = ColorFilter.tint(MaterialTheme.wireColorScheme.secondaryText),
+                colorFilter = ColorFilter.tint(MaterialTheme.wireColorScheme.secondaryText)
             )
 
             Text(
@@ -279,7 +278,7 @@ fun RestrictedGenericFileMessage(fileName: String, fileSize: Long) {
 private fun DownloadStatusIcon(assetDownloadStatus: Message.DownloadStatus, assetUploadStatus: Message.UploadStatus) {
     return when {
         assetUploadStatus == Message.UploadStatus.UPLOAD_IN_PROGRESS ||
-                assetDownloadStatus == Message.DownloadStatus.DOWNLOAD_IN_PROGRESS -> WireCircularProgressIndicator(
+            assetDownloadStatus == Message.DownloadStatus.DOWNLOAD_IN_PROGRESS -> WireCircularProgressIndicator(
             progressColor = MaterialTheme.wireColorScheme.secondaryText,
             size = dimensions().spacing16x
         )
@@ -314,7 +313,7 @@ fun getDownloadStatusText(assetDownloadStatus: Message.DownloadStatus, assetUplo
             stringResource(R.string.asset_message_download_in_progress_text)
 
         assetDownloadStatus == Message.DownloadStatus.SAVED_EXTERNALLY ||
-                assetUploadStatus == Message.UploadStatus.UPLOADED -> stringResource(R.string.asset_message_saved_externally_text)
+            assetUploadStatus == Message.UploadStatus.UPLOADED -> stringResource(R.string.asset_message_saved_externally_text)
 
         assetDownloadStatus == Message.DownloadStatus.FAILED_DOWNLOAD -> stringResource(R.string.asset_message_failed_download_text)
         else -> ""

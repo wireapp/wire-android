@@ -21,6 +21,7 @@ import kotlinx.collections.immutable.ImmutableMap
 @Suppress("LongParameterList")
 @Composable
 fun ConversationList(
+    modifier: Modifier = Modifier,
     lazyListState: LazyListState = rememberLazyListState(),
     conversationListItems: ImmutableMap<ConversationFolder, List<ConversationItem>>,
     searchQuery: String,
@@ -38,7 +39,7 @@ fun ConversationList(
 
     LazyColumn(
         state = lazyListState,
-        modifier = Modifier.fillMaxSize()
+        modifier = modifier.fillMaxSize()
     ) {
         /*
      * When the list is scrolled to top and new items (e.g. new activity section) should appear on top of the list, it appears above
@@ -68,8 +69,8 @@ fun ConversationList(
                     conversation = generalConversation,
                     isSelectableItem = isSelectableList,
                     belongsToGroup = conversationsAddedToGroup.contains(generalConversation),
-                    onConversationAddedToGroup = onConversationAddedToGroup,
-                    onConversationRemovedFromGroup = onConversationRemovedFromGroup,
+                    onConversationAddedToGroup = { onConversationAddedToGroup(generalConversation) },
+                    onConversationRemovedFromGroup = { onConversationRemovedFromGroup(generalConversation) },
                     openConversation = onOpenConversation,
                     openMenu = onEditConversation,
                     openUserProfile = onOpenUserProfile,

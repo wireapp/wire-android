@@ -4,6 +4,7 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -22,6 +23,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
@@ -57,6 +59,7 @@ fun ImportMediaScreen(importMediaViewModel: ImportMediaViewModel = hiltViewModel
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalPagerApi::class)
 @Composable
 fun ImportMediaContent(searchBarState: SearchBarState, importMediaViewModel: ImportMediaViewModel) {
+    val actionButtonTitle = stringResource(R.string.import_media_send_button_title)
     Scaffold(topBar = {
         WireCenterAlignedTopAppBar(
             elevation = 0.dp,
@@ -69,11 +72,19 @@ fun ImportMediaContent(searchBarState: SearchBarState, importMediaViewModel: Imp
                 )
             },
         )
-    }, modifier = Modifier.background(colorsScheme().background)) { internalPadding ->
+    }, modifier = Modifier.background(colorsScheme().background),
+        bottomBar = {
+            SelectParticipantsButtonsRow(
+                count = importMediaViewModel.shareableConversationListState.conversationsAddedToGroup.size,
+                mainButtonText = actionButtonTitle,
+                onMainButtonClick = {
+//                   importMediaViewModel.onImportedMediaSent()
+                }
+            )
+        }) { internalPadding ->
         val importedItemsList: List<ImportedMediaAsset> = importMediaViewModel.importMediaState.importedAssets
         val pagerState = rememberPagerState()
         val isMultipleImport = importedItemsList.size > 1
-        val actionButtonTitle = stringResource(R.string.import_media_send_button_title)
 
         Column(
             modifier = Modifier
@@ -105,11 +116,12 @@ fun ImportMediaContent(searchBarState: SearchBarState, importMediaViewModel: Imp
                     stringResource(id = R.string.conversations_screen_title).lowercase()
                 ),
                 searchQuery = searchBarState.searchQuery,
-                onSearchQueryChanged = searchBarState::searchQueryChanged,
+                onSearchQueryChanged = importMediaViewModel::onSearchQueryChanged,
                 onInputClicked = searchBarState::openSearch,
                 onCloseSearchClicked = searchBarState::closeSearch,
             )
             ConversationList(
+                modifier = Modifier.weight(1f),
                 lazyListState = lazyListState,
                 conversationListItems = persistentMapOf(
                     ConversationFolder.Predefined.Conversations to importMediaViewModel.shareableConversationListState.searchResult
@@ -117,19 +129,12 @@ fun ImportMediaContent(searchBarState: SearchBarState, importMediaViewModel: Imp
                 isSelectableList = true,
                 onConversationAddedToGroup = importMediaViewModel::addConversationToGroup,
                 onConversationRemovedFromGroup = importMediaViewModel::removeConversationFromGroup,
-                searchQuery = "",
+                searchQuery = searchBarState.searchQuery.text,
                 onOpenConversation = {},
                 onEditConversation = {},
                 onOpenUserProfile = {},
                 onOpenConversationNotificationsSettings = {},
                 onJoinCall = {}
-            )
-            SelectParticipantsButtonsRow(
-                count = importMediaViewModel.shareableConversationListState.conversationsAddedToGroup.size,
-                mainButtonText = actionButtonTitle,
-                onMainButtonClick = {
-//                   importMediaViewModel.onImportedMediaSent()
-                }
             )
         }
         BackHandler(enabled = searchBarState.isSearchActive) {

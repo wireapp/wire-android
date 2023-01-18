@@ -36,8 +36,8 @@ fun ConversationItemFactory(
     searchQuery: String,
     isSelectableItem: Boolean = false,
     belongsToGroup: Boolean = false,
-    onConversationAddedToGroup: (ConversationItem) -> Unit = {},
-    onConversationRemovedFromGroup: (ConversationItem) -> Unit = {},
+    onConversationAddedToGroup: () -> Unit = {},
+    onConversationRemovedFromGroup: () -> Unit = {},
     openConversation: (ConversationId) -> Unit,
     openMenu: (ConversationItem) -> Unit,
     openUserProfile: (UserId) -> Unit,
@@ -99,8 +99,8 @@ private fun GeneralConversationItem(
     searchQuery: String,
     conversation: ConversationItem,
     belongsToGroup: Boolean,
-    addToGroup: (ConversationItem) -> Unit = {},
-    removeFromGroup: (ConversationItem) -> Unit = {},
+    addToGroup: () -> Unit = {},
+    removeFromGroup: () -> Unit = {},
     isSelectable: Boolean,
     subTitle: @Composable () -> Unit = {},
     onConversationItemClick: Clickable,
@@ -113,11 +113,11 @@ private fun GeneralConversationItem(
                 RowItemTemplate(
                     leadingIcon = {
                         Row {
-                            if (isSelectable) WireCheckbox(
-                                checked = belongsToGroup,
-                                onCheckedChange = { isChecked ->
-                                    if (isChecked) addToGroup(conversation) else removeFromGroup(conversation)
+                            if (isSelectable) {
+                                WireCheckbox(checked = belongsToGroup, onCheckedChange = { isChecked ->
+                                    if (isChecked) addToGroup() else removeFromGroup()
                                 })
+                            }
                             GroupConversationAvatar(colorsScheme().conversationColor(id = conversationId))
                         }
                     },
@@ -156,11 +156,11 @@ private fun GeneralConversationItem(
                 RowItemTemplate(
                     leadingIcon = {
                         Row {
-                            if (isSelectable) WireCheckbox(
-                                checked = belongsToGroup,
-                                onCheckedChange = { isChecked ->
-                                    if (isChecked) addToGroup(conversation) else removeFromGroup(conversation)
+                            if (isSelectable) {
+                                WireCheckbox(checked = belongsToGroup, onCheckedChange = { isChecked ->
+                                    if (isChecked) addToGroup() else removeFromGroup()
                                 })
+                            }
                             ConversationUserAvatar(userAvatarData)
                         }
                     },

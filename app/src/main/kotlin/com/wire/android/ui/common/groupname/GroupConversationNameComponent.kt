@@ -26,7 +26,6 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
-import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.ui.common.Icon
 import com.wire.android.ui.common.ShakeAnimation
@@ -86,9 +85,6 @@ fun GroupNameScreen(
                                 vertical = MaterialTheme.wireDimensions.spacing24x
                             )
                     )
-
-                    Spacer(modifier = Modifier.weight(1f))
-
                     Box {
                         ShakeAnimation { animate ->
                             if (animatedGroupNameError) {
@@ -107,18 +103,16 @@ fun GroupNameScreen(
                             )
                         }
                     }
-                    if (mlsEnabled || (BuildConfig.PRIVATE_BUILD && BuildConfig.MLS_SUPPORT_ENABLED)) {
-                        if (mode == CREATION) {
-                            WireDropDown(
-                                items =
-                                ConversationOptions.Protocol.values().map { it.name },
-                                defaultItemIndex = 0,
-                                stringResource(R.string.protocol),
-                                modifier = Modifier
-                                    .padding(MaterialTheme.wireDimensions.spacing16x)
-                            ) { selectedIndex ->
-                                groupProtocol = ConversationOptions.Protocol.values()[selectedIndex]
-                            }
+                    if (mode == CREATION && mlsEnabled) {
+                        WireDropDown(
+                            items =
+                            ConversationOptions.Protocol.values().map { it.name },
+                            defaultItemIndex = 0,
+                            stringResource(R.string.protocol),
+                            modifier = Modifier
+                                .padding(MaterialTheme.wireDimensions.spacing16x)
+                        ) { selectedIndex ->
+                            groupProtocol = ConversationOptions.Protocol.values()[selectedIndex]
                         }
                     }
 

@@ -43,7 +43,8 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
     DEV("dev", ConfigType.FLAVOUR_CONFIG),
     INTERNAL("internal", ConfigType.FLAVOUR_CONFIG),
     STAGING("staging", ConfigType.FLAVOUR_CONFIG),
-    PROD("prod", ConfigType.FLAVOUR_CONFIG);
+    PROD("prod", ConfigType.FLAVOUR_CONFIG),
+    BETA("beta", ConfigType.FLAVOUR_CONFIG);
 }
 
 enum class CertificatePin(val value: String, val configType: ConfigType) {

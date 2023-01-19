@@ -59,7 +59,6 @@ data class ScalaMessageData(
     }
 }
 
-
 class ScalaMessageDAO(private val db: ScalaUserDatabase) {
 
     fun messages(scalaConversations: List<ScalaConversationData>): List<ScalaMessageData> {

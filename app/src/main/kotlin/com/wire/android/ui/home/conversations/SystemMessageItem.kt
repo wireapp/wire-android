@@ -233,7 +233,7 @@ fun SystemMessage.annotatedString(
         is SystemMessage.TeamMemberRemoved -> arrayOf(content.userName)
         is SystemMessage.CryptoSessionReset -> arrayOf(author.asString(res))
         is SystemMessage.NewConversationReceiptMode -> arrayOf(receiptMode.asString(res))
-        is SystemMessage.ConversationReceiptModeChanged -> arrayOf(receiptMode.asString(res))
+        is SystemMessage.ConversationReceiptModeChanged -> arrayOf(author.asString(res), receiptMode.asString(res))
         is SystemMessage.Knock -> arrayOf(author.asString(res))
         is SystemMessage.HistoryLost -> arrayOf()
     }

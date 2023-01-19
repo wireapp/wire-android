@@ -51,13 +51,17 @@ class WireSessionImageLoader(private val coilImageLoader: ImageLoader) {
             model = ImageRequest.Builder(LocalContext.current)
                 .memoryCacheKey(asset?.uniqueKey)
                 .data(asset ?: fallbackData)
-                .setParameter("retry_hash", retryHash)
+                .setParameter(
+                    key = "retry_hash",
+                    value = retryHash,
+                    memoryCacheKey = null
+                )
                 .build(),
             imageLoader = coilImageLoader
         )
 
         if (painter.state is AsyncImagePainter.State.Error) {
-            retryHash += retryHash
+            retryHash += 1
         }
 
         return painter

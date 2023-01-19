@@ -38,6 +38,7 @@ fun UserProfileAvatar(
     clickable: Clickable? = null
 ) {
     val painter = painter(avatarData)
+
     Box(
         contentAlignment = Alignment.Center,
         modifier = modifier

@@ -17,7 +17,7 @@ import org.amshove.kluent.internal.assertEquals
 class ScalaBackendPreferencesTest {
 
     @Test
-    fun `given regular url when fetching scala backend data then return this url`()  = runTest {
+    fun `given regular url when fetching scala backend data then return this url`() = runTest {
         // given
         val blacklistUrl = "https://wire.com/blacklist"
         // when
@@ -29,7 +29,7 @@ class ScalaBackendPreferencesTest {
     }
 
     @Test
-    fun `given optional url when fetching scala backend data then extract proper url from the string`()  = runTest {
+    fun `given optional url when fetching scala backend data then extract proper url from the string`() = runTest {
         // given
         val blacklistUrl = "https://wire.com/blacklist"
         val optionalBlacklistUrl = "Some($blacklistUrl)"
@@ -42,7 +42,7 @@ class ScalaBackendPreferencesTest {
     }
 
     @Test
-    fun `given optional empty url when fetching scala backend data then return null`()  = runTest {
+    fun `given optional empty url when fetching scala backend data then return null`() = runTest {
         // given
         val optionalBlacklistUrl = "None"
         // when

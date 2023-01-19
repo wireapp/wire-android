@@ -31,7 +31,6 @@ import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 @Composable
 fun MessageComposeActionsBox(
     transition: Transition<MessageComposeInputState>,
-    messageComposeInputState: MessageComposeInputState,
     isMentionActive: Boolean,
     startMention: () -> Unit,
     onAdditionalOptionButtonClicked: () -> Unit,
@@ -49,7 +48,7 @@ fun MessageComposeActionsBox(
             ) { state ->
                 if (state is MessageComposeInputState.Active)
                     MessageComposeActions(
-                        messageComposeInputState.attachmentOptionsDisplayed,
+                        state.attachmentOptionsDisplayed,
                         isMentionActive,
                         startMention,
                         onAdditionalOptionButtonClicked

@@ -101,7 +101,6 @@ private fun EnabledMessageComposerInput(
         )
         MessageComposeActionsBox(
             transition = transition,
-            messageComposeInputState = messageComposeInputState,
             isMentionActive = membersToMention.isNotEmpty(),
             startMention = actions.startMention,
             onAdditionalOptionButtonClicked = actions.onAdditionalOptionButtonClicked,

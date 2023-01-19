@@ -12,8 +12,8 @@ import com.wire.kalium.logic.NetworkFailure
 import com.wire.kalium.logic.StorageFailure
 import com.wire.kalium.logic.data.conversation.ClientId
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.feature.client.RegisterClientUseCase.RegisterClientParam
 import com.wire.kalium.logic.feature.client.RegisterClientResult
+import com.wire.kalium.logic.feature.client.RegisterClientUseCase.RegisterClientParam
 import com.wire.kalium.logic.functional.Either
 import com.wire.kalium.logic.functional.flatMap
 import com.wire.kalium.logic.functional.foldToEitherWhileRight
@@ -31,7 +31,7 @@ class MigrateClientsDataUseCase @Inject constructor(
     private val scalaUserDBProvider: ScalaUserDatabaseProvider,
     private val userDataStoreProvider: UserDataStoreProvider
 ) {
-    suspend operator fun invoke(userIds: List<UserId>): Either<CoreFailure, List<UserId>> =
+    suspend operator fun invoke(userIds: List<UserId>, isFederated: Boolean): Either<CoreFailure, List<UserId>> =
         userIds.foldToEitherWhileRight(emptyList()) { userId, acc ->
 
             val clientId = scalaUserDBProvider.clientDAO(userId)?.clientInfo()?.clientId?.let { ClientId(it) }
@@ -43,7 +43,7 @@ class MigrateClientsDataUseCase @Inject constructor(
             scalaDir.copyRecursively(target = currentDir, overwrite = false)
             // Session file names from the scala app contain user ids without a domain, AR uses session file names having user ids
             // with a domain, so migrated session file names have to be fixed by adding a domain to them.
-            fixSessionFileNames(currentDir, userId.domain)
+            fixSessionFileNames(userId, currentDir, isFederated, scalaUserDBProvider)
             scalaDir.deleteRecursively()
 
             // add registered client id, sync will start when the registered id is persisted
@@ -78,16 +78,43 @@ class MigrateClientsDataUseCase @Inject constructor(
             }
         }
 
-    private fun fixSessionFileNames(proteusDir: File, domain: String) {
-        val sessionsDir = File(proteusDir, "sessions")
+    @VisibleForTesting
+    fun getSessionFileNamesWithoutDomain(sessionsDir: File): List<File> =
         if (sessionsDir.exists() && sessionsDir.isDirectory) {
-            sessionsDir.listFiles { file -> !file.isDirectory }?.forEach { session ->
-                val fixedSessionFileName = fixSessionFileName(session.name, domain)
-                if (fixedSessionFileName != session.name) {
-                    session.renameTo(File(sessionsDir, fixedSessionFileName))
-                }
+            sessionsDir.listFiles { file ->
+                !file.isDirectory && !file.name.contains("@")
+            }?.asList() ?: listOf()
+        } else listOf()
+
+    @VisibleForTesting
+    fun fixSessionFileNames(userId: UserId, proteusDir: File, isFederated: Boolean, scalaUserDBProvider: ScalaUserDatabaseProvider) {
+        val sessionsDir = File(proteusDir, "sessions")
+        if (isFederated) {
+            val filesWithoutDomain = getSessionFileNamesWithoutDomain(sessionsDir)
+                .map { file -> file.name.substringBefore("_") to file }
+            val sessionUserIds = filesWithoutDomain.map { (userId, _) -> userId }.distinct()
+            val sessionUsers = sessionUserIds.chunked(500)
+                .map { scalaUserDBProvider.userDAO(userId)?.users(it) ?: listOf() }
+                .flatten()
+                .associateBy { it.id }
+            filesWithoutDomain.forEach { (sessionUserId, file) ->
+                renameSessionFileIfNeeded(sessionsDir, file, sessionUsers[sessionUserId]?.domain ?: userId.domain)
+            }
+        } else {
+            getSessionFileNamesWithoutDomain(sessionsDir).forEach { file ->
+                renameSessionFileIfNeeded(sessionsDir, file, userId.domain)
             }
         }
+    }
+
+    @VisibleForTesting
+    fun renameSessionFileIfNeeded(sessionsDir: File, file: File, domain: String): File {
+        val fixedSessionFileName = fixSessionFileName(file.name, domain)
+        if (fixedSessionFileName != file.name) {
+            val newFile = File(sessionsDir, fixedSessionFileName)
+            return if (file.renameTo(newFile)) newFile else file
+        }
+        return file
     }
 
     @VisibleForTesting

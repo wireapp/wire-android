@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.cachedIn
 import com.wire.android.R
 import com.wire.android.appLogger
+import com.wire.android.media.PingRinger
 import com.wire.android.model.SnackBarMessage
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.NavigationCommand
@@ -18,6 +19,7 @@ import com.wire.android.ui.home.conversations.ConversationSnackbarMessages
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.OnResetSession
 import com.wire.android.ui.home.conversations.DownloadedAssetDialogVisibilityState
 import com.wire.android.ui.home.conversations.usecase.GetMessagesForConversationUseCase
+import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.FileManager
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.UIText
@@ -26,12 +28,14 @@ import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.MessageContent
+import com.wire.kalium.logic.data.notification.LocalNotificationMessage
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
 import com.wire.kalium.logic.feature.asset.UpdateAssetMessageDownloadStatusUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.message.GetMessageByIdUseCase
+import com.wire.kalium.logic.feature.message.GetNotificationsUseCase
 import com.wire.kalium.logic.feature.message.ToggleReactionUseCase
 import com.wire.kalium.logic.feature.sessionreset.ResetSessionResult
 import com.wire.kalium.logic.feature.sessionreset.ResetSessionUseCase
@@ -59,7 +63,10 @@ class ConversationMessagesViewModel @Inject constructor(
     private val dispatchers: DispatcherProvider,
     private val getMessageForConversation: GetMessagesForConversationUseCase,
     private val toggleReaction: ToggleReactionUseCase,
-    private val resetSession: ResetSessionUseCase
+    private val resetSession: ResetSessionUseCase,
+    private val observeNotifications: GetNotificationsUseCase,
+    private val pingRinger: PingRinger,
+    private val currentScreenManager: CurrentScreenManager
 ) : SavedStateViewModel(savedStateHandle) {
 
     var conversationViewState by mutableStateOf(ConversationMessagesViewState())
@@ -74,6 +81,18 @@ class ConversationMessagesViewModel @Inject constructor(
     init {
         loadPaginatedMessages()
         loadLastMessageInstant()
+        observeNotifications()
+    }
+
+    private fun observeNotifications() = viewModelScope.launch {
+        observeNotifications.invoke().collect{
+            val knockNotification =
+                it.filter { it.id == conversationId }.firstOrNull()?.messages?.filterIsInstance<LocalNotificationMessage.Knock>()
+                    ?.firstOrNull()
+            if(knockNotification != null) {
+                pingRinger.ping(R.raw.ping_from_them, isReceivingPing = true)
+            }
+        }
     }
 
     private fun loadPaginatedMessages() = viewModelScope.launch {

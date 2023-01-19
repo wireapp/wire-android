@@ -171,7 +171,8 @@ fun ConversationScreen(
         onSnackbarMessage = messageComposerViewModel::onSnackbarMessage,
         onBackButtonClick = messageComposerViewModel::navigateBack,
         composerMessages = messageComposerViewModel.infoMessage,
-        conversationMessages = conversationMessagesViewModel.infoMessage
+        conversationMessages = conversationMessagesViewModel.infoMessage,
+        onPingClicked = messageComposerViewModel::sendPing
     )
     DeleteMessageDialog(
         state = messageComposerViewModel.deleteMessageDialogsState,
@@ -260,6 +261,7 @@ private fun ConversationScreen(
     onBackButtonClick: () -> Unit,
     composerMessages: SharedFlow<SnackBarMessage>,
     conversationMessages: SharedFlow<SnackBarMessage>,
+    onPingClicked: () -> Unit
 ) {
     val conversationScreenState = rememberConversationScreenState()
     val messageComposerInnerState = rememberMessageComposerInnerState()
@@ -366,7 +368,8 @@ private fun ConversationScreen(
                         onResetSessionClicked = onResetSessionClick,onOpenProfile = onOpenProfile,
                         onUpdateConversationReadDate = onUpdateConversationReadDate,
                         onMessageComposerError = onSnackbarMessage,
-                        onShowContextMenu = conversationScreenState::showEditContextMenu
+                        onShowContextMenu = conversationScreenState::showEditContextMenu,
+                        onPingClicked = onPingClicked
                     )
                 }
             }
@@ -397,6 +400,7 @@ private fun ConversationScreenContent(
     onUpdateConversationReadDate: (String) -> Unit,
     onMessageComposerError: (ConversationSnackbarMessages) -> Unit,
     onShowContextMenu: (UIMessage) -> Unit,
+    onPingClicked: () -> Unit
 ) {
     val scope = rememberCoroutineScope()
 
@@ -441,7 +445,8 @@ private fun ConversationScreenContent(
         tempCachePath = tempCachePath,
         interactionAvailability = interactionAvailability,
         securityClassificationType = conversationState.securityClassificationType,
-        membersToMention = membersToMention
+        membersToMention = membersToMention,
+        onPingClicked = onPingClicked
     )
 }
 
@@ -572,5 +577,6 @@ fun PreviewConversationScreen() {
         onBackButtonClick = {},
         composerMessages = MutableStateFlow(ErrorDownloadingAsset),
         conversationMessages = MutableStateFlow(ErrorDownloadingAsset),
+        onPingClicked = {}
     )
 }

@@ -32,7 +32,8 @@ import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 fun MessageComposeActionsBox(
     transition: Transition<MessageComposeInputState>,
     messageComposerState: MessageComposerInnerState,
-    isMentionActive: Boolean
+    isMentionActive: Boolean,
+    onPingClicked: () -> Unit
 ) {
     Column(
         Modifier
@@ -48,7 +49,7 @@ fun MessageComposeActionsBox(
                 }
             ) { state ->
                 if (state != MessageComposeInputState.Enabled)
-                    MessageComposeActions(messageComposerState, isMentionActive)
+                    MessageComposeActions(messageComposerState, isMentionActive, onPingClicked)
             }
         }
     }
@@ -57,7 +58,8 @@ fun MessageComposeActionsBox(
 @Composable
 private fun MessageComposeActions(
     messageComposerState: MessageComposerInnerState,
-    isMentionsSelected: Boolean
+    isMentionsSelected: Boolean,
+    onPingClicked: () -> Unit
 ) {
     val localFeatureVisibilityFlags = LocalFeatureVisibilityFlags.current
 
@@ -81,7 +83,7 @@ private fun MessageComposeActions(
                 AddGifAction()
             AddMentionAction(isMentionsSelected, messageComposerState::startMention)
             if (PingIcon)
-                PingAction()
+                PingAction(onPingClicked = onPingClicked)
         }
     }
 }
@@ -131,9 +133,9 @@ private fun AddMentionAction(isSelected: Boolean, addMentionAction: () -> Unit) 
 }
 
 @Composable
-private fun PingAction() {
+private fun PingAction(onPingClicked: () -> Unit) {
     WireSecondaryIconButton(
-        onButtonClicked = {},
+        onButtonClicked = onPingClicked,
         blockUntilSynced = true,
         iconResource = R.drawable.ic_ping,
         contentDescription = R.string.content_description_ping_everyone
@@ -155,6 +157,6 @@ fun PreviewMessageActionsBox() {
         AddEmojiAction()
         AddGifAction()
         AddMentionAction(isSelected = false, addMentionAction = {})
-        PingAction()
+        PingAction {}
     }
 }

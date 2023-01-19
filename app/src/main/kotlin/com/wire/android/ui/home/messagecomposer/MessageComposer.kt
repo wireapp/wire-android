@@ -81,7 +81,8 @@ fun MessageComposer(
     interactionAvailability: InteractionAvailability,
     tempCachePath: Path,
     securityClassificationType: SecurityClassificationType,
-    membersToMention: List<Contact>
+    membersToMention: List<Contact>,
+    onPingClicked: () -> Unit
 ) {
     BoxWithConstraints {
         val onSendButtonClicked = remember {
@@ -126,6 +127,7 @@ fun MessageComposer(
             securityClassificationType = securityClassificationType,
             onSendButtonClicked = onSendButtonClicked,
             onMentionPicked = onMentionPicked,
+            onPingClicked = onPingClicked
         )
     }
 }
@@ -145,6 +147,7 @@ private fun MessageComposer(
     securityClassificationType: SecurityClassificationType,
     onSendButtonClicked: () -> Unit,
     onMentionPicked: (Contact) -> Unit,
+    onPingClicked: () -> Unit
 ) {
     Surface(color = colorsScheme().messageComposerBackgroundColor) {
         val transition = updateTransition(
@@ -228,6 +231,7 @@ private fun MessageComposer(
                         onSendButtonClicked = onSendButtonClicked,
                         onToggleFullScreen = messageComposerState::toggleFullScreen,
                         onCancelReply = messageComposerState::cancelReply,
+                        onPingClicked = onPingClicked
                     )
                 }
 
@@ -281,7 +285,8 @@ private fun MessageComposerInput(
     onSendButtonClicked: () -> Unit,
     onToggleFullScreen: () -> Unit,
     onMentionPicked: (Contact) -> Unit,
-    onCancelReply: () -> Unit
+    onCancelReply: () -> Unit,
+    onPingClicked: () -> Unit
 ) {
     when (interactionAvailability) {
         InteractionAvailability.BLOCKED_USER -> BlockedUserComposerInput()
@@ -296,7 +301,8 @@ private fun MessageComposerInput(
                 onSendButtonClicked = onSendButtonClicked,
                 onToggleFullScreen = onToggleFullScreen,
                 onMentionPicked = onMentionPicked,
-                onCancelReply = onCancelReply
+                onCancelReply = onCancelReply,
+                onPingClicked = onPingClicked
             )
         }
     }
@@ -312,7 +318,8 @@ private fun EnabledMessageComposerInput(
     onSendButtonClicked: () -> Unit,
     onToggleFullScreen: () -> Unit,
     onMentionPicked: (Contact) -> Unit,
-    onCancelReply: () -> Unit
+    onCancelReply: () -> Unit,
+    onPingClicked: () -> Unit,
 ) {
     Column {
         var currentSelectedLineIndex by remember {
@@ -345,7 +352,8 @@ private fun EnabledMessageComposerInput(
         MessageComposeActionsBox(
             transition,
             messageComposerInnerState,
-            membersToMention.isNotEmpty()
+            membersToMention.isNotEmpty(),
+            onPingClicked
         )
         if (membersToMention.isNotEmpty()
             && messageComposerInnerState.messageComposeInputState == MessageComposeInputState.FullScreen

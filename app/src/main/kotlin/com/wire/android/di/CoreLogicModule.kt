@@ -44,8 +44,10 @@ import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusU
 import com.wire.kalium.logic.feature.conversation.UpdateConversationReadDateUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.GetMessageByIdUseCase
+import com.wire.kalium.logic.feature.message.GetNotificationsUseCase
 import com.wire.kalium.logic.feature.message.ObserveMessageReactionsUseCase
 import com.wire.kalium.logic.feature.message.ObserveMessageReceiptsUseCase
+import com.wire.kalium.logic.feature.message.SendKnockUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.message.ToggleReactionUseCase
 import com.wire.kalium.logic.feature.message.getPaginatedFlowOfMessagesByConversation
@@ -409,6 +411,13 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
+    fun provideSendKnockUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): SendKnockUseCase = coreLogic.getSessionScope(currentAccount).messages.sendKnock
+
+    @ViewModelScoped
+    @Provides
     fun provideToggleReactionUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
@@ -441,6 +450,13 @@ class UseCaseModule {
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
     ): GetMessageAssetUseCase = coreLogic.getSessionScope(currentAccount).messages.getAssetMessage
+
+    @ViewModelScoped
+    @Provides
+    fun provideGetNotificationsUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): GetNotificationsUseCase = coreLogic.getSessionScope(currentAccount).messages.getNotifications
 
     @ViewModelScoped
     @Provides

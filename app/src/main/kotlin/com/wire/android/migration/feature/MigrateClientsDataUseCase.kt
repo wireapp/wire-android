@@ -1,5 +1,6 @@
 package com.wire.android.migration.feature
 
+import androidx.annotation.VisibleForTesting
 import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.migration.failure.MigrationFailure
@@ -81,16 +82,23 @@ class MigrateClientsDataUseCase @Inject constructor(
         val sessionsDir = File(proteusDir, "sessions")
         if (sessionsDir.exists() && sessionsDir.isDirectory) {
             sessionsDir.listFiles { file -> !file.isDirectory }?.forEach { session ->
-                val sessionNameParams = session.name.split("_")
-                if (!sessionNameParams.first().contains("@")) {
-                    // this session file name does not contain a domain and needs to be updated
-                    val validSessionName = listOf(sessionNameParams.first() + "@" + domain)
-                        .plus(sessionNameParams.drop(1))
-                        .joinToString("_")
-                    session.renameTo(File(sessionsDir, validSessionName))
+                val fixedSessionFileName = fixSessionFileName(session.name, domain)
+                if (fixedSessionFileName != session.name) {
+                    session.renameTo(File(sessionsDir, fixedSessionFileName))
                 }
             }
         }
+    }
+
+    @VisibleForTesting
+    fun fixSessionFileName(sessionFileName: String, domain: String): String {
+        val sessionNameParams = sessionFileName.split("_")
+        return if (!sessionNameParams.first().contains("@")) {
+            // this session file name does not contain a domain and needs to be updated
+            listOf(sessionNameParams.first() + "@" + domain)
+                .plus(sessionNameParams.drop(1))
+                .joinToString("_")
+        } else sessionFileName
     }
 
     companion object {

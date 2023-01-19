@@ -65,7 +65,8 @@ class MigrationManager @Inject constructor(
                 appLogger.d("$TAG - Step 1 - Migrating accounts")
                 migrateActiveAccounts(it)
             }
-            .flatMap {
+            .onSuccess {
+                // the result of this step is ignored
                 appLogger.d("$TAG - Step 2 - Migrating clients")
                 migrateClientsData(it)
             }

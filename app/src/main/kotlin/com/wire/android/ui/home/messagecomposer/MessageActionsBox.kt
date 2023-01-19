@@ -46,13 +46,14 @@ fun MessageComposeActionsBox(
                             slideOutVertically { fullHeight -> fullHeight / 2 } + fadeOut()
                 }
             ) { state ->
-                if (state is MessageComposeInputState.Active)
+                if (state is MessageComposeInputState.Active) {
                     MessageComposeActions(
                         state.attachmentOptionsDisplayed,
                         isMentionActive,
                         startMention,
                         onAdditionalOptionButtonClicked
                     )
+                }
             }
         }
     }

@@ -1,5 +1,6 @@
 package com.wire.android.migration.feature
 
+import androidx.annotation.VisibleForTesting
 import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.migration.failure.MigrationFailure
@@ -41,6 +42,9 @@ class MigrateClientsDataUseCase @Inject constructor(
             val currentDir = File(coreLogic.rootPathsProvider.rootProteusPath(userId))
             // TODO: if migration got interrupted after this step the next time it will fail because the files are deleted
             scalaDir.copyRecursively(target = currentDir, overwrite = false)
+            // Session file names from the scala app contain user ids without a domain, AR uses session file names having user ids
+            // with a domain, so migrated session file names have to be fixed by adding a domain to them.
+            fixSessionFileNames(currentDir, userId.domain)
             scalaDir.deleteRecursively()
 
             // add registered client id, sync will start when the registered id is persisted
@@ -74,6 +78,29 @@ class MigrateClientsDataUseCase @Inject constructor(
                 }
             }
         }
+
+    private fun fixSessionFileNames(proteusDir: File, domain: String) {
+        val sessionsDir = File(proteusDir, "sessions")
+        if (sessionsDir.exists() && sessionsDir.isDirectory) {
+            sessionsDir.listFiles { file -> !file.isDirectory }?.forEach { session ->
+                val fixedSessionFileName = fixSessionFileName(session.name, domain)
+                if (fixedSessionFileName != session.name) {
+                    session.renameTo(File(sessionsDir, fixedSessionFileName))
+                }
+            }
+        }
+    }
+
+    @VisibleForTesting
+    fun fixSessionFileName(sessionFileName: String, domain: String): String {
+        val sessionNameParams = sessionFileName.split("_")
+        return if (!sessionNameParams.first().contains("@")) {
+            // this session file name does not contain a domain and needs to be updated
+            listOf(sessionNameParams.first() + "@" + domain)
+                .plus(sessionNameParams.drop(1))
+                .joinToString("_")
+        } else sessionFileName
+    }
 
     companion object {
         const val SYNC_START_TIMEOUT = 20_000L

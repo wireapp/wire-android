@@ -40,6 +40,9 @@ class MigrateClientsDataUseCase @Inject constructor(
             val scalaDir = scalaCryptoBoxDirectoryProvider.userDir(userId)
             val currentDir = File(coreLogic.rootPathsProvider.rootProteusPath(userId))
             scalaDir.copyRecursively(target = currentDir, overwrite = false)
+            // Session file names from the scala app contain user ids without a domain, AR uses session file names having user ids
+            // with a domain, so migrated session file names have to be fixed by adding a domain to them.
+            fixSessionFileNames(currentDir, userId.domain)
             scalaDir.deleteRecursively()
 
             // add registered client id, sync will start when the registered id is persisted
@@ -73,6 +76,22 @@ class MigrateClientsDataUseCase @Inject constructor(
                 }
             }
         }
+
+    private fun fixSessionFileNames(proteusDir: File, domain: String) {
+        val sessionsDir = File(proteusDir, "sessions")
+        if (sessionsDir.exists() && sessionsDir.isDirectory) {
+            sessionsDir.listFiles { file -> !file.isDirectory }?.forEach { session ->
+                val sessionNameParams = session.name.split("_")
+                if (!sessionNameParams.first().contains("@")) {
+                    // this session file name does not contain a domain and needs to be updated
+                    val validSessionName = listOf(sessionNameParams.first() + "@" + domain)
+                        .plus(sessionNameParams.drop(1))
+                        .joinToString("_")
+                    session.renameTo(File(sessionsDir, validSessionName))
+                }
+            }
+        }
+    }
 
     companion object {
         const val SYNC_START_TIMEOUT = 20_000L

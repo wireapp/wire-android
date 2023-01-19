@@ -7,7 +7,7 @@ import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 
 data class ShareableConversationListState(
-    private val initialConversations: List<ConversationItem> = persistentListOf(),
+    val initialConversations: List<ConversationItem> = persistentListOf(),
     val searchQuery: String = "",
     val hasNoConversations: Boolean = false,
     val searchResult: List<ConversationItem> = persistentListOf(),

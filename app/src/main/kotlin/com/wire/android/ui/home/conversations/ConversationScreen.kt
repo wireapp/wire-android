@@ -354,7 +354,6 @@ private fun ConversationScreen(
                         isFileSharingEnabled = conversationViewState.isFileSharingEnabled,
                         lastUnreadMessageInstant = conversationMessagesViewState.firstUnreadInstant,
                         conversationState = conversationViewState,
-
                         messageComposerInnerState = messageComposerInnerState,
                         messages = conversationMessagesViewState.messages,
                         onSendMessage = onSendMessage,

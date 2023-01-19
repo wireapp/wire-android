@@ -209,6 +209,6 @@ private fun AudioBluetoothPermissionCheckFlow(
 
 @Preview
 @Composable
-fun ComposablePreview() {
+fun PreviewIncomingCallScreen() {
     IncomingCallScreen()
 }

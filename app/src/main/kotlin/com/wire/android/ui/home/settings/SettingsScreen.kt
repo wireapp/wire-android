@@ -152,6 +152,6 @@ fun SettingsItem(
 
 @Preview(showBackground = false)
 @Composable
-fun SettingsScreenPreview() {
+fun PreviewSettingsScreen() {
     SettingsScreenContent {}
 }

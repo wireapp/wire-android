@@ -54,6 +54,6 @@ fun UnderConstructionScreen(screenName: String) {
 
 @Preview(showBackground = false)
 @Composable
-fun UnderConstructionScreenPreview() {
+fun PreviewUnderConstructionScreen() {
     UnderConstructionScreen("testing")
 }

@@ -118,6 +118,6 @@ private fun InitiatingCallContent(
 
 @Preview
 @Composable
-fun ComposablePreview() {
+fun PreviewInitiatingCallScreen() {
     InitiatingCallScreen()
 }

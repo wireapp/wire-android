@@ -92,7 +92,7 @@ private fun ConstraintLayoutScope.CallControlLabel(
 
 @Preview
 @Composable
-fun ComposablePreview() {
+fun PreviewCallOptionsControls() {
     CallOptionsControls(
         isMuted = true,
         isCameraOn = false,

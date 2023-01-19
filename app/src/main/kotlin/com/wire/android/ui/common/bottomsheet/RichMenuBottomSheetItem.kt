@@ -119,7 +119,7 @@ enum class RichMenuItemState {
 
 @Composable
 @Preview
-fun RichMenuBottomSheetItemPreview() {
+fun PreviewRichMenuBottomSheetItem() {
     SelectableMenuBottomSheetItem(
         title = "title",
         titleColor = null,

@@ -142,7 +142,7 @@ private fun OverviewTexts(overviewParams: CreateAccountOverviewParams, modifier:
 
 @Composable
 @Preview
-private fun CreateAccountOverviewScreenPreview() {
+fun PreviewCreateAccountOverviewScreen() {
     OverviewContent(
         onBackPressed = { },
         onContinuePressed = { },

@@ -234,7 +234,7 @@ private fun MicrophoneTile(
 
 @Preview
 @Composable
-private fun ParticipantTilePreview() {
+fun PreviewParticipantTile() {
     ParticipantTile(
         modifier = Modifier.height(300.dp),
         participantTitleState = UICallParticipant(

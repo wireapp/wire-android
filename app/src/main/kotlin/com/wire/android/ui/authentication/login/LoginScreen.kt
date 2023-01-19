@@ -205,8 +205,8 @@ fun LoginErrorDialog(
         is LoginError.DialogError.SSOResultError -> {
             with(ssoLoginResult as DeepLinkResult.SSOLogin.Failure) {
                 LoginDialogErrorData(
-                    stringResource(R.string.sso_erro_dialog_title),
-                    stringResource(R.string.sso_erro_dialog_message, this.ssoError.errorCode),
+                    stringResource(R.string.sso_error_dialog_title),
+                    stringResource(R.string.sso_error_dialog_message, this.ssoError.errorCode),
                     onDialogDismiss
                 )
             }
@@ -272,7 +272,7 @@ enum class LoginTabItem(@StringRes override val titleResId: Int) : TabItem {
 @OptIn(ExperimentalMaterialApi::class)
 @Preview
 @Composable
-private fun LoginScreenPreview() {
+private fun PreviewLoginScreen() {
     WireTheme(isPreview = true) {
         LoginContent(onBackPressed = { }, hiltViewModel(), ssoLoginResult = null)
     }

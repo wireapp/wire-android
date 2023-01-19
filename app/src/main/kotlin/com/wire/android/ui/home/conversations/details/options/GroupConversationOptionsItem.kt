@@ -164,13 +164,13 @@ sealed class SwitchState {
 
 @Composable
 @Preview(name = "Item with label and title")
-private fun GroupConversationOptionsWithLabelAndTitlePreview() {
+fun PreviewGroupConversationOptionsWithLabelAndTitle() {
     GroupConversationOptionsItem(title = "Conversation group title", label = "GROUP NAME")
 }
 
 @Composable
 @Preview(name = "Item with title and switch clickable")
-private fun GroupConversationOptionsWithTitleAndSwitchClickablePreview() {
+fun PreviewGroupConversationOptionsWithTitleAndSwitchClickable() {
     GroupConversationOptionsItem(
         title = "Services",
         switchState = SwitchState.Enabled(value = true, onCheckedChange = {}),
@@ -180,7 +180,7 @@ private fun GroupConversationOptionsWithTitleAndSwitchClickablePreview() {
 
 @Composable
 @Preview(name = "Item with title and text only switch")
-private fun GroupConversationOptionsWithTitleAndTextOnlySwitchPreview() {
+fun PreviewGroupConversationOptionsWithTitleAndTextOnlySwitch() {
     GroupConversationOptionsItem(
         title = "Services",
         switchState = SwitchState.TextOnly(value = true),
@@ -190,7 +190,7 @@ private fun GroupConversationOptionsWithTitleAndTextOnlySwitchPreview() {
 
 @Composable
 @Preview(name = "Item with title, subtitle and icon")
-private fun GroupConversationOptionsWithTitleAndSubtitleAndIconPreview() {
+fun PreviewGroupConversationOptionsWithTitleAndSubtitleAndIcon() {
     GroupConversationOptionsItem(
         title = "Group Color",
         subtitle = "Red",
@@ -207,7 +207,7 @@ private fun GroupConversationOptionsWithTitleAndSubtitleAndIconPreview() {
 
 @Composable
 @Preview(name = "Item with title, subtitle, switch and footer button")
-private fun GroupConversationOptionsWithTitleAndSubtitleAndSwitchAndFooterButtonPreview() {
+fun PreviewGroupConversationOptionsWithTitleAndSubtitleAndSwitchAndFooterButton() {
     GroupConversationOptionsItem(
         title = "Guests",
         subtitle = "Turn this option ON to open this conversation to people outside your team, even if they don't have Wire.",
@@ -219,7 +219,7 @@ private fun GroupConversationOptionsWithTitleAndSubtitleAndSwitchAndFooterButton
 
 @Composable
 @Preview(name = "Item with title and subtitle without arrow")
-private fun GroupConversationOptionsWithTitleAndSubtitleWithoutArrowPreview() {
+fun PreviewGroupConversationOptionsWithTitleAndSubtitleWithoutArrow() {
     GroupConversationOptionsItem(
         label = "Cipher Suite",
         title = "MLS_128_DHKEMX25519_AES128GCM_SHA256_Ed25519(0x0001)",

@@ -38,6 +38,6 @@ fun HomeTopBar(
 
 @Preview
 @Composable
-fun topBar() {
+fun PreviewTopBar() {
     HomeTopBar(null, UserAvailabilityStatus.AVAILABLE,  "Title", 0.dp, {}, {})
 }

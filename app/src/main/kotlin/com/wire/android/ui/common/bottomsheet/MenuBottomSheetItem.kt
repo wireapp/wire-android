@@ -97,7 +97,7 @@ fun MenuItemIcon(
 
 @Preview
 @Composable
-fun MenuBottomSheetItemPreview() {
+fun PreviewMenuBottomSheetItem() {
     MenuBottomSheetItem(
         title = "very long looooooong title",
         icon = {

@@ -80,7 +80,7 @@ fun GroupConversationSettings(
             )
         }
         if (state.areAccessOptionsAvailable) {
-            item { FolderHeader(name = stringResource(R.string.folder_lable_access)) }
+            item { FolderHeader(name = stringResource(R.string.folder_label_access)) }
 
             item {
                 GuestOption(
@@ -114,7 +114,7 @@ fun ConversationProtocolDetails(
     protocolInfo: Conversation.ProtocolInfo
 ) {
     Column {
-        FolderHeader(name = stringResource(R.string.folder_lable_protocol_details))
+        FolderHeader(name = stringResource(R.string.folder_label_protocol_details))
         if (protocolInfo is Conversation.ProtocolInfo.MLS || BuildConfig.MLS_SUPPORT_ENABLED) {
             ProtocolDetails(
                 label = UIText.StringResource(R.string.protocol),
@@ -276,7 +276,7 @@ private fun DisableConformationDialog(@StringRes title: Int, @StringRes text: In
 
 @Preview
 @Composable
-private fun AdminTeamGroupConversationOptionsPreview() {
+fun PreviewAdminTeamGroupConversationOptions() {
     GroupConversationSettings(
         GroupConversationOptionsState(
             conversationId = ConversationId("someValue", "someDomain"),
@@ -293,7 +293,7 @@ private fun AdminTeamGroupConversationOptionsPreview() {
 
 @Preview
 @Composable
-private fun GuestAdminTeamGroupConversationOptionsPreview() {
+fun PreviewGuestAdminTeamGroupConversationOptions() {
     GroupConversationSettings(
         GroupConversationOptionsState(
             conversationId = ConversationId("someValue", "someDomain"),
@@ -310,7 +310,7 @@ private fun GuestAdminTeamGroupConversationOptionsPreview() {
 
 @Preview
 @Composable
-private fun MemberTeamGroupConversationOptionsPreview() {
+fun PreviewMemberTeamGroupConversationOptions() {
     GroupConversationSettings(
         GroupConversationOptionsState(
             conversationId = ConversationId("someValue", "someDomain"),
@@ -327,7 +327,7 @@ private fun MemberTeamGroupConversationOptionsPreview() {
 
 @Preview
 @Composable
-private fun NormalGroupConversationOptionsPreview() {
+fun PreviewNormalGroupConversationOptions() {
     GroupConversationSettings(
         GroupConversationOptionsState(
             conversationId = ConversationId("someValue", "someDomain"),
@@ -340,6 +340,6 @@ private fun NormalGroupConversationOptionsPreview() {
 
 @Preview(showBackground = true)
 @Composable
-private fun DisableGuestConformationDialogPreview() {
+fun PreviewDisableGuestConformationDialog() {
     DisableGuestConfirmationDialog({}, {})
 }

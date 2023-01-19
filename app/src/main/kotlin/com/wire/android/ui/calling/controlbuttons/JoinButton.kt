@@ -60,7 +60,7 @@ private fun AudioBluetoothPermissionCheckFlow(
 
 @Preview
 @Composable
-fun JoinButtonPreview() {
+fun PreviewJoinButton() {
     JoinButton(
         buttonClick = {}
     )

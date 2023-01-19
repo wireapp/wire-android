@@ -542,7 +542,7 @@ fun MessageList(
 
 @Preview
 @Composable
-fun ConversationScreenPreview() {
+fun PreviewConversationScreen() {
     ConversationScreen(
         tempCachePath = "".toPath(),
         bannerMessage = null,

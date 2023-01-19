@@ -100,6 +100,6 @@ fun SearchBarInput(
 
 @Preview(showBackground = true)
 @Composable
-fun SearchBarCollapsedPreview() {
+fun PreviewSearchBarCollapsed() {
     SearchBar("Search text")
 }

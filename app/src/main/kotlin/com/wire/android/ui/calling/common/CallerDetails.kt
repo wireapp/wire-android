@@ -101,7 +101,7 @@ fun CallerDetails(
 
 @Preview(showBackground = true)
 @Composable
-fun CallerDetailsPreview() {
+fun PreviewCallerDetails() {
     CallerDetails(
         conversationName = ConversationName.Known("User"),
         isCameraOn = false,

@@ -35,6 +35,6 @@ fun LegalHoldIndicator(modifier: Modifier = Modifier) {
 
 @Preview
 @Composable
-private fun LegalHoldIndicatorPreview() {
+fun PreviewLegalHoldIndicator() {
     LegalHoldIndicator()
 }

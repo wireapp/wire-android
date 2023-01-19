@@ -93,7 +93,9 @@ class MigrationMapper @Inject constructor() {
             senderClientId = ClientId(scalaMessage.senderClientId.orEmpty()),
             timestampIso = scalaMessage.time.timestampToServerDate().orEmpty(),
             content = scalaMessage.content.orEmpty(),
-            encryptedProto = scalaMessage.proto
+            encryptedProto = scalaMessage.proto,
+            assetName = scalaMessage.assetName,
+            assetSize = scalaMessage.assetSize,
         )
 
     private fun mapAccess(access: String): List<Access> {

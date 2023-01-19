@@ -65,9 +65,9 @@ class MigrationManager @Inject constructor(
                 appLogger.d("$TAG - Step 1 - Migrating accounts")
                 migrateActiveAccounts(it)
             }
-            .flatMap {
+            .flatMap { (userIdList, isFederated) ->
                 appLogger.d("$TAG - Step 2 - Migrating clients")
-                migrateClientsData(it)
+                migrateClientsData(userIdList, isFederated)
             }
             .flatMap {
                 appLogger.d("$TAG - Step 3 - Migrating users")

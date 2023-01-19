@@ -24,6 +24,15 @@ allprojects {
         }
         maven { url = java.net.URI("https://jitpack.io") }
         maven(url = "https://oss.sonatype.org/content/repositories/snapshots")
+
+        // TODO we should remove this and "localrepo" dir after cryptobox-android debugging is completed
+        val avsLocal = maven(url = uri("$rootDir/kalium/localrepo/"))
+        exclusiveContent {
+            forRepositories(avsLocal)
+            filter {
+                includeModule("com.wire", "cryptobox-android")
+            }
+        }
     }
 }
 

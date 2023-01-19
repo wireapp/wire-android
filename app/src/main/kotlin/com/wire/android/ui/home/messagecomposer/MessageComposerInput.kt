@@ -186,7 +186,7 @@ private fun CollapseIconButtonBox(
                 .wrapContentHeight()
         ) {
             val collapseButtonRotationDegree by transition.animateFloat(
-                label = stringResource(R.string.animation_label_button_rotation_degree_transistion)
+                label = stringResource(R.string.animation_label_button_rotation_degree_transition)
             ) { state ->
                 if (state.isExpanded) 180f
                 else 0f

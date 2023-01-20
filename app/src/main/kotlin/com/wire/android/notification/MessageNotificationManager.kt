@@ -162,7 +162,11 @@ class MessageNotificationManager
             .map { it.intoStyledMessage() }
             .filter { notificationMessage ->
                 // to not notify about messages that are already there
-                activeMessages?.find { it.text == notificationMessage.text && it.timestamp == notificationMessage.timestamp } == null
+                activeMessages
+                    ?.find {
+                        it.text.toString() == notificationMessage.text.toString()
+                                && it.timestamp == notificationMessage.timestamp
+                    } == null
             }
 
         if (messagesToAdd.isEmpty()) {

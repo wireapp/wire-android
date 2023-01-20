@@ -16,10 +16,10 @@ import com.wire.kalium.logic.feature.client.RegisterClientUseCase.RegisterClient
 import com.wire.kalium.logic.functional.Either
 import com.wire.kalium.logic.functional.flatMap
 import com.wire.kalium.logic.functional.onSuccess
-import kotlinx.coroutines.withTimeoutOrNull
 import java.io.File
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.withTimeoutOrNull
 
 @Singleton
 class MigrateClientsDataUseCase @Inject constructor(
@@ -30,7 +30,6 @@ class MigrateClientsDataUseCase @Inject constructor(
 ) {
     @Suppress("LoopWithTooManyJumpStatements", "ComplexMethod")
     suspend operator fun invoke(userIds: List<UserId>): Map<UserId, Either<CoreFailure, Unit>> {
-
         val acc: MutableMap<UserId, Either<CoreFailure, Unit>> = mutableMapOf()
 
         for (userId in userIds) {
@@ -59,12 +58,15 @@ class MigrateClientsDataUseCase @Inject constructor(
                 // NOTE we are passing in an RegisterClientParam will null values
                 // because we don't support deleting any existing clients when migrating
                 // from the old scala app.
-                when (val result = this.client.importClient(
-                    clientId, RegisterClientParam(
-                        password = null,
-                        capabilities = null
+                when (
+                    val result = this.client.importClient(
+                        clientId,
+                        RegisterClientParam(
+                            password = null,
+                            capabilities = null
+                        )
                     )
-                )) {
+                ) {
                     is RegisterClientResult.Failure.Generic ->
                         Either.Left(result.genericFailure)
                     is RegisterClientResult.Failure.TooManyClients ->
@@ -89,6 +91,8 @@ class MigrateClientsDataUseCase @Inject constructor(
                 }
             }
         }
+        return acc.toMap()
+    }
 
     companion object {
         const val SYNC_START_TIMEOUT = 20_000L

@@ -85,7 +85,7 @@ class MessageComposerInnerStateTest {
 
         val expectedMention = listOf(UiMention(11, 11, UserId("id_0", "domain"), "@user name0"))
         assertEquals(expectedMention, state.mentions)
-        assertEquals("start text @user name0 testing", state.messageText.text)
+        assertEquals("start text @user name0 testing", state.messageComposeInputState.messageText.text)
     }
 
     @Test
@@ -170,7 +170,17 @@ class MessageComposerInnerStateTest {
         state.startMention()
 
         assertEquals("", state.mentionQueryFlowState.value)
-        assertEquals("some text\n@", state.messageText.text)
+        assertEquals("some text\n@", state.messageComposeInputState.messageText.text)
+    }
+
+    @Test
+    fun `given some text, when editing the message, input text changes to the original message text`() = runTest {
+        val originalMessageText = "original message text"
+        val state = createState(context, focusManager)
+        state.setMessageTextValue(textFieldValueWithSelection("start text"))
+        state.toEditMessage("message-id", originalMessageText)
+        assert(state.messageComposeInputState.isEditMessage)
+        assertEquals(originalMessageText, state.messageComposeInputState.messageText.text)
     }
 
     private fun textFieldValueWithSelection(text: String) = TextFieldValue(text, TextRange(text.length))

@@ -80,16 +80,16 @@ android {
                 signingConfig = signingConfigs.getByName("debug")
         }
         getByName(BuildTypes.RELEASE) {
-            isMinifyEnabled = true
-            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            isMinifyEnabled = false
+//            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
             isDebuggable = false
             if (enableSigning)
                 signingConfig = signingConfigs.getByName("release")
         }
         create(BuildTypes.COMPAT) {
             initWith(getByName(BuildTypes.RELEASE))
-            isMinifyEnabled = true
-            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            isMinifyEnabled = false
+//            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
             isDebuggable = false
             matchingFallbacks.add("release")
             if (enableSigning)

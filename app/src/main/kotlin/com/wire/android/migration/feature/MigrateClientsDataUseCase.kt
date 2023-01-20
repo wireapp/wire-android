@@ -1,5 +1,6 @@
 package com.wire.android.migration.feature
 
+import androidx.annotation.VisibleForTesting
 import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.migration.failure.MigrationFailure
@@ -29,7 +30,7 @@ class MigrateClientsDataUseCase @Inject constructor(
     private val userDataStoreProvider: UserDataStoreProvider
 ) {
     @Suppress("LoopWithTooManyJumpStatements", "ComplexMethod")
-    suspend operator fun invoke(userIds: List<UserId>): Map<UserId, Either<CoreFailure, Unit>> {
+    suspend operator fun invoke(userIds: List<UserId>, isFederated: Boolean): Map<UserId, Either<CoreFailure, Unit>> {
 
         val acc: MutableMap<UserId, Either<CoreFailure, Unit>> = mutableMapOf()
 
@@ -50,6 +51,9 @@ class MigrateClientsDataUseCase @Inject constructor(
 
             try {
                 scalaDir.copyRecursively(target = currentDir, overwrite = false)
+                // Session file names from the scala app contain user ids without a domain, AR uses session file names having user ids
+                // with a domain, so migrated session file names have to be fixed by adding a domain to them.
+                fixSessionFileNames(userId, currentDir, isFederated, scalaUserDBProvider)
             } catch (_: Exception) {
                 currentDir.deleteRecursively()
             }
@@ -89,8 +93,61 @@ class MigrateClientsDataUseCase @Inject constructor(
                 }
             }
         }
+        return acc.toMap()
+    }
+
+    @VisibleForTesting
+    fun getSessionFileNamesWithoutDomain(sessionsDir: File): List<File> =
+        if (sessionsDir.exists() && sessionsDir.isDirectory) {
+            sessionsDir.listFiles { file ->
+                !file.isDirectory && !file.name.contains("@")
+            }?.asList() ?: listOf()
+        } else listOf()
+
+    @VisibleForTesting
+    fun fixSessionFileNames(userId: UserId, proteusDir: File, isFederated: Boolean, scalaUserDBProvider: ScalaUserDatabaseProvider) {
+        val sessionsDir = File(proteusDir, "sessions")
+        if (isFederated) {
+            val filesWithoutDomain = getSessionFileNamesWithoutDomain(sessionsDir)
+                .map { file -> file.name.substringBefore("_") to file }
+            val sessionUserIds = filesWithoutDomain.map { (userId, _) -> userId }.distinct()
+            val sessionUsers = sessionUserIds.chunked(SESSION_USER_IDS_CHUNK_SIZE)
+                .map { scalaUserDBProvider.userDAO(userId)?.users(it) ?: listOf() }
+                .flatten()
+                .associateBy { it.id }
+            filesWithoutDomain.forEach { (sessionUserId, file) ->
+                renameSessionFileIfNeeded(sessionsDir, file, sessionUsers[sessionUserId]?.domain ?: userId.domain)
+            }
+        } else {
+            getSessionFileNamesWithoutDomain(sessionsDir).forEach { file ->
+                renameSessionFileIfNeeded(sessionsDir, file, userId.domain)
+            }
+        }
+    }
+
+    @VisibleForTesting
+    fun renameSessionFileIfNeeded(sessionsDir: File, file: File, domain: String): File {
+        val fixedSessionFileName = fixSessionFileName(file.name, domain)
+        if (fixedSessionFileName != file.name) {
+            val newFile = File(sessionsDir, fixedSessionFileName)
+            return if (file.renameTo(newFile)) newFile else file
+        }
+        return file
+    }
+
+    @VisibleForTesting
+    fun fixSessionFileName(sessionFileName: String, domain: String): String {
+        val sessionNameParams = sessionFileName.split("_")
+        return if (!sessionNameParams.first().contains("@")) {
+            // this session file name does not contain a domain and needs to be updated
+            listOf(sessionNameParams.first() + "@" + domain)
+                .plus(sessionNameParams.drop(1))
+                .joinToString("_")
+        } else sessionFileName
+    }
 
     companion object {
         const val SYNC_START_TIMEOUT = 20_000L
+        const val SESSION_USER_IDS_CHUNK_SIZE = 500
     }
 }

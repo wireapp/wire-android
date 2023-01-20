@@ -15,6 +15,7 @@ import com.wire.kalium.logic.feature.auth.sso.SSOLoginSessionResult
 import com.wire.kalium.logic.functional.Either
 import com.wire.kalium.logic.functional.flatMap
 import com.wire.kalium.logic.functional.foldToEitherWhileRight
+import com.wire.kalium.logic.functional.map
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -24,46 +25,47 @@ class MigrateActiveAccountsUseCase @Inject constructor(
     private val scalaGlobalDB: ScalaAppDataBaseProvider,
     private val mapper: MigrationMapper
 ) {
-    suspend operator fun invoke(serverConfig: ServerConfig): Either<CoreFailure, List<UserId>> =
-        scalaGlobalDB.scalaAccountsDAO.activeAccounts().foldToEitherWhileRight(emptyList()) { item, acc ->
+    suspend operator fun invoke(serverConfig: ServerConfig): Either<CoreFailure, Pair<List<UserId>, Boolean>> =
+        scalaGlobalDB.scalaAccountsDAO.activeAccounts()
+            .foldToEitherWhileRight(emptyList()) { item: ScalaActiveAccountsEntity, acc: List<UserId> ->
 
-            val activeAccount = item.copy(refreshToken = item.refreshToken.removePrefix(REFRESH_TOKEN_PREFIX))
-            val isDataComplete = isDataComplete(serverConfig, activeAccount)
-            val ssoId = activeAccount.ssoId?.let { ssoId -> mapper.fromScalaSsoID(ssoId) }
-            val authTokensEither: Either<CoreFailure, AuthTokens> = if (isDataComplete) {
-                val domain = activeAccount.domain ?: serverConfig.metaData.domain!!
-                val userId = UserId(activeAccount.id, domain)
-                Either.Right(
-                    AuthTokens(
-                        userId = userId,
-                        accessToken = activeAccount.accessToken?.token!!,
-                        tokenType = activeAccount.accessToken.tokenType,
-                        refreshToken = activeAccount.refreshToken
+                val activeAccount = item.copy(refreshToken = item.refreshToken.removePrefix(REFRESH_TOKEN_PREFIX))
+                val isDataComplete = isDataComplete(serverConfig, activeAccount)
+                val ssoId = activeAccount.ssoId?.let { ssoId -> mapper.fromScalaSsoID(ssoId) }
+                val authTokensEither: Either<CoreFailure, AuthTokens> = if (isDataComplete) {
+                    val domain = activeAccount.domain ?: serverConfig.metaData.domain!!
+                    val userId = UserId(activeAccount.id, domain)
+                    Either.Right(
+                        AuthTokens(
+                            userId = userId,
+                            accessToken = activeAccount.accessToken?.token!!,
+                            tokenType = activeAccount.accessToken.tokenType,
+                            refreshToken = activeAccount.refreshToken
+                        )
                     )
-                )
-            } else {
-                handleMissingData(
-                    serverConfig,
-                    activeAccount.refreshToken
-                )
-            }
-
-            authTokensEither.flatMap { authTokens ->
-                val addAccountResult = coreLogic.globalScope {
-                    addAuthenticatedAccount(
-                        serverConfigId = serverConfig.id,
-                        ssoId = ssoId,
-                        authTokens = authTokens,
-                        null, // uses migrated form the scala app will not have proxy
-                        replace = false
+                } else {
+                    handleMissingData(
+                        serverConfig,
+                        activeAccount.refreshToken
                     )
                 }
-                when (addAccountResult) {
-                    is AddAuthenticatedUserUseCase.Result.Failure.Generic -> Either.Left(addAccountResult.genericFailure)
-                    else -> Either.Right(acc + authTokens.userId)
+
+                authTokensEither.flatMap { authTokens ->
+                    val addAccountResult = coreLogic.globalScope {
+                        addAuthenticatedAccount(
+                            serverConfigId = serverConfig.id,
+                            ssoId = ssoId,
+                            authTokens = authTokens,
+                            null, // uses migrated form the scala app will not have proxy
+                            replace = false
+                        )
+                    }
+                    when (addAccountResult) {
+                        is AddAuthenticatedUserUseCase.Result.Failure.Generic -> Either.Left(addAccountResult.genericFailure)
+                        else -> Either.Right(acc + authTokens.userId)
+                    }
                 }
-            }
-        }
+            }.map { it to serverConfig.metaData.federation }
 
     private fun isDataComplete(serverConfig: ServerConfig, activeAccount: ScalaActiveAccountsEntity): Boolean {
         val isDomainExist = (activeAccount.domain != null) or (serverConfig.metaData.domain != null)

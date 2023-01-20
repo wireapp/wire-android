@@ -42,6 +42,8 @@
             android:supportsRtl="false"
             android:theme="@style/AppTheme.SplashScreen">
 
+        <profileable android:shell="true"/>
+
         <activity
                 android:name=".ui.WireActivity"
                 android:exported="true"

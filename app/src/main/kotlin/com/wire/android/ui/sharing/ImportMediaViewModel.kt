@@ -19,6 +19,7 @@ import com.wire.android.mapper.toUIPreview
 import com.wire.android.model.ImageAsset
 import com.wire.android.model.SnackBarMessage
 import com.wire.android.model.UserAvatarData
+import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
@@ -29,6 +30,7 @@ import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.parseConversationEventType
 import com.wire.android.ui.home.conversationslist.parsePrivateConversationEventType
 import com.wire.android.ui.home.conversationslist.showLegalHoldIndicator
+import com.wire.android.util.FileManager
 import com.wire.android.util.ImageUtil
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.getMetaDataFromUri
@@ -46,6 +48,8 @@ import com.wire.kalium.logic.feature.conversation.ObserveConversationListDetails
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.toImmutableList
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -54,6 +58,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okio.buffer
@@ -66,6 +71,7 @@ class ImportMediaViewModel @Inject constructor(
     private val getSelf: GetSelfUserUseCase,
     private val userTypeMapper: UserTypeMapper,
     private val observeConversationListDetails: ObserveConversationListDetailsUseCase,
+    private val fileManager: FileManager,
     private val navigationManager: NavigationManager,
     private val sendAssetMessage: ScheduleNewAssetMessageUseCase,
     private val kaliumFileSystem: KaliumFileSystem,
@@ -261,6 +267,7 @@ class ImportMediaViewModel @Inject constructor(
         if (assetsToSend.size > MAX_LIMIT_MEDIA_IMPORT) {
             onSnackbarMessage(ImportMediaSnackbarMessages.MaxAmountOfAssetsReached)
         } else {
+            var jobs: List<Job> = listOf()
             assetsToSend.forEach { importedAsset ->
                 val isImage = importedAsset is ImportedMediaAsset.Image
                 val assetLimitForCurrentUser = getAssetSizeLimit(isImage).toInt()
@@ -269,31 +276,39 @@ class ImportMediaViewModel @Inject constructor(
                 if (isAboveLimit) {
                     onSnackbarMessage(ImportMediaSnackbarMessages.MaxAssetSizeExceeded(assetLimitForCurrentUser.div(sizeOf1MB)))
                 } else {
-                    sendAssetMessage(
-                        conversationId = conversation.conversationId,
-                        assetDataPath = importedAsset.dataPath,
-                        assetName = importedAsset.name,
-                        assetDataSize = importedAsset.size,
-                        assetMimeType = importedAsset.mimeType,
-                        assetWidth = if (isImage) (importedAsset as ImportedMediaAsset.Image).width else 0,
-                        assetHeight = if (isImage) (importedAsset as ImportedMediaAsset.Image).height else 0,
-                    )
+                    val job = launch {
+                        sendAssetMessage(
+                            conversationId = conversation.conversationId,
+                            assetDataPath = importedAsset.dataPath,
+                            assetName = importedAsset.name,
+                            assetDataSize = importedAsset.size,
+                            assetMimeType = importedAsset.mimeType,
+                            assetWidth = if (isImage) (importedAsset as ImportedMediaAsset.Image).width else 0,
+                            assetHeight = if (isImage) (importedAsset as ImportedMediaAsset.Image).height else 0,
+                        )
+                    }
+                    jobs = jobs.plus(job)
+                    appLogger.d("**-- Triggered job $job / aka ${jobs.size}")
                 }
             }
+            jobs.joinAll()
+            navigationManager.navigate(
+                command = NavigationCommand(
+                    NavigationItem.Conversation.getRouteWithArgs(listOf(conversation.conversationId)),
+                    backStackMode = BackStackMode.CLEAR_WHOLE
+                )
+            )
         }
-        navigationManager.navigate(
-            command = NavigationCommand(NavigationItem.Conversation.getRouteWithArgs(listOf(conversation.conversationId)))
-        )
     }
 
 
     private fun handleMimeType(context: Context, mimeType: String, uri: Uri) = viewModelScope.launch {
+        val assetKey = UUID.randomUUID().toString()
+        val tempAssetPath = kaliumFileSystem.tempFilePath(assetKey)
         when {
             isImageFile(mimeType) -> {
                 uri.getMetaDataFromUri(context).let {
                     appLogger.d("image type $it")
-                    val assetKey = UUID.randomUUID().toString()
-                    val tempAssetPath = kaliumFileSystem.tempFilePath(assetKey)
 
                     // Only resample the image if it is too large
                     uri.resampleImageAndCopyToTempPath(context, tempAssetPath, ImageUtil.ImageSizeClass.Medium)
@@ -315,13 +330,12 @@ class ImportMediaViewModel @Inject constructor(
                         )
                     )
                 }
-
             }
 
             else -> {
                 uri.getMetaDataFromUri(context).let {
-                    val assetKey = UUID.randomUUID().toString()
-                    val tempAssetPath = kaliumFileSystem.tempFilePath(assetKey)
+                    fileManager.copyToTempPath(uri, tempAssetPath)
+
                     importMediaState.importedAssets.add(
                         ImportedMediaAsset.GenericAsset(
                             name = it.name,

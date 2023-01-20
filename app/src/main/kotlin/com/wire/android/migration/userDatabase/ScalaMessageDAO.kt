@@ -40,6 +40,8 @@ data class ScalaMessageData(
             if (other.proto == null) return false
             if (!proto.contentEquals(other.proto)) return false
         } else if (other.proto != null) return false
+        if (assetName != other.assetName) return false
+        if (assetSize != other.assetSize) return false
 
         return true
     }
@@ -55,6 +57,8 @@ data class ScalaMessageData(
         result = 31 * result + (senderClientId?.hashCode() ?: 0)
         result = 31 * result + (content?.hashCode() ?: 0)
         result = 31 * result + (proto?.contentHashCode() ?: 0)
+        result = 31 * result + (assetName.hashCode())
+        result = 31 * result + (assetSize?.hashCode() ?: 0)
         return result
     }
 }

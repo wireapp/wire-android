@@ -93,6 +93,8 @@ class MigrateClientsDataUseCase @Inject constructor(
                 }
             }
         }
+        return acc.toMap()
+    }
 
     @VisibleForTesting
     fun getSessionFileNamesWithoutDomain(sessionsDir: File): List<File> =

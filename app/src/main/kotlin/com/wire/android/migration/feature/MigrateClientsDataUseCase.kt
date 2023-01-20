@@ -111,7 +111,7 @@ class MigrateClientsDataUseCase @Inject constructor(
             val filesWithoutDomain = getSessionFileNamesWithoutDomain(sessionsDir)
                 .map { file -> file.name.substringBefore("_") to file }
             val sessionUserIds = filesWithoutDomain.map { (userId, _) -> userId }.distinct()
-            val sessionUsers = sessionUserIds.chunked(500)
+            val sessionUsers = sessionUserIds.chunked(SESSION_USER_IDS_CHUNK_SIZE)
                 .map { scalaUserDBProvider.userDAO(userId)?.users(it) ?: listOf() }
                 .flatten()
                 .associateBy { it.id }
@@ -148,5 +148,6 @@ class MigrateClientsDataUseCase @Inject constructor(
 
     companion object {
         const val SYNC_START_TIMEOUT = 20_000L
+        const val SESSION_USER_IDS_CHUNK_SIZE = 500
     }
 }

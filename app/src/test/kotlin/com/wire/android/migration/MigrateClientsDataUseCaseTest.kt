@@ -18,7 +18,6 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
 
-
 @OptIn(ExperimentalCoroutinesApi::class)
 class MigrateClientsDataUseCaseTest {
 
@@ -118,7 +117,7 @@ class MigrateClientsDataUseCaseTest {
         verify(atLeast = 1) { arrangement.scalaUserDBProvider.userDAO(any())?.users(any()) }
     }
 
-    private fun fakeScalaUserData(id: String, domain: String) =  ScalaUserData(
+    private fun fakeScalaUserData(id: String, domain: String) = ScalaUserData(
         id = id,
         domain = domain,
         teamId = null,

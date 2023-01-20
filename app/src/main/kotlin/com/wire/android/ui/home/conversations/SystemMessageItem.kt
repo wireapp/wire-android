@@ -189,6 +189,7 @@ private val SystemMessage.expandable
         is SystemMessage.NewConversationReceiptMode -> false
         is SystemMessage.ConversationReceiptModeChanged -> false
         is SystemMessage.Knock -> false
+        is SystemMessage.HistoryLost -> false
     }
 
 private fun List<String>.toUserNamesListString(res: Resources) = when {
@@ -232,8 +233,9 @@ fun SystemMessage.annotatedString(
         is SystemMessage.TeamMemberRemoved -> arrayOf(content.userName)
         is SystemMessage.CryptoSessionReset -> arrayOf(author.asString(res))
         is SystemMessage.NewConversationReceiptMode -> arrayOf(receiptMode.asString(res))
-        is SystemMessage.ConversationReceiptModeChanged -> arrayOf(receiptMode.asString(res))
+        is SystemMessage.ConversationReceiptModeChanged -> arrayOf(author.asString(res), receiptMode.asString(res))
         is SystemMessage.Knock -> arrayOf(author.asString(res))
+        is SystemMessage.HistoryLost -> arrayOf()
     }
     return res.stringWithStyledArgs(stringResId, normalStyle, boldStyle, normalColor, boldColor, *args)
 }

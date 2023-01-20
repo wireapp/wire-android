@@ -98,6 +98,7 @@ configurations {
 
 dependencies {
     implementation("com.wire.kalium:kalium-logic")
+    implementation("com.wire.kalium:kalium-util")
 
     // Application dependencies
     implementation(Libraries.Kotlin.stdLib)

@@ -40,6 +40,8 @@ data class ScalaMessageData(
             if (other.proto == null) return false
             if (!proto.contentEquals(other.proto)) return false
         } else if (other.proto != null) return false
+        if (assetName != other.assetName) return false
+        if (assetSize != other.assetSize) return false
 
         return true
     }
@@ -55,6 +57,8 @@ data class ScalaMessageData(
         result = 31 * result + (senderClientId?.hashCode() ?: 0)
         result = 31 * result + (content?.hashCode() ?: 0)
         result = 31 * result + (proto?.contentHashCode() ?: 0)
+        result = 31 * result + (assetName.hashCode())
+        result = 31 * result + (assetSize?.hashCode() ?: 0)
         return result
     }
 }
@@ -71,23 +75,33 @@ class ScalaMessageDAO(private val db: ScalaUserDatabase) {
 
     private fun messagesFromConversation(scalaConversation: ScalaConversationData): List<ScalaMessageData> {
         val cursor = db.rawQuery(
-            "SELECT * from $MESSAGES_TABLE_NAME " +
+            "SELECT " + // Assets are required, otherwise we get exception "requesting column name with table name".
+                    "$MESSAGES_TABLE_NAME.$COLUMN_ID AS $MESSAGE_ALIAS_PREFIX$COLUMN_ID, " +
+                    "$MESSAGES_TABLE_NAME.$COLUMN_TIME AS $MESSAGE_ALIAS_PREFIX$COLUMN_TIME, " +
+                    "$MESSAGES_TABLE_NAME.$COLUMN_EDIT_TIME AS $MESSAGE_ALIAS_PREFIX$COLUMN_EDIT_TIME, " +
+                    "$MESSAGES_TABLE_NAME.$COLUMN_USER_ID AS $MESSAGE_ALIAS_PREFIX$COLUMN_USER_ID, " +
+                    "$MESSAGES_TABLE_NAME.$COLUMN_CLIENT_ID AS $MESSAGE_ALIAS_PREFIX$COLUMN_CLIENT_ID, " +
+                    "$MESSAGES_TABLE_NAME.$COLUMN_CONTENT AS $MESSAGE_ALIAS_PREFIX$COLUMN_CONTENT, " +
+                    "$MESSAGES_TABLE_NAME.$COLUMN_PROTO_BLOB AS $MESSAGE_ALIAS_PREFIX$COLUMN_PROTO_BLOB, " +
+                    "$ASSETS_TABLE_NAME.$COLUMN_NAME AS $ASSET_ALIAS_PREFIX$COLUMN_NAME, " +
+                    "$ASSETS_TABLE_NAME.$COLUMN_SIZE AS $ASSET_ALIAS_PREFIX$COLUMN_SIZE " +
+                    "FROM $MESSAGES_TABLE_NAME " +
                     "LEFT JOIN $ASSETS_TABLE_NAME ON $MESSAGES_TABLE_NAME.$COLUMN_ASSET_ID = $ASSETS_TABLE_NAME.$COLUMN_ID " +
-                    "WHERE $COLUMN_CONVERSATION_ID = ?", arrayOf(scalaConversation.id)
+                    "WHERE $MESSAGES_TABLE_NAME.$COLUMN_CONVERSATION_ID = ?", arrayOf(scalaConversation.id)
         )
         return try {
             if (!cursor.moveToFirst()) {
                 emptyList()
             } else {
-                val idIndex = cursor.getColumnIndex("$MESSAGES_TABLE_NAME.$COLUMN_ID")
-                val timeIndex = cursor.getColumnIndex("$MESSAGES_TABLE_NAME.$COLUMN_TIME")
-                val editTimeIndex = cursor.getColumnIndex("$MESSAGES_TABLE_NAME.$COLUMN_EDIT_TIME")
-                val userIdIndex = cursor.getColumnIndex("$MESSAGES_TABLE_NAME.$COLUMN_USER_ID")
-                val clientIdIndex = cursor.getColumnIndex("$MESSAGES_TABLE_NAME.$COLUMN_CLIENT_ID")
-                val contentIndex = cursor.getColumnIndex("$MESSAGES_TABLE_NAME.$COLUMN_CONTENT")
-                val protoIndex = cursor.getColumnIndex("$MESSAGES_TABLE_NAME.$COLUMN_PROTO_BLOB")
-                val assetNameIndex = cursor.getColumnIndex("$ASSETS_TABLE_NAME.$COLUMN_NAME")
-                val assetSizeIndex = cursor.getColumnIndex("$ASSETS_TABLE_NAME.$COLUMN_SIZE")
+                val idIndex = cursor.getColumnIndex("$MESSAGE_ALIAS_PREFIX$COLUMN_ID")
+                val timeIndex = cursor.getColumnIndex("$MESSAGE_ALIAS_PREFIX$COLUMN_TIME")
+                val editTimeIndex = cursor.getColumnIndex("$MESSAGE_ALIAS_PREFIX$COLUMN_EDIT_TIME")
+                val userIdIndex = cursor.getColumnIndex("$MESSAGE_ALIAS_PREFIX$COLUMN_USER_ID")
+                val clientIdIndex = cursor.getColumnIndex("$MESSAGE_ALIAS_PREFIX$COLUMN_CLIENT_ID")
+                val contentIndex = cursor.getColumnIndex("$MESSAGE_ALIAS_PREFIX$COLUMN_CONTENT")
+                val protoIndex = cursor.getColumnIndex("$MESSAGE_ALIAS_PREFIX$COLUMN_PROTO_BLOB")
+                val assetNameIndex = cursor.getColumnIndex("$ASSET_ALIAS_PREFIX$COLUMN_NAME")
+                val assetSizeIndex = cursor.getColumnIndex("$ASSET_ALIAS_PREFIX$COLUMN_SIZE")
                 val accumulator = mutableListOf<ScalaMessageData>()
                 do {
                     accumulator += ScalaMessageData(
@@ -118,6 +132,8 @@ class ScalaMessageDAO(private val db: ScalaUserDatabase) {
     companion object {
         const val MESSAGES_TABLE_NAME = "Messages"
         const val ASSETS_TABLE_NAME = "Assets2"
+        const val MESSAGE_ALIAS_PREFIX = "message_"
+        const val ASSET_ALIAS_PREFIX = "asset_"
         const val COLUMN_ID = "_id"
         const val COLUMN_ASSET_ID = "asset_id"
         const val COLUMN_CONVERSATION_ID = "conv_id"

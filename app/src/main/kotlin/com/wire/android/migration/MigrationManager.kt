@@ -65,14 +65,14 @@ class MigrationManager @Inject constructor(
                 appLogger.d("$TAG - Step 1 - Migrating accounts")
                 migrateActiveAccounts(it)
             }
-            .onSuccess {
+            .onSuccess { (userIdList, isFederated) ->
                 // the result of this step is ignored
                 appLogger.d("$TAG - Step 2 - Migrating clients")
-                migrateClientsData(it)
+                migrateClientsData(userIdList, isFederated)
             }
-            .flatMap {
+            .flatMap { (userIdList, _) ->
                 appLogger.d("$TAG - Step 3 - Migrating users")
-                migrateUsers(it)
+                migrateUsers(userIdList)
             }
             .flatMap {
                 appLogger.d("$TAG - Step 4 - Migrating conversations")

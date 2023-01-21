@@ -427,8 +427,6 @@ class WireNotificationManager @Inject constructor(
     }
 
     companion object {
-        private const val CHECK_INCOMING_CALLS_PERIOD_MS = 1000L
-        private const val CHECK_INCOMING_CALLS_TRIES = 6
         private const val TAG = "WireNotificationManager"
     }
 }

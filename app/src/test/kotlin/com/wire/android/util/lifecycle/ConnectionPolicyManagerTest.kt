@@ -19,9 +19,9 @@ import io.mockk.coVerifyOrder
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.test.TestCoroutineScope
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
 
@@ -135,8 +135,7 @@ class ConnectionPolicyManagerTest {
         @MockK
         lateinit var migrationManager: MigrationManager
 
-        @MockK
-        lateinit var coroutineScope: CoroutineScope
+        var coroutineScope = TestCoroutineScope()
 
         private val connectionPolicyManager by lazy {
             ConnectionPolicyManager(currentScreenManager, coreLogic, TestDispatcherProvider(), migrationManager, coroutineScope)

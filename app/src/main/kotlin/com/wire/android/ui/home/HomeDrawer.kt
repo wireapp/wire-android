@@ -30,6 +30,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.capitalize
 import androidx.compose.ui.unit.dp
 import com.wire.android.BuildConfig
 import com.wire.android.R
@@ -83,6 +84,7 @@ fun HomeDrawer(
                     true -> CustomTabsHelper.launchUrl(context, item.getRouteWithArgs())
                     false -> navigateToItem(item)
                 }
+
                 else -> {}
             }
             onCloseDrawer()
@@ -149,6 +151,17 @@ fun HomeDrawer(
 
         Text(
             text = stringResource(R.string.app_version, BuildConfig.VERSION_NAME),
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.padding(10.dp)
+        )
+        Text(
+            text = stringResource(
+                R.string.build_variant_name, "${BuildConfig.FLAVOR}${
+                    BuildConfig.BUILD_TYPE.replaceFirstChar {
+                        it.uppercase()
+                    }
+                }"
+            ),
             color = MaterialTheme.colorScheme.primary,
             modifier = Modifier.padding(10.dp)
         )

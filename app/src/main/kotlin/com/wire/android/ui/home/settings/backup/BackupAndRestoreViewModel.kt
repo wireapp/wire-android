@@ -13,6 +13,7 @@ import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.util.FileManager
+import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.feature.backup.CreateBackupResult
 import com.wire.kalium.logic.feature.backup.CreateBackupUseCase
@@ -29,6 +30,7 @@ import com.wire.kalium.logic.util.fileExtension
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import okio.Path
 import javax.inject.Inject
 
@@ -41,7 +43,8 @@ class BackupAndRestoreViewModel
     private val createBackupFile: CreateBackupUseCase,
     private val verifyBackup: VerifyBackupUseCase,
     private val kaliumFileSystem: KaliumFileSystem,
-    private val fileManager: FileManager
+    private val fileManager: FileManager,
+    private val dispatchers: DispatcherProvider,
 ) : ViewModel() {
 
     var state by mutableStateOf(BackupAndRestoreState.INITIAL_STATE)
@@ -84,7 +87,7 @@ class BackupAndRestoreViewModel
 
     fun chooseBackupFileToRestore(uri: Uri) = viewModelScope.launch {
         latestImportedBackupTempPath = kaliumFileSystem.tempFilePath(TEMP_IMPORTED_BACKUP_FILE_NAME)
-        fileManager.copyToTempPath(uri, latestImportedBackupTempPath)
+        withContext(dispatchers.io()) { fileManager.copyToTempPath(uri, latestImportedBackupTempPath) }
         checkIfBackupEncrypted(latestImportedBackupTempPath)
     }
 

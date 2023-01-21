@@ -87,7 +87,7 @@ class BackupAndRestoreViewModel
 
     fun chooseBackupFileToRestore(uri: Uri) = viewModelScope.launch {
         latestImportedBackupTempPath = kaliumFileSystem.tempFilePath(TEMP_IMPORTED_BACKUP_FILE_NAME)
-        withContext(dispatchers.io()) { fileManager.copyToTempPath(uri, latestImportedBackupTempPath) }
+        fileManager.copyToTempPath(uri, latestImportedBackupTempPath)
         checkIfBackupEncrypted(latestImportedBackupTempPath)
     }
 

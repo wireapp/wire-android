@@ -137,9 +137,6 @@ class WireNotificationManager @Inject constructor(
     }
 
     private suspend fun fetchAndShowCallNotificationsOnce(userId: QualifiedID) {
-        // TODO: for now GetIncomingCallsUseCase() doesn't return valid data on the first try.
-        //      so it's possible to have scenario, when FCM comes informing us that there is a Call,
-        //      but we don't get it from the first GetIncomingCallsUseCase() call.
         coreLogic.getSessionScope(userId)
             .calls
             .getIncomingCalls()

@@ -2,7 +2,6 @@ package com.wire.android.util.ui
 
 import android.content.Context
 import android.os.Build.VERSION.SDK_INT
-import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
@@ -18,7 +17,6 @@ import coil.compose.rememberAsyncImagePainter
 import coil.decode.GifDecoder
 import coil.decode.ImageDecoderDecoder
 import coil.request.ImageRequest
-import com.wire.android.R
 import com.wire.android.model.ImageAsset
 import com.wire.kalium.logic.feature.asset.DeleteAssetUseCase
 import com.wire.kalium.logic.feature.asset.GetAvatarAssetUseCase

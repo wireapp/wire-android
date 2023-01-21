@@ -31,6 +31,9 @@ import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
  */
 @Stable
 class WireSessionImageLoader(private val coilImageLoader: ImageLoader) {
+    private companion object {
+        const val RETRY_INCREMENT_ATTEMPT_PER_STEP = 1
+    }
 
     /**
      * Attempts to paint an Image using [asset], falling back to [fallbackData] if [asset] is null.
@@ -61,7 +64,7 @@ class WireSessionImageLoader(private val coilImageLoader: ImageLoader) {
         )
 
         if (painter.state is AsyncImagePainter.State.Error) {
-            retryHash += 1
+            retryHash += RETRY_INCREMENT_ATTEMPT_PER_STEP
         }
 
         return painter

@@ -1,7 +1,5 @@
 package com.wire.android.util.ui
 
-import android.content.res.Resources
-import android.util.Log
 import coil.ImageLoader
 import coil.fetch.FetchResult
 import coil.fetch.Fetcher
@@ -20,13 +18,20 @@ internal class AssetImageFetcher(
     private val deleteAsset: DeleteAssetUseCase,
     private val drawableResultWrapper: DrawableResultWrapper
 ) : Fetcher {
+
+     companion object {
+        const val OPTION_PARAMETER_RETRY_KEY = "retry_attempt"
+        private const val RETRY_ATTEMPT_TO_DELETE_ASSET = 1
+        private const val DEFAULT_RETRY_ATTEMPT = 0
+    }
+
     override suspend fun fetch(): FetchResult? {
         with(assetFetcherParameters) {
             return when (data) {
                 is ImageAsset.UserAvatarAsset -> {
-                    val retryHash = options.parameters.value("retry_hash") ?: 0
+                    val retryHash = options.parameters.value(OPTION_PARAMETER_RETRY_KEY) ?: DEFAULT_RETRY_ATTEMPT
 
-                    if (retryHash >= 1) {
+                    if (retryHash >= RETRY_ATTEMPT_TO_DELETE_ASSET) {
                         deleteAsset(data.userAssetId)
                     }
 

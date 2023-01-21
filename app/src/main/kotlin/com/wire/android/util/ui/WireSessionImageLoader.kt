@@ -52,7 +52,7 @@ class WireSessionImageLoader(private val coilImageLoader: ImageLoader) {
                 .memoryCacheKey(asset?.uniqueKey)
                 .data(asset ?: fallbackData)
                 .setParameter(
-                    key = "retry_hash",
+                    key = AssetImageFetcher.OPTION_PARAMETER_RETRY_KEY,
                     value = retryHash,
                     memoryCacheKey = null
                 )

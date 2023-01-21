@@ -156,6 +156,6 @@ val Member.Role.name
 
 @Composable
 @Preview
-fun OtherUserProfileGroupPreview() {
+fun PreviewOtherUserProfileGroup() {
     OtherUserProfileGroup(OtherUserProfileState.PREVIEW, rememberLazyListState(), {}) {}
 }

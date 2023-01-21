@@ -54,6 +54,6 @@ fun MicrophoneButton(
 
 @Preview
 @Composable
-fun ComposableMicrophoneButtonPreview() {
+fun PreviewComposableMicrophoneButton() {
     MicrophoneButton(isMuted = true, onMicrophoneButtonClicked = { })
 }

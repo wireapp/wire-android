@@ -47,7 +47,7 @@ fun MessageDetailsReadReceipts(
 
 @Preview(showBackground = true)
 @Composable
-fun MessageDetailsReadReceiptsPreview() {
+fun PreviewMessageDetailsReadReceipts() {
     MessageDetailsReadReceipts(
         readReceiptsData = MessageDetailsReadReceiptsData(),
         onReadReceiptsLearnMore = {}

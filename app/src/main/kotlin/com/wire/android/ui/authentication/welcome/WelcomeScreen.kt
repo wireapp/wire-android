@@ -306,7 +306,7 @@ private fun shouldJumpToEnd(previousPage: Int, currentPage: Int, lastPage: Int):
 
 @Preview
 @Composable
-private fun WelcomeScreenPreview() {
+fun PreviewWelcomeScreen() {
     WireTheme(isPreview = true) {
         WelcomeContent(hiltViewModel())
     }

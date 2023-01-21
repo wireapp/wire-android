@@ -30,6 +30,6 @@ fun ConversationBanner(bannerMessage: UIText?) {
 
 @Preview
 @Composable
-fun ConversationBannerPreview() {
+fun PreviewConversationBanner() {
     ConversationBanner(bannerMessage = UIText.DynamicString("Federated users, Externals, guests and services are present"))
 }

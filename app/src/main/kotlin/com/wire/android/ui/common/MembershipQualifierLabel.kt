@@ -52,6 +52,6 @@ fun MembershipQualifierLabel(membership: Membership, modifier: Modifier = Modifi
 
 @Preview
 @Composable
-fun MembershipQualifierLabelPreview() {
+fun PreviewMembershipQualifierLabel() {
     MembershipQualifierLabel(membership = Membership.Guest)
 }

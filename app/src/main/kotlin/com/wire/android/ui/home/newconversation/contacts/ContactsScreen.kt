@@ -152,7 +152,7 @@ private fun ContactItem(
 
 @Preview
 @Composable
-fun ContactItemPreview() {
+fun PreviewContactItem() {
     ContactItem(
         name = "Name",
         avatarData = UserAvatarData(),

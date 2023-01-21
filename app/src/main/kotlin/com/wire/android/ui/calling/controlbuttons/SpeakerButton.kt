@@ -52,6 +52,6 @@ fun SpeakerButton(
 
 @Preview
 @Composable
-fun ComposableSpeakerButtonPreview() {
+fun PreviewSpeakerButton() {
     SpeakerButton(isSpeakerOn = true, onSpeakerButtonClicked = { })
 }

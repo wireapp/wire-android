@@ -47,6 +47,6 @@ fun CameraFlipButton(
 
 @Preview
 @Composable
-fun ComposableCameraFlipButtonPreview() {
+fun PreviewCameraFlipButton() {
     CameraFlipButton(onCameraFlipButtonClicked = { })
 }

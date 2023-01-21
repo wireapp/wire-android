@@ -241,7 +241,7 @@ private fun RemoveDeviceDialog(
 
 @Preview
 @Composable
-private fun RemoveDeviceScreenPreview() {
+fun PreviewRemoveDeviceScreen() {
     RemoveDeviceContent(
         state = RemoveDeviceState(
             List(10) { Device() },

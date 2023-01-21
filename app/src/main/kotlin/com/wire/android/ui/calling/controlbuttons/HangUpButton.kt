@@ -40,7 +40,7 @@ fun HangUpButton(
 
 @Preview
 @Composable
-fun ComposableHangUpButtonPreview() {
+fun PreviewComposableHangUpButton() {
     HangUpButton(modifier = Modifier
         .width(MaterialTheme.wireDimensions.initiatingCallHangUpButtonSize)
         .height(MaterialTheme.wireDimensions.initiatingCallHangUpButtonSize), onHangUpButtonClicked = { })

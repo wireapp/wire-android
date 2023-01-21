@@ -87,6 +87,6 @@ private fun verifyCameraPermission(
 
 @Preview
 @Composable
-fun ComposableCameraButtonPreview() {
+fun PreviewComposableCameraButton() {
     CameraButton(onCameraPermissionDenied = { }, onCameraButtonClicked = { })
 }

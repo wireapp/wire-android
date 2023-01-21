@@ -4,7 +4,11 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Transition
+import androidx.compose.animation.core.updateTransition
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -20,79 +24,69 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.wireTextFieldColors
 import com.wire.android.ui.theme.wireTypography
 
-@ExperimentalAnimationApi
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun MessageComposerInputRow(
     transition: Transition<MessageComposeInputState>,
-    messageComposerState: MessageComposerInnerState,
+    messageComposeInputState: MessageComposeInputState,
+    onMessageTextChanged: (TextFieldValue) -> Unit = { },
+    onInputFocusChanged: (Boolean) -> Unit = { },
     onSendButtonClicked: () -> Unit = { },
     onSelectedLineIndexChanged: (Int) -> Unit = { },
-    onLineBottomYCoordinateChanged: (Float) -> Unit = { }
+    onLineBottomYCoordinateChanged: (Float) -> Unit = { },
+    onAdditionalOptionButtonClicked: () -> Unit = { },
+    onEditSaveButtonClicked: () -> Unit = { },
+    onEditCancelButtonClicked: () -> Unit = { },
 ) {
     Row(
-        verticalAlignment =
-        if (messageComposerState.messageComposeInputState == MessageComposeInputState.FullScreen)
-            Alignment.Top
-        else
-            Alignment.CenterVertically,
+        verticalAlignment = when (messageComposeInputState) {
+            is MessageComposeInputState.Active -> Alignment.Bottom
+            is MessageComposeInputState.Inactive -> Alignment.CenterVertically
+        },
         modifier = Modifier.fillMaxWidth()
     ) {
         transition.AnimatedVisibility(
-            visible = { it == MessageComposeInputState.Enabled }
+            visible = { it is MessageComposeInputState.Inactive }
         ) {
             Box(modifier = Modifier.padding(start = dimensions().spacing8x)) {
-                AdditionalOptionButton(messageComposerState.attachmentOptionsDisplayed) {
-                    messageComposerState.toActive()
-                    messageComposerState.showAttachmentOptions()
+                AdditionalOptionButton(messageComposeInputState.attachmentOptionsDisplayed) {
+                    onAdditionalOptionButtonClicked()
                 }
             }
         }
-        // MessageComposerInput needs a padding on the end of it to give room for the SendOptions components,
-        // because it is "floating" freely with an absolute x-y position inside of the ConstrainLayout
-        // wrapping the whole content when in the FullScreen state we are giving it max height
-        // when in active state we limit the height to max 82.dp
-        // other we let it wrap the content of the height, which will be equivalent to the text
-        Box(
-            Modifier
+        Column(
+            modifier = Modifier
+                .weight(weight = 1f, fill = true)
                 .wrapContentSize()
         ) {
+
             MessageComposerInput(
-                messageText = messageComposerState.messageText,
-                onMessageTextChanged = messageComposerState::setMessageTextValue,
-                messageComposerInputState = messageComposerState.messageComposeInputState,
-                onFocusChanged = { isFocused ->
-                    messageComposerState.messageComposeInputFocusChange(isFocused)
-                    if (isFocused) {
-                        messageComposerState.toActive()
-                        messageComposerState.hideAttachmentOptions()
-                    }
-                },
+                messageText = messageComposeInputState.messageText,
+                onMessageTextChanged = onMessageTextChanged,
+                messageComposerInputState = messageComposeInputState,
+                onFocusChanged = onInputFocusChanged,
                 modifier = Modifier
                     .fillMaxWidth()
                     .then(
-                        when (messageComposerState.messageComposeInputState) {
-                            MessageComposeInputState.FullScreen ->
-                                Modifier
-                                    .fillMaxHeight()
-                                    .padding(end = dimensions().messageComposerPaddingEnd)
+                        when (messageComposeInputState) {
+                            is MessageComposeInputState.Active ->
+                                when (messageComposeInputState.size) {
+                                    MessageComposeInputSize.COLLAPSED ->
+                                        Modifier.heightIn(max = dimensions().messageComposerActiveInputMaxHeight)
 
-                            MessageComposeInputState.Active -> {
-                                Modifier
-                                    .heightIn(
-                                        max = dimensions().messageComposerActiveInputMaxHeight
-                                    )
-                                    .padding(
-                                        end = dimensions().messageComposerPaddingEnd
-                                    )
-                            }
+                                    MessageComposeInputSize.EXPANDED ->
+                                        Modifier.fillMaxHeight()
+                                }
 
-                            else -> Modifier.wrapContentHeight()
+                            is MessageComposeInputState.Inactive ->
+                                Modifier.wrapContentHeight()
                         }
                     )
                     .animateContentSize(),
@@ -100,11 +94,26 @@ fun MessageComposerInputRow(
                 onLineBottomYCoordinateChanged = onLineBottomYCoordinateChanged
             )
 
-            SendActions(
-                transition = transition,
+            transition.AnimatedVisibility(
+                visible = { it.isEditMessage },
+                enter = fadeIn(),
+                exit = fadeOut()
+            ) {
+                MessageEditActions(
+                    onEditSaveButtonClicked = onEditSaveButtonClicked,
+                    onEditCancelButtonClicked = onEditCancelButtonClicked,
+                    editButtonEnabled = messageComposeInputState.editSaveButtonEnabled
+                )
+            }
+        }
+        transition.AnimatedVisibility(
+            visible = { it.isNewMessage },
+            enter = fadeIn(),
+            exit = fadeOut()
+        ) {
+            MessageSendActions(
                 onSendButtonClicked = onSendButtonClicked,
-                sendButtonEnabled = messageComposerState.sendButtonEnabled,
-                modifier = Modifier.align(Alignment.BottomEnd)
+                sendButtonEnabled = messageComposeInputState.sendButtonEnabled
             )
         }
     }
@@ -128,7 +137,7 @@ private fun MessageComposerInput(
             borderColor = Color.Transparent,
             focusColor = Color.Transparent
         ),
-        singleLine = messageComposerInputState == MessageComposeInputState.Enabled,
+        singleLine = messageComposerInputState is MessageComposeInputState.Inactive,
         maxLines = Int.MAX_VALUE,
         textStyle = MaterialTheme.wireTypography.body01,
         // Add an extra space so that the cursor is placed one space before "Type a message"
@@ -142,4 +151,47 @@ private fun MessageComposerInput(
         onSelectedLineIndexChanged = onSelectedLineIndexChanged,
         onLineBottomYCoordinateChanged = onLineBottomYCoordinateChanged
     )
+}
+
+@Preview
+@Composable
+fun PreviewMessageComposerInputRowInactive() {
+    val state = MessageComposeInputState.Inactive()
+    MessageComposerInputRow(updateTransition(targetState = state, label = ""), state)
+}
+@Preview
+@Composable
+fun PreviewMessageComposerInputRowActiveCollapsed() {
+    val state = MessageComposeInputState.Active(size = MessageComposeInputSize.COLLAPSED)
+    MessageComposerInputRow(updateTransition(targetState = state, label = ""), state)
+}
+@Preview
+@Composable
+fun PreviewMessageComposerInputRowActiveCollapsedSendEnabled() {
+    val state = MessageComposeInputState.Active(messageText = TextFieldValue("text"), size = MessageComposeInputSize.COLLAPSED)
+    MessageComposerInputRow(updateTransition(targetState = state, label = ""), state)
+}
+@Preview
+@Composable
+fun PreviewMessageComposerInputRowActiveExpanded() {
+    val state = MessageComposeInputState.Active(size = MessageComposeInputSize.EXPANDED)
+    MessageComposerInputRow(updateTransition(targetState = state, label = ""), state)
+}
+@Preview
+@Composable
+fun PreviewMessageComposerInputRowActiveEdit() {
+    val state = MessageComposeInputState.Active(
+        messageText = TextFieldValue("original text"),
+        type = MessageComposeInputType.EditMessage("", "original text")
+    )
+    MessageComposerInputRow(updateTransition(targetState = state, label = ""), state)
+}
+@Preview
+@Composable
+fun PreviewMessageComposerInputRowActiveEditSaveEnabled() {
+    val state = MessageComposeInputState.Active(
+        messageText = TextFieldValue("current text"),
+        type = MessageComposeInputType.EditMessage("", "original text")
+    )
+    MessageComposerInputRow(updateTransition(targetState = state, label = ""), state)
 }

@@ -79,12 +79,12 @@ fun ServerVersionNotSupportedDialog(
 
 @Preview
 @Composable
-fun ClientUpdateRequiredDialogPreview() {
+fun PreviewClientUpdateRequiredDialog() {
     ClientUpdateRequiredDialog(onClose = {}, onUpdate = {}, isPreview = true)
 }
 
 @Preview
 @Composable
-fun ServerVersionNotSupportedDialogPreview() {
+fun PreviewServerVersionNotSupportedDialog() {
     ServerVersionNotSupportedDialog(onClose = {}, isPreview = true)
 }

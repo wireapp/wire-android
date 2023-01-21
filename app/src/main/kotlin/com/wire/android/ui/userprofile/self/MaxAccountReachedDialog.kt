@@ -25,13 +25,13 @@ fun MaxAccountReachedDialog(onConfirm: () -> Unit, onDismiss: () -> Unit, @Strin
 
 @Preview(widthDp = 400, heightDp = 800)
 @Composable
-private fun MaxAccountReachedDialogWithOkButton() {
+fun PreviewMaxAccountReachedDialogWithOkButton() {
     MaxAccountReachedDialog(onConfirm = { }, onDismiss = { }, buttonText = R.string.label_ok)
 }
 
 @Preview(widthDp = 400, heightDp = 800)
 @Composable
-private fun MaxAccountReachedDialogWithOpenProfileButton() {
+fun PreviewMaxAccountReachedDialogWithOpenProfileButton() {
     MaxAccountReachedDialog(onConfirm = { }, onDismiss = { }, buttonText = R.string.max_account_reached_dialog_button_open_profile
     )
 }

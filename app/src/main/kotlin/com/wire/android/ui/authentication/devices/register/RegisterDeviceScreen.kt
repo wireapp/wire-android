@@ -158,6 +158,6 @@ private fun PasswordTextField(state: RegisterDeviceState, onPasswordChange: (Tex
 
 @Composable
 @Preview
-private fun RegisterDeviceScreenPreview() {
+fun PreviewRegisterDeviceScreen() {
     RegisterDeviceContent(RegisterDeviceState(), ClearSessionState(), {}, {}, {}, {}, {}, {})
 }

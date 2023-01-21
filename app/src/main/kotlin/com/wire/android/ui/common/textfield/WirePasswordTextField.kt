@@ -103,7 +103,7 @@ fun WirePasswordTextField(
 @OptIn(ExperimentalComposeUiApi::class)
 @Preview(name = "Default WirePasswordTextField")
 @Composable
-private fun WirePasswordTextFieldPreview() {
+fun PreviewWirePasswordTextField() {
     WirePasswordTextField(
         value = TextFieldValue(""),
         onValueChange = {},

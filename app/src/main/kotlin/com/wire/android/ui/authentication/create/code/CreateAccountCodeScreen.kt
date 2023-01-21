@@ -212,6 +212,6 @@ private fun CreateAccountCodeViewState.CodeError.DialogError.getResources(type: 
 
 @Composable
 @Preview
-private fun CreateAccountCodeScreenPreview() {
+fun PreviewCreateAccountCodeScreen() {
     CodeContent(CreateAccountCodeViewState(CreateAccountFlowType.CreatePersonalAccount), {}, {}, {}, {}, {}, ServerConfig.DEFAULT)
 }

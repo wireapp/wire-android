@@ -204,7 +204,7 @@ class BackupAndRestoreViewModel
             backupRestoreProgress = BackupRestoreProgress.InProgress(),
             restorePasswordValidation = PasswordValidation.NotVerified
         )
-        if (kaliumFileSystem.exists(latestImportedBackupTempPath))
+        if (this::latestImportedBackupTempPath.isInitialized && kaliumFileSystem.exists(latestImportedBackupTempPath))
             kaliumFileSystem.delete(latestImportedBackupTempPath)
     }
 

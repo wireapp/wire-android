@@ -9,6 +9,7 @@ import com.wire.kalium.logic.data.id.FederatedIdMapper
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.id.QualifiedIdMapperImpl
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.asset.DeleteAssetUseCase
 import com.wire.kalium.logic.feature.asset.GetAvatarAssetUseCase
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageUseCase
@@ -294,6 +295,12 @@ class UseCaseModule {
     @Provides
     fun provideGetAvatarAssetUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId): GetAvatarAssetUseCase =
         coreLogic.getSessionScope(currentAccount).users.getPublicAsset
+
+    @ViewModelScoped
+    @Provides
+    fun provideDeleteAssetUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId): DeleteAssetUseCase =
+        coreLogic.getSessionScope(currentAccount).users.deleteAsset
+
 
     @ViewModelScoped
     @Provides

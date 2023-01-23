@@ -79,7 +79,6 @@ private fun painter(data: UserAvatarData): Painter =
         data.asset.paint(getUriFromDrawable(LocalContext.current, R.drawable.ic_default_user_avatar))
     }
 
-
 @Preview
 @Composable
 fun PreviewUserProfileAvatar() {

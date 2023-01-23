@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.windowInsetsEndWidth
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -19,6 +21,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
@@ -89,8 +92,9 @@ fun ImportMediaContent(searchBarState: SearchBarState, snackbarHostState: Snackb
         modifier = Modifier.background(colorsScheme().background),
         content = { internalPadding ->
             val importedItemsList: List<ImportedMediaAsset> = importMediaViewModel.importMediaState.importedAssets
+            val itemsToImport = importedItemsList.size
             val pagerState = rememberPagerState()
-            val isMultipleImport = importedItemsList.size > 1
+            val isMultipleImport = itemsToImport > 1
 
             Column(
                 modifier = Modifier
@@ -105,8 +109,8 @@ fun ImportMediaContent(searchBarState: SearchBarState, snackbarHostState: Snackb
                 CompositionLocalProvider(LocalOverscrollConfiguration provides null) {
                     HorizontalPager(
                         state = pagerState,
-                        count = importedItemsList.size,
-                        modifier = Modifier.fillMaxWidth(),
+                        count = itemsToImport,
+                        modifier = Modifier.wrapContentWidth(),
                         contentPadding = contentPadding,
                         itemSpacing = dimensions().spacing8x
                     ) { page ->

@@ -5,6 +5,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Parcelable
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -361,6 +362,7 @@ class ImportMediaViewModel @Inject constructor(
     }
 }
 
+@Stable
 data class ImportMediaState(
     val avatarAsset: ImageAsset.UserAvatarAsset? = null,
     val importedAssets: ArrayList<ImportedMediaAsset> = arrayListOf()

@@ -103,20 +103,25 @@ class WireActivity : AppCompatActivity() {
                     }
                     setUpNavigation(navController, scope)
 
-                    handleCustomBackendDialog(viewModel.globalAppState.customBackendDialog.shouldShowDialog)
-                    maxAccountDialog(
-                        viewModel::openProfile,
-                        viewModel::dismissMaxAccountDialog,
-                        viewModel.globalAppState.maxAccountDialog
-                    )
-                    updateAppDialog(
-                        { updateTheApp() },
-                        viewModel.globalAppState.updateAppDialog
-                    )
-                    AccountLongedOutDialog(viewModel.globalAppState.blockUserUI, viewModel::navigateToNextAccountOrWelcome)
+                    handleDialogs()
                 }
             }
         }
+    }
+
+    @Composable
+    private fun handleDialogs() {
+        handleCustomBackendDialog(viewModel.globalAppState.customBackendDialog.shouldShowDialog)
+        maxAccountDialog(
+            viewModel::openProfile,
+            viewModel::dismissMaxAccountDialog,
+            viewModel.globalAppState.maxAccountDialog
+        )
+        updateAppDialog(
+            { updateTheApp() },
+            viewModel.globalAppState.updateAppDialog
+        )
+        AccountLoggedOutDialog(viewModel.globalAppState.blockUserUI, viewModel::navigateToNextAccountOrWelcome)
     }
 
     @Composable
@@ -159,7 +164,7 @@ class WireActivity : AppCompatActivity() {
     }
 
     @Composable
-    fun AccountLongedOutDialog(reason: CurrentSessionErrorState?, navigateAway: () -> Unit) {
+    fun AccountLoggedOutDialog(reason: CurrentSessionErrorState?, navigateAway: () -> Unit) {
         appLogger.e("AccountLongedOutDialog: $reason")
         reason?.let {
             val (@StringRes title: Int, @StringRes text: Int) = when (reason) {
@@ -230,5 +235,3 @@ class WireActivity : AppCompatActivity() {
         proximitySensorManager.unRegisterListener()
     }
 }
-
-

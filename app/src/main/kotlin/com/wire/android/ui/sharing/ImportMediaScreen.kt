@@ -14,6 +14,7 @@ import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -31,10 +32,12 @@ import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
 import com.wire.android.R
 import com.wire.android.model.Clickable
+import com.wire.android.model.SnackBarMessage
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.topappbar.search.SearchBarState
 import com.wire.android.ui.common.topappbar.search.SearchTopBar
@@ -45,6 +48,7 @@ import com.wire.android.ui.home.newconversation.common.SendContentButton
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.util.extension.getActivity
 import kotlinx.collections.immutable.persistentMapOf
+import kotlinx.coroutines.flow.SharedFlow
 
 @Composable
 fun ImportMediaScreen(importMediaViewModel: ImportMediaViewModel = hiltViewModel()) {
@@ -54,12 +58,13 @@ fun ImportMediaScreen(importMediaViewModel: ImportMediaViewModel = hiltViewModel
     }
 
     val searchBarState = rememberSearchbarState()
-    ImportMediaContent(searchBarState, importMediaViewModel)
+    val snackBarHostState: SnackbarHostState = remember { SnackbarHostState() }
+    ImportMediaContent(searchBarState, snackBarHostState, importMediaViewModel)
 }
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalPagerApi::class, ExperimentalFoundationApi::class)
 @Composable
-fun ImportMediaContent(searchBarState: SearchBarState, importMediaViewModel: ImportMediaViewModel) {
+fun ImportMediaContent(searchBarState: SearchBarState, snackbarHostState: SnackbarHostState, importMediaViewModel: ImportMediaViewModel) {
     val actionButtonTitle = stringResource(R.string.import_media_send_button_title)
     Scaffold(
         topBar = {
@@ -73,6 +78,12 @@ fun ImportMediaContent(searchBarState: SearchBarState, importMediaViewModel: Imp
                         clickable = remember { Clickable(enabled = false) { } }
                     )
                 }
+            )
+        },
+        snackbarHost = {
+            SwipeDismissSnackbarHost(
+                hostState = snackbarHostState,
+                modifier = Modifier.fillMaxWidth()
             )
         },
         modifier = Modifier.background(colorsScheme().background),
@@ -130,7 +141,7 @@ fun ImportMediaContent(searchBarState: SearchBarState, importMediaViewModel: Imp
                         isSelectableList = true,
                         onConversationSelectedOnRadioGroup = importMediaViewModel::selectConversationOnRadioGroup,
                         searchQuery = searchBarState.searchQuery.text,
-                        onOpenConversation = {},
+                        onOpenConversation = importMediaViewModel::onConversationClicked,
                         onEditConversation = {},
                         onOpenUserProfile = {},
                         onOpenConversationNotificationsSettings = {},
@@ -145,12 +156,22 @@ fun ImportMediaContent(searchBarState: SearchBarState, importMediaViewModel: Imp
         bottomBar = {
             SendContentButton(
                 mainButtonText = actionButtonTitle,
-                onMainButtonClick = {
-//                   importMediaViewModel.onImportedMediaSent()
-                }
+                count = importMediaViewModel.shareableConversationListState.conversationsAddedToGroup.size,
+                onMainButtonClick = importMediaViewModel::onImportedMediaSent
             )
         }
     )
+    SnackBarMessage(importMediaViewModel.infoMessage, snackbarHostState)
+}
+
+@Composable
+private fun SnackBarMessage(infoMessages: SharedFlow<SnackBarMessage>, snackbarHostState: SnackbarHostState) {
+    val context = LocalContext.current
+    LaunchedEffect(Unit) {
+        infoMessages.collect { message ->
+            snackbarHostState.showSnackbar(message.uiText.asString(context.resources))
+        }
+    }
 }
 
 @Preview(showBackground = true)

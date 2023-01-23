@@ -82,10 +82,12 @@ fun SelectParticipantsButtonsRow(
 @Composable
 fun SendContentButton(
     mainButtonText: String,
+    count: Int,
     onMainButtonClick: () -> Unit,
 ) {
     SelectParticipantsButtonsRow(
         showCount = false,
+        count = count,
         leadingIcon = {
             Image(
                 painter = painterResource(id = R.drawable.ic_send),
@@ -94,7 +96,7 @@ fun SendContentButton(
             )
         },
         mainButtonText = mainButtonText,
-        shouldAllowNoSelectionContinue = true,
+        shouldAllowNoSelectionContinue = false,
         onMainButtonClick = onMainButtonClick
     )
 }
@@ -181,5 +183,11 @@ fun PreviewSelectParticipantsButtonsRowDisabledButton() {
 @Preview
 @Composable
 fun PreviewSendButtonsRowDisabledButton() {
-    SendContentButton(mainButtonText = "Send", onMainButtonClick = {})
+    SendContentButton(mainButtonText = "Send", count = 0, onMainButtonClick = {})
+}
+
+@Preview
+@Composable
+fun PreviewSendButtonsRowEnabledButton() {
+    SendContentButton(mainButtonText = "Send", count = 1, onMainButtonClick = {})
 }

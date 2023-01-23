@@ -17,6 +17,7 @@ import com.wire.android.appLogger
 import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.mapper.toUIPreview
 import com.wire.android.model.ImageAsset
+import com.wire.android.model.SnackBarMessage
 import com.wire.android.model.UserAvatarData
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
@@ -29,26 +30,39 @@ import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.parseConversationEventType
 import com.wire.android.ui.home.conversationslist.parsePrivateConversationEventType
 import com.wire.android.ui.home.conversationslist.showLegalHoldIndicator
+import com.wire.android.util.FileManager
+import com.wire.android.util.ImageUtil
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.getMetaDataFromUri
 import com.wire.android.util.getMimeType
 import com.wire.android.util.isImageFile
 import com.wire.android.util.parcelableArrayList
+import com.wire.android.util.resampleImageAndCopyToTempPath
 import com.wire.android.util.ui.WireSessionImageLoader
-import com.wire.kalium.logic.data.conversation.Conversation
+import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.data.conversation.ConversationDetails
+import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.feature.asset.GetAssetSizeLimitUseCase
+import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationListDetailsUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.collections.immutable.toImmutableList
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlinx.collections.immutable.toImmutableList
+import okio.buffer
+import java.util.UUID
 import javax.inject.Inject
 
 @HiltViewModel
@@ -57,7 +71,11 @@ class ImportMediaViewModel @Inject constructor(
     private val getSelf: GetSelfUserUseCase,
     private val userTypeMapper: UserTypeMapper,
     private val observeConversationListDetails: ObserveConversationListDetailsUseCase,
+    private val fileManager: FileManager,
     private val navigationManager: NavigationManager,
+    private val sendAssetMessage: ScheduleNewAssetMessageUseCase,
+    private val kaliumFileSystem: KaliumFileSystem,
+    private val getAssetSizeLimit: GetAssetSizeLimitUseCase,
     val wireSessionImageLoader: WireSessionImageLoader,
     val dispatchers: DispatcherProvider,
 ) : ViewModel() {
@@ -69,13 +87,16 @@ class ImportMediaViewModel @Inject constructor(
     var shareableConversationListState by mutableStateOf(ShareableConversationListState())
         private set
 
-    val selectedConversationsFlow = MutableStateFlow(emptyList<ConversationItem>())
+    val selectedConversationFlow = MutableStateFlow(emptyList<ConversationItem>())
 
     private val mutableSearchQueryFlow = MutableStateFlow("")
 
     private val searchQueryFlow = mutableSearchQueryFlow
         .asStateFlow()
         .debounce(SearchPeopleViewModel.DEFAULT_SEARCH_QUERY_DEBOUNCE)
+
+    private val _infoMessage = MutableSharedFlow<SnackBarMessage>()
+    val infoMessage = _infoMessage.asSharedFlow()
 
     init {
         viewModelScope.launch {
@@ -104,7 +125,7 @@ class ImportMediaViewModel @Inject constructor(
                             userTypeMapper
                         )
                     }
-                }, searchQueryFlow, selectedConversationsFlow
+                }, searchQueryFlow, selectedConversationFlow
         ) { conversations, searchQuery, selectedConversations ->
             val searchResult = if (searchQuery.isEmpty()) conversations else searchShareableConversation(
                 conversations,
@@ -135,7 +156,13 @@ class ImportMediaViewModel @Inject constructor(
     }
 
     fun selectConversationOnRadioGroup(conversation: ConversationItem) = viewModelScope.launch {
-        selectedConversationsFlow.emit(listOf(conversation))
+        selectedConversationFlow.emit(listOf(conversation))
+    }
+
+    fun onConversationClicked(conversationId: ConversationId) {
+        shareableConversationListState.initialConversations.find { it.conversationId == conversationId }?.let {
+            selectConversationOnRadioGroup(it)
+        }
     }
 
     @Suppress("LongMethod")
@@ -233,53 +260,104 @@ class ImportMediaViewModel @Inject constructor(
         }
     }
 
-    fun onImportedMediaSent(conversationsList: List<Conversation>) = viewModelScope.launch(dispatchers.main()) {
-        navigationManager.navigate(
-            command = NavigationCommand(
-                destination = if (conversationsList.size == 1) {
-                    val conversation = conversationsList.first()
-                    NavigationItem.Conversation.getRouteWithArgs(listOf(conversation.id))
+    fun onImportedMediaSent() = viewModelScope.launch {
+        val conversation = shareableConversationListState.conversationsAddedToGroup.first()
+        val assetsToSend = importMediaState.importedAssets
+
+        if (assetsToSend.size > MAX_LIMIT_MEDIA_IMPORT) {
+            onSnackbarMessage(ImportMediaSnackbarMessages.MaxAmountOfAssetsReached)
+        } else {
+            var jobs: List<Job> = listOf()
+            assetsToSend.forEach { importedAsset ->
+                val isImage = importedAsset is ImportedMediaAsset.Image
+                val assetLimitForCurrentUser = getAssetSizeLimit(isImage).toInt()
+                val sizeOf1MB = 1024 * 1024
+                val isAboveLimit = importedAsset.size > assetLimitForCurrentUser
+                if (isAboveLimit) {
+                    onSnackbarMessage(ImportMediaSnackbarMessages.MaxAssetSizeExceeded(assetLimitForCurrentUser.div(sizeOf1MB)))
                 } else {
-                    NavigationItem.Home.getRouteWithArgs()
-                },
-                backStackMode = BackStackMode.REMOVE_CURRENT
+                    val job = launch {
+                        sendAssetMessage(
+                            conversationId = conversation.conversationId,
+                            assetDataPath = importedAsset.dataPath,
+                            assetName = importedAsset.name,
+                            assetDataSize = importedAsset.size,
+                            assetMimeType = importedAsset.mimeType,
+                            assetWidth = if (isImage) (importedAsset as ImportedMediaAsset.Image).width else 0,
+                            assetHeight = if (isImage) (importedAsset as ImportedMediaAsset.Image).height else 0,
+                        )
+                    }
+                    jobs = jobs.plus(job)
+                    appLogger.d("**-- Triggered job $job / aka ${jobs.size}")
+                }
+            }
+            jobs.joinAll()
+            navigationManager.navigate(
+                command = NavigationCommand(
+                    NavigationItem.Conversation.getRouteWithArgs(listOf(conversation.conversationId)),
+                    backStackMode = BackStackMode.CLEAR_WHOLE
+                )
             )
-        )
+        }
     }
 
 
-    private fun handleMimeType(context: Context, type: String, uri: Uri) {
+    private fun handleMimeType(context: Context, mimeType: String, uri: Uri) = viewModelScope.launch {
+        val assetKey = UUID.randomUUID().toString()
+        val tempAssetPath = kaliumFileSystem.tempFilePath(assetKey)
         when {
-            isImageFile(type) -> {
+            isImageFile(mimeType) -> {
                 uri.getMetaDataFromUri(context).let {
                     appLogger.d("image type $it")
 
+                    // Only resample the image if it is too large
+                    uri.resampleImageAndCopyToTempPath(context, tempAssetPath, ImageUtil.ImageSizeClass.Medium)
+                    val (imgWidth, imgHeight) =
+                        ImageUtil.extractImageWidthAndHeight(
+                            kaliumFileSystem.source(tempAssetPath).buffer().inputStream(),
+                            mimeType
+                        )
                     importMediaState.importedAssets.add(
                         ImportedMediaAsset.Image(
                             name = it.name,
                             size = it.size,
-                            mimeType = type,
-                            dataUri = uri
+                            mimeType = mimeType,
+                            dataPath = tempAssetPath,
+                            dataUri = uri,
+                            key = assetKey,
+                            width = imgWidth,
+                            height = imgHeight
                         )
                     )
                 }
-
             }
 
             else -> {
                 uri.getMetaDataFromUri(context).let {
+                    fileManager.copyToTempPath(uri, tempAssetPath)
+
                     importMediaState.importedAssets.add(
                         ImportedMediaAsset.GenericAsset(
                             name = it.name,
                             size = it.size,
-                            mimeType = type,
-                            dataUri = uri
+                            mimeType = mimeType,
+                            dataPath = tempAssetPath,
+                            dataUri = uri,
+                            key = assetKey
                         )
                     )
                     appLogger.d("other types $it")
                 }
             }
         }
+    }
+
+    fun onSnackbarMessage(type: SnackBarMessage) = viewModelScope.launch {
+        _infoMessage.emit(type)
+    }
+
+    private companion object {
+        const val MAX_LIMIT_MEDIA_IMPORT = 20
     }
 }
 

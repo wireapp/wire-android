@@ -29,12 +29,12 @@ sealed class ImageAsset(private val imageLoader: WireSessionImageLoader) {
     @Stable
     data class LocalImageAsset(
         private val imageLoader: WireSessionImageLoader,
-        val dataUri: Uri
+        val dataUri: Uri,
+        val idKey: String
     ) : ImageAsset(imageLoader) {
 
-        private val _id: String = UUID.randomUUID().toString()
         override val uniqueKey: String
-            get() = _id
+            get() = idKey
     }
 
     @Stable

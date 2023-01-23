@@ -9,6 +9,7 @@ import com.wire.kalium.logic.data.id.FederatedIdMapper
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.id.QualifiedIdMapperImpl
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.asset.GetAssetSizeLimitUseCase
 import com.wire.kalium.logic.feature.asset.GetAvatarAssetUseCase
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageUseCase
@@ -62,7 +63,7 @@ import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.GetUserInfoUseCase
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
-import com.wire.kalium.logic.feature.user.IsSelfATeamMemberUseCase
+import com.wire.kalium.logic.feature.user.IsSelfATeamMemberUseCaseImpl
 import com.wire.kalium.logic.feature.user.ObserveUserInfoUseCase
 import com.wire.kalium.logic.feature.user.ObserveValidAccountsUseCase
 import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
@@ -861,7 +862,7 @@ class UseCaseModule {
     fun provideIsSelfTeamMemberUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
-    ): IsSelfATeamMemberUseCase = coreLogic.getSessionScope(currentAccount).team.isSelfATeamMember
+    ): IsSelfATeamMemberUseCaseImpl = coreLogic.getSessionScope(currentAccount).team.isSelfATeamMember
 
     @ViewModelScoped
     @Provides
@@ -875,4 +876,12 @@ class UseCaseModule {
         @CurrentAccount currentAccount: UserId
     ): UpdateDisplayNameUseCase =
         coreLogic.getSessionScope(currentAccount).users.updateDisplayName
+
+    @ViewModelScoped
+    @Provides
+    fun provideGetAssetSizeLimitUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): GetAssetSizeLimitUseCase =
+        coreLogic.getSessionScope(currentAccount).users.getAssetSizeLimit
 }

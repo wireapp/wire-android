@@ -38,14 +38,12 @@ private fun Activity.wakeUpDevice() {
 private fun Activity.addScreenOnFlags() {
     window.addFlags(
         WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
-                or WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON
     )
 }
 
 private fun Activity.removeScreenOnFlags() {
     window.clearFlags(
         WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
-                or WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON
     )
 
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {

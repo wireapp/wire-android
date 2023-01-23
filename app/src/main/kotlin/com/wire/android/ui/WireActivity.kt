@@ -93,6 +93,9 @@ class WireActivity : AppCompatActivity() {
     }
 
     override fun onNewIntent(intent: Intent?) {
+        if (viewModel.isSharingIntent(intent)){
+            setIntent(intent)
+        }
         if (viewModel.handleDeepLinkOnNewIntent(intent)) {
             recreate()
         }

@@ -32,6 +32,7 @@ import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
 import com.wire.android.R
 import com.wire.android.model.Clickable
+import com.wire.android.model.SnackBarMessage
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.colorsScheme
@@ -47,6 +48,7 @@ import com.wire.android.ui.home.newconversation.common.SendContentButton
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.util.extension.getActivity
 import kotlinx.collections.immutable.persistentMapOf
+import kotlinx.coroutines.flow.SharedFlow
 
 @Composable
 fun ImportMediaScreen(importMediaViewModel: ImportMediaViewModel = hiltViewModel()) {
@@ -153,10 +155,22 @@ fun ImportMediaContent(searchBarState: SearchBarState, snackbarHostState: Snackb
         bottomBar = {
             SendContentButton(
                 mainButtonText = actionButtonTitle,
+                count = importMediaViewModel.shareableConversationListState.conversationsAddedToGroup.size,
                 onMainButtonClick = importMediaViewModel::onImportedMediaSent
             )
         }
     )
+    SnackBarMessage(importMediaViewModel.infoMessage, snackbarHostState)
+}
+
+@Composable
+private fun SnackBarMessage(infoMessages: SharedFlow<SnackBarMessage>, snackbarHostState: SnackbarHostState) {
+    val context = LocalContext.current
+    LaunchedEffect(Unit) {
+        infoMessages.collect { message ->
+            snackbarHostState.showSnackbar(message.uiText.asString(context.resources))
+        }
+    }
 }
 
 @Preview(showBackground = true)

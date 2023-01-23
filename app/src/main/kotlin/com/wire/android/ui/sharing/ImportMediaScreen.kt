@@ -97,7 +97,7 @@ fun ImportMediaContent(searchBarState: SearchBarState, snackbarHostState: Snackb
                     .padding(internalPadding)
                     .fillMaxSize()
             ) {
-                val horizontalPadding = dimensions().spacing16x
+                val horizontalPadding = dimensions().spacing8x
                 val screenWidth = LocalConfiguration.current.screenWidthDp.dp
                 val itemWidth = if (isMultipleImport) dimensions().importedMediaAssetSize else screenWidth - (horizontalPadding * 2)
                 val contentPadding = PaddingValues(start = horizontalPadding, end = (screenWidth - itemWidth + horizontalPadding))

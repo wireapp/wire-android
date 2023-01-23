@@ -21,6 +21,7 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.test.TestCoroutineScope
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
 
@@ -134,8 +135,10 @@ class ConnectionPolicyManagerTest {
         @MockK
         lateinit var migrationManager: MigrationManager
 
+        var coroutineScope = TestCoroutineScope()
+
         private val connectionPolicyManager by lazy {
-            ConnectionPolicyManager(currentScreenManager, coreLogic, TestDispatcherProvider(), migrationManager)
+            ConnectionPolicyManager(currentScreenManager, coreLogic, TestDispatcherProvider(), migrationManager, coroutineScope)
         }
 
         init {
@@ -160,7 +163,7 @@ class ConnectionPolicyManagerTest {
         fun withCurrentSession(userId: UserId) = apply {
             val authSession: AccountInfo = mockk()
             every { authSession.userId } returns userId
-            every { sessionRepository.currentSession() } returns Either.Right(authSession)
+            coEvery { sessionRepository.currentSession() } returns Either.Right(authSession)
         }
 
         fun arrange() = this to connectionPolicyManager

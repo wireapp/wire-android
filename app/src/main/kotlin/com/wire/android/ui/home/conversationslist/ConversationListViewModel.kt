@@ -136,7 +136,6 @@ class ConversationListViewModel @Inject constructor(
                 }
             )
                 .map { (searchQuery, conversationItems) -> conversationItems.withFolders().toImmutableMap() to searchQuery }
-                .flowOn(dispatcher.io())
                 .collect { (conversationsWithFolders, searchQuery) ->
                     conversationListState = conversationListState.copy(
                         conversationSearchResult = if (searchQuery.isEmpty()) conversationsWithFolders else searchConversation(
@@ -146,8 +145,7 @@ class ConversationListViewModel @Inject constructor(
                         hasNoConversations = conversationsWithFolders.isEmpty(),
                         foldersWithConversations = conversationsWithFolders,
                         searchQuery = searchQuery,
-
-                        )
+                    )
                 }
         }
     }

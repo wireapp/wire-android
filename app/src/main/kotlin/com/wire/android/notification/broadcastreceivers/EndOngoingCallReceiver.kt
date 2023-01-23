@@ -24,6 +24,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import com.wire.android.appLogger
+import com.wire.android.di.ApplicationScope
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.di.NoSession
 import com.wire.android.util.dispatchers.DispatcherProvider
@@ -33,7 +34,7 @@ import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.id.toQualifiedID
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -51,12 +52,17 @@ class EndOngoingCallReceiver : BroadcastReceiver() {
     @NoSession
     lateinit var qualifiedIdMapper: QualifiedIdMapper
 
+    @Inject
+    @ApplicationScope
+    lateinit var coroutineScope: CoroutineScope
+
     override fun onReceive(context: Context, intent: Intent) {
         val conversationId: String = intent.getStringExtra(EXTRA_CONVERSATION_ID) ?: return
         appLogger.i("CallNotificationDismissReceiver: onReceive, conversationId: $conversationId")
 
-        val userId: QualifiedID? = intent.getStringExtra(EXTRA_RECEIVER_USER_ID)?.toQualifiedID(qualifiedIdMapper)
-         val sessionScope =
+        coroutineScope.launch() {
+            val userId: QualifiedID? = intent.getStringExtra(EXTRA_RECEIVER_USER_ID)?.toQualifiedID(qualifiedIdMapper)
+            val sessionScope =
                 if (userId != null) {
                     coreLogic.getSessionScope(userId)
                 } else {
@@ -69,10 +75,10 @@ class EndOngoingCallReceiver : BroadcastReceiver() {
                 }
 
             sessionScope?.let {
-                it.launch(Dispatchers.IO) {
-                    it.calls.endCall(qualifiedIdMapper.fromStringToQualifiedID(conversationId))
-                }
+                it.calls.endCall(qualifiedIdMapper.fromStringToQualifiedID(conversationId))
             }
+        }
+
     }
 
     companion object {

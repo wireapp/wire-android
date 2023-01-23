@@ -124,7 +124,6 @@ class WireActivity : AppCompatActivity() {
         AccountLoggedOutDialog(viewModel.globalAppState.blockUserUI, viewModel::navigateToNextAccountOrWelcome)
     }
 
-
     @Composable
     private fun handleCustomBackendDialog(shouldShow: Boolean) {
         if (shouldShow) {
@@ -236,5 +235,3 @@ class WireActivity : AppCompatActivity() {
         proximitySensorManager.unRegisterListener()
     }
 }
-
-

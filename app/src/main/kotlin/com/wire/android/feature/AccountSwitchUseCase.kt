@@ -17,6 +17,7 @@ import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import com.wire.kalium.logic.feature.session.GetSessionsUseCase
 import com.wire.kalium.logic.feature.session.UpdateCurrentSessionUseCase
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeout
 import javax.inject.Inject
@@ -34,19 +35,21 @@ class AccountSwitchUseCase @Inject constructor(
     private val serverConfigForAccountUseCase: ServerConfigForAccountUseCase,
     @ApplicationScope private val coroutineScope: CoroutineScope
 ) {
-
     val currentAccount
-        get() = when (val result = getCurrentSession()) {
-            is CurrentSessionResult.Failure.Generic -> null
-            CurrentSessionResult.Failure.SessionNotFound -> null
-            is CurrentSessionResult.Success -> result.accountInfo
+        get() = coroutineScope.async {
+            when (val result = getCurrentSession()) {
+                is CurrentSessionResult.Failure.Generic -> null
+                CurrentSessionResult.Failure.SessionNotFound -> null
+                is CurrentSessionResult.Success -> result.accountInfo
+            }
         }
 
     suspend operator fun invoke(params: SwitchAccountParam) {
+
         val current = currentAccount
         when (params) {
-            is SwitchAccountParam.SwitchToAccount -> switch(params.userId, current)
-            SwitchAccountParam.SwitchToNextAccountOrWelcome -> switchToNextAccountOrWelcome(current)
+            is SwitchAccountParam.SwitchToAccount -> switch(params.userId, current.await())
+            SwitchAccountParam.SwitchToNextAccountOrWelcome -> switchToNextAccountOrWelcome(current.await())
         }
     }
 

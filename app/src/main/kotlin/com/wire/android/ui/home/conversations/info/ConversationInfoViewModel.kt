@@ -148,7 +148,7 @@ class ConversationInfoViewModel @Inject constructor(
             else UIText.StringResource(R.string.member_name_deleted_label)
     }
 
-    fun navigateToDetails() = viewModelScope.launch(dispatchers.io()) {
+    fun navigateToDetails() = viewModelScope.launch(dispatchers.default()) {
         when (val data = conversationInfoViewState.conversationDetailsData) {
             is ConversationDetailsData.OneOne -> navigationManager.navigate(
                 command = NavigationCommand(

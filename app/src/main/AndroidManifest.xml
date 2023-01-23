@@ -40,7 +40,8 @@
             android:requestLegacyExternalStorage="true"
             android:roundIcon="@mipmap/ic_launcher_round_beta"
             android:supportsRtl="false"
-            android:theme="@style/AppTheme.SplashScreen">
+            android:theme="@style/AppTheme.SplashScreen"
+            tools:replace="android:allowBackup,android:supportsRtl">
 
         <profileable android:shell="true"/>
 

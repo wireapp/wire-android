@@ -13,7 +13,10 @@ concurrency:
     cancel-in-progress: true
 
 jobs:
+  detekt:
+    uses: ./.github/workflows/codestyle.yml
   unit-tests:
+    needs: [detekt]
     runs-on: buildjet-8vcpu-ubuntu-2204
 
     steps:

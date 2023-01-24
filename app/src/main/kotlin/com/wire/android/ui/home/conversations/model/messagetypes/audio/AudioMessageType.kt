@@ -3,13 +3,17 @@ package com.wire.android.ui.home.conversations.model.messagetypes.audio
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
@@ -20,6 +24,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.media.AudioMediaPlayingState
@@ -28,6 +33,7 @@ import com.wire.android.ui.common.button.WireSecondaryIconButton
 import com.wire.android.ui.common.clickable
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.spacers.HorizontalSpace
 import com.wire.android.ui.theme.wireColorScheme
 
 @Composable
@@ -39,51 +45,96 @@ fun AudioMessage(
     onChangePosition: (Float) -> Unit,
     onLongClick: () -> Unit = { }
 ) {
-    val audioDuration by remember(currentPositionInMs) { mutableStateOf(AudioDuration(totalTimeInMs, currentPositionInMs)) }
+    val audioDuration by remember(currentPositionInMs) {
+        mutableStateOf(
+            AudioDuration(totalTimeInMs, currentPositionInMs)
+        )
+    }
 
-    Box(
-        modifier = Modifier
-            .padding(top = dimensions().spacing4x)
-            .background(
-                color = MaterialTheme.wireColorScheme.onPrimary,
-                shape = RoundedCornerShape(dimensions().messageAssetBorderRadius)
-            )
-            .border(
-                width = 1.dp,
-                color = MaterialTheme.wireColorScheme.secondaryButtonDisabledOutline,
-                shape = RoundedCornerShape(dimensions().messageAssetBorderRadius)
-            )
-            .padding(dimensions().spacing8x)
-    ) {
-        Row(
+    if (audioMediaPlayingState != AudioMediaPlayingState.Failed) {
+        Box(
             modifier = Modifier
-                .fillMaxWidth()
-                .height(dimensions().audioMessageHeight),
-            verticalAlignment = Alignment.CenterVertically
+                .padding(top = dimensions().spacing4x)
+                .background(
+                    color = MaterialTheme.wireColorScheme.onPrimary,
+                    shape = RoundedCornerShape(dimensions().messageAssetBorderRadius)
+                )
+                .border(
+                    width = 1.dp,
+                    color = MaterialTheme.wireColorScheme.secondaryButtonDisabledOutline,
+                    shape = RoundedCornerShape(dimensions().messageAssetBorderRadius)
+                )
+                .padding(dimensions().spacing8x)
         ) {
-            WireSecondaryIconButton(
-                minWidth = 32.dp,
-                iconResource = getPlayOrPauseIcon(audioMediaPlayingState),
-                shape = CircleShape,
-                contentDescription = R.string.content_description_image_message,
-                onButtonClicked = onPlayAudioMessage
-            )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(dimensions().audioMessageHeight),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                WireSecondaryIconButton(
+                    minWidth = 32.dp,
+                    iconResource = getPlayOrPauseIcon(audioMediaPlayingState),
+                    shape = CircleShape,
+                    contentDescription = R.string.content_description_image_message,
+                    onButtonClicked = onPlayAudioMessage
+                )
 
-            Slider(
-                value = audioDuration.currentPositionInMs.toFloat(),
-                onValueChange = onChangePosition,
-                valueRange = 0f..audioDuration.totalDurationInMs.toFloat(),
-                colors = SliderDefaults.colors(
-                    inactiveTrackColor = colorsScheme().secondaryButtonDisabledOutline
-                ),
-                modifier = Modifier.weight(1f)
-            )
+                Slider(
+                    value = audioDuration.currentPositionInMs.toFloat(),
+                    onValueChange = onChangePosition,
+                    valueRange = 0f..audioDuration.totalDurationInMs.toFloat(),
+                    colors = SliderDefaults.colors(
+                        inactiveTrackColor = colorsScheme().secondaryButtonDisabledOutline
+                    ),
+                    modifier = Modifier.weight(1f)
+                )
 
-            Text(
-                text = audioDuration.formattedTimeLeft,
-                style = MaterialTheme.typography.labelSmall.copy(color = MaterialTheme.wireColorScheme.secondaryText),
-                maxLines = 1
-            )
+                Text(
+                    text = audioDuration.formattedTimeLeft,
+                    style = MaterialTheme.typography.labelSmall.copy(color = MaterialTheme.wireColorScheme.secondaryText),
+                    maxLines = 1
+                )
+            }
+        }
+    } else {
+        Box(
+            modifier = Modifier
+                .padding(top = dimensions().spacing4x)
+                .background(
+                    color = MaterialTheme.wireColorScheme.onPrimary,
+                    shape = RoundedCornerShape(dimensions().messageAssetBorderRadius)
+                )
+                .border(
+                    width = 1.dp,
+                    color = MaterialTheme.wireColorScheme.secondaryButtonDisabledOutline,
+                    shape = RoundedCornerShape(dimensions().messageAssetBorderRadius)
+                )
+                .padding(dimensions().spacing8x)
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(dimensions().audioMessageHeight),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.ic_audio),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .width(dimensions().spacing24x)
+                        .width(dimensions().spacing24x)
+                        .size(dimensions().spacing24x),
+                    tint = colorsScheme().secondaryText
+                )
+                HorizontalSpace.x8()
+                Text(
+                    text = "Audio file not available",
+                    style = MaterialTheme.typography.labelSmall.copy(color = colorsScheme().error),
+                    maxLines = 1
+                )
+            }
         }
     }
 }

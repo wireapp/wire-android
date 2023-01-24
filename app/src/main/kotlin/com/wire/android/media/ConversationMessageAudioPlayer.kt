@@ -194,7 +194,12 @@ class ConversationMessageAudioPlayer
             }
 
             is MessageAssetResult.Failure -> {
-
+                audioMessageStateUpdate.emit(
+                    AudioMediaPlayerStateUpdate.AudioMediaPlayingStateUpdate(
+                        messageId,
+                        AudioMediaPlayingState.Failed
+                    )
+                )
             }
         }
     }
@@ -261,6 +266,8 @@ sealed class AudioMediaPlayingState {
     object Completed : AudioMediaPlayingState()
 
     object Paused : AudioMediaPlayingState()
+
+    object Failed : AudioMediaPlayingState()
 }
 
 private sealed class AudioMediaPlayerStateUpdate(

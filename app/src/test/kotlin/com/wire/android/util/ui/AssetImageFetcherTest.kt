@@ -1,12 +1,16 @@
 package com.wire.android.util.ui
 
-import android.content.res.Resources
+import android.content.Context
 import coil.fetch.FetchResult
+import coil.request.Options
+import coil.request.Parameters
 import com.wire.android.framework.FakeKaliumFileSystem
 import com.wire.android.model.ImageAsset
+import com.wire.android.util.ui.AssetImageFetcher.Companion.OPTION_PARAMETER_RETRY_KEY
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.AssetId
+import com.wire.kalium.logic.feature.asset.DeleteAssetUseCase
 import com.wire.kalium.logic.feature.asset.GetAvatarAssetUseCase
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
@@ -34,6 +38,7 @@ internal class AssetImageFetcherTest {
         val avatarPath = fakeKaliumFileSystem.selfUserAvatarPath()
         val (arrangement, assetImageFetcher) = Arrangement()
             .withSuccessfulImageData(data, avatarPath, someDummyData.size.toLong(), someDummyName)
+            .withSuccessFullAssetDelete()
             .withStoredData(someDummyData, avatarPath)
             .arrange()
 
@@ -41,6 +46,28 @@ internal class AssetImageFetcherTest {
         assetImageFetcher.fetch()
 
         // Then
+        coVerify(exactly = 1) { arrangement.getPublicAsset(data.userAssetId) }
+    }
+
+    @Test
+    fun givenAUserAvatarAssetData_WhenCallingFetchOnRetry_ThenAssetGetsDeletedGetPublicAssetUseCaseGetsInvoked() = runTest {
+        // Given
+        val someUserAssetId = AssetId("value", "domain")
+        val someDummyData = "some-dummy-data".toByteArray()
+        val someDummyName = "some-dummy-name"
+        val data = ImageAsset.UserAvatarAsset(mockk(), someUserAssetId)
+        val avatarPath = fakeKaliumFileSystem.selfUserAvatarPath()
+        val (arrangement, assetImageFetcher) = Arrangement()
+            .withSuccessfulImageData(data, avatarPath, someDummyData.size.toLong(), someDummyName, 1)
+            .withSuccessFullAssetDelete()
+            .withStoredData(someDummyData, avatarPath)
+            .arrange()
+
+        // When
+        assetImageFetcher.fetch()
+
+        // Then
+        coVerify(exactly = 1) { arrangement.deleteAsset(data.userAssetId) }
         coVerify(exactly = 1) { arrangement.getPublicAsset(data.userAssetId) }
     }
 
@@ -55,6 +82,7 @@ internal class AssetImageFetcherTest {
         val avatarPath = fakeKaliumFileSystem.selfUserAvatarPath()
         val (arrangement, assetImageFetcher) = Arrangement()
             .withSuccessfulImageData(data, avatarPath, 1, someDummyName)
+            .withSuccessFullAssetDelete()
             .withStoredData(someDummyData, avatarPath)
             .arrange()
 
@@ -98,18 +126,27 @@ internal class AssetImageFetcherTest {
     private class Arrangement {
         val getPublicAsset = mockk<GetAvatarAssetUseCase>()
         val getPrivateAsset = mockk<GetMessageAssetUseCase>()
-        val resources = mockk<Resources>()
+        val deleteAsset = mockk<DeleteAssetUseCase>()
         val drawableResultWrapper = mockk<DrawableResultWrapper>()
         val mockFetchResult = mockk<FetchResult>()
+        val mockContext = mockk<Context>()
+
         lateinit var imageData: ImageAsset
+        private var options: Options? = null
 
         fun withSuccessfulImageData(
             data: ImageAsset,
             expectedAssetPath: Path,
             expectedAssetSize: Long,
-            assetName: String = "name"
+            assetName: String = "name",
+            retryAttempt: Int = 0
         ): Arrangement {
             imageData = data
+            options = Options(
+                context = mockContext,
+                parameters = Parameters.Builder().set(key = OPTION_PARAMETER_RETRY_KEY, value = retryAttempt, memoryCacheKey = null).build()
+            )
+
             coEvery { getPublicAsset.invoke((any())) }.returns(PublicAssetResult.Success(expectedAssetPath))
             coEvery { getPrivateAsset.invoke(any(), any()) }.returns(
                 CompletableDeferred(
@@ -121,6 +158,7 @@ internal class AssetImageFetcherTest {
                 )
             )
             coEvery { drawableResultWrapper.toFetchResult(any()) }.returns(mockFetchResult)
+            coEvery { deleteAsset.invoke(any()) }.returns(Unit)
 
             return this
         }
@@ -129,6 +167,12 @@ internal class AssetImageFetcherTest {
             fakeKaliumFileSystem.sink(assetPath).buffer().use {
                 assetData
             }
+
+            return this
+        }
+
+        fun withSuccessFullAssetDelete(): Arrangement {
+            coEvery { deleteAsset.invoke(any()) }.returns(Unit)
 
             return this
         }
@@ -147,11 +191,16 @@ internal class AssetImageFetcherTest {
         }
 
         fun arrange() = this to AssetImageFetcher(
-            data = imageData,
+            assetFetcherParameters = AssetFetcherParameters(
+                data = imageData, options ?: Options(
+                    context = mockContext,
+                    parameters = Parameters.Builder().set(key = OPTION_PARAMETER_RETRY_KEY, value = 0, memoryCacheKey = null).build()
+                )
+            ),
             getPublicAsset = getPublicAsset,
             getPrivateAsset = getPrivateAsset,
-            resources = resources,
-            drawableResultWrapper = drawableResultWrapper,
+            deleteAsset = deleteAsset,
+            drawableResultWrapper = drawableResultWrapper
         )
     }
 

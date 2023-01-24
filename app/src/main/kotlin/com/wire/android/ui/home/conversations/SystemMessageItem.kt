@@ -25,6 +25,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -34,6 +35,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
 import com.wire.android.ui.common.button.WireSecondaryButton
+import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.model.UIMessageContent.SystemMessage
 import com.wire.android.ui.theme.wireColorScheme
@@ -75,7 +77,8 @@ fun SystemMessageItem(message: SystemMessage) {
                         painter = painterResource(id = message.iconResId),
                         contentDescription = null,
                         modifier = Modifier.size(size),
-                        contentScale = ContentScale.Crop
+                        contentScale = ContentScale.Crop,
+                        colorFilter = getColorFilter(message)
                     )
                 }
             }
@@ -114,6 +117,20 @@ fun SystemMessageItem(message: SystemMessage) {
                 )
             }
         }
+    }
+}
+
+@Composable
+private fun getColorFilter(message: SystemMessage): ColorFilter? {
+    return when (message) {
+        is SystemMessage.MissedCall.OtherCalled -> null
+        is SystemMessage.MissedCall.YouCalled -> null
+        is SystemMessage.MemberAdded -> ColorFilter.tint(colorsScheme().onBackground)
+        is SystemMessage.MemberLeft -> ColorFilter.tint(colorsScheme().onBackground)
+        is SystemMessage.MemberRemoved -> ColorFilter.tint(colorsScheme().onBackground)
+        is SystemMessage.CryptoSessionReset -> ColorFilter.tint(colorsScheme().onBackground)
+        is SystemMessage.RenamedConversation -> ColorFilter.tint(colorsScheme().onBackground)
+        is SystemMessage.TeamMemberRemoved -> ColorFilter.tint(colorsScheme().onBackground)
     }
 }
 

@@ -77,10 +77,12 @@ class ConversationMessagesViewModel @Inject constructor(
     init {
         loadPaginatedMessages()
         loadLastMessageInstant()
+        observeAudioPlayerState()
+    }
 
+    private fun observeAudioPlayerState() {
         viewModelScope.launch {
             conversationMessageAudioPlayer.observableAudioMessagesState.collect {
-                Log.d("TEST", "$it")
                 conversationViewState = conversationViewState.copy(
                     audioMessagesState = it
                 )

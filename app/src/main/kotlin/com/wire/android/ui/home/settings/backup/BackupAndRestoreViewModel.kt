@@ -208,8 +208,10 @@ class BackupAndRestoreViewModel
             restorePasswordValidation = PasswordValidation.NotVerified
         )
         withContext(dispatchers.io()) {
-            if (kaliumFileSystem.exists(latestImportedBackupTempPath))
-                kaliumFileSystem.delete(latestImportedBackupTempPath)
+            if (this@BackupAndRestoreViewModel::latestImportedBackupTempPath.isInitialized && kaliumFileSystem.exists(
+                    latestImportedBackupTempPath
+                )
+            ) kaliumFileSystem.delete(latestImportedBackupTempPath)
         }
     }
 

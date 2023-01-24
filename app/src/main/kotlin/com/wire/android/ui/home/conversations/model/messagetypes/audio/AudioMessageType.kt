@@ -51,21 +51,21 @@ fun AudioMessage(
         )
     }
 
-    if (audioMediaPlayingState != AudioMediaPlayingState.Failed) {
-        Box(
-            modifier = Modifier
-                .padding(top = dimensions().spacing4x)
-                .background(
-                    color = MaterialTheme.wireColorScheme.onPrimary,
-                    shape = RoundedCornerShape(dimensions().messageAssetBorderRadius)
-                )
-                .border(
-                    width = 1.dp,
-                    color = MaterialTheme.wireColorScheme.secondaryButtonDisabledOutline,
-                    shape = RoundedCornerShape(dimensions().messageAssetBorderRadius)
-                )
-                .padding(dimensions().spacing8x)
-        ) {
+    Box(
+        modifier = Modifier
+            .padding(top = dimensions().spacing4x)
+            .background(
+                color = MaterialTheme.wireColorScheme.onPrimary,
+                shape = RoundedCornerShape(dimensions().messageAssetBorderRadius)
+            )
+            .border(
+                width = 1.dp,
+                color = MaterialTheme.wireColorScheme.secondaryButtonDisabledOutline,
+                shape = RoundedCornerShape(dimensions().messageAssetBorderRadius)
+            )
+            .padding(dimensions().spacing8x)
+    ) {
+        if (audioMediaPlayingState != AudioMediaPlayingState.Failed) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -96,22 +96,7 @@ fun AudioMessage(
                     maxLines = 1
                 )
             }
-        }
-    } else {
-        Box(
-            modifier = Modifier
-                .padding(top = dimensions().spacing4x)
-                .background(
-                    color = MaterialTheme.wireColorScheme.onPrimary,
-                    shape = RoundedCornerShape(dimensions().messageAssetBorderRadius)
-                )
-                .border(
-                    width = 1.dp,
-                    color = MaterialTheme.wireColorScheme.secondaryButtonDisabledOutline,
-                    shape = RoundedCornerShape(dimensions().messageAssetBorderRadius)
-                )
-                .padding(dimensions().spacing8x)
-        ) {
+        } else {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()

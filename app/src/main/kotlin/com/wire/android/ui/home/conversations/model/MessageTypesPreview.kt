@@ -4,9 +4,14 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
+import com.wire.android.model.Clickable
 import com.wire.android.ui.home.conversations.MessageItem
+import com.wire.android.ui.home.conversations.MessageItemTest
+import com.wire.android.ui.home.conversations.MessageText
 import com.wire.android.ui.home.conversations.SystemMessageItem
+import com.wire.android.ui.home.conversations.mock.mockAssetContent
 import com.wire.android.ui.home.conversations.mock.mockAssetMessage
+import com.wire.android.ui.home.conversations.mock.mockMessageBody
 import com.wire.android.ui.home.conversations.mock.mockMessageWithText
 import com.wire.android.ui.home.conversations.mock.mockedImageUIMessage
 import com.wire.android.util.ui.UIText
@@ -18,7 +23,7 @@ private val previewUserId = UserId("value", "domain")
 @Preview(showBackground = true)
 @Composable
 fun PreviewMessage() {
-    MessageItem(
+    MessageItemTest(
         message = mockMessageWithText.copy(
             messageHeader = mockMessageWithText.messageHeader.copy(
                 username = UIText.DynamicString(
@@ -27,28 +32,38 @@ fun PreviewMessage() {
                 )
             )
         ),
+        messageContent = {
+            MessageText(
+                messageBody = mockMessageBody,
+                onOpenProfile = {},
+                onLongClick = {}
+            )
+        },
         onLongClicked = {},
-        onAssetMessageClicked = {},
-        onImageMessageClicked = { _, _ -> },
-        onOpenProfile = { _ -> },
+        onOpenProfile = {},
         onReactionClicked = { _, _ -> },
-        onResetSessionClicked = { _, _ -> },
-        onAudioClick = { _ -> },
+        onResetSessionClicked = { _, _ -> }
     )
 }
 
 @Preview(showBackground = true)
 @Composable
 fun PreviewMessageWithReply() {
-    MessageItem(
+    MessageItemTest(
         message = mockMessageWithText.copy(
             messageHeader = mockMessageWithText.messageHeader.copy(
                 username = UIText.DynamicString(
                     "Don Joe"
                 )
-            ),
-            messageContent = UIMessageContent.TextMessage(
-                MessageBody(
+            )
+        ),
+        onLongClicked = {},
+        onOpenProfile = { _ -> },
+        onReactionClicked = { _, _ -> },
+        onResetSessionClicked = { _, _ -> },
+        messageContent = {
+            MessageText(
+                messageBody = MessageBody(
                     message = UIText.DynamicString("Sure, go ahead!"),
                     quotedMessage = QuotedMessageUIData(
                         messageId = "asdoij",
@@ -58,48 +73,54 @@ fun PreviewMessageWithReply() {
                         editedTimeDescription = UIText.StringResource(R.string.label_message_status_edited_with_date, "10:32"),
                         quotedContent = QuotedMessageUIData.Text("Hey, can I call right now?")
                     )
-                )
+                ),
+                onLongClick = { },
+                onOpenProfile = { }
             )
-        ),
-        onLongClicked = {},
-        onAssetMessageClicked = {},
-        onImageMessageClicked = { _, _ -> },
-        onOpenProfile = { _ -> },
-        onReactionClicked = { _, _ -> },
-        onResetSessionClicked = { _, _ -> },
-        onAudioClick = { _ -> }
+        }
     )
 }
 
 @Preview(showBackground = true)
 @Composable
-fun PreviewDeletedMessage() {
-    MessageItem(
+fun PreviewEditedMessage() {
+    MessageItemTest(
         message = mockMessageWithText.let {
             it.copy(messageHeader = it.messageHeader.copy(messageStatus = MessageStatus.Edited("")))
         },
+        messageContent = {
+            MessageText(
+                messageBody = mockMessageBody,
+                onOpenProfile = {},
+                onLongClick = {}
+            )
+        },
         onLongClicked = {},
-        onAssetMessageClicked = {},
-        onImageMessageClicked = { _, _ -> },
         onOpenProfile = { _ -> },
         onReactionClicked = { _, _ -> },
-        onResetSessionClicked = { _, _ -> },
-        onAudioClick = { _ -> }
+        onResetSessionClicked = { _, _ -> }
     )
 }
 
 @Preview(showBackground = true)
 @Composable
 fun PreviewAssetMessage() {
-    MessageItem(
-        message = mockAssetMessage(),
+    MessageItemTest(
+        message = mockAssetMessage,
+        messageContent = {
+            MessageGenericAsset(
+                assetName = mockAssetContent.assetName,
+                assetExtension = mockAssetContent.assetExtension,
+                assetSizeInBytes = mockAssetContent.assetSizeInBytes,
+                assetUploadStatus = mockAssetContent.uploadStatus,
+                assetDownloadStatus = mockAssetContent.downloadStatus,
+                onAssetClick = Clickable()
+            )
+        },
         onLongClicked = {},
-        onAssetMessageClicked = {},
-        onImageMessageClicked = { _, _ -> },
         onOpenProfile = { _ -> },
         onReactionClicked = { _, _ -> },
         onResetSessionClicked = { _, _ -> },
-        onAudioClick = { _ -> }
     )
 }
 

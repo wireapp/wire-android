@@ -35,6 +35,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
 import com.wire.android.ui.common.button.WireSecondaryButton
+import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.home.conversations.model.UIMessageContent.SystemMessage
@@ -76,7 +77,7 @@ fun SystemMessageItem(message: SystemMessage) {
                     Image(
                         painter = painterResource(id = message.iconResId),
                         contentDescription = null,
-                        colorFilter = if (message is SystemMessage.Knock) ColorFilter.tint(MaterialTheme.colorScheme.primary) else null,
+                        colorFilter = getColorFilter(message),
                         modifier = Modifier.size(size),
                         contentScale = ContentScale.Crop
                     )
@@ -98,7 +99,7 @@ fun SystemMessageItem(message: SystemMessage) {
                         normalStyle = MaterialTheme.wireTypography.body01,
                         boldStyle = MaterialTheme.wireTypography.body02,
                         normalColor = MaterialTheme.wireColorScheme.secondaryText,
-                        boldColor = MaterialTheme.wireColorScheme.onBackground,
+                        boldColor = MaterialTheme.wireColorScheme.onBackground
                     )
                 )
             }
@@ -123,6 +124,24 @@ fun SystemMessageItem(message: SystemMessage) {
     }
 }
 
+@Composable
+private fun getColorFilter(message: SystemMessage): ColorFilter? {
+    return when (message) {
+        is SystemMessage.MissedCall.OtherCalled -> null
+        is SystemMessage.MissedCall.YouCalled -> null
+        is SystemMessage.Knock -> null
+        is SystemMessage.MemberAdded -> ColorFilter.tint(colorsScheme().onBackground)
+        is SystemMessage.MemberLeft -> ColorFilter.tint(colorsScheme().onBackground)
+        is SystemMessage.MemberRemoved -> ColorFilter.tint(colorsScheme().onBackground)
+        is SystemMessage.CryptoSessionReset -> ColorFilter.tint(colorsScheme().onBackground)
+        is SystemMessage.RenamedConversation -> ColorFilter.tint(colorsScheme().onBackground)
+        is SystemMessage.TeamMemberRemoved -> ColorFilter.tint(colorsScheme().onBackground)
+        is SystemMessage.ConversationReceiptModeChanged -> ColorFilter.tint(colorsScheme().onBackground)
+        is SystemMessage.HistoryLost -> ColorFilter.tint(colorsScheme().onBackground)
+        is SystemMessage.NewConversationReceiptMode -> ColorFilter.tint(colorsScheme().onBackground)
+    }
+}
+
 @Preview
 @Composable
 fun PreviewSystemMessageAdded7Users() {
@@ -130,8 +149,13 @@ fun PreviewSystemMessageAdded7Users() {
         message = SystemMessage.MemberAdded(
             "Barbara Cotolina".toUIText(),
             listOf(
-                "Albert Lewis".toUIText(), "Bert Strunk".toUIText(), "Claudia Schiffer".toUIText(), "Dorothee Friedrich".toUIText(),
-                "Erich Weinert".toUIText(), "Frieda Kahlo".toUIText(), "Gudrun Gut".toUIText()
+                "Albert Lewis".toUIText(),
+                "Bert Strunk".toUIText(),
+                "Claudia Schiffer".toUIText(),
+                "Dorothee Friedrich".toUIText(),
+                "Erich Weinert".toUIText(),
+                "Frieda Kahlo".toUIText(),
+                "Gudrun Gut".toUIText()
             )
         )
     )

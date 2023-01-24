@@ -78,9 +78,9 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.scopes.ServiceScoped
 import dagger.hilt.android.scopes.ViewModelScoped
 import dagger.hilt.components.SingletonComponent
+import kotlinx.coroutines.runBlocking
 import javax.inject.Qualifier
 import javax.inject.Singleton
-import kotlinx.coroutines.runBlocking
 
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
@@ -282,6 +282,14 @@ class UseCaseModule {
     @Provides
     fun provideMlsKeyPackageCountUseCase(@CurrentAccount currentAccount: UserId, clientScopeProviderFactory: ClientScopeProvider.Factory) =
         clientScopeProviderFactory.create(currentAccount).clientScope.mlsKeyPackageCountUseCase
+
+    @ViewModelScoped
+    @Provides
+    fun provideRestartSlowSyncProcessForRecoveryUseCase(
+        @CurrentAccount currentAccount: UserId,
+        clientScopeProviderFactory: ClientScopeProvider.Factory
+    ) =
+        clientScopeProviderFactory.create(currentAccount).clientScope.restartSlowSyncProcessForRecoveryUseCase
 
     @ViewModelScoped
     @Provides

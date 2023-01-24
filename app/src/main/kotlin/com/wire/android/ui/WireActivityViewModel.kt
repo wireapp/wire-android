@@ -195,62 +195,70 @@ class WireActivityViewModel @Inject constructor(
         else -> NavigationItem.Home.getRouteWithArgs()
     }
 
+    fun isSharingIntent(intent: Intent?): Boolean {
+        return intent?.action == Intent.ACTION_SEND || intent?.action == Intent.ACTION_SEND_MULTIPLE
+    }
+
     fun handleDeepLink(intent: Intent?) {
-        intent?.data?.let { deepLink ->
-            viewModelScope.launch {
-                when (val result = deepLinkProcessor(deepLink)) {
-                    is DeepLinkResult.CustomServerConfig -> loadServerConfig(result.url)?.let { serverLinks ->
-                        globalAppState = globalAppState.copy(
-                            customBackendDialog = CustomBEDeeplinkDialogState(
-                                shouldShowDialog = true,
-                                serverLinks = serverLinks
+        if (isSharingIntent(intent)) {
+            navigateToImportMediaScreen()
+        } else {
+            intent?.data?.let { deepLink ->
+                viewModelScope.launch {
+                    when (val result = deepLinkProcessor(deepLink)) {
+                        is DeepLinkResult.CustomServerConfig -> loadServerConfig(result.url)?.let { serverLinks ->
+                            globalAppState = globalAppState.copy(
+                                customBackendDialog = CustomBEDeeplinkDialogState(
+                                    shouldShowDialog = true,
+                                    serverLinks = serverLinks
+                                )
                             )
-                        )
-                        navigationArguments.put(SERVER_CONFIG_ARG, serverLinks)
-                    }
-
-                    is DeepLinkResult.SSOLogin -> navigationArguments.put(SSO_DEEPLINK_ARG, result)
-
-                    is DeepLinkResult.IncomingCall -> {
-                        if (isLaunchedFromHistory(intent)) {
-                            // We don't need to handle deepLink, if activity was launched from history.
-                            // For example: user opened app by deepLink, then closed it by back button click,
-                            // then open the app from the "Recent Apps"
-                            appLogger.i("IncomingCall deepLink launched from the history")
-                        } else {
-                            navigationArguments.put(INCOMING_CALL_CONVERSATION_ID_ARG, result.conversationsId)
+                            navigationArguments.put(SERVER_CONFIG_ARG, serverLinks)
                         }
-                    }
 
-                    is DeepLinkResult.OngoingCall -> {
-                        if (isLaunchedFromHistory(intent)) {
-                            // We don't need to handle deepLink, if activity was launched from history.
-                            // For example: user opened app by deepLink, then closed it by back button click,
-                            // then open the app from the "Recent Apps"
-                            appLogger.i("IncomingCall deepLink launched from the history")
-                        } else {
-                            navigationArguments.put(ONGOING_CALL_CONVERSATION_ID_ARG, result.conversationsId)
+                        is DeepLinkResult.SSOLogin -> navigationArguments.put(SSO_DEEPLINK_ARG, result)
+
+                        is DeepLinkResult.IncomingCall -> {
+                            if (isLaunchedFromHistory(intent)) {
+                                // We don't need to handle deepLink, if activity was launched from history.
+                                // For example: user opened app by deepLink, then closed it by back button click,
+                                // then open the app from the "Recent Apps"
+                                appLogger.i("IncomingCall deepLink launched from the history")
+                            } else {
+                                navigationArguments.put(INCOMING_CALL_CONVERSATION_ID_ARG, result.conversationsId)
+                            }
                         }
-                    }
 
-                    is DeepLinkResult.OpenConversation -> {
-                        if (isLaunchedFromHistory(intent)) {
-                            appLogger.i("OpenConversation deepLink launched from the history")
-                        } else {
-                            navigationArguments.put(OPEN_CONVERSATION_ID_ARG, result.conversationsId)
+                        is DeepLinkResult.OngoingCall -> {
+                            if (isLaunchedFromHistory(intent)) {
+                                // We don't need to handle deepLink, if activity was launched from history.
+                                // For example: user opened app by deepLink, then closed it by back button click,
+                                // then open the app from the "Recent Apps"
+                                appLogger.i("IncomingCall deepLink launched from the history")
+                            } else {
+                                navigationArguments.put(ONGOING_CALL_CONVERSATION_ID_ARG, result.conversationsId)
+                            }
                         }
-                    }
 
-                    is DeepLinkResult.OpenOtherUserProfile -> {
-                        if (isLaunchedFromHistory(intent)) {
-                            appLogger.i("OpenOtherUserProfile deepLink launched from the history")
-                        } else {
-                            navigationArguments.put(OPEN_OTHER_USER_PROFILE_ARG, result.userId)
+                        is DeepLinkResult.OpenConversation -> {
+                            if (isLaunchedFromHistory(intent)) {
+                                appLogger.i("OpenConversation deepLink launched from the history")
+                            } else {
+                                navigationArguments.put(OPEN_CONVERSATION_ID_ARG, result.conversationsId)
+                            }
                         }
-                    }
 
-                    DeepLinkResult.Unknown -> {
-                        appLogger.e("unknown deeplink result $result")
+                        is DeepLinkResult.OpenOtherUserProfile -> {
+                            if (isLaunchedFromHistory(intent)) {
+                                appLogger.i("OpenOtherUserProfile deepLink launched from the history")
+                            } else {
+                                navigationArguments.put(OPEN_OTHER_USER_PROFILE_ARG, result.userId)
+                            }
+                        }
+
+                        DeepLinkResult.Unknown -> {
+                            appLogger.e("unknown deeplink result $result")
+                        }
                     }
                 }
             }
@@ -275,6 +283,8 @@ class WireActivityViewModel @Inject constructor(
         }
 
         handleDeepLink(intent)
+        if (isSharingIntent(intent))
+            return false
 
         return when {
             shouldGoToLogin() || shouldGoToWelcome() || shouldGoToMigration() -> true
@@ -307,6 +317,14 @@ class WireActivityViewModel @Inject constructor(
 
     fun dismissCustomBackendDialog() {
         globalAppState = globalAppState.copy(customBackendDialog = CustomBEDeeplinkDialogState(shouldShowDialog = false))
+    }
+
+    fun navigateToImportMediaScreen() {
+        navigateTo(
+            NavigationCommand(
+                NavigationItem.ImportMedia.getRouteWithArgs(), backStackMode = BackStackMode.CLEAR_WHOLE
+            )
+        )
     }
 
     fun customBackendDialogProceedButtonClicked(serverLinks: ServerConfig.Links) {
@@ -410,10 +428,6 @@ class WireActivityViewModel @Inject constructor(
 
     fun appWasUpdate() {
         globalAppState = globalAppState.copy(updateAppDialog = false)
-    }
-
-    fun navigateToImportMediaScreen() {
-        navigateTo(NavigationCommand(NavigationItem.ImportMedia.getRouteWithArgs()))
     }
 
     companion object {

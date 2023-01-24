@@ -120,21 +120,24 @@ private fun updateDropDownCoordinateY(
     currentSelectedLineIndex: Int,
     screenHeight: Int
 ): Int {
-    var coordinateY = cursorCoordinateY
+    var coordinateY = cursorCoordinateY + SIXTY
     // since we are using BottomYCoordinate of the cursor, we reduce some space from Y coordinate
-    // for approximately the second part of the screen.
-    if (cursorCoordinateY >= screenHeight / HALF_SCREEN) {
-        coordinateY = cursorCoordinateY - THIRTY
+    // when reaching approximately the second part of the screen with more 3 participants to show
+    if (membersToMentionSize >= THREE && cursorCoordinateY >= (screenHeight * HALF_SCREEN)) {
+        coordinateY = cursorCoordinateY
     }
-    // If there is only one item to show, in the second part of the screen, the DropDown will be displayed above the cursor.
-    // Fixing this by adding more space
-    if (membersToMentionSize == ONE && cursorCoordinateY < screenHeight * EIGHTY_PERCENT) {
-        coordinateY = cursorCoordinateY + TWENTY
+    // when reaching approximately sixty percent of the screen with 2 participants to show
+    if (membersToMentionSize == TWO && cursorCoordinateY >= (screenHeight * SIXTY_PERCENT)) {
+        coordinateY = cursorCoordinateY
     }
-    // For the first line, we get the wrong Y coordinate of the cursor.
+    // when reaching approximately seventy percent of the screen with 1 participants to show
+    if (membersToMentionSize == ONE && cursorCoordinateY >= (screenHeight * SEVENTY_PERCENT)) {
+        coordinateY = cursorCoordinateY
+    }
+    // For the first line, we get a wrong Y coordinate of the cursor.
     // Fixing this by adding more space
     if (currentSelectedLineIndex == FIRST_LINE_INDEX) {
-        coordinateY = cursorCoordinateY + THIRTY
+        coordinateY += TWENTY
     }
     return coordinateY.toInt()
 }
@@ -143,10 +146,12 @@ private const val MINIMUM_SCREEN_HEIGHT = 700
 private val DROP_DOWN_HEIGHT_SMALL = 150.dp
 private val DROP_DOWN_HEIGHT_LARGE = 200.dp
 private const val FIRST_LINE_INDEX = 0
-private const val HALF_SCREEN = 2.5
-private const val EIGHTY_PERCENT = 0.80
+private const val HALF_SCREEN = 0.45
+private const val SIXTY_PERCENT = 0.75
+private const val SEVENTY_PERCENT = 0.75
 private const val ONE = 1
 private const val TWO = 2
-private const val THIRTY = 30
+private const val THREE = 3
+private const val SIXTY = 60
 private const val TWENTY = 20
 private val DropdownMenuVerticalPadding = 8.dp

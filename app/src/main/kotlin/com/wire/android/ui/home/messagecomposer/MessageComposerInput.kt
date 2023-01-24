@@ -80,32 +80,33 @@ private fun EnabledMessageComposerInput(
     membersToMention: List<Contact>,
     actions: MessageComposerInputActions,
 ) {
-    Column {
+    Box {
         var currentSelectedLineIndex by remember { mutableStateOf(0) }
         var cursorCoordinateY by remember { mutableStateOf(0F) }
-
-        MessageComposeInput(
-            transition = transition,
-            messageComposeInputState = messageComposeInputState,
-            quotedMessageData = quotedMessageData,
-            securityClassificationType = securityClassificationType,
-            onSelectedLineIndexChange = { currentSelectedLineIndex = it },
-            onLineBottomCoordinateChange = { cursorCoordinateY = it },
-            actions = actions,
-            modifier = Modifier
-                .fillMaxWidth()
-                .let {
-                    if (messageComposeInputState.isExpanded) it.weight(1f)
-                    else it.wrapContentHeight()
-                }
-        )
-        MessageComposeActionsBox(
-            transition = transition,
-            isMentionActive = membersToMention.isNotEmpty(),
-            startMention = actions.startMention,
-            onAdditionalOptionButtonClicked = actions.onAdditionalOptionButtonClicked,
-            modifier = Modifier.background(colorsScheme().messageComposerBackgroundColor),
-        )
+        Column {
+            MessageComposeInput(
+                transition = transition,
+                messageComposeInputState = messageComposeInputState,
+                quotedMessageData = quotedMessageData,
+                securityClassificationType = securityClassificationType,
+                onSelectedLineIndexChange = { currentSelectedLineIndex = it },
+                onLineBottomCoordinateChange = { cursorCoordinateY = it },
+                actions = actions,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .let {
+                        if (messageComposeInputState.isExpanded) it.weight(1f)
+                        else it.wrapContentHeight()
+                    }
+            )
+            MessageComposeActionsBox(
+                transition = transition,
+                isMentionActive = membersToMention.isNotEmpty(),
+                startMention = actions.startMention,
+                onAdditionalOptionButtonClicked = actions.onAdditionalOptionButtonClicked,
+                modifier = Modifier.background(colorsScheme().messageComposerBackgroundColor),
+            )
+        }
         if (membersToMention.isNotEmpty() && messageComposeInputState.isExpanded) {
             DropDownMentionsSuggestions(currentSelectedLineIndex, cursorCoordinateY, membersToMention, actions.onMentionPicked)
         }

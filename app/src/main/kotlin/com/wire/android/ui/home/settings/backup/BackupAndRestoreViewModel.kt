@@ -201,14 +201,16 @@ class BackupAndRestoreViewModel
         )
     }
 
-    fun cancelBackupRestore() {
+    fun cancelBackupRestore() = viewModelScope.launch {
         state = state.copy(
             restoreFileValidation = RestoreFileValidation.Initial,
             backupRestoreProgress = BackupRestoreProgress.InProgress(),
             restorePasswordValidation = PasswordValidation.NotVerified
         )
-        if (kaliumFileSystem.exists(latestImportedBackupTempPath))
-            kaliumFileSystem.delete(latestImportedBackupTempPath)
+        withContext(dispatchers.io()) {
+            if (kaliumFileSystem.exists(latestImportedBackupTempPath))
+                kaliumFileSystem.delete(latestImportedBackupTempPath)
+        }
     }
 
     fun navigateToConversations() {

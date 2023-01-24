@@ -5,7 +5,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
 import com.wire.android.model.Clickable
-import com.wire.android.ui.home.conversations.MessageItem
 import com.wire.android.ui.home.conversations.MessageItemTest
 import com.wire.android.ui.home.conversations.MessageText
 import com.wire.android.ui.home.conversations.SystemMessageItem
@@ -13,7 +12,6 @@ import com.wire.android.ui.home.conversations.mock.mockAssetContent
 import com.wire.android.ui.home.conversations.mock.mockAssetMessage
 import com.wire.android.ui.home.conversations.mock.mockMessageBody
 import com.wire.android.ui.home.conversations.mock.mockMessageWithText
-import com.wire.android.ui.home.conversations.mock.mockedImageUIMessage
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.user.UserId
@@ -96,7 +94,7 @@ fun PreviewEditedMessage() {
             )
         },
         onLongClicked = {},
-        onOpenProfile = { _ -> },
+        onOpenProfile = {},
         onReactionClicked = { _, _ -> },
         onResetSessionClicked = { _, _ -> }
     )
@@ -118,54 +116,53 @@ fun PreviewAssetMessage() {
             )
         },
         onLongClicked = {},
-        onOpenProfile = { _ -> },
+        onOpenProfile = {},
         onReactionClicked = { _, _ -> },
         onResetSessionClicked = { _, _ -> },
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewImageMessageUploaded() {
-    MessageItem(
-        message = mockedImageUIMessage(Message.UploadStatus.UPLOADED),
-        onLongClicked = {},
-        onAssetMessageClicked = {},
-        onImageMessageClicked = { _, _ -> },
-        onOpenProfile = { _ -> },
-        onReactionClicked = { _, _ -> },
-        onResetSessionClicked = { _, _ -> },
-        onAudioClick = { _ -> }
     )
 }
 
 @Preview(showBackground = true)
 @Composable
 fun PreviewImageMessageUploading() {
-    MessageItem(
-        message = mockedImageUIMessage(Message.UploadStatus.UPLOAD_IN_PROGRESS),
+    MessageItemTest(
+        message = mockAssetMessage,
+        messageContent = {
+            MessageGenericAsset(
+                assetName = mockAssetContent.assetName,
+                assetExtension = mockAssetContent.assetExtension,
+                assetSizeInBytes = mockAssetContent.assetSizeInBytes,
+                assetUploadStatus = Message.UploadStatus.UPLOAD_IN_PROGRESS,
+                assetDownloadStatus = mockAssetContent.downloadStatus,
+                onAssetClick = Clickable()
+            )
+        },
         onLongClicked = {},
-        onAssetMessageClicked = {},
-        onImageMessageClicked = { _, _ -> },
-        onOpenProfile = { _ -> },
+        onOpenProfile = {},
         onReactionClicked = { _, _ -> },
         onResetSessionClicked = { _, _ -> },
-        onAudioClick = { _ -> }
     )
 }
 
 @Preview(showBackground = true)
 @Composable
 fun PreviewImageMessageFailedUpload() {
-    MessageItem(
-        message = mockedImageUIMessage(Message.UploadStatus.FAILED_UPLOAD),
+    MessageItemTest(
+        message = mockAssetMessage,
+        messageContent = {
+            MessageGenericAsset(
+                assetName = mockAssetContent.assetName,
+                assetExtension = mockAssetContent.assetExtension,
+                assetSizeInBytes = mockAssetContent.assetSizeInBytes,
+                assetUploadStatus = Message.UploadStatus.FAILED_UPLOAD,
+                assetDownloadStatus = mockAssetContent.downloadStatus,
+                onAssetClick = Clickable()
+            )
+        },
         onLongClicked = {},
-        onAssetMessageClicked = {},
-        onImageMessageClicked = { _, _ -> },
-        onOpenProfile = { _ -> },
+        onOpenProfile = {},
         onReactionClicked = { _, _ -> },
         onResetSessionClicked = { _, _ -> },
-        onAudioClick = { _ -> }
     )
 }
 
@@ -173,15 +170,19 @@ fun PreviewImageMessageFailedUpload() {
 @Composable
 fun PreviewMessageWithSystemMessage() {
     Column {
-        MessageItem(
+        MessageItemTest(
             message = mockMessageWithText,
+            messageContent = {
+                MessageText(
+                    messageBody = mockMessageBody,
+                    onOpenProfile = {},
+                    onLongClick = {}
+                )
+            },
             onLongClicked = {},
-            onAssetMessageClicked = {},
-            onImageMessageClicked = { _, _ -> },
-            onOpenProfile = { _ -> },
+            onOpenProfile = {},
             onReactionClicked = { _, _ -> },
-            onResetSessionClicked = { _, _ -> },
-            onAudioClick = { _ -> }
+            onResetSessionClicked = { _, _ -> }
         )
         SystemMessageItem(UIMessageContent.SystemMessage.MissedCall.YouCalled(UIText.DynamicString("You")))
         SystemMessageItem(

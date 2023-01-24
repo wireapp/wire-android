@@ -615,14 +615,21 @@ fun MessageList(
                                 // in case the user did not play the audio message yet, we don't have the audio state
                                 // that is coming from ConversationMessageAudioPlayer, in that case we refer to
                                 // get the default values for the audio message, which is PAUSED state and 0 as current position
-                                // we always treat totalTimeInMs from backend as the source of truth
+                                // we treat totalTimeInMs from backend as the source of truth
                                 // in order to be sure that all clients are in sync regarding the audio message duration
+                                // however if it returns 0 we fallback to the duration from the audio player
                                 val audioMessageState: AudioState =
                                     audioMessagesState[message.messageHeader.messageId] ?: AudioState.DEFAULT
 
+                                val totalTimeInMs = if (messageContent.audioMessageDurationInMs.toInt() == 0) {
+                                    audioMessageState.totalTimeInMs
+                                } else {
+                                    messageContent.audioMessageDurationInMs.toInt()
+                                }
+
                                 AudioMessage(
                                     audioMediaPlayingState = audioMessageState.audioMediaPlayingState,
-                                    totalTimeInMs = messageContent.audioMessageDurationInMs.toInt(),
+                                    totalTimeInMs = totalTimeInMs,
                                     currentPositionInMs = audioMessageState.currentPositionInMs,
                                     onPlayAudioMessage = { onAudioClick(message.messageHeader.messageId) },
                                     onChangePosition = { position ->

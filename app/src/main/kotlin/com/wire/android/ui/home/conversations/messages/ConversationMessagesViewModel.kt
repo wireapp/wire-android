@@ -80,7 +80,7 @@ class ConversationMessagesViewModel @Inject constructor(
 
         viewModelScope.launch {
             conversationMessageAudioPlayer.observableAudioMessagesState.collect {
-//                Log.d("TEST", "$it")
+                Log.d("TEST", "$it")
                 conversationViewState = conversationViewState.copy(
                     audioMessagesState = it
                 )

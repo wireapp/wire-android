@@ -90,7 +90,8 @@ fun AudioMessage(
 
 private fun getPlayOrPauseIcon(audioMediaPlayingState: AudioMediaPlayingState): Int =
     when (audioMediaPlayingState) {
-        AudioMediaPlayingState.Completed, AudioMediaPlayingState.Playing -> R.drawable.ic_pause
+        AudioMediaPlayingState.Playing -> R.drawable.ic_pause
+        AudioMediaPlayingState.Completed -> R.drawable.ic_play
         else -> R.drawable.ic_play
     }
 
@@ -101,7 +102,13 @@ private data class AudioDuration(val totalDurationInMs: Int, val currentPosition
     private val currentPositionInSec = currentPositionInMs / 1000
     val formattedTimeLeft
         get() = run {
-            val timeLeft = (totalTimeInSec - currentPositionInSec)
+            val isTotalTimeInSecKnown = totalTimeInSec > 0
+
+            val timeLeft = if (!isTotalTimeInSecKnown) {
+                currentPositionInSec
+            } else {
+                (totalTimeInSec - currentPositionInSec)
+            }
 
             val minutes = timeLeft / 60
             val seconds = timeLeft % 60

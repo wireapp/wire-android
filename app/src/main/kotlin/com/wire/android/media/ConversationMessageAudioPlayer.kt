@@ -8,6 +8,7 @@ import android.util.Log
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
+import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -27,7 +28,11 @@ class ConversationMessageAudioPlayer
         const val UPDATE_POSITION_INTERVAL_IN_MS = 1000L
     }
 
-    private val audioMessageStateUpdate = MutableSharedFlow<AudioMediaPlayerStateUpdate>()
+    private val audioMessageStateUpdate =
+        MutableSharedFlow<AudioMediaPlayerStateUpdate>(
+            onBufferOverflow = BufferOverflow.DROP_OLDEST,
+            extraBufferCapacity = 1
+        )
 
     private val mediaPlayerPosition = flow {
         delay(UPDATE_POSITION_INTERVAL_IN_MS)
@@ -39,7 +44,11 @@ class ConversationMessageAudioPlayer
         }
     }.distinctUntilChanged()
 
-    private val seekToAudioPosition = MutableSharedFlow<Pair<String, Int>>()
+    private val seekToAudioPosition =
+        MutableSharedFlow<Pair<String, Int>>(
+            onBufferOverflow = BufferOverflow.DROP_OLDEST,
+            extraBufferCapacity = 1
+        )
 
     private val positionChangedUpdate = merge(mediaPlayerPosition, seekToAudioPosition)
         .map { (messageId, position) ->
@@ -54,7 +63,7 @@ class ConversationMessageAudioPlayer
         merge(positionChangedUpdate, audioMessageStateUpdate).map { audioMessageStateUpdate ->
             val currentState = audioMessageStateHistory.getOrDefault(
                 audioMessageStateUpdate.messageId,
-                AudioState(AudioMediaPlayingState.Paused, 0)
+                AudioState(AudioMediaPlayingState.Paused, 0, 0)
             )
 
             when (audioMessageStateUpdate) {
@@ -72,6 +81,15 @@ class ConversationMessageAudioPlayer
                         put(
                             audioMessageStateUpdate.messageId,
                             currentState.copy(currentPositionInMs = audioMessageStateUpdate.position)
+                        )
+                    }
+                }
+
+                is AudioMediaPlayerStateUpdate.TotalTimeUpdate -> {
+                    audioMessageStateHistory = audioMessageStateHistory.toMutableMap().apply {
+                        put(
+                            audioMessageStateUpdate.messageId,
+                            currentState.copy(totalTimeInMs = audioMessageStateUpdate.totalTimeInMs)
                         )
                     }
                 }
@@ -97,6 +115,7 @@ class ConversationMessageAudioPlayer
                         AudioMediaPlayingState.Completed
                     )
                 )
+                seekToAudioPosition.tryEmit(currentAudioMessageId!! to 0)
             }
         }
     }
@@ -160,6 +179,13 @@ class ConversationMessageAudioPlayer
                 mediaPlayer.start()
 
                 audioMessageStateUpdate.emit(
+                    AudioMediaPlayerStateUpdate.TotalTimeUpdate(
+                        messageId,
+                        mediaPlayer.duration
+                    )
+                )
+
+                audioMessageStateUpdate.emit(
                     AudioMediaPlayerStateUpdate.AudioMediaPlayingStateUpdate(
                         messageId,
                         AudioMediaPlayingState.Playing
@@ -219,10 +245,11 @@ class ConversationMessageAudioPlayer
 
 data class AudioState(
     val audioMediaPlayingState: AudioMediaPlayingState,
-    val currentPositionInMs: Int
+    val currentPositionInMs: Int,
+    val totalTimeInMs: Int
 ) {
     companion object {
-        val DEFAULT = AudioState(AudioMediaPlayingState.Paused, 0)
+        val DEFAULT = AudioState(AudioMediaPlayingState.Paused, 0, 0)
     }
 
 }
@@ -248,4 +275,10 @@ private sealed class AudioMediaPlayerStateUpdate(
         override val messageId: String,
         val position: Int
     ) : AudioMediaPlayerStateUpdate(messageId)
+
+    data class TotalTimeUpdate(
+        override val messageId: String,
+        val totalTimeInMs: Int
+    ) : AudioMediaPlayerStateUpdate(messageId)
+
 }

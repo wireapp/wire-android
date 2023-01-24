@@ -547,7 +547,7 @@ fun MessageList(
             if (message.messageContent is UIMessageContent.SystemMessage) {
                 SystemMessageItem(message = message.messageContent)
             } else {
-                MessageItemTest(
+                MessageItem(
                     message = message,
                     onOpenProfile = onOpenProfile,
                     onLongClicked = onShowContextMenu,

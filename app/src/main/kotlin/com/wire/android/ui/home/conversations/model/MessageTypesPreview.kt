@@ -4,14 +4,16 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
+import com.wire.android.media.AudioMediaPlayingState
 import com.wire.android.model.Clickable
-import com.wire.android.ui.home.conversations.MessageItemTest
+import com.wire.android.ui.home.conversations.MessageItem
 import com.wire.android.ui.home.conversations.MessageText
 import com.wire.android.ui.home.conversations.SystemMessageItem
 import com.wire.android.ui.home.conversations.mock.mockAssetContent
 import com.wire.android.ui.home.conversations.mock.mockAssetMessage
 import com.wire.android.ui.home.conversations.mock.mockMessageBody
 import com.wire.android.ui.home.conversations.mock.mockMessageWithText
+import com.wire.android.ui.home.conversations.model.messagetypes.audio.AudioMessage
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.user.UserId
@@ -21,7 +23,7 @@ private val previewUserId = UserId("value", "domain")
 @Preview(showBackground = true)
 @Composable
 fun PreviewMessage() {
-    MessageItemTest(
+    MessageItem(
         message = mockMessageWithText.copy(
             messageHeader = mockMessageWithText.messageHeader.copy(
                 username = UIText.DynamicString(
@@ -47,7 +49,7 @@ fun PreviewMessage() {
 @Preview(showBackground = true)
 @Composable
 fun PreviewMessageWithReply() {
-    MessageItemTest(
+    MessageItem(
         message = mockMessageWithText.copy(
             messageHeader = mockMessageWithText.messageHeader.copy(
                 username = UIText.DynamicString(
@@ -82,7 +84,7 @@ fun PreviewMessageWithReply() {
 @Preview(showBackground = true)
 @Composable
 fun PreviewEditedMessage() {
-    MessageItemTest(
+    MessageItem(
         message = mockMessageWithText.let {
             it.copy(messageHeader = it.messageHeader.copy(messageStatus = MessageStatus.Edited("")))
         },
@@ -103,7 +105,7 @@ fun PreviewEditedMessage() {
 @Preview(showBackground = true)
 @Composable
 fun PreviewAssetMessage() {
-    MessageItemTest(
+    MessageItem(
         message = mockAssetMessage,
         messageContent = {
             MessageGenericAsset(
@@ -125,7 +127,7 @@ fun PreviewAssetMessage() {
 @Preview(showBackground = true)
 @Composable
 fun PreviewImageMessageUploading() {
-    MessageItemTest(
+    MessageItem(
         message = mockAssetMessage,
         messageContent = {
             MessageGenericAsset(
@@ -147,7 +149,7 @@ fun PreviewImageMessageUploading() {
 @Preview(showBackground = true)
 @Composable
 fun PreviewImageMessageFailedUpload() {
-    MessageItemTest(
+    MessageItem(
         message = mockAssetMessage,
         messageContent = {
             MessageGenericAsset(
@@ -170,7 +172,7 @@ fun PreviewImageMessageFailedUpload() {
 @Composable
 fun PreviewMessageWithSystemMessage() {
     Column {
-        MessageItemTest(
+        MessageItem(
             message = mockMessageWithText,
             messageContent = {
                 MessageText(
@@ -193,3 +195,102 @@ fun PreviewMessageWithSystemMessage() {
         )
     }
 }
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewMessageWithPlayingAudioMessage() {
+    MessageItem(
+        message = mockMessageWithText,
+        messageContent = {
+            AudioMessage(
+                audioMediaPlayingState = AudioMediaPlayingState.Playing,
+                totalTimeInMs = 100,
+                currentPositionInMs = 15,
+                onPlayAudioMessage = { },
+                onChangePosition = {}
+            )
+        },
+        onLongClicked = {},
+        onOpenProfile = {},
+        onReactionClicked = { _, _ -> },
+        onResetSessionClicked = { _, _ -> }
+    )
+    SystemMessageItem(UIMessageContent.SystemMessage.MissedCall.YouCalled(UIText.DynamicString("You")))
+    SystemMessageItem(
+        UIMessageContent.SystemMessage.MemberAdded(
+            UIText.DynamicString("You"),
+            listOf(UIText.DynamicString("Adam Smith"))
+        )
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewMessageWithPausedAudioMessage() {
+    MessageItem(
+        message = mockMessageWithText,
+        messageContent = {
+            AudioMessage(
+                audioMediaPlayingState = AudioMediaPlayingState.Paused,
+                totalTimeInMs = 100,
+                currentPositionInMs = 15,
+                onPlayAudioMessage = { },
+                onChangePosition = {}
+            )
+        },
+        onLongClicked = {},
+        onOpenProfile = {},
+        onReactionClicked = { _, _ -> },
+        onResetSessionClicked = { _, _ -> }
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewMessageWithStoppedAudioMessage() {
+    MessageItem(
+        message = mockMessageWithText,
+        messageContent = {
+            AudioMessage(
+                audioMediaPlayingState = AudioMediaPlayingState.Stopped,
+                totalTimeInMs = 100,
+                currentPositionInMs = 15,
+                onPlayAudioMessage = { },
+                onChangePosition = {}
+            )
+        },
+        onLongClicked = {},
+        onOpenProfile = {},
+        onReactionClicked = { _, _ -> },
+        onResetSessionClicked = { _, _ -> }
+    )
+    SystemMessageItem(UIMessageContent.SystemMessage.MissedCall.YouCalled(UIText.DynamicString("You")))
+    SystemMessageItem(
+        UIMessageContent.SystemMessage.MemberAdded(
+            UIText.DynamicString("You"),
+            listOf(UIText.DynamicString("Adam Smith"))
+        )
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewMessageWithCompletedAudioMessage() {
+    MessageItem(
+        message = mockMessageWithText,
+        messageContent = {
+            AudioMessage(
+                audioMediaPlayingState = AudioMediaPlayingState.Completed,
+                totalTimeInMs = 100,
+                currentPositionInMs = 100,
+                onPlayAudioMessage = { },
+                onChangePosition = {}
+            )
+        },
+        onLongClicked = {},
+        onOpenProfile = {},
+        onReactionClicked = { _, _ -> },
+        onResetSessionClicked = { _, _ -> }
+    )
+}
+

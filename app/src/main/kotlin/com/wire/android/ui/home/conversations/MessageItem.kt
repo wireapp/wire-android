@@ -26,7 +26,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import com.google.accompanist.flowlayout.FlowRow
 import com.wire.android.R
-import com.wire.android.media.AudioMediaPlayingState
 import com.wire.android.model.Clickable
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.LegalHoldIndicator
@@ -43,22 +42,22 @@ import com.wire.android.ui.home.conversations.model.MessageFooter
 import com.wire.android.ui.home.conversations.model.MessageGenericAsset
 import com.wire.android.ui.home.conversations.model.MessageHeader
 import com.wire.android.ui.home.conversations.model.MessageImage
-import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.model.MessageStatus
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.conversations.model.messagetypes.asset.RestrictedAssetMessage
 import com.wire.android.ui.home.conversations.model.messagetypes.asset.RestrictedGenericFileMessage
-import com.wire.android.ui.home.conversations.model.messagetypes.audio.AudioMessage
 import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMessageParams
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
 import com.wire.kalium.logic.data.user.UserId
 
+//TODO: as for now MessageItem is taking unnecessary stuff which will not be used
+// because we are providing messageContent Composable that will render the content
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun MessageItemTest(
+fun MessageItem(
     message: UIMessage,
     onOpenProfile: (String) -> Unit,
     onLongClicked: (UIMessage) -> Unit,

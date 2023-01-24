@@ -314,7 +314,7 @@ private fun EnabledMessageComposerInput(
     onMentionPicked: (Contact) -> Unit,
     onCancelReply: () -> Unit
 ) {
-    Column {
+    Box {
         var currentSelectedLineIndex by remember {
             mutableStateOf(0)
         }
@@ -322,36 +322,38 @@ private fun EnabledMessageComposerInput(
         var cursorCoordinateY by remember {
             mutableStateOf(0F)
         }
-
-        MessageComposeInput(
-            transition = transition,
-            messageComposerState = messageComposerInnerState,
-            quotedMessageData = messageComposerInnerState.quotedMessageData,
-            securityClassificationType = securityClassificationType,
-            onCancelReply = onCancelReply,
-            onToggleFullScreen = onToggleFullScreen,
-            onSendButtonClicked = onSendButtonClicked,
-            onSelectedLineIndexChange = { currentSelectedLineIndex = it },
-            onLineBottomCoordinateChange = { cursorCoordinateY = it },
-            modifier = Modifier
-                .fillMaxWidth()
-                .let {
-                    if (messageComposerInnerState.messageComposeInputState == MessageComposeInputState.FullScreen)
-                        it.weight(1f)
-                    else
-                        it.wrapContentHeight()
-                }
-        )
-        MessageComposeActionsBox(
-            transition,
-            messageComposerInnerState,
-            membersToMention.isNotEmpty()
-        )
         if (membersToMention.isNotEmpty()
             && messageComposerInnerState.messageComposeInputState == MessageComposeInputState.FullScreen
         ) {
             DropDownMentionsSuggestions(currentSelectedLineIndex, cursorCoordinateY, membersToMention, onMentionPicked)
         }
+        Column {
+            MessageComposeInput(
+                transition = transition,
+                messageComposerState = messageComposerInnerState,
+                quotedMessageData = messageComposerInnerState.quotedMessageData,
+                securityClassificationType = securityClassificationType,
+                onCancelReply = onCancelReply,
+                onToggleFullScreen = onToggleFullScreen,
+                onSendButtonClicked = onSendButtonClicked,
+                onSelectedLineIndexChange = { currentSelectedLineIndex = it },
+                onLineBottomCoordinateChange = { cursorCoordinateY = it },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .let {
+                        if (messageComposerInnerState.messageComposeInputState == MessageComposeInputState.FullScreen)
+                            it.weight(1f)
+                        else
+                            it.wrapContentHeight()
+                    }
+            )
+            MessageComposeActionsBox(
+                transition,
+                messageComposerInnerState,
+                membersToMention.isNotEmpty()
+            )
+        }
+
     }
 }
 

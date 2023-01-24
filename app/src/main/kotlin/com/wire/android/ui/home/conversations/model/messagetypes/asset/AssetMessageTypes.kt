@@ -51,6 +51,7 @@ internal fun MessageAsset(
     assetDownloadStatus: Message.DownloadStatus
 ) {
     val assetDescription = provideAssetDescription(assetExtension, assetSizeInBytes)
+
     Box(
         modifier = Modifier
             .padding(top = dimensions().spacing4x)

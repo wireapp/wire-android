@@ -193,6 +193,8 @@ data class QuotedMessageUIData(
         val displayable: ImageAsset.PrivateAsset
     ) : Content
 
+    data class AudioMessage(val assetName: String?) : Content
+
     object Deleted : Content
     object Invalid : Content
 }

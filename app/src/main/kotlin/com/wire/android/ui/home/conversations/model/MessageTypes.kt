@@ -97,5 +97,12 @@ internal fun MessageGenericAsset(
     assetUploadStatus: Message.UploadStatus,
     assetDownloadStatus: Message.DownloadStatus
 ) {
-    MessageAsset(assetName, assetExtension, assetSizeInBytes, onAssetClick, assetUploadStatus, assetDownloadStatus)
+    MessageAsset(
+        assetName = assetName,
+        assetExtension = assetExtension,
+        assetSizeInBytes = assetSizeInBytes,
+        onAssetClick = onAssetClick,
+        assetUploadStatus = assetUploadStatus,
+        assetDownloadStatus = assetDownloadStatus
+    )
 }

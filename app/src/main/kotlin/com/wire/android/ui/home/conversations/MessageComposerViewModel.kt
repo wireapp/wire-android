@@ -242,6 +242,10 @@ class MessageComposerViewModel @Inject constructor(
                                 }
                             }
                         }
+
+                        AttachmentType.AUDIO -> {
+
+                        }
                     }
                 }
             }

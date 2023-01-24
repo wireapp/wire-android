@@ -59,6 +59,8 @@ class MessageTextContentMapper @Inject constructor(
                     )
                 )
 
+                AttachmentType.AUDIO -> QuotedMessageUIData.AudioMessage(assetName = quotedContent.assetName)
+
                 AttachmentType.GENERIC_FILE -> QuotedMessageUIData.GenericAsset(
                     assetName = quotedContent.assetName,
                     assetMimeType = quotedContent.assetMimeType

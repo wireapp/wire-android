@@ -215,13 +215,6 @@ fun PreviewMessageWithPlayingAudioMessage() {
         onReactionClicked = { _, _ -> },
         onResetSessionClicked = { _, _ -> }
     )
-    SystemMessageItem(UIMessageContent.SystemMessage.MissedCall.YouCalled(UIText.DynamicString("You")))
-    SystemMessageItem(
-        UIMessageContent.SystemMessage.MemberAdded(
-            UIText.DynamicString("You"),
-            listOf(UIText.DynamicString("Adam Smith"))
-        )
-    )
 }
 
 @Preview(showBackground = true)
@@ -263,13 +256,6 @@ fun PreviewMessageWithStoppedAudioMessage() {
         onOpenProfile = {},
         onReactionClicked = { _, _ -> },
         onResetSessionClicked = { _, _ -> }
-    )
-    SystemMessageItem(UIMessageContent.SystemMessage.MissedCall.YouCalled(UIText.DynamicString("You")))
-    SystemMessageItem(
-        UIMessageContent.SystemMessage.MemberAdded(
-            UIText.DynamicString("You"),
-            listOf(UIText.DynamicString("Adam Smith"))
-        )
     )
 }
 

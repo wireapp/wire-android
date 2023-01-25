@@ -63,7 +63,7 @@ fun AudioMessage(
             )
             .padding(dimensions().spacing8x)
     ) {
-        if (audioMediaPlayingState == AudioMediaPlayingState.Failed) {
+        if (true) {
             FailedAudioMessage()
         } else {
             SuccessFullAudioMessage(

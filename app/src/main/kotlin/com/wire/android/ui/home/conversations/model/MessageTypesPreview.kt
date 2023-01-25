@@ -58,7 +58,7 @@ fun PreviewMessageWithReply() {
             )
         ),
         onLongClicked = {},
-        onOpenProfile = { _ -> },
+        onOpenProfile = { },
         onReactionClicked = { _, _ -> },
         onResetSessionClicked = { _, _ -> },
         messageContent = {

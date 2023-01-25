@@ -4,7 +4,6 @@ import android.content.Context
 import android.net.Uri
 import com.wire.android.util.dispatchers.DefaultDispatcherProvider
 import com.wire.android.util.dispatchers.DispatcherProvider
-import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.withContext
 import okio.Path

@@ -56,7 +56,7 @@ import java.io.File
 @ExperimentalMaterialApi
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
 @Composable
-//TODO: logFilePath does not belong in the UI logic
+// TODO: logFilePath does not belong in the UI logic
 fun HomeDrawer(
     logFilePath: String,
     currentRoute: String?,
@@ -84,6 +84,7 @@ fun HomeDrawer(
                     true -> CustomTabsHelper.launchUrl(context, item.getRouteWithArgs())
                     false -> navigateToItem(item)
                 }
+
                 else -> {}
             }
             onCloseDrawer()

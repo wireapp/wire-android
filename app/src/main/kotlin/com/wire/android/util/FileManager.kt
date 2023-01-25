@@ -2,8 +2,11 @@ package com.wire.android.util
 
 import android.content.Context
 import android.net.Uri
+import com.wire.android.util.dispatchers.DefaultDispatcherProvider
+import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.withContext
 import okio.Path
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -28,15 +31,16 @@ class FileManager @Inject constructor(@ApplicationContext private val context: C
         shareAssetFileWithExternalApp(assetDataPath, context, assetExtension, onError)
     }
 
-    fun copyToTempPath(uri: Uri, tempCachePath: Path): Long {
-        val file = tempCachePath.toFile()
-        var size: Long
-        file.setWritable(true)
-        context.contentResolver.openInputStream(uri).use { inputStream ->
-            file.outputStream().use {
-                size = inputStream?.copyTo(it) ?: -1L
+    suspend fun copyToTempPath(uri: Uri, tempCachePath: Path, dispatcher: DispatcherProvider = DefaultDispatcherProvider()): Long =
+        withContext(dispatcher.io()) {
+            val file = tempCachePath.toFile()
+            var size: Long
+            file.setWritable(true)
+            context.contentResolver.openInputStream(uri).use { inputStream ->
+                file.outputStream().use {
+                    size = inputStream?.copyTo(it) ?: -1L
+                }
             }
+            return@withContext size
         }
-        return size
-    }
 }

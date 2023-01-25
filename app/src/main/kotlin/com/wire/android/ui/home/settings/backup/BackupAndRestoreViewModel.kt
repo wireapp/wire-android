@@ -91,7 +91,7 @@ class BackupAndRestoreViewModel
         state = BackupAndRestoreState.INITIAL_STATE
     }
 
-    fun chooseBackupFileToRestore(uri: Uri) = viewModelScope.launch(dispatcher.io()) {
+    fun chooseBackupFileToRestore(uri: Uri) = viewModelScope.launch {
         latestImportedBackupTempPath = kaliumFileSystem.tempFilePath(TEMP_IMPORTED_BACKUP_FILE_NAME)
         fileManager.copyToTempPath(uri, latestImportedBackupTempPath)
         checkIfBackupEncrypted(latestImportedBackupTempPath)
@@ -206,13 +206,18 @@ class BackupAndRestoreViewModel
         updateCreationProgress(0f)
     }
 
-    fun cancelBackupRestore() {
+    fun cancelBackupRestore() = viewModelScope.launch {
         state = state.copy(
             restoreFileValidation = RestoreFileValidation.Initial,
             backupRestoreProgress = BackupRestoreProgress.InProgress(),
             restorePasswordValidation = PasswordValidation.NotVerified
         )
-        if (kaliumFileSystem.exists(latestImportedBackupTempPath)) kaliumFileSystem.delete(latestImportedBackupTempPath)
+        withContext(dispatcher.io()) {
+            if (this@BackupAndRestoreViewModel::latestImportedBackupTempPath.isInitialized && kaliumFileSystem.exists(
+                    latestImportedBackupTempPath
+                )
+            ) kaliumFileSystem.delete(latestImportedBackupTempPath)
+        }
     }
 
     private suspend fun updateCreationProgress(progress: Float) = withContext(dispatcher.main()) {

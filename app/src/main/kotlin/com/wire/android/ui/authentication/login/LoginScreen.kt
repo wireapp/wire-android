@@ -225,8 +225,8 @@ fun LoginErrorDialog(
         is LoginError.DialogError.SSOResultError -> {
             with(ssoLoginResult as DeepLinkResult.SSOLogin.Failure) {
                 LoginDialogErrorData(
-                    stringResource(R.string.sso_erro_dialog_title),
-                    stringResource(R.string.sso_erro_dialog_message, this.ssoError.errorCode),
+                    stringResource(R.string.sso_error_dialog_title),
+                    stringResource(R.string.sso_error_dialog_message, this.ssoError.errorCode),
                     onDialogDismiss
                 )
             }

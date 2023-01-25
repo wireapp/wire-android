@@ -23,6 +23,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
@@ -81,9 +82,13 @@ internal fun MessageAsset(
                     maxLines = if (shouldFillMaxWidth) 2 else 4,
                     overflow = TextOverflow.Ellipsis
                 )
-                val descriptionModifier = Modifier.padding(top = dimensions().spacing8x).fillMaxWidth()
+                val descriptionModifier = Modifier.padding(
+                    top = dimensions().spacing8x,
+                    start = dimensions().spacing4x,
+                    end = dimensions().spacing4x
+                ).fillMaxWidth()
                 Row(verticalAlignment = Alignment.Bottom) {
-                    ConstraintLayout(if (!shouldFillMaxWidth) descriptionModifier.fillMaxHeight() else descriptionModifier) {
+                    ConstraintLayout(modifier = (if (!shouldFillMaxWidth) descriptionModifier.fillMaxHeight() else descriptionModifier)) {
                         val (icon, description, downloadStatus) = createRefs()
                         Image(
                             modifier = Modifier
@@ -98,7 +103,6 @@ internal fun MessageAsset(
                         )
                         Text(
                             modifier = Modifier
-                                .padding(start = dimensions().spacing4x)
                                 .constrainAs(description) {
                                     top.linkTo(parent.top)
                                     start.linkTo(icon.end)
@@ -106,6 +110,7 @@ internal fun MessageAsset(
                                 },
                             text = assetDescription,
                             maxLines = 3,
+                            overflow = TextOverflow.Ellipsis,
                             color = MaterialTheme.wireColorScheme.secondaryText,
                             style = MaterialTheme.wireTypography.subline01
                         )
@@ -324,6 +329,7 @@ private fun isNotClickable(assetDownloadStatus: Message.DownloadStatus, assetUpl
     assetDownloadStatus == Message.DownloadStatus.DOWNLOAD_IN_PROGRESS || assetUploadStatus == Message.UploadStatus.UPLOAD_IN_PROGRESS
 
 @Suppress("MagicNumber")
+@Stable
 private fun provideAssetDescription(assetExtension: String, assetSizeInBytes: Long): String {
     val oneKB = 1024L
     val oneMB = oneKB * oneKB

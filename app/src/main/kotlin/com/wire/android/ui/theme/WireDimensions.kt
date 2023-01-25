@@ -295,7 +295,7 @@ private val DefaultPhonePortraitWireDimensions: WireDimensions = WireDimensions(
     messageItemBottomPadding = 12.dp,
     conversationOptionsItemMinHeight = 57.dp,
     ongoingCallLabelHeight = 28.dp,
-    importedMediaAssetSize = 120.dp,
+    importedMediaAssetSize = 120.dp
 )
 
 private val DefaultPhoneLandscapeWireDimensions: WireDimensions = DefaultPhonePortraitWireDimensions

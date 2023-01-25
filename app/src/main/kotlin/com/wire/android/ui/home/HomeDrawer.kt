@@ -30,6 +30,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.capitalize
 import androidx.compose.ui.unit.dp
 import com.wire.android.BuildConfig
 import com.wire.android.R
@@ -39,6 +40,7 @@ import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationItem.Support
 import com.wire.android.navigation.isExternalRoute
 import com.wire.android.ui.common.Logo
+import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.selectableBackground
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
@@ -83,6 +85,7 @@ fun HomeDrawer(
                     true -> CustomTabsHelper.launchUrl(context, item.getRouteWithArgs())
                     false -> navigateToItem(item)
                 }
+
                 else -> {}
             }
             onCloseDrawer()
@@ -150,7 +153,18 @@ fun HomeDrawer(
         Text(
             text = stringResource(R.string.app_version, BuildConfig.VERSION_NAME),
             color = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.padding(10.dp)
+            modifier = Modifier.padding(dimensions().spacing12x)
+        )
+        Text(
+            text = stringResource(
+                R.string.build_variant_name, "${BuildConfig.FLAVOR}${
+                    BuildConfig.BUILD_TYPE.replaceFirstChar {
+                        it.uppercase()
+                    }
+                }"
+            ),
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.padding(dimensions().spacing12x)
         )
     }
 }
@@ -174,7 +188,7 @@ fun DrawerItem(data: DrawerItemData, selected: Boolean, onItemClick: () -> Unit)
             contentDescription = stringResource(data.title!!),
             colorFilter = ColorFilter.tint(contentColor),
             contentScale = ContentScale.Fit,
-            modifier = Modifier.padding(start = 16.dp, end = 16.dp)
+            modifier = Modifier.padding(start = dimensions().spacing16x, end = dimensions().spacing16x)
         )
         Text(
             style = MaterialTheme.wireTypography.button02,

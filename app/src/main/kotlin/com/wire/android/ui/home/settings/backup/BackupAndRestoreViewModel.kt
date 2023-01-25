@@ -1,3 +1,23 @@
+/*
+ * Wire
+ * Copyright (C) 2023 Wire Swiss GmbH
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see http://www.gnu.org/licenses/.
+ *
+ *
+ */
+
 package com.wire.android.ui.home.settings.backup
 
 import android.net.Uri
@@ -13,6 +33,7 @@ import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.util.FileManager
+import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.feature.backup.CreateBackupResult
 import com.wire.kalium.logic.feature.backup.CreateBackupUseCase
@@ -29,6 +50,7 @@ import com.wire.kalium.logic.util.fileExtension
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import okio.Path
 import javax.inject.Inject
 
@@ -41,7 +63,8 @@ class BackupAndRestoreViewModel
     private val createBackupFile: CreateBackupUseCase,
     private val verifyBackup: VerifyBackupUseCase,
     private val kaliumFileSystem: KaliumFileSystem,
-    private val fileManager: FileManager
+    private val fileManager: FileManager,
+    private val dispatchers: DispatcherProvider,
 ) : ViewModel() {
 
     var state by mutableStateOf(BackupAndRestoreState.INITIAL_STATE)
@@ -198,14 +221,18 @@ class BackupAndRestoreViewModel
         )
     }
 
-    fun cancelBackupRestore() {
+    fun cancelBackupRestore() = viewModelScope.launch {
         state = state.copy(
             restoreFileValidation = RestoreFileValidation.Initial,
             backupRestoreProgress = BackupRestoreProgress.InProgress(),
             restorePasswordValidation = PasswordValidation.NotVerified
         )
-        if (this::latestImportedBackupTempPath.isInitialized && kaliumFileSystem.exists(latestImportedBackupTempPath))
-            kaliumFileSystem.delete(latestImportedBackupTempPath)
+        withContext(dispatchers.io()) {
+            if (this@BackupAndRestoreViewModel::latestImportedBackupTempPath.isInitialized && kaliumFileSystem.exists(
+                    latestImportedBackupTempPath
+                )
+            ) kaliumFileSystem.delete(latestImportedBackupTempPath)
+        }
     }
 
     fun navigateToConversations() {

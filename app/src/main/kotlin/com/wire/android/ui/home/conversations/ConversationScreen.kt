@@ -614,7 +614,7 @@ fun MessageList(
                             is UIMessageContent.AudioAssetMessage -> {
                                 // in case the user did not play the audio message yet, we don't have the audio state
                                 // that is coming from ConversationMessageAudioPlayer, in that case we refer to
-                                // get the default values for the audio message, which is PAUSED state and 0 as current position
+                                // the default values for the audio message, which is PAUSED state and 0 as current position
                                 // we treat totalTimeInMs from backend as the source of truth
                                 // in order to be sure that all clients are in sync regarding the audio message duration
                                 // however if it returns 0 we fallback to the duration from the audio player
@@ -631,10 +631,11 @@ fun MessageList(
                                     audioMediaPlayingState = audioMessageState.audioMediaPlayingState,
                                     totalTimeInMs = totalTimeInMs,
                                     currentPositionInMs = audioMessageState.currentPositionInMs,
-                                    onPlayAudioMessage = { onAudioClick(message.messageHeader.messageId) },
-                                    onChangePosition = { position ->
+                                    onPlayButtonClick = { onAudioClick(message.messageHeader.messageId) },
+                                    onSliderPositionChange = { position ->
                                         onChangeAudioPosition(message.messageHeader.messageId, position.toInt())
-                                    }
+                                    },
+                                    onAudioMessageLongClick = { onShowContextMenu(message) }
                                 )
                             }
 

@@ -17,8 +17,6 @@ fun DownloadedAssetDialog(
     onOpenFileWithExternalApp: (Path, String?) -> Unit,
     hideOnAssetDownloadedDialog: () -> Unit
 ) {
-    val context = LocalContext.current
-
     if (downloadedAssetDialogState is DownloadedAssetDialogVisibilityState.Displayed) {
         val assetName = downloadedAssetDialogState.assetName
         val assetDataPath = downloadedAssetDialogState.assetDataPath

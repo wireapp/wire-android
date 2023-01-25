@@ -206,8 +206,9 @@ fun PreviewMessageWithPlayingAudioMessage() {
                 audioMediaPlayingState = AudioMediaPlayingState.Playing,
                 totalTimeInMs = 100,
                 currentPositionInMs = 15,
-                onPlayAudioMessage = { },
-                onChangePosition = {}
+                onPlayButtonClick = {},
+                onSliderPositionChange = {},
+                onAudioMessageLongClick = {}
             )
         },
         onLongClicked = {},
@@ -227,8 +228,9 @@ fun PreviewMessageWithPausedAudioMessage() {
                 audioMediaPlayingState = AudioMediaPlayingState.Paused,
                 totalTimeInMs = 100,
                 currentPositionInMs = 15,
-                onPlayAudioMessage = { },
-                onChangePosition = {}
+                onPlayButtonClick = { },
+                onSliderPositionChange = {},
+                onAudioMessageLongClick = {}
             )
         },
         onLongClicked = {},
@@ -248,8 +250,10 @@ fun PreviewMessageWithStoppedAudioMessage() {
                 audioMediaPlayingState = AudioMediaPlayingState.Stopped,
                 totalTimeInMs = 100,
                 currentPositionInMs = 15,
-                onPlayAudioMessage = { },
-                onChangePosition = {}
+                onPlayButtonClick = { },
+                onSliderPositionChange = {},
+                onAudioMessageLongClick = {}
+
             )
         },
         onLongClicked = {},
@@ -269,8 +273,9 @@ fun PreviewMessageWithCompletedAudioMessage() {
                 audioMediaPlayingState = AudioMediaPlayingState.Completed,
                 totalTimeInMs = 100,
                 currentPositionInMs = 100,
-                onPlayAudioMessage = { },
-                onChangePosition = {}
+                onPlayButtonClick = { },
+                onSliderPositionChange = {},
+                onAudioMessageLongClick = {}
             )
         },
         onLongClicked = {},

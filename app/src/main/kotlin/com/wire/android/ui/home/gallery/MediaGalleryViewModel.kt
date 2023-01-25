@@ -16,7 +16,6 @@ import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogHelper
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogsState
 import com.wire.android.util.FileManager
 import com.wire.android.util.dispatchers.DispatcherProvider
-import com.wire.android.util.getCurrentParsedDateTime
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
@@ -39,7 +38,7 @@ import javax.inject.Inject
 @HiltViewModel
 class MediaGalleryViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    private val wireSessionImageLoader: WireSessionImageLoader,
+    wireSessionImageLoader: WireSessionImageLoader,
     qualifiedIdMapper: QualifiedIdMapper,
     private val navigationManager: NavigationManager,
     private val getConversationDetails: ObserveConversationDetailsUseCase,
@@ -103,7 +102,7 @@ class MediaGalleryViewModel @Inject constructor(
                 val imageData = getImageData(imageAssetId.conversationId, imageAssetId.messageId).await()
                 if (imageData is Success) {
                     fileManager.saveToExternalStorage(imageData.assetName, imageData.decodedAssetPath, imageData.assetSize) {
-                        onImageSavedToExternalStorage()
+                        onImageSavedToExternalStorage(it)
                     }
                 } else {
                     onSaveError()
@@ -118,8 +117,8 @@ class MediaGalleryViewModel @Inject constructor(
         }
     }
 
-    private fun onImageSavedToExternalStorage() {
-        onSnackbarMessage(MediaGallerySnackbarMessages.OnImageDownloaded())
+    private fun onImageSavedToExternalStorage(fileName: String?) {
+        onSnackbarMessage(MediaGallerySnackbarMessages.OnImageDownloaded(fileName))
     }
 
     internal fun onSaveError() {

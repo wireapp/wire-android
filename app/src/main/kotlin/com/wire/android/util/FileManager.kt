@@ -2,7 +2,6 @@ package com.wire.android.util
 
 import android.content.Context
 import android.net.Uri
-import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import dagger.hilt.android.qualifiers.ApplicationContext
 import okio.Path
 import javax.inject.Inject
@@ -14,10 +13,11 @@ class FileManager @Inject constructor(@ApplicationContext private val context: C
         assetName: String,
         assetDataPath: Path,
         assetDataSize: Long,
-        onFileSaved: suspend () -> Unit
+        onFileSaved: suspend (String?) -> Unit
     ) {
         saveFileToDownloadsFolder(assetName, assetDataPath, assetDataSize, context)
-        onFileSaved()
+            ?.let { context.getFileName(it) }
+            .also { onFileSaved(it) }
     }
 
     fun openWithExternalApp(assetDataPath: Path, assetExtension: String?, onError: () -> Unit) {

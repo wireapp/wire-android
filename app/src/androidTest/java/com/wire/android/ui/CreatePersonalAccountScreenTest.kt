@@ -37,7 +37,6 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onSiblings
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
-import androidx.compose.ui.test.performScrollToNode
 import androidx.compose.ui.test.performTextInput
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
@@ -45,7 +44,6 @@ import androidx.test.espresso.intent.Intents
 import androidx.test.espresso.intent.matcher.IntentMatchers.hasAction
 import androidx.test.espresso.intent.matcher.IntentMatchers.hasData
 import com.wire.android.ui.authentication.create.personalaccount.CreatePersonalAccountScreen
-import com.wire.android.ui.authentication.create.team.CreateTeamScreen
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.utils.EMAIL
 import com.wire.android.utils.WorkManagerTestRule

@@ -3,9 +3,6 @@ name: "Run Unit Tests"
 on:
   pull_request:
     types: [ opened, synchronize ] # Don't rerun on `edited` to save time
-  push:
-    branches:
-        - 'develop'
   workflow_call:
 
 concurrency:
@@ -13,8 +10,11 @@ concurrency:
     cancel-in-progress: true
 
 jobs:
+  detekt:
+    uses: ./.github/workflows/codestyle.yml
   unit-tests:
-    runs-on: buildjet-8vcpu-ubuntu-2204
+    needs: [detekt]
+    runs-on: buildjet-16vcpu-ubuntu-2204
 
     steps:
       - name: Checkout
@@ -80,7 +80,7 @@ jobs:
 
   build-app:
     needs: [unit-tests]
-    runs-on: buildjet-8vcpu-ubuntu-2204
+    runs-on: buildjet-16vcpu-ubuntu-2204
     steps:
     - name: Checkout
       uses: actions/checkout@v3
@@ -91,16 +91,15 @@ jobs:
       env:
         GITHUB_USER: ${{ github.actor }}
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      uses: geonativefr/android-build-action@36e3b6bc8deb64a8b987582c92d820974eb6a03e
-      with:
-        project-path: ./
-        output-path: wire-android-debug-pr-${{ github.event.pull_request.number }}.apk
+      run: |
+        ./gradlew assembleBetaDebug -p ./ --no-daemon
+        cp app/build/outputs/apk/beta/debug/com.wire.*.apk wire-android-beta-debug-pr-${{ github.event.pull_request.number }}.apk
     - name: Upload APK
       if: success()
       uses: actions/upload-artifact@v3
       with:
-          name: wire-android-debug-apk-pr-${{ github.event.pull_request.number }}
-          path: ./wire-android-debug-pr-${{ github.event.pull_request.number }}.apk
+          name: wire-android-beta-debug-pr-${{ github.event.pull_request.number }}.apk
+          path: ./wire-android-beta-debug-pr-${{ github.event.pull_request.number }}.apk
     - name: Post link to apk
       if: success()
       env:

@@ -45,6 +45,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
@@ -72,6 +73,7 @@ internal fun MessageComposerInput(
     quotedMessageData: QuotedMessageUIData?,
     membersToMention: List<Contact>,
     actions: MessageComposerInputActions,
+    inputFocusRequester: FocusRequester,
 ) {
     when (interactionAvailability) {
         InteractionAvailability.BLOCKED_USER -> BlockedUserComposerInput()
@@ -85,6 +87,7 @@ internal fun MessageComposerInput(
                 quotedMessageData = quotedMessageData,
                 membersToMention = membersToMention,
                 actions = actions,
+                inputFocusRequester = inputFocusRequester,
             )
         }
     }
@@ -99,6 +102,7 @@ private fun EnabledMessageComposerInput(
     quotedMessageData: QuotedMessageUIData?,
     membersToMention: List<Contact>,
     actions: MessageComposerInputActions,
+    inputFocusRequester: FocusRequester,
 ) {
     Column {
         var currentSelectedLineIndex by remember { mutableStateOf(0) }
@@ -112,6 +116,7 @@ private fun EnabledMessageComposerInput(
             onSelectedLineIndexChange = { currentSelectedLineIndex = it },
             onLineBottomCoordinateChange = { cursorCoordinateY = it },
             actions = actions,
+            inputFocusRequester = inputFocusRequester,
             modifier = Modifier
                 .fillMaxWidth()
                 .let {
@@ -142,6 +147,7 @@ private fun MessageComposeInput(
     onSelectedLineIndexChange: (Int) -> Unit,
     onLineBottomCoordinateChange: (Float) -> Unit,
     actions: MessageComposerInputActions,
+    inputFocusRequester: FocusRequester,
     modifier: Modifier
 ) {
     Column(
@@ -182,6 +188,7 @@ private fun MessageComposeInput(
             messageComposeInputState = messageComposeInputState,
             onMessageTextChanged = actions.onMessageTextChanged,
             onInputFocusChanged = actions.onInputFocusChanged,
+            focusRequester = inputFocusRequester,
             onSendButtonClicked = actions.onSendButtonClicked,
             onSelectedLineIndexChanged = onSelectedLineIndexChange,
             onLineBottomYCoordinateChanged = onLineBottomCoordinateChange,
@@ -255,7 +262,8 @@ private fun generatePreviewWithState(state: MessageComposeInputState) {
         messageComposeInputState = state,
         quotedMessageData = null,
         membersToMention = listOf(),
-        actions = MessageComposerInputActions()
+        actions = MessageComposerInputActions(),
+        inputFocusRequester = FocusRequester()
     )
 }
 

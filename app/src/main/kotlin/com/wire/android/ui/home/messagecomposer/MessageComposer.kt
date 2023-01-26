@@ -177,7 +177,9 @@ private fun MessageComposer(
 
                 LaunchedEffect(isKeyboardVisible) {
                     if (!isKeyboardVisible && !messageComposerState.messageComposeInputState.attachmentOptionsDisplayed) {
-                        messageComposerState.toInactive()
+                        if (!messageComposerState.messageComposeInputState.isEditMessage) {
+                            messageComposerState.toInactive()
+                        }
                         messageComposerState.focusManager.clearFocus()
                     }
                 }
@@ -220,6 +222,7 @@ private fun MessageComposer(
                         messageComposeInputState = messageComposerState.messageComposeInputState,
                         quotedMessageData = messageComposerState.quotedMessageData,
                         membersToMention = membersToMention,
+                        inputFocusRequester = messageComposerState.inputFocusRequester,
                         actions = remember(messageComposerState) {
                             MessageComposerInputActions(
                                 onMessageTextChanged = messageComposerState::setMessageTextValue,
@@ -241,7 +244,10 @@ private fun MessageComposer(
                                     messageComposerState.showAttachmentOptions()
                                 },
                                 onEditSaveButtonClicked = { /* TODO */ },
-                                onEditCancelButtonClicked = messageComposerState::toInactive
+                                onEditCancelButtonClicked = {
+                                    messageComposerState.focusManager.clearFocus()
+                                    messageComposerState.toInactive(clearInput = true)
+                                }
                             )
                         }
                     )

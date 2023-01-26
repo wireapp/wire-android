@@ -2,7 +2,6 @@
     "prod": {
         "developer_features_enabled": false,
         "logging_enabled": false,
-        "safe_logging": false,
         "private_build": false,
         "development_api_enabled": false,
         "mls_support_enabled": false,
@@ -10,12 +9,13 @@
         "firebaseAppId": "1:782078216207:android:d3db2443512d2055",
         "googleApiKey": "AIzaSyBXtNKuX6GCKv2jDtsFImUaxCRL21DTLEQ",
         "fcmProjectID": "w966768976",
-        "isStaging": false
+        "isStaging": false,
+        "debug_screen_enabled": false,
+        "report_bug_menu_item": false
     },
     "dev": {
         "developer_features_enabled": true,
         "logging_enabled": true,
-        "safe_logging": false,
         "private_build": true,
         "development_api_enabled": true,
         "mls_support_enabled": true,
@@ -23,12 +23,13 @@
         "firebaseAppId": "1:782078216207:android:d3db2443512d2055",
         "googleApiKey": "AIzaSyBXtNKuX6GCKv2jDtsFImUaxCRL21DTLEQ",
         "fcmProjectID": "w966768976",
-        "isStaging": false
+        "isStaging": false,
+        "debug_screen_enabled": true,
+        "report_bug_menu_item": true
     },
     "staging": {
         "developer_features_enabled": true,
         "logging_enabled": true,
-        "safe_logging": false,
         "private_build": true,
         "development_api_enabled": false,
         "mls_support_enabled": true,
@@ -36,12 +37,13 @@
         "firebaseAppId": "1:723990470614:android:10cf802bfcc7bb71d28e77",
         "googleApiKey": "AIzaSyAGCoJGUtDBLJJiQPLxHQRrdkbyI0wlbo8",
         "fcmProjectID": "wiregcmpushstaging",
-        "isStaging": true
+        "isStaging": true,
+        "debug_screen_enabled": true,
+        "report_bug_menu_item": true
     },
     "beta": {
         "developer_features_enabled": true,
         "logging_enabled": true,
-        "safe_logging": true,
         "private_build": true,
         "development_api_enabled": false,
         "mls_support_enabled": false,
@@ -49,12 +51,13 @@
         "firebaseAppId": "1:782078216207:android:d3db2443512d2055",
         "googleApiKey": "AIzaSyBXtNKuX6GCKv2jDtsFImUaxCRL21DTLEQ",
         "fcmProjectID": "w966768976",
-        "isStaging": false
+        "isStaging": false,
+        "debug_screen_enabled": true,
+        "report_bug_menu_item": true
     },
     "internal": {
         "developer_features_enabled": true,
         "logging_enabled": true,
-        "safe_logging": true,
         "private_build": true,
         "development_api_enabled": false,
         "mls_support_enabled": false,
@@ -62,7 +65,9 @@
         "firebaseAppId": "1:782078216207:android:d3db2443512d2055",
         "googleApiKey": "AIzaSyBXtNKuX6GCKv2jDtsFImUaxCRL21DTLEQ",
         "fcmProjectID": "w966768976",
-        "isStaging": false
+        "isStaging": false,
+        "debug_screen_enabled": true,
+        "report_bug_menu_item": true
     },
     "maxAccounts": 3,
     "supportEmail": "support@wire.com",

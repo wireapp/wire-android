@@ -50,7 +50,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.capitalize
 import androidx.compose.ui.unit.dp
 import com.wire.android.BuildConfig
 import com.wire.android.R
@@ -151,24 +150,24 @@ fun HomeDrawer(
                 context.startActivity(Intent.createChooser(intent, context.getString(R.string.send_feedback_choose_email)))
             })
 
-        DrawerItem(
-            data = DrawerItemData(R.string.report_bug_screen_title, R.drawable.ic_bug),
-            selected = false,
-            onItemClick = {
-                val dir = File(logFilePath).parentFile
-
-                if (dir != null) {
-                    val logsUris = context.getUrisOfFilesInDirectory(dir)
-                    val intent = context.multipleFileSharingIntent(logsUris)
-                    intent.putExtra(Intent.EXTRA_EMAIL, arrayOf("wire-newandroid@wearezeta.zendesk.com"))
-                    intent.putExtra(Intent.EXTRA_SUBJECT, "Bug Report - Wire Beta")
-                    intent.putExtra(Intent.EXTRA_TEXT, reportBugEmailTemplate(context.getDeviceId()?.sha256(), context.getGitBuildId()))
-                    intent.type = "message/rfc822"
-
-                    context.startActivity(Intent.createChooser(intent, context.getString(R.string.send_feedback_choose_email)))
+        if (BuildConfig.REPORT_BUG_MENU_ITEM_ENABLED) {
+            DrawerItem(
+                data = DrawerItemData(R.string.report_bug_screen_title, R.drawable.ic_bug),
+                selected = false,
+                onItemClick = {
+                    val dir = File(logFilePath).parentFile
+                    if (dir != null) {
+                        val logsUris = context.getUrisOfFilesInDirectory(dir)
+                        val intent = context.multipleFileSharingIntent(logsUris)
+                        intent.putExtra(Intent.EXTRA_EMAIL, arrayOf("wire-newandroid@wearezeta.zendesk.com"))
+                        intent.putExtra(Intent.EXTRA_SUBJECT, "Bug Report - Wire Beta")
+                        intent.putExtra(Intent.EXTRA_TEXT, reportBugEmailTemplate(context.getDeviceId()?.sha256(), context.getGitBuildId()))
+                        intent.type = "message/rfc822"
+                        context.startActivity(Intent.createChooser(intent, context.getString(R.string.send_feedback_choose_email)))
+                    }
                 }
-            }
-        )
+            )
+        }
 
         Text(
             text = stringResource(R.string.app_version, BuildConfig.VERSION_NAME),

@@ -50,6 +50,7 @@ import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusU
 import com.wire.kalium.logic.feature.team.DeleteTeamConversationUseCase
 import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
+import com.wire.kalium.logic.feature.user.IsMLSEnabledUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -480,6 +481,9 @@ internal class GroupConversationDetailsViewModelArrangement {
     lateinit var clearConversationContentUseCase: ClearConversationContentUseCase
 
     @MockK
+    lateinit var isMLSEnabledUseCase: IsMLSEnabledUseCase
+
+    @MockK
     private lateinit var qualifiedIdMapper: QualifiedIdMapper
 
     private val conversationDetailsChannel = Channel<ConversationDetails>(capacity = Channel.UNLIMITED)
@@ -500,7 +504,8 @@ internal class GroupConversationDetailsViewModelArrangement {
             savedStateHandle = savedStateHandle,
             qualifiedIdMapper = qualifiedIdMapper,
             updateConversationMutedStatus = updateConversationMutedStatus,
-            clearConversationContent = clearConversationContentUseCase
+            clearConversationContent = clearConversationContentUseCase,
+            isMLSEnabled = isMLSEnabledUseCase
         )
     }
 

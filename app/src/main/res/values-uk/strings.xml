@@ -18,9 +18,9 @@
   ~
   ~
   -->
-
 <resources>
     <string name="app_version">Версія програми: %s</string>
+    <string name="build_variant_name">Build variant: %s</string>
     <string name="app_name">Android Reloaded 2.0 FINAL</string>
     <string name="label_new">Новий</string>
     <string name="label_login">Логін</string>
@@ -482,6 +482,7 @@
     <string name="label_system_message_user_not_available">This user is no longer available</string>
     <string name="label_system_message_new_conversation_receipt_mode">Read receipts are %1$s</string>
     <string name="label_system_message_read_receipt_changed">%1$s turned read receipts %2$s for everyone</string>
+    <string name="label_system_message_conversation_history_lost">YOU HAVEN\'T USED THIS DEVICE FOR A WHILE. SOME MESSAGES MAY NOT APPEAR HERE.</string>
     <string name="label_system_message_receipt_mode_on">on</string>
     <string name="label_system_message_receipt_mode_off">off</string>
     <!-- Last messages -->
@@ -756,6 +757,7 @@
     <string name="label_logs_option_title">Logs</string>
     <string name="label_share_logs">Share Logs</string>
     <string name="label_delete_logs">Delete All Logs</string>
+    <string name="label_restart_slowsync_for_recovery">Restart SlowSync for Recovery</string>
     <string name="label_mls_option_title">MLS DATA</string>
     <string name="label_enable_logging">Enable Logging</string>
     <string name="label_debug_title">Debug</string>

@@ -19,7 +19,7 @@ class NotificationFetchWorker
 @AssistedInject constructor(
     @Assisted appContext: Context,
     @Assisted workerParams: WorkerParameters,
-    private val wireNotificationManager: WireNotificationManager,
+    private val wireNotificationManager: WireNotificationManager
 ) : CoroutineWorker(appContext, workerParams) {
     companion object {
         const val USER_ID_INPUT_DATA = "worker_user_id_input_data"

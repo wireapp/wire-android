@@ -4,7 +4,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
-import com.wire.android.media.AudioMediaPlayingState
+import com.wire.android.media.audiomessage.AudioMediaPlayingState
 import com.wire.android.model.Clickable
 import com.wire.android.ui.home.conversations.MessageItem
 import com.wire.android.ui.home.conversations.MessageText

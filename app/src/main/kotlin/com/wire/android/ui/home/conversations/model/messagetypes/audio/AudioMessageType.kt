@@ -29,7 +29,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
-import com.wire.android.media.AudioMediaPlayingState
+import com.wire.android.media.audiomessage.AudioMediaPlayingState
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
@@ -81,7 +81,7 @@ fun AudioMessage(
 }
 
 @Composable
-fun SuccessFullAudioMessage(
+private fun SuccessFullAudioMessage(
     audioMediaPlayingState: AudioMediaPlayingState,
     totalTimeInMs: Int,
     currentPositionInMs: Int, onPlayButtonClick: () -> Unit,

@@ -22,6 +22,7 @@ package com.wire.android.ui.home.settings.home
 
 import android.net.Uri
 import androidx.core.net.toUri
+import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.framework.FakeKaliumFileSystem
 import com.wire.android.navigation.NavigationManager
@@ -53,6 +54,7 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
 import io.mockk.mockkStatic
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.TestCoroutineScheduler
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import okio.IOException
@@ -60,14 +62,16 @@ import okio.Path.Companion.toPath
 import okio.buffer
 import org.amshove.kluent.internal.assertEquals
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 
 @OptIn(ExperimentalCoroutinesApi::class)
+@ExtendWith(CoroutineTestExtension::class)
 class BackupAndRestoreViewModelTest {
 
     private val dispatcher = TestDispatcherProvider()
 
     @Test
-    fun givenAnEmptyPassword_whenCreatingABackup_thenItCreatesItSuccessfully() = runTest(dispatcher.main()) {
+    fun givenAnEmptyPassword_whenCreatingABackup_thenItCreatesItSuccessfully() = runTest(dispatcher.default()) {
         // Given
         val emptyPassword = ""
         val (arrangement, backupAndRestoreViewModel) = Arrangement()
@@ -85,7 +89,7 @@ class BackupAndRestoreViewModelTest {
     }
 
     @Test
-    fun givenANonEmptyPassword_whenCreatingABackup_thenItCreatesItSuccessfully() = runTest(dispatcher.main()) {
+    fun givenANonEmptyPassword_whenCreatingABackup_thenItCreatesItSuccessfully() = runTest(dispatcher.default()) {
         // Given
         val password = "mayTh3ForceBeWIthYou"
         val (arrangement, backupAndRestoreViewModel) = Arrangement()
@@ -103,7 +107,7 @@ class BackupAndRestoreViewModelTest {
     }
 
     @Test
-    fun givenANonEmptyPassword_whenCreatingABackupWithAGivenError_thenItReturnsAFailure() = runTest(dispatcher.main()) {
+    fun givenANonEmptyPassword_whenCreatingABackupWithAGivenError_thenItReturnsAFailure() = runTest(dispatcher.default()) {
         // Given
         val password = "mayTh3ForceBeWIthYou"
         val (arrangement, backupAndRestoreViewModel) = Arrangement()
@@ -121,7 +125,7 @@ class BackupAndRestoreViewModelTest {
     }
 
     @Test
-    fun givenACreatedBackup_whenSavingIt_thenTheStateIsReset() = runTest(dispatcher.main()) {
+    fun givenACreatedBackup_whenSavingIt_thenTheStateIsReset() = runTest(dispatcher.default()) {
         // Given
         val storedBackup = BackupAndRestoreState.CreatedBackup("backupFilePath".toPath(), "backupName.zip", 100L, true)
         val (arrangement, backupAndRestoreViewModel) = Arrangement()
@@ -145,7 +149,7 @@ class BackupAndRestoreViewModelTest {
     }
 
     @Test
-    fun givenANonEncryptedBackup_whenChoosingIt_thenTheRestoreProgressUpdatesCorrectly() = runTest(dispatcher.main()) {
+    fun givenANonEncryptedBackup_whenChoosingIt_thenTheRestoreProgressUpdatesCorrectly() = runTest(dispatcher.default()) {
         // Given
         val backupUri = "some-backup".toUri()
         val isBackupEncrypted = false
@@ -162,12 +166,12 @@ class BackupAndRestoreViewModelTest {
         assert(backupAndRestoreViewModel.state.restoreFileValidation == RestoreFileValidation.ValidNonEncryptedBackup)
         assert(arrangement.fakeKaliumFileSystem.exists(backupAndRestoreViewModel.latestImportedBackupTempPath))
         coVerify(exactly = 1) {
-            arrangement.fileManager.copyToTempPath(backupUri, any())
+            arrangement.fileManager.copyToTempPath(backupUri, any(), any())
         }
     }
 
     @Test
-    fun givenAStoredEncryptedBackup_whenChoosingIt_thenTheRequirePasswordDialogIsShown() = runTest(dispatcher.main()) {
+    fun givenAStoredEncryptedBackup_whenChoosingIt_thenTheRequirePasswordDialogIsShown() = runTest(dispatcher.default()) {
         // Given
         val backupUri = "some-backup".toUri()
         val isBackupEncrypted = true
@@ -183,12 +187,12 @@ class BackupAndRestoreViewModelTest {
         assert(backupAndRestoreViewModel.state.restoreFileValidation == RestoreFileValidation.PasswordRequired)
         assert(arrangement.fakeKaliumFileSystem.exists(backupAndRestoreViewModel.latestImportedBackupTempPath))
         coVerify(exactly = 1) {
-            arrangement.fileManager.copyToTempPath(backupUri, any())
+            arrangement.fileManager.copyToTempPath(backupUri, any(), any())
         }
     }
 
     @Test
-    fun givenAStoredBackup_whenThereIsAnErrorVerifyingItsEncryption_thenTheRightErrorDialogIsShown() = runTest(dispatcher.main()) {
+    fun givenAStoredBackup_whenThereIsAnErrorVerifyingItsEncryption_thenTheRightErrorDialogIsShown() = runTest(dispatcher.default()) {
         // Given
         val backupUri = "some-backup".toUri()
         val (arrangement, backupAndRestoreViewModel) = Arrangement()
@@ -203,12 +207,12 @@ class BackupAndRestoreViewModelTest {
         assert(backupAndRestoreViewModel.state.restoreFileValidation == RestoreFileValidation.IncompatibleBackup)
         assert(arrangement.fakeKaliumFileSystem.exists(backupAndRestoreViewModel.latestImportedBackupTempPath))
         coVerify(exactly = 1) {
-            arrangement.fileManager.copyToTempPath(backupUri, any())
+            arrangement.fileManager.copyToTempPath(backupUri, any(), any())
         }
     }
 
     @Test
-    fun givenAStoredBackup_whenThereIsAnErrorImportingTheDB_thenTheRightErrorDialogIsShown() = runTest(dispatcher.main()) {
+    fun givenAStoredBackup_whenThereIsAnErrorImportingTheDB_thenTheRightErrorDialogIsShown() = runTest(dispatcher.default()) {
         // Given
         val backupUri = "some-backup".toUri()
         val (arrangement, backupAndRestoreViewModel) = Arrangement()
@@ -224,12 +228,12 @@ class BackupAndRestoreViewModelTest {
         assert(backupAndRestoreViewModel.state.backupRestoreProgress == BackupRestoreProgress.Failed)
         assert(arrangement.fakeKaliumFileSystem.exists(backupAndRestoreViewModel.latestImportedBackupTempPath))
         coVerify(exactly = 1) {
-            arrangement.fileManager.copyToTempPath(backupUri, any())
+            arrangement.fileManager.copyToTempPath(backupUri, any(), any())
         }
     }
 
     @Test
-    fun givenARestoreDialogShown_whenDismissingIt_thenTheTempImportedBackupPathIsDeleted() = runTest(dispatcher.main()) {
+    fun givenARestoreDialogShown_whenDismissingIt_thenTheTempImportedBackupPathIsDeleted() = runTest(dispatcher.default()) {
         // Given
         val mockUri = "some-backup"
         val (arrangement, backupAndRestoreViewModel) = Arrangement()
@@ -249,12 +253,12 @@ class BackupAndRestoreViewModelTest {
         assert(backupAndRestoreViewModel.state.restorePasswordValidation == PasswordValidation.NotVerified)
         assert(!arrangement.fakeKaliumFileSystem.exists(backupAndRestoreViewModel.latestImportedBackupTempPath))
         coVerify(exactly = 1) {
-            arrangement.fileManager.copyToTempPath(backupUri, any())
+            arrangement.fileManager.copyToTempPath(backupUri, any(), any())
         }
     }
 
     @Test
-    fun givenAPasswordEncryptedBackup_whenRestoringIt_thenTheCorrectSuccessDialogIsShown() = runTest(dispatcher.main()) {
+    fun givenAPasswordEncryptedBackup_whenRestoringIt_thenTheCorrectSuccessDialogIsShown() = runTest(dispatcher.default()) {
         // Given
         val password = "some-password"
         val (arrangement, backupAndRestoreViewModel) = Arrangement()
@@ -276,7 +280,7 @@ class BackupAndRestoreViewModelTest {
     }
 
     @Test
-    fun givenAPasswordEncryptedBackup_whenRestoringWithWrongPassword_thenTheCorrectErrorDialogIsShown() = runTest(dispatcher.main()) {
+    fun givenAPasswordEncryptedBackup_whenRestoringWithWrongPassword_thenTheCorrectErrorDialogIsShown() = runTest(dispatcher.default()) {
         // Given
         val password = "some-password"
         val (arrangement, backupAndRestoreViewModel) = Arrangement()
@@ -298,29 +302,30 @@ class BackupAndRestoreViewModelTest {
     }
 
     @Test
-    fun givenAPasswordEncryptedBackup_whenRestoringAnInvalidUserIdBackup_thenTheCorrectErrorDialogIsShown() = runTest(dispatcher.main()) {
-        // Given
-        val password = "some-password"
-        val (arrangement, backupAndRestoreViewModel) = Arrangement()
-            .withFailedDBImport(Failure(InvalidUserId))
-            .withRequestedPasswordDialog()
-            .arrange()
+    fun givenAPasswordEncryptedBackup_whenRestoringAnInvalidUserIdBackup_thenTheCorrectErrorDialogIsShown() =
+        runTest(dispatcher.default()) {
+            // Given
+            val password = "some-password"
+            val (arrangement, backupAndRestoreViewModel) = Arrangement()
+                .withFailedDBImport(Failure(InvalidUserId))
+                .withRequestedPasswordDialog()
+                .arrange()
 
-        // When
-        backupAndRestoreViewModel.restorePasswordProtectedBackup(password)
-        advanceUntilIdle()
+            // When
+            backupAndRestoreViewModel.restorePasswordProtectedBackup(password)
+            advanceUntilIdle()
 
-        // Then
-        assert(backupAndRestoreViewModel.state.backupRestoreProgress == BackupRestoreProgress.Failed)
-        assert(backupAndRestoreViewModel.state.restoreFileValidation == RestoreFileValidation.WrongBackup)
-        assert(backupAndRestoreViewModel.state.restorePasswordValidation == PasswordValidation.Valid)
-        coVerify(exactly = 1) {
-            arrangement.importBackup(any(), password)
+            // Then
+            assert(backupAndRestoreViewModel.state.backupRestoreProgress == BackupRestoreProgress.Failed)
+            assert(backupAndRestoreViewModel.state.restoreFileValidation == RestoreFileValidation.WrongBackup)
+            assert(backupAndRestoreViewModel.state.restorePasswordValidation == PasswordValidation.Valid)
+            coVerify(exactly = 1) {
+                arrangement.importBackup(any(), password)
+            }
         }
-    }
 
     @Test
-    fun givenAPasswordEncryptedBackup_whenRestoringAnIncompatibleBackup_thenTheCorrectErrorDialogIsShown() = runTest(dispatcher.main()) {
+    fun givenAPasswordEncryptedBackup_whenRestoringAnIncompatibleBackup_thenTheCorrectErrorDialogIsShown() = runTest(dispatcher.default()) {
         // Given
         val password = "some-password"
         val (arrangement, backupAndRestoreViewModel) = Arrangement()
@@ -342,7 +347,7 @@ class BackupAndRestoreViewModelTest {
     }
 
     @Test
-    fun givenAPasswordEncryptedBackup_whenRestoringABackupWithAnIOError_thenTheCorrectErrorDialogIsShown() = runTest(dispatcher.main()) {
+    fun givenAPasswordEncryptedBackup_whenRestoringABackupWithAnIOError_thenTheCorrectErrorDialogIsShown() = runTest(dispatcher.default()) {
         // Given
         val password = "some-password"
         val (arrangement, backupAndRestoreViewModel) = Arrangement()
@@ -427,7 +432,7 @@ class BackupAndRestoreViewModelTest {
         }
 
         fun withSuccessfulDBImport(isEncrypted: Boolean) = apply {
-            coEvery { fileManager.copyToTempPath(any(), any()) } returns (100L).also {
+            coEvery { fileManager.copyToTempPath(any(), any(), any()) } returns (100L).also {
                 viewModel.latestImportedBackupTempPath =
                     fakeKaliumFileSystem.tempFilePath(BackupAndRestoreViewModel.TEMP_IMPORTED_BACKUP_FILE_NAME)
                 fakeKaliumFileSystem.sink(viewModel.latestImportedBackupTempPath).buffer().use {
@@ -441,7 +446,7 @@ class BackupAndRestoreViewModelTest {
         }
 
         fun withFailedBackupVerification() = apply {
-            coEvery { fileManager.copyToTempPath(any(), any()) } returns (100L).also {
+            coEvery { fileManager.copyToTempPath(any(), any(), any()) } returns (100L).also {
                 viewModel.latestImportedBackupTempPath =
                     fakeKaliumFileSystem.tempFilePath(BackupAndRestoreViewModel.TEMP_IMPORTED_BACKUP_FILE_NAME)
                 fakeKaliumFileSystem.sink(viewModel.latestImportedBackupTempPath).buffer().use {
@@ -452,12 +457,8 @@ class BackupAndRestoreViewModelTest {
             coEvery { verifyBackup(any()) } returns VerifyBackupResult.Failure.InvalidBackupFile
         }
 
-        fun withFailedDBImport(
-            error: Failure = Failure(
-                RestoreBackupResult.BackupRestoreFailure.IncompatibleBackup("DB failed to import")
-            )
-        ) = apply {
-            coEvery { fileManager.copyToTempPath(any(), any()) } returns (100L).also {
+        fun withFailedDBImport(error: Failure = Failure(IncompatibleBackup("DB failed to import"))) = apply {
+            coEvery { fileManager.copyToTempPath(any(), any(), any()) } returns (100L).also {
                 viewModel.latestImportedBackupTempPath =
                     fakeKaliumFileSystem.tempFilePath(BackupAndRestoreViewModel.TEMP_IMPORTED_BACKUP_FILE_NAME)
                 fakeKaliumFileSystem.sink(viewModel.latestImportedBackupTempPath).buffer().use {

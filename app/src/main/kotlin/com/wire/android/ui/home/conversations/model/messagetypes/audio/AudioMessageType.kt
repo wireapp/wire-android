@@ -39,6 +39,7 @@ import com.wire.android.ui.common.button.WireSecondaryIconButton
 import com.wire.android.ui.common.clickable
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.common.spacers.HorizontalSpace
 import com.wire.android.ui.theme.wireColorScheme
 
@@ -123,7 +124,10 @@ private fun SuccessFullAudioMessage(
         )
 
         if (isFetching) {
-            CircularProgressIndicator()
+            WireCircularProgressIndicator(
+                progressColor = MaterialTheme.wireColorScheme.primary,
+                size = dimensions().spacing32x
+            )
         } else {
             Text(
                 text = audioDuration.formattedTimeLeft,
@@ -206,13 +210,3 @@ private data class AudioDuration(val totalDurationInMs: Int, val currentPosition
             "$minutes:$formattedSeconds"
         }
 }
-
-//@Composable
-//private fun PreviewAudioMessage() {
-//    AudioMessage(
-//        audioMessageDuration = AudioMessageDuration(10000, 0),
-//        audioMediaPlayingState = AudioMediaPlayingState.Playing,
-//        onPlayAudioMessage = {}
-//    ) {}
-//}
-

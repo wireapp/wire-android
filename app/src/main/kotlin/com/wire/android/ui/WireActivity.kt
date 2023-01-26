@@ -1,3 +1,23 @@
+/*
+ * Wire
+ * Copyright (C) 2023 Wire Swiss GmbH
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see http://www.gnu.org/licenses/.
+ *
+ *
+ */
+
 package com.wire.android.ui
 
 import android.annotation.SuppressLint
@@ -103,20 +123,25 @@ class WireActivity : AppCompatActivity() {
                     }
                     setUpNavigation(navController, scope)
 
-                    handleCustomBackendDialog(viewModel.globalAppState.customBackendDialog.shouldShowDialog)
-                    maxAccountDialog(
-                        viewModel::openProfile,
-                        viewModel::dismissMaxAccountDialog,
-                        viewModel.globalAppState.maxAccountDialog
-                    )
-                    updateAppDialog(
-                        { updateTheApp() },
-                        viewModel.globalAppState.updateAppDialog
-                    )
-                    AccountLongedOutDialog(viewModel.globalAppState.blockUserUI, viewModel::navigateToNextAccountOrWelcome)
+                    handleDialogs()
                 }
             }
         }
+    }
+
+    @Composable
+    private fun handleDialogs() {
+        handleCustomBackendDialog(viewModel.globalAppState.customBackendDialog.shouldShowDialog)
+        maxAccountDialog(
+            viewModel::openProfile,
+            viewModel::dismissMaxAccountDialog,
+            viewModel.globalAppState.maxAccountDialog
+        )
+        updateAppDialog(
+            { updateTheApp() },
+            viewModel.globalAppState.updateAppDialog
+        )
+        AccountLoggedOutDialog(viewModel.globalAppState.blockUserUI, viewModel::navigateToNextAccountOrWelcome)
     }
 
     @Composable
@@ -159,7 +184,7 @@ class WireActivity : AppCompatActivity() {
     }
 
     @Composable
-    fun AccountLongedOutDialog(reason: CurrentSessionErrorState?, navigateAway: () -> Unit) {
+    fun AccountLoggedOutDialog(reason: CurrentSessionErrorState?, navigateAway: () -> Unit) {
         appLogger.e("AccountLongedOutDialog: $reason")
         reason?.let {
             val (@StringRes title: Int, @StringRes text: Int) = when (reason) {
@@ -230,5 +255,3 @@ class WireActivity : AppCompatActivity() {
         proximitySensorManager.unRegisterListener()
     }
 }
-
-

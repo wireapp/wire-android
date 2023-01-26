@@ -69,7 +69,7 @@ fun SetBackupPasswordDialog(
         ),
         optionButton1Properties = WireDialogButtonProperties(
             onClick = { onCreateBackup(backupPassword.text) },
-            text = stringResource(id = R.string.label_ok),
+            text = stringResource(id = R.string.backup_dialog_create_backup_now),
             type = WireDialogButtonType.Primary,
             state = if (!isBackupPasswordValid) WireButtonState.Disabled else WireButtonState.Default
         )

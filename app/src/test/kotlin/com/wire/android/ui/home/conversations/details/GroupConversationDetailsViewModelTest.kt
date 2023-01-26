@@ -519,6 +519,7 @@ internal class GroupConversationDetailsViewModelArrangement {
         coEvery { observerSelfUser() } returns flowOf(TestUser.SELF_USER)
         coEvery { observeParticipantsForConversationUseCase(any(), any()) } returns flowOf()
         coEvery { getSelfTeamUseCase() } returns flowOf(null)
+        coEvery { isMLSEnabledUseCase() } returns true
         coEvery {
             qualifiedIdMapper.fromStringToQualifiedID("some-dummy-value@some.dummy.domain")
         } returns QualifiedID("some-dummy-value", "some.dummy.domain")

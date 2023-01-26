@@ -19,7 +19,7 @@ class ConversationAudioMessagePlayerTest {
     @Test
     fun `given play is called, when audio message is playing, then stop playing`() = runTest {
         conversationAudioMessagePlayerTest.observableAudioMessagesState.test {
-
+            val test = awaitItem()
         }
     }
 

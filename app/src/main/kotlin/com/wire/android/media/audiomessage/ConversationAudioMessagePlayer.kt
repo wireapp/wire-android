@@ -60,6 +60,9 @@ class ConversationAudioMessagePlayer
 
     private var audioMessageStateHistory: Map<String, AudioState> = emptyMap()
 
+    // Flow collecting the audio message state updates as well as the audio message position
+    // updates, the collected values are then put into the map holding the state for each individual audio message.
+    // The audio message position can be either updated by the user manually by for example a Slider component or by the player itself.
     val observableAudioMessagesState: Flow<Map<String, AudioState>> =
         merge(positionChangedUpdate, audioMessageStateUpdate).map { audioMessageStateUpdate ->
             val currentState = audioMessageStateHistory.getOrDefault(

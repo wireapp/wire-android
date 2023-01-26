@@ -11,7 +11,8 @@ import com.wire.kalium.logic.data.user.User
 import com.wire.kalium.logic.data.user.UserId
 import javax.inject.Inject
 
-class SystemMessageContentMapper @Inject constructor(
+class SystemMessageContentMapper
+@Inject constructor(
     private val messageResourceProvider: MessageResourceProvider
 ) {
 
@@ -26,7 +27,7 @@ class SystemMessageContentMapper @Inject constructor(
         is MessageContent.CryptoSessionReset -> mapResetSession(message.senderUserId, members)
     }
 
-    private fun mapResetSession(
+     fun mapResetSession(
         senderUserId: UserId,
         userList: List<User>
     ): UIMessageContent.SystemMessage {
@@ -35,7 +36,7 @@ class SystemMessageContentMapper @Inject constructor(
         return UIMessageContent.SystemMessage.CryptoSessionReset(authorName)
     }
 
-    private fun mapMissedCallMessage(
+     fun mapMissedCallMessage(
         senderUserId: UserId,
         userList: List<User>
     ): UIMessageContent.SystemMessage {
@@ -51,11 +52,11 @@ class SystemMessageContentMapper @Inject constructor(
         }
     }
 
-    private fun mapTeamMemberRemovedMessage(
+     fun mapTeamMemberRemovedMessage(
         content: MessageContent.TeamMemberRemoved,
     ): UIMessageContent.SystemMessage = UIMessageContent.SystemMessage.TeamMemberRemoved(content)
 
-    private fun mapConversationRenamedMessage(
+     fun mapConversationRenamedMessage(
         senderUserId: UserId,
         content: MessageContent.ConversationRenamed,
         userList: List<User>
@@ -68,7 +69,7 @@ class SystemMessageContentMapper @Inject constructor(
         return UIMessageContent.SystemMessage.RenamedConversation(authorName, content)
     }
 
-    private fun mapMemberChangeMessage(
+     fun mapMemberChangeMessage(
         content: MessageContent.MemberChange,
         senderUserId: UserId,
         userList: List<User>
@@ -99,7 +100,7 @@ class SystemMessageContentMapper @Inject constructor(
         }
     }
 
-    private fun toSystemMessageMemberName(
+     fun toSystemMessageMemberName(
         user: User?,
         type: MessageContentMapper.SelfNameType = MessageContentMapper.SelfNameType.NameOrDeleted
     ): UIText = when (user) {

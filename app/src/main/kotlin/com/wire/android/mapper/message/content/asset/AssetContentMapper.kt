@@ -57,7 +57,7 @@ class AssetContentMapper @Inject constructor(
         }
     }
 
-    private fun mapAudio(
+     fun mapAudio(
         assetContent: AssetContent,
         metadata: AssetContent.AssetMetadata.Audio,
     ): UIMessageContent {
@@ -73,7 +73,7 @@ class AssetContentMapper @Inject constructor(
         }
     }
 
-    private fun mapImage(
+    fun mapImage(
         message: Message,
         assetContent: AssetContent,
         sender: User?

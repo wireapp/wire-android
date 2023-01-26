@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
@@ -33,6 +34,7 @@ import com.wire.android.model.Clickable
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
+import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WireSecondaryIconButton
 import com.wire.android.ui.common.clickable
 import com.wire.android.ui.common.colorsScheme
@@ -63,7 +65,7 @@ fun AudioMessage(
             )
             .padding(dimensions().spacing8x)
     ) {
-        if (true) {
+        if (audioMediaPlayingState is AudioMediaPlayingState.Failed) {
             FailedAudioMessage()
         } else {
             SuccessFullAudioMessage(
@@ -92,6 +94,8 @@ fun SuccessFullAudioMessage(
         )
     }
 
+    val isFetching = audioMediaPlayingState is AudioMediaPlayingState.Fetching
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -104,6 +108,7 @@ fun SuccessFullAudioMessage(
             iconResource = getPlayOrPauseIcon(audioMediaPlayingState),
             shape = CircleShape,
             contentDescription = R.string.content_description_image_message,
+            state = if (isFetching) WireButtonState.Disabled else WireButtonState.Default,
             onButtonClicked = onPlayButtonClick
         )
 
@@ -117,11 +122,15 @@ fun SuccessFullAudioMessage(
             modifier = Modifier.weight(1f)
         )
 
-        Text(
-            text = audioDuration.formattedTimeLeft,
-            style = MaterialTheme.typography.labelSmall.copy(color = MaterialTheme.wireColorScheme.secondaryText),
-            maxLines = 1
-        )
+        if (isFetching) {
+            CircularProgressIndicator()
+        } else {
+            Text(
+                text = audioDuration.formattedTimeLeft,
+                style = MaterialTheme.typography.labelSmall.copy(color = MaterialTheme.wireColorScheme.secondaryText),
+                maxLines = 1
+            )
+        }
     }
 }
 

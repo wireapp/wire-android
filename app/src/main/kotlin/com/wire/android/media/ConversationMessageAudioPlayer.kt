@@ -9,6 +9,7 @@ import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
 import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -17,6 +18,7 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class ConversationMessageAudioPlayer
@@ -164,42 +166,58 @@ class ConversationMessageAudioPlayer
     ) {
         currentAudioMessageId = messageId
 
-        when (val result = getMessageAsset(conversationId, messageId).await()) {
-            is MessageAssetResult.Success -> {
-                mediaPlayer.setDataSource(
-                    context,
-                    Uri.parse(result.decodedAssetPath.toString())
-                )
-                mediaPlayer.prepare()
+        coroutineScope {
+            launch {
+                val currentlyFetchingMessageId = currentAudioMessageId
 
-                if (position != null) {
-                    mediaPlayer.seekTo(position)
+                audioMessageStateUpdate.emit(
+                    AudioMediaPlayerStateUpdate.AudioMediaPlayingStateUpdate(
+                        messageId,
+                        AudioMediaPlayingState.Fetching
+                    )
+                )
+
+                when (val result = getMessageAsset(conversationId, messageId).await()) {
+                    is MessageAssetResult.Success -> {
+                        if (currentlyFetchingMessageId == currentAudioMessageId) {
+                            mediaPlayer.setDataSource(
+                                context,
+                                Uri.parse(result.decodedAssetPath.toString())
+                            )
+                            mediaPlayer.prepare()
+
+                            if (position != null) {
+                                mediaPlayer.seekTo(position)
+                            }
+
+                            mediaPlayer.start()
+
+                            audioMessageStateUpdate.emit(
+                                AudioMediaPlayerStateUpdate.AudioMediaPlayingStateUpdate(
+                                    messageId,
+                                    AudioMediaPlayingState.Playing
+                                )
+                            )
+                        }
+
+                        audioMessageStateUpdate.emit(
+                            AudioMediaPlayerStateUpdate.TotalTimeUpdate(
+                                messageId,
+                                mediaPlayer.duration
+                            )
+                        )
+
+                    }
+
+                    is MessageAssetResult.Failure -> {
+                        audioMessageStateUpdate.emit(
+                            AudioMediaPlayerStateUpdate.AudioMediaPlayingStateUpdate(
+                                messageId,
+                                AudioMediaPlayingState.Failed
+                            )
+                        )
+                    }
                 }
-
-                mediaPlayer.start()
-
-                audioMessageStateUpdate.emit(
-                    AudioMediaPlayerStateUpdate.TotalTimeUpdate(
-                        messageId,
-                        mediaPlayer.duration
-                    )
-                )
-
-                audioMessageStateUpdate.emit(
-                    AudioMediaPlayerStateUpdate.AudioMediaPlayingStateUpdate(
-                        messageId,
-                        AudioMediaPlayingState.Playing
-                    )
-                )
-            }
-
-            is MessageAssetResult.Failure -> {
-                audioMessageStateUpdate.emit(
-                    AudioMediaPlayerStateUpdate.AudioMediaPlayingStateUpdate(
-                        messageId,
-                        AudioMediaPlayingState.Failed
-                    )
-                )
             }
         }
     }
@@ -266,6 +284,8 @@ sealed class AudioMediaPlayingState {
     object Completed : AudioMediaPlayingState()
 
     object Paused : AudioMediaPlayingState()
+
+    object Fetching : AudioMediaPlayingState()
 
     object Failed : AudioMediaPlayingState()
 }

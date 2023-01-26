@@ -301,7 +301,6 @@ class UseCaseModule {
     fun provideDeleteAssetUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId): DeleteAssetUseCase =
         coreLogic.getSessionScope(currentAccount).users.deleteAsset
 
-
     @ViewModelScoped
     @Provides
     fun provideUploadUserAvatarUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =

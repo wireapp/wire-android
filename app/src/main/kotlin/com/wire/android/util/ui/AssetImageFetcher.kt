@@ -19,7 +19,7 @@ internal class AssetImageFetcher(
     private val drawableResultWrapper: DrawableResultWrapper
 ) : Fetcher {
 
-     companion object {
+    companion object {
         const val OPTION_PARAMETER_RETRY_KEY = "retry_attempt"
         private const val RETRY_ATTEMPT_TO_DELETE_ASSET = 1
         private const val DEFAULT_RETRY_ATTEMPT = 0
@@ -73,11 +73,9 @@ internal class AssetImageFetcher(
             drawableResultWrapper = drawableResultWrapper
         )
     }
-
 }
 
 data class AssetFetcherParameters(
     val data: ImageAsset,
     val options: Options
 )
-

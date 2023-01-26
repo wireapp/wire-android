@@ -26,8 +26,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material3.Divider
@@ -49,6 +49,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.ui.authentication.devices.DeviceItem
@@ -67,9 +68,10 @@ import com.wire.android.ui.common.textfield.WirePasswordTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.common.textfield.clearAutofillTree
 import com.wire.android.ui.common.visbility.rememberVisibilityState
-import com.wire.android.ui.settings.devices.folderDeviceItems
+import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.util.dialogErrorStrings
+import com.wire.android.util.extension.folderWithElements
 import com.wire.android.util.formatMediumDateTime
 
 @Composable
@@ -82,6 +84,8 @@ fun RemoveDeviceScreen() {
     clearAutofillTree()
     RemoveDeviceContent(
         state = state,
+        title = stringResource(id = R.string.remove_device_title),
+        description = stringResource(id = R.string.remove_device_message),
         clearSessionState = clearSessionState,
         onItemClicked = viewModel::onItemClicked,
         onPasswordChange = viewModel::onPasswordChange,
@@ -96,7 +100,9 @@ fun RemoveDeviceScreen() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun RemoveDeviceContent(
+fun RemoveDeviceContent(
+    title: String,
+    description: String?,
     state: RemoveDeviceState,
     clearSessionState: ClearSessionState,
     onItemClicked: (Device) -> Unit,
@@ -132,13 +138,15 @@ private fun RemoveDeviceContent(
     val lazyListState = rememberLazyListState()
     Scaffold(topBar = {
         RemoveDeviceTopBar(
+            title = title,
+            description = description,
             elevation = lazyListState.rememberTopBarElevationState().value,
             onBackButtonClicked = onBackButtonClicked
         )
     }) { internalPadding ->
         Box(modifier = Modifier.padding(internalPadding)) {
             when (state.isLoadingClientsList) {
-                true -> RemoveDeviceItemsList(lazyListState, List(10) { Device() }, true, onItemClicked, state.currentDevice)
+                true -> RemoveDeviceItemsList(lazyListState, List(5) { Device() }, true, onItemClicked, state.currentDevice)
                 false -> RemoveDeviceItemsList(lazyListState, state.deviceList, false, onItemClicked, state.currentDevice)
             }
         }
@@ -183,20 +191,20 @@ private fun RemoveDeviceItemsList(
             state = lazyListState,
             modifier = Modifier.fillMaxWidth()
         ) {
-            itemsIndexed(items) { index, device ->
-                if (currentDevice == device) {
-                    this@LazyColumn.folderDeviceItems(
-                        context.getString(R.string.current_device_label),
-                        listOf(device)
-                    )
-                }
-                DeviceItem(
-                    device = device,
-                    placeholder = placeholders,
-                    onRemoveDeviceClick = onItemClicked
+            currentDevice?.let { currentDevice ->
+                folderDeviceItems(
+                    context.getString(R.string.current_device_label),
+                    listOf(currentDevice),
+                    placeholders,
+                    null
                 )
-                if (index < items.lastIndex) Divider()
             }
+            folderDeviceItems(
+                context.getString(R.string.other_devices_label),
+                items,
+                placeholders,
+                onItemClicked
+            )
         }
     }
 }
@@ -268,6 +276,31 @@ private fun RemoveDeviceDialog(
     )
 }
 
+internal fun LazyListScope.folderDeviceItems(
+    header: String,
+    items: List<Device>,
+    placeholders: Boolean,
+    onItemClicked: ((Device) -> Unit)? = null
+) {
+    folderWithElements(
+        header = header.uppercase(),
+        items = items.associateBy { it.clientId.value },
+        divider = {
+            Divider(
+                color = MaterialTheme.wireColorScheme.background,
+                thickness = Dp.Hairline
+            )
+        }
+    ) { item ->
+        DeviceItem(
+            item,
+            background = MaterialTheme.wireColorScheme.surface,
+            placeholder = placeholders,
+            onRemoveDeviceClick = onItemClicked
+        )
+    }
+}
+
 @Preview
 @Composable
 fun PreviewRemoveDeviceScreen() {
@@ -279,6 +312,8 @@ fun PreviewRemoveDeviceScreen() {
             error = RemoveDeviceError.None,
             null
         ),
+        title = "Remove device",
+        description = "Remove a device from your account.",
         clearSessionState = ClearSessionState(),
         onItemClicked = {},
         onPasswordChange = {},

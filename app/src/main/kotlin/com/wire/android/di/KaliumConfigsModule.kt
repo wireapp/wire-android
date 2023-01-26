@@ -42,7 +42,6 @@ class KaliumConfigsModule {
             forceConstantBitrateCalls = BuildConfig.FORCE_CONSTANT_BITRATE_CALLS,
             domain = BuildConfig.DOMAIN,
             developerFeaturesEnabled = BuildConfig.DEVELOPER_FEATURES_ENABLED,
-            isSafeLoggingEnabled = BuildConfig.SAFE_LOGGING,
             enableBlacklist = BuildConfig.ENABLE_BLACK_LIST,
             certificate = BuildConfig.CERTIFICATE,
             maxAccount = BuildConfig.MAX_ACCOUNTS,

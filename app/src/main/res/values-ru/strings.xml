@@ -21,7 +21,6 @@
 
 <resources>
     <string name="app_version">Версия приложения: %s</string>
-    <string name="app_name">Wire Beta</string>
     <string name="label_new">Новое</string>
     <string name="label_login">Вход</string>
     <string name="label_ok">OK</string>

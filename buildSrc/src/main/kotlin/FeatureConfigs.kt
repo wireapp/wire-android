@@ -79,7 +79,6 @@ enum class FlavourConfigs(val value: String, val configType: ConfigType) {
     DEVELOPER_FEATURES_ENABLED("developer_features_enabled", ConfigType.BOOLEAN),
     LAUNCHER_ICON("launcherIcon", ConfigType.STRING),
     LOGGING_ENABLED("logging_enabled", ConfigType.BOOLEAN),
-    SAFE_LOGGING("safe_logging", ConfigType.BOOLEAN),
     PRIVATE_BUILD("private_build", ConfigType.BOOLEAN),
     DEVELOPMENT_API_ENABLED("development_api_enabled", ConfigType.BOOLEAN),
     FIREBASE_APP_ID("firebaseAppId", ConfigType.STRING),

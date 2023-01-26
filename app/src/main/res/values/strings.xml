@@ -21,7 +21,6 @@
 
 <resources>
     <string name="app_version">App version: %s</string>
-    <string name="app_name">Wire Beta</string>
     <string name="build_variant_name">Build variant: %s</string>
     <string name="label_new">New</string>
     <string name="label_login">Login</string>

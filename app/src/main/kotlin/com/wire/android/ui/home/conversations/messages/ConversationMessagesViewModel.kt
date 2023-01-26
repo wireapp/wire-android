@@ -1,6 +1,5 @@
 package com.wire.android.ui.home.conversations.messages
 
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -9,7 +8,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.cachedIn
 import com.wire.android.R
 import com.wire.android.appLogger
-import com.wire.android.media.ConversationMessageAudioPlayer
+import com.wire.android.media.audiomessage.ConversationMessageAudioPlayer
 import com.wire.android.model.SnackBarMessage
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.NavigationCommand

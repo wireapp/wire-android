@@ -1,10 +1,9 @@
-package com.wire.android.media
+package com.wire.android.media.audiomessage
 
 import android.content.Context
 import android.media.AudioAttributes
 import android.media.MediaPlayer
 import android.net.Uri
-import android.util.Log
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
@@ -132,7 +131,10 @@ class ConversationMessageAudioPlayer
             toggleAudioMessage(requestedAudioMessageId)
         } else {
             if (currentAudioMessageId != null) {
-                stop(currentAudioMessageId!!)
+                val currentAudioState = audioMessageStateHistory[currentAudioMessageId]
+                if (currentAudioState?.audioMediaPlayingState != AudioMediaPlayingState.Fetching) {
+                    stop(currentAudioMessageId!!)
+                }
             }
 
             val previouslySavedPositionOrNull = audioMessageStateHistory[requestedAudioMessageId]?.run {
@@ -168,8 +170,6 @@ class ConversationMessageAudioPlayer
 
         coroutineScope {
             launch {
-                val currentlyFetchingMessageId = currentAudioMessageId
-
                 audioMessageStateUpdate.emit(
                     AudioMediaPlayerStateUpdate.AudioMediaPlayingStateUpdate(
                         messageId,
@@ -179,7 +179,16 @@ class ConversationMessageAudioPlayer
 
                 when (val result = getMessageAsset(conversationId, messageId).await()) {
                     is MessageAssetResult.Success -> {
-                        if (currentlyFetchingMessageId == currentAudioMessageId) {
+                        audioMessageStateUpdate.emit(
+                            AudioMediaPlayerStateUpdate.AudioMediaPlayingStateUpdate(
+                                messageId,
+                                AudioMediaPlayingState.SuccessFullFetching
+                            )
+                        )
+
+                        val isFetchedAudioCurrentlyQueuedToPlay = messageId == currentAudioMessageId
+
+                        if (isFetchedAudioCurrentlyQueuedToPlay) {
                             mediaPlayer.setDataSource(
                                 context,
                                 Uri.parse(result.decodedAssetPath.toString())
@@ -198,14 +207,14 @@ class ConversationMessageAudioPlayer
                                     AudioMediaPlayingState.Playing
                                 )
                             )
-                        }
 
-                        audioMessageStateUpdate.emit(
-                            AudioMediaPlayerStateUpdate.TotalTimeUpdate(
-                                messageId,
-                                mediaPlayer.duration
+                            audioMessageStateUpdate.emit(
+                                AudioMediaPlayerStateUpdate.TotalTimeUpdate(
+                                    messageId,
+                                    mediaPlayer.duration
+                                )
                             )
-                        )
+                        }
 
                     }
 
@@ -263,49 +272,5 @@ class ConversationMessageAudioPlayer
     fun close() {
         mediaPlayer.release()
     }
-
-}
-
-data class AudioState(
-    val audioMediaPlayingState: AudioMediaPlayingState,
-    val currentPositionInMs: Int,
-    val totalTimeInMs: Int
-) {
-    companion object {
-        val DEFAULT = AudioState(AudioMediaPlayingState.Paused, 0, 0)
-    }
-
-}
-
-sealed class AudioMediaPlayingState {
-    object Playing : AudioMediaPlayingState()
-    object Stopped : AudioMediaPlayingState()
-
-    object Completed : AudioMediaPlayingState()
-
-    object Paused : AudioMediaPlayingState()
-
-    object Fetching : AudioMediaPlayingState()
-
-    object Failed : AudioMediaPlayingState()
-}
-
-private sealed class AudioMediaPlayerStateUpdate(
-    open val messageId: String
-) {
-    data class AudioMediaPlayingStateUpdate(
-        override val messageId: String,
-        val audioMediaPlayingState: AudioMediaPlayingState
-    ) : AudioMediaPlayerStateUpdate(messageId)
-
-    data class PositionChangeUpdate(
-        override val messageId: String,
-        val position: Int
-    ) : AudioMediaPlayerStateUpdate(messageId)
-
-    data class TotalTimeUpdate(
-        override val messageId: String,
-        val totalTimeInMs: Int
-    ) : AudioMediaPlayerStateUpdate(messageId)
 
 }

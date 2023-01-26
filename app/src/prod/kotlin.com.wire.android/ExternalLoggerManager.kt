@@ -1,3 +1,4 @@
 package com.wire.android
-
-fun initDatadogLogger(context: Context) {}
+@Suppress("EmptyFunctionBlock")
+fun initDatadogLogger(context: Context) {
+}

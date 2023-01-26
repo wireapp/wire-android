@@ -43,7 +43,7 @@ enum class SettingsItem(val id: String, val title: UIText, val navigationItem: N
     ManageDevices(
         id = "manage_devices",
         title = UIText.StringResource(R.string.settings_manage_devices_label),
-        navigationItem = NavigationItem.SelfDevices
+        navigationItem = NavigationItem.RemoveDevices
     ),
     PrivacySettings(
         id = "privacy_settings",

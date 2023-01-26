@@ -110,7 +110,7 @@ fun SelfDevicesScreenContent(
     )
 }
 
-private fun LazyListScope.folderDeviceItems(
+internal fun LazyListScope.folderDeviceItems(
     header: String,
     items: List<Device>,
 ) {

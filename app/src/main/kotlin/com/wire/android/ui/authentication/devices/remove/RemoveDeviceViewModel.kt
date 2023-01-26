@@ -44,23 +44,29 @@ import com.wire.kalium.logic.feature.client.SelfClientsResult
 import com.wire.kalium.logic.feature.client.SelfClientsUseCase
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 @HiltViewModel
 class RemoveDeviceViewModel @Inject constructor(
     private val navigationManager: NavigationManager,
-    private val selfClientsUseCase: SelfClientsUseCase,
-    private val deleteClientUseCase: DeleteClientUseCase,
-    private val registerClientUseCase: GetOrRegisterClientUseCase,
+    private val selfClients: SelfClientsUseCase,
+    private val deleteClient: DeleteClientUseCase,
+    private val registerClient: GetOrRegisterClientUseCase,
     private val isPasswordRequired: IsPasswordRequiredUseCase,
     private val userDataStore: UserDataStore
 ) : ViewModel() {
 
     var state: RemoveDeviceState by mutableStateOf(
-        RemoveDeviceState(deviceList = listOf(), removeDeviceDialogState = RemoveDeviceDialogState.Hidden, isLoadingClientsList = true)
+        RemoveDeviceState(
+            deviceList = listOf(),
+            removeDeviceDialogState = RemoveDeviceDialogState.Hidden,
+            isLoadingClientsList = true,
+            error = RemoveDeviceError.None,
+            currentDevice = null
+        )
     )
         private set
 
@@ -71,13 +77,16 @@ class RemoveDeviceViewModel @Inject constructor(
     private fun loadClientsList() {
         viewModelScope.launch {
             state = state.copy(isLoadingClientsList = true)
-            val selfClientsResult = selfClientsUseCase()
-            if (selfClientsResult is SelfClientsResult.Success)
+            val selfClientsResult = selfClients()
+            if (selfClientsResult is SelfClientsResult.Success) {
                 state = state.copy(
                     isLoadingClientsList = false,
                     deviceList = selfClientsResult.clients.filter { it.type == ClientType.Permanent }.map { Device(it) },
-                    removeDeviceDialogState = RemoveDeviceDialogState.Hidden
+                    removeDeviceDialogState = RemoveDeviceDialogState.Hidden,
+                    currentDevice = selfClientsResult.clients
+                        .firstOrNull { it.id == selfClientsResult.currentClientId }?.let { Device(it) }
                 )
+            }
         }
     }
 
@@ -115,13 +124,12 @@ class RemoveDeviceViewModel @Inject constructor(
                 }
                 // no password needed so we can delete the device and register a client
                 false -> deleteClient(null, device)
-
             }
         }
     }
 
     private suspend fun registerClient(password: String?) {
-        registerClientUseCase(
+        registerClient(
             RegisterClientUseCase.RegisterClientParam(password, null)
         ).also { result ->
             when (result) {
@@ -139,7 +147,7 @@ class RemoveDeviceViewModel @Inject constructor(
     }
 
     private suspend fun deleteClient(password: String?, device: Device) {
-        when (val deleteResult = deleteClientUseCase(DeleteClientParam(password, device.clientId))) {
+        when (val deleteResult = deleteClient(DeleteClientParam(password, device.clientId))) {
             is DeleteClientResult.Failure.Generic -> {
                 state = state.copy(error = RemoveDeviceError.GenericError(deleteResult.genericFailure))
             }
@@ -164,7 +172,6 @@ class RemoveDeviceViewModel @Inject constructor(
         }
     }
 
-
     private fun showDeleteClientDialog(device: Device) {
         state = state.copy(
             error = RemoveDeviceError.None,
@@ -182,12 +189,17 @@ class RemoveDeviceViewModel @Inject constructor(
 
     @VisibleForTesting
     private suspend fun navigateAfterRegisterClientSuccess() =
-        if (userDataStore.initialSyncCompleted.first())
-            navigationManager.navigate(NavigationCommand(NavigationItem.Home.getRouteWithArgs(), BackStackMode.CLEAR_WHOLE))
-        else
-            navigationManager.navigate(NavigationCommand(NavigationItem.InitialSync.getRouteWithArgs(), BackStackMode.CLEAR_WHOLE))
+        if (userDataStore.initialSyncCompleted.first()) {
+            navigationManager.navigate(
+                NavigationCommand(NavigationItem.Home.getRouteWithArgs(), BackStackMode.CLEAR_WHOLE)
+            )
+        } else {
+            navigationManager.navigate(
+                NavigationCommand(NavigationItem.InitialSync.getRouteWithArgs(), BackStackMode.CLEAR_WHOLE)
+            )
+        }
 
     private companion object {
-        const val REGISTER_CLIENT_AFTER_DELETE_DELAY = 2000L
+        const val REGISTER_CLIENT_AFTER_DELETE_DELAY = 2_000L
     }
 }

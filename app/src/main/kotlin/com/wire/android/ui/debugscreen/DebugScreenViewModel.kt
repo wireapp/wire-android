@@ -35,6 +35,7 @@ import com.wire.kalium.logic.CoreLogger
 import com.wire.kalium.logic.feature.client.ObserveCurrentClientIdUseCase
 import com.wire.kalium.logic.feature.keypackage.MLSKeyPackageCountResult
 import com.wire.kalium.logic.feature.keypackage.MLSKeyPackageCountUseCase
+import com.wire.kalium.logic.feature.user.IsMLSEnabledUseCase
 import com.wire.kalium.logic.feature.user.loggingStatus.EnableLoggingUseCase
 import com.wire.kalium.logic.feature.user.loggingStatus.IsLoggingEnabledUseCase
 import com.wire.kalium.logic.sync.periodic.UpdateApiVersionsScheduler
@@ -47,7 +48,8 @@ data class DebugScreenState(
     val currentClientId: String = String.EMPTY,
     val keyPackagesCount: Int = 0,
     val mslClientId: String = String.EMPTY,
-    val mlsErrorMessage: String = String.EMPTY
+    val mlsErrorMessage: String = String.EMPTY,
+    val mlsEnabled: Boolean = false,
 )
 
 @Suppress("LongParameterList")
@@ -60,13 +62,15 @@ class DebugScreenViewModel
     private val logFileWriter: LogFileWriter,
     private val currentClientIdUseCase: ObserveCurrentClientIdUseCase,
     private val updateApiVersions: UpdateApiVersionsScheduler,
+    isMLSEnabledUseCase: IsMLSEnabledUseCase,
     isLoggingEnabledUseCase: IsLoggingEnabledUseCase
 ) : ViewModel() {
     val logPath: String = logFileWriter.activeLoggingFile.absolutePath
 
     var state by mutableStateOf(
         DebugScreenState(
-            isLoggingEnabled = isLoggingEnabledUseCase()
+            isLoggingEnabled = isLoggingEnabledUseCase(),
+            mlsEnabled = isMLSEnabledUseCase()
         )
     )
 

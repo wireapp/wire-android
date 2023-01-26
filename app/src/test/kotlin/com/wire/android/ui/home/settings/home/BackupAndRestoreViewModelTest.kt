@@ -427,7 +427,7 @@ class BackupAndRestoreViewModelTest {
         }
 
         fun withSuccessfulDBImport(isEncrypted: Boolean) = apply {
-            every { fileManager.copyToTempPath(any(), any()) } returns (100L).also {
+            coEvery { fileManager.copyToTempPath(any(), any()) } returns (100L).also {
                 viewModel.latestImportedBackupTempPath =
                     fakeKaliumFileSystem.tempFilePath(BackupAndRestoreViewModel.TEMP_IMPORTED_BACKUP_FILE_NAME)
                 fakeKaliumFileSystem.sink(viewModel.latestImportedBackupTempPath).buffer().use {
@@ -441,7 +441,7 @@ class BackupAndRestoreViewModelTest {
         }
 
         fun withFailedBackupVerification() = apply {
-            every { fileManager.copyToTempPath(any(), any()) } returns (100L).also {
+            coEvery { fileManager.copyToTempPath(any(), any()) } returns (100L).also {
                 viewModel.latestImportedBackupTempPath =
                     fakeKaliumFileSystem.tempFilePath(BackupAndRestoreViewModel.TEMP_IMPORTED_BACKUP_FILE_NAME)
                 fakeKaliumFileSystem.sink(viewModel.latestImportedBackupTempPath).buffer().use {
@@ -457,7 +457,7 @@ class BackupAndRestoreViewModelTest {
                 RestoreBackupResult.BackupRestoreFailure.IncompatibleBackup("DB failed to import")
             )
         ) = apply {
-            every { fileManager.copyToTempPath(any(), any()) } returns (100L).also {
+            coEvery { fileManager.copyToTempPath(any(), any()) } returns (100L).also {
                 viewModel.latestImportedBackupTempPath =
                     fakeKaliumFileSystem.tempFilePath(BackupAndRestoreViewModel.TEMP_IMPORTED_BACKUP_FILE_NAME)
                 fakeKaliumFileSystem.sink(viewModel.latestImportedBackupTempPath).buffer().use {

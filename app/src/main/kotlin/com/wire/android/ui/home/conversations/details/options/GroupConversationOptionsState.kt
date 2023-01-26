@@ -38,6 +38,7 @@ data class GroupConversationOptionsState(
     val loadingGuestOption: Boolean = false,
     val loadingServicesOption: Boolean = false,
     val error: Error = Error.None,
+    val mlsEnabled: Boolean = false
 ) {
 
     sealed interface Error {

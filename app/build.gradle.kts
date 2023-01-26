@@ -228,8 +228,10 @@ dependencies {
     // Development dependencies
     debugImplementation(DevLibraries.leakCanary)
 
-    // Internal only tracking & logging
+    // Internal, dev, beta and staging only tracking & logging
 
-    implementation(Libraries.dataDog)
-
+    devImplementation(Libraries.dataDog)
+    internalImplementation(Libraries.dataDog)
+    betaImplementation(Libraries.dataDog)
+    stagingImplementation(Libraries.dataDog)
 }

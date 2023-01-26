@@ -20,7 +20,7 @@ import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-class ConversationMessageAudioPlayer
+class ConversationAudioMessagePlayer
 @Inject constructor(
     private val context: Context,
     private val getMessageAsset: GetMessageAssetUseCase,

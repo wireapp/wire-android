@@ -8,7 +8,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.cachedIn
 import com.wire.android.R
 import com.wire.android.appLogger
-import com.wire.android.media.audiomessage.ConversationMessageAudioPlayer
+import com.wire.android.media.audiomessage.ConversationAudioMessagePlayer
 import com.wire.android.model.SnackBarMessage
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.NavigationCommand
@@ -61,7 +61,7 @@ class ConversationMessagesViewModel @Inject constructor(
     private val getMessageForConversation: GetMessagesForConversationUseCase,
     private val toggleReaction: ToggleReactionUseCase,
     private val resetSession: ResetSessionUseCase,
-    private val conversationMessageAudioPlayer: ConversationMessageAudioPlayer
+    private val conversationAudioMessagePlayer: ConversationAudioMessagePlayer
 ) : SavedStateViewModel(savedStateHandle) {
 
     var conversationViewState by mutableStateOf(ConversationMessagesViewState())
@@ -81,7 +81,7 @@ class ConversationMessagesViewModel @Inject constructor(
 
     private fun observeAudioPlayerState() {
         viewModelScope.launch {
-            conversationMessageAudioPlayer.observableAudioMessagesState.collect {
+            conversationAudioMessagePlayer.observableAudioMessagesState.collect {
                 conversationViewState = conversationViewState.copy(
                     audioMessagesState = it
                 )
@@ -237,19 +237,19 @@ class ConversationMessagesViewModel @Inject constructor(
 
     fun audioClick(messageId: String) {
         viewModelScope.launch {
-            conversationMessageAudioPlayer.playAudio(conversationId, messageId)
+            conversationAudioMessagePlayer.playAudio(conversationId, messageId)
         }
     }
 
     fun changeAudioPosition(messageId: String, position: Int) {
         viewModelScope.launch {
-            conversationMessageAudioPlayer.setPosition(messageId, position)
+            conversationAudioMessagePlayer.setPosition(messageId, position)
         }
     }
 
     override fun onCleared() {
         super.onCleared()
-        conversationMessageAudioPlayer.close()
+        conversationAudioMessagePlayer.close()
     }
 
 }

@@ -27,6 +27,21 @@
     native <methods>;
 }
 
+-keep class net.sqlcipher.** {
+    *;
+}
+
+-keep  class net.sqlcipher.database.** {
+    *;
+}
+-keep class net.zetetic.** {
+    *;
+}
+
+-keep  class net.zetetic.database.** {
+    *;
+}
+
 # For SQLCipher
 -keep,includedescriptorclasses class net.sqlcipher.** { *; }
 -keep,includedescriptorclasses interface net.sqlcipher.** { *; }

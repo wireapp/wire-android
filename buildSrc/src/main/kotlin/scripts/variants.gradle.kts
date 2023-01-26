@@ -54,6 +54,7 @@ sealed class ProductFlavors(
 
     object Beta : ProductFlavors("com.wire.android", "beta", applicationIdSuffix = "internal")
     object Internal : ProductFlavors("com.wire", "internal", applicationIdSuffix = "internal")
+    object Production : ProductFlavors("com.wire", "prod", applicationIdSuffix = "")
 }
 
 object FlavorDimensions {
@@ -113,6 +114,7 @@ android {
         }
         getByName(BuildTypes.RELEASE) {
             isMinifyEnabled = false
+            // todo: enable minify for release
 //            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
             isDebuggable = false
             if (enableSigning)
@@ -135,6 +137,7 @@ android {
         createAppFlavour(ProductFlavors.Staging)
         createAppFlavour(ProductFlavors.Beta)
         createAppFlavour(ProductFlavors.Internal)
+        createAppFlavour(ProductFlavors.Production)
     }
 
     /**

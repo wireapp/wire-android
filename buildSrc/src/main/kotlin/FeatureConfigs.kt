@@ -87,5 +87,7 @@ enum class FlavourConfigs(val value: String, val configType: ConfigType) {
     GOOGLE_API_KEY("googleApiKey", ConfigType.STRING),
     FCM_PROJECT_ID("fcmProjectID", ConfigType.STRING),
     IS_STAGING("isStaging", ConfigType.BOOLEAN),
-    USER_ID("userId", ConfigType.STRING);
+    USER_ID("userId", ConfigType.STRING),
+    DEBUG_SCREEN_ENABLED("debug_screen_enabled", ConfigType.BOOLEAN),
+    REPORT_BUG_MENU_ITEM_ENABLED("report_bug_menu_item", ConfigType.BOOLEAN);
 }

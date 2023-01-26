@@ -14,7 +14,7 @@ def defineFlavor() {
     } else if(branchName == "develop") {
         return 'Staging'
     } else if(branchName == "release") {
-        return 'Public'
+        return 'Prod'
     } else if(branchName == "internal") {
         return 'Internal'
     }

@@ -44,16 +44,18 @@ object BuildTypes {
 sealed class ProductFlavors(
     val applicationId: String,
     val buildName: String,
+    val appName: String,
     val applicationIdSuffix: String? = null,
     val dimensions: String = FlavorDimensions.DEFAULT
 ) {
     override fun toString(): String = this.buildName
 
-    object Dev : ProductFlavors("com.waz.zclient.dev", "dev")
-    object Staging : ProductFlavors("com.waz.zclient.dev", "staging")
+    object Dev : ProductFlavors("com.waz.zclient.dev", "dev", "Wire Dev")
+    object Staging : ProductFlavors("com.waz.zclient.dev", "staging", "Wire Staging")
 
-    object Beta : ProductFlavors("com.wire.android", "beta", applicationIdSuffix = "internal")
-    object Internal : ProductFlavors("com.wire", "internal", applicationIdSuffix = "internal")
+    object Beta : ProductFlavors("com.wire.android", "beta", "Wire Beta", applicationIdSuffix = "internal")
+    object Internal : ProductFlavors("com.wire", "internal","Wire Internal", applicationIdSuffix = "internal")
+    object Production : ProductFlavors("com.wire", "prod", "Wire")
 }
 
 object FlavorDimensions {
@@ -72,7 +74,10 @@ object Default {
         dimension = flavour.dimensions
         applicationId = flavour.applicationId
         versionNameSuffix = "-${flavour.buildName}"
-        flavour.applicationIdSuffix?.let { applicationIdSuffix = ".${it}" }
+        if(!flavour.applicationIdSuffix.isNullOrBlank()) {
+            applicationIdSuffix = ".${flavour.applicationIdSuffix}"
+        }
+        resValue("string", "app_name", flavour.appName)
     }
 }
 
@@ -135,6 +140,7 @@ android {
         createAppFlavour(ProductFlavors.Staging)
         createAppFlavour(ProductFlavors.Beta)
         createAppFlavour(ProductFlavors.Internal)
+        createAppFlavour(ProductFlavors.Production)
     }
 
     /**

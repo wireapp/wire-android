@@ -121,10 +121,12 @@ fun GroupConversationSettings(
                 )
             }
         }
-        item {
-            ConversationProtocolDetails(
-                protocolInfo = state.protocolInfo
-            )
+        if (state.mlsEnabled) {
+            item {
+                ConversationProtocolDetails(
+                    protocolInfo = state.protocolInfo
+                )
+            }
         }
     }
 }

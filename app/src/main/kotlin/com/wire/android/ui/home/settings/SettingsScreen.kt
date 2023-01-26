@@ -53,6 +53,7 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 import com.wire.android.util.extension.folderWithElements
+import com.wire.android.BuildConfig
 
 @Composable
 fun SettingsScreen(
@@ -113,7 +114,12 @@ fun SettingsScreenContent(
 
             folderWithElements(
                 header = context.getString(R.string.settings_other_group_title),
-                items = listOf(SettingsItem.Support, SettingsItem.DebugSettings),
+                items = buildList {
+                    add(SettingsItem.Support)
+                    if (BuildConfig.DEBUG_SCREEN_ENABLED) {
+                        add(SettingsItem.DebugSettings)
+                    }
+                },
                 onItemClicked = onItemClicked
             )
         }

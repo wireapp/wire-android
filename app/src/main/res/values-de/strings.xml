@@ -757,7 +757,8 @@
     <string name="label_textfield_optional_password">Passwort (optional)</string>
     <!--create and restore backup-->
     <string name="backup_dialog_create_backup_set_password_title">Passwort festlegen</string>
-    <string name="backup_dialog_create_backup_set_password_message">Das Backup wird komprimiert und mit einem Passwort verschlüsselt. Achten Sie darauf, es an einem sicheren Ort aufzubewahren.</string>
+    <string name="backup_dialog_create_backup_set_password_message">Das Backup wird komprimiert und Sie können es mit einem Passwort verschlüsseln.</string>
+    <string name="backup_dialog_create_backup_now">Jetzt sichern</string>
     <string name="backup_dialog_create_backup_title">Backup erstellen</string>
     <string name="backup_dialog_create_backup_subtitle">Unterhaltungen werden gespeichert...</string>
     <string name="backup_dialog_create_error_title">Ein Fehler ist aufgetreten</string>

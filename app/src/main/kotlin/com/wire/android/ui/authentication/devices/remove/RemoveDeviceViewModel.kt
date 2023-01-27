@@ -110,7 +110,8 @@ class RemoveDeviceViewModel @Inject constructor(
         updateStateIfDialogVisible { state.copy(error = RemoveDeviceError.None) }
     }
 
-    fun onItemClicked(device: Device) {
+    fun onItemClicked(device: Device, shouldRegisterClient: Boolean = true) {
+        state = state.copy(shouldRegisterClient = shouldRegisterClient)
         viewModelScope.launch {
             val isPasswordRequired: Boolean = when (val passwordRequiredResult = isPasswordRequired()) {
                 is IsPasswordRequiredUseCase.Result.Failure -> {
@@ -159,7 +160,8 @@ class RemoveDeviceViewModel @Inject constructor(
                 // this delay is only a work around because the backend is not updating the list of clients immediately
                 // TODO(revert me): remove the delay once the server side bug is fixed
                 delay(REGISTER_CLIENT_AFTER_DELETE_DELAY)
-                registerClient(password)
+                if (state.shouldRegisterClient) registerClient(password)
+                else navigationManager.navigateBack()
             }
         }
     }

@@ -46,7 +46,9 @@ fun SelfDevicesScreen() {
         title = stringResource(id = R.string.devices_title),
         description = null,
         clearSessionState = clearSessionState,
-        onItemClicked = removeDeviceViewModel::onItemClicked,
+        onItemClicked = {
+            removeDeviceViewModel.onItemClicked(device = it, shouldRegisterClient = false)
+        },
         onPasswordChange = removeDeviceViewModel::onPasswordChange,
         onRemoveConfirm = removeDeviceViewModel::onRemoveConfirmed,
         onDialogDismiss = removeDeviceViewModel::onDialogDismissed,

@@ -25,7 +25,6 @@ import com.wire.android.migration.userDatabase.ScalaConversationData
 import com.wire.android.migration.userDatabase.ScalaMessageData
 import com.wire.android.migration.userDatabase.ScalaUserData
 import com.wire.android.util.orDefault
-import com.wire.android.util.timestampToServerDate
 import com.wire.kalium.logic.data.conversation.ClientId
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.Conversation.Access
@@ -111,7 +110,7 @@ class MigrationMapper @Inject constructor() {
             conversationId = toQualifiedId(scalaMessage.conversationRemoteId, scalaMessage.conversationDomain),
             senderUserId = UserId(scalaSenderUserData.id, scalaSenderUserData.domain.orDefault(QualifiedID.WIRE_PRODUCTION_DOMAIN)),
             senderClientId = ClientId(scalaMessage.senderClientId.orEmpty()),
-            timestampIso = scalaMessage.time.timestampToServerDate().orEmpty(),
+            timestamp = scalaMessage.time,
             content = scalaMessage.content.orEmpty(),
             encryptedProto = scalaMessage.proto,
             assetName = scalaMessage.assetName,

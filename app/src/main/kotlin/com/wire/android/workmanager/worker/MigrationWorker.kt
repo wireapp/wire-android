@@ -36,8 +36,9 @@ import androidx.work.WorkRequest.MIN_BACKOFF_MILLIS
 import androidx.work.WorkerParameters
 import com.wire.android.R
 import com.wire.android.migration.MigrationManager
-import com.wire.android.migration.MigrationResult
+import com.wire.android.migration.MigrationData
 import com.wire.android.migration.getMigrationFailure
+import com.wire.android.migration.getMigrationProgress
 import com.wire.android.migration.toData
 import com.wire.android.notification.NotificationConstants
 import dagger.assisted.Assisted
@@ -55,10 +56,10 @@ class MigrationWorker
     private val migrationManager: MigrationManager
 ) : CoroutineWorker(appContext, workerParams) {
 
-    override suspend fun doWork(): Result = migrationManager.migrate().let {
+    override suspend fun doWork(): Result = migrationManager.migrate { setProgress(it.type.toData()) }.let {
         when (it) {
-            MigrationResult.Success -> Result.success()
-            is MigrationResult.Failure -> Result.failure(it.type.toData())
+            MigrationData.Result.Success -> Result.success()
+            is MigrationData.Result.Failure -> Result.failure(it.type.toData())
         }
     }
 
@@ -82,7 +83,7 @@ class MigrationWorker
     }
 }
 
-fun WorkManager.enqueueMigrationWorker(): Flow<MigrationResult> {
+fun WorkManager.enqueueMigrationWorker(): Flow<MigrationData> {
     val request = OneTimeWorkRequestBuilder<MigrationWorker>()
         .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
         .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, MIN_BACKOFF_MILLIS, TimeUnit.MILLISECONDS)
@@ -91,9 +92,12 @@ fun WorkManager.enqueueMigrationWorker(): Flow<MigrationResult> {
     return getWorkInfosForUniqueWorkLiveData(MigrationWorker.NAME).asFlow().map {
         it.first().let { workInfo ->
             when (workInfo.state) {
-                WorkInfo.State.SUCCEEDED -> MigrationResult.Success
-                WorkInfo.State.FAILED -> MigrationResult.Failure(workInfo.outputData.getMigrationFailure())
-                else -> null
+                WorkInfo.State.SUCCEEDED -> MigrationData.Result.Success
+                WorkInfo.State.FAILED -> MigrationData.Result.Failure(workInfo.outputData.getMigrationFailure())
+                WorkInfo.State.CANCELLED -> MigrationData.Result.Failure(workInfo.outputData.getMigrationFailure())
+                WorkInfo.State.RUNNING -> MigrationData.Progress(workInfo.progress.getMigrationProgress())
+                WorkInfo.State.ENQUEUED -> null
+                WorkInfo.State.BLOCKED -> null
             }
         }
     }.filterNotNull()

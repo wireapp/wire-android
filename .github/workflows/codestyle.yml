@@ -1,8 +1,6 @@
 name: "Check Codestyle"
 
-on:
-  pull_request:
-    types: [ opened, synchronize ] # Don't rerun on `edited` to save time
+on: [workflow_call]
 
 jobs:
   static-code-analysis:

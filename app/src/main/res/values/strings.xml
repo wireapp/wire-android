@@ -65,6 +65,7 @@
     <string name="folder_label_protocol_details">Protocol details (beta)</string>
     <string name="label_user_blocked">Blocked</string>
     <string name="label_and">and</string>
+    <string name="label_retry">Retry</string>
     <!-- Content descriptions https://wearezeta.atlassian.net/wiki/spaces/AR/pages/122520039/Code+Style+Guideline#Content-description-strings -->
     <string name="content_description_app_logo">App Logo</string>
     <string name="content_description_reveal_password">Show password</string>
@@ -186,6 +187,13 @@
     <!-- Migration -->
     <string name="migration_title">Setting up Wire</string>
     <string name="migration_message">Please wait while we set up the app for you</string>
+    <string name="migration_message_unknown">Please wait while we migrate data for you</string>
+    <string name="migration_server_configs_message">Please wait while we migrate backends for you</string>
+    <string name="migration_accounts_message">Please wait while we migrate accounts for you</string>
+    <string name="migration_clients_message">Please wait while we migrate clients for you</string>
+    <string name="migration_users_message">Please wait while we migrate users for you</string>
+    <string name="migration_conversations_message">Please wait while we migrate conversations for you</string>
+    <string name="migration_messages_message">Please wait while we migrate messages for you</string>
     <string name="migration_cancel_title">Cancel migration</string>
     <string name="migration_cancel_message">Are you sure you want to close the application and cancel the ongoing migration?</string>
     <!-- Login -->

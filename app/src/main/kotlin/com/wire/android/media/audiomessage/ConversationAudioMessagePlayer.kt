@@ -1,7 +1,6 @@
 package com.wire.android.media.audiomessage
 
 import android.content.Context
-import android.media.AudioAttributes
 import android.media.MediaPlayer
 import android.net.Uri
 import com.wire.kalium.logic.data.id.ConversationId
@@ -23,10 +22,24 @@ import javax.inject.Inject
 class ConversationAudioMessagePlayer
 @Inject constructor(
     private val context: Context,
-    private val getMessageAsset: GetMessageAssetUseCase,
+    private val audioMediaPlayer: MediaPlayer,
+    private val getMessageAsset: GetMessageAssetUseCase
 ) {
     private companion object {
         const val UPDATE_POSITION_INTERVAL_IN_MS = 1000L
+    }
+    init {
+        audioMediaPlayer.setOnCompletionListener {
+            if (currentAudioMessageId != null) {
+                audioMessageStateUpdate.tryEmit(
+                    AudioMediaPlayerStateUpdate.AudioMediaPlayingStateUpdate(
+                        currentAudioMessageId!!,
+                        AudioMediaPlayingState.Completed
+                    )
+                )
+                seekToAudioPosition.tryEmit(currentAudioMessageId!! to 0)
+            }
+        }
     }
 
     private val audioMessageStateUpdate =
@@ -38,8 +51,8 @@ class ConversationAudioMessagePlayer
     private val mediaPlayerPosition = flow {
         delay(UPDATE_POSITION_INTERVAL_IN_MS)
         while (true) {
-            if (mediaPlayer.isPlaying) {
-                emit(currentAudioMessageId to mediaPlayer.currentPosition)
+            if (audioMediaPlayer.isPlaying) {
+                emit(currentAudioMessageId to audioMediaPlayer.currentPosition)
             }
             delay(UPDATE_POSITION_INTERVAL_IN_MS)
         }
@@ -104,26 +117,6 @@ class ConversationAudioMessagePlayer
 
     private var currentAudioMessageId: String? = null
 
-    private val mediaPlayer = MediaPlayer().apply {
-        setAudioAttributes(
-            AudioAttributes.Builder()
-                .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                .setUsage(AudioAttributes.USAGE_MEDIA)
-                .build()
-        )
-        setOnCompletionListener {
-            if (currentAudioMessageId != null) {
-                audioMessageStateUpdate.tryEmit(
-                    AudioMediaPlayerStateUpdate.AudioMediaPlayingStateUpdate(
-                        currentAudioMessageId!!,
-                        AudioMediaPlayingState.Completed
-                    )
-                )
-                seekToAudioPosition.tryEmit(currentAudioMessageId!! to 0)
-            }
-        }
-    }
-
     suspend fun playAudio(
         conversationId: ConversationId,
         requestedAudioMessageId: String
@@ -157,7 +150,7 @@ class ConversationAudioMessagePlayer
     }
 
     private suspend fun toggleAudioMessage(messageId: String) {
-        if (mediaPlayer.isPlaying) {
+        if (audioMediaPlayer.isPlaying) {
             pause(messageId)
         } else {
             resumeAudio(messageId)
@@ -192,17 +185,17 @@ class ConversationAudioMessagePlayer
                         val isFetchedAudioCurrentlyQueuedToPlay = messageId == currentAudioMessageId
 
                         if (isFetchedAudioCurrentlyQueuedToPlay) {
-                            mediaPlayer.setDataSource(
+                            audioMediaPlayer.setDataSource(
                                 context,
                                 Uri.parse(result.decodedAssetPath.toString())
                             )
-                            mediaPlayer.prepare()
+                            audioMediaPlayer.prepare()
 
                             if (position != null) {
-                                mediaPlayer.seekTo(position)
+                                audioMediaPlayer.seekTo(position)
                             }
 
-                            mediaPlayer.start()
+                            audioMediaPlayer.start()
 
                             audioMessageStateUpdate.emit(
                                 AudioMediaPlayerStateUpdate.AudioMediaPlayingStateUpdate(
@@ -214,7 +207,7 @@ class ConversationAudioMessagePlayer
                             audioMessageStateUpdate.emit(
                                 AudioMediaPlayerStateUpdate.TotalTimeUpdate(
                                     messageId,
-                                    mediaPlayer.duration
+                                    audioMediaPlayer.duration
                                 )
                             )
                         }
@@ -241,7 +234,7 @@ class ConversationAudioMessagePlayer
             val isAudioMessageCurrentlyPlaying = currentAudioMessageId == messageId
 
             if (isAudioMessageCurrentlyPlaying) {
-                mediaPlayer.seekTo(position)
+                audioMediaPlayer.seekTo(position)
             }
         }
 
@@ -249,7 +242,7 @@ class ConversationAudioMessagePlayer
     }
 
     private suspend fun resumeAudio(messageId: String) {
-        mediaPlayer.start()
+        audioMediaPlayer.start()
 
         audioMessageStateUpdate.emit(
             AudioMediaPlayerStateUpdate.AudioMediaPlayingStateUpdate(messageId, AudioMediaPlayingState.Playing)
@@ -257,7 +250,7 @@ class ConversationAudioMessagePlayer
     }
 
     private suspend fun pause(messageId: String) {
-        mediaPlayer.pause()
+        audioMediaPlayer.pause()
 
         audioMessageStateUpdate.emit(
             AudioMediaPlayerStateUpdate.AudioMediaPlayingStateUpdate(messageId, AudioMediaPlayingState.Paused)
@@ -265,7 +258,7 @@ class ConversationAudioMessagePlayer
     }
 
     private suspend fun stop(messageId: String) {
-        mediaPlayer.reset()
+        audioMediaPlayer.reset()
 
         audioMessageStateUpdate.emit(
             AudioMediaPlayerStateUpdate.AudioMediaPlayingStateUpdate(messageId, AudioMediaPlayingState.Stopped)
@@ -273,7 +266,7 @@ class ConversationAudioMessagePlayer
     }
 
     fun close() {
-        mediaPlayer.release()
+        audioMediaPlayer.release()
     }
 
 }

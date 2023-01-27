@@ -36,8 +36,9 @@ class FileManager @Inject constructor(@ApplicationContext private val context: C
         assetName: String,
         assetDataPath: Path,
         assetDataSize: Long,
+        dispatcher: DispatcherProvider = DefaultDispatcherProvider(),
         onFileSaved: suspend (String?) -> Unit
-    ) {
+    ): Unit = withContext(dispatcher.io()) {
         saveFileToDownloadsFolder(assetName, assetDataPath, assetDataSize, context)
             ?.let { context.getFileName(it) }
             .also { onFileSaved(it) }

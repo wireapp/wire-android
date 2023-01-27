@@ -84,27 +84,35 @@ class MessageMapperTest {
         val result = mapper.toUIMessages(members, messages)
         // Then
         assert(result.size == 4)
-        assert(checkMessageData(
-            uiMessage = result[0],
-            time = message1.date.uiMessageDateTime()
-        ))
-        assert(checkMessageData(
-            uiMessage = result[1],
-            time = message2.date.uiMessageDateTime(),
-            source = MessageSource.OtherUser,
-            membership = Membership.Guest,
-            status = MessageStatus.SendFailure
-        ))
-        assert(checkMessageData(
-            uiMessage = result[2],
-            time = message3.date.uiMessageDateTime(),
-            status = MessageStatus.Edited(now.uiMessageDateTime() ?: "")
-        ))
-        assert(checkMessageData(
-            uiMessage = result[3],
-            time = message4.date.uiMessageDateTime(),
-            status = MessageStatus.Deleted
-        ))
+        assert(
+            checkMessageData(
+                uiMessage = result[0],
+                time = message1.date.uiMessageDateTime()
+            )
+        )
+        assert(
+            checkMessageData(
+                uiMessage = result[1],
+                time = message2.date.uiMessageDateTime(),
+                source = MessageSource.OtherUser,
+                membership = Membership.Guest,
+                status = MessageStatus.SendFailure
+            )
+        )
+        assert(
+            checkMessageData(
+                uiMessage = result[2],
+                time = message3.date.uiMessageDateTime(),
+                status = MessageStatus.Edited(now.uiMessageDateTime() ?: "")
+            )
+        )
+        assert(
+            checkMessageData(
+                uiMessage = result[3],
+                time = message4.date.uiMessageDateTime(),
+                status = MessageStatus.Deleted
+            )
+        )
     }
 
     private fun checkMessageData(
@@ -114,7 +122,7 @@ class MessageMapperTest {
         membership: Membership = Membership.None,
         status: MessageStatus = MessageStatus.Untouched
     ) = uiMessage.messageSource == source && uiMessage.messageHeader.membership == membership
-                && uiMessage.messageHeader.messageTime.formattedDate == time && uiMessage.messageHeader.messageStatus == status
+            && uiMessage.messageHeader.messageTime.formattedDate == time && uiMessage.messageHeader.messageStatus == status
 
     private class Arrangement {
         @MockK
@@ -130,7 +138,13 @@ class MessageMapperTest {
         private lateinit var wireSessionImageLoader: WireSessionImageLoader
 
         private val messageMapper by lazy {
-            MessageMapper(TestDispatcherProvider(), userTypeMapper, messageContentMapper, isoFormatter, wireSessionImageLoader)
+            MessageMapper(
+                userTypeMapper = userTypeMapper,
+                messageContentMapper = messageContentMapper,
+                isoFormatter = isoFormatter,
+                wireSessionImageLoader = wireSessionImageLoader,
+                dispatchers = TestDispatcherProvider()
+            )
         }
 
         init {

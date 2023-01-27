@@ -16,7 +16,6 @@ import javax.inject.Inject
 class AssetContentMapper @Inject constructor(
     private val wireSessionImageLoader: WireSessionImageLoader
 ) {
-
     fun toRegularAsset(
         message: Message,
         assetContent: AssetContent,
@@ -57,7 +56,7 @@ class AssetContentMapper @Inject constructor(
         }
     }
 
-     fun mapAudio(
+    private fun mapAudio(
         assetContent: AssetContent,
         metadata: AssetContent.AssetMetadata.Audio,
     ): UIMessageContent {
@@ -73,7 +72,7 @@ class AssetContentMapper @Inject constructor(
         }
     }
 
-    fun mapImage(
+    private fun mapImage(
         message: Message,
         assetContent: AssetContent,
         sender: User?

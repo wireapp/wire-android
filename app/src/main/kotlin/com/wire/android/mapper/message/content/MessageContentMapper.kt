@@ -4,27 +4,36 @@ import androidx.annotation.StringRes
 import com.wire.android.R
 import com.wire.android.ui.home.conversations.findUser
 import com.wire.android.ui.home.conversations.model.UIMessageContent
+import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.user.User
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class MessageContentMapper @Inject constructor(
     private val systemMessageContentMapper: SystemMessageContentMapper,
-    private val regularMessageContentMapper: RegularMessageContentMapper
+    private val regularMessageContentMapper: RegularMessageContentMapper,
+    private val dispatchers: DispatcherProvider
 ) {
-    fun fromMessage(
+    suspend fun fromMessage(
         message: Message.Standalone,
         userList: List<User>
     ): UIMessageContent? {
-        return when (message.visibility) {
-            Message.Visibility.VISIBLE ->
-                return when (message) {
-                    is Message.Regular -> regularMessageContentMapper.mapRegularMessage(message, userList.findUser(message.senderUserId))
-                    is Message.System -> systemMessageContentMapper.mapSystemMessage(message, userList)
-                }
+        return withContext(dispatchers.default()) {
+            when (message.visibility) {
+                Message.Visibility.VISIBLE ->
+                    when (message) {
+                        is Message.Regular -> regularMessageContentMapper.mapRegularMessage(
+                            message,
+                            userList.findUser(message.senderUserId)
+                        )
 
-            Message.Visibility.DELETED, // for deleted, there is a state label displayed only
-            Message.Visibility.HIDDEN -> null // we don't want to show hidden nor deleted message content in any way
+                        is Message.System -> systemMessageContentMapper.mapSystemMessage(message, userList)
+                    }
+
+                Message.Visibility.DELETED, // for deleted, there is a state label displayed only
+                Message.Visibility.HIDDEN -> null // we don't want to show hidden nor deleted message content in any way
+            }
         }
     }
 

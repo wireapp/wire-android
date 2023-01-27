@@ -14,7 +14,6 @@ class RegularMessageContentMapper @Inject constructor(
     private val assetContentMapper: AssetContentMapper,
     private val restrictedAssetMapper: RestrictedAssetMapper
 ) {
-
     fun mapRegularMessage(
         message: Message.Regular,
         sender: User?

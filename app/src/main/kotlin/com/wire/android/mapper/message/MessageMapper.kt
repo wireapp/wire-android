@@ -14,6 +14,7 @@ import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.conversations.previewAsset
 import com.wire.android.ui.home.conversationslist.model.Membership
+import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.time.ISOFormatter
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.WireSessionImageLoader
@@ -25,13 +26,15 @@ import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.data.user.User
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class MessageMapper @Inject constructor(
     private val userTypeMapper: UserTypeMapper,
     private val messageContentMapper: MessageContentMapper,
     private val isoFormatter: ISOFormatter,
-    private val wireSessionImageLoader: WireSessionImageLoader
+    private val wireSessionImageLoader: WireSessionImageLoader,
+    private val dispatchers: DispatcherProvider
 ) {
 
     fun memberIdList(messages: List<Message>): List<UserId> = messages.flatMap { message ->
@@ -43,57 +46,61 @@ class MessageMapper @Inject constructor(
         )
     }.distinct()
 
-    fun toUIMessages(userList: List<User>, messages: List<Message.Standalone>): List<UIMessage> = messages.mapNotNull { message ->
-        val sender = userList.findUser(message.senderUserId)
-        val content = messageContentMapper.fromMessage(
-            message = message,
-            userList = userList
-        )
-
-        val footer = if (message is Message.Regular) {
-            // TODO find ugly and proper heart emoji and merge them to ugly one 😅
-            val totalHeartsCount = message.reactions.totalReactions
-                .filterKeys { isHeart(it) }.values
-                .sum()
-
-            val hasSelfHeart = message.reactions.selfUserReactions.any { isHeart(it) }
-
-            MessageFooter(message.id,
-                message.reactions.totalReactions
-                    .filter { !isHeart(it.key) }
-                    .run {
-                        if (totalHeartsCount != 0)
-                            plus("❤" to totalHeartsCount)
-                        else
-                            this
-                    },
-                message.reactions.selfUserReactions
-                    .filter { isHeart(it) }.toSet()
-                    .run {
-                        if (hasSelfHeart)
-                            plus("❤")
-                        else
-                            this
-                    }
+    suspend fun toUIMessages(userList: List<User>, messages: List<Message.Standalone>): List<UIMessage> = messages.mapNotNull { message ->
+        withContext(dispatchers.default()) {
+            val sender = userList.findUser(message.senderUserId)
+            val content = messageContentMapper.fromMessage(
+                message = message,
+                userList = userList
             )
-        } else {
-            MessageFooter(message.id)
-        }
 
-        // System messages don't have header so without the content there is nothing to be displayed.
-        // Also hidden messages should not be displayed, as well preview images
-        val shouldNotDisplay =
-            message is Message.System && content == null || message.visibility == HIDDEN || content is UIMessageContent.PreviewAssetMessage
-        if (shouldNotDisplay) {
-            null
-        } else {
-            UIMessage(
-                messageContent = content,
-                messageSource = if (sender is SelfUser) MessageSource.Self else MessageSource.OtherUser,
-                messageHeader = provideMessageHeader(sender, message),
-                messageFooter = footer,
-                userAvatarData = getUserAvatarData(sender)
-            )
+            val footer = if (message is Message.Regular) {
+                // TODO find ugly and proper heart emoji and merge them to ugly one 😅
+                val totalHeartsCount = message.reactions.totalReactions
+                    .filterKeys { isHeart(it) }.values
+                    .sum()
+
+                val hasSelfHeart = message.reactions.selfUserReactions.any { isHeart(it) }
+
+                MessageFooter(message.id,
+                    message.reactions.totalReactions
+                        .filter { !isHeart(it.key) }
+                        .run {
+                            if (totalHeartsCount != 0)
+                                plus("❤" to totalHeartsCount)
+                            else
+                                this
+                        },
+                    message.reactions.selfUserReactions
+                        .filter { isHeart(it) }.toSet()
+                        .run {
+                            if (hasSelfHeart)
+                                plus("❤")
+                            else
+                                this
+                        }
+                )
+            } else {
+                MessageFooter(message.id)
+            }
+
+            // System messages don't have header so without the content there is nothing to be displayed.
+            // Also hidden messages should not be displayed, as well preview images
+            val shouldNotDisplay = message is Message.System && content == null
+                    || message.visibility == HIDDEN
+                    || content is UIMessageContent.PreviewAssetMessage
+
+            if (shouldNotDisplay) {
+                null
+            } else {
+                UIMessage(
+                    messageContent = content,
+                    messageSource = if (sender is SelfUser) MessageSource.Self else MessageSource.OtherUser,
+                    messageHeader = provideMessageHeader(sender, message),
+                    messageFooter = footer,
+                    userAvatarData = getUserAvatarData(sender)
+                )
+            }
         }
     }
 

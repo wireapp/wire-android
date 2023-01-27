@@ -13,7 +13,6 @@ import com.wire.android.mapper.message.content.MessageResourceProvider
 import com.wire.android.mapper.message.content.RegularMessageContentMapper
 import com.wire.android.mapper.message.content.SystemMessageContentMapper
 import com.wire.android.mapper.message.content.asset.AssetContentMapper
-import com.wire.android.mapper.message.content.asset.AssetMessageContentMetadata
 import com.wire.android.mapper.message.content.asset.RestrictedAssetMapper
 import com.wire.android.mapper.message.content.text.MessageTextContentMapper
 import com.wire.android.ui.home.conversations.model.UIMessageContent.AssetMessage
@@ -350,7 +349,8 @@ class EncodedMessageContentMapperTest {
 
         val messageContentMapper = MessageContentMapper(
             systemMessageContentMapper = systemMessageContentMapper,
-            regularMessageContentMapper = regularMessageContentMapper
+            regularMessageContentMapper = regularMessageContentMapper,
+            dispatchers = testDispatcher
         )
 
         init {

@@ -325,36 +325,47 @@ class EncodedMessageContentMapperTest {
 
         private val testDispatcher = TestDispatcherProvider()
 
-        val systemMessageContentMapper = SystemMessageContentMapper(
-            messageResourceProvider = messageResourceProvider
-        )
+        val systemMessageContentMapper: SystemMessageContentMapper
 
-        val assetContentMapper = AssetContentMapper(
-            wireSessionImageLoader = wireSessionImageLoader
-        )
+        val assetContentMapper: AssetContentMapper
 
-        val messageTextContentMapper = MessageTextContentMapper(
-            messageResourceProvider = messageResourceProvider,
-            wireSessionImageLoader = wireSessionImageLoader,
-            isoFormatter = ISOFormatter()
-        )
+        val messageTextContentMapper: MessageTextContentMapper
 
         val restrictedAssetMapper = RestrictedAssetMapper()
 
-        val regularMessageContentMapper = RegularMessageContentMapper(
-            messageTextContentMapper = messageTextContentMapper,
-            assetContentMapper = assetContentMapper,
-            restrictedAssetMapper = restrictedAssetMapper
-        )
+        val regularMessageContentMapper: RegularMessageContentMapper
 
-        val messageContentMapper = MessageContentMapper(
-            systemMessageContentMapper = systemMessageContentMapper,
-            regularMessageContentMapper = regularMessageContentMapper,
-            dispatchers = testDispatcher
-        )
+        val messageContentMapper: MessageContentMapper
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
+
+            systemMessageContentMapper = SystemMessageContentMapper(
+                messageResourceProvider = messageResourceProvider
+            )
+
+            assetContentMapper = AssetContentMapper(
+                wireSessionImageLoader = wireSessionImageLoader
+            )
+
+            messageTextContentMapper = MessageTextContentMapper(
+                messageResourceProvider = messageResourceProvider,
+                wireSessionImageLoader = wireSessionImageLoader,
+                isoFormatter = ISOFormatter()
+            )
+
+            regularMessageContentMapper = RegularMessageContentMapper(
+                messageTextContentMapper = messageTextContentMapper,
+                assetContentMapper = assetContentMapper,
+                restrictedAssetMapper = restrictedAssetMapper
+            )
+
+            messageContentMapper = MessageContentMapper(
+                systemMessageContentMapper = systemMessageContentMapper,
+                regularMessageContentMapper = regularMessageContentMapper,
+                dispatchers = testDispatcher
+            )
+
             every { messageResourceProvider.memberNameDeleted } returns 10584735
             every { messageResourceProvider.memberNameYouLowercase } returns 24153498
             every { messageResourceProvider.memberNameYouTitlecase } returns 38946214

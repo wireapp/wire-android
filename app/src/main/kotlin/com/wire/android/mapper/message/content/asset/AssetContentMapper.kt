@@ -10,6 +10,7 @@ import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.user.AssetId
 import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.data.user.User
+import com.wire.kalium.logic.sync.receiver.conversation.message.hasValidRemoteData
 import com.wire.kalium.logic.util.isGreaterThan
 import javax.inject.Inject
 
@@ -79,29 +80,28 @@ class AssetContentMapper @Inject constructor(
     ): UIMessageContent {
         val assetMessageContentMetadata = AssetMessageContentMetadata(assetContent)
 
-        return with(assetContent) {
-            when {
-                !shouldBeDisplayed -> {
-                    UIMessageContent.PreviewAssetMessage
-                }
+        return when {
+            assetMessageContentMetadata.isDisplayableImage()
+                    && !assetMessageContentMetadata.assetMessageContent.hasValidRemoteData() -> {
+                UIMessageContent.PreviewAssetMessage
+            }
 
-                // If it's an image, we delegate the download it right away to coil
-                assetMessageContentMetadata.isDisplayableImage() -> {
-                    displayableImageAsset(
-                        conversationId = message.conversationId,
-                        messageId = message.id,
-                        assetMessageContentMetadata = assetMessageContentMetadata,
-                        isSelfUserTheSender = sender is SelfUser
-                    )
-                }
+            // If it's an image, we delegate the download it right away to coil
+            assetMessageContentMetadata.isDisplayableImage() -> {
+                displayableImageAsset(
+                    conversationId = message.conversationId,
+                    messageId = message.id,
+                    assetMessageContentMetadata = assetMessageContentMetadata,
+                    isSelfUserTheSender = sender is SelfUser
+                )
+            }
 
-                // It's a generic Asset Message so let's not download it yet,
-                // let the user decide when to download on  asset click
-                else -> {
-                    lazyLoadedAsset(
-                        assetContent = assetContent
-                    )
-                }
+            // It's a generic Asset Message so let's not download it yet,
+            // let the user decide when to download on  asset click
+            else -> {
+                lazyLoadedAsset(
+                    assetContent = assetContent
+                )
             }
         }
     }

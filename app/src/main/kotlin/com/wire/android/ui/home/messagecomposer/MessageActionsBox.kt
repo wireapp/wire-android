@@ -1,3 +1,23 @@
+/*
+ * Wire
+ * Copyright (C) 2023 Wire Swiss GmbH
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see http://www.gnu.org/licenses/.
+ *
+ *
+ */
+
 package com.wire.android.ui.home.messagecomposer
 
 import androidx.compose.animation.AnimatedContent
@@ -31,24 +51,29 @@ import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 @Composable
 fun MessageComposeActionsBox(
     transition: Transition<MessageComposeInputState>,
-    messageComposerState: MessageComposerInnerState,
-    isMentionActive: Boolean
+    isMentionActive: Boolean,
+    startMention: () -> Unit,
+    onAdditionalOptionButtonClicked: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
-    Column(
-        Modifier
-            .wrapContentSize()
-    ) {
+    Column(modifier.wrapContentSize()) {
         Divider()
         Box(Modifier.wrapContentSize()) {
             transition.AnimatedContent(
-                contentKey = { state -> state != MessageComposeInputState.Enabled },
+                contentKey = { state -> state is MessageComposeInputState.Active },
                 transitionSpec = {
                     slideInVertically { fullHeight -> fullHeight / 2 } + fadeIn() with
                             slideOutVertically { fullHeight -> fullHeight / 2 } + fadeOut()
                 }
             ) { state ->
-                if (state != MessageComposeInputState.Enabled)
-                    MessageComposeActions(messageComposerState, isMentionActive)
+                if (state is MessageComposeInputState.Active) {
+                    MessageComposeActions(
+                        state.attachmentOptionsDisplayed,
+                        isMentionActive,
+                        startMention,
+                        onAdditionalOptionButtonClicked
+                    )
+                }
             }
         }
     }
@@ -56,8 +81,10 @@ fun MessageComposeActionsBox(
 
 @Composable
 private fun MessageComposeActions(
-    messageComposerState: MessageComposerInnerState,
-    isMentionsSelected: Boolean
+    attachmentOptionsDisplayed: Boolean,
+    isMentionsSelected: Boolean,
+    startMention: () -> Unit,
+    onAdditionalOptionButtonClicked: () -> Unit,
 ) {
     val localFeatureVisibilityFlags = LocalFeatureVisibilityFlags.current
 
@@ -69,19 +96,12 @@ private fun MessageComposeActions(
             .height(dimensions().spacing56x)
     ) {
         with(localFeatureVisibilityFlags) {
-            AdditionalOptionButton(messageComposerState.attachmentOptionsDisplayed) {
-                messageComposerState.focusManager.clearFocus()
-                messageComposerState.toggleAttachmentOptionsVisibility()
-            }
-            if (RichTextIcon)
-                RichTextEditingAction()
-            if (EmojiIcon)
-                AddEmojiAction()
-            if (GifIcon)
-                AddGifAction()
-            AddMentionAction(isMentionsSelected, messageComposerState::startMention)
-            if (PingIcon)
-                PingAction()
+            AdditionalOptionButton(attachmentOptionsDisplayed, onAdditionalOptionButtonClicked)
+            if (RichTextIcon) RichTextEditingAction()
+            if (EmojiIcon) AddEmojiAction()
+            if (GifIcon) AddGifAction()
+            AddMentionAction(isMentionsSelected, startMention)
+            if (PingIcon) PingAction()
         }
     }
 }

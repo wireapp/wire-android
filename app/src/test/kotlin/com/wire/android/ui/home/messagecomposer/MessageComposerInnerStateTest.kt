@@ -1,3 +1,23 @@
+/*
+ * Wire
+ * Copyright (C) 2023 Wire Swiss GmbH
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see http://www.gnu.org/licenses/.
+ *
+ *
+ */
+
 package com.wire.android.ui.home.messagecomposer
 
 import android.content.Context
@@ -85,7 +105,7 @@ class MessageComposerInnerStateTest {
 
         val expectedMention = listOf(UiMention(11, 11, UserId("id_0", "domain"), "@user name0"))
         assertEquals(expectedMention, state.mentions)
-        assertEquals("start text @user name0 testing", state.messageText.text)
+        assertEquals("start text @user name0 testing", state.messageComposeInputState.messageText.text)
     }
 
     @Test
@@ -170,7 +190,17 @@ class MessageComposerInnerStateTest {
         state.startMention()
 
         assertEquals("", state.mentionQueryFlowState.value)
-        assertEquals("some text\n@", state.messageText.text)
+        assertEquals("some text\n@", state.messageComposeInputState.messageText.text)
+    }
+
+    @Test
+    fun `given some text, when editing the message, input text changes to the original message text`() = runTest {
+        val originalMessageText = "original message text"
+        val state = createState(context, focusManager)
+        state.setMessageTextValue(textFieldValueWithSelection("start text"))
+        state.toEditMessage("message-id", originalMessageText)
+        assert(state.messageComposeInputState.isEditMessage)
+        assertEquals(originalMessageText, state.messageComposeInputState.messageText.text)
     }
 
     private fun textFieldValueWithSelection(text: String) = TextFieldValue(text, TextRange(text.length))

@@ -248,7 +248,7 @@ private fun StartCallAudioBluetoothPermissionCheckFlow(
 ) = rememberCallingRecordAudioBluetoothRequestFlow(onAudioBluetoothPermissionGranted = {
     onStartCall()
 }) {
-    //TODO display an error dialog
+    // TODO display an error dialog
 }
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class, ExperimentalLayoutApi::class)

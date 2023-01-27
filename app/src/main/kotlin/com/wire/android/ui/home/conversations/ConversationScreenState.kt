@@ -62,7 +62,7 @@ fun rememberConversationScreenState(
     }
 }
 
-//todo: pass directly the strings, to avoid passing the context
+// todo: pass directly the strings, to avoid passing the context
 @OptIn(ExperimentalMaterialApi::class)
 class ConversationScreenState(
     val context: Context,

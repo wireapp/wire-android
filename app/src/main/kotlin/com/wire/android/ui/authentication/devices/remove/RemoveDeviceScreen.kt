@@ -17,7 +17,6 @@
  *
  *
  */
-
 package com.wire.android.ui.authentication.devices.remove
 
 import android.content.Context
@@ -67,6 +66,7 @@ import com.wire.android.ui.common.rememberTopBarElevationState
 import com.wire.android.ui.common.textfield.WirePasswordTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.common.textfield.clearAutofillTree
+import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
@@ -94,7 +94,8 @@ fun RemoveDeviceScreen() {
         onErrorDialogDismiss = viewModel::clearDeleteClientError,
         onBackButtonClicked = clearSessionViewModel::onBackButtonClicked,
         onCancelLoginClicked = clearSessionViewModel::onCancelLoginClicked,
-        onProceedLoginClicked = clearSessionViewModel::onProceedLoginClicked
+        onProceedLoginClicked = clearSessionViewModel::onProceedLoginClicked,
+        navigationIconType = NavigationIconType.Close
     )
 }
 
@@ -110,9 +111,10 @@ fun RemoveDeviceContent(
     onRemoveConfirm: () -> Unit,
     onDialogDismiss: () -> Unit,
     onErrorDialogDismiss: () -> Unit,
-    onBackButtonClicked: () -> Unit,
     onCancelLoginClicked: () -> Unit,
-    onProceedLoginClicked: () -> Unit
+    onProceedLoginClicked: () -> Unit,
+    onBackButtonClicked: () -> Unit,
+    navigationIconType: NavigationIconType
 ) {
     BackHandler {
         onBackButtonClicked()
@@ -141,7 +143,8 @@ fun RemoveDeviceContent(
             title = title,
             description = description,
             elevation = lazyListState.rememberTopBarElevationState().value,
-            onBackButtonClicked = onBackButtonClicked
+            onBackButtonClicked = onBackButtonClicked,
+            navigationIconType = navigationIconType
         )
     }) { internalPadding ->
         Box(modifier = Modifier.padding(internalPadding)) {
@@ -322,6 +325,7 @@ fun PreviewRemoveDeviceScreen() {
         onErrorDialogDismiss = {},
         onBackButtonClicked = {},
         onCancelLoginClicked = {},
-        onProceedLoginClicked = {}
+        onProceedLoginClicked = {},
+        navigationIconType = NavigationIconType.Close
     )
 }

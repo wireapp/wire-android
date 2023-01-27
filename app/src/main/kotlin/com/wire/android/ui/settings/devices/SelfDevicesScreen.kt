@@ -23,11 +23,17 @@ package com.wire.android.ui.settings.devices
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.ui.authentication.devices.common.ClearSessionState
+import com.wire.android.ui.authentication.devices.model.Device
 import com.wire.android.ui.authentication.devices.remove.RemoveDeviceContent
+import com.wire.android.ui.authentication.devices.remove.RemoveDeviceDialogState
+import com.wire.android.ui.authentication.devices.remove.RemoveDeviceError
+import com.wire.android.ui.authentication.devices.remove.RemoveDeviceState
 import com.wire.android.ui.authentication.devices.remove.RemoveDeviceViewModel
+import com.wire.android.ui.common.topappbar.NavigationIconType
 
 @Composable
 fun SelfDevicesScreen() {
@@ -47,6 +53,33 @@ fun SelfDevicesScreen() {
         onErrorDialogDismiss = removeDeviceViewModel::clearDeleteClientError,
         onBackButtonClicked = selfDeviceViewModel::navigateBack,
         onCancelLoginClicked = {},
-        onProceedLoginClicked = {}
+        onProceedLoginClicked = {},
+        navigationIconType = NavigationIconType.Back
+    )
+}
+
+@Preview
+@Composable
+fun PreviewSelfDevicesScreen() {
+    RemoveDeviceContent(
+        state = RemoveDeviceState(
+            List(10) { Device() },
+            RemoveDeviceDialogState.Hidden,
+            isLoadingClientsList = false,
+            error = RemoveDeviceError.None,
+            null
+        ),
+        title = "Your devices",
+        description = null,
+        clearSessionState = ClearSessionState(),
+        onItemClicked = {},
+        onPasswordChange = {},
+        onRemoveConfirm = {},
+        onDialogDismiss = {},
+        onErrorDialogDismiss = {},
+        onBackButtonClicked = {},
+        onCancelLoginClicked = {},
+        onProceedLoginClicked = {},
+        navigationIconType = NavigationIconType.Back
     )
 }

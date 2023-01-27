@@ -41,12 +41,13 @@ fun RemoveDeviceTopBar(
     title: String = stringResource(R.string.remove_device_title),
     description: String?,
     elevation: Dp,
-    onBackButtonClicked: () -> Unit
+    onBackButtonClicked: () -> Unit,
+    navigationIconType: NavigationIconType
 ) {
     WireCenterAlignedTopAppBar(
         title = title,
         elevation = elevation,
-        navigationIconType = NavigationIconType.Close,
+        navigationIconType = navigationIconType,
         onNavigationPressed = onBackButtonClicked
     ) {
         if (description?.isNotEmpty() == true) {
@@ -78,6 +79,8 @@ fun PreviewLoginTopBar() {
     RemoveDeviceTopBar(
         stringResource(R.string.remove_device_title),
         stringResource(id = R.string.remove_device_message),
-        0.dp
-    ) {}
+        0.dp,
+        onBackButtonClicked = {},
+        navigationIconType = NavigationIconType.Close
+    )
 }

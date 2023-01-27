@@ -100,7 +100,7 @@ fun GroupConversationSettings(
             )
         }
         if (state.areAccessOptionsAvailable) {
-            item { FolderHeader(name = stringResource(R.string.folder_lable_access)) }
+            item { FolderHeader(name = stringResource(R.string.folder_label_access)) }
 
             item {
                 GuestOption(
@@ -136,7 +136,7 @@ fun ConversationProtocolDetails(
     protocolInfo: Conversation.ProtocolInfo
 ) {
     Column {
-        FolderHeader(name = stringResource(R.string.folder_lable_protocol_details))
+        FolderHeader(name = stringResource(R.string.folder_label_protocol_details))
         if (protocolInfo is Conversation.ProtocolInfo.MLS || BuildConfig.MLS_SUPPORT_ENABLED) {
             ProtocolDetails(
                 label = UIText.StringResource(R.string.protocol),

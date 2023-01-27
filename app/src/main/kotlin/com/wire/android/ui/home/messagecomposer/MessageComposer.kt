@@ -169,7 +169,7 @@ private fun MessageComposer(
     Surface(color = colorsScheme().messageComposerBackgroundColor) {
         val transition = updateTransition(
             targetState = messageComposerState.messageComposeInputState,
-            label = stringResource(R.string.animation_label_messagecomposeinput_state_transistion)
+            label = stringResource(R.string.animation_label_message_compose_input_state_transition)
         )
 
         BoxWithConstraints(Modifier.fillMaxSize()) {
@@ -477,7 +477,7 @@ private fun CollapseIconButtonBox(
                 .wrapContentHeight()
         ) {
             val collapseButtonRotationDegree by transition.animateFloat(
-                label = stringResource(R.string.animation_label_button_rotation_degree_transistion)
+                label = stringResource(R.string.animation_label_button_rotation_degree_transition)
             ) { state ->
                 when (state) {
                     MessageComposeInputState.Active, MessageComposeInputState.Enabled -> 0f

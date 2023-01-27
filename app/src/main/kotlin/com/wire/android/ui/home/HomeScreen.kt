@@ -259,10 +259,7 @@ fun HomeContent(
                                 if (currentNavigationItem.isSearchable)
                                     SearchTopBar(
                                         isSearchActive = searchBarState.isSearchActive,
-                                        searchBarHint = stringResource(
-                                            R.string.search_bar_hint,
-                                            stringResource(id = title).lowercase()
-                                        ),
+                                        searchBarHint = stringResource(R.string.search_bar_conversations_hint),
                                         searchQuery = searchBarState.searchQuery,
                                         onSearchQueryChanged = searchBarState::searchQueryChanged,
                                         onInputClicked = searchBarState::openSearch,
@@ -348,22 +345,21 @@ private fun handleSnackBarMessage(
             HomeSnackbarState.BlockingUserOperationError -> stringResource(id = R.string.error_blocking_user)
             HomeSnackbarState.UnblockingUserOperationError -> stringResource(id = R.string.error_unblocking_user)
             HomeSnackbarState.None -> ""
-            is HomeSnackbarState.DeletedConversationGroupSuccess ->
-                stringResource(id = R.string.conversation_group_removed_success, messageType.groupName)
+            is HomeSnackbarState.DeletedConversationGroupSuccess -> stringResource(
+                id = R.string.conversation_group_removed_success,
+                messageType.groupName
+            )
 
             HomeSnackbarState.LeftConversationSuccess -> stringResource(id = R.string.left_conversation_group_success)
             HomeSnackbarState.LeaveConversationError -> stringResource(id = R.string.leave_group_conversation_error)
             HomeSnackbarState.DeleteConversationGroupError -> stringResource(id = R.string.delete_group_conversation_error)
             is HomeSnackbarState.ClearConversationContentFailure -> stringResource(
-                if (messageType.isGroup)
-                    R.string.group_content_delete_failure else
-                    R.string.conversation_content_delete_failure
+                if (messageType.isGroup) R.string.group_content_delete_failure
+                else R.string.conversation_content_delete_failure
             )
 
             is HomeSnackbarState.ClearConversationContentSuccess -> stringResource(
-                if (messageType.isGroup)
-                    R.string.group_content_deleted else
-                    R.string.conversation_content_deleted
+                if (messageType.isGroup) R.string.group_content_deleted else R.string.conversation_content_deleted
             )
         }
 

@@ -1,3 +1,23 @@
+/*
+ * Wire
+ * Copyright (C) 2023 Wire Swiss GmbH
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see http://www.gnu.org/licenses/.
+ *
+ *
+ */
+
 package com.wire.android.ui.home.conversations.model
 
 import androidx.annotation.DrawableRes
@@ -76,7 +96,7 @@ sealed class UILastMessageContent {
 
     data class SenderWithMessage(val sender: UIText, val message: UIText, val separator: String = " ") : UILastMessageContent()
 
-    data class MultipleMessage(val firstMessage: UIText, val secondMessage: UIText) : UILastMessageContent()
+    data class MultipleMessage(val messages: List<UIText>, val separator: String = " ") : UILastMessageContent()
 
     data class Connection(val connectionState: ConnectionState, val userId: UserId) : UILastMessageContent()
 
@@ -121,6 +141,10 @@ sealed class UIMessageContent {
         val additionalContent: String = ""
     ) : UIMessageContent() {
 
+        data class Knock(val author: UIText) : SystemMessage(
+            R.drawable.ic_ping, R.string.label_message_knock
+        )
+
         data class MemberAdded(
             val author: UIText,
             val memberNames: List<UIText>
@@ -156,6 +180,14 @@ sealed class UIMessageContent {
         data class NewConversationReceiptMode(
             val receiptMode: UIText
         ) : SystemMessage(R.drawable.ic_view, R.string.label_system_message_new_conversation_receipt_mode)
+
+        data class ConversationReceiptModeChanged(
+            val author: UIText,
+            val receiptMode: UIText
+        ) : SystemMessage(R.drawable.ic_view, R.string.label_system_message_read_receipt_changed)
+
+        class HistoryLost :
+            SystemMessage(R.drawable.ic_info, R.string.label_system_message_conversation_history_lost, true)
     }
 }
 

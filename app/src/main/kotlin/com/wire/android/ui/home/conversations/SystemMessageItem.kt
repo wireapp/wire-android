@@ -1,3 +1,23 @@
+/*
+ * Wire
+ * Copyright (C) 2023 Wire Swiss GmbH
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see http://www.gnu.org/licenses/.
+ *
+ *
+ */
+
 package com.wire.android.ui.home.conversations
 
 import android.content.res.Resources
@@ -25,6 +45,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -34,7 +55,9 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
 import com.wire.android.ui.common.button.WireSecondaryButton
+import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.home.conversations.model.UIMessageContent.SystemMessage
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
@@ -74,6 +97,7 @@ fun SystemMessageItem(message: SystemMessage) {
                     Image(
                         painter = painterResource(id = message.iconResId),
                         contentDescription = null,
+                        colorFilter = getColorFilter(message),
                         modifier = Modifier.size(size),
                         contentScale = ContentScale.Crop
                     )
@@ -90,14 +114,17 @@ fun SystemMessageItem(message: SystemMessage) {
                     style = MaterialTheme.wireTypography.body01,
                     lineHeight = MaterialTheme.wireTypography.body02.lineHeight,
                     text = message.annotatedString(
-                        context.resources,
-                        it,
-                        MaterialTheme.wireTypography.body01,
-                        MaterialTheme.wireTypography.body02,
-                        MaterialTheme.wireColorScheme.secondaryText,
-                        MaterialTheme.wireColorScheme.onBackground,
+                        res = context.resources,
+                        expanded = it,
+                        normalStyle = MaterialTheme.wireTypography.body01,
+                        boldStyle = MaterialTheme.wireTypography.body02,
+                        normalColor = MaterialTheme.wireColorScheme.secondaryText,
+                        boldColor = MaterialTheme.wireColorScheme.onBackground
                     )
                 )
+            }
+            if (message is SystemMessage.Knock) {
+                VerticalSpace.x8()
             }
             if (message.expandable) {
                 WireSecondaryButton(
@@ -117,15 +144,38 @@ fun SystemMessageItem(message: SystemMessage) {
     }
 }
 
+@Composable
+private fun getColorFilter(message: SystemMessage): ColorFilter? {
+    return when (message) {
+        is SystemMessage.MissedCall.OtherCalled -> null
+        is SystemMessage.MissedCall.YouCalled -> null
+        is SystemMessage.Knock -> null
+        is SystemMessage.MemberAdded -> ColorFilter.tint(colorsScheme().onBackground)
+        is SystemMessage.MemberLeft -> ColorFilter.tint(colorsScheme().onBackground)
+        is SystemMessage.MemberRemoved -> ColorFilter.tint(colorsScheme().onBackground)
+        is SystemMessage.CryptoSessionReset -> ColorFilter.tint(colorsScheme().onBackground)
+        is SystemMessage.RenamedConversation -> ColorFilter.tint(colorsScheme().onBackground)
+        is SystemMessage.TeamMemberRemoved -> ColorFilter.tint(colorsScheme().onBackground)
+        is SystemMessage.ConversationReceiptModeChanged -> ColorFilter.tint(colorsScheme().onBackground)
+        is SystemMessage.HistoryLost -> ColorFilter.tint(colorsScheme().onBackground)
+        is SystemMessage.NewConversationReceiptMode -> ColorFilter.tint(colorsScheme().onBackground)
+    }
+}
+
 @Preview
 @Composable
-fun SystemMessageAdded7UsersPreview() {
+fun PreviewSystemMessageAdded7Users() {
     SystemMessageItem(
         message = SystemMessage.MemberAdded(
             "Barbara Cotolina".toUIText(),
             listOf(
-                "Albert Lewis".toUIText(), "Bert Strunk".toUIText(), "Claudia Schiffer".toUIText(), "Dorothee Friedrich".toUIText(),
-                "Erich Weinert".toUIText(), "Frieda Kahlo".toUIText(), "Gudrun Gut".toUIText()
+                "Albert Lewis".toUIText(),
+                "Bert Strunk".toUIText(),
+                "Claudia Schiffer".toUIText(),
+                "Dorothee Friedrich".toUIText(),
+                "Erich Weinert".toUIText(),
+                "Frieda Kahlo".toUIText(),
+                "Gudrun Gut".toUIText()
             )
         )
     )
@@ -133,7 +183,7 @@ fun SystemMessageAdded7UsersPreview() {
 
 @Preview
 @Composable
-fun SystemMessageAdded4UsersPreview() {
+fun PreviewSystemMessageAdded4Users() {
     SystemMessageItem(
         message = SystemMessage.MemberAdded(
             "Barbara Cotolina".toUIText(),
@@ -144,7 +194,7 @@ fun SystemMessageAdded4UsersPreview() {
 
 @Preview
 @Composable
-fun SystemMessageRemoved4UsersPreview() {
+fun PreviewSystemMessageRemoved4Users() {
     SystemMessageItem(
         message = SystemMessage.MemberRemoved(
             "Barbara Cotolina".toUIText(),
@@ -155,14 +205,20 @@ fun SystemMessageRemoved4UsersPreview() {
 
 @Preview
 @Composable
-fun SystemMessageLeftPreview() {
+fun PreviewSystemMessageLeft() {
     SystemMessageItem(message = SystemMessage.MemberLeft(UIText.DynamicString("Barbara Cotolina")))
 }
 
 @Preview
 @Composable
-fun SystemMessageMissedCallPreview() {
+fun PreviewSystemMessageMissedCall() {
     SystemMessageItem(message = SystemMessage.MissedCall.OtherCalled(UIText.DynamicString("Barbara Cotolina")))
+}
+
+@Preview
+@Composable
+fun PreviewSystemMessageKnock() {
+    SystemMessageItem(message = SystemMessage.Knock(UIText.DynamicString("Barbara Cotolina")))
 }
 
 private val SystemMessage.expandable
@@ -175,6 +231,9 @@ private val SystemMessage.expandable
         is SystemMessage.TeamMemberRemoved -> false
         is SystemMessage.CryptoSessionReset -> false
         is SystemMessage.NewConversationReceiptMode -> false
+        is SystemMessage.ConversationReceiptModeChanged -> false
+        is SystemMessage.Knock -> false
+        is SystemMessage.HistoryLost -> false
     }
 
 private fun List<String>.toUserNamesListString(res: Resources) = when {
@@ -218,6 +277,9 @@ fun SystemMessage.annotatedString(
         is SystemMessage.TeamMemberRemoved -> arrayOf(content.userName)
         is SystemMessage.CryptoSessionReset -> arrayOf(author.asString(res))
         is SystemMessage.NewConversationReceiptMode -> arrayOf(receiptMode.asString(res))
+        is SystemMessage.ConversationReceiptModeChanged -> arrayOf(author.asString(res), receiptMode.asString(res))
+        is SystemMessage.Knock -> arrayOf(author.asString(res))
+        is SystemMessage.HistoryLost -> arrayOf()
     }
     return res.stringWithStyledArgs(stringResId, normalStyle, boldStyle, normalColor, boldColor, *args)
 }

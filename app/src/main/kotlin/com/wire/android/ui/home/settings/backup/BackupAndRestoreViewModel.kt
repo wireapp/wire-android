@@ -1,3 +1,23 @@
+/*
+ * Wire
+ * Copyright (C) 2023 Wire Swiss GmbH
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see http://www.gnu.org/licenses/.
+ *
+ *
+ */
+
 package com.wire.android.ui.home.settings.backup
 
 import android.net.Uri
@@ -91,7 +111,7 @@ class BackupAndRestoreViewModel
         state = BackupAndRestoreState.INITIAL_STATE
     }
 
-    fun chooseBackupFileToRestore(uri: Uri) = viewModelScope.launch(dispatcher.io()) {
+    fun chooseBackupFileToRestore(uri: Uri) = viewModelScope.launch {
         latestImportedBackupTempPath = kaliumFileSystem.tempFilePath(TEMP_IMPORTED_BACKUP_FILE_NAME)
         fileManager.copyToTempPath(uri, latestImportedBackupTempPath)
         checkIfBackupEncrypted(latestImportedBackupTempPath)
@@ -206,13 +226,18 @@ class BackupAndRestoreViewModel
         updateCreationProgress(0f)
     }
 
-    fun cancelBackupRestore() {
+    fun cancelBackupRestore() = viewModelScope.launch {
         state = state.copy(
             restoreFileValidation = RestoreFileValidation.Initial,
             backupRestoreProgress = BackupRestoreProgress.InProgress(),
             restorePasswordValidation = PasswordValidation.NotVerified
         )
-        if (kaliumFileSystem.exists(latestImportedBackupTempPath)) kaliumFileSystem.delete(latestImportedBackupTempPath)
+        withContext(dispatcher.io()) {
+            if (this@BackupAndRestoreViewModel::latestImportedBackupTempPath.isInitialized && kaliumFileSystem.exists(
+                    latestImportedBackupTempPath
+                )
+            ) kaliumFileSystem.delete(latestImportedBackupTempPath)
+        }
     }
 
     private suspend fun updateCreationProgress(progress: Float) = withContext(dispatcher.main()) {

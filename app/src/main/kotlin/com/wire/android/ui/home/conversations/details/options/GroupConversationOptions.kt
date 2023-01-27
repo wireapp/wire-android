@@ -1,3 +1,23 @@
+/*
+ * Wire
+ * Copyright (C) 2023 Wire Swiss GmbH
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see http://www.gnu.org/licenses/.
+ *
+ *
+ */
+
 @file:Suppress("TooManyFunctions")
 
 package com.wire.android.ui.home.conversations.details.options
@@ -80,7 +100,7 @@ fun GroupConversationSettings(
             )
         }
         if (state.areAccessOptionsAvailable) {
-            item { FolderHeader(name = stringResource(R.string.folder_lable_access)) }
+            item { FolderHeader(name = stringResource(R.string.folder_label_access)) }
 
             item {
                 GuestOption(
@@ -114,7 +134,7 @@ fun ConversationProtocolDetails(
     protocolInfo: Conversation.ProtocolInfo
 ) {
     Column {
-        FolderHeader(name = stringResource(R.string.folder_lable_protocol_details))
+        FolderHeader(name = stringResource(R.string.folder_label_protocol_details))
         if (protocolInfo is Conversation.ProtocolInfo.MLS || BuildConfig.MLS_SUPPORT_ENABLED) {
             ProtocolDetails(
                 label = UIText.StringResource(R.string.protocol),
@@ -276,7 +296,7 @@ private fun DisableConformationDialog(@StringRes title: Int, @StringRes text: In
 
 @Preview
 @Composable
-private fun AdminTeamGroupConversationOptionsPreview() {
+fun PreviewAdminTeamGroupConversationOptions() {
     GroupConversationSettings(
         GroupConversationOptionsState(
             conversationId = ConversationId("someValue", "someDomain"),
@@ -293,7 +313,7 @@ private fun AdminTeamGroupConversationOptionsPreview() {
 
 @Preview
 @Composable
-private fun GuestAdminTeamGroupConversationOptionsPreview() {
+fun PreviewGuestAdminTeamGroupConversationOptions() {
     GroupConversationSettings(
         GroupConversationOptionsState(
             conversationId = ConversationId("someValue", "someDomain"),
@@ -310,7 +330,7 @@ private fun GuestAdminTeamGroupConversationOptionsPreview() {
 
 @Preview
 @Composable
-private fun MemberTeamGroupConversationOptionsPreview() {
+fun PreviewMemberTeamGroupConversationOptions() {
     GroupConversationSettings(
         GroupConversationOptionsState(
             conversationId = ConversationId("someValue", "someDomain"),
@@ -327,7 +347,7 @@ private fun MemberTeamGroupConversationOptionsPreview() {
 
 @Preview
 @Composable
-private fun NormalGroupConversationOptionsPreview() {
+fun PreviewNormalGroupConversationOptions() {
     GroupConversationSettings(
         GroupConversationOptionsState(
             conversationId = ConversationId("someValue", "someDomain"),
@@ -340,6 +360,6 @@ private fun NormalGroupConversationOptionsPreview() {
 
 @Preview(showBackground = true)
 @Composable
-private fun DisableGuestConformationDialogPreview() {
+fun PreviewDisableGuestConformationDialog() {
     DisableGuestConfirmationDialog({}, {})
 }

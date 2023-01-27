@@ -1,3 +1,23 @@
+/*
+ * Wire
+ * Copyright (C) 2023 Wire Swiss GmbH
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see http://www.gnu.org/licenses/.
+ *
+ *
+ */
+
 package com.wire.android.mapper
 
 import com.wire.android.R
@@ -22,25 +42,48 @@ fun MessagePreview?.toUIPreview(unreadEventCount: UnreadEventCount): UILastMessa
         .toSortedMap()
 
     // we want to show last message content instead of counter when there are only one type of unread events
-    if (sortedUnreadContent.size > 1) {
+    if (sortedUnreadContent.isNotEmpty()) {
         val unreadContentTexts = sortedUnreadContent
             .mapNotNull { type ->
                 when (type.key) {
-                    UnreadEventType.KNOCK -> UIText.PluralResource(R.plurals.unread_event_knock, type.value, type.value)
-                    UnreadEventType.MISSED_CALL -> UIText.PluralResource(R.plurals.unread_event_call, type.value, type.value)
-                    UnreadEventType.MENTION -> UIText.PluralResource(R.plurals.unread_event_mention, type.value, type.value)
-                    UnreadEventType.REPLY -> UIText.PluralResource(R.plurals.unread_event_reply, type.value, type.value)
-                    UnreadEventType.MESSAGE -> UIText.PluralResource(R.plurals.unread_event_message, type.value, type.value)
+                    UnreadEventType.KNOCK -> UnreadEventType.KNOCK to UIText.PluralResource(
+                        R.plurals.unread_event_knock,
+                        type.value,
+                        type.value
+                    )
+                    UnreadEventType.MISSED_CALL -> UnreadEventType.MISSED_CALL to UIText.PluralResource(
+                        R.plurals.unread_event_call,
+                        type.value,
+                        type.value
+                    )
+                    UnreadEventType.MENTION -> UnreadEventType.MENTION to UIText.PluralResource(
+                        R.plurals.unread_event_mention,
+                        type.value,
+                        type.value
+                    )
+                    UnreadEventType.REPLY -> UnreadEventType.REPLY to UIText.PluralResource(
+                        R.plurals.unread_event_reply,
+                        type.value,
+                        type.value
+                    )
+                    UnreadEventType.MESSAGE -> UnreadEventType.MESSAGE to UIText.PluralResource(
+                        R.plurals.unread_event_message,
+                        type.value,
+                        type.value
+                    )
                     UnreadEventType.IGNORED -> null
                     null -> null
                 }
-            }
+            }.associate { it }
         if (unreadContentTexts.size > 1) {
-            val first = unreadContentTexts.first()
-            val second = unreadContentTexts.elementAt(1)
-            return UILastMessageContent.MultipleMessage(first, second)
+            val first = unreadContentTexts.values.first()
+            val second = unreadContentTexts.values.elementAt(1)
+            return UILastMessageContent.MultipleMessage(listOf(first, second))
         } else if (unreadContentTexts.isNotEmpty()) {
-            return UILastMessageContent.TextMessage(MessageBody(unreadContentTexts.first()))
+            val unreadContent = unreadContentTexts.entries.first()
+            if (unreadContent.key != UnreadEventType.MESSAGE) {
+                return UILastMessageContent.TextMessage(MessageBody(unreadContent.value))
+            }
         }
     }
 
@@ -51,11 +94,10 @@ private fun String?.userUiText(isSelfMessage: Boolean): UIText = when {
     isSelfMessage -> UIText.StringResource(R.string.member_name_you_label_titlecase)
     this != null -> UIText.DynamicString(this)
     else -> UIText.StringResource(R.string.username_unavailable_label)
-
 }
 
 @Suppress("LongMethod", "ComplexMethod")
-private fun MessagePreview.uiLastMessageContent(): UILastMessageContent {
+fun MessagePreview.uiLastMessageContent(): UILastMessageContent {
     return when (content) {
         is WithUser -> {
             val userContent = (content as WithUser)
@@ -72,7 +114,6 @@ private fun MessagePreview.uiLastMessageContent(): UILastMessageContent {
                         UILastMessageContent.SenderWithMessage(userUIText, UIText.StringResource(R.string.last_message_asset))
                     AssetType.FILE ->
                         UILastMessageContent.SenderWithMessage(userUIText, UIText.StringResource(R.string.last_message_file))
-
                 }
                 is WithUser.ConversationNameChange -> UILastMessageContent.SenderWithMessage(
                     userUIText,
@@ -82,22 +123,65 @@ private fun MessagePreview.uiLastMessageContent(): UILastMessageContent {
                     userUIText,
                     UIText.StringResource(R.string.last_message_knock)
                 )
-                is WithUser.MembersAdded -> UILastMessageContent.SenderWithMessage(
+                is WithUser.MemberJoined -> UILastMessageContent.SenderWithMessage(
                     userUIText,
-                    UIText.PluralResource(
-                        R.plurals.last_message_people_added,
-                        (content as WithUser.MembersAdded).count,
-                        (content as WithUser.MembersAdded).count,
-                    )
+                    UIText.StringResource(R.string.last_message_joined_conversation)
                 )
-                is WithUser.MembersRemoved -> UILastMessageContent.SenderWithMessage(
+                is WithUser.MemberLeft -> UILastMessageContent.SenderWithMessage(
                     userUIText,
-                    UIText.PluralResource(
-                        R.plurals.last_message_people_removed,
-                        (content as WithUser.MembersRemoved).count,
-                        (content as WithUser.MembersRemoved).count
-                    )
+                    UIText.StringResource(R.string.last_message_left_conversation)
                 )
+                is WithUser.MembersAdded -> {
+                    val membersAddedContent = (content as WithUser.MembersAdded)
+                    val isSelfAdded = membersAddedContent.isSelfUserAdded
+
+                    UILastMessageContent.MultipleMessage(
+                        listOf(
+                            userUIText,
+                            UIText.StringResource(R.string.last_message_added),
+                        )
+                            .plus(if (isSelfAdded) listOf(UIText.StringResource(R.string.member_name_you_label_lowercase)) else listOf())
+                            .plusIf(
+                                { isSelfAdded && membersAddedContent.otherUserIdList.isNotEmpty() },
+                                listOf(UIText.StringResource(R.string.label_and))
+                            )
+                            .plusIf(
+                                { membersAddedContent.otherUserIdList.isNotEmpty() },
+                                UIText.PluralResource(
+                                    R.plurals.last_message_people,
+                                    membersAddedContent.otherUserIdList.size,
+                                    membersAddedContent.otherUserIdList.size
+                                )
+                            )
+                            .plus(UIText.StringResource(R.string.last_message_to_conversation))
+                    )
+                }
+
+                is WithUser.MembersRemoved -> {
+                    val membersRemovedContent = (content as WithUser.MembersRemoved)
+                    val isSelfRemoved = membersRemovedContent.isSelfUserRemoved
+
+                    UILastMessageContent.MultipleMessage(
+                        listOf(
+                            userUIText,
+                            UIText.StringResource(R.string.last_message_removed),
+                        )
+                            .plus(if (isSelfRemoved) listOf(UIText.StringResource(R.string.member_name_you_label_lowercase)) else listOf())
+                            .plusIf(
+                                { isSelfRemoved && membersRemovedContent.otherUserIdList.isNotEmpty() },
+                                listOf(UIText.StringResource(R.string.label_and))
+                            )
+                            .plusIf(
+                                { membersRemovedContent.otherUserIdList.isNotEmpty() },
+                                UIText.PluralResource(
+                                    R.plurals.last_message_people,
+                                    membersRemovedContent.otherUserIdList.size,
+                                    membersRemovedContent.otherUserIdList.size
+                                )
+                            )
+                            .plus(UIText.StringResource(R.string.last_message_from_conversation))
+                    )
+                }
                 is WithUser.MentionedSelf -> UILastMessageContent.SenderWithMessage(
                     userUIText,
                     UIText.StringResource(R.string.last_message_mentioned)
@@ -121,3 +205,6 @@ private fun MessagePreview.uiLastMessageContent(): UILastMessageContent {
         Unknown -> UILastMessageContent.None
     }
 }
+
+fun <T> List<T>.plusIf(condition: () -> Boolean, element: T): List<T> = plus(if (condition()) listOf(element) else listOf())
+fun <T> List<T>.plusIf(condition: () -> Boolean, elements: List<T>): List<T> = plus(if (condition()) elements else listOf())

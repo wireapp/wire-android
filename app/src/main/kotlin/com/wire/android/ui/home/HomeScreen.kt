@@ -1,3 +1,23 @@
+/*
+ * Wire
+ * Copyright (C) 2023 Wire Swiss GmbH
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see http://www.gnu.org/licenses/.
+ *
+ *
+ */
+
 package com.wire.android.ui.home
 
 import android.content.Context
@@ -239,10 +259,7 @@ fun HomeContent(
                                 if (currentNavigationItem.isSearchable)
                                     SearchTopBar(
                                         isSearchActive = searchBarState.isSearchActive,
-                                        searchBarHint = stringResource(
-                                            R.string.search_bar_hint,
-                                            stringResource(id = title).lowercase()
-                                        ),
+                                        searchBarHint = stringResource(R.string.search_bar_conversations_hint),
                                         searchQuery = searchBarState.searchQuery,
                                         onSearchQueryChanged = searchBarState::searchQueryChanged,
                                         onInputClicked = searchBarState::openSearch,
@@ -328,22 +345,21 @@ private fun handleSnackBarMessage(
             HomeSnackbarState.BlockingUserOperationError -> stringResource(id = R.string.error_blocking_user)
             HomeSnackbarState.UnblockingUserOperationError -> stringResource(id = R.string.error_unblocking_user)
             HomeSnackbarState.None -> ""
-            is HomeSnackbarState.DeletedConversationGroupSuccess ->
-                stringResource(id = R.string.conversation_group_removed_success, messageType.groupName)
+            is HomeSnackbarState.DeletedConversationGroupSuccess -> stringResource(
+                id = R.string.conversation_group_removed_success,
+                messageType.groupName
+            )
 
             HomeSnackbarState.LeftConversationSuccess -> stringResource(id = R.string.left_conversation_group_success)
             HomeSnackbarState.LeaveConversationError -> stringResource(id = R.string.leave_group_conversation_error)
             HomeSnackbarState.DeleteConversationGroupError -> stringResource(id = R.string.delete_group_conversation_error)
             is HomeSnackbarState.ClearConversationContentFailure -> stringResource(
-                if (messageType.isGroup)
-                    R.string.group_content_delete_failure else
-                    R.string.conversation_content_delete_failure
+                if (messageType.isGroup) R.string.group_content_delete_failure
+                else R.string.conversation_content_delete_failure
             )
 
             is HomeSnackbarState.ClearConversationContentSuccess -> stringResource(
-                if (messageType.isGroup)
-                    R.string.group_content_deleted else
-                    R.string.conversation_content_deleted
+                if (messageType.isGroup) R.string.group_content_deleted else R.string.conversation_content_deleted
             )
         }
 

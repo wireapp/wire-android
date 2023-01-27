@@ -1,3 +1,23 @@
+/*
+ * Wire
+ * Copyright (C) 2023 Wire Swiss GmbH
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see http://www.gnu.org/licenses/.
+ *
+ *
+ */
+
 package com.wire.android.notification
 
 import android.app.NotificationChannelGroup
@@ -28,8 +48,15 @@ class NotificationChannelsManager @Inject constructor(
         )
     }
 
+    private val knockSoundUri by lazy {
+        Uri.parse(
+            "${ContentResolver.SCHEME_ANDROID_RESOURCE}://" +
+                    "${context.packageName}/raw/ping_from_them"
+        )
+    }
+
     fun createNotificationChannels(allUsers: List<SelfUser>) {
-        appLogger.i("${TAG}: creating all the channels for ${allUsers.size} users")
+        appLogger.i("$TAG: creating all the channels for ${allUsers.size} users")
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
 
         // creating regular NotificationChannels, that are common for all users and shouldn't be grouped.
@@ -44,6 +71,7 @@ class NotificationChannelsManager @Inject constructor(
             createIncomingCallsChannel(groupId, user.id)
             createOngoingNotificationChannel(groupId, user.id)
             createMessagesNotificationChannel(user.id, groupId)
+            createPingNotificationChannel(user.id, groupId)
         }
     }
 
@@ -52,7 +80,7 @@ class NotificationChannelsManager @Inject constructor(
      * Use it on logout.
      */
     fun deleteChannelGroup(userId: UserId) {
-        appLogger.i("${TAG}: deleting notification channels for ${userId.toString().obfuscateId()} user")
+        appLogger.i("$TAG: deleting notification channels for ${userId.toString().obfuscateId()} user")
         notificationManagerCompat.deleteNotificationChannelGroup(NotificationConstants.getChanelGroupIdForUser(userId))
     }
 
@@ -73,7 +101,6 @@ class NotificationChannelsManager @Inject constructor(
     private fun createIncomingCallsChannel(groupId: String, userId: UserId) {
         val audioAttributes = AudioAttributes.Builder()
             .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-            .setUsage(AudioAttributes.USAGE_NOTIFICATION_RINGTONE)
             .setUsage(getAudioAttributeUsageByOsLevel())
             .build()
 
@@ -109,6 +136,22 @@ class NotificationChannelsManager @Inject constructor(
             .Builder(NotificationConstants.getMessagesChannelId(userId), NotificationManagerCompat.IMPORTANCE_HIGH)
             .setName(NotificationConstants.MESSAGE_CHANNEL_NAME)
             .setGroup(channelGroupId)
+            .build()
+
+        notificationManagerCompat.createNotificationChannel(notificationChannel)
+    }
+
+    private fun createPingNotificationChannel(userId: UserId, channelGroupId: String) {
+        val audioAttributes = AudioAttributes.Builder()
+            .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+            .setUsage(AudioAttributes.USAGE_NOTIFICATION)
+            .build()
+
+        val notificationChannel = NotificationChannelCompat
+            .Builder(NotificationConstants.getPingsChannelId(userId), NotificationManagerCompat.IMPORTANCE_HIGH)
+            .setName(NotificationConstants.PING_CHANNEL_NAME)
+            .setGroup(channelGroupId)
+            .setSound(knockSoundUri, audioAttributes)
             .build()
 
         notificationManagerCompat.createNotificationChannel(notificationChannel)

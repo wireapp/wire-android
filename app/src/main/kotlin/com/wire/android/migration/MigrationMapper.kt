@@ -1,3 +1,23 @@
+/*
+ * Wire
+ * Copyright (C) 2023 Wire Swiss GmbH
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see http://www.gnu.org/licenses/.
+ *
+ *
+ */
+
 package com.wire.android.migration
 
 import com.wire.android.migration.globalDatabase.ScalaSsoIdEntity
@@ -26,7 +46,7 @@ import com.wire.kalium.logic.data.user.SsoId
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.data.user.type.UserType
-import java.time.LocalDateTime
+import com.wire.kalium.util.DateTimeUtil
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -46,6 +66,19 @@ class MigrationMapper @Inject constructor() {
 
     fun fromScalaConversationToConversation(scalaConversation: ScalaConversationData) = with(scalaConversation) {
         mapConversationType(type)?.let {
+            val lastEventTime: String =
+                if (orderTime == null || orderTime == 0L) {
+                    "1970-01-01T00:00:00.000Z"
+                } else {
+                    DateTimeUtil.fromEpochMillisToIsoDateTimeString(orderTime)
+                }
+
+            val conversationLastReadTime = if (lastReadTime == null || lastReadTime == 0L) {
+                "1970-01-01T00:00:00.000Z"
+            } else {
+                DateTimeUtil.fromEpochMillisToIsoDateTimeString(lastReadTime)
+            }
+
             Conversation(
                 id = toQualifiedId(remoteId, domain),
                 name = name,
@@ -56,17 +89,22 @@ class MigrationMapper @Inject constructor() {
                 access = mapAccess(access),
                 accessRole = listOf(TEAM_MEMBER, NON_TEAM_MEMBER, SERVICE),
                 removedBy = null,
-                lastReadDate = LocalDateTime.MIN.toString(),
-                lastModifiedDate = LocalDateTime.MIN.toString(),
-                lastNotificationDate = LocalDateTime.MIN.toString(),
+                lastReadDate = conversationLastReadTime,
+                lastModifiedDate = lastEventTime,
+                lastNotificationDate = lastEventTime,
                 creatorId = creatorId,
-                // when migrating conversations from scala to AR, we do not care about the receiptMode
-                // and any value here swill not change the data in the database
-                // and it is only applicable to deleted conversations that are not part of the sync proccess
-                receiptMode = Conversation.ReceiptMode.ENABLED
+                receiptMode = fromScalaReceiptMode(receiptMode)
             )
         }
     }
+
+    private fun fromScalaReceiptMode(receiptMode: Int?): Conversation.ReceiptMode = receiptMode?.let {
+        if (receiptMode > 0) {
+            Conversation.ReceiptMode.ENABLED
+        } else {
+            Conversation.ReceiptMode.DISABLED
+        }
+    } ?: Conversation.ReceiptMode.DISABLED
 
     fun fromScalaMessageToMessage(scalaMessage: ScalaMessageData, scalaSenderUserData: ScalaUserData) =
         MigratedMessage(
@@ -75,7 +113,9 @@ class MigrationMapper @Inject constructor() {
             senderClientId = ClientId(scalaMessage.senderClientId.orEmpty()),
             timestampIso = scalaMessage.time.timestampToServerDate().orEmpty(),
             content = scalaMessage.content.orEmpty(),
-            encryptedProto = scalaMessage.proto
+            encryptedProto = scalaMessage.proto,
+            assetName = scalaMessage.assetName,
+            assetSize = scalaMessage.assetSize,
         )
 
     private fun mapAccess(access: String): List<Access> {
@@ -92,8 +132,9 @@ class MigrationMapper @Inject constructor() {
     }
 
     private fun mapMutedStatus(status: Int): MutedConversationStatus = when (status) {
+        0 -> MutedConversationStatus.AllAllowed
         1 -> MutedConversationStatus.OnlyMentionsAndRepliesAllowed
-        2 -> MutedConversationStatus.AllAllowed
+        2 -> MutedConversationStatus.OnlyMentionsAndRepliesAllowed
         3 -> MutedConversationStatus.AllMuted
         else -> MutedConversationStatus.AllAllowed
     }

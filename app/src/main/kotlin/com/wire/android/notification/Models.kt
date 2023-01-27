@@ -1,3 +1,23 @@
+/*
+ * Wire
+ * Copyright (C) 2023 Wire Swiss GmbH
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see http://www.gnu.org/licenses/.
+ *
+ *
+ */
+
 package com.wire.android.notification
 
 import androidx.annotation.StringRes
@@ -29,6 +49,9 @@ sealed class NotificationMessage(open val author: NotificationMessageAuthor, ope
     data class Comment(override val author: NotificationMessageAuthor, override val time: Long, val textResId: CommentResId) :
         NotificationMessage(author, time)
 
+    data class Knock(override val author: NotificationMessageAuthor, override val time: Long) :
+        NotificationMessage(author, time)
+
     data class ConnectionRequest(override val author: NotificationMessageAuthor, override val time: Long, val authorId: String) :
         NotificationMessage(author, time)
 
@@ -43,7 +66,6 @@ enum class CommentResId(@StringRes val value: Int) {
     FILE(R.string.notification_shared_file),
     REACTION(R.string.notification_reacted),
     MISSED_CALL(R.string.notification_missed_call),
-    KNOCK(R.string.notification_knock),
     NOT_SUPPORTED(R.string.notification_not_supported_issue),
 }
 
@@ -90,6 +112,12 @@ fun LocalNotificationMessage.intoNotificationMessage(): NotificationMessage {
                 notificationMessageTime
             )
         }
+        is LocalNotificationMessage.Knock -> {
+            NotificationMessage.Knock(
+                notificationMessageAuthor,
+                notificationMessageTime
+            )
+        }
     }
 }
 
@@ -99,6 +127,5 @@ fun LocalNotificationCommentType.intoCommentResId(): CommentResId =
         LocalNotificationCommentType.FILE -> CommentResId.FILE
         LocalNotificationCommentType.REACTION -> CommentResId.REACTION
         LocalNotificationCommentType.MISSED_CALL -> CommentResId.MISSED_CALL
-        LocalNotificationCommentType.KNOCK -> CommentResId.KNOCK
         LocalNotificationCommentType.NOT_SUPPORTED_YET -> CommentResId.NOT_SUPPORTED
     }

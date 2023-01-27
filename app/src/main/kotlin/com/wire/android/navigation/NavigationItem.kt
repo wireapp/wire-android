@@ -1,3 +1,23 @@
+/*
+ * Wire
+ * Copyright (C) 2023 Wire Swiss GmbH
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see http://www.gnu.org/licenses/.
+ *
+ *
+ */
+
 package com.wire.android.navigation
 
 import androidx.compose.material.ExperimentalMaterialApi
@@ -18,6 +38,7 @@ import com.wire.android.navigation.NavigationItemDestinationsRoutes.CREATE_PERSO
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.CREATE_TEAM
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.DEBUG
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.EDIT_CONVERSATION_NAME
+import com.wire.android.navigation.NavigationItemDestinationsRoutes.EDIT_DISPLAY_NAME
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.GROUP_CONVERSATION_ALL_PARTICIPANTS
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.GROUP_CONVERSATION_DETAILS
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.HOME
@@ -193,6 +214,11 @@ enum class NavigationItem(
         content = { DebugScreen() },
     ),
 
+    EditDisplayName(
+        primaryRoute = EDIT_DISPLAY_NAME,
+        content = { com.wire.android.ui.home.settings.account.displayname.ChangeDisplayNameScreen() }
+    ),
+
     NetworkSettings(
         primaryRoute = NETWORK_SETTINGS,
         content = { NetworkSettingsScreen() },
@@ -205,7 +231,7 @@ enum class NavigationItem(
 
     MyAccount(
         primaryRoute = MY_ACCOUNT,
-        content = { MyAccountScreen() }
+        content = { MyAccountScreen(it.navBackStackEntry.savedStateHandle.getBackNavArgs()) }
     ),
 
     SelfUserProfile(
@@ -423,6 +449,7 @@ object NavigationItemDestinationsRoutes {
     const val PRIVACY_SETTINGS = "privacy_settings"
     const val BACKUP_AND_RESTORE = "backup_and_restore_screen"
     const val MY_ACCOUNT = "my_account_screen"
+    const val EDIT_DISPLAY_NAME = "edit_display_name_screen"
     const val DEBUG = "debug_screen"
     const val REMOVE_DEVICES = "remove_devices_screen"
     const val REGISTER_DEVICE = "register_device_screen"
@@ -450,6 +477,7 @@ const val EXTRA_CONNECTION_IGNORED_USER_NAME = "extra_connection_ignored_user_na
 const val EXTRA_GROUP_DELETED_NAME = "extra_group_deleted_name"
 const val EXTRA_GROUP_NAME_CHANGED = "extra_group_name_changed"
 const val EXTRA_LEFT_GROUP = "extra_left_group"
+const val EXTRA_SETTINGS_DISPLAY_NAME_CHANGED = "extra_settings_display_name_changed"
 
 const val EXTRA_BACK_NAVIGATION_ARGUMENTS = "extra_back_navigation_arguments"
 

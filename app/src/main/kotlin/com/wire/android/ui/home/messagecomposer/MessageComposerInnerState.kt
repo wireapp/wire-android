@@ -1,9 +1,30 @@
+/*
+ * Wire
+ * Copyright (C) 2023 Wire Swiss GmbH
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see http://www.gnu.org/licenses/.
+ *
+ *
+ */
+
 package com.wire.android.ui.home.messagecomposer
 
 import android.content.Context
 import android.net.Uri
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -73,30 +94,7 @@ data class MessageComposerInnerState(
     val focusManager: FocusManager,
     private val mentionSpanStyle: SpanStyle
 ) {
-    var messageComposeInputState by mutableStateOf(MessageComposeInputState.Enabled)
-        private set
-
-    var attachmentOptionsDisplayed by mutableStateOf(false)
-        private set
-
-    var messageComposeInputFocused by mutableStateOf(false)
-        private set
-
-    val sendButtonEnabled: Boolean
-        get() = if (messageComposeInputState == MessageComposeInputState.Enabled) {
-            false
-        } else {
-            messageText.text.filter { !it.isWhitespace() }
-                .isNotBlank()
-        }
-
-    val isActive: Boolean
-        get() = messageComposeInputState == MessageComposeInputState.Active
-
-    val isEnabled: Boolean
-        get() = messageComposeInputState == MessageComposeInputState.Enabled
-
-    var messageText by mutableStateOf(TextFieldValue(""))
+    var messageComposeInputState: MessageComposeInputState by mutableStateOf(MessageComposeInputState.Inactive())
         private set
     private val _mentionQueryFlowState: MutableStateFlow<String?> = MutableStateFlow(null)
 
@@ -110,11 +108,12 @@ data class MessageComposerInnerState(
         updateMentionsIfNeeded(text)
         requestMentionSuggestionIfNeeded(text)
 
-        messageText = applyMentionStylesIntoText(text)
+        messageComposeInputState = messageComposeInputState.copyCurrent(messageText = applyMentionStylesIntoText(text))
     }
 
     fun startMention() {
-        val beforeSelection = messageText.text.subSequence(0, messageText.selection.min)
+        val beforeSelection = messageComposeInputState.messageText.text
+            .subSequence(0, messageComposeInputState.messageText.selection.min)
             .run {
                 if (endsWith(String.WHITE_SPACE) || endsWith(String.NEW_LINE_SYMBOL) || this == String.EMPTY) {
                     this.toString()
@@ -124,7 +123,8 @@ data class MessageComposerInnerState(
                         .toString()
                 }
             }
-        val afterSelection = messageText.text.subSequence(messageText.selection.max, messageText.text.length)
+        val afterSelection = messageComposeInputState.messageText.text
+            .subSequence(messageComposeInputState.messageText.selection.max, messageComposeInputState.messageText.text.length)
         val resultText = StringBuilder(beforeSelection)
             .append(String.MENTION_SYMBOL)
             .append(afterSelection)
@@ -136,7 +136,7 @@ data class MessageComposerInnerState(
 
     fun addMention(contact: Contact) {
         val mention = UiMention(
-            start = messageText.currentMentionStartIndex(),
+            start = messageComposeInputState.messageText.currentMentionStartIndex(),
             length = contact.name.length + 1, // +1 cause there is an "@" before it
             userId = UserId(contact.id, contact.domain),
             handler = String.MENTION_SYMBOL + contact.name
@@ -147,35 +147,52 @@ data class MessageComposerInnerState(
         _mentionQueryFlowState.value = null
     }
 
-    fun toggleAttachmentOptionsVisibility() {
-        attachmentOptionsDisplayed = !attachmentOptionsDisplayed
-    }
-
-    fun toEnabled() {
-        messageComposeInputState = MessageComposeInputState.Enabled
-    }
-
-    fun showAttachmentOptions() {
-        attachmentOptionsDisplayed = true
-    }
-
-    fun hideAttachmentOptions() {
-        attachmentOptionsDisplayed = false
+    fun toInactive() {
+        if (messageComposeInputState !is MessageComposeInputState.Inactive) {
+            messageComposeInputState = messageComposeInputState.toInactive()
+        }
     }
 
     fun toActive() {
-        messageComposeInputState = MessageComposeInputState.Active
+        if (messageComposeInputState !is MessageComposeInputState.Active) {
+            messageComposeInputState = messageComposeInputState.toActive()
+        }
+    }
+
+    fun toEditMessage(messageId: String, originalText: String) {
+        messageComposeInputState = MessageComposeInputState.Active(
+            messageText = TextFieldValue(originalText),
+            type = MessageComposeInputType.EditMessage(messageId, originalText)
+        )
+    }
+
+    fun showAttachmentOptions() = changeAttachmentOptionsVisibility(true)
+    fun hideAttachmentOptions() = changeAttachmentOptionsVisibility(false)
+    private fun changeAttachmentOptionsVisibility(newValue: Boolean) {
+        (messageComposeInputState as? MessageComposeInputState.Active)?.let { activeState ->
+            (activeState.type as? MessageComposeInputType.NewMessage)?.let { newMessageType ->
+                messageComposeInputState = activeState.copy(
+                    type = newMessageType.copy(
+                        attachmentOptionsDisplayed = newValue
+                    )
+                )
+            }
+        }
     }
 
     fun messageComposeInputFocusChange(isFocused: Boolean) {
-        messageComposeInputFocused = isFocused
+        messageComposeInputState = messageComposeInputState.copyCurrent(inputFocused = isFocused)
     }
 
     fun toggleFullScreen() {
-        val newState = if (messageComposeInputState == MessageComposeInputState.Active)
-            MessageComposeInputState.FullScreen else MessageComposeInputState.Active
-
-        messageComposeInputState = newState
+        (messageComposeInputState as? MessageComposeInputState.Active)?.let {
+            messageComposeInputState = it.copy(
+                size = when (it.size) {
+                    MessageComposeInputSize.COLLAPSED -> MessageComposeInputSize.EXPANDED
+                    MessageComposeInputSize.EXPANDED -> MessageComposeInputSize.COLLAPSED
+                }
+            )
+        }
     }
 
     private fun applyMentionStylesIntoText(text: TextFieldValue): TextFieldValue {
@@ -198,8 +215,10 @@ data class MessageComposerInnerState(
     }
 
     private fun insertMentionIntoText(mention: UiMention) {
-        val beforeMentionText = messageText.text.subSequence(0, mention.start)
-        val afterMentionText = messageText.text.subSequence(messageText.selection.max, messageText.text.length)
+        val beforeMentionText = messageComposeInputState.messageText.text
+            .subSequence(0, mention.start)
+        val afterMentionText = messageComposeInputState.messageText.text
+            .subSequence(messageComposeInputState.messageText.selection.max, messageComposeInputState.messageText.text.length)
         val resultText = StringBuilder()
             .append(beforeMentionText)
             .append(mention.handler)
@@ -228,8 +247,9 @@ data class MessageComposerInnerState(
 
             val prevMentionEnd = updatedMentions.lastOrNull()?.let { it.start + it.length } ?: 0
             val newIndexOfMention = newText.text.indexOf(mention.handler, prevMentionEnd)
-            if (newIndexOfMention >= 0)
+            if (newIndexOfMention >= 0) {
                 updatedMentions.add(mention.copy(start = newIndexOfMention))
+            }
         }
 
         mentions = updatedMentions.toList()
@@ -305,7 +325,6 @@ data class MessageComposerInnerState(
     fun cancelReply() {
         quotedMessageData = null
     }
-
 }
 
 private fun TextFieldValue.currentMentionStartIndex(): Int {
@@ -338,9 +357,11 @@ class AttachmentInnerState(val context: Context) {
             val assetFileName = context.getFileName(attachmentUri) ?: throw IOException("The selected asset has an invalid name")
             val mimeType = attachmentUri.getMimeType(context).orDefault(DEFAULT_FILE_MIME_TYPE)
             val attachmentType = AttachmentType.fromMimeTypeString(mimeType)
-            val assetSize = if (attachmentType == AttachmentType.IMAGE)
+            val assetSize = if (attachmentType == AttachmentType.IMAGE) {
                 attachmentUri.resampleImageAndCopyToTempPath(context, fullTempAssetPath)
-            else fileManager.copyToTempPath(attachmentUri, fullTempAssetPath)
+            } else {
+                fileManager.copyToTempPath(attachmentUri, fullTempAssetPath)
+            }
             val attachment = AttachmentBundle(mimeType, fullTempAssetPath, assetSize, assetFileName, attachmentType)
             AttachmentState.Picked(attachment)
         } catch (e: IOException) {
@@ -354,8 +375,70 @@ class AttachmentInnerState(val context: Context) {
     }
 }
 
-enum class MessageComposeInputState {
-    Active, Enabled, FullScreen
+@Stable
+sealed class MessageComposeInputState {
+    abstract val messageText: TextFieldValue
+    abstract val inputFocused: Boolean
+
+    @Stable
+    data class Inactive(
+        override val messageText: TextFieldValue = TextFieldValue(""),
+        override val inputFocused: Boolean = false,
+    ) : MessageComposeInputState()
+
+    @Stable
+    data class Active(
+        override val messageText: TextFieldValue = TextFieldValue(""),
+        override val inputFocused: Boolean = false,
+        val type: MessageComposeInputType = MessageComposeInputType.NewMessage(),
+        val size: MessageComposeInputSize = MessageComposeInputSize.COLLAPSED,
+    ) : MessageComposeInputState()
+
+    fun toActive(messageText: TextFieldValue = this.messageText, inputFocused: Boolean = this.inputFocused) = when (this) {
+        is Active -> Active(messageText, inputFocused, this.type, this.size)
+        is Inactive -> Active(messageText, inputFocused)
+    }
+
+    fun toInactive(messageText: TextFieldValue = this.messageText, inputFocused: Boolean = this.inputFocused) =
+        Inactive(messageText, inputFocused)
+
+    fun copyCurrent(messageText: TextFieldValue = this.messageText, inputFocused: Boolean = this.inputFocused) = when (this) {
+        is Active -> Active(messageText, inputFocused, this.type, this.size)
+        is Inactive -> Inactive(messageText, inputFocused)
+    }
+
+    val isExpanded: Boolean
+        get() = this is Active && this.size == MessageComposeInputSize.EXPANDED
+    val isEditMessage: Boolean
+        get() = this is Active && this.type is MessageComposeInputType.EditMessage
+    val isNewMessage: Boolean
+        get() = this is Active && this.type is MessageComposeInputType.NewMessage
+    val attachmentOptionsDisplayed: Boolean
+        get() = this is Active && this.type is MessageComposeInputType.NewMessage && this.type.attachmentOptionsDisplayed
+    val sendButtonEnabled: Boolean
+        get() = this is Active && this.type is MessageComposeInputType.NewMessage && messageText.text.trim().isNotBlank()
+    val editSaveButtonEnabled: Boolean
+        get() = this is Active && this.type is MessageComposeInputType.EditMessage && messageText.text.trim() != this.type.originalText
+}
+
+enum class MessageComposeInputSize {
+    COLLAPSED, // wrap content
+    EXPANDED; // fullscreen
+}
+
+@Stable
+sealed class MessageComposeInputType {
+
+    @Stable
+    data class NewMessage(
+        val attachmentOptionsDisplayed: Boolean = false,
+    ) : MessageComposeInputType()
+
+    @Stable
+    data class EditMessage(
+        val messageId: String,
+        val originalText: String,
+    ) : MessageComposeInputType()
 }
 
 sealed class AttachmentState {

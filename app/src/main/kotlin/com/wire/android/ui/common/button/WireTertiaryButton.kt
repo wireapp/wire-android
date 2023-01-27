@@ -1,3 +1,23 @@
+/*
+ * Wire
+ * Copyright (C) 2023 Wire Swiss GmbH
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see http://www.gnu.org/licenses/.
+ *
+ *
+ */
+
 package com.wire.android.ui.common.button
 
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -72,13 +92,13 @@ fun WireTertiaryButton(
 
 @Preview(name = "Default WireSecondaryButton")
 @Composable
-private fun WireTertiaryButtonPreview() {
+fun PreviewWireTertiaryButton() {
     WireTertiaryButton(onClick = { }, text = "text")
 }
 
 @Preview(name = "Default narrow WireTertiaryButton with icon")
 @Composable
-private fun WireTertiaryButtonNarrowWithIconsPreview() {
+fun PreviewWireTertiaryButtonNarrowWithIcons() {
     WireTertiaryButton(
         onClick = { },
         text = "text",
@@ -90,7 +110,7 @@ private fun WireTertiaryButtonNarrowWithIconsPreview() {
 
 @Preview(name = "Default narrow WireTertiaryButton only icon")
 @Composable
-private fun WireTertiaryButtonNarrowOnlyIconsPreview() {
+fun PreviewWireTertiaryButtonNarrowOnlyIcons() {
     WireTertiaryButton(
         onClick = { },
         leadingIcon = Icons.Filled.Search.Icon(),
@@ -101,19 +121,19 @@ private fun WireTertiaryButtonNarrowOnlyIconsPreview() {
 
 @Preview(name = "Default narrow Disabled WireSecondaryButton")
 @Composable
-private fun WireTertiaryButtonDisabledPreview() {
+fun PreviewWireTertiaryButtonDisabled() {
     WireTertiaryButton(onClick = { }, state = WireButtonState.Disabled, text = "text", fillMaxWidth = false)
 }
 
 @Preview(name = "Selected narrow WireSecondaryButton")
 @Composable
-private fun WireTertiaryButtonSelectedPreview() {
+fun PreviewWireTertiaryButtonSelected() {
     WireTertiaryButton(onClick = { }, state = WireButtonState.Selected, text = "text", fillMaxWidth = false)
 }
 
 @Preview(name = "Error narrow WireSecondaryButton")
 @Composable
-private fun WireTertiaryButtonErrorPreview() {
+fun PreviewWireTertiaryButtonError() {
     WireTertiaryButton(onClick = { }, state = WireButtonState.Error, text = "text", fillMaxWidth = false)
 }
 

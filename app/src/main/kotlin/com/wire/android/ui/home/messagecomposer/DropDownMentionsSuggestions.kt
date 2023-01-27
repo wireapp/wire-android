@@ -1,10 +1,32 @@
+/*
+ * Wire
+ * Copyright (C) 2023 Wire Swiss GmbH
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see http://www.gnu.org/licenses/.
+ *
+ *
+ */
+
 package com.wire.android.ui.home.messagecomposer
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.material.DropdownMenu
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.remember
@@ -54,6 +76,7 @@ fun DropDownMentionsSuggestions(
             properties = PopupProperties(focusable = false),
             modifier = Modifier
                 .fillMaxWidth()
+                .background(MaterialTheme.colorScheme.surface)
                 .heightIn(max = maxHeight),
             expanded = true,
             onDismissRequest = {}
@@ -76,6 +99,7 @@ fun DropDownMentionsSuggestions(
         }
     }
 }
+
 @Suppress("ReturnCount", "NestedBlockDepth")
 private fun calculateMaxHeight(
     defaultMaxHeightDropdownMenu: Dp,
@@ -119,16 +143,19 @@ private fun updateDropDownCoordinateY(
     var coordinateY = cursorCoordinateY
     // since we are using BottomYCoordinate of the cursor, we reduce some space from Y coordinate
     // for approximately the second part of the screen.
-    if (cursorCoordinateY >= screenHeight / HALF_SCREEN)
+    if (cursorCoordinateY >= screenHeight / HALF_SCREEN) {
         coordinateY = cursorCoordinateY - THIRTY
+    }
     // If there is only one item to show, in the second part of the screen, the DropDown will be displayed above the cursor.
     // Fixing this by adding more space
-    if (membersToMentionSize == ONE && cursorCoordinateY < screenHeight * EIGHTY_PERCENT)
+    if (membersToMentionSize == ONE && cursorCoordinateY < screenHeight * EIGHTY_PERCENT) {
         coordinateY = cursorCoordinateY + TWENTY
+    }
     // For the first line, we get the wrong Y coordinate of the cursor.
     // Fixing this by adding more space
-    if (currentSelectedLineIndex == FIRST_LINE_INDEX)
+    if (currentSelectedLineIndex == FIRST_LINE_INDEX) {
         coordinateY = cursorCoordinateY + THIRTY
+    }
     return coordinateY.toInt()
 }
 

@@ -30,7 +30,7 @@ class WriteStorageRequestFlow(
 }
 
 @Composable
-fun rememberWriteStorageRequestFlow(onGranted: () -> Unit, onDenied: () -> Unit): WriteStorageRequestFlow{
+fun rememberWriteStorageRequestFlow(onGranted: () -> Unit, onDenied: () -> Unit): WriteStorageRequestFlow {
     val context = LocalContext.current
     val requestWriteStoragePermissionLauncher: ManagedActivityResultLauncher<String, Boolean> =
         rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->

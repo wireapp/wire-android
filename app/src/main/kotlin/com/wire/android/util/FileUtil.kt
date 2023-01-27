@@ -271,7 +271,7 @@ fun Context.getGitBuildId(): String = runCatching {
     }
 }.getOrDefault("")
 
-fun Context.getProviderAuthority() = "${packageName}.provider"
+fun Context.getProviderAuthority() = "$packageName.provider"
 
 @VisibleForTesting
 fun findFirstUniqueName(dir: File, desiredName: String): String {

@@ -126,20 +126,10 @@ class WireActivity : AppCompatActivity() {
                     }
                     setUpNavigation(navController, scope)
 
-<<<<<<< HEAD
-                    handleCustomBackendDialog(viewModel.globalAppState.customBackendDialog.shouldShowDialog)
-                    maxAccountDialog(
-                        viewModel::openProfile,
-                        viewModel::dismissMaxAccountDialog,
-                        viewModel.globalAppState.maxAccountDialog
-                    )
                     updateAppDialog(
                         { updateTheApp() },
                         viewModel.globalAppState.updateAppDialog
                     )
-                    viewModel.globalAppState.blockUserUI?.let {
-                        AccountLongedOutDialog(it, viewModel::navigateToNextAccountOrWelcome)
-                    }
 
                     viewModel.globalAppState.conversationJoinedDialog?.let {
                         when (it) {
@@ -152,9 +142,7 @@ class WireActivity : AppCompatActivity() {
                             )
                         }
                     }
-=======
                     handleDialogs()
->>>>>>> b205836030045facbd16d3664142d8fa28008784
                 }
             }
         }
@@ -215,11 +203,7 @@ class WireActivity : AppCompatActivity() {
     }
 
     @Composable
-<<<<<<< HEAD
-    fun AccountLongedOutDialog(reason: CurrentSessionErrorState, navigateAway: () -> Unit) {
-=======
     fun AccountLoggedOutDialog(reason: CurrentSessionErrorState?, navigateAway: () -> Unit) {
->>>>>>> b205836030045facbd16d3664142d8fa28008784
         appLogger.e("AccountLongedOutDialog: $reason")
         val (@StringRes title: Int, @StringRes text: Int) = when (reason) {
             CurrentSessionErrorState.SessionExpired -> {

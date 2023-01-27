@@ -27,7 +27,7 @@ class SystemMessageContentMapper
         is MessageContent.CryptoSessionReset -> mapResetSession(message.senderUserId, members)
     }
 
-     fun mapResetSession(
+     private fun mapResetSession(
         senderUserId: UserId,
         userList: List<User>
     ): UIMessageContent.SystemMessage {
@@ -36,7 +36,7 @@ class SystemMessageContentMapper
         return UIMessageContent.SystemMessage.CryptoSessionReset(authorName)
     }
 
-     fun mapMissedCallMessage(
+     private fun mapMissedCallMessage(
         senderUserId: UserId,
         userList: List<User>
     ): UIMessageContent.SystemMessage {
@@ -52,11 +52,11 @@ class SystemMessageContentMapper
         }
     }
 
-     fun mapTeamMemberRemovedMessage(
+     private fun mapTeamMemberRemovedMessage(
         content: MessageContent.TeamMemberRemoved,
     ): UIMessageContent.SystemMessage = UIMessageContent.SystemMessage.TeamMemberRemoved(content)
 
-     fun mapConversationRenamedMessage(
+     private fun mapConversationRenamedMessage(
         senderUserId: UserId,
         content: MessageContent.ConversationRenamed,
         userList: List<User>

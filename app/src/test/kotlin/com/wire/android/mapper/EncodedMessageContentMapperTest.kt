@@ -14,6 +14,7 @@ import com.wire.android.mapper.message.content.RegularMessageContentMapper
 import com.wire.android.mapper.message.content.SystemMessageContentMapper
 import com.wire.android.mapper.message.content.asset.AssetContentMapper
 import com.wire.android.mapper.message.content.asset.AssetMessageContentMetadata
+import com.wire.android.mapper.message.content.asset.RestrictedAssetMapper
 import com.wire.android.mapper.message.content.text.MessageTextContentMapper
 import com.wire.android.ui.home.conversations.model.UIMessageContent.AssetMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent.PreviewAssetMessage
@@ -133,14 +134,16 @@ class EncodedMessageContentMapperTest {
         val otherCallerInfo = (member1.user as OtherUser).copy(id = missedCallMessage.senderUserId)
         val otherCaller = member1.copy(user = otherCallerInfo)
         // When
-        with(arrangement.systemMessageContentMapper) {
-            val resultContentLeft = mapMemberChangeMessage(contentLeft, userId1, listOf(member1.user))
-            val resultContentRemoved = mapMemberChangeMessage(contentRemoved, userId1, listOf(member1.user, member2.user))
-            val resultContentAdded = mapMemberChangeMessage(contentAdded, userId1, listOf(member1.user, member2.user, member3.user))
-            val resultContentAddedSelf = mapMemberChangeMessage(contentAddedSelf, userId1, listOf(member1.user))
+        with(arrangement) {
+            val resultContentLeft = systemMessageContentMapper.mapMemberChangeMessage(contentLeft, userId1, listOf(member1.user))
+            val resultContentRemoved =
+                systemMessageContentMapper.mapMemberChangeMessage(contentRemoved, userId1, listOf(member1.user, member2.user))
+            val resultContentAdded =
+                systemMessageContentMapper.mapMemberChangeMessage(contentAdded, userId1, listOf(member1.user, member2.user, member3.user))
+            val resultContentAddedSelf = systemMessageContentMapper.mapMemberChangeMessage(contentAddedSelf, userId1, listOf(member1.user))
 
-            val resultMyMissedCall = arrangement.mess(missedCallMessage, listOf(selfCaller.user))
-            val resultOtherMissedCall = fromMessage(missedCallMessage, listOf(otherCaller.user))
+            val resultMyMissedCall = messageContentMapper.fromMessage(missedCallMessage, listOf(selfCaller.user))
+            val resultOtherMissedCall = messageContentMapper.fromMessage(missedCallMessage, listOf(otherCaller.user))
             // Then
             assertTrue(
                 resultContentLeft is SystemMessage.MemberLeft &&
@@ -298,9 +301,9 @@ class EncodedMessageContentMapperTest {
             content = MessageContent.Text("")
         )
         // When
-        val resultContentVisible = arrangement.messageTextContentMapper.toTextMessage(visibleMessage, listOf())
-        val resultContentDeleted = mapper.fromMessage(deletedMessage, listOf())
-        val resultContentHidden = mapper.fromMessage(hiddenMessage, listOf())
+        val resultContentVisible = arrangement.messageContentMapper.fromMessage(visibleMessage, listOf())
+        val resultContentDeleted = arrangement.messageContentMapper.fromMessage(deletedMessage, listOf())
+        val resultContentHidden = arrangement.messageContentMapper.fromMessage(hiddenMessage, listOf())
         // Then
         assertTrue(resultContentVisible != null)
         assertTrue(resultContentDeleted == null)
@@ -323,7 +326,9 @@ class EncodedMessageContentMapperTest {
 
         private val testDispatcher = TestDispatcherProvider()
 
-        val systemMessageContentMapper = SystemMessageContentMapper(messageResourceProvider = messageResourceProvider)
+        val systemMessageContentMapper = SystemMessageContentMapper(
+            messageResourceProvider = messageResourceProvider
+        )
 
         val assetContentMapper = AssetContentMapper(
             wireSessionImageLoader = wireSessionImageLoader
@@ -335,12 +340,17 @@ class EncodedMessageContentMapperTest {
             isoFormatter = ISOFormatter()
         )
 
-        val test = RegularMessageContentMapper(
+        val restrictedAssetMapper = RestrictedAssetMapper()
+
+        val regularMessageContentMapper = RegularMessageContentMapper(
             messageTextContentMapper = messageTextContentMapper,
-            systemMessageContentMapper = systemMessageContentMapper,
             assetContentMapper = assetContentMapper,
-            getMessageAssetUseCase = getMessageAssetUseCase,
-            dispatcherProvider = testDispatcher
+            restrictedAssetMapper = restrictedAssetMapper
+        )
+
+        val messageContentMapper = MessageContentMapper(
+            systemMessageContentMapper = systemMessageContentMapper,
+            regularMessageContentMapper = regularMessageContentMapper
         )
 
         init {

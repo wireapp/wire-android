@@ -23,6 +23,7 @@ package com.wire.android.ui.migration
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.work.WorkManager
+import com.wire.android.appLogger
 import com.wire.android.migration.MigrationResult
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
@@ -55,7 +56,9 @@ class MigrationViewModel @Inject constructor(
             when (it) {
                 is MigrationResult.Success -> navigateAfterMigration()
                 is MigrationResult.Failure -> {
-                    val failureType = it.type // TODO maybe show info and retry button in some cases?
+                    val failureType = it.type
+                    appLogger.e("Migration failed with type: $failureType")
+                    navigateAfterMigration()
                 }
             }
         }

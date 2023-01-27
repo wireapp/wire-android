@@ -40,6 +40,7 @@ import com.wire.kalium.logic.failure.ServerConfigFailure
 import com.wire.kalium.logic.functional.flatMap
 import com.wire.kalium.logic.functional.fold
 import com.wire.kalium.logic.functional.mapLeft
+import com.wire.kalium.logic.functional.onFailure
 import com.wire.kalium.logic.functional.onSuccess
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
@@ -104,6 +105,7 @@ class MigrationManager @Inject constructor(
             }
             .mapLeft(::migrationFailure)
             .onSuccess { globalDataStore.setMigrationCompleted() }
+            .onFailure { globalDataStore.setMigrationCompleted() }
             .fold({
                 appLogger.e("$TAG - Failure - Migrating data from old client - $it")
                 MigrationResult.Failure(it)

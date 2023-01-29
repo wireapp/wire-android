@@ -28,6 +28,7 @@ import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.functional.Either
 import com.wire.kalium.logic.functional.foldToEitherWhileRight
+import com.wire.kalium.logic.functional.map
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -44,11 +45,14 @@ class MigrateUsersUseCase @Inject constructor(
             val selfScalaUser = users.first { it.id == userId.value && it.domain == userId.domain }
             if (users.isNotEmpty()) {
                 val mappedUsers = users.map { scalaUser ->
-                    mapper.fromScalaUserToUser(scalaUser, selfScalaUser.id, selfScalaUser.domain, selfScalaUser.teamId)
+                    mapper.fromScalaUserToUser(scalaUser, selfScalaUser.id, selfScalaUser.domain, selfScalaUser.teamId, userId)
                 }
                 val sessionScope = coreLogic.getSessionScope(userId)
                 sessionScope.users.persistMigratedUsers(mappedUsers)
                 Either.Right(acc + userId)
             } else Either.Right(acc)
         }
+
+    suspend operator fun invoke(userId: UserId): Either<CoreFailure, UserId> =
+        invoke(listOf(userId)).map { userId }
 }

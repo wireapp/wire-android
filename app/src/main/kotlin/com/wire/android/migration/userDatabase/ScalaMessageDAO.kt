@@ -24,7 +24,9 @@ import androidx.core.database.getIntOrNull
 import androidx.core.database.getLongOrNull
 import com.wire.android.appLogger
 import com.wire.android.migration.util.getStringOrNull
+import kotlinx.coroutines.withContext
 import java.sql.SQLException
+import kotlin.coroutines.CoroutineContext
 
 data class ScalaMessageData(
     val id: String,
@@ -83,15 +85,24 @@ data class ScalaMessageData(
     }
 }
 
-class ScalaMessageDAO(private val db: ScalaUserDatabase) {
+class ScalaMessageDAO(
+    private val db: ScalaUserDatabase,
+    private val queryContext: CoroutineContext
+) {
 
-    fun messages(scalaConversations: List<ScalaConversationData>): List<ScalaMessageData> {
-        val accumulator = mutableListOf<ScalaMessageData>()
-        scalaConversations.forEach { scalaConversation ->
-            accumulator += messagesFromConversation(scalaConversation)
+    suspend fun messages(scalaConversations: List<ScalaConversationData>): List<ScalaMessageData> =
+        withContext(queryContext) {
+            val accumulator = mutableListOf<ScalaMessageData>()
+            scalaConversations.forEach { scalaConversation ->
+                accumulator += messagesFromConversation(scalaConversation)
+            }
+            accumulator
         }
-        return accumulator
-    }
+
+    suspend fun messagesForConversation(scalaConversation: ScalaConversationData): List<ScalaMessageData> =
+        withContext(queryContext) {
+            messagesFromConversation(scalaConversation)
+        }
 
     private fun messagesFromConversation(scalaConversation: ScalaConversationData): List<ScalaMessageData> {
         val cursor = db.rawQuery(
@@ -107,7 +118,8 @@ class ScalaMessageDAO(private val db: ScalaUserDatabase) {
                     "$ASSETS_TABLE_NAME.$COLUMN_SIZE AS $ASSET_ALIAS_PREFIX$COLUMN_SIZE " +
                     "FROM $MESSAGES_TABLE_NAME " +
                     "LEFT JOIN $ASSETS_TABLE_NAME ON $MESSAGES_TABLE_NAME.$COLUMN_ASSET_ID = $ASSETS_TABLE_NAME.$COLUMN_ID " +
-                    "WHERE $MESSAGES_TABLE_NAME.$COLUMN_CONVERSATION_ID = ?", arrayOf(scalaConversation.id)
+                    "WHERE $MESSAGES_TABLE_NAME.$COLUMN_CONVERSATION_ID = ?" +
+                    "ORDER BY $MESSAGES_TABLE_NAME.$COLUMN_TIME ASC ", arrayOf(scalaConversation.id)
         )
         return try {
             if (!cursor.moveToFirst()) {

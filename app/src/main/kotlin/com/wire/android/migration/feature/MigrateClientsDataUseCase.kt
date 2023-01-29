@@ -49,6 +49,9 @@ class MigrateClientsDataUseCase @Inject constructor(
     private val scalaUserDBProvider: ScalaUserDatabaseProvider,
     private val userDataStoreProvider: UserDataStoreProvider
 ) {
+
+    suspend operator fun invoke(userId: UserId, isFederated: Boolean): Either<CoreFailure, Unit> =
+        invoke(listOf(userId), isFederated).values.first()
     @Suppress("LoopWithTooManyJumpStatements", "ComplexMethod")
     suspend operator fun invoke(userIds: List<UserId>, isFederated: Boolean): Map<UserId, Either<CoreFailure, Unit>> {
 
@@ -125,7 +128,7 @@ class MigrateClientsDataUseCase @Inject constructor(
         } else listOf()
 
     @VisibleForTesting
-    fun fixSessionFileNames(userId: UserId, proteusDir: File, isFederated: Boolean, scalaUserDBProvider: ScalaUserDatabaseProvider) {
+    suspend fun fixSessionFileNames(userId: UserId, proteusDir: File, isFederated: Boolean, scalaUserDBProvider: ScalaUserDatabaseProvider) {
         val sessionsDir = File(proteusDir, "sessions")
         if (isFederated) {
             val filesWithoutDomain = getSessionFileNamesWithoutDomain(sessionsDir)

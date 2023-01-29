@@ -29,6 +29,7 @@ import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.functional.Either
 import com.wire.kalium.logic.functional.foldToEitherWhileRight
+import kotlinx.coroutines.CoroutineScope
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -39,7 +40,16 @@ class MigrateMessagesUseCase @Inject constructor(
     private val mapper: MigrationMapper
 ) {
 
-    suspend operator fun invoke(userIdsAndConversationIds: Map<UserId, List<ScalaConversationData>>): Either<CoreFailure, Unit> =
+    suspend operator fun invoke(
+        userId: UserId, scalaConversations: List<ScalaConversationData>,
+        coroutineScope: CoroutineScope
+    ): Either<CoreFailure, Unit> =
+        invoke(mapOf(userId to scalaConversations), coroutineScope)
+
+    suspend operator fun invoke(
+        userIdsAndConversationIds: Map<UserId, List<ScalaConversationData>>,
+        coroutineScope: CoroutineScope
+    ): Either<CoreFailure, Unit> =
         userIdsAndConversationIds.toList().foldToEitherWhileRight(Unit) { (userId, scalaConversations), _ ->
             val messageDAO = scalaUserDatabase.messageDAO(userId)
             val userDAO = scalaUserDatabase.userDAO(userId)
@@ -47,10 +57,10 @@ class MigrateMessagesUseCase @Inject constructor(
             if (messages.isNotEmpty()) {
                 val users = userDAO?.users(messages.map { it.senderId }.distinct())?.associateBy { it.id } ?: mapOf()
                 val mappedMessages = messages.mapNotNull { scalaMessage ->
-                    users[scalaMessage.senderId]?.let { mapper.fromScalaMessageToMessage(scalaMessage, it) }
+                    users[scalaMessage.senderId]?.let { mapper.fromScalaMessageToMessage(userId, scalaMessage, it) }
                 }
                 val sessionScope = coreLogic.getSessionScope(userId)
-                sessionScope.messages.persistMigratedMessage(mappedMessages)
+                sessionScope.messages.persistMigratedMessage(mappedMessages, coroutineScope)
             }
             Either.Right(Unit)
         }

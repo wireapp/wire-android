@@ -42,6 +42,7 @@ import com.wire.android.migration.toData
 import com.wire.android.notification.NotificationConstants
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
@@ -54,11 +55,10 @@ class MigrationWorker
     @Assisted workerParams: WorkerParameters,
     private val migrationManager: MigrationManager
 ) : CoroutineWorker(appContext, workerParams) {
-
-    override suspend fun doWork(): Result = migrationManager.migrate().let {
-        when (it) {
-            MigrationResult.Success -> Result.success()
-            is MigrationResult.Failure -> Result.failure(it.type.toData())
+    override suspend fun doWork(): Result = coroutineScope {
+        when (val migrationResult = migrationManager.migrate(this)) {
+            is MigrationResult.Success -> Result.success()
+            is MigrationResult.Failure -> Result.failure(migrationResult.type.toData())
         }
     }
 

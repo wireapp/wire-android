@@ -43,6 +43,9 @@ import com.wire.kalium.logic.functional.flatMap
 import com.wire.kalium.logic.functional.isRight
 import com.wire.kalium.logic.functional.map
 import com.wire.kalium.logic.functional.onFailure
+import com.wire.kalium.logic.functional.fold
+import com.wire.kalium.logic.functional.mapLeft
+import com.wire.kalium.logic.functional.onFailure
 import com.wire.kalium.logic.functional.onSuccess
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineDispatcher
@@ -93,16 +96,21 @@ class MigrationManager @Inject constructor(
 
     suspend fun migrate(
         coroutineScope: CoroutineScope,
+        updateProgress: suspend (MigrationData.Progress) -> Unit,
         migrationDispatcher: CoroutineDispatcher = Dispatchers.Default.limitedParallelism(2)
     ): MigrationResult {
         migrateServerConfig().map {
             appLogger.d("$TAG - Step 1 - Migrating accounts")
             migrateActiveAccounts(it)
         }.onSuccess { (migratedAccounts, isFederated) ->
+            updateProgress(MigrationData.Progress(MigrationData.Progress.Type.ACCOUNTS))
             onAccountsMigrated(migratedAccounts, isFederated, coroutineScope, migrationDispatcher).also {
                 appLogger.d("User migration done Result $it")
             }
         }.onFailure {
+            if (it != MigrationData.Result.Failure.Type.NO_NETWORK) {
+                globalDataStore.setMigrationCompleted() // only for network errors we show the info and "retry" button to the user
+            }
             return MigrationResult.Failure(migrationFailure(it))
         }
         return MigrationResult.Success
@@ -144,13 +152,13 @@ class MigrationManager @Inject constructor(
         return resultAcc.toMap()
     }
 
-    private fun migrationFailure(failure: CoreFailure): MigrationResult.Failure.Type = when (failure) {
-        is NetworkFailure.NoNetworkConnection -> MigrationResult.Failure.Type.NO_NETWORK
-        is StorageFailure.DataNotFound -> MigrationResult.Failure.Type.DATA_NOT_FOUND
-        is ServerConfigFailure.UnknownServerVersion -> MigrationResult.Failure.Type.UNKNOWN_SERVER_VERSION
-        is ServerConfigFailure.NewServerVersion -> MigrationResult.Failure.Type.TOO_NEW_VERSION
-        is MigrationFailure.InvalidRefreshToken -> MigrationResult.Failure.Type.UNKNOWN
-        else -> MigrationResult.Failure.Type.UNKNOWN
+    private fun migrationFailure(failure: CoreFailure): MigrationData.Result.Failure.Type = when (failure) {
+        is NetworkFailure.NoNetworkConnection -> MigrationData.Result.Failure.Type.NO_NETWORK
+        is StorageFailure.DataNotFound -> MigrationData.Result.Failure.Type.DATA_NOT_FOUND
+        is ServerConfigFailure.UnknownServerVersion -> MigrationData.Result.Failure.Type.UNKNOWN_SERVER_VERSION
+        is ServerConfigFailure.NewServerVersion -> MigrationData.Result.Failure.Type.TOO_NEW_VERSION
+        is MigrationFailure.InvalidRefreshToken -> MigrationData.Result.Failure.Type.UNKNOWN
+        else -> MigrationData.Result.Failure.Type.UNKNOWN
     }
 
     companion object {
@@ -158,23 +166,43 @@ class MigrationManager @Inject constructor(
     }
 }
 
-sealed class MigrationResult {
-    object Success : MigrationResult()
-    data class Failure(val type: Type) : MigrationResult() {
-        enum class Type { UNKNOWN_SERVER_VERSION, TOO_NEW_VERSION, DATA_NOT_FOUND, NO_NETWORK, UNKNOWN; }
+sealed class MigrationData {
+    data class Progress(val type: Type) : MigrationData() {
+        enum class Type { SERVER_CONFIGS, ACCOUNTS, CLIENTS, USERS, CONVERSATIONS, MESSAGES, UNKNOWN; }
         companion object {
-            const val KEY_FAILURE_TYPE = "failure_type"
+            const val KEY_PROGRESS_TYPE = "progress_type"
+        }
+    }
+
+    sealed class Result : MigrationData() {
+        object Success : Result()
+        data class Failure(val type: Type) : Result() {
+            enum class Type { UNKNOWN_SERVER_VERSION, TOO_NEW_VERSION, DATA_NOT_FOUND, NO_NETWORK, UNKNOWN; }
+            companion object {
+                const val KEY_FAILURE_TYPE = "failure_type"
+            }
         }
     }
 }
 
-fun MigrationResult.Failure.Type.toData(): Data = workDataOf(MigrationResult.Failure.KEY_FAILURE_TYPE to this.name)
+fun MigrationData.Result.Failure.Type.toData(): Data = workDataOf(MigrationData.Result.Failure.KEY_FAILURE_TYPE to this.name)
 
-fun Data.getMigrationFailure(): MigrationResult.Failure.Type = this.getString(MigrationResult.Failure.KEY_FAILURE_TYPE)
+fun Data.getMigrationFailure(): MigrationData.Result.Failure.Type = this.getString(MigrationData.Result.Failure.KEY_FAILURE_TYPE)
     ?.let {
         try {
-            MigrationResult.Failure.Type.valueOf(it)
+            MigrationData.Result.Failure.Type.valueOf(it)
         } catch (e: IllegalArgumentException) {
             null
         }
-    } ?: MigrationResult.Failure.Type.UNKNOWN
+    } ?: MigrationData.Result.Failure.Type.UNKNOWN
+
+fun MigrationData.Progress.Type.toData(): Data = workDataOf(MigrationData.Progress.KEY_PROGRESS_TYPE to this.name)
+
+fun Data.getMigrationProgress(): MigrationData.Progress.Type = this.getString(MigrationData.Progress.KEY_PROGRESS_TYPE)
+    ?.let {
+        try {
+            MigrationData.Progress.Type.valueOf(it)
+        } catch (e: IllegalArgumentException) {
+            null
+        }
+    } ?: MigrationData.Progress.Type.UNKNOWN

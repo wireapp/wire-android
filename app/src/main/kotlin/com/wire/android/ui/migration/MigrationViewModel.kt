@@ -20,11 +20,13 @@
 
 package com.wire.android.ui.migration
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.work.WorkManager
-import com.wire.android.appLogger
-import com.wire.android.migration.MigrationResult
+import com.wire.android.migration.MigrationData
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
@@ -45,21 +47,32 @@ class MigrationViewModel @Inject constructor(
     private val dispatchers: DispatcherProvider,
 ) : ViewModel() {
 
-    fun init() {
+    var state: MigrationState by mutableStateOf(MigrationState.InProgress(MigrationData.Progress.Type.UNKNOWN))
+        private set
+
+    init {
         viewModelScope.launch(dispatchers.io()) {
             enqueueMigrationAndListenForStateChanges()
         }
     }
 
+    fun retry() {
+        // Flow collected in `enqueueMigrationAndListenForStateChanges` will still get updates for the newly enqueued work
+        workManager.enqueueMigrationWorker()
+        state = MigrationState.InProgress(MigrationData.Progress.Type.UNKNOWN)
+    }
+
     private suspend fun enqueueMigrationAndListenForStateChanges() {
         workManager.enqueueMigrationWorker().collect {
             when (it) {
-                is MigrationResult.Success -> navigateAfterMigration()
-                is MigrationResult.Failure -> {
-                    val failureType = it.type
-                    appLogger.e("Migration failed with type: $failureType")
-                    navigateAfterMigration()
+                is MigrationData.Result.Success -> navigateAfterMigration()
+                is MigrationData.Result.Failure -> {
+                    when (it.type) {
+                        MigrationData.Result.Failure.Type.NO_NETWORK -> state = MigrationState.Failed
+                        else -> navigateAfterMigration()
+                    }
                 }
+                is MigrationData.Progress -> state = MigrationState.InProgress(it.type)
             }
         }
     }

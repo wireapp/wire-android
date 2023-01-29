@@ -22,11 +22,11 @@
 <resources>
 
     <string-array name="welcome_carousel_texts">
-        <item>Welcome to Wire, the most secure collaboration platform!</item>
-        <item>Absolute confidence your information is\u00A0secure</item>
-        <item>Encrypted audio &amp; video conferencing with up\u00A0to 50\u00A0participants</item>
-        <item>Secure file sharing with teams and\u00A0clients</item>
-        <item>Wire is independently audited and ISO, CCPA, GDPR, SOX-compliant</item>
+        <item>@string/welcome_screen_carousel_item_message_1</item>
+        <item>@string/welcome_screen_carousel_item_message_2</item>
+        <item>@string/welcome_screen_carousel_item_message_3</item>
+        <item>@string/welcome_screen_carousel_item_message_4</item>
+        <item>@string/welcome_screen_carousel_item_message_5</item>
     </string-array>
 
     <array name="welcome_carousel_icons">

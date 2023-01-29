@@ -42,8 +42,6 @@ import com.wire.kalium.logic.functional.Either
 import com.wire.kalium.logic.functional.flatMap
 import com.wire.kalium.logic.functional.isRight
 import com.wire.kalium.logic.functional.map
-import com.wire.kalium.logic.functional.onFailure
-import com.wire.kalium.logic.functional.fold
 import com.wire.kalium.logic.functional.mapLeft
 import com.wire.kalium.logic.functional.onFailure
 import com.wire.kalium.logic.functional.onSuccess
@@ -98,22 +96,24 @@ class MigrationManager @Inject constructor(
         coroutineScope: CoroutineScope,
         updateProgress: suspend (MigrationData.Progress) -> Unit,
         migrationDispatcher: CoroutineDispatcher = Dispatchers.Default.limitedParallelism(2)
-    ): MigrationResult {
+    ): MigrationData.Result {
         migrateServerConfig().map {
             appLogger.d("$TAG - Step 1 - Migrating accounts")
             migrateActiveAccounts(it)
-        }.onSuccess { (migratedAccounts, isFederated) ->
-            updateProgress(MigrationData.Progress(MigrationData.Progress.Type.ACCOUNTS))
-            onAccountsMigrated(migratedAccounts, isFederated, coroutineScope, migrationDispatcher).also {
-                appLogger.d("User migration done Result $it")
+        }.mapLeft(::migrationFailure)
+            .onSuccess { (migratedAccounts, isFederated) ->
+                updateProgress(MigrationData.Progress(MigrationData.Progress.Type.ACCOUNTS))
+                onAccountsMigrated(migratedAccounts, isFederated, coroutineScope, migrationDispatcher).also {
+                    appLogger.d("User migration done Result $it")
+                }
             }
-        }.onFailure {
-            if (it != MigrationData.Result.Failure.Type.NO_NETWORK) {
-                globalDataStore.setMigrationCompleted() // only for network errors we show the info and "retry" button to the user
+            .onFailure {
+                if (it != MigrationData.Result.Failure.Type.NO_NETWORK) {
+                    globalDataStore.setMigrationCompleted() // only for network errors we show the info and "retry" button to the user
+                }
+                return MigrationData.Result.Failure(it)
             }
-            return MigrationResult.Failure(migrationFailure(it))
-        }
-        return MigrationResult.Success
+        return MigrationData.Result.Success
     }
 
     private suspend fun onAccountsMigrated(

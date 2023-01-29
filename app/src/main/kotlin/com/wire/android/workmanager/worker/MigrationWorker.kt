@@ -35,8 +35,8 @@ import androidx.work.WorkManager
 import androidx.work.WorkRequest.MIN_BACKOFF_MILLIS
 import androidx.work.WorkerParameters
 import com.wire.android.R
-import com.wire.android.migration.MigrationManager
 import com.wire.android.migration.MigrationData
+import com.wire.android.migration.MigrationManager
 import com.wire.android.migration.getMigrationFailure
 import com.wire.android.migration.getMigrationProgress
 import com.wire.android.migration.toData
@@ -58,9 +58,9 @@ class MigrationWorker
 ) : CoroutineWorker(appContext, workerParams) {
 
     override suspend fun doWork(): Result = coroutineScope {
-        when (val migrationResult = migrationManager.migrate(this)) {
-            is MigrationResult.Success -> Result.success()
-            is MigrationResult.Failure -> Result.failure(migrationResult.type.toData())
+        when (val migrationResult = migrationManager.migrate(this, { setProgress(it.type.toData()) })) {
+            is MigrationData.Result.Success -> Result.success()
+            is MigrationData.Result.Failure -> Result.failure(migrationResult.type.toData())
         }
     }
 

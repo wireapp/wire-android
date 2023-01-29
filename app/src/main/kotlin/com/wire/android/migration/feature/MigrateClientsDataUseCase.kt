@@ -52,6 +52,7 @@ class MigrateClientsDataUseCase @Inject constructor(
 
     suspend operator fun invoke(userId: UserId, isFederated: Boolean): Either<CoreFailure, Unit> =
         invoke(listOf(userId), isFederated).values.first()
+
     @Suppress("LoopWithTooManyJumpStatements", "ComplexMethod")
     suspend operator fun invoke(userIds: List<UserId>, isFederated: Boolean): Map<UserId, Either<CoreFailure, Unit>> {
 
@@ -94,13 +95,17 @@ class MigrateClientsDataUseCase @Inject constructor(
                 )) {
                     is RegisterClientResult.Failure.Generic ->
                         Either.Left(result.genericFailure)
+
                     is RegisterClientResult.Failure.TooManyClients ->
                         Either.Left(MigrationFailure.ClientNotRegistered)
+
                     is RegisterClientResult.Failure.InvalidCredentials ->
                         Either.Left(MigrationFailure.ClientNotRegistered)
+
                     is RegisterClientResult.Failure.PasswordAuthRequired -> {
                         Either.Left(MigrationFailure.ClientNotRegistered)
                     }
+
                     is RegisterClientResult.Success ->
                         withTimeoutOrNull(SYNC_START_TIMEOUT) {
                             syncManager.waitUntilStartedOrFailure()
@@ -128,7 +133,12 @@ class MigrateClientsDataUseCase @Inject constructor(
         } else listOf()
 
     @VisibleForTesting
-    suspend fun fixSessionFileNames(userId: UserId, proteusDir: File, isFederated: Boolean, scalaUserDBProvider: ScalaUserDatabaseProvider) {
+    suspend fun fixSessionFileNames(
+        userId: UserId,
+        proteusDir: File,
+        isFederated: Boolean,
+        scalaUserDBProvider: ScalaUserDatabaseProvider
+    ) {
         val sessionsDir = File(proteusDir, "sessions")
         if (isFederated) {
             val filesWithoutDomain = getSessionFileNamesWithoutDomain(sessionsDir)

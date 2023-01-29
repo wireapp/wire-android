@@ -167,7 +167,13 @@ class MigrationMapper @Inject constructor() {
     }
 
     @Suppress("ComplexMethod")
-    fun fromScalaUserToUser(scalaUserData: ScalaUserData, selfUserId: String, selfUserDomain: String?, selfUserTeamId: String?, selfuser: UserId) =
+    fun fromScalaUserToUser(
+        scalaUserData: ScalaUserData,
+        selfUserId: String,
+        selfUserDomain: String?,
+        selfUserTeamId: String?,
+        selfuser: UserId
+    ) =
         if (scalaUserData.id == selfUserId && scalaUserData.domain == selfUserDomain) {
             SelfUser(
                 id = toQualifiedId(scalaUserData.id, scalaUserData.domain, selfuser),

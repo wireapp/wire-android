@@ -24,6 +24,7 @@ import androidx.core.database.getIntOrNull
 import androidx.core.database.getLongOrNull
 import com.wire.android.appLogger
 import com.wire.android.migration.util.getStringOrNull
+import com.wire.android.migration.util.orNullIfNegative
 import kotlinx.coroutines.withContext
 import java.sql.SQLException
 import kotlin.coroutines.CoroutineContext
@@ -79,8 +80,8 @@ data class ScalaMessageData(
         result = 31 * result + (senderClientId?.hashCode() ?: 0)
         result = 31 * result + (content?.hashCode() ?: 0)
         result = 31 * result + (proto?.contentHashCode() ?: 0)
-        result = 31 * result + (assetName.hashCode())
-        result = 31 * result + (assetSize?.hashCode() ?: 0)
+        result = 31 * result + (assetName?.hashCode() ?: 0)
+        result = 31 * result + (assetSize ?: 0)
         return result
     }
 }
@@ -127,7 +128,7 @@ class ScalaMessageDAO(
             } else {
                 val idIndex = cursor.getColumnIndex("$MESSAGE_ALIAS_PREFIX$COLUMN_ID")
                 val timeIndex = cursor.getColumnIndex("$MESSAGE_ALIAS_PREFIX$COLUMN_TIME")
-                val editTimeIndex = cursor.getColumnIndex("$MESSAGE_ALIAS_PREFIX$COLUMN_EDIT_TIME")
+                val editTimeIndex = cursor.getColumnIndex("$MESSAGE_ALIAS_PREFIX$COLUMN_EDIT_TIME").orNullIfNegative()
                 val userIdIndex = cursor.getColumnIndex("$MESSAGE_ALIAS_PREFIX$COLUMN_USER_ID")
                 val clientIdIndex = cursor.getColumnIndex("$MESSAGE_ALIAS_PREFIX$COLUMN_CLIENT_ID")
                 val contentIndex = cursor.getColumnIndex("$MESSAGE_ALIAS_PREFIX$COLUMN_CONTENT")
@@ -142,7 +143,7 @@ class ScalaMessageDAO(
                         conversationRemoteId = scalaConversation.remoteId,
                         conversationDomain = scalaConversation.domain,
                         time = cursor.getLong(timeIndex),
-                        editTime = cursor.getLongOrNull(editTimeIndex),
+                        editTime = editTimeIndex?.let { cursor.getLongOrNull(it) },
                         senderId = cursor.getStringOrNull(userIdIndex).orEmpty(),
                         senderClientId = cursor.getStringOrNull(clientIdIndex),
                         content = cursor.getStringOrNull(contentIndex),

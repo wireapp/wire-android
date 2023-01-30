@@ -90,7 +90,7 @@ class WireApplication : Application(), Configuration.Provider {
     }
 
     private fun enableStrictMode() {
-        if (!BuildConfig.DEBUG) return
+        return
 
         StrictMode.setThreadPolicy(
             StrictMode.ThreadPolicy.Builder()

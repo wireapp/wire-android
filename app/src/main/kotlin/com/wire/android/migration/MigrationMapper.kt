@@ -106,16 +106,19 @@ class MigrationMapper @Inject constructor() {
     } ?: Conversation.ReceiptMode.DISABLED
 
     fun fromScalaMessageToMessage(selfUserId: UserId, scalaMessage: ScalaMessageData, scalaSenderUserData: ScalaUserData) =
-        MigratedMessage(
-            conversationId = toQualifiedId(scalaMessage.conversationRemoteId, scalaMessage.conversationDomain, selfUserId),
-            senderUserId = UserId(scalaSenderUserData.id, scalaSenderUserData.domain.orDefault(selfUserId.domain)),
-            senderClientId = ClientId(scalaMessage.senderClientId.orEmpty()),
-            timestamp = scalaMessage.time,
-            content = scalaMessage.content.orEmpty(),
-            encryptedProto = scalaMessage.proto,
-            assetName = scalaMessage.assetName,
-            assetSize = scalaMessage.assetSize,
-        )
+        with(scalaMessage) {
+            MigratedMessage(
+                conversationId = toQualifiedId(conversationRemoteId, conversationDomain, selfUserId),
+                senderUserId = UserId(scalaSenderUserData.id, scalaSenderUserData.domain.orDefault(selfUserId.domain)),
+                senderClientId = ClientId(senderClientId.orEmpty()),
+                timestamp = time,
+                content = content.orEmpty(),
+                encryptedProto = proto,
+                assetName = assetName,
+                assetSize = assetSize,
+                editTime = editTime
+            )
+        }
 
     private fun mapAccess(access: String): List<Access> {
         val accessList = access.removeSurrounding("[", "]").replace("\"", "").split(",").map { it.trim() }

@@ -111,7 +111,7 @@ class WireApplication : Application(), Configuration.Provider {
                 .build()
         )
     }
-^
+
     private fun initializeApplicationLoggingFrameworks() {
         // 1. Datadog should be initialized first
         initDatadogLogger(this)

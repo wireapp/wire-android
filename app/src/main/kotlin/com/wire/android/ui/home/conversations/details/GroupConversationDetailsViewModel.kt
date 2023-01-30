@@ -47,17 +47,20 @@ import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.uiText
 import com.wire.kalium.logic.CoreFailure
+import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.feature.conversation.ClearConversationContentUseCase
+import com.wire.kalium.logic.feature.conversation.ConversationUpdateReceiptModeResult
 import com.wire.kalium.logic.feature.conversation.ConversationUpdateStatusResult
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationAccessRoleUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
+import com.wire.kalium.logic.feature.conversation.UpdateConversationReceiptModeUseCase
 import com.wire.kalium.logic.feature.team.DeleteTeamConversationUseCase
 import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
 import com.wire.kalium.logic.feature.team.Result
@@ -92,6 +95,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
     private val removeMemberFromConversation: RemoveMemberFromConversationUseCase,
     private val updateConversationMutedStatus: UpdateConversationMutedStatusUseCase,
     private val clearConversationContent: ClearConversationContentUseCase,
+    private val updateConversationReceiptMode: UpdateConversationReceiptModeUseCase,
     override val savedStateHandle: SavedStateHandle,
     qualifiedIdMapper: QualifiedIdMapper
 ) : GroupConversationParticipantsViewModel(
@@ -159,6 +163,8 @@ class GroupConversationDetailsViewModel @Inject constructor(
                         isServicesAllowed = groupDetails.conversation.isServicesAllowed(),
                         isUpdatingAllowed = isSelfAnAdmin,
                         isUpdatingGuestAllowed = isSelfAnAdmin && isSelfInOwnerTeam,
+                        isReadReceiptAllowed = groupDetails.conversation.receiptMode == Conversation.ReceiptMode.ENABLED,
+                        isUpdatingReadReceiptAllowed = isSelfAnAdmin
                     )
                 )
             }.collect {}
@@ -221,6 +227,12 @@ class GroupConversationDetailsViewModel @Inject constructor(
             true -> updateServicesRemoteRequest(enableServices)
             false -> updateState(groupOptionsState.value.copy(changeServiceOptionConfirmationRequired = true))
         }
+    }
+
+    fun onReadReceiptUpdate(enableReadReceipt: Boolean) {
+        appLogger.i("[$TAG][onReadReceiptUpdate] - enableReadReceipt: $enableReadReceipt")
+        updateState(groupOptionsState.value.copy(loadingReadReceiptOption = true, isReadReceiptAllowed = enableReadReceipt))
+        updateReadReceiptRemoteRequest(enableReadReceipt)
     }
 
     fun onGuestDialogDismiss() {
@@ -297,6 +309,33 @@ class GroupConversationDetailsViewModel @Inject constructor(
             }
 
             updateState(groupOptionsState.value.copy(loadingServicesOption = false))
+        }
+    }
+
+    private fun updateReadReceiptRemoteRequest(enableReadReceipt: Boolean) {
+        viewModelScope.launch {
+            val result = withContext(dispatcher.io()) {
+                updateConversationReceiptMode(
+                    conversationId = conversationId,
+                    receiptMode = when (enableReadReceipt) {
+                        true -> Conversation.ReceiptMode.ENABLED
+                        else -> Conversation.ReceiptMode.DISABLED
+                    }
+                )
+            }
+
+            when (result) {
+                is ConversationUpdateReceiptModeResult.Failure -> updateState(
+                    groupOptionsState.value.copy(
+                        isReadReceiptAllowed = !enableReadReceipt,
+                        error = GroupConversationOptionsState.Error.UpdateReadReceiptError(result.cause)
+                    )
+                )
+
+                ConversationUpdateReceiptModeResult.Success -> Unit
+            }
+
+            updateState(groupOptionsState.value.copy(loadingReadReceiptOption = false))
         }
     }
 
@@ -407,6 +446,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
     }
 
     companion object {
+        const val TAG = "GroupConversationDetailsViewModel"
         const val MAX_NUMBER_OF_PARTICIPANTS = 4
     }
 

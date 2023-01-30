@@ -49,79 +49,64 @@ class MigrateClientsDataUseCase @Inject constructor(
     private val scalaUserDBProvider: ScalaUserDatabaseProvider,
     private val userDataStoreProvider: UserDataStoreProvider
 ) {
+    suspend operator fun invoke(userId: UserId, isFederated: Boolean): Either<CoreFailure, Unit> {
 
-    suspend operator fun invoke(userId: UserId, isFederated: Boolean): Either<CoreFailure, Unit> =
-        invoke(listOf(userId), isFederated).values.first()
+        val clientId = scalaUserDBProvider.clientDAO(userId)?.clientInfo()?.clientId?.let { ClientId(it) }
+            ?: return Either.Left(StorageFailure.DataNotFound)
 
-    @Suppress("LoopWithTooManyJumpStatements", "ComplexMethod")
-    suspend operator fun invoke(userIds: List<UserId>, isFederated: Boolean): Map<UserId, Either<CoreFailure, Unit>> {
+        // move crypto box files
+        val scalaDir = scalaCryptoBoxDirectoryProvider.userDir(userId)
+        val currentDir = File(coreLogic.rootPathsProvider.rootProteusPath(userId))
+        if (currentDir.exists()) {
+            return Either.Right(Unit)
+        }
 
-        val acc: MutableMap<UserId, Either<CoreFailure, Unit>> = mutableMapOf()
+        try {
+            scalaDir.copyRecursively(target = currentDir, overwrite = false)
+            // Session file names from the scala app contain user ids without a domain, AR uses session file names having user ids
+            // with a domain, so migrated session file names have to be fixed by adding a domain to them.
+            fixSessionFileNames(userId, currentDir, isFederated, scalaUserDBProvider)
+        } catch (_: Exception) {
+            currentDir.deleteRecursively()
+        }
 
-        for (userId in userIds) {
-            val clientId = scalaUserDBProvider.clientDAO(userId)?.clientInfo()?.clientId?.let { ClientId(it) }
-            if (clientId == null) {
-                acc[userId] = Either.Left(StorageFailure.DataNotFound)
-                continue
-            }
+        // add registered client id, sync will start when the registered id is persisted
+        return coreLogic.sessionScope(userId) {
+            // NOTE we are passing in an RegisterClientParam will null values
+            // because we don't support deleting any existing clients when migrating
+            // from the old scala app.
+            when (val result = this.client.importClient(
+                clientId, RegisterClientParam(
+                    password = null,
+                    capabilities = null
+                )
+            )) {
+                is RegisterClientResult.Failure.Generic ->
+                    Either.Left(result.genericFailure)
 
-            // move crypto box files
-            val scalaDir = scalaCryptoBoxDirectoryProvider.userDir(userId)
-            val currentDir = File(coreLogic.rootPathsProvider.rootProteusPath(userId))
-            if (currentDir.exists()) {
-                acc[userId] = Either.Right(Unit)
-                continue
-            }
+                is RegisterClientResult.Failure.TooManyClients ->
+                    Either.Left(MigrationFailure.ClientNotRegistered)
 
-            try {
-                scalaDir.copyRecursively(target = currentDir, overwrite = false)
-                // Session file names from the scala app contain user ids without a domain, AR uses session file names having user ids
-                // with a domain, so migrated session file names have to be fixed by adding a domain to them.
-                fixSessionFileNames(userId, currentDir, isFederated, scalaUserDBProvider)
-            } catch (_: Exception) {
-                currentDir.deleteRecursively()
-            }
+                is RegisterClientResult.Failure.InvalidCredentials ->
+                    Either.Left(MigrationFailure.ClientNotRegistered)
 
-            // add registered client id, sync will start when the registered id is persisted
-            coreLogic.sessionScope(userId) {
-                // NOTE we are passing in an RegisterClientParam will null values
-                // because we don't support deleting any existing clients when migrating
-                // from the old scala app.
-                when (val result = this.client.importClient(
-                    clientId, RegisterClientParam(
-                        password = null,
-                        capabilities = null
-                    )
-                )) {
-                    is RegisterClientResult.Failure.Generic ->
-                        Either.Left(result.genericFailure)
-
-                    is RegisterClientResult.Failure.TooManyClients ->
-                        Either.Left(MigrationFailure.ClientNotRegistered)
-
-                    is RegisterClientResult.Failure.InvalidCredentials ->
-                        Either.Left(MigrationFailure.ClientNotRegistered)
-
-                    is RegisterClientResult.Failure.PasswordAuthRequired -> {
-                        Either.Left(MigrationFailure.ClientNotRegistered)
-                    }
-
-                    is RegisterClientResult.Success ->
-                        withTimeoutOrNull(SYNC_START_TIMEOUT) {
-                            syncManager.waitUntilStartedOrFailure()
-                        }.let {
-                            it ?: Either.Left(NetworkFailure.NoNetworkConnection(null))
-                        }.flatMap {
-                            syncManager.waitUntilLiveOrFailure()
-                                .onSuccess {
-                                    acc[userId] = Either.Right(Unit)
-                                    userDataStoreProvider.getOrCreate(userId).setInitialSyncCompleted()
-                                }
-                        }
+                is RegisterClientResult.Failure.PasswordAuthRequired -> {
+                    Either.Left(MigrationFailure.ClientNotRegistered)
                 }
+
+                is RegisterClientResult.Success ->
+                    withTimeoutOrNull(SYNC_START_TIMEOUT) {
+                        syncManager.waitUntilStartedOrFailure()
+                    }.let {
+                        it ?: Either.Left(NetworkFailure.NoNetworkConnection(null))
+                    }.flatMap {
+                        syncManager.waitUntilLiveOrFailure()
+                            .onSuccess {
+                                userDataStoreProvider.getOrCreate(userId).setInitialSyncCompleted()
+                            }
+                    }
             }
         }
-        return acc.toMap()
     }
 
     @VisibleForTesting

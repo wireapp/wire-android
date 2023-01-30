@@ -25,7 +25,6 @@ import com.wire.android.migration.userDatabase.ScalaConversationData
 import com.wire.android.migration.userDatabase.ScalaMessageData
 import com.wire.android.migration.userDatabase.ScalaUserData
 import com.wire.android.util.orDefault
-import com.wire.android.util.timestampToServerDate
 import com.wire.kalium.logic.data.conversation.ClientId
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.Conversation.Access
@@ -61,10 +60,10 @@ class MigrationMapper @Inject constructor() {
         )
     }
 
-    private fun toQualifiedId(remoteId: String, domain: String?): QualifiedID =
-        QualifiedID(remoteId, domain.orDefault(QualifiedID.WIRE_PRODUCTION_DOMAIN))
+    private fun toQualifiedId(remoteId: String, domain: String?, selfUserId: UserId): QualifiedID =
+        QualifiedID(remoteId, domain.orDefault(selfUserId.domain))
 
-    fun fromScalaConversationToConversation(scalaConversation: ScalaConversationData) = with(scalaConversation) {
+    fun fromScalaConversationToConversation(scalaConversation: ScalaConversationData, selfUserId: UserId) = with(scalaConversation) {
         mapConversationType(type)?.let {
             val lastEventTime: String =
                 if (orderTime == null || orderTime == 0L) {
@@ -80,7 +79,7 @@ class MigrationMapper @Inject constructor() {
             }
 
             Conversation(
-                id = toQualifiedId(remoteId, domain),
+                id = toQualifiedId(remoteId, domain, selfUserId),
                 name = name,
                 type = it,
                 teamId = scalaConversation.teamId?.let { teamId -> TeamId(teamId) },
@@ -106,17 +105,20 @@ class MigrationMapper @Inject constructor() {
         }
     } ?: Conversation.ReceiptMode.DISABLED
 
-    fun fromScalaMessageToMessage(scalaMessage: ScalaMessageData, scalaSenderUserData: ScalaUserData) =
-        MigratedMessage(
-            conversationId = toQualifiedId(scalaMessage.conversationRemoteId, scalaMessage.conversationDomain),
-            senderUserId = UserId(scalaSenderUserData.id, scalaSenderUserData.domain.orDefault(QualifiedID.WIRE_PRODUCTION_DOMAIN)),
-            senderClientId = ClientId(scalaMessage.senderClientId.orEmpty()),
-            timestampIso = scalaMessage.time.timestampToServerDate().orEmpty(),
-            content = scalaMessage.content.orEmpty(),
-            encryptedProto = scalaMessage.proto,
-            assetName = scalaMessage.assetName,
-            assetSize = scalaMessage.assetSize,
-        )
+    fun fromScalaMessageToMessage(selfUserId: UserId, scalaMessage: ScalaMessageData, scalaSenderUserData: ScalaUserData) =
+        with(scalaMessage) {
+            MigratedMessage(
+                conversationId = toQualifiedId(conversationRemoteId, conversationDomain, selfUserId),
+                senderUserId = UserId(scalaSenderUserData.id, scalaSenderUserData.domain.orDefault(selfUserId.domain)),
+                senderClientId = ClientId(senderClientId.orEmpty()),
+                timestamp = time,
+                content = content.orEmpty(),
+                encryptedProto = proto,
+                assetName = assetName,
+                assetSize = assetSize,
+                editTime = editTime
+            )
+        }
 
     private fun mapAccess(access: String): List<Access> {
         val accessList = access.removeSurrounding("[", "]").replace("\"", "").split(",").map { it.trim() }
@@ -168,10 +170,16 @@ class MigrationMapper @Inject constructor() {
     }
 
     @Suppress("ComplexMethod")
-    fun fromScalaUserToUser(scalaUserData: ScalaUserData, selfUserId: String, selfUserDomain: String?, selfUserTeamId: String?) =
+    fun fromScalaUserToUser(
+        scalaUserData: ScalaUserData,
+        selfUserId: String,
+        selfUserDomain: String?,
+        selfUserTeamId: String?,
+        selfuser: UserId
+    ) =
         if (scalaUserData.id == selfUserId && scalaUserData.domain == selfUserDomain) {
             SelfUser(
-                id = toQualifiedId(scalaUserData.id, scalaUserData.domain),
+                id = toQualifiedId(scalaUserData.id, scalaUserData.domain, selfuser),
                 name = scalaUserData.name,
                 handle = scalaUserData.handle,
                 email = scalaUserData.email,
@@ -179,8 +187,8 @@ class MigrationMapper @Inject constructor() {
                 accentId = scalaUserData.accentId,
                 teamId = scalaUserData.teamId?.let { TeamId(it) },
                 connectionStatus = ConnectionState.ACCEPTED,
-                previewPicture = scalaUserData.pictureAssetId?.let { toQualifiedId(it, scalaUserData.domain) },
-                completePicture = scalaUserData.pictureAssetId?.let { toQualifiedId(it, scalaUserData.domain) },
+                previewPicture = scalaUserData.pictureAssetId?.let { toQualifiedId(it, scalaUserData.domain, selfuser) },
+                completePicture = scalaUserData.pictureAssetId?.let { toQualifiedId(it, scalaUserData.domain, selfuser) },
                 availabilityStatus = mapUserAvailabilityStatus(scalaUserData.availability)
             )
         } else {
@@ -195,7 +203,7 @@ class MigrationMapper @Inject constructor() {
                 else -> UserType.NONE
             }
             OtherUser(
-                id = toQualifiedId(scalaUserData.id, scalaUserData.domain),
+                id = toQualifiedId(scalaUserData.id, scalaUserData.domain, selfuser),
                 name = scalaUserData.name,
                 handle = scalaUserData.handle,
                 email = scalaUserData.email,
@@ -203,8 +211,8 @@ class MigrationMapper @Inject constructor() {
                 accentId = scalaUserData.accentId,
                 teamId = scalaUserData.teamId?.let { TeamId(it) },
                 connectionStatus = mapConnectionStatus(scalaUserData.connection),
-                previewPicture = scalaUserData.pictureAssetId?.let { toQualifiedId(it, scalaUserData.domain) },
-                completePicture = scalaUserData.pictureAssetId?.let { toQualifiedId(it, scalaUserData.domain) },
+                previewPicture = scalaUserData.pictureAssetId?.let { toQualifiedId(it, scalaUserData.domain, selfuser) },
+                completePicture = scalaUserData.pictureAssetId?.let { toQualifiedId(it, scalaUserData.domain, selfuser) },
                 userType = userType,
                 availabilityStatus = mapUserAvailabilityStatus(scalaUserData.availability),
                 botService = botService,

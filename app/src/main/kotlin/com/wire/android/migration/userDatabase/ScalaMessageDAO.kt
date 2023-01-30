@@ -100,11 +100,6 @@ class ScalaMessageDAO(
             accumulator
         }
 
-    suspend fun messagesForConversation(scalaConversation: ScalaConversationData): List<ScalaMessageData> =
-        withContext(queryContext) {
-            messagesFromConversation(scalaConversation)
-        }
-
     private fun messagesFromConversation(scalaConversation: ScalaConversationData): List<ScalaMessageData> {
         val cursor = db.rawQuery(
             "SELECT " + // Assets are required, otherwise we get exception "requesting column name with table name".

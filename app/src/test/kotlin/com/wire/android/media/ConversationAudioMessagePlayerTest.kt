@@ -4,8 +4,10 @@ import android.content.Context
 import android.media.MediaPlayer
 import app.cash.turbine.test
 import com.wire.android.framework.FakeKaliumFileSystem
+import com.wire.android.media.audiomessage.AudioMediaPlayingState
+import com.wire.android.media.audiomessage.AudioState
 import com.wire.android.media.audiomessage.ConversationAudioMessagePlayer
-import com.wire.android.ui.home.conversations.banner.ConversationBannerViewModel
+import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
@@ -13,30 +15,53 @@ import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
-import io.mockk.just
-import io.mockk.runs
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.internal.assertEquals
-import org.junit.Before
-import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
-import org.mockito.InjectMocks
 
 class ConversationAudioMessagePlayerTest {
 
     @Test
     fun test() = runTest {
-        val (arrangement, conversationAudioMessagePlayer) = Arrangement().arrange()
+        val (_, conversationAudioMessagePlayer) = Arrangement()
+            .withSuccessFullAssetFetch()
+            .withAudioMediaPlayerReturningCurrentPosition(100)
+            .arrange()
 
-        conversationAudioMessagePlayer.observableAudioMessagesState.test(timeoutMs = 1_0000L) {
+        val testAudioMessageId = "some-dummy-message-id"
+
+        conversationAudioMessagePlayer.observableAudioMessagesState.test {
             conversationAudioMessagePlayer.playAudio(
                 ConversationId("some-dummy-value", "some.dummy.domain"),
-                "some-dummy-message-id"
+                testAudioMessageId
             )
-            val test = awaitItem()
+
+            //Fetching
+            val test1 = awaitItem()
+            assertEquals(
+                expected = test1[testAudioMessageId],
+                actual = AudioState(AudioMediaPlayingState.Fetching, 0, 0)
+            )
+            //SuccessFullFetching
+            val test2 = awaitItem()
+            assertEquals(
+                expected = test1[testAudioMessageId],
+                actual = AudioState(AudioMediaPlayingState.SuccessFullFetching, 0, 0)
+            )
+            //Playing
+            val test3 = awaitItem()
+            assertEquals(
+                expected = test1[testAudioMessageId],
+                actual = AudioState(AudioMediaPlayingState.Playing, 0, 0)
+            )
+            // TotalTimeUpdate
+            val test4 = awaitItem()
+            assertEquals(
+                expected = test1[testAudioMessageId],
+                actual = AudioState(AudioMediaPlayingState.Playing, 0, 0)
+            )
             cancelAndIgnoreRemainingEvents()
-            println()
         }
 
     }
@@ -62,9 +87,9 @@ class ConversationAudioMessagePlayerTest {
 
         init {
             MockKAnnotations.init(this, relaxed = true)
-            every {
-                mediaPlayer.setOnCompletionListener(any())
-            } just runs
+        }
+
+        fun withSuccessFullAssetFetch() = apply {
             coEvery { getMessageAssetUseCase.invoke(any(), any()) } returns CompletableDeferred(
                 MessageAssetResult.Success(
                     decodedAssetPath = FakeKaliumFileSystem().selfUserAvatarPath(),
@@ -72,6 +97,16 @@ class ConversationAudioMessagePlayerTest {
                     assetName = "some-dummy-asset-name"
                 )
             )
+        }
+
+        fun withFailingAssetFetch() = apply {
+            coEvery { getMessageAssetUseCase.invoke(any(), any()) } returns CompletableDeferred(
+                MessageAssetResult.Failure(CoreFailure.Unknown(IllegalStateException()))
+            )
+        }
+
+        fun withAudioMediaPlayerReturningCurrentPosition(currentPosition: Int) = apply {
+            every { mediaPlayer.currentPosition } returns currentPosition
         }
 
         fun arrange() = this to conversationAudioMessagePlayer

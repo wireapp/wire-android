@@ -1,3 +1,23 @@
+/*
+ * Wire
+ * Copyright (C) 2023 Wire Swiss GmbH
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see http://www.gnu.org/licenses/.
+ *
+ *
+ */
+
 package com.wire.android.ui.home.settings.backup.dialog.create
 
 import androidx.compose.foundation.layout.Column
@@ -49,7 +69,7 @@ fun SetBackupPasswordDialog(
         ),
         optionButton1Properties = WireDialogButtonProperties(
             onClick = { onCreateBackup(backupPassword.text) },
-            text = stringResource(id = R.string.label_ok),
+            text = stringResource(id = R.string.backup_dialog_create_backup_now),
             type = WireDialogButtonType.Primary,
             state = if (!isBackupPasswordValid) WireButtonState.Disabled else WireButtonState.Default
         )

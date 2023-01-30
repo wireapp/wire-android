@@ -22,10 +22,29 @@ package com.wire.android.ui.migration
 
 import androidx.compose.runtime.Composable
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.wire.android.R
+import com.wire.android.migration.MigrationData
 import com.wire.android.ui.common.SettingUpWireScreenContent
+import com.wire.android.ui.common.SettingUpWireScreenType
 
 @Composable
 fun MigrationScreen(viewModel: MigrationViewModel = hiltViewModel()) {
-    viewModel.init()
-    SettingUpWireScreenContent()
+    SettingUpWireScreenContent(
+        messageResId = when (val state = viewModel.state) {
+            MigrationState.Failed -> R.string.error_no_network_message
+            is MigrationState.InProgress -> when (state.type) {
+                MigrationData.Progress.Type.SERVER_CONFIGS -> R.string.migration_server_configs_message
+                MigrationData.Progress.Type.ACCOUNTS -> R.string.migration_accounts_message
+                MigrationData.Progress.Type.CLIENTS -> R.string.migration_clients_message
+                MigrationData.Progress.Type.USERS -> R.string.migration_users_message
+                MigrationData.Progress.Type.CONVERSATIONS -> R.string.migration_conversations_message
+                MigrationData.Progress.Type.MESSAGES -> R.string.migration_messages_message
+                MigrationData.Progress.Type.UNKNOWN -> R.string.migration_message_unknown
+            }
+        },
+        type = when (viewModel.state) {
+            is MigrationState.InProgress -> SettingUpWireScreenType.Progress
+            is MigrationState.Failed -> SettingUpWireScreenType.Failure(onRetryClick = viewModel::retry)
+        }
+    )
 }

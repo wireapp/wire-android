@@ -45,6 +45,8 @@ import com.wire.kalium.logic.feature.client.SelfClientsUseCase
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -61,7 +63,7 @@ class RemoveDeviceViewModel @Inject constructor(
 
     var state: RemoveDeviceState by mutableStateOf(
         RemoveDeviceState(
-            deviceList = listOf(),
+            deviceList = persistentListOf(),
             removeDeviceDialogState = RemoveDeviceDialogState.Hidden,
             isLoadingClientsList = true,
             error = RemoveDeviceError.None,
@@ -83,7 +85,7 @@ class RemoveDeviceViewModel @Inject constructor(
                     isLoadingClientsList = false,
                     deviceList = selfClientsResult.clients
                         .filter { it.id != selfClientsResult.currentClientId && it.type == ClientType.Permanent }
-                        .map { Device(it) },
+                        .map { Device(it) }.toPersistentList(),
                     removeDeviceDialogState = RemoveDeviceDialogState.Hidden,
                     currentDevice = selfClientsResult.clients
                         .firstOrNull { it.id == selfClientsResult.currentClientId }?.let { Device(it) }

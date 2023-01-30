@@ -73,6 +73,7 @@ import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.util.dialogErrorStrings
 import com.wire.android.util.extension.folderWithElements
 import com.wire.android.util.formatMediumDateTime
+import kotlinx.collections.immutable.toImmutableList
 
 @Composable
 fun RemoveDeviceScreen() {
@@ -309,7 +310,7 @@ internal fun LazyListScope.folderDeviceItems(
 fun PreviewRemoveDeviceScreen() {
     RemoveDeviceContent(
         state = RemoveDeviceState(
-            List(10) { Device() },
+            List(10) { Device() }.toImmutableList(),
             RemoveDeviceDialogState.Hidden,
             isLoadingClientsList = false,
             error = RemoveDeviceError.None,

@@ -34,6 +34,7 @@ import com.wire.android.ui.authentication.devices.remove.RemoveDeviceError
 import com.wire.android.ui.authentication.devices.remove.RemoveDeviceState
 import com.wire.android.ui.authentication.devices.remove.RemoveDeviceViewModel
 import com.wire.android.ui.common.topappbar.NavigationIconType
+import kotlinx.collections.immutable.toImmutableList
 
 @Composable
 fun SelfDevicesScreen() {
@@ -65,7 +66,7 @@ fun SelfDevicesScreen() {
 fun PreviewSelfDevicesScreen() {
     RemoveDeviceContent(
         state = RemoveDeviceState(
-            List(10) { Device() },
+            List(10) { Device() }.toImmutableList(),
             RemoveDeviceDialogState.Hidden,
             isLoadingClientsList = false,
             error = RemoveDeviceError.None,

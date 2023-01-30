@@ -28,9 +28,9 @@ import com.wire.android.migration.util.ScalaCryptoBoxDirectoryProvider
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.user.UserId
 import io.mockk.MockKAnnotations
-import io.mockk.every
+import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.impl.annotations.MockK
-import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.internal.assertEquals
@@ -116,7 +116,7 @@ class MigrateClientsDataUseCaseTest {
             assert(it.none { !it.name.contains("@") })
         }
         assertEquals(listOf(expected), sessionsDir.listFiles()?.map { it.name })
-        verify(exactly = 0) { arrangement.scalaUserDBProvider.userDAO(any())?.users(any()) }
+        coVerify(exactly = 0) { arrangement.scalaUserDBProvider.userDAO(any())?.users(any()) }
     }
 
     @Test
@@ -134,7 +134,7 @@ class MigrateClientsDataUseCaseTest {
         useCase.fixSessionFileNames(userId, proteusDir, true, arrangement.scalaUserDBProvider)
         // then
         assertEquals(listOf(expected), sessionsDir.listFiles()?.map { it.name })
-        verify(atLeast = 1) { arrangement.scalaUserDBProvider.userDAO(any())?.users(any()) }
+        coVerify(atLeast = 1) { arrangement.scalaUserDBProvider.userDAO(any())?.users(any()) }
     }
 
     private fun fakeScalaUserData(id: String, domain: String) = ScalaUserData(
@@ -178,8 +178,8 @@ class MigrateClientsDataUseCaseTest {
             MockKAnnotations.init(this, relaxUnitFun = true)
         }
 
-        fun withGetUsers(result: (List<String>) -> List<ScalaUserData>): Arrangement {
-            every { scalaUserDBProvider.userDAO(any())?.users(any()) } answers {
+        suspend fun withGetUsers(result: (List<String>) -> List<ScalaUserData>): Arrangement {
+            coEvery { scalaUserDBProvider.userDAO(any())?.users(any()) } answers {
                 result(firstArg())
             }
             return this

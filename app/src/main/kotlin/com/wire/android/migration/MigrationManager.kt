@@ -134,9 +134,10 @@ class MigrationManager @Inject constructor(
                     }
                     appLogger.d("$TAG - Step 3 - Migrating users for $userid")
                     migrateUsers(userid).flatMap {
+                        appLogger.d("$TAG - Step 4 - Migrating conversations for $userid")
                         migrateConversations(it)
                     }.flatMap {
-                        appLogger.d("$TAG - Step 4 - Migrating conversations for $userid")
+                        appLogger.d("$TAG - Step 5 - Migrating messages for $userid")
                         migrateMessages(userid, it, coroutineScope)
                     }.also {
                         resultAcc[userid.value] = it

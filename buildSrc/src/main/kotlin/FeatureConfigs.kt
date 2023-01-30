@@ -79,7 +79,6 @@ enum class FlavourConfigs(val value: String, val configType: ConfigType) {
     DEVELOPER_FEATURES_ENABLED("developer_features_enabled", ConfigType.BOOLEAN),
     LAUNCHER_ICON("launcherIcon", ConfigType.STRING),
     LOGGING_ENABLED("logging_enabled", ConfigType.BOOLEAN),
-    SAFE_LOGGING("safe_logging", ConfigType.BOOLEAN),
     PRIVATE_BUILD("private_build", ConfigType.BOOLEAN),
     DEVELOPMENT_API_ENABLED("development_api_enabled", ConfigType.BOOLEAN),
     FIREBASE_APP_ID("firebaseAppId", ConfigType.STRING),
@@ -87,5 +86,7 @@ enum class FlavourConfigs(val value: String, val configType: ConfigType) {
     GOOGLE_API_KEY("googleApiKey", ConfigType.STRING),
     FCM_PROJECT_ID("fcmProjectID", ConfigType.STRING),
     IS_STAGING("isStaging", ConfigType.BOOLEAN),
-    USER_ID("userId", ConfigType.STRING);
+    USER_ID("userId", ConfigType.STRING),
+    DEBUG_SCREEN_ENABLED("debug_screen_enabled", ConfigType.BOOLEAN),
+    REPORT_BUG_MENU_ITEM_ENABLED("report_bug_menu_item", ConfigType.BOOLEAN);
 }

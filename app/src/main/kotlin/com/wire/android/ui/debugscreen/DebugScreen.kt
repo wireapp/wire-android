@@ -106,11 +106,13 @@ fun DebugContent(
                 .verticalScroll(scrollState)
                 .padding(internalPadding)
         ) {
-            MlsOptions(
-                keyPackagesCount = debugScreenState.keyPackagesCount,
-                mlsClientId = debugScreenState.mslClientId,
-                mlsErrorMessage = debugScreenState.mlsErrorMessage
-            )
+            if (debugScreenState.mlsEnabled) {
+                MlsOptions(
+                    keyPackagesCount = debugScreenState.keyPackagesCount,
+                    mlsClientId = debugScreenState.mslClientId,
+                    mlsErrorMessage = debugScreenState.mlsErrorMessage
+                )
+            }
 
             LogOptions(
                 deviceId = debugContentState.deviceId,

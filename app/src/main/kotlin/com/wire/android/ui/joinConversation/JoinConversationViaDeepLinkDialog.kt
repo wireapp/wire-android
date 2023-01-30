@@ -1,9 +1,8 @@
 @file:Suppress("MatchingDeclarationName")
+
 package com.wire.android.ui.joinConversation
 
-import android.widget.Toast
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
@@ -52,12 +51,48 @@ fun JoinConversationViaDeepLinkDialog(
 }
 
 @Composable
-fun JoinConversationViaInviteLinkError(
-    errorState: JoinConversationViaCodeState.Error
+fun JoinConversationViaDeepLinkErrorDialog(
+    errorMessage: String,
+    onCancel: () -> Unit
 ) {
-    val context = LocalContext.current
-    // TODO: checku[ with design about the error message copy
-    Toast.makeText(context, "Failed to join conversation via deep link", Toast.LENGTH_LONG).show()
+    WireDialog(
+        title = stringResource(R.string.join_conversation_via_deeplink_error_title),
+        text = errorMessage,
+        onDismiss = onCancel,
+        optionButton1Properties = WireDialogButtonProperties(
+            onClick = onCancel,
+            text = stringResource(id = R.string.label_ok),
+            type = WireDialogButtonType.Primary
+        )
+    )
+}
+
+@Composable
+fun JoinConversationViaInviteLinkError(
+    errorState: JoinConversationViaCodeState.Error,
+    onCancel: () -> Unit
+) {
+    when (errorState.error) {
+        CheckConversationInviteCodeUseCase.Result.Failure.GuestLinksDisabled ->
+            JoinConversationViaDeepLinkErrorDialog(
+                stringResource(id = R.string.join_conversation_via_deeplink_error_link_expired),
+                onCancel
+            )
+        CheckConversationInviteCodeUseCase.Result.Failure.AccessDenied ->
+            JoinConversationViaDeepLinkErrorDialog(
+                stringResource(id = R.string.join_conversation_via_deeplink_error_max_number_of_participent),
+                onCancel
+            )
+
+        CheckConversationInviteCodeUseCase.Result.Failure.ConversationNotFound,
+        CheckConversationInviteCodeUseCase.Result.Failure.InvalidCodeOrKey,
+        CheckConversationInviteCodeUseCase.Result.Failure.RequestingUserIsNotATeamMember,
+        is CheckConversationInviteCodeUseCase.Result.Failure.Generic ->
+            JoinConversationViaDeepLinkErrorDialog(
+                stringResource(id = R.string.join_conversation_via_deeplink_error_general),
+                onCancel
+            )
+    }
 }
 
 @Preview

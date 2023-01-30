@@ -404,7 +404,7 @@ class WireActivityViewModel @Inject constructor(
                             }
                         }
 
-                        is CheckConversationInviteCodeUseCase.Result.Failure.GuestLinksDisabled -> globalAppState =
+                        is CheckConversationInviteCodeUseCase.Result.Failure -> globalAppState =
                             globalAppState.copy(conversationJoinedDialog = JoinConversationViaCodeState.Error(result))
                     }
                 }

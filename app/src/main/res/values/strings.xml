@@ -825,5 +825,8 @@
     <string name="join_conversation_dialog_title">Join conversation?</string>
     <string name="join_conversation_dialog_message">You have been invited to a conversation. %1$s</string>
     <string name="join_conversation_dialog_button">Join</string>
-
+    <string name="join_conversation_via_deeplink_error_title">Unable to join conversation</string>
+    <string name="join_conversation_via_deeplink_error_link_expired">The link to this group conversation expired or the conversation was set to private.</string>
+    <string name="join_conversation_via_deeplink_error_max_number_of_participent">The maximum number of participants in this conversation has been reached.</string>
+    <string name="join_conversation_via_deeplink_error_general">Due to an error you could not be added to the group conversation.</string>
 </resources>

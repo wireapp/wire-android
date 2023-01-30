@@ -133,7 +133,10 @@ class WireActivity : AppCompatActivity() {
 
                     viewModel.globalAppState.conversationJoinedDialog?.let {
                         when (it) {
-                            is JoinConversationViaCodeState.Error -> JoinConversationViaInviteLinkError(errorState = it)
+                            is JoinConversationViaCodeState.Error -> JoinConversationViaInviteLinkError(
+                                errorState = it,
+                                onCancel = viewModel::cancelJoinConversation
+                            )
                             is JoinConversationViaCodeState.Show -> JoinConversationViaDeepLinkDialog(
                                 it,
                                 false,
@@ -160,7 +163,7 @@ class WireActivity : AppCompatActivity() {
             { updateTheApp() },
             viewModel.globalAppState.updateAppDialog
         )
-        AccountLoggedOutDialog(viewModel.globalAppState.blockUserUI, viewModel::navigateToNextAccountOrWelcome)
+        viewModel.globalAppState.blockUserUI?.let { AccountLoggedOutDialog(it, viewModel::navigateToNextAccountOrWelcome) }
     }
 
     @Composable
@@ -203,7 +206,7 @@ class WireActivity : AppCompatActivity() {
     }
 
     @Composable
-    fun AccountLoggedOutDialog(reason: CurrentSessionErrorState?, navigateAway: () -> Unit) {
+    fun AccountLoggedOutDialog(reason: CurrentSessionErrorState, navigateAway: () -> Unit) {
         appLogger.e("AccountLongedOutDialog: $reason")
         val (@StringRes title: Int, @StringRes text: Int) = when (reason) {
             CurrentSessionErrorState.SessionExpired -> {

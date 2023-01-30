@@ -234,5 +234,6 @@ dependencies {
 
     devImplementation(Libraries.dataDog)
     internalImplementation(Libraries.dataDog)
-    betaImplementation(Libraries.dataDog) stagingImplementation (Libraries.dataDog)
+    betaImplementation(Libraries.dataDog)
+    stagingImplementation(Libraries.dataDog)
 }

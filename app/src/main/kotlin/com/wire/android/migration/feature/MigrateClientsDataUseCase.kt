@@ -49,6 +49,7 @@ class MigrateClientsDataUseCase @Inject constructor(
     private val scalaUserDBProvider: ScalaUserDatabaseProvider,
     private val userDataStoreProvider: UserDataStoreProvider
 ) {
+   @Suppress("ReturnCount")
     suspend operator fun invoke(userId: UserId, isFederated: Boolean): Either<CoreFailure, Unit> {
 
         val clientId = scalaUserDBProvider.clientDAO(userId)?.clientInfo()?.clientId?.let { ClientId(it) }

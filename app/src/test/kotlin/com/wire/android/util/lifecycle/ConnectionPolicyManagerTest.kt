@@ -187,7 +187,6 @@ class ConnectionPolicyManagerTest {
         }
 
         fun arrange() = this to connectionPolicyManager
-
     }
 
     companion object {

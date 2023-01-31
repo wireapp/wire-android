@@ -78,7 +78,6 @@ class EndOngoingCallReceiver : BroadcastReceiver() {
                 it.calls.endCall(qualifiedIdMapper.fromStringToQualifiedID(conversationId))
             }
         }
-
     }
 
     companion object {

@@ -78,12 +78,10 @@ import com.wire.kalium.logic.feature.team.Result
 import com.wire.kalium.logic.functional.combine
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.toImmutableMap
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.debounce
-import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -218,7 +216,6 @@ class ConversationListViewModel @Inject constructor(
                         is OneOne -> it.unreadEventCount.isNotEmpty()
                         else -> false  // TODO should connection requests also be listed on "new activities"?
                     }
-
                 MutedConversationStatus.OnlyMentionsAndRepliesAllowed ->
                     when (it) {
                         is Group -> it.unreadEventCount.containsKey(UnreadEventType.MENTION)
@@ -227,7 +224,6 @@ class ConversationListViewModel @Inject constructor(
                                 || it.unreadEventCount.containsKey(UnreadEventType.REPLY)
                         else -> false
                     }
-
                 else -> false
             }
                     || (it is Connection && it.connection.status == ConnectionState.PENDING)
@@ -409,6 +405,7 @@ class ConversationListViewModel @Inject constructor(
         }
     }
 
+    @Suppress("MultiLineIfElse")
     private suspend fun clearContentSnackbarResult(
         clearContentResult: ClearConversationContentUseCase.Result,
         conversationTypeDetail: ConversationTypeDetail
@@ -424,7 +421,6 @@ class ConversationListViewModel @Inject constructor(
             homeSnackBarState.emit(HomeSnackbarState.ClearConversationContentSuccess(isGroup))
         }
     }
-
 }
 
 private fun LegalHoldStatus.showLegalHoldIndicator() = this == LegalHoldStatus.ENABLED

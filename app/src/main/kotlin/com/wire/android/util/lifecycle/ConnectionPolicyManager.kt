@@ -83,8 +83,9 @@ class ConnectionPolicyManager @Inject constructor(
                 migrationManager.isMigrationCompletedFlow(),
                 ::Triple
             ).collect { (isOnForeground, currentSession, isMigrationCompleted) ->
-                if (isMigrationCompleted)
+                if (isMigrationCompleted) {
                     setPolicyForSessions(allValidSessions(), currentSession, isOnForeground)
+                }
             }
         }
     }
@@ -155,9 +156,9 @@ class ConnectionPolicyManager @Inject constructor(
         val connectionPolicy = if (isCurrentSession && wasUIInitialized) {
             ConnectionPolicy.KEEP_ALIVE
         } else {
-            if (!isWebSocketEnabled){
+            if (!isWebSocketEnabled) {
                 ConnectionPolicy.DISCONNECT_AFTER_PENDING_EVENTS
-            }else{
+            } else {
                 ConnectionPolicy.KEEP_ALIVE
             }
         }

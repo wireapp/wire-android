@@ -206,7 +206,7 @@ class ConversationListViewModel @Inject constructor(
         }
     }
 
-    @Suppress("ComplexMethod")
+    @Suppress("ComplexMethod", "NoMultipleSpaces")
     private fun List<ConversationDetails>.toConversationsFoldersMap(): Map<ConversationFolder, List<ConversationItem>> {
         val unreadConversations = filter {
             when (it.conversation.mutedStatus) {
@@ -410,8 +410,9 @@ class ConversationListViewModel @Inject constructor(
         clearContentResult: ClearConversationContentUseCase.Result,
         conversationTypeDetail: ConversationTypeDetail
     ) {
-        if (conversationTypeDetail is ConversationTypeDetail.Connection)
+        if (conversationTypeDetail is ConversationTypeDetail.Connection) {
             throw IllegalStateException("Unsupported conversation type to clear content, something went wrong?")
+        }
 
         val isGroup = conversationTypeDetail is ConversationTypeDetail.Group
 

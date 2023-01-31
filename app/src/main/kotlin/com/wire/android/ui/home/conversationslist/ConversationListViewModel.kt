@@ -214,7 +214,7 @@ class ConversationListViewModel @Inject constructor(
                     when (it) {
                         is Group -> it.unreadEventCount.isNotEmpty()
                         is OneOne -> it.unreadEventCount.isNotEmpty()
-                        else -> false  // TODO should connection requests also be listed on "new activities"?
+                        else -> false // TODO should connection requests also be listed on "new activities"?
                     }
                 MutedConversationStatus.OnlyMentionsAndRepliesAllowed ->
                     when (it) {

@@ -40,9 +40,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-@Suppress("NoMultipleSpaces")
 @AndroidEntryPoint
-class CallNotificationDismissReceiver : BroadcastReceiver() {  // requires zero argument constructor
+class CallNotificationDismissReceiver : BroadcastReceiver() { // requires zero argument constructor
 
     @Inject
     @KaliumCoreLogic

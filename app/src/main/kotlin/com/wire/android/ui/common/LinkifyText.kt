@@ -85,6 +85,9 @@ fun LinkifyText(
     val annotatedString = buildAnnotatedString {
         append(textAsString)
         linkInfos.forEach {
+            if (it.end - it.start <= 0) {
+                return@forEach
+            }
             addStyle(
                 style = SpanStyle(
                     color = MaterialTheme.wireColorScheme.primary,
@@ -102,6 +105,9 @@ fun LinkifyText(
         }
         if (text is UIText.DynamicString && text.mentions.isNotEmpty()) {
             text.mentions.forEach {
+                if (it.length <= 0) {
+                    return@forEach
+                }
                 addStyle(
                     style = SpanStyle(
                         color = MaterialTheme.wireColorScheme.messageMentionText,

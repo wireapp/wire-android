@@ -7,7 +7,6 @@ import app.cash.turbine.test
 import com.wire.android.framework.FakeKaliumFileSystem
 import com.wire.android.media.audiomessage.AudioMediaPlayingState
 import com.wire.android.media.audiomessage.ConversationAudioMessagePlayer
-import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
@@ -299,17 +298,17 @@ class ConversationAudioMessagePlayerTest {
                 assert(currentState!!.audioMediaPlayingState is AudioMediaPlayingState.Stopped)
             }
             awaitAndAssertStateUpdate { state ->
-                val currentState = state[secondAudioMessageId]
+                val currentState = state[firstAudioMessageId]
                 assert(currentState != null)
                 assert(currentState!!.audioMediaPlayingState is AudioMediaPlayingState.Fetching)
             }
             awaitAndAssertStateUpdate { state ->
-                val currentState = state[secondAudioMessageId]
+                val currentState = state[firstAudioMessageId]
                 assert(currentState != null)
                 assert(currentState!!.audioMediaPlayingState is AudioMediaPlayingState.SuccessFullFetching)
             }
             awaitAndAssertStateUpdate { state ->
-                val currentState = state[secondAudioMessageId]
+                val currentState = state[firstAudioMessageId]
                 assert(currentState != null)
                 assert(currentState!!.audioMediaPlayingState is AudioMediaPlayingState.Playing)
             }
@@ -322,8 +321,8 @@ class ConversationAudioMessagePlayerTest {
         }
 
         with(arrangement) {
-            verify(exactly = 2) { mediaPlayer.prepare() }
-            verify(exactly = 2) { mediaPlayer.setDataSource(any(), any()) }
+            verify(exactly = 3) { mediaPlayer.prepare() }
+            verify(exactly = 3) { mediaPlayer.setDataSource(any(), any()) }
             verify(exactly = 2) { mediaPlayer.start() }
 
             verify(exactly = 1) { mediaPlayer.seekTo(1000) }

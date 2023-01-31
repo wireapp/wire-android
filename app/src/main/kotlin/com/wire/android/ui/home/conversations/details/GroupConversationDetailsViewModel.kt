@@ -361,13 +361,13 @@ class GroupConversationDetailsViewModel @Inject constructor(
         }
     }
 
-    @Suppress("MultiLineIfElse")
     private suspend fun clearContentSnackbarResult(
         clearContentResult: ClearConversationContentUseCase.Result,
         conversationTypeDetail: ConversationTypeDetail
     ) {
-        if (conversationTypeDetail is ConversationTypeDetail.Connection)
+        if (conversationTypeDetail is ConversationTypeDetail.Connection) {
             throw IllegalStateException("Unsupported conversation type to clear content, something went wrong?")
+        }
 
         if (clearContentResult is ClearConversationContentUseCase.Result.Failure) {
             showSnackBarMessage(UIText.StringResource(R.string.group_content_delete_failure))

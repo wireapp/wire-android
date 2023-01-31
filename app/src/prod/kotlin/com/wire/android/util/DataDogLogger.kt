@@ -19,3 +19,11 @@
  */
 
 package com.wire.android.util
+
+import co.touchlab.kermit.LogWriter
+import co.touchlab.kermit.Severity
+
+object DataDogLogger: LogWriter() {
+
+    override fun log(severity: Severity, message: String, tag: String, throwable: Throwable?) = Unit
+}

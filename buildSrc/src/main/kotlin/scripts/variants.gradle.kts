@@ -39,6 +39,7 @@ object BuildTypes {
     const val DEBUG = "debug"
     const val RELEASE = "release"
     const val COMPAT = "compat"
+    const val COMPAT_RELEASE = "compatRelease"
 }
 
 sealed class ProductFlavors(
@@ -102,6 +103,12 @@ android {
                 storePassword = System.getenv("KEYSTOREPWD_COMPAT")
                 keyAlias = System.getenv("KEYSTORE_KEY_NAME_COMPAT")
                 keyPassword = System.getenv("KEYPWD_COMPAT")
+            }
+            maybeCreate(BuildTypes.COMPAT_RELEASE).apply {
+                storeFile = file(System.getenv("KEYSTORE_FILE_PATH_COMPAT_RELEASE"))
+                storePassword = System.getenv("KEYSTOREPWD_COMPAT_RELEASE")
+                keyAlias = System.getenv("KEYSTORE_KEY_NAME_COMPAT_RELEASE")
+                keyPassword = System.getenv("KEYPWD_COMPAT_RELEASE")
             }
         }
     }

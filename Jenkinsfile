@@ -11,7 +11,7 @@ def defineFlavor() {
         return 'Beta'
     } else if(branchName == "develop") {
         return 'Dev'
-    } else if(branchName == "release") {
+    } else if(branchName == "prod") {
         return 'Prod'
     } else if(branchName == "internal") {
         return 'Internal'
@@ -29,6 +29,8 @@ def defineBuildType() {
     // internal is used for wire beta builds
     if (flavor == 'Beta') {
         return 'Release'
+    } else if (flavor == 'Prod') {
+        return "CompatRelease"
     }
     // use the scala client signing keys for testing upgrades.
     return "Compat"
@@ -139,11 +141,13 @@ pipeline {
       steps {
         configFileProvider([
          configFile(fileId: env.COMPAT_KEYSTORE_FILE_ID, targetLocation: env.COMPAT_ENC_TARGET_LOCATION),
+         configFile(fileId: env.COMPAT_RELEASE_KEYSTORE_FILE_ID, targetLocation: env.COMPAT_RELEASE_ENC_TARGET_LOCATION),
          configFile(fileId: env.DEBUG_KEYSTORE_FILE_ID, targetLocation: env.DEBUG_ENC_TARGET_LOCATION),
          configFile(fileId: env.RELEASE_KEYSTORE_FILE_ID, targetLocation: env.RELEASE_ENC_TARGET_LOCATION),
         ]) {
           sh '''
             base64 --decode $COMPAT_ENC_TARGET_LOCATION > $COMPAT_DEC_TARGET_LOCATION
+            base64 --decode $COMPAT_RELEASE_ENC_TARGET_LOCATION > $COMPAT_RELEASE_DEC_TARGET_LOCATION
             base64 --decode $DEBUG_ENC_TARGET_LOCATION > $DEBUG_DEC_TARGET_LOCATION
             base64 --decode $RELEASE_ENC_TARGET_LOCATION > $RELEASE_DEC_TARGET_LOCATION
           '''

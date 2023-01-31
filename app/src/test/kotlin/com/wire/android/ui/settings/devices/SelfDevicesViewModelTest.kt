@@ -20,30 +20,31 @@
 
 package com.wire.android.ui.settings.devices
 
+import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.navigation.NavigationManager
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.impl.annotations.MockK
-import io.mockk.verify
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.test.StandardTestDispatcher
-import kotlinx.coroutines.test.TestCoroutineScheduler
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
-import kotlinx.coroutines.test.setMain
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 
+@OptIn(ExperimentalCoroutinesApi::class)
+@ExtendWith(CoroutineTestExtension::class)
 class SelfDevicesViewModelTest {
 
     @Test
     fun `given a navigation request, to go back into previous screen, should go back`() = runTest {
         // given
-        val (_, viewModel) = Arrangement().arrange()
+        val (arrangement, viewModel) = Arrangement().arrange()
 
         // when
         viewModel.navigateBack()
 
         // then
-        verify { viewModel.navigateBack() }
+        coVerify { arrangement.navigationManager.navigateBack() }
     }
 
     private class Arrangement {
@@ -58,10 +59,8 @@ class SelfDevicesViewModelTest {
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
-            val scheduler = TestCoroutineScheduler()
-            Dispatchers.setMain(StandardTestDispatcher(scheduler))
 
-            coEvery { navigationManager.navigate(command = any()) } returns Unit
+            coEvery { navigationManager.navigateBack() } returns Unit
         }
 
         fun arrange() = this to viewModel

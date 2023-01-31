@@ -104,19 +104,19 @@ private fun EnabledMessageComposerInput(
     actions: MessageComposerInputActions,
     inputFocusRequester: FocusRequester,
 ) {
-    Column {
+    Box {
         var currentSelectedLineIndex by remember { mutableStateOf(0) }
         var cursorCoordinateY by remember { mutableStateOf(0F) }
-
-        MessageComposeInput(
-            transition = transition,
-            messageComposeInputState = messageComposeInputState,
-            quotedMessageData = quotedMessageData,
-            securityClassificationType = securityClassificationType,
-            onSelectedLineIndexChange = { currentSelectedLineIndex = it },
-            onLineBottomCoordinateChange = { cursorCoordinateY = it },
-            actions = actions,
-            inputFocusRequester = inputFocusRequester,
+        Column {
+            MessageComposeInput(
+                transition = transition,
+                messageComposeInputState = messageComposeInputState,
+                quotedMessageData = quotedMessageData,
+                securityClassificationType = securityClassificationType,
+                onSelectedLineIndexChange = { currentSelectedLineIndex = it },
+                onLineBottomCoordinateChange = { cursorCoordinateY = it },
+                actions = actions,
+                inputFocusRequester = inputFocusRequester,
             modifier = Modifier
                 .fillMaxWidth()
                 .let {
@@ -130,7 +130,7 @@ private fun EnabledMessageComposerInput(
             startMention = actions.startMention,
             onAdditionalOptionButtonClicked = actions.onAdditionalOptionButtonClicked,
             modifier = Modifier.background(colorsScheme().messageComposerBackgroundColor),
-        )
+        )}
         if (membersToMention.isNotEmpty() && messageComposeInputState.isExpanded) {
             DropDownMentionsSuggestions(currentSelectedLineIndex, cursorCoordinateY, membersToMention, actions.onMentionPicked)
         }

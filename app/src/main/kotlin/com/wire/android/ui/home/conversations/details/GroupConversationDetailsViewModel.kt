@@ -340,7 +340,9 @@ class GroupConversationDetailsViewModel @Inject constructor(
     }
 
     private suspend fun updateConversationAccess(
-        enableGuestAndNonTeamMember: Boolean, enableServices: Boolean, conversationId: ConversationId
+        enableGuestAndNonTeamMember: Boolean,
+        enableServices: Boolean,
+        conversationId: ConversationId
     ) = updateConversationAccessRole(
         allowGuest = enableGuestAndNonTeamMember,
         allowNonTeamMember = enableGuestAndNonTeamMember,
@@ -396,7 +398,8 @@ class GroupConversationDetailsViewModel @Inject constructor(
     }
 
     private suspend fun clearContentSnackbarResult(
-        clearContentResult: ClearConversationContentUseCase.Result, conversationTypeDetail: ConversationTypeDetail
+        clearContentResult: ClearConversationContentUseCase.Result,
+        conversationTypeDetail: ConversationTypeDetail
     ) {
         if (conversationTypeDetail is ConversationTypeDetail.Connection) throw IllegalStateException(
             "Unsupported conversation type to clear content, something went wrong?"

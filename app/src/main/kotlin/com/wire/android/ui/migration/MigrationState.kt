@@ -18,22 +18,11 @@
  *
  */
 
-package com.wire.android.ui.home.settings.account.displayname
+package com.wire.android.ui.migration
 
-import androidx.compose.ui.text.input.TextFieldValue
+import com.wire.android.migration.MigrationData
 
-data class DisplayNameState(
-    val originalDisplayName: String = "",
-    val displayName: TextFieldValue = TextFieldValue(""),
-    val error: NameError = NameError.None,
-    val animatedNameError: Boolean = false,
-    val continueEnabled: Boolean = false
-) {
-    sealed interface NameError {
-        object None : NameError
-        sealed interface TextFieldError : NameError {
-            object NameEmptyError : TextFieldError
-            object NameExceedLimitError : TextFieldError
-        }
-    }
+sealed class MigrationState {
+    data class InProgress(val type: MigrationData.Progress.Type) : MigrationState()
+    object Failed : MigrationState()
 }

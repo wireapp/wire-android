@@ -42,11 +42,13 @@ import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.id.TeamId
 import com.wire.kalium.logic.data.team.Team
 import com.wire.kalium.logic.feature.conversation.ClearConversationContentUseCase
+import com.wire.kalium.logic.feature.conversation.ConversationUpdateReceiptModeResult
 import com.wire.kalium.logic.feature.conversation.ConversationUpdateStatusResult
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationAccessRoleUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
+import com.wire.kalium.logic.feature.conversation.UpdateConversationReceiptModeUseCase
 import com.wire.kalium.logic.feature.team.DeleteTeamConversationUseCase
 import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
@@ -414,6 +416,36 @@ class GroupConversationDetailsViewModelTest {
         assertEquals(expected, viewModel.conversationSheetContent)
     }
 
+    @Test
+    fun `given receipt mode value enabled, when updating receipt mode, then value is propagated to screen state`() = runTest {
+        // given
+        val (_, viewModel) = GroupConversationDetailsViewModelArrangement()
+            .withUpdateConversationReceiptModeReturningSuccess()
+            .arrange()
+        val receiptModeEnabled = true
+
+        // when
+        viewModel.onReadReceiptUpdate(enableReadReceipt = receiptModeEnabled)
+
+        // then
+        assertEquals(receiptModeEnabled, viewModel.groupOptionsState.value.isReadReceiptAllowed)
+    }
+
+    @Test
+    fun `given receipt mode value disabled, when updating receipt mode, then value is propagated to screen state`() = runTest {
+        // given
+        val (_, viewModel) = GroupConversationDetailsViewModelArrangement()
+            .withUpdateConversationReceiptModeReturningSuccess()
+            .arrange()
+        val receiptModeEnabled = false
+
+        // when
+        viewModel.onReadReceiptUpdate(enableReadReceipt = receiptModeEnabled)
+
+        // then
+        assertEquals(receiptModeEnabled, viewModel.groupOptionsState.value.isReadReceiptAllowed)
+    }
+
     companion object {
         val dummyConversationId = ConversationId("some-dummy-value", "some.dummy.domain")
         val testGroup = ConversationDetails.Group(
@@ -480,6 +512,9 @@ internal class GroupConversationDetailsViewModelArrangement {
     lateinit var clearConversationContentUseCase: ClearConversationContentUseCase
 
     @MockK
+    lateinit var updateConversationReceiptMode: UpdateConversationReceiptModeUseCase
+
+    @MockK
     private lateinit var qualifiedIdMapper: QualifiedIdMapper
 
     private val conversationDetailsChannel = Channel<ConversationDetails>(capacity = Channel.UNLIMITED)
@@ -500,7 +535,8 @@ internal class GroupConversationDetailsViewModelArrangement {
             savedStateHandle = savedStateHandle,
             qualifiedIdMapper = qualifiedIdMapper,
             updateConversationMutedStatus = updateConversationMutedStatus,
-            clearConversationContent = clearConversationContentUseCase
+            clearConversationContent = clearConversationContentUseCase,
+            updateConversationReceiptMode = updateConversationReceiptMode
         )
     }
 
@@ -544,6 +580,10 @@ internal class GroupConversationDetailsViewModelArrangement {
 
     suspend fun withSelfTeamUseCaseReturns(result: Team?) = apply {
         coEvery { getSelfTeamUseCase() } returns flowOf(result)
+    }
+
+    suspend fun withUpdateConversationReceiptModeReturningSuccess() = apply {
+        coEvery { updateConversationReceiptMode(any(), any()) } returns ConversationUpdateReceiptModeResult.Success
     }
 
     fun arrange() = this to viewModel

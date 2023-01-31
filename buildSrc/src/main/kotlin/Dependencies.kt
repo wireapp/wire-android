@@ -34,7 +34,7 @@ object AndroidNdk {
 object AndroidClient {
     const val appId = "com.wire.android"
     val versionCode = Versionizer().versionCode
-    const val versionName = "0.0.1"
+    const val versionName = "4.0.0"
     const val testRunner = "com.wire.android.HiltAwareTestRunner"
 }
 

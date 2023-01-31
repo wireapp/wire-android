@@ -449,5 +449,4 @@ class GroupConversationDetailsViewModel @Inject constructor(
         const val TAG = "GroupConversationDetailsViewModel"
         const val MAX_NUMBER_OF_PARTICIPANTS = 4
     }
-
 }

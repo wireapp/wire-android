@@ -123,7 +123,7 @@ fun GroupConversationSettings(
                 )
             }
         }
-        item { FolderHeader(name = stringResource(id = R.string.folder_label_messaging))}
+        item { FolderHeader(name = stringResource(id = R.string.folder_label_messaging)) }
         item {
             ReadReceiptOption(
                 isSwitchEnabled = state.isUpdatingReadReceiptAllowed,

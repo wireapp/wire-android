@@ -117,20 +117,21 @@ private fun EnabledMessageComposerInput(
                 onLineBottomCoordinateChange = { cursorCoordinateY = it },
                 actions = actions,
                 inputFocusRequester = inputFocusRequester,
-            modifier = Modifier
-                .fillMaxWidth()
-                .let {
-                    if (messageComposeInputState.isExpanded) it.weight(1f)
-                    else it.wrapContentHeight()
-                }
-        )
-        MessageComposeActionsBox(
-            transition = transition,
-            isMentionActive = membersToMention.isNotEmpty(),
-            startMention = actions.startMention,
-            onAdditionalOptionButtonClicked = actions.onAdditionalOptionButtonClicked,
-            modifier = Modifier.background(colorsScheme().messageComposerBackgroundColor),
-        )}
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .let {
+                        if (messageComposeInputState.isExpanded) it.weight(1f)
+                        else it.wrapContentHeight()
+                    }
+            )
+            MessageComposeActionsBox(
+                transition = transition,
+                isMentionActive = membersToMention.isNotEmpty(),
+                startMention = actions.startMention,
+                onAdditionalOptionButtonClicked = actions.onAdditionalOptionButtonClicked,
+                modifier = Modifier.background(colorsScheme().messageComposerBackgroundColor),
+            )
+        }
         if (membersToMention.isNotEmpty() && messageComposeInputState.isExpanded) {
             DropDownMentionsSuggestions(currentSelectedLineIndex, cursorCoordinateY, membersToMention, actions.onMentionPicked)
         }
@@ -272,16 +273,19 @@ private fun generatePreviewWithState(state: MessageComposeInputState) {
 fun PreviewEnabledMessageComposerInputInactive() {
     generatePreviewWithState(MessageComposeInputState.Inactive())
 }
+
 @Preview
 @Composable
 fun PreviewEnabledMessageComposerInputActiveCollapsed() {
     generatePreviewWithState(MessageComposeInputState.Active(size = MessageComposeInputSize.COLLAPSED))
 }
+
 @Preview
 @Composable
 fun PreviewEnabledMessageComposerInputActiveExpanded() {
     generatePreviewWithState(MessageComposeInputState.Active(size = MessageComposeInputSize.EXPANDED))
 }
+
 @Preview
 @Composable
 fun PreviewEnabledMessageComposerInputActiveEdit() {

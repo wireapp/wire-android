@@ -34,12 +34,12 @@ import com.android.build.api.dsl.ApplicationProductFlavor
 import com.android.build.api.dsl.ProductFlavor
 
 plugins { id("com.android.application") apply false }
-
+// DO NOT USE CABITAL LETTER FOR THE BUILD TYPE NAME OR JENKINS WILL BE MAD
 object BuildTypes {
     const val DEBUG = "debug"
     const val RELEASE = "release"
     const val COMPAT = "compat"
-    const val COMPAT_RELEASE = "compatRelease"
+    const val COMPAT_RELEASE = "compat_release"
 }
 
 sealed class ProductFlavors(
@@ -146,7 +146,7 @@ android {
             isDebuggable = false
             matchingFallbacks.add("release")
             if (enableSigning)
-                signingConfig = signingConfigs.getByName("compatRelease")
+                signingConfig = signingConfigs.getByName("compat_release")
         }
     }
 

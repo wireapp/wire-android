@@ -419,7 +419,7 @@ class GroupConversationDetailsViewModelTest {
     @Test
     fun `given receipt mode value enabled, when updating receipt mode, then value is propagated to screen state`() = runTest {
         // given
-        val (_, viewModel) = GroupConversationDetailsViewModelArrangement()
+        val (arrangement, viewModel) = GroupConversationDetailsViewModelArrangement()
             .withUpdateConversationReceiptModeReturningSuccess()
             .arrange()
         val receiptModeEnabled = true
@@ -429,12 +429,18 @@ class GroupConversationDetailsViewModelTest {
 
         // then
         assertEquals(receiptModeEnabled, viewModel.groupOptionsState.value.isReadReceiptAllowed)
+        coVerify(exactly = 1) {
+            arrangement.updateConversationReceiptMode(
+                conversationId = any(),
+                receiptMode = Conversation.ReceiptMode.ENABLED
+            )
+        }
     }
 
     @Test
     fun `given receipt mode value disabled, when updating receipt mode, then value is propagated to screen state`() = runTest {
         // given
-        val (_, viewModel) = GroupConversationDetailsViewModelArrangement()
+        val (arrangement, viewModel) = GroupConversationDetailsViewModelArrangement()
             .withUpdateConversationReceiptModeReturningSuccess()
             .arrange()
         val receiptModeEnabled = false
@@ -444,6 +450,12 @@ class GroupConversationDetailsViewModelTest {
 
         // then
         assertEquals(receiptModeEnabled, viewModel.groupOptionsState.value.isReadReceiptAllowed)
+        coVerify(exactly = 1) {
+            arrangement.updateConversationReceiptMode(
+                conversationId = any(),
+                receiptMode = Conversation.ReceiptMode.DISABLED
+            )
+        }
     }
 
     companion object {

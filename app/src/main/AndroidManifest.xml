@@ -20,35 +20,36 @@
   -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
-        package="com.wire.android">
+          xmlns:tools="http://schemas.android.com/tools"
+          package="com.wire.android"
+          android:sharedUserId="${sharedUserId}">
 
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.CAMERA"/>
     <uses-permission
             android:name="android.permission.READ_EXTERNAL_STORAGE"
-            android:maxSdkVersion="32" />
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.RECORD_AUDIO" />
-    <uses-permission android:name="android.permission.VIBRATE" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+            android:maxSdkVersion="32"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+    <uses-permission android:name="android.permission.VIBRATE"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
 
     <!-- needed to switch between speaker/earpiece -->
-    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
-    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
-    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS"/>
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT"/>
+    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT"/>
 
     <!-- Allows showing incoming call when device is sleeping -->
-    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
 
     <!-- Needed to specify that we are using OpenGL ES 2.0 API-->
     <uses-feature
             android:glEsVersion="0x00020000"
-            android:required="false" />
+            android:required="false"/>
 
     <application
             android:name=".WireApplication"
@@ -73,27 +74,27 @@
                 android:theme="@style/AppTheme.SplashScreen"
                 android:windowSoftInputMode="adjustResize|stateHidden">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+                <action android:name="android.intent.action.MAIN"/>
 
-                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
             <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
+                <action android:name="android.intent.action.VIEW"/>
 
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
 
                 <data
                         android:host="access"
-                        android:scheme="wire" />
+                        android:scheme="wire"/>
 
                 <data
                         android:host="sso-login"
-                        android:scheme="wire" />
+                        android:scheme="wire"/>
 
                 <data
                         android:host="incoming-call"
-                        android:scheme="wire" />
+                        android:scheme="wire"/>
             </intent-filter>
         </activity>
 
@@ -106,7 +107,7 @@
             <meta-data
                     android:name="androidx.work.WorkManagerInitializer"
                     android:value="androidx.startup"
-                    tools:node="remove" />
+                    tools:node="remove"/>
 
         </provider>
 
@@ -117,24 +118,24 @@
                 android:grantUriPermissions="true">
             <meta-data
                     android:name="android.support.FILE_PROVIDER_PATHS"
-                    android:resource="@xml/provider_paths" />
+                    android:resource="@xml/provider_paths"/>
         </provider>
 
         <receiver
                 android:name=".notification.broadcastreceivers.NotificationReplyReceiver"
-                android:exported="false" />
+                android:exported="false"/>
         <receiver
                 android:name=".notification.broadcastreceivers.CallNotificationDismissReceiver"
-                android:exported="false" />
+                android:exported="false"/>
         <receiver
                 android:name=".notification.broadcastreceivers.EndOngoingCallReceiver"
-                android:exported="false" />
+                android:exported="false"/>
 
         <service
                 android:name=".services.WireFirebaseMessagingService"
                 android:exported="false">
             <intent-filter>
-                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
             </intent-filter>
         </service>
         <receiver
@@ -142,31 +143,31 @@
                 android:enabled="true"
                 android:exported="false">
             <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
-                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED"/>
             </intent-filter>
         </receiver>
 
         <service
                 android:name=".services.PersistentWebSocketService"
-                android:exported="false" />
+                android:exported="false"/>
 
         <service
                 android:name=".services.OngoingCallService"
                 android:exported="false"
-                android:foregroundServiceType="phoneCall" />
+                android:foregroundServiceType="phoneCall"/>
 
         <!-- If you want to disable android.startup completely. -->
         <provider
                 android:name="androidx.startup.InitializationProvider"
                 android:authorities="${applicationId}.androidx-startup"
-                tools:node="remove" />
+                tools:node="remove"/>
 
         <provider
                 android:name="com.google.firebase.provider.FirebaseInitProvider"
                 android:authorities="${applicationId}.firebaseinitprovider"
                 tools:node="remove"
-                />
+        />
         <provider
                 android:name="androidx.startup.InitializationProvider"
                 android:authorities="${applicationId}.androidx-startup"
@@ -176,7 +177,7 @@
             <meta-data
                     android:name="androidx.work.WorkManagerInitializer"
                     android:value="androidx.startup"
-                    tools:node="remove" />
+                    tools:node="remove"/>
         </provider>
 
     </application>

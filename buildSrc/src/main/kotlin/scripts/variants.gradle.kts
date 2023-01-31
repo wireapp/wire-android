@@ -47,7 +47,8 @@ sealed class ProductFlavors(
     val buildName: String,
     val appName: String,
     val applicationIdSuffix: String? = null,
-    val dimensions: String = FlavorDimensions.DEFAULT
+    val dimensions: String = FlavorDimensions.DEFAULT,
+    val shareduserId: String = ""
 ) {
     override fun toString(): String = this.buildName
 
@@ -56,7 +57,7 @@ sealed class ProductFlavors(
 
     object Beta : ProductFlavors("com.wire.android", "beta", "Wire Beta", applicationIdSuffix = "internal")
     object Internal : ProductFlavors("com.wire", "internal","Wire Internal", applicationIdSuffix = "internal")
-    object Production : ProductFlavors("com.wire", "prod", "Wire")
+    object Production : ProductFlavors("com.wire", "prod", "Wire", shareduserId = "com.waz.userid")
 }
 
 object FlavorDimensions {
@@ -79,6 +80,11 @@ object Default {
             applicationIdSuffix = ".${flavour.applicationIdSuffix}"
         }
         resValue("string", "app_name", flavour.appName)
+        manifestPlaceholders.apply {
+            if (flavour.shareduserId.isNotBlank()) {
+                put("sharedUserId", flavour.shareduserId)
+            }
+        }
     }
 }
 

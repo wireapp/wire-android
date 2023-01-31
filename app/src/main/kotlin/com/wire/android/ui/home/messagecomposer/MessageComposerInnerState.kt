@@ -426,7 +426,7 @@ sealed class MessageComposeInputState {
         get() = this is Active && this.type is MessageComposeInputType.NewMessage && messageText.text.trim().isNotBlank()
     val editSaveButtonEnabled: Boolean
         get() = this is Active && this.type is MessageComposeInputType.EditMessage && messageText.text.trim().isNotBlank()
-                && messageText.text.trim() != this.type.originalText
+                && messageText.text.trim() != this.type.originalText.trim()
 }
 
 enum class MessageComposeInputSize {

@@ -39,7 +39,7 @@ object BuildTypes {
     const val DEBUG = "debug"
     const val RELEASE = "release"
     const val COMPAT = "compat"
-    const val COMPAT_RELEASE = "compat_release"
+    const val COMPAT_RELEASE = "compatrelease"
 }
 
 sealed class ProductFlavors(
@@ -152,7 +152,7 @@ android {
             isDebuggable = false
             matchingFallbacks.add("release")
             if (enableSigning)
-                signingConfig = signingConfigs.getByName("compat_release")
+                signingConfig = signingConfigs.getByName("compatrelease")
         }
     }
 

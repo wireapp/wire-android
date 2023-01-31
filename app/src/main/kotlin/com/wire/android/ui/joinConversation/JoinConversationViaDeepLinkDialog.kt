@@ -2,7 +2,9 @@
 
 package com.wire.android.ui.joinConversation
 
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
@@ -10,6 +12,9 @@ import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.button.WireButtonState
+import com.wire.android.ui.common.colorsScheme
+import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.ui.stringWithStyledArgs
 import com.wire.kalium.logic.feature.conversation.CheckConversationInviteCodeUseCase
 
 sealed interface JoinConversationViaCodeState {
@@ -32,7 +37,15 @@ fun JoinConversationViaDeepLinkDialog(
 ) {
     WireDialog(
         title = stringResource(R.string.join_conversation_dialog_title),
-        text = stringResource(R.string.join_conversation_dialog_message, state.conversationName.orEmpty()),
+        text = LocalContext.current.resources.stringWithStyledArgs(
+            R.string.join_conversation_dialog_message,
+            MaterialTheme.wireTypography.body01,
+            MaterialTheme.wireTypography.body02,
+            colorsScheme().onBackground,
+            colorsScheme().onBackground,
+            state.conversationName.orEmpty()
+        ),
+
         buttonsHorizontalAlignment = true,
         onDismiss = onCancel,
         dismissButtonProperties = WireDialogButtonProperties(

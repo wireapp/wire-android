@@ -39,6 +39,9 @@ sealed class ConversationSnackbarMessages(override val uiText: UIText) : SnackBa
         ConversationSnackbarMessages(UIText.StringResource(R.string.conversation_on_file_downloaded, assetName ?: ""))
 
     data class OnResetSession(val text: UIText) : ConversationSnackbarMessages(text)
+
+    // TODO: temporary, to be removed when the proper implementation of editing messages is finished
+    object MessageEditNotYetSupported : ConversationSnackbarMessages(UIText.StringResource(R.string.edit_message_not_yet_available))
 }
 
 sealed class MediaGallerySnackbarMessages(override val uiText: UIText) : SnackBarMessage {

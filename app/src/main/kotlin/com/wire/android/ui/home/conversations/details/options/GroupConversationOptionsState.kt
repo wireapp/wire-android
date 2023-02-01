@@ -31,12 +31,15 @@ data class GroupConversationOptionsState(
     val areAccessOptionsAvailable: Boolean = false,
     val isGuestAllowed: Boolean = false,
     val isServicesAllowed: Boolean = false,
+    val isReadReceiptAllowed: Boolean = false,
     val isUpdatingAllowed: Boolean = false,
     val isUpdatingGuestAllowed: Boolean = false,
+    val isUpdatingReadReceiptAllowed: Boolean = false,
     val changeGuestOptionConfirmationRequired: Boolean = false,
     val changeServiceOptionConfirmationRequired: Boolean = false,
     val loadingGuestOption: Boolean = false,
     val loadingServicesOption: Boolean = false,
+    val loadingReadReceiptOption: Boolean = false,
     val error: Error = Error.None,
 ) {
 
@@ -44,5 +47,6 @@ data class GroupConversationOptionsState(
         object None : Error
         class UpdateGuestError(val cause: CoreFailure) : Error
         class UpdateServicesError(val cause: CoreFailure) : Error
+        class UpdateReadReceiptError(val cause: CoreFailure) : Error
     }
 }

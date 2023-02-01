@@ -40,6 +40,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
@@ -56,6 +58,7 @@ import com.wire.android.ui.theme.wireTypography
 fun MessageComposerInputRow(
     transition: Transition<MessageComposeInputState>,
     messageComposeInputState: MessageComposeInputState,
+    focusRequester: FocusRequester = FocusRequester(),
     onMessageTextChanged: (TextFieldValue) -> Unit = { },
     onInputFocusChanged: (Boolean) -> Unit = { },
     onSendButtonClicked: () -> Unit = { },
@@ -92,6 +95,7 @@ fun MessageComposerInputRow(
                 onMessageTextChanged = onMessageTextChanged,
                 messageComposerInputState = messageComposeInputState,
                 onFocusChanged = onInputFocusChanged,
+                focusRequester = focusRequester,
                 modifier = Modifier
                     .fillMaxWidth()
                     .then(
@@ -145,6 +149,7 @@ private fun MessageComposerInput(
     onMessageTextChanged: (TextFieldValue) -> Unit,
     messageComposerInputState: MessageComposeInputState,
     onFocusChanged: (Boolean) -> Unit,
+    focusRequester: FocusRequester,
     modifier: Modifier = Modifier,
     onSelectedLineIndexChanged: (Int) -> Unit = { },
     onLineBottomYCoordinateChanged: (Float) -> Unit = { }
@@ -167,6 +172,7 @@ private fun MessageComposerInput(
                 .onFocusChanged { focusState ->
                     onFocusChanged(focusState.isFocused)
                 }
+                .focusRequester(focusRequester)
         ),
         onSelectedLineIndexChanged = onSelectedLineIndexChanged,
         onLineBottomYCoordinateChanged = onLineBottomYCoordinateChanged

@@ -70,6 +70,7 @@ fun MessageComposeActionsBox(
                     MessageComposeActions(
                         state.attachmentOptionsDisplayed,
                         isMentionActive,
+                        state.isEditMessage,
                         startMention,
                         onAdditionalOptionButtonClicked
                     )
@@ -83,6 +84,7 @@ fun MessageComposeActionsBox(
 private fun MessageComposeActions(
     attachmentOptionsDisplayed: Boolean,
     isMentionsSelected: Boolean,
+    isEditMessage: Boolean,
     startMention: () -> Unit,
     onAdditionalOptionButtonClicked: () -> Unit,
 ) {
@@ -96,12 +98,12 @@ private fun MessageComposeActions(
             .height(dimensions().spacing56x)
     ) {
         with(localFeatureVisibilityFlags) {
-            AdditionalOptionButton(attachmentOptionsDisplayed, onAdditionalOptionButtonClicked)
+            if (!isEditMessage) AdditionalOptionButton(attachmentOptionsDisplayed, onAdditionalOptionButtonClicked)
             if (RichTextIcon) RichTextEditingAction()
-            if (EmojiIcon) AddEmojiAction()
-            if (GifIcon) AddGifAction()
+            if (!isEditMessage && EmojiIcon) AddEmojiAction()
+            if (!isEditMessage && GifIcon) AddGifAction()
             AddMentionAction(isMentionsSelected, startMention)
-            if (PingIcon) PingAction()
+            if (!isEditMessage && PingIcon) PingAction()
         }
     }
 }

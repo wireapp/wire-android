@@ -30,6 +30,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.focus.FocusManager
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.AnnotatedString
@@ -76,11 +77,13 @@ fun rememberMessageComposerInnerState(): MessageComposerInnerState {
     )
 
     val focusManager = LocalFocusManager.current
+    val inputFocusRequester = FocusRequester()
 
     return remember {
         MessageComposerInnerState(
             context = context,
             focusManager = focusManager,
+            inputFocusRequester = inputFocusRequester,
             attachmentInnerState = defaultAttachmentInnerState,
             mentionSpanStyle = mentionSpanStyle
         )
@@ -92,6 +95,7 @@ data class MessageComposerInnerState(
     val context: Context,
     val attachmentInnerState: AttachmentInnerState,
     val focusManager: FocusManager,
+    val inputFocusRequester: FocusRequester,
     private val mentionSpanStyle: SpanStyle
 ) {
     var messageComposeInputState: MessageComposeInputState by mutableStateOf(MessageComposeInputState.Inactive())
@@ -147,8 +151,10 @@ data class MessageComposerInnerState(
         _mentionQueryFlowState.value = null
     }
 
-    fun toInactive() {
-        if (messageComposeInputState !is MessageComposeInputState.Inactive) {
+    fun toInactive(clearInput: Boolean = false) {
+        if (clearInput) {
+            messageComposeInputState = messageComposeInputState.toInactive(messageText = TextFieldValue(""))
+        } else if (messageComposeInputState !is MessageComposeInputState.Inactive) {
             messageComposeInputState = messageComposeInputState.toInactive()
         }
     }
@@ -161,9 +167,10 @@ data class MessageComposerInnerState(
 
     fun toEditMessage(messageId: String, originalText: String) {
         messageComposeInputState = MessageComposeInputState.Active(
-            messageText = TextFieldValue(originalText),
+            messageText = TextFieldValue(text = originalText, selection = TextRange(originalText.length)),
             type = MessageComposeInputType.EditMessage(messageId, originalText)
         )
+        inputFocusRequester.requestFocus()
     }
 
     fun showAttachmentOptions() = changeAttachmentOptionsVisibility(true)
@@ -418,7 +425,8 @@ sealed class MessageComposeInputState {
     val sendButtonEnabled: Boolean
         get() = this is Active && this.type is MessageComposeInputType.NewMessage && messageText.text.trim().isNotBlank()
     val editSaveButtonEnabled: Boolean
-        get() = this is Active && this.type is MessageComposeInputType.EditMessage && messageText.text.trim() != this.type.originalText
+        get() = this is Active && this.type is MessageComposeInputType.EditMessage && messageText.text.trim().isNotBlank()
+                && messageText.text.trim() != this.type.originalText.trim()
 }
 
 enum class MessageComposeInputSize {

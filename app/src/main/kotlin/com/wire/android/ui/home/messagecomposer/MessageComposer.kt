@@ -243,7 +243,10 @@ private fun MessageComposer(
                                     messageComposerState.toActive()
                                     messageComposerState.showAttachmentOptions()
                                 },
-                                onEditSaveButtonClicked = { /* TODO */ },
+                                onEditSaveButtonClicked = {
+                                    // TODO: replace with proper implementation
+                                    onMessageComposerError(ConversationSnackbarMessages.MessageEditNotYetSupported)
+                                },
                                 onEditCancelButtonClicked = {
                                     messageComposerState.focusManager.clearFocus()
                                     messageComposerState.toInactive(clearInput = true)

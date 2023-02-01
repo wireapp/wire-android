@@ -835,7 +835,7 @@
 
     <!-- join conversation dialog -->
     <string name="join_conversation_dialog_title">Join conversation?</string>
-    <string name="join_conversation_dialog_message">You have been invited to a conversation.\n %1$s</string>
+    <string name="join_conversation_dialog_message">You have been invited to a conversation.\n\n%1$s</string>
     <string name="join_conversation_dialog_button">Join</string>
     <string name="join_conversation_via_deeplink_error_title">Unable to join conversation</string>
     <string name="join_conversation_via_deeplink_error_link_expired">The link to this group conversation expired or the conversation was set to private.</string>

@@ -586,6 +586,8 @@
     <string name="left_conversation_group_success">You left the conversation.</string>
     <string name="error_unblocking_user">User could not be unblocked</string>
     <string name="delete_group_conversation_error">There was an error while deleting conversation</string>
+    <string name="edit_message_not_yet_available">Saving edits to messages is not yet available</string>
+    <!-- TODO: temporary, to be removed when the proper implementation of editing messages is finished -->
     <!-- Animation label -->
     <string name="label_open_conversation">Open Conversation</string>
     <string name="email_label">Email</string>

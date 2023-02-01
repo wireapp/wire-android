@@ -56,7 +56,7 @@ sealed class ProductFlavors(
     object Staging : ProductFlavors("com.waz.zclient.dev", "staging", "Wire Staging")
 
     object Beta : ProductFlavors("com.wire.android", "beta", "Wire Beta", applicationIdSuffix = "internal")
-    object Internal : ProductFlavors("com.wire", "internal","Wire Internal", applicationIdSuffix = "internal")
+    object Internal : ProductFlavors("com.wire", "internal", "Wire Internal", applicationIdSuffix = "internal")
     object Production : ProductFlavors("com.wire", "prod", "Wire", shareduserId = "com.waz.userid")
 }
 
@@ -71,22 +71,21 @@ object Default {
     val BUILD_VARIANT = "${BUILD_FLAVOR.capitalize()}${BUILD_TYPE.capitalize()}"
 }
 
- fun NamedDomainObjectContainer<ApplicationProductFlavor>.createAppFlavour(flavour : ProductFlavors) {
+fun NamedDomainObjectContainer<ApplicationProductFlavor>.createAppFlavour(flavour: ProductFlavors) {
     create(flavour.buildName) {
         dimension = flavour.dimensions
         applicationId = flavour.applicationId
         versionNameSuffix = "-${flavour.buildName}"
-        if(!flavour.applicationIdSuffix.isNullOrBlank()) {
+        if (!flavour.applicationIdSuffix.isNullOrBlank()) {
             applicationIdSuffix = ".${flavour.applicationIdSuffix}"
         }
         resValue("string", "app_name", flavour.appName)
         manifestPlaceholders.apply {
-            if (flavour.shareduserId.isNotBlank()) {
-                put("sharedUserId", flavour.shareduserId)
-            }
+            put("sharedUserId", flavour.shareduserId)
         }
     }
 }
+
 
 android {
     val enableSigning = System.getenv("ENABLE_SIGNING").equals("TRUE", true)
@@ -124,7 +123,7 @@ android {
             isMinifyEnabled = false
             applicationIdSuffix = ".${BuildTypes.DEBUG}"
             isDebuggable = true
-            // Just in case a developer is trying to debug some prod crashes by turning on minify
+// Just in case a developer is trying to debug some prod crashes by turning on minify
             if (isMinifyEnabled) proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
             if (enableSigning)
                 signingConfig = signingConfigs.getByName("debug")

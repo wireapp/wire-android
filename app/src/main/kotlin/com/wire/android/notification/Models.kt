@@ -25,7 +25,6 @@ import com.wire.android.R
 import com.wire.kalium.logic.data.notification.LocalNotificationCommentType
 import com.wire.kalium.logic.data.notification.LocalNotificationConversation
 import com.wire.kalium.logic.data.notification.LocalNotificationMessage
-import kotlinx.datetime.Instant
 
 data class NotificationConversation(
     val id: String,
@@ -70,7 +69,7 @@ enum class CommentResId(@StringRes val value: Int) {
 fun LocalNotificationConversation.intoNotificationConversation(): NotificationConversation {
 
     val notificationMessages = this.messages.map { it.intoNotificationMessage() }.sortedBy { it.time }
-    val lastMessageTime = this.messages.maxOfOrNull { Instant.parse(it.time).toEpochMilliseconds() } ?: 0
+    val lastMessageTime = this.messages.maxOfOrNull { it.time.toEpochMilliseconds() } ?: 0
 
     return NotificationConversation(
         id = id.toString(),
@@ -85,7 +84,7 @@ fun LocalNotificationConversation.intoNotificationConversation(): NotificationCo
 fun LocalNotificationMessage.intoNotificationMessage(): NotificationMessage {
 
     val notificationMessageAuthor = NotificationMessageAuthor(author.name, null) // TODO image
-    val notificationMessageTime = Instant.parse(time).toEpochMilliseconds()
+    val notificationMessageTime = time.toEpochMilliseconds()
 
     return when (this) {
         is LocalNotificationMessage.Text -> NotificationMessage.Text(

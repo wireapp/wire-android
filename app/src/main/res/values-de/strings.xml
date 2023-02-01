@@ -587,6 +587,8 @@
     <string name="left_conversation_group_success">Sie haben die Unterhaltung verlassen.</string>
     <string name="error_unblocking_user">Benutzer konnte nicht freigegeben werden</string>
     <string name="delete_group_conversation_error">Beim Löschen der Unterhaltung ist ein Fehler aufgetreten</string>
+    <string name="edit_message_not_yet_available">Saving edits to messages is not yet available</string>
+    <!-- TODO: temporary, to be removed when the proper implementation of editing messages is finished -->
     <!-- Animation label -->
     <string name="label_open_conversation">Unterhaltung öffnen</string>
     <string name="email_label">E-Mail-Adresse</string>

@@ -21,12 +21,14 @@ package com.wire.android.ui.authentication.devices.remove
 
 import android.content.Context
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material3.Divider
@@ -48,7 +50,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.ui.authentication.devices.DeviceItem
@@ -68,10 +69,10 @@ import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.common.textfield.clearAutofillTree
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.visbility.rememberVisibilityState
+import com.wire.android.ui.home.conversationslist.common.FolderHeader
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.util.dialogErrorStrings
-import com.wire.android.util.extension.folderWithElements
 import com.wire.android.util.formatMediumDateTime
 import kotlinx.collections.immutable.toImmutableList
 
@@ -181,6 +182,7 @@ fun RemoveDeviceContent(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun RemoveDeviceItemsList(
     lazyListState: LazyListState,
@@ -195,22 +197,47 @@ private fun RemoveDeviceItemsList(
             state = lazyListState,
             modifier = Modifier.fillMaxWidth()
         ) {
-            currentDevice?.let { currentDevice ->
-                folderDeviceItems(
-                    context.getString(R.string.current_device_label),
-                    listOf(currentDevice),
-                    placeholders,
-                    null
-                )
+            if (currentDevice != null) {
+                // Current device
+                itemsIndexed(listOf(currentDevice)) { _, _ ->
+                    DeviceSectionHeader(context.getString(R.string.current_device_label), Modifier.animateItemPlacement())
+                    DeviceItemContent(currentDevice, placeholders, null)
+                }
             }
-            folderDeviceItems(
-                context.getString(R.string.other_devices_label),
-                items,
-                placeholders,
-                onItemClicked
-            )
+            // Other devices
+            itemsIndexed(items) { index, device ->
+                if (index == 0) {
+                    DeviceSectionHeader(context.getString(R.string.other_devices_label), Modifier.animateItemPlacement())
+                }
+                DeviceItemContent(device, placeholders, onItemClicked)
+                if (index < items.lastIndex) Divider()
+            }
         }
     }
+}
+
+@Composable
+private fun DeviceItemContent(
+    device: Device,
+    placeholders: Boolean,
+    onItemClicked: ((Device) -> Unit)?
+) {
+    DeviceItem(
+        device,
+        placeholders,
+        MaterialTheme.wireColorScheme.surface,
+        onItemClicked
+    )
+}
+
+@Composable
+private fun DeviceSectionHeader(title: String, modifier: Modifier = Modifier) {
+    FolderHeader(
+        name = title,
+        modifier = modifier
+            .fillMaxWidth()
+            .background(MaterialTheme.wireColorScheme.background)
+    )
 }
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -278,31 +305,6 @@ private fun RemoveDeviceDialog(
             }
         }
     )
-}
-
-internal fun LazyListScope.folderDeviceItems(
-    header: String,
-    items: List<Device>,
-    placeholders: Boolean,
-    onItemClicked: ((Device) -> Unit)? = null
-) {
-    folderWithElements(
-        header = header.uppercase(),
-        items = items.associateBy { it.clientId.value },
-        divider = {
-            Divider(
-                color = MaterialTheme.wireColorScheme.background,
-                thickness = Dp.Hairline
-            )
-        }
-    ) { item ->
-        DeviceItem(
-            item,
-            background = MaterialTheme.wireColorScheme.surface,
-            placeholder = placeholders,
-            onRemoveDeviceClick = onItemClicked
-        )
-    }
 }
 
 @Preview

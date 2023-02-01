@@ -30,7 +30,7 @@ def defineBuildType() {
     if (flavor == 'Beta') {
         return 'Release'
     } else if (flavor == 'Prod') {
-        return "CompatRelease"
+        return "Compatrelease"
     }
     // use the scala client signing keys for testing upgrades.
     return "Compat"

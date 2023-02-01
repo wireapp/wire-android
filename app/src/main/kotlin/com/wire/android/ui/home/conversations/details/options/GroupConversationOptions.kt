@@ -62,6 +62,7 @@ fun GroupConversationOptions(
         state = state,
         onGuestSwitchClicked = viewModel::onGuestUpdate,
         onServiceSwitchClicked = viewModel::onServicesUpdate,
+        onReadReceiptSwitchClicked = viewModel::onReadReceiptUpdate,
         lazyListState = lazyListState,
         onEditGroupName = viewModel::navigateToEditGroupName
     )
@@ -85,6 +86,7 @@ fun GroupConversationSettings(
     state: GroupConversationOptionsState,
     onGuestSwitchClicked: (Boolean) -> Unit,
     onServiceSwitchClicked: (Boolean) -> Unit,
+    onReadReceiptSwitchClicked: (Boolean) -> Unit,
     onEditGroupName: () -> Unit,
     lazyListState: LazyListState = rememberLazyListState(),
 ) {
@@ -120,6 +122,15 @@ fun GroupConversationSettings(
                     onCheckedChange = onServiceSwitchClicked
                 )
             }
+        }
+        item { FolderHeader(name = stringResource(id = R.string.folder_label_messaging)) }
+        item {
+            ReadReceiptOption(
+                isSwitchEnabled = state.isUpdatingReadReceiptAllowed,
+                switchState = state.isReadReceiptAllowed,
+                isLoading = state.loadingReadReceiptOption,
+                onCheckedChange = onReadReceiptSwitchClicked
+            )
         }
         item {
             ConversationProtocolDetails(
@@ -233,6 +244,24 @@ private fun ServicesOption(
 }
 
 @Composable
+private fun ReadReceiptOption(
+    isSwitchEnabled: Boolean,
+    switchState: Boolean,
+    isLoading: Boolean,
+    onCheckedChange: (Boolean) -> Unit
+) {
+    GroupOptionWithSwitch(
+        switchClickable = isSwitchEnabled,
+        switchVisible = isSwitchEnabled,
+        switchState = switchState,
+        isLoading = isLoading,
+        onClick = onCheckedChange,
+        title = R.string.conversation_options_read_receipt_label,
+        subTitle = R.string.conversation_options_read_receipt_description
+    )
+}
+
+@Composable
 private fun GroupOptionWithSwitch(
     switchState: Boolean,
     switchClickable: Boolean,
@@ -307,7 +336,7 @@ fun PreviewAdminTeamGroupConversationOptions() {
             isServicesAllowed = true,
             isUpdatingGuestAllowed = true
         ),
-        {}, {}, { }
+        {}, {}, { }, {}
     )
 }
 
@@ -324,7 +353,7 @@ fun PreviewGuestAdminTeamGroupConversationOptions() {
             isServicesAllowed = true,
             isUpdatingGuestAllowed = false
         ),
-        {}, {}, { }
+        {}, {}, { }, {}
     )
 }
 
@@ -341,7 +370,7 @@ fun PreviewMemberTeamGroupConversationOptions() {
             isServicesAllowed = true,
             isUpdatingGuestAllowed = false
         ),
-        {}, {}, { }
+        {}, {}, { }, {}
     )
 }
 
@@ -354,7 +383,7 @@ fun PreviewNormalGroupConversationOptions() {
             groupName = "Normal Group Conversation",
             areAccessOptionsAvailable = false
         ),
-        {}, {}, { }
+        {}, {}, { }, {}
     )
 }
 

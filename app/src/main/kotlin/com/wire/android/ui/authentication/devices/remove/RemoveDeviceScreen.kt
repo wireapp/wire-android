@@ -150,10 +150,13 @@ fun RemoveDeviceContent(
         )
     }) { internalPadding ->
         Box(modifier = Modifier.padding(internalPadding)) {
-            when (state.isLoadingClientsList) {
-                true -> RemoveDeviceItemsList(lazyListState, List(5) { Device() }, true, onItemClicked, state.currentDevice)
-                false -> RemoveDeviceItemsList(lazyListState, state.deviceList, false, onItemClicked, state.currentDevice)
-            }
+            RemoveDeviceItemsList(
+                lazyListState,
+                if (state.isLoadingClientsList) List(5) { Device() } else state.deviceList,
+                state.isLoadingClientsList,
+                onItemClicked,
+                state.currentDevice
+            )
         }
         // TODO handle list loading errors
         if (!state.isLoadingClientsList && state.removeDeviceDialogState is RemoveDeviceDialogState.Visible) {

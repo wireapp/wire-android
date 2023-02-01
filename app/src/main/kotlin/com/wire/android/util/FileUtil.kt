@@ -97,7 +97,7 @@ private fun Context.saveFileDataToDownloadsFolder(assetName: String, downloadedD
     val resolver = contentResolver
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
         val contentValues = ContentValues().apply {
-            // creates a copy with a different name if such file already exists
+            // ContentResolver modifies the name if another file with the given name already exists, so we don't have to worry about it
             put(MediaStore.MediaColumns.DISPLAY_NAME, assetName.ifEmpty { ATTACHMENT_FILENAME })
             put(MediaStore.MediaColumns.MIME_TYPE, Uri.parse(downloadedDataPath.toString()).getMimeType(this@saveFileDataToDownloadsFolder))
             put(MediaStore.MediaColumns.SIZE, fileSize)

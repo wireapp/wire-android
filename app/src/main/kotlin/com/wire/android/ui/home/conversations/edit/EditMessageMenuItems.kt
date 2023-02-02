@@ -59,14 +59,16 @@ fun EditMessageMenuItems(
     isCopyable: Boolean,
     isEditable: Boolean,
     isAvailable: Boolean,
+    isSharable: Boolean,
     onCopyMessage: () -> Unit,
     onDeleteMessage: () -> Unit,
     onReactionClick: (emoji: String) -> Unit,
     onReply: () -> Unit,
-    onMessageDetailsClick: () -> Unit
+    onMessageDetailsClick: () -> Unit,
+    onShareAsset: () -> Unit,
 ): List<@Composable () -> Unit> {
     return buildList {
-        if(isAvailable) {
+        if (isAvailable) {
             add { ReactionOptions(onReactionClick) }
             add { MessageDetails(onMessageDetailsClick) }
             add {
@@ -80,6 +82,20 @@ fun EditMessageMenuItems(
                         },
                         title = stringResource(R.string.label_copy),
                         onItemClick = onCopyMessage
+                    )
+                }
+            }
+            if (isSharable) {
+                add {
+                    MenuBottomSheetItem(
+                        icon = {
+                            MenuItemIcon(
+                                id = R.drawable.ic_share_file,
+                                contentDescription = stringResource(R.string.content_description_share_the_file),
+                            )
+                        },
+                        title = stringResource(R.string.label_share),
+                        onItemClick = onShareAsset
                     )
                 }
             }

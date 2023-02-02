@@ -335,7 +335,8 @@ private fun ConversationScreen(
                     messageComposerInnerState.reply(it)
                     conversationScreenState.hideEditContextMenu()
                 }
-            }
+            }, onShareAsset =,
+            isSharable = conversationScreenState.isAssetMessage
         )
     ) {
         Scaffold(
@@ -383,7 +384,7 @@ private fun ConversationScreen(
                         onDownloadAsset = onDownloadAsset,
                         onImageFullScreenMode = onImageFullScreenMode,
                         onReactionClicked = onReactionClick,
-                        onResetSessionClicked = onResetSessionClick,onOpenProfile = onOpenProfile,
+                        onResetSessionClicked = onResetSessionClick, onOpenProfile = onOpenProfile,
                         onUpdateConversationReadDate = onUpdateConversationReadDate,
                         onMessageComposerError = onSnackbarMessage,
                         onShowContextMenu = conversationScreenState::showEditContextMenu

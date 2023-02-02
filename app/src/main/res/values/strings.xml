@@ -110,6 +110,7 @@
     <string name="content_description_attachment_item">Attach new item to conversation</string>
     <string name="content_description_open_message_details">Open Message Details</string>
     <string name="content_description_copy_the_message">Copy the message</string>
+    <string name="content_description_share_the_file">Share the file</string>
     <string name="content_description_delete_the_message">Delete the message</string>
     <string name="content_description_edit_the_message">Edit the message</string>
     <string name="content_description_more_options">More options</string>
@@ -464,6 +465,7 @@
     <!--Conversation-->
     <string name="label_message_details">Message Details</string>
     <string name="label_copy">Copy</string>
+    <string name="label_share">Share</string>
     <string name="label_edit">Edit</string>
     <string name="label_delete">Delete</string>
     <string name="info_message_copied">Message copied</string>

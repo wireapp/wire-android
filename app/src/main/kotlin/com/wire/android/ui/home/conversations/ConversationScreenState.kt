@@ -82,6 +82,9 @@ class ConversationScreenState(
     val isTextMessage
         get() = selectedMessage?.messageContent is UIMessageContent.TextMessage
 
+    val isAssetMessage
+        get() = selectedMessage?.messageContent is UIMessageContent.AssetMessage || selectedMessage?.messageContent is UIMessageContent.ImageMessage
+
     fun showEditContextMenu(message: UIMessage) {
         selectedMessage = message
 

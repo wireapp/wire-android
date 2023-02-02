@@ -22,6 +22,7 @@ package com.wire.android.ui.home.messagecomposer
 
 import android.content.Context
 import androidx.compose.ui.focus.FocusManager
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
@@ -49,6 +50,9 @@ class MessageComposerInnerStateTest {
     @MockK
     lateinit var focusManager: FocusManager
 
+    @MockK
+    lateinit var focusRequester: FocusRequester
+
     @BeforeEach
     fun before() {
         MockKAnnotations.init(this, relaxUnitFun = true)
@@ -56,7 +60,7 @@ class MessageComposerInnerStateTest {
 
     @Test
     fun `given some message, when mention symbol is added into message, then mention is queried`() = runTest {
-        val state = createState(context, focusManager)
+        val state = createState(context, focusManager, focusRequester)
         state.setMessageTextValue(textFieldValueWithSelection("start text"))
 
         state.setMessageTextValue(textFieldValueWithSelection("start text @"))
@@ -66,7 +70,7 @@ class MessageComposerInnerStateTest {
 
     @Test
     fun `given some message, when mention symbol is added without space before it, then mention is not queried`() = runTest {
-        val state = createState(context, focusManager)
+        val state = createState(context, focusManager, focusRequester)
         state.setMessageTextValue(textFieldValueWithSelection("start text"))
 
         state.setMessageTextValue(textFieldValueWithSelection("start text@"))
@@ -76,7 +80,7 @@ class MessageComposerInnerStateTest {
 
     @Test
     fun `given mention is started in message, then mention is queried with corresponding query`() = runTest {
-        val state = createState(context, focusManager)
+        val state = createState(context, focusManager, focusRequester)
         state.setMessageTextValue(textFieldValueWithSelection("start text @"))
 
         state.setMessageTextValue(textFieldValueWithSelection("start text @abc"))
@@ -86,7 +90,7 @@ class MessageComposerInnerStateTest {
 
     @Test
     fun `given mention is started in message, when user type space, then mention stop querying`() = runTest {
-        val state = createState(context, focusManager)
+        val state = createState(context, focusManager, focusRequester)
         state.setMessageTextValue(textFieldValueWithSelection("start text @"))
 
         state.setMessageTextValue(textFieldValueWithSelection("start text @abc"))
@@ -98,7 +102,7 @@ class MessageComposerInnerStateTest {
 
     @Test
     fun `when mention selected, then mention is added into list`() = runTest {
-        val state = createState(context, focusManager)
+        val state = createState(context, focusManager, focusRequester)
         state.setMessageTextValue(TextFieldValue("start text @use testing", TextRange(15)))
 
         state.addMention(contact())
@@ -110,7 +114,7 @@ class MessageComposerInnerStateTest {
 
     @Test
     fun `when text before mention was changed, then mention's position is updated`() = runTest {
-        val state = createState(context, focusManager)
+        val state = createState(context, focusManager, focusRequester)
         state.setMessageTextValue(TextFieldValue("start text @use testing", TextRange(15)))
         state.addMention(contact())
 
@@ -122,7 +126,7 @@ class MessageComposerInnerStateTest {
 
     @Test
     fun `when text before mention was changed 2, then mention's position is updated`() = runTest {
-        val state = createState(context, focusManager)
+        val state = createState(context, focusManager, focusRequester)
         state.setMessageTextValue(TextFieldValue("start text @use testing", TextRange(15)))
         state.addMention(contact())
 
@@ -134,7 +138,7 @@ class MessageComposerInnerStateTest {
 
     @Test
     fun `when mention-text was edited, then mention is removed from the list`() = runTest {
-        val state = createState(context, focusManager)
+        val state = createState(context, focusManager, focusRequester)
         state.setMessageTextValue(textFieldValueWithSelection("start text @"))
         state.addMention(contact())
 
@@ -147,7 +151,7 @@ class MessageComposerInnerStateTest {
     // case was found by manual testing
     @Test
     fun `given message starts from mention, when mention symbol is removed, then mention is not requested anymore`() = runTest {
-        val state = createState(context, focusManager)
+        val state = createState(context, focusManager, focusRequester)
         state.setMessageTextValue(textFieldValueWithSelection("@"))
 
         assertEquals("", state.mentionQueryFlowState.value)
@@ -159,7 +163,7 @@ class MessageComposerInnerStateTest {
     // case was found by manual testing
     @Test
     fun `given selection goes just before mention symbol, then mention is not requested`() = runTest {
-        val state = createState(context, focusManager)
+        val state = createState(context, focusManager, focusRequester)
         state.setMessageTextValue(textFieldValueWithSelection("@ @ "))
 
         state.setMessageTextValue(TextFieldValue("@ @ ", TextRange(3)))
@@ -174,7 +178,7 @@ class MessageComposerInnerStateTest {
     // case was found by manual testing
     @Test
     fun `given cursor is at the begin of new line, when mention symbol is added, then mention is requested`() = runTest {
-        val state = createState(context, focusManager)
+        val state = createState(context, focusManager, focusRequester)
         state.setMessageTextValue(textFieldValueWithSelection("some text\n"))
 
         state.setMessageTextValue(textFieldValueWithSelection("some text\n@"))
@@ -185,7 +189,7 @@ class MessageComposerInnerStateTest {
     // case was found by manual testing
     @Test
     fun `given cursor is at the begin of new line, when add mention button clicked, then mention is requested`() = runTest {
-        val state = createState(context, focusManager)
+        val state = createState(context, focusManager, focusRequester)
         state.setMessageTextValue(textFieldValueWithSelection("some text\n"))
         state.startMention()
 
@@ -196,7 +200,7 @@ class MessageComposerInnerStateTest {
     @Test
     fun `given some text, when editing the message, input text changes to the original message text`() = runTest {
         val originalMessageText = "original message text"
-        val state = createState(context, focusManager)
+        val state = createState(context, focusManager, focusRequester)
         state.setMessageTextValue(textFieldValueWithSelection("start text"))
         state.toEditMessage("message-id", originalMessageText)
         assert(state.messageComposeInputState.isEditMessage)
@@ -214,12 +218,12 @@ class MessageComposerInnerStateTest {
     )
 
     companion object {
-        fun createState(context: Context, focusManager: FocusManager) = MessageComposerInnerState(
+        fun createState(context: Context, focusManager: FocusManager, focusRequester: FocusRequester) = MessageComposerInnerState(
             context,
             AttachmentInnerState(context),
             focusManager,
+            focusRequester,
             SpanStyle(),
-
         )
     }
 }

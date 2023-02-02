@@ -35,14 +35,15 @@ import androidx.work.WorkManager
 import androidx.work.WorkRequest.MIN_BACKOFF_MILLIS
 import androidx.work.WorkerParameters
 import com.wire.android.R
-import com.wire.android.migration.MigrationManager
 import com.wire.android.migration.MigrationData
+import com.wire.android.migration.MigrationManager
 import com.wire.android.migration.getMigrationFailure
 import com.wire.android.migration.getMigrationProgress
 import com.wire.android.migration.toData
 import com.wire.android.notification.NotificationConstants
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
@@ -56,10 +57,10 @@ class MigrationWorker
     private val migrationManager: MigrationManager
 ) : CoroutineWorker(appContext, workerParams) {
 
-    override suspend fun doWork(): Result = migrationManager.migrate { setProgress(it.type.toData()) }.let {
-        when (it) {
-            MigrationData.Result.Success -> Result.success()
-            is MigrationData.Result.Failure -> Result.failure(it.type.toData())
+    override suspend fun doWork(): Result = coroutineScope {
+        when (val migrationResult = migrationManager.migrate(this, { setProgress(it.type.toData()) })) {
+            is MigrationData.Result.Success -> Result.success()
+            is MigrationData.Result.Failure -> Result.failure(migrationResult.type.toData())
         }
     }
 

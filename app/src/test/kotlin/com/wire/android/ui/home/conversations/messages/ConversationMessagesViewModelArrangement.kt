@@ -160,7 +160,7 @@ class ConversationMessagesViewModelArrangement {
         messageId: String
     ) = apply {
         viewModel.showOnAssetDownloadedDialog(assetName, assetDataPath, assetSize, messageId)
-        coEvery { fileManager.saveToExternalStorage(any(), any(), any(), any()) }.answers {
+        coEvery { fileManager.saveToExternalStorage(any(), any(), any(), any(), any()) }.answers {
             viewModel.hideOnAssetDownloadedDialog()
         }
     }

@@ -51,17 +51,22 @@ import com.wire.android.ui.home.newconversation.common.SendContentButton
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.util.extension.getActivity
 import kotlinx.collections.immutable.persistentMapOf
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.runBlocking
 
 @Composable
 fun ImportMediaScreen(importMediaViewModel: ImportMediaViewModel = hiltViewModel()) {
     val context = LocalContext.current
-    LaunchedEffect(Unit) {
-        context.getActivity()?.let { importMediaViewModel.handleReceivedDataFromSharingIntent(it) }
-    }
-
     val searchBarState = rememberSearchbarState()
     val snackBarHostState: SnackbarHostState = remember { SnackbarHostState() }
+    LaunchedEffect(importMediaViewModel.importMediaState) {
+        if (importMediaViewModel.importMediaState.importedAssets.isEmpty()) {
+            context.getActivity()?.let { importMediaViewModel.handleReceivedDataFromSharingIntent(it) }
+        }
+    }
+
     ImportMediaContent(searchBarState, snackBarHostState, importMediaViewModel)
 }
 

@@ -50,7 +50,6 @@ import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -237,7 +236,7 @@ class ImportMediaViewModel @Inject constructor(
 
     fun navigateBack() = viewModelScope.launch(dispatchers.main()) { navigationManager.navigateBack() }
 
-    fun handleReceivedDataFromSharingIntent(activity: AppCompatActivity) {
+    suspend fun handleReceivedDataFromSharingIntent(activity: AppCompatActivity) {
         val incomingIntent = ShareCompat.IntentReader(activity)
         appLogger.e("Received data from sharing intent ${incomingIntent.streamCount}")
         when (incomingIntent.streamCount) {
@@ -248,15 +247,21 @@ class ImportMediaViewModel @Inject constructor(
 
             1 -> {
                 // ACTION_SEND
-                incomingIntent.stream?.let { incomingIntent.type?.let { it1 -> handleMimeType(activity, it1, it) } }
+                incomingIntent.stream?.let { uri ->
+                    incomingIntent.type?.let { mimeType ->
+                        importMediaState = importMediaState.copy(importedAssets = mutableListOf(handleMimeType(activity, mimeType, uri)))
+                    }
+                }
             }
 
             else -> {
                 // ACTION_SEND_MULTIPLE
+                val importedMediaAssets = mutableListOf<ImportedMediaAsset>()
                 activity.intent.parcelableArrayList<Parcelable>(Intent.EXTRA_STREAM)?.forEach {
                     val fileUri = it.toString().toUri()
-                    handleMimeType(activity, fileUri.getMimeType(activity).toString(), fileUri)
+                    importedMediaAssets.add(handleMimeType(activity, fileUri.getMimeType(activity).toString(), fileUri))
                 }
+                importMediaState = importMediaState.copy(importedAssets = importedMediaAssets)
             }
         }
     }
@@ -303,51 +308,44 @@ class ImportMediaViewModel @Inject constructor(
     }
 
 
-    private fun handleMimeType(context: Context, mimeType: String, uri: Uri) = viewModelScope.launch {
+    private suspend fun handleMimeType(context: Context, mimeType: String, uri: Uri): ImportedMediaAsset = withContext(dispatchers.io()) {
         val assetKey = UUID.randomUUID().toString()
-        val tempAssetPath = kaliumFileSystem.tempFilePath(assetKey)
+        val tempAssetPath = kaliumFileSystem.providePersistentAssetPath(assetKey)
         when {
             isImageFile(mimeType) -> {
                 uri.getMetaDataFromUri(context).let {
-                    appLogger.d("image type $it")
-
                     // Only resample the image if it is too large
                     uri.resampleImageAndCopyToTempPath(context, tempAssetPath, ImageUtil.ImageSizeClass.Medium)
-                    val (imgWidth, imgHeight) =
-                        ImageUtil.extractImageWidthAndHeight(
-                            kaliumFileSystem.source(tempAssetPath).buffer().inputStream(),
-                            mimeType
-                        )
-                    importMediaState.importedAssets.add(
-                        ImportedMediaAsset.Image(
-                            name = it.name,
-                            size = it.size,
-                            mimeType = mimeType,
-                            dataPath = tempAssetPath,
-                            dataUri = uri,
-                            key = assetKey,
-                            width = imgWidth,
-                            height = imgHeight
-                        )
+                    val tempAssetSource = kaliumFileSystem.source(tempAssetPath)
+                    val (imgWidth, imgHeight) = ImageUtil.extractImageWidthAndHeight(tempAssetSource.buffer().inputStream(), mimeType)
+                    tempAssetSource.close()
+
+                    return@withContext ImportedMediaAsset.Image(
+                        name = it.name,
+                        size = it.size,
+                        mimeType = mimeType,
+                        dataPath = tempAssetPath,
+                        dataUri = uri,
+                        key = assetKey,
+                        width = imgWidth,
+                        height = imgHeight
                     )
+
                 }
             }
 
             else -> {
                 uri.getMetaDataFromUri(context).let {
                     fileManager.copyToTempPath(uri, tempAssetPath)
-
-                    importMediaState.importedAssets.add(
-                        ImportedMediaAsset.GenericAsset(
-                            name = it.name,
-                            size = it.size,
-                            mimeType = mimeType,
-                            dataPath = tempAssetPath,
-                            dataUri = uri,
-                            key = assetKey
-                        )
+                    return@withContext ImportedMediaAsset.GenericAsset(
+                        name = it.name,
+                        size = it.size,
+                        mimeType = mimeType,
+                        dataPath = tempAssetPath,
+                        dataUri = uri,
+                        key = assetKey
                     )
-                    appLogger.d("other types $it")
+
                 }
             }
         }
@@ -365,5 +363,5 @@ class ImportMediaViewModel @Inject constructor(
 @Stable
 data class ImportMediaState(
     val avatarAsset: ImageAsset.UserAvatarAsset? = null,
-    val importedAssets: ArrayList<ImportedMediaAsset> = arrayListOf()
+    val importedAssets: MutableList<ImportedMediaAsset> = mutableListOf()
 )

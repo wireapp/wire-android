@@ -96,6 +96,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.datetime.Instant
 import okio.Path
 import okio.Path.Companion.toPath
@@ -191,7 +192,8 @@ fun ConversationScreen(
         onSnackbarMessage = messageComposerViewModel::onSnackbarMessage,
         onBackButtonClick = messageComposerViewModel::navigateBack,
         composerMessages = messageComposerViewModel.infoMessage,
-        conversationMessages = conversationMessagesViewModel.infoMessage
+        conversationMessages = conversationMessagesViewModel.infoMessage,
+        conversationMessagesViewModel = conversationMessagesViewModel
     )
     DeleteMessageDialog(
         state = messageComposerViewModel.deleteMessageDialogsState,
@@ -280,6 +282,7 @@ private fun ConversationScreen(
     onBackButtonClick: () -> Unit,
     composerMessages: SharedFlow<SnackBarMessage>,
     conversationMessages: SharedFlow<SnackBarMessage>,
+    conversationMessagesViewModel: ConversationMessagesViewModel
 ) {
     val conversationScreenState = rememberConversationScreenState()
     val messageComposerInnerState = rememberMessageComposerInnerState()
@@ -318,7 +321,7 @@ private fun ConversationScreen(
     }
 
     val localFeatureVisibilityFlags = LocalFeatureVisibilityFlags.current
-
+    val context = LocalContext.current
     MenuModalSheetLayout(
         sheetState = conversationScreenState.modalBottomSheetState,
         coroutineScope = conversationScreenState.coroutineScope,
@@ -335,7 +338,17 @@ private fun ConversationScreen(
                     messageComposerInnerState.reply(it)
                     conversationScreenState.hideEditContextMenu()
                 }
-            }, onShareAsset =,
+            }, onShareAsset = {
+                runBlocking {
+                    conversationScreenState.selectedMessage?.messageHeader?.messageId?.let {
+                        conversationMessagesViewModel.assetDataPath(
+                            conversationId = conversationMessagesViewModel.conversationId,
+                            messageId = it
+                        )
+                            ?.let { conversationScreenState.shareMessage(context, it) }
+                    }
+                }
+            },
             isSharable = conversationScreenState.isAssetMessage
         )
     ) {
@@ -593,5 +606,6 @@ fun PreviewConversationScreen() {
         onBackButtonClick = {},
         composerMessages = MutableStateFlow(ErrorDownloadingAsset),
         conversationMessages = MutableStateFlow(ErrorDownloadingAsset),
+        conversationMessagesViewModel = hiltViewModel()
     )
 }

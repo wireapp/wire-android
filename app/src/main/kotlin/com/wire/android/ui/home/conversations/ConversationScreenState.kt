@@ -40,8 +40,10 @@ import com.wire.android.R
 import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent
+import com.wire.android.util.startFileShareIntent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import okio.Path
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -96,6 +98,10 @@ class ConversationScreenState(
             modalBottomSheetState.animateTo(ModalBottomSheetValue.Hidden)
             onComplete()
         }
+    }
+
+    fun shareMessage(context: Context, path: Path) {
+        context.startFileShareIntent(path.toString())
     }
 
     fun copyMessage() {

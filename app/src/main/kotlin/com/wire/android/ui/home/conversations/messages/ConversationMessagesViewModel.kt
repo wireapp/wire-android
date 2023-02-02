@@ -226,7 +226,7 @@ class ConversationMessagesViewModel @Inject constructor(
     }
 
     // region Private
-    private suspend fun assetDataPath(conversationId: QualifiedID, messageId: String): Path? =
+    suspend fun assetDataPath(conversationId: QualifiedID, messageId: String): Path? =
         getMessageAsset(conversationId, messageId).await().run {
             return when (this) {
                 is MessageAssetResult.Success -> decodedAssetPath

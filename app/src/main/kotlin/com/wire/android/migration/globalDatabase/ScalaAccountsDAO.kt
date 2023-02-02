@@ -23,12 +23,17 @@ package com.wire.android.migration.globalDatabase
 import android.annotation.SuppressLint
 import com.wire.android.migration.util.getStringOrNull
 import com.wire.android.migration.util.orNullIfNegative
+import kotlinx.coroutines.withContext
 import java.sql.SQLException
+import kotlin.coroutines.CoroutineContext
 
-class ScalaAccountsDAO(private val db: ScalaGlobalDatabase) {
+class ScalaAccountsDAO(
+    private val db: ScalaGlobalDatabase,
+    private val queryContext: CoroutineContext
+) {
 
     @SuppressLint("Recycle")
-    fun activeAccounts(): List<ScalaActiveAccountsEntity> {
+    suspend fun activeAccounts(): List<ScalaActiveAccountsEntity> = withContext(queryContext) {
         val cursor = db.rawQuery("SELECT * from $ACTIVE_ACCOUNTS_TABLE_NAME", null)
         try {
             val domainIndex: Int? = cursor.getColumnIndex(COLUMN_DOMAIN).orNullIfNegative()
@@ -39,7 +44,7 @@ class ScalaAccountsDAO(private val db: ScalaGlobalDatabase) {
             val pushTokenIndex: Int = cursor.getColumnIndex(COLUMN_NATIVE_PUSH_TOKEN)
             val ssoIdIndex: Int = cursor.getColumnIndex(COLUMN_SSO_ID)
 
-            return if (cursor.moveToFirst()) {
+            return@withContext if (cursor.moveToFirst()) {
                 // accu is a list of all the accounts we have found so far
                 val accumulator = mutableListOf<ScalaActiveAccountsEntity>()
                 do {

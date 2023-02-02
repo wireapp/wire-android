@@ -16,7 +16,7 @@ def defineFlavor() {
     } else if(branchName == "internal") {
         return 'Internal'
     }
-    return 'Dev'
+    return 'Internal'
 }
 
 def defineBuildType() {

@@ -33,7 +33,7 @@ class ScalaAccountsDAO(
 ) {
 
     @SuppressLint("Recycle")
-    suspend fun activeAccounts(): List<ScalaActiveAccountsEntity> = withContext(queryContext){
+    suspend fun activeAccounts(): List<ScalaActiveAccountsEntity> = withContext(queryContext) {
         val cursor = db.rawQuery("SELECT * from $ACTIVE_ACCOUNTS_TABLE_NAME", null)
         try {
             val domainIndex: Int? = cursor.getColumnIndex(COLUMN_DOMAIN).orNullIfNegative()

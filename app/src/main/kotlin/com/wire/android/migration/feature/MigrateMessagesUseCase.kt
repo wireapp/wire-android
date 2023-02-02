@@ -39,7 +39,8 @@ class MigrateMessagesUseCase @Inject constructor(
     private val mapper: MigrationMapper
 ) {
     suspend operator fun invoke(
-        userId: UserId, scalaConversations: List<ScalaConversationData>,
+        userId: UserId,
+        scalaConversations: List<ScalaConversationData>,
         coroutineScope: CoroutineScope
     ): Either<CoreFailure, Unit> {
         val messageDAO = scalaUserDatabase.messageDAO(userId)
@@ -55,4 +56,3 @@ class MigrateMessagesUseCase @Inject constructor(
         return sessionScope.messages.persistMigratedMessage(mappedMessages, coroutineScope)
     }
 }
-

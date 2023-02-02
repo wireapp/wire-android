@@ -73,6 +73,7 @@ import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
+import kotlinx.datetime.Instant
 import org.junit.jupiter.api.Test
 import kotlin.time.Duration.Companion.minutes
 
@@ -503,7 +504,7 @@ class WireNotificationManagerTest {
         )
 
         private fun provideLocalNotificationMessage(): LocalNotificationMessage = LocalNotificationMessage.Text(
-            LocalNotificationMessageAuthor("author", null), "", "testing text"
+            LocalNotificationMessageAuthor("author", null), Instant.DISTANT_FUTURE, "testing text"
         )
 
         private fun provideUserId() = UserId("value", "domain")

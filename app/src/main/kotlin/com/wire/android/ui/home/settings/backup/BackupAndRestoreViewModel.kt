@@ -127,6 +127,7 @@ class BackupAndRestoreViewModel
                 when (result) {
                     is VerifyBackupResult.Success.Encrypted -> showPasswordDialog()
                     is VerifyBackupResult.Success.NotEncrypted -> importDatabase(importedBackupPath)
+                    VerifyBackupResult.Success.Web -> importDatabase(importedBackupPath) // TODO KBX do wee need this
                 }
             }
 

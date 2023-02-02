@@ -1,10 +1,25 @@
+/*
+ * Wire
+ * Copyright (C) 2023 Wire Swiss GmbH
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see http://www.gnu.org/licenses/.
+ *
+ *
+ */
+
 package com.wire.android.ui.home.messagecomposer
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.animation.core.Transition
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
@@ -15,16 +30,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryIconButton
 import com.wire.android.ui.common.button.wireSendPrimaryButtonColors
 import com.wire.android.ui.common.dimensions
 
-@ExperimentalAnimationApi
 @Composable
-fun SendActions(
-    transition: Transition<MessageComposeInputState>,
+fun MessageSendActions(
     sendButtonEnabled: Boolean,
     onSendButtonClicked: () -> Unit,
     modifier: Modifier = Modifier
@@ -34,16 +48,10 @@ fun SendActions(
 //            if (messageComposerState.sendButtonEnabled) {
 //                ScheduleMessageButton()
 //            }
-            transition.AnimatedVisibility(
-                visible = { it != MessageComposeInputState.Enabled },
-                enter = fadeIn(),
-                exit = fadeOut()
-            ) {
-                SendButton(
-                    isEnabled = sendButtonEnabled,
-                    onSendButtonClicked = onSendButtonClicked
-                )
-            }
+            SendButton(
+                isEnabled = sendButtonEnabled,
+                onSendButtonClicked = onSendButtonClicked
+            )
         }
     }
 }
@@ -74,4 +82,15 @@ private fun SendButton(
         minHeight = dimensions().spacing40x,
         minWidth = dimensions().spacing40x
     )
+}
+
+@Preview
+@Composable
+fun PreviewMessageSendActionsEnabled() {
+    MessageSendActions(true, {})
+}
+@Preview
+@Composable
+fun PreviewMessageSendActionsDisabled() {
+    MessageSendActions(false, {})
 }

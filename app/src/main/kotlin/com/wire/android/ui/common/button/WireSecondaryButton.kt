@@ -1,3 +1,23 @@
+/*
+ * Wire
+ * Copyright (C) 2023 Wire Swiss GmbH
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see http://www.gnu.org/licenses/.
+ *
+ *
+ */
+
 package com.wire.android.ui.common.button
 
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -77,13 +97,13 @@ fun WireSecondaryButton(
 
 @Preview(name = "Default WireSecondaryButton")
 @Composable
-private fun WireSecondaryButtonPreview() {
+fun PreviewWireSecondaryButton() {
     WireSecondaryButton(onClick = { }, text = "text")
 }
 
 @Preview(name = "Default WireSecondaryButton with icons")
 @Composable
-private fun WireSecondaryButtonWithIconsPreview() {
+fun PreviewWireSecondaryButtonWithIcons() {
     WireSecondaryButton(
         onClick = { },
         text = "text",
@@ -94,7 +114,7 @@ private fun WireSecondaryButtonWithIconsPreview() {
 
 @Preview(name = "Default narrow WireSecondaryButton with icon")
 @Composable
-private fun WireSecondaryButtonNarrowWithIconsPreview() {
+fun PreviewWireSecondaryButtonNarrowWithIcons() {
     WireSecondaryButton(
         onClick = { },
         text = "text",
@@ -106,7 +126,7 @@ private fun WireSecondaryButtonNarrowWithIconsPreview() {
 
 @Preview(name = "Default small WirePrimaryButton only icon")
 @Composable
-private fun WireSecondaryButtonSmallOnlyIconsPreview() {
+fun PreviewWireSecondaryButtonSmallOnlyIcons() {
     WireSecondaryButton(
         onClick = { },
         leadingIcon = Icons.Filled.Search.Icon(),
@@ -121,31 +141,31 @@ private fun WireSecondaryButtonSmallOnlyIconsPreview() {
 
 @Preview(name = "Default Loading WireSecondaryButton")
 @Composable
-private fun WireSecondaryButtonLoadingPreview() {
+fun PreviewWireSecondaryButtonLoading() {
     WireSecondaryButton(onClick = { }, loading = true, text = "text")
 }
 
 @Preview(name = "Disabled WireSecondaryButton")
 @Composable
-private fun WireSecondaryButtonDisabledPreview() {
+fun PreviewWireSecondaryButtonDisabled() {
     WireSecondaryButton(onClick = { }, state = WireButtonState.Disabled, text = "text")
 }
 
 @Preview(name = "Selected WireSecondaryButton")
 @Composable
-private fun WireSecondaryButtonSelectedPreview() {
+fun PreviewWireSecondaryButtonSelected() {
     WireSecondaryButton(onClick = { }, state = WireButtonState.Selected, text = "text")
 }
 
 @Preview(name = "Error WireSecondaryButton")
 @Composable
-private fun WireSecondaryButtonErrorPreview() {
+fun PreviewWireSecondaryButtonError() {
     WireSecondaryButton(onClick = { }, state = WireButtonState.Error, text = "text")
 }
 
 @Preview(name = "Three WireSecondaryButtons with different states")
 @Composable
-private fun WireSecondaryButtonSelected3Preview() {
+fun PreviewWireSecondaryButtonSelected3() {
     Row {
         WireSecondaryButton(
             onClick = { },

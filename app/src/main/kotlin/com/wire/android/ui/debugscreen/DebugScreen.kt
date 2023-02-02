@@ -1,3 +1,23 @@
+/*
+ * Wire
+ * Copyright (C) 2023 Wire Swiss GmbH
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see http://www.gnu.org/licenses/.
+ *
+ *
+ */
+
 package com.wire.android.ui.debugscreen
 
 import android.content.Context
@@ -55,6 +75,7 @@ fun DebugScreen() {
         onDeleteLogs = debugScreenViewModel::deleteLogs,
         navigateBack = debugScreenViewModel::navigateBack,
         onForceLatestDevelopmentApiChange = debugScreenViewModel::forceUpdateApiVersions,
+        restartSlowSyncForRecovery = debugScreenViewModel::restartSlowSyncForRecovery,
     )
 }
 
@@ -67,6 +88,7 @@ fun DebugContent(
     onDeleteLogs: () -> Unit,
     navigateBack: () -> Unit,
     onForceLatestDevelopmentApiChange: () -> Unit,
+    restartSlowSyncForRecovery: () -> Unit
 ) {
     val scrollState = rememberScrollState()
 
@@ -89,7 +111,8 @@ fun DebugContent(
             MlsOptions(
                 keyPackagesCount = debugScreenState.keyPackagesCount,
                 mlsClientId = debugScreenState.mslClientId,
-                mlsErrorMessage = debugScreenState.mlsErrorMessage
+                mlsErrorMessage = debugScreenState.mlsErrorMessage,
+                restartSlowSyncForRecovery = restartSlowSyncForRecovery
             )
 
             LogOptions(
@@ -117,7 +140,8 @@ fun DebugContent(
 private fun MlsOptions(
     keyPackagesCount: Int,
     mlsClientId: String,
-    mlsErrorMessage: String
+    mlsErrorMessage: String,
+    restartSlowSyncForRecovery: () -> Unit
 ) {
     if (mlsErrorMessage.isNotEmpty()) {
         SettingsItem(
@@ -135,6 +159,14 @@ private fun MlsOptions(
 
             SettingsItem(
                 title = stringResource(R.string.label_mls_client_id, mlsClientId)
+            )
+            SettingsItem(
+                title = stringResource(R.string.label_restart_slowsync_for_recovery),
+                trailingIcon = R.drawable.ic_input_mandatory,
+                onIconPressed = Clickable(
+                    enabled = true,
+                    onClick = restartSlowSyncForRecovery
+                )
             )
         }
     }
@@ -305,6 +337,3 @@ data class DebugContentState(
         context.startActivity(intent)
     }
 }
-
-
-

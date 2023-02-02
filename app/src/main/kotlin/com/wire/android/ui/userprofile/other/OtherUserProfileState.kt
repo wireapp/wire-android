@@ -1,7 +1,28 @@
+/*
+ * Wire
+ * Copyright (C) 2023 Wire Swiss GmbH
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see http://www.gnu.org/licenses/.
+ *
+ *
+ */
+
 package com.wire.android.ui.userprofile.other
 
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationSheetContent
+import com.wire.android.ui.home.conversationslist.model.BlockingState
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.kalium.logic.data.client.OtherUserClient
 import com.wire.kalium.logic.data.conversation.Conversation.Member
@@ -27,7 +48,8 @@ data class OtherUserProfileState(
     val groupState: OtherUserProfileGroupState? = null,
     val botService: BotService? = null,
     val conversationSheetContent: ConversationSheetContent? = null,
-    val otherUserClients: List<OtherUserClient> = listOf()
+    val otherUserClients: List<OtherUserClient> = listOf(),
+    val blockingState: BlockingState = BlockingState.CAN_NOT_BE_BLOCKED
 ) {
     fun updateMuteStatus(status: MutedConversationStatus): OtherUserProfileState {
         return conversationSheetContent?.let {

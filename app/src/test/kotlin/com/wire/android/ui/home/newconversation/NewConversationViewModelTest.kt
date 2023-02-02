@@ -1,3 +1,23 @@
+/*
+ * Wire
+ * Copyright (C) 2023 Wire Swiss GmbH
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see http://www.gnu.org/licenses/.
+ *
+ *
+ */
+
 package com.wire.android.ui.home.newconversation
 
 import androidx.compose.ui.text.input.TextFieldValue
@@ -144,8 +164,8 @@ class NewConversationViewModelTest {
             arrangement.createGroupConversation(
                 viewModel.newGroupState.groupName.text,
                 viewModel.state.contactsAddedToGroup.map { contact -> UserId(contact.id, contact.domain) },
-                ConversationOptions(null, null, null, ConversationOptions.Protocol.PROTEUS, null)
-                )
+                ConversationOptions(null, null, false, ConversationOptions.Protocol.PROTEUS, null)
+            )
         }
     }
 
@@ -166,12 +186,12 @@ class NewConversationViewModelTest {
             // Then
             assertEquals(
                 viewModel.state.searchResult[SearchResultTitle(R.string.label_contacts)]!!.searchResultState
-                        is SearchResultState.Failure,
+                is SearchResultState.Failure,
                 true
             )
             assertEquals(
                 viewModel.state.searchResult[SearchResultTitle(R.string.label_public_wire)]!!.searchResultState
-                        is SearchResultState.Failure,
+                is SearchResultState.Failure,
                 true
             )
         }

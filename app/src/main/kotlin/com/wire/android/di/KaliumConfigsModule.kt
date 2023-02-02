@@ -1,3 +1,23 @@
+/*
+ * Wire
+ * Copyright (C) 2023 Wire Swiss GmbH
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see http://www.gnu.org/licenses/.
+ *
+ *
+ */
+
 package com.wire.android.di
 
 import android.os.Build
@@ -15,39 +35,17 @@ class KaliumConfigsModule {
     @Provides
     fun provideKaliumConfigs(): KaliumConfigs {
         return KaliumConfigs(
-            isAccountCreationEnabled = BuildConfig.ALLOW_ACCOUNT_CREATION,
             isChangeEmailEnabled = BuildConfig.ALLOW_CHANGE_OF_EMAIL,
             isLoggingEnabled = BuildConfig.LOGGING_ENABLED,
-            isSSoEnabled = BuildConfig.ALLOW_SSO,
-            blockOnJailbreakOrRoot = BuildConfig.BLOCK_ON_JAILBREAK_OR_ROOT,
             blacklistHost = BuildConfig.BLACKLIST_HOST,
-            blockOnPasswordPolicy = BuildConfig.BLOCK_ON_PASSWORD_POLICY,
             fileRestrictionEnabled = BuildConfig.FILE_RESTRICTION_ENABLED,
-            fileRestrictionList = BuildConfig.FILE_RESTRICTION_LIST,
             forceConstantBitrateCalls = BuildConfig.FORCE_CONSTANT_BITRATE_CALLS,
-            keepWebSocketOn = BuildConfig.KEEP_WEB_SOCKET_ON,
-            webLinkPreview = BuildConfig.WEB_LINK_PREVIEW,
-            websiteUrl = BuildConfig.WEBSITE_URL,
-            webSocketUrl = BuildConfig.WEB_SOCKET_URL,
-            wipeOnCookieInvalid = BuildConfig.WIPE_ON_COOKIE_INVALID,
-            submitCrashReports = BuildConfig.SUBMIT_CRASH_REPORTS,
             domain = BuildConfig.DOMAIN,
             developerFeaturesEnabled = BuildConfig.DEVELOPER_FEATURES_ENABLED,
             isSafeLoggingEnabled = BuildConfig.SAFE_LOGGING,
             enableBlacklist = BuildConfig.ENABLE_BLACK_LIST,
             certificate = BuildConfig.CERTIFICATE,
-            customUrlScheme = BuildConfig.CUSTOM_URL_SCHEME,
-            httpProxyPort = BuildConfig.HTTP_PROXY_PORT,
-            httpProxyUrl = BuildConfig.HTTP_PROXY_URL,
-            supportEmail = BuildConfig.SUPPORT_EMAIL,
-            teamsUrl = BuildConfig.TEAMS_URL,
-            backendUrl = BuildConfig.BACKEND_URL,
-            accountUrl = BuildConfig.ACCOUNT_URL,
             maxAccount = BuildConfig.MAX_ACCOUNTS,
-            newPasswordMaximumLength = BuildConfig.NEW_PASSWORD_MAXIMUM_LENGTH,
-            newPasswordMinimumLength = BuildConfig.NEW_PASSWORD_MINIMUM_LENGTH,
-            passwordMaxAttempts = BuildConfig.PASSWORD_MAX_ATTEMPTS,
-            appLockTimeout = BuildConfig.APP_LOCK_TIMEOUT,
             // we use upsert, available from SQL3.24, which is supported from Android API30, so for older APIs we have to use SQLCipher
             shouldEncryptData = !BuildConfig.DEBUG || Build.VERSION.SDK_INT < Build.VERSION_CODES.R,
             lowerKeyPackageLimits = BuildConfig.PRIVATE_BUILD,
@@ -57,6 +55,4 @@ class KaliumConfigsModule {
             encryptProteusStorage = BuildConfig.ENCRYPT_PROTEUS_STORAGE
         )
     }
-
-
 }

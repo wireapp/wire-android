@@ -1,3 +1,23 @@
+/*
+ * Wire
+ * Copyright (C) 2023 Wire Swiss GmbH
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see http://www.gnu.org/licenses/.
+ *
+ *
+ */
+
 package com.wire.android.ui.common.button
 
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -77,13 +97,13 @@ fun WirePrimaryButton(
 
 @Preview(name = "Default WirePrimaryButton")
 @Composable
-private fun WirePrimaryButtonPreview() {
+fun PreviewWirePrimaryButton() {
     WirePrimaryButton(onClick = { }, text = "text")
 }
 
 @Preview(name = "Default WirePrimaryButton with icons")
 @Composable
-private fun WirePrimaryButtonWithIconsPreview() {
+fun PreviewWirePrimaryButtonWithIcons() {
     WirePrimaryButton(
         onClick = { },
         text = "text",
@@ -94,7 +114,7 @@ private fun WirePrimaryButtonWithIconsPreview() {
 
 @Preview(name = "Default narrow WirePrimaryButton with icon")
 @Composable
-private fun WirePrimaryButtonNarrowWithIconsPreview() {
+fun PreviewWirePrimaryButtonNarrowWithIcons() {
     WirePrimaryButton(
         onClick = { },
         text = "text",
@@ -106,7 +126,7 @@ private fun WirePrimaryButtonNarrowWithIconsPreview() {
 
 @Preview(name = "Default small WirePrimaryButton only icon")
 @Composable
-private fun WirePrimaryButtonSmallOnlyIconsPreview() {
+fun PreviewWirePrimaryButtonSmallOnlyIcons() {
     WirePrimaryButton(
         onClick = { },
         leadingIcon = Icons.Filled.Search.Icon(),
@@ -121,37 +141,37 @@ private fun WirePrimaryButtonSmallOnlyIconsPreview() {
 
 @Preview(name = "Default Loading WirePrimaryButton")
 @Composable
-private fun WirePrimaryButtonLoadingPreview() {
+fun PreviewWirePrimaryButtonLoading() {
     WirePrimaryButton(onClick = { }, loading = true, text = "text")
 }
 
 @Preview(name = "Disabled WirePrimaryButton")
 @Composable
-private fun WirePrimaryButtonDisabledPreview() {
+fun PreviewWirePrimaryButtonDisabled() {
     WirePrimaryButton(onClick = { }, state = WireButtonState.Disabled, text = "text")
 }
 
 @Preview(name = "Selected WirePrimaryButton")
 @Composable
-private fun WirePrimaryButtonSelectedPreview() {
+fun PreviewWirePrimaryButtonSelected() {
     WirePrimaryButton(onClick = { }, state = WireButtonState.Selected, text = "text")
 }
 
 @Preview(name = "Error WirePrimaryButton")
 @Composable
-private fun WirePrimaryButtonErrorPreview() {
+fun PreviewWirePrimaryButtonError() {
     WirePrimaryButton(onClick = { }, state = WireButtonState.Error, text = "text")
 }
 
 @Preview(name = "Positive WirePrimaryButton")
 @Composable
-private fun WirePrimaryButtonPositivePreview() {
+fun PreviewWirePrimaryButtonPositive() {
     WirePrimaryButton(onClick = { }, state = WireButtonState.Positive, text = "text")
 }
 
 @Preview(name = "Three WirePrimaryButton with different states")
 @Composable
-private fun WirePrimaryButtonSelected3Preview() {
+fun PreviewWirePrimaryButtonSelected3() {
     Row {
         WirePrimaryButton(
             onClick = { },

@@ -1,3 +1,23 @@
+/*
+ * Wire
+ * Copyright (C) 2023 Wire Swiss GmbH
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see http://www.gnu.org/licenses/.
+ *
+ *
+ */
+
 package com.wire.android.ui
 
 import android.content.Intent
@@ -118,21 +138,23 @@ class WireActivityViewModel @Inject constructor(
                 }
         }
         viewModelScope.launch(dispatchers.io()) {
-            observePersistentWebSocketConnectionStatus().let {
-                when (it) {
+            observePersistentWebSocketConnectionStatus().let { result ->
+                when (result) {
                     is ObservePersistentWebSocketConnectionStatusUseCase.Result.Failure -> {
                         appLogger.e("Failure while fetching persistent web socket status flow from wire activity")
                     }
                     is ObservePersistentWebSocketConnectionStatusUseCase.Result.Success -> {
-                        it.persistentWebSocketStatusListFlow.collect {
-                            it.map { persistentWebSocketStatus ->
-                                if (!persistentWebSocketStatus.isPersistentWebSocketEnabled) {
-                                    notificationManager.observeNotificationsAndCalls(observeUserId, viewModelScope)
-                                    { openIncomingCall(it.conversationId) }
-                                }
-                            }
+                        result.persistentWebSocketStatusListFlow.collect { statuses ->
+                            val usersToObserve = statuses
+                                .filter { !it.isPersistentWebSocketEnabled }
+                                .map { it.userId }
 
-                            if (it.map { it.isPersistentWebSocketEnabled }.contains(true)) {
+                            notificationManager.observeNotificationsAndCallsWhileRunning(
+                                usersToObserve,
+                                viewModelScope
+                            ) { call -> openIncomingCall(call.conversationId) }
+
+                            if (statuses.any { it.isPersistentWebSocketEnabled }) {
                                 if (!servicesManager.isPersistentWebSocketServiceRunning()) {
                                     servicesManager.startPersistentWebSocketService()
                                 }
@@ -210,9 +232,9 @@ class WireActivityViewModel @Inject constructor(
 
                     is DeepLinkResult.IncomingCall -> {
                         if (isLaunchedFromHistory(intent)) {
-                            //We don't need to handle deepLink, if activity was launched from history.
-                            //For example: user opened app by deepLink, then closed it by back button click,
-                            //then open the app from the "Recent Apps"
+                            // We don't need to handle deepLink, if activity was launched from history.
+                            // For example: user opened app by deepLink, then closed it by back button click,
+                            // then open the app from the "Recent Apps"
                             appLogger.i("IncomingCall deepLink launched from the history")
                         } else {
                             navigationArguments.put(INCOMING_CALL_CONVERSATION_ID_ARG, result.conversationsId)
@@ -221,9 +243,9 @@ class WireActivityViewModel @Inject constructor(
 
                     is DeepLinkResult.OngoingCall -> {
                         if (isLaunchedFromHistory(intent)) {
-                            //We don't need to handle deepLink, if activity was launched from history.
-                            //For example: user opened app by deepLink, then closed it by back button click,
-                            //then open the app from the "Recent Apps"
+                            // We don't need to handle deepLink, if activity was launched from history.
+                            // For example: user opened app by deepLink, then closed it by back button click,
+                            // then open the app from the "Recent Apps"
                             appLogger.i("IncomingCall deepLink launched from the history")
                         } else {
                             navigationArguments.put(ONGOING_CALL_CONVERSATION_ID_ARG, result.conversationsId)
@@ -262,7 +284,7 @@ class WireActivityViewModel @Inject constructor(
      */
     fun handleDeepLinkOnNewIntent(intent: Intent?): Boolean {
 
-        //removing arguments that could be there from prev deeplink handling
+        // removing arguments that could be there from prev deeplink handling
         navigationArguments.apply {
             remove(INCOMING_CALL_CONVERSATION_ID_ARG)
             remove(ONGOING_CALL_CONVERSATION_ID_ARG)

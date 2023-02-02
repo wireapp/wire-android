@@ -1,3 +1,23 @@
+/*
+ * Wire
+ * Copyright (C) 2023 Wire Swiss GmbH
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see http://www.gnu.org/licenses/.
+ *
+ *
+ */
+
 package com.wire.android.ui.userprofile.other
 
 import androidx.lifecycle.SavedStateHandle
@@ -105,9 +125,6 @@ internal class OtherUserProfileViewModelArrangement {
     lateinit var persistOtherUserClientsUseCase: PersistOtherUserClientsUseCase
 
     @MockK
-    lateinit var getConversationUseCase: GetOneToOneConversationUseCase
-
-    @MockK
     lateinit var clearConversationContent: ClearConversationContentUseCase
 
     private val viewModel by lazy {
@@ -118,7 +135,6 @@ internal class OtherUserProfileViewModelArrangement {
             blockUser,
             unblockUser,
             getOrCreateOneToOneConversation,
-            getConversationUseCase,
             observeUserInfo,
             sendConnectionRequest,
             cancelConnectionRequest,
@@ -197,10 +213,6 @@ internal class OtherUserProfileViewModelArrangement {
 
     suspend fun withUserInfo(result: GetUserInfoResult) = apply {
         coEvery { observeUserInfo(any()) } returns flowOf(result)
-    }
-
-    fun withGetConversationDetails(result: GetOneToOneConversationUseCase.Result) = apply {
-        coEvery { getConversationUseCase(any()) } returns flowOf(result)
     }
 
     fun arrange() = this to viewModel

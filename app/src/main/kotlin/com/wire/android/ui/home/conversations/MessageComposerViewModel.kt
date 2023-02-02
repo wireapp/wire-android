@@ -1,3 +1,23 @@
+/*
+ * Wire
+ * Copyright (C) 2023 Wire Swiss GmbH
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see http://www.gnu.org/licenses/.
+ *
+ *
+ */
+
 package com.wire.android.ui.home.conversations
 
 import androidx.compose.runtime.getValue
@@ -34,16 +54,16 @@ import com.wire.android.util.ImageUtil
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
+import com.wire.kalium.logic.data.id.QualifiedID as ConversationId
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageResult
 import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageUseCase
-import com.wire.kalium.logic.feature.conversation.GetSecurityClassificationTypeUseCase
 import com.wire.kalium.logic.feature.conversation.InteractionAvailability
 import com.wire.kalium.logic.feature.conversation.IsInteractionAvailableResult
 import com.wire.kalium.logic.feature.conversation.MembersToMentionUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationInteractionAvailabilityUseCase
-import com.wire.kalium.logic.feature.conversation.SecurityClassificationTypeResult
+import com.wire.kalium.logic.feature.conversation.ObserveSecurityClassificationLabelUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationReadDateUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
@@ -51,6 +71,7 @@ import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
 import com.wire.kalium.logic.feature.user.IsFileSharingEnabledUseCase
 import com.wire.kalium.logic.functional.onFailure
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
@@ -58,8 +79,6 @@ import kotlinx.coroutines.withContext
 import kotlinx.datetime.Instant
 import okio.Path
 import okio.buffer
-import javax.inject.Inject
-import com.wire.kalium.logic.data.id.QualifiedID as ConversationId
 
 @Suppress("LongParameterList", "TooManyFunctions")
 @HiltViewModel
@@ -77,7 +96,7 @@ class MessageComposerViewModel @Inject constructor(
     private val wireSessionImageLoader: WireSessionImageLoader,
     private val kaliumFileSystem: KaliumFileSystem,
     private val updateConversationReadDateUseCase: UpdateConversationReadDateUseCase,
-    private val getConversationClassifiedType: GetSecurityClassificationTypeUseCase,
+    private val observeSecurityClassificationLabel: ObserveSecurityClassificationLabelUseCase,
     private val contactMapper: ContactMapper,
     private val membersToMention: MembersToMentionUseCase
 ) : SavedStateViewModel(savedStateHandle) {
@@ -140,14 +159,8 @@ class MessageComposerViewModel @Inject constructor(
     }
 
     private fun fetchConversationClassificationType() = viewModelScope.launch {
-        when (val result = getConversationClassifiedType(conversationId)) {
-            is SecurityClassificationTypeResult.Success -> {
-                conversationViewState = conversationViewState.copy(securityClassificationType = result.classificationType)
-            }
-
-            is SecurityClassificationTypeResult.Failure -> {
-                appLogger.e("There was an error when fetching the security classification type of conversation $conversationId")
-            }
+        observeSecurityClassificationLabel(conversationId).collect { classificationType ->
+            conversationViewState = conversationViewState.copy(securityClassificationType = classificationType)
         }
     }
 
@@ -198,7 +211,8 @@ class MessageComposerViewModel @Inject constructor(
                             else {
                                 val (imgWidth, imgHeight) =
                                     ImageUtil.extractImageWidthAndHeight(
-                                        kaliumFileSystem.source(attachmentBundle.dataPath).buffer().inputStream(), mimeType
+                                        kaliumFileSystem.source(attachmentBundle.dataPath).buffer().inputStream(),
+                                        mimeType
                                     )
                                 val result = sendAssetMessage(
                                     conversationId = conversationId,
@@ -302,7 +316,6 @@ class MessageComposerViewModel @Inject constructor(
                 )
             }
         }
-
 
     private fun updateDeleteDialogState(newValue: (DeleteMessageDialogsState.States) -> DeleteMessageDialogsState) =
         (deleteMessageDialogsState as? DeleteMessageDialogsState.States)?.let { deleteMessageDialogsState = newValue(it) }

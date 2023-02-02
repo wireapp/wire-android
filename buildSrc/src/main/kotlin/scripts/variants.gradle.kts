@@ -1,3 +1,23 @@
+/*
+ * Wire
+ * Copyright (C) 2023 Wire Swiss GmbH
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see http://www.gnu.org/licenses/.
+ *
+ *
+ */
+
 package scripts
 
 import CertificatePin
@@ -10,6 +30,7 @@ import FeatureConfigs
 import FeatureFlags
 import Features
 import FlavourConfigs
+import com.android.build.api.dsl.ApplicationProductFlavor
 import com.android.build.api.dsl.ProductFlavor
 
 plugins { id("com.android.application") apply false }
@@ -20,28 +41,39 @@ object BuildTypes {
     const val COMPAT = "compat"
 }
 
-object ProductFlavors {
-    const val DEV = "dev"
-    const val INTERNAL = "internal"
-    const val PUBLIC = "public"
-    const val FDROID = "fdroid"
-    const val STAGING = "staging"
+sealed class ProductFlavors(
+    val applicationId: String,
+    val buildName: String,
+    val applicationIdSuffix: String? = null,
+    val dimensions: String = FlavorDimensions.DEFAULT
+) {
+    override fun toString(): String = this.buildName
+
+    object Dev : ProductFlavors("com.waz.zclient.dev", "dev")
+    object Staging : ProductFlavors("com.waz.zclient.dev", "staging")
+
+    object Beta : ProductFlavors("com.wire.android", "beta", applicationIdSuffix = "internal")
+    object Internal : ProductFlavors("com.wire", "internal", applicationIdSuffix = "internal")
 }
 
-object ApplicationId {
-    const val DEV = "com.waz.zclient.dev"
-    const val STAGING_DEV = DEV
-}
-
-private object FlavorDimensions {
+object FlavorDimensions {
     const val DEFAULT = "default"
 }
 
 object Default {
-    val BUILD_FLAVOR = System.getenv("flavor") ?: ProductFlavors.DEV
+    val BUILD_FLAVOR: String = System.getenv("flavor") ?: ProductFlavors.Dev.buildName
     val BUILD_TYPE = System.getenv("buildType") ?: BuildTypes.DEBUG
 
     val BUILD_VARIANT = "${BUILD_FLAVOR.capitalize()}${BUILD_TYPE.capitalize()}"
+}
+
+ fun NamedDomainObjectContainer<ApplicationProductFlavor>.createAppFlavour(flavour : ProductFlavors) {
+    create(flavour.buildName) {
+        dimension = flavour.dimensions
+        applicationId = flavour.applicationId
+        versionNameSuffix = "-${flavour.buildName}"
+        flavour.applicationIdSuffix?.let { applicationIdSuffix = ".${it}" }
+    }
 }
 
 android {
@@ -99,21 +131,10 @@ android {
 
     flavorDimensions(FlavorDimensions.DEFAULT)
     productFlavors {
-        create(ProductFlavors.DEV) {
-            dimension = FlavorDimensions.DEFAULT
-            applicationId = ApplicationId.DEV
-            versionNameSuffix = "-${ProductFlavors.DEV}"
-        }
-        create(ProductFlavors.STAGING) {
-            dimension = FlavorDimensions.DEFAULT
-            applicationId = ApplicationId.STAGING_DEV
-            versionNameSuffix = "-${ProductFlavors.STAGING}"
-        }
-        create(ProductFlavors.INTERNAL) {
-            dimension = FlavorDimensions.DEFAULT
-            applicationIdSuffix = ".${ProductFlavors.INTERNAL}"
-            versionNameSuffix = "-${ProductFlavors.INTERNAL}"
-        }
+        createAppFlavour(ProductFlavors.Dev)
+        createAppFlavour(ProductFlavors.Staging)
+        createAppFlavour(ProductFlavors.Beta)
+        createAppFlavour(ProductFlavors.Internal)
     }
 
     /**
@@ -157,12 +178,14 @@ android {
                         buildtimeConfiguration?.configuration?.get(configs.value).toString()
                     )
                 }
+
                 ConfigType.INT, ConfigType.BOOLEAN -> {
                     buildNonStringConfig(
                         flavor,
                         configs.configType.type, configs.name, buildtimeConfiguration?.configuration?.get(configs.value).toString()
                     )
                 }
+
                 ConfigType.CERTIFICATE_PIN -> {
                     buildCertificatePinConfig(flavor, buildtimeConfiguration)
                 }
@@ -196,6 +219,7 @@ fun buildFlavorConfig(
                         falvourMap[flavourConfigs.value].toString()
                     )
                 }
+
                 ConfigType.INT, ConfigType.BOOLEAN -> {
                     buildNonStringConfig(
                         productFlavour, flavourConfigs.configType.type,
@@ -220,6 +244,7 @@ fun buildCertificatePinConfig(productFlavour: ProductFlavor, buildTimeConfigurat
                     certificatePinMap[certificatePin.value].toString()
                 )
             }
+
             ConfigType.INT, ConfigType.BOOLEAN -> {
                 buildNonStringConfig(
                     productFlavour,

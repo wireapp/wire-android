@@ -1,3 +1,23 @@
+/*
+ * Wire
+ * Copyright (C) 2023 Wire Swiss GmbH
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see http://www.gnu.org/licenses/.
+ *
+ *
+ */
+
 package com.wire.android.ui.userprofile.other
 
 import androidx.compose.runtime.getValue
@@ -49,7 +69,6 @@ import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.id.toQualifiedID
 import com.wire.kalium.logic.data.user.ConnectionState
-import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.client.GetOtherUserClientsResult
 import com.wire.kalium.logic.feature.client.GetOtherUserClientsUseCase
@@ -69,7 +88,6 @@ import com.wire.kalium.logic.feature.connection.UnblockUserUseCase
 import com.wire.kalium.logic.feature.conversation.ClearConversationContentUseCase
 import com.wire.kalium.logic.feature.conversation.ConversationUpdateStatusResult
 import com.wire.kalium.logic.feature.conversation.CreateConversationResult
-import com.wire.kalium.logic.feature.conversation.GetOneToOneConversationUseCase
 import com.wire.kalium.logic.feature.conversation.GetOrCreateOneToOneConversationUseCase
 import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleResult
@@ -80,17 +98,11 @@ import com.wire.kalium.logic.feature.user.ObserveUserInfoUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.filterIsInstance
-import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.Date
@@ -105,7 +117,6 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     private val blockUser: BlockUserUseCase,
     private val unblockUser: UnblockUserUseCase,
     private val getOrCreateOneToOneConversation: GetOrCreateOneToOneConversationUseCase,
-    private val getConversation: GetOneToOneConversationUseCase,
     private val observeUserInfo: ObserveUserInfoUseCase,
     private val sendConnectionRequest: SendConnectionRequestUseCase,
     private val cancelConnectionRequest: CancelConnectionRequestUseCase,
@@ -138,7 +149,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     init {
         state = state.copy(isDataLoading = true, isAvatarLoading = true)
 
-        observeUserInfoAndConversationInfo()
+        observeUserInfoAndUpdateViewState()
         persistClients()
     }
 
@@ -148,19 +159,9 @@ class OtherUserProfileScreenViewModel @Inject constructor(
         }
     }
 
-    private fun observeUserInfoAndConversationInfo() {
+    private fun observeUserInfoAndUpdateViewState() {
         viewModelScope.launch {
-            val observeUserInfo = observeUserInfo(userId).shareIn(viewModelScope, SharingStarted.WhileSubscribed(), 1)
-
-            observeUserInfoAndUpdateViewState(observeUserInfo)
-            // TODO yamil: this block could be removed from here. we should loaded on user click
-            observeConversationSheetContentIfNeeded(observeUserInfo)
-        }
-    }
-
-    private fun observeUserInfoAndUpdateViewState(observeUserInfo: SharedFlow<GetUserInfoResult>) {
-        viewModelScope.launch {
-            observeUserInfo
+            observeUserInfo(userId)
                 .combine(observeGroupInfo(), ::Pair)
                 .flowOn(dispatchers.io())
                 .collect { (userResult, groupInfo) ->
@@ -173,34 +174,6 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                             updateUserInfoState(userResult, groupInfo)
                         }
                     }
-                }
-        }
-    }
-
-    // TODO This could be loaded on demand not on init.
-    private fun observeConversationSheetContentIfNeeded(otherUserFlow: Flow<GetUserInfoResult>) {
-        viewModelScope.launch {
-            otherUserFlow
-                .distinctUntilChanged()
-                .filterIsInstance<GetUserInfoResult.Success>()
-                .flatMapLatest { userResult ->
-                    val otherUser = userResult.otherUser
-
-                    if (otherUser.connectionStatus !in listOf(ConnectionState.ACCEPTED, ConnectionState.BLOCKED)) {
-                        // if we are not connected with that user, or that user is not already blocked ->
-                        // -> we don't have a direct conversation ->
-                        // -> no need to load data for ConversationBottomSheet
-                        flowOf()
-                    } else {
-                        getConversation(userId)
-                            .filterIsInstance<GetOneToOneConversationUseCase.Result.Success>()
-                            .distinctUntilChanged()
-                            .map { otherUser to it }
-                    }
-                }
-                .flowOn(dispatchers.io())
-                .collect { (otherUser, conversationResult) ->
-                    updateConversationMenuState(otherUser, conversationResult)
                 }
         }
     }
@@ -411,6 +384,17 @@ class OtherUserProfileScreenViewModel @Inject constructor(
         }
     }
 
+    override fun loadConversationBottomSheetContent() {
+        viewModelScope.launch {
+            val conversationResult = withContext(dispatchers.io()) { getOrCreateOneToOneConversation(userId) }
+            if (conversationResult is CreateConversationResult.Success) {
+                updateConversationMenuState(conversationResult.conversation)
+            } else {
+                appLogger.d("Couldn't retrieve or create the conversation, while opening BottomSheetMenu")
+            }
+        }
+    }
+
     private suspend fun clearContentSnackbarResult(
         clearContentResult: ClearConversationContentUseCase.Result,
         conversationTypeDetail: ConversationTypeDetail
@@ -464,26 +448,22 @@ class OtherUserProfileScreenViewModel @Inject constructor(
             membership = userTypeMapper.toMembership(otherUser.userType),
             groupState = groupInfo,
             botService = otherUser.botService,
+            blockingState = otherUser.BlockState
         )
     }
 
-    private fun updateConversationMenuState(
-        otherUser: OtherUser,
-        conversationResult: GetOneToOneConversationUseCase.Result.Success
-    ) {
-        val userAvatarAsset = otherUser.completePicture
-            ?.let { pic -> ImageAsset.UserAvatarAsset(wireSessionImageLoader, pic) }
+    private fun updateConversationMenuState(conversation: Conversation) {
         state = state.copy(
             conversationSheetContent = ConversationSheetContent(
-                title = otherUser.name.orEmpty(),
-                conversationId = conversationResult.conversation.id,
-                mutingConversationState = conversationResult.conversation.mutedStatus,
+                title = state.fullName,
+                conversationId = conversation.id,
+                mutingConversationState = conversation.mutedStatus,
                 conversationTypeDetail = ConversationTypeDetail.Private(
-                    userAvatarAsset,
+                    state.userAvatarAsset,
                     userId,
-                    otherUser.BlockState
+                    state.blockingState
                 ),
-                isTeamConversation = conversationResult.conversation.isTeamGroup(),
+                isTeamConversation = conversation.isTeamGroup(),
                 selfRole = Conversation.Member.Role.Member
             )
         )

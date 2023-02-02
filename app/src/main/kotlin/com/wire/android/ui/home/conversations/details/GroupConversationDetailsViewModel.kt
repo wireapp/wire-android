@@ -1,3 +1,23 @@
+/*
+ * Wire
+ * Copyright (C) 2023 Wire Swiss GmbH
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see http://www.gnu.org/licenses/.
+ *
+ *
+ */
+
 package com.wire.android.ui.home.conversations.details
 
 import androidx.compose.runtime.getValue
@@ -27,17 +47,20 @@ import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.uiText
 import com.wire.kalium.logic.CoreFailure
+import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.feature.conversation.ClearConversationContentUseCase
+import com.wire.kalium.logic.feature.conversation.ConversationUpdateReceiptModeResult
 import com.wire.kalium.logic.feature.conversation.ConversationUpdateStatusResult
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationAccessRoleUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
+import com.wire.kalium.logic.feature.conversation.UpdateConversationReceiptModeUseCase
 import com.wire.kalium.logic.feature.team.DeleteTeamConversationUseCase
 import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
 import com.wire.kalium.logic.feature.team.Result
@@ -72,6 +95,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
     private val removeMemberFromConversation: RemoveMemberFromConversationUseCase,
     private val updateConversationMutedStatus: UpdateConversationMutedStatusUseCase,
     private val clearConversationContent: ClearConversationContentUseCase,
+    private val updateConversationReceiptMode: UpdateConversationReceiptModeUseCase,
     override val savedStateHandle: SavedStateHandle,
     qualifiedIdMapper: QualifiedIdMapper
 ) : GroupConversationParticipantsViewModel(
@@ -139,6 +163,8 @@ class GroupConversationDetailsViewModel @Inject constructor(
                         isServicesAllowed = groupDetails.conversation.isServicesAllowed(),
                         isUpdatingAllowed = isSelfAnAdmin,
                         isUpdatingGuestAllowed = isSelfAnAdmin && isSelfInOwnerTeam,
+                        isReadReceiptAllowed = groupDetails.conversation.receiptMode == Conversation.ReceiptMode.ENABLED,
+                        isUpdatingReadReceiptAllowed = isSelfAnAdmin
                     )
                 )
             }.collect {}
@@ -201,6 +227,12 @@ class GroupConversationDetailsViewModel @Inject constructor(
             true -> updateServicesRemoteRequest(enableServices)
             false -> updateState(groupOptionsState.value.copy(changeServiceOptionConfirmationRequired = true))
         }
+    }
+
+    fun onReadReceiptUpdate(enableReadReceipt: Boolean) {
+        appLogger.i("[$TAG][onReadReceiptUpdate] - enableReadReceipt: $enableReadReceipt")
+        updateState(groupOptionsState.value.copy(loadingReadReceiptOption = true, isReadReceiptAllowed = enableReadReceipt))
+        updateReadReceiptRemoteRequest(enableReadReceipt)
     }
 
     fun onGuestDialogDismiss() {
@@ -280,8 +312,37 @@ class GroupConversationDetailsViewModel @Inject constructor(
         }
     }
 
+    private fun updateReadReceiptRemoteRequest(enableReadReceipt: Boolean) {
+        viewModelScope.launch {
+            val result = withContext(dispatcher.io()) {
+                updateConversationReceiptMode(
+                    conversationId = conversationId,
+                    receiptMode = when (enableReadReceipt) {
+                        true -> Conversation.ReceiptMode.ENABLED
+                        else -> Conversation.ReceiptMode.DISABLED
+                    }
+                )
+            }
+
+            when (result) {
+                is ConversationUpdateReceiptModeResult.Failure -> updateState(
+                    groupOptionsState.value.copy(
+                        isReadReceiptAllowed = !enableReadReceipt,
+                        error = GroupConversationOptionsState.Error.UpdateReadReceiptError(result.cause)
+                    )
+                )
+
+                ConversationUpdateReceiptModeResult.Success -> Unit
+            }
+
+            updateState(groupOptionsState.value.copy(loadingReadReceiptOption = false))
+        }
+    }
+
     private suspend fun updateConversationAccess(
-        enableGuestAndNonTeamMember: Boolean, enableServices: Boolean, conversationId: ConversationId
+        enableGuestAndNonTeamMember: Boolean,
+        enableServices: Boolean,
+        conversationId: ConversationId
     ) = updateConversationAccessRole(
         allowGuest = enableGuestAndNonTeamMember,
         allowNonTeamMember = enableGuestAndNonTeamMember,
@@ -337,10 +398,12 @@ class GroupConversationDetailsViewModel @Inject constructor(
     }
 
     private suspend fun clearContentSnackbarResult(
-        clearContentResult: ClearConversationContentUseCase.Result, conversationTypeDetail: ConversationTypeDetail
+        clearContentResult: ClearConversationContentUseCase.Result,
+        conversationTypeDetail: ConversationTypeDetail
     ) {
-        if (conversationTypeDetail is ConversationTypeDetail.Connection)
-            throw IllegalStateException("Unsupported conversation type to clear content, something went wrong?")
+        if (conversationTypeDetail is ConversationTypeDetail.Connection) throw IllegalStateException(
+            "Unsupported conversation type to clear content, something went wrong?"
+        )
 
         if (clearContentResult is ClearConversationContentUseCase.Result.Failure) {
             showSnackBarMessage(UIText.StringResource(R.string.group_content_delete_failure))
@@ -387,7 +450,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
     }
 
     companion object {
+        const val TAG = "GroupConversationDetailsViewModel"
         const val MAX_NUMBER_OF_PARTICIPANTS = 4
     }
-
 }

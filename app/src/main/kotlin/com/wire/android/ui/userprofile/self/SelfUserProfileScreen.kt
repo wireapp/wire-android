@@ -1,3 +1,23 @@
+/*
+ * Wire
+ * Copyright (C) 2023 Wire Swiss GmbH
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see http://www.gnu.org/licenses/.
+ *
+ *
+ */
+
 package com.wire.android.ui.userprofile.self
 
 import android.content.Context
@@ -219,7 +239,7 @@ private fun SelfUserProfileContent(
 @Composable
 private fun mapErrorCodeToString(errorCode: ErrorCodes): String {
     return when (errorCode) {
-        DownloadUserInfoError -> stringResource(R.string.error_downloading_user_info)
+        DownloadUserInfoError -> stringResource(R.string.error_downloading_self_user_profile_picture)
         // Add more future errors for a more granular error handling
         else -> stringResource(R.string.error_unknown_title)
     }
@@ -361,7 +381,7 @@ private fun OtherAccountItem(
 @Preview(widthDp = 400, heightDp = 800)
 @Preview(widthDp = 800)
 @Composable
-private fun SelfUserProfileScreenPreview() {
+fun PreviewSelfUserProfileScreen() {
     SelfUserProfileContent(
         SelfUserProfileState(
             status = UserAvailabilityStatus.BUSY,
@@ -381,6 +401,6 @@ private fun SelfUserProfileScreenPreview() {
 @Preview(widthDp = 800)
 @Preview(widthDp = 400)
 @Composable
-private fun CurrentSelfUserStatusPreview() {
+fun PreviewCurrentSelfUserStatus() {
     CurrentSelfUserStatus(UserAvailabilityStatus.AVAILABLE, onStatusClicked = {})
 }

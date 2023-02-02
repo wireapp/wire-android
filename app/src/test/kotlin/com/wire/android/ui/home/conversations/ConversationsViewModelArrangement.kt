@@ -1,3 +1,23 @@
+/*
+ * Wire
+ * Copyright (C) 2023 Wire Swiss GmbH
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see http://www.gnu.org/licenses/.
+ *
+ *
+ */
+
 package com.wire.android.ui.home.conversations
 
 import androidx.lifecycle.SavedStateHandle
@@ -36,11 +56,11 @@ import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageUseCase
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveOngoingCallsUseCase
-import com.wire.kalium.logic.feature.conversation.GetSecurityClassificationTypeUseCase
 import com.wire.kalium.logic.feature.conversation.InteractionAvailability
 import com.wire.kalium.logic.feature.conversation.IsInteractionAvailableResult
 import com.wire.kalium.logic.feature.conversation.MembersToMentionUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationInteractionAvailabilityUseCase
+import com.wire.kalium.logic.feature.conversation.ObserveSecurityClassificationLabelUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationReadDateUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
@@ -122,7 +142,7 @@ internal class ConversationsViewModelArrangement {
     private lateinit var updateConversationReadDateUseCase: UpdateConversationReadDateUseCase
 
     @MockK
-    private lateinit var getSecurityClassificationType: GetSecurityClassificationTypeUseCase
+    private lateinit var observeSecurityClassificationType: ObserveSecurityClassificationLabelUseCase
 
     @MockK
     private lateinit var observeSyncState: ObserveSyncStateUseCase
@@ -150,7 +170,7 @@ internal class ConversationsViewModelArrangement {
             kaliumFileSystem = fakeKaliumFileSystem,
             updateConversationReadDateUseCase = updateConversationReadDateUseCase,
             observeConversationInteractionAvailability = observeConversationInteractionAvailabilityUseCase,
-            getConversationClassifiedType = getSecurityClassificationType,
+            observeSecurityClassificationLabel = observeSecurityClassificationType,
             contactMapper = contactMapper,
             membersToMention = membersToMention
         )
@@ -198,7 +218,6 @@ internal class ConversationsViewModelArrangement {
     }
 
     fun arrange() = this to viewModel
-
 }
 
 internal fun withMockConversationDetailsOneOnOne(
@@ -226,7 +245,7 @@ internal fun withMockConversationDetailsOneOnOne(
 
 internal fun mockConversationDetailsGroup(
     conversationName: String,
-    mockedConversationId: ConversationId = ConversationId("someId", "someDomain"),
+    mockedConversationId: ConversationId = ConversationId("someId", "someDomain")
 ) = ConversationDetails.Group(
     conversation = TestConversation.GROUP()
         .copy(name = conversationName, id = mockedConversationId),

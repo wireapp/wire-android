@@ -1,9 +1,28 @@
+/*
+ * Wire
+ * Copyright (C) 2023 Wire Swiss GmbH
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see http://www.gnu.org/licenses/.
+ *
+ *
+ */
+
 package com.wire.android.di
 
 import android.content.Context
 import androidx.work.WorkManager
 import com.wire.android.datastore.UserDataStoreProvider
-import com.wire.android.util.DeviceLabel
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.data.id.FederatedIdMapper
@@ -35,14 +54,15 @@ import com.wire.kalium.logic.feature.conversation.ClearConversationContentUseCas
 import com.wire.kalium.logic.feature.conversation.CreateGroupConversationUseCase
 import com.wire.kalium.logic.feature.conversation.GetAllContactsNotInConversationUseCase
 import com.wire.kalium.logic.feature.conversation.GetOrCreateOneToOneConversationUseCase
-import com.wire.kalium.logic.feature.conversation.GetSecurityClassificationTypeUseCase
 import com.wire.kalium.logic.feature.conversation.LeaveConversationUseCase
+import com.wire.kalium.logic.feature.conversation.ObserveSecurityClassificationLabelUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveUserListByIdUseCase
 import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationAccessRoleUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationReadDateUseCase
+import com.wire.kalium.logic.feature.conversation.UpdateConversationReceiptModeUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.GetMessageByIdUseCase
 import com.wire.kalium.logic.feature.message.ObserveMessageReactionsUseCase
@@ -67,6 +87,7 @@ import com.wire.kalium.logic.feature.user.IsSelfATeamMemberUseCase
 import com.wire.kalium.logic.feature.user.ObserveUserInfoUseCase
 import com.wire.kalium.logic.feature.user.ObserveValidAccountsUseCase
 import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
+import com.wire.kalium.logic.feature.user.UpdateDisplayNameUseCase
 import com.wire.kalium.logic.featureFlags.KaliumConfigs
 import dagger.Module
 import dagger.Provides
@@ -106,12 +127,10 @@ class CoreLogicModule {
     @Provides
     fun provideCoreLogic(@ApplicationContext context: Context, kaliumConfigs: KaliumConfigs): CoreLogic {
         val rootPath = context.getDir("accounts", Context.MODE_PRIVATE).path
-        val deviceLabel = DeviceLabel.label
 
         return CoreLogic(
             appContext = context,
             rootPath = rootPath,
-            clientLabel = deviceLabel,
             kaliumConfigs = kaliumConfigs
         )
     }
@@ -149,10 +168,10 @@ class CoreLogicModule {
 @Module
 @InstallIn(ViewModelComponent::class)
 class SessionModule {
+    // TODO: can be improved by caching the current session in kalium or changing the scope to ActivityRetainedScoped
     @CurrentAccount
     @ViewModelScoped
     @Provides
-    // TODO: can be improved by caching the current session in kalium or changing the scope to ActivityRetainedScoped
     fun provideCurrentSession(@KaliumCoreLogic coreLogic: CoreLogic): UserId {
         return runBlocking {
             return@runBlocking when (val result = coreLogic.getGlobalScope().session.currentSession.invoke()) {
@@ -283,6 +302,14 @@ class UseCaseModule {
     @Provides
     fun provideMlsKeyPackageCountUseCase(@CurrentAccount currentAccount: UserId, clientScopeProviderFactory: ClientScopeProvider.Factory) =
         clientScopeProviderFactory.create(currentAccount).clientScope.mlsKeyPackageCountUseCase
+
+    @ViewModelScoped
+    @Provides
+    fun provideRestartSlowSyncProcessForRecoveryUseCase(
+        @CurrentAccount currentAccount: UserId,
+        clientScopeProviderFactory: ClientScopeProvider.Factory
+    ) =
+        clientScopeProviderFactory.create(currentAccount).clientScope.restartSlowSyncProcessForRecoveryUseCase
 
     @ViewModelScoped
     @Provides
@@ -617,6 +644,14 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
+    fun provideUpdateConversationReceiptModeUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): UpdateConversationReceiptModeUseCase =
+        coreLogic.getSessionScope(currentAccount).conversations.updateConversationReceiptMode
+
+    @ViewModelScoped
+    @Provides
     fun provideMarkMessagesAsNotifiedUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
         coreLogic.getSessionScope(currentAccount).messages.markMessagesAsNotified
 
@@ -644,13 +679,15 @@ class UseCaseModule {
     @ViewModelScoped
     @Provides
     fun providePersistPersistentWebSocketConnectionStatusUseCase(
-        @KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
     ) = coreLogic.getSessionScope(currentAccount).persistPersistentWebSocketConnectionStatus
 
     @ViewModelScoped
     @Provides
     fun provideGetPersistentWebSocketStatusUseCase(
-        @KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
     ) = coreLogic.getSessionScope(currentAccount).getPersistentWebSocketStatus
 
     @ViewModelScoped
@@ -785,11 +822,11 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
-    fun provideGetConversationClassifiedTypeUseCase(
+    fun observeSecurityClassificationLabelUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
-    ): GetSecurityClassificationTypeUseCase =
-        coreLogic.getSessionScope(currentAccount).getSecurityClassificationType
+    ): ObserveSecurityClassificationLabelUseCase =
+        coreLogic.getSessionScope(currentAccount).observeSecurityClassificationLabel
 
     @ViewModelScoped
     @Provides
@@ -867,4 +904,12 @@ class UseCaseModule {
     @Provides
     fun provideResetSessionUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId): ResetSessionUseCase =
         coreLogic.getSessionScope(currentAccount).messages.resetSession
+
+    @ViewModelScoped
+    @Provides
+    fun provideUpdateDisplayNameUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): UpdateDisplayNameUseCase =
+        coreLogic.getSessionScope(currentAccount).users.updateDisplayName
 }

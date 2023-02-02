@@ -1,3 +1,23 @@
+/*
+ * Wire
+ * Copyright (C) 2023 Wire Swiss GmbH
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see http://www.gnu.org/licenses/.
+ *
+ *
+ */
+
 package com.wire.android.ui.home.newconversation.groupOptions
 
 import androidx.compose.foundation.background
@@ -222,13 +242,13 @@ private fun AllowGuestsDialog(
     onAllowGuestsClicked: () -> Unit
 ) {
     WireDialog(
-        title = stringResource(R.string.disable_guests_dialoug_title),
-        text = stringResource(R.string.disable_guests_dialoug_description),
+        title = stringResource(R.string.disable_guests_dialog_title),
+        text = stringResource(R.string.disable_guests_dialog_description),
         onDismiss = onAllowGuestsDialogDismissed,
         buttonsHorizontalAlignment = false,
         optionButton1Properties = WireDialogButtonProperties(
             onClick = onNotAllowGuestsClicked,
-            text = stringResource(id = R.string.disable_guests_dialoug_button),
+            text = stringResource(id = R.string.disable_guests_dialog_button),
             type = WireDialogButtonType.Primary
         ), optionButton2Properties = WireDialogButtonProperties(
             text = stringResource(R.string.allow_guests),
@@ -268,7 +288,7 @@ private fun ErrorDialog(error: GroupOptionState.Error, onErrorDismissed: () -> U
 
 @Composable
 @Preview
-private fun GroupOptionScreenPreview() {
+fun PreviewGroupOptionScreen() {
     GroupOptionScreenContent(
         GroupOptionState(),
         {}, {}, {}, {}, {}, {}, {}, {}, {}

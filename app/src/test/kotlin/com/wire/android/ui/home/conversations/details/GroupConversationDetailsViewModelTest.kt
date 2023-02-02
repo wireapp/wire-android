@@ -1,3 +1,23 @@
+/*
+ * Wire
+ * Copyright (C) 2023 Wire Swiss GmbH
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see http://www.gnu.org/licenses/.
+ *
+ *
+ */
+
 package com.wire.android.ui.home.conversations.details
 
 import androidx.lifecycle.SavedStateHandle
@@ -22,11 +42,13 @@ import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.id.TeamId
 import com.wire.kalium.logic.data.team.Team
 import com.wire.kalium.logic.feature.conversation.ClearConversationContentUseCase
+import com.wire.kalium.logic.feature.conversation.ConversationUpdateReceiptModeResult
 import com.wire.kalium.logic.feature.conversation.ConversationUpdateStatusResult
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationAccessRoleUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
+import com.wire.kalium.logic.feature.conversation.UpdateConversationReceiptModeUseCase
 import com.wire.kalium.logic.feature.team.DeleteTeamConversationUseCase
 import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
@@ -394,6 +416,48 @@ class GroupConversationDetailsViewModelTest {
         assertEquals(expected, viewModel.conversationSheetContent)
     }
 
+    @Test
+    fun `given receipt mode value enabled, when updating receipt mode, then value is propagated to screen state`() = runTest {
+        // given
+        val (arrangement, viewModel) = GroupConversationDetailsViewModelArrangement()
+            .withUpdateConversationReceiptModeReturningSuccess()
+            .arrange()
+        val receiptModeEnabled = true
+
+        // when
+        viewModel.onReadReceiptUpdate(enableReadReceipt = receiptModeEnabled)
+
+        // then
+        assertEquals(receiptModeEnabled, viewModel.groupOptionsState.value.isReadReceiptAllowed)
+        coVerify(exactly = 1) {
+            arrangement.updateConversationReceiptMode(
+                conversationId = any(),
+                receiptMode = Conversation.ReceiptMode.ENABLED
+            )
+        }
+    }
+
+    @Test
+    fun `given receipt mode value disabled, when updating receipt mode, then value is propagated to screen state`() = runTest {
+        // given
+        val (arrangement, viewModel) = GroupConversationDetailsViewModelArrangement()
+            .withUpdateConversationReceiptModeReturningSuccess()
+            .arrange()
+        val receiptModeEnabled = false
+
+        // when
+        viewModel.onReadReceiptUpdate(enableReadReceipt = receiptModeEnabled)
+
+        // then
+        assertEquals(receiptModeEnabled, viewModel.groupOptionsState.value.isReadReceiptAllowed)
+        coVerify(exactly = 1) {
+            arrangement.updateConversationReceiptMode(
+                conversationId = any(),
+                receiptMode = Conversation.ReceiptMode.DISABLED
+            )
+        }
+    }
+
     companion object {
         val dummyConversationId = ConversationId("some-dummy-value", "some.dummy.domain")
         val testGroup = ConversationDetails.Group(
@@ -460,6 +524,9 @@ internal class GroupConversationDetailsViewModelArrangement {
     lateinit var clearConversationContentUseCase: ClearConversationContentUseCase
 
     @MockK
+    lateinit var updateConversationReceiptMode: UpdateConversationReceiptModeUseCase
+
+    @MockK
     private lateinit var qualifiedIdMapper: QualifiedIdMapper
 
     private val conversationDetailsChannel = Channel<ConversationDetails>(capacity = Channel.UNLIMITED)
@@ -480,7 +547,8 @@ internal class GroupConversationDetailsViewModelArrangement {
             savedStateHandle = savedStateHandle,
             qualifiedIdMapper = qualifiedIdMapper,
             updateConversationMutedStatus = updateConversationMutedStatus,
-            clearConversationContent = clearConversationContentUseCase
+            clearConversationContent = clearConversationContentUseCase,
+            updateConversationReceiptMode = updateConversationReceiptMode
         )
     }
 
@@ -524,6 +592,10 @@ internal class GroupConversationDetailsViewModelArrangement {
 
     suspend fun withSelfTeamUseCaseReturns(result: Team?) = apply {
         coEvery { getSelfTeamUseCase() } returns flowOf(result)
+    }
+
+    suspend fun withUpdateConversationReceiptModeReturningSuccess() = apply {
+        coEvery { updateConversationReceiptMode(any(), any()) } returns ConversationUpdateReceiptModeResult.Success
     }
 
     fun arrange() = this to viewModel

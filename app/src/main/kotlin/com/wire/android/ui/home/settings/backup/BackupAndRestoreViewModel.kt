@@ -1,6 +1,27 @@
+/*
+ * Wire
+ * Copyright (C) 2023 Wire Swiss GmbH
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see http://www.gnu.org/licenses/.
+ *
+ *
+ */
+
 package com.wire.android.ui.home.settings.backup
 
 import android.net.Uri
+import androidx.annotation.VisibleForTesting
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -13,6 +34,7 @@ import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.util.FileManager
+import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.feature.backup.CreateBackupResult
 import com.wire.kalium.logic.feature.backup.CreateBackupUseCase
@@ -29,10 +51,11 @@ import com.wire.kalium.logic.util.fileExtension
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import okio.Path
 import javax.inject.Inject
 
-@Suppress("LongParameterList")
+@Suppress("LongParameterList", "TooManyFunctions")
 @HiltViewModel
 class BackupAndRestoreViewModel
 @Inject constructor(
@@ -41,20 +64,24 @@ class BackupAndRestoreViewModel
     private val createBackupFile: CreateBackupUseCase,
     private val verifyBackup: VerifyBackupUseCase,
     private val kaliumFileSystem: KaliumFileSystem,
-    private val fileManager: FileManager
+    private val fileManager: FileManager,
+    private val dispatcher: DispatcherProvider,
 ) : ViewModel() {
 
     var state by mutableStateOf(BackupAndRestoreState.INITIAL_STATE)
-    private var latestCreatedBackup: BackupAndRestoreState.CreatedBackup? = null
-    private lateinit var latestImportedBackupTempPath: Path
 
-    @Suppress("MagicNumber")
-    fun createBackup(password: String) = viewModelScope.launch {
+    @VisibleForTesting
+    internal var latestCreatedBackup: BackupAndRestoreState.CreatedBackup? = null
+
+    @VisibleForTesting
+    internal lateinit var latestImportedBackupTempPath: Path
+
+    fun createBackup(password: String) = viewModelScope.launch(dispatcher.main()) {
         // TODO: Find a way to update the create progress more faithfully. For now we will just show this small delays to mimic the
         //  progress also for small backups
-        state = state.copy(backupCreationProgress = BackupCreationProgress.InProgress(PROGRESS_25))
+        updateCreationProgress(PROGRESS_25)
         delay(SMALL_DELAY)
-        state = state.copy(backupCreationProgress = BackupCreationProgress.InProgress(PROGRESS_50))
+        updateCreationProgress(PROGRESS_50)
         delay(SMALL_DELAY)
 
         when (val result = createBackupFile(password)) {
@@ -75,9 +102,11 @@ class BackupAndRestoreViewModel
         }
     }
 
-    fun saveBackup() = viewModelScope.launch {
+    fun saveBackup() = viewModelScope.launch(dispatcher.main()) {
         latestCreatedBackup?.let { backupData ->
-            fileManager.shareWithExternalApp(backupData.path, backupData.assetName.fileExtension()) {}
+            withContext(dispatcher.io()) {
+                fileManager.shareWithExternalApp(backupData.path, backupData.assetName.fileExtension()) {}
+            }
         }
         state = BackupAndRestoreState.INITIAL_STATE
     }
@@ -92,21 +121,23 @@ class BackupAndRestoreViewModel
         state = state.copy(restoreFileValidation = RestoreFileValidation.PasswordRequired)
     }
 
-    private suspend fun checkIfBackupEncrypted(importedBackupPath: Path) = when (val result = verifyBackup(importedBackupPath)) {
-        is VerifyBackupResult.Success -> {
-            when (result) {
-                is VerifyBackupResult.Success.Encrypted -> showPasswordDialog()
-                is VerifyBackupResult.Success.NotEncrypted -> importDatabase(importedBackupPath)
+    private suspend fun checkIfBackupEncrypted(importedBackupPath: Path) = withContext(dispatcher.main()) {
+        when (val result = verifyBackup(importedBackupPath)) {
+            is VerifyBackupResult.Success -> {
+                when (result) {
+                    is VerifyBackupResult.Success.Encrypted -> showPasswordDialog()
+                    is VerifyBackupResult.Success.NotEncrypted -> importDatabase(importedBackupPath)
+                }
             }
-        }
 
-        is VerifyBackupResult.Failure -> {
-            state = state.copy(restoreFileValidation = RestoreFileValidation.IncompatibleBackup)
-            val errorMessage = when (result) {
-                is VerifyBackupResult.Failure.Generic -> result.error.toString()
-                VerifyBackupResult.Failure.InvalidBackupFile -> "No valid files found in the backup"
+            is VerifyBackupResult.Failure -> {
+                state = state.copy(restoreFileValidation = RestoreFileValidation.IncompatibleBackup)
+                val errorMessage = when (result) {
+                    is VerifyBackupResult.Failure.Generic -> result.error.toString()
+                    VerifyBackupResult.Failure.InvalidBackupFile -> "No valid files found in the backup"
+                }
+                appLogger.e("Failed to extract backup files: $errorMessage")
             }
-            appLogger.e("Failed to extract backup files: $errorMessage")
         }
     }
 
@@ -117,7 +148,7 @@ class BackupAndRestoreViewModel
         )
         when (importBackup(importedBackupPath, null)) {
             RestoreBackupResult.Success -> {
-                state = state.copy(backupRestoreProgress = BackupRestoreProgress.InProgress(PROGRESS_75))
+                updateCreationProgress(PROGRESS_75)
                 delay(SMALL_DELAY)
                 state = state.copy(backupRestoreProgress = BackupRestoreProgress.Finished)
             }
@@ -135,17 +166,16 @@ class BackupAndRestoreViewModel
         }
     }
 
-    @Suppress("MagicNumber")
-    fun restorePasswordProtectedBackup(restorePassword: TextFieldValue) = viewModelScope.launch {
+    fun restorePasswordProtectedBackup(restorePassword: String) = viewModelScope.launch(dispatcher.main()) {
         state = state.copy(
-            backupRestoreProgress = BackupRestoreProgress.InProgress(0.50f),
+            backupRestoreProgress = BackupRestoreProgress.InProgress(PROGRESS_50),
             restorePasswordValidation = PasswordValidation.NotVerified
         )
         delay(SMALL_DELAY)
         val fileValidationState = state.restoreFileValidation
         if (fileValidationState is RestoreFileValidation.PasswordRequired) {
             state = state.copy(restorePasswordValidation = PasswordValidation.Entered)
-            when (val result = importBackup(latestImportedBackupTempPath, restorePassword.text)) {
+            when (val result = importBackup(latestImportedBackupTempPath, restorePassword)) {
                 RestoreBackupResult.Success -> {
                     state = state.copy(
                         backupRestoreProgress = BackupRestoreProgress.Finished,
@@ -192,20 +222,26 @@ class BackupAndRestoreViewModel
         // TODO: modify in case the password requirements change
     }
 
-    fun cancelBackupCreation() {
-        state = state.copy(
-            backupCreationProgress = BackupCreationProgress.InProgress(0f), // reset progress, aka initial state
-        )
+    fun cancelBackupCreation() = viewModelScope.launch(dispatcher.main()) {
+        updateCreationProgress(0f)
     }
 
-    fun cancelBackupRestore() {
+    fun cancelBackupRestore() = viewModelScope.launch {
         state = state.copy(
             restoreFileValidation = RestoreFileValidation.Initial,
             backupRestoreProgress = BackupRestoreProgress.InProgress(),
             restorePasswordValidation = PasswordValidation.NotVerified
         )
-        if (kaliumFileSystem.exists(latestImportedBackupTempPath))
-            kaliumFileSystem.delete(latestImportedBackupTempPath)
+        withContext(dispatcher.io()) {
+            if (this@BackupAndRestoreViewModel::latestImportedBackupTempPath.isInitialized && kaliumFileSystem.exists(
+                    latestImportedBackupTempPath
+                )
+            ) kaliumFileSystem.delete(latestImportedBackupTempPath)
+        }
+    }
+
+    private suspend fun updateCreationProgress(progress: Float) = withContext(dispatcher.main()) {
+        state = state.copy(backupCreationProgress = BackupCreationProgress.InProgress(progress))
     }
 
     fun navigateToConversations() {
@@ -216,7 +252,7 @@ class BackupAndRestoreViewModel
 
     fun navigateBack() = viewModelScope.launch { navigationManager.navigateBack() }
 
-    private companion object {
+    internal companion object {
         const val TEMP_IMPORTED_BACKUP_FILE_NAME = "tempImportedBackup.zip"
         const val SMALL_DELAY = 300L
         const val PROGRESS_25 = 0.25f

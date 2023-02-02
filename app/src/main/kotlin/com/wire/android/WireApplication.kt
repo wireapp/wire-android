@@ -1,8 +1,29 @@
+/*
+ * Wire
+ * Copyright (C) 2023 Wire Swiss GmbH
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see http://www.gnu.org/licenses/.
+ *
+ *
+ */
+
 package com.wire.android
 
 import android.app.Application
 import android.content.ComponentCallbacks2
 import android.os.Build
+import android.os.StrictMode
 import androidx.work.Configuration
 import co.touchlab.kermit.platformLogWriter
 import com.datadog.android.Datadog
@@ -28,7 +49,6 @@ import com.wire.kalium.logic.CoreLogger
 import com.wire.kalium.logic.CoreLogic
 import dagger.hilt.android.HiltAndroidApp
 import javax.inject.Inject
-
 
 // App wide global logger, carefully initialized when our application is "onCreate"
 var appLogger: KaliumLogger = KaliumLogger.disabled()
@@ -57,8 +77,11 @@ class WireApplication : Application(), Configuration.Provider {
 
     override fun onCreate() {
         super.onCreate()
+
+        enableStrictMode()
+
         if (this.isGoogleServicesAvailable()) {
-            val firebaseOptions =  FirebaseOptions.Builder()
+            val firebaseOptions = FirebaseOptions.Builder()
                 .setApplicationId(BuildConfig.FIREBASE_APP_ID)
                 .setGcmSenderId(BuildConfig.FIREBASE_PUSH_SENDER_ID)
                 .setApiKey(BuildConfig.GOOGLE_API_KEY)
@@ -72,6 +95,27 @@ class WireApplication : Application(), Configuration.Provider {
 
         // TODO: Can be handled in one of Sync steps
         coreLogic.updateApiVersionsScheduler.schedulePeriodicApiVersionUpdate()
+    }
+
+    private fun enableStrictMode() {
+        StrictMode.setThreadPolicy(
+            StrictMode.ThreadPolicy.Builder()
+                .detectDiskReads()
+                .detectDiskWrites()
+                .detectNetwork()
+                .penaltyLog()
+                // .penaltyDeath() TODO: add it later after fixing reported violations
+                .build()
+        )
+        StrictMode.setVmPolicy(
+            StrictMode.VmPolicy.Builder()
+                .detectLeakedSqlLiteObjects()
+                .detectLeakedClosableObjects()
+                .detectAll()
+                .penaltyLog()
+                // .penaltyDeath() TODO: add it later after fixing reported violations
+                .build()
+        )
     }
 
     private fun initializeApplicationLoggingFrameworks() {

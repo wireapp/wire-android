@@ -18,21 +18,11 @@
  *
  */
 
-package com.wire.android.ui.settings.devices
+package com.wire.android.ui.migration
 
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import com.wire.android.navigation.NavigationManager
-import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
-import kotlinx.coroutines.launch
+import com.wire.android.migration.MigrationData
 
-@HiltViewModel
-class SelfDevicesViewModel @Inject constructor(
-    private val navigationManager: NavigationManager
-) : ViewModel() {
-
-    fun navigateBack() {
-        viewModelScope.launch { navigationManager.navigateBack() }
-    }
+sealed class MigrationState {
+    data class InProgress(val type: MigrationData.Progress.Type) : MigrationState()
+    object Failed : MigrationState()
 }

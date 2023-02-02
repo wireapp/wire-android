@@ -62,6 +62,7 @@ import com.wire.kalium.logic.feature.conversation.UpdateConversationAccessRoleUs
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationReadDateUseCase
+import com.wire.kalium.logic.feature.conversation.UpdateConversationReceiptModeUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.GetMessageByIdUseCase
 import com.wire.kalium.logic.feature.message.GetNotificationsUseCase
@@ -656,6 +657,14 @@ class UseCaseModule {
         @CurrentAccount currentAccount: UserId
     ): UpdateConversationMutedStatusUseCase =
         coreLogic.getSessionScope(currentAccount).conversations.updateConversationMutedStatus
+
+    @ViewModelScoped
+    @Provides
+    fun provideUpdateConversationReceiptModeUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): UpdateConversationReceiptModeUseCase =
+        coreLogic.getSessionScope(currentAccount).conversations.updateConversationReceiptMode
 
     @ViewModelScoped
     @Provides

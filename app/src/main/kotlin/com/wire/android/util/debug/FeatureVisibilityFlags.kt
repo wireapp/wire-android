@@ -55,7 +55,7 @@ object FeatureVisibilityFlags {
     const val PingIcon = true
     const val ConversationSearchIcon = false
     const val UserProfileEditIcon = false
-    const val MessageEditIcon = false
+    const val MessageEditIcon = true
 }
 
 

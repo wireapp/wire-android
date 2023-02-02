@@ -18,13 +18,13 @@
   ~
   ~
   -->
-
 <resources>
     <string name="app_version">App-Version: %s</string>
+    <string name="build_variant_name">Build variant: %s</string>
     <string name="app_name">Wire Beta</string>
     <string name="label_new">Neu</string>
     <string name="label_login">Anmelden</string>
-    <string name="label_ok">Verstanden</string>
+    <string name="label_ok">OK</string>
     <string name="label_cancel">Abbrechen</string>
     <string name="label_confirm">Bestätigen</string>
     <string name="label_continue">Weiter</string>
@@ -63,8 +63,10 @@
     <string name="label_disable">Deaktivieren</string>
     <string name="folder_label_access">Zugang</string>
     <string name="folder_label_protocol_details">Details zum Protokoll (Beta)</string>
+    <string name="folder_label_messaging">Messaging</string>
     <string name="label_user_blocked">Blockiert</string>
     <string name="label_and">und</string>
+    <string name="label_retry">Retry</string>
     <!-- Content descriptions https://wearezeta.atlassian.net/wiki/spaces/AR/pages/122520039/Code+Style+Guideline#Content-description-strings -->
     <string name="content_description_app_logo">App Logo</string>
     <string name="content_description_reveal_password">Passwort anzeigen</string>
@@ -179,6 +181,13 @@
     <!-- Migration -->
     <string name="migration_title">Einrichten von Wire</string>
     <string name="migration_message">Bitte warten Sie, während wir die App für Sie einrichten</string>
+    <string name="migration_message_unknown">Please wait while we migrate data for you</string>
+    <string name="migration_server_configs_message">Please wait while we migrate backends for you</string>
+    <string name="migration_accounts_message">Please wait while we migrate accounts for you</string>
+    <string name="migration_clients_message">Please wait while we migrate clients for you</string>
+    <string name="migration_users_message">Please wait while we migrate users for you</string>
+    <string name="migration_conversations_message">Please wait while we migrate conversations for you</string>
+    <string name="migration_messages_message">Please wait while we migrate messages for you</string>
     <string name="migration_cancel_title">Migration abbrechen</string>
     <string name="migration_cancel_message">Sind Sie sicher, dass Sie die App schließen und die laufende Migration abbrechen möchten?</string>
     <!-- Login -->
@@ -366,6 +375,8 @@
     <string name="delete_group_conversation_menu_item">Gruppe löschen…</string>
     <string name="delete_group_conversation_dialog_title">\"%s\" entfernen?</string>
     <string name="delete_group_conversation_dialog_description">Die Gruppe wird auf allen Geräten aus der Liste Ihrer Unterhaltungen entfernt. Sie können dann nicht mehr auf die Gruppe und ihren Inhalt zugreifen.</string>
+    <string name="conversation_options_read_receipt_label">Read receipts</string>
+    <string name="conversation_options_read_receipt_description">When this is on, people can see when their messages in this conversation are read.</string>
     <!-- Messages -->
     <string name="message_details_title">Nachrichtendetails</string>
     <string name="message_details_reactions_tab">REAKTIONEN (%s)</string>
@@ -480,7 +491,8 @@
     <string name="label_system_message_team_member_left">%1$s wurde aus dem Team entfernt</string>
     <string name="label_system_message_user_not_available">Dieser Benutzer ist nicht mehr verfügbar</string>
     <string name="label_system_message_new_conversation_receipt_mode">Lesebestätigungen sind %1$s</string>
-    <string name="label_system_message_read_receipt_changed">%1$s hat Lesebestätigungen für alle %2$sgeschaltet</string>
+    <string name="label_system_message_read_receipt_changed">%1$s haben Lesebestätigungen für alle %2$sgeschaltet</string>
+    <string name="label_system_message_conversation_history_lost">DIESES GERÄT WURDE FÜR EINE WEILE NICHT BENUTZT. EINIGE MELDUNGEN WERDEN HIER VIELLEICHT NICHT ANGEZEIGT.</string>
     <string name="label_system_message_receipt_mode_on">ein</string>
     <string name="label_system_message_receipt_mode_off">aus</string>
     <!-- Last messages -->
@@ -575,6 +587,8 @@
     <string name="left_conversation_group_success">Sie haben die Unterhaltung verlassen.</string>
     <string name="error_unblocking_user">Benutzer konnte nicht freigegeben werden</string>
     <string name="delete_group_conversation_error">Beim Löschen der Unterhaltung ist ein Fehler aufgetreten</string>
+    <string name="edit_message_not_yet_available">Saving edits to messages is not yet available</string>
+    <!-- TODO: temporary, to be removed when the proper implementation of editing messages is finished -->
     <!-- Animation label -->
     <string name="label_open_conversation">Unterhaltung öffnen</string>
     <string name="email_label">E-Mail-Adresse</string>
@@ -739,6 +753,7 @@
     <string name="label_logs_option_title">Protokolle</string>
     <string name="label_share_logs">Protokolle teilen</string>
     <string name="label_delete_logs">Alle Protokolle löschen</string>
+    <string name="label_restart_slowsync_for_recovery">Restart SlowSync for Recovery</string>
     <string name="label_mls_option_title">MLS-DATEN</string>
     <string name="label_enable_logging">Protokollierung aktivieren</string>
     <string name="label_debug_title">Fehlerbehebung</string>
@@ -758,7 +773,8 @@
     <string name="label_textfield_optional_password">Passwort (optional)</string>
     <!--create and restore backup-->
     <string name="backup_dialog_create_backup_set_password_title">Passwort festlegen</string>
-    <string name="backup_dialog_create_backup_set_password_message">Das Backup wird komprimiert und mit einem Passwort verschlüsselt. Achten Sie darauf, es an einem sicheren Ort aufzubewahren.</string>
+    <string name="backup_dialog_create_backup_set_password_message">Das Backup wird komprimiert und Sie können es mit einem Passwort verschlüsseln.</string>
+    <string name="backup_dialog_create_backup_now">Jetzt sichern</string>
     <string name="backup_dialog_create_backup_title">Backup erstellen</string>
     <string name="backup_dialog_create_backup_subtitle">Unterhaltungen werden gespeichert...</string>
     <string name="backup_dialog_create_error_title">Ein Fehler ist aufgetreten</string>

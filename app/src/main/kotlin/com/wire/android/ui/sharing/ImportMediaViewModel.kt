@@ -310,7 +310,7 @@ class ImportMediaViewModel @Inject constructor(
 
     private suspend fun handleMimeType(context: Context, mimeType: String, uri: Uri): ImportedMediaAsset = withContext(dispatchers.io()) {
         val assetKey = UUID.randomUUID().toString()
-        val tempAssetPath = kaliumFileSystem.providePersistentAssetPath(assetKey)
+        val tempAssetPath = kaliumFileSystem.tempFilePath(assetKey)
         when {
             isImageFile(mimeType) -> {
                 uri.getMetaDataFromUri(context).let {

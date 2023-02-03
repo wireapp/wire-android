@@ -130,6 +130,8 @@ class DeepLinkProcessorTest {
     private fun setupWithRemoteConfigDeeplink(url: String?) {
         coEvery { uri.host } returns REMOTE_CONFIG_HOST
         coEvery { uri.getQueryParameter(CONFIG_PARAM) } returns url
+        coEvery { uri.getQueryParameter(COOKIE_PARAM) } returns null
+        coEvery { uri.getQueryParameter(LOCATION_PARAM) } returns null
     }
 
     private fun setupWithSSOLoginSuccessDeeplink(cookie: String?, location: String?) {
@@ -137,12 +139,15 @@ class DeepLinkProcessorTest {
         coEvery { uri.lastPathSegment } returns SSO_SUCCESS_PATH
         coEvery { uri.getQueryParameter(COOKIE_PARAM) } returns cookie
         coEvery { uri.getQueryParameter(LOCATION_PARAM) } returns location
+        coEvery { uri.getQueryParameter(ERROR_PARAM) } returns null
     }
 
     private fun setupWithSSOLoginFailureDeeplink(error: String?) {
         coEvery { uri.host } returns SSO_LOGIN_HOST
         coEvery { uri.lastPathSegment } returns SSO_FAILURE_PATH
         coEvery { uri.getQueryParameter(ERROR_PARAM) } returns error
+        coEvery { uri.getQueryParameter(COOKIE_PARAM) } returns null
+        coEvery { uri.getQueryParameter(LOCATION_PARAM) } returns null
     }
 
     private fun setupWithInvalidDeeplink() {

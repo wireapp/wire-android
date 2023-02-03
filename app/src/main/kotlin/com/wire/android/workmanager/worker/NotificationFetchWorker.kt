@@ -59,13 +59,10 @@ class NotificationFetchWorker
 
     override suspend fun getForegroundInfo(): ForegroundInfo {
 
-        if (notificationChannelsManager.shouldCreateChannel(NotificationConstants.MESSAGE_SYNC_CHANNEL_ID)) {
-            appLogger.i("${NotificationChannelsManager.TAG}: creating Message Synchronization notification channel")
-            notificationChannelsManager.createRegularChannel(
-                NotificationConstants.MESSAGE_SYNC_CHANNEL_ID,
-                NotificationConstants.MESSAGE_SYNC_CHANNEL_NAME
-            )
-        }
+        notificationChannelsManager.createRegularChannel(
+            NotificationConstants.MESSAGE_SYNC_CHANNEL_ID,
+            NotificationConstants.MESSAGE_SYNC_CHANNEL_NAME
+        )
 
         val notification = NotificationCompat.Builder(applicationContext, NotificationConstants.MESSAGE_SYNC_CHANNEL_ID)
             .setSmallIcon(R.drawable.notification_icon_small)

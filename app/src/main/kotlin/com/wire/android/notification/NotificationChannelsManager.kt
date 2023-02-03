@@ -164,8 +164,6 @@ class NotificationChannelsManager @Inject constructor(
         notificationManagerCompat.createNotificationChannel(notificationChannel)
     }
 
-    fun shouldCreateChannel(channelId: String): Boolean = notificationManagerCompat.getNotificationChannel(channelId) == null
-
     /**
      * Tricky bug: No documentation whatsoever, but these values affect how the system cancels or not the vibration of the notification
      * on different Android OS levels, probably channel creation related.

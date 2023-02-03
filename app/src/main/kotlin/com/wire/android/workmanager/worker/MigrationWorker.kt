@@ -69,13 +69,10 @@ class MigrationWorker
 
     override suspend fun getForegroundInfo(): ForegroundInfo {
 
-        if (notificationChannelsManager.shouldCreateChannel(NotificationConstants.OTHER_CHANNEL_ID)) {
-            appLogger.i("${NotificationChannelsManager.TAG}: creating Other Essential Actions notification channel")
-            notificationChannelsManager.createRegularChannel(
-                NotificationConstants.OTHER_CHANNEL_ID,
-                NotificationConstants.OTHER_CHANNEL_NAME
-            )
-        }
+        notificationChannelsManager.createRegularChannel(
+            NotificationConstants.OTHER_CHANNEL_ID,
+            NotificationConstants.OTHER_CHANNEL_NAME
+        )
 
         val notification = NotificationCompat.Builder(applicationContext, NotificationConstants.OTHER_CHANNEL_ID)
             .setSmallIcon(R.drawable.notification_icon_small)

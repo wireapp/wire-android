@@ -114,6 +114,7 @@ class DeepLinkProcessor @Inject constructor(
             DeepLinkResult.OngoingCall(it)
         } ?: DeepLinkResult.Unknown
 
+    @Suppress("MultiLineIfElse")
     private fun getSSOLoginDeepLinkResult(uri: Uri) = when (uri.lastPathSegment) {
         SSO_LOGIN_FAILURE -> {
             uri.getQueryParameter(SSO_LOGIN_ERROR_PARAM)?.let { value ->
@@ -146,7 +147,6 @@ class DeepLinkProcessor @Inject constructor(
         const val ONGOING_CALL_DEEPLINK_HOST = "ongoing-call"
         const val CONVERSATION_DEEPLINK_HOST = "conversation"
         const val OTHER_USER_PROFILE_DEEPLINK_HOST = "other-user-profile"
-
     }
 }
 

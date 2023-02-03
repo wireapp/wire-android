@@ -20,10 +20,14 @@ class PingRinger @Inject constructor(private val context: Context) {
     private var vibrator: Vibrator? = null
 
     init {
-        val am = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager?
-        am?.isSpeakerphoneOn = false
-        am?.mode = AudioManager.MODE_NORMAL
+        initAudioManager()
         initVibrator()
+    }
+
+    private fun initAudioManager() {
+        val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager?
+        audioManager?.isSpeakerphoneOn = false
+        audioManager?.mode = AudioManager.MODE_NORMAL
     }
 
     private fun initVibrator() {
@@ -37,6 +41,7 @@ class PingRinger @Inject constructor(private val context: Context) {
     }
 
     private fun createMediaPlayer(resource: Int) {
+        val audioSessionId = 0
         mediaPlayer = MediaPlayer.create(
             context,
             resource,
@@ -44,7 +49,7 @@ class PingRinger @Inject constructor(private val context: Context) {
                 .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
                 .setUsage(AudioAttributes.USAGE_NOTIFICATION)
                 .build(),
-            0
+            audioSessionId
         )
         mediaPlayer?.isLooping = false
     }

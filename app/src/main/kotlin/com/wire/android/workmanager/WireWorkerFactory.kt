@@ -26,6 +26,7 @@ import androidx.work.WorkerFactory
 import androidx.work.WorkerParameters
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.migration.MigrationManager
+import com.wire.android.notification.NotificationChannelsManager
 import com.wire.android.notification.WireNotificationManager
 import com.wire.android.workmanager.worker.MigrationWorker
 import com.wire.android.workmanager.worker.NotificationFetchWorker
@@ -38,6 +39,7 @@ import javax.inject.Inject
 @OptIn(ExperimentalCoroutinesApi::class)
 class WireWorkerFactory @Inject constructor(
     private val wireNotificationManager: WireNotificationManager,
+    private val notificationChannelsManager: NotificationChannelsManager,
     private val migrationManager: MigrationManager,
     @KaliumCoreLogic
     private val coreLogic: CoreLogic
@@ -49,11 +51,10 @@ class WireWorkerFactory @Inject constructor(
                 WrapperWorkerFactory(coreLogic, WireForegroundNotificationDetailsProvider)
                     .createWorker(appContext, workerClassName, workerParameters)
             NotificationFetchWorker::class.java.canonicalName ->
-                NotificationFetchWorker(appContext, workerParameters, wireNotificationManager)
+                NotificationFetchWorker(appContext, workerParameters, wireNotificationManager, notificationChannelsManager)
             MigrationWorker::class.java.canonicalName ->
-                MigrationWorker(appContext, workerParameters, migrationManager)
+                MigrationWorker(appContext, workerParameters, migrationManager, notificationChannelsManager)
             else -> null
         }
     }
-
 }

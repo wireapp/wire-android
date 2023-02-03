@@ -58,7 +58,7 @@ fun MediaGalleryScreen(mediaGalleryViewModel: MediaGalleryViewModel = hiltViewMo
     val uiState = mediaGalleryViewModel.mediaGalleryViewState
     val mediaGalleryScreenState = rememberMediaGalleryScreenState()
     val scope = rememberCoroutineScope()
-
+    val context = LocalContext.current
     val onSaveImageWriteStorageRequest = rememberWriteStorageRequestFlow(
         onGranted = {
             mediaGalleryScreenState.showContextualMenu(false)
@@ -76,7 +76,10 @@ fun MediaGalleryScreen(mediaGalleryViewModel: MediaGalleryViewModel = hiltViewMo
                     mediaGalleryScreenState.showContextualMenu(false)
                     mediaGalleryViewModel.deleteCurrentImage()
                 },
-                onDownloadImage = onSaveImageWriteStorageRequest::launch
+                onDownloadImage = onSaveImageWriteStorageRequest::launch,
+                onShareImage = {
+                    mediaGalleryViewModel.shareAsset(context)
+                }
             ),
             content = {
                 Scaffold(
@@ -161,7 +164,8 @@ private fun getSnackbarMessage(messageCode: MediaGallerySnackbarMessages, resour
 @Composable
 fun EditGalleryMenuItems(
     onDownloadImage: () -> Unit,
-    onDeleteMessage: () -> Unit
+    onDeleteMessage: () -> Unit,
+    onShareImage: () -> Unit
 ): List<@Composable () -> Unit> {
     return buildList {
         add {
@@ -175,6 +179,18 @@ fun EditGalleryMenuItems(
                     },
                     title = stringResource(R.string.label_download),
                     onItemClick = onDownloadImage
+                )
+            }
+            CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.secondary) {
+                MenuBottomSheetItem(
+                    icon = {
+                        MenuItemIcon(
+                            id = R.drawable.ic_share_file,
+                            contentDescription = stringResource(R.string.content_description_share_the_file),
+                        )
+                    },
+                    title = stringResource(R.string.label_share),
+                    onItemClick = onShareImage
                 )
             }
             CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.error) {

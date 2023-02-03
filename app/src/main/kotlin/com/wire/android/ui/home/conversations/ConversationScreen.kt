@@ -96,7 +96,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlinx.datetime.Instant
 import okio.Path
 import okio.Path.Companion.toPath
@@ -339,14 +338,8 @@ private fun ConversationScreen(
                     conversationScreenState.hideEditContextMenu()
                 }
             }, onShareAsset = {
-                runBlocking {
-                    conversationScreenState.selectedMessage?.messageHeader?.messageId?.let {
-                        conversationMessagesViewModel.assetDataPath(
-                            conversationId = conversationMessagesViewModel.conversationId,
-                            messageId = it
-                        )
-                            ?.let { conversationScreenState.shareMessage(context, it) }
-                    }
+                conversationScreenState.selectedMessage?.messageHeader?.messageId?.let {
+                    conversationMessagesViewModel.shareAsset(context, it)
                 }
             },
             isSharable = conversationScreenState.isAssetMessage

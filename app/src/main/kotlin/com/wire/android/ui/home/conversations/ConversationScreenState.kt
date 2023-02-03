@@ -37,9 +37,7 @@ import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.AnnotatedString
 import com.wire.android.R
-import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.model.UIMessage
-import com.wire.android.ui.home.conversations.model.UIMessageContent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -64,7 +62,7 @@ fun rememberConversationScreenState(
     }
 }
 
-//todo: pass directly the strings, to avoid passing the context
+// todo: pass directly the strings, to avoid passing the context
 @OptIn(ExperimentalMaterialApi::class)
 class ConversationScreenState(
     val context: Context,
@@ -76,37 +74,23 @@ class ConversationScreenState(
 
     var selectedMessage by mutableStateOf<UIMessage?>(null)
 
-    val isMyMessage
-        get() = selectedMessage?.messageSource == MessageSource.Self
-
-    val isTextMessage
-        get() = selectedMessage?.messageContent is UIMessageContent.TextMessage
-
-    val isAssetMessage
-        get() = selectedMessage?.messageContent is UIMessageContent.AssetMessage || selectedMessage?.messageContent is UIMessageContent.ImageMessage
-
     fun showEditContextMenu(message: UIMessage) {
         selectedMessage = message
 
         coroutineScope.launch { modalBottomSheetState.animateTo(ModalBottomSheetValue.Expanded) }
     }
 
-    fun hideEditContextMenu(onComplete: () -> Unit = {}) {
+    fun hideEditContextMenu() {
         coroutineScope.launch {
             modalBottomSheetState.animateTo(ModalBottomSheetValue.Hidden)
-            onComplete()
         }
     }
 
-    fun copyMessage() {
-        selectedMessage?.messageContent.let { messageContent ->
-            if (messageContent is UIMessageContent.TextMessage) {
-                clipboardManager.setText(AnnotatedString(messageContent.messageBody.message.asString(context.resources)))
-                coroutineScope.launch {
-                    modalBottomSheetState.animateTo(ModalBottomSheetValue.Hidden)
-                    snackBarHostState.showSnackbar(context.getString(R.string.info_message_copied))
-                }
-            }
+    fun copyMessage(text: String) {
+        clipboardManager.setText(AnnotatedString(text))
+        coroutineScope.launch {
+            modalBottomSheetState.animateTo(ModalBottomSheetValue.Hidden)
+            snackBarHostState.showSnackbar(context.getString(R.string.info_message_copied))
         }
     }
 }

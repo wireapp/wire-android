@@ -38,9 +38,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -51,26 +53,76 @@ import com.wire.android.R
 import com.wire.android.ui.common.bottomsheet.MenuBottomSheetItem
 import com.wire.android.ui.common.bottomsheet.MenuItemIcon
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.home.conversations.model.UIMessage
+import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 
 @Composable
 fun EditMessageMenuItems(
-    isCopyable: Boolean,
-    isEditable: Boolean,
-    isAvailable: Boolean,
-    isSharable: Boolean,
-    onCopyMessage: () -> Unit,
-    onDeleteMessage: () -> Unit,
-    onReactionClick: (emoji: String) -> Unit,
-    onReply: () -> Unit,
-    onMessageDetailsClick: () -> Unit,
+    message: UIMessage,
+    hideEditMessageMenu: () -> Unit,
+    onCopyClick: (text: String) -> Unit,
+    onDeleteClick: (messageId: String, isMyMessage: Boolean) -> Unit,
+    onReactionClick: (messageId: String, emoji: String) -> Unit,
+    onReplyClick: (message: UIMessage) -> Unit,
+    onDetailsClick: (messageId: String, isMyMessage: Boolean) -> Unit,
+    onEditClick: (messageId: String, originalText: String) -> Unit,
     onShareAsset: () -> Unit,
 ): List<@Composable () -> Unit> {
+    val localFeatureVisibilityFlags = LocalFeatureVisibilityFlags.current
+    val localContext = LocalContext.current
+    val isCopyable = message.isTextMessage
+    val isEditable = message.isMyMessage && localFeatureVisibilityFlags.MessageEditIcon
+    val isAvailable = message.isAvailable
+    val isAssetMessage =
+        message.messageContent is UIMessageContent.AssetMessage || message.messageContent is UIMessageContent.ImageMessage
+
+    val onCopyItemClick = remember(message) {
+        {
+            hideEditMessageMenu()
+            onCopyClick((message.messageContent as UIMessageContent.TextMessage).messageBody.message.asString(localContext.resources))
+        }
+    }
+    val onDeleteItemClick = remember(message) {
+        {
+            hideEditMessageMenu()
+            onDeleteClick(message.messageHeader.messageId, message.isMyMessage)
+        }
+    }
+    val onReactionItemClick = remember(message) {
+        { emoji: String ->
+            hideEditMessageMenu()
+            onReactionClick(message.messageHeader.messageId, emoji)
+        }
+    }
+    val onReplyItemClick = remember(message) {
+        {
+            hideEditMessageMenu()
+            onReplyClick(message)
+        }
+    }
+    val onDetailsItemClick = remember(message) {
+        {
+            hideEditMessageMenu()
+            onDetailsClick(message.messageHeader.messageId, message.isMyMessage)
+        }
+    }
+    val onEditItemClick = remember(message) {
+        {
+            hideEditMessageMenu()
+            onEditClick(
+                message.messageHeader.messageId,
+                (message.messageContent as UIMessageContent.TextMessage).messageBody.message.asString(localContext.resources)
+            )
+        }
+    }
+
     return buildList {
         if (isAvailable) {
-            add { ReactionOptions(onReactionClick) }
-            add { MessageDetails(onMessageDetailsClick) }
+            add { ReactionOptions(onReactionItemClick) }
+            add { MessageDetails(onDetailsItemClick) }
             add {
                 if (isCopyable) {
                     MenuBottomSheetItem(
@@ -81,11 +133,11 @@ fun EditMessageMenuItems(
                             )
                         },
                         title = stringResource(R.string.label_copy),
-                        onItemClick = onCopyMessage
+                        onItemClick = onCopyItemClick
                     )
                 }
             }
-            if (isSharable) {
+            if (isAssetMessage) {
                 add {
                     MenuBottomSheetItem(
                         icon = {
@@ -108,7 +160,7 @@ fun EditMessageMenuItems(
                         )
                     },
                     title = stringResource(R.string.notification_action_reply),
-                    onItemClick = onReply
+                    onItemClick = onReplyItemClick
                 )
             }
             if (isEditable) {
@@ -121,6 +173,7 @@ fun EditMessageMenuItems(
                             )
                         },
                         title = stringResource(R.string.label_edit),
+                        onItemClick = onEditItemClick
                     )
                 }
             }
@@ -135,7 +188,7 @@ fun EditMessageMenuItems(
                         )
                     },
                     title = stringResource(R.string.label_delete),
-                    onItemClick = onDeleteMessage
+                    onItemClick = onDeleteItemClick
                 )
             }
         }

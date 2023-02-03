@@ -35,11 +35,13 @@ import androidx.work.WorkManager
 import androidx.work.WorkRequest.MIN_BACKOFF_MILLIS
 import androidx.work.WorkerParameters
 import com.wire.android.R
+import com.wire.android.appLogger
 import com.wire.android.migration.MigrationData
 import com.wire.android.migration.MigrationManager
 import com.wire.android.migration.getMigrationFailure
 import com.wire.android.migration.getMigrationProgress
 import com.wire.android.migration.toData
+import com.wire.android.notification.NotificationChannelsManager
 import com.wire.android.notification.NotificationConstants
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
@@ -54,7 +56,8 @@ class MigrationWorker
 @AssistedInject constructor(
     @Assisted appContext: Context,
     @Assisted workerParams: WorkerParameters,
-    private val migrationManager: MigrationManager
+    private val migrationManager: MigrationManager,
+    private val notificationChannelsManager: NotificationChannelsManager
 ) : CoroutineWorker(appContext, workerParams) {
 
     override suspend fun doWork(): Result = coroutineScope {
@@ -65,6 +68,15 @@ class MigrationWorker
     }
 
     override suspend fun getForegroundInfo(): ForegroundInfo {
+
+        if (notificationChannelsManager.shouldCreateChannel(NotificationConstants.OTHER_CHANNEL_ID)) {
+            appLogger.i("${NotificationChannelsManager.TAG}: creating Other Essential Actions notification channel")
+            notificationChannelsManager.createRegularChannel(
+                NotificationConstants.OTHER_CHANNEL_ID,
+                NotificationConstants.OTHER_CHANNEL_NAME
+            )
+        }
+
         val notification = NotificationCompat.Builder(applicationContext, NotificationConstants.OTHER_CHANNEL_ID)
             .setSmallIcon(R.drawable.notification_icon_small)
             .setAutoCancel(true)

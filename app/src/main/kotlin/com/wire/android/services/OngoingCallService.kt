@@ -78,11 +78,11 @@ class OngoingCallService : Service() {
 
             scope.launch {
                 coreLogic.getSessionScope(userId).calls.establishedCall().collect { establishedCall ->
-                        if (establishedCall.isEmpty()) {
-                            appLogger.i("$TAG: stopSelf. Reason: call was ended")
-                            stopSelf()
-                        }
+                    if (establishedCall.isEmpty()) {
+                        appLogger.i("$TAG: stopSelf. Reason: call was ended")
+                        stopSelf()
                     }
+                }
             }
 
             generateForegroundNotification(callName, conversationIdString, userId)

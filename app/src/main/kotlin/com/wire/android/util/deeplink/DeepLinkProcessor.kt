@@ -114,22 +114,22 @@ class DeepLinkProcessor @Inject constructor(
             DeepLinkResult.OngoingCall(it)
         } ?: DeepLinkResult.Unknown
 
-    @Suppress("MultiLineIfElse")
-    private fun getSSOLoginDeepLinkResult(uri: Uri) = when (uri.lastPathSegment) {
-        SSO_LOGIN_FAILURE -> {
-            uri.getQueryParameter(SSO_LOGIN_ERROR_PARAM)?.let { value ->
-                DeepLinkResult.SSOLogin.Failure(SSOFailureCodes.getByLabel(value))
-            } ?: DeepLinkResult.SSOLogin.Failure(SSOFailureCodes.Unknown)
-        }
-        SSO_LOGIN_SUCCESS -> {
-            val cookie = uri.getQueryParameter(SSO_LOGIN_COOKIE_PARAM)
-            val location = uri.getQueryParameter(SSO_LOGIN_SERVER_CONFIG_PARAM)
-            if (cookie == null || location == null)
-                DeepLinkResult.SSOLogin.Failure(SSOFailureCodes.Unknown)
-            else
+    private fun getSSOLoginDeepLinkResult(uri: Uri): DeepLinkResult {
+
+        val lastPathSegment = uri.lastPathSegment
+        val error = uri.getQueryParameter(SSO_LOGIN_ERROR_PARAM)
+        val cookie = uri.getQueryParameter(SSO_LOGIN_COOKIE_PARAM)
+        val location = uri.getQueryParameter(SSO_LOGIN_SERVER_CONFIG_PARAM)
+
+        return when {
+            lastPathSegment == SSO_LOGIN_FAILURE && error != null ->
+                DeepLinkResult.SSOLogin.Failure(SSOFailureCodes.getByLabel(error))
+
+            lastPathSegment == SSO_LOGIN_SUCCESS && cookie != null && location != null ->
                 DeepLinkResult.SSOLogin.Success(cookie, location)
+
+            else -> DeepLinkResult.SSOLogin.Failure(SSOFailureCodes.Unknown)
         }
-        else -> DeepLinkResult.SSOLogin.Failure(SSOFailureCodes.Unknown)
     }
 
     companion object {

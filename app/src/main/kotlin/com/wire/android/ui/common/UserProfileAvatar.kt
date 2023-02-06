@@ -28,7 +28,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Slider
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -99,7 +98,6 @@ private fun painter(data: UserAvatarData): Painter =
     } else {
         data.asset.paint(getUriFromDrawable(LocalContext.current, R.drawable.ic_default_user_avatar))
     }
-
 
 @Preview
 @Composable

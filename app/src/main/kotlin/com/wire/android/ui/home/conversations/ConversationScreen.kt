@@ -501,6 +501,7 @@ private fun SnackBarMessage(
     }
 }
 
+@Suppress("ComplexMethod")
 @Composable
 fun MessageList(
     lazyPagingMessages: LazyPagingItems<UIMessage>,
@@ -649,23 +650,23 @@ fun MessageList(
                                 )
                             }
 
+                            is UIMessageContent.PreviewAssetMessage -> {}
                             is UIMessageContent.SystemMessage.MemberAdded -> {}
                             is UIMessageContent.SystemMessage.MemberLeft -> {}
                             is UIMessageContent.SystemMessage.MemberRemoved -> {}
                             is UIMessageContent.SystemMessage.RenamedConversation -> {}
                             is UIMessageContent.SystemMessage.TeamMemberRemoved -> {}
                             is UIMessageContent.SystemMessage.CryptoSessionReset -> {}
-                            is UIMessageContent.PreviewAssetMessage -> {}
                             is UIMessageContent.SystemMessage.MissedCall.YouCalled -> {}
                             is UIMessageContent.SystemMessage.MissedCall.OtherCalled -> {}
-                            null -> {
-                                throw NullPointerException("messageContent is null")
-                            }
-
                             is UIMessageContent.SystemMessage.ConversationReceiptModeChanged -> {}
                             is UIMessageContent.SystemMessage.HistoryLost -> {}
                             is UIMessageContent.SystemMessage.Knock -> {}
                             is UIMessageContent.SystemMessage.NewConversationReceiptMode -> {}
+                            null -> {
+                                throw NullPointerException("messageContent is null")
+                            }
+
                         }
                     }
                 )

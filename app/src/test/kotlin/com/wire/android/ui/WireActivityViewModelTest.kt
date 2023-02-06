@@ -496,9 +496,9 @@ class WireActivityViewModelTest {
     }
 
     @Test
-    fun `given invalid code, when try to join conversaion, then show error`() {
+    fun `given invalid code, when try to join conversation, then show error`() {
         val (code, key, domain) = Triple("code", "key", "domain")
-        val (arrangement, viewModel) = Arrangement()
+        val (_, viewModel) = Arrangement()
             .withSomeCurrentSession()
             .withDeepLinkResult(DeepLinkResult.JoinConversation(code, key, domain))
             .withJoinConversationCodeError(
@@ -510,7 +510,7 @@ class WireActivityViewModelTest {
             .arrange()
 
         viewModel.joinConversationViaCode(code, key, domain)
-        viewModel.globalAppState.conversationJoinedDialog `should not be equal to` null
+        viewModel.globalAppState.conversationJoinedDialog `should be equal to` null
     }
 
     private class Arrangement {
@@ -522,7 +522,7 @@ class WireActivityViewModelTest {
             mockUri()
             coEvery { currentSessionFlow() } returns flowOf()
             coEvery { getServerConfigUseCase(any()) } returns GetServerConfigResult.Success(newServerConfig(1).links)
-            coEvery { deepLinkProcessor(any()) } returns DeepLinkResult.Unknown
+            coEvery { deepLinkProcessor(any(), any()) } returns DeepLinkResult.Unknown
             coEvery { notificationManager.observeNotificationsAndCallsWhileRunning(any(), any(), any()) } returns Unit
             coEvery { navigationManager.navigate(any()) } returns Unit
             coEvery { observePersistentWebSocketConnectionStatus() } returns
@@ -622,7 +622,7 @@ class WireActivityViewModelTest {
         }
 
         fun withDeepLinkResult(result: DeepLinkResult): Arrangement {
-            coEvery { deepLinkProcessor(any()) } returns result
+            coEvery { deepLinkProcessor(any(), any()) } returns result
             return this
         }
 

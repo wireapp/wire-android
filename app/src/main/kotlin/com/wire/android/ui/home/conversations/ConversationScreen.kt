@@ -194,7 +194,8 @@ fun ConversationScreen(
         onSnackbarMessage = messageComposerViewModel::onSnackbarMessage,
         onBackButtonClick = messageComposerViewModel::navigateBack,
         composerMessages = messageComposerViewModel.infoMessage,
-        conversationMessages = conversationMessagesViewModel.infoMessage
+        conversationMessages = conversationMessagesViewModel.infoMessage,
+        conversationMessagesViewModel = conversationMessagesViewModel
     )
     DeleteMessageDialog(
         state = messageComposerViewModel.deleteMessageDialogsState,
@@ -283,10 +284,11 @@ private fun ConversationScreen(
     onBackButtonClick: () -> Unit,
     composerMessages: SharedFlow<SnackBarMessage>,
     conversationMessages: SharedFlow<SnackBarMessage>,
+    conversationMessagesViewModel: ConversationMessagesViewModel
 ) {
     val conversationScreenState = rememberConversationScreenState()
     val messageComposerInnerState = rememberMessageComposerInnerState()
-
+    val context = LocalContext.current
     MenuModalSheetLayout(
         sheetState = conversationScreenState.modalBottomSheetState,
         coroutineScope = conversationScreenState.coroutineScope,
@@ -300,6 +302,12 @@ private fun ConversationScreen(
                 onDetailsClick = onMessageDetailsClick,
                 onReplyClick = messageComposerInnerState::reply,
                 onEditClick = messageComposerInnerState::toEditMessage,
+                onShareAsset = {
+                    conversationScreenState.selectedMessage?.messageHeader?.messageId?.let {
+                        conversationMessagesViewModel.shareAsset(context, it)
+                    }
+                }
+
             )
         } ?: emptyList()
     ) {
@@ -574,5 +582,6 @@ fun PreviewConversationScreen() {
         onBackButtonClick = {},
         composerMessages = MutableStateFlow(ErrorDownloadingAsset),
         conversationMessages = MutableStateFlow(ErrorDownloadingAsset),
+        conversationMessagesViewModel = hiltViewModel()
     )
 }

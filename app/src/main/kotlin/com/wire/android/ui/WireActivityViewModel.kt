@@ -234,15 +234,18 @@ class WireActivityViewModel @Inject constructor(
                     return@launch
                 }
 
-                when (val result = deepLinkProcessor(deepLink)) {
-                    is DeepLinkResult.CustomServerConfig -> loadServerConfig(result.url)?.let { serverLinks ->
-                        globalAppState = globalAppState.copy(
-                            customBackendDialog = CustomBEDeeplinkDialogState(
-                                shouldShowDialog = true,
-                                serverLinks = serverLinks
+                when (val result = deepLinkProcessor(deepLink, viewModelScope)) {
+                    is DeepLinkResult.CustomServerConfig -> runBlocking {
+                        loadServerConfig(result.url)?.let { serverLinks ->
+                            globalAppState = globalAppState.copy(
+                                customBackendDialog = CustomBEDeeplinkDialogState(
+                                    shouldShowDialog = true,
+                                    serverLinks = serverLinks
+                                )
                             )
-                        )
-                        navigationArguments[SERVER_CONFIG_ARG] = serverLinks
+                            navigationArguments[SERVER_CONFIG_ARG] = serverLinks
+                        }
+
                     }
 
                     is DeepLinkResult.SSOLogin -> navigationArguments[SSO_DEEPLINK_ARG] = result

@@ -138,7 +138,6 @@ class GlobalObserversManagerTest {
         @MockK
         lateinit var navigationManager: NavigationManager
 
-
         private val manager by lazy {
             GlobalObserversManager(
                 dispatcherProvider = TestDispatcherProvider(),

@@ -467,9 +467,7 @@ class WireActivityViewModelTest {
         }
 
         fun arrange() = this to viewModel
-
     }
-
 
     companion object {
         val TEST_ACCOUNT_INFO = AccountInfo.Valid(UserId("user_id", "domain.de"))

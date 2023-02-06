@@ -113,7 +113,6 @@ class WireActivityViewModel @Inject constructor(
             }
         }.distinctUntilChanged().flowOn(dispatchers.io()).shareIn(viewModelScope, SharingStarted.WhileSubscribed(), 1)
 
-
     private val _observeSyncFlowState: MutableStateFlow<SyncState?> = MutableStateFlow(null)
     val observeSyncFlowState: StateFlow<SyncState?> = _observeSyncFlowState
 

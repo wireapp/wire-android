@@ -67,7 +67,7 @@ class NotificationChannelsManager @Inject constructor(
      * Use it on logout.
      */
     fun deleteChannelGroup(userId: UserId) {
-        appLogger.i("${TAG}: deleting notification channels for ${userId.toString().obfuscateId()} user")
+        appLogger.i("$TAG: deleting notification channels for ${userId.toString().obfuscateId()} user")
         notificationManagerCompat.deleteNotificationChannelGroup(NotificationConstants.getChanelGroupIdForUser(userId))
     }
 

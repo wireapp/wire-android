@@ -57,7 +57,7 @@ class NotificationChannelsManager @Inject constructor(
 
     // Creating user-specific NotificationChannels for each user, they will be grouped by User in App Settings.
     fun createUserNotificationChannels(allUsers: List<SelfUser>) {
-        appLogger.i("${TAG}: creating all the notification channels for ${allUsers.size} users")
+        appLogger.i("$TAG: creating all the notification channels for ${allUsers.size} users")
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
 
         allUsers.forEach { user ->

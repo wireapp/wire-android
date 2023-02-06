@@ -56,7 +56,6 @@ class MessageMapper @Inject constructor(
     private val wireSessionImageLoader: WireSessionImageLoader,
     private val dispatchers: DispatcherProvider
 ) {
-
     fun memberIdList(messages: List<Message>): List<UserId> = messages.flatMap { message ->
         listOf(message.senderUserId).plus(
             when (val content = message.content) {

@@ -55,14 +55,11 @@ class NotificationChannelsManager @Inject constructor(
         )
     }
 
-    fun createNotificationChannels(allUsers: List<SelfUser>) {
-        appLogger.i("$TAG: creating all the channels for ${allUsers.size} users")
+    // Creating user-specific NotificationChannels for each user, they will be grouped by User in App Settings.
+    fun createUserNotificationChannels(allUsers: List<SelfUser>) {
+        appLogger.i("${TAG}: creating all the notification channels for ${allUsers.size} users")
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
 
-        // creating regular NotificationChannels, that are common for all users and shouldn't be grouped.
-        createRegularChannel(NotificationConstants.WEB_SOCKET_CHANNEL_ID, NotificationConstants.WEB_SOCKET_CHANNEL_NAME)
-
-        // creating user-specific NotificationChannels for each user, they will be grouped by User in App Settings.
         allUsers.forEach { user ->
             val groupId = createNotificationChannelGroup(user.id, user.handle ?: user.name ?: user.id.value)
 

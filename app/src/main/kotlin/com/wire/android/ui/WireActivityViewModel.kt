@@ -245,7 +245,6 @@ class WireActivityViewModel @Inject constructor(
                             )
                             navigationArguments[SERVER_CONFIG_ARG] = serverLinks
                         }
-
                     }
 
                     is DeepLinkResult.SSOLogin -> navigationArguments[SSO_DEEPLINK_ARG] = result

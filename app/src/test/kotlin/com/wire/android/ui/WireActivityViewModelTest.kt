@@ -496,9 +496,9 @@ class WireActivityViewModelTest {
     }
 
     @Test
-    fun `given invalid code, when try to join conversation, then show error`() {
+    fun `given invalid code, when try to join conversation, then get error and don't navigate`() {
         val (code, key, domain) = Triple("code", "key", "domain")
-        val (_, viewModel) = Arrangement()
+        val (arrangement, viewModel) = Arrangement()
             .withSomeCurrentSession()
             .withDeepLinkResult(DeepLinkResult.JoinConversation(code, key, domain))
             .withJoinConversationCodeError(
@@ -511,6 +511,27 @@ class WireActivityViewModelTest {
 
         viewModel.joinConversationViaCode(code, key, domain)
         viewModel.globalAppState.conversationJoinedDialog `should be equal to` null
+        coVerify(exactly = 0) { arrangement.navigationManager.navigate(any()) }
+    }
+
+    @Test
+    fun `given No session, when try to join conversation, then get error and don't navigate`() {
+        val (code, key, domain) = Triple("code", "key", "domain")
+        val conversationId = ConversationId("id", "domain")
+        val (arrangement, viewModel) = Arrangement()
+            .withNoCurrentSession()
+            .withDeepLinkResult(DeepLinkResult.JoinConversation(code, key, domain))
+            .withJoinConversationCode(
+                code,
+                key,
+                domain,
+                JoinConversationViaCodeUseCase.Result.Success.Changed(conversationId)
+            )
+            .arrange()
+
+        viewModel.joinConversationViaCode(code, key, domain)
+        viewModel.globalAppState.conversationJoinedDialog `should be equal to` null
+        coVerify(exactly = 0) { arrangement.navigationManager.navigate(any()) }
     }
 
     private class Arrangement {

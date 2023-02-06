@@ -268,5 +268,4 @@ class ConversationAudioMessagePlayer
     fun close() {
         audioMediaPlayer.release()
     }
-
 }

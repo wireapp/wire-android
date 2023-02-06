@@ -145,11 +145,11 @@ class EncodedMessageContentMapperTest {
                     (messageBody.message as UIText.StringResource).resId
                             == arrangement.messageResourceProvider.sentAMessageWithContent
                 )
-
             }
         }
     }
 
+    @Suppress("LongMethod")
     @Test
     fun givenServerContent_whenMappingToUIMessageContent_thenCorrectValuesShouldBeReturned() = runTest {
         // Given
@@ -222,7 +222,8 @@ class EncodedMessageContentMapperTest {
             )
             assertTrue(
                 resultMyMissedCall is SystemMessage.MissedCall &&
-                        (resultMyMissedCall.author as UIText.StringResource).resId == arrangement.messageResourceProvider.memberNameYouTitleCase
+                        (resultMyMissedCall.author as UIText.StringResource).resId ==
+                        arrangement.messageResourceProvider.memberNameYouTitleCase
             )
         }
     }

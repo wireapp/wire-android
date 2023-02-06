@@ -87,7 +87,7 @@ class MessageMapperTest {
 
         val now = serverDateFormatter.format(Date())
         val calender = Calendar.getInstance()
-        calender.add(Calendar.DATE, -1);
+        calender.add(Calendar.DATE, -1)
         val yesterday = serverDateFormatter.format(calender.time)
 
         val (arrangement, mapper) = Arrangement().arrange()

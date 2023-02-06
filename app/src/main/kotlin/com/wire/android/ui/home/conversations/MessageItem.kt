@@ -69,8 +69,6 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
 import com.wire.kalium.logic.data.user.UserId
 
-//TODO: as for now MessageItem is taking unnecessary stuff which will not be used
-// because we are providing messageContent Composable that will render the content
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun MessageItem(

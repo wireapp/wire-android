@@ -8,5 +8,4 @@ data class AudioState(
     companion object {
         val DEFAULT = AudioState(AudioMediaPlayingState.Paused, 0, 0)
     }
-
 }

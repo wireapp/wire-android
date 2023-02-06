@@ -304,4 +304,3 @@ fun PreviewMessageWithCompletedAudioMessage() {
         onResetSessionClicked = { _, _ -> }
     )
 }
-

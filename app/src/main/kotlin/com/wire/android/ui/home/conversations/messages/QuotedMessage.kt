@@ -127,7 +127,46 @@ internal fun QuotedMessage(
             style = style,
             startContent = startContent
         )
+
+        is QuotedMessageUIData.AudioMessage -> QuotedAudioMessage(
+            senderName = messageData.senderName,
+            originalDateTimeText = messageData.originalMessageDateDescription,
+            assetName = quotedContent.assetName,
+            modifier = modifier,
+            style = style,
+            startContent = startContent
+        )
     }
+}
+
+@Composable
+fun QuotedAudioMessage(
+    senderName: UIText,
+    originalDateTimeText: UIText,
+    assetName: String?,
+    modifier: Modifier,
+    style: QuotedMessageStyle,
+    startContent: @Composable () -> Unit
+) {
+    QuotedMessageContent(
+        senderName = senderName.asString(), style = style, modifier = modifier, centerContent = {
+            assetName?.let {
+                MainContentText(it)
+            } ?: MainContentText("Audio message")
+        }, startContent = {
+            startContent()
+        }, endContent = {
+            Icon(
+                painter = painterResource(R.drawable.ic_audio),
+                contentDescription = null,
+                modifier = modifier
+                    .width(dimensions().spacing24x)
+                    .width(dimensions().spacing24x)
+                    .size(dimensions().spacing24x),
+                tint = colorsScheme().secondaryText
+            )
+        }, footerContent = { QuotedMessageOriginalDate(originalDateTimeText) }
+    )
 }
 
 @Composable

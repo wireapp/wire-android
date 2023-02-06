@@ -43,9 +43,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import com.google.accompanist.flowlayout.FlowRow
 import com.wire.android.R
 import com.wire.android.model.Clickable
+import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.LegalHoldIndicator
 import com.wire.android.ui.common.StatusBox
 import com.wire.android.ui.common.UserBadge
@@ -60,7 +62,6 @@ import com.wire.android.ui.home.conversations.model.MessageFooter
 import com.wire.android.ui.home.conversations.model.MessageGenericAsset
 import com.wire.android.ui.home.conversations.model.MessageHeader
 import com.wire.android.ui.home.conversations.model.MessageImage
-import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.model.MessageStatus
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent
@@ -72,19 +73,21 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
 import com.wire.kalium.logic.data.user.UserId
 
+//TODO: as for now MessageItem is taking unnecessary stuff which will not be used
+// because we are providing messageContent Composable that will render the content
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun MessageItem(
     message: UIMessage,
-    onLongClicked: (UIMessage) -> Unit,
-    onAssetMessageClicked: (String) -> Unit,
-    onImageMessageClicked: (String, Boolean) -> Unit,
     onOpenProfile: (String) -> Unit,
+    onLongClicked: (UIMessage) -> Unit,
     onReactionClicked: (String, String) -> Unit,
-    onResetSessionClicked: (senderUserId: UserId, clientId: String?) -> Unit
+    onResetSessionClicked: (senderUserId: UserId, clientId: String?) -> Unit,
+    messageContent: @Composable () -> Unit
 ) {
     with(message) {
         val fullAvatarOuterPadding = dimensions().userAvatarClickablePadding + dimensions().userAvatarStatusBorderSize
+
         Row(
             Modifier
                 .customizeMessageBackground(message)
@@ -101,58 +104,22 @@ fun MessageItem(
                     ) else it
                 }
         ) {
-            Spacer(Modifier.padding(start = dimensions().spacing8x - fullAvatarOuterPadding))
-
-            val isProfileRedirectEnabled =
-                message.messageHeader.userId != null
-                        && !(message.messageHeader.isSenderDeleted || message.messageHeader.isSenderUnavailable)
-
-            val avatarClickable = remember {
-                Clickable(enabled = isProfileRedirectEnabled) {
-                    onOpenProfile(message.messageHeader.userId!!.toString())
-                }
-            }
-            UserProfileAvatar(
-                avatarData = message.userAvatarData,
-                clickable = avatarClickable
+            MessageAvatar(
+                fullAvatarOuterPadding = fullAvatarOuterPadding,
+                messageHeader = message.messageHeader,
+                userAvatarData = message.userAvatarData,
+                onOpenProfile = onOpenProfile
             )
-            Spacer(Modifier.padding(start = dimensions().spacing16x - fullAvatarOuterPadding))
             Column {
                 Spacer(modifier = Modifier.height(fullAvatarOuterPadding))
-                MessageHeader(messageHeader)
+                MessageHeader(messageHeader = messageHeader)
 
                 if (!isDeleted) {
                     if (!decryptionFailed) {
-                        val currentOnAssetClicked = remember {
-                            Clickable(enabled = true, onClick = {
-                                onAssetMessageClicked(message.messageHeader.messageId)
-                            }, onLongClick = {
-                                onLongClicked(message)
-                            })
-                        }
-
-                        val currentOnImageClick = remember {
-                            Clickable(enabled = true, onClick = {
-                                onImageMessageClicked(
-                                    message.messageHeader.messageId,
-                                    message.messageSource == MessageSource.Self
-                                )
-                            }, onLongClick = {
-                                onLongClicked(message)
-                            })
-                        }
-                        val onLongClick = remember { { onLongClicked(message) } }
-
-                        MessageContent(
-                            messageContent = messageContent,
-                            onAssetClick = currentOnAssetClicked,
-                            onImageClick = currentOnImageClick,
-                            onLongClick = onLongClick,
-                            onOpenProfile = onOpenProfile
-                        )
+                        messageContent()
                         MessageFooter(
-                            messageFooter,
-                            onReactionClicked
+                            messageFooter = messageFooter,
+                            onReactionClicked = onReactionClicked
                         )
                     } else {
                         MessageDecryptionFailure(
@@ -169,6 +136,31 @@ fun MessageItem(
             }
         }
     }
+}
+
+@Composable
+private fun MessageAvatar(
+    fullAvatarOuterPadding: Dp,
+    messageHeader: MessageHeader,
+    userAvatarData: UserAvatarData,
+    onOpenProfile: (String) -> Unit
+) {
+    val isProfileRedirectEnabled =
+        messageHeader.userId != null
+                && !(messageHeader.isSenderDeleted || messageHeader.isSenderUnavailable)
+
+    val avatarClickable = remember {
+        Clickable(enabled = isProfileRedirectEnabled) {
+            onOpenProfile(messageHeader.userId!!.toString())
+        }
+    }
+
+    Spacer(Modifier.padding(start = dimensions().spacing8x - fullAvatarOuterPadding))
+    UserProfileAvatar(
+        avatarData = userAvatarData,
+        clickable = avatarClickable
+    )
+    Spacer(Modifier.padding(start = dimensions().spacing16x - fullAvatarOuterPadding))
 }
 
 @Composable
@@ -265,82 +257,46 @@ private fun Username(username: String, modifier: Modifier = Modifier) {
     )
 }
 
-@Suppress("ComplexMethod")
 @Composable
-private fun MessageContent(
-    messageContent: UIMessageContent?,
-    onAssetClick: Clickable,
-    onImageClick: Clickable,
-    onLongClick: (() -> Unit)? = null,
+fun MessageText(
+    messageBody: MessageBody,
+    onLongClick: (() -> Unit)?,
     onOpenProfile: (String) -> Unit
 ) {
-    when (messageContent) {
-        is UIMessageContent.ImageMessage -> MessageImage(
-            asset = messageContent.asset,
-            imgParams = ImageMessageParams(messageContent.width, messageContent.height),
-            uploadStatus = messageContent.uploadStatus,
-            downloadStatus = messageContent.downloadStatus,
-            onImageClick = onImageClick
-        )
+    messageBody.quotedMessage?.let {
+        VerticalSpace.x4()
+        QuotedMessage(it)
+        VerticalSpace.x4()
+    }
+    MessageBody(
+        messageBody = messageBody,
+        onLongClick = onLongClick,
+        onOpenProfile = onOpenProfile
+    )
+}
 
-        is UIMessageContent.TextMessage -> {
-            messageContent.messageBody.quotedMessage?.let {
-                VerticalSpace.x4()
-                QuotedMessage(it)
-                VerticalSpace.x4()
-            }
-            MessageBody(
-                messageBody = messageContent.messageBody,
-                onLongClick = onLongClick,
-                onOpenProfile = onOpenProfile
-            )
+@Composable
+fun MessageRestrictedAsset(
+    assetName: String,
+    assetSizeInBytes: Long,
+    mimeType: String
+) {
+    when {
+        mimeType.contains("image/") -> {
+            RestrictedAssetMessage(R.drawable.ic_gallery, stringResource(id = R.string.prohibited_images_message))
         }
 
-        is UIMessageContent.AssetMessage -> MessageGenericAsset(
-            assetName = messageContent.assetName,
-            assetExtension = messageContent.assetExtension,
-            assetSizeInBytes = messageContent.assetSizeInBytes,
-            assetUploadStatus = messageContent.uploadStatus,
-            assetDownloadStatus = messageContent.downloadStatus,
-            onAssetClick = onAssetClick
-        )
-
-        is UIMessageContent.SystemMessage.MemberAdded -> {}
-        is UIMessageContent.SystemMessage.MemberLeft -> {}
-        is UIMessageContent.SystemMessage.MemberRemoved -> {}
-        is UIMessageContent.SystemMessage.RenamedConversation -> {}
-        is UIMessageContent.SystemMessage.TeamMemberRemoved -> {}
-        is UIMessageContent.SystemMessage.CryptoSessionReset -> {}
-        is UIMessageContent.RestrictedAsset -> {
-            when {
-                messageContent.mimeType.contains("image/") -> {
-                    RestrictedAssetMessage(R.drawable.ic_gallery, stringResource(id = R.string.prohibited_images_message))
-                }
-
-                messageContent.mimeType.contains("video/") -> {
-                    RestrictedAssetMessage(R.drawable.ic_video, stringResource(id = R.string.prohibited_videos_message))
-                }
-
-                messageContent.mimeType.contains("audio/") -> {
-                    RestrictedAssetMessage(R.drawable.ic_speaker_on, stringResource(id = R.string.prohibited_audio_message))
-                }
-
-                else -> {
-                    RestrictedGenericFileMessage(messageContent.assetName, messageContent.assetSizeInBytes)
-                }
-            }
+        mimeType.contains("video/") -> {
+            RestrictedAssetMessage(R.drawable.ic_video, stringResource(id = R.string.prohibited_videos_message))
         }
 
-        is UIMessageContent.PreviewAssetMessage -> {}
-        is UIMessageContent.SystemMessage.MissedCall.YouCalled -> {}
-        is UIMessageContent.SystemMessage.MissedCall.OtherCalled -> {}
-        is UIMessageContent.SystemMessage.NewConversationReceiptMode -> {}
-        is UIMessageContent.SystemMessage.ConversationReceiptModeChanged -> {}
-        null -> {
-            throw NullPointerException("messageContent is null")
+        mimeType.contains("audio/") -> {
+            RestrictedAssetMessage(R.drawable.ic_speaker_on, stringResource(id = R.string.prohibited_audio_message))
         }
-        is UIMessageContent.SystemMessage.Knock -> {}
-        is UIMessageContent.SystemMessage.HistoryLost -> {}
+
+        else -> {
+            RestrictedGenericFileMessage(assetName, assetSizeInBytes)
+        }
     }
 }
 

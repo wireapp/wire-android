@@ -48,6 +48,19 @@ import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 
 val mockFooter = MessageFooter("", mapOf("👍" to 1), setOf("👍"))
 
+val mockMessageBody = MessageBody(
+    UIText.DynamicString(
+        "This is some test message that is very very" +
+                "very very very very" +
+                " very very very" +
+                "very very very very very long"
+    )
+)
+
+val mockMessageTextContent = UIMessageContent.TextMessage(
+    messageBody = mockMessageBody
+)
+
 val mockMessageWithText = UIMessage(
     userAvatarData = UserAvatarData(null, UserAvailabilityStatus.AVAILABLE),
     messageHeader = MessageHeader(
@@ -61,16 +74,7 @@ val mockMessageWithText = UIMessage(
         isSenderDeleted = false,
         isSenderUnavailable = false
     ),
-    messageContent = UIMessageContent.TextMessage(
-        messageBody = MessageBody(
-            UIText.DynamicString(
-                "This is some test message that is very very" +
-                        "very very very very" +
-                        " very very very" +
-                        "very very very very very long"
-            )
-        )
-    ),
+    messageContent = mockMessageTextContent,
     messageSource = MessageSource.Self,
     messageFooter = mockFooter
 )
@@ -86,8 +90,16 @@ val mockImageLoader = WireSessionImageLoader(object : ImageLoader {
     override fun shutdown() = TODO("Not yet implemented")
 })
 
+val mockAssetContent = UIMessageContent.AssetMessage(
+    assetName = "This is some test asset message",
+    assetExtension = "ZIP",
+    assetId = UserAssetId("asset", "domain"),
+    assetSizeInBytes = 21957335,
+    uploadStatus = Message.UploadStatus.UPLOADED,
+    downloadStatus = Message.DownloadStatus.NOT_DOWNLOADED
+)
 
-fun mockAssetMessage(uploadStatus: Message.UploadStatus = Message.UploadStatus.UPLOADED) = UIMessage(
+val mockAssetMessage =  UIMessage(
     userAvatarData = UserAvatarData(
         UserAvatarAsset(mockImageLoader, UserAssetId("a", "domain")),
         UserAvailabilityStatus.AVAILABLE
@@ -102,15 +114,8 @@ fun mockAssetMessage(uploadStatus: Message.UploadStatus = Message.UploadStatus.U
         connectionState = ConnectionState.ACCEPTED,
         isSenderDeleted = false,
         isSenderUnavailable = false
-        ),
-    messageContent = UIMessageContent.AssetMessage(
-        assetName = "This is some test asset message",
-        assetExtension = "ZIP",
-        assetId = UserAssetId("asset", "domain"),
-        assetSizeInBytes = 21957335,
-        uploadStatus = uploadStatus,
-        downloadStatus = Message.DownloadStatus.NOT_DOWNLOADED
     ),
+    messageContent = mockAssetContent,
     messageFooter = mockFooter,
     messageSource = MessageSource.Self
 )
@@ -136,7 +141,7 @@ fun mockedImageUIMessage(uploadStatus: Message.UploadStatus = Message.UploadStat
         connectionState = ConnectionState.ACCEPTED,
         isSenderDeleted = false,
         isSenderUnavailable = false
-        ),
+    ),
     messageContent = mockedImg(uploadStatus),
     messageFooter = mockFooter,
     messageSource = MessageSource.Self
@@ -169,7 +174,7 @@ fun getMockedMessages(): List<UIMessage> = listOf(
         ),
         messageSource = MessageSource.Self,
         messageFooter = mockFooter,
-        ),
+    ),
     UIMessage(
         userAvatarData = UserAvatarData(null, UserAvailabilityStatus.AVAILABLE),
         messageHeader = MessageHeader(
@@ -186,7 +191,7 @@ fun getMockedMessages(): List<UIMessage> = listOf(
         messageContent = mockedImg(),
         messageSource = MessageSource.Self,
         messageFooter = mockFooter,
-        ),
+    ),
     UIMessage(
         userAvatarData = UserAvatarData(null, UserAvailabilityStatus.AVAILABLE),
         messageHeader = MessageHeader(
@@ -203,7 +208,7 @@ fun getMockedMessages(): List<UIMessage> = listOf(
         messageContent = mockedImg(),
         messageSource = MessageSource.Self,
         messageFooter = mockFooter,
-        ),
+    ),
     UIMessage(
         userAvatarData = UserAvatarData(null, UserAvailabilityStatus.AVAILABLE),
         messageHeader = MessageHeader(
@@ -220,7 +225,7 @@ fun getMockedMessages(): List<UIMessage> = listOf(
         messageContent = mockedImg(),
         messageSource = MessageSource.Self,
         messageFooter = mockFooter,
-        ),
+    ),
     UIMessage(
         userAvatarData = UserAvatarData(null, UserAvailabilityStatus.AVAILABLE),
         messageHeader = MessageHeader(
@@ -246,7 +251,7 @@ fun getMockedMessages(): List<UIMessage> = listOf(
         ),
         messageSource = MessageSource.Self,
         messageFooter = mockFooter
-        ),
+    ),
     UIMessage(
         userAvatarData = UserAvatarData(null, UserAvailabilityStatus.AVAILABLE),
         messageHeader = MessageHeader(
@@ -263,7 +268,7 @@ fun getMockedMessages(): List<UIMessage> = listOf(
         messageContent = mockedImg(),
         messageSource = MessageSource.Self,
         messageFooter = mockFooter,
-        ),
+    ),
     UIMessage(
         userAvatarData = UserAvatarData(null, UserAvailabilityStatus.AVAILABLE),
         messageHeader = MessageHeader(
@@ -305,6 +310,6 @@ fun getMockedMessages(): List<UIMessage> = listOf(
         ),
         messageSource = MessageSource.Self,
         messageFooter = mockFooter
-        )
+    )
 )
 

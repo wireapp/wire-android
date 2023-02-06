@@ -24,7 +24,6 @@ import android.app.DownloadManager
 import android.content.Intent
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -53,6 +52,8 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.items
 import com.wire.android.R
+import com.wire.android.media.audiomessage.AudioState
+import com.wire.android.model.Clickable
 import com.wire.android.model.SnackBarMessage
 import com.wire.android.navigation.hiltSavedStateViewModel
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
@@ -76,8 +77,13 @@ import com.wire.android.ui.home.conversations.info.ConversationInfoViewState
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewModel
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewState
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
+import com.wire.android.ui.home.conversations.model.MessageGenericAsset
+import com.wire.android.ui.home.conversations.model.MessageImage
+import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent
+import com.wire.android.ui.home.conversations.model.messagetypes.audio.AudioMessage
+import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMessageParams
 import com.wire.android.ui.home.messagecomposer.MessageComposeInputState
 import com.wire.android.ui.home.messagecomposer.MessageComposeInputType
 import com.wire.android.ui.home.messagecomposer.MessageComposer
@@ -193,6 +199,8 @@ fun ConversationScreen(
         onDropDownClick = conversationInfoViewModel::navigateToDetails,
         onSnackbarMessage = messageComposerViewModel::onSnackbarMessage,
         onBackButtonClick = messageComposerViewModel::navigateBack,
+        onAudioClick = conversationMessagesViewModel::audioClick,
+        onChangeAudioPosition = conversationMessagesViewModel::changeAudioPosition,
         composerMessages = messageComposerViewModel.infoMessage,
         conversationMessages = conversationMessagesViewModel.infoMessage,
         conversationMessagesViewModel = conversationMessagesViewModel
@@ -252,7 +260,7 @@ private fun StartCallAudioBluetoothPermissionCheckFlow(
     // TODO display an error dialog
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class, ExperimentalLayoutApi::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Suppress("LongParameterList")
 @Composable
 private fun ConversationScreen(
@@ -274,6 +282,8 @@ private fun ConversationScreen(
     onImageFullScreenMode: (String, Boolean) -> Unit,
     onOpenOngoingCallScreen: () -> Unit,
     onStartCall: () -> Unit,
+    onAudioClick: (String) -> Unit,
+    onChangeAudioPosition: (String, Int) -> Unit,
     onJoinCall: () -> Unit,
     onReactionClick: (messageId: String, reactionEmoji: String) -> Unit,
     onResetSessionClick: (senderUserId: UserId, clientId: String?) -> Unit,
@@ -345,7 +355,10 @@ private fun ConversationScreen(
                         tempCachePath = tempCachePath,
                         membersToMention = membersToMention,
                         isFileSharingEnabled = conversationViewState.isFileSharingEnabled,
+                        onAudioClick = onAudioClick,
+                        onChangeAudioPosition = onChangeAudioPosition,
                         lastUnreadMessageInstant = conversationMessagesViewState.firstUnreadInstant,
+                        audioMessagesState = conversationMessagesViewState.audioMessagesState,
                         conversationState = conversationViewState,
                         messageComposerInnerState = messageComposerInnerState,
                         messages = conversationMessagesViewState.messages,
@@ -355,8 +368,7 @@ private fun ConversationScreen(
                         onDownloadAsset = onDownloadAsset,
                         onImageFullScreenMode = onImageFullScreenMode,
                         onReactionClicked = onReactionClick,
-                        onResetSessionClicked = onResetSessionClick,
-                        onOpenProfile = onOpenProfile,
+                        onResetSessionClicked = onResetSessionClick, onOpenProfile = onOpenProfile,
                         onUpdateConversationReadDate = onUpdateConversationReadDate,
                         onMessageComposerError = onSnackbarMessage,
                         onShowContextMenu = conversationScreenState::showEditContextMenu
@@ -377,10 +389,13 @@ private fun ConversationScreenContent(
     isFileSharingEnabled: Boolean,
     lastUnreadMessageInstant: Instant?,
     conversationState: ConversationViewState,
+    audioMessagesState: Map<String, AudioState>,
     messageComposerInnerState: MessageComposerInnerState,
     messages: Flow<PagingData<UIMessage>>,
     onSendMessage: (String, List<UiMention>, String?) -> Unit,
     onSendAttachment: (AttachmentBundle?) -> Unit,
+    onAudioClick: (String) -> Unit,
+    onChangeAudioPosition: (String, Int) -> Unit,
     onMentionMember: (String?) -> Unit,
     onDownloadAsset: (String) -> Unit,
     onImageFullScreenMode: (String, Boolean) -> Unit,
@@ -407,9 +422,12 @@ private fun ConversationScreenContent(
                 lazyPagingMessages = lazyPagingMessages,
                 lazyListState = lazyListState,
                 lastUnreadMessageInstant = lastUnreadMessageInstant,
+                audioMessagesState = audioMessagesState,
                 onUpdateConversationReadDate = onUpdateConversationReadDate,
                 onDownloadAsset = onDownloadAsset,
                 onImageFullScreenMode = onImageFullScreenMode,
+                onAudioClick = onAudioClick,
+                onChangeAudioPosition = onChangeAudioPosition,
                 onOpenProfile = onOpenProfile,
                 onReactionClicked = onReactionClicked,
                 onResetSessionClicked = onResetSessionClicked,
@@ -483,13 +501,17 @@ private fun SnackBarMessage(
     }
 }
 
+@Suppress("ComplexMethod")
 @Composable
 fun MessageList(
     lazyPagingMessages: LazyPagingItems<UIMessage>,
     lazyListState: LazyListState,
     lastUnreadMessageInstant: Instant?,
+    audioMessagesState: Map<String, AudioState>,
     onUpdateConversationReadDate: (String) -> Unit,
     onDownloadAsset: (String) -> Unit,
+    onAudioClick: (String) -> Unit,
+    onChangeAudioPosition: (String, Int) -> Unit,
     onImageFullScreenMode: (String, Boolean) -> Unit,
     onOpenProfile: (String) -> Unit,
     onReactionClicked: (String, String) -> Unit,
@@ -538,12 +560,115 @@ fun MessageList(
             } else {
                 MessageItem(
                     message = message,
-                    onLongClicked = onShowContextMenu,
-                    onAssetMessageClicked = onDownloadAsset,
-                    onImageMessageClicked = onImageFullScreenMode,
                     onOpenProfile = onOpenProfile,
+                    onLongClicked = onShowContextMenu,
                     onReactionClicked = onReactionClicked,
-                    onResetSessionClicked = onResetSessionClicked
+                    onResetSessionClicked = onResetSessionClicked,
+                    messageContent = {
+                        when (val messageContent = message.messageContent) {
+                            is UIMessageContent.ImageMessage -> {
+                                val imageClickable = remember {
+                                    Clickable(enabled = true, onClick = {
+                                        onImageFullScreenMode(
+                                            message.messageHeader.messageId,
+                                            message.messageSource == MessageSource.Self
+                                        )
+                                    }, onLongClick = {
+                                        onShowContextMenu(message)
+                                    })
+                                }
+
+                                MessageImage(
+                                    asset = messageContent.asset,
+                                    imgParams = ImageMessageParams(messageContent.width, messageContent.height),
+                                    uploadStatus = messageContent.uploadStatus,
+                                    downloadStatus = messageContent.downloadStatus,
+                                    onImageClick = imageClickable
+                                )
+                            }
+
+                            is UIMessageContent.TextMessage -> {
+                                MessageText(
+                                    messageBody = messageContent.messageBody,
+                                    onLongClick = { onShowContextMenu(message) },
+                                    onOpenProfile = onOpenProfile
+                                )
+                            }
+
+                            is UIMessageContent.AssetMessage -> {
+                                val assetClickable = remember {
+                                    Clickable(enabled = true, onClick = {
+                                        onDownloadAsset(message.messageHeader.messageId)
+                                    }, onLongClick = {
+                                        onShowContextMenu(message)
+                                    })
+                                }
+
+                                MessageGenericAsset(
+                                    assetName = messageContent.assetName,
+                                    assetExtension = messageContent.assetExtension,
+                                    assetSizeInBytes = messageContent.assetSizeInBytes,
+                                    assetUploadStatus = messageContent.uploadStatus,
+                                    assetDownloadStatus = messageContent.downloadStatus,
+                                    onAssetClick = assetClickable
+                                )
+                            }
+
+                            is UIMessageContent.RestrictedAsset -> {
+                                MessageRestrictedAsset(
+                                    assetName = messageContent.assetName,
+                                    assetSizeInBytes = messageContent.assetSizeInBytes,
+                                    mimeType = messageContent.mimeType
+                                )
+                            }
+
+                            is UIMessageContent.AudioAssetMessage -> {
+                                // in case the user did not play the audio message yet, we don't have the audio state
+                                // that is coming from ConversationMessageAudioPlayer, in that case we refer to
+                                // the default values for the audio message, which is PAUSED state and 0 as current position
+                                // we treat totalTimeInMs from backend as the source of truth
+                                // in order to be sure that all clients are in sync regarding the audio message duration
+                                // however if it returns 0 we fallback to the duration from the audio player
+                                val audioMessageState: AudioState =
+                                    audioMessagesState[message.messageHeader.messageId] ?: AudioState.DEFAULT
+
+                                val totalTimeInMs = if (messageContent.audioMessageDurationInMs.toInt() == 0) {
+                                    audioMessageState.totalTimeInMs
+                                } else {
+                                    messageContent.audioMessageDurationInMs.toInt()
+                                }
+
+                                AudioMessage(
+                                    audioMediaPlayingState = audioMessageState.audioMediaPlayingState,
+                                    totalTimeInMs = totalTimeInMs,
+                                    currentPositionInMs = audioMessageState.currentPositionInMs,
+                                    onPlayButtonClick = { onAudioClick(message.messageHeader.messageId) },
+                                    onSliderPositionChange = { position ->
+                                        onChangeAudioPosition(message.messageHeader.messageId, position.toInt())
+                                    },
+                                    onAudioMessageLongClick = { onShowContextMenu(message) }
+                                )
+                            }
+
+                            is UIMessageContent.PreviewAssetMessage -> {}
+                            is UIMessageContent.SystemMessage.MemberAdded -> {}
+                            is UIMessageContent.SystemMessage.MemberLeft -> {}
+                            is UIMessageContent.SystemMessage.MemberRemoved -> {}
+                            is UIMessageContent.SystemMessage.RenamedConversation -> {}
+                            is UIMessageContent.SystemMessage.TeamMemberRemoved -> {}
+                            is UIMessageContent.SystemMessage.CryptoSessionReset -> {}
+                            is UIMessageContent.SystemMessage.MissedCall.YouCalled -> {}
+                            is UIMessageContent.SystemMessage.MissedCall.OtherCalled -> {}
+                            is UIMessageContent.SystemMessage.ConversationReceiptModeChanged -> {}
+                            is UIMessageContent.SystemMessage.HistoryLost -> {}
+                            is UIMessageContent.SystemMessage.Knock -> {}
+                            is UIMessageContent.SystemMessage.NewConversationReceiptMode -> {}
+                            null -> {
+                                throw NullPointerException("messageContent is null")
+                            }
+
+                        }
+                    }
                 )
             }
         }
@@ -580,8 +705,10 @@ fun PreviewConversationScreen() {
         onDropDownClick = { },
         onSnackbarMessage = { _ -> },
         onBackButtonClick = {},
+        onAudioClick = {},
         composerMessages = MutableStateFlow(ErrorDownloadingAsset),
         conversationMessages = MutableStateFlow(ErrorDownloadingAsset),
+        onChangeAudioPosition = { _, _ -> },
         conversationMessagesViewModel = hiltViewModel()
     )
 }

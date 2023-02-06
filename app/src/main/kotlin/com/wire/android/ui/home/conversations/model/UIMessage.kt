@@ -126,6 +126,16 @@ sealed class UIMessageContent {
         val downloadStatus: Message.DownloadStatus
     ) : UIMessageContent()
 
+    @Stable
+    data class AudioAssetMessage(
+        val assetName: String,
+        val assetExtension: String,
+        val assetId: AssetId,
+        val audioMessageDurationInMs: Long,
+        val uploadStatus: Message.UploadStatus,
+        val downloadStatus: Message.DownloadStatus
+    ) : UIMessageContent()
+
     data class ImageMessage(
         val assetId: AssetId,
         val asset: ImageAsset.PrivateAsset?,
@@ -219,6 +229,8 @@ data class QuotedMessageUIData(
         val displayable: ImageAsset.PrivateAsset
     ) : Content
 
+    data class AudioMessage(val assetName: String?) : Content
+
     object Deleted : Content
     object Invalid : Content
 }
@@ -230,3 +242,4 @@ enum class MessageSource {
 data class MessageTime(val utcISO: String) {
     val formattedDate = utcISO.uiMessageDateTime() ?: ""
 }
+

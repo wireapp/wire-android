@@ -24,11 +24,16 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
+import com.wire.android.media.audiomessage.AudioMediaPlayingState
+import com.wire.android.model.Clickable
 import com.wire.android.ui.home.conversations.MessageItem
+import com.wire.android.ui.home.conversations.MessageText
 import com.wire.android.ui.home.conversations.SystemMessageItem
+import com.wire.android.ui.home.conversations.mock.mockAssetContent
 import com.wire.android.ui.home.conversations.mock.mockAssetMessage
+import com.wire.android.ui.home.conversations.mock.mockMessageBody
 import com.wire.android.ui.home.conversations.mock.mockMessageWithText
-import com.wire.android.ui.home.conversations.mock.mockedImageUIMessage
+import com.wire.android.ui.home.conversations.model.messagetypes.audio.AudioMessage
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.user.UserId
@@ -47,10 +52,15 @@ fun PreviewMessage() {
                 )
             )
         ),
+        messageContent = {
+            MessageText(
+                messageBody = mockMessageBody,
+                onOpenProfile = {},
+                onLongClick = {}
+            )
+        },
         onLongClicked = {},
-        onAssetMessageClicked = {},
-        onImageMessageClicked = { _, _ -> },
-        onOpenProfile = { _ -> },
+        onOpenProfile = {},
         onReactionClicked = { _, _ -> },
         onResetSessionClicked = { _, _ -> }
     )
@@ -65,9 +75,15 @@ fun PreviewMessageWithReply() {
                 username = UIText.DynamicString(
                     "Don Joe"
                 )
-            ),
-            messageContent = UIMessageContent.TextMessage(
-                MessageBody(
+            )
+        ),
+        onLongClicked = {},
+        onOpenProfile = { },
+        onReactionClicked = { _, _ -> },
+        onResetSessionClicked = { _, _ -> },
+        messageContent = {
+            MessageText(
+                messageBody = MessageBody(
                     message = UIText.DynamicString("Sure, go ahead!"),
                     quotedMessage = QuotedMessageUIData(
                         messageId = "asdoij",
@@ -77,29 +93,30 @@ fun PreviewMessageWithReply() {
                         editedTimeDescription = UIText.StringResource(R.string.label_message_status_edited_with_date, "10:32"),
                         quotedContent = QuotedMessageUIData.Text("Hey, can I call right now?")
                     )
-                )
+                ),
+                onLongClick = { },
+                onOpenProfile = { }
             )
-        ),
-        onLongClicked = {},
-        onAssetMessageClicked = {},
-        onImageMessageClicked = { _, _ -> },
-        onOpenProfile = { _ -> },
-        onReactionClicked = { _, _ -> },
-        onResetSessionClicked = { _, _ -> }
+        }
     )
 }
 
 @Preview(showBackground = true)
 @Composable
-fun PreviewDeletedMessage() {
+fun PreviewEditedMessage() {
     MessageItem(
         message = mockMessageWithText.let {
             it.copy(messageHeader = it.messageHeader.copy(messageStatus = MessageStatus.Edited("")))
         },
+        messageContent = {
+            MessageText(
+                messageBody = mockMessageBody,
+                onOpenProfile = {},
+                onLongClick = {}
+            )
+        },
         onLongClicked = {},
-        onAssetMessageClicked = {},
-        onImageMessageClicked = { _, _ -> },
-        onOpenProfile = { _ -> },
+        onOpenProfile = {},
         onReactionClicked = { _, _ -> },
         onResetSessionClicked = { _, _ -> }
     )
@@ -109,27 +126,21 @@ fun PreviewDeletedMessage() {
 @Composable
 fun PreviewAssetMessage() {
     MessageItem(
-        message = mockAssetMessage(),
+        message = mockAssetMessage,
+        messageContent = {
+            MessageGenericAsset(
+                assetName = mockAssetContent.assetName,
+                assetExtension = mockAssetContent.assetExtension,
+                assetSizeInBytes = mockAssetContent.assetSizeInBytes,
+                assetUploadStatus = mockAssetContent.uploadStatus,
+                assetDownloadStatus = mockAssetContent.downloadStatus,
+                onAssetClick = Clickable()
+            )
+        },
         onLongClicked = {},
-        onAssetMessageClicked = {},
-        onImageMessageClicked = { _, _ -> },
-        onOpenProfile = { _ -> },
+        onOpenProfile = {},
         onReactionClicked = { _, _ -> },
-        onResetSessionClicked = { _, _ -> }
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewImageMessageUploaded() {
-    MessageItem(
-        message = mockedImageUIMessage(Message.UploadStatus.UPLOADED),
-        onLongClicked = {},
-        onAssetMessageClicked = {},
-        onImageMessageClicked = { _, _ -> },
-        onOpenProfile = { _ -> },
-        onReactionClicked = { _, _ -> },
-        onResetSessionClicked = { _, _ -> }
+        onResetSessionClicked = { _, _ -> },
     )
 }
 
@@ -137,13 +148,21 @@ fun PreviewImageMessageUploaded() {
 @Composable
 fun PreviewImageMessageUploading() {
     MessageItem(
-        message = mockedImageUIMessage(Message.UploadStatus.UPLOAD_IN_PROGRESS),
+        message = mockAssetMessage,
+        messageContent = {
+            MessageGenericAsset(
+                assetName = mockAssetContent.assetName,
+                assetExtension = mockAssetContent.assetExtension,
+                assetSizeInBytes = mockAssetContent.assetSizeInBytes,
+                assetUploadStatus = Message.UploadStatus.UPLOAD_IN_PROGRESS,
+                assetDownloadStatus = mockAssetContent.downloadStatus,
+                onAssetClick = Clickable()
+            )
+        },
         onLongClicked = {},
-        onAssetMessageClicked = {},
-        onImageMessageClicked = { _, _ -> },
-        onOpenProfile = { _ -> },
+        onOpenProfile = {},
         onReactionClicked = { _, _ -> },
-        onResetSessionClicked = { _, _ -> }
+        onResetSessionClicked = { _, _ -> },
     )
 }
 
@@ -151,13 +170,21 @@ fun PreviewImageMessageUploading() {
 @Composable
 fun PreviewImageMessageFailedUpload() {
     MessageItem(
-        message = mockedImageUIMessage(Message.UploadStatus.FAILED_UPLOAD),
+        message = mockAssetMessage,
+        messageContent = {
+            MessageGenericAsset(
+                assetName = mockAssetContent.assetName,
+                assetExtension = mockAssetContent.assetExtension,
+                assetSizeInBytes = mockAssetContent.assetSizeInBytes,
+                assetUploadStatus = Message.UploadStatus.FAILED_UPLOAD,
+                assetDownloadStatus = mockAssetContent.downloadStatus,
+                onAssetClick = Clickable()
+            )
+        },
         onLongClicked = {},
-        onAssetMessageClicked = {},
-        onImageMessageClicked = { _, _ -> },
-        onOpenProfile = { _ -> },
+        onOpenProfile = {},
         onReactionClicked = { _, _ -> },
-        onResetSessionClicked = { _, _ -> }
+        onResetSessionClicked = { _, _ -> },
     )
 }
 
@@ -167,10 +194,15 @@ fun PreviewMessageWithSystemMessage() {
     Column {
         MessageItem(
             message = mockMessageWithText,
+            messageContent = {
+                MessageText(
+                    messageBody = mockMessageBody,
+                    onOpenProfile = {},
+                    onLongClick = {}
+                )
+            },
             onLongClicked = {},
-            onAssetMessageClicked = {},
-            onImageMessageClicked = { _, _ -> },
-            onOpenProfile = { _ -> },
+            onOpenProfile = {},
             onReactionClicked = { _, _ -> },
             onResetSessionClicked = { _, _ -> }
         )
@@ -183,3 +215,93 @@ fun PreviewMessageWithSystemMessage() {
         )
     }
 }
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewMessageWithPlayingAudioMessage() {
+    MessageItem(
+        message = mockMessageWithText,
+        messageContent = {
+            AudioMessage(
+                audioMediaPlayingState = AudioMediaPlayingState.Playing,
+                totalTimeInMs = 100,
+                currentPositionInMs = 15,
+                onPlayButtonClick = {},
+                onSliderPositionChange = {},
+                onAudioMessageLongClick = {}
+            )
+        },
+        onLongClicked = {},
+        onOpenProfile = {},
+        onReactionClicked = { _, _ -> },
+        onResetSessionClicked = { _, _ -> }
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewMessageWithPausedAudioMessage() {
+    MessageItem(
+        message = mockMessageWithText,
+        messageContent = {
+            AudioMessage(
+                audioMediaPlayingState = AudioMediaPlayingState.Paused,
+                totalTimeInMs = 100,
+                currentPositionInMs = 15,
+                onPlayButtonClick = { },
+                onSliderPositionChange = {},
+                onAudioMessageLongClick = {}
+            )
+        },
+        onLongClicked = {},
+        onOpenProfile = {},
+        onReactionClicked = { _, _ -> },
+        onResetSessionClicked = { _, _ -> }
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewMessageWithStoppedAudioMessage() {
+    MessageItem(
+        message = mockMessageWithText,
+        messageContent = {
+            AudioMessage(
+                audioMediaPlayingState = AudioMediaPlayingState.Stopped,
+                totalTimeInMs = 100,
+                currentPositionInMs = 15,
+                onPlayButtonClick = { },
+                onSliderPositionChange = {},
+                onAudioMessageLongClick = {}
+
+            )
+        },
+        onLongClicked = {},
+        onOpenProfile = {},
+        onReactionClicked = { _, _ -> },
+        onResetSessionClicked = { _, _ -> }
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewMessageWithCompletedAudioMessage() {
+    MessageItem(
+        message = mockMessageWithText,
+        messageContent = {
+            AudioMessage(
+                audioMediaPlayingState = AudioMediaPlayingState.Completed,
+                totalTimeInMs = 100,
+                currentPositionInMs = 100,
+                onPlayButtonClick = { },
+                onSliderPositionChange = {},
+                onAudioMessageLongClick = {}
+            )
+        },
+        onLongClicked = {},
+        onOpenProfile = {},
+        onReactionClicked = { _, _ -> },
+        onResetSessionClicked = { _, _ -> }
+    )
+}
+

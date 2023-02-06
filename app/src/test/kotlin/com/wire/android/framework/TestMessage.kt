@@ -20,7 +20,7 @@
 
 package com.wire.android.framework
 
-import com.wire.android.mapper.AssetMessageContentMetadata
+import com.wire.android.mapper.message.content.asset.AssetMessageContentMetadata
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.home.conversations.model.MessageBody
 import com.wire.android.ui.home.conversations.model.MessageFooter

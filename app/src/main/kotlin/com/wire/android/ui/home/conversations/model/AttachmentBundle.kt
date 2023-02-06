@@ -20,6 +20,7 @@
 
 package com.wire.android.ui.home.conversations.model
 
+import com.wire.kalium.logic.data.asset.isAudioMimeType
 import com.wire.kalium.logic.data.asset.isDisplayableImageMimeType
 import okio.Path
 
@@ -36,11 +37,12 @@ data class AttachmentBundle(
 
 enum class AttachmentType {
     // TODO: Add audio or video later on
-    IMAGE, GENERIC_FILE;
+    IMAGE, AUDIO, GENERIC_FILE;
 
     companion object {
         fun fromMimeTypeString(mimeType: String): AttachmentType =
             if (isDisplayableImageMimeType(mimeType)) IMAGE
+            else if (isAudioMimeType(mimeType)) AUDIO
             else GENERIC_FILE
     }
 }

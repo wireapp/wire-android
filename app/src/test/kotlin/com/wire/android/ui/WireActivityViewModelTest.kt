@@ -40,6 +40,7 @@ import com.wire.android.ui.joinConversation.JoinConversationViaCodeState
 import com.wire.android.util.deeplink.DeepLinkProcessor
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.android.util.newServerConfig
+import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
@@ -69,6 +70,7 @@ import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
 import org.amshove.kluent.internal.assertEquals
 import org.amshove.kluent.`should be equal to`
+import org.amshove.kluent.`should not be equal to`
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -493,6 +495,24 @@ class WireActivityViewModelTest {
         coVerify(exactly = 1) { arrangement.navigationManager.navigate(any()) }
     }
 
+    @Test
+    fun `given invalid code, when try to join conversaion, then show error`() {
+        val (code, key, domain) = Triple("code", "key", "domain")
+        val (arrangement, viewModel) = Arrangement()
+            .withSomeCurrentSession()
+            .withDeepLinkResult(DeepLinkResult.JoinConversation(code, key, domain))
+            .withJoinConversationCodeError(
+                code,
+                key,
+                domain,
+                JoinConversationViaCodeUseCase.Result.Failure(CoreFailure.Unknown(RuntimeException("Error")))
+            )
+            .arrange()
+
+        viewModel.joinConversationViaCode(code, key, domain)
+        viewModel.globalAppState.conversationJoinedDialog `should not be equal to` null
+    }
+
     private class Arrangement {
         init {
             // Tests setup
@@ -634,6 +654,16 @@ class WireActivityViewModelTest {
             key: String,
             domain: String,
             result: JoinConversationViaCodeUseCase.Result
+        ): Arrangement = apply {
+            coEvery { coreLogic.getSessionScope(TEST_ACCOUNT_INFO.userId).conversations.joinConversationViaCode(code, key, domain) } returns
+                    result
+        }
+
+        fun withJoinConversationCodeError(
+            code: String,
+            key: String,
+            domain: String,
+            result: JoinConversationViaCodeUseCase.Result.Failure
         ): Arrangement = apply {
             coEvery { coreLogic.getSessionScope(TEST_ACCOUNT_INFO.userId).conversations.joinConversationViaCode(code, key, domain) } returns
                     result

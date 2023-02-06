@@ -29,6 +29,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
+import android.os.Environment
 import android.os.Environment.DIRECTORY_DOWNLOADS
 import android.provider.MediaStore
 import android.provider.OpenableColumns
@@ -36,12 +37,15 @@ import android.provider.Settings
 import android.webkit.MimeTypeMap
 import androidx.annotation.AnyRes
 import androidx.annotation.NonNull
+import androidx.annotation.VisibleForTesting
 import androidx.core.content.FileProvider
 import com.wire.android.appLogger
 import com.wire.android.util.ImageUtil.ImageSizeClass
 import com.wire.android.util.ImageUtil.ImageSizeClass.Medium
 import com.wire.android.util.dispatchers.DefaultDispatcherProvider
 import com.wire.android.util.dispatchers.DispatcherProvider
+import com.wire.kalium.logic.util.buildFileName
+import com.wire.kalium.logic.util.splitFileExtensionAndCopyCounter
 import kotlinx.coroutines.withContext
 import okio.Path
 import okio.Path.Companion.toPath
@@ -93,14 +97,18 @@ private fun Context.saveFileDataToDownloadsFolder(assetName: String, downloadedD
     val resolver = contentResolver
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
         val contentValues = ContentValues().apply {
-            put(MediaStore.MediaColumns.DISPLAY_NAME, assetName)
+            // ContentResolver modifies the name if another file with the given name already exists, so we don't have to worry about it
+            put(MediaStore.MediaColumns.DISPLAY_NAME, assetName.ifEmpty { ATTACHMENT_FILENAME })
             put(MediaStore.MediaColumns.MIME_TYPE, Uri.parse(downloadedDataPath.toString()).getMimeType(this@saveFileDataToDownloadsFolder))
             put(MediaStore.MediaColumns.SIZE, fileSize)
         }
         resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)
     } else {
         val authority = getProviderAuthority()
-        val destinationFile = File(getExternalFilesDir(DIRECTORY_DOWNLOADS), assetName)
+        val downloadsDir = Environment.getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS)
+        // we need to find the next available name with copy counter by ourselves before copying
+        val availableAssetName = findFirstUniqueName(downloadsDir, assetName.ifEmpty { ATTACHMENT_FILENAME })
+        val destinationFile = File(downloadsDir, availableAssetName)
         FileProvider.getUriForFile(this, authority, destinationFile)
     }?.also { downloadedUri ->
         resolver.openOutputStream(downloadedUri).use { outputStream ->
@@ -176,9 +184,8 @@ fun Context.startFileShareIntent(path: String) {
     startActivity(shareIntent)
 }
 
-fun saveFileToDownloadsFolder(assetName: String, assetDataPath: Path, assetDataSize: Long, context: Context) {
+fun saveFileToDownloadsFolder(assetName: String, assetDataPath: Path, assetDataSize: Long, context: Context): Uri? =
     context.saveFileDataToDownloadsFolder(assetName, assetDataPath, assetDataSize)
-}
 
 fun Context.multipleFileSharingIntent(uris: ArrayList<Uri>): Intent {
 
@@ -264,8 +271,19 @@ fun Context.getGitBuildId(): String = runCatching {
     }
 }.getOrDefault("")
 
-fun Context.getProviderAuthority() = "${packageName}.provider"
+fun Context.getProviderAuthority() = "$packageName.provider"
 
-private const val TEMP_IMG_ATTACHMENT_FILENAME = "temp_img_attachment.jpg"
-private const val TEMP_VIDEO_ATTACHMENT_FILENAME = "temp_video_attachment.mp4"
+@VisibleForTesting
+fun findFirstUniqueName(dir: File, desiredName: String): String {
+    var currentName: String = desiredName
+    while (File(dir, currentName).exists()) {
+        val (nameWithoutCopyCounter, copyCounter, extension) = currentName.splitFileExtensionAndCopyCounter()
+        currentName = buildFileName(nameWithoutCopyCounter, extension, copyCounter + 1)
+    }
+    return currentName
+}
+
+private const val ATTACHMENT_FILENAME = "attachment"
+private const val TEMP_IMG_ATTACHMENT_FILENAME = "image_attachment.jpg"
+private const val TEMP_VIDEO_ATTACHMENT_FILENAME = "video_attachment.mp4"
 private const val DATA_COPY_BUFFER_SIZE = 2048

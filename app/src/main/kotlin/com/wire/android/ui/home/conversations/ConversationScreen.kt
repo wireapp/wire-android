@@ -36,6 +36,8 @@ import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -82,12 +84,13 @@ import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.conversations.model.messagetypes.audio.AudioMessage
 import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMessageParams
+import com.wire.android.ui.home.messagecomposer.MessageComposeInputState
+import com.wire.android.ui.home.messagecomposer.MessageComposeInputType
 import com.wire.android.ui.home.messagecomposer.MessageComposer
 import com.wire.android.ui.home.messagecomposer.MessageComposerInnerState
 import com.wire.android.ui.home.messagecomposer.UiMention
 import com.wire.android.ui.home.messagecomposer.rememberMessageComposerInnerState
 import com.wire.android.ui.home.newconversation.model.Contact
-import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 import com.wire.android.util.permission.CallingAudioRequestFlow
 import com.wire.android.util.permission.rememberCallingRecordAudioBluetoothRequestFlow
 import com.wire.android.util.ui.UIText
@@ -253,7 +256,7 @@ private fun StartCallAudioBluetoothPermissionCheckFlow(
 ) = rememberCallingRecordAudioBluetoothRequestFlow(onAudioBluetoothPermissionGranted = {
     onStartCall()
 }) {
-    //TODO display an error dialog
+    // TODO display an error dialog
 }
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
@@ -294,59 +297,21 @@ private fun ConversationScreen(
     val conversationScreenState = rememberConversationScreenState()
     val messageComposerInnerState = rememberMessageComposerInnerState()
 
-    val menuModalOnDeleteMessage = remember {
-        {
-            conversationScreenState.hideEditContextMenu {
-                onDeleteMessage(
-                    conversationScreenState.selectedMessage?.messageHeader!!.messageId,
-                    conversationScreenState.isMyMessage
-                )
-            }
-        }
-    }
-
-    val menuModalOnReactionClick = remember {
-        { emoji: String ->
-            conversationScreenState.hideEditContextMenu {
-                onReactionClick(
-                    conversationScreenState.selectedMessage?.messageHeader!!.messageId,
-                    emoji
-                )
-            }
-        }
-    }
-
-    val menuModalOnMessageDetailsClick = remember {
-        {
-            conversationScreenState.hideEditContextMenu {
-                onMessageDetailsClick(
-                    conversationScreenState.selectedMessage?.messageHeader!!.messageId,
-                    conversationScreenState.isMyMessage,
-                )
-            }
-        }
-    }
-
-    val localFeatureVisibilityFlags = LocalFeatureVisibilityFlags.current
-
     MenuModalSheetLayout(
         sheetState = conversationScreenState.modalBottomSheetState,
         coroutineScope = conversationScreenState.coroutineScope,
-        menuItems = EditMessageMenuItems(
-            isCopyable = conversationScreenState.isTextMessage,
-            isEditable = conversationScreenState.isMyMessage && localFeatureVisibilityFlags.MessageEditIcon,
-            isAvailable = conversationScreenState.selectedMessage?.isAvailable ?: false,
-            onCopyMessage = conversationScreenState::copyMessage,
-            onDeleteMessage = menuModalOnDeleteMessage,
-            onReactionClick = menuModalOnReactionClick,
-            onMessageDetailsClick = menuModalOnMessageDetailsClick,
-            onReply = {
-                conversationScreenState.selectedMessage?.let {
-                    messageComposerInnerState.reply(it)
-                    conversationScreenState.hideEditContextMenu()
-                }
-            }
-        )
+        menuItems = conversationScreenState.selectedMessage?.let { message ->
+            EditMessageMenuItems(
+                message = message,
+                hideEditMessageMenu = conversationScreenState::hideEditContextMenu,
+                onCopyClick = conversationScreenState::copyMessage,
+                onDeleteClick = onDeleteMessage,
+                onReactionClick = onReactionClick,
+                onDetailsClick = onMessageDetailsClick,
+                onReplyClick = messageComposerInnerState::reply,
+                onEditClick = messageComposerInnerState::toEditMessage,
+            )
+        } ?: emptyList()
     ) {
         Scaffold(
             topBar = {
@@ -481,6 +446,23 @@ private fun ConversationScreenContent(
         securityClassificationType = conversationState.securityClassificationType,
         membersToMention = membersToMention
     )
+
+    val currentEditMessageId: String? by remember(messageComposerInnerState.messageComposeInputState) {
+        derivedStateOf {
+            (messageComposerInnerState.messageComposeInputState as? MessageComposeInputState.Active)?.let {
+                (it.type as? MessageComposeInputType.EditMessage)?.messageId
+            }
+        }
+    }
+
+    LaunchedEffect(currentEditMessageId) {
+        // executes when the id of currently being edited message changes, if not currently editing then it's just null
+        if (currentEditMessageId != null) {
+            lazyPagingMessages.itemSnapshotList.items
+                .indexOfFirst { it.messageHeader.messageId == currentEditMessageId }
+                .let { if (it >= 0) lazyListState.animateScrollToItem(it) }
+        }
+    }
 }
 
 @Composable

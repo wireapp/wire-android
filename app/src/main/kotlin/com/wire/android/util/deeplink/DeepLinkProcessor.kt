@@ -31,6 +31,8 @@ import com.wire.kalium.logic.data.id.QualifiedIdMapperImpl
 import com.wire.kalium.logic.data.id.toQualifiedID
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -56,18 +58,18 @@ class DeepLinkProcessor @Inject constructor(
 ) {
     private val qualifiedIdMapper = QualifiedIdMapperImpl(null)
 
-    suspend operator fun invoke(uri: Uri): DeepLinkResult = when (uri.host) {
+    operator fun invoke(uri: Uri, scope: CoroutineScope): DeepLinkResult = when (uri.host) {
         ACCESS_DEEPLINK_HOST -> getCustomServerConfigDeepLinkResult(uri)
         SSO_LOGIN_DEEPLINK_HOST -> getSSOLoginDeepLinkResult(uri)
         INCOMING_CALL_DEEPLINK_HOST -> getIncomingCallDeepLinkResult(uri)
         ONGOING_CALL_DEEPLINK_HOST -> getOngoingCallDeepLinkResult(uri)
-        CONVERSATION_DEEPLINK_HOST -> getOpenConversationDeepLinkResult(uri)
+        CONVERSATION_DEEPLINK_HOST -> getOpenConversationDeepLinkResult(uri, scope)
         OTHER_USER_PROFILE_DEEPLINK_HOST -> getOpenOtherUserProfileDeepLinkResult(uri)
         else -> DeepLinkResult.Unknown
     }
 
     @Suppress("TooGenericExceptionCaught")
-    private suspend fun getOpenConversationDeepLinkResult(uri: Uri): DeepLinkResult {
+    private fun getOpenConversationDeepLinkResult(uri: Uri, scope: CoroutineScope): DeepLinkResult {
         return try {
             val conversationId = uri.pathSegments[0]?.toQualifiedID(qualifiedIdMapper)
             val userId = uri.pathSegments[1]?.toQualifiedID(qualifiedIdMapper)
@@ -83,7 +85,7 @@ class DeepLinkProcessor @Inject constructor(
                 }
             }
             if (shouldSwitchAccount) {
-                accountSwitch(SwitchAccountParam.SwitchToAccount(userId))
+                scope.launch { accountSwitch(SwitchAccountParam.SwitchToAccount(userId)) }
             }
 
             DeepLinkResult.OpenConversation(conversationId)
@@ -112,21 +114,22 @@ class DeepLinkProcessor @Inject constructor(
             DeepLinkResult.OngoingCall(it)
         } ?: DeepLinkResult.Unknown
 
-    private fun getSSOLoginDeepLinkResult(uri: Uri) = when (uri.lastPathSegment) {
-        SSO_LOGIN_FAILURE -> {
-            uri.getQueryParameter(SSO_LOGIN_ERROR_PARAM)?.let { value ->
-                DeepLinkResult.SSOLogin.Failure(SSOFailureCodes.getByLabel(value))
-            } ?: DeepLinkResult.SSOLogin.Failure(SSOFailureCodes.Unknown)
-        }
-        SSO_LOGIN_SUCCESS -> {
-            val cookie = uri.getQueryParameter(SSO_LOGIN_COOKIE_PARAM)
-            val location = uri.getQueryParameter(SSO_LOGIN_SERVER_CONFIG_PARAM)
-            if (cookie == null || location == null)
-                DeepLinkResult.SSOLogin.Failure(SSOFailureCodes.Unknown)
-            else
+    private fun getSSOLoginDeepLinkResult(uri: Uri): DeepLinkResult {
+
+        val lastPathSegment = uri.lastPathSegment
+        val error = uri.getQueryParameter(SSO_LOGIN_ERROR_PARAM)
+        val cookie = uri.getQueryParameter(SSO_LOGIN_COOKIE_PARAM)
+        val location = uri.getQueryParameter(SSO_LOGIN_SERVER_CONFIG_PARAM)
+
+        return when {
+            lastPathSegment == SSO_LOGIN_FAILURE && error != null ->
+                DeepLinkResult.SSOLogin.Failure(SSOFailureCodes.getByLabel(error))
+
+            lastPathSegment == SSO_LOGIN_SUCCESS && cookie != null && location != null ->
                 DeepLinkResult.SSOLogin.Success(cookie, location)
+
+            else -> DeepLinkResult.SSOLogin.Failure(SSOFailureCodes.Unknown)
         }
-        else -> DeepLinkResult.SSOLogin.Failure(SSOFailureCodes.Unknown)
     }
 
     companion object {
@@ -144,7 +147,6 @@ class DeepLinkProcessor @Inject constructor(
         const val ONGOING_CALL_DEEPLINK_HOST = "ongoing-call"
         const val CONVERSATION_DEEPLINK_HOST = "conversation"
         const val OTHER_USER_PROFILE_DEEPLINK_HOST = "other-user-profile"
-
     }
 }
 

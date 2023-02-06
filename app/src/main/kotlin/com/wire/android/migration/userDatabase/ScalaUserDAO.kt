@@ -23,6 +23,8 @@ package com.wire.android.migration.userDatabase
 import android.database.Cursor
 import com.wire.android.appLogger
 import com.wire.android.migration.util.getStringOrNull
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.withContext
 import java.sql.SQLException
 
 data class ScalaUserData(
@@ -42,18 +44,21 @@ data class ScalaUserData(
     val serviceIntegrationId: String?
 )
 
-class ScalaUserDAO(private val db: ScalaUserDatabase) {
+class ScalaUserDAO(
+    private val db: ScalaUserDatabase,
+    private val coroutineDispatcher: CoroutineDispatcher
+) {
 
-    fun allUsers(): List<ScalaUserData> {
+    suspend fun allUsers(): List<ScalaUserData> = withContext(coroutineDispatcher) {
         val cursor = db.rawQuery("SELECT * FROM $TABLE_NAME", arrayOf())
-        return getUsersFromCursor(cursor)
+        getUsersFromCursor(cursor)
     }
 
-    fun users(userIds: List<String>): List<ScalaUserData> {
+    suspend fun users(userIds: List<String>): List<ScalaUserData> = withContext(coroutineDispatcher) {
         val sqlQuery = "SELECT * FROM $TABLE_NAME WHERE $COLUMN_ID IN (?)"
         val userIdsSelectionArg = userIds.joinToString(separator = "','", prefix = "'", postfix = "'")
         val cursor = db.rawQuery(sqlQuery.replace("?", userIdsSelectionArg), null)
-        return getUsersFromCursor(cursor)
+        getUsersFromCursor(cursor)
     }
 
     private fun getUsersFromCursor(cursor: Cursor): List<ScalaUserData> {

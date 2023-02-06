@@ -52,6 +52,8 @@ data class UIMessage(
     val decryptionFailed: Boolean = messageHeader.messageStatus is DecryptionFailure
     val receivingFailed: Boolean = messageHeader.messageStatus == ReceiveFailure || decryptionFailed
     val isAvailable: Boolean = !isDeleted && !sendingFailed && !receivingFailed
+    val isMyMessage = messageSource == MessageSource.Self
+    val isTextMessage = messageContent is UIMessageContent.TextMessage
 }
 
 @Stable
@@ -99,7 +101,6 @@ sealed class UILastMessageContent {
     data class MultipleMessage(val messages: List<UIText>, val separator: String = " ") : UILastMessageContent()
 
     data class Connection(val connectionState: ConnectionState, val userId: UserId) : UILastMessageContent()
-
 }
 
 sealed class UIMessageContent {

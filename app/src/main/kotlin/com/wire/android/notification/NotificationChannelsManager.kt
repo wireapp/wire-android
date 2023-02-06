@@ -60,9 +60,7 @@ class NotificationChannelsManager @Inject constructor(
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
 
         // creating regular NotificationChannels, that are common for all users and shouldn't be grouped.
-        createRegularChannel(NotificationConstants.OTHER_CHANNEL_ID, NotificationConstants.OTHER_CHANNEL_NAME)
         createRegularChannel(NotificationConstants.WEB_SOCKET_CHANNEL_ID, NotificationConstants.WEB_SOCKET_CHANNEL_NAME)
-        createRegularChannel(NotificationConstants.MESSAGE_SYNC_CHANNEL_ID, NotificationConstants.MESSAGE_SYNC_CHANNEL_NAME)
 
         // creating user-specific NotificationChannels for each user, they will be grouped by User in App Settings.
         allUsers.forEach { user ->
@@ -157,7 +155,7 @@ class NotificationChannelsManager @Inject constructor(
         notificationManagerCompat.createNotificationChannel(notificationChannel)
     }
 
-    private fun createRegularChannel(channelId: String, channelName: String) {
+    fun createRegularChannel(channelId: String, channelName: String) {
         val notificationChannel = NotificationChannelCompat
             .Builder(channelId, NotificationManagerCompat.IMPORTANCE_HIGH)
             .setName(channelName)
@@ -176,6 +174,6 @@ class NotificationChannelsManager @Inject constructor(
     companion object {
         private fun getChanelGroupNameForUser(userName: String): String = userName
 
-        private const val TAG = "NotificationChannelsManager"
+        const val TAG = "NotificationChannelsManager"
     }
 }

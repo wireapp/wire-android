@@ -15,7 +15,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -43,10 +42,9 @@ class GlobalObserversManager @Inject constructor(
 
     private suspend fun observeAccountsToCreateChannels() {
         coreLogic.getGlobalScope().observeValidAccounts()
-            .onStart { emit(listOf()) }
             .distinctUntilChanged()
             .collect { list ->
-                notificationChannelsManager.createNotificationChannels(list.map { it.first })
+                notificationChannelsManager.createUserNotificationChannels(list.map { it.first })
             }
     }
 

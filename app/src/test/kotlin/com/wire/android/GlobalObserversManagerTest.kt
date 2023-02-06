@@ -29,7 +29,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 class GlobalObserversManagerTest {
 
     @Test
-    fun `given few valid accounts, then notificationChannels creating is called`() {
+    fun `given few valid accounts, then create user-specific notification channels`() {
         val accs = listOf(
             TestUser.SELF_USER,
             TestUser.SELF_USER.copy(id = TestUser.USER_ID.copy(value = "something else"))
@@ -38,8 +38,7 @@ class GlobalObserversManagerTest {
             .withValidAccounts(accs.map { it to null })
             .arrange()
         manager.observe()
-        coVerify(exactly = 1) { arrangement.notificationChannelsManager.createNotificationChannels(listOf()) }
-        coVerify(exactly = 1) { arrangement.notificationChannelsManager.createNotificationChannels(accs) }
+        coVerify(exactly = 1) { arrangement.notificationChannelsManager.createUserNotificationChannels(accs) }
     }
 
     @Test
@@ -162,7 +161,7 @@ class GlobalObserversManagerTest {
             coEvery { coreLogic.getGlobalScope().observeValidAccounts() } returns flowOf(listOf())
             coEvery { coreLogic.getGlobalScope().observePersistentWebSocketConnectionStatus() } returns
                     ObservePersistentWebSocketConnectionStatusUseCase.Result.Success(flowOf(listOf()))
-            every { notificationChannelsManager.createNotificationChannels(any()) } returns Unit
+            every { notificationChannelsManager.createUserNotificationChannels(any()) } returns Unit
             every { servicesManager.isPersistentWebSocketServiceRunning() } returns false
             coEvery { navigationManager.navigate(any()) } returns Unit
         }

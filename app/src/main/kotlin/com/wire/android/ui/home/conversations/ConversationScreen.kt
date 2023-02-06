@@ -661,8 +661,13 @@ fun MessageList(
                             null -> {
                                 throw NullPointerException("messageContent is null")
                             }
+
+                            is UIMessageContent.SystemMessage.ConversationReceiptModeChanged -> {}
+                            is UIMessageContent.SystemMessage.HistoryLost -> {}
+                            is UIMessageContent.SystemMessage.Knock -> {}
+                            is UIMessageContent.SystemMessage.NewConversationReceiptMode -> {}
                         }
-                    },
+                    }
                 )
             }
         }

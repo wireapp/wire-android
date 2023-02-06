@@ -20,6 +20,7 @@
 
 package com.wire.android.ui.home.conversations.messages
 
+import android.content.Context
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -40,6 +41,7 @@ import com.wire.android.ui.home.conversations.DownloadedAssetDialogVisibilitySta
 import com.wire.android.ui.home.conversations.usecase.GetMessagesForConversationUseCase
 import com.wire.android.util.FileManager
 import com.wire.android.util.dispatchers.DispatcherProvider
+import com.wire.android.util.startFileShareIntent
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.ClientId
 import com.wire.kalium.logic.data.id.QualifiedID
@@ -222,6 +224,12 @@ class ConversationMessagesViewModel @Inject constructor(
                     onSnackbarMessage(OnResetSession(UIText.StringResource(R.string.label_reset_session_success)))
                 }
             }
+        }
+    }
+
+    fun shareAsset(context: Context, messageId: String) {
+        viewModelScope.launch {
+            context.startFileShareIntent(assetDataPath(conversationId, messageId).toString())
         }
     }
 

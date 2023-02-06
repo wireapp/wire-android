@@ -27,6 +27,7 @@ import androidx.work.CoroutineWorker
 import androidx.work.ForegroundInfo
 import androidx.work.WorkerParameters
 import com.wire.android.R
+import com.wire.android.notification.NotificationChannelsManager
 import com.wire.android.notification.NotificationConstants
 import com.wire.android.notification.WireNotificationManager
 import dagger.assisted.Assisted
@@ -40,6 +41,7 @@ class NotificationFetchWorker
     @Assisted appContext: Context,
     @Assisted workerParams: WorkerParameters,
     private val wireNotificationManager: WireNotificationManager,
+    private val notificationChannelsManager: NotificationChannelsManager
 ) : CoroutineWorker(appContext, workerParams) {
     companion object {
         const val USER_ID_INPUT_DATA = "worker_user_id_input_data"
@@ -55,6 +57,12 @@ class NotificationFetchWorker
     }
 
     override suspend fun getForegroundInfo(): ForegroundInfo {
+
+        notificationChannelsManager.createRegularChannel(
+            NotificationConstants.MESSAGE_SYNC_CHANNEL_ID,
+            NotificationConstants.MESSAGE_SYNC_CHANNEL_NAME
+        )
+
         val notification = NotificationCompat.Builder(applicationContext, NotificationConstants.MESSAGE_SYNC_CHANNEL_ID)
             .setSmallIcon(R.drawable.notification_icon_small)
             .setAutoCancel(true)
@@ -67,5 +75,4 @@ class NotificationFetchWorker
 
         return ForegroundInfo(NotificationConstants.MESSAGE_SYNC_NOTIFICATION_ID, notification)
     }
-
 }

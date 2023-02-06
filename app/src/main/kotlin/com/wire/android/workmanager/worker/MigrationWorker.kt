@@ -38,7 +38,6 @@ import androidx.work.WorkRequest.MIN_BACKOFF_MILLIS
 import androidx.work.WorkerParameters
 import androidx.work.await
 import com.wire.android.R
-import com.wire.android.appLogger
 import com.wire.android.migration.MigrationData
 import com.wire.android.migration.MigrationManager
 import com.wire.android.migration.getMigrationProgress
@@ -72,13 +71,10 @@ class MigrationWorker
 
     override suspend fun getForegroundInfo(): ForegroundInfo {
 
-        if (notificationChannelsManager.shouldCreateChannel(NotificationConstants.OTHER_CHANNEL_ID)) {
-            appLogger.i("${NotificationChannelsManager.TAG}: creating Other Essential Actions notification channel")
-            notificationChannelsManager.createRegularChannel(
-                NotificationConstants.OTHER_CHANNEL_ID,
-                NotificationConstants.OTHER_CHANNEL_NAME
-            )
-        }
+        notificationChannelsManager.createRegularChannel(
+            NotificationConstants.OTHER_CHANNEL_ID,
+            NotificationConstants.OTHER_CHANNEL_NAME
+        )
 
         val notification = NotificationCompat.Builder(applicationContext, NotificationConstants.OTHER_CHANNEL_ID)
             .setSmallIcon(R.drawable.notification_icon_small)

@@ -99,6 +99,7 @@ class PersistentWebSocketService : Service() {
                     is ObservePersistentWebSocketConnectionStatusUseCase.Result.Failure -> {
                         appLogger.e("Failure while fetching persistent web socket status flow from service")
                     }
+
                     is ObservePersistentWebSocketConnectionStatusUseCase.Result.Success -> {
                         result.persistentWebSocketStatusListFlow.collect { statuses ->
 
@@ -140,10 +141,8 @@ class PersistentWebSocketService : Service() {
     }
 
     private fun generateForegroundNotification() {
-        if (notificationChannelsManager.shouldCreateChannel(WEB_SOCKET_CHANNEL_ID)) {
-            appLogger.i("${NotificationChannelsManager.TAG}: creating PersistentWebSocketService notification channel")
-            notificationChannelsManager.createRegularChannel(WEB_SOCKET_CHANNEL_ID, WEB_SOCKET_CHANNEL_NAME)
-        }
+        notificationChannelsManager.createRegularChannel(WEB_SOCKET_CHANNEL_ID, WEB_SOCKET_CHANNEL_NAME)
+
         val notification: Notification = NotificationCompat.Builder(this, WEB_SOCKET_CHANNEL_ID)
             .setContentTitle("${resources.getString(R.string.app_name)} ${resources.getString(R.string.settings_service_is_running)}")
             .setSmallIcon(R.drawable.websocket_notification_icon_small)

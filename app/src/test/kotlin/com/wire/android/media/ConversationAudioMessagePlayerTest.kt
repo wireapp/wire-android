@@ -19,6 +19,7 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
 
+@Suppress("LongMethod")
 class ConversationAudioMessagePlayerTest {
 
     @Test
@@ -68,7 +69,6 @@ class ConversationAudioMessagePlayerTest {
 
             verify(exactly = 0) { mediaPlayer.seekTo(any()) }
         }
-
     }
 
     @Test
@@ -132,7 +132,6 @@ class ConversationAudioMessagePlayerTest {
 
             verify(exactly = 0) { mediaPlayer.seekTo(any()) }
         }
-
     }
 
     @Test
@@ -212,7 +211,6 @@ class ConversationAudioMessagePlayerTest {
 
                 verify(exactly = 0) { mediaPlayer.seekTo(any()) }
             }
-
         }
 
     @Test
@@ -329,7 +327,6 @@ class ConversationAudioMessagePlayerTest {
 
                 verify(exactly = 1) { mediaPlayer.seekTo(1000) }
             }
-
         }
 
     @Test
@@ -414,7 +411,6 @@ class ConversationAudioMessagePlayerTest {
 
         assertion(state)
     }
-
 }
 
 class Arrangement {
@@ -463,6 +459,4 @@ class Arrangement {
     }
 
     fun arrange() = this to conversationAudioMessagePlayer
-
 }
-

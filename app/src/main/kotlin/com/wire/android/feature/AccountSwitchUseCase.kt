@@ -120,7 +120,6 @@ class AccountSwitchUseCase @Inject constructor(
                 is ServerConfigForAccountUseCase.Result.Failure -> return
             }
         }
-
     }
 
     private fun handleOldSession(oldSession: AccountInfo) {

@@ -28,6 +28,7 @@ class ConversationAudioMessagePlayer
     private companion object {
         const val UPDATE_POSITION_INTERVAL_IN_MS = 1000L
     }
+
     init {
         audioMediaPlayer.setOnCompletionListener {
             if (currentAudioMessageId != null) {
@@ -211,7 +212,6 @@ class ConversationAudioMessagePlayer
                                 )
                             )
                         }
-
                     }
 
                     is MessageAssetResult.Failure -> {

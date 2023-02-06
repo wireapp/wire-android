@@ -1,4 +1,5 @@
 package com.wire.android.media.audiomessage
+
 data class AudioState(
     val audioMediaPlayingState: AudioMediaPlayingState,
     val currentPositionInMs: Int,

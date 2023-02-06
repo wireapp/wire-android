@@ -242,4 +242,3 @@ enum class MessageSource {
 data class MessageTime(val utcISO: String) {
     val formattedDate = utcISO.uiMessageDateTime() ?: ""
 }
-

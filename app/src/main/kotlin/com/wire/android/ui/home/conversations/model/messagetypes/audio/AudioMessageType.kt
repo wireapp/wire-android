@@ -84,7 +84,8 @@ fun AudioMessage(
 private fun SuccessFullAudioMessage(
     audioMediaPlayingState: AudioMediaPlayingState,
     totalTimeInMs: Int,
-    currentPositionInMs: Int, onPlayButtonClick: () -> Unit,
+    currentPositionInMs: Int,
+    onPlayButtonClick: () -> Unit,
     onSliderPositionChange: (Float) -> Unit,
     onAudioMessageLongClick: () -> Unit = { }
 ) {
@@ -189,9 +190,14 @@ private fun getPlayOrPauseIcon(audioMediaPlayingState: AudioMediaPlayingState): 
 
 // helper wrapper class to format the time that is left
 private data class AudioDuration(val totalDurationInMs: Int, val currentPositionInMs: Int) {
-    private val totalTimeInSec = totalDurationInMs / 1000
+    companion object {
+        const val totalMsInSec = 1000
+        const val totalSecInMin = 60
+    }
 
-    private val currentPositionInSec = currentPositionInMs / 1000
+    private val totalTimeInSec = totalDurationInMs / totalMsInSec
+
+    private val currentPositionInSec = currentPositionInMs / totalMsInSec
     val formattedTimeLeft
         get() = run {
             val isTotalTimeInSecKnown = totalTimeInSec > 0
@@ -202,8 +208,8 @@ private data class AudioDuration(val totalDurationInMs: Int, val currentPosition
                 (totalTimeInSec - currentPositionInSec)
             }
 
-            val minutes = timeLeft / 60
-            val seconds = timeLeft % 60
+            val minutes = timeLeft / totalSecInMin
+            val seconds = timeLeft % totalSecInMin
             val formattedSeconds = String.format("%02d", seconds)
 
             "$minutes:$formattedSeconds"

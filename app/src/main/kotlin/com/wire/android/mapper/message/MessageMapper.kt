@@ -85,18 +85,12 @@ class MessageMapper @Inject constructor(
                     message.reactions.totalReactions
                         .filter { !isHeart(it.key) }
                         .run {
-                            if (totalHeartsCount != 0)
-                                plus("❤" to totalHeartsCount)
-                            else
-                                this
+                            if (totalHeartsCount != 0) plus("❤" to totalHeartsCount) else this
                         },
                     message.reactions.selfUserReactions
                         .filter { isHeart(it) }.toSet()
                         .run {
-                            if (hasSelfHeart)
-                                plus("❤")
-                            else
-                                this
+                            if (hasSelfHeart) plus("❤") else this
                         }
                 )
             } else {

@@ -88,7 +88,8 @@ val mockImageLoader = WireSessionImageLoader(object : ImageLoader {
     override suspend fun execute(request: ImageRequest): ImageResult = TODO("Not yet implemented")
     override fun newBuilder(): ImageLoader.Builder = TODO("Not yet implemented")
     override fun shutdown() = TODO("Not yet implemented")
-})
+}
+)
 
 val mockAssetContent = UIMessageContent.AssetMessage(
     assetName = "This is some test asset message",
@@ -99,7 +100,7 @@ val mockAssetContent = UIMessageContent.AssetMessage(
     downloadStatus = Message.DownloadStatus.NOT_DOWNLOADED
 )
 
-val mockAssetMessage =  UIMessage(
+val mockAssetMessage = UIMessage(
     userAvatarData = UserAvatarData(
         UserAvatarAsset(mockImageLoader, UserAssetId("a", "domain")),
         UserAvailabilityStatus.AVAILABLE
@@ -312,4 +313,3 @@ fun getMockedMessages(): List<UIMessage> = listOf(
         messageFooter = mockFooter
     )
 )
-

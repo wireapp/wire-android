@@ -95,7 +95,7 @@ class ConversationMessagesViewModelArrangement {
     lateinit var resetSession: ResetSessionUseCase
 
     @MockK
-    lateinit var conversationAudioMessagePlayer : ConversationAudioMessagePlayer
+    lateinit var conversationAudioMessagePlayer: ConversationAudioMessagePlayer
 
     private val viewModel: ConversationMessagesViewModel by lazy {
         ConversationMessagesViewModel(

@@ -88,10 +88,22 @@ class EncodedMessageContentMapperTest {
                 selfMemberDetails.user,
                 MessageContentMapper.SelfNameType.NameOrDeleted
             )
-            val selfResLower = toSystemMessageMemberName(selfMemberDetails.user, MessageContentMapper.SelfNameType.ResourceLowercase)
-            val selfResTitle = toSystemMessageMemberName(selfMemberDetails.user, MessageContentMapper.SelfNameType.ResourceTitleCase)
-            val deleted = toSystemMessageMemberName(deletedMemberDetails.user, MessageContentMapper.SelfNameType.NameOrDeleted)
-            val otherName = toSystemMessageMemberName(otherMemberDetails.user, MessageContentMapper.SelfNameType.NameOrDeleted)
+            val selfResLower = toSystemMessageMemberName(
+                selfMemberDetails.user,
+                MessageContentMapper.SelfNameType.ResourceLowercase
+            )
+            val selfResTitle = toSystemMessageMemberName(
+                selfMemberDetails.user,
+                MessageContentMapper.SelfNameType.ResourceTitleCase
+            )
+            val deleted = toSystemMessageMemberName(
+                deletedMemberDetails.user,
+                MessageContentMapper.SelfNameType.NameOrDeleted
+            )
+            val otherName = toSystemMessageMemberName(
+                otherMemberDetails.user,
+                MessageContentMapper.SelfNameType.NameOrDeleted
+            )
 
             // Then
             assertTrue(selfName is UIText.DynamicString && selfName.value == selfMemberDetails.name)
@@ -101,9 +113,11 @@ class EncodedMessageContentMapperTest {
             )
             assertTrue(
                 selfResTitle is UIText.StringResource
-                        && selfResTitle.resId == arrangement.messageResourceProvider.memberNameYouTitlecase
+                        && selfResTitle.resId == arrangement.messageResourceProvider.memberNameYouTitleCase
             )
-            assertTrue(deleted is UIText.StringResource && deleted.resId == arrangement.messageResourceProvider.memberNameDeleted)
+            assertTrue(
+                deleted is UIText.StringResource && deleted.resId == arrangement.messageResourceProvider.memberNameDeleted
+            )
             assertTrue(otherName is UIText.DynamicString && otherName.value == otherMemberDetails.name)
         }
     }
@@ -125,10 +139,13 @@ class EncodedMessageContentMapperTest {
                 )
             }
             with(resultNonText) {
+
+                assert(messageBody.message is UIText.StringResource)
                 assertTrue(
-                    messageBody.message is UIText.StringResource &&
-                            (messageBody.message as UIText.StringResource).resId == arrangement.messageResourceProvider.sentAMessageWithContent
+                    (messageBody.message as UIText.StringResource).resId
+                            == arrangement.messageResourceProvider.sentAMessageWithContent
                 )
+
             }
         }
     }
@@ -154,12 +171,28 @@ class EncodedMessageContentMapperTest {
         val otherCaller = member1.copy(user = otherCallerInfo)
         // When
         with(arrangement) {
-            val resultContentLeft = systemMessageContentMapper.mapMemberChangeMessage(contentLeft, userId1, listOf(member1.user))
+            val resultContentLeft = systemMessageContentMapper.mapMemberChangeMessage(
+                contentLeft,
+                userId1,
+                listOf(member1.user)
+            )
             val resultContentRemoved =
-                systemMessageContentMapper.mapMemberChangeMessage(contentRemoved, userId1, listOf(member1.user, member2.user))
+                systemMessageContentMapper.mapMemberChangeMessage(
+                    contentRemoved,
+                    userId1,
+                    listOf(member1.user, member2.user)
+                )
             val resultContentAdded =
-                systemMessageContentMapper.mapMemberChangeMessage(contentAdded, userId1, listOf(member1.user, member2.user, member3.user))
-            val resultContentAddedSelf = systemMessageContentMapper.mapMemberChangeMessage(contentAddedSelf, userId1, listOf(member1.user))
+                systemMessageContentMapper.mapMemberChangeMessage(
+                    contentAdded,
+                    userId1,
+                    listOf(member1.user, member2.user, member3.user)
+                )
+            val resultContentAddedSelf = systemMessageContentMapper.mapMemberChangeMessage(
+                contentAddedSelf,
+                userId1,
+                listOf(member1.user)
+            )
 
             val resultMyMissedCall = messageContentMapper.fromMessage(missedCallMessage, listOf(selfCaller.user))
             val resultOtherMissedCall = messageContentMapper.fromMessage(missedCallMessage, listOf(otherCaller.user))
@@ -189,7 +222,7 @@ class EncodedMessageContentMapperTest {
             )
             assertTrue(
                 resultMyMissedCall is SystemMessage.MissedCall &&
-                        (resultMyMissedCall.author as UIText.StringResource).resId == arrangement.messageResourceProvider.memberNameYouTitlecase
+                        (resultMyMissedCall.author as UIText.StringResource).resId == arrangement.messageResourceProvider.memberNameYouTitleCase
             )
         }
     }
@@ -388,11 +421,15 @@ class EncodedMessageContentMapperTest {
 
             every { messageResourceProvider.memberNameDeleted } returns 10584735
             every { messageResourceProvider.memberNameYouLowercase } returns 24153498
-            every { messageResourceProvider.memberNameYouTitlecase } returns 38946214
+            every { messageResourceProvider.memberNameYouTitleCase } returns 38946214
             every { messageResourceProvider.sentAMessageWithContent } returns 45407124
         }
 
-        fun withSuccessfulGetMessageAssetResult(expectedAssetPath: Path, expectedAssetSize: Long, expectedAssetName: String): Arrangement {
+        fun withSuccessfulGetMessageAssetResult(
+            expectedAssetPath: Path,
+            expectedAssetSize: Long,
+            expectedAssetName: String
+        ): Arrangement {
             val dummyData = "dummy-data".toByteArray()
             fakeKaliumFileSystem.sink(expectedAssetPath).buffer().use {
                 it.write(dummyData)
@@ -402,7 +439,9 @@ class EncodedMessageContentMapperTest {
                     any(),
                     any()
                 )
-            } returns CompletableDeferred(MessageAssetResult.Success(expectedAssetPath, expectedAssetSize, expectedAssetName))
+            } returns CompletableDeferred(
+                MessageAssetResult.Success(expectedAssetPath, expectedAssetSize, expectedAssetName)
+            )
             return this
         }
 

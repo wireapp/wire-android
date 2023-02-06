@@ -80,17 +80,16 @@ class CallRinger
         stop()
         vibrateIfNeeded(isIncomingCall)
         createMediaPlayer(resource, isLooping)
-        appLogger.i("Starting ringing | isIncomingCall: $isIncomingCall");
+        appLogger.i("Starting ringing | isIncomingCall: $isIncomingCall")
         mediaPlayer?.start()
     }
-
 
     @Suppress("NestedBlockDepth")
     private fun vibrateIfNeeded(isIncomingCall: Boolean) {
         if (isIncomingCall) {
             vibrator?.let {
                 if (!it.hasVibrator()) {
-                    appLogger.i("Device does not support vibration");
+                    appLogger.i("Device does not support vibration")
                     return
                 }
                 val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager?
@@ -104,14 +103,14 @@ class CallRinger
                         it.vibrate(VIBRATE_PATTERN, VibrationEffect.EFFECT_DOUBLE_CLICK)
                     }
                 } else {
-                    appLogger.i("Skipping vibration");
+                    appLogger.i("Skipping vibration")
                 }
             }
         }
     }
 
     fun stop() {
-        appLogger.i("Stopping ringing");
+        appLogger.i("Stopping ringing")
         try {
             vibrator?.cancel()
             mediaPlayer?.apply {

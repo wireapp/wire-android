@@ -47,7 +47,6 @@ class MessageContentMapper @Inject constructor(
 data class MessageResourceProvider(
     @StringRes val memberNameDeleted: Int = R.string.member_name_deleted_label,
     @StringRes val memberNameYouLowercase: Int = R.string.member_name_you_label_lowercase,
-    @StringRes val memberNameYouTitlecase: Int = R.string.member_name_you_label_titlecase,
+    @StringRes val memberNameYouTitleCase: Int = R.string.member_name_you_label_titlecase,
     @StringRes val sentAMessageWithContent: Int = R.string.sent_a_message_with_content
 )
-

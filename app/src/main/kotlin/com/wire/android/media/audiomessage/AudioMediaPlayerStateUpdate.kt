@@ -17,5 +17,4 @@ sealed class AudioMediaPlayerStateUpdate(
         override val messageId: String,
         val totalTimeInMs: Int
     ) : AudioMediaPlayerStateUpdate(messageId)
-
 }

@@ -666,7 +666,6 @@ fun MessageList(
                             null -> {
                                 throw NullPointerException("messageContent is null")
                             }
-
                         }
                     }
                 )

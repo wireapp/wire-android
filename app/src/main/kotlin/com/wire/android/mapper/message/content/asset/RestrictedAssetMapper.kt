@@ -4,7 +4,6 @@ import com.wire.android.ui.home.conversations.model.UIMessageContent
 import javax.inject.Inject
 
 class RestrictedAssetMapper @Inject constructor() {
-
     fun toRestrictedAsset(
         mimeType: String,
         assetSize: Long,
@@ -16,5 +15,4 @@ class RestrictedAssetMapper @Inject constructor() {
             assetName = assetName
         )
     }
-
 }

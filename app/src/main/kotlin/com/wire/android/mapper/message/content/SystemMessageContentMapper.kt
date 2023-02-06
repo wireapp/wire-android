@@ -59,7 +59,6 @@ class SystemMessageContentMapper
         )
     }
 
-
     private fun mapMissedCallMessage(
         senderUserId: UserId,
         userList: List<User>
@@ -144,12 +143,11 @@ class SystemMessageContentMapper
         is OtherUser -> user.name?.let { UIText.DynamicString(it) } ?: UIText.StringResource(messageResourceProvider.memberNameDeleted)
         is SelfUser -> when (type) {
             MessageContentMapper.SelfNameType.ResourceLowercase -> UIText.StringResource(messageResourceProvider.memberNameYouLowercase)
-            MessageContentMapper.SelfNameType.ResourceTitleCase -> UIText.StringResource(messageResourceProvider.memberNameYouTitlecase)
+            MessageContentMapper.SelfNameType.ResourceTitleCase -> UIText.StringResource(messageResourceProvider.memberNameYouTitleCase)
             MessageContentMapper.SelfNameType.NameOrDeleted -> user.name?.let { UIText.DynamicString(it) }
                 ?: UIText.StringResource(messageResourceProvider.memberNameDeleted)
         }
 
         else -> UIText.StringResource(messageResourceProvider.memberNameDeleted)
     }
-
 }

@@ -153,7 +153,6 @@ class AssetContentMapper @Inject constructor(
     ): UIMessageContent {
         return lazyLoadedAsset(assetContent)
     }
-
 }
 
 class AssetMessageContentMetadata(val assetMessageContent: AssetContent) {

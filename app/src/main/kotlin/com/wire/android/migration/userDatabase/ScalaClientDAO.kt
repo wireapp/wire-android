@@ -20,6 +20,8 @@
 
 package com.wire.android.migration.userDatabase
 
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.withContext
 import java.sql.SQLException
 
 data class ScalaClientInfo(
@@ -27,8 +29,11 @@ data class ScalaClientInfo(
     val otrLastPrekeyId: Int
 )
 
-class ScalaClientDAO(private val db: ScalaUserDatabase) {
-    fun clientInfo(): ScalaClientInfo? {
+class ScalaClientDAO(
+    private val db: ScalaUserDatabase,
+    private val coroutineDispatcher: CoroutineDispatcher
+) {
+    suspend fun clientInfo(): ScalaClientInfo? = withContext(coroutineDispatcher) {
         val clientIdCursor =
             db.rawQuery(
                 "SELECT $VALUE_COLUMN_NAME FROM $KEY_VALUES_TABLE_NAME WHERE $KEY_COLUMN_NAME = ?",
@@ -40,9 +45,9 @@ class ScalaClientDAO(private val db: ScalaUserDatabase) {
                 arrayOf(OTR_LAT_PREKEY_ID)
             )
 
-        return try {
+        return@withContext try {
             if (clientIdCursor.moveToFirst().not() or otrLastPrekeyIdCursor.moveToFirst().not()) {
-                return null
+                return@withContext null
             }
             val clientId = clientIdCursor.getString(0)
             val otrLastPrekeyId = otrLastPrekeyIdCursor.getString(0).toInt()

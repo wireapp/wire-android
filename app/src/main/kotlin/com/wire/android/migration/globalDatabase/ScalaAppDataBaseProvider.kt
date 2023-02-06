@@ -25,13 +25,19 @@ import android.database.sqlite.SQLiteDatabase
 import com.wire.android.migration.util.ScalaDBNameProvider
 import com.wire.android.migration.util.openDatabaseIfExists
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import javax.inject.Inject
 import javax.inject.Singleton
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @Singleton
 class ScalaAppDataBaseProvider @Inject constructor(
-    @ApplicationContext private val applicationContext: Context
+    @ApplicationContext private val applicationContext: Context,
 ) {
+
+    private val coroutineDispatcher: CoroutineDispatcher = Dispatchers.IO.limitedParallelism(1)
 
     private var _db: ScalaGlobalDatabase? = null
     val db
@@ -42,8 +48,7 @@ class ScalaAppDataBaseProvider @Inject constructor(
         } else {
             _db
         }
-
-    val scalaAccountsDAO: ScalaAccountsDAO get() = ScalaAccountsDAO(db!!)
+    val scalaAccountsDAO: ScalaAccountsDAO get() = ScalaAccountsDAO(db!!, coroutineDispatcher)
 }
 
 typealias ScalaGlobalDatabase = SQLiteDatabase

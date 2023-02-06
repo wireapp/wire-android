@@ -29,15 +29,8 @@ import co.touchlab.kermit.platformLogWriter
 import com.google.firebase.FirebaseApp
 import com.google.firebase.FirebaseOptions
 import com.wire.android.di.KaliumCoreLogic
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.NavigationItem
-import com.wire.android.navigation.NavigationManager
-import com.wire.android.notification.NotificationChannelsManager
-import com.wire.android.notification.WireNotificationManager
-import com.wire.android.services.ServicesManager
 import com.wire.android.util.DataDogLogger
 import com.wire.android.util.LogFileWriter
-import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.extension.isGoogleServicesAvailable
 import com.wire.android.util.getGitBuildId
 import com.wire.android.util.lifecycle.ConnectionPolicyManager
@@ -46,14 +39,8 @@ import com.wire.kalium.logger.KaliumLogLevel
 import com.wire.kalium.logger.KaliumLogger
 import com.wire.kalium.logic.CoreLogger
 import com.wire.kalium.logic.CoreLogic
-import com.wire.kalium.logic.data.id.ConversationId
-import com.wire.kalium.logic.feature.user.webSocketStatus.ObservePersistentWebSocketConnectionStatusUseCase
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.MainScope
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.onStart
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 // App wide global logger, carefully initialized when our application is "onCreate"
@@ -73,15 +60,7 @@ class WireApplication : Application(), Configuration.Provider {
     @Inject
     lateinit var wireWorkerFactory: WireWorkerFactory
     @Inject
-    lateinit var dispatchers: DispatcherProvider
-    @Inject
-    lateinit var notificationChannelsManager: NotificationChannelsManager
-    @Inject
-    lateinit var notificationManager: WireNotificationManager
-    @Inject
-    lateinit var navigationManager: NavigationManager
-    @Inject
-    lateinit var servicesManager: ServicesManager
+    lateinit var globalObserversManager: GlobalObserversManager
 
     override fun getWorkManagerConfiguration(): Configuration {
         return Configuration.Builder()
@@ -110,7 +89,7 @@ class WireApplication : Application(), Configuration.Provider {
         // TODO: Can be handled in one of Sync steps
         coreLogic.updateApiVersionsScheduler.schedulePeriodicApiVersionUpdate()
 
-        initObservers()
+        globalObserversManager.observe()
     }
 
     private fun enableStrictMode() {
@@ -134,52 +113,6 @@ class WireApplication : Application(), Configuration.Provider {
                 // .penaltyDeath() TODO: add it later after fixing reported violations
                 .build()
         )
-    }
-
-    private fun initObservers() {
-        MainScope().launch(dispatchers.io()) {
-            coreLogic.getGlobalScope().observeValidAccounts()
-                .onStart { emit(listOf()) }
-                .distinctUntilChanged()
-                .collect { list ->
-                    notificationChannelsManager.createNotificationChannels(list.map { it.first })
-                }
-        }
-        MainScope().launch(dispatchers.io()) {
-            coreLogic.getGlobalScope().observePersistentWebSocketConnectionStatus().let { result ->
-                when (result) {
-                    is ObservePersistentWebSocketConnectionStatusUseCase.Result.Failure -> {
-                        appLogger.e("Failure while fetching persistent web socket status flow from wire activity")
-                    }
-                    is ObservePersistentWebSocketConnectionStatusUseCase.Result.Success -> {
-                        result.persistentWebSocketStatusListFlow.collect { statuses ->
-                            val usersToObserve = statuses
-                                .filter { !it.isPersistentWebSocketEnabled }
-                                .map { it.userId }
-
-                            notificationManager.observeNotificationsAndCallsWhileRunning(
-                                usersToObserve,
-                                MainScope()
-                            ) { call -> openIncomingCall(call.conversationId) }
-
-                            if (statuses.any { it.isPersistentWebSocketEnabled }) {
-                                if (!servicesManager.isPersistentWebSocketServiceRunning()) {
-                                    servicesManager.startPersistentWebSocketService()
-                                }
-                            } else {
-                                servicesManager.stopPersistentWebSocketService()
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    private fun openIncomingCall(conversationId: ConversationId) {
-        MainScope().launch {
-            navigationManager.navigate(NavigationCommand(NavigationItem.IncomingCall.getRouteWithArgs(listOf(conversationId))))
-        }
     }
 
     private fun initializeApplicationLoggingFrameworks() {

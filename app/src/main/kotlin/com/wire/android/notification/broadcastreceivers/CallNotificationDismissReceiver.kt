@@ -24,6 +24,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import com.wire.android.appLogger
+import com.wire.android.di.ApplicationScope
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.di.NoSession
 import com.wire.android.notification.CallNotificationManager
@@ -34,12 +35,13 @@ import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.id.toQualifiedID
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class CallNotificationDismissReceiver : BroadcastReceiver() {  // requires zero argument constructor
+class CallNotificationDismissReceiver : BroadcastReceiver() { // requires zero argument constructor
 
     @Inject
     @KaliumCoreLogic
@@ -52,27 +54,32 @@ class CallNotificationDismissReceiver : BroadcastReceiver() {  // requires zero 
     @NoSession
     lateinit var qualifiedIdMapper: QualifiedIdMapper
 
+    @Inject
+    @ApplicationScope
+    lateinit var coroutineScope: CoroutineScope
+
     override fun onReceive(context: Context, intent: Intent) {
         val conversationId: String = intent.getStringExtra(EXTRA_CONVERSATION_ID) ?: return
         appLogger.i("CallNotificationDismissReceiver: onReceive, conversationId: $conversationId")
-        val userId: QualifiedID? = intent.getStringExtra(EXTRA_RECEIVER_USER_ID)?.toQualifiedID(qualifiedIdMapper)
-        val sessionScope =
-            if (userId != null) {
-                coreLogic.getSessionScope(userId)
-            } else {
-                val currentSession = coreLogic.globalScope { session.currentSession() }
-                if (currentSession is CurrentSessionResult.Success) {
-                    coreLogic.getSessionScope(currentSession.accountInfo.userId)
+        coroutineScope.launch(Dispatchers.Default) {
+            val userId: QualifiedID? = intent.getStringExtra(EXTRA_RECEIVER_USER_ID)?.toQualifiedID(qualifiedIdMapper)
+            val sessionScope =
+                if (userId != null) {
+                    coreLogic.getSessionScope(userId)
                 } else {
-                    null
+                    val currentSession = coreLogic.globalScope { session.currentSession() }
+                    if (currentSession is CurrentSessionResult.Success) {
+                        coreLogic.getSessionScope(currentSession.accountInfo.userId)
+                    } else {
+                        null
+                    }
                 }
-            }
-        sessionScope?.let {
-            it.launch(Dispatchers.IO) {
+
+            sessionScope?.let {
                 it.calls.rejectCall(qualifiedIdMapper.fromStringToQualifiedID(conversationId))
             }
+            CallNotificationManager.hideIncomingCallNotification(context)
         }
-        CallNotificationManager.hideIncomingCallNotification(context)
     }
 
     companion object {

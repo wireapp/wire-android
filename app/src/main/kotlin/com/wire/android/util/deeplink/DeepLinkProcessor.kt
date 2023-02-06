@@ -58,7 +58,7 @@ class DeepLinkProcessor @Inject constructor(
 ) {
     private val qualifiedIdMapper = QualifiedIdMapperImpl(null)
 
-    operator fun invoke(uri: Uri, scope: CoroutineScope): DeepLinkResult = when (uri.host) {
+    suspend operator fun invoke(uri: Uri, scope: CoroutineScope): DeepLinkResult = when (uri.host) {
         ACCESS_DEEPLINK_HOST -> getCustomServerConfigDeepLinkResult(uri)
         SSO_LOGIN_DEEPLINK_HOST -> getSSOLoginDeepLinkResult(uri)
         INCOMING_CALL_DEEPLINK_HOST -> getIncomingCallDeepLinkResult(uri)
@@ -69,7 +69,7 @@ class DeepLinkProcessor @Inject constructor(
     }
 
     @Suppress("TooGenericExceptionCaught")
-    private fun getOpenConversationDeepLinkResult(uri: Uri, scope: CoroutineScope): DeepLinkResult {
+    private suspend fun getOpenConversationDeepLinkResult(uri: Uri, scope: CoroutineScope): DeepLinkResult {
         return try {
             val conversationId = uri.pathSegments[0]?.toQualifiedID(qualifiedIdMapper)
             val userId = uri.pathSegments[1]?.toQualifiedID(qualifiedIdMapper)

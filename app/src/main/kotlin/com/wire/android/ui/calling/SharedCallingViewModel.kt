@@ -113,7 +113,7 @@ class SharedCallingViewModel @Inject constructor(
                         call.status != CallStatus.CLOSED &&
                         call.status != CallStatus.MISSED
                 }
-            }.flowOn(dispatchers.io()).shareIn(this, started = SharingStarted.Lazily)
+            }.flowOn(dispatchers.default()).shareIn(this, started = SharingStarted.Lazily)
 
             launch {
                 observeConversationDetails(this)
@@ -160,7 +160,7 @@ class SharedCallingViewModel @Inject constructor(
         conversationDetails(conversationId = conversationId)
             .filterIsInstance<ObserveConversationDetailsUseCase.Result.Success>() // TODO handle StorageFailure
             .map { it.conversationDetails }
-            .flowOn(dispatchers.io())
+            .flowOn(dispatchers.default())
             .shareIn(coroutineScope, SharingStarted.WhileSubscribed(1))
             .collect { details ->
                 callState = when (details) {
@@ -187,7 +187,7 @@ class SharedCallingViewModel @Inject constructor(
 
     private suspend fun observeOnSpeaker(coroutineScope: CoroutineScope) {
         observeSpeaker()
-            .flowOn(dispatchers.io())
+            .flowOn(dispatchers.default())
             .shareIn(coroutineScope, SharingStarted.WhileSubscribed(1))
             .collectLatest {
                 callState = callState.copy(isSpeakerOn = it)

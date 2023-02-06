@@ -215,62 +215,64 @@ class WireActivityViewModel @Inject constructor(
     }
 
     fun handleDeepLink(intent: Intent?) {
-        intent?.data?.let { deepLink ->
-            when (val result = deepLinkProcessor(deepLink, viewModelScope)) {
-                is DeepLinkResult.CustomServerConfig -> runBlocking {
-                    loadServerConfig(result.url)?.let { serverLinks ->
-                        globalAppState = globalAppState.copy(
-                            customBackendDialog = CustomBEDeeplinkDialogState(
-                                shouldShowDialog = true,
-                                serverLinks = serverLinks
+        viewModelScope.launch {
+            intent?.data?.let { deepLink ->
+                when (val result = deepLinkProcessor(deepLink, viewModelScope)) {
+                    is DeepLinkResult.CustomServerConfig -> runBlocking {
+                        loadServerConfig(result.url)?.let { serverLinks ->
+                            globalAppState = globalAppState.copy(
+                                customBackendDialog = CustomBEDeeplinkDialogState(
+                                    shouldShowDialog = true,
+                                    serverLinks = serverLinks
+                                )
                             )
-                        )
-                        navigationArguments.put(SERVER_CONFIG_ARG, serverLinks)
+                            navigationArguments.put(SERVER_CONFIG_ARG, serverLinks)
+                        }
                     }
-                }
 
-                is DeepLinkResult.SSOLogin -> navigationArguments.put(SSO_DEEPLINK_ARG, result)
+                    is DeepLinkResult.SSOLogin -> navigationArguments.put(SSO_DEEPLINK_ARG, result)
 
-                is DeepLinkResult.IncomingCall -> {
-                    if (isLaunchedFromHistory(intent)) {
-                        // We don't need to handle deepLink, if activity was launched from history.
-                        // For example: user opened app by deepLink, then closed it by back button click,
-                        // then open the app from the "Recent Apps"
-                        appLogger.i("IncomingCall deepLink launched from the history")
-                    } else {
-                        navigationArguments.put(INCOMING_CALL_CONVERSATION_ID_ARG, result.conversationsId)
+                    is DeepLinkResult.IncomingCall -> {
+                        if (isLaunchedFromHistory(intent)) {
+                            // We don't need to handle deepLink, if activity was launched from history.
+                            // For example: user opened app by deepLink, then closed it by back button click,
+                            // then open the app from the "Recent Apps"
+                            appLogger.i("IncomingCall deepLink launched from the history")
+                        } else {
+                            navigationArguments.put(INCOMING_CALL_CONVERSATION_ID_ARG, result.conversationsId)
+                        }
                     }
-                }
 
-                is DeepLinkResult.OngoingCall -> {
-                    if (isLaunchedFromHistory(intent)) {
-                        // We don't need to handle deepLink, if activity was launched from history.
-                        // For example: user opened app by deepLink, then closed it by back button click,
-                        // then open the app from the "Recent Apps"
-                        appLogger.i("IncomingCall deepLink launched from the history")
-                    } else {
-                        navigationArguments.put(ONGOING_CALL_CONVERSATION_ID_ARG, result.conversationsId)
+                    is DeepLinkResult.OngoingCall -> {
+                        if (isLaunchedFromHistory(intent)) {
+                            // We don't need to handle deepLink, if activity was launched from history.
+                            // For example: user opened app by deepLink, then closed it by back button click,
+                            // then open the app from the "Recent Apps"
+                            appLogger.i("IncomingCall deepLink launched from the history")
+                        } else {
+                            navigationArguments.put(ONGOING_CALL_CONVERSATION_ID_ARG, result.conversationsId)
+                        }
                     }
-                }
 
-                is DeepLinkResult.OpenConversation -> {
-                    if (isLaunchedFromHistory(intent)) {
-                        appLogger.i("OpenConversation deepLink launched from the history")
-                    } else {
-                        navigationArguments.put(OPEN_CONVERSATION_ID_ARG, result.conversationsId)
+                    is DeepLinkResult.OpenConversation -> {
+                        if (isLaunchedFromHistory(intent)) {
+                            appLogger.i("OpenConversation deepLink launched from the history")
+                        } else {
+                            navigationArguments.put(OPEN_CONVERSATION_ID_ARG, result.conversationsId)
+                        }
                     }
-                }
 
-                is DeepLinkResult.OpenOtherUserProfile -> {
-                    if (isLaunchedFromHistory(intent)) {
-                        appLogger.i("OpenOtherUserProfile deepLink launched from the history")
-                    } else {
-                        navigationArguments.put(OPEN_OTHER_USER_PROFILE_ARG, result.userId)
+                    is DeepLinkResult.OpenOtherUserProfile -> {
+                        if (isLaunchedFromHistory(intent)) {
+                            appLogger.i("OpenOtherUserProfile deepLink launched from the history")
+                        } else {
+                            navigationArguments.put(OPEN_OTHER_USER_PROFILE_ARG, result.userId)
+                        }
                     }
-                }
 
-                DeepLinkResult.Unknown -> {
-                    appLogger.e("unknown deeplink result $result")
+                    DeepLinkResult.Unknown -> {
+                        appLogger.e("unknown deeplink result $result")
+                    }
                 }
             }
         }

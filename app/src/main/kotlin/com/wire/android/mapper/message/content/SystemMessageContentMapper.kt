@@ -1,5 +1,6 @@
 package com.wire.android.mapper.message.content
 
+import com.wire.android.R
 import com.wire.android.ui.home.conversations.findUser
 import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.util.ui.UIText
@@ -25,9 +26,12 @@ class SystemMessageContentMapper
         is MessageContent.ConversationRenamed -> mapConversationRenamedMessage(message.senderUserId, content, members)
         is MessageContent.TeamMemberRemoved -> mapTeamMemberRemovedMessage(content)
         is MessageContent.CryptoSessionReset -> mapResetSession(message.senderUserId, members)
+        is MessageContent.ConversationReceiptModeChanged -> mapConversationReceiptModeChanged(message.senderUserId, content, members)
+        is MessageContent.HistoryLost -> mapConversationHistoryLost()
+        is MessageContent.NewConversationReceiptMode -> mapNewConversationReceiptMode(content)
     }
 
-     private fun mapResetSession(
+    private fun mapResetSession(
         senderUserId: UserId,
         userList: List<User>
     ): UIMessageContent.SystemMessage {
@@ -36,7 +40,27 @@ class SystemMessageContentMapper
         return UIMessageContent.SystemMessage.CryptoSessionReset(authorName)
     }
 
-     private fun mapMissedCallMessage(
+    private fun mapConversationReceiptModeChanged(
+        senderUserId: UserId,
+        content: MessageContent.ConversationReceiptModeChanged,
+        userList: List<User>
+    ): UIMessageContent.SystemMessage {
+        val sender = userList.findUser(userId = senderUserId)
+        val authorName = toSystemMessageMemberName(
+            user = sender,
+            type = MessageContentMapper.SelfNameType.ResourceTitleCase
+        )
+        return UIMessageContent.SystemMessage.ConversationReceiptModeChanged(
+            author = authorName,
+            receiptMode = when (content.receiptMode) {
+                true -> UIText.StringResource(R.string.label_system_message_receipt_mode_on)
+                else -> UIText.StringResource(R.string.label_system_message_receipt_mode_off)
+            }
+        )
+    }
+
+
+    private fun mapMissedCallMessage(
         senderUserId: UserId,
         userList: List<User>
     ): UIMessageContent.SystemMessage {
@@ -52,11 +76,11 @@ class SystemMessageContentMapper
         }
     }
 
-     private fun mapTeamMemberRemovedMessage(
+    private fun mapTeamMemberRemovedMessage(
         content: MessageContent.TeamMemberRemoved,
     ): UIMessageContent.SystemMessage = UIMessageContent.SystemMessage.TeamMemberRemoved(content)
 
-     private fun mapConversationRenamedMessage(
+    private fun mapConversationRenamedMessage(
         senderUserId: UserId,
         content: MessageContent.ConversationRenamed,
         userList: List<User>
@@ -69,7 +93,18 @@ class SystemMessageContentMapper
         return UIMessageContent.SystemMessage.RenamedConversation(authorName, content)
     }
 
-     fun mapMemberChangeMessage(
+    private fun mapNewConversationReceiptMode(
+        content: MessageContent.NewConversationReceiptMode
+    ): UIMessageContent.SystemMessage {
+        return UIMessageContent.SystemMessage.NewConversationReceiptMode(
+            receiptMode = when (content.receiptMode) {
+                true -> UIText.StringResource(R.string.label_system_message_receipt_mode_on)
+                else -> UIText.StringResource(R.string.label_system_message_receipt_mode_off)
+            }
+        )
+    }
+
+    fun mapMemberChangeMessage(
         content: MessageContent.MemberChange,
         senderUserId: UserId,
         userList: List<User>
@@ -100,7 +135,9 @@ class SystemMessageContentMapper
         }
     }
 
-     fun toSystemMessageMemberName(
+    private fun mapConversationHistoryLost(): UIMessageContent.SystemMessage = UIMessageContent.SystemMessage.HistoryLost()
+
+    fun toSystemMessageMemberName(
         user: User?,
         type: MessageContentMapper.SelfNameType = MessageContentMapper.SelfNameType.NameOrDeleted
     ): UIText = when (user) {

@@ -69,12 +69,15 @@ fun EditMessageMenuItems(
     onReplyClick: (message: UIMessage) -> Unit,
     onDetailsClick: (messageId: String, isMyMessage: Boolean) -> Unit,
     onEditClick: (messageId: String, originalText: String) -> Unit,
+    onShareAsset: () -> Unit,
 ): List<@Composable () -> Unit> {
     val localFeatureVisibilityFlags = LocalFeatureVisibilityFlags.current
     val localContext = LocalContext.current
     val isCopyable = message.isTextMessage
     val isEditable = message.isMyMessage && localFeatureVisibilityFlags.MessageEditIcon
     val isAvailable = message.isAvailable
+    val isAssetMessage =
+        message.messageContent is UIMessageContent.AssetMessage || message.messageContent is UIMessageContent.ImageMessage
 
     val onCopyItemClick = remember(message) {
         {
@@ -131,6 +134,20 @@ fun EditMessageMenuItems(
                         },
                         title = stringResource(R.string.label_copy),
                         onItemClick = onCopyItemClick
+                    )
+                }
+            }
+            if (isAssetMessage) {
+                add {
+                    MenuBottomSheetItem(
+                        icon = {
+                            MenuItemIcon(
+                                id = R.drawable.ic_share_file,
+                                contentDescription = stringResource(R.string.content_description_share_the_file),
+                            )
+                        },
+                        title = stringResource(R.string.label_share),
+                        onItemClick = onShareAsset
                     )
                 }
             }

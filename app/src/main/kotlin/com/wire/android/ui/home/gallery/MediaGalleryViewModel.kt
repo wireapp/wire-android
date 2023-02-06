@@ -20,6 +20,7 @@
 
 package com.wire.android.ui.home.gallery
 
+import android.content.Context
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -36,8 +37,10 @@ import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogHelper
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogsState
 import com.wire.android.util.FileManager
 import com.wire.android.util.dispatchers.DispatcherProvider
+import com.wire.android.util.startFileShareIntent
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.conversation.ConversationDetails
+import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult.Success
@@ -52,6 +55,7 @@ import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import okio.Path
 import javax.inject.Inject
 
 @Suppress("LongParameterList")
@@ -93,6 +97,20 @@ class MediaGalleryViewModel @Inject constructor(
     init {
         observeConversationDetails()
     }
+
+    fun shareAsset(context: Context) {
+        viewModelScope.launch {
+            context.startFileShareIntent(assetDataPath(imageAssetId.conversationId, imageAssetId.messageId).toString())
+        }
+    }
+
+    private suspend fun assetDataPath(conversationId: QualifiedID, messageId: String): Path? =
+        getImageData(conversationId, messageId).await().run {
+            return when (this) {
+                is Success -> decodedAssetPath
+                else -> null
+            }
+        }
 
     private fun observeConversationDetails() {
         viewModelScope.launch {

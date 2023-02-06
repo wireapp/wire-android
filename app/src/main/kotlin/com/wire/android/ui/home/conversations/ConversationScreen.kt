@@ -202,7 +202,8 @@ fun ConversationScreen(
         onAudioClick = conversationMessagesViewModel::audioClick,
         onChangeAudioPosition = conversationMessagesViewModel::changeAudioPosition,
         composerMessages = messageComposerViewModel.infoMessage,
-        conversationMessages = conversationMessagesViewModel.infoMessage
+        conversationMessages = conversationMessagesViewModel.infoMessage,
+        conversationMessagesViewModel = conversationMessagesViewModel
     )
     DeleteMessageDialog(
         state = messageComposerViewModel.deleteMessageDialogsState,
@@ -293,10 +294,11 @@ private fun ConversationScreen(
     onBackButtonClick: () -> Unit,
     composerMessages: SharedFlow<SnackBarMessage>,
     conversationMessages: SharedFlow<SnackBarMessage>,
+    conversationMessagesViewModel: ConversationMessagesViewModel
 ) {
     val conversationScreenState = rememberConversationScreenState()
     val messageComposerInnerState = rememberMessageComposerInnerState()
-
+    val context = LocalContext.current
     MenuModalSheetLayout(
         sheetState = conversationScreenState.modalBottomSheetState,
         coroutineScope = conversationScreenState.coroutineScope,
@@ -310,6 +312,12 @@ private fun ConversationScreen(
                 onDetailsClick = onMessageDetailsClick,
                 onReplyClick = messageComposerInnerState::reply,
                 onEditClick = messageComposerInnerState::toEditMessage,
+                onShareAsset = {
+                    conversationScreenState.selectedMessage?.messageHeader?.messageId?.let {
+                        conversationMessagesViewModel.shareAsset(context, it)
+                    }
+                }
+
             )
         } ?: emptyList()
     ) {
@@ -694,6 +702,7 @@ fun PreviewConversationScreen() {
         onAudioClick = {},
         composerMessages = MutableStateFlow(ErrorDownloadingAsset),
         conversationMessages = MutableStateFlow(ErrorDownloadingAsset),
-        onChangeAudioPosition = { _, _ -> }
+        onChangeAudioPosition = { _, _ -> },
+        conversationMessagesViewModel = hiltViewModel()
     )
 }

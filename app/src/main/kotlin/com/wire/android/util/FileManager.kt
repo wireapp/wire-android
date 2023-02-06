@@ -36,10 +36,12 @@ class FileManager @Inject constructor(@ApplicationContext private val context: C
         assetName: String,
         assetDataPath: Path,
         assetDataSize: Long,
-        onFileSaved: suspend () -> Unit
-    ) {
+        dispatcher: DispatcherProvider = DefaultDispatcherProvider(),
+        onFileSaved: suspend (String?) -> Unit
+    ): Unit = withContext(dispatcher.io()) {
         saveFileToDownloadsFolder(assetName, assetDataPath, assetDataSize, context)
-        onFileSaved()
+            ?.let { context.getFileName(it) }
+            .also { onFileSaved(it) }
     }
 
     fun openWithExternalApp(assetDataPath: Path, assetExtension: String?, onError: () -> Unit) {

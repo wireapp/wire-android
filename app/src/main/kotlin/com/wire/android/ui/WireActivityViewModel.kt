@@ -225,18 +225,20 @@ class WireActivityViewModel @Inject constructor(
         } else {
             intent?.data?.let { deepLink ->
                 viewModelScope.launch {
-                    when (val result = deepLinkProcessor(deepLink)) {
-                        is DeepLinkResult.CustomServerConfig -> loadServerConfig(result.url)?.let { serverLinks ->
-                            globalAppState = globalAppState.copy(
-                                customBackendDialog = CustomBEDeeplinkDialogState(
-                                    shouldShowDialog = true,
-                                    serverLinks = serverLinks
+                    when (val result = deepLinkProcessor(deepLink, viewModelScope)) {
+                        is DeepLinkResult.CustomServerConfig -> runBlocking {
+                            loadServerConfig(result.url)?.let { serverLinks ->
+                                globalAppState = globalAppState.copy(
+                                    customBackendDialog = CustomBEDeeplinkDialogState(
+                                        shouldShowDialog = true,
+                                        serverLinks = serverLinks
+                                    )
                                 )
-                            )
-                            navigationArguments.put(SERVER_CONFIG_ARG, serverLinks)
+                                navigationArguments.put(SERVER_CONFIG_ARG, serverLinks)
+                            }
                         }
 
-                        is DeepLinkResult.SSOLogin -> navigationArguments.put(SSO_DEEPLINK_ARG, result)
+                        is DeepLinkResult.SSOLogin -> navigationArguments[SSO_DEEPLINK_ARG] = result
 
                         is DeepLinkResult.IncomingCall -> {
                             if (isLaunchedFromHistory(intent)) {
@@ -245,7 +247,7 @@ class WireActivityViewModel @Inject constructor(
                                 // then open the app from the "Recent Apps"
                                 appLogger.i("IncomingCall deepLink launched from the history")
                             } else {
-                                navigationArguments.put(INCOMING_CALL_CONVERSATION_ID_ARG, result.conversationsId)
+                                navigationArguments[INCOMING_CALL_CONVERSATION_ID_ARG] = result.conversationsId
                             }
                         }
 
@@ -256,7 +258,7 @@ class WireActivityViewModel @Inject constructor(
                                 // then open the app from the "Recent Apps"
                                 appLogger.i("IncomingCall deepLink launched from the history")
                             } else {
-                                navigationArguments.put(ONGOING_CALL_CONVERSATION_ID_ARG, result.conversationsId)
+                                navigationArguments[ONGOING_CALL_CONVERSATION_ID_ARG] = result.conversationsId
                             }
                         }
 
@@ -264,7 +266,7 @@ class WireActivityViewModel @Inject constructor(
                             if (isLaunchedFromHistory(intent)) {
                                 appLogger.i("OpenConversation deepLink launched from the history")
                             } else {
-                                navigationArguments.put(OPEN_CONVERSATION_ID_ARG, result.conversationsId)
+                                navigationArguments[OPEN_CONVERSATION_ID_ARG] = result.conversationsId
                             }
                         }
 
@@ -272,7 +274,7 @@ class WireActivityViewModel @Inject constructor(
                             if (isLaunchedFromHistory(intent)) {
                                 appLogger.i("OpenOtherUserProfile deepLink launched from the history")
                             } else {
-                                navigationArguments.put(OPEN_OTHER_USER_PROFILE_ARG, result.userId)
+                                navigationArguments[OPEN_OTHER_USER_PROFILE_ARG] = result.userId
                             }
                         }
 

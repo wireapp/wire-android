@@ -65,7 +65,7 @@ class AccountSwitchUseCase @Inject constructor(
     suspend operator fun invoke(params: SwitchAccountParam) {
         val current = currentAccount
         when (params) {
-            is SwitchAccountParam.SwitchToAccount -> switch(params.userId, current)
+            is SwitchAccountParam.SwitchToAccount -> switch(params.userId, current)to
             SwitchAccountParam.SwitchToNextAccountOrWelcome -> switchToNextAccountOrWelcome(current)
         }
     }

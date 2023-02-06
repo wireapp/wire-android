@@ -412,7 +412,7 @@ class WireActivityViewModelTest {
             mockUri()
             coEvery { currentSessionFlow() } returns flowOf()
             coEvery { getServerConfigUseCase(any()) } returns GetServerConfigResult.Success(newServerConfig(1).links)
-            coEvery { deepLinkProcessor(any()) } returns DeepLinkResult.Unknown
+            coEvery { deepLinkProcessor(any(), any()) } returns DeepLinkResult.Unknown
             coEvery { notificationManager.observeNotificationsAndCallsWhileRunning(any(), any(), any()) } returns Unit
             coEvery { navigationManager.navigate(any()) } returns Unit
             coEvery { observePersistentWebSocketConnectionStatus() } returns
@@ -508,7 +508,7 @@ class WireActivityViewModelTest {
         }
 
         fun withDeepLinkResult(result: DeepLinkResult): Arrangement {
-            coEvery { deepLinkProcessor(any()) } returns result
+            coEvery { deepLinkProcessor(any(), any()) } returns result
             return this
         }
 

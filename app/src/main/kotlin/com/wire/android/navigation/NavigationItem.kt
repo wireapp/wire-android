@@ -273,7 +273,8 @@ enum class NavigationItem(
             navDeepLink {
                 uriPattern = "${DeepLinkProcessor.DEEP_LINK_SCHEME}://" +
                         "${DeepLinkProcessor.CONVERSATION_DEEPLINK_HOST}/" +
-                        "{$EXTRA_CONVERSATION_ID}"
+                        "{$EXTRA_CONVERSATION_ID}/" +
+                        "{$EXTRA_USER_ID}"
             }
         ),
         content = { ConversationScreen(backNavArgs = it.navBackStackEntry.savedStateHandle.getBackNavArgs()) },

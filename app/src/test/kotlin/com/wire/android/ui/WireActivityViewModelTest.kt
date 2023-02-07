@@ -36,9 +36,12 @@ import com.wire.android.navigation.NavigationManager
 import com.wire.android.notification.NotificationChannelsManager
 import com.wire.android.notification.WireNotificationManager
 import com.wire.android.services.ServicesManager
+import com.wire.android.ui.joinConversation.JoinConversationViaCodeState
 import com.wire.android.util.deeplink.DeepLinkProcessor
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.android.util.newServerConfig
+import com.wire.kalium.logic.CoreFailure
+import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.team.Team
@@ -46,6 +49,8 @@ import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.appVersioning.ObserveIfAppUpdateRequiredUseCase
 import com.wire.kalium.logic.feature.auth.AccountInfo
+import com.wire.kalium.logic.feature.conversation.CheckConversationInviteCodeUseCase
+import com.wire.kalium.logic.feature.conversation.JoinConversationViaCodeUseCase
 import com.wire.kalium.logic.feature.server.GetServerConfigResult
 import com.wire.kalium.logic.feature.server.GetServerConfigUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
@@ -64,6 +69,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
 import org.amshove.kluent.internal.assertEquals
+import org.amshove.kluent.`should be equal to`
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -403,6 +409,130 @@ class WireActivityViewModelTest {
         coVerify(exactly = 1) { arrangement.notificationChannelsManager.createNotificationChannels(accs) }
     }
 
+    @Test
+    fun `given newIntent with Join Conversation Deep link, when user is not a member, then start join converstion flow`() {
+        val (code, key, domain) = Triple("code", "key", "domain")
+        val (conversationName, conversationId, isSelfMember) = Triple("conversation_name", ConversationId("id", "domain"), false)
+        val (arrangement, viewModel) = Arrangement()
+            .withSomeCurrentSession()
+            .withDeepLinkResult(DeepLinkResult.JoinConversation(code, key, domain))
+            .withCheckConversationCode(
+                code,
+                key,
+                domain,
+                CheckConversationInviteCodeUseCase.Result.Success(conversationName, conversationId, isSelfMember)
+            )
+            .arrange()
+
+        assert(viewModel.handleDeepLinkOnNewIntent(mockedIntent()))
+        viewModel.globalAppState.conversationJoinedDialog `should be equal to` JoinConversationViaCodeState.Show(
+            conversationName,
+            code,
+            key,
+            domain
+        )
+        coVerify(exactly = 0) { arrangement.navigationManager.navigate(any()) }
+    }
+
+    @Test
+    fun `given newIntent with Join Conversation Deep link, when user is a member, then navigate to the conversation`() {
+        val (code, key, domain) = Triple("code", "key", "domain")
+        val (conversationName, conversationId, isSelfMember) = Triple("conversation_name", ConversationId("id", "domain"), true)
+        val (arrangement, viewModel) = Arrangement()
+            .withSomeCurrentSession()
+            .withDeepLinkResult(DeepLinkResult.JoinConversation(code, key, domain))
+            .withCheckConversationCode(
+                code,
+                key,
+                domain,
+                CheckConversationInviteCodeUseCase.Result.Success(conversationName, conversationId, isSelfMember)
+            )
+            .arrange()
+
+        assert(viewModel.handleDeepLinkOnNewIntent(mockedIntent()))
+        viewModel.globalAppState.conversationJoinedDialog `should be equal to` null
+        coVerify(exactly = 1) { arrangement.navigationManager.navigate(any()) }
+    }
+
+    @Test
+    fun `given valid code, when joining conversion success, then navigate to the conversation`() {
+        val (code, key, domain) = Triple("code", "key", "domain")
+        val conversationId = ConversationId("id", "domain")
+        val (arrangement, viewModel) = Arrangement()
+            .withSomeCurrentSession()
+            .withDeepLinkResult(DeepLinkResult.JoinConversation(code, key, domain))
+            .withJoinConversationCode(
+                code,
+                key,
+                domain,
+                JoinConversationViaCodeUseCase.Result.Success.Changed(conversationId)
+            )
+            .arrange()
+
+        viewModel.joinConversationViaCode(code, key, domain)
+        viewModel.globalAppState.conversationJoinedDialog `should be equal to` null
+        coVerify(exactly = 1) { arrangement.navigationManager.navigate(any()) }
+    }
+
+    @Test
+    fun `given valid code, when joining conversion and user us already a member, then navigate to the conversation`() {
+        val (code, key, domain) = Triple("code", "key", "domain")
+        val conversationId = ConversationId("id", "domain")
+        val (arrangement, viewModel) = Arrangement()
+            .withSomeCurrentSession()
+            .withDeepLinkResult(DeepLinkResult.JoinConversation(code, key, domain))
+            .withJoinConversationCode(
+                code,
+                key,
+                domain,
+                JoinConversationViaCodeUseCase.Result.Success.Unchanged(conversationId)
+            )
+            .arrange()
+
+        viewModel.joinConversationViaCode(code, key, domain)
+        viewModel.globalAppState.conversationJoinedDialog `should be equal to` null
+        coVerify(exactly = 1) { arrangement.navigationManager.navigate(any()) }
+    }
+
+    @Test
+    fun `given invalid code, when try to join conversation, then get error and don't navigate`() {
+        val (code, key, domain) = Triple("code", "key", "domain")
+        val (arrangement, viewModel) = Arrangement()
+            .withSomeCurrentSession()
+            .withDeepLinkResult(DeepLinkResult.JoinConversation(code, key, domain))
+            .withJoinConversationCodeError(
+                code,
+                key,
+                domain,
+                JoinConversationViaCodeUseCase.Result.Failure(CoreFailure.Unknown(RuntimeException("Error")))
+            )
+            .arrange()
+
+        viewModel.joinConversationViaCode(code, key, domain)
+        viewModel.globalAppState.conversationJoinedDialog `should be equal to` null
+        coVerify(exactly = 0) { arrangement.navigationManager.navigate(any()) }
+    }
+
+    @Test
+    fun `given No session, when try to join conversation, then get error and don't navigate`() {
+        val (code, key, domain) = Triple("code", "key", "domain")
+        val conversationId = ConversationId("id", "domain")
+        val (arrangement, viewModel) = Arrangement()
+            .withNoCurrentSession()
+            .withDeepLinkResult(DeepLinkResult.JoinConversation(code, key, domain))
+            .withJoinConversationCode(
+                code,
+                key,
+                domain,
+                JoinConversationViaCodeUseCase.Result.Success.Changed(conversationId)
+            )
+            .arrange()
+
+        viewModel.joinConversationViaCode(code, key, domain)
+        viewModel.globalAppState.conversationJoinedDialog `should be equal to` null
+        coVerify(exactly = 0) { arrangement.navigationManager.navigate(any()) }
+    }
+
     private class Arrangement {
         init {
             // Tests setup
@@ -476,6 +606,9 @@ class WireActivityViewModelTest {
         @MockK
         lateinit var notificationChannelsManager: NotificationChannelsManager
 
+        @MockK
+        lateinit var coreLogic: CoreLogic
+
         private val viewModel by lazy {
             WireActivityViewModel(
                 dispatchers = TestDispatcherProvider(),
@@ -493,13 +626,14 @@ class WireActivityViewModelTest {
                 servicesManager = servicesManager,
                 observeIfAppUpdateRequired = observeIfAppUpdateRequired,
                 observeValidAccounts = observeValidAccounts,
-                notificationChannelsManager = notificationChannelsManager
+                notificationChannelsManager = notificationChannelsManager,
+                coreLogic = coreLogic
             )
         }
 
-        fun withSomeCurrentSession(): Arrangement {
+        fun withSomeCurrentSession(): Arrangement = apply {
             coEvery { currentSessionFlow() } returns flowOf(CurrentSessionResult.Success(TEST_ACCOUNT_INFO))
-            return this
+            coEvery { coreLogic.getGlobalScope().session.currentSession() } returns CurrentSessionResult.Success(TEST_ACCOUNT_INFO)
         }
 
         fun withNoCurrentSession(): Arrangement {
@@ -520,10 +654,43 @@ class WireActivityViewModelTest {
             coEvery { observeValidAccounts() } returns flowOf(list)
         }
 
+        fun withCheckConversationCode(
+            code: String,
+            key: String,
+            domain: String,
+            result: CheckConversationInviteCodeUseCase.Result
+        ): Arrangement = apply {
+            coEvery {
+                coreLogic.getSessionScope(TEST_ACCOUNT_INFO.userId).conversations.checkIConversationInviteCode(
+                    code,
+                    key,
+                    domain
+                )
+            } returns result
+        }
+
+        fun withJoinConversationCode(
+            code: String,
+            key: String,
+            domain: String,
+            result: JoinConversationViaCodeUseCase.Result
+        ): Arrangement = apply {
+            coEvery { coreLogic.getSessionScope(TEST_ACCOUNT_INFO.userId).conversations.joinConversationViaCode(code, key, domain) } returns
+                    result
+        }
+
+        fun withJoinConversationCodeError(
+            code: String,
+            key: String,
+            domain: String,
+            result: JoinConversationViaCodeUseCase.Result.Failure
+        ): Arrangement = apply {
+            coEvery { coreLogic.getSessionScope(TEST_ACCOUNT_INFO.userId).conversations.joinConversationViaCode(code, key, domain) } returns
+                    result
+        }
+
         fun arrange() = this to viewModel
-
     }
-
 
     companion object {
         val TEST_ACCOUNT_INFO = AccountInfo.Valid(UserId("user_id", "domain.de"))

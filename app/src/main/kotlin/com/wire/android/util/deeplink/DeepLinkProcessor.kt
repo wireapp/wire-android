@@ -49,6 +49,7 @@ sealed class DeepLinkResult {
     data class OngoingCall(val conversationsId: ConversationId) : DeepLinkResult()
     data class OpenConversation(val conversationsId: ConversationId) : DeepLinkResult()
     data class OpenOtherUserProfile(val userId: QualifiedID) : DeepLinkResult()
+    data class JoinConversation(val code: String, val key: String, val domain: String?) : DeepLinkResult()
 }
 
 @Singleton
@@ -65,6 +66,7 @@ class DeepLinkProcessor @Inject constructor(
         ONGOING_CALL_DEEPLINK_HOST -> getOngoingCallDeepLinkResult(uri)
         CONVERSATION_DEEPLINK_HOST -> getOpenConversationDeepLinkResult(uri, scope)
         OTHER_USER_PROFILE_DEEPLINK_HOST -> getOpenOtherUserProfileDeepLinkResult(uri)
+        JOIN_CONVERSATION_DEEPLINK_HOST -> getJoinConversationDeepLinkResult(uri)
         else -> DeepLinkResult.Unknown
     }
 
@@ -132,6 +134,14 @@ class DeepLinkProcessor @Inject constructor(
         }
     }
 
+    private fun getJoinConversationDeepLinkResult(uri: Uri): DeepLinkResult {
+        val code = uri.getQueryParameter(JOIN_CONVERSATION_CODE_PARAM)
+        val key = uri.getQueryParameter(JOIN_CONVERSATION_KEY_PARAM)
+        val domain = uri.getQueryParameter(JOIN_CONVERSATION_DOMAIN_PARAM)
+        if (code == null || key == null) return DeepLinkResult.Unknown
+        return DeepLinkResult.JoinConversation(code, key, domain)
+    }
+
     companion object {
         const val DEEP_LINK_SCHEME = "wire"
         const val ACCESS_DEEPLINK_HOST = "access"
@@ -147,6 +157,10 @@ class DeepLinkProcessor @Inject constructor(
         const val ONGOING_CALL_DEEPLINK_HOST = "ongoing-call"
         const val CONVERSATION_DEEPLINK_HOST = "conversation"
         const val OTHER_USER_PROFILE_DEEPLINK_HOST = "other-user-profile"
+        const val JOIN_CONVERSATION_DEEPLINK_HOST = "conversation-join"
+        const val JOIN_CONVERSATION_CODE_PARAM = "code"
+        const val JOIN_CONVERSATION_KEY_PARAM = "key"
+        const val JOIN_CONVERSATION_DOMAIN_PARAM = "domain"
     }
 }
 

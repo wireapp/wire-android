@@ -33,6 +33,7 @@ import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.model.MessageStatus
 import com.wire.android.ui.home.conversations.model.MessageTime
 import com.wire.android.ui.home.conversations.model.UIMessage
+import com.wire.android.util.ImageUtil
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.CoreFailure
@@ -75,8 +76,6 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
-import okio.Path
-import okio.buffer
 
 internal class ConversationsViewModelArrangement {
 
@@ -151,6 +150,9 @@ internal class ConversationsViewModelArrangement {
     private lateinit var contactMapper: ContactMapper
 
     @MockK
+    private lateinit var imageUtil: ImageUtil
+
+    @MockK
     private lateinit var membersToMention: MembersToMentionUseCase
 
     private val fakeKaliumFileSystem = FakeKaliumFileSystem()
@@ -172,7 +174,8 @@ internal class ConversationsViewModelArrangement {
             observeConversationInteractionAvailability = observeConversationInteractionAvailabilityUseCase,
             observeSecurityClassificationLabel = observeSecurityClassificationType,
             contactMapper = contactMapper,
-            membersToMention = membersToMention
+            membersToMention = membersToMention,
+            imageUtil = imageUtil
         )
     }
 
@@ -180,17 +183,13 @@ internal class ConversationsViewModelArrangement {
         coEvery { isFileSharingEnabledUseCase() } returns FileSharingStatus(null, null)
         coEvery { observeOngoingCallsUseCase() } returns emptyFlow()
         coEvery { observeEstablishedCallsUseCase() } returns emptyFlow()
+        coEvery { observeSecurityClassificationType(any()) } returns emptyFlow()
+        coEvery { imageUtil.extractImageWidthAndHeight(any(), any()) } returns (69 to 420)
         coEvery { observeConversationInteractionAvailabilityUseCase(any()) } returns flowOf(
             IsInteractionAvailableResult.Success(
                 InteractionAvailability.ENABLED
             )
         )
-    }
-
-    fun withStoredAsset(dataPath: Path, dataContent: ByteArray) = apply {
-        fakeKaliumFileSystem.sink(dataPath).buffer().use {
-            it.write(dataContent)
-        }
     }
 
     fun withSuccessfulSendAttachmentMessage() = apply {

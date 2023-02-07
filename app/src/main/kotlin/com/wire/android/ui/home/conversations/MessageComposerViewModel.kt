@@ -97,7 +97,8 @@ class MessageComposerViewModel @Inject constructor(
     private val updateConversationReadDateUseCase: UpdateConversationReadDateUseCase,
     private val observeSecurityClassificationLabel: ObserveSecurityClassificationLabelUseCase,
     private val contactMapper: ContactMapper,
-    private val membersToMention: MembersToMentionUseCase
+    private val membersToMention: MembersToMentionUseCase,
+    private val imageUtil: ImageUtil
 ) : SavedStateViewModel(savedStateHandle) {
 
     var conversationViewState by mutableStateOf(ConversationViewState())
@@ -209,7 +210,7 @@ class MessageComposerViewModel @Inject constructor(
                             if (dataSize > IMAGE_SIZE_LIMIT_BYTES) onSnackbarMessage(ErrorMaxImageSize)
                             else {
                                 val (imgWidth, imgHeight) =
-                                    ImageUtil.extractImageWidthAndHeight(
+                                    imageUtil.extractImageWidthAndHeight(
                                         attachmentBundle.dataPath.toString(),
                                         mimeType
                                     )

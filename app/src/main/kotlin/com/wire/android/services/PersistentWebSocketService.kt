@@ -33,8 +33,10 @@ import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.notification.NotificationChannelsManager
 import com.wire.android.notification.NotificationConstants.PERSISTENT_NOTIFICATION_ID
 import com.wire.android.notification.NotificationConstants.WEB_SOCKET_CHANNEL_ID
+import com.wire.android.notification.NotificationConstants.WEB_SOCKET_CHANNEL_NAME
 import com.wire.android.notification.WireNotificationManager
 import com.wire.android.notification.openAppPendingIntent
 import com.wire.android.util.dispatchers.DispatcherProvider
@@ -77,6 +79,9 @@ class PersistentWebSocketService : Service() {
     @Inject
     lateinit var navigationManager: NavigationManager
 
+    @Inject
+    lateinit var notificationChannelsManager: NotificationChannelsManager
+
     override fun onBind(intent: Intent?): IBinder? {
         return null
     }
@@ -94,6 +99,7 @@ class PersistentWebSocketService : Service() {
                     is ObservePersistentWebSocketConnectionStatusUseCase.Result.Failure -> {
                         appLogger.e("Failure while fetching persistent web socket status flow from service")
                     }
+
                     is ObservePersistentWebSocketConnectionStatusUseCase.Result.Success -> {
                         result.persistentWebSocketStatusListFlow.collect { statuses ->
 
@@ -135,7 +141,9 @@ class PersistentWebSocketService : Service() {
     }
 
     private fun generateForegroundNotification() {
-        val notification: Notification = Notification.Builder(this, WEB_SOCKET_CHANNEL_ID)
+        notificationChannelsManager.createRegularChannel(WEB_SOCKET_CHANNEL_ID, WEB_SOCKET_CHANNEL_NAME)
+
+        val notification: Notification = NotificationCompat.Builder(this, WEB_SOCKET_CHANNEL_ID)
             .setContentTitle("${resources.getString(R.string.app_name)} ${resources.getString(R.string.settings_service_is_running)}")
             .setSmallIcon(R.drawable.websocket_notification_icon_small)
             .setContentIntent(openAppPendingIntent(this))

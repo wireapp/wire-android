@@ -27,7 +27,6 @@ import androidx.work.CoroutineWorker
 import androidx.work.ForegroundInfo
 import androidx.work.WorkerParameters
 import com.wire.android.R
-import com.wire.android.appLogger
 import com.wire.android.notification.NotificationChannelsManager
 import com.wire.android.notification.NotificationConstants
 import com.wire.android.notification.WireNotificationManager
@@ -59,13 +58,10 @@ class NotificationFetchWorker
 
     override suspend fun getForegroundInfo(): ForegroundInfo {
 
-        if (notificationChannelsManager.shouldCreateChannel(NotificationConstants.MESSAGE_SYNC_CHANNEL_ID)) {
-            appLogger.i("${NotificationChannelsManager.TAG}: creating Message Synchronization notification channel")
-            notificationChannelsManager.createRegularChannel(
-                NotificationConstants.MESSAGE_SYNC_CHANNEL_ID,
-                NotificationConstants.MESSAGE_SYNC_CHANNEL_NAME
-            )
-        }
+        notificationChannelsManager.createRegularChannel(
+            NotificationConstants.MESSAGE_SYNC_CHANNEL_ID,
+            NotificationConstants.MESSAGE_SYNC_CHANNEL_NAME
+        )
 
         val notification = NotificationCompat.Builder(applicationContext, NotificationConstants.MESSAGE_SYNC_CHANNEL_ID)
             .setSmallIcon(R.drawable.notification_icon_small)

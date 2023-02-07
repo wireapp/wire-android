@@ -57,8 +57,10 @@ class MigrationViewModel @Inject constructor(
     }
 
     fun retry() {
-        // Flow collected in `enqueueMigrationAndListenForStateChanges` will still get updates for the newly enqueued work
-        workManager.enqueueMigrationWorker()
+        viewModelScope.launch(dispatchers.io()) {
+            // Flow collected in `enqueueMigrationAndListenForStateChanges` will still get updates for the newly enqueued work
+            workManager.enqueueMigrationWorker()
+        }
         state = MigrationState.InProgress(MigrationData.Progress.Type.UNKNOWN)
     }
 
@@ -66,12 +68,7 @@ class MigrationViewModel @Inject constructor(
         workManager.enqueueMigrationWorker().collect {
             when (it) {
                 is MigrationData.Result.Success -> navigateAfterMigration()
-                is MigrationData.Result.Failure -> {
-                    when (it.type) {
-                        MigrationData.Result.Failure.Type.NO_NETWORK -> state = MigrationState.Failed
-                        else -> navigateAfterMigration()
-                    }
-                }
+                is MigrationData.Result.Failure -> state = MigrationState.Failed
                 is MigrationData.Progress -> state = MigrationState.InProgress(it.type)
             }
         }

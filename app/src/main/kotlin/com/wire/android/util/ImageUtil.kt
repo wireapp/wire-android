@@ -47,7 +47,6 @@ object ImageUtil {
         Medium, Small
     }
 
-
     /**
      * Attempts to read the width and height of an image represented by the input parameter
      */

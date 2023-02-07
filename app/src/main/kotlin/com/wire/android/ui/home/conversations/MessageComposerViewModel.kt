@@ -54,7 +54,6 @@ import com.wire.android.util.ImageUtil
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
-import com.wire.kalium.logic.data.id.QualifiedID as ConversationId
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageResult
@@ -71,14 +70,14 @@ import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
 import com.wire.kalium.logic.feature.user.IsFileSharingEnabledUseCase
 import com.wire.kalium.logic.functional.onFailure
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.Instant
 import okio.Path
-import okio.buffer
+import javax.inject.Inject
+import com.wire.kalium.logic.data.id.QualifiedID as ConversationId
 
 @Suppress("LongParameterList", "TooManyFunctions")
 @HiltViewModel
@@ -211,7 +210,7 @@ class MessageComposerViewModel @Inject constructor(
                             else {
                                 val (imgWidth, imgHeight) =
                                     ImageUtil.extractImageWidthAndHeight(
-                                        kaliumFileSystem.source(attachmentBundle.dataPath).buffer().inputStream(),
+                                        attachmentBundle.dataPath.toString(),
                                         mimeType
                                     )
                                 val result = sendAssetMessage(

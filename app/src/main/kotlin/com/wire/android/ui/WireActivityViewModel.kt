@@ -37,9 +37,6 @@ import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
-import com.wire.android.notification.NotificationChannelsManager
-import com.wire.android.notification.WireNotificationManager
-import com.wire.android.services.ServicesManager
 import com.wire.android.ui.common.dialogs.CustomBEDeeplinkDialogState
 import com.wire.android.util.deeplink.DeepLinkProcessor
 import com.wire.android.util.deeplink.DeepLinkResult
@@ -57,8 +54,6 @@ import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import com.wire.kalium.logic.feature.session.GetSessionsUseCase
-import com.wire.kalium.logic.feature.user.ObserveValidAccountsUseCase
-import com.wire.kalium.logic.feature.user.webSocketStatus.ObservePersistentWebSocketConnectionStatusUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -71,7 +66,6 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -86,18 +80,13 @@ class WireActivityViewModel @Inject constructor(
     val currentSessionFlow: CurrentSessionFlowUseCase,
     private val getServerConfigUseCase: GetServerConfigUseCase,
     private val deepLinkProcessor: DeepLinkProcessor,
-    private val notificationManager: WireNotificationManager,
     private val navigationManager: NavigationManager,
     private val authServerConfigProvider: AuthServerConfigProvider,
     private val getSessions: GetSessionsUseCase,
     private val accountSwitch: AccountSwitchUseCase,
-    private val observePersistentWebSocketConnectionStatus: ObservePersistentWebSocketConnectionStatusUseCase,
     private val migrationManager: MigrationManager,
-    private val servicesManager: ServicesManager,
     private val observeSyncStateUseCaseProviderFactory: ObserveSyncStateUseCaseProvider.Factory,
-    private val observeIfAppUpdateRequired: ObserveIfAppUpdateRequiredUseCase,
-    private val observeValidAccounts: ObserveValidAccountsUseCase,
-    private val notificationChannelsManager: NotificationChannelsManager
+    private val observeIfAppUpdateRequired: ObserveIfAppUpdateRequiredUseCase
 ) : ViewModel() {
 
     private val navigationArguments = mutableMapOf<String, Any>(SERVER_CONFIG_ARG to ServerConfig.DEFAULT)
@@ -124,48 +113,10 @@ class WireActivityViewModel @Inject constructor(
             }
         }.distinctUntilChanged().flowOn(dispatchers.io()).shareIn(viewModelScope, SharingStarted.WhileSubscribed(), 1)
 
-
     private val _observeSyncFlowState: MutableStateFlow<SyncState?> = MutableStateFlow(null)
     val observeSyncFlowState: StateFlow<SyncState?> = _observeSyncFlowState
 
     init {
-        viewModelScope.launch(dispatchers.io()) {
-            observeValidAccounts()
-                .onStart { emit(listOf()) }
-                .distinctUntilChanged()
-                .collect { list ->
-                    notificationChannelsManager.createNotificationChannels(list.map { it.first })
-                }
-        }
-        viewModelScope.launch(dispatchers.io()) {
-            observePersistentWebSocketConnectionStatus().let { result ->
-                when (result) {
-                    is ObservePersistentWebSocketConnectionStatusUseCase.Result.Failure -> {
-                        appLogger.e("Failure while fetching persistent web socket status flow from wire activity")
-                    }
-                    is ObservePersistentWebSocketConnectionStatusUseCase.Result.Success -> {
-                        result.persistentWebSocketStatusListFlow.collect { statuses ->
-                            val usersToObserve = statuses
-                                .filter { !it.isPersistentWebSocketEnabled }
-                                .map { it.userId }
-
-                            notificationManager.observeNotificationsAndCallsWhileRunning(
-                                usersToObserve,
-                                viewModelScope
-                            ) { call -> openIncomingCall(call.conversationId) }
-
-                            if (statuses.any { it.isPersistentWebSocketEnabled }) {
-                                if (!servicesManager.isPersistentWebSocketServiceRunning()) {
-                                    servicesManager.startPersistentWebSocketService()
-                                }
-                            } else {
-                                servicesManager.stopPersistentWebSocketService()
-                            }
-                        }
-                    }
-                }
-            }
-        }
         viewModelScope.launch(dispatchers.io()) {
             observeUserId
                 .flatMapLatest {
@@ -216,9 +167,9 @@ class WireActivityViewModel @Inject constructor(
 
     fun handleDeepLink(intent: Intent?) {
         intent?.data?.let { deepLink ->
-            viewModelScope.launch {
-                when (val result = deepLinkProcessor(deepLink)) {
-                    is DeepLinkResult.CustomServerConfig -> loadServerConfig(result.url)?.let { serverLinks ->
+            when (val result = deepLinkProcessor(deepLink, viewModelScope)) {
+                is DeepLinkResult.CustomServerConfig -> runBlocking {
+                    loadServerConfig(result.url)?.let { serverLinks ->
                         globalAppState = globalAppState.copy(
                             customBackendDialog = CustomBEDeeplinkDialogState(
                                 shouldShowDialog = true,
@@ -227,50 +178,50 @@ class WireActivityViewModel @Inject constructor(
                         )
                         navigationArguments.put(SERVER_CONFIG_ARG, serverLinks)
                     }
+                }
 
-                    is DeepLinkResult.SSOLogin -> navigationArguments.put(SSO_DEEPLINK_ARG, result)
+                is DeepLinkResult.SSOLogin -> navigationArguments.put(SSO_DEEPLINK_ARG, result)
 
-                    is DeepLinkResult.IncomingCall -> {
-                        if (isLaunchedFromHistory(intent)) {
-                            // We don't need to handle deepLink, if activity was launched from history.
-                            // For example: user opened app by deepLink, then closed it by back button click,
-                            // then open the app from the "Recent Apps"
-                            appLogger.i("IncomingCall deepLink launched from the history")
-                        } else {
-                            navigationArguments.put(INCOMING_CALL_CONVERSATION_ID_ARG, result.conversationsId)
-                        }
+                is DeepLinkResult.IncomingCall -> {
+                    if (isLaunchedFromHistory(intent)) {
+                        // We don't need to handle deepLink, if activity was launched from history.
+                        // For example: user opened app by deepLink, then closed it by back button click,
+                        // then open the app from the "Recent Apps"
+                        appLogger.i("IncomingCall deepLink launched from the history")
+                    } else {
+                        navigationArguments.put(INCOMING_CALL_CONVERSATION_ID_ARG, result.conversationsId)
                     }
+                }
 
-                    is DeepLinkResult.OngoingCall -> {
-                        if (isLaunchedFromHistory(intent)) {
-                            // We don't need to handle deepLink, if activity was launched from history.
-                            // For example: user opened app by deepLink, then closed it by back button click,
-                            // then open the app from the "Recent Apps"
-                            appLogger.i("IncomingCall deepLink launched from the history")
-                        } else {
-                            navigationArguments.put(ONGOING_CALL_CONVERSATION_ID_ARG, result.conversationsId)
-                        }
+                is DeepLinkResult.OngoingCall -> {
+                    if (isLaunchedFromHistory(intent)) {
+                        // We don't need to handle deepLink, if activity was launched from history.
+                        // For example: user opened app by deepLink, then closed it by back button click,
+                        // then open the app from the "Recent Apps"
+                        appLogger.i("IncomingCall deepLink launched from the history")
+                    } else {
+                        navigationArguments.put(ONGOING_CALL_CONVERSATION_ID_ARG, result.conversationsId)
                     }
+                }
 
-                    is DeepLinkResult.OpenConversation -> {
-                        if (isLaunchedFromHistory(intent)) {
-                            appLogger.i("OpenConversation deepLink launched from the history")
-                        } else {
-                            navigationArguments.put(OPEN_CONVERSATION_ID_ARG, result.conversationsId)
-                        }
+                is DeepLinkResult.OpenConversation -> {
+                    if (isLaunchedFromHistory(intent)) {
+                        appLogger.i("OpenConversation deepLink launched from the history")
+                    } else {
+                        navigationArguments.put(OPEN_CONVERSATION_ID_ARG, result.conversationsId)
                     }
+                }
 
-                    is DeepLinkResult.OpenOtherUserProfile -> {
-                        if (isLaunchedFromHistory(intent)) {
-                            appLogger.i("OpenOtherUserProfile deepLink launched from the history")
-                        } else {
-                            navigationArguments.put(OPEN_OTHER_USER_PROFILE_ARG, result.userId)
-                        }
+                is DeepLinkResult.OpenOtherUserProfile -> {
+                    if (isLaunchedFromHistory(intent)) {
+                        appLogger.i("OpenOtherUserProfile deepLink launched from the history")
+                    } else {
+                        navigationArguments.put(OPEN_OTHER_USER_PROFILE_ARG, result.userId)
                     }
+                }
 
-                    DeepLinkResult.Unknown -> {
-                        appLogger.e("unknown deeplink result $result")
-                    }
+                DeepLinkResult.Unknown -> {
+                    appLogger.e("unknown deeplink result $result")
                 }
             }
         }

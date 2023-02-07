@@ -31,6 +31,9 @@ import com.wire.kalium.logic.data.id.QualifiedIdMapperImpl
 import com.wire.kalium.logic.data.id.toQualifiedID
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -56,24 +59,24 @@ class DeepLinkProcessor @Inject constructor(
 ) {
     private val qualifiedIdMapper = QualifiedIdMapperImpl(null)
 
-    suspend operator fun invoke(uri: Uri): DeepLinkResult = when (uri.host) {
+    operator fun invoke(uri: Uri, scope: CoroutineScope): DeepLinkResult = when (uri.host) {
         ACCESS_DEEPLINK_HOST -> getCustomServerConfigDeepLinkResult(uri)
         SSO_LOGIN_DEEPLINK_HOST -> getSSOLoginDeepLinkResult(uri)
         INCOMING_CALL_DEEPLINK_HOST -> getIncomingCallDeepLinkResult(uri)
         ONGOING_CALL_DEEPLINK_HOST -> getOngoingCallDeepLinkResult(uri)
-        CONVERSATION_DEEPLINK_HOST -> getOpenConversationDeepLinkResult(uri)
+        CONVERSATION_DEEPLINK_HOST -> getOpenConversationDeepLinkResult(uri, scope)
         OTHER_USER_PROFILE_DEEPLINK_HOST -> getOpenOtherUserProfileDeepLinkResult(uri)
         else -> DeepLinkResult.Unknown
     }
 
     @Suppress("TooGenericExceptionCaught")
-    private suspend fun getOpenConversationDeepLinkResult(uri: Uri): DeepLinkResult {
+    private fun getOpenConversationDeepLinkResult(uri: Uri, scope: CoroutineScope): DeepLinkResult {
         return try {
             val conversationId = uri.pathSegments[0]?.toQualifiedID(qualifiedIdMapper)
             val userId = uri.pathSegments[1]?.toQualifiedID(qualifiedIdMapper)
             if (conversationId == null || userId == null) return DeepLinkResult.Unknown
 
-            val shouldSwitchAccount = currentSession().let {
+            val shouldSwitchAccount = runBlocking { currentSession() }.let {
                 when (it) {
                     is CurrentSessionResult.Failure.Generic -> true
                     CurrentSessionResult.Failure.SessionNotFound -> true
@@ -83,7 +86,7 @@ class DeepLinkProcessor @Inject constructor(
                 }
             }
             if (shouldSwitchAccount) {
-                accountSwitch(SwitchAccountParam.SwitchToAccount(userId))
+                scope.launch { accountSwitch(SwitchAccountParam.SwitchToAccount(userId)) }
             }
 
             DeepLinkResult.OpenConversation(conversationId)

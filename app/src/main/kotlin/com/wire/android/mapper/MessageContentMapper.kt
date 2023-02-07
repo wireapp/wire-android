@@ -50,6 +50,7 @@ import com.wire.kalium.logic.util.isGreaterThan
 import javax.inject.Inject
 
 // TODO: splits mapping into more classes
+@Suppress("TooManyFunctions")
 class MessageContentMapper @Inject constructor(
     private val messageResourceProvider: MessageResourceProvider,
     private val wireSessionImageLoader: WireSessionImageLoader,

@@ -12,7 +12,4 @@ data class ShareableConversationListState(
     val hasNoConversations: Boolean = false,
     val searchResult: List<ConversationItem> = persistentListOf(),
     val conversationsAddedToGroup: ImmutableList<ConversationItem> = persistentListOf(),
-) {
-    fun findConversationById(conversationId: ConversationId): ConversationItem? =
-        initialConversations.firstOrNull { it.conversationId == conversationId }
-}
+)

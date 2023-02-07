@@ -88,7 +88,7 @@ suspend fun Uri.toDrawable(context: Context, dispatcher: DispatcherProvider = De
     val dataUri = this
     return withContext(dispatcher.io()) {
         try {
-            context.contentResolver.openInputStream(dataUri).let { inputStream ->
+            context.contentResolver.openInputStream(dataUri).use { inputStream ->
                 Drawable.createFromStream(inputStream, dataUri.toString())
             }
         } catch (e: FileNotFoundException) {

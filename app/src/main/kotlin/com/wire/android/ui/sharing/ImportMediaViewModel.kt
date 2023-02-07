@@ -61,7 +61,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import okio.buffer
 import java.util.UUID
 import javax.inject.Inject
 
@@ -249,7 +248,9 @@ class ImportMediaViewModel @Inject constructor(
                 // ACTION_SEND
                 incomingIntent.stream?.let { uri ->
                     incomingIntent.type?.let { mimeType ->
-                        importMediaState = importMediaState.copy(importedAssets = mutableListOf(handleMimeType(activity, mimeType, uri)))
+                        handleImportedAsset(activity, mimeType, uri)?.let { importedAsset ->
+                            importMediaState = importMediaState.copy(importedAssets = mutableListOf(importedAsset))
+                        }
                     }
                 }
             }
@@ -259,14 +260,16 @@ class ImportMediaViewModel @Inject constructor(
                 val importedMediaAssets = mutableListOf<ImportedMediaAsset>()
                 activity.intent.parcelableArrayList<Parcelable>(Intent.EXTRA_STREAM)?.forEach {
                     val fileUri = it.toString().toUri()
-                    importedMediaAssets.add(handleMimeType(activity, fileUri.getMimeType(activity).toString(), fileUri))
+                    handleImportedAsset(activity, fileUri.getMimeType(activity).toString(), fileUri)?.let { importedAsset ->
+                        importedMediaAssets.add(importedAsset)
+                    }
                 }
                 importMediaState = importMediaState.copy(importedAssets = importedMediaAssets)
             }
         }
     }
 
-    fun onImportedMediaSent() = viewModelScope.launch {
+    fun onImportedMediaSent() = viewModelScope.launch(dispatchers.default()) {
         val conversation = shareableConversationListState.conversationsAddedToGroup.first()
         val assetsToSend = importMediaState.importedAssets
 
@@ -276,26 +279,19 @@ class ImportMediaViewModel @Inject constructor(
             var jobs: List<Job> = listOf()
             assetsToSend.forEach { importedAsset ->
                 val isImage = importedAsset is ImportedMediaAsset.Image
-                val assetLimitForCurrentUser = getAssetSizeLimit(isImage).toInt()
-                val sizeOf1MB = 1024 * 1024
-                val isAboveLimit = importedAsset.size > assetLimitForCurrentUser
-                if (isAboveLimit) {
-                    onSnackbarMessage(ImportMediaSnackbarMessages.MaxAssetSizeExceeded(assetLimitForCurrentUser.div(sizeOf1MB)))
-                } else {
-                    val job = launch {
-                        sendAssetMessage(
-                            conversationId = conversation.conversationId,
-                            assetDataPath = importedAsset.dataPath,
-                            assetName = importedAsset.name,
-                            assetDataSize = importedAsset.size,
-                            assetMimeType = importedAsset.mimeType,
-                            assetWidth = if (isImage) (importedAsset as ImportedMediaAsset.Image).width else 0,
-                            assetHeight = if (isImage) (importedAsset as ImportedMediaAsset.Image).height else 0,
-                        )
-                    }
-                    jobs = jobs.plus(job)
-                    appLogger.d("**-- Triggered job $job / aka ${jobs.size}")
+                val job = viewModelScope.launch {
+                    sendAssetMessage(
+                        conversationId = conversation.conversationId,
+                        assetDataPath = importedAsset.dataPath,
+                        assetName = importedAsset.name,
+                        assetDataSize = importedAsset.size,
+                        assetMimeType = importedAsset.mimeType,
+                        assetWidth = if (isImage) (importedAsset as ImportedMediaAsset.Image).width else 0,
+                        assetHeight = if (isImage) (importedAsset as ImportedMediaAsset.Image).height else 0,
+                    )
                 }
+                jobs = jobs.plus(job)
+                appLogger.d("Triggered sendAssetMessage job # ${jobs.size} -- path ${importedAsset.dataPath} -- isImage $isImage")
             }
             jobs.joinAll()
             navigationManager.navigate(
@@ -308,47 +304,55 @@ class ImportMediaViewModel @Inject constructor(
     }
 
 
-    private suspend fun handleMimeType(context: Context, mimeType: String, uri: Uri): ImportedMediaAsset = withContext(dispatchers.io()) {
+    private suspend fun handleImportedAsset(
+        context: Context,
+        mimeType: String,
+        uri: Uri
+    ): ImportedMediaAsset? = withContext(dispatchers.io()) {
         val assetKey = UUID.randomUUID().toString()
-        val tempAssetPath = kaliumFileSystem.tempFilePath(assetKey)
+        val fileMetadata = uri.getMetaDataFromUri(context)
+        val tempAssetPath = kaliumFileSystem.tempFilePath(fileMetadata.name)
         when {
+            isAboveLimit(isImageFile(mimeType), fileMetadata.size) -> null
             isImageFile(mimeType) -> {
-                uri.getMetaDataFromUri(context).let {
-                    // Only resample the image if it is too large
-                    uri.resampleImageAndCopyToTempPath(context, tempAssetPath, ImageUtil.ImageSizeClass.Medium)
-                    val tempAssetSource = kaliumFileSystem.source(tempAssetPath)
-                    val (imgWidth, imgHeight) = ImageUtil.extractImageWidthAndHeight(tempAssetSource.buffer().inputStream(), mimeType)
-                    tempAssetSource.close()
+                // Only resample the image if it is too large
+                uri.resampleImageAndCopyToTempPath(context, tempAssetPath, ImageUtil.ImageSizeClass.Medium)
+                val (imgWidth, imgHeight) = ImageUtil.extractImageWidthAndHeight(kaliumFileSystem, tempAssetPath, mimeType)
 
-                    return@withContext ImportedMediaAsset.Image(
-                        name = it.name,
-                        size = it.size,
-                        mimeType = mimeType,
-                        dataPath = tempAssetPath,
-                        dataUri = uri,
-                        key = assetKey,
-                        width = imgWidth,
-                        height = imgHeight
-                    )
-
-                }
+                return@withContext ImportedMediaAsset.Image(
+                    name = fileMetadata.name,
+                    size = fileMetadata.size,
+                    mimeType = mimeType,
+                    dataPath = tempAssetPath,
+                    dataUri = uri,
+                    key = assetKey,
+                    width = imgWidth,
+                    height = imgHeight
+                )
             }
 
             else -> {
-                uri.getMetaDataFromUri(context).let {
-                    fileManager.copyToTempPath(uri, tempAssetPath)
-                    return@withContext ImportedMediaAsset.GenericAsset(
-                        name = it.name,
-                        size = it.size,
-                        mimeType = mimeType,
-                        dataPath = tempAssetPath,
-                        dataUri = uri,
-                        key = assetKey
-                    )
-
-                }
+                fileManager.copyToTempPath(uri, tempAssetPath)
+                return@withContext ImportedMediaAsset.GenericAsset(
+                    name = fileMetadata.name,
+                    size = fileMetadata.size,
+                    mimeType = mimeType,
+                    dataPath = tempAssetPath,
+                    dataUri = uri,
+                    key = assetKey
+                )
             }
         }
+    }
+
+    private suspend fun isAboveLimit(isImage: Boolean, size: Long): Boolean {
+        val assetLimitForCurrentUser = getAssetSizeLimit(isImage).toInt()
+        val sizeOf1MB = 1024 * 1024
+        val isAboveLimit = size > assetLimitForCurrentUser
+        if (isAboveLimit) {
+            onSnackbarMessage(ImportMediaSnackbarMessages.MaxAssetSizeExceeded(assetLimitForCurrentUser.div(sizeOf1MB)))
+        }
+        return isAboveLimit
     }
 
     fun onSnackbarMessage(type: SnackBarMessage) = viewModelScope.launch {

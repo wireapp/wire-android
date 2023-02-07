@@ -51,10 +51,7 @@ import com.wire.android.ui.home.newconversation.common.SendContentButton
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.util.extension.getActivity
 import kotlinx.collections.immutable.persistentMapOf
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.runBlocking
 
 @Composable
 fun ImportMediaScreen(importMediaViewModel: ImportMediaViewModel = hiltViewModel()) {
@@ -165,7 +162,8 @@ fun ImportMediaContent(searchBarState: SearchBarState, snackbarHostState: Snackb
         bottomBar = {
             SendContentButton(
                 mainButtonText = actionButtonTitle,
-                count = importMediaViewModel.shareableConversationListState.conversationsAddedToGroup.size,
+                count = if (importMediaViewModel.importMediaState.importedAssets.size > 0)
+                    importMediaViewModel.shareableConversationListState.conversationsAddedToGroup.size else 0,
                 onMainButtonClick = importMediaViewModel::onImportedMediaSent
             )
         }

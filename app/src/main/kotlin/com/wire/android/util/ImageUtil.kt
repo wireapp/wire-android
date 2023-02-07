@@ -28,6 +28,9 @@ import android.graphics.BitmapFactory
 import android.graphics.Matrix
 import android.net.Uri
 import androidx.exifinterface.media.ExifInterface
+import com.wire.kalium.logic.data.asset.KaliumFileSystem
+import okio.Path
+import okio.buffer
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
 import kotlin.math.ceil
@@ -49,17 +52,19 @@ object ImageUtil {
     /**
      * Attempts to read the width and height of an image represented by the input parameter
      */
-    fun extractImageWidthAndHeight(imageDataInputStream: InputStream, mimeType: String): Pair<Int, Int> {
-        val isAnimated = mimeType.contains("gif") || mimeType.contains("webp")
-        if (isAnimated) {
-            BitmapFactory.decodeStream(imageDataInputStream).let { bitmap ->
-                return bitmap.width to bitmap.height
+    fun extractImageWidthAndHeight(kaliumFileSystem: KaliumFileSystem, imageDataPath: Path, mimeType: String): Pair<Int, Int> {
+        kaliumFileSystem.source(imageDataPath).buffer().use { bufferedSource ->
+            val isAnimated = mimeType.contains("gif") || mimeType.contains("webp")
+            if (isAnimated) {
+                BitmapFactory.decodeStream(bufferedSource.inputStream()).let { bitmap ->
+                    return bitmap.width to bitmap.height
+                }
+            } else {
+                val exifInterface = ExifInterface(bufferedSource.inputStream())
+                val exifWidth: Int = exifInterface.getAttributeInt(ExifInterface.TAG_IMAGE_WIDTH, 0)
+                val exifHeight: Int = exifInterface.getAttributeInt(ExifInterface.TAG_IMAGE_LENGTH, 0)
+                return exifWidth to exifHeight
             }
-        } else {
-            val exifInterface = ExifInterface(imageDataInputStream)
-            val exifWidth: Int = exifInterface.getAttributeInt(ExifInterface.TAG_IMAGE_WIDTH, 0)
-            val exifHeight: Int = exifInterface.getAttributeInt(ExifInterface.TAG_IMAGE_LENGTH, 0)
-            return exifWidth to exifHeight
         }
     }
 

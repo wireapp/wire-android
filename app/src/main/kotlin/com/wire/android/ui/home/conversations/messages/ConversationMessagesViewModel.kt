@@ -202,6 +202,7 @@ class ConversationMessagesViewModel @Inject constructor(
     }
 
     fun openMessageDetails(messageId: String, isSelfMessage: Boolean) {
+        appLogger.i("[$TAG][openMessageDetails] - isSelfMessage: $isSelfMessage")
         viewModelScope.launch {
             navigationManager.navigate(
                 command = NavigationCommand(
@@ -251,4 +252,8 @@ class ConversationMessagesViewModel @Inject constructor(
     }
 
     // endregion
+
+    private companion object {
+        const val TAG = "ConversationMessagesViewModel"
+    }
 }

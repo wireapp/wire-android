@@ -98,6 +98,10 @@
                 <data
                         android:host="incoming-call"
                         android:scheme="wire" />
+
+                <data
+                        android:host="conversation-join"
+                        android:scheme="wire" />
             </intent-filter>
         </activity>
 

@@ -43,9 +43,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import coil.compose.rememberAsyncImagePainter
 import com.wire.android.R
 import com.wire.android.model.ImageAsset
-import com.wire.android.ui.common.WireCircularProgressIndicator
+import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.sharing.ImportedMediaAsset
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography

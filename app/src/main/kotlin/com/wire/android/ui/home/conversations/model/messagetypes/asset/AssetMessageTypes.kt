@@ -54,7 +54,7 @@ import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import com.wire.android.R
 import com.wire.android.model.Clickable
-import com.wire.android.ui.common.WireCircularProgressIndicator
+import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.common.clickable
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.wireColorScheme

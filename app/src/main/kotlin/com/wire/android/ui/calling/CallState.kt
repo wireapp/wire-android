@@ -34,7 +34,7 @@ data class CallState(
     val avatarAssetId: UserAvatarAsset? = null,
     val participants: List<UICallParticipant> = listOf(),
     val isMuted: Boolean? = null,
-    val isCameraOn: Boolean? = null,
+    val isCameraOn: Boolean = false,
     val isSpeakerOn: Boolean = false,
     val isCameraFlipped: Boolean = false,
     val conversationType: ConversationType = ConversationType.OneOnOne,

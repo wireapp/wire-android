@@ -28,8 +28,10 @@ import android.graphics.BitmapFactory
 import android.graphics.Matrix
 import android.net.Uri
 import androidx.exifinterface.media.ExifInterface
+import com.wire.kalium.logic.data.asset.KaliumFileSystem
+import okio.Path
+import okio.buffer
 import java.io.ByteArrayOutputStream
-import java.io.File
 import kotlin.math.ceil
 import kotlin.math.round
 import kotlin.math.sqrt
@@ -49,29 +51,11 @@ object ImageUtil {
     /**
      * Attempts to read the width and height of an image represented by the input parameter
      */
-    fun extractImageWidthAndHeight(path: String, mimeType: String): Pair<Int, Int> {
-        val isAnimated = mimeType.contains("gif") || mimeType.contains("webp")
-        if (isAnimated) {
-            BitmapFactory.decodeStream(File(path).inputStream()).let { bitmap ->
+    fun extractImageWidthAndHeight(kaliumFileSystem: KaliumFileSystem, imageDataPath: Path): Pair<Int, Int> {
+        kaliumFileSystem.source(imageDataPath).buffer().use { bufferedSource ->
+            BitmapFactory.decodeStream(bufferedSource.inputStream()).let { bitmap ->
                 return bitmap.width to bitmap.height
             }
-        } else {
-            val exifInterface = ExifInterface(File(path))
-            // we had a fallback to get the width and height from the file because the ExifInterface is not returning
-            // values after edit some images
-            val exifWidth: Int = exifInterface.getAttributeInt(ExifInterface.TAG_IMAGE_WIDTH, 0).let {
-                if (it != 0) {
-                    return@let it
-                }
-                BitmapFactory.decodeFile(path).width
-            }
-            val exifHeight: Int = exifInterface.getAttributeInt(ExifInterface.TAG_IMAGE_LENGTH, 0).let {
-                if (it != 0) {
-                    return@let it
-                }
-                BitmapFactory.decodeFile(path).height
-            }
-            return exifWidth to exifHeight
         }
     }
 

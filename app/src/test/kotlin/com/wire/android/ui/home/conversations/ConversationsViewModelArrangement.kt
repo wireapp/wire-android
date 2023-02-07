@@ -76,6 +76,8 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
+import okio.Path
+import okio.buffer
 
 internal class ConversationsViewModelArrangement {
 
@@ -184,12 +186,18 @@ internal class ConversationsViewModelArrangement {
         coEvery { observeOngoingCallsUseCase() } returns emptyFlow()
         coEvery { observeEstablishedCallsUseCase() } returns emptyFlow()
         coEvery { observeSecurityClassificationType(any()) } returns emptyFlow()
-        coEvery { imageUtil.extractImageWidthAndHeight(any(), any()) } returns (69 to 420)
+        coEvery { imageUtil.extractImageWidthAndHeight(any(), any()) } returns (1 to 1)
         coEvery { observeConversationInteractionAvailabilityUseCase(any()) } returns flowOf(
             IsInteractionAvailableResult.Success(
                 InteractionAvailability.ENABLED
             )
         )
+    }
+
+    fun withStoredAsset(dataPath: Path, dataContent: ByteArray) = apply {
+        fakeKaliumFileSystem.sink(dataPath).buffer().use {
+            it.write(dataContent)
+        }
     }
 
     fun withSuccessfulSendAttachmentMessage() = apply {

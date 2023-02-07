@@ -173,6 +173,7 @@ class MessageComposerViewModelTest {
         val assetSize = assetContent.size.toLong()
         val (arrangement, viewModel) = ConversationsViewModelArrangement()
             .withSuccessfulViewModelInit()
+            .withStoredAsset(assetPath, assetContent)
             .withSuccessfulSendAttachmentMessage()
             .arrange()
         val mockedAttachment = AttachmentBundle(

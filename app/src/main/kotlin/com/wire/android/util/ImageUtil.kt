@@ -52,18 +52,10 @@ object ImageUtil {
     /**
      * Attempts to read the width and height of an image represented by the input parameter
      */
-    fun extractImageWidthAndHeight(kaliumFileSystem: KaliumFileSystem, imageDataPath: Path, mimeType: String): Pair<Int, Int> {
+    fun extractImageWidthAndHeight(kaliumFileSystem: KaliumFileSystem, imageDataPath: Path): Pair<Int, Int> {
         kaliumFileSystem.source(imageDataPath).buffer().use { bufferedSource ->
-            val isAnimated = mimeType.contains("gif") || mimeType.contains("webp")
-            if (isAnimated) {
-                BitmapFactory.decodeStream(bufferedSource.inputStream()).let { bitmap ->
-                    return bitmap.width to bitmap.height
-                }
-            } else {
-                val exifInterface = ExifInterface(bufferedSource.inputStream())
-                val exifWidth: Int = exifInterface.getAttributeInt(ExifInterface.TAG_IMAGE_WIDTH, 0)
-                val exifHeight: Int = exifInterface.getAttributeInt(ExifInterface.TAG_IMAGE_LENGTH, 0)
-                return exifWidth to exifHeight
+            BitmapFactory.decodeStream(bufferedSource.inputStream()).let { bitmap ->
+                return bitmap.width to bitmap.height
             }
         }
     }

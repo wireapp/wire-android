@@ -51,6 +51,7 @@ import com.wire.kalium.logic.data.user.UserAssetId
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.data.user.type.UserType
+import com.wire.kalium.logic.feature.asset.GetAssetSizeLimitUseCase
 import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageResult
 import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageUseCase
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
@@ -153,6 +154,9 @@ internal class ConversationsViewModelArrangement {
     @MockK
     private lateinit var membersToMention: MembersToMentionUseCase
 
+    @MockK
+    private lateinit var getAssetSizeLimitUseCase: GetAssetSizeLimitUseCase
+
     private val fakeKaliumFileSystem = FakeKaliumFileSystem()
 
     private val viewModel by lazy {
@@ -172,7 +176,8 @@ internal class ConversationsViewModelArrangement {
             observeConversationInteractionAvailability = observeConversationInteractionAvailabilityUseCase,
             observeSecurityClassificationLabel = observeSecurityClassificationType,
             contactMapper = contactMapper,
-            membersToMention = membersToMention
+            membersToMention = membersToMention,
+            getAssetSizeLimit = getAssetSizeLimitUseCase
         )
     }
 
@@ -214,6 +219,11 @@ internal class ConversationsViewModelArrangement {
 
     fun withTeamUser(userTeam: Team) = apply {
         coEvery { getSelfUserTeam() } returns flowOf(userTeam)
+        return this
+    }
+
+    fun withGetAssetSizeLimitUseCase(isImage: Boolean, assetSizeLimit: Long) = apply {
+        coEvery { getAssetSizeLimitUseCase(eq(isImage)) } returns assetSizeLimit
         return this
     }
 

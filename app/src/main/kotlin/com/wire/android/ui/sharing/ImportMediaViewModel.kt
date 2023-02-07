@@ -238,6 +238,7 @@ class ImportMediaViewModel @Inject constructor(
     suspend fun handleReceivedDataFromSharingIntent(activity: AppCompatActivity) {
         val incomingIntent = ShareCompat.IntentReader(activity)
         appLogger.e("Received data from sharing intent ${incomingIntent.streamCount}")
+        importMediaState = importMediaState.copy(isImporting = true)
         when (incomingIntent.streamCount) {
             0 -> {
                 // if stream count is 0 the type will be text, we check the type to double check if it is text
@@ -267,6 +268,7 @@ class ImportMediaViewModel @Inject constructor(
                 importMediaState = importMediaState.copy(importedAssets = importedMediaAssets)
             }
         }
+        importMediaState = importMediaState.copy(isImporting = false)
     }
 
     fun onImportedMediaSent() = viewModelScope.launch(dispatchers.default()) {
@@ -317,7 +319,7 @@ class ImportMediaViewModel @Inject constructor(
             isImageFile(mimeType) -> {
                 // Only resample the image if it is too large
                 uri.resampleImageAndCopyToTempPath(context, tempAssetPath, ImageUtil.ImageSizeClass.Medium)
-                val (imgWidth, imgHeight) = ImageUtil.extractImageWidthAndHeight(kaliumFileSystem, tempAssetPath, mimeType)
+                val (imgWidth, imgHeight) = ImageUtil.extractImageWidthAndHeight(kaliumFileSystem, tempAssetPath)
 
                 return@withContext ImportedMediaAsset.Image(
                     name = fileMetadata.name,
@@ -367,5 +369,6 @@ class ImportMediaViewModel @Inject constructor(
 @Stable
 data class ImportMediaState(
     val avatarAsset: ImageAsset.UserAvatarAsset? = null,
-    val importedAssets: MutableList<ImportedMediaAsset> = mutableListOf()
+    val importedAssets: MutableList<ImportedMediaAsset> = mutableListOf(),
+    val isImporting: Boolean = false
 )

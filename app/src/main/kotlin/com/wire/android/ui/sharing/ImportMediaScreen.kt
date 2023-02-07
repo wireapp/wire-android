@@ -4,12 +4,14 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.LocalOverscrollConfiguration
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.windowInsetsEndWidth
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Divider
@@ -38,6 +40,7 @@ import com.wire.android.model.Clickable
 import com.wire.android.model.SnackBarMessage
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.UserProfileAvatar
+import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
@@ -108,52 +111,62 @@ fun ImportMediaContent(searchBarState: SearchBarState, snackbarHostState: Snackb
                 val itemWidth = if (isMultipleImport) dimensions().importedMediaAssetSize else screenWidth - (horizontalPadding * 2)
                 val contentPadding = PaddingValues(start = horizontalPadding, end = (screenWidth - itemWidth + horizontalPadding))
                 val lazyListState = rememberLazyListState()
-                CompositionLocalProvider(LocalOverscrollConfiguration provides null) {
-                    HorizontalPager(
-                        state = pagerState,
-                        count = itemsToImport,
-                        modifier = Modifier.wrapContentWidth(),
-                        contentPadding = contentPadding,
-                        itemSpacing = dimensions().spacing8x
-                    ) { page ->
-                        ImportedMediaItemView(importedItemsList[page], isMultipleImport, importMediaViewModel.wireSessionImageLoader)
+                if (importMediaViewModel.importMediaState.isImporting) {
+                    Box(Modifier.height(dimensions().spacing100x).fillMaxWidth().align(Alignment.CenterHorizontally)) {
+                        WireCircularProgressIndicator(
+                            modifier = Modifier.align(Alignment.Center),
+                            progressColor = colorsScheme().primary,
+                            size = dimensions().spacing24x
+                        )
                     }
-                    Divider(
-                        modifier = Modifier.padding(vertical = dimensions().spacing16x),
-                        color = MaterialTheme.wireColorScheme.divider,
-                        thickness = Dp.Hairline
-                    )
-                    SearchTopBar(
-                        isSearchActive = searchBarState.isSearchActive,
-                        searchBarHint = stringResource(
-                            R.string.search_bar_conversations_hint,
-                            stringResource(id = R.string.conversations_screen_title).lowercase()
-                        ),
-                        searchQuery = searchBarState.searchQuery,
-                        onSearchQueryChanged = {
-                            importMediaViewModel.onSearchQueryChanged(it)
-                            searchBarState.searchQueryChanged(it)
-                        },
-                        onInputClicked = searchBarState::openSearch,
-                        onCloseSearchClicked = searchBarState::closeSearch
-                    )
-                    ConversationList(
-                        modifier = Modifier.weight(1f),
-                        lazyListState = lazyListState,
-                        conversationListItems = persistentMapOf(
-                            ConversationFolder.Predefined.Conversations to importMediaViewModel.shareableConversationListState.searchResult
-                        ),
-                        conversationsAddedToGroup = importMediaViewModel.shareableConversationListState.conversationsAddedToGroup,
-                        isSelectableList = true,
-                        onConversationSelectedOnRadioGroup = importMediaViewModel::selectConversationOnRadioGroup,
-                        searchQuery = searchBarState.searchQuery.text,
-                        onOpenConversation = importMediaViewModel::onConversationClicked,
-                        onEditConversation = {},
-                        onOpenUserProfile = {},
-                        onOpenConversationNotificationsSettings = {},
-                        onJoinCall = {}
-                    )
+                } else {
+                    CompositionLocalProvider(LocalOverscrollConfiguration provides null) {
+                        HorizontalPager(
+                            state = pagerState,
+                            count = itemsToImport,
+                            modifier = Modifier.wrapContentWidth(),
+                            contentPadding = contentPadding,
+                            itemSpacing = dimensions().spacing8x
+                        ) { page ->
+                            ImportedMediaItemView(importedItemsList[page], isMultipleImport, importMediaViewModel.wireSessionImageLoader)
+                        }
+                    }
                 }
+                Divider(
+                    modifier = Modifier.padding(vertical = dimensions().spacing16x),
+                    color = MaterialTheme.wireColorScheme.divider,
+                    thickness = Dp.Hairline
+                )
+                SearchTopBar(
+                    isSearchActive = searchBarState.isSearchActive,
+                    searchBarHint = stringResource(
+                        R.string.search_bar_conversations_hint,
+                        stringResource(id = R.string.conversations_screen_title).lowercase()
+                    ),
+                    searchQuery = searchBarState.searchQuery,
+                    onSearchQueryChanged = {
+                        importMediaViewModel.onSearchQueryChanged(it)
+                        searchBarState.searchQueryChanged(it)
+                    },
+                    onInputClicked = searchBarState::openSearch,
+                    onCloseSearchClicked = searchBarState::closeSearch
+                )
+                ConversationList(
+                    modifier = Modifier.weight(1f),
+                    lazyListState = lazyListState,
+                    conversationListItems = persistentMapOf(
+                        ConversationFolder.Predefined.Conversations to importMediaViewModel.shareableConversationListState.searchResult
+                    ),
+                    conversationsAddedToGroup = importMediaViewModel.shareableConversationListState.conversationsAddedToGroup,
+                    isSelectableList = true,
+                    onConversationSelectedOnRadioGroup = importMediaViewModel::selectConversationOnRadioGroup,
+                    searchQuery = searchBarState.searchQuery.text,
+                    onOpenConversation = importMediaViewModel::onConversationClicked,
+                    onEditConversation = {},
+                    onOpenUserProfile = {},
+                    onOpenConversationNotificationsSettings = {},
+                    onJoinCall = {}
+                )
             }
             BackHandler(enabled = searchBarState.isSearchActive) {
                 searchBarState.closeSearch()

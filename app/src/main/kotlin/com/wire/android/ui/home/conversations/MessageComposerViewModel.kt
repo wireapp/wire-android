@@ -213,8 +213,7 @@ class MessageComposerViewModel @Inject constructor(
                             else {
                                 val (imgWidth, imgHeight) = ImageUtil.extractImageWidthAndHeight(
                                     kaliumFileSystem,
-                                    attachmentBundle.dataPath,
-                                    mimeType
+                                    attachmentBundle.dataPath
                                 )
                                 val result = sendAssetMessage(
                                     conversationId = conversationId,

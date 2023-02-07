@@ -48,16 +48,11 @@ class NotificationChannelsManager @Inject constructor(
         )
     }
 
-    fun createNotificationChannels(allUsers: List<SelfUser>) {
-        appLogger.i("${TAG}: creating all the channels for ${allUsers.size} users")
+    // Creating user-specific NotificationChannels for each user, they will be grouped by User in App Settings.
+    fun createUserNotificationChannels(allUsers: List<SelfUser>) {
+        appLogger.i("${TAG}: creating all the notification channels for ${allUsers.size} users")
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
 
-        // creating regular NotificationChannels, that are common for all users and shouldn't be grouped.
-        createRegularChannel(NotificationConstants.OTHER_CHANNEL_ID, NotificationConstants.OTHER_CHANNEL_NAME)
-        createRegularChannel(NotificationConstants.WEB_SOCKET_CHANNEL_ID, NotificationConstants.WEB_SOCKET_CHANNEL_NAME)
-        createRegularChannel(NotificationConstants.MESSAGE_SYNC_CHANNEL_ID, NotificationConstants.MESSAGE_SYNC_CHANNEL_NAME)
-
-        // creating user-specific NotificationChannels for each user, they will be grouped by User in App Settings.
         allUsers.forEach { user ->
             val groupId = createNotificationChannelGroup(user.id, user.handle ?: user.name ?: user.id.value)
 
@@ -72,7 +67,7 @@ class NotificationChannelsManager @Inject constructor(
      * Use it on logout.
      */
     fun deleteChannelGroup(userId: UserId) {
-        appLogger.i("${TAG}: deleting notification channels for ${userId.toString().obfuscateId()} user")
+        appLogger.i("$TAG: deleting notification channels for ${userId.toString().obfuscateId()} user")
         notificationManagerCompat.deleteNotificationChannelGroup(NotificationConstants.getChanelGroupIdForUser(userId))
     }
 
@@ -134,7 +129,7 @@ class NotificationChannelsManager @Inject constructor(
         notificationManagerCompat.createNotificationChannel(notificationChannel)
     }
 
-    private fun createRegularChannel(channelId: String, channelName: String) {
+    fun createRegularChannel(channelId: String, channelName: String) {
         val notificationChannel = NotificationChannelCompat
             .Builder(channelId, NotificationManagerCompat.IMPORTANCE_HIGH)
             .setName(channelName)
@@ -153,6 +148,6 @@ class NotificationChannelsManager @Inject constructor(
     companion object {
         private fun getChanelGroupNameForUser(userName: String): String = userName
 
-        private const val TAG = "NotificationChannelsManager"
+        const val TAG = "NotificationChannelsManager"
     }
 }

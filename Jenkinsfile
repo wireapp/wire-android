@@ -10,13 +10,13 @@ def defineFlavor() {
     if (branchName == "main") {
         return 'Beta'
     } else if(branchName == "develop") {
-        return 'Dev'
+        return 'Staging'
     } else if(branchName == "prod") {
         return 'Prod'
     } else if(branchName == "internal") {
         return 'Internal'
     }
-    return 'Dev'
+    return 'Staging'
 }
 
 def defineBuildType() {

@@ -50,6 +50,7 @@ import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.home.conversations.MediaGallerySnackbarMessages
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialog
+import com.wire.android.util.permission.rememberWriteStorageRequestFlow
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -57,6 +58,14 @@ fun MediaGalleryScreen(mediaGalleryViewModel: MediaGalleryViewModel = hiltViewMo
     val uiState = mediaGalleryViewModel.mediaGalleryViewState
     val mediaGalleryScreenState = rememberMediaGalleryScreenState()
     val scope = rememberCoroutineScope()
+
+    val onSaveImageWriteStorageRequest = rememberWriteStorageRequestFlow(
+        onGranted = {
+            mediaGalleryScreenState.showContextualMenu(false)
+            mediaGalleryViewModel.saveImageToExternalStorage()
+        }, onDenied = {
+            // TODO
+        })
 
     with(uiState) {
         MenuModalSheetLayout(
@@ -67,10 +76,7 @@ fun MediaGalleryScreen(mediaGalleryViewModel: MediaGalleryViewModel = hiltViewMo
                     mediaGalleryScreenState.showContextualMenu(false)
                     mediaGalleryViewModel.deleteCurrentImage()
                 },
-                onDownloadImage = {
-                    mediaGalleryScreenState.showContextualMenu(false)
-                    mediaGalleryViewModel.saveImageToExternalStorage()
-                }
+                onDownloadImage = onSaveImageWriteStorageRequest::launch
             ),
             content = {
                 Scaffold(
@@ -151,8 +157,6 @@ private fun getSnackbarMessage(messageCode: MediaGallerySnackbarMessages, resour
     }
     return msg to actionLabel
 }
-
-
 
 @Composable
 fun EditGalleryMenuItems(

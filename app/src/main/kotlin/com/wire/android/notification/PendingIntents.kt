@@ -37,7 +37,8 @@ fun messagePendingIntent(context: Context, conversationId: String, userId: Strin
         data = Uri.Builder()
             .scheme(DeepLinkProcessor.DEEP_LINK_SCHEME)
             .authority(DeepLinkProcessor.CONVERSATION_DEEPLINK_HOST)
-            .appendPath(conversationId).appendPath(userId)
+            .appendPath(conversationId)
+            .appendPath(userId)
             .build()
     }
     val requestCode = getRequestCode(conversationId, OPEN_MESSAGE_REQUEST_CODE_PREFIX)

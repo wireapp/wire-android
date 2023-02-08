@@ -267,7 +267,6 @@ class WireNotificationManager @Inject constructor(
     ) {
         currentScreenState
             .collect { screens ->
-                appLogger.d("$TAG screen $screens")
                 when (screens) {
                     is CurrentScreen.Conversation -> messagesNotificationManager.hideNotification(screens.id, userId)
                     is CurrentScreen.OtherUserProfile -> messagesNotificationManager.hideNotification(screens.id, userId)

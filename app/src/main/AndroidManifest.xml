@@ -98,6 +98,10 @@
                 <data
                         android:host="incoming-call"
                         android:scheme="wire" />
+
+                <data
+                        android:host="conversation-join"
+                        android:scheme="wire" />
             </intent-filter>
 
             <intent-filter>
@@ -159,6 +163,16 @@
                 android:exported="false">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+            </intent-filter>
+        </receiver>
+
+
+        <receiver
+                android:name=".migration.UpdateReceiver"
+                android:enabled="true"
+                android:exported="false">
+            <intent-filter>
                 <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
             </intent-filter>
         </receiver>

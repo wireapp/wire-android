@@ -60,6 +60,9 @@ import com.wire.android.ui.common.dialogs.FileSharingRestrictedDialogContent
 import com.wire.android.ui.common.dialogs.FileSharingRestrictedDialogState
 import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.home.sync.FeatureFlagNotificationViewModel
+import com.wire.android.ui.joinConversation.JoinConversationViaCodeState
+import com.wire.android.ui.joinConversation.JoinConversationViaDeepLinkDialog
+import com.wire.android.ui.joinConversation.JoinConversationViaInviteLinkError
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.userprofile.self.MaxAccountReachedDialog
 import com.wire.android.util.CurrentScreenManager
@@ -93,7 +96,6 @@ class WireActivity : AppCompatActivity() {
 
     @Inject
     lateinit var proximitySensorManager: ProximitySensorManager
-
 
     val viewModel: WireActivityViewModel by viewModels()
 
@@ -135,22 +137,41 @@ class WireActivity : AppCompatActivity() {
                     } else {
                         setUpNavigationGraph(viewModel.startNavigationRoute(NavigationItem.ImportMedia), navController, scope)
                     }
-
-                    handleCustomBackendDialog(viewModel.globalAppState.customBackendDialog.shouldShowDialog)
-                    maxAccountDialog(
-                        viewModel::openProfile,
-                        viewModel::dismissMaxAccountDialog,
-                        viewModel.globalAppState.maxAccountDialog
-                    )
-                    updateAppDialog(
-                        { updateTheApp() },
-                        viewModel.globalAppState.updateAppDialog
-                    )
-                    AccountLoggedOutDialog(viewModel.globalAppState.blockUserUI, viewModel::navigateToNextAccountOrWelcome)
+                    handleDialogs()
                 }
             }
         }
     }
+
+    @Composable
+    private fun handleDialogs() {
+        handleCustomBackendDialog(viewModel.globalAppState.customBackendDialog.shouldShowDialog)
+        maxAccountDialog(
+            viewModel::openProfile,
+            viewModel::dismissMaxAccountDialog,
+            viewModel.globalAppState.maxAccountDialog
+        )
+        updateAppDialog(
+            { updateTheApp() },
+            viewModel.globalAppState.updateAppDialog
+        )
+        viewModel.globalAppState.conversationJoinedDialog?.let {
+            when (it) {
+                is JoinConversationViaCodeState.Error -> JoinConversationViaInviteLinkError(
+                    errorState = it,
+                    onCancel = viewModel::cancelJoinConversation
+                )
+                is JoinConversationViaCodeState.Show -> JoinConversationViaDeepLinkDialog(
+                    it,
+                    false,
+                    onCancel = viewModel::cancelJoinConversation,
+                    onJoinClick = viewModel::joinConversationViaCode
+                )
+            }
+        }
+        viewModel.globalAppState.blockUserUI?.let { AccountLoggedOutDialog(it, viewModel::navigateToNextAccountOrWelcome) }
+    }
+
 
     @Composable
     fun setUpNavigationGraph(startDestination: String, navController: NavHostController, scope: CoroutineScope) {
@@ -218,34 +239,31 @@ class WireActivity : AppCompatActivity() {
     }
 
     @Composable
-    fun AccountLoggedOutDialog(reason: CurrentSessionErrorState?, navigateAway: () -> Unit) {
+    fun AccountLoggedOutDialog(reason: CurrentSessionErrorState, navigateAway: () -> Unit) {
         appLogger.e("AccountLongedOutDialog: $reason")
-        reason?.let {
-            val (@StringRes title: Int, @StringRes text: Int) = when (reason) {
-                CurrentSessionErrorState.SessionExpired -> {
-                    R.string.session_expired_error_title to R.string.session_expired_error_message
-                }
-
-                CurrentSessionErrorState.RemovedClient -> {
-                    R.string.removed_client_error_title to R.string.removed_client_error_message
-                }
-
-                CurrentSessionErrorState.DeletedAccount -> {
-                    R.string.deleted_user_error_title to R.string.deleted_user_error_message
-                }
+        val (@StringRes title: Int, @StringRes text: Int) = when (reason) {
+            CurrentSessionErrorState.SessionExpired -> {
+                R.string.session_expired_error_title to R.string.session_expired_error_message
             }
 
-            WireDialog(
-                title = stringResource(id = title),
-                text = stringResource(id = text),
-                onDismiss = remember { { } },
-                optionButton1Properties = WireDialogButtonProperties(
-                    text = stringResource(R.string.label_ok),
-                    onClick = navigateAway,
-                    type = WireDialogButtonType.Primary
-                )
-            )
+            CurrentSessionErrorState.RemovedClient -> {
+                R.string.removed_client_error_title to R.string.removed_client_error_message
+            }
+
+            CurrentSessionErrorState.DeletedAccount -> {
+                R.string.deleted_user_error_title to R.string.deleted_user_error_message
+            }
         }
+        WireDialog(
+            title = stringResource(id = title),
+            text = stringResource(id = text),
+            onDismiss = remember { { } },
+            optionButton1Properties = WireDialogButtonProperties(
+                text = stringResource(R.string.label_ok),
+                onClick = navigateAway,
+                type = WireDialogButtonType.Primary
+            )
+        )
     }
 
     @Composable

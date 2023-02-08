@@ -33,6 +33,7 @@ import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.model.MessageStatus
 import com.wire.android.ui.home.conversations.model.MessageTime
 import com.wire.android.ui.home.conversations.model.UIMessage
+import com.wire.android.util.ImageUtil
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.CoreFailure
@@ -152,6 +153,9 @@ internal class ConversationsViewModelArrangement {
     private lateinit var contactMapper: ContactMapper
 
     @MockK
+    private lateinit var imageUtil: ImageUtil
+
+    @MockK
     private lateinit var membersToMention: MembersToMentionUseCase
 
     @MockK
@@ -177,7 +181,8 @@ internal class ConversationsViewModelArrangement {
             observeSecurityClassificationLabel = observeSecurityClassificationType,
             contactMapper = contactMapper,
             membersToMention = membersToMention,
-            getAssetSizeLimit = getAssetSizeLimitUseCase
+            getAssetSizeLimit = getAssetSizeLimitUseCase,
+            imageUtil = imageUtil
         )
     }
 
@@ -185,6 +190,8 @@ internal class ConversationsViewModelArrangement {
         coEvery { isFileSharingEnabledUseCase() } returns FileSharingStatus(null, null)
         coEvery { observeOngoingCallsUseCase() } returns emptyFlow()
         coEvery { observeEstablishedCallsUseCase() } returns emptyFlow()
+        coEvery { observeSecurityClassificationType(any()) } returns emptyFlow()
+        coEvery { imageUtil.extractImageWidthAndHeight(any(), any()) } returns (1 to 1)
         coEvery { observeConversationInteractionAvailabilityUseCase(any()) } returns flowOf(
             IsInteractionAvailableResult.Success(
                 InteractionAvailability.ENABLED

@@ -23,6 +23,7 @@ package com.wire.android.di
 import android.content.Context
 import androidx.work.WorkManager
 import com.wire.android.datastore.UserDataStoreProvider
+import com.wire.android.util.ImageUtil
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.data.id.FederatedIdMapper
@@ -920,4 +921,8 @@ class UseCaseModule {
         @CurrentAccount currentAccount: UserId
     ): GetAssetSizeLimitUseCase =
         coreLogic.getSessionScope(currentAccount).users.getAssetSizeLimit
+
+    @ViewModelScoped
+    @Provides
+    fun provideImageUtil(): ImageUtil = ImageUtil
 }

@@ -32,7 +32,6 @@ import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import okio.Path
 import okio.buffer
 import java.io.ByteArrayOutputStream
-import java.io.InputStream
 import kotlin.math.ceil
 import kotlin.math.round
 import kotlin.math.sqrt
@@ -47,7 +46,6 @@ object ImageUtil {
     enum class ImageSizeClass {
         Medium, Small
     }
-
 
     /**
      * Attempts to read the width and height of an image represented by the input parameter

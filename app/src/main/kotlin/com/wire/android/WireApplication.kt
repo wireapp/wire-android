@@ -157,7 +157,7 @@ class WireApplication : Application(), Configuration.Provider {
 
     private fun enableLoggingAndInitiateFileLogging() {
         globalAppScope.launch {
-            if (BuildConfig.PRIVATE_BUILD || globalDataStore.isLoggingEnabled().first()) {
+            if (globalDataStore.isLoggingEnabled().first()) {
                 CoreLogger.setLoggingLevel(
                     level = KaliumLogLevel.VERBOSE,
                     logWriters = arrayOf(DataDogLogger, platformLogWriter())

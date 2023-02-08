@@ -46,11 +46,11 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.cancellable
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -267,6 +267,7 @@ class WireNotificationManager @Inject constructor(
     ) {
         currentScreenState
             .collect { screens ->
+                appLogger.d("$TAG screen $screens")
                 when (screens) {
                     is CurrentScreen.Conversation -> messagesNotificationManager.hideNotification(screens.id, userId)
                     is CurrentScreen.OtherUserProfile -> messagesNotificationManager.hideNotification(screens.id, userId)
@@ -318,26 +319,29 @@ class WireNotificationManager @Inject constructor(
         userId: UserId,
         currentScreenState: StateFlow<CurrentScreen>
     ) {
-        val observeSelfUser = coreLogic.getSessionScope(userId)
+        val selfUserNameState = coreLogic.getSessionScope(userId)
             .users
             .getSelfUser()
+            .map { it.handle ?: it.name ?: "" }
+            .distinctUntilChanged()
+            .stateIn(scope)
 
         coreLogic.getSessionScope(userId)
             .messages
             .getNotifications()
             .cancellable()
-            .combine(observeSelfUser) { newNotifications, selfUser ->
+            .map { newNotifications ->
                 // we don't want to display notifications for the Conversation that user currently in.
                 val notificationsList = filterAccordingToScreenAndUpdateNotifyDate(
                     currentScreenState.value,
                     userId,
                     newNotifications
                 )
-                val userName = selfUser.handle ?: selfUser.name ?: ""
+                val userName = selfUserNameState.value
 
                 // combining all the data that is necessary for Notifications into small data class,
                 // just to make it more readable than
-                // Pair<List<LocalNotificationConversation>, QualifiedID>
+                // Triple<List<LocalNotificationConversation>, QualifiedID, String>
                 MessagesNotificationsData(notificationsList, userId, userName)
             }
             .cancellable()

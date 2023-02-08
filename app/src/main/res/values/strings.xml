@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Wire
   ~ Copyright (C) 2023 Wire Swiss GmbH
   ~
@@ -367,6 +366,7 @@
     <string name="conversation_details_is_classified">SECURITY LEVEL: VS-NfD</string>
     <string name="conversation_details_is_not_classified">SECURITY LEVEL: UNCLASSIFIED</string>
     <string name="conversation_options_guests_label">Guests</string>
+    <string name="conversation_details_guest_description">When this is ON, people from outside your team can join this conversation</string>
     <string name="conversation_options_guest_description">Turn this option ON to open this conversation to people outside your team, even if they don\'t have Wire.</string>
     <string name="conversation_options_guest_not_editable_description">You cannot disable the guest option in this conversation, since it has been created by someone from another team.</string>
     <string name="conversation_options_services_label">Services</string>
@@ -831,6 +831,12 @@
     <string name="cancel_login_button_label">Cancel</string>
     <string name="cancel_login_dialog_description">If you cancel now, you will be logged out.</string>
     <string name="cancel_login_dialog_title">Are you sure you want to cancel?</string>
-    <!--    session reset-->
+    <!-- session reset -->
     <string name="label_system_message_session_reset">%1$s was unable to decrypt some of your messages but has solved the issue. This affected all conversations you share together.</string>
+    <!-- guest link -->
+    <string name="folder_label_guest_link">Guest link</string>
+    <string name="guest_link_description">Invite others with a link to this conversation. Anyone with the link can join the conversation, even if they don’t have Wire.</string>
+    <string name="guest_link_button_create_link">Create Link</string>
+    <string name="guest_link_button_copy_link">Copy Link</string>
+    <string name="guest_link_button_revoke_link">Revoke Link</string>
 </resources>

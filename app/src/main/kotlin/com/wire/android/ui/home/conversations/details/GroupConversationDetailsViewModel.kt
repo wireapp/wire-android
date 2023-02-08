@@ -213,14 +213,6 @@ class GroupConversationDetailsViewModel @Inject constructor(
         requestInProgress = false
     }
 
-    fun onGuestUpdate(enableGuestAndNonTeamMember: Boolean) {
-        updateState(groupOptionsState.value.copy(loadingGuestOption = true, isGuestAllowed = enableGuestAndNonTeamMember))
-        when (enableGuestAndNonTeamMember) {
-            true -> updateGuestRemoteRequest(enableGuestAndNonTeamMember)
-            false -> updateState(groupOptionsState.value.copy(changeGuestOptionConfirmationRequired = true))
-        }
-    }
-
     fun onServicesUpdate(enableServices: Boolean) {
         updateState(groupOptionsState.value.copy(loadingServicesOption = true, isServicesAllowed = enableServices))
         when (enableServices) {
@@ -235,20 +227,6 @@ class GroupConversationDetailsViewModel @Inject constructor(
         updateReadReceiptRemoteRequest(enableReadReceipt)
     }
 
-    fun onGuestDialogDismiss() {
-        updateState(
-            groupOptionsState.value.copy(
-                loadingGuestOption = false,
-                changeGuestOptionConfirmationRequired = false,
-                isGuestAllowed = !groupOptionsState.value.isGuestAllowed
-            )
-        )
-    }
-
-    fun onGuestDialogConfirm() {
-        updateState(groupOptionsState.value.copy(changeGuestOptionConfirmationRequired = false, loadingGuestOption = true))
-        updateGuestRemoteRequest(false)
-    }
 
     fun onServiceDialogDismiss() {
         updateState(
@@ -263,29 +241,6 @@ class GroupConversationDetailsViewModel @Inject constructor(
     fun onServiceDialogConfirm() {
         updateState(groupOptionsState.value.copy(changeServiceOptionConfirmationRequired = false, loadingServicesOption = true))
         updateServicesRemoteRequest(false)
-    }
-
-    private fun updateGuestRemoteRequest(enableGuestAndNonTeamMember: Boolean) {
-        viewModelScope.launch {
-            val result = withContext(dispatcher.io()) {
-                updateConversationAccess(
-                    enableGuestAndNonTeamMember, groupOptionsState.value.isServicesAllowed, conversationId
-                )
-            }
-
-            when (result) {
-                is UpdateConversationAccessRoleUseCase.Result.Failure -> updateState(
-                    groupOptionsState.value.copy(
-                        isGuestAllowed = !enableGuestAndNonTeamMember,
-                        error = GroupConversationOptionsState.Error.UpdateGuestError(result.cause)
-                    )
-                )
-
-                UpdateConversationAccessRoleUseCase.Result.Success -> Unit
-            }
-
-            updateState(groupOptionsState.value.copy(loadingGuestOption = false))
-        }
     }
 
     private fun updateServicesRemoteRequest(enableServices: Boolean) {
@@ -431,6 +386,25 @@ class GroupConversationDetailsViewModel @Inject constructor(
                     destination = NavigationItem.EditConversationName.getRouteWithArgs(listOf(conversationId))
                 )
             )
+        }
+    }
+
+    fun navigateToEditGuestAccessScreen() {
+        if (groupOptionsState.value.isUpdatingAllowed) {
+            viewModelScope.launch {
+                navigationManager.navigate(
+                    command = NavigationCommand(
+                        destination = NavigationItem.EditGuestAccess.getRouteWithArgs(
+                            listOf(
+                                conversationId,
+                                groupOptionsState.value.isGuestAllowed,
+                                groupOptionsState.value.isServicesAllowed,
+                                groupOptionsState.value.isUpdatingGuestAllowed
+                            )
+                        )
+                    )
+                )
+            }
         }
     }
 

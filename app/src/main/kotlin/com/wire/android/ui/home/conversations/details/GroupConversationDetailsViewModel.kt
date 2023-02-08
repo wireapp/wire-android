@@ -227,7 +227,6 @@ class GroupConversationDetailsViewModel @Inject constructor(
         updateReadReceiptRemoteRequest(enableReadReceipt)
     }
 
-
     fun onServiceDialogDismiss() {
         updateState(
             groupOptionsState.value.copy(

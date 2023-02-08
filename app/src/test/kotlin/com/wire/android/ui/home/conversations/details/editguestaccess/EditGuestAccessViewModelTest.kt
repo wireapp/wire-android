@@ -18,7 +18,7 @@
  *
  */
 
-package com.wire.android.ui.home.conversations.details.edit_guest_access
+package com.wire.android.ui.home.conversations.details.editguestaccess
 
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
@@ -66,6 +66,7 @@ class EditGuestAccessViewModelTest {
         )
     }
 
+    @Suppress("MaximumLineLength")
     @Test
     fun `given updateConversationAccessRole use case runs successfully, when trying to enable guest access, then enable guest access`() =
         runTest {
@@ -79,27 +80,39 @@ class EditGuestAccessViewModelTest {
             coVerify(exactly = 1) {
                 updateConversationAccessRoleUseCase(any(), any(), any(), any())
             }
-            assertEquals(true, editGuestAccessViewModel.editGuestAccessState.isGuestAccessAllowed)
+            assertEquals(
+                true,
+                editGuestAccessViewModel.editGuestAccessState.isGuestAccessAllowed
+            )
         }
 
+    @Suppress("MaximumLineLength")
     @Test
     fun `given a failure when running updateConversationAccessRole use case, when trying to enable guest access, then do not enable guest access`() {
-        editGuestAccessViewModel.editGuestAccessState = editGuestAccessViewModel.editGuestAccessState.copy(isGuestAccessAllowed = false)
+        editGuestAccessViewModel.editGuestAccessState =
+            editGuestAccessViewModel.editGuestAccessState.copy(isGuestAccessAllowed = false)
         coEvery {
             updateConversationAccessRoleUseCase(any(), any(), any(), any())
-        } returns UpdateConversationAccessRoleUseCase.Result.Failure(CoreFailure.MissingClientRegistration)
+        } returns UpdateConversationAccessRoleUseCase.Result.Failure(
+            CoreFailure.MissingClientRegistration
+        )
 
         editGuestAccessViewModel.updateGuestAccess(true)
 
         coVerify(exactly = 1) {
             updateConversationAccessRoleUseCase(any(), any(), any(), any())
         }
-        assertEquals(false, editGuestAccessViewModel.editGuestAccessState.isGuestAccessAllowed)
+        assertEquals(
+            false,
+            editGuestAccessViewModel.editGuestAccessState.isGuestAccessAllowed
+        )
     }
 
+    @Suppress("MaximumLineLength")
     @Test
     fun `given guest access is activated, when trying to enable guest access, then display dialog before disabling guest access`() {
-        editGuestAccessViewModel.editGuestAccessState = editGuestAccessViewModel.editGuestAccessState.copy(isGuestAccessAllowed = true)
+        editGuestAccessViewModel.editGuestAccessState =
+            editGuestAccessViewModel.editGuestAccessState.copy(isGuestAccessAllowed = true)
 
         editGuestAccessViewModel.updateGuestAccess(false)
 

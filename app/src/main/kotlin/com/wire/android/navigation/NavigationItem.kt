@@ -100,7 +100,7 @@ import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import io.github.esentsov.PackagePrivate
-import com.wire.android.ui.home.conversations.details.edit_guest_access.EditGuestAccessScreen
+import com.wire.android.ui.home.conversations.details.editguestaccess.EditGuestAccessScreen
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 /**

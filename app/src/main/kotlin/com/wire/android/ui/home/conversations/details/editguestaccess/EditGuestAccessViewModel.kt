@@ -18,7 +18,7 @@
  *
  */
 
-package com.wire.android.ui.home.conversations.details.edit_guest_access
+package com.wire.android.ui.home.conversations.details.editguestaccess
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -99,7 +99,6 @@ class EditGuestAccessViewModel @Inject constructor(
                 }
                 updateState(editGuestAccessState.copy(isUpdating = false))
             }
-
         }
     }
 

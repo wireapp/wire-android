@@ -18,7 +18,7 @@
  *
  */
 
-package com.wire.android.ui.home.conversations.details.edit_guest_access
+package com.wire.android.ui.home.conversations.details.editguestaccess
 
 import com.wire.kalium.logic.CoreFailure
 

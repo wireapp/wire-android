@@ -18,7 +18,7 @@
  *
  */
 
-package com.wire.android.ui.home.conversations.details.edit_guest_access
+package com.wire.android.ui.home.conversations.details.editguestaccess
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column

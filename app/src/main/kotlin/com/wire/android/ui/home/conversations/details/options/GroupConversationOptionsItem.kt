@@ -246,5 +246,3 @@ fun PreviewGroupConversationOptionsWithTitleAndSubtitleWithoutArrow() {
         arrowType = ArrowType.NONE
     )
 }
-
-

@@ -18,6 +18,8 @@
  *
  */
 
+@file:Suppress("MaximumLineLength")
+
 package com.wire.android.ui.home.conversations.details.editguestaccess
 
 import androidx.lifecycle.SavedStateHandle
@@ -66,7 +68,6 @@ class EditGuestAccessViewModelTest {
         )
     }
 
-    @Suppress("MaximumLineLength")
     @Test
     fun `given updateConversationAccessRole use case runs successfully, when trying to enable guest access, then enable guest access`() =
         runTest {
@@ -86,7 +87,6 @@ class EditGuestAccessViewModelTest {
             )
         }
 
-    @Suppress("MaximumLineLength")
     @Test
     fun `given a failure when running updateConversationAccessRole use case, when trying to enable guest access, then do not enable guest access`() {
         editGuestAccessViewModel.editGuestAccessState =
@@ -108,7 +108,6 @@ class EditGuestAccessViewModelTest {
         )
     }
 
-    @Suppress("MaximumLineLength")
     @Test
     fun `given guest access is activated, when trying to enable guest access, then display dialog before disabling guest access`() {
         editGuestAccessViewModel.editGuestAccessState =

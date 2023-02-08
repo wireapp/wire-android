@@ -24,7 +24,6 @@ import android.content.Context
 import androidx.work.WorkManager
 import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.util.DeviceLabel
-import com.wire.android.util.ImageUtil
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.data.id.FederatedIdMapper
@@ -897,6 +896,11 @@ class UseCaseModule {
     @Provides
     fun provideResetSessionUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId): ResetSessionUseCase =
         coreLogic.getSessionScope(currentAccount).messages.resetSession
+
+    @ViewModelScoped
+    @Provides
+    fun provideMarkFileSharingStatusAsNotified(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId): MarkFileSharingChangeAsNotifiedUseCase =
+        coreLogic.getSessionScope(currentAccount).markFileStratusAsNotified
 
     @ViewModelScoped
     @Provides

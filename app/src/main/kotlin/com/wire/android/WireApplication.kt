@@ -48,11 +48,13 @@ import com.wire.kalium.logger.KaliumLogger
 import com.wire.kalium.logic.CoreLogger
 import com.wire.kalium.logic.CoreLogic
 import dagger.hilt.android.HiltAndroidApp
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import javax.inject.Inject
 
 // App wide global logger, carefully initialized when our application is "onCreate"
 var appLogger: KaliumLogger = KaliumLogger.disabled()
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @HiltAndroidApp
 class WireApplication : Application(), Configuration.Provider {
 
@@ -68,6 +70,9 @@ class WireApplication : Application(), Configuration.Provider {
 
     @Inject
     lateinit var wireWorkerFactory: WireWorkerFactory
+
+    @Inject
+    lateinit var globalObserversManager: GlobalObserversManager
 
     override fun getWorkManagerConfiguration(): Configuration {
         return Configuration.Builder()
@@ -95,6 +100,8 @@ class WireApplication : Application(), Configuration.Provider {
 
         // TODO: Can be handled in one of Sync steps
         coreLogic.updateApiVersionsScheduler.schedulePeriodicApiVersionUpdate()
+
+        globalObserversManager.observe()
     }
 
     private fun enableStrictMode() {

@@ -25,23 +25,26 @@ import androidx.core.app.NotificationCompat
 import androidx.hilt.work.HiltWorker
 import androidx.lifecycle.asFlow
 import androidx.work.BackoffPolicy
+import androidx.work.Constraints
 import androidx.work.CoroutineWorker
 import androidx.work.ExistingWorkPolicy
 import androidx.work.ForegroundInfo
+import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.OutOfQuotaPolicy
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import androidx.work.WorkRequest.MIN_BACKOFF_MILLIS
 import androidx.work.WorkerParameters
+import androidx.work.await
 import com.wire.android.R
 import com.wire.android.migration.MigrationData
 import com.wire.android.migration.MigrationManager
-import com.wire.android.migration.getMigrationFailure
 import com.wire.android.migration.getMigrationProgress
 import com.wire.android.migration.toData
 import com.wire.android.notification.NotificationChannelsManager
 import com.wire.android.notification.NotificationConstants
+import com.wire.android.notification.openAppPendingIntent
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.coroutineScope
@@ -60,9 +63,9 @@ class MigrationWorker
 ) : CoroutineWorker(appContext, workerParams) {
 
     override suspend fun doWork(): Result = coroutineScope {
-        when (val migrationResult = migrationManager.migrate(this, { setProgress(it.type.toData()) })) {
+        when (migrationManager.migrate(this, { setProgress(it.type.toData()) })) {
             is MigrationData.Result.Success -> Result.success()
-            is MigrationData.Result.Failure -> Result.failure(migrationResult.type.toData())
+            is MigrationData.Result.Failure -> Result.retry()
         }
     }
 
@@ -82,6 +85,7 @@ class MigrationWorker
             .setContentTitle(applicationContext.getString(R.string.migration_title))
             .setContentText(applicationContext.getString(R.string.migration_message))
             .setPriority(NotificationCompat.PRIORITY_MIN)
+            .setContentIntent(openAppPendingIntent(applicationContext))
             .build()
 
         return ForegroundInfo(NotificationConstants.MIGRATION_NOTIFICATION_ID, notification)
@@ -92,20 +96,30 @@ class MigrationWorker
     }
 }
 
-fun WorkManager.enqueueMigrationWorker(): Flow<MigrationData> {
+suspend fun WorkManager.enqueueMigrationWorker(): Flow<MigrationData> {
     val request = OneTimeWorkRequestBuilder<MigrationWorker>()
         .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
         .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, MIN_BACKOFF_MILLIS, TimeUnit.MILLISECONDS)
+        .setConstraints(
+            Constraints.Builder()
+                .setRequiredNetworkType(NetworkType.CONNECTED)
+                .build()
+        )
         .build()
-    enqueueUniqueWork(MigrationWorker.NAME, ExistingWorkPolicy.KEEP, request)
+    val isAlreadyRunning = getWorkInfosForUniqueWork(MigrationWorker.NAME).await().let { it.firstOrNull()?.state == WorkInfo.State.RUNNING }
+    enqueueUniqueWork(
+        MigrationWorker.NAME,
+        if (isAlreadyRunning) ExistingWorkPolicy.KEEP else ExistingWorkPolicy.REPLACE,
+        request
+    )
     return getWorkInfosForUniqueWorkLiveData(MigrationWorker.NAME).asFlow().map {
         it.first().let { workInfo ->
             when (workInfo.state) {
                 WorkInfo.State.SUCCEEDED -> MigrationData.Result.Success
-                WorkInfo.State.FAILED -> MigrationData.Result.Failure(workInfo.outputData.getMigrationFailure())
-                WorkInfo.State.CANCELLED -> MigrationData.Result.Failure(workInfo.outputData.getMigrationFailure())
+                WorkInfo.State.FAILED -> MigrationData.Result.Failure
+                WorkInfo.State.CANCELLED -> MigrationData.Result.Failure
                 WorkInfo.State.RUNNING -> MigrationData.Progress(workInfo.progress.getMigrationProgress())
-                WorkInfo.State.ENQUEUED -> null
+                WorkInfo.State.ENQUEUED -> MigrationData.Result.Failure
                 WorkInfo.State.BLOCKED -> null
             }
         }

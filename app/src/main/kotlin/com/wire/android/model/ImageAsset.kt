@@ -27,7 +27,6 @@ import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.user.UserAssetId
-import java.util.UUID
 
 @Stable
 sealed class ImageAsset(private val imageLoader: WireSessionImageLoader) {

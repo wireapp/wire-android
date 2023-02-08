@@ -25,15 +25,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
 import com.wire.android.model.Clickable
-import com.wire.android.model.ImageAsset
 import com.wire.android.ui.home.conversations.MessageItem
 import com.wire.android.ui.home.conversations.SystemMessageItem
 import com.wire.android.ui.home.conversations.mock.mockAssetMessage
 import com.wire.android.ui.home.conversations.mock.mockMessageWithText
 import com.wire.android.ui.home.conversations.mock.mockedImageUIMessage
-import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMessageParams
 import com.wire.android.util.ui.UIText
-import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.user.UserId
 

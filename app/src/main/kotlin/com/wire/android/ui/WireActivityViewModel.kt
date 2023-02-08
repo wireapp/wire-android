@@ -204,7 +204,6 @@ class WireActivityViewModel @Inject constructor(
                                 )
                                 navigationArguments[SERVER_CONFIG_ARG] = serverLinks
                             }
-
                         }
                         is DeepLinkResult.SSOLogin -> navigationArguments[SSO_DEEPLINK_ARG] = result
 
@@ -244,9 +243,9 @@ class WireActivityViewModel @Inject constructor(
         }
 
         handleDeepLink(intent)
-        if (isSharingIntent(intent))
+        if (isSharingIntent(intent)) {
             return false
-
+        }
         return when {
             shouldGoToLogin() || shouldGoToWelcome() || shouldGoToMigration() -> true
 

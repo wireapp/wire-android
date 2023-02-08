@@ -1,8 +1,6 @@
 package com.wire.android.ui.sharing
 
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
-import com.wire.android.ui.home.newconversation.model.Contact
-import com.wire.kalium.logic.data.id.ConversationId
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 

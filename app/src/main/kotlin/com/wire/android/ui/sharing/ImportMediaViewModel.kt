@@ -65,7 +65,7 @@ import java.util.UUID
 import javax.inject.Inject
 
 @HiltViewModel
-@Suppress("LongParameterList")
+@Suppress("LongParameterList", "TooManyFunctions")
 class ImportMediaViewModel @Inject constructor(
     private val getSelf: GetSelfUserUseCase,
     private val userTypeMapper: UserTypeMapper,
@@ -247,28 +247,36 @@ class ImportMediaViewModel @Inject constructor(
 
             1 -> {
                 // ACTION_SEND
-                incomingIntent.stream?.let { uri ->
-                    incomingIntent.type?.let { mimeType ->
-                        handleImportedAsset(activity, mimeType, uri)?.let { importedAsset ->
-                            importMediaState = importMediaState.copy(importedAssets = mutableListOf(importedAsset))
-                        }
-                    }
-                }
+                handleSingleIntent(incomingIntent, activity)
             }
 
             else -> {
                 // ACTION_SEND_MULTIPLE
-                val importedMediaAssets = mutableListOf<ImportedMediaAsset>()
-                activity.intent.parcelableArrayList<Parcelable>(Intent.EXTRA_STREAM)?.forEach {
-                    val fileUri = it.toString().toUri()
-                    handleImportedAsset(activity, fileUri.getMimeType(activity).toString(), fileUri)?.let { importedAsset ->
-                        importedMediaAssets.add(importedAsset)
-                    }
-                }
-                importMediaState = importMediaState.copy(importedAssets = importedMediaAssets)
+                handleMultipleActionIntent(activity)
             }
         }
         importMediaState = importMediaState.copy(isImporting = false)
+    }
+
+    private suspend fun handleSingleIntent(incomingIntent: ShareCompat.IntentReader, activity: AppCompatActivity) {
+        incomingIntent.stream?.let { uri ->
+            incomingIntent.type?.let { mimeType ->
+                handleImportedAsset(activity, mimeType, uri)?.let { importedAsset ->
+                    importMediaState = importMediaState.copy(importedAssets = mutableListOf(importedAsset))
+                }
+            }
+        }
+    }
+
+    private suspend fun handleMultipleActionIntent(activity: AppCompatActivity) {
+        val importedMediaAssets = mutableListOf<ImportedMediaAsset>()
+        activity.intent.parcelableArrayList<Parcelable>(Intent.EXTRA_STREAM)?.forEach {
+            val fileUri = it.toString().toUri()
+            handleImportedAsset(activity, fileUri.getMimeType(activity).toString(), fileUri)?.let { importedAsset ->
+                importedMediaAssets.add(importedAsset)
+            }
+        }
+        importMediaState = importMediaState.copy(importedAssets = importedMediaAssets)
     }
 
     fun onImportedMediaSent() = viewModelScope.launch(dispatchers.default()) {
@@ -304,7 +312,6 @@ class ImportMediaViewModel @Inject constructor(
             )
         }
     }
-
 
     private suspend fun handleImportedAsset(
         context: Context,
@@ -349,7 +356,7 @@ class ImportMediaViewModel @Inject constructor(
 
     private suspend fun isAboveLimit(isImage: Boolean, size: Long): Boolean {
         val assetLimitForCurrentUser = getAssetSizeLimit(isImage).toInt()
-        val sizeOf1MB = 1024 * 1024
+        val sizeOf1MB = SIZE_OF_1_MB * SIZE_OF_1_MB
         val isAboveLimit = size > assetLimitForCurrentUser
         if (isAboveLimit) {
             onSnackbarMessage(ImportMediaSnackbarMessages.MaxAssetSizeExceeded(assetLimitForCurrentUser.div(sizeOf1MB)))
@@ -363,6 +370,7 @@ class ImportMediaViewModel @Inject constructor(
 
     private companion object {
         const val MAX_LIMIT_MEDIA_IMPORT = 20
+        const val SIZE_OF_1_MB = 1024
     }
 }
 

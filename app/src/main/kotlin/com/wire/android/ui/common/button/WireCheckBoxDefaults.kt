@@ -68,7 +68,6 @@ fun wireRadioButtonColors() = object : RadioButtonColors {
             rememberUpdatedState(target)
         }
     }
-
 }
 
 @Composable
@@ -146,7 +145,6 @@ fun wireCheckBoxColors(
         val duration = if (state == ToggleableState.Off) BOX_OUT_DURATION else BOX_IN_DURATION
         return animateColorAsState(target, tween(durationMillis = duration))
     }
-
 }
 
 private const val BOX_OUT_DURATION = 100

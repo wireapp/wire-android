@@ -134,7 +134,7 @@ fun SearchPeopleContent(
                 Crossfade(
                     targetState = searchBarState.isSearchActive
                 ) { isSearchActive ->
-                    if (isSearchActive)
+                    if (isSearchActive) {
                         SearchAllPeopleScreen(
                             searchQuery = searchQuery.text,
                             noneSearchSucceed = noneSearchSucceed,
@@ -145,7 +145,7 @@ fun SearchPeopleContent(
                             onOpenUserProfile = onOpenUserProfile,
                             onAddContactClicked = onAddContact
                         )
-                    else
+                    } else {
                         ContactsScreen(
                             allKnownContactResult = initialContacts,
                             contactsAddedToGroup = contactsAddedToGroup,
@@ -153,6 +153,7 @@ fun SearchPeopleContent(
                             onRemoveFromGroup = onRemoveContactFromGroup,
                             onOpenUserProfile = onOpenUserProfile
                         )
+                    }
                 }
                 BackHandler(enabled = searchBarState.isSearchActive) {
                     searchBarState.closeSearch()

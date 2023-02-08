@@ -209,7 +209,7 @@ fun HomeContent(
             drawerState = drawerState,
             drawerContent = {
                 HomeDrawer(
-                    //TODO: logFilePath does not belong in the UI logic
+                    // TODO: logFilePath does not belong in the UI logic
                     logFilePath = homeState.logFilePath,
                     currentRoute = currentNavigationItem.route,
                     navigateToHomeItem = ::navigateTo,
@@ -258,7 +258,7 @@ fun HomeContent(
                                 )
                             },
                             topBarCollapsing = {
-                                if (currentNavigationItem.isSearchable)
+                                if (currentNavigationItem.isSearchable) {
                                     SearchTopBar(
                                         isSearchActive = searchBarState.isSearchActive,
                                         searchBarHint = stringResource(R.string.search_bar_conversations_hint),
@@ -267,6 +267,7 @@ fun HomeContent(
                                         onInputClicked = searchBarState::openSearch,
                                         onCloseSearchClicked = searchBarState::closeSearch,
                                     )
+                                }
                             },
                             content = {
                                 NavHost(

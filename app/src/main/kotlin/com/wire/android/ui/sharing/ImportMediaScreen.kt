@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Divider
@@ -40,9 +39,9 @@ import com.wire.android.model.Clickable
 import com.wire.android.model.SnackBarMessage
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.UserProfileAvatar
-import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.topappbar.search.SearchBarState
@@ -112,7 +111,11 @@ fun ImportMediaContent(searchBarState: SearchBarState, snackbarHostState: Snackb
                 val contentPadding = PaddingValues(start = horizontalPadding, end = (screenWidth - itemWidth + horizontalPadding))
                 val lazyListState = rememberLazyListState()
                 if (importMediaViewModel.importMediaState.isImporting) {
-                    Box(Modifier.height(dimensions().spacing100x).fillMaxWidth().align(Alignment.CenterHorizontally)) {
+                    Box(
+                        Modifier
+                            .height(dimensions().spacing100x)
+                            .fillMaxWidth()
+                            .align(Alignment.CenterHorizontally)) {
                         WireCircularProgressIndicator(
                             modifier = Modifier.align(Alignment.Center),
                             progressColor = colorsScheme().primary,
@@ -175,8 +178,11 @@ fun ImportMediaContent(searchBarState: SearchBarState, snackbarHostState: Snackb
         bottomBar = {
             SendContentButton(
                 mainButtonText = actionButtonTitle,
-                count = if (importMediaViewModel.importMediaState.importedAssets.size > 0)
-                    importMediaViewModel.shareableConversationListState.conversationsAddedToGroup.size else 0,
+                count = if (importMediaViewModel.importMediaState.importedAssets.size > 0) {
+                    importMediaViewModel.shareableConversationListState.conversationsAddedToGroup.size
+                } else {
+                    0
+                },
                 onMainButtonClick = importMediaViewModel::onImportedMediaSent
             )
         }

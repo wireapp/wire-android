@@ -44,7 +44,6 @@ import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMess
 import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMessageInProgress
 import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMessageParams
 import com.wire.android.ui.home.conversations.model.messagetypes.image.ImportedImageMessage
-import com.wire.android.ui.sharing.ImportedMediaAsset
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.kalium.logic.data.message.Message

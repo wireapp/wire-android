@@ -58,7 +58,6 @@ import java.io.FileNotFoundException
 import java.io.InputStream
 import java.util.Locale
 
-
 /**
  * Gets the uri of any drawable or given resource
  * @param context - context
@@ -289,7 +288,6 @@ inline fun <reified T : Parcelable> Intent.parcelable(key: String): T? = when {
     else -> @Suppress("DEPRECATION") getParcelableExtra(key) as? T
 }
 
-
 inline fun <reified T : Parcelable> Intent.parcelableArrayList(key: String): ArrayList<T>? = when {
     Build.VERSION.SDK_INT >= SDK_VERSION -> getParcelableArrayListExtra(key, T::class.java)
     else -> @Suppress("DEPRECATION") getParcelableArrayListExtra(key)
@@ -324,7 +322,6 @@ fun isAudioFile(mimeType: String?): Boolean {
 fun isText(mimeType: String?): Boolean {
     return mimeType != null && mimeType.startsWith("text/")
 }
-
 
 @Suppress("MagicNumber")
 fun Context.getDeviceId(): String? {

@@ -21,8 +21,6 @@
 package com.wire.android.util.ui
 
 import android.content.Context
-import android.content.res.Resources
-import androidx.core.net.toFile
 import coil.ImageLoader
 import coil.decode.DataSource
 import coil.fetch.DrawableResult
@@ -30,7 +28,6 @@ import coil.fetch.FetchResult
 import coil.fetch.Fetcher
 import coil.request.Options
 import com.wire.android.model.ImageAsset
-import com.wire.android.util.toBitmap
 import com.wire.android.util.toDrawable
 import com.wire.kalium.logic.feature.asset.GetAvatarAssetUseCase
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase

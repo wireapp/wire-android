@@ -86,6 +86,7 @@ import javax.inject.Inject
 )
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @AndroidEntryPoint
+@Suppress("TooManyFunctions")
 class WireActivity : AppCompatActivity() {
 
     @Inject
@@ -171,7 +172,6 @@ class WireActivity : AppCompatActivity() {
         }
         viewModel.globalAppState.blockUserUI?.let { AccountLoggedOutDialog(it, viewModel::navigateToNextAccountOrWelcome) }
     }
-
 
     @Composable
     fun setUpNavigationGraph(startDestination: String, navController: NavHostController, scope: CoroutineScope) {

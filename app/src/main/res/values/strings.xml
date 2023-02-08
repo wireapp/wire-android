@@ -109,6 +109,7 @@
     <string name="content_description_attachment_item">Attach new item to conversation</string>
     <string name="content_description_open_message_details">Open Message Details</string>
     <string name="content_description_copy_the_message">Copy the message</string>
+    <string name="content_description_share_the_file">Share the selected file with other app</string>
     <string name="content_description_delete_the_message">Delete the message</string>
     <string name="content_description_edit_the_message">Edit the message</string>
     <string name="content_description_more_options">More options</string>
@@ -464,6 +465,7 @@
     <!--Conversation-->
     <string name="label_message_details">Message Details</string>
     <string name="label_copy">Copy</string>
+    <string name="label_share">Share</string>
     <string name="label_edit">Edit</string>
     <string name="label_delete">Delete</string>
     <string name="info_message_copied">Message copied</string>
@@ -833,6 +835,15 @@
     <string name="cancel_login_dialog_title">Are you sure you want to cancel?</string>
     <!-- session reset -->
     <string name="label_system_message_session_reset">%1$s was unable to decrypt some of your messages but has solved the issue. This affected all conversations you share together.</string>
+
+    <!-- join conversation dialog -->
+    <string name="join_conversation_dialog_title">Join conversation?</string>
+    <string name="join_conversation_dialog_message">You have been invited to a conversation.\n\n%1$s</string>
+    <string name="join_conversation_dialog_button">Join</string>
+    <string name="join_conversation_via_deeplink_error_title">Unable to join conversation</string>
+    <string name="join_conversation_via_deeplink_error_link_expired">The link to this group conversation expired or the conversation was set to private.</string>
+    <string name="join_conversation_via_deeplink_error_max_number_of_participent">The maximum number of participants in this conversation has been reached.</string>
+    <string name="join_conversation_via_deeplink_error_general">Due to an error you could not be added to the group conversation.</string>
     <!-- guest link -->
     <string name="folder_label_guest_link">Guest link</string>
     <string name="guest_link_description">Invite others with a link to this conversation. Anyone with the link can join the conversation, even if they don’t have Wire.</string>

@@ -25,7 +25,6 @@ import androidx.work.Data
 import androidx.work.workDataOf
 import com.wire.android.appLogger
 import com.wire.android.datastore.GlobalDataStore
-import com.wire.android.migration.failure.MigrationFailure
 import com.wire.android.migration.feature.MigrateActiveAccountsUseCase
 import com.wire.android.migration.feature.MigrateClientsDataUseCase
 import com.wire.android.migration.feature.MigrateConversationsUseCase
@@ -35,18 +34,28 @@ import com.wire.android.migration.feature.MigrateUsersUseCase
 import com.wire.android.migration.util.ScalaDBNameProvider
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.NetworkFailure
-import com.wire.kalium.logic.StorageFailure
-import com.wire.kalium.logic.failure.ServerConfigFailure
+import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.functional.Either
 import com.wire.kalium.logic.functional.flatMap
 import com.wire.kalium.logic.functional.fold
-import com.wire.kalium.logic.functional.mapLeft
+import com.wire.kalium.logic.functional.isRight
+import com.wire.kalium.logic.functional.map
 import com.wire.kalium.logic.functional.onFailure
-import com.wire.kalium.logic.functional.onSuccess
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.joinAll
+import kotlinx.coroutines.launch
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.ConcurrentMap
 import javax.inject.Inject
 import javax.inject.Singleton
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @Suppress("LongParameterList")
 @Singleton
 class MigrationManager @Inject constructor(
@@ -57,9 +66,8 @@ class MigrationManager @Inject constructor(
     private val migrateClientsData: MigrateClientsDataUseCase,
     private val migrateUsers: MigrateUsersUseCase,
     private val migrateConversations: MigrateConversationsUseCase,
-    private val migrateMessages: MigrateMessagesUseCase,
+    private val migrateMessages: MigrateMessagesUseCase
 ) {
-
     private fun isScalaDBPresent(): Boolean =
         applicationContext.getDatabasePath(ScalaDBNameProvider.globalDB()).let { it.isFile && it.exists() }
 
@@ -81,58 +89,67 @@ class MigrationManager @Inject constructor(
     fun isMigrationCompletedFlow(): Flow<Boolean> = globalDataStore.isMigrationCompletedFlow()
 
     suspend fun migrate(
-        updateProgress: suspend (MigrationData.Progress) -> Unit
+        coroutineScope: CoroutineScope,
+        updateProgress: suspend (MigrationData.Progress) -> Unit,
+        migrationDispatcher: CoroutineDispatcher = Dispatchers.Default.limitedParallelism(2)
     ): MigrationData.Result =
-        updateProgress(MigrationData.Progress(MigrationData.Progress.Type.SERVER_CONFIGS))
-            .run { migrateServerConfig() }
-            .flatMap {
+        migrateServerConfig()
+            .map {
                 appLogger.d("$TAG - Step 1 - Migrating accounts")
-                updateProgress(MigrationData.Progress(MigrationData.Progress.Type.ACCOUNTS))
                 migrateActiveAccounts(it)
             }
-            .onSuccess { (userIdList, isFederated) ->
-                // the result of this step is ignored
-                appLogger.d("$TAG - Step 2 - Migrating clients")
-                updateProgress(MigrationData.Progress(MigrationData.Progress.Type.CLIENTS))
-                migrateClientsData(userIdList, isFederated)
-            }
-            .flatMap { (userIdList, _) ->
-                appLogger.d("$TAG - Step 3 - Migrating users")
-                updateProgress(MigrationData.Progress(MigrationData.Progress.Type.USERS))
-                migrateUsers(userIdList)
-            }
-            .flatMap {
-                appLogger.d("$TAG - Step 4 - Migrating conversations")
-                updateProgress(MigrationData.Progress(MigrationData.Progress.Type.CONVERSATIONS))
-                migrateConversations(it)
-            }
-            .flatMap {
-                appLogger.d("$TAG - Step 5 - Migrating messages")
-                updateProgress(MigrationData.Progress(MigrationData.Progress.Type.MESSAGES))
-                migrateMessages(it)
-            }
-            .mapLeft(::migrationFailure)
-            .onSuccess { globalDataStore.setMigrationCompleted() }
-            .onFailure {
-                if (it != MigrationData.Result.Failure.Type.NO_NETWORK) {
-                    globalDataStore.setMigrationCompleted() // only for network errors we show the info and "retry" button to the user
+            .fold(
+                {
+                    migrationFailure(it)
+                }, { (migratedAccounts, isFederated) ->
+                    updateProgress(MigrationData.Progress(MigrationData.Progress.Type.ACCOUNTS))
+                    onAccountsMigrated(migratedAccounts, isFederated, coroutineScope, migrationDispatcher).also {
+                        appLogger.d("User migration done Result $it")
+                    }
+                    MigrationData.Result.Success
+                }
+            )
+
+    private suspend fun onAccountsMigrated(
+        migratedAccounts: Map<String, Either<CoreFailure, UserId>>,
+        isFederated: Boolean,
+        coroutineScope: CoroutineScope,
+        migrationDispatcher: CoroutineDispatcher,
+    ): Map<String, Either<CoreFailure, Unit>> {
+        val resultAcc: ConcurrentMap<String, Either<CoreFailure, Unit>> = ConcurrentHashMap()
+
+        val migrationJobs: List<Job> = migratedAccounts.map { it ->
+            coroutineScope.launch(migrationDispatcher) {
+                if (it.value.isRight()) {
+                    val userid = (it.value as Either.Right).value
+                    appLogger.d("$TAG - Step 2 - Migrating clients for $userid")
+                    migrateClientsData(userid, isFederated).onFailure { failure ->
+                        appLogger.e("$TAG - Step 2 - Migrating clients for $userid failed reason $failure")
+                    }
+                    appLogger.d("$TAG - Step 3 - Migrating users for $userid")
+                    migrateUsers(userid).flatMap {
+                        appLogger.d("$TAG - Step 4 - Migrating conversations for $userid")
+                        migrateConversations(it)
+                    }.flatMap {
+                        appLogger.d("$TAG - Step 5 - Migrating messages for $userid")
+                        migrateMessages(userid, it, coroutineScope)
+                    }.also {
+                        resultAcc[userid.value] = it
+                    }
+                } else {
+                    resultAcc[it.key] = it.value as Either.Left
                 }
             }
-            .fold({
-                appLogger.e("$TAG - Failure - Migrating data from old client - $it")
-                MigrationData.Result.Failure(it)
-            }, {
-                appLogger.d("$TAG - Success - Migrated data from old client")
-                MigrationData.Result.Success
-            })
+        }
+        migrationJobs.joinAll()
+        globalDataStore.setMigrationCompleted()
 
-    private fun migrationFailure(failure: CoreFailure): MigrationData.Result.Failure.Type = when (failure) {
-        is NetworkFailure.NoNetworkConnection -> MigrationData.Result.Failure.Type.NO_NETWORK
-        is StorageFailure.DataNotFound -> MigrationData.Result.Failure.Type.DATA_NOT_FOUND
-        is ServerConfigFailure.UnknownServerVersion -> MigrationData.Result.Failure.Type.UNKNOWN_SERVER_VERSION
-        is ServerConfigFailure.NewServerVersion -> MigrationData.Result.Failure.Type.TOO_NEW_VERSION
-        is MigrationFailure.InvalidRefreshToken -> MigrationData.Result.Failure.Type.UNKNOWN
-        else -> MigrationData.Result.Failure.Type.UNKNOWN
+        return resultAcc.toMap()
+    }
+
+    private fun migrationFailure(failure: CoreFailure): MigrationData.Result = when (failure) {
+        is NetworkFailure.NoNetworkConnection -> MigrationData.Result.Failure
+        else -> MigrationData.Result.Success
     }
 
     companion object {
@@ -150,25 +167,9 @@ sealed class MigrationData {
 
     sealed class Result : MigrationData() {
         object Success : Result()
-        data class Failure(val type: Type) : Result() {
-            enum class Type { UNKNOWN_SERVER_VERSION, TOO_NEW_VERSION, DATA_NOT_FOUND, NO_NETWORK, UNKNOWN; }
-            companion object {
-                const val KEY_FAILURE_TYPE = "failure_type"
-            }
-        }
+        object Failure : Result()
     }
 }
-
-fun MigrationData.Result.Failure.Type.toData(): Data = workDataOf(MigrationData.Result.Failure.KEY_FAILURE_TYPE to this.name)
-
-fun Data.getMigrationFailure(): MigrationData.Result.Failure.Type = this.getString(MigrationData.Result.Failure.KEY_FAILURE_TYPE)
-    ?.let {
-        try {
-            MigrationData.Result.Failure.Type.valueOf(it)
-        } catch (e: IllegalArgumentException) {
-            null
-        }
-    } ?: MigrationData.Result.Failure.Type.UNKNOWN
 
 fun MigrationData.Progress.Type.toData(): Data = workDataOf(MigrationData.Progress.KEY_PROGRESS_TYPE to this.name)
 

@@ -21,6 +21,7 @@
 package com.wire.android.util.lifecycle
 
 import com.wire.android.appLogger
+import com.wire.android.di.ApplicationScope
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.migration.MigrationManager
 import com.wire.android.util.CurrentScreenManager
@@ -39,6 +40,7 @@ import com.wire.kalium.logic.functional.map
 import com.wire.kalium.logic.functional.nullableFold
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
@@ -63,7 +65,8 @@ class ConnectionPolicyManager @Inject constructor(
     private val currentScreenManager: CurrentScreenManager,
     @KaliumCoreLogic private val coreLogic: CoreLogic,
     private val dispatcherProvider: DispatcherProvider,
-    private val migrationManager: MigrationManager
+    private val migrationManager: MigrationManager,
+    @ApplicationScope private val coroutineScope: CoroutineScope
 ) {
 
     private val logger by lazy { appLogger.withFeatureId(SYNC) }
@@ -80,8 +83,9 @@ class ConnectionPolicyManager @Inject constructor(
                 migrationManager.isMigrationCompletedFlow(),
                 ::Triple
             ).collect { (isOnForeground, currentSession, isMigrationCompleted) ->
-                if (isMigrationCompleted)
+                if (isMigrationCompleted) {
                     setPolicyForSessions(allValidSessions(), currentSession, isOnForeground)
+                }
             }
         }
     }
@@ -132,15 +136,15 @@ class ConnectionPolicyManager @Inject constructor(
         }
     }
 
-    private fun isCurrentSession(userId: UserId): Boolean {
+    private suspend fun isCurrentSession(userId: UserId): Boolean = coroutineScope.async {
         val isCurrentSession = coreLogic.getGlobalScope().sessionRepository.currentSession().fold({
             // Assume so in case of failure
             true
         }, {
             it.userId == userId
         })
-        return isCurrentSession
-    }
+        return@async isCurrentSession
+    }.await()
 
     private suspend fun setPolicyForSessions(
         userIdList: List<QualifiedID>,
@@ -152,9 +156,9 @@ class ConnectionPolicyManager @Inject constructor(
         val connectionPolicy = if (isCurrentSession && wasUIInitialized) {
             ConnectionPolicy.KEEP_ALIVE
         } else {
-            if (!isWebSocketEnabled){
+            if (!isWebSocketEnabled) {
                 ConnectionPolicy.DISCONNECT_AFTER_PENDING_EVENTS
-            }else{
+            } else {
                 ConnectionPolicy.KEEP_ALIVE
             }
         }

@@ -50,6 +50,7 @@ import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.home.conversations.MediaGallerySnackbarMessages
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialog
+import com.wire.android.util.permission.rememberWriteStorageRequestFlow
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -57,6 +58,14 @@ fun MediaGalleryScreen(mediaGalleryViewModel: MediaGalleryViewModel = hiltViewMo
     val uiState = mediaGalleryViewModel.mediaGalleryViewState
     val mediaGalleryScreenState = rememberMediaGalleryScreenState()
     val scope = rememberCoroutineScope()
+    val context = LocalContext.current
+    val onSaveImageWriteStorageRequest = rememberWriteStorageRequestFlow(
+        onGranted = {
+            mediaGalleryScreenState.showContextualMenu(false)
+            mediaGalleryViewModel.saveImageToExternalStorage()
+        }, onDenied = {
+            // TODO
+        })
 
     with(uiState) {
         MenuModalSheetLayout(
@@ -67,9 +76,9 @@ fun MediaGalleryScreen(mediaGalleryViewModel: MediaGalleryViewModel = hiltViewMo
                     mediaGalleryScreenState.showContextualMenu(false)
                     mediaGalleryViewModel.deleteCurrentImage()
                 },
-                onDownloadImage = {
-                    mediaGalleryScreenState.showContextualMenu(false)
-                    mediaGalleryViewModel.saveImageToExternalStorage()
+                onDownloadImage = onSaveImageWriteStorageRequest::launch,
+                onShareImage = {
+                    mediaGalleryViewModel.shareAsset(context)
                 }
             ),
             content = {
@@ -152,12 +161,11 @@ private fun getSnackbarMessage(messageCode: MediaGallerySnackbarMessages, resour
     return msg to actionLabel
 }
 
-
-
 @Composable
 fun EditGalleryMenuItems(
     onDownloadImage: () -> Unit,
-    onDeleteMessage: () -> Unit
+    onDeleteMessage: () -> Unit,
+    onShareImage: () -> Unit
 ): List<@Composable () -> Unit> {
     return buildList {
         add {
@@ -171,6 +179,18 @@ fun EditGalleryMenuItems(
                     },
                     title = stringResource(R.string.label_download),
                     onItemClick = onDownloadImage
+                )
+            }
+            CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.secondary) {
+                MenuBottomSheetItem(
+                    icon = {
+                        MenuItemIcon(
+                            id = R.drawable.ic_share_file,
+                            contentDescription = stringResource(R.string.content_description_share_the_file),
+                        )
+                    },
+                    title = stringResource(R.string.label_share),
+                    onItemClick = onShareImage
                 )
             }
             CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.error) {

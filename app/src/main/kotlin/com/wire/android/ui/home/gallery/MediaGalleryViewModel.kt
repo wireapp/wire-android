@@ -20,6 +20,7 @@
 
 package com.wire.android.ui.home.gallery
 
+import android.content.Context
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -36,9 +37,10 @@ import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogHelper
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogsState
 import com.wire.android.util.FileManager
 import com.wire.android.util.dispatchers.DispatcherProvider
-import com.wire.android.util.getCurrentParsedDateTime
+import com.wire.android.util.startFileShareIntent
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.conversation.ConversationDetails
+import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult.Success
@@ -53,13 +55,14 @@ import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import okio.Path
 import javax.inject.Inject
 
 @Suppress("LongParameterList")
 @HiltViewModel
 class MediaGalleryViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    private val wireSessionImageLoader: WireSessionImageLoader,
+    wireSessionImageLoader: WireSessionImageLoader,
     qualifiedIdMapper: QualifiedIdMapper,
     private val navigationManager: NavigationManager,
     private val getConversationDetails: ObserveConversationDetailsUseCase,
@@ -95,6 +98,20 @@ class MediaGalleryViewModel @Inject constructor(
         observeConversationDetails()
     }
 
+    fun shareAsset(context: Context) {
+        viewModelScope.launch {
+            context.startFileShareIntent(assetDataPath(imageAssetId.conversationId, imageAssetId.messageId).toString())
+        }
+    }
+
+    private suspend fun assetDataPath(conversationId: QualifiedID, messageId: String): Path? =
+        getImageData(conversationId, messageId).await().run {
+            return when (this) {
+                is Success -> decodedAssetPath
+                else -> null
+            }
+        }
+
     private fun observeConversationDetails() {
         viewModelScope.launch {
             getConversationDetails(imageAssetId.conversationId)
@@ -123,7 +140,7 @@ class MediaGalleryViewModel @Inject constructor(
                 val imageData = getImageData(imageAssetId.conversationId, imageAssetId.messageId).await()
                 if (imageData is Success) {
                     fileManager.saveToExternalStorage(imageData.assetName, imageData.decodedAssetPath, imageData.assetSize) {
-                        onImageSavedToExternalStorage()
+                        onImageSavedToExternalStorage(it)
                     }
                 } else {
                     onSaveError()
@@ -138,8 +155,8 @@ class MediaGalleryViewModel @Inject constructor(
         }
     }
 
-    private fun onImageSavedToExternalStorage() {
-        onSnackbarMessage(MediaGallerySnackbarMessages.OnImageDownloaded())
+    private fun onImageSavedToExternalStorage(fileName: String?) {
+        onSnackbarMessage(MediaGallerySnackbarMessages.OnImageDownloaded(fileName))
     }
 
     internal fun onSaveError() {

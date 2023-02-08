@@ -29,6 +29,9 @@
     <uses-permission
             android:name="android.permission.READ_EXTERNAL_STORAGE"
             android:maxSdkVersion="32" />
+    <uses-permission
+            android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+            android:maxSdkVersion="28" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
@@ -61,7 +64,8 @@
             android:roundIcon="@mipmap/ic_launcher_round_beta"
             android:supportsRtl="false"
             android:theme="@style/AppTheme.SplashScreen"
-            tools:replace="android:allowBackup,android:supportsRtl">
+            tools:replace="android:allowBackup,android:supportsRtl"
+            >
 
         <activity
                 android:name=".ui.WireActivity"
@@ -93,6 +97,10 @@
 
                 <data
                         android:host="incoming-call"
+                        android:scheme="wire" />
+
+                <data
+                        android:host="conversation-join"
                         android:scheme="wire" />
             </intent-filter>
         </activity>
@@ -143,6 +151,16 @@
                 android:exported="false">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+            </intent-filter>
+        </receiver>
+
+
+        <receiver
+                android:name=".migration.UpdateReceiver"
+                android:enabled="true"
+                android:exported="false">
+            <intent-filter>
                 <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
             </intent-filter>
         </receiver>

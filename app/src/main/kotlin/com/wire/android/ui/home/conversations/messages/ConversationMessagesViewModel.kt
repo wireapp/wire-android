@@ -20,6 +20,7 @@
 
 package com.wire.android.ui.home.conversations.messages
 
+import android.content.Context
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -40,6 +41,7 @@ import com.wire.android.ui.home.conversations.DownloadedAssetDialogVisibilitySta
 import com.wire.android.ui.home.conversations.usecase.GetMessagesForConversationUseCase
 import com.wire.android.util.FileManager
 import com.wire.android.util.dispatchers.DispatcherProvider
+import com.wire.android.util.startFileShareIntent
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.ClientId
 import com.wire.kalium.logic.data.id.QualifiedID
@@ -168,9 +170,9 @@ class ConversationMessagesViewModel @Inject constructor(
     fun onSaveFile(assetName: String, assetDataPath: Path, assetSize: Long, messageId: String) {
         viewModelScope.launch {
             withContext(dispatchers.io()) {
-                fileManager.saveToExternalStorage(assetName, assetDataPath, assetSize) {
+                fileManager.saveToExternalStorage(assetName, assetDataPath, assetSize) { savedFileName: String? ->
                     updateAssetMessageDownloadStatus(Message.DownloadStatus.SAVED_EXTERNALLY, conversationId, messageId)
-                    onFileSavedToExternalStorage(assetName)
+                    onFileSavedToExternalStorage(savedFileName)
                     hideOnAssetDownloadedDialog()
                 }
             }
@@ -200,6 +202,7 @@ class ConversationMessagesViewModel @Inject constructor(
     }
 
     fun openMessageDetails(messageId: String, isSelfMessage: Boolean) {
+        appLogger.i("[$TAG][openMessageDetails] - isSelfMessage: $isSelfMessage")
         viewModelScope.launch {
             navigationManager.navigate(
                 command = NavigationCommand(
@@ -225,6 +228,12 @@ class ConversationMessagesViewModel @Inject constructor(
         }
     }
 
+    fun shareAsset(context: Context, messageId: String) {
+        viewModelScope.launch {
+            context.startFileShareIntent(assetDataPath(conversationId, messageId).toString())
+        }
+    }
+
     // region Private
     private suspend fun assetDataPath(conversationId: QualifiedID, messageId: String): Path? =
         getMessageAsset(conversationId, messageId).await().run {
@@ -243,4 +252,8 @@ class ConversationMessagesViewModel @Inject constructor(
     }
 
     // endregion
+
+    private companion object {
+        const val TAG = "ConversationMessagesViewModel"
+    }
 }

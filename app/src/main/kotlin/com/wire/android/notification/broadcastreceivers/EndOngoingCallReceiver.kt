@@ -58,7 +58,7 @@ class EndOngoingCallReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
         val conversationId: String = intent.getStringExtra(EXTRA_CONVERSATION_ID) ?: return
-        appLogger.i("CallNotificationDismissReceiver: onReceive, conversationId: $conversationId")
+        appLogger.i("EndOngoingCallReceiver: onReceive, conversationId: $conversationId")
 
         coroutineScope.launch() {
             val userId: QualifiedID? = intent.getStringExtra(EXTRA_RECEIVER_USER_ID)?.toQualifiedID(qualifiedIdMapper)

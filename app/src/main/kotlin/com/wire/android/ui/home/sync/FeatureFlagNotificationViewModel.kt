@@ -72,6 +72,7 @@ class FeatureFlagNotificationViewModel @Inject constructor(
     }
 
     fun hideDialogStatus() {
+        featureFlagState = featureFlagState.copy(showFileSharingDialog = false)
         viewModelScope.launch {
             markFileSharingAsNotified()
         }

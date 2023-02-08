@@ -88,7 +88,7 @@ class EditGuestAccessViewModelTest {
         }
 
     @Test
-    fun `given a failure when running updateConversationAccessRole use case, when trying to enable guest access, then do not enable guest access`() {
+    fun `given a failure when running updateConversationAccessRole, when trying to enable guest access, then do not enable guest access`() {
         editGuestAccessViewModel.editGuestAccessState =
             editGuestAccessViewModel.editGuestAccessState.copy(isGuestAccessAllowed = false)
         coEvery {

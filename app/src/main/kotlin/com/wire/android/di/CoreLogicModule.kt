@@ -900,7 +900,7 @@ class UseCaseModule {
     @ViewModelScoped
     @Provides
     fun provideMarkFileSharingStatusAsNotified(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId): MarkFileSharingChangeAsNotifiedUseCase =
-        coreLogic.getSessionScope(currentAccount).markFileStratusAsNotified
+        coreLogic.getSessionScope(currentAccount).markFileSharingStatusAsNotified
 
     @ViewModelScoped
     @Provides

@@ -24,6 +24,7 @@ import android.content.Context
 import androidx.work.WorkManager
 import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.util.DeviceLabel
+import com.wire.android.util.ImageUtil
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.data.id.FederatedIdMapper
@@ -85,6 +86,7 @@ import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.GetUserInfoUseCase
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
 import com.wire.kalium.logic.feature.user.IsSelfATeamMemberUseCase
+import com.wire.kalium.logic.feature.user.MarkFileSharingChangeAsNotifiedUseCase
 import com.wire.kalium.logic.feature.user.ObserveUserInfoUseCase
 import com.wire.kalium.logic.feature.user.ObserveValidAccountsUseCase
 import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
@@ -899,7 +901,10 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
-    fun provideMarkFileSharingStatusAsNotified(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId): MarkFileSharingChangeAsNotifiedUseCase =
+    fun provideMarkFileSharingStatusAsNotified(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): MarkFileSharingChangeAsNotifiedUseCase =
         coreLogic.getSessionScope(currentAccount).markFileSharingStatusAsNotified
 
     @ViewModelScoped

@@ -36,6 +36,7 @@ import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.notification.LocalNotificationConversation
 import com.wire.kalium.logic.data.notification.LocalNotificationMessage
 import com.wire.kalium.logic.data.notification.LocalNotificationMessageAuthor
+import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.UserSessionScope
 import com.wire.kalium.logic.feature.auth.AccountInfo
@@ -253,6 +254,32 @@ class WireNotificationManagerTest {
         }
 
     @Test
+    fun givenSomeNotifications_whenSelfUserChanged_thenNotificationIsNotDuplicated() =
+        runTestWithCancellation(dispatcherProvider.main()) {
+            val conversationId = ConversationId("conversation_value", "conversation_domain")
+            val selfUserFlow = MutableStateFlow(TestUser.SELF_USER)
+            val (arrangement, manager) = Arrangement()
+                .withMessageNotifications(
+                    listOf(
+                        provideLocalNotificationConversation(id = conversationId, messages = listOf(provideLocalNotificationMessage()))
+                    )
+                )
+                .withEstablishedCall(listOf())
+                .withIncomingCalls(listOf())
+                .withCurrentScreen(CurrentScreen.InBackground)
+                .withSelfUser(selfUserFlow)
+                .arrange()
+
+            manager.observeNotificationsAndCallsWhileRunning(listOf(provideUserId()), this) {}
+            selfUserFlow.value = TestUser.SELF_USER.copy(availabilityStatus = UserAvailabilityStatus.NONE)
+            runCurrent()
+
+            verify(exactly = 1) {
+                arrangement.messageNotificationManager.handleNotification(any(), any(), any())
+            }
+        }
+
+    @Test
     fun givenCurrentScreenIsConversation_whenObserveCalled_thenNotificationForThatConversationIsHidden() =
         runTestWithCancellation(dispatcherProvider.main()) {
             val conversationId = ConversationId("conversation_value", "conversation_domain")
@@ -466,6 +493,10 @@ class WireNotificationManagerTest {
         fun withCurrentScreen(screen: CurrentScreen): Arrangement {
             coEvery { currentScreenManager.observeCurrentScreen(any()) } returns MutableStateFlow(screen)
             return this
+        }
+
+        fun withSelfUser(selfUserFlow: Flow<SelfUser>) = apply {
+            coEvery { getSelfUser.invoke() } returns selfUserFlow
         }
 
         fun arrange() = this to wireNotificationManager

@@ -27,6 +27,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.ui.home.FeatureFlagState
 import com.wire.kalium.logic.data.sync.SyncState
+import com.wire.kalium.logic.feature.user.MarkFileSharingChangeAsNotifiedUseCase
 import com.wire.kalium.logic.feature.user.ObserveFileSharingStatusUseCase
 import com.wire.kalium.logic.sync.ObserveSyncStateUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -36,7 +37,8 @@ import javax.inject.Inject
 @HiltViewModel
 class FeatureFlagNotificationViewModel @Inject constructor(
     private val observeSyncState: ObserveSyncStateUseCase,
-    private val observeFileSharingStatusUseCase: ObserveFileSharingStatusUseCase
+    private val observeFileSharingStatusUseCase: ObserveFileSharingStatusUseCase,
+    private val markFileSharingAsNotified: MarkFileSharingChangeAsNotifiedUseCase
 ) : ViewModel() {
 
     var featureFlagState by mutableStateOf(FeatureFlagState())
@@ -71,5 +73,8 @@ class FeatureFlagNotificationViewModel @Inject constructor(
 
     fun hideDialogStatus() {
         featureFlagState = featureFlagState.copy(showFileSharingDialog = false)
+        viewModelScope.launch {
+            markFileSharingAsNotified()
+        }
     }
 }

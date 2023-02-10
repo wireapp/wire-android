@@ -322,7 +322,7 @@ private val DarkWireColorScheme = WireColorScheme(
     connectivityBarTextColor = Color.White,
     connectivityBarIconColor = Color.White,
     messageComposerBackgroundColor = WireColorPalette.Gray100,
-    messageMentionBackground = WireColorPalette.messageMentionBackground,
+    messageMentionBackground = WireColorPalette.DarkBlue800,
     messageMentionText = WireColorPalette.messageMentionText
 )
 

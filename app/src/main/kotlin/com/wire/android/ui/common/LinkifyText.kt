@@ -110,7 +110,7 @@ fun LinkifyText(
                 }
                 addStyle(
                     style = SpanStyle(
-                        color = MaterialTheme.wireColorScheme.messageMentionText,
+                        color = MaterialTheme.wireColorScheme.primary,
                         background = MaterialTheme.wireColorScheme.messageMentionBackground
                     ),
                     start = it.start,

@@ -239,7 +239,7 @@ class MessageContentMapper @Inject constructor(
                 // It's a generic Asset Message so let's not download it yet
                 else -> {
                     UIMessageContent.AssetMessage(
-                        assetName = name ?: "",
+                        assetName = name?.split(".")?.first() ?: "",
                         assetExtension = name?.split(".")?.last() ?: "",
                         assetId = AssetId(remoteData.assetId, remoteData.assetDomain.orEmpty()),
                         assetSizeInBytes = sizeInBytes,

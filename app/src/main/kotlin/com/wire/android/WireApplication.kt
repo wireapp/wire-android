@@ -28,6 +28,8 @@ import androidx.work.Configuration
 import co.touchlab.kermit.platformLogWriter
 import com.google.firebase.FirebaseApp
 import com.google.firebase.FirebaseOptions
+import com.wire.android.datastore.GlobalDataStore
+import com.wire.android.di.ApplicationScope
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.util.DataDogLogger
 import com.wire.android.util.LogFileWriter
@@ -40,7 +42,10 @@ import com.wire.kalium.logger.KaliumLogger
 import com.wire.kalium.logic.CoreLogger
 import com.wire.kalium.logic.CoreLogic
 import dagger.hilt.android.HiltAndroidApp
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 // App wide global logger, carefully initialized when our application is "onCreate"
@@ -61,7 +66,12 @@ class WireApplication : Application(), Configuration.Provider {
     lateinit var wireWorkerFactory: WireWorkerFactory
     @Inject
     lateinit var globalObserversManager: GlobalObserversManager
+    @Inject
+    lateinit var globalDataStore: GlobalDataStore
 
+    @Inject
+    @ApplicationScope
+    lateinit var globalAppScope: CoroutineScope
     override fun getWorkManagerConfiguration(): Configuration {
         return Configuration.Builder()
             .setWorkerFactory(wireWorkerFactory)
@@ -146,13 +156,15 @@ class WireApplication : Application(), Configuration.Provider {
     }
 
     private fun enableLoggingAndInitiateFileLogging() {
-        if (BuildConfig.PRIVATE_BUILD || coreLogic.getGlobalScope().isLoggingEnabled()) {
-            CoreLogger.setLoggingLevel(
-                level = KaliumLogLevel.VERBOSE,
-                logWriters = arrayOf(DataDogLogger, platformLogWriter())
-            )
-            logFileWriter.start()
-            appLogger.i("Logger enabled")
+        globalAppScope.launch {
+            if (globalDataStore.isLoggingEnabled().first()) {
+                CoreLogger.setLoggingLevel(
+                    level = KaliumLogLevel.VERBOSE,
+                    logWriters = arrayOf(DataDogLogger, platformLogWriter())
+                )
+                logFileWriter.start()
+                appLogger.i("Logger enabled")
+            }
         }
     }
 

@@ -26,6 +26,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import co.touchlab.kermit.platformLogWriter
+import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.util.DataDogLogger
 import com.wire.android.util.EMPTY
@@ -36,8 +37,6 @@ import com.wire.kalium.logic.feature.client.ObserveCurrentClientIdUseCase
 import com.wire.kalium.logic.feature.keypackage.MLSKeyPackageCountResult
 import com.wire.kalium.logic.feature.keypackage.MLSKeyPackageCountUseCase
 import com.wire.kalium.logic.feature.user.IsMLSEnabledUseCase
-import com.wire.kalium.logic.feature.user.loggingStatus.EnableLoggingUseCase
-import com.wire.kalium.logic.feature.user.loggingStatus.IsLoggingEnabledUseCase
 import com.wire.kalium.logic.sync.periodic.UpdateApiVersionsScheduler
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -58,25 +57,32 @@ class DebugScreenViewModel
 @Inject constructor(
     private val navigationManager: NavigationManager,
     private val mlsKeyPackageCountUseCase: MLSKeyPackageCountUseCase,
-    private val enableLogging: EnableLoggingUseCase,
     private val logFileWriter: LogFileWriter,
     private val currentClientIdUseCase: ObserveCurrentClientIdUseCase,
     private val updateApiVersions: UpdateApiVersionsScheduler,
+    private val globalDataStore: GlobalDataStore,
     isMLSEnabledUseCase: IsMLSEnabledUseCase,
-    isLoggingEnabledUseCase: IsLoggingEnabledUseCase
 ) : ViewModel() {
     val logPath: String = logFileWriter.activeLoggingFile.absolutePath
 
     var state by mutableStateOf(
         DebugScreenState(
-            isLoggingEnabled = isLoggingEnabledUseCase(),
             mlsEnabled = isMLSEnabledUseCase()
         )
     )
 
     init {
+        observeLoggingState()
         observeMlsMetadata()
         observeCurrentClientId()
+    }
+
+    private fun observeLoggingState() {
+        viewModelScope.launch {
+            globalDataStore.isLoggingEnabled().collect {
+                state = state.copy(isLoggingEnabled = it)
+            }
+        }
     }
 
     private fun observeCurrentClientId() {
@@ -115,8 +121,9 @@ class DebugScreenViewModel
     }
 
     fun setLoggingEnabledState(isEnabled: Boolean) {
-        enableLogging(isEnabled)
-        state = state.copy(isLoggingEnabled = isEnabled)
+        viewModelScope.launch {
+            globalDataStore.setLoggingEnabled(isEnabled)
+        }
         if (isEnabled) {
             logFileWriter.start()
             CoreLogger.setLoggingLevel(level = KaliumLogLevel.VERBOSE, logWriters = arrayOf(DataDogLogger, platformLogWriter()))

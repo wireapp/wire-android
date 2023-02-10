@@ -97,16 +97,16 @@ internal fun WireDropDown(
     val borderColor = MaterialTheme.wireColorScheme.secondaryButtonEnabledOutline
     val shape = RoundedCornerShape(MaterialTheme.wireDimensions.textFieldCornerSize)
 
-
     Column(modifier) {
         label?.let {
             Label(it, false, WireTextFieldState.Default, remember { MutableInteractionSource() }, wireTextFieldColors())
         }
 
-        Column(modifier = Modifier
-            .clip(shape)
-            .background(color = MaterialTheme.wireColorScheme.secondaryButtonEnabled, shape = shape)
-            .border(width = 1.dp, color = borderColor, shape)
+        Column(
+            modifier = Modifier
+                .clip(shape)
+                .background(color = MaterialTheme.wireColorScheme.secondaryButtonEnabled, shape = shape)
+                .border(width = 1.dp, color = borderColor, shape)
         ) {
 
             SelectionField(
@@ -247,7 +247,6 @@ private fun SelectionField(
     }
 }
 
-
 private fun Context.defaultTextIndicator(showDefaultIndicator: Boolean, index: Int, defaultIndex: Int): String {
     val defaultText = getString(R.string.wire_dropdown_default_indicator)
     return if (index == defaultIndex && showDefaultIndicator) defaultText else String.EMPTY
@@ -267,7 +266,7 @@ private fun DropdownItem(
     )
 ) {
     leadingCompose?.let {
-        LeadingIcon{ it() }
+        LeadingIcon { it() }
     }
 
     Text(
@@ -286,12 +285,13 @@ private fun DropdownItem(
 
 @Composable
 private fun RowScope.LeadingIcon(convent: @Composable () -> Unit) {
-        Box(
-            Modifier
-                .align(Alignment.CenterVertically)
-                .padding(end = dimensions().spacing8x)) {
-            convent()
-        }
+    Box(
+        Modifier
+            .align(Alignment.CenterVertically)
+            .padding(end = dimensions().spacing8x)
+    ) {
+        convent()
+    }
 }
 
 @Composable

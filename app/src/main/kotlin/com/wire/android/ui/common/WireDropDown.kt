@@ -75,6 +75,7 @@ import com.wire.kalium.logic.data.conversation.ConversationOptions
 internal fun WireDropDown(
     items: List<String>,
     defaultItemIndex: Int = -1,
+    selectedItemIndex: Int = defaultItemIndex,
     label: String?,
     modifier: Modifier,
     autoUpdateSelection: Boolean = true,
@@ -83,7 +84,7 @@ internal fun WireDropDown(
     onSelected: (selectedIndex: Int) -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
-    var selectedIndex by remember(defaultItemIndex) { mutableStateOf(defaultItemIndex) }
+    var selectedIndex by remember(selectedItemIndex) { mutableStateOf(selectedItemIndex) }
     var selectionFieldWidth by remember { mutableStateOf(Size.Zero) }
     val arrowRotation: Float by animateFloatAsState(if (expanded) 180f else 0f)
     val selectionText = if (selectedIndex != -1) {
@@ -109,11 +110,12 @@ internal fun WireDropDown(
         ) {
 
             SelectionField(
-                modifier = Modifier.onGloballyPositioned { coordinates ->
-                    // This value is used to assign to
-                    // the DropDown the same width
-                    selectionFieldWidth = coordinates.size.toSize()
-                }
+                modifier = Modifier
+                    .onGloballyPositioned { coordinates ->
+                        // This value is used to assign to
+                        // the DropDown the same width
+                        selectionFieldWidth = coordinates.size.toSize()
+                    }
                     .clickable { expanded = true },
                 leadingCompose = leadingCompose,
                 selectedIndex = selectedIndex,
@@ -270,7 +272,9 @@ private fun DropdownItem(
 
     Text(
         text = text,
-        modifier = Modifier.weight(1f).fillMaxWidth(),
+        modifier = Modifier
+            .weight(1f)
+            .fillMaxWidth(),
         style = if (isSelected) MaterialTheme.wireTypography.body02 else MaterialTheme.wireTypography.body01,
         color = if (isSelected) MaterialTheme.wireColorScheme.onSecondaryButtonSelected
         else MaterialTheme.wireColorScheme.onSecondaryButtonEnabled
@@ -294,6 +298,10 @@ private fun RowScope.LeadingIcon(convent: @Composable () -> Unit) {
 @Preview
 fun PreviewWireDropdownPreviewWithLabel() {
     WireDropDown(
-        items = ConversationOptions.Protocol.values().map { it.name }, defaultItemIndex = 0, "Protocol", modifier = Modifier
+        items = ConversationOptions.Protocol.values().map { it.name },
+        defaultItemIndex = 0,
+        selectedItemIndex = 0,
+        "Protocol",
+        modifier = Modifier
     ) {}
 }

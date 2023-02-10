@@ -125,9 +125,9 @@ class ConnectionPolicyManager @Inject constructor(
         userId: UserId
     ) {
         val isAppOnForeground = currentScreenManager.isAppOnForegroundFlow().first()
-        logger.d("$TAG hasInitialisedUI = $isAppOnForeground")
+        logger.d("$TAG isAppOnForeground = $isAppOnForeground")
         if (!isAppOnForeground) {
-            logger.d("$TAG $userId Downgrading policy as conditions to KEEP_ALIVE are not met")
+            logger.d("$TAG ${userId.toString().obfuscateId()} Downgrading policy as conditions to KEEP_ALIVE are not met")
             setConnectionPolicy(ConnectionPolicy.DISCONNECT_AFTER_PENDING_EVENTS)
         }
     }

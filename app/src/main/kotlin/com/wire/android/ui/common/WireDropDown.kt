@@ -75,6 +75,7 @@ import com.wire.kalium.logic.data.conversation.ConversationOptions
 internal fun WireDropDown(
     items: List<String>,
     defaultItemIndex: Int = -1,
+    selectedItemIndex: Int = defaultItemIndex,
     label: String?,
     modifier: Modifier,
     autoUpdateSelection: Boolean = true,
@@ -83,7 +84,7 @@ internal fun WireDropDown(
     onSelected: (selectedIndex: Int) -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
-    var selectedIndex by remember(defaultItemIndex) { mutableStateOf(defaultItemIndex) }
+    var selectedIndex by remember(selectedItemIndex) { mutableStateOf(selectedItemIndex) }
     var selectionFieldWidth by remember { mutableStateOf(Size.Zero) }
     val arrowRotation: Float by animateFloatAsState(if (expanded) 180f else 0f)
     val selectionText = if (selectedIndex != -1) {
@@ -96,24 +97,25 @@ internal fun WireDropDown(
     val borderColor = MaterialTheme.wireColorScheme.secondaryButtonEnabledOutline
     val shape = RoundedCornerShape(MaterialTheme.wireDimensions.textFieldCornerSize)
 
-
     Column(modifier) {
         label?.let {
             Label(it, false, WireTextFieldState.Default, remember { MutableInteractionSource() }, wireTextFieldColors())
         }
 
-        Column(modifier = Modifier
-            .clip(shape)
-            .background(color = MaterialTheme.wireColorScheme.secondaryButtonEnabled, shape = shape)
-            .border(width = 1.dp, color = borderColor, shape)
+        Column(
+            modifier = Modifier
+                .clip(shape)
+                .background(color = MaterialTheme.wireColorScheme.secondaryButtonEnabled, shape = shape)
+                .border(width = 1.dp, color = borderColor, shape)
         ) {
 
             SelectionField(
-                modifier = Modifier.onGloballyPositioned { coordinates ->
-                    // This value is used to assign to
-                    // the DropDown the same width
-                    selectionFieldWidth = coordinates.size.toSize()
-                }
+                modifier = Modifier
+                    .onGloballyPositioned { coordinates ->
+                        // This value is used to assign to
+                        // the DropDown the same width
+                        selectionFieldWidth = coordinates.size.toSize()
+                    }
                     .clickable { expanded = true },
                 leadingCompose = leadingCompose,
                 selectedIndex = selectedIndex,
@@ -245,7 +247,6 @@ private fun SelectionField(
     }
 }
 
-
 private fun Context.defaultTextIndicator(showDefaultIndicator: Boolean, index: Int, defaultIndex: Int): String {
     val defaultText = getString(R.string.wire_dropdown_default_indicator)
     return if (index == defaultIndex && showDefaultIndicator) defaultText else String.EMPTY
@@ -265,12 +266,14 @@ private fun DropdownItem(
     )
 ) {
     leadingCompose?.let {
-        LeadingIcon{ it() }
+        LeadingIcon { it() }
     }
 
     Text(
         text = text,
-        modifier = Modifier.weight(1f).fillMaxWidth(),
+        modifier = Modifier
+            .weight(1f)
+            .fillMaxWidth(),
         style = if (isSelected) MaterialTheme.wireTypography.body02 else MaterialTheme.wireTypography.body01,
         color = if (isSelected) MaterialTheme.wireColorScheme.onSecondaryButtonSelected
         else MaterialTheme.wireColorScheme.onSecondaryButtonEnabled
@@ -282,18 +285,23 @@ private fun DropdownItem(
 
 @Composable
 private fun RowScope.LeadingIcon(convent: @Composable () -> Unit) {
-        Box(
-            Modifier
-                .align(Alignment.CenterVertically)
-                .padding(end = dimensions().spacing8x)) {
-            convent()
-        }
+    Box(
+        Modifier
+            .align(Alignment.CenterVertically)
+            .padding(end = dimensions().spacing8x)
+    ) {
+        convent()
+    }
 }
 
 @Composable
 @Preview
 private fun WireDropdownPreviewWithLabel() {
     WireDropDown(
-        items = ConversationOptions.Protocol.values().map { it.name }, defaultItemIndex = 0, "Protocol", modifier = Modifier
+        items = ConversationOptions.Protocol.values().map { it.name },
+        defaultItemIndex = 0,
+        selectedItemIndex = 0,
+        "Protocol",
+        modifier = Modifier
     ) {}
 }

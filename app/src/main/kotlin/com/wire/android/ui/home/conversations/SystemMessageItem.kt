@@ -151,6 +151,7 @@ private fun getColorFilter(message: SystemMessage): ColorFilter? {
         is SystemMessage.CryptoSessionReset -> ColorFilter.tint(colorsScheme().onBackground)
         is SystemMessage.RenamedConversation -> ColorFilter.tint(colorsScheme().onBackground)
         is SystemMessage.TeamMemberRemoved -> ColorFilter.tint(colorsScheme().onBackground)
+        is SystemMessage.HistoryLost -> ColorFilter.tint(colorsScheme().onBackground)
     }
 }
 

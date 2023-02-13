@@ -20,6 +20,7 @@
 
 package com.wire.android.ui.home.conversations.messages
 
+import android.content.Context
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -42,6 +43,7 @@ import com.wire.android.ui.home.conversations.usecase.GetMessagesForConversation
 import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.FileManager
 import com.wire.android.util.dispatchers.DispatcherProvider
+import com.wire.android.util.startFileShareIntent
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.ClientId
 import com.wire.kalium.logic.data.id.QualifiedID
@@ -219,6 +221,7 @@ class ConversationMessagesViewModel @Inject constructor(
     }
 
     fun openMessageDetails(messageId: String, isSelfMessage: Boolean) {
+        appLogger.i("[$TAG][openMessageDetails] - isSelfMessage: $isSelfMessage")
         viewModelScope.launch {
             navigationManager.navigate(
                 command = NavigationCommand(
@@ -244,6 +247,12 @@ class ConversationMessagesViewModel @Inject constructor(
         }
     }
 
+    fun shareAsset(context: Context, messageId: String) {
+        viewModelScope.launch {
+            context.startFileShareIntent(assetDataPath(conversationId, messageId).toString())
+        }
+    }
+
     // region Private
     private suspend fun assetDataPath(conversationId: QualifiedID, messageId: String): Path? =
         getMessageAsset(conversationId, messageId).await().run {
@@ -262,4 +271,8 @@ class ConversationMessagesViewModel @Inject constructor(
     }
 
     // endregion
+
+    private companion object {
+        const val TAG = "ConversationMessagesViewModel"
+    }
 }

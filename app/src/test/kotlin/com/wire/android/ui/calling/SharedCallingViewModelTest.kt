@@ -190,16 +190,6 @@ class SharedCallingViewModelTest {
     }
 
     @Test
-    fun `given isCameraOn value is null, when toggling camera, then do not update camera state`() {
-        sharedCallingViewModel.callState = sharedCallingViewModel.callState.copy(isCameraOn = null)
-        coEvery { muteCall(conversationId) } returns Unit
-
-        runTest { sharedCallingViewModel.toggleVideo() }
-
-        sharedCallingViewModel.callState.isCameraOn shouldBeEqualTo null
-    }
-
-    @Test
     fun `given camera is turned on, when toggling video, then turn off video`() {
         sharedCallingViewModel.callState = sharedCallingViewModel.callState.copy(isCameraOn = true)
         coEvery { updateVideoState(any(), any()) } returns Unit
@@ -267,18 +257,6 @@ class SharedCallingViewModelTest {
     @Test
     fun `given an audio call, when pauseVideo is called, then do not pause the video`() {
         sharedCallingViewModel.callState = sharedCallingViewModel.callState.copy(isCameraOn = false)
-        coEvery { setVideoPreview(any(), any()) } returns Unit
-        coEvery { updateVideoState(any(), any()) } returns Unit
-
-        runTest { sharedCallingViewModel.pauseVideo() }
-
-        coVerify(inverse = true) { setVideoPreview(any(), any()) }
-        coVerify(inverse = true) { updateVideoState(any(), VideoState.PAUSED) }
-    }
-
-    @Test
-    fun `given an audio call with a null camera value, when pauseVideo is called, then do not pause the video`() {
-        sharedCallingViewModel.callState = sharedCallingViewModel.callState.copy(isCameraOn = null)
         coEvery { setVideoPreview(any(), any()) } returns Unit
         coEvery { updateVideoState(any(), any()) } returns Unit
 

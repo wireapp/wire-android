@@ -37,7 +37,8 @@ fun messagePendingIntent(context: Context, conversationId: String, userId: Strin
         data = Uri.Builder()
             .scheme(DeepLinkProcessor.DEEP_LINK_SCHEME)
             .authority(DeepLinkProcessor.CONVERSATION_DEEPLINK_HOST)
-            .appendPath(conversationId).appendPath(userId)
+            .appendPath(conversationId)
+            .appendPath(userId)
             .build()
     }
     val requestCode = getRequestCode(conversationId, OPEN_MESSAGE_REQUEST_CODE_PREFIX)
@@ -119,7 +120,7 @@ fun endOngoingCallPendingIntent(context: Context, conversationId: String, userId
 
     return PendingIntent.getBroadcast(
         context.applicationContext,
-        END_ONGOING_CALL_REQUEST_CODE,
+        getRequestCode(conversationId, END_ONGOING_CALL_REQUEST_CODE),
         intent,
         PendingIntent.FLAG_IMMUTABLE
     )
@@ -130,7 +131,7 @@ fun declineCallPendingIntent(context: Context, conversationId: String, userId: S
 
     return PendingIntent.getBroadcast(
         context.applicationContext,
-        DECLINE_CALL_REQUEST_CODE,
+        getRequestCode(conversationId, DECLINE_CALL_REQUEST_CODE),
         intent,
         PendingIntent.FLAG_IMMUTABLE
     )
@@ -176,11 +177,11 @@ fun openAppPendingIntent(context: Context): PendingIntent {
 }
 
 private const val MESSAGE_NOTIFICATIONS_SUMMARY_REQUEST_CODE = 0
-private const val DECLINE_CALL_REQUEST_CODE = 1
+private const val DECLINE_CALL_REQUEST_CODE = "decline_call_"
 private const val OPEN_INCOMING_CALL_REQUEST_CODE = 2
 private const val FULL_SCREEN_REQUEST_CODE = 3
 private const val OPEN_ONGOING_CALL_REQUEST_CODE = 4
-private const val END_ONGOING_CALL_REQUEST_CODE = 5
+private const val END_ONGOING_CALL_REQUEST_CODE = "hang_up_call_"
 private const val OPEN_MESSAGE_REQUEST_CODE_PREFIX = "open_message_"
 private const val OPEN_OTHER_USER_PROFILE_CODE_PREFIX = "open_other_user_profile_"
 private const val CALL_REQUEST_CODE_PREFIX = "call_"

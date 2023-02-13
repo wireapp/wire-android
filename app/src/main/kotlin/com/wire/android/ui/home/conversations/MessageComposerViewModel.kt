@@ -57,7 +57,6 @@ import com.wire.android.util.ImageUtil
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
-import com.wire.kalium.logic.data.id.QualifiedID as ConversationId
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageResult
@@ -75,14 +74,14 @@ import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
 import com.wire.kalium.logic.feature.user.IsFileSharingEnabledUseCase
 import com.wire.kalium.logic.functional.onFailure
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.Instant
 import okio.Path
-import okio.buffer
+import javax.inject.Inject
+import com.wire.kalium.logic.data.id.QualifiedID as ConversationId
 
 @Suppress("LongParameterList", "TooManyFunctions")
 @HiltViewModel
@@ -104,8 +103,9 @@ class MessageComposerViewModel @Inject constructor(
     private val contactMapper: ContactMapper,
     private val membersToMention: MembersToMentionUseCase,
     private val sendKnockUseCase: SendKnockUseCase,
-    private val pingRinger: PingRinger
-    ) : SavedStateViewModel(savedStateHandle) {
+    private val pingRinger: PingRinger,
+    private val imageUtil: ImageUtil
+) : SavedStateViewModel(savedStateHandle) {
 
     var conversationViewState by mutableStateOf(ConversationViewState())
         private set
@@ -216,9 +216,9 @@ class MessageComposerViewModel @Inject constructor(
                             if (dataSize > IMAGE_SIZE_LIMIT_BYTES) onSnackbarMessage(ErrorMaxImageSize)
                             else {
                                 val (imgWidth, imgHeight) =
-                                    ImageUtil.extractImageWidthAndHeight(
-                                        kaliumFileSystem.source(attachmentBundle.dataPath).buffer().inputStream(),
-                                        mimeType
+                                    imageUtil.extractImageWidthAndHeight(
+                                        kaliumFileSystem,
+                                        attachmentBundle.dataPath
                                     )
                                 val result = sendAssetMessage(
                                     conversationId = conversationId,

@@ -110,10 +110,10 @@ class SharedCallingViewModel @Inject constructor(
             val allCallsSharedFlow = allCalls().map {
                 it.find { call ->
                     call.conversationId == conversationId &&
-                        call.status != CallStatus.CLOSED &&
-                        call.status != CallStatus.MISSED
+                            call.status != CallStatus.CLOSED &&
+                            call.status != CallStatus.MISSED
                 }
-            }.flowOn(dispatchers.io()).shareIn(this, started = SharingStarted.Lazily)
+            }.flowOn(dispatchers.default()).shareIn(this, started = SharingStarted.Lazily)
 
             launch {
                 observeConversationDetails(this)
@@ -160,7 +160,7 @@ class SharedCallingViewModel @Inject constructor(
         conversationDetails(conversationId = conversationId)
             .filterIsInstance<ObserveConversationDetailsUseCase.Result.Success>() // TODO handle StorageFailure
             .map { it.conversationDetails }
-            .flowOn(dispatchers.io())
+            .flowOn(dispatchers.default())
             .shareIn(coroutineScope, SharingStarted.WhileSubscribed(1))
             .collect { details ->
                 callState = when (details) {
@@ -187,7 +187,7 @@ class SharedCallingViewModel @Inject constructor(
 
     private suspend fun observeOnSpeaker(coroutineScope: CoroutineScope) {
         observeSpeaker()
-            .flowOn(dispatchers.io())
+            .flowOn(dispatchers.default())
             .shareIn(coroutineScope, SharingStarted.WhileSubscribed(1))
             .collectLatest {
                 callState = callState.copy(isSpeakerOn = it)
@@ -276,11 +276,9 @@ class SharedCallingViewModel @Inject constructor(
 
     fun toggleVideo() {
         viewModelScope.launch {
-            callState.isCameraOn?.let {
-                callState = callState.copy(
-                    isCameraOn = !it
-                )
-            }
+            callState = callState.copy(
+                isCameraOn = !callState.isCameraOn
+            )
         }
     }
 
@@ -303,10 +301,8 @@ class SharedCallingViewModel @Inject constructor(
 
     fun pauseVideo() {
         viewModelScope.launch {
-            callState.isCameraOn?.let {
-                if (it) {
-                    updateVideoState(conversationId, VideoState.PAUSED)
-                }
+            if (callState.isCameraOn) {
+                updateVideoState(conversationId, VideoState.PAUSED)
             }
         }
     }
@@ -314,10 +310,8 @@ class SharedCallingViewModel @Inject constructor(
     private fun unPauseVideo() {
         viewModelScope.launch {
             // We should turn on video only for established call
-            callState.isCameraOn?.let {
-                if (it && callState.participants.isNotEmpty()) {
-                    updateVideoState(conversationId, VideoState.STARTED)
-                }
+            if (callState.isCameraOn && callState.participants.isNotEmpty()) {
+                updateVideoState(conversationId, VideoState.STARTED)
             }
         }
     }

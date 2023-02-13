@@ -116,8 +116,10 @@ class DebugScreenViewModel
         logFileWriter.deleteAllLogFiles()
     }
 
-    fun restartSlowSyncForRecovery() = viewModelScope.launch {
-        restartSlowSyncProcessForRecoveryUseCase()
+    fun restartSlowSyncForRecovery() {
+        viewModelScope.launch {
+            restartSlowSyncProcessForRecovery()
+        }
     }
 
     fun setLoggingEnabledState(isEnabled: Boolean) {

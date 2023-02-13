@@ -50,6 +50,7 @@ import com.wire.kalium.logic.util.isGreaterThan
 import javax.inject.Inject
 
 // TODO: splits mapping into more classes
+@Suppress("TooManyFunctions")
 class MessageContentMapper @Inject constructor(
     private val messageResourceProvider: MessageResourceProvider,
     private val wireSessionImageLoader: WireSessionImageLoader,
@@ -81,6 +82,7 @@ class MessageContentMapper @Inject constructor(
         is MessageContent.ConversationRenamed -> mapConversationRenamedMessage(message.senderUserId, content, members)
         is MessageContent.TeamMemberRemoved -> mapTeamMemberRemovedMessage(content)
         is MessageContent.CryptoSessionReset -> mapResetSession(message.senderUserId, members)
+        is MessageContent.HistoryLost -> mapConversationHistoryLost()
     }
 
     private fun mapResetSession(
@@ -155,6 +157,8 @@ class MessageContentMapper @Inject constructor(
                 }
         }
     }
+
+    fun mapConversationHistoryLost(): UIMessageContent.SystemMessage = UIMessageContent.SystemMessage.HistoryLost()
 
     private fun mapRegularMessage(
         message: Message.Regular,
@@ -308,5 +312,4 @@ data class MessageResourceProvider(
 private fun String?.orUnknownName(): UIText = when {
     this != null -> UIText.DynamicString(this)
     else -> UIText.StringResource(R.string.username_unavailable_label)
-
 }

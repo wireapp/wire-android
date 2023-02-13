@@ -151,6 +151,7 @@ private fun getColorFilter(message: SystemMessage): ColorFilter? {
         is SystemMessage.CryptoSessionReset -> ColorFilter.tint(colorsScheme().onBackground)
         is SystemMessage.RenamedConversation -> ColorFilter.tint(colorsScheme().onBackground)
         is SystemMessage.TeamMemberRemoved -> ColorFilter.tint(colorsScheme().onBackground)
+        is SystemMessage.HistoryLost -> ColorFilter.tint(colorsScheme().onBackground)
     }
 }
 
@@ -211,6 +212,7 @@ private val SystemMessage.expandable
         is SystemMessage.RenamedConversation -> false
         is SystemMessage.TeamMemberRemoved -> false
         is SystemMessage.CryptoSessionReset -> false
+        is SystemMessage.HistoryLost -> false
     }
 
 private fun List<String>.toUserNamesListString(res: Resources) = when {
@@ -253,6 +255,7 @@ fun SystemMessage.annotatedString(
         is SystemMessage.RenamedConversation -> arrayOf(author.asString(res), additionalContent)
         is SystemMessage.TeamMemberRemoved -> arrayOf(content.userName)
         is SystemMessage.CryptoSessionReset -> arrayOf(author.asString(res))
+        is SystemMessage.HistoryLost -> arrayOf()
     }
     return res.stringWithStyledArgs(stringResId, normalStyle, boldStyle, normalColor, boldColor, *args)
 }

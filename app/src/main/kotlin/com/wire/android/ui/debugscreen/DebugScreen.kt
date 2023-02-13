@@ -75,6 +75,7 @@ fun DebugScreen() {
         onDeleteLogs = debugScreenViewModel::deleteLogs,
         navigateBack = debugScreenViewModel::navigateBack,
         onForceLatestDevelopmentApiChange = debugScreenViewModel::forceUpdateApiVersions,
+        restartSlowSyncForRecovery = debugScreenViewModel::restartSlowSyncForRecovery,
     )
 }
 
@@ -87,6 +88,7 @@ fun DebugContent(
     onDeleteLogs: () -> Unit,
     navigateBack: () -> Unit,
     onForceLatestDevelopmentApiChange: () -> Unit,
+    restartSlowSyncForRecovery: () -> Unit
 ) {
     val scrollState = rememberScrollState()
 
@@ -110,10 +112,10 @@ fun DebugContent(
                 MlsOptions(
                     keyPackagesCount = debugScreenState.keyPackagesCount,
                     mlsClientId = debugScreenState.mslClientId,
-                    mlsErrorMessage = debugScreenState.mlsErrorMessage
+                    mlsErrorMessage = debugScreenState.mlsErrorMessage,
+                    restartSlowSyncForRecovery = restartSlowSyncForRecovery
                 )
             }
-
             LogOptions(
                 deviceId = debugContentState.deviceId,
                 isLoggingEnabled = debugScreenState.isLoggingEnabled,
@@ -139,7 +141,8 @@ fun DebugContent(
 private fun MlsOptions(
     keyPackagesCount: Int,
     mlsClientId: String,
-    mlsErrorMessage: String
+    mlsErrorMessage: String,
+    restartSlowSyncForRecovery: () -> Unit
 ) {
     if (mlsErrorMessage.isNotEmpty()) {
         SettingsItem(
@@ -157,6 +160,14 @@ private fun MlsOptions(
 
             SettingsItem(
                 title = stringResource(R.string.label_mls_client_id, mlsClientId)
+            )
+            SettingsItem(
+                title = stringResource(R.string.label_restart_slowsync_for_recovery),
+                trailingIcon = R.drawable.ic_input_mandatory,
+                onIconPressed = Clickable(
+                    enabled = true,
+                    onClick = restartSlowSyncForRecovery
+                )
             )
         }
     }
@@ -327,6 +338,3 @@ data class DebugContentState(
         context.startActivity(intent)
     }
 }
-
-
-

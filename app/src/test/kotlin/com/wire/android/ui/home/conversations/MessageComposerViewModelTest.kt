@@ -203,7 +203,6 @@ class MessageComposerViewModelTest {
         coVerify(inverse = true) { arrangement.sendAssetMessage.invoke(any(), any(), any(), any(), any(), any(), any()) }
     }
 
-
     @Test
     fun `given a user sends an image message larger than 15MB, when invoked, then sendAssetMessageUseCase isn't called`() = runTest {
         // Given

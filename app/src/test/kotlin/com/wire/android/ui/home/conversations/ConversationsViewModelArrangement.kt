@@ -103,7 +103,6 @@ internal class ConversationsViewModelArrangement {
 
         every { pingRinger.ping(any(), any()) } returns Unit
         coEvery { sendKnockUseCase(any(), any()) } returns Either.Right(Unit)
-
     }
 
     @MockK

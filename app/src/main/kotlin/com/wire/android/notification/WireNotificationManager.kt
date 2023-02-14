@@ -74,9 +74,29 @@ class WireNotificationManager @Inject constructor(
 
     private val scope = CoroutineScope(SupervisorJob() + dispatcherProvider.default())
     private val fetchOnceMutex = Mutex()
-    private val fetchOnceJobs = hashMapOf<String, Job>()
+    private val fetchOnceJobs = hashMapOf<UserId, Job>()
+    private val fetchCallsOnceJobs = hashMapOf<UserId, Job>()
     private val observingWhileRunningJobs = hashMapOf<UserId, ObservingJobs>()
     private val observingPersistentlyJobs = hashMapOf<UserId, ObservingJobs>()
+
+    /**
+     * Observes all the Message and Call notifications while app is running
+     */
+    suspend fun observeNotificationsAndCallsWhileRunning(
+        userIds: List<UserId>,
+        scope: CoroutineScope,
+        doIfCallCameAndAppVisible: (Call) -> Unit
+    ) = observeNotificationsAndCalls(userIds, scope, doIfCallCameAndAppVisible, observingWhileRunningJobs)
+
+    /**
+     * Observes all the Message and Call notifications persistently.
+     * Use for Persistent WebSocket connection only.
+     */
+    suspend fun observeNotificationsAndCallsPersistently(
+        userIds: List<UserId>,
+        scope: CoroutineScope,
+        doIfCallCameAndAppVisible: (Call) -> Unit
+    ) = observeNotificationsAndCalls(userIds, scope, doIfCallCameAndAppVisible, observingPersistentlyJobs)
 
     /**
      * Become online, process all the Pending events,
@@ -90,9 +110,22 @@ class WireNotificationManager @Inject constructor(
      * @param userIdValue String value param of QualifiedID of the User that need to check Notifications for
      */
     suspend fun fetchAndShowNotificationsOnce(userIdValue: String) {
-        val jobForUser = fetchOnceMutex.withLock {
+        val userId = checkIfUserIsAuthenticated(userIdValue) ?: return
+
+        val syncAndNotificationJobForUser = fetchAndShowMessageNotificationsJob(userId)
+        val callsJobForUser = checkCallsNotificationOnceJob(userId)
+
+        // Join the jobs for the user, waiting for its completion
+        syncAndNotificationJobForUser?.start()
+        syncAndNotificationJobForUser?.join()
+        callsJobForUser.start()
+        callsJobForUser.join()
+    }
+
+    private suspend fun fetchAndShowMessageNotificationsJob(userId: UserId): Job? =
+        fetchOnceMutex.withLock {
             // Use the lock to create a new coroutine if needed
-            val currentJobForUser = fetchOnceJobs[userIdValue]
+            val currentJobForUser = fetchOnceJobs[userId]
             val isJobRunningForUser = currentJobForUser?.run {
                 // Coroutine started, or didn't start yet, and it's waiting to be started
                 isActive || !isCompleted
@@ -100,57 +133,70 @@ class WireNotificationManager @Inject constructor(
             if (isJobRunningForUser) {
                 // Return the currently existing job if it's active
                 appLogger.d(
-                    "$TAG Already processing notifications for user=${userIdValue.obfuscateId()}, and joining original execution"
+                    "$TAG Already processing notifications for user=${userId.value.obfuscateId()}, and joining original execution"
                 )
                 currentJobForUser
             } else {
                 // Create a new job for this user
-                appLogger.d("$TAG Starting to processing notifications for user=${userIdValue.obfuscateId()}")
+                appLogger.d("$TAG Starting to processing notifications for user=${userId.value.obfuscateId()}")
                 val newJob = scope.launch(start = CoroutineStart.LAZY) {
-                    triggerSyncForUserIfAuthenticated(userIdValue)
+                    triggerSyncForUserIfAuthenticated(userId)
                 }
-                fetchOnceJobs[userIdValue] = newJob
+                fetchOnceJobs[userId] = newJob
                 newJob
             }
         }
-        // Join the job for the user, waiting for its completion
-        jobForUser?.start()
-        jobForUser?.join()
+
+    private suspend fun triggerSyncForUserIfAuthenticated(userId: UserId) {
+        appLogger.d("$TAG checking the notifications once")
+
+        val observeMessagesJob = observeMessageNotificationsOnceJob(userId)
+
+        appLogger.d("$TAG start syncing")
+        connectionPolicyManager.handleConnectionOnPushNotification(userId)
+
+        observeMessagesJob?.cancel("$TAG checked the notifications once, canceling observing.")
     }
 
-    private suspend fun triggerSyncForUserIfAuthenticated(userIdValue: String) {
-        checkIfUserIsAuthenticated(userId = userIdValue)?.let { userId ->
-            appLogger.d("$TAG checking the notifications once")
+    private suspend fun observeMessageNotificationsOnceJob(userId: UserId): Job? {
+        val isMessagesAlreadyObserving =
+            observingWhileRunningJobs[userId]?.run { messagesJob.isActive }
+                ?: observingPersistentlyJobs[userId]?.run { messagesJob.isActive }
+                ?: false
 
-            val isMessagesAlreadyObserving =
-                observingWhileRunningJobs[userId]?.run { messagesJob.isActive }
-                    ?: observingPersistentlyJobs[userId]?.run { messagesJob.isActive }
-                    ?: false
-
-            val observeMessagesJob = if (isMessagesAlreadyObserving) {
-                // notifications are already observed, just need to connect to websocket.
-                appLogger.d("$TAG checking the notifications once, but notifications are already observed, no need to start a new job")
-                null
-            } else {
-                scope.launch { observeMessageNotifications(userId, MutableStateFlow(CurrentScreen.InBackground)) }
-            }
-
-            appLogger.d("$TAG start syncing")
-            connectionPolicyManager.handleConnectionOnPushNotification(userId)
-
-            appLogger.d("$TAG checking calls once")
-            try {
-                withTimeout(8.seconds) {
-                    fetchAndShowCallNotificationsOnce(userId)
-                }
-            } catch (timeout: TimeoutCancellationException) {
-                appLogger.e("$TAG Fetching call notifications was stopped due to timeout", timeout)
-            }
-
-            appLogger.d("$TAG checked the notifications once, canceling observing.")
-            observeMessagesJob?.cancel("$TAG checked the notifications once, canceling observing.")
+        return if (isMessagesAlreadyObserving) {
+            // notifications are already observed, just need to connect to websocket.
+            appLogger.d("$TAG checking the notifications once, but notifications are already observed, no need to start a new job")
+            null
+        } else {
+            scope.launch { observeMessageNotifications(userId, MutableStateFlow(CurrentScreen.InBackground)) }
         }
     }
+
+    private suspend fun checkCallsNotificationOnceJob(userId: UserId): Job =
+        fetchOnceMutex.withLock {
+            val callsJob = scope.launch(start = CoroutineStart.LAZY) {
+
+                appLogger.d("$TAG checking calls once")
+                try {
+                    withTimeout(8.seconds) {
+                        fetchAndShowCallNotificationsOnce(userId)
+                    }
+                } catch (timeout: TimeoutCancellationException) {
+                    appLogger.d("$TAG Fetching call notifications was stopped due to timeout", timeout)
+                }
+            }
+            fetchCallsOnceJobs[userId]?.let {
+                appLogger.d("$TAG cancelling prev. calls job")
+                it.cancel()
+                // if the calls have been already observed (fetchCallsOnceJobs[userId] != null),
+                // we need to start observing it again immediately to not loose a call.
+                callsJob.start()
+            }
+            fetchCallsOnceJobs[userId] = callsJob
+
+            callsJob
+        }
 
     private suspend fun fetchAndShowCallNotificationsOnce(userId: QualifiedID) {
         coreLogic.getSessionScope(userId)
@@ -165,19 +211,14 @@ class WireNotificationManager @Inject constructor(
     }
 
     /**
-     * Showing notifications for some other user then Current one requires to change user on opening Notification,
-     * which is not implemented yet.
-     * So for now we show notifications only for Current User
-     *
-     * return the userId if the user is authenticated and null otherwise
+     * @return the userId if the user is authenticated on that device and null otherwise
      */
     @Suppress("NestedBlockDepth")
     private suspend fun checkIfUserIsAuthenticated(userId: String): QualifiedID? =
         coreLogic.globalScope { getSessions() }.let { sessionsResult ->
             when (sessionsResult) {
-                is GetAllSessionsResult.Success -> {
-                    return@let sessionsResult.sessions.firstOrNull { it.userId.value == userId }?.userId
-                }
+                is GetAllSessionsResult.Success ->
+                    sessionsResult.sessions.firstOrNull { it.userId.value == userId }?.userId
 
                 is GetAllSessionsResult.Failure.Generic -> {
                     appLogger.e("get sessions failed ${sessionsResult.genericFailure} ")
@@ -187,18 +228,6 @@ class WireNotificationManager @Inject constructor(
                 GetAllSessionsResult.Failure.NoSessionFound -> null
             }
         }
-
-    suspend fun observeNotificationsAndCallsWhileRunning(
-        userIds: List<UserId>,
-        scope: CoroutineScope,
-        doIfCallCameAndAppVisible: (Call) -> Unit
-    ) = observeNotificationsAndCalls(userIds, scope, doIfCallCameAndAppVisible, observingWhileRunningJobs)
-
-    suspend fun observeNotificationsAndCallsPersistently(
-        userIds: List<UserId>,
-        scope: CoroutineScope,
-        doIfCallCameAndAppVisible: (Call) -> Unit
-    ) = observeNotificationsAndCalls(userIds, scope, doIfCallCameAndAppVisible, observingPersistentlyJobs)
 
     /**
      * Infinitely listen for the new IncomingCalls, CurrentScreen changes and Message Notifications

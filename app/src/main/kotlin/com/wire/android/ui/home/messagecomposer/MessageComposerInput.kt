@@ -255,7 +255,7 @@ data class MessageComposerInputActions(
     val onEditSaveButtonClicked: () -> Unit = {},
     val onEditCancelButtonClicked: () -> Unit = {},
     val onPingClicked: () -> Unit = {}
-    )
+)
 
 @Composable
 private fun generatePreviewWithState(state: MessageComposeInputState) {

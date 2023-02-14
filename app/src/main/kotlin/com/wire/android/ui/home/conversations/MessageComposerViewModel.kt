@@ -28,7 +28,6 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.mapper.ContactMapper
-import com.wire.android.media.CallRinger
 import com.wire.android.media.PingRinger
 import com.wire.android.model.ImageAsset.PrivateAsset
 import com.wire.android.model.SnackBarMessage

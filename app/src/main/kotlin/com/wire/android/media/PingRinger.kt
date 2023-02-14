@@ -63,19 +63,18 @@ class PingRinger @Inject constructor(private val context: Context) {
         mediaPlayer?.start()
     }
 
-
     @Suppress("NestedBlockDepth")
     private fun vibrateIfNeeded(isReceivingPing: Boolean) {
         if (isReceivingPing) {
             vibrator?.let {
                 if (!it.hasVibrator()) {
-                    appLogger.i("Device does not support vibration");
+                    appLogger.i("Device does not support vibration")
                     return
                 }
                 val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager?
                 val ringerMode = audioManager?.ringerMode
                 if (ringerMode == AudioManager.RINGER_MODE_VIBRATE) {
-                    appLogger.i("Starting vibration");
+                    appLogger.i("Starting vibration")
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                         it.vibrate(VibrationEffect.createWaveform(VIBRATE_PATTERN, VibrationEffect.EFFECT_DOUBLE_CLICK))
                     } else {
@@ -83,7 +82,7 @@ class PingRinger @Inject constructor(private val context: Context) {
                         it.vibrate(VIBRATE_PATTERN, VibrationEffect.EFFECT_DOUBLE_CLICK)
                     }
                 } else {
-                    appLogger.i("Skipping vibration");
+                    appLogger.i("Skipping vibration")
                 }
             }
         }

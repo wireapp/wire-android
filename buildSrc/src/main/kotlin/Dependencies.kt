@@ -102,7 +102,7 @@ object Libraries {
         const val splashscreen = "1.0.0"
         const val coil = "2.2.2"
         const val exif = "1.3.5"
-        const val firebaseBOM = "29.3.1"
+        const val firebaseBOM = "31.2.0"
         const val dataDog = "1.14.1"
         const val ktxDateTime = "0.4.0"
         const val ktxSerialization = "1.3.2"

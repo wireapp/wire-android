@@ -22,12 +22,19 @@ package com.wire.android.ui.calling
 
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.ui.calling.model.UICallParticipant
 import com.wire.android.ui.calling.ongoing.OngoingCallViewModel
+import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.util.CurrentScreenManager
+import com.wire.kalium.logic.data.call.CallClient
+import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.RequestVideoStreamsUseCase
 import io.mockk.MockKAnnotations
+import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.Dispatchers
@@ -37,6 +44,7 @@ import kotlinx.coroutines.test.TestCoroutineScheduler
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.setMain
 import org.junit.After
+import org.junit.Test
 import org.junit.jupiter.api.BeforeEach
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -82,8 +90,57 @@ class OngoingCallViewModelTest {
         )
     }
 
+    @Test
+    fun givenParticipantsList_WhenRequestingVideoStream_ThenRequestItForOnlyParticipantsWithVideoEnabled() {
+        val expectedClients = listOf(
+            CallClient(participant1.id.toString(), participant1.clientId),
+            CallClient(participant3.id.toString(), participant3.clientId)
+        )
+        coEvery { requestVideoStreams(conversationId = conversationId, expectedClients) } returns Unit
+
+        ongoingCallViewModel.requestVideoStreams(participants)
+
+        coVerify(exactly = 1) { requestVideoStreams(conversationId, expectedClients) }
+    }
+
     @After
     fun tearDown() {
         Dispatchers.resetMain()
     }
+
+    companion object {
+        val conversationId = ConversationId("some-dummy-value", "some.dummy.domain")
+        private val participant1 = UICallParticipant(
+            id = QualifiedID("value1", "domain"),
+            clientId = "client-id1",
+            name = "name1",
+            isMuted = false,
+            isSpeaking = false,
+            isCameraOn = true,
+            isSharingScreen = false,
+            membership = Membership.None
+        )
+        private val participant2 = UICallParticipant(
+            id = QualifiedID("value2", "domain"),
+            clientId = "client-id2",
+            name = "name2",
+            isMuted = false,
+            isSpeaking = false,
+            isCameraOn = false,
+            isSharingScreen = false,
+            membership = Membership.None
+        )
+        private val participant3 = UICallParticipant(
+            id = QualifiedID("value3", "domain"),
+            clientId = "client-id3",
+            name = "name3",
+            isMuted = false,
+            isSpeaking = false,
+            isCameraOn = true,
+            isSharingScreen = true,
+            membership = Membership.None
+        )
+        val participants = listOf(participant1, participant2, participant3)
+    }
+
 }

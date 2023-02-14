@@ -300,19 +300,39 @@ class WireNotificationManagerTest {
         }
 
     @Test
-    fun givenASingleUserId_whenNotificationReceivedAndNotCurrentUser_shouldSkipNotification() = runTest(dispatcherProvider.main()) {
+    fun givenASingleUserId_whenNotificationReceivedAndNoSuchUser_shouldSkipNotification() = runTest(dispatcherProvider.main()) {
         val otherAuthSession = provideAccountInfo("other_id")
         val userId = otherAuthSession.userId
         val (arrangement, manager) = Arrangement().withMessageNotifications(listOf())
             .withSession(GetAllSessionsResult.Success(listOf(TEST_AUTH_TOKEN)))
-            .withCurrentUserSession(provideCurrentValidUserSession(TEST_AUTH_TOKEN)).withIncomingCalls(listOf())
-            .withCurrentScreen(CurrentScreen.InBackground).arrange()
+            .withCurrentUserSession(provideCurrentValidUserSession(TEST_AUTH_TOKEN))
+            .withIncomingCalls(listOf())
+            .withCurrentScreen(CurrentScreen.InBackground)
+            .arrange()
 
         manager.fetchAndShowNotificationsOnce(userId.value)
         advanceUntilIdle()
 
         coVerify(exactly = 0) { arrangement.connectionPolicyManager.handleConnectionOnPushNotification(userId) }
     }
+
+    @Test
+    fun givenASingleUserId_whenNotificationReceivedAndNotCurrentUserButExistOnThatDevice_shouldCheckNotification() =
+        runTest(dispatcherProvider.main()) {
+            val otherAuthSession = provideAccountInfo("other_id")
+            val userId = otherAuthSession.userId
+            val (arrangement, manager) = Arrangement().withMessageNotifications(listOf())
+                .withSession(GetAllSessionsResult.Success(listOf(TEST_AUTH_TOKEN, otherAuthSession)))
+                .withCurrentUserSession(provideCurrentValidUserSession(TEST_AUTH_TOKEN))
+                .withIncomingCalls(listOf())
+                .withCurrentScreen(CurrentScreen.InBackground)
+                .arrange()
+
+            manager.fetchAndShowNotificationsOnce(userId.value)
+            advanceUntilIdle()
+
+            coVerify(exactly = 1) { arrangement.connectionPolicyManager.handleConnectionOnPushNotification(userId) }
+        }
 
     @Test
     fun givenSomeEstablishedCalls_whenAppIsNotVisible_thenOngoingCallServiceRun() = runTestWithCancellation(dispatcherProvider.main()) {

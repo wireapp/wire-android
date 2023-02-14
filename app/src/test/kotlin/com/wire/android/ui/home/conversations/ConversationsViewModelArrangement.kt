@@ -26,6 +26,7 @@ import com.wire.android.config.mockUri
 import com.wire.android.framework.FakeKaliumFileSystem
 import com.wire.android.framework.TestConversation
 import com.wire.android.mapper.ContactMapper
+import com.wire.android.media.PingRinger
 import com.wire.android.model.UserAvatarData
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.conversations.model.MessageHeader
@@ -64,6 +65,7 @@ import com.wire.kalium.logic.feature.conversation.ObserveConversationInteraction
 import com.wire.kalium.logic.feature.conversation.ObserveSecurityClassificationLabelUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationReadDateUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
+import com.wire.kalium.logic.feature.message.SendKnockUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
 import com.wire.kalium.logic.feature.user.IsFileSharingEnabledUseCase
@@ -98,6 +100,10 @@ internal class ConversationsViewModelArrangement {
         every {
             qualifiedIdMapper.fromStringToQualifiedID("some-dummy-value@some.dummy.domain")
         } returns QualifiedID("some-dummy-value", "some.dummy.domain")
+
+        every { pingRinger.ping(any(), any()) } returns Unit
+        coEvery { sendKnockUseCase(any(), any()) } returns Either.Right(Unit)
+
     }
 
     @MockK
@@ -143,6 +149,9 @@ internal class ConversationsViewModelArrangement {
     private lateinit var updateConversationReadDateUseCase: UpdateConversationReadDateUseCase
 
     @MockK
+    lateinit var sendKnockUseCase: SendKnockUseCase
+
+    @MockK
     private lateinit var observeSecurityClassificationType: ObserveSecurityClassificationLabelUseCase
 
     @MockK
@@ -150,6 +159,9 @@ internal class ConversationsViewModelArrangement {
 
     @MockK
     private lateinit var contactMapper: ContactMapper
+
+    @MockK
+    lateinit var pingRinger: PingRinger
 
     @MockK
     private lateinit var imageUtil: ImageUtil
@@ -177,7 +189,9 @@ internal class ConversationsViewModelArrangement {
             observeSecurityClassificationLabel = observeSecurityClassificationType,
             contactMapper = contactMapper,
             membersToMention = membersToMention,
-            imageUtil = imageUtil
+            imageUtil = imageUtil,
+            pingRinger = pingRinger,
+            sendKnockUseCase = sendKnockUseCase
         )
     }
 

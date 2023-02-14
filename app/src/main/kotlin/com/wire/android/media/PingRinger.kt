@@ -16,7 +16,6 @@ import javax.inject.Singleton
 @Singleton
 class PingRinger @Inject constructor(private val context: Context) {
 
-    private var mediaPlayer: MediaPlayer? = null
     private var vibrator: Vibrator? = null
 
     init {
@@ -32,26 +31,30 @@ class PingRinger @Inject constructor(private val context: Context) {
 
     private fun initVibrator() {
         vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            val vibratorManager = context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
-            vibratorManager.defaultVibrator
+            val vibratorManager = context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager?
+            vibratorManager?.defaultVibrator
         } else {
             @Suppress("DEPRECATION")
-            context.getSystemService(VIBRATOR_SERVICE) as Vibrator
+            context.getSystemService(VIBRATOR_SERVICE) as Vibrator?
         }
     }
 
-    private fun createMediaPlayer(resource: Int) {
-        val audioSessionId = 0
-        mediaPlayer = MediaPlayer.create(
+    private fun createMediaPlayer(resource: Int): MediaPlayer? {
+        val player = MediaPlayer.create(
             context,
             resource,
             AudioAttributes.Builder()
                 .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
                 .setUsage(AudioAttributes.USAGE_NOTIFICATION)
                 .build(),
-            audioSessionId
+            AudioManager.STREAM_NOTIFICATION
         )
-        mediaPlayer?.isLooping = false
+        return if (player != null) {
+            player.isLooping = false
+            player
+        } else {
+            null
+        }
     }
 
     fun ping(
@@ -59,8 +62,7 @@ class PingRinger @Inject constructor(private val context: Context) {
         isReceivingPing: Boolean = true
     ) {
         vibrateIfNeeded(isReceivingPing)
-        createMediaPlayer(resource)
-        mediaPlayer?.start()
+        createMediaPlayer(resource)?.start()
     }
 
     @Suppress("NestedBlockDepth")

@@ -360,7 +360,7 @@ enum class NavigationItem(
             val isGuestAccessAllowed: String = arguments.filterIsInstance<Boolean>().firstOrNull()?.toString()
                 ?: "{$EXTRA_EDIT_GUEST_ACCESS_IS_GUEST_ACCESS_ALLOWED}"
 
-            val isServicesAllowed: String = arguments.filterIsInstance<Boolean>().firstOrNull()?.toString()
+            val isServicesAllowed: String = arguments.filterIsInstance<Boolean>().lastOrNull()?.toString()
                 ?: "{$EXTRA_EDIT_GUEST_ACCESS_IS_SERVICES_ALLOWED}"
 
             val isUpdatingGuestAccessAllowed: String = arguments.filterIsInstance<Boolean>().lastOrNull()?.toString()

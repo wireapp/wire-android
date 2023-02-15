@@ -48,14 +48,11 @@ class NotificationChannelsManager @Inject constructor(
         )
     }
 
-    fun createNotificationChannels(allUsers: List<SelfUser>) {
-        appLogger.i("${TAG}: creating all the channels for ${allUsers.size} users")
+    // Creating user-specific NotificationChannels for each user, they will be grouped by User in App Settings.
+    fun createUserNotificationChannels(allUsers: List<SelfUser>) {
+        appLogger.i("${TAG}: creating all the notification channels for ${allUsers.size} users")
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
 
-        // creating regular NotificationChannels, that are common for all users and shouldn't be grouped.
-        createRegularChannel(NotificationConstants.WEB_SOCKET_CHANNEL_ID, NotificationConstants.WEB_SOCKET_CHANNEL_NAME)
-
-        // creating user-specific NotificationChannels for each user, they will be grouped by User in App Settings.
         allUsers.forEach { user ->
             val groupId = createNotificationChannelGroup(user.id, user.handle ?: user.name ?: user.id.value)
 
@@ -70,7 +67,7 @@ class NotificationChannelsManager @Inject constructor(
      * Use it on logout.
      */
     fun deleteChannelGroup(userId: UserId) {
-        appLogger.i("${TAG}: deleting notification channels for ${userId.toString().obfuscateId()} user")
+        appLogger.i("$TAG: deleting notification channels for ${userId.toString().obfuscateId()} user")
         notificationManagerCompat.deleteNotificationChannelGroup(NotificationConstants.getChanelGroupIdForUser(userId))
     }
 
@@ -140,8 +137,6 @@ class NotificationChannelsManager @Inject constructor(
 
         notificationManagerCompat.createNotificationChannel(notificationChannel)
     }
-
-    fun shouldCreateChannel(channelId: String): Boolean = notificationManagerCompat.getNotificationChannel(channelId) == null
 
     /**
      * Tricky bug: No documentation whatsoever, but these values affect how the system cancels or not the vibration of the notification

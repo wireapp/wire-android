@@ -79,12 +79,11 @@ class ConnectionPolicyManager @Inject constructor(
         CoroutineScope(dispatcherProvider.default()).launch {
             combine(
                 currentScreenManager.isAppOnForegroundFlow(),
-                currentSessionFlow(),
                 migrationManager.isMigrationCompletedFlow(),
-                ::Triple
-            ).collect { (isOnForeground, currentSession, isMigrationCompleted) ->
+                ::Pair
+            ).collect { (isOnForeground, isMigrationCompleted) ->
                 if (isMigrationCompleted)
-                    setPolicyForSessions(allValidSessions(), currentSession, isOnForeground)
+                    setPolicyForSessions(allValidSessions(), isOnForeground)
             }
         }
     }
@@ -125,39 +124,25 @@ class ConnectionPolicyManager @Inject constructor(
     private suspend fun UserSessionScope.downgradePolicyIfNeeded(
         userId: UserId
     ) {
-        val isCurrentSession = isCurrentSession(userId)
         val isAppOnForeground = currentScreenManager.isAppOnForegroundFlow().first()
-        logger.d("isCurrentSession = $isCurrentSession; hasInitialisedUI = $isCurrentSession")
-        val shouldKeepLivePolicy = isCurrentSession && isAppOnForeground
-        if (!shouldKeepLivePolicy) {
-            logger.d("$TAG Downgrading policy as conditions to KEEP_ALIVE are not met")
+        logger.d("$TAG isAppOnForeground = $isAppOnForeground")
+        if (!isAppOnForeground) {
+            logger.d("$TAG ${userId.toString().obfuscateId()} Downgrading policy as conditions to KEEP_ALIVE are not met")
             setConnectionPolicy(ConnectionPolicy.DISCONNECT_AFTER_PENDING_EVENTS)
         }
     }
 
-    private suspend fun isCurrentSession(userId: UserId): Boolean = coroutineScope.async {
-        val isCurrentSession = coreLogic.getGlobalScope().sessionRepository.currentSession().fold({
-            // Assume so in case of failure
-            true
-        }, {
-            it.userId == userId
-        })
-        return@async isCurrentSession
-    }.await()
-
     private suspend fun setPolicyForSessions(
         userIdList: List<QualifiedID>,
-        currentSessionUserId: QualifiedID?,
         wasUIInitialized: Boolean
     ) = userIdList.forEach { userId ->
-        val isCurrentSession = userId == currentSessionUserId
         val isWebSocketEnabled = coreLogic.getSessionScope(userId).getPersistentWebSocketStatus()
-        val connectionPolicy = if (isCurrentSession && wasUIInitialized) {
+        val connectionPolicy = if (wasUIInitialized) {
             ConnectionPolicy.KEEP_ALIVE
         } else {
-            if (!isWebSocketEnabled){
+            if (!isWebSocketEnabled) {
                 ConnectionPolicy.DISCONNECT_AFTER_PENDING_EVENTS
-            }else{
+            } else {
                 ConnectionPolicy.KEEP_ALIVE
             }
         }

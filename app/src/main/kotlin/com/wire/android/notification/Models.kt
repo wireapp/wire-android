@@ -25,7 +25,6 @@ import com.wire.android.R
 import com.wire.kalium.logic.data.notification.LocalNotificationCommentType
 import com.wire.kalium.logic.data.notification.LocalNotificationConversation
 import com.wire.kalium.logic.data.notification.LocalNotificationMessage
-import kotlinx.datetime.Instant
 
 data class NotificationConversation(
     val id: String,

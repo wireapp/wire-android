@@ -37,8 +37,6 @@ import com.wire.kalium.logic.feature.client.ObserveCurrentClientIdUseCase
 import com.wire.kalium.logic.feature.keypackage.MLSKeyPackageCountResult
 import com.wire.kalium.logic.feature.keypackage.MLSKeyPackageCountUseCase
 import com.wire.kalium.logic.feature.user.IsMLSEnabledUseCase
-import com.wire.kalium.logic.feature.user.loggingStatus.EnableLoggingUseCase
-import com.wire.kalium.logic.feature.user.loggingStatus.IsLoggingEnabledUseCase
 import com.wire.kalium.logic.sync.incremental.RestartSlowSyncProcessForRecoveryUseCase
 import com.wire.kalium.logic.sync.periodic.UpdateApiVersionsScheduler
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -69,9 +67,7 @@ class DebugScreenViewModel
     val logPath: String = logFileWriter.activeLoggingFile.absolutePath
 
     var state by mutableStateOf(
-        DebugScreenState(
-            mlsEnabled = isMLSEnabledUseCase()
-        )
+        DebugScreenState()
     )
 
     init {

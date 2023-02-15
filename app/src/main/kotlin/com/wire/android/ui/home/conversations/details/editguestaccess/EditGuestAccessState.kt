@@ -27,6 +27,8 @@ data class EditGuestAccessState(
     val isUpdatingGuestAccessAllowed: Boolean = false,
     val changeGuestOptionConfirmationRequired: Boolean = false,
     val isUpdating: Boolean = false,
+    val isGeneratingGuestRoomLink: Boolean = false,
+    val isFailedToGenerateGuestRoomLink: Boolean = false,
     val error: Error = Error.None,
 ) {
     sealed interface Error {

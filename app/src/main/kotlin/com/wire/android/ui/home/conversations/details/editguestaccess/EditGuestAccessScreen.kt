@@ -39,6 +39,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
+import com.wire.android.ui.common.WireDialog
+import com.wire.android.ui.common.WireDialogButtonProperties
+import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.rememberTopBarElevationState
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
@@ -79,7 +82,7 @@ fun EditGuestAccessScreen(
                 }
             }
             item { FolderHeader(name = stringResource(id = R.string.folder_label_guest_link)) }
-            item { CreateLinkItem() }
+            item { CreateLinkItem(editGuestAccessViewModel::onGenerateGuestRoomLink) }
         }
     }
     with(editGuestAccessViewModel) {
@@ -89,11 +92,18 @@ fun EditGuestAccessScreen(
                 onDialogDismiss = ::onGuestDialogDismiss
             )
         }
+        if (editGuestAccessState.isFailedToGenerateGuestRoomLink) {
+            GenerateGuestRoomLinkFailureDialog(
+                onDismiss = ::onGenerateGuestRoomFailureDialogDismiss,
+            )
+        }
     }
 }
 
 @Composable
-fun CreateLinkItem() {
+fun CreateLinkItem(
+    onCreateLink: () -> Unit
+) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
@@ -118,7 +128,7 @@ fun CreateLinkItem() {
             WirePrimaryButton(
                 text = stringResource(id = R.string.guest_link_button_create_link),
                 fillMaxWidth = true,
-                onClick = {},
+                onClick = onCreateLink,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(
@@ -140,6 +150,20 @@ private fun DisableGuestConfirmationDialog(onConfirm: () -> Unit, onDialogDismis
     )
 }
 
+@Composable
+private fun GenerateGuestRoomLinkFailureDialog(onDismiss: () -> Unit) {
+    WireDialog(
+        title = stringResource(id = R.string.guest_link_button_create_link),
+        text = stringResource(id = R.string.label_general_error),
+        onDismiss = onDismiss,
+        optionButton1Properties = WireDialogButtonProperties(
+            onClick = onDismiss,
+            text = stringResource(id = R.string.label_ok),
+            type = WireDialogButtonType.Secondary,
+        )
+    )
+}
+
 @Preview
 @Composable
 fun PreviewEditGuestAccessScreen() {
@@ -152,8 +176,14 @@ fun PreviewDisableGuestConformationDialog() {
     DisableGuestConfirmationDialog({}, {})
 }
 
+@Preview()
+@Composable
+fun PreviewGenerateGuestRoomLinkFailureDialog() {
+    GenerateGuestRoomLinkFailureDialog({})
+}
+
 @Preview
 @Composable
 fun PreviewCreateLinkItem() {
-    CreateLinkItem()
+    CreateLinkItem {}
 }

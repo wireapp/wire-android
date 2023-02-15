@@ -35,6 +35,8 @@ import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.feature.conversation.UpdateConversationAccessRoleUseCase
+import com.wire.kalium.logic.feature.conversation.guestroomlink.GenerateGuestRoomLinkResult
+import com.wire.kalium.logic.feature.conversation.guestroomlink.GenerateGuestRoomLinkUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -45,6 +47,7 @@ class EditGuestAccessViewModel @Inject constructor(
     private val navigationManager: NavigationManager,
     private val dispatcher: DispatcherProvider,
     private val updateConversationAccessRole: UpdateConversationAccessRoleUseCase,
+    private val generateGuestRoomLink: GenerateGuestRoomLinkUseCase,
     savedStateHandle: SavedStateHandle,
     qualifiedIdMapper: QualifiedIdMapper,
 ) : ViewModel() {
@@ -95,11 +98,28 @@ class EditGuestAccessViewModel @Inject constructor(
                             error = EditGuestAccessState.Error.Failure(it.cause)
                         )
                     )
+
                     is UpdateConversationAccessRoleUseCase.Result.Success -> Unit
                 }
                 updateState(editGuestAccessState.copy(isUpdating = false))
             }
         }
+    }
+
+    fun onGenerateGuestRoomLink() {
+        viewModelScope.launch {
+            editGuestAccessState = editGuestAccessState.copy(isGeneratingGuestRoomLink = true)
+            generateGuestRoomLink(conversationId).also {
+                editGuestAccessState = editGuestAccessState.copy(isGeneratingGuestRoomLink = false)
+                if (it is GenerateGuestRoomLinkResult.Failure) {
+                    editGuestAccessState = editGuestAccessState.copy(isFailedToGenerateGuestRoomLink = true)
+                }
+            }
+        }
+    }
+
+    fun onGenerateGuestRoomFailureDialogDismiss() {
+        editGuestAccessState = editGuestAccessState.copy(isFailedToGenerateGuestRoomLink = false)
     }
 
     fun onGuestDialogDismiss() {

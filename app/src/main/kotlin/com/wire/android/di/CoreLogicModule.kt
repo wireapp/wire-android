@@ -65,6 +65,8 @@ import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleUs
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationReadDateUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationReceiptModeUseCase
+import com.wire.kalium.logic.feature.conversation.guestroomlink.GenerateGuestRoomLinkUseCase
+import com.wire.kalium.logic.feature.conversation.guestroomlink.GetGuestRoomLinkUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.GetMessageByIdUseCase
 import com.wire.kalium.logic.feature.message.GetNotificationsUseCase
@@ -939,4 +941,21 @@ class UseCaseModule {
     @ViewModelScoped
     @Provides
     fun provideImageUtil(): ImageUtil = ImageUtil
+
+    @ViewModelScoped
+    @Provides
+    fun provideGenerateGuestRoomLinkUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): GenerateGuestRoomLinkUseCase =
+        coreLogic.getSessionScope(currentAccount).conversations.generateGuestRoomLink
+
+    @ViewModelScoped
+    @Provides
+    fun provideGetGuestRoomLinkUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): GetGuestRoomLinkUseCase =
+        coreLogic.getSessionScope(currentAccount).conversations.getGuestRoomLink
+
 }

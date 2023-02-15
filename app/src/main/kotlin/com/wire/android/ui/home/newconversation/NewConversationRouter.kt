@@ -30,14 +30,11 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.wire.android.R
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
-import com.wire.android.ui.home.conversations.search.NewConversationSnackbarState
 import com.wire.android.ui.home.conversations.search.SearchPeopleRouter
 import com.wire.android.ui.home.newconversation.common.Screen
 import com.wire.android.ui.home.newconversation.groupOptions.GroupOptionScreen

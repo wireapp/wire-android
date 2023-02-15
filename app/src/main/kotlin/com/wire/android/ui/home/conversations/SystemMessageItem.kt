@@ -21,7 +21,9 @@
 package com.wire.android.ui.home.conversations
 
 import android.content.res.Resources
-import androidx.compose.animation.Crossfade
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -108,21 +110,26 @@ fun SystemMessageItem(message: SystemMessage) {
         Column {
             val context = LocalContext.current
             var expanded: Boolean by remember { mutableStateOf(false) }
-            Crossfade(targetState = expanded) {
-                Text(
-                    modifier = Modifier.defaultMinSize(minHeight = dimensions().spacing20x),
-                    style = MaterialTheme.wireTypography.body01,
-                    lineHeight = MaterialTheme.wireTypography.body02.lineHeight,
-                    text = message.annotatedString(
-                        res = context.resources,
-                        expanded = it,
-                        normalStyle = MaterialTheme.wireTypography.body01,
-                        boldStyle = MaterialTheme.wireTypography.body02,
-                        normalColor = MaterialTheme.wireColorScheme.secondaryText,
-                        boldColor = MaterialTheme.wireColorScheme.onBackground
-                    )
+            Text(
+                modifier = Modifier
+                    .defaultMinSize(minHeight = dimensions().spacing20x)
+                    .animateContentSize(
+                        animationSpec = spring(
+                            dampingRatio = Spring.DampingRatioLowBouncy,
+                            stiffness = Spring.StiffnessMediumLow
+                        )
+                    ),
+                style = MaterialTheme.wireTypography.body01,
+                lineHeight = MaterialTheme.wireTypography.body02.lineHeight,
+                text = message.annotatedString(
+                    res = context.resources,
+                    expanded = expanded,
+                    normalStyle = MaterialTheme.wireTypography.body01,
+                    boldStyle = MaterialTheme.wireTypography.body02,
+                    normalColor = MaterialTheme.wireColorScheme.secondaryText,
+                    boldColor = MaterialTheme.wireColorScheme.onBackground
                 )
-            }
+            )
             if (message is SystemMessage.Knock) {
                 VerticalSpace.x8()
             }
@@ -149,7 +156,7 @@ private fun getColorFilter(message: SystemMessage): ColorFilter? {
     return when (message) {
         is SystemMessage.MissedCall.OtherCalled -> null
         is SystemMessage.MissedCall.YouCalled -> null
-        is SystemMessage.Knock -> null
+        is SystemMessage.Knock -> ColorFilter.tint(colorsScheme().primary)
         is SystemMessage.MemberAdded -> ColorFilter.tint(colorsScheme().onBackground)
         is SystemMessage.MemberLeft -> ColorFilter.tint(colorsScheme().onBackground)
         is SystemMessage.MemberRemoved -> ColorFilter.tint(colorsScheme().onBackground)

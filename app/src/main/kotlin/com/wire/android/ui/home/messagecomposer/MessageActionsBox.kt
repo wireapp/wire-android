@@ -54,6 +54,7 @@ fun MessageComposeActionsBox(
     isMentionActive: Boolean,
     startMention: () -> Unit,
     onAdditionalOptionButtonClicked: () -> Unit,
+    onPingClicked: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(modifier.wrapContentSize()) {
@@ -72,7 +73,8 @@ fun MessageComposeActionsBox(
                         isMentionActive,
                         state.isEditMessage,
                         startMention,
-                        onAdditionalOptionButtonClicked
+                        onAdditionalOptionButtonClicked,
+                        onPingClicked
                     )
                 }
             }
@@ -87,6 +89,7 @@ private fun MessageComposeActions(
     isEditMessage: Boolean,
     startMention: () -> Unit,
     onAdditionalOptionButtonClicked: () -> Unit,
+    onPingClicked: () -> Unit
 ) {
     val localFeatureVisibilityFlags = LocalFeatureVisibilityFlags.current
 
@@ -103,7 +106,7 @@ private fun MessageComposeActions(
             if (!isEditMessage && EmojiIcon) AddEmojiAction()
             if (!isEditMessage && GifIcon) AddGifAction()
             AddMentionAction(isMentionsSelected, startMention)
-            if (!isEditMessage && PingIcon) PingAction()
+            if (!isEditMessage && PingIcon) PingAction(onPingClicked = onPingClicked)
         }
     }
 }
@@ -153,9 +156,9 @@ private fun AddMentionAction(isSelected: Boolean, addMentionAction: () -> Unit) 
 }
 
 @Composable
-private fun PingAction() {
+private fun PingAction(onPingClicked: () -> Unit) {
     WireSecondaryIconButton(
-        onButtonClicked = {},
+        onButtonClicked = onPingClicked,
         blockUntilSynced = true,
         iconResource = R.drawable.ic_ping,
         contentDescription = R.string.content_description_ping_everyone
@@ -177,6 +180,6 @@ fun PreviewMessageActionsBox() {
         AddEmojiAction()
         AddGifAction()
         AddMentionAction(isSelected = false, addMentionAction = {})
-        PingAction()
+        PingAction {}
     }
 }

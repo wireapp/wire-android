@@ -22,6 +22,7 @@
 
 package com.wire.android.util
 
+import android.app.DownloadManager
 import android.content.ActivityNotFoundException
 import android.content.ContentResolver
 import android.content.ContentValues
@@ -95,11 +96,12 @@ private fun getTempWritableAttachmentUri(context: Context, attachmentPath: Path)
 
 private fun Context.saveFileDataToDownloadsFolder(assetName: String, downloadedDataPath: Path, fileSize: Long): Uri? {
     val resolver = contentResolver
+    val mimeType = Uri.parse(downloadedDataPath.toString()).getMimeType(this@saveFileDataToDownloadsFolder)
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
         val contentValues = ContentValues().apply {
             // ContentResolver modifies the name if another file with the given name already exists, so we don't have to worry about it
             put(MediaStore.MediaColumns.DISPLAY_NAME, assetName.ifEmpty { ATTACHMENT_FILENAME })
-            put(MediaStore.MediaColumns.MIME_TYPE, Uri.parse(downloadedDataPath.toString()).getMimeType(this@saveFileDataToDownloadsFolder))
+            put(MediaStore.MediaColumns.MIME_TYPE, mimeType)
             put(MediaStore.MediaColumns.SIZE, fileSize)
         }
         resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)
@@ -109,7 +111,20 @@ private fun Context.saveFileDataToDownloadsFolder(assetName: String, downloadedD
         // we need to find the next available name with copy counter by ourselves before copying
         val availableAssetName = findFirstUniqueName(downloadsDir, assetName.ifEmpty { ATTACHMENT_FILENAME })
         val destinationFile = File(downloadsDir, availableAssetName)
-        FileProvider.getUriForFile(this, authority, destinationFile)
+        val uri = FileProvider.getUriForFile(this, authority, destinationFile)
+        if (mimeType?.isNotEmpty() == true) {
+            val downloadManager = getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+            downloadManager.addCompletedDownload(
+                /* title = */ availableAssetName,
+                /* description = */ availableAssetName,
+                /* isMediaScannerScannable = */ true,
+                /* mimeType = */ mimeType,
+                /* path = */ destinationFile.absolutePath,
+                /* length = */ fileSize,
+                /* showNotification = */ false
+            )
+        }
+        uri
     }?.also { downloadedUri ->
         resolver.openOutputStream(downloadedUri).use { outputStream ->
             val brr = ByteArray(DATA_COPY_BUFFER_SIZE)

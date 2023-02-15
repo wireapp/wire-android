@@ -68,7 +68,6 @@ class OngoingCallViewModelTest {
     @MockK
     private lateinit var currentScreenManager: CurrentScreenManager
 
-
     private lateinit var ongoingCallViewModel: OngoingCallViewModel
 
     @BeforeEach
@@ -142,5 +141,4 @@ class OngoingCallViewModelTest {
         )
         val participants = listOf(participant1, participant2, participant3)
     }
-
 }

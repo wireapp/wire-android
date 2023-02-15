@@ -130,6 +130,7 @@ private fun EnabledMessageComposerInput(
                 startMention = actions.startMention,
                 onAdditionalOptionButtonClicked = actions.onAdditionalOptionButtonClicked,
                 modifier = Modifier.background(colorsScheme().messageComposerBackgroundColor),
+                onPingClicked = actions.onPingClicked
             )
         }
         if (membersToMention.isNotEmpty() && messageComposeInputState.isExpanded) {
@@ -253,6 +254,7 @@ data class MessageComposerInputActions(
     val onAdditionalOptionButtonClicked: () -> Unit = {},
     val onEditSaveButtonClicked: () -> Unit = {},
     val onEditCancelButtonClicked: () -> Unit = {},
+    val onPingClicked: () -> Unit = {}
 )
 
 @Composable

@@ -36,6 +36,8 @@ import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.notification.LocalNotificationConversation
 import com.wire.kalium.logic.data.notification.LocalNotificationMessage
 import com.wire.kalium.logic.data.notification.LocalNotificationMessageAuthor
+import com.wire.kalium.logic.data.user.SelfUser
+import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.UserSessionScope
 import com.wire.kalium.logic.feature.auth.AccountInfo
@@ -66,6 +68,7 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
@@ -253,6 +256,32 @@ class WireNotificationManagerTest {
         }
 
     @Test
+    fun givenSomeNotifications_whenSelfUserChanged_thenNotificationIsNotDuplicated() =
+        runTestWithCancellation(dispatcherProvider.main()) {
+            val conversationId = ConversationId("conversation_value", "conversation_domain")
+            val selfUserFlow = MutableStateFlow(TestUser.SELF_USER)
+            val (arrangement, manager) = Arrangement()
+                .withMessageNotifications(
+                    listOf(
+                        provideLocalNotificationConversation(id = conversationId, messages = listOf(provideLocalNotificationMessage()))
+                    )
+                )
+                .withEstablishedCall(listOf())
+                .withIncomingCalls(listOf())
+                .withCurrentScreen(CurrentScreen.InBackground)
+                .withSelfUser(selfUserFlow)
+                .arrange()
+
+            manager.observeNotificationsAndCallsWhileRunning(listOf(provideUserId()), this) {}
+            selfUserFlow.value = TestUser.SELF_USER.copy(availabilityStatus = UserAvailabilityStatus.NONE)
+            runCurrent()
+
+            verify(exactly = 1) {
+                arrangement.messageNotificationManager.handleNotification(any(), any(), any())
+            }
+        }
+
+    @Test
     fun givenCurrentScreenIsConversation_whenObserveCalled_thenNotificationForThatConversationIsHidden() =
         runTestWithCancellation(dispatcherProvider.main()) {
             val conversationId = ConversationId("conversation_value", "conversation_domain")
@@ -300,19 +329,39 @@ class WireNotificationManagerTest {
         }
 
     @Test
-    fun givenASingleUserId_whenNotificationReceivedAndNotCurrentUser_shouldSkipNotification() = runTest(dispatcherProvider.main()) {
+    fun givenASingleUserId_whenNotificationReceivedAndNoSuchUser_shouldSkipNotification() = runTest(dispatcherProvider.main()) {
         val otherAuthSession = provideAccountInfo("other_id")
         val userId = otherAuthSession.userId
         val (arrangement, manager) = Arrangement().withMessageNotifications(listOf())
             .withSession(GetAllSessionsResult.Success(listOf(TEST_AUTH_TOKEN)))
-            .withCurrentUserSession(provideCurrentValidUserSession(TEST_AUTH_TOKEN)).withIncomingCalls(listOf())
-            .withCurrentScreen(CurrentScreen.InBackground).arrange()
+            .withCurrentUserSession(provideCurrentValidUserSession(TEST_AUTH_TOKEN))
+            .withIncomingCalls(listOf())
+            .withCurrentScreen(CurrentScreen.InBackground)
+            .arrange()
 
         manager.fetchAndShowNotificationsOnce(userId.value)
         advanceUntilIdle()
 
         coVerify(exactly = 0) { arrangement.connectionPolicyManager.handleConnectionOnPushNotification(userId) }
     }
+
+    @Test
+    fun givenASingleUserId_whenNotificationReceivedAndNotCurrentUserButExistOnThatDevice_shouldCheckNotification() =
+        runTest(dispatcherProvider.main()) {
+            val otherAuthSession = provideAccountInfo("other_id")
+            val userId = otherAuthSession.userId
+            val (arrangement, manager) = Arrangement().withMessageNotifications(listOf())
+                .withSession(GetAllSessionsResult.Success(listOf(TEST_AUTH_TOKEN, otherAuthSession)))
+                .withCurrentUserSession(provideCurrentValidUserSession(TEST_AUTH_TOKEN))
+                .withIncomingCalls(listOf())
+                .withCurrentScreen(CurrentScreen.InBackground)
+                .arrange()
+
+            manager.fetchAndShowNotificationsOnce(userId.value)
+            advanceUntilIdle()
+
+            coVerify(exactly = 1) { arrangement.connectionPolicyManager.handleConnectionOnPushNotification(userId) }
+        }
 
     @Test
     fun givenSomeEstablishedCalls_whenAppIsNotVisible_thenOngoingCallServiceRun() = runTestWithCancellation(dispatcherProvider.main()) {
@@ -466,6 +515,10 @@ class WireNotificationManagerTest {
         fun withCurrentScreen(screen: CurrentScreen): Arrangement {
             coEvery { currentScreenManager.observeCurrentScreen(any()) } returns MutableStateFlow(screen)
             return this
+        }
+
+        fun withSelfUser(selfUserFlow: Flow<SelfUser>) = apply {
+            coEvery { getSelfUser.invoke() } returns selfUserFlow
         }
 
         fun arrange() = this to wireNotificationManager

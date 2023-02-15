@@ -30,6 +30,7 @@ import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.conversations.model.AttachmentType
 import com.wire.kalium.logic.data.team.Team
 import io.mockk.coVerify
+import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import okio.Path.Companion.toPath
@@ -202,7 +203,6 @@ class MessageComposerViewModelTest {
         coVerify(inverse = true) { arrangement.sendAssetMessage.invoke(any(), any(), any(), any(), any(), any(), any()) }
     }
 
-
     @Test
     fun `given a user sends an image message larger than 15MB, when invoked, then sendAssetMessageUseCase isn't called`() = runTest {
         // Given
@@ -271,5 +271,20 @@ class MessageComposerViewModelTest {
             coVerify(exactly = 1) { arrangement.sendAssetMessage.invoke(any(), any(), any(), any(), any(), any(), any()) }
             expectNoEvents()
         }
+    }
+
+    @Test
+    fun `given that a user sends an ping message, when invoked, then sendKnockUseCase and pingRinger are called`() = runTest {
+        // Given
+        val (arrangement, viewModel) = ConversationsViewModelArrangement()
+            .withSuccessfulViewModelInit()
+            .arrange()
+
+        // When
+        viewModel.sendPing()
+
+        // Then
+        coVerify(exactly = 1) { arrangement.sendKnockUseCase.invoke(any(), any()) }
+        verify(exactly = 1) { arrangement.pingRinger.ping(any(), isReceivingPing = false) }
     }
 }

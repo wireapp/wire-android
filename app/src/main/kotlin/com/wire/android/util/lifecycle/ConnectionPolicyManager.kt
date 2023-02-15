@@ -37,13 +37,10 @@ import com.wire.kalium.logic.feature.UserSessionScope
 import com.wire.kalium.logic.functional.fold
 import com.wire.kalium.logic.functional.isLeft
 import com.wire.kalium.logic.functional.map
-import com.wire.kalium.logic.functional.nullableFold
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -82,8 +79,9 @@ class ConnectionPolicyManager @Inject constructor(
                 migrationManager.isMigrationCompletedFlow(),
                 ::Pair
             ).collect { (isOnForeground, isMigrationCompleted) ->
-                if (isMigrationCompleted)
+                if (isMigrationCompleted) {
                     setPolicyForSessions(allValidSessions(), isOnForeground)
+                }
             }
         }
     }

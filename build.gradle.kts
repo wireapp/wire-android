@@ -1,5 +1,3 @@
-import org.jetbrains.kotlin.gradle.plugin.mpp.pm20.util.archivesName
-
 /*
  * Wire
  * Copyright (C) 2023 Wire Swiss GmbH
@@ -30,10 +28,6 @@ buildscript {
         classpath("com.google.dagger:hilt-android-gradle-plugin:2.40")
         classpath("com.google.gms:google-services:4.3.14")
     }
-}
-
-val test = tasks.named("jar"){
-    archivesName
 }
 
 allprojects {

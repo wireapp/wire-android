@@ -35,7 +35,6 @@ import com.wire.kalium.logic.sync.SyncManager
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
-import io.mockk.coVerifyOrder
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
@@ -62,11 +61,10 @@ class ConnectionPolicyManagerTest {
     }
 
     @Test
-    fun givenCurrentlyActiveSessionAndInitialisedUI_whenHandlingPushNotification_thenShouldUpgradePolicyThenWait() = runTest {
+    fun givenInitialisedUI_whenHandlingPushNotification_thenShouldUpgradePolicyThenWait() = runTest {
         val user = USER_ID
 
         val (arrangement, connectionPolicyManager) = Arrangement()
-            .withCurrentSession(user)
             .withAppInTheForeground()
             .arrange()
 
@@ -79,53 +77,16 @@ class ConnectionPolicyManagerTest {
     }
 
     @Test
-    fun givenCurrentlyActiveSessionAndNotInitialisedUI_whenHandlingPushNotification_thenShouldUpgradeThenWaitThenDowngrade() = runTest {
+    fun givenNotInitialisedUI_whenHandlingPushNotification_thenShouldUpgradeThenWaitThenDowngrade() = runTest {
         val user = USER_ID
 
         val (arrangement, connectionPolicyManager) = Arrangement()
-            .withCurrentSession(user)
             .withAppInTheBackground()
             .arrange()
 
         connectionPolicyManager.handleConnectionOnPushNotification(user)
 
         coVerify(exactly = 1) {
-            arrangement.setConnectionPolicyUseCase.invoke(ConnectionPolicy.KEEP_ALIVE)
-            arrangement.syncManager.waitUntilLiveOrFailure()
-            arrangement.setConnectionPolicyUseCase.invoke(ConnectionPolicy.DISCONNECT_AFTER_PENDING_EVENTS)
-        }
-    }
-
-    @Test
-    fun givenCurrentlyInactiveSessionAndInitialisedUI_whenHandlingPushNotification_thenShouldUpgradeThenWaitThenDowngrade() = runTest {
-        val user = USER_ID
-
-        val (arrangement, connectionPolicyManager) = Arrangement()
-            .withCurrentSession(USER_ID_2)
-            .withAppInTheForeground()
-            .arrange()
-
-        connectionPolicyManager.handleConnectionOnPushNotification(user)
-
-        coVerify(exactly = 1) {
-            arrangement.setConnectionPolicyUseCase.invoke(ConnectionPolicy.KEEP_ALIVE)
-            arrangement.syncManager.waitUntilLiveOrFailure()
-            arrangement.setConnectionPolicyUseCase.invoke(ConnectionPolicy.DISCONNECT_AFTER_PENDING_EVENTS)
-        }
-    }
-
-    @Test
-    fun givenNotCurrentAccountAndNotInitialisedUI_whenHandlingPushNotification_thenShouldUpgradeThenWaitThenDowngradePolicy() = runTest {
-        val user = USER_ID
-
-        val (arrangement, connectionPolicyManager) = Arrangement()
-            .withCurrentSession(USER_ID_2)
-            .withAppInTheBackground()
-            .arrange()
-
-        connectionPolicyManager.handleConnectionOnPushNotification(user)
-
-        coVerifyOrder {
             arrangement.setConnectionPolicyUseCase.invoke(ConnectionPolicy.KEEP_ALIVE)
             arrangement.syncManager.waitUntilLiveOrFailure()
             arrangement.setConnectionPolicyUseCase.invoke(ConnectionPolicy.DISCONNECT_AFTER_PENDING_EVENTS)
@@ -187,6 +148,7 @@ class ConnectionPolicyManagerTest {
         }
 
         fun arrange() = this to connectionPolicyManager
+
     }
 
     companion object {

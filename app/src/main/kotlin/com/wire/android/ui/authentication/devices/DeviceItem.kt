@@ -42,10 +42,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.wire.android.BuildConfig
 import com.wire.android.R
@@ -64,12 +64,16 @@ fun DeviceItem(
     device: Device,
     placeholder: Boolean,
     background: Color? = null,
+    leadingIcon: @Composable (() -> Unit),
+    leadingIconBorder: Dp = 1.dp,
     onRemoveDeviceClick: ((Device) -> Unit)? = null
 ) {
     DeviceItemContent(
         device = device,
         placeholder = placeholder,
         background = background,
+        leadingIcon = leadingIcon,
+        leadingIconBorder = leadingIconBorder,
         onRemoveDeviceClick = onRemoveDeviceClick
     )
 }
@@ -79,6 +83,8 @@ private fun DeviceItemContent(
     device: Device,
     placeholder: Boolean,
     background: Color? = null,
+    leadingIcon: @Composable (() -> Unit),
+    leadingIconBorder: Dp,
     onRemoveDeviceClick: ((Device) -> Unit)?
 ) {
     Row(
@@ -99,7 +105,7 @@ private fun DeviceItemContent(
                 horizontalAlignment = Alignment.Start,
                 modifier = Modifier
                     .padding(start = MaterialTheme.wireDimensions.removeDeviceItemPadding)
-                    .weight(1f),
+                    .weight(1f)
             ) { DeviceItemTexts(device, placeholder) }
         }
         val (buttonTopPadding, buttonEndPadding) = getMinTouchMargins(minSize = MaterialTheme.wireDimensions.buttonSmallMinSize)
@@ -111,24 +117,20 @@ private fun DeviceItemContent(
                     MaterialTheme.wireDimensions.removeDeviceItemPadding - it.calculateEndPadding(LocalLayoutDirection.current)
                 )
             }
-        if (!placeholder && onRemoveDeviceClick != null)
+        if (!placeholder && onRemoveDeviceClick != null) {
             WireSecondaryButton(
                 modifier = Modifier
-                    .padding(top = buttonTopPadding, end = buttonEndPadding)
                     .testTag("remove device button"),
                 onClick = { onRemoveDeviceClick(device) },
-                leadingIcon = {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_remove),
-                        contentDescription = stringResource(R.string.content_description_remove_devices_screen_remove_icon),
-                    )
-                },
+                leadingIcon = leadingIcon,
                 fillMaxWidth = false,
                 minHeight = MaterialTheme.wireDimensions.buttonSmallMinSize.height,
                 minWidth = MaterialTheme.wireDimensions.buttonSmallMinSize.width,
                 shape = RoundedCornerShape(size = MaterialTheme.wireDimensions.buttonSmallCornerSize),
                 contentPadding = PaddingValues(0.dp),
+                borderWidth = leadingIconBorder
             )
+        }
     }
 }
 
@@ -194,6 +196,6 @@ fun PreviewDeviceItem() {
             placeholder = false,
             background = null,
             {}
-        )
+        ) {}
     }
 }

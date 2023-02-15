@@ -31,6 +31,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -44,6 +45,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
@@ -138,7 +140,6 @@ private fun RemoveDeviceContent(
             when (state.isLoadingClientsList) {
                 true -> RemoveDeviceItemsList(lazyListState, List(10) { Device() }, true, onItemClicked)
                 false -> RemoveDeviceItemsList(lazyListState, state.deviceList, false, onItemClicked)
-
             }
         }
         // TODO handle list loading errors
@@ -148,7 +149,7 @@ private fun RemoveDeviceContent(
                 state = state.removeDeviceDialogState,
                 onPasswordChange = onPasswordChange,
                 onDialogDismiss = onDialogDismiss,
-                onRemoveConfirm = onRemoveConfirm,
+                onRemoveConfirm = onRemoveConfirm
             )
             if (state.error is RemoveDeviceError.GenericError) {
                 val (title, message) = state.error.coreFailure.dialogErrorStrings(LocalContext.current.resources)
@@ -160,7 +161,7 @@ private fun RemoveDeviceContent(
                     optionButton1Properties = WireDialogButtonProperties(
                         onClick = onErrorDialogDismiss,
                         text = stringResource(id = R.string.label_ok),
-                        type = WireDialogButtonType.Primary,
+                        type = WireDialogButtonType.Primary
                     )
                 )
             }
@@ -173,7 +174,7 @@ private fun RemoveDeviceItemsList(
     lazyListState: LazyListState,
     items: List<Device>,
     placeholders: Boolean,
-    onItemClicked: (Device) -> Unit,
+    onItemClicked: (Device) -> Unit
 ) {
     SurfaceBackgroundWrapper {
         LazyColumn(
@@ -184,7 +185,13 @@ private fun RemoveDeviceItemsList(
                 DeviceItem(
                     device = device,
                     placeholder = placeholders,
-                    onRemoveDeviceClick = onItemClicked
+                    onRemoveDeviceClick = onItemClicked,
+                    leadingIcon = {
+                        Icon(
+                            painterResource(id = R.drawable.ic_remove),
+                            stringResource(R.string.content_description_remove_devices_screen_remove_icon)
+                        )
+                    }
                 )
                 if (index < items.lastIndex) Divider()
             }
@@ -199,7 +206,7 @@ private fun RemoveDeviceDialog(
     state: RemoveDeviceDialogState.Visible,
     onPasswordChange: (TextFieldValue) -> Unit,
     onDialogDismiss: () -> Unit,
-    onRemoveConfirm: () -> Unit,
+    onRemoveConfirm: () -> Unit
 ) {
     var keyboardController: SoftwareKeyboardController? = null
     val onDialogDismissHideKeyboard: () -> Unit = {
@@ -209,11 +216,11 @@ private fun RemoveDeviceDialog(
     WireDialog(
         title = stringResource(R.string.remove_device_dialog_title),
         text = state.device.name + "\n" +
-                stringResource(
-                    R.string.remove_device_id_and_time_label,
-                    state.device.clientId.value,
-                    state.device.registrationTime.formatMediumDateTime() ?: ""
-                ),
+            stringResource(
+                R.string.remove_device_id_and_time_label,
+                state.device.clientId.value,
+                state.device.registrationTime.formatMediumDateTime() ?: ""
+            ),
         onDismiss = onDialogDismissHideKeyboard,
         dismissButtonProperties = WireDialogButtonProperties(
             onClick = onDialogDismissHideKeyboard,

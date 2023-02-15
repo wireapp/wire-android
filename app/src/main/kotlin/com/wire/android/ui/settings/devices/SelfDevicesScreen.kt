@@ -26,6 +26,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -42,6 +44,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.ui.authentication.devices.DeviceItem
 import com.wire.android.ui.authentication.devices.model.Device
+import com.wire.android.ui.common.Icon
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.settings.devices.model.SelfDevicesState
@@ -55,18 +58,20 @@ fun SelfDevicesScreen(viewModel: SelfDevicesViewModel = hiltViewModel()) {
     SelfDevicesScreenContent(
         snackbarHostState = snackbarHostState,
         state = viewModel.state,
-        onNavigateBack = viewModel::navigateBack
+        onNavigateBack = viewModel::navigateBack,
+        onDeviceClick = viewModel::navigateToDevice
     )
 }
 
 @OptIn(
-    ExperimentalMaterial3Api::class,
+    ExperimentalMaterial3Api::class
 )
 @Composable
 fun SelfDevicesScreenContent(
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     onNavigateBack: () -> Unit = {},
-    state: SelfDevicesState,
+    onDeviceClick: (Device) -> Unit = {},
+    state: SelfDevicesState
 ) {
     val lazyListState = rememberLazyListState()
     val context = LocalContext.current
@@ -96,23 +101,26 @@ fun SelfDevicesScreenContent(
                         state.currentDevice?.let { currentDevice ->
                             folderDeviceItems(
                                 context.getString(R.string.current_device_label),
-                                listOf(currentDevice)
+                                listOf(currentDevice),
+                                onDeviceClick
                             )
                         }
                         folderDeviceItems(
                             context.getString(R.string.other_devices_label),
-                            state.deviceList
+                            state.deviceList,
+                            onDeviceClick
                         )
                     }
                 }
             }
-        },
+        }
     )
 }
 
 private fun LazyListScope.folderDeviceItems(
     header: String,
     items: List<Device>,
+    onDeviceClick: (Device) -> Unit = {}
 ) {
     folderWithElements(
         header = header.uppercase(),
@@ -123,18 +131,21 @@ private fun LazyListScope.folderDeviceItems(
                 thickness = Dp.Hairline
             )
         }
-    ) { item ->
+    ) { item: Device ->
         DeviceItem(
             item,
             background = MaterialTheme.wireColorScheme.surface,
-            placeholder = false
+            placeholder = false,
+            onRemoveDeviceClick = onDeviceClick,
+            leadingIcon = Icons.Filled.ChevronRight.Icon(),
+            leadingIconBorder = 0.dp
         )
     }
 }
 
 @Composable
 private fun TopBarHeader(
-    onNavigateBack: () -> Unit,
+    onNavigateBack: () -> Unit
 ) {
     WireCenterAlignedTopAppBar(
         onNavigationPressed = onNavigateBack,

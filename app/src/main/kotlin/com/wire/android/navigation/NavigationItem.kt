@@ -37,6 +37,7 @@ import com.wire.android.navigation.NavigationItemDestinationsRoutes.CREATE_ACCOU
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.CREATE_PERSONAL_ACCOUNT
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.CREATE_TEAM
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.DEBUG
+import com.wire.android.navigation.NavigationItemDestinationsRoutes.DEVICE_DETAILS
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.EDIT_CONVERSATION_NAME
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.EDIT_DISPLAY_NAME
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.GROUP_CONVERSATION_ALL_PARTICIPANTS
@@ -90,12 +91,14 @@ import com.wire.android.ui.home.settings.backup.BackupAndRestoreScreen
 import com.wire.android.ui.home.settings.privacy.PrivacySettingsConfigScreen
 import com.wire.android.ui.initialsync.InitialSyncScreen
 import com.wire.android.ui.migration.MigrationScreen
+import com.wire.android.ui.settings.devices.DeviceDetailsScreen
 import com.wire.android.ui.settings.devices.SelfDevicesScreen
 import com.wire.android.ui.userprofile.avatarpicker.AvatarPickerScreen
 import com.wire.android.ui.userprofile.other.OtherUserProfileScreen
 import com.wire.android.ui.userprofile.self.SelfUserProfileScreen
 import com.wire.android.util.deeplink.DeepLinkProcessor
 import com.wire.android.util.deeplink.DeepLinkResult
+import com.wire.kalium.logic.data.conversation.ClientId
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import io.github.esentsov.PackagePrivate
@@ -198,6 +201,18 @@ enum class NavigationItem(
         primaryRoute = SELF_DEVICES,
         content = { SelfDevicesScreen() }
     ),
+
+    DeviceDetails(
+        primaryRoute = DEVICE_DETAILS,
+        canonicalRoute = "$DEVICE_DETAILS?$EXTRA_DEVICE_ID={$EXTRA_DEVICE_ID}",
+        content = { DeviceDetailsScreen() }
+    ) {
+        override fun getRouteWithArgs(arguments: List<Any>): String {
+            val clientIdString: String = arguments.filterIsInstance<ClientId>().firstOrNull()?.toString()
+                ?: "{$EXTRA_DEVICE_ID}"
+            return "$DEVICE_DETAILS?$EXTRA_DEVICE_ID=$clientIdString"
+        }
+      },
 
     PrivacySettings(
         primaryRoute = PRIVACY_SETTINGS,
@@ -454,6 +469,7 @@ object NavigationItemDestinationsRoutes {
     const val DEBUG = "debug_screen"
     const val REMOVE_DEVICES = "remove_devices_screen"
     const val REGISTER_DEVICE = "register_device_screen"
+    const val DEVICE_DETAILS = "device_details_screen"
     const val IMAGE_PICKER = "image_picker_screen"
     const val NEW_CONVERSATION = "new_conversation_screen"
     const val ONGOING_CALL = "ongoing_call_screen"
@@ -473,6 +489,7 @@ const val EXTRA_MESSAGE_ID = "extra_message_id"
 const val EXTRA_IS_SELF_MESSAGE = "extra_is_self_message"
 const val EXTRA_MESSAGE_TO_DELETE_ID = "extra_message_to_delete"
 const val EXTRA_MESSAGE_TO_DELETE_IS_SELF = "extra_message_to_delete_is_self"
+const val EXTRA_DEVICE_ID = "extra_device_id"
 
 const val EXTRA_CONNECTION_IGNORED_USER_NAME = "extra_connection_ignored_user_name"
 const val EXTRA_GROUP_DELETED_NAME = "extra_group_deleted_name"

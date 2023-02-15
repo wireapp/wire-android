@@ -29,6 +29,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
@@ -48,11 +49,6 @@ fun NewConversationRouter() {
     val newConversationViewModel: NewConversationViewModel = hiltViewModel()
     val newConversationNavController = rememberNavController()
     val snackbarHostState = remember { SnackbarHostState() }
-
-    handleSnackBarMessage(
-        snackbarHostState,
-        newConversationViewModel.snackbarMessageState
-    ) { newConversationViewModel.clearSnackbarMessage() }
 
     Scaffold(
         snackbarHost = {
@@ -112,26 +108,12 @@ fun NewConversationRouter() {
             )
         }
     }
-}
 
-@Composable
-private fun handleSnackBarMessage(
-    snackbarHostState: SnackbarHostState,
-    conversationListSnackBarState: NewConversationSnackbarState,
-    onMessageShown: () -> Unit
-) {
-    conversationListSnackBarState.let { messageType ->
-        val message = when (messageType) {
-            is NewConversationSnackbarState.SuccessSendConnectionRequest ->
-                stringResource(id = R.string.connection_request_sent)
+    val context = LocalContext.current
 
-            NewConversationSnackbarState.None -> ""
-        }
-        LaunchedEffect(messageType) {
-            if (messageType != NewConversationSnackbarState.None) {
-                snackbarHostState.showSnackbar(message)
-                onMessageShown()
-            }
+    LaunchedEffect(Unit) {
+        newConversationViewModel.infoMessage.collect {
+            snackbarHostState.showSnackbar(it.asString(context.resources))
         }
     }
 }

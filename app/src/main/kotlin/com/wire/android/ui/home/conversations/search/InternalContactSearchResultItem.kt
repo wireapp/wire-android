@@ -142,7 +142,7 @@ fun ExternalContactSearchResultItem(
         },
         actions = {
             when (connectionState) {
-                ConnectionState.NOT_CONNECTED ->
+                ConnectionState.NOT_CONNECTED, ConnectionState.CANCELLED ->
                     AddContactButton(onAddContactClicked)
                 ConnectionState.PENDING, ConnectionState.IGNORED ->
                     Box(modifier = Modifier.padding(horizontal = dimensions().spacing12x)) { ConnectRequestBadge() }

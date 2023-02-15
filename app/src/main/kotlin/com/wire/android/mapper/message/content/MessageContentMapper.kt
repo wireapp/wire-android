@@ -6,6 +6,7 @@ import com.wire.android.ui.home.conversations.findUser
 import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.message.Message
+import com.wire.kalium.logic.data.message.MessageContent
 import com.wire.kalium.logic.data.user.User
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -23,10 +24,12 @@ class MessageContentMapper @Inject constructor(
             when (message.visibility) {
                 Message.Visibility.VISIBLE ->
                     when (message) {
-                        is Message.Regular -> regularMessageContentMapper.mapRegularMessage(
-                            message,
-                            userList.findUser(message.senderUserId)
-                        )
+                        is Message.Regular -> {
+                            regularMessageContentMapper.mapRegularMessage(
+                                message,
+                                userList.findUser(message.senderUserId)
+                            )
+                        }
 
                         is Message.System -> systemMessageContentMapper.mapSystemMessage(message, userList)
                     }

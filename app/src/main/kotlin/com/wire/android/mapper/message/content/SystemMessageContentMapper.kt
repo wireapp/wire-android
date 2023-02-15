@@ -16,7 +16,6 @@ class SystemMessageContentMapper
 @Inject constructor(
     private val messageResourceProvider: MessageResourceProvider
 ) {
-
     fun mapSystemMessage(
         message: Message.System,
         members: List<User>

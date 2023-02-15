@@ -203,7 +203,8 @@ fun ConversationScreen(
         onChangeAudioPosition = conversationMessagesViewModel::changeAudioPosition,
         composerMessages = messageComposerViewModel.infoMessage,
         conversationMessages = conversationMessagesViewModel.infoMessage,
-        conversationMessagesViewModel = conversationMessagesViewModel
+        conversationMessagesViewModel = conversationMessagesViewModel,
+        onPingClicked = messageComposerViewModel::sendPing
     )
     DeleteMessageDialog(
         state = messageComposerViewModel.deleteMessageDialogsState,
@@ -294,7 +295,8 @@ private fun ConversationScreen(
     onBackButtonClick: () -> Unit,
     composerMessages: SharedFlow<SnackBarMessage>,
     conversationMessages: SharedFlow<SnackBarMessage>,
-    conversationMessagesViewModel: ConversationMessagesViewModel
+    conversationMessagesViewModel: ConversationMessagesViewModel,
+    onPingClicked: () -> Unit
 ) {
     val conversationScreenState = rememberConversationScreenState()
     val messageComposerInnerState = rememberMessageComposerInnerState()
@@ -371,7 +373,8 @@ private fun ConversationScreen(
                         onResetSessionClicked = onResetSessionClick, onOpenProfile = onOpenProfile,
                         onUpdateConversationReadDate = onUpdateConversationReadDate,
                         onMessageComposerError = onSnackbarMessage,
-                        onShowContextMenu = conversationScreenState::showEditContextMenu
+                        onShowContextMenu = conversationScreenState::showEditContextMenu,
+                        onPingClicked = onPingClicked
                     )
                 }
             }
@@ -405,6 +408,7 @@ private fun ConversationScreenContent(
     onUpdateConversationReadDate: (String) -> Unit,
     onMessageComposerError: (ConversationSnackbarMessages) -> Unit,
     onShowContextMenu: (UIMessage) -> Unit,
+    onPingClicked: () -> Unit
 ) {
     val scope = rememberCoroutineScope()
 
@@ -452,7 +456,8 @@ private fun ConversationScreenContent(
         tempCachePath = tempCachePath,
         interactionAvailability = interactionAvailability,
         securityClassificationType = conversationState.securityClassificationType,
-        membersToMention = membersToMention
+        membersToMention = membersToMention,
+        onPingClicked = onPingClicked
     )
 
     val currentEditMessageId: String? by remember(messageComposerInnerState.messageComposeInputState) {
@@ -708,6 +713,7 @@ fun PreviewConversationScreen() {
         composerMessages = MutableStateFlow(ErrorDownloadingAsset),
         conversationMessages = MutableStateFlow(ErrorDownloadingAsset),
         onChangeAudioPosition = { _, _ -> },
-        conversationMessagesViewModel = hiltViewModel()
+        conversationMessagesViewModel = hiltViewModel(),
+        onPingClicked = {}
     )
 }

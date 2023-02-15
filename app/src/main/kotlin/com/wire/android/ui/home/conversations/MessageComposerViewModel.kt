@@ -25,8 +25,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.mapper.ContactMapper
+import com.wire.android.media.PingRinger
 import com.wire.android.model.ImageAsset.PrivateAsset
 import com.wire.android.model.SnackBarMessage
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
@@ -65,6 +67,7 @@ import com.wire.kalium.logic.feature.conversation.ObserveConversationInteraction
 import com.wire.kalium.logic.feature.conversation.ObserveSecurityClassificationLabelUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationReadDateUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
+import com.wire.kalium.logic.feature.message.SendKnockUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
 import com.wire.kalium.logic.feature.user.IsFileSharingEnabledUseCase
@@ -98,6 +101,8 @@ class MessageComposerViewModel @Inject constructor(
     private val observeSecurityClassificationLabel: ObserveSecurityClassificationLabelUseCase,
     private val contactMapper: ContactMapper,
     private val membersToMention: MembersToMentionUseCase,
+    private val sendKnockUseCase: SendKnockUseCase,
+    private val pingRinger: PingRinger,
     private val imageUtil: ImageUtil
 ) : SavedStateViewModel(savedStateHandle) {
 
@@ -261,6 +266,13 @@ class MessageComposerViewModel @Inject constructor(
                     }
                 }
             }
+        }
+    }
+
+    fun sendPing() {
+        viewModelScope.launch {
+            pingRinger.ping(R.raw.ping_from_me, isReceivingPing = false)
+            sendKnockUseCase(conversationId = conversationId, hotKnock = false)
         }
     }
 

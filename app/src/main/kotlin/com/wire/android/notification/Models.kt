@@ -25,7 +25,6 @@ import com.wire.android.R
 import com.wire.kalium.logic.data.notification.LocalNotificationCommentType
 import com.wire.kalium.logic.data.notification.LocalNotificationConversation
 import com.wire.kalium.logic.data.notification.LocalNotificationMessage
-import kotlinx.datetime.Instant
 
 data class NotificationConversation(
     val id: String,
@@ -72,7 +71,7 @@ enum class CommentResId(@StringRes val value: Int) {
 fun LocalNotificationConversation.intoNotificationConversation(): NotificationConversation {
 
     val notificationMessages = this.messages.map { it.intoNotificationMessage() }.sortedBy { it.time }
-    val lastMessageTime = this.messages.maxOfOrNull { Instant.parse(it.time).toEpochMilliseconds() } ?: 0
+    val lastMessageTime = this.messages.maxOfOrNull { it.time.toEpochMilliseconds() } ?: 0
 
     return NotificationConversation(
         id = id.toString(),
@@ -87,7 +86,7 @@ fun LocalNotificationConversation.intoNotificationConversation(): NotificationCo
 fun LocalNotificationMessage.intoNotificationMessage(): NotificationMessage {
 
     val notificationMessageAuthor = NotificationMessageAuthor(author.name, null) // TODO image
-    val notificationMessageTime = Instant.parse(time).toEpochMilliseconds()
+    val notificationMessageTime = time.toEpochMilliseconds()
 
     return when (this) {
         is LocalNotificationMessage.Text -> NotificationMessage.Text(
@@ -96,22 +95,26 @@ fun LocalNotificationMessage.intoNotificationMessage(): NotificationMessage {
             text = text,
             isQuotingSelfUser = isQuotingSelfUser
         )
+
         is LocalNotificationMessage.Comment -> NotificationMessage.Comment(
             notificationMessageAuthor,
             notificationMessageTime,
             type.intoCommentResId()
         )
+
         is LocalNotificationMessage.ConnectionRequest -> NotificationMessage.ConnectionRequest(
             notificationMessageAuthor,
             notificationMessageTime,
             this.authorId.toString()
         )
+
         is LocalNotificationMessage.ConversationDeleted -> {
             NotificationMessage.ConversationDeleted(
                 notificationMessageAuthor,
                 notificationMessageTime
             )
         }
+
         is LocalNotificationMessage.Knock -> {
             NotificationMessage.Knock(
                 notificationMessageAuthor,
@@ -127,5 +130,6 @@ fun LocalNotificationCommentType.intoCommentResId(): CommentResId =
         LocalNotificationCommentType.FILE -> CommentResId.FILE
         LocalNotificationCommentType.REACTION -> CommentResId.REACTION
         LocalNotificationCommentType.MISSED_CALL -> CommentResId.MISSED_CALL
+        LocalNotificationCommentType.KNOCK -> CommentResId.NOT_SUPPORTED
         LocalNotificationCommentType.NOT_SUPPORTED_YET -> CommentResId.NOT_SUPPORTED
     }

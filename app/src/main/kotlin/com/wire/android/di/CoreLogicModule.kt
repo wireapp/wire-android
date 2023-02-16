@@ -66,7 +66,8 @@ import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusU
 import com.wire.kalium.logic.feature.conversation.UpdateConversationReadDateUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationReceiptModeUseCase
 import com.wire.kalium.logic.feature.conversation.guestroomlink.GenerateGuestRoomLinkUseCase
-import com.wire.kalium.logic.feature.conversation.guestroomlink.GetGuestRoomLinkUseCase
+import com.wire.kalium.logic.feature.conversation.guestroomlink.ObserveGuestRoomLinkUseCase
+import com.wire.kalium.logic.feature.conversation.guestroomlink.RevokeGuestRoomLinkUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.GetMessageByIdUseCase
 import com.wire.kalium.logic.feature.message.GetNotificationsUseCase
@@ -952,10 +953,18 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
-    fun provideGetGuestRoomLinkUseCase(
+    fun provideRevokeGuestRoomLinkUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
-    ): GetGuestRoomLinkUseCase =
-        coreLogic.getSessionScope(currentAccount).conversations.getGuestRoomLink
+    ): RevokeGuestRoomLinkUseCase =
+        coreLogic.getSessionScope(currentAccount).conversations.revokeGuestRoomLink
+
+    @ViewModelScoped
+    @Provides
+    fun provideObserveGuestRoomLinkUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): ObserveGuestRoomLinkUseCase =
+        coreLogic.getSessionScope(currentAccount).conversations.observeGuestRoomLink
 
 }

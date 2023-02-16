@@ -37,6 +37,9 @@ import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.feature.conversation.UpdateConversationAccessRoleUseCase
 import com.wire.kalium.logic.feature.conversation.guestroomlink.GenerateGuestRoomLinkResult
 import com.wire.kalium.logic.feature.conversation.guestroomlink.GenerateGuestRoomLinkUseCase
+import com.wire.kalium.logic.feature.conversation.guestroomlink.ObserveGuestRoomLinkUseCase
+import com.wire.kalium.logic.feature.conversation.guestroomlink.RevokeGuestRoomLinkResult
+import com.wire.kalium.logic.feature.conversation.guestroomlink.RevokeGuestRoomLinkUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -48,6 +51,8 @@ class EditGuestAccessViewModel @Inject constructor(
     private val dispatcher: DispatcherProvider,
     private val updateConversationAccessRole: UpdateConversationAccessRoleUseCase,
     private val generateGuestRoomLink: GenerateGuestRoomLinkUseCase,
+    private val revokeGuestRoomLink: RevokeGuestRoomLinkUseCase,
+    private val observeGuestRoomLink: ObserveGuestRoomLinkUseCase,
     savedStateHandle: SavedStateHandle,
     qualifiedIdMapper: QualifiedIdMapper,
 ) : ViewModel() {
@@ -68,6 +73,10 @@ class EditGuestAccessViewModel @Inject constructor(
             isUpdatingGuestAccessAllowed = isUpdatingGuestAccessAllowed
         )
     )
+
+    init {
+        startObservingGuestRoomLink()
+    }
 
     private fun updateState(newState: EditGuestAccessState) {
         editGuestAccessState = newState
@@ -135,6 +144,40 @@ class EditGuestAccessViewModel @Inject constructor(
     fun onGuestDialogConfirm() {
         updateState(editGuestAccessState.copy(changeGuestOptionConfirmationRequired = false, isUpdating = true))
         updateGuestRemoteRequest(false)
+    }
+
+    fun onRevokeGuestRoomLink() {
+        editGuestAccessState = editGuestAccessState.copy(shouldShowRevokeLinkConfirmationDialog = true)
+    }
+
+    fun onRevokeDialogDismiss() {
+        editGuestAccessState = editGuestAccessState.copy(shouldShowRevokeLinkConfirmationDialog = false)
+    }
+
+    fun onRevokeDialogConfirm() {
+        updateState(editGuestAccessState.copy(shouldShowRevokeLinkConfirmationDialog = false, isRevokingLink = true))
+        viewModelScope.launch {
+            revokeGuestRoomLink(conversationId).also {
+                if(it is RevokeGuestRoomLinkResult.Failure) {
+                    updateState(editGuestAccessState.copy(isFailedToRevokeGuestRoomLink = true))
+                }
+            }
+            updateState(editGuestAccessState.copy(isRevokingLink = false))
+        }
+    }
+
+    private fun startObservingGuestRoomLink() {
+        viewModelScope.launch {
+            observeGuestRoomLink(conversationId).collect {
+                it?.let {
+                    editGuestAccessState = editGuestAccessState.copy(link = it)
+                }
+            }
+        }
+    }
+
+    fun onRevokeGuestRoomFailureDialogDismiss() {
+        editGuestAccessState = editGuestAccessState.copy(isFailedToRevokeGuestRoomLink = false)
     }
 
     fun navigateBack(args: Map<String, Boolean> = mapOf()) {

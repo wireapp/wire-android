@@ -107,9 +107,11 @@ class LogFileWriter(private val logsDirectory: File) {
     }
 
     private fun clearActiveLoggingFileContent() {
-        val writer = PrintWriter(activeLoggingFile)
-        writer.print("")
-        writer.close()
+        if(activeLoggingFile.exists()) {
+            val writer = PrintWriter(activeLoggingFile)
+            writer.print("")
+            writer.close()
+        }
     }
 
     /**

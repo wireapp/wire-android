@@ -107,7 +107,7 @@ class LogFileWriter(private val logsDirectory: File) {
     }
 
     private fun clearActiveLoggingFileContent() {
-        if(activeLoggingFile.exists()) {
+        if (activeLoggingFile.exists()) {
             val writer = PrintWriter(activeLoggingFile)
             writer.print("")
             writer.close()
@@ -146,7 +146,8 @@ class LogFileWriter(private val logsDirectory: File) {
         }?.forEach { it.delete() }
     }
 
-    private fun compressedFileName(currentDate: String, logFilesCount: Int): String = "${LOG_FILE_PREFIX}_${currentDate}_${logFilesCount}.gz"
+    private fun compressedFileName(currentDate: String, logFilesCount: Int): String =
+        "${LOG_FILE_PREFIX}_${currentDate}_$logFilesCount.gz"
 
     private fun compress(): Boolean {
         try {

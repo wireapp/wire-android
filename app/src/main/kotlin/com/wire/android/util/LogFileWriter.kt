@@ -147,7 +147,7 @@ class LogFileWriter(private val logsDirectory: File) {
     }
 
     private fun compressedFileName(currentDate: String, logFilesCount: Int): String =
-        "${LOG_FILE_PREFIX}_${currentDate}_${logFilesCount}.gz"
+        "${LOG_FILE_PREFIX}_${currentDate}_$logFilesCount.gz"
 
     private fun compress(): Boolean {
         try {

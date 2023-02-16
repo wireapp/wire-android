@@ -20,17 +20,9 @@
 
 package com.wire.android.ui.home.conversations.details.editguestaccess
 
-import com.wire.kalium.logic.CoreFailure
-
 data class EditGuestAccessState(
     val isGuestAccessAllowed: Boolean = false,
     val isUpdatingGuestAccessAllowed: Boolean = false,
     val changeGuestOptionConfirmationRequired: Boolean = false,
     val isUpdating: Boolean = false,
-    val error: Error = Error.None,
-) {
-    sealed interface Error {
-        object None : Error
-        class Failure(val cause: CoreFailure) : Error
-    }
-}
+)

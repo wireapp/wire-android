@@ -61,7 +61,7 @@ class DebugScreenViewModel
     private val updateApiVersions: UpdateApiVersionsScheduler,
     private val globalDataStore: GlobalDataStore,
     private val restartSlowSyncProcessForRecovery: RestartSlowSyncProcessForRecoveryUseCase,
-    ) : ViewModel() {
+) : ViewModel() {
     val logPath: String = logFileWriter.activeLoggingFile.absolutePath
 
     var state by mutableStateOf(
@@ -101,12 +101,15 @@ class DebugScreenViewModel
                             mslClientId = it.clientId.value
                         )
                     }
+
                     is MLSKeyPackageCountResult.Failure.NetworkCallFailure -> {
                         state = state.copy(mlsErrorMessage = "Network Error!")
                     }
+
                     is MLSKeyPackageCountResult.Failure.FetchClientIdFailure -> {
                         state = state.copy(mlsErrorMessage = "ClientId Fetch Error!")
                     }
+
                     is MLSKeyPackageCountResult.Failure.Generic -> {}
                 }
             }

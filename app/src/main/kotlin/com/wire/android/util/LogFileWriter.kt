@@ -107,7 +107,7 @@ class LogFileWriter(private val logsDirectory: File) {
     }
 
     private fun clearActiveLoggingFileContent() {
-        if(activeLoggingFile.exists()) {
+        if (activeLoggingFile.exists()) {
             val writer = PrintWriter(activeLoggingFile)
             writer.print("")
             writer.close()
@@ -146,11 +146,14 @@ class LogFileWriter(private val logsDirectory: File) {
         }?.forEach { it.delete() }
     }
 
+    private fun compressedFileName(currentDate: String, logFilesCount: Int): String =
+        "${LOG_FILE_PREFIX}_${currentDate}_${logFilesCount}.gz"
+
     private fun compress(): Boolean {
         try {
             val logFilesCount = logsDirectory.listFiles()?.size
             val currentDate = logFileTimeFormat.format(Date())
-            val compressed = File(logsDirectory, "${LOG_FILE_PREFIX}_${currentDate}_${logFilesCount}.gz")
+            val compressed = File(logsDirectory, compressedFileName(currentDate, logFilesCount ?: 0))
             val zippedOutputStream = GZIPOutputStream(compressed.outputStream())
             val inputStream = activeLoggingFile.inputStream()
             inputStream.copyTo(zippedOutputStream, BYTE_ARRAY_SIZE)

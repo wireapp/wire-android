@@ -83,7 +83,7 @@ class EditGuestAccessViewModel @Inject constructor(
     }
 
     fun updateGuestAccess(shouldEnableGuestAccess: Boolean) {
-        updateState(editGuestAccessState.copy(isUpdating = true, isGuestAccessAllowed = shouldEnableGuestAccess))
+        updateState(editGuestAccessState.copy(isUpdatingGuestAccess = true, isGuestAccessAllowed = shouldEnableGuestAccess))
         when (shouldEnableGuestAccess) {
             true -> updateGuestRemoteRequest(shouldEnableGuestAccess)
             false -> updateState(editGuestAccessState.copy(changeGuestOptionConfirmationRequired = true))
@@ -110,7 +110,7 @@ class EditGuestAccessViewModel @Inject constructor(
 
                     is UpdateConversationAccessRoleUseCase.Result.Success -> Unit
                 }
-                updateState(editGuestAccessState.copy(isUpdating = false))
+                updateState(editGuestAccessState.copy(isUpdatingGuestAccess = false))
             }
         }
     }
@@ -135,14 +135,14 @@ class EditGuestAccessViewModel @Inject constructor(
         updateState(
             editGuestAccessState.copy(
                 changeGuestOptionConfirmationRequired = false,
-                isUpdating = false,
+                isUpdatingGuestAccess = false,
                 isGuestAccessAllowed = !editGuestAccessState.isGuestAccessAllowed
             )
         )
     }
 
     fun onGuestDialogConfirm() {
-        updateState(editGuestAccessState.copy(changeGuestOptionConfirmationRequired = false, isUpdating = true))
+        updateState(editGuestAccessState.copy(changeGuestOptionConfirmationRequired = false, isUpdatingGuestAccess = true))
         updateGuestRemoteRequest(false)
     }
 

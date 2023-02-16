@@ -26,7 +26,7 @@ data class EditGuestAccessState(
     val isGuestAccessAllowed: Boolean = false,
     val isUpdatingGuestAccessAllowed: Boolean = false,
     val changeGuestOptionConfirmationRequired: Boolean = false,
-    val isUpdating: Boolean = false,
+    val isUpdatingGuestAccess: Boolean = false,
     val isGeneratingGuestRoomLink: Boolean = false,
     val isFailedToGenerateGuestRoomLink: Boolean = false,
     val shouldShowRevokeLinkConfirmationDialog: Boolean = false,

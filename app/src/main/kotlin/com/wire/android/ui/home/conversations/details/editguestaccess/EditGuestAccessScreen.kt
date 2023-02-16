@@ -77,7 +77,7 @@ fun EditGuestAccessScreen(
                         isSwitchEnabled = editGuestAccessState.isUpdatingGuestAccessAllowed,
                         isSwitchVisible = true,
                         switchState = editGuestAccessState.isGuestAccessAllowed,
-                        isLoading = editGuestAccessState.isUpdating,
+                        isLoading = editGuestAccessState.isUpdatingGuestAccess,
                         onCheckedChange = ::updateGuestAccess
                     )
                 }

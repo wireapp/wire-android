@@ -40,11 +40,13 @@ fun DeviceDetailsScreen(
     viewModel: DeviceDetailsViewModel = hiltSavedStateViewModel(backNavArgs = backNavArgs)
 ) {
     with(viewModel.state) {
-        DeviceDetailsContent(
-            device = device!!,
-            onDeleteDevice = { },
-            onNavigateBack = viewModel::navigateBack
-        )
+        device?.let {
+            DeviceDetailsContent(
+                device = it,
+                onDeleteDevice = { },
+                onNavigateBack = viewModel::navigateBack
+            )
+        }
     }
 }
 

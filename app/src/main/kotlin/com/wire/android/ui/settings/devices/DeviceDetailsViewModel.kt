@@ -11,7 +11,10 @@ import com.wire.android.navigation.NavigationManager
 import com.wire.android.navigation.SavedStateViewModel
 import com.wire.android.ui.authentication.devices.model.Device
 import com.wire.android.ui.settings.devices.model.DeviceDetailsState
-import com.wire.kalium.logic.data.conversation.ClientId
+import com.wire.kalium.logic.data.client.Client
+import com.wire.kalium.logic.feature.client.DeleteClientUseCase
+import com.wire.kalium.logic.feature.client.SelfClientsResult
+import com.wire.kalium.logic.feature.client.SelfClientsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.launch
@@ -19,24 +22,34 @@ import kotlinx.coroutines.launch
 @HiltViewModel
 class DeviceDetailsViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    private val navigationManager: NavigationManager
-
+    private val navigationManager: NavigationManager,
+    private val deleteClient: DeleteClientUseCase,
+    private val selfClients: SelfClientsUseCase
 ) : SavedStateViewModel(savedStateHandle) {
 
-    private val deviceId: ClientId = ClientId(
-        savedStateHandle.get<String>(EXTRA_DEVICE_ID)!!
-    )
+    private val deviceId: String = savedStateHandle.get<String>(EXTRA_DEVICE_ID)!!
 
-    var state: DeviceDetailsState by mutableStateOf(
-        DeviceDetailsState(device = Device("pixel 3a", ClientId(deviceId.value)), isCurrentDevice = false)
-    )
+    var state: DeviceDetailsState by mutableStateOf(DeviceDetailsState(null, false))
         private set
 
     init {
-        appLogger.d(">>> DeviceDetailsViewModel extra: ${savedStateHandle.get<String>(EXTRA_DEVICE_ID)!!}")
-        appLogger.d(">>> DeviceDetailsViewModel $deviceId")
+        viewModelScope.launch {
+            when (val result = selfClients()) {
+                is SelfClientsResult.Failure.Generic -> {
+                    appLogger.e("Error getting self clients $result")
+                    navigateBack()
+                }
+                is SelfClientsResult.Success -> {
+                    val client: Client? = result.clients.firstOrNull {
+                        appLogger.d("> comparing ${it.id} with $deviceId")
+                        deviceId.contentEquals(it.id.value)
+                    }
 
-        state = DeviceDetailsState(device = Device("pixel 3a", deviceId, "1676509508296", true), isCurrentDevice = false)
+                    appLogger.d("> client is: $client")
+                    state = DeviceDetailsState(Device(client!!), isCurrentDevice = false)
+                }
+            }
+        }
     }
 
     fun navigateBack() {

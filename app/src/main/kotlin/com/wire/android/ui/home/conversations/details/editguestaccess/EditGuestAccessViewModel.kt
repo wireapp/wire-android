@@ -158,7 +158,7 @@ class EditGuestAccessViewModel @Inject constructor(
         updateState(editGuestAccessState.copy(shouldShowRevokeLinkConfirmationDialog = false, isRevokingLink = true))
         viewModelScope.launch {
             revokeGuestRoomLink(conversationId).also {
-                if(it is RevokeGuestRoomLinkResult.Failure) {
+                if (it is RevokeGuestRoomLinkResult.Failure) {
                     updateState(editGuestAccessState.copy(isFailedToRevokeGuestRoomLink = true))
                 }
             }

@@ -232,7 +232,7 @@ class ServiceModule {
 
 @Module
 @InstallIn(ViewModelComponent::class)
-@Suppress("TooManyFunctions")
+@Suppress("TooManyFunctions", "LargeClass")
 class UseCaseModule {
 
     @ViewModelScoped
@@ -966,5 +966,4 @@ class UseCaseModule {
         @CurrentAccount currentAccount: UserId
     ): ObserveGuestRoomLinkUseCase =
         coreLogic.getSessionScope(currentAccount).conversations.observeGuestRoomLink
-
 }

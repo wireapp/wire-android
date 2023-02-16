@@ -33,7 +33,36 @@ data class NotificationConversation(
     val messages: List<NotificationMessage>,
     val isOneToOneConversation: Boolean,
     val lastMessageTime: Long
-)
+) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as NotificationConversation
+
+        if (id != other.id) return false
+        if (name != other.name) return false
+        if (image != null) {
+            if (other.image == null) return false
+            if (!image.contentEquals(other.image)) return false
+        } else if (other.image != null) return false
+        if (messages != other.messages) return false
+        if (isOneToOneConversation != other.isOneToOneConversation) return false
+        if (lastMessageTime != other.lastMessageTime) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = id.hashCode()
+        result = 31 * result + name.hashCode()
+        result = 31 * result + (image?.contentHashCode() ?: 0)
+        result = 31 * result + messages.hashCode()
+        result = 31 * result + isOneToOneConversation.hashCode()
+        result = 31 * result + lastMessageTime.hashCode()
+        return result
+    }
+}
 
 sealed class NotificationMessage(open val author: NotificationMessageAuthor, open val time: Long) {
     data class Text(
@@ -58,7 +87,28 @@ sealed class NotificationMessage(open val author: NotificationMessageAuthor, ope
         NotificationMessage(author, time)
 }
 
-data class NotificationMessageAuthor(val name: String, val image: ByteArray?)
+data class NotificationMessageAuthor(val name: String, val image: ByteArray?) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as NotificationMessageAuthor
+
+        if (name != other.name) return false
+        if (image != null) {
+            if (other.image == null) return false
+            if (!image.contentEquals(other.image)) return false
+        } else if (other.image != null) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = name.hashCode()
+        result = 31 * result + (image?.contentHashCode() ?: 0)
+        return result
+    }
+}
 
 enum class CommentResId(@StringRes val value: Int) {
     PICTURE(R.string.notification_shared_picture),
@@ -66,6 +116,7 @@ enum class CommentResId(@StringRes val value: Int) {
     REACTION(R.string.notification_reacted),
     MISSED_CALL(R.string.notification_missed_call),
     NOT_SUPPORTED(R.string.notification_not_supported_issue),
+    KNOCK(R.string.notification_knock),
 }
 
 fun LocalNotificationConversation.intoNotificationConversation(): NotificationConversation {

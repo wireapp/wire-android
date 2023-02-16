@@ -363,7 +363,7 @@ private fun MessageSendFailureWarning(
     /* TODO: add onRetryClick handler */
 ) {
     val context = LocalContext.current
-    val learnMoreUrl = stringResource(R.string.url_decryption_failure_learn_more) // todo: change later tbd.
+    val learnMoreUrl = stringResource(R.string.url_message_details_offline_backends_learn_more)
     CompositionLocalProvider(
         LocalTextStyle provides MaterialTheme.typography.labelSmall
     ) {

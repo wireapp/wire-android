@@ -204,6 +204,7 @@ class MessageContentMapper @Inject constructor(
                         metadata = metadata
                     )
                 }
+
                 is AssetContent.AssetMetadata.Image, is AssetContent.AssetMetadata.Video, null -> {
                     val assetMessageContentMetadata = AssetMessageContentMetadata(assetContent.value)
                     toUIMessageContent(assetMessageContentMetadata, message, sender)
@@ -271,11 +272,14 @@ class MessageContentMapper @Inject constructor(
                     )
                 )
 
+                AttachmentType.AUDIO -> QuotedMessageUIData.AudioMessage
+
                 AttachmentType.GENERIC_FILE -> QuotedMessageUIData.GenericAsset(
                     quotedContent.assetName,
                     quotedContent.assetMimeType
                 )
             }
+
 
             is MessageContent.QuotedMessageDetails.Text -> QuotedMessageUIData.Text(quotedContent.value)
             MessageContent.QuotedMessageDetails.Deleted -> QuotedMessageUIData.Deleted

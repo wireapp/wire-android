@@ -7,7 +7,10 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
+import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.EXTRA_DEVICE_ID
+import com.wire.android.navigation.NavigationCommand
+import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.navigation.SavedStateViewModel
 import com.wire.android.ui.authentication.devices.model.Device
@@ -93,7 +96,12 @@ class DeviceDetailsViewModel @Inject constructor(
                 error = RemoveDeviceError.InvalidCredentialsError
             )
             DeleteClientResult.Failure.PasswordAuthRequired -> showDeleteClientDialog(state?.device)
-            DeleteClientResult.Success -> navigateBack()
+            DeleteClientResult.Success -> navigationManager.navigate(
+                NavigationCommand(
+                    NavigationItem.SelfDevices.getRouteWithArgs(),
+                    BackStackMode.REMOVE_CURRENT
+                )
+            )
         }
     }
 

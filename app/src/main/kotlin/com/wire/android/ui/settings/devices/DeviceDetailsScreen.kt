@@ -16,13 +16,21 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.navigation.hiltSavedStateViewModel
 import com.wire.android.ui.authentication.devices.model.Device
+import com.wire.android.ui.authentication.devices.remove.RemoveDeviceDialog
+import com.wire.android.ui.authentication.devices.remove.RemoveDeviceDialogState
+import com.wire.android.ui.authentication.devices.remove.RemoveDeviceError
+import com.wire.android.ui.common.WireDialog
+import com.wire.android.ui.common.WireDialogButtonProperties
+import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.button.wirePrimaryButtonColors
 import com.wire.android.ui.common.colorsScheme
@@ -32,6 +40,7 @@ import com.wire.android.ui.settings.devices.model.DeviceDetailsState
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.dialogErrorStrings
 import com.wire.android.util.extension.formatAsString
 import com.wire.android.util.formatMediumDateTime
 import com.wire.kalium.logic.data.conversation.ClientId
@@ -46,7 +55,11 @@ fun DeviceDetailsScreen(
     viewModel.state?.let { state ->
         DeviceDetailsContent(
             state = state,
-            onDeleteDevice = { },
+            onDeleteDevice = viewModel::removeDevice,
+            onPasswordChange = viewModel::onPasswordChange,
+            onRemoveConfirm = viewModel::onRemoveConfirmed,
+            onDialogDismiss = viewModel::onDialogDismissed,
+            onErrorDialogDismiss = viewModel::clearDeleteClientError,
             onNavigateBack = viewModel::navigateBack
         )
     }
@@ -57,7 +70,11 @@ fun DeviceDetailsScreen(
 fun DeviceDetailsContent(
     state: DeviceDetailsState,
     onDeleteDevice: () -> Unit = {},
-    onNavigateBack: () -> Unit = {}
+    onNavigateBack: () -> Unit = {},
+    onPasswordChange: (TextFieldValue) -> Unit = {},
+    onRemoveConfirm: () -> Unit = {},
+    onDialogDismiss: () -> Unit = {},
+    onErrorDialogDismiss: () -> Unit = {}
 ) {
     Scaffold(
         topBar = {
@@ -110,6 +127,29 @@ fun DeviceDetailsContent(
             }
             item {
                 DeviceDetailSectionContent(stringResource(id = R.string.label_client_device_id), state.device.clientId.formatAsString())
+            }
+        }
+        if (state.removeDeviceDialogState is RemoveDeviceDialogState.Visible) {
+            RemoveDeviceDialog(
+                errorState = state.error,
+                state = state.removeDeviceDialogState,
+                onPasswordChange = onPasswordChange,
+                onDialogDismiss = onDialogDismiss,
+                onRemoveConfirm = onRemoveConfirm
+            )
+            if (state.error is RemoveDeviceError.GenericError) {
+                val (title, message) = state.error.coreFailure.dialogErrorStrings(LocalContext.current.resources)
+
+                WireDialog(
+                    title = title,
+                    text = message,
+                    onDismiss = onErrorDialogDismiss,
+                    optionButton1Properties = WireDialogButtonProperties(
+                        onClick = onErrorDialogDismiss,
+                        text = stringResource(id = R.string.label_ok),
+                        type = WireDialogButtonType.Primary
+                    )
+                )
             }
         }
     }
@@ -169,6 +209,10 @@ fun PreviewDeviceDetailsScreen() {
                 registrationTime = "2022-03-24T18:02:30.360Z"
             ),
             isCurrentDevice = false
-        )
+        ),
+        onPasswordChange = { },
+        onRemoveConfirm = { },
+        onDialogDismiss = { },
+        onErrorDialogDismiss = { }
     )
 }

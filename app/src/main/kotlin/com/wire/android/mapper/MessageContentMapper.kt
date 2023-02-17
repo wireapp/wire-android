@@ -271,16 +271,12 @@ class MessageContentMapper @Inject constructor(
                         it.isQuotingSelfUser
                     )
                 )
-
                 AttachmentType.AUDIO -> QuotedMessageUIData.AudioMessage
-
                 AttachmentType.GENERIC_FILE -> QuotedMessageUIData.GenericAsset(
                     quotedContent.assetName,
                     quotedContent.assetMimeType
                 )
             }
-
-
             is MessageContent.QuotedMessageDetails.Text -> QuotedMessageUIData.Text(quotedContent.value)
             MessageContent.QuotedMessageDetails.Deleted -> QuotedMessageUIData.Deleted
             MessageContent.QuotedMessageDetails.Invalid -> QuotedMessageUIData.Invalid

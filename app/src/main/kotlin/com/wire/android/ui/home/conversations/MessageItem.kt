@@ -30,7 +30,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -104,8 +103,8 @@ fun MessageItem(
             Spacer(Modifier.padding(start = dimensions().spacing8x - fullAvatarOuterPadding))
 
             val isProfileRedirectEnabled =
-                message.messageHeader.userId != null
-                        && !(message.messageHeader.isSenderDeleted || message.messageHeader.isSenderUnavailable)
+                message.messageHeader.userId != null &&
+                    !(message.messageHeader.isSenderDeleted || message.messageHeader.isSenderUnavailable)
 
             val avatarClickable = remember {
                 Clickable(enabled = isProfileRedirectEnabled) {
@@ -127,8 +126,8 @@ fun MessageItem(
                             Clickable(enabled = true, onClick = {
                                 onAssetMessageClicked(message.messageHeader.messageId)
                             }, onLongClick = {
-                                onLongClicked(message)
-                            })
+                                    onLongClicked(message)
+                                })
                         }
 
                         val currentOnImageClick = remember {
@@ -138,8 +137,8 @@ fun MessageItem(
                                     message.messageSource == MessageSource.Self
                                 )
                             }, onLongClick = {
-                                onLongClicked(message)
-                            })
+                                    onLongClicked(message)
+                                })
                         }
                         val onLongClick = remember { { onLongClicked(message) } }
 
@@ -164,7 +163,7 @@ fun MessageItem(
                 }
 
                 if (message.sendingFailed) {
-                    MessageSendFailureWarning()
+                    MessageSendFailureWarning(messageHeader.messageStatus)
                 }
             }
         }
@@ -173,7 +172,7 @@ fun MessageItem(
 
 @Composable
 private fun Modifier.customizeMessageBackground(
-    message: UIMessage,
+    message: UIMessage
 ) = run {
     if (message.sendingFailed || message.receivingFailed) {
         background(MaterialTheme.wireColorScheme.messageErrorBackgroundColor)
@@ -182,7 +181,7 @@ private fun Modifier.customizeMessageBackground(
 
 @Composable
 private fun MessageHeader(
-    messageHeader: MessageHeader,
+    messageHeader: MessageHeader
 ) {
     with(messageHeader) {
         Column {
@@ -352,32 +351,48 @@ private fun MessageStatusLabel(messageStatus: MessageStatus) {
         MessageStatus.ReceiveFailure -> StatusBox(messageStatus.text.asString())
 
         is MessageStatus.DecryptionFailure,
-        MessageStatus.SendFailure, MessageStatus.Untouched -> {
+        is MessageStatus.SendRemotelyFailure, MessageStatus.SendFailure, MessageStatus.Untouched -> {
             /** Don't display anything **/
         }
     }
 }
 
 @Composable
-private fun MessageSendFailureWarning() {
+private fun MessageSendFailureWarning(
+    messageStatus: MessageStatus
+    /* TODO: add onRetryClick handler */
+) {
+    val context = LocalContext.current
+    val learnMoreUrl = stringResource(R.string.url_message_details_offline_backends_learn_more)
     CompositionLocalProvider(
         LocalTextStyle provides MaterialTheme.typography.labelSmall
     ) {
-        Row {
+        Column {
             Text(
-                text = MessageStatus.SendFailure.text.asString(),
+                text = messageStatus.text.asString(),
                 style = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.error)
             )
-            Spacer(Modifier.width(dimensions().spacing4x))
-//      todo to uncomment this after we have the functionality of resend the message
-//              Text(
-//                modifier = Modifier.fillMaxWidth(),
-//                style = LocalTextStyle.current.copy(
-//                    color = MaterialTheme.wireColorScheme.onTertiaryButtonSelected,
-//                    textDecoration = TextDecoration.Underline
-//                ),
-//                text = stringResource(R.string.label_try_again),
-//            )
+            if (messageStatus is MessageStatus.SendRemotelyFailure) {
+                Text(
+                    modifier = Modifier
+                        .clickable { CustomTabsHelper.launchUrl(context, learnMoreUrl) },
+                    style = LocalTextStyle.current.copy(
+                        color = MaterialTheme.wireColorScheme.onTertiaryButtonSelected,
+                        textDecoration = TextDecoration.Underline
+                    ),
+                    text = stringResource(R.string.label_learn_more)
+                )
+            }
+            // TODO: re-enable when we have a retry mechanism
+//            VerticalSpace.x4()
+//            Row {
+//                WireSecondaryButton(
+//                    text = stringResource(R.string.label_retry),
+//                    onClick = { /* TODO */ },
+//                    minHeight = dimensions().spacing32x,
+//                    fillMaxWidth = false
+//                )
+//            }
         }
     }
 }
@@ -406,7 +421,7 @@ private fun MessageDecryptionFailure(
                     color = MaterialTheme.wireColorScheme.onTertiaryButtonSelected,
                     textDecoration = TextDecoration.Underline
                 ),
-                text = stringResource(R.string.label_learn_more),
+                text = stringResource(R.string.label_learn_more)
             )
             VerticalSpace.x4()
             Text(
@@ -419,7 +434,7 @@ private fun MessageDecryptionFailure(
                         text = stringResource(R.string.label_reset_session),
                         onClick = { messageHeader.userId?.let { userId -> onResetSessionClicked(userId, messageHeader.clientId?.value) } },
                         minHeight = dimensions().spacing32x,
-                        fillMaxWidth = false,
+                        fillMaxWidth = false
                     )
                 }
             } else {

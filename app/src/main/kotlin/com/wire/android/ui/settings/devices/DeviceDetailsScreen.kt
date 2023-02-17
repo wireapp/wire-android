@@ -27,6 +27,7 @@ import com.wire.android.ui.common.button.wirePrimaryButtonColors
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import com.wire.android.ui.settings.devices.model.DeviceDetailsState
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
@@ -40,21 +41,19 @@ fun DeviceDetailsScreen(
     backNavArgs: ImmutableMap<String, Any> = persistentMapOf(),
     viewModel: DeviceDetailsViewModel = hiltSavedStateViewModel(backNavArgs = backNavArgs)
 ) {
-    with(viewModel.state) {
-        device?.let {
-            DeviceDetailsContent(
-                device = it,
-                onDeleteDevice = { },
-                onNavigateBack = viewModel::navigateBack
-            )
-        }
+    viewModel.state?.let { state ->
+        DeviceDetailsContent(
+            state = state,
+            onDeleteDevice = { },
+            onNavigateBack = viewModel::navigateBack
+        )
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DeviceDetailsContent(
-    device: Device,
+    state: DeviceDetailsState,
     onDeleteDevice: () -> Unit = {},
     onNavigateBack: () -> Unit = {}
 ) {
@@ -63,17 +62,19 @@ fun DeviceDetailsContent(
             WireCenterAlignedTopAppBar(
                 onNavigationPressed = onNavigateBack,
                 elevation = 0.dp,
-                title = device.name
+                title = state.device.name
             )
         },
         bottomBar = {
-            if (true) { // check for current device
+            if (!state.isCurrentDevice) {
                 WirePrimaryButton(
                     text = stringResource(R.string.content_description_remove_devices_screen_remove_icon),
                     onClick = onDeleteDevice,
                     modifier = Modifier.padding(dimensions().spacing16x),
                     colors = wirePrimaryButtonColors().copy(enabled = colorsScheme().error)
                 )
+            } else {
+                Box(modifier = Modifier.padding(dimensions().spacing16x))
             }
         }
     ) { internalPadding ->
@@ -84,10 +85,10 @@ fun DeviceDetailsContent(
                 .background(MaterialTheme.wireColorScheme.surface)
         ) {
             item {
-                DeviceDetailSectionContent("ADDED", device.registrationTime)
+                DeviceDetailSectionContent("ADDED", state.device.registrationTime)
             }
             item {
-                DeviceDetailSectionContent("DEVICE ID", device.clientId.formatAsString())
+                DeviceDetailSectionContent("DEVICE ID", state.device.clientId.formatAsString())
             }
         }
     }
@@ -140,11 +141,12 @@ private fun DeviceDetailSectionContent(
 @Composable
 fun PreviewDeviceDetailsScreen() {
     DeviceDetailsContent(
-        Device(
-            clientId = ClientId("1234567890"),
-            registrationTime = "2021-09-01T12:00:00.000Z",
-            name = "My Pixel 3a",
-            isValid = true
+        state = DeviceDetailsState(
+            device = Device(
+                clientId = ClientId(""),
+                name = "My Device"
+            ),
+            isCurrentDevice = false
         )
     )
 }

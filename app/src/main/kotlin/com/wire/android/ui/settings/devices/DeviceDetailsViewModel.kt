@@ -11,11 +11,10 @@ import com.wire.android.navigation.NavigationManager
 import com.wire.android.navigation.SavedStateViewModel
 import com.wire.android.ui.authentication.devices.model.Device
 import com.wire.android.ui.settings.devices.model.DeviceDetailsState
-import com.wire.kalium.logic.data.client.Client
 import com.wire.kalium.logic.data.conversation.ClientId
 import com.wire.kalium.logic.feature.client.DeleteClientUseCase
-import com.wire.kalium.logic.feature.client.SelfClientsResult
-import com.wire.kalium.logic.feature.client.SelfClientsUseCase
+import com.wire.kalium.logic.feature.client.GetClientDetailsResult
+import com.wire.kalium.logic.feature.client.GetClientDetailsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.launch
@@ -25,31 +24,25 @@ class DeviceDetailsViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val navigationManager: NavigationManager,
     private val deleteClient: DeleteClientUseCase,
-    private val selfClients: SelfClientsUseCase
+    private val getClientDetails: GetClientDetailsUseCase
 ) : SavedStateViewModel(savedStateHandle) {
 
     private val deviceId: ClientId = ClientId(
         savedStateHandle.get<String>(EXTRA_DEVICE_ID)!!
     )
 
-    var state: DeviceDetailsState by mutableStateOf(DeviceDetailsState(null, false))
+    var state: DeviceDetailsState? by mutableStateOf(null)
         private set
 
     init {
         viewModelScope.launch {
-            when (val result = selfClients()) {
-                is SelfClientsResult.Failure.Generic -> {
+            when (val result = getClientDetails(deviceId)) {
+                is GetClientDetailsResult.Failure.Generic -> {
                     appLogger.e("Error getting self clients $result")
                     navigateBack()
                 }
-                is SelfClientsResult.Success -> {
-                    val client: Client? = result.clients.firstOrNull {
-                        appLogger.d("> comparing ${it.id.value} with ${deviceId.value}")
-                        deviceId.value == it.id.value
-                    }
-
-                    appLogger.d("> client is: $client")
-                    state = DeviceDetailsState(Device(client!!), isCurrentDevice = false)
+                is GetClientDetailsResult.Success -> {
+                    state = DeviceDetailsState(Device(result.client), isCurrentDevice = result.isCurrentClient)
                 }
             }
         }

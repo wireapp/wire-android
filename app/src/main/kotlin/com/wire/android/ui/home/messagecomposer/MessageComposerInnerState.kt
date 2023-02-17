@@ -307,6 +307,8 @@ data class MessageComposerInnerState(
                 value = content.messageBody.message.asString(context.resources)
             )
 
+            is UIMessageContent.AudioAssetMessage -> QuotedMessageUIData.AudioMessage
+
             is UIMessageContent.ImageMessage -> content.asset?.let {
                 QuotedMessageUIData.DisplayableImage(displayable = content.asset)
             }

@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -32,6 +33,7 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.extension.formatAsString
+import com.wire.android.util.formatMediumDateTime
 import com.wire.kalium.logic.data.conversation.ClientId
 import kotlinx.collections.immutable.ImmutableMap
 import kotlinx.collections.immutable.persistentMapOf
@@ -66,15 +68,29 @@ fun DeviceDetailsContent(
             )
         },
         bottomBar = {
-            if (!state.isCurrentDevice) {
-                WirePrimaryButton(
-                    text = stringResource(R.string.content_description_remove_devices_screen_remove_icon),
-                    onClick = onDeleteDevice,
-                    modifier = Modifier.padding(dimensions().spacing16x),
-                    colors = wirePrimaryButtonColors().copy(enabled = colorsScheme().error)
-                )
-            } else {
-                Box(modifier = Modifier.padding(dimensions().spacing16x))
+            Column(
+                Modifier
+                    .background(MaterialTheme.wireColorScheme.surface)
+                    .wrapContentWidth(Alignment.CenterHorizontally)
+            ) {
+                if (!state.isCurrentDevice) {
+                    Text(
+                        text = stringResource(id = R.string.remove_device_details_description),
+                        style = MaterialTheme.wireTypography.body01,
+                        color = MaterialTheme.wireColorScheme.onBackground,
+                        modifier = Modifier.padding(dimensions().spacing16x)
+                    )
+                    WirePrimaryButton(
+                        text = stringResource(R.string.content_description_remove_devices_screen_remove_icon),
+                        onClick = onDeleteDevice,
+                        colors = wirePrimaryButtonColors().copy(enabled = colorsScheme().error),
+                        modifier = Modifier.padding(
+                            start = dimensions().spacing16x,
+                            end = dimensions().spacing16x,
+                            bottom = dimensions().spacing16x
+                        )
+                    )
+                }
             }
         }
     ) { internalPadding ->
@@ -85,10 +101,15 @@ fun DeviceDetailsContent(
                 .background(MaterialTheme.wireColorScheme.surface)
         ) {
             item {
-                DeviceDetailSectionContent("ADDED", state.device.registrationTime)
+                with(state.device.registrationTime) {
+                    DeviceDetailSectionContent(
+                        stringResource(id = R.string.label_client_added_time),
+                        this.formatMediumDateTime() ?: this
+                    )
+                }
             }
             item {
-                DeviceDetailSectionContent("DEVICE ID", state.device.clientId.formatAsString())
+                DeviceDetailSectionContent(stringResource(id = R.string.label_client_device_id), state.device.clientId.formatAsString())
             }
         }
     }
@@ -144,7 +165,8 @@ fun PreviewDeviceDetailsScreen() {
         state = DeviceDetailsState(
             device = Device(
                 clientId = ClientId(""),
-                name = "My Device"
+                name = "My Device",
+                registrationTime = "2022-03-24T18:02:30.360Z"
             ),
             isCurrentDevice = false
         )

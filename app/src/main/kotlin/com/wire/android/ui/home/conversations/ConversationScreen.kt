@@ -53,6 +53,7 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.items
 import com.wire.android.R
+import com.wire.android.media.audiomessage.AudioState
 import com.wire.android.model.SnackBarMessage
 import com.wire.android.navigation.hiltSavedStateViewModel
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
@@ -110,6 +111,7 @@ import okio.Path.Companion.toPath
  */
 private const val MAXIMUM_SCROLLED_MESSAGES_UNTIL_AUTOSCROLL_STOPS = 5
 
+//TODO: !! this screen definitely needs a refactor and some cleanup !!
 @Composable
 fun ConversationScreen(
     backNavArgs: ImmutableMap<String, Any>,
@@ -187,6 +189,8 @@ fun ConversationScreen(
         },
         onJoinCall = conversationCallViewModel::joinOngoingCall,
         onReactionClick = conversationMessagesViewModel::toggleReaction,
+        onAudioClick = conversationMessagesViewModel::audioClick,
+        onChangeAudioPosition = conversationMessagesViewModel::changeAudioPosition,
         onResetSessionClick = conversationMessagesViewModel::onResetSession,
         onMentionMember = messageComposerViewModel::mentionMember,
         onUpdateConversationReadDate = messageComposerViewModel::updateConversationReadDate,
@@ -271,6 +275,8 @@ private fun ConversationScreen(
     onSendMessage: (String, List<UiMention>, String?) -> Unit,
     onDeleteMessage: (String, Boolean) -> Unit,
     onSendAttachment: (AttachmentBundle?) -> Unit,
+    onAudioClick: (String) -> Unit,
+    onChangeAudioPosition: (String, Int) -> Unit,
     onDownloadAsset: (String) -> Unit,
     onImageFullScreenMode: (String, Boolean) -> Unit,
     onOpenOngoingCallScreen: () -> Unit,
@@ -346,6 +352,7 @@ private fun ConversationScreen(
                         interactionAvailability = interactionAvailability,
                         tempCachePath = tempCachePath,
                         membersToMention = membersToMention,
+                        audioMessagesState = conversationMessagesViewState.audioMessagesState,
                         isFileSharingEnabled = conversationViewState.isFileSharingEnabled,
                         lastUnreadMessageInstant = conversationMessagesViewState.firstUnreadInstant,
                         conversationState = conversationViewState,
@@ -355,6 +362,8 @@ private fun ConversationScreen(
                         onSendAttachment = onSendAttachment,
                         onMentionMember = onMentionMember,
                         onDownloadAsset = onDownloadAsset,
+                        onAudioClick = onAudioClick,
+                        onChangeAudioPosition = onChangeAudioPosition,
                         onImageFullScreenMode = onImageFullScreenMode,
                         onReactionClicked = onReactionClick,
                         onResetSessionClicked = onResetSessionClick,
@@ -380,12 +389,15 @@ private fun ConversationScreenContent(
     isFileSharingEnabled: Boolean,
     lastUnreadMessageInstant: Instant?,
     conversationState: ConversationViewState,
+    audioMessagesState: Map<String, AudioState>,
     messageComposerInnerState: MessageComposerInnerState,
     messages: Flow<PagingData<UIMessage>>,
     onSendMessage: (String, List<UiMention>, String?) -> Unit,
     onSendAttachment: (AttachmentBundle?) -> Unit,
     onMentionMember: (String?) -> Unit,
     onDownloadAsset: (String) -> Unit,
+    onAudioClick: (String) -> Unit,
+    onChangeAudioPosition: (String, Int) -> Unit,
     onImageFullScreenMode: (String, Boolean) -> Unit,
     onReactionClicked: (String, String) -> Unit,
     onResetSessionClicked: (senderUserId: UserId, clientId: String?) -> Unit,
@@ -411,8 +423,11 @@ private fun ConversationScreenContent(
                 lazyPagingMessages = lazyPagingMessages,
                 lazyListState = lazyListState,
                 lastUnreadMessageInstant = lastUnreadMessageInstant,
+                audioMessagesState = audioMessagesState,
                 onUpdateConversationReadDate = onUpdateConversationReadDate,
                 onDownloadAsset = onDownloadAsset,
+                onAudioClick = onAudioClick,
+                onChangeAudioPosition = onChangeAudioPosition,
                 onImageFullScreenMode = onImageFullScreenMode,
                 onOpenProfile = onOpenProfile,
                 onReactionClicked = onReactionClicked,
@@ -493,10 +508,13 @@ fun MessageList(
     lazyPagingMessages: LazyPagingItems<UIMessage>,
     lazyListState: LazyListState,
     lastUnreadMessageInstant: Instant?,
+    audioMessagesState: Map<String, AudioState>,
     onUpdateConversationReadDate: (String) -> Unit,
     onDownloadAsset: (String) -> Unit,
     onImageFullScreenMode: (String, Boolean) -> Unit,
     onOpenProfile: (String) -> Unit,
+    onAudioClick: (String) -> Unit,
+    onChangeAudioPosition: (String, Int) -> Unit,
     onReactionClicked: (String, String) -> Unit,
     onResetSessionClicked: (senderUserId: UserId, clientId: String?) -> Unit,
     onShowContextMenu: (UIMessage) -> Unit
@@ -543,6 +561,9 @@ fun MessageList(
             } else {
                 MessageItem(
                     message = message,
+                    audioMessagesState = audioMessagesState,
+                    onAudioClick = onAudioClick,
+                    onChangeAudioPosition = onChangeAudioPosition,
                     onLongClicked = onShowContextMenu,
                     onAssetMessageClicked = onDownloadAsset,
                     onImageMessageClicked = onImageFullScreenMode,
@@ -579,6 +600,8 @@ fun PreviewConversationScreen() {
         onStartCall = { },
         onJoinCall = { },
         onReactionClick = { _, _ -> },
+        onChangeAudioPosition = { _, _ -> },
+        onAudioClick = { },
         onResetSessionClick = { _, _ -> },
         onMentionMember = { },
         onUpdateConversationReadDate = { },

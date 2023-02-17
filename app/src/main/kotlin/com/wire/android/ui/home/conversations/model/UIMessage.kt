@@ -139,6 +139,16 @@ sealed class UIMessageContent {
         val downloadStatus: Message.DownloadStatus
     ) : UIMessageContent()
 
+    @Stable
+    data class AudioAssetMessage(
+        val assetName: String,
+        val assetExtension: String,
+        val assetId: AssetId,
+        val audioMessageDurationInMs: Long,
+        val uploadStatus: Message.UploadStatus,
+        val downloadStatus: Message.DownloadStatus
+    ) : UIMessageContent()
+
     sealed class SystemMessage(
         @DrawableRes val iconResId: Int?,
         @StringRes open val stringResId: Int,

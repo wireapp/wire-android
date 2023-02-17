@@ -29,6 +29,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.cachedIn
 import com.wire.android.R
 import com.wire.android.appLogger
+import com.wire.android.media.audiomessage.ConversationAudioMessagePlayer
 import com.wire.android.model.SnackBarMessage
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.NavigationCommand
@@ -81,12 +82,13 @@ class ConversationMessagesViewModel @Inject constructor(
     private val dispatchers: DispatcherProvider,
     private val getMessageForConversation: GetMessagesForConversationUseCase,
     private val toggleReaction: ToggleReactionUseCase,
-    private val resetSession: ResetSessionUseCase
+    private val resetSession: ResetSessionUseCase,
+    private val conversationAudioMessagePlayer: ConversationAudioMessagePlayer
 ) : SavedStateViewModel(savedStateHandle) {
 
     var conversationViewState by mutableStateOf(ConversationMessagesViewState())
 
-    val conversationId: QualifiedID = qualifiedIdMapper.fromStringToQualifiedID(
+    private val conversationId: QualifiedID = qualifiedIdMapper.fromStringToQualifiedID(
         savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)!!
     )
 
@@ -96,12 +98,24 @@ class ConversationMessagesViewModel @Inject constructor(
     init {
         loadPaginatedMessages()
         loadLastMessageInstant()
+        observeAudioPlayerState()
+    }
+
+    private fun observeAudioPlayerState() {
+        viewModelScope.launch {
+            conversationAudioMessagePlayer.observableAudioMessagesState.collect {
+                conversationViewState = conversationViewState.copy(
+                    audioMessagesState = it
+                )
+            }
+        }
     }
 
     private fun loadPaginatedMessages() = viewModelScope.launch {
         val paginatedMessagesFlow = getMessageForConversation(conversationId)
             .flowOn(dispatchers.io())
             .cachedIn(this)
+
         conversationViewState = conversationViewState.copy(messages = paginatedMessagesFlow)
     }
 
@@ -118,12 +132,12 @@ class ConversationMessagesViewModel @Inject constructor(
             }
     }
 
-    fun onSnackbarMessage(type: SnackBarMessage) = viewModelScope.launch {
+    private fun onSnackbarMessage(type: SnackBarMessage) = viewModelScope.launch {
         _infoMessage.emit(type)
     }
 
     // This will download the asset remotely to an internal temporary storage or fetch it from the local database if it had been previously
-    // downloaded. After doing so, a dialog is shown to ask the user whether he wants to open the file or download it to external storage
+// downloaded. After doing so, a dialog is shown to ask the user whether he wants to open the file or download it to external storage
     fun downloadOrFetchAssetToInternalStorage(messageId: String) = viewModelScope.launch {
         withContext(dispatchers.io()) {
             try {
@@ -234,7 +248,6 @@ class ConversationMessagesViewModel @Inject constructor(
         }
     }
 
-    // region Private
     private suspend fun assetDataPath(conversationId: QualifiedID, messageId: String): Path? =
         getMessageAsset(conversationId, messageId).await().run {
             return when (this) {
@@ -251,7 +264,22 @@ class ConversationMessagesViewModel @Inject constructor(
         onSnackbarMessage(ConversationSnackbarMessages.OnFileDownloaded(assetName))
     }
 
-    // endregion
+    fun audioClick(messageId: String) {
+        viewModelScope.launch {
+            conversationAudioMessagePlayer.playAudio(conversationId, messageId)
+        }
+    }
+
+    fun changeAudioPosition(messageId: String, position: Int) {
+        viewModelScope.launch {
+            conversationAudioMessagePlayer.setPosition(messageId, position)
+        }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        conversationAudioMessagePlayer.close()
+    }
 
     private companion object {
         const val TAG = "ConversationMessagesViewModel"

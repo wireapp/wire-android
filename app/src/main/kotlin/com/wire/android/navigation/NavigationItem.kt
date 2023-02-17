@@ -78,6 +78,7 @@ import com.wire.android.ui.debugscreen.DebugScreen
 import com.wire.android.ui.home.HomeScreen
 import com.wire.android.ui.home.conversations.ConversationScreen
 import com.wire.android.ui.home.conversations.details.GroupConversationDetailsScreen
+import com.wire.android.ui.home.conversations.details.editguestaccess.EditGuestAccessParams
 import com.wire.android.ui.home.conversations.details.metadata.EditConversationNameScreen
 import com.wire.android.ui.home.conversations.details.participants.GroupConversationAllParticipantsScreen
 import com.wire.android.ui.home.conversations.messagedetails.MessageDetailsScreen
@@ -101,6 +102,8 @@ import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import io.github.esentsov.PackagePrivate
 import com.wire.android.ui.home.conversations.details.editguestaccess.EditGuestAccessScreen
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 /**
@@ -347,9 +350,7 @@ enum class NavigationItem(
     EditGuestAccess(
         primaryRoute = EDIT_GUEST_ACCESS,
         canonicalRoute = "$EDIT_GUEST_ACCESS?$EXTRA_CONVERSATION_ID={$EXTRA_CONVERSATION_ID}" +
-                "&$EXTRA_EDIT_GUEST_ACCESS_IS_GUEST_ACCESS_ALLOWED={$EXTRA_EDIT_GUEST_ACCESS_IS_GUEST_ACCESS_ALLOWED}" +
-                "&$EXTRA_EDIT_GUEST_ACCESS_IS_SERVICES_ALLOWED={$EXTRA_EDIT_GUEST_ACCESS_IS_SERVICES_ALLOWED}" +
-                "&$EXTRA_EDIT_GUEST_ACCESS_IS_UPDATING_GUEST_ACCESS_ALLOWED={$EXTRA_EDIT_GUEST_ACCESS_IS_UPDATING_GUEST_ACCESS_ALLOWED}",
+                "&$EXTRA_EDIT_GUEST_ACCESS_PARAMS={$EXTRA_EDIT_GUEST_ACCESS_PARAMS}",
         content = { EditGuestAccessScreen() },
         animationConfig = NavigationAnimationConfig.CustomAnimation(smoothSlideInFromRight(), smoothSlideOutFromLeft())
     ) {
@@ -357,19 +358,10 @@ enum class NavigationItem(
             val conversationIdString: String = arguments.filterIsInstance<ConversationId>().firstOrNull()?.toString()
                 ?: "{$EXTRA_CONVERSATION_ID}"
 
-            val isGuestAccessAllowed: String = arguments.filterIsInstance<Boolean>().firstOrNull()?.toString()
-                ?: "{$EXTRA_EDIT_GUEST_ACCESS_IS_GUEST_ACCESS_ALLOWED}"
-
-            val isServicesAllowed: String = arguments.filterIsInstance<Boolean>().lastOrNull()?.toString()
-                ?: "{$EXTRA_EDIT_GUEST_ACCESS_IS_SERVICES_ALLOWED}"
-
-            val isUpdatingGuestAccessAllowed: String = arguments.filterIsInstance<Boolean>().lastOrNull()?.toString()
-                ?: "{$EXTRA_EDIT_GUEST_ACCESS_IS_UPDATING_GUEST_ACCESS_ALLOWED}"
+            val editGuestAccessParams = Json.encodeToString(arguments.filterIsInstance<EditGuestAccessParams>().firstOrNull())
 
             return "$EDIT_GUEST_ACCESS?$EXTRA_CONVERSATION_ID=$conversationIdString" +
-                    "&$EXTRA_EDIT_GUEST_ACCESS_IS_GUEST_ACCESS_ALLOWED=$isGuestAccessAllowed" +
-                    "&$EXTRA_EDIT_GUEST_ACCESS_IS_SERVICES_ALLOWED=$isServicesAllowed" +
-                    "&$EXTRA_EDIT_GUEST_ACCESS_IS_UPDATING_GUEST_ACCESS_ALLOWED=$isUpdatingGuestAccessAllowed"
+                    "&$EXTRA_EDIT_GUEST_ACCESS_PARAMS=$editGuestAccessParams"
         }
     },
 
@@ -514,9 +506,7 @@ const val EXTRA_SETTINGS_DISPLAY_NAME_CHANGED = "extra_settings_display_name_cha
 
 const val EXTRA_BACK_NAVIGATION_ARGUMENTS = "extra_back_navigation_arguments"
 
-const val EXTRA_EDIT_GUEST_ACCESS_IS_GUEST_ACCESS_ALLOWED = "extra_edit_guest_access_is_guest_access_allowed"
-const val EXTRA_EDIT_GUEST_ACCESS_IS_SERVICES_ALLOWED = "extra_edit_guest_access_is_services_allowed"
-const val EXTRA_EDIT_GUEST_ACCESS_IS_UPDATING_GUEST_ACCESS_ALLOWED = "extra_edit_guest_access_is_updating_guest_access_allowed"
+const val EXTRA_EDIT_GUEST_ACCESS_PARAMS = "extra_edit_guest_access_params"
 
 fun NavigationItem.isExternalRoute() = this.getRouteWithArgs().startsWith("http")
 

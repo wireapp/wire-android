@@ -20,10 +20,11 @@
 
 package com.wire.android.ui.home.conversations.details.editguestaccess
 
-data class EditGuestAccessState(
-    val isGuestAccessAllowed: Boolean = false,
-    val isServicesAccessAllowed: Boolean = false,
-    val isUpdatingGuestAccessAllowed: Boolean = false,
-    val shouldShowGuestAccessChangeConfirmationDialog: Boolean = false,
-    val isUpdating: Boolean = false,
+import kotlinx.serialization.Serializable
+
+@Serializable
+data class EditGuestAccessParams(
+    val isGuestAccessAllowed: Boolean,
+    val isServicesAllowed: Boolean,
+    val isUpdatingGuestAccessAllowed: Boolean
 )

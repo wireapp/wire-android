@@ -83,7 +83,7 @@ fun EditGuestAccessScreen(
         }
     }
     with(editGuestAccessViewModel) {
-        if (editGuestAccessState.changeGuestOptionConfirmationRequired) {
+        if (editGuestAccessState.shouldShowGuestAccessChangeConfirmationDialog) {
             DisableGuestConfirmationDialog(
                 onConfirm = ::onGuestDialogConfirm,
                 onDialogDismiss = ::onGuestDialogDismiss

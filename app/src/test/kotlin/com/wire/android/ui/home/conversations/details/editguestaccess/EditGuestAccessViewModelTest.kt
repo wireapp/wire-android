@@ -26,8 +26,10 @@ import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
+import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationAccessRoleUseCase
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -55,6 +57,12 @@ class EditGuestAccessViewModelTest {
     @MockK
     lateinit var updateConversationAccessRoleUseCase: UpdateConversationAccessRoleUseCase
 
+    @MockK
+    lateinit var observeConversationDetails: ObserveConversationDetailsUseCase
+
+    @MockK
+    lateinit var observeConversationMembers: ObserveParticipantsForConversationUseCase
+
     private lateinit var editGuestAccessViewModel: EditGuestAccessViewModel
 
     @Before
@@ -62,6 +70,8 @@ class EditGuestAccessViewModelTest {
         editGuestAccessViewModel = EditGuestAccessViewModel(
             navigationManager = navigationManager,
             dispatcher = TestDispatcherProvider(),
+            observeConversationDetails = observeConversationDetails,
+            observeConversationMembers = observeConversationMembers,
             updateConversationAccessRole = updateConversationAccessRoleUseCase,
             savedStateHandle = savedStateHandle,
             qualifiedIdMapper = qualifiedIdMapper
@@ -115,7 +125,7 @@ class EditGuestAccessViewModelTest {
 
         editGuestAccessViewModel.updateGuestAccess(false)
 
-        assertEquals(true, editGuestAccessViewModel.editGuestAccessState.changeGuestOptionConfirmationRequired)
+        assertEquals(true, editGuestAccessViewModel.editGuestAccessState.shouldShowGuestAccessChangeConfirmationDialog)
         coVerify(inverse = true) {
             updateConversationAccessRoleUseCase(any(), any(), any(), any())
         }

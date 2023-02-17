@@ -208,8 +208,7 @@ enum class NavigationItem(
         content = { DeviceDetailsScreen(it.navBackStackEntry.savedStateHandle.getBackNavArgs()) }
     ) {
         override fun getRouteWithArgs(arguments: List<Any>): String {
-            val clientIdString: String = arguments.filterIsInstance<ClientId>().firstOrNull()?.toString()
-                ?: "{$EXTRA_DEVICE_ID}"
+            val clientIdString: String = arguments.filterIsInstance<ClientId>().firstOrNull()?.value.toString()
             return "$DEVICE_DETAILS?$EXTRA_DEVICE_ID=$clientIdString"
         }
       },

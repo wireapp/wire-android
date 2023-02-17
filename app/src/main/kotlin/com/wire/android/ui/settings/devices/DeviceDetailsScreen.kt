@@ -30,6 +30,7 @@ import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.extension.formatAsString
 import com.wire.kalium.logic.data.conversation.ClientId
 import kotlinx.collections.immutable.ImmutableMap
 import kotlinx.collections.immutable.persistentMapOf
@@ -86,7 +87,7 @@ fun DeviceDetailsContent(
                 DeviceDetailSectionContent("ADDED", device.registrationTime)
             }
             item {
-                DeviceDetailSectionContent("Device Id", device.clientId.value)
+                DeviceDetailSectionContent("DEVICE ID", device.clientId.formatAsString())
             }
         }
     }

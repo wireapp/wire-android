@@ -12,6 +12,7 @@ import com.wire.android.navigation.SavedStateViewModel
 import com.wire.android.ui.authentication.devices.model.Device
 import com.wire.android.ui.settings.devices.model.DeviceDetailsState
 import com.wire.kalium.logic.data.client.Client
+import com.wire.kalium.logic.data.conversation.ClientId
 import com.wire.kalium.logic.feature.client.DeleteClientUseCase
 import com.wire.kalium.logic.feature.client.SelfClientsResult
 import com.wire.kalium.logic.feature.client.SelfClientsUseCase
@@ -27,7 +28,9 @@ class DeviceDetailsViewModel @Inject constructor(
     private val selfClients: SelfClientsUseCase
 ) : SavedStateViewModel(savedStateHandle) {
 
-    private val deviceId: String = savedStateHandle.get<String>(EXTRA_DEVICE_ID)!!
+    private val deviceId: ClientId = ClientId(
+        savedStateHandle.get<String>(EXTRA_DEVICE_ID)!!
+    )
 
     var state: DeviceDetailsState by mutableStateOf(DeviceDetailsState(null, false))
         private set
@@ -41,8 +44,8 @@ class DeviceDetailsViewModel @Inject constructor(
                 }
                 is SelfClientsResult.Success -> {
                     val client: Client? = result.clients.firstOrNull {
-                        appLogger.d("> comparing ${it.id} with $deviceId")
-                        deviceId.contentEquals(it.id.value)
+                        appLogger.d("> comparing ${it.id.value} with ${deviceId.value}")
+                        deviceId.value == it.id.value
                     }
 
                     appLogger.d("> client is: $client")

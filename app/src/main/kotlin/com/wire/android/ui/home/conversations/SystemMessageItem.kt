@@ -156,7 +156,7 @@ private fun getColorFilter(message: SystemMessage): ColorFilter? {
     return when (message) {
         is SystemMessage.MissedCall.OtherCalled -> null
         is SystemMessage.MissedCall.YouCalled -> null
-        is SystemMessage.Knock -> null
+        is SystemMessage.Knock -> ColorFilter.tint(colorsScheme().primary)
         is SystemMessage.MemberAdded -> ColorFilter.tint(colorsScheme().onBackground)
         is SystemMessage.MemberLeft -> ColorFilter.tint(colorsScheme().onBackground)
         is SystemMessage.MemberRemoved -> ColorFilter.tint(colorsScheme().onBackground)

@@ -932,5 +932,5 @@ class UseCaseModule {
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
     ): GetClientDetailsUseCase =
-        coreLogic.getSessionScope(currentAccount).client.clientDetailsUseCase
+        coreLogic.getSessionScope(currentAccount).client.getClientDetailsUseCase
 }

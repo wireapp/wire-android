@@ -73,7 +73,7 @@ class DeviceDetailsViewModel @Inject constructor(
             }
             when (isPasswordRequired) {
                 true -> showDeleteClientDialog(state?.device)
-                false -> deleteClient(DeleteClientParam(null, deviceId))
+                false -> deleteDevice(null)
             }
         }
     }
@@ -87,7 +87,7 @@ class DeviceDetailsViewModel @Inject constructor(
         }
     }
 
-    private suspend fun deleteDevice(password: String) {
+    private suspend fun deleteDevice(password: String?) {
         when (val result = deleteClient(DeleteClientParam(password, deviceId))) {
             is DeleteClientResult.Failure.Generic -> state = state?.copy(
                 error = RemoveDeviceError.GenericError(result.genericFailure)

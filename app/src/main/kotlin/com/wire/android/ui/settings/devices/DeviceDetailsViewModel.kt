@@ -96,12 +96,7 @@ class DeviceDetailsViewModel @Inject constructor(
                 error = RemoveDeviceError.InvalidCredentialsError
             )
             DeleteClientResult.Failure.PasswordAuthRequired -> showDeleteClientDialog(state?.device)
-            DeleteClientResult.Success -> navigationManager.navigate(
-                NavigationCommand(
-                    NavigationItem.SelfDevices.getRouteWithArgs(),
-                    BackStackMode.REMOVE_CURRENT
-                )
-            )
+            DeleteClientResult.Success -> navigateBack()
         }
     }
 
@@ -147,6 +142,8 @@ class DeviceDetailsViewModel @Inject constructor(
     }
 
     fun navigateBack() {
-        viewModelScope.launch { navigationManager.navigateBack() }
+        viewModelScope.launch {
+            navigationManager.navigate(NavigationCommand(NavigationItem.SelfDevices.getRouteWithArgs(), BackStackMode.REMOVE_CURRENT))
+        }
     }
 }

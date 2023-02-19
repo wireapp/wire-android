@@ -129,6 +129,27 @@ class DeviceDetailsViewModelTest {
         }
 
     @Test
+    fun `given an a password dialog, when confirmation clicked, then should call to delete device`() =
+        runTest {
+            val (arrangement, viewModel) = Arrangement()
+                .withRequiredMockSetup()
+                .withClientDetailsResult(GetClientDetailsResult.Success(TestClient.CLIENT, false))
+                .withUserRequiresPasswordResult(IsPasswordRequiredUseCase.Result.Success(true))
+                .arrange()
+
+            viewModel.removeDevice()
+            viewModel.onRemoveConfirmed()
+
+            coVerify {
+                arrangement.deleteClientUseCase.invoke(any())
+            }
+            assertTrue(viewModel.state?.removeDeviceDialogState is RemoveDeviceDialogState.Visible)
+            assertTrue((viewModel.state?.removeDeviceDialogState as? RemoveDeviceDialogState.Visible)?.loading == true)
+            assertTrue((viewModel.state?.removeDeviceDialogState as? RemoveDeviceDialogState.Visible)?.removeEnabled == false)
+            assertTrue(viewModel.state?.error is RemoveDeviceError.None)
+        }
+
+    @Test
     fun `given remove a device succeeds, then should call deletion of device`() =
         runTest {
             val (arrangement, viewModel) = Arrangement()

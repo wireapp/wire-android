@@ -24,7 +24,7 @@ data class EditGuestAccessState(
     val isGuestAccessAllowed: Boolean = false,
     val isServicesAccessAllowed: Boolean = false,
     val isUpdatingGuestAccessAllowed: Boolean = false,
-    val changeGuestOptionConfirmationRequired: Boolean = false,
+    val shouldShowGuestAccessChangeConfirmationDialog: Boolean = false,
     val isUpdatingGuestAccess: Boolean = false,
     val isGeneratingGuestRoomLink: Boolean = false,
     val isFailedToGenerateGuestRoomLink: Boolean = false,
@@ -32,5 +32,5 @@ data class EditGuestAccessState(
     val isRevokingLink: Boolean = false,
     val isLinkCopied: Boolean = false,
     val isFailedToRevokeGuestRoomLink: Boolean = false,
-    val link: String = ""
+    val link: String? = null
 )

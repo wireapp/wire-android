@@ -41,7 +41,7 @@ import com.wire.android.ui.theme.wireTypography
 fun LinkSection(
     isGeneratingLink: Boolean,
     isRevokingLink: Boolean,
-    link: String,
+    link: String?,
     onCreateLink: () -> Unit,
     onRevokeLink: () -> Unit,
     onCopyLink: () -> Unit,
@@ -68,13 +68,15 @@ fun LinkSection(
                 color = MaterialTheme.wireColorScheme.secondaryText,
                 modifier = Modifier.padding(top = MaterialTheme.wireDimensions.spacing2x)
             )
-            Text(
-                text = link,
-                style = MaterialTheme.wireTypography.body01,
-                color = MaterialTheme.wireColorScheme.guestRoomLinkTextColor,
-                modifier = Modifier.padding(top = MaterialTheme.wireDimensions.spacing4x)
-            )
-            if (link.isEmpty()) {
+            link?.let {
+                Text(
+                    text = link,
+                    style = MaterialTheme.wireTypography.body01,
+                    color = MaterialTheme.wireColorScheme.guestRoomLinkTextColor,
+                    modifier = Modifier.padding(top = MaterialTheme.wireDimensions.spacing4x)
+                )
+            }
+            if (link.isNullOrEmpty()) {
                 CreateLinkButton(isLoading = isGeneratingLink, onCreateLink = onCreateLink)
             } else {
                 CopyLinkButton(onCopyLink)

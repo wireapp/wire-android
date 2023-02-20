@@ -41,9 +41,6 @@ import com.wire.kalium.logic.feature.conversation.guestroomlink.ObserveGuestRoom
 import com.wire.kalium.logic.feature.conversation.guestroomlink.RevokeGuestRoomLinkResult
 import com.wire.kalium.logic.feature.conversation.guestroomlink.RevokeGuestRoomLinkUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import javax.inject.Inject
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -51,10 +48,14 @@ import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.shareIn
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
+import javax.inject.Inject
 
 @HiltViewModel
+@Suppress("LongParameterList", "TooManyFunctions")
 class EditGuestAccessViewModel @Inject constructor(
     private val navigationManager: NavigationManager,
     private val dispatcher: DispatcherProvider,
@@ -130,7 +131,7 @@ class EditGuestAccessViewModel @Inject constructor(
         updateState(editGuestAccessState.copy(isUpdatingGuestAccess = true, isGuestAccessAllowed = shouldEnableGuestAccess))
         when (shouldEnableGuestAccess) {
             true -> updateGuestRemoteRequest(shouldEnableGuestAccess)
-            false -> updateState(editGuestAccessState.copy(changeGuestOptionConfirmationRequired = true))
+            false -> updateState(editGuestAccessState.copy(shouldShowGuestAccessChangeConfirmationDialog = true))
         }
     }
 
@@ -177,7 +178,7 @@ class EditGuestAccessViewModel @Inject constructor(
     fun onGuestDialogDismiss() {
         updateState(
             editGuestAccessState.copy(
-                changeGuestOptionConfirmationRequired = false,
+                shouldShowGuestAccessChangeConfirmationDialog = false,
                 isUpdatingGuestAccess = false,
                 isGuestAccessAllowed = !editGuestAccessState.isGuestAccessAllowed
             )
@@ -185,7 +186,7 @@ class EditGuestAccessViewModel @Inject constructor(
     }
 
     fun onGuestDialogConfirm() {
-        updateState(editGuestAccessState.copy(changeGuestOptionConfirmationRequired = false, isUpdatingGuestAccess = true))
+        updateState(editGuestAccessState.copy(shouldShowGuestAccessChangeConfirmationDialog = false, isUpdatingGuestAccess = true))
         updateGuestRemoteRequest(false)
     }
 
@@ -212,9 +213,7 @@ class EditGuestAccessViewModel @Inject constructor(
     private fun startObservingGuestRoomLink() {
         viewModelScope.launch {
             observeGuestRoomLink(conversationId).collect {
-                it?.let {
-                    editGuestAccessState = editGuestAccessState.copy(link = it)
-                }
+                editGuestAccessState = editGuestAccessState.copy(link = it)
             }
         }
     }

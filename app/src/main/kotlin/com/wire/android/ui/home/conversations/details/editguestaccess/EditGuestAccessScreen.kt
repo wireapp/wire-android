@@ -32,11 +32,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.ClipboardManager
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
@@ -95,10 +93,14 @@ fun EditGuestAccessScreen(
                         onRevokeLink = ::onRevokeGuestRoomLink,
                         onCopyLink = {
                             editGuestAccessState = editGuestAccessState.copy(isLinkCopied = true)
-                            clipboardManager.copyLinkToClipboard(editGuestAccessState.link)
+                            editGuestAccessState.link?.let {
+                                clipboardManager.copyLinkToClipboard(it)
+                            }
                         },
                         onShareLink = {
-                            context.shareViaIntent(editGuestAccessState.link)
+                            editGuestAccessState.link?.let {
+                                context.shareViaIntent(it)
+                            }
                         }
                     )
                 }
@@ -107,7 +109,7 @@ fun EditGuestAccessScreen(
     }
 
     with(editGuestAccessViewModel) {
-        if (editGuestAccessState.changeGuestOptionConfirmationRequired) {
+        if (editGuestAccessState.shouldShowGuestAccessChangeConfirmationDialog) {
             DisableGuestConfirmationDialog(
                 onConfirm = ::onGuestDialogConfirm, onDialogDismiss = ::onGuestDialogDismiss
             )
@@ -125,7 +127,7 @@ fun EditGuestAccessScreen(
         if (editGuestAccessState.isLinkCopied) {
             val message = stringResource(id = R.string.guest__room_link_copied)
             LaunchedEffect(true) {
-                if (editGuestAccessState.link.isNotEmpty()) {
+                if (!editGuestAccessState.link.isNullOrEmpty()) {
                     snackbarHostState.showSnackbar(message)
                     editGuestAccessState = editGuestAccessState.copy(isLinkCopied = false)
                 }

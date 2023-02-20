@@ -20,14 +20,18 @@
 
 package com.wire.android.ui.home.conversations.details.editguestaccess
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -38,10 +42,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
+import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.rememberTopBarElevationState
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.home.conversationslist.common.FolderHeader
+import com.wire.android.ui.theme.wireColorScheme
+import com.wire.android.ui.theme.wireDimensions
+import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.copyLinkToClipboard
 import com.wire.android.util.shareViaIntent
 
@@ -64,48 +72,92 @@ fun EditGuestAccessScreen(
             hostState = snackbarHostState, modifier = Modifier.fillMaxWidth()
         )
     }) { internalPadding ->
-        LazyColumn(
-            modifier = Modifier
-                .padding(internalPadding)
-                .fillMaxSize()
-        ) {
-            item {
-                with(editGuestAccessViewModel) {
-                    GuestOption(
-                        isSwitchEnabled = editGuestAccessState.isUpdatingGuestAccessAllowed,
-                        isSwitchVisible = true,
-                        switchState = editGuestAccessState.isGuestAccessAllowed,
-                        isLoading = editGuestAccessState.isUpdatingGuestAccess,
-                        onCheckedChange = ::updateGuestAccess
+        Column {
+            LazyColumn(
+                modifier = Modifier
+                    .background(MaterialTheme.wireColorScheme.surface)
+                    .padding(internalPadding)
+                    .weight(1F)
+                    .fillMaxSize()
+            ) {
+                item {
+                    with(editGuestAccessViewModel) {
+                        GuestOption(
+                            isSwitchEnabled = editGuestAccessState.isUpdatingGuestAccessAllowed,
+                            isSwitchVisible = true,
+                            switchState = editGuestAccessState.isGuestAccessAllowed,
+                            isLoading = editGuestAccessState.isUpdatingGuestAccess,
+                            onCheckedChange = ::updateGuestAccess
+                        )
+                    }
+                }
+                item {
+                    FolderHeader(
+                        name = stringResource(id = R.string.folder_label_guest_link),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(MaterialTheme.wireColorScheme.background)
                     )
                 }
-            }
-            item { FolderHeader(name = stringResource(id = R.string.folder_label_guest_link)) }
-            item {
-                val clipboardManager = LocalClipboardManager.current
-                val context = LocalContext.current
-
-                with(editGuestAccessViewModel) {
-                    LinkSection(isGeneratingLink = editGuestAccessState.isGeneratingGuestRoomLink,
-                        isRevokingLink = editGuestAccessState.isRevokingLink,
-                        link = editGuestAccessState.link,
-                        onCreateLink = ::onGenerateGuestRoomLink,
-                        onRevokeLink = ::onRevokeGuestRoomLink,
-                        onCopyLink = {
-                            editGuestAccessState = editGuestAccessState.copy(isLinkCopied = true)
+                item {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(MaterialTheme.wireColorScheme.surface)
+                            .padding(
+                                start = dimensions().spacing16x,
+                                end = dimensions().spacing16x,
+                                bottom = dimensions().spacing8x,
+                                top = dimensions().spacing8x,
+                            )
+                    ) {
+                        with(editGuestAccessViewModel) {
+                            Text(
+                                text = stringResource(id = R.string.guest_link_description),
+                                style = MaterialTheme.wireTypography.body01,
+                                color = MaterialTheme.wireColorScheme.secondaryText,
+                                modifier = Modifier.padding(top = MaterialTheme.wireDimensions.spacing2x)
+                            )
                             editGuestAccessState.link?.let {
-                                clipboardManager.copyLinkToClipboard(it)
-                            }
-                        },
-                        onShareLink = {
-                            editGuestAccessState.link?.let {
-                                context.shareViaIntent(it)
+                                Text(
+                                    text = it,
+                                    style = MaterialTheme.wireTypography.body01,
+                                    color = MaterialTheme.wireColorScheme.guestRoomLinkTextColor,
+                                    modifier = Modifier.padding(top = MaterialTheme.wireDimensions.spacing4x)
+                                )
                             }
                         }
-                    )
+                    }
                 }
             }
+
+            val clipboardManager = LocalClipboardManager.current
+            val context = LocalContext.current
+
+            with(editGuestAccessViewModel) {
+                GuestLinkActionFooter(
+                    isGeneratingLink = editGuestAccessState.isGeneratingGuestRoomLink,
+                    isRevokingLink = editGuestAccessState.isRevokingLink,
+                    link = editGuestAccessState.link,
+                    isGuestAccessAllowed = editGuestAccessState.isGuestAccessAllowed,
+                    onCreateLink = ::onGenerateGuestRoomLink,
+                    onRevokeLink = ::onRevokeGuestRoomLink,
+                    onCopyLink = {
+                        editGuestAccessState = editGuestAccessState.copy(isLinkCopied = true)
+                        editGuestAccessState.link?.let {
+                            clipboardManager.copyLinkToClipboard(it)
+                        }
+                    },
+                    onShareLink = {
+                        editGuestAccessState.link?.let {
+                            context.shareViaIntent(it)
+                        }
+                    }
+                )
+            }
         }
+
+
     }
 
     with(editGuestAccessViewModel) {

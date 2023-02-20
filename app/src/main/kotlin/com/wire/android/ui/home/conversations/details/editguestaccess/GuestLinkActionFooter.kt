@@ -22,23 +22,17 @@ package com.wire.android.ui.home.conversations.details.editguestaccess
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import com.wire.android.R
+import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.wireColorScheme
-import com.wire.android.ui.theme.wireDimensions
-import com.wire.android.ui.theme.wireTypography
 
 @Composable
-fun LinkSection(
+fun GuestLinkActionFooter(
+    isGuestAccessAllowed: Boolean,
     isGeneratingLink: Boolean,
     isRevokingLink: Boolean,
     link: String?,
@@ -47,38 +41,20 @@ fun LinkSection(
     onCopyLink: () -> Unit,
     onShareLink: () -> Unit
 ) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
+
+    Surface(
         modifier = Modifier
-            .fillMaxWidth()
-            .background(MaterialTheme.wireColorScheme.surface)
+            .background(MaterialTheme.wireColorScheme.background),
+        shadowElevation = dimensions().spacing8x
     ) {
-        Column(
-            modifier = Modifier
-                .padding(
-                    top = MaterialTheme.wireDimensions.spacing12x,
-                    bottom = MaterialTheme.wireDimensions.spacing12x,
-                    start = MaterialTheme.wireDimensions.spacing16x,
-                    end = MaterialTheme.wireDimensions.spacing12x
-                )
-        ) {
-            Text(
-                text = stringResource(id = R.string.guest_link_description),
-                style = MaterialTheme.wireTypography.body01,
-                color = MaterialTheme.wireColorScheme.secondaryText,
-                modifier = Modifier.padding(top = MaterialTheme.wireDimensions.spacing2x)
+        if (link.isNullOrEmpty()) {
+            CreateLinkButton(
+                isGuestAccessAllowed = isGuestAccessAllowed,
+                isLoading = isGeneratingLink,
+                onCreateLink = onCreateLink
             )
-            link?.let {
-                Text(
-                    text = link,
-                    style = MaterialTheme.wireTypography.body01,
-                    color = MaterialTheme.wireColorScheme.guestRoomLinkTextColor,
-                    modifier = Modifier.padding(top = MaterialTheme.wireDimensions.spacing4x)
-                )
-            }
-            if (link.isNullOrEmpty()) {
-                CreateLinkButton(isLoading = isGeneratingLink, onCreateLink = onCreateLink)
-            } else {
+        } else {
+            Column {
                 CopyLinkButton(onCopyLink)
                 ShareLinkButton(onShareLink)
                 RevokeLinkButton(isLoading = isRevokingLink, onRevoke = onRevokeLink)
@@ -90,9 +66,10 @@ fun LinkSection(
 @Preview
 @Composable
 fun PreviewLinkSection() {
-    LinkSection(
+    GuestLinkActionFooter(
         isGeneratingLink = false,
         isRevokingLink = false,
+        isGuestAccessAllowed = true,
         link = "",
         onCreateLink = {},
         onRevokeLink = {},

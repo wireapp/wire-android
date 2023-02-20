@@ -20,6 +20,7 @@
 
 package com.wire.android.ui.home.conversations.details.editguestaccess
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
@@ -30,11 +31,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
-import com.wire.android.ui.common.button.WireSecondaryButton
+import com.wire.android.ui.common.button.wirePrimaryButtonColors
+import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.theme.wireDimensions
 
 @Composable
 fun CreateLinkButton(
+    isGuestAccessAllowed: Boolean,
     isLoading: Boolean,
     onCreateLink: () -> Unit
 ) {
@@ -43,13 +46,12 @@ fun CreateLinkButton(
         fillMaxWidth = true,
         onClick = onCreateLink,
         loading = isLoading,
-        state = if (isLoading) WireButtonState.Disabled else WireButtonState.Default,
+        state = if (isLoading || !isGuestAccessAllowed) WireButtonState.Disabled else WireButtonState.Default,
         modifier = Modifier
             .fillMaxWidth()
-            .padding(
-                top = MaterialTheme.wireDimensions.spacing16x,
-                bottom = MaterialTheme.wireDimensions.spacing16x
-            )
+            .background(MaterialTheme.colorScheme.background)
+            .padding(MaterialTheme.wireDimensions.spacing16x)
+
     )
 }
 
@@ -57,12 +59,15 @@ fun CreateLinkButton(
 fun CopyLinkButton(
     onCopy: () -> Unit
 ) {
-    WireSecondaryButton(
+    WirePrimaryButton(
         modifier = Modifier
             .fillMaxWidth()
+            .background(MaterialTheme.colorScheme.background)
             .padding(
+                start = MaterialTheme.wireDimensions.spacing16x,
+                end = MaterialTheme.wireDimensions.spacing16x,
                 top = MaterialTheme.wireDimensions.spacing16x,
-                bottom = MaterialTheme.wireDimensions.spacing2x
+                bottom = MaterialTheme.wireDimensions.spacing4x
             ),
         text = stringResource(id = R.string.guest_link_button_copy_link),
         fillMaxWidth = true,
@@ -74,12 +79,15 @@ fun CopyLinkButton(
 fun ShareLinkButton(
     onShare: () -> Unit
 ) {
-    WireSecondaryButton(
+    WirePrimaryButton(
         modifier = Modifier
             .fillMaxWidth()
+            .background(MaterialTheme.colorScheme.background)
             .padding(
-                top = MaterialTheme.wireDimensions.spacing2x,
-                bottom = MaterialTheme.wireDimensions.spacing2x
+                start = MaterialTheme.wireDimensions.spacing16x,
+                end = MaterialTheme.wireDimensions.spacing16x,
+                top = MaterialTheme.wireDimensions.spacing4x,
+                bottom = MaterialTheme.wireDimensions.spacing4x
             ),
         text = stringResource(id = R.string.guest_link_button_share_link),
         fillMaxWidth = true,
@@ -89,16 +97,19 @@ fun ShareLinkButton(
 
 @Composable
 fun RevokeLinkButton(
-    isLoading: Boolean = false,
-    onRevoke: () -> Unit
+    isLoading: Boolean = false, onRevoke: () -> Unit
 ) {
-    WireSecondaryButton(
+    WirePrimaryButton(
         modifier = Modifier
             .fillMaxWidth()
+            .background(MaterialTheme.colorScheme.background)
             .padding(
-                top = MaterialTheme.wireDimensions.spacing2x,
-                bottom = MaterialTheme.wireDimensions.spacing16x
+                start = MaterialTheme.wireDimensions.spacing16x,
+                end = MaterialTheme.wireDimensions.spacing16x,
+                top = MaterialTheme.wireDimensions.spacing4x,
+                bottom = MaterialTheme.wireDimensions.spacing12x
             ),
+        colors = wirePrimaryButtonColors().copy(enabled = colorsScheme().error),
         text = stringResource(id = R.string.guest_link_button_revoke_link),
         fillMaxWidth = true,
         loading = isLoading,
@@ -128,5 +139,5 @@ fun PreviewShareLinkButton() {
 @Preview
 @Composable
 fun PreviewCreateLinkButton() {
-    CreateLinkButton(false) {}
+    CreateLinkButton(true, false) {}
 }

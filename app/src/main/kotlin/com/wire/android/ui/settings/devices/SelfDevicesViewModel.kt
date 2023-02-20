@@ -25,7 +25,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
@@ -77,8 +76,7 @@ class SelfDevicesViewModel @Inject constructor(
         viewModelScope.launch {
             navigationManager.navigate(
                 NavigationCommand(
-                    NavigationItem.DeviceDetails.getRouteWithArgs(listOf(device.clientId)),
-                    BackStackMode.REMOVE_CURRENT
+                    NavigationItem.DeviceDetails.getRouteWithArgs(listOf(device.clientId))
                 )
             )
         }

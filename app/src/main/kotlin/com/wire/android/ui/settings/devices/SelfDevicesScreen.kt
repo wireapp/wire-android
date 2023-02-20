@@ -138,7 +138,8 @@ private fun LazyListScope.folderDeviceItems(
             placeholder = false,
             onRemoveDeviceClick = onDeviceClick,
             leadingIcon = Icons.Filled.ChevronRight.Icon(),
-            leadingIconBorder = 0.dp
+            leadingIconBorder = 0.dp,
+            isWholeItemClickable = true
         )
     }
 }

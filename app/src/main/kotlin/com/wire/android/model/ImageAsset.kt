@@ -78,5 +78,6 @@ fun String.parseIntoPrivateImageAsset(
 ): ImageAsset.PrivateAsset {
     val (conversationIdString, messageId, isSelfAsset) = split(":")
     val conversationIdParam = qualifiedIdMapper.fromStringToQualifiedID(conversationIdString)
+
     return ImageAsset.PrivateAsset(imageLoader, conversationIdParam, messageId, isSelfAsset.toBoolean())
 }

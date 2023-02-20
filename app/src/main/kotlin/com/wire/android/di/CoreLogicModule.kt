@@ -30,6 +30,7 @@ import com.wire.kalium.logic.data.id.FederatedIdMapper
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.id.QualifiedIdMapperImpl
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.asset.DeleteAssetUseCase
 import com.wire.kalium.logic.feature.asset.GetAssetSizeLimitUseCase
 import com.wire.kalium.logic.feature.asset.GetAvatarAssetUseCase
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
@@ -48,6 +49,7 @@ import com.wire.kalium.logic.feature.call.usecase.TurnLoudSpeakerOffUseCase
 import com.wire.kalium.logic.feature.call.usecase.TurnLoudSpeakerOnUseCase
 import com.wire.kalium.logic.feature.call.usecase.UnMuteCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.UpdateVideoStateUseCase
+import com.wire.kalium.logic.feature.client.GetClientDetailsUseCase
 import com.wire.kalium.logic.feature.client.ObserveCurrentClientIdUseCase
 import com.wire.kalium.logic.feature.connection.BlockUserUseCase
 import com.wire.kalium.logic.feature.connection.UnblockUserUseCase
@@ -67,8 +69,10 @@ import com.wire.kalium.logic.feature.conversation.UpdateConversationReadDateUseC
 import com.wire.kalium.logic.feature.conversation.UpdateConversationReceiptModeUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.GetMessageByIdUseCase
+import com.wire.kalium.logic.feature.message.GetNotificationsUseCase
 import com.wire.kalium.logic.feature.message.ObserveMessageReactionsUseCase
 import com.wire.kalium.logic.feature.message.ObserveMessageReceiptsUseCase
+import com.wire.kalium.logic.feature.message.SendKnockUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.message.ToggleReactionUseCase
 import com.wire.kalium.logic.feature.message.getPaginatedFlowOfMessagesByConversation
@@ -319,6 +323,11 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
+    fun provideDeleteAssetUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId): DeleteAssetUseCase =
+        coreLogic.getSessionScope(currentAccount).users.deleteAsset
+
+    @ViewModelScoped
+    @Provides
     fun provideUploadUserAvatarUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
         coreLogic.getSessionScope(currentAccount).users.uploadUserAvatar
 
@@ -439,6 +448,13 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
+    fun provideSendKnockUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): SendKnockUseCase = coreLogic.getSessionScope(currentAccount).messages.sendKnock
+
+    @ViewModelScoped
+    @Provides
     fun provideToggleReactionUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
@@ -471,6 +487,13 @@ class UseCaseModule {
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
     ): GetMessageAssetUseCase = coreLogic.getSessionScope(currentAccount).messages.getAssetMessage
+
+    @ViewModelScoped
+    @Provides
+    fun provideGetNotificationsUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): GetNotificationsUseCase = coreLogic.getSessionScope(currentAccount).messages.getNotifications
 
     @ViewModelScoped
     @Provides
@@ -663,16 +686,6 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
-    fun provideEnableLoggingUseCase(@KaliumCoreLogic coreLogic: CoreLogic) =
-        coreLogic.getGlobalScope().enableLogging
-
-    @ViewModelScoped
-    @Provides
-    fun provideLoggingUseCase(@KaliumCoreLogic coreLogic: CoreLogic) =
-        coreLogic.getGlobalScope().isLoggingEnabled
-
-    @ViewModelScoped
-    @Provides
     fun provideObservePersistentWebSocketConnectionStatusUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic
     ) = coreLogic.getGlobalScope().observePersistentWebSocketConnectionStatus
@@ -695,11 +708,6 @@ class UseCaseModule {
     @Provides
     fun provideGetUserInfoUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId): GetUserInfoUseCase =
         coreLogic.getSessionScope(currentAccount).users.getUserInfo
-
-    @ViewModelScoped
-    @Provides
-    fun provideGetBuildConfigUseCase(@KaliumCoreLogic coreLogic: CoreLogic) =
-        coreLogic.getGlobalScope().buildConfigs
 
     @ViewModelScoped
     @Provides
@@ -925,4 +933,12 @@ class UseCaseModule {
     @ViewModelScoped
     @Provides
     fun provideImageUtil(): ImageUtil = ImageUtil
+
+    @ViewModelScoped
+    @Provides
+    fun provideGetClientDetailsUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): GetClientDetailsUseCase =
+        coreLogic.getSessionScope(currentAccount).client.getClientDetailsUseCase
 }

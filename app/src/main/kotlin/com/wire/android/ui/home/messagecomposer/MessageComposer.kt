@@ -81,7 +81,8 @@ fun MessageComposer(
     interactionAvailability: InteractionAvailability,
     tempCachePath: Path,
     securityClassificationType: SecurityClassificationType,
-    membersToMention: List<Contact>
+    membersToMention: List<Contact>,
+    onPingClicked: () -> Unit
 ) {
     BoxWithConstraints {
         val onSendButtonClicked = remember {
@@ -126,6 +127,7 @@ fun MessageComposer(
             securityClassificationType = securityClassificationType,
             onSendButtonClicked = onSendButtonClicked,
             onMentionPicked = onMentionPicked,
+            onPingClicked = onPingClicked
         )
     }
 }
@@ -145,6 +147,7 @@ private fun MessageComposer(
     securityClassificationType: SecurityClassificationType,
     onSendButtonClicked: () -> Unit,
     onMentionPicked: (Contact) -> Unit,
+    onPingClicked: () -> Unit
 ) {
     Surface(color = colorsScheme().messageComposerBackgroundColor) {
         val transition = updateTransition(
@@ -155,7 +158,10 @@ private fun MessageComposer(
         BoxWithConstraints(Modifier.fillMaxSize()) {
             val currentScreenHeight: Dp = with(LocalDensity.current) { constraints.maxHeight.toDp() }
 
-            Column(Modifier.fillMaxWidth().height(currentScreenHeight)) {
+            Column(
+                Modifier
+                    .fillMaxWidth()
+                    .height(currentScreenHeight)) {
 
                 // when MessageComposer is composed for the first time we do not know the height until users opens the keyboard
                 var keyboardHeight: KeyboardHeight by remember { mutableStateOf(KeyboardHeight.NotKnown) }
@@ -231,6 +237,7 @@ private fun MessageComposer(
                                 onToggleFullScreen = messageComposerState::toggleFullScreen,
                                 onCancelReply = messageComposerState::cancelReply,
                                 startMention = messageComposerState::startMention,
+                                onPingClicked = onPingClicked,
                                 onInputFocusChanged = { isFocused ->
                                     messageComposerState.messageComposeInputFocusChange(isFocused)
                                     if (isFocused) {

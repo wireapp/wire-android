@@ -87,7 +87,6 @@ internal class AssetImageFetcher(
                     }
                 }
             }
-
         }
     }
 

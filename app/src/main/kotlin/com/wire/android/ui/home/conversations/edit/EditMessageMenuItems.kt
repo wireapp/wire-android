@@ -137,20 +137,6 @@ fun EditMessageMenuItems(
                     )
                 }
             }
-            if (isAssetMessage) {
-                add {
-                    MenuBottomSheetItem(
-                        icon = {
-                            MenuItemIcon(
-                                id = R.drawable.ic_share_file,
-                                contentDescription = stringResource(R.string.content_description_share_the_file),
-                            )
-                        },
-                        title = stringResource(R.string.label_share),
-                        onItemClick = onShareAsset
-                    )
-                }
-            }
             add {
                 MenuBottomSheetItem(
                     icon = {
@@ -174,6 +160,20 @@ fun EditMessageMenuItems(
                         },
                         title = stringResource(R.string.label_edit),
                         onItemClick = onEditItemClick
+                    )
+                }
+            }
+            if (isAssetMessage) {
+                add {
+                    MenuBottomSheetItem(
+                        icon = {
+                            MenuItemIcon(
+                                id = R.drawable.ic_share_file,
+                                contentDescription = stringResource(R.string.content_description_share_the_file),
+                            )
+                        },
+                        title = stringResource(R.string.label_share),
+                        onItemClick = onShareAsset
                     )
                 }
             }

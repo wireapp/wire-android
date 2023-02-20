@@ -247,6 +247,7 @@
     <string name="remove_device_id_label">ID: %1$s</string>
     <string name="remove_device_dialog_title">Remove the following device?</string>
     <string name="remove_device_invalid_password">Invalid password</string>
+    <string name="remove_device_details_description">Remove this device if you have stopped using it. You will be logged out of this device immediately.</string>
     <!-- Register Device -->
     <string name="register_device_title">Add this Device</string>
     <string name="register_device_text">Enter your password to use Wire on this device.</string>
@@ -369,6 +370,7 @@
     <string name="conversation_details_is_classified">SECURITY LEVEL: VS-NfD</string>
     <string name="conversation_details_is_not_classified">SECURITY LEVEL: UNCLASSIFIED</string>
     <string name="conversation_options_guests_label">Guests</string>
+    <string name="conversation_details_guest_description">When this is ON, people from outside your team can join this conversation</string>
     <string name="conversation_options_guest_description">Turn this option ON to open this conversation to people outside your team, even if they don\'t have Wire.</string>
     <string name="conversation_options_guest_not_editable_description">You cannot disable the guest option in this conversation, since it has been created by someone from another team.</string>
     <string name="conversation_options_services_label">Services</string>
@@ -771,6 +773,8 @@
     <string name="label_device_id">Device ID: %1$s</string>
     <string name="label_code_commit_id">Commit Hash: %1$s</string>
     <string name="label_client_id">Client ID: %1$s</string>
+    <string name="label_client_added_time">ADDED</string>
+    <string name="label_client_device_id">DEVICE ID</string>
     <string name="label_key_packages_count">Key-packages count: %1$s</string>
     <string name="label_mls_client_id">MLS-client ID: %1$s</string>
     <string name="conversation_empty_list_description">Connect with others or create a new group to start collaborating!</string>
@@ -834,7 +838,7 @@
     <string name="cancel_login_button_label">Cancel</string>
     <string name="cancel_login_dialog_description">If you cancel now, you will be logged out.</string>
     <string name="cancel_login_dialog_title">Are you sure you want to cancel?</string>
-    <!--    session reset-->
+    <!-- session reset -->
     <string name="label_system_message_session_reset">%1$s was unable to decrypt some of your messages but has solved the issue. This affected all conversations you share together.</string>
 
     <!-- join conversation dialog -->
@@ -845,4 +849,10 @@
     <string name="join_conversation_via_deeplink_error_link_expired">The link to this group conversation expired or the conversation was set to private.</string>
     <string name="join_conversation_via_deeplink_error_max_number_of_participent">The maximum number of participants in this conversation has been reached.</string>
     <string name="join_conversation_via_deeplink_error_general">Due to an error you could not be added to the group conversation.</string>
+    <!-- guest link -->
+    <string name="folder_label_guest_link">Guest link</string>
+    <string name="guest_link_description">Invite others with a link to this conversation. Anyone with the link can join the conversation, even if they don’t have Wire.</string>
+    <string name="guest_link_button_create_link">Create Link</string>
+    <string name="guest_link_button_copy_link">Copy Link</string>
+    <string name="guest_link_button_revoke_link">Revoke Link</string>
 </resources>

@@ -189,7 +189,7 @@ object TestLibraries {
         const val androidCore = "1.4.0"
         const val junit4 = "4.13"
         const val junit5 = "5.8.2"
-        const val mockk = "1.12.3"
+        const val mockk = "1.13.4"
         const val kluent = "1.68"
         const val robolectric = "4.5.1"
         const val testRunner = "1.4.0"

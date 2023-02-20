@@ -95,17 +95,17 @@ private fun DeviceItemContent(
 ) {
     Row(
         verticalAlignment = Alignment.Top,
-        modifier = if (background != null) Modifier.background(color = background) else Modifier
+        modifier = (if (background != null) Modifier.background(color = background) else Modifier)
+            .clickable(enabled = isWholeItemClickable) {
+                if (isWholeItemClickable) {
+                    onRemoveDeviceClick?.invoke(device)
+                }
+            }
     ) {
         Row(
             modifier = Modifier
                 .padding(MaterialTheme.wireDimensions.removeDeviceItemPadding)
                 .weight(1f)
-                .clickable(enabled = isWholeItemClickable) {
-                    if (isWholeItemClickable) {
-                        onRemoveDeviceClick?.invoke(device)
-                    }
-                }
         ) {
             Icon(
                 modifier = Modifier.shimmerPlaceholder(visible = placeholder),
@@ -200,7 +200,7 @@ private fun DeviceItemTexts(device: Device, placeholder: Boolean, isDebug: Boole
     )
 }
 
-@Preview
+@Preview(showBackground = true)
 @Composable
 fun PreviewDeviceItem() {
     Box(modifier = Modifier.fillMaxWidth()) {

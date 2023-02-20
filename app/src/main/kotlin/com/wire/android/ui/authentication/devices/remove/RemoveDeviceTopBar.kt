@@ -37,32 +37,24 @@ import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 
 @Composable
-fun RemoveDeviceTopBar(
-    title: String = stringResource(R.string.remove_device_title),
-    description: String?,
-    elevation: Dp,
-    onBackButtonClicked: () -> Unit,
-    navigationIconType: NavigationIconType
-) {
+fun RemoveDeviceTopBar(elevation: Dp, onBackButtonClicked: () -> Unit) {
     WireCenterAlignedTopAppBar(
-        title = title,
         elevation = elevation,
-        navigationIconType = navigationIconType,
+        title = stringResource(R.string.remove_device_title),
+        navigationIconType = NavigationIconType.Close,
         onNavigationPressed = onBackButtonClicked
     ) {
-        if (description?.isNotEmpty() == true) {
-            Text(
-                text = stringResource(id = R.string.remove_device_message),
-                style = MaterialTheme.wireTypography.body01,
-                color = MaterialTheme.wireColorScheme.onBackground,
-                modifier = Modifier.padding(
-                    horizontal = MaterialTheme.wireDimensions.removeDeviceHorizontalPadding,
-                    vertical = MaterialTheme.wireDimensions.removeDeviceMessageVerticalPadding
-                )
-            )
-        }
         Text(
-            text = title,
+            text = stringResource(id = R.string.remove_device_message),
+            style = MaterialTheme.wireTypography.body01,
+            color = MaterialTheme.wireColorScheme.onBackground,
+            modifier = Modifier.padding(
+                horizontal = MaterialTheme.wireDimensions.removeDeviceHorizontalPadding,
+                vertical = MaterialTheme.wireDimensions.removeDeviceMessageVerticalPadding
+            )
+        )
+        Text(
+            text = stringResource(id = R.string.remove_device_label),
             style = MaterialTheme.wireTypography.title03,
             color = MaterialTheme.wireColorScheme.labelText,
             modifier = Modifier.padding(
@@ -76,11 +68,5 @@ fun RemoveDeviceTopBar(
 @Preview(showBackground = false)
 @Composable
 fun PreviewLoginTopBar() {
-    RemoveDeviceTopBar(
-        stringResource(R.string.remove_device_title),
-        stringResource(id = R.string.remove_device_message),
-        0.dp,
-        onBackButtonClicked = {},
-        navigationIconType = NavigationIconType.Close
-    )
+    RemoveDeviceTopBar(0.dp) {}
 }

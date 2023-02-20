@@ -27,14 +27,13 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
-import com.wire.android.navigation.EXTRA_EDIT_GUEST_ACCESS_IS_GUEST_ACCESS_ALLOWED
-import com.wire.android.navigation.EXTRA_EDIT_GUEST_ACCESS_IS_SERVICES_ALLOWED
-import com.wire.android.navigation.EXTRA_EDIT_GUEST_ACCESS_IS_UPDATING_GUEST_ACCESS_ALLOWED
 import com.wire.android.navigation.EXTRA_EDIT_GUEST_ACCESS_PARAMS
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
+import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationAccessRoleUseCase
 import com.wire.kalium.logic.feature.conversation.guestroomlink.GenerateGuestRoomLinkResult
 import com.wire.kalium.logic.feature.conversation.guestroomlink.GenerateGuestRoomLinkUseCase
@@ -45,7 +44,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -91,6 +89,7 @@ class EditGuestAccessViewModel @Inject constructor(
 
     init {
         observeConversationDetails()
+        startObservingGuestRoomLink()
     }
 
     private fun observeConversationDetails() {

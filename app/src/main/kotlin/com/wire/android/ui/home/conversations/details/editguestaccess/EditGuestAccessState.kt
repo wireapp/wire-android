@@ -22,6 +22,7 @@ package com.wire.android.ui.home.conversations.details.editguestaccess
 
 data class EditGuestAccessState(
     val isGuestAccessAllowed: Boolean = false,
+    val isServicesAccessAllowed: Boolean = false,
     val isUpdatingGuestAccessAllowed: Boolean = false,
     val changeGuestOptionConfirmationRequired: Boolean = false,
     val isUpdatingGuestAccess: Boolean = false,

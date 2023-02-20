@@ -33,6 +33,7 @@ import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseC
 import com.wire.kalium.logic.feature.conversation.UpdateConversationAccessRoleUseCase
 import com.wire.kalium.logic.feature.conversation.guestroomlink.GenerateGuestRoomLinkResult
 import com.wire.kalium.logic.feature.conversation.guestroomlink.GenerateGuestRoomLinkUseCase
+import com.wire.kalium.logic.feature.conversation.guestroomlink.ObserveGuestRoomLinkUseCase
 import com.wire.kalium.logic.feature.conversation.guestroomlink.RevokeGuestRoomLinkResult
 import com.wire.kalium.logic.feature.conversation.guestroomlink.RevokeGuestRoomLinkUseCase
 import io.mockk.coEvery
@@ -72,6 +73,9 @@ class EditGuestAccessViewModelTest {
 
     @MockK
     lateinit var generateGuestRoomLink: GenerateGuestRoomLinkUseCase
+
+    @MockK
+    lateinit var observeGuestRoomLink: ObserveGuestRoomLinkUseCase
 
     @MockK
     lateinit var revokeGuestRoomLink: RevokeGuestRoomLinkUseCase

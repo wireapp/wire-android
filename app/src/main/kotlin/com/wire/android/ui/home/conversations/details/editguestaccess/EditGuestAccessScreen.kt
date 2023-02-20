@@ -156,8 +156,6 @@ fun EditGuestAccessScreen(
                 )
             }
         }
-
-
     }
 
     with(editGuestAccessViewModel) {

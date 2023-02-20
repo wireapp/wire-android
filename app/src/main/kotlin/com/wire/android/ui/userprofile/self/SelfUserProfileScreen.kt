@@ -24,12 +24,9 @@ import android.content.Context
 import android.widget.Toast
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentWidth
@@ -357,11 +354,11 @@ private fun OtherAccountItem(
                     searchQuery = ""
                 )
             }
-
         },
         subtitle = {
-            if (account.teamName != null)
+            if (account.teamName != null) {
                 HighlightSubtitle(subTitle = account.teamName, suffix = "")
+            }
         },
         actions = {
             Box(

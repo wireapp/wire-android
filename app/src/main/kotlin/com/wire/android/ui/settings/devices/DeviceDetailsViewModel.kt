@@ -143,7 +143,7 @@ class DeviceDetailsViewModel @Inject constructor(
 
     fun navigateBack() {
         viewModelScope.launch {
-            navigationManager.navigate(NavigationCommand(NavigationItem.SelfDevices.getRouteWithArgs(), BackStackMode.REMOVE_CURRENT))
+            navigationManager.navigate(NavigationCommand(NavigationItem.SelfDevices.getRouteWithArgs(), BackStackMode.UPDATE_EXISTED))
         }
     }
 }

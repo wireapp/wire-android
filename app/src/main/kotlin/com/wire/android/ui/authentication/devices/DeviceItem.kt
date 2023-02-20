@@ -21,6 +21,7 @@
 package com.wire.android.ui.authentication.devices
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -42,6 +43,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -52,6 +54,7 @@ import com.wire.android.R
 import com.wire.android.ui.authentication.devices.model.Device
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.button.getMinTouchMargins
+import com.wire.android.ui.common.button.wireSecondaryButtonColors
 import com.wire.android.ui.common.shimmerPlaceholder
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
@@ -66,6 +69,7 @@ fun DeviceItem(
     background: Color? = null,
     leadingIcon: @Composable (() -> Unit),
     leadingIconBorder: Dp = 1.dp,
+    isWholeItemClickable: Boolean = false,
     onRemoveDeviceClick: ((Device) -> Unit)? = null
 ) {
     DeviceItemContent(
@@ -74,7 +78,8 @@ fun DeviceItem(
         background = background,
         leadingIcon = leadingIcon,
         leadingIconBorder = leadingIconBorder,
-        onRemoveDeviceClick = onRemoveDeviceClick
+        onRemoveDeviceClick = onRemoveDeviceClick,
+        isWholeItemClickable = isWholeItemClickable
     )
 }
 
@@ -85,7 +90,8 @@ private fun DeviceItemContent(
     background: Color? = null,
     leadingIcon: @Composable (() -> Unit),
     leadingIconBorder: Dp,
-    onRemoveDeviceClick: ((Device) -> Unit)?
+    onRemoveDeviceClick: ((Device) -> Unit)?,
+    isWholeItemClickable: Boolean
 ) {
     Row(
         verticalAlignment = Alignment.Top,
@@ -95,6 +101,11 @@ private fun DeviceItemContent(
             modifier = Modifier
                 .padding(MaterialTheme.wireDimensions.removeDeviceItemPadding)
                 .weight(1f)
+                .clickable(enabled = isWholeItemClickable) {
+                    if (isWholeItemClickable) {
+                        onRemoveDeviceClick?.invoke(device)
+                    }
+                }
         ) {
             Icon(
                 modifier = Modifier.shimmerPlaceholder(visible = placeholder),
@@ -119,8 +130,7 @@ private fun DeviceItemContent(
             }
         if (!placeholder && onRemoveDeviceClick != null) {
             WireSecondaryButton(
-                modifier = Modifier
-                    .testTag("remove device button"),
+                modifier = Modifier.testTag("remove device button"),
                 onClick = { onRemoveDeviceClick(device) },
                 leadingIcon = leadingIcon,
                 fillMaxWidth = false,
@@ -128,7 +138,10 @@ private fun DeviceItemContent(
                 minWidth = MaterialTheme.wireDimensions.buttonSmallMinSize.width,
                 shape = RoundedCornerShape(size = MaterialTheme.wireDimensions.buttonSmallCornerSize),
                 contentPadding = PaddingValues(0.dp),
-                borderWidth = leadingIconBorder
+                borderWidth = leadingIconBorder,
+                colors = wireSecondaryButtonColors().copy(
+                    enabled = background ?: MaterialTheme.wireColorScheme.secondaryButtonEnabled
+                )
             )
         }
     }
@@ -187,7 +200,7 @@ private fun DeviceItemTexts(device: Device, placeholder: Boolean, isDebug: Boole
     )
 }
 
-@Preview(showBackground = true)
+@Preview
 @Composable
 fun PreviewDeviceItem() {
     Box(modifier = Modifier.fillMaxWidth()) {
@@ -195,7 +208,7 @@ fun PreviewDeviceItem() {
             device = Device(),
             placeholder = false,
             background = null,
-            {}
+            { Icon(painter = painterResource(id = R.drawable.ic_remove), contentDescription = "") }
         ) {}
     }
 }

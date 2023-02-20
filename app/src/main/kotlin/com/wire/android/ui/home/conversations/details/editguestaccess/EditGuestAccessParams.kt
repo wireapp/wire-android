@@ -20,16 +20,11 @@
 
 package com.wire.android.ui.home.conversations.details.editguestaccess
 
-data class EditGuestAccessState(
-    val isGuestAccessAllowed: Boolean = false,
-    val isUpdatingGuestAccessAllowed: Boolean = false,
-    val changeGuestOptionConfirmationRequired: Boolean = false,
-    val isUpdatingGuestAccess: Boolean = false,
-    val isGeneratingGuestRoomLink: Boolean = false,
-    val isFailedToGenerateGuestRoomLink: Boolean = false,
-    val shouldShowRevokeLinkConfirmationDialog: Boolean = false,
-    val isRevokingLink: Boolean = false,
-    val isLinkCopied: Boolean = false,
-    val isFailedToRevokeGuestRoomLink: Boolean = false,
-    val link: String = ""
+import kotlinx.serialization.Serializable
+
+@Serializable
+data class EditGuestAccessParams(
+    val isGuestAccessAllowed: Boolean,
+    val isServicesAllowed: Boolean,
+    val isUpdatingGuestAccessAllowed: Boolean
 )

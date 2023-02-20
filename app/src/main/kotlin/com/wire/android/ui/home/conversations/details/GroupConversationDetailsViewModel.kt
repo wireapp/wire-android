@@ -37,6 +37,7 @@ import com.wire.android.navigation.NavigationManager
 import com.wire.android.navigation.getBackNavArg
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationSheetContent
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationTypeDetail
+import com.wire.android.ui.home.conversations.details.editguestaccess.EditGuestAccessParams
 import com.wire.android.ui.home.conversations.details.menu.GroupConversationDetailsBottomSheetEventsHandler
 import com.wire.android.ui.home.conversations.details.options.GroupConversationOptionsState
 import com.wire.android.ui.home.conversations.details.participants.GroupConversationParticipantsViewModel
@@ -395,10 +396,12 @@ class GroupConversationDetailsViewModel @Inject constructor(
                     command = NavigationCommand(
                         destination = NavigationItem.EditGuestAccess.getRouteWithArgs(
                             listOf(
-                                conversationId,
-                                groupOptionsState.value.isGuestAllowed,
-                                groupOptionsState.value.isServicesAllowed,
-                                groupOptionsState.value.isUpdatingGuestAllowed
+                                EditGuestAccessParams(
+                                    groupOptionsState.value.isGuestAllowed,
+                                    groupOptionsState.value.isServicesAllowed,
+                                    groupOptionsState.value.isUpdatingGuestAllowed
+                                ),
+                                conversationId
                             )
                         )
                     )

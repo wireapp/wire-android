@@ -30,6 +30,7 @@ import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.EXTRA_EDIT_GUEST_ACCESS_IS_GUEST_ACCESS_ALLOWED
 import com.wire.android.navigation.EXTRA_EDIT_GUEST_ACCESS_IS_SERVICES_ALLOWED
 import com.wire.android.navigation.EXTRA_EDIT_GUEST_ACCESS_IS_UPDATING_GUEST_ACCESS_ALLOWED
+import com.wire.android.navigation.EXTRA_EDIT_GUEST_ACCESS_PARAMS
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.id.QualifiedID
@@ -44,12 +45,24 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.shareIn
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
 
 @HiltViewModel
 class EditGuestAccessViewModel @Inject constructor(
     private val navigationManager: NavigationManager,
     private val dispatcher: DispatcherProvider,
     private val updateConversationAccessRole: UpdateConversationAccessRoleUseCase,
+    private val observeConversationDetails: ObserveConversationDetailsUseCase,
+    private val observeConversationMembers: ObserveParticipantsForConversationUseCase,
     private val generateGuestRoomLink: GenerateGuestRoomLinkUseCase,
     private val revokeGuestRoomLink: RevokeGuestRoomLinkUseCase,
     private val observeGuestRoomLink: ObserveGuestRoomLinkUseCase,
@@ -62,20 +75,52 @@ class EditGuestAccessViewModel @Inject constructor(
             "No conversationId was provided via savedStateHandle to EditGuestAccessViewModel"
         }
     )
-    private val isGuestAccessAllowed: Boolean = savedStateHandle.get<String>(EXTRA_EDIT_GUEST_ACCESS_IS_GUEST_ACCESS_ALLOWED)!!.toBoolean()
-    private val isServicesAllowed: Boolean = savedStateHandle.get<String>(EXTRA_EDIT_GUEST_ACCESS_IS_SERVICES_ALLOWED)!!.toBoolean()
-    private val isUpdatingGuestAccessAllowed: Boolean =
-        savedStateHandle.get<String>(EXTRA_EDIT_GUEST_ACCESS_IS_UPDATING_GUEST_ACCESS_ALLOWED)!!.toBoolean()
+
+    private val accessParams =
+        Json.decodeFromString<EditGuestAccessParams>(checkNotNull(savedStateHandle.get<String>(EXTRA_EDIT_GUEST_ACCESS_PARAMS)) {
+            "No accessParams was provided via savedStateHandle to EditGuestAccessViewModel"
+        })
 
     var editGuestAccessState by mutableStateOf(
         EditGuestAccessState(
-            isGuestAccessAllowed = isGuestAccessAllowed,
-            isUpdatingGuestAccessAllowed = isUpdatingGuestAccessAllowed
+            isGuestAccessAllowed = accessParams.isGuestAccessAllowed,
+            isServicesAccessAllowed = accessParams.isServicesAllowed,
+            isUpdatingGuestAccessAllowed = accessParams.isUpdatingGuestAccessAllowed
         )
     )
 
     init {
-        startObservingGuestRoomLink()
+        observeConversationDetails()
+    }
+
+    private fun observeConversationDetails() {
+        viewModelScope.launch {
+            val conversationDetailsFlow = observeConversationDetails(conversationId)
+                .filterIsInstance<ObserveConversationDetailsUseCase.Result.Success>()
+                .map { it.conversationDetails }
+                .distinctUntilChanged()
+                .flowOn(dispatcher.io())
+                .shareIn(this, SharingStarted.WhileSubscribed(), 1)
+
+            val isSelfAdminFlow = observeConversationMembers(conversationId)
+                .map { it.isSelfAnAdmin }
+                .distinctUntilChanged()
+
+            combine(
+                conversationDetailsFlow,
+                isSelfAdminFlow
+            ) { conversationDetails, isSelfAnAdmin ->
+
+                val isGuestAllowed =
+                    conversationDetails.conversation.isGuestAllowed() || conversationDetails.conversation.isNonTeamMemberAllowed()
+
+                editGuestAccessState = editGuestAccessState.copy(
+                    isGuestAccessAllowed = isGuestAllowed,
+                    isServicesAccessAllowed = conversationDetails.conversation.isServicesAllowed(),
+                    isUpdatingGuestAccessAllowed = isSelfAnAdmin
+                )
+            }
+        }
     }
 
     private fun updateState(newState: EditGuestAccessState) {
@@ -96,15 +141,14 @@ class EditGuestAccessViewModel @Inject constructor(
                 updateConversationAccessRole(
                     allowGuest = shouldEnableGuestAccess,
                     allowNonTeamMember = shouldEnableGuestAccess,
-                    allowServices = isServicesAllowed,
+                    allowServices = editGuestAccessState.isServicesAccessAllowed,
                     conversationId = conversationId
                 )
             }.also {
                 when (it) {
                     is UpdateConversationAccessRoleUseCase.Result.Failure -> updateState(
                         editGuestAccessState.copy(
-                            isGuestAccessAllowed = !shouldEnableGuestAccess,
-                            error = EditGuestAccessState.Error.Failure(it.cause)
+                            isGuestAccessAllowed = !shouldEnableGuestAccess
                         )
                     )
 

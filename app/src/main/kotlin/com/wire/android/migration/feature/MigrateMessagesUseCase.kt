@@ -42,7 +42,7 @@ class MigrateMessagesUseCase @Inject constructor(
     suspend operator fun invoke(
         userId: UserId, scalaConversations: List<ScalaConversationData>,
         coroutineScope: CoroutineScope
-    ): Either<Map<String, CoreFailure>, Unit> {
+    ): Map<String, CoreFailure> {
         val errorsAcc: MutableMap<String, CoreFailure> = mutableMapOf()
 
         val messageDAO = scalaUserDatabase.messageDAO(userId)
@@ -66,7 +66,7 @@ class MigrateMessagesUseCase @Inject constructor(
             }
         }
 
-        return if (errorsAcc.isEmpty()) Either.Right(Unit) else Either.Left(errorsAcc)
+        return errorsAcc
     }
 }
 

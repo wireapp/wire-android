@@ -40,6 +40,7 @@ import com.wire.kalium.logic.functional.flatMap
 import com.wire.kalium.logic.functional.fold
 import com.wire.kalium.logic.functional.isRight
 import com.wire.kalium.logic.functional.map
+import com.wire.kalium.logic.functional.mapLeft
 import com.wire.kalium.logic.functional.onFailure
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineDispatcher
@@ -132,7 +133,13 @@ class MigrationManager @Inject constructor(
                         migrateConversations(it)
                     }.flatMap {
                         appLogger.d("$TAG - Step 5 - Migrating messages for $userid")
-                        migrateMessages(userid, it, coroutineScope)
+                        migrateMessages(userid, it, coroutineScope).let { failedConversations ->
+                            if (failedConversations.isEmpty()) {
+                                Either.Right(Unit)
+                            } else {
+                                Either.Left(failedConversations.values.first())
+                            }
+                        }
                     }.also {
                         resultAcc[userid.value] = it
                     }

@@ -122,7 +122,6 @@ fun EditGuestAccessScreen(
                                 Text(
                                     text = it,
                                     style = MaterialTheme.wireTypography.body02,
-//                                    color = MaterialTheme.wireColorScheme.guestRoomLinkTextColor,
                                     modifier = Modifier.padding(top = MaterialTheme.wireDimensions.spacing4x)
                                 )
                             }

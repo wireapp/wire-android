@@ -94,8 +94,7 @@ data class WireColorScheme(
     val connectivityBarOngoingCallBackgroundColor: Color,
     val connectivityBarIssueBackgroundColor: Color,
     val messageComposerBackgroundColor: Color,
-    val messageComposerEditBackgroundColor: Color,
-    val guestRoomLinkTextColor: Color
+    val messageComposerEditBackgroundColor: Color
 ) {
     fun toColorScheme(): ColorScheme = ColorScheme(
         primary = primary,
@@ -220,8 +219,7 @@ private val LightWireColorScheme = WireColorScheme(
     connectivityBarOngoingCallBackgroundColor = WireColorPalette.LightGreen500,
     connectivityBarIssueBackgroundColor = WireColorPalette.LightBlue500,
     messageComposerBackgroundColor = Color.White,
-    messageComposerEditBackgroundColor = WireColorPalette.LightBlue50,
-    guestRoomLinkTextColor = Color.Black
+    messageComposerEditBackgroundColor = WireColorPalette.LightBlue50
 )
 
 // Dark WireColorScheme
@@ -320,8 +318,7 @@ private val DarkWireColorScheme = WireColorScheme(
     connectivityBarOngoingCallBackgroundColor = WireColorPalette.DarkGreen700,
     connectivityBarIssueBackgroundColor = WireColorPalette.LightBlue500,
     messageComposerBackgroundColor = WireColorPalette.Gray100,
-    messageComposerEditBackgroundColor = WireColorPalette.DarkBlue800,
-    guestRoomLinkTextColor = Color.White
+    messageComposerEditBackgroundColor = WireColorPalette.DarkBlue800
 )
 
 @PackagePrivate

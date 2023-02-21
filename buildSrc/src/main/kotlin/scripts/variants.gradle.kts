@@ -146,9 +146,9 @@ android {
         }
         create(BuildTypes.COMPAT_RELEASE) {
             initWith(getByName(BuildTypes.RELEASE))
-            isMinifyEnabled = true
+            isMinifyEnabled = false
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
-            isDebuggable = false
+            isDebuggable = true
             matchingFallbacks.add("release")
             if (enableSigning)
                 signingConfig = signingConfigs.getByName("compatrelease")

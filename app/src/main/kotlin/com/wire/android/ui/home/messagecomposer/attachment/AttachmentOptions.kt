@@ -113,7 +113,7 @@ private fun AttachmentOptionsComponent(
         val minColumnWidth: Dp = dimensions().spacing80x
         val minPadding: Dp = dimensions().spacing8x
         val visibleAttachmentOptions = attachmentOptions.filter { it.shouldShow }
-        val params by remember (fullWidth, visibleAttachmentOptions.size) {
+        val params by remember(fullWidth, visibleAttachmentOptions.size) {
             derivedStateOf {
                 calculateGridParams(minPadding, minColumnWidth, fullWidth, visibleAttachmentOptions.size)
             }
@@ -129,7 +129,7 @@ private fun AttachmentOptionsComponent(
         ) {
             visibleAttachmentOptions.forEach { option ->
                 if (option.shouldShow) {
-                    item{ AttachmentButton(stringResource(option.text), option.icon) { option.onClick() } }
+                    item { AttachmentButton(stringResource(option.text), option.icon) { option.onClick() } }
                 }
             }
         }
@@ -189,8 +189,9 @@ private fun TakePictureFlow(tempCachePath: Path, onPictureTaken: (Uri) -> Unit):
     val imageAttachmentUri = context.getTempWritableImageUri(tempCachePath)
     return rememberTakePictureFlow(
         onPictureTaken = { hasTakenPicture ->
-            if (hasTakenPicture)
+            if (hasTakenPicture) {
                 onPictureTaken(imageAttachmentUri)
+            }
         },
         targetPictureFileUri = imageAttachmentUri,
         onPermissionDenied = { /* TODO: Implement denied permission rationale */ }
@@ -203,8 +204,9 @@ private fun CaptureVideoFlow(tempCachePath: Path, onVideoCaptured: (Uri) -> Unit
     val videoAttachmentUri = context.getTempWritableVideoUri(tempCachePath)
     return rememberCaptureVideoFlow(
         onVideoRecorded = { hasCapturedVideo ->
-            if (hasCapturedVideo)
+            if (hasCapturedVideo) {
                 onVideoCaptured(videoAttachmentUri)
+            }
         },
         targetVideoFileUri = videoAttachmentUri,
         onPermissionDenied = { /* TODO: Implement denied permission rationale */ }

@@ -60,7 +60,7 @@ fun MessageComposeActionsBox(
     modifier: Modifier = Modifier,
 ) {
     Column(modifier.wrapContentSize()) {
-        Divider(color =  MaterialTheme.wireColorScheme.outline)
+        Divider(color = MaterialTheme.wireColorScheme.outline)
         Box(Modifier.wrapContentSize()) {
             transition.AnimatedContent(
                 contentKey = { state -> state is MessageComposeInputState.Active },

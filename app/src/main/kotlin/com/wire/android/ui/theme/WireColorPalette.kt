@@ -174,5 +174,5 @@ object WireColorPalette {
 
     @Stable val GrayRed900 = Color(0xFF390000)
 
-    @Stable val BlackAlpha55 = Color (0x8C000000)
+    @Stable val BlackAlpha55 = Color(0x8C000000)
 }

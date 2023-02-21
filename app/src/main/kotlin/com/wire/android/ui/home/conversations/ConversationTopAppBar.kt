@@ -94,11 +94,12 @@ fun ConversationScreenTopAppBar(
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.weight(weight = 1f, fill = false)
                 )
-                if (isDropDownEnabled && isInteractionEnabled)
+                if (isDropDownEnabled && isInteractionEnabled) {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_dropdown_icon),
                         contentDescription = stringResource(R.string.content_description_drop_down_icon)
                     )
+                }
             }
         },
         navigationIcon = { BackNavigationIconButton(onBackButtonClick = onBackButtonClick) },

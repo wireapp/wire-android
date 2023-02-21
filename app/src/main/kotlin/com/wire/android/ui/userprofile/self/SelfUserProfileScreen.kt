@@ -151,7 +151,7 @@ private fun SelfUserProfileContent(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-//                    .scrollable(state = scrollState, orientation = Orientation.Vertical)
+                    .scrollable(state = scrollState, orientation = Orientation.Vertical)
                     .background(MaterialTheme.colorScheme.background)
                     .padding(internalPadding)
             ) {
@@ -159,8 +159,8 @@ private fun SelfUserProfileContent(
                     modifier = Modifier
                         .weight(1F)
                         .fillMaxWidth()
-//                        .fillMaxHeight()
-//                        .scrollable(state = scrollState, orientation = Orientation.Vertical)
+                        .fillMaxHeight()
+                        .scrollable(state = scrollState, orientation = Orientation.Vertical)
                 ) {
                     stickyHeader {
                         UserProfileInfo(

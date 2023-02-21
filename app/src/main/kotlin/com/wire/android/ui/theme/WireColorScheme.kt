@@ -18,6 +18,8 @@
  *
  */
 
+@file:Suppress("ParameterListWrapping")
+
 package com.wire.android.ui.theme
 
 import androidx.compose.material3.ColorScheme

@@ -63,6 +63,7 @@ import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.dialogs.CancelLoginDialogContent
 import com.wire.android.ui.common.dialogs.CancelLoginDialogState
+import com.wire.android.ui.common.divider.WireDivider
 import com.wire.android.ui.common.rememberTopBarElevationState
 import com.wire.android.ui.common.textfield.WirePasswordTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
@@ -213,7 +214,7 @@ private fun RemoveDeviceItemsList(
                     DeviceSectionHeader(context.getString(R.string.other_devices_label), Modifier.animateItemPlacement())
                 }
                 DeviceItemContent(device, placeholders, onItemClicked)
-                if (index < items.lastIndex) Divider()
+                if (index < items.lastIndex) WireDivider()
             }
         }
     }

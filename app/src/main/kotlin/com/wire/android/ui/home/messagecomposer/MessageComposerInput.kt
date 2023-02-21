@@ -37,6 +37,7 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -59,6 +60,7 @@ import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.home.conversations.messages.QuotedMessagePreview
 import com.wire.android.ui.home.conversations.model.QuotedMessageUIData
 import com.wire.android.ui.home.newconversation.model.Contact
+import com.wire.android.ui.theme.wireColorScheme
 import com.wire.kalium.logic.feature.conversation.InteractionAvailability
 import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
 import io.github.esentsov.PackagePrivate
@@ -166,7 +168,7 @@ private fun MessageComposeInput(
                 SecurityClassificationBanner(securityClassificationType = securityClassificationType)
             }
         }
-        Divider()
+        Divider(color = MaterialTheme.wireColorScheme.outline)
         CollapseIconButtonBox(
             transition = transition,
             toggleFullScreen = actions.onToggleFullScreen

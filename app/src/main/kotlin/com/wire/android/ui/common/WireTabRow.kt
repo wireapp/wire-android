@@ -26,6 +26,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabPosition
@@ -51,7 +52,7 @@ fun WireTabRow(
     selectedTabIndex: Int,
     onTabChange: (Int) -> Unit,
     containerColor: Color = MaterialTheme.colorScheme.background,
-    divider: @Composable () -> Unit = @Composable { TabRowDefaults.Divider() },
+    divider: @Composable () -> Unit = @Composable { Divider() },
     upperCaseTitles: Boolean = true,
     modifier: Modifier = Modifier
 ) {

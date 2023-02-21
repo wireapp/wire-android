@@ -36,6 +36,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.Divider
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -45,6 +46,7 @@ import com.wire.android.R
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WireSecondaryIconButton
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 
 @ExperimentalAnimationApi
@@ -58,7 +60,7 @@ fun MessageComposeActionsBox(
     modifier: Modifier = Modifier,
 ) {
     Column(modifier.wrapContentSize()) {
-        Divider()
+        Divider(color =  MaterialTheme.wireColorScheme.outline)
         Box(Modifier.wrapContentSize()) {
             transition.AnimatedContent(
                 contentKey = { state -> state is MessageComposeInputState.Active },

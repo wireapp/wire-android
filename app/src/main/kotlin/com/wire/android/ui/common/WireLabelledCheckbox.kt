@@ -40,7 +40,6 @@ import com.wire.android.ui.common.button.wireCheckBoxColors
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WireLabelledCheckbox(
     label: String,
@@ -78,7 +77,6 @@ fun WireLabelledCheckbox(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WireCheckbox(
     checked: Boolean,

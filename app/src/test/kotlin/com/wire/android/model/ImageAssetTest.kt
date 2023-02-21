@@ -22,8 +22,6 @@ package com.wire.android.model
 
 import android.net.Uri
 import androidx.core.net.toUri
-import com.wire.android.util.resampleImageAndCopyToTempPath
-import com.wire.android.util.toByteArray
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserAssetId

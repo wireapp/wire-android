@@ -28,10 +28,9 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
-import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.android.ui.theme.wireColorScheme
+import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 
 @Composable
 fun UserStatusIndicator(status: UserAvailabilityStatus, modifier: Modifier = Modifier) {
@@ -48,7 +47,7 @@ private fun AvailableDot(modifier: Modifier) {
     Box(
         modifier = modifier
             .size(dimensions().userAvatarStatusSize)
-            .background(Color.White, CircleShape)
+            .background(MaterialTheme.wireColorScheme.background, CircleShape)
             .padding(dimensions().userAvatarStatusBorderSize)
             .background(MaterialTheme.wireColorScheme.positive, CircleShape)
     )
@@ -59,7 +58,7 @@ private fun BusyDot(modifier: Modifier) {
     Box(
         modifier = modifier
             .size(dimensions().userAvatarStatusSize)
-            .background(Color.White, CircleShape)
+            .background(MaterialTheme.wireColorScheme.background, CircleShape)
             .padding(dimensions().userAvatarStatusBorderSize)
             .background(MaterialTheme.wireColorScheme.warning, CircleShape)
             .padding(
@@ -68,7 +67,7 @@ private fun BusyDot(modifier: Modifier) {
                 start = dimensions().userAvatarBusyHorizontalPadding,
                 end = dimensions().userAvatarBusyHorizontalPadding
             )
-            .background(Color.White)
+            .background(MaterialTheme.wireColorScheme.background)
     )
 }
 
@@ -77,11 +76,11 @@ private fun AwayDot(modifier: Modifier) {
     Box(
         modifier = modifier
             .size(dimensions().userAvatarStatusSize)
-            .background(Color.White, CircleShape)
+            .background(MaterialTheme.wireColorScheme.background, CircleShape)
             .padding(dimensions().userAvatarStatusBorderSize)
             .background(MaterialTheme.wireColorScheme.error, CircleShape)
             .padding(dimensions().userAvatarStatusBorderSize)
-            .background(Color.White, CircleShape)
+            .background(MaterialTheme.wireColorScheme.background, CircleShape)
     )
 }
 

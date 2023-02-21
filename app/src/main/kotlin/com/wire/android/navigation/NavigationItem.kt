@@ -109,6 +109,7 @@ import io.github.esentsov.PackagePrivate
 import com.wire.android.ui.home.conversations.details.editguestaccess.EditGuestAccessScreen
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import com.wire.android.ui.home.conversations.details.editguestaccess.EditGuestAccessScreen
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 /**

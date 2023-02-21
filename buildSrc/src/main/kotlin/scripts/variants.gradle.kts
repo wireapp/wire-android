@@ -54,6 +54,7 @@ sealed class ProductFlavors(
 
     object Beta : ProductFlavors("com.wire.android", "beta", applicationIdSuffix = "internal")
     object Internal : ProductFlavors("com.wire", "internal", applicationIdSuffix = "internal")
+    object FDroid : ProductFlavors("com.wire", "fdroid")
 }
 
 object FlavorDimensions {
@@ -135,6 +136,7 @@ android {
         createAppFlavour(ProductFlavors.Staging)
         createAppFlavour(ProductFlavors.Beta)
         createAppFlavour(ProductFlavors.Internal)
+        createAppFlavour(ProductFlavors.FDroid)
     }
 
     /**

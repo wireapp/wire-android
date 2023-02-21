@@ -34,6 +34,7 @@ import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
 
+@Suppress("TooManyFunctions")
 @Singleton
 class GlobalDataStore @Inject constructor(@ApplicationContext private val context: Context) {
 
@@ -64,7 +65,8 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
         context.dataStore.edit { it[IS_LOGGING_ENABLED] = enabled }
     }
 
-    fun isEncryptedProteusStorageEnabled(): Flow<Boolean> = getBooleanPreference(IS_ENCRYPTED_PROTEUS_STORAGE_ENABLED, BuildConfig.ENCRYPT_PROTEUS_STORAGE)
+    fun isEncryptedProteusStorageEnabled(): Flow<Boolean> =
+        getBooleanPreference(IS_ENCRYPTED_PROTEUS_STORAGE_ENABLED, BuildConfig.ENCRYPT_PROTEUS_STORAGE)
 
     suspend fun setEncryptedProteusStorageEnabled(enabled: Boolean) {
         context.dataStore.edit { it[IS_ENCRYPTED_PROTEUS_STORAGE_ENABLED] = enabled }
@@ -74,7 +76,8 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
         context.dataStore.edit { it[MIGRATION_COMPLETED] = true }
     }
 
-    suspend fun isWelcomeScreenPresented(): Boolean = getBooleanPreference(WELCOME_SCREEN_PRESENTED, false).firstOrNull() ?: false
+    suspend fun isWelcomeScreenPresented(): Boolean =
+        getBooleanPreference(WELCOME_SCREEN_PRESENTED, false).firstOrNull() ?: false
 
     suspend fun setWelcomeScreenPresented() {
         context.dataStore.edit { it[WELCOME_SCREEN_PRESENTED] = true }

@@ -48,7 +48,8 @@ data class UIMessage(
     val messageFooter: MessageFooter
 ) {
     val isDeleted: Boolean = messageHeader.messageStatus == Deleted
-    val sendingFailed: Boolean = messageHeader.messageStatus == SendFailure
+    val sendingFailed: Boolean =
+        messageHeader.messageStatus == SendFailure || messageHeader.messageStatus is MessageStatus.SendRemotelyFailure
     val decryptionFailed: Boolean = messageHeader.messageStatus is DecryptionFailure
     val receivingFailed: Boolean = messageHeader.messageStatus == ReceiveFailure || decryptionFailed
     val isAvailable: Boolean = !isDeleted && !sendingFailed && !receivingFailed
@@ -75,7 +76,7 @@ data class MessageHeader(
 data class MessageFooter(
     val messageId: String,
     val reactions: Map<String, Int> = emptyMap(),
-    val ownReactions: Set<String> = emptySet(),
+    val ownReactions: Set<String> = emptySet()
 )
 
 sealed class MessageStatus(val text: UIText) {
@@ -85,6 +86,9 @@ sealed class MessageStatus(val text: UIText) {
         MessageStatus(UIText.StringResource(R.string.label_message_status_edited_with_date, formattedEditTimeStamp))
 
     object SendFailure : MessageStatus(UIText.StringResource(R.string.label_message_sent_failure))
+    data class SendRemotelyFailure(val backendWithFailure: String) :
+        MessageStatus(UIText.StringResource(R.string.label_message_sent_remotely_failure, backendWithFailure))
+
     object ReceiveFailure : MessageStatus(UIText.StringResource(R.string.label_message_receive_failure))
     data class DecryptionFailure(val isDecryptionResolved: Boolean) :
         MessageStatus(UIText.StringResource(R.string.label_message_decryption_failure_message))
@@ -143,7 +147,8 @@ sealed class UIMessageContent {
     ) : UIMessageContent() {
 
         data class Knock(val author: UIText) : SystemMessage(
-            R.drawable.ic_ping, R.string.label_message_knock
+            R.drawable.ic_ping,
+            R.string.label_message_knock
         )
 
         data class MemberAdded(
@@ -212,7 +217,7 @@ data class QuotedMessageUIData(
 
     data class GenericAsset(
         val assetName: String?,
-        val assetMimeType: String,
+        val assetMimeType: String
     ) : Content
 
     data class DisplayableImage(

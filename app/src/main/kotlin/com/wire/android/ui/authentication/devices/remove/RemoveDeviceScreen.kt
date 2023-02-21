@@ -17,12 +17,10 @@
  *
  *
  */
+
 package com.wire.android.ui.authentication.devices.remove
 
-import android.content.Context
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -30,24 +28,14 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.platform.SoftwareKeyboardController
-import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -60,22 +48,13 @@ import com.wire.android.ui.common.SurfaceBackgroundWrapper
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
-import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.dialogs.CancelLoginDialogContent
 import com.wire.android.ui.common.dialogs.CancelLoginDialogState
 import com.wire.android.ui.common.divider.WireDivider
 import com.wire.android.ui.common.rememberTopBarElevationState
-import com.wire.android.ui.common.textfield.WirePasswordTextField
-import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.common.textfield.clearAutofillTree
-import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.visbility.rememberVisibilityState
-import com.wire.android.ui.home.conversationslist.common.FolderHeader
-import com.wire.android.ui.theme.wireColorScheme
-import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.util.dialogErrorStrings
-import com.wire.android.util.formatMediumDateTime
-import kotlinx.collections.immutable.toImmutableList
 
 @Composable
 fun RemoveDeviceScreen() {
@@ -87,8 +66,6 @@ fun RemoveDeviceScreen() {
     clearAutofillTree()
     RemoveDeviceContent(
         state = state,
-        title = stringResource(id = R.string.remove_device_title),
-        description = stringResource(id = R.string.remove_device_message),
         clearSessionState = clearSessionState,
         onItemClicked = viewModel::onItemClicked,
         onPasswordChange = viewModel::onPasswordChange,
@@ -97,16 +74,13 @@ fun RemoveDeviceScreen() {
         onErrorDialogDismiss = viewModel::clearDeleteClientError,
         onBackButtonClicked = clearSessionViewModel::onBackButtonClicked,
         onCancelLoginClicked = clearSessionViewModel::onCancelLoginClicked,
-        onProceedLoginClicked = clearSessionViewModel::onProceedLoginClicked,
-        navigationIconType = NavigationIconType.Close
+        onProceedLoginClicked = clearSessionViewModel::onProceedLoginClicked
     )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RemoveDeviceContent(
-    title: String,
-    description: String?,
+private fun RemoveDeviceContent(
     state: RemoveDeviceState,
     clearSessionState: ClearSessionState,
     onItemClicked: (Device) -> Unit,
@@ -114,10 +88,9 @@ fun RemoveDeviceContent(
     onRemoveConfirm: () -> Unit,
     onDialogDismiss: () -> Unit,
     onErrorDialogDismiss: () -> Unit,
-    onCancelLoginClicked: () -> Unit,
-    onProceedLoginClicked: () -> Unit,
     onBackButtonClicked: () -> Unit,
-    navigationIconType: NavigationIconType
+    onCancelLoginClicked: () -> Unit,
+    onProceedLoginClicked: () -> Unit
 ) {
     BackHandler {
         onBackButtonClicked()
@@ -143,21 +116,15 @@ fun RemoveDeviceContent(
     val lazyListState = rememberLazyListState()
     Scaffold(topBar = {
         RemoveDeviceTopBar(
-            title = title,
-            description = description,
             elevation = lazyListState.rememberTopBarElevationState().value,
-            onBackButtonClicked = onBackButtonClicked,
-            navigationIconType = navigationIconType
+            onBackButtonClicked = onBackButtonClicked
         )
     }) { internalPadding ->
         Box(modifier = Modifier.padding(internalPadding)) {
-            RemoveDeviceItemsList(
-                lazyListState,
-                if (state.isLoadingClientsList) List(5) { Device() } else state.deviceList,
-                state.isLoadingClientsList,
-                onItemClicked,
-                state.currentDevice
-            )
+            when (state.isLoadingClientsList) {
+                true -> RemoveDeviceItemsList(lazyListState, List(10) { Device() }, true, onItemClicked)
+                false -> RemoveDeviceItemsList(lazyListState, state.deviceList, false, onItemClicked)
+            }
         }
         // TODO handle list loading errors
         if (!state.isLoadingClientsList && state.removeDeviceDialogState is RemoveDeviceDialogState.Visible) {
@@ -186,129 +153,34 @@ fun RemoveDeviceContent(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun RemoveDeviceItemsList(
     lazyListState: LazyListState,
     items: List<Device>,
     placeholders: Boolean,
-    onItemClicked: (Device) -> Unit,
-    currentDevice: Device? = null,
-    context: Context = LocalContext.current
+    onItemClicked: (Device) -> Unit
 ) {
     SurfaceBackgroundWrapper {
         LazyColumn(
             state = lazyListState,
             modifier = Modifier.fillMaxWidth()
         ) {
-            if (currentDevice != null) {
-                // Current device
-                itemsIndexed(listOf(currentDevice)) { _, _ ->
-                    DeviceSectionHeader(context.getString(R.string.current_device_label), Modifier.animateItemPlacement())
-                    DeviceItemContent(currentDevice, placeholders, null)
-                }
-            }
-            // Other devices
             itemsIndexed(items) { index, device ->
-                if (index == 0) {
-                    DeviceSectionHeader(context.getString(R.string.other_devices_label), Modifier.animateItemPlacement())
-                }
-                DeviceItemContent(device, placeholders, onItemClicked)
+                DeviceItem(
+                    device = device,
+                    placeholder = placeholders,
+                    onRemoveDeviceClick = onItemClicked,
+                    leadingIcon = {
+                        Icon(
+                            painterResource(id = R.drawable.ic_remove),
+                            stringResource(R.string.content_description_remove_devices_screen_remove_icon)
+                        )
+                    }
+                )
                 if (index < items.lastIndex) WireDivider()
             }
         }
     }
-}
-
-@Composable
-private fun DeviceItemContent(
-    device: Device,
-    placeholders: Boolean,
-    onItemClicked: ((Device) -> Unit)?
-) {
-    DeviceItem(
-        device,
-        placeholders,
-        MaterialTheme.wireColorScheme.surface,
-        onItemClicked
-    )
-}
-
-@Composable
-private fun DeviceSectionHeader(title: String, modifier: Modifier = Modifier) {
-    FolderHeader(
-        name = title,
-        modifier = modifier
-            .fillMaxWidth()
-            .background(MaterialTheme.wireColorScheme.background)
-    )
-}
-
-@OptIn(ExperimentalComposeUiApi::class)
-@Composable
-private fun RemoveDeviceDialog(
-    errorState: RemoveDeviceError,
-    state: RemoveDeviceDialogState.Visible,
-    onPasswordChange: (TextFieldValue) -> Unit,
-    onDialogDismiss: () -> Unit,
-    onRemoveConfirm: () -> Unit
-) {
-    var keyboardController: SoftwareKeyboardController? = null
-    val onDialogDismissHideKeyboard: () -> Unit = {
-        keyboardController?.hide()
-        onDialogDismiss()
-    }
-    WireDialog(
-        title = stringResource(R.string.remove_device_dialog_title),
-        text = state.device.name + "\n" +
-            stringResource(
-                R.string.remove_device_id_and_time_label,
-                state.device.clientId.value,
-                state.device.registrationTime.formatMediumDateTime() ?: ""
-            ),
-        onDismiss = onDialogDismissHideKeyboard,
-        dismissButtonProperties = WireDialogButtonProperties(
-            onClick = onDialogDismissHideKeyboard,
-            text = stringResource(id = R.string.label_cancel),
-            state = WireButtonState.Default
-        ),
-        optionButton1Properties = WireDialogButtonProperties(
-            onClick = {
-                keyboardController?.hide()
-                onRemoveConfirm()
-            },
-            text = stringResource(id = if (state.loading) R.string.label_removing else R.string.label_remove),
-            type = WireDialogButtonType.Primary,
-            loading = state.loading,
-            state = if (state.removeEnabled) WireButtonState.Error else WireButtonState.Disabled
-        ),
-        content = {
-            // keyboard controller from outside the Dialog doesn't work inside its content so we have to pass the state
-            // to the dialog's content and use keyboard controller from there
-            keyboardController = LocalSoftwareKeyboardController.current
-            val focusRequester = remember { FocusRequester() }
-            WirePasswordTextField(
-                value = state.password,
-                onValueChange = onPasswordChange,
-                state = when {
-                    errorState is RemoveDeviceError.InvalidCredentialsError ->
-                        WireTextFieldState.Error(stringResource(id = R.string.remove_device_invalid_password))
-
-                    state.loading -> WireTextFieldState.Disabled
-                    else -> WireTextFieldState.Default
-                },
-                imeAction = ImeAction.Done,
-                keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
-                modifier = Modifier
-                    .focusRequester(focusRequester)
-                    .padding(bottom = MaterialTheme.wireDimensions.spacing8x)
-                    .testTag("remove device password field")
-            )
-            LaunchedEffect(Unit) { // executed only once when showing the dialog
-                focusRequester.requestFocus()
-            }
-        }
-    )
 }
 
 @Preview
@@ -316,14 +188,10 @@ private fun RemoveDeviceDialog(
 fun PreviewRemoveDeviceScreen() {
     RemoveDeviceContent(
         state = RemoveDeviceState(
-            List(10) { Device() }.toImmutableList(),
+            List(10) { Device() },
             RemoveDeviceDialogState.Hidden,
-            isLoadingClientsList = false,
-            error = RemoveDeviceError.None,
-            null
+            isLoadingClientsList = false
         ),
-        title = "Remove device",
-        description = "Remove a device from your account.",
         clearSessionState = ClearSessionState(),
         onItemClicked = {},
         onPasswordChange = {},
@@ -332,7 +200,6 @@ fun PreviewRemoveDeviceScreen() {
         onErrorDialogDismiss = {},
         onBackButtonClicked = {},
         onCancelLoginClicked = {},
-        onProceedLoginClicked = {},
-        navigationIconType = NavigationIconType.Close
+        onProceedLoginClicked = {}
     )
 }

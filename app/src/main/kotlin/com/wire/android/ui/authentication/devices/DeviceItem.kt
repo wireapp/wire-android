@@ -21,6 +21,7 @@
 package com.wire.android.ui.authentication.devices
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -46,12 +47,14 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.ui.authentication.devices.model.Device
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.button.getMinTouchMargins
+import com.wire.android.ui.common.button.wireSecondaryButtonColors
 import com.wire.android.ui.common.shimmerPlaceholder
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
@@ -64,13 +67,19 @@ fun DeviceItem(
     device: Device,
     placeholder: Boolean,
     background: Color? = null,
+    leadingIcon: @Composable (() -> Unit),
+    leadingIconBorder: Dp = 1.dp,
+    isWholeItemClickable: Boolean = false,
     onRemoveDeviceClick: ((Device) -> Unit)? = null
 ) {
     DeviceItemContent(
         device = device,
         placeholder = placeholder,
         background = background,
-        onRemoveDeviceClick = onRemoveDeviceClick
+        leadingIcon = leadingIcon,
+        leadingIconBorder = leadingIconBorder,
+        onRemoveDeviceClick = onRemoveDeviceClick,
+        isWholeItemClickable = isWholeItemClickable
     )
 }
 
@@ -79,11 +88,19 @@ private fun DeviceItemContent(
     device: Device,
     placeholder: Boolean,
     background: Color? = null,
-    onRemoveDeviceClick: ((Device) -> Unit)?
+    leadingIcon: @Composable (() -> Unit),
+    leadingIconBorder: Dp,
+    onRemoveDeviceClick: ((Device) -> Unit)?,
+    isWholeItemClickable: Boolean
 ) {
     Row(
         verticalAlignment = Alignment.Top,
-        modifier = if (background != null) Modifier.background(color = background) else Modifier
+        modifier = (if (background != null) Modifier.background(color = background) else Modifier)
+            .clickable(enabled = isWholeItemClickable) {
+                if (isWholeItemClickable) {
+                    onRemoveDeviceClick?.invoke(device)
+                }
+            }
     ) {
         Row(
             modifier = Modifier
@@ -99,7 +116,7 @@ private fun DeviceItemContent(
                 horizontalAlignment = Alignment.Start,
                 modifier = Modifier
                     .padding(start = MaterialTheme.wireDimensions.removeDeviceItemPadding)
-                    .weight(1f),
+                    .weight(1f)
             ) { DeviceItemTexts(device, placeholder) }
         }
         val (buttonTopPadding, buttonEndPadding) = getMinTouchMargins(minSize = MaterialTheme.wireDimensions.buttonSmallMinSize)
@@ -111,24 +128,22 @@ private fun DeviceItemContent(
                     MaterialTheme.wireDimensions.removeDeviceItemPadding - it.calculateEndPadding(LocalLayoutDirection.current)
                 )
             }
-        if (!placeholder && onRemoveDeviceClick != null)
+        if (!placeholder && onRemoveDeviceClick != null) {
             WireSecondaryButton(
-                modifier = Modifier
-                    .padding(top = buttonTopPadding, end = buttonEndPadding)
-                    .testTag("remove device button"),
+                modifier = Modifier.testTag("remove device button"),
                 onClick = { onRemoveDeviceClick(device) },
-                leadingIcon = {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_remove),
-                        contentDescription = stringResource(R.string.content_description_remove_devices_screen_remove_icon),
-                    )
-                },
+                leadingIcon = leadingIcon,
                 fillMaxWidth = false,
                 minHeight = MaterialTheme.wireDimensions.buttonSmallMinSize.height,
                 minWidth = MaterialTheme.wireDimensions.buttonSmallMinSize.width,
                 shape = RoundedCornerShape(size = MaterialTheme.wireDimensions.buttonSmallCornerSize),
                 contentPadding = PaddingValues(0.dp),
+                borderWidth = leadingIconBorder,
+                colors = wireSecondaryButtonColors().copy(
+                    enabled = background ?: MaterialTheme.wireColorScheme.secondaryButtonEnabled
+                )
             )
+        }
     }
 }
 
@@ -193,7 +208,7 @@ fun PreviewDeviceItem() {
             device = Device(),
             placeholder = false,
             background = null,
-            {}
-        )
+            { Icon(painter = painterResource(id = R.drawable.ic_remove), contentDescription = "") }
+        ) {}
     }
 }

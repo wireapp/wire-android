@@ -1,8 +1,8 @@
 {
     "prod": {
         "developer_features_enabled": false,
-        "logging_enabled": false,
-        "private_build": false,
+        "logging_enabled": true,
+        "private_build": true,
         "development_api_enabled": false,
         "mls_support_enabled": false,
         "firebasePushSenderId": "782078216207",

@@ -28,7 +28,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.material.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -73,7 +72,7 @@ fun MenuBottomSheetItem(
         MenuItemTitle(title = title)
         if (action != null) {
             Spacer(modifier = Modifier.width(MaterialTheme.wireDimensions.spacing12x))
-            Spacer(modifier = Modifier.weight(1f))  // combining both in one modifier doesn't work
+            Spacer(modifier = Modifier.weight(1f)) // combining both in one modifier doesn't work
             action()
         }
     }

@@ -66,6 +66,9 @@ import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleUs
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationReadDateUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationReceiptModeUseCase
+import com.wire.kalium.logic.feature.conversation.guestroomlink.GenerateGuestRoomLinkUseCase
+import com.wire.kalium.logic.feature.conversation.guestroomlink.ObserveGuestRoomLinkUseCase
+import com.wire.kalium.logic.feature.conversation.guestroomlink.RevokeGuestRoomLinkUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.GetMessageByIdUseCase
 import com.wire.kalium.logic.feature.message.GetNotificationsUseCase
@@ -230,7 +233,7 @@ class ServiceModule {
 
 @Module
 @InstallIn(ViewModelComponent::class)
-@Suppress("TooManyFunctions")
+@Suppress("TooManyFunctions", "LargeClass")
 class UseCaseModule {
 
     @ViewModelScoped
@@ -933,4 +936,28 @@ class UseCaseModule {
         @CurrentAccount currentAccount: UserId
     ): GetClientDetailsUseCase =
         coreLogic.getSessionScope(currentAccount).client.getClientDetailsUseCase
+
+    @ViewModelScoped
+    @Provides
+    fun provideGenerateGuestRoomLinkUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): GenerateGuestRoomLinkUseCase =
+        coreLogic.getSessionScope(currentAccount).conversations.generateGuestRoomLink
+
+    @ViewModelScoped
+    @Provides
+    fun provideRevokeGuestRoomLinkUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): RevokeGuestRoomLinkUseCase =
+        coreLogic.getSessionScope(currentAccount).conversations.revokeGuestRoomLink
+
+    @ViewModelScoped
+    @Provides
+    fun provideObserveGuestRoomLinkUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): ObserveGuestRoomLinkUseCase =
+        coreLogic.getSessionScope(currentAccount).conversations.observeGuestRoomLink
 }

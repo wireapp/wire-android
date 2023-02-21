@@ -98,7 +98,8 @@ data class WireColorScheme(
     val messageComposerBackgroundColor: Color,
     val messageComposerEditBackgroundColor: Color,
     val messageMentionBackground: Color,
-    val messageMentionText: Color
+    val messageMentionText: Color,
+    val guestRoomLinkTextColor: Color
 ) {
     fun toColorScheme(): ColorScheme = ColorScheme(
         primary = primary, onPrimary = onPrimary,
@@ -221,7 +222,8 @@ private val LightWireColorScheme = WireColorScheme(
     messageComposerBackgroundColor = Color.White,
     messageComposerEditBackgroundColor = WireColorPalette.LightBlue50,
     messageMentionBackground = WireColorPalette.messageMentionBackground,
-    messageMentionText = WireColorPalette.messageMentionText
+    messageMentionText = WireColorPalette.messageMentionText,
+    guestRoomLinkTextColor = Color.Black
 )
 
 // Dark WireColorScheme
@@ -326,7 +328,8 @@ private val DarkWireColorScheme = WireColorScheme(
     messageComposerBackgroundColor = WireColorPalette.Gray100,
     messageComposerEditBackgroundColor = WireColorPalette.DarkBlue800,
     messageMentionBackground = WireColorPalette.messageMentionBackground,
-    messageMentionText = WireColorPalette.messageMentionText
+    messageMentionText = WireColorPalette.messageMentionText,
+    guestRoomLinkTextColor = Color.White
 )
 
 @PackagePrivate

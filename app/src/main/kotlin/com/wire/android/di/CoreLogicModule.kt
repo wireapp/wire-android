@@ -48,6 +48,7 @@ import com.wire.kalium.logic.feature.call.usecase.TurnLoudSpeakerOffUseCase
 import com.wire.kalium.logic.feature.call.usecase.TurnLoudSpeakerOnUseCase
 import com.wire.kalium.logic.feature.call.usecase.UnMuteCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.UpdateVideoStateUseCase
+import com.wire.kalium.logic.feature.client.GetClientDetailsUseCase
 import com.wire.kalium.logic.feature.client.ObserveCurrentClientIdUseCase
 import com.wire.kalium.logic.feature.connection.BlockUserUseCase
 import com.wire.kalium.logic.feature.connection.UnblockUserUseCase
@@ -685,16 +686,6 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
-    fun provideEnableLoggingUseCase(@KaliumCoreLogic coreLogic: CoreLogic) =
-        coreLogic.getGlobalScope().enableLogging
-
-    @ViewModelScoped
-    @Provides
-    fun provideLoggingUseCase(@KaliumCoreLogic coreLogic: CoreLogic) =
-        coreLogic.getGlobalScope().isLoggingEnabled
-
-    @ViewModelScoped
-    @Provides
     fun provideObservePersistentWebSocketConnectionStatusUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic
     ) = coreLogic.getGlobalScope().observePersistentWebSocketConnectionStatus
@@ -717,11 +708,6 @@ class UseCaseModule {
     @Provides
     fun provideGetUserInfoUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId): GetUserInfoUseCase =
         coreLogic.getSessionScope(currentAccount).users.getUserInfo
-
-    @ViewModelScoped
-    @Provides
-    fun provideGetBuildConfigUseCase(@KaliumCoreLogic coreLogic: CoreLogic) =
-        coreLogic.getGlobalScope().buildConfigs
 
     @ViewModelScoped
     @Provides
@@ -939,4 +925,12 @@ class UseCaseModule {
     @ViewModelScoped
     @Provides
     fun provideImageUtil(): ImageUtil = ImageUtil
+
+    @ViewModelScoped
+    @Provides
+    fun provideGetClientDetailsUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): GetClientDetailsUseCase =
+        coreLogic.getSessionScope(currentAccount).client.getClientDetailsUseCase
 }

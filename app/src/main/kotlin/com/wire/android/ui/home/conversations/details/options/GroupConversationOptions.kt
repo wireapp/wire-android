@@ -60,18 +60,12 @@ fun GroupConversationOptions(
 
     GroupConversationSettings(
         state = state,
-        onGuestSwitchClicked = viewModel::onGuestUpdate,
+        onGuestItemClicked = viewModel::navigateToEditGuestAccessScreen,
         onServiceSwitchClicked = viewModel::onServicesUpdate,
         onReadReceiptSwitchClicked = viewModel::onReadReceiptUpdate,
         lazyListState = lazyListState,
         onEditGroupName = viewModel::navigateToEditGroupName
     )
-    if (state.changeGuestOptionConfirmationRequired) {
-        DisableGuestConfirmationDialog(
-            onConfirm = viewModel::onGuestDialogConfirm,
-            onDialogDismiss = viewModel::onGuestDialogDismiss
-        )
-    }
 
     if (state.changeServiceOptionConfirmationRequired) {
         DisableServicesConfirmationDialog(
@@ -84,7 +78,7 @@ fun GroupConversationOptions(
 @Composable
 fun GroupConversationSettings(
     state: GroupConversationOptionsState,
-    onGuestSwitchClicked: (Boolean) -> Unit,
+    onGuestItemClicked: () -> Unit,
     onServiceSwitchClicked: (Boolean) -> Unit,
     onReadReceiptSwitchClicked: (Boolean) -> Unit,
     onEditGroupName: () -> Unit,
@@ -105,12 +99,12 @@ fun GroupConversationSettings(
             item { FolderHeader(name = stringResource(R.string.folder_label_access)) }
 
             item {
-                GuestOption(
-                    isSwitchEnabled = state.isUpdatingGuestAllowed,
-                    isSwitchVisible = state.isUpdatingAllowed,
-                    switchState = state.isGuestAllowed,
-                    isLoading = state.loadingGuestOption,
-                    onCheckedChange = onGuestSwitchClicked
+                GroupConversationOptionsItem(
+                    title = stringResource(id = R.string.conversation_options_guests_label),
+                    subtitle = stringResource(id = R.string.conversation_details_guest_description),
+                    switchState = SwitchState.TextOnly(value = state.isGuestAllowed),
+                    arrowType = if (state.isUpdatingAllowed) ArrowType.TITLE_ALIGNED else ArrowType.NONE,
+                    clickable = Clickable(enabled = true, onClick = onGuestItemClicked, onLongClick = {}),
                 )
             }
 
@@ -203,29 +197,6 @@ private fun ProtocolDetails(label: UIText, text: UIText) {
 }
 
 @Composable
-private fun GuestOption(
-    isSwitchEnabled: Boolean,
-    isSwitchVisible: Boolean,
-    switchState: Boolean,
-    isLoading: Boolean,
-    onCheckedChange: (Boolean) -> Unit
-) {
-    GroupOptionWithSwitch(
-        switchClickable = isSwitchEnabled,
-        switchVisible = isSwitchVisible,
-        switchState = switchState,
-        onClick = onCheckedChange,
-        isLoading = isLoading,
-        title = R.string.conversation_options_guests_label,
-        subTitle = when {
-            isSwitchEnabled -> R.string.conversation_options_guest_description
-            isSwitchVisible -> R.string.conversation_options_guest_not_editable_description
-            else -> null
-        }
-    )
-}
-
-@Composable
 private fun ServicesOption(
     isSwitchEnabledAndVisible: Boolean,
     switchState: Boolean,
@@ -262,7 +233,7 @@ private fun ReadReceiptOption(
 }
 
 @Composable
-private fun GroupOptionWithSwitch(
+fun GroupOptionWithSwitch(
     switchState: Boolean,
     switchClickable: Boolean,
     switchVisible: Boolean,
@@ -285,16 +256,6 @@ private fun GroupOptionWithSwitch(
 }
 
 @Composable
-private fun DisableGuestConfirmationDialog(onConfirm: () -> Unit, onDialogDismiss: () -> Unit) {
-    DisableConformationDialog(
-        text = R.string.disable_guest_dialog_text,
-        title = R.string.disable_guest_dialog_title,
-        onConfirm = onConfirm,
-        onDismiss = onDialogDismiss
-    )
-}
-
-@Composable
 private fun DisableServicesConfirmationDialog(onConfirm: () -> Unit, onDialogDismiss: () -> Unit) {
     DisableConformationDialog(
         title = R.string.disable_services_dialog_title,
@@ -305,7 +266,7 @@ private fun DisableServicesConfirmationDialog(onConfirm: () -> Unit, onDialogDis
 }
 
 @Composable
-private fun DisableConformationDialog(@StringRes title: Int, @StringRes text: Int, onConfirm: () -> Unit, onDismiss: () -> Unit) {
+fun DisableConformationDialog(@StringRes title: Int, @StringRes text: Int, onConfirm: () -> Unit, onDismiss: () -> Unit) {
     WireDialog(
         title = stringResource(id = title),
         text = stringResource(id = text),
@@ -353,7 +314,7 @@ fun PreviewGuestAdminTeamGroupConversationOptions() {
             isServicesAllowed = true,
             isUpdatingGuestAllowed = false
         ),
-        {}, {}, { }, {}
+        {}, {}, {}, {}
     )
 }
 
@@ -385,10 +346,4 @@ fun PreviewNormalGroupConversationOptions() {
         ),
         {}, {}, { }, {}
     )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewDisableGuestConformationDialog() {
-    DisableGuestConfirmationDialog({}, {})
 }

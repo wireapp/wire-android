@@ -37,7 +37,6 @@ data class GroupConversationOptionsState(
     val isUpdatingReadReceiptAllowed: Boolean = false,
     val changeGuestOptionConfirmationRequired: Boolean = false,
     val changeServiceOptionConfirmationRequired: Boolean = false,
-    val loadingGuestOption: Boolean = false,
     val loadingServicesOption: Boolean = false,
     val loadingReadReceiptOption: Boolean = false,
     val error: Error = Error.None,
@@ -45,7 +44,6 @@ data class GroupConversationOptionsState(
 
     sealed interface Error {
         object None : Error
-        class UpdateGuestError(val cause: CoreFailure) : Error
         class UpdateServicesError(val cause: CoreFailure) : Error
         class UpdateReadReceiptError(val cause: CoreFailure) : Error
     }

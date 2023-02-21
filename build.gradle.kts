@@ -26,7 +26,13 @@ buildscript {
     }
     dependencies {
         classpath("com.google.dagger:hilt-android-gradle-plugin:2.40")
-        classpath("com.google.gms:google-services:4.3.14")
+        var fdroidBuild = gradle.startParameter.taskRequests.toString().toLowerCase().contains("fdroid")
+	    if (fdroidBuild) {
+            println("Not including gms")
+        } else {
+            println("Including gms")
+            classpath("com.google.gms:google-services:4.3.14")
+        }
     }
 }
 

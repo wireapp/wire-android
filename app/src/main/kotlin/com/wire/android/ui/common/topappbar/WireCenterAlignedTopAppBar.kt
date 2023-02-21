@@ -25,10 +25,10 @@ import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBarColors
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -39,6 +39,7 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WireCenterAlignedTopAppBar(
     title: String,
@@ -49,14 +50,13 @@ fun WireCenterAlignedTopAppBar(
     navigationIconType: NavigationIconType? = NavigationIconType.Back,
     elevation: Dp = MaterialTheme.wireDimensions.topBarShadowElevation,
     actions: @Composable RowScope.() -> Unit = {},
-    colors: TopAppBarColors = wireTopAppBarColors(),
     modifier: Modifier = Modifier,
     bottomContent: @Composable ColumnScope.() -> Unit = {}
 ) {
     Surface(
         modifier = modifier,
         shadowElevation = elevation,
-        color = colors.containerColor(scrollFraction = 0f).value
+        color = MaterialTheme.colorScheme.background
     ) {
         Column {
             CenterAlignedTopAppBar(
@@ -71,7 +71,7 @@ fun WireCenterAlignedTopAppBar(
                     }
                 },
                 navigationIcon = { navigationIconType?.let { NavigationIconButton(iconType = it, onClick = onNavigationPressed) } },
-                colors = colors,
+                colors = wireTopAppBarColors(),
                 actions = actions
             )
             bottomContent()

@@ -82,7 +82,6 @@ import com.wire.android.ui.userprofile.self.model.OtherAccount
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SelfUserProfileScreen(viewModelSelf: SelfUserProfileViewModel = hiltViewModel()) {
@@ -155,7 +154,6 @@ private fun SelfUserProfileContent(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .fillMaxHeight()
                     .scrollable(state = scrollState, orientation = Orientation.Vertical)
                     .background(MaterialTheme.colorScheme.background)
                     .padding(internalPadding)
@@ -358,11 +356,11 @@ private fun OtherAccountItem(
                     searchQuery = ""
                 )
             }
-
         },
         subtitle = {
-            if (account.teamName != null)
+            if (account.teamName != null) {
                 HighlightSubtitle(subTitle = account.teamName, suffix = "")
+            }
         },
         actions = {
             Box(

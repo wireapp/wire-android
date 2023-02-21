@@ -63,7 +63,7 @@ fun OtherUserDevicesScreen(
                 LinkText(
                     linkTextData = listOf(
                         LinkTextData(
-                            text = stringResource(R.string.other_user_devices_description, fullName),
+                            text = stringResource(R.string.other_user_devices_description, fullName)
                         ),
                         LinkTextData(
                             text = stringResource(id = R.string.label_learn_more),
@@ -71,7 +71,7 @@ fun OtherUserDevicesScreen(
                             annotation = supportUrl,
                             onClick = {
                                 CustomTabsHelper.launchUrl(context, supportUrl)
-                            },
+                            }
                         )
                     ),
                     modifier = Modifier.padding(all = dimensions().spacing16x),
@@ -87,7 +87,8 @@ fun OtherUserDevicesScreen(
                         isValid = item.isValid
                     ),
                     placeholder = false,
-                    background = null
+                    background = null,
+                    leadingIcon = {}
                 )
                 if (index < otherUserClients.lastIndex) WireDivider()
             }

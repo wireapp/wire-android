@@ -146,22 +146,26 @@ fun LocalNotificationMessage.intoNotificationMessage(): NotificationMessage {
             text = text,
             isQuotingSelfUser = isQuotingSelfUser
         )
+
         is LocalNotificationMessage.Comment -> NotificationMessage.Comment(
             notificationMessageAuthor,
             notificationMessageTime,
             type.intoCommentResId()
         )
+
         is LocalNotificationMessage.ConnectionRequest -> NotificationMessage.ConnectionRequest(
             notificationMessageAuthor,
             notificationMessageTime,
             this.authorId.toString()
         )
+
         is LocalNotificationMessage.ConversationDeleted -> {
             NotificationMessage.ConversationDeleted(
                 notificationMessageAuthor,
                 notificationMessageTime
             )
         }
+
         is LocalNotificationMessage.Knock -> {
             NotificationMessage.Knock(
                 notificationMessageAuthor,

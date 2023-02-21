@@ -20,69 +20,137 @@
 
 package com.wire.android.ui.settings.devices
 
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material3.Divider
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
-import com.wire.android.ui.authentication.devices.common.ClearSessionState
+import com.wire.android.ui.authentication.devices.DeviceItem
 import com.wire.android.ui.authentication.devices.model.Device
-import com.wire.android.ui.authentication.devices.remove.RemoveDeviceContent
-import com.wire.android.ui.authentication.devices.remove.RemoveDeviceDialogState
-import com.wire.android.ui.authentication.devices.remove.RemoveDeviceError
-import com.wire.android.ui.authentication.devices.remove.RemoveDeviceState
-import com.wire.android.ui.authentication.devices.remove.RemoveDeviceViewModel
-import com.wire.android.ui.common.topappbar.NavigationIconType
-import kotlinx.collections.immutable.toImmutableList
+import com.wire.android.ui.common.Icon
+import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
+import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import com.wire.android.ui.settings.devices.model.SelfDevicesState
+import com.wire.android.ui.theme.wireColorScheme
+import com.wire.android.util.extension.folderWithElements
 
 @Composable
-fun SelfDevicesScreen() {
-    val removeDeviceViewModel: RemoveDeviceViewModel = hiltViewModel()
-    val selfDeviceViewModel: SelfDevicesViewModel = hiltViewModel()
-    val state = removeDeviceViewModel.state
-    val clearSessionState = remember { ClearSessionState(showCancelLoginDialog = false) }
-    RemoveDeviceContent(
-        state = state,
-        title = stringResource(id = R.string.devices_title),
-        description = null,
-        clearSessionState = clearSessionState,
-        onItemClicked = {
-            removeDeviceViewModel.onItemClicked(device = it, shouldRegisterClient = false)
-        },
-        onPasswordChange = removeDeviceViewModel::onPasswordChange,
-        onRemoveConfirm = removeDeviceViewModel::onRemoveConfirmed,
-        onDialogDismiss = removeDeviceViewModel::onDialogDismissed,
-        onErrorDialogDismiss = removeDeviceViewModel::clearDeleteClientError,
-        onBackButtonClicked = selfDeviceViewModel::navigateBack,
-        onCancelLoginClicked = {},
-        onProceedLoginClicked = {},
-        navigationIconType = NavigationIconType.Back
+fun SelfDevicesScreen(viewModel: SelfDevicesViewModel = hiltViewModel()) {
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    SelfDevicesScreenContent(
+        snackbarHostState = snackbarHostState,
+        state = viewModel.state,
+        onNavigateBack = viewModel::navigateBack,
+        onDeviceClick = viewModel::navigateToDevice
     )
 }
 
-@Preview
+@OptIn(
+    ExperimentalMaterial3Api::class
+)
 @Composable
-fun PreviewSelfDevicesScreen() {
-    RemoveDeviceContent(
-        state = RemoveDeviceState(
-            List(10) { Device() }.toImmutableList(),
-            RemoveDeviceDialogState.Hidden,
-            isLoadingClientsList = false,
-            error = RemoveDeviceError.None,
-            null
-        ),
-        title = "Your devices",
-        description = null,
-        clearSessionState = ClearSessionState(),
-        onItemClicked = {},
-        onPasswordChange = {},
-        onRemoveConfirm = {},
-        onDialogDismiss = {},
-        onErrorDialogDismiss = {},
-        onBackButtonClicked = {},
-        onCancelLoginClicked = {},
-        onProceedLoginClicked = {},
-        navigationIconType = NavigationIconType.Back
+fun SelfDevicesScreenContent(
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
+    onNavigateBack: () -> Unit = {},
+    onDeviceClick: (Device) -> Unit = {},
+    state: SelfDevicesState
+) {
+    val lazyListState = rememberLazyListState()
+    val context = LocalContext.current
+
+    Scaffold(
+        snackbarHost = {
+            SwipeDismissSnackbarHost(
+                hostState = snackbarHostState,
+                modifier = Modifier.fillMaxWidth()
+            )
+        },
+        topBar = {
+            TopBarHeader(
+                onNavigateBack = onNavigateBack
+            )
+        },
+        content = { paddingValues ->
+            LazyColumn(
+                state = lazyListState,
+                modifier = Modifier
+                    .padding(paddingValues)
+                    .fillMaxSize()
+            ) {
+                when (state.isLoadingClientsList) {
+                    true -> items(count = 4, itemContent = { Device() })
+                    false -> {
+                        state.currentDevice?.let { currentDevice ->
+                            folderDeviceItems(
+                                context.getString(R.string.current_device_label),
+                                listOf(currentDevice),
+                                onDeviceClick
+                            )
+                        }
+                        folderDeviceItems(
+                            context.getString(R.string.other_devices_label),
+                            state.deviceList,
+                            onDeviceClick
+                        )
+                    }
+                }
+            }
+        }
+    )
+}
+
+private fun LazyListScope.folderDeviceItems(
+    header: String,
+    items: List<Device>,
+    onDeviceClick: (Device) -> Unit = {}
+) {
+    folderWithElements(
+        header = header.uppercase(),
+        items = items.associateBy { it.clientId.value },
+        divider = {
+            Divider(
+                color = MaterialTheme.wireColorScheme.background,
+                thickness = Dp.Hairline
+            )
+        }
+    ) { item: Device ->
+        DeviceItem(
+            item,
+            background = MaterialTheme.wireColorScheme.surface,
+            placeholder = false,
+            onRemoveDeviceClick = onDeviceClick,
+            leadingIcon = Icons.Filled.ChevronRight.Icon(),
+            leadingIconBorder = 0.dp,
+            isWholeItemClickable = true
+        )
+    }
+}
+
+@Composable
+private fun TopBarHeader(
+    onNavigateBack: () -> Unit
+) {
+    WireCenterAlignedTopAppBar(
+        onNavigationPressed = onNavigateBack,
+        title = stringResource(id = R.string.devices_title),
+        elevation = 0.dp
     )
 }

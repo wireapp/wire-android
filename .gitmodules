@@ -2,3 +2,6 @@
 	path = kalium
 	url = https://github.com/wireapp/kalium.git
 	branch = develop
+[submodule "core-crypto"]
+	path = core-crypto
+	url = https://github.com/wireapp/core-crypto

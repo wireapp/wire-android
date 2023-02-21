@@ -409,21 +409,12 @@ enum class NavigationItem(
         return conversationId?.let { "$primaryRoute/$it" } ?: primaryRoute
     }
 
+    val itemName: String get() = ITEM_NAME_PREFIX + this.name
+
     companion object {
+        private const val ITEM_NAME_PREFIX = "NavigationItem."
         private val map: Map<String, NavigationItem> = values().associateBy { it.primaryRoute }
-
-        fun fromRoute(fullRoute: String): NavigationItem? {
-            val splitByQuestion = fullRoute.split("?")
-            val splitBySlash = fullRoute.split("/")
-
-            val primaryRoute = when {
-                splitByQuestion.size > 1 -> splitByQuestion[0]
-                splitBySlash.size > 1 -> splitBySlash[0]
-                else -> fullRoute
-            }
-
-            return map[primaryRoute]
-        }
+        fun fromRoute(fullRoute: String): NavigationItem? = map[fullRoute.getPrimaryRoute()]
     }
 }
 

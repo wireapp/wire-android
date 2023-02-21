@@ -75,8 +75,8 @@ fun rememberMessageComposerInnerState(): MessageComposerInnerState {
     val defaultAttachmentInnerState = AttachmentInnerState(context)
 
     val mentionSpanStyle = SpanStyle(
-        color = MaterialTheme.wireColorScheme.messageMentionText,
-        background = MaterialTheme.wireColorScheme.messageMentionBackground
+        color = MaterialTheme.wireColorScheme.onPrimaryVariant,
+        background = MaterialTheme.wireColorScheme.primaryVariant
     )
 
     val focusManager = LocalFocusManager.current

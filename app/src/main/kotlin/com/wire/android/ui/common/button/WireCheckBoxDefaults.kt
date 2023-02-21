@@ -20,132 +20,27 @@
 
 package com.wire.android.ui.common.button
 
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.tween
-import androidx.compose.material3.CheckboxColors
+import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.RadioButtonColors
+import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.State
-import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.state.ToggleableState
+import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.theme.wireColorScheme
 
 @Composable
-fun wireCheckBoxColors() = wireCheckBoxColors(
-    checkedCheckmarkColor = MaterialTheme.wireColorScheme.checkedCheckmarkColor,
-    uncheckedCheckmarkColor = MaterialTheme.wireColorScheme.uncheckedCheckmarkColor,
-    checkedBoxColor = MaterialTheme.wireColorScheme.checkedBoxColor,
-    uncheckedBoxColor = MaterialTheme.wireColorScheme.uncheckedBoxColor,
-    disabledCheckedBoxColor = MaterialTheme.wireColorScheme.disabledCheckedBoxColor,
-    disabledUncheckedBoxColor = MaterialTheme.wireColorScheme.disabledUncheckedBoxColor,
-    disabledIndeterminateBoxColor = MaterialTheme.wireColorScheme.disabledIndeterminateBoxColor,
-    checkedBorderColor = MaterialTheme.wireColorScheme.checkedCheckBoxBorderColor,
-    uncheckedBorderColor = MaterialTheme.wireColorScheme.uncheckedCheckBoxBorderColor,
-    disabledBorderColor = MaterialTheme.wireColorScheme.disabledCheckedBoxColor,
-    disabledIndeterminateBorderColor = MaterialTheme.wireColorScheme.disabledIndeterminateCheckBoxBorderColor,
+fun wireCheckBoxColors() = CheckboxDefaults.colors(
+    uncheckedColor = MaterialTheme.wireColorScheme.uncheckedColor,
+    checkedColor = MaterialTheme.colorScheme.primary,
+    checkmarkColor = MaterialTheme.colorScheme.onPrimary,
+    disabledCheckedColor = MaterialTheme.wireColorScheme.disabledCheckedColor,
+    disabledUncheckedColor = MaterialTheme.wireColorScheme.disabledUncheckedColor,
+    disabledIndeterminateColor = MaterialTheme.wireColorScheme.disabledIndeterminateColor
 )
 
 @Composable
-fun wireRadioButtonColors() = object : RadioButtonColors {
-
-    @Composable
-    override fun radioColor(enabled: Boolean, selected: Boolean): State<Color> {
-        val target = if (enabled) {
-            if (selected) MaterialTheme.wireColorScheme.checkedBoxColor
-            else MaterialTheme.wireColorScheme.uncheckedBoxColor
-        } else {
-            MaterialTheme.wireColorScheme.disabledUncheckedBoxColor
-        }
-
-        // If not enabled 'snap' to the disabled state, as there should be no animations between
-        // enabled / disabled.
-        return if (enabled) {
-            val duration = BOX_OUT_DURATION
-            animateColorAsState(target, tween(durationMillis = duration))
-        } else {
-            rememberUpdatedState(target)
-        }
-    }
-}
-
-@Composable
-fun wireCheckBoxColors(
-    checkedCheckmarkColor: Color,
-    uncheckedCheckmarkColor: Color,
-    checkedBoxColor: Color,
-    uncheckedBoxColor: Color,
-    disabledCheckedBoxColor: Color,
-    disabledUncheckedBoxColor: Color,
-    disabledIndeterminateBoxColor: Color,
-    checkedBorderColor: Color,
-    uncheckedBorderColor: Color,
-    disabledBorderColor: Color,
-    disabledIndeterminateBorderColor: Color
-) = object : CheckboxColors {
-
-    @Composable
-    override fun borderColor(enabled: Boolean, state: ToggleableState): State<Color> {
-        val target = if (enabled) {
-            when (state) {
-                ToggleableState.On, ToggleableState.Indeterminate -> checkedBorderColor
-                ToggleableState.Off -> uncheckedBorderColor
-            }
-        } else {
-            when (state) {
-                ToggleableState.Indeterminate -> disabledIndeterminateBorderColor
-                ToggleableState.On, ToggleableState.Off -> disabledBorderColor
-            }
-        }
-
-        // If not enabled 'snap' to the disabled state, as there should be no animations between
-        // enabled / disabled.
-        return if (enabled) {
-            val duration = if (state == ToggleableState.Off) BOX_OUT_DURATION else BOX_IN_DURATION
-            animateColorAsState(target, tween(durationMillis = duration))
-        } else {
-            rememberUpdatedState(target)
-        }
-    }
-
-    @Composable
-    override fun boxColor(enabled: Boolean, state: ToggleableState): State<Color> {
-        val target = if (enabled) {
-            when (state) {
-                ToggleableState.On, ToggleableState.Indeterminate -> checkedBoxColor
-                ToggleableState.Off -> uncheckedBoxColor
-            }
-        } else {
-            when (state) {
-                ToggleableState.On -> disabledCheckedBoxColor
-                ToggleableState.Indeterminate -> disabledIndeterminateBoxColor
-                ToggleableState.Off -> disabledUncheckedBoxColor
-            }
-        }
-
-        // If not enabled 'snap' to the disabled state, as there should be no animations between
-        // enabled / disabled.
-        return if (enabled) {
-            val duration = if (state == ToggleableState.Off) BOX_OUT_DURATION else BOX_IN_DURATION
-            animateColorAsState(target, tween(durationMillis = duration))
-        } else {
-            rememberUpdatedState(target)
-        }
-    }
-
-    @Composable
-    override fun checkmarkColor(state: ToggleableState): State<Color> {
-        val target = if (state == ToggleableState.Off) {
-            uncheckedCheckmarkColor
-        } else {
-            checkedCheckmarkColor
-        }
-
-        val duration = if (state == ToggleableState.Off) BOX_OUT_DURATION else BOX_IN_DURATION
-        return animateColorAsState(target, tween(durationMillis = duration))
-    }
-}
-
-private const val BOX_OUT_DURATION = 100
-private const val BOX_IN_DURATION = 50
+fun wireRadioButtonColors() = RadioButtonDefaults.colors(
+    selectedColor = colorsScheme().primary,
+    unselectedColor = colorsScheme().uncheckedColor,
+    disabledSelectedColor = colorsScheme().disabledCheckedColor,
+    disabledUnselectedColor = colorsScheme().disabledUncheckedColor
+)

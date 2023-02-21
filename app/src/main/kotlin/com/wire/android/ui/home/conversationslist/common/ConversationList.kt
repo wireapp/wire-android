@@ -86,7 +86,7 @@ fun ConversationList(
                     searchQuery = searchQuery,
                     conversation = generalConversation,
                     isSelectableItem = isSelectableList,
-                    belongsToGroup = conversationsAddedToGroup.contains(generalConversation),
+                    isChecked = conversationsAddedToGroup.contains(generalConversation),
                     onConversationSelectedOnRadioGroup = { onConversationSelectedOnRadioGroup(generalConversation) },
                     openConversation = onOpenConversation,
                     openMenu = onEditConversation,

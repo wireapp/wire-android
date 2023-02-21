@@ -55,7 +55,7 @@ fun ConversationItemFactory(
     conversation: ConversationItem,
     searchQuery: String,
     isSelectableItem: Boolean = false,
-    belongsToGroup: Boolean = false,
+    isChecked: Boolean = false,
     onConversationSelectedOnRadioGroup: () -> Unit = {},
     openConversation: (ConversationId) -> Unit,
     openMenu: (ConversationItem) -> Unit,
@@ -84,7 +84,7 @@ fun ConversationItemFactory(
         conversation = conversation,
         searchQuery = searchQuery,
         isSelectable = isSelectableItem,
-        belongsToGroup = belongsToGroup,
+        isChecked = isChecked,
         selectOnRadioGroup = onConversationSelectedOnRadioGroup,
         subTitle = {
             if (!isSelectableItem) {
@@ -116,7 +116,7 @@ fun ConversationItemFactory(
 private fun GeneralConversationItem(
     searchQuery: String,
     conversation: ConversationItem,
-    belongsToGroup: Boolean,
+    isChecked: Boolean,
     selectOnRadioGroup: () -> Unit = {},
     isSelectable: Boolean,
     subTitle: @Composable () -> Unit = {},
@@ -131,7 +131,7 @@ private fun GeneralConversationItem(
                     leadingIcon = {
                         Row {
                             if (isSelectable) {
-                                WireRadioButton(checked = belongsToGroup, onButtonChecked = {
+                                WireRadioButton(checked = isChecked, onButtonChecked = {
                                     selectOnRadioGroup()
                                 })
                             }
@@ -174,7 +174,7 @@ private fun GeneralConversationItem(
                     leadingIcon = {
                         Row {
                             if (isSelectable) {
-                                WireRadioButton(checked = belongsToGroup, onButtonChecked = {
+                                WireRadioButton(checked = isChecked, onButtonChecked = {
                                     selectOnRadioGroup()
                                 })
                             }
@@ -247,7 +247,7 @@ fun PreviewGroupConversationItemWithUnreadCount() {
         ),
         searchQuery = "",
         isSelectableItem = false,
-        belongsToGroup = false,
+        isChecked = false,
         {}, {}, {}, {}, {}, {}
     )
 }
@@ -269,7 +269,7 @@ fun PreviewGroupConversationItemWithNoBadges() {
         ),
         searchQuery = "",
         isSelectableItem = false,
-        belongsToGroup = false,
+        isChecked = false,
         {}, {}, {}, {}, {}, {}
     )
 }
@@ -291,7 +291,7 @@ fun PreviewGroupConversationItemWithMutedBadgeAndUnreadMentionBadge() {
         ),
         searchQuery = "",
         isSelectableItem = false,
-        belongsToGroup = false,
+        isChecked = false,
         {}, {}, {}, {}, {}, {}
     )
 }
@@ -314,7 +314,7 @@ fun PreviewGroupConversationItemWithOngoingCall() {
         ),
         searchQuery = "",
         isSelectableItem = false,
-        belongsToGroup = false,
+        isChecked = false,
         {}, {}, {}, {}, {}, {}
     )
 }
@@ -333,7 +333,7 @@ fun PreviewConnectionConversationItemWithReceivedConnectionRequestBadge() {
         ),
         searchQuery = "",
         isSelectableItem = false,
-        belongsToGroup = false,
+        isChecked = false,
         {}, {}, {}, {}, {}, {}
     )
 }
@@ -352,7 +352,7 @@ fun PreviewConnectionConversationItemWithSentConnectRequestBadge() {
         ),
         searchQuery = "",
         isSelectableItem = false,
-        belongsToGroup = false,
+        isChecked = false,
         {}, {}, {}, {}, {}, {}
     )
 }
@@ -374,7 +374,7 @@ fun PreviewPrivateConversationItemWithBlockedBadge() {
         ),
         searchQuery = "",
         isSelectableItem = false,
-        belongsToGroup = false,
+        isChecked = false,
         {}, {}, {}, {}, {}, {}
     )
 }

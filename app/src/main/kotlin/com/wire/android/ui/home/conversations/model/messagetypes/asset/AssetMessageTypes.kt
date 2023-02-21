@@ -89,8 +89,7 @@ internal fun MessageAsset(
             )
             .clickable(if (isNotClickable(assetDownloadStatus, assetUploadStatus)) null else onAssetClick)
     ) {
-        val isUploadInProgress = assetUploadStatus == Message.UploadStatus.UPLOAD_IN_PROGRESS
-        if (isUploadInProgress) {
+        if (assetUploadStatus == Message.UploadStatus.UPLOAD_IN_PROGRESS) {
             UploadInProgressAssetMessage()
         } else {
             val assetModifier = if (shouldFillMaxWidth) Modifier.fillMaxWidth()

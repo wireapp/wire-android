@@ -123,8 +123,8 @@ fun EditMessageMenuItems(
         if (isAvailable) {
             add { ReactionOptions(onReactionItemClick) }
             add { MessageDetails(onDetailsItemClick) }
-            add {
-                if (isCopyable) {
+            if (isCopyable) {
+                add {
                     MenuBottomSheetItem(
                         icon = {
                             MenuItemIcon(

@@ -424,7 +424,7 @@ class ConversationListViewModel @Inject constructor(
     }
 }
 
-internal fun LegalHoldStatus.showLegalHoldIndicator() = this == LegalHoldStatus.ENABLED
+fun LegalHoldStatus.showLegalHoldIndicator() = this == LegalHoldStatus.ENABLED
 
 @Suppress("LongMethod")
 private fun ConversationDetails.toConversationItem(
@@ -512,12 +512,12 @@ private fun ConversationDetails.toConversationItem(
 private fun parseConnectionEventType(connectionState: ConnectionState) =
     if (connectionState == ConnectionState.SENT) BadgeEventType.SentConnectRequest else BadgeEventType.ReceivedConnectionRequest
 
-internal fun parsePrivateConversationEventType(connectionState: ConnectionState, isDeleted: Boolean, eventType: BadgeEventType) =
+fun parsePrivateConversationEventType(connectionState: ConnectionState, isDeleted: Boolean, eventType: BadgeEventType) =
     if (connectionState == ConnectionState.BLOCKED) BadgeEventType.Blocked
     else if (isDeleted) BadgeEventType.Deleted
     else eventType
 
-internal fun parseConversationEventType(
+fun parseConversationEventType(
     mutedStatus: MutedConversationStatus,
     unreadEventCount: UnreadEventCount
 ): BadgeEventType = when (mutedStatus) {

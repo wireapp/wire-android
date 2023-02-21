@@ -28,7 +28,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.material.Divider
+import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -45,6 +45,7 @@ import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.ArrowRightIcon
 import com.wire.android.ui.common.clickable
+import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
@@ -81,7 +82,9 @@ fun MenuBottomSheetItem(
 @Composable
 fun buildMenuSheetItems(items: List<@Composable () -> Unit>) {
     items.forEach { itemBuilder ->
-        Divider(thickness = 0.5.dp)
+        // Make sure that every item added to this list is actually not empty. Otherwise, the divider will be still drawn and give the
+        // impression that it has extra thickness
+        Divider(thickness = Dp.Hairline, color = colorsScheme().divider)
         itemBuilder()
     }
 }

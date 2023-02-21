@@ -35,6 +35,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -44,9 +45,11 @@ import com.wire.android.ui.common.button.IconAlignment
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.button.WireSecondaryButton
+import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
+import kotlin.reflect.KFunction0
 
 @Composable
 fun SelectParticipantsButtonsAlwaysEnabled(
@@ -101,13 +104,16 @@ fun SendContentButton(
     onMainButtonClick: () -> Unit,
 ) {
     SelectParticipantsButtonsRow(
-        showCount = false,
+        showTotalSelectedItemsCount = false,
         count = count,
         leadingIcon = {
             Image(
                 painter = painterResource(id = R.drawable.ic_send),
                 contentDescription = null,
-                modifier = Modifier.padding(end = dimensions().spacing12x)
+                modifier = Modifier.padding(end = dimensions().spacing12x),
+                colorFilter = ColorFilter.tint(
+                    if (count > 0) colorsScheme().onPrimaryButtonEnabled else colorsScheme().onPrimaryButtonDisabled
+                )
             )
         },
         mainButtonText = mainButtonText,
@@ -118,7 +124,7 @@ fun SendContentButton(
 
 @Composable
 private fun SelectParticipantsButtonsRow(
-    showCount: Boolean = true,
+    showTotalSelectedItemsCount: Boolean = true,
     leadingIcon: @Composable (() -> Unit)? = null,
     count: Int = 0,
     mainButtonText: String,
@@ -140,9 +146,9 @@ private fun SelectParticipantsButtonsRow(
             verticalAlignment = Alignment.CenterVertically,
             modifier = modifier,
         ) {
-            val mainBtnText = if (showCount) "$mainButtonText ($count)" else mainButtonText
+            val buttonText = if (showTotalSelectedItemsCount) "$mainButtonText ($count)" else mainButtonText
             WirePrimaryButton(
-                text = mainBtnText,
+                text = buttonText,
                 leadingIcon = leadingIcon,
                 onClick = onMainButtonClick,
                 state = computeButtonState(count, shouldAllowNoSelectionContinue),
@@ -198,11 +204,11 @@ fun PreviewSelectParticipantsButtonsRowDisabledButton() {
 @Preview
 @Composable
 fun PreviewSendButtonsRowDisabledButton() {
-    SendContentButton(mainButtonText = "Send", count = 0, onMainButtonClick = {})
+    SendContentButton(mainButtonText = "Send", count = 0) {}
 }
 
 @Preview
 @Composable
 fun PreviewSendButtonsRowEnabledButton() {
-    SendContentButton(mainButtonText = "Send", count = 1, onMainButtonClick = {})
+    SendContentButton(mainButtonText = "Send", count = 1) {}
 }

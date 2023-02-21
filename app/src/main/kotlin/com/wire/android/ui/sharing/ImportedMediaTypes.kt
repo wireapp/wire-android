@@ -10,6 +10,7 @@ import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMess
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.util.fileExtension
+import com.wire.kalium.logic.util.splitFileExtension
 import okio.Path
 
 @Composable
@@ -36,7 +37,7 @@ fun ImportedImageView(item: ImportedMediaAsset.Image, isMultipleImport: Boolean,
 @Composable
 fun ImportedGenericAssetView(item: ImportedMediaAsset.GenericAsset, isMultipleImport: Boolean) {
     MessageGenericAsset(
-        assetName = item.name,
+        assetName = item.name.splitFileExtension().first,
         assetExtension = item.name.fileExtension() ?: "",
         assetSizeInBytes = item.size,
         onAssetClick = Clickable(enabled = false),

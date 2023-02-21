@@ -53,7 +53,16 @@ class FeatureFlagNotificationViewModel @Inject constructor(
     var featureFlagState by mutableStateOf(FeatureFlagState())
         private set
 
-    fun loadSync() {
+    /**
+     * The FeatureFlagNotificationViewModel is an attempt to encapsulate the logic regarding the different user feature flags, like for
+     * example the file sharing one. This means that this VM could be invoked as an extension from outside the general app lifecycle (for
+     * example when trying to share a file from an external app into Wire).
+     *
+     * This method is therefore called to check whether the user has a valid session or not. If the user does have a valid one, it observes
+     * it until the sync state is live. Once the sync state is live, it sets whether the file sharing feature is enabled or not on the VM
+     * state.
+     */
+    fun loadInitialSync() {
         viewModelScope.launch {
             currentSessionUseCase().let {
                 when (it) {
@@ -103,6 +112,8 @@ class FeatureFlagNotificationViewModel @Inject constructor(
     }
 
     fun updateSharingStateIfNeeded(activity: AppCompatActivity) {
+        // This function needs to be executed blocking the main thread because otherwise the list of imported assets will not be updated
+        // correctly for some strange reason.
         runBlocking {
             val incomingIntent = ShareCompat.IntentReader(activity)
             if (incomingIntent.isShareIntent) {

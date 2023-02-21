@@ -279,7 +279,7 @@ class ImportMediaViewModel @Inject constructor(
         importMediaState = importMediaState.copy(importedAssets = importedMediaAssets)
     }
 
-    fun onImportedMediaSent() = viewModelScope.launch(dispatchers.default()) {
+    fun checkRestrictionsAndSendImportedMedia() = viewModelScope.launch(dispatchers.default()) {
         val conversation = shareableConversationListState.conversationsAddedToGroup.first()
         val assetsToSend = importMediaState.importedAssets
 
@@ -311,6 +311,12 @@ class ImportMediaViewModel @Inject constructor(
                 )
             )
         }
+    }
+
+    fun currentSelectedConversationsCount() = if (importMediaState.importedAssets.size > 0) {
+        shareableConversationListState.conversationsAddedToGroup.size
+    } else {
+        0
     }
 
     private suspend fun handleImportedAsset(

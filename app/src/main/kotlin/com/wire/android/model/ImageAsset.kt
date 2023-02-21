@@ -45,6 +45,10 @@ sealed class ImageAsset(private val imageLoader: WireSessionImageLoader) {
             get() = userAssetId.toString()
     }
 
+    /**
+     * Represents an image asset that is stored locally on the device, and it isn't necessarily bounded to any specific conversation or
+     * message, i.e. some preview images that the user selected from local device gallery.
+     */
     @Stable
     data class LocalImageAsset(
         private val imageLoader: WireSessionImageLoader,

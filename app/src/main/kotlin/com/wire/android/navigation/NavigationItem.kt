@@ -97,6 +97,7 @@ import com.wire.android.util.deeplink.DeepLinkProcessor
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
+import com.wire.kalium.logic.data.user.UserId
 import io.github.esentsov.PackagePrivate
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
@@ -120,8 +121,15 @@ enum class NavigationItem(
 
     Migration(
         primaryRoute = MIGRATION,
+        canonicalRoute = "$MIGRATION&$EXTRA_USER_ID={$EXTRA_USER_ID}",
         content = { MigrationScreen() },
-    ),
+    ) {
+        override fun getRouteWithArgs(arguments: List<Any>): String {
+            val type: UserId = arguments.filterIsInstance<UserId>().firstOrNull()
+                ?: return primaryRoute
+            return "$primaryRoute&${EXTRA_USER_ID}=$type"
+        }
+      },
 
     Login(
         primaryRoute = LOGIN,

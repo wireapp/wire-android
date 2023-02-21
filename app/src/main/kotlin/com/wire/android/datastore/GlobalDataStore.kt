@@ -27,6 +27,7 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.preferencesDataStore
 import com.wire.android.BuildConfig
+import com.wire.kalium.logic.data.user.UserId
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
@@ -45,6 +46,7 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
         private val WELCOME_SCREEN_PRESENTED = booleanPreferencesKey("welcome_screen_presented")
         private val IS_LOGGING_ENABLED = booleanPreferencesKey("is_logging_enabled")
         private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = PREFERENCES_NAME)
+        fun userMigrationKey(userId: UserId) = booleanPreferencesKey("user_migration_completed_$userId")
     }
 
     suspend fun clear() {
@@ -76,4 +78,8 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
     suspend fun setWelcomeScreenNotPresented() {
         context.dataStore.edit { it[WELCOME_SCREEN_PRESENTED] = false }
     }
+
+    suspend fun setMigrationCompletedForUser(userId: UserId) = context.dataStore.edit { it[userMigrationKey(userId)] = true }
+
+    fun isUserMigrated(userId: UserId): Flow<Boolean> = getBooleanPreference(userMigrationKey(userId), false)
 }

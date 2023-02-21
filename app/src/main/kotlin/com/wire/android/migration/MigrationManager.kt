@@ -32,15 +32,17 @@ import com.wire.android.migration.feature.MigrateMessagesUseCase
 import com.wire.android.migration.feature.MigrateServerConfigUseCase
 import com.wire.android.migration.feature.MigrateUsersUseCase
 import com.wire.android.migration.util.ScalaDBNameProvider
+import com.wire.kalium.logger.obfuscateId
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.NetworkFailure
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.functional.Either
 import com.wire.kalium.logic.functional.flatMap
 import com.wire.kalium.logic.functional.fold
-import com.wire.kalium.logic.functional.isRight
+import com.wire.kalium.logic.functional.isLeft
 import com.wire.kalium.logic.functional.map
 import com.wire.kalium.logic.functional.onFailure
+import com.wire.kalium.logic.functional.onSuccess
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
@@ -88,6 +90,31 @@ class MigrationManager @Inject constructor(
 
     fun isMigrationCompletedFlow(): Flow<Boolean> = globalDataStore.isMigrationCompletedFlow()
 
+    suspend fun migrateSingleUser(
+        userId: UserId,
+        coroutineScope: CoroutineScope,
+        updateProgress: suspend (MigrationData.Progress) -> Unit,
+    ): MigrationData.Result {
+        updateProgress(MigrationData.Progress(MigrationData.Progress.Type.USERS))
+        appLogger.d("$TAG - Step 3 - Migrating users for ${userId.value.obfuscateId()}")
+        return migrateUsers(userId).flatMap {
+            updateProgress(MigrationData.Progress(MigrationData.Progress.Type.CONVERSATIONS))
+            appLogger.d("$TAG - Step 4 - Migrating conversations for ${userId.value.obfuscateId()}")
+            migrateConversations(it)
+        }.flatMap {
+            updateProgress(MigrationData.Progress(MigrationData.Progress.Type.MESSAGES))
+            appLogger.d("$TAG - Step 5 - Migrating messages for ${userId.value.obfuscateId()}")
+            migrateMessages(userId, it, coroutineScope)
+        }.onSuccess {
+            globalDataStore.setMigrationCompletedForUser(userId)
+        }
+            .fold({
+                MigrationData.Result.Failure
+            }, {
+                MigrationData.Result.Success
+            })
+    }
+
     suspend fun migrate(
         coroutineScope: CoroutineScope,
         updateProgress: suspend (MigrationData.Progress) -> Unit,
@@ -120,24 +147,27 @@ class MigrationManager @Inject constructor(
 
         val migrationJobs: List<Job> = migratedAccounts.map { it ->
             coroutineScope.launch(migrationDispatcher) {
-                if (it.value.isRight()) {
-                    val userid = (it.value as Either.Right).value
-                    appLogger.d("$TAG - Step 2 - Migrating clients for $userid")
-                    migrateClientsData(userid, isFederated).onFailure { failure ->
-                        appLogger.e("$TAG - Step 2 - Migrating clients for $userid failed reason $failure")
-                    }
-                    appLogger.d("$TAG - Step 3 - Migrating users for $userid")
-                    migrateUsers(userid).flatMap {
-                        appLogger.d("$TAG - Step 4 - Migrating conversations for $userid")
-                        migrateConversations(it)
-                    }.flatMap {
-                        appLogger.d("$TAG - Step 5 - Migrating messages for $userid")
-                        migrateMessages(userid, it, coroutineScope)
-                    }.also {
-                        resultAcc[userid.value] = it
-                    }
-                } else {
+                if (it.value.isLeft()) {
                     resultAcc[it.key] = it.value as Either.Left
+                    return@launch
+                }
+
+                val userId = (it.value as Either.Right).value
+                appLogger.d("$TAG - Step 2 - Migrating clients for ${userId.value.obfuscateId()}")
+                migrateClientsData(userId, isFederated).onFailure { failure ->
+                    appLogger.e("$TAG - Step 2 - Migrating clients for ${userId.value.obfuscateId()} failed reason $failure")
+                }
+                appLogger.d("$TAG - Step 3 - Migrating users for $userId")
+                migrateUsers(userId).flatMap {
+                    appLogger.d("$TAG - Step 4 - Migrating conversations for ${userId.value.obfuscateId()}")
+                    migrateConversations(it)
+                }.flatMap {
+                    appLogger.d("$TAG - Step 5 - Migrating messages for ${userId.value.obfuscateId()}")
+                    migrateMessages(userId, it, coroutineScope)
+                }.onSuccess {
+                    globalDataStore.setMigrationCompletedForUser(userId)
+                }.also {
+                    resultAcc[userId.value] = it
                 }
             }
         }

@@ -30,6 +30,7 @@ import com.wire.android.notification.NotificationChannelsManager
 import com.wire.android.notification.WireNotificationManager
 import com.wire.android.workmanager.worker.MigrationWorker
 import com.wire.android.workmanager.worker.NotificationFetchWorker
+import com.wire.android.workmanager.worker.SingleUserMigrationWorker
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.sync.WrapperWorker
 import com.wire.kalium.logic.sync.WrapperWorkerFactory
@@ -54,6 +55,8 @@ class WireWorkerFactory @Inject constructor(
                 NotificationFetchWorker(appContext, workerParameters, wireNotificationManager, notificationChannelsManager)
             MigrationWorker::class.java.canonicalName ->
                 MigrationWorker(appContext, workerParameters, migrationManager, notificationChannelsManager)
+            SingleUserMigrationWorker::class.java.canonicalName ->
+                SingleUserMigrationWorker(appContext, workerParameters, migrationManager, notificationChannelsManager)
             else -> null
         }
     }

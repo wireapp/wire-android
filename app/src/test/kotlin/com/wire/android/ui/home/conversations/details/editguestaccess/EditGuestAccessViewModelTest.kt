@@ -31,6 +31,11 @@ import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationAccessRoleUseCase
+import com.wire.kalium.logic.feature.conversation.guestroomlink.GenerateGuestRoomLinkResult
+import com.wire.kalium.logic.feature.conversation.guestroomlink.GenerateGuestRoomLinkUseCase
+import com.wire.kalium.logic.feature.conversation.guestroomlink.ObserveGuestRoomLinkUseCase
+import com.wire.kalium.logic.feature.conversation.guestroomlink.RevokeGuestRoomLinkResult
+import com.wire.kalium.logic.feature.conversation.guestroomlink.RevokeGuestRoomLinkUseCase
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.impl.annotations.MockK
@@ -63,6 +68,18 @@ class EditGuestAccessViewModelTest {
     @MockK
     lateinit var observeConversationMembers: ObserveParticipantsForConversationUseCase
 
+    @MockK
+    lateinit var updateConversationAccessRole: UpdateConversationAccessRoleUseCase
+
+    @MockK
+    lateinit var generateGuestRoomLink: GenerateGuestRoomLinkUseCase
+
+    @MockK
+    lateinit var observeGuestRoomLink: ObserveGuestRoomLinkUseCase
+
+    @MockK
+    lateinit var revokeGuestRoomLink: RevokeGuestRoomLinkUseCase
+
     private lateinit var editGuestAccessViewModel: EditGuestAccessViewModel
 
     @Before
@@ -72,7 +89,10 @@ class EditGuestAccessViewModelTest {
             dispatcher = TestDispatcherProvider(),
             observeConversationDetails = observeConversationDetails,
             observeConversationMembers = observeConversationMembers,
-            updateConversationAccessRole = updateConversationAccessRoleUseCase,
+            updateConversationAccessRole = updateConversationAccessRole,
+            generateGuestRoomLink = generateGuestRoomLink,
+            revokeGuestRoomLink = revokeGuestRoomLink,
+            observeGuestRoomLink = observeGuestRoomLink,
             savedStateHandle = savedStateHandle,
             qualifiedIdMapper = qualifiedIdMapper
         )
@@ -129,5 +149,62 @@ class EditGuestAccessViewModelTest {
         coVerify(inverse = true) {
             updateConversationAccessRoleUseCase(any(), any(), any(), any())
         }
+    }
+
+    @Test
+    fun given_useCase_runs_with_success_When_generating_guest_link_Then_Invoke_it_once() = runTest {
+        coEvery {
+            generateGuestRoomLink(any())
+        } returns GenerateGuestRoomLinkResult.Success
+
+        editGuestAccessViewModel.onGuestDialogConfirm()
+
+        coVerify(exactly = 1) {
+            generateGuestRoomLink(any())
+        }
+        assertEquals(false, editGuestAccessViewModel.editGuestAccessState.isGeneratingGuestRoomLink)
+    }
+
+    @Test
+    fun `given_useCase_runs_with_failureWhen_generating_guest_link_Then_show_dialog_error`() = runTest {
+        coEvery {
+            generateGuestRoomLink(any())
+        } returns GenerateGuestRoomLinkResult.Failure(CoreFailure.MissingClientRegistration)
+
+        editGuestAccessViewModel.onGuestDialogConfirm()
+
+        coVerify(exactly = 1) {
+            generateGuestRoomLink(any())
+        }
+        assertEquals(true, editGuestAccessViewModel.editGuestAccessState.isFailedToGenerateGuestRoomLink)
+    }
+
+    @Test
+    fun `given_useCase_runs_with_success_When_revoking_guest_link_Then_Invoke_it_once`() = runTest {
+        coEvery {
+            revokeGuestRoomLink(any())
+        } returns RevokeGuestRoomLinkResult.Success
+
+        editGuestAccessViewModel.onRevokeDialogConfirm()
+
+        coVerify(exactly = 1) {
+            revokeGuestRoomLink(any())
+        }
+        assertEquals(false, editGuestAccessViewModel.editGuestAccessState.isRevokingLink)
+    }
+
+    @Test
+    fun `given_useCase_runs_with_failure_When_revoking_guest_link_Then_show_dialog_error`() = runTest {
+        coEvery {
+            revokeGuestRoomLink(any())
+        } returns RevokeGuestRoomLinkResult.Failure(CoreFailure.MissingClientRegistration)
+
+        editGuestAccessViewModel.onRevokeDialogConfirm()
+
+        coVerify(exactly = 1) {
+            revokeGuestRoomLink(any())
+        }
+        assertEquals(false, editGuestAccessViewModel.editGuestAccessState.isRevokingLink)
+        assertEquals(true, editGuestAccessViewModel.editGuestAccessState.isFailedToRevokeGuestRoomLink)
     }
 }

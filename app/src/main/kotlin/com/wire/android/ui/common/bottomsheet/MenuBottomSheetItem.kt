@@ -46,6 +46,7 @@ import com.wire.android.model.Clickable
 import com.wire.android.ui.common.ArrowRightIcon
 import com.wire.android.ui.common.clickable
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.divider.WireDivider
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import io.github.esentsov.PackagePrivate
@@ -81,7 +82,7 @@ fun MenuBottomSheetItem(
 @Composable
 fun buildMenuSheetItems(items: List<@Composable () -> Unit>) {
     items.forEach { itemBuilder ->
-        Divider(thickness = 0.5.dp)
+        WireDivider()
         itemBuilder()
     }
 }

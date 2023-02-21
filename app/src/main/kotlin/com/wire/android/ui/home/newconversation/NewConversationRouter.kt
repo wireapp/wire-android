@@ -71,7 +71,9 @@ fun NewConversationRouter() {
                 content = {
                     SearchPeopleRouter(
                         searchAllPeopleViewModel = newConversationViewModel,
-                        onGroupSelectionSubmitAction = { newConversationNavController.navigate(NewConversationNavigationItem.NewGroupNameScreen.route) }
+                        onGroupSelectionSubmitAction = {
+                            newConversationNavController.navigate(NewConversationNavigationItem.NewGroupNameScreen.route)
+                        }
                     )
                 }
             )

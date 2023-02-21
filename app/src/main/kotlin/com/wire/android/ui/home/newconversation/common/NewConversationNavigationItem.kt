@@ -22,7 +22,6 @@ package com.wire.android.ui.home.newconversation.common
 
 import com.wire.android.navigation.getPrimaryRoute
 
-
 enum class NewConversationNavigationItem(val route: String) {
     NewGroupNameScreen("new_group_name"),
     SearchListNavHostScreens("search_list_nav_host"),

@@ -28,6 +28,7 @@ import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.functional.Either
+import com.wire.kalium.logic.functional.onFailure
 import kotlinx.coroutines.CoroutineScope
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -41,18 +42,31 @@ class MigrateMessagesUseCase @Inject constructor(
     suspend operator fun invoke(
         userId: UserId, scalaConversations: List<ScalaConversationData>,
         coroutineScope: CoroutineScope
-    ): Either<CoreFailure, Unit> {
+    ): Map<String, CoreFailure> {
+        val errorsAcc: MutableMap<String, CoreFailure> = mutableMapOf()
+
         val messageDAO = scalaUserDatabase.messageDAO(userId)
         val userDAO = scalaUserDatabase.userDAO(userId)
-        val messages = messageDAO?.messages(scalaConversations) ?: listOf()
-        if (messages.isEmpty()) return Either.Right(Unit)
 
-        val users = userDAO?.users(messages.map { it.senderId }.distinct())?.associateBy { it.id } ?: mapOf()
-        val mappedMessages = messages.mapNotNull { scalaMessage ->
-            users[scalaMessage.senderId]?.let { mapper.fromScalaMessageToMessage(userId, scalaMessage, it) }
+        // iterate over all conversations and migrate messages
+        // if any error occurs, add it to the errors accumulator
+        // if the accumulator is empty, return Right(Unit)
+        // otherwise, return Left(errorsAcc)
+        for (scalaConversation in scalaConversations) {
+            val messages = messageDAO?.messages(listOf(scalaConversation)) ?: listOf()
+            if (messages.isEmpty()) continue
+
+            val users = userDAO?.users(messages.map { it.senderId }.distinct())?.associateBy { it.id } ?: mapOf()
+            val mappedMessages = messages.mapNotNull { scalaMessage ->
+                users[scalaMessage.senderId]?.let { mapper.fromScalaMessageToMessage(userId, scalaMessage, it) }
+            }
+            val sessionScope = coreLogic.getSessionScope(userId)
+            sessionScope.messages.persistMigratedMessage(mappedMessages, coroutineScope).onFailure {
+                errorsAcc[scalaConversation.id] = it
+            }
         }
-        val sessionScope = coreLogic.getSessionScope(userId)
-        return sessionScope.messages.persistMigratedMessage(mappedMessages, coroutineScope)
+
+        return errorsAcc
     }
 }
 

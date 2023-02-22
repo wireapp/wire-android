@@ -20,7 +20,6 @@
 
 package com.wire.android.ui.home
 
-
 // TODO change to extend [SnackBarMessage]
 sealed class HomeSnackbarState {
     object None : HomeSnackbarState()

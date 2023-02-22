@@ -93,7 +93,8 @@ fun ShareLinkButton(
 
 @Composable
 fun RevokeLinkButton(
-    isLoading: Boolean = false, onRevoke: () -> Unit
+    isLoading: Boolean = false,
+    onRevoke: () -> Unit
 ) {
     WirePrimaryButton(
         modifier = Modifier

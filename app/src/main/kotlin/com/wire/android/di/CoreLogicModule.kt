@@ -970,5 +970,4 @@ class UseCaseModule {
     @Provides
     fun provideMarkGuestLinkFeatureFlagAsNotChangedUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
         coreLogic.getSessionScope(currentAccount).markGuestLinkFeatureFlagAsNotChanged
-
 }

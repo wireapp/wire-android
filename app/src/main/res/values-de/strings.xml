@@ -809,5 +809,5 @@
     <string name="cancel_login_dialog_description">Wenn Sie jetzt abbrechen, werden Sie abgemeldet.</string>
     <string name="cancel_login_dialog_title">Sind Sie sicher, dass Sie den Vorgang abbrechen möchten?</string>
     <!--    session reset-->
-    <string name="label_system_message_session_reset">%@ konnte einige Ihrer Nachrichten nicht entschlüsseln, hat das Problem aber gelöst. Dies betraf alle Unterhaltungen, die Sie gemeinsam nutzen.</string>
+    <string name="label_system_message_session_reset">%1$s konnte einige Ihrer Nachrichten nicht entschlüsseln, hat das Problem aber gelöst. Dies betraf alle Unterhaltungen, die Sie gemeinsam nutzen.</string>
 </resources>

@@ -86,7 +86,8 @@ fun ShareLinkButton(
                 end = MaterialTheme.wireDimensions.spacing16x,
                 top = MaterialTheme.wireDimensions.spacing4x,
                 bottom = MaterialTheme.wireDimensions.spacing4x
-            ), text = stringResource(id = R.string.guest_link_button_share_link), fillMaxWidth = true, onClick = onShare
+            ),
+        text = stringResource(id = R.string.guest_link_button_share_link), fillMaxWidth = true, onClick = onShare
     )
 }
 

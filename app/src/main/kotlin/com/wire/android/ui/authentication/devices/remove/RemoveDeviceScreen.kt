@@ -28,7 +28,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
@@ -51,6 +50,7 @@ import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.dialogs.CancelLoginDialogContent
 import com.wire.android.ui.common.dialogs.CancelLoginDialogState
+import com.wire.android.ui.common.divider.WireDivider
 import com.wire.android.ui.common.rememberTopBarElevationState
 import com.wire.android.ui.common.textfield.clearAutofillTree
 import com.wire.android.ui.common.visbility.rememberVisibilityState
@@ -177,7 +177,7 @@ private fun RemoveDeviceItemsList(
                         )
                     }
                 )
-                if (index < items.lastIndex) Divider()
+                if (index < items.lastIndex) WireDivider()
             }
         }
     }

@@ -20,6 +20,7 @@
 
 package com.wire.android
 
+import android.app.Activity
 import android.app.Application
 import android.content.ComponentCallbacks2
 import android.os.Build
@@ -32,11 +33,14 @@ import com.datadog.android.core.configuration.Credentials
 import com.datadog.android.privacy.TrackingConsent
 import com.datadog.android.rum.GlobalRum
 import com.datadog.android.rum.RumMonitor
+import com.datadog.android.rum.tracking.ActivityViewTrackingStrategy
+import com.datadog.android.rum.tracking.ComponentPredicate
 import com.google.firebase.FirebaseApp
 import com.google.firebase.FirebaseOptions
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.di.ApplicationScope
 import com.wire.android.di.KaliumCoreLogic
+import com.wire.android.ui.WireActivity
 import com.wire.android.util.DataDogLogger
 import com.wire.android.util.LogFileWriter
 import com.wire.android.util.extension.isGoogleServicesAvailable
@@ -54,6 +58,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
 // App wide global logger, carefully initialized when our application is "onCreate"
@@ -78,6 +83,7 @@ class WireApplication : Application(), Configuration.Provider {
 
     @Inject
     lateinit var globalObserversManager: GlobalObserversManager
+
     @Inject
     lateinit var globalDataStore: GlobalDataStore
 
@@ -191,15 +197,35 @@ class WireApplication : Application(), Configuration.Provider {
             tracesEnabled = true,
             rumEnabled = true,
             crashReportsEnabled = true,
-        ).trackInteractions()
+        )
+            .useViewTrackingStrategy(
+                ActivityViewTrackingStrategy(
+                    trackExtras = true,
+                    componentPredicate = object : ComponentPredicate<Activity> {
+                        override fun accept(component: Activity): Boolean {
+                            // reject Activities which are hosts of Compose views, so that they are not counted as views
+                            return component !is WireActivity
+                        }
+
+                        override fun getViewName(component: Activity): String? = null
+                    }
+                )
+            )
+            .trackInteractions()
             .trackBackgroundRumEvents(true)
             .trackLongTasks(LONG_TASK_THRESH_HOLD_MS)
             .useSite(DatadogSite.EU1)
             .build()
 
         val credentials = Credentials(clientToken, environmentName, appVariantName, applicationId)
+        val extraInfo = mapOf(
+           "encrypted_proteus_storage_enabled" to runBlocking {
+                globalDataStore.isEncryptedProteusStorageEnabled().first()
+            }
+        )
+
         Datadog.initialize(this, credentials, configuration, TrackingConsent.GRANTED)
-        Datadog.setUserInfo(id = getDeviceId()?.sha256())
+        Datadog.setUserInfo(id = getDeviceId()?.sha256(), extraInfo = extraInfo)
         GlobalRum.registerIfAbsent(RumMonitor.Builder().build())
     }
 

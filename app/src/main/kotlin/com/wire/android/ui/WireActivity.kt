@@ -42,14 +42,15 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.window.DialogProperties
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.NavHostController
-import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.navigation.NavigationGraph
+import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.navigation.navigateToItem
 import com.wire.android.navigation.popWithArguments
+import com.wire.android.navigation.rememberTrackingAnimatedNavController
 import com.wire.android.ui.calling.ProximitySensorManager
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
@@ -119,7 +120,7 @@ class WireActivity : AppCompatActivity() {
             ) {
                 WireTheme {
                     val scope = rememberCoroutineScope()
-                    val navController = rememberAnimatedNavController()
+                    val navController = rememberTrackingAnimatedNavController() { NavigationItem.fromRoute(it)?.itemName }
                     val startDestination = viewModel.startNavigationRoute()
                     Scaffold {
                         NavigationGraph(navController = navController, startDestination, viewModel.navigationArguments())
@@ -153,15 +154,32 @@ class WireActivity : AppCompatActivity() {
 
     @Composable
     private fun handleDialogs() {
+        updateAppDialog(
+            { updateTheApp() },
+            viewModel.globalAppState.updateAppDialog
+        )
+
+        viewModel.globalAppState.conversationJoinedDialog?.let {
+            when (it) {
+                is JoinConversationViaCodeState.Error -> JoinConversationViaInviteLinkError(
+                    errorState = it,
+                    onCancel = viewModel::cancelJoinConversation
+                )
+
+                is JoinConversationViaCodeState.Show -> JoinConversationViaDeepLinkDialog(
+                    it,
+                    false,
+                    onCancel = viewModel::cancelJoinConversation,
+                    onJoinClick = viewModel::joinConversationViaCode
+                )
+            }
+        }
+
         handleCustomBackendDialog(viewModel.globalAppState.customBackendDialog.shouldShowDialog)
         maxAccountDialog(
             viewModel::openProfile,
             viewModel::dismissMaxAccountDialog,
             viewModel.globalAppState.maxAccountDialog
-        )
-        updateAppDialog(
-            { updateTheApp() },
-            viewModel.globalAppState.updateAppDialog
         )
         viewModel.globalAppState.blockUserUI?.let { AccountLoggedOutDialog(it, viewModel::navigateToNextAccountOrWelcome) }
     }

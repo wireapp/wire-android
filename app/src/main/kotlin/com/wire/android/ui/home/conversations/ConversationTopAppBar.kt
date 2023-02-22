@@ -28,6 +28,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SmallTopAppBar
@@ -61,6 +62,7 @@ import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ConversationScreenTopAppBar(
     conversationInfoViewState: ConversationInfoViewState,
@@ -92,11 +94,12 @@ fun ConversationScreenTopAppBar(
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.weight(weight = 1f, fill = false)
                 )
-                if (isDropDownEnabled && isInteractionEnabled)
+                if (isDropDownEnabled && isInteractionEnabled) {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_dropdown_icon),
                         contentDescription = stringResource(R.string.content_description_drop_down_icon)
                     )
+                }
             }
         },
         navigationIcon = { BackNavigationIconButton(onBackButtonClick = onBackButtonClick) },

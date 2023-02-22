@@ -43,7 +43,7 @@ fun WireSwitch(
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     colors: SwitchColors = wireSwitchColors()
 ) {
-    Switch(checked, onCheckedChange, modifier, thumbContent, enabled, interactionSource, colors)
+    Switch(checked, onCheckedChange, modifier, thumbContent, enabled, colors, interactionSource)
 }
 
 @Composable

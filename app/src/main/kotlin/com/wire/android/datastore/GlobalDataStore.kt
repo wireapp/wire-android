@@ -26,6 +26,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.preferencesDataStore
+import com.wire.android.BuildConfig
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
@@ -33,6 +34,7 @@ import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
 
+@Suppress("TooManyFunctions")
 @Singleton
 class GlobalDataStore @Inject constructor(@ApplicationContext private val context: Context) {
 
@@ -42,6 +44,8 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
         // keys
         private val MIGRATION_COMPLETED = booleanPreferencesKey("migration_completed")
         private val WELCOME_SCREEN_PRESENTED = booleanPreferencesKey("welcome_screen_presented")
+        private val IS_LOGGING_ENABLED = booleanPreferencesKey("is_logging_enabled")
+        private val IS_ENCRYPTED_PROTEUS_STORAGE_ENABLED = booleanPreferencesKey("is_encrypted_proteus_storage_enabled")
         private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = PREFERENCES_NAME)
     }
 
@@ -56,12 +60,24 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
 
     suspend fun isMigrationCompleted(): Boolean = isMigrationCompletedFlow().firstOrNull() ?: false
 
+    fun isLoggingEnabled(): Flow<Boolean> = getBooleanPreference(IS_LOGGING_ENABLED, BuildConfig.LOGGING_ENABLED)
+    suspend fun setLoggingEnabled(enabled: Boolean) {
+        context.dataStore.edit { it[IS_LOGGING_ENABLED] = enabled }
+    }
+
+    fun isEncryptedProteusStorageEnabled(): Flow<Boolean> =
+        getBooleanPreference(IS_ENCRYPTED_PROTEUS_STORAGE_ENABLED, BuildConfig.ENCRYPT_PROTEUS_STORAGE)
+
+    suspend fun setEncryptedProteusStorageEnabled(enabled: Boolean) {
+        context.dataStore.edit { it[IS_ENCRYPTED_PROTEUS_STORAGE_ENABLED] = enabled }
+    }
 
     suspend fun setMigrationCompleted() {
         context.dataStore.edit { it[MIGRATION_COMPLETED] = true }
     }
 
-    suspend fun isWelcomeScreenPresented(): Boolean = getBooleanPreference(WELCOME_SCREEN_PRESENTED, false).firstOrNull() ?: false
+    suspend fun isWelcomeScreenPresented(): Boolean =
+        getBooleanPreference(WELCOME_SCREEN_PRESENTED, false).firstOrNull() ?: false
 
     suspend fun setWelcomeScreenPresented() {
         context.dataStore.edit { it[WELCOME_SCREEN_PRESENTED] = true }

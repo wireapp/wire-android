@@ -28,7 +28,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.material3.Checkbox
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -40,7 +39,6 @@ import com.wire.android.ui.common.button.wireCheckBoxColors
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WireLabelledCheckbox(
     label: String,
@@ -78,7 +76,6 @@ fun WireLabelledCheckbox(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WireCheckbox(
     checked: Boolean,

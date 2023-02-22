@@ -115,7 +115,7 @@ private fun createAnnotatedString(data: List<LinkTextData>): AnnotatedString {
                 )
                 withStyle(
                     style = SpanStyle(
-                        color = MaterialTheme.wireColorScheme.checkedBoxColor,
+                        color = MaterialTheme.wireColorScheme.primary,
                         textDecoration = TextDecoration.Underline,
                     ),
                 ) {

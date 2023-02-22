@@ -37,8 +37,10 @@ import com.wire.android.navigation.NavigationItemDestinationsRoutes.CREATE_ACCOU
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.CREATE_PERSONAL_ACCOUNT
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.CREATE_TEAM
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.DEBUG
+import com.wire.android.navigation.NavigationItemDestinationsRoutes.DEVICE_DETAILS
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.EDIT_CONVERSATION_NAME
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.EDIT_DISPLAY_NAME
+import com.wire.android.navigation.NavigationItemDestinationsRoutes.EDIT_GUEST_ACCESS
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.GROUP_CONVERSATION_ALL_PARTICIPANTS
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.GROUP_CONVERSATION_DETAILS
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.HOME
@@ -77,6 +79,7 @@ import com.wire.android.ui.debugscreen.DebugScreen
 import com.wire.android.ui.home.HomeScreen
 import com.wire.android.ui.home.conversations.ConversationScreen
 import com.wire.android.ui.home.conversations.details.GroupConversationDetailsScreen
+import com.wire.android.ui.home.conversations.details.editguestaccess.EditGuestAccessParams
 import com.wire.android.ui.home.conversations.details.metadata.EditConversationNameScreen
 import com.wire.android.ui.home.conversations.details.participants.GroupConversationAllParticipantsScreen
 import com.wire.android.ui.home.conversations.messagedetails.MessageDetailsScreen
@@ -90,15 +93,21 @@ import com.wire.android.ui.home.settings.backup.BackupAndRestoreScreen
 import com.wire.android.ui.home.settings.privacy.PrivacySettingsConfigScreen
 import com.wire.android.ui.initialsync.InitialSyncScreen
 import com.wire.android.ui.migration.MigrationScreen
+import com.wire.android.ui.settings.devices.DeviceDetailsScreen
 import com.wire.android.ui.settings.devices.SelfDevicesScreen
 import com.wire.android.ui.userprofile.avatarpicker.AvatarPickerScreen
 import com.wire.android.ui.userprofile.other.OtherUserProfileScreen
 import com.wire.android.ui.userprofile.self.SelfUserProfileScreen
 import com.wire.android.util.deeplink.DeepLinkProcessor
 import com.wire.android.util.deeplink.DeepLinkResult
+import com.wire.kalium.logic.data.conversation.ClientId
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import io.github.esentsov.PackagePrivate
+import com.wire.android.ui.home.conversations.details.editguestaccess.EditGuestAccessScreen
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
+import com.wire.android.ui.home.conversations.details.editguestaccess.EditGuestAccessScreen
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 /**
@@ -198,6 +207,18 @@ enum class NavigationItem(
         primaryRoute = SELF_DEVICES,
         content = { SelfDevicesScreen() }
     ),
+
+    DeviceDetails(
+        primaryRoute = DEVICE_DETAILS,
+        canonicalRoute = "$DEVICE_DETAILS?$EXTRA_DEVICE_ID={$EXTRA_DEVICE_ID}",
+        content = { DeviceDetailsScreen(it.navBackStackEntry.savedStateHandle.getBackNavArgs()) },
+        animationConfig = NavigationAnimationConfig.DelegatedAnimation
+    ) {
+        override fun getRouteWithArgs(arguments: List<Any>): String {
+            val clientIdString: String = arguments.filterIsInstance<ClientId>().firstOrNull()?.value.toString()
+            return "$DEVICE_DETAILS?$EXTRA_DEVICE_ID=$clientIdString"
+        }
+      },
 
     PrivacySettings(
         primaryRoute = PRIVACY_SETTINGS,
@@ -342,6 +363,24 @@ enum class NavigationItem(
         override fun getRouteWithArgs(arguments: List<Any>): String = routeWithConversationIdArg(arguments)
     },
 
+    EditGuestAccess(
+        primaryRoute = EDIT_GUEST_ACCESS,
+        canonicalRoute = "$EDIT_GUEST_ACCESS?$EXTRA_CONVERSATION_ID={$EXTRA_CONVERSATION_ID}" +
+                "&$EXTRA_EDIT_GUEST_ACCESS_PARAMS={$EXTRA_EDIT_GUEST_ACCESS_PARAMS}",
+        content = { EditGuestAccessScreen() },
+        animationConfig = NavigationAnimationConfig.CustomAnimation(smoothSlideInFromRight(), smoothSlideOutFromLeft())
+    ) {
+        override fun getRouteWithArgs(arguments: List<Any>): String {
+            val conversationIdString: String = arguments.filterIsInstance<ConversationId>().firstOrNull()?.toString()
+                ?: "{$EXTRA_CONVERSATION_ID}"
+
+            val editGuestAccessParams = Json.encodeToString(arguments.filterIsInstance<EditGuestAccessParams>().firstOrNull())
+
+            return "$EDIT_GUEST_ACCESS?$EXTRA_CONVERSATION_ID=$conversationIdString" +
+                    "&$EXTRA_EDIT_GUEST_ACCESS_PARAMS=$editGuestAccessParams"
+        }
+    },
+
     OngoingCall(
         primaryRoute = ONGOING_CALL,
         canonicalRoute = "$ONGOING_CALL/{$EXTRA_CONVERSATION_ID}",
@@ -441,6 +480,7 @@ object NavigationItemDestinationsRoutes {
     const val OTHER_USER_PROFILE = "other_user_profile_screen"
     const val CONVERSATION = "detailed_conversation_screen"
     const val EDIT_CONVERSATION_NAME = "edit_conversation_name_screen"
+    const val EDIT_GUEST_ACCESS = "edit_guest_access_screen"
     const val GROUP_CONVERSATION_DETAILS = "group_conversation_details_screen"
     const val MESSAGE_DETAILS = "message_details_screen"
     const val GROUP_CONVERSATION_ALL_PARTICIPANTS = "group_conversation_all_participants_screen"
@@ -454,6 +494,7 @@ object NavigationItemDestinationsRoutes {
     const val DEBUG = "debug_screen"
     const val REMOVE_DEVICES = "remove_devices_screen"
     const val REGISTER_DEVICE = "register_device_screen"
+    const val DEVICE_DETAILS = "device_details_screen"
     const val IMAGE_PICKER = "image_picker_screen"
     const val NEW_CONVERSATION = "new_conversation_screen"
     const val ONGOING_CALL = "ongoing_call_screen"
@@ -473,6 +514,7 @@ const val EXTRA_MESSAGE_ID = "extra_message_id"
 const val EXTRA_IS_SELF_MESSAGE = "extra_is_self_message"
 const val EXTRA_MESSAGE_TO_DELETE_ID = "extra_message_to_delete"
 const val EXTRA_MESSAGE_TO_DELETE_IS_SELF = "extra_message_to_delete_is_self"
+const val EXTRA_DEVICE_ID = "extra_device_id"
 
 const val EXTRA_CONNECTION_IGNORED_USER_NAME = "extra_connection_ignored_user_name"
 const val EXTRA_GROUP_DELETED_NAME = "extra_group_deleted_name"
@@ -481,6 +523,8 @@ const val EXTRA_LEFT_GROUP = "extra_left_group"
 const val EXTRA_SETTINGS_DISPLAY_NAME_CHANGED = "extra_settings_display_name_changed"
 
 const val EXTRA_BACK_NAVIGATION_ARGUMENTS = "extra_back_navigation_arguments"
+
+const val EXTRA_EDIT_GUEST_ACCESS_PARAMS = "extra_edit_guest_access_params"
 
 fun NavigationItem.isExternalRoute() = this.getRouteWithArgs().startsWith("http")
 

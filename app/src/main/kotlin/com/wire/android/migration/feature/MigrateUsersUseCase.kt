@@ -27,6 +27,7 @@ import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.functional.Either
+import com.wire.kalium.logic.functional.flatMap
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -36,18 +37,19 @@ class MigrateUsersUseCase @Inject constructor(
     private val scalaUserDatabase: ScalaUserDatabaseProvider,
     private val mapper: MigrationMapper
 ) {
-    suspend operator fun invoke(userId: UserId): Either<CoreFailure, UserId> {
-        val users = scalaUserDatabase.userDAO(userId)?.allUsers() ?: listOf()
-        // No need to match the domain since it can be missing from the scala DB
+    suspend operator fun invoke(userId: UserId): Either<CoreFailure, UserId> =
+        scalaUserDatabase.userDAO(userId).flatMap { scalaUserDAO ->
+            val users = scalaUserDAO.allUsers()
+            // No need to match the domain since it can be missing from the scala DB
         // firstOrNull is just to be safe in case the self user is not in the local DB
-        // any inconsistency in the DB will be by sync
+        // any inconsistency in the DB will be fixed by sync
         // and we only add users that are missing form sync so it is safe to assume that team is null in that case
-        val selfScalaUser = users.firstOrNull { it.id == userId.value}
-        val mappedUsers = users.map { scalaUser ->
-            mapper.fromScalaUserToUser(scalaUser, userId.value, userId.domain, selfScalaUser?.teamId, userId)
+        val selfScalaUser = users.firstOrNull { it.id == userId.value }
+            val mappedUsers = users.map { scalaUser ->
+                mapper.fromScalaUserToUser(scalaUser, userId.value, userId.domain, selfScalaUser?.teamId, userId)
+            }
+            val sessionScope = coreLogic.getSessionScope(userId)
+            sessionScope.users.persistMigratedUsers(mappedUsers)
+            Either.Right(userId)
         }
-        val sessionScope = coreLogic.getSessionScope(userId)
-        sessionScope.users.persistMigratedUsers(mappedUsers)
-        return Either.Right(userId)
-    }
 }

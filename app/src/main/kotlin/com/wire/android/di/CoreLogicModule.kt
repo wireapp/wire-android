@@ -939,4 +939,10 @@ class UseCaseModule {
     @ViewModelScoped
     @Provides
     fun provideImageUtil(): ImageUtil = ImageUtil
+
+
+    @ViewModelScoped
+    @Provides
+    fun provideObserveNewClientsUseCaseUseCase(@KaliumCoreLogic coreLogic: CoreLogic) =
+        coreLogic.getGlobalScope().observeNewClientsUseCase
 }

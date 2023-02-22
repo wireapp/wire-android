@@ -49,8 +49,11 @@ import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.logout.LogoutReason
 import com.wire.kalium.logic.data.sync.SyncState
+import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.appVersioning.ObserveIfAppUpdateRequiredUseCase
 import com.wire.kalium.logic.feature.auth.AccountInfo
+import com.wire.kalium.logic.feature.client.NewClientResult
+import com.wire.kalium.logic.feature.client.ObserveNewClientsUseCase
 import com.wire.kalium.logic.feature.conversation.CheckConversationInviteCodeUseCase
 import com.wire.kalium.logic.feature.conversation.JoinConversationViaCodeUseCase
 import com.wire.kalium.logic.feature.server.GetServerConfigResult
@@ -92,6 +95,7 @@ class WireActivityViewModel @Inject constructor(
     private val migrationManager: MigrationManager,
     private val observeSyncStateUseCaseProviderFactory: ObserveSyncStateUseCaseProvider.Factory,
     private val observeIfAppUpdateRequired: ObserveIfAppUpdateRequiredUseCase,
+    private val observeNewClients: ObserveNewClientsUseCase,
     @KaliumCoreLogic private val coreLogic: CoreLogic
 ) : ViewModel() {
 
@@ -136,6 +140,33 @@ class WireActivityViewModel @Inject constructor(
                 .distinctUntilChanged()
                 .collect {
                     globalAppState = globalAppState.copy(updateAppDialog = it)
+                }
+        }
+        viewModelScope.launch(dispatchers.io()) {
+            observeNewClients()
+                .collect {
+                    when (it) {
+                        is NewClientResult.InCurrentAccount -> {
+                            globalAppState = globalAppState.copy(
+                                newClientDialog = NewClientData.CurrentUser(
+                                    it.newClient.registrationTime,
+                                    it.newClient.name
+                                )
+                            )
+                        }
+                        is NewClientResult.InOtherAccount -> {
+                            globalAppState = globalAppState.copy(
+                                newClientDialog = NewClientData.OtherUser(
+                                    it.newClient.registrationTime,
+                                    it.newClient.name,
+                                    it.userId,
+                                    it.userName,
+                                    it.userHandler
+                                )
+                            )
+                        }
+                        else -> {}
+                    }
                 }
         }
     }
@@ -282,6 +313,16 @@ class WireActivityViewModel @Inject constructor(
         }
     }
 
+    fun dismissNewClientDialog() {
+        globalAppState = globalAppState.copy(newClientDialog = null)
+    }
+
+    fun switchAccount(userId: UserId) {
+        viewModelScope.launch {
+            accountSwitch(SwitchAccountParam.SwitchToAccount(userId))
+        }
+    }
+
     private suspend fun checkNumberOfSessions(): Int {
         getSessions().let {
             return when (it) {
@@ -293,6 +334,10 @@ class WireActivityViewModel @Inject constructor(
                 GetAllSessionsResult.Failure.NoSessionFound -> 0
             }
         }
+    }
+
+    fun openDeviceManager() {
+        navigateTo(NavigationCommand(NavigationItem.SelfDevices.getRouteWithArgs()))
     }
 
     private fun openIncomingCall(conversationId: ConversationId) {
@@ -465,10 +510,22 @@ sealed class CurrentSessionErrorState {
     object SessionExpired : CurrentSessionErrorState()
 }
 
+sealed class NewClientData(open val date: String, open val deviceInfo: String) {
+    data class CurrentUser(override val date: String, override val deviceInfo: String) : NewClientData(date, deviceInfo)
+    data class OtherUser(
+        override val date: String,
+        override val deviceInfo: String,
+        val userId: UserId,
+        val userName: String?,
+        val userHandler: String?
+    ) : NewClientData(date, deviceInfo)
+}
+
 data class GlobalAppState(
     val customBackendDialog: CustomBEDeeplinkDialogState = CustomBEDeeplinkDialogState(),
     val maxAccountDialog: Boolean = false,
     val blockUserUI: CurrentSessionErrorState? = null,
     val updateAppDialog: Boolean = false,
-    val conversationJoinedDialog: JoinConversationViaCodeState? = null
+    val conversationJoinedDialog: JoinConversationViaCodeState? = null,
+    val newClientDialog: NewClientData? = null,
 )

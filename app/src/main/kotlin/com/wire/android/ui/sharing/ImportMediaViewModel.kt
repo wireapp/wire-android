@@ -160,60 +160,57 @@ class ImportMediaViewModel @Inject constructor(
     private fun ConversationDetails.toConversationItem(
         wireSessionImageLoader: WireSessionImageLoader,
         userTypeMapper: UserTypeMapper
-    ): ConversationItem? {
-        appLogger.e("**-- Applying mapping from conversation details to conversation item ")
-        return when (this) {
-            is ConversationDetails.Group -> {
-                ConversationItem.GroupConversation(
-                    groupName = conversation.name.orEmpty(),
-                    conversationId = conversation.id,
-                    mutedStatus = conversation.mutedStatus,
-                    isLegalHold = legalHoldStatus.showLegalHoldIndicator(),
-                    lastMessageContent = lastMessage.toUIPreview(unreadEventCount),
-                    badgeEventType = parseConversationEventType(
+    ): ConversationItem? = when (this) {
+        is ConversationDetails.Group -> {
+            ConversationItem.GroupConversation(
+                groupName = conversation.name.orEmpty(),
+                conversationId = conversation.id,
+                mutedStatus = conversation.mutedStatus,
+                isLegalHold = legalHoldStatus.showLegalHoldIndicator(),
+                lastMessageContent = lastMessage.toUIPreview(unreadEventCount),
+                badgeEventType = parseConversationEventType(
+                    conversation.mutedStatus,
+                    unreadEventCount
+                ),
+                hasOnGoingCall = hasOngoingCall,
+                isSelfUserCreator = isSelfUserCreator,
+                isSelfUserMember = isSelfUserMember,
+                teamId = conversation.teamId,
+                selfMemberRole = selfRole
+            )
+        }
+
+        is ConversationDetails.OneOne -> {
+            ConversationItem.PrivateConversation(
+                userAvatarData = UserAvatarData(
+                    otherUser.previewPicture?.let { ImageAsset.UserAvatarAsset(wireSessionImageLoader, it) },
+                    otherUser.availabilityStatus,
+                    otherUser.connectionStatus
+                ),
+                conversationInfo = ConversationInfo(
+                    name = otherUser.name.orEmpty(),
+                    membership = userTypeMapper.toMembership(userType),
+                    isSenderUnavailable = otherUser.isUnavailableUser
+                ),
+                conversationId = conversation.id,
+                mutedStatus = conversation.mutedStatus,
+                isLegalHold = legalHoldStatus.showLegalHoldIndicator(),
+                lastMessageContent = lastMessage.toUIPreview(unreadEventCount),
+                badgeEventType = parsePrivateConversationEventType(
+                    otherUser.connectionStatus,
+                    otherUser.deleted,
+                    parseConversationEventType(
                         conversation.mutedStatus,
                         unreadEventCount
-                    ),
-                    hasOnGoingCall = hasOngoingCall,
-                    isSelfUserCreator = isSelfUserCreator,
-                    isSelfUserMember = isSelfUserMember,
-                    teamId = conversation.teamId,
-                    selfMemberRole = selfRole
-                )
-            }
-
-            is ConversationDetails.OneOne -> {
-                ConversationItem.PrivateConversation(
-                    userAvatarData = UserAvatarData(
-                        otherUser.previewPicture?.let { ImageAsset.UserAvatarAsset(wireSessionImageLoader, it) },
-                        otherUser.availabilityStatus,
-                        otherUser.connectionStatus
-                    ),
-                    conversationInfo = ConversationInfo(
-                        name = otherUser.name.orEmpty(),
-                        membership = userTypeMapper.toMembership(userType),
-                        isSenderUnavailable = otherUser.isUnavailableUser
-                    ),
-                    conversationId = conversation.id,
-                    mutedStatus = conversation.mutedStatus,
-                    isLegalHold = legalHoldStatus.showLegalHoldIndicator(),
-                    lastMessageContent = lastMessage.toUIPreview(unreadEventCount),
-                    badgeEventType = parsePrivateConversationEventType(
-                        otherUser.connectionStatus,
-                        otherUser.deleted,
-                        parseConversationEventType(
-                            conversation.mutedStatus,
-                            unreadEventCount
-                        )
-                    ),
-                    userId = otherUser.id,
-                    blockingState = otherUser.BlockState,
-                    teamId = otherUser.teamId
-                )
-            }
-
-            else -> null // We don't care about connection requests
+                    )
+                ),
+                userId = otherUser.id,
+                blockingState = otherUser.BlockState,
+                teamId = otherUser.teamId
+            )
         }
+
+        else -> null // We don't care about connection requests
     }
 
     private fun searchShareableConversation(conversationDetails: List<ConversationItem>, searchQuery: String): List<ConversationItem> {

@@ -233,4 +233,5 @@ dependencies {
     // Internal only tracking & logging
 
     implementation(Libraries.dataDog)
+    implementation(Libraries.dataDogCompose)
 }

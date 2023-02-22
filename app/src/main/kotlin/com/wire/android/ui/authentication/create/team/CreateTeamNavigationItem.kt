@@ -22,17 +22,25 @@ package com.wire.android.ui.authentication.create.team
 
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavController
+import com.wire.android.navigation.getPrimaryRoute
 import com.wire.android.ui.authentication.create.code.CreateAccountCodeScreen
 import com.wire.android.ui.authentication.create.details.CreateAccountDetailsScreen
 import com.wire.android.ui.authentication.create.email.CreateAccountEmailScreen
 import com.wire.android.ui.authentication.create.overview.CreateAccountOverviewScreen
-import com.wire.kalium.logic.configuration.server.ServerConfig
 
 enum class CreateTeamNavigationItem(val route: String, val content: @Composable (ContentParams) -> Unit) {
     Overview("create_team_overview_screen", { CreateAccountOverviewScreen(it.viewModel, it.viewModel.serverConfig) }),
     Email("create_team_email_screen", { CreateAccountEmailScreen(it.viewModel, it.viewModel.serverConfig) }),
     Details("create_team_details_screen", { CreateAccountDetailsScreen(it.viewModel, it.viewModel.serverConfig) }),
-    Code("create_team_code_screen", { CreateAccountCodeScreen(it.viewModel, it.viewModel.serverConfig) })
+    Code("create_team_code_screen", { CreateAccountCodeScreen(it.viewModel, it.viewModel.serverConfig) });
+
+    val itemName: String get() = ITEM_NAME_PREFIX + this.name
+
+    companion object {
+        private const val ITEM_NAME_PREFIX = "CreateTeamNavigationItem."
+        private val map = CreateTeamNavigationItem.values().associateBy { it.route }
+        fun fromRoute(fullRoute: String): CreateTeamNavigationItem? = map[fullRoute.getPrimaryRoute()]
+    }
 }
 
 data class ContentParams(val viewModel: CreateTeamViewModel)

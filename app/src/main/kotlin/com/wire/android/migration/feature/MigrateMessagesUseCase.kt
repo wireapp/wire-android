@@ -23,11 +23,15 @@ package com.wire.android.migration.feature
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.migration.MigrationMapper
 import com.wire.android.migration.userDatabase.ScalaConversationData
+import com.wire.android.migration.userDatabase.ScalaMessageDAO
+import com.wire.android.migration.userDatabase.ScalaUserDAO
 import com.wire.android.migration.userDatabase.ScalaUserDatabaseProvider
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.functional.flatMap
 import com.wire.kalium.logic.functional.getOrNull
+import com.wire.kalium.logic.functional.map
 import com.wire.kalium.logic.functional.onFailure
 import kotlinx.coroutines.CoroutineScope
 import javax.inject.Inject
@@ -52,8 +56,10 @@ class MigrateMessagesUseCase @Inject constructor(
         coroutineScope: CoroutineScope
     ): Map<String, CoreFailure> {
 
-        val messageDAO = scalaUserDatabase.messageDAO(userId).getOrNull() ?: return emptyMap()
-        val userDAO = scalaUserDatabase.userDAO(userId).getOrNull() ?: return emptyMap()
+        val (messageDAO: ScalaMessageDAO, userDAO: ScalaUserDAO) = scalaUserDatabase.messageDAO(userId).flatMap { messageDAO ->
+            scalaUserDatabase.userDAO(userId).map { messageDAO to it }
+        }.getOrNull() ?: return emptyMap()
+
         val errorsAcc: MutableMap<String, CoreFailure> = mutableMapOf()
 
         // iterate over all conversations and migrate messages

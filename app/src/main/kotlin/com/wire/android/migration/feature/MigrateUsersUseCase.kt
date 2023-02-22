@@ -27,6 +27,7 @@ import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.functional.Either
+import com.wire.kalium.logic.functional.flatMap
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -36,14 +37,15 @@ class MigrateUsersUseCase @Inject constructor(
     private val scalaUserDatabase: ScalaUserDatabaseProvider,
     private val mapper: MigrationMapper
 ) {
-    suspend operator fun invoke(userId: UserId): Either<CoreFailure, UserId> {
-        val users = scalaUserDatabase.userDAO(userId)?.allUsers() ?: listOf()
-        val selfScalaUser = users.first { it.id == userId.value && it.domain == userId.domain }
-        val mappedUsers = users.map { scalaUser ->
-            mapper.fromScalaUserToUser(scalaUser, selfScalaUser.id, selfScalaUser.domain, selfScalaUser.teamId, userId)
+    suspend operator fun invoke(userId: UserId): Either<CoreFailure, UserId> =
+        scalaUserDatabase.userDAO(userId).flatMap { scalaUserDAO ->
+            val users = scalaUserDAO.allUsers()
+            val selfScalaUser = users.first { it.id == userId.value && it.domain == userId.domain }
+            val mappedUsers = users.map { scalaUser ->
+                mapper.fromScalaUserToUser(scalaUser, selfScalaUser.id, selfScalaUser.domain, selfScalaUser.teamId, userId)
+            }
+            val sessionScope = coreLogic.getSessionScope(userId)
+            sessionScope.users.persistMigratedUsers(mappedUsers)
+            Either.Right(userId)
         }
-        val sessionScope = coreLogic.getSessionScope(userId)
-        sessionScope.users.persistMigratedUsers(mappedUsers)
-        return Either.Right(userId)
-    }
 }

@@ -22,9 +22,11 @@ package com.wire.android.migration.userDatabase
 
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
+import com.wire.android.migration.failure.MigrationFailure.MissingUserDatabase
 import com.wire.android.migration.util.ScalaDBNameProvider
 import com.wire.android.migration.util.openDatabaseIfExists
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.functional.Either
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -52,10 +54,21 @@ class ScalaUserDatabaseProvider @Inject constructor(
         }
     }
 
-    fun clientDAO(userId: UserId): ScalaClientDAO? = db(userId)?.let { ScalaClientDAO(it.first, it.second) }
-    fun conversationDAO(userId: UserId): ScalaConversationDAO? = db(userId)?.let { ScalaConversationDAO(it.first, it.second) }
-    fun messageDAO(userId: UserId): ScalaMessageDAO? = db(userId)?.let { ScalaMessageDAO(it.first, it.second) }
-    fun userDAO(userId: UserId): ScalaUserDAO? = db(userId)?.let { ScalaUserDAO(it.first, it.second) }
+    fun clientDAO(userId: UserId): Either<MissingUserDatabase, ScalaClientDAO> =
+        db(userId)?.let { Either.Right(ScalaClientDAO(it.first, it.second)) }
+            ?: Either.Left(MissingUserDatabase)
+
+    fun conversationDAO(userId: UserId): Either<MissingUserDatabase, ScalaConversationDAO> =
+        db(userId)?.let { Either.Right(ScalaConversationDAO(it.first, it.second)) }
+            ?: Either.Left(MissingUserDatabase)
+
+    fun messageDAO(userId: UserId): Either<MissingUserDatabase, ScalaMessageDAO> =
+        db(userId)?.let { Either.Right(ScalaMessageDAO(it.first, it.second)) }
+            ?: Either.Left(MissingUserDatabase)
+
+    fun userDAO(userId: UserId): Either<MissingUserDatabase, ScalaUserDAO> =
+        db(userId)?.let { Either.Right(ScalaUserDAO(it.first, it.second)) }
+            ?: Either.Left(MissingUserDatabase)
 }
 
 typealias ScalaUserDatabase = SQLiteDatabase

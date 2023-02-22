@@ -28,6 +28,8 @@ import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.functional.Either
+import com.wire.kalium.logic.functional.flatMap
+import com.wire.kalium.logic.functional.map
 import kotlinx.coroutines.CoroutineScope
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -39,20 +41,24 @@ class MigrateMessagesUseCase @Inject constructor(
     private val mapper: MigrationMapper
 ) {
     suspend operator fun invoke(
-        userId: UserId, scalaConversations: List<ScalaConversationData>,
+        userId: UserId,
+        scalaConversations: List<ScalaConversationData>,
         coroutineScope: CoroutineScope
-    ): Either<CoreFailure, Unit> {
-        val messageDAO = scalaUserDatabase.messageDAO(userId)
-        val userDAO = scalaUserDatabase.userDAO(userId)
-        val messages = messageDAO?.messages(scalaConversations) ?: listOf()
-        if (messages.isEmpty()) return Either.Right(Unit)
+    ): Either<CoreFailure, Unit> =
+        scalaUserDatabase.messageDAO(userId).flatMap { messageDAO ->
+            scalaUserDatabase.userDAO(userId).map { userDAO ->
+                messageDAO to userDAO
+            }.flatMap { (messageDAO, userDAO) ->
+                val scalaMessageList = messageDAO.messages(scalaConversations)
+                if (scalaMessageList.isEmpty()) Either.Right(Unit)
 
-        val users = userDAO?.users(messages.map { it.senderId }.distinct())?.associateBy { it.id } ?: mapOf()
-        val mappedMessages = messages.mapNotNull { scalaMessage ->
-            users[scalaMessage.senderId]?.let { mapper.fromScalaMessageToMessage(userId, scalaMessage, it) }
+                val users = userDAO.users(scalaMessageList.map { it.senderId }.distinct()).associateBy { it.id }
+                val mappedMessages = scalaMessageList.mapNotNull { scalaMessage ->
+                    users[scalaMessage.senderId]?.let { mapper.fromScalaMessageToMessage(userId, scalaMessage, it) }
+                }
+                coreLogic.sessionScope(userId) {
+                    messages.persistMigratedMessage(mappedMessages, coroutineScope)
+                }
+            }
         }
-        val sessionScope = coreLogic.getSessionScope(userId)
-        return sessionScope.messages.persistMigratedMessage(mappedMessages, coroutineScope)
-    }
 }
-

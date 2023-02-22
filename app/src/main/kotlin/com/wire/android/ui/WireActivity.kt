@@ -221,6 +221,7 @@ class WireActivity : AppCompatActivity() {
         }
     }
 
+    @Composable
     private fun handleJoinConversationViaDeepLinkDialog(joinedDialogState: JoinConversationViaCodeState?) {
         joinedDialogState?.let {
             when (it) {

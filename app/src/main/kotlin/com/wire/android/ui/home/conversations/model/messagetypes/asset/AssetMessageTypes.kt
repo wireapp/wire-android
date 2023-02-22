@@ -35,6 +35,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
@@ -51,6 +52,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import com.wire.android.R
 import com.wire.android.model.Clickable
@@ -93,68 +95,63 @@ internal fun MessageAsset(
             UploadInProgressAssetMessage()
         } else {
             val assetModifier = if (shouldFillMaxWidth) Modifier.fillMaxWidth()
-            else Modifier.size(dimensions().importedMediaAssetSize)
+            else Modifier.size(dimensions().importedMediaAssetSize).align(Alignment.Center).wrapContentSize()
             Column(modifier = assetModifier.padding(dimensions().spacing8x)) {
                 Text(
                     text = assetName,
                     style = MaterialTheme.wireTypography.body02,
+                    fontSize = 15.sp,
                     maxLines = if (shouldFillMaxWidth) 2 else 4,
                     overflow = TextOverflow.Ellipsis
                 )
-                val descriptionModifier = Modifier.padding(
-                    top = dimensions().spacing8x,
-                    start = dimensions().spacing4x,
-                    end = dimensions().spacing4x
-                ).fillMaxWidth()
-                Row(verticalAlignment = Alignment.Bottom) {
-                    ConstraintLayout(modifier = (if (!shouldFillMaxWidth) descriptionModifier.fillMaxHeight() else descriptionModifier)) {
-                        val (icon, description, downloadStatus) = createRefs()
-                        Image(
+                val descriptionModifier = Modifier.padding(top = dimensions().spacing8x).fillMaxWidth()
+                ConstraintLayout(modifier = (if (!shouldFillMaxWidth) descriptionModifier.fillMaxHeight() else descriptionModifier)) {
+                    val (icon, description, downloadStatus) = createRefs()
+                    Image(
+                        modifier = Modifier
+                            .constrainAs(icon) {
+                                top.linkTo(parent.top)
+                                start.linkTo(parent.start)
+                                bottom.linkTo(parent.bottom)
+                            },
+                        painter = painterResource(R.drawable.ic_file),
+                        contentDescription = stringResource(R.string.content_description_image_message),
+                        colorFilter = ColorFilter.tint(MaterialTheme.wireColorScheme.badge)
+                    )
+                    Text(
+                        modifier = Modifier.constrainAs(description) {
+                            top.linkTo(parent.top)
+                            start.linkTo(icon.end)
+                            bottom.linkTo(parent.bottom)
+                        }.padding(start = dimensions().spacing6x),
+                        text = assetDescription,
+                        maxLines = 3,
+                        overflow = TextOverflow.Ellipsis,
+                        color = MaterialTheme.wireColorScheme.secondaryText,
+                        fontSize = 12.sp,
+                        style = MaterialTheme.wireTypography.subline01
+                    )
+                    if (!isImportedMediaAsset) {
+                        Row(
                             modifier = Modifier
-                                .constrainAs(icon) {
+                                .wrapContentWidth()
+                                .constrainAs(downloadStatus) {
                                     top.linkTo(parent.top)
-                                    start.linkTo(parent.start)
+                                    end.linkTo(parent.end)
                                     bottom.linkTo(parent.bottom)
+                                }
+                        ) {
+                            Text(
+                                modifier = Modifier.padding(end = dimensions().spacing4x),
+                                text = getDownloadStatusText(assetDownloadStatus, assetUploadStatus),
+                                color = MaterialTheme.wireColorScheme.run {
+                                    if (assetDownloadStatus == Message.DownloadStatus.FAILED_DOWNLOAD ||
+                                        assetUploadStatus == Message.UploadStatus.FAILED_UPLOAD
+                                    ) error else secondaryText
                                 },
-                            painter = painterResource(R.drawable.ic_file),
-                            contentDescription = stringResource(R.string.content_description_image_message),
-                            colorFilter = ColorFilter.tint(MaterialTheme.wireColorScheme.badge)
-                        )
-                        Text(
-                            modifier = Modifier
-                                .constrainAs(description) {
-                                    top.linkTo(parent.top)
-                                    start.linkTo(icon.end)
-                                    bottom.linkTo(parent.bottom)
-                                },
-                            text = assetDescription,
-                            maxLines = 3,
-                            overflow = TextOverflow.Ellipsis,
-                            color = MaterialTheme.wireColorScheme.secondaryText,
-                            style = MaterialTheme.wireTypography.subline01
-                        )
-                        if (!isImportedMediaAsset) {
-                            Row(
-                                modifier = Modifier
-                                    .wrapContentWidth()
-                                    .constrainAs(downloadStatus) {
-                                        top.linkTo(parent.top)
-                                        end.linkTo(parent.end)
-                                        bottom.linkTo(parent.bottom)
-                                    }
-                            ) {
-                                Text(
-                                    modifier = Modifier.padding(end = dimensions().spacing4x),
-                                    text = getDownloadStatusText(assetDownloadStatus, assetUploadStatus),
-                                    color = MaterialTheme.wireColorScheme.run {
-                                        if (assetDownloadStatus == Message.DownloadStatus.FAILED_DOWNLOAD ||
-                                            assetUploadStatus == Message.UploadStatus.FAILED_UPLOAD
-                                        ) error else secondaryText
-                                    },
-                                    style = MaterialTheme.wireTypography.subline01
-                                )
-                                DownloadStatusIcon(assetDownloadStatus, assetUploadStatus)
-                            }
+                                style = MaterialTheme.wireTypography.subline01
+                            )
+                            DownloadStatusIcon(assetDownloadStatus, assetUploadStatus)
                         }
                     }
                 }
@@ -222,7 +219,6 @@ fun RestrictedAssetMessage(assetTypeIcon: Int, restrictedAssetMessage: String) {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RestrictedGenericFileMessage(fileName: String, fileSize: Long) {
     Card(
@@ -302,7 +298,7 @@ fun RestrictedGenericFileMessage(fileName: String, fileSize: Long) {
 private fun DownloadStatusIcon(assetDownloadStatus: Message.DownloadStatus, assetUploadStatus: Message.UploadStatus) {
     return when {
         assetUploadStatus == Message.UploadStatus.UPLOAD_IN_PROGRESS ||
-            assetDownloadStatus == Message.DownloadStatus.DOWNLOAD_IN_PROGRESS -> WireCircularProgressIndicator(
+                assetDownloadStatus == Message.DownloadStatus.DOWNLOAD_IN_PROGRESS -> WireCircularProgressIndicator(
             progressColor = MaterialTheme.wireColorScheme.secondaryText,
             size = dimensions().spacing16x
         )
@@ -337,7 +333,7 @@ fun getDownloadStatusText(assetDownloadStatus: Message.DownloadStatus, assetUplo
             stringResource(R.string.asset_message_download_in_progress_text)
 
         assetDownloadStatus == Message.DownloadStatus.SAVED_EXTERNALLY ||
-            assetUploadStatus == Message.UploadStatus.UPLOADED -> stringResource(R.string.asset_message_saved_externally_text)
+                assetUploadStatus == Message.UploadStatus.UPLOADED -> stringResource(R.string.asset_message_saved_externally_text)
 
         assetDownloadStatus == Message.DownloadStatus.FAILED_DOWNLOAD -> stringResource(R.string.asset_message_failed_download_text)
         else -> ""

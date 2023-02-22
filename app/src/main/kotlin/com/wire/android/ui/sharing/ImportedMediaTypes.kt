@@ -25,7 +25,7 @@ fun ImportedMediaItemView(item: ImportedMediaAsset, isMultipleImport: Boolean, i
 fun ImportedImageView(item: ImportedMediaAsset.Image, isMultipleImport: Boolean, imageLoader: WireSessionImageLoader) {
     MessageImage(
         asset = ImageAsset.LocalImageAsset(imageLoader, item.dataUri, item.key),
-        imgParams = ImageMessageParams(0, 0),
+        imgParams = ImageMessageParams(item.width, item.height),
         uploadStatus = Message.UploadStatus.NOT_UPLOADED,
         downloadStatus = Message.DownloadStatus.NOT_DOWNLOADED,
         onImageClick = Clickable(enabled = false),

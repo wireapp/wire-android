@@ -7,11 +7,12 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -99,14 +100,11 @@ fun ImportMediaContent(importMediaViewModel: ImportMediaViewModel) {
                 val pagerState = rememberPagerState()
                 val isMultipleImport = itemsToImport > 1
 
-                Column(
-                    modifier = Modifier
-                        .padding(internalPadding)
-                        .fillMaxSize()
-                ) {
+                Column(modifier = Modifier.padding(internalPadding).fillMaxSize()) {
                     val horizontalPadding = dimensions().spacing8x
                     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
-                    val itemWidth = if (isMultipleImport) dimensions().importedMediaAssetSize else screenWidth - (horizontalPadding * 2)
+                    val itemWidth = if (isMultipleImport) dimensions().importedMediaAssetSize + horizontalPadding.times(3)
+                    else screenWidth - (horizontalPadding * 2)
                     val contentPadding = PaddingValues(start = horizontalPadding, end = (screenWidth - itemWidth + horizontalPadding))
                     val lazyListState = rememberLazyListState()
                     if (isImporting) {
@@ -127,15 +125,19 @@ fun ImportMediaContent(importMediaViewModel: ImportMediaViewModel) {
                             HorizontalPager(
                                 state = pagerState,
                                 count = itemsToImport,
-                                modifier = Modifier.wrapContentWidth(),
                                 contentPadding = contentPadding,
                                 itemSpacing = dimensions().spacing8x
                             ) { page ->
-                                ImportedMediaItemView(
-                                    importedItemsList[page],
-                                    isMultipleImport,
-                                    importMediaViewModel.wireSessionImageLoader
-                                )
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    modifier = Modifier.height(dimensions().importedMediaAssetSize).fillMaxHeight()
+                                ) {
+                                    ImportedMediaItemView(
+                                        importedItemsList[page],
+                                        isMultipleImport,
+                                        importMediaViewModel.wireSessionImageLoader
+                                    )
+                                }
                             }
                         }
                     }

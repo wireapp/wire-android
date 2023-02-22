@@ -40,6 +40,7 @@ import androidx.work.await
 import com.wire.android.R
 import com.wire.android.migration.MigrationData
 import com.wire.android.migration.MigrationManager
+import com.wire.android.migration.feature.MarkUsersAsNeedToBeMigrated
 import com.wire.android.migration.getMigrationProgress
 import com.wire.android.migration.toData
 import com.wire.android.notification.NotificationChannelsManager
@@ -59,7 +60,7 @@ class MigrationWorker
     @Assisted appContext: Context,
     @Assisted workerParams: WorkerParameters,
     private val migrationManager: MigrationManager,
-    private val notificationChannelsManager: NotificationChannelsManager
+    private val notificationChannelsManager: NotificationChannelsManager,
 ) : CoroutineWorker(appContext, workerParams) {
 
     override suspend fun doWork(): Result = coroutineScope {

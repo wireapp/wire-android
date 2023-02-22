@@ -25,6 +25,8 @@ import androidx.work.Data
 import androidx.work.workDataOf
 import com.wire.android.appLogger
 import com.wire.android.datastore.GlobalDataStore
+import com.wire.android.migration.failure.UserMigrationStatus
+import com.wire.android.migration.feature.MarkUsersAsNeedToBeMigrated
 import com.wire.android.migration.feature.MigrateActiveAccountsUseCase
 import com.wire.android.migration.feature.MigrateClientsDataUseCase
 import com.wire.android.migration.feature.MigrateConversationsUseCase
@@ -68,7 +70,8 @@ class MigrationManager @Inject constructor(
     private val migrateClientsData: MigrateClientsDataUseCase,
     private val migrateUsers: MigrateUsersUseCase,
     private val migrateConversations: MigrateConversationsUseCase,
-    private val migrateMessages: MigrateMessagesUseCase
+    private val migrateMessages: MigrateMessagesUseCase,
+    private val markUsersAsNeedToBeMigrated: MarkUsersAsNeedToBeMigrated
 ) {
     private fun isScalaDBPresent(): Boolean =
         applicationContext.getDatabasePath(ScalaDBNameProvider.globalDB()).let { it.isFile && it.exists() }
@@ -112,9 +115,8 @@ class MigrationManager @Inject constructor(
                 }
             }
         }.onSuccess {
-            globalDataStore.setMigrationCompletedForUser(userId)
-        }
-            .fold({
+            globalDataStore.setUserMigrationStatus(userId.value, UserMigrationStatus.Completed)
+        }.fold({
                 MigrationData.Result.Failure
             }, {
                 MigrationData.Result.Success
@@ -125,23 +127,28 @@ class MigrationManager @Inject constructor(
         coroutineScope: CoroutineScope,
         updateProgress: suspend (MigrationData.Progress) -> Unit,
         migrationDispatcher: CoroutineDispatcher = Dispatchers.Default.limitedParallelism(2)
-    ): MigrationData.Result =
-        migrateServerConfig()
-            .map {
+    ): MigrationData.Result = try {
+        markUsersAsNeedToBeMigrated()
+        migrateServerConfig().map {
                 appLogger.d("$TAG - Step 1 - Migrating accounts")
                 migrateActiveAccounts(it)
-            }
-            .fold(
-                {
-                    migrationFailure(it)
-                }, { (migratedAccounts, isFederated) ->
-                    updateProgress(MigrationData.Progress(MigrationData.Progress.Type.ACCOUNTS))
-                    onAccountsMigrated(migratedAccounts, isFederated, coroutineScope, migrationDispatcher).also {
-                        appLogger.d("User migration done Result $it")
-                    }
-                    MigrationData.Result.Success
+            }.fold({
+                migrationFailure(it)
+            }, { (migratedAccounts, isFederated) ->
+                updateProgress(MigrationData.Progress(MigrationData.Progress.Type.ACCOUNTS))
+                onAccountsMigrated(migratedAccounts, isFederated, coroutineScope, migrationDispatcher).also {
+                    appLogger.d("User migration done Result $it")
                 }
-            )
+                MigrationData.Result.Success
+            })
+    } catch (e: Exception) {
+        appLogger.e("$TAG - Migration failed", e)
+        throw e
+    } finally {
+        // if migration crashed for any reason, we want to set migration as completed so that we don't try to migrate again
+        // and avoid any possible crash loop
+        globalDataStore.setMigrationCompleted()
+    }
 
     private suspend fun onAccountsMigrated(
         migratedAccounts: Map<String, Either<CoreFailure, UserId>>,
@@ -177,15 +184,13 @@ class MigrationManager @Inject constructor(
                         }
                     }
                 }.onSuccess {
-                    globalDataStore.setMigrationCompletedForUser(userId)
+                    globalDataStore.setUserMigrationStatus(userId.value, UserMigrationStatus.Completed)
                 }.also {
                     resultAcc[userId.value] = it
                 }
             }
         }
         migrationJobs.joinAll()
-        globalDataStore.setMigrationCompleted()
-
         return resultAcc.toMap()
     }
 
@@ -215,8 +220,7 @@ sealed class MigrationData {
 
 fun MigrationData.Progress.Type.toData(): Data = workDataOf(MigrationData.Progress.KEY_PROGRESS_TYPE to this.name)
 
-fun Data.getMigrationProgress(): MigrationData.Progress.Type = this.getString(MigrationData.Progress.KEY_PROGRESS_TYPE)
-    ?.let {
+fun Data.getMigrationProgress(): MigrationData.Progress.Type = this.getString(MigrationData.Progress.KEY_PROGRESS_TYPE)?.let {
         try {
             MigrationData.Progress.Type.valueOf(it)
         } catch (e: IllegalArgumentException) {

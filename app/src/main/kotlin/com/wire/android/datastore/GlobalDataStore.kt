@@ -25,8 +25,10 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.wire.android.BuildConfig
+import com.wire.android.migration.failure.UserMigrationStatus
 import com.wire.kalium.logic.data.user.UserId
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
@@ -46,7 +48,7 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
         private val WELCOME_SCREEN_PRESENTED = booleanPreferencesKey("welcome_screen_presented")
         private val IS_LOGGING_ENABLED = booleanPreferencesKey("is_logging_enabled")
         private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = PREFERENCES_NAME)
-        fun userMigrationKey(userId: UserId) = booleanPreferencesKey("user_migration_completed_$userId")
+        private fun userMigrationStatusKey(userId: String): Preferences.Key<Int> = intPreferencesKey("user_migration_status_$userId")
     }
 
     suspend fun clear() {
@@ -79,7 +81,16 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
         context.dataStore.edit { it[WELCOME_SCREEN_PRESENTED] = false }
     }
 
-    suspend fun setMigrationCompletedForUser(userId: UserId) = context.dataStore.edit { it[userMigrationKey(userId)] = true }
+    suspend fun setUserMigrationStatus(userId: String, status: UserMigrationStatus) {
+            context.dataStore.edit { it[userMigrationStatusKey(userId)] = status.value }
 
-    fun isUserMigrated(userId: UserId): Flow<Boolean> = getBooleanPreference(userMigrationKey(userId), false)
+    }
+
+    /**
+     * Returns the migration status of the user with the given [userId].
+     * If there is no status stored, the status will be [UserMigrationStatus.NoNeed]
+     * meaning that the user does not need to be migrated.
+     */
+    fun getUserMigrationStatus(userId: String): Flow<UserMigrationStatus> =
+        context.dataStore.data.map { UserMigrationStatus.fromInt(it[userMigrationStatusKey(userId)] ?: UserMigrationStatus.NoNeed.value) }
 }

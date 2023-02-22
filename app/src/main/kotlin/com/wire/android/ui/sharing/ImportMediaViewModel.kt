@@ -48,7 +48,6 @@ import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationListDetailsUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -78,15 +77,8 @@ class ImportMediaViewModel @Inject constructor(
     val wireSessionImageLoader: WireSessionImageLoader,
     val dispatchers: DispatcherProvider,
 ) : ViewModel() {
-    var importMediaState by mutableStateOf(
-        ImportMediaState()
-    )
+    var importMediaState by mutableStateOf(ImportMediaState())
         private set
-
-    var shareableConversationListState by mutableStateOf(ShareableConversationListState())
-        private set
-
-    val selectedConversationFlow = MutableStateFlow(emptyList<ConversationItem>())
 
     private val mutableSearchQueryFlow = MutableStateFlow("")
 
@@ -124,8 +116,8 @@ class ImportMediaViewModel @Inject constructor(
                             userTypeMapper
                         )
                     }
-                }, searchQueryFlow, selectedConversationFlow
-        ) { conversations, searchQuery, selectedConversations ->
+                }, searchQueryFlow
+        ) { conversations, searchQuery ->
             val searchResult = if (searchQuery.isEmpty()) conversations else searchShareableConversation(
                 conversations,
                 searchQuery
@@ -134,13 +126,12 @@ class ImportMediaViewModel @Inject constructor(
                 initialConversations = conversations,
                 searchQuery = searchQuery,
                 hasNoConversations = conversations.isEmpty(),
-                searchResult = searchResult,
-                conversationsAddedToGroup = selectedConversations.toImmutableList()
+                searchResult = searchResult
             )
         }
             .flowOn(dispatchers.io())
             .collect { updatedState ->
-                shareableConversationListState = updatedState
+                importMediaState = importMediaState.copy(shareableConversationListState = updatedState)
             }
     }
 
@@ -154,13 +145,14 @@ class ImportMediaViewModel @Inject constructor(
         }
     }
 
-    fun selectConversationOnRadioGroup(conversation: ConversationItem) = viewModelScope.launch {
-        selectedConversationFlow.emit(listOf(conversation))
+    fun addConversationItemToGroupSelection(conversation: ConversationItem) = viewModelScope.launch {
+        // TODO: change this conversation item to a list of conversation items in case we want to support sharing to multiple conversations
+        importMediaState = importMediaState.copy(selectedConversationItem = listOf(conversation))
     }
 
     fun onConversationClicked(conversationId: ConversationId) {
-        shareableConversationListState.initialConversations.find { it.conversationId == conversationId }?.let {
-            selectConversationOnRadioGroup(it)
+        importMediaState.shareableConversationListState.initialConversations.find { it.conversationId == conversationId }?.let {
+            addConversationItemToGroupSelection(it)
         }
     }
 
@@ -168,57 +160,60 @@ class ImportMediaViewModel @Inject constructor(
     private fun ConversationDetails.toConversationItem(
         wireSessionImageLoader: WireSessionImageLoader,
         userTypeMapper: UserTypeMapper
-    ): ConversationItem? = when (this) {
-        is ConversationDetails.Group -> {
-            ConversationItem.GroupConversation(
-                groupName = conversation.name.orEmpty(),
-                conversationId = conversation.id,
-                mutedStatus = conversation.mutedStatus,
-                isLegalHold = legalHoldStatus.showLegalHoldIndicator(),
-                lastMessageContent = lastMessage.toUIPreview(unreadEventCount),
-                badgeEventType = parseConversationEventType(
-                    conversation.mutedStatus,
-                    unreadEventCount
-                ),
-                hasOnGoingCall = hasOngoingCall,
-                isSelfUserCreator = isSelfUserCreator,
-                isSelfUserMember = isSelfUserMember,
-                teamId = conversation.teamId,
-                selfMemberRole = selfRole
-            )
-        }
-
-        is ConversationDetails.OneOne -> {
-            ConversationItem.PrivateConversation(
-                userAvatarData = UserAvatarData(
-                    otherUser.previewPicture?.let { ImageAsset.UserAvatarAsset(wireSessionImageLoader, it) },
-                    otherUser.availabilityStatus,
-                    otherUser.connectionStatus
-                ),
-                conversationInfo = ConversationInfo(
-                    name = otherUser.name.orEmpty(),
-                    membership = userTypeMapper.toMembership(userType),
-                    isSenderUnavailable = otherUser.isUnavailableUser
-                ),
-                conversationId = conversation.id,
-                mutedStatus = conversation.mutedStatus,
-                isLegalHold = legalHoldStatus.showLegalHoldIndicator(),
-                lastMessageContent = lastMessage.toUIPreview(unreadEventCount),
-                badgeEventType = parsePrivateConversationEventType(
-                    otherUser.connectionStatus,
-                    otherUser.deleted,
-                    parseConversationEventType(
+    ): ConversationItem? {
+        appLogger.e("**-- Applying mapping from conversation details to conversation item ")
+        return when (this) {
+            is ConversationDetails.Group -> {
+                ConversationItem.GroupConversation(
+                    groupName = conversation.name.orEmpty(),
+                    conversationId = conversation.id,
+                    mutedStatus = conversation.mutedStatus,
+                    isLegalHold = legalHoldStatus.showLegalHoldIndicator(),
+                    lastMessageContent = lastMessage.toUIPreview(unreadEventCount),
+                    badgeEventType = parseConversationEventType(
                         conversation.mutedStatus,
                         unreadEventCount
-                    )
-                ),
-                userId = otherUser.id,
-                blockingState = otherUser.BlockState,
-                teamId = otherUser.teamId
-            )
-        }
+                    ),
+                    hasOnGoingCall = hasOngoingCall,
+                    isSelfUserCreator = isSelfUserCreator,
+                    isSelfUserMember = isSelfUserMember,
+                    teamId = conversation.teamId,
+                    selfMemberRole = selfRole
+                )
+            }
 
-        else -> null // We don't care about connection requests
+            is ConversationDetails.OneOne -> {
+                ConversationItem.PrivateConversation(
+                    userAvatarData = UserAvatarData(
+                        otherUser.previewPicture?.let { ImageAsset.UserAvatarAsset(wireSessionImageLoader, it) },
+                        otherUser.availabilityStatus,
+                        otherUser.connectionStatus
+                    ),
+                    conversationInfo = ConversationInfo(
+                        name = otherUser.name.orEmpty(),
+                        membership = userTypeMapper.toMembership(userType),
+                        isSenderUnavailable = otherUser.isUnavailableUser
+                    ),
+                    conversationId = conversation.id,
+                    mutedStatus = conversation.mutedStatus,
+                    isLegalHold = legalHoldStatus.showLegalHoldIndicator(),
+                    lastMessageContent = lastMessage.toUIPreview(unreadEventCount),
+                    badgeEventType = parsePrivateConversationEventType(
+                        otherUser.connectionStatus,
+                        otherUser.deleted,
+                        parseConversationEventType(
+                            conversation.mutedStatus,
+                            unreadEventCount
+                        )
+                    ),
+                    userId = otherUser.id,
+                    blockingState = otherUser.BlockState,
+                    teamId = otherUser.teamId
+                )
+            }
+
+            else -> null // We don't care about connection requests
+        }
     }
 
     private fun searchShareableConversation(conversationDetails: List<ConversationItem>, searchQuery: String): List<ConversationItem> {
@@ -280,7 +275,7 @@ class ImportMediaViewModel @Inject constructor(
     }
 
     fun checkRestrictionsAndSendImportedMedia() = viewModelScope.launch(dispatchers.default()) {
-        val conversation = shareableConversationListState.conversationsAddedToGroup.first()
+        val conversation = importMediaState.selectedConversationItem.firstOrNull() ?: return@launch
         val assetsToSend = importMediaState.importedAssets
 
         if (assetsToSend.size > MAX_LIMIT_MEDIA_IMPORT) {
@@ -313,8 +308,8 @@ class ImportMediaViewModel @Inject constructor(
         }
     }
 
-    fun currentSelectedConversationsCount() = if (importMediaState.importedAssets.size > 0) {
-        shareableConversationListState.conversationsAddedToGroup.size
+    fun currentSelectedConversationsCount() = if (importMediaState.importedAssets.isNotEmpty()) {
+        importMediaState.selectedConversationItem.size ?: 0
     } else {
         0
     }
@@ -383,6 +378,8 @@ class ImportMediaViewModel @Inject constructor(
 @Stable
 data class ImportMediaState(
     val avatarAsset: ImageAsset.UserAvatarAsset? = null,
-    val importedAssets: MutableList<ImportedMediaAsset> = mutableListOf(),
-    val isImporting: Boolean = false
+    val importedAssets: List<ImportedMediaAsset> = emptyList(),
+    val isImporting: Boolean = false,
+    val shareableConversationListState: ShareableConversationListState = ShareableConversationListState(),
+    val selectedConversationItem: List<ConversationItem> = emptyList()
 )

@@ -162,11 +162,11 @@ fun ImportMediaContent(importMediaViewModel: ImportMediaViewModel) {
                         modifier = Modifier.weight(1f),
                         lazyListState = lazyListState,
                         conversationListItems = persistentMapOf(
-                            ConversationFolder.Predefined.Conversations to importMediaViewModel.shareableConversationListState.searchResult
+                            ConversationFolder.Predefined.Conversations to shareableConversationListState.searchResult
                         ),
-                        conversationsAddedToGroup = importMediaViewModel.shareableConversationListState.conversationsAddedToGroup,
+                        conversationsAddedToGroup = selectedConversationItem,
                         isSelectableList = true,
-                        onConversationSelectedOnRadioGroup = importMediaViewModel::selectConversationOnRadioGroup,
+                        onConversationSelectedOnRadioGroup = importMediaViewModel::addConversationItemToGroupSelection,
                         searchQuery = searchBarState.searchQuery.text,
                         onOpenConversation = importMediaViewModel::onConversationClicked,
                         onEditConversation = {},

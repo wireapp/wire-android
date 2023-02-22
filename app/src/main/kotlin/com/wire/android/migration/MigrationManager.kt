@@ -41,6 +41,7 @@ import com.wire.kalium.logic.functional.flatMap
 import com.wire.kalium.logic.functional.fold
 import com.wire.kalium.logic.functional.isLeft
 import com.wire.kalium.logic.functional.map
+import com.wire.kalium.logic.functional.mapLeft
 import com.wire.kalium.logic.functional.onFailure
 import com.wire.kalium.logic.functional.onSuccess
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -163,7 +164,13 @@ class MigrationManager @Inject constructor(
                     migrateConversations(it)
                 }.flatMap {
                     appLogger.d("$TAG - Step 5 - Migrating messages for ${userId.value.obfuscateId()}")
-                    migrateMessages(userId, it, coroutineScope)
+                    migrateMessages(userId, it, coroutineScope).let { failedConversations ->
+                            if (failedConversations.isEmpty()) {
+                                Either.Right(Unit)
+                            } else {
+                                Either.Left(failedConversations.values.first())
+                            }
+                        }
                 }.onSuccess {
                     globalDataStore.setMigrationCompletedForUser(userId)
                 }.also {

@@ -25,4 +25,5 @@ import com.wire.kalium.logic.CoreFailure
 sealed class MigrationFailure: CoreFailure.FeatureFailure() {
     object InvalidRefreshToken: MigrationFailure()
     object ClientNotRegistered: MigrationFailure()
+    object MissingUserDatabase: MigrationFailure()
 }

@@ -28,6 +28,7 @@ import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.functional.Either
+import com.wire.kalium.logic.functional.flatMap
 import com.wire.kalium.logic.functional.foldToEitherWhileRight
 import com.wire.kalium.logic.functional.map
 import javax.inject.Inject
@@ -40,23 +41,22 @@ class MigrateConversationsUseCase @Inject constructor(
     private val mapper: MigrationMapper
 ) {
 
-    suspend operator fun invoke(userId: UserId): Either<CoreFailure, List<ScalaConversationData>> =
-        invoke(listOf(userId)).map { it[userId] ?: listOf() }
-
     // Note: 1:1 conversations with team members are marked as 0 (GROUP) in scala database
     // atm we insert the conversation that does not exist remotely anymore aka deleted
     // and in that case leaving it as group will not be an issue
-    suspend operator fun invoke(userIds: List<UserId>): Either<CoreFailure, Map<UserId, List<ScalaConversationData>>> =
-        userIds.foldToEitherWhileRight(mapOf()) { userId, acc ->
-            val conversations = scalaUserDatabase.conversationDAO(userId)?.conversations() ?: listOf()
-            if (conversations.isNotEmpty()) {
-                val mappedConversations = conversations.mapNotNull { scalaConversation ->
-                    mapper.fromScalaConversationToConversation(scalaConversation, userId)
-                }
-                coreLogic.sessionScope(userId) {
-                    migration.persistMigratedConversation(mappedConversations)
-                    Either.Right(acc + (userId to conversations))
-                }
-            } else Either.Right(acc)
+    suspend operator fun invoke(userId: UserId): Either<CoreFailure, List<ScalaConversationData>> =
+        scalaUserDatabase.conversationDAO(userId).flatMap { scalaConvDAO ->
+            val conversations = scalaConvDAO.conversations()
+            if (conversations.isEmpty()) {
+                return@flatMap Either.Right(conversations)
+            }
+
+            val mappedConversations = conversations.mapNotNull { scalaConversation ->
+                mapper.fromScalaConversationToConversation(scalaConversation, userId)
+            }
+            coreLogic.sessionScope(userId) {
+                migration.persistMigratedConversation(mappedConversations)
+            }.map { conversations }
         }
 }
+

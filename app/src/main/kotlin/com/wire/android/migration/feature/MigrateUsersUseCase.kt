@@ -38,9 +38,13 @@ class MigrateUsersUseCase @Inject constructor(
 ) {
     suspend operator fun invoke(userId: UserId): Either<CoreFailure, UserId> {
         val users = scalaUserDatabase.userDAO(userId)?.allUsers() ?: listOf()
-        val selfScalaUser = users.first { it.id == userId.value && it.domain == userId.domain }
+        // No need to match the domain since it can be missing from the scala DB
+        // firstOrNull is just to be safe in case the self user is not in the local DB
+        // any inconsistency in the DB will be by sync
+        // and we only add users that are missing form sync so it is safe to assume that team is null in that case
+        val selfScalaUser = users.firstOrNull { it.id == userId.value}
         val mappedUsers = users.map { scalaUser ->
-            mapper.fromScalaUserToUser(scalaUser, selfScalaUser.id, selfScalaUser.domain, selfScalaUser.teamId, userId)
+            mapper.fromScalaUserToUser(scalaUser, userId.value, userId.domain, selfScalaUser?.teamId, userId)
         }
         val sessionScope = coreLogic.getSessionScope(userId)
         sessionScope.users.persistMigratedUsers(mappedUsers)

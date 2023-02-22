@@ -20,9 +20,16 @@
 
 package com.wire.android.navigation
 
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.runtime.Composable
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
+import androidx.navigation.NavDestination
+import com.datadog.android.compose.ExperimentalTrackingApi
+import com.datadog.android.compose.NavigationViewTrackingEffect
+import com.datadog.android.rum.tracking.AcceptAllNavDestinations
+import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 import com.wire.android.appLogger
 
 @ExperimentalMaterial3Api
@@ -79,3 +86,27 @@ internal fun NavController.getCurrentNavigationItem(): NavigationItem? =
     this.currentDestination?.route?.let { currentRoute ->
         NavigationItem.fromRoute(currentRoute)
     }
+
+fun String.getPrimaryRoute(): String {
+    val splitByQuestion = this.split("?")
+    val splitBySlash = this.split("/")
+
+    val primaryRoute = when {
+        splitByQuestion.size > 1 -> splitByQuestion[0]
+        splitBySlash.size > 1 -> splitBySlash[0]
+        else -> this
+    }
+    return primaryRoute
+}
+
+@OptIn(ExperimentalAnimationApi::class, ExperimentalTrackingApi::class)
+@Composable
+fun rememberTrackingAnimatedNavController(nameFromRoute: (String) -> String?) = rememberAnimatedNavController().apply {
+    NavigationViewTrackingEffect(
+        navController = this,
+        trackArguments = true,
+        destinationPredicate = object : AcceptAllNavDestinations() {
+            override fun getViewName(component: NavDestination): String? = component.route?.let { nameFromRoute(it) }
+        }
+    )
+}

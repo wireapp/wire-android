@@ -58,6 +58,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
 // App wide global logger, carefully initialized when our application is "onCreate"
@@ -217,8 +218,14 @@ class WireApplication : Application(), Configuration.Provider {
             .build()
 
         val credentials = Credentials(clientToken, environmentName, appVariantName, applicationId)
+        val extraInfo = mapOf(
+           "encrypted_proteus_storage_enabled" to runBlocking {
+                globalDataStore.isEncryptedProteusStorageEnabled().first()
+            }
+        )
+
         Datadog.initialize(this, credentials, configuration, TrackingConsent.GRANTED)
-        Datadog.setUserInfo(id = getDeviceId()?.sha256())
+        Datadog.setUserInfo(id = getDeviceId()?.sha256(), extraInfo = extraInfo)
         GlobalRum.registerIfAbsent(RumMonitor.Builder().build())
     }
 

@@ -139,7 +139,55 @@ class EditGuestAccessViewModelTest {
     }
 
     @Test
-    fun `given guest access is activated, when trying to enable guest access, then display dialog before disabling guest access`() {
+    fun `given updateConversationAccessRole use case runs successfully, when trying to disable guest access, then disable guest access`() =
+        runTest {
+            editGuestAccessViewModel.editGuestAccessState = editGuestAccessViewModel.editGuestAccessState.copy(isGuestAccessAllowed = true)
+            coEvery {
+                updateConversationAccessRoleUseCase(any(), any(), any(), any())
+            } returns UpdateConversationAccessRoleUseCase.Result.Success
+
+            coEvery {
+                revokeGuestRoomLink(any())
+            } returns RevokeGuestRoomLinkResult.Success
+
+            editGuestAccessViewModel.onGuestDialogConfirm()
+
+            coVerify(exactly = 1) {
+                updateConversationAccessRoleUseCase(any(), any(), any(), any())
+            }
+            coVerify(exactly = 1) {
+                revokeGuestRoomLink(any())
+            }
+            assertEquals(
+                false,
+                editGuestAccessViewModel.editGuestAccessState.isGuestAccessAllowed
+            )
+        }
+
+    @Test
+    fun `given a failure when running updateConversationAccessRole, when trying to disable guest access, then do not disable guest access`() =
+        runTest {
+            editGuestAccessViewModel.editGuestAccessState = editGuestAccessViewModel.editGuestAccessState.copy(isGuestAccessAllowed = true)
+            coEvery {
+                updateConversationAccessRoleUseCase(any(), any(), any(), any())
+            } returns UpdateConversationAccessRoleUseCase.Result.Failure(CoreFailure.MissingClientRegistration)
+
+            editGuestAccessViewModel.onGuestDialogConfirm()
+
+            coVerify(exactly = 1) {
+                updateConversationAccessRoleUseCase(any(), any(), any(), any())
+            }
+            coVerify(inverse = true) {
+                revokeGuestRoomLink(any())
+            }
+            assertEquals(
+                true,
+                editGuestAccessViewModel.editGuestAccessState.isGuestAccessAllowed
+            )
+        }
+
+    @Test
+    fun `given guest access is activated, when trying to disable guest access, then display dialog before disabling guest access`() {
         editGuestAccessViewModel.editGuestAccessState =
             editGuestAccessViewModel.editGuestAccessState.copy(isGuestAccessAllowed = true)
 
@@ -157,7 +205,7 @@ class EditGuestAccessViewModelTest {
             generateGuestRoomLink(any())
         } returns GenerateGuestRoomLinkResult.Success
 
-        editGuestAccessViewModel.onGuestDialogConfirm()
+        editGuestAccessViewModel.onGenerateGuestRoomLink()
 
         coVerify(exactly = 1) {
             generateGuestRoomLink(any())
@@ -171,7 +219,7 @@ class EditGuestAccessViewModelTest {
             generateGuestRoomLink(any())
         } returns GenerateGuestRoomLinkResult.Failure(CoreFailure.MissingClientRegistration)
 
-        editGuestAccessViewModel.onGuestDialogConfirm()
+        editGuestAccessViewModel.onGenerateGuestRoomLink()
 
         coVerify(exactly = 1) {
             generateGuestRoomLink(any())

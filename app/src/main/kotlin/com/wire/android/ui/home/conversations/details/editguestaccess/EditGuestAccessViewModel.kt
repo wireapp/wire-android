@@ -152,7 +152,11 @@ class EditGuestAccessViewModel @Inject constructor(
                         )
                     )
 
-                    is UpdateConversationAccessRoleUseCase.Result.Success -> Unit
+                    is UpdateConversationAccessRoleUseCase.Result.Success -> {
+                        if (!shouldEnableGuestAccess) {
+                            revokeGuestRoomLink(conversationId)
+                        }
+                    }
                 }
                 updateState(editGuestAccessState.copy(isUpdatingGuestAccess = false))
             }

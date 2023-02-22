@@ -231,7 +231,11 @@ dependencies {
     // Internal, dev, beta and staging only tracking & logging
 
     devImplementation(Libraries.dataDog)
+    devImplementation(Libraries.dataDogCompose)
     internalImplementation(Libraries.dataDog)
+    internalImplementation(Libraries.dataDogCompose)
     betaImplementation(Libraries.dataDog)
+    betaImplementation(Libraries.dataDogCompose)
     stagingImplementation(Libraries.dataDog)
+    stagingImplementation(Libraries.dataDogCompose)
 }

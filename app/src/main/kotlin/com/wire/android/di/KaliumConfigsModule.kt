@@ -52,7 +52,8 @@ class KaliumConfigsModule {
             lowerKeyingMaterialsUpdateThreshold = BuildConfig.PRIVATE_BUILD,
             isMLSSupportEnabled = BuildConfig.MLS_SUPPORT_ENABLED,
             developmentApiEnabled = BuildConfig.DEVELOPMENT_API_ENABLED,
-            encryptProteusStorage = BuildConfig.ENCRYPT_PROTEUS_STORAGE
+            encryptProteusStorage = BuildConfig.ENCRYPT_PROTEUS_STORAGE,
+            guestRoomLink = BuildConfig.GUEST_ROOM_LINK
         )
     }
 }

@@ -20,7 +20,6 @@
 
 package com.wire.android.ui.home
 
-import androidx.annotation.StringRes
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -40,7 +39,6 @@ import com.wire.android.navigation.SavedStateViewModel
 import com.wire.android.navigation.getBackNavArg
 import com.wire.android.util.LogFileWriter
 import com.wire.android.util.ui.WireSessionImageLoader
-import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.feature.client.NeedsToRegisterClientUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -140,28 +138,4 @@ class HomeViewModel @Inject constructor(
     }
 
     fun navigateToSelfUserProfile() = viewModelScope.launch { navigateTo(NavigationItem.SelfUserProfile) }
-}
-
-data class HomeState(
-    val avatarAsset: UserAvatarAsset? = null,
-    val status: UserAvailabilityStatus = UserAvailabilityStatus.NONE,
-    val logFilePath: String,
-    val shouldDisplayWelcomeMessage: Boolean = false,
-)
-
-// TODO change to extend [SnackBarMessage]
-sealed class HomeSnackbarState {
-    object None : HomeSnackbarState()
-    data class ClearConversationContentSuccess(val isGroup: Boolean) : HomeSnackbarState()
-    data class ClearConversationContentFailure(val isGroup: Boolean) : HomeSnackbarState()
-
-    class SuccessConnectionIgnoreRequest(val userName: String) : HomeSnackbarState()
-    object MutingOperationError : HomeSnackbarState()
-    object BlockingUserOperationError : HomeSnackbarState()
-    data class BlockingUserOperationSuccess(val userName: String) : HomeSnackbarState()
-    object UnblockingUserOperationError : HomeSnackbarState()
-    data class DeletedConversationGroupSuccess(val groupName: String) : HomeSnackbarState()
-    object DeleteConversationGroupError : HomeSnackbarState()
-    object LeftConversationSuccess : HomeSnackbarState()
-    object LeaveConversationError : HomeSnackbarState()
 }

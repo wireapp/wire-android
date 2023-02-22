@@ -20,9 +20,12 @@
 
 package com.wire.android.ui.home
 
-data class FeatureFlagState(
-    val showFileSharingDialog: Boolean = false,
-    val isFileSharingEnabledState: Boolean = true,
-    val shouldShowGuestRoomLinkDialog: Boolean = false,
-    val isGuestRoomLinkEnabled: Boolean = true
+import com.wire.android.model.ImageAsset
+import com.wire.kalium.logic.data.user.UserAvailabilityStatus
+
+data class HomeState(
+    val avatarAsset: ImageAsset.UserAvatarAsset? = null,
+    val status: UserAvailabilityStatus = UserAvailabilityStatus.NONE,
+    val logFilePath: String,
+    val shouldDisplayWelcomeMessage: Boolean = false,
 )

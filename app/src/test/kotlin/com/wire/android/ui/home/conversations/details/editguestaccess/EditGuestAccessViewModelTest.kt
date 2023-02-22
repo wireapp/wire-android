@@ -36,6 +36,7 @@ import com.wire.kalium.logic.feature.conversation.guestroomlink.GenerateGuestRoo
 import com.wire.kalium.logic.feature.conversation.guestroomlink.ObserveGuestRoomLinkUseCase
 import com.wire.kalium.logic.feature.conversation.guestroomlink.RevokeGuestRoomLinkResult
 import com.wire.kalium.logic.feature.conversation.guestroomlink.RevokeGuestRoomLinkUseCase
+import com.wire.kalium.logic.feature.user.guestroomlink.ObserveGuestRoomLinkFeatureFlagUseCase
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.impl.annotations.MockK
@@ -80,6 +81,9 @@ class EditGuestAccessViewModelTest {
     @MockK
     lateinit var revokeGuestRoomLink: RevokeGuestRoomLinkUseCase
 
+    @MockK
+    lateinit var observeGuestRoomLinkFeatureFlag: ObserveGuestRoomLinkFeatureFlagUseCase
+
     private lateinit var editGuestAccessViewModel: EditGuestAccessViewModel
 
     @Before
@@ -94,7 +98,8 @@ class EditGuestAccessViewModelTest {
             revokeGuestRoomLink = revokeGuestRoomLink,
             observeGuestRoomLink = observeGuestRoomLink,
             savedStateHandle = savedStateHandle,
-            qualifiedIdMapper = qualifiedIdMapper
+            qualifiedIdMapper = qualifiedIdMapper,
+            observeGuestRoomLinkFeatureFlag = observeGuestRoomLinkFeatureFlag
         )
     }
 

@@ -20,7 +20,6 @@
 
 package com.wire.android.ui.home
 
-import android.content.Context
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
@@ -45,7 +44,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -60,9 +58,6 @@ import com.wire.android.ui.common.CollapsingTopBarScaffold
 import com.wire.android.ui.common.FloatingActionButton
 import com.wire.android.ui.common.WireBottomNavigationBar
 import com.wire.android.ui.common.WireBottomNavigationItemData
-import com.wire.android.ui.common.WireDialog
-import com.wire.android.ui.common.WireDialogButtonProperties
-import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
@@ -73,7 +68,6 @@ import com.wire.android.ui.common.topappbar.search.SearchTopBar
 import com.wire.android.ui.home.conversationslist.ConversationListState
 import com.wire.android.ui.home.conversationslist.ConversationListViewModel
 import com.wire.android.ui.home.sync.FeatureFlagNotificationViewModel
-import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.permission.rememberRequestPushNotificationsPermissionFlow
 import kotlinx.collections.immutable.ImmutableMap
 import kotlinx.collections.immutable.persistentMapOf
@@ -108,14 +102,25 @@ fun HomeScreen(
     )
 
     val homeState = homeViewModel.homeState
-    handleWelcomeNewUserDialog(
-        homeState = homeViewModel.homeState,
-        dismissDialog = homeViewModel::dismissWelcomeMessage
-    )
-    handleFeatureFlagChangedNotification(
+    if(homeViewModel.homeState.shouldDisplayWelcomeMessage) {
+        WelcomeNewUserDialog(
+            dismissDialog = homeViewModel::dismissWelcomeMessage
+        )
+    }
+
+    FileRestrictionDialog(
         featureFlagState = featureFlagNotificationViewModel.featureFlagState,
-        hideDialogStatus = featureFlagNotificationViewModel::hideDialogStatus
+        hideDialogStatus = featureFlagNotificationViewModel::dismissFileSharingDialog
     )
+
+    with(featureFlagNotificationViewModel.featureFlagState) {
+        if (shouldShowGuestRoomLinkDialog) {
+            GuestRoomLinkFeatureFlagDialog(
+                isGuestRoomLinkEnabled = isGuestRoomLinkEnabled,
+                onDismiss = featureFlagNotificationViewModel::dismissGuestRoomLinkDialog
+            )
+        }
+    }
 
     HomeContent(
         connectivityState = commonTopAppBarViewModel.connectivityState,
@@ -130,60 +135,6 @@ fun HomeScreen(
 
     BackHandler(homeScreenState.searchBarState.isSearchActive) {
         homeScreenState.searchBarState.closeSearch()
-    }
-}
-
-@Composable
-fun handleWelcomeNewUserDialog(
-    homeState: HomeState,
-    dismissDialog: () -> Unit,
-    context: Context = LocalContext.current
-) {
-    if (homeState.shouldDisplayWelcomeMessage) {
-        val welcomeToNewAndroidUrl = stringResource(id = R.string.url_welcome_to_new_android)
-        WireDialog(
-            title = stringResource(id = R.string.welcome_migration_dialog_title),
-            text = stringResource(id = R.string.welcome_migration_dialog_content),
-            onDismiss = dismissDialog,
-            optionButton1Properties = WireDialogButtonProperties(
-                onClick = {
-                    dismissDialog.invoke()
-                    CustomTabsHelper.launchUrl(context, welcomeToNewAndroidUrl)
-                },
-                text = stringResource(id = R.string.label_learn_more),
-                type = WireDialogButtonType.Primary,
-            ),
-            optionButton2Properties = WireDialogButtonProperties(
-                onClick = dismissDialog,
-                text = stringResource(id = R.string.welcome_migration_dialog_continue),
-                type = WireDialogButtonType.Primary,
-            )
-        )
-    }
-}
-
-@Composable
-private fun handleFeatureFlagChangedNotification(
-    featureFlagState: FeatureFlagState,
-    hideDialogStatus: () -> Unit,
-) {
-    if (featureFlagState.showFileSharingDialog) {
-        val text: String = if (featureFlagState.isFileSharingEnabledState) {
-            stringResource(id = R.string.sharing_files_enabled)
-        } else {
-            stringResource(id = R.string.sharing_files_disabled)
-        }
-
-        WireDialog(
-            title = stringResource(id = R.string.team_settings_changed),
-            text = text,
-            onDismiss = hideDialogStatus,
-            optionButton1Properties = WireDialogButtonProperties(
-                onClick = hideDialogStatus,
-                text = stringResource(id = R.string.label_ok),
-                type = WireDialogButtonType.Primary,
-            )
-        )
     }
 }
 

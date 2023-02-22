@@ -37,7 +37,7 @@ import com.wire.android.ui.theme.wireDimensions
 
 @Composable
 fun CreateLinkButton(
-    isGuestAccessAllowed: Boolean,
+    shouldDisableGenerateGuestLinkButton: Boolean,
     isLoading: Boolean,
     onCreateLink: () -> Unit
 ) {
@@ -46,7 +46,8 @@ fun CreateLinkButton(
         fillMaxWidth = true,
         onClick = onCreateLink,
         loading = isLoading,
-        state = if (isLoading || !isGuestAccessAllowed) WireButtonState.Disabled else WireButtonState.Default,
+        state = if (shouldDisableGenerateGuestLinkButton) WireButtonState.Disabled
+        else WireButtonState.Default,
         modifier = Modifier
             .fillMaxWidth()
             .background(MaterialTheme.colorScheme.background)
@@ -68,10 +69,7 @@ fun CopyLinkButton(
                 end = MaterialTheme.wireDimensions.spacing16x,
                 top = MaterialTheme.wireDimensions.spacing16x,
                 bottom = MaterialTheme.wireDimensions.spacing4x
-            ),
-        text = stringResource(id = R.string.guest_link_button_copy_link),
-        fillMaxWidth = true,
-        onClick = onCopy
+            ), text = stringResource(id = R.string.guest_link_button_copy_link), fillMaxWidth = true, onClick = onCopy
     )
 }
 
@@ -88,17 +86,13 @@ fun ShareLinkButton(
                 end = MaterialTheme.wireDimensions.spacing16x,
                 top = MaterialTheme.wireDimensions.spacing4x,
                 bottom = MaterialTheme.wireDimensions.spacing4x
-            ),
-        text = stringResource(id = R.string.guest_link_button_share_link),
-        fillMaxWidth = true,
-        onClick = onShare
+            ), text = stringResource(id = R.string.guest_link_button_share_link), fillMaxWidth = true, onClick = onShare
     )
 }
 
 @Composable
 fun RevokeLinkButton(
-    isLoading: Boolean = false,
-    onRevoke: () -> Unit
+    isLoading: Boolean = false, onRevoke: () -> Unit
 ) {
     WirePrimaryButton(
         modifier = Modifier

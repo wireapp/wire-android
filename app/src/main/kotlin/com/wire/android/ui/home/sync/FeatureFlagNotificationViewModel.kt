@@ -28,6 +28,8 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.ui.home.FeatureFlagState
 import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.feature.user.ObserveFileSharingStatusUseCase
+import com.wire.kalium.logic.feature.user.guestroomlink.MarkGuestLinkFeatureFlagAsNotChangedUseCase
+import com.wire.kalium.logic.feature.user.guestroomlink.ObserveGuestRoomLinkFeatureFlagUseCase
 import com.wire.kalium.logic.sync.ObserveSyncStateUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -36,7 +38,9 @@ import javax.inject.Inject
 @HiltViewModel
 class FeatureFlagNotificationViewModel @Inject constructor(
     private val observeSyncState: ObserveSyncStateUseCase,
-    private val observeFileSharingStatusUseCase: ObserveFileSharingStatusUseCase
+    private val observeFileSharingStatus: ObserveFileSharingStatusUseCase,
+    private val observeGuestRoomLinkFeatureFlag: ObserveGuestRoomLinkFeatureFlagUseCase,
+    private val markGuestLinkFeatureFlagAsNotChanged: MarkGuestLinkFeatureFlagAsNotChangedUseCase
 ) : ViewModel() {
 
     var featureFlagState by mutableStateOf(FeatureFlagState())
@@ -52,13 +56,14 @@ class FeatureFlagNotificationViewModel @Inject constructor(
         observeSyncState().collect { newState ->
             if (newState == SyncState.Live) {
                 setFileSharingState()
+                setGuestRoomLinkFeatureFlag()
             }
         }
     }
 
     private fun setFileSharingState() {
         viewModelScope.launch {
-            observeFileSharingStatusUseCase().collect {
+            observeFileSharingStatus().collect {
                 if (it.isFileSharingEnabled != null) {
                     featureFlagState = featureFlagState.copy(isFileSharingEnabledState = it.isFileSharingEnabled!!)
                 }
@@ -69,7 +74,23 @@ class FeatureFlagNotificationViewModel @Inject constructor(
         }
     }
 
-    fun hideDialogStatus() {
+    private suspend fun setGuestRoomLinkFeatureFlag() {
+        observeGuestRoomLinkFeatureFlag().collect { guestRoomLinkStatus ->
+            guestRoomLinkStatus.isGuestRoomLinkEnabled?.let {
+                featureFlagState = featureFlagState.copy(isGuestRoomLinkEnabled = it)
+            }
+            guestRoomLinkStatus.isStatusChanged?.let {
+                featureFlagState = featureFlagState.copy(shouldShowGuestRoomLinkDialog = it)
+            }
+        }
+    }
+
+    fun dismissFileSharingDialog() {
         featureFlagState = featureFlagState.copy(showFileSharingDialog = false)
+    }
+
+    fun dismissGuestRoomLinkDialog() {
+        markGuestLinkFeatureFlagAsNotChanged()
+        featureFlagState = featureFlagState.copy(shouldShowGuestRoomLinkDialog = false)
     }
 }

@@ -200,9 +200,9 @@ class WireApplication : Application(), Configuration.Provider {
 
         val credentials = Credentials(clientToken, environmentName, appVariantName, applicationId)
         val extraInfo = mapOf(
-            Pair("encrypted_proteus_storage_enabled", runBlocking {
+           "encrypted_proteus_storage_enabled" to runBlocking {
                 globalDataStore.isEncryptedProteusStorageEnabled().first()
-            })
+            }
         )
 
         Datadog.initialize(this, credentials, configuration, TrackingConsent.GRANTED)

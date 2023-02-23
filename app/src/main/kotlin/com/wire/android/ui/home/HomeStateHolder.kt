@@ -41,9 +41,9 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
-import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 import com.wire.android.navigation.HomeNavigationItem
 import com.wire.android.navigation.navigateToItemInHome
+import com.wire.android.navigation.rememberTrackingAnimatedNavController
 import com.wire.android.ui.common.topappbar.search.SearchBarState
 import com.wire.android.ui.common.topappbar.search.rememberSearchbarState
 import kotlinx.coroutines.CoroutineScope
@@ -115,14 +115,14 @@ class HomeStateHolder(
 @Composable
 fun rememberHomeScreenState(
     coroutineScope: CoroutineScope = rememberCoroutineScope(),
-    navController: NavHostController = rememberAnimatedNavController(),
+    navController: NavHostController = rememberTrackingAnimatedNavController() { HomeNavigationItem.fromRoute(it)?.itemName },
     drawerState: DrawerState = rememberDrawerState(DrawerValue.Closed),
     bottomSheetState: ModalBottomSheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden),
     snackBarHostState: SnackbarHostState = remember { SnackbarHostState() }
 ): HomeStateHolder {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
-    val currentNavigationItem = HomeNavigationItem.values().firstOrNull { it.route == currentRoute } ?: HomeNavigationItem.Conversations
+    val currentNavigationItem = currentRoute?.let { HomeNavigationItem.fromRoute(it) } ?: HomeNavigationItem.Conversations
 
     val searchBarState = rememberSearchbarState()
 

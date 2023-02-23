@@ -171,7 +171,7 @@ class WireActivity : AppCompatActivity() {
     ) {
         val keyboardController = LocalSoftwareKeyboardController.current
         // with the static key here we're sure that this effect wouldn't be canceled or restarted
-        LaunchedEffect("key") {
+        LaunchedEffect(Unit) {
             navigationManager.navigateState.onEach { command ->
                 if (command == null) return@onEach
                 keyboardController?.hide()
@@ -194,10 +194,10 @@ class WireActivity : AppCompatActivity() {
     @Composable
     private fun handleDialogs() {
         updateAppDialog({ updateTheApp() }, viewModel.globalAppState.updateAppDialog)
-        handleJoinConversationViaDeepLinkDialog(viewModel.globalAppState.conversationJoinedDialog)
-        handleCustomBackendDialog(viewModel.globalAppState.customBackendDialog.shouldShowDialog)
+        joinConversationDialog(viewModel.globalAppState.conversationJoinedDialog)
+        customBackendDialog(viewModel.globalAppState.customBackendDialog.shouldShowDialog)
         maxAccountDialog(viewModel::openProfile, viewModel::dismissMaxAccountDialog, viewModel.globalAppState.maxAccountDialog)
-        viewModel.globalAppState.blockUserUI?.let { AccountLoggedOutDialog(it, viewModel::navigateToNextAccountOrWelcome) }
+        accountLoggedOutDialog(viewModel.globalAppState.blockUserUI)
     }
 
     @Composable
@@ -222,7 +222,7 @@ class WireActivity : AppCompatActivity() {
     }
 
     @Composable
-    private fun handleJoinConversationViaDeepLinkDialog(joinedDialogState: JoinConversationViaCodeState?) {
+    private fun joinConversationDialog(joinedDialogState: JoinConversationViaCodeState?) {
         joinedDialogState?.let {
             when (it) {
                 is JoinConversationViaCodeState.Error -> JoinConversationViaInviteLinkError(
@@ -241,7 +241,7 @@ class WireActivity : AppCompatActivity() {
     }
 
     @Composable
-    private fun handleCustomBackendDialog(shouldShow: Boolean) {
+    private fun customBackendDialog(shouldShow: Boolean) {
         if (shouldShow) {
             CustomBEDeeplinkDialog(viewModel)
         }
@@ -259,7 +259,12 @@ class WireActivity : AppCompatActivity() {
     }
 
     @Composable
-    fun AccountLoggedOutDialog(reason: CurrentSessionErrorState, navigateAway: () -> Unit) {
+    private fun accountLoggedOutDialog(blockUserUI: CurrentSessionErrorState?) {
+        blockUserUI?.let { accountLoggedOutDialog(it, viewModel::navigateToNextAccountOrWelcome) }
+    }
+
+    @Composable
+    fun accountLoggedOutDialog(reason: CurrentSessionErrorState, navigateAway: () -> Unit) {
         appLogger.e("AccountLongedOutDialog: $reason")
         val (@StringRes title: Int, @StringRes text: Int) = when (reason) {
             CurrentSessionErrorState.SessionExpired -> {

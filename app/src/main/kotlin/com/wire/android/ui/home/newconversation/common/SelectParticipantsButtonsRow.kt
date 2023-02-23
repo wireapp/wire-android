@@ -63,7 +63,7 @@ fun SelectParticipantsButtonsAlwaysEnabled(
     onMainButtonClick: () -> Unit,
 ) {
     SelectParticipantsButtonsRow(
-        count = count,
+        selectedParticipantsCount = count,
         mainButtonText = mainButtonText,
         shouldAllowNoSelectionContinue = true,
         elevation = elevation,
@@ -75,7 +75,7 @@ fun SelectParticipantsButtonsAlwaysEnabled(
 
 @Composable
 fun SelectParticipantsButtonsRow(
-    count: Int = 0,
+    selectedParticipantsCount: Int = 0,
     mainButtonText: String,
     elevation: Dp = MaterialTheme.wireDimensions.bottomNavigationShadowElevation,
     modifier: Modifier = Modifier
@@ -86,7 +86,7 @@ fun SelectParticipantsButtonsRow(
     onMainButtonClick: () -> Unit,
 ) {
     SelectParticipantsButtonsRow(
-        count = count,
+        selectedParticipantsCount = selectedParticipantsCount,
         mainButtonText = mainButtonText,
         shouldAllowNoSelectionContinue = false,
         elevation = elevation,
@@ -104,7 +104,7 @@ fun SendContentButton(
 ) {
     SelectParticipantsButtonsRow(
         showTotalSelectedItemsCount = false,
-        count = count,
+        selectedParticipantsCount = count,
         leadingIcon = {
             Image(
                 painter = painterResource(id = R.drawable.ic_send),
@@ -125,7 +125,7 @@ fun SendContentButton(
 private fun SelectParticipantsButtonsRow(
     showTotalSelectedItemsCount: Boolean = true,
     leadingIcon: @Composable (() -> Unit)? = null,
-    count: Int = 0,
+    selectedParticipantsCount: Int = 0,
     mainButtonText: String,
     shouldAllowNoSelectionContinue: Boolean = true,
     elevation: Dp = MaterialTheme.wireDimensions.bottomNavigationShadowElevation,
@@ -145,12 +145,12 @@ private fun SelectParticipantsButtonsRow(
             verticalAlignment = Alignment.CenterVertically,
             modifier = modifier,
         ) {
-            val buttonText = if (showTotalSelectedItemsCount) "$mainButtonText ($count)" else mainButtonText
+            val buttonText = if (showTotalSelectedItemsCount) "$mainButtonText ($selectedParticipantsCount)" else mainButtonText
             WirePrimaryButton(
                 text = buttonText,
                 leadingIcon = leadingIcon,
                 onClick = onMainButtonClick,
-                state = computeButtonState(count, shouldAllowNoSelectionContinue),
+                state = computeButtonState(selectedParticipantsCount, shouldAllowNoSelectionContinue),
                 blockUntilSynced = true,
                 modifier = Modifier.weight(1f)
             )
@@ -185,19 +185,19 @@ private fun computeButtonState(count: Int = 0, shouldAllowNoSelectionContinue: B
 @Preview
 @Composable
 fun PreviewSelectParticipantsButtonsRow() {
-    SelectParticipantsButtonsRow(count = 3, mainButtonText = "Continue", onMainButtonClick = {}, onMoreButtonClick = {})
+    SelectParticipantsButtonsRow(selectedParticipantsCount = 3, mainButtonText = "Continue", onMainButtonClick = {}, onMoreButtonClick = {})
 }
 
 @Preview
 @Composable
 fun PreviewSelectParticipantsButtonsRowWithoutMoreButton() {
-    SelectParticipantsButtonsRow(count = 3, mainButtonText = "Continue", onMainButtonClick = {})
+    SelectParticipantsButtonsRow(selectedParticipantsCount = 3, mainButtonText = "Continue", onMainButtonClick = {})
 }
 
 @Preview
 @Composable
 fun PreviewSelectParticipantsButtonsRowDisabledButton() {
-    SelectParticipantsButtonsRow(count = 0, mainButtonText = "Continue", onMainButtonClick = {})
+    SelectParticipantsButtonsRow(selectedParticipantsCount = 0, mainButtonText = "Continue", onMainButtonClick = {})
 }
 
 @Preview

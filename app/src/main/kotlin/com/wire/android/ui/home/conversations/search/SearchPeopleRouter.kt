@@ -168,7 +168,7 @@ fun SearchPeopleContent(
                     )
                 } else {
                     SelectParticipantsButtonsRow(
-                        count = contactsAddedToGroup.size,
+                        selectedParticipantsCount = contactsAddedToGroup.size,
                         mainButtonText = actionButtonTitle,
                         onMainButtonClick = onGroupSelectionSubmitAction
                     )

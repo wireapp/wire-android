@@ -125,7 +125,6 @@ class WireApplication : Application(), Configuration.Provider {
             StrictMode.ThreadPolicy.Builder()
                 .detectDiskReads()
                 .detectDiskWrites()
-                .detectNetwork()
                 .penaltyLog()
                 // .penaltyDeath() TODO: add it later after fixing reported violations
                 .build()
@@ -134,7 +133,6 @@ class WireApplication : Application(), Configuration.Provider {
             StrictMode.VmPolicy.Builder()
                 .detectLeakedSqlLiteObjects()
                 .detectLeakedClosableObjects()
-                .detectAll()
                 .penaltyLog()
                 // .penaltyDeath() TODO: add it later after fixing reported violations
                 .build()

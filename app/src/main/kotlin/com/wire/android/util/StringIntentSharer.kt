@@ -18,18 +18,14 @@
  *
  */
 
-package com.wire.android.ui.common.topappbar
+package com.wire.android.util
 
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.runtime.Composable
+import android.content.Context
+import androidx.core.app.ShareCompat
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun wireTopAppBarColors() = TopAppBarDefaults.centerAlignedTopAppBarColors(
-    containerColor = MaterialTheme.colorScheme.background,
-    titleContentColor = MaterialTheme.colorScheme.onBackground,
-    actionIconContentColor = MaterialTheme.colorScheme.onBackground,
-    navigationIconContentColor = MaterialTheme.colorScheme.onBackground
-)
+fun Context.shareViaIntent(link: String) {
+    val intentBuilder = ShareCompat.IntentBuilder(this)
+    intentBuilder.setType("text/plain")
+    intentBuilder.setText(link)
+    intentBuilder.startChooser()
+}

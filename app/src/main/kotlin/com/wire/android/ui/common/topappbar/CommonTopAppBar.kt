@@ -74,7 +74,7 @@ private fun ConnectivityStatusBar(
     val isVisible = connectivityInfo !is ConnectivityUIState.Info.None
 
     // So it keeps the current colour while the animation is collapsing the bar
-    val initialColour = MaterialTheme.wireColorScheme.connectivityBarOngoingCallBackgroundColor
+    val initialColour = MaterialTheme.wireColorScheme.primary
     var lastVisibleBackgroundColor by remember {
         mutableStateOf(initialColour)
     }
@@ -84,7 +84,7 @@ private fun ConnectivityStatusBar(
             MaterialTheme.wireColorScheme.connectivityBarOngoingCallBackgroundColor
 
         ConnectivityUIState.Info.Connecting, ConnectivityUIState.Info.WaitingConnection ->
-            MaterialTheme.wireColorScheme.connectivityBarIssueBackgroundColor
+            MaterialTheme.wireColorScheme.primary
 
         ConnectivityUIState.Info.None -> lastVisibleBackgroundColor
     }
@@ -93,7 +93,6 @@ private fun ConnectivityStatusBar(
     }
 
     if (isVisible) {
-        lastVisibleBackgroundColor = backgroundColor
         val darkIcons = MaterialTheme.wireColorScheme.connectivityBarShouldUseDarkIcons
         rememberSystemUiController().setStatusBarColor(
             color = backgroundColor,
@@ -151,7 +150,7 @@ private fun OngoingCallContent(isMuted: Boolean) {
 private fun StatusLabel(stringResource: Int) {
     Text(
         text = stringResource(id = stringResource).uppercase(),
-        color = MaterialTheme.wireColorScheme.connectivityBarTextColor,
+        color = MaterialTheme.wireColorScheme.onPrimary,
         style = MaterialTheme.wireTypography.title03,
     )
 }
@@ -161,7 +160,7 @@ fun StatusLabel(message: String) {
     Text(
         text = message,
         textAlign = TextAlign.Center,
-        color = MaterialTheme.wireColorScheme.connectivityBarTextColor,
+        color = MaterialTheme.wireColorScheme.onPrimary,
         style = MaterialTheme.wireTypography.title03,
     )
 }
@@ -175,7 +174,7 @@ private fun CameraIcon() {
             start = MaterialTheme.wireDimensions.spacing8x,
             end = MaterialTheme.wireDimensions.spacing8x
         ),
-        tint = MaterialTheme.wireColorScheme.connectivityBarIconColor
+        tint = MaterialTheme.wireColorScheme.onPrimary
     )
 }
 
@@ -190,7 +189,7 @@ private fun MicrophoneIcon(isMuted: Boolean) {
             id = if (isMuted) R.string.content_description_calling_call_muted
             else R.string.content_description_calling_call_unmuted
         ),
-        tint = MaterialTheme.wireColorScheme.connectivityBarIconColor
+        tint = MaterialTheme.wireColorScheme.onPrimary
     )
 }
 

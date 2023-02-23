@@ -44,6 +44,7 @@ import javax.inject.Inject
 
 data class DebugScreenState(
     val isLoggingEnabled: Boolean = false,
+    val isEncryptedProteusStorageEnabled: Boolean = false,
     val currentClientId: String = String.EMPTY,
     val keyPackagesCount: Int = 0,
     val mslClientId: String = String.EMPTY,
@@ -70,6 +71,7 @@ class DebugScreenViewModel
 
     init {
         observeLoggingState()
+        observeEncryptedProteusStorageState()
         observeMlsMetadata()
         observeCurrentClientId()
     }
@@ -78,6 +80,14 @@ class DebugScreenViewModel
         viewModelScope.launch {
             globalDataStore.isLoggingEnabled().collect {
                 state = state.copy(isLoggingEnabled = it)
+            }
+        }
+    }
+
+    private fun observeEncryptedProteusStorageState() {
+        viewModelScope.launch {
+            globalDataStore.isEncryptedProteusStorageEnabled().collect {
+                state = state.copy(isEncryptedProteusStorageEnabled = it)
             }
         }
     }
@@ -136,6 +146,12 @@ class DebugScreenViewModel
         } else {
             logFileWriter.stop()
             CoreLogger.setLoggingLevel(level = KaliumLogLevel.DISABLED, logWriters = arrayOf(DataDogLogger, platformLogWriter()))
+        }
+    }
+
+    fun enableEncryptedProteusStorage() {
+        viewModelScope.launch {
+            globalDataStore.setEncryptedProteusStorageEnabled(true)
         }
     }
 

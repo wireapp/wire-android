@@ -18,18 +18,19 @@
  *
  */
 
-package com.wire.android.ui.common.topappbar
+package com.wire.android.ui.home.newconversation.common
 
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.runtime.Composable
+import com.wire.android.navigation.getPrimaryRoute
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun wireTopAppBarColors() = TopAppBarDefaults.centerAlignedTopAppBarColors(
-    containerColor = MaterialTheme.colorScheme.background,
-    titleContentColor = MaterialTheme.colorScheme.onBackground,
-    actionIconContentColor = MaterialTheme.colorScheme.onBackground,
-    navigationIconContentColor = MaterialTheme.colorScheme.onBackground
-)
+enum class NewConversationNavigationItem(val route: String) {
+    NewGroupNameScreen("new_group_name"),
+    SearchListNavHostScreens("search_list_nav_host"),
+    GroupOptionsScreen("group_options_screen");
+
+    val itemName: String get() = ITEM_NAME_PREFIX + this.name
+    companion object {
+        private const val ITEM_NAME_PREFIX = "NewConversationNavigationItem."
+        private val map = NewConversationNavigationItem.values().associateBy { it.route }
+        fun fromRoute(fullRoute: String): NewConversationNavigationItem? = map[fullRoute.getPrimaryRoute()]
+    }
+}

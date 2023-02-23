@@ -85,7 +85,7 @@ object Libraries {
         const val compose = "1.3.1"
         const val composeCompiler = "1.3.2"
         const val composeMaterial = "1.3.1"
-        const val composeMaterial3 = "1.0.0-alpha11"
+        const val composeMaterial3 = "1.0.1"
         const val composeActivity = "1.6.1"
         const val composeNavigation = "2.5.3"
         const val accompanist = "0.28.0"
@@ -147,6 +147,7 @@ object Libraries {
     const val coilGif                   = "io.coil-kt:coil-gif:${Versions.coil}"
     const val coilCompose               = "io.coil-kt:coil-compose:${Versions.coil}"
     const val dataDog                   = "com.datadoghq:dd-sdk-android:${Versions.dataDog}"
+    const val dataDogCompose            = "com.datadoghq:dd-sdk-android-compose:${Versions.dataDog}"
 
     object Hilt {
         const val android = "com.google.dagger:hilt-android:${Versions.hilt}"

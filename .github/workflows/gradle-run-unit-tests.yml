@@ -80,6 +80,7 @@ jobs:
           rm -f ~/.gradle/caches/modules-2/gc.properties
 
   build-app:
+    if: ${{ github.event_name == 'pull_request' }}
     needs: [unit-tests]
     runs-on: buildjet-8vcpu-ubuntu-2204
     steps:

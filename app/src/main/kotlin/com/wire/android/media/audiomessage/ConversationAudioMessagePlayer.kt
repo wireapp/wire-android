@@ -49,6 +49,9 @@ class ConversationAudioMessagePlayer
             extraBufferCapacity = 1
         )
 
+    // MediaPlayer API does not have any mechanism that would inform as about the currentPosition,
+    // in a callback manner, therefore we need to create a timer manually that ticks every 1 second
+    // and emits the current position
     private val mediaPlayerPosition = flow {
         delay(UPDATE_POSITION_INTERVAL_IN_MS)
         while (true) {
@@ -81,7 +84,7 @@ class ConversationAudioMessagePlayer
         merge(positionChangedUpdate, audioMessageStateUpdate).map { audioMessageStateUpdate ->
             val currentState = audioMessageStateHistory.getOrDefault(
                 audioMessageStateUpdate.messageId,
-                AudioState(AudioMediaPlayingState.Paused, 0, 0)
+                AudioState.DEFAULT
             )
 
             when (audioMessageStateUpdate) {

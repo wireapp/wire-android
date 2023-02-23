@@ -205,11 +205,13 @@ private data class AudioDuration(val totalDurationInMs: Int, val currentPosition
             val timeLeft = if (!isTotalTimeInSecKnown) {
                 currentPositionInSec
             } else {
-                (totalTimeInSec - currentPositionInSec)
+                totalTimeInSec - currentPositionInSec
             }
 
-            val minutes = timeLeft / totalSecInMin
-            val seconds = timeLeft % totalSecInMin
+            // sanity check, timeLeft, should not be smaller, however if the back-end makes mistake we
+            // will display a negative values, which we do not want
+            val minutes = if (timeLeft < 0) 0 else timeLeft / totalSecInMin
+            val seconds = if (timeLeft < 0) 0 else timeLeft % totalSecInMin
             val formattedSeconds = String.format("%02d", seconds)
 
             "$minutes:$formattedSeconds"

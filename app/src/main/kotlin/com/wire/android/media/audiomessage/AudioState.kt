@@ -6,7 +6,7 @@ data class AudioState(
     val totalTimeInMs: Int
 ) {
     companion object {
-        val DEFAULT = AudioState(AudioMediaPlayingState.Paused, 0, 0)
+        val DEFAULT = AudioState(AudioMediaPlayingState.Stopped, 0, 0)
     }
 }
 

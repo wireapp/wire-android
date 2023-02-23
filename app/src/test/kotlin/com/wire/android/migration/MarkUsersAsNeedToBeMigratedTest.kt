@@ -4,6 +4,7 @@ import android.content.Context
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.migration.failure.UserMigrationStatus
 import com.wire.android.migration.feature.MarkUsersAsNeedToBeMigrated
+import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -26,8 +27,8 @@ class MarkUsersAsNeedToBeMigratedTest {
             .withMarkUsersAsNeedToBeMigrated()
             .arrange()
         useCase()
-        coVerify(exactly = 1) { arrangement.globalDataStore.setUserMigrationStatus("user1", UserMigrationStatus.NotStarted) }
-        coVerify(exactly = 1) { arrangement.globalDataStore.setUserMigrationStatus("user2", UserMigrationStatus.NotStarted) }
+        coVerify(exactly = 1) { arrangement.globalDataStore.setUserMigrationStatus(userId1, UserMigrationStatus.NotStarted) }
+        coVerify(exactly = 1) { arrangement.globalDataStore.setUserMigrationStatus(userId2, UserMigrationStatus.NotStarted) }
         coVerify(exactly = 2) { arrangement.globalDataStore.setUserMigrationStatus(any(), any()) }
     }
 
@@ -43,11 +44,20 @@ class MarkUsersAsNeedToBeMigratedTest {
 
     private class Arrangement {
 
+        init {
+            MockKAnnotations.init(this, relaxUnitFun = true)
+        }
+
         @MockK
         lateinit var applicationContext: Context
 
         @MockK
         lateinit var globalDataStore: GlobalDataStore
+
+        val useCase = MarkUsersAsNeedToBeMigrated(
+            applicationContext,
+            globalDataStore
+        )
 
         fun withLocalDBList(list: List<String>) = apply {
             every { applicationContext.databaseList() } returns list.toTypedArray()
@@ -56,11 +66,6 @@ class MarkUsersAsNeedToBeMigratedTest {
         fun withMarkUsersAsNeedToBeMigrated() = apply {
             coEvery { globalDataStore.setUserMigrationStatus(any(), UserMigrationStatus.NotStarted) } returns Unit
         }
-
-        val useCase = MarkUsersAsNeedToBeMigrated(
-            applicationContext,
-            globalDataStore
-        )
 
         fun arrange() = this to useCase
     }

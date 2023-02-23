@@ -5,6 +5,7 @@ import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.migration.failure.UserMigrationStatus
 import com.wire.android.migration.userDatabase.ShouldTriggerMigrationForUserUserCase
 import com.wire.kalium.logic.data.user.UserId
+import io.mockk.MockKAnnotations
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
@@ -57,7 +58,8 @@ class ShouldTriggerMigrationForUserUserCaseTest {
         val userId = UserId("userId", "domain")
         assertFalse(useCase(userId))
 
-        verify(exactly = 0) { arrangement.globalDataStore.getUserMigrationStatus(userId.value) }
+        verify(exactly = 1) { arrangement.globalDataStore.getUserMigrationStatus(userId.value) }
+        verify(exactly = 0) { arrangement.applicationContext.getDatabasePath(userId.value) }
     }
     @Test
     fun givenUserMigrationComplite_thenReturnFalse() = runTest {
@@ -68,11 +70,15 @@ class ShouldTriggerMigrationForUserUserCaseTest {
         val userId = UserId("userId", "domain")
         assertFalse(useCase(userId))
 
-        verify(exactly = 0) { arrangement.globalDataStore.getUserMigrationStatus(userId.value) }
+        verify(exactly = 1) { arrangement.globalDataStore.getUserMigrationStatus(userId.value) }
+        verify(exactly = 0) { arrangement.applicationContext.getDatabasePath(userId.value) }
     }
 
 
     private class Arrangement {
+        init {
+            MockKAnnotations.init(this, relaxUnitFun = true)
+        }
 
         @MockK
         lateinit var applicationContext: Context

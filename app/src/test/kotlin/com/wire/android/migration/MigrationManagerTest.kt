@@ -23,6 +23,7 @@ package com.wire.android.migration
 import android.content.Context
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.datastore.GlobalDataStore
+import com.wire.android.migration.feature.MarkUsersAsNeedToBeMigrated
 import com.wire.android.migration.feature.MigrateActiveAccountsUseCase
 import com.wire.android.migration.feature.MigrateClientsDataUseCase
 import com.wire.android.migration.feature.MigrateConversationsUseCase
@@ -34,7 +35,10 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -44,6 +48,18 @@ import java.io.File
 @ExtendWith(CoroutineTestExtension::class)
 class MigrationManagerTest {
 
+    @Test
+    fun whenMigrating_thenMarkUsersAsNeedToBeMigrated() = runTest {
+        val (arrangement, manager) = Arrangement()
+            .withMarkUsersAsNeedToBeMigrated()
+            .arrange()
+        manager.migrate(
+            arrangement.coroutineScope,
+            {_ -> },
+            arrangement.coroutineDispatcher
+        )
+        coVerify(exactly = 1) { arrangement.markUsersAsNeedToBeMigrated() }
+    }
     @Test
     fun givenDBFileExistsAndMigrationCompleted_whenCheckingWhetherToMigrate_thenReturnFalse() = runTest {
         val (arrangement, manager) = Arrangement()
@@ -116,6 +132,13 @@ class MigrationManagerTest {
         @MockK
         lateinit var migrateMessages: MigrateMessagesUseCase
 
+        @MockK
+        lateinit var markUsersAsNeedToBeMigrated: MarkUsersAsNeedToBeMigrated
+
+        val coroutineScope: CoroutineScope = TestScope()
+
+        val coroutineDispatcher = StandardTestDispatcher()
+
         private val manager: MigrationManager by lazy {
             MigrationManager(
                 applicationContext,
@@ -125,7 +148,8 @@ class MigrationManagerTest {
                 migrateClientsData,
                 migrateUsers,
                 migrateConversations,
-                migrateMessages
+                migrateMessages,
+                markUsersAsNeedToBeMigrated
             )
         }
 
@@ -143,6 +167,11 @@ class MigrationManagerTest {
         fun withMigrationCompleted(completed: Boolean): Arrangement {
             coEvery { globalDataStore.isMigrationCompleted() } returns completed
             return this
+        }
+
+        fun withMarkUsersAsNeedToBeMigrated(throwable: Throwable? = null) = apply {
+            if (throwable != null) coEvery { markUsersAsNeedToBeMigrated() } throws throwable
+            else coEvery { markUsersAsNeedToBeMigrated() } returns Unit
         }
 
         fun arrange() = this to manager

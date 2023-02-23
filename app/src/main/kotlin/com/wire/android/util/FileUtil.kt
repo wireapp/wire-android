@@ -78,17 +78,7 @@ suspend fun Uri.toByteArray(context: Context, dispatcher: DispatcherProvider = D
     }
 }
 
-fun Context.getTempWritableImageUri(tempCachePath: Path): Uri {
-    val tempImagePath = "$tempCachePath/$TEMP_IMG_ATTACHMENT_FILENAME".toPath()
-    return getTempWritableAttachmentUri(this, tempImagePath)
-}
-
-fun Context.getTempWritableVideoUri(tempCachePath: Path): Uri {
-    val tempVideoPath = "$tempCachePath/$TEMP_VIDEO_ATTACHMENT_FILENAME".toPath()
-    return getTempWritableAttachmentUri(this, tempVideoPath)
-}
-
-private fun getTempWritableAttachmentUri(context: Context, attachmentPath: Path): Uri {
+fun getTempWritableAttachmentUri(context: Context, attachmentPath: Path): Uri {
     val file = attachmentPath.toFile()
     file.setWritable(true)
     return FileProvider.getUriForFile(context, context.getProviderAuthority(), file)
@@ -300,5 +290,4 @@ fun findFirstUniqueName(dir: File, desiredName: String): String {
 
 private const val ATTACHMENT_FILENAME = "attachment"
 private const val TEMP_IMG_ATTACHMENT_FILENAME = "image_attachment.jpg"
-private const val TEMP_VIDEO_ATTACHMENT_FILENAME = "video_attachment.mp4"
 private const val DATA_COPY_BUFFER_SIZE = 2048

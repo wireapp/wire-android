@@ -20,6 +20,7 @@
 
 package com.wire.android.ui.home.messagecomposer
 
+import android.net.Uri
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.background
@@ -82,7 +83,9 @@ fun MessageComposer(
     tempCachePath: Path,
     securityClassificationType: SecurityClassificationType,
     membersToMention: List<Contact>,
-    onPingClicked: () -> Unit
+    onPingClicked: () -> Unit,
+    tempWritableImageUri: Uri?,
+    tempWritableVideoUri: Uri?
 ) {
     BoxWithConstraints {
         val onSendButtonClicked = remember {
@@ -127,7 +130,9 @@ fun MessageComposer(
             securityClassificationType = securityClassificationType,
             onSendButtonClicked = onSendButtonClicked,
             onMentionPicked = onMentionPicked,
-            onPingClicked = onPingClicked
+            onPingClicked = onPingClicked,
+            tempWritableImageUri = tempWritableImageUri,
+            tempWritableVideoUri = tempWritableVideoUri
         )
     }
 }
@@ -145,6 +150,8 @@ private fun MessageComposer(
     onMessageComposerError: (ConversationSnackbarMessages) -> Unit,
     onSendAttachmentClicked: (AttachmentBundle?) -> Unit,
     securityClassificationType: SecurityClassificationType,
+    tempWritableImageUri: Uri?,
+    tempWritableVideoUri: Uri?,
     onSendButtonClicked: () -> Unit,
     onMentionPicked: (Contact) -> Unit,
     onPingClicked: () -> Unit
@@ -273,6 +280,8 @@ private fun MessageComposer(
                         onSendAttachment = onSendAttachmentClicked,
                         onMessageComposerError = onMessageComposerError,
                         isFileSharingEnabled = isFileSharingEnabled,
+                        tempWritableImageUri = tempWritableImageUri,
+                        tempWritableVideoUri = tempWritableVideoUri,
                         tempCachePath = tempCachePath,
                         modifier = Modifier
                             .height(keyboardHeight.height)

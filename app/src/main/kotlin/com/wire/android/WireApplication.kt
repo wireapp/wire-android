@@ -125,7 +125,6 @@ class WireApplication : Application(), Configuration.Provider {
             StrictMode.ThreadPolicy.Builder()
                 .detectDiskReads()
                 .detectDiskWrites()
-                .detectNetwork()
                 .penaltyLog()
                 // .penaltyDeath() TODO: add it later after fixing reported violations
                 .build()
@@ -134,7 +133,6 @@ class WireApplication : Application(), Configuration.Provider {
             StrictMode.VmPolicy.Builder()
                 .detectLeakedSqlLiteObjects()
                 .detectLeakedClosableObjects()
-                .detectAll()
                 .penaltyLog()
                 // .penaltyDeath() TODO: add it later after fixing reported violations
                 .build()
@@ -143,7 +141,9 @@ class WireApplication : Application(), Configuration.Provider {
 
     private fun initializeApplicationLoggingFrameworks() {
         // 1. Datadog should be initialized first
-        enableDatadog()
+        globalAppScope.launch {
+            enableDatadog()
+        }
         // 2. Initialize our internal logging framework
         appLogger = KaliumLogger(
             config = KaliumLogger.Config(
@@ -219,7 +219,7 @@ class WireApplication : Application(), Configuration.Provider {
 
         val credentials = Credentials(clientToken, environmentName, appVariantName, applicationId)
         val extraInfo = mapOf(
-           "encrypted_proteus_storage_enabled" to runBlocking {
+            "encrypted_proteus_storage_enabled" to runBlocking {
                 globalDataStore.isEncryptedProteusStorageEnabled().first()
             }
         )

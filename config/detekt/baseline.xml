@@ -226,7 +226,7 @@
     <ID>NoConsecutiveBlankLines:com.wire.android.ui.common.SettingUpWireScreenContent.kt:102</ID>
     <ID>NoConsecutiveBlankLines:com.wire.android.ui.common.SurfaceBackgroundWrapper.kt:43</ID>
     <ID>NoConsecutiveBlankLines:com.wire.android.ui.common.UserProfileAvatar.kt:102</ID>
-    <ID>NoConsecutiveBlankLines:com.wire.android.ui.common.WireCircularProgressIndicator.kt:31</ID>
+    <ID>NoConsecutiveBlankLines:com.wire.android.ui.common.progress.WireCircularProgressIndicator.kt:31</ID>
     <ID>NoConsecutiveBlankLines:com.wire.android.ui.common.WireDropDown.kt:248</ID>
     <ID>NoConsecutiveBlankLines:com.wire.android.ui.common.WireDropDown.kt:99</ID>
     <ID>NoConsecutiveBlankLines:com.wire.android.ui.common.bottomsheet.WireModalSheetLayout.kt:107</ID>

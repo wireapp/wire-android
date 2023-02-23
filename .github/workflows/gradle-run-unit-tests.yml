@@ -1,6 +1,7 @@
 name: "Run Unit Tests"
 
 on:
+  merge_group:
   pull_request:
     types: [ opened, synchronize ] # Don't rerun on `edited` to save time
   workflow_call:
@@ -79,6 +80,7 @@ jobs:
           rm -f ~/.gradle/caches/modules-2/gc.properties
 
   build-app:
+    if: ${{ github.event_name == 'pull_request' }}
     needs: [unit-tests]
     runs-on: buildjet-8vcpu-ubuntu-2204
     steps:

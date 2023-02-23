@@ -229,7 +229,7 @@ class MessageContentMapper @Inject constructor(
     ).let { messageBody ->
         UIMessageContent.TextMessage(
             messageBody = messageBody,
-            failedRecipients = mapRecipientsFailure(userList, message as? Message.Regular)
+            partialDeliveryFailure = mapRecipientsFailure(userList, message as? Message.Regular)
         )
     }
 

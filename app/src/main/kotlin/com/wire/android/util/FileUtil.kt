@@ -97,6 +97,8 @@ suspend fun Uri.toDrawable(context: Context, dispatcher: DispatcherProvider = De
     }
 }
 
+private fun defaultGalleryIcon(context: Context) = ContextCompat.getDrawable(context, R.drawable.ic_menu_gallery)
+
 fun getTempWritableAttachmentUri(context: Context, attachmentPath: Path): Uri {
     val file = attachmentPath.toFile()
     file.setWritable(true)

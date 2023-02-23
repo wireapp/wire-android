@@ -40,6 +40,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import com.google.accompanist.flowlayout.FlowRow
@@ -273,6 +274,7 @@ private fun MessageContent(
     onLongClick: (() -> Unit)? = null,
     onOpenProfile: (String) -> Unit
 ) {
+    val resources = LocalContext.current.resources
     when (messageContent) {
         is UIMessageContent.ImageMessage -> MessageImage(
             asset = messageContent.asset,
@@ -293,6 +295,25 @@ private fun MessageContent(
                 onLongClick = onLongClick,
                 onOpenProfile = onOpenProfile
             )
+            // TODO: map and extract resources, add a container
+            if (messageContent.failedRecipients.hasFailures) {
+                VerticalSpace.x4()
+                Text(
+                    text = "${messageContent.failedRecipients.totalUsersWithFailures} participants had issues receiving this message.",
+                    style = MaterialTheme.typography.labelSmall.copy(color = MaterialTheme.wireColorScheme.error),
+                    textAlign = TextAlign.Start
+                )
+                VerticalSpace.x4()
+                Text(
+                    text = "${
+                    messageContent.failedRecipients.failedRecipients
+                        .map { it.asString(resources) }
+                        .joinToString(", ")
+                    } will not receive this message.",
+                    style = MaterialTheme.typography.labelSmall.copy(color = MaterialTheme.wireColorScheme.error),
+                    textAlign = TextAlign.Start
+                )
+            }
         }
 
         is UIMessageContent.AssetMessage -> MessageGenericAsset(

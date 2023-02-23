@@ -26,6 +26,7 @@ import com.wire.android.model.ImageAsset
 import com.wire.android.ui.home.conversations.findUser
 import com.wire.android.ui.home.conversations.model.AttachmentType
 import com.wire.android.ui.home.conversations.model.MessageBody
+import com.wire.android.ui.home.conversations.model.PartialDeliveryFailureContent
 import com.wire.android.ui.home.conversations.model.QuotedMessageUIData
 import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.util.time.ISOFormatter
@@ -40,6 +41,7 @@ import com.wire.kalium.logic.data.message.MessageContent.Asset
 import com.wire.kalium.logic.data.message.MessageContent.MemberChange
 import com.wire.kalium.logic.data.message.MessageContent.MemberChange.Added
 import com.wire.kalium.logic.data.message.MessageContent.MemberChange.Removed
+import com.wire.kalium.logic.data.message.RecipientFailure
 import com.wire.kalium.logic.data.user.AssetId
 import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.SelfUser
@@ -54,7 +56,7 @@ import javax.inject.Inject
 class MessageContentMapper @Inject constructor(
     private val messageResourceProvider: MessageResourceProvider,
     private val wireSessionImageLoader: WireSessionImageLoader,
-    private val isoFormatter: ISOFormatter,
+    private val isoFormatter: ISOFormatter
 ) {
 
     fun fromMessage(
@@ -64,7 +66,7 @@ class MessageContentMapper @Inject constructor(
         return when (message.visibility) {
             Message.Visibility.VISIBLE ->
                 return when (message) {
-                    is Message.Regular -> mapRegularMessage(message, userList.findUser(message.senderUserId))
+                    is Message.Regular -> mapRegularMessage(message, userList.findUser(message.senderUserId), userList)
                     is Message.System -> mapSystemMessage(message, userList)
                 }
 
@@ -143,7 +145,7 @@ class MessageContentMapper @Inject constructor(
     }
 
     private fun mapTeamMemberRemovedMessage(
-        content: MessageContent.TeamMemberRemoved,
+        content: MessageContent.TeamMemberRemoved
     ): UIMessageContent.SystemMessage = UIMessageContent.SystemMessage.TeamMemberRemoved(content)
 
     private fun mapConversationRenamedMessage(
@@ -194,7 +196,8 @@ class MessageContentMapper @Inject constructor(
 
     private fun mapRegularMessage(
         message: Message.Regular,
-        sender: User?
+        sender: User?,
+        userList: List<User>
     ) = when (val content = message.content) {
         is Asset -> {
             val assetMessageContentMetadata = AssetMessageContentMetadata(content.value)
@@ -209,20 +212,40 @@ class MessageContentMapper @Inject constructor(
             }
         )
         is MessageContent.RestrictedAsset -> toRestrictedAsset(content.mimeType, content.sizeInBytes, content.name)
-        else -> toText(message.conversationId, content)
+        else -> toText(message.conversationId, message, userList)
     }
 
-    fun toText(conversationId: ConversationId, content: MessageContent) = MessageBody(
-        when (content) {
+    fun toText(conversationId: ConversationId, message: Message, userList: List<User>) = MessageBody(
+        when (val content = message.content) {
             is MessageContent.Text -> UIText.DynamicString(content.value, content.mentions)
             is MessageContent.Unknown -> UIText.StringResource(
-                messageResourceProvider.sentAMessageWithContent, content.typeName ?: "Unknown"
+                messageResourceProvider.sentAMessageWithContent,
+                content.typeName ?: "Unknown"
             )
             is MessageContent.FailedDecryption -> UIText.StringResource(R.string.label_message_decryption_failure_message)
             else -> UIText.StringResource(messageResourceProvider.sentAMessageWithContent, "Unknown")
         },
-        quotedMessage = (content as? MessageContent.Text)?.quotedMessageDetails?.let { mapQuoteData(conversationId, it) }
-    ).let { messageBody -> UIMessageContent.TextMessage(messageBody = messageBody) }
+        quotedMessage = (message.content as? MessageContent.Text)?.quotedMessageDetails?.let { mapQuoteData(conversationId, it) }
+    ).let { messageBody ->
+        UIMessageContent.TextMessage(
+            messageBody = messageBody,
+            failedRecipients = mapRecipientsFailure(userList, message as? Message.Regular)
+        )
+    }
+
+    private fun mapRecipientsFailure(userList: List<User>, regular: Message.Regular?): PartialDeliveryFailureContent {
+        return when (val usersIds = regular?.recipientsFailure) {
+            is RecipientFailure.PartialDeliveryError -> PartialDeliveryFailureContent(
+                failedRecipients = usersIds.recipientsFailedDelivery.map { userId ->
+                    userList.findUser(userId = userId)?.name.orUnknownName()
+                },
+                noClients = usersIds.recipientsFailedWithNoClients.map { userId ->
+                    userList.findUser(userId = userId)?.name.orUnknownName()
+                }
+            )
+            is RecipientFailure.NoDeliveryError, null -> PartialDeliveryFailureContent()
+        }
+    }
 
     private fun mapQuoteData(conversationId: ConversationId, it: MessageContent.QuotedMessageDetails) = QuotedMessageUIData(
         it.messageId,
@@ -336,7 +359,7 @@ class AssetMessageContentMetadata(val assetMessageContent: AssetContent) {
         }
 
     fun isDisplayableImage(): Boolean = isDisplayableImageMimeType(assetMessageContent.mimeType) &&
-            imgWidth.isGreaterThan(0) && imgHeight.isGreaterThan(0)
+        imgWidth.isGreaterThan(0) && imgHeight.isGreaterThan(0)
 }
 
 // TODO: should we keep it here ?

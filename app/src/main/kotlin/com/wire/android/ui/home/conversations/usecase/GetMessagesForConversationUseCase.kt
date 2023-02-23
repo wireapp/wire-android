@@ -27,6 +27,7 @@ import com.wire.android.mapper.MessageMapper
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.feature.conversation.ObserveUserListByIdUseCase
 import com.wire.kalium.logic.feature.message.GetPaginatedFlowOfMessagesByConversationUseCase
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -55,7 +56,7 @@ class GetMessagesForConversationUseCase @Inject constructor(
             conversationId,
             pagingConfig = pagingConfig
         ).map { pagingData ->
-            pagingData.flatMap { messageItem ->
+            pagingData.flatMap { messageItem: Message.Standalone ->
                 observeMemberDetailsByIds(messageMapper.memberIdList(listOf(messageItem)))
                     .mapLatest {
                         messageMapper.toUIMessages(it, listOf(messageItem))

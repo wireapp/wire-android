@@ -112,12 +112,16 @@ sealed class UIMessageContent {
 
     object PreviewAssetMessage : UIMessageContent()
 
-    data class TextMessage(val messageBody: MessageBody) : ClientMessage()
+    data class TextMessage(
+        val messageBody: MessageBody,
+        val failedRecipients: PartialDeliveryFailureContent = PartialDeliveryFailureContent()
+    ) : ClientMessage()
 
     data class RestrictedAsset(
         val mimeType: String,
         val assetSizeInBytes: Long,
-        val assetName: String
+        val assetName: String,
+        val failedRecipients: PartialDeliveryFailureContent = PartialDeliveryFailureContent()
     ) : ClientMessage()
 
     @Stable
@@ -127,7 +131,8 @@ sealed class UIMessageContent {
         val assetId: AssetId,
         val assetSizeInBytes: Long,
         val uploadStatus: Message.UploadStatus,
-        val downloadStatus: Message.DownloadStatus
+        val downloadStatus: Message.DownloadStatus,
+        val failedRecipients: PartialDeliveryFailureContent = PartialDeliveryFailureContent()
     ) : UIMessageContent()
 
     data class ImageMessage(
@@ -136,7 +141,8 @@ sealed class UIMessageContent {
         val width: Int,
         val height: Int,
         val uploadStatus: Message.UploadStatus,
-        val downloadStatus: Message.DownloadStatus
+        val downloadStatus: Message.DownloadStatus,
+        val failedRecipients: PartialDeliveryFailureContent = PartialDeliveryFailureContent()
     ) : UIMessageContent()
 
     sealed class SystemMessage(
@@ -234,4 +240,16 @@ enum class MessageSource {
 
 data class MessageTime(val utcISO: String) {
     val formattedDate = utcISO.uiMessageDateTime() ?: ""
+}
+
+data class PartialDeliveryFailureContent(
+    val failedRecipients: List<UIText> = emptyList(),
+    val noClients: List<UIText> = emptyList()
+) {
+
+    val totalUsersWithFailures: Int
+        get() = failedRecipients.size + noClients.size
+
+    val hasFailures: Boolean
+        get() = totalUsersWithFailures > 0
 }

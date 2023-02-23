@@ -111,7 +111,7 @@ import okio.Path.Companion.toPath
  */
 private const val MAXIMUM_SCROLLED_MESSAGES_UNTIL_AUTOSCROLL_STOPS = 5
 
-//TODO: !! this screen definitely needs a refactor and some cleanup !!
+// TODO: !! this screen definitely needs a refactor and some cleanup !!
 @Composable
 fun ConversationScreen(
     backNavArgs: ImmutableMap<String, Any>,

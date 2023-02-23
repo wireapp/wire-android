@@ -144,7 +144,7 @@ class EditGuestAccessViewModelTest {
     }
 
     @Test
-    fun `given guest access is activated, when trying to enable guest access, then display dialog before disabling guest access`() {
+    fun `given guest access is activated, when trying to disable guest access, then display dialog before disabling guest access`() {
         editGuestAccessViewModel.editGuestAccessState =
             editGuestAccessViewModel.editGuestAccessState.copy(isGuestAccessAllowed = true)
 
@@ -157,12 +157,12 @@ class EditGuestAccessViewModelTest {
     }
 
     @Test
-    fun given_useCase_runs_with_success_When_generating_guest_link_Then_Invoke_it_once() = runTest {
+    fun `given useCase runs with success, when_generating guest link, then invoke it once`() = runTest {
         coEvery {
             generateGuestRoomLink(any())
         } returns GenerateGuestRoomLinkResult.Success
 
-        editGuestAccessViewModel.onGuestDialogConfirm()
+        editGuestAccessViewModel.onGenerateGuestRoomLink()
 
         coVerify(exactly = 1) {
             generateGuestRoomLink(any())
@@ -171,12 +171,12 @@ class EditGuestAccessViewModelTest {
     }
 
     @Test
-    fun `given_useCase_runs_with_failureWhen_generating_guest_link_Then_show_dialog_error`() = runTest {
+    fun `given useCase runs with failure, when generating guest link, then show dialog error`() = runTest {
         coEvery {
             generateGuestRoomLink(any())
         } returns GenerateGuestRoomLinkResult.Failure(CoreFailure.MissingClientRegistration)
 
-        editGuestAccessViewModel.onGuestDialogConfirm()
+        editGuestAccessViewModel.onGenerateGuestRoomLink()
 
         coVerify(exactly = 1) {
             generateGuestRoomLink(any())
@@ -185,7 +185,7 @@ class EditGuestAccessViewModelTest {
     }
 
     @Test
-    fun `given_useCase_runs_with_success_When_revoking_guest_link_Then_Invoke_it_once`() = runTest {
+    fun `given useCase runs with success, when revoking guest link, then invoke it once`() = runTest {
         coEvery {
             revokeGuestRoomLink(any())
         } returns RevokeGuestRoomLinkResult.Success
@@ -199,7 +199,7 @@ class EditGuestAccessViewModelTest {
     }
 
     @Test
-    fun `given_useCase_runs_with_failure_When_revoking_guest_link_Then_show_dialog_error`() = runTest {
+    fun `given useCase runs with failure when revoking guest link then show dialog error`() = runTest {
         coEvery {
             revokeGuestRoomLink(any())
         } returns RevokeGuestRoomLinkResult.Failure(CoreFailure.MissingClientRegistration)
@@ -212,4 +212,43 @@ class EditGuestAccessViewModelTest {
         assertEquals(false, editGuestAccessViewModel.editGuestAccessState.isRevokingLink)
         assertEquals(true, editGuestAccessViewModel.editGuestAccessState.isFailedToRevokeGuestRoomLink)
     }
+
+
+    @Test
+    fun `given updateConversationAccessRole use case runs successfully, when trying to disable guest access, then disable guest access`() =
+        runTest {
+            editGuestAccessViewModel.editGuestAccessState = editGuestAccessViewModel.editGuestAccessState.copy(isGuestAccessAllowed = true)
+            coEvery {
+                updateConversationAccessRoleUseCase(any(), any(), any(), any())
+            } returns UpdateConversationAccessRoleUseCase.Result.Success
+
+            editGuestAccessViewModel.onGuestDialogConfirm()
+
+            coVerify(exactly = 1) {
+                updateConversationAccessRoleUseCase(any(), any(), any(), any())
+            }
+            assertEquals(
+                false,
+                editGuestAccessViewModel.editGuestAccessState.isGuestAccessAllowed
+            )
+        }
+
+    @Test
+    fun `given a failure running updateConversationAccessRole, when trying to disable guest access, then do not disable guest access`() =
+        runTest {
+            editGuestAccessViewModel.editGuestAccessState = editGuestAccessViewModel.editGuestAccessState.copy(isGuestAccessAllowed = true)
+            coEvery {
+                updateConversationAccessRoleUseCase(any(), any(), any(), any())
+            } returns UpdateConversationAccessRoleUseCase.Result.Failure(CoreFailure.MissingClientRegistration)
+
+            editGuestAccessViewModel.onGuestDialogConfirm()
+
+            coVerify(exactly = 1) {
+                updateConversationAccessRoleUseCase(any(), any(), any(), any())
+            }
+            assertEquals(
+                true,
+                editGuestAccessViewModel.editGuestAccessState.isGuestAccessAllowed
+            )
+        }
 }

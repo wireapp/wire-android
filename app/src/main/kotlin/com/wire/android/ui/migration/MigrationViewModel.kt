@@ -62,9 +62,9 @@ class MigrationViewModel @Inject constructor(
         }
     }
 
-    private fun getUserIdFromNavigationArgs() =
-        savedStateHandle.get<String>(EXTRA_USER_ID).let {
-            QualifiedIdMapperImpl(null).fromStringToQualifiedID(it!!)
+    private fun getUserIdFromNavigationArgs(): UserId? =
+        savedStateHandle.get<String>(EXTRA_USER_ID)?.let {
+            QualifiedIdMapperImpl(null).fromStringToQualifiedID(it)
         }
 
     fun retry() {

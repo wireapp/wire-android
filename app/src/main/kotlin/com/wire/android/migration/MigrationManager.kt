@@ -108,13 +108,14 @@ class MigrationManager @Inject constructor(
             updateProgress(MigrationData.Progress(MigrationData.Progress.Type.MESSAGES))
             appLogger.d("$TAG - Step 5 - Migrating messages for ${userId.value.obfuscateId()}")
             migrateMessages(userId, it, coroutineScope).let { failedConversation ->
-                if (it.isEmpty()) {
+                if (failedConversation.isEmpty()) {
                     Either.Right(Unit)
                 } else {
+                    // TODO: if some conversations failed should it still be a success just to avoid retrying endlessly
                     Either.Left(failedConversation.values.first())
                 }
             }
-        }.onSuccess {
+        }.also {
             globalDataStore.setUserMigrationStatus(userId.value, UserMigrationStatus.Completed)
         }.fold({
                 MigrationData.Result.Failure

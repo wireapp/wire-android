@@ -121,13 +121,12 @@ enum class NavigationItem(
 
     Migration(
         primaryRoute = MIGRATION,
-        canonicalRoute = "$MIGRATION&$EXTRA_USER_ID={$EXTRA_USER_ID}",
+        canonicalRoute = "$MIGRATION?$EXTRA_USER_ID={$EXTRA_USER_ID}",
         content = { MigrationScreen() },
     ) {
         override fun getRouteWithArgs(arguments: List<Any>): String {
-            val type: UserId = arguments.filterIsInstance<UserId>().firstOrNull()
-                ?: return primaryRoute
-            return "$primaryRoute&${EXTRA_USER_ID}=$type"
+            val userIdString: String = arguments.filterIsInstance<UserId>().firstOrNull()?.toString() ?: "{$EXTRA_USER_ID}"
+            return "$MIGRATION?$EXTRA_USER_ID=$userIdString"
         }
       },
 

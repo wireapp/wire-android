@@ -29,7 +29,6 @@ import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.wire.android.BuildConfig
 import com.wire.android.migration.failure.UserMigrationStatus
-import com.wire.kalium.logic.data.user.UserId
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
@@ -82,8 +81,7 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
     }
 
     suspend fun setUserMigrationStatus(userId: String, status: UserMigrationStatus) {
-            context.dataStore.edit { it[userMigrationStatusKey(userId)] = status.value }
-
+        context.dataStore.edit { it[userMigrationStatusKey(userId)] = status.value }
     }
 
     /**

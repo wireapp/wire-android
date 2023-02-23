@@ -8,7 +8,6 @@ import com.wire.kalium.logic.data.user.UserId
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.scopes.ViewModelScoped
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.firstOrNull
 import javax.inject.Inject
 
 @ViewModelScoped
@@ -18,7 +17,7 @@ class ShouldTriggerMigrationForUserUserCase @Inject constructor(
 ) {
     suspend operator fun invoke(userId: UserId) = globalDataStore.getUserMigrationStatus(userId.value)
         .first().let { migrationStatus ->
-            if (migrationStatus != UserMigrationStatus.NoNeed) return@let false
+            if (migrationStatus != UserMigrationStatus.NotStarted) return@let false
 
             applicationContext.getDatabasePath(ScalaDBNameProvider.userDB(userId))
                 .let { it.isFile && it.exists() }

@@ -22,7 +22,9 @@ package com.wire.android.ui.common.button
 
 import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.runtime.Composable
+import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.theme.wireColorScheme
 
 @Composable
@@ -33,4 +35,12 @@ fun wireCheckBoxColors() = CheckboxDefaults.colors(
     disabledCheckedColor = MaterialTheme.wireColorScheme.disabledCheckedColor,
     disabledUncheckedColor = MaterialTheme.wireColorScheme.disabledUncheckedColor,
     disabledIndeterminateColor = MaterialTheme.wireColorScheme.disabledIndeterminateColor
+)
+
+@Composable
+fun wireRadioButtonColors() = RadioButtonDefaults.colors(
+    selectedColor = colorsScheme().primary,
+    unselectedColor = colorsScheme().uncheckedColor,
+    disabledSelectedColor = colorsScheme().disabledCheckedColor,
+    disabledUnselectedColor = colorsScheme().disabledUncheckedColor
 )

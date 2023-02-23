@@ -20,11 +20,9 @@
 
 package com.wire.android.ui.home.sync
 
-import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.core.app.ShareCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
@@ -69,6 +67,7 @@ class FeatureFlagNotificationViewModel @Inject constructor(
                     is CurrentSessionResult.Failure -> {
                         appLogger.e("Failure while getting current session from FeatureFlagNotificationViewModel")
                     }
+
                     is CurrentSessionResult.Success -> {
                         coreLogic.getSessionScope(it.accountInfo.userId).observeSyncState().collect { newState ->
                             if (newState == SyncState.Live) {
@@ -111,18 +110,15 @@ class FeatureFlagNotificationViewModel @Inject constructor(
         }
     }
 
-    fun updateSharingStateIfNeeded(activity: AppCompatActivity) {
+    fun updateSharingStateIfNeeded() {
         // This function needs to be executed blocking the main thread because otherwise the list of imported assets will not be updated
         // correctly for some strange reason.
         runBlocking {
-            val incomingIntent = ShareCompat.IntentReader(activity)
-            if (incomingIntent.isShareIntent) {
-                if (checkNumberOfSessions() > 0) {
-                    featureFlagState = if (!featureFlagState.isFileSharingEnabledState) {
-                        featureFlagState.copy(showFileSharingRestrictedDialog = true)
-                    } else {
-                        featureFlagState.copy(openImportMediaScreen = true, showFileSharingRestrictedDialog = false)
-                    }
+            if (checkNumberOfSessions() > 0) {
+                featureFlagState = if (!featureFlagState.isFileSharingEnabledState) {
+                    featureFlagState.copy(showFileSharingRestrictedDialog = true)
+                } else {
+                    featureFlagState.copy(openImportMediaScreen = true, showFileSharingRestrictedDialog = false)
                 }
             }
         }

@@ -30,12 +30,12 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
@@ -56,9 +56,9 @@ import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import com.wire.android.R
 import com.wire.android.model.Clickable
-import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.common.clickable
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
@@ -94,8 +94,8 @@ internal fun MessageAsset(
         if (assetUploadStatus == Message.UploadStatus.UPLOAD_IN_PROGRESS) {
             UploadInProgressAssetMessage()
         } else {
-            val assetModifier = if (shouldFillMaxWidth) Modifier.fillMaxWidth()
-            else Modifier.size(dimensions().importedMediaAssetSize).align(Alignment.Center).wrapContentSize()
+            val assetModifier = if (shouldFillMaxWidth) Modifier.align(Alignment.Center).fillMaxWidth()
+            else Modifier.size(dimensions().importedMediaAssetSize).align(Alignment.Center).fillMaxSize()
             Column(modifier = assetModifier.padding(dimensions().spacing8x)) {
                 Text(
                     text = assetName,

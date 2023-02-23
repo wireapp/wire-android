@@ -184,6 +184,8 @@ suspend fun Uri.resampleImageAndCopyToTempPath(
     return withContext(dispatcher.io()) {
         var size: Long
         val originalImage = toByteArray(context, dispatcher)
+        if (originalImage.isEmpty()) return@withContext 0L // if the image is empty, resampling it would cause an exception
+
         ImageUtil.resample(originalImage, sizeClass).let { processedImage ->
             val file = tempCachePath.toFile()
             size = processedImage.size.toLong()

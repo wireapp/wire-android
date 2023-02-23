@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -16,7 +15,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
@@ -29,7 +27,6 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.accompanist.pager.ExperimentalPagerApi
@@ -50,7 +47,6 @@ import com.wire.android.ui.common.topappbar.search.rememberSearchbarState
 import com.wire.android.ui.home.conversationslist.common.ConversationList
 import com.wire.android.ui.home.conversationslist.model.ConversationFolder
 import com.wire.android.ui.home.newconversation.common.SendContentButton
-import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.util.extension.getActivity
 import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.coroutines.flow.SharedFlow
@@ -103,7 +99,7 @@ fun ImportMediaContent(importMediaViewModel: ImportMediaViewModel) {
                 Column(modifier = Modifier.padding(internalPadding).fillMaxSize()) {
                     val horizontalPadding = dimensions().spacing8x
                     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
-                    val itemWidth = if (isMultipleImport) dimensions().importedMediaAssetSize + horizontalPadding.times(3)
+                    val itemWidth = if (isMultipleImport) dimensions().importedMediaAssetSize + horizontalPadding.times(2)
                     else screenWidth - (horizontalPadding * 2)
                     val contentPadding = PaddingValues(start = horizontalPadding, end = (screenWidth - itemWidth + horizontalPadding))
                     val lazyListState = rememberLazyListState()
@@ -128,10 +124,7 @@ fun ImportMediaContent(importMediaViewModel: ImportMediaViewModel) {
                                 contentPadding = contentPadding,
                                 itemSpacing = dimensions().spacing8x
                             ) { page ->
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    modifier = Modifier.height(dimensions().importedMediaAssetSize).fillMaxHeight()
-                                ) {
+                                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(dimensions().spacing12x)) {
                                     ImportedMediaItemView(
                                         importedItemsList[page],
                                         isMultipleImport,
@@ -141,25 +134,23 @@ fun ImportMediaContent(importMediaViewModel: ImportMediaViewModel) {
                             }
                         }
                     }
-                    Divider(
-                        modifier = Modifier.padding(vertical = dimensions().spacing16x),
-                        color = MaterialTheme.wireColorScheme.divider,
-                        thickness = Dp.Hairline
-                    )
-                    SearchTopBar(
-                        isSearchActive = searchBarState.isSearchActive,
-                        searchBarHint = stringResource(
-                            R.string.search_bar_conversations_hint,
-                            stringResource(id = R.string.conversations_screen_title).lowercase()
-                        ),
-                        searchQuery = searchBarState.searchQuery,
-                        onSearchQueryChanged = {
-                            importMediaViewModel.onSearchQueryChanged(it)
-                            searchBarState.searchQueryChanged(it)
-                        },
-                        onInputClicked = searchBarState::openSearch,
-                        onCloseSearchClicked = searchBarState::closeSearch
-                    )
+                    Divider(color = colorsScheme().outline, thickness = 1.dp)
+                    Box(Modifier.padding(dimensions().spacing6x)) {
+                        SearchTopBar(
+                            isSearchActive = searchBarState.isSearchActive,
+                            searchBarHint = stringResource(
+                                R.string.search_bar_conversations_hint,
+                                stringResource(id = R.string.conversations_screen_title).lowercase()
+                            ),
+                            searchQuery = searchBarState.searchQuery,
+                            onSearchQueryChanged = {
+                                importMediaViewModel.onSearchQueryChanged(it)
+                                searchBarState.searchQueryChanged(it)
+                            },
+                            onInputClicked = searchBarState::openSearch,
+                            onCloseSearchClicked = searchBarState::closeSearch
+                        )
+                    }
                     ConversationList(
                         modifier = Modifier.weight(1f),
                         lazyListState = lazyListState,

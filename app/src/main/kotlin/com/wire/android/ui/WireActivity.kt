@@ -39,6 +39,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.window.DialogProperties
+import androidx.core.app.ShareCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.NavHostController
 import com.wire.android.BuildConfig
@@ -101,11 +102,9 @@ class WireActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         proximitySensorManager.initialize()
         lifecycle.addObserver(currentScreenManager)
-
         viewModel.handleDeepLink(intent)
         setComposableContent()
-
-        featureFlagNotificationViewModel.updateSharingStateIfNeeded(this)
+        checkSharingStateIntent()
     }
 
     override fun onNewIntent(intent: Intent?) {
@@ -135,6 +134,13 @@ class WireActivity : AppCompatActivity() {
                     handleDialogs()
                 }
             }
+        }
+    }
+
+    private fun checkSharingStateIntent() {
+        val incomingIntent = ShareCompat.IntentReader(this)
+        if (incomingIntent.isShareIntent) {
+            featureFlagNotificationViewModel.updateSharingStateIfNeeded()
         }
     }
 

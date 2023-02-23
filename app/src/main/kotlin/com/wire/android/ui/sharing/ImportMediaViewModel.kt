@@ -323,7 +323,9 @@ class ImportMediaViewModel @Inject constructor(
             isAboveLimit(isImageFile(mimeType), fileMetadata.size) -> null
             isImageFile(mimeType) -> {
                 // Only resample the image if it is too large
-                uri.resampleImageAndCopyToTempPath(context, tempAssetPath, ImageUtil.ImageSizeClass.Medium)
+                val resampleSize = uri.resampleImageAndCopyToTempPath(context, tempAssetPath, ImageUtil.ImageSizeClass.Medium)
+                if (resampleSize <= 0) return@withContext null
+
                 val (imgWidth, imgHeight) = ImageUtil.extractImageWidthAndHeight(kaliumFileSystem, tempAssetPath)
 
                 return@withContext ImportedMediaAsset.Image(

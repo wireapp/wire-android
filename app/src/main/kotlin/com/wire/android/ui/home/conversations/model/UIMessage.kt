@@ -114,14 +114,14 @@ sealed class UIMessageContent {
 
     data class TextMessage(
         val messageBody: MessageBody,
-        val failedRecipients: PartialDeliveryFailureContent = PartialDeliveryFailureContent()
+        val partialDeliveryFailure: PartialDeliveryFailureContent = PartialDeliveryFailureContent()
     ) : ClientMessage()
 
     data class RestrictedAsset(
         val mimeType: String,
         val assetSizeInBytes: Long,
         val assetName: String,
-        val failedRecipients: PartialDeliveryFailureContent = PartialDeliveryFailureContent()
+        val partialDeliveryFailure: PartialDeliveryFailureContent = PartialDeliveryFailureContent()
     ) : ClientMessage()
 
     @Stable
@@ -132,7 +132,7 @@ sealed class UIMessageContent {
         val assetSizeInBytes: Long,
         val uploadStatus: Message.UploadStatus,
         val downloadStatus: Message.DownloadStatus,
-        val failedRecipients: PartialDeliveryFailureContent = PartialDeliveryFailureContent()
+        val partialDeliveryFailure: PartialDeliveryFailureContent = PartialDeliveryFailureContent()
     ) : UIMessageContent()
 
     data class ImageMessage(
@@ -142,7 +142,7 @@ sealed class UIMessageContent {
         val height: Int,
         val uploadStatus: Message.UploadStatus,
         val downloadStatus: Message.DownloadStatus,
-        val failedRecipients: PartialDeliveryFailureContent = PartialDeliveryFailureContent()
+        val partialDeliveryFailure: PartialDeliveryFailureContent = PartialDeliveryFailureContent()
     ) : UIMessageContent()
 
     sealed class SystemMessage(

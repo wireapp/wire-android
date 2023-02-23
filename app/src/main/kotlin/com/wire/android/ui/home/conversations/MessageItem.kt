@@ -296,17 +296,17 @@ private fun MessageContent(
                 onOpenProfile = onOpenProfile
             )
             // TODO: map and extract resources, add a container
-            if (messageContent.failedRecipients.hasFailures) {
+            if (messageContent.partialDeliveryFailure.hasFailures) {
                 VerticalSpace.x4()
                 Text(
-                    text = "${messageContent.failedRecipients.totalUsersWithFailures} participants had issues receiving this message.",
+                    text = "${messageContent.partialDeliveryFailure.totalUsersWithFailures} participants had issues receiving this message.",
                     style = MaterialTheme.typography.labelSmall.copy(color = MaterialTheme.wireColorScheme.error),
                     textAlign = TextAlign.Start
                 )
                 VerticalSpace.x4()
                 Text(
                     text = "${
-                    messageContent.failedRecipients.failedRecipients
+                    messageContent.partialDeliveryFailure.failedRecipients
                         .map { it.asString(resources) }
                         .joinToString(", ")
                     } will not receive this message.",

@@ -51,6 +51,8 @@ import com.wire.android.util.FileManager
 import com.wire.android.util.MENTION_SYMBOL
 import com.wire.android.util.NEW_LINE_SYMBOL
 import com.wire.android.util.WHITE_SPACE
+import com.wire.android.util.dispatchers.DefaultDispatcherProvider
+import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.getFileName
 import com.wire.android.util.getMimeType
 import com.wire.android.util.orDefault
@@ -60,6 +62,7 @@ import com.wire.kalium.logic.data.message.mention.MessageMention
 import com.wire.kalium.logic.data.user.UserId
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.withContext
 import okio.Path
 import okio.Path.Companion.toPath
 import java.io.IOException
@@ -359,7 +362,11 @@ data class UiMention(
 class AttachmentInnerState(val context: Context) {
     var attachmentState by mutableStateOf<AttachmentState>(AttachmentState.NotPicked)
 
-    suspend fun pickAttachment(attachmentUri: Uri, tempCachePath: Path) {
+    suspend fun pickAttachment(
+        attachmentUri: Uri,
+        tempCachePath: Path,
+        dispatcherProvider: DispatcherProvider = DefaultDispatcherProvider()
+    ) = withContext(dispatcherProvider.io()) {
         val fileManager = FileManager(context)
         attachmentState = try {
             val fullTempAssetPath = "$tempCachePath/${UUID.randomUUID()}".toPath()

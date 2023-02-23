@@ -24,6 +24,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -50,13 +51,30 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.getUriFromDrawable
 
 @Composable
-fun DisplayableImageMessage(imageData: ImageAsset.PrivateAsset, imgParams: ImageMessageParams, modifier: Modifier = Modifier) {
+fun DisplayableImageMessage(
+    imageData: ImageAsset,
+    imgParams: ImageMessageParams,
+    modifier: Modifier = Modifier
+) {
     Image(
         painter = imageData.paint(),
         contentDescription = stringResource(R.string.content_description_image_message),
-        modifier = modifier
-            .width(imgParams.normalizedWidth)
-            .height(imgParams.normalizedHeight),
+        modifier = modifier.width(imgParams.normalizedWidth).height(imgParams.normalizedHeight),
+        alignment = Alignment.Center,
+        contentScale = ContentScale.Crop
+    )
+}
+@Composable
+fun ImportedImageMessage(
+    imageData: ImageAsset,
+    shouldFillMaxWidth: Boolean,
+    modifier: Modifier = Modifier
+) {
+    Image(
+        painter = imageData.paint(),
+        contentDescription = stringResource(R.string.content_description_image_message),
+        modifier = if (!shouldFillMaxWidth) modifier.width(dimensions().importedMediaAssetSize).height(dimensions().importedMediaAssetSize)
+        else modifier.fillMaxWidth().height(dimensions().importedMediaAssetSize),
         alignment = Alignment.Center,
         contentScale = ContentScale.Crop
     )

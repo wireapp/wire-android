@@ -20,14 +20,17 @@
 
 package com.wire.android.ui.home.newconversation.common
 
+import com.wire.android.navigation.getPrimaryRoute
 
-sealed class Screen(val route: String) {
-    object NewGroupNameScreen : Screen("new_group_name")
-    object SearchListNavHostScreens : Screen("search_list_nav_host")
-    object GroupOptionsScreen : Screen("group_options_screen")
-}
+enum class NewConversationNavigationItem(val route: String) {
+    NewGroupNameScreen("new_group_name"),
+    SearchListNavHostScreens("search_list_nav_host"),
+    GroupOptionsScreen("group_options_screen");
 
-sealed class SearchListScreens(val route: String) {
-    object KnownContactsScreen : SearchListScreens("known_contacts")
-    object SearchPeopleScreen : SearchListScreens("search_people")
+    val itemName: String get() = ITEM_NAME_PREFIX + this.name
+    companion object {
+        private const val ITEM_NAME_PREFIX = "NewConversationNavigationItem."
+        private val map = NewConversationNavigationItem.values().associateBy { it.route }
+        fun fromRoute(fullRoute: String): NewConversationNavigationItem? = map[fullRoute.getPrimaryRoute()]
+    }
 }

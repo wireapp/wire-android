@@ -41,7 +41,6 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 
-
 @Composable
 fun MembershipQualifierLabel(membership: Membership, modifier: Modifier = Modifier) {
     if (membership.hasLabel()) {
@@ -49,19 +48,19 @@ fun MembershipQualifierLabel(membership: Membership, modifier: Modifier = Modifi
             modifier = modifier.border(
                 width = MaterialTheme.wireDimensions.spacing1x,
                 shape = RoundedCornerShape(MaterialTheme.wireDimensions.spacing4x),
-                color = MaterialTheme.wireColorScheme.secondaryButtonSelectedOutline
+                color = MaterialTheme.wireColorScheme.primaryVariant
             )
         ) {
             Text(
                 text = stringResource(id = membership.stringResourceId),
-                color = MaterialTheme.colorScheme.primary,
+                color = MaterialTheme.wireColorScheme.onPrimaryVariant,
                 style = MaterialTheme.wireTypography.label03.copy(textAlign = TextAlign.Center),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier
                     .wrapContentWidth()
                     .background(
-                        color = MaterialTheme.wireColorScheme.secondaryButtonSelected,
+                        color = MaterialTheme.wireColorScheme.primaryVariant,
                         shape = RoundedCornerShape(MaterialTheme.wireDimensions.corner4x)
                     )
                     .padding(horizontal = MaterialTheme.wireDimensions.spacing4x, vertical = MaterialTheme.wireDimensions.spacing2x)

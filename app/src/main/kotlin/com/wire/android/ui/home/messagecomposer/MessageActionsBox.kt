@@ -36,6 +36,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.Divider
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -45,6 +46,7 @@ import com.wire.android.R
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WireSecondaryIconButton
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 
 @ExperimentalAnimationApi
@@ -54,10 +56,11 @@ fun MessageComposeActionsBox(
     isMentionActive: Boolean,
     startMention: () -> Unit,
     onAdditionalOptionButtonClicked: () -> Unit,
+    onPingClicked: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(modifier.wrapContentSize()) {
-        Divider()
+        Divider(color = MaterialTheme.wireColorScheme.outline)
         Box(Modifier.wrapContentSize()) {
             transition.AnimatedContent(
                 contentKey = { state -> state is MessageComposeInputState.Active },
@@ -72,7 +75,8 @@ fun MessageComposeActionsBox(
                         isMentionActive,
                         state.isEditMessage,
                         startMention,
-                        onAdditionalOptionButtonClicked
+                        onAdditionalOptionButtonClicked,
+                        onPingClicked
                     )
                 }
             }
@@ -87,6 +91,7 @@ private fun MessageComposeActions(
     isEditMessage: Boolean,
     startMention: () -> Unit,
     onAdditionalOptionButtonClicked: () -> Unit,
+    onPingClicked: () -> Unit
 ) {
     val localFeatureVisibilityFlags = LocalFeatureVisibilityFlags.current
 
@@ -103,7 +108,7 @@ private fun MessageComposeActions(
             if (!isEditMessage && EmojiIcon) AddEmojiAction()
             if (!isEditMessage && GifIcon) AddGifAction()
             AddMentionAction(isMentionsSelected, startMention)
-            if (!isEditMessage && PingIcon) PingAction()
+            if (!isEditMessage && PingIcon) PingAction(onPingClicked = onPingClicked)
         }
     }
 }
@@ -153,9 +158,9 @@ private fun AddMentionAction(isSelected: Boolean, addMentionAction: () -> Unit) 
 }
 
 @Composable
-private fun PingAction() {
+private fun PingAction(onPingClicked: () -> Unit) {
     WireSecondaryIconButton(
-        onButtonClicked = {},
+        onButtonClicked = onPingClicked,
         blockUntilSynced = true,
         iconResource = R.drawable.ic_ping,
         contentDescription = R.string.content_description_ping_everyone
@@ -177,6 +182,6 @@ fun PreviewMessageActionsBox() {
         AddEmojiAction()
         AddGifAction()
         AddMentionAction(isSelected = false, addMentionAction = {})
-        PingAction()
+        PingAction {}
     }
 }

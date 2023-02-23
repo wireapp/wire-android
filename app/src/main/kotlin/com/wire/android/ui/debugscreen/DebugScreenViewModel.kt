@@ -36,7 +36,6 @@ import com.wire.kalium.logic.CoreLogger
 import com.wire.kalium.logic.feature.client.ObserveCurrentClientIdUseCase
 import com.wire.kalium.logic.feature.keypackage.MLSKeyPackageCountResult
 import com.wire.kalium.logic.feature.keypackage.MLSKeyPackageCountUseCase
-import com.wire.kalium.logic.feature.user.IsMLSEnabledUseCase
 import com.wire.kalium.logic.sync.incremental.RestartSlowSyncProcessForRecoveryUseCase
 import com.wire.kalium.logic.sync.periodic.UpdateApiVersionsScheduler
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -45,6 +44,7 @@ import javax.inject.Inject
 
 data class DebugScreenState(
     val isLoggingEnabled: Boolean = false,
+    val isEncryptedProteusStorageEnabled: Boolean = false,
     val currentClientId: String = String.EMPTY,
     val keyPackagesCount: Int = 0,
     val mslClientId: String = String.EMPTY,
@@ -60,9 +60,8 @@ class DebugScreenViewModel
     private val logFileWriter: LogFileWriter,
     private val currentClientIdUseCase: ObserveCurrentClientIdUseCase,
     private val updateApiVersions: UpdateApiVersionsScheduler,
-    private val restartSlowSyncProcessForRecovery: RestartSlowSyncProcessForRecoveryUseCase,
     private val globalDataStore: GlobalDataStore,
-    isMLSEnabledUseCase: IsMLSEnabledUseCase,
+    private val restartSlowSyncProcessForRecovery: RestartSlowSyncProcessForRecoveryUseCase,
 ) : ViewModel() {
     val logPath: String = logFileWriter.activeLoggingFile.absolutePath
 
@@ -72,6 +71,7 @@ class DebugScreenViewModel
 
     init {
         observeLoggingState()
+        observeEncryptedProteusStorageState()
         observeMlsMetadata()
         observeCurrentClientId()
     }
@@ -80,6 +80,14 @@ class DebugScreenViewModel
         viewModelScope.launch {
             globalDataStore.isLoggingEnabled().collect {
                 state = state.copy(isLoggingEnabled = it)
+            }
+        }
+    }
+
+    private fun observeEncryptedProteusStorageState() {
+        viewModelScope.launch {
+            globalDataStore.isEncryptedProteusStorageEnabled().collect {
+                state = state.copy(isEncryptedProteusStorageEnabled = it)
             }
         }
     }
@@ -103,12 +111,15 @@ class DebugScreenViewModel
                             mslClientId = it.clientId.value
                         )
                     }
+
                     is MLSKeyPackageCountResult.Failure.NetworkCallFailure -> {
                         state = state.copy(mlsErrorMessage = "Network Error!")
                     }
+
                     is MLSKeyPackageCountResult.Failure.FetchClientIdFailure -> {
                         state = state.copy(mlsErrorMessage = "ClientId Fetch Error!")
                     }
+
                     is MLSKeyPackageCountResult.Failure.Generic -> {}
                 }
             }
@@ -135,6 +146,12 @@ class DebugScreenViewModel
         } else {
             logFileWriter.stop()
             CoreLogger.setLoggingLevel(level = KaliumLogLevel.DISABLED, logWriters = arrayOf(DataDogLogger, platformLogWriter()))
+        }
+    }
+
+    fun enableEncryptedProteusStorage() {
+        viewModelScope.launch {
+            globalDataStore.setEncryptedProteusStorageEnabled(true)
         }
     }
 

@@ -48,6 +48,7 @@ fun WireSecondaryIconButton(
     shape: Shape = RoundedCornerShape(MaterialTheme.wireDimensions.buttonCornerSize),
     minHeight: Dp = dimensions().spacing32x,
     minWidth: Dp = dimensions().spacing40x,
+    iconSize : Dp = dimensions().wireIconButtonSize,
     state: WireButtonState = WireButtonState.Default,
     colors: WireButtonColors = wireSecondaryButtonColors(),
     blockUntilSynced: Boolean = false,
@@ -59,7 +60,7 @@ fun WireSecondaryIconButton(
             Icon(
                 painter = painterResource(id = iconResource),
                 contentDescription = stringResource(contentDescription),
-                modifier = Modifier.size(dimensions().wireIconButtonSize)
+                modifier = Modifier.size(iconSize)
             )
         },
         shape = shape,

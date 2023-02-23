@@ -195,18 +195,18 @@ class MessageContentMapper @Inject constructor(
     private fun mapRegularMessage(
         message: Message.Regular,
         sender: User?
-    ) = when (val assetContent = message.content) {
+    ) = when (val content = message.content) {
         is Asset -> {
-            when (val metadata = assetContent.value.metadata) {
+            when (val metadata = content.value.metadata) {
                 is AssetContent.AssetMetadata.Audio -> {
                     mapAudio(
-                        assetContent = assetContent.value,
+                        assetContent = content.value,
                         metadata = metadata
                     )
                 }
 
                 is AssetContent.AssetMetadata.Image, is AssetContent.AssetMetadata.Video, null -> {
-                    val assetMessageContentMetadata = AssetMessageContentMetadata(assetContent.value)
+                    val assetMessageContentMetadata = AssetMessageContentMetadata(content.value)
                     toUIMessageContent(assetMessageContentMetadata, message, sender)
                 }
             }
@@ -220,8 +220,8 @@ class MessageContentMapper @Inject constructor(
             }
         )
 
-        is MessageContent.RestrictedAsset -> toRestrictedAsset(assetContent.mimeType, assetContent.sizeInBytes, assetContent.name)
-        else -> toText(message.conversationId, assetContent)
+        is MessageContent.RestrictedAsset -> toRestrictedAsset(content.mimeType, content.sizeInBytes, content.name)
+        else -> toText(message.conversationId, content)
     }
 
     private fun mapAudio(

@@ -20,7 +20,7 @@ sealed class AudioMediaPlayingState {
 
     object Fetching : AudioMediaPlayingState()
 
-    object SuccessFullFetching : AudioMediaPlayingState()
+    object SuccessfulFetching : AudioMediaPlayingState()
 
     object Failed : AudioMediaPlayingState()
 }

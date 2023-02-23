@@ -179,7 +179,7 @@ class ConversationAudioMessagePlayer
                         audioMessageStateUpdate.emit(
                             AudioMediaPlayerStateUpdate.AudioMediaPlayingStateUpdate(
                                 messageId,
-                                AudioMediaPlayingState.SuccessFullFetching
+                                AudioMediaPlayingState.SuccessfulFetching
                             )
                         )
 

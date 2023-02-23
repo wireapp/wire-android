@@ -30,7 +30,7 @@ import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.media.audiomessage.AudioMediaPlayingState
 import com.wire.android.model.Clickable
-import com.wire.android.ui.common.WireCircularProgressIndicator
+import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
@@ -106,6 +106,7 @@ private fun SuccessFullAudioMessage(
     ) {
         WireSecondaryIconButton(
             minWidth = 32.dp,
+            iconSize = dimensions().spacing12x,
             iconResource = getPlayOrPauseIcon(audioMediaPlayingState),
             shape = CircleShape,
             contentDescription = R.string.content_description_image_message,
@@ -125,8 +126,7 @@ private fun SuccessFullAudioMessage(
 
         if (isFetching) {
             WireCircularProgressIndicator(
-                progressColor = MaterialTheme.wireColorScheme.primary,
-                size = dimensions().spacing32x
+                progressColor = MaterialTheme.wireColorScheme.secondaryButtonEnabled
             )
         } else {
             Text(
@@ -144,8 +144,8 @@ private fun FailedAudioMessage() {
 
     if (audioNotAvailableDialog) {
         WireDialog(
-            title = "Audio not available",
-            text = "Something went wrong while downloading this audio file. Please ask the sender to upload it again",
+            title = stringResource(R.string.audio_not_available),
+            text = stringResource(R.string.audio_not_available_explanation),
             onDismiss = { audioNotAvailableDialog = false },
             optionButton1Properties = WireDialogButtonProperties(
                 text = stringResource(R.string.label_ok),
@@ -174,7 +174,7 @@ private fun FailedAudioMessage() {
         )
         HorizontalSpace.x8()
         Text(
-            text = "Audio file not available",
+            text = stringResource(R.string.audio_not_available),
             style = MaterialTheme.typography.labelSmall.copy(color = colorsScheme().error),
             maxLines = 1
         )

@@ -855,4 +855,6 @@
     <string name="guest_link_button_create_link">Create Link</string>
     <string name="guest_link_button_copy_link">Copy Link</string>
     <string name="guest_link_button_revoke_link">Revoke Link</string>
+    <string name="audio_not_available">Audio not available</string>
+    <string name="audio_not_available_explanation">Something went wrong while downloading this audio file. Please ask the sender to upload it again</string>
 </resources>

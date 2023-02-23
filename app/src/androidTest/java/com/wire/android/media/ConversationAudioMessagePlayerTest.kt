@@ -46,7 +46,7 @@ class ConversationAudioMessagePlayerTest {
             awaitAndAssertStateUpdate { state ->
                 val currentState = state[testAudioMessageId]
                 assert(currentState != null)
-                assert(currentState!!.audioMediaPlayingState is AudioMediaPlayingState.SuccessFullFetching)
+                assert(currentState!!.audioMediaPlayingState is AudioMediaPlayingState.SuccessfulFetching)
             }
             awaitAndAssertStateUpdate { state ->
                 val currentState = state[testAudioMessageId]
@@ -97,7 +97,7 @@ class ConversationAudioMessagePlayerTest {
             awaitAndAssertStateUpdate { state ->
                 val currentState = state[testAudioMessageId]
                 assert(currentState != null)
-                assert(currentState!!.audioMediaPlayingState is AudioMediaPlayingState.SuccessFullFetching)
+                assert(currentState!!.audioMediaPlayingState is AudioMediaPlayingState.SuccessfulFetching)
             }
             awaitAndAssertStateUpdate { state ->
                 val currentState = state[testAudioMessageId]
@@ -160,7 +160,7 @@ class ConversationAudioMessagePlayerTest {
                 awaitAndAssertStateUpdate { state ->
                     val currentState = state[firstAudioMessageId]
                     assert(currentState != null)
-                    assert(currentState!!.audioMediaPlayingState is AudioMediaPlayingState.SuccessFullFetching)
+                    assert(currentState!!.audioMediaPlayingState is AudioMediaPlayingState.SuccessfulFetching)
                 }
                 awaitAndAssertStateUpdate { state ->
                     val currentState = state[firstAudioMessageId]
@@ -193,7 +193,7 @@ class ConversationAudioMessagePlayerTest {
                 awaitAndAssertStateUpdate { state ->
                     val currentState = state[secondAudioMessageId]
                     assert(currentState != null)
-                    assert(currentState!!.audioMediaPlayingState is AudioMediaPlayingState.SuccessFullFetching)
+                    assert(currentState!!.audioMediaPlayingState is AudioMediaPlayingState.SuccessfulFetching)
                 }
                 awaitAndAssertStateUpdate { state ->
                     val currentState = state[secondAudioMessageId]
@@ -239,7 +239,7 @@ class ConversationAudioMessagePlayerTest {
                 awaitAndAssertStateUpdate { state ->
                     val currentState = state[firstAudioMessageId]
                     assert(currentState != null)
-                    assert(currentState!!.audioMediaPlayingState is AudioMediaPlayingState.SuccessFullFetching)
+                    assert(currentState!!.audioMediaPlayingState is AudioMediaPlayingState.SuccessfulFetching)
                 }
                 awaitAndAssertStateUpdate { state ->
                     val currentState = state[firstAudioMessageId]
@@ -273,7 +273,7 @@ class ConversationAudioMessagePlayerTest {
                 awaitAndAssertStateUpdate { state ->
                     val currentState = state[secondAudioMessageId]
                     assert(currentState != null)
-                    assert(currentState!!.audioMediaPlayingState is AudioMediaPlayingState.SuccessFullFetching)
+                    assert(currentState!!.audioMediaPlayingState is AudioMediaPlayingState.SuccessfulFetching)
                 }
                 awaitAndAssertStateUpdate { state ->
                     val currentState = state[secondAudioMessageId]
@@ -305,7 +305,7 @@ class ConversationAudioMessagePlayerTest {
                 awaitAndAssertStateUpdate { state ->
                     val currentState = state[firstAudioMessageId]
                     assert(currentState != null)
-                    assert(currentState!!.audioMediaPlayingState is AudioMediaPlayingState.SuccessFullFetching)
+                    assert(currentState!!.audioMediaPlayingState is AudioMediaPlayingState.SuccessfulFetching)
                 }
                 awaitAndAssertStateUpdate { state ->
                     val currentState = state[firstAudioMessageId]
@@ -354,7 +354,7 @@ class ConversationAudioMessagePlayerTest {
             awaitAndAssertStateUpdate { state ->
                 val currentState = state[testAudioMessageId]
                 assert(currentState != null)
-                assert(currentState!!.audioMediaPlayingState is AudioMediaPlayingState.SuccessFullFetching)
+                assert(currentState!!.audioMediaPlayingState is AudioMediaPlayingState.SuccessfulFetching)
             }
             awaitAndAssertStateUpdate { state ->
                 val currentState = state[testAudioMessageId]

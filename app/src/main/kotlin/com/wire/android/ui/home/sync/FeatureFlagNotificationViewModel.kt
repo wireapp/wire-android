@@ -36,6 +36,7 @@ import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import com.wire.kalium.logic.feature.session.GetSessionsUseCase
+import com.wire.kalium.logic.feature.user.MarkFileSharingChangeAsNotifiedUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -45,7 +46,8 @@ import javax.inject.Inject
 class FeatureFlagNotificationViewModel @Inject constructor(
     @KaliumCoreLogic private val coreLogic: CoreLogic,
     private val getSessions: GetSessionsUseCase,
-    private val currentSessionUseCase: CurrentSessionUseCase
+    private val currentSessionUseCase: CurrentSessionUseCase,
+    private val markFileSharingAsNotified: MarkFileSharingChangeAsNotifiedUseCase
 ) : ViewModel() {
 
     var featureFlagState by mutableStateOf(FeatureFlagState())
@@ -95,6 +97,9 @@ class FeatureFlagNotificationViewModel @Inject constructor(
 
     fun hideDialogStatus() {
         featureFlagState = featureFlagState.copy(showFileSharingDialog = false)
+        viewModelScope.launch {
+            markFileSharingAsNotified()
+        }
     }
 
     private suspend fun checkNumberOfSessions(): Int {

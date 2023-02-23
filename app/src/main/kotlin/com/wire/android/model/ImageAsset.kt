@@ -20,6 +20,7 @@
 
 package com.wire.android.model
 
+import android.net.Uri
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import com.wire.android.util.ui.WireSessionImageLoader
@@ -42,6 +43,21 @@ sealed class ImageAsset(private val imageLoader: WireSessionImageLoader) {
     ) : ImageAsset(imageLoader) {
         override val uniqueKey: String
             get() = userAssetId.toString()
+    }
+
+    /**
+     * Represents an image asset that is stored locally on the device, and it isn't necessarily bounded to any specific conversation or
+     * message, i.e. some preview images that the user selected from local device gallery.
+     */
+    @Stable
+    data class LocalImageAsset(
+        private val imageLoader: WireSessionImageLoader,
+        val dataUri: Uri,
+        val idKey: String
+    ) : ImageAsset(imageLoader) {
+
+        override val uniqueKey: String
+            get() = idKey
     }
 
     @Stable

@@ -92,6 +92,7 @@ import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.GetUserInfoUseCase
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
 import com.wire.kalium.logic.feature.user.IsSelfATeamMemberUseCase
+import com.wire.kalium.logic.feature.user.MarkFileSharingChangeAsNotifiedUseCase
 import com.wire.kalium.logic.feature.user.ObserveUserInfoUseCase
 import com.wire.kalium.logic.feature.user.ObserveValidAccountsUseCase
 import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
@@ -924,6 +925,14 @@ class UseCaseModule {
         @CurrentAccount currentAccount: UserId
     ): UpdateDisplayNameUseCase =
         coreLogic.getSessionScope(currentAccount).users.updateDisplayName
+
+    @ViewModelScoped
+    @Provides
+    fun provideMarkFileSharingStatusAsNotified(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): MarkFileSharingChangeAsNotifiedUseCase =
+        coreLogic.getSessionScope(currentAccount).markFileSharingStatusAsNotified
 
     @ViewModelScoped
     @Provides

@@ -55,7 +55,6 @@ import com.wire.kalium.logic.CoreLogger
 import com.wire.kalium.logic.CoreLogic
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -64,7 +63,6 @@ import javax.inject.Inject
 // App wide global logger, carefully initialized when our application is "onCreate"
 var appLogger: KaliumLogger = KaliumLogger.disabled()
 
-@OptIn(ExperimentalCoroutinesApi::class)
 @HiltAndroidApp
 class WireApplication : Application(), Configuration.Provider {
 
@@ -217,7 +215,7 @@ class WireApplication : Application(), Configuration.Provider {
 
         val credentials = Credentials(clientToken, environmentName, appVariantName, applicationId)
         val extraInfo = mapOf(
-           "encrypted_proteus_storage_enabled" to runBlocking {
+            "encrypted_proteus_storage_enabled" to runBlocking {
                 globalDataStore.isEncryptedProteusStorageEnabled().first()
             }
         )

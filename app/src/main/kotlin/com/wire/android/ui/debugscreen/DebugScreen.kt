@@ -76,6 +76,7 @@ fun DebugScreen() {
         navigateBack = debugScreenViewModel::navigateBack,
         onForceLatestDevelopmentApiChange = debugScreenViewModel::forceUpdateApiVersions,
         restartSlowSyncForRecovery = debugScreenViewModel::restartSlowSyncForRecovery,
+        enableEncryptedProteusStorage = debugScreenViewModel::enableEncryptedProteusStorage
     )
 }
 
@@ -88,7 +89,8 @@ fun DebugContent(
     onDeleteLogs: () -> Unit,
     navigateBack: () -> Unit,
     onForceLatestDevelopmentApiChange: () -> Unit,
-    restartSlowSyncForRecovery: () -> Unit
+    restartSlowSyncForRecovery: () -> Unit,
+    enableEncryptedProteusStorage: () -> Unit
 ) {
     val scrollState = rememberScrollState()
 
@@ -114,6 +116,17 @@ fun DebugContent(
                 mlsErrorMessage = debugScreenState.mlsErrorMessage,
                 restartSlowSyncForRecovery = restartSlowSyncForRecovery
             )
+
+            if (BuildConfig.PRIVATE_BUILD) {
+                ProteusOptions(
+                    isEncryptedStorageEnabled = debugScreenState.isEncryptedProteusStorageEnabled,
+                    onEncryptedStorageEnabledChange = { enabled ->
+                        if (enabled) {
+                            enableEncryptedProteusStorage()
+                        }
+                    }
+                )
+            }
 
             LogOptions(
                 deviceId = debugContentState.deviceId,
@@ -169,6 +182,21 @@ private fun MlsOptions(
                 )
             )
         }
+    }
+}
+
+@Composable
+private fun ProteusOptions(
+    isEncryptedStorageEnabled: Boolean,
+    onEncryptedStorageEnabledChange: (Boolean) -> Unit,
+) {
+    Column {
+        FolderHeader(stringResource(R.string.label_proteus_option_title))
+
+        EnableEncryptedProteusStorageSwitch(
+            isEnabled = isEncryptedStorageEnabled,
+            onCheckedChange = onEncryptedStorageEnabledChange
+        )
     }
 }
 
@@ -262,6 +290,32 @@ private fun EnableLoggingSwitch(
             WireSwitch(
                 checked = isEnabled,
                 onCheckedChange = onCheckedChange,
+                modifier = Modifier.padding(end = dimensions().spacing16x)
+            )
+        }
+    )
+}
+
+@Composable
+private fun EnableEncryptedProteusStorageSwitch(
+    isEnabled: Boolean = false,
+    onCheckedChange: ((Boolean) -> Unit)?,
+    modifier: Modifier = Modifier
+) {
+    RowItemTemplate(
+        title = {
+            Text(
+                style = MaterialTheme.wireTypography.body01,
+                color = MaterialTheme.wireColorScheme.onBackground,
+                text = stringResource(R.string.label_enable_encrypted_proteus_storage),
+                modifier = Modifier.padding(start = dimensions().spacing8x)
+            )
+        },
+        actions = {
+            WireSwitch(
+                checked = isEnabled,
+                onCheckedChange = onCheckedChange,
+                enabled = !isEnabled,
                 modifier = Modifier.padding(end = dimensions().spacing16x)
             )
         }

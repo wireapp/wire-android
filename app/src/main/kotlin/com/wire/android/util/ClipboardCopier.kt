@@ -18,16 +18,11 @@
  *
  */
 
-package com.wire.android.ui.home.newconversation.common
+package com.wire.android.util
 
+import androidx.compose.ui.platform.ClipboardManager
+import androidx.compose.ui.text.AnnotatedString
 
-sealed class Screen(val route: String) {
-    object NewGroupNameScreen : Screen("new_group_name")
-    object SearchListNavHostScreens : Screen("search_list_nav_host")
-    object GroupOptionsScreen : Screen("group_options_screen")
-}
-
-sealed class SearchListScreens(val route: String) {
-    object KnownContactsScreen : SearchListScreens("known_contacts")
-    object SearchPeopleScreen : SearchListScreens("search_people")
+fun ClipboardManager.copyLinkToClipboard(link: String) {
+    setText(AnnotatedString(link))
 }

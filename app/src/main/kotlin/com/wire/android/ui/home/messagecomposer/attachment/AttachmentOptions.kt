@@ -31,6 +31,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material.Divider
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -51,6 +52,7 @@ import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.Error
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.messagecomposer.AttachmentInnerState
 import com.wire.android.ui.home.messagecomposer.AttachmentState
+import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 import com.wire.android.util.getTempWritableImageUri
 import com.wire.android.util.getTempWritableVideoUri
@@ -78,7 +80,7 @@ fun AttachmentOptions(
     Box(
         modifier
     ) {
-        Divider()
+        Divider(color = MaterialTheme.wireColorScheme.outline)
         AttachmentOptionsComponent(
             attachmentInnerState,
             onSendAttachment,
@@ -111,7 +113,7 @@ private fun AttachmentOptionsComponent(
         val minColumnWidth: Dp = dimensions().spacing80x
         val minPadding: Dp = dimensions().spacing8x
         val visibleAttachmentOptions = attachmentOptions.filter { it.shouldShow }
-        val params by remember (fullWidth, visibleAttachmentOptions.size) {
+        val params by remember(fullWidth, visibleAttachmentOptions.size) {
             derivedStateOf {
                 calculateGridParams(minPadding, minColumnWidth, fullWidth, visibleAttachmentOptions.size)
             }
@@ -127,7 +129,7 @@ private fun AttachmentOptionsComponent(
         ) {
             visibleAttachmentOptions.forEach { option ->
                 if (option.shouldShow) {
-                    item{ AttachmentButton(stringResource(option.text), option.icon) { option.onClick() } }
+                    item { AttachmentButton(stringResource(option.text), option.icon) { option.onClick() } }
                 }
             }
         }
@@ -187,8 +189,9 @@ private fun TakePictureFlow(tempCachePath: Path, onPictureTaken: (Uri) -> Unit):
     val imageAttachmentUri = context.getTempWritableImageUri(tempCachePath)
     return rememberTakePictureFlow(
         onPictureTaken = { hasTakenPicture ->
-            if (hasTakenPicture)
+            if (hasTakenPicture) {
                 onPictureTaken(imageAttachmentUri)
+            }
         },
         targetPictureFileUri = imageAttachmentUri,
         onPermissionDenied = { /* TODO: Implement denied permission rationale */ }
@@ -201,8 +204,9 @@ private fun CaptureVideoFlow(tempCachePath: Path, onVideoCaptured: (Uri) -> Unit
     val videoAttachmentUri = context.getTempWritableVideoUri(tempCachePath)
     return rememberCaptureVideoFlow(
         onVideoRecorded = { hasCapturedVideo ->
-            if (hasCapturedVideo)
+            if (hasCapturedVideo) {
                 onVideoCaptured(videoAttachmentUri)
+            }
         },
         targetVideoFileUri = videoAttachmentUri,
         onPermissionDenied = { /* TODO: Implement denied permission rationale */ }

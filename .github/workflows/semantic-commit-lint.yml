@@ -1,6 +1,7 @@
 name: "Semantic Commit Linting of PR titles"
 
 on:
+  merge_group:
   pull_request:
     types: [ opened, edited, synchronize ]
 

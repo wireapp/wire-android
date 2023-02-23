@@ -40,6 +40,7 @@ class MarkUsersAsNeedToBeMigratedTest {
         useCase()
         coVerify(exactly = 0) { arrangement.globalDataStore.setUserMigrationStatus(any(), any()) }
     }
+
     private class Arrangement {
 
         @MockK

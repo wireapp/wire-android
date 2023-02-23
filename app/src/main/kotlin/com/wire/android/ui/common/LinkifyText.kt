@@ -24,7 +24,11 @@ import android.os.Build
 import android.text.SpannableString
 import android.text.style.URLSpan
 import android.text.util.Linkify
+import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.indication
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.material.LocalTextStyle
 import androidx.compose.material.Text
 import androidx.compose.material3.MaterialTheme
@@ -211,6 +215,9 @@ private fun ClickableText(
     onLongClick: (() -> Unit)? = null,
 ) {
     val layoutResult = remember { mutableStateOf<TextLayoutResult?>(null) }
+    val tapped = remember { mutableStateOf(false) }
+    val interactionSource = remember { MutableInteractionSource() }
+
     val pressIndicator = Modifier.pointerInput(Unit) {
         detectTapGestures(
             onTap = { pos ->
@@ -218,12 +225,21 @@ private fun ClickableText(
                     onClick(layoutResult.getOffsetForPosition(pos))
                 }
             },
+            onPress = { offset ->
+                tapped.value = true
+                val press = PressInteraction.Press(offset)
+                interactionSource.emit(press)
+                interactionSource.emit(PressInteraction.Release(press))
+                tapped.value = false
+            },
             onLongPress = { onLongClick?.invoke() }
         )
     }
     Text(
         text = text,
-        modifier = modifier.then(pressIndicator),
+        modifier = modifier
+            .then(pressIndicator)
+            .indication(interactionSource, LocalIndication.current),
         color = color,
         fontSize = fontSize,
         fontStyle = fontStyle,

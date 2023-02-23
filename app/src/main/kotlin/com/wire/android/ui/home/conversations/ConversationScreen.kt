@@ -51,7 +51,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
-import androidx.paging.compose.items
+import androidx.paging.compose.itemsIndexed
 import com.wire.android.R
 import com.wire.android.model.SnackBarMessage
 import com.wire.android.navigation.hiltSavedStateViewModel
@@ -93,6 +93,7 @@ import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.call.usecase.ConferenceCallingResult
 import com.wire.kalium.logic.feature.conversation.InteractionAvailability
+import com.wire.kalium.util.DateTimeUtil
 import kotlinx.collections.immutable.ImmutableMap
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
@@ -531,18 +532,29 @@ fun MessageList(
             .fillMaxHeight()
             .fillMaxWidth()
     ) {
-        items(lazyPagingMessages, key = { uiMessage ->
+        itemsIndexed(lazyPagingMessages, key = { _, uiMessage ->
             uiMessage.messageHeader.messageId
-        }) { message ->
+        }) {index, message ->
             if (message == null) {
                 // We can draw a placeholder here, as we fetch the next page of messages
-                return@items
+                return@itemsIndexed
             }
             if (message.messageContent is UIMessageContent.SystemMessage) {
                 SystemMessageItem(message = message.messageContent)
             } else {
+                var showHeader = true
+                val nextIndex = index + 1
+                if(nextIndex < lazyPagingMessages.itemSnapshotList.items.size) {
+                    val nextUiMessage = lazyPagingMessages.itemSnapshotList.items[nextIndex]
+                    val difference = DateTimeUtil.calculateMillisDifference(
+                        message.messageHeader.messageTime.utcISO,
+                        nextUiMessage.messageHeader.messageTime.utcISO
+                    )
+                    showHeader = message.messageHeader.userId != nextUiMessage.messageHeader.userId || difference > 60000
+                }
                 MessageItem(
                     message = message,
+                    showHeader = showHeader,
                     onLongClicked = onShowContextMenu,
                     onAssetMessageClicked = onDownloadAsset,
                     onImageMessageClicked = onImageFullScreenMode,

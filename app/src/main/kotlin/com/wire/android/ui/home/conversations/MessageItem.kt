@@ -30,6 +30,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -42,6 +43,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
 import com.google.accompanist.flowlayout.FlowRow
 import com.wire.android.R
 import com.wire.android.model.Clickable
@@ -67,6 +69,7 @@ import com.wire.android.ui.home.conversations.model.messagetypes.asset.Restricte
 import com.wire.android.ui.home.conversations.model.messagetypes.asset.RestrictedGenericFileMessage
 import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMessageParams
 import com.wire.android.ui.theme.wireColorScheme
+import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
 import com.wire.kalium.logic.data.user.UserId
@@ -75,6 +78,7 @@ import com.wire.kalium.logic.data.user.UserId
 @Composable
 fun MessageItem(
     message: UIMessage,
+    showHeader: Boolean = true,
     onLongClicked: (UIMessage) -> Unit,
     onAssetMessageClicked: (String) -> Unit,
     onImageMessageClicked: (String, Boolean) -> Unit,
@@ -83,7 +87,11 @@ fun MessageItem(
     onResetSessionClicked: (senderUserId: UserId, clientId: String?) -> Unit
 ) {
     with(message) {
-        val fullAvatarOuterPadding = dimensions().userAvatarClickablePadding + dimensions().userAvatarStatusBorderSize
+        val fullAvatarOuterPadding = if(showHeader) {
+            dimensions().userAvatarClickablePadding + dimensions().userAvatarStatusBorderSize
+        } else {
+            0.dp
+        }
         Row(
             Modifier
                 .customizeMessageBackground(message)
@@ -106,20 +114,25 @@ fun MessageItem(
                 message.messageHeader.userId != null &&
                     !(message.messageHeader.isSenderDeleted || message.messageHeader.isSenderUnavailable)
 
-            val avatarClickable = remember {
-                Clickable(enabled = isProfileRedirectEnabled) {
-                    onOpenProfile(message.messageHeader.userId!!.toString())
+            if(showHeader) {
+                val avatarClickable = remember {
+                    Clickable(enabled = isProfileRedirectEnabled) {
+                        onOpenProfile(message.messageHeader.userId!!.toString())
+                    }
                 }
+                UserProfileAvatar(
+                    avatarData = message.userAvatarData,
+                    clickable = avatarClickable
+                )
+            } else {
+                Spacer(Modifier.width(MaterialTheme.wireDimensions.userAvatarDefaultSize))
             }
-            UserProfileAvatar(
-                avatarData = message.userAvatarData,
-                clickable = avatarClickable
-            )
             Spacer(Modifier.padding(start = dimensions().spacing16x - fullAvatarOuterPadding))
             Column {
                 Spacer(modifier = Modifier.height(fullAvatarOuterPadding))
-                MessageHeader(messageHeader)
-
+                if(showHeader) {
+                    MessageHeader(messageHeader)
+                }
                 if (!isDeleted) {
                     if (!decryptionFailed) {
                         val currentOnAssetClicked = remember {

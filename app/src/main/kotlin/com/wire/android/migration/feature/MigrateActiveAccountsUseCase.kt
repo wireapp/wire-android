@@ -35,6 +35,8 @@ import com.wire.kalium.logic.feature.auth.AuthTokens
 import com.wire.kalium.logic.feature.auth.sso.SSOLoginSessionResult
 import com.wire.kalium.logic.functional.Either
 import com.wire.kalium.logic.functional.flatMap
+import com.wire.kalium.logic.functional.getOrNull
+import com.wire.kalium.logic.functional.map
 import com.wire.kalium.logic.functional.mapLeft
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -92,7 +94,7 @@ class MigrateActiveAccountsUseCase @Inject constructor(
                     else -> Either.Right(authTokens.userId)
                 }
             }.mapLeft {
-                val userData = scalaUserDB.userDAO(activeAccount.id)?.users(listOf(activeAccount.id))?.firstOrNull()
+                val userData = scalaUserDB.userDAO(activeAccount.id).map { it.users(listOf(activeAccount.id)) }.getOrNull()?.firstOrNull()
                 AccountMigrationFailure(userData?.name, userData?.handle, it)
             }
             resultAcc[activeAccount.id] = accountResult

@@ -19,7 +19,7 @@ class ShouldTriggerMigrationForUserUserCase @Inject constructor(
         .first().let { migrationStatus ->
             if (migrationStatus != UserMigrationStatus.NotStarted) return@let false
 
-            applicationContext.getDatabasePath(ScalaDBNameProvider.userDB(userId))
+            applicationContext.getDatabasePath(ScalaDBNameProvider.userDB(userId.value))
                 .let { it.isFile && it.exists() }
                 .also {
                     // if the user database does not exists, we can't migrate it

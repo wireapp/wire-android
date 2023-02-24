@@ -55,6 +55,7 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.home.conversations.messages.QuotedMessage
 import com.wire.android.ui.home.conversations.messages.ReactionPill
+import com.wire.android.ui.home.conversations.model.DeliveryStatusContent
 import com.wire.android.ui.home.conversations.model.MessageBody
 import com.wire.android.ui.home.conversations.model.MessageFooter
 import com.wire.android.ui.home.conversations.model.MessageGenericAsset
@@ -175,7 +176,7 @@ fun MessageItem(
 private fun Modifier.customizeMessageBackground(
     message: UIMessage
 ) = run {
-    if (message.sendingFailed || message.receivingFailed) {
+    if (message.sendingFailed || message.receivingFailed || message.wasPartiallyDelivered) {
         background(MaterialTheme.wireColorScheme.messageErrorBackgroundColor)
     } else this
 }
@@ -274,7 +275,6 @@ private fun MessageContent(
     onLongClick: (() -> Unit)? = null,
     onOpenProfile: (String) -> Unit
 ) {
-    val resources = LocalContext.current.resources
     when (messageContent) {
         is UIMessageContent.ImageMessage -> MessageImage(
             asset = messageContent.asset,
@@ -295,24 +295,12 @@ private fun MessageContent(
                 onLongClick = onLongClick,
                 onOpenProfile = onOpenProfile
             )
-            // TODO: map and extract resources, add a container
-            if (messageContent.partialDeliveryFailure.hasFailures) {
-                VerticalSpace.x4()
-                Text(
-                    text = "${messageContent.partialDeliveryFailure.totalUsersWithFailures} participants had issues receiving this message.",
-                    style = MaterialTheme.typography.labelSmall.copy(color = MaterialTheme.wireColorScheme.error),
-                    textAlign = TextAlign.Start
-                )
-                VerticalSpace.x4()
-                Text(
-                    text = "${
-                    messageContent.partialDeliveryFailure.failedRecipients
-                        .map { it.asString(resources) }
-                        .joinToString(", ")
-                    } will not receive this message.",
-                    style = MaterialTheme.typography.labelSmall.copy(color = MaterialTheme.wireColorScheme.error),
-                    textAlign = TextAlign.Start
-                )
+
+            (messageContent.deliveryStatus as? DeliveryStatusContent.PartialDelivery)?.let { partialDelivery ->
+                if (partialDelivery.hasFailures) {
+                    VerticalSpace.x4()
+                    MessageSentPartialDeliveryFailures(partialDelivery)
+                }
             }
         }
 
@@ -374,6 +362,26 @@ private fun MessageStatusLabel(messageStatus: MessageStatus) {
         is MessageStatus.DecryptionFailure,
         is MessageStatus.SendRemotelyFailure, MessageStatus.SendFailure, MessageStatus.Untouched -> {
             /** Don't display anything **/
+        }
+    }
+}
+
+@Composable
+private fun MessageSentPartialDeliveryFailures(partialDeliveryFailureContent: DeliveryStatusContent.PartialDelivery) {
+    val resources = LocalContext.current.resources
+    CompositionLocalProvider(
+        LocalTextStyle provides MaterialTheme.typography.labelSmall.copy(color = MaterialTheme.wireColorScheme.error)
+    ) {
+        Column {
+            Text(
+                text = "${partialDeliveryFailureContent.totalUsersWithFailures} participants had issues receiving this message.",
+                textAlign = TextAlign.Start
+            )
+            VerticalSpace.x4()
+            Text(
+                text = "${partialDeliveryFailureContent.failedRecipients.joinToString(", ") { it.asString(resources) }} will not receive this message.",
+                textAlign = TextAlign.Start
+            )
         }
     }
 }

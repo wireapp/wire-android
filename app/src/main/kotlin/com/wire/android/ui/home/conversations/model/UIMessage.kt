@@ -55,6 +55,8 @@ data class UIMessage(
     val isAvailable: Boolean = !isDeleted && !sendingFailed && !receivingFailed
     val isMyMessage = messageSource == MessageSource.Self
     val isTextMessage = messageContent is UIMessageContent.TextMessage
+    val wasPartiallyDelivered = messageContent is UIMessageContent.PartialDeliverable &&
+        (messageContent.deliveryStatus as? DeliveryStatusContent.PartialDelivery)?.hasFailures == true
 }
 
 @Stable
@@ -112,17 +114,21 @@ sealed class UIMessageContent {
 
     object PreviewAssetMessage : UIMessageContent()
 
+    interface PartialDeliverable {
+        val deliveryStatus: DeliveryStatusContent
+    }
+
     data class TextMessage(
         val messageBody: MessageBody,
-        val partialDeliveryFailure: PartialDeliveryFailureContent = PartialDeliveryFailureContent()
-    ) : ClientMessage()
+        override val deliveryStatus: DeliveryStatusContent = DeliveryStatusContent.CompleteDelivery
+    ) : ClientMessage(), PartialDeliverable
 
     data class RestrictedAsset(
         val mimeType: String,
         val assetSizeInBytes: Long,
         val assetName: String,
-        val partialDeliveryFailure: PartialDeliveryFailureContent = PartialDeliveryFailureContent()
-    ) : ClientMessage()
+        override val deliveryStatus: DeliveryStatusContent = DeliveryStatusContent.CompleteDelivery
+    ) : ClientMessage(), PartialDeliverable
 
     @Stable
     data class AssetMessage(
@@ -132,8 +138,8 @@ sealed class UIMessageContent {
         val assetSizeInBytes: Long,
         val uploadStatus: Message.UploadStatus,
         val downloadStatus: Message.DownloadStatus,
-        val partialDeliveryFailure: PartialDeliveryFailureContent = PartialDeliveryFailureContent()
-    ) : UIMessageContent()
+        override val deliveryStatus: DeliveryStatusContent = DeliveryStatusContent.CompleteDelivery
+    ) : UIMessageContent(), PartialDeliverable
 
     data class ImageMessage(
         val assetId: AssetId,
@@ -142,8 +148,8 @@ sealed class UIMessageContent {
         val height: Int,
         val uploadStatus: Message.UploadStatus,
         val downloadStatus: Message.DownloadStatus,
-        val partialDeliveryFailure: PartialDeliveryFailureContent = PartialDeliveryFailureContent()
-    ) : UIMessageContent()
+        override val deliveryStatus: DeliveryStatusContent = DeliveryStatusContent.CompleteDelivery
+    ) : UIMessageContent(), PartialDeliverable
 
     sealed class SystemMessage(
         @DrawableRes val iconResId: Int?,
@@ -242,14 +248,18 @@ data class MessageTime(val utcISO: String) {
     val formattedDate = utcISO.uiMessageDateTime() ?: ""
 }
 
-data class PartialDeliveryFailureContent(
-    val failedRecipients: List<UIText> = emptyList(),
-    val noClients: List<UIText> = emptyList()
-) {
+sealed interface DeliveryStatusContent {
+    class PartialDelivery(
+        val failedRecipients: List<UIText> = emptyList(),
+        val noClients: List<UIText> = emptyList()
+    ) : DeliveryStatusContent {
 
-    val totalUsersWithFailures: Int
-        get() = failedRecipients.size + noClients.size
+        val totalUsersWithFailures: Int
+            get() = failedRecipients.size + noClients.size
 
-    val hasFailures: Boolean
-        get() = totalUsersWithFailures > 0
+        val hasFailures: Boolean
+            get() = totalUsersWithFailures > 0
+    }
+
+    object CompleteDelivery : DeliveryStatusContent
 }

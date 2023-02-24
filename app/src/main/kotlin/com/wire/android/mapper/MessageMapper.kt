@@ -36,10 +36,10 @@ import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.time.ISOFormatter
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.WireSessionImageLoader
+import com.wire.kalium.logic.data.message.DeliveryStatus
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.Message.Visibility.HIDDEN
 import com.wire.kalium.logic.data.message.MessageContent
-import com.wire.kalium.logic.data.message.RecipientFailure
 import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.data.user.User
@@ -59,9 +59,10 @@ class MessageMapper @Inject constructor(
         listOf(message.senderUserId).plus(
             when (message) {
                 is Message.Regular -> {
-                    when (val failureType = message.recipientsFailure) {
-                        is RecipientFailure.NoDeliveryError -> listOf()
-                        is RecipientFailure.PartialDeliveryError -> failureType.recipientsFailedDelivery + failureType.recipientsFailedWithNoClients
+                    when (val failureType = message.deliveryStatus) {
+                        is DeliveryStatus.CompleteDelivery -> listOf()
+                        is DeliveryStatus.PartialDelivery ->
+                            failureType.recipientsFailedDelivery + failureType.recipientsFailedWithNoClients
                     }
                 }
                 is Message.System -> {

@@ -25,8 +25,8 @@ import com.wire.android.R
 import com.wire.android.model.ImageAsset
 import com.wire.android.ui.home.conversations.findUser
 import com.wire.android.ui.home.conversations.model.AttachmentType
+import com.wire.android.ui.home.conversations.model.DeliveryStatusContent
 import com.wire.android.ui.home.conversations.model.MessageBody
-import com.wire.android.ui.home.conversations.model.PartialDeliveryFailureContent
 import com.wire.android.ui.home.conversations.model.QuotedMessageUIData
 import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.util.time.ISOFormatter
@@ -35,13 +35,13 @@ import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.asset.isDisplayableImageMimeType
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.message.AssetContent
+import com.wire.kalium.logic.data.message.DeliveryStatus
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.MessageContent
 import com.wire.kalium.logic.data.message.MessageContent.Asset
 import com.wire.kalium.logic.data.message.MessageContent.MemberChange
 import com.wire.kalium.logic.data.message.MessageContent.MemberChange.Added
 import com.wire.kalium.logic.data.message.MessageContent.MemberChange.Removed
-import com.wire.kalium.logic.data.message.RecipientFailure
 import com.wire.kalium.logic.data.user.AssetId
 import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.SelfUser
@@ -229,13 +229,13 @@ class MessageContentMapper @Inject constructor(
     ).let { messageBody ->
         UIMessageContent.TextMessage(
             messageBody = messageBody,
-            partialDeliveryFailure = mapRecipientsFailure(userList, message as? Message.Regular)
+            deliveryStatus = mapRecipientsFailure(userList, message as? Message.Regular)
         )
     }
 
-    private fun mapRecipientsFailure(userList: List<User>, regular: Message.Regular?): PartialDeliveryFailureContent {
-        return when (val usersIds = regular?.recipientsFailure) {
-            is RecipientFailure.PartialDeliveryError -> PartialDeliveryFailureContent(
+    private fun mapRecipientsFailure(userList: List<User>, regular: Message.Regular?): DeliveryStatusContent {
+        return when (val usersIds = regular?.deliveryStatus) {
+            is DeliveryStatus.PartialDelivery -> DeliveryStatusContent.PartialDelivery(
                 failedRecipients = usersIds.recipientsFailedDelivery.map { userId ->
                     userList.findUser(userId = userId)?.name.orUnknownName()
                 },
@@ -243,7 +243,7 @@ class MessageContentMapper @Inject constructor(
                     userList.findUser(userId = userId)?.name.orUnknownName()
                 }
             )
-            is RecipientFailure.NoDeliveryError, null -> PartialDeliveryFailureContent()
+            is DeliveryStatus.CompleteDelivery, null -> DeliveryStatusContent.CompleteDelivery
         }
     }
 

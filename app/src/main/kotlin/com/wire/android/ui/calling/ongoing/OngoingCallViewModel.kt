@@ -81,14 +81,18 @@ class OngoingCallViewModel @OptIn(ExperimentalCoroutinesApi::class)
 
     fun requestVideoStreams(participants: List<UICallParticipant>) {
         viewModelScope.launch {
-            participants.filter {
-                it.isCameraOn || it.isSharingScreen
-            }.also {
-                val clients: List<CallClient> = participants.map {
-                    CallClient(it.id.toString(), it.clientId)
+            participants
+                .filter {
+                    it.isCameraOn || it.isSharingScreen
                 }
-                requestVideoStreams(conversationId, clients)
-            }
+                .also {
+                    if (it.isNotEmpty()) {
+                        val clients: List<CallClient> = it.map { uiParticipant ->
+                            CallClient(uiParticipant.id.toString(), uiParticipant.clientId)
+                        }
+                        requestVideoStreams(conversationId, clients)
+                    }
+                }
         }
     }
 

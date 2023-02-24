@@ -84,12 +84,12 @@ class FeatureFlagNotificationViewModel @Inject constructor(
 
     private fun setFileSharingState(userId: UserId) {
         viewModelScope.launch {
-            coreLogic.getSessionScope(userId).observeFileSharingStatus().collect {
-                if (it.isFileSharingEnabled != null) {
-                    featureFlagState = featureFlagState.copy(isFileSharingEnabledState = false)
+            coreLogic.getSessionScope(userId).observeFileSharingStatus().collect { fileSharingStatus ->
+                fileSharingStatus.isFileSharingEnabled?.let {
+                    featureFlagState = featureFlagState.copy(isFileSharingEnabledState = it)
                 }
-                if (it.isStatusChanged != null && it.isStatusChanged!!) {
-                    featureFlagState = featureFlagState.copy(showFileSharingDialog = it.isStatusChanged!!)
+                fileSharingStatus.isStatusChanged?.let {
+                    featureFlagState = featureFlagState.copy(showFileSharingDialog = it)
                 }
             }
         }

@@ -119,8 +119,11 @@ class WireActivity : AppCompatActivity() {
                 WireTheme {
                     val scope = rememberCoroutineScope()
                     val navController = rememberTrackingAnimatedNavController { NavigationItem.fromRoute(it)?.itemName }
-                    val isSharingIntent = ShareCompat.IntentReader(this).isShareIntent
-                    setUpNavigationGraph(viewModel.startNavigationRoute(isSharingIntent = isSharingIntent), navController, scope)
+                    setUpNavigationGraph(
+                        viewModel.startNavigationRoute(hasSharingIntent = ShareCompat.IntentReader(this).isShareIntent),
+                        navController,
+                        scope
+                    )
                     handleDialogs()
                 }
             }

@@ -209,7 +209,8 @@ class MigrationManager @Inject constructor(
         return if (accountsFailed.any { it.cause is NetworkFailure }) {
             MigrationData.Result.Failure.NoNetwork
         } else {
-            val results = migrateAccountsData(accountsSucceeded, isFederated, coroutineScope, migrationDispatcher, updateProgress).values
+            updateProgress(MigrationData.Progress(MigrationData.Progress.Type.MESSAGES))
+            val results = migrateAccountsData(accountsSucceeded, isFederated, coroutineScope, migrationDispatcher).values
             val dataFailed = results.filter { it.isLeft() }.map { (it as Either.Left).value }
             when {
                 dataFailed.any { it is NetworkFailure } -> MigrationData.Result.Failure.NoNetwork
@@ -230,11 +231,9 @@ class MigrationManager @Inject constructor(
         migratedAccounts: List<UserId>,
         isFederated: Boolean,
         coroutineScope: CoroutineScope,
-        migrationDispatcher: CoroutineDispatcher,
-        updateProgress: suspend (MigrationData.Progress) -> Unit,
+        migrationDispatcher: CoroutineDispatcher
     ): Map<String, Either<CoreFailure, Unit>> {
         val resultAcc: ConcurrentMap<String, Either<CoreFailure, Unit>> = ConcurrentHashMap()
-        updateProgress(MigrationData.Progress(MigrationData.Progress.Type.MESSAGES))
         val migrationJobs: List<Job> = migratedAccounts.map { userId ->
             coroutineScope.launch(migrationDispatcher) {
                 appLogger.d("$TAG - Step 2 - Migrating clients for ${userId.value.obfuscateId()}")

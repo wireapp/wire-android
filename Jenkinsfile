@@ -251,6 +251,7 @@ pipeline {
         }
 
         publishHTML(allowMissing: true, alwaysLinkToLastBuild: true, keepAll: true, reportDir: "app/build/reports/tests/test${flavor}${buildType}UnitTest/", reportFiles: 'index.html', reportName: 'Unit Test Report', reportTitles: 'Unit Test')
+        zip archive: true, defaultExcludes: false, dir: "app/build/reports/tests/test${flavor}${buildType}UnitTest/", overwrite: true, glob: "", zipFile: "unit-tests-android.zip"
       }
     }
 
@@ -306,6 +307,7 @@ pipeline {
         }
 
         publishHTML(allowMissing: true, alwaysLinkToLastBuild: true, keepAll: true, reportDir: "app/build/reports/androidTests/connected/flavors/${flavor.toUpperCase()}/", reportFiles: 'index.html', reportName: 'Acceptance Test Report', reportTitles: 'Acceptance Test')
+        zip archive: true, defaultExcludes: false, dir: "app/build/reports/androidTests/connected/flavors/${flavor.toUpperCase()}/", overwrite: true, glob: "", zipFile: "integration-tests-android.zip"
       }
     }
 

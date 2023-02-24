@@ -85,7 +85,7 @@ fun HomeScreen(
     conversationListViewModel: ConversationListViewModel = hiltViewModel(), // TODO: move required elements from this one to HomeViewModel?
 ) {
     homeViewModel.checkRequirements()
-
+    featureFlagNotificationViewModel.loadInitialSync()
     val homeScreenState = rememberHomeScreenState()
     val showNotificationsFlow = rememberRequestPushNotificationsPermissionFlow(
         onPermissionDenied = { /** TODO: Show a dialog rationale explaining why the permission is needed **/ })
@@ -121,6 +121,8 @@ fun HomeScreen(
             )
         }
     }
+
+    featureFlagNotificationViewModel.loadInitialSync()
 
     HomeContent(
         connectivityState = commonTopAppBarViewModel.connectivityState,

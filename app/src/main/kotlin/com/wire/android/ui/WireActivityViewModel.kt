@@ -168,9 +168,10 @@ class WireActivityViewModel @Inject constructor(
 
     fun navigationArguments() = navigationArguments.values.toList()
 
-    fun startNavigationRoute(navigationItem: NavigationItem? = null): String = when {
+    fun startNavigationRoute(navigationItem: NavigationItem? = null, isSharingIntent: Boolean = false): String = when {
         shouldGoToMigration() -> NavigationItem.Migration.getRouteWithArgs()
         shouldGoToWelcome() -> NavigationItem.Welcome.getRouteWithArgs()
+        isSharingIntent -> NavigationItem.ImportMedia.getRouteWithArgs()
         navigationItem != null -> navigationItem.getRouteWithArgs()
         else -> NavigationItem.Home.getRouteWithArgs()
     }
@@ -180,7 +181,7 @@ class WireActivityViewModel @Inject constructor(
     }
 
     fun handleDeepLink(intent: Intent?) {
-        if (isSharingIntent(intent)) {
+        if (!shouldGoToWelcome() && isSharingIntent(intent)) {
             navigateToImportMediaScreen()
         } else {
             intent?.data?.let { deepLink ->
@@ -205,6 +206,7 @@ class WireActivityViewModel @Inject constructor(
                                 navigationArguments[SERVER_CONFIG_ARG] = serverLinks
                             }
                         }
+
                         is DeepLinkResult.SSOLogin -> navigationArguments[SSO_DEEPLINK_ARG] = result
 
                         is DeepLinkResult.IncomingCall -> navigationArguments[INCOMING_CALL_CONVERSATION_ID_ARG] = result.conversationsId

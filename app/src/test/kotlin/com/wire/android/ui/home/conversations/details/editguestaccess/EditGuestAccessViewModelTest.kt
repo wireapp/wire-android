@@ -213,7 +213,6 @@ class EditGuestAccessViewModelTest {
         assertEquals(true, editGuestAccessViewModel.editGuestAccessState.isFailedToRevokeGuestRoomLink)
     }
 
-
     @Test
     fun `given updateConversationAccessRole use case runs successfully, when trying to disable guest access, then disable guest access`() =
         runTest {

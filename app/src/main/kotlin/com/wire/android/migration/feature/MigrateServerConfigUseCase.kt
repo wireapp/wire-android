@@ -41,17 +41,7 @@ class MigrateServerConfigUseCase @Inject constructor(
     @KaliumCoreLogic private val coreLogic: CoreLogic,
     private val scalaServerConfigDAO: ScalaServerConfigDAO,
 ) {
-    suspend operator fun invoke(): Either<CoreFailure, ServerConfig> =
-        when (val scalaServerConfig = scalaServerConfigDAO.scalaServerConfig) {
-            is ScalaServerConfig.Full ->
-                coreLogic.getGlobalScope().storeServerConfig(scalaServerConfig.links, scalaServerConfig.versionInfo).handleResult()
-            is ScalaServerConfig.Links ->
-                scalaServerConfig.links.fetchApiVersionAndStore()
-            is ScalaServerConfig.ConfigUrl ->
-                coreLogic.getGlobalScope().fetchServerConfigFromDeepLink(scalaServerConfig.customConfigUrl).handleResult()
-            ScalaServerConfig.NoData ->
-                Either.Left(StorageFailure.DataNotFound)
-        }
+    suspend operator fun invoke(): Either<CoreFailure, ServerConfig> = Either.Left(ServerConfigFailure.UnknownServerVersion)
 
     private suspend fun StoreServerConfigResult.handleResult() = when (this) {
         is StoreServerConfigResult.Success ->

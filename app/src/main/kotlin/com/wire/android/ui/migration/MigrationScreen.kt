@@ -51,41 +51,8 @@ private fun MigrationScreenContent(
     accountLogin: (String?) -> Unit = {}
 ) {
     SettingUpWireScreenContent(
-        message = when (state) {
-            is MigrationState.InProgress -> when (state.type) {
-                MigrationData.Progress.Type.ACCOUNTS -> AnnotatedString(stringResource(R.string.migration_accounts_message))
-                MigrationData.Progress.Type.MESSAGES -> AnnotatedString(stringResource(R.string.migration_messages_message))
-                MigrationData.Progress.Type.UNKNOWN -> AnnotatedString(stringResource(R.string.migration_message_unknown))
-            }
-            is MigrationState.Failed.NoNetwork -> buildAnnotatedString {
-                withStyle(SpanStyle(color = MaterialTheme.wireColorScheme.error)) {
-                    append(stringResource(R.string.error_no_network_message))
-                }
-            }
-            is MigrationState.Failed.Messages -> buildAnnotatedString {
-                withStyle(SpanStyle(color = MaterialTheme.wireColorScheme.error)) {
-                    append(stringResource(R.string.migration_messages_failure, state.errorCode))
-                }
-            }
-            is MigrationState.Failed.Account.Any -> AnnotatedString(stringResource(R.string.migration_login_required))
-            is MigrationState.Failed.Account.Specific -> LocalContext.current.resources.stringWithStyledArgs(
-                stringResId = R.string.migration_login_required_specific_account,
-                normalStyle = MaterialTheme.wireTypography.body01,
-                argsStyle = MaterialTheme.wireTypography.body02,
-                normalColor = MaterialTheme.wireColorScheme.secondaryText,
-                argsColor = MaterialTheme.wireColorScheme.secondaryText,
-                stringResource(R.string.migration_login_required_specific_account_name, state.userName, state.userHandle)
-            )
-        },
-        title = when (state) {
-            is MigrationState.Failed -> null
-            is MigrationState.InProgress -> {
-                MigrationData.Progress.steps.indexOf(state.type).let { stepNumber ->
-                    if (stepNumber >= 0) stringResource(R.string.migration_title_step, stepNumber + 1, MigrationData.Progress.steps.size)
-                    else null
-                }
-            }
-        },
+        message = state.message(),
+        title = state.title(),
         type = when (state) {
             is MigrationState.InProgress -> SettingUpWireScreenType.Progress
             is MigrationState.Failed.NoNetwork -> SettingUpWireScreenType.Failure(
@@ -106,6 +73,45 @@ private fun MigrationScreenContent(
             )
         }
     )
+}
+
+@Composable
+private fun MigrationState.message() = when (this) {
+    is MigrationState.InProgress -> when (this.type) {
+        MigrationData.Progress.Type.ACCOUNTS -> AnnotatedString(stringResource(R.string.migration_accounts_message))
+        MigrationData.Progress.Type.MESSAGES -> AnnotatedString(stringResource(R.string.migration_messages_message))
+        MigrationData.Progress.Type.UNKNOWN -> AnnotatedString(stringResource(R.string.migration_message_unknown))
+    }
+    is MigrationState.Failed.NoNetwork -> buildAnnotatedString {
+        withStyle(SpanStyle(color = MaterialTheme.wireColorScheme.error)) {
+            append(stringResource(R.string.error_no_network_message))
+        }
+    }
+    is MigrationState.Failed.Messages -> buildAnnotatedString {
+        withStyle(SpanStyle(color = MaterialTheme.wireColorScheme.error)) {
+            append(stringResource(R.string.migration_messages_failure, this@message.errorCode))
+        }
+    }
+    is MigrationState.Failed.Account.Any -> AnnotatedString(stringResource(R.string.migration_login_required))
+    is MigrationState.Failed.Account.Specific -> LocalContext.current.resources.stringWithStyledArgs(
+        stringResId = R.string.migration_login_required_specific_account,
+        normalStyle = MaterialTheme.wireTypography.body01,
+        argsStyle = MaterialTheme.wireTypography.body02,
+        normalColor = MaterialTheme.wireColorScheme.secondaryText,
+        argsColor = MaterialTheme.wireColorScheme.secondaryText,
+        stringResource(R.string.migration_login_required_specific_account_name, this.userName, this.userHandle)
+    )
+}
+
+@Composable
+private fun MigrationState.title() = when (this) {
+    is MigrationState.Failed -> null
+    is MigrationState.InProgress -> {
+        MigrationData.Progress.steps.indexOf(this.type).let { stepNumber ->
+            if (stepNumber >= 0) stringResource(R.string.migration_title_step, stepNumber + 1, MigrationData.Progress.steps.size)
+            else null
+        }
+    }
 }
 
 @Preview

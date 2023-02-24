@@ -75,7 +75,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @OptIn(ExperimentalCoroutinesApi::class)
-@Suppress("LongParameterList", "TooGenericExceptionCaught")
+@Suppress("LongParameterList", "TooGenericExceptionCaught", "TooManyFunctions")
 @Singleton
 class MigrationManager @Inject constructor(
     @ApplicationContext private val applicationContext: Context,
@@ -186,6 +186,7 @@ class MigrationManager @Inject constructor(
         }
     }
 
+    @Suppress("MagicNumber")
     private fun CoreFailure.getErrorCode(): Int = when(this) {
         is MigrationFailure.ClientNotRegistered -> 1
         is MigrationFailure.InvalidRefreshToken -> 2
@@ -197,6 +198,7 @@ class MigrationManager @Inject constructor(
         else -> 0
     }
 
+    @Suppress("NestedBlockDepth")
     private suspend fun onAccountsMigrated(
         migratedAccounts: List<Either<MigrateActiveAccountsUseCase.AccountMigrationFailure, UserId>>,
         isFederated: Boolean,

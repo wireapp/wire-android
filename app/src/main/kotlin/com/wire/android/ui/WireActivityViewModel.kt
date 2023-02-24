@@ -24,7 +24,6 @@ import android.content.Intent
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.core.app.ShareCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.BuildConfig
@@ -452,8 +451,7 @@ class WireActivityViewModel @Inject constructor(
             }
         }
     }
-
-
+    
     private fun shouldGoToMigration(): Boolean = runBlocking {
         migrationManager.shouldMigrate()
     }

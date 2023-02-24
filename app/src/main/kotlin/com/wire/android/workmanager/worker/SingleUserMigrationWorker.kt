@@ -88,11 +88,6 @@ suspend fun WorkManager.enqueueSingleUserMigrationWorker(userId: UserId): Flow<M
         .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
         .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, MIN_BACKOFF_MILLIS, TimeUnit.MILLISECONDS)
         .setInputData(workDataOf(SingleUserMigrationWorker.USER_ID_INPUT_DATA to userId.toString()))
-        .setConstraints(
-            Constraints.Builder()
-                .setRequiredNetworkType(NetworkType.CONNECTED)
-                .build()
-        )
         .build()
     val isAlreadyRunning =
         getWorkInfosForUniqueWork(SingleUserMigrationWorker.NAME).await().let { it.firstOrNull()?.state == WorkInfo.State.RUNNING }

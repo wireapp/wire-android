@@ -34,6 +34,7 @@ import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.model.MessageStatus
 import com.wire.android.ui.home.conversations.model.MessageTime
 import com.wire.android.ui.home.conversations.model.UIMessage
+import com.wire.android.util.FileManager
 import com.wire.android.util.ImageUtil
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.WireSessionImageLoader
@@ -152,6 +153,9 @@ internal class ConversationsViewModelArrangement {
     lateinit var sendKnockUseCase: SendKnockUseCase
 
     @MockK
+    lateinit var fileManger: FileManager
+
+    @MockK
     private lateinit var observeSecurityClassificationType: ObserveSecurityClassificationLabelUseCase
 
     @MockK
@@ -195,7 +199,8 @@ internal class ConversationsViewModelArrangement {
             getAssetSizeLimit = getAssetSizeLimitUseCase,
             imageUtil = imageUtil,
             pingRinger = pingRinger,
-            sendKnockUseCase = sendKnockUseCase
+            sendKnockUseCase = sendKnockUseCase,
+            fileManger = fileManger
         )
     }
 

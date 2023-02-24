@@ -53,7 +53,6 @@ import com.wire.kalium.logic.util.buildFileName
 import com.wire.kalium.logic.util.splitFileExtensionAndCopyCounter
 import kotlinx.coroutines.withContext
 import okio.Path
-import okio.Path.Companion.toPath
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.InputStream

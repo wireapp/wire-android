@@ -77,7 +77,7 @@ class MigrationViewModel @Inject constructor(
     private suspend fun enqueueMigrationAndListenForStateChanges() {
         when (migrationType) {
             is MigrationType.SingleUser -> {
-                appLogger.d("Enqueuing single user migration for user: ${userId.value.obfuscateId()}")
+                appLogger.d("Enqueuing single user migration for user: ${migrationType.userId.value.obfuscateId()}")
                 workManager.enqueueSingleUserMigrationWorker(migrationType.userId).collect {
                     handleMigrationResult(it)
                 }

@@ -52,7 +52,7 @@ class MigrateClientsDataUseCase @Inject constructor(
    @Suppress("ReturnCount")
     suspend operator fun invoke(userId: UserId, isFederated: Boolean): Either<CoreFailure, Unit> {
 
-        val clientId = scalaUserDBProvider.clientDAO(userId)?.clientInfo()?.clientId?.let { ClientId(it) }
+        val clientId = scalaUserDBProvider.clientDAO(userId.value)?.clientInfo()?.clientId?.let { ClientId(it) }
             ?: return Either.Left(StorageFailure.DataNotFound)
 
         // move crypto box files
@@ -131,7 +131,7 @@ class MigrateClientsDataUseCase @Inject constructor(
                 .map { file -> file.name.substringBefore("_") to file }
             val sessionUserIds = filesWithoutDomain.map { (userId, _) -> userId }.distinct()
             val sessionUsers = sessionUserIds.chunked(SESSION_USER_IDS_CHUNK_SIZE)
-                .map { scalaUserDBProvider.userDAO(userId)?.users(it) ?: listOf() }
+                .map { scalaUserDBProvider.userDAO(userId.value)?.users(it) ?: listOf() }
                 .flatten()
                 .associateBy { it.id }
             filesWithoutDomain.forEach { (sessionUserId, file) ->

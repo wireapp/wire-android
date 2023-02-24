@@ -27,7 +27,6 @@ import com.wire.android.migration.userDatabase.ScalaUserDatabaseProvider
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.functional.Either
 import com.wire.kalium.logic.functional.onFailure
 import kotlinx.coroutines.CoroutineScope
 import javax.inject.Inject
@@ -45,8 +44,8 @@ class MigrateMessagesUseCase @Inject constructor(
     ): Map<String, CoreFailure> {
         val errorsAcc: MutableMap<String, CoreFailure> = mutableMapOf()
 
-        val messageDAO = scalaUserDatabase.messageDAO(userId)
-        val userDAO = scalaUserDatabase.userDAO(userId)
+        val messageDAO = scalaUserDatabase.messageDAO(userId.value)
+        val userDAO = scalaUserDatabase.userDAO(userId.value)
 
         // iterate over all conversations and migrate messages
         // if any error occurs, add it to the errors accumulator

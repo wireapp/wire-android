@@ -48,7 +48,7 @@ class MigrateConversationsUseCase @Inject constructor(
     // and in that case leaving it as group will not be an issue
     suspend operator fun invoke(userIds: List<UserId>): Either<CoreFailure, Map<UserId, List<ScalaConversationData>>> =
         userIds.foldToEitherWhileRight(mapOf()) { userId, acc ->
-            val conversations = scalaUserDatabase.conversationDAO(userId)?.conversations() ?: listOf()
+            val conversations = scalaUserDatabase.conversationDAO(userId.value)?.conversations() ?: listOf()
             if (conversations.isNotEmpty()) {
                 val mappedConversations = conversations.mapNotNull { scalaConversation ->
                     mapper.fromScalaConversationToConversation(scalaConversation, userId)

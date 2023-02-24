@@ -40,6 +40,7 @@ import androidx.work.await
 import com.wire.android.R
 import com.wire.android.migration.MigrationData
 import com.wire.android.migration.MigrationManager
+import com.wire.android.migration.getMigrationFailure
 import com.wire.android.migration.getMigrationProgress
 import com.wire.android.migration.toData
 import com.wire.android.notification.NotificationChannelsManager
@@ -56,16 +57,18 @@ import java.util.concurrent.TimeUnit
 @HiltWorker
 class MigrationWorker
 @AssistedInject constructor(
-    @Assisted appContext: Context,
-    @Assisted workerParams: WorkerParameters,
+    @Assisted private val appContext: Context,
+    @Assisted private val workerParams: WorkerParameters,
     private val migrationManager: MigrationManager,
     private val notificationChannelsManager: NotificationChannelsManager
 ) : CoroutineWorker(appContext, workerParams) {
 
     override suspend fun doWork(): Result = coroutineScope {
-        when (migrationManager.migrate(this, { setProgress(it.type.toData()) })) {
+        when (val result = migrationManager.migrate(this, { setProgress(it.type.toData()) })) {
             is MigrationData.Result.Success -> Result.success()
-            is MigrationData.Result.Failure -> Result.retry()
+            is MigrationData.Result.Failure.NoNetwork -> Result.retry()
+            is MigrationData.Result.Failure.Messages -> Result.failure(result.toData())
+            is MigrationData.Result.Failure.Account -> Result.failure(result.toData())
         }
     }
 
@@ -116,10 +119,10 @@ suspend fun WorkManager.enqueueMigrationWorker(): Flow<MigrationData> {
         it.first().let { workInfo ->
             when (workInfo.state) {
                 WorkInfo.State.SUCCEEDED -> MigrationData.Result.Success
-                WorkInfo.State.FAILED -> MigrationData.Result.Failure
-                WorkInfo.State.CANCELLED -> MigrationData.Result.Failure
+                WorkInfo.State.FAILED -> workInfo.outputData.getMigrationFailure()
+                WorkInfo.State.CANCELLED -> workInfo.outputData.getMigrationFailure()
                 WorkInfo.State.RUNNING -> MigrationData.Progress(workInfo.progress.getMigrationProgress())
-                WorkInfo.State.ENQUEUED -> MigrationData.Result.Failure
+                WorkInfo.State.ENQUEUED -> workInfo.outputData.getMigrationFailure()
                 WorkInfo.State.BLOCKED -> null
             }
         }

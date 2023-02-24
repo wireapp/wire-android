@@ -24,5 +24,12 @@ import com.wire.android.migration.MigrationData
 
 sealed class MigrationState {
     data class InProgress(val type: MigrationData.Progress.Type) : MigrationState()
-    object Failed : MigrationState()
+    sealed class Failed : MigrationState() {
+        object NoNetwork : Failed()
+        sealed class Account : Failed() {
+            data class Specific(val userName: String, val userHandle: String) : Account()
+            object Any : Account()
+        }
+        data class Messages(val errorCode: String) : Failed()
+    }
 }

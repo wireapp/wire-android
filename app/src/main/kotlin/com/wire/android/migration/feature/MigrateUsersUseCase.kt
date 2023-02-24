@@ -37,7 +37,7 @@ class MigrateUsersUseCase @Inject constructor(
     private val mapper: MigrationMapper
 ) {
     suspend operator fun invoke(userId: UserId): Either<CoreFailure, UserId> {
-        val users = scalaUserDatabase.userDAO(userId)?.allUsers() ?: listOf()
+        val users = scalaUserDatabase.userDAO(userId.value)?.allUsers() ?: listOf()
         val selfScalaUser = users.first { it.id == userId.value && it.domain == userId.domain }
         val mappedUsers = users.map { scalaUser ->
             mapper.fromScalaUserToUser(scalaUser, selfScalaUser.id, selfScalaUser.domain, selfScalaUser.teamId, userId)

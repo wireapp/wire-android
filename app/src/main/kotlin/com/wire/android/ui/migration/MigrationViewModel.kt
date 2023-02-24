@@ -27,6 +27,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.work.WorkManager
 import com.wire.android.migration.MigrationData
+import com.wire.android.migration.MigrationManager
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
@@ -45,6 +46,7 @@ class MigrationViewModel @Inject constructor(
     private val getCurrentSession: CurrentSessionUseCase,
     private val workManager: WorkManager,
     private val dispatchers: DispatcherProvider,
+    private val migrationManager: MigrationManager
 ) : ViewModel() {
 
     var state: MigrationState by mutableStateOf(MigrationState.InProgress(MigrationData.Progress.Type.UNKNOWN))
@@ -64,12 +66,31 @@ class MigrationViewModel @Inject constructor(
         state = MigrationState.InProgress(MigrationData.Progress.Type.UNKNOWN)
     }
 
+    fun accountLogin(userHandle: String?) {
+        viewModelScope.launch {
+            migrationManager.dismissMigrationFailureNotification()
+            navigateToLogin(userHandle)
+        }
+    }
+
+    fun finish() {
+        viewModelScope.launch {
+            migrationManager.dismissMigrationFailureNotification()
+            navigateAfterMigration()
+        }
+    }
+
     private suspend fun enqueueMigrationAndListenForStateChanges() {
         workManager.enqueueMigrationWorker().collect {
             when (it) {
                 is MigrationData.Result.Success -> navigateAfterMigration()
-                is MigrationData.Result.Failure -> state = MigrationState.Failed
                 is MigrationData.Progress -> state = MigrationState.InProgress(it.type)
+                is MigrationData.Result.Failure -> state = when (it) {
+                    MigrationData.Result.Failure.Account.Any -> MigrationState.Failed.Account.Any
+                    is MigrationData.Result.Failure.Account.Specific -> MigrationState.Failed.Account.Specific(it.userName, it.userHandle)
+                    is MigrationData.Result.Failure.Messages -> MigrationState.Failed.Messages(it.errorCode)
+                    MigrationData.Result.Failure.NoNetwork -> MigrationState.Failed.NoNetwork
+                }
             }
         }
     }
@@ -81,5 +102,10 @@ class MigrationViewModel @Inject constructor(
             else ->
                 navigationManager.navigate(NavigationCommand(NavigationItem.Welcome.getRouteWithArgs(), BackStackMode.CLEAR_WHOLE))
         }
+    }
+
+    private suspend fun navigateToLogin(userHandle: String?) {
+        // TODO: pass user handle to be pre-filled on the email login screen
+        navigationManager.navigate(NavigationCommand(NavigationItem.Login.getRouteWithArgs(), BackStackMode.CLEAR_WHOLE))
     }
 }

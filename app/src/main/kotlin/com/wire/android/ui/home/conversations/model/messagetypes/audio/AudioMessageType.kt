@@ -68,7 +68,7 @@ fun AudioMessage(
         if (audioMediaPlayingState is AudioMediaPlayingState.Failed) {
             FailedAudioMessage()
         } else {
-            SuccessFullAudioMessage(
+            SuccessfulAudioMessage(
                 audioMediaPlayingState = audioMediaPlayingState,
                 totalTimeInMs = totalTimeInMs,
                 currentPositionInMs = currentPositionInMs,
@@ -81,7 +81,7 @@ fun AudioMessage(
 }
 
 @Composable
-private fun SuccessFullAudioMessage(
+private fun SuccessfulAudioMessage(
     audioMediaPlayingState: AudioMediaPlayingState,
     totalTimeInMs: Int,
     currentPositionInMs: Int,

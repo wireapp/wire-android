@@ -374,7 +374,10 @@ private fun MessageSentPartialDeliveryFailures(partialDeliveryFailureContent: De
     ) {
         Column {
             Text(
-                text = "${partialDeliveryFailureContent.totalUsersWithFailures} participants had issues receiving this message.",
+                text = stringResource(
+                    id = R.string.label_message_partial_delivery_participants_count,
+                    partialDeliveryFailureContent.totalUsersWithFailures
+                ),
                 textAlign = TextAlign.Start
             )
             VerticalSpace.x4()

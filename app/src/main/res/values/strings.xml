@@ -47,6 +47,7 @@
     <string name="label_message_decryption_failure_message">Message could not be decrypted.</string>
     <string name="label_message_decryption_failure_informative_message">Try resetting the session to generate new encryption keys.</string>
     <string name="label_message_knock">%s pinged</string>
+    <string name="label_message_partial_delivery_participants_count">%1$d participants had issues receiving this message.</string>
     <string name="label_try_again">Try again</string>
     <string name="label_reset_session">Reset Session</string>
     <string name="label_reset_session_success">Session successfully reset</string>
@@ -513,6 +514,7 @@
     <string name="label_system_message_conversation_history_lost">You haven\'t used this device for a while. some messages may not appear here.</string>
     <string name="label_system_message_receipt_mode_on">on</string>
     <string name="label_system_message_receipt_mode_off">off</string>
+
     <!-- Last messages -->
     <string name="last_message_added">added</string>
     <string name="last_message_removed">removed</string>

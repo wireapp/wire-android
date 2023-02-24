@@ -73,16 +73,11 @@ fun VerticalCallingPager(
                     val participantsWithCameraOn by rememberUpdatedState(participants.count { it.isCameraOn })
                     val participantsWithScreenShareOn by rememberUpdatedState(participants.count { it.isSharingScreen })
 
-                    // Request video stream when someone turns camera on/off
-                    LaunchedEffect(participantsWithCameraOn) {
-                        requestVideoStreams(participantsChunkedList[pagerState.currentPage])
-                    }
-                    // Request video stream when someone starts sharing screen
-                    LaunchedEffect(participantsWithScreenShareOn) {
-                        requestVideoStreams(participantsChunkedList[pagerState.currentPage])
-                    }
-                    // Request video stream when swiping to a different page on the grid
-                    LaunchedEffect(pagerState.currentPage) {
+                    LaunchedEffect(
+                        participantsWithCameraOn, // Request video stream when someone turns camera on/off
+                        participantsWithScreenShareOn, // Request video stream when someone starts sharing screen
+                        pagerState.currentPage // Request video stream when swiping to a different page on the grid
+                    ) {
                         requestVideoStreams(participantsChunkedList[pagerState.currentPage])
                     }
 

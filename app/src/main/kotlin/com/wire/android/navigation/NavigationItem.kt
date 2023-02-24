@@ -97,6 +97,7 @@ import com.wire.android.util.deeplink.DeepLinkProcessor
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
+import com.wire.kalium.logic.data.user.UserId
 import io.github.esentsov.PackagePrivate
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
@@ -120,8 +121,14 @@ enum class NavigationItem(
 
     Migration(
         primaryRoute = MIGRATION,
+        canonicalRoute = "$MIGRATION?$EXTRA_USER_ID={$EXTRA_USER_ID}",
         content = { MigrationScreen() },
-    ),
+    ) {
+        override fun getRouteWithArgs(arguments: List<Any>): String {
+            val userIdString: String = arguments.filterIsInstance<UserId>().firstOrNull()?.toString() ?: "{$EXTRA_USER_ID}"
+            return "$MIGRATION?$EXTRA_USER_ID=$userIdString"
+        }
+      },
 
     Login(
         primaryRoute = LOGIN,
@@ -403,21 +410,12 @@ enum class NavigationItem(
         return conversationId?.let { "$primaryRoute/$it" } ?: primaryRoute
     }
 
+    val itemName: String get() = ITEM_NAME_PREFIX + this.name
+
     companion object {
+        private const val ITEM_NAME_PREFIX = "NavigationItem."
         private val map: Map<String, NavigationItem> = values().associateBy { it.primaryRoute }
-
-        fun fromRoute(fullRoute: String): NavigationItem? {
-            val splitByQuestion = fullRoute.split("?")
-            val splitBySlash = fullRoute.split("/")
-
-            val primaryRoute = when {
-                splitByQuestion.size > 1 -> splitByQuestion[0]
-                splitBySlash.size > 1 -> splitBySlash[0]
-                else -> fullRoute
-            }
-
-            return map[primaryRoute]
-        }
+        fun fromRoute(fullRoute: String): NavigationItem? = map[fullRoute.getPrimaryRoute()]
     }
 }
 

@@ -21,6 +21,7 @@
 package com.wire.android.ui.migration
 
 import com.wire.android.migration.MigrationData
+import com.wire.kalium.logic.data.user.UserId
 
 sealed class MigrationState {
     data class InProgress(val type: MigrationData.Progress.Type) : MigrationState()
@@ -32,4 +33,9 @@ sealed class MigrationState {
         }
         data class Messages(val errorCode: String) : Failed()
     }
+}
+
+sealed interface MigrationType {
+    object Full : MigrationType
+    data class SingleUser(val userId: UserId) : MigrationType
 }

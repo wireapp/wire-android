@@ -20,7 +20,6 @@
 
 package com.wire.android.ui.home
 
-import androidx.annotation.StringRes
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -28,6 +27,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.wire.android.datastore.GlobalDataStore
+import com.wire.android.migration.userDatabase.ShouldTriggerMigrationForUserUserCase
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.EXTRA_CONNECTION_IGNORED_USER_NAME
@@ -58,6 +58,7 @@ class HomeViewModel @Inject constructor(
     private val getSelf: GetSelfUserUseCase,
     private val needsToRegisterClient: NeedsToRegisterClientUseCase,
     private val wireSessionImageLoader: WireSessionImageLoader,
+    private val shouldTriggerMigrationForUser: ShouldTriggerMigrationForUserUserCase,
     logFileWriter: LogFileWriter
 ) : SavedStateViewModel(savedStateHandle) {
 
@@ -74,7 +75,17 @@ class HomeViewModel @Inject constructor(
 
     fun checkRequirements() {
         viewModelScope.launch {
+            val userId = getSelf().first().id
             when {
+                shouldTriggerMigrationForUser(userId) -> {
+                    navigationManager.navigate(
+                        NavigationCommand(
+                            NavigationItem.Migration.getRouteWithArgs(listOf(userId)),
+                            BackStackMode.CLEAR_WHOLE
+                        )
+                    )
+                    return@launch
+                }
                 needsToRegisterClient() -> { // check if the client has been registered and open the proper screen if not
                     navigationManager.navigate(
                         NavigationCommand(

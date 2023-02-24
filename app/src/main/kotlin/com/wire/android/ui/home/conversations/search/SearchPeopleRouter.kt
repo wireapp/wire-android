@@ -41,7 +41,6 @@ import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.topappbar.search.SearchTopBar
 import com.wire.android.ui.common.topappbar.search.rememberSearchbarState
 import com.wire.android.ui.home.conversations.details.AddMembersToConversationViewModel
-import com.wire.android.ui.home.newconversation.common.SearchListScreens
 import com.wire.android.ui.home.newconversation.common.SelectParticipantsButtonsAlwaysEnabled
 import com.wire.android.ui.home.newconversation.common.SelectParticipantsButtonsRow
 import com.wire.android.ui.home.newconversation.contacts.ContactsScreen
@@ -135,7 +134,7 @@ fun SearchPeopleContent(
                 Crossfade(
                     targetState = searchBarState.isSearchActive
                 ) { isSearchActive ->
-                    if (isSearchActive)
+                    if (isSearchActive) {
                         SearchAllPeopleScreen(
                             searchQuery = searchQuery.text,
                             noneSearchSucceed = noneSearchSucceed,
@@ -146,7 +145,7 @@ fun SearchPeopleContent(
                             onOpenUserProfile = onOpenUserProfile,
                             onAddContactClicked = onAddContact
                         )
-                    else
+                    } else {
                         ContactsScreen(
                             allKnownContactResult = initialContacts,
                             contactsAddedToGroup = contactsAddedToGroup,
@@ -154,6 +153,7 @@ fun SearchPeopleContent(
                             onRemoveFromGroup = onRemoveContactFromGroup,
                             onOpenUserProfile = onOpenUserProfile
                         )
+                    }
                 }
                 BackHandler(enabled = searchBarState.isSearchActive) {
                     searchBarState.closeSearch()

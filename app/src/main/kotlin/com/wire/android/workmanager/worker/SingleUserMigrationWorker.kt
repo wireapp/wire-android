@@ -51,7 +51,7 @@ class SingleUserMigrationWorker @AssistedInject constructor(
 
         when (migrationManager.migrateSingleUser(userId, this) { setProgress(it.type.toData()) }) {
             is MigrationData.Result.Success -> Result.success()
-            is MigrationData.Result.Failure -> Result.retry()
+            is MigrationData.Result.Failure -> Result.failure()
         }
     }
 

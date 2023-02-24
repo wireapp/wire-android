@@ -147,6 +147,7 @@ object Libraries {
     const val coilGif                   = "io.coil-kt:coil-gif:${Versions.coil}"
     const val coilCompose               = "io.coil-kt:coil-compose:${Versions.coil}"
     const val dataDog                   = "com.datadoghq:dd-sdk-android:${Versions.dataDog}"
+    const val dataDogCompose            = "com.datadoghq:dd-sdk-android-compose:${Versions.dataDog}"
 
     object Hilt {
         const val android = "com.google.dagger:hilt-android:${Versions.hilt}"

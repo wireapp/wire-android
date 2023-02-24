@@ -22,18 +22,21 @@ package com.wire.android.di
 
 import android.os.Build
 import com.wire.android.BuildConfig
+import com.wire.android.datastore.GlobalDataStore
 import com.wire.kalium.logic.featureFlags.KaliumConfigs
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
 
 @Module
 @InstallIn(SingletonComponent::class)
 class KaliumConfigsModule {
 
     @Provides
-    fun provideKaliumConfigs(): KaliumConfigs {
+    fun provideKaliumConfigs(globalDataStore: GlobalDataStore): KaliumConfigs {
         return KaliumConfigs(
             isChangeEmailEnabled = BuildConfig.ALLOW_CHANGE_OF_EMAIL,
             isLoggingEnabled = BuildConfig.LOGGING_ENABLED,
@@ -52,7 +55,7 @@ class KaliumConfigsModule {
             lowerKeyingMaterialsUpdateThreshold = BuildConfig.PRIVATE_BUILD,
             isMLSSupportEnabled = BuildConfig.MLS_SUPPORT_ENABLED,
             developmentApiEnabled = BuildConfig.DEVELOPMENT_API_ENABLED,
-            encryptProteusStorage = BuildConfig.ENCRYPT_PROTEUS_STORAGE
+            encryptProteusStorage = runBlocking { globalDataStore.isEncryptedProteusStorageEnabled().first() }
         )
     }
 }

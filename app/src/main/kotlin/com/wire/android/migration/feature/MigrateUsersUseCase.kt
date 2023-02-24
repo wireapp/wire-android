@@ -41,10 +41,10 @@ class MigrateUsersUseCase @Inject constructor(
         scalaUserDatabase.userDAO(userId).flatMap { scalaUserDAO ->
             val users = scalaUserDAO.allUsers()
             // No need to match the domain since it can be missing from the scala DB
-        // firstOrNull is just to be safe in case the self user is not in the local DB
-        // any inconsistency in the DB will be fixed by sync
-        // and we only add users that are missing form sync so it is safe to assume that team is null in that case
-        val selfScalaUser = users.firstOrNull { it.id == userId.value }
+            // firstOrNull is just to be safe in case the self user is not in the local DB
+            // any inconsistency in the DB will be fixed by sync
+            // and we only add users that are missing form sync so it is safe to assume that team is null in that case
+            val selfScalaUser = users.firstOrNull { it.id == userId.value }
             val mappedUsers = users.map { scalaUser ->
                 mapper.fromScalaUserToUser(scalaUser, userId.value, userId.domain, selfScalaUser?.teamId, userId)
             }

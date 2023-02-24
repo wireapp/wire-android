@@ -451,7 +451,7 @@ class WireActivityViewModel @Inject constructor(
             }
         }
     }
-    
+
     private fun shouldGoToMigration(): Boolean = runBlocking {
         migrationManager.shouldMigrate()
     }

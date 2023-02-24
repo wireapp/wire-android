@@ -50,22 +50,21 @@ class MigrationViewModel @Inject constructor(
     private val navigationManager: NavigationManager,
     private val getCurrentSession: CurrentSessionUseCase,
     private val workManager: WorkManager,
-    private val savedStateHandle: SavedStateHandle
+    savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
     var state: MigrationState by mutableStateOf(MigrationState.InProgress(MigrationData.Progress.Type.UNKNOWN))
         private set
 
+    private val migrationType: MigrationType = savedStateHandle.get<String>(EXTRA_USER_ID)?.let {
+        QualifiedIdMapperImpl(null).fromStringToQualifiedID(it)
+    }?.let { MigrationType.SingleUser(it) } ?: MigrationType.Full
+
     init {
         viewModelScope.launch {
-            enqueueMigrationAndListenForStateChanges(getUserIdFromNavigationArgs())
+            enqueueMigrationAndListenForStateChanges()
         }
     }
-
-    private fun getUserIdFromNavigationArgs(): UserId? =
-        savedStateHandle.get<String>(EXTRA_USER_ID)?.let {
-            QualifiedIdMapperImpl(null).fromStringToQualifiedID(it)
-        }
 
     fun retry() {
         viewModelScope.launch {
@@ -75,17 +74,20 @@ class MigrationViewModel @Inject constructor(
         state = MigrationState.InProgress(MigrationData.Progress.Type.UNKNOWN)
     }
 
-    private suspend fun enqueueMigrationAndListenForStateChanges(userId: UserId?) {
-        if (userId != null) {
-            appLogger.d("Enqueuing single user migration for user: ${userId.value.obfuscateId()}")
-            workManager.enqueueSingleUserMigrationWorker(userId).collect {
-                handleMigrationResult(it)
+    private suspend fun enqueueMigrationAndListenForStateChanges() {
+        when (migrationType) {
+            is MigrationType.SingleUser -> {
+                appLogger.d("Enqueuing single user migration for user: ${userId.value.obfuscateId()}")
+                workManager.enqueueSingleUserMigrationWorker(migrationType.userId).collect {
+                    handleMigrationResult(it)
+                }
             }
 
-        } else {
-            appLogger.d("Enqueuing migration for all users")
-            workManager.enqueueMigrationWorker().collect {
-                handleMigrationResult(it)
+            is MigrationType.Full -> {
+                appLogger.d("Enqueuing migration for all users")
+                workManager.enqueueMigrationWorker().collect {
+                    handleMigrationResult(it)
+                }
             }
         }
     }

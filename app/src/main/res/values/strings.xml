@@ -195,7 +195,7 @@
     <string name="migration_title_updated">Setting up Wire</string>
     <string name="migration_login_required">In order to migrate your messages from the old version of Wire, you need to log in to your account.</string>
     <string name="migration_login_required_specific_account">In order to migrate your messages from the old version of Wire, you need to log in to your account %s.</string>
-    <string name="migration_login_required_specific_account_name">“%1$s (%2$s)“</string>
+    <string name="migration_login_required_specific_account_name">“%1$s (@%2$s)“</string>
     <string name="migration_messages_failure">Unfortunately, not all messages and conversations could not be migrated due to incompatibility with the older version of Wire (error code: %s)</string>
     <string name="migration_cancel_title">Cancel migration</string>
     <string name="migration_cancel_message">Are you sure you want to close the application and cancel the ongoing migration?</string>

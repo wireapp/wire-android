@@ -75,7 +75,7 @@ class MigrationViewModel @Inject constructor(
         state = MigrationState.InProgress(MigrationData.Progress.Type.UNKNOWN)
     }
 
-    fun accountLogin(userHandle: String?) {
+    fun accountLogin(userHandle: String) {
         viewModelScope.launch {
             migrationManager.dismissMigrationFailureNotification()
             navigateToLogin(userHandle)
@@ -130,8 +130,8 @@ class MigrationViewModel @Inject constructor(
         }
     }
 
-    private suspend fun navigateToLogin(userHandle: String?) {
-        // TODO: pass user handle to be pre-filled on the email login screen
-        navigationManager.navigate(NavigationCommand(NavigationItem.Login.getRouteWithArgs(), BackStackMode.CLEAR_WHOLE))
+    private suspend fun navigateToLogin(userHandle: String) {
+        navigationManager.navigate(NavigationCommand(NavigationItem.Login.getRouteWithArgs(listOf(userHandle)))
+        )
     }
 }

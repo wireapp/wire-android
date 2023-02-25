@@ -44,6 +44,8 @@ import com.wire.android.migration.util.ScalaDBNameProvider
 import com.wire.kalium.logger.obfuscateId
 import com.wire.android.notification.NotificationConstants
 import com.wire.android.notification.openAppPendingIntent
+import com.wire.android.notification.openMigrationLoginPendingIntent
+import com.wire.android.util.EMPTY
 import com.wire.android.util.ui.stringWithBoldArgs
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.EncryptionFailure
@@ -283,7 +285,7 @@ class MigrationManager @Inject constructor(
 
     private fun showAccountAnyNotification() {
         val message = applicationContext.resources.getString(R.string.migration_login_required).toSpanned()
-        showMigrationFailureNotification(message, openAppPendingIntent(applicationContext)) // TODO: open directly login screen
+        showMigrationFailureNotification(message, openMigrationLoginPendingIntent(applicationContext, String.EMPTY))
     }
 
     private fun showAccountSpecificNotification(userName: String, userHandle: String) {
@@ -291,7 +293,7 @@ class MigrationManager @Inject constructor(
             R.string.migration_login_required_specific_account,
             applicationContext.resources.getString(R.string.migration_login_required_specific_account_name, userName, userHandle)
         )
-        showMigrationFailureNotification(message, openAppPendingIntent(applicationContext)) // TODO: open directly login screen
+        showMigrationFailureNotification(message, openMigrationLoginPendingIntent(applicationContext, userHandle))
     }
 
     private fun showMessagesNotification(errorCode: String) {
@@ -377,7 +379,7 @@ fun Data.getMigrationFailure(): MigrationData.Result.Failure = when (this.getStr
     MigrationData.Result.Failure.FAILURE_TYPE_ACCOUNT_ANY -> MigrationData.Result.Failure.Account.Any
     MigrationData.Result.Failure.FAILURE_TYPE_ACCOUNT_SPECIFIC -> MigrationData.Result.Failure.Account.Specific(
         this.getString(MigrationData.Result.Failure.KEY_FAILURE_USER_NAME) ?: "",
-        this.getString(MigrationData.Result.Failure.KEY_FAILURE_USER_NAME) ?: "",
+        this.getString(MigrationData.Result.Failure.KEY_FAILURE_USER_HANDLE) ?: "",
     )
 
     MigrationData.Result.Failure.FAILURE_TYPE_MESSAGES -> MigrationData.Result.Failure.Messages(

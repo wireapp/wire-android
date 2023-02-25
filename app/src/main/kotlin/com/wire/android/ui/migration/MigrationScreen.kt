@@ -36,6 +36,7 @@ import com.wire.android.ui.common.SettingUpWireScreenContent
 import com.wire.android.ui.common.SettingUpWireScreenType
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.EMPTY
 import com.wire.android.util.ui.stringWithStyledArgs
 
 @Composable
@@ -48,7 +49,7 @@ private fun MigrationScreenContent(
     state: MigrationState,
     retry: () -> Unit = {},
     finish: () -> Unit = {},
-    accountLogin: (String?) -> Unit = {}
+    accountLogin: (String) -> Unit = {}
 ) {
     SettingUpWireScreenContent(
         message = state.message(),
@@ -61,7 +62,7 @@ private fun MigrationScreenContent(
             )
             is MigrationState.Failed.Account.Any -> SettingUpWireScreenType.Failure(
                 buttonTextResId = R.string.label_continue,
-                onButtonClick = { accountLogin(null) }
+                onButtonClick = { accountLogin(String.EMPTY) }
             )
             is MigrationState.Failed.Account.Specific -> SettingUpWireScreenType.Failure(
                 buttonTextResId = R.string.label_continue,

@@ -50,6 +50,7 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.dropWhile
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import java.util.concurrent.TimeUnit
@@ -115,7 +116,9 @@ suspend fun WorkManager.enqueueMigrationWorker(): Flow<MigrationData> {
         if (isAlreadyRunning) ExistingWorkPolicy.KEEP else ExistingWorkPolicy.REPLACE,
         request
     )
-    return getWorkInfosForUniqueWorkLiveData(MigrationWorker.NAME).asFlow().map {
+    return getWorkInfosForUniqueWorkLiveData(MigrationWorker.NAME).asFlow()
+        .dropWhile { it.first().state == WorkInfo.State.ENQUEUED }
+        .map {
         it.first().let { workInfo ->
             when (workInfo.state) {
                 WorkInfo.State.SUCCEEDED -> MigrationData.Result.Success

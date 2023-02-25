@@ -132,13 +132,25 @@ enum class NavigationItem(
 
     Login(
         primaryRoute = LOGIN,
-        canonicalRoute = LOGIN,
+        canonicalRoute = "$LOGIN?$EXTRA_USER_HANDLE={$EXTRA_USER_HANDLE}",
         content = { contentParams ->
             val ssoLoginResult = contentParams.arguments.filterIsInstance<DeepLinkResult.SSOLogin>().firstOrNull()
             LoginScreen(ssoLoginResult)
         },
+        deepLinks = listOf(
+            navDeepLink {
+                uriPattern = "${DeepLinkProcessor.DEEP_LINK_SCHEME}://" +
+                        "${DeepLinkProcessor.MIGRATION_LOGIN_HOST}/" +
+                        "{$EXTRA_USER_HANDLE}"
+            }
+        ),
         animationConfig = NavigationAnimationConfig.CustomAnimation(smoothSlideInFromRight(), smoothSlideOutFromLeft())
-    ),
+    ) {
+        override fun getRouteWithArgs(arguments: List<Any>): String {
+            val userHandleString: String = arguments.filterIsInstance<String>().firstOrNull()?.toString() ?: "{$EXTRA_USER_HANDLE}"
+            return "$LOGIN?$EXTRA_USER_HANDLE=$userHandleString"
+        }
+    },
 
     CreateTeam(
         primaryRoute = CREATE_TEAM,
@@ -456,6 +468,7 @@ object NavigationItemDestinationsRoutes {
 
 const val EXTRA_USER_ID = "extra_user_id"
 const val EXTRA_USER_DOMAIN = "extra_user_domain"
+const val EXTRA_USER_HANDLE = "extra_user_handle"
 
 const val EXTRA_CONVERSATION_ID = "extra_conversation_id"
 const val EXTRA_CREATE_ACCOUNT_FLOW_TYPE = "extra_create_account_flow_type"

@@ -165,6 +165,7 @@ class WireActivityViewModel @Inject constructor(
         else -> NavigationItem.Home.getRouteWithArgs()
     }
 
+    @Suppress("ComplexMethod")
     fun handleDeepLink(intent: Intent?) {
         intent?.data?.let { deepLink ->
             when (val result = deepLinkProcessor(deepLink, viewModelScope)) {

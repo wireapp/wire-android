@@ -132,7 +132,13 @@ class MigrationManager @Inject constructor(
                         migrateConversations(it)
                     }.flatMap {
                         appLogger.d("$TAG - Step 5 - Migrating messages for $userid")
-                        migrateMessages(userid, it, coroutineScope)
+                        migrateMessages(userid, it, coroutineScope).let { failedConversations ->
+                            if (failedConversations.isEmpty()) {
+                                Either.Right(Unit)
+                            } else {
+                                Either.Left(failedConversations.values.first())
+                            }
+                        }
                     }.also {
                         resultAcc[userid.value] = it
                     }

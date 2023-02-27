@@ -56,10 +56,6 @@ import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.dialogs.CustomBEDeeplinkDialog
-import com.wire.android.ui.common.dialogs.FileSharingRestrictedDialogContent
-import com.wire.android.ui.common.dialogs.FileSharingRestrictedDialogState
-import com.wire.android.ui.common.visbility.rememberVisibilityState
-import com.wire.android.ui.home.sync.FeatureFlagNotificationViewModel
 import com.wire.android.ui.joinConversation.JoinConversationViaCodeState
 import com.wire.android.ui.joinConversation.JoinConversationViaDeepLinkDialog
 import com.wire.android.ui.joinConversation.JoinConversationViaInviteLinkError
@@ -95,8 +91,6 @@ class WireActivity : AppCompatActivity() {
 
     val viewModel: WireActivityViewModel by viewModels()
 
-    val featureFlagNotificationViewModel: FeatureFlagNotificationViewModel by viewModels()
-
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         super.onCreate(savedInstanceState)
@@ -104,7 +98,6 @@ class WireActivity : AppCompatActivity() {
         lifecycle.addObserver(currentScreenManager)
         viewModel.handleDeepLink(intent)
         setComposableContent()
-        checkSharingStateIntent()
     }
 
     override fun onNewIntent(intent: Intent?) {
@@ -126,40 +119,15 @@ class WireActivity : AppCompatActivity() {
                 WireTheme {
                     val scope = rememberCoroutineScope()
                     val navController = rememberTrackingAnimatedNavController { NavigationItem.fromRoute(it)?.itemName }
-                    if (!isThereSharingIntent()) {
-                        setUpNavigationGraph(viewModel.startNavigationRoute(), navController, scope)
-                    } else {
-                        setUpNavigationGraph(viewModel.startNavigationRoute(NavigationItem.ImportMedia), navController, scope)
-                    }
+                    setUpNavigationGraph(
+                        viewModel.startNavigationRoute(hasSharingIntent = ShareCompat.IntentReader(this).isShareIntent),
+                        navController,
+                        scope
+                    )
                     handleDialogs()
                 }
             }
         }
-    }
-
-    private fun checkSharingStateIntent() {
-        val incomingIntent = ShareCompat.IntentReader(this)
-        if (incomingIntent.isShareIntent) {
-            featureFlagNotificationViewModel.updateSharingStateIfNeeded()
-        }
-    }
-
-    @Composable
-    private fun isThereSharingIntent(): Boolean {
-        val fileSharingRestrictedDialogState = rememberVisibilityState<FileSharingRestrictedDialogState>()
-        FileSharingRestrictedDialogContent(
-            dialogState = fileSharingRestrictedDialogState
-        )
-        if (featureFlagNotificationViewModel.featureFlagState.showFileSharingRestrictedDialog) {
-            fileSharingRestrictedDialogState.show(
-                fileSharingRestrictedDialogState.savedState ?: FileSharingRestrictedDialogState
-            )
-        }
-        if (featureFlagNotificationViewModel.featureFlagState.openImportMediaScreen) {
-            return true
-        }
-
-        return false
     }
 
     @Composable

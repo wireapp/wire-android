@@ -29,6 +29,7 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.BuildConfig
 import com.wire.android.appLogger
 import com.wire.android.di.AuthServerConfigProvider
+import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.di.ObserveSyncStateUseCaseProvider
 import com.wire.android.feature.AccountSwitchUseCase
 import com.wire.android.feature.SwitchAccountParam
@@ -37,10 +38,12 @@ import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.services.ServicesManager
 import com.wire.android.ui.common.dialogs.CustomBEDeeplinkDialogState
 import com.wire.android.util.deeplink.DeepLinkProcessor
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.android.util.dispatchers.DispatcherProvider
+import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
@@ -54,6 +57,7 @@ import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import com.wire.kalium.logic.feature.session.GetSessionsUseCase
+import com.wire.kalium.logic.feature.user.webSocketStatus.ObservePersistentWebSocketConnectionStatusUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -76,6 +80,7 @@ import javax.inject.Inject
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class WireActivityViewModel @Inject constructor(
+    @KaliumCoreLogic private val coreLogic: CoreLogic,
     private val dispatchers: DispatcherProvider,
     val currentSessionFlow: CurrentSessionFlowUseCase,
     private val getServerConfigUseCase: GetServerConfigUseCase,
@@ -85,6 +90,7 @@ class WireActivityViewModel @Inject constructor(
     private val getSessions: GetSessionsUseCase,
     private val accountSwitch: AccountSwitchUseCase,
     private val migrationManager: MigrationManager,
+    private val servicesManager: ServicesManager,
     private val observeSyncStateUseCaseProviderFactory: ObserveSyncStateUseCaseProvider.Factory,
     private val observeIfAppUpdateRequired: ObserveIfAppUpdateRequiredUseCase
 ) : ViewModel() {
@@ -131,6 +137,9 @@ class WireActivityViewModel @Inject constructor(
                 .collect {
                     globalAppState = globalAppState.copy(updateAppDialog = it)
                 }
+        }
+        viewModelScope.launch {
+            observePersistentConnectionStatusToRunWebSocketAndNotifications()
         }
     }
 
@@ -381,6 +390,29 @@ class WireActivityViewModel @Inject constructor(
     fun appWasUpdate() {
         globalAppState = globalAppState.copy(updateAppDialog = false)
     }
+
+    private suspend fun observePersistentConnectionStatusToRunWebSocketAndNotifications() {
+        coreLogic.getGlobalScope().observePersistentWebSocketConnectionStatus().let { result ->
+            when (result) {
+                is ObservePersistentWebSocketConnectionStatusUseCase.Result.Failure -> {
+                    appLogger.e("Failure while fetching persistent web socket status flow from wire activity")
+                }
+                is ObservePersistentWebSocketConnectionStatusUseCase.Result.Success -> {
+                    result.persistentWebSocketStatusListFlow.collect { statuses ->
+
+                        if (statuses.any { it.isPersistentWebSocketEnabled }) {
+                            if (!servicesManager.isPersistentWebSocketServiceRunning()) {
+                                servicesManager.startPersistentWebSocketService()
+                            }
+                        } else {
+                            servicesManager.stopPersistentWebSocketService()
+                        }
+                    }
+                }
+            }
+        }
+    }
+
 
     companion object {
         private const val SERVER_CONFIG_ARG = "server_config"

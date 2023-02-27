@@ -73,7 +73,6 @@ import javax.inject.Inject
 
 @OptIn(
     ExperimentalMaterial3Api::class,
-    ExperimentalAnimationApi::class,
     ExperimentalComposeUiApi::class,
     ExperimentalCoroutinesApi::class
 )

@@ -200,7 +200,7 @@ internal class ConversationsViewModelArrangement {
             imageUtil = imageUtil,
             pingRinger = pingRinger,
             sendKnockUseCase = sendKnockUseCase,
-            fileManger = fileManger
+            fileManager = fileManger
         )
     }
 

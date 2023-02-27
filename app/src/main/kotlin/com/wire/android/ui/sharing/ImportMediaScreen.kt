@@ -7,7 +7,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -38,21 +37,29 @@ import com.wire.android.model.SnackBarMessage
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.colorsScheme
+import com.wire.android.ui.common.dialogs.FileSharingRestrictedDialogContent
+import com.wire.android.ui.common.dialogs.FileSharingRestrictedDialogState
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.topappbar.search.SearchTopBar
 import com.wire.android.ui.common.topappbar.search.rememberSearchbarState
+import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.home.conversationslist.common.ConversationList
 import com.wire.android.ui.home.conversationslist.model.ConversationFolder
 import com.wire.android.ui.home.newconversation.common.SendContentButton
+import com.wire.android.ui.home.sync.FeatureFlagNotificationViewModel
 import com.wire.android.util.extension.getActivity
 import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.coroutines.flow.SharedFlow
 
 @Composable
-fun ImportMediaScreen(importMediaViewModel: ImportMediaViewModel = hiltViewModel()) {
+fun ImportMediaScreen(
+    importMediaViewModel: ImportMediaViewModel = hiltViewModel(),
+    featureFlagNotificationViewModel: FeatureFlagNotificationViewModel = hiltViewModel()
+) {
+    checkIfSharingIsEnabled(featureFlagNotificationViewModel)
     val context = LocalContext.current
     LaunchedEffect(importMediaViewModel.importMediaState.importedAssets) {
         if (importMediaViewModel.importMediaState.importedAssets.isEmpty()) {
@@ -61,6 +68,20 @@ fun ImportMediaScreen(importMediaViewModel: ImportMediaViewModel = hiltViewModel
     }
 
     ImportMediaContent(importMediaViewModel)
+}
+
+@Composable
+fun checkIfSharingIsEnabled(featureFlagNotificationViewModel: FeatureFlagNotificationViewModel) {
+    featureFlagNotificationViewModel.loadInitialSync()
+
+    val fileSharingRestrictedDialogState = rememberVisibilityState<FileSharingRestrictedDialogState>()
+    FileSharingRestrictedDialogContent(dialogState = fileSharingRestrictedDialogState)
+
+    featureFlagNotificationViewModel.updateSharingStateIfNeeded()
+
+    if (featureFlagNotificationViewModel.featureFlagState.showFileSharingRestrictedDialog) {
+        fileSharingRestrictedDialogState.show(fileSharingRestrictedDialogState.savedState ?: FileSharingRestrictedDialogState)
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalPagerApi::class, ExperimentalFoundationApi::class)
@@ -124,13 +145,11 @@ fun ImportMediaContent(importMediaViewModel: ImportMediaViewModel) {
                                 contentPadding = contentPadding,
                                 itemSpacing = dimensions().spacing8x
                             ) { page ->
-                                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(dimensions().spacing12x)) {
-                                    ImportedMediaItemView(
-                                        importedItemsList[page],
-                                        isMultipleImport,
-                                        importMediaViewModel.wireSessionImageLoader
-                                    )
-                                }
+                                ImportedMediaItemView(
+                                    importedItemsList[page],
+                                    isMultipleImport,
+                                    importMediaViewModel.wireSessionImageLoader
+                                )
                             }
                         }
                     }

@@ -22,6 +22,7 @@ package com.wire.android.ui.home.conversations
 
 import android.app.DownloadManager
 import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -196,7 +197,9 @@ fun ConversationScreen(
         composerMessages = messageComposerViewModel.infoMessage,
         conversationMessages = conversationMessagesViewModel.infoMessage,
         conversationMessagesViewModel = conversationMessagesViewModel,
-        onPingClicked = messageComposerViewModel::sendPing
+        onPingClicked = messageComposerViewModel::sendPing,
+        tempWritableImageUri = messageComposerViewModel.tempWritableImageUri,
+        tempWritableVideoUri = messageComposerViewModel.tempWritableVideoUri
     )
     DeleteMessageDialog(
         state = messageComposerViewModel.deleteMessageDialogsState,
@@ -286,7 +289,9 @@ private fun ConversationScreen(
     composerMessages: SharedFlow<SnackBarMessage>,
     conversationMessages: SharedFlow<SnackBarMessage>,
     conversationMessagesViewModel: ConversationMessagesViewModel,
-    onPingClicked: () -> Unit
+    onPingClicked: () -> Unit,
+    tempWritableImageUri: Uri?,
+    tempWritableVideoUri: Uri?
 ) {
     val conversationScreenState = rememberConversationScreenState()
     val messageComposerInnerState = rememberMessageComposerInnerState()
@@ -362,7 +367,9 @@ private fun ConversationScreen(
                         onUpdateConversationReadDate = onUpdateConversationReadDate,
                         onMessageComposerError = onSnackbarMessage,
                         onShowContextMenu = conversationScreenState::showEditContextMenu,
-                        onPingClicked = onPingClicked
+                        onPingClicked = onPingClicked,
+                        tempWritableImageUri = tempWritableImageUri,
+                        tempWritableVideoUri = tempWritableVideoUri
                     )
                 }
             }
@@ -393,7 +400,9 @@ private fun ConversationScreenContent(
     onUpdateConversationReadDate: (String) -> Unit,
     onMessageComposerError: (ConversationSnackbarMessages) -> Unit,
     onShowContextMenu: (UIMessage) -> Unit,
-    onPingClicked: () -> Unit
+    onPingClicked: () -> Unit,
+    tempWritableImageUri: Uri?,
+    tempWritableVideoUri: Uri?
 ) {
     val scope = rememberCoroutineScope()
 
@@ -439,7 +448,9 @@ private fun ConversationScreenContent(
         interactionAvailability = interactionAvailability,
         securityClassificationType = conversationState.securityClassificationType,
         membersToMention = membersToMention,
-        onPingClicked = onPingClicked
+        onPingClicked = onPingClicked,
+        tempWritableImageUri = tempWritableImageUri,
+        tempWritableVideoUri = tempWritableVideoUri
     )
 
     val currentEditMessageId: String? by remember(messageComposerInnerState.messageComposeInputState) {
@@ -588,6 +599,8 @@ fun PreviewConversationScreen() {
         composerMessages = MutableStateFlow(ErrorDownloadingAsset),
         conversationMessages = MutableStateFlow(ErrorDownloadingAsset),
         conversationMessagesViewModel = hiltViewModel(),
-        onPingClicked = {}
+        onPingClicked = {},
+        tempWritableImageUri = null,
+        tempWritableVideoUri = null
     )
 }

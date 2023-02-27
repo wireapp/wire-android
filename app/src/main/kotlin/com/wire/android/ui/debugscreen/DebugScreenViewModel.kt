@@ -96,7 +96,7 @@ class DebugScreenViewModel
     private fun checkIfCanTriggerManualMigration() {
         viewModelScope.launch {
             globalDataStore.getUserMigrationStatus(currentAccount.value).first().let { migrationStatus ->
-                if (migrationStatus == UserMigrationStatus.NoNeed) {
+                if (migrationStatus != UserMigrationStatus.NoNeed) {
                     context.getDatabasePath(currentAccount.value).let {
                         state = state.copy(isManualMigrationAllowed = (it.exists() && it.isFile))
                     }

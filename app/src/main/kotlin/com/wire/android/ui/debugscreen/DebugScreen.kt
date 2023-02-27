@@ -75,6 +75,7 @@ fun DebugScreen() {
         onDeleteLogs = debugScreenViewModel::deleteLogs,
         navigateBack = debugScreenViewModel::navigateBack,
         onForceLatestDevelopmentApiChange = debugScreenViewModel::forceUpdateApiVersions,
+        onManualMigrationClicked = debugScreenViewModel::onStartManualMigration
     )
 }
 
@@ -87,6 +88,7 @@ fun DebugContent(
     onDeleteLogs: () -> Unit,
     navigateBack: () -> Unit,
     onForceLatestDevelopmentApiChange: () -> Unit,
+    onManualMigrationClicked: () -> Unit
 ) {
     val scrollState = rememberScrollState()
 
@@ -131,7 +133,29 @@ fun DebugContent(
             if (BuildConfig.DEBUG) {
                 DevelopmentApiVersioningOptions(onForceLatestDevelopmentApiChange = onForceLatestDevelopmentApiChange)
             }
+
+            if (debugScreenState.isManualMigrationAllowed) {
+                ManualMigrationOptions(
+                    onManualMigrationClicked
+                )
+            }
         }
+    }
+}
+
+@Composable
+private fun ManualMigrationOptions(
+    onManualMigrationClicked: () -> Unit,
+) {
+    Column {
+        FolderHeader(stringResource(R.string.label_manual_migration_title))
+        SettingsItem(
+            title = stringResource(R.string.start_manual_migration),
+            onRowPressed = Clickable(
+                enabled = true,
+                onClick = onManualMigrationClicked
+            )
+        )
     }
 }
 

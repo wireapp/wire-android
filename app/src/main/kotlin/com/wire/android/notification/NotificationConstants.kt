@@ -55,6 +55,7 @@ object NotificationConstants {
     val MESSAGE_SYNC_NOTIFICATION_ID = "wire_notification_fetch_notification".hashCode()
     val MIGRATION_NOTIFICATION_ID = "wire_migration_notification".hashCode()
     val SINGLE_USER_MIGRATION_NOTIFICATION_ID = "wire_single_user_migration_notification".hashCode()
+    val MIGRATION_ERROR_NOTIFICATION_ID = "wire_migration_error_notification".hashCode()
 
     // MessagesSummaryNotification ID depends on User, use fun getMessagesSummaryId(userId: UserId) to get it
     private const val MESSAGE_SUMMARY_ID_STRING = "wire_messages_summary_notification"

@@ -44,7 +44,7 @@ class MigrateConversationsUseCase @Inject constructor(
     // atm we insert the conversation that does not exist remotely anymore aka deleted
     // and in that case leaving it as group will not be an issue
     suspend operator fun invoke(userId: UserId): Either<CoreFailure, List<ScalaConversationData>> =
-        scalaUserDatabase.conversationDAO(userId).flatMap { scalaConvDAO ->
+        scalaUserDatabase.conversationDAO(userId.value).flatMap { scalaConvDAO ->
             val conversations = scalaConvDAO.conversations()
             if (conversations.isEmpty()) {
                 return@flatMap Either.Right(conversations)

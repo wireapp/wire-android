@@ -21,6 +21,7 @@
 package com.wire.android.util.ui
 
 import android.content.res.Resources
+import android.text.SpannedString
 import androidx.annotation.StringRes
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material3.MaterialTheme
@@ -33,10 +34,12 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
-import com.wire.android.ui.common.colorsScheme
+import androidx.core.text.bold
+import androidx.core.text.buildSpannedString
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 
+// To be used in Composables when we have access to the styles and colors.
 @Suppress("LongParameterList", "SpreadOperator")
 fun Resources.stringWithStyledArgs(
     @StringRes stringResId: Int,
@@ -52,6 +55,21 @@ fun Resources.stringWithStyledArgs(
     return buildAnnotatedString {
         string.split(STYLE_SEPARATOR).forEachIndexed { index, text ->
             withStyle(if (index % 2 == 0) normalSpanStyle else boldSpanStyle) { append(text) }
+        }
+    }
+}
+
+// To be used outside of Composables, e.g. in notifications.
+@Suppress("LongParameterList", "SpreadOperator")
+fun Resources.stringWithBoldArgs(
+    @StringRes stringResId: Int,
+    vararg formatArgs: String
+): SpannedString {
+    val string = this.getString(stringResId, *formatArgs.map { it.bold() }.toTypedArray())
+    return buildSpannedString {
+        string.split(STYLE_SEPARATOR).forEachIndexed { index, text ->
+            if (index % 2 == 0) append(text)
+            else bold { append(text) }
         }
     }
 }

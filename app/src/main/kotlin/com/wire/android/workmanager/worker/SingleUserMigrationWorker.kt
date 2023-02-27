@@ -19,6 +19,7 @@ import androidx.work.workDataOf
 import com.wire.android.R
 import com.wire.android.migration.MigrationData
 import com.wire.android.migration.MigrationManager
+import com.wire.android.migration.getMigrationFailure
 import com.wire.android.migration.getMigrationProgress
 import com.wire.android.migration.toData
 import com.wire.android.notification.NotificationChannelsManager
@@ -98,10 +99,10 @@ suspend fun WorkManager.enqueueSingleUserMigrationWorker(userId: UserId): Flow<M
         it.first().let { workInfo ->
             when (workInfo.state) {
                 WorkInfo.State.SUCCEEDED -> MigrationData.Result.Success
-                WorkInfo.State.FAILED -> MigrationData.Result.Failure
-                WorkInfo.State.CANCELLED -> MigrationData.Result.Failure
+                WorkInfo.State.FAILED -> workInfo.outputData.getMigrationFailure()
+                WorkInfo.State.CANCELLED -> workInfo.outputData.getMigrationFailure()
                 WorkInfo.State.RUNNING -> MigrationData.Progress(workInfo.progress.getMigrationProgress())
-                WorkInfo.State.ENQUEUED -> MigrationData.Result.Failure
+                WorkInfo.State.ENQUEUED -> workInfo.outputData.getMigrationFailure()
                 WorkInfo.State.BLOCKED -> null
             }
         }

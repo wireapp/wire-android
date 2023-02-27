@@ -55,8 +55,8 @@ class MigrateMessagesUseCase @Inject constructor(
         scalaConversations: List<ScalaConversationData>,
         coroutineScope: CoroutineScope
     ): Map<String, CoreFailure> {
-        val (messageDAO: ScalaMessageDAO, userDAO: ScalaUserDAO) = scalaUserDatabase.messageDAO(userId).flatMap { messageDAO ->
-            scalaUserDatabase.userDAO(userId).map { messageDAO to it }
+        val (messageDAO: ScalaMessageDAO, userDAO: ScalaUserDAO) = scalaUserDatabase.messageDAO(userId.value).flatMap { messageDAO ->
+            scalaUserDatabase.userDAO(userId.value).map { messageDAO to it }
         }.getOrNull() ?: return emptyMap()
 
         val errorsAcc: MutableMap<String, CoreFailure> = mutableMapOf()

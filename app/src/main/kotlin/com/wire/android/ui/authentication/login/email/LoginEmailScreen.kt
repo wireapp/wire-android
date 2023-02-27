@@ -148,7 +148,8 @@ private fun LoginEmailContent(
                 error = when (loginState.loginError) {
                     LoginError.TextFieldError.InvalidValue -> stringResource(R.string.login_error_invalid_user_identifier)
                     else -> null
-                }
+                },
+                isEnabled = loginState.userIdentifierEnabled
             )
             PasswordInput(
                 modifier = Modifier
@@ -202,6 +203,7 @@ private fun UserIdentifierInput(
     userIdentifier: TextFieldValue,
     error: String?,
     onUserIdentifierChange: (TextFieldValue) -> Unit,
+    isEnabled: Boolean,
 ) {
     AutoFillTextField(
         autofillTypes = listOf(AutofillType.EmailAddress, AutofillType.Username),
@@ -209,7 +211,11 @@ private fun UserIdentifierInput(
         onValueChange = onUserIdentifierChange,
         placeholderText = stringResource(R.string.login_user_identifier_placeholder),
         labelText = stringResource(R.string.login_user_identifier_label),
-        state = if (error != null) WireTextFieldState.Error(error) else WireTextFieldState.Default,
+        state = when {
+            !isEnabled -> WireTextFieldState.Disabled
+            error != null -> WireTextFieldState.Error(error)
+            else -> WireTextFieldState.Default
+        },
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Next),
         modifier = modifier.testTag("emailField")
     )

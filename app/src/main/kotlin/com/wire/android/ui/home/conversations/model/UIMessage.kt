@@ -191,7 +191,11 @@ sealed class UIMessageContent {
             val author: UIText,
             val receiptMode: UIText,
             val isAuthorSelfUser: Boolean = false
-        ) : SystemMessage(R.drawable.ic_view, if (isAuthorSelfUser) R.string.label_system_message_read_receipt_changed_by_self else R.string.label_system_message_read_receipt_changed_by_other)
+        ) : SystemMessage(
+            R.drawable.ic_view,
+            if (isAuthorSelfUser) R.string.label_system_message_read_receipt_changed_by_self
+            else R.string.label_system_message_read_receipt_changed_by_other
+        )
 
         class HistoryLost :
             SystemMessage(R.drawable.ic_info, R.string.label_system_message_conversation_history_lost, true)

@@ -212,8 +212,8 @@ private fun TakePictureFlow(
 
 @Composable
 private fun CaptureVideoFlow(
-    onVideoCaptured: (Uri) -> Unit,
-    tempWritableVideoUri: Uri?
+    tempWritableVideoUri: Uri?,
+    onVideoCaptured: (Uri) -> Unit
 ): UseCameraRequestFlow? {
     tempWritableVideoUri?.let {
         return rememberCaptureVideoFlow(
@@ -251,7 +251,7 @@ private fun buildAttachmentOptionItems(
     val fileFlow = FileBrowserFlow(onFilePicked)
     val galleryFlow = GalleryFlow(onFilePicked)
     val cameraFlow = TakePictureFlow(tempWritableImageUri, onFilePicked)
-    val captureVideoFlow = CaptureVideoFlow(onFilePicked, tempWritableVideoUri)
+    val captureVideoFlow = CaptureVideoFlow(tempWritableVideoUri, onFilePicked)
     val shareCurrentLocationFlow = ShareCurrentLocationFlow()
     val recordAudioFlow = RecordAudioFlow()
 

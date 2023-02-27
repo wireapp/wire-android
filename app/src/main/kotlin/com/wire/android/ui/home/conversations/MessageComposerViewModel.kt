@@ -108,7 +108,7 @@ class MessageComposerViewModel @Inject constructor(
     private val sendKnockUseCase: SendKnockUseCase,
     private val pingRinger: PingRinger,
     private val imageUtil: ImageUtil,
-    private val fileManger: FileManager
+    private val fileManager: FileManager
 ) : SavedStateViewModel(savedStateHandle) {
 
     var conversationViewState by mutableStateOf(ConversationViewState())

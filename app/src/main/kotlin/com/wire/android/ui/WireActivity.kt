@@ -28,7 +28,6 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -98,6 +97,7 @@ class WireActivity : AppCompatActivity() {
         lifecycle.addObserver(currentScreenManager)
 
         viewModel.handleDeepLink(intent)
+        viewModel.observePersistentConnectionStatus()
         setComposableContent()
     }
 
@@ -191,9 +191,11 @@ class WireActivity : AppCompatActivity() {
                 CurrentSessionErrorState.SessionExpired -> {
                     R.string.session_expired_error_title to R.string.session_expired_error_message
                 }
+
                 CurrentSessionErrorState.RemovedClient -> {
                     R.string.removed_client_error_title to R.string.removed_client_error_message
                 }
+
                 CurrentSessionErrorState.DeletedAccount -> {
                     R.string.deleted_user_error_title to R.string.deleted_user_error_message
                 }

@@ -138,9 +138,6 @@ class WireActivityViewModel @Inject constructor(
                     globalAppState = globalAppState.copy(updateAppDialog = it)
                 }
         }
-        viewModelScope.launch {
-            observePersistentConnectionStatusToRunWebSocketAndNotifications()
-        }
     }
 
     private suspend fun handleInvalidSession(logoutReason: LogoutReason) {
@@ -149,10 +146,13 @@ class WireActivityViewModel @Inject constructor(
                 LogoutReason.SELF_SOFT_LOGOUT, LogoutReason.SELF_HARD_LOGOUT -> {
                     // Self logout is handled from the Self user profile screen directly
                 }
+
                 LogoutReason.REMOVED_CLIENT ->
                     globalAppState = globalAppState.copy(blockUserUI = CurrentSessionErrorState.RemovedClient)
+
                 LogoutReason.DELETED_ACCOUNT ->
                     globalAppState = globalAppState.copy(blockUserUI = CurrentSessionErrorState.DeletedAccount)
+
                 LogoutReason.SESSION_EXPIRED ->
                     globalAppState = globalAppState.copy(blockUserUI = CurrentSessionErrorState.SessionExpired)
             }
@@ -277,6 +277,7 @@ class WireActivityViewModel @Inject constructor(
                 openOtherUserProfile(navigationArguments[OPEN_OTHER_USER_PROFILE_ARG] as QualifiedID)
                 false
             }
+
             isServerConfigOnPremises() -> false
 
             intent == null -> false
@@ -306,6 +307,7 @@ class WireActivityViewModel @Inject constructor(
                 is GetAllSessionsResult.Success -> {
                     it.sessions.filterIsInstance<AccountInfo.Valid>().size
                 }
+
                 is GetAllSessionsResult.Failure.Generic -> 0
                 GetAllSessionsResult.Failure.NoSessionFound -> 0
             }
@@ -391,21 +393,24 @@ class WireActivityViewModel @Inject constructor(
         globalAppState = globalAppState.copy(updateAppDialog = false)
     }
 
-    private suspend fun observePersistentConnectionStatusToRunWebSocketAndNotifications() {
-        coreLogic.getGlobalScope().observePersistentWebSocketConnectionStatus().let { result ->
-            when (result) {
-                is ObservePersistentWebSocketConnectionStatusUseCase.Result.Failure -> {
-                    appLogger.e("Failure while fetching persistent web socket status flow from wire activity")
-                }
-                is ObservePersistentWebSocketConnectionStatusUseCase.Result.Success -> {
-                    result.persistentWebSocketStatusListFlow.collect { statuses ->
+    fun observePersistentConnectionStatus() {
+        viewModelScope.launch {
+            coreLogic.getGlobalScope().observePersistentWebSocketConnectionStatus().let { result ->
+                when (result) {
+                    is ObservePersistentWebSocketConnectionStatusUseCase.Result.Failure -> {
+                        appLogger.e("Failure while fetching persistent web socket status flow from wire activity")
+                    }
 
-                        if (statuses.any { it.isPersistentWebSocketEnabled }) {
-                            if (!servicesManager.isPersistentWebSocketServiceRunning()) {
-                                servicesManager.startPersistentWebSocketService()
+                    is ObservePersistentWebSocketConnectionStatusUseCase.Result.Success -> {
+                        result.persistentWebSocketStatusListFlow.collect { statuses ->
+
+                            if (statuses.any { it.isPersistentWebSocketEnabled }) {
+                                if (!servicesManager.isPersistentWebSocketServiceRunning()) {
+                                    servicesManager.startPersistentWebSocketService()
+                                }
+                            } else {
+                                servicesManager.stopPersistentWebSocketService()
                             }
-                        } else {
-                            servicesManager.stopPersistentWebSocketService()
                         }
                     }
                 }

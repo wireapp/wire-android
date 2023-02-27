@@ -288,13 +288,13 @@ class MessageComposerViewModel @Inject constructor(
 
     private fun initTempWritableVideoUri() {
         viewModelScope.launch {
-            tempWritableVideoUri = fileManger.getTempWritableVideoUri(provideTempCachePath())
+            tempWritableVideoUri = fileManager.getTempWritableVideoUri(provideTempCachePath())
         }
     }
 
     private fun initTempWritableImageUri() {
         viewModelScope.launch {
-            tempWritableImageUri = fileManger.getTempWritableImageUri(provideTempCachePath())
+            tempWritableImageUri = fileManager.getTempWritableImageUri(provideTempCachePath())
         }
     }
 

@@ -89,6 +89,6 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
      * If there is no status stored, the status will be [UserMigrationStatus.NoNeed]
      * meaning that the user does not need to be migrated.
      */
-    fun getUserMigrationStatus(userId: String): Flow<UserMigrationStatus> =
-        context.dataStore.data.map { UserMigrationStatus.fromInt(it[userMigrationStatusKey(userId)] ?: UserMigrationStatus.NoNeed.value) }
+    fun getUserMigrationStatus(userId: String): Flow<UserMigrationStatus?> =
+        context.dataStore.data.map { it[userMigrationStatusKey(userId)]?.let { status -> UserMigrationStatus.fromInt(status) } }
 }

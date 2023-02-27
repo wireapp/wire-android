@@ -103,11 +103,11 @@ import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.kalium.logic.data.conversation.ClientId
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
+import com.wire.kalium.logic.data.user.UserId
 import io.github.esentsov.PackagePrivate
 import com.wire.android.ui.home.conversations.details.editguestaccess.EditGuestAccessScreen
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import com.wire.android.ui.home.conversations.details.editguestaccess.EditGuestAccessScreen
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 /**
@@ -130,8 +130,14 @@ enum class NavigationItem(
 
     Migration(
         primaryRoute = MIGRATION,
+        canonicalRoute = "$MIGRATION?$EXTRA_USER_ID={$EXTRA_USER_ID}",
         content = { MigrationScreen() },
-    ),
+    ) {
+        override fun getRouteWithArgs(arguments: List<Any>): String {
+            val userIdString: String = arguments.filterIsInstance<UserId>().firstOrNull()?.toString() ?: "{$EXTRA_USER_ID}"
+            return "$MIGRATION?$EXTRA_USER_ID=$userIdString"
+        }
+    },
 
     Login(
         primaryRoute = LOGIN,

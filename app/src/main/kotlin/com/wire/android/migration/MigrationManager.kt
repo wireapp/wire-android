@@ -133,7 +133,7 @@ class MigrationManager @Inject constructor(
                 }
             }.fold({
                 when (it) {
-                    is NetworkFailure -> MigrationData.Result.Failure.NoNetwork
+                    is NetworkFailure.NoNetworkConnection -> MigrationData.Result.Failure.NoNetwork
                     else -> MigrationData.Result.Failure.Messages(it.getErrorCode().toString())
                 }
             }, {
@@ -163,7 +163,7 @@ class MigrationManager @Inject constructor(
             .map { it.userIds.values.toList() to it.isFederationEnabled }
             .fold(
                 { when (it) {
-                        is NetworkFailure -> MigrationData.Result.Failure.NoNetwork
+                        is NetworkFailure.NoNetworkConnection -> MigrationData.Result.Failure.NoNetwork
                         else -> MigrationData.Result.Failure.Account.Any
                     }
                 }, { (migratedAccounts, isFederated) ->
@@ -210,14 +210,14 @@ class MigrationManager @Inject constructor(
     ): MigrationData.Result {
         val accountsSucceeded = migratedAccounts.filter { it.isRight() }.map { (it as Either.Right).value }
         val accountsFailed = migratedAccounts.filter { it.isLeft() }.map { (it as Either.Left).value }
-        return if (accountsFailed.any { it.cause is NetworkFailure }) {
+        return if (accountsFailed.any { it.cause is NetworkFailure.NoNetworkConnection }) {
             MigrationData.Result.Failure.NoNetwork
         } else {
             updateProgress(MigrationData.Progress(MigrationData.Progress.Type.MESSAGES))
             val results = migrateAccountsData(accountsSucceeded, isFederated, coroutineScope, migrationDispatcher).values
             val dataFailed = results.filter { it.isLeft() }.map { (it as Either.Left).value }
             when {
-                dataFailed.any { it is NetworkFailure } -> MigrationData.Result.Failure.NoNetwork
+                dataFailed.any { it is NetworkFailure.NoNetworkConnection } -> MigrationData.Result.Failure.NoNetwork
                 accountsFailed.size > 1 -> MigrationData.Result.Failure.Account.Any
                 accountsFailed.size == 1 -> accountsFailed.first().let {
                     if (it.userName?.isNotEmpty() == true && it.userHandle?.isNotEmpty() == true)

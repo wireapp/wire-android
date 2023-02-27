@@ -20,6 +20,7 @@
 
 package com.wire.android.ui.debugscreen
 
+import android.content.Context
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -27,18 +28,26 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import co.touchlab.kermit.platformLogWriter
 import com.wire.android.datastore.GlobalDataStore
+import com.wire.android.di.CurrentAccount
+import com.wire.android.migration.failure.UserMigrationStatus
+import com.wire.android.navigation.BackStackMode
+import com.wire.android.navigation.NavigationCommand
+import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.util.DataDogLogger
 import com.wire.android.util.EMPTY
 import com.wire.android.util.LogFileWriter
 import com.wire.kalium.logger.KaliumLogLevel
 import com.wire.kalium.logic.CoreLogger
+import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.client.ObserveCurrentClientIdUseCase
 import com.wire.kalium.logic.feature.keypackage.MLSKeyPackageCountResult
 import com.wire.kalium.logic.feature.keypackage.MLSKeyPackageCountUseCase
 import com.wire.kalium.logic.feature.user.IsMLSEnabledUseCase
 import com.wire.kalium.logic.sync.periodic.UpdateApiVersionsScheduler
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -49,12 +58,15 @@ data class DebugScreenState(
     val mslClientId: String = String.EMPTY,
     val mlsErrorMessage: String = String.EMPTY,
     val mlsEnabled: Boolean = false,
+    val isManualMigrationAllowed: Boolean = false
 )
 
 @Suppress("LongParameterList")
 @HiltViewModel
 class DebugScreenViewModel
 @Inject constructor(
+    @ApplicationContext private val context: Context,
+    @CurrentAccount val currentAccount: UserId,
     private val navigationManager: NavigationManager,
     private val mlsKeyPackageCountUseCase: MLSKeyPackageCountUseCase,
     private val logFileWriter: LogFileWriter,
@@ -75,6 +87,22 @@ class DebugScreenViewModel
         observeLoggingState()
         observeMlsMetadata()
         observeCurrentClientId()
+        checkIfCanTriggerManualMigration()
+    }
+
+    // if status is NoNeed, it means that the user has already been migrated in and older app version
+    // or it is a new install
+    // this is why we check the existence of the database file
+    private fun checkIfCanTriggerManualMigration() {
+        viewModelScope.launch {
+            globalDataStore.getUserMigrationStatus(currentAccount.value).first().let { migrationStatus ->
+                if (migrationStatus == UserMigrationStatus.NoNeed) {
+                    context.getDatabasePath(currentAccount.value).let {
+                        state = state.copy(isManualMigrationAllowed = (it.exists() && it.isFile))
+                    }
+                }
+            }
+        }
     }
 
     private fun observeLoggingState() {
@@ -104,12 +132,15 @@ class DebugScreenViewModel
                             mslClientId = it.clientId.value
                         )
                     }
+
                     is MLSKeyPackageCountResult.Failure.NetworkCallFailure -> {
                         state = state.copy(mlsErrorMessage = "Network Error!")
                     }
+
                     is MLSKeyPackageCountResult.Failure.FetchClientIdFailure -> {
                         state = state.copy(mlsErrorMessage = "ClientId Fetch Error!")
                     }
+
                     is MLSKeyPackageCountResult.Failure.Generic -> {}
                 }
             }
@@ -130,6 +161,17 @@ class DebugScreenViewModel
         } else {
             logFileWriter.stop()
             CoreLogger.setLoggingLevel(level = KaliumLogLevel.DISABLED, logWriters = arrayOf(DataDogLogger, platformLogWriter()))
+        }
+    }
+
+    fun onStartManualMigration() {
+        viewModelScope.launch {
+            navigationManager.navigate(
+                NavigationCommand(
+                    NavigationItem.Migration.getRouteWithArgs(listOf(currentAccount)),
+                    BackStackMode.CLEAR_WHOLE
+                )
+            )
         }
     }
 

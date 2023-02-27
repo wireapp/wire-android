@@ -25,6 +25,7 @@ import com.wire.android.migration.MigrationMapper
 import com.wire.android.migration.failure.MigrationFailure
 import com.wire.android.migration.globalDatabase.ScalaActiveAccountsEntity
 import com.wire.android.migration.globalDatabase.ScalaAppDataBaseProvider
+import com.wire.android.migration.userDatabase.ScalaUserDatabaseProvider
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.configuration.server.ServerConfig
@@ -34,6 +35,9 @@ import com.wire.kalium.logic.feature.auth.AuthTokens
 import com.wire.kalium.logic.feature.auth.sso.SSOLoginSessionResult
 import com.wire.kalium.logic.functional.Either
 import com.wire.kalium.logic.functional.flatMap
+import com.wire.kalium.logic.functional.getOrNull
+import com.wire.kalium.logic.functional.map
+import com.wire.kalium.logic.functional.mapLeft
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -41,10 +45,11 @@ import javax.inject.Singleton
 class MigrateActiveAccountsUseCase @Inject constructor(
     @KaliumCoreLogic private val coreLogic: CoreLogic,
     private val scalaGlobalDB: ScalaAppDataBaseProvider,
+    private val scalaUserDB: ScalaUserDatabaseProvider,
     private val mapper: MigrationMapper
 ) {
     suspend operator fun invoke(serverConfig: ServerConfig): Result {
-        val resultAcc: MutableMap<String, Either<CoreFailure, UserId>> = mutableMapOf()
+        val resultAcc: MutableMap<String, Either<AccountMigrationFailure, UserId>> = mutableMapOf()
         val scalaAccountList = scalaGlobalDB.scalaAccountsDAO.activeAccounts()
 
         repeat(scalaAccountList.size) { index ->
@@ -52,7 +57,6 @@ class MigrateActiveAccountsUseCase @Inject constructor(
                 scalaAccountList[index].copy(
                     refreshToken = scalaAccountList[index].refreshToken.removePrefix(REFRESH_TOKEN_PREFIX)
                 )
-
             val isDataComplete = isDataComplete(serverConfig, activeAccount)
             val ssoId = activeAccount.ssoId?.let { ssoId -> mapper.fromScalaSsoID(ssoId) }
             val authTokensEither: Either<CoreFailure, AuthTokens> = if (isDataComplete) {
@@ -89,6 +93,9 @@ class MigrateActiveAccountsUseCase @Inject constructor(
                     is AddAuthenticatedUserUseCase.Result.Failure.Generic -> Either.Left(addAccountResult.genericFailure)
                     else -> Either.Right(authTokens.userId)
                 }
+            }.mapLeft {
+                val userData = scalaUserDB.userDAO(activeAccount.id).map { it.users(listOf(activeAccount.id)) }.getOrNull()?.firstOrNull()
+                AccountMigrationFailure(userData?.name, userData?.handle, it)
             }
             resultAcc[activeAccount.id] = accountResult
         }
@@ -114,7 +121,9 @@ class MigrateActiveAccountsUseCase @Inject constructor(
         }
     }
 
-    data class Result(val userIds: Map<String, Either<CoreFailure, UserId>>, val isFederationEnabled: Boolean)
+    data class Result(val userIds: Map<String, Either<AccountMigrationFailure, UserId>>, val isFederationEnabled: Boolean)
+
+    data class AccountMigrationFailure(val userName: String?, val userHandle: String?, val cause: CoreFailure)
 
     private companion object {
         const val REFRESH_TOKEN_PREFIX = "zuid="

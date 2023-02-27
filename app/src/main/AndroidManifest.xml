@@ -101,6 +101,10 @@
                 <data
                         android:host="incoming-call"
                         android:scheme="wire"/>
+
+                <data
+                        android:host="migration-login"
+                        android:scheme="wire" />
             </intent-filter>
         </activity>
 

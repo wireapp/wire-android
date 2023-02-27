@@ -38,7 +38,7 @@ class MigrateUsersUseCase @Inject constructor(
     private val mapper: MigrationMapper
 ) {
     suspend operator fun invoke(userId: UserId): Either<CoreFailure, UserId> =
-        scalaUserDatabase.userDAO(userId).flatMap { scalaUserDAO ->
+        scalaUserDatabase.userDAO(userId.value).flatMap { scalaUserDAO ->
             val users = scalaUserDAO.allUsers()
             // No need to match the domain since it can be missing from the scala DB
             // firstOrNull is just to be safe in case the self user is not in the local DB

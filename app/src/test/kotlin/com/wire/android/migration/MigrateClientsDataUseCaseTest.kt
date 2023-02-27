@@ -22,14 +22,17 @@ package com.wire.android.migration
 
 import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.migration.feature.MigrateClientsDataUseCase
+import com.wire.android.migration.userDatabase.ScalaUserDAO
 import com.wire.android.migration.userDatabase.ScalaUserData
 import com.wire.android.migration.userDatabase.ScalaUserDatabaseProvider
 import com.wire.android.migration.util.ScalaCryptoBoxDirectoryProvider
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.functional.Either
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
+import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
@@ -116,7 +119,7 @@ class MigrateClientsDataUseCaseTest {
             assert(it.none { !it.name.contains("@") })
         }
         assertEquals(listOf(expected), sessionsDir.listFiles()?.map { it.name })
-        coVerify(exactly = 0) { arrangement.scalaUserDBProvider.userDAO(any())?.users(any()) }
+        coVerify(exactly = 0) { arrangement.scalaUserDAO.users(any()) }
     }
 
     @Test
@@ -134,7 +137,7 @@ class MigrateClientsDataUseCaseTest {
         useCase.fixSessionFileNames(userId, proteusDir, true, arrangement.scalaUserDBProvider)
         // then
         assertEquals(listOf(expected), sessionsDir.listFiles()?.map { it.name })
-        coVerify(atLeast = 1) { arrangement.scalaUserDBProvider.userDAO(any())?.users(any()) }
+        coVerify(atLeast = 1) { arrangement.scalaUserDAO.users(any()) }
     }
 
     private fun fakeScalaUserData(id: String, domain: String) = ScalaUserData(
@@ -164,6 +167,8 @@ class MigrateClientsDataUseCaseTest {
         lateinit var scalaUserDBProvider: ScalaUserDatabaseProvider
         @MockK
         lateinit var userDataStoreProvider: UserDataStoreProvider
+        @MockK
+        lateinit var scalaUserDAO: ScalaUserDAO
 
         private val useCase: MigrateClientsDataUseCase by lazy {
             MigrateClientsDataUseCase(
@@ -176,10 +181,11 @@ class MigrateClientsDataUseCaseTest {
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
+            every { scalaUserDBProvider.userDAO(any()) } returns Either.Right(scalaUserDAO)
         }
 
         suspend fun withGetUsers(result: (List<String>) -> List<ScalaUserData>): Arrangement {
-            coEvery { scalaUserDBProvider.userDAO(any())?.users(any()) } answers {
+            coEvery { scalaUserDAO.users(any()) } answers {
                 result(firstArg())
             }
             return this

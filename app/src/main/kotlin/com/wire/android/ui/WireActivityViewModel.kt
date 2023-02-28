@@ -168,9 +168,10 @@ class WireActivityViewModel @Inject constructor(
 
     fun navigationArguments() = navigationArguments.values.toList()
 
-    fun startNavigationRoute(navigationItem: NavigationItem? = null): String = when {
+    fun startNavigationRoute(navigationItem: NavigationItem? = null, hasSharingIntent: Boolean = false): String = when {
         shouldGoToMigration() -> NavigationItem.Migration.getRouteWithArgs()
         shouldGoToWelcome() -> NavigationItem.Welcome.getRouteWithArgs()
+        hasSharingIntent -> NavigationItem.ImportMedia.getRouteWithArgs()
         navigationItem != null -> navigationItem.getRouteWithArgs()
         else -> NavigationItem.Home.getRouteWithArgs()
     }
@@ -180,7 +181,7 @@ class WireActivityViewModel @Inject constructor(
     }
 
     fun handleDeepLink(intent: Intent?) {
-        if (isSharingIntent(intent)) {
+        if (shouldGoToImport(intent)) {
             navigateToImportMediaScreen()
         } else {
             intent?.data?.let { deepLink ->
@@ -205,6 +206,7 @@ class WireActivityViewModel @Inject constructor(
                                 navigationArguments[SERVER_CONFIG_ARG] = serverLinks
                             }
                         }
+
                         is DeepLinkResult.SSOLogin -> navigationArguments[SSO_DEEPLINK_ARG] = result
 
                         is DeepLinkResult.IncomingCall -> navigationArguments[INCOMING_CALL_CONVERSATION_ID_ARG] = result.conversationsId
@@ -437,19 +439,26 @@ class WireActivityViewModel @Inject constructor(
 
     private fun shouldGoToOtherProfile(): Boolean = (navigationArguments[OPEN_OTHER_USER_PROFILE_ARG] as? QualifiedID) != null
 
-    // TODO: the usage of currentSessionFlow is a temporary solution, it should be replaced with a proper solution
-    private fun shouldGoToWelcome(): Boolean = runBlocking {
+    private fun shouldGoToWelcome(): Boolean = !hasValidCurrentSession()
+
+    private fun hasValidCurrentSession(): Boolean = runBlocking {
+        // TODO: the usage of currentSessionFlow is a temporary solution, it should be replaced with a proper solution
         currentSessionFlow().first().let {
             when (it) {
-                is CurrentSessionResult.Failure.Generic -> true
-                CurrentSessionResult.Failure.SessionNotFound -> true
-                is CurrentSessionResult.Success -> false
+                is CurrentSessionResult.Failure.Generic -> false
+                CurrentSessionResult.Failure.SessionNotFound -> false
+                is CurrentSessionResult.Success -> true
             }
         }
     }
 
     private fun shouldGoToMigration(): Boolean = runBlocking {
         migrationManager.shouldMigrate()
+    }
+
+    private fun shouldGoToImport(intent: Intent?): Boolean {
+        // Show import screen only if there is a valid session
+        return hasValidCurrentSession() && isSharingIntent(intent)
     }
 
     fun openProfile() {

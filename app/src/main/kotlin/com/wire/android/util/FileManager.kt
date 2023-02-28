@@ -27,6 +27,7 @@ import com.wire.android.util.dispatchers.DispatcherProvider
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.withContext
 import okio.Path
+import okio.Path.Companion.toPath
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -64,4 +65,25 @@ class FileManager @Inject constructor(@ApplicationContext private val context: C
             }
             return@withContext size
         }
+
+    suspend fun getTempWritableVideoUri(
+        tempCachePath: Path,
+        dispatcher: DispatcherProvider = DefaultDispatcherProvider(),
+    ): Uri = withContext(dispatcher.io()) {
+        val tempVideoPath = "$tempCachePath/$TEMP_VIDEO_ATTACHMENT_FILENAME".toPath()
+        return@withContext getTempWritableAttachmentUri(context, tempVideoPath)
+    }
+
+    suspend fun getTempWritableImageUri(
+        tempCachePath: Path,
+        dispatcher: DispatcherProvider = DefaultDispatcherProvider(),
+    ): Uri = withContext(dispatcher.io()) {
+        val tempImagePath = "$tempCachePath/$TEMP_IMG_ATTACHMENT_FILENAME".toPath()
+        return@withContext getTempWritableAttachmentUri(context, tempImagePath)
+    }
+
+    companion object {
+        private const val TEMP_IMG_ATTACHMENT_FILENAME = "image_attachment.jpg"
+        private const val TEMP_VIDEO_ATTACHMENT_FILENAME = "video_attachment.mp4"
+    }
 }

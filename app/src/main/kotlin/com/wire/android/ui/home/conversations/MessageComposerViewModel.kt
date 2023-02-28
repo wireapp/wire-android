@@ -20,6 +20,7 @@
 
 package com.wire.android.ui.home.conversations
 
+import android.net.Uri
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -52,6 +53,7 @@ import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.conversations.model.AttachmentType
 import com.wire.android.ui.home.messagecomposer.UiMention
 import com.wire.android.ui.home.newconversation.model.Contact
+import com.wire.android.util.FileManager
 import com.wire.android.util.ImageUtil
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.WireSessionImageLoader
@@ -105,10 +107,17 @@ class MessageComposerViewModel @Inject constructor(
     private val getAssetSizeLimit: GetAssetSizeLimitUseCase,
     private val sendKnockUseCase: SendKnockUseCase,
     private val pingRinger: PingRinger,
-    private val imageUtil: ImageUtil
+    private val imageUtil: ImageUtil,
+    private val fileManager: FileManager
 ) : SavedStateViewModel(savedStateHandle) {
 
     var conversationViewState by mutableStateOf(ConversationViewState())
+        private set
+
+    var tempWritableVideoUri: Uri? = null
+        private set
+
+    var tempWritableImageUri: Uri? = null
         private set
 
     var interactionAvailability by mutableStateOf(InteractionAvailability.ENABLED)
@@ -144,6 +153,8 @@ class MessageComposerViewModel @Inject constructor(
         fetchSelfUserTeam()
         fetchConversationClassificationType()
         setFileSharingStatus()
+        initTempWritableVideoUri()
+        initTempWritableImageUri()
     }
 
     fun onSnackbarMessage(type: SnackBarMessage) = viewModelScope.launch {
@@ -274,6 +285,18 @@ class MessageComposerViewModel @Inject constructor(
         viewModelScope.launch {
             pingRinger.ping(R.raw.ping_from_me, isReceivingPing = false)
             sendKnockUseCase(conversationId = conversationId, hotKnock = false)
+        }
+    }
+
+    private fun initTempWritableVideoUri() {
+        viewModelScope.launch {
+            tempWritableVideoUri = fileManager.getTempWritableVideoUri(provideTempCachePath())
+        }
+    }
+
+    private fun initTempWritableImageUri() {
+        viewModelScope.launch {
+            tempWritableImageUri = fileManager.getTempWritableImageUri(provideTempCachePath())
         }
     }
 

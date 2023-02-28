@@ -35,6 +35,8 @@ import com.wire.kalium.logic.feature.auth.AccountInfo
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
+import com.wire.kalium.logic.feature.user.guestroomlink.MarkGuestLinkFeatureFlagAsNotChangedUseCase
+import com.wire.kalium.logic.feature.user.guestroomlink.ObserveGuestRoomLinkFeatureFlagUseCase
 import com.wire.kalium.logic.feature.session.GetSessionsUseCase
 import com.wire.kalium.logic.feature.user.MarkFileSharingChangeAsNotifiedUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -47,7 +49,9 @@ class FeatureFlagNotificationViewModel @Inject constructor(
     @KaliumCoreLogic private val coreLogic: CoreLogic,
     private val getSessions: GetSessionsUseCase,
     private val currentSessionUseCase: CurrentSessionUseCase,
-    private val markFileSharingAsNotified: MarkFileSharingChangeAsNotifiedUseCase
+    private val markFileSharingAsNotified: MarkFileSharingChangeAsNotifiedUseCase,
+    private val observeGuestRoomLinkFeatureFlag: ObserveGuestRoomLinkFeatureFlagUseCase,
+    private val markGuestLinkFeatureFlagAsNotChanged: MarkGuestLinkFeatureFlagAsNotChangedUseCase
 ) : ViewModel() {
 
     var featureFlagState by mutableStateOf(FeatureFlagState())
@@ -74,6 +78,7 @@ class FeatureFlagNotificationViewModel @Inject constructor(
                         coreLogic.getSessionScope(it.accountInfo.userId).observeSyncState().collect { newState ->
                             if (newState == SyncState.Live) {
                                 setFileSharingState(it.accountInfo.userId)
+                                setGuestRoomLinkFeatureFlag()
                             }
                         }
                     }
@@ -95,7 +100,18 @@ class FeatureFlagNotificationViewModel @Inject constructor(
         }
     }
 
-    fun hideDialogStatus() {
+    private suspend fun setGuestRoomLinkFeatureFlag() {
+        observeGuestRoomLinkFeatureFlag().collect { guestRoomLinkStatus ->
+            guestRoomLinkStatus.isGuestRoomLinkEnabled?.let {
+                featureFlagState = featureFlagState.copy(isGuestRoomLinkEnabled = it)
+            }
+            guestRoomLinkStatus.isStatusChanged?.let {
+                featureFlagState = featureFlagState.copy(shouldShowGuestRoomLinkDialog = it)
+            }
+        }
+    }
+
+    fun dismissFileSharingDialog() {
         featureFlagState = featureFlagState.copy(showFileSharingDialog = false)
         viewModelScope.launch {
             markFileSharingAsNotified()
@@ -123,5 +139,10 @@ class FeatureFlagNotificationViewModel @Inject constructor(
                 featureFlagState = featureFlagState.copy(showFileSharingRestrictedDialog = featureFlagState.isFileSharingEnabledState)
             }
         }
+    }
+
+    fun dismissGuestRoomLinkDialog() {
+        markGuestLinkFeatureFlagAsNotChanged()
+        featureFlagState = featureFlagState.copy(shouldShowGuestRoomLinkDialog = false)
     }
 }

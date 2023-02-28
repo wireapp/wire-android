@@ -114,7 +114,7 @@ class WireApplication : Application(), Configuration.Provider {
 
     private fun initializeApplicationLoggingFrameworks() {
         // 1. Datadog should be initialized first
-        ExternalLoggerManager.initDatadogLogger(this)
+        // ExternalLoggerManager.initDatadogLogger(this) - NOTE: disabled for m4
         // 2. Initialize our internal logging framework
         appLogger = KaliumLogger(
             config = KaliumLogger.Config(

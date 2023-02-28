@@ -17,14 +17,20 @@ class ShouldTriggerMigrationForUserUserCase @Inject constructor(
 ) {
     suspend operator fun invoke(userId: UserId) = globalDataStore.getUserMigrationStatus(userId.value)
         .first().let { migrationStatus ->
-            if (migrationStatus != UserMigrationStatus.NotStarted) return@let false
+            when (migrationStatus) {
+                UserMigrationStatus.Completed,
+                UserMigrationStatus.NotStarted -> return@let false
 
-            applicationContext.getDatabasePath(ScalaDBNameProvider.userDB(userId.value))
-                .let { it.isFile && it.exists() }
-                .also {
-                    // if the user database does not exists, we can't migrate it
-                    // so we mark it as NoNeed
-                    if (!it) globalDataStore.setUserMigrationStatus(userId.value, UserMigrationStatus.NoNeed)
-                }
+                UserMigrationStatus.NoNeed,
+                null -> checkForScalaDB(userId)
+            }
+        }
+
+    private suspend fun checkForScalaDB(userId: UserId) = applicationContext.getDatabasePath(ScalaDBNameProvider.userDB(userId.value))
+        .let { it.isFile && it.exists() }
+        .also {
+            // if the user database does not exists, we can't migrate it
+            // so we mark it as NoNeed
+            if (!it) globalDataStore.setUserMigrationStatus(userId.value, UserMigrationStatus.NoNeed)
         }
 }

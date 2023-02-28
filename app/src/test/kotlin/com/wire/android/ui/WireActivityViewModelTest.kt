@@ -27,16 +27,19 @@ import com.wire.android.config.mockUri
 import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.di.ObserveSyncStateUseCaseProvider
 import com.wire.android.feature.AccountSwitchUseCase
+import com.wire.android.framework.TestUser
 import com.wire.android.migration.MigrationManager
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.joinConversation.JoinConversationViaCodeState
+import com.wire.android.services.ServicesManager
 import com.wire.android.util.deeplink.DeepLinkProcessor
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.android.util.newServerConfig
 import com.wire.kalium.logic.CoreFailure
+import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
@@ -45,11 +48,13 @@ import com.wire.kalium.logic.feature.appVersioning.ObserveIfAppUpdateRequiredUse
 import com.wire.kalium.logic.feature.auth.AccountInfo
 import com.wire.kalium.logic.feature.conversation.CheckConversationInviteCodeUseCase
 import com.wire.kalium.logic.feature.conversation.JoinConversationViaCodeUseCase
+import com.wire.kalium.logic.feature.auth.PersistentWebSocketStatus
 import com.wire.kalium.logic.feature.server.GetServerConfigResult
 import com.wire.kalium.logic.feature.server.GetServerConfigUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.GetSessionsUseCase
+import com.wire.kalium.logic.feature.user.webSocketStatus.ObservePersistentWebSocketConnectionStatusUseCase
 import com.wire.kalium.logic.sync.ObserveSyncStateUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -510,6 +515,56 @@ class WireActivityViewModelTest {
         coVerify(exactly = 0) { arrangement.navigationManager.navigate(any()) }
     }
 
+    @Test
+    fun `given valid accounts, all with persistent socket disabled, then stop socket service`() {
+        val statuses = listOf(
+            PersistentWebSocketStatus(TestUser.SELF_USER.id, false),
+            PersistentWebSocketStatus(TestUser.USER_ID.copy(value = "something else"), false)
+        )
+        val (arrangement, manager) = Arrangement()
+            .withPersistentWebSocketConnectionStatuses(statuses)
+            .arrange()
+
+        manager.observePersistentConnectionStatus()
+
+        coVerify(exactly = 0) { arrangement.servicesManager.startPersistentWebSocketService() }
+        coVerify(exactly = 1) { arrangement.servicesManager.stopPersistentWebSocketService() }
+    }
+
+    @Test
+    fun `given valid accounts, at least one with persistent socket enabled, and socket service not running, then start service`() {
+        val statuses = listOf(
+            PersistentWebSocketStatus(TestUser.SELF_USER.id, false),
+            PersistentWebSocketStatus(TestUser.USER_ID.copy(value = "something else"), true)
+        )
+        val (arrangement, manager) = Arrangement()
+            .withPersistentWebSocketConnectionStatuses(statuses)
+            .withIsPersistentWebSocketServiceRunning(false)
+            .arrange()
+
+        manager.observePersistentConnectionStatus()
+
+        coVerify(exactly = 1) { arrangement.servicesManager.startPersistentWebSocketService() }
+        coVerify(exactly = 0) { arrangement.servicesManager.stopPersistentWebSocketService() }
+    }
+
+    @Test
+    fun `given valid accounts, at least one with persistent socket enabled, and socket service running, then do not start service again`() {
+        val statuses = listOf(
+            PersistentWebSocketStatus(TestUser.SELF_USER.id, false),
+            PersistentWebSocketStatus(TestUser.USER_ID.copy(value = "something else"), true)
+        )
+        val (arrangement, manager) = Arrangement()
+            .withPersistentWebSocketConnectionStatuses(statuses)
+            .withIsPersistentWebSocketServiceRunning(true)
+            .arrange()
+
+        manager.observePersistentConnectionStatus()
+
+        coVerify(exactly = 0) { arrangement.servicesManager.startPersistentWebSocketService() }
+        coVerify(exactly = 0) { arrangement.servicesManager.stopPersistentWebSocketService() }
+    }
+
     private class Arrangement {
         init {
             // Tests setup
@@ -559,6 +614,12 @@ class WireActivityViewModelTest {
         private lateinit var observeSyncStateUseCaseProviderFactory: ObserveSyncStateUseCaseProvider.Factory
 
         @MockK
+        private lateinit var coreLogic: CoreLogic
+
+        @MockK
+        lateinit var servicesManager: ServicesManager
+
+        @MockK
         lateinit var observeIfAppUpdateRequired: ObserveIfAppUpdateRequiredUseCase
 
         @MockK
@@ -566,6 +627,7 @@ class WireActivityViewModelTest {
 
         private val viewModel by lazy {
             WireActivityViewModel(
+                coreLogic = coreLogic,
                 dispatchers = TestDispatcherProvider(),
                 currentSessionFlow = currentSessionFlow,
                 getServerConfigUseCase = getServerConfigUseCase,
@@ -575,6 +637,7 @@ class WireActivityViewModelTest {
                 getSessions = getSessionsUseCase,
                 accountSwitch = switchAccount,
                 migrationManager = migrationManager,
+                servicesManager = servicesManager,
                 observeSyncStateUseCaseProviderFactory = observeSyncStateUseCaseProviderFactory,
                 observeIfAppUpdateRequired = observeIfAppUpdateRequired,
                 coreLogic = coreLogic
@@ -633,6 +696,15 @@ class WireActivityViewModelTest {
         ): Arrangement = apply {
             coEvery { coreLogic.getSessionScope(TEST_ACCOUNT_INFO.userId).conversations.joinConversationViaCode(code, key, domain) } returns
                     result
+        }
+
+        fun withPersistentWebSocketConnectionStatuses(list: List<PersistentWebSocketStatus>): Arrangement = apply {
+            coEvery { coreLogic.getGlobalScope().observePersistentWebSocketConnectionStatus() } returns
+                    ObservePersistentWebSocketConnectionStatusUseCase.Result.Success(flowOf(list))
+        }
+
+        fun withIsPersistentWebSocketServiceRunning(isRunning: Boolean): Arrangement = apply {
+            every { servicesManager.isPersistentWebSocketServiceRunning() } returns isRunning
         }
 
         fun arrange() = this to viewModel

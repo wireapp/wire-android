@@ -74,9 +74,13 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import javax.inject.Inject
 
-@AndroidEntryPoint
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class, ExperimentalCoroutinesApi::class)
+@OptIn(
+    ExperimentalMaterial3Api::class,
+    ExperimentalComposeUiApi::class,
+    ExperimentalCoroutinesApi::class
+)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
+@AndroidEntryPoint
 @Suppress("TooManyFunctions")
 class WireActivity : AppCompatActivity() {
 
@@ -97,6 +101,7 @@ class WireActivity : AppCompatActivity() {
         proximitySensorManager.initialize()
         lifecycle.addObserver(currentScreenManager)
         viewModel.handleDeepLink(intent)
+        viewModel.observePersistentConnectionStatus()
         setComposableContent()
     }
 

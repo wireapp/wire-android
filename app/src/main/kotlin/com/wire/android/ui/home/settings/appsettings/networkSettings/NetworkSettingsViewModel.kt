@@ -27,7 +27,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
 import com.wire.android.navigation.NavigationManager
-import com.wire.android.services.ServicesManager
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
@@ -40,7 +39,6 @@ import javax.inject.Inject
 @HiltViewModel
 class NetworkSettingsViewModel
 @Inject constructor(
-    private val servicesManager: ServicesManager,
     private val navigationManager: NavigationManager,
     private val persistPersistentWebSocketConnectionStatus: PersistPersistentWebSocketConnectionStatusUseCase,
     private val observePersistentWebSocketConnectionStatus: ObservePersistentWebSocketConnectionStatusUseCase,
@@ -80,13 +78,6 @@ class NetworkSettingsViewModel
                                                     persistentWebSocketStatus.isPersistentWebSocketEnabled
                                                 )
                                         }
-                                    }
-                                    if (it.map { it.isPersistentWebSocketEnabled }.contains(true)) {
-                                        if (!servicesManager.isPersistentWebSocketServiceRunning()) {
-                                            servicesManager.startPersistentWebSocketService()
-                                        }
-                                    } else {
-                                        servicesManager.stopPersistentWebSocketService()
                                     }
                                 }
                             }

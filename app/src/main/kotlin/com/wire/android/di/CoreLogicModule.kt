@@ -49,6 +49,7 @@ import com.wire.kalium.logic.feature.call.usecase.TurnLoudSpeakerOffUseCase
 import com.wire.kalium.logic.feature.call.usecase.TurnLoudSpeakerOnUseCase
 import com.wire.kalium.logic.feature.call.usecase.UnMuteCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.UpdateVideoStateUseCase
+import com.wire.kalium.logic.feature.client.ClientFingerprintUseCase
 import com.wire.kalium.logic.feature.client.GetClientDetailsUseCase
 import com.wire.kalium.logic.feature.client.ObserveCurrentClientIdUseCase
 import com.wire.kalium.logic.feature.connection.BlockUserUseCase
@@ -976,4 +977,12 @@ class UseCaseModule {
         @CurrentAccount currentAccount: UserId
     ): ObserveGuestRoomLinkUseCase =
         coreLogic.getSessionScope(currentAccount).conversations.observeGuestRoomLink
+
+    @ViewModelScoped
+    @Provides
+    fun provideClientFingerPrintUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): ClientFingerprintUseCase =
+        coreLogic.getSessionScope(currentAccount).client.remoteClientFingerPrint
 }

@@ -119,7 +119,7 @@ private fun SelfUserProfileContent(
     onMessageShown: () -> Unit = {},
     onMaxAccountReachedDialogDismissed: () -> Unit = {},
     onOtherAccountClick: (UserId) -> Unit = {},
-    isUserInCall: () -> Boolean,
+    isUserInCall: () -> Boolean
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -173,7 +173,8 @@ private fun SelfUserProfileContent(
                             userName = userName,
                             teamName = teamName,
                             onUserProfileClick = onChangeUserProfilePicture,
-                            editableState = if (state.isReadOnlyAccount) EditableState.NotEditable else EditableState.IsEditable(onEditClick),
+                            editableState = if (state.isReadOnlyAccount) EditableState.NotEditable
+                            else EditableState.IsEditable(onEditClick)
                         )
                     }
                     stickyHeader {

@@ -856,7 +856,7 @@
     <string name="join_conversation_via_deeplink_error_link_expired">The link to this group conversation expired or the conversation was set to private.</string>
     <string name="join_conversation_via_deeplink_error_max_number_of_participent">The maximum number of participants in this conversation has been reached.</string>
     <string name="join_conversation_via_deeplink_error_general">Due to an error you could not be added to the group conversation.</string>
-    <!-- guest link -->
+    <!-- guest room link -->
     <string name="folder_label_guest_link">Guest link</string>
     <string name="guest_link_description">Invite others with a link to this conversation. Anyone with the link can join the conversation, even if they don’t have Wire.</string>
     <string name="guest_link_button_create_link">Create Link</string>
@@ -869,5 +869,7 @@
     <string name="guest_link_revoke_error_message">There was an error trying to revoke Guest Link. Please try again</string>
     <string name="revoke_guest__room_link_dialog_text">New guests will not be able to join with this link. Current guests will still have access.</string>
     <string name="revoke_guest__room_link_dialog_title">Revoke guest link?</string>
-    <string name="guest__room_link_copied">Guest link was copied to clipboard</string>
+    <string name="guest_room_link_copied">Guest link was copied to clipboard</string>
+    <string name="guest_room_link_enabled">Generating guest links is now enabled for all group admins</string>
+    <string name="guest_room_link_disabled">Generating guest links is now disabled for all group admins</string>
 </resources>

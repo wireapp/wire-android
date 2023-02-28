@@ -78,6 +78,7 @@ fun MediaGalleryScreen(mediaGalleryViewModel: MediaGalleryViewModel = hiltViewMo
                 },
                 onDownloadImage = onSaveImageWriteStorageRequest::launch,
                 onShareImage = {
+                    mediaGalleryScreenState.showContextualMenu(false)
                     mediaGalleryViewModel.shareAsset(context)
                 }
             ),

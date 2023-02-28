@@ -318,6 +318,7 @@ private fun ConversationScreen(
                 onShareAsset = {
                     conversationScreenState.selectedMessage?.messageHeader?.messageId?.let {
                         conversationMessagesViewModel.shareAsset(context, it)
+                        conversationScreenState.hideEditContextMenu()
                     }
                 }
 

@@ -24,6 +24,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.paging.PagingData
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
+import com.wire.android.media.audiomessage.ConversationAudioMessagePlayer
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.usecase.GetMessagesForConversationUseCase
@@ -93,6 +94,9 @@ class ConversationMessagesViewModelArrangement {
     @MockK
     lateinit var resetSession: ResetSessionUseCase
 
+    @MockK
+    lateinit var conversationAudioMessagePlayer: ConversationAudioMessagePlayer
+
     private val viewModel: ConversationMessagesViewModel by lazy {
         ConversationMessagesViewModel(
             navigationManager,
@@ -106,7 +110,8 @@ class ConversationMessagesViewModelArrangement {
             TestDispatcherProvider(),
             getMessagesForConversationUseCase,
             toggleReaction,
-            resetSession
+            resetSession,
+            conversationAudioMessagePlayer
         )
     }
 

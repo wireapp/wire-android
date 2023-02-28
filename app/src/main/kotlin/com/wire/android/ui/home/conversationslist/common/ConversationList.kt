@@ -37,11 +37,16 @@ import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
 import kotlinx.collections.immutable.ImmutableMap
 
+@Suppress("LongParameterList")
 @Composable
 fun ConversationList(
+    modifier: Modifier = Modifier,
     lazyListState: LazyListState = rememberLazyListState(),
     conversationListItems: ImmutableMap<ConversationFolder, List<ConversationItem>>,
     searchQuery: String,
+    isSelectableList: Boolean = false,
+    conversationsAddedToGroup: List<ConversationItem> = emptyList(),
+    onConversationSelectedOnRadioGroup: (ConversationItem) -> Unit = {},
     onOpenConversation: (ConversationId) -> Unit,
     onEditConversation: (ConversationItem) -> Unit,
     onOpenUserProfile: (UserId) -> Unit,
@@ -52,7 +57,7 @@ fun ConversationList(
 
     LazyColumn(
         state = lazyListState,
-        modifier = Modifier.fillMaxSize()
+        modifier = modifier.fillMaxSize()
     ) {
         /*
      * When the list is scrolled to top and new items (e.g. new activity section) should appear on top of the list, it appears above
@@ -80,6 +85,9 @@ fun ConversationList(
                 ConversationItemFactory(
                     searchQuery = searchQuery,
                     conversation = generalConversation,
+                    isSelectableItem = isSelectableList,
+                    isChecked = conversationsAddedToGroup.contains(generalConversation),
+                    onConversationSelectedOnRadioGroup = { onConversationSelectedOnRadioGroup(generalConversation) },
                     openConversation = onOpenConversation,
                     openMenu = onEditConversation,
                     openUserProfile = onOpenUserProfile,

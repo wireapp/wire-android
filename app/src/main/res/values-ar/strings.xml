@@ -42,6 +42,7 @@
     <string name="label_membership_service">Service</string>
     <string name="label_user_deleted">Deleted</string>
     <string name="label_message_sent_failure">Message could not be sent.</string>
+    <string name="label_message_sent_remotely_failure">Message could not be sent, as the backend %s appears to be offline.</string>
     <string name="label_message_receive_failure">Download Error</string>
     <string name="label_message_decryption_failure_message">Message could not be decrypted.</string>
     <string name="label_message_decryption_failure_informative_message">Try resetting the session to generate new encryption keys.</string>
@@ -109,6 +110,7 @@
     <string name="content_description_attachment_item">Attach new item to conversation</string>
     <string name="content_description_open_message_details">Open Message Details</string>
     <string name="content_description_copy_the_message">Copy the message</string>
+    <string name="content_description_share_the_file">Share the selected file with other app</string>
     <string name="content_description_delete_the_message">Delete the message</string>
     <string name="content_description_edit_the_message">Edit the message</string>
     <string name="content_description_more_options">More options</string>
@@ -237,6 +239,7 @@
     <string name="remove_device_id_label">ID: %1$s</string>
     <string name="remove_device_dialog_title">Remove the following device?</string>
     <string name="remove_device_invalid_password">Invalid password</string>
+    <string name="remove_device_details_description">Remove this device if you have stopped using it. You will be logged out of this device immediately.</string>
     <!-- Register Device -->
     <string name="register_device_title">Add this Device</string>
     <string name="register_device_text">Enter your password to use Wire on this device.</string>
@@ -359,6 +362,7 @@
     <string name="conversation_details_is_classified">SECURITY LEVEL: VS-NfD</string>
     <string name="conversation_details_is_not_classified">SECURITY LEVEL: UNCLASSIFIED</string>
     <string name="conversation_options_guests_label">Guests</string>
+    <string name="conversation_details_guest_description">When this is ON, people from outside your team can join this conversation</string>
     <string name="conversation_options_guest_description">Turn this option ON to open this conversation to people outside your team, even if they don\'t have Wire.</string>
     <string name="conversation_options_guest_not_editable_description">You cannot disable the guest option in this conversation, since it has been created by someone from another team.</string>
     <string name="conversation_options_services_label">Services</string>
@@ -374,6 +378,11 @@
     <string name="delete_group_conversation_menu_item">Delete Group…</string>
     <string name="delete_group_conversation_dialog_title">Remove “%s”?</string>
     <string name="delete_group_conversation_dialog_description">The group will be removed from your conversations list on all devices. You will no longer be able to access the group and its content.</string>
+    <!-- Import External Media -->
+    <string name="import_media_content_title">Share With Wire</string>
+    <string name="import_media_searchbar_title">Search for conversation</string>
+    <string name="import_media_send_button_title">Send</string>
+    <!--Read receipts -->
     <string name="conversation_options_read_receipt_label">Read receipts</string>
     <string name="conversation_options_read_receipt_description">When this is on, people can see when their messages in this conversation are read.</string>
     <!-- Messages -->
@@ -456,6 +465,7 @@
     <!--Conversation-->
     <string name="label_message_details">Message Details</string>
     <string name="label_copy">Copy</string>
+    <string name="label_share">Share</string>
     <string name="label_edit">Edit</string>
     <string name="label_delete">Delete</string>
     <string name="info_message_copied">Message copied</string>
@@ -494,7 +504,8 @@
     <string name="label_system_message_team_member_left">%1$s was removed from the team</string>
     <string name="label_system_message_user_not_available">This user is no longer available</string>
     <string name="label_system_message_new_conversation_receipt_mode">Read receipts are %1$s</string>
-    <string name="label_system_message_read_receipt_changed">%1$s turned read receipts %2$s for everyone</string>
+    <string name="label_system_message_read_receipt_changed_by_self">%1$s turned read receipts %2$s for everyone</string>
+    <string name="label_system_message_read_receipt_changed_by_other">%1$s turned read receipts %2$s for everyone</string>
     <string name="label_system_message_conversation_history_lost">YOU HAVEN\'T USED THIS DEVICE FOR A WHILE. SOME MESSAGES MAY NOT APPEAR HERE.</string>
     <string name="label_system_message_receipt_mode_on">on</string>
     <string name="label_system_message_receipt_mode_off">off</string>
@@ -622,6 +633,7 @@
     <string name="left_conversation_group_success">You left the conversation.</string>
     <string name="error_unblocking_user">User could not be unblocked</string>
     <string name="delete_group_conversation_error">There was an error while deleting conversation</string>
+    <string name="error_limit_number_assets_imported_exceeded">You can only send up to 20 files at once</string>
     <string name="edit_message_not_yet_available">Saving edits to messages is not yet available</string>
     <!-- TODO: temporary, to be removed when the proper implementation of editing messages is finished -->
     <!-- Animation label -->
@@ -791,11 +803,15 @@
     <string name="label_restart_slowsync_for_recovery">Restart SlowSync for Recovery</string>
     <string name="label_mls_option_title">MLS DATA</string>
     <string name="label_enable_logging">Enable Logging</string>
+    <string name="label_proteus_option_title">Proteus</string>
+    <string name="label_enable_encrypted_proteus_storage">Enable encrypted proteus storage</string>
     <string name="label_debug_title">Debug</string>
     <string name="label_client_option_title">Client ID</string>
     <string name="label_device_id">Device ID: %1$s</string>
     <string name="label_code_commit_id">Commit Hash: %1$s</string>
     <string name="label_client_id">Client ID: %1$s</string>
+    <string name="label_client_added_time">ADDED</string>
+    <string name="label_client_device_id">DEVICE ID</string>
     <string name="label_key_packages_count">Key-packages count: %1$s</string>
     <string name="label_mls_client_id">MLS-client ID: %1$s</string>
     <string name="conversation_empty_list_description">Connect with others or create a new group to start collaborating!</string>
@@ -859,6 +875,28 @@
     <string name="cancel_login_button_label">Cancel</string>
     <string name="cancel_login_dialog_description">If you cancel now, you will be logged out.</string>
     <string name="cancel_login_dialog_title">Are you sure you want to cancel?</string>
-    <!--    session reset-->
+    <!-- session reset -->
     <string name="label_system_message_session_reset">%1$s was unable to decrypt some of your messages but has solved the issue. This affected all conversations you share together.</string>
+    <string name="file_sharing_restricted_dialog_title">File Sharing Restrictions</string>
+    <string name="file_sharing_restricted_dialog_description">You can not share this file because this feature is disabled.</string>
+    <!-- join conversation dialog -->
+    <string name="join_conversation_dialog_title">Join conversation?</string>
+    <string name="join_conversation_dialog_message">You have been invited to a conversation.\n\n%1$s</string>
+    <string name="join_conversation_dialog_button">Join</string>
+    <string name="join_conversation_via_deeplink_error_title">Unable to join conversation</string>
+    <string name="join_conversation_via_deeplink_error_link_expired">The link to this group conversation expired or the conversation was set to private.</string>
+    <string name="join_conversation_via_deeplink_error_max_number_of_participent">The maximum number of participants in this conversation has been reached.</string>
+    <string name="join_conversation_via_deeplink_error_general">Due to an error you could not be added to the group conversation.</string>
+    <!-- guest link -->
+    <string name="folder_label_guest_link">Guest link</string>
+    <string name="guest_link_description">Invite others with a link to this conversation. Anyone with the link can join the conversation, even if they don’t have Wire.</string>
+    <string name="guest_link_button_create_link">Create Link</string>
+    <string name="guest_link_button_copy_link">Copy Link</string>
+    <string name="guest_link_button_share_link">Share Link</string>
+    <string name="guest_link_button_revoke_link">Revoke Link</string>
+    <string name="guest_link_generate_error_message">There was an error trying to create Guest Link. Please try again</string>
+    <string name="guest_link_revoke_error_message">There was an error trying to revoke Guest Link. Please try again</string>
+    <string name="revoke_guest__room_link_dialog_text">New guests will not be able to join with this link. Current guests will still have access.</string>
+    <string name="revoke_guest__room_link_dialog_title">Revoke guest link?</string>
+    <string name="guest__room_link_copied">Guest link was copied to clipboard</string>
 </resources>

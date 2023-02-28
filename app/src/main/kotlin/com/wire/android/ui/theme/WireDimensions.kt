@@ -165,7 +165,7 @@ data class WireDimensions(
     val defaultSearchLazyColumnHeight: Dp,
     val showAllCollapseButtonMinHeight: Dp,
     val groupButtonHeight: Dp,
-    // calling
+    // Calling
     val defaultCallingControlsSize: Dp,
     val defaultCallingHangUpButtonSize: Dp,
     val defaultSheetPeekHeight: Dp,
@@ -180,8 +180,12 @@ data class WireDimensions(
     val ongoingCallLabelHeight: Dp,
     // Message item
     val messageItemBottomPadding: Dp,
-    // conversation options
-    val conversationOptionsItemMinHeight: Dp
+    // audio message
+    val audioMessageHeight: Dp,
+    // Conversation options
+    val conversationOptionsItemMinHeight: Dp,
+    // Import media
+    val importedMediaAssetSize: Dp
 )
 
 private val DefaultPhonePortraitWireDimensions: WireDimensions = WireDimensions(
@@ -312,7 +316,9 @@ private val DefaultPhonePortraitWireDimensions: WireDimensions = WireDimensions(
     initiatingCallHangUpButtonSize = 72.dp,
     messageItemBottomPadding = 12.dp,
     conversationOptionsItemMinHeight = 57.dp,
-    ongoingCallLabelHeight = 28.dp
+    ongoingCallLabelHeight = 28.dp,
+    audioMessageHeight = 48.dp,
+    importedMediaAssetSize = 120.dp
 )
 
 private val DefaultPhoneLandscapeWireDimensions: WireDimensions = DefaultPhonePortraitWireDimensions

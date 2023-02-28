@@ -20,6 +20,7 @@
 
 package com.wire.android.ui.home.conversations
 
+import android.net.Uri
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -52,12 +53,14 @@ import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.conversations.model.AttachmentType
 import com.wire.android.ui.home.messagecomposer.UiMention
 import com.wire.android.ui.home.newconversation.model.Contact
+import com.wire.android.util.FileManager
 import com.wire.android.util.ImageUtil
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.user.OtherUser
+import com.wire.kalium.logic.feature.asset.GetAssetSizeLimitUseCase
 import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageResult
 import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageUseCase
 import com.wire.kalium.logic.feature.conversation.InteractionAvailability
@@ -101,12 +104,20 @@ class MessageComposerViewModel @Inject constructor(
     private val observeSecurityClassificationLabel: ObserveSecurityClassificationLabelUseCase,
     private val contactMapper: ContactMapper,
     private val membersToMention: MembersToMentionUseCase,
+    private val getAssetSizeLimit: GetAssetSizeLimitUseCase,
     private val sendKnockUseCase: SendKnockUseCase,
     private val pingRinger: PingRinger,
-    private val imageUtil: ImageUtil
+    private val imageUtil: ImageUtil,
+    private val fileManager: FileManager
 ) : SavedStateViewModel(savedStateHandle) {
 
     var conversationViewState by mutableStateOf(ConversationViewState())
+        private set
+
+    var tempWritableVideoUri: Uri? = null
+        private set
+
+    var tempWritableImageUri: Uri? = null
         private set
 
     var interactionAvailability by mutableStateOf(InteractionAvailability.ENABLED)
@@ -142,6 +153,8 @@ class MessageComposerViewModel @Inject constructor(
         fetchSelfUserTeam()
         fetchConversationClassificationType()
         setFileSharingStatus()
+        initTempWritableVideoUri()
+        initTempWritableImageUri()
     }
 
     fun onSnackbarMessage(type: SnackBarMessage) = viewModelScope.launch {
@@ -212,13 +225,12 @@ class MessageComposerViewModel @Inject constructor(
                 attachmentBundle?.run {
                     when (attachmentType) {
                         AttachmentType.IMAGE -> {
-                            if (dataSize > IMAGE_SIZE_LIMIT_BYTES) onSnackbarMessage(ErrorMaxImageSize)
+                            if (dataSize > getAssetSizeLimit(isImage = true)) onSnackbarMessage(ErrorMaxImageSize)
                             else {
-                                val (imgWidth, imgHeight) =
-                                    imageUtil.extractImageWidthAndHeight(
-                                        kaliumFileSystem,
-                                        attachmentBundle.dataPath
-                                    )
+                                val (imgWidth, imgHeight) = imageUtil.extractImageWidthAndHeight(
+                                    kaliumFileSystem,
+                                    attachmentBundle.dataPath
+                                )
                                 val result = sendAssetMessage(
                                     conversationId = conversationId,
                                     assetDataPath = dataPath,
@@ -261,6 +273,8 @@ class MessageComposerViewModel @Inject constructor(
                                 }
                             }
                         }
+
+                        AttachmentType.AUDIO -> TODO()
                     }
                 }
             }
@@ -271,6 +285,18 @@ class MessageComposerViewModel @Inject constructor(
         viewModelScope.launch {
             pingRinger.ping(R.raw.ping_from_me, isReceivingPing = false)
             sendKnockUseCase(conversationId = conversationId, hotKnock = false)
+        }
+    }
+
+    private fun initTempWritableVideoUri() {
+        viewModelScope.launch {
+            tempWritableVideoUri = fileManager.getTempWritableVideoUri(provideTempCachePath())
+        }
+    }
+
+    private fun initTempWritableImageUri() {
+        viewModelScope.launch {
+            tempWritableImageUri = fileManager.getTempWritableImageUri(provideTempCachePath())
         }
     }
 
@@ -295,13 +321,9 @@ class MessageComposerViewModel @Inject constructor(
         }
     }
 
-    // TODO(refactor): Extract this to a UseCase
-    //                 Business logic could be in Kalium, not on this ViewModel
-    private fun getAssetLimitInBytes(): Int {
+    private suspend fun getAssetLimitInBytes(): Int {
         // Users with a team attached have larger asset sending limits than default users
-        return conversationViewState.userTeam?.run {
-            ASSET_SIZE_TEAM_USER_LIMIT_BYTES
-        } ?: ASSET_SIZE_DEFAULT_LIMIT_BYTES
+        return getAssetSizeLimit(false).toInt()
     }
 
     fun showDeleteMessageDialog(messageId: String, isMyMessage: Boolean) =
@@ -355,10 +377,4 @@ class MessageComposerViewModel @Inject constructor(
     }
 
     fun provideTempCachePath(): Path = kaliumFileSystem.rootCachePath
-
-    companion object {
-        const val IMAGE_SIZE_LIMIT_BYTES = 15 * 1024 * 1024 // 15 MB limit for images
-        const val ASSET_SIZE_DEFAULT_LIMIT_BYTES = 25 * 1024 * 1024 // 25 MB asset default user limit size
-        const val ASSET_SIZE_TEAM_USER_LIMIT_BYTES = 100 * 1024 * 1024 // 100 MB asset team user limit size
-    }
 }

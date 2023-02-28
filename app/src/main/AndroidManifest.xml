@@ -74,7 +74,7 @@
                 android:name=".ui.WireActivity"
                 android:exported="true"
                 android:hardwareAccelerated="true"
-                android:launchMode="singleTop"
+                android:launchMode="singleTask"
                 android:screenOrientation="portrait"
                 android:showOnLockScreen="true"
                 android:theme="@style/AppTheme.SplashScreen"
@@ -105,6 +105,18 @@
                 <data
                         android:host="conversation-join"
                         android:scheme="wire" />
+            </intent-filter>
+
+            <intent-filter>
+                <action android:name="android.intent.action.SEND_MULTIPLE" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="*/*" />
+            </intent-filter>
+
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="*/*" />
             </intent-filter>
         </activity>
 
@@ -186,8 +198,7 @@
         <provider
                 android:name="com.google.firebase.provider.FirebaseInitProvider"
                 android:authorities="${applicationId}.firebaseinitprovider"
-                tools:node="remove"
-                />
+                tools:node="remove" />
         <provider
                 android:name="androidx.startup.InitializationProvider"
                 android:authorities="${applicationId}.androidx-startup"

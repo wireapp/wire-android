@@ -386,6 +386,13 @@
     <string name="delete_group_conversation_menu_item">Delete Group…</string>
     <string name="delete_group_conversation_dialog_title">Remove “%s”?</string>
     <string name="delete_group_conversation_dialog_description">The group will be removed from your conversations list on all devices. You will no longer be able to access the group and its content.</string>
+
+    <!-- Import External Media -->
+    <string name="import_media_content_title">Share With Wire</string>
+    <string name="import_media_searchbar_title">Search for conversation</string>
+    <string name="import_media_send_button_title">Send</string>
+
+    <!--Read receipts -->
     <string name="conversation_options_read_receipt_label">Read receipts</string>
     <string name="conversation_options_read_receipt_description">When this is on, people can see when their messages in this conversation are read.</string>
     <!-- Messages -->
@@ -502,7 +509,8 @@
     <string name="label_system_message_team_member_left">%1$s was removed from the team</string>
     <string name="label_system_message_user_not_available">This user is no longer available</string>
     <string name="label_system_message_new_conversation_receipt_mode">Read receipts are %1$s</string>
-    <string name="label_system_message_read_receipt_changed">%1$s turned read receipts %2$s for everyone</string>
+    <string name="label_system_message_read_receipt_changed_by_self">%1$s turned read receipts %2$s for everyone</string>
+    <string name="label_system_message_read_receipt_changed_by_other">%1$s turned read receipts %2$s for everyone</string>
     <string name="label_system_message_conversation_history_lost">You haven\'t used this device for a while. some messages may not appear here.</string>
     <string name="label_system_message_receipt_mode_on">on</string>
     <string name="label_system_message_receipt_mode_off">off</string>
@@ -598,6 +606,7 @@
     <string name="left_conversation_group_success">You left the conversation.</string>
     <string name="error_unblocking_user">User could not be unblocked</string>
     <string name="delete_group_conversation_error">There was an error while deleting conversation</string>
+    <string name="error_limit_number_assets_imported_exceeded">You can only send up to 20 files at once</string>
     <string name="edit_message_not_yet_available">Saving edits to messages is not yet available</string> <!-- TODO: temporary, to be removed when the proper implementation of editing messages is finished -->
     <!-- Animation label -->
     <string name="animation_label_message_compose_input_state_transition" translatable="false">MessageComposeInputState transition</string>
@@ -842,6 +851,8 @@
     <string name="cancel_login_dialog_title">Are you sure you want to cancel?</string>
     <!-- session reset -->
     <string name="label_system_message_session_reset">%1$s was unable to decrypt some of your messages but has solved the issue. This affected all conversations you share together.</string>
+    <string name="file_sharing_restricted_dialog_title">File Sharing Restrictions</string>
+    <string name="file_sharing_restricted_dialog_description">You can not share this file because this feature is disabled.</string>
 
     <!-- join conversation dialog -->
     <string name="join_conversation_dialog_title">Join conversation?</string>
@@ -858,9 +869,12 @@
     <string name="guest_link_button_copy_link">Copy Link</string>
     <string name="guest_link_button_share_link">Share Link</string>
     <string name="guest_link_button_revoke_link">Revoke Link</string>
+    <string name="audio_not_available">Audio not available</string>
+    <string name="audio_not_available_explanation">Something went wrong while downloading this audio file. Please ask the sender to upload it again</string>
     <string name="guest_link_generate_error_message">There was an error trying to create Guest Link. Please try again</string>
     <string name="guest_link_revoke_error_message">There was an error trying to revoke Guest Link. Please try again</string>
     <string name="revoke_guest__room_link_dialog_text">New guests will not be able to join with this link. Current guests will still have access.</string>
     <string name="revoke_guest__room_link_dialog_title">Revoke guest link?</string>
     <string name="guest__room_link_copied">Guest link was copied to clipboard</string>
+
 </resources>

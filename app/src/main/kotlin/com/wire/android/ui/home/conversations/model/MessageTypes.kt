@@ -43,6 +43,7 @@ import com.wire.android.ui.home.conversations.model.messagetypes.image.Displayab
 import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMessageFailed
 import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMessageInProgress
 import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMessageParams
+import com.wire.android.ui.home.conversations.model.messagetypes.image.ImportedImageMessage
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.kalium.logic.data.message.Message
@@ -73,11 +74,13 @@ internal fun MessageBody(
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun MessageImage(
-    asset: ImageAsset.PrivateAsset?,
+    asset: ImageAsset?,
     imgParams: ImageMessageParams,
     uploadStatus: Message.UploadStatus,
     downloadStatus: Message.DownloadStatus,
     onImageClick: Clickable,
+    shouldFillMaxWidth: Boolean = false,
+    isImportedMediaAsset: Boolean = false
 ) {
     Box(
         Modifier
@@ -98,7 +101,10 @@ fun MessageImage(
             )
     ) {
         when {
-            asset != null -> DisplayableImageMessage(asset, imgParams)
+            asset != null -> {
+                if (isImportedMediaAsset) ImportedImageMessage(asset, shouldFillMaxWidth)
+                else DisplayableImageMessage(asset, imgParams)
+            }
 
             // Trying to upload the asset
             uploadStatus == UPLOAD_IN_PROGRESS || downloadStatus == DOWNLOAD_IN_PROGRESS -> {
@@ -120,7 +126,18 @@ internal fun MessageGenericAsset(
     assetSizeInBytes: Long,
     onAssetClick: Clickable,
     assetUploadStatus: Message.UploadStatus,
-    assetDownloadStatus: Message.DownloadStatus
+    assetDownloadStatus: Message.DownloadStatus,
+    shouldFillMaxWidth: Boolean = true,
+    isImportedMediaAsset: Boolean = false
 ) {
-    MessageAsset(assetName, assetExtension, assetSizeInBytes, onAssetClick, assetUploadStatus, assetDownloadStatus)
+    MessageAsset(
+        assetName,
+        assetExtension,
+        assetSizeInBytes,
+        onAssetClick,
+        assetUploadStatus,
+        assetDownloadStatus,
+        shouldFillMaxWidth,
+        isImportedMediaAsset
+    )
 }

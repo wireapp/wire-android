@@ -21,7 +21,6 @@
 <resources>
     <string name="app_version">Versión de la app: %s</string>
     <string name="build_variant_name">Build variant: %s</string>
-    <string name="app_name">Android Reloaded 2.0 FINAL</string>
     <string name="label_new">Nuevo</string>
     <string name="label_login">Login</string>
     <string name="label_ok">OK</string>

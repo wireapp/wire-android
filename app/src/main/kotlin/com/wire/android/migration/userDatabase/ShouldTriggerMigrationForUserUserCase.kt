@@ -18,9 +18,12 @@ class ShouldTriggerMigrationForUserUserCase @Inject constructor(
     suspend operator fun invoke(userId: UserId) = globalDataStore.getUserMigrationStatus(userId.value)
         .first().let { migrationStatus ->
             when (migrationStatus) {
+                // if the user has already been migrated, we don't need to do it again
                 UserMigrationStatus.Completed,
                 UserMigrationStatus.NoNeed -> return@let false
 
+                // if the user has not been migrated yet, we check if the database exists
+                // also check when null since it can mean the migration is done on 4.0.1
                 UserMigrationStatus.NotStarted,
                 null -> checkForScalaDB(userId)
             }

@@ -1,5 +1,9 @@
 package com.wire.android.ui.home.sync
 
+import com.wire.kalium.logic.CoreLogic
+import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
+import com.wire.kalium.logic.feature.session.GetSessionsUseCase
+import com.wire.kalium.logic.feature.user.MarkFileSharingChangeAsNotifiedUseCase
 import com.wire.kalium.logic.feature.user.ObserveFileSharingStatusUseCase
 import com.wire.kalium.logic.feature.user.guestroomlink.MarkGuestLinkFeatureFlagAsNotChangedUseCase
 import com.wire.kalium.logic.feature.user.guestroomlink.ObserveGuestRoomLinkFeatureFlagUseCase
@@ -13,10 +17,13 @@ import org.junit.Test
 class FeatureFlagNotificationViewModelTest {
 
     @MockK
-    lateinit var observeSyncState: ObserveSyncStateUseCase
+    lateinit var getSessions: GetSessionsUseCase
 
     @MockK
-    lateinit var observeFileSharingStatus: ObserveFileSharingStatusUseCase
+    lateinit var currentSession: CurrentSessionUseCase
+
+    @MockK
+    lateinit var coreLogic: CoreLogic
 
     @MockK
     lateinit var observeGuestRoomLinkFeatureFlag: ObserveGuestRoomLinkFeatureFlagUseCase
@@ -24,13 +31,18 @@ class FeatureFlagNotificationViewModelTest {
     @MockK
     lateinit var markGuestLinkFeatureFlagAsNotChanged: MarkGuestLinkFeatureFlagAsNotChangedUseCase
 
+    @MockK
+    lateinit var markFileSharingAsNotified: MarkFileSharingChangeAsNotifiedUseCase
+
     lateinit var featureFlagNotificationViewModel: FeatureFlagNotificationViewModel
 
     @Before
     fun setup() {
         featureFlagNotificationViewModel = FeatureFlagNotificationViewModel(
-            observeSyncState = observeSyncState,
-            observeFileSharingStatus = observeFileSharingStatus,
+            coreLogic = coreLogic,
+            getSessions = getSessions,
+            currentSessionUseCase = currentSession,
+            markFileSharingAsNotified = markFileSharingAsNotified,
             observeGuestRoomLinkFeatureFlag = observeGuestRoomLinkFeatureFlag,
             markGuestLinkFeatureFlagAsNotChanged = markGuestLinkFeatureFlagAsNotChanged
         )

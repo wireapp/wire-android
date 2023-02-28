@@ -876,6 +876,8 @@
     <string name="guest_link_button_copy_link">Copy Link</string>
     <string name="guest_link_button_share_link">Share Link</string>
     <string name="guest_link_button_revoke_link">Revoke Link</string>
+    <string name="audio_not_available">Audio not available</string>
+    <string name="audio_not_available_explanation">Something went wrong while downloading this audio file. Please ask the sender to upload it again</string>
     <string name="guest_link_generate_error_message">There was an error trying to create Guest Link. Please try again</string>
     <string name="guest_link_revoke_error_message">There was an error trying to revoke Guest Link. Please try again</string>
     <string name="revoke_guest__room_link_dialog_text">New guests will not be able to join with this link. Current guests will still have access.</string>

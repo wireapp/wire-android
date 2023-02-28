@@ -22,6 +22,8 @@ package com.wire.android.di
 
 import android.app.NotificationManager
 import android.content.Context
+import android.media.AudioAttributes
+import android.media.MediaPlayer
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.core.app.NotificationManagerCompat
 import com.wire.android.mapper.MessageResourceProvider
@@ -63,6 +65,15 @@ object AppModule {
     fun provideNotificationManager(appContext: Context): NotificationManager =
         appContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
+    @Provides
+    fun provideMusicMediaPlayer(): MediaPlayer {
+        return MediaPlayer().apply {
+            setAudioAttributes(
+                AudioAttributes.Builder()
+                    .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                    .setUsage(AudioAttributes.USAGE_MEDIA)
+                    .build()
+            )
+        }
+    }
 }
-
-

@@ -22,16 +22,19 @@
 
 package com.wire.android.util
 
+import android.R
 import android.app.DownloadManager
 import android.content.ActivityNotFoundException
 import android.content.ContentResolver
 import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
+import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.os.Environment.DIRECTORY_DOWNLOADS
+import android.os.Parcelable
 import android.provider.MediaStore
 import android.provider.OpenableColumns
 import android.provider.Settings
@@ -39,6 +42,7 @@ import android.webkit.MimeTypeMap
 import androidx.annotation.AnyRes
 import androidx.annotation.NonNull
 import androidx.annotation.VisibleForTesting
+import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import com.wire.android.appLogger
 import com.wire.android.util.ImageUtil.ImageSizeClass
@@ -49,9 +53,10 @@ import com.wire.kalium.logic.util.buildFileName
 import com.wire.kalium.logic.util.splitFileExtensionAndCopyCounter
 import kotlinx.coroutines.withContext
 import okio.Path
-import okio.Path.Companion.toPath
 import java.io.File
+import java.io.FileNotFoundException
 import java.io.InputStream
+import java.util.Locale
 
 /**
  * Gets the uri of any drawable or given resource
@@ -78,17 +83,22 @@ suspend fun Uri.toByteArray(context: Context, dispatcher: DispatcherProvider = D
     }
 }
 
-fun Context.getTempWritableImageUri(tempCachePath: Path): Uri {
-    val tempImagePath = "$tempCachePath/$TEMP_IMG_ATTACHMENT_FILENAME".toPath()
-    return getTempWritableAttachmentUri(this, tempImagePath)
+suspend fun Uri.toDrawable(context: Context, dispatcher: DispatcherProvider = DefaultDispatcherProvider()): Drawable? {
+    val dataUri = this
+    return withContext(dispatcher.io()) {
+        try {
+            context.contentResolver.openInputStream(dataUri).use { inputStream ->
+                Drawable.createFromStream(inputStream, dataUri.toString())
+            }
+        } catch (e: FileNotFoundException) {
+            defaultGalleryIcon(context)
+        }
+    }
 }
 
-fun Context.getTempWritableVideoUri(tempCachePath: Path): Uri {
-    val tempVideoPath = "$tempCachePath/$TEMP_VIDEO_ATTACHMENT_FILENAME".toPath()
-    return getTempWritableAttachmentUri(this, tempVideoPath)
-}
+private fun defaultGalleryIcon(context: Context) = ContextCompat.getDrawable(context, R.drawable.ic_menu_gallery)
 
-private fun getTempWritableAttachmentUri(context: Context, attachmentPath: Path): Uri {
+fun getTempWritableAttachmentUri(context: Context, attachmentPath: Path): Uri {
     val file = attachmentPath.toFile()
     file.setWritable(true)
     return FileProvider.getUriForFile(context, context.getProviderAuthority(), file)
@@ -142,9 +152,16 @@ private fun Context.saveFileDataToDownloadsFolder(assetName: String, downloadedD
 fun Context.pathToUri(assetDataPath: Path): Uri = FileProvider.getUriForFile(this, getProviderAuthority(), assetDataPath.toFile())
 
 fun Uri.getMimeType(context: Context): String? {
-    val extension = MimeTypeMap.getFileExtensionFromUrl(path)
-    return context.contentResolver.getType(this)
-        ?: MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension)
+    val extension: String? = if (this.scheme == ContentResolver.SCHEME_CONTENT) {
+        context.contentResolver.getType(this)
+    } else {
+        // If scheme is a File
+        // This will replace white spaces with %20 and also other special characters.
+        // This will avoid returning null values on file name with spaces and special characters.
+        val fileExtension = MimeTypeMap.getFileExtensionFromUrl(Uri.fromFile(this.path?.let { File(it) }).toString())
+        MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileExtension.lowercase(Locale.getDefault()))
+    }
+    return extension
 }
 
 suspend fun Uri.resampleImageAndCopyToTempPath(
@@ -156,6 +173,8 @@ suspend fun Uri.resampleImageAndCopyToTempPath(
     return withContext(dispatcher.io()) {
         var size: Long
         val originalImage = toByteArray(context, dispatcher)
+        if (originalImage.isEmpty()) return@withContext 0L // if the image is empty, resampling it would cause an exception
+
         ImageUtil.resample(originalImage, sizeClass).let { processedImage ->
             val file = tempCachePath.toFile()
             size = processedImage.size.toLong()
@@ -270,6 +289,46 @@ fun shareAssetFileWithExternalApp(assetDataPath: Path, context: Context, assetEx
     }
 }
 
+inline fun <reified T : Parcelable> Intent.parcelable(key: String): T? = when {
+    Build.VERSION.SDK_INT >= SDK_VERSION -> getParcelableExtra(key, T::class.java)
+    else -> @Suppress("DEPRECATION") getParcelableExtra(key) as? T
+}
+
+inline fun <reified T : Parcelable> Intent.parcelableArrayList(key: String): ArrayList<T>? = when {
+    Build.VERSION.SDK_INT >= SDK_VERSION -> getParcelableArrayListExtra(key, T::class.java)
+    else -> @Suppress("DEPRECATION") getParcelableArrayListExtra(key)
+}
+
+fun Uri.getMetaDataFromUri(context: Context): FileMetaData {
+    context.contentResolver.query(this, null, null, null, null)?.use { cursor ->
+        if (cursor.moveToFirst()) {
+            val displayName =
+                cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DISPLAY_NAME))
+            val size = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.SIZE))
+            return FileMetaData(displayName, size)
+        }
+    }
+    return FileMetaData()
+}
+
+data class FileMetaData(val name: String = "", val size: Long = 0L)
+
+fun isImageFile(mimeType: String?): Boolean {
+    return mimeType != null && mimeType.startsWith("image/")
+}
+
+fun isVideoFile(mimeType: String?): Boolean {
+    return mimeType != null && mimeType.startsWith("video/")
+}
+
+fun isAudioFile(mimeType: String?): Boolean {
+    return mimeType != null && mimeType.startsWith("audio/")
+}
+
+fun isText(mimeType: String?): Boolean {
+    return mimeType != null && mimeType.startsWith("text/")
+}
+
 @Suppress("MagicNumber")
 fun Context.getDeviceId(): String? {
 
@@ -300,5 +359,5 @@ fun findFirstUniqueName(dir: File, desiredName: String): String {
 
 private const val ATTACHMENT_FILENAME = "attachment"
 private const val TEMP_IMG_ATTACHMENT_FILENAME = "image_attachment.jpg"
-private const val TEMP_VIDEO_ATTACHMENT_FILENAME = "video_attachment.mp4"
 private const val DATA_COPY_BUFFER_SIZE = 2048
+const val SDK_VERSION = 33

@@ -20,11 +20,16 @@
 
 package com.wire.android.model
 
+import android.net.Uri
+import androidx.core.net.toUri
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserAssetId
 import io.mockk.MockKAnnotations
+import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import io.mockk.mockk
+import io.mockk.mockkStatic
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldNotBeEqualTo
 import org.junit.jupiter.api.BeforeEach
@@ -37,7 +42,10 @@ class ImageAssetTest {
 
     @BeforeEach
     fun setup() {
-        MockKAnnotations.init(this)
+        MockKAnnotations.init(this, relaxUnitFun = true)
+        val mockUri = mockk<Uri>()
+        mockkStatic(Uri::class)
+        every { Uri.parse(any()) } returns mockUri
     }
 
     fun createUserAvatarAsset(userAssetId: UserAssetId) = ImageAsset.UserAvatarAsset(
@@ -48,9 +56,14 @@ class ImageAssetTest {
         conversationId: ConversationId,
         messageId: String,
         isSelfAsset: Boolean
-    ) = ImageAsset.PrivateAsset(
-        imageLoader, conversationId, messageId, isSelfAsset
-    )
+    ) = ImageAsset.PrivateAsset(imageLoader, conversationId, messageId, isSelfAsset)
+
+    fun createLocalAsset(
+        dataUri: Uri,
+        imageKey: String
+    ): ImageAsset.LocalImageAsset {
+        return ImageAsset.LocalImageAsset(imageLoader, dataUri, imageKey)
+    }
 
     @Test
     fun givenEqualUserAvatarAssets_whenGettingUniqueKey_thenResultsShouldBeEqual() {
@@ -122,5 +135,57 @@ class ImageAssetTest {
         baseSubject.uniqueKey shouldNotBeEqualTo alteredConversationIdSubject.uniqueKey
         baseSubject.uniqueKey shouldNotBeEqualTo alteredMessageIdSubject.uniqueKey
         baseSubject.uniqueKey shouldNotBeEqualTo alteredSelfAssetSubject.uniqueKey
+    }
+
+    @Test
+    fun givenEqualUriAndKeyLocalAssets_whenGettingUniqueKey_thenResultsShouldBeEqual() {
+        val assetKey = "assetKey"
+        val localAssetUri = "local-uri".toUri()
+
+        val subject1 = createLocalAsset(
+            localAssetUri,
+            assetKey,
+        )
+        val subject2 = createLocalAsset(
+            localAssetUri,
+            assetKey,
+        )
+
+        subject1.uniqueKey shouldBeEqualTo subject2.uniqueKey
+    }
+
+    @Test
+    fun givenSameUriButDifferentKeyLocalAssets_whenGettingUniqueKey_thenResultsShouldBeDifferent() {
+        val assetUri = "assetUri".toUri()
+        val assetKey = "assetKey"
+
+        val baseSubject = createLocalAsset(
+            assetUri,
+            assetKey
+        )
+        val alteredAssetKeySubject = createLocalAsset(
+            assetUri,
+            "someOtherAssetKey",
+        )
+
+        baseSubject.uniqueKey shouldNotBeEqualTo alteredAssetKeySubject.uniqueKey
+    }
+
+    @Test
+    fun givenSameKeyButDifferentUriLocalAssets_whenGettingUniqueKey_thenResultsShouldBeTheSame() {
+        val assetUri1 = "assetUri1".toUri()
+        val assetUri2 = "assetUri2".toUri()
+        val assetKey = "assetKey"
+
+        val baseSubject = createLocalAsset(
+            assetUri1,
+            assetKey
+        )
+        val alteredUriSubject = createLocalAsset(
+            assetUri2,
+            assetKey
+        )
+
+        baseSubject.uniqueKey shouldBeEqualTo alteredUriSubject.uniqueKey
     }
 }

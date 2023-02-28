@@ -33,6 +33,7 @@ import com.wire.android.model.Clickable
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.calling.controlbuttons.JoinButton
 import com.wire.android.ui.common.RowItemTemplate
+import com.wire.android.ui.common.WireRadioButton
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.conversationColor
 import com.wire.android.ui.common.dimensions
@@ -53,6 +54,9 @@ import com.wire.kalium.logic.data.user.UserId
 fun ConversationItemFactory(
     conversation: ConversationItem,
     searchQuery: String,
+    isSelectableItem: Boolean = false,
+    isChecked: Boolean = false,
+    onConversationSelectedOnRadioGroup: () -> Unit = {},
     openConversation: (ConversationId) -> Unit,
     openMenu: (ConversationItem) -> Unit,
     openUserProfile: (UserId) -> Unit,
@@ -70,9 +74,7 @@ fun ConversationItemFactory(
             },
             onLongClick = {
                 when (conversation.lastMessageContent) {
-                    is UILastMessageContent.Connection -> {
-                    }
-
+                    is UILastMessageContent.Connection -> {}
                     else -> openMenu(conversation)
                 }
             }
@@ -81,17 +83,23 @@ fun ConversationItemFactory(
     GeneralConversationItem(
         conversation = conversation,
         searchQuery = searchQuery,
+        isSelectable = isSelectableItem,
+        isChecked = isChecked,
+        selectOnRadioGroup = onConversationSelectedOnRadioGroup,
         subTitle = {
-            when (val messageContent = conversation.lastMessageContent) {
-                is UILastMessageContent.TextMessage -> LastMessageSubtitle(messageContent.messageBody.message)
-                is UILastMessageContent.MultipleMessage -> LastMultipleMessages(messageContent.messages, messageContent.separator)
-                is UILastMessageContent.SenderWithMessage -> LastMessageSubtitleWithAuthor(
-                    messageContent.sender,
-                    messageContent.message,
-                    messageContent.separator
-                )
-                is UILastMessageContent.Connection -> ConnectionLabel(connectionInfo = messageContent)
-                else -> {}
+            if (!isSelectableItem) {
+                when (val messageContent = conversation.lastMessageContent) {
+                    is UILastMessageContent.TextMessage -> LastMessageSubtitle(messageContent.messageBody.message)
+                    is UILastMessageContent.MultipleMessage -> LastMultipleMessages(messageContent.messages, messageContent.separator)
+                    is UILastMessageContent.SenderWithMessage -> LastMessageSubtitleWithAuthor(
+                        messageContent.sender,
+                        messageContent.message,
+                        messageContent.separator
+                    )
+
+                    is UILastMessageContent.Connection -> ConnectionLabel(connectionInfo = messageContent)
+                    else -> {}
+                }
             }
         },
         onConversationItemClick = onConversationItemClick,
@@ -108,6 +116,9 @@ fun ConversationItemFactory(
 private fun GeneralConversationItem(
     searchQuery: String,
     conversation: ConversationItem,
+    isChecked: Boolean,
+    selectOnRadioGroup: () -> Unit = {},
+    isSelectable: Boolean,
     subTitle: @Composable () -> Unit = {},
     onConversationItemClick: Clickable,
     onMutedIconClick: () -> Unit,
@@ -117,7 +128,16 @@ private fun GeneralConversationItem(
         is ConversationItem.GroupConversation -> {
             with(conversation) {
                 RowItemTemplate(
-                    leadingIcon = { GroupConversationAvatar(colorsScheme().conversationColor(id = conversationId)) },
+                    leadingIcon = {
+                        Row {
+                            if (isSelectable) {
+                                WireRadioButton(checked = isChecked, onButtonChecked = {
+                                    selectOnRadioGroup()
+                                })
+                            }
+                            GroupConversationAvatar(colorsScheme().conversationColor(id = conversationId))
+                        }
+                    },
                     title = {
                         ConversationTitle(
                             name = groupName.ifEmpty { stringResource(id = R.string.member_name_deleted_label) },
@@ -128,17 +148,19 @@ private fun GeneralConversationItem(
                     subTitle = subTitle,
                     clickable = onConversationItemClick,
                     trailingIcon = {
-                        if (hasOnGoingCall) {
-                            JoinButton(buttonClick = onJoinCallClick)
-                        } else {
-                            Row(
-                                modifier = Modifier.padding(horizontal = dimensions().spacing8x),
-                                horizontalArrangement = Arrangement.spacedBy(dimensions().spacing8x)
-                            ) {
-                                if (mutedStatus != MutedConversationStatus.AllAllowed) {
-                                    MutedConversationBadge(onMutedIconClick)
+                        if (!isSelectable) {
+                            if (hasOnGoingCall) {
+                                JoinButton(buttonClick = onJoinCallClick)
+                            } else {
+                                Row(
+                                    modifier = Modifier.padding(horizontal = dimensions().spacing8x),
+                                    horizontalArrangement = Arrangement.spacedBy(dimensions().spacing8x)
+                                ) {
+                                    if (mutedStatus != MutedConversationStatus.AllAllowed) {
+                                        MutedConversationBadge(onMutedIconClick)
+                                    }
+                                    EventBadgeFactory(eventType = conversation.badgeEventType)
                                 }
-                                EventBadgeFactory(eventType = conversation.badgeEventType)
                             }
                         }
                     },
@@ -149,7 +171,16 @@ private fun GeneralConversationItem(
         is ConversationItem.PrivateConversation -> {
             with(conversation) {
                 RowItemTemplate(
-                    leadingIcon = { ConversationUserAvatar(userAvatarData) },
+                    leadingIcon = {
+                        Row {
+                            if (isSelectable) {
+                                WireRadioButton(checked = isChecked, onButtonChecked = {
+                                    selectOnRadioGroup()
+                                })
+                            }
+                            ConversationUserAvatar(userAvatarData)
+                        }
+                    },
                     title = {
                         UserLabel(
                             userInfoLabel = toUserInfoLabel(),
@@ -159,14 +190,16 @@ private fun GeneralConversationItem(
                     subTitle = subTitle,
                     clickable = onConversationItemClick,
                     trailingIcon = {
-                        Row(
-                            modifier = Modifier.padding(horizontal = dimensions().spacing8x),
-                            horizontalArrangement = Arrangement.spacedBy(dimensions().spacing8x)
-                        ) {
-                            if (mutedStatus != MutedConversationStatus.AllAllowed) {
-                                MutedConversationBadge(onMutedIconClick)
+                        if (!isSelectable) {
+                            Row(
+                                modifier = Modifier.padding(horizontal = dimensions().spacing8x),
+                                horizontalArrangement = Arrangement.spacedBy(dimensions().spacing8x)
+                            ) {
+                                if (mutedStatus != MutedConversationStatus.AllAllowed) {
+                                    MutedConversationBadge(onMutedIconClick)
+                                }
+                                EventBadgeFactory(eventType = conversation.badgeEventType)
                             }
-                            EventBadgeFactory(eventType = conversation.badgeEventType)
                         }
                     }
                 )
@@ -213,7 +246,9 @@ fun PreviewGroupConversationItemWithUnreadCount() {
             teamId = null
         ),
         searchQuery = "",
-        {}, {}, {}, {}, {}
+        isSelectableItem = false,
+        isChecked = false,
+        {}, {}, {}, {}, {}, {}
     )
 }
 
@@ -233,7 +268,9 @@ fun PreviewGroupConversationItemWithNoBadges() {
             teamId = null
         ),
         searchQuery = "",
-        {}, {}, {}, {}, {}
+        isSelectableItem = false,
+        isChecked = false,
+        {}, {}, {}, {}, {}, {}
     )
 }
 
@@ -253,7 +290,9 @@ fun PreviewGroupConversationItemWithMutedBadgeAndUnreadMentionBadge() {
             teamId = null
         ),
         searchQuery = "",
-        {}, {}, {}, {}, {}
+        isSelectableItem = false,
+        isChecked = false,
+        {}, {}, {}, {}, {}, {}
     )
 }
 
@@ -274,7 +313,9 @@ fun PreviewGroupConversationItemWithOngoingCall() {
             hasOnGoingCall = true,
         ),
         searchQuery = "",
-        {}, {}, {}, {}, {}
+        isSelectableItem = false,
+        isChecked = false,
+        {}, {}, {}, {}, {}, {}
     )
 }
 
@@ -291,7 +332,9 @@ fun PreviewConnectionConversationItemWithReceivedConnectionRequestBadge() {
             conversationInfo = ConversationInfo("Name")
         ),
         searchQuery = "",
-        {}, {}, {}, {}, {}
+        isSelectableItem = false,
+        isChecked = false,
+        {}, {}, {}, {}, {}, {}
     )
 }
 
@@ -308,7 +351,9 @@ fun PreviewConnectionConversationItemWithSentConnectRequestBadge() {
             conversationInfo = ConversationInfo("Name")
         ),
         searchQuery = "",
-        {}, {}, {}, {}, {}
+        isSelectableItem = false,
+        isChecked = false,
+        {}, {}, {}, {}, {}, {}
     )
 }
 
@@ -328,6 +373,8 @@ fun PreviewPrivateConversationItemWithBlockedBadge() {
             userId = UserId("value", "domain")
         ),
         searchQuery = "",
-        {}, {}, {}, {}, {}
+        isSelectableItem = false,
+        isChecked = false,
+        {}, {}, {}, {}, {}, {}
     )
 }

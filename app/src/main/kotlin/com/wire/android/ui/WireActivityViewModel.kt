@@ -168,50 +168,59 @@ class WireActivityViewModel @Inject constructor(
 
     fun navigationArguments() = navigationArguments.values.toList()
 
-    fun startNavigationRoute(): String = when {
+    fun startNavigationRoute(navigationItem: NavigationItem? = null, hasSharingIntent: Boolean = false): String = when {
         shouldGoToMigration() -> NavigationItem.Migration.getRouteWithArgs()
         shouldGoToWelcome() -> NavigationItem.Welcome.getRouteWithArgs()
+        hasSharingIntent -> NavigationItem.ImportMedia.getRouteWithArgs()
+        navigationItem != null -> navigationItem.getRouteWithArgs()
         else -> NavigationItem.Home.getRouteWithArgs()
+    }
+
+    fun isSharingIntent(intent: Intent?): Boolean {
+        return intent?.action == Intent.ACTION_SEND || intent?.action == Intent.ACTION_SEND_MULTIPLE
     }
 
     @Suppress("ComplexMethod")
     fun handleDeepLink(intent: Intent?) {
-        intent?.data?.let { deepLink ->
-            viewModelScope.launch {
-                if (isLaunchedFromHistory(intent)) {
-                    // We don't need to handle deepLink, if activity was launched from history.
-                    // For example: user opened app by deepLink, then closed it by back button click,
-                    // then open the app from the "Recent Apps"
-                    appLogger.d("Deep link is launched from history, ignoring")
-                    return@launch
-                }
-
-                when (val result = deepLinkProcessor(deepLink, viewModelScope)) {
-                    is DeepLinkResult.CustomServerConfig -> runBlocking {
-                        loadServerConfig(result.url)?.let { serverLinks ->
-                            globalAppState = globalAppState.copy(
-                                customBackendDialog = CustomBEDeeplinkDialogState(
-                                    shouldShowDialog = true,
-                                    serverLinks = serverLinks
-                                )
-                            )
-                            navigationArguments[SERVER_CONFIG_ARG] = serverLinks
-                        }
+        if (shouldGoToImport(intent)) {
+            navigateToImportMediaScreen()
+        } else {
+            intent?.data?.let { deepLink ->
+                viewModelScope.launch {
+                    if (isLaunchedFromHistory(intent)) {
+                        // We don't need to handle deepLink, if activity was launched from history.
+                        // For example: user opened app by deepLink, then closed it by back button click,
+                        // then open the app from the "Recent Apps"
+                        appLogger.d("Deep link is launched from history, ignoring")
+                        return@launch
                     }
 
-                    is DeepLinkResult.SSOLogin -> navigationArguments[SSO_DEEPLINK_ARG] = result
+                    when (val result = deepLinkProcessor(deepLink, viewModelScope)) {
+                        is DeepLinkResult.CustomServerConfig -> runBlocking {
+                            loadServerConfig(result.url)?.let { serverLinks ->
+                                globalAppState = globalAppState.copy(
+                                    customBackendDialog = CustomBEDeeplinkDialogState(
+                                        shouldShowDialog = true,
+                                        serverLinks = serverLinks
+                                    )
+                                )
+                                navigationArguments[SERVER_CONFIG_ARG] = serverLinks
+                            }
+                        }
 
-                    is DeepLinkResult.IncomingCall -> navigationArguments[INCOMING_CALL_CONVERSATION_ID_ARG] = result.conversationsId
+                        is DeepLinkResult.SSOLogin -> navigationArguments[SSO_DEEPLINK_ARG] = result
 
-                    is DeepLinkResult.OngoingCall -> navigationArguments[ONGOING_CALL_CONVERSATION_ID_ARG] = result.conversationsId
+                        is DeepLinkResult.IncomingCall -> navigationArguments[INCOMING_CALL_CONVERSATION_ID_ARG] = result.conversationsId
 
-                    is DeepLinkResult.OpenConversation -> navigationArguments[OPEN_CONVERSATION_ID_ARG] = result.conversationsId
+                        is DeepLinkResult.OngoingCall -> navigationArguments[ONGOING_CALL_CONVERSATION_ID_ARG] = result.conversationsId
 
-                    is DeepLinkResult.OpenOtherUserProfile -> navigationArguments[OPEN_OTHER_USER_PROFILE_ARG] = result.userId
+                        is DeepLinkResult.OpenConversation -> navigationArguments[OPEN_CONVERSATION_ID_ARG] = result.conversationsId
 
-                    is DeepLinkResult.JoinConversation -> onConversationInviteDeepLink(result.code, result.key, result.domain)
+                        is DeepLinkResult.OpenOtherUserProfile -> navigationArguments[OPEN_OTHER_USER_PROFILE_ARG] = result.userId
 
-                    is DeepLinkResult.MigrationLogin -> {
+                        is DeepLinkResult.JoinConversation -> onConversationInviteDeepLink(result.code, result.key, result.domain)
+
+                        is DeepLinkResult.MigrationLogin -> {
                         if (isLaunchedFromHistory(intent)) {
                             appLogger.i("MigrationLogin deepLink launched from the history")
                         } else {
@@ -219,7 +228,7 @@ class WireActivityViewModel @Inject constructor(
                         }
                     }
 
-                    DeepLinkResult.Unknown -> appLogger.e("unknown deeplink result $result")
+                    DeepLinkResult.Unknown -> appLogger.e("unknown deeplink result $result")}
                 }
             }
         }
@@ -245,7 +254,9 @@ class WireActivityViewModel @Inject constructor(
         }
 
         handleDeepLink(intent)
-
+        if (isSharingIntent(intent)) {
+            return false
+        }
         return when {
             shouldGoToMigrationLogin() -> {
                 openMigrationLogin(navigationArguments[MIGRATION_LOGIN_ARG] as String)
@@ -283,6 +294,14 @@ class WireActivityViewModel @Inject constructor(
 
     fun dismissCustomBackendDialog() {
         globalAppState = globalAppState.copy(customBackendDialog = CustomBEDeeplinkDialogState(shouldShowDialog = false))
+    }
+
+    fun navigateToImportMediaScreen() {
+        navigateTo(
+            NavigationCommand(
+                NavigationItem.ImportMedia.getRouteWithArgs(), backStackMode = BackStackMode.CLEAR_WHOLE
+            )
+        )
     }
 
     fun customBackendDialogProceedButtonClicked(serverLinks: ServerConfig.Links) {
@@ -352,36 +371,35 @@ class WireActivityViewModel @Inject constructor(
         code: String,
         key: String,
         domain: String?
-    ) =
-        when (val currentSession = coreLogic.getGlobalScope().session.currentSession()) {
-            is CurrentSessionResult.Failure.Generic -> null
-            CurrentSessionResult.Failure.SessionNotFound -> null
-            is CurrentSessionResult.Success -> {
-                coreLogic.sessionScope(currentSession.accountInfo.userId) {
-                    when (val result = conversations.checkIConversationInviteCode(code, key, domain)) {
-                        is CheckConversationInviteCodeUseCase.Result.Success -> {
-                            if (result.isSelfMember) {
-                                // TODO; display messsage that user is already a member and ask if they want to navigate to the conversation
-                                openConversation(result.conversationId)
-                            } else {
-                                globalAppState =
-                                    globalAppState.copy(
-                                        conversationJoinedDialog = JoinConversationViaCodeState.Show(
-                                            result.name,
-                                            code,
-                                            key,
-                                            domain
-                                        )
+    ) = when (val currentSession = coreLogic.getGlobalScope().session.currentSession()) {
+        is CurrentSessionResult.Failure.Generic -> null
+        CurrentSessionResult.Failure.SessionNotFound -> null
+        is CurrentSessionResult.Success -> {
+            coreLogic.sessionScope(currentSession.accountInfo.userId) {
+                when (val result = conversations.checkIConversationInviteCode(code, key, domain)) {
+                    is CheckConversationInviteCodeUseCase.Result.Success -> {
+                        if (result.isSelfMember) {
+                            // TODO; display messsage that user is already a member and ask if they want to navigate to the conversation
+                            openConversation(result.conversationId)
+                        } else {
+                            globalAppState =
+                                globalAppState.copy(
+                                    conversationJoinedDialog = JoinConversationViaCodeState.Show(
+                                        result.name,
+                                        code,
+                                        key,
+                                        domain
                                     )
-                            }
+                                )
                         }
-
-                        is CheckConversationInviteCodeUseCase.Result.Failure -> globalAppState =
-                            globalAppState.copy(conversationJoinedDialog = JoinConversationViaCodeState.Error(result))
                     }
+
+                    is CheckConversationInviteCodeUseCase.Result.Failure -> globalAppState =
+                        globalAppState.copy(conversationJoinedDialog = JoinConversationViaCodeState.Error(result))
                 }
             }
         }
+    }
 
     fun joinConversationViaCode(
         code: String,
@@ -441,19 +459,26 @@ class WireActivityViewModel @Inject constructor(
 
     private fun shouldGoToMigrationLogin(): Boolean = (navigationArguments[MIGRATION_LOGIN_ARG] as? String) != null
 
-    // TODO: the usage of currentSessionFlow is a temporary solution, it should be replaced with a proper solution
-    private fun shouldGoToWelcome(): Boolean = runBlocking {
+    private fun shouldGoToWelcome(): Boolean = !hasValidCurrentSession()
+
+    private fun hasValidCurrentSession(): Boolean = runBlocking {
+        // TODO: the usage of currentSessionFlow is a temporary solution, it should be replaced with a proper solution
         currentSessionFlow().first().let {
             when (it) {
-                is CurrentSessionResult.Failure.Generic -> true
-                CurrentSessionResult.Failure.SessionNotFound -> true
-                is CurrentSessionResult.Success -> false
+                is CurrentSessionResult.Failure.Generic -> false
+                CurrentSessionResult.Failure.SessionNotFound -> false
+                is CurrentSessionResult.Success -> true
             }
         }
     }
 
     private fun shouldGoToMigration(): Boolean = runBlocking {
         migrationManager.shouldMigrate()
+    }
+
+    private fun shouldGoToImport(intent: Intent?): Boolean {
+        // Show import screen only if there is a valid session
+        return hasValidCurrentSession() && isSharingIntent(intent)
     }
 
     fun openProfile() {

@@ -45,6 +45,7 @@ import com.wire.android.navigation.NavigationItemDestinationsRoutes.GROUP_CONVER
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.GROUP_CONVERSATION_DETAILS
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.HOME
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.IMAGE_PICKER
+import com.wire.android.navigation.NavigationItemDestinationsRoutes.IMPORT_MEDIA
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.INCOMING_CALL
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.INITIAL_SYNC
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.INITIATING_CALL
@@ -95,6 +96,7 @@ import com.wire.android.ui.initialsync.InitialSyncScreen
 import com.wire.android.ui.migration.MigrationScreen
 import com.wire.android.ui.settings.devices.DeviceDetailsScreen
 import com.wire.android.ui.settings.devices.SelfDevicesScreen
+import com.wire.android.ui.sharing.ImportMediaScreen
 import com.wire.android.ui.userprofile.avatarpicker.AvatarPickerScreen
 import com.wire.android.ui.userprofile.other.OtherUserProfileScreen
 import com.wire.android.ui.userprofile.self.SelfUserProfileScreen
@@ -450,7 +452,12 @@ enum class NavigationItem(
             val mappedArgs = imageAssetId?.toString() ?: ""
             return imageAssetId?.run { "$primaryRoute/$mappedArgs" } ?: primaryRoute
         }
-    };
+    },
+
+    ImportMedia(
+        primaryRoute = IMPORT_MEDIA,
+        content = { ImportMediaScreen() }
+    );
 
     /**
      * The item theoretical route. If the route includes a route ID, this method will return the route with the placeholder.
@@ -511,6 +518,7 @@ object NavigationItemDestinationsRoutes {
     const val INCOMING_CALL = "incoming_call_screen"
     const val MEDIA_GALLERY = "media_gallery"
     const val NETWORK_SETTINGS = "network_settings_screen"
+    const val IMPORT_MEDIA = "import_media"
 }
 
 const val EXTRA_USER_ID = "extra_user_id"

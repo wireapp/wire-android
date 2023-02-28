@@ -645,6 +645,7 @@ class WireActivityViewModelTest {
             return mockk<Intent>().also {
                 every { it.data } returns mockk()
                 every { it.flags } returns if (isFromHistory) Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY else 0
+                every { it.action } returns null
             }
         }
     }

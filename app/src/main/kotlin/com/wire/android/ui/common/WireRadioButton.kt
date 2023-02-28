@@ -18,13 +18,22 @@
  *
  */
 
-package com.wire.android.ui.common.dialogs
+package com.wire.android.ui.common
 
-import androidx.annotation.StringRes
-import com.wire.kalium.logic.data.user.UserId
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.RadioButton
+import androidx.compose.runtime.Composable
+import com.wire.android.ui.common.button.wireRadioButtonColors
 
-data class BlockUserDialogState(val userName: String, val userId: UserId)
-data class UnblockUserDialogState(val userName: String, val userId: UserId)
-data class FeatureDisabledWithProxyDialogState(@StringRes val description: Int, val teamUrl: String = "")
-object CancelLoginDialogState
-object FileSharingRestrictedDialogState
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun WireRadioButton(
+    checked: Boolean,
+    onButtonChecked: (() -> Unit)
+) {
+    RadioButton(
+        selected = checked,
+        onClick = onButtonChecked,
+        colors = wireRadioButtonColors()
+    )
+}

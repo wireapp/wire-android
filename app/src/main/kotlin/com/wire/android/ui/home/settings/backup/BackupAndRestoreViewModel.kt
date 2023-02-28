@@ -77,7 +77,7 @@ class BackupAndRestoreViewModel
     internal lateinit var latestImportedBackupTempPath: Path
 
     fun createBackup(password: String) = viewModelScope.launch(dispatcher.main()) {
-        // TODO: Find a way to update the create progress more faithfully. For now we will just show this small delays to mimic the
+        // TODO: Find a way to update the creation progress more faithfully. For now we will just show this small delays to mimic the
         //  progress also for small backups
         updateCreationProgress(PROGRESS_25)
         delay(SMALL_DELAY)

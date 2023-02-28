@@ -122,7 +122,6 @@ class MigrateActiveAccountsUseCase @Inject constructor(
         }
     }
 
-
         data class Result(val userIds: Map<String, Either<AccountMigrationFailure, UserId>>, val isFederationEnabled: Boolean)
 
         data class AccountMigrationFailure(val userName: String?, val userHandle: String?, val cause: CoreFailure)

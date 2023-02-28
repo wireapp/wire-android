@@ -74,7 +74,6 @@ class ShouldTriggerMigrationForUserUserCaseTest {
         verify(exactly = 0) { arrangement.applicationContext.getDatabasePath(userId.value) }
     }
 
-
     private class Arrangement {
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)

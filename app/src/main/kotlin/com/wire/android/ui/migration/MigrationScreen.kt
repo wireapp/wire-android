@@ -76,7 +76,6 @@ private fun MigrationScreenContent(
     )
 }
 
-
 @Composable
 private fun MigrationState.message() = when (this) {
     is MigrationState.InProgress -> when (this.type) {

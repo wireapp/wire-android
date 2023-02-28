@@ -46,4 +46,3 @@ fun LoginState.updateEmailLoginEnabled() =
 
 fun LoginState.updateSSOLoginEnabled() =
     copy(ssoLoginEnabled = ssoCode.text.isNotEmpty() && !ssoLoginLoading)
-

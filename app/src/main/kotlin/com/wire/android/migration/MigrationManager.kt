@@ -189,7 +189,7 @@ class MigrationManager @Inject constructor(
     }
 
     @Suppress("MagicNumber")
-    private fun CoreFailure.getErrorCode(): Int = when(this) {
+    private fun CoreFailure.getErrorCode(): Int = when (this) {
         is MigrationFailure.ClientNotRegistered -> 1
         is MigrationFailure.InvalidRefreshToken -> 2
         is StorageFailure -> 3
@@ -220,9 +220,11 @@ class MigrationManager @Inject constructor(
                 dataFailed.any { it is NetworkFailure.NoNetworkConnection } -> MigrationData.Result.Failure.NoNetwork
                 accountsFailed.size > 1 -> MigrationData.Result.Failure.Account.Any
                 accountsFailed.size == 1 -> accountsFailed.first().let {
-                    if (it.userName?.isNotEmpty() == true && it.userHandle?.isNotEmpty() == true)
+                    if (it.userName?.isNotEmpty() == true && it.userHandle?.isNotEmpty() == true) {
                         MigrationData.Result.Failure.Account.Specific(it.userName, it.userHandle)
-                    else MigrationData.Result.Failure.Account.Any
+                    } else {
+                        MigrationData.Result.Failure.Account.Any
+                    }
                 }
                 dataFailed.isNotEmpty() ->
                     MigrationData.Result.Failure.Messages(dataFailed.joinToString { it.getErrorCode().toString() })

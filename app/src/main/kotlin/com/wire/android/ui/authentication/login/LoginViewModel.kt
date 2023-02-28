@@ -74,8 +74,9 @@ open class LoginViewModel @Inject constructor(
             ),
             userIdentifierEnabled = preFilledUserIdentifier is PreFilledUserIdentifierType.None,
             password = TextFieldValue(String.EMPTY),
-            isProxyAuthRequired = if (serverConfig.apiProxy?.needsAuthentication != null)
-                serverConfig.apiProxy?.needsAuthentication!! else false,
+            isProxyAuthRequired =
+                if (serverConfig.apiProxy?.needsAuthentication != null) serverConfig.apiProxy?.needsAuthentication!!
+                else false,
             isProxyEnabled = serverConfig.apiProxy != null
         )
     )
@@ -135,10 +136,11 @@ open class LoginViewModel @Inject constructor(
 
     @VisibleForTesting
     fun navigateAfterRegisterClientSuccess(userId: UserId) = viewModelScope.launch {
-        if (userDataStoreProvider.getOrCreate(userId).initialSyncCompleted.first())
+        if (userDataStoreProvider.getOrCreate(userId).initialSyncCompleted.first()) {
             navigationManager.navigate(NavigationCommand(NavigationItem.Home.getRouteWithArgs(), BackStackMode.CLEAR_WHOLE))
-        else
+        } else {
             navigationManager.navigate(NavigationCommand(NavigationItem.InitialSync.getRouteWithArgs(), BackStackMode.CLEAR_WHOLE))
+        }
     }
 
     fun navigateBack() = viewModelScope.launch {

@@ -221,14 +221,15 @@ class WireActivityViewModel @Inject constructor(
                         is DeepLinkResult.JoinConversation -> onConversationInviteDeepLink(result.code, result.key, result.domain)
 
                         is DeepLinkResult.MigrationLogin -> {
-                        if (isLaunchedFromHistory(intent)) {
-                            appLogger.i("MigrationLogin deepLink launched from the history")
-                        } else {
-                            navigationArguments.put(MIGRATION_LOGIN_ARG, result.userHandle)
+                            if (isLaunchedFromHistory(intent)) {
+                                appLogger.i("MigrationLogin deepLink launched from the history")
+                            } else {
+                                navigationArguments.put(MIGRATION_LOGIN_ARG, result.userHandle)
+                            }
                         }
-                    }
 
-                    DeepLinkResult.Unknown -> appLogger.e("unknown deeplink result $result")}
+                        DeepLinkResult.Unknown -> appLogger.e("unknown deeplink result $result")
+                    }
                 }
             }
         }

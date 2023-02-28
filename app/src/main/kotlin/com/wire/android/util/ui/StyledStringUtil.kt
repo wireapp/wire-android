@@ -86,7 +86,6 @@ private fun String.bold() = STYLE_SEPARATOR + this + STYLE_SEPARATOR
 
 private const val STYLE_SEPARATOR: String = "\u0000"
 
-
 data class LinkTextData(
     val text: String,
     val tag: String? = null,

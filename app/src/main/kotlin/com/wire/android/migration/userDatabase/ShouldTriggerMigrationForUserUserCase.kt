@@ -19,9 +19,9 @@ class ShouldTriggerMigrationForUserUserCase @Inject constructor(
         .first().let { migrationStatus ->
             when (migrationStatus) {
                 UserMigrationStatus.Completed,
-                UserMigrationStatus.NotStarted -> return@let false
+                UserMigrationStatus.NoNeed -> return@let false
 
-                UserMigrationStatus.NoNeed,
+                UserMigrationStatus.NotStarted,
                 null -> checkForScalaDB(userId)
             }
         }

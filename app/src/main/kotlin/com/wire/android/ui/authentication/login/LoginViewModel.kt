@@ -33,6 +33,7 @@ import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.di.ClientScopeProvider
 import com.wire.android.navigation.BackStackMode
+import com.wire.android.navigation.EXTRA_USER_HANDLE
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
@@ -60,10 +61,18 @@ open class LoginViewModel @Inject constructor(
 ) : ViewModel() {
     val serverConfig = authServerConfigProvider.authServer.value
 
+    private val preFilledUserIdentifier: PreFilledUserIdentifierType = savedStateHandle.get<String>(EXTRA_USER_HANDLE).let {
+        if (it.isNullOrEmpty()) PreFilledUserIdentifierType.None else PreFilledUserIdentifierType.PreFilled(it)
+    }
+
     var loginState by mutableStateOf(
         LoginState(
             ssoCode = TextFieldValue(savedStateHandle[SSO_CODE_SAVED_STATE_KEY] ?: String.EMPTY),
-            userIdentifier = TextFieldValue(savedStateHandle[USER_IDENTIFIER_SAVED_STATE_KEY] ?: String.EMPTY),
+            userIdentifier = TextFieldValue(
+                if (preFilledUserIdentifier is PreFilledUserIdentifierType.PreFilled) preFilledUserIdentifier.userIdentifier
+                else savedStateHandle[USER_IDENTIFIER_SAVED_STATE_KEY] ?: String.EMPTY
+            ),
+            userIdentifierEnabled = preFilledUserIdentifier is PreFilledUserIdentifierType.None,
             password = TextFieldValue(String.EMPTY),
             isProxyAuthRequired = if (serverConfig.apiProxy?.needsAuthentication != null)
                 serverConfig.apiProxy?.needsAuthentication!! else false,
@@ -167,4 +176,9 @@ fun RegisterClientResult.Failure.toLoginError() = when (this) {
 fun AddAuthenticatedUserUseCase.Result.Failure.toLoginError(): LoginError = when (this) {
     is AddAuthenticatedUserUseCase.Result.Failure.Generic -> LoginError.DialogError.GenericError(this.genericFailure)
     AddAuthenticatedUserUseCase.Result.Failure.UserAlreadyExists -> LoginError.DialogError.UserAlreadyExists
+}
+
+sealed interface PreFilledUserIdentifierType {
+    object None : PreFilledUserIdentifierType
+    data class PreFilled(val userIdentifier: String) : PreFilledUserIdentifierType
 }

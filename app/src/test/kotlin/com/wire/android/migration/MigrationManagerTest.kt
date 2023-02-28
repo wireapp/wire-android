@@ -20,6 +20,7 @@
 
 package com.wire.android.migration
 
+import android.app.NotificationManager
 import android.content.Context
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.datastore.GlobalDataStore
@@ -155,6 +156,9 @@ class MigrationManagerTest {
         @MockK
         lateinit var markUsersAsNeedToBeMigrated: MarkUsersAsNeedToBeMigrated
 
+        @MockK
+        lateinit var notificationManager: NotificationManager
+
         val coroutineScope: CoroutineScope = TestScope()
 
         val coroutineDispatcher = StandardTestDispatcher()
@@ -169,7 +173,8 @@ class MigrationManagerTest {
                 migrateUsers,
                 migrateConversations,
                 migrateMessages,
-                markUsersAsNeedToBeMigrated
+                markUsersAsNeedToBeMigrated,
+                notificationManager
             )
         }
 

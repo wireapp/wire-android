@@ -25,6 +25,7 @@ import androidx.annotation.VisibleForTesting
 import com.wire.android.appLogger
 import com.wire.android.feature.AccountSwitchUseCase
 import com.wire.android.feature.SwitchAccountParam
+import com.wire.android.util.EMPTY
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapperImpl
@@ -50,6 +51,7 @@ sealed class DeepLinkResult {
     data class OngoingCall(val conversationsId: ConversationId) : DeepLinkResult()
     data class OpenConversation(val conversationsId: ConversationId) : DeepLinkResult()
     data class OpenOtherUserProfile(val userId: QualifiedID) : DeepLinkResult()
+    data class MigrationLogin(val userHandle: String) : DeepLinkResult()
 }
 
 @Singleton
@@ -66,6 +68,7 @@ class DeepLinkProcessor @Inject constructor(
         ONGOING_CALL_DEEPLINK_HOST -> getOngoingCallDeepLinkResult(uri)
         CONVERSATION_DEEPLINK_HOST -> getOpenConversationDeepLinkResult(uri, scope)
         OTHER_USER_PROFILE_DEEPLINK_HOST -> getOpenOtherUserProfileDeepLinkResult(uri)
+        MIGRATION_LOGIN_HOST -> getOpenMigrationLoginDeepLinkResult(uri)
         else -> DeepLinkResult.Unknown
     }
 
@@ -99,6 +102,12 @@ class DeepLinkProcessor @Inject constructor(
     private fun getOpenOtherUserProfileDeepLinkResult(uri: Uri): DeepLinkResult =
         uri.lastPathSegment?.toQualifiedID(qualifiedIdMapper)?.let {
             DeepLinkResult.OpenOtherUserProfile(it)
+        } ?: DeepLinkResult.Unknown
+
+    private fun getOpenMigrationLoginDeepLinkResult(uri: Uri): DeepLinkResult =
+        uri.lastPathSegment?.let {
+            if (it == MIGRATION_LOGIN_HOST) DeepLinkResult.MigrationLogin(String.EMPTY)
+            else DeepLinkResult.MigrationLogin(it)
         } ?: DeepLinkResult.Unknown
 
     private fun getCustomServerConfigDeepLinkResult(uri: Uri) = uri.getQueryParameter(SERVER_CONFIG_PARAM)?.let {
@@ -147,6 +156,7 @@ class DeepLinkProcessor @Inject constructor(
         const val ONGOING_CALL_DEEPLINK_HOST = "ongoing-call"
         const val CONVERSATION_DEEPLINK_HOST = "conversation"
         const val OTHER_USER_PROFILE_DEEPLINK_HOST = "other-user-profile"
+        const val MIGRATION_LOGIN_HOST = "migration-login"
 
     }
 }

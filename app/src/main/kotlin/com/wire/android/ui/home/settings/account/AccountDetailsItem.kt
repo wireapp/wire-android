@@ -29,10 +29,10 @@ sealed class AccountDetailsItem(
     val title: UIText.StringResource,
     open val text: String,
     val navigationItem: NavigationItem,
-    open val clickable: Clickable
+    open val clickable: Clickable?
 ) {
 
-    data class DisplayName(override val text: String, override val clickable: Clickable) : AccountDetailsItem(
+    data class DisplayName(override val text: String, override val clickable: Clickable?) : AccountDetailsItem(
         title = UIText.StringResource(R.string.settings_myaccount_display_name),
         text = text,
         navigationItem = NavigationItem.EditDisplayName,

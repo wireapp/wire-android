@@ -102,7 +102,7 @@ internal fun WireTextField(
     modifier: Modifier = Modifier,
     onSelectedLineIndexChanged: (Int) -> Unit = { },
     onLineBottomYCoordinateChanged: (Float) -> Unit = { },
-    ) {
+) {
     val enabled = state !is WireTextFieldState.Disabled
     var text by remember { mutableStateOf(value) }
 
@@ -117,8 +117,8 @@ internal fun WireTextField(
                     else it
                 )
 
-                text = if(it.text.length > maxTextLength)
-                    TextFieldValue(text = it.text.take(maxTextLength), selection = TextRange(it.text.length-1))
+                text = if (it.text.length > maxTextLength)
+                    TextFieldValue(text = it.text.take(maxTextLength), selection = TextRange(it.text.length - 1))
                 else it
             },
             textStyle = textStyle.copy(color = colors.textColor(state = state).value, textDirection = TextDirection.ContentOrLtr),

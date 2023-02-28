@@ -301,10 +301,14 @@ private fun MessageContent(
                 onOpenProfile = onOpenProfile
             )
 
-            (messageContent.deliveryStatus as? DeliveryStatusContent.PartialDelivery)?.let { partialDelivery ->
-                if (partialDelivery.hasFailures) {
-                    VerticalSpace.x4()
-                    MessageSentPartialDeliveryFailures(partialDelivery)
+            // TODO(ym): add animation for displaying the messages
+            // TODO(federation): enable this when a new definition (jira ticket) is raised for displaying partial delivery no-clients
+            if (false) {
+                (messageContent.deliveryStatus as? DeliveryStatusContent.PartialDelivery)?.let { partialDelivery ->
+                    if (partialDelivery.hasFailures) {
+                        VerticalSpace.x4()
+                        MessageSentPartialDeliveryFailures(partialDelivery)
+                    }
                 }
             }
         }

@@ -223,14 +223,13 @@ class MessageContentMapper @Inject constructor(
                 sender?.name.orUnknownName()
             }
         )
-
         is MessageContent.RestrictedAsset -> toRestrictedAsset(content.mimeType, content.sizeInBytes, content.name)
         else -> toText(message.conversationId, message, userList)
     }
 
     private fun mapAudio(
         assetContent: AssetContent,
-        metadata: AssetContent.AssetMetadata.Audio,
+        metadata: AssetContent.AssetMetadata.Audio
     ): UIMessageContent {
         with(assetContent) {
             return UIMessageContent.AudioAssetMessage(
@@ -251,7 +250,6 @@ class MessageContentMapper @Inject constructor(
                 messageResourceProvider.sentAMessageWithContent,
                 content.typeName ?: "Unknown"
             )
-
             is MessageContent.FailedDecryption -> UIText.StringResource(R.string.label_message_decryption_failure_message)
             else -> UIText.StringResource(messageResourceProvider.sentAMessageWithContent, "Unknown")
         },

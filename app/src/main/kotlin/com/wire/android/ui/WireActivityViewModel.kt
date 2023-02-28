@@ -503,7 +503,6 @@ class WireActivityViewModel @Inject constructor(
         }
     }
 
-
     companion object {
         private const val SERVER_CONFIG_ARG = "server_config"
         private const val SSO_DEEPLINK_ARG = "sso_deeplink"

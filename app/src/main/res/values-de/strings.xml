@@ -381,10 +381,11 @@
     <string name="delete_group_conversation_menu_item">Gruppe löschen…</string>
     <string name="delete_group_conversation_dialog_title">\"%s\" entfernen?</string>
     <string name="delete_group_conversation_dialog_description">Die Gruppe wird auf allen Geräten aus der Liste Ihrer Unterhaltungen entfernt. Sie können dann nicht mehr auf die Gruppe und ihren Inhalt zugreifen.</string>
-    <!-- Import External Media -->
+    <!-- Import/Export External Media -->
     <string name="import_media_content_title">Share With Wire</string>
     <string name="import_media_searchbar_title">Search for conversation</string>
     <string name="import_media_send_button_title">Send</string>
+    <string name="export_media_subject_title">Sharing Media from Wire</string>
     <!--Read receipts -->
     <string name="conversation_options_read_receipt_label">Read receipts</string>
     <string name="conversation_options_read_receipt_description">When this is on, people can see when their messages in this conversation are read.</string>

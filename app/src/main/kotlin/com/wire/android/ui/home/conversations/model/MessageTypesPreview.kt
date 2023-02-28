@@ -53,7 +53,10 @@ fun PreviewMessage() {
         onImageMessageClicked = { _, _ -> },
         onOpenProfile = { _ -> },
         onReactionClicked = { _, _ -> },
-        onResetSessionClicked = { _, _ -> }
+        onResetSessionClicked = { _, _ -> },
+        onChangeAudioPosition = { _, _ -> },
+        onAudioClick = {},
+        audioMessagesState = emptyMap()
     )
 }
 
@@ -86,7 +89,10 @@ fun PreviewMessageWithReply() {
         onImageMessageClicked = { _, _ -> },
         onOpenProfile = { _ -> },
         onReactionClicked = { _, _ -> },
-        onResetSessionClicked = { _, _ -> }
+        onResetSessionClicked = { _, _ -> },
+        onChangeAudioPosition = { _, _ -> },
+        onAudioClick = {},
+        audioMessagesState = emptyMap()
     )
 }
 
@@ -102,7 +108,10 @@ fun PreviewDeletedMessage() {
         onImageMessageClicked = { _, _ -> },
         onOpenProfile = { _ -> },
         onReactionClicked = { _, _ -> },
-        onResetSessionClicked = { _, _ -> }
+        onResetSessionClicked = { _, _ -> },
+        onChangeAudioPosition = { _, _ -> },
+        onAudioClick = {},
+        audioMessagesState = emptyMap()
     )
 }
 
@@ -116,7 +125,10 @@ fun PreviewAssetMessage() {
         onImageMessageClicked = { _, _ -> },
         onOpenProfile = { _ -> },
         onReactionClicked = { _, _ -> },
-        onResetSessionClicked = { _, _ -> }
+        onResetSessionClicked = { _, _ -> },
+        onChangeAudioPosition = { _, _ -> },
+        onAudioClick = {},
+        audioMessagesState = emptyMap()
     )
 }
 
@@ -160,7 +172,10 @@ fun PreviewImageMessageUploaded() {
         onImageMessageClicked = { _, _ -> },
         onOpenProfile = { _ -> },
         onReactionClicked = { _, _ -> },
-        onResetSessionClicked = { _, _ -> }
+        onResetSessionClicked = { _, _ -> },
+        onChangeAudioPosition = { _, _ -> },
+        onAudioClick = {},
+        audioMessagesState = emptyMap()
     )
 }
 
@@ -174,7 +189,10 @@ fun PreviewImageMessageUploading() {
         onImageMessageClicked = { _, _ -> },
         onOpenProfile = { _ -> },
         onReactionClicked = { _, _ -> },
-        onResetSessionClicked = { _, _ -> }
+        onResetSessionClicked = { _, _ -> },
+        onChangeAudioPosition = { _, _ -> },
+        onAudioClick = {},
+        audioMessagesState = emptyMap()
     )
 }
 
@@ -188,7 +206,10 @@ fun PreviewImageMessageFailedUpload() {
         onImageMessageClicked = { _, _ -> },
         onOpenProfile = { _ -> },
         onReactionClicked = { _, _ -> },
-        onResetSessionClicked = { _, _ -> }
+        onResetSessionClicked = { _, _ -> },
+        onChangeAudioPosition = { _, _ -> },
+        onAudioClick = {},
+        audioMessagesState = emptyMap()
     )
 }
 
@@ -203,7 +224,10 @@ fun PreviewMessageWithSystemMessage() {
             onImageMessageClicked = { _, _ -> },
             onOpenProfile = { _ -> },
             onReactionClicked = { _, _ -> },
-            onResetSessionClicked = { _, _ -> }
+            onResetSessionClicked = { _, _ -> },
+            onChangeAudioPosition = { _, _ -> },
+            onAudioClick = {},
+            audioMessagesState = emptyMap()
         )
         SystemMessageItem(UIMessageContent.SystemMessage.MissedCall.YouCalled(UIText.DynamicString("You")))
         SystemMessageItem(

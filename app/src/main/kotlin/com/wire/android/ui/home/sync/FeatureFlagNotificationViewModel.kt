@@ -89,12 +89,12 @@ class FeatureFlagNotificationViewModel @Inject constructor(
 
     private fun setFileSharingState(userId: UserId) {
         viewModelScope.launch {
-            coreLogic.getSessionScope(userId).observeFileSharingStatus().collect {
-                if (it.isFileSharingEnabled != null) {
-                    featureFlagState = featureFlagState.copy(isFileSharingEnabledState = it.isFileSharingEnabled!!)
+            coreLogic.getSessionScope(userId).observeFileSharingStatus().collect { fileSharingStatus ->
+                fileSharingStatus.isFileSharingEnabled?.let {
+                    featureFlagState = featureFlagState.copy(isFileSharingEnabledState = it)
                 }
-                if (it.isStatusChanged != null && it.isStatusChanged!!) {
-                    featureFlagState = featureFlagState.copy(showFileSharingDialog = it.isStatusChanged!!)
+                fileSharingStatus.isStatusChanged?.let {
+                    featureFlagState = featureFlagState.copy(showFileSharingDialog = it)
                 }
             }
         }
@@ -136,11 +136,7 @@ class FeatureFlagNotificationViewModel @Inject constructor(
         // correctly for some strange reason.
         runBlocking {
             if (checkNumberOfSessions() > 0) {
-                featureFlagState = if (!featureFlagState.isFileSharingEnabledState) {
-                    featureFlagState.copy(showFileSharingRestrictedDialog = true)
-                } else {
-                    featureFlagState.copy(openImportMediaScreen = true, showFileSharingRestrictedDialog = false)
-                }
+                featureFlagState = featureFlagState.copy(showFileSharingRestrictedDialog = featureFlagState.isFileSharingEnabledState)
             }
         }
     }

@@ -36,7 +36,7 @@ data class AttachmentBundle(
 
 enum class AttachmentType {
     // TODO: Add audio or video later on
-    IMAGE, GENERIC_FILE;
+    IMAGE, GENERIC_FILE, AUDIO;
 
     companion object {
         fun fromMimeTypeString(mimeType: String): AttachmentType =

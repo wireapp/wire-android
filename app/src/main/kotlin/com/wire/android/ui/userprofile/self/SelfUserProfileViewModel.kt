@@ -54,11 +54,13 @@ import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
+import com.wire.kalium.logic.feature.user.IsReadOnlyAccountUseCase
 import com.wire.kalium.logic.feature.user.ObserveValidAccountsUseCase
 import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
 import com.wire.kalium.logic.feature.user.UpdateSelfAvailabilityStatusUseCase
 import com.wire.kalium.logic.featureFlags.KaliumConfigs
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
@@ -69,7 +71,6 @@ import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
 
 // Suppress for now after removing mockMethodForAvatar it should not complain
 @Suppress("TooManyFunctions", "LongParameterList")
@@ -93,6 +94,7 @@ class SelfUserProfileViewModel @Inject constructor(
     private val observeEstablishedCalls: ObserveEstablishedCallsUseCase,
     private val accountSwitch: AccountSwitchUseCase,
     private val endCall: EndCallUseCase,
+    private val isReadOnlyAccount: IsReadOnlyAccountUseCase,
     private val notificationChannelsManager: NotificationChannelsManager
 ) : ViewModel() {
 
@@ -105,6 +107,13 @@ class SelfUserProfileViewModel @Inject constructor(
         viewModelScope.launch {
             fetchSelfUser()
             observeEstablishedCall()
+            fetchIsReadOnlyAccount()
+        }
+    }
+
+    private suspend fun fetchIsReadOnlyAccount() {
+        viewModelScope.launch {
+            userProfileState = userProfileState.copy(isReadOnlyAccount = isReadOnlyAccount())
         }
     }
 
@@ -249,7 +258,7 @@ class SelfUserProfileViewModel @Inject constructor(
 
     fun changeStatus(status: UserAvailabilityStatus) {
         setNotShowStatusRationaleAgainIfNeeded(status)
-        //TODO add the broadcast message to inform everyone about the self user new status
+        // TODO add the broadcast message to inform everyone about the self user new status
         viewModelScope.launch { updateStatus(status) }
         dismissStatusDialog()
     }

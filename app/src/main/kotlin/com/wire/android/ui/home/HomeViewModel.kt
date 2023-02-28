@@ -20,7 +20,6 @@
 
 package com.wire.android.ui.home
 
-import androidx.annotation.StringRes
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -28,6 +27,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.wire.android.datastore.GlobalDataStore
+import com.wire.android.migration.userDatabase.ShouldTriggerMigrationForUserUserCase
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.EXTRA_CONNECTION_IGNORED_USER_NAME
@@ -40,7 +40,6 @@ import com.wire.android.navigation.SavedStateViewModel
 import com.wire.android.navigation.getBackNavArg
 import com.wire.android.util.LogFileWriter
 import com.wire.android.util.ui.WireSessionImageLoader
-import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.feature.client.NeedsToRegisterClientUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -58,6 +57,7 @@ class HomeViewModel @Inject constructor(
     private val getSelf: GetSelfUserUseCase,
     private val needsToRegisterClient: NeedsToRegisterClientUseCase,
     private val wireSessionImageLoader: WireSessionImageLoader,
+    private val shouldTriggerMigrationForUser: ShouldTriggerMigrationForUserUserCase,
     logFileWriter: LogFileWriter
 ) : SavedStateViewModel(savedStateHandle) {
 
@@ -74,7 +74,17 @@ class HomeViewModel @Inject constructor(
 
     fun checkRequirements() {
         viewModelScope.launch {
+            val userId = getSelf().first().id
             when {
+                shouldTriggerMigrationForUser(userId) -> {
+                    navigationManager.navigate(
+                        NavigationCommand(
+                            NavigationItem.Migration.getRouteWithArgs(listOf(userId)),
+                            BackStackMode.CLEAR_WHOLE
+                        )
+                    )
+                    return@launch
+                }
                 needsToRegisterClient() -> { // check if the client has been registered and open the proper screen if not
                     navigationManager.navigate(
                         NavigationCommand(
@@ -140,28 +150,4 @@ class HomeViewModel @Inject constructor(
     }
 
     fun navigateToSelfUserProfile() = viewModelScope.launch { navigateTo(NavigationItem.SelfUserProfile) }
-}
-
-data class HomeState(
-    val avatarAsset: UserAvatarAsset? = null,
-    val status: UserAvailabilityStatus = UserAvailabilityStatus.NONE,
-    val logFilePath: String,
-    val shouldDisplayWelcomeMessage: Boolean = false,
-)
-
-// TODO change to extend [SnackBarMessage]
-sealed class HomeSnackbarState {
-    object None : HomeSnackbarState()
-    data class ClearConversationContentSuccess(val isGroup: Boolean) : HomeSnackbarState()
-    data class ClearConversationContentFailure(val isGroup: Boolean) : HomeSnackbarState()
-
-    class SuccessConnectionIgnoreRequest(val userName: String) : HomeSnackbarState()
-    object MutingOperationError : HomeSnackbarState()
-    object BlockingUserOperationError : HomeSnackbarState()
-    data class BlockingUserOperationSuccess(val userName: String) : HomeSnackbarState()
-    object UnblockingUserOperationError : HomeSnackbarState()
-    data class DeletedConversationGroupSuccess(val groupName: String) : HomeSnackbarState()
-    object DeleteConversationGroupError : HomeSnackbarState()
-    object LeftConversationSuccess : HomeSnackbarState()
-    object LeaveConversationError : HomeSnackbarState()
 }

@@ -54,8 +54,6 @@ import com.wire.android.ui.home.messagecomposer.AttachmentInnerState
 import com.wire.android.ui.home.messagecomposer.AttachmentState
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.util.debug.LocalFeatureVisibilityFlags
-import com.wire.android.util.getTempWritableImageUri
-import com.wire.android.util.getTempWritableVideoUri
 import com.wire.android.util.permission.UseCameraRequestFlow
 import com.wire.android.util.permission.UseStorageRequestFlow
 import com.wire.android.util.permission.rememberCaptureVideoFlow
@@ -73,6 +71,8 @@ fun AttachmentOptions(
     attachmentInnerState: AttachmentInnerState,
     onSendAttachment: (AttachmentBundle?) -> Unit,
     onMessageComposerError: (ConversationSnackbarMessages) -> Unit,
+    tempWritableImageUri: Uri?,
+    tempWritableVideoUri: Uri?,
     isFileSharingEnabled: Boolean,
     tempCachePath: Path,
     modifier: Modifier = Modifier
@@ -85,6 +85,8 @@ fun AttachmentOptions(
             attachmentInnerState,
             onSendAttachment,
             onMessageComposerError,
+            tempWritableImageUri,
+            tempWritableVideoUri,
             isFileSharingEnabled,
             tempCachePath
         )
@@ -96,12 +98,18 @@ private fun AttachmentOptionsComponent(
     attachmentInnerState: AttachmentInnerState,
     onSendAttachment: (AttachmentBundle?) -> Unit,
     onError: (ConversationSnackbarMessages) -> Unit,
+    tempWritableImageUri: Uri?,
+    tempWritableVideoUri: Uri?,
     isFileSharingEnabled: Boolean,
     tempCachePath: Path,
     modifier: Modifier = Modifier
 ) {
     val scope = rememberCoroutineScope()
-    val attachmentOptions = buildAttachmentOptionItems(tempCachePath, isFileSharingEnabled) { pickedUri ->
+    val attachmentOptions = buildAttachmentOptionItems(
+        isFileSharingEnabled,
+        tempWritableImageUri,
+        tempWritableVideoUri
+    ) { pickedUri ->
         scope.launch {
             attachmentInnerState.pickAttachment(pickedUri, tempCachePath)
         }
@@ -184,33 +192,41 @@ private fun GalleryFlow(onFilePicked: (Uri) -> Unit): UseStorageRequestFlow {
 }
 
 @Composable
-private fun TakePictureFlow(tempCachePath: Path, onPictureTaken: (Uri) -> Unit): UseCameraRequestFlow {
-    val context = LocalContext.current
-    val imageAttachmentUri = context.getTempWritableImageUri(tempCachePath)
-    return rememberTakePictureFlow(
-        onPictureTaken = { hasTakenPicture ->
-            if (hasTakenPicture) {
-                onPictureTaken(imageAttachmentUri)
-            }
-        },
-        targetPictureFileUri = imageAttachmentUri,
-        onPermissionDenied = { /* TODO: Implement denied permission rationale */ }
-    )
+private fun TakePictureFlow(
+    tempWritableVideoUri: Uri?,
+    onPictureTaken: (Uri) -> Unit
+): UseCameraRequestFlow? {
+    tempWritableVideoUri?.let {
+        return rememberTakePictureFlow(
+            onPictureTaken = { hasTakenPicture ->
+                if (hasTakenPicture) {
+                    onPictureTaken(it)
+                }
+            },
+            targetPictureFileUri = it,
+            onPermissionDenied = { /* TODO: Implement denied permission rationale */ }
+        )
+    }
+    return null
 }
 
 @Composable
-private fun CaptureVideoFlow(tempCachePath: Path, onVideoCaptured: (Uri) -> Unit): UseCameraRequestFlow {
-    val context = LocalContext.current
-    val videoAttachmentUri = context.getTempWritableVideoUri(tempCachePath)
-    return rememberCaptureVideoFlow(
-        onVideoRecorded = { hasCapturedVideo ->
-            if (hasCapturedVideo) {
-                onVideoCaptured(videoAttachmentUri)
-            }
-        },
-        targetVideoFileUri = videoAttachmentUri,
-        onPermissionDenied = { /* TODO: Implement denied permission rationale */ }
-    )
+private fun CaptureVideoFlow(
+    tempWritableVideoUri: Uri?,
+    onVideoCaptured: (Uri) -> Unit
+): UseCameraRequestFlow? {
+    tempWritableVideoUri?.let {
+        return rememberCaptureVideoFlow(
+            onVideoRecorded = { hasCapturedVideo ->
+                if (hasCapturedVideo) {
+                    onVideoCaptured(it)
+                }
+            },
+            targetVideoFileUri = it,
+            onPermissionDenied = { /* TODO: Implement denied permission rationale */ }
+        )
+    }
+    return null
 }
 
 @Composable
@@ -227,14 +243,15 @@ private fun RecordAudioFlow() =
 
 @Composable
 private fun buildAttachmentOptionItems(
-    tempCachePath: Path,
     isFileSharingEnabled: Boolean,
-    onFilePicked: (Uri) -> Unit
+    tempWritableImageUri: Uri?,
+    tempWritableVideoUri: Uri?,
+    onFilePicked: (Uri) -> Unit,
 ): List<AttachmentOptionItem> {
     val fileFlow = FileBrowserFlow(onFilePicked)
     val galleryFlow = GalleryFlow(onFilePicked)
-    val cameraFlow = TakePictureFlow(tempCachePath, onFilePicked)
-    val captureVideoFlow = CaptureVideoFlow(tempCachePath, onFilePicked)
+    val cameraFlow = TakePictureFlow(tempWritableImageUri, onFilePicked)
+    val captureVideoFlow = CaptureVideoFlow(tempWritableVideoUri, onFilePicked)
     val shareCurrentLocationFlow = ShareCurrentLocationFlow()
     val recordAudioFlow = RecordAudioFlow()
 
@@ -261,14 +278,14 @@ private fun buildAttachmentOptionItems(
                     isFileSharingEnabled,
                     R.string.attachment_take_photo,
                     R.drawable.ic_camera
-                ) { cameraFlow.launch() }
+                ) { cameraFlow?.launch() }
             )
             add(
                 AttachmentOptionItem(
                     isFileSharingEnabled,
                     R.string.attachment_record_video,
                     R.drawable.ic_video
-                ) { captureVideoFlow.launch() }
+                ) { captureVideoFlow?.launch() }
             )
             if (AudioMessagesIcon) {
                 add(
@@ -301,5 +318,13 @@ private data class AttachmentOptionItem(
 @Composable
 fun PreviewAttachmentComponents() {
     val context = LocalContext.current
-    AttachmentOptionsComponent(AttachmentInnerState(context), {}, {}, isFileSharingEnabled = true, tempCachePath = "".toPath())
+    AttachmentOptionsComponent(
+        AttachmentInnerState(context),
+        {},
+        {},
+        isFileSharingEnabled = true,
+        tempCachePath = "".toPath(),
+        tempWritableImageUri = null,
+        tempWritableVideoUri = null
+    )
 }

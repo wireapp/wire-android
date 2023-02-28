@@ -140,7 +140,8 @@ class MessageContentMapper @Inject constructor(
             receiptMode = when (content.receiptMode) {
                 true -> UIText.StringResource(R.string.label_system_message_receipt_mode_on)
                 else -> UIText.StringResource(R.string.label_system_message_receipt_mode_off)
-            }
+            },
+            isAuthorSelfUser = sender is SelfUser
         )
     }
 
@@ -192,7 +193,7 @@ class MessageContentMapper @Inject constructor(
         }
     }
 
-    fun mapConversationHistoryLost(): UIMessageContent.SystemMessage = UIMessageContent.SystemMessage.HistoryLost()
+    private fun mapConversationHistoryLost(): UIMessageContent.SystemMessage = UIMessageContent.SystemMessage.HistoryLost()
 
     private fun mapRegularMessage(
         message: Message.Regular,
@@ -200,8 +201,19 @@ class MessageContentMapper @Inject constructor(
         userList: List<User>
     ) = when (val content = message.content) {
         is Asset -> {
-            val assetMessageContentMetadata = AssetMessageContentMetadata(content.value)
-            toUIMessageContent(assetMessageContentMetadata, message, sender)
+            when (val metadata = content.value.metadata) {
+                is AssetContent.AssetMetadata.Audio -> {
+                    mapAudio(
+                        assetContent = content.value,
+                        metadata = metadata
+                    )
+                }
+
+                is AssetContent.AssetMetadata.Image, is AssetContent.AssetMetadata.Video, null -> {
+                    val assetMessageContentMetadata = AssetMessageContentMetadata(content.value)
+                    toUIMessageContent(assetMessageContentMetadata, message, sender)
+                }
+            }
         }
         // We are mapping regular knock message to system message, because it's UI is almost the same as system message
         is MessageContent.Knock -> UIMessageContent.SystemMessage.Knock(
@@ -211,8 +223,25 @@ class MessageContentMapper @Inject constructor(
                 sender?.name.orUnknownName()
             }
         )
+
         is MessageContent.RestrictedAsset -> toRestrictedAsset(content.mimeType, content.sizeInBytes, content.name)
         else -> toText(message.conversationId, message, userList)
+    }
+
+    private fun mapAudio(
+        assetContent: AssetContent,
+        metadata: AssetContent.AssetMetadata.Audio,
+    ): UIMessageContent {
+        with(assetContent) {
+            return UIMessageContent.AudioAssetMessage(
+                assetName = name ?: "",
+                assetExtension = mimeType,
+                assetId = AssetId(remoteData.assetId, remoteData.assetDomain.orEmpty()),
+                audioMessageDurationInMs = metadata.durationMs ?: 0,
+                uploadStatus = uploadStatus,
+                downloadStatus = downloadStatus
+            )
+        }
     }
 
     fun toText(conversationId: ConversationId, message: Message, userList: List<User>) = MessageBody(
@@ -222,6 +251,7 @@ class MessageContentMapper @Inject constructor(
                 messageResourceProvider.sentAMessageWithContent,
                 content.typeName ?: "Unknown"
             )
+
             is MessageContent.FailedDecryption -> UIText.StringResource(R.string.label_message_decryption_failure_message)
             else -> UIText.StringResource(messageResourceProvider.sentAMessageWithContent, "Unknown")
         },
@@ -269,7 +299,7 @@ class MessageContentMapper @Inject constructor(
                         it.isQuotingSelfUser
                     )
                 )
-
+                AttachmentType.AUDIO -> QuotedMessageUIData.AudioMessage
                 AttachmentType.GENERIC_FILE -> QuotedMessageUIData.GenericAsset(
                     quotedContent.assetName,
                     quotedContent.assetMimeType

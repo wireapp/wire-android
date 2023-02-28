@@ -151,6 +151,16 @@ sealed class UIMessageContent {
         override val deliveryStatus: DeliveryStatusContent = DeliveryStatusContent.CompleteDelivery
     ) : UIMessageContent(), PartialDeliverable
 
+    @Stable
+    data class AudioAssetMessage(
+        val assetName: String,
+        val assetExtension: String,
+        val assetId: AssetId,
+        val audioMessageDurationInMs: Long,
+        val uploadStatus: Message.UploadStatus,
+        val downloadStatus: Message.DownloadStatus
+    ) : UIMessageContent()
+
     sealed class SystemMessage(
         @DrawableRes val iconResId: Int?,
         @StringRes open val stringResId: Int,
@@ -201,8 +211,13 @@ sealed class UIMessageContent {
 
         data class ConversationReceiptModeChanged(
             val author: UIText,
-            val receiptMode: UIText
-        ) : SystemMessage(R.drawable.ic_view, R.string.label_system_message_read_receipt_changed)
+            val receiptMode: UIText,
+            val isAuthorSelfUser: Boolean = false
+        ) : SystemMessage(
+            R.drawable.ic_view,
+            if (isAuthorSelfUser) R.string.label_system_message_read_receipt_changed_by_self
+            else R.string.label_system_message_read_receipt_changed_by_other
+        )
 
         class HistoryLost :
             SystemMessage(R.drawable.ic_info, R.string.label_system_message_conversation_history_lost, true)
@@ -235,6 +250,7 @@ data class QuotedMessageUIData(
     data class DisplayableImage(
         val displayable: ImageAsset.PrivateAsset
     ) : Content
+    object AudioMessage : Content
 
     object Deleted : Content
     object Invalid : Content

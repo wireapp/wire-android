@@ -22,7 +22,7 @@
 
 package com.wire.android.util
 
-import android.R
+import com.wire.android.R
 import android.app.DownloadManager
 import android.content.ActivityNotFoundException
 import android.content.ContentResolver
@@ -53,7 +53,6 @@ import com.wire.kalium.logic.util.buildFileName
 import com.wire.kalium.logic.util.splitFileExtensionAndCopyCounter
 import kotlinx.coroutines.withContext
 import okio.Path
-import okio.Path.Companion.toPath
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.InputStream
@@ -97,19 +96,9 @@ suspend fun Uri.toDrawable(context: Context, dispatcher: DispatcherProvider = De
     }
 }
 
-private fun defaultGalleryIcon(context: Context) = ContextCompat.getDrawable(context, R.drawable.ic_menu_gallery)
+private fun defaultGalleryIcon(context: Context) = ContextCompat.getDrawable(context, R.drawable.ic_gallery)
 
-fun Context.getTempWritableImageUri(tempCachePath: Path): Uri {
-    val tempImagePath = "$tempCachePath/$TEMP_IMG_ATTACHMENT_FILENAME".toPath()
-    return getTempWritableAttachmentUri(this, tempImagePath)
-}
-
-fun Context.getTempWritableVideoUri(tempCachePath: Path): Uri {
-    val tempVideoPath = "$tempCachePath/$TEMP_VIDEO_ATTACHMENT_FILENAME".toPath()
-    return getTempWritableAttachmentUri(this, tempVideoPath)
-}
-
-private fun getTempWritableAttachmentUri(context: Context, attachmentPath: Path): Uri {
+fun getTempWritableAttachmentUri(context: Context, attachmentPath: Path): Uri {
     val file = attachmentPath.toFile()
     file.setWritable(true)
     return FileProvider.getUriForFile(context, context.getProviderAuthority(), file)
@@ -221,7 +210,7 @@ fun Context.startFileShareIntent(path: String) {
     shareIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
     shareIntent.putExtra(
         Intent.EXTRA_SUBJECT,
-        "Sharing Log from Wire"
+        resources.getString(R.string.export_media_subject_title)
     )
 
     shareIntent.putExtra(Intent.EXTRA_STREAM, fileURI)
@@ -370,6 +359,5 @@ fun findFirstUniqueName(dir: File, desiredName: String): String {
 
 private const val ATTACHMENT_FILENAME = "attachment"
 private const val TEMP_IMG_ATTACHMENT_FILENAME = "image_attachment.jpg"
-private const val TEMP_VIDEO_ATTACHMENT_FILENAME = "video_attachment.mp4"
 private const val DATA_COPY_BUFFER_SIZE = 2048
 const val SDK_VERSION = 33

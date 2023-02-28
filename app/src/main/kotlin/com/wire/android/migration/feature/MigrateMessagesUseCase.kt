@@ -53,6 +53,6 @@ class MigrateMessagesUseCase @Inject constructor(
             users[scalaMessage.senderId]?.let { mapper.fromScalaMessageToMessage(userId, scalaMessage, it) }
         }
         val sessionScope = coreLogic.getSessionScope(userId)
-        return sessionScope.messages.persistMigratedMessage(mappedMessages, coroutineScope)
+        return sessionScope.persistMigratedMessage(mappedMessages, coroutineScope)
     }
 }

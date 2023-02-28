@@ -29,7 +29,6 @@ import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.functional.Either
 import com.wire.kalium.logic.functional.flatMap
-import com.wire.kalium.logic.functional.foldToEitherWhileRight
 import com.wire.kalium.logic.functional.map
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -45,7 +44,7 @@ class MigrateConversationsUseCase @Inject constructor(
     // atm we insert the conversation that does not exist remotely anymore aka deleted
     // and in that case leaving it as group will not be an issue
     suspend operator fun invoke(userId: UserId): Either<CoreFailure, List<ScalaConversationData>> =
-        scalaUserDatabase.conversationDAO(userId).flatMap { scalaConvDAO ->
+        scalaUserDatabase.conversationDAO(userId.value).flatMap { scalaConvDAO ->
             val conversations = scalaConvDAO.conversations()
             if (conversations.isEmpty()) {
                 return@flatMap Either.Right(conversations)

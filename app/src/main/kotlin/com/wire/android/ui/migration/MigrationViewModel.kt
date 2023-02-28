@@ -28,13 +28,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.work.WorkManager
 import com.wire.android.migration.MigrationData
+import com.wire.android.migration.MigrationManager
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.workmanager.worker.enqueueMigrationWorker
 import com.wire.android.workmanager.worker.enqueueSingleUserMigrationWorker
-import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -50,7 +50,8 @@ class MigrationViewModel @Inject constructor(
     private val navigationManager: NavigationManager,
     private val getCurrentSession: CurrentSessionUseCase,
     private val workManager: WorkManager,
-    savedStateHandle: SavedStateHandle
+    savedStateHandle: SavedStateHandle,
+    private val migrationManager: MigrationManager
 ) : ViewModel() {
 
     var state: MigrationState by mutableStateOf(MigrationState.InProgress(MigrationData.Progress.Type.UNKNOWN))
@@ -74,6 +75,20 @@ class MigrationViewModel @Inject constructor(
         state = MigrationState.InProgress(MigrationData.Progress.Type.UNKNOWN)
     }
 
+    fun accountLogin(userHandle: String) {
+        viewModelScope.launch {
+            migrationManager.dismissMigrationFailureNotification()
+            navigateToLogin(userHandle)
+        }
+    }
+
+    fun finish() {
+        viewModelScope.launch {
+            migrationManager.dismissMigrationFailureNotification()
+            navigateAfterMigration()
+        }
+    }
+
     private suspend fun enqueueMigrationAndListenForStateChanges() {
         when (migrationType) {
             is MigrationType.SingleUser -> {
@@ -92,11 +107,16 @@ class MigrationViewModel @Inject constructor(
         }
     }
 
-    private suspend fun handleMigrationResult(result: MigrationData) {
-        when (result) {
+    private suspend fun handleMigrationResult(data: MigrationData) {
+        when (data) {
             is MigrationData.Result.Success -> navigateAfterMigration()
-            is MigrationData.Result.Failure -> state = MigrationState.Failed
-            is MigrationData.Progress -> state = MigrationState.InProgress(result.type)
+            is MigrationData.Progress -> state = MigrationState.InProgress(data.type)
+            is MigrationData.Result.Failure -> state = when (data) {
+                MigrationData.Result.Failure.Account.Any -> MigrationState.Failed.Account.Any
+                is MigrationData.Result.Failure.Account.Specific -> MigrationState.Failed.Account.Specific(data.userName, data.userHandle)
+                is MigrationData.Result.Failure.Messages -> MigrationState.Failed.Messages(data.errorCode)
+                MigrationData.Result.Failure.NoNetwork -> MigrationState.Failed.NoNetwork
+            }
         }
     }
 
@@ -108,5 +128,10 @@ class MigrationViewModel @Inject constructor(
             else ->
                 navigationManager.navigate(NavigationCommand(NavigationItem.Welcome.getRouteWithArgs(), BackStackMode.CLEAR_WHOLE))
         }
+    }
+
+    private suspend fun navigateToLogin(userHandle: String) {
+        navigationManager.navigate(NavigationCommand(NavigationItem.Login.getRouteWithArgs(listOf(userHandle)))
+        )
     }
 }

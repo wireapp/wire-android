@@ -114,8 +114,9 @@ internal fun WireTextField(
             value = text,
             onValueChange = {
                 onValueChange(
-                    if (singleLine || maxLines == 1) it.copy(it.text.replace("\n", ""))
-                    else it
+                    if (singleLine || maxLines == 1) {
+                        it.copy(it.text.replace("\n", ""))
+                    } else it
                 )
 
                 text = if (it.text.length > maxTextLength) {
@@ -215,10 +216,11 @@ private fun InnerText(
             trailingIcon != null -> trailingIcon
             else -> state.icon()?.Icon(Modifier.padding(horizontal = 16.dp))
         }
-        if (leadingIcon != null)
+        if (leadingIcon != null) {
             Box(contentAlignment = Alignment.Center) {
                 Tint(contentColor = colors.iconColor(state).value, content = leadingIcon)
             }
+        }
         Box(Modifier.weight(1f)) {
             val padding = Modifier.padding(
                 start = if (leadingIcon == null) 16.dp else 0.dp,

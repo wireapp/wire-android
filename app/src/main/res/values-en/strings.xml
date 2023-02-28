@@ -19,49 +19,49 @@
   ~
   -->
 <resources>
-    <string name="app_version">Версия приложения: %s</string>
+    <string name="app_version">App version: %s</string>
     <string name="build_variant_name">Build variant: %s</string>
     <string name="app_name">Wire Beta</string>
-    <string name="label_new">Новое</string>
-    <string name="label_login">Вход</string>
+    <string name="label_new">New</string>
+    <string name="label_login">Login</string>
     <string name="label_ok">OK</string>
-    <string name="label_cancel">Отмена</string>
-    <string name="label_confirm">Подтвердить</string>
-    <string name="label_continue">Продолжить</string>
+    <string name="label_cancel">Cancel</string>
+    <string name="label_confirm">Confirm</string>
+    <string name="label_continue">Continue</string>
     <string name="label_save">Save</string>
-    <string name="label_get_started">Начать</string>
-    <string name="label_remove">Удалить</string>
+    <string name="label_get_started">Get Started</string>
+    <string name="label_remove">Remove</string>
     <string name="label_proceed">Proceed</string>
     <string name="label_leave">Leave</string>
-    <string name="label_add_device">Добавить устройство</string>
-    <string name="label_learn_more">Узнать больше</string>
-    <string name="label_removing">Удаление...</string>
-    <string name="label_logging_in">Вход в систему...</string>
-    <string name="label_membership_guest">Гость</string>
-    <string name="label_membership_external">Внешний</string>
-    <string name="label_membership_service">Сервис</string>
+    <string name="label_add_device">Add Device</string>
+    <string name="label_learn_more">Learn more</string>
+    <string name="label_removing">Removing…</string>
+    <string name="label_logging_in">Logging in…</string>
+    <string name="label_membership_guest">Guest</string>
+    <string name="label_membership_external">External</string>
+    <string name="label_membership_service">Service</string>
     <string name="label_user_deleted">Deleted</string>
-    <string name="label_message_sent_failure">Не удалось отправить сообщение.</string>
+    <string name="label_message_sent_failure">Message could not be sent due to connectivity issues.</string>
     <string name="label_message_sent_remotely_failure">Message could not be sent, as the backend %s appears to be offline.</string>
-    <string name="label_message_receive_failure">Ошибка загрузки</string>
-    <string name="label_message_decryption_failure_message">Не удалось расшифровать сообщение.</string>
+    <string name="label_message_receive_failure">Download Error</string>
+    <string name="label_message_decryption_failure_message">Message could not be decrypted.</string>
     <string name="label_message_decryption_failure_informative_message">Try resetting the session to generate new encryption keys.</string>
     <string name="label_message_knock">%s pinged</string>
-    <string name="label_try_again">Повторить</string>
+    <string name="label_try_again">Try again</string>
     <string name="label_reset_session">Reset Session</string>
     <string name="label_reset_session_success">Session successfully reset</string>
-    <string name="label_federated_membership">Федеративный</string>
-    <string name="label_update">Обновить</string>
-    <string name="label_close">Закрыть</string>
-    <string name="label_download">Скачать</string>
-    <string name="label_show">Показать</string>
-    <string name="label_show_all">Показать все</string>
-    <string name="label_show_less">Показать меньше</string>
-    <string name="label_message_status_edited_with_date">Отредактировано %s</string>
-    <string name="label_on">ВКЛ</string>
-    <string name="label_off">ВЫКЛ</string>
-    <string name="label_value_copied">«%s» был скопирован</string>
-    <string name="label_disable">Отключить</string>
+    <string name="label_federated_membership">Federated</string>
+    <string name="label_update">Update</string>
+    <string name="label_close">Close</string>
+    <string name="label_download">Download</string>
+    <string name="label_show">Show</string>
+    <string name="label_show_all">Show All</string>
+    <string name="label_show_less">Show Less</string>
+    <string name="label_message_status_edited_with_date">Edited on %s</string>
+    <string name="label_on">ON</string>
+    <string name="label_off">OFF</string>
+    <string name="label_value_copied">%s copied</string>
+    <string name="label_disable">Disable</string>
     <string name="folder_label_access">Access</string>
     <string name="folder_label_protocol_details">Protocol details (beta)</string>
     <string name="folder_label_messaging">Messaging</string>
@@ -69,15 +69,15 @@
     <string name="label_and">and</string>
     <string name="label_retry">Retry</string>
     <!-- Content descriptions https://wearezeta.atlassian.net/wiki/spaces/AR/pages/122520039/Code+Style+Guideline#Content-description-strings -->
-    <string name="content_description_app_logo">Логотип приложения</string>
-    <string name="content_description_reveal_password">Показать пароль</string>
-    <string name="content_description_hide_password">Скрыть пароль</string>
-    <string name="content_description_search_back">Искать значок назад</string>
-    <string name="content_description_clear_content">Очистить от содержимого</string>
+    <string name="content_description_app_logo">App Logo</string>
+    <string name="content_description_reveal_password">Show password</string>
+    <string name="content_description_hide_password">Hide password</string>
+    <string name="content_description_search_back">Search back icon</string>
+    <string name="content_description_clear_content">Clear content</string>
     <string name="content_description_user_avatar">Profile picture</string>
-    <string name="content_description_muted_conversation">Беззвучные беседы</string>
-    <string name="content_description_check">Флажок</string>
-    <string name="content_description_download_icon">Иконка загрузки</string>
+    <string name="content_description_muted_conversation">Muted conversation</string>
+    <string name="content_description_check">Check mark</string>
+    <string name="content_description_download_icon">Download icon</string>
     <string name="content_description_add_to_favourite">Add to Favorites</string>
     <string name="content_description_move_to_folder">Move to folder</string>
     <string name="content_description_move_to_archive">Move to archive</string>
@@ -493,8 +493,6 @@
     <string name="label_system_message_and">%1$s and %2$s</string>
     <plurals name="label_system_message_x_more">
         <item quantity="one">%1$d more</item>
-        <item quantity="few">%1$d more</item>
-        <item quantity="many">%1$d more</item>
         <item quantity="other">%1$d more</item>
     </plurals>
     <string name="label_system_message_blocked_user">%1$s blocked this user</string>
@@ -504,7 +502,7 @@
     <string name="label_system_message_new_conversation_receipt_mode">Read receipts are %1$s</string>
     <string name="label_system_message_read_receipt_changed_by_self">%1$s turned read receipts %2$s for everyone</string>
     <string name="label_system_message_read_receipt_changed_by_other">%1$s turned read receipts %2$s for everyone</string>
-    <string name="label_system_message_conversation_history_lost">YOU HAVEN\'T USED THIS DEVICE FOR A WHILE. SOME MESSAGES MAY NOT APPEAR HERE.</string>
+    <string name="label_system_message_conversation_history_lost">You haven\'t used this device for a while. some messages may not appear here.</string>
     <string name="label_system_message_receipt_mode_on">on</string>
     <string name="label_system_message_receipt_mode_off">off</string>
     <!-- Last messages -->
@@ -523,20 +521,14 @@
     <string name="last_message_calling">%1$s calling...</string>
     <plurals name="last_message_people_added">
         <item quantity="one">added %1$d person</item>
-        <item quantity="few">added %1$d people</item>
-        <item quantity="many">added %1$d people</item>
         <item quantity="other">added %1$d people</item>
     </plurals>
     <plurals name="last_message_people_removed">
         <item quantity="one">removed %1$d person</item>
-        <item quantity="few">removed %1$d people</item>
-        <item quantity="many">removed %1$d people</item>
         <item quantity="other">removed %1$d people</item>
     </plurals>
     <plurals name="last_message_people">
         <item quantity="one">%1$d person</item>
-        <item quantity="few">%1$d people</item>
-        <item quantity="many">%1$d people</item>
         <item quantity="other">%1$d people</item>
     </plurals>
     <string name="last_message_joined_conversation">joined the conversation.</string>
@@ -546,32 +538,22 @@
     <!-- Unread Events -->
     <plurals name="unread_event_knock">
         <item quantity="one">%1$d ping</item>
-        <item quantity="few">%1$d pings</item>
-        <item quantity="many">%1$d pings</item>
         <item quantity="other">%1$d pings</item>
     </plurals>
     <plurals name="unread_event_call">
         <item quantity="one">%1$d missed call</item>
-        <item quantity="few">%1$d missed calls</item>
-        <item quantity="many">%1$d missed calls</item>
         <item quantity="other">%1$d missed calls</item>
     </plurals>
     <plurals name="unread_event_mention">
         <item quantity="one">%1$d mention</item>
-        <item quantity="few">%1$d mentions</item>
-        <item quantity="many">%1$d mentions</item>
         <item quantity="other">%1$d mentions</item>
     </plurals>
     <plurals name="unread_event_reply">
         <item quantity="one">%1$d reply</item>
-        <item quantity="few">%1$d replies</item>
-        <item quantity="many">%1$d replies</item>
         <item quantity="other">%1$d replies</item>
     </plurals>
     <plurals name="unread_event_message">
         <item quantity="one">%1$d message</item>
-        <item quantity="few">%1$d messages</item>
-        <item quantity="many">%1$d messages</item>
         <item quantity="other">%1$d messages</item>
     </plurals>
     <!--Search Contact-->

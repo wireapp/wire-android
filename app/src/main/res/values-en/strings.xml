@@ -1,4 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?><!--
+<?xml version="1.0" encoding="utf-8"?>
+<!--
   ~ Wire
   ~ Copyright (C) 2023 Wire Swiss GmbH
   ~
@@ -17,10 +18,10 @@
   ~
   ~
   -->
-
 <resources>
     <string name="app_version">App version: %s</string>
     <string name="build_variant_name">Build variant: %s</string>
+    <string name="app_name">Wire Beta</string>
     <string name="label_new">New</string>
     <string name="label_login">Login</string>
     <string name="label_ok">OK</string>
@@ -140,11 +141,6 @@
     <string name="content_description_calling_call_paused_camera">Paused Camera</string>
     <string name="content_description_more_emojis">More emojis</string>
     <!-- Non translatable strings-->
-    <string name="url_decryption_failure_learn_more" translatable="false">https://support.wire.com/hc/en-us/articles/207948115-Why-was-I-notified-that-a-message-from-a-contact-was-not-received-</string>
-    <string name="url_welcome_to_new_android" translatable="false">https://support.wire.com/hc/en-us/articles/6655706999581-What-s-new-on-Android-</string>
-    <string name="url_message_details_reactions_learn_more" translatable="false">https://support.wire.com/hc/en-us/articles/212053645-Like-a-message</string>
-    <string name="url_message_details_read_receipts_learn_more" translatable="false">https://support.wire.com/hc/en-us/articles/360000665277-Activate-or-deactivate-read-receipts</string>
-    <string name="url_message_details_offline_backends_learn_more" translatable="false">https://support.wire.com/hc/articles/9357718008093-Backend</string>
     <!-- Navigation -->
     <string name="vault_screen_title">Vault</string>
     <string name="archive_screen_title">Archive</string>
@@ -154,9 +150,6 @@
     <string name="give_feedback_screen_title">Give Feedback</string>
     <string name="report_bug_screen_title">Report Bug</string>
     <string name="debug_settings_screen_title">Debug Settings</string>
-    <string name="debug_settings_api_versioning_title" translatable="false">API VERSIONING</string>
-    <string name="debug_settings_force_api_versioning_update" translatable="false">Force API versioning update</string>
-    <string name="debug_settings_force_api_versioning_update_button_text" translatable="false">Force update</string>
     <string name="support_screen_title">Support</string>
     <string name="backup_and_restore_screen_title">Back up &amp; Restore Conversations</string>
     <string name="search_bar_conversations_hint">Search conversations</string>
@@ -385,12 +378,10 @@
     <string name="delete_group_conversation_menu_item">Delete Group…</string>
     <string name="delete_group_conversation_dialog_title">Remove “%s”?</string>
     <string name="delete_group_conversation_dialog_description">The group will be removed from your conversations list on all devices. You will no longer be able to access the group and its content.</string>
-
     <!-- Import External Media -->
     <string name="import_media_content_title">Share With Wire</string>
     <string name="import_media_searchbar_title">Search for conversation</string>
     <string name="import_media_send_button_title">Send</string>
-
     <!--Read receipts -->
     <string name="conversation_options_read_receipt_label">Read receipts</string>
     <string name="conversation_options_read_receipt_description">When this is on, people can see when their messages in this conversation are read.</string>
@@ -501,6 +492,7 @@
     <string name="label_system_message_you_called">%1$s called</string>
     <string name="label_system_message_and">%1$s and %2$s</string>
     <plurals name="label_system_message_x_more">
+        <item quantity="one">%1$d more</item>
         <item quantity="other">%1$d more</item>
     </plurals>
     <string name="label_system_message_blocked_user">%1$s blocked this user</string>
@@ -606,10 +598,9 @@
     <string name="error_unblocking_user">User could not be unblocked</string>
     <string name="delete_group_conversation_error">There was an error while deleting conversation</string>
     <string name="error_limit_number_assets_imported_exceeded">You can only send up to 20 files at once</string>
-    <string name="edit_message_not_yet_available">Saving edits to messages is not yet available</string> <!-- TODO: temporary, to be removed when the proper implementation of editing messages is finished -->
+    <string name="edit_message_not_yet_available">Saving edits to messages is not yet available</string>
+    <!-- TODO: temporary, to be removed when the proper implementation of editing messages is finished -->
     <!-- Animation label -->
-    <string name="animation_label_message_compose_input_state_transition" translatable="false">MessageComposeInputState transition</string>
-    <string name="animation_label_button_rotation_degree_transition" translatable="false">Collapse button rotation degree transition</string>
     <string name="label_open_conversation">Open Conversation</string>
     <string name="email_label">Email</string>
     <string name="phone_label">Phone</string>
@@ -690,7 +681,7 @@
     <!--sso dialog-->
     <string name="sso_error_dialog_title">Unable to log in with SSO</string>
     <string name="sso_error_dialog_message">Please try again. If this does not help, contact your
-        admin and provide this code:\n%d"
+        admin and provide this code:\n%d\"
     </string>
     <string name="asset_download_dialog_default_title">Download file</string>
     <string name="empty_group_label">Unnamed conversation</string>
@@ -835,7 +826,7 @@
     <string name="label_wire_credentials">WIRE CREDENTIALS</string>
     <string name="dialog_clear_content_title">Clear content?</string>
     <string name="dialog_clear_content_option">Clear content</string>
-    <string name="dialog_clear_content_text">"This will clear the previous conversation history on all your devices. You remain in the %1$s and have access to all new %1$s activity</string>
+    <string name="dialog_clear_content_text">\"This will clear the previous conversation history on all your devices. You remain in the %1$s and have access to all new %1$s activity</string>
     <string name="not_supported_dialog_title">Not supported</string>
     <string name="sso_not_supported_dialog_description">You can\'t log in via SSO on an on-premises backend with proxy support.</string>
     <string name="create_personal_account_not_supported_dialog_description">You can\'t create a personal account on an on-premises backend with proxy support.</string>
@@ -852,7 +843,6 @@
     <string name="label_system_message_session_reset">%1$s was unable to decrypt some of your messages but has solved the issue. This affected all conversations you share together.</string>
     <string name="file_sharing_restricted_dialog_title">File Sharing Restrictions</string>
     <string name="file_sharing_restricted_dialog_description">You can not share this file because this feature is disabled.</string>
-
     <!-- join conversation dialog -->
     <string name="join_conversation_dialog_title">Join conversation?</string>
     <string name="join_conversation_dialog_message">You have been invited to a conversation.\n\n%1$s</string>
@@ -868,12 +858,9 @@
     <string name="guest_link_button_copy_link">Copy Link</string>
     <string name="guest_link_button_share_link">Share Link</string>
     <string name="guest_link_button_revoke_link">Revoke Link</string>
-    <string name="audio_not_available">Audio not available</string>
-    <string name="audio_not_available_explanation">Something went wrong while downloading this audio file. Please ask the sender to upload it again</string>
     <string name="guest_link_generate_error_message">There was an error trying to create Guest Link. Please try again</string>
     <string name="guest_link_revoke_error_message">There was an error trying to revoke Guest Link. Please try again</string>
     <string name="revoke_guest__room_link_dialog_text">New guests will not be able to join with this link. Current guests will still have access.</string>
     <string name="revoke_guest__room_link_dialog_title">Revoke guest link?</string>
     <string name="guest__room_link_copied">Guest link was copied to clipboard</string>
-
 </resources>

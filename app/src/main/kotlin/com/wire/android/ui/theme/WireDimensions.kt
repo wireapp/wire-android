@@ -180,6 +180,8 @@ data class WireDimensions(
     val ongoingCallLabelHeight: Dp,
     // Message item
     val messageItemBottomPadding: Dp,
+    // audio message
+    val audioMessageHeight: Dp,
     // Conversation options
     val conversationOptionsItemMinHeight: Dp,
     // Import media
@@ -315,6 +317,7 @@ private val DefaultPhonePortraitWireDimensions: WireDimensions = WireDimensions(
     messageItemBottomPadding = 12.dp,
     conversationOptionsItemMinHeight = 57.dp,
     ongoingCallLabelHeight = 28.dp,
+    audioMessageHeight = 48.dp,
     importedMediaAssetSize = 120.dp
 )
 

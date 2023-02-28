@@ -183,6 +183,7 @@ class WireActivityViewModel @Inject constructor(
         return intent?.action == Intent.ACTION_SEND || intent?.action == Intent.ACTION_SEND_MULTIPLE
     }
 
+    @Suppress("ComplexMethod")
     fun handleDeepLink(intent: Intent?) {
         if (shouldGoToImport(intent)) {
             navigateToImportMediaScreen()
@@ -222,6 +223,14 @@ class WireActivityViewModel @Inject constructor(
 
                         is DeepLinkResult.JoinConversation -> onConversationInviteDeepLink(result.code, result.key, result.domain)
 
+                        is DeepLinkResult.MigrationLogin -> {
+                            if (isLaunchedFromHistory(intent)) {
+                                appLogger.i("MigrationLogin deepLink launched from the history")
+                            } else {
+                                navigationArguments.put(MIGRATION_LOGIN_ARG, result.userHandle)
+                            }
+                        }
+
                         DeepLinkResult.Unknown -> appLogger.e("unknown deeplink result $result")
                     }
                 }
@@ -244,6 +253,7 @@ class WireActivityViewModel @Inject constructor(
             remove(OPEN_CONVERSATION_ID_ARG)
             remove(OPEN_OTHER_USER_PROFILE_ARG)
             remove(SSO_DEEPLINK_ARG)
+            remove(MIGRATION_LOGIN_ARG)
             remove(JOIN_CONVERSATION_ARG)
         }
 
@@ -252,6 +262,11 @@ class WireActivityViewModel @Inject constructor(
             return false
         }
         return when {
+            shouldGoToMigrationLogin() -> {
+                openMigrationLogin(navigationArguments[MIGRATION_LOGIN_ARG] as String)
+                false
+            }
+
             shouldGoToLogin() || shouldGoToWelcome() || shouldGoToMigration() -> true
 
             shouldGoToIncomingCall() -> {
@@ -332,6 +347,10 @@ class WireActivityViewModel @Inject constructor(
 
     private fun openOtherUserProfile(userId: QualifiedID) {
         navigateTo(NavigationCommand(NavigationItem.OtherUserProfile.getRouteWithArgs(listOf(userId)), BackStackMode.UPDATE_EXISTED))
+    }
+
+    private fun openMigrationLogin(userHandle: String) {
+        navigateTo(NavigationCommand(NavigationItem.Login.getRouteWithArgs(listOf(userHandle)), BackStackMode.UPDATE_EXISTED))
     }
 
     private fun isLaunchedFromHistory(intent: Intent?) =
@@ -429,7 +448,7 @@ class WireActivityViewModel @Inject constructor(
         (navigationArguments[SERVER_CONFIG_ARG] as? ServerConfig.Links) != ServerConfig.DEFAULT
 
     private fun shouldGoToLogin(): Boolean =
-        navigationArguments[SSO_DEEPLINK_ARG] != null
+        navigationArguments[SSO_DEEPLINK_ARG] != null || navigationArguments[MIGRATION_LOGIN_ARG] != null
 
     private fun shouldGoToIncomingCall(): Boolean =
         (navigationArguments[INCOMING_CALL_CONVERSATION_ID_ARG] as? ConversationId) != null
@@ -441,6 +460,8 @@ class WireActivityViewModel @Inject constructor(
         (navigationArguments[ONGOING_CALL_CONVERSATION_ID_ARG] as? ConversationId) != null
 
     private fun shouldGoToOtherProfile(): Boolean = (navigationArguments[OPEN_OTHER_USER_PROFILE_ARG] as? QualifiedID) != null
+
+    private fun shouldGoToMigrationLogin(): Boolean = (navigationArguments[MIGRATION_LOGIN_ARG] as? String) != null
 
     private fun shouldGoToWelcome(): Boolean = !hasValidCurrentSession()
 
@@ -509,6 +530,7 @@ class WireActivityViewModel @Inject constructor(
         private const val ONGOING_CALL_CONVERSATION_ID_ARG = "ongoing_call_conversation_id"
         private const val OPEN_CONVERSATION_ID_ARG = "open_conversation_id"
         private const val OPEN_OTHER_USER_PROFILE_ARG = "open_other_user_id"
+        private const val MIGRATION_LOGIN_ARG = "migration_login"
         private const val JOIN_CONVERSATION_ARG = "join_conversation"
     }
 }

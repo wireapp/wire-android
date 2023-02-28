@@ -191,12 +191,15 @@
     <string name="migration_title">Setting up Wire</string>
     <string name="migration_message">Please wait while we set up the app for you</string>
     <string name="migration_message_unknown">Please wait while we migrate data for you</string>
-    <string name="migration_server_configs_message">Please wait while we migrate backends for you</string>
-    <string name="migration_accounts_message">Please wait while we migrate accounts for you</string>
-    <string name="migration_clients_message">Please wait while we migrate clients for you</string>
-    <string name="migration_users_message">Please wait while we migrate users for you</string>
-    <string name="migration_conversations_message">Please wait while we migrate conversations for you</string>
-    <string name="migration_messages_message">Please wait while we migrate messages for you</string>
+    <string name="migration_accounts_message">Migrating your accounts...</string>
+    <string name="migration_messages_message">Migrating your messages...</string>
+    <string name="migration_title_step">Step %1$d/%2$d</string>
+    <string name="migration_title_almost_done">Almost done!</string>
+    <string name="migration_title_updated">Setting up Wire</string>
+    <string name="migration_login_required">In order to migrate your messages from the old version of Wire, you need to log in to your account.</string>
+    <string name="migration_login_required_specific_account">In order to migrate your messages from the old version of Wire, you need to log in to your account %s.</string>
+    <string name="migration_login_required_specific_account_name">“%1$s (@%2$s)“</string>
+    <string name="migration_messages_failure">Unfortunately, not all messages and conversations could not be migrated due to incompatibility with the older version of Wire (error code: %s)</string>
     <string name="migration_cancel_title">Cancel migration</string>
     <string name="migration_cancel_message">Are you sure you want to close the application and cancel the ongoing migration?</string>
     <!-- Login -->
@@ -850,6 +853,8 @@
     <string name="cancel_login_dialog_title">Are you sure you want to cancel?</string>
     <!-- session reset -->
     <string name="label_system_message_session_reset">%1$s was unable to decrypt some of your messages but has solved the issue. This affected all conversations you share together.</string>
+    <string name="label_manual_migration_title">Migrate from version 3.82.38</string>
+    <string name="start_manual_migration">Start migration form version 3.82.38 manually</string>
     <string name="file_sharing_restricted_dialog_title">File Sharing Restrictions</string>
     <string name="file_sharing_restricted_dialog_description">You can not share this file because this feature is disabled.</string>
 

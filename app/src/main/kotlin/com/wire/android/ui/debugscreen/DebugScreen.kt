@@ -75,6 +75,7 @@ fun DebugScreen() {
         onDeleteLogs = debugScreenViewModel::deleteLogs,
         navigateBack = debugScreenViewModel::navigateBack,
         onForceLatestDevelopmentApiChange = debugScreenViewModel::forceUpdateApiVersions,
+        onManualMigrationClicked = debugScreenViewModel::onStartManualMigration,
         restartSlowSyncForRecovery = debugScreenViewModel::restartSlowSyncForRecovery,
         enableEncryptedProteusStorage = debugScreenViewModel::enableEncryptedProteusStorage
     )
@@ -89,6 +90,7 @@ fun DebugContent(
     onDeleteLogs: () -> Unit,
     navigateBack: () -> Unit,
     onForceLatestDevelopmentApiChange: () -> Unit,
+    onManualMigrationClicked: () -> Unit,
     restartSlowSyncForRecovery: () -> Unit,
     enableEncryptedProteusStorage: () -> Unit
 ) {
@@ -145,7 +147,29 @@ fun DebugContent(
             if (BuildConfig.DEBUG) {
                 DevelopmentApiVersioningOptions(onForceLatestDevelopmentApiChange = onForceLatestDevelopmentApiChange)
             }
+
+            if (debugScreenState.isManualMigrationAllowed) {
+                ManualMigrationOptions(
+                    onManualMigrationClicked
+                )
+            }
         }
+    }
+}
+
+@Composable
+private fun ManualMigrationOptions(
+    onManualMigrationClicked: () -> Unit,
+) {
+    Column {
+        FolderHeader(stringResource(R.string.label_manual_migration_title))
+        SettingsItem(
+            title = stringResource(R.string.start_manual_migration),
+            onRowPressed = Clickable(
+                enabled = true,
+                onClick = onManualMigrationClicked
+            )
+        )
     }
 }
 

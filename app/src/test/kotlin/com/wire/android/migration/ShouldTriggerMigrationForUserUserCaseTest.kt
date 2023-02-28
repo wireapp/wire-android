@@ -74,6 +74,35 @@ class ShouldTriggerMigrationForUserUserCaseTest {
         verify(exactly = 0) { arrangement.applicationContext.getDatabasePath(userId.value) }
     }
 
+    @Test
+    fun givenNull_whenGettingMigrationStatus_thenCheckForScalaDB() = runTest {
+        val (arrangement, useCase) = Arrangement()
+            .withUserMigrationStatus(null)
+            .withUserHaveAValidDB()
+            .arrange()
+
+        val userId = UserId("userId", "domain")
+        assertTrue(useCase(userId))
+
+        verify(exactly = 1) { arrangement.globalDataStore.getUserMigrationStatus(userId.value) }
+        verify(exactly = 1) { arrangement.applicationContext.getDatabasePath(userId.value) }
+    }
+
+    @Test
+    fun givenNull_whenGettingMigrationStatusAndScalaDBDoesNotExists_thenCheckForScalaDB() = runTest {
+        val (arrangement, useCase) = Arrangement()
+            .withUserMigrationStatus(null)
+            .withUserDoesNotHaveScalaDB()
+            .arrange()
+
+        val userId = UserId("userId", "domain")
+        assertFalse(useCase(userId))
+
+        verify(exactly = 1) { arrangement.globalDataStore.getUserMigrationStatus(userId.value) }
+        verify(exactly = 1) { arrangement.applicationContext.getDatabasePath(userId.value) }
+        coVerify(exactly = 1) { arrangement.globalDataStore.setUserMigrationStatus(userId.value, UserMigrationStatus.NoNeed) }
+    }
+
     private class Arrangement {
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
@@ -99,7 +128,7 @@ class ShouldTriggerMigrationForUserUserCaseTest {
             every { applicationContext.getDatabasePath(any()) } returns dbFile
         }
 
-        fun withUserMigrationStatus(status: UserMigrationStatus) = apply {
+        fun withUserMigrationStatus(status: UserMigrationStatus?) = apply {
             every { globalDataStore.getUserMigrationStatus(any()) } returns flowOf(status)
         }
 

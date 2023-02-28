@@ -138,7 +138,8 @@ class MessageContentMapper @Inject constructor(
             receiptMode = when (content.receiptMode) {
                 true -> UIText.StringResource(R.string.label_system_message_receipt_mode_on)
                 else -> UIText.StringResource(R.string.label_system_message_receipt_mode_off)
-            }
+            },
+            isAuthorSelfUser = sender is SelfUser
         )
     }
 

@@ -25,21 +25,27 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import com.google.accompanist.flowlayout.FlowRow
@@ -55,6 +61,7 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.home.conversations.messages.QuotedMessage
 import com.wire.android.ui.home.conversations.messages.ReactionPill
+import com.wire.android.ui.home.conversations.model.DeliveryStatusContent
 import com.wire.android.ui.home.conversations.model.MessageBody
 import com.wire.android.ui.home.conversations.model.MessageFooter
 import com.wire.android.ui.home.conversations.model.MessageGenericAsset
@@ -183,7 +190,7 @@ fun MessageItem(
 private fun Modifier.customizeMessageBackground(
     message: UIMessage
 ) = run {
-    if (message.sendingFailed || message.receivingFailed) {
+    if (message.sendingFailed || message.receivingFailed || message.wasPartiallyDelivered) {
         background(MaterialTheme.wireColorScheme.messageErrorBackgroundColor)
     } else this
 }
@@ -273,7 +280,7 @@ private fun Username(username: String, modifier: Modifier = Modifier) {
     )
 }
 
-@Suppress("ComplexMethod")
+@Suppress("ComplexMethod", "NestedBlockDepth")
 @Composable
 private fun MessageContent(
     message: UIMessage,
@@ -306,6 +313,17 @@ private fun MessageContent(
                 onLongClick = onLongClick,
                 onOpenProfile = onOpenProfile
             )
+
+            // TODO(ym): add animation for displaying the messages
+            // TODO(federation): enable this when a new definition (jira ticket) is raised for displaying partial delivery no-clients
+            if (false) {
+                (messageContent.deliveryStatus as? DeliveryStatusContent.PartialDelivery)?.let { partialDelivery ->
+                    if (partialDelivery.hasFailures) {
+                        VerticalSpace.x4()
+                        MessageSentPartialDeliveryFailures(partialDelivery)
+                    }
+                }
+            }
         }
 
         is UIMessageContent.AssetMessage -> MessageGenericAsset(
@@ -400,6 +418,61 @@ private fun MessageStatusLabel(messageStatus: MessageStatus) {
 }
 
 @Composable
+private fun MessageSentPartialDeliveryFailures(partialDeliveryFailureContent: DeliveryStatusContent.PartialDelivery) {
+    val resources = LocalContext.current.resources
+    var expanded: Boolean by remember { mutableStateOf(false) }
+    CompositionLocalProvider(
+        LocalTextStyle provides MaterialTheme.typography.labelSmall.copy(color = MaterialTheme.wireColorScheme.error)
+    ) {
+        Column {
+            Text(
+                text = stringResource(
+                    id = R.string.label_message_partial_delivery_participants_count,
+                    partialDeliveryFailureContent.totalUsersWithFailures
+                ),
+                textAlign = TextAlign.Start
+            )
+            VerticalSpace.x4()
+            if (expanded) {
+                if (partialDeliveryFailureContent.noClients.isNotEmpty()) {
+                    Text(
+                        text = stringResource(
+                            id = R.string.label_message_partial_delivery_participants_wont_deliver,
+                            partialDeliveryFailureContent.noClients.joinToString(", ") { it.asString(resources) }
+                        ),
+                        textAlign = TextAlign.Start
+                    )
+                }
+                if (partialDeliveryFailureContent.failedRecipients.isNotEmpty()) {
+                    Text(
+                        text = stringResource(
+                            id = R.string.label_message_partial_delivery_participants_deliver_later,
+                            partialDeliveryFailureContent.failedRecipients.joinToString(", ") { it.asString(resources) }
+                        ),
+                        textAlign = TextAlign.Start
+                    )
+                }
+            }
+            VerticalSpace.x4()
+            if (partialDeliveryFailureContent.expandable) {
+                WireSecondaryButton(
+                    onClick = { expanded = !expanded },
+                    text = stringResource(if (expanded) R.string.label_hide_details else R.string.label_show_details),
+                    fillMaxWidth = false,
+                    minHeight = dimensions().spacing32x,
+                    minWidth = dimensions().spacing40x,
+                    shape = RoundedCornerShape(size = dimensions().corner12x),
+                    contentPadding = PaddingValues(horizontal = dimensions().spacing12x, vertical = dimensions().spacing8x),
+                    modifier = Modifier
+                        .padding(top = dimensions().spacing4x)
+                        .height(height = dimensions().spacing32x)
+                )
+            }
+        }
+    }
+}
+
+@Composable
 private fun MessageSendFailureWarning(
     messageStatus: MessageStatus
     /* TODO: add onRetryClick handler */
@@ -485,3 +558,10 @@ private fun MessageDecryptionFailure(
         }
     }
 }
+
+private val DeliveryStatusContent.expandable
+    get() = when {
+        this is DeliveryStatusContent.PartialDelivery ||
+            (this as DeliveryStatusContent.PartialDelivery).hasFailures -> true
+        else -> false
+    }

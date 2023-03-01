@@ -46,6 +46,9 @@
     <string name="label_message_decryption_failure_message">Die Nachricht konnte nicht entschlüsselt werden.</string>
     <string name="label_message_decryption_failure_informative_message">Versuchen Sie, die Session zurückzusetzen, um neue Verschlüsselungsschlüssel zu erzeugen.</string>
     <string name="label_message_knock">%s haben gepingt</string>
+    <string name="label_message_partial_delivery_participants_count">%1$d participants had issues receiving this message.</string>
+    <string name="label_message_partial_delivery_participants_wont_deliver">%s will not receive this message.</string>
+    <string name="label_message_partial_delivery_participants_deliver_later">%s will receive the message later.</string>
     <string name="label_try_again">Erneut versuchen</string>
     <string name="label_reset_session">Session zurücksetzen</string>
     <string name="label_reset_session_success">Sitzung erfolgreich zurückgesetzt</string>
@@ -56,6 +59,8 @@
     <string name="label_show">Anzeigen</string>
     <string name="label_show_all">Alle anzeigen</string>
     <string name="label_show_less">Weniger anzeigen</string>
+    <string name="label_show_details">Show Details</string>
+    <string name="label_hide_details">Hide Details</string>
     <string name="label_message_status_edited_with_date">Bearbeitet am %s</string>
     <string name="label_on">EIN</string>
     <string name="label_off">AUS</string>

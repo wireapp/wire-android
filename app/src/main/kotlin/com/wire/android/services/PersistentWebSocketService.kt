@@ -118,11 +118,6 @@ class PersistentWebSocketService : Service() {
                                         coreLogic.getSessionScope(persistentWebSocketStatus.userId)
                                             .setConnectionPolicy(ConnectionPolicy.KEEP_ALIVE)
                                     }
-                                } else {
-                                    runBlocking {
-                                        coreLogic.getSessionScope(persistentWebSocketStatus.userId)
-                                            .setConnectionPolicy(ConnectionPolicy.DISCONNECT_AFTER_PENDING_EVENTS)
-                                    }
                                 }
                             }
                         }

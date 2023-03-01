@@ -117,7 +117,7 @@ internal fun WireTextField(
                         it.copy(it.text.replace("\n", ""))
                     } else it
 
-                text = if (it.text.length > maxTextLength) {
+                text = if (text.text.length > maxTextLength) {
                     TextFieldValue(text = it.text.take(maxTextLength), selection = TextRange(it.text.length - 1))
                 } else it
 

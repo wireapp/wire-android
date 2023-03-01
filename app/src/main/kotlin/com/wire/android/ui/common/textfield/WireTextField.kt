@@ -110,16 +110,16 @@ internal fun WireTextField(
         if (labelText != null)
             Label(labelText, labelMandatoryIcon, state, interactionSource, colors)
         BasicTextField(
-            value = text,
+            value = value,
             onValueChange = {
-                onValueChange(
-                    if (singleLine || maxLines == 1) it.copy(it.text.replace("\n", ""))
+                text = if (singleLine || maxLines == 1) it.copy(it.text.replace("\n", ""))
                     else it
-                )
 
                 text = if (it.text.length > maxTextLength)
                     TextFieldValue(text = it.text.take(maxTextLength), selection = TextRange(it.text.length - 1))
                 else it
+
+                onValueChange(text)
             },
             textStyle = textStyle.copy(color = colors.textColor(state = state).value, textDirection = TextDirection.ContentOrLtr),
             keyboardOptions = keyboardOptions,

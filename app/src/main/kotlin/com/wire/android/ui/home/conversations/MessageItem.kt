@@ -280,7 +280,7 @@ private fun Username(username: String, modifier: Modifier = Modifier) {
     )
 }
 
-@Suppress("ComplexMethod")
+@Suppress("ComplexMethod", "NestedBlockDepth")
 @Composable
 private fun MessageContent(
     message: UIMessage,

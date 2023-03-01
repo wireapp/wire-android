@@ -84,12 +84,12 @@ class EncodedMessageContentMapperTest {
         // Then
         assertTrue(selfName is UIText.DynamicString && selfName.value == selfMemberDetails.name)
         assertTrue(
-            selfResLower is UIText.StringResource
-                    && selfResLower.resId == arrangement.messageResourceProvider.memberNameYouLowercase
+            selfResLower is UIText.StringResource &&
+                selfResLower.resId == arrangement.messageResourceProvider.memberNameYouLowercase
         )
         assertTrue(
-            selfResTitle is UIText.StringResource
-                    && selfResTitle.resId == arrangement.messageResourceProvider.memberNameYouTitlecase
+            selfResTitle is UIText.StringResource &&
+                selfResTitle.resId == arrangement.messageResourceProvider.memberNameYouTitlecase
         )
         assertTrue(deleted is UIText.StringResource && deleted.resId == arrangement.messageResourceProvider.memberNameDeleted)
         assertTrue(otherName is UIText.DynamicString && otherName.value == otherMemberDetails.name)
@@ -99,21 +99,23 @@ class EncodedMessageContentMapperTest {
     fun givenTextOrNullContent_whenMappingToTextMessageContent_thenCorrectValuesShouldBeReturned() = runTest {
         // Given
         val (arrangement, mapper) = Arrangement().arrange()
-        val textContent = MessageContent.Text("text-message")
-        val nonTextContent = MessageContent.Unknown("type-name")
+        val textContent = MessageContent.Text("Some Text Message")
+        val nonTextContent = TestMessage.UNKNOWN_MESSAGE
+        val userMembers = listOf(TestUser.MEMBER_SELF.user, TestUser.MEMBER_OTHER.user)
         // When
-        val resultText = mapper.toText(TestConversation.ID, textContent)
-        val resultNonText = mapper.toText(TestConversation.ID, nonTextContent)
+        val resultText =
+            mapper.toText(TestConversation.ID, TestMessage.TEXT_MESSAGE, userMembers)
+        val resultNonText = mapper.toText(TestConversation.ID, nonTextContent, userMembers)
         with(resultText) {
             assertTrue(
                 messageBody.message is UIText.DynamicString &&
-                        (messageBody.message as UIText.DynamicString).value == textContent.value
+                    (messageBody.message as UIText.DynamicString).value == textContent.value
             )
         }
         with(resultNonText) {
             assertTrue(
                 messageBody.message is UIText.StringResource &&
-                        (messageBody.message as UIText.StringResource).resId == arrangement.messageResourceProvider.sentAMessageWithContent
+                    (messageBody.message as UIText.StringResource).resId == arrangement.messageResourceProvider.sentAMessageWithContent
             )
         }
     }
@@ -146,30 +148,30 @@ class EncodedMessageContentMapperTest {
         // Then
         assertTrue(
             resultContentLeft is SystemMessage.MemberLeft &&
-                    resultContentLeft.author.asString(arrangement.resources) == member1.name
+                resultContentLeft.author.asString(arrangement.resources) == member1.name
         )
         assertTrue(
             resultContentRemoved is SystemMessage.MemberRemoved &&
-                    resultContentRemoved.author.asString(arrangement.resources) == member1.name &&
-                    resultContentRemoved.memberNames.size == 1 &&
-                    resultContentRemoved.memberNames[0].asString(arrangement.resources) == member2.name
+                resultContentRemoved.author.asString(arrangement.resources) == member1.name &&
+                resultContentRemoved.memberNames.size == 1 &&
+                resultContentRemoved.memberNames[0].asString(arrangement.resources) == member2.name
 
         )
         assertTrue(
             resultContentAdded is SystemMessage.MemberAdded &&
-                    resultContentAdded.author.asString(arrangement.resources) == member1.name &&
-                    resultContentAdded.memberNames.size == 2 &&
-                    resultContentAdded.memberNames[0].asString(arrangement.resources) == member2.name &&
-                    resultContentAdded.memberNames[1].asString(arrangement.resources) == member3.name
+                resultContentAdded.author.asString(arrangement.resources) == member1.name &&
+                resultContentAdded.memberNames.size == 2 &&
+                resultContentAdded.memberNames[0].asString(arrangement.resources) == member2.name &&
+                resultContentAdded.memberNames[1].asString(arrangement.resources) == member3.name
         )
         assertTrue(resultContentAddedSelf == null)
         assertTrue(
             resultOtherMissedCall is SystemMessage.MissedCall &&
-                    resultOtherMissedCall.author.asString(arrangement.resources) == TestUser.OTHER_USER.name
+                resultOtherMissedCall.author.asString(arrangement.resources) == TestUser.OTHER_USER.name
         )
         assertTrue(
             resultMyMissedCall is SystemMessage.MissedCall &&
-                    (resultMyMissedCall.author as UIText.StringResource).resId == arrangement.messageResourceProvider.memberNameYouTitlecase
+                (resultMyMissedCall.author as UIText.StringResource).resId == arrangement.messageResourceProvider.memberNameYouTitlecase
         )
     }
 
@@ -209,8 +211,8 @@ class EncodedMessageContentMapperTest {
                 mapper.toUIMessageContent(AssetMessageContentMetadata(unknownImageMessageContent), testMessage1, sender)
             coVerify(exactly = 0) { arrangement.getMessageAssetUseCase.invoke(any(), any()) }
             assertTrue(
-                resultContentOther is AssetMessage
-                        && resultContentOther.assetId.value == unknownImageMessageContent.remoteData.assetId
+                resultContentOther is AssetMessage &&
+                    resultContentOther.assetId.value == unknownImageMessageContent.remoteData.assetId
             )
 
             // When - Then
@@ -355,7 +357,7 @@ class EncodedMessageContentMapperTest {
         val sender = OtherUser(
             id = QualifiedID(
                 value = "someSearchQuery",
-                domain = "wire.com",
+                domain = "wire.com"
             ),
             name = null,
             handle = null,

@@ -4,7 +4,9 @@ import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
 import com.wire.android.framework.TestUser
+import com.wire.android.navigation.NavigationManager
 import com.wire.android.notification.NotificationChannelsManager
+import com.wire.android.notification.WireNotificationManager
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.team.Team
 import com.wire.kalium.logic.data.user.SelfUser
@@ -23,16 +25,17 @@ import org.junit.jupiter.api.extension.ExtendWith
 class GlobalObserversManagerTest {
 
     @Test
-    fun `given few valid accounts, then create user-specific notification channels`() {
-        val accs = listOf(
+    fun `given few valid accounts, when starting observing accounts, then create user-specific notification channels`() {
+        val accounts = listOf(
             TestUser.SELF_USER,
             TestUser.SELF_USER.copy(id = TestUser.USER_ID.copy(value = "something else"))
         )
         val (arrangement, manager) = Arrangement()
-            .withValidAccounts(accs.map { it to null })
+            .withValidAccounts(accounts.map { it to null })
             .arrange()
         manager.observe()
-        coVerify(exactly = 1) { arrangement.notificationChannelsManager.createUserNotificationChannels(accs) }
+        coVerify(exactly = 1) { arrangement.notificationChannelsManager.createUserNotificationChannels(accounts) }
+        coVerify(exactly = 1) { arrangement.notificationManager.observeNotificationsAndCallsWhileRunning(any(), any(), any()) }
     }
 
     private class Arrangement {
@@ -43,11 +46,19 @@ class GlobalObserversManagerTest {
         @MockK
         lateinit var notificationChannelsManager: NotificationChannelsManager
 
+        @MockK
+        lateinit var notificationManager: WireNotificationManager
+
+        @MockK
+        lateinit var navigationManager: NavigationManager
+
         private val manager by lazy {
             GlobalObserversManager(
                 dispatcherProvider = TestDispatcherProvider(),
                 coreLogic = coreLogic,
-                notificationChannelsManager = notificationChannelsManager
+                notificationChannelsManager = notificationChannelsManager,
+                notificationManager = notificationManager,
+                navigationManager = navigationManager
             )
         }
 

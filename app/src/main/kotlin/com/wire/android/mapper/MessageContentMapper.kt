@@ -25,7 +25,6 @@ import com.wire.android.R
 import com.wire.android.model.ImageAsset
 import com.wire.android.ui.home.conversations.findUser
 import com.wire.android.ui.home.conversations.model.AttachmentType
-import com.wire.android.ui.home.conversations.model.DeliveryStatusContent
 import com.wire.android.ui.home.conversations.model.MessageBody
 import com.wire.android.ui.home.conversations.model.QuotedMessageUIData
 import com.wire.android.ui.home.conversations.model.UIMessageContent
@@ -35,7 +34,6 @@ import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.asset.isDisplayableImageMimeType
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.message.AssetContent
-import com.wire.kalium.logic.data.message.DeliveryStatus
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.MessageContent
 import com.wire.kalium.logic.data.message.MessageContent.Asset
@@ -56,7 +54,7 @@ import javax.inject.Inject
 class MessageContentMapper @Inject constructor(
     private val messageResourceProvider: MessageResourceProvider,
     private val wireSessionImageLoader: WireSessionImageLoader,
-    private val isoFormatter: ISOFormatter
+    private val isoFormatter: ISOFormatter,
 ) {
 
     fun fromMessage(
@@ -66,7 +64,7 @@ class MessageContentMapper @Inject constructor(
         return when (message.visibility) {
             Message.Visibility.VISIBLE ->
                 return when (message) {
-                    is Message.Regular -> mapRegularMessage(message, userList.findUser(message.senderUserId), userList)
+                    is Message.Regular -> mapRegularMessage(message, userList.findUser(message.senderUserId))
                     is Message.System -> mapSystemMessage(message, userList)
                 }
 
@@ -146,7 +144,7 @@ class MessageContentMapper @Inject constructor(
     }
 
     private fun mapTeamMemberRemovedMessage(
-        content: MessageContent.TeamMemberRemoved
+        content: MessageContent.TeamMemberRemoved,
     ): UIMessageContent.SystemMessage = UIMessageContent.SystemMessage.TeamMemberRemoved(content)
 
     private fun mapConversationRenamedMessage(
@@ -197,8 +195,7 @@ class MessageContentMapper @Inject constructor(
 
     private fun mapRegularMessage(
         message: Message.Regular,
-        sender: User?,
-        userList: List<User>
+        sender: User?
     ) = when (val content = message.content) {
         is Asset -> {
             when (val metadata = content.value.metadata) {
@@ -223,13 +220,14 @@ class MessageContentMapper @Inject constructor(
                 sender?.name.orUnknownName()
             }
         )
+
         is MessageContent.RestrictedAsset -> toRestrictedAsset(content.mimeType, content.sizeInBytes, content.name)
-        else -> toText(message.conversationId, message, userList)
+        else -> toText(message.conversationId, content)
     }
 
     private fun mapAudio(
         assetContent: AssetContent,
-        metadata: AssetContent.AssetMetadata.Audio
+        metadata: AssetContent.AssetMetadata.Audio,
     ): UIMessageContent {
         with(assetContent) {
             return UIMessageContent.AudioAssetMessage(
@@ -243,41 +241,18 @@ class MessageContentMapper @Inject constructor(
         }
     }
 
-    fun toText(conversationId: ConversationId, message: Message, userList: List<User>) = MessageBody(
-        when (val content = message.content) {
+    fun toText(conversationId: ConversationId, content: MessageContent) = MessageBody(
+        when (content) {
             is MessageContent.Text -> UIText.DynamicString(content.value, content.mentions)
             is MessageContent.Unknown -> UIText.StringResource(
-                messageResourceProvider.sentAMessageWithContent,
-                content.typeName ?: "Unknown"
+                messageResourceProvider.sentAMessageWithContent, content.typeName ?: "Unknown"
             )
+
             is MessageContent.FailedDecryption -> UIText.StringResource(R.string.label_message_decryption_failure_message)
             else -> UIText.StringResource(messageResourceProvider.sentAMessageWithContent, "Unknown")
         },
-        quotedMessage = (message.content as? MessageContent.Text)?.quotedMessageDetails?.let { mapQuoteData(conversationId, it) }
-    ).let { messageBody ->
-        UIMessageContent.TextMessage(
-            messageBody = messageBody,
-            deliveryStatus = mapRecipientsFailure(userList, message as? Message.Regular)
-        )
-    }
-
-    private fun mapRecipientsFailure(userList: List<User>, regular: Message.Regular?): DeliveryStatusContent {
-        // TODO(federation): enable this when a new definition (jira ticket) is raised for displaying partial delivery no-clients
-        if (true) {
-            return DeliveryStatusContent.CompleteDelivery
-        }
-        return when (val usersIds = regular?.deliveryStatus) {
-            is DeliveryStatus.PartialDelivery -> DeliveryStatusContent.PartialDelivery(
-                failedRecipients = usersIds.recipientsFailedDelivery.map { userId ->
-                    userList.findUser(userId = userId)?.name.orUnknownName()
-                },
-                noClients = usersIds.recipientsFailedWithNoClients.map { userId ->
-                    userList.findUser(userId = userId)?.name.orUnknownName()
-                }
-            )
-            is DeliveryStatus.CompleteDelivery, null -> DeliveryStatusContent.CompleteDelivery
-        }
-    }
+        quotedMessage = (content as? MessageContent.Text)?.quotedMessageDetails?.let { mapQuoteData(conversationId, it) }
+    ).let { messageBody -> UIMessageContent.TextMessage(messageBody = messageBody) }
 
     private fun mapQuoteData(conversationId: ConversationId, it: MessageContent.QuotedMessageDetails) = QuotedMessageUIData(
         it.messageId,
@@ -303,7 +278,6 @@ class MessageContentMapper @Inject constructor(
                     quotedContent.assetMimeType
                 )
             }
-
             is MessageContent.QuotedMessageDetails.Text -> QuotedMessageUIData.Text(quotedContent.value)
             MessageContent.QuotedMessageDetails.Deleted -> QuotedMessageUIData.Deleted
             MessageContent.QuotedMessageDetails.Invalid -> QuotedMessageUIData.Invalid
@@ -391,7 +365,7 @@ class AssetMessageContentMetadata(val assetMessageContent: AssetContent) {
         }
 
     fun isDisplayableImage(): Boolean = isDisplayableImageMimeType(assetMessageContent.mimeType) &&
-        imgWidth.isGreaterThan(0) && imgHeight.isGreaterThan(0)
+            imgWidth.isGreaterThan(0) && imgHeight.isGreaterThan(0)
 }
 
 // TODO: should we keep it here ?

@@ -46,6 +46,9 @@
     <string name="label_message_decryption_failure_message">Message could not be decrypted.</string>
     <string name="label_message_decryption_failure_informative_message">Try resetting the session to generate new encryption keys.</string>
     <string name="label_message_knock">%s pinged</string>
+    <string name="label_message_partial_delivery_participants_count">%1$d participants had issues receiving this message.</string>
+    <string name="label_message_partial_delivery_participants_wont_deliver">%s will not receive this message.</string>
+    <string name="label_message_partial_delivery_participants_deliver_later">%s will receive the message later.</string>
     <string name="label_try_again">Спробувати ще раз</string>
     <string name="label_reset_session">Reset Session</string>
     <string name="label_reset_session_success">Session successfully reset</string>
@@ -56,6 +59,8 @@
     <string name="label_show">Показати</string>
     <string name="label_show_all">Розгорнути</string>
     <string name="label_show_less">Згорнути</string>
+    <string name="label_show_details">Show Details</string>
+    <string name="label_hide_details">Hide Details</string>
     <string name="label_message_status_edited_with_date">Відредаговано %s</string>
     <string name="label_on">УВІМКНУТИ</string>
     <string name="label_off">ВИМКНУТИ</string>

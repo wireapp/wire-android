@@ -241,23 +241,25 @@ private fun LogOptions(
             onCheckedChange = onLoggingEnabledChange
         )
 
-        SettingsItem(
-            title = stringResource(R.string.label_share_logs),
-            trailingIcon = R.drawable.ic_entypo_share,
-            onIconPressed = Clickable(
-                enabled = true,
-                onClick = onShareLogs
+        if (isLoggingEnabled) {
+            SettingsItem(
+                title = stringResource(R.string.label_share_logs),
+                trailingIcon = R.drawable.ic_entypo_share,
+                onIconPressed = Clickable(
+                    enabled = true,
+                    onClick = onShareLogs
+                )
             )
-        )
 
-        SettingsItem(
-            title = stringResource(R.string.label_delete_logs),
-            trailingIcon = R.drawable.ic_delete,
-            onIconPressed = Clickable(
-                enabled = true,
-                onClick = onDeleteLogs
+            SettingsItem(
+                title = stringResource(R.string.label_delete_logs),
+                trailingIcon = R.drawable.ic_delete,
+                onIconPressed = Clickable(
+                    enabled = true,
+                    onClick = onDeleteLogs
+                )
             )
-        )
+        }
 
         val codeBuildNumber = LocalContext.current.getGitBuildId()
         if (codeBuildNumber.isNotBlank()) {

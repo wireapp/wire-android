@@ -46,7 +46,10 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
@@ -55,6 +58,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.TextFieldValue
@@ -78,6 +82,7 @@ internal fun WireTextField(
     readOnly: Boolean = false,
     singleLine: Boolean = true,
     maxLines: Int = 1,
+    maxTextLength: Int = 8000,
     keyboardOptions: KeyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences, autoCorrect = true),
     keyboardActions: KeyboardActions = KeyboardActions(),
     leadingIcon: @Composable (() -> Unit)? = null,
@@ -97,19 +102,26 @@ internal fun WireTextField(
     modifier: Modifier = Modifier,
     onSelectedLineIndexChanged: (Int) -> Unit = { },
     onLineBottomYCoordinateChanged: (Float) -> Unit = { },
-    ) {
+) {
     val enabled = state !is WireTextFieldState.Disabled
+    var text by remember { mutableStateOf(value) }
 
     Column(modifier = modifier) {
-        if (labelText != null)
+        if (labelText != null) {
             Label(labelText, labelMandatoryIcon, state, interactionSource, colors)
+        }
         BasicTextField(
-            value = value,
+            value = text,
             onValueChange = {
                 onValueChange(
-                    if (singleLine || maxLines == 1) it.copy(it.text.replace("\n", ""))
-                    else it
+                    if (singleLine || maxLines == 1) {
+                        it.copy(it.text.replace("\n", ""))
+                    } else it
                 )
+
+                text = if (it.text.length > maxTextLength) {
+                    TextFieldValue(text = it.text.take(maxTextLength), selection = TextRange(it.text.length - 1))
+                } else it
             },
             textStyle = textStyle.copy(color = colors.textColor(state = state).value, textDirection = TextDirection.ContentOrLtr),
             keyboardOptions = keyboardOptions,
@@ -172,13 +184,14 @@ fun Label(
             color = colors.labelColor(state, interactionSource).value,
             modifier = Modifier.padding(bottom = 4.dp, end = 4.dp)
         )
-        if (labelMandatoryIcon)
+        if (labelMandatoryIcon) {
             Icon(
                 imageVector = ImageVector.vectorResource(id = R.drawable.ic_input_mandatory),
                 tint = colors.labelMandatoryColor(state).value,
                 contentDescription = "",
                 modifier = Modifier.padding(top = 2.dp)
             )
+        }
     }
 }
 
@@ -203,17 +216,18 @@ private fun InnerText(
             trailingIcon != null -> trailingIcon
             else -> state.icon()?.Icon(Modifier.padding(horizontal = 16.dp))
         }
-        if (leadingIcon != null)
+        if (leadingIcon != null) {
             Box(contentAlignment = Alignment.Center) {
                 Tint(contentColor = colors.iconColor(state).value, content = leadingIcon)
             }
+        }
         Box(Modifier.weight(1f)) {
             val padding = Modifier.padding(
                 start = if (leadingIcon == null) 16.dp else 0.dp,
                 end = if (trailingOrStateIcon == null) 16.dp else 0.dp,
                 top = 2.dp, bottom = 2.dp
             )
-            if (value.text.isEmpty() && placeholderText != null)
+            if (value.text.isEmpty() && placeholderText != null) {
                 Text(
                     text = placeholderText,
                     style = placeholderTextStyle,
@@ -222,6 +236,7 @@ private fun InnerText(
                         .fillMaxWidth()
                         .then(padding)
                 )
+            }
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -231,10 +246,11 @@ private fun InnerText(
                 innerTextField()
             }
         }
-        if (trailingOrStateIcon != null)
+        if (trailingOrStateIcon != null) {
             Box(contentAlignment = Alignment.Center) {
                 Tint(contentColor = colors.iconColor(state).value, content = trailingOrStateIcon)
             }
+        }
     }
 }
 

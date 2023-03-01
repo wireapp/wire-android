@@ -980,6 +980,16 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
+    fun provideObserveGuestRoomLinkFeatureFlagUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).observeGuestRoomLinkFeatureFlag
+
+    @ViewModelScoped
+    @Provides
+    fun provideMarkGuestLinkFeatureFlagAsNotChangedUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).markGuestLinkFeatureFlagAsNotChanged
+
+    @ViewModelScoped
+    @Provides
     fun provideClientFingerPrintUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId

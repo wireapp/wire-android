@@ -105,6 +105,10 @@
                 <data
                         android:host="conversation-join"
                         android:scheme="wire" />
+
+                <data
+                        android:host="migration-login"
+                        android:scheme="wire" />
             </intent-filter>
 
             <intent-filter>
@@ -160,6 +164,7 @@
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
+
         <receiver
                 android:name=".ui.debugscreen.StartServiceReceiver"
                 android:enabled="true"

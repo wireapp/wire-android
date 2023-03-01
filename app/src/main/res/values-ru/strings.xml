@@ -46,9 +46,6 @@
     <string name="label_message_decryption_failure_message">Не удалось расшифровать сообщение.</string>
     <string name="label_message_decryption_failure_informative_message">Try resetting the session to generate new encryption keys.</string>
     <string name="label_message_knock">%s pinged</string>
-    <string name="label_message_partial_delivery_participants_count">%1$d participants had issues receiving this message.</string>
-    <string name="label_message_partial_delivery_participants_wont_deliver">%s will not receive this message.</string>
-    <string name="label_message_partial_delivery_participants_deliver_later">%s will receive the message later.</string>
     <string name="label_try_again">Повторить</string>
     <string name="label_reset_session">Reset Session</string>
     <string name="label_reset_session_success">Session successfully reset</string>
@@ -59,8 +56,6 @@
     <string name="label_show">Показать</string>
     <string name="label_show_all">Показать все</string>
     <string name="label_show_less">Показать меньше</string>
-    <string name="label_show_details">Show Details</string>
-    <string name="label_hide_details">Hide Details</string>
     <string name="label_message_status_edited_with_date">Отредактировано %s</string>
     <string name="label_on">ВКЛ</string>
     <string name="label_off">ВЫКЛ</string>

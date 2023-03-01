@@ -112,12 +112,16 @@ internal fun WireTextField(
         BasicTextField(
             value = value,
             onValueChange = {
-                updatedText = if (singleLine || maxLines == 1) it.copy(it.text.replace("\n", ""))
-                    else it
+                updatedText = if (singleLine || maxLines == 1) {
+                    it.copy(it.text.replace("\n", ""))
+                } else it
 
-                updatedText = if (updatedText.text.length > maxTextLength)
-                    TextFieldValue(text = it.text.take(maxTextLength), selection = TextRange(updatedText.text.length - 1))
-                else updatedText
+                if (updatedText.text.length > maxTextLength) {
+                    updatedText = TextFieldValue(
+                        text = updatedText.text.take(maxTextLength),
+                        selection = TextRange(updatedText.text.length - 1)
+                    )
+                }
 
                 onValueChange(updatedText)
             },

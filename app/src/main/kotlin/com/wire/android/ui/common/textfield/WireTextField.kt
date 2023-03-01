@@ -104,7 +104,7 @@ internal fun WireTextField(
     onLineBottomYCoordinateChanged: (Float) -> Unit = { },
 ) {
     val enabled = state !is WireTextFieldState.Disabled
-    var text by remember { mutableStateOf(value) }
+    var updatedText by remember { mutableStateOf(value) }
 
     Column(modifier = modifier) {
         if (labelText != null) {
@@ -113,15 +113,18 @@ internal fun WireTextField(
         BasicTextField(
             value = value,
             onValueChange = {
-                text = if (singleLine || maxLines == 1) {
-                        it.copy(it.text.replace("\n", ""))
-                    } else it
-
-                text = if (text.text.length > maxTextLength) {
-                    TextFieldValue(text = it.text.take(maxTextLength), selection = TextRange(it.text.length - 1))
+                updatedText = if (singleLine || maxLines == 1) {
+                    it.copy(it.text.replace("\n", ""))
                 } else it
 
-                onValueChange(text)
+                if (updatedText.text.length > maxTextLength) {
+                    updatedText = TextFieldValue(
+                        text = updatedText.text.take(maxTextLength),
+                        selection = TextRange(updatedText.text.length - 1)
+                    )
+                }
+
+                onValueChange(updatedText)
             },
             textStyle = textStyle.copy(color = colors.textColor(state = state).value, textDirection = TextDirection.ContentOrLtr),
             keyboardOptions = keyboardOptions,

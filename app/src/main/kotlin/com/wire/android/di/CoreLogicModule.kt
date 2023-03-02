@@ -92,6 +92,7 @@ import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.GetUserInfoUseCase
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
+import com.wire.kalium.logic.feature.user.IsReadOnlyAccountUseCase
 import com.wire.kalium.logic.feature.user.MarkFileSharingChangeAsNotifiedUseCase
 import com.wire.kalium.logic.feature.user.ObserveUserInfoUseCase
 import com.wire.kalium.logic.feature.user.ObserveValidAccountsUseCase
@@ -776,6 +777,13 @@ class UseCaseModule {
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
     ): IsPasswordRequiredUseCase = coreLogic.getSessionScope(currentAccount).users.isPasswordRequired
+
+    @ViewModelScoped
+    @Provides
+    fun provideIsReadOnlyAccountUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): IsReadOnlyAccountUseCase = coreLogic.getSessionScope(currentAccount).users.isReadOnlyAccount
 
     @ViewModelScoped
     @Provides

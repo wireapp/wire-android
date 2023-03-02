@@ -55,8 +55,6 @@ data class UIMessage(
     val isAvailable: Boolean = !isDeleted && !sendingFailed && !receivingFailed
     val isMyMessage = messageSource == MessageSource.Self
     val isTextMessage = messageContent is UIMessageContent.TextMessage
-    val wasPartiallyDelivered = messageContent is UIMessageContent.PartialDeliverable &&
-        (messageContent.deliveryStatus as? DeliveryStatusContent.PartialDelivery)?.hasFailures == true
 }
 
 @Stable
@@ -114,21 +112,13 @@ sealed class UIMessageContent {
 
     object PreviewAssetMessage : UIMessageContent()
 
-    interface PartialDeliverable {
-        val deliveryStatus: DeliveryStatusContent
-    }
-
-    data class TextMessage(
-        val messageBody: MessageBody,
-        override val deliveryStatus: DeliveryStatusContent = DeliveryStatusContent.CompleteDelivery
-    ) : ClientMessage(), PartialDeliverable
+    data class TextMessage(val messageBody: MessageBody) : ClientMessage()
 
     data class RestrictedAsset(
         val mimeType: String,
         val assetSizeInBytes: Long,
-        val assetName: String,
-        override val deliveryStatus: DeliveryStatusContent = DeliveryStatusContent.CompleteDelivery
-    ) : ClientMessage(), PartialDeliverable
+        val assetName: String
+    ) : ClientMessage()
 
     @Stable
     data class AssetMessage(
@@ -137,9 +127,8 @@ sealed class UIMessageContent {
         val assetId: AssetId,
         val assetSizeInBytes: Long,
         val uploadStatus: Message.UploadStatus,
-        val downloadStatus: Message.DownloadStatus,
-        override val deliveryStatus: DeliveryStatusContent = DeliveryStatusContent.CompleteDelivery
-    ) : UIMessageContent(), PartialDeliverable
+        val downloadStatus: Message.DownloadStatus
+    ) : UIMessageContent()
 
     data class ImageMessage(
         val assetId: AssetId,
@@ -147,9 +136,8 @@ sealed class UIMessageContent {
         val width: Int,
         val height: Int,
         val uploadStatus: Message.UploadStatus,
-        val downloadStatus: Message.DownloadStatus,
-        override val deliveryStatus: DeliveryStatusContent = DeliveryStatusContent.CompleteDelivery
-    ) : UIMessageContent(), PartialDeliverable
+        val downloadStatus: Message.DownloadStatus
+    ) : UIMessageContent()
 
     @Stable
     data class AudioAssetMessage(
@@ -262,20 +250,4 @@ enum class MessageSource {
 
 data class MessageTime(val utcISO: String) {
     val formattedDate = utcISO.uiMessageDateTime() ?: ""
-}
-
-sealed interface DeliveryStatusContent {
-    class PartialDelivery(
-        val failedRecipients: List<UIText> = emptyList(),
-        val noClients: List<UIText> = emptyList()
-    ) : DeliveryStatusContent {
-
-        val totalUsersWithFailures: Int
-            get() = failedRecipients.size + noClients.size
-
-        val hasFailures: Boolean
-            get() = totalUsersWithFailures > 0
-    }
-
-    object CompleteDelivery : DeliveryStatusContent
 }

@@ -117,7 +117,7 @@ fun MessageItem(
 
             val isProfileRedirectEnabled =
                 message.messageHeader.userId != null &&
-                        !(message.messageHeader.isSenderDeleted || message.messageHeader.isSenderUnavailable)
+                    !(message.messageHeader.isSenderDeleted || message.messageHeader.isSenderUnavailable)
 
             val avatarClickable = remember {
                 Clickable(enabled = isProfileRedirectEnabled) {
@@ -139,8 +139,8 @@ fun MessageItem(
                             Clickable(enabled = true, onClick = {
                                 onAssetMessageClicked(message.messageHeader.messageId)
                             }, onLongClick = {
-                                onLongClicked(message)
-                            })
+                                    onLongClicked(message)
+                                })
                         }
 
                         val currentOnImageClick = remember {
@@ -150,8 +150,8 @@ fun MessageItem(
                                     message.messageSource == MessageSource.Self
                                 )
                             }, onLongClick = {
-                                onLongClicked(message)
-                            })
+                                    onLongClicked(message)
+                                })
                         }
                         val onLongClick = remember { { onLongClicked(message) } }
                         MessageContent(
@@ -315,13 +315,10 @@ private fun MessageContent(
             )
 
             // TODO(ym): add animation for displaying the messages
-            // TODO(federation): enable this when a new definition (jira ticket) is raised for displaying partial delivery no-clients
-            if (false) {
-                (messageContent.deliveryStatus as? DeliveryStatusContent.PartialDelivery)?.let { partialDelivery ->
-                    if (partialDelivery.hasFailures) {
-                        VerticalSpace.x4()
-                        MessageSentPartialDeliveryFailures(partialDelivery)
-                    }
+            (messageContent.deliveryStatus as? DeliveryStatusContent.PartialDelivery)?.let { partialDelivery ->
+                if (partialDelivery.hasFailures) {
+                    VerticalSpace.x4()
+                    MessageSentPartialDeliveryFailures(partialDelivery)
                 }
             }
         }

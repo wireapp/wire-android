@@ -262,10 +262,6 @@ class MessageContentMapper @Inject constructor(
     }
 
     private fun mapRecipientsFailure(userList: List<User>, regular: Message.Regular?): DeliveryStatusContent {
-        // TODO(federation): enable this when a new definition (jira ticket) is raised for displaying partial delivery no-clients
-        if (true) {
-            return DeliveryStatusContent.CompleteDelivery
-        }
         return when (val usersIds = regular?.deliveryStatus) {
             is DeliveryStatus.PartialDelivery -> DeliveryStatusContent.PartialDelivery(
                 failedRecipients = usersIds.recipientsFailedDelivery.map { userId ->

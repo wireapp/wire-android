@@ -112,9 +112,7 @@ class SelfUserProfileViewModel @Inject constructor(
     }
 
     private suspend fun fetchIsReadOnlyAccount() {
-        viewModelScope.launch {
-            userProfileState = userProfileState.copy(isReadOnlyAccount = isReadOnlyAccount())
-        }
+        userProfileState = userProfileState.copy(isReadOnlyAccount = isReadOnlyAccount())
     }
 
     private fun observeEstablishedCall() {
@@ -152,7 +150,7 @@ class SelfUserProfileViewModel @Inject constructor(
                         completePicture?.let { updateUserAvatar(it) }
 
                         // Update user data state
-                        userProfileState = SelfUserProfileState(
+                        userProfileState = userProfileState.copy(
                             status = availabilityStatus,
                             fullName = name.orEmpty(),
                             userName = handle.orEmpty(),

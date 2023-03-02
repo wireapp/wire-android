@@ -50,6 +50,7 @@ import com.wire.kalium.logic.feature.conversation.ClearConversationContentUseCas
 import com.wire.kalium.logic.feature.conversation.CreateConversationResult
 import com.wire.kalium.logic.feature.conversation.GetOneToOneConversationUseCase
 import com.wire.kalium.logic.feature.conversation.GetOrCreateOneToOneConversationUseCase
+import com.wire.kalium.logic.feature.conversation.GetOtherUserSecurityClassificationLabelUseCase
 import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleResult
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleUseCase
@@ -127,6 +128,9 @@ internal class OtherUserProfileViewModelArrangement {
     @MockK
     lateinit var clearConversationContent: ClearConversationContentUseCase
 
+    @MockK
+    lateinit var getOtherUserSecurityClassificationLabel: GetOtherUserSecurityClassificationLabelUseCase
+
     private val viewModel by lazy {
         OtherUserProfileScreenViewModel(
             navigationManager,
@@ -148,6 +152,7 @@ internal class OtherUserProfileViewModelArrangement {
             otherUserClients,
             persistOtherUserClientsUseCase,
             clearConversationContent,
+            getOtherUserSecurityClassificationLabel,
             savedStateHandle,
             qualifiedIdMapper
         )

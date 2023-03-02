@@ -89,6 +89,7 @@ import com.wire.kalium.logic.feature.conversation.ClearConversationContentUseCas
 import com.wire.kalium.logic.feature.conversation.ConversationUpdateStatusResult
 import com.wire.kalium.logic.feature.conversation.CreateConversationResult
 import com.wire.kalium.logic.feature.conversation.GetOrCreateOneToOneConversationUseCase
+import com.wire.kalium.logic.feature.conversation.GetOtherUserSecurityClassificationLabelUseCase
 import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleResult
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleUseCase
@@ -130,6 +131,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     private val getOtherUserClients: GetOtherUserClientsUseCase,
     private val persistOtherUserClients: PersistOtherUserClientsUseCase,
     private val clearConversationContentUseCase: ClearConversationContentUseCase,
+    private val getOtherUserSecurityClassificationLabel: GetOtherUserSecurityClassificationLabelUseCase,
     savedStateHandle: SavedStateHandle,
     qualifiedIdMapper: QualifiedIdMapper
 ) : ViewModel(), OtherUserProfileEventsHandler, OtherUserProfileBottomSheetEventsHandler, OtherUserProfileFooterEventsHandler {
@@ -151,6 +153,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
 
         observeUserInfoAndUpdateViewState()
         persistClients()
+        setClassificationType()
     }
 
     private fun persistClients() {
@@ -468,6 +471,12 @@ class OtherUserProfileScreenViewModel @Inject constructor(
             )
         )
     }
+    private fun setClassificationType() {
+        viewModelScope.launch {
+            state = state.copy(securityClassificationType = getOtherUserSecurityClassificationLabel(userId))
+        }
+    }
+
 
     override fun navigateBack() = viewModelScope.launch { navigationManager.navigateBack() }
 }

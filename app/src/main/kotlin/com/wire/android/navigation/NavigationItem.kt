@@ -135,13 +135,18 @@ enum class NavigationItem(
 
     Login(
         primaryRoute = LOGIN,
-        canonicalRoute = LOGIN,
+        canonicalRoute = "$LOGIN?$EXTRA_SSO_LOGIN_RESULT={$EXTRA_SSO_LOGIN_RESULT}",
         content = { contentParams ->
             val ssoLoginResult = contentParams.arguments.filterIsInstance<DeepLinkResult.SSOLogin>().firstOrNull()
-            LoginScreen(ssoLoginResult)
+            LoginScreen(null)
         },
         animationConfig = NavigationAnimationConfig.CustomAnimation(smoothSlideInFromRight(), smoothSlideOutFromLeft())
-    ),
+    ) {
+        override fun getRouteWithArgs(arguments: List<Any>): String {
+            val ssoLoginResultString = Json.encodeToString(arguments.filterIsInstance<DeepLinkResult.SSOLogin>().firstOrNull())
+            return "$LOGIN?$EXTRA_SSO_LOGIN_RESULT=$ssoLoginResultString"
+        }
+      },
 
     CreateTeam(
         primaryRoute = CREATE_TEAM,
@@ -264,13 +269,13 @@ enum class NavigationItem(
     OtherUserProfile(
         primaryRoute = OTHER_USER_PROFILE,
         canonicalRoute = "$OTHER_USER_PROFILE?$EXTRA_USER_ID={$EXTRA_USER_ID}&$EXTRA_CONVERSATION_ID={$EXTRA_CONVERSATION_ID}",
-        deepLinks = listOf(
-            navDeepLink {
-                uriPattern = "${DeepLinkProcessor.DEEP_LINK_SCHEME}://" +
-                        "${DeepLinkProcessor.OTHER_USER_PROFILE_DEEPLINK_HOST}/" +
-                        "{$EXTRA_USER_ID}"
-            }
-        ),
+//        deepLinks = listOf(
+//            navDeepLink {
+//                uriPattern = "${DeepLinkProcessor.DEEP_LINK_SCHEME}://" +
+//                        "${DeepLinkProcessor.OTHER_USER_PROFILE_DEEPLINK_HOST}/" +
+//                        "{$EXTRA_USER_ID}"
+//            }
+//        ),
         content = { OtherUserProfileScreen() },
         animationConfig = NavigationAnimationConfig.NoAnimation
     ) {
@@ -290,14 +295,14 @@ enum class NavigationItem(
     Conversation(
         primaryRoute = CONVERSATION,
         canonicalRoute = "$CONVERSATION?$EXTRA_CONVERSATION_ID={$EXTRA_CONVERSATION_ID}",
-        deepLinks = listOf(
-            navDeepLink {
-                uriPattern = "${DeepLinkProcessor.DEEP_LINK_SCHEME}://" +
-                        "${DeepLinkProcessor.CONVERSATION_DEEPLINK_HOST}/" +
-                        "{$EXTRA_CONVERSATION_ID}/" +
-                        "{$EXTRA_USER_ID}"
-            }
-        ),
+//        deepLinks = listOf(
+//            navDeepLink {
+//                uriPattern = "${DeepLinkProcessor.DEEP_LINK_SCHEME}://" +
+//                        "${DeepLinkProcessor.CONVERSATION_DEEPLINK_HOST}/" +
+//                        "{$EXTRA_CONVERSATION_ID}/" +
+//                        "{$EXTRA_USER_ID}"
+//            }
+//        ),
         content = { ConversationScreen(backNavArgs = it.navBackStackEntry.savedStateHandle.getBackNavArgs()) },
         animationConfig = NavigationAnimationConfig.NoAnimation
     ) {
@@ -404,13 +409,14 @@ enum class NavigationItem(
     IncomingCall(
         primaryRoute = INCOMING_CALL,
         canonicalRoute = "$INCOMING_CALL?$EXTRA_CONVERSATION_ID={$EXTRA_CONVERSATION_ID}",
-        deepLinks = listOf(
-            navDeepLink {
-                uriPattern = "${DeepLinkProcessor.DEEP_LINK_SCHEME}://" +
-                        "${DeepLinkProcessor.INCOMING_CALL_DEEPLINK_HOST}/" +
-                        "{$EXTRA_CONVERSATION_ID}"
-            }
-        ),
+//        deepLinks = listOf(
+//            navDeepLink {
+//                uriPattern = "${DeepLinkProcessor.DEEP_LINK_SCHEME}://" +
+//                        "${DeepLinkProcessor.INCOMING_CALL_DEEPLINK_HOST}/" +
+//                        "{$EXTRA_CONVERSATION_ID}"
+////                        "{$EXTRA_USER_ID}"
+//            }
+//        ),
         content = { IncomingCallScreen() },
         screenMode = ScreenMode.WAKE_UP,
         animationConfig = NavigationAnimationConfig.DelegatedAnimation
@@ -516,6 +522,8 @@ const val EXTRA_SETTINGS_DISPLAY_NAME_CHANGED = "extra_settings_display_name_cha
 const val EXTRA_BACK_NAVIGATION_ARGUMENTS = "extra_back_navigation_arguments"
 
 const val EXTRA_EDIT_GUEST_ACCESS_PARAMS = "extra_edit_guest_access_params"
+
+const val EXTRA_SSO_LOGIN_RESULT = "sso_login_result"
 
 fun NavigationItem.isExternalRoute() = this.getRouteWithArgs().startsWith("http")
 

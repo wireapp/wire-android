@@ -33,10 +33,12 @@ import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.di.ClientScopeProvider
 import com.wire.android.navigation.BackStackMode
+import com.wire.android.navigation.EXTRA_SSO_LOGIN_RESULT
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.util.EMPTY
+import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.kalium.logic.data.client.ClientCapability
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
@@ -46,6 +48,8 @@ import com.wire.kalium.logic.feature.client.RegisterClientUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
 import javax.inject.Inject
 
 @ExperimentalMaterialApi
@@ -59,6 +63,11 @@ open class LoginViewModel @Inject constructor(
     private val userDataStoreProvider: UserDataStoreProvider
 ) : ViewModel() {
     val serverConfig = authServerConfigProvider.authServer.value
+
+    val ssoLoginResult = savedStateHandle.get<String>(EXTRA_SSO_LOGIN_RESULT)?.let {
+        if (it == "null") null
+        else Json.decodeFromString<DeepLinkResult.SSOLogin>(it)
+    }
 
     var loginState by mutableStateOf(
         LoginState(

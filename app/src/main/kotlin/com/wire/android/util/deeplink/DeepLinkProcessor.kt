@@ -22,7 +22,6 @@ package com.wire.android.util.deeplink
 
 import android.net.Uri
 import androidx.annotation.VisibleForTesting
-import com.wire.android.appLogger
 import com.wire.android.feature.AccountSwitchUseCase
 import com.wire.android.feature.SwitchAccountParam
 import com.wire.kalium.logic.data.id.ConversationId
@@ -31,16 +30,20 @@ import com.wire.kalium.logic.data.id.QualifiedIdMapperImpl
 import com.wire.kalium.logic.data.id.toQualifiedID
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
+import kotlinx.serialization.Serializable
 import javax.inject.Inject
 import javax.inject.Singleton
 
 sealed class DeepLinkResult {
     object Unknown : DeepLinkResult()
     data class CustomServerConfig(val url: String) : DeepLinkResult()
+
+    @Serializable
     sealed class SSOLogin : DeepLinkResult() {
+        @Serializable
         data class Success(val cookie: String, val serverConfigId: String) : SSOLogin()
+
+        @Serializable
         data class Failure(val ssoError: SSOFailureCodes) : SSOLogin()
     }
 
@@ -59,43 +62,39 @@ class DeepLinkProcessor @Inject constructor(
 ) {
     private val qualifiedIdMapper = QualifiedIdMapperImpl(null)
 
-    suspend operator fun invoke(uri: Uri, scope: CoroutineScope): DeepLinkResult = when (uri.host) {
-        ACCESS_DEEPLINK_HOST -> getCustomServerConfigDeepLinkResult(uri)
-        SSO_LOGIN_DEEPLINK_HOST -> getSSOLoginDeepLinkResult(uri)
-        INCOMING_CALL_DEEPLINK_HOST -> getIncomingCallDeepLinkResult(uri)
-        ONGOING_CALL_DEEPLINK_HOST -> getOngoingCallDeepLinkResult(uri)
-        CONVERSATION_DEEPLINK_HOST -> getOpenConversationDeepLinkResult(uri, scope)
-        OTHER_USER_PROFILE_DEEPLINK_HOST -> getOpenOtherUserProfileDeepLinkResult(uri)
-        JOIN_CONVERSATION_DEEPLINK_HOST -> getJoinConversationDeepLinkResult(uri)
-        else -> DeepLinkResult.Unknown
-    }
+    suspend operator fun invoke(uri: Uri): DeepLinkResult {
 
-    @Suppress("TooGenericExceptionCaught")
-    private suspend fun getOpenConversationDeepLinkResult(uri: Uri, scope: CoroutineScope): DeepLinkResult {
-        return try {
-            val conversationId = uri.pathSegments[0]?.toQualifiedID(qualifiedIdMapper)
-            val userId = uri.pathSegments[1]?.toQualifiedID(qualifiedIdMapper)
-            if (conversationId == null || userId == null) return DeepLinkResult.Unknown
+        switchAccountIfNeeded(uri)
 
-            val shouldSwitchAccount = currentSession().let {
-                when (it) {
-                    is CurrentSessionResult.Failure.Generic -> true
-                    CurrentSessionResult.Failure.SessionNotFound -> true
-                    is CurrentSessionResult.Success -> {
-                        it.accountInfo.userId != userId
-                    }
-                }
-            }
-            if (shouldSwitchAccount) {
-                scope.launch { accountSwitch(SwitchAccountParam.SwitchToAccount(userId)) }
-            }
-
-            DeepLinkResult.OpenConversation(conversationId)
-        } catch (e: IndexOutOfBoundsException) {
-            appLogger.e("unknown segment")
-            DeepLinkResult.Unknown
+        return when (uri.host) {
+            ACCESS_DEEPLINK_HOST -> getCustomServerConfigDeepLinkResult(uri)
+            SSO_LOGIN_DEEPLINK_HOST -> getSSOLoginDeepLinkResult(uri)
+            INCOMING_CALL_DEEPLINK_HOST -> getIncomingCallDeepLinkResult(uri)
+            ONGOING_CALL_DEEPLINK_HOST -> getOngoingCallDeepLinkResult(uri)
+            CONVERSATION_DEEPLINK_HOST -> getOpenConversationDeepLinkResult(uri)
+            OTHER_USER_PROFILE_DEEPLINK_HOST -> getOpenOtherUserProfileDeepLinkResult(uri)
+            JOIN_CONVERSATION_DEEPLINK_HOST -> getJoinConversationDeepLinkResult(uri)
+            else -> DeepLinkResult.Unknown
         }
     }
+
+    private suspend fun switchAccountIfNeeded(uri: Uri) {
+        uri.getQueryParameter(USER_TO_USE_QUERY_PARAM)?.toQualifiedID(qualifiedIdMapper)?.let { userId ->
+            val shouldSwitchAccount = when (val result = currentSession()) {
+                is CurrentSessionResult.Failure.Generic -> true
+                CurrentSessionResult.Failure.SessionNotFound -> true
+                is CurrentSessionResult.Success -> result.accountInfo.userId != userId
+            }
+            if (shouldSwitchAccount) {
+                accountSwitch(SwitchAccountParam.SwitchToAccount(userId))
+            }
+        }
+    }
+
+    private fun getOpenConversationDeepLinkResult(uri: Uri): DeepLinkResult =
+        uri.lastPathSegment?.toQualifiedID(qualifiedIdMapper)?.let { conversationId ->
+            DeepLinkResult.OpenConversation(conversationId)
+        } ?: DeepLinkResult.Unknown
 
     private fun getOpenOtherUserProfileDeepLinkResult(uri: Uri): DeepLinkResult =
         uri.lastPathSegment?.toQualifiedID(qualifiedIdMapper)?.let {
@@ -161,6 +160,7 @@ class DeepLinkProcessor @Inject constructor(
         const val JOIN_CONVERSATION_CODE_PARAM = "code"
         const val JOIN_CONVERSATION_KEY_PARAM = "key"
         const val JOIN_CONVERSATION_DOMAIN_PARAM = "domain"
+        const val USER_TO_USE_QUERY_PARAM = "user-to-use"
     }
 }
 

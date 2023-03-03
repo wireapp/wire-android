@@ -21,18 +21,31 @@
 package com.wire.android.navigation
 
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.take
 
 class NavigationManager {
 
-    var navigateState = MutableSharedFlow<NavigationCommand?>()
-    var navigateBack = MutableSharedFlow<Map<String, Any>>()
+    private val _navigateState = MutableSharedFlow<NavigationCommand?>()
+    private val _navigateBack = MutableSharedFlow<Map<String, Any>>()
+    var navigateState: SharedFlow<NavigationCommand?> = _navigateState
+    var navigateBack: SharedFlow<Map<String, Any>> = _navigateBack
 
     suspend fun navigate(command: NavigationCommand) {
-        navigateState.emit(command)
+        if (_navigateState.subscriptionCount.value > 0) {
+            _navigateState.emit(command)
+        } else {
+            _navigateState.subscriptionCount
+                .filter { it > 0 }
+                .take(1)
+                .collect { _navigateState.emit(command) }
+        }
+
     }
 
     suspend fun navigateBack(previousBackStackPassedArgs: Map<String, Any> = mapOf()) {
-        navigateBack.emit(previousBackStackPassedArgs)
+        _navigateBack.emit(previousBackStackPassedArgs)
     }
 }
 

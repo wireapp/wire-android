@@ -28,7 +28,6 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -76,7 +75,6 @@ import javax.inject.Inject
 
 @OptIn(
     ExperimentalMaterial3Api::class,
-    ExperimentalAnimationApi::class,
     ExperimentalComposeUiApi::class,
     ExperimentalCoroutinesApi::class
 )
@@ -101,14 +99,12 @@ class WireActivity : AppCompatActivity() {
         proximitySensorManager.initialize()
         lifecycle.addObserver(currentScreenManager)
 
-        viewModel.handleDeepLink(intent)
+        handleDeepLink(intent, savedInstanceState)
         setComposableContent()
     }
 
     override fun onNewIntent(intent: Intent?) {
-        if (viewModel.handleDeepLinkOnNewIntent(intent)) {
-            recreate()
-        }
+        handleDeepLink(intent)
         super.onNewIntent(intent)
     }
 
@@ -120,17 +116,12 @@ class WireActivity : AppCompatActivity() {
             ) {
                 WireTheme {
                     val scope = rememberCoroutineScope()
-                    val navController = rememberTrackingAnimatedNavController() { NavigationItem.fromRoute(it)?.itemName }
+                    val navController = rememberTrackingAnimatedNavController { NavigationItem.fromRoute(it)?.itemName }
                     val startDestination = viewModel.startNavigationRoute()
                     Scaffold {
-                        NavigationGraph(navController = navController, startDestination, viewModel.navigationArguments())
+                        NavigationGraph(navController = navController, startDestination)
                     }
                     setUpNavigation(navController, scope)
-
-                    updateAppDialog(
-                        { updateTheApp() },
-                        viewModel.globalAppState.updateAppDialog
-                    )
 
                     viewModel.globalAppState.conversationJoinedDialog?.let {
                         when (it) {
@@ -292,5 +283,25 @@ class WireActivity : AppCompatActivity() {
     override fun onPause() {
         super.onPause()
         proximitySensorManager.unRegisterListener()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putBoolean(HANDLED_DEEPLINK_FLAG, true)
+        super.onSaveInstanceState(outState)
+    }
+
+    private fun handleDeepLink(
+        intent: Intent?,
+        savedInstanceState: Bundle? = null
+    ) {
+        if (intent == null) return
+        if (intent.flags and Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY != 0) return
+        if (savedInstanceState?.getBoolean(HANDLED_DEEPLINK_FLAG, false) == true) return
+
+        viewModel.handleDeepLink(intent)
+    }
+
+    companion object {
+        private const val HANDLED_DEEPLINK_FLAG = "deeplink_handled_flag_key"
     }
 }

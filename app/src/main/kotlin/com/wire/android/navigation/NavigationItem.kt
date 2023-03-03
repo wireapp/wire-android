@@ -143,39 +143,16 @@ enum class NavigationItem(
 
     Login(
         primaryRoute = LOGIN,
-        canonicalRoute = "$LOGIN?$EXTRA_SSO_LOGIN_RESULT={$EXTRA_SSO_LOGIN_RESULT}",
-        content = { contentParams ->
-            val ssoLoginResult = contentParams.arguments.filterIsInstance<DeepLinkResult.SSOLogin>().firstOrNull()
-            LoginScreen(null)
-        },
+        canonicalRoute = "$LOGIN?$EXTRA_SSO_LOGIN_RESULT={$EXTRA_SSO_LOGIN_RESULT}&$EXTRA_USER_HANDLE={$EXTRA_USER_HANDLE}",
+        content = { LoginScreen(null) },
         animationConfig = NavigationAnimationConfig.CustomAnimation(smoothSlideInFromRight(), smoothSlideOutFromLeft())
     ) {
         override fun getRouteWithArgs(arguments: List<Any>): String {
             val ssoLoginResultString = Json.encodeToString(arguments.filterIsInstance<DeepLinkResult.SSOLogin>().firstOrNull())
-            return "$LOGIN?$EXTRA_SSO_LOGIN_RESULT=$ssoLoginResultString"
+            val userHandleString: String = arguments.filterIsInstance<String>().firstOrNull()?.toString() ?: "{$EXTRA_USER_HANDLE}"
+            return "$LOGIN?$EXTRA_SSO_LOGIN_RESULT=$ssoLoginResultString&$EXTRA_USER_HANDLE=$userHandleString"
         }
-      },
-//Login(
-//        primaryRoute = LOGIN,
-//        canonicalRoute = "$LOGIN?$EXTRA_USER_HANDLE={$EXTRA_USER_HANDLE}",
-//        content = { contentParams ->
-//            val ssoLoginResult = contentParams.arguments.filterIsInstance<DeepLinkResult.SSOLogin>().firstOrNull()
-//            LoginScreen(ssoLoginResult)
-//        },
-//        deepLinks = listOf(
-//            navDeepLink {
-//                uriPattern = "${DeepLinkProcessor.DEEP_LINK_SCHEME}://" +
-//                        "${DeepLinkProcessor.MIGRATION_LOGIN_HOST}/" +
-//                        "{$EXTRA_USER_HANDLE}"
-//            }
-//        ),
-//        animationConfig = NavigationAnimationConfig.CustomAnimation(smoothSlideInFromRight(), smoothSlideOutFromLeft())
-//    ) {
-//        override fun getRouteWithArgs(arguments: List<Any>): String {
-//            val userHandleString: String = arguments.filterIsInstance<String>().firstOrNull()?.toString() ?: "{$EXTRA_USER_HANDLE}"
-//            return "$LOGIN?$EXTRA_USER_HANDLE=$userHandleString"
-//        }
-//    },
+    },
 
     CreateTeam(
         primaryRoute = CREATE_TEAM,
@@ -252,7 +229,7 @@ enum class NavigationItem(
             val clientIdString: String = arguments.filterIsInstance<ClientId>().firstOrNull()?.value.toString()
             return "$DEVICE_DETAILS?$EXTRA_DEVICE_ID=$clientIdString"
         }
-      },
+    },
 
     PrivacySettings(
         primaryRoute = PRIVACY_SETTINGS,

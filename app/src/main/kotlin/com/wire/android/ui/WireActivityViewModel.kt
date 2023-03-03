@@ -176,44 +176,30 @@ class WireActivityViewModel @Inject constructor(
         else -> NavigationItem.Home.getRouteWithArgs()
     }
 
-    fun isSharingIntent(intent: Intent?): Boolean {
-        return intent?.action == Intent.ACTION_SEND || intent?.action == Intent.ACTION_SEND_MULTIPLE
-    }
-
     @Suppress("ComplexMethod")
     fun handleDeepLink(intent: Intent?) {
-        if (shouldGoToImport(intent)) {
-            navigateToImportMediaScreen()
-        } else {
+        viewModelScope.launch {
+            if (shouldGoToMigration() || shouldGoToWelcome()) return@launch
+
+            if (isSharingIntent(intent)) {
+                navigateToImportMediaScreen()
+                return@launch
+            }
             intent?.data?.let { deepLink ->
-                viewModelScope.launch {
-                    if (shouldGoToMigration() || shouldGoToWelcome()) return@launch
 
-                    when (val result = deepLinkProcessor(deepLink, viewModelScope)) {
-                        is DeepLinkResult.SSOLogin -> openLogin(result)
+                when (val result = deepLinkProcessor(deepLink)) {
+                    is DeepLinkResult.SSOLogin -> openSsoLogin(result)
+                    is DeepLinkResult.MigrationLogin -> openMigrationLogin(result.userHandle)
 
-                        // TODO maybe move handling CustomServerConfig in some separate screen, to not block UI while making API requests etc.
-                        is DeepLinkResult.CustomServerConfig -> onCustomServerConfig(result)
-                        is DeepLinkResult.IncomingCall -> openIncomingCall(result.conversationsId)
-                        is DeepLinkResult.OngoingCall -> openOngoingCall(result.conversationsId)
-                        is DeepLinkResult.OpenConversation -> openConversation(result.conversationsId)
-                        is DeepLinkResult.OpenOtherUserProfile -> openOtherUserProfile(result.userId)
-                        is DeepLinkResult.JoinConversation -> onConversationInviteDeepLink(
-                            result.code,
-                            result.key,
-                            result.domain
-                        )
+                    // TODO maybe move handling CustomServerConfig in some separate screen, to not block UI while making API requests etc.
+                    is DeepLinkResult.CustomServerConfig -> onCustomServerConfig(result)
+                    is DeepLinkResult.IncomingCall -> openIncomingCall(result.conversationsId)
+                    is DeepLinkResult.OngoingCall -> openOngoingCall(result.conversationsId)
+                    is DeepLinkResult.OpenConversation -> openConversation(result.conversationsId)
+                    is DeepLinkResult.OpenOtherUserProfile -> openOtherUserProfile(result.userId)
+                    is DeepLinkResult.JoinConversation -> onConversationInviteDeepLink(result.code, result.key, result.domain)
 
-                        is DeepLinkResult.MigrationLogin -> {
-                            if (isLaunchedFromHistory(intent)) {
-                                appLogger.i("MigrationLogin deepLink launched from the history")
-                            } else {
-                                navigationArguments.put(MIGRATION_LOGIN_ARG, result.userHandle)
-                            }
-                        }
-
-                        DeepLinkResult.Unknown -> appLogger.e("unknown deeplink result $result")
-                    }
+                    DeepLinkResult.Unknown -> appLogger.e("unknown deeplink result $result")
                 }
             }
         }
@@ -221,14 +207,6 @@ class WireActivityViewModel @Inject constructor(
 
     fun dismissCustomBackendDialog() {
         globalAppState = globalAppState.copy(customBackendDialog = CustomBEDeeplinkDialogState(shouldShowDialog = false))
-    }
-
-    fun navigateToImportMediaScreen() {
-        navigateTo(
-            NavigationCommand(
-                NavigationItem.ImportMedia.getRouteWithArgs(), backStackMode = BackStackMode.CLEAR_WHOLE
-            )
-        )
     }
 
     fun customBackendDialogProceedButtonClicked(serverLinks: ServerConfig.Links) {
@@ -256,6 +234,10 @@ class WireActivityViewModel @Inject constructor(
         }
     }
 
+    private fun navigateToImportMediaScreen() {
+        navigateTo(NavigationCommand(NavigationItem.ImportMedia.getRouteWithArgs(), backStackMode = BackStackMode.CLEAR_WHOLE))
+    }
+
     private fun openIncomingCall(conversationId: ConversationId) {
         navigateTo(NavigationCommand(NavigationItem.IncomingCall.getRouteWithArgs(listOf(conversationId))))
     }
@@ -276,7 +258,7 @@ class WireActivityViewModel @Inject constructor(
         navigateTo(NavigationCommand(NavigationItem.Login.getRouteWithArgs(listOf(userHandle)), BackStackMode.UPDATE_EXISTED))
     }
 
-    private fun openLogin(ssoLogin: DeepLinkResult.SSOLogin) {
+    private fun openSsoLogin(ssoLogin: DeepLinkResult.SSOLogin) {
         navigateTo(NavigationCommand(NavigationItem.Login.getRouteWithArgs(listOf(ssoLogin)), BackStackMode.UPDATE_EXISTED))
     }
 
@@ -379,8 +361,10 @@ class WireActivityViewModel @Inject constructor(
         globalAppState = globalAppState.copy(conversationJoinedDialog = null)
     }
 
-    // TODO: the usage of currentSessionFlow is a temporary solution, it should be replaced with a proper solution
-    private fun shouldGoToWelcome(): Boolean = runBlocking {
+    private fun shouldGoToWelcome(): Boolean = !hasValidCurrentSession()
+
+    private fun hasValidCurrentSession(): Boolean = runBlocking {
+        // TODO: the usage of currentSessionFlow is a temporary solution, it should be replaced with a proper solution
         currentSessionFlow().first().let {
             when (it) {
                 is CurrentSessionResult.Failure.Generic -> false
@@ -394,9 +378,8 @@ class WireActivityViewModel @Inject constructor(
         migrationManager.shouldMigrate()
     }
 
-    private fun shouldGoToImport(intent: Intent?): Boolean {
-        // Show import screen only if there is a valid session
-        return hasValidCurrentSession() && isSharingIntent(intent)
+    private fun isSharingIntent(intent: Intent?): Boolean {
+        return intent?.action == Intent.ACTION_SEND || intent?.action == Intent.ACTION_SEND_MULTIPLE
     }
 
     fun openProfile() {
@@ -406,10 +389,6 @@ class WireActivityViewModel @Inject constructor(
 
     fun dismissMaxAccountDialog() {
         globalAppState = globalAppState.copy(maxAccountDialog = false)
-    }
-
-    fun appWasUpdate() {
-        globalAppState = globalAppState.copy(updateAppDialog = false)
     }
 
     fun observePersistentConnectionStatus() {

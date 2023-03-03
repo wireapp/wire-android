@@ -100,18 +100,13 @@ class WireActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         proximitySensorManager.initialize()
         lifecycle.addObserver(currentScreenManager)
+
         handleDeepLink(intent, savedInstanceState)
         viewModel.observePersistentConnectionStatus()
         setComposableContent()
     }
 
     override fun onNewIntent(intent: Intent?) {
-//        if (viewModel.isSharingIntent(intent)) {
-//            setIntent(intent)
-//        }
-//        if (viewModel.handleDeepLinkOnNewIntent(intent)) {
-//            recreate()
-//        }
         handleDeepLink(intent)
         super.onNewIntent(intent)
     }
@@ -139,7 +134,7 @@ class WireActivity : AppCompatActivity() {
     @Composable
     fun setUpNavigationGraph(startDestination: String, navController: NavHostController, scope: CoroutineScope) {
         Scaffold {
-            NavigationGraph(navController = navController, startDestination, viewModel.navigationArguments())
+            NavigationGraph(navController = navController, startDestination)
         }
         setUpNavigation(navController, scope)
     }

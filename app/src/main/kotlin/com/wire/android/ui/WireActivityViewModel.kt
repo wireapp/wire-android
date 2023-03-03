@@ -38,6 +38,7 @@ import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.services.ServicesManager
 import com.wire.android.ui.common.dialogs.CustomBEDeeplinkDialogState
 import com.wire.android.ui.joinConversation.JoinConversationViaCodeState
 import com.wire.android.util.deeplink.DeepLinkProcessor
@@ -59,6 +60,7 @@ import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import com.wire.kalium.logic.feature.session.GetSessionsUseCase
+import com.wire.kalium.logic.feature.user.webSocketStatus.ObservePersistentWebSocketConnectionStatusUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -81,6 +83,7 @@ import javax.inject.Inject
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class WireActivityViewModel @Inject constructor(
+    @KaliumCoreLogic private val coreLogic: CoreLogic,
     private val dispatchers: DispatcherProvider,
     private val currentSessionFlow: CurrentSessionFlowUseCase,
     private val getServerConfigUseCase: GetServerConfigUseCase,
@@ -90,9 +93,9 @@ class WireActivityViewModel @Inject constructor(
     private val getSessions: GetSessionsUseCase,
     private val accountSwitch: AccountSwitchUseCase,
     private val migrationManager: MigrationManager,
+    private val servicesManager: ServicesManager,
     private val observeSyncStateUseCaseProviderFactory: ObserveSyncStateUseCaseProvider.Factory,
     private val observeIfAppUpdateRequired: ObserveIfAppUpdateRequiredUseCase,
-    @KaliumCoreLogic private val coreLogic: CoreLogic
 ) : ViewModel() {
 
     var globalAppState: GlobalAppState by mutableStateOf(GlobalAppState())
@@ -165,32 +168,52 @@ class WireActivityViewModel @Inject constructor(
         }
     }
 
-    fun startNavigationRoute(): String = when {
+    fun startNavigationRoute(navigationItem: NavigationItem? = null, hasSharingIntent: Boolean = false): String = when {
         shouldGoToMigration() -> NavigationItem.Migration.getRouteWithArgs()
         shouldGoToWelcome() -> NavigationItem.Welcome.getRouteWithArgs()
+        hasSharingIntent -> NavigationItem.ImportMedia.getRouteWithArgs()
+        navigationItem != null -> navigationItem.getRouteWithArgs()
         else -> NavigationItem.Home.getRouteWithArgs()
     }
 
+    fun isSharingIntent(intent: Intent?): Boolean {
+        return intent?.action == Intent.ACTION_SEND || intent?.action == Intent.ACTION_SEND_MULTIPLE
+    }
+
+    @Suppress("ComplexMethod")
     fun handleDeepLink(intent: Intent?) {
-        intent?.data?.let { deepLink ->
-            viewModelScope.launch {
-                if (shouldGoToMigration() || shouldGoToWelcome()) return@launch
+        if (shouldGoToImport(intent)) {
+            navigateToImportMediaScreen()
+        } else {
+            intent?.data?.let { deepLink ->
+                viewModelScope.launch {
+                    if (shouldGoToMigration() || shouldGoToWelcome()) return@launch
 
-                when (val result = deepLinkProcessor(deepLink)) {
-                    is DeepLinkResult.SSOLogin -> openLogin(result)
+                    when (val result = deepLinkProcessor(deepLink, viewModelScope)) {
+                        is DeepLinkResult.SSOLogin -> openLogin(result)
 
-                    // TODO maybe move handling CustomServerConfig in some separate screen, to not block UI while making API requests etc.
-                    is DeepLinkResult.CustomServerConfig -> onCustomServerConfig(result)
-                    is DeepLinkResult.IncomingCall -> openIncomingCall(result.conversationsId)
-                    is DeepLinkResult.OngoingCall -> openOngoingCall(result.conversationsId)
-                    is DeepLinkResult.OpenConversation -> openConversation(result.conversationsId)
-                    is DeepLinkResult.OpenOtherUserProfile -> openOtherUserProfile(result.userId)
-                    is DeepLinkResult.JoinConversation -> onConversationInviteDeepLink(
-                        result.code,
-                        result.key,
-                        result.domain
-                    )
-                    is DeepLinkResult.Unknown -> appLogger.e("unknown deeplink result $result")
+                        // TODO maybe move handling CustomServerConfig in some separate screen, to not block UI while making API requests etc.
+                        is DeepLinkResult.CustomServerConfig -> onCustomServerConfig(result)
+                        is DeepLinkResult.IncomingCall -> openIncomingCall(result.conversationsId)
+                        is DeepLinkResult.OngoingCall -> openOngoingCall(result.conversationsId)
+                        is DeepLinkResult.OpenConversation -> openConversation(result.conversationsId)
+                        is DeepLinkResult.OpenOtherUserProfile -> openOtherUserProfile(result.userId)
+                        is DeepLinkResult.JoinConversation -> onConversationInviteDeepLink(
+                            result.code,
+                            result.key,
+                            result.domain
+                        )
+
+                        is DeepLinkResult.MigrationLogin -> {
+                            if (isLaunchedFromHistory(intent)) {
+                                appLogger.i("MigrationLogin deepLink launched from the history")
+                            } else {
+                                navigationArguments.put(MIGRATION_LOGIN_ARG, result.userHandle)
+                            }
+                        }
+
+                        DeepLinkResult.Unknown -> appLogger.e("unknown deeplink result $result")
+                    }
                 }
             }
         }
@@ -198,6 +221,14 @@ class WireActivityViewModel @Inject constructor(
 
     fun dismissCustomBackendDialog() {
         globalAppState = globalAppState.copy(customBackendDialog = CustomBEDeeplinkDialogState(shouldShowDialog = false))
+    }
+
+    fun navigateToImportMediaScreen() {
+        navigateTo(
+            NavigationCommand(
+                NavigationItem.ImportMedia.getRouteWithArgs(), backStackMode = BackStackMode.CLEAR_WHOLE
+            )
+        )
     }
 
     fun customBackendDialogProceedButtonClicked(serverLinks: ServerConfig.Links) {
@@ -241,6 +272,10 @@ class WireActivityViewModel @Inject constructor(
         navigateTo(NavigationCommand(NavigationItem.OtherUserProfile.getRouteWithArgs(listOf(userId)), BackStackMode.UPDATE_EXISTED))
     }
 
+    private fun openMigrationLogin(userHandle: String) {
+        navigateTo(NavigationCommand(NavigationItem.Login.getRouteWithArgs(listOf(userHandle)), BackStackMode.UPDATE_EXISTED))
+    }
+
     private fun openLogin(ssoLogin: DeepLinkResult.SSOLogin) {
         navigateTo(NavigationCommand(NavigationItem.Login.getRouteWithArgs(listOf(ssoLogin)), BackStackMode.UPDATE_EXISTED))
     }
@@ -275,36 +310,35 @@ class WireActivityViewModel @Inject constructor(
         code: String,
         key: String,
         domain: String?
-    ) =
-        when (val currentSession = coreLogic.getGlobalScope().session.currentSession()) {
-            is CurrentSessionResult.Failure.Generic -> null
-            CurrentSessionResult.Failure.SessionNotFound -> null
-            is CurrentSessionResult.Success -> {
-                coreLogic.sessionScope(currentSession.accountInfo.userId) {
-                    when (val result = conversations.checkIConversationInviteCode(code, key, domain)) {
-                        is CheckConversationInviteCodeUseCase.Result.Success -> {
-                            if (result.isSelfMember) {
-                                // TODO; display messsage that user is already a member and ask if they want to navigate to the conversation
-                                openConversation(result.conversationId)
-                            } else {
-                                globalAppState =
-                                    globalAppState.copy(
-                                        conversationJoinedDialog = JoinConversationViaCodeState.Show(
-                                            result.name,
-                                            code,
-                                            key,
-                                            domain
-                                        )
+    ) = when (val currentSession = coreLogic.getGlobalScope().session.currentSession()) {
+        is CurrentSessionResult.Failure.Generic -> null
+        CurrentSessionResult.Failure.SessionNotFound -> null
+        is CurrentSessionResult.Success -> {
+            coreLogic.sessionScope(currentSession.accountInfo.userId) {
+                when (val result = conversations.checkIConversationInviteCode(code, key, domain)) {
+                    is CheckConversationInviteCodeUseCase.Result.Success -> {
+                        if (result.isSelfMember) {
+                            // TODO; display messsage that user is already a member and ask if they want to navigate to the conversation
+                            openConversation(result.conversationId)
+                        } else {
+                            globalAppState =
+                                globalAppState.copy(
+                                    conversationJoinedDialog = JoinConversationViaCodeState.Show(
+                                        result.name,
+                                        code,
+                                        key,
+                                        domain
                                     )
-                            }
+                                )
                         }
-
-                        is CheckConversationInviteCodeUseCase.Result.Failure -> globalAppState =
-                            globalAppState.copy(conversationJoinedDialog = JoinConversationViaCodeState.Error(result))
                     }
+
+                    is CheckConversationInviteCodeUseCase.Result.Failure -> globalAppState =
+                        globalAppState.copy(conversationJoinedDialog = JoinConversationViaCodeState.Error(result))
                 }
             }
         }
+    }
 
     fun joinConversationViaCode(
         code: String,
@@ -349,15 +383,20 @@ class WireActivityViewModel @Inject constructor(
     private fun shouldGoToWelcome(): Boolean = runBlocking {
         currentSessionFlow().first().let {
             when (it) {
-                is CurrentSessionResult.Failure.Generic -> true
-                CurrentSessionResult.Failure.SessionNotFound -> true
-                is CurrentSessionResult.Success -> false
+                is CurrentSessionResult.Failure.Generic -> false
+                CurrentSessionResult.Failure.SessionNotFound -> false
+                is CurrentSessionResult.Success -> true
             }
         }
     }
 
     private fun shouldGoToMigration(): Boolean = runBlocking {
         migrationManager.shouldMigrate()
+    }
+
+    private fun shouldGoToImport(intent: Intent?): Boolean {
+        // Show import screen only if there is a valid session
+        return hasValidCurrentSession() && isSharingIntent(intent)
     }
 
     fun openProfile() {
@@ -369,6 +408,34 @@ class WireActivityViewModel @Inject constructor(
         globalAppState = globalAppState.copy(maxAccountDialog = false)
     }
 
+    fun appWasUpdate() {
+        globalAppState = globalAppState.copy(updateAppDialog = false)
+    }
+
+    fun observePersistentConnectionStatus() {
+        viewModelScope.launch {
+            coreLogic.getGlobalScope().observePersistentWebSocketConnectionStatus().let { result ->
+                when (result) {
+                    is ObservePersistentWebSocketConnectionStatusUseCase.Result.Failure -> {
+                        appLogger.e("Failure while fetching persistent web socket status flow from wire activity")
+                    }
+
+                    is ObservePersistentWebSocketConnectionStatusUseCase.Result.Success -> {
+                        result.persistentWebSocketStatusListFlow.collect { statuses ->
+
+                            if (statuses.any { it.isPersistentWebSocketEnabled }) {
+                                if (!servicesManager.isPersistentWebSocketServiceRunning()) {
+                                    servicesManager.startPersistentWebSocketService()
+                                }
+                            } else {
+                                servicesManager.stopPersistentWebSocketService()
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 sealed class CurrentSessionErrorState {

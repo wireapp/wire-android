@@ -24,6 +24,7 @@ import android.net.Uri
 import androidx.annotation.VisibleForTesting
 import com.wire.android.feature.AccountSwitchUseCase
 import com.wire.android.feature.SwitchAccountParam
+import com.wire.android.util.EMPTY
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapperImpl
@@ -53,6 +54,7 @@ sealed class DeepLinkResult {
     data class OpenConversation(val conversationsId: ConversationId) : DeepLinkResult()
     data class OpenOtherUserProfile(val userId: QualifiedID) : DeepLinkResult()
     data class JoinConversation(val code: String, val key: String, val domain: String?) : DeepLinkResult()
+    data class MigrationLogin(val userHandle: String) : DeepLinkResult()
 }
 
 @Singleton
@@ -73,6 +75,7 @@ class DeepLinkProcessor @Inject constructor(
             ONGOING_CALL_DEEPLINK_HOST -> getOngoingCallDeepLinkResult(uri)
             CONVERSATION_DEEPLINK_HOST -> getOpenConversationDeepLinkResult(uri)
             OTHER_USER_PROFILE_DEEPLINK_HOST -> getOpenOtherUserProfileDeepLinkResult(uri)
+            MIGRATION_LOGIN_HOST -> getOpenMigrationLoginDeepLinkResult(uri)
             JOIN_CONVERSATION_DEEPLINK_HOST -> getJoinConversationDeepLinkResult(uri)
             else -> DeepLinkResult.Unknown
         }
@@ -99,6 +102,12 @@ class DeepLinkProcessor @Inject constructor(
     private fun getOpenOtherUserProfileDeepLinkResult(uri: Uri): DeepLinkResult =
         uri.lastPathSegment?.toQualifiedID(qualifiedIdMapper)?.let {
             DeepLinkResult.OpenOtherUserProfile(it)
+        } ?: DeepLinkResult.Unknown
+
+    private fun getOpenMigrationLoginDeepLinkResult(uri: Uri): DeepLinkResult =
+        uri.lastPathSegment?.let {
+            if (it == MIGRATION_LOGIN_HOST) DeepLinkResult.MigrationLogin(String.EMPTY)
+            else DeepLinkResult.MigrationLogin(it)
         } ?: DeepLinkResult.Unknown
 
     private fun getCustomServerConfigDeepLinkResult(uri: Uri) = uri.getQueryParameter(SERVER_CONFIG_PARAM)?.let {
@@ -156,6 +165,7 @@ class DeepLinkProcessor @Inject constructor(
         const val ONGOING_CALL_DEEPLINK_HOST = "ongoing-call"
         const val CONVERSATION_DEEPLINK_HOST = "conversation"
         const val OTHER_USER_PROFILE_DEEPLINK_HOST = "other-user-profile"
+        const val MIGRATION_LOGIN_HOST = "migration-login"
         const val JOIN_CONVERSATION_DEEPLINK_HOST = "conversation-join"
         const val JOIN_CONVERSATION_CODE_PARAM = "code"
         const val JOIN_CONVERSATION_KEY_PARAM = "key"

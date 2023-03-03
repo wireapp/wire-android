@@ -34,6 +34,7 @@ import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.model.MessageStatus
 import com.wire.android.ui.home.conversations.model.MessageTime
 import com.wire.android.ui.home.conversations.model.UIMessage
+import com.wire.android.util.FileManager
 import com.wire.android.util.ImageUtil
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.WireSessionImageLoader
@@ -53,6 +54,7 @@ import com.wire.kalium.logic.data.user.UserAssetId
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.data.user.type.UserType
+import com.wire.kalium.logic.feature.asset.GetAssetSizeLimitUseCase
 import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageResult
 import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageUseCase
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
@@ -151,6 +153,9 @@ internal class ConversationsViewModelArrangement {
     lateinit var sendKnockUseCase: SendKnockUseCase
 
     @MockK
+    lateinit var fileManger: FileManager
+
+    @MockK
     private lateinit var observeSecurityClassificationType: ObserveSecurityClassificationLabelUseCase
 
     @MockK
@@ -167,6 +172,9 @@ internal class ConversationsViewModelArrangement {
 
     @MockK
     private lateinit var membersToMention: MembersToMentionUseCase
+
+    @MockK
+    private lateinit var getAssetSizeLimitUseCase: GetAssetSizeLimitUseCase
 
     private val fakeKaliumFileSystem = FakeKaliumFileSystem()
 
@@ -188,9 +196,11 @@ internal class ConversationsViewModelArrangement {
             observeSecurityClassificationLabel = observeSecurityClassificationType,
             contactMapper = contactMapper,
             membersToMention = membersToMention,
+            getAssetSizeLimit = getAssetSizeLimitUseCase,
             imageUtil = imageUtil,
             pingRinger = pingRinger,
-            sendKnockUseCase = sendKnockUseCase
+            sendKnockUseCase = sendKnockUseCase,
+            fileManager = fileManger
         )
     }
 
@@ -234,6 +244,11 @@ internal class ConversationsViewModelArrangement {
 
     fun withTeamUser(userTeam: Team) = apply {
         coEvery { getSelfUserTeam() } returns flowOf(userTeam)
+        return this
+    }
+
+    fun withGetAssetSizeLimitUseCase(isImage: Boolean, assetSizeLimit: Long) = apply {
+        coEvery { getAssetSizeLimitUseCase(eq(isImage)) } returns assetSizeLimit
         return this
     }
 

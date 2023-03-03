@@ -83,5 +83,6 @@
     "force_constant_bitrate_calls": false,
     "mls_support_enabled": true,
     "encrypt_proteus_storage": false,
-    "update_app_url": "https://wire.com/en/download/"
+    "update_app_url": "https://wire.com/en/download/",
+    "guest_room_link": true
 }

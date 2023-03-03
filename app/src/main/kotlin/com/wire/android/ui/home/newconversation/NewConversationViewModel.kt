@@ -56,7 +56,7 @@ import javax.inject.Inject
 @HiltViewModel
 class NewConversationViewModel @Inject constructor(
     private val createGroupConversation: CreateGroupConversationUseCase,
-    private val isSelfATeamMember: IsSelfATeamMemberUseCase,
+    isSelfATeamMember: IsSelfATeamMemberUseCase,
     getAllKnownUsers: GetAllContactsUseCase,
     searchKnownUsers: SearchKnownUsersUseCase,
     searchPublicUsers: SearchPublicUsersUseCase,

@@ -33,6 +33,7 @@ import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.di.ClientScopeProvider
 import com.wire.android.navigation.BackStackMode
+import com.wire.android.navigation.EXTRA_USER_HANDLE
 import com.wire.android.navigation.EXTRA_SSO_LOGIN_RESULT
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
@@ -64,6 +65,10 @@ open class LoginViewModel @Inject constructor(
 ) : ViewModel() {
     val serverConfig = authServerConfigProvider.authServer.value
 
+    private val preFilledUserIdentifier: PreFilledUserIdentifierType = savedStateHandle.get<String>(EXTRA_USER_HANDLE).let {
+        if (it.isNullOrEmpty()) PreFilledUserIdentifierType.None else PreFilledUserIdentifierType.PreFilled(it)
+    }
+
     val ssoLoginResult = savedStateHandle.get<String>(EXTRA_SSO_LOGIN_RESULT)?.let {
         if (it == "null") null
         else Json.decodeFromString<DeepLinkResult.SSOLogin>(it)
@@ -72,10 +77,15 @@ open class LoginViewModel @Inject constructor(
     var loginState by mutableStateOf(
         LoginState(
             ssoCode = TextFieldValue(savedStateHandle[SSO_CODE_SAVED_STATE_KEY] ?: String.EMPTY),
-            userIdentifier = TextFieldValue(savedStateHandle[USER_IDENTIFIER_SAVED_STATE_KEY] ?: String.EMPTY),
+            userIdentifier = TextFieldValue(
+                if (preFilledUserIdentifier is PreFilledUserIdentifierType.PreFilled) preFilledUserIdentifier.userIdentifier
+                else savedStateHandle[USER_IDENTIFIER_SAVED_STATE_KEY] ?: String.EMPTY
+            ),
+            userIdentifierEnabled = preFilledUserIdentifier is PreFilledUserIdentifierType.None,
             password = TextFieldValue(String.EMPTY),
-            isProxyAuthRequired = if (serverConfig.apiProxy?.needsAuthentication != null)
-                serverConfig.apiProxy?.needsAuthentication!! else false,
+            isProxyAuthRequired =
+                if (serverConfig.apiProxy?.needsAuthentication != null) serverConfig.apiProxy?.needsAuthentication!!
+                else false,
             isProxyEnabled = serverConfig.apiProxy != null
         )
     )
@@ -135,10 +145,11 @@ open class LoginViewModel @Inject constructor(
 
     @VisibleForTesting
     fun navigateAfterRegisterClientSuccess(userId: UserId) = viewModelScope.launch {
-        if (userDataStoreProvider.getOrCreate(userId).initialSyncCompleted.first())
+        if (userDataStoreProvider.getOrCreate(userId).initialSyncCompleted.first()) {
             navigationManager.navigate(NavigationCommand(NavigationItem.Home.getRouteWithArgs(), BackStackMode.CLEAR_WHOLE))
-        else
+        } else {
             navigationManager.navigate(NavigationCommand(NavigationItem.InitialSync.getRouteWithArgs(), BackStackMode.CLEAR_WHOLE))
+        }
     }
 
     fun navigateBack() = viewModelScope.launch {
@@ -176,4 +187,9 @@ fun RegisterClientResult.Failure.toLoginError() = when (this) {
 fun AddAuthenticatedUserUseCase.Result.Failure.toLoginError(): LoginError = when (this) {
     is AddAuthenticatedUserUseCase.Result.Failure.Generic -> LoginError.DialogError.GenericError(this.genericFailure)
     AddAuthenticatedUserUseCase.Result.Failure.UserAlreadyExists -> LoginError.DialogError.UserAlreadyExists
+}
+
+sealed interface PreFilledUserIdentifierType {
+    object None : PreFilledUserIdentifierType
+    data class PreFilled(val userIdentifier: String) : PreFilledUserIdentifierType
 }

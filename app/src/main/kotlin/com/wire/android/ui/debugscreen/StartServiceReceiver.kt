@@ -36,6 +36,9 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+/**
+ * This BroadcastReceiver will restart the persistentWebSocket Service after restarting the device.
+ */
 @AndroidEntryPoint
 class StartServiceReceiver : BroadcastReceiver() {
     @Inject
@@ -53,14 +56,16 @@ class StartServiceReceiver : BroadcastReceiver() {
         val persistentWebSocketServiceIntent = PersistentWebSocketService.newIntent(context)
         appLogger.e("persistent web socket receiver")
         scope.launch {
-            coreLogic.getGlobalScope().observePersistentWebSocketConnectionStatus().let {
-                when (it) {
+            coreLogic.getGlobalScope().observePersistentWebSocketConnectionStatus().let { result ->
+                when (result) {
                     is ObservePersistentWebSocketConnectionStatusUseCase.Result.Failure -> {
                         appLogger.e("Failure while fetching persistent web socket status flow from StartServiceReceiver")
                     }
+
                     is ObservePersistentWebSocketConnectionStatusUseCase.Result.Success -> {
-                        it.persistentWebSocketStatusListFlow.collect {
-                            if (it.map { it.isPersistentWebSocketEnabled }.contains(true)) {
+                        result.persistentWebSocketStatusListFlow.collect { status ->
+                            if (status.map { it.isPersistentWebSocketEnabled }.contains(true)) {
+                                appLogger.e("Starting PersistentWebsocket Service from StartServiceReceiver")
                                 if (!PersistentWebSocketService.isServiceStarted) {
                                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                                         context?.startForegroundService(persistentWebSocketServiceIntent)

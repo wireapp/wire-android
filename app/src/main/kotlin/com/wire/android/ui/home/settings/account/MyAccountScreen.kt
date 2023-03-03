@@ -81,7 +81,11 @@ fun MyAccountScreen(
 private fun mapToUISections(viewModel: MyAccountViewModel, state: MyAccountState): List<AccountDetailsItem> {
     return with(state) {
         listOfNotNull(
-            if (fullName.isNotBlank()) DisplayName(fullName, Clickable { viewModel.navigateToChangeDisplayName() }) else null,
+            if (fullName.isNotBlank()) {
+                DisplayName(fullName, clickableActionIfPossible(state.isReadOnlyAccount) { viewModel.navigateToChangeDisplayName() })
+            } else {
+                null
+            },
             if (userName.isNotBlank()) Username("@$userName") else null,
             if (email.isNotBlank()) Email(email) else null,
             if (teamName.isNotBlank()) Team(teamName) else null,
@@ -89,6 +93,9 @@ private fun mapToUISections(viewModel: MyAccountViewModel, state: MyAccountState
         )
     }
 }
+
+private fun clickableActionIfPossible(shouldDisableAction: Boolean, action: () -> Unit) =
+    if (shouldDisableAction) null else Clickable { action.invoke() }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -139,7 +146,7 @@ fun MyAccountContent(
             folderWithElements(
                 header = context.getString(R.string.settings_myaccount_title),
                 items = accountDetailItems.associateBy { it.title.toString() },
-                factory = { item ->
+                factory = { item: AccountDetailsItem ->
                     RowItemTemplate(
                         title = {
                             Text(
@@ -156,11 +163,11 @@ fun MyAccountContent(
                             )
                         },
                         actions = {
-                            if (item.clickable.enabled) {
+                            if (item.clickable?.enabled == true) {
                                 Icons.Filled.ChevronRight.Icon().invoke()
                             }
                         },
-                        clickable = item.clickable
+                        clickable = item.clickable ?: Clickable(false)
                     )
                 }
             )

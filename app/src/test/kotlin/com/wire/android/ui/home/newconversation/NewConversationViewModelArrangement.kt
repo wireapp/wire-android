@@ -50,7 +50,7 @@ import com.wire.kalium.logic.feature.publicuser.search.SearchKnownUsersUseCase
 import com.wire.kalium.logic.feature.publicuser.search.SearchPublicUsersUseCase
 import com.wire.kalium.logic.feature.publicuser.search.SearchUsersResult
 import com.wire.kalium.logic.feature.user.IsMLSEnabledUseCase
-import com.wire.kalium.logic.feature.user.IsSelfATeamMemberUseCase
+import com.wire.kalium.logic.feature.user.IsSelfATeamMemberUseCaseImpl
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.every
@@ -129,7 +129,7 @@ internal class NewConversationViewModelArrangement {
     lateinit var wireSessionImageLoader: WireSessionImageLoader
 
     @MockK
-    lateinit var isSelfTeamMember: IsSelfATeamMemberUseCase
+    lateinit var isSelfTeamMember: IsSelfATeamMemberUseCaseImpl
 
     @MockK
     private lateinit var savedStateHandle: SavedStateHandle

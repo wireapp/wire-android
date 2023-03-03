@@ -74,10 +74,10 @@ fun EditMessageMenuItems(
     val localFeatureVisibilityFlags = LocalFeatureVisibilityFlags.current
     val localContext = LocalContext.current
     val isCopyable = message.isTextMessage
-    val isEditable = message.isMyMessage && localFeatureVisibilityFlags.MessageEditIcon
     val isAvailable = message.isAvailable
     val isAssetMessage =
         message.messageContent is UIMessageContent.AssetMessage || message.messageContent is UIMessageContent.ImageMessage
+    val isEditable = message.isMyMessage && localFeatureVisibilityFlags.MessageEditIcon && !isAssetMessage
 
     val onCopyItemClick = remember(message) {
         {
@@ -123,8 +123,8 @@ fun EditMessageMenuItems(
         if (isAvailable) {
             add { ReactionOptions(onReactionItemClick) }
             add { MessageDetails(onDetailsItemClick) }
-            add {
-                if (isCopyable) {
+            if (isCopyable) {
+                add {
                     MenuBottomSheetItem(
                         icon = {
                             MenuItemIcon(
@@ -134,20 +134,6 @@ fun EditMessageMenuItems(
                         },
                         title = stringResource(R.string.label_copy),
                         onItemClick = onCopyItemClick
-                    )
-                }
-            }
-            if (isAssetMessage) {
-                add {
-                    MenuBottomSheetItem(
-                        icon = {
-                            MenuItemIcon(
-                                id = R.drawable.ic_share_file,
-                                contentDescription = stringResource(R.string.content_description_share_the_file),
-                            )
-                        },
-                        title = stringResource(R.string.label_share),
-                        onItemClick = onShareAsset
                     )
                 }
             }
@@ -174,6 +160,20 @@ fun EditMessageMenuItems(
                         },
                         title = stringResource(R.string.label_edit),
                         onItemClick = onEditItemClick
+                    )
+                }
+            }
+            if (isAssetMessage) {
+                add {
+                    MenuBottomSheetItem(
+                        icon = {
+                            MenuItemIcon(
+                                id = R.drawable.ic_share_file,
+                                contentDescription = stringResource(R.string.content_description_share_the_file),
+                            )
+                        },
+                        title = stringResource(R.string.label_share),
+                        onItemClick = onShareAsset
                     )
                 }
             }

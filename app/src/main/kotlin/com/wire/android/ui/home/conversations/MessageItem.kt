@@ -44,6 +44,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import com.google.accompanist.flowlayout.FlowRow
 import com.wire.android.R
+import com.wire.android.media.audiomessage.AudioState
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.LegalHoldIndicator
 import com.wire.android.ui.common.StatusBox
@@ -65,18 +66,23 @@ import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.conversations.model.messagetypes.asset.RestrictedAssetMessage
 import com.wire.android.ui.home.conversations.model.messagetypes.asset.RestrictedGenericFileMessage
+import com.wire.android.ui.home.conversations.model.messagetypes.audio.AudioMessage
 import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMessageParams
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
 import com.wire.kalium.logic.data.user.UserId
 
+// TODO: a definite candidate for a refactor and cleanup
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun MessageItem(
     message: UIMessage,
+    audioMessagesState: Map<String, AudioState>,
     onLongClicked: (UIMessage) -> Unit,
     onAssetMessageClicked: (String) -> Unit,
+    onAudioClick: (String) -> Unit,
+    onChangeAudioPosition: (String, Int) -> Unit,
     onImageMessageClicked: (String, Boolean) -> Unit,
     onOpenProfile: (String) -> Unit,
     onReactionClicked: (String, String) -> Unit,
@@ -104,7 +110,7 @@ fun MessageItem(
 
             val isProfileRedirectEnabled =
                 message.messageHeader.userId != null &&
-                    !(message.messageHeader.isSenderDeleted || message.messageHeader.isSenderUnavailable)
+                        !(message.messageHeader.isSenderDeleted || message.messageHeader.isSenderUnavailable)
 
             val avatarClickable = remember {
                 Clickable(enabled = isProfileRedirectEnabled) {
@@ -126,8 +132,8 @@ fun MessageItem(
                             Clickable(enabled = true, onClick = {
                                 onAssetMessageClicked(message.messageHeader.messageId)
                             }, onLongClick = {
-                                    onLongClicked(message)
-                                })
+                                onLongClicked(message)
+                            })
                         }
 
                         val currentOnImageClick = remember {
@@ -137,13 +143,16 @@ fun MessageItem(
                                     message.messageSource == MessageSource.Self
                                 )
                             }, onLongClick = {
-                                    onLongClicked(message)
-                                })
+                                onLongClicked(message)
+                            })
                         }
                         val onLongClick = remember { { onLongClicked(message) } }
-
                         MessageContent(
+                            message = message,
                             messageContent = messageContent,
+                            audioMessagesState = audioMessagesState,
+                            onAudioClick = onAudioClick,
+                            onChangeAudioPosition = onChangeAudioPosition,
                             onAssetClick = currentOnAssetClicked,
                             onImageClick = currentOnImageClick,
                             onLongClick = onLongClick,
@@ -267,9 +276,13 @@ private fun Username(username: String, modifier: Modifier = Modifier) {
 @Suppress("ComplexMethod")
 @Composable
 private fun MessageContent(
+    message: UIMessage,
     messageContent: UIMessageContent?,
+    audioMessagesState: Map<String, AudioState>,
     onAssetClick: Clickable,
     onImageClick: Clickable,
+    onAudioClick: (String) -> Unit,
+    onChangeAudioPosition: (String, Int) -> Unit,
     onLongClick: (() -> Unit)? = null,
     onOpenProfile: (String) -> Unit
 ) {
@@ -304,12 +317,6 @@ private fun MessageContent(
             onAssetClick = onAssetClick
         )
 
-        is UIMessageContent.SystemMessage.MemberAdded -> {}
-        is UIMessageContent.SystemMessage.MemberLeft -> {}
-        is UIMessageContent.SystemMessage.MemberRemoved -> {}
-        is UIMessageContent.SystemMessage.RenamedConversation -> {}
-        is UIMessageContent.SystemMessage.TeamMemberRemoved -> {}
-        is UIMessageContent.SystemMessage.CryptoSessionReset -> {}
         is UIMessageContent.RestrictedAsset -> {
             when {
                 messageContent.mimeType.contains("image/") -> {
@@ -330,6 +337,40 @@ private fun MessageContent(
             }
         }
 
+        is UIMessageContent.AudioAssetMessage -> {
+            // in case the user did not play the audio message yet, we don't have the audio state
+            // that is coming from ConversationMessageAudioPlayer, in that case we refer to
+            // the default values for the audio message, which is PAUSED state and 0 as current position
+            // we treat totalTimeInMs from backend as the source of truth
+            // in order to be sure that all clients are in sync regarding the audio message duration
+            // however if it returns 0 we fallback to the duration from the audio player
+            val audioMessageState: AudioState =
+                audioMessagesState[message.messageHeader.messageId] ?: AudioState.DEFAULT
+
+            val totalTimeInMs = if (messageContent.audioMessageDurationInMs.toInt() == 0) {
+                audioMessageState.totalTimeInMs
+            } else {
+                messageContent.audioMessageDurationInMs.toInt()
+            }
+
+            AudioMessage(
+                audioMediaPlayingState = audioMessageState.audioMediaPlayingState,
+                totalTimeInMs = totalTimeInMs,
+                currentPositionInMs = audioMessageState.currentPositionInMs,
+                onPlayButtonClick = { onAudioClick(message.messageHeader.messageId) },
+                onSliderPositionChange = { position ->
+                    onChangeAudioPosition(message.messageHeader.messageId, position.toInt())
+                },
+                onAudioMessageLongClick = onLongClick
+            )
+        }
+
+        is UIMessageContent.SystemMessage.MemberAdded -> {}
+        is UIMessageContent.SystemMessage.MemberLeft -> {}
+        is UIMessageContent.SystemMessage.MemberRemoved -> {}
+        is UIMessageContent.SystemMessage.RenamedConversation -> {}
+        is UIMessageContent.SystemMessage.TeamMemberRemoved -> {}
+        is UIMessageContent.SystemMessage.CryptoSessionReset -> {}
         is UIMessageContent.PreviewAssetMessage -> {}
         is UIMessageContent.SystemMessage.MissedCall.YouCalled -> {}
         is UIMessageContent.SystemMessage.MissedCall.OtherCalled -> {}
@@ -338,6 +379,7 @@ private fun MessageContent(
         null -> {
             throw NullPointerException("messageContent is null")
         }
+
         is UIMessageContent.SystemMessage.Knock -> {}
         is UIMessageContent.SystemMessage.HistoryLost -> {}
     }

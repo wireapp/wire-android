@@ -30,19 +30,13 @@ import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
-import com.wire.kalium.logic.data.call.ConversationType
-import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.IsLastCallClosedUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.StartCallUseCase
-import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.filterIsInstance
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import java.util.Calendar
 import javax.inject.Inject
@@ -53,7 +47,6 @@ class InitiatingCallViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     qualifiedIdMapper: QualifiedIdMapper,
     private val navigationManager: NavigationManager,
-    private val conversationDetails: ObserveConversationDetailsUseCase,
     private val observeEstablishedCalls: ObserveEstablishedCallsUseCase,
     private val startCall: StartCallUseCase,
     private val endCall: EndCallUseCase,
@@ -75,25 +68,6 @@ class InitiatingCallViewModel @Inject constructor(
             launch { initiateCall() }
             launch { observeStartedCall() }
             launch { observeClosedCall() }
-        }
-    }
-
-    private suspend fun retrieveConversationType(): ConversationType {
-        val conversationDetails = conversationDetails(conversationId = conversationId)
-            .filterIsInstance<ObserveConversationDetailsUseCase.Result.Success>() // TODO handle StorageFailure
-            .map { it.conversationDetails }
-            .first { details ->
-                details.conversation.id == conversationId
-            }
-
-        return when (conversationDetails) {
-            is ConversationDetails.Group -> {
-                ConversationType.Conference
-            }
-            is ConversationDetails.OneOne -> {
-                ConversationType.OneOnOne
-            }
-            else -> throw IllegalStateException("Invalid conversation type")
         }
     }
 
@@ -135,10 +109,8 @@ class InitiatingCallViewModel @Inject constructor(
     }
 
     internal suspend fun initiateCall() {
-        val conversationType = retrieveConversationType()
         val result = startCall(
-            conversationId = conversationId,
-            conversationType = conversationType
+            conversationId = conversationId
         )
         when (result) {
             StartCallUseCase.Result.Success -> callRinger.ring(resource = R.raw.ringing_from_me, isIncomingCall = false)

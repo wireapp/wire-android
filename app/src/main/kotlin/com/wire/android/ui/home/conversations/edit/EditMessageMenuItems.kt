@@ -62,7 +62,7 @@ import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 @Composable
 fun EditMessageMenuItems(
     message: UIMessage,
-    hideEditMessageMenu: () -> Unit,
+    hideEditMessageMenu: (OnComplete) -> Unit,
     onCopyClick: (text: String) -> Unit,
     onDeleteClick: (messageId: String, isMyMessage: Boolean) -> Unit,
     onReactionClick: (messageId: String, emoji: String) -> Unit,
@@ -81,41 +81,48 @@ fun EditMessageMenuItems(
 
     val onCopyItemClick = remember(message) {
         {
-            hideEditMessageMenu()
-            onCopyClick((message.messageContent as UIMessageContent.TextMessage).messageBody.message.asString(localContext.resources))
+            hideEditMessageMenu() {
+                onCopyClick((message.messageContent as UIMessageContent.TextMessage).messageBody.message.asString(localContext.resources))
+            }
         }
     }
     val onDeleteItemClick = remember(message) {
         {
-            hideEditMessageMenu()
-            onDeleteClick(message.messageHeader.messageId, message.isMyMessage)
+            hideEditMessageMenu() {
+                onDeleteClick(message.messageHeader.messageId, message.isMyMessage)
+            }
         }
     }
     val onReactionItemClick = remember(message) {
         { emoji: String ->
-            hideEditMessageMenu()
-            onReactionClick(message.messageHeader.messageId, emoji)
+            hideEditMessageMenu() {
+                onReactionClick(message.messageHeader.messageId, emoji)
+            }
         }
     }
     val onReplyItemClick = remember(message) {
         {
-            hideEditMessageMenu()
-            onReplyClick(message)
+            hideEditMessageMenu() {
+                onReplyClick(message)
+            }
+
         }
     }
     val onDetailsItemClick = remember(message) {
         {
-            hideEditMessageMenu()
-            onDetailsClick(message.messageHeader.messageId, message.isMyMessage)
+            hideEditMessageMenu() {
+                onDetailsClick(message.messageHeader.messageId, message.isMyMessage)
+            }
         }
     }
     val onEditItemClick = remember(message) {
         {
-            hideEditMessageMenu()
-            onEditClick(
-                message.messageHeader.messageId,
-                (message.messageContent as UIMessageContent.TextMessage).messageBody.message.asString(localContext.resources)
-            )
+            hideEditMessageMenu() {
+                onEditClick(
+                    message.messageHeader.messageId,
+                    (message.messageContent as UIMessageContent.TextMessage).messageBody.message.asString(localContext.resources)
+                )
+            }
         }
     }
 
@@ -273,3 +280,5 @@ private fun MessageDetails(
         onItemClick = onMessageDetailsClick
     )
 }
+
+typealias OnComplete = () -> Unit

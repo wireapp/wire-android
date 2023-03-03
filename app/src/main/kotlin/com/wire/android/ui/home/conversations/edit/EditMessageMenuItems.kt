@@ -105,7 +105,6 @@ fun EditMessageMenuItems(
             hideEditMessageMenu() {
                 onReplyClick(message)
             }
-
         }
     }
     val onDetailsItemClick = remember(message) {

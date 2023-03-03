@@ -29,6 +29,7 @@ import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase.Result.Success
+import com.wire.kalium.logic.feature.user.IsReadOnlyAccountUseCase
 import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
 import io.mockk.Called
 import io.mockk.MockKAnnotations
@@ -102,6 +103,9 @@ class MyAccountViewModelTest {
         lateinit var isPasswordRequiredUseCase: IsPasswordRequiredUseCase
 
         @MockK
+        lateinit var isReadOnlyAccountUseCase: IsReadOnlyAccountUseCase
+
+        @MockK
         private lateinit var savedStateHandle: SavedStateHandle
 
         val viewModel by lazy {
@@ -111,6 +115,7 @@ class MyAccountViewModelTest {
                 getSelfTeamUseCase,
                 selfServerConfigUseCase,
                 isPasswordRequiredUseCase,
+                isReadOnlyAccountUseCase,
                 navigationManager,
                 TestDispatcherProvider()
             )

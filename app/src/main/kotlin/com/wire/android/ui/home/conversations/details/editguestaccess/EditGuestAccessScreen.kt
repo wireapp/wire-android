@@ -121,7 +121,7 @@ fun EditGuestAccessScreen(
                             editGuestAccessState.link?.let {
                                 Text(
                                     text = it,
-                                    style = MaterialTheme.wireTypography.body02,
+                                    style = MaterialTheme.wireTypography.body01,
                                     modifier = Modifier.padding(top = MaterialTheme.wireDimensions.spacing4x)
                                 )
                             }
@@ -135,10 +135,10 @@ fun EditGuestAccessScreen(
 
             with(editGuestAccessViewModel) {
                 GuestLinkActionFooter(
+                    shouldDisableGenerateGuestLinkButton = shouldDisableGenerateGuestLinkButton(),
                     isGeneratingLink = editGuestAccessState.isGeneratingGuestRoomLink,
                     isRevokingLink = editGuestAccessState.isRevokingLink,
                     link = editGuestAccessState.link,
-                    isGuestAccessAllowed = editGuestAccessState.isGuestAccessAllowed,
                     onCreateLink = ::onGenerateGuestRoomLink,
                     onRevokeLink = ::onRevokeGuestRoomLink,
                     onCopyLink = {
@@ -174,7 +174,7 @@ fun EditGuestAccessScreen(
             )
         }
         if (editGuestAccessState.isLinkCopied) {
-            val message = stringResource(id = R.string.guest__room_link_copied)
+            val message = stringResource(id = R.string.guest_room_link_copied)
             LaunchedEffect(true) {
                 if (!editGuestAccessState.link.isNullOrEmpty()) {
                     snackbarHostState.showSnackbar(message)

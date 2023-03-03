@@ -52,6 +52,7 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
     WEB_LINK_PREVIEW("web_link_preview", ConfigType.BOOLEAN),
     WEB_SOCKET_URL("websocketUrl", ConfigType.STRING),
     ENCRYPT_PROTEUS_STORAGE("encrypt_proteus_storage", ConfigType.BOOLEAN),
+    GUEST_ROOM_LINK("guest_room_link", ConfigType.BOOLEAN),
     UPDATE_APP_URL("update_app_url", ConfigType.STRING),
 
     CERTIFICATE_PIN("certificatePin", ConfigType.CERTIFICATE_PIN),

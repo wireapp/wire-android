@@ -41,15 +41,16 @@ import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
+import com.wire.kalium.logic.feature.user.IsReadOnlyAccountUseCase
 import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import javax.inject.Inject
 
 @HiltViewModel
 class MyAccountViewModel @Inject constructor(
@@ -58,6 +59,7 @@ class MyAccountViewModel @Inject constructor(
     private val getSelfTeam: GetSelfTeamUseCase,
     private val serverConfig: SelfServerConfigUseCase,
     private val isPasswordRequired: IsPasswordRequiredUseCase,
+    private val isReadOnlyAccount: IsReadOnlyAccountUseCase,
     private val navigationManager: NavigationManager,
     private val dispatchers: DispatcherProvider
 ) : SavedStateViewModel(savedStateHandle) {
@@ -69,6 +71,13 @@ class MyAccountViewModel @Inject constructor(
         viewModelScope.launch {
             fetchSelfUser()
             loadPasswordChangeContextIfPossible()
+            fetchIsReadOnlyAccount()
+        }
+    }
+
+    private suspend fun fetchIsReadOnlyAccount() {
+        viewModelScope.launch {
+            myAccountState = myAccountState.copy(isReadOnlyAccount = isReadOnlyAccount())
         }
     }
 

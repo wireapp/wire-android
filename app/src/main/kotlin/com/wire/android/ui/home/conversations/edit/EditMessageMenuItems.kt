@@ -74,10 +74,10 @@ fun EditMessageMenuItems(
     val localFeatureVisibilityFlags = LocalFeatureVisibilityFlags.current
     val localContext = LocalContext.current
     val isCopyable = message.isTextMessage
-    val isEditable = message.isMyMessage && localFeatureVisibilityFlags.MessageEditIcon
     val isAvailable = message.isAvailable
     val isAssetMessage =
         message.messageContent is UIMessageContent.AssetMessage || message.messageContent is UIMessageContent.ImageMessage
+    val isEditable = message.isMyMessage && localFeatureVisibilityFlags.MessageEditIcon && !isAssetMessage
 
     val onCopyItemClick = remember(message) {
         {

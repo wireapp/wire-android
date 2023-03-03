@@ -225,7 +225,9 @@ class ImportMediaViewModel @Inject constructor(
         return matchingConversations
     }
 
-    fun navigateBack() = viewModelScope.launch(dispatchers.main()) { navigationManager.navigateBack() }
+    fun navigateBack() = viewModelScope.launch(dispatchers.main()) {
+        navigationManager.navigate(NavigationCommand(NavigationItem.Home.getRouteWithArgs(), BackStackMode.REMOVE_CURRENT))
+    }
 
     suspend fun handleReceivedDataFromSharingIntent(activity: AppCompatActivity) {
         val incomingIntent = ShareCompat.IntentReader(activity)
@@ -296,13 +298,14 @@ class ImportMediaViewModel @Inject constructor(
                 appLogger.d("Triggered sendAssetMessage job # ${jobs.size} -- path ${importedAsset.dataPath} -- isImage $isImage")
             }
             jobs.joinAll()
-            navigationManager.navigate(
-                command = NavigationCommand(
-                    NavigationItem.Conversation.getRouteWithArgs(listOf(conversation.conversationId)),
-                    backStackMode = BackStackMode.CLEAR_WHOLE
-                )
-            )
+            navigateToConversation(conversation.conversationId)
         }
+    }
+
+    private suspend fun navigateToConversation(conversationId: ConversationId) {
+        // We add the Home fragment to the back stack so that we can navigate back to it when we press the back button
+        navigationManager.navigate(NavigationCommand(NavigationItem.Home.getRouteWithArgs(), BackStackMode.REMOVE_CURRENT))
+        navigationManager.navigate(NavigationCommand(NavigationItem.Conversation.getRouteWithArgs(listOf(conversationId))))
     }
 
     fun currentSelectedConversationsCount() = if (importMediaState.importedAssets.isNotEmpty()) {

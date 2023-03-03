@@ -20,21 +20,32 @@
 
 package com.wire.android.migration
 
+import android.app.NotificationManager
 import android.content.Context
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.datastore.GlobalDataStore
+import com.wire.android.migration.feature.MarkUsersAsNeedToBeMigrated
 import com.wire.android.migration.feature.MigrateActiveAccountsUseCase
 import com.wire.android.migration.feature.MigrateClientsDataUseCase
 import com.wire.android.migration.feature.MigrateConversationsUseCase
 import com.wire.android.migration.feature.MigrateMessagesUseCase
 import com.wire.android.migration.feature.MigrateServerConfigUseCase
 import com.wire.android.migration.feature.MigrateUsersUseCase
+import com.wire.android.migration.userDatabase.ScalaConversationData
+import com.wire.android.util.newServerConfig
+import com.wire.kalium.logic.CoreFailure
+import com.wire.kalium.logic.configuration.server.ServerConfig
+import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.functional.Either
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -43,6 +54,32 @@ import java.io.File
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class)
 class MigrationManagerTest {
+
+    @Test
+    fun whenMigrating_thenMarkUsersAsNeedToBeMigrated() = runTest {
+        val serverConfig = newServerConfig(1)
+        val userId = UserId("user-id", "domain")
+        val (arrangement, manager) = Arrangement()
+            .withMarkUsersAsNeedToBeMigrated()
+            .withMigrateServerConfig(Either.Right(serverConfig))
+            .withMigrateAccounts(
+                MigrateActiveAccountsUseCase.Result(
+                    mapOf(userId.value to Either.Right(userId)),
+                    false
+                )
+            )
+            .withMigrateClientsData(Either.Right(Unit))
+            .withMigrateUsers(Either.Right(userId))
+            .withMigrateConversations(Either.Right(listOf()))
+            .withMigrateMessages(emptyMap())
+            .arrange()
+        manager.migrate(
+            arrangement.coroutineScope,
+            { _ -> },
+            arrangement.coroutineDispatcher
+        )
+        coVerify(exactly = 1) { arrangement.markUsersAsNeedToBeMigrated() }
+    }
 
     @Test
     fun givenDBFileExistsAndMigrationCompleted_whenCheckingWhetherToMigrate_thenReturnFalse() = runTest {
@@ -116,6 +153,16 @@ class MigrationManagerTest {
         @MockK
         lateinit var migrateMessages: MigrateMessagesUseCase
 
+        @MockK
+        lateinit var markUsersAsNeedToBeMigrated: MarkUsersAsNeedToBeMigrated
+
+        @MockK
+        lateinit var notificationManager: NotificationManager
+
+        val coroutineScope: CoroutineScope = TestScope()
+
+        val coroutineDispatcher = StandardTestDispatcher()
+
         private val manager: MigrationManager by lazy {
             MigrationManager(
                 applicationContext,
@@ -125,7 +172,9 @@ class MigrationManagerTest {
                 migrateClientsData,
                 migrateUsers,
                 migrateConversations,
-                migrateMessages
+                migrateMessages,
+                markUsersAsNeedToBeMigrated,
+                notificationManager
             )
         }
 
@@ -143,6 +192,35 @@ class MigrationManagerTest {
         fun withMigrationCompleted(completed: Boolean): Arrangement {
             coEvery { globalDataStore.isMigrationCompleted() } returns completed
             return this
+        }
+
+        fun withMarkUsersAsNeedToBeMigrated(throwable: Throwable? = null) = apply {
+            if (throwable != null) coEvery { markUsersAsNeedToBeMigrated() } throws throwable
+            else coEvery { markUsersAsNeedToBeMigrated() } returns Unit
+        }
+
+        fun withMigrateServerConfig(result: Either<CoreFailure, ServerConfig>) = apply {
+            coEvery { migrateServerConfigUseCase() } returns result
+        }
+
+        fun withMigrateAccounts(result: MigrateActiveAccountsUseCase.Result) = apply {
+            coEvery { migrateActiveAccounts(any()) } returns result
+        }
+
+        fun withMigrateClientsData(result: Either<CoreFailure, Unit>) = apply {
+            coEvery { migrateClientsData(any(), any()) } returns result
+        }
+
+        fun withMigrateUsers(result: Either<CoreFailure, UserId>) = apply {
+            coEvery { migrateUsers(any()) } returns result
+        }
+
+        fun withMigrateConversations(result: Either<CoreFailure, List<ScalaConversationData>>) = apply {
+            coEvery { migrateConversations(any()) } returns result
+        }
+
+        fun withMigrateMessages(result: Map<String, CoreFailure>) = apply {
+            coEvery { migrateMessages(any(), any(), coroutineScope) } returns result
         }
 
         fun arrange() = this to manager

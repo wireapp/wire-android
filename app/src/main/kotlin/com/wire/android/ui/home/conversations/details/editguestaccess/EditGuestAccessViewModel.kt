@@ -40,6 +40,7 @@ import com.wire.kalium.logic.feature.conversation.guestroomlink.GenerateGuestRoo
 import com.wire.kalium.logic.feature.conversation.guestroomlink.ObserveGuestRoomLinkUseCase
 import com.wire.kalium.logic.feature.conversation.guestroomlink.RevokeGuestRoomLinkResult
 import com.wire.kalium.logic.feature.conversation.guestroomlink.RevokeGuestRoomLinkUseCase
+import com.wire.kalium.logic.feature.user.guestroomlink.ObserveGuestRoomLinkFeatureFlagUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
@@ -65,6 +66,7 @@ class EditGuestAccessViewModel @Inject constructor(
     private val generateGuestRoomLink: GenerateGuestRoomLinkUseCase,
     private val revokeGuestRoomLink: RevokeGuestRoomLinkUseCase,
     private val observeGuestRoomLink: ObserveGuestRoomLinkUseCase,
+    private val observeGuestRoomLinkFeatureFlag: ObserveGuestRoomLinkFeatureFlagUseCase,
     savedStateHandle: SavedStateHandle,
     qualifiedIdMapper: QualifiedIdMapper,
 ) : ViewModel() {
@@ -91,6 +93,17 @@ class EditGuestAccessViewModel @Inject constructor(
     init {
         observeConversationDetails()
         startObservingGuestRoomLink()
+        observeGuestRoomLinkFeature()
+    }
+
+    private fun observeGuestRoomLinkFeature() {
+        viewModelScope.launch {
+            observeGuestRoomLinkFeatureFlag().collect {
+                it.isGuestRoomLinkEnabled?.let { isEnabled ->
+                    editGuestAccessState = editGuestAccessState.copy(isGuestRoomLinkFeatureEnabled = isEnabled)
+                }
+            }
+        }
     }
 
     private fun observeConversationDetails() {
@@ -221,6 +234,10 @@ class EditGuestAccessViewModel @Inject constructor(
     fun onRevokeGuestRoomFailureDialogDismiss() {
         editGuestAccessState = editGuestAccessState.copy(isFailedToRevokeGuestRoomLink = false)
     }
+
+    fun shouldDisableGenerateGuestLinkButton() = !editGuestAccessState.isGuestRoomLinkFeatureEnabled ||
+            !editGuestAccessState.isGuestAccessAllowed ||
+            editGuestAccessState.isGeneratingGuestRoomLink
 
     fun navigateBack(args: Map<String, Boolean> = mapOf()) {
         viewModelScope.launch { navigationManager.navigateBack(args) }

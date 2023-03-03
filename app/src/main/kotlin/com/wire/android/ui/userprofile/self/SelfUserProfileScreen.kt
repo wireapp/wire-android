@@ -81,6 +81,7 @@ import com.wire.android.ui.userprofile.self.dialog.LogoutOptionsDialogState
 import com.wire.android.ui.userprofile.self.model.OtherAccount
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -119,7 +120,7 @@ private fun SelfUserProfileContent(
     onMessageShown: () -> Unit = {},
     onMaxAccountReachedDialogDismissed: () -> Unit = {},
     onOtherAccountClick: (UserId) -> Unit = {},
-    isUserInCall: () -> Boolean,
+    isUserInCall: () -> Boolean
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -173,7 +174,9 @@ private fun SelfUserProfileContent(
                             userName = userName,
                             teamName = teamName,
                             onUserProfileClick = onChangeUserProfilePicture,
-                            editableState = EditableState.IsEditable(onEditClick),
+                            editableState = if (state.isReadOnlyAccount) EditableState.NotEditable
+                            else EditableState.IsEditable(onEditClick),
+                            securityClassificationType = SecurityClassificationType.NONE
                         )
                     }
                     stickyHeader {

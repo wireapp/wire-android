@@ -22,7 +22,7 @@
 
 package com.wire.android.util
 
-import android.R
+import com.wire.android.R
 import android.app.DownloadManager
 import android.content.ActivityNotFoundException
 import android.content.ContentResolver
@@ -96,7 +96,7 @@ suspend fun Uri.toDrawable(context: Context, dispatcher: DispatcherProvider = De
     }
 }
 
-private fun defaultGalleryIcon(context: Context) = ContextCompat.getDrawable(context, R.drawable.ic_menu_gallery)
+private fun defaultGalleryIcon(context: Context) = ContextCompat.getDrawable(context, R.drawable.ic_gallery)
 
 fun getTempWritableAttachmentUri(context: Context, attachmentPath: Path): Uri {
     val file = attachmentPath.toFile()
@@ -210,7 +210,7 @@ fun Context.startFileShareIntent(path: String) {
     shareIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
     shareIntent.putExtra(
         Intent.EXTRA_SUBJECT,
-        "Sharing Log from Wire"
+        resources.getString(R.string.export_media_subject_title)
     )
 
     shareIntent.putExtra(Intent.EXTRA_STREAM, fileURI)

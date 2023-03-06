@@ -65,7 +65,6 @@ class DeepLinkProcessor @Inject constructor(
     private val qualifiedIdMapper = QualifiedIdMapperImpl(null)
 
     suspend operator fun invoke(uri: Uri): DeepLinkResult {
-
         switchAccountIfNeeded(uri)
 
         return when (uri.host) {

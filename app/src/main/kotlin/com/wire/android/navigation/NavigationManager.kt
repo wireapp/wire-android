@@ -33,14 +33,13 @@ class NavigationManager {
     var navigateBack: SharedFlow<Map<String, Any>> = _navigateBack
 
     suspend fun navigate(command: NavigationCommand) {
-        if (_navigateState.subscriptionCount.value > 0) {
-            _navigateState.emit(command)
-        } else {
-            _navigateState.subscriptionCount
-                .filter { it > 0 }
-                .take(1)
-                .collect { _navigateState.emit(command) }
-        }
+        // in case of DeepLink possible scenario when navigate() is called, but _navigateState Flow is not subscribed yet,
+        // so the navigate command goes nowhere.
+        // To avoid such lose we'll wait till _navigateState Flow is subscribed and emit command into it only after that.
+        _navigateState.subscriptionCount
+            .filter { it > 0 }
+            .take(1)
+            .collect { _navigateState.emit(command) }
     }
 
     suspend fun navigateBack(previousBackStackPassedArgs: Map<String, Any> = mapOf()) {

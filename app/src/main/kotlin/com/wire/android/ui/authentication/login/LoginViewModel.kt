@@ -69,8 +69,8 @@ open class LoginViewModel @Inject constructor(
         if (it.isNullOrEmpty()) PreFilledUserIdentifierType.None else PreFilledUserIdentifierType.PreFilled(it)
     }
 
-    val ssoLoginResult = savedStateHandle.get<String>(EXTRA_SSO_LOGIN_RESULT)?.let {
-        if (it == "null") null
+    val ssoLoginResult = savedStateHandle.get<String>(EXTRA_SSO_LOGIN_RESULT).let {
+        if (it.isNullOrEmpty()) null
         else Json.decodeFromString<DeepLinkResult.SSOLogin>(it)
     }
 

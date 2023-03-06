@@ -25,7 +25,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDeepLink
-import androidx.navigation.navDeepLink
 import com.wire.android.BuildConfig
 import com.wire.android.model.ImageAsset
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.ADD_CONVERSATION_PARTICIPANTS
@@ -100,7 +99,6 @@ import com.wire.android.ui.sharing.ImportMediaScreen
 import com.wire.android.ui.userprofile.avatarpicker.AvatarPickerScreen
 import com.wire.android.ui.userprofile.other.OtherUserProfileScreen
 import com.wire.android.ui.userprofile.self.SelfUserProfileScreen
-import com.wire.android.util.deeplink.DeepLinkProcessor
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.kalium.logic.data.conversation.ClientId
 import com.wire.kalium.logic.data.id.ConversationId
@@ -148,7 +146,8 @@ enum class NavigationItem(
         animationConfig = NavigationAnimationConfig.CustomAnimation(smoothSlideInFromRight(), smoothSlideOutFromLeft())
     ) {
         override fun getRouteWithArgs(arguments: List<Any>): String {
-            val ssoLoginResultString = Json.encodeToString(arguments.filterIsInstance<DeepLinkResult.SSOLogin>().firstOrNull())
+            val ssoLoginResultString = arguments.filterIsInstance<DeepLinkResult.SSOLogin>().firstOrNull()?.let { Json.encodeToString(it) }
+                ?: "{$EXTRA_SSO_LOGIN_RESULT}"
             val userHandleString: String = arguments.filterIsInstance<String>().firstOrNull()?.toString() ?: "{$EXTRA_USER_HANDLE}"
             return "$LOGIN?$EXTRA_SSO_LOGIN_RESULT=$ssoLoginResultString&$EXTRA_USER_HANDLE=$userHandleString"
         }

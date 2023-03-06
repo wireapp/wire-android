@@ -107,6 +107,9 @@ class WireActivity : AppCompatActivity() {
     }
 
     override fun onNewIntent(intent: Intent?) {
+        if (viewModel.isSharingIntent(intent)) {
+            setIntent(intent)
+        }
         handleDeepLink(intent)
         super.onNewIntent(intent)
     }

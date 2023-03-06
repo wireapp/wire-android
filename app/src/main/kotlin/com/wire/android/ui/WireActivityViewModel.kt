@@ -176,6 +176,10 @@ class WireActivityViewModel @Inject constructor(
         else -> NavigationItem.Home.getRouteWithArgs()
     }
 
+    fun isSharingIntent(intent: Intent?): Boolean {
+        return intent?.action == Intent.ACTION_SEND || intent?.action == Intent.ACTION_SEND_MULTIPLE
+    }
+
     @Suppress("ComplexMethod")
     fun handleDeepLink(intent: Intent?) {
         viewModelScope.launch {
@@ -376,10 +380,6 @@ class WireActivityViewModel @Inject constructor(
 
     private fun shouldGoToMigration(): Boolean = runBlocking {
         migrationManager.shouldMigrate()
-    }
-
-    private fun isSharingIntent(intent: Intent?): Boolean {
-        return intent?.action == Intent.ACTION_SEND || intent?.action == Intent.ACTION_SEND_MULTIPLE
     }
 
     fun openProfile() {

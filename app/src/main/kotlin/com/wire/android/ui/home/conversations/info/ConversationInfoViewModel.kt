@@ -78,8 +78,17 @@ class ConversationInfoViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             selfUserId = observerSelfUser().first().id
-            observeConversationDetails(conversationId).collect(::handleConversationDetailsResult)
         }
+    }
+
+    /*
+        If this would be collected in the scope of this ViewModel (in `init` for instance) then there would be a race condition.
+        [MessageComposerViewModel] handles the navigating back after removing a group and here it would navigate to home if the group
+        is removed without back params indicating that the user actually have just done that. The info about the group being removed
+        could appear before the back navigation params. That's why it's being observed in the `LaunchedEffect` in the Composable.
+    */
+    suspend fun observeConversationDetails() {
+        observeConversationDetails(conversationId).collect(::handleConversationDetailsResult)
     }
 
     private suspend fun handleConversationDetailsResult(conversationDetailsResult: ObserveConversationDetailsUseCase.Result) {

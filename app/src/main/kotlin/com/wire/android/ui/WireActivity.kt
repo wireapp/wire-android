@@ -294,9 +294,12 @@ class WireActivity : AppCompatActivity() {
         intent: Intent?,
         savedInstanceState: Bundle? = null
     ) {
-        if (intent == null) return
-        if (intent.flags and Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY != 0) return
-        if (savedInstanceState?.getBoolean(HANDLED_DEEPLINK_FLAG, false) == true) return
+        if (intent == null
+            || intent.flags and Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY != 0
+            || savedInstanceState?.getBoolean(HANDLED_DEEPLINK_FLAG, false) == true
+        ) {
+            return
+        }
 
         viewModel.handleDeepLink(intent)
     }

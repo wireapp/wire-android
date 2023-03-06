@@ -23,6 +23,7 @@ package com.wire.android.migration.userDatabase
 import androidx.core.database.getIntOrNull
 import androidx.core.database.getLongOrNull
 import com.wire.android.appLogger
+import com.wire.android.migration.util.getBlobOrNull
 import com.wire.android.migration.util.getStringOrNull
 import com.wire.android.migration.util.orNullIfNegative
 import kotlinx.coroutines.withContext
@@ -102,16 +103,7 @@ class ScalaMessageDAO(
 
     private fun messagesFromConversation(scalaConversation: ScalaConversationData): List<ScalaMessageData> {
         val cursor = db.rawQuery(
-            "SELECT " + // Assets are required, otherwise we get exception "requesting column name with table name".
-                    "$MESSAGES_TABLE_NAME.$COLUMN_ID AS $MESSAGE_ALIAS_PREFIX$COLUMN_ID, " +
-                    "$MESSAGES_TABLE_NAME.$COLUMN_TIME AS $MESSAGE_ALIAS_PREFIX$COLUMN_TIME, " +
-                    "$MESSAGES_TABLE_NAME.$COLUMN_EDIT_TIME AS $MESSAGE_ALIAS_PREFIX$COLUMN_EDIT_TIME, " +
-                    "$MESSAGES_TABLE_NAME.$COLUMN_USER_ID AS $MESSAGE_ALIAS_PREFIX$COLUMN_USER_ID, " +
-                    "$MESSAGES_TABLE_NAME.$COLUMN_CLIENT_ID AS $MESSAGE_ALIAS_PREFIX$COLUMN_CLIENT_ID, " +
-                    "$MESSAGES_TABLE_NAME.$COLUMN_CONTENT AS $MESSAGE_ALIAS_PREFIX$COLUMN_CONTENT, " +
-                    "$MESSAGES_TABLE_NAME.$COLUMN_PROTO_BLOB AS $MESSAGE_ALIAS_PREFIX$COLUMN_PROTO_BLOB, " +
-                    "$ASSETS_TABLE_NAME.$COLUMN_NAME AS $ASSET_ALIAS_PREFIX$COLUMN_NAME, " +
-                    "$ASSETS_TABLE_NAME.$COLUMN_SIZE AS $ASSET_ALIAS_PREFIX$COLUMN_SIZE " +
+            "SELECT *" + // Assets are required, otherwise we get exception "requesting column name with table name".
                     "FROM $MESSAGES_TABLE_NAME " +
                     "LEFT JOIN $ASSETS_TABLE_NAME ON $MESSAGES_TABLE_NAME.$COLUMN_ASSET_ID = $ASSETS_TABLE_NAME.$COLUMN_ID " +
                     "WHERE $MESSAGES_TABLE_NAME.$COLUMN_CONVERSATION_ID = ?" +
@@ -121,30 +113,31 @@ class ScalaMessageDAO(
             if (!cursor.moveToFirst()) {
                 emptyList()
             } else {
-                val idIndex = cursor.getColumnIndex("$MESSAGE_ALIAS_PREFIX$COLUMN_ID")
-                val timeIndex = cursor.getColumnIndex("$MESSAGE_ALIAS_PREFIX$COLUMN_TIME")
-                val editTimeIndex = cursor.getColumnIndex("$MESSAGE_ALIAS_PREFIX$COLUMN_EDIT_TIME").orNullIfNegative()
-                val userIdIndex = cursor.getColumnIndex("$MESSAGE_ALIAS_PREFIX$COLUMN_USER_ID")
-                val clientIdIndex = cursor.getColumnIndex("$MESSAGE_ALIAS_PREFIX$COLUMN_CLIENT_ID")
-                val contentIndex = cursor.getColumnIndex("$MESSAGE_ALIAS_PREFIX$COLUMN_CONTENT")
-                val protoIndex = cursor.getColumnIndex("$MESSAGE_ALIAS_PREFIX$COLUMN_PROTO_BLOB")
-                val assetNameIndex = cursor.getColumnIndex("$ASSET_ALIAS_PREFIX$COLUMN_NAME")
-                val assetSizeIndex = cursor.getColumnIndex("$ASSET_ALIAS_PREFIX$COLUMN_SIZE")
+
+                val idIndex = cursor.getColumnIndex(COLUMN_ID)
+                val timeIndex = cursor.getColumnIndex(COLUMN_TIME)
+                val editTimeIndex = cursor.getColumnIndex(COLUMN_EDIT_TIME).orNullIfNegative()
+                val userIdIndex = cursor.getColumnIndex(COLUMN_USER_ID)
+                val clientIdIndex = cursor.getColumnIndex(COLUMN_CLIENT_ID).orNullIfNegative()
+                val contentIndex = cursor.getColumnIndex(COLUMN_CONTENT).orNullIfNegative()
+                val protoIndex = cursor.getColumnIndex(COLUMN_PROTO_BLOB).orNullIfNegative()
+                val assetNameIndex = cursor.getColumnIndex(COLUMN_NAME).orNullIfNegative()
+                val assetSizeIndex = cursor.getColumnIndex(COLUMN_SIZE).orNullIfNegative()
                 val accumulator = mutableListOf<ScalaMessageData>()
                 do {
                     accumulator += ScalaMessageData(
-                        id = cursor.getStringOrNull(idIndex).orEmpty(),
+                        id = cursor.getString(idIndex),
                         conversationId = scalaConversation.id,
                         conversationRemoteId = scalaConversation.remoteId,
                         conversationDomain = scalaConversation.domain,
                         time = cursor.getLong(timeIndex),
                         editTime = editTimeIndex?.let { cursor.getLongOrNull(it) },
                         senderId = cursor.getStringOrNull(userIdIndex).orEmpty(),
-                        senderClientId = cursor.getStringOrNull(clientIdIndex),
-                        content = cursor.getStringOrNull(contentIndex),
-                        proto = cursor.getBlob(protoIndex),
-                        assetName = cursor.getStringOrNull(assetNameIndex),
-                        assetSize = cursor.getIntOrNull(assetSizeIndex)
+                        senderClientId = clientIdIndex?.let { cursor.getStringOrNull(it) },
+                        content = contentIndex?.let { cursor.getStringOrNull(it) },
+                        proto = protoIndex?.let { cursor.getBlobOrNull(it) },
+                        assetName = assetNameIndex?.let { cursor.getStringOrNull(it) },
+                        assetSize = assetSizeIndex?.let { cursor.getIntOrNull(it) }
                     )
                 } while (cursor.moveToNext())
                 accumulator
@@ -156,12 +149,9 @@ class ScalaMessageDAO(
             cursor.close()
         }
     }
-
     companion object {
         const val MESSAGES_TABLE_NAME = "Messages"
         const val ASSETS_TABLE_NAME = "Assets2"
-        const val MESSAGE_ALIAS_PREFIX = "message_"
-        const val ASSET_ALIAS_PREFIX = "asset_"
         const val COLUMN_ID = "_id"
         const val COLUMN_ASSET_ID = "asset_id"
         const val COLUMN_CONVERSATION_ID = "conv_id"

@@ -171,10 +171,11 @@ class ConversationInfoViewModel @Inject constructor(
         is ConversationDetails.OneOne -> conversationDetails.otherUser.name.orEmpty()
         else -> conversationDetails.conversation.name.orEmpty()
     }.let {
-        if (it.isNotEmpty()) it.toUIText()
-        else
-            if (it.isEmpty() && isConversationUnavailable) UIText.StringResource(R.string.username_unavailable_label)
-            else UIText.StringResource(R.string.member_name_deleted_label)
+        when {
+            it.isNotEmpty() -> it.toUIText()
+            it.isEmpty() && isConversationUnavailable -> UIText.StringResource(R.string.username_unavailable_label)
+            else -> UIText.StringResource(R.string.member_name_deleted_label)
+        }
     }
 
     fun navigateToDetails() = viewModelScope.launch(dispatchers.default()) {
@@ -209,7 +210,6 @@ class ConversationInfoViewModel @Inject constructor(
                     else -> navigateToOtherProfile(userId)
                 }
             }
-
         }
     }
 

@@ -114,15 +114,15 @@ class ScalaMessageDAO(
                 emptyList()
             } else {
 
-                val idIndex = cursor.getColumnIndex(COLUMN_ID)
-                val timeIndex = cursor.getColumnIndex(COLUMN_TIME)
-                val editTimeIndex = cursor.getColumnIndex(COLUMN_EDIT_TIME).orNullIfNegative()
-                val userIdIndex = cursor.getColumnIndex(COLUMN_USER_ID)
-                val clientIdIndex = cursor.getColumnIndex(COLUMN_CLIENT_ID).orNullIfNegative()
-                val contentIndex = cursor.getColumnIndex(COLUMN_CONTENT).orNullIfNegative()
-                val protoIndex = cursor.getColumnIndex(COLUMN_PROTO_BLOB).orNullIfNegative()
-                val assetNameIndex = cursor.getColumnIndex(COLUMN_NAME).orNullIfNegative()
-                val assetSizeIndex = cursor.getColumnIndex(COLUMN_SIZE).orNullIfNegative()
+                val idIndex = cursor.getColumnIndex("$MESSAGES_TABLE_NAME.$COLUMN_ID")
+                val timeIndex = cursor.getColumnIndex("$MESSAGES_TABLE_NAME.$COLUMN_TIME")
+                val editTimeIndex = cursor.getColumnIndex("$MESSAGES_TABLE_NAME.$COLUMN_EDIT_TIME").orNullIfNegative()
+                val userIdIndex = cursor.getColumnIndex("$MESSAGES_TABLE_NAME.$COLUMN_USER_ID")
+                val clientIdIndex = cursor.getColumnIndex("$MESSAGES_TABLE_NAME.$COLUMN_CLIENT_ID").orNullIfNegative()
+                val contentIndex = cursor.getColumnIndex("$MESSAGES_TABLE_NAME.$COLUMN_CONTENT").orNullIfNegative()
+                val protoIndex = cursor.getColumnIndex("$MESSAGES_TABLE_NAME.$COLUMN_PROTO_BLOB").orNullIfNegative()
+                val assetNameIndex = cursor.getColumnIndex("$ASSETS_TABLE_NAME.$COLUMN_NAME").orNullIfNegative()
+                val assetSizeIndex = cursor.getColumnIndex("$ASSETS_TABLE_NAME.$COLUMN_SIZE").orNullIfNegative()
                 val accumulator = mutableListOf<ScalaMessageData>()
                 do {
                     accumulator += ScalaMessageData(

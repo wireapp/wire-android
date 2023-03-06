@@ -485,9 +485,12 @@
     <string name="conversation_banner_externals_present">Externe anwesend</string>
     <string name="conversation_banner_services_active">Dienste aktiv</string>
     <!-- System messages -->
-    <string name="label_system_message_added">%1$s hat %2$s zu der Unterhaltung hinzugefügt</string>
-    <string name="label_system_message_removed">%1$s hat %2$s aus der Unterhaltung entfernt</string>
-    <string name="label_system_message_left_the_conversation">%1$s hat die Unterhaltung verlassen</string>
+    <string name="label_system_message_added_by_self">%1$s haben %2$s zu der Unterhaltung hinzugefügt</string>
+    <string name="label_system_message_removed_by_self">%1$s haben %2$s aus der Unterhaltung entfernt</string>
+    <string name="label_system_message_added_by_other">%1$s hat %2$s zu der Unterhaltung hinzugefügt</string>
+    <string name="label_system_message_removed_by_other">%1$s hat %2$s aus der Unterhaltung entfernt</string>
+    <string name="label_system_message_left_the_conversation_by_self">%1$s haben die Unterhaltung verlassen</string>
+    <string name="label_system_message_left_the_conversation_by_other">%1$s hat die Unterhaltung verlassen</string>
     <string name="label_system_message_other_called">%1$s hat angerufen</string>
     <string name="label_system_message_you_called">%1$s haben angerufen</string>
     <string name="label_system_message_and">%1$s und %2$s</string>

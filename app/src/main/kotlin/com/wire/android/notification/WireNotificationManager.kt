@@ -370,7 +370,7 @@ class WireNotificationManager @Inject constructor(
                     newNotifications
                 )
 
-                verifyIfShouldPlayPingSound(
+                playPingSoundIfNeeded(
                     currentScreen = currentScreenState.value,
                     notifications = newNotifications
                 )
@@ -458,16 +458,15 @@ class WireNotificationManager @Inject constructor(
         }
     }
 
-    private fun verifyIfShouldPlayPingSound(
+    private fun playPingSoundIfNeeded(
         currentScreen: CurrentScreen,
         notifications: List<LocalNotificationConversation>
     ) {
         if (currentScreen is CurrentScreen.Conversation) {
             val conversationId = currentScreen.id
             val containsPingMessage = notifications
-                .filter { it.id == conversationId }
                 .any {
-                    it.messages.any { message -> message is LocalNotificationMessage.Knock }
+                    it.id == conversationId && it.messages.any { message -> message is LocalNotificationMessage.Knock }
                 }
 
             if (containsPingMessage) {

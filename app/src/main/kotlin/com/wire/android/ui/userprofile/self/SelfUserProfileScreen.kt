@@ -81,6 +81,7 @@ import com.wire.android.ui.userprofile.self.dialog.LogoutOptionsDialogState
 import com.wire.android.ui.userprofile.self.model.OtherAccount
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -174,7 +175,8 @@ private fun SelfUserProfileContent(
                             teamName = teamName,
                             onUserProfileClick = onChangeUserProfilePicture,
                             editableState = if (state.isReadOnlyAccount) EditableState.NotEditable
-                            else EditableState.IsEditable(onEditClick)
+                            else EditableState.IsEditable(onEditClick),
+                            securityClassificationType = SecurityClassificationType.NONE
                         )
                     }
                     stickyHeader {

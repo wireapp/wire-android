@@ -322,7 +322,8 @@ private fun TopBarCollapsing(state: OtherUserProfileState) {
             membership = state.membership,
             editableState = EditableState.NotEditable,
             modifier = Modifier.padding(bottom = dimensions().spacing16x),
-            connection = state.connectionState
+            connection = state.connectionState,
+            securityClassificationType = state.securityClassificationType
         )
     }
 }

@@ -31,6 +31,7 @@ import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.BotService
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
 
 data class OtherUserProfileState(
     val userId: UserId,
@@ -49,7 +50,8 @@ data class OtherUserProfileState(
     val botService: BotService? = null,
     val conversationSheetContent: ConversationSheetContent? = null,
     val otherUserClients: List<OtherUserClient> = listOf(),
-    val blockingState: BlockingState = BlockingState.CAN_NOT_BE_BLOCKED
+    val blockingState: BlockingState = BlockingState.CAN_NOT_BE_BLOCKED,
+    val securityClassificationType: SecurityClassificationType = SecurityClassificationType.NONE
 ) {
     fun updateMuteStatus(status: MutedConversationStatus): OtherUserProfileState {
         return conversationSheetContent?.let {

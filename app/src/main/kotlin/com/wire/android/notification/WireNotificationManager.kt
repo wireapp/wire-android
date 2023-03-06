@@ -20,8 +20,10 @@
 
 package com.wire.android.notification
 
+import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.di.KaliumCoreLogic
+import com.wire.android.media.PingRinger
 import com.wire.android.services.ServicesManager
 import com.wire.android.util.CurrentScreen
 import com.wire.android.util.CurrentScreenManager
@@ -32,6 +34,7 @@ import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.notification.LocalNotificationConversation
+import com.wire.kalium.logic.data.notification.LocalNotificationMessage
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.call.Call
 import com.wire.kalium.logic.feature.message.MarkMessagesAsNotifiedUseCase
@@ -69,7 +72,8 @@ class WireNotificationManager @Inject constructor(
     private val callNotificationManager: CallNotificationManager,
     private val connectionPolicyManager: ConnectionPolicyManager,
     private val servicesManager: ServicesManager,
-    private val dispatcherProvider: DispatcherProvider
+    private val dispatcherProvider: DispatcherProvider,
+    private val pingRinger: PingRinger
 ) {
 
     private val scope = CoroutineScope(SupervisorJob() + dispatcherProvider.default())
@@ -365,6 +369,11 @@ class WireNotificationManager @Inject constructor(
                     userId,
                     newNotifications
                 )
+
+                playPingSoundIfNeeded(
+                    currentScreen = currentScreenState.value,
+                    notifications = newNotifications
+                )
                 val userName = selfUserNameState.value
 
                 // combining all the data that is necessary for Notifications into small data class,
@@ -446,6 +455,26 @@ class WireNotificationManager @Inject constructor(
             coreLogic.getSessionScope(it)
                 .conversations
                 .markConnectionRequestAsNotified(connectionRequestUserId)
+        }
+    }
+
+    private fun playPingSoundIfNeeded(
+        currentScreen: CurrentScreen,
+        notifications: List<LocalNotificationConversation>
+    ) {
+        if (currentScreen is CurrentScreen.Conversation) {
+            val conversationId = currentScreen.id
+            val containsPingMessage = notifications
+                .any {
+                    it.id == conversationId && it.messages.any { message -> message is LocalNotificationMessage.Knock }
+                }
+
+            if (containsPingMessage) {
+                pingRinger.ping(
+                    resource = R.raw.ping_from_them,
+                    isReceivingPing = true
+                )
+            }
         }
     }
 

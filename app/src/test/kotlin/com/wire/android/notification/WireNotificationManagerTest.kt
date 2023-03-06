@@ -23,6 +23,7 @@ package com.wire.android.notification
 import com.wire.android.common.runTestWithCancellation
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.framework.TestUser
+import com.wire.android.media.PingRinger
 import com.wire.android.services.ServicesManager
 import com.wire.android.util.CurrentScreen
 import com.wire.android.util.CurrentScreenManager
@@ -378,6 +379,32 @@ class WireNotificationManagerTest {
         verify(exactly = 1) { arrangement.servicesManager.startOngoingCallService(any(), any(), any()) }
     }
 
+    @Test
+    fun givenPingNotification_whenObserveCalled_thenPingSoundIsPlayed() = runTestWithCancellation(dispatcherProvider.main()) {
+        val conversationId = ConversationId("conversation_value", "conversation_domain")
+        val (arrangement, manager) = Arrangement()
+            .withMessageNotifications(
+                listOf(
+                    provideLocalNotificationConversation(
+                        messages = listOf(provideLocalNotificationMessagePing())
+                    )
+                )
+            )
+            .withIncomingCalls(listOf())
+            .withCurrentScreen(CurrentScreen.Conversation(id = conversationId))
+            .arrange()
+
+        manager.observeNotificationsAndCallsWhileRunning(listOf(provideUserId()), this) {}
+        runCurrent()
+
+        verify(exactly = 1) {
+            arrangement.pingRinger.ping(
+                resource = any(),
+                isReceivingPing = any()
+            )
+        }
+    }
+
     private inner class Arrangement {
         @MockK
         lateinit var coreLogic: CoreLogic
@@ -445,6 +472,9 @@ class WireNotificationManagerTest {
         @MockK
         lateinit var getSelfUser: GetSelfUserUseCase
 
+        @MockK
+        lateinit var pingRinger: PingRinger
+
         val wireNotificationManager by lazy {
             WireNotificationManager(
                 coreLogic,
@@ -453,7 +483,8 @@ class WireNotificationManagerTest {
                 callNotificationManager,
                 connectionPolicyManager,
                 servicesManager,
-                dispatcherProvider
+                dispatcherProvider,
+                pingRinger
             )
         }
 
@@ -486,6 +517,7 @@ class WireNotificationManagerTest {
             coEvery { sessionScope.currentSession } returns currentSessionUseCase
             every { servicesManager.startOngoingCallService(any(), any(), any()) } returns Unit
             every { servicesManager.stopOngoingCallService() } returns Unit
+            every { pingRinger.ping(any(), any()) } returns Unit
         }
 
         fun withSession(session: GetAllSessionsResult): Arrangement {
@@ -558,6 +590,11 @@ class WireNotificationManagerTest {
 
         private fun provideLocalNotificationMessage(): LocalNotificationMessage = LocalNotificationMessage.Text(
             LocalNotificationMessageAuthor("author", null), Instant.DISTANT_FUTURE, "testing text"
+        )
+
+        private fun provideLocalNotificationMessagePing(): LocalNotificationMessage = LocalNotificationMessage.Knock(
+            author = LocalNotificationMessageAuthor("author", null),
+            time = Instant.DISTANT_FUTURE
         )
 
         private fun provideUserId() = UserId("value", "domain")

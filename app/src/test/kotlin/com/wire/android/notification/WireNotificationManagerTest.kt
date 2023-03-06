@@ -135,8 +135,12 @@ class WireNotificationManagerTest {
 
     @Test
     fun givenNoIncomingCalls_whenObserveCalled_thenCallNotificationHides() = runTestWithCancellation(dispatcherProvider.main()) {
-        val (arrangement, manager) = Arrangement().withIncomingCalls(listOf()).withMessageNotifications(listOf())
-            .withCurrentScreen(CurrentScreen.SomeOther).arrange()
+        val (arrangement, manager) = Arrangement()
+            .withIncomingCalls(listOf())
+            .withMessageNotifications(listOf())
+            .withCurrentScreen(CurrentScreen.SomeOther)
+            .withCurrentUserSession(CurrentSessionResult.Success(AccountInfo.Valid(provideUserId())))
+            .arrange()
 
         manager.observeNotificationsAndCallsWhileRunning(listOf(provideUserId()), this) {}
         runCurrent()
@@ -145,9 +149,28 @@ class WireNotificationManagerTest {
     }
 
     @Test
+    fun givenSomeIncomingCall_whenCurrentUserIsDifferentFromCallReceiver_thenCallNotificationIsShown() = runTestWithCancellation(dispatcherProvider.main()) {
+        val (arrangement, manager) = Arrangement()
+            .withIncomingCalls(listOf())
+            .withMessageNotifications(listOf())
+            .withCurrentScreen(CurrentScreen.SomeOther)
+            .withCurrentUserSession(CurrentSessionResult.Success(TEST_AUTH_TOKEN))
+            .arrange()
+
+        manager.observeNotificationsAndCallsWhileRunning(listOf(provideUserId()), this) {}
+        runCurrent()
+
+        verify(exactly = 1) { arrangement.callNotificationManager.handleIncomingCallNotifications(any(), any()) }
+    }
+
+    @Test
     fun givenSomeIncomingCalls_whenAppIsNotVisible_thenCallNotificationHidden() = runTestWithCancellation(dispatcherProvider.main()) {
-        val (arrangement, manager) = Arrangement().withIncomingCalls(listOf(provideCall())).withMessageNotifications(listOf())
-            .withCurrentScreen(CurrentScreen.InBackground).withEstablishedCall(listOf()).arrange()
+        val (arrangement, manager) = Arrangement().withIncomingCalls(listOf(provideCall()))
+            .withCurrentUserSession(CurrentSessionResult.Success(TEST_AUTH_TOKEN))
+            .withMessageNotifications(listOf())
+            .withCurrentScreen(CurrentScreen.InBackground)
+            .withEstablishedCall(listOf())
+            .arrange()
 
         manager.observeNotificationsAndCallsWhileRunning(listOf(provideUserId()), this) {}
         runCurrent()
@@ -158,8 +181,11 @@ class WireNotificationManagerTest {
 
     @Test
     fun givenSomeIncomingCalls_whenAppIsVisible_thenCallNotificationShowed() = runTestWithCancellation(dispatcherProvider.main()) {
-        val (arrangement, manager) = Arrangement().withIncomingCalls(listOf(provideCall())).withCurrentScreen(CurrentScreen.SomeOther)
-            .withMessageNotifications(listOf()).arrange()
+        val (arrangement, manager) = Arrangement().withIncomingCalls(listOf(provideCall()))
+            .withCurrentUserSession(CurrentSessionResult.Success(AccountInfo.Valid(provideUserId())))
+            .withCurrentScreen(CurrentScreen.SomeOther)
+            .withMessageNotifications(listOf())
+            .arrange()
 
         manager.observeNotificationsAndCallsWhileRunning(listOf(provideUserId()), this) {}
         runCurrent()
@@ -212,13 +238,18 @@ class WireNotificationManagerTest {
 
     @Test
     fun givenSomeNotifications_whenObserveCalled_thenCallNotificationShowed() = runTestWithCancellation(dispatcherProvider.main()) {
-        val (arrangement, manager) = Arrangement().withMessageNotifications(
-            listOf(
-                provideLocalNotificationConversation(
-                    messages = listOf(provideLocalNotificationMessage())
+        val (arrangement, manager) = Arrangement()
+            .withMessageNotifications(
+                listOf(
+                    provideLocalNotificationConversation(
+                        messages = listOf(provideLocalNotificationMessage())
+                    )
                 )
             )
-        ).withIncomingCalls(listOf()).withCurrentScreen(CurrentScreen.SomeOther).arrange()
+            .withIncomingCalls(listOf())
+            .withCurrentScreen(CurrentScreen.SomeOther)
+            .withCurrentUserSession(CurrentSessionResult.Success(TEST_AUTH_TOKEN))
+            .arrange()
 
         manager.observeNotificationsAndCallsWhileRunning(listOf(provideUserId()), this) {}
         runCurrent()
@@ -234,11 +265,15 @@ class WireNotificationManagerTest {
     fun givenSomeNotificationsAndCurrentScreenIsConversation_whenObserveCalled_thenNotificationIsNotShowed() =
         runTestWithCancellation(dispatcherProvider.main()) {
             val conversationId = ConversationId("conversation_value", "conversation_domain")
-            val (arrangement, manager) = Arrangement().withMessageNotifications(
-                listOf(
-                    provideLocalNotificationConversation(id = conversationId, messages = listOf(provideLocalNotificationMessage()))
-                )
-            ).withIncomingCalls(listOf()).withCurrentScreen(CurrentScreen.Conversation(conversationId)).arrange()
+            val (arrangement, manager) = Arrangement()
+                .withMessageNotifications(
+                    listOf(
+                        provideLocalNotificationConversation(id = conversationId, messages = listOf(provideLocalNotificationMessage()))
+                    )
+                ).withIncomingCalls(listOf())
+                .withCurrentUserSession(CurrentSessionResult.Success(TEST_AUTH_TOKEN))
+                .withCurrentScreen(CurrentScreen.Conversation(conversationId))
+                .arrange()
 
             manager.observeNotificationsAndCallsWhileRunning(listOf(provideUserId()), this) {}
             runCurrent()
@@ -268,6 +303,7 @@ class WireNotificationManagerTest {
                         provideLocalNotificationConversation(id = conversationId, messages = listOf(provideLocalNotificationMessage()))
                     )
                 )
+                .withCurrentUserSession(CurrentSessionResult.Success(TEST_AUTH_TOKEN))
                 .withEstablishedCall(listOf())
                 .withIncomingCalls(listOf())
                 .withCurrentScreen(CurrentScreen.InBackground)
@@ -287,8 +323,11 @@ class WireNotificationManagerTest {
     fun givenCurrentScreenIsConversation_whenObserveCalled_thenNotificationForThatConversationIsHidden() =
         runTestWithCancellation(dispatcherProvider.main()) {
             val conversationId = ConversationId("conversation_value", "conversation_domain")
-            val (arrangement, manager) = Arrangement().withMessageNotifications(listOf()).withIncomingCalls(listOf())
-                .withCurrentScreen(CurrentScreen.Conversation(conversationId)).arrange()
+            val (arrangement, manager) = Arrangement().withMessageNotifications(listOf())
+                .withCurrentUserSession(CurrentSessionResult.Success(TEST_AUTH_TOKEN))
+                .withIncomingCalls(listOf())
+                .withCurrentScreen(CurrentScreen.Conversation(conversationId))
+                .arrange()
 
             manager.observeNotificationsAndCallsWhileRunning(listOf(provideUserId()), this) {}
             runCurrent()
@@ -367,10 +406,13 @@ class WireNotificationManagerTest {
 
     @Test
     fun givenSomeEstablishedCalls_whenAppIsNotVisible_thenOngoingCallServiceRun() = runTestWithCancellation(dispatcherProvider.main()) {
-        val (arrangement, manager) = Arrangement().withIncomingCalls(listOf()).withMessageNotifications(listOf())
+        val (arrangement, manager) = Arrangement()
+            .withIncomingCalls(listOf())
+            .withMessageNotifications(listOf())
             .withCurrentScreen(CurrentScreen.InBackground).withEstablishedCall(
                 listOf(provideCall().copy(status = CallStatus.ESTABLISHED))
             )
+            .withCurrentUserSession(CurrentSessionResult.Success(TEST_AUTH_TOKEN))
             .arrange()
 
         manager.observeNotificationsAndCallsWhileRunning(listOf(provideUserId()), this) {}
@@ -390,6 +432,7 @@ class WireNotificationManagerTest {
                     )
                 )
             )
+            .withCurrentUserSession(CurrentSessionResult.Success(TEST_AUTH_TOKEN))
             .withIncomingCalls(listOf())
             .withCurrentScreen(CurrentScreen.Conversation(id = conversationId))
             .arrange()
@@ -464,9 +507,6 @@ class WireNotificationManagerTest {
         lateinit var servicesManager: ServicesManager
 
         @MockK
-        lateinit var sessionScope: SessionScope
-
-        @MockK
         lateinit var currentSessionUseCase: CurrentSessionUseCase
 
         @MockK
@@ -512,9 +552,8 @@ class WireNotificationManagerTest {
             coEvery { messageScope.getNotifications } returns getNotificationsUseCase
             coEvery { messageScope.markMessagesAsNotified } returns markMessagesAsNotified
             coEvery { markMessagesAsNotified(any<MarkMessagesAsNotifiedUseCase.UpdateTarget.SingleConversation>()) } returns Result.Success
-            coEvery { globalKaliumScope.session } returns sessionScope
+            coEvery { globalKaliumScope.session.currentSession } returns currentSessionUseCase
             coEvery { getSelfUser.invoke() } returns flowOf(TestUser.SELF_USER)
-            coEvery { sessionScope.currentSession } returns currentSessionUseCase
             every { servicesManager.startOngoingCallService(any(), any(), any()) } returns Unit
             every { servicesManager.stopOngoingCallService() } returns Unit
             every { pingRinger.ping(any(), any()) } returns Unit

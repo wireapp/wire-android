@@ -38,6 +38,7 @@ import com.wire.kalium.logic.data.notification.LocalNotificationMessage
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.call.Call
 import com.wire.kalium.logic.feature.message.MarkMessagesAsNotifiedUseCase
+import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
@@ -327,7 +328,10 @@ class WireNotificationManager @Inject constructor(
             .calls
             .getIncomingCalls()
             .collect { calls ->
-                if (currentScreenState.value != CurrentScreen.InBackground) {
+                val isCurrentUserReceiver = coreLogic.getGlobalScope().session.currentSession().let {
+                    (it is CurrentSessionResult.Success && it.accountInfo.userId == userId)
+                }
+                if (currentScreenState.value != CurrentScreen.InBackground && isCurrentUserReceiver) {
                     calls.firstOrNull()?.run {
                         appLogger.d("$TAG got some call while app is visible")
                         doIfCallCameAndAppVisible(this)

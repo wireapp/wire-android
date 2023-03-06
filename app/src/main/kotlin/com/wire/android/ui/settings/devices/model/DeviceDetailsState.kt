@@ -5,8 +5,10 @@ import com.wire.android.ui.authentication.devices.remove.RemoveDeviceDialogState
 import com.wire.android.ui.authentication.devices.remove.RemoveDeviceError
 
 data class DeviceDetailsState(
-    val device: Device,
-    val isCurrentDevice: Boolean,
+    val device: Device = Device(),
+    val isCurrentDevice: Boolean = false,
     val removeDeviceDialogState: RemoveDeviceDialogState = RemoveDeviceDialogState.Hidden,
-    val error: RemoveDeviceError = RemoveDeviceError.None
+    val error: RemoveDeviceError = RemoveDeviceError.None,
+    val isVerified: Boolean = false,
+    val fingerPrint: String? = null
 )

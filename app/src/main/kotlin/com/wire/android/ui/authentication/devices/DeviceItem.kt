@@ -178,11 +178,11 @@ private fun DeviceItemTexts(device: Device, placeholder: Boolean, isDebug: Boole
     }
 
     Spacer(modifier = Modifier.height(MaterialTheme.wireDimensions.removeDeviceItemTitleVerticalPadding))
-    val details: String = if (device.registrationTime.isNotBlank()) {
+    val details: String = if (device.registrationTime.isNullOrBlank()) {
         stringResource(
             R.string.remove_device_id_and_time_label,
             device.clientId.formatAsString(),
-            device.registrationTime.formatMediumDateTime() ?: ""
+            device.registrationTime?.formatMediumDateTime() ?: ""
         )
     } else {
         stringResource(

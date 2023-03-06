@@ -230,13 +230,14 @@ enum class NavigationItem(
 
     DeviceDetails(
         primaryRoute = DEVICE_DETAILS,
-        canonicalRoute = "$DEVICE_DETAILS?$EXTRA_DEVICE_ID={$EXTRA_DEVICE_ID}",
+        canonicalRoute = "$DEVICE_DETAILS?$EXTRA_USER_ID={$EXTRA_USER_ID}&$EXTRA_DEVICE_ID={$EXTRA_DEVICE_ID}",
         content = { DeviceDetailsScreen(it.navBackStackEntry.savedStateHandle.getBackNavArgs()) },
         animationConfig = NavigationAnimationConfig.DelegatedAnimation
     ) {
         override fun getRouteWithArgs(arguments: List<Any>): String {
-            val clientIdString: String = arguments.filterIsInstance<ClientId>().firstOrNull()?.value.toString()
-            return "$DEVICE_DETAILS?$EXTRA_DEVICE_ID=$clientIdString"
+            val clientIdString: String = arguments.filterIsInstance<ClientId>().firstOrNull()?.value!!
+            val userId: UserId = arguments.filterIsInstance<UserId>().firstOrNull()!!
+            return "$DEVICE_DETAILS?$EXTRA_USER_ID=$userId&$EXTRA_DEVICE_ID=$clientIdString"
         }
       },
 

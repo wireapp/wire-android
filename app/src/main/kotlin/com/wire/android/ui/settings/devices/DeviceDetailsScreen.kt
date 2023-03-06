@@ -1,5 +1,6 @@
 package com.wire.android.ui.settings.devices
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,21 +17,25 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
-import com.wire.android.model.Clickable
 import com.wire.android.navigation.hiltSavedStateViewModel
 import com.wire.android.ui.authentication.devices.model.Device
 import com.wire.android.ui.authentication.devices.remove.RemoveDeviceDialog
 import com.wire.android.ui.authentication.devices.remove.RemoveDeviceDialogState
 import com.wire.android.ui.authentication.devices.remove.RemoveDeviceError
+import com.wire.android.ui.common.CopyButton
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
+import com.wire.android.ui.common.WireSwitch
+import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.button.wirePrimaryButtonColors
 import com.wire.android.ui.common.colorsScheme
@@ -41,11 +46,16 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.dialogErrorStrings
+import com.wire.android.util.extension.formatAsFingerPrint
 import com.wire.android.util.extension.formatAsString
 import com.wire.android.util.formatMediumDateTime
 import com.wire.kalium.logic.data.conversation.ClientId
+import com.wire.kalium.logic.feature.client.UpdateClientVerificationStatusUseCase
+import com.wire.kalium.logic.functional.Either
+import com.wire.kalium.logic.functional.fold
 import kotlinx.collections.immutable.ImmutableMap
 import kotlinx.collections.immutable.persistentMapOf
+import kotlinx.coroutines.launch
 
 @Composable
 fun DeviceDetailsScreen(
@@ -60,7 +70,8 @@ fun DeviceDetailsScreen(
             onRemoveConfirm = viewModel::onRemoveConfirmed,
             onDialogDismiss = viewModel::onDialogDismissed,
             onErrorDialogDismiss = viewModel::clearDeleteClientError,
-            onNavigateBack = viewModel::navigateBack
+            onNavigateBack = viewModel::navigateBack,
+            onUpdateClientVerification = viewModel::onUpdateVerificationStatus
         )
     }
 }
@@ -74,7 +85,8 @@ fun DeviceDetailsContent(
     onPasswordChange: (TextFieldValue) -> Unit = {},
     onRemoveConfirm: () -> Unit = {},
     onDialogDismiss: () -> Unit = {},
-    onErrorDialogDismiss: () -> Unit = {}
+    onErrorDialogDismiss: () -> Unit = {},
+    onUpdateClientVerification: (Boolean) -> Unit = {}
 ) {
     Scaffold(
         topBar = {
@@ -121,12 +133,25 @@ fun DeviceDetailsContent(
                 with(state.device.registrationTime) {
                     DeviceDetailSectionContent(
                         stringResource(id = R.string.label_client_added_time),
-                        this.formatMediumDateTime() ?: this
+                        Either.Left(this?.formatMediumDateTime() ?: "")
                     )
                 }
             }
             item {
-                DeviceDetailSectionContent(stringResource(id = R.string.label_client_device_id), state.device.clientId.formatAsString())
+                DeviceDetailSectionContent(
+                    stringResource(id = R.string.label_client_device_id),
+                    Either.Left(state.device.clientId.formatAsString())
+                )
+            }
+
+            item {
+                DeviceKeyFingerprintItem(state.fingerPrint)
+            }
+
+            if (!state.isCurrentDevice) {
+                item {
+                    DeviceVerificationItem(state.isVerified, state.fingerPrint != null, onUpdateClientVerification)
+                }
             }
         }
         if (state.removeDeviceDialogState is RemoveDeviceDialogState.Visible) {
@@ -156,11 +181,62 @@ fun DeviceDetailsContent(
 }
 
 @Composable
+fun DeviceKeyFingerprintItem(
+    clientFingerPrint: String?
+) {
+    val clipboardManager = LocalClipboardManager.current
+
+    DeviceDetailSectionContent(
+        stringResource(id = R.string.title_device_key_fingerprint),
+        sectionText = clientFingerPrint?.formatAsFingerPrint()?.let { Either.Right(it) } ?: Either.Left(
+            stringResource(id = R.string.label_client_key_fingerprint_not_available)
+        ),
+        enabled = clientFingerPrint != null,
+        titleTrailingItem = {
+            CopyButton(
+                onCopyClicked = {
+                    clientFingerPrint?.let { fingerprint ->
+                        clipboardManager.setText(AnnotatedString(fingerprint))
+                    }
+                },
+                state = if (clientFingerPrint != null) WireButtonState.Default else WireButtonState.Disabled
+            )
+        }
+    )
+}
+
+@Composable
+fun DeviceVerificationItem(
+    state: Boolean,
+    enabled: Boolean,
+    onStatusChange: (Boolean) -> Unit,
+) {
+    @StringRes
+    val subTitle = if (state) {
+        R.string.label_client_verified
+    } else {
+        R.string.label_client_unverified
+    }
+    DeviceDetailSectionContent(
+        stringResource(id = R.string.title_device_key_fingerprint),
+        Either.Left(stringResource(id = subTitle)),
+        titleTrailingItem = {
+            WireSwitch(
+                checked = state,
+                onCheckedChange = onStatusChange,
+                enabled = enabled,
+                modifier = Modifier.padding(end = dimensions().spacing16x)
+            )
+        }
+    )
+}
+
+@Composable
 private fun DeviceDetailSectionContent(
     sectionTitle: String,
-    sectionText: String = "",
-    titleTrailingItem: (@Composable () -> Unit)? = null,
-    clickable: Clickable = Clickable(enabled = false, onClick = { /* not handled */ }, onLongClick = { /* not handled */ })
+    sectionText: Either<String, AnnotatedString>,
+    enabled: Boolean = true,
+    titleTrailingItem: (@Composable () -> Unit)? = null
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -183,12 +259,24 @@ private fun DeviceDetailSectionContent(
                 modifier = Modifier.padding(bottom = MaterialTheme.wireDimensions.spacing4x)
             )
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    text = sectionText,
-                    style = MaterialTheme.wireTypography.body01,
-                    color = MaterialTheme.wireColorScheme.onBackground,
-                    modifier = Modifier.weight(weight = 1f, fill = true)
-                )
+                sectionText.fold({
+                    Text(
+                        text = it,
+                        style = MaterialTheme.wireTypography.body01,
+                        color = if (enabled) MaterialTheme.wireColorScheme.onBackground
+                        else MaterialTheme.wireColorScheme.secondaryText,
+                        modifier = Modifier.weight(weight = 1f, fill = true)
+                    )
+                }, {
+                    Text(
+                        text = it,
+                        style = MaterialTheme.wireTypography.body01,
+                        color = if (enabled) MaterialTheme.wireColorScheme.onBackground
+                        else MaterialTheme.wireColorScheme.secondaryText,
+                        modifier = Modifier.weight(weight = 1f, fill = true)
+                    )
+                })
+
                 if (titleTrailingItem != null) {
                     Box(modifier = Modifier.padding(horizontal = MaterialTheme.wireDimensions.spacing8x)) { titleTrailingItem() }
                 }

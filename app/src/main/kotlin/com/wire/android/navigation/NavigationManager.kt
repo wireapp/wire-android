@@ -41,7 +41,6 @@ class NavigationManager {
                 .take(1)
                 .collect { _navigateState.emit(command) }
         }
-
     }
 
     suspend fun navigateBack(previousBackStackPassedArgs: Map<String, Any> = mapOf()) {
@@ -68,7 +67,7 @@ data class NavigationCommand(
      */
     val previousBackStackPassedArgs: List<Pair<String, Any>>? = null
 
-    //TODO add in/out animations here
+    // TODO add in/out animations here
 )
 
 enum class BackStackMode {

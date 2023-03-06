@@ -132,7 +132,6 @@ class DeepLinkProcessorTest {
         assertEquals(DeepLinkResult.Unknown, result)
     }
 
-
     @Test
     fun `given a conversation deeplink, returns Conversation with conversationId`() = runTest {
         setupWithConversationDeepLink()

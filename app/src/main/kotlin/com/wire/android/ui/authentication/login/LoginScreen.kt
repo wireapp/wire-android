@@ -135,7 +135,6 @@ private fun LoginContent(
                         } else {
                             scope.launch { pagerState.animateScrollToPage(it) }
                         }
-
                     },
                     modifier = Modifier.padding(
                         start = MaterialTheme.wireDimensions.spacing16x,

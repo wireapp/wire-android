@@ -34,6 +34,7 @@ import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.services.ServicesManager
+import com.wire.android.ui.common.dialogs.CustomBEDeeplinkDialogState
 import com.wire.android.ui.joinConversation.JoinConversationViaCodeState
 import com.wire.android.util.deeplink.DeepLinkProcessor
 import com.wire.android.util.deeplink.DeepLinkResult
@@ -140,6 +141,21 @@ class WireActivityViewModelTest {
         assertEquals(NavigationItem.Welcome.getRouteWithArgs(), viewModel.startNavigationRoute())
         coVerify(exactly = 0) { arrangement.navigationManager.navigate(any()) }
         assertEquals(newServerConfig(1).links, viewModel.globalAppState.customBackendDialog.serverLinks)
+    }
+
+    @Test
+    fun `given Intent with ServerConfig, when currentSession is absent and migration is required, then startNavigation is Migration`() {
+        val (arrangement, viewModel) = Arrangement()
+            .withNoCurrentSession()
+            .withMigrationRequired()
+            .withDeepLinkResult(DeepLinkResult.CustomServerConfig("url"))
+            .arrange()
+
+        viewModel.handleDeepLink(mockedIntent())
+
+        assertEquals(NavigationItem.Migration.getRouteWithArgs(), viewModel.startNavigationRoute())
+        coVerify(exactly = 0) { arrangement.navigationManager.navigate(any()) }
+        assertEquals(CustomBEDeeplinkDialogState(), viewModel.globalAppState.customBackendDialog)
     }
 
     @Test
@@ -673,6 +689,10 @@ class WireActivityViewModelTest {
 
         fun withIsPersistentWebSocketServiceRunning(isRunning: Boolean): Arrangement = apply {
             every { servicesManager.isPersistentWebSocketServiceRunning() } returns isRunning
+        }
+
+        fun withMigrationRequired(): Arrangement = apply {
+            coEvery { migrationManager.shouldMigrate() } returns true
         }
 
         fun arrange() = this to viewModel

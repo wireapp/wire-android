@@ -92,8 +92,8 @@ fun LoginScreen() {
     ExperimentalFoundationApi::class,
     ExperimentalMaterialApi::class
 )
-@Suppress("MultiLineIfElse")
 @Composable
+@Suppress("MultiLineIfElse")
 private fun LoginContent(
     onBackPressed: () -> Unit,
     viewModel: LoginViewModel,

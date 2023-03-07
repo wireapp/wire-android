@@ -22,22 +22,16 @@ package com.wire.android.navigation
 
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.dropWhile
 
 class NavigationManager {
 
-    private val _navigateState = MutableSharedFlow<NavigationCommand?>()
+    private val _navigateState = MutableSharedFlow<NavigationCommand?>(1)
     private val _navigateBack = MutableSharedFlow<Map<String, Any>>()
     var navigateState: SharedFlow<NavigationCommand?> = _navigateState
     var navigateBack: SharedFlow<Map<String, Any>> = _navigateBack
 
     suspend fun navigate(command: NavigationCommand) {
-        // in case of DeepLink possible scenario when navigate() is called, but _navigateState Flow is not subscribed yet,
-        // so the navigate command goes nowhere.
-        // To avoid such lose we'll wait till _navigateState Flow is subscribed and emit command into it only after that.
-        _navigateState.subscriptionCount
-            .dropWhile { it <= 0 }
-            .collect { _navigateState.emit(command) }
+        _navigateState.emit(command)
     }
 
     suspend fun navigateBack(previousBackStackPassedArgs: Map<String, Any> = mapOf()) {

@@ -20,6 +20,7 @@
 
 package com.wire.android
 
+import android.app.Activity
 import android.app.Application
 import android.content.ComponentCallbacks2
 import android.os.Build
@@ -32,11 +33,14 @@ import com.datadog.android.core.configuration.Credentials
 import com.datadog.android.privacy.TrackingConsent
 import com.datadog.android.rum.GlobalRum
 import com.datadog.android.rum.RumMonitor
+import com.datadog.android.rum.tracking.ActivityViewTrackingStrategy
+import com.datadog.android.rum.tracking.ComponentPredicate
 import com.google.firebase.FirebaseApp
 import com.google.firebase.FirebaseOptions
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.di.ApplicationScope
 import com.wire.android.di.KaliumCoreLogic
+import com.wire.android.ui.WireActivity
 import com.wire.android.util.DataDogLogger
 import com.wire.android.util.LogFileWriter
 import com.wire.android.util.extension.isGoogleServicesAvailable
@@ -51,7 +55,6 @@ import com.wire.kalium.logic.CoreLogger
 import com.wire.kalium.logic.CoreLogic
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -60,7 +63,6 @@ import javax.inject.Inject
 // App wide global logger, carefully initialized when our application is "onCreate"
 var appLogger: KaliumLogger = KaliumLogger.disabled()
 
-@OptIn(ExperimentalCoroutinesApi::class)
 @HiltAndroidApp
 class WireApplication : Application(), Configuration.Provider {
 
@@ -79,6 +81,7 @@ class WireApplication : Application(), Configuration.Provider {
 
     @Inject
     lateinit var globalObserversManager: GlobalObserversManager
+
     @Inject
     lateinit var globalDataStore: GlobalDataStore
 
@@ -120,7 +123,6 @@ class WireApplication : Application(), Configuration.Provider {
             StrictMode.ThreadPolicy.Builder()
                 .detectDiskReads()
                 .detectDiskWrites()
-                .detectNetwork()
                 .penaltyLog()
                 // .penaltyDeath() TODO: add it later after fixing reported violations
                 .build()
@@ -129,7 +131,6 @@ class WireApplication : Application(), Configuration.Provider {
             StrictMode.VmPolicy.Builder()
                 .detectLeakedSqlLiteObjects()
                 .detectLeakedClosableObjects()
-                .detectAll()
                 .penaltyLog()
                 // .penaltyDeath() TODO: add it later after fixing reported violations
                 .build()
@@ -138,7 +139,9 @@ class WireApplication : Application(), Configuration.Provider {
 
     private fun initializeApplicationLoggingFrameworks() {
         // 1. Datadog should be initialized first
-        enableDatadog()
+        globalAppScope.launch {
+            enableDatadog()
+        }
         // 2. Initialize our internal logging framework
         appLogger = KaliumLogger(
             config = KaliumLogger.Config(
@@ -192,7 +195,21 @@ class WireApplication : Application(), Configuration.Provider {
             tracesEnabled = true,
             rumEnabled = true,
             crashReportsEnabled = true,
-        ).trackInteractions()
+        )
+            .useViewTrackingStrategy(
+                ActivityViewTrackingStrategy(
+                    trackExtras = true,
+                    componentPredicate = object : ComponentPredicate<Activity> {
+                        override fun accept(component: Activity): Boolean {
+                            // reject Activities which are hosts of Compose views, so that they are not counted as views
+                            return component !is WireActivity
+                        }
+
+                        override fun getViewName(component: Activity): String? = null
+                    }
+                )
+            )
+            .trackInteractions()
             .trackBackgroundRumEvents(true)
             .trackLongTasks(LONG_TASK_THRESH_HOLD_MS)
             .useSite(DatadogSite.EU1)
@@ -200,7 +217,7 @@ class WireApplication : Application(), Configuration.Provider {
 
         val credentials = Credentials(clientToken, environmentName, appVariantName, applicationId)
         val extraInfo = mapOf(
-           "encrypted_proteus_storage_enabled" to runBlocking {
+            "encrypted_proteus_storage_enabled" to runBlocking {
                 globalDataStore.isEncryptedProteusStorageEnabled().first()
             }
         )

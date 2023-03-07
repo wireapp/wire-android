@@ -28,7 +28,6 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -42,14 +41,15 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.window.DialogProperties
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.NavHostController
-import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.navigation.NavigationGraph
+import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.navigation.navigateToItem
 import com.wire.android.navigation.popWithArguments
+import com.wire.android.navigation.rememberTrackingAnimatedNavController
 import com.wire.android.ui.calling.ProximitySensorManager
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
@@ -77,12 +77,12 @@ import javax.inject.Inject
 
 @OptIn(
     ExperimentalMaterial3Api::class,
-    ExperimentalAnimationApi::class,
     ExperimentalComposeUiApi::class,
     ExperimentalCoroutinesApi::class
 )
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @AndroidEntryPoint
+@Suppress("TooManyFunctions")
 class WireActivity : AppCompatActivity() {
 
     @Inject
@@ -102,18 +102,21 @@ class WireActivity : AppCompatActivity() {
         proximitySensorManager.initialize()
         lifecycle.addObserver(currentScreenManager)
 
-        viewModel.handleDeepLink(intent)
-        setComposableContent()
+        handleDeepLink(intent, savedInstanceState)
+        viewModel.observePersistentConnectionStatus()
+        val startDestination = viewModel.startNavigationRoute()
+        setComposableContent(startDestination)
     }
 
     override fun onNewIntent(intent: Intent?) {
-        if (viewModel.handleDeepLinkOnNewIntent(intent)) {
-            recreate()
+        if (viewModel.isSharingIntent(intent)) {
+            setIntent(intent)
         }
+        handleDeepLink(intent)
         super.onNewIntent(intent)
     }
 
-    private fun setComposableContent() {
+    private fun setComposableContent(startDestination: String) {
         setContent {
             CompositionLocalProvider(
                 LocalFeatureVisibilityFlags provides FeatureVisibilityFlags,
@@ -121,32 +124,8 @@ class WireActivity : AppCompatActivity() {
             ) {
                 WireTheme {
                     val scope = rememberCoroutineScope()
-                    val navController = rememberAnimatedNavController()
-                    val startDestination = viewModel.startNavigationRoute()
-                    Scaffold {
-                        NavigationGraph(navController = navController, startDestination, viewModel.navigationArguments())
-                    }
-                    setUpNavigation(navController, scope)
-
-                    updateAppDialog(
-                        { updateTheApp() },
-                        viewModel.globalAppState.updateAppDialog
-                    )
-
-                    viewModel.globalAppState.conversationJoinedDialog?.let {
-                        when (it) {
-                            is JoinConversationViaCodeState.Error -> JoinConversationViaInviteLinkError(
-                                errorState = it,
-                                onCancel = viewModel::cancelJoinConversation
-                            )
-                            is JoinConversationViaCodeState.Show -> JoinConversationViaDeepLinkDialog(
-                                it,
-                                false,
-                                onCancel = viewModel::cancelJoinConversation,
-                                onJoinClick = viewModel::joinConversationViaCode
-                            )
-                        }
-                    }
+                    val navController = rememberTrackingAnimatedNavController { NavigationItem.fromRoute(it)?.itemName }
+                    setUpNavigationGraph(startDestination, navController, scope)
                     handleDialogs()
                 }
             }
@@ -154,44 +133,53 @@ class WireActivity : AppCompatActivity() {
     }
 
     @Composable
+    fun setUpNavigationGraph(startDestination: String, navController: NavHostController, scope: CoroutineScope) {
+        Scaffold {
+            NavigationGraph(navController = navController, startDestination)
+        }
+        setUpNavigation(navController, scope)
+    }
+
+    @Composable
+    private fun setUpNavigation(
+        navController: NavHostController,
+        scope: CoroutineScope
+    ) {
+        val keyboardController = LocalSoftwareKeyboardController.current
+        // with the static key here we're sure that this effect wouldn't be canceled or restarted
+        LaunchedEffect(Unit) {
+            navigationManager.navigateState.onEach { command ->
+                if (command == null) return@onEach
+                keyboardController?.hide()
+                navController.navigateToItem(command)
+            }.launchIn(scope)
+
+            navigationManager.navigateBack.onEach {
+                if (!navController.popWithArguments(it)) finish()
+            }.launchIn(scope)
+
+            navController.addOnDestinationChangedListener { controller, _, _ ->
+                keyboardController?.hide()
+                updateScreenSettings(controller)
+            }
+
+            navController.addOnDestinationChangedListener(currentScreenManager)
+        }
+    }
+
+    @Composable
     private fun handleDialogs() {
-        handleCustomBackendDialog(viewModel.globalAppState.customBackendDialog.shouldShowDialog)
-        maxAccountDialog(
-            viewModel::openProfile,
-            viewModel::dismissMaxAccountDialog,
-            viewModel.globalAppState.maxAccountDialog
+        updateAppDialog({ updateTheApp() }, viewModel.globalAppState.updateAppDialog)
+        joinConversationDialog(viewModel.globalAppState.conversationJoinedDialog)
+        customBackendDialog(viewModel.globalAppState.customBackendDialog.shouldShowDialog)
+        maxAccountDialog(viewModel::openProfile, viewModel::dismissMaxAccountDialog, viewModel.globalAppState.maxAccountDialog)
+        accountLoggedOutDialog(viewModel.globalAppState.blockUserUI)
+        newClientDialog(
+            viewModel.globalAppState.newClientDialog,
+            viewModel::openDeviceManager,
+            viewModel::switchAccount,
+            viewModel::dismissNewClientDialog
         )
-        updateAppDialog(
-            { updateTheApp() },
-            viewModel.globalAppState.updateAppDialog
-        )
-        viewModel.globalAppState.blockUserUI?.let { AccountLoggedOutDialog(it, viewModel::navigateToNextAccountOrWelcome) }
-        viewModel.globalAppState.newClientDialog?.let {
-            newClientDialog(
-                it,
-                viewModel::openDeviceManager,
-                viewModel::switchAccount,
-                viewModel::dismissNewClientDialog
-            )
-        }
-    }
-
-    @Composable
-    private fun handleCustomBackendDialog(shouldShow: Boolean) {
-        if (shouldShow) {
-            CustomBEDeeplinkDialog(viewModel)
-        }
-    }
-
-    @Composable
-    private fun maxAccountDialog(onConfirm: () -> Unit, onDismiss: () -> Unit, shouldShow: Boolean) {
-        if (shouldShow) {
-            MaxAccountReachedDialog(
-                onConfirm = onConfirm,
-                onDismiss = onDismiss,
-                buttonText = R.string.max_account_reached_dialog_button_open_profile
-            )
-        }
     }
 
     @Composable
@@ -216,7 +204,49 @@ class WireActivity : AppCompatActivity() {
     }
 
     @Composable
-    fun AccountLoggedOutDialog(reason: CurrentSessionErrorState, navigateAway: () -> Unit) {
+    private fun joinConversationDialog(joinedDialogState: JoinConversationViaCodeState?) {
+        joinedDialogState?.let {
+            when (it) {
+                is JoinConversationViaCodeState.Error -> JoinConversationViaInviteLinkError(
+                    errorState = it,
+                    onCancel = viewModel::cancelJoinConversation
+                )
+
+                is JoinConversationViaCodeState.Show -> JoinConversationViaDeepLinkDialog(
+                    it,
+                    false,
+                    onCancel = viewModel::cancelJoinConversation,
+                    onJoinClick = viewModel::joinConversationViaCode
+                )
+            }
+        }
+    }
+
+    @Composable
+    private fun customBackendDialog(shouldShow: Boolean) {
+        if (shouldShow) {
+            CustomBEDeeplinkDialog(viewModel)
+        }
+    }
+
+    @Composable
+    private fun maxAccountDialog(onConfirm: () -> Unit, onDismiss: () -> Unit, shouldShow: Boolean) {
+        if (shouldShow) {
+            MaxAccountReachedDialog(
+                onConfirm = onConfirm,
+                onDismiss = onDismiss,
+                buttonText = R.string.max_account_reached_dialog_button_open_profile
+            )
+        }
+    }
+
+    @Composable
+    private fun accountLoggedOutDialog(blockUserUI: CurrentSessionErrorState?) {
+        blockUserUI?.let { accountLoggedOutDialog(it, viewModel::navigateToNextAccountOrWelcome) }
+    }
+
+    @Composable
+    fun accountLoggedOutDialog(reason: CurrentSessionErrorState, navigateAway: () -> Unit) {
         appLogger.e("AccountLongedOutDialog: $reason")
         val (@StringRes title: Int, @StringRes text: Int) = when (reason) {
             CurrentSessionErrorState.SessionExpired -> {
@@ -292,33 +322,6 @@ class WireActivity : AppCompatActivity() {
         }
     }
 
-    @Composable
-    private fun setUpNavigation(
-        navController: NavHostController,
-        scope: CoroutineScope
-    ) {
-        val keyboardController = LocalSoftwareKeyboardController.current
-        // with the static key here we're sure that this effect wouldn't be canceled or restarted
-        LaunchedEffect("key") {
-            navigationManager.navigateState.onEach { command ->
-                if (command == null) return@onEach
-                keyboardController?.hide()
-                navController.navigateToItem(command)
-            }.launchIn(scope)
-
-            navigationManager.navigateBack.onEach {
-                if (!navController.popWithArguments(it)) finish()
-            }.launchIn(scope)
-
-            navController.addOnDestinationChangedListener { controller, _, _ ->
-                keyboardController?.hide()
-                updateScreenSettings(controller)
-            }
-
-            navController.addOnDestinationChangedListener(currentScreenManager)
-        }
-    }
-
     private fun updateTheApp() {
         val intent = Intent(Intent.ACTION_VIEW, Uri.parse(BuildConfig.UPDATE_APP_URL))
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -333,5 +336,28 @@ class WireActivity : AppCompatActivity() {
     override fun onPause() {
         super.onPause()
         proximitySensorManager.unRegisterListener()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putBoolean(HANDLED_DEEPLINK_FLAG, true)
+        super.onSaveInstanceState(outState)
+    }
+
+    private fun handleDeepLink(
+        intent: Intent?,
+        savedInstanceState: Bundle? = null
+    ) {
+        if (intent == null
+            || intent.flags and Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY != 0
+            || savedInstanceState?.getBoolean(HANDLED_DEEPLINK_FLAG, false) == true
+        ) {
+            return
+        }
+
+        viewModel.handleDeepLink(intent)
+    }
+
+    companion object {
+        private const val HANDLED_DEEPLINK_FLAG = "deeplink_handled_flag_key"
     }
 }

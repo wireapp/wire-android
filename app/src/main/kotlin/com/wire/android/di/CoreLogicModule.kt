@@ -31,6 +31,7 @@ import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.id.QualifiedIdMapperImpl
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.asset.DeleteAssetUseCase
+import com.wire.kalium.logic.feature.asset.GetAssetSizeLimitUseCase
 import com.wire.kalium.logic.feature.asset.GetAvatarAssetUseCase
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageUseCase
@@ -57,6 +58,7 @@ import com.wire.kalium.logic.feature.conversation.ClearConversationContentUseCas
 import com.wire.kalium.logic.feature.conversation.CreateGroupConversationUseCase
 import com.wire.kalium.logic.feature.conversation.GetAllContactsNotInConversationUseCase
 import com.wire.kalium.logic.feature.conversation.GetOrCreateOneToOneConversationUseCase
+import com.wire.kalium.logic.feature.conversation.GetOtherUserSecurityClassificationLabelUseCase
 import com.wire.kalium.logic.feature.conversation.LeaveConversationUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveSecurityClassificationLabelUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveUserListByIdUseCase
@@ -91,7 +93,8 @@ import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.GetUserInfoUseCase
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
-import com.wire.kalium.logic.feature.user.IsSelfATeamMemberUseCase
+import com.wire.kalium.logic.feature.user.IsReadOnlyAccountUseCase
+import com.wire.kalium.logic.feature.user.MarkFileSharingChangeAsNotifiedUseCase
 import com.wire.kalium.logic.feature.user.ObserveUserInfoUseCase
 import com.wire.kalium.logic.feature.user.ObserveValidAccountsUseCase
 import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
@@ -106,9 +109,9 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.scopes.ServiceScoped
 import dagger.hilt.android.scopes.ViewModelScoped
 import dagger.hilt.components.SingletonComponent
-import kotlinx.coroutines.runBlocking
 import javax.inject.Qualifier
 import javax.inject.Singleton
+import kotlinx.coroutines.runBlocking
 
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
@@ -778,6 +781,13 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
+    fun provideIsReadOnlyAccountUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): IsReadOnlyAccountUseCase = coreLogic.getSessionScope(currentAccount).users.isReadOnlyAccount
+
+    @ViewModelScoped
+    @Provides
     fun provideUpdateConversationMemberRoleUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
@@ -907,10 +917,10 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
-    fun provideIsSelfTeamMemberUseCase(
+    fun provideIsSelfATeamMemberUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
-    ): IsSelfATeamMemberUseCase = coreLogic.getSessionScope(currentAccount).team.isSelfATeamMember
+    ) = coreLogic.getSessionScope(currentAccount).team.isSelfATeamMember
 
     @ViewModelScoped
     @Provides
@@ -924,6 +934,21 @@ class UseCaseModule {
         @CurrentAccount currentAccount: UserId
     ): UpdateDisplayNameUseCase =
         coreLogic.getSessionScope(currentAccount).users.updateDisplayName
+
+    @ViewModelScoped
+    @Provides
+    fun provideGetAssetSizeLimitUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): GetAssetSizeLimitUseCase =
+        coreLogic.getSessionScope(currentAccount).users.getAssetSizeLimit
+
+    @ViewModelScoped
+    @Provides
+    fun provideMarkFileSharingStatusAsNotified(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): MarkFileSharingChangeAsNotifiedUseCase = coreLogic.getSessionScope(currentAccount).markFileSharingStatusAsNotified
 
     @ViewModelScoped
     @Provides
@@ -960,6 +985,24 @@ class UseCaseModule {
         @CurrentAccount currentAccount: UserId
     ): ObserveGuestRoomLinkUseCase =
         coreLogic.getSessionScope(currentAccount).conversations.observeGuestRoomLink
+
+    @ViewModelScoped
+    @Provides
+    fun provideObserveGuestRoomLinkFeatureFlagUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).observeGuestRoomLinkFeatureFlag
+
+    @ViewModelScoped
+    @Provides
+    fun provideMarkGuestLinkFeatureFlagAsNotChangedUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).markGuestLinkFeatureFlagAsNotChanged
+
+    @ViewModelScoped
+    @Provides
+    fun getOtherUserSecurityClassificationLabelUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): GetOtherUserSecurityClassificationLabelUseCase =
+        coreLogic.getSessionScope(currentAccount).getOtherUserSecurityClassificationLabel
 
     @ViewModelScoped
     @Provides

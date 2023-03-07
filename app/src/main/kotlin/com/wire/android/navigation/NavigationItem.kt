@@ -25,7 +25,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDeepLink
-import androidx.navigation.navDeepLink
 import com.wire.android.BuildConfig
 import com.wire.android.model.ImageAsset
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.ADD_CONVERSATION_PARTICIPANTS
@@ -45,6 +44,7 @@ import com.wire.android.navigation.NavigationItemDestinationsRoutes.GROUP_CONVER
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.GROUP_CONVERSATION_DETAILS
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.HOME
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.IMAGE_PICKER
+import com.wire.android.navigation.NavigationItemDestinationsRoutes.IMPORT_MEDIA
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.INCOMING_CALL
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.INITIAL_SYNC
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.INITIATING_CALL
@@ -95,19 +95,19 @@ import com.wire.android.ui.initialsync.InitialSyncScreen
 import com.wire.android.ui.migration.MigrationScreen
 import com.wire.android.ui.settings.devices.DeviceDetailsScreen
 import com.wire.android.ui.settings.devices.SelfDevicesScreen
+import com.wire.android.ui.sharing.ImportMediaScreen
 import com.wire.android.ui.userprofile.avatarpicker.AvatarPickerScreen
 import com.wire.android.ui.userprofile.other.OtherUserProfileScreen
 import com.wire.android.ui.userprofile.self.SelfUserProfileScreen
-import com.wire.android.util.deeplink.DeepLinkProcessor
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.kalium.logic.data.conversation.ClientId
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
+import com.wire.kalium.logic.data.user.UserId
 import io.github.esentsov.PackagePrivate
 import com.wire.android.ui.home.conversations.details.editguestaccess.EditGuestAccessScreen
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import com.wire.android.ui.home.conversations.details.editguestaccess.EditGuestAccessScreen
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 /**
@@ -130,18 +130,28 @@ enum class NavigationItem(
 
     Migration(
         primaryRoute = MIGRATION,
+        canonicalRoute = "$MIGRATION?$EXTRA_USER_ID={$EXTRA_USER_ID}",
         content = { MigrationScreen() },
-    ),
+    ) {
+        override fun getRouteWithArgs(arguments: List<Any>): String {
+            val userIdString: String = arguments.filterIsInstance<UserId>().firstOrNull()?.toString() ?: "{$EXTRA_USER_ID}"
+            return "$MIGRATION?$EXTRA_USER_ID=$userIdString"
+        }
+    },
 
     Login(
         primaryRoute = LOGIN,
-        canonicalRoute = LOGIN,
-        content = { contentParams ->
-            val ssoLoginResult = contentParams.arguments.filterIsInstance<DeepLinkResult.SSOLogin>().firstOrNull()
-            LoginScreen(ssoLoginResult)
-        },
+        canonicalRoute = "$LOGIN?$EXTRA_SSO_LOGIN_RESULT={$EXTRA_SSO_LOGIN_RESULT}&$EXTRA_USER_HANDLE={$EXTRA_USER_HANDLE}",
+        content = { LoginScreen() },
         animationConfig = NavigationAnimationConfig.CustomAnimation(smoothSlideInFromRight(), smoothSlideOutFromLeft())
-    ),
+    ) {
+        override fun getRouteWithArgs(arguments: List<Any>): String {
+            val ssoLoginResultString = arguments.filterIsInstance<DeepLinkResult.SSOLogin>().firstOrNull()?.let { Json.encodeToString(it) }
+                ?: "{$EXTRA_SSO_LOGIN_RESULT}"
+            val userHandleString: String = arguments.filterIsInstance<String>().firstOrNull()?.toString() ?: "{$EXTRA_USER_HANDLE}"
+            return "$LOGIN?$EXTRA_SSO_LOGIN_RESULT=$ssoLoginResultString&$EXTRA_USER_HANDLE=$userHandleString"
+        }
+    },
 
     CreateTeam(
         primaryRoute = CREATE_TEAM,
@@ -218,7 +228,7 @@ enum class NavigationItem(
             val clientIdString: String = arguments.filterIsInstance<ClientId>().firstOrNull()?.value.toString()
             return "$DEVICE_DETAILS?$EXTRA_DEVICE_ID=$clientIdString"
         }
-      },
+    },
 
     PrivacySettings(
         primaryRoute = PRIVACY_SETTINGS,
@@ -264,13 +274,6 @@ enum class NavigationItem(
     OtherUserProfile(
         primaryRoute = OTHER_USER_PROFILE,
         canonicalRoute = "$OTHER_USER_PROFILE?$EXTRA_USER_ID={$EXTRA_USER_ID}&$EXTRA_CONVERSATION_ID={$EXTRA_CONVERSATION_ID}",
-        deepLinks = listOf(
-            navDeepLink {
-                uriPattern = "${DeepLinkProcessor.DEEP_LINK_SCHEME}://" +
-                        "${DeepLinkProcessor.OTHER_USER_PROFILE_DEEPLINK_HOST}/" +
-                        "{$EXTRA_USER_ID}"
-            }
-        ),
         content = { OtherUserProfileScreen() },
         animationConfig = NavigationAnimationConfig.NoAnimation
     ) {
@@ -290,14 +293,6 @@ enum class NavigationItem(
     Conversation(
         primaryRoute = CONVERSATION,
         canonicalRoute = "$CONVERSATION?$EXTRA_CONVERSATION_ID={$EXTRA_CONVERSATION_ID}",
-        deepLinks = listOf(
-            navDeepLink {
-                uriPattern = "${DeepLinkProcessor.DEEP_LINK_SCHEME}://" +
-                        "${DeepLinkProcessor.CONVERSATION_DEEPLINK_HOST}/" +
-                        "{$EXTRA_CONVERSATION_ID}/" +
-                        "{$EXTRA_USER_ID}"
-            }
-        ),
         content = { ConversationScreen(backNavArgs = it.navBackStackEntry.savedStateHandle.getBackNavArgs()) },
         animationConfig = NavigationAnimationConfig.NoAnimation
     ) {
@@ -404,13 +399,6 @@ enum class NavigationItem(
     IncomingCall(
         primaryRoute = INCOMING_CALL,
         canonicalRoute = "$INCOMING_CALL?$EXTRA_CONVERSATION_ID={$EXTRA_CONVERSATION_ID}",
-        deepLinks = listOf(
-            navDeepLink {
-                uriPattern = "${DeepLinkProcessor.DEEP_LINK_SCHEME}://" +
-                        "${DeepLinkProcessor.INCOMING_CALL_DEEPLINK_HOST}/" +
-                        "{$EXTRA_CONVERSATION_ID}"
-            }
-        ),
         content = { IncomingCallScreen() },
         screenMode = ScreenMode.WAKE_UP,
         animationConfig = NavigationAnimationConfig.DelegatedAnimation
@@ -432,7 +420,12 @@ enum class NavigationItem(
             val mappedArgs = imageAssetId?.toString() ?: ""
             return imageAssetId?.run { "$primaryRoute/$mappedArgs" } ?: primaryRoute
         }
-    };
+    },
+
+    ImportMedia(
+        primaryRoute = IMPORT_MEDIA,
+        content = { ImportMediaScreen() }
+    );
 
     /**
      * The item theoretical route. If the route includes a route ID, this method will return the route with the placeholder.
@@ -448,21 +441,12 @@ enum class NavigationItem(
         return conversationId?.let { "$primaryRoute/$it" } ?: primaryRoute
     }
 
+    val itemName: String get() = ITEM_NAME_PREFIX + this.name
+
     companion object {
+        private const val ITEM_NAME_PREFIX = "NavigationItem."
         private val map: Map<String, NavigationItem> = values().associateBy { it.primaryRoute }
-
-        fun fromRoute(fullRoute: String): NavigationItem? {
-            val splitByQuestion = fullRoute.split("?")
-            val splitBySlash = fullRoute.split("/")
-
-            val primaryRoute = when {
-                splitByQuestion.size > 1 -> splitByQuestion[0]
-                splitBySlash.size > 1 -> splitBySlash[0]
-                else -> fullRoute
-            }
-
-            return map[primaryRoute]
-        }
+        fun fromRoute(fullRoute: String): NavigationItem? = map[fullRoute.getPrimaryRoute()]
     }
 }
 
@@ -502,10 +486,12 @@ object NavigationItemDestinationsRoutes {
     const val INCOMING_CALL = "incoming_call_screen"
     const val MEDIA_GALLERY = "media_gallery"
     const val NETWORK_SETTINGS = "network_settings_screen"
+    const val IMPORT_MEDIA = "import_media"
 }
 
 const val EXTRA_USER_ID = "extra_user_id"
 const val EXTRA_USER_DOMAIN = "extra_user_domain"
+const val EXTRA_USER_HANDLE = "extra_user_handle"
 
 const val EXTRA_CONVERSATION_ID = "extra_conversation_id"
 const val EXTRA_CREATE_ACCOUNT_FLOW_TYPE = "extra_create_account_flow_type"
@@ -525,6 +511,8 @@ const val EXTRA_SETTINGS_DISPLAY_NAME_CHANGED = "extra_settings_display_name_cha
 const val EXTRA_BACK_NAVIGATION_ARGUMENTS = "extra_back_navigation_arguments"
 
 const val EXTRA_EDIT_GUEST_ACCESS_PARAMS = "extra_edit_guest_access_params"
+
+const val EXTRA_SSO_LOGIN_RESULT = "sso_login_result"
 
 fun NavigationItem.isExternalRoute() = this.getRouteWithArgs().startsWith("http")
 

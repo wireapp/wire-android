@@ -38,7 +38,7 @@ fun messagePendingIntent(context: Context, conversationId: String, userId: Strin
             .scheme(DeepLinkProcessor.DEEP_LINK_SCHEME)
             .authority(DeepLinkProcessor.CONVERSATION_DEEPLINK_HOST)
             .appendPath(conversationId)
-            .appendPath(userId)
+            .appendQueryParameter(DeepLinkProcessor.USER_TO_USE_QUERY_PARAM, userId)
             .build()
     }
     val requestCode = getRequestCode(conversationId, OPEN_MESSAGE_REQUEST_CODE_PREFIX)
@@ -51,15 +51,16 @@ fun messagePendingIntent(context: Context, conversationId: String, userId: Strin
     )
 }
 
-fun otherUserProfilePendingIntent(context: Context, userId: String): PendingIntent {
+fun otherUserProfilePendingIntent(context: Context, destinationUserId: String, userId: String): PendingIntent {
     val intent = Intent(context.applicationContext, WireActivity::class.java).apply {
         data = Uri.Builder()
             .scheme(DeepLinkProcessor.DEEP_LINK_SCHEME)
             .authority(DeepLinkProcessor.OTHER_USER_PROFILE_DEEPLINK_HOST)
-            .appendPath(userId)
+            .appendPath(destinationUserId)
+            .appendQueryParameter(DeepLinkProcessor.USER_TO_USE_QUERY_PARAM, userId)
             .build()
     }
-    val requestCode = getRequestCode(userId, OPEN_OTHER_USER_PROFILE_CODE_PREFIX)
+    val requestCode = getRequestCode(destinationUserId, OPEN_OTHER_USER_PROFILE_CODE_PREFIX)
 
     return PendingIntent.getActivity(
         context.applicationContext,
@@ -93,8 +94,8 @@ fun replyMessagePendingIntent(context: Context, conversationId: String, userId: 
     PendingIntent.FLAG_MUTABLE
 )
 
-fun openIncomingCallPendingIntent(context: Context, conversationId: String): PendingIntent {
-    val intent = openIncomingCallIntent(context, conversationId)
+fun openIncomingCallPendingIntent(context: Context, conversationId: String, userId: String): PendingIntent {
+    val intent = openIncomingCallIntent(context, conversationId, userId)
 
     return PendingIntent.getActivity(
         context.applicationContext,
@@ -137,8 +138,8 @@ fun declineCallPendingIntent(context: Context, conversationId: String, userId: S
     )
 }
 
-fun fullScreenIncomingCallPendingIntent(context: Context, conversationId: String): PendingIntent {
-    val intent = openIncomingCallIntent(context, conversationId)
+fun fullScreenIncomingCallPendingIntent(context: Context, conversationId: String, userId: String): PendingIntent {
+    val intent = openIncomingCallIntent(context, conversationId, userId)
 
     return PendingIntent.getActivity(
         context,
@@ -148,12 +149,13 @@ fun fullScreenIncomingCallPendingIntent(context: Context, conversationId: String
     )
 }
 
-private fun openIncomingCallIntent(context: Context, conversationId: String) =
+private fun openIncomingCallIntent(context: Context, conversationId: String, userId: String) =
     Intent(context.applicationContext, WireActivity::class.java).apply {
         data = Uri.Builder()
             .scheme(DeepLinkProcessor.DEEP_LINK_SCHEME)
             .authority(DeepLinkProcessor.INCOMING_CALL_DEEPLINK_HOST)
             .appendPath(conversationId)
+            .appendQueryParameter(DeepLinkProcessor.USER_TO_USE_QUERY_PARAM, userId)
             .build()
     }
 
@@ -165,6 +167,23 @@ private fun openOngoingCallIntent(context: Context, conversationId: String) =
             .appendPath(conversationId)
             .build()
     }
+
+private fun openMigrationLoginIntent(context: Context, userHandle: String) =
+    Intent(context.applicationContext, WireActivity::class.java).apply {
+        data = Uri.Builder()
+            .scheme(DeepLinkProcessor.DEEP_LINK_SCHEME)
+            .authority(DeepLinkProcessor.MIGRATION_LOGIN_HOST)
+            .appendPath(userHandle)
+            .build()
+    }
+
+fun openMigrationLoginPendingIntent(context: Context, userHandle: String): PendingIntent =
+    PendingIntent.getActivity(
+        context.applicationContext,
+        OPEN_MIGRATION_LOGIN_REQUEST_CODE,
+        openMigrationLoginIntent(context, userHandle),
+        PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+    )
 
 fun openAppPendingIntent(context: Context): PendingIntent {
     val appIntent = Intent(context.applicationContext, WireActivity::class.java)
@@ -181,6 +200,7 @@ private const val DECLINE_CALL_REQUEST_CODE = "decline_call_"
 private const val OPEN_INCOMING_CALL_REQUEST_CODE = 2
 private const val FULL_SCREEN_REQUEST_CODE = 3
 private const val OPEN_ONGOING_CALL_REQUEST_CODE = 4
+private const val OPEN_MIGRATION_LOGIN_REQUEST_CODE = 5
 private const val END_ONGOING_CALL_REQUEST_CODE = "hang_up_call_"
 private const val OPEN_MESSAGE_REQUEST_CODE_PREFIX = "open_message_"
 private const val OPEN_OTHER_USER_PROFILE_CODE_PREFIX = "open_other_user_profile_"

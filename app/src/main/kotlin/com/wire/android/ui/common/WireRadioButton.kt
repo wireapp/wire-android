@@ -18,16 +18,22 @@
  *
  */
 
-package com.wire.android.ui.home.newconversation.common
+package com.wire.android.ui.common
 
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.RadioButton
+import androidx.compose.runtime.Composable
+import com.wire.android.ui.common.button.wireRadioButtonColors
 
-sealed class Screen(val route: String) {
-    object NewGroupNameScreen : Screen("new_group_name")
-    object SearchListNavHostScreens : Screen("search_list_nav_host")
-    object GroupOptionsScreen : Screen("group_options_screen")
-}
-
-sealed class SearchListScreens(val route: String) {
-    object KnownContactsScreen : SearchListScreens("known_contacts")
-    object SearchPeopleScreen : SearchListScreens("search_people")
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun WireRadioButton(
+    checked: Boolean,
+    onButtonChecked: (() -> Unit)
+) {
+    RadioButton(
+        selected = checked,
+        onClick = onButtonChecked,
+        colors = wireRadioButtonColors()
+    )
 }

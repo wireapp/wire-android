@@ -42,7 +42,7 @@ import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
 @Composable
 fun SecurityClassificationBanner(
     securityClassificationType: SecurityClassificationType,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier
 ) {
     if (securityClassificationType != SecurityClassificationType.NONE) {
         Divider()
@@ -99,5 +99,4 @@ fun PreviewClassifiedIndicator() {
         Divider()
         SecurityClassificationBanner(securityClassificationType = SecurityClassificationType.NOT_CLASSIFIED)
     }
-
 }

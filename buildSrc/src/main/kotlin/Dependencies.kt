@@ -34,7 +34,7 @@ object AndroidNdk {
 object AndroidClient {
     const val appId = "com.wire.android"
     val versionCode = Versionizer().versionCode
-    const val versionName = "4.0.0"
+    const val versionName = "4.0.2"
     const val testRunner = "com.wire.android.HiltAwareTestRunner"
 }
 
@@ -147,6 +147,7 @@ object Libraries {
     const val coilGif                   = "io.coil-kt:coil-gif:${Versions.coil}"
     const val coilCompose               = "io.coil-kt:coil-compose:${Versions.coil}"
     const val dataDog                   = "com.datadoghq:dd-sdk-android:${Versions.dataDog}"
+    const val dataDogCompose            = "com.datadoghq:dd-sdk-android-compose:${Versions.dataDog}"
 
     object Hilt {
         const val android = "com.google.dagger:hilt-android:${Versions.hilt}"

@@ -47,10 +47,12 @@ import com.wire.android.model.Clickable
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.Icon
+import com.wire.android.ui.common.SecurityClassificationBanner
 import com.wire.android.ui.common.UserBadge
 import com.wire.android.ui.common.UserProfileAvatar
-import com.wire.android.ui.common.WireCircularProgressIndicator
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.progress.WireCircularProgressIndicator
+import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
@@ -58,6 +60,7 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 import com.wire.android.util.ifNotEmpty
 import com.wire.kalium.logic.data.user.ConnectionState
+import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
 
 @Composable
 fun UserProfileInfo(
@@ -70,7 +73,8 @@ fun UserProfileInfo(
     onUserProfileClick: (() -> Unit)? = null,
     editableState: EditableState,
     modifier: Modifier = Modifier,
-    connection: ConnectionState = ConnectionState.ACCEPTED
+    connection: ConnectionState = ConnectionState.ACCEPTED,
+    securityClassificationType: SecurityClassificationType
 ) {
     Column(
         horizontalAlignment = CenterHorizontally,
@@ -129,14 +133,14 @@ fun UserProfileInfo(
                     overflow = TextOverflow.Ellipsis,
                     maxLines = 1,
                     style = MaterialTheme.wireTypography.title02,
-                    color = MaterialTheme.colorScheme.onBackground,
+                    color = MaterialTheme.colorScheme.onBackground
                 )
                 Text(
                     text = userName.ifNotEmpty { "@$userName" },
                     overflow = TextOverflow.Ellipsis,
                     style = MaterialTheme.wireTypography.body02,
                     maxLines = 1,
-                    color = MaterialTheme.wireColorScheme.labelText,
+                    color = MaterialTheme.wireColorScheme.labelText
                 )
                 UserBadge(membership, connection, topPadding = dimensions().spacing8x)
             }
@@ -171,6 +175,10 @@ fun UserProfileInfo(
                 )
             }
         }
+        if (securityClassificationType != SecurityClassificationType.NONE) {
+            VerticalSpace.x8()
+            SecurityClassificationBanner(securityClassificationType = securityClassificationType)
+        }
     }
 }
 
@@ -191,7 +199,7 @@ private fun TeamInformation(modifier: Modifier, teamName: String) {
         maxLines = 1,
         overflow = TextOverflow.Ellipsis,
         style = MaterialTheme.wireTypography.label01,
-        color = MaterialTheme.colorScheme.onBackground,
+        color = MaterialTheme.colorScheme.onBackground
     )
 }
 
@@ -199,7 +207,6 @@ sealed class EditableState {
     object NotEditable : EditableState()
     class IsEditable(val onEditClick: () -> Unit) : EditableState()
 }
-
 
 @Preview
 @Composable
@@ -212,6 +219,7 @@ fun PreviewUserProfileInfo() {
         fullName = "fullName",
         onUserProfileClick = {},
         teamName = "Wire",
-        connection = ConnectionState.ACCEPTED
+        connection = ConnectionState.ACCEPTED,
+        securityClassificationType = SecurityClassificationType.CLASSIFIED
     )
 }

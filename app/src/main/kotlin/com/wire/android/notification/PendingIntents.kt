@@ -51,7 +51,7 @@ fun messagePendingIntent(context: Context, conversationId: String, userId: Strin
     )
 }
 
-fun otherUserProfilePendingIntent(context: Context, destinationUserId: String, userId: String?): PendingIntent {
+fun otherUserProfilePendingIntent(context: Context, destinationUserId: String, userId: String): PendingIntent {
     val intent = Intent(context.applicationContext, WireActivity::class.java).apply {
         data = Uri.Builder()
             .scheme(DeepLinkProcessor.DEEP_LINK_SCHEME)

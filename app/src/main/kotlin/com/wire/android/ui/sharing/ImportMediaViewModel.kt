@@ -303,7 +303,12 @@ class ImportMediaViewModel @Inject constructor(
     }
 
     private suspend fun navigateToConversation(conversationId: ConversationId) {
-        navigationManager.navigate(NavigationCommand(NavigationItem.Conversation.getRouteWithArgs(listOf(conversationId))))
+        navigationManager.navigate(
+            NavigationCommand(
+                NavigationItem.Conversation.getRouteWithArgs(listOf(conversationId)),
+                backStackMode = BackStackMode.REMOVE_CURRENT
+            )
+        )
     }
 
     fun currentSelectedConversationsCount() = if (importMediaState.importedAssets.isNotEmpty()) {

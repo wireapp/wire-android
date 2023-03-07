@@ -168,11 +168,9 @@ class WireActivityViewModel @Inject constructor(
         }
     }
 
-    fun startNavigationRoute(navigationItem: NavigationItem? = null, hasSharingIntent: Boolean = false): String = when {
+    fun startNavigationRoute(): String = when {
         shouldGoToMigration() -> NavigationItem.Migration.getRouteWithArgs()
         shouldGoToWelcome() -> NavigationItem.Welcome.getRouteWithArgs()
-        hasSharingIntent -> NavigationItem.ImportMedia.getRouteWithArgs()
-        navigationItem != null -> navigationItem.getRouteWithArgs()
         else -> NavigationItem.Home.getRouteWithArgs()
     }
 
@@ -183,7 +181,12 @@ class WireActivityViewModel @Inject constructor(
     @Suppress("ComplexMethod")
     fun handleDeepLink(intent: Intent?) {
         viewModelScope.launch {
-            if (shouldGoToMigration() || shouldGoToWelcome()) return@launch
+            if (shouldGoToMigration() || shouldGoToWelcome()) {
+                // User is not logged in, or didn't finish the migration,
+                // corresponding screen will be opened by startNavigationRoute().
+                // DeepLinks should be ignored so far.
+                return@launch
+            }
 
             if (isSharingIntent(intent)) {
                 navigateToImportMediaScreen()
@@ -239,7 +242,7 @@ class WireActivityViewModel @Inject constructor(
     }
 
     private fun navigateToImportMediaScreen() {
-        navigateTo(NavigationCommand(NavigationItem.ImportMedia.getRouteWithArgs(), backStackMode = BackStackMode.CLEAR_WHOLE))
+        navigateTo(NavigationCommand(NavigationItem.ImportMedia.getRouteWithArgs(), backStackMode = BackStackMode.UPDATE_EXISTED))
     }
 
     private fun openIncomingCall(conversationId: ConversationId) {

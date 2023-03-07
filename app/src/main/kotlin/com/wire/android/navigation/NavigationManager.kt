@@ -22,7 +22,10 @@ package com.wire.android.navigation
 
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.dropWhile
 import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.replay
+import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.take
 
 class NavigationManager {
@@ -37,8 +40,7 @@ class NavigationManager {
         // so the navigate command goes nowhere.
         // To avoid such lose we'll wait till _navigateState Flow is subscribed and emit command into it only after that.
         _navigateState.subscriptionCount
-            .filter { it > 0 }
-            .take(1)
+            .dropWhile { it <= 0 }
             .collect { _navigateState.emit(command) }
     }
 

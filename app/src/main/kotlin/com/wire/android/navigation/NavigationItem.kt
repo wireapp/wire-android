@@ -142,7 +142,7 @@ enum class NavigationItem(
     Login(
         primaryRoute = LOGIN,
         canonicalRoute = "$LOGIN?$EXTRA_SSO_LOGIN_RESULT={$EXTRA_SSO_LOGIN_RESULT}&$EXTRA_USER_HANDLE={$EXTRA_USER_HANDLE}",
-        content = { LoginScreen(null) },
+        content = { LoginScreen() },
         animationConfig = NavigationAnimationConfig.CustomAnimation(smoothSlideInFromRight(), smoothSlideOutFromLeft())
     ) {
         override fun getRouteWithArgs(arguments: List<Any>): String {

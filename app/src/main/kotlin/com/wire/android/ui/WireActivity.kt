@@ -39,7 +39,6 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.window.DialogProperties
-import androidx.core.app.ShareCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.NavHostController
 import com.wire.android.BuildConfig
@@ -103,7 +102,7 @@ class WireActivity : AppCompatActivity() {
 
         handleDeepLink(intent, savedInstanceState)
         viewModel.observePersistentConnectionStatus()
-        val startDestination = viewModel.startNavigationRoute(hasSharingIntent = ShareCompat.IntentReader(this).isShareIntent)
+        val startDestination = viewModel.startNavigationRoute()
         setComposableContent(startDestination)
     }
 

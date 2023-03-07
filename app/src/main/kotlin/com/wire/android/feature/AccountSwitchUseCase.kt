@@ -89,7 +89,7 @@ class AccountSwitchUseCase @Inject constructor(
     }
 
     private suspend fun switch(userId: UserId?, current: AccountInfo?) {
-        val navigationDistention = (userId?.let { NavigationItem.Home } ?: run {
+        val navigationDestination = (userId?.let { NavigationItem.Home } ?: run {
             // if there are no more accounts, we need to change the auth server config to the one of the current user
             current?.let { updateAuthServer(it.userId) }
             NavigationItem.Welcome
@@ -97,12 +97,7 @@ class AccountSwitchUseCase @Inject constructor(
 
         when (updateCurrentSession(userId)) {
             is UpdateCurrentSessionUseCase.Result.Success -> {
-                navigationManager.navigate(
-                    NavigationCommand(
-                        navigationDistention,
-                        BackStackMode.CLEAR_WHOLE
-                    )
-                )
+                navigationManager.navigate(NavigationCommand(navigationDestination, BackStackMode.CLEAR_WHOLE))
             }
             is UpdateCurrentSessionUseCase.Result.Failure -> {
                 return

@@ -303,9 +303,12 @@ class ImportMediaViewModel @Inject constructor(
     }
 
     private suspend fun navigateToConversation(conversationId: ConversationId) {
-        // We add the Home fragment to the back stack so that we can navigate back to it when we press the back button
-        navigationManager.navigate(NavigationCommand(NavigationItem.Home.getRouteWithArgs(), BackStackMode.REMOVE_CURRENT))
-        navigationManager.navigate(NavigationCommand(NavigationItem.Conversation.getRouteWithArgs(listOf(conversationId))))
+        navigationManager.navigate(
+            NavigationCommand(
+                NavigationItem.Conversation.getRouteWithArgs(listOf(conversationId)),
+                backStackMode = BackStackMode.REMOVE_CURRENT
+            )
+        )
     }
 
     fun currentSelectedConversationsCount() = if (importMediaState.importedAssets.isNotEmpty()) {

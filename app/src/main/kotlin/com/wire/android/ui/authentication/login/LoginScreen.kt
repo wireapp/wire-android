@@ -75,18 +75,21 @@ import kotlinx.coroutines.launch
 
 @ExperimentalMaterialApi
 @Composable
-fun LoginScreen(ssoLoginResult: DeepLinkResult.SSOLogin?) {
+fun LoginScreen() {
     val loginViewModel: LoginViewModel = hiltViewModel()
 
     LoginContent(
         onBackPressed = { loginViewModel.navigateBack() },
         loginViewModel,
-        ssoLoginResult = ssoLoginResult
+        ssoLoginResult = loginViewModel.ssoLoginResult
     )
 }
 
 @OptIn(
-    ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class, ExperimentalPagerApi::class, ExperimentalFoundationApi::class,
+    ExperimentalComposeUiApi::class,
+    ExperimentalMaterial3Api::class,
+    ExperimentalPagerApi::class,
+    ExperimentalFoundationApi::class,
     ExperimentalMaterialApi::class
 )
 @Composable
@@ -134,7 +137,6 @@ private fun LoginContent(
                         } else {
                             scope.launch { pagerState.animateScrollToPage(it) }
                         }
-
                     },
                     modifier = Modifier.padding(
                         start = MaterialTheme.wireDimensions.spacing16x,
@@ -163,12 +165,13 @@ private fun LoginContent(
                     LoginTabItem.SSO -> LoginSSOScreen(ssoLoginResult)
                 }
             }
-            if (!pagerState.isScrollInProgress && focusedTabIndex != pagerState.currentPage)
+            if (!pagerState.isScrollInProgress && focusedTabIndex != pagerState.currentPage) {
                 LaunchedEffect(Unit) {
                     keyboardController?.hide()
                     focusManager.clearFocus()
                     focusedTabIndex = pagerState.currentPage
                 }
+            }
         }
     }
 }

@@ -38,7 +38,7 @@ fun messagePendingIntent(context: Context, conversationId: String, userId: Strin
             .scheme(DeepLinkProcessor.DEEP_LINK_SCHEME)
             .authority(DeepLinkProcessor.CONVERSATION_DEEPLINK_HOST)
             .appendPath(conversationId)
-            .appendPath(userId)
+            .appendQueryParameter(DeepLinkProcessor.USER_TO_USE_QUERY_PARAM, userId)
             .build()
     }
     val requestCode = getRequestCode(conversationId, OPEN_MESSAGE_REQUEST_CODE_PREFIX)
@@ -51,15 +51,16 @@ fun messagePendingIntent(context: Context, conversationId: String, userId: Strin
     )
 }
 
-fun otherUserProfilePendingIntent(context: Context, userId: String): PendingIntent {
+fun otherUserProfilePendingIntent(context: Context, destinationUserId: String, userId: String): PendingIntent {
     val intent = Intent(context.applicationContext, WireActivity::class.java).apply {
         data = Uri.Builder()
             .scheme(DeepLinkProcessor.DEEP_LINK_SCHEME)
             .authority(DeepLinkProcessor.OTHER_USER_PROFILE_DEEPLINK_HOST)
-            .appendPath(userId)
+            .appendPath(destinationUserId)
+            .appendQueryParameter(DeepLinkProcessor.USER_TO_USE_QUERY_PARAM, userId)
             .build()
     }
-    val requestCode = getRequestCode(userId, OPEN_OTHER_USER_PROFILE_CODE_PREFIX)
+    val requestCode = getRequestCode(destinationUserId, OPEN_OTHER_USER_PROFILE_CODE_PREFIX)
 
     return PendingIntent.getActivity(
         context.applicationContext,
@@ -93,8 +94,8 @@ fun replyMessagePendingIntent(context: Context, conversationId: String, userId: 
     PendingIntent.FLAG_MUTABLE
 )
 
-fun openIncomingCallPendingIntent(context: Context, conversationId: String): PendingIntent {
-    val intent = openIncomingCallIntent(context, conversationId)
+fun openIncomingCallPendingIntent(context: Context, conversationId: String, userId: String): PendingIntent {
+    val intent = openIncomingCallIntent(context, conversationId, userId)
 
     return PendingIntent.getActivity(
         context.applicationContext,
@@ -137,8 +138,8 @@ fun declineCallPendingIntent(context: Context, conversationId: String, userId: S
     )
 }
 
-fun fullScreenIncomingCallPendingIntent(context: Context, conversationId: String): PendingIntent {
-    val intent = openIncomingCallIntent(context, conversationId)
+fun fullScreenIncomingCallPendingIntent(context: Context, conversationId: String, userId: String): PendingIntent {
+    val intent = openIncomingCallIntent(context, conversationId, userId)
 
     return PendingIntent.getActivity(
         context,
@@ -148,12 +149,13 @@ fun fullScreenIncomingCallPendingIntent(context: Context, conversationId: String
     )
 }
 
-private fun openIncomingCallIntent(context: Context, conversationId: String) =
+private fun openIncomingCallIntent(context: Context, conversationId: String, userId: String) =
     Intent(context.applicationContext, WireActivity::class.java).apply {
         data = Uri.Builder()
             .scheme(DeepLinkProcessor.DEEP_LINK_SCHEME)
             .authority(DeepLinkProcessor.INCOMING_CALL_DEEPLINK_HOST)
             .appendPath(conversationId)
+            .appendQueryParameter(DeepLinkProcessor.USER_TO_USE_QUERY_PARAM, userId)
             .build()
     }
 

@@ -109,6 +109,18 @@
                 <data
                         android:host="migration-login"
                         android:scheme="wire" />
+
+                <data
+                        android:host="conversation"
+                        android:scheme="wire" />
+
+                <data
+                        android:host="other-user-profile"
+                        android:scheme="wire" />
+
+                <data
+                        android:host="ongoing-call"
+                        android:scheme="wire" />
             </intent-filter>
 
             <intent-filter>

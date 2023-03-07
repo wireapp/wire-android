@@ -93,7 +93,6 @@ fun LoginScreen() {
     ExperimentalMaterialApi::class
 )
 @Composable
-@Suppress("MultiLineIfElse")
 private fun LoginContent(
     onBackPressed: () -> Unit,
     viewModel: LoginViewModel,
@@ -166,12 +165,13 @@ private fun LoginContent(
                     LoginTabItem.SSO -> LoginSSOScreen(ssoLoginResult)
                 }
             }
-            if (!pagerState.isScrollInProgress && focusedTabIndex != pagerState.currentPage)
+            if (!pagerState.isScrollInProgress && focusedTabIndex != pagerState.currentPage) {
                 LaunchedEffect(Unit) {
                     keyboardController?.hide()
                     focusManager.clearFocus()
                     focusedTabIndex = pagerState.currentPage
                 }
+            }
         }
     }
 }

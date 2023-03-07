@@ -86,9 +86,13 @@ fun LoginScreen() {
 }
 
 @OptIn(
-    ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class, ExperimentalPagerApi::class, ExperimentalFoundationApi::class,
+    ExperimentalComposeUiApi::class,
+    ExperimentalMaterial3Api::class,
+    ExperimentalPagerApi::class,
+    ExperimentalFoundationApi::class,
     ExperimentalMaterialApi::class
 )
+@Suppress("MultiLineIfElse")
 @Composable
 private fun LoginContent(
     onBackPressed: () -> Unit,

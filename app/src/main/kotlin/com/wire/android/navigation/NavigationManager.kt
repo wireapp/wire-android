@@ -23,10 +23,6 @@ package com.wire.android.navigation
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.dropWhile
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.replay
-import kotlinx.coroutines.flow.shareIn
-import kotlinx.coroutines.flow.take
 
 class NavigationManager {
 

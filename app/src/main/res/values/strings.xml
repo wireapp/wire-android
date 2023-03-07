@@ -521,8 +521,33 @@
     <string name="label_system_message_receipt_mode_on">on</string>
     <string name="label_system_message_receipt_mode_off">off</string>
     <!-- Last messages -->
-    <string name="last_message_added">added</string>
-    <string name="last_message_removed">removed</string>
+    <plurals name="last_message_self_added_users">
+        <item quantity="one">You added 1 person</item>
+        <item quantity="other">You added %1$d people</item>
+    </plurals>
+    <plurals name="last_message_other_added_self_user">
+        <item quantity="zero">You were added</item>
+        <item quantity="one">You and 1 other person were added</item>
+        <item quantity="other">You and %1$d people were added</item>
+    </plurals>
+    <plurals name="last_message_other_added_other_users">
+        <item quantity="one">%1$d person was added</item>
+        <item quantity="other">%1$d people were added</item>
+    </plurals>
+
+    <plurals name="last_message_self_removed_users">
+        <item quantity="one">You removed 1 person</item>
+        <item quantity="other">You removed %1$d people</item>
+    </plurals>
+    <plurals name="last_message_other_removed_self_user">
+        <item quantity="zero">You were removed</item>
+        <item quantity="one">You and 1 other person were removed</item>
+        <item quantity="other">You and %1$d people were removed</item>
+    </plurals>
+    <plurals name="last_message_other_removed_other_users">
+        <item quantity="one">1 person was removed</item>
+        <item quantity="other">%1$d people were removed</item>
+    </plurals>
     <string name="last_message_asset">shared media asset</string>
     <string name="last_message_image">shared an image.</string>
     <string name="last_message_video">shared a video.</string>

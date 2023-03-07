@@ -116,6 +116,7 @@ class MigrationViewModel @Inject constructor(
                 is MigrationData.Result.Failure.Account.Specific -> MigrationState.Failed.Account.Specific(data.userName, data.userHandle)
                 is MigrationData.Result.Failure.Messages -> MigrationState.Failed.Messages(data.errorCode)
                 MigrationData.Result.Failure.NoNetwork -> MigrationState.Failed.NoNetwork
+                is MigrationData.Result.Failure.Unknown -> MigrationState.Failed.Unknown(data.throwable)
             }
         }
     }

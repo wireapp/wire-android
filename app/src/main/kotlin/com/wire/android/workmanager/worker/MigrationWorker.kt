@@ -65,11 +65,16 @@ class MigrationWorker
 ) : CoroutineWorker(appContext, workerParams) {
 
     override suspend fun doWork(): Result = coroutineScope {
-        when (val result = migrationManager.migrate(this, { setProgress(it.type.toData()) })) {
-            is MigrationData.Result.Success -> Result.success()
-            is MigrationData.Result.Failure.NoNetwork -> Result.retry()
-            is MigrationData.Result.Failure.Messages -> Result.failure(result.toData())
-            is MigrationData.Result.Failure.Account -> Result.failure(result.toData())
+        try {
+            when (val result = migrationManager.migrate(this, { setProgress(it.type.toData()) })) {
+                is MigrationData.Result.Success -> Result.success()
+                is MigrationData.Result.Failure.NoNetwork -> Result.retry()
+                is MigrationData.Result.Failure.Messages -> Result.failure(result.toData())
+                is MigrationData.Result.Failure.Account -> Result.failure(result.toData())
+                is MigrationData.Result.Failure.Unknown -> Result.failure(result.toData())
+            }
+        } catch (e: Exception) {
+            Result.failure(e.toData())
         }
     }
 
@@ -104,11 +109,11 @@ suspend fun WorkManager.enqueueMigrationWorker(): Flow<MigrationData> {
     val request = OneTimeWorkRequestBuilder<MigrationWorker>()
         .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
         .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, MIN_BACKOFF_MILLIS, TimeUnit.MILLISECONDS)
-        .setConstraints(
-            Constraints.Builder()
-                .setRequiredNetworkType(NetworkType.CONNECTED)
-                .build()
-        )
+//        .setConstraints(
+//            Constraints.Builder()
+//                .setRequiredNetworkType(NetworkType.CONNECTED)
+//                .build()
+//        )
         .build()
     val isAlreadyRunning = getWorkInfosForUniqueWork(MigrationWorker.NAME).await().let { it.firstOrNull()?.state == WorkInfo.State.RUNNING }
     enqueueUniqueWork(

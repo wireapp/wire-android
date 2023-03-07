@@ -60,15 +60,23 @@ private fun MigrationScreenContent(
                 buttonTextResId = R.string.label_retry,
                 onButtonClick = retry
             )
+
             is MigrationState.Failed.Account.Any -> SettingUpWireScreenType.Failure(
                 buttonTextResId = R.string.label_continue,
                 onButtonClick = { accountLogin(String.EMPTY) }
             )
+
             is MigrationState.Failed.Account.Specific -> SettingUpWireScreenType.Failure(
                 buttonTextResId = R.string.label_continue,
                 onButtonClick = { accountLogin(state.userHandle) }
             )
+
             is MigrationState.Failed.Messages -> SettingUpWireScreenType.Failure(
+                buttonTextResId = R.string.label_continue,
+                onButtonClick = finish
+            )
+
+            is MigrationState.Failed.Unknown -> SettingUpWireScreenType.Failure(
                 buttonTextResId = R.string.label_continue,
                 onButtonClick = finish
             )
@@ -83,16 +91,19 @@ private fun MigrationState.message() = when (this) {
         MigrationData.Progress.Type.MESSAGES -> AnnotatedString(stringResource(R.string.migration_messages_message))
         MigrationData.Progress.Type.UNKNOWN -> AnnotatedString(stringResource(R.string.migration_message_unknown))
     }
+
     is MigrationState.Failed.NoNetwork -> buildAnnotatedString {
         withStyle(SpanStyle(color = MaterialTheme.wireColorScheme.error)) {
             append(stringResource(R.string.error_no_network_message))
         }
     }
+
     is MigrationState.Failed.Messages -> buildAnnotatedString {
         withStyle(SpanStyle(color = MaterialTheme.wireColorScheme.error)) {
             append(stringResource(R.string.migration_messages_failure, this@message.errorCode))
         }
     }
+
     is MigrationState.Failed.Account.Any -> AnnotatedString(stringResource(R.string.migration_login_required))
     is MigrationState.Failed.Account.Specific -> LocalContext.current.resources.stringWithStyledArgs(
         stringResId = R.string.migration_login_required_specific_account,
@@ -102,6 +113,8 @@ private fun MigrationState.message() = when (this) {
         argsColor = MaterialTheme.wireColorScheme.secondaryText,
         stringResource(R.string.migration_login_required_specific_account_name, this.userName, this.userHandle)
     )
+
+    is MigrationState.Failed.Unknown -> AnnotatedString(stringResource(R.string.migration_login_required))
 }
 
 @Composable
@@ -120,21 +133,25 @@ private fun MigrationState.title() = when (this) {
 fun PreviewMigrationScreenInProgress() {
     MigrationScreenContent(state = MigrationState.InProgress(MigrationData.Progress.Type.ACCOUNTS))
 }
+
 @Preview
 @Composable
 fun PreviewMigrationScreenFailedNoNetwork() {
     MigrationScreenContent(state = MigrationState.Failed.NoNetwork)
 }
+
 @Preview
 @Composable
 fun PreviewMigrationScreenFailedAccountAny() {
     MigrationScreenContent(state = MigrationState.Failed.Account.Any)
 }
+
 @Preview
 @Composable
 fun PreviewMigrationScreenFailedAccountSpecific() {
     MigrationScreenContent(state = MigrationState.Failed.Account.Specific(userName = "name", userHandle = "@handle"))
 }
+
 @Preview
 @Composable
 fun PreviewMigrationScreenFailedMessages() {

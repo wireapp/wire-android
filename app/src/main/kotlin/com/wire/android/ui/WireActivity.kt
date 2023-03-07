@@ -98,7 +98,8 @@ class WireActivity : AppCompatActivity() {
 
         viewModel.handleDeepLink(intent)
         viewModel.observePersistentConnectionStatus()
-        setComposableContent()
+        val startDestination = viewModel.startNavigationRoute()
+        setComposableContent(startDestination)
     }
 
     override fun onNewIntent(intent: Intent?) {
@@ -108,7 +109,7 @@ class WireActivity : AppCompatActivity() {
         super.onNewIntent(intent)
     }
 
-    private fun setComposableContent() {
+    private fun setComposableContent(startDestination: String) {
         setContent {
             CompositionLocalProvider(
                 LocalFeatureVisibilityFlags provides FeatureVisibilityFlags,
@@ -117,16 +118,19 @@ class WireActivity : AppCompatActivity() {
                 WireTheme {
                     val scope = rememberCoroutineScope()
                     val navController = rememberTrackingAnimatedNavController() { NavigationItem.fromRoute(it)?.itemName }
-                    val startDestination = viewModel.startNavigationRoute()
-                    Scaffold {
-                        NavigationGraph(navController = navController, startDestination, viewModel.navigationArguments())
-                    }
-                    setUpNavigation(navController, scope)
-
+                    setUpNavigationGraph(startDestination, navController, scope)
                     handleDialogs()
                 }
             }
         }
+    }
+
+    @Composable
+    fun setUpNavigationGraph(startDestination: String, navController: NavHostController, scope: CoroutineScope) {
+        Scaffold {
+            NavigationGraph(navController = navController, startDestination, viewModel.navigationArguments())
+        }
+        setUpNavigation(navController, scope)
     }
 
     @Composable

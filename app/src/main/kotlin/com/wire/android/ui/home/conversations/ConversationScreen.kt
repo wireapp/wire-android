@@ -129,6 +129,10 @@ fun ConversationScreen(
         messageComposerViewModel.checkPendingActions()
     }
 
+    LaunchedEffect(Unit) {
+        conversationInfoViewModel.observeConversationDetails()
+    }
+
     when (showDialog.value) {
         ConversationScreenDialogType.ONGOING_ACTIVE_CALL -> {
             OngoingActiveCallDialog(onJoinAnyways = {

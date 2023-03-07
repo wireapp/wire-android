@@ -57,7 +57,6 @@ import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import com.wire.kalium.logic.feature.session.GetSessionsUseCase
-import com.wire.kalium.logic.feature.session.SessionScope
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.UserScope
 import com.wire.kalium.logic.sync.SyncManager
@@ -149,19 +148,20 @@ class WireNotificationManagerTest {
     }
 
     @Test
-    fun givenSomeIncomingCall_whenCurrentUserIsDifferentFromCallReceiver_thenCallNotificationIsShown() = runTestWithCancellation(dispatcherProvider.main()) {
-        val (arrangement, manager) = Arrangement()
-            .withIncomingCalls(listOf())
-            .withMessageNotifications(listOf())
-            .withCurrentScreen(CurrentScreen.SomeOther)
-            .withCurrentUserSession(CurrentSessionResult.Success(TEST_AUTH_TOKEN))
-            .arrange()
+    fun givenSomeIncomingCall_whenCurrentUserIsDifferentFromCallReceiver_thenCallNotificationIsShown() =
+        runTestWithCancellation(dispatcherProvider.main()) {
+            val (arrangement, manager) = Arrangement()
+                .withIncomingCalls(listOf())
+                .withMessageNotifications(listOf())
+                .withCurrentScreen(CurrentScreen.SomeOther)
+                .withCurrentUserSession(CurrentSessionResult.Success(TEST_AUTH_TOKEN))
+                .arrange()
 
-        manager.observeNotificationsAndCallsWhileRunning(listOf(provideUserId()), this) {}
-        runCurrent()
+            manager.observeNotificationsAndCallsWhileRunning(listOf(provideUserId()), this) {}
+            runCurrent()
 
-        verify(exactly = 1) { arrangement.callNotificationManager.handleIncomingCallNotifications(any(), any()) }
-    }
+            verify(exactly = 1) { arrangement.callNotificationManager.handleIncomingCallNotifications(any(), any()) }
+        }
 
     @Test
     fun givenSomeIncomingCalls_whenAppIsNotVisible_thenCallNotificationHidden() = runTestWithCancellation(dispatcherProvider.main()) {

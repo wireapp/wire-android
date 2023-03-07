@@ -181,33 +181,22 @@ class WireActivityViewModel @Inject constructor(
     @Suppress("ComplexMethod")
     fun handleDeepLink(intent: Intent?) {
         viewModelScope.launch {
-            if (shouldGoToMigration() || shouldGoToWelcome()) {
-                // User is not logged in, or didn't finish the migration,
-                // corresponding screen will be opened by startNavigationRoute().
-                // DeepLinks should be ignored so far.
-                return@launch
-            }
+            val result = intent?.data?.let { deepLinkProcessor(it) }
+            when {
+                result is DeepLinkResult.SSOLogin -> openSsoLogin(result)
+                result is DeepLinkResult.MigrationLogin -> openMigrationLogin(result.userHandle)
+                result is DeepLinkResult.CustomServerConfig -> onCustomServerConfig(result)
 
-            if (isSharingIntent(intent)) {
-                navigateToImportMediaScreen()
-                return@launch
-            }
-            intent?.data?.let { deepLink ->
+                shouldGoToMigration() || shouldGoToWelcome() -> {} // do nothing, this case is handled by startNavigationRoute()
 
-                when (val result = deepLinkProcessor(deepLink)) {
-                    is DeepLinkResult.SSOLogin -> openSsoLogin(result)
-                    is DeepLinkResult.MigrationLogin -> openMigrationLogin(result.userHandle)
+                isSharingIntent(intent) -> navigateToImportMediaScreen()
 
-                    // TODO maybe move handling CustomServerConfig in some separate screen, to not block UI while making API requests etc.
-                    is DeepLinkResult.CustomServerConfig -> onCustomServerConfig(result)
-                    is DeepLinkResult.IncomingCall -> openIncomingCall(result.conversationsId)
-                    is DeepLinkResult.OngoingCall -> openOngoingCall(result.conversationsId)
-                    is DeepLinkResult.OpenConversation -> openConversation(result.conversationsId)
-                    is DeepLinkResult.OpenOtherUserProfile -> openOtherUserProfile(result.userId)
-                    is DeepLinkResult.JoinConversation -> onConversationInviteDeepLink(result.code, result.key, result.domain)
-
-                    DeepLinkResult.Unknown -> appLogger.e("unknown deeplink result $result")
-                }
+                result is DeepLinkResult.IncomingCall -> openIncomingCall(result.conversationsId)
+                result is DeepLinkResult.OngoingCall -> openOngoingCall(result.conversationsId)
+                result is DeepLinkResult.OpenConversation -> openConversation(result.conversationsId)
+                result is DeepLinkResult.OpenOtherUserProfile -> openOtherUserProfile(result.userId)
+                result is DeepLinkResult.JoinConversation -> onConversationInviteDeepLink(result.code, result.key, result.domain)
+                result is DeepLinkResult.Unknown -> appLogger.e("unknown deeplink result $result")
             }
         }
     }

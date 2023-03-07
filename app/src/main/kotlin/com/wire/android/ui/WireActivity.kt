@@ -102,7 +102,8 @@ class WireActivity : AppCompatActivity() {
         lifecycle.addObserver(currentScreenManager)
         viewModel.handleDeepLink(intent)
         viewModel.observePersistentConnectionStatus()
-        setComposableContent()
+        val startDestination = viewModel.startNavigationRoute(hasSharingIntent = ShareCompat.IntentReader(this).isShareIntent)
+        setComposableContent(startDestination)
     }
 
     override fun onNewIntent(intent: Intent?) {
@@ -115,7 +116,7 @@ class WireActivity : AppCompatActivity() {
         super.onNewIntent(intent)
     }
 
-    private fun setComposableContent() {
+    private fun setComposableContent(startDestination: String) {
         setContent {
             CompositionLocalProvider(
                 LocalFeatureVisibilityFlags provides FeatureVisibilityFlags,
@@ -124,11 +125,7 @@ class WireActivity : AppCompatActivity() {
                 WireTheme {
                     val scope = rememberCoroutineScope()
                     val navController = rememberTrackingAnimatedNavController { NavigationItem.fromRoute(it)?.itemName }
-                    setUpNavigationGraph(
-                        viewModel.startNavigationRoute(hasSharingIntent = ShareCompat.IntentReader(this).isShareIntent),
-                        navController,
-                        scope
-                    )
+                    setUpNavigationGraph(startDestination, navController, scope)
                     handleDialogs()
                 }
             }

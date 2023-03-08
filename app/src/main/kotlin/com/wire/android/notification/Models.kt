@@ -182,5 +182,4 @@ fun LocalNotificationCommentType.intoCommentResId(): CommentResId =
         LocalNotificationCommentType.REACTION -> CommentResId.REACTION
         LocalNotificationCommentType.MISSED_CALL -> CommentResId.MISSED_CALL
         LocalNotificationCommentType.NOT_SUPPORTED_YET -> CommentResId.NOT_SUPPORTED
-        LocalNotificationCommentType.KNOCK -> TODO()
     }

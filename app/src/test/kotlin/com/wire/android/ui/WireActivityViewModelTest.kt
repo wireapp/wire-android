@@ -34,6 +34,7 @@ import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.services.ServicesManager
+import com.wire.android.ui.common.dialogs.CustomBEDeeplinkDialogState
 import com.wire.android.ui.joinConversation.JoinConversationViaCodeState
 import com.wire.android.util.deeplink.DeepLinkProcessor
 import com.wire.android.util.deeplink.DeepLinkResult
@@ -115,7 +116,7 @@ class WireActivityViewModelTest {
     }
 
     @Test
-    fun `given Intent with ServerConfig, when currentSession is present, then startNavigation is Home and no SSOLogin in navArguments`() {
+    fun `given Intent with ServerConfig, when currentSession is present, then startNavigation is Home and customBackEnd dialog is shown`() {
         val (arrangement, viewModel) = Arrangement()
             .withSomeCurrentSession()
             .withDeepLinkResult(DeepLinkResult.CustomServerConfig("url"))
@@ -123,16 +124,13 @@ class WireActivityViewModelTest {
 
         viewModel.handleDeepLink(mockedIntent())
 
-        coVerify(exactly = 0) {
-            arrangement.navigationManager.navigate(
-                any()
-            )
-        }
+        coVerify(exactly = 0) { arrangement.navigationManager.navigate(any()) }
         assertEquals(NavigationItem.Home.getRouteWithArgs(), viewModel.startNavigationRoute())
+        assertEquals(newServerConfig(1).links, viewModel.globalAppState.customBackendDialog.serverLinks)
     }
 
     @Test
-    fun `given Intent with ServerConfig, when currentSession is absent, then startNavigation is Welcome and no SSOLogin in navArguments`() {
+    fun `given Intent with ServerConfig, when currentSession is absent, then startNavigation is Welcome customBackEnd dialog is shown`() {
         val (arrangement, viewModel) = Arrangement()
             .withNoCurrentSession()
             .withDeepLinkResult(DeepLinkResult.CustomServerConfig("url"))
@@ -141,8 +139,104 @@ class WireActivityViewModelTest {
         viewModel.handleDeepLink(mockedIntent())
 
         assertEquals(NavigationItem.Welcome.getRouteWithArgs(), viewModel.startNavigationRoute())
-        coVerify(exactly = 0) {
-            arrangement.navigationManager.navigate(any())
+        coVerify(exactly = 0) { arrangement.navigationManager.navigate(any()) }
+        assertEquals(newServerConfig(1).links, viewModel.globalAppState.customBackendDialog.serverLinks)
+    }
+
+    @Test
+    fun `given Intent with ServerConfig, when currentSession is absent and migration is required, then startNavigation is Migration`() {
+        val (arrangement, viewModel) = Arrangement()
+            .withNoCurrentSession()
+            .withMigrationRequired()
+            .withDeepLinkResult(DeepLinkResult.CustomServerConfig("url"))
+            .arrange()
+
+        viewModel.handleDeepLink(mockedIntent())
+
+        assertEquals(NavigationItem.Migration.getRouteWithArgs(), viewModel.startNavigationRoute())
+        coVerify(exactly = 0) { arrangement.navigationManager.navigate(any()) }
+        assertEquals(CustomBEDeeplinkDialogState(), viewModel.globalAppState.customBackendDialog)
+    }
+
+    @Test
+    fun `given Intent with SSOLogin, when currentSession is present, then startNavigation is Home and navigate to SSOLogin`() {
+        val ssoLogin = DeepLinkResult.SSOLogin.Success("cookie", "serverConfig")
+        val (arrangement, viewModel) = Arrangement()
+            .withSomeCurrentSession()
+            .withDeepLinkResult(ssoLogin)
+            .arrange()
+
+        viewModel.handleDeepLink(mockedIntent())
+
+        assertEquals(NavigationItem.Home.getRouteWithArgs(), viewModel.startNavigationRoute())
+        coVerify(exactly = 1) {
+            arrangement.navigationManager.navigate(
+                NavigationCommand(
+                    NavigationItem.Login.getRouteWithArgs(listOf(ssoLogin)),
+                    BackStackMode.UPDATE_EXISTED
+                )
+            )
+        }
+    }
+
+    @Test
+    fun `given Intent with SSOLogin, when currentSession is absent, then startNavigation is Welcome and navigate to SSOLogin`() {
+        val ssoLogin = DeepLinkResult.SSOLogin.Success("cookie", "serverConfig")
+        val (arrangement, viewModel) = Arrangement()
+            .withNoCurrentSession()
+            .withDeepLinkResult(ssoLogin)
+            .arrange()
+
+        viewModel.handleDeepLink(mockedIntent())
+
+        assertEquals(NavigationItem.Welcome.getRouteWithArgs(), viewModel.startNavigationRoute())
+        coVerify(exactly = 1) {
+            arrangement.navigationManager.navigate(
+                NavigationCommand(
+                    NavigationItem.Login.getRouteWithArgs(listOf(ssoLogin)),
+                    BackStackMode.UPDATE_EXISTED
+                )
+            )
+        }
+    }
+
+    @Test
+    fun `given Intent with MigrationLogin, when currentSession is present, then startNavigation is Home and navigate to Login`() {
+        val (arrangement, viewModel) = Arrangement()
+            .withSomeCurrentSession()
+            .withDeepLinkResult(DeepLinkResult.MigrationLogin("handle"))
+            .arrange()
+
+        viewModel.handleDeepLink(mockedIntent())
+
+        assertEquals(NavigationItem.Home.getRouteWithArgs(), viewModel.startNavigationRoute())
+        coVerify(exactly = 1) {
+            arrangement.navigationManager.navigate(
+                NavigationCommand(
+                    NavigationItem.Login.getRouteWithArgs(listOf("handle")),
+                    BackStackMode.UPDATE_EXISTED
+                )
+            )
+        }
+    }
+
+    @Test
+    fun `given Intent with MigrationLogin, when currentSession is absent, then startNavigation is Welcome and navigate to Login`() {
+        val (arrangement, viewModel) = Arrangement()
+            .withNoCurrentSession()
+            .withDeepLinkResult(DeepLinkResult.MigrationLogin("handle"))
+            .arrange()
+
+        viewModel.handleDeepLink(mockedIntent())
+
+        assertEquals(NavigationItem.Welcome.getRouteWithArgs(), viewModel.startNavigationRoute())
+        coVerify(exactly = 1) {
+            arrangement.navigationManager.navigate(
+                NavigationCommand(
+                    NavigationItem.Login.getRouteWithArgs(listOf("handle")),
+                    BackStackMode.UPDATE_EXISTED
+                )
+            )
         }
     }
 
@@ -595,6 +689,10 @@ class WireActivityViewModelTest {
 
         fun withIsPersistentWebSocketServiceRunning(isRunning: Boolean): Arrangement = apply {
             every { servicesManager.isPersistentWebSocketServiceRunning() } returns isRunning
+        }
+
+        fun withMigrationRequired(): Arrangement = apply {
+            coEvery { migrationManager.shouldMigrate() } returns true
         }
 
         fun arrange() = this to viewModel

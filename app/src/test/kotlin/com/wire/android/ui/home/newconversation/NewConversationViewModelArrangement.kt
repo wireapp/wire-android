@@ -224,7 +224,7 @@ internal class NewConversationViewModelArrangement {
         coEvery { isSelfTeamMember() } returns result
     }
 
-    fun withGuestEnabled(x: Boolean) = apply {
+    fun withGuestEnabled(isGuestModeEnabled: Boolean) = apply {
         val newAccessRole: MutableSet<Conversation.AccessRole> = viewModel.groupOptionsState.accessRoleState.apply {
             if (x) {
                 add(Conversation.AccessRole.GUEST)

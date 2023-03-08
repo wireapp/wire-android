@@ -288,7 +288,7 @@ class WireActivity : AppCompatActivity() {
             val btnAction: () -> Unit
             when (data) {
                 is NewClientData.OtherUser -> {
-                    title = stringResource(R.string.new_device_dialog_other_user_title, data.userName ?: "", data.userHandler ?: "")
+                    title = stringResource(R.string.new_device_dialog_other_user_title, data.userName ?: "", data.userHandle ?: "")
                     text = stringResource(R.string.new_device_dialog_other_user_message, date, data.deviceInfo)
                     btnText = stringResource(R.string.new_device_dialog_other_user_btn)
                     btnAction = { switchAccount(data.userId) }

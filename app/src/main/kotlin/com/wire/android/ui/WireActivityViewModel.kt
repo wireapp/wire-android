@@ -477,7 +477,7 @@ sealed class NewClientData(open val date: String, open val deviceInfo: String) {
         override val deviceInfo: String,
         val userId: UserId,
         val userName: String?,
-        val userHandler: String?
+        val userHandle: String?
     ) : NewClientData(date, deviceInfo)
 }
 

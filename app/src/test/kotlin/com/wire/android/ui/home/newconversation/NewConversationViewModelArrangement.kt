@@ -226,7 +226,7 @@ internal class NewConversationViewModelArrangement {
 
     fun withGuestEnabled(isGuestModeEnabled: Boolean) = apply {
         val newAccessRole: MutableSet<Conversation.AccessRole> = viewModel.groupOptionsState.accessRoleState.apply {
-            if (x) {
+            if (isGuestModeEnabled) {
                 add(Conversation.AccessRole.GUEST)
                 add(Conversation.AccessRole.NON_TEAM_MEMBER)
             } else {
@@ -234,12 +234,14 @@ internal class NewConversationViewModelArrangement {
                 remove(Conversation.AccessRole.NON_TEAM_MEMBER)
             }
         }
-        viewModel.groupOptionsState = viewModel.groupOptionsState.copy(isAllowGuestEnabled = x, accessRoleState = newAccessRole)
+        viewModel.groupOptionsState = viewModel
+            .groupOptionsState
+            .copy(isAllowGuestEnabled = isGuestModeEnabled, accessRoleState = newAccessRole)
     }
 
     fun withServicesEnabled(areServicesEnabled: Boolean) = apply {
-        viewModel.groupOptionsState = viewModel.groupOptionsState.copy(isAllowServicesEnabled = x)
-        if (x) {
+        viewModel.groupOptionsState = viewModel.groupOptionsState.copy(isAllowServicesEnabled = areServicesEnabled)
+        if (areServicesEnabled) {
             viewModel.groupOptionsState.accessRoleState.add(Conversation.AccessRole.SERVICE)
         } else {
             viewModel.groupOptionsState.accessRoleState.remove(Conversation.AccessRole.SERVICE)

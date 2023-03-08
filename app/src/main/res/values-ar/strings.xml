@@ -488,9 +488,12 @@
     <string name="conversation_banner_externals_present">Externals are present</string>
     <string name="conversation_banner_services_active">Services are active</string>
     <!-- System messages -->
-    <string name="label_system_message_added">%1$s added %2$s to the conversation</string>
-    <string name="label_system_message_removed">%1$s removed %2$s from the conversation</string>
-    <string name="label_system_message_left_the_conversation">%1$s left the conversation</string>
+    <string name="label_system_message_added_by_self">%1$s added %2$s to the conversation</string>
+    <string name="label_system_message_removed_by_self">%1$s removed %2$s from the conversation</string>
+    <string name="label_system_message_added_by_other">%1$s added %2$s to the conversation</string>
+    <string name="label_system_message_removed_by_other">%1$s removed %2$s from the conversation</string>
+    <string name="label_system_message_left_the_conversation_by_self">%1$s left the conversation</string>
+    <string name="label_system_message_left_the_conversation_by_other">%1$s left the conversation</string>
     <string name="label_system_message_other_called">%1$s called</string>
     <string name="label_system_message_you_called">%1$s called</string>
     <string name="label_system_message_and">%1$s and %2$s</string>
@@ -513,8 +516,54 @@
     <string name="label_system_message_receipt_mode_on">on</string>
     <string name="label_system_message_receipt_mode_off">off</string>
     <!-- Last messages -->
-    <string name="last_message_added">added</string>
-    <string name="last_message_removed">removed</string>
+    <plurals name="last_message_self_added_users">
+        <item quantity="zero">You added %1$d people to the conversation</item>
+        <item quantity="one">You added 1 person to the conversation</item>
+        <item quantity="two">You added %1$d people to the conversation</item>
+        <item quantity="few">You added %1$d people to the conversation</item>
+        <item quantity="many">You added %1$d people to the conversation</item>
+        <item quantity="other">You added %1$d people to the conversation</item>
+    </plurals>
+    <plurals name="last_message_other_added_self_user">
+        <item quantity="zero">You and %1$d people were added to the conversation</item>
+        <item quantity="one">You and 1 other person were added to the conversation</item>
+        <item quantity="two">You and %1$d people were added to the conversation</item>
+        <item quantity="few">You and %1$d people were added to the conversation</item>
+        <item quantity="many">You and %1$d people were added to the conversation</item>
+        <item quantity="other">You and %1$d people were added to the conversation</item>
+    </plurals>
+    <plurals name="last_message_other_added_other_users">
+        <item quantity="zero">%1$d people were added to the conversation</item>
+        <item quantity="one">1 person was added to the conversation</item>
+        <item quantity="two">%1$d people were added to the conversation</item>
+        <item quantity="few">%1$d people were added to the conversation</item>
+        <item quantity="many">%1$d people were added to the conversation</item>
+        <item quantity="other">%1$d people were added to the conversation</item>
+    </plurals>
+    <plurals name="last_message_self_removed_users">
+        <item quantity="zero">You removed %1$d people from the conversation</item>
+        <item quantity="one">You removed 1 person from the conversation</item>
+        <item quantity="two">You removed %1$d people from the conversation</item>
+        <item quantity="few">You removed %1$d people from the conversation</item>
+        <item quantity="many">You removed %1$d people from the conversation</item>
+        <item quantity="other">You removed %1$d people from the conversation</item>
+    </plurals>
+    <plurals name="last_message_other_removed_self_user">
+        <item quantity="zero">You and %1$d people were removed from the conversation</item>
+        <item quantity="one">You and 1 other person were removed from the conversation</item>
+        <item quantity="two">You and %1$d people were removed from the conversation</item>
+        <item quantity="few">You and %1$d people were removed from the conversation</item>
+        <item quantity="many">You and %1$d people were removed from the conversation</item>
+        <item quantity="other">You and %1$d people were removed from the conversation</item>
+    </plurals>
+    <plurals name="last_message_other_removed_other_users">
+        <item quantity="zero">%1$d people were removed from the conversation</item>
+        <item quantity="one">1 person was removed from the conversation</item>
+        <item quantity="two">%1$d people were removed from the conversation</item>
+        <item quantity="few">%1$d people were removed from the conversation</item>
+        <item quantity="many">%1$d people were removed from the conversation</item>
+        <item quantity="other">%1$d people were removed from the conversation</item>
+    </plurals>
     <string name="last_message_asset">shared media asset</string>
     <string name="last_message_image">shared an image.</string>
     <string name="last_message_video">shared a video.</string>

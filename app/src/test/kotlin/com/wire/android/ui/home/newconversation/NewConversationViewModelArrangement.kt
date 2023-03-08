@@ -237,7 +237,7 @@ internal class NewConversationViewModelArrangement {
         viewModel.groupOptionsState = viewModel.groupOptionsState.copy(isAllowGuestEnabled = x, accessRoleState = newAccessRole)
     }
 
-    fun withServicesEnabled(x: Boolean) = apply {
+    fun withServicesEnabled(areServicesEnabled: Boolean) = apply {
         viewModel.groupOptionsState = viewModel.groupOptionsState.copy(isAllowServicesEnabled = x)
         if (x) {
             viewModel.groupOptionsState.accessRoleState.add(Conversation.AccessRole.SERVICE)

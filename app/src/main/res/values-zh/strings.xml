@@ -40,7 +40,7 @@
     <string name="label_membership_external">External</string>
     <string name="label_membership_service">Service</string>
     <string name="label_user_deleted">Deleted</string>
-    <string name="label_message_sent_failure">Message could not be sent.</string>
+    <string name="label_message_sent_failure">Message could not be sent due to connectivity issues.</string>
     <string name="label_message_sent_remotely_failure">Message could not be sent, as the backend %s appears to be offline.</string>
     <string name="label_message_receive_failure">Download Error</string>
     <string name="label_message_decryption_failure_message">Message could not be decrypted.</string>
@@ -488,9 +488,12 @@
     <string name="conversation_banner_externals_present">Externals are present</string>
     <string name="conversation_banner_services_active">Services are active</string>
     <!-- System messages -->
-    <string name="label_system_message_added">%1$s added %2$s to the conversation</string>
-    <string name="label_system_message_removed">%1$s removed %2$s from the conversation</string>
-    <string name="label_system_message_left_the_conversation">%1$s left the conversation</string>
+    <string name="label_system_message_added_by_self">%1$s added %2$s to the conversation</string>
+    <string name="label_system_message_removed_by_self">%1$s removed %2$s from the conversation</string>
+    <string name="label_system_message_added_by_other">%1$s added %2$s to the conversation</string>
+    <string name="label_system_message_removed_by_other">%1$s removed %2$s from the conversation</string>
+    <string name="label_system_message_left_the_conversation_by_self">%1$s left the conversation</string>
+    <string name="label_system_message_left_the_conversation_by_other">%1$s left the conversation</string>
     <string name="label_system_message_other_called">%1$s called</string>
     <string name="label_system_message_you_called">%1$s called</string>
     <string name="label_system_message_and">%1$s and %2$s</string>
@@ -504,12 +507,28 @@
     <string name="label_system_message_new_conversation_receipt_mode">Read receipts are %1$s</string>
     <string name="label_system_message_read_receipt_changed_by_self">%1$s turned read receipts %2$s for everyone</string>
     <string name="label_system_message_read_receipt_changed_by_other">%1$s turned read receipts %2$s for everyone</string>
-    <string name="label_system_message_conversation_history_lost">YOU HAVEN\'T USED THIS DEVICE FOR A WHILE. SOME MESSAGES MAY NOT APPEAR HERE.</string>
+    <string name="label_system_message_conversation_history_lost">You haven\'t used this device for a while. some messages may not appear here.</string>
     <string name="label_system_message_receipt_mode_on">on</string>
     <string name="label_system_message_receipt_mode_off">off</string>
     <!-- Last messages -->
-    <string name="last_message_added">added</string>
-    <string name="last_message_removed">removed</string>
+    <plurals name="last_message_self_added_users">
+        <item quantity="other">You added %1$d people to the conversation</item>
+    </plurals>
+    <plurals name="last_message_other_added_self_user">
+        <item quantity="other">You and %1$d people were added to the conversation</item>
+    </plurals>
+    <plurals name="last_message_other_added_other_users">
+        <item quantity="other">%1$d people were added to the conversation</item>
+    </plurals>
+    <plurals name="last_message_self_removed_users">
+        <item quantity="other">You removed %1$d people from the conversation</item>
+    </plurals>
+    <plurals name="last_message_other_removed_self_user">
+        <item quantity="other">You and %1$d people were removed from the conversation</item>
+    </plurals>
+    <plurals name="last_message_other_removed_other_users">
+        <item quantity="other">%1$d people were removed from the conversation</item>
+    </plurals>
     <string name="last_message_asset">shared media asset</string>
     <string name="last_message_image">shared an image.</string>
     <string name="last_message_video">shared a video.</string>

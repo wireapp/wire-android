@@ -514,28 +514,28 @@
     <string name="label_system_message_receipt_mode_off">aus</string>
     <!-- Last messages -->
     <plurals name="last_message_self_added_users">
-        <item quantity="one">You added 1 person to the conversation</item>
-        <item quantity="other">You added %1$d people to the conversation</item>
+        <item quantity="one">Sie haben 1 Person zur Unterhaltung hinzugefügt</item>
+        <item quantity="other">Sie haben %1$d Personen zur Unterhaltung hinzugefügt</item>
     </plurals>
     <plurals name="last_message_other_added_self_user">
-        <item quantity="one">You and 1 other person were added to the conversation</item>
-        <item quantity="other">You and %1$d people were added to the conversation</item>
+        <item quantity="one">Sie und 1 weitere Person wurden zur Unterhaltung hinzugefügt</item>
+        <item quantity="other">Sie und %1$d weitere Personen wurden zur Unterhaltung hinzugefügt</item>
     </plurals>
     <plurals name="last_message_other_added_other_users">
-        <item quantity="one">1 person was added to the conversation</item>
-        <item quantity="other">%1$d people were added to the conversation</item>
+        <item quantity="one">1 Person wurde zur Unterhaltung hinzugefügt</item>
+        <item quantity="other">%1$d Personen wurden zur Unterhaltung hinzugefügt</item>
     </plurals>
     <plurals name="last_message_self_removed_users">
-        <item quantity="one">You removed 1 person from the conversation</item>
-        <item quantity="other">You removed %1$d people from the conversation</item>
+        <item quantity="one">Sie haben 1 Person aus der Unterhaltung entfernt</item>
+        <item quantity="other">Sie haben %1$d Personen zur Unterhaltung entfernt</item>
     </plurals>
     <plurals name="last_message_other_removed_self_user">
-        <item quantity="one">You and 1 other person were removed from the conversation</item>
-        <item quantity="other">You and %1$d people were removed from the conversation</item>
+        <item quantity="one">Sie und 1 weitere Person wurden aus der Unterhaltung entfernt</item>
+        <item quantity="other">Sie und %1$d weitere Personen wurden aus der Unterhaltung entfernt</item>
     </plurals>
     <plurals name="last_message_other_removed_other_users">
-        <item quantity="one">1 person was removed from the conversation</item>
-        <item quantity="other">%1$d people were removed from the conversation</item>
+        <item quantity="one">1 Person wurde aus der Unterhaltung entfernt</item>
+        <item quantity="other">%1$d Personen wurden aus der Unterhaltung entfernt</item>
     </plurals>
     <string name="last_message_asset">hat eine Mediendatei geteilt</string>
     <string name="last_message_image">hat ein Bild geteilt.</string>

@@ -39,7 +39,6 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.window.DialogProperties
-import androidx.core.app.ShareCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.NavHostController
 import com.wire.android.BuildConfig
@@ -100,22 +99,22 @@ class WireActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         proximitySensorManager.initialize()
         lifecycle.addObserver(currentScreenManager)
-        viewModel.handleDeepLink(intent)
+
+        handleDeepLink(intent, savedInstanceState)
         viewModel.observePersistentConnectionStatus()
-        setComposableContent()
+        val startDestination = viewModel.startNavigationRoute()
+        setComposableContent(startDestination)
     }
 
     override fun onNewIntent(intent: Intent?) {
         if (viewModel.isSharingIntent(intent)) {
             setIntent(intent)
         }
-        if (viewModel.handleDeepLinkOnNewIntent(intent)) {
-            recreate()
-        }
+        handleDeepLink(intent)
         super.onNewIntent(intent)
     }
 
-    private fun setComposableContent() {
+    private fun setComposableContent(startDestination: String) {
         setContent {
             CompositionLocalProvider(
                 LocalFeatureVisibilityFlags provides FeatureVisibilityFlags,
@@ -124,11 +123,7 @@ class WireActivity : AppCompatActivity() {
                 WireTheme {
                     val scope = rememberCoroutineScope()
                     val navController = rememberTrackingAnimatedNavController { NavigationItem.fromRoute(it)?.itemName }
-                    setUpNavigationGraph(
-                        viewModel.startNavigationRoute(hasSharingIntent = ShareCompat.IntentReader(this).isShareIntent),
-                        navController,
-                        scope
-                    )
+                    setUpNavigationGraph(startDestination, navController, scope)
                     handleDialogs()
                 }
             }
@@ -138,7 +133,7 @@ class WireActivity : AppCompatActivity() {
     @Composable
     fun setUpNavigationGraph(startDestination: String, navController: NavHostController, scope: CoroutineScope) {
         Scaffold {
-            NavigationGraph(navController = navController, startDestination, viewModel.navigationArguments())
+            NavigationGraph(navController = navController, startDestination)
         }
         setUpNavigation(navController, scope)
     }
@@ -284,5 +279,28 @@ class WireActivity : AppCompatActivity() {
     override fun onPause() {
         super.onPause()
         proximitySensorManager.unRegisterListener()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putBoolean(HANDLED_DEEPLINK_FLAG, true)
+        super.onSaveInstanceState(outState)
+    }
+
+    private fun handleDeepLink(
+        intent: Intent?,
+        savedInstanceState: Bundle? = null
+    ) {
+        if (intent == null
+            || intent.flags and Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY != 0
+            || savedInstanceState?.getBoolean(HANDLED_DEEPLINK_FLAG, false) == true
+        ) {
+            return
+        }
+
+        viewModel.handleDeepLink(intent)
+    }
+
+    companion object {
+        private const val HANDLED_DEEPLINK_FLAG = "deeplink_handled_flag_key"
     }
 }

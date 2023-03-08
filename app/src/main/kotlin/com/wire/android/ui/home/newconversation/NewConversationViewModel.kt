@@ -193,7 +193,10 @@ class NewConversationViewModel @Inject constructor(
                 options = ConversationOptions().copy(
                     protocol = newGroupState.groupProtocol,
                     readReceiptsEnabled = groupOptionsState.isReadReceiptEnabled,
-                    accessRole = groupOptionsState.accessRoleState
+                    accessRole = groupOptionsState.accessRoleState,
+                    access = if (groupOptionsState.accessRoleState.contains(Conversation.AccessRole.GUEST)) {
+                        setOf(Conversation.Access.INVITE, Conversation.Access.CODE)
+                    } else null
                 )
             )
             handleNewGroupCreationResult(result)

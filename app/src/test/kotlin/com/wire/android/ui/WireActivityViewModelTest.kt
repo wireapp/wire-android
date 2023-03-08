@@ -47,6 +47,7 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.appVersioning.ObserveIfAppUpdateRequiredUseCase
 import com.wire.kalium.logic.feature.auth.AccountInfo
 import com.wire.kalium.logic.feature.auth.PersistentWebSocketStatus
+import com.wire.kalium.logic.feature.client.ObserveNewClientsUseCase
 import com.wire.kalium.logic.feature.conversation.CheckConversationInviteCodeUseCase
 import com.wire.kalium.logic.feature.conversation.JoinConversationViaCodeUseCase
 import com.wire.kalium.logic.feature.server.GetServerConfigResult
@@ -569,6 +570,7 @@ class WireActivityViewModelTest {
             every { observeSyncStateUseCaseProviderFactory.create(any()).observeSyncState } returns observeSyncStateUseCase
             every { observeSyncStateUseCase() } returns emptyFlow()
             coEvery { observeIfAppUpdateRequired(any()) } returns flowOf(false)
+            coEvery { observeNewClients() } returns flowOf()
         }
 
         @MockK
@@ -610,6 +612,9 @@ class WireActivityViewModelTest {
         @MockK
         lateinit var observeIfAppUpdateRequired: ObserveIfAppUpdateRequiredUseCase
 
+        @MockK
+        lateinit var observeNewClients: ObserveNewClientsUseCase
+
         private val viewModel by lazy {
             WireActivityViewModel(
                 coreLogic = coreLogic,
@@ -624,7 +629,8 @@ class WireActivityViewModelTest {
                 migrationManager = migrationManager,
                 servicesManager = servicesManager,
                 observeSyncStateUseCaseProviderFactory = observeSyncStateUseCaseProviderFactory,
-                observeIfAppUpdateRequired = observeIfAppUpdateRequired
+                observeIfAppUpdateRequired = observeIfAppUpdateRequired,
+                observeNewClients = observeNewClients
             )
         }
 

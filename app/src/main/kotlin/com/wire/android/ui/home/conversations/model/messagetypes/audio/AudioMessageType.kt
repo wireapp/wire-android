@@ -116,7 +116,7 @@ private fun SuccessfulAudioMessage(
         Slider(
             value = audioDuration.currentPositionInMs.toFloat(),
             onValueChange = onSliderPositionChange,
-            valueRange = 0f..if(totalTimeInMs is AudioState.TotalTimeInMs.Known) totalTimeInMs.value.toFloat() else 0f ,
+            valueRange = 0f..if (totalTimeInMs is AudioState.TotalTimeInMs.Known) totalTimeInMs.value.toFloat() else 0f,
             colors = SliderDefaults.colors(
                 inactiveTrackColor = colorsScheme().secondaryButtonDisabledOutline
             ),

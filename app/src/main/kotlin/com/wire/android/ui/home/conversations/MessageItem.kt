@@ -35,7 +35,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -45,7 +44,6 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import com.google.accompanist.flowlayout.FlowRow
 import com.wire.android.R
-import com.wire.android.media.audiomessage.AudioMediaPlayingState
 import com.wire.android.media.audiomessage.AudioState
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.LegalHoldIndicator
@@ -322,7 +320,10 @@ private fun MessageContent(
         is UIMessageContent.RestrictedAsset -> {
             when {
                 messageContent.mimeType.contains("image/") -> {
-                    RestrictedAssetMessage(R.drawable.ic_gallery, stringResource(id = R.string.prohibited_images_message))
+                    RestrictedAssetMessage(
+                        R.drawable.ic_gallery,
+                        stringResource(id = R.string.prohibited_images_message)
+                    )
                 }
 
                 messageContent.mimeType.contains("video/") -> {
@@ -330,7 +331,10 @@ private fun MessageContent(
                 }
 
                 messageContent.mimeType.contains("audio/") -> {
-                    RestrictedAssetMessage(R.drawable.ic_speaker_on, stringResource(id = R.string.prohibited_audio_message))
+                    RestrictedAssetMessage(
+                        R.drawable.ic_speaker_on,
+                        stringResource(id = R.string.prohibited_audio_message)
+                    )
                 }
 
                 else -> {
@@ -468,7 +472,14 @@ private fun MessageDecryptionFailure(
                 Row {
                     WireSecondaryButton(
                         text = stringResource(R.string.label_reset_session),
-                        onClick = { messageHeader.userId?.let { userId -> onResetSessionClicked(userId, messageHeader.clientId?.value) } },
+                        onClick = {
+                            messageHeader.userId?.let { userId ->
+                                onResetSessionClicked(
+                                    userId,
+                                    messageHeader.clientId?.value
+                                )
+                            }
+                        },
                         minHeight = dimensions().spacing32x,
                         fillMaxWidth = false
                     )

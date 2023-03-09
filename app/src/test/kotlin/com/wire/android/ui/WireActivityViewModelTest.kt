@@ -27,6 +27,7 @@ import com.wire.android.config.mockUri
 import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.di.ObserveSyncStateUseCaseProvider
 import com.wire.android.feature.AccountSwitchUseCase
+import com.wire.android.framework.TestClient
 import com.wire.android.framework.TestUser
 import com.wire.android.migration.MigrationManager
 import com.wire.android.navigation.BackStackMode
@@ -47,6 +48,7 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.appVersioning.ObserveIfAppUpdateRequiredUseCase
 import com.wire.kalium.logic.feature.auth.AccountInfo
 import com.wire.kalium.logic.feature.auth.PersistentWebSocketStatus
+import com.wire.kalium.logic.feature.client.NewClientResult
 import com.wire.kalium.logic.feature.client.ObserveNewClientsUseCase
 import com.wire.kalium.logic.feature.conversation.CheckConversationInviteCodeUseCase
 import com.wire.kalium.logic.feature.conversation.JoinConversationViaCodeUseCase
@@ -554,6 +556,32 @@ class WireActivityViewModelTest {
         coVerify(exactly = 0) { arrangement.servicesManager.stopPersistentWebSocketService() }
     }
 
+    @Test
+    fun `given newClient is registered for the current user, then should show the NewClient dialog`() {
+        val (_, viewModel) = Arrangement()
+            .withNoCurrentSession()
+            .withNewClient(NewClientResult.InCurrentAccount(TestClient.CLIENT))
+            .arrange()
+
+        assertEquals(
+            NewClientData.CurrentUser(TestClient.CLIENT.registrationTime, TestClient.CLIENT.name),
+            viewModel.globalAppState.newClientDialog
+        )
+    }
+
+    @Test
+    fun `given newClient is registered for the other user, then should show the NewClient dialog`() {
+        val (_, viewModel) = Arrangement()
+            .withNoCurrentSession()
+            .withNewClient(NewClientResult.InOtherAccount(TestClient.CLIENT, USER_ID, "name", "handle"))
+            .arrange()
+
+        assertEquals(
+            NewClientData.OtherUser(TestClient.CLIENT.registrationTime, TestClient.CLIENT.name, USER_ID, "name", "handle"),
+            viewModel.globalAppState.newClientDialog
+        )
+    }
+
     private class Arrangement {
         init {
             // Tests setup
@@ -701,11 +729,16 @@ class WireActivityViewModelTest {
             coEvery { migrationManager.shouldMigrate() } returns true
         }
 
+        fun withNewClient(result: NewClientResult) = apply {
+            coEvery { observeNewClients() } returns flowOf(result)
+        }
+
         fun arrange() = this to viewModel
     }
 
     companion object {
-        val TEST_ACCOUNT_INFO = AccountInfo.Valid(UserId("user_id", "domain.de"))
+        val USER_ID = UserId("user_id", "domain.de")
+        val TEST_ACCOUNT_INFO = AccountInfo.Valid(USER_ID)
 
         private fun mockedIntent(isFromHistory: Boolean = false): Intent {
             return mockk<Intent>().also {

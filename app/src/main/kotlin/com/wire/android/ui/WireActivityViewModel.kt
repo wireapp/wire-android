@@ -163,7 +163,7 @@ class WireActivityViewModel @Inject constructor(
                                     it.newClient.name,
                                     it.userId,
                                     it.userName,
-                                    it.userHandler
+                                    it.userHandle
                                 )
                             )
                         }

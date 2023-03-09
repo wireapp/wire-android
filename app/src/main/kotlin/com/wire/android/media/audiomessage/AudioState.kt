@@ -7,15 +7,18 @@ data class AudioState(
 ) {
     companion object {
         val DEFAULT = AudioState(AudioMediaPlayingState.Stopped, 0, TotalTimeInMs.NotKnown)
-        fun withTotalTimeFromOtherClient(otherClientTotalTime: Int): AudioState {
-            val totalTimeInMs = if (otherClientTotalTime == 0) {
-                TotalTimeInMs.NotKnown
-            } else {
-                TotalTimeInMs.Known(otherClientTotalTime)
-            }
+    }
 
-            return DEFAULT.copy(totalTimeInMs = totalTimeInMs)
+    // before the user decides to play audio message, we are not able to determine total time ourself using
+    // MediaPlayer API, we are relaying on the info retrieved from the other client, until then
+    fun adjustTotalTime(otherClientTotalTime: Int): AudioState {
+        if (totalTimeInMs is TotalTimeInMs.NotKnown) {
+            if (otherClientTotalTime != 0) {
+                return copy(totalTimeInMs = TotalTimeInMs.Known(otherClientTotalTime))
+            }
         }
+
+        return this
     }
 
     sealed class TotalTimeInMs {

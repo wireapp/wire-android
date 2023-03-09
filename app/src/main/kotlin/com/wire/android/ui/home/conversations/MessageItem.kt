@@ -35,6 +35,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -340,12 +341,16 @@ private fun MessageContent(
 
         is UIMessageContent.AudioAssetMessage -> {
             val audioMessageState: AudioState = audioMessagesState[message.messageHeader.messageId]
-                ?: AudioState.withTotalTimeFromOtherClient(messageContent.audioMessageDurationInMs.toInt())
+                ?: AudioState.DEFAULT
+
+            val adjustedMessageState: AudioState = remember(audioMessagesState) {
+                audioMessageState.adjustTotalTime(messageContent.audioMessageDurationInMs.toInt())
+            }
 
             AudioMessage(
-                audioMediaPlayingState = audioMessageState.audioMediaPlayingState,
-                totalTimeInMs = audioMessageState.totalTimeInMs,
-                currentPositionInMs = audioMessageState.currentPositionInMs,
+                audioMediaPlayingState = adjustedMessageState.audioMediaPlayingState,
+                totalTimeInMs = adjustedMessageState.totalTimeInMs,
+                currentPositionInMs = adjustedMessageState.currentPositionInMs,
                 onPlayButtonClick = { onAudioClick(message.messageHeader.messageId) },
                 onSliderPositionChange = { position ->
                     onChangeAudioPosition(message.messageHeader.messageId, position.toInt())

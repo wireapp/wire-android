@@ -197,7 +197,6 @@ private fun QuotedMessageContent(
         Box(modifier = Modifier.padding(start = dimensions().spacing4x)) {
             startContent()
         }
-
         Column(
             verticalArrangement = Arrangement.spacedBy(dimensions().spacing4x),
             modifier = Modifier.padding(vertical = dimensions().spacing4x)
@@ -357,21 +356,26 @@ fun QuotedAudioMessage(
     startContent: @Composable () -> Unit
 ) {
     QuotedMessageContent(
-        senderName = senderName.asString(), style = style, modifier = modifier, centerContent = {
+        senderName = senderName.asString(),
+        style = style,
+        modifier = modifier,
+        centerContent = {
             MainContentText("Audio message")
-        }, startContent = {
+        },
+        startContent = {
             startContent()
-        }, endContent = {
+        },
+        endContent = {
             Icon(
                 painter = painterResource(R.drawable.ic_audio),
                 contentDescription = null,
                 modifier = modifier
-                    .width(dimensions().spacing24x)
-                    .width(dimensions().spacing24x)
+                    .padding(end = 16.dp)
                     .size(dimensions().spacing24x),
                 tint = colorsScheme().secondaryText
             )
-        }, footerContent = { QuotedMessageOriginalDate(originalDateTimeText) }
+        },
+        footerContent = { QuotedMessageOriginalDate(originalDateTimeText) }
     )
 }
 

@@ -89,7 +89,6 @@ internal fun QuotedMessage(
     modifier: Modifier = Modifier,
     startContent: @Composable () -> Unit = {}
 ) {
-    // Draw content
     when (val quotedContent = messageData.quotedContent) {
         QuotedMessageUIData.Invalid -> QuotedInvalid(style)
 

@@ -27,6 +27,7 @@ import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.os.PowerManager
 import androidx.appcompat.app.AppCompatActivity
+import com.wire.android.appLogger
 import com.wire.android.di.ApplicationScope
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.kalium.logic.CoreLogic
@@ -73,14 +74,20 @@ class ProximitySensorManager @Inject constructor(
                 coreLogic.globalScope {
                     when (val currentSession = currentSession()) {
                         is CurrentSessionResult.Success -> {
+                            try {
+                                if (wakeLock.isHeld) {
+                                    wakeLock.release()
+                                }
+                            } catch (exception: Exception) {
+                                appLogger.e("[ProximitySensorManager] Trying to release a non-existent lock: ${exception.message}")
+                            }
+
                             val userId = currentSession.accountInfo.userId
                             val isCallRunning = coreLogic.getSessionScope(userId).calls.isCallRunning()
                             val distance = event.values.first()
                             val shouldTurnOffScreen = !wakeLock.isHeld && distance == NEAR_DISTANCE && isCallRunning
                             if (shouldTurnOffScreen) {
                                 wakeLock.acquire()
-                            } else if (wakeLock.isHeld) {
-                                wakeLock.release()
                             }
                         }
 

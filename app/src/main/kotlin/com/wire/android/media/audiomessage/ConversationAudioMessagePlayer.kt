@@ -133,7 +133,7 @@ class ConversationAudioMessagePlayer
             playAudioMessage(
                 conversationId = conversationId,
                 messageId = requestedAudioMessageId,
-                position = previouslyResumedPosition()
+                position = previouslyResumedPosition(requestedAudioMessageId)
             )
         }
     }

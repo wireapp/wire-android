@@ -360,7 +360,7 @@ fun QuotedAudioMessage(
         style = style,
         modifier = modifier,
         centerContent = {
-            MainContentText("Audio message")
+            MainContentText(stringResource(R.string.attachment_voice_message))
         },
         startContent = {
             startContent()
@@ -370,7 +370,7 @@ fun QuotedAudioMessage(
                 painter = painterResource(R.drawable.ic_audio),
                 contentDescription = null,
                 modifier = modifier
-                    .padding(end = 16.dp)
+                    .padding(end = dimensions().spacing16x)
                     .size(dimensions().spacing24x),
                 tint = colorsScheme().secondaryText
             )

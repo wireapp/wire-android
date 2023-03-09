@@ -110,7 +110,7 @@ class ConversationAudioMessagePlayer
                     audioMessageStateHistory = audioMessageStateHistory.toMutableMap().apply {
                         put(
                             audioMessageStateUpdate.messageId,
-                            currentState.copy(totalTimeInMs = audioMessageStateUpdate.totalTimeInMs)
+                            currentState.copy(totalTimeInMs = AudioState.TotalTimeInMs.Known(audioMessageStateUpdate.totalTimeInMs))
                         )
                     }
                 }

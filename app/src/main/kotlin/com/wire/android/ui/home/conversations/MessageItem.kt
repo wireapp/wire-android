@@ -44,6 +44,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import com.google.accompanist.flowlayout.FlowRow
 import com.wire.android.R
+import com.wire.android.media.audiomessage.AudioMediaPlayingState
 import com.wire.android.media.audiomessage.AudioState
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.LegalHoldIndicator
@@ -338,24 +339,12 @@ private fun MessageContent(
         }
 
         is UIMessageContent.AudioAssetMessage -> {
-            // in case the user did not play the audio message yet, we don't have the audio state
-            // that is coming from ConversationMessageAudioPlayer, in that case we refer to
-            // the default values for the audio message, which is PAUSED state and 0 as current position
-            // we treat totalTimeInMs from backend as the source of truth
-            // in order to be sure that all clients are in sync regarding the audio message duration
-            // however if it returns 0 we fallback to the duration from the audio player
-            val audioMessageState: AudioState =
-                audioMessagesState[message.messageHeader.messageId] ?: AudioState.DEFAULT
-
-            val totalTimeInMs = if (messageContent.audioMessageDurationInMs.toInt() == 0) {
-                audioMessageState.totalTimeInMs
-            } else {
-                messageContent.audioMessageDurationInMs.toInt()
-            }
+            val audioMessageState: AudioState = audioMessagesState[message.messageHeader.messageId]
+                ?: AudioState.withTotalTimeFromOtherClient(messageContent.audioMessageDurationInMs.toInt())
 
             AudioMessage(
                 audioMediaPlayingState = audioMessageState.audioMediaPlayingState,
-                totalTimeInMs = totalTimeInMs,
+                totalTimeInMs = audioMessageState.totalTimeInMs,
                 currentPositionInMs = audioMessageState.currentPositionInMs,
                 onPlayButtonClick = { onAudioClick(message.messageHeader.messageId) },
                 onSliderPositionChange = { position ->

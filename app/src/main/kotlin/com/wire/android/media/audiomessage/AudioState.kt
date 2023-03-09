@@ -3,10 +3,25 @@ package com.wire.android.media.audiomessage
 data class AudioState(
     val audioMediaPlayingState: AudioMediaPlayingState,
     val currentPositionInMs: Int,
-    val totalTimeInMs: Int
+    val totalTimeInMs: TotalTimeInMs
 ) {
     companion object {
-        val DEFAULT = AudioState(AudioMediaPlayingState.Stopped, 0, 0)
+        val DEFAULT = AudioState(AudioMediaPlayingState.Stopped, 0, TotalTimeInMs.NotKnown)
+        fun withTotalTimeFromOtherClient(otherClientTotalTime: Int): AudioState {
+            val totalTimeInMs = if (otherClientTotalTime == 0) {
+                TotalTimeInMs.NotKnown
+            } else {
+                TotalTimeInMs.Known(otherClientTotalTime)
+            }
+
+            return DEFAULT.copy(totalTimeInMs = totalTimeInMs)
+        }
+    }
+
+    sealed class TotalTimeInMs {
+        object NotKnown : TotalTimeInMs()
+
+        data class Known(val value: Int) : TotalTimeInMs()
     }
 }
 

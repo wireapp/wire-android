@@ -207,6 +207,34 @@ class NewConversationViewModelTest {
     }
 
     @Test
+    fun `given self is team member and guests are enabled, when creating group, then the group is created with the correct values`() = runTest {
+        val (arrangement, viewModel) = NewConversationViewModelArrangement()
+            .withIsSelfTeamMember(true)
+            .withServicesEnabled(false)
+            .withGuestEnabled(true)
+            .arrange()
+
+        viewModel.createGroup()
+        advanceUntilIdle()
+
+        viewModel.groupOptionsState.error.shouldBeNull()
+
+        coVerify {
+            arrangement.createGroupConversation(
+                viewModel.newGroupState.groupName.text,
+                viewModel.state.contactsAddedToGroup.map { contact -> UserId(contact.id, contact.domain) },
+                ConversationOptions(
+                    setOf(Conversation.Access.INVITE, Conversation.Access.CODE),
+                    setOf(Conversation.AccessRole.TEAM_MEMBER, Conversation.AccessRole.NON_TEAM_MEMBER, Conversation.AccessRole.GUEST),
+                    true,
+                    ConversationOptions.Protocol.PROTEUS,
+                    null
+                )
+            )
+        }
+    }
+
+    @Test
     fun `when search with search query, return failure for known and public search`() {
         runTest {
             // Given

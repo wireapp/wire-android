@@ -239,6 +239,9 @@
     <string name="session_expired_error_message">The application did not communicate with the server
         for a long period of time, or your session has been remotely invalidated.
     </string>
+    <string name="conversation_history_wipe_explanation">According to your team\'s security
+        settings, your conversation history has also been deleted.</string>
+
     <!-- Remove Device -->
     <string name="remove_device_title">Remove a Device</string>
     <string name="remove_device_message">Remove one of your other devices to start using Wire on

@@ -109,11 +109,11 @@ suspend fun WorkManager.enqueueMigrationWorker(): Flow<MigrationData> {
     val request = OneTimeWorkRequestBuilder<MigrationWorker>()
         .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
         .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, MIN_BACKOFF_MILLIS, TimeUnit.MILLISECONDS)
-//        .setConstraints(
-//            Constraints.Builder()
-//                .setRequiredNetworkType(NetworkType.CONNECTED)
-//                .build()
-//        )
+        .setConstraints(
+            Constraints.Builder()
+                .setRequiredNetworkType(NetworkType.CONNECTED)
+                .build()
+        )
         .build()
     val isAlreadyRunning = getWorkInfosForUniqueWork(MigrationWorker.NAME).await().let { it.firstOrNull()?.state == WorkInfo.State.RUNNING }
     enqueueUniqueWork(

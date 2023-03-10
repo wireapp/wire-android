@@ -27,7 +27,9 @@ import com.wire.android.ui.home.conversations.model.MessageFooter
 import com.wire.android.ui.home.conversations.model.MessageHeader
 import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.model.MessageStatus
+import com.wire.android.ui.home.conversations.model.MessageSubHeader
 import com.wire.android.ui.home.conversations.model.MessageTime
+import com.wire.android.ui.home.conversations.model.SelfDeletionStatus
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.conversations.previewAsset
@@ -111,10 +113,23 @@ class MessageMapper @Inject constructor(
                 messageContent = content,
                 messageSource = if (sender is SelfUser) MessageSource.Self else MessageSource.OtherUser,
                 messageHeader = provideMessageHeader(sender, message),
+                messageSubHeader = provideSubHeader(message),
                 messageFooter = footer,
                 userAvatarData = getUserAvatarData(sender)
             )
         }
+    }
+
+    private fun provideSubHeader(message: Message.Standalone): MessageSubHeader {
+        val selfDeletionStatus = if (message is Message.Regular) {
+            message.expirationData?.let {
+                SelfDeletionStatus.SelfDeleting(it.expireAfter)
+            } ?: SelfDeletionStatus.NonSelfDeletion
+        } else {
+            SelfDeletionStatus.NonSelfDeletion
+        }
+
+        return MessageSubHeader(selfDeletionStatus)
     }
 
     private fun isHeart(it: String) = it == "❤️" || it == "❤"
@@ -153,8 +168,10 @@ class MessageMapper @Inject constructor(
                     utcISO = (message.editStatus as Message.EditStatus.Edited).lastTimeStamp
                 )
             )
+
         message is Message.Regular && message.content is MessageContent.FailedDecryption ->
             MessageStatus.DecryptionFailure((message.content as MessageContent.FailedDecryption).isDecryptionResolved)
+
         else -> MessageStatus.Untouched
     }
 

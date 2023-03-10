@@ -22,7 +22,10 @@ package com.wire.android.ui.home.conversations.model
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
+import androidx.compose.ui.graphics.Color
 import com.wire.android.R
 import com.wire.android.model.ImageAsset
 import com.wire.android.model.UserAvatarData
@@ -31,6 +34,7 @@ import com.wire.android.ui.home.conversations.model.MessageStatus.Deleted
 import com.wire.android.ui.home.conversations.model.MessageStatus.ReceiveFailure
 import com.wire.android.ui.home.conversations.model.MessageStatus.SendFailure
 import com.wire.android.ui.home.conversationslist.model.Membership
+import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.uiMessageDateTime
 import com.wire.kalium.logic.data.conversation.ClientId
@@ -40,10 +44,12 @@ import com.wire.kalium.logic.data.user.AssetId
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserId
 
+
 data class UIMessage(
     val userAvatarData: UserAvatarData,
     val messageSource: MessageSource,
     val messageHeader: MessageHeader,
+    val messageSubHeader: MessageSubHeader,
     val messageContent: UIMessageContent?,
     val messageFooter: MessageFooter
 ) {
@@ -55,6 +61,7 @@ data class UIMessage(
     val isAvailable: Boolean = !isDeleted && !sendingFailed && !receivingFailed
     val isMyMessage = messageSource == MessageSource.Self
     val isTextMessage = messageContent is UIMessageContent.TextMessage
+
 }
 
 @Stable
@@ -71,6 +78,18 @@ data class MessageHeader(
     val isSenderUnavailable: Boolean,
     val clientId: ClientId? = null
 )
+
+@Stable
+data class MessageSubHeader(
+    val selfDeletionStatus: SelfDeletionStatus
+)
+
+sealed class SelfDeletionStatus {
+    object NonSelfDeletion : SelfDeletionStatus()
+
+    data class SelfDeleting(val expireAfter: kotlin.time.Duration) : SelfDeletionStatus()
+}
+
 
 @Stable
 data class MessageFooter(

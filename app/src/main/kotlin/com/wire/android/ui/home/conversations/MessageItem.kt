@@ -62,6 +62,8 @@ import com.wire.android.ui.home.conversations.model.MessageHeader
 import com.wire.android.ui.home.conversations.model.MessageImage
 import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.model.MessageStatus
+import com.wire.android.ui.home.conversations.model.MessageSubHeader
+import com.wire.android.ui.home.conversations.model.SelfDeletionStatus
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.conversations.model.messagetypes.asset.RestrictedAssetMessage
@@ -125,7 +127,7 @@ fun MessageItem(
             Column {
                 Spacer(modifier = Modifier.height(fullAvatarOuterPadding))
                 MessageHeader(messageHeader)
-
+                MessageSubHeader(messageSubHeader)
                 if (!isDeleted) {
                     if (!decryptionFailed) {
                         val currentOnAssetClicked = remember {
@@ -146,7 +148,9 @@ fun MessageItem(
                                 onLongClicked(message)
                             })
                         }
+
                         val onLongClick = remember { { onLongClicked(message) } }
+
                         MessageContent(
                             message = message,
                             messageContent = messageContent,
@@ -180,6 +184,13 @@ fun MessageItem(
 }
 
 @Composable
+fun MessageSubHeader(messageSubHeader: MessageSubHeader) {
+    if (messageSubHeader.selfDeletionStatus is SelfDeletionStatus.SelfDeleting) {
+        Text("This is self deleting message")
+    }
+}
+
+@Composable
 private fun Modifier.customizeMessageBackground(
     message: UIMessage
 ) = run {
@@ -200,14 +211,12 @@ private fun MessageHeader(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Username(username.asString(), modifier = Modifier.weight(weight = 1f, fill = false))
-
                     UserBadge(
                         membership = membership,
                         connectionState = connectionState,
                         startPadding = dimensions().spacing6x,
                         isDeleted = isSenderDeleted
                     )
-
                     if (isLegalHold) {
                         LegalHoldIndicator(modifier = Modifier.padding(start = dimensions().spacing6x))
                     }

@@ -183,13 +183,13 @@
     <string name="migration_title">Einrichten von Wire</string>
     <string name="migration_message">Bitte warten Sie, während wir die App für Sie einrichten</string>
     <string name="migration_message_unknown">Please wait while we migrate data for you</string>
-    <string name="migration_accounts_message">Migrating your accounts...</string>
-    <string name="migration_messages_message">Migrating your messages...</string>
+    <string name="migration_accounts_message">Ihre Benutzerkonten werden migriert...</string>
+    <string name="migration_messages_message">Ihre Nachrichten werden migriert...</string>
     <string name="migration_title_step">Step %1$d/%2$d</string>
     <string name="migration_title_almost_done">Fast fertig!</string>
     <string name="migration_title_updated">Setting up Wire</string>
-    <string name="migration_login_required">In order to migrate your messages from the old version of Wire, you need to log in to your account.</string>
-    <string name="migration_login_required_specific_account">In order to migrate your messages from the old version of Wire, you need to log in to your account %s.</string>
+    <string name="migration_login_required">Bitte melden Sie sich an, um Ihre Nachrichten aus der alten Version von Wire zu migrieren.</string>
+    <string name="migration_login_required_specific_account">Bitte melden Sie sich in Ihrem Benutzerkonto %s an, um Ihre Nachrichten aus der alten Version von Wire zu migrieren.</string>
     <string name="migration_login_required_specific_account_name">“%1$s (@%2$s)“</string>
     <string name="migration_messages_failure">Unfortunately, not all messages and conversations could not be migrated due to incompatibility with the older version of Wire (error code: %s)</string>
     <string name="migration_cancel_title">Migration abbrechen</string>
@@ -241,7 +241,7 @@
     <string name="remove_device_id_label">ID: %1$s</string>
     <string name="remove_device_dialog_title">Folgendes Gerät entfernen?</string>
     <string name="remove_device_invalid_password">Ungültiges Passwort</string>
-    <string name="remove_device_details_description">Remove this device if you have stopped using it. You will be logged out of this device immediately.</string>
+    <string name="remove_device_details_description">Entfernen Sie dieses Gerät, wenn Sie es nicht mehr nutzen. Sie werden sofort auf diesem Gerät abgemeldet.</string>
     <!-- Register Device -->
     <string name="register_device_title">Dieses Gerät hinzufügen</string>
     <string name="register_device_text">Geben Sie Ihr Passwort ein, um Wire auf diesem Gerät zu verwenden.</string>
@@ -365,7 +365,7 @@
     <string name="conversation_details_is_classified">SICHERHEITSNIVEAU: VS-NfD</string>
     <string name="conversation_details_is_not_classified">SICHERHEITSNIVEAU: NICHT EINGESTUFT</string>
     <string name="conversation_options_guests_label">Gäste</string>
-    <string name="conversation_details_guest_description">When this is ON, people from outside your team can join this conversation</string>
+    <string name="conversation_details_guest_description">Wenn diese Option aktiviert ist, können Personen außerhalb des Teams an dieser Unterhaltung teilnehmen</string>
     <string name="conversation_options_guest_description">Aktivieren Sie diese Option, um die Unterhaltung für Personen außerhalb Ihres Teams zu öffnen – auch wenn diese Wire nicht nutzen.</string>
     <string name="conversation_options_guest_not_editable_description">Sie können die Gast-Option in dieser Unterhaltung nicht deaktivieren, da sie von jemandem aus einem anderen Team erstellt wurde.</string>
     <string name="conversation_options_services_label">Dienste</string>
@@ -384,11 +384,11 @@
     <!-- Import/Export External Media -->
     <string name="import_media_content_title">Share With Wire</string>
     <string name="import_media_searchbar_title">Search for conversation</string>
-    <string name="import_media_send_button_title">Send</string>
+    <string name="import_media_send_button_title">Senden</string>
     <string name="export_media_subject_title">Sharing Media from Wire</string>
     <!--Read receipts -->
-    <string name="conversation_options_read_receipt_label">Read receipts</string>
-    <string name="conversation_options_read_receipt_description">When this is on, people can see when their messages in this conversation are read.</string>
+    <string name="conversation_options_read_receipt_label">Lesebestätigungen</string>
+    <string name="conversation_options_read_receipt_description">Wenn diese Option aktiviert ist, können Sender sehen, wenn ihre Nachrichten gelesen werden.</string>
     <!-- Messages -->
     <string name="message_details_title">Nachrichtendetails</string>
     <string name="message_details_reactions_tab">REAKTIONEN (%s)</string>
@@ -469,7 +469,7 @@
     <!--Conversation-->
     <string name="label_message_details">Nachrichtendetails</string>
     <string name="label_copy">Kopieren</string>
-    <string name="label_share">Share</string>
+    <string name="label_share">Teilen</string>
     <string name="label_edit">Bearbeiten</string>
     <string name="label_delete">Löschen</string>
     <string name="info_message_copied">Nachricht kopiert</string>
@@ -489,12 +489,12 @@
     <string name="conversation_banner_externals_present">Externe anwesend</string>
     <string name="conversation_banner_services_active">Dienste aktiv</string>
     <!-- System messages -->
-    <string name="label_system_message_added_by_self">%1$s added %2$s to the conversation</string>
-    <string name="label_system_message_removed_by_self">%1$s removed %2$s from the conversation</string>
-    <string name="label_system_message_added_by_other">%1$s added %2$s to the conversation</string>
-    <string name="label_system_message_removed_by_other">%1$s removed %2$s from the conversation</string>
-    <string name="label_system_message_left_the_conversation_by_self">%1$s left the conversation</string>
-    <string name="label_system_message_left_the_conversation_by_other">%1$s left the conversation</string>
+    <string name="label_system_message_added_by_self">%1$s haben %2$s zu der Unterhaltung hinzugefügt</string>
+    <string name="label_system_message_removed_by_self">%1$s haben %2$s aus der Unterhaltung entfernt</string>
+    <string name="label_system_message_added_by_other">%1$s hat %2$s zu der Unterhaltung hinzugefügt</string>
+    <string name="label_system_message_removed_by_other">%1$s hat %2$s aus der Unterhaltung entfernt</string>
+    <string name="label_system_message_left_the_conversation_by_self">%1$s haben die Unterhaltung verlassen</string>
+    <string name="label_system_message_left_the_conversation_by_other">%1$s hat die Unterhaltung verlassen</string>
     <string name="label_system_message_other_called">%1$s hat angerufen</string>
     <string name="label_system_message_you_called">%1$s haben angerufen</string>
     <string name="label_system_message_and">%1$s und %2$s</string>
@@ -626,7 +626,7 @@
     <string name="left_conversation_group_success">Sie haben die Unterhaltung verlassen.</string>
     <string name="error_unblocking_user">Benutzer konnte nicht freigegeben werden</string>
     <string name="delete_group_conversation_error">Beim Löschen der Unterhaltung ist ein Fehler aufgetreten</string>
-    <string name="error_limit_number_assets_imported_exceeded">You can only send up to 20 files at once</string>
+    <string name="error_limit_number_assets_imported_exceeded">Sie können nur bis zu 20 Dateien gleichzeitig senden</string>
     <string name="edit_message_not_yet_available">Saving edits to messages is not yet available</string>
     <!-- TODO: temporary, to be removed when the proper implementation of editing messages is finished -->
     <!-- Animation label -->
@@ -875,16 +875,16 @@
     <string name="file_sharing_restricted_dialog_title">File Sharing Restrictions</string>
     <string name="file_sharing_restricted_dialog_description">You can not share this file because this feature is disabled.</string>
     <!-- join conversation dialog -->
-    <string name="join_conversation_dialog_title">Join conversation?</string>
-    <string name="join_conversation_dialog_message">You have been invited to a conversation.\n\n%1$s</string>
+    <string name="join_conversation_dialog_title">Unterhaltung beitreten?</string>
+    <string name="join_conversation_dialog_message">Sie wurden zu dieser Unterhaltung eingeladen.\n\n%1$s</string>
     <string name="join_conversation_dialog_button">Beitreten</string>
-    <string name="join_conversation_via_deeplink_error_title">Unable to join conversation</string>
+    <string name="join_conversation_via_deeplink_error_title">Sie konnten der Unterhaltung nicht beitreten</string>
     <string name="join_conversation_via_deeplink_error_link_expired">The link to this group conversation expired or the conversation was set to private.</string>
     <string name="join_conversation_via_deeplink_error_max_number_of_participent">The maximum number of participants in this conversation has been reached.</string>
     <string name="join_conversation_via_deeplink_error_general">Due to an error you could not be added to the group conversation.</string>
     <!-- guest room link -->
-    <string name="folder_label_guest_link">Guest link</string>
-    <string name="guest_link_description">Invite others with a link to this conversation. Anyone with the link can join the conversation, even if they don’t have Wire.</string>
+    <string name="folder_label_guest_link">Gäste-Link</string>
+    <string name="guest_link_description">Laden Sie andere mit einem Link zu dieser Unterhaltung ein. Jeder kann mit dem Link an der Unterhaltung teilnehmen – auch ohne Wire.</string>
     <string name="guest_link_button_create_link">Link erstellen</string>
     <string name="guest_link_button_copy_link">Link kopieren</string>
     <string name="guest_link_button_share_link">Link teilen</string>

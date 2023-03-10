@@ -101,7 +101,7 @@ private fun String?.userUiText(isSelfMessage: Boolean): UIText = when {
     else -> UIText.StringResource(R.string.username_unavailable_label)
 }
 
-@Suppress("LongMethod", "ComplexMethod")
+@Suppress("LongMethod", "ComplexMethod", "NestedBlockDepth")
 fun MessagePreview.uiLastMessageContent(): UILastMessageContent {
     return when (content) {
         is WithUser -> {
@@ -193,7 +193,11 @@ fun MessagePreview.uiLastMessageContent(): UILastMessageContent {
                         !isSelfMessage && isSelfRemoved -> {
                             when (otherUsersSize) {
                                 0 -> UIText.StringResource(R.string.last_message_other_removed_only_self_user)
-                                else -> UIText.PluralResource(R.plurals.last_message_other_removed_self_user, otherUsersSize, otherUsersSize)
+                                else -> UIText.PluralResource(
+                                    R.plurals.last_message_other_removed_self_user,
+                                    otherUsersSize,
+                                    otherUsersSize
+                                )
                             }
                         }
 

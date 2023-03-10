@@ -101,12 +101,14 @@ class FeatureFlagNotificationViewModel @Inject constructor(
     }
 
     private suspend fun setGuestRoomLinkFeatureFlag() {
-        observeGuestRoomLinkFeatureFlag().collect { guestRoomLinkStatus ->
-            guestRoomLinkStatus.isGuestRoomLinkEnabled?.let {
-                featureFlagState = featureFlagState.copy(isGuestRoomLinkEnabled = it)
-            }
-            guestRoomLinkStatus.isStatusChanged?.let {
-                featureFlagState = featureFlagState.copy(shouldShowGuestRoomLinkDialog = it)
+        viewModelScope.launch {
+            observeGuestRoomLinkFeatureFlag().collect { guestRoomLinkStatus ->
+                guestRoomLinkStatus.isGuestRoomLinkEnabled?.let {
+                    featureFlagState = featureFlagState.copy(isGuestRoomLinkEnabled = it)
+                }
+                guestRoomLinkStatus.isStatusChanged?.let {
+                    featureFlagState = featureFlagState.copy(shouldShowGuestRoomLinkDialog = it)
+                }
             }
         }
     }

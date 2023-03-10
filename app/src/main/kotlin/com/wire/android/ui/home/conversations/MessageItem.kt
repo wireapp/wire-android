@@ -320,7 +320,10 @@ private fun MessageContent(
         is UIMessageContent.RestrictedAsset -> {
             when {
                 messageContent.mimeType.contains("image/") -> {
-                    RestrictedAssetMessage(R.drawable.ic_gallery, stringResource(id = R.string.prohibited_images_message))
+                    RestrictedAssetMessage(
+                        R.drawable.ic_gallery,
+                        stringResource(id = R.string.prohibited_images_message)
+                    )
                 }
 
                 messageContent.mimeType.contains("video/") -> {
@@ -328,7 +331,10 @@ private fun MessageContent(
                 }
 
                 messageContent.mimeType.contains("audio/") -> {
-                    RestrictedAssetMessage(R.drawable.ic_speaker_on, stringResource(id = R.string.prohibited_audio_message))
+                    RestrictedAssetMessage(
+                        R.drawable.ic_speaker_on,
+                        stringResource(id = R.string.prohibited_audio_message)
+                    )
                 }
 
                 else -> {
@@ -338,25 +344,17 @@ private fun MessageContent(
         }
 
         is UIMessageContent.AudioAssetMessage -> {
-            // in case the user did not play the audio message yet, we don't have the audio state
-            // that is coming from ConversationMessageAudioPlayer, in that case we refer to
-            // the default values for the audio message, which is PAUSED state and 0 as current position
-            // we treat totalTimeInMs from backend as the source of truth
-            // in order to be sure that all clients are in sync regarding the audio message duration
-            // however if it returns 0 we fallback to the duration from the audio player
-            val audioMessageState: AudioState =
-                audioMessagesState[message.messageHeader.messageId] ?: AudioState.DEFAULT
+            val audioMessageState: AudioState = audioMessagesState[message.messageHeader.messageId]
+                ?: AudioState.DEFAULT
 
-            val totalTimeInMs = if (messageContent.audioMessageDurationInMs.toInt() == 0) {
-                audioMessageState.totalTimeInMs
-            } else {
-                messageContent.audioMessageDurationInMs.toInt()
+            val adjustedMessageState: AudioState = remember(audioMessagesState) {
+                audioMessageState.sanitizeTotalTime(messageContent.audioMessageDurationInMs.toInt())
             }
 
             AudioMessage(
-                audioMediaPlayingState = audioMessageState.audioMediaPlayingState,
-                totalTimeInMs = totalTimeInMs,
-                currentPositionInMs = audioMessageState.currentPositionInMs,
+                audioMediaPlayingState = adjustedMessageState.audioMediaPlayingState,
+                totalTimeInMs = adjustedMessageState.totalTimeInMs,
+                currentPositionInMs = adjustedMessageState.currentPositionInMs,
                 onPlayButtonClick = { onAudioClick(message.messageHeader.messageId) },
                 onSliderPositionChange = { position ->
                     onChangeAudioPosition(message.messageHeader.messageId, position.toInt())
@@ -474,7 +472,14 @@ private fun MessageDecryptionFailure(
                 Row {
                     WireSecondaryButton(
                         text = stringResource(R.string.label_reset_session),
-                        onClick = { messageHeader.userId?.let { userId -> onResetSessionClicked(userId, messageHeader.clientId?.value) } },
+                        onClick = {
+                            messageHeader.userId?.let { userId ->
+                                onResetSessionClicked(
+                                    userId,
+                                    messageHeader.clientId?.value
+                                )
+                            }
+                        },
                         minHeight = dimensions().spacing32x,
                         fillMaxWidth = false
                     )

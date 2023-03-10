@@ -348,7 +348,7 @@ private fun MessageContent(
                 ?: AudioState.DEFAULT
 
             val adjustedMessageState: AudioState = remember(audioMessagesState) {
-                audioMessageState.adjustTotalTime(messageContent.audioMessageDurationInMs.toInt())
+                audioMessageState.sanitizeTotalTime(messageContent.audioMessageDurationInMs.toInt())
             }
 
             AudioMessage(

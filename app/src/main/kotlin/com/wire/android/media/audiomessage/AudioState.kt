@@ -11,7 +11,7 @@ data class AudioState(
 
     // before the user decides to play audio message, we are not able to determine total time ourself using
     // MediaPlayer API, we are relying on the info retrieved from the other client, until then
-    fun adjustTotalTime(otherClientTotalTime: Int): AudioState {
+    fun sanitizeTotalTime(otherClientTotalTime: Int): AudioState {
         if (totalTimeInMs is TotalTimeInMs.NotKnown) {
             if (otherClientTotalTime != 0) {
                 return copy(totalTimeInMs = TotalTimeInMs.Known(otherClientTotalTime))

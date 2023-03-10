@@ -161,7 +161,10 @@ fun MessagePreview.uiLastMessageContent(): UILastMessageContent {
                         }
 
                         !isSelfMessage && isSelfAdded -> {
-                            UIText.PluralResource(R.plurals.last_message_other_added_self_user, otherUsersSize, otherUsersSize)
+                            when (otherUsersSize) {
+                                0 -> UIText.StringResource(R.string.last_message_other_added_only_self_user)
+                                else -> UIText.PluralResource(R.plurals.last_message_other_added_self_user, otherUsersSize, otherUsersSize)
+                            }
                         }
 
                         else -> {
@@ -188,7 +191,10 @@ fun MessagePreview.uiLastMessageContent(): UILastMessageContent {
                         }
 
                         !isSelfMessage && isSelfRemoved -> {
-                            UIText.PluralResource(R.plurals.last_message_other_removed_self_user, otherUsersSize, otherUsersSize)
+                            when (otherUsersSize) {
+                                0 -> UIText.StringResource(R.string.last_message_other_removed_only_self_user)
+                                else -> UIText.PluralResource(R.plurals.last_message_other_removed_self_user, otherUsersSize, otherUsersSize)
+                            }
                         }
 
                         else -> {

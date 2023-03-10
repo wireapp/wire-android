@@ -40,7 +40,7 @@
     <string name="label_membership_external">Extern</string>
     <string name="label_membership_service">Dienst</string>
     <string name="label_user_deleted">Gelöscht</string>
-    <string name="label_message_sent_failure">Nachricht konnte nicht gesendet werden.</string>
+    <string name="label_message_sent_failure">Nachricht konnte aufgrund von Verbindungsproblemen nicht gesendet werden.</string>
     <string name="label_message_sent_remotely_failure">Message could not be sent, as the backend %s appears to be offline.</string>
     <string name="label_message_receive_failure">Fehler beim Herunterladen</string>
     <string name="label_message_decryption_failure_message">Die Nachricht konnte nicht entschlüsselt werden.</string>
@@ -186,7 +186,7 @@
     <string name="migration_accounts_message">Migrating your accounts...</string>
     <string name="migration_messages_message">Migrating your messages...</string>
     <string name="migration_title_step">Step %1$d/%2$d</string>
-    <string name="migration_title_almost_done">Almost done!</string>
+    <string name="migration_title_almost_done">Fast fertig!</string>
     <string name="migration_title_updated">Setting up Wire</string>
     <string name="migration_login_required">In order to migrate your messages from the old version of Wire, you need to log in to your account.</string>
     <string name="migration_login_required_specific_account">In order to migrate your messages from the old version of Wire, you need to log in to your account %s.</string>
@@ -877,7 +877,7 @@
     <!-- join conversation dialog -->
     <string name="join_conversation_dialog_title">Join conversation?</string>
     <string name="join_conversation_dialog_message">You have been invited to a conversation.\n\n%1$s</string>
-    <string name="join_conversation_dialog_button">Join</string>
+    <string name="join_conversation_dialog_button">Beitreten</string>
     <string name="join_conversation_via_deeplink_error_title">Unable to join conversation</string>
     <string name="join_conversation_via_deeplink_error_link_expired">The link to this group conversation expired or the conversation was set to private.</string>
     <string name="join_conversation_via_deeplink_error_max_number_of_participent">The maximum number of participants in this conversation has been reached.</string>
@@ -885,17 +885,17 @@
     <!-- guest room link -->
     <string name="folder_label_guest_link">Guest link</string>
     <string name="guest_link_description">Invite others with a link to this conversation. Anyone with the link can join the conversation, even if they don’t have Wire.</string>
-    <string name="guest_link_button_create_link">Create Link</string>
-    <string name="guest_link_button_copy_link">Copy Link</string>
-    <string name="guest_link_button_share_link">Share Link</string>
-    <string name="guest_link_button_revoke_link">Revoke Link</string>
+    <string name="guest_link_button_create_link">Link erstellen</string>
+    <string name="guest_link_button_copy_link">Link kopieren</string>
+    <string name="guest_link_button_share_link">Link teilen</string>
+    <string name="guest_link_button_revoke_link">Link widerrufen</string>
     <string name="audio_not_available">Audio not available</string>
     <string name="audio_not_available_explanation">Something went wrong while downloading this audio file. Please ask the sender to upload it again</string>
     <string name="guest_link_generate_error_message">There was an error trying to create Guest Link. Please try again</string>
     <string name="guest_link_revoke_error_message">There was an error trying to revoke Guest Link. Please try again</string>
-    <string name="revoke_guest__room_link_dialog_text">New guests will not be able to join with this link. Current guests will still have access.</string>
-    <string name="revoke_guest__room_link_dialog_title">Revoke guest link?</string>
-    <string name="guest_room_link_copied">Guest link was copied to clipboard</string>
-    <string name="guest_room_link_enabled">Generating guest links is now enabled for all group admins</string>
-    <string name="guest_room_link_disabled">Generating guest links is now disabled for all group admins</string>
+    <string name="revoke_guest__room_link_dialog_text">Neue Gäste werden sich nicht mehr mit diesem Link anmelden können. Aktuelle Gäste haben weiterhin Zugang zum Gästebereich.</string>
+    <string name="revoke_guest__room_link_dialog_title">Gäste-Link widerrufen?</string>
+    <string name="guest_room_link_copied">Gäste-Link in Zwischenablage kopiert</string>
+    <string name="guest_room_link_enabled">Erstellen von Gäste-Links ist nun für alle Gruppen-Admins aktiviert</string>
+    <string name="guest_room_link_disabled">Erstellen von Gäste-Links ist nun für alle Gruppen-Admins deaktiviert</string>
 </resources>

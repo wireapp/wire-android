@@ -158,7 +158,7 @@ class RegisterDeviceViewModelTest {
     fun `given button is clicked, when password is invalid, then UsernameInvalidError is passed`() {
         coEvery {
             registerClientUseCase(any())
-        } returns RegisterClientResult.Failure.InvalidCredentials
+        } returns RegisterClientResult.Failure.InvalidCredentials.InvalidPassword
 
         runTest { registerDeviceViewModel.onContinue() }
 

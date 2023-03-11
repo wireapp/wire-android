@@ -173,15 +173,15 @@ open class LoginViewModel @Inject constructor(
 fun AuthenticationResult.Failure.toLoginError() = when (this) {
     is AuthenticationResult.Failure.SocketError -> LoginError.DialogError.ProxyError
     is AuthenticationResult.Failure.Generic -> LoginError.DialogError.GenericError(this.genericFailure)
-    AuthenticationResult.Failure.InvalidCredentials -> LoginError.DialogError.InvalidCredentialsError
-    AuthenticationResult.Failure.InvalidUserIdentifier -> LoginError.TextFieldError.InvalidValue
+    is AuthenticationResult.Failure.InvalidCredentials -> LoginError.DialogError.InvalidCredentialsError
+    is AuthenticationResult.Failure.InvalidUserIdentifier -> LoginError.TextFieldError.InvalidValue
 }
 
 fun RegisterClientResult.Failure.toLoginError() = when (this) {
     is RegisterClientResult.Failure.Generic -> LoginError.DialogError.GenericError(this.genericFailure)
-    RegisterClientResult.Failure.InvalidCredentials -> LoginError.DialogError.InvalidCredentialsError
-    RegisterClientResult.Failure.TooManyClients -> LoginError.TooManyDevicesError
-    RegisterClientResult.Failure.PasswordAuthRequired -> LoginError.DialogError.PasswordNeededToRegisterClient
+    is RegisterClientResult.Failure.InvalidCredentials -> LoginError.DialogError.InvalidCredentialsError
+    is RegisterClientResult.Failure.TooManyClients -> LoginError.TooManyDevicesError
+    is RegisterClientResult.Failure.PasswordAuthRequired -> LoginError.DialogError.PasswordNeededToRegisterClient
 }
 
 fun AddAuthenticatedUserUseCase.Result.Failure.toLoginError(): LoginError = when (this) {

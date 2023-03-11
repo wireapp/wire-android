@@ -70,7 +70,6 @@ internal class NewConversationViewModelArrangement {
         coEvery { searchKnownUsers(any()) } returns flowOf(
             SearchUsersResult.Success(userSearchResult = UserSearchResult(listOf(KNOWN_USER)))
         )
-//        coEvery { getAllKnownUsers() } returns flowOf(GetAllContactsResult.Success(listOf()))
         coEvery { createGroupConversation(any(), any(), any()) } returns CreateGroupConversationUseCase.Result.Success(CONVERSATION)
         every { contactMapper.fromOtherUser(PUBLIC_USER) } returns Contact(
             id = "publicValue",
@@ -223,6 +222,30 @@ internal class NewConversationViewModelArrangement {
 
     fun withIsSelfTeamMember(result: Boolean) = apply {
         coEvery { isSelfTeamMember() } returns result
+    }
+
+    fun withGuestEnabled(isGuestModeEnabled: Boolean) = apply {
+        val newAccessRole: MutableSet<Conversation.AccessRole> = viewModel.groupOptionsState.accessRoleState.apply {
+            if (isGuestModeEnabled) {
+                add(Conversation.AccessRole.GUEST)
+                add(Conversation.AccessRole.NON_TEAM_MEMBER)
+            } else {
+                remove(Conversation.AccessRole.GUEST)
+                remove(Conversation.AccessRole.NON_TEAM_MEMBER)
+            }
+        }
+        viewModel.groupOptionsState = viewModel
+            .groupOptionsState
+            .copy(isAllowGuestEnabled = isGuestModeEnabled, accessRoleState = newAccessRole)
+    }
+
+    fun withServicesEnabled(areServicesEnabled: Boolean) = apply {
+        viewModel.groupOptionsState = viewModel.groupOptionsState.copy(isAllowServicesEnabled = areServicesEnabled)
+        if (areServicesEnabled) {
+            viewModel.groupOptionsState.accessRoleState.add(Conversation.AccessRole.SERVICE)
+        } else {
+            viewModel.groupOptionsState.accessRoleState.remove(Conversation.AccessRole.SERVICE)
+        }
     }
 
     fun arrange() = this to viewModel

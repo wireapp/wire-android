@@ -240,22 +240,38 @@ class WireActivity : AppCompatActivity() {
     @Composable
     fun accountLoggedOutDialog(reason: CurrentSessionErrorState, navigateAway: () -> Unit) {
         appLogger.e("AccountLongedOutDialog: $reason")
-        val (@StringRes title: Int, @StringRes text: Int) = when (reason) {
+        val (@StringRes title: Int, text: String) = when (reason) {
             CurrentSessionErrorState.SessionExpired -> {
-                R.string.session_expired_error_title to R.string.session_expired_error_message
+                if (BuildConfig.WIPE_ON_COOKIE_INVALID) {
+                    R.string.session_expired_error_title to (
+                            stringResource(id = R.string.session_expired_error_message)
+                                    + "\n\n"
+                                    + stringResource(id = R.string.conversation_history_wipe_explanation)
+                            )
+                } else {
+                    R.string.session_expired_error_title to stringResource(id = R.string.session_expired_error_message)
+                }
             }
 
             CurrentSessionErrorState.RemovedClient -> {
-                R.string.removed_client_error_title to R.string.removed_client_error_message
+                if (BuildConfig.WIPE_ON_DEVICE_REMOVAL) {
+                    R.string.removed_client_error_title to (
+                            stringResource(id = R.string.removed_client_error_message)
+                                    + "\n\n"
+                                    + stringResource(id = R.string.conversation_history_wipe_explanation)
+                            )
+                } else {
+                    R.string.removed_client_error_title to stringResource(R.string.removed_client_error_message)
+                }
             }
 
             CurrentSessionErrorState.DeletedAccount -> {
-                R.string.deleted_user_error_title to R.string.deleted_user_error_message
+                R.string.deleted_user_error_title to stringResource(R.string.deleted_user_error_message)
             }
         }
         WireDialog(
             title = stringResource(id = title),
-            text = stringResource(id = text),
+            text = text,
             onDismiss = remember { { } },
             optionButton1Properties = WireDialogButtonProperties(
                 text = stringResource(R.string.label_ok),

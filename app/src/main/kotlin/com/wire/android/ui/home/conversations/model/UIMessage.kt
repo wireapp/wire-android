@@ -43,7 +43,7 @@ import com.wire.kalium.logic.data.message.MessageContent
 import com.wire.kalium.logic.data.user.AssetId
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserId
-
+import kotlin.time.Duration
 
 data class UIMessage(
     val userAvatarData: UserAvatarData,
@@ -61,7 +61,6 @@ data class UIMessage(
     val isAvailable: Boolean = !isDeleted && !sendingFailed && !receivingFailed
     val isMyMessage = messageSource == MessageSource.Self
     val isTextMessage = messageContent is UIMessageContent.TextMessage
-
 }
 
 @Stable
@@ -81,15 +80,15 @@ data class MessageHeader(
 
 @Stable
 data class MessageSubHeader(
-    val selfDeletionStatus: SelfDeletionStatus
+    val selfDeletionStatus: SelfDeletionStatus,
 )
 
 sealed class SelfDeletionStatus {
     object NonSelfDeletion : SelfDeletionStatus()
 
-    data class SelfDeleting(val expireAfter: kotlin.time.Duration) : SelfDeletionStatus()
-}
+    data class SelfDeleting(val expireAfter: Duration) : SelfDeletionStatus()
 
+}
 
 @Stable
 data class MessageFooter(

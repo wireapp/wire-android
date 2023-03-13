@@ -71,10 +71,10 @@ class PingRinger @Inject constructor(private val context: Context) {
                 if (ringerMode == AudioManager.RINGER_MODE_VIBRATE) {
                     appLogger.i("Starting vibration")
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                        it.vibrate(VibrationEffect.createWaveform(VIBRATE_PATTERN, VibrationEffect.EFFECT_DOUBLE_CLICK))
+                        it.vibrate(VibrationEffect.createWaveform(VIBRATE_PATTERN, VibrationEffect.DEFAULT_AMPLITUDE))
                     } else {
                         @Suppress("DEPRECATION")
-                        it.vibrate(VIBRATE_PATTERN, VibrationEffect.EFFECT_DOUBLE_CLICK)
+                        it.vibrate(VIBRATE_PATTERN, VibrationEffect.DEFAULT_AMPLITUDE)
                     }
                 } else {
                     appLogger.i("Skipping vibration")
@@ -84,6 +84,6 @@ class PingRinger @Inject constructor(private val context: Context) {
     }
 
     companion object {
-        private val VIBRATE_PATTERN = longArrayOf(0, 1000, 1000)
+        private val VIBRATE_PATTERN: LongArray = longArrayOf(0L, 1000L, 1000L, 1000L)
     }
 }

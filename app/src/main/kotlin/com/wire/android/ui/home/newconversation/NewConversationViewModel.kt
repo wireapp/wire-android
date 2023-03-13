@@ -122,14 +122,14 @@ class NewConversationViewModel @Inject constructor(
     fun onAllowGuestsClicked() {
         onAllowGuestsDialogDismissed()
         onAllowGuestStatusChanged(true)
-        createGroupWithCustomOptions(false)
+        createGroupForTeamAccounts(false)
     }
 
     fun onNotAllowGuestClicked() {
         onAllowGuestsDialogDismissed()
         onAllowGuestStatusChanged(false)
         removeGuestsIfNotAllowed()
-        createGroupWithCustomOptions(false)
+        createGroupForTeamAccounts(false)
     }
 
     private fun removeGuestsIfNotAllowed() {
@@ -160,13 +160,14 @@ class NewConversationViewModel @Inject constructor(
 
     fun createGroup() {
         if (newGroupState.isSelfTeamMember) {
-            createGroupWithCustomOptions(true)
+            createGroupForTeamAccounts(true)
         } else {
-            createGroupWithoutOption()
+            // Personal Account
+            createGroupForPersonalAccounts()
         }
     }
 
-    private fun createGroupWithoutOption() {
+    private fun createGroupForPersonalAccounts() {
         viewModelScope.launch {
             newGroupState = newGroupState.copy(isLoading = true)
             val result = createGroupConversation(
@@ -175,14 +176,15 @@ class NewConversationViewModel @Inject constructor(
                 userIdList = state.contactsAddedToGroup.map { contact -> UserId(contact.id, contact.domain) },
                 options = ConversationOptions().copy(
                     protocol = ConversationOptions.Protocol.PROTEUS,
-                    accessRole = null
+                    accessRole = Conversation.defaultGroupAccessRoles,
+                    access = Conversation.defaultGroupAccess
                 )
             )
             handleNewGroupCreationResult(result)
         }
     }
 
-    private fun createGroupWithCustomOptions(shouldCheckGuests: Boolean = true) {
+    private fun createGroupForTeamAccounts(shouldCheckGuests: Boolean = true) {
         if (shouldCheckGuests && checkIfGuestAdded()) return
         viewModelScope.launch {
             newGroupState = newGroupState.copy(isLoading = true)
@@ -195,7 +197,7 @@ class NewConversationViewModel @Inject constructor(
                     readReceiptsEnabled = groupOptionsState.isReadReceiptEnabled,
                     accessRole = groupOptionsState.accessRoleState,
                     access = if (groupOptionsState.accessRoleState.contains(Conversation.AccessRole.GUEST)) {
-                        setOf(Conversation.Access.INVITE, Conversation.Access.CODE)
+                        Conversation.defaultGroupAccess.toMutableSet().apply { add(Conversation.Access.CODE) }
                     } else null
                 )
             )

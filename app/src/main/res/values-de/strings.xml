@@ -231,6 +231,8 @@
     <string name="session_expired_error_message">Die App hat über einen längeren Zeitraum nicht mit dem Server 
         kommuniziert oder die Session wurde per Fernzugriff für ungültig erklärt.
     </string>
+    <string name="conversation_history_wipe_explanation">According to your team\'s security
+        settings, your conversation history has also been deleted.</string>
     <!-- Remove Device -->
     <string name="remove_device_title">Bitte ein Gerät entfernen</string>
     <string name="remove_device_message">Entfernen Sie eines Ihrer anderen Geräte, um Wire
@@ -242,6 +244,7 @@
     <string name="remove_device_dialog_title">Folgendes Gerät entfernen?</string>
     <string name="remove_device_invalid_password">Ungültiges Passwort</string>
     <string name="remove_device_details_description">Entfernen Sie dieses Gerät, wenn Sie es nicht mehr nutzen. Sie werden sofort auf diesem Gerät abgemeldet.</string>
+    <string name="remove_device_details_description_with_wipe">Remove your device if you have stopped using it. According to your team\'s security settings, your conversation history will also be deleted.</string>
     <!-- Register Device -->
     <string name="register_device_title">Dieses Gerät hinzufügen</string>
     <string name="register_device_text">Geben Sie Ihr Passwort ein, um Wire auf diesem Gerät zu verwenden.</string>

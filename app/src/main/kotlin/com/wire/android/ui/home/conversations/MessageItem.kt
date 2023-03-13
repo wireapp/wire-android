@@ -98,6 +98,7 @@ fun MessageItem(
 
     if (message.isSelfDeleting) {
         LaunchedEffect(Unit) {
+            //start timer
             test = "123"
         }
     }

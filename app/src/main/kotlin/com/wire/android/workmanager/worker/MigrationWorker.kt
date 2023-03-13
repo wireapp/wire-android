@@ -64,6 +64,7 @@ class MigrationWorker
     private val notificationChannelsManager: NotificationChannelsManager,
 ) : CoroutineWorker(appContext, workerParams) {
 
+    @Suppress("TooGenericExceptionCaught")
     override suspend fun doWork(): Result = coroutineScope {
         try {
             when (val result = migrationManager.migrate(this, { setProgress(it.type.toData()) })) {

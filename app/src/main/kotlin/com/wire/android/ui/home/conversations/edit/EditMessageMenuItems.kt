@@ -75,8 +75,10 @@ fun EditMessageMenuItems(
     val localContext = LocalContext.current
     val isCopyable = message.isTextMessage
     val isAvailable = message.isAvailable
-    val isAssetMessage =
-        message.messageContent is UIMessageContent.AssetMessage || message.messageContent is UIMessageContent.ImageMessage
+    val isAssetMessage = message.messageContent is UIMessageContent.AssetMessage
+            || message.messageContent is UIMessageContent.ImageMessage
+            || message.messageContent is UIMessageContent.AudioAssetMessage
+
     val isEditable = message.isMyMessage && localFeatureVisibilityFlags.MessageEditIcon && !isAssetMessage
 
     val onCopyItemClick = remember(message) {

@@ -187,7 +187,7 @@ class MigrationManager @Inject constructor(
             is MigrationData.Result.Failure.Messages -> showMessagesNotification(result.errorCode)
             is MigrationData.Result.Failure.Unknown,
             is MigrationData.Result.Failure.NoNetwork,
-            is MigrationData.Result.Success -> {/* no-op */
+            is MigrationData.Result.Success -> { /* no-op */
             }
         }
     }

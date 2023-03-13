@@ -28,7 +28,6 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -76,12 +75,12 @@ import javax.inject.Inject
 
 @OptIn(
     ExperimentalMaterial3Api::class,
-    ExperimentalAnimationApi::class,
     ExperimentalComposeUiApi::class,
     ExperimentalCoroutinesApi::class
 )
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @AndroidEntryPoint
+@Suppress("TooManyFunctions")
 class WireActivity : AppCompatActivity() {
 
     @Inject
@@ -101,18 +100,21 @@ class WireActivity : AppCompatActivity() {
         proximitySensorManager.initialize()
         lifecycle.addObserver(currentScreenManager)
 
-        viewModel.handleDeepLink(intent)
-        setComposableContent()
+        handleDeepLink(intent, savedInstanceState)
+        viewModel.observePersistentConnectionStatus()
+        val startDestination = viewModel.startNavigationRoute()
+        setComposableContent(startDestination)
     }
 
     override fun onNewIntent(intent: Intent?) {
-        if (viewModel.handleDeepLinkOnNewIntent(intent)) {
-            recreate()
+        if (viewModel.isSharingIntent(intent)) {
+            setIntent(intent)
         }
+        handleDeepLink(intent)
         super.onNewIntent(intent)
     }
 
-    private fun setComposableContent() {
+    private fun setComposableContent(startDestination: String) {
         setContent {
             CompositionLocalProvider(
                 LocalFeatureVisibilityFlags provides FeatureVisibilityFlags,
@@ -120,32 +122,8 @@ class WireActivity : AppCompatActivity() {
             ) {
                 WireTheme {
                     val scope = rememberCoroutineScope()
-                    val navController = rememberTrackingAnimatedNavController() { NavigationItem.fromRoute(it)?.itemName }
-                    val startDestination = viewModel.startNavigationRoute()
-                    Scaffold {
-                        NavigationGraph(navController = navController, startDestination, viewModel.navigationArguments())
-                    }
-                    setUpNavigation(navController, scope)
-
-                    updateAppDialog(
-                        { updateTheApp() },
-                        viewModel.globalAppState.updateAppDialog
-                    )
-
-                    viewModel.globalAppState.conversationJoinedDialog?.let {
-                        when (it) {
-                            is JoinConversationViaCodeState.Error -> JoinConversationViaInviteLinkError(
-                                errorState = it,
-                                onCancel = viewModel::cancelJoinConversation
-                            )
-                            is JoinConversationViaCodeState.Show -> JoinConversationViaDeepLinkDialog(
-                                it,
-                                false,
-                                onCancel = viewModel::cancelJoinConversation,
-                                onJoinClick = viewModel::joinConversationViaCode
-                            )
-                        }
-                    }
+                    val navController = rememberTrackingAnimatedNavController { NavigationItem.fromRoute(it)?.itemName }
+                    setUpNavigationGraph(startDestination, navController, scope)
                     handleDialogs()
                 }
             }
@@ -153,53 +131,47 @@ class WireActivity : AppCompatActivity() {
     }
 
     @Composable
-    private fun handleDialogs() {
-        updateAppDialog(
-            { updateTheApp() },
-            viewModel.globalAppState.updateAppDialog
-        )
+    fun setUpNavigationGraph(startDestination: String, navController: NavHostController, scope: CoroutineScope) {
+        Scaffold {
+            NavigationGraph(navController = navController, startDestination)
+        }
+        setUpNavigation(navController, scope)
+    }
 
-        viewModel.globalAppState.conversationJoinedDialog?.let {
-            when (it) {
-                is JoinConversationViaCodeState.Error -> JoinConversationViaInviteLinkError(
-                    errorState = it,
-                    onCancel = viewModel::cancelJoinConversation
-                )
+    @Composable
+    private fun setUpNavigation(
+        navController: NavHostController,
+        scope: CoroutineScope
+    ) {
+        val keyboardController = LocalSoftwareKeyboardController.current
+        // with the static key here we're sure that this effect wouldn't be canceled or restarted
+        LaunchedEffect(Unit) {
+            navigationManager.navigateState.onEach { command ->
+                if (command == null) return@onEach
+                keyboardController?.hide()
+                navController.navigateToItem(command)
+            }.launchIn(scope)
 
-                is JoinConversationViaCodeState.Show -> JoinConversationViaDeepLinkDialog(
-                    it,
-                    false,
-                    onCancel = viewModel::cancelJoinConversation,
-                    onJoinClick = viewModel::joinConversationViaCode
-                )
+            navigationManager.navigateBack.onEach {
+                if (!navController.popWithArguments(it)) finish()
+            }.launchIn(scope)
+
+            navController.addOnDestinationChangedListener { controller, _, _ ->
+                keyboardController?.hide()
+                updateScreenSettings(controller)
             }
-        }
 
-        handleCustomBackendDialog(viewModel.globalAppState.customBackendDialog.shouldShowDialog)
-        maxAccountDialog(
-            viewModel::openProfile,
-            viewModel::dismissMaxAccountDialog,
-            viewModel.globalAppState.maxAccountDialog
-        )
-        viewModel.globalAppState.blockUserUI?.let { AccountLoggedOutDialog(it, viewModel::navigateToNextAccountOrWelcome) }
-    }
-
-    @Composable
-    private fun handleCustomBackendDialog(shouldShow: Boolean) {
-        if (shouldShow) {
-            CustomBEDeeplinkDialog(viewModel)
+            navController.addOnDestinationChangedListener(currentScreenManager)
         }
     }
 
     @Composable
-    private fun maxAccountDialog(onConfirm: () -> Unit, onDismiss: () -> Unit, shouldShow: Boolean) {
-        if (shouldShow) {
-            MaxAccountReachedDialog(
-                onConfirm = onConfirm,
-                onDismiss = onDismiss,
-                buttonText = R.string.max_account_reached_dialog_button_open_profile
-            )
-        }
+    private fun handleDialogs() {
+        updateAppDialog({ updateTheApp() }, viewModel.globalAppState.updateAppDialog)
+        joinConversationDialog(viewModel.globalAppState.conversationJoinedDialog)
+        customBackendDialog(viewModel.globalAppState.customBackendDialog.shouldShowDialog)
+        maxAccountDialog(viewModel::openProfile, viewModel::dismissMaxAccountDialog, viewModel.globalAppState.maxAccountDialog)
+        accountLoggedOutDialog(viewModel.globalAppState.blockUserUI)
     }
 
     @Composable
@@ -224,24 +196,82 @@ class WireActivity : AppCompatActivity() {
     }
 
     @Composable
-    fun AccountLoggedOutDialog(reason: CurrentSessionErrorState, navigateAway: () -> Unit) {
+    private fun joinConversationDialog(joinedDialogState: JoinConversationViaCodeState?) {
+        joinedDialogState?.let {
+            when (it) {
+                is JoinConversationViaCodeState.Error -> JoinConversationViaInviteLinkError(
+                    errorState = it,
+                    onCancel = viewModel::cancelJoinConversation
+                )
+
+                is JoinConversationViaCodeState.Show -> JoinConversationViaDeepLinkDialog(
+                    it,
+                    false,
+                    onCancel = viewModel::cancelJoinConversation,
+                    onJoinClick = viewModel::joinConversationViaCode
+                )
+            }
+        }
+    }
+
+    @Composable
+    private fun customBackendDialog(shouldShow: Boolean) {
+        if (shouldShow) {
+            CustomBEDeeplinkDialog(viewModel)
+        }
+    }
+
+    @Composable
+    private fun maxAccountDialog(onConfirm: () -> Unit, onDismiss: () -> Unit, shouldShow: Boolean) {
+        if (shouldShow) {
+            MaxAccountReachedDialog(
+                onConfirm = onConfirm,
+                onDismiss = onDismiss,
+                buttonText = R.string.max_account_reached_dialog_button_open_profile
+            )
+        }
+    }
+
+    @Composable
+    private fun accountLoggedOutDialog(blockUserUI: CurrentSessionErrorState?) {
+        blockUserUI?.let { accountLoggedOutDialog(it, viewModel::navigateToNextAccountOrWelcome) }
+    }
+
+    @Composable
+    fun accountLoggedOutDialog(reason: CurrentSessionErrorState, navigateAway: () -> Unit) {
         appLogger.e("AccountLongedOutDialog: $reason")
-        val (@StringRes title: Int, @StringRes text: Int) = when (reason) {
+        val (@StringRes title: Int, text: String) = when (reason) {
             CurrentSessionErrorState.SessionExpired -> {
-                R.string.session_expired_error_title to R.string.session_expired_error_message
+                if (BuildConfig.WIPE_ON_COOKIE_INVALID) {
+                    R.string.session_expired_error_title to (
+                            stringResource(id = R.string.session_expired_error_message)
+                                    + "\n\n"
+                                    + stringResource(id = R.string.conversation_history_wipe_explanation)
+                            )
+                } else {
+                    R.string.session_expired_error_title to stringResource(id = R.string.session_expired_error_message)
+                }
             }
 
             CurrentSessionErrorState.RemovedClient -> {
-                R.string.removed_client_error_title to R.string.removed_client_error_message
+                if (BuildConfig.WIPE_ON_DEVICE_REMOVAL) {
+                    R.string.removed_client_error_title to (
+                            stringResource(id = R.string.removed_client_error_message)
+                                    + "\n\n"
+                                    + stringResource(id = R.string.conversation_history_wipe_explanation)
+                            )
+                } else {
+                    R.string.removed_client_error_title to stringResource(R.string.removed_client_error_message)
+                }
             }
 
             CurrentSessionErrorState.DeletedAccount -> {
-                R.string.deleted_user_error_title to R.string.deleted_user_error_message
+                R.string.deleted_user_error_title to stringResource(R.string.deleted_user_error_message)
             }
         }
         WireDialog(
             title = stringResource(id = title),
-            text = stringResource(id = text),
+            text = text,
             onDismiss = remember { { } },
             optionButton1Properties = WireDialogButtonProperties(
                 text = stringResource(R.string.label_ok),
@@ -249,33 +279,6 @@ class WireActivity : AppCompatActivity() {
                 type = WireDialogButtonType.Primary
             )
         )
-    }
-
-    @Composable
-    private fun setUpNavigation(
-        navController: NavHostController,
-        scope: CoroutineScope
-    ) {
-        val keyboardController = LocalSoftwareKeyboardController.current
-        // with the static key here we're sure that this effect wouldn't be canceled or restarted
-        LaunchedEffect("key") {
-            navigationManager.navigateState.onEach { command ->
-                if (command == null) return@onEach
-                keyboardController?.hide()
-                navController.navigateToItem(command)
-            }.launchIn(scope)
-
-            navigationManager.navigateBack.onEach {
-                if (!navController.popWithArguments(it)) finish()
-            }.launchIn(scope)
-
-            navController.addOnDestinationChangedListener { controller, _, _ ->
-                keyboardController?.hide()
-                updateScreenSettings(controller)
-            }
-
-            navController.addOnDestinationChangedListener(currentScreenManager)
-        }
     }
 
     private fun updateTheApp() {
@@ -292,5 +295,28 @@ class WireActivity : AppCompatActivity() {
     override fun onPause() {
         super.onPause()
         proximitySensorManager.unRegisterListener()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putBoolean(HANDLED_DEEPLINK_FLAG, true)
+        super.onSaveInstanceState(outState)
+    }
+
+    private fun handleDeepLink(
+        intent: Intent?,
+        savedInstanceState: Bundle? = null
+    ) {
+        if (intent == null
+            || intent.flags and Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY != 0
+            || savedInstanceState?.getBoolean(HANDLED_DEEPLINK_FLAG, false) == true
+        ) {
+            return
+        }
+
+        viewModel.handleDeepLink(intent)
+    }
+
+    companion object {
+        private const val HANDLED_DEEPLINK_FLAG = "deeplink_handled_flag_key"
     }
 }

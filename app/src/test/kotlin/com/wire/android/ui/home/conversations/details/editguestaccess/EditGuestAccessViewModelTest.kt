@@ -36,6 +36,7 @@ import com.wire.kalium.logic.feature.conversation.guestroomlink.GenerateGuestRoo
 import com.wire.kalium.logic.feature.conversation.guestroomlink.ObserveGuestRoomLinkUseCase
 import com.wire.kalium.logic.feature.conversation.guestroomlink.RevokeGuestRoomLinkResult
 import com.wire.kalium.logic.feature.conversation.guestroomlink.RevokeGuestRoomLinkUseCase
+import com.wire.kalium.logic.feature.user.guestroomlink.ObserveGuestRoomLinkFeatureFlagUseCase
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.impl.annotations.MockK
@@ -80,6 +81,9 @@ class EditGuestAccessViewModelTest {
     @MockK
     lateinit var revokeGuestRoomLink: RevokeGuestRoomLinkUseCase
 
+    @MockK
+    lateinit var observeGuestRoomLinkFeatureFlag: ObserveGuestRoomLinkFeatureFlagUseCase
+
     private lateinit var editGuestAccessViewModel: EditGuestAccessViewModel
 
     @Before
@@ -94,7 +98,8 @@ class EditGuestAccessViewModelTest {
             revokeGuestRoomLink = revokeGuestRoomLink,
             observeGuestRoomLink = observeGuestRoomLink,
             savedStateHandle = savedStateHandle,
-            qualifiedIdMapper = qualifiedIdMapper
+            qualifiedIdMapper = qualifiedIdMapper,
+            observeGuestRoomLinkFeatureFlag = observeGuestRoomLinkFeatureFlag
         )
     }
 
@@ -103,13 +108,13 @@ class EditGuestAccessViewModelTest {
         runTest {
             editGuestAccessViewModel.editGuestAccessState = editGuestAccessViewModel.editGuestAccessState.copy(isGuestAccessAllowed = false)
             coEvery {
-                updateConversationAccessRoleUseCase(any(), any(), any(), any())
+                updateConversationAccessRoleUseCase(any(), any(), any())
             } returns UpdateConversationAccessRoleUseCase.Result.Success
 
             editGuestAccessViewModel.updateGuestAccess(true)
 
             coVerify(exactly = 1) {
-                updateConversationAccessRoleUseCase(any(), any(), any(), any())
+                updateConversationAccessRoleUseCase(any(), any(), any())
             }
             assertEquals(
                 true,
@@ -122,7 +127,7 @@ class EditGuestAccessViewModelTest {
         editGuestAccessViewModel.editGuestAccessState =
             editGuestAccessViewModel.editGuestAccessState.copy(isGuestAccessAllowed = false)
         coEvery {
-            updateConversationAccessRoleUseCase(any(), any(), any(), any())
+            updateConversationAccessRoleUseCase(any(), any(), any())
         } returns UpdateConversationAccessRoleUseCase.Result.Failure(
             CoreFailure.MissingClientRegistration
         )
@@ -130,7 +135,7 @@ class EditGuestAccessViewModelTest {
         editGuestAccessViewModel.updateGuestAccess(true)
 
         coVerify(exactly = 1) {
-            updateConversationAccessRoleUseCase(any(), any(), any(), any())
+            updateConversationAccessRoleUseCase(any(), any(), any())
         }
         assertEquals(
             false,
@@ -139,7 +144,7 @@ class EditGuestAccessViewModelTest {
     }
 
     @Test
-    fun `given guest access is activated, when trying to enable guest access, then display dialog before disabling guest access`() {
+    fun `given guest access is activated, when trying to disable guest access, then display dialog before disabling guest access`() {
         editGuestAccessViewModel.editGuestAccessState =
             editGuestAccessViewModel.editGuestAccessState.copy(isGuestAccessAllowed = true)
 
@@ -147,17 +152,17 @@ class EditGuestAccessViewModelTest {
 
         assertEquals(true, editGuestAccessViewModel.editGuestAccessState.shouldShowGuestAccessChangeConfirmationDialog)
         coVerify(inverse = true) {
-            updateConversationAccessRoleUseCase(any(), any(), any(), any())
+            updateConversationAccessRoleUseCase(any(), any(), any())
         }
     }
 
     @Test
-    fun given_useCase_runs_with_success_When_generating_guest_link_Then_Invoke_it_once() = runTest {
+    fun `given useCase runs with success, when_generating guest link, then invoke it once`() = runTest {
         coEvery {
             generateGuestRoomLink(any())
         } returns GenerateGuestRoomLinkResult.Success
 
-        editGuestAccessViewModel.onGuestDialogConfirm()
+        editGuestAccessViewModel.onGenerateGuestRoomLink()
 
         coVerify(exactly = 1) {
             generateGuestRoomLink(any())
@@ -166,12 +171,12 @@ class EditGuestAccessViewModelTest {
     }
 
     @Test
-    fun `given_useCase_runs_with_failureWhen_generating_guest_link_Then_show_dialog_error`() = runTest {
+    fun `given useCase runs with failure, when generating guest link, then show dialog error`() = runTest {
         coEvery {
             generateGuestRoomLink(any())
         } returns GenerateGuestRoomLinkResult.Failure(CoreFailure.MissingClientRegistration)
 
-        editGuestAccessViewModel.onGuestDialogConfirm()
+        editGuestAccessViewModel.onGenerateGuestRoomLink()
 
         coVerify(exactly = 1) {
             generateGuestRoomLink(any())
@@ -180,7 +185,7 @@ class EditGuestAccessViewModelTest {
     }
 
     @Test
-    fun `given_useCase_runs_with_success_When_revoking_guest_link_Then_Invoke_it_once`() = runTest {
+    fun `given useCase runs with success, when revoking guest link, then invoke it once`() = runTest {
         coEvery {
             revokeGuestRoomLink(any())
         } returns RevokeGuestRoomLinkResult.Success
@@ -194,7 +199,7 @@ class EditGuestAccessViewModelTest {
     }
 
     @Test
-    fun `given_useCase_runs_with_failure_When_revoking_guest_link_Then_show_dialog_error`() = runTest {
+    fun `given useCase runs with failure when revoking guest link then show dialog error`() = runTest {
         coEvery {
             revokeGuestRoomLink(any())
         } returns RevokeGuestRoomLinkResult.Failure(CoreFailure.MissingClientRegistration)
@@ -207,4 +212,42 @@ class EditGuestAccessViewModelTest {
         assertEquals(false, editGuestAccessViewModel.editGuestAccessState.isRevokingLink)
         assertEquals(true, editGuestAccessViewModel.editGuestAccessState.isFailedToRevokeGuestRoomLink)
     }
+
+    @Test
+    fun `given updateConversationAccessRole use case runs successfully, when trying to disable guest access, then disable guest access`() =
+        runTest {
+            editGuestAccessViewModel.editGuestAccessState = editGuestAccessViewModel.editGuestAccessState.copy(isGuestAccessAllowed = true)
+            coEvery {
+                updateConversationAccessRoleUseCase(any(), any(), any())
+            } returns UpdateConversationAccessRoleUseCase.Result.Success
+
+            editGuestAccessViewModel.onGuestDialogConfirm()
+
+            coVerify(exactly = 1) {
+                updateConversationAccessRoleUseCase(any(), any(), any())
+            }
+            assertEquals(
+                false,
+                editGuestAccessViewModel.editGuestAccessState.isGuestAccessAllowed
+            )
+        }
+
+    @Test
+    fun `given a failure running updateConversationAccessRole, when trying to disable guest access, then do not disable guest access`() =
+        runTest {
+            editGuestAccessViewModel.editGuestAccessState = editGuestAccessViewModel.editGuestAccessState.copy(isGuestAccessAllowed = true)
+            coEvery {
+                updateConversationAccessRoleUseCase(any(), any(), any())
+            } returns UpdateConversationAccessRoleUseCase.Result.Failure(CoreFailure.MissingClientRegistration)
+
+            editGuestAccessViewModel.onGuestDialogConfirm()
+
+            coVerify(exactly = 1) {
+                updateConversationAccessRoleUseCase(any(), any(), any())
+            }
+            assertEquals(
+                true,
+                editGuestAccessViewModel.editGuestAccessState.isGuestAccessAllowed
+            )
+        }
 }

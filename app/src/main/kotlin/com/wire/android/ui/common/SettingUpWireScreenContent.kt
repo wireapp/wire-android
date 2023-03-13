@@ -22,14 +22,19 @@ package com.wire.android.ui.common
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -37,12 +42,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.ui.common.button.WirePrimaryButton
+import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
@@ -51,59 +58,87 @@ import com.wire.android.ui.theme.wireTypography
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingUpWireScreenContent(
-    @StringRes titleResId: Int = R.string.migration_title,
-    @StringRes messageResId: Int = R.string.migration_message,
+    @StringRes topBarTitleResId: Int = R.string.migration_title,
     @DrawableRes iconResId: Int = R.drawable.ic_migration,
+    title: String? = null,
+    message: AnnotatedString = AnnotatedString(stringResource(R.string.migration_message)),
     type: SettingUpWireScreenType = SettingUpWireScreenType.Progress
 ) {
     Scaffold(
         topBar = {
             WireCenterAlignedTopAppBar(
                 elevation = 0.dp,
-                title = stringResource(titleResId),
+                title = stringResource(topBarTitleResId),
                 navigationIconType = null,
             )
         }
     ) { internalPadding ->
         Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
             modifier = Modifier
                 .fillMaxSize()
                 .padding(internalPadding)
         ) {
-            Image(
-                painter = painterResource(iconResId),
-                contentDescription = "",
-                contentScale = ContentScale.Inside,
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
                 modifier = Modifier
-                    .padding(
-                        horizontal = MaterialTheme.wireDimensions.welcomeImageHorizontalPadding,
-                        vertical = MaterialTheme.wireDimensions.welcomeVerticalSpacing
-                    )
-            )
-            if (type is SettingUpWireScreenType.Progress) {
-                WireCircularProgressIndicator(progressColor = MaterialTheme.wireColorScheme.badge)
-            }
-            Text(
-                text = stringResource(messageResId),
-                style = MaterialTheme.wireTypography.body01,
-                color = MaterialTheme.wireColorScheme.secondaryText,
-                overflow = TextOverflow.Ellipsis,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.padding(horizontal = MaterialTheme.wireDimensions.welcomeTextHorizontalPadding)
-            )
-            if (type is SettingUpWireScreenType.Failure) {
-                WirePrimaryButton(
-                    onClick = type.onRetryClick,
-                    text = stringResource(type.retryButtonResId),
-                    fillMaxWidth = false,
+                    .fillMaxWidth()
+                    .weight(weight = 1f, fill = true)
+            ) {
+                Image(
+                    painter = painterResource(iconResId),
+                    contentDescription = "",
+                    contentScale = ContentScale.Inside,
                     modifier = Modifier
                         .padding(
-                            horizontal = MaterialTheme.wireDimensions.welcomeButtonHorizontalPadding,
-                            vertical = MaterialTheme.wireDimensions.welcomeButtonVerticalPadding
+                            horizontal = MaterialTheme.wireDimensions.welcomeImageHorizontalPadding,
+                            vertical = MaterialTheme.wireDimensions.welcomeVerticalSpacing
                         )
                 )
+                AnimatedVisibility(visible = type is SettingUpWireScreenType.Progress) {
+                    WireCircularProgressIndicator(progressColor = MaterialTheme.wireColorScheme.badge)
+                }
+                AnimatedVisibility(visible = title?.isNotEmpty() == true) {
+                    Text(
+                        text = title ?: "",
+                        style = MaterialTheme.wireTypography.body02,
+                        color = MaterialTheme.wireColorScheme.onBackground,
+                        overflow = TextOverflow.Ellipsis,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier
+                            .animateContentSize()
+                            .padding(horizontal = MaterialTheme.wireDimensions.welcomeTextHorizontalPadding)
+                    )
+                }
+
+                Text(
+                    text = message,
+                    style = MaterialTheme.wireTypography.body01,
+                    color = MaterialTheme.wireColorScheme.secondaryText,
+                    overflow = TextOverflow.Ellipsis,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .animateContentSize()
+                        .padding(horizontal = MaterialTheme.wireDimensions.welcomeTextHorizontalPadding)
+                )
+            }
+
+            Box(modifier = Modifier.animateContentSize()) {
+                if (type is SettingUpWireScreenType.Failure) {
+                    Surface(
+                        shadowElevation = MaterialTheme.wireDimensions.topBarShadowElevation,
+                        color = MaterialTheme.wireColorScheme.background,
+                    ) {
+                        Box(modifier = Modifier.padding(MaterialTheme.wireDimensions.spacing16x)) {
+                            WirePrimaryButton(
+                                onClick = (type as? SettingUpWireScreenType.Failure)?.onButtonClick ?: {},
+                                text = (type as? SettingUpWireScreenType.Failure)?.buttonTextResId?.let { stringResource(it) },
+                                fillMaxWidth = true,
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        }
+                    }
+                }
             }
         }
     }
@@ -112,15 +147,15 @@ fun SettingUpWireScreenContent(
 sealed class SettingUpWireScreenType {
     object Progress : SettingUpWireScreenType()
     data class Failure(
-        @StringRes val retryButtonResId: Int = R.string.label_retry,
-        val onRetryClick: () -> Unit = {}
+        @StringRes val buttonTextResId: Int = R.string.label_retry,
+        val onButtonClick: () -> Unit = {}
     ) : SettingUpWireScreenType()
 }
 
 @Preview
 @Composable
 fun PreviewMigrationScreenProgress() {
-    SettingUpWireScreenContent(type = SettingUpWireScreenType.Progress)
+    SettingUpWireScreenContent(type = SettingUpWireScreenType.Progress, title = "Step 1/2")
 }
 
 @Preview

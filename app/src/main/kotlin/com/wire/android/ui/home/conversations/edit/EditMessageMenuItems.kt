@@ -62,7 +62,7 @@ import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 @Composable
 fun EditMessageMenuItems(
     message: UIMessage,
-    hideEditMessageMenu: () -> Unit,
+    hideEditMessageMenu: (OnComplete) -> Unit,
     onCopyClick: (text: String) -> Unit,
     onDeleteClick: (messageId: String, isMyMessage: Boolean) -> Unit,
     onReactionClick: (messageId: String, emoji: String) -> Unit,
@@ -74,48 +74,56 @@ fun EditMessageMenuItems(
     val localFeatureVisibilityFlags = LocalFeatureVisibilityFlags.current
     val localContext = LocalContext.current
     val isCopyable = message.isTextMessage
-    val isEditable = message.isMyMessage && localFeatureVisibilityFlags.MessageEditIcon
     val isAvailable = message.isAvailable
-    val isAssetMessage =
-        message.messageContent is UIMessageContent.AssetMessage || message.messageContent is UIMessageContent.ImageMessage
+    val isAssetMessage = message.messageContent is UIMessageContent.AssetMessage
+            || message.messageContent is UIMessageContent.ImageMessage
+            || message.messageContent is UIMessageContent.AudioAssetMessage
+
+    val isEditable = message.isMyMessage && localFeatureVisibilityFlags.MessageEditIcon && !isAssetMessage
 
     val onCopyItemClick = remember(message) {
         {
-            hideEditMessageMenu()
-            onCopyClick((message.messageContent as UIMessageContent.TextMessage).messageBody.message.asString(localContext.resources))
+            hideEditMessageMenu() {
+                onCopyClick((message.messageContent as UIMessageContent.TextMessage).messageBody.message.asString(localContext.resources))
+            }
         }
     }
     val onDeleteItemClick = remember(message) {
         {
-            hideEditMessageMenu()
-            onDeleteClick(message.messageHeader.messageId, message.isMyMessage)
+            hideEditMessageMenu() {
+                onDeleteClick(message.messageHeader.messageId, message.isMyMessage)
+            }
         }
     }
     val onReactionItemClick = remember(message) {
         { emoji: String ->
-            hideEditMessageMenu()
-            onReactionClick(message.messageHeader.messageId, emoji)
+            hideEditMessageMenu() {
+                onReactionClick(message.messageHeader.messageId, emoji)
+            }
         }
     }
     val onReplyItemClick = remember(message) {
         {
-            hideEditMessageMenu()
-            onReplyClick(message)
+            hideEditMessageMenu() {
+                onReplyClick(message)
+            }
         }
     }
     val onDetailsItemClick = remember(message) {
         {
-            hideEditMessageMenu()
-            onDetailsClick(message.messageHeader.messageId, message.isMyMessage)
+            hideEditMessageMenu() {
+                onDetailsClick(message.messageHeader.messageId, message.isMyMessage)
+            }
         }
     }
     val onEditItemClick = remember(message) {
         {
-            hideEditMessageMenu()
-            onEditClick(
-                message.messageHeader.messageId,
-                (message.messageContent as UIMessageContent.TextMessage).messageBody.message.asString(localContext.resources)
-            )
+            hideEditMessageMenu() {
+                onEditClick(
+                    message.messageHeader.messageId,
+                    (message.messageContent as UIMessageContent.TextMessage).messageBody.message.asString(localContext.resources)
+                )
+            }
         }
     }
 
@@ -123,8 +131,8 @@ fun EditMessageMenuItems(
         if (isAvailable) {
             add { ReactionOptions(onReactionItemClick) }
             add { MessageDetails(onDetailsItemClick) }
-            add {
-                if (isCopyable) {
+            if (isCopyable) {
+                add {
                     MenuBottomSheetItem(
                         icon = {
                             MenuItemIcon(
@@ -134,20 +142,6 @@ fun EditMessageMenuItems(
                         },
                         title = stringResource(R.string.label_copy),
                         onItemClick = onCopyItemClick
-                    )
-                }
-            }
-            if (isAssetMessage) {
-                add {
-                    MenuBottomSheetItem(
-                        icon = {
-                            MenuItemIcon(
-                                id = R.drawable.ic_share_file,
-                                contentDescription = stringResource(R.string.content_description_share_the_file),
-                            )
-                        },
-                        title = stringResource(R.string.label_share),
-                        onItemClick = onShareAsset
                     )
                 }
             }
@@ -174,6 +168,20 @@ fun EditMessageMenuItems(
                         },
                         title = stringResource(R.string.label_edit),
                         onItemClick = onEditItemClick
+                    )
+                }
+            }
+            if (isAssetMessage) {
+                add {
+                    MenuBottomSheetItem(
+                        icon = {
+                            MenuItemIcon(
+                                id = R.drawable.ic_share_file,
+                                contentDescription = stringResource(R.string.content_description_share_the_file),
+                            )
+                        },
+                        title = stringResource(R.string.label_share),
+                        onItemClick = onShareAsset
                     )
                 }
             }
@@ -273,3 +281,5 @@ private fun MessageDetails(
         onItemClick = onMessageDetailsClick
     )
 }
+
+typealias OnComplete = () -> Unit

@@ -32,7 +32,7 @@ import com.wire.android.ui.theme.wireColorScheme
 
 @Composable
 fun GuestLinkActionFooter(
-    isGuestAccessAllowed: Boolean,
+    shouldDisableGenerateGuestLinkButton: Boolean,
     isGeneratingLink: Boolean,
     isRevokingLink: Boolean,
     link: String?,
@@ -49,7 +49,7 @@ fun GuestLinkActionFooter(
     ) {
         if (link.isNullOrEmpty()) {
             CreateLinkButton(
-                isGuestAccessAllowed = isGuestAccessAllowed,
+                shouldDisableGenerateGuestLinkButton = shouldDisableGenerateGuestLinkButton,
                 isLoading = isGeneratingLink,
                 onCreateLink = onCreateLink
             )
@@ -67,9 +67,9 @@ fun GuestLinkActionFooter(
 @Composable
 fun PreviewLinkSection() {
     GuestLinkActionFooter(
+        shouldDisableGenerateGuestLinkButton = false,
         isGeneratingLink = false,
         isRevokingLink = false,
-        isGuestAccessAllowed = true,
         link = "",
         onCreateLink = {},
         onRevokeLink = {},

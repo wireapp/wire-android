@@ -65,6 +65,5 @@ enum class SettingsItem(val id: String, val title: UIText, val navigationItem: N
         id = "other_debug_settings",
         title = UIText.StringResource(R.string.debug_settings_screen_title),
         navigationItem = NavigationItem.Debug
-    )
-    ;
+    );
 }

@@ -31,7 +31,6 @@ import com.wire.kalium.logic.data.message.UnreadEventType
 import com.wire.kalium.logic.data.user.UserId
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
-import org.amshove.kluent.`should contain`
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeInstanceOf
 import org.junit.jupiter.api.Test
@@ -221,39 +220,102 @@ class MessagePreviewContentMapperTest {
     }
 
     @Test
-    fun givenSelfUserWasRemovedFromConversationMessage_whenMappingToUILastMessageContent_thenCorrectContentShouldBeReturned() = runTest {
-        val otherUserId = UserId("otherValue", "selfDomain")
+    fun givenSelfUserWasRemovedFromConversationMessage_whenMappingToUILastMessageContent_thenCorrectContentShouldBeReturned() =
+        runTest {
+            val messagePreview = TestMessage.PREVIEW.copy(
+                content = MessagePreviewContent.WithUser.MembersRemoved("admin", isSelfUserRemoved = true, listOf()),
+            )
 
-        val messagePreview = TestMessage.PREVIEW.copy(
-            content = MessagePreviewContent.WithUser.MembersRemoved("admin", isSelfUserRemoved = true, listOf(otherUserId)),
-        )
-
-        val multipleMessage = messagePreview.uiLastMessageContent().shouldBeInstanceOf<UILastMessageContent.MultipleMessage>()
-        val resources = multipleMessage.messages.filterIsInstance<UIText.StringResource>().map { it.resId }
-
-        resources `should contain` R.string.last_message_removed
-        resources `should contain` R.string.member_name_you_label_lowercase
-    }
+            val uiPreviewMessage = messagePreview.uiLastMessageContent().shouldBeInstanceOf<UILastMessageContent.TextMessage>()
+            val previewString = uiPreviewMessage.messageBody.message.shouldBeInstanceOf<UIText.StringResource>()
+            previewString.resId shouldBeEqualTo R.string.last_message_other_removed_only_self_user
+        }
 
     @Test
-    fun givenSelfAndOtherUserWasRemovedFromConversationMessage_whenMappingToUILastMessageContent_thenCorrectContentShouldBeReturned() =
+    fun givenSelfUserRemovedOtherUsersFromConversationMessage_whenMappingToUILastMessageContent_thenCorrectContentShouldBeReturned() =
         runTest {
-            val otherUserId = UserId("otherValue", "selfDomain")
+            val otherRemovedUsers = listOf(UserId("otherValue", "a-domain"), UserId("otherValue2", "a-domain2"))
+            val messagePreview = TestMessage.PREVIEW.copy(
+                content = MessagePreviewContent.WithUser.MembersRemoved("admin", isSelfUserRemoved = false, otherRemovedUsers),
+                isSelfMessage = true
+            )
 
+            val uiPreviewMessage = messagePreview.uiLastMessageContent().shouldBeInstanceOf<UILastMessageContent.TextMessage>()
+            val previewString = uiPreviewMessage.messageBody.message.shouldBeInstanceOf<UIText.PluralResource>()
+            previewString.count shouldBeEqualTo otherRemovedUsers.size
+            previewString.resId shouldBeEqualTo R.plurals.last_message_self_removed_users
+        }
+
+    @Test
+    fun givenSelfAndOtherUserWereRemovedFromConversationMessage_whenMappingToUILastMessageContent_thenCorrectContentShouldBeReturned() =
+        runTest {
+            val otherRemovedUsers = listOf(UserId("otherValue", "a-domain"), UserId("otherValue2", "a-domain2"))
             val messagePreview = TestMessage.PREVIEW.copy(
                 content = MessagePreviewContent.WithUser.MembersRemoved(
                     "admin",
                     isSelfUserRemoved = true,
-                    listOf(otherUserId)
+                    otherRemovedUsers
                 )
             )
 
-            val multipleMessage = messagePreview.uiLastMessageContent().shouldBeInstanceOf<UILastMessageContent.MultipleMessage>()
-            val resources = multipleMessage.messages.filterIsInstance<UIText.StringResource>().map { it.resId }
-            val plurals = multipleMessage.messages.filterIsInstance<UIText.PluralResource>().map { it.resId }
+            val uiPreviewMessage = messagePreview.uiLastMessageContent().shouldBeInstanceOf<UILastMessageContent.TextMessage>()
+            val previewString = uiPreviewMessage.messageBody.message.shouldBeInstanceOf<UIText.PluralResource>()
+            previewString.count shouldBeEqualTo otherRemovedUsers.size
+            previewString.resId shouldBeEqualTo R.plurals.last_message_other_removed_self_user
+        }
 
-            resources `should contain` R.string.last_message_removed
-            resources `should contain` R.string.member_name_you_label_lowercase
-            plurals `should contain` R.plurals.last_message_people
+    @Test
+    fun givenSelfAndOtherUsersWereAddedToConversationMessage_whenMappingToUILastMessageContent_thenCorrectContentShouldBeReturned() =
+        runTest {
+            val otherUsersAdded = listOf(UserId("otherValue", "a-domain"), UserId("otherValue2", "a-domain2"))
+            val messagePreview = TestMessage.PREVIEW.copy(
+                content = MessagePreviewContent.WithUser.MembersAdded(
+                    "admin",
+                    isSelfUserAdded = true,
+                    otherUsersAdded
+                )
+            )
+
+            val uiPreviewMessage = messagePreview.uiLastMessageContent().shouldBeInstanceOf<UILastMessageContent.TextMessage>()
+            val previewString = uiPreviewMessage.messageBody.message.shouldBeInstanceOf<UIText.PluralResource>()
+            previewString.count shouldBeEqualTo otherUsersAdded.size
+            previewString.resId shouldBeEqualTo R.plurals.last_message_other_added_self_user
+        }
+
+    @Test
+    fun givenSelfAddedOtherUsersToConversationMessage_whenMappingToUILastMessageContent_thenCorrectContentShouldBeReturned() =
+        runTest {
+            val otherUsersAdded = listOf(UserId("otherValue", "a-domain"), UserId("otherValue2", "a-domain2"))
+            val messagePreview = TestMessage.PREVIEW.copy(
+                content = MessagePreviewContent.WithUser.MembersAdded(
+                    "admin",
+                    isSelfUserAdded = false,
+                    otherUsersAdded
+                ),
+                isSelfMessage = true
+            )
+
+            val uiPreviewMessage = messagePreview.uiLastMessageContent().shouldBeInstanceOf<UILastMessageContent.TextMessage>()
+            val previewString = uiPreviewMessage.messageBody.message.shouldBeInstanceOf<UIText.PluralResource>()
+            previewString.count shouldBeEqualTo otherUsersAdded.size
+            previewString.resId shouldBeEqualTo R.plurals.last_message_self_added_users
+        }
+
+    @Test
+    fun givenOtherUsersWereAddedToConversationMessage_whenMappingToUILastMessageContent_thenCorrectContentShouldBeReturned() =
+        runTest {
+            val otherUsersAdded = listOf(UserId("otherValue", "a-domain"), UserId("otherValue2", "a-domain2"))
+            val messagePreview = TestMessage.PREVIEW.copy(
+                content = MessagePreviewContent.WithUser.MembersAdded(
+                    "admin",
+                    isSelfUserAdded = false,
+                    otherUsersAdded
+                )
+            )
+
+            val uiPreviewMessage = messagePreview.uiLastMessageContent().shouldBeInstanceOf<UILastMessageContent.TextMessage>()
+            val previewString = uiPreviewMessage.messageBody.message.shouldBeInstanceOf<UIText.PluralResource>()
+            previewString.count shouldBeEqualTo otherUsersAdded.size
+            previewString.resId shouldBeEqualTo R.plurals.last_message_other_added_other_users
         }
 }

@@ -56,8 +56,7 @@ class WireSessionImageLoader(private val coilImageLoader: ImageLoader) {
     /**
      * Attempts to paint an Image using [asset], falling back to [fallbackData] if [asset] is null.
      * Just like [rememberAsyncImagePainter], [fallbackData] can be anything that [Coil] accepts.
-     *
-     * currently Coil does not have a friendly API to retry a failing image request, so we have to do it ourselves.
+     * Currently, Coil does not have a friendly API to retry a failing image request, so we have to do it ourselves.
      * adding retry_hash is a workaround to force Coil to retry the request.
      * see https://github.com/coil-kt/coil/issues/884
      */
@@ -89,7 +88,7 @@ class WireSessionImageLoader(private val coilImageLoader: ImageLoader) {
     }
 
     class Factory(
-        context: Context,
+        val context: Context,
         private val getAvatarAsset: GetAvatarAssetUseCase,
         private val deleteAsset: DeleteAssetUseCase,
         private val getPrivateAsset: GetMessageAssetUseCase,
@@ -106,7 +105,8 @@ class WireSessionImageLoader(private val coilImageLoader: ImageLoader) {
                                 getPublicAssetUseCase = getAvatarAsset,
                                 getPrivateAssetUseCase = getPrivateAsset,
                                 deleteAssetUseCase = deleteAsset,
-                                drawableResultWrapper = DrawableResultWrapper(resources)
+                                drawableResultWrapper = DrawableResultWrapper(resources),
+                                context = context
                             )
                         )
                         if (SDK_INT >= 28) {

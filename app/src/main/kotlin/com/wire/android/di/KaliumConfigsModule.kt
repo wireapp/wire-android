@@ -55,7 +55,10 @@ class KaliumConfigsModule {
             lowerKeyingMaterialsUpdateThreshold = BuildConfig.PRIVATE_BUILD,
             isMLSSupportEnabled = BuildConfig.MLS_SUPPORT_ENABLED,
             developmentApiEnabled = BuildConfig.DEVELOPMENT_API_ENABLED,
-            encryptProteusStorage = runBlocking { globalDataStore.isEncryptedProteusStorageEnabled().first() }
+            encryptProteusStorage = runBlocking { globalDataStore.isEncryptedProteusStorageEnabled().first() },
+            guestRoomLink = BuildConfig.GUEST_ROOM_LINK,
+            wipeOnCookieInvalid = BuildConfig.WIPE_ON_COOKIE_INVALID,
+            wipeOnDeviceRemoval = BuildConfig.WIPE_ON_DEVICE_REMOVAL
         )
     }
 }

@@ -138,7 +138,8 @@ class MessageContentMapper @Inject constructor(
             receiptMode = when (content.receiptMode) {
                 true -> UIText.StringResource(R.string.label_system_message_receipt_mode_on)
                 else -> UIText.StringResource(R.string.label_system_message_receipt_mode_off)
-            }
+            },
+            isAuthorSelfUser = sender is SelfUser
         )
     }
 
@@ -166,6 +167,7 @@ class MessageContentMapper @Inject constructor(
     ): UIMessageContent.SystemMessage? {
         val sender = userList.findUser(userId = senderUserId)
         val isAuthorSelfAction = content.members.size == 1 && senderUserId == content.members.first()
+        val isSelfTriggered = sender is SelfUser
         val authorName = toSystemMessageMemberName(user = sender, type = SelfNameType.ResourceTitleCase)
         val memberNameList = content.members.map {
             toSystemMessageMemberName(
@@ -178,27 +180,46 @@ class MessageContentMapper @Inject constructor(
                 if (isAuthorSelfAction) {
                     null // we don't want to show "You added you to the conversation"
                 } else {
-                    UIMessageContent.SystemMessage.MemberAdded(author = authorName, memberNames = memberNameList)
+                    UIMessageContent.SystemMessage.MemberAdded(
+                        author = authorName,
+                        memberNames = memberNameList,
+                        isSelfTriggered = isSelfTriggered
+                    )
                 }
 
             is Removed ->
                 if (isAuthorSelfAction) {
-                    UIMessageContent.SystemMessage.MemberLeft(author = authorName)
+                    UIMessageContent.SystemMessage.MemberLeft(author = authorName, isSelfTriggered = isSelfTriggered)
                 } else {
-                    UIMessageContent.SystemMessage.MemberRemoved(author = authorName, memberNames = memberNameList)
+                    UIMessageContent.SystemMessage.MemberRemoved(
+                        author = authorName,
+                        memberNames = memberNameList,
+                        isSelfTriggered = isSelfTriggered
+                    )
                 }
         }
     }
 
-    fun mapConversationHistoryLost(): UIMessageContent.SystemMessage = UIMessageContent.SystemMessage.HistoryLost()
+    private fun mapConversationHistoryLost(): UIMessageContent.SystemMessage = UIMessageContent.SystemMessage.HistoryLost()
 
     private fun mapRegularMessage(
         message: Message.Regular,
         sender: User?
     ) = when (val content = message.content) {
         is Asset -> {
-            val assetMessageContentMetadata = AssetMessageContentMetadata(content.value)
-            toUIMessageContent(assetMessageContentMetadata, message, sender)
+            when (val metadata = content.value.metadata) {
+                is AssetContent.AssetMetadata.Audio -> {
+                    mapAudio(
+                        assetContent = content.value,
+                        metadata = metadata
+                    )
+                }
+
+                is AssetContent.AssetMetadata.Image, is AssetContent.AssetMetadata.Video, null -> {
+                    val assetMessageContentMetadata = AssetMessageContentMetadata(content.value)
+                    toUIMessageContent(assetMessageContentMetadata, message, sender)
+                }
+            }
         }
         // We are mapping regular knock message to system message, because it's UI is almost the same as system message
         is MessageContent.Knock -> UIMessageContent.SystemMessage.Knock(
@@ -208,8 +229,25 @@ class MessageContentMapper @Inject constructor(
                 sender?.name.orUnknownName()
             }
         )
+
         is MessageContent.RestrictedAsset -> toRestrictedAsset(content.mimeType, content.sizeInBytes, content.name)
         else -> toText(message.conversationId, content)
+    }
+
+    private fun mapAudio(
+        assetContent: AssetContent,
+        metadata: AssetContent.AssetMetadata.Audio,
+    ): UIMessageContent {
+        with(assetContent) {
+            return UIMessageContent.AudioAssetMessage(
+                assetName = name ?: "",
+                assetExtension = mimeType,
+                assetId = AssetId(remoteData.assetId, remoteData.assetDomain.orEmpty()),
+                audioMessageDurationInMs = metadata.durationMs ?: 0,
+                uploadStatus = uploadStatus,
+                downloadStatus = downloadStatus
+            )
+        }
     }
 
     fun toText(conversationId: ConversationId, content: MessageContent) = MessageBody(
@@ -218,6 +256,7 @@ class MessageContentMapper @Inject constructor(
             is MessageContent.Unknown -> UIText.StringResource(
                 messageResourceProvider.sentAMessageWithContent, content.typeName ?: "Unknown"
             )
+
             is MessageContent.FailedDecryption -> UIText.StringResource(R.string.label_message_decryption_failure_message)
             else -> UIText.StringResource(messageResourceProvider.sentAMessageWithContent, "Unknown")
         },
@@ -243,6 +282,7 @@ class MessageContentMapper @Inject constructor(
                     )
                 )
 
+                AttachmentType.AUDIO -> QuotedMessageUIData.AudioMessage
                 AttachmentType.GENERIC_FILE -> QuotedMessageUIData.GenericAsset(
                     quotedContent.assetName,
                     quotedContent.assetMimeType

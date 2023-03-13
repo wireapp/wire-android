@@ -24,6 +24,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 
 data class LoginState(
     val userIdentifier: TextFieldValue = TextFieldValue(""),
+    val userIdentifierEnabled: Boolean = true,
     val password: TextFieldValue = TextFieldValue(""),
     val ssoCode: TextFieldValue = TextFieldValue(""),
     val proxyIdentifier: TextFieldValue = TextFieldValue(""),
@@ -45,4 +46,3 @@ fun LoginState.updateEmailLoginEnabled() =
 
 fun LoginState.updateSSOLoginEnabled() =
     copy(ssoLoginEnabled = ssoCode.text.isNotEmpty() && !ssoLoginLoading)
-

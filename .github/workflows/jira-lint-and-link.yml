@@ -1,5 +1,6 @@
 name: Link and Lint PR with Jira Ticket Number
 on:
+  merge_group:
   pull_request:
     types: [opened, edited, synchronize]
 jobs:

@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
+import com.wire.android.model.Clickable
 import com.wire.android.ui.home.conversations.MessageItem
 import com.wire.android.ui.home.conversations.SystemMessageItem
 import com.wire.android.ui.home.conversations.mock.mockAssetMessage
@@ -52,7 +53,10 @@ fun PreviewMessage() {
         onImageMessageClicked = { _, _ -> },
         onOpenProfile = { _ -> },
         onReactionClicked = { _, _ -> },
-        onResetSessionClicked = { _, _ -> }
+        onResetSessionClicked = { _, _ -> },
+        onChangeAudioPosition = { _, _ -> },
+        onAudioClick = {},
+        audioMessagesState = emptyMap()
     )
 }
 
@@ -85,7 +89,10 @@ fun PreviewMessageWithReply() {
         onImageMessageClicked = { _, _ -> },
         onOpenProfile = { _ -> },
         onReactionClicked = { _, _ -> },
-        onResetSessionClicked = { _, _ -> }
+        onResetSessionClicked = { _, _ -> },
+        onChangeAudioPosition = { _, _ -> },
+        onAudioClick = {},
+        audioMessagesState = emptyMap()
     )
 }
 
@@ -101,7 +108,10 @@ fun PreviewDeletedMessage() {
         onImageMessageClicked = { _, _ -> },
         onOpenProfile = { _ -> },
         onReactionClicked = { _, _ -> },
-        onResetSessionClicked = { _, _ -> }
+        onResetSessionClicked = { _, _ -> },
+        onChangeAudioPosition = { _, _ -> },
+        onAudioClick = {},
+        audioMessagesState = emptyMap()
     )
 }
 
@@ -115,7 +125,40 @@ fun PreviewAssetMessage() {
         onImageMessageClicked = { _, _ -> },
         onOpenProfile = { _ -> },
         onReactionClicked = { _, _ -> },
-        onResetSessionClicked = { _, _ -> }
+        onResetSessionClicked = { _, _ -> },
+        onChangeAudioPosition = { _, _ -> },
+        onAudioClick = {},
+        audioMessagesState = emptyMap()
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewImportedMediaAssetMessage() {
+    MessageGenericAsset(
+        assetName = "Some test cool long but very  cool long but very asjkl cool long but very long message",
+        assetExtension = "rar.tgz",
+        assetSizeInBytes = 99201224L,
+        onAssetClick = Clickable(enabled = false),
+        assetUploadStatus = Message.UploadStatus.NOT_UPLOADED,
+        assetDownloadStatus = Message.DownloadStatus.NOT_DOWNLOADED,
+        shouldFillMaxWidth = false,
+        isImportedMediaAsset = true
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewWideImportedAssetMessage() {
+    MessageGenericAsset(
+        assetName = "Some test cool long but very  cool long but very asjkl cool long but very long message",
+        assetExtension = "rar.tgz",
+        assetSizeInBytes = 99201224L,
+        onAssetClick = Clickable(enabled = false),
+        assetUploadStatus = Message.UploadStatus.NOT_UPLOADED,
+        assetDownloadStatus = Message.DownloadStatus.NOT_DOWNLOADED,
+        shouldFillMaxWidth = true,
+        isImportedMediaAsset = true
     )
 }
 
@@ -129,7 +172,10 @@ fun PreviewImageMessageUploaded() {
         onImageMessageClicked = { _, _ -> },
         onOpenProfile = { _ -> },
         onReactionClicked = { _, _ -> },
-        onResetSessionClicked = { _, _ -> }
+        onResetSessionClicked = { _, _ -> },
+        onChangeAudioPosition = { _, _ -> },
+        onAudioClick = {},
+        audioMessagesState = emptyMap()
     )
 }
 
@@ -143,7 +189,10 @@ fun PreviewImageMessageUploading() {
         onImageMessageClicked = { _, _ -> },
         onOpenProfile = { _ -> },
         onReactionClicked = { _, _ -> },
-        onResetSessionClicked = { _, _ -> }
+        onResetSessionClicked = { _, _ -> },
+        onChangeAudioPosition = { _, _ -> },
+        onAudioClick = {},
+        audioMessagesState = emptyMap()
     )
 }
 
@@ -157,7 +206,10 @@ fun PreviewImageMessageFailedUpload() {
         onImageMessageClicked = { _, _ -> },
         onOpenProfile = { _ -> },
         onReactionClicked = { _, _ -> },
-        onResetSessionClicked = { _, _ -> }
+        onResetSessionClicked = { _, _ -> },
+        onChangeAudioPosition = { _, _ -> },
+        onAudioClick = {},
+        audioMessagesState = emptyMap()
     )
 }
 
@@ -172,7 +224,10 @@ fun PreviewMessageWithSystemMessage() {
             onImageMessageClicked = { _, _ -> },
             onOpenProfile = { _ -> },
             onReactionClicked = { _, _ -> },
-            onResetSessionClicked = { _, _ -> }
+            onResetSessionClicked = { _, _ -> },
+            onChangeAudioPosition = { _, _ -> },
+            onAudioClick = {},
+            audioMessagesState = emptyMap()
         )
         SystemMessageItem(UIMessageContent.SystemMessage.MissedCall.YouCalled(UIText.DynamicString("You")))
         SystemMessageItem(

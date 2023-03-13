@@ -77,13 +77,12 @@ import com.wire.android.util.CustomTabsHelper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun LoginEmailScreen(
+    loginEmailViewModel: LoginEmailViewModel,
     scrollState: ScrollState = rememberScrollState()
 ) {
     val scope = rememberCoroutineScope()
-    val loginEmailViewModel: LoginEmailViewModel = hiltViewModel()
     val loginEmailState: LoginState = loginEmailViewModel.loginState
 
     clearAutofillTree()

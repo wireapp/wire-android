@@ -242,6 +242,9 @@
     <string name="conversation_history_wipe_explanation">According to your team\'s security
         settings, your conversation history has also been deleted.</string>
 
+    <!-- Second Factor Authentication -->
+    <string name="second_factor_authentication_title">Verify your account</string>
+    <string name="second_factor_authentication_instructions_label">Enter the verification code sent to the email %1$s</string>
     <!-- Remove Device -->
     <string name="remove_device_title">Remove a Device</string>
     <string name="remove_device_message">Remove one of your other devices to start using Wire on

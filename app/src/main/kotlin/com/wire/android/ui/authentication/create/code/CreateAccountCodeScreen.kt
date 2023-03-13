@@ -44,13 +44,12 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.ui.authentication.ServerTitle
 import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
+import com.wire.android.ui.authentication.verificationcode.ResendCodeText
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
@@ -167,29 +166,6 @@ private fun CodeContent(
     } else if (state.error is CreateAccountCodeViewState.CodeError.TooManyDevicesError) {
         onRemoveDeviceOpen()
     }
-}
-
-@Composable
-private fun ResendCodeText(onResendCodePressed: () -> Unit, clickEnabled: Boolean) {
-    Text(
-        text = stringResource(R.string.create_account_code_resend),
-        style = MaterialTheme.wireTypography.body02.copy(
-            textDecoration = TextDecoration.Underline,
-            color = MaterialTheme.colorScheme.primary
-        ),
-        textAlign = TextAlign.Center,
-        modifier = Modifier
-            .clickable(
-                interactionSource = remember { MutableInteractionSource() },
-                indication = null,
-                enabled = clickEnabled,
-                onClick = onResendCodePressed
-            )
-            .padding(
-                horizontal = MaterialTheme.wireDimensions.spacing16x,
-                vertical = MaterialTheme.wireDimensions.spacing24x
-            )
-    )
 }
 
 @Composable

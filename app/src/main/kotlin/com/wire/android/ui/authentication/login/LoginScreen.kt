@@ -21,9 +21,12 @@
 package com.wire.android.ui.authentication.login
 
 import androidx.annotation.StringRes
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.LocalOverscrollConfiguration
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -48,12 +51,19 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.google.accompanist.navigation.animation.AnimatedNavHost
+import com.google.accompanist.navigation.animation.composable
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
 import com.wire.android.R
+import com.wire.android.navigation.rememberTrackingAnimatedNavController
+import com.wire.android.navigation.smoothSlideInFromRight
+import com.wire.android.navigation.smoothSlideOutFromLeft
 import com.wire.android.ui.authentication.ServerTitle
 import com.wire.android.ui.authentication.login.email.LoginEmailScreen
+import com.wire.android.ui.authentication.login.email.LoginEmailVerificationCodeScreen
+import com.wire.android.ui.authentication.login.email.LoginEmailViewModel
 import com.wire.android.ui.authentication.login.sso.LoginSSOScreen
 import com.wire.android.ui.common.TabItem
 import com.wire.android.ui.common.WireDialog
@@ -77,12 +87,52 @@ import kotlinx.coroutines.launch
 @Composable
 fun LoginScreen() {
     val loginViewModel: LoginViewModel = hiltViewModel()
+    val loginEmailViewModel: LoginEmailViewModel = hiltViewModel()
 
     LoginContent(
         onBackPressed = { loginViewModel.navigateBack() },
         loginViewModel,
+        loginEmailViewModel,
         ssoLoginResult = loginViewModel.ssoLoginResult
     )
+}
+
+@OptIn(ExperimentalAnimationApi::class)
+@Composable
+private fun LoginContent(
+    onBackPressed: () -> Unit,
+    viewModel: LoginViewModel,
+    loginEmailViewModel: LoginEmailViewModel,
+    ssoLoginResult: DeepLinkResult.SSOLogin?
+) {
+    val navController = rememberTrackingAnimatedNavController() { LoginNavigationItem.fromRoute(it)?.itemName }
+    Column(modifier = Modifier.fillMaxSize()) {
+        AnimatedNavHost(
+            navController = navController,
+            startDestination = LoginNavigationItem.MAIN_LOGIN_FORM_SELECTION.route
+        ) {
+            composable(
+                route = LoginNavigationItem.MAIN_LOGIN_FORM_SELECTION.route,
+                enterTransition = { smoothSlideInFromRight() },
+                exitTransition = { smoothSlideOutFromLeft() },
+                content = { MainLoginContent(onBackPressed, viewModel, loginEmailViewModel, ssoLoginResult) }
+            )
+            composable(
+                route = LoginNavigationItem.EMAIL_SECOND_FACTOR_INPUT.route,
+                enterTransition = { smoothSlideInFromRight() },
+                exitTransition = { smoothSlideOutFromLeft() },
+                content = { LoginEmailVerificationCodeScreen(loginEmailViewModel) }
+            )
+        }
+    }
+    val targetRoute: String = if (loginEmailViewModel.secondFactorVerificationCodeState.isCodeSent) {
+        LoginNavigationItem.EMAIL_SECOND_FACTOR_INPUT.route
+    } else {
+        LoginNavigationItem.MAIN_LOGIN_FORM_SELECTION.route
+    }
+    if (navController.currentDestination?.route != targetRoute) {
+        navController.navigate(targetRoute)
+    }
 }
 
 @OptIn(
@@ -90,14 +140,15 @@ fun LoginScreen() {
     ExperimentalMaterial3Api::class,
     ExperimentalPagerApi::class,
     ExperimentalFoundationApi::class,
-    ExperimentalMaterialApi::class
 )
 @Composable
-private fun LoginContent(
+private fun MainLoginContent(
     onBackPressed: () -> Unit,
     viewModel: LoginViewModel,
+    loginEmailViewModel: LoginEmailViewModel,
     ssoLoginResult: DeepLinkResult.SSOLogin?
 ) {
+
     val scope = rememberCoroutineScope()
     val scrollState = rememberScrollState()
     val initialPageIndex = if (ssoLoginResult == null) LoginTabItem.EMAIL.ordinal else LoginTabItem.SSO.ordinal
@@ -161,7 +212,7 @@ private fun LoginContent(
                     .padding(internalPadding)
             ) { pageIndex ->
                 when (LoginTabItem.values()[pageIndex]) {
-                    LoginTabItem.EMAIL -> LoginEmailScreen(scrollState)
+                    LoginTabItem.EMAIL -> LoginEmailScreen(loginEmailViewModel, scrollState)
                     LoginTabItem.SSO -> LoginSSOScreen(ssoLoginResult)
                 }
             }
@@ -196,6 +247,7 @@ fun LoginErrorDialog(
             stringResource(R.string.login_error_user_already_logged_in_message),
             onDialogDismiss
         )
+
         is LoginError.DialogError.ProxyError -> {
             LoginDialogErrorData(
                 stringResource(R.string.error_socket_title),
@@ -292,11 +344,10 @@ enum class LoginTabItem(@StringRes override val titleResId: Int) : TabItem {
     SSO(R.string.login_tab_sso);
 }
 
-@OptIn(ExperimentalMaterialApi::class)
 @Preview
 @Composable
 private fun PreviewLoginScreen() {
     WireTheme(isPreview = true) {
-        LoginContent(onBackPressed = { }, hiltViewModel(), ssoLoginResult = null)
+        MainLoginContent(onBackPressed = { }, hiltViewModel(), hiltViewModel(), ssoLoginResult = null)
     }
 }

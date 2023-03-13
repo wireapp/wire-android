@@ -112,11 +112,13 @@ class MigrationViewModel @Inject constructor(
             is MigrationData.Result.Success -> navigateAfterMigration()
             is MigrationData.Progress -> state = MigrationState.InProgress(data.type)
             is MigrationData.Result.Failure -> state = when (data) {
-                MigrationData.Result.Failure.Account.Any -> MigrationState.Failed.Account.Any
+                is MigrationData.Result.Failure.Account.Any -> MigrationState.Failed.Account.Any
                 is MigrationData.Result.Failure.Account.Specific -> MigrationState.Failed.Account.Specific(data.userName, data.userHandle)
                 is MigrationData.Result.Failure.Messages -> MigrationState.Failed.Messages(data.errorCode)
-                MigrationData.Result.Failure.NoNetwork -> MigrationState.Failed.NoNetwork
-                is MigrationData.Result.Failure.Unknown -> MigrationState.Failed.Unknown(data.throwable)
+                is MigrationData.Result.Failure.NoNetwork -> MigrationState.Failed.NoNetwork
+                // for now we treat such an unknown error as one that requires re-logging in,
+                // we do not show a special screen with any error code to users to not to discourage them
+                is MigrationData.Result.Failure.Unknown -> MigrationState.Failed.Account.Any
             }
         }
     }

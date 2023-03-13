@@ -75,11 +75,6 @@ private fun MigrationScreenContent(
                 buttonTextResId = R.string.label_continue,
                 onButtonClick = finish
             )
-
-            is MigrationState.Failed.Unknown -> SettingUpWireScreenType.Failure(
-                buttonTextResId = R.string.label_continue,
-                onButtonClick = finish
-            )
         }
     )
 }
@@ -113,8 +108,6 @@ private fun MigrationState.message() = when (this) {
         argsColor = MaterialTheme.wireColorScheme.secondaryText,
         stringResource(R.string.migration_login_required_specific_account_name, this.userName, this.userHandle)
     )
-
-    is MigrationState.Failed.Unknown -> AnnotatedString(stringResource(R.string.migration_login_required))
 }
 
 @Composable

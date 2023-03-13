@@ -186,8 +186,8 @@ class MigrationManager @Inject constructor(
             is MigrationData.Result.Failure.Account.Any -> showAccountAnyNotification()
             is MigrationData.Result.Failure.Messages -> showMessagesNotification(result.errorCode)
             is MigrationData.Result.Failure.Unknown,
-            MigrationData.Result.Failure.NoNetwork,
-            MigrationData.Result.Success -> {/* no-op */
+            is MigrationData.Result.Failure.NoNetwork,
+            is MigrationData.Result.Success -> {/* no-op */
             }
         }
     }
@@ -396,20 +396,20 @@ fun MigrationData.Result.Failure.toData(): Data = when (this) {
 fun Exception.toData(): Data = workDataOf(MigrationData.Result.Failure.KEY_MIGRATION_EXCEPTION to this)
 
 fun Data.getMigrationFailure(): MigrationData.Result.Failure = when (this.getString(MigrationData.Result.Failure.KEY_FAILURE_TYPE)) {
-    MigrationData.Result.Failure.FAILURE_TYPE_ACCOUNT_ANY -> MigrationData.Result.Failure.Account.Any
     MigrationData.Result.Failure.FAILURE_TYPE_ACCOUNT_SPECIFIC -> MigrationData.Result.Failure.Account.Specific(
         this.getString(MigrationData.Result.Failure.KEY_FAILURE_USER_NAME) ?: "",
         this.getString(MigrationData.Result.Failure.KEY_FAILURE_USER_HANDLE) ?: "",
     )
 
+    MigrationData.Result.Failure.FAILURE_TYPE_ACCOUNT_ANY -> MigrationData.Result.Failure.Account.Any
+
     MigrationData.Result.Failure.FAILURE_TYPE_MESSAGES -> MigrationData.Result.Failure.Messages(
         this.getString(MigrationData.Result.Failure.KEY_FAILURE_ERROR_CODE) ?: ""
     )
 
-    MigrationData.Result.Failure.KEY_MIGRATION_EXCEPTION -> this.keyValueMap[MigrationData.Result.Failure.KEY_MIGRATION_EXCEPTION]?.let {
-        MigrationData.Result.Failure.Unknown(it as? Throwable)
-    } ?: MigrationData.Result.Failure.Unknown(null)
+    MigrationData.Result.Failure.FAILURE_TYPE_NO_NETWORK -> MigrationData.Result.Failure.NoNetwork
 
-    null -> MigrationData.Result.Failure.Unknown(null)
-    else -> MigrationData.Result.Failure.Unknown(null)
+    else -> MigrationData.Result.Failure.Unknown(
+        this.keyValueMap[MigrationData.Result.Failure.KEY_MIGRATION_EXCEPTION]?.let { it as? Throwable }
+    )
 }

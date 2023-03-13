@@ -26,7 +26,6 @@ import com.wire.kalium.logic.data.user.UserId
 sealed class MigrationState {
     data class InProgress(val type: MigrationData.Progress.Type) : MigrationState()
     sealed class Failed : MigrationState() {
-        class Unknown(val error: Throwable?) : Failed()
         object NoNetwork : Failed()
         sealed class Account : Failed() {
             data class Specific(val userName: String, val userHandle: String) : Account()

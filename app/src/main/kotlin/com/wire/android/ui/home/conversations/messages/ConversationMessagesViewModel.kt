@@ -85,7 +85,7 @@ class ConversationMessagesViewModel @Inject constructor(
     private val toggleReaction: ToggleReactionUseCase,
     private val resetSession: ResetSessionUseCase,
     private val conversationAudioMessagePlayer: ConversationAudioMessagePlayer,
-    private val selfDeletingMessagesObserver: SelfDeletingMessagesObserver
+//    private val selfDeletingMessagesObserver: SelfDeletingMessagesObserver
 ) : SavedStateViewModel(savedStateHandle) {
 
     var conversationViewState by mutableStateOf(ConversationMessagesViewState())
@@ -106,9 +106,9 @@ class ConversationMessagesViewModel @Inject constructor(
 
     private fun observeSelfDeletingMessages() {
         viewModelScope.launch {
-            selfDeletingMessagesObserver.observableSelfDeletingMessageState.collect {
-                println("state :$it")
-            }
+//            selfDeletingMessagesObserver.observableSelfDeletingMessageState.collect {
+//                println("state :$it")
+//            }
         }
     }
 
@@ -123,7 +123,7 @@ class ConversationMessagesViewModel @Inject constructor(
     }
 
     fun observeSelfDeletingMessageProgress(conversationId: QualifiedID, messageId: String) {
-        selfDeletingMessagesObserver.observeSelfDeletingMessageProgress(conversationId, messageId)
+//        selfDeletingMessagesObserver.observeSelfDeletingMessageProgress(conversationId, messageId)
     }
 
     private fun loadPaginatedMessages() = viewModelScope.launch {

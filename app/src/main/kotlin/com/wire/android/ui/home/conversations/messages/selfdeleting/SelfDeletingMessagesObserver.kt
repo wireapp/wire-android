@@ -8,28 +8,28 @@ import kotlinx.coroutines.sync.withLock
 import java.time.Duration
 import javax.inject.Inject
 
-class SelfDeletingMessagesObserve @Inject constructor() {
-
-    private val mutex = Mutex()
-
-    private val outgoingTimerSelfDeletingMessagesState: MutableStateFlow<Map<String, Long>> =
-        MutableStateFlow(emptyMap())
-
-    suspend fun obser veSelfDeletingMessageProgress(messageId: String, expireAfter: Duration) {
-        mutex.withLock {
-        val isSelfDeletionOutgoing = outgoingTimerSelfDeletingMessagesState.value[messageId] != null
-        if (isSelfDeletionOutgoing) return
-
-
-        }
-        getMessageById(conversationId, messageId).map { message ->
-            require(message is Message.Ephemeral)
-
-            enqueueMessageDeletion(message)
-        }
-    }
-
-    val observableSelfDeletingMessageState: MutableSharedFlow<>
-
-
-}
+//class SelfDeletingMessagesObserve @Inject constructor() {
+//
+//    private val mutex = Mutex()
+//
+//    private val outgoingTimerSelfDeletingMessagesState: MutableStateFlow<Map<String, Long>> =
+//        MutableStateFlow(emptyMap())
+////
+////    suspend fun observeSelfDeletingMessageProgress(messageId: String, expireAfter: Duration) {
+////        mutex.withLock {
+////        val isSelfDeletionOutgoing = outgoingTimerSelfDeletingMessagesState.value[messageId] != null
+////        if (isSelfDeletionOutgoing) return
+////
+////
+////        }
+////        getMessageById(conversationId, messageId).map { message ->
+////            require(message is Message.Ephemeral)
+////
+////            enqueueMessageDeletion(message)
+////        }
+////    }
+////
+////    val observableSelfDeletingMessageState: MutableSharedFlow<>
+//
+//
+//}

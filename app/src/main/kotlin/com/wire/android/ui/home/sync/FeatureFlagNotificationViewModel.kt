@@ -40,6 +40,7 @@ import com.wire.kalium.logic.feature.user.guestroomlink.ObserveGuestRoomLinkFeat
 import com.wire.kalium.logic.feature.session.GetSessionsUseCase
 import com.wire.kalium.logic.feature.user.MarkFileSharingChangeAsNotifiedUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
@@ -68,19 +69,18 @@ class FeatureFlagNotificationViewModel @Inject constructor(
      */
     fun loadInitialSync() {
         viewModelScope.launch {
-            currentSessionUseCase().let {
-                when (it) {
+            currentSessionUseCase().let { currentSessionResult ->
+                when (currentSessionResult) {
                     is CurrentSessionResult.Failure -> {
                         appLogger.e("Failure while getting current session from FeatureFlagNotificationViewModel")
                     }
 
                     is CurrentSessionResult.Success -> {
-                        coreLogic.getSessionScope(it.accountInfo.userId).observeSyncState().collect { newState ->
-                            if (newState == SyncState.Live) {
-                                setFileSharingState(it.accountInfo.userId)
+                        coreLogic.getSessionScope(currentSessionResult.accountInfo.userId).observeSyncState()
+                            .firstOrNull { it == SyncState.Live }?.let {
+                                setFileSharingState(currentSessionResult.accountInfo.userId)
                                 setGuestRoomLinkFeatureFlag()
                             }
-                        }
                     }
                 }
             }
@@ -101,12 +101,14 @@ class FeatureFlagNotificationViewModel @Inject constructor(
     }
 
     private suspend fun setGuestRoomLinkFeatureFlag() {
-        observeGuestRoomLinkFeatureFlag().collect { guestRoomLinkStatus ->
-            guestRoomLinkStatus.isGuestRoomLinkEnabled?.let {
-                featureFlagState = featureFlagState.copy(isGuestRoomLinkEnabled = it)
-            }
-            guestRoomLinkStatus.isStatusChanged?.let {
-                featureFlagState = featureFlagState.copy(shouldShowGuestRoomLinkDialog = it)
+        viewModelScope.launch {
+            observeGuestRoomLinkFeatureFlag().collect { guestRoomLinkStatus ->
+                guestRoomLinkStatus.isGuestRoomLinkEnabled?.let {
+                    featureFlagState = featureFlagState.copy(isGuestRoomLinkEnabled = it)
+                }
+                guestRoomLinkStatus.isStatusChanged?.let {
+                    featureFlagState = featureFlagState.copy(shouldShowGuestRoomLinkDialog = it)
+                }
             }
         }
     }

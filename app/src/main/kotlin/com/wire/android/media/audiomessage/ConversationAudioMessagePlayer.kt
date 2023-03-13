@@ -110,7 +110,7 @@ class ConversationAudioMessagePlayer
                     audioMessageStateHistory = audioMessageStateHistory.toMutableMap().apply {
                         put(
                             audioMessageStateUpdate.messageId,
-                            currentState.copy(totalTimeInMs = audioMessageStateUpdate.totalTimeInMs)
+                            currentState.copy(totalTimeInMs = AudioState.TotalTimeInMs.Known(audioMessageStateUpdate.totalTimeInMs))
                         )
                     }
                 }
@@ -126,34 +126,38 @@ class ConversationAudioMessagePlayer
         requestedAudioMessageId: String
     ) {
         val isRequestedAudioMessageCurrentlyPlaying = currentAudioMessageId == requestedAudioMessageId
-
         if (isRequestedAudioMessageCurrentlyPlaying) {
-            toggleAudioMessage(requestedAudioMessageId)
+            resumeOrPauseCurrentlyPlayingAudioMessage(requestedAudioMessageId)
         } else {
-            if (currentAudioMessageId != null) {
-                val currentAudioState = audioMessageStateHistory[currentAudioMessageId]
-                if (currentAudioState?.audioMediaPlayingState != AudioMediaPlayingState.Fetching) {
-                    stop(currentAudioMessageId!!)
-                }
-            }
-
-            val previouslySavedPositionOrNull = audioMessageStateHistory[requestedAudioMessageId]?.run {
-                if (audioMediaPlayingState == AudioMediaPlayingState.Completed) {
-                    0
-                } else {
-                    currentPositionInMs
-                }
-            }
-
+            stopCurrentlyPlayingAudioMessage()
             playAudioMessage(
                 conversationId = conversationId,
                 messageId = requestedAudioMessageId,
-                position = previouslySavedPositionOrNull
+                position = previouslyResumedPosition(requestedAudioMessageId)
             )
         }
     }
 
-    private suspend fun toggleAudioMessage(messageId: String) {
+    private fun previouslyResumedPosition(requestedAudioMessageId: String): Int? {
+        return audioMessageStateHistory[requestedAudioMessageId]?.run {
+            if (audioMediaPlayingState == AudioMediaPlayingState.Completed) {
+                0
+            } else {
+                currentPositionInMs
+            }
+        }
+    }
+
+    private suspend fun stopCurrentlyPlayingAudioMessage() {
+        if (currentAudioMessageId != null) {
+            val currentAudioState = audioMessageStateHistory[currentAudioMessageId]
+            if (currentAudioState?.audioMediaPlayingState != AudioMediaPlayingState.Fetching) {
+                stop(currentAudioMessageId!!)
+            }
+        }
+    }
+
+    private suspend fun resumeOrPauseCurrentlyPlayingAudioMessage(messageId: String) {
         if (audioMediaPlayer.isPlaying) {
             pause(messageId)
         } else {

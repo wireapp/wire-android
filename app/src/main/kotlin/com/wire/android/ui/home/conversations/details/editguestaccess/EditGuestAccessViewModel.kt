@@ -31,6 +31,7 @@ import com.wire.android.navigation.EXTRA_EDIT_GUEST_ACCESS_PARAMS
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
 import com.wire.android.util.dispatchers.DispatcherProvider
+import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
@@ -143,19 +144,28 @@ class EditGuestAccessViewModel @Inject constructor(
     fun updateGuestAccess(shouldEnableGuestAccess: Boolean) {
         updateState(editGuestAccessState.copy(isUpdatingGuestAccess = true, isGuestAccessAllowed = shouldEnableGuestAccess))
         when (shouldEnableGuestAccess) {
-            true -> updateGuestRemoteRequest(shouldEnableGuestAccess)
+            true -> updateGuestRemoteRequest(true)
             false -> updateState(editGuestAccessState.copy(shouldShowGuestAccessChangeConfirmationDialog = true))
         }
     }
 
     private fun updateGuestRemoteRequest(shouldEnableGuestAccess: Boolean) {
+
+        val newAccessRoles = Conversation
+            .accessRolesFor(
+                guestAllowed = shouldEnableGuestAccess,
+                servicesAllowed = editGuestAccessState.isServicesAccessAllowed,
+                nonTeamMembersAllowed = shouldEnableGuestAccess // Guest access controls non-team member access
+                )
+        val newAccess = Conversation
+            .accessFor(shouldEnableGuestAccess)
+
         viewModelScope.launch {
             withContext(dispatcher.io()) {
                 updateConversationAccessRole(
-                    allowGuest = shouldEnableGuestAccess,
-                    allowNonTeamMember = shouldEnableGuestAccess,
-                    allowServices = editGuestAccessState.isServicesAccessAllowed,
-                    conversationId = conversationId
+                    conversationId = conversationId,
+                    accessRoles = newAccessRoles,
+                    access = newAccess
                 )
             }.also {
                 when (it) {

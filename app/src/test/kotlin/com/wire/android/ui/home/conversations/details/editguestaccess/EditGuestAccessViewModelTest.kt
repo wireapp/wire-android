@@ -108,13 +108,13 @@ class EditGuestAccessViewModelTest {
         runTest {
             editGuestAccessViewModel.editGuestAccessState = editGuestAccessViewModel.editGuestAccessState.copy(isGuestAccessAllowed = false)
             coEvery {
-                updateConversationAccessRoleUseCase(any(), any(), any(), any())
+                updateConversationAccessRoleUseCase(any(), any(), any())
             } returns UpdateConversationAccessRoleUseCase.Result.Success
 
             editGuestAccessViewModel.updateGuestAccess(true)
 
             coVerify(exactly = 1) {
-                updateConversationAccessRoleUseCase(any(), any(), any(), any())
+                updateConversationAccessRoleUseCase(any(), any(), any())
             }
             assertEquals(
                 true,
@@ -127,7 +127,7 @@ class EditGuestAccessViewModelTest {
         editGuestAccessViewModel.editGuestAccessState =
             editGuestAccessViewModel.editGuestAccessState.copy(isGuestAccessAllowed = false)
         coEvery {
-            updateConversationAccessRoleUseCase(any(), any(), any(), any())
+            updateConversationAccessRoleUseCase(any(), any(), any())
         } returns UpdateConversationAccessRoleUseCase.Result.Failure(
             CoreFailure.MissingClientRegistration
         )
@@ -135,7 +135,7 @@ class EditGuestAccessViewModelTest {
         editGuestAccessViewModel.updateGuestAccess(true)
 
         coVerify(exactly = 1) {
-            updateConversationAccessRoleUseCase(any(), any(), any(), any())
+            updateConversationAccessRoleUseCase(any(), any(), any())
         }
         assertEquals(
             false,
@@ -152,7 +152,7 @@ class EditGuestAccessViewModelTest {
 
         assertEquals(true, editGuestAccessViewModel.editGuestAccessState.shouldShowGuestAccessChangeConfirmationDialog)
         coVerify(inverse = true) {
-            updateConversationAccessRoleUseCase(any(), any(), any(), any())
+            updateConversationAccessRoleUseCase(any(), any(), any())
         }
     }
 
@@ -218,13 +218,13 @@ class EditGuestAccessViewModelTest {
         runTest {
             editGuestAccessViewModel.editGuestAccessState = editGuestAccessViewModel.editGuestAccessState.copy(isGuestAccessAllowed = true)
             coEvery {
-                updateConversationAccessRoleUseCase(any(), any(), any(), any())
+                updateConversationAccessRoleUseCase(any(), any(), any())
             } returns UpdateConversationAccessRoleUseCase.Result.Success
 
             editGuestAccessViewModel.onGuestDialogConfirm()
 
             coVerify(exactly = 1) {
-                updateConversationAccessRoleUseCase(any(), any(), any(), any())
+                updateConversationAccessRoleUseCase(any(), any(), any())
             }
             assertEquals(
                 false,
@@ -237,13 +237,13 @@ class EditGuestAccessViewModelTest {
         runTest {
             editGuestAccessViewModel.editGuestAccessState = editGuestAccessViewModel.editGuestAccessState.copy(isGuestAccessAllowed = true)
             coEvery {
-                updateConversationAccessRoleUseCase(any(), any(), any(), any())
+                updateConversationAccessRoleUseCase(any(), any(), any())
             } returns UpdateConversationAccessRoleUseCase.Result.Failure(CoreFailure.MissingClientRegistration)
 
             editGuestAccessViewModel.onGuestDialogConfirm()
 
             coVerify(exactly = 1) {
-                updateConversationAccessRoleUseCase(any(), any(), any(), any())
+                updateConversationAccessRoleUseCase(any(), any(), any())
             }
             assertEquals(
                 true,

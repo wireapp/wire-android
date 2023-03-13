@@ -89,7 +89,6 @@ internal fun QuotedMessage(
     modifier: Modifier = Modifier,
     startContent: @Composable () -> Unit = {}
 ) {
-    // Draw content
     when (val quotedContent = messageData.quotedContent) {
         QuotedMessageUIData.Invalid -> QuotedInvalid(style)
 
@@ -197,7 +196,6 @@ private fun QuotedMessageContent(
         Box(modifier = Modifier.padding(start = dimensions().spacing4x)) {
             startContent()
         }
-
         Column(
             verticalArrangement = Arrangement.spacedBy(dimensions().spacing4x),
             modifier = Modifier.padding(vertical = dimensions().spacing4x)
@@ -357,21 +355,26 @@ fun QuotedAudioMessage(
     startContent: @Composable () -> Unit
 ) {
     QuotedMessageContent(
-        senderName = senderName.asString(), style = style, modifier = modifier, centerContent = {
-            MainContentText("Audio message")
-        }, startContent = {
+        senderName = senderName.asString(),
+        style = style,
+        modifier = modifier,
+        centerContent = {
+            MainContentText(stringResource(R.string.attachment_voice_message))
+        },
+        startContent = {
             startContent()
-        }, endContent = {
+        },
+        endContent = {
             Icon(
                 painter = painterResource(R.drawable.ic_audio),
                 contentDescription = null,
                 modifier = modifier
-                    .width(dimensions().spacing24x)
-                    .width(dimensions().spacing24x)
+                    .padding(end = dimensions().spacing16x)
                     .size(dimensions().spacing24x),
                 tint = colorsScheme().secondaryText
             )
-        }, footerContent = { QuotedMessageOriginalDate(originalDateTimeText) }
+        },
+        footerContent = { QuotedMessageOriginalDate(originalDateTimeText) }
     )
 }
 

@@ -196,7 +196,7 @@ class GroupConversationDetailsViewModelTest {
     }
 
     @Test
-    fun `when enabling Services, use case is called with the correct values`() = runTest {
+    fun `when no guests and enabling services, use case is called with the correct values`() = runTest {
         // Given
         val members = buildList {
             for (i in 1..5) {
@@ -222,15 +222,20 @@ class GroupConversationDetailsViewModelTest {
         coVerify(exactly = 1) {
             arrangement.updateConversationAccessRoleUseCase(
                 conversationId = details.conversation.id,
-                allowServices = true,
-                allowGuest = any(),
-                allowNonTeamMember = any()
+                accessRoles = Conversation
+                    .defaultGroupAccessRoles
+                    .toMutableSet()
+                    .apply {
+                        add(Conversation.AccessRole.SERVICE)
+                        remove(Conversation.AccessRole.NON_TEAM_MEMBER)
+                           },
+                access = Conversation.defaultGroupAccess
             )
         }
     }
 
     @Test
-    fun `when disable Service guest dialog conferment, then use case is called with the correct values`() = runTest {
+    fun `when no guests and disable service dialog confirmed, then use case is called with the correct values`() = runTest {
         // Given
         val members = buildList {
             for (i in 1..5) {
@@ -257,9 +262,8 @@ class GroupConversationDetailsViewModelTest {
         coVerify(exactly = 1) {
             arrangement.updateConversationAccessRoleUseCase(
                 conversationId = details.conversation.id,
-                allowServices = false,
-                allowGuest = any(),
-                allowNonTeamMember = any()
+                accessRoles = Conversation.defaultGroupAccessRoles.toMutableSet().apply { remove(Conversation.AccessRole.NON_TEAM_MEMBER) },
+                access = Conversation.defaultGroupAccess
             )
         }
     }
@@ -376,7 +380,7 @@ class GroupConversationDetailsViewModelTest {
                 lastNotificationDate = null,
                 lastModifiedDate = null,
                 access = listOf(Conversation.Access.CODE, Conversation.Access.INVITE),
-                accessRole = listOf(Conversation.AccessRole.NON_TEAM_MEMBER, Conversation.AccessRole.GUEST),
+                accessRole = Conversation.defaultGroupAccessRoles.toMutableList().apply { add(Conversation.AccessRole.GUEST) },
                 lastReadDate = "2022-04-04T16:11:28.388Z",
                 creatorId = null,
                 receiptMode = Conversation.ReceiptMode.ENABLED
@@ -491,7 +495,7 @@ internal class GroupConversationDetailsViewModelArrangement {
     }
 
     suspend fun withUpdateConversationAccessUseCaseReturns(result: UpdateConversationAccessRoleUseCase.Result) = apply {
-        coEvery { updateConversationAccessRoleUseCase(any(), any(), any(), any()) } returns result
+        coEvery { updateConversationAccessRoleUseCase(any(), any(), any()) } returns result
     }
 
     suspend fun withSelfTeamUseCaseReturns(result: Team?) = apply {

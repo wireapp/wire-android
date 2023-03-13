@@ -38,7 +38,6 @@ import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.model.MessageStatus
 import com.wire.android.ui.home.conversations.model.MessageSubHeader
 import com.wire.android.ui.home.conversations.model.MessageTime
-import com.wire.android.ui.home.conversations.model.SelfDeletionStatus
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.util.ui.UIText
@@ -63,7 +62,7 @@ val mockMessageWithText = UIMessage(
         isSenderDeleted = false,
         isSenderUnavailable = false
     ),
-    messageSubHeader = MessageSubHeader(selfDeletionStatus = SelfDeletionStatus.NonSelfDeletion),
+    messageSubHeader = MessageSubHeader(null),
     messageContent = UIMessageContent.TextMessage(
         messageBody = MessageBody(
             UIText.DynamicString(
@@ -105,7 +104,7 @@ fun mockAssetMessage(uploadStatus: Message.UploadStatus = Message.UploadStatus.U
         isSenderDeleted = false,
         isSenderUnavailable = false
     ),
-    messageSubHeader = MessageSubHeader(SelfDeletionStatus.NonSelfDeletion),
+    messageSubHeader =  MessageSubHeader(null),
     messageContent = UIMessageContent.AssetMessage(
         assetName = "This is some test asset message that has a not so long title",
         assetExtension = "ZIP",
@@ -140,7 +139,7 @@ fun mockedImageUIMessage(uploadStatus: Message.UploadStatus = Message.UploadStat
         isSenderDeleted = false,
         isSenderUnavailable = false
     ),
-    messageSubHeader = MessageSubHeader(SelfDeletionStatus.NonSelfDeletion),
+    messageSubHeader =  MessageSubHeader(null),
     messageContent = mockedImg(uploadStatus),
     messageFooter = mockFooter,
     messageSource = MessageSource.Self
@@ -161,7 +160,7 @@ fun getMockedMessages(): List<UIMessage> = listOf(
             isSenderDeleted = false,
             isSenderUnavailable = false
         ),
-        messageSubHeader = MessageSubHeader(SelfDeletionStatus.NonSelfDeletion),
+        messageSubHeader =  MessageSubHeader(null),
         messageContent = UIMessageContent.TextMessage(
             messageBody = MessageBody(
                 UIText.DynamicString(
@@ -188,7 +187,7 @@ fun getMockedMessages(): List<UIMessage> = listOf(
             isSenderDeleted = false,
             isSenderUnavailable = false
         ),
-        messageSubHeader = MessageSubHeader(SelfDeletionStatus.NonSelfDeletion),
+        messageSubHeader =  MessageSubHeader(null),
         messageContent = mockedImg(),
         messageSource = MessageSource.Self,
         messageFooter = mockFooter,
@@ -206,7 +205,7 @@ fun getMockedMessages(): List<UIMessage> = listOf(
             isSenderDeleted = false,
             isSenderUnavailable = false
         ),
-        messageSubHeader = MessageSubHeader(SelfDeletionStatus.NonSelfDeletion),
+        messageSubHeader =  MessageSubHeader(null),
         messageContent = mockedImg(),
         messageSource = MessageSource.Self,
         messageFooter = mockFooter,
@@ -224,7 +223,7 @@ fun getMockedMessages(): List<UIMessage> = listOf(
             isSenderDeleted = false,
             isSenderUnavailable = false
         ),
-        messageSubHeader = MessageSubHeader(SelfDeletionStatus.NonSelfDeletion),
+        messageSubHeader =  MessageSubHeader(null),
         messageContent = mockedImg(),
         messageSource = MessageSource.Self,
         messageFooter = mockFooter,
@@ -242,7 +241,7 @@ fun getMockedMessages(): List<UIMessage> = listOf(
             isSenderDeleted = false,
             isSenderUnavailable = false
         ),
-        messageSubHeader = MessageSubHeader(SelfDeletionStatus.NonSelfDeletion),
+        messageSubHeader =  MessageSubHeader(null),
         messageContent = UIMessageContent.TextMessage(
             messageBody = MessageBody(
                 UIText.DynamicString(
@@ -269,7 +268,7 @@ fun getMockedMessages(): List<UIMessage> = listOf(
             isSenderDeleted = false,
             isSenderUnavailable = false
         ),
-        messageSubHeader = MessageSubHeader(SelfDeletionStatus.NonSelfDeletion),
+        messageSubHeader =  MessageSubHeader(null),
         messageContent = mockedImg(),
         messageSource = MessageSource.Self,
         messageFooter = mockFooter,
@@ -287,7 +286,7 @@ fun getMockedMessages(): List<UIMessage> = listOf(
             isSenderDeleted = false,
             isSenderUnavailable = false
         ),
-        messageSubHeader = MessageSubHeader(SelfDeletionStatus.NonSelfDeletion),
+        messageSubHeader = MessageSubHeader(null),
         messageContent = UIMessageContent.TextMessage(
             messageBody = MessageBody(
                 UIText.DynamicString(

@@ -80,15 +80,8 @@ data class MessageHeader(
 
 @Stable
 data class MessageSubHeader(
-    val selfDeletionStatus: SelfDeletionStatus,
+    val expireAfter: Duration? = null
 )
-
-sealed class SelfDeletionStatus {
-    object NonSelfDeletion : SelfDeletionStatus()
-
-    data class SelfDeleting(val expireAfter: Duration) : SelfDeletionStatus()
-
-}
 
 @Stable
 data class MessageFooter(

@@ -66,8 +66,6 @@ import com.wire.android.ui.home.conversations.model.MessageHeader
 import com.wire.android.ui.home.conversations.model.MessageImage
 import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.model.MessageStatus
-import com.wire.android.ui.home.conversations.model.MessageSubHeader
-import com.wire.android.ui.home.conversations.model.SelfDeletionStatus
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.conversations.model.messagetypes.asset.RestrictedAssetMessage
@@ -78,6 +76,7 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
 import com.wire.kalium.logic.data.user.UserId
+import kotlinx.coroutines.delay
 
 // TODO: a definite candidate for a refactor and cleanup
 @OptIn(ExperimentalFoundationApi::class)
@@ -94,15 +93,6 @@ fun MessageItem(
     onReactionClicked: (String, String) -> Unit,
     onResetSessionClicked: (senderUserId: UserId, clientId: String?) -> Unit
 ) {
-    var test by mutableStateOf("test")
-
-    if (message.isSelfDeleting) {
-        LaunchedEffect(Unit) {
-            //start timer
-            test = "123"
-        }
-    }
-
     with(message) {
         val fullAvatarOuterPadding = dimensions().userAvatarClickablePadding + dimensions().userAvatarStatusBorderSize
         Row(
@@ -140,7 +130,23 @@ fun MessageItem(
             Column {
                 Spacer(modifier = Modifier.height(fullAvatarOuterPadding))
                 MessageHeader(messageHeader)
-                MessageSubHeader(messageSubHeader)
+                message.messageSubHeader.expireAfter?.let {
+                    val test by remember { mutableStateOf(message.messageSubHeader.expireAfter.inWholeMilliseconds) }
+
+                    LaunchedEffect(Unit) {
+                        val intervalInMs = when (test) {
+                            in 0L..100L -> 1000L
+                            else -> 60000L
+                        }
+
+                        while (test >= 0) {
+                            delay(intervalInMs)
+                            test - intervalInMs
+                        }
+                    }
+
+                    MessageSubHeader(test)
+                }
                 if (!isDeleted) {
                     if (!decryptionFailed) {
                         val currentOnAssetClicked = remember {
@@ -197,10 +203,8 @@ fun MessageItem(
 }
 
 @Composable
-fun MessageSubHeader(messageSubHeader: MessageSubHeader) {
-    if (messageSubHeader.selfDeletionStatus is SelfDeletionStatus.SelfDeleting) {
-        Text("This is self deleting message")
-    }
+fun MessageSubHeader(timeLeft: Long) {
+    Text("This is self deleting message")
 }
 
 @Composable

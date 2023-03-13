@@ -29,7 +29,6 @@ import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.model.MessageStatus
 import com.wire.android.ui.home.conversations.model.MessageSubHeader
 import com.wire.android.ui.home.conversations.model.MessageTime
-import com.wire.android.ui.home.conversations.model.SelfDeletionStatus
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.conversations.previewAsset
@@ -121,15 +120,15 @@ class MessageMapper @Inject constructor(
     }
 
     private fun provideSubHeader(message: Message.Standalone): MessageSubHeader {
-        val selfDeletionStatus = if (message is Message.Regular) {
+        val expireAfter = if (message is Message.Regular) {
             message.expirationData?.let {
-                SelfDeletionStatus.SelfDeleting(it.expireAfter)
-            } ?: SelfDeletionStatus.NonSelfDeletion
+                it.timeLeftForDeletion()
+            }
         } else {
-            SelfDeletionStatus.NonSelfDeletion
+            null
         }
 
-        return MessageSubHeader(selfDeletionStatus)
+        return MessageSubHeader(expireAfter)
     }
 
     private fun isHeart(it: String) = it == "❤️" || it == "❤"

@@ -27,13 +27,11 @@ import com.wire.android.ui.home.conversations.model.MessageFooter
 import com.wire.android.ui.home.conversations.model.MessageHeader
 import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.model.MessageStatus
-import com.wire.android.ui.home.conversations.model.MessageSubHeader
 import com.wire.android.ui.home.conversations.model.MessageTime
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.conversations.previewAsset
 import com.wire.android.ui.home.conversationslist.model.Membership
-import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.time.ISOFormatter
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.WireSessionImageLoader
@@ -46,9 +44,9 @@ import com.wire.kalium.logic.data.user.User
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
 import javax.inject.Inject
+import kotlin.time.Duration
 
 class MessageMapper @Inject constructor(
-    private val dispatcherProvider: DispatcherProvider,
     private val userTypeMapper: UserTypeMapper,
     private val messageContentMapper: MessageContentMapper,
     private val isoFormatter: ISOFormatter,
@@ -112,14 +110,14 @@ class MessageMapper @Inject constructor(
                 messageContent = content,
                 messageSource = if (sender is SelfUser) MessageSource.Self else MessageSource.OtherUser,
                 messageHeader = provideMessageHeader(sender, message),
-                messageSubHeader = provideSubHeader(message),
+                expireAfter = provideSubHeader(message),
                 messageFooter = footer,
                 userAvatarData = getUserAvatarData(sender)
             )
         }
     }
 
-    private fun provideSubHeader(message: Message.Standalone): MessageSubHeader {
+    private fun provideSubHeader(message: Message.Standalone): Duration? {
         val expireAfter = if (message is Message.Regular) {
             message.expirationData?.let {
                 it.timeLeftForDeletion()
@@ -128,7 +126,7 @@ class MessageMapper @Inject constructor(
             null
         }
 
-        return MessageSubHeader(expireAfter)
+        return expireAfter
     }
 
     private fun isHeart(it: String) = it == "❤️" || it == "❤"

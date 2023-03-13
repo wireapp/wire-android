@@ -36,7 +36,6 @@ import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.conversations.model.MessageHeader
 import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.model.MessageStatus
-import com.wire.android.ui.home.conversations.model.MessageSubHeader
 import com.wire.android.ui.home.conversations.model.MessageTime
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversationslist.model.Membership
@@ -62,7 +61,7 @@ val mockMessageWithText = UIMessage(
         isSenderDeleted = false,
         isSenderUnavailable = false
     ),
-    messageSubHeader = MessageSubHeader(null),
+    expireAfter = null,
     messageContent = UIMessageContent.TextMessage(
         messageBody = MessageBody(
             UIText.DynamicString(
@@ -104,7 +103,7 @@ fun mockAssetMessage(uploadStatus: Message.UploadStatus = Message.UploadStatus.U
         isSenderDeleted = false,
         isSenderUnavailable = false
     ),
-    messageSubHeader =  MessageSubHeader(null),
+    expireAfter = null,
     messageContent = UIMessageContent.AssetMessage(
         assetName = "This is some test asset message that has a not so long title",
         assetExtension = "ZIP",
@@ -139,7 +138,7 @@ fun mockedImageUIMessage(uploadStatus: Message.UploadStatus = Message.UploadStat
         isSenderDeleted = false,
         isSenderUnavailable = false
     ),
-    messageSubHeader =  MessageSubHeader(null),
+    expireAfter = null,
     messageContent = mockedImg(uploadStatus),
     messageFooter = mockFooter,
     messageSource = MessageSource.Self
@@ -160,7 +159,7 @@ fun getMockedMessages(): List<UIMessage> = listOf(
             isSenderDeleted = false,
             isSenderUnavailable = false
         ),
-        messageSubHeader =  MessageSubHeader(null),
+        expireAfter = null,
         messageContent = UIMessageContent.TextMessage(
             messageBody = MessageBody(
                 UIText.DynamicString(
@@ -187,7 +186,7 @@ fun getMockedMessages(): List<UIMessage> = listOf(
             isSenderDeleted = false,
             isSenderUnavailable = false
         ),
-        messageSubHeader =  MessageSubHeader(null),
+        expireAfter = null,
         messageContent = mockedImg(),
         messageSource = MessageSource.Self,
         messageFooter = mockFooter,
@@ -205,7 +204,7 @@ fun getMockedMessages(): List<UIMessage> = listOf(
             isSenderDeleted = false,
             isSenderUnavailable = false
         ),
-        messageSubHeader =  MessageSubHeader(null),
+        expireAfter = null,
         messageContent = mockedImg(),
         messageSource = MessageSource.Self,
         messageFooter = mockFooter,
@@ -223,7 +222,7 @@ fun getMockedMessages(): List<UIMessage> = listOf(
             isSenderDeleted = false,
             isSenderUnavailable = false
         ),
-        messageSubHeader =  MessageSubHeader(null),
+        expireAfter = null,
         messageContent = mockedImg(),
         messageSource = MessageSource.Self,
         messageFooter = mockFooter,
@@ -241,7 +240,7 @@ fun getMockedMessages(): List<UIMessage> = listOf(
             isSenderDeleted = false,
             isSenderUnavailable = false
         ),
-        messageSubHeader =  MessageSubHeader(null),
+        expireAfter = null,
         messageContent = UIMessageContent.TextMessage(
             messageBody = MessageBody(
                 UIText.DynamicString(
@@ -268,7 +267,7 @@ fun getMockedMessages(): List<UIMessage> = listOf(
             isSenderDeleted = false,
             isSenderUnavailable = false
         ),
-        messageSubHeader =  MessageSubHeader(null),
+        expireAfter = null,
         messageContent = mockedImg(),
         messageSource = MessageSource.Self,
         messageFooter = mockFooter,
@@ -286,7 +285,7 @@ fun getMockedMessages(): List<UIMessage> = listOf(
             isSenderDeleted = false,
             isSenderUnavailable = false
         ),
-        messageSubHeader = MessageSubHeader(null),
+        expireAfter = null,
         messageContent = UIMessageContent.TextMessage(
             messageBody = MessageBody(
                 UIText.DynamicString(

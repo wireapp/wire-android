@@ -46,10 +46,10 @@ import com.wire.kalium.logic.data.user.UserId
 import kotlin.time.Duration
 
 data class UIMessage(
+    val expireAfter: Duration? = null,
     val userAvatarData: UserAvatarData,
     val messageSource: MessageSource,
     val messageHeader: MessageHeader,
-    val messageSubHeader: MessageSubHeader,
     val messageContent: UIMessageContent?,
     val messageFooter: MessageFooter
 ) {
@@ -76,11 +76,6 @@ data class MessageHeader(
     val isSenderDeleted: Boolean,
     val isSenderUnavailable: Boolean,
     val clientId: ClientId? = null
-)
-
-@Stable
-data class MessageSubHeader(
-    val expireAfter: Duration? = null
 )
 
 @Stable

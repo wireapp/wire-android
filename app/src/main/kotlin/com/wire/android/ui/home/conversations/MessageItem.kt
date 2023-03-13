@@ -39,6 +39,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -66,7 +67,6 @@ import com.wire.android.ui.home.conversations.model.MessageHeader
 import com.wire.android.ui.home.conversations.model.MessageImage
 import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.model.MessageStatus
-import com.wire.android.ui.home.conversations.model.MessageSubHeader
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.conversations.model.messagetypes.asset.RestrictedAssetMessage
@@ -92,9 +92,30 @@ fun MessageItem(
     onImageMessageClicked: (String, Boolean) -> Unit,
     onOpenProfile: (String) -> Unit,
     onReactionClicked: (String, String) -> Unit,
-    onResetSessionClicked: (senderUserId: UserId, clientId: String?) -> Unit
+    onResetSessionClicked: (senderUserId: UserId, clientId: String?) -> Unit,
+    onSelfDeletingMessageRead: (UIMessage) -> Unit
 ) {
     with(message) {
+        var timeLeftForDeletion by remember { mutableStateOf(-1L) }
+
+        LaunchedEffect(Unit) {
+            expireAfter?.let {
+                onSelfDeletingMessageRead(message)
+
+                timeLeftForDeletion = it.inWholeMilliseconds
+
+                val intervalInMs = when (timeLeftForDeletion) {
+                    in 0L..10000L -> 1000L
+                    else -> 60000L
+                }
+
+                while (timeLeftForDeletion >= 0) {
+                    delay(intervalInMs)
+                    timeLeftForDeletion -= intervalInMs
+                }
+            }
+        }
+
         val fullAvatarOuterPadding = dimensions().userAvatarClickablePadding + dimensions().userAvatarStatusBorderSize
         Row(
             Modifier
@@ -131,7 +152,9 @@ fun MessageItem(
             Column {
                 Spacer(modifier = Modifier.height(fullAvatarOuterPadding))
                 MessageHeader(messageHeader)
-                MessageSubHeader(messageSubHeader)
+                if (timeLeftForDeletion != -1L) {
+                    MessageSubHeader(timeLeftForDeletion)
+                }
                 if (!isDeleted) {
                     if (!decryptionFailed) {
                         val currentOnAssetClicked = remember {
@@ -188,24 +211,8 @@ fun MessageItem(
 }
 
 @Composable
-fun MessageSubHeader(messageSubHeader: MessageSubHeader) {
-    messageSubHeader.expireAfter?.let {
-        var timeLeftForDeletion by remember { mutableStateOf(it.inWholeMilliseconds) }
-
-        LaunchedEffect(Unit) {
-            val intervalInMs = when (timeLeftForDeletion) {
-                in 0L..10000L -> 1000L
-                else -> 60000L
-            }
-
-            while (timeLeftForDeletion >= 0) {
-                delay(intervalInMs)
-                timeLeftForDeletion -= intervalInMs
-            }
-        }
-
-        MessageTimeLeftLabel(timeLeftForDeletion)
-    }
+fun MessageSubHeader(timeLeftForDeletion: Long) {
+    MessageTimeLeftLabel(timeLeftForDeletion)
 }
 
 @Composable

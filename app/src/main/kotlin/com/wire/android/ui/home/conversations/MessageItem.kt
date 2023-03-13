@@ -66,6 +66,7 @@ import com.wire.android.ui.home.conversations.model.MessageHeader
 import com.wire.android.ui.home.conversations.model.MessageImage
 import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.model.MessageStatus
+import com.wire.android.ui.home.conversations.model.MessageSubHeader
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.conversations.model.messagetypes.asset.RestrictedAssetMessage
@@ -130,23 +131,7 @@ fun MessageItem(
             Column {
                 Spacer(modifier = Modifier.height(fullAvatarOuterPadding))
                 MessageHeader(messageHeader)
-                message.messageSubHeader.expireAfter?.let {
-                    val test by remember { mutableStateOf(message.messageSubHeader.expireAfter.inWholeMilliseconds) }
-
-                    LaunchedEffect(Unit) {
-                        val intervalInMs = when (test) {
-                            in 0L..100L -> 1000L
-                            else -> 60000L
-                        }
-
-                        while (test >= 0) {
-                            delay(intervalInMs)
-                            test - intervalInMs
-                        }
-                    }
-
-                    MessageSubHeader(test)
-                }
+                MessageSubHeader(messageSubHeader)
                 if (!isDeleted) {
                     if (!decryptionFailed) {
                         val currentOnAssetClicked = remember {
@@ -203,8 +188,29 @@ fun MessageItem(
 }
 
 @Composable
-fun MessageSubHeader(timeLeft: Long) {
-    Text("This is self deleting message")
+fun MessageSubHeader(messageSubHeader: MessageSubHeader) {
+    messageSubHeader.expireAfter?.let {
+        var timeLeftForDeletion by remember { mutableStateOf(it.inWholeMilliseconds) }
+
+        LaunchedEffect(Unit) {
+            val intervalInMs = when (timeLeftForDeletion) {
+                in 0L..10000L -> 1000L
+                else -> 60000L
+            }
+
+            while (timeLeftForDeletion >= 0) {
+                delay(intervalInMs)
+                timeLeftForDeletion -= intervalInMs
+            }
+        }
+
+        MessageTimeLeftLabel(timeLeftForDeletion)
+    }
+}
+
+@Composable
+fun MessageTimeLeftLabel(timeLeftForDeletion: Long) {
+    Text("This is self deleting message time left $timeLeftForDeletion")
 }
 
 @Composable

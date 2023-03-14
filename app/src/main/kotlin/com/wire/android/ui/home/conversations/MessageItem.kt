@@ -20,6 +20,8 @@
 
 package com.wire.android.ui.home.conversations
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -124,7 +126,8 @@ fun MessageItem(
                         Modifier.combinedClickable(
                             // TODO: implement some action onClick
                             onClick = { },
-                            onLongClick = { onLongClicked(message) })
+                            onLongClick = { onLongClicked(message) }
+                        )
                     } else {
                         Modifier
                     }
@@ -133,8 +136,12 @@ fun MessageItem(
                     if (message.sendingFailed || message.receivingFailed) {
                         Modifier.background(MaterialTheme.wireColorScheme.messageErrorBackgroundColor)
                     } else if (selfDeletionTimer.timeLeft != Duration.ZERO) {
-                        val color = MaterialTheme.wireColorScheme.primary.copy(selfDeletionTimer.alphaBackgroundColor())
-                        Modifier.background(MaterialTheme.wireColorScheme.primary)
+                        val color by animateColorAsState(
+                            MaterialTheme.wireColorScheme.primary.copy(selfDeletionTimer.alphaBackgroundColor()),
+                            tween()
+                        )
+
+                        Modifier.background(color)
                     } else {
                         Modifier
                     }
@@ -226,14 +233,14 @@ class SelfDeletionTimer(expirationData: ExpirationData?) {
 
     var timeLeft by mutableStateOf(expirationData?.timeLeft ?: 0.seconds)
 
-    private val expireAfter = expirationData?.timeLeft ?: 0.seconds
+    private val expireAfter = expirationData?.expireAfter ?: 0.seconds
     fun timeLeftFormatted(): String {
         val timeLeftLabel = when {
             // weeks
             timeLeft.inWholeDays >= FOUR_WEEK_DAYS -> "4 weeks"
-            timeLeft.inWholeDays in (THREE_WEEK_DAYS + 1) until FOUR_WEEK_DAYS -> "3 weeks"
-            timeLeft.inWholeDays in (TWO_WEEK_DAYS + 1) until THREE_WEEK_DAYS -> "2 weeks"
-            timeLeft.inWholeDays in (ONE_WEEK_DAYS + 1) until TWO_WEEK_DAYS -> "1 week"
+            timeLeft.inWholeDays in THREE_WEEK_DAYS until FOUR_WEEK_DAYS -> "3 weeks"
+            timeLeft.inWholeDays in TWO_WEEK_DAYS until THREE_WEEK_DAYS -> "2 weeks"
+            timeLeft.inWholeDays in ONE_WEEK_DAYS until TWO_WEEK_DAYS -> "1 week"
             // days
             timeLeft.inWholeDays in 1..6 -> "${timeLeft.inWholeDays} days left"
             // hours
@@ -253,7 +260,7 @@ class SelfDeletionTimer(expirationData: ExpirationData?) {
         val interval = when {
             timeLeft.inWholeMinutes > 59 -> 1.hours
             timeLeft.inWholeMinutes in 2..59 -> 1.minutes
-            timeLeft.inWholeSeconds <= 60 -> 1.seconds
+            timeLeft.inWholeSeconds <= 60 && timeLeft.inWholeMinutes < 2 -> 1.seconds
             else -> throw IllegalStateException("Not possible state for interval")
         }
 
@@ -265,16 +272,20 @@ class SelfDeletionTimer(expirationData: ExpirationData?) {
     }
 
     fun alphaBackgroundColor(): Float {
-        val totalTimeLeftInPercentage = timeLeft / expireAfter
+        val totalTimeLeftRatio = timeLeft / expireAfter
 
-        return 1F - (1F * totalTimeLeftInPercentage).toFloat()
+        return if (totalTimeLeftRatio >= 0.75) {
+            0F
+        } else {
+            1F
+        }
     }
 
 }
 
 @Composable
 fun rememberSelfDeletionTimer(expirationData: ExpirationData?): SelfDeletionTimer {
-    return remember { SelfDeletionTimer(expirationData) }
+    return SelfDeletionTimer(expirationData)
 }
 
 @Composable

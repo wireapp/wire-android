@@ -576,6 +576,7 @@ fun MessageList(
             if (message.messageContent is UIMessageContent.SystemMessage) {
                 SystemMessageItem(message = message.messageContent)
             } else {
+
                 var showHeader = true
                 val nextIndex = index + 1
                 if(nextIndex < lazyPagingMessages.itemSnapshotList.items.size) {

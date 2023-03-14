@@ -59,7 +59,6 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.home.conversations.messages.QuotedMessage
 import com.wire.android.ui.home.conversations.messages.ReactionPill
-import com.wire.android.ui.home.conversations.model.ExpirationTime
 import com.wire.android.ui.home.conversations.model.MessageBody
 import com.wire.android.ui.home.conversations.model.MessageFooter
 import com.wire.android.ui.home.conversations.model.MessageGenericAsset
@@ -147,9 +146,7 @@ fun MessageItem(
             Column {
                 Spacer(modifier = Modifier.height(fullAvatarOuterPadding))
                 MessageHeader(messageHeader)
-                if (selfDeletionTimer.expirationTime != null) {
-                    MessageSubHeader(selfDeletionTimer)
-                }
+                MessageExpireLabel(selfDeletionTimer)
                 if (!isDeleted) {
                     if (!decryptionFailed) {
                         val currentOnAssetClicked = remember {
@@ -206,23 +203,43 @@ fun MessageItem(
 }
 
 class SelfDeletionTimer(timeLeft: Duration?) {
+    companion object {
+        private const val DAYS_IN_A_WEEK = 7
+        private const val FOUR_WEEK_DAYS = DAYS_IN_A_WEEK * 4
+        private const val THREE_WEEK_DAYS = DAYS_IN_A_WEEK * 3
+        private const val TWO_WEEK_DAYS = DAYS_IN_A_WEEK * 2
+        private const val ONE_WEEK_DAYS = DAYS_IN_A_WEEK * 1
+    }
 
     var timeLeft by mutableStateOf(timeLeft ?: 0.seconds)
 
-    fun timeLeftFormatted() {
-        val interval = when {
-            timeLeft.inWholeMinutes > 59 -> 1.hours
-            timeLeft.inWholeMinutes in 1..59 -> 1.minutes
-            timeLeft.inWholeSeconds <= 59 -> 1.seconds
+    fun timeLeftFormatted(): String {
+        val timeLeftLabel = when {
+            // weeks
+            timeLeft.inWholeDays >= FOUR_WEEK_DAYS -> "4 weeks"
+            timeLeft.inWholeDays in (THREE_WEEK_DAYS + 1) until FOUR_WEEK_DAYS -> "3 weeks"
+            timeLeft.inWholeDays in (TWO_WEEK_DAYS + 1) until THREE_WEEK_DAYS -> "2 weeks"
+            timeLeft.inWholeDays in (ONE_WEEK_DAYS + 1) until TWO_WEEK_DAYS -> "1 week"
+            // days
+            timeLeft.inWholeDays in 1..6 -> "${timeLeft.inWholeDays} days left"
+            // hours
+            timeLeft.inWholeHours in 1..23 -> "${timeLeft.inWholeHours} hours left"
+            // minutes
+            timeLeft.inWholeMinutes in 1..59 -> "${timeLeft.inWholeMinutes} minutes left"
+            // seconds
+            timeLeft.inWholeSeconds < 60 -> "${timeLeft.inWholeSeconds} seconds left "
+
             else -> throw IllegalStateException("Not possible")
         }
+
+        return timeLeftLabel
     }
 
     fun interval(): Duration {
         val interval = when {
             timeLeft.inWholeMinutes > 59 -> 1.hours
-            timeLeft.inWholeMinutes in 1..59 -> 1.minutes
-            timeLeft.inWholeSeconds <= 59 -> 1.seconds
+            timeLeft.inWholeMinutes in 2..59 -> 1.minutes
+            timeLeft.inWholeSeconds <= 60 -> 1.seconds
             else -> throw IllegalStateException("Not possible")
         }
 
@@ -241,14 +258,12 @@ fun rememberSelfDeletionTimer(timeLeft: Duration?): SelfDeletionTimer {
 }
 
 @Composable
-fun MessageSubHeader(selfDeletionTimer: SelfDeletionTimer) {
-    MessageTimeLeftLabel(selfDeletionTimer)
+fun MessageExpireLabel(selfDeletionTimer: SelfDeletionTimer) {
+    if (selfDeletionTimer.timeLeft != Duration.ZERO) {
+        Text("Self-deleting message • ${selfDeletionTimer.timeLeftFormatted()}")
+    }
 }
 
-@Composable
-fun MessageTimeLeftLabel(timeLeftForDeletion: Long) {
-    Text("This is self deleting message time left $timeLeftForDeletion")
-}
 
 @Composable
 private fun Modifier.customizeMessageBackground(

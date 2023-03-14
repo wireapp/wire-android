@@ -525,11 +525,6 @@
     <item quantity="other">Sie und %1$d weitere Personen wurden zur Unterhaltung hinzugefügt</item>
     <item quantity="zero">Sie wurden zur Unterhaltung hinzugefügt</item>
   </plurals>
-  <plurals name="last_message_other_added_self_user_and_others">
-    <item quantity="one">Sie und 1 weitere Person wurden zur Unterhaltung hinzugefügt</item>
-    <item quantity="other">Sie und %1$d weitere Personen wurden zur Unterhaltung hinzugefügt</item>
-    <item quantity="zero">Sie wurden zur Unterhaltung hinzugefügt</item>
-  </plurals>
   <plurals name="last_message_other_added_other_users">
     <item quantity="one">1 Person wurde zur Unterhaltung hinzugefügt</item>
     <item quantity="other">%1$d Personen wurden zur Unterhaltung hinzugefügt</item>
@@ -539,11 +534,6 @@
     <item quantity="other">Sie haben %1$d Personen zur Unterhaltung entfernt</item>
   </plurals>
   <plurals name="last_message_other_removed_self_user">
-    <item quantity="one">Sie und 1 weitere Person wurden aus der Unterhaltung entfernt</item>
-    <item quantity="other">Sie und %1$d weitere Personen wurden aus der Unterhaltung entfernt</item>
-    <item quantity="zero">Sie wurden aus der Unterhaltung entfernt</item>
-  </plurals>
-  <plurals name="last_message_other_removed_self_user_and_others">
     <item quantity="one">Sie und 1 weitere Person wurden aus der Unterhaltung entfernt</item>
     <item quantity="other">Sie und %1$d weitere Personen wurden aus der Unterhaltung entfernt</item>
     <item quantity="zero">Sie wurden aus der Unterhaltung entfernt</item>
@@ -735,7 +725,7 @@
   <string name="prohibited_videos_message">Empfang von Videos ist verboten</string>
   <string name="prohibited_audio_message">Empfang von Audiodateien ist verboten</string>
   <string name="prohibited_file_message">Empfang von Dateien ist verboten</string>
-  <string name="team_settings_changed">Team-Einstellungen geändert</string>
+  <string name="team_settings_changed">Team Settings Changed</string>
   <string name="sharing_files_enabled">Das Teilen und Empfangen von Dateien jeder Art ist jetzt aktiviert</string>
   <string name="sharing_files_disabled">Das Teilen und Empfangen von Dateien jeder Art ist jetzt deaktiviert</string>
   <!--wire dropdown-->

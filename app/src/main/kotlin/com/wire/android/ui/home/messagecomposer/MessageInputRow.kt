@@ -67,6 +67,7 @@ fun MessageComposerInputRow(
     onAdditionalOptionButtonClicked: () -> Unit = { },
     onEditSaveButtonClicked: () -> Unit = { },
     onEditCancelButtonClicked: () -> Unit = { },
+    isFileSharingEnabled: Boolean = true,
 ) {
     Row(
         verticalAlignment = when (messageComposeInputState) {
@@ -79,7 +80,7 @@ fun MessageComposerInputRow(
             visible = { it is MessageComposeInputState.Inactive }
         ) {
             Box(modifier = Modifier.padding(start = dimensions().spacing8x)) {
-                AdditionalOptionButton(messageComposeInputState.attachmentOptionsDisplayed) {
+                AdditionalOptionButton(isSelected = messageComposeInputState.attachmentOptionsDisplayed, isEnabled = isFileSharingEnabled) {
                     onAdditionalOptionButtonClicked()
                 }
             }
@@ -185,24 +186,28 @@ fun PreviewMessageComposerInputRowInactive() {
     val state = MessageComposeInputState.Inactive()
     MessageComposerInputRow(updateTransition(targetState = state, label = ""), state)
 }
+
 @Preview
 @Composable
 fun PreviewMessageComposerInputRowActiveCollapsed() {
     val state = MessageComposeInputState.Active(size = MessageComposeInputSize.COLLAPSED)
     MessageComposerInputRow(updateTransition(targetState = state, label = ""), state)
 }
+
 @Preview
 @Composable
 fun PreviewMessageComposerInputRowActiveCollapsedSendEnabled() {
     val state = MessageComposeInputState.Active(messageText = TextFieldValue("text"), size = MessageComposeInputSize.COLLAPSED)
     MessageComposerInputRow(updateTransition(targetState = state, label = ""), state)
 }
+
 @Preview
 @Composable
 fun PreviewMessageComposerInputRowActiveExpanded() {
     val state = MessageComposeInputState.Active(size = MessageComposeInputSize.EXPANDED)
     MessageComposerInputRow(updateTransition(targetState = state, label = ""), state)
 }
+
 @Preview
 @Composable
 fun PreviewMessageComposerInputRowActiveEdit() {
@@ -212,6 +217,7 @@ fun PreviewMessageComposerInputRowActiveEdit() {
     )
     MessageComposerInputRow(updateTransition(targetState = state, label = ""), state)
 }
+
 @Preview
 @Composable
 fun PreviewMessageComposerInputRowActiveEditSaveEnabled() {

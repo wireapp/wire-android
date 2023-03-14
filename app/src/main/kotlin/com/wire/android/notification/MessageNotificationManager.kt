@@ -142,7 +142,7 @@ class MessageNotificationManager
                     .let {
                         when (it) {
                             is NotificationMessage.ConnectionRequest -> {
-                                setContentIntent(otherUserProfilePendingIntent(context, it.authorId))
+                                setContentIntent(otherUserProfilePendingIntent(context, it.authorId, userIdString))
                             }
                             is NotificationMessage.ConversationDeleted -> {
                                 setContentIntent(openAppPendingIntent(context))

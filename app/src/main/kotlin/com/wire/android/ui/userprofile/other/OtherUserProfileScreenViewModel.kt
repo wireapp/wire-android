@@ -89,6 +89,7 @@ import com.wire.kalium.logic.feature.conversation.ClearConversationContentUseCas
 import com.wire.kalium.logic.feature.conversation.ConversationUpdateStatusResult
 import com.wire.kalium.logic.feature.conversation.CreateConversationResult
 import com.wire.kalium.logic.feature.conversation.GetOrCreateOneToOneConversationUseCase
+import com.wire.kalium.logic.feature.conversation.GetOtherUserSecurityClassificationLabelUseCase
 import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleResult
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleUseCase
@@ -96,6 +97,8 @@ import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusU
 import com.wire.kalium.logic.feature.user.GetUserInfoResult
 import com.wire.kalium.logic.feature.user.ObserveUserInfoUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import java.util.Date
+import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -105,8 +108,6 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.util.Date
-import javax.inject.Inject
 
 @Suppress("LongParameterList", "TooManyFunctions")
 @HiltViewModel
@@ -130,6 +131,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     private val getOtherUserClients: GetOtherUserClientsUseCase,
     private val persistOtherUserClients: PersistOtherUserClientsUseCase,
     private val clearConversationContentUseCase: ClearConversationContentUseCase,
+    private val getOtherUserSecurityClassificationLabel: GetOtherUserSecurityClassificationLabelUseCase,
     savedStateHandle: SavedStateHandle,
     qualifiedIdMapper: QualifiedIdMapper
 ) : ViewModel(), OtherUserProfileEventsHandler, OtherUserProfileBottomSheetEventsHandler, OtherUserProfileFooterEventsHandler {
@@ -151,6 +153,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
 
         observeUserInfoAndUpdateViewState()
         persistClients()
+        setClassificationType()
     }
 
     private fun persistClients() {
@@ -269,7 +272,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                     state = state.copy(connectionState = ConnectionState.IGNORED)
                     navigationManager.navigateBack(
                         mapOf(
-                            EXTRA_CONNECTION_IGNORED_USER_NAME to state.userName,
+                            EXTRA_CONNECTION_IGNORED_USER_NAME to state.userName
                         )
                     )
                 }
@@ -281,8 +284,9 @@ class OtherUserProfileScreenViewModel @Inject constructor(
         viewModelScope.launch {
             if (conversationId != null) {
                 updateMemberRole(conversationId, userId, role).also {
-                    if (it is UpdateConversationMemberRoleResult.Failure)
+                    if (it is UpdateConversationMemberRoleResult.Failure) {
                         closeBottomSheetAndShowInfoMessage(ChangeGroupRoleError)
+                    }
                 }
             }
         }
@@ -303,8 +307,9 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                 )
             }
 
-            if (response is RemoveMemberFromConversationUseCase.Result.Failure)
+            if (response is RemoveMemberFromConversationUseCase.Result.Failure) {
                 closeBottomSheetAndShowInfoMessage(RemoveConversationMemberError)
+            }
 
             requestInProgress = false
         }
@@ -399,8 +404,9 @@ class OtherUserProfileScreenViewModel @Inject constructor(
         clearContentResult: ClearConversationContentUseCase.Result,
         conversationTypeDetail: ConversationTypeDetail
     ) {
-        if (conversationTypeDetail is ConversationTypeDetail.Connection)
+        if (conversationTypeDetail is ConversationTypeDetail.Connection) {
             throw IllegalStateException("Unsupported conversation type to clear content, something went wrong?")
+        }
 
         if (clearContentResult is ClearConversationContentUseCase.Result.Failure) {
             closeBottomSheetAndShowInfoMessage(OtherUserProfileInfoMessageType.ConversationContentDeleteFailure)
@@ -467,6 +473,12 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                 selfRole = Conversation.Member.Role.Member
             )
         )
+    }
+
+    private fun setClassificationType() {
+        viewModelScope.launch {
+            state = state.copy(securityClassificationType = getOtherUserSecurityClassificationLabel(userId))
+        }
     }
 
     override fun navigateBack() = viewModelScope.launch { navigationManager.navigateBack() }

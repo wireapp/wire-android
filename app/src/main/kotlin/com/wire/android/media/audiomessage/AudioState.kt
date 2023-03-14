@@ -3,10 +3,28 @@ package com.wire.android.media.audiomessage
 data class AudioState(
     val audioMediaPlayingState: AudioMediaPlayingState,
     val currentPositionInMs: Int,
-    val totalTimeInMs: Int
+    val totalTimeInMs: TotalTimeInMs
 ) {
     companion object {
-        val DEFAULT = AudioState(AudioMediaPlayingState.Stopped, 0, 0)
+        val DEFAULT = AudioState(AudioMediaPlayingState.Stopped, 0, TotalTimeInMs.NotKnown)
+    }
+
+    // before the user decides to play audio message, we are not able to determine total time ourself using
+    // MediaPlayer API, we are relying on the info retrieved from the other client, until then
+    fun sanitizeTotalTime(otherClientTotalTime: Int): AudioState {
+        if (totalTimeInMs is TotalTimeInMs.NotKnown) {
+            if (otherClientTotalTime != 0) {
+                return copy(totalTimeInMs = TotalTimeInMs.Known(otherClientTotalTime))
+            }
+        }
+
+        return this
+    }
+
+    sealed class TotalTimeInMs {
+        object NotKnown : TotalTimeInMs()
+
+        data class Known(val value: Int) : TotalTimeInMs()
     }
 }
 

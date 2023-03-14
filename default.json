@@ -84,5 +84,7 @@
     "mls_support_enabled": true,
     "encrypt_proteus_storage": false,
     "update_app_url": "https://wire.com/en/download/",
-    "guest_room_link": true
+    "guest_room_link": true,
+    "wipe_on_cookie_invalid" : false,
+    "wipe_on_device_removal" : false
 }

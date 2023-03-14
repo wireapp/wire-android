@@ -96,12 +96,12 @@ class RegisterDeviceViewModel @Inject constructor(
                 continueEnabled = true,
                 error = RegisterDeviceError.GenericError(registerDeviceResult.genericFailure)
             )
-            RegisterClientResult.Failure.InvalidCredentials -> state = state.copy(
+            is RegisterClientResult.Failure.InvalidCredentials -> state = state.copy(
                 loading = false,
                 continueEnabled = true,
                 error = RegisterDeviceError.InvalidCredentialsError
             )
-            RegisterClientResult.Failure.PasswordAuthRequired -> state = state.copy(
+            is RegisterClientResult.Failure.PasswordAuthRequired -> state = state.copy(
                 loading = false,
                 isPasswordRequired = true
             )

@@ -129,8 +129,8 @@ class RemoveDeviceViewModel @Inject constructor(
                     /* the check for password is done before this function is called */
                 }
                 is RegisterClientResult.Failure.Generic -> state = state.copy(error = RemoveDeviceError.GenericError(result.genericFailure))
-                RegisterClientResult.Failure.InvalidCredentials -> state = state.copy(error = RemoveDeviceError.InvalidCredentialsError)
-                RegisterClientResult.Failure.TooManyClients -> loadClientsList()
+                is RegisterClientResult.Failure.InvalidCredentials -> state = state.copy(error = RemoveDeviceError.InvalidCredentialsError)
+                is RegisterClientResult.Failure.TooManyClients -> loadClientsList()
                 is RegisterClientResult.Success -> {
                     navigateAfterRegisterClientSuccess()
                 }

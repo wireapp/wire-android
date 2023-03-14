@@ -247,7 +247,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
         viewModelScope.launch {
             val result = withContext(dispatcher.io()) {
                 updateConversationAccess(
-                    enableGuestAndNonTeamMember = groupOptionsState.value.isGuestAllowed,
+                    enableGuestAndNonTeamMember = groupOptionsState.value.isGuestAllowed && groupOptionsState.value.isUpdatingGuestAllowed,
                     enableServices = enableServices,
                     conversationId = conversationId
                 )
@@ -260,7 +260,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
                     )
                 )
 
-                UpdateConversationAccessRoleUseCase.Result.Success -> Unit
+                is UpdateConversationAccessRoleUseCase.Result.Success -> Unit
             }
 
             updateState(groupOptionsState.value.copy(loadingServicesOption = false))
@@ -298,12 +298,26 @@ class GroupConversationDetailsViewModel @Inject constructor(
         enableGuestAndNonTeamMember: Boolean,
         enableServices: Boolean,
         conversationId: ConversationId
-    ) = updateConversationAccessRole(
-        allowGuest = enableGuestAndNonTeamMember,
-        allowNonTeamMember = enableGuestAndNonTeamMember,
-        allowServices = enableServices,
-        conversationId = conversationId
-    )
+    ): UpdateConversationAccessRoleUseCase.Result {
+
+        val accessRoles = Conversation
+            .accessRolesFor(
+                guestAllowed = enableGuestAndNonTeamMember,
+                servicesAllowed = enableServices,
+                nonTeamMembersAllowed = enableGuestAndNonTeamMember
+            )
+
+        val access = Conversation
+            .accessFor(
+                guestsAllowed = enableGuestAndNonTeamMember
+            )
+
+        return updateConversationAccessRole(
+            conversationId = conversationId,
+            accessRoles = accessRoles,
+            access = access
+        )
+    }
 
     private fun updateState(newState: GroupConversationOptionsState) {
         _groupOptionsState.value = newState

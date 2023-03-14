@@ -25,7 +25,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDeepLink
-import androidx.navigation.navDeepLink
 import com.wire.android.BuildConfig
 import com.wire.android.model.ImageAsset
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.ADD_CONVERSATION_PARTICIPANTS
@@ -100,7 +99,6 @@ import com.wire.android.ui.sharing.ImportMediaScreen
 import com.wire.android.ui.userprofile.avatarpicker.AvatarPickerScreen
 import com.wire.android.ui.userprofile.other.OtherUserProfileScreen
 import com.wire.android.ui.userprofile.self.SelfUserProfileScreen
-import com.wire.android.util.deeplink.DeepLinkProcessor
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.kalium.logic.data.conversation.ClientId
 import com.wire.kalium.logic.data.id.ConversationId
@@ -143,23 +141,15 @@ enum class NavigationItem(
 
     Login(
         primaryRoute = LOGIN,
-        canonicalRoute = "$LOGIN?$EXTRA_USER_HANDLE={$EXTRA_USER_HANDLE}",
-        content = { contentParams ->
-            val ssoLoginResult = contentParams.arguments.filterIsInstance<DeepLinkResult.SSOLogin>().firstOrNull()
-            LoginScreen(ssoLoginResult)
-        },
-        deepLinks = listOf(
-            navDeepLink {
-                uriPattern = "${DeepLinkProcessor.DEEP_LINK_SCHEME}://" +
-                        "${DeepLinkProcessor.MIGRATION_LOGIN_HOST}/" +
-                        "{$EXTRA_USER_HANDLE}"
-            }
-        ),
+        canonicalRoute = "$LOGIN?$EXTRA_SSO_LOGIN_RESULT={$EXTRA_SSO_LOGIN_RESULT}&$EXTRA_USER_HANDLE={$EXTRA_USER_HANDLE}",
+        content = { LoginScreen() },
         animationConfig = NavigationAnimationConfig.CustomAnimation(smoothSlideInFromRight(), smoothSlideOutFromLeft())
     ) {
         override fun getRouteWithArgs(arguments: List<Any>): String {
+            val ssoLoginResultString = arguments.filterIsInstance<DeepLinkResult.SSOLogin>().firstOrNull()?.let { Json.encodeToString(it) }
+                ?: "{$EXTRA_SSO_LOGIN_RESULT}"
             val userHandleString: String = arguments.filterIsInstance<String>().firstOrNull()?.toString() ?: "{$EXTRA_USER_HANDLE}"
-            return "$LOGIN?$EXTRA_USER_HANDLE=$userHandleString"
+            return "$LOGIN?$EXTRA_SSO_LOGIN_RESULT=$ssoLoginResultString&$EXTRA_USER_HANDLE=$userHandleString"
         }
     },
 
@@ -239,7 +229,7 @@ enum class NavigationItem(
             val userId: UserId = arguments.filterIsInstance<UserId>().firstOrNull()!!
             return "$DEVICE_DETAILS?$EXTRA_USER_ID=$userId&$EXTRA_DEVICE_ID=$clientIdString"
         }
-      },
+    },
 
     PrivacySettings(
         primaryRoute = PRIVACY_SETTINGS,
@@ -285,13 +275,6 @@ enum class NavigationItem(
     OtherUserProfile(
         primaryRoute = OTHER_USER_PROFILE,
         canonicalRoute = "$OTHER_USER_PROFILE?$EXTRA_USER_ID={$EXTRA_USER_ID}&$EXTRA_CONVERSATION_ID={$EXTRA_CONVERSATION_ID}",
-        deepLinks = listOf(
-            navDeepLink {
-                uriPattern = "${DeepLinkProcessor.DEEP_LINK_SCHEME}://" +
-                        "${DeepLinkProcessor.OTHER_USER_PROFILE_DEEPLINK_HOST}/" +
-                        "{$EXTRA_USER_ID}"
-            }
-        ),
         content = { OtherUserProfileScreen() },
         animationConfig = NavigationAnimationConfig.NoAnimation
     ) {
@@ -311,14 +294,6 @@ enum class NavigationItem(
     Conversation(
         primaryRoute = CONVERSATION,
         canonicalRoute = "$CONVERSATION?$EXTRA_CONVERSATION_ID={$EXTRA_CONVERSATION_ID}",
-        deepLinks = listOf(
-            navDeepLink {
-                uriPattern = "${DeepLinkProcessor.DEEP_LINK_SCHEME}://" +
-                        "${DeepLinkProcessor.CONVERSATION_DEEPLINK_HOST}/" +
-                        "{$EXTRA_CONVERSATION_ID}/" +
-                        "{$EXTRA_USER_ID}"
-            }
-        ),
         content = { ConversationScreen(backNavArgs = it.navBackStackEntry.savedStateHandle.getBackNavArgs()) },
         animationConfig = NavigationAnimationConfig.NoAnimation
     ) {
@@ -425,13 +400,6 @@ enum class NavigationItem(
     IncomingCall(
         primaryRoute = INCOMING_CALL,
         canonicalRoute = "$INCOMING_CALL?$EXTRA_CONVERSATION_ID={$EXTRA_CONVERSATION_ID}",
-        deepLinks = listOf(
-            navDeepLink {
-                uriPattern = "${DeepLinkProcessor.DEEP_LINK_SCHEME}://" +
-                        "${DeepLinkProcessor.INCOMING_CALL_DEEPLINK_HOST}/" +
-                        "{$EXTRA_CONVERSATION_ID}"
-            }
-        ),
         content = { IncomingCallScreen() },
         screenMode = ScreenMode.WAKE_UP,
         animationConfig = NavigationAnimationConfig.DelegatedAnimation
@@ -544,6 +512,8 @@ const val EXTRA_SETTINGS_DISPLAY_NAME_CHANGED = "extra_settings_display_name_cha
 const val EXTRA_BACK_NAVIGATION_ARGUMENTS = "extra_back_navigation_arguments"
 
 const val EXTRA_EDIT_GUEST_ACCESS_PARAMS = "extra_edit_guest_access_params"
+
+const val EXTRA_SSO_LOGIN_RESULT = "sso_login_result"
 
 fun NavigationItem.isExternalRoute() = this.getRouteWithArgs().startsWith("http")
 

@@ -24,6 +24,7 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.navigation.hiltSavedStateViewModel
 import com.wire.android.ui.authentication.devices.model.Device
@@ -104,7 +105,13 @@ fun DeviceDetailsContent(
             ) {
                 if (!state.isCurrentDevice) {
                     Text(
-                        text = stringResource(id = R.string.remove_device_details_description),
+                        text = stringResource(
+                            id = if (BuildConfig.WIPE_ON_DEVICE_REMOVAL) {
+                                R.string.remove_device_details_description_with_wipe
+                            } else {
+                                R.string.remove_device_details_description
+                            }
+                        ),
                         style = MaterialTheme.wireTypography.body01,
                         color = MaterialTheme.wireColorScheme.onBackground,
                         modifier = Modifier.padding(dimensions().spacing16x)

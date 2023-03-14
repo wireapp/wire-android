@@ -29,6 +29,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.media.audiomessage.AudioMediaPlayingState
+import com.wire.android.media.audiomessage.AudioState
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.common.WireDialog
@@ -45,7 +46,7 @@ import com.wire.android.ui.theme.wireColorScheme
 @Composable
 fun AudioMessage(
     audioMediaPlayingState: AudioMediaPlayingState,
-    totalTimeInMs: Int,
+    totalTimeInMs: AudioState.TotalTimeInMs,
     currentPositionInMs: Int,
     onPlayButtonClick: () -> Unit,
     onSliderPositionChange: (Float) -> Unit,
@@ -83,7 +84,7 @@ fun AudioMessage(
 @Composable
 private fun SuccessfulAudioMessage(
     audioMediaPlayingState: AudioMediaPlayingState,
-    totalTimeInMs: Int,
+    totalTimeInMs: AudioState.TotalTimeInMs,
     currentPositionInMs: Int,
     onPlayButtonClick: () -> Unit,
     onSliderPositionChange: (Float) -> Unit,
@@ -94,8 +95,6 @@ private fun SuccessfulAudioMessage(
             AudioDuration(totalTimeInMs, currentPositionInMs)
         )
     }
-
-    val isFetching = audioMediaPlayingState is AudioMediaPlayingState.Fetching
 
     Row(
         modifier = Modifier
@@ -110,27 +109,27 @@ private fun SuccessfulAudioMessage(
             iconResource = getPlayOrPauseIcon(audioMediaPlayingState),
             shape = CircleShape,
             contentDescription = R.string.content_description_image_message,
-            state = if (isFetching) WireButtonState.Disabled else WireButtonState.Default,
+            state = if (audioMediaPlayingState is AudioMediaPlayingState.Fetching) WireButtonState.Disabled else WireButtonState.Default,
             onButtonClicked = onPlayButtonClick
         )
 
         Slider(
             value = audioDuration.currentPositionInMs.toFloat(),
             onValueChange = onSliderPositionChange,
-            valueRange = 0f..audioDuration.totalDurationInMs.toFloat(),
+            valueRange = 0f..if (totalTimeInMs is AudioState.TotalTimeInMs.Known) totalTimeInMs.value.toFloat() else 0f,
             colors = SliderDefaults.colors(
                 inactiveTrackColor = colorsScheme().secondaryButtonDisabledOutline
             ),
             modifier = Modifier.weight(1f)
         )
 
-        if (isFetching) {
+        if (audioMediaPlayingState is AudioMediaPlayingState.Fetching) {
             WireCircularProgressIndicator(
                 progressColor = MaterialTheme.wireColorScheme.secondaryButtonEnabled
             )
         } else {
             Text(
-                text = audioDuration.formattedTimeLeft,
+                text = audioDuration.formattedTimeLeft(),
                 style = MaterialTheme.typography.labelSmall.copy(color = MaterialTheme.wireColorScheme.secondaryText),
                 maxLines = 1
             )
@@ -189,17 +188,18 @@ private fun getPlayOrPauseIcon(audioMediaPlayingState: AudioMediaPlayingState): 
     }
 
 // helper wrapper class to format the time that is left
-private data class AudioDuration(val totalDurationInMs: Int, val currentPositionInMs: Int) {
+private data class AudioDuration(val totalDurationInMs: AudioState.TotalTimeInMs, val currentPositionInMs: Int) {
     companion object {
         const val totalMsInSec = 1000
         const val totalSecInMin = 60
+        const val UNKNOWN_DURATION_LABEL = "-:--"
     }
 
-    private val totalTimeInSec = totalDurationInMs / totalMsInSec
+    fun formattedTimeLeft(): String {
+        if (totalDurationInMs is AudioState.TotalTimeInMs.Known) {
+            val totalTimeInSec = totalDurationInMs.value / totalMsInSec
+            val currentPositionInSec = currentPositionInMs / totalMsInSec
 
-    private val currentPositionInSec = currentPositionInMs / totalMsInSec
-    val formattedTimeLeft
-        get() = run {
             val isTotalTimeInSecKnown = totalTimeInSec > 0
 
             val timeLeft = if (!isTotalTimeInSecKnown) {
@@ -214,6 +214,9 @@ private data class AudioDuration(val totalDurationInMs: Int, val currentPosition
             val seconds = if (timeLeft < 0) 0 else timeLeft % totalSecInMin
             val formattedSeconds = String.format("%02d", seconds)
 
-            "$minutes:$formattedSeconds"
+            return "$minutes:$formattedSeconds"
         }
+
+        return UNKNOWN_DURATION_LABEL
+    }
 }

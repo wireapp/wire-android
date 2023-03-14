@@ -525,6 +525,11 @@
     <item quantity="other">Sie und %1$d weitere Personen wurden zur Unterhaltung hinzugefügt</item>
     <item quantity="zero">You were added to the conversation</item>
   </plurals>
+  <plurals name="last_message_other_added_self_user_and_others">
+    <item quantity="one">You and 1 other person were added to the conversation</item>
+    <item quantity="other">You and %1$d people were added to the conversation</item>
+    <item quantity="zero">You were added to the conversation</item>
+  </plurals>
   <plurals name="last_message_other_added_other_users">
     <item quantity="one">1 Person wurde zur Unterhaltung hinzugefügt</item>
     <item quantity="other">%1$d Personen wurden zur Unterhaltung hinzugefügt</item>
@@ -536,6 +541,11 @@
   <plurals name="last_message_other_removed_self_user">
     <item quantity="one">Sie und 1 weitere Person wurden aus der Unterhaltung entfernt</item>
     <item quantity="other">Sie und %1$d weitere Personen wurden aus der Unterhaltung entfernt</item>
+    <item quantity="zero">You were removed from the conversation</item>
+  </plurals>
+  <plurals name="last_message_other_removed_self_user_and_others">
+    <item quantity="one">You and 1 other person were removed from the conversation</item>
+    <item quantity="other">You and %1$d people were removed from the conversation</item>
     <item quantity="zero">You were removed from the conversation</item>
   </plurals>
   <plurals name="last_message_other_removed_other_users">

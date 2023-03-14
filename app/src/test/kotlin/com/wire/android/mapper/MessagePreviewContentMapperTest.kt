@@ -227,8 +227,9 @@ class MessagePreviewContentMapperTest {
             )
 
             val uiPreviewMessage = messagePreview.uiLastMessageContent().shouldBeInstanceOf<UILastMessageContent.TextMessage>()
-            val previewString = uiPreviewMessage.messageBody.message.shouldBeInstanceOf<UIText.StringResource>()
-            previewString.resId shouldBeEqualTo R.string.last_message_other_removed_only_self_user
+            val previewString = uiPreviewMessage.messageBody.message.shouldBeInstanceOf<UIText.PluralResource>()
+            previewString.count shouldBeEqualTo 0
+            previewString.resId shouldBeEqualTo R.plurals.last_message_other_removed_self_user
         }
 
     @Test

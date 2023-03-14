@@ -1,4 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?><!--
+<?xml version="1.0" encoding="utf-8"?>
+<!--
   ~ Wire
   ~ Copyright (C) 2023 Wire Swiss GmbH
   ~
@@ -513,8 +514,8 @@
         <item quantity="one">Sie haben 1 Person zur Unterhaltung hinzugefügt</item>
         <item quantity="other">Sie haben %1$d Personen zur Unterhaltung hinzugefügt</item>
     </plurals>
-    <string name="last_message_other_added_only_self_user">Sie wurden zur Unterhaltung hinzugefügt</string>
     <plurals name="last_message_other_added_self_user">
+        <item quantity="zero">Sie wurden zur Unterhaltung hinzugefügt</item>
         <item quantity="one">Sie und 1 weitere Person wurden zur Unterhaltung hinzugefügt</item>
         <item quantity="other">Sie und %1$d weitere Personen wurden zur Unterhaltung hinzugefügt</item>
     </plurals>
@@ -527,8 +528,8 @@
         <item quantity="one">Sie haben 1 Person aus der Unterhaltung entfernt</item>
         <item quantity="other">Sie haben %1$d Personen zur Unterhaltung entfernt</item>
     </plurals>
-    <string name="last_message_other_removed_only_self_user">Sie wurden aus der Unterhaltung entfernt</string>
     <plurals name="last_message_other_removed_self_user">
+        <item quantity="zero">Sie wurden aus der Unterhaltung entfernt</item>
         <item quantity="one">Sie und 1 weitere Person wurden aus der Unterhaltung entfernt</item>
         <item quantity="other">Sie und %1$d weitere Personen wurden aus der Unterhaltung entfernt</item>
     </plurals>

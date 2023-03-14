@@ -517,9 +517,9 @@
   <plurals name="last_message_self_added_users">
     <item quantity="other">You added %1$d people to the conversation</item>
   </plurals>
-  <string name="last_message_other_added_only_self_user">You were added to the conversation</string>
   <plurals name="last_message_other_added_self_user">
     <item quantity="other">You and %1$d people were added to the conversation</item>
+    <item quantity="zero">You were added to the conversation</item>
   </plurals>
   <plurals name="last_message_other_added_other_users">
     <item quantity="other">%1$d people were added to the conversation</item>
@@ -527,9 +527,9 @@
   <plurals name="last_message_self_removed_users">
     <item quantity="other">You removed %1$d people from the conversation</item>
   </plurals>
-  <string name="last_message_other_removed_only_self_user">You were removed from the conversation</string>
   <plurals name="last_message_other_removed_self_user">
     <item quantity="other">You and %1$d people were removed from the conversation</item>
+    <item quantity="zero">You were removed from the conversation</item>
   </plurals>
   <plurals name="last_message_other_removed_other_users">
     <item quantity="other">%1$d people were removed from the conversation</item>

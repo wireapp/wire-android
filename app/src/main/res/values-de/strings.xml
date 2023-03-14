@@ -913,4 +913,11 @@
   <string name="guest_room_link_copied">Gäste-Link in Zwischenablage kopiert</string>
   <string name="guest_room_link_enabled">Erstellen von Gäste-Links ist nun für alle Gruppen-Admins aktiviert</string>
   <string name="guest_room_link_disabled">Erstellen von Gäste-Links ist nun für alle Gruppen-Admins deaktiviert</string>
+  <!-- New Device dialog -->
+  <string name="new_device_dialog_current_user_title">Your account was used on</string>
+  <string name="new_device_dialog_current_user_message">%1$s\nFrom: %2$s \n\nIf you didn’t do this, remove the device and reset your password.</string>
+  <string name="new_device_dialog_current_user_btn">Manage Devices</string>
+  <string name="new_device_dialog_other_user_title">Your account “%1$s (@%2$s)” was used on:</string>
+  <string name="new_device_dialog_other_user_message">%1$s\nFrom: %2$s \n\nIf you didn’t do this, remove the device (navigate to “Manage Devices” in the Settings section of this account), and reset your password.</string>
+  <string name="new_device_dialog_other_user_btn">Switch Account</string>
 </resources>

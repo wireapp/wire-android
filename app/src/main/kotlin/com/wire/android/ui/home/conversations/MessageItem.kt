@@ -59,6 +59,7 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.home.conversations.messages.QuotedMessage
 import com.wire.android.ui.home.conversations.messages.ReactionPill
+import com.wire.android.ui.home.conversations.model.ExpirationTime
 import com.wire.android.ui.home.conversations.model.MessageBody
 import com.wire.android.ui.home.conversations.model.MessageFooter
 import com.wire.android.ui.home.conversations.model.MessageGenericAsset
@@ -77,6 +78,7 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
 import com.wire.kalium.logic.data.user.UserId
 import kotlinx.coroutines.delay
+import kotlin.time.Duration
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
@@ -98,18 +100,14 @@ fun MessageItem(
     onSelfDeletingMessageRead: (UIMessage) -> Unit
 ) {
     with(message) {
-        var timeLeftForDeletionInSec by remember { mutableStateOf(0L) }
+        val selfDeletionTimer = rememberSelfDeletionTimer(expireAfter)
 
-        expirationTime?.let { expirationTime ->
-            LaunchedEffect(Unit) {
-                onSelfDeletingMessageRead(message)
+        LaunchedEffect(Unit) {
+            onSelfDeletingMessageRead(message)
 
-                timeLeftForDeletionInSec = expirationTime.timeLeft.inWholeSeconds
-
-                while (timeLeftForDeletionInSec >= 0) {
-                    delay(expirationTime.interval())
-                    timeLeftForDeletionInSec -= expirationTime.interval().inWholeSeconds
-                }
+            while (selfDeletionTimer.timeLeft.inWholeSeconds >= 0) {
+                delay(selfDeletionTimer.interval())
+                selfDeletionTimer.decreaseTimeLeft(selfDeletionTimer.interval())
             }
         }
 
@@ -149,8 +147,8 @@ fun MessageItem(
             Column {
                 Spacer(modifier = Modifier.height(fullAvatarOuterPadding))
                 MessageHeader(messageHeader)
-                if (timeLeftForDeletionInSec != 0L) {
-                    MessageSubHeader(timeLeftForDeletionInSec)
+                if (selfDeletionTimer.expirationTime != null) {
+                    MessageSubHeader(selfDeletionTimer)
                 }
                 if (!isDeleted) {
                     if (!decryptionFailed) {
@@ -207,9 +205,44 @@ fun MessageItem(
     }
 }
 
+class SelfDeletionTimer(timeLeft: Duration?) {
+
+    var timeLeft by mutableStateOf(timeLeft ?: 0.seconds)
+
+    fun timeLeftFormatted() {
+        val interval = when {
+            timeLeft.inWholeMinutes > 59 -> 1.hours
+            timeLeft.inWholeMinutes in 1..59 -> 1.minutes
+            timeLeft.inWholeSeconds <= 59 -> 1.seconds
+            else -> throw IllegalStateException("Not possible")
+        }
+    }
+
+    fun interval(): Duration {
+        val interval = when {
+            timeLeft.inWholeMinutes > 59 -> 1.hours
+            timeLeft.inWholeMinutes in 1..59 -> 1.minutes
+            timeLeft.inWholeSeconds <= 59 -> 1.seconds
+            else -> throw IllegalStateException("Not possible")
+        }
+
+        return interval
+    }
+
+    fun decreaseTimeLeft(interval: Duration) {
+        if (timeLeft.inWholeSeconds != 0L) timeLeft -= interval
+    }
+
+}
+
 @Composable
-fun MessageSubHeader(timeLeftForDeletion: Long) {
-    MessageTimeLeftLabel(timeLeftForDeletion)
+fun rememberSelfDeletionTimer(timeLeft: Duration?): SelfDeletionTimer {
+    return remember { SelfDeletionTimer(timeLeft) }
+}
+
+@Composable
+fun MessageSubHeader(selfDeletionTimer: SelfDeletionTimer) {
+    MessageTimeLeftLabel(selfDeletionTimer)
 }
 
 @Composable

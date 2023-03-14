@@ -45,7 +45,7 @@ import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 
 data class UIMessage(
-    val expirationTime: ExpirationTime? = null,
+    val expireAfter: Duration? = null,
     val userAvatarData: UserAvatarData,
     val messageSource: MessageSource,
     val messageHeader: MessageHeader,
@@ -270,16 +270,4 @@ data class MessageTime(val utcISO: String) {
     val formattedDate = utcISO.uiMessageDateTime() ?: ""
 }
 
-data class ExpirationTime(val timeLeft: Duration) {
-    fun interval(): Duration {
-        val interval = when {
-            timeLeft.inWholeMinutes > 59 -> 1.hours
-            timeLeft.inWholeMinutes in 1..59 -> 1.minutes
-            timeLeft.inWholeSeconds <= 59 -> 1.seconds
-            else -> throw IllegalStateException("Not possible")
-        }
 
-        return interval
-    }
-
-}

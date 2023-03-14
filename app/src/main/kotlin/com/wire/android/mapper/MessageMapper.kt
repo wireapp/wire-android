@@ -23,6 +23,7 @@ package com.wire.android.mapper
 import com.wire.android.R
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.home.conversations.findUser
+import com.wire.android.ui.home.conversations.model.ExpirationData
 import com.wire.android.ui.home.conversations.model.MessageFooter
 import com.wire.android.ui.home.conversations.model.MessageHeader
 import com.wire.android.ui.home.conversations.model.MessageSource
@@ -44,7 +45,6 @@ import com.wire.kalium.logic.data.user.User
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
 import javax.inject.Inject
-import kotlin.time.Duration
 
 class MessageMapper @Inject constructor(
     private val userTypeMapper: UserTypeMapper,
@@ -110,23 +110,26 @@ class MessageMapper @Inject constructor(
                 messageContent = content,
                 messageSource = if (sender is SelfUser) MessageSource.Self else MessageSource.OtherUser,
                 messageHeader = provideMessageHeader(sender, message),
-                expireAfter = provideSubHeader(message),
+                expirationData = provideSubHeader(message),
                 messageFooter = footer,
                 userAvatarData = getUserAvatarData(sender)
             )
         }
     }
 
-    private fun provideSubHeader(message: Message.Standalone): Duration? {
-        val expireAfter = if (message is Message.Regular) {
+    private fun provideSubHeader(message: Message.Standalone): ExpirationData? {
+        val expirationData = if (message is Message.Regular) {
             message.expirationData?.let {
-                it.timeLeftForDeletion()
+                ExpirationData(
+                    it.expireAfter,
+                    it.timeLeftForDeletion()
+                )
             }
         } else {
             null
         }
 
-        return expireAfter
+        return expirationData
     }
 
     private fun isHeart(it: String) = it == "❤️" || it == "❤"

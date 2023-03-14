@@ -59,6 +59,7 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.home.conversations.messages.QuotedMessage
 import com.wire.android.ui.home.conversations.messages.ReactionPill
+import com.wire.android.ui.home.conversations.model.ExpirationData
 import com.wire.android.ui.home.conversations.model.MessageBody
 import com.wire.android.ui.home.conversations.model.MessageFooter
 import com.wire.android.ui.home.conversations.model.MessageGenericAsset
@@ -99,7 +100,7 @@ fun MessageItem(
     onSelfDeletingMessageRead: (UIMessage) -> Unit
 ) {
     with(message) {
-        val selfDeletionTimer = rememberSelfDeletionTimer(expireAfter)
+        val selfDeletionTimer = rememberSelfDeletionTimer(expirationData)
 
         LaunchedEffect(Unit) {
             onSelfDeletingMessageRead(message)
@@ -113,19 +114,31 @@ fun MessageItem(
         val fullAvatarOuterPadding = dimensions().userAvatarClickablePadding + dimensions().userAvatarStatusBorderSize
         Row(
             Modifier
-                .customizeMessageBackground(message)
                 .padding(
                     end = dimensions().spacing16x,
                     bottom = dimensions().messageItemBottomPadding - fullAvatarOuterPadding
                 )
                 .fillMaxWidth()
-                .let {
-                    if (!message.isDeleted) it.combinedClickable(
-                        // TODO: implement some action onClick
-                        onClick = { },
-                        onLongClick = { onLongClicked(message) }
-                    ) else it
-                }
+                .then(
+                    if (!message.isDeleted) {
+                        Modifier.combinedClickable(
+                            // TODO: implement some action onClick
+                            onClick = { },
+                            onLongClick = { onLongClicked(message) })
+                    } else {
+                        Modifier
+                    }
+                )
+                .then(
+                    if (message.sendingFailed || message.receivingFailed) {
+                        Modifier.background(MaterialTheme.wireColorScheme.messageErrorBackgroundColor)
+                    } else if (selfDeletionTimer.timeLeft != Duration.ZERO) {
+                        val color = MaterialTheme.wireColorScheme.primary.copy(selfDeletionTimer.alphaBackgroundColor())
+                        Modifier.background(MaterialTheme.wireColorScheme.primary)
+                    } else {
+                        Modifier
+                    }
+                )
         ) {
             Spacer(Modifier.padding(start = dimensions().spacing8x - fullAvatarOuterPadding))
 
@@ -202,7 +215,7 @@ fun MessageItem(
     }
 }
 
-class SelfDeletionTimer(timeLeft: Duration?) {
+class SelfDeletionTimer(expirationData: ExpirationData?) {
     companion object {
         private const val DAYS_IN_A_WEEK = 7
         private const val FOUR_WEEK_DAYS = DAYS_IN_A_WEEK * 4
@@ -211,8 +224,9 @@ class SelfDeletionTimer(timeLeft: Duration?) {
         private const val ONE_WEEK_DAYS = DAYS_IN_A_WEEK * 1
     }
 
-    var timeLeft by mutableStateOf(timeLeft ?: 0.seconds)
+    var timeLeft by mutableStateOf(expirationData?.timeLeft ?: 0.seconds)
 
+    private val expireAfter = expirationData?.timeLeft ?: 0.seconds
     fun timeLeftFormatted(): String {
         val timeLeftLabel = when {
             // weeks
@@ -229,7 +243,7 @@ class SelfDeletionTimer(timeLeft: Duration?) {
             // seconds
             timeLeft.inWholeSeconds < 60 -> "${timeLeft.inWholeSeconds} seconds left "
 
-            else -> throw IllegalStateException("Not possible")
+            else -> throw IllegalStateException("Not possible state for a time left label")
         }
 
         return timeLeftLabel
@@ -240,7 +254,7 @@ class SelfDeletionTimer(timeLeft: Duration?) {
             timeLeft.inWholeMinutes > 59 -> 1.hours
             timeLeft.inWholeMinutes in 2..59 -> 1.minutes
             timeLeft.inWholeSeconds <= 60 -> 1.seconds
-            else -> throw IllegalStateException("Not possible")
+            else -> throw IllegalStateException("Not possible state for interval")
         }
 
         return interval
@@ -250,11 +264,17 @@ class SelfDeletionTimer(timeLeft: Duration?) {
         if (timeLeft.inWholeSeconds != 0L) timeLeft -= interval
     }
 
+    fun alphaBackgroundColor(): Float {
+        val totalTimeLeftInPercentage = timeLeft / expireAfter
+
+        return 1F - (1F * totalTimeLeftInPercentage).toFloat()
+    }
+
 }
 
 @Composable
-fun rememberSelfDeletionTimer(timeLeft: Duration?): SelfDeletionTimer {
-    return remember { SelfDeletionTimer(timeLeft) }
+fun rememberSelfDeletionTimer(expirationData: ExpirationData?): SelfDeletionTimer {
+    return remember { SelfDeletionTimer(expirationData) }
 }
 
 @Composable
@@ -262,16 +282,6 @@ fun MessageExpireLabel(selfDeletionTimer: SelfDeletionTimer) {
     if (selfDeletionTimer.timeLeft != Duration.ZERO) {
         Text("Self-deleting message • ${selfDeletionTimer.timeLeftFormatted()}")
     }
-}
-
-
-@Composable
-private fun Modifier.customizeMessageBackground(
-    message: UIMessage
-) = run {
-    if (message.sendingFailed || message.receivingFailed) {
-        background(MaterialTheme.wireColorScheme.messageErrorBackgroundColor)
-    } else this
 }
 
 @Composable

@@ -40,12 +40,9 @@ import com.wire.kalium.logic.data.user.AssetId
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserId
 import kotlin.time.Duration
-import kotlin.time.Duration.Companion.hours
-import kotlin.time.Duration.Companion.minutes
-import kotlin.time.Duration.Companion.seconds
 
 data class UIMessage(
-    val expireAfter: Duration? = null,
+    val expirationData: ExpirationData? = null,
     val userAvatarData: UserAvatarData,
     val messageSource: MessageSource,
     val messageHeader: MessageHeader,
@@ -82,6 +79,12 @@ data class MessageFooter(
     val messageId: String,
     val reactions: Map<String, Int> = emptyMap(),
     val ownReactions: Set<String> = emptySet()
+)
+
+@Stable
+data class ExpirationData(
+    val expireAfter: Duration,
+    val timeLeft: Duration
 )
 
 sealed class MessageStatus(val text: UIText) {

@@ -530,13 +530,6 @@
     <item quantity="other">You and %1$d people were added to the conversation</item>
     <item quantity="zero">You were added to the conversation</item>
   </plurals>
-  <plurals name="last_message_other_added_self_user_and_others">
-    <item quantity="one">You and 1 other person were added to the conversation</item>
-    <item quantity="few">You and %1$d people were added to the conversation</item>
-    <item quantity="many">You and %1$d people were added to the conversation</item>
-    <item quantity="other">You and %1$d people were added to the conversation</item>
-    <item quantity="zero">You were added to the conversation</item>
-  </plurals>
   <plurals name="last_message_other_added_other_users">
     <item quantity="one">1 person was added to the conversation</item>
     <item quantity="few">%1$d people were added to the conversation</item>
@@ -550,13 +543,6 @@
     <item quantity="other">You removed %1$d people from the conversation</item>
   </plurals>
   <plurals name="last_message_other_removed_self_user">
-    <item quantity="one">You and 1 other person were removed from the conversation</item>
-    <item quantity="few">You and %1$d people were removed from the conversation</item>
-    <item quantity="many">You and %1$d people were removed from the conversation</item>
-    <item quantity="other">You and %1$d people were removed from the conversation</item>
-    <item quantity="zero">You were removed from the conversation</item>
-  </plurals>
-  <plurals name="last_message_other_removed_self_user_and_others">
     <item quantity="one">You and 1 other person were removed from the conversation</item>
     <item quantity="few">You and %1$d people were removed from the conversation</item>
     <item quantity="many">You and %1$d people were removed from the conversation</item>
@@ -768,7 +754,7 @@
   <string name="prohibited_videos_message">Receiving videos is prohibited</string>
   <string name="prohibited_audio_message">Receiving audio messages is prohibited</string>
   <string name="prohibited_file_message">Receiving files is prohibited</string>
-  <string name="team_settings_changed">Team settings changed</string>
+  <string name="team_settings_changed">Team Settings Changed</string>
   <string name="sharing_files_enabled">Отримання та надсилання файлів будь-якого типу було увімкнено</string>
   <string name="sharing_files_disabled">Отримання та надсилання файлів будь-якого типу було вимкнено</string>
   <!--wire dropdown-->

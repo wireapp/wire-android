@@ -39,7 +39,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -78,6 +77,9 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
 import com.wire.kalium.logic.data.user.UserId
 import kotlinx.coroutines.delay
+import kotlin.time.Duration.Companion.hours
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
 
 // TODO: a definite candidate for a refactor and cleanup
 @OptIn(ExperimentalFoundationApi::class)
@@ -96,22 +98,17 @@ fun MessageItem(
     onSelfDeletingMessageRead: (UIMessage) -> Unit
 ) {
     with(message) {
-        var timeLeftForDeletion by remember { mutableStateOf(0L) }
+        var timeLeftForDeletionInSec by remember { mutableStateOf(0L) }
 
-        expireAfter?.let {
+        expirationTime?.let { expirationTime ->
             LaunchedEffect(Unit) {
                 onSelfDeletingMessageRead(message)
 
-                timeLeftForDeletion = it.inWholeMilliseconds
+                timeLeftForDeletionInSec = expirationTime.timeLeft.inWholeSeconds
 
-                val intervalInMs = when (timeLeftForDeletion) {
-                    in 0L..10000L -> 1000L
-                    else -> 60000L
-                }
-
-                while (timeLeftForDeletion >= 0) {
-                    delay(intervalInMs)
-                    timeLeftForDeletion -= intervalInMs
+                while (timeLeftForDeletionInSec >= 0) {
+                    delay(expirationTime.interval())
+                    timeLeftForDeletionInSec -= expirationTime.interval().inWholeSeconds
                 }
             }
         }
@@ -152,8 +149,8 @@ fun MessageItem(
             Column {
                 Spacer(modifier = Modifier.height(fullAvatarOuterPadding))
                 MessageHeader(messageHeader)
-                if (timeLeftForDeletion != 0L) {
-                    MessageSubHeader(timeLeftForDeletion)
+                if (timeLeftForDeletionInSec != 0L) {
+                    MessageSubHeader(timeLeftForDeletionInSec)
                 }
                 if (!isDeleted) {
                     if (!decryptionFailed) {

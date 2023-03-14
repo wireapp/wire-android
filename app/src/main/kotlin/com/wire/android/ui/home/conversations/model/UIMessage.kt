@@ -22,10 +22,7 @@ package com.wire.android.ui.home.conversations.model
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
-import androidx.compose.ui.graphics.Color
 import com.wire.android.R
 import com.wire.android.model.ImageAsset
 import com.wire.android.model.UserAvatarData
@@ -34,7 +31,6 @@ import com.wire.android.ui.home.conversations.model.MessageStatus.Deleted
 import com.wire.android.ui.home.conversations.model.MessageStatus.ReceiveFailure
 import com.wire.android.ui.home.conversations.model.MessageStatus.SendFailure
 import com.wire.android.ui.home.conversationslist.model.Membership
-import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.uiMessageDateTime
 import com.wire.kalium.logic.data.conversation.ClientId
@@ -44,9 +40,12 @@ import com.wire.kalium.logic.data.user.AssetId
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserId
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.hours
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
 
 data class UIMessage(
-    val expireAfter: Duration? = null,
+    val expirationTime: ExpirationTime? = null,
     val userAvatarData: UserAvatarData,
     val messageSource: MessageSource,
     val messageHeader: MessageHeader,
@@ -269,4 +268,18 @@ enum class MessageSource {
 
 data class MessageTime(val utcISO: String) {
     val formattedDate = utcISO.uiMessageDateTime() ?: ""
+}
+
+data class ExpirationTime(val timeLeft: Duration) {
+    fun interval(): Duration {
+        val interval = when {
+            timeLeft.inWholeMinutes > 59 -> 1.hours
+            timeLeft.inWholeMinutes in 1..59 -> 1.minutes
+            timeLeft.inWholeSeconds <= 59 -> 1.seconds
+            else -> throw IllegalStateException("Not possible")
+        }
+
+        return interval
+    }
+
 }

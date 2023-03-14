@@ -96,10 +96,10 @@ fun MessageItem(
     onSelfDeletingMessageRead: (UIMessage) -> Unit
 ) {
     with(message) {
-        var timeLeftForDeletion by remember { mutableStateOf(-1L) }
+        var timeLeftForDeletion by remember { mutableStateOf(0L) }
 
-        LaunchedEffect(Unit) {
-            expireAfter?.let {
+        expireAfter?.let {
+            LaunchedEffect(Unit) {
                 onSelfDeletingMessageRead(message)
 
                 timeLeftForDeletion = it.inWholeMilliseconds
@@ -152,7 +152,7 @@ fun MessageItem(
             Column {
                 Spacer(modifier = Modifier.height(fullAvatarOuterPadding))
                 MessageHeader(messageHeader)
-                if (timeLeftForDeletion != -1L) {
+                if (timeLeftForDeletion != 0L) {
                     MessageSubHeader(timeLeftForDeletion)
                 }
                 if (!isDeleted) {

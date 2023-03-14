@@ -162,10 +162,11 @@ class MigrationManager @Inject constructor(
             }
             .map { it.userIds.values.toList() to it.isFederationEnabled }
             .fold(
-                { when (it) {
-                    is NetworkFailure.NoNetworkConnection -> MigrationData.Result.Failure.NoNetwork
-                    else -> MigrationData.Result.Failure.Account.Any
-                }
+                {
+                    when (it) {
+                        is NetworkFailure.NoNetworkConnection -> MigrationData.Result.Failure.NoNetwork
+                        else -> MigrationData.Result.Failure.Account.Any
+                    }
                 }, { (migratedAccounts, isFederated) ->
                     onAccountsMigrated(migratedAccounts, isFederated, coroutineScope, updateProgress, migrationDispatcher)
                 }
@@ -184,7 +185,10 @@ class MigrationManager @Inject constructor(
             is MigrationData.Result.Failure.Account.Specific -> showAccountSpecificNotification(result.userName, result.userHandle)
             is MigrationData.Result.Failure.Account.Any -> showAccountAnyNotification()
             is MigrationData.Result.Failure.Messages -> showMessagesNotification(result.errorCode)
-            else -> {}
+            is MigrationData.Result.Failure.Unknown,
+            is MigrationData.Result.Failure.NoNetwork,
+            is MigrationData.Result.Success -> { /* no-op */
+            }
         }
     }
 
@@ -226,8 +230,10 @@ class MigrationManager @Inject constructor(
                         MigrationData.Result.Failure.Account.Any
                     }
                 }
+
                 dataFailed.isNotEmpty() ->
                     MigrationData.Result.Failure.Messages(dataFailed.joinToString { it.getErrorCode().toString() })
+
                 else -> MigrationData.Result.Success
             }
         }
@@ -324,6 +330,7 @@ sealed class MigrationData {
     sealed class Result : MigrationData() {
         object Success : Result()
         sealed class Failure : Result() {
+            class Unknown(val throwable: Throwable?) : Failure()
             object NoNetwork : Failure()
             sealed class Account : Failure() {
                 data class Specific(val userName: String, val userHandle: String) : Account()
@@ -341,6 +348,7 @@ sealed class MigrationData {
                 const val KEY_FAILURE_USER_NAME = "failure_user_name"
                 const val KEY_FAILURE_USER_HANDLE = "failure_user_handle"
                 const val KEY_FAILURE_ERROR_CODE = "failure_error_code"
+                const val KEY_MIGRATION_EXCEPTION = "failure_error_message"
             }
         }
     }
@@ -375,18 +383,35 @@ fun MigrationData.Result.Failure.toData(): Data = when (this) {
     MigrationData.Result.Failure.NoNetwork -> workDataOf(
         MigrationData.Result.Failure.KEY_FAILURE_TYPE to MigrationData.Result.Failure.FAILURE_TYPE_NO_NETWORK
     )
+
+    is MigrationData.Result.Failure.Unknown -> {
+        if (this.throwable != null) {
+            workDataOf(
+                MigrationData.Result.Failure.KEY_MIGRATION_EXCEPTION to this.throwable
+            )
+        } else {
+            workDataOf()
+        }
+    }
 }
 
+fun Exception.toData(): Data = workDataOf(MigrationData.Result.Failure.KEY_MIGRATION_EXCEPTION to this)
+
 fun Data.getMigrationFailure(): MigrationData.Result.Failure = when (this.getString(MigrationData.Result.Failure.KEY_FAILURE_TYPE)) {
-    MigrationData.Result.Failure.FAILURE_TYPE_ACCOUNT_ANY -> MigrationData.Result.Failure.Account.Any
     MigrationData.Result.Failure.FAILURE_TYPE_ACCOUNT_SPECIFIC -> MigrationData.Result.Failure.Account.Specific(
         this.getString(MigrationData.Result.Failure.KEY_FAILURE_USER_NAME) ?: "",
         this.getString(MigrationData.Result.Failure.KEY_FAILURE_USER_HANDLE) ?: "",
     )
 
+    MigrationData.Result.Failure.FAILURE_TYPE_ACCOUNT_ANY -> MigrationData.Result.Failure.Account.Any
+
     MigrationData.Result.Failure.FAILURE_TYPE_MESSAGES -> MigrationData.Result.Failure.Messages(
         this.getString(MigrationData.Result.Failure.KEY_FAILURE_ERROR_CODE) ?: ""
     )
 
-    else -> MigrationData.Result.Failure.NoNetwork
+    MigrationData.Result.Failure.FAILURE_TYPE_NO_NETWORK -> MigrationData.Result.Failure.NoNetwork
+
+    else -> MigrationData.Result.Failure.Unknown(
+        this.keyValueMap[MigrationData.Result.Failure.KEY_MIGRATION_EXCEPTION]?.let { it as? Throwable }
+    )
 }

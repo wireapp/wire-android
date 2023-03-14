@@ -167,7 +167,13 @@ class NewConversationViewModelTest {
             arrangement.createGroupConversation(
                 viewModel.newGroupState.groupName.text,
                 viewModel.state.contactsAddedToGroup.map { contact -> UserId(contact.id, contact.domain) },
-                ConversationOptions(null, null, false, ConversationOptions.Protocol.PROTEUS, null)
+                ConversationOptions(
+                    Conversation.defaultGroupAccess,
+                    Conversation.defaultGroupAccessRoles,
+                    false,
+                    ConversationOptions.Protocol.PROTEUS,
+                    null
+                )
             )
         }
     }

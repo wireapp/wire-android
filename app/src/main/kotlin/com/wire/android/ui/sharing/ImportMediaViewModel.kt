@@ -319,12 +319,13 @@ class ImportMediaViewModel @Inject constructor(
 
     private suspend fun handleImportedAsset(
         context: Context,
-        mimeType: String,
+        importedAssetMimeType: String,
         uri: Uri
     ): ImportedMediaAsset? = withContext(dispatchers.io()) {
         val assetKey = UUID.randomUUID().toString()
         val fileMetadata = uri.getMetaDataFromUri(context)
         val tempAssetPath = kaliumFileSystem.tempFilePath(assetKey)
+        val mimeType = fileMetadata.mimeType.ifEmpty { importedAssetMimeType }
         when {
             isAboveLimit(isImageFile(mimeType), fileMetadata.size) -> null
             isImageFile(mimeType) -> {

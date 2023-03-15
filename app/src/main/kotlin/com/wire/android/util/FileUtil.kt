@@ -302,16 +302,16 @@ inline fun <reified T : Parcelable> Intent.parcelableArrayList(key: String): Arr
 fun Uri.getMetaDataFromUri(context: Context): FileMetaData {
     context.contentResolver.query(this, null, null, null, null)?.use { cursor ->
         if (cursor.moveToFirst()) {
-            val displayName =
-                cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DISPLAY_NAME))
+            val displayName = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DISPLAY_NAME))
+            val fileMimeType = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.MIME_TYPE))
             val size = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.SIZE))
-            return FileMetaData(displayName, size)
+            return FileMetaData(displayName, size, fileMimeType)
         }
     }
     return FileMetaData()
 }
 
-data class FileMetaData(val name: String = "", val size: Long = 0L)
+data class FileMetaData(val name: String = "", val size: Long = 0L, val mimeType: String = "")
 
 fun isImageFile(mimeType: String?): Boolean {
     return mimeType != null && mimeType.startsWith("image/")

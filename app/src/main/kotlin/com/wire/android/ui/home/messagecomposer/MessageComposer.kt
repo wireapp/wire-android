@@ -253,6 +253,7 @@ private fun MessageComposer(
                     MessageComposerInput(
                         transition = transition,
                         interactionAvailability = interactionAvailability,
+                        isFileSharingEnabled = isFileSharingEnabled,
                         securityClassificationType = securityClassificationType,
                         messageComposeInputState = messageComposerState.messageComposeInputState,
                         quotedMessageData = messageComposerState.quotedMessageData,

@@ -1011,4 +1011,9 @@ class UseCaseModule {
         @CurrentAccount currentAccount: UserId
     ): GetOtherUserSecurityClassificationLabelUseCase =
         coreLogic.getSessionScope(currentAccount).getOtherUserSecurityClassificationLabel
+
+    @ViewModelScoped
+    @Provides
+    fun provideObserveNewClientsUseCaseUseCase(@KaliumCoreLogic coreLogic: CoreLogic) =
+        coreLogic.getGlobalScope().observeNewClientsUseCase
 }

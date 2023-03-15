@@ -72,7 +72,9 @@ fun ImportMediaScreen(
 
 @Composable
 fun checkIfSharingIsEnabled(featureFlagNotificationViewModel: FeatureFlagNotificationViewModel) {
-    featureFlagNotificationViewModel.loadInitialSync()
+    LaunchedEffect(Unit) {
+        featureFlagNotificationViewModel.loadInitialSync()
+    }
 
     val fileSharingRestrictedDialogState = rememberVisibilityState<FileSharingRestrictedDialogState>()
     FileSharingRestrictedDialogContent(dialogState = fileSharingRestrictedDialogState)

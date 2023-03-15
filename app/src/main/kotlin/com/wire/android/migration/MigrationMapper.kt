@@ -116,7 +116,8 @@ class MigrationMapper @Inject constructor() {
                 encryptedProto = proto,
                 assetName = assetName,
                 assetSize = assetSize,
-                editTime = editTime
+                editTime = editTime,
+                unencryptedProto = null
             )
         }
 

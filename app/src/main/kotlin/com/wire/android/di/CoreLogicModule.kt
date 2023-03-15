@@ -1008,6 +1008,11 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
+    fun provideObserveNewClientsUseCaseUseCase(@KaliumCoreLogic coreLogic: CoreLogic) =
+        coreLogic.getGlobalScope().observeNewClientsUseCase
+
+    @ViewModelScoped
+    @Provides
     fun provideClientFingerPrintUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId

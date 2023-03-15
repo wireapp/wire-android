@@ -22,7 +22,6 @@
 
 package com.wire.android.util
 
-import com.wire.android.R
 import android.app.DownloadManager
 import android.content.ActivityNotFoundException
 import android.content.ContentResolver
@@ -36,6 +35,9 @@ import android.os.Environment
 import android.os.Environment.DIRECTORY_DOWNLOADS
 import android.os.Parcelable
 import android.provider.MediaStore
+import android.provider.MediaStore.MediaColumns.DISPLAY_NAME
+import android.provider.MediaStore.MediaColumns.MIME_TYPE
+import android.provider.MediaStore.MediaColumns.SIZE
 import android.provider.OpenableColumns
 import android.provider.Settings
 import android.webkit.MimeTypeMap
@@ -44,6 +46,7 @@ import androidx.annotation.NonNull
 import androidx.annotation.VisibleForTesting
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
+import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.util.ImageUtil.ImageSizeClass
 import com.wire.android.util.ImageUtil.ImageSizeClass.Medium
@@ -299,23 +302,17 @@ inline fun <reified T : Parcelable> Intent.parcelableArrayList(key: String): Arr
     else -> @Suppress("DEPRECATION") getParcelableArrayListExtra(key)
 }
 
-fun Uri.getMetaDataFromUri(context: Context): FileMetaData {
-    context.contentResolver.query(this, null, null, null, null)?.use { cursor ->
-        if (cursor.moveToFirst()) {
-            val displayName = cursor.getColumnIndex(MediaStore.MediaColumns.DISPLAY_NAME).let { idx ->
-                if (idx > -1) cursor.getString(idx) else ""
-            }
-            val fileMimeType = cursor.getColumnIndex(MediaStore.MediaColumns.MIME_TYPE).let { index ->
-                if (index > -1) cursor.getString(index) else ""
-            }
-            val size = cursor.getColumnIndex(MediaStore.MediaColumns.SIZE).let { index ->
-                if (index > -1) cursor.getLong(index) else 0L
-            }
-            return FileMetaData(displayName, size, fileMimeType)
-        }
+@Suppress("NestedBlockDepth")
+fun Uri.getMetaDataFromUri(context: Context): FileMetaData = context.contentResolver.query(this, null, null, null, null)?.use { cursor ->
+    if (cursor.moveToFirst()) {
+        val displayName = cursor.getColumnIndex(DISPLAY_NAME).run { takeIf { it > -1 }?.let { cursor.getString(it) } ?: "" }
+        val mimeType = cursor.getColumnIndex(MIME_TYPE).run { takeIf { it > -1 }?.let { cursor.getString(it) } ?: "" }
+        val size = cursor.getColumnIndex(SIZE).run { takeIf { it > -1 }?.let { cursor.getLong(it) } ?: 0L }
+        FileMetaData(displayName, size, mimeType)
+    } else {
+        FileMetaData()
     }
-    return FileMetaData()
-}
+} ?: FileMetaData()
 
 data class FileMetaData(val name: String = "", val size: Long = 0L, val mimeType: String = "")
 

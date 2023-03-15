@@ -251,7 +251,7 @@ fun OtherProfileScreenContent(
                     lazyListStates = lazyListStates,
                     openChangeRoleBottomSheet = openChangeRoleBottomSheet,
                     openRemoveConversationMemberDialog = removeMemberDialogState::show,
-                    getOtherUserClients = eventsHandler::getOtherUserClients
+                    getOtherUserClients = eventsHandler::observeClientList
                 )
             },
             bottomBar = {

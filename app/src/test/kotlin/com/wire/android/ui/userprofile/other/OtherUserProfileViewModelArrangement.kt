@@ -33,7 +33,7 @@ import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
-import com.wire.kalium.logic.feature.client.GetOtherUserClientsUseCase
+import com.wire.kalium.logic.feature.client.ObserveClientsByUserIdUseCase
 import com.wire.kalium.logic.feature.client.PersistOtherUserClientsUseCase
 import com.wire.kalium.logic.feature.connection.AcceptConnectionRequestUseCase
 import com.wire.kalium.logic.feature.connection.AcceptConnectionRequestUseCaseResult
@@ -48,7 +48,6 @@ import com.wire.kalium.logic.feature.connection.SendConnectionRequestUseCase
 import com.wire.kalium.logic.feature.connection.UnblockUserUseCase
 import com.wire.kalium.logic.feature.conversation.ClearConversationContentUseCase
 import com.wire.kalium.logic.feature.conversation.CreateConversationResult
-import com.wire.kalium.logic.feature.conversation.GetOneToOneConversationUseCase
 import com.wire.kalium.logic.feature.conversation.GetOrCreateOneToOneConversationUseCase
 import com.wire.kalium.logic.feature.conversation.GetOtherUserSecurityClassificationLabelUseCase
 import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
@@ -120,7 +119,7 @@ internal class OtherUserProfileViewModelArrangement {
     lateinit var updateConversationMutedStatus: UpdateConversationMutedStatusUseCase
 
     @MockK
-    lateinit var otherUserClients: GetOtherUserClientsUseCase
+    lateinit var observeClientList: ObserveClientsByUserIdUseCase
 
     @MockK
     lateinit var persistOtherUserClientsUseCase: PersistOtherUserClientsUseCase
@@ -149,7 +148,7 @@ internal class OtherUserProfileViewModelArrangement {
             observeConversationRoleForUserUseCase,
             removeMemberFromConversationUseCase,
             updateConversationMemberRoleUseCase,
-            otherUserClients,
+            observeClientList,
             persistOtherUserClientsUseCase,
             clearConversationContent,
             getOtherUserSecurityClassificationLabel,

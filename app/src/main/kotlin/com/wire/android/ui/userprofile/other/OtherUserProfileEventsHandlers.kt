@@ -35,7 +35,7 @@ interface OtherUserProfileEventsHandler {
     fun onBlockUser(blockUserState: BlockUserDialogState)
     fun onRemoveConversationMember(state: RemoveConversationMemberState)
     fun onUnblockUser(userId: UserId)
-    fun getOtherUserClients()
+    fun observeClientList()
 
     companion object {
         @Suppress("TooManyFunctions")
@@ -43,7 +43,7 @@ interface OtherUserProfileEventsHandler {
             override fun onBlockUser(blockUserState: BlockUserDialogState) {}
             override fun onRemoveConversationMember(state: RemoveConversationMemberState) {}
             override fun onUnblockUser(userId: UserId) {}
-            override fun getOtherUserClients() {}
+            override fun observeClientList() {}
             override fun navigateBack(): Job {
                 TODO()
             }

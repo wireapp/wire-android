@@ -27,17 +27,18 @@ import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WireSecondaryIconButton
 
 @Composable
-fun AdditionalOptionButton(isSelected: Boolean = false, onClick: () -> Unit) {
+fun AdditionalOptionButton(isSelected: Boolean = false, isEnabled: Boolean, onClick: () -> Unit) {
     WireSecondaryIconButton(
         onButtonClicked = onClick,
         iconResource = R.drawable.ic_add,
         contentDescription = R.string.content_description_attachment_item,
-        state = if (isSelected) WireButtonState.Selected else WireButtonState.Default,
+        state = if (!isEnabled) WireButtonState.Disabled
+        else if (isSelected) WireButtonState.Selected else WireButtonState.Default,
     )
 }
 
 @Preview
 @Composable
 fun PreviewAdditionalOptionButton() {
-    AdditionalOptionButton(isSelected = false, onClick = {})
+    AdditionalOptionButton(isSelected = false, isEnabled = false, onClick = {})
 }

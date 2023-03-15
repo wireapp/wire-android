@@ -24,7 +24,7 @@ import android.util.Log
 import com.wire.android.R
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.home.conversations.findUser
-import com.wire.android.ui.home.conversations.model.ExpirationData1
+import com.wire.android.ui.home.conversations.model.ExpirationStatus
 import com.wire.android.ui.home.conversations.model.MessageFooter
 import com.wire.android.ui.home.conversations.model.MessageHeader
 import com.wire.android.ui.home.conversations.model.MessageSource
@@ -112,27 +112,26 @@ class MessageMapper @Inject constructor(
                 messageContent = content,
                 messageSource = if (sender is SelfUser) MessageSource.Self else MessageSource.OtherUser,
                 messageHeader = provideMessageHeader(sender, message),
-                expirationData = provideExpirationData(message),
+                expirationStatus = provideExpirationData(message),
                 messageFooter = footer,
                 userAvatarData = getUserAvatarData(sender)
             )
         }
     }
 
-    private fun provideExpirationData(message: Message.Standalone): ExpirationData1 {
-        val expirationData = if (message is Message.Regular) {
+    private fun provideExpirationData(message: Message.Standalone): ExpirationStatus {
+        val expirationStatus = if (message is Message.Regular) {
             message.expirationData?.let {
-                Log.d("TEST", "inside provideExpirationData ${message.expirationData?.timeLeftForDeletion()}")
-                ExpirationData1.Expirable(
+                ExpirationStatus.Expirable(
                     it.expireAfter,
                     it.selfDeletionStatus
                 )
-            } ?: ExpirationData1.NotExpirable
+            } ?: ExpirationStatus.NotExpirable
         } else {
-            ExpirationData1.NotExpirable
+            ExpirationStatus.NotExpirable
         }
 
-        return expirationData
+        return expirationStatus
     }
 
     private fun isHeart(it: String) = it == "❤️" || it == "❤"

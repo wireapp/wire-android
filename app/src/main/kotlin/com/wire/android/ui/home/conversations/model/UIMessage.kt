@@ -45,7 +45,8 @@ data class UIMessage(
     val messageSource: MessageSource,
     val messageHeader: MessageHeader,
     val messageContent: UIMessageContent?,
-    val messageFooter: MessageFooter
+    val messageFooter: MessageFooter,
+    val showAuthor: Boolean
 ) {
     val isDeleted: Boolean = messageHeader.messageStatus == Deleted
     val sendingFailed: Boolean =

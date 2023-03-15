@@ -21,6 +21,7 @@
 package com.wire.android.mapper
 
 import com.wire.android.R
+import com.wire.android.appLogger
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.home.conversations.findUser
 import com.wire.android.ui.home.conversations.model.MessageFooter
@@ -102,21 +103,27 @@ class MessageMapper @Inject constructor(
                 MessageFooter(message.id)
             }
 
-            var showHeader = true
+            // To aggregate messages from the same message we need to check if the next message
+            // is from the same [senderUserId] and [date] difference is less than [AGGREGATION_TIME_WINDOW]
+            var showAuthor = true
             val nextIndex = index + 1
-            if(nextIndex < messages.size) {
+            if (nextIndex < messages.size) {
                 val nextUiMessage = messages[nextIndex]
                 val difference = DateTimeUtil.calculateMillisDifference(
                     message.date,
                     nextUiMessage.date
                 )
-                showHeader = message.senderUserId != nextUiMessage.senderUserId || difference > 60000
+                appLogger.d("KBX difference $difference")
+                showAuthor = message.senderUserId != nextUiMessage.senderUserId || difference > AGGREGATION_TIME_WINDOW
             }
+            appLogger.d("KBX showAuthor $index $showAuthor")
 
             // System messages don't have header so without the content there is nothing to be displayed.
             // Also hidden messages should not be displayed, as well preview images
             val shouldNotDisplay =
-                message is Message.System && content == null || message.visibility == HIDDEN || content is UIMessageContent.PreviewAssetMessage
+                message is Message.System && content == null
+                        || message.visibility == HIDDEN
+                        || content is UIMessageContent.PreviewAssetMessage
             if (shouldNotDisplay) {
                 null
             } else {
@@ -125,7 +132,8 @@ class MessageMapper @Inject constructor(
                     messageSource = if (sender is SelfUser) MessageSource.Self else MessageSource.OtherUser,
                     messageHeader = provideMessageHeader(sender, message),
                     messageFooter = footer,
-                    userAvatarData = getUserAvatarData(sender)
+                    userAvatarData = getUserAvatarData(sender),
+                    showAuthor = showAuthor
                 )
             }
         }
@@ -182,4 +190,16 @@ class MessageMapper @Inject constructor(
             is OtherUser -> sender.connectionStatus
             is SelfUser, null -> null
         }
+
+    companion object {
+        val AGGREGATION_TIME_WINDOW: Int = 60000
+    }
+}
+
+fun <T, R> Iterable<T>.mapIndexedNotNull(transform: (index: Int, T) -> R?): List<R> {
+    val list = ArrayList<R>()
+    forEachIndexed { index, element ->
+        transform(index, element)?.let { list.add(it) }
+    }
+    return list
 }

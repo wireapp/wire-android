@@ -81,7 +81,6 @@ import com.wire.kalium.logic.data.user.UserId
 @Composable
 fun MessageItem(
     message: UIMessage,
-    showHeader: Boolean = true,
     audioMessagesState: Map<String, AudioState>,
     onLongClicked: (UIMessage) -> Unit,
     onAssetMessageClicked: (String) -> Unit,
@@ -93,7 +92,7 @@ fun MessageItem(
     onResetSessionClicked: (senderUserId: UserId, clientId: String?) -> Unit
 ) {
     with(message) {
-        val fullAvatarOuterPadding = if(showHeader) {
+        val fullAvatarOuterPadding = if(message.showAuthor) {
             dimensions().userAvatarClickablePadding + dimensions().userAvatarStatusBorderSize
         } else {
             0.dp
@@ -120,7 +119,7 @@ fun MessageItem(
                 message.messageHeader.userId != null &&
                         !(message.messageHeader.isSenderDeleted || message.messageHeader.isSenderUnavailable)
 
-            if(showHeader) {
+            if(message.showAuthor) {
                 val avatarClickable = remember {
                     Clickable(enabled = isProfileRedirectEnabled) {
                         onOpenProfile(message.messageHeader.userId!!.toString())
@@ -136,7 +135,7 @@ fun MessageItem(
             Spacer(Modifier.padding(start = dimensions().spacing16x - fullAvatarOuterPadding))
             Column {
                 Spacer(modifier = Modifier.height(fullAvatarOuterPadding))
-                if(showHeader) {
+                if(message.showAuthor) {
                     MessageHeader(messageHeader)
                 }
                 if (!isDeleted) {

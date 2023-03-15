@@ -52,7 +52,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
-import androidx.paging.compose.itemsIndexed
+import androidx.paging.compose.items
 import com.wire.android.R
 import com.wire.android.media.audiomessage.AudioState
 import com.wire.android.model.SnackBarMessage
@@ -566,30 +566,19 @@ fun MessageList(
             .fillMaxHeight()
             .fillMaxWidth()
     ) {
-        itemsIndexed(lazyPagingMessages, key = { _, uiMessage ->
+        items(lazyPagingMessages, key = { uiMessage ->
             uiMessage.messageHeader.messageId
-        }) {index, message ->
+        }) { message ->
             if (message == null) {
                 // We can draw a placeholder here, as we fetch the next page of messages
-                return@itemsIndexed
+                return@items
             }
             if (message.messageContent is UIMessageContent.SystemMessage) {
                 SystemMessageItem(message = message.messageContent)
             } else {
 
-                var showHeader = true
-                val nextIndex = index + 1
-                if(nextIndex < lazyPagingMessages.itemSnapshotList.items.size) {
-                    val nextUiMessage = lazyPagingMessages.itemSnapshotList.items[nextIndex]
-                    val difference = DateTimeUtil.calculateMillisDifference(
-                        message.messageHeader.messageTime.utcISO,
-                        nextUiMessage.messageHeader.messageTime.utcISO
-                    )
-                    showHeader = message.messageHeader.userId != nextUiMessage.messageHeader.userId || difference > 60000
-                }
                 MessageItem(
                     message = message,
-                    showHeader = showHeader,
                     audioMessagesState = audioMessagesState,
                     onAudioClick = onAudioClick,
                     onChangeAudioPosition = onChangeAudioPosition,

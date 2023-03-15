@@ -254,7 +254,7 @@ class ImportMediaViewModel @Inject constructor(
 
     private suspend fun handleSingleIntent(incomingIntent: ShareCompat.IntentReader, activity: AppCompatActivity) {
         incomingIntent.stream?.let { uri ->
-            incomingIntent.type?.let { mimeType ->
+            uri.getMimeType(activity)?.let { mimeType ->
                 handleImportedAsset(activity, mimeType, uri)?.let { importedAsset ->
                     importMediaState = importMediaState.copy(importedAssets = mutableListOf(importedAsset))
                 }

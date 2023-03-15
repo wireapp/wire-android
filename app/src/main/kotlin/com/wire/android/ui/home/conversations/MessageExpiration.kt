@@ -16,7 +16,7 @@ import kotlin.time.Duration.Companion.seconds
 
 @Composable
 fun rememberSelfDeletionTimer(expirationStatus: ExpirationStatus): SelfDeletionTimer {
-    return remember(expirationStatus) { SelfDeletionTimer.fromExpirationData(expirationStatus) }
+    return remember { SelfDeletionTimer.fromExpirationData(expirationStatus) }
 }
 
 sealed class SelfDeletionTimer {
@@ -48,10 +48,6 @@ sealed class SelfDeletionTimer {
     }
 
     class Expirable(timeLeft: Duration, private val expireAfter: Duration) : SelfDeletionTimer() {
-        init {
-            Log.d("TEST", "Inside SelfDeletionTimer constructor")
-        }
-
         companion object {
             private const val DAYS_IN_A_WEEK = 7
             private const val FOUR_WEEK_DAYS = DAYS_IN_A_WEEK * 4

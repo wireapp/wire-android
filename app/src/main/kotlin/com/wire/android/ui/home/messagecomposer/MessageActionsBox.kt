@@ -54,6 +54,7 @@ import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 fun MessageComposeActionsBox(
     transition: Transition<MessageComposeInputState>,
     isMentionActive: Boolean,
+    isFileSharingEnabled: Boolean,
     startMention: () -> Unit,
     onAdditionalOptionButtonClicked: () -> Unit,
     onPingClicked: () -> Unit,
@@ -74,6 +75,7 @@ fun MessageComposeActionsBox(
                         state.attachmentOptionsDisplayed,
                         isMentionActive,
                         state.isEditMessage,
+                        isFileSharingEnabled,
                         startMention,
                         onAdditionalOptionButtonClicked,
                         onPingClicked
@@ -89,6 +91,7 @@ private fun MessageComposeActions(
     attachmentOptionsDisplayed: Boolean,
     isMentionsSelected: Boolean,
     isEditMessage: Boolean,
+    isFileSharingEnabled: Boolean = true,
     startMention: () -> Unit,
     onAdditionalOptionButtonClicked: () -> Unit,
     onPingClicked: () -> Unit
@@ -103,7 +106,7 @@ private fun MessageComposeActions(
             .height(dimensions().spacing56x)
     ) {
         with(localFeatureVisibilityFlags) {
-            if (!isEditMessage) AdditionalOptionButton(attachmentOptionsDisplayed, onAdditionalOptionButtonClicked)
+            if (!isEditMessage) AdditionalOptionButton(attachmentOptionsDisplayed, isFileSharingEnabled, onAdditionalOptionButtonClicked)
             if (RichTextIcon) RichTextEditingAction()
             if (!isEditMessage && EmojiIcon) AddEmojiAction()
             if (!isEditMessage && GifIcon) AddGifAction()
@@ -177,7 +180,7 @@ fun PreviewMessageActionsBox() {
             .fillMaxWidth()
             .height(dimensions().spacing56x)
     ) {
-        AdditionalOptionButton(isSelected = false, onClick = {})
+        AdditionalOptionButton(isSelected = false, isEnabled = true, onClick = {})
         RichTextEditingAction()
         AddEmojiAction()
         AddGifAction()

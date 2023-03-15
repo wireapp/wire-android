@@ -166,11 +166,9 @@ class OtherUserProfileScreenViewModel @Inject constructor(
 
                         is ObserveClientsByUserIdUseCase.Result.Success -> state = state.copy(otherUserClients = it.clients)
                     }
-
                 }
         }
     }
-
 
     private fun persistClients() {
         viewModelScope.launch(dispatchers.io()) {

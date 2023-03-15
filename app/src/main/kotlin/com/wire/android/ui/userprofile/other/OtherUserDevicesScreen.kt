@@ -43,9 +43,7 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.ui.LinkText
 import com.wire.android.util.ui.LinkTextData
-import com.wire.kalium.logic.data.client.ClientType
 import com.wire.kalium.logic.data.client.DeviceType
-import com.wire.kalium.logic.data.conversation.ClientId
 
 @Composable
 fun OtherUserDevicesScreen(

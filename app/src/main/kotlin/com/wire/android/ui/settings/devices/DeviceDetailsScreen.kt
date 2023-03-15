@@ -51,12 +51,10 @@ import com.wire.android.util.extension.formatAsFingerPrint
 import com.wire.android.util.extension.formatAsString
 import com.wire.android.util.formatMediumDateTime
 import com.wire.kalium.logic.data.conversation.ClientId
-import com.wire.kalium.logic.feature.client.UpdateClientVerificationStatusUseCase
 import com.wire.kalium.logic.functional.Either
 import com.wire.kalium.logic.functional.fold
 import kotlinx.collections.immutable.ImmutableMap
 import kotlinx.collections.immutable.persistentMapOf
-import kotlinx.coroutines.launch
 
 @Composable
 fun DeviceDetailsScreen(

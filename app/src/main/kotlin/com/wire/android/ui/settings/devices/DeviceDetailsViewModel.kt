@@ -51,7 +51,6 @@ class DeviceDetailsViewModel @Inject constructor(
     private val userId: UserId =
         savedStateHandle.get<String>(EXTRA_USER_ID)!!.let { QualifiedIdMapperImpl(null).fromStringToQualifiedID(it) }
 
-
     var state: DeviceDetailsState by mutableStateOf(DeviceDetailsState())
         private set
 
@@ -65,7 +64,6 @@ class DeviceDetailsViewModel @Inject constructor(
             state = when (val result = fingerprintUseCase(userId, deviceId)) {
                 is ClientFingerprintUseCase.Result.Failure -> state.copy(fingerPrint = null)
                 is ClientFingerprintUseCase.Result.Success -> state.copy(fingerPrint = result.fingerprint.decodeToString())
-
             }
         }
     }

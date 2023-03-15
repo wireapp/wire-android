@@ -150,8 +150,11 @@ fun ExternalContactSearchResultItem(
                     Box(modifier = Modifier.padding(horizontal = dimensions().spacing12x)) { ConnectPendingRequestBadge() }
                 ConnectionState.BLOCKED -> {
                 }
-                else -> {
-                    appLogger.e("Unknown ConnectionStatus in InternalContactSearchResultItem $connectionState")
+                ConnectionState.MISSING_LEGALHOLD_CONSENT -> {
+                    appLogger.e("Unhandled ConnectionState.MISSING_LEGALHOLD_CONSENT in ExternalContactSearchResultItem")
+                }
+                ConnectionState.ACCEPTED -> {
+                    appLogger.e("ConnectionState.ACCEPTED should not appear in ExternalContactSearchResultItem")
                 }
             }
         },

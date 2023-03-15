@@ -100,14 +100,16 @@ class MediaGalleryViewModel @Inject constructor(
 
     fun shareAsset(context: Context) {
         viewModelScope.launch {
-            context.startFileShareIntent(assetDataPath(imageAssetId.conversationId, imageAssetId.messageId).toString())
+            assetDataPath(imageAssetId.conversationId, imageAssetId.messageId)?.run {
+                context.startFileShareIntent(first, second)
+            }
         }
     }
 
-    private suspend fun assetDataPath(conversationId: QualifiedID, messageId: String): Path? =
+    private suspend fun assetDataPath(conversationId: QualifiedID, messageId: String): Pair<Path, String>? =
         getImageData(conversationId, messageId).await().run {
             return when (this) {
-                is Success -> decodedAssetPath
+                is Success -> decodedAssetPath to assetName
                 else -> null
             }
         }

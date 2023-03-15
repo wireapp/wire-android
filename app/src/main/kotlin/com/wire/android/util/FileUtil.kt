@@ -113,9 +113,9 @@ private fun Context.saveFileDataToDownloadsFolder(assetName: String, downloadedD
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
         val contentValues = ContentValues().apply {
             // ContentResolver modifies the name if another file with the given name already exists, so we don't have to worry about it
-            put(MediaStore.MediaColumns.DISPLAY_NAME, assetName.ifEmpty { ATTACHMENT_FILENAME })
-            put(MediaStore.MediaColumns.MIME_TYPE, mimeType)
-            put(MediaStore.MediaColumns.SIZE, fileSize)
+            put(DISPLAY_NAME, assetName.ifEmpty { ATTACHMENT_FILENAME })
+            put(MIME_TYPE, mimeType)
+            put(SIZE, fileSize)
         }
         resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)
     } else {
@@ -152,10 +152,11 @@ private fun Context.saveFileDataToDownloadsFolder(assetName: String, downloadedD
     }
 }
 
-fun Context.pathToUri(assetDataPath: Path): Uri = FileProvider.getUriForFile(this, getProviderAuthority(), assetDataPath.toFile())
+fun Context.pathToUri(assetDataPath: Path, assetName: String?): Uri =
+    FileProvider.getUriForFile(this, getProviderAuthority(), assetDataPath.toFile(), assetName ?: assetDataPath.name)
 
 fun Uri.getMimeType(context: Context): String? {
-    val extension: String? = if (this.scheme == ContentResolver.SCHEME_CONTENT) {
+    val mimeType: String? = if (this.scheme == ContentResolver.SCHEME_CONTENT) {
         context.contentResolver.getType(this)
     } else {
         // If scheme is a File
@@ -164,7 +165,7 @@ fun Uri.getMimeType(context: Context): String? {
         val fileExtension = MimeTypeMap.getFileExtensionFromUrl(Uri.fromFile(this.path?.let { File(it) }).toString())
         MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileExtension.lowercase(Locale.getDefault()))
     }
-    return extension
+    return mimeType
 }
 
 suspend fun Uri.resampleImageAndCopyToTempPath(
@@ -201,22 +202,20 @@ private fun Context.getContentFileName(uri: Uri): String? = runCatching {
     }
 }.getOrNull()
 
-fun Context.startFileShareIntent(path: String) {
-    val file = File(path)
+fun Context.startFileShareIntent(path: Path, assetName: String?) {
+    val assetDisplayName = assetName ?: path.name
     val fileURI = FileProvider.getUriForFile(
         this, getProviderAuthority(),
-        file
+        path.toFile(), assetDisplayName
     )
     val shareIntent = Intent(Intent.ACTION_SEND)
     shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
     shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
     shareIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-    shareIntent.putExtra(
-        Intent.EXTRA_SUBJECT,
-        resources.getString(R.string.export_media_subject_title)
-    )
+    shareIntent.putExtra(Intent.EXTRA_SUBJECT, resources.getString(R.string.export_media_subject_title))
 
     shareIntent.putExtra(Intent.EXTRA_STREAM, fileURI)
+    assetName?.let { shareIntent.putExtra(Intent.EXTRA_SUBJECT, it) }
     shareIntent.type = fileURI.getMimeType(context = this)
     startActivity(shareIntent)
 }
@@ -247,10 +246,10 @@ fun Context.getUrisOfFilesInDirectory(dir: File): ArrayList<Uri> {
     return files
 }
 
-fun openAssetFileWithExternalApp(assetDataPath: Path, context: Context, assetExtension: String?, onError: () -> Unit) {
+fun openAssetFileWithExternalApp(assetDataPath: Path, context: Context, assetName: String?, onError: () -> Unit) {
     try {
-        val assetUri = context.pathToUri(assetDataPath)
-        val mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(assetExtension)
+        val assetUri = context.pathToUri(assetDataPath, assetName)
+        val mimeType = assetUri.getMimeType(context)
         // Set intent and launch
         val intent = Intent()
         intent.apply {
@@ -269,10 +268,10 @@ fun openAssetFileWithExternalApp(assetDataPath: Path, context: Context, assetExt
     }
 }
 
-fun shareAssetFileWithExternalApp(assetDataPath: Path, context: Context, assetExtension: String?, onError: () -> Unit) {
+fun shareAssetFileWithExternalApp(assetDataPath: Path, context: Context, assetName: String?, onError: () -> Unit) {
     try {
-        val assetUri = context.pathToUri(assetDataPath)
-        val mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(assetExtension)
+        val assetUri = context.pathToUri(assetDataPath, assetName)
+        val mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(assetName)
         // Set intent and launch
         val intent = Intent()
         intent.apply {

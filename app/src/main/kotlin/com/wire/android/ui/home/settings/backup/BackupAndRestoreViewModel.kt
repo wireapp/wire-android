@@ -129,7 +129,7 @@ class BackupAndRestoreViewModel
                     is VerifyBackupResult.Success.Encrypted -> showPasswordDialog()
                     is VerifyBackupResult.Success.NotEncrypted -> importDatabase(importedBackupPath)
                     VerifyBackupResult.Success.Web -> {
-                        if(BuildConfig.DEVELOPER_FEATURES_ENABLED) {
+                        if (BuildConfig.DEVELOPER_FEATURES_ENABLED) {
                             importDatabase(importedBackupPath)
                         } else {
                             state = state.copy(restoreFileValidation = RestoreFileValidation.IncompatibleBackup)

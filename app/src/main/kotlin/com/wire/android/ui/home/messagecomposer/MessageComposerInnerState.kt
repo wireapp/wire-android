@@ -173,6 +173,15 @@ data class MessageComposerInnerState(
             messageText = TextFieldValue(text = originalText, selection = TextRange(originalText.length)),
             type = MessageComposeInputType.EditMessage(messageId, originalText)
         )
+        quotedMessageData = null
+        inputFocusRequester.requestFocus()
+    }
+
+    fun toNewMessage(clearInput: Boolean = false) {
+        messageComposeInputState = MessageComposeInputState.Active(
+            messageText = if (clearInput) TextFieldValue("") else messageComposeInputState.messageText,
+            type = MessageComposeInputType.NewMessage()
+        )
         inputFocusRequester.requestFocus()
     }
 

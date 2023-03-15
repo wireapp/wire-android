@@ -20,6 +20,7 @@
 
 package com.wire.android.ui.home.conversations
 
+import android.util.Log
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -61,7 +62,7 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.home.conversations.messages.QuotedMessage
 import com.wire.android.ui.home.conversations.messages.ReactionPill
-import com.wire.android.ui.home.conversations.model.ExpirationData
+import com.wire.android.ui.home.conversations.model.ExpirationData1
 import com.wire.android.ui.home.conversations.model.MessageBody
 import com.wire.android.ui.home.conversations.model.MessageFooter
 import com.wire.android.ui.home.conversations.model.MessageGenericAsset
@@ -78,8 +79,10 @@ import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMess
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
+import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.user.UserId
 import kotlinx.coroutines.delay
+import kotlinx.datetime.Clock
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
@@ -104,12 +107,18 @@ fun MessageItem(
     with(message) {
         val selfDeletionTimer = rememberSelfDeletionTimer(expirationData)
 
-        LaunchedEffect(Unit) {
-            onSelfDeletingMessageRead(message)
+        if (selfDeletionTimer is SelfDeletionTimer1.Expirable) {
+            LaunchedEffect(Unit) {
+                onSelfDeletingMessageRead(message)
+            }
 
-            while (selfDeletionTimer.timeLeft.inWholeSeconds >= 0) {
-                delay(selfDeletionTimer.interval())
-                selfDeletionTimer.decreaseTimeLeft(selfDeletionTimer.interval())
+            with(selfDeletionTimer) {
+                LaunchedEffect(timeLeft) {
+                    if (timeLeft != Duration.ZERO) {
+                        delay(interval())
+                        decreaseTimeLeft(interval())
+                    }
+                }
             }
         }
 
@@ -135,7 +144,7 @@ fun MessageItem(
                 .then(
                     if (message.sendingFailed || message.receivingFailed) {
                         Modifier.background(MaterialTheme.wireColorScheme.messageErrorBackgroundColor)
-                    } else if (selfDeletionTimer.timeLeft != Duration.ZERO) {
+                    } else if (selfDeletionTimer is SelfDeletionTimer1.Expirable && selfDeletionTimer.timeLeft != Duration.ZERO) {
                         val color by animateColorAsState(
                             MaterialTheme.wireColorScheme.primary.copy(selfDeletionTimer.alphaBackgroundColor()),
                             tween()
@@ -166,7 +175,9 @@ fun MessageItem(
             Column {
                 Spacer(modifier = Modifier.height(fullAvatarOuterPadding))
                 MessageHeader(messageHeader)
-                MessageExpireLabel(selfDeletionTimer)
+                if (selfDeletionTimer is SelfDeletionTimer1.Expirable) {
+                    MessageExpireLabel(selfDeletionTimer.timeLeftFormatted())
+                }
                 if (!isDeleted) {
                     if (!decryptionFailed) {
                         val currentOnAssetClicked = remember {
@@ -222,77 +233,112 @@ fun MessageItem(
     }
 }
 
-class SelfDeletionTimer(expirationData: ExpirationData?) {
+sealed class SelfDeletionTimer1 {
     companion object {
-        private const val DAYS_IN_A_WEEK = 7
-        private const val FOUR_WEEK_DAYS = DAYS_IN_A_WEEK * 4
-        private const val THREE_WEEK_DAYS = DAYS_IN_A_WEEK * 3
-        private const val TWO_WEEK_DAYS = DAYS_IN_A_WEEK * 2
-        private const val ONE_WEEK_DAYS = DAYS_IN_A_WEEK * 1
-    }
+        fun fromExpirationData(expirationData: ExpirationData1?): SelfDeletionTimer1 {
+            return if (expirationData is ExpirationData1.Expirable) {
+                with(expirationData) {
+                    val timeLeft = if (selfDeletionStatus is Message.ExpirationData.SelfDeletionStatus.Started) {
+                        val timeElapsedSinceSelfDeletionStartDate =
+                            Clock.System.now() - selfDeletionStatus.selfDeletionStartDate
 
-    var timeLeft by mutableStateOf(expirationData?.timeLeft ?: 0.seconds)
+                        // time left for deletion it can be a negative value if the time difference between the self deletion start date and
+                        // now is greater then expire after millis, we normalize it to 0 seconds
+                        val timeLeft = expireAfter - timeElapsedSinceSelfDeletionStartDate
 
-    private val expireAfter = expirationData?.expireAfter ?: 0.seconds
-    fun timeLeftFormatted(): String {
-        val timeLeftLabel = when {
-            // weeks
-            timeLeft.inWholeDays >= FOUR_WEEK_DAYS -> "4 weeks"
-            timeLeft.inWholeDays in THREE_WEEK_DAYS until FOUR_WEEK_DAYS -> "3 weeks"
-            timeLeft.inWholeDays in TWO_WEEK_DAYS until THREE_WEEK_DAYS -> "2 weeks"
-            timeLeft.inWholeDays in ONE_WEEK_DAYS until TWO_WEEK_DAYS -> "1 week"
-            // days
-            timeLeft.inWholeDays in 1..6 -> "${timeLeft.inWholeDays} days left"
-            // hours
-            timeLeft.inWholeHours in 1..23 -> "${timeLeft.inWholeHours} hours left"
-            // minutes
-            timeLeft.inWholeMinutes in 1..59 -> "${timeLeft.inWholeMinutes} minutes left"
-            // seconds
-            timeLeft.inWholeSeconds < 60 -> "${timeLeft.inWholeSeconds} seconds left "
+                        if (timeLeft.isNegative()) {
+                            Duration.ZERO
+                        } else {
+                            timeLeft
+                        }
+                    } else {
+                        expireAfter
+                    }
 
-            else -> throw IllegalStateException("Not possible state for a time left label")
-        }
-
-        return timeLeftLabel
-    }
-
-    fun interval(): Duration {
-        val interval = when {
-            timeLeft.inWholeMinutes > 59 -> 1.hours
-            timeLeft.inWholeMinutes in 2..59 -> 1.minutes
-            timeLeft.inWholeSeconds <= 60 && timeLeft.inWholeMinutes < 2 -> 1.seconds
-            else -> throw IllegalStateException("Not possible state for interval")
-        }
-
-        return interval
-    }
-
-    fun decreaseTimeLeft(interval: Duration) {
-        if (timeLeft.inWholeSeconds != 0L) timeLeft -= interval
-    }
-
-    fun alphaBackgroundColor(): Float {
-        val totalTimeLeftRatio = timeLeft / expireAfter
-
-        return if (totalTimeLeftRatio >= 0.75) {
-            0F
-        } else {
-            1F
+                    Expirable(timeLeft, expireAfter)
+                }
+            } else NotExpirable
         }
     }
+
+    class Expirable(timeLeft: Duration, private val expireAfter: Duration) : SelfDeletionTimer1() {
+        init {
+            Log.d("TEST", "Inside SelfDeletionTimer constructor")
+        }
+
+        companion object {
+            private const val DAYS_IN_A_WEEK = 7
+            private const val FOUR_WEEK_DAYS = DAYS_IN_A_WEEK * 4
+            private const val THREE_WEEK_DAYS = DAYS_IN_A_WEEK * 3
+            private const val TWO_WEEK_DAYS = DAYS_IN_A_WEEK * 2
+            private const val ONE_WEEK_DAYS = DAYS_IN_A_WEEK * 1
+
+            private const val TIME_LEFT_RATIO_BOUNDARY_FOR_1_ALPHA = 0.75
+        }
+
+        var timeLeft by mutableStateOf(timeLeft)
+
+        fun timeLeftFormatted(): String {
+            val timeLeftLabel = when {
+                // weeks
+                timeLeft.inWholeDays >= FOUR_WEEK_DAYS -> "4 weeks"
+                timeLeft.inWholeDays in THREE_WEEK_DAYS until FOUR_WEEK_DAYS -> "3 weeks"
+                timeLeft.inWholeDays in TWO_WEEK_DAYS until THREE_WEEK_DAYS -> "2 weeks"
+                timeLeft.inWholeDays in ONE_WEEK_DAYS until TWO_WEEK_DAYS -> "1 week"
+                // days
+                timeLeft.inWholeDays in 1..6 -> "${timeLeft.inWholeDays} days left"
+                // hours
+                timeLeft.inWholeHours in 1..23 -> "${timeLeft.inWholeHours} hours left"
+                // minutes
+                timeLeft.inWholeMinutes in 1..59 -> "${timeLeft.inWholeMinutes} minutes left"
+                // seconds
+                timeLeft.inWholeSeconds < 60 -> "${timeLeft.inWholeSeconds} seconds left "
+
+                else -> throw IllegalStateException("Not possible state for a time left label")
+            }
+
+            return timeLeftLabel
+        }
+
+        fun interval(): Duration {
+            val interval = when {
+                timeLeft.inWholeMinutes > 59 -> 1.hours
+                timeLeft.inWholeMinutes in 2..59 -> 1.minutes
+                timeLeft.inWholeSeconds <= 60 && timeLeft.inWholeMinutes < 2 -> 1.seconds
+                else -> throw IllegalStateException("Not possible state for interval")
+            }
+
+            return interval
+        }
+
+        fun decreaseTimeLeft(interval: Duration) {
+            if (timeLeft.inWholeSeconds != 0L) timeLeft -= interval
+        }
+
+        fun alphaBackgroundColor(): Float {
+            val totalTimeLeftRatio = timeLeft / expireAfter
+
+            return if (totalTimeLeftRatio >= TIME_LEFT_RATIO_BOUNDARY_FOR_1_ALPHA) {
+                0F
+            } else {
+                1F
+            }
+        }
+
+    }
+
+    object NotExpirable : SelfDeletionTimer1()
 
 }
 
 @Composable
-fun rememberSelfDeletionTimer(expirationData: ExpirationData?): SelfDeletionTimer {
-    return SelfDeletionTimer(expirationData)
+fun rememberSelfDeletionTimer(expirationData: ExpirationData1): SelfDeletionTimer1 {
+    return remember(expirationData) { SelfDeletionTimer1.fromExpirationData(expirationData) }
 }
 
 @Composable
-fun MessageExpireLabel(selfDeletionTimer: SelfDeletionTimer) {
-    if (selfDeletionTimer.timeLeft != Duration.ZERO) {
-        Text("Self-deleting message • ${selfDeletionTimer.timeLeftFormatted()}")
-    }
+fun MessageExpireLabel(timeLeft: String) {
+    Text("Self-deleting message • $timeLeft")
 }
 
 @Composable

@@ -20,10 +20,11 @@
 
 package com.wire.android.mapper
 
+import android.util.Log
 import com.wire.android.R
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.home.conversations.findUser
-import com.wire.android.ui.home.conversations.model.ExpirationData
+import com.wire.android.ui.home.conversations.model.ExpirationData1
 import com.wire.android.ui.home.conversations.model.MessageFooter
 import com.wire.android.ui.home.conversations.model.MessageHeader
 import com.wire.android.ui.home.conversations.model.MessageSource
@@ -77,7 +78,8 @@ class MessageMapper @Inject constructor(
 
             val hasSelfHeart = message.reactions.selfUserReactions.any { isHeart(it) }
 
-            MessageFooter(message.id,
+            MessageFooter(
+                message.id,
                 message.reactions.totalReactions
                     .filter { !isHeart(it.key) }
                     .run {
@@ -110,23 +112,24 @@ class MessageMapper @Inject constructor(
                 messageContent = content,
                 messageSource = if (sender is SelfUser) MessageSource.Self else MessageSource.OtherUser,
                 messageHeader = provideMessageHeader(sender, message),
-                expirationData = provideSubHeader(message),
+                expirationData = provideExpirationData(message),
                 messageFooter = footer,
                 userAvatarData = getUserAvatarData(sender)
             )
         }
     }
 
-    private fun provideSubHeader(message: Message.Standalone): ExpirationData? {
+    private fun provideExpirationData(message: Message.Standalone): ExpirationData1 {
         val expirationData = if (message is Message.Regular) {
             message.expirationData?.let {
-                ExpirationData(
+                Log.d("TEST", "inside provideExpirationData ${message.expirationData?.timeLeftForDeletion()}")
+                ExpirationData1.Expirable(
                     it.expireAfter,
-                    it.timeLeftForDeletion()
+                    it.selfDeletionStatus
                 )
-            }
+            } ?: ExpirationData1.NotExpirable
         } else {
-            null
+            ExpirationData1.NotExpirable
         }
 
         return expirationData
@@ -160,7 +163,10 @@ class MessageMapper @Inject constructor(
 
     private fun getMessageStatus(message: Message.Standalone) = when {
         message.status == Message.Status.FAILED -> MessageStatus.SendFailure
-        message.status == Message.Status.FAILED_REMOTELY -> MessageStatus.SendRemotelyFailure(message.conversationId.domain)
+        message.status == Message.Status.FAILED_REMOTELY -> MessageStatus.SendRemotelyFailure(
+            message.conversationId.domain
+        )
+
         message.visibility == Message.Visibility.DELETED -> MessageStatus.Deleted
         message is Message.Regular && message.editStatus is Message.EditStatus.Edited ->
             MessageStatus.Edited(

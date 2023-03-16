@@ -81,6 +81,7 @@ import com.wire.kalium.logic.data.user.UserId
 @Composable
 fun MessageItem(
     message: UIMessage,
+    showAuthor: Boolean = true,
     audioMessagesState: Map<String, AudioState>,
     onLongClicked: (UIMessage) -> Unit,
     onAssetMessageClicked: (String) -> Unit,
@@ -92,7 +93,7 @@ fun MessageItem(
     onResetSessionClicked: (senderUserId: UserId, clientId: String?) -> Unit
 ) {
     with(message) {
-        val fullAvatarOuterPadding = if(message.showAuthor) {
+        val fullAvatarOuterPadding = if (showAuthor) {
             dimensions().userAvatarClickablePadding + dimensions().userAvatarStatusBorderSize
         } else {
             0.dp
@@ -119,7 +120,7 @@ fun MessageItem(
                 message.messageHeader.userId != null &&
                         !(message.messageHeader.isSenderDeleted || message.messageHeader.isSenderUnavailable)
 
-            if(message.showAuthor) {
+            if (showAuthor) {
                 val avatarClickable = remember {
                     Clickable(enabled = isProfileRedirectEnabled) {
                         onOpenProfile(message.messageHeader.userId!!.toString())
@@ -135,9 +136,7 @@ fun MessageItem(
             Spacer(Modifier.padding(start = dimensions().spacing16x - fullAvatarOuterPadding))
             Column {
                 Spacer(modifier = Modifier.height(fullAvatarOuterPadding))
-                if(message.showAuthor) {
-                    MessageHeader(messageHeader)
-                }
+                MessageHeader(messageHeader, showAuthor)
                 if (!isDeleted) {
                     if (!decryptionFailed) {
                         val currentOnAssetClicked = remember {
@@ -202,32 +201,35 @@ private fun Modifier.customizeMessageBackground(
 
 @Composable
 private fun MessageHeader(
-    messageHeader: MessageHeader
+    messageHeader: MessageHeader,
+    showAuthor: Boolean
 ) {
     with(messageHeader) {
         Column {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Row(
-                    modifier = Modifier.weight(weight = 1f, fill = true),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Username(username.asString(), modifier = Modifier.weight(weight = 1f, fill = false))
+            if (showAuthor) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Row(
+                        modifier = Modifier.weight(weight = 1f, fill = true),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Username(username.asString(), modifier = Modifier.weight(weight = 1f, fill = false))
 
-                    UserBadge(
-                        membership = membership,
-                        connectionState = connectionState,
-                        startPadding = dimensions().spacing6x,
-                        isDeleted = isSenderDeleted
-                    )
+                        UserBadge(
+                            membership = membership,
+                            connectionState = connectionState,
+                            startPadding = dimensions().spacing6x,
+                            isDeleted = isSenderDeleted
+                        )
 
-                    if (isLegalHold) {
-                        LegalHoldIndicator(modifier = Modifier.padding(start = dimensions().spacing6x))
+                        if (isLegalHold) {
+                            LegalHoldIndicator(modifier = Modifier.padding(start = dimensions().spacing6x))
+                        }
                     }
+                    MessageTimeLabel(
+                        time = messageHeader.messageTime.formattedDate,
+                        modifier = Modifier.padding(start = dimensions().spacing6x)
+                    )
                 }
-                MessageTimeLabel(
-                    time = messageHeader.messageTime.formattedDate,
-                    modifier = Modifier.padding(start = dimensions().spacing6x)
-                )
             }
             MessageStatusLabel(messageStatus = messageStatus)
         }

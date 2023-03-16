@@ -52,7 +52,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
-import androidx.paging.compose.items
+import androidx.paging.compose.itemsIndexed
 import com.wire.android.R
 import com.wire.android.media.audiomessage.AudioState
 import com.wire.android.model.SnackBarMessage
@@ -112,6 +112,7 @@ import okio.Path.Companion.toPath
  * Once the user scrolls further into older messages, we stop autoscroll.
  */
 private const val MAXIMUM_SCROLLED_MESSAGES_UNTIL_AUTOSCROLL_STOPS = 5
+private const val AGGREGATION_TIME_WINDOW: Int = 30000
 
 // TODO: !! this screen definitely needs a refactor and some cleanup !!
 @Composable
@@ -566,19 +567,30 @@ fun MessageList(
             .fillMaxHeight()
             .fillMaxWidth()
     ) {
-        items(lazyPagingMessages, key = { uiMessage ->
+        itemsIndexed(lazyPagingMessages, key = { _, uiMessage ->
             uiMessage.messageHeader.messageId
-        }) { message ->
+        }) { index, message ->
             if (message == null) {
                 // We can draw a placeholder here, as we fetch the next page of messages
-                return@items
+                return@itemsIndexed
             }
             if (message.messageContent is UIMessageContent.SystemMessage) {
                 SystemMessageItem(message = message.messageContent)
             } else {
 
+                var showHeader = true
+                val nextIndex = index + 1
+                if (nextIndex < lazyPagingMessages.itemSnapshotList.items.size) {
+                    val nextUiMessage = lazyPagingMessages.itemSnapshotList.items[nextIndex]
+                    val difference = DateTimeUtil.calculateMillisDifference(
+                        message.messageHeader.messageTime.utcISO,
+                        nextUiMessage.messageHeader.messageTime.utcISO
+                    )
+                    showHeader = message.messageHeader.userId != nextUiMessage.messageHeader.userId || difference > AGGREGATION_TIME_WINDOW
+                }
                 MessageItem(
                     message = message,
+                    showAuthor = showHeader,
                     audioMessagesState = audioMessagesState,
                     onAudioClick = onAudioClick,
                     onChangeAudioPosition = onChangeAudioPosition,

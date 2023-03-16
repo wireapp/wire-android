@@ -195,11 +195,3 @@ class MessageMapper @Inject constructor(
         val AGGREGATION_TIME_WINDOW: Int = 60000
     }
 }
-
-fun <T, R> Iterable<T>.mapIndexedNotNull(transform: (index: Int, T) -> R?): List<R> {
-    val list = ArrayList<R>()
-    forEachIndexed { index, element ->
-        transform(index, element)?.let { list.add(it) }
-    }
-    return list
-}

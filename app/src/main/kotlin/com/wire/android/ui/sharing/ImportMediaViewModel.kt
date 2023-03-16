@@ -34,7 +34,7 @@ import com.wire.android.ui.home.conversationslist.showLegalHoldIndicator
 import com.wire.android.util.FileManager
 import com.wire.android.util.ImageUtil
 import com.wire.android.util.dispatchers.DispatcherProvider
-import com.wire.android.util.getMetaDataFromUri
+import com.wire.android.util.getMetadataFromUri
 import com.wire.android.util.getMimeType
 import com.wire.android.util.isImageFile
 import com.wire.android.util.parcelableArrayList
@@ -254,7 +254,7 @@ class ImportMediaViewModel @Inject constructor(
 
     private suspend fun handleSingleIntent(incomingIntent: ShareCompat.IntentReader, activity: AppCompatActivity) {
         incomingIntent.stream?.let { uri ->
-            incomingIntent.type?.let { mimeType ->
+            uri.getMimeType(activity)?.let { mimeType ->
                 handleImportedAsset(activity, mimeType, uri)?.let { importedAsset ->
                     importMediaState = importMediaState.copy(importedAssets = mutableListOf(importedAsset))
                 }
@@ -319,12 +319,13 @@ class ImportMediaViewModel @Inject constructor(
 
     private suspend fun handleImportedAsset(
         context: Context,
-        mimeType: String,
+        importedAssetMimeType: String,
         uri: Uri
     ): ImportedMediaAsset? = withContext(dispatchers.io()) {
         val assetKey = UUID.randomUUID().toString()
-        val fileMetadata = uri.getMetaDataFromUri(context)
+        val fileMetadata = uri.getMetadataFromUri(context)
         val tempAssetPath = kaliumFileSystem.tempFilePath(assetKey)
+        val mimeType = fileMetadata.mimeType.ifEmpty { importedAssetMimeType }
         when {
             isAboveLimit(isImageFile(mimeType), fileMetadata.size) -> null
             isImageFile(mimeType) -> {

@@ -39,8 +39,10 @@ import com.wire.kalium.logic.data.message.MessageContent
 import com.wire.kalium.logic.data.user.AssetId
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserId
+import kotlin.time.Duration
 
 data class UIMessage(
+    val expirationStatus: ExpirationStatus = ExpirationStatus.NotExpirable,
     val userAvatarData: UserAvatarData,
     val messageSource: MessageSource,
     val messageHeader: MessageHeader,
@@ -78,6 +80,15 @@ data class MessageFooter(
     val reactions: Map<String, Int> = emptyMap(),
     val ownReactions: Set<String> = emptySet()
 )
+
+sealed class ExpirationStatus {
+    data class Expirable(
+        val expireAfter: Duration,
+        val selfDeletionStatus: Message.ExpirationData.SelfDeletionStatus
+    ) : ExpirationStatus()
+
+    object NotExpirable : ExpirationStatus()
+}
 
 sealed class MessageStatus(val text: UIText) {
     object Untouched : MessageStatus(UIText.DynamicString(""))
@@ -264,3 +275,5 @@ enum class MessageSource {
 data class MessageTime(val utcISO: String) {
     val formattedDate = utcISO.uiMessageDateTime() ?: ""
 }
+
+

@@ -72,6 +72,7 @@ import com.wire.kalium.logic.feature.conversation.guestroomlink.GenerateGuestRoo
 import com.wire.kalium.logic.feature.conversation.guestroomlink.ObserveGuestRoomLinkUseCase
 import com.wire.kalium.logic.feature.conversation.guestroomlink.RevokeGuestRoomLinkUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
+import com.wire.kalium.logic.feature.message.EnqueueMessageSelfDeletionUseCase
 import com.wire.kalium.logic.feature.message.GetMessageByIdUseCase
 import com.wire.kalium.logic.feature.message.GetNotificationsUseCase
 import com.wire.kalium.logic.feature.message.ObserveMessageReactionsUseCase
@@ -998,7 +999,7 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
-    fun getOtherUserSecurityClassificationLabelUseCase(
+    fun provideGetOtherUserSecurityClassificationLabelUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
     ): GetOtherUserSecurityClassificationLabelUseCase =
@@ -1008,4 +1009,13 @@ class UseCaseModule {
     @Provides
     fun provideObserveNewClientsUseCaseUseCase(@KaliumCoreLogic coreLogic: CoreLogic) =
         coreLogic.getGlobalScope().observeNewClientsUseCase
+
+    @ViewModelScoped
+    @Provides
+    fun provideEnqueueMessageSelfDeletionUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): EnqueueMessageSelfDeletionUseCase =
+        coreLogic.getSessionScope(currentAccount).enqueueMessageSelfDeletionUseCase
+
 }

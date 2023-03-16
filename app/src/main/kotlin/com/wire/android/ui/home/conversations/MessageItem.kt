@@ -20,6 +20,9 @@
 
 package com.wire.android.ui.home.conversations
 
+import android.util.Log
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -35,7 +38,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -55,6 +62,7 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.home.conversations.messages.QuotedMessage
 import com.wire.android.ui.home.conversations.messages.ReactionPill
+import com.wire.android.ui.home.conversations.model.ExpirationStatus
 import com.wire.android.ui.home.conversations.model.MessageBody
 import com.wire.android.ui.home.conversations.model.MessageFooter
 import com.wire.android.ui.home.conversations.model.MessageGenericAsset
@@ -71,7 +79,14 @@ import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMess
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
+import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.user.UserId
+import kotlinx.coroutines.delay
+import kotlinx.datetime.Clock
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.hours
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
 
 // TODO: a definite candidate for a refactor and cleanup
 @OptIn(ExperimentalFoundationApi::class)
@@ -86,25 +101,61 @@ fun MessageItem(
     onImageMessageClicked: (String, Boolean) -> Unit,
     onOpenProfile: (String) -> Unit,
     onReactionClicked: (String, String) -> Unit,
-    onResetSessionClicked: (senderUserId: UserId, clientId: String?) -> Unit
+    onResetSessionClicked: (senderUserId: UserId, clientId: String?) -> Unit,
+    onSelfDeletingMessageRead: (UIMessage) -> Unit
 ) {
     with(message) {
+        val selfDeletionTimer = rememberSelfDeletionTimer(expirationStatus)
+
+        if (selfDeletionTimer is SelfDeletionTimer.Expirable) {
+            LaunchedEffect(Unit) {
+                onSelfDeletingMessageRead(message)
+            }
+
+            LaunchedEffect(selfDeletionTimer.timeLeft) {
+                with(selfDeletionTimer) {
+                    if (timeLeft != Duration.ZERO) {
+                        delay(interval())
+                        decreaseTimeLeft(interval())
+                    }
+                }
+            }
+        }
+
         val fullAvatarOuterPadding = dimensions().userAvatarClickablePadding + dimensions().userAvatarStatusBorderSize
+
         Row(
             Modifier
-                .customizeMessageBackground(message)
                 .padding(
                     end = dimensions().spacing16x,
                     bottom = dimensions().messageItemBottomPadding - fullAvatarOuterPadding
                 )
                 .fillMaxWidth()
-                .let {
-                    if (!message.isDeleted) it.combinedClickable(
-                        // TODO: implement some action onClick
-                        onClick = { },
-                        onLongClick = { onLongClicked(message) }
-                    ) else it
-                }
+                .then(
+                    if (!message.isDeleted) {
+                        Modifier.combinedClickable(
+                            // TODO: implement some action onClick
+                            onClick = { },
+                            onLongClick = { onLongClicked(message) }
+                        )
+                    } else {
+                        Modifier
+                    }
+                )
+                .then(
+                    if (message.sendingFailed || message.receivingFailed) {
+                        Modifier.background(MaterialTheme.wireColorScheme.messageErrorBackgroundColor)
+                    } else if (selfDeletionTimer is SelfDeletionTimer.Expirable) {
+                        val color by animateColorAsState(
+                            MaterialTheme.wireColorScheme.primary.copy(selfDeletionTimer.alphaBackgroundColor()),
+                            tween()
+                        )
+
+                        Modifier.background(color)
+                    } else {
+                        Modifier
+                    }
+                )
         ) {
             Spacer(Modifier.padding(start = dimensions().spacing8x - fullAvatarOuterPadding))
 
@@ -125,7 +176,9 @@ fun MessageItem(
             Column {
                 Spacer(modifier = Modifier.height(fullAvatarOuterPadding))
                 MessageHeader(messageHeader)
-
+                if (selfDeletionTimer is SelfDeletionTimer.Expirable) {
+                    MessageExpireLabel(selfDeletionTimer.timeLeftFormatted())
+                }
                 if (!isDeleted) {
                     if (!decryptionFailed) {
                         val currentOnAssetClicked = remember {
@@ -146,7 +199,9 @@ fun MessageItem(
                                 onLongClicked(message)
                             })
                         }
+
                         val onLongClick = remember { { onLongClicked(message) } }
+
                         MessageContent(
                             message = message,
                             messageContent = messageContent,
@@ -180,12 +235,8 @@ fun MessageItem(
 }
 
 @Composable
-private fun Modifier.customizeMessageBackground(
-    message: UIMessage
-) = run {
-    if (message.sendingFailed || message.receivingFailed) {
-        background(MaterialTheme.wireColorScheme.messageErrorBackgroundColor)
-    } else this
+fun MessageExpireLabel(timeLeft: String) {
+    Text("Self-deleting message • $timeLeft")
 }
 
 @Composable
@@ -200,14 +251,12 @@ private fun MessageHeader(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Username(username.asString(), modifier = Modifier.weight(weight = 1f, fill = false))
-
                     UserBadge(
                         membership = membership,
                         connectionState = connectionState,
                         startPadding = dimensions().spacing6x,
                         isDeleted = isSenderDeleted
                     )
-
                     if (isLegalHold) {
                         LegalHoldIndicator(modifier = Modifier.padding(start = dimensions().spacing6x))
                     }

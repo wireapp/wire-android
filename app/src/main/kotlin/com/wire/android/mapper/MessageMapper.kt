@@ -20,9 +20,11 @@
 
 package com.wire.android.mapper
 
+import android.util.Log
 import com.wire.android.R
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.home.conversations.findUser
+import com.wire.android.ui.home.conversations.model.ExpirationStatus
 import com.wire.android.ui.home.conversations.model.MessageFooter
 import com.wire.android.ui.home.conversations.model.MessageHeader
 import com.wire.android.ui.home.conversations.model.MessageSource
@@ -32,7 +34,6 @@ import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.conversations.previewAsset
 import com.wire.android.ui.home.conversationslist.model.Membership
-import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.time.ISOFormatter
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.WireSessionImageLoader
@@ -47,7 +48,6 @@ import com.wire.kalium.logic.data.user.UserId
 import javax.inject.Inject
 
 class MessageMapper @Inject constructor(
-    private val dispatcherProvider: DispatcherProvider,
     private val userTypeMapper: UserTypeMapper,
     private val messageContentMapper: MessageContentMapper,
     private val isoFormatter: ISOFormatter,
@@ -78,7 +78,8 @@ class MessageMapper @Inject constructor(
 
             val hasSelfHeart = message.reactions.selfUserReactions.any { isHeart(it) }
 
-            MessageFooter(message.id,
+            MessageFooter(
+                message.id,
                 message.reactions.totalReactions
                     .filter { !isHeart(it.key) }
                     .run {
@@ -111,10 +112,26 @@ class MessageMapper @Inject constructor(
                 messageContent = content,
                 messageSource = if (sender is SelfUser) MessageSource.Self else MessageSource.OtherUser,
                 messageHeader = provideMessageHeader(sender, message),
+                expirationStatus = provideExpirationData(message),
                 messageFooter = footer,
                 userAvatarData = getUserAvatarData(sender)
             )
         }
+    }
+
+    private fun provideExpirationData(message: Message.Standalone): ExpirationStatus {
+        val expirationStatus = if (message is Message.Regular) {
+            message.expirationData?.let {
+                ExpirationStatus.Expirable(
+                    it.expireAfter,
+                    it.selfDeletionStatus
+                )
+            } ?: ExpirationStatus.NotExpirable
+        } else {
+            ExpirationStatus.NotExpirable
+        }
+
+        return expirationStatus
     }
 
     private fun isHeart(it: String) = it == "❤️" || it == "❤"
@@ -145,7 +162,10 @@ class MessageMapper @Inject constructor(
 
     private fun getMessageStatus(message: Message.Standalone) = when {
         message.status == Message.Status.FAILED -> MessageStatus.SendFailure
-        message.status == Message.Status.FAILED_REMOTELY -> MessageStatus.SendRemotelyFailure(message.conversationId.domain)
+        message.status == Message.Status.FAILED_REMOTELY -> MessageStatus.SendRemotelyFailure(
+            message.conversationId.domain
+        )
+
         message.visibility == Message.Visibility.DELETED -> MessageStatus.Deleted
         message is Message.Regular && message.editStatus is Message.EditStatus.Edited ->
             MessageStatus.Edited(
@@ -153,8 +173,10 @@ class MessageMapper @Inject constructor(
                     utcISO = (message.editStatus as Message.EditStatus.Edited).lastTimeStamp
                 )
             )
+
         message is Message.Regular && message.content is MessageContent.FailedDecryption ->
             MessageStatus.DecryptionFailure((message.content as MessageContent.FailedDecryption).isDecryptionResolved)
+
         else -> MessageStatus.Untouched
     }
 

@@ -56,7 +56,7 @@ fun VerificationCode(
     ) {
 
         val state = if (isCurrentCodeInvalid) WireTextFieldState.Error(
-            stringResource(id = R.string.create_account_code_error)
+            stringResource(id = R.string.second_factor_code_error)
         )
         else WireTextFieldState.Default
 

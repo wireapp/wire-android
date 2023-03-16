@@ -265,7 +265,7 @@ fun LoginErrorDialog(
             )
         }
 
-        is LoginError.DialogError.InvalidCodeError -> LoginDialogErrorData(
+        is LoginError.DialogError.InvalidSSOCodeError -> LoginDialogErrorData(
             stringResource(R.string.login_error_invalid_credentials_title),
             stringResource(R.string.login_error_invalid_sso_code),
             onDialogDismiss

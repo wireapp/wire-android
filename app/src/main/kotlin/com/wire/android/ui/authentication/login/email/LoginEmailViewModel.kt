@@ -150,11 +150,18 @@ class LoginEmailViewModel @Inject constructor(
     }
 
     private suspend fun handleAuthenticationFailure(it: AuthenticationResult.Failure, authScope: AuthenticationScope) {
-        if (it is AuthenticationResult.Failure.InvalidCredentials.Missing2FA) {
-            loginState = loginState.updateEmailLoginEnabled()
-            request2FACode(authScope)
-        } else {
-            updateEmailLoginError(it.toLoginError())
+        when (it) {
+            is AuthenticationResult.Failure.InvalidCredentials.Missing2FA -> {
+                loginState = loginState.updateEmailLoginEnabled()
+                request2FACode(authScope)
+            }
+
+            is AuthenticationResult.Failure.InvalidCredentials.Invalid2FA -> {
+                loginState = loginState.updateEmailLoginEnabled()
+                secondFactorVerificationCodeState = secondFactorVerificationCodeState.copy(isCurrentCodeInvalid = true)
+            }
+
+            else -> updateEmailLoginError(it.toLoginError())
         }
     }
 

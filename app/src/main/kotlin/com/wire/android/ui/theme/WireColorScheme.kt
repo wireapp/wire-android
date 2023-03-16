@@ -94,7 +94,11 @@ data class WireColorScheme(
     val connectivityBarOngoingCallBackgroundColor: Color,
     val connectivityBarIssueBackgroundColor: Color,
     val messageComposerBackgroundColor: Color,
-    val messageComposerEditBackgroundColor: Color
+    val messageComposerEditBackgroundColor: Color,
+    val classifiedBannerBackgroundColor: Color,
+    val classifiedBannerForegroundColor: Color,
+    val unclassifiedBannerBackgroundColor: Color,
+    val unclassifiedBannerForegroundColor: Color
 ) {
     fun toColorScheme(): ColorScheme = ColorScheme(
         primary = primary,
@@ -219,7 +223,11 @@ private val LightWireColorScheme = WireColorScheme(
     connectivityBarOngoingCallBackgroundColor = WireColorPalette.LightGreen500,
     connectivityBarIssueBackgroundColor = WireColorPalette.LightBlue500,
     messageComposerBackgroundColor = Color.White,
-    messageComposerEditBackgroundColor = WireColorPalette.LightBlue50
+    messageComposerEditBackgroundColor = WireColorPalette.LightBlue50,
+    classifiedBannerBackgroundColor = WireColorPalette.LightGreen50,
+    classifiedBannerForegroundColor = WireColorPalette.LightGreen500,
+    unclassifiedBannerBackgroundColor = WireColorPalette.LightRed600,
+    unclassifiedBannerForegroundColor = Color.White
 )
 
 // Dark WireColorScheme
@@ -318,7 +326,11 @@ private val DarkWireColorScheme = WireColorScheme(
     connectivityBarOngoingCallBackgroundColor = WireColorPalette.DarkGreen700,
     connectivityBarIssueBackgroundColor = WireColorPalette.LightBlue500,
     messageComposerBackgroundColor = WireColorPalette.Gray100,
-    messageComposerEditBackgroundColor = WireColorPalette.DarkBlue800
+    messageComposerEditBackgroundColor = WireColorPalette.DarkBlue800,
+    classifiedBannerBackgroundColor = WireColorPalette.DarkGreen900,
+    classifiedBannerForegroundColor = WireColorPalette.DarkGreen500,
+    unclassifiedBannerBackgroundColor = WireColorPalette.DarkRed500,
+    unclassifiedBannerForegroundColor = Color.Black
 )
 
 @PackagePrivate

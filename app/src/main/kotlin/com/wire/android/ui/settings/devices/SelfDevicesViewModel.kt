@@ -44,7 +44,7 @@ import kotlinx.coroutines.launch
 class SelfDevicesViewModel @Inject constructor(
     @CurrentAccount private val currentAccountId: UserId,
     private val navigationManager: NavigationManager,
-    private val selfClientsUseCase: FetchSelfClientsFromRemoteUseCase,
+    private val fetchSelfClientsFromRemote: FetchSelfClientsFromRemoteUseCase,
     private val observeClientList: ObserveClientsByUserIdUseCase,
     private val currentClientIdUseCase: ObserveCurrentClientIdUseCase
 ) : ViewModel() {
@@ -83,7 +83,7 @@ class SelfDevicesViewModel @Inject constructor(
 
     private fun loadClientsList() {
         viewModelScope.launch {
-            selfClientsUseCase()
+            fetchSelfClientsFromRemote()
         }
     }
 

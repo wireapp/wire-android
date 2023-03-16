@@ -144,6 +144,12 @@ class MessageMapper @Inject constructor(
     )
 
     private fun getMessageStatus(message: Message.Standalone) = when {
+        message.status == Message.Status.FAILED && message is Message.Regular && message.editStatus is Message.EditStatus.Edited ->
+            MessageStatus.EditSendFailure(
+                isoFormatter.fromISO8601ToTimeFormat(
+                    utcISO = (message.editStatus as Message.EditStatus.Edited).lastTimeStamp
+                )
+            )
         message.status == Message.Status.FAILED -> MessageStatus.SendFailure
         message.status == Message.Status.FAILED_REMOTELY -> MessageStatus.SendRemotelyFailure(message.conversationId.domain)
         message.visibility == Message.Visibility.DELETED -> MessageStatus.Deleted

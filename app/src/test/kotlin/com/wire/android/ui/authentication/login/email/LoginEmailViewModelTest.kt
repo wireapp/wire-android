@@ -347,6 +347,16 @@ class LoginEmailViewModelTest {
     }
 
     @Test
+    fun `given login fails with invalid 2fa, when logging in, then should mark the current code as invalid`() = runTest {
+        coEvery { loginUseCase(any(), any(), any(), any(), any()) } returns AuthenticationResult.Failure.InvalidCredentials.Invalid2FA
+        loginViewModel.onUserIdentifierChange(TextFieldValue("some.email@example.org"))
+
+        loginViewModel.login()
+
+        loginViewModel.secondFactorVerificationCodeState.isCurrentCodeInvalid shouldBe true
+    }
+
+    @Test
     fun `given 2fa is needed, when code is filled, then should login with entered code and navigate out of login`() = runTest {
         val email = "some.email@example.org"
         val code = "123456"

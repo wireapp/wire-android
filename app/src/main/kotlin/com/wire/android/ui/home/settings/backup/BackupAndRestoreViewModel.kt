@@ -28,6 +28,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.BuildConfig
 import com.wire.android.appLogger
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
@@ -127,6 +128,13 @@ class BackupAndRestoreViewModel
                 when (result) {
                     is VerifyBackupResult.Success.Encrypted -> showPasswordDialog()
                     is VerifyBackupResult.Success.NotEncrypted -> importDatabase(importedBackupPath)
+                    VerifyBackupResult.Success.Web -> {
+                        if (BuildConfig.DEVELOPER_FEATURES_ENABLED) {
+                            importDatabase(importedBackupPath)
+                        } else {
+                            state = state.copy(restoreFileValidation = RestoreFileValidation.IncompatibleBackup)
+                        }
+                    }
                 }
             }
 

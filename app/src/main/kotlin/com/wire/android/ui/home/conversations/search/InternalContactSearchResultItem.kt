@@ -142,7 +142,7 @@ fun ExternalContactSearchResultItem(
         },
         actions = {
             when (connectionState) {
-                ConnectionState.NOT_CONNECTED ->
+                ConnectionState.NOT_CONNECTED, ConnectionState.CANCELLED ->
                     AddContactButton(onAddContactClicked)
                 ConnectionState.PENDING, ConnectionState.IGNORED ->
                     Box(modifier = Modifier.padding(horizontal = dimensions().spacing12x)) { ConnectRequestBadge() }
@@ -150,8 +150,11 @@ fun ExternalContactSearchResultItem(
                     Box(modifier = Modifier.padding(horizontal = dimensions().spacing12x)) { ConnectPendingRequestBadge() }
                 ConnectionState.BLOCKED -> {
                 }
-                else -> {
-                    appLogger.e("Unknown ConnectionStatus in InternalContactSearchResultItem")
+                ConnectionState.MISSING_LEGALHOLD_CONSENT -> {
+                    appLogger.e("Unhandled ConnectionState.MISSING_LEGALHOLD_CONSENT in ExternalContactSearchResultItem")
+                }
+                ConnectionState.ACCEPTED -> {
+                    appLogger.e("ConnectionState.ACCEPTED should not appear in ExternalContactSearchResultItem")
                 }
             }
         },

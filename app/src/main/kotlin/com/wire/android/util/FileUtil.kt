@@ -271,7 +271,7 @@ fun openAssetFileWithExternalApp(assetDataPath: Path, context: Context, assetNam
 fun shareAssetFileWithExternalApp(assetDataPath: Path, context: Context, assetName: String?, onError: () -> Unit) {
     try {
         val assetUri = context.pathToUri(assetDataPath, assetName)
-        val mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(assetName)
+        val mimeType = assetUri.getMimeType(context)
         // Set intent and launch
         val intent = Intent()
         intent.apply {

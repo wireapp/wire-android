@@ -166,7 +166,6 @@ class ConversationMessagesViewModel @Inject constructor(
         }
         val assetContent = messageContent.value
         assetDataPath(conversationId, messageId)?.run {
-
             showOnAssetDownloadedDialog(assetContent.name ?: "", first, assetContent.sizeInBytes, messageId)
         }
     }

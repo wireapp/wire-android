@@ -45,7 +45,6 @@ import com.wire.kalium.logic.feature.backup.RestoreBackupResult.Failure
 import com.wire.kalium.logic.feature.backup.RestoreBackupUseCase
 import com.wire.kalium.logic.feature.backup.VerifyBackupResult
 import com.wire.kalium.logic.feature.backup.VerifyBackupUseCase
-import com.wire.kalium.logic.util.fileExtension
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -141,7 +140,7 @@ class BackupAndRestoreViewModelTest {
         coVerify(exactly = 1) {
             arrangement.fileManager.shareWithExternalApp(
                 storedBackup.path,
-                storedBackup.assetName.fileExtension(),
+                storedBackup.assetName,
                 any()
             )
         }

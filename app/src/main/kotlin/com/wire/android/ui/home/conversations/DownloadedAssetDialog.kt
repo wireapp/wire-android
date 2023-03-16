@@ -27,7 +27,6 @@ import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.util.permission.rememberWriteStorageRequestFlow
-import com.wire.kalium.logic.util.fileExtension
 import okio.Path
 
 @Composable
@@ -56,7 +55,7 @@ fun DownloadedAssetDialog(
             optionButton2Properties = WireDialogButtonProperties(
                 text = stringResource(R.string.asset_download_dialog_open_text),
                 type = WireDialogButtonType.Primary,
-                onClick = { onOpenFileWithExternalApp(assetDataPath, assetName.fileExtension()) }
+                onClick = { onOpenFileWithExternalApp(assetDataPath, assetName) }
             ),
             optionButton1Properties = WireDialogButtonProperties(
                 text = stringResource(R.string.asset_download_dialog_save_text),

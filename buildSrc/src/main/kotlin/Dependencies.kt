@@ -71,7 +71,7 @@ object Repositories {
 
 object Libraries {
     object Versions {
-        const val kotlin = "1.7.21"
+        const val kotlin = "1.8.10"
         const val coroutines = "1.6.1-native-mt"
         const val jetpack = "1.1.0"
         const val constraintLayout = "2.1.4"
@@ -83,7 +83,7 @@ object Libraries {
         const val workManager = "2.7.1"
         const val fragment = "1.5.5"
         const val compose = "1.3.1"
-        const val composeCompiler = "1.3.2"
+        const val composeCompiler = "1.4.3"
         const val composeMaterial = "1.3.1"
         const val composeMaterial3 = "1.0.1"
         const val composeActivity = "1.6.1"

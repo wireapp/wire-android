@@ -115,7 +115,8 @@ fun MessageComposer(
                         )
                     )
                 }
-                messageComposerState.toNewMessage(clearInput = true)
+                messageComposerState.focusManager.clearFocus()
+                messageComposerState.toInactive(clearInput = true)
             }
         }
 

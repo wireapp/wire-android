@@ -22,13 +22,13 @@
 
 package com.wire.android.util
 
-import com.wire.android.R
 import android.app.DownloadManager
 import android.content.ActivityNotFoundException
 import android.content.ContentResolver
 import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
+import android.database.Cursor
 import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Build
@@ -36,6 +36,9 @@ import android.os.Environment
 import android.os.Environment.DIRECTORY_DOWNLOADS
 import android.os.Parcelable
 import android.provider.MediaStore
+import android.provider.MediaStore.MediaColumns.DISPLAY_NAME
+import android.provider.MediaStore.MediaColumns.MIME_TYPE
+import android.provider.MediaStore.MediaColumns.SIZE
 import android.provider.OpenableColumns
 import android.provider.Settings
 import android.webkit.MimeTypeMap
@@ -44,6 +47,7 @@ import androidx.annotation.NonNull
 import androidx.annotation.VisibleForTesting
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
+import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.util.ImageUtil.ImageSizeClass
 import com.wire.android.util.ImageUtil.ImageSizeClass.Medium
@@ -110,9 +114,9 @@ private fun Context.saveFileDataToDownloadsFolder(assetName: String, downloadedD
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
         val contentValues = ContentValues().apply {
             // ContentResolver modifies the name if another file with the given name already exists, so we don't have to worry about it
-            put(MediaStore.MediaColumns.DISPLAY_NAME, assetName.ifEmpty { ATTACHMENT_FILENAME })
-            put(MediaStore.MediaColumns.MIME_TYPE, mimeType)
-            put(MediaStore.MediaColumns.SIZE, fileSize)
+            put(DISPLAY_NAME, assetName.ifEmpty { ATTACHMENT_FILENAME })
+            put(MIME_TYPE, mimeType)
+            put(SIZE, fileSize)
         }
         resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)
     } else {
@@ -149,10 +153,11 @@ private fun Context.saveFileDataToDownloadsFolder(assetName: String, downloadedD
     }
 }
 
-fun Context.pathToUri(assetDataPath: Path): Uri = FileProvider.getUriForFile(this, getProviderAuthority(), assetDataPath.toFile())
+fun Context.pathToUri(assetDataPath: Path, assetName: String?): Uri =
+    FileProvider.getUriForFile(this, getProviderAuthority(), assetDataPath.toFile(), assetName ?: assetDataPath.name)
 
 fun Uri.getMimeType(context: Context): String? {
-    val extension: String? = if (this.scheme == ContentResolver.SCHEME_CONTENT) {
+    val mimeType: String? = if (this.scheme == ContentResolver.SCHEME_CONTENT) {
         context.contentResolver.getType(this)
     } else {
         // If scheme is a File
@@ -161,7 +166,7 @@ fun Uri.getMimeType(context: Context): String? {
         val fileExtension = MimeTypeMap.getFileExtensionFromUrl(Uri.fromFile(this.path?.let { File(it) }).toString())
         MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileExtension.lowercase(Locale.getDefault()))
     }
-    return extension
+    return mimeType
 }
 
 suspend fun Uri.resampleImageAndCopyToTempPath(
@@ -198,22 +203,20 @@ private fun Context.getContentFileName(uri: Uri): String? = runCatching {
     }
 }.getOrNull()
 
-fun Context.startFileShareIntent(path: String) {
-    val file = File(path)
+fun Context.startFileShareIntent(path: Path, assetName: String?) {
+    val assetDisplayName = assetName ?: path.name
     val fileURI = FileProvider.getUriForFile(
         this, getProviderAuthority(),
-        file
+        path.toFile(), assetDisplayName
     )
     val shareIntent = Intent(Intent.ACTION_SEND)
     shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
     shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
     shareIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-    shareIntent.putExtra(
-        Intent.EXTRA_SUBJECT,
-        resources.getString(R.string.export_media_subject_title)
-    )
+    shareIntent.putExtra(Intent.EXTRA_SUBJECT, resources.getString(R.string.export_media_subject_title))
 
     shareIntent.putExtra(Intent.EXTRA_STREAM, fileURI)
+    assetName?.let { shareIntent.putExtra(Intent.EXTRA_SUBJECT, it) }
     shareIntent.type = fileURI.getMimeType(context = this)
     startActivity(shareIntent)
 }
@@ -244,10 +247,10 @@ fun Context.getUrisOfFilesInDirectory(dir: File): ArrayList<Uri> {
     return files
 }
 
-fun openAssetFileWithExternalApp(assetDataPath: Path, context: Context, assetExtension: String?, onError: () -> Unit) {
+fun openAssetFileWithExternalApp(assetDataPath: Path, context: Context, assetName: String?, onError: () -> Unit) {
     try {
-        val assetUri = context.pathToUri(assetDataPath)
-        val mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(assetExtension)
+        val assetUri = context.pathToUri(assetDataPath, assetName)
+        val mimeType = assetUri.getMimeType(context)
         // Set intent and launch
         val intent = Intent()
         intent.apply {
@@ -266,10 +269,10 @@ fun openAssetFileWithExternalApp(assetDataPath: Path, context: Context, assetExt
     }
 }
 
-fun shareAssetFileWithExternalApp(assetDataPath: Path, context: Context, assetExtension: String?, onError: () -> Unit) {
+fun shareAssetFileWithExternalApp(assetDataPath: Path, context: Context, assetName: String?, onError: () -> Unit) {
     try {
-        val assetUri = context.pathToUri(assetDataPath)
-        val mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(assetExtension)
+        val assetUri = context.pathToUri(assetDataPath, assetName)
+        val mimeType = assetUri.getMimeType(context)
         // Set intent and launch
         val intent = Intent()
         intent.apply {
@@ -299,19 +302,29 @@ inline fun <reified T : Parcelable> Intent.parcelableArrayList(key: String): Arr
     else -> @Suppress("DEPRECATION") getParcelableArrayListExtra(key)
 }
 
-fun Uri.getMetaDataFromUri(context: Context): FileMetaData {
-    context.contentResolver.query(this, null, null, null, null)?.use { cursor ->
+fun Uri.getMetadataFromUri(context: Context): FileMetaData {
+    return context.contentResolver.query(this, null, null, null, null)?.use { cursor ->
         if (cursor.moveToFirst()) {
-            val displayName =
-                cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DISPLAY_NAME))
-            val size = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.SIZE))
-            return FileMetaData(displayName, size)
+            val displayName = cursor.getValidDisplayName()
+            val mimeType = cursor.getValidMimeType()
+            val size = cursor.getValidSize()
+            FileMetaData(displayName, size, mimeType)
+        } else {
+            FileMetaData()
         }
-    }
-    return FileMetaData()
+    } ?: FileMetaData()
 }
 
-data class FileMetaData(val name: String = "", val size: Long = 0L)
+private fun Cursor.getValidDisplayName(): String =
+    getColumnIndex(DISPLAY_NAME).run { takeIf { it > -1 }?.let { getString(it) } ?: "" }
+
+private fun Cursor.getValidMimeType(): String =
+    getColumnIndex(MIME_TYPE).run { takeIf { it > -1 }?.let { getString(it) } ?: "" }
+
+private fun Cursor.getValidSize(): Long =
+    getColumnIndex(SIZE).run { takeIf { it > -1 }?.let { getLong(it) } ?: 0L }
+
+data class FileMetaData(val name: String = "", val size: Long = 0L, val mimeType: String = "")
 
 fun isImageFile(mimeType: String?): Boolean {
     return mimeType != null && mimeType.startsWith("image/")
@@ -358,6 +371,5 @@ fun findFirstUniqueName(dir: File, desiredName: String): String {
 }
 
 private const val ATTACHMENT_FILENAME = "attachment"
-private const val TEMP_IMG_ATTACHMENT_FILENAME = "image_attachment.jpg"
 private const val DATA_COPY_BUFFER_SIZE = 2048
 const val SDK_VERSION = 33

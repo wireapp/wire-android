@@ -72,7 +72,7 @@ import com.wire.kalium.logic.feature.conversation.guestroomlink.GenerateGuestRoo
 import com.wire.kalium.logic.feature.conversation.guestroomlink.ObserveGuestRoomLinkUseCase
 import com.wire.kalium.logic.feature.conversation.guestroomlink.RevokeGuestRoomLinkUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
-import com.wire.kalium.logic.feature.message.EnqueueMessageSelfDeletionUseCase
+import com.wire.kalium.logic.feature.message.ephemeral.EnqueueMessageSelfDeletionUseCase
 import com.wire.kalium.logic.feature.message.GetMessageByIdUseCase
 import com.wire.kalium.logic.feature.message.GetNotificationsUseCase
 import com.wire.kalium.logic.feature.message.ObserveMessageReactionsUseCase

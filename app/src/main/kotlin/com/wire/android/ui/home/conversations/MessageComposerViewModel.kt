@@ -71,7 +71,7 @@ import com.wire.kalium.logic.feature.conversation.ObserveConversationInteraction
 import com.wire.kalium.logic.feature.conversation.ObserveSecurityClassificationLabelUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationReadDateUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
-import com.wire.kalium.logic.feature.message.EnqueueMessageSelfDeletionUseCase
+import com.wire.kalium.logic.feature.message.ephemeral.EnqueueMessageSelfDeletionUseCase
 import com.wire.kalium.logic.feature.message.SendKnockUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase

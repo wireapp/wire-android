@@ -179,17 +179,15 @@ class ConversationMessagesViewModel @Inject constructor(
             return
         }
         val assetContent = messageContent.value
-        val resultData = assetDataPath(conversationId, messageId)
-
-        if (resultData != null) {
-            showOnAssetDownloadedDialog(assetContent.name ?: "", resultData, assetContent.sizeInBytes, messageId)
+        assetDataPath(conversationId, messageId)?.run {
+            showOnAssetDownloadedDialog(assetContent.name ?: "", first, assetContent.sizeInBytes, messageId)
         }
     }
 
-    fun onOpenFileWithExternalApp(assetDataPath: Path, assetExtension: String?) {
+    fun onOpenFileWithExternalApp(assetDataPath: Path, assetName: String?) {
         viewModelScope.launch {
             withContext(dispatchers.io()) {
-                fileManager.openWithExternalApp(assetDataPath, assetExtension) { onOpenFileError() }
+                fileManager.openWithExternalApp(assetDataPath, assetName) { onOpenFileError() }
                 hideOnAssetDownloadedDialog()
             }
         }
@@ -258,14 +256,16 @@ class ConversationMessagesViewModel @Inject constructor(
 
     fun shareAsset(context: Context, messageId: String) {
         viewModelScope.launch {
-            context.startFileShareIntent(assetDataPath(conversationId, messageId).toString())
+            assetDataPath(conversationId, messageId)?.run {
+                context.startFileShareIntent(first, second)
+            }
         }
     }
 
-    private suspend fun assetDataPath(conversationId: QualifiedID, messageId: String): Path? =
+    private suspend fun assetDataPath(conversationId: QualifiedID, messageId: String): Pair<Path, String>? =
         getMessageAsset(conversationId, messageId).await().run {
             return when (this) {
-                is MessageAssetResult.Success -> decodedAssetPath
+                is MessageAssetResult.Success -> decodedAssetPath to assetName
                 else -> null
             }
         }

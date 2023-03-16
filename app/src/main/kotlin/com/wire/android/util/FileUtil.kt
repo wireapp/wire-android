@@ -28,6 +28,7 @@ import android.content.ContentResolver
 import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
+import android.database.Cursor
 import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Build
@@ -301,17 +302,27 @@ inline fun <reified T : Parcelable> Intent.parcelableArrayList(key: String): Arr
     else -> @Suppress("DEPRECATION") getParcelableArrayListExtra(key)
 }
 
-@Suppress("NestedBlockDepth")
-fun Uri.getMetaDataFromUri(context: Context): FileMetaData = context.contentResolver.query(this, null, null, null, null)?.use { cursor ->
-    if (cursor.moveToFirst()) {
-        val displayName = cursor.getColumnIndex(DISPLAY_NAME).run { takeIf { it > -1 }?.let { cursor.getString(it) } ?: "" }
-        val mimeType = cursor.getColumnIndex(MIME_TYPE).run { takeIf { it > -1 }?.let { cursor.getString(it) } ?: "" }
-        val size = cursor.getColumnIndex(SIZE).run { takeIf { it > -1 }?.let { cursor.getLong(it) } ?: 0L }
-        FileMetaData(displayName, size, mimeType)
-    } else {
-        FileMetaData()
-    }
-} ?: FileMetaData()
+fun Uri.getMetadataFromUri(context: Context): FileMetaData {
+    return context.contentResolver.query(this, null, null, null, null)?.use { cursor ->
+        if (cursor.moveToFirst()) {
+            val displayName = cursor.getValidDisplayName()
+            val mimeType = cursor.getValidMimeType()
+            val size = cursor.getValidSize()
+            FileMetaData(displayName, size, mimeType)
+        } else {
+            FileMetaData()
+        }
+    } ?: FileMetaData()
+}
+
+private fun Cursor.getValidDisplayName(): String =
+    getColumnIndex(DISPLAY_NAME).run { takeIf { it > -1 }?.let { getString(it) } ?: "" }
+
+private fun Cursor.getValidMimeType(): String =
+    getColumnIndex(MIME_TYPE).run { takeIf { it > -1 }?.let { getString(it) } ?: "" }
+
+private fun Cursor.getValidSize(): Long =
+    getColumnIndex(SIZE).run { takeIf { it > -1 }?.let { getLong(it) } ?: 0L }
 
 data class FileMetaData(val name: String = "", val size: Long = 0L, val mimeType: String = "")
 
@@ -360,6 +371,5 @@ fun findFirstUniqueName(dir: File, desiredName: String): String {
 }
 
 private const val ATTACHMENT_FILENAME = "attachment"
-private const val TEMP_IMG_ATTACHMENT_FILENAME = "image_attachment.jpg"
 private const val DATA_COPY_BUFFER_SIZE = 2048
 const val SDK_VERSION = 33

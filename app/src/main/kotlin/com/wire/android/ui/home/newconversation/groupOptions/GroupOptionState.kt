@@ -30,10 +30,6 @@ data class GroupOptionState(
     val isAllowServicesEnabled: Boolean = true,
     val isReadReceiptEnabled: Boolean = true,
     val showAllowGuestsDialog: Boolean = false,
-    val accessRoleState: MutableSet<Conversation.AccessRole> = Conversation
-        .defaultGroupAccessRoles
-        .toMutableSet()
-        .apply { add(Conversation.AccessRole.SERVICE) },
     val error: Error? = null
 ) {
     sealed interface Error {

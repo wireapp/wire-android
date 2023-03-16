@@ -48,7 +48,6 @@ import com.wire.kalium.logic.feature.backup.RestoreBackupResult.BackupRestoreFai
 import com.wire.kalium.logic.feature.backup.RestoreBackupUseCase
 import com.wire.kalium.logic.feature.backup.VerifyBackupResult
 import com.wire.kalium.logic.feature.backup.VerifyBackupUseCase
-import com.wire.kalium.logic.util.fileExtension
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -106,7 +105,7 @@ class BackupAndRestoreViewModel
     fun saveBackup() = viewModelScope.launch(dispatcher.main()) {
         latestCreatedBackup?.let { backupData ->
             withContext(dispatcher.io()) {
-                fileManager.shareWithExternalApp(backupData.path, backupData.assetName.fileExtension()) {}
+                fileManager.shareWithExternalApp(backupData.path, backupData.assetName) {}
             }
         }
         state = BackupAndRestoreState.INITIAL_STATE

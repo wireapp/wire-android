@@ -29,7 +29,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.model.ImageAsset
 import com.wire.android.model.parseIntoPrivateImageAsset
+import com.wire.android.navigation.EXTRA_GROUP_DELETED_NAME
 import com.wire.android.navigation.EXTRA_IMAGE_DATA
+import com.wire.android.navigation.EXTRA_ON_MESSAGE_DETAILS_CLICKED
+import com.wire.android.navigation.EXTRA_ON_MESSAGE_REACTED
+import com.wire.android.navigation.EXTRA_ON_MESSAGE_REPLIED
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.conversations.MediaGallerySnackbarMessages
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogActiveState
@@ -123,6 +127,19 @@ class MediaGalleryViewModel @Inject constructor(
                     updateMediaGalleryTitle(getScreenTitle(it))
                 }
         }
+    }
+
+    fun onMessageReacted(emoji: String) = viewModelScope.launch {
+        navigationManager.navigateBack(mapOf(EXTRA_ON_MESSAGE_REACTED to Pair(imageAssetId.messageId, emoji)))
+    }
+
+    fun onMessageReplied() = viewModelScope.launch {
+        navigationManager.navigateBack(mapOf(EXTRA_ON_MESSAGE_REPLIED to imageAssetId.messageId))
+    }
+
+    fun onMessageDetailsClicked() = viewModelScope.launch {
+        val isSelfAsset = imageAssetId.isSelfAsset
+        navigationManager.navigateBack(mapOf(EXTRA_ON_MESSAGE_DETAILS_CLICKED to Pair(imageAssetId.messageId, isSelfAsset)))
     }
 
     private fun getScreenTitle(conversationDetails: ConversationDetails): String? =

@@ -134,7 +134,6 @@ fun ConversationScreen(
     LaunchedEffect(messageComposerViewModel.savedStateHandle) {
         messageComposerViewModel.checkPendingActions()
     }
-
     LaunchedEffect(Unit) {
         conversationInfoViewModel.observeConversationDetails()
     }
@@ -306,6 +305,16 @@ private fun ConversationScreen(
     val conversationScreenState = rememberConversationScreenState()
     val messageComposerInnerState = rememberMessageComposerInnerState()
     val context = LocalContext.current
+
+    LaunchedEffect(conversationMessagesViewModel.savedStateHandle) {
+        conversationMessagesViewModel.checkPendingActions(
+            onMessageReply = {
+                messageComposerInnerState.reply(it)
+            },
+            onMessageDetailsClick = { messageId, isSelfMessage ->
+                onMessageDetailsClick(messageId, isSelfMessage)
+            })
+    }
     MenuModalSheetLayout(
         sheetState = conversationScreenState.modalBottomSheetState,
         coroutineScope = conversationScreenState.coroutineScope,

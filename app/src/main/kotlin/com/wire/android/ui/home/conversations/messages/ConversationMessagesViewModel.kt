@@ -27,18 +27,26 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.paging.cachedIn
+import androidx.paging.filter
+import androidx.paging.flatMap
+import androidx.paging.map
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.media.audiomessage.ConversationAudioMessagePlayer
 import com.wire.android.model.SnackBarMessage
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
+import com.wire.android.navigation.EXTRA_ON_MESSAGE_DETAILS_CLICKED
+import com.wire.android.navigation.EXTRA_ON_MESSAGE_REACTED
+import com.wire.android.navigation.EXTRA_ON_MESSAGE_REPLIED
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.navigation.SavedStateViewModel
+import com.wire.android.navigation.getBackNavArg
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.OnResetSession
 import com.wire.android.ui.home.conversations.DownloadedAssetDialogVisibilityState
+import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.usecase.GetMessagesForConversationUseCase
 import com.wire.android.util.FileManager
 import com.wire.android.util.dispatchers.DispatcherProvider
@@ -61,6 +69,7 @@ import com.wire.kalium.logic.feature.sessionreset.ResetSessionUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -274,6 +283,30 @@ class ConversationMessagesViewModel @Inject constructor(
         viewModelScope.launch {
             conversationAudioMessagePlayer.setPosition(messageId, position)
         }
+    }
+
+    fun checkPendingActions(onMessageReply: (UIMessage) -> Unit, onMessageDetailsClick: (String, Boolean) -> Unit) = viewModelScope.launch {
+        savedStateHandle.getBackNavArg<Pair<String, String>>(EXTRA_ON_MESSAGE_REACTED)?.let { (messageId, emoji) ->
+            toggleReaction(messageId, emoji)
+        }
+        savedStateHandle.getBackNavArg<String>(EXTRA_ON_MESSAGE_REPLIED)?.let { messageId ->
+            conversationViewState.messages.collectLatest {
+                it.map { uiMsg ->
+                   if (uiMsg.messageHeader.messageId == messageId) onMessageReply(uiMsg)
+                }
+            }
+        }
+        savedStateHandle.getBackNavArg<Pair<String, Boolean>>(EXTRA_ON_MESSAGE_DETAILS_CLICKED)?.let { (messageId, isSelfAsset) ->
+            conversationViewState.messages.collectLatest {
+                it.map { uiMsg ->
+                    onMessageDetailsClick(uiMsg.messageHeader.messageId, isSelfAsset)
+                }
+            }
+        }
+    }
+
+    suspend fun checkIsTherePendingReply(onMessageReply: (String) -> Unit) = viewModelScope.launch(dispatchers.io()) {
+
     }
 
     override fun onCleared() {

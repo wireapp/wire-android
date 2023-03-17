@@ -197,7 +197,7 @@ abstract class PublicWithKnownPeopleSearchViewModel(
                 }
 
                 is SendConnectionRequestResult.Success -> {
-                    _infoMessage.emit(SearchPeopleMessageType.SuccessConnectionSentRequest.uiText)
+                    mutableInfoMessage.emit(SearchPeopleMessageType.SuccessConnectionSentRequest.uiText)
                 }
             }
         }
@@ -253,8 +253,8 @@ abstract class SearchPeopleViewModel(
 
     protected val selectedContactsFlow = MutableStateFlow(emptyList<Contact>())
 
-    protected val _infoMessage = MutableSharedFlow<UIText>()
-    val infoMessage = _infoMessage.asSharedFlow()
+    protected val mutableInfoMessage = MutableSharedFlow<UIText>()
+    val infoMessage = mutableInfoMessage.asSharedFlow()
 
     fun searchQueryChanged(searchQuery: TextFieldValue) {
         val textQueryChanged = searchQueryTextFieldFlow.value.text != searchQuery.text

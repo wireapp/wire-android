@@ -99,8 +99,8 @@ class IncomingCallViewModel @Inject constructor(
 
     private fun onCallClosed() {
         viewModelScope.launch {
-            callRinger.stop()
             navigationManager.navigateBack()
+            callRinger.stop()
         }
     }
 
@@ -109,8 +109,8 @@ class IncomingCallViewModel @Inject constructor(
             observeIncomingCallJob.cancel()
             launch { rejectCall(conversationId = incomingCallConversationId) }
             launch {
-                callRinger.stop()
                 navigationManager.navigateBack()
+                callRinger.stop()
             }
         }
     }

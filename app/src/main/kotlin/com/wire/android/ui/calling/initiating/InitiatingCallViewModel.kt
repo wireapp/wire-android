@@ -94,8 +94,8 @@ class InitiatingCallViewModel @Inject constructor(
     }
 
     private fun onCallClosed() {
-        callRinger.stop()
         navigateBack()
+        callRinger.stop()
     }
 
     private suspend fun onCallEstablished() {

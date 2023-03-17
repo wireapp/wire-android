@@ -36,6 +36,8 @@ import com.wire.kalium.logic.data.user.UserId
 import io.mockk.coEvery
 import io.mockk.coVerify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.internal.assertEquals
 import org.junit.jupiter.api.Test
@@ -112,14 +114,17 @@ class ConversationInfoViewModelTest {
         coEvery {
             arrangement.qualifiedIdMapper.fromStringToQualifiedID("other@domain")
         } returns QualifiedID("other", "domain")
-
-        // When
-        viewModel.navigateToProfile(userId.toString())
-        // Then
-        coVerify(exactly = 1) {
-            arrangement.navigationManager.navigate(
-                NavigationCommand(NavigationItem.OtherUserProfile.getRouteWithArgs(listOf(userId, arrangement.conversationId)))
-            )
+        launch { viewModel.observeConversationDetails() }.run {
+            advanceUntilIdle()
+            // When
+            viewModel.navigateToProfile(userId.toString())
+            // Then
+            coVerify(exactly = 1) {
+                arrangement.navigationManager.navigate(
+                    NavigationCommand(NavigationItem.OtherUserProfile.getRouteWithArgs(listOf(userId, arrangement.conversationId)))
+                )
+            }
+            cancel()
         }
     }
 
@@ -133,13 +138,16 @@ class ConversationInfoViewModelTest {
             )
             .withSelfUser()
             .arrange()
-
-        // When - Then
-        assert(viewModel.conversationInfoViewState.conversationName is UIText.DynamicString)
-        assertEquals(
-            oneToOneConversationDetails.otherUser.name,
-            (viewModel.conversationInfoViewState.conversationName as UIText.DynamicString).value
-        )
+        launch { viewModel.observeConversationDetails() }.run {
+            advanceUntilIdle()
+            // When - Then
+            assert(viewModel.conversationInfoViewState.conversationName is UIText.DynamicString)
+            assertEquals(
+                oneToOneConversationDetails.otherUser.name,
+                (viewModel.conversationInfoViewState.conversationName as UIText.DynamicString).value
+            )
+            cancel()
+        }
     }
 
     @Test
@@ -152,9 +160,12 @@ class ConversationInfoViewModelTest {
             )
             .withSelfUser()
             .arrange()
-
-        // When - Then
-        assert(viewModel.conversationInfoViewState.conversationName is UIText.StringResource)
+        launch { viewModel.observeConversationDetails() }.run {
+            advanceUntilIdle()
+            // When - Then
+            assert(viewModel.conversationInfoViewState.conversationName is UIText.StringResource)
+            cancel()
+        }
     }
 
     @Test
@@ -165,13 +176,16 @@ class ConversationInfoViewModelTest {
             .withConversationDetailUpdate(conversationDetails = groupConversationDetails)
             .withSelfUser()
             .arrange()
-
-        // When - Then
-        assert(viewModel.conversationInfoViewState.conversationName is UIText.DynamicString)
-        assertEquals(
-            groupConversationDetails.conversation.name,
-            (viewModel.conversationInfoViewState.conversationName as UIText.DynamicString).value
-        )
+        launch { viewModel.observeConversationDetails() }.run {
+            advanceUntilIdle()
+            // When - Then
+            assert(viewModel.conversationInfoViewState.conversationName is UIText.DynamicString)
+            assertEquals(
+                groupConversationDetails.conversation.name,
+                (viewModel.conversationInfoViewState.conversationName as UIText.DynamicString).value
+            )
+            cancel()
+        }
     }
 
     @Test
@@ -185,21 +199,26 @@ class ConversationInfoViewModelTest {
             )
             .withSelfUser()
             .arrange()
+        launch { viewModel.observeConversationDetails() }.run {
+            advanceUntilIdle()
+            // When - Then
+            assert(viewModel.conversationInfoViewState.conversationName is UIText.DynamicString)
+            assertEquals(
+                firstConversationDetails.conversation.name,
+                (viewModel.conversationInfoViewState.conversationName as UIText.DynamicString).value
+            )
 
-        // When - Then
-        assert(viewModel.conversationInfoViewState.conversationName is UIText.DynamicString)
-        assertEquals(
-            firstConversationDetails.conversation.name,
-            (viewModel.conversationInfoViewState.conversationName as UIText.DynamicString).value
-        )
+            // When - Then
+            arrangement.withConversationDetailUpdate(conversationDetails = secondConversationDetails)
+            advanceUntilIdle()
 
-        // When - Then
-        arrangement.withConversationDetailUpdate(conversationDetails = secondConversationDetails)
-        assert(viewModel.conversationInfoViewState.conversationName is UIText.DynamicString)
-        assertEquals(
-            secondConversationDetails.conversation.name,
-            (viewModel.conversationInfoViewState.conversationName as UIText.DynamicString).value
-        )
+            assert(viewModel.conversationInfoViewState.conversationName is UIText.DynamicString)
+            assertEquals(
+                secondConversationDetails.conversation.name,
+                (viewModel.conversationInfoViewState.conversationName as UIText.DynamicString).value
+            )
+            cancel()
+        }
     }
 
     @Test
@@ -225,9 +244,12 @@ class ConversationInfoViewModelTest {
             )
             .withSelfUser()
             .arrange()
-
-        // When - Then
-        assert(viewModel.conversationInfoViewState.conversationName is UIText.StringResource)
+        launch { viewModel.observeConversationDetails() }.run {
+            advanceUntilIdle()
+            // When - Then
+            assert(viewModel.conversationInfoViewState.conversationName is UIText.StringResource)
+            cancel()
+        }
     }
 
     @Test
@@ -239,9 +261,13 @@ class ConversationInfoViewModelTest {
             .withConversationDetailUpdate(conversationDetails = conversationDetails)
             .withSelfUser()
             .arrange()
-        val actualAvatar = viewModel.conversationInfoViewState.conversationAvatar
-        // When - Then
-        assert(actualAvatar is ConversationAvatar.OneOne)
-        assertEquals(otherUserAvatar, (actualAvatar as ConversationAvatar.OneOne).avatarAsset?.userAssetId)
+        launch { viewModel.observeConversationDetails() }.run {
+            advanceUntilIdle()
+            val actualAvatar = viewModel.conversationInfoViewState.conversationAvatar
+            // When - Then
+            assert(actualAvatar is ConversationAvatar.OneOne)
+            assertEquals(otherUserAvatar, (actualAvatar as ConversationAvatar.OneOne).avatarAsset?.userAssetId)
+            cancel()
+        }
     }
 }

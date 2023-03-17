@@ -79,3 +79,15 @@ internal fun NavController.getCurrentNavigationItem(): NavigationItem? =
     this.currentDestination?.route?.let { currentRoute ->
         NavigationItem.fromRoute(currentRoute)
     }
+
+fun String.getPrimaryRoute(): String {
+    val splitByQuestion = this.split("?")
+    val splitBySlash = this.split("/")
+
+    val primaryRoute = when {
+        splitByQuestion.size > 1 -> splitByQuestion[0]
+        splitBySlash.size > 1 -> splitBySlash[0]
+        else -> this
+    }
+    return primaryRoute
+}

@@ -97,6 +97,7 @@ import com.wire.android.util.deeplink.DeepLinkProcessor
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
+import com.wire.kalium.logic.data.user.UserId
 import io.github.esentsov.PackagePrivate
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
@@ -120,18 +121,36 @@ enum class NavigationItem(
 
     Migration(
         primaryRoute = MIGRATION,
+        canonicalRoute = "$MIGRATION?$EXTRA_USER_ID={$EXTRA_USER_ID}",
         content = { MigrationScreen() },
-    ),
+    ) {
+        override fun getRouteWithArgs(arguments: List<Any>): String {
+            val userIdString: String = arguments.filterIsInstance<UserId>().firstOrNull()?.toString() ?: "{$EXTRA_USER_ID}"
+            return "$MIGRATION?$EXTRA_USER_ID=$userIdString"
+        }
+      },
 
     Login(
         primaryRoute = LOGIN,
-        canonicalRoute = LOGIN,
+        canonicalRoute = "$LOGIN?$EXTRA_USER_HANDLE={$EXTRA_USER_HANDLE}",
         content = { contentParams ->
             val ssoLoginResult = contentParams.arguments.filterIsInstance<DeepLinkResult.SSOLogin>().firstOrNull()
             LoginScreen(ssoLoginResult)
         },
+        deepLinks = listOf(
+            navDeepLink {
+                uriPattern = "${DeepLinkProcessor.DEEP_LINK_SCHEME}://" +
+                        "${DeepLinkProcessor.MIGRATION_LOGIN_HOST}/" +
+                        "{$EXTRA_USER_HANDLE}"
+            }
+        ),
         animationConfig = NavigationAnimationConfig.CustomAnimation(smoothSlideInFromRight(), smoothSlideOutFromLeft())
-    ),
+    ) {
+        override fun getRouteWithArgs(arguments: List<Any>): String {
+            val userHandleString: String = arguments.filterIsInstance<String>().firstOrNull()?.toString() ?: "{$EXTRA_USER_HANDLE}"
+            return "$LOGIN?$EXTRA_USER_HANDLE=$userHandleString"
+        }
+    },
 
     CreateTeam(
         primaryRoute = CREATE_TEAM,
@@ -403,21 +422,12 @@ enum class NavigationItem(
         return conversationId?.let { "$primaryRoute/$it" } ?: primaryRoute
     }
 
+    val itemName: String get() = ITEM_NAME_PREFIX + this.name
+
     companion object {
+        private const val ITEM_NAME_PREFIX = "NavigationItem."
         private val map: Map<String, NavigationItem> = values().associateBy { it.primaryRoute }
-
-        fun fromRoute(fullRoute: String): NavigationItem? {
-            val splitByQuestion = fullRoute.split("?")
-            val splitBySlash = fullRoute.split("/")
-
-            val primaryRoute = when {
-                splitByQuestion.size > 1 -> splitByQuestion[0]
-                splitBySlash.size > 1 -> splitBySlash[0]
-                else -> fullRoute
-            }
-
-            return map[primaryRoute]
-        }
+        fun fromRoute(fullRoute: String): NavigationItem? = map[fullRoute.getPrimaryRoute()]
     }
 }
 
@@ -458,6 +468,7 @@ object NavigationItemDestinationsRoutes {
 
 const val EXTRA_USER_ID = "extra_user_id"
 const val EXTRA_USER_DOMAIN = "extra_user_domain"
+const val EXTRA_USER_HANDLE = "extra_user_handle"
 
 const val EXTRA_CONVERSATION_ID = "extra_conversation_id"
 const val EXTRA_CREATE_ACCOUNT_FLOW_TYPE = "extra_create_account_flow_type"

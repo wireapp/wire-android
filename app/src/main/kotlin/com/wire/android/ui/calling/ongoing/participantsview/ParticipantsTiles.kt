@@ -33,7 +33,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -46,7 +45,6 @@ import com.wire.android.ui.calling.ongoing.participantsview.horizentalview.OneOn
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.wireDimensions
-import kotlinx.coroutines.flow.collectLatest
 
 @OptIn(ExperimentalPagerApi::class)
 @Composable
@@ -73,16 +71,16 @@ fun VerticalCallingPager(
 
                     val participantsChunkedList = participants.chunked(MAX_TILES_PER_PAGE)
                     val participantsWithCameraOn by rememberUpdatedState(participants.count { it.isCameraOn })
+                    val participantsWithScreenShareOn by rememberUpdatedState(participants.count { it.isSharingScreen })
 
-                    LaunchedEffect(participantsWithCameraOn) {
+                    LaunchedEffect(
+                        participantsWithCameraOn, // Request video stream when someone turns camera on/off
+                        participantsWithScreenShareOn, // Request video stream when someone starts sharing screen
+                        pagerState.currentPage // Request video stream when swiping to a different page on the grid
+                    ) {
                         requestVideoStreams(participantsChunkedList[pagerState.currentPage])
                     }
-                    LaunchedEffect(true) {
-                        snapshotFlow { pagerState.currentPage }.collectLatest { page ->
-                            if (page < participantsChunkedList.size)
-                                requestVideoStreams(participantsChunkedList[page])
-                        }
-                    }
+
                     if (participantsChunkedList[pageIndex].size <= MAX_ITEMS_FOR_ONE_ON_ONE_VIEW) {
                         OneOnOneCallView(
                             participants = participantsChunkedList[pageIndex],

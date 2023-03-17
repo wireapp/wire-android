@@ -28,7 +28,6 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -42,14 +41,15 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.window.DialogProperties
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.NavHostController
-import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.navigation.NavigationGraph
+import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.navigation.navigateToItem
 import com.wire.android.navigation.popWithArguments
+import com.wire.android.navigation.rememberTrackingAnimatedNavController
 import com.wire.android.ui.calling.ProximitySensorManager
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
@@ -72,7 +72,6 @@ import javax.inject.Inject
 
 @OptIn(
     ExperimentalMaterial3Api::class,
-    ExperimentalAnimationApi::class,
     ExperimentalComposeUiApi::class,
     ExperimentalCoroutinesApi::class
 )
@@ -98,7 +97,9 @@ class WireActivity : AppCompatActivity() {
         lifecycle.addObserver(currentScreenManager)
 
         viewModel.handleDeepLink(intent)
-        setComposableContent()
+        viewModel.observePersistentConnectionStatus()
+        val startDestination = viewModel.startNavigationRoute()
+        setComposableContent(startDestination)
     }
 
     override fun onNewIntent(intent: Intent?) {
@@ -108,7 +109,7 @@ class WireActivity : AppCompatActivity() {
         super.onNewIntent(intent)
     }
 
-    private fun setComposableContent() {
+    private fun setComposableContent(startDestination: String) {
         setContent {
             CompositionLocalProvider(
                 LocalFeatureVisibilityFlags provides FeatureVisibilityFlags,
@@ -116,17 +117,20 @@ class WireActivity : AppCompatActivity() {
             ) {
                 WireTheme {
                     val scope = rememberCoroutineScope()
-                    val navController = rememberAnimatedNavController()
-                    val startDestination = viewModel.startNavigationRoute()
-                    Scaffold {
-                        NavigationGraph(navController = navController, startDestination, viewModel.navigationArguments())
-                    }
-                    setUpNavigation(navController, scope)
-
+                    val navController = rememberTrackingAnimatedNavController() { NavigationItem.fromRoute(it)?.itemName }
+                    setUpNavigationGraph(startDestination, navController, scope)
                     handleDialogs()
                 }
             }
         }
+    }
+
+    @Composable
+    fun setUpNavigationGraph(startDestination: String, navController: NavHostController, scope: CoroutineScope) {
+        Scaffold {
+            NavigationGraph(navController = navController, startDestination, viewModel.navigationArguments())
+        }
+        setUpNavigation(navController, scope)
     }
 
     @Composable
@@ -191,9 +195,11 @@ class WireActivity : AppCompatActivity() {
                 CurrentSessionErrorState.SessionExpired -> {
                     R.string.session_expired_error_title to R.string.session_expired_error_message
                 }
+
                 CurrentSessionErrorState.RemovedClient -> {
                     R.string.removed_client_error_title to R.string.removed_client_error_message
                 }
+
                 CurrentSessionErrorState.DeletedAccount -> {
                     R.string.deleted_user_error_title to R.string.deleted_user_error_message
                 }

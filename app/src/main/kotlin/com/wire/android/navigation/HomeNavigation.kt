@@ -160,10 +160,16 @@ enum class HomeNavigationItem(
     fun toBottomNavigationItemData(notificationAmount: Long): WireBottomNavigationItemData =
         WireBottomNavigationItemData(icon, tabName, notificationAmount, route)
 
+    val itemName: String get() = ITEM_NAME_PREFIX + this.name
+
     companion object {
         // TODO uncomment when CallsScreen and MentionScreen will be implemented
 //         val bottomTabItems = listOf(Conversations, Calls, Mentions)
         val bottomTabItems = listOf<HomeNavigationItem>()
+
+        private const val ITEM_NAME_PREFIX = "HomeNavigationItem."
+        private val map: Map<String, HomeNavigationItem> = HomeNavigationItem.values().associateBy { it.route }
+        fun fromRoute(fullRoute: String): HomeNavigationItem? = map[fullRoute.getPrimaryRoute()]
     }
 }
 

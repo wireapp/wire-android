@@ -78,9 +78,9 @@ class LoginEmailViewModel @Inject constructor(
 
             val secondFactorVerificationCode = secondFactorVerificationCodeState.code.text.text
             val loginResult = authScope.login(
-                loginState.userIdentifier.text,
-                loginState.password.text,
-                true,
+                userIdentifier = loginState.userIdentifier.text,
+                password = loginState.password.text,
+                shouldPersistClient = true,
                 secondFactorVerificationCode = secondFactorVerificationCode
             )
             if (loginResult !is AuthenticationResult.Success) {

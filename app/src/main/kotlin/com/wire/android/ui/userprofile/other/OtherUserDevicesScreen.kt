@@ -27,15 +27,19 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.ui.authentication.devices.DeviceItem
 import com.wire.android.ui.authentication.devices.model.Device
+import com.wire.android.ui.common.Icon
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.divider.WireDivider
@@ -43,12 +47,12 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.ui.LinkText
 import com.wire.android.util.ui.LinkTextData
-import com.wire.kalium.logic.data.client.DeviceType
 
 @Composable
 fun OtherUserDevicesScreen(
     lazyListState: LazyListState = rememberLazyListState(),
-    state: OtherUserProfileState
+    state: OtherUserProfileState,
+    onDeviceClick: (Device) -> Unit
 ) {
     val context = LocalContext.current
     val supportUrl = BuildConfig.SUPPORT_URL + stringResource(id = R.string.url_why_verify_conversation)
@@ -79,18 +83,17 @@ fun OtherUserDevicesScreen(
                 )
             }
 
-            itemsIndexed(otherUserClients) { index, item ->
+            itemsIndexed(otherUserDevices) { index, item ->
                 DeviceItem(
-                    Device(
-                        name = item.deviceType?.name ?: DeviceType.Unknown.name,
-                        clientId = item.id,
-                        isValid = item.isValid
-                    ),
+                    item,
                     placeholder = false,
-                    background = null,
-                    leadingIcon = {}
+                    background = MaterialTheme.wireColorScheme.surface,
+                    isWholeItemClickable = true,
+                    onRemoveDeviceClick = onDeviceClick,
+                    leadingIcon = Icons.Filled.ChevronRight.Icon(),
+                    leadingIconBorder = 0.dp,
                 )
-                if (index < otherUserClients.lastIndex) WireDivider()
+                if (index < otherUserDevices.lastIndex) WireDivider()
             }
         }
     }

@@ -37,6 +37,7 @@ import com.wire.android.navigation.EXTRA_USER_ID
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.ui.authentication.devices.model.Device
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationSheetContent
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationTypeDetail
 import com.wire.android.ui.common.dialogs.BlockUserDialogState
@@ -62,6 +63,7 @@ import com.wire.android.ui.userprofile.other.OtherUserProfileInfoMessageType.Unb
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.WireSessionImageLoader
+import com.wire.kalium.logic.data.client.DeviceType
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
@@ -164,9 +166,26 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                             /* no-op */
                         }
 
-                        is ObserveClientsByUserIdUseCase.Result.Success -> state = state.copy(otherUserClients = it.clients)
+                        is ObserveClientsByUserIdUseCase.Result.Success -> {
+                            state = state.copy(otherUserDevices = it.clients.map { item ->
+                                Device(
+                                    name = item.deviceType?.name ?: DeviceType.Unknown.name,
+                                    clientId = item.id,
+                                    isValid = item.isValid,
+                                    isVerified = item.isVerified
+                                )
+                            })
+                        }
                     }
                 }
+        }
+    }
+
+    override fun onDeviceClick(device: Device) {
+        viewModelScope.launch {
+            navigationManager.navigate(
+                NavigationCommand(NavigationItem.DeviceDetails.getRouteWithArgs(listOf(device.clientId, userId)))
+            )
         }
     }
 

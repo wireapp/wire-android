@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
@@ -17,7 +18,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
@@ -41,6 +41,7 @@ import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.button.wirePrimaryButtonColors
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.settings.devices.model.DeviceDetailsState
 import com.wire.android.ui.theme.wireColorScheme
@@ -61,18 +62,16 @@ fun DeviceDetailsScreen(
     backNavArgs: ImmutableMap<String, Any> = persistentMapOf(),
     viewModel: DeviceDetailsViewModel = hiltSavedStateViewModel(backNavArgs = backNavArgs)
 ) {
-    viewModel.state?.let { state ->
-        DeviceDetailsContent(
-            state = state,
-            onDeleteDevice = viewModel::removeDevice,
-            onPasswordChange = viewModel::onPasswordChange,
-            onRemoveConfirm = viewModel::onRemoveConfirmed,
-            onDialogDismiss = viewModel::onDialogDismissed,
-            onErrorDialogDismiss = viewModel::clearDeleteClientError,
-            onNavigateBack = viewModel::navigateBack,
-            onUpdateClientVerification = viewModel::onUpdateVerificationStatus
-        )
-    }
+    DeviceDetailsContent(
+        state = viewModel.state,
+        onDeleteDevice = viewModel::removeDevice,
+        onPasswordChange = viewModel::onPasswordChange,
+        onRemoveConfirm = viewModel::onRemoveConfirmed,
+        onDialogDismiss = viewModel::onDialogDismissed,
+        onErrorDialogDismiss = viewModel::clearDeleteClientError,
+        onNavigateBack = viewModel::navigateBack,
+        onUpdateClientVerification = viewModel::onUpdateVerificationStatus
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -85,8 +84,9 @@ fun DeviceDetailsContent(
     onRemoveConfirm: () -> Unit = {},
     onDialogDismiss: () -> Unit = {},
     onErrorDialogDismiss: () -> Unit = {},
-    onUpdateClientVerification: (Boolean) -> Unit = {}
+    onUpdateClientVerification: (Boolean) -> Unit = {},
 ) {
+    val screenState = rememberConversationScreenState()
     Scaffold(
         topBar = {
             WireCenterAlignedTopAppBar(
@@ -95,13 +95,19 @@ fun DeviceDetailsContent(
                 title = state.device.name
             )
         },
+        snackbarHost = {
+            SwipeDismissSnackbarHost(
+                hostState = screenState.snackBarHostState,
+                modifier = Modifier.fillMaxWidth()
+            )
+        },
         bottomBar = {
             Column(
                 Modifier
                     .background(MaterialTheme.wireColorScheme.surface)
                     .wrapContentWidth(Alignment.CenterHorizontally)
             ) {
-                if (!state.isCurrentDevice) {
+                if (!state.isCurrentDevice && state.isCurrentUser) {
                     Text(
                         text = stringResource(
                             id = if (BuildConfig.WIPE_ON_DEVICE_REMOVAL) {
@@ -143,19 +149,16 @@ fun DeviceDetailsContent(
                 }
             }
             item {
-                DeviceDetailSectionContent(
-                    stringResource(id = R.string.label_client_device_id),
-                    Either.Left(state.device.clientId.formatAsString())
-                )
+                DeviceIdItem(state, screenState::copyMessage)
             }
 
             item {
-                DeviceKeyFingerprintItem(state.fingerPrint)
+                DeviceKeyFingerprintItem(state.fingerPrint, screenState::copyMessage)
             }
 
             if (!state.isCurrentDevice) {
                 item {
-                    DeviceVerificationItem(state.isVerified, state.fingerPrint != null, onUpdateClientVerification)
+                    DeviceVerificationItem(state.device.isVerified, state.fingerPrint != null, onUpdateClientVerification)
                 }
             }
         }
@@ -186,11 +189,25 @@ fun DeviceDetailsContent(
 }
 
 @Composable
-fun DeviceKeyFingerprintItem(
-    clientFingerPrint: String?
-) {
-    val clipboardManager = LocalClipboardManager.current
+private fun DeviceIdItem(state: DeviceDetailsState, onCopy: (String) -> Unit) {
+    DeviceDetailSectionContent(
+        sectionTitle = stringResource(id = R.string.label_client_device_id),
+        sectionText = Either.Left(state.device.clientId.formatAsString()),
+        titleTrailingItem = {
+            CopyButton(
+                onCopyClicked = {
+                    state.device.clientId.formatAsString().let { id -> onCopy(id) }
+                }
+            )
+        }
+    )
+}
 
+@Composable
+fun DeviceKeyFingerprintItem(
+    clientFingerPrint: String?,
+    onCopy: (String) -> Unit
+) {
     DeviceDetailSectionContent(
         stringResource(id = R.string.title_device_key_fingerprint),
         sectionText = clientFingerPrint?.formatAsFingerPrint()?.let { Either.Right(it) } ?: Either.Left(
@@ -200,9 +217,7 @@ fun DeviceKeyFingerprintItem(
         titleTrailingItem = {
             CopyButton(
                 onCopyClicked = {
-                    clientFingerPrint?.let { fingerprint ->
-                        clipboardManager.setText(AnnotatedString(fingerprint))
-                    }
+                    clientFingerPrint?.let { fingerprint -> onCopy(fingerprint) }
                 },
                 state = if (clientFingerPrint != null) WireButtonState.Default else WireButtonState.Disabled
             )

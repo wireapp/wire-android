@@ -69,7 +69,6 @@ interface OtherUserProfileFooterEventsHandler {
             override fun onCancelConnectionRequest() {}
             override fun onAcceptConnectionRequest() {}
             override fun onIgnoreConnectionRequest() {}
-
         }
     }
 }

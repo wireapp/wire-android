@@ -177,14 +177,6 @@ data class MessageComposerInnerState(
         inputFocusRequester.requestFocus()
     }
 
-    fun toNewMessage(clearInput: Boolean = false) {
-        messageComposeInputState = MessageComposeInputState.Active(
-            messageText = if (clearInput) TextFieldValue("") else messageComposeInputState.messageText,
-            type = MessageComposeInputType.NewMessage()
-        )
-        inputFocusRequester.requestFocus()
-    }
-
     fun showAttachmentOptions() = changeAttachmentOptionsVisibility(true)
     fun hideAttachmentOptions() = changeAttachmentOptionsVisibility(false)
     private fun changeAttachmentOptionsVisibility(newValue: Boolean) {

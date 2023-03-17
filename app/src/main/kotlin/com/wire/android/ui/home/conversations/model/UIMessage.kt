@@ -79,7 +79,7 @@ data class MessageFooter(
 
 sealed class MessageStatus(
     open val errorText: UIText? = null, // error description text shown below the content of the message
-    open val badgeText: UIText? = null, // text shown between tne user name and the content in the outlined box with a text inside
+    open val badgeText: UIText? = null, // text shown between the user name and the content in the outlined box with a text inside
 ) {
     sealed class MessageSendFailureStatus : MessageStatus() {
         abstract override val errorText: UIText

@@ -60,7 +60,7 @@ class CallNotificationManager @Inject constructor(private val context: Context) 
         // Due to the signals being one after the other we are creating a notification when we are trying to cancel it, it wasn't properly
         // cancelling vibration as probably when we were cancelling, the vibration object was still being created and started and thus
         // never stopped.
-        TimeUnit.MILLISECONDS.sleep(300L)
+        TimeUnit.MILLISECONDS.sleep(CANCEL_CALL_NOTIFICATION_DELAY)
         notificationManager.cancel(NotificationConstants.CALL_INCOMING_NOTIFICATION_ID)
     }
 
@@ -142,6 +142,7 @@ class CallNotificationManager @Inject constructor(private val context: Context) 
         private const val TAG = "CallNotificationManager"
         private const val INCOMING_CALL_TIMEOUT: Long = 30 * 1000
         private val VIBRATE_PATTERN = longArrayOf(0, 1000, 1000)
+        private const val CANCEL_CALL_NOTIFICATION_DELAY = 300L
 
         fun hideIncomingCallNotification(context: Context) {
             NotificationManagerCompat.from(context).cancel(NotificationConstants.CALL_INCOMING_NOTIFICATION_ID)

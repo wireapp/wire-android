@@ -20,7 +20,7 @@ fun rememberSelfDeletionTimer(expirationStatus: ExpirationStatus): SelfDeletionT
 
 sealed class SelfDeletionTimer {
     companion object {
-        fun fromExpirationStatus(expirationStatus: ExpirationStatus?): SelfDeletionTimer {
+        fun fromExpirationStatus(expirationStatus: ExpirationStatus): SelfDeletionTimer {
             return if (expirationStatus is ExpirationStatus.Expirable) {
                 with(expirationStatus) {
                     val timeLeft = if (selfDeletionStatus is Message.ExpirationData.SelfDeletionStatus.Started) {
@@ -82,14 +82,24 @@ sealed class SelfDeletionTimer {
         }
 
         fun interval(): Duration {
-            val interval = when {
-                timeLeft.inWholeMinutes > 59 -> 1.hours
-                timeLeft.inWholeMinutes in 2..59 -> 1.minutes
-                timeLeft.inWholeSeconds <= 60 && timeLeft.inWholeMinutes < 2 -> 1.seconds
+            // in order to do not keep the UI too busy with updates
+            // we are incrementing the interval "exponentially"
+            val exponentialInterval = when {
+                timeLeft.inWholeMinutes < 100.minutes -> 1.hours
+                timeLeft.inWholeMinutes in 91..100 -> 30.minutes
+                timeLeft.inWholeMinutes in 81..90 -> 20.minutes
+                timeLeft.inWholeMinutes in 71..80 -> 10.minutes
+                timeLeft.inWholeMinutes in 60..70 -> 1.minutes
+                timeLeft.inWholeMinutes in 2..60 -> 1.minutes
+                timeLeft.inWholeSeconds in 90..119 -> 15.seconds
+                timeLeft.inWholeSeconds
+                        timeLeft . inWholeMinutes < 2
+
+                -> 1.seconds
                 else -> throw IllegalStateException("Not possible state for interval")
             }
 
-            return interval
+            return exponentialInterval
         }
 
         fun decreaseTimeLeft(interval: Duration) {

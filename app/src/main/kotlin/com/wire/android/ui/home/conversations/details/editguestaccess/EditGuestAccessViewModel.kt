@@ -162,6 +162,9 @@ class EditGuestAccessViewModel @Inject constructor(
 
         viewModelScope.launch {
             withContext(dispatcher.io()) {
+                if (!shouldEnableGuestAccess) {
+                    removeGuestLink()
+                }
                 updateConversationAccessRole(
                     conversationId = conversationId,
                     accessRoles = newAccessRoles,
@@ -174,7 +177,6 @@ class EditGuestAccessViewModel @Inject constructor(
                             isGuestAccessAllowed = !shouldEnableGuestAccess
                         )
                     )
-
                     is UpdateConversationAccessRoleUseCase.Result.Success -> Unit
                 }
                 updateState(editGuestAccessState.copy(isUpdatingGuestAccess = false))
@@ -222,6 +224,10 @@ class EditGuestAccessViewModel @Inject constructor(
     }
 
     fun onRevokeDialogConfirm() {
+        removeGuestLink()
+    }
+
+    private fun removeGuestLink() {
         updateState(editGuestAccessState.copy(shouldShowRevokeLinkConfirmationDialog = false, isRevokingLink = true))
         viewModelScope.launch {
             revokeGuestRoomLink(conversationId).also {

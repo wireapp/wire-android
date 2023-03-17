@@ -166,6 +166,23 @@ private fun openOngoingCallIntent(context: Context, conversationId: String) =
             .build()
     }
 
+private fun openMigrationLoginIntent(context: Context, userHandle: String) =
+    Intent(context.applicationContext, WireActivity::class.java).apply {
+        data = Uri.Builder()
+            .scheme(DeepLinkProcessor.DEEP_LINK_SCHEME)
+            .authority(DeepLinkProcessor.MIGRATION_LOGIN_HOST)
+            .appendPath(userHandle)
+            .build()
+    }
+
+fun openMigrationLoginPendingIntent(context: Context, userHandle: String): PendingIntent =
+    PendingIntent.getActivity(
+        context.applicationContext,
+        OPEN_MIGRATION_LOGIN_REQUEST_CODE,
+        openMigrationLoginIntent(context, userHandle),
+        PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+    )
+
 fun openAppPendingIntent(context: Context): PendingIntent {
     val appIntent = Intent(context.applicationContext, WireActivity::class.java)
     return PendingIntent.getActivity(
@@ -181,6 +198,7 @@ private const val DECLINE_CALL_REQUEST_CODE = "decline_call_"
 private const val OPEN_INCOMING_CALL_REQUEST_CODE = 2
 private const val FULL_SCREEN_REQUEST_CODE = 3
 private const val OPEN_ONGOING_CALL_REQUEST_CODE = 4
+private const val OPEN_MIGRATION_LOGIN_REQUEST_CODE = 5
 private const val END_ONGOING_CALL_REQUEST_CODE = "hang_up_call_"
 private const val OPEN_MESSAGE_REQUEST_CODE_PREFIX = "open_message_"
 private const val OPEN_OTHER_USER_PROFILE_CODE_PREFIX = "open_other_user_profile_"

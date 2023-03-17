@@ -34,9 +34,11 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.wire.android.R
+import com.wire.android.navigation.rememberTrackingAnimatedNavController
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.home.conversations.search.SearchPeopleRouter
-import com.wire.android.ui.home.newconversation.common.Screen
+import com.wire.android.ui.home.newconversation.common.NewConversationNavigationItem
 import com.wire.android.ui.home.newconversation.groupOptions.GroupOptionScreen
 import com.wire.android.ui.home.newconversation.newgroup.NewGroupScreen
 
@@ -44,7 +46,7 @@ import com.wire.android.ui.home.newconversation.newgroup.NewGroupScreen
 @Composable
 fun NewConversationRouter() {
     val newConversationViewModel: NewConversationViewModel = hiltViewModel()
-    val newConversationNavController = rememberNavController()
+    val newConversationNavController = rememberTrackingAnimatedNavController() { NewConversationNavigationItem.fromRoute(it)?.itemName }
     val snackbarHostState = remember { SnackbarHostState() }
 
     Scaffold(
@@ -56,20 +58,22 @@ fun NewConversationRouter() {
         }) { internalPadding ->
         NavHost(
             navController = newConversationNavController,
-            startDestination = Screen.SearchListNavHostScreens.route,
+            startDestination = NewConversationNavigationItem.SearchListNavHostScreens.route,
             modifier = Modifier.padding(internalPadding)
         ) {
             composable(
-                route = Screen.SearchListNavHostScreens.route,
+                route = NewConversationNavigationItem.SearchListNavHostScreens.route,
                 content = {
                     SearchPeopleRouter(
                         searchAllPeopleViewModel = newConversationViewModel,
-                        onGroupSelectionSubmitAction = { newConversationNavController.navigate(Screen.NewGroupNameScreen.route) }
+                        onGroupSelectionSubmitAction = {
+                            newConversationNavController.navigate(NewConversationNavigationItem.NewGroupNameScreen.route)
+                        }
                     )
                 }
             )
             composable(
-                route = Screen.NewGroupNameScreen.route,
+                route = NewConversationNavigationItem.NewGroupNameScreen.route,
                 content = {
                     NewGroupScreen(
                         onBackPressed = newConversationNavController::popBackStack,
@@ -77,7 +81,7 @@ fun NewConversationRouter() {
                         onGroupNameChange = newConversationViewModel::onGroupNameChange,
                         onContinuePressed = {
                             if (newConversationViewModel.newGroupState.isSelfTeamMember) {
-                                newConversationNavController.navigate(Screen.GroupOptionsScreen.route)
+                                newConversationNavController.navigate(NewConversationNavigationItem.GroupOptionsScreen.route)
                             } else {
                                 newConversationViewModel.createGroup()
                             }
@@ -87,7 +91,7 @@ fun NewConversationRouter() {
                 }
             )
             composable(
-                route = Screen.GroupOptionsScreen.route,
+                route = NewConversationNavigationItem.GroupOptionsScreen.route,
                 content = {
                     GroupOptionScreen(
                         onBackPressed = newConversationNavController::popBackStack,

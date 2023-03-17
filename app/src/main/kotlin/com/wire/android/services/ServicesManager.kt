@@ -23,6 +23,7 @@ package com.wire.android.services
 import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
 import javax.inject.Inject
@@ -57,7 +58,11 @@ class ServicesManager @Inject constructor(private val context: Context) {
         PersistentWebSocketService.isServiceStarted
 
     private fun startService(intent: Intent) {
-        context.startService(intent)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            context.startForegroundService(intent)
+        } else {
+            context.startService(intent)
+        }
     }
 
     private fun stopService(serviceClass: KClass<out Service>) {

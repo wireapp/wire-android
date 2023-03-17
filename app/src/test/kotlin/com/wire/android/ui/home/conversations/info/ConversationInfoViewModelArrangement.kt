@@ -85,16 +85,16 @@ class ConversationInfoViewModelArrangement {
         every {
             qualifiedIdMapper.fromStringToQualifiedID("some-dummy-value@some.dummy.domain")
         } returns QualifiedID("some-dummy-value", "some.dummy.domain")
-    }
-
-    suspend fun withConversationDetailUpdate(conversationDetails: ConversationDetails) = apply {
         coEvery { observeConversationDetails(any()) } returns conversationDetailsChannel.consumeAsFlow().map {
             ObserveConversationDetailsUseCase.Result.Success(it)
         }
-        conversationDetailsChannel.send(conversationDetails)
+    }
+
+    suspend fun withConversationDetailUpdate(conversationDetails: ConversationDetails) = apply {
         coEvery {
             qualifiedIdMapper.fromStringToQualifiedID("id@domain")
         } returns QualifiedID("id", "domain")
+        conversationDetailsChannel.send(conversationDetails)
     }
 
     suspend fun withSelfUser() = apply {

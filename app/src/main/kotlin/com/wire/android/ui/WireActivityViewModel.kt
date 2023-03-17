@@ -29,6 +29,7 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.BuildConfig
 import com.wire.android.appLogger
 import com.wire.android.di.AuthServerConfigProvider
+import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.di.ObserveSyncStateUseCaseProvider
 import com.wire.android.feature.AccountSwitchUseCase
 import com.wire.android.feature.SwitchAccountParam
@@ -37,10 +38,12 @@ import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.services.ServicesManager
 import com.wire.android.ui.common.dialogs.CustomBEDeeplinkDialogState
 import com.wire.android.util.deeplink.DeepLinkProcessor
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.android.util.dispatchers.DispatcherProvider
+import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
@@ -54,6 +57,7 @@ import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import com.wire.kalium.logic.feature.session.GetSessionsUseCase
+import com.wire.kalium.logic.feature.user.webSocketStatus.ObservePersistentWebSocketConnectionStatusUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -76,6 +80,7 @@ import javax.inject.Inject
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class WireActivityViewModel @Inject constructor(
+    @KaliumCoreLogic private val coreLogic: CoreLogic,
     private val dispatchers: DispatcherProvider,
     val currentSessionFlow: CurrentSessionFlowUseCase,
     private val getServerConfigUseCase: GetServerConfigUseCase,
@@ -85,6 +90,7 @@ class WireActivityViewModel @Inject constructor(
     private val getSessions: GetSessionsUseCase,
     private val accountSwitch: AccountSwitchUseCase,
     private val migrationManager: MigrationManager,
+    private val servicesManager: ServicesManager,
     private val observeSyncStateUseCaseProviderFactory: ObserveSyncStateUseCaseProvider.Factory,
     private val observeIfAppUpdateRequired: ObserveIfAppUpdateRequiredUseCase
 ) : ViewModel() {
@@ -140,10 +146,13 @@ class WireActivityViewModel @Inject constructor(
                 LogoutReason.SELF_SOFT_LOGOUT, LogoutReason.SELF_HARD_LOGOUT -> {
                     // Self logout is handled from the Self user profile screen directly
                 }
+
                 LogoutReason.REMOVED_CLIENT ->
                     globalAppState = globalAppState.copy(blockUserUI = CurrentSessionErrorState.RemovedClient)
+
                 LogoutReason.DELETED_ACCOUNT ->
                     globalAppState = globalAppState.copy(blockUserUI = CurrentSessionErrorState.DeletedAccount)
+
                 LogoutReason.SESSION_EXPIRED ->
                     globalAppState = globalAppState.copy(blockUserUI = CurrentSessionErrorState.SessionExpired)
             }
@@ -165,6 +174,7 @@ class WireActivityViewModel @Inject constructor(
         else -> NavigationItem.Home.getRouteWithArgs()
     }
 
+    @Suppress("ComplexMethod")
     fun handleDeepLink(intent: Intent?) {
         intent?.data?.let { deepLink ->
             when (val result = deepLinkProcessor(deepLink, viewModelScope)) {
@@ -220,6 +230,14 @@ class WireActivityViewModel @Inject constructor(
                     }
                 }
 
+                is DeepLinkResult.MigrationLogin -> {
+                    if (isLaunchedFromHistory(intent)) {
+                        appLogger.i("MigrationLogin deepLink launched from the history")
+                    } else {
+                        navigationArguments.put(MIGRATION_LOGIN_ARG, result.userHandle)
+                    }
+                }
+
                 DeepLinkResult.Unknown -> {
                     appLogger.e("unknown deeplink result $result")
                 }
@@ -242,11 +260,17 @@ class WireActivityViewModel @Inject constructor(
             remove(OPEN_CONVERSATION_ID_ARG)
             remove(OPEN_OTHER_USER_PROFILE_ARG)
             remove(SSO_DEEPLINK_ARG)
+            remove(MIGRATION_LOGIN_ARG)
         }
 
         handleDeepLink(intent)
 
         return when {
+            shouldGoToMigrationLogin() -> {
+                openMigrationLogin(navigationArguments[MIGRATION_LOGIN_ARG] as String)
+                false
+            }
+
             shouldGoToLogin() || shouldGoToWelcome() || shouldGoToMigration() -> true
 
             shouldGoToIncomingCall() -> {
@@ -268,6 +292,7 @@ class WireActivityViewModel @Inject constructor(
                 openOtherUserProfile(navigationArguments[OPEN_OTHER_USER_PROFILE_ARG] as QualifiedID)
                 false
             }
+
             isServerConfigOnPremises() -> false
 
             intent == null -> false
@@ -297,6 +322,7 @@ class WireActivityViewModel @Inject constructor(
                 is GetAllSessionsResult.Success -> {
                     it.sessions.filterIsInstance<AccountInfo.Valid>().size
                 }
+
                 is GetAllSessionsResult.Failure.Generic -> 0
                 GetAllSessionsResult.Failure.NoSessionFound -> 0
             }
@@ -317,6 +343,10 @@ class WireActivityViewModel @Inject constructor(
 
     private fun openOtherUserProfile(userId: QualifiedID) {
         navigateTo(NavigationCommand(NavigationItem.OtherUserProfile.getRouteWithArgs(listOf(userId)), BackStackMode.UPDATE_EXISTED))
+    }
+
+    private fun openMigrationLogin(userHandle: String) {
+        navigateTo(NavigationCommand(NavigationItem.Login.getRouteWithArgs(listOf(userHandle)), BackStackMode.UPDATE_EXISTED))
     }
 
     private fun isLaunchedFromHistory(intent: Intent?) =
@@ -341,7 +371,7 @@ class WireActivityViewModel @Inject constructor(
         (navigationArguments[SERVER_CONFIG_ARG] as? ServerConfig.Links) != ServerConfig.DEFAULT
 
     private fun shouldGoToLogin(): Boolean =
-        navigationArguments[SSO_DEEPLINK_ARG] != null
+        navigationArguments[SSO_DEEPLINK_ARG] != null || navigationArguments[MIGRATION_LOGIN_ARG] != null
 
     private fun shouldGoToIncomingCall(): Boolean =
         (navigationArguments[INCOMING_CALL_CONVERSATION_ID_ARG] as? ConversationId) != null
@@ -353,6 +383,8 @@ class WireActivityViewModel @Inject constructor(
         (navigationArguments[ONGOING_CALL_CONVERSATION_ID_ARG] as? ConversationId) != null
 
     private fun shouldGoToOtherProfile(): Boolean = (navigationArguments[OPEN_OTHER_USER_PROFILE_ARG] as? QualifiedID) != null
+
+    private fun shouldGoToMigrationLogin(): Boolean = (navigationArguments[MIGRATION_LOGIN_ARG] as? String) != null
 
     // TODO: the usage of currentSessionFlow is a temporary solution, it should be replaced with a proper solution
     private fun shouldGoToWelcome(): Boolean = runBlocking {
@@ -382,6 +414,32 @@ class WireActivityViewModel @Inject constructor(
         globalAppState = globalAppState.copy(updateAppDialog = false)
     }
 
+    fun observePersistentConnectionStatus() {
+        viewModelScope.launch {
+            coreLogic.getGlobalScope().observePersistentWebSocketConnectionStatus().let { result ->
+                when (result) {
+                    is ObservePersistentWebSocketConnectionStatusUseCase.Result.Failure -> {
+                        appLogger.e("Failure while fetching persistent web socket status flow from wire activity")
+                    }
+
+                    is ObservePersistentWebSocketConnectionStatusUseCase.Result.Success -> {
+                        result.persistentWebSocketStatusListFlow.collect { statuses ->
+
+                            if (statuses.any { it.isPersistentWebSocketEnabled }) {
+                                if (!servicesManager.isPersistentWebSocketServiceRunning()) {
+                                    servicesManager.startPersistentWebSocketService()
+                                }
+                            } else {
+                                servicesManager.stopPersistentWebSocketService()
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+
     companion object {
         private const val SERVER_CONFIG_ARG = "server_config"
         private const val SSO_DEEPLINK_ARG = "sso_deeplink"
@@ -389,6 +447,7 @@ class WireActivityViewModel @Inject constructor(
         private const val ONGOING_CALL_CONVERSATION_ID_ARG = "ongoing_call_conversation_id"
         private const val OPEN_CONVERSATION_ID_ARG = "open_conversation_id"
         private const val OPEN_OTHER_USER_PROFILE_ARG = "open_other_user_id"
+        private const val MIGRATION_LOGIN_ARG = "migration_login"
     }
 }
 

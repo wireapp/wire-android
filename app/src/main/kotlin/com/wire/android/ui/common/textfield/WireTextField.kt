@@ -46,7 +46,10 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
@@ -55,6 +58,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.TextFieldValue
@@ -78,6 +82,7 @@ internal fun WireTextField(
     readOnly: Boolean = false,
     singleLine: Boolean = true,
     maxLines: Int = 1,
+    maxTextLength: Int = 8000,
     keyboardOptions: KeyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences, autoCorrect = true),
     keyboardActions: KeyboardActions = KeyboardActions(),
     leadingIcon: @Composable (() -> Unit)? = null,
@@ -97,8 +102,9 @@ internal fun WireTextField(
     modifier: Modifier = Modifier,
     onSelectedLineIndexChanged: (Int) -> Unit = { },
     onLineBottomYCoordinateChanged: (Float) -> Unit = { },
-    ) {
+) {
     val enabled = state !is WireTextFieldState.Disabled
+    var updatedText by remember { mutableStateOf(value) }
 
     Column(modifier = modifier) {
         if (labelText != null)
@@ -106,10 +112,18 @@ internal fun WireTextField(
         BasicTextField(
             value = value,
             onValueChange = {
-                onValueChange(
-                    if (singleLine || maxLines == 1) it.copy(it.text.replace("\n", ""))
-                    else it
-                )
+                updatedText = if (singleLine || maxLines == 1) {
+                    it.copy(it.text.replace("\n", ""))
+                } else it
+
+                if (updatedText.text.length > maxTextLength) {
+                    updatedText = TextFieldValue(
+                        text = updatedText.text.take(maxTextLength),
+                        selection = TextRange(updatedText.text.length - 1)
+                    )
+                }
+
+                onValueChange(updatedText)
             },
             textStyle = textStyle.copy(color = colors.textColor(state = state).value, textDirection = TextDirection.ContentOrLtr),
             keyboardOptions = keyboardOptions,

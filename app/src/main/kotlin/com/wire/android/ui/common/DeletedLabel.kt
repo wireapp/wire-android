@@ -62,7 +62,8 @@ fun StatusBox(
             )
             .padding(
                 horizontal = dimensions().spacing4x,
-                vertical = dimensions().spacing2xz
+                vertical = dimensions().spacing2x
+
             )
     ) {
         Text(

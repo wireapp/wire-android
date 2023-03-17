@@ -21,6 +21,7 @@
 package com.wire.android.ui.common
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
@@ -49,6 +50,10 @@ fun StatusBox(
     Box(
         modifier = modifier
             .wrapContentSize()
+            .background(
+                color = MaterialTheme.wireColorScheme.surface,
+                shape = RoundedCornerShape(size = dimensions().spacing4x)
+            )
             .border(
                 BorderStroke(
                     width = 1.dp,

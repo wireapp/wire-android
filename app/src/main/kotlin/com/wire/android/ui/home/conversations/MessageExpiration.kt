@@ -1,6 +1,5 @@
 package com.wire.android.ui.home.conversations
 
-import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -16,12 +15,12 @@ import kotlin.time.Duration.Companion.seconds
 
 @Composable
 fun rememberSelfDeletionTimer(expirationStatus: ExpirationStatus): SelfDeletionTimer {
-    return remember { SelfDeletionTimer.fromExpirationData(expirationStatus) }
+    return remember { SelfDeletionTimer.fromExpirationStatus(expirationStatus) }
 }
 
 sealed class SelfDeletionTimer {
     companion object {
-        fun fromExpirationData(expirationStatus: ExpirationStatus?): SelfDeletionTimer {
+        fun fromExpirationStatus(expirationStatus: ExpirationStatus?): SelfDeletionTimer {
             return if (expirationStatus is ExpirationStatus.Expirable) {
                 with(expirationStatus) {
                     val timeLeft = if (selfDeletionStatus is Message.ExpirationData.SelfDeletionStatus.Started) {

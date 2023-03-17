@@ -58,6 +58,7 @@ import com.wire.android.ui.common.StatusBox
 import com.wire.android.ui.common.UserBadge
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.button.WireSecondaryButton
+import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.home.conversations.messages.QuotedMessage
@@ -144,10 +145,10 @@ fun MessageItem(
                 )
                 .then(
                     if (message.sendingFailed || message.receivingFailed) {
-                        Modifier.background(MaterialTheme.wireColorScheme.messageErrorBackgroundColor)
+                        Modifier.background(colorsScheme().messageErrorBackgroundColor)
                     } else if (selfDeletionTimer is SelfDeletionTimer.Expirable) {
                         val color by animateColorAsState(
-                            MaterialTheme.wireColorScheme.primary.copy(selfDeletionTimer.alphaBackgroundColor()),
+                            colorsScheme().primaryVariant.copy(selfDeletionTimer.alphaBackgroundColor()),
                             tween()
                         )
 
@@ -236,7 +237,9 @@ fun MessageItem(
 
 @Composable
 fun MessageExpireLabel(timeLeft: String) {
-    Text("Self-deleting message • $timeLeft")
+    StatusBox(
+        statusText = timeLeft,
+    )
 }
 
 @Composable

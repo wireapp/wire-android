@@ -48,19 +48,19 @@ fun MembershipQualifierLabel(membership: Membership, modifier: Modifier = Modifi
             modifier = modifier.border(
                 width = MaterialTheme.wireDimensions.spacing1x,
                 shape = RoundedCornerShape(MaterialTheme.wireDimensions.spacing4x),
-                color = MaterialTheme.wireColorScheme.primaryVariant
+                color = colorsScheme().secondaryButtonSelectedOutline
             )
         ) {
             Text(
                 text = stringResource(id = membership.stringResourceId),
-                color = MaterialTheme.wireColorScheme.onPrimaryVariant,
+                color = colorsScheme().onPrimaryVariant,
                 style = MaterialTheme.wireTypography.label03.copy(textAlign = TextAlign.Center),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier
                     .wrapContentWidth()
                     .background(
-                        color = MaterialTheme.wireColorScheme.primaryVariant,
+                        color = colorsScheme().primaryVariant,
                         shape = RoundedCornerShape(MaterialTheme.wireDimensions.corner4x)
                     )
                     .padding(horizontal = MaterialTheme.wireDimensions.spacing4x, vertical = MaterialTheme.wireDimensions.spacing2x)

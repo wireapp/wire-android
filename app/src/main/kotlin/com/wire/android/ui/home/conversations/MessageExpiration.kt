@@ -64,9 +64,9 @@ sealed class SelfDeletionTimer {
             val timeLeftLabel = when {
                 // weeks
                 timeLeft.inWholeDays >= FOUR_WEEK_DAYS -> "4 weeks"
-                timeLeft.inWholeDays in THREE_WEEK_DAYS until FOUR_WEEK_DAYS -> "3 weeks"
-                timeLeft.inWholeDays in TWO_WEEK_DAYS until THREE_WEEK_DAYS -> "2 weeks"
-                timeLeft.inWholeDays in ONE_WEEK_DAYS until TWO_WEEK_DAYS -> "1 week"
+                timeLeft.inWholeDays in THREE_WEEK_DAYS until FOUR_WEEK_DAYS -> "3 weeks left"
+                timeLeft.inWholeDays in TWO_WEEK_DAYS until THREE_WEEK_DAYS -> "2 weeks left"
+                timeLeft.inWholeDays in ONE_WEEK_DAYS until TWO_WEEK_DAYS -> "1 week left"
                 // days
                 timeLeft.inWholeDays in 1..6 -> "${timeLeft.inWholeDays} days left"
                 // hours

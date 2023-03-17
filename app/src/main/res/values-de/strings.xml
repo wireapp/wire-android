@@ -41,6 +41,7 @@
   <string name="label_membership_service">Dienst</string>
   <string name="label_user_deleted">Gelöscht</string>
   <string name="label_message_sent_failure">Nachricht konnte aufgrund von Verbindungsproblemen nicht gesendet werden.</string>
+  <string name="label_message_edit_sent_failure">The edited message could not be sent due to connectivity issues.</string>
   <string name="label_message_sent_remotely_failure">Message could not be sent, as the backend %s appears to be offline.</string>
   <string name="label_message_receive_failure">Fehler beim Herunterladen</string>
   <string name="label_message_decryption_failure_message">Die Nachricht konnte nicht entschlüsselt werden.</string>

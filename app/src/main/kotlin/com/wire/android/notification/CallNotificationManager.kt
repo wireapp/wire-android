@@ -55,7 +55,7 @@ class CallNotificationManager @Inject constructor(private val context: Context) 
 
     fun hideIncomingCallNotification() {
         appLogger.i("$TAG: hiding incoming call")
-        TimeUnit.SECONDS.sleep(1L)
+        TimeUnit.MILLISECONDS.sleep(300L)
         notificationManager.cancel(NotificationConstants.CALL_INCOMING_NOTIFICATION_ID)
     }
 

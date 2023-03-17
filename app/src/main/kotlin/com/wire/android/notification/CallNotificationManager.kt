@@ -30,6 +30,7 @@ import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.call.Call
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -54,6 +55,12 @@ class CallNotificationManager @Inject constructor(private val context: Context) 
 
     fun hideIncomingCallNotification() {
         appLogger.i("$TAG: hiding incoming call")
+
+        // This delay is just so when the user receives two calling signals one straight after the other [INCOMING -> CANCEL]
+        // Due to the signals being one after the other we are creating a notification when we are trying to cancel it, it wasn't properly
+        // cancelling vibration as probably when we were cancelling, the vibration object was still being created and started and thus
+        // never stopped.
+        TimeUnit.MILLISECONDS.sleep(CANCEL_CALL_NOTIFICATION_DELAY)
         notificationManager.cancel(NotificationConstants.CALL_INCOMING_NOTIFICATION_ID)
     }
 
@@ -135,6 +142,7 @@ class CallNotificationManager @Inject constructor(private val context: Context) 
         private const val TAG = "CallNotificationManager"
         private const val INCOMING_CALL_TIMEOUT: Long = 30 * 1000
         private val VIBRATE_PATTERN = longArrayOf(0, 1000, 1000)
+        private const val CANCEL_CALL_NOTIFICATION_DELAY = 300L
 
         fun hideIncomingCallNotification(context: Context) {
             NotificationManagerCompat.from(context).cancel(NotificationConstants.CALL_INCOMING_NOTIFICATION_ID)

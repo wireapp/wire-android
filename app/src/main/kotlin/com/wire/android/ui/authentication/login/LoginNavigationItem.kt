@@ -14,23 +14,18 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
+package com.wire.android.ui.authentication.login
 
-package com.wire.android.ui.home.newconversation.groupOptions
+enum class LoginNavigationItem(val route: String) {
+    MAIN_LOGIN_FORM_SELECTION("main_input"),
+    EMAIL_SECOND_FACTOR_INPUT("email_second_factor_input");
 
-data class GroupOptionState(
-    val continueEnabled: Boolean = true,
-    val isLoading: Boolean = false,
-    val isAllowGuestEnabled: Boolean = true,
-    val isAllowServicesEnabled: Boolean = true,
-    val isReadReceiptEnabled: Boolean = true,
-    val showAllowGuestsDialog: Boolean = false,
-    val error: Error? = null
-) {
-    sealed interface Error {
-        object Unknown : Error
-        object LackingConnection : Error
+    val itemName: String
+        get() = "${ROUTE_PREFIX}_$route"
+
+    companion object {
+        private const val ROUTE_PREFIX = "login"
+        fun fromRoute(fullRoute: String): LoginNavigationItem? = values().firstOrNull { it.itemName == fullRoute }
     }
 }

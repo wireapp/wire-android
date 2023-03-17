@@ -93,22 +93,10 @@ class NewConversationViewModel @Inject constructor(
 
     fun onAllowGuestStatusChanged(status: Boolean) {
         groupOptionsState = groupOptionsState.copy(isAllowGuestEnabled = status)
-        if (!status) {
-            groupOptionsState.accessRoleState.remove(Conversation.AccessRole.NON_TEAM_MEMBER)
-            groupOptionsState.accessRoleState.remove(Conversation.AccessRole.GUEST)
-        } else {
-            groupOptionsState.accessRoleState.add(Conversation.AccessRole.NON_TEAM_MEMBER)
-            groupOptionsState.accessRoleState.add(Conversation.AccessRole.GUEST)
-        }
     }
 
     fun onAllowServicesStatusChanged(status: Boolean) {
         groupOptionsState = groupOptionsState.copy(isAllowServicesEnabled = status)
-        if (!status) {
-            groupOptionsState.accessRoleState.remove(Conversation.AccessRole.SERVICE)
-        } else {
-            groupOptionsState.accessRoleState.add(Conversation.AccessRole.SERVICE)
-        }
     }
 
     fun onReadReceiptStatusChanged(status: Boolean) {
@@ -134,13 +122,12 @@ class NewConversationViewModel @Inject constructor(
 
     private fun removeGuestsIfNotAllowed() {
         if (!groupOptionsState.isAllowGuestEnabled) {
-            for (item in state.contactsAddedToGroup) {
-                if (item.membership == Membership.Guest ||
-                    item.membership == Membership.Federated
-                ) {
-                    removeContactFromGroup(item)
-                }
-            }
+            val contactsToRemove = state
+                .contactsAddedToGroup
+                .filter {
+                    it.membership in setOf(Membership.Guest, Membership.Federated)
+                }.toSet()
+            removeContactsFromGroup(contactsToRemove)
         }
     }
 
@@ -195,10 +182,12 @@ class NewConversationViewModel @Inject constructor(
                 options = ConversationOptions().copy(
                     protocol = newGroupState.groupProtocol,
                     readReceiptsEnabled = groupOptionsState.isReadReceiptEnabled,
-                    accessRole = groupOptionsState.accessRoleState,
-                    access = if (groupOptionsState.accessRoleState.contains(Conversation.AccessRole.GUEST)) {
-                        Conversation.defaultGroupAccess.toMutableSet().apply { add(Conversation.Access.CODE) }
-                    } else null
+                    accessRole = Conversation.accessRolesFor(
+                        guestAllowed = groupOptionsState.isAllowGuestEnabled,
+                        servicesAllowed = groupOptionsState.isAllowServicesEnabled,
+                        nonTeamMembersAllowed = groupOptionsState.isAllowGuestEnabled
+                    ),
+                    access = Conversation.accessFor(groupOptionsState.isAllowGuestEnabled)
                 )
             )
             handleNewGroupCreationResult(result)

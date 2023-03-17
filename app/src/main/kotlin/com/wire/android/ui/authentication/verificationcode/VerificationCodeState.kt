@@ -15,22 +15,21 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  *
- *
  */
 
-package com.wire.android.ui.home.newconversation.groupOptions
+package com.wire.android.ui.authentication.verificationcode
 
-data class GroupOptionState(
-    val continueEnabled: Boolean = true,
-    val isLoading: Boolean = false,
-    val isAllowGuestEnabled: Boolean = true,
-    val isAllowServicesEnabled: Boolean = true,
-    val isReadReceiptEnabled: Boolean = true,
-    val showAllowGuestsDialog: Boolean = false,
-    val error: Error? = null
+import androidx.compose.ui.text.input.TextFieldValue
+import com.wire.android.ui.common.textfield.CodeFieldValue
+
+data class VerificationCodeState(
+    val codeLength: Int = DEFAULT_VERIFICATION_CODE_LENGTH,
+    val emailUsed: String = "",
+    val isCodeSent: Boolean = false,
+    val code: CodeFieldValue = CodeFieldValue(TextFieldValue(""), false),
+    val isCurrentCodeInvalid: Boolean = false,
 ) {
-    sealed interface Error {
-        object Unknown : Error
-        object LackingConnection : Error
+    companion object {
+        const val DEFAULT_VERIFICATION_CODE_LENGTH = 6
     }
 }

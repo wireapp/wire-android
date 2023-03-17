@@ -30,6 +30,7 @@ import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.call.Call
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -54,6 +55,7 @@ class CallNotificationManager @Inject constructor(private val context: Context) 
 
     fun hideIncomingCallNotification() {
         appLogger.i("$TAG: hiding incoming call")
+        TimeUnit.SECONDS.sleep(1L)
         notificationManager.cancel(NotificationConstants.CALL_INCOMING_NOTIFICATION_ID)
     }
 

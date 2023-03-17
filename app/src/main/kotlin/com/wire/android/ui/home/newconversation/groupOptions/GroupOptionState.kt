@@ -20,9 +20,6 @@
 
 package com.wire.android.ui.home.newconversation.groupOptions
 
-import com.wire.kalium.logic.data.conversation.Conversation
-import com.wire.kalium.logic.data.conversation.Conversation.AccessRole.SERVICE
-
 data class GroupOptionState(
     val continueEnabled: Boolean = true,
     val isLoading: Boolean = false,

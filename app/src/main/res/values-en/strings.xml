@@ -41,6 +41,7 @@
   <string name="label_membership_service">Service</string>
   <string name="label_user_deleted">Deleted</string>
   <string name="label_message_sent_failure">Message could not be sent due to connectivity issues.</string>
+  <string name="label_message_edit_sent_failure">The edited message could not be sent due to connectivity issues.</string>
   <string name="label_message_sent_remotely_failure">Message could not be sent, as the backend %s appears to be offline.</string>
   <string name="label_message_receive_failure">Download Error</string>
   <string name="label_message_decryption_failure_message">Message could not be decrypted.</string>

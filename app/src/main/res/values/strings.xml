@@ -929,4 +929,9 @@
     <string name="new_device_dialog_other_user_btn">Switch Account</string>
     <string name="label_client_verified">Verified</string>
     <string name="label_client_unverified">Not Verified</string>
+    <string name="label_self_client_verification_description">To verify your own device, compare this key  fingerprint with the same key fingerprint on another device.</string>
+    <string name="label_client_verification_description">Verify that this device fingerprint matches the fingerprint shown on %s’s device.</string>
+    <string name="label_fingerprint_description">If fingerprints don’t match, reset the session to generate new encryption keys on both sides.</string>
+    <string name="label_self_fingerprint_description">To let others verify this device, share this fingerprint or the QR code with them.</string>
+    <string name="unknown_user_name">unknown</string>
 </resources>

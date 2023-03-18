@@ -10,5 +10,7 @@ data class DeviceDetailsState(
     val removeDeviceDialogState: RemoveDeviceDialogState = RemoveDeviceDialogState.Hidden,
     val error: RemoveDeviceError = RemoveDeviceError.None,
     val isVerified: Boolean = false,
-    val fingerPrint: String? = null
+    val fingerPrint: String? = null,
+    val isSelfClient: Boolean = false,
+    val userName: String? = null
 )

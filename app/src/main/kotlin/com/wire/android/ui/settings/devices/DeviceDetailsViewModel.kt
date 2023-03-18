@@ -7,6 +7,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
+import com.wire.android.di.CurrentAccount
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.EXTRA_DEVICE_ID
 import com.wire.android.navigation.EXTRA_USER_ID
@@ -28,7 +29,10 @@ import com.wire.kalium.logic.feature.client.DeleteClientUseCase
 import com.wire.kalium.logic.feature.client.GetClientDetailsResult
 import com.wire.kalium.logic.feature.client.ObserveClientDetailsUseCase
 import com.wire.kalium.logic.feature.client.UpdateClientVerificationStatusUseCase
+import com.wire.kalium.logic.feature.user.GetUserInfoResult
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
+import com.wire.kalium.logic.feature.user.ObserveOtherUserResult
+import com.wire.kalium.logic.feature.user.ObserveUserInfoUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.launch
@@ -36,12 +40,15 @@ import kotlinx.coroutines.launch
 @HiltViewModel
 class DeviceDetailsViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
+    @CurrentAccount
+    private val currentUserId: UserId,
     private val navigationManager: NavigationManager,
     private val deleteClient: DeleteClientUseCase,
     private val observeClientDetails: ObserveClientDetailsUseCase,
     private val isPasswordRequired: IsPasswordRequiredUseCase,
     private val fingerprintUseCase: ClientFingerprintUseCase,
-    private val updateClientVerificationStatus: UpdateClientVerificationStatusUseCase
+    private val updateClientVerificationStatus: UpdateClientVerificationStatusUseCase,
+    private val observeUserInfo: ObserveUserInfoUseCase
 ) : SavedStateViewModel(savedStateHandle) {
 
     private val deviceId: ClientId = ClientId(
@@ -51,12 +58,31 @@ class DeviceDetailsViewModel @Inject constructor(
     private val userId: UserId =
         savedStateHandle.get<String>(EXTRA_USER_ID)!!.let { QualifiedIdMapperImpl(null).fromStringToQualifiedID(it) }
 
-    var state: DeviceDetailsState by mutableStateOf(DeviceDetailsState())
+    var state: DeviceDetailsState by mutableStateOf(DeviceDetailsState(isSelfClient = isSelfClient))
         private set
 
     init {
         observeDeviceDetails()
         getClientFingerPrint()
+        observeUserName()
+    }
+
+    private val isSelfClient: Boolean
+        get() = currentUserId == userId
+
+    private fun observeUserName() {
+        if (!isSelfClient) {
+            viewModelScope.launch {
+                observeUserInfo(userId).collect { result ->
+                    when (result) {
+                        GetUserInfoResult.Failure -> {
+                            /* no-op */
+                        }
+                        is GetUserInfoResult.Success -> state = state.copy(userName = result.otherUser.name)
+                    }
+                }
+            }
+        }
     }
 
     private fun getClientFingerPrint() {

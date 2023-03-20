@@ -9,7 +9,6 @@ import com.wire.android.ui.home.conversations.model.ExpirationStatus
 import com.wire.kalium.logic.data.message.Message
 import kotlinx.datetime.Clock
 import kotlin.time.Duration
-import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 
@@ -81,25 +80,30 @@ sealed class SelfDeletionTimer {
             return timeLeftLabel
         }
 
+        // we add 1 minute in case we fit exactly 60 minutes into a day or 60 minutes into a hour,
+        // in that case we would return 0 as interval, which would mean that the timer would never update time left
         fun interval(): Duration {
-            // in order to do not keep the UI too busy with updates
-            // we are incrementing the interval "exponentially"
-            val exponentialInterval = when {
-                timeLeft.inWholeMinutes < 100.minutes -> 1.hours
-                timeLeft.inWholeMinutes in 91..100 -> 30.minutes
-                timeLeft.inWholeMinutes in 81..90 -> 20.minutes
-                timeLeft.inWholeMinutes in 71..80 -> 10.minutes
-                timeLeft.inWholeMinutes in 60..70 -> 1.minutes
-                timeLeft.inWholeMinutes in 2..60 -> 1.minutes
-                timeLeft.inWholeSeconds in 90..119 -> 15.seconds
-                timeLeft.inWholeSeconds
-                        timeLeft . inWholeMinutes < 2
+            val timeLetUpdateInterval = when {
+                timeLeft.inWholeHours > 24 -> {
+                    (timeLeft.inWholeMinutes % (60 * 24)).minutes + 1.minutes
+                }
 
-                -> 1.seconds
+                timeLeft.inWholeHours <= 24 -> {
+                    (timeLeft.inWholeMinutes % 60).minutes + 1.minutes
+                }
+
+                timeLeft.inWholeMinutes <= 60 -> {
+                    1.minutes
+                }
+
+                timeLeft.inWholeSeconds < 60 -> {
+                    1.seconds
+                }
+
                 else -> throw IllegalStateException("Not possible state for interval")
             }
 
-            return exponentialInterval
+            return timeLetUpdateInterval
         }
 
         fun decreaseTimeLeft(interval: Duration) {

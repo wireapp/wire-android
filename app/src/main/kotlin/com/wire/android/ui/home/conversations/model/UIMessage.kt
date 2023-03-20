@@ -29,7 +29,6 @@ import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.home.conversations.model.MessageStatus.DecryptionFailure
 import com.wire.android.ui.home.conversations.model.MessageStatus.Deleted
 import com.wire.android.ui.home.conversations.model.MessageStatus.ReceiveFailure
-import com.wire.android.ui.home.conversations.model.MessageStatus.SendFailure
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.uiMessageDateTime
@@ -50,8 +49,7 @@ data class UIMessage(
     val messageFooter: MessageFooter
 ) {
     val isDeleted: Boolean = messageHeader.messageStatus == Deleted
-    val sendingFailed: Boolean =
-        messageHeader.messageStatus == SendFailure || messageHeader.messageStatus is MessageStatus.SendRemotelyFailure
+    val sendingFailed: Boolean = messageHeader.messageStatus is MessageStatus.MessageSendFailureStatus
     val decryptionFailed: Boolean = messageHeader.messageStatus is DecryptionFailure
     val receivingFailed: Boolean = messageHeader.messageStatus == ReceiveFailure || decryptionFailed
     val isAvailable: Boolean = !isDeleted && !sendingFailed && !receivingFailed
@@ -90,19 +88,43 @@ sealed class ExpirationStatus {
     object NotExpirable : ExpirationStatus()
 }
 
-sealed class MessageStatus(val text: UIText) {
-    object Untouched : MessageStatus(UIText.DynamicString(""))
-    object Deleted : MessageStatus(UIText.StringResource(R.string.deleted_message_text))
-    data class Edited(val formattedEditTimeStamp: String) :
-        MessageStatus(UIText.StringResource(R.string.label_message_status_edited_with_date, formattedEditTimeStamp))
+sealed class MessageStatus(
+    open val errorText: UIText? = null, // error description text shown below the content of the message
+    open val badgeText: UIText? = null, // text shown between the user name and the content in the outlined box with a text inside
+) {
+    sealed class MessageSendFailureStatus : MessageStatus() {
+        abstract override val errorText: UIText
+    }
 
-    object SendFailure : MessageStatus(UIText.StringResource(R.string.label_message_sent_failure))
-    data class SendRemotelyFailure(val backendWithFailure: String) :
-        MessageStatus(UIText.StringResource(R.string.label_message_sent_remotely_failure, backendWithFailure))
+    object Untouched : MessageStatus()
+    object Deleted : MessageStatus() {
+        override val badgeText: UIText = UIText.StringResource(R.string.deleted_message_text)
+    }
 
-    object ReceiveFailure : MessageStatus(UIText.StringResource(R.string.label_message_receive_failure))
-    data class DecryptionFailure(val isDecryptionResolved: Boolean) :
-        MessageStatus(UIText.StringResource(R.string.label_message_decryption_failure_message))
+    data class Edited(val formattedEditTimeStamp: String) : MessageStatus() {
+        override val badgeText: UIText = UIText.StringResource(R.string.label_message_status_edited_with_date, formattedEditTimeStamp)
+    }
+
+    data class EditSendFailure(val formattedEditTimeStamp: String) : MessageSendFailureStatus() {
+        override val errorText: UIText = UIText.StringResource(R.string.label_message_edit_sent_failure)
+        override val badgeText: UIText = UIText.StringResource(R.string.label_message_status_edited_with_date, formattedEditTimeStamp)
+    }
+
+    object SendFailure : MessageSendFailureStatus() {
+        override val errorText: UIText = UIText.StringResource(R.string.label_message_sent_failure)
+    }
+
+    data class SendRemotelyFailure(val backendWithFailure: String) : MessageSendFailureStatus() {
+        override val errorText: UIText = UIText.StringResource(R.string.label_message_sent_remotely_failure, backendWithFailure)
+    }
+
+    object ReceiveFailure : MessageStatus() {
+        override val errorText: UIText = UIText.StringResource(R.string.label_message_receive_failure)
+    }
+
+    data class DecryptionFailure(val isDecryptionResolved: Boolean) : MessageStatus() {
+        override val errorText: UIText = UIText.StringResource(R.string.label_message_decryption_failure_message)
+    }
 }
 
 @Stable

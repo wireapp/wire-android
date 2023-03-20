@@ -83,7 +83,7 @@ sealed class SelfDeletionTimer {
         // we add 1 minute in case we fit exactly 60 minutes into a day or 60 minutes into a hour,
         // in that case we would return 0 as interval, which would mean that the timer would never update time left
         fun interval(): Duration {
-            val timeLetUpdateInterval = when {
+            val timeLeftUpdateInterval = when {
                 timeLeft.inWholeHours > 24 -> {
                     (timeLeft.inWholeMinutes % (60 * 24)).minutes + 1.minutes
                 }
@@ -100,10 +100,10 @@ sealed class SelfDeletionTimer {
                     1.seconds
                 }
 
-                else -> throw IllegalStateException("Not possible state for interval")
+                else -> throw IllegalStateException("Not possible state for the interval")
             }
 
-            return timeLetUpdateInterval
+            return timeLeftUpdateInterval
         }
 
         fun decreaseTimeLeft(interval: Duration) {

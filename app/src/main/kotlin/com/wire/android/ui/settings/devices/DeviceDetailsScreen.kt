@@ -285,7 +285,6 @@ private fun VerificationDescription(
                     userName ?: stringResource(id = R.string.unknown_user_name)
                 ), leanMoreLink = "https://support.wire.com/hc/en-us/articles/207692235-How-can-I-compare-key-fingerprints-"
             )
-
         }
 
         Spacer(

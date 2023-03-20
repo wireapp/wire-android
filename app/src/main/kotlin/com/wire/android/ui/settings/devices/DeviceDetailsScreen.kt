@@ -5,7 +5,10 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
@@ -21,7 +24,10 @@ import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.wire.android.BuildConfig
@@ -51,8 +57,6 @@ import com.wire.android.util.extension.formatAsFingerPrint
 import com.wire.android.util.extension.formatAsString
 import com.wire.android.util.formatMediumDateTime
 import com.wire.kalium.logic.data.conversation.ClientId
-import com.wire.kalium.logic.functional.Either
-import com.wire.kalium.logic.functional.fold
 import kotlinx.collections.immutable.ImmutableMap
 import kotlinx.collections.immutable.persistentMapOf
 
@@ -134,28 +138,40 @@ fun DeviceDetailsContent(
                 .padding(internalPadding)
                 .background(MaterialTheme.wireColorScheme.surface)
         ) {
-            item {
-                with(state.device.registrationTime) {
+
+            state.device.registrationTime?.formatMediumDateTime()?.let {
+                item {
                     DeviceDetailSectionContent(
                         stringResource(id = R.string.label_client_added_time),
-                        Either.Left(this?.formatMediumDateTime() ?: "")
+                        AnnotatedString(it)
                     )
+                    Divider(color = MaterialTheme.wireColorScheme.background)
                 }
             }
+
             item {
                 DeviceDetailSectionContent(
                     stringResource(id = R.string.label_client_device_id),
-                    Either.Left(state.device.clientId.formatAsString())
+                    AnnotatedString(state.device.clientId.formatAsString())
                 )
+                Divider(color = MaterialTheme.wireColorScheme.background)
             }
 
             item {
                 DeviceKeyFingerprintItem(state.fingerPrint)
+                Divider(color = MaterialTheme.wireColorScheme.background)
             }
 
             if (!state.isCurrentDevice) {
                 item {
-                    DeviceVerificationItem(state.isVerified, state.fingerPrint != null, onUpdateClientVerification)
+                    DeviceVerificationItem(
+                        state.isVerified,
+                        state.fingerPrint != null,
+                        state.isSelfClient,
+                        state.userName,
+                        onUpdateClientVerification
+                    )
+                    Divider(color = MaterialTheme.wireColorScheme.background)
                 }
             }
         }
@@ -193,9 +209,8 @@ fun DeviceKeyFingerprintItem(
 
     DeviceDetailSectionContent(
         stringResource(id = R.string.title_device_key_fingerprint),
-        sectionText = clientFingerPrint?.formatAsFingerPrint()?.let { Either.Right(it) } ?: Either.Left(
-            stringResource(id = R.string.label_client_key_fingerprint_not_available)
-        ),
+        sectionText = clientFingerPrint?.formatAsFingerPrint()
+            ?: AnnotatedString(stringResource(id = R.string.label_client_key_fingerprint_not_available)),
         enabled = clientFingerPrint != null,
         titleTrailingItem = {
             CopyButton(
@@ -214,6 +229,8 @@ fun DeviceKeyFingerprintItem(
 fun DeviceVerificationItem(
     state: Boolean,
     enabled: Boolean,
+    isSelfClient: Boolean,
+    userName: String?,
     onStatusChange: (Boolean) -> Unit,
 ) {
     @StringRes
@@ -224,7 +241,7 @@ fun DeviceVerificationItem(
     }
     DeviceDetailSectionContent(
         stringResource(id = R.string.title_device_key_fingerprint),
-        Either.Left(stringResource(id = subTitle)),
+        AnnotatedString(stringResource(id = subTitle)),
         titleTrailingItem = {
             WireSwitch(
                 checked = state,
@@ -234,12 +251,64 @@ fun DeviceVerificationItem(
             )
         }
     )
+    VerificationDescription(isSelfClient, userName)
+}
+
+@Composable
+private fun VerificationDescription(
+    isSelfClient: Boolean,
+    userName: String?
+) {
+    // TODO: add learn more according to design (need to figure out the link first)
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(
+                start = dimensions().spacing16x,
+                end = dimensions().spacing16x,
+                bottom = dimensions().spacing16x
+            )
+    ) {
+
+        if (isSelfClient) {
+            stringResource(id = R.string.label_self_client_verification_description)
+        } else {
+            stringResource(
+                id = R.string.label_client_verification_description,
+                userName ?: stringResource(id = R.string.unknown_user_name)
+            )
+        }.let {
+            Text(
+                text = it,
+                style = MaterialTheme.wireTypography.body01,
+                color = MaterialTheme.wireColorScheme.secondaryText,
+            )
+        }
+
+        Spacer(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(16.dp)
+        )
+
+        if (isSelfClient) {
+            stringResource(id = R.string.label_self_fingerprint_description)
+        } else {
+            stringResource(id = R.string.label_fingerprint_description)
+        }.let {
+            Text(
+                text = it,
+                style = MaterialTheme.wireTypography.body01,
+                color = MaterialTheme.wireColorScheme.secondaryText,
+            )
+        }
+    }
 }
 
 @Composable
 private fun DeviceDetailSectionContent(
     sectionTitle: String,
-    sectionText: Either<String, AnnotatedString>,
+    sectionText: AnnotatedString,
     enabled: Boolean = true,
     titleTrailingItem: (@Composable () -> Unit)? = null
 ) {
@@ -264,23 +333,13 @@ private fun DeviceDetailSectionContent(
                 modifier = Modifier.padding(bottom = MaterialTheme.wireDimensions.spacing4x)
             )
             Row(verticalAlignment = Alignment.CenterVertically) {
-                sectionText.fold({
-                    Text(
-                        text = it,
-                        style = MaterialTheme.wireTypography.body01,
-                        color = if (enabled) MaterialTheme.wireColorScheme.onBackground
-                        else MaterialTheme.wireColorScheme.secondaryText,
-                        modifier = Modifier.weight(weight = 1f, fill = true)
-                    )
-                }, {
-                    Text(
-                        text = it,
-                        style = MaterialTheme.wireTypography.body01,
-                        color = if (enabled) MaterialTheme.wireColorScheme.onBackground
-                        else MaterialTheme.wireColorScheme.secondaryText,
-                        modifier = Modifier.weight(weight = 1f, fill = true)
-                    )
-                })
+                Text(
+                    text = sectionText,
+                    style = MaterialTheme.wireTypography.body01,
+                    color = if (enabled) MaterialTheme.wireColorScheme.onBackground
+                    else MaterialTheme.wireColorScheme.secondaryText,
+                    modifier = Modifier.weight(weight = 1f, fill = true)
+                )
 
                 if (titleTrailingItem != null) {
                     Box(modifier = Modifier.padding(horizontal = MaterialTheme.wireDimensions.spacing8x)) { titleTrailingItem() }
@@ -288,7 +347,6 @@ private fun DeviceDetailSectionContent(
             }
         }
     }
-    Divider(color = MaterialTheme.wireColorScheme.background)
 }
 
 @Preview

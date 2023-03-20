@@ -216,7 +216,7 @@ class LoginSSOViewModelTest {
 
         runTest { loginViewModel.login() }
 
-        loginViewModel.loginState.loginError shouldBeInstanceOf LoginError.DialogError.InvalidCodeError::class
+        loginViewModel.loginState.loginError shouldBeInstanceOf LoginError.DialogError.InvalidSSOCodeError::class
     }
 
     @Test

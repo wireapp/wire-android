@@ -274,8 +274,7 @@ class LoginEmailViewModelTest {
                 any(),
                 any(),
                 any(),
-                any()
-            ,
+                any(),
                 any()
             )
         } returns AuthenticationResult.Failure.InvalidCredentials.InvalidPasswordIdentityCombination
@@ -305,8 +304,7 @@ class LoginEmailViewModelTest {
                 any(),
                 any(),
                 any(),
-                any()
-            ,
+                any(),
                 any()
             )
         } returns AuthenticationResult.Failure.InvalidCredentials.InvalidPasswordIdentityCombination
@@ -383,6 +381,27 @@ class LoginEmailViewModelTest {
         coVerify(exactly = 1) { loginUseCase(email, any(), any(), any(), code) }
         coVerify(exactly = 1) { getOrRegisterClientUseCase(any()) }
         coVerify(exactly = 1) { navigationManager.navigate(any()) }
+    }
+
+    @Test
+    fun `given 2fa is needed, when code is filled, then should register client without explicit 2fa code`() = runTest {
+        val email = "some.email@example.org"
+        val code = "123456"
+        coEvery { loginUseCase(any(), any(), any(), any(), any()) } returns AuthenticationResult.Success(
+            AUTH_TOKEN,
+            SSO_ID,
+            SERVER_CONFIG.id,
+            null
+        )
+        coEvery { addAuthenticatedUserUseCase(any(), any(), any(), any()) } returns AddAuthenticatedUserUseCase.Result.Success(userId)
+        coEvery { navigationManager.navigate(any()) } returns Unit
+        coEvery { getOrRegisterClientUseCase(any()) } returns RegisterClientResult.Success(CLIENT)
+        every { userDataStoreProvider.getOrCreate(any()).initialSyncCompleted } returns flowOf(true)
+
+        loginViewModel.onUserIdentifierChange(TextFieldValue(email))
+        loginViewModel.onCodeChange(CodeFieldValue(TextFieldValue(code), true))
+
+        coVerify(exactly = 1) { getOrRegisterClientUseCase(match { it.secondFactorVerificationCode == null }) }
     }
 
     companion object {

@@ -41,6 +41,7 @@
     <string name="label_membership_service">Service</string>
     <string name="label_user_deleted">Deleted</string>
     <string name="label_message_sent_failure">Message could not be sent due to connectivity issues.</string>
+    <string name="label_message_edit_sent_failure">The edited message could not be sent due to connectivity issues.</string>
     <string name="label_message_sent_remotely_failure">Message could not be sent, as the backend %s appears to be offline.</string>
     <string name="label_message_receive_failure">Download Error</string>
     <string name="label_message_decryption_failure_message">Message could not be decrypted.</string>
@@ -242,6 +243,10 @@
     <string name="conversation_history_wipe_explanation">According to your team\'s security
         settings, your conversation history has also been deleted.</string>
 
+    <!-- Second Factor Authentication -->
+    <string name="second_factor_authentication_title">Verify your account</string>
+    <string name="second_factor_authentication_instructions_label">Enter the verification code sent to the email %1$s</string>
+    <string name="second_factor_code_error">Invalid code, or maximum attempts exceeded. Please retry, or request another code</string>
     <!-- Remove Device -->
     <string name="remove_device_title">Remove a Device</string>
     <string name="remove_device_message">Remove one of your other devices to start using Wire on

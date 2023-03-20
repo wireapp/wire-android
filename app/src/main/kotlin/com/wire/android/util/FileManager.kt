@@ -45,12 +45,12 @@ class FileManager @Inject constructor(@ApplicationContext private val context: C
             .also { onFileSaved(it) }
     }
 
-    fun openWithExternalApp(assetDataPath: Path, assetExtension: String?, onError: () -> Unit) {
-        openAssetFileWithExternalApp(assetDataPath, context, assetExtension, onError)
+    fun openWithExternalApp(assetDataPath: Path, assetName: String?, onError: () -> Unit) {
+        openAssetFileWithExternalApp(assetDataPath, context, assetName, onError)
     }
 
-    fun shareWithExternalApp(assetDataPath: Path, assetExtension: String?, onError: () -> Unit) {
-        shareAssetFileWithExternalApp(assetDataPath, context, assetExtension, onError)
+    fun shareWithExternalApp(assetDataPath: Path, assetName: String?, onError: () -> Unit) {
+        shareAssetFileWithExternalApp(assetDataPath, context, assetName, onError)
     }
 
     suspend fun copyToTempPath(uri: Uri, tempCachePath: Path, dispatcher: DispatcherProvider = DefaultDispatcherProvider()): Long =

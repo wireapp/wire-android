@@ -80,7 +80,6 @@ fun BackupAndRestoreContent(
     onBackPressed: () -> Unit
 ) {
     val backupAndRestoreStateHolder = rememberBackUpAndRestoreStateHolder()
-
     Scaffold(topBar = {
         WireCenterAlignedTopAppBar(
             elevation = 0.dp,

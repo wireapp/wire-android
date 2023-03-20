@@ -73,12 +73,11 @@ class MigrateMessagesUseCase @Inject constructor(
                 users[scalaMessage.senderId]?.let { mapper.fromScalaMessageToMessage(userId, scalaMessage, it) }
             }
             coreLogic.sessionScope(userId) {
-                messages.persistMigratedMessage(mappedMessages, coroutineScope).onFailure {
+                persistMigratedMessage(mappedMessages, coroutineScope).onFailure {
                     errorsAcc[scalaConversation.id] = it
                 }
             }
         }
-
         return errorsAcc
     }
 }

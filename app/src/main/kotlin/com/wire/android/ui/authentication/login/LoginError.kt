@@ -34,7 +34,7 @@ sealed class LoginError {
         object InvalidCredentialsError : DialogError()
         object ProxyError : DialogError()
         object InvalidSSOCookie : DialogError()
-        object InvalidCodeError : DialogError()
+        object InvalidSSOCodeError : DialogError()
         object UserAlreadyExists : DialogError()
         object PasswordNeededToRegisterClient : DialogError()
         data class SSOResultError constructor(val result: SSOFailureCodes) :

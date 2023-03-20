@@ -43,9 +43,9 @@ fun MessagePreview?.toUIPreview(unreadEventCount: UnreadEventCount): UILastMessa
         unreadEventCount.isEmpty() -> uiLastMessageContent()
         // when there are only unread message events also show last message
         unreadEventCount.size == 1 && unreadEventCount.keys.first() == UnreadEventType.MESSAGE -> uiLastMessageContent()
-        // for the rest of one type events show last message only where their count equals one
+        // for the one type events show last message only where their count equals one
         unreadEventCount.size == 1 && unreadEventCount.values.first() == 1 -> uiLastMessageContent()
-        // for the rest take 2 most prioritized events with count to last message
+        // for the rest take 1 or 2 most prioritized events with count to last message
         else -> multipleUnreadEventsToLastMessage(unreadEventCount)
     }
 }
@@ -91,8 +91,13 @@ private fun multipleUnreadEventsToLastMessage(unreadEventCount: UnreadEventCount
         }.associate { it }
 
     val first = unreadContentTexts.values.first()
-    val second = unreadContentTexts.values.elementAt(1)
-    return UILastMessageContent.MultipleMessage(listOf(first, second))
+    return if (unreadContentTexts.entries.size > 1) {
+        val second = unreadContentTexts.values.elementAt(1)
+        UILastMessageContent.MultipleMessage(listOf(first, second))
+    } else {
+        UILastMessageContent.TextMessage(MessageBody(first))
+    }
+
 }
 
 private fun String?.userUiText(isSelfMessage: Boolean): UIText = when {

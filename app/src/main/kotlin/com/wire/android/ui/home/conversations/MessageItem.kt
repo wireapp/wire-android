@@ -364,6 +364,7 @@ private fun MessageContent(
         }
 
         is UIMessageContent.SystemMessage.MemberAdded -> {}
+        is UIMessageContent.SystemMessage.MemberJoined -> {}
         is UIMessageContent.SystemMessage.MemberLeft -> {}
         is UIMessageContent.SystemMessage.MemberRemoved -> {}
         is UIMessageContent.SystemMessage.RenamedConversation -> {}

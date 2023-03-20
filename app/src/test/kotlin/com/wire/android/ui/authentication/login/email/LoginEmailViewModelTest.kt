@@ -274,8 +274,7 @@ class LoginEmailViewModelTest {
                 any(),
                 any(),
                 any(),
-                any()
-            ,
+                any(),
                 any()
             )
         } returns AuthenticationResult.Failure.InvalidCredentials.InvalidPasswordIdentityCombination
@@ -305,8 +304,7 @@ class LoginEmailViewModelTest {
                 any(),
                 any(),
                 any(),
-                any()
-            ,
+                any(),
                 any()
             )
         } returns AuthenticationResult.Failure.InvalidCredentials.InvalidPasswordIdentityCombination

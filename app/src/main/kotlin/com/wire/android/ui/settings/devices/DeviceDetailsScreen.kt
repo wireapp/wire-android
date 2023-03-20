@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -27,6 +28,7 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -52,6 +54,7 @@ import com.wire.android.ui.settings.devices.model.DeviceDetailsState
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.dialogErrorStrings
 import com.wire.android.util.extension.formatAsFingerPrint
 import com.wire.android.util.extension.formatAsString
@@ -259,7 +262,7 @@ private fun VerificationDescription(
     isSelfClient: Boolean,
     userName: String?
 ) {
-    // TODO: add learn more according to design (need to figure out the link first)
+    val context = LocalContext.current
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -271,18 +274,18 @@ private fun VerificationDescription(
     ) {
 
         if (isSelfClient) {
-            stringResource(id = R.string.label_self_client_verification_description)
+            DescriptionText(
+                text = stringResource(id = R.string.label_self_client_verification_description),
+                leanMoreLink = "https://support.wire.com/hc/en-us/articles/207692235-How-can-I-compare-key-fingerprints-"
+            )
         } else {
-            stringResource(
-                id = R.string.label_client_verification_description,
-                userName ?: stringResource(id = R.string.unknown_user_name)
+            DescriptionText(
+                text = stringResource(
+                    id = R.string.label_client_verification_description,
+                    userName ?: stringResource(id = R.string.unknown_user_name)
+                ), leanMoreLink = "https://support.wire.com/hc/en-us/articles/207692235-How-can-I-compare-key-fingerprints-"
             )
-        }.let {
-            Text(
-                text = it,
-                style = MaterialTheme.wireTypography.body01,
-                color = MaterialTheme.wireColorScheme.secondaryText,
-            )
+
         }
 
         Spacer(
@@ -292,16 +295,60 @@ private fun VerificationDescription(
         )
 
         if (isSelfClient) {
-            stringResource(id = R.string.label_self_fingerprint_description)
-        } else {
-            stringResource(id = R.string.label_fingerprint_description)
-        }.let {
-            Text(
-                text = it,
-                style = MaterialTheme.wireTypography.body01,
-                color = MaterialTheme.wireColorScheme.secondaryText,
+            DescriptionText(
+                text = stringResource(id = R.string.label_self_fingerprint_description),
+                leanMoreLink = "https://support.wire.com/hc/en-us/articles/207692235-How-can-I-compare-key-fingerprints-"
             )
+        } else {
+            DescriptionText(text = stringResource(id = R.string.label_fingerprint_description), leanMoreLink = null)
         }
+    }
+}
+
+@Composable
+private fun DescriptionText(
+    text: String,
+    leanMoreLink: String?,
+) {
+
+    val context = LocalContext.current
+    buildAnnotatedString {
+        withStyle(
+            SpanStyle(
+                color = MaterialTheme.wireColorScheme.secondaryText,
+                fontWeight = MaterialTheme.wireTypography.body01.fontWeight,
+                fontSize = MaterialTheme.wireTypography.body01.fontSize
+            )
+        ) {
+            append(text)
+        }
+
+        leanMoreLink?.let {
+            pushStringAnnotation(
+                tag = "learn_more",
+                annotation = it
+            )
+            append(" ")
+            withStyle(
+                style = SpanStyle(
+                    color = MaterialTheme.wireColorScheme.onTertiaryButtonSelected,
+                    fontWeight = MaterialTheme.wireTypography.label05.fontWeight,
+                    fontSize = MaterialTheme.wireTypography.label05.fontSize,
+                    textDecoration = TextDecoration.Underline
+                )
+            ) {
+                append(stringResource(id = R.string.label_learn_more))
+            }
+        }
+    }.let { annotatedString ->
+
+        ClickableText(text = annotatedString, onClick = { offset ->
+            leanMoreLink?.let {
+                annotatedString.getStringAnnotations(tag = "learn_more", start = offset, end = offset).firstOrNull()?.let {
+                    CustomTabsHelper.launchUrl(context, it.item)
+                }
+            }
+        })
     }
 }
 

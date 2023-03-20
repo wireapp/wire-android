@@ -107,7 +107,7 @@ class LoginEmailViewModel @Inject constructor(
             registerClient(
                 userId = storedUserId,
                 password = loginState.password.text,
-                secondFactorVerificationCode = secondFactorVerificationCode
+//                secondFactorVerificationCode = secondFactorVerificationCode
             ).let {
                 when (it) {
                     is RegisterClientResult.Failure -> {

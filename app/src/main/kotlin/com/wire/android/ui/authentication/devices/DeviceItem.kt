@@ -75,6 +75,7 @@ fun DeviceItem(
     leadingIcon: @Composable (() -> Unit),
     leadingIconBorder: Dp = 1.dp,
     isWholeItemClickable: Boolean = false,
+    shouldShowVerifyLabel: Boolean = true,
     onRemoveDeviceClick: ((Device) -> Unit)? = null
 ) {
     DeviceItemContent(
@@ -84,7 +85,8 @@ fun DeviceItem(
         leadingIcon = leadingIcon,
         leadingIconBorder = leadingIconBorder,
         onRemoveDeviceClick = onRemoveDeviceClick,
-        isWholeItemClickable = isWholeItemClickable
+        isWholeItemClickable = isWholeItemClickable,
+        shouldShowVerifyLabel = shouldShowVerifyLabel
     )
 }
 
@@ -96,7 +98,8 @@ private fun DeviceItemContent(
     leadingIcon: @Composable (() -> Unit),
     leadingIconBorder: Dp,
     onRemoveDeviceClick: ((Device) -> Unit)?,
-    isWholeItemClickable: Boolean
+    isWholeItemClickable: Boolean,
+    shouldShowVerifyLabel: Boolean
 ) {
     Row(
         verticalAlignment = Alignment.Top,
@@ -122,7 +125,7 @@ private fun DeviceItemContent(
                 modifier = Modifier
                     .padding(start = MaterialTheme.wireDimensions.removeDeviceItemPadding)
                     .weight(1f)
-            ) { DeviceItemTexts(device, placeholder) }
+            ) { DeviceItemTexts(device, placeholder, shouldShowVerifyLabel) }
         }
         val (buttonTopPadding, buttonEndPadding) = getMinTouchMargins(minSize = MaterialTheme.wireDimensions.buttonSmallMinSize)
             .let {
@@ -153,7 +156,12 @@ private fun DeviceItemContent(
 }
 
 @Composable
-private fun DeviceItemTexts(device: Device, placeholder: Boolean, isDebug: Boolean = BuildConfig.DEBUG) {
+private fun DeviceItemTexts(
+    device: Device,
+    placeholder: Boolean,
+    shouldShowVerifyLabel: Boolean,
+    isDebug: Boolean = BuildConfig.DEBUG
+) {
     val displayZombieIndicator = remember {
         if (isDebug) {
             !device.isValid
@@ -171,8 +179,10 @@ private fun DeviceItemTexts(device: Device, placeholder: Boolean, isDebug: Boole
                 .wrapContentWidth()
                 .shimmerPlaceholder(visible = placeholder)
         )
-        Spacer(modifier = Modifier.width(MaterialTheme.wireDimensions.spacing8x))
-        VerifyLabel(device.isVerified, Modifier.wrapContentWidth())
+        if (shouldShowVerifyLabel) {
+            Spacer(modifier = Modifier.width(MaterialTheme.wireDimensions.spacing8x))
+            VerifyLabel(device.isVerified, Modifier.wrapContentWidth())
+        }
     }
 
     if (displayZombieIndicator) {

@@ -78,6 +78,7 @@ import com.wire.android.ui.home.conversations.info.ConversationInfoViewState
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewModel
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewState
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
+import com.wire.android.ui.home.conversations.model.EditMessageBundle
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.messagecomposer.MessageComposeInputState
@@ -177,6 +178,7 @@ fun ConversationScreen(
         onOpenProfile = conversationInfoViewModel::navigateToProfile,
         onMessageDetailsClick = conversationMessagesViewModel::openMessageDetails,
         onSendMessage = messageComposerViewModel::sendMessage,
+        onSendEditMessage = messageComposerViewModel::sendEditMessage,
         onDeleteMessage = messageComposerViewModel::showDeleteMessageDialog,
         onSendAttachment = messageComposerViewModel::sendAttachmentMessage,
         onDownloadAsset = conversationMessagesViewModel::downloadOrFetchAssetToInternalStorage,
@@ -280,6 +282,7 @@ private fun ConversationScreen(
     onOpenProfile: (String) -> Unit,
     onMessageDetailsClick: (messageId: String, isSelfMessage: Boolean) -> Unit,
     onSendMessage: (String, List<UiMention>, String?) -> Unit,
+    onSendEditMessage: (EditMessageBundle) -> Unit,
     onDeleteMessage: (String, Boolean) -> Unit,
     onSendAttachment: (AttachmentBundle?) -> Unit,
     onAudioClick: (String) -> Unit,
@@ -369,6 +372,7 @@ private fun ConversationScreen(
                         messageComposerInnerState = messageComposerInnerState,
                         messages = conversationMessagesViewState.messages,
                         onSendMessage = onSendMessage,
+                        onSendEditMessage = onSendEditMessage,
                         onSendAttachment = onSendAttachment,
                         onMentionMember = onMentionMember,
                         onDownloadAsset = onDownloadAsset,
@@ -405,6 +409,7 @@ private fun ConversationScreenContent(
     messageComposerInnerState: MessageComposerInnerState,
     messages: Flow<PagingData<UIMessage>>,
     onSendMessage: (String, List<UiMention>, String?) -> Unit,
+    onSendEditMessage: (EditMessageBundle) -> Unit,
     onSendAttachment: (AttachmentBundle?) -> Unit,
     onMentionMember: (String?) -> Unit,
     onDownloadAsset: (String) -> Unit,
@@ -455,6 +460,7 @@ private fun ConversationScreenContent(
             }
             onSendMessage(message, mentions, messageId)
         },
+        onSendEditTextMessage = onSendEditMessage,
         onSendAttachment = {
             scope.launch {
                 lazyListState.scrollToItem(0)
@@ -608,6 +614,7 @@ fun PreviewConversationScreen() {
         onOpenProfile = { _ -> },
         onMessageDetailsClick = { _, _ -> },
         onSendMessage = { _, _, _ -> },
+        onSendEditMessage = { _ -> },
         onDeleteMessage = { _, _ -> },
         onSendAttachment = { },
         onDownloadAsset = { },

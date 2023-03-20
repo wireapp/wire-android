@@ -92,6 +92,7 @@ fun OtherUserDevicesScreen(
                     onRemoveDeviceClick = onDeviceClick,
                     leadingIcon = Icons.Filled.ChevronRight.Icon(),
                     leadingIconBorder = 0.dp,
+                    shouldShowVerifyLabel = true
                 )
                 if (index < otherUserDevices.lastIndex) WireDivider()
             }

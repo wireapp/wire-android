@@ -71,11 +71,11 @@ import com.wire.android.util.formatMediumDateTime
 fun DeviceItem(
     device: Device,
     placeholder: Boolean,
+    shouldShowVerifyLabel: Boolean,
     background: Color? = null,
     leadingIcon: @Composable (() -> Unit),
     leadingIconBorder: Dp = 1.dp,
     isWholeItemClickable: Boolean = false,
-    shouldShowVerifyLabel: Boolean = true,
     onRemoveDeviceClick: ((Device) -> Unit)? = null
 ) {
     DeviceItemContent(
@@ -248,6 +248,7 @@ fun PreviewDeviceItem() {
         DeviceItem(
             device = Device(name = "name"),
             placeholder = false,
+            shouldShowVerifyLabel = true,
             background = null,
             { Icon(painter = painterResource(id = R.drawable.ic_remove), contentDescription = "") }
         ) {}

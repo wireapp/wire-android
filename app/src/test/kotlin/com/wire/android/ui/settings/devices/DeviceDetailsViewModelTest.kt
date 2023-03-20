@@ -3,7 +3,6 @@ package com.wire.android.ui.settings.devices
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.framework.TestClient
-import com.wire.android.framework.TestUser
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.authentication.devices.remove.RemoveDeviceDialogState
 import com.wire.android.ui.authentication.devices.remove.RemoveDeviceError
@@ -11,6 +10,7 @@ import com.wire.android.ui.settings.devices.DeviceDetailsViewModelTest.Arrangeme
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.NetworkFailure
 import com.wire.kalium.logic.data.conversation.ClientId
+import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.client.ClientFingerprintUseCase
 import com.wire.kalium.logic.feature.client.DeleteClientResult
 import com.wire.kalium.logic.feature.client.DeleteClientUseCase
@@ -18,6 +18,7 @@ import com.wire.kalium.logic.feature.client.GetClientDetailsResult
 import com.wire.kalium.logic.feature.client.ObserveClientDetailsUseCase
 import com.wire.kalium.logic.feature.client.UpdateClientVerificationStatusUseCase
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
+import com.wire.kalium.logic.feature.user.ObserveUserInfoUseCase
 import io.mockk.Called
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -197,6 +198,11 @@ class DeviceDetailsViewModelTest {
         @MockK
         lateinit var isPasswordRequiredUseCase: IsPasswordRequiredUseCase
 
+        @MockK
+        lateinit var observeUserInfo: ObserveUserInfoUseCase
+
+        val currentUserId = UserId("currentUserId", "currentUserDomain")
+
         val viewModel by lazy {
             DeviceDetailsViewModel(
                 savedStateHandle = savedStateHandle,
@@ -206,7 +212,8 @@ class DeviceDetailsViewModelTest {
                 isPasswordRequired = isPasswordRequiredUseCase,
                 fingerprintUseCase = deviceFingerprint,
                 updateClientVerificationStatus = updateClientVerificationStatus,
-                currentAccountId = TestUser.USER_ID
+                currentUserId = currentUserId,
+                observeUserInfo = observeUserInfo
             )
         }
 

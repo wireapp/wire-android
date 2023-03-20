@@ -62,6 +62,7 @@ import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages
 import com.wire.android.ui.home.conversations.mention.MemberItemToMention
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
+import com.wire.android.ui.home.conversations.model.EditMessageBundle
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.messagecomposer.attachment.AttachmentOptions
 import com.wire.android.ui.home.newconversation.model.Contact
@@ -75,6 +76,7 @@ fun MessageComposer(
     messageComposerState: MessageComposerInnerState,
     messageContent: @Composable () -> Unit,
     onSendTextMessage: (String, List<UiMention>, messageId: String?) -> Unit,
+    onSendEditTextMessage: (EditMessageBundle) -> Unit,
     onSendAttachment: (AttachmentBundle?) -> Unit,
     onMentionMember: (String?) -> Unit,
     onMessageComposerError: (ConversationSnackbarMessages) -> Unit,
@@ -97,6 +99,24 @@ fun MessageComposer(
                 )
                 messageComposerState.quotedMessageData = null
                 messageComposerState.setMessageTextValue(TextFieldValue(""))
+            }
+        }
+
+        val onSendEditButtonClicked = remember {
+            {
+                (messageComposerState.messageComposeInputState as? MessageComposeInputState.Active)?.let {
+                    (it.type as? MessageComposeInputType.EditMessage)?.messageId
+                }?.let { originalMessageId ->
+                    onSendEditTextMessage(
+                        EditMessageBundle(
+                            originalMessageId = originalMessageId,
+                            newContent = messageComposerState.messageComposeInputState.messageText.text,
+                            messageComposerState.mentions,
+                        )
+                    )
+                }
+                messageComposerState.focusManager.clearFocus()
+                messageComposerState.toInactive(clearInput = true)
             }
         }
 
@@ -129,6 +149,7 @@ fun MessageComposer(
             onSendAttachmentClicked = onSendAttachmentClicked,
             securityClassificationType = securityClassificationType,
             onSendButtonClicked = onSendButtonClicked,
+            onEditSaveButtonClicked = onSendEditButtonClicked,
             onMentionPicked = onMentionPicked,
             onPingClicked = onPingClicked,
             tempWritableImageUri = tempWritableImageUri,
@@ -153,6 +174,7 @@ private fun MessageComposer(
     tempWritableImageUri: Uri?,
     tempWritableVideoUri: Uri?,
     onSendButtonClicked: () -> Unit,
+    onEditSaveButtonClicked: () -> Unit,
     onMentionPicked: (Contact) -> Unit,
     onPingClicked: () -> Unit
 ) {
@@ -168,7 +190,8 @@ private fun MessageComposer(
             Column(
                 Modifier
                     .fillMaxWidth()
-                    .height(currentScreenHeight)) {
+                    .height(currentScreenHeight)
+            ) {
 
                 // when MessageComposer is composed for the first time we do not know the height until users opens the keyboard
                 var keyboardHeight: KeyboardHeight by remember { mutableStateOf(KeyboardHeight.NotKnown) }
@@ -258,10 +281,7 @@ private fun MessageComposer(
                                     messageComposerState.toActive()
                                     messageComposerState.showAttachmentOptions()
                                 },
-                                onEditSaveButtonClicked = {
-                                    // TODO: replace with proper implementation
-                                    onMessageComposerError(ConversationSnackbarMessages.MessageEditNotYetSupported)
-                                },
+                                onEditSaveButtonClicked = onEditSaveButtonClicked,
                                 onEditCancelButtonClicked = {
                                     messageComposerState.focusManager.clearFocus()
                                     messageComposerState.toInactive(clearInput = true)

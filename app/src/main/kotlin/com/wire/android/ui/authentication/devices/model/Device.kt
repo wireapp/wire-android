@@ -28,7 +28,8 @@ data class Device(
     val name: String = "",
     val clientId: ClientId = ClientId(""),
     val registrationTime: String? = null,
-    val isValid: Boolean = true
+    val isValid: Boolean = true,
+    val isVerified: Boolean = false
 ) {
-    constructor(client: Client) : this(client.name, client.id, client.registrationTime?.toIsoDateTimeString(), true)
+    constructor(client: Client) : this(client.name, client.id, client.registrationTime?.toIsoDateTimeString(), true, client.isVerified)
 }

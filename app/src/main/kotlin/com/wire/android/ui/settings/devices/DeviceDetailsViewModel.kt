@@ -8,11 +8,8 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
 import com.wire.android.di.CurrentAccount
-import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.EXTRA_DEVICE_ID
 import com.wire.android.navigation.EXTRA_USER_ID
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.navigation.SavedStateViewModel
 import com.wire.android.ui.authentication.devices.model.Device
@@ -33,8 +30,8 @@ import com.wire.kalium.logic.feature.user.GetUserInfoResult
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
 import com.wire.kalium.logic.feature.user.ObserveUserInfoUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @HiltViewModel
 class DeviceDetailsViewModel @Inject constructor(
@@ -106,7 +103,6 @@ class DeviceDetailsViewModel @Inject constructor(
                         state = state.copy(
                             device = Device(result.client),
                             isCurrentDevice = result.isCurrentClient,
-                            isVerified = result.client.isVerified,
                             removeDeviceDialogState = RemoveDeviceDialogState.Hidden
                         )
                     }
@@ -205,7 +201,7 @@ class DeviceDetailsViewModel @Inject constructor(
 
     fun navigateBack() {
         viewModelScope.launch {
-            navigationManager.navigate(NavigationCommand(NavigationItem.SelfDevices.getRouteWithArgs(), BackStackMode.UPDATE_EXISTED))
+            navigationManager.navigateBack()
         }
     }
 }

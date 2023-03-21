@@ -34,3 +34,4 @@ internal fun Context.openDatabaseIfExists(dbPath: String): SQLiteDatabase? = if 
 internal fun Int.orNullIfNegative(): Int? = if (this < 0) null else this
 
 internal fun Cursor.getStringOrNull(index: Int) = if (isNull(index)) null else getString(index)
+internal fun Cursor.getBlobOrNull(index: Int) = if (isNull(index)) null else getBlob(index)

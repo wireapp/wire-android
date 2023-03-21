@@ -21,6 +21,7 @@
 package com.wire.android.ui.authentication.devices
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -31,6 +32,8 @@ import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -46,6 +49,8 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -66,6 +71,7 @@ import com.wire.android.util.formatMediumDateTime
 fun DeviceItem(
     device: Device,
     placeholder: Boolean,
+    shouldShowVerifyLabel: Boolean,
     background: Color? = null,
     leadingIcon: @Composable (() -> Unit),
     leadingIconBorder: Dp = 1.dp,
@@ -79,7 +85,8 @@ fun DeviceItem(
         leadingIcon = leadingIcon,
         leadingIconBorder = leadingIconBorder,
         onRemoveDeviceClick = onRemoveDeviceClick,
-        isWholeItemClickable = isWholeItemClickable
+        isWholeItemClickable = isWholeItemClickable,
+        shouldShowVerifyLabel = shouldShowVerifyLabel
     )
 }
 
@@ -91,7 +98,8 @@ private fun DeviceItemContent(
     leadingIcon: @Composable (() -> Unit),
     leadingIconBorder: Dp,
     onRemoveDeviceClick: ((Device) -> Unit)?,
-    isWholeItemClickable: Boolean
+    isWholeItemClickable: Boolean,
+    shouldShowVerifyLabel: Boolean
 ) {
     Row(
         verticalAlignment = Alignment.Top,
@@ -117,7 +125,7 @@ private fun DeviceItemContent(
                 modifier = Modifier
                     .padding(start = MaterialTheme.wireDimensions.removeDeviceItemPadding)
                     .weight(1f)
-            ) { DeviceItemTexts(device, placeholder) }
+            ) { DeviceItemTexts(device, placeholder, shouldShowVerifyLabel) }
         }
         val (buttonTopPadding, buttonEndPadding) = getMinTouchMargins(minSize = MaterialTheme.wireDimensions.buttonSmallMinSize)
             .let {
@@ -148,7 +156,12 @@ private fun DeviceItemContent(
 }
 
 @Composable
-private fun DeviceItemTexts(device: Device, placeholder: Boolean, isDebug: Boolean = BuildConfig.DEBUG) {
+private fun DeviceItemTexts(
+    device: Device,
+    placeholder: Boolean,
+    shouldShowVerifyLabel: Boolean,
+    isDebug: Boolean = BuildConfig.DEBUG
+) {
     val displayZombieIndicator = remember {
         if (isDebug) {
             !device.isValid
@@ -157,14 +170,20 @@ private fun DeviceItemTexts(device: Device, placeholder: Boolean, isDebug: Boole
         }
     }
 
-    Text(
-        style = MaterialTheme.wireTypography.body02,
-        color = MaterialTheme.wireColorScheme.onBackground,
-        text = device.name,
-        modifier = Modifier
-            .fillMaxWidth()
-            .shimmerPlaceholder(visible = placeholder)
-    )
+    Row(Modifier.fillMaxWidth()) {
+        Text(
+            style = MaterialTheme.wireTypography.body02,
+            color = MaterialTheme.wireColorScheme.onBackground,
+            text = device.name,
+            modifier = Modifier
+                .wrapContentWidth()
+                .shimmerPlaceholder(visible = placeholder)
+        )
+        if (shouldShowVerifyLabel) {
+            Spacer(modifier = Modifier.width(MaterialTheme.wireDimensions.spacing8x))
+            VerifyLabel(device.isVerified, Modifier.wrapContentWidth())
+        }
+    }
 
     if (displayZombieIndicator) {
         Text(
@@ -178,7 +197,7 @@ private fun DeviceItemTexts(device: Device, placeholder: Boolean, isDebug: Boole
     }
 
     Spacer(modifier = Modifier.height(MaterialTheme.wireDimensions.removeDeviceItemTitleVerticalPadding))
-    val details: String = if (device.registrationTime.isNotBlank()) {
+    val details: String = if (!device.registrationTime.isNullOrBlank()) {
         stringResource(
             R.string.remove_device_id_and_time_label,
             device.clientId.formatAsString(),
@@ -200,13 +219,36 @@ private fun DeviceItemTexts(device: Device, placeholder: Boolean, isDebug: Boole
     )
 }
 
+@Composable
+fun VerifyLabel(isVerified: Boolean, modifier: Modifier = Modifier) {
+    Box(
+        modifier = modifier.border(
+            width = MaterialTheme.wireDimensions.spacing1x,
+            shape = RoundedCornerShape(MaterialTheme.wireDimensions.spacing4x),
+            color = if (isVerified) MaterialTheme.wireColorScheme.primary else MaterialTheme.wireColorScheme.secondaryText,
+        )
+    ) {
+        Text(
+            text = stringResource(id = if (isVerified) R.string.label_client_verified else R.string.label_client_unverified),
+            color = if (isVerified) MaterialTheme.wireColorScheme.primary else MaterialTheme.wireColorScheme.secondaryText,
+            style = MaterialTheme.wireTypography.label03.copy(textAlign = TextAlign.Center),
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier
+                .wrapContentWidth()
+                .padding(horizontal = MaterialTheme.wireDimensions.spacing4x, vertical = MaterialTheme.wireDimensions.spacing2x)
+        )
+    }
+}
+
 @Preview(showBackground = true)
 @Composable
 fun PreviewDeviceItem() {
     Box(modifier = Modifier.fillMaxWidth()) {
         DeviceItem(
-            device = Device(),
+            device = Device(name = "name"),
             placeholder = false,
+            shouldShowVerifyLabel = true,
             background = null,
             { Icon(painter = painterResource(id = R.drawable.ic_remove), contentDescription = "") }
         ) {}

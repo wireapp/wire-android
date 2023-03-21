@@ -102,12 +102,14 @@ fun SelfDevicesScreenContent(
                             folderDeviceItems(
                                 context.getString(R.string.current_device_label),
                                 listOf(currentDevice),
+                                false,
                                 onDeviceClick
                             )
                         }
                         folderDeviceItems(
                             context.getString(R.string.other_devices_label),
                             state.deviceList,
+                            true,
                             onDeviceClick
                         )
                     }
@@ -120,6 +122,7 @@ fun SelfDevicesScreenContent(
 private fun LazyListScope.folderDeviceItems(
     header: String,
     items: List<Device>,
+    shouldShowVerifyLabel: Boolean,
     onDeviceClick: (Device) -> Unit = {}
 ) {
     folderWithElements(
@@ -139,7 +142,8 @@ private fun LazyListScope.folderDeviceItems(
             onRemoveDeviceClick = onDeviceClick,
             leadingIcon = Icons.Filled.ChevronRight.Icon(),
             leadingIconBorder = 0.dp,
-            isWholeItemClickable = true
+            isWholeItemClickable = true,
+            shouldShowVerifyLabel = shouldShowVerifyLabel
         )
     }
 }

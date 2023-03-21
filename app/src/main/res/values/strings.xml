@@ -146,6 +146,8 @@
     <string name="url_message_details_reactions_learn_more" translatable="false">https://support.wire.com/hc/en-us/articles/212053645-Like-a-message</string>
     <string name="url_message_details_read_receipts_learn_more" translatable="false">https://support.wire.com/hc/en-us/articles/360000665277-Activate-or-deactivate-read-receipts</string>
     <string name="url_message_details_offline_backends_learn_more" translatable="false">https://support.wire.com/hc/articles/9357718008093-Backend</string>
+    <string name="url_self_client_verification_learn_more" translatable="false">https://support.wire.com/hc/en-us/articles/207693005-How-can-I-verify-my-own-devices-</string>
+    <string name="url_self_client_fingerprint_learn_more" translatable="false">https://support.wire.com/hc/en-us/articles/207692235-How-can-I-compare-key-fingerprints-</string>
     <!-- Navigation -->
     <string name="vault_screen_title">Vault</string>
     <string name="archive_screen_title">Archive</string>
@@ -917,6 +919,10 @@
     <string name="guest_link_revoke_error_message">There was an error trying to revoke Guest Link. Please try again</string>
     <string name="revoke_guest__room_link_dialog_text">New guests will not be able to join with this link. Current guests will still have access.</string>
     <string name="revoke_guest__room_link_dialog_title">Revoke guest link?</string>
+    <string name="guest__room_link_copied">Guest link was copied to clipboard</string>
+    <string name="title_device_key_fingerprint">DEVICE KEY FINGERPRINT</string>
+    <string name="label_client_key_fingerprint_not_available">NOT AVAILABLE</string>
+
     <string name="guest_room_link_copied">Guest link was copied to clipboard</string>
     <string name="guest_room_link_enabled">Generating guest links is now enabled for all group admins</string>
     <string name="guest_room_link_disabled">Generating guest links is now disabled for all group admins</string>
@@ -930,4 +936,11 @@
     <string name="new_device_dialog_other_user_btn">Switch Account</string>
     <string name="label_system_message_joined_the_conversation_by_self">%1$s joined the conversation</string>
     <string name="label_system_message_joined_the_conversation_by_other">%1$s joined the conversation</string>
+    <string name="label_client_verified">Verified</string>
+    <string name="label_client_unverified">Not Verified</string>
+    <string name="label_self_client_verification_description">To verify your own device, compare this key fingerprint with the same key fingerprint on another device.</string>
+    <string name="label_client_verification_description">Verify that this device fingerprint matches the fingerprint shown on %s’s device.</string>
+    <string name="label_fingerprint_description">If fingerprints don’t match, reset the session to generate new encryption keys on both sides.</string>
+    <string name="label_self_fingerprint_description">To let others verify this device, share this fingerprint or the QR code with them.</string>
+    <string name="unknown_user_name">unknown</string>
 </resources>

@@ -170,6 +170,7 @@ private fun RemoveDeviceItemsList(
                     device = device,
                     placeholder = placeholders,
                     onRemoveDeviceClick = onItemClicked,
+                    shouldShowVerifyLabel = false,
                     leadingIcon = {
                         Icon(
                             painterResource(id = R.drawable.ic_remove),

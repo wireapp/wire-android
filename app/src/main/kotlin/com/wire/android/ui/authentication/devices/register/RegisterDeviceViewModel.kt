@@ -74,8 +74,9 @@ class RegisterDeviceViewModel @Inject constructor(
     }
 
     fun onPasswordChange(newText: TextFieldValue) {
-        if (state.password != newText)
+        if (state.password != newText) {
             updateState(state.copy(password = newText, error = RegisterDeviceError.None, continueEnabled = newText.text.isNotEmpty()))
+        }
     }
 
     fun onErrorDismiss() {
@@ -129,8 +130,9 @@ class RegisterDeviceViewModel @Inject constructor(
         navigationManager.navigate(NavigationCommand(NavigationItem.RemoveDevices.getRouteWithArgs(), BackStackMode.CLEAR_WHOLE))
 
     private suspend fun navigateAfterRegisterClientSuccess() =
-        if (userDataStore.initialSyncCompleted.first())
+        if (userDataStore.initialSyncCompleted.first()) {
             navigationManager.navigate(NavigationCommand(NavigationItem.Home.getRouteWithArgs(), BackStackMode.CLEAR_WHOLE))
-        else
+        } else {
             navigationManager.navigate(NavigationCommand(NavigationItem.InitialSync.getRouteWithArgs(), BackStackMode.CLEAR_WHOLE))
+        }
 }

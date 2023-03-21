@@ -158,6 +158,7 @@ private fun getColorFilter(message: SystemMessage): ColorFilter? {
         is SystemMessage.MissedCall.YouCalled -> null
         is SystemMessage.Knock -> ColorFilter.tint(colorsScheme().primary)
         is SystemMessage.MemberAdded -> ColorFilter.tint(colorsScheme().onBackground)
+        is SystemMessage.MemberJoined -> ColorFilter.tint(colorsScheme().onBackground)
         is SystemMessage.MemberLeft -> ColorFilter.tint(colorsScheme().onBackground)
         is SystemMessage.MemberRemoved -> ColorFilter.tint(colorsScheme().onBackground)
         is SystemMessage.CryptoSessionReset -> ColorFilter.tint(colorsScheme().onBackground)
@@ -232,6 +233,7 @@ private val SystemMessage.expandable
     get() = when (this) {
         is SystemMessage.MemberAdded -> this.memberNames.size > EXPANDABLE_THRESHOLD
         is SystemMessage.MemberRemoved -> this.memberNames.size > EXPANDABLE_THRESHOLD
+        is SystemMessage.MemberJoined -> false
         is SystemMessage.MemberLeft -> false
         is SystemMessage.MissedCall -> false
         is SystemMessage.RenamedConversation -> false
@@ -258,7 +260,7 @@ private fun List<UIText>.limitUserNamesList(res: Resources, threshold: Int): Lis
             .plus(res.getQuantityString(R.plurals.label_system_message_x_more, moreCount, moreCount))
     }
 
-@Suppress("LongParameterList", "SpreadOperator")
+@Suppress("LongParameterList", "SpreadOperator", "ComplexMethod")
 fun SystemMessage.annotatedString(
     res: Resources,
     expanded: Boolean,
@@ -278,6 +280,7 @@ fun SystemMessage.annotatedString(
                 author.asString(res),
                 memberNames.limitUserNamesList(res, if (expanded) memberNames.size else EXPANDABLE_THRESHOLD).toUserNamesListString(res)
             )
+        is SystemMessage.MemberJoined -> arrayOf(author.asString(res))
         is SystemMessage.MemberLeft -> arrayOf(author.asString(res))
         is SystemMessage.MissedCall -> arrayOf(author.asString(res))
         is SystemMessage.RenamedConversation -> arrayOf(author.asString(res), additionalContent)

@@ -25,6 +25,7 @@ package com.wire.android.ui.authentication.login.email
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
+import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
 import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.di.AuthServerConfigProvider
@@ -149,7 +150,8 @@ class LoginEmailViewModelTest {
             savedStateHandle,
             navigationManager,
             authServerConfigProvider,
-            userDataStoreProvider
+            userDataStoreProvider,
+            TestDispatcherProvider()
         )
     }
 

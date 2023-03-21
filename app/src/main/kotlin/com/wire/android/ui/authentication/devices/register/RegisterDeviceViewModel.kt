@@ -26,6 +26,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.datastore.UserDataStore
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
@@ -35,6 +36,7 @@ import com.wire.kalium.logic.feature.client.RegisterClientUseCase
 import com.wire.kalium.logic.feature.client.GetOrRegisterClientUseCase
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
@@ -44,6 +46,7 @@ class RegisterDeviceViewModel @Inject constructor(
     private val navigationManager: NavigationManager,
     private val registerClientUseCase: GetOrRegisterClientUseCase,
     private val isPasswordRequired: IsPasswordRequiredUseCase,
+    private val userDataStore: UserDataStore,
 ) : ViewModel() {
 
     var state: RegisterDeviceState by mutableStateOf(RegisterDeviceState())
@@ -89,7 +92,7 @@ class RegisterDeviceViewModel @Inject constructor(
         )) {
             is RegisterClientResult.Failure.TooManyClients -> navigateToRemoveDevicesScreen()
             is RegisterClientResult.Success -> {
-                navigateToHomeScreen()
+                navigateAfterRegisterClientSuccess()
             }
             is RegisterClientResult.Failure.Generic -> state = state.copy(
                 loading = false,
@@ -125,6 +128,9 @@ class RegisterDeviceViewModel @Inject constructor(
     private suspend fun navigateToRemoveDevicesScreen() =
         navigationManager.navigate(NavigationCommand(NavigationItem.RemoveDevices.getRouteWithArgs(), BackStackMode.CLEAR_WHOLE))
 
-    private suspend fun navigateToHomeScreen() =
-        navigationManager.navigate(NavigationCommand(NavigationItem.Home.getRouteWithArgs(), BackStackMode.CLEAR_WHOLE))
+    private suspend fun navigateAfterRegisterClientSuccess() =
+        if (userDataStore.initialSyncCompleted.first())
+            navigationManager.navigate(NavigationCommand(NavigationItem.Home.getRouteWithArgs(), BackStackMode.CLEAR_WHOLE))
+        else
+            navigationManager.navigate(NavigationCommand(NavigationItem.InitialSync.getRouteWithArgs(), BackStackMode.CLEAR_WHOLE))
 }

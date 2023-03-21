@@ -63,7 +63,17 @@ class MessageMapper @Inject constructor(
         )
     }.distinct()
 
-    fun toUIMessages(userList: List<User>, messages: List<Message.Standalone>): List<UIMessage> = messages.mapNotNull { message ->
+    fun toUIMessages(userList: List<User>, messages: List<Message.Standalone>): List<UIMessage> {
+        val uiMessages = mutableListOf<UIMessage>()
+        messages.mapNotNull { message ->
+            toUIMessage(userList, message)?.let {
+                uiMessages.add(it)
+            }
+        }
+        return uiMessages
+    }
+
+    fun toUIMessage(userList: List<User>, message: Message.Standalone): UIMessage? {
         val sender = userList.findUser(message.senderUserId)
         val content = messageContentMapper.fromMessage(
             message = message,
@@ -104,7 +114,8 @@ class MessageMapper @Inject constructor(
         // Also hidden messages should not be displayed, as well preview images
         val shouldNotDisplay =
             message is Message.System && content == null || message.visibility == HIDDEN || content is UIMessageContent.PreviewAssetMessage
-        if (shouldNotDisplay) {
+
+        return if (shouldNotDisplay) {
             null
         } else {
             UIMessage(

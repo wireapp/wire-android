@@ -27,8 +27,6 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.paging.cachedIn
-import androidx.paging.filter
-import androidx.paging.flatMap
 import androidx.paging.map
 import com.wire.android.R
 import com.wire.android.appLogger
@@ -285,28 +283,30 @@ class ConversationMessagesViewModel @Inject constructor(
         }
     }
 
-    fun checkPendingActions(onMessageReply: (UIMessage) -> Unit, onMessageDetailsClick: (String, Boolean) -> Unit) = viewModelScope.launch {
+    fun updateImageOnFullscreenMode(message: UIMessage?) {
+        conversationViewState = conversationViewState.copy(messageOnFullscreen = message)
+    }
+
+    fun checkPendingActions(onMessageReply: (UIMessage) -> Unit) = viewModelScope.launch {
         savedStateHandle.getBackNavArg<Pair<String, String>>(EXTRA_ON_MESSAGE_REACTED)?.let { (messageId, emoji) ->
             toggleReaction(messageId, emoji)
         }
         savedStateHandle.getBackNavArg<String>(EXTRA_ON_MESSAGE_REPLIED)?.let { messageId ->
-            conversationViewState.messages.collectLatest {
-                it.map { uiMsg ->
-                   if (uiMsg.messageHeader.messageId == messageId) onMessageReply(uiMsg)
+            conversationViewState.messageOnFullscreen?.let { onFullscreenMessage ->
+                updateImageOnFullscreenMode(null) // We need to reset the imageOnFullscreenMode as we handle it here
+                if (onFullscreenMessage.messageHeader.messageId == messageId) {
+                    onMessageReply(onFullscreenMessage)
                 }
             }
         }
         savedStateHandle.getBackNavArg<Pair<String, Boolean>>(EXTRA_ON_MESSAGE_DETAILS_CLICKED)?.let { (messageId, isSelfAsset) ->
-            conversationViewState.messages.collectLatest {
-                it.map { uiMsg ->
-                    onMessageDetailsClick(uiMsg.messageHeader.messageId, isSelfAsset)
+            conversationViewState.messageOnFullscreen?.let { onFullscreenMessage ->
+                updateImageOnFullscreenMode(null) // We need to reset the imageOnFullscreenMode as we handle it here
+                if (onFullscreenMessage.messageHeader.messageId == messageId) {
+                    openMessageDetails(messageId, isSelfAsset)
                 }
             }
         }
-    }
-
-    suspend fun checkIsTherePendingReply(onMessageReply: (String) -> Unit) = viewModelScope.launch(dispatchers.io()) {
-
     }
 
     override fun onCleared() {

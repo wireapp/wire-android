@@ -32,5 +32,6 @@ data class ConversationMessagesViewState(
     val messages: Flow<PagingData<UIMessage>> = emptyFlow(),
     val firstUnreadInstant: Instant? = null,
     val downloadedAssetDialogState: DownloadedAssetDialogVisibilityState = DownloadedAssetDialogVisibilityState.Hidden,
-    val audioMessagesState: Map<String, AudioState> = emptyMap()
+    val audioMessagesState: Map<String, AudioState> = emptyMap(),
+    val messageOnFullscreen: UIMessage? = null,
 )

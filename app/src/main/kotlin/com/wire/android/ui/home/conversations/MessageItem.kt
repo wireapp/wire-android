@@ -83,7 +83,7 @@ fun MessageItem(
     onAssetMessageClicked: (String) -> Unit,
     onAudioClick: (String) -> Unit,
     onChangeAudioPosition: (String, Int) -> Unit,
-    onImageMessageClicked: (String, Boolean) -> Unit,
+    onImageMessageClicked: (UIMessage, Boolean) -> Unit,
     onOpenProfile: (String) -> Unit,
     onReactionClicked: (String, String) -> Unit,
     onResetSessionClicked: (senderUserId: UserId, clientId: String?) -> Unit
@@ -139,7 +139,7 @@ fun MessageItem(
                         val currentOnImageClick = remember {
                             Clickable(enabled = true, onClick = {
                                 onImageMessageClicked(
-                                    message.messageHeader.messageId,
+                                    message,
                                     message.messageSource == MessageSource.Self
                                 )
                             }, onLongClick = {

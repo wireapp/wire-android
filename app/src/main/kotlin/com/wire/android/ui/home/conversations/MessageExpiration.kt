@@ -9,6 +9,9 @@ import com.wire.android.ui.home.conversations.model.ExpirationStatus
 import com.wire.kalium.logic.data.message.Message
 import kotlinx.datetime.Clock
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.ZERO
+import kotlin.time.Duration.Companion.days
+import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 
@@ -31,7 +34,7 @@ sealed class SelfDeletionTimer {
                         val timeLeft = expireAfter - timeElapsedSinceSelfDeletionStartDate
 
                         if (timeLeft.isNegative()) {
-                            Duration.ZERO
+                            ZERO
                         } else {
                             timeLeft
                         }
@@ -80,23 +83,34 @@ sealed class SelfDeletionTimer {
             return timeLeftLabel
         }
 
-        // we add 1 minute in case we fit exactly 60 minutes into a day or 60 minutes into a hour,
-        // in that case we would return 0 as interval, which would mean that the timer would never update time left
-        fun interval(): Duration {
+        // we returns minute in case we fit exactly 60 minutes into a day or 60 minutes into a hour,
+        // in that case we would return 0 as interval, which would mean that the timer would never update
+        // any better ideas for this ?
+        fun updateInterval(): Duration {
             val timeLeftUpdateInterval = when {
-                timeLeft.inWholeHours > 24 -> {
-                    (timeLeft.inWholeMinutes % (60 * 24)).minutes + 1.minutes
+                timeLeft > 24.hours -> {
+                    val timeLeftTillWholeDay = ((timeLeft).inWholeMinutes % (1.days.inWholeMinutes)).minutes
+                    if (timeLeftTillWholeDay == ZERO) {
+                        1.minutes
+                    } else {
+                        timeLeftTillWholeDay
+                    }
                 }
 
-                timeLeft.inWholeHours <= 24 -> {
-                    (timeLeft.inWholeMinutes % 60).minutes + 1.minutes
+                timeLeft <= 24.hours && timeLeft > 1.hours -> {
+                    val timeLeftTillWholeHour = (timeLeft.inWholeMinutes % 1.hours.inWholeMinutes).minutes
+                    if (timeLeftTillWholeHour == ZERO) {
+                        1.minutes
+                    } else {
+                        timeLeftTillWholeHour
+                    }
                 }
 
-                timeLeft.inWholeMinutes <= 60 -> {
+                timeLeft <= 1.hours && timeLeft > 1.minutes -> {
                     1.minutes
                 }
 
-                timeLeft.inWholeSeconds < 60 -> {
+                timeLeft <= 1.minutes -> {
                     1.seconds
                 }
 

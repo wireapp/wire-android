@@ -108,8 +108,8 @@ fun MessageItem(
             LaunchedEffect(selfDeletionTimer.timeLeft) {
                 with(selfDeletionTimer) {
                     if (timeLeft != Duration.ZERO) {
-                        delay(interval())
-                        decreaseTimeLeft(interval())
+                        delay(updateInterval())
+                        decreaseTimeLeft(updateInterval())
                     }
                 }
             }

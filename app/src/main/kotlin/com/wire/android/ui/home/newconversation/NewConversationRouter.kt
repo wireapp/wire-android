@@ -85,7 +85,7 @@ fun NewConversationRouter() {
                         newGroupState = newConversationViewModel.newGroupState,
                         onGroupNameChange = newConversationViewModel::onGroupNameChange,
                         onContinuePressed = {
-                            if (newConversationViewModel.newGroupState.isSelfTeamMember) {
+                            if (newConversationViewModel.newGroupState.isSelfTeamMember == true) {
                                 newConversationNavController.navigate(NewConversationNavigationItem.GroupOptionsScreen.route)
                             } else {
                                 newConversationViewModel.createGroup()

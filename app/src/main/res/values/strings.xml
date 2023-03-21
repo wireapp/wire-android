@@ -919,7 +919,7 @@
     <string name="revoke_guest__room_link_dialog_title">Revoke guest link?</string>
     <string name="guest__room_link_copied">Guest link was copied to clipboard</string>
     <string name="title_device_key_fingerprint">DEVICE KEY FINGERPRINT</string>
-    <string name="label_client_key_fingerprint_not_available">NOT AVILABLE</string>
+    <string name="label_client_key_fingerprint_not_available">NOT AVAILABLE</string>
 
     <string name="guest_room_link_copied">Guest link was copied to clipboard</string>
     <string name="guest_room_link_enabled">Generating guest links is now enabled for all group admins</string>

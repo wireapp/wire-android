@@ -50,7 +50,7 @@ import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.edit.MessageDetailsMenuOption
 import com.wire.android.ui.edit.ReactionOption
-import com.wire.android.ui.edit.ReplyMessageOptions
+import com.wire.android.ui.edit.ReplyMessageOption
 import com.wire.android.ui.home.conversations.MediaGallerySnackbarMessages
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialog
 import com.wire.android.util.permission.rememberWriteStorageRequestFlow
@@ -189,7 +189,7 @@ fun EditGalleryMenuItems(
     return buildList {
         add { ReactionOption(onReactionClick = onReactionClick) }
         add { MessageDetailsMenuOption(onMessageDetailsClick = onMessageDetails) }
-        add { ReplyMessageOptions(onReplyItemClick = onImageReplied) }
+        add { ReplyMessageOption(onReplyItemClick = onImageReplied) }
         add {
             CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.secondary) {
                 MenuBottomSheetItem(

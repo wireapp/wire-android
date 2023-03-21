@@ -32,7 +32,7 @@ import com.wire.android.ui.common.bottomsheet.MenuBottomSheetItem
 import com.wire.android.ui.common.bottomsheet.MenuItemIcon
 import com.wire.android.ui.edit.MessageDetailsMenuOption
 import com.wire.android.ui.edit.ReactionOption
-import com.wire.android.ui.edit.ReplyMessageOptions
+import com.wire.android.ui.edit.ReplyMessageOption
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.util.debug.LocalFeatureVisibilityFlags
@@ -122,7 +122,7 @@ fun EditMessageMenuItems(
                     )
                 }
             }
-            add { ReplyMessageOptions(onReplyItemClick) }
+            add { ReplyMessageOption(onReplyItemClick) }
             if (isEditable) {
                 add {
                     MenuBottomSheetItem(

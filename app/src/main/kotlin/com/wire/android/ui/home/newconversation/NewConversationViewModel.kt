@@ -49,7 +49,6 @@ import com.wire.kalium.logic.feature.user.IsMLSEnabledUseCase
 import com.wire.kalium.logic.feature.user.IsSelfATeamMemberUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
 @Suppress("LongParameterList", "TooManyFunctions")
@@ -78,10 +77,16 @@ class NewConversationViewModel @Inject constructor(
     var newGroupState: GroupMetadataState by mutableStateOf(
         GroupMetadataState(
             mlsEnabled = isMLSEnabled(),
-            isSelfTeamMember = runBlocking { isSelfATeamMember() })
+        )
     )
 
     var groupOptionsState: GroupOptionState by mutableStateOf(GroupOptionState())
+
+    init {
+        viewModelScope.launch {
+            newGroupState = newGroupState.copy(isSelfTeamMember = isSelfATeamMember())
+        }
+    }
 
     fun onGroupNameChange(newText: TextFieldValue) {
         newGroupState = GroupNameValidator.onGroupNameChange(newText, newGroupState)
@@ -146,11 +151,13 @@ class NewConversationViewModel @Inject constructor(
     }
 
     fun createGroup() {
-        if (newGroupState.isSelfTeamMember) {
-            createGroupForTeamAccounts(true)
-        } else {
-            // Personal Account
-            createGroupForPersonalAccounts()
+        newGroupState.isSelfTeamMember?.let {
+            if (it) {
+                createGroupForTeamAccounts(true)
+            } else {
+                // Personal Account
+                createGroupForPersonalAccounts()
+            }
         }
     }
 

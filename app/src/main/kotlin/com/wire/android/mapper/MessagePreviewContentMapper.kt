@@ -38,61 +38,65 @@ fun MessagePreview?.toUIPreview(unreadEventCount: UnreadEventCount): UILastMessa
         return UILastMessageContent.None
     }
 
-    val sortedUnreadContent = unreadEventCount
-        .toSortedMap()
-
-    // we want to show last message content instead of counter when there are only one type of unread events
-    if (sortedUnreadContent.isNotEmpty()) {
-        val unreadContentTexts = sortedUnreadContent
-            .mapNotNull { type ->
-                when (type.key) {
-                    UnreadEventType.KNOCK -> UnreadEventType.KNOCK to UIText.PluralResource(
-                        R.plurals.unread_event_knock,
-                        type.value,
-                        type.value
-                    )
-
-                    UnreadEventType.MISSED_CALL -> UnreadEventType.MISSED_CALL to UIText.PluralResource(
-                        R.plurals.unread_event_call,
-                        type.value,
-                        type.value
-                    )
-
-                    UnreadEventType.MENTION -> UnreadEventType.MENTION to UIText.PluralResource(
-                        R.plurals.unread_event_mention,
-                        type.value,
-                        type.value
-                    )
-
-                    UnreadEventType.REPLY -> UnreadEventType.REPLY to UIText.PluralResource(
-                        R.plurals.unread_event_reply,
-                        type.value,
-                        type.value
-                    )
-
-                    UnreadEventType.MESSAGE -> UnreadEventType.MESSAGE to UIText.PluralResource(
-                        R.plurals.unread_event_message,
-                        type.value,
-                        type.value
-                    )
-
-                    UnreadEventType.IGNORED -> null
-                    null -> null
-                }
-            }.associate { it }
-        if (unreadContentTexts.size > 1) {
-            val first = unreadContentTexts.values.first()
-            val second = unreadContentTexts.values.elementAt(1)
-            return UILastMessageContent.MultipleMessage(listOf(first, second))
-        } else if (unreadContentTexts.isNotEmpty()) {
-            val unreadContent = unreadContentTexts.entries.first()
-            if (unreadContent.key != UnreadEventType.MESSAGE) {
-                return UILastMessageContent.TextMessage(MessageBody(unreadContent.value))
-            }
-        }
+    return when {
+        // when unread event count is empty show last message
+        unreadEventCount.isEmpty() -> uiLastMessageContent()
+        // when there are only unread message events also show last message
+        unreadEventCount.size == 1 && unreadEventCount.keys.first() == UnreadEventType.MESSAGE -> uiLastMessageContent()
+        // for the one type events show last message only where their count equals one
+        unreadEventCount.size == 1 && unreadEventCount.values.first() == 1 -> uiLastMessageContent()
+        // for the rest take 1 or 2 most prioritized events with count to last message
+        else -> multipleUnreadEventsToLastMessage(unreadEventCount)
     }
+}
 
-    return uiLastMessageContent()
+private fun multipleUnreadEventsToLastMessage(unreadEventCount: UnreadEventCount): UILastMessageContent {
+    val unreadContentTexts = unreadEventCount
+        .toSortedMap()
+        .mapNotNull { type ->
+            when (type.key) {
+                UnreadEventType.KNOCK -> UnreadEventType.KNOCK to UIText.PluralResource(
+                    R.plurals.unread_event_knock,
+                    type.value,
+                    type.value
+                )
+
+                UnreadEventType.MISSED_CALL -> UnreadEventType.MISSED_CALL to UIText.PluralResource(
+                    R.plurals.unread_event_call,
+                    type.value,
+                    type.value
+                )
+
+                UnreadEventType.MENTION -> UnreadEventType.MENTION to UIText.PluralResource(
+                    R.plurals.unread_event_mention,
+                    type.value,
+                    type.value
+                )
+
+                UnreadEventType.REPLY -> UnreadEventType.REPLY to UIText.PluralResource(
+                    R.plurals.unread_event_reply,
+                    type.value,
+                    type.value
+                )
+
+                UnreadEventType.MESSAGE -> UnreadEventType.MESSAGE to UIText.PluralResource(
+                    R.plurals.unread_event_message,
+                    type.value,
+                    type.value
+                )
+
+                UnreadEventType.IGNORED -> null
+                null -> null
+            }
+        }.associate { it }
+
+    val first = unreadContentTexts.values.first()
+    return if (unreadContentTexts.entries.size > 1) {
+        val second = unreadContentTexts.values.elementAt(1)
+        UILastMessageContent.MultipleMessage(listOf(first, second))
+    } else {
+        UILastMessageContent.TextMessage(MessageBody(first))
+    }
 }
 
 private fun String?.userUiText(isSelfMessage: Boolean): UIText = when {

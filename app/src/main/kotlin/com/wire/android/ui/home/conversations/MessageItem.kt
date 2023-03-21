@@ -172,7 +172,7 @@ fun MessageItem(
                 }
 
                 if (message.sendingFailed) {
-                    MessageSendFailureWarning(messageHeader.messageStatus)
+                    MessageSendFailureWarning(messageHeader.messageStatus as MessageStatus.MessageSendFailureStatus)
                 }
             }
         }
@@ -385,21 +385,14 @@ private fun MessageContent(
 
 @Composable
 private fun MessageStatusLabel(messageStatus: MessageStatus) {
-    when (messageStatus) {
-        MessageStatus.Deleted,
-        is MessageStatus.Edited,
-        MessageStatus.ReceiveFailure -> StatusBox(messageStatus.text.asString())
-
-        is MessageStatus.DecryptionFailure,
-        is MessageStatus.SendRemotelyFailure, MessageStatus.SendFailure, MessageStatus.Untouched -> {
-            /** Don't display anything **/
-        }
+    messageStatus.badgeText?.let {
+        StatusBox(it.asString())
     }
 }
 
 @Composable
 private fun MessageSendFailureWarning(
-    messageStatus: MessageStatus
+    messageStatus: MessageStatus.MessageSendFailureStatus
     /* TODO: add onRetryClick handler */
 ) {
     val context = LocalContext.current
@@ -409,7 +402,7 @@ private fun MessageSendFailureWarning(
     ) {
         Column {
             Text(
-                text = messageStatus.text.asString(),
+                text = messageStatus.errorText.asString(),
                 style = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.error)
             )
             if (messageStatus is MessageStatus.SendRemotelyFailure) {
@@ -451,7 +444,7 @@ private fun MessageDecryptionFailure(
         Column {
             VerticalSpace.x4()
             Text(
-                text = decryptionStatus.text.asString(),
+                text = decryptionStatus.errorText.asString(),
                 style = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.error)
             )
             Text(

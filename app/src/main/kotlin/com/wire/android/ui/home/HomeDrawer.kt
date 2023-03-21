@@ -34,6 +34,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -95,7 +96,13 @@ fun HomeDrawer(
             )
 
     ) {
-        Logo()
+        Logo(
+            modifier = Modifier.padding(
+                horizontal = MaterialTheme.wireDimensions.homeDrawerLogoHorizontalPadding,
+                vertical = MaterialTheme.wireDimensions.homeDrawerLogoVerticalPadding
+            ).width(MaterialTheme.wireDimensions.homeDrawerLogoWidth)
+                .height(MaterialTheme.wireDimensions.homeDrawerLogoHeight)
+        )
 
         fun navigateAndCloseDrawer(item: Any) {
             when (item) {

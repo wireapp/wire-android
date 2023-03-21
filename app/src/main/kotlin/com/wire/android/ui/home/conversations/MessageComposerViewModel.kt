@@ -51,6 +51,7 @@ import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogHelper
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogsState
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.conversations.model.AttachmentType
+import com.wire.android.ui.home.conversations.model.EditMessageBundle
 import com.wire.android.ui.home.messagecomposer.UiMention
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.util.FileManager
@@ -70,6 +71,7 @@ import com.wire.kalium.logic.feature.conversation.ObserveConversationInteraction
 import com.wire.kalium.logic.feature.conversation.ObserveSecurityClassificationLabelUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationReadDateUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
+import com.wire.kalium.logic.feature.message.SendEditTextMessageUseCase
 import com.wire.kalium.logic.feature.message.SendKnockUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
@@ -93,6 +95,7 @@ class MessageComposerViewModel @Inject constructor(
     private val navigationManager: NavigationManager,
     private val sendAssetMessage: ScheduleNewAssetMessageUseCase,
     private val sendTextMessage: SendTextMessageUseCase,
+    private val sendEditTextMessage: SendEditTextMessageUseCase,
     private val deleteMessage: DeleteMessageUseCase,
     private val dispatchers: DispatcherProvider,
     private val getSelfUserTeam: GetSelfTeamUseCase,
@@ -211,6 +214,17 @@ class MessageComposerViewModel @Inject constructor(
                 text = message,
                 mentions = mentions.map { it.intoMessageMention() },
                 quotedMessageId = quotedMessageId
+            )
+        }
+    }
+
+    fun sendEditMessage(editMessageBundle: EditMessageBundle) {
+        viewModelScope.launch {
+            sendEditTextMessage(
+                conversationId = conversationId,
+                originalMessageId = editMessageBundle.originalMessageId,
+                text = editMessageBundle.newContent,
+                mentions = editMessageBundle.newMentions.map { it.intoMessageMention() },
             )
         }
     }

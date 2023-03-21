@@ -106,6 +106,7 @@ import kotlinx.coroutines.launch
 import kotlinx.datetime.Instant
 import okio.Path
 import okio.Path.Companion.toPath
+import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * The maximum number of messages the user can scroll while still
@@ -319,7 +320,7 @@ private fun ConversationScreen(
         // We need to check if we come from the media gallery screen and the user triggered any action there like reply
         conversationMessagesViewModel.checkPendingActions(
             onMessageReply = {
-                withSmoothAnimation {
+                withSmoothScreenLoad {
                     messageComposerInnerState.reply(it)
                 }
             })
@@ -613,8 +614,8 @@ fun MessageList(
     }
 }
 
-private fun CoroutineScope.withSmoothAnimation(block: () -> Unit) = launch {
-    val smoothAnimationDuration = 200L
+private fun CoroutineScope.withSmoothScreenLoad(block: () -> Unit) = launch {
+    val smoothAnimationDuration = 200.milliseconds
     delay(smoothAnimationDuration) // we wait a bit until the whole screen is loaded to show the animation properly
     block()
 }

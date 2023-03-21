@@ -29,7 +29,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.model.ImageAsset
 import com.wire.android.model.parseIntoPrivateImageAsset
-import com.wire.android.navigation.EXTRA_GROUP_DELETED_NAME
 import com.wire.android.navigation.EXTRA_IMAGE_DATA
 import com.wire.android.navigation.EXTRA_ON_MESSAGE_DETAILS_CLICKED
 import com.wire.android.navigation.EXTRA_ON_MESSAGE_REACTED
@@ -62,7 +61,7 @@ import kotlinx.coroutines.withContext
 import okio.Path
 import javax.inject.Inject
 
-@Suppress("LongParameterList")
+@Suppress("LongParameterList", "TooManyFunctions")
 @HiltViewModel
 class MediaGalleryViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,

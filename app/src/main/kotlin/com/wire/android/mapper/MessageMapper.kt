@@ -92,18 +92,20 @@ class MessageMapper @Inject constructor(
                 message.reactions.totalReactions
                     .filter { !isHeart(it.key) }
                     .run {
-                        if (totalHeartsCount != 0)
+                        if (totalHeartsCount != 0) {
                             plus("❤" to totalHeartsCount)
-                        else
+                        } else {
                             this
+                        }
                     },
                 message.reactions.selfUserReactions
                     .filter { isHeart(it) }.toSet()
                     .run {
-                        if (hasSelfHeart)
+                        if (hasSelfHeart) {
                             plus("❤")
-                        else
+                        } else {
                             this
+                        }
                     }
             )
         } else {
@@ -161,6 +163,7 @@ class MessageMapper @Inject constructor(
                     utcISO = (message.editStatus as Message.EditStatus.Edited).lastTimeStamp
                 )
             )
+
         message.status == Message.Status.FAILED -> MessageStatus.SendFailure
         message.status == Message.Status.FAILED_REMOTELY -> MessageStatus.SendRemotelyFailure(message.conversationId.domain)
         message.visibility == Message.Visibility.DELETED -> MessageStatus.Deleted
@@ -170,8 +173,10 @@ class MessageMapper @Inject constructor(
                     utcISO = (message.editStatus as Message.EditStatus.Edited).lastTimeStamp
                 )
             )
+
         message is Message.Regular && message.content is MessageContent.FailedDecryption ->
             MessageStatus.DecryptionFailure((message.content as MessageContent.FailedDecryption).isDecryptionResolved)
+
         else -> MessageStatus.Untouched
     }
 

@@ -27,7 +27,6 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.paging.cachedIn
-import androidx.paging.map
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.media.audiomessage.ConversationAudioMessagePlayer
@@ -67,7 +66,6 @@ import com.wire.kalium.logic.feature.sessionreset.ResetSessionUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -99,6 +97,7 @@ class ConversationMessagesViewModel @Inject constructor(
         savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)!!
     )
 
+    private var imageMessageOnFullscreen: UIMessage? = null
     private val _infoMessage = MutableSharedFlow<SnackBarMessage>()
     val infoMessage = _infoMessage.asSharedFlow()
 
@@ -284,7 +283,7 @@ class ConversationMessagesViewModel @Inject constructor(
     }
 
     fun updateImageOnFullscreenMode(message: UIMessage?) {
-        conversationViewState = conversationViewState.copy(messageOnFullscreen = message)
+        imageMessageOnFullscreen = message
     }
 
     fun checkPendingActions(onMessageReply: (UIMessage) -> Unit) = viewModelScope.launch {
@@ -292,7 +291,7 @@ class ConversationMessagesViewModel @Inject constructor(
             toggleReaction(messageId, emoji)
         }
         savedStateHandle.getBackNavArg<String>(EXTRA_ON_MESSAGE_REPLIED)?.let { messageId ->
-            conversationViewState.messageOnFullscreen?.let { onFullscreenMessage ->
+            imageMessageOnFullscreen?.let { onFullscreenMessage ->
                 updateImageOnFullscreenMode(null) // We need to reset the imageOnFullscreenMode as we handle it here
                 if (onFullscreenMessage.messageHeader.messageId == messageId) {
                     onMessageReply(onFullscreenMessage)
@@ -300,7 +299,7 @@ class ConversationMessagesViewModel @Inject constructor(
             }
         }
         savedStateHandle.getBackNavArg<Pair<String, Boolean>>(EXTRA_ON_MESSAGE_DETAILS_CLICKED)?.let { (messageId, isSelfAsset) ->
-            conversationViewState.messageOnFullscreen?.let { onFullscreenMessage ->
+            imageMessageOnFullscreen?.let { onFullscreenMessage ->
                 updateImageOnFullscreenMode(null) // We need to reset the imageOnFullscreenMode as we handle it here
                 if (onFullscreenMessage.messageHeader.messageId == messageId) {
                     openMessageDetails(messageId, isSelfAsset)

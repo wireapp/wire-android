@@ -56,11 +56,10 @@ class GetMessagesForConversationUseCase @Inject constructor(
             pagingConfig = pagingConfig
         ).map { pagingData ->
             pagingData.flatMap { messageItem ->
-                val uiMessages = mutableListOf<UIMessage>()
-                observeMemberDetailsByIds(messageMapper.memberIdList(listOf(messageItem))).mapLatest { usersList ->
-                    messageMapper.toUIMessage(usersList, messageItem)?.let { uiMessages.add(it) }
-                }
-                uiMessages
+                observeMemberDetailsByIds(messageMapper.memberIdList(listOf(messageItem)))
+                    .mapLatest { usersList ->
+                        messageMapper.toUIMessage(usersList, messageItem)?.let { listOf(it) } ?: emptyList()
+                    }.first()
             }
         }.flowOn(dispatchers.io())
     }

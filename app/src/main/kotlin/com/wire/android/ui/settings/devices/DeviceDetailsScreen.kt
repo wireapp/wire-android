@@ -290,14 +290,14 @@ private fun VerificationDescription(
         if (isSelfClient) {
             DescriptionText(
                 text = stringResource(id = R.string.label_self_client_verification_description),
-                leanMoreLink = "https://support.wire.com/hc/en-us/articles/207692235-How-can-I-compare-key-fingerprints-"
+                leanMoreLink = stringResource(id = R.string.url_self_client_verification_learn_more)
             )
         } else {
             DescriptionText(
                 text = stringResource(
                     id = R.string.label_client_verification_description,
                     userName ?: stringResource(id = R.string.unknown_user_name)
-                ), leanMoreLink = "https://support.wire.com/hc/en-us/articles/207692235-How-can-I-compare-key-fingerprints-"
+                ), leanMoreLink = stringResource(id = R.string.url_self_client_verification_learn_more)
             )
         }
 
@@ -310,7 +310,7 @@ private fun VerificationDescription(
         if (isSelfClient) {
             DescriptionText(
                 text = stringResource(id = R.string.label_self_fingerprint_description),
-                leanMoreLink = "https://support.wire.com/hc/en-us/articles/207692235-How-can-I-compare-key-fingerprints-"
+                leanMoreLink = stringResource(id = R.string.url_self_client_fingerprint_learn_more)
             )
         } else {
             DescriptionText(text = stringResource(id = R.string.label_fingerprint_description), leanMoreLink = null)

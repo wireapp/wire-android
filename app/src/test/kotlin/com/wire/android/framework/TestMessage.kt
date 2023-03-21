@@ -52,7 +52,8 @@ object TestMessage {
         senderUserId = UserId("user-id", "domain"),
         senderClientId = ClientId("client-id"),
         status = Message.Status.SENT,
-        editStatus = Message.EditStatus.NotEdited
+        editStatus = Message.EditStatus.NotEdited,
+        isSelfMessage = false
     )
     val DUMMY_ASSET_REMOTE_DATA = AssetContent.RemoteData(
         otrKey = ByteArray(0),
@@ -79,7 +80,8 @@ object TestMessage {
         senderUserId = UserId("user-id", "domain"),
         senderClientId = ClientId("client-id"),
         status = Message.Status.SENT,
-        editStatus = Message.EditStatus.NotEdited
+        editStatus = Message.EditStatus.NotEdited,
+        isSelfMessage = false
     )
 
     fun buildAssetMessage(assetContent: AssetContent) = Message.Regular(
@@ -90,7 +92,8 @@ object TestMessage {
         senderUserId = UserId("user-id", "domain"),
         senderClientId = ClientId("client-id"),
         status = Message.Status.SENT,
-        editStatus = Message.EditStatus.NotEdited
+        editStatus = Message.EditStatus.NotEdited,
+        isSelfMessage = false
     )
 
     val MEMBER_REMOVED_MESSAGE = Message.System(

@@ -100,7 +100,7 @@ fun MessageItem(
     with(message) {
         val selfDeletionTimer = rememberSelfDeletionTimer(expirationStatus)
 
-        if (selfDeletionTimer is SelfDeletionTimer.Expirable) {
+        if (selfDeletionTimer is SelfDeletionTimer.SelfDeletionTimerState.Expirable) {
             LaunchedEffect(Unit) {
                 onSelfDeletingMessageRead(message)
             }
@@ -117,7 +117,7 @@ fun MessageItem(
 
         val backgroundColorModifier = if (message.sendingFailed || message.receivingFailed) {
             Modifier.background(colorsScheme().messageErrorBackgroundColor)
-        } else if (selfDeletionTimer is SelfDeletionTimer.Expirable) {
+        } else if (selfDeletionTimer is SelfDeletionTimer.SelfDeletionTimerState.Expirable) {
             val color by animateColorAsState(
                 colorsScheme().primaryVariant.copy(selfDeletionTimer.alphaBackgroundColor()),
                 tween()
@@ -169,7 +169,7 @@ fun MessageItem(
                 Column {
                     Spacer(modifier = Modifier.height(fullAvatarOuterPadding))
                     MessageHeader(messageHeader)
-                    if (selfDeletionTimer is SelfDeletionTimer.Expirable) {
+                    if (selfDeletionTimer is SelfDeletionTimer.SelfDeletionTimerState.Expirable) {
                         MessageExpireLabel(selfDeletionTimer.timeLeftFormatted())
                     }
                     if (!isDeleted) {

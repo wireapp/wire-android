@@ -67,7 +67,9 @@ class SelfDeletionTimer(private val context: Context) {
                 private const val TWO_WEEK_DAYS = DAYS_IN_A_WEEK * 2
                 private const val ONE_WEEK_DAYS = DAYS_IN_A_WEEK * 1
 
-                private const val TIME_LEFT_RATIO_BOUNDARY_FOR_1_ALPHA = 0.75
+                private const val TIME_LEFT_RATIO_BOUNDARY_FOR_ALMOST_TIME_LEFT_ELAPSED_ALPHA = 0.75
+                private const val PAST_RATIO_BOUNDARY_FOR_ALMOST_TIME_LEFT_ALPHA_VALUE = 0F
+                private const val BEFORE_RATIO_BOUNDARY_FOR_ALMOST_TIME_LEFT_ALPHA_VALUE = 1F
             }
 
             var timeLeft by mutableStateOf(timeLeft)
@@ -76,28 +78,60 @@ class SelfDeletionTimer(private val context: Context) {
                 val timeLeftLabel = when {
                     // weeks
                     timeLeft.inWholeDays >= FOUR_WEEK_DAYS ->
-                        resources.getQuantityString(R.plurals.weeks_left, 4)
+                        resources.getQuantityString(
+                            R.plurals.weeks_left,
+                            4,
+                            4
+                        )
 
                     timeLeft.inWholeDays in THREE_WEEK_DAYS until FOUR_WEEK_DAYS ->
-                        resources.getQuantityString(R.plurals.weeks_left, 3)
+                        resources.getQuantityString(
+                            R.plurals.weeks_left,
+                            3,
+                            3
+                        )
 
                     timeLeft.inWholeDays in TWO_WEEK_DAYS until THREE_WEEK_DAYS ->
-                        resources.getQuantityString(R.plurals.weeks_left, 2)
+                        resources.getQuantityString(
+                            R.plurals.weeks_left,
+                            2,
+                            2
+                        )
 
                     timeLeft.inWholeDays in ONE_WEEK_DAYS until TWO_WEEK_DAYS ->
-                        resources.getQuantityString(R.plurals.weeks_left, 1)
+                        resources.getQuantityString(
+                            R.plurals.weeks_left,
+                            1,
+                            1
+                        )
                     // days
                     timeLeft.inWholeDays in 1 until 7 ->
-                        resources.getQuantityString(R.plurals.days_left, timeLeft.inWholeDays.toInt())
+                        resources.getQuantityString(
+                            R.plurals.days_left,
+                            timeLeft.inWholeDays.toInt(),
+                            timeLeft.inWholeDays.toInt()
+                        )
                     // hours
                     timeLeft.inWholeHours in 1 until 24 ->
-                        resources.getQuantityString(R.plurals.hours_left, timeLeft.inWholeHours.toInt())
+                        resources.getQuantityString(
+                            R.plurals.hours_left,
+                            timeLeft.inWholeHours.toInt(),
+                            timeLeft.inWholeHours.toInt()
+                        )
                     // minutes
                     timeLeft.inWholeMinutes in 1 until 60 ->
-                        resources.getQuantityString(R.plurals.minutes_left, timeLeft.inWholeMinutes.toInt())
+                        resources.getQuantityString(
+                            R.plurals.minutes_left,
+                            timeLeft.inWholeMinutes.toInt(),
+                            timeLeft.inWholeMinutes.toInt()
+                        )
                     // seconds
                     timeLeft.inWholeSeconds < 60 ->
-                        resources.getQuantityString(R.plurals.seconds_left, timeLeft.inWholeSeconds.toInt())
+                        resources.getQuantityString(
+                            R.plurals.seconds_left,
+                            timeLeft.inWholeSeconds.toInt(),
+                            timeLeft.inWholeSeconds.toInt()
+                        )
 
                     else -> throw IllegalStateException("Not possible state for a time left label")
                 }
@@ -149,10 +183,10 @@ class SelfDeletionTimer(private val context: Context) {
             fun alphaBackgroundColor(): Float {
                 val totalTimeLeftRatio = timeLeft / expireAfter
 
-                return if (totalTimeLeftRatio >= TIME_LEFT_RATIO_BOUNDARY_FOR_1_ALPHA) {
-                    0F
+                return if (totalTimeLeftRatio >= TIME_LEFT_RATIO_BOUNDARY_FOR_ALMOST_TIME_LEFT_ELAPSED_ALPHA) {
+                    PAST_RATIO_BOUNDARY_FOR_ALMOST_TIME_LEFT_ALPHA_VALUE
                 } else {
-                    1F
+                    BEFORE_RATIO_BOUNDARY_FOR_ALMOST_TIME_LEFT_ALPHA_VALUE
                 }
             }
 

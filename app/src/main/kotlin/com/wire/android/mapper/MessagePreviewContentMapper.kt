@@ -97,7 +97,6 @@ private fun multipleUnreadEventsToLastMessage(unreadEventCount: UnreadEventCount
     } else {
         UILastMessageContent.TextMessage(MessageBody(first))
     }
-
 }
 
 private fun String?.userUiText(isSelfMessage: Boolean): UIText = when {

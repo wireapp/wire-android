@@ -1,5 +1,8 @@
 package com.wire.android.ui
 
+import org.junit.Test
+
+
 import android.content.Context
 import android.content.res.Resources
 import androidx.test.platform.app.InstrumentationRegistry
@@ -9,7 +12,7 @@ import com.wire.android.ui.home.conversations.model.ExpirationStatus
 import com.wire.kalium.logic.data.message.Message
 import io.mockk.MockKAnnotations
 import io.mockk.impl.annotations.MockK
-import org.junit.jupiter.api.Test
+
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
@@ -17,10 +20,10 @@ import kotlin.time.Duration.Companion.seconds
 
 class SelfDeletionTimerTest {
 
+   private val context = InstrumentationRegistry.getInstrumentation().targetContext
+
     @Test
     fun givenTimeLeftIsAboveOneHour_whenGettingTheUpdateInterval_ThenIsEqualToMinutesLeftTillWholeHour() {
-
-        val context = InstrumentationRegistry.getInstrumentation().targetContext
 
         val selfDeletionTimer = SelfDeletionTimer(context).fromExpirationStatus(
             ExpirationStatus.Expirable(

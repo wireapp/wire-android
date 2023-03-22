@@ -33,6 +33,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import com.wire.android.R
+import com.wire.android.model.ClickBlockParams
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.ArrowRightIcon
 import com.wire.android.ui.common.UserProfileAvatar
@@ -178,7 +179,7 @@ internal fun ConversationMainSheetContent(
                                 )
                             },
                             title = stringResource(R.string.label_block),
-                            blockUntilSynced = true,
+                            clickBlockParams = ClickBlockParams(blockUntilSynced = true, blockUntilConnected = true),
                             onItemClick = {
                                 blockUserClick(
                                     BlockUserDialogState(

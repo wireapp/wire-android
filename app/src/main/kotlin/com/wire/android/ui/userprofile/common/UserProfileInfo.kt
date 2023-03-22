@@ -43,6 +43,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.constraintlayout.compose.ConstraintLayout
+import com.wire.android.model.ClickBlockParams
 import com.wire.android.model.Clickable
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.model.UserAvatarData
@@ -91,7 +92,7 @@ fun UserProfileInfo(
                 clickable = remember(editableState) {
                     Clickable(
                         enabled = editableState is EditableState.IsEditable,
-                        blockUntilSynced = true
+                        clickBlockParams = ClickBlockParams(blockUntilSynced = true, blockUntilConnected = true),
                     ) { onUserProfileClick?.invoke() }
                 }
             )

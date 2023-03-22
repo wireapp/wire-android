@@ -32,6 +32,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
+import com.wire.android.model.ClickBlockParams
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryIconButton
 import com.wire.android.ui.common.button.wireSendPrimaryButtonColors
@@ -78,7 +79,7 @@ private fun SendButton(
         state = if (isEnabled) WireButtonState.Default else WireButtonState.Disabled,
         shape = RoundedCornerShape(dimensions().spacing20x),
         colors = wireSendPrimaryButtonColors(),
-        blockUntilSynced = true,
+        clickBlockParams = ClickBlockParams(blockUntilSynced = true, blockUntilConnected = false),
         minHeight = dimensions().spacing40x,
         minWidth = dimensions().spacing40x
     )

@@ -41,6 +41,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.wire.android.model.ClickBlockParams
 import com.wire.android.ui.common.Icon
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
@@ -58,7 +59,7 @@ fun WireSecondaryButton(
     fillMaxWidth: Boolean = true,
     textStyle: TextStyle = if(fillMaxWidth) MaterialTheme.wireTypography.button02 else MaterialTheme.wireTypography.button03,
     state: WireButtonState = WireButtonState.Default,
-    blockUntilSynced: Boolean = false,
+    clickBlockParams: ClickBlockParams = ClickBlockParams(),
     minHeight: Dp = MaterialTheme.wireDimensions.buttonMinSize.height,
     minWidth: Dp = MaterialTheme.wireDimensions.buttonMinSize.width,
     shape: Shape = RoundedCornerShape(MaterialTheme.wireDimensions.buttonCornerSize),
@@ -81,7 +82,7 @@ fun WireSecondaryButton(
     text = text,
     textStyle = textStyle,
     state = state,
-    blockUntilSynced = blockUntilSynced,
+    clickBlockParams = clickBlockParams,
     minHeight = minHeight,
     minWidth = minWidth,
     fillMaxWidth = fillMaxWidth,

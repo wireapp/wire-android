@@ -41,6 +41,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import com.wire.android.R
+import com.wire.android.model.ClickBlockParams
 import com.wire.android.ui.common.button.IconAlignment
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
@@ -151,7 +152,7 @@ private fun SelectParticipantsButtonsRow(
                 leadingIcon = leadingIcon,
                 onClick = onMainButtonClick,
                 state = computeButtonState(selectedParticipantsCount, shouldAllowNoSelectionContinue),
-                blockUntilSynced = true,
+                clickBlockParams = ClickBlockParams(blockUntilSynced = true, blockUntilConnected = true),
                 modifier = Modifier.weight(1f)
             )
             if (onMoreButtonClick != null) {

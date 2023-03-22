@@ -32,6 +32,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
+import com.wire.android.model.ClickBlockParams
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryIconButton
 import com.wire.android.ui.common.button.WireTertiaryIconButton
@@ -75,7 +76,7 @@ fun MessageEditActions(
                 contentDescription = R.string.content_description_edit_the_message,
                 state = if (editButtonEnabled) WireButtonState.Default else WireButtonState.Disabled,
                 colors = wireSendPrimaryButtonColors(),
-                blockUntilSynced = true,
+                clickBlockParams = ClickBlockParams(blockUntilSynced = true, blockUntilConnected = false),
                 shape = CircleShape,
                 minHeight = dimensions().spacing40x,
                 minWidth = dimensions().spacing40x,

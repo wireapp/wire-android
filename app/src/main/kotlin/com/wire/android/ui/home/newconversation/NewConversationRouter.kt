@@ -29,14 +29,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.wire.android.R
 import com.wire.android.navigation.rememberTrackingAnimatedNavController
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
-import com.wire.android.ui.home.conversations.search.NewConversationSnackbarState
 import com.wire.android.ui.home.conversations.search.SearchPeopleRouter
 import com.wire.android.ui.home.newconversation.common.NewConversationNavigationItem
 import com.wire.android.ui.home.newconversation.groupOptions.GroupOptionScreen
@@ -48,11 +48,6 @@ fun NewConversationRouter() {
     val newConversationViewModel: NewConversationViewModel = hiltViewModel()
     val newConversationNavController = rememberTrackingAnimatedNavController() { NewConversationNavigationItem.fromRoute(it)?.itemName }
     val snackbarHostState = remember { SnackbarHostState() }
-
-    handleSnackBarMessage(
-        snackbarHostState,
-        newConversationViewModel.snackbarMessageState
-    ) { newConversationViewModel.clearSnackbarMessage() }
 
     Scaffold(
         snackbarHost = {
@@ -114,26 +109,12 @@ fun NewConversationRouter() {
             )
         }
     }
-}
 
-@Composable
-private fun handleSnackBarMessage(
-    snackbarHostState: SnackbarHostState,
-    conversationListSnackBarState: NewConversationSnackbarState,
-    onMessageShown: () -> Unit
-) {
-    conversationListSnackBarState.let { messageType ->
-        val message = when (messageType) {
-            is NewConversationSnackbarState.SuccessSendConnectionRequest ->
-                stringResource(id = R.string.connection_request_sent)
+    val context = LocalContext.current
 
-            NewConversationSnackbarState.None -> ""
-        }
-        LaunchedEffect(messageType) {
-            if (messageType != NewConversationSnackbarState.None) {
-                snackbarHostState.showSnackbar(message)
-                onMessageShown()
-            }
+    LaunchedEffect(Unit) {
+        newConversationViewModel.infoMessage.collect {
+            snackbarHostState.showSnackbar(it.asString(context.resources))
         }
     }
 }

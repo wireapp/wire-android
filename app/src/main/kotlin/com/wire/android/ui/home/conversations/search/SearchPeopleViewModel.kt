@@ -30,11 +30,13 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.mapper.ContactMapper
+import com.wire.android.model.SnackBarMessage
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.util.dispatchers.DispatcherProvider
+import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.connection.SendConnectionRequestResult
@@ -48,7 +50,9 @@ import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
@@ -193,7 +197,7 @@ abstract class PublicWithKnownPeopleSearchViewModel(
                 }
 
                 is SendConnectionRequestResult.Success -> {
-                    snackbarMessageState = NewConversationSnackbarState.SuccessSendConnectionRequest
+                    mutableInfoMessage.emit(SearchPeopleMessageType.SuccessConnectionSentRequest.uiText)
                 }
             }
         }
@@ -249,7 +253,8 @@ abstract class SearchPeopleViewModel(
 
     protected val selectedContactsFlow = MutableStateFlow(emptyList<Contact>())
 
-    var snackbarMessageState by mutableStateOf<NewConversationSnackbarState>(NewConversationSnackbarState.None)
+    protected val mutableInfoMessage = MutableSharedFlow<UIText>()
+    val infoMessage = mutableInfoMessage.asSharedFlow()
 
     fun searchQueryChanged(searchQuery: TextFieldValue) {
         val textQueryChanged = searchQueryTextFieldFlow.value.text != searchQuery.text
@@ -303,10 +308,6 @@ abstract class SearchPeopleViewModel(
         }
     }
 
-    fun clearSnackbarMessage() {
-        snackbarMessageState = NewConversationSnackbarState.None
-    }
-
     fun close() {
         viewModelScope.launch {
             navigationManager.navigateBack()
@@ -323,7 +324,7 @@ sealed class SearchResult {
     data class Failure(@StringRes val failureString: Int) : SearchResult()
 }
 
-sealed class NewConversationSnackbarState {
-    object SuccessSendConnectionRequest : NewConversationSnackbarState()
-    object None : NewConversationSnackbarState()
+sealed class SearchPeopleMessageType(override val uiText: UIText) : SnackBarMessage {
+    object SuccessConnectionSentRequest : SearchPeopleMessageType(UIText.StringResource(R.string.connection_request_sent))
+
 }

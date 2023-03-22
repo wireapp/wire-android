@@ -33,8 +33,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
-import com.wire.android.R
 import com.wire.android.navigation.rememberTrackingAnimatedNavController
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.home.conversations.search.SearchPeopleRouter
@@ -46,7 +44,11 @@ import com.wire.android.ui.home.newconversation.newgroup.NewGroupScreen
 @Composable
 fun NewConversationRouter() {
     val newConversationViewModel: NewConversationViewModel = hiltViewModel()
-    val newConversationNavController = rememberTrackingAnimatedNavController() { NewConversationNavigationItem.fromRoute(it)?.itemName }
+    val newConversationNavController = rememberTrackingAnimatedNavController() {
+        NewConversationNavigationItem.fromRoute(
+        it
+    )?.itemName
+    }
     val snackbarHostState = remember { SnackbarHostState() }
 
     Scaffold(
@@ -55,7 +57,8 @@ fun NewConversationRouter() {
                 hostState = snackbarHostState,
                 modifier = Modifier.fillMaxWidth()
             )
-        }) { internalPadding ->
+        }
+    ) { internalPadding ->
         NavHost(
             navController = newConversationNavController,
             startDestination = NewConversationNavigationItem.SearchListNavHostScreens.route,
@@ -67,7 +70,9 @@ fun NewConversationRouter() {
                     SearchPeopleRouter(
                         searchAllPeopleViewModel = newConversationViewModel,
                         onGroupSelectionSubmitAction = {
-                            newConversationNavController.navigate(NewConversationNavigationItem.NewGroupNameScreen.route)
+                            newConversationNavController.navigate(
+                                NewConversationNavigationItem.NewGroupNameScreen.route
+                            )
                         }
                     )
                 }
@@ -81,7 +86,9 @@ fun NewConversationRouter() {
                         onGroupNameChange = newConversationViewModel::onGroupNameChange,
                         onContinuePressed = {
                             if (newConversationViewModel.newGroupState.isSelfTeamMember == true) {
-                                newConversationNavController.navigate(NewConversationNavigationItem.GroupOptionsScreen.route)
+                                newConversationNavController.navigate(
+                                    NewConversationNavigationItem.GroupOptionsScreen.route
+                                )
                             } else {
                                 newConversationViewModel.createGroup()
                             }

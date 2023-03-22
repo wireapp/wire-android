@@ -288,6 +288,7 @@ abstract class SearchPeopleViewModel(
     fun removeContactFromGroup(contact: Contact) {
         removeContactsFromGroup(setOf(contact))
     }
+
     fun removeContactsFromGroup(contacts: Set<Contact>) {
         viewModelScope.launch {
             selectedContactsFlow.emit(selectedContactsFlow.value - contacts)
@@ -326,5 +327,4 @@ sealed class SearchResult {
 
 sealed class SearchPeopleMessageType(override val uiText: UIText) : SnackBarMessage {
     object SuccessConnectionSentRequest : SearchPeopleMessageType(UIText.StringResource(R.string.connection_request_sent))
-
 }

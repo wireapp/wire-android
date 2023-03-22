@@ -12,7 +12,6 @@ concurrency:
 
 jobs:
   ui-tests:
-    if: ${{ contains(github.head_ref, 'qa/') || contains(github.ref_name, 'qa/')}}  # disable for as they are not yet completed
     runs-on: buildjet-8vcpu-ubuntu-2204
     strategy:
       matrix:

@@ -1,19 +1,12 @@
 package com.wire.android.ui
 
-import android.content.Context
-import android.content.res.Resources
 import androidx.test.platform.app.InstrumentationRegistry
-import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.conversations.SelfDeletionTimer
 import com.wire.android.ui.home.conversations.model.ExpirationStatus
 import com.wire.kalium.logic.data.message.Message
-import io.mockk.MockKAnnotations
-import io.mockk.impl.annotations.MockK
 import org.junit.jupiter.api.Test
-import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
-import kotlin.time.Duration.Companion.seconds
 
 class SelfDeletionTimerTest {
 
@@ -28,6 +21,8 @@ class SelfDeletionTimerTest {
                 selfDeletionStatus = Message.ExpirationData.SelfDeletionStatus.NotStarted
             )
         )
+
+
         assert(selfDeletionTimer is SelfDeletionTimer.SelfDeletionTimerState.Expirable)
 
         val interval = (selfDeletionTimer as SelfDeletionTimer.SelfDeletionTimerState.Expirable).updateInterval()

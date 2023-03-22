@@ -97,7 +97,7 @@ class ConversationMessagesViewModel @Inject constructor(
         savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)!!
     )
 
-    private var imageMessageOnFullscreen: UIMessage? = null
+    private var lastImageMessageShownOnGallery: UIMessage? = null
     private val _infoMessage = MutableSharedFlow<SnackBarMessage>()
     val infoMessage = _infoMessage.asSharedFlow()
 
@@ -283,24 +283,34 @@ class ConversationMessagesViewModel @Inject constructor(
     }
 
     fun updateImageOnFullscreenMode(message: UIMessage?) {
-        imageMessageOnFullscreen = message
+        lastImageMessageShownOnGallery = message
     }
 
+    /**
+     * This method is called to check whether we need to perform any pending action triggered by previously shown screens (e.g. reply or
+     * react to a specific message, show message details, etc.)
+     */
     fun checkPendingActions(onMessageReply: (UIMessage) -> Unit) = viewModelScope.launch {
         savedStateHandle.getBackNavArg<Pair<String, String>>(EXTRA_ON_MESSAGE_REACTED)?.let { (messageId, emoji) ->
             toggleReaction(messageId, emoji)
         }
         savedStateHandle.getBackNavArg<String>(EXTRA_ON_MESSAGE_REPLIED)?.let { messageId ->
-            imageMessageOnFullscreen?.let { onFullscreenMessage ->
-                updateImageOnFullscreenMode(null) // We need to reset the imageOnFullscreenMode as we handle it here
+            lastImageMessageShownOnGallery?.let { onFullscreenMessage ->
+                // We need to reset the lastImageMessageShownOnGallery as we are already handling it here
+                updateImageOnFullscreenMode(null)
+                // This condition should always be true, but we check it just in case the lastImageMessageShownOnGallery
+                // is not the same one that we are replying to
                 if (onFullscreenMessage.messageHeader.messageId == messageId) {
                     onMessageReply(onFullscreenMessage)
                 }
             }
         }
         savedStateHandle.getBackNavArg<Pair<String, Boolean>>(EXTRA_ON_MESSAGE_DETAILS_CLICKED)?.let { (messageId, isSelfAsset) ->
-            imageMessageOnFullscreen?.let { onFullscreenMessage ->
+            lastImageMessageShownOnGallery?.let { onFullscreenMessage ->
+                // We need to reset the lastImageMessageShownOnGallery as we are already handling it here
                 updateImageOnFullscreenMode(null) // We need to reset the imageOnFullscreenMode as we handle it here
+                // This condition should always be true, but we check it just in case the lastImageMessageShownOnGallery
+                // is not the same one that the one we are showing its details
                 if (onFullscreenMessage.messageHeader.messageId == messageId) {
                     openMessageDetails(messageId, isSelfAsset)
                 }

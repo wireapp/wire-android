@@ -137,8 +137,7 @@ class MediaGalleryViewModel @Inject constructor(
     }
 
     fun onMessageDetailsClicked() = viewModelScope.launch {
-        val isSelfAsset = imageAssetId.isSelfAsset
-        navigationManager.navigateBack(mapOf(EXTRA_ON_MESSAGE_DETAILS_CLICKED to Pair(imageAssetId.messageId, isSelfAsset)))
+        navigationManager.navigateBack(mapOf(EXTRA_ON_MESSAGE_DETAILS_CLICKED to Pair(imageAssetId.messageId, imageAssetId.isSelfAsset)))
     }
 
     private fun getScreenTitle(conversationDetails: ConversationDetails): String? =

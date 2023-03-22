@@ -399,7 +399,7 @@ pipeline {
     adbPort = '5555'
     emulatorPrefix = "${BRANCH_NAME.replaceAll('/','_')}"
     trackName = defineTrackName()
-    runAcceptanceTests = false
+    runAcceptanceTests = true
     runUnitTests = true
     runStaticCodeAnalysis = true
     ENABLE_SIGNING = "TRUE"

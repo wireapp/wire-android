@@ -23,6 +23,7 @@ package com.wire.android.ui.authentication.devices.register
 import androidx.compose.ui.text.input.TextFieldValue
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.mockUri
+import com.wire.android.datastore.UserDataStore
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
@@ -32,6 +33,7 @@ import com.wire.android.util.EMPTY
 import com.wire.kalium.logic.NetworkFailure
 import com.wire.kalium.logic.data.client.Client
 import com.wire.kalium.logic.data.client.ClientType
+import com.wire.kalium.logic.data.client.DeviceType
 import com.wire.kalium.logic.data.conversation.ClientId
 import com.wire.kalium.logic.feature.client.RegisterClientResult
 import com.wire.kalium.logic.feature.client.GetOrRegisterClientUseCase
@@ -39,13 +41,16 @@ import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
+import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestCoroutineScheduler
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
+import kotlinx.datetime.Instant
 import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeInstanceOf
@@ -66,6 +71,9 @@ class RegisterDeviceViewModelTest {
     @MockK
     private lateinit var isPasswordRequiredUseCase: IsPasswordRequiredUseCase
 
+    @MockK
+    lateinit var userDataStore: UserDataStore
+
     private lateinit var registerDeviceViewModel: RegisterDeviceViewModel
 
     @BeforeEach
@@ -73,11 +81,13 @@ class RegisterDeviceViewModelTest {
         MockKAnnotations.init(this)
         mockUri()
         coEvery { isPasswordRequiredUseCase() } returns IsPasswordRequiredUseCase.Result.Success(true)
+        every { userDataStore.initialSyncCompleted } returns flowOf(true)
         registerDeviceViewModel =
             RegisterDeviceViewModel(
                 navigationManager,
                 registerClientUseCase,
-                isPasswordRequiredUseCase
+                isPasswordRequiredUseCase,
+                userDataStore
             )
     }
 
@@ -194,8 +204,8 @@ class RegisterDeviceViewModelTest {
     companion object {
         val CLIENT_ID = ClientId("test")
         val CLIENT = Client(
-            CLIENT_ID, ClientType.Permanent, "time", null,
-            null, "label", "cookie", null, "model", emptyMap()
+            CLIENT_ID, ClientType.Permanent, Instant.DISTANT_FUTURE, false,
+            isValid = true, DeviceType.Desktop, "label", null
         )
     }
 }

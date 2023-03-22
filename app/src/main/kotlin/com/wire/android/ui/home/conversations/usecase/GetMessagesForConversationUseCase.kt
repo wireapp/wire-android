@@ -57,8 +57,8 @@ class GetMessagesForConversationUseCase @Inject constructor(
         ).map { pagingData ->
             pagingData.flatMap { messageItem ->
                 observeMemberDetailsByIds(messageMapper.memberIdList(listOf(messageItem)))
-                    .mapLatest {
-                        messageMapper.toUIMessages(it, listOf(messageItem))
+                    .mapLatest { usersList ->
+                        messageMapper.toUIMessage(usersList, messageItem)?.let { listOf(it) } ?: emptyList()
                     }.first()
             }
         }.flowOn(dispatchers.io())

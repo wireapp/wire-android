@@ -64,6 +64,7 @@ import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import com.wire.kalium.logic.feature.session.GetSessionsUseCase
 import com.wire.kalium.logic.feature.user.webSocketStatus.ObservePersistentWebSocketConnectionStatusUseCase
+import com.wire.kalium.util.DateTimeUtil.toIsoDateTimeString
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -151,7 +152,7 @@ class WireActivityViewModel @Inject constructor(
                         is NewClientResult.InCurrentAccount -> {
                             globalAppState = globalAppState.copy(
                                 newClientDialog = NewClientData.CurrentUser(
-                                    it.newClient.registrationTime,
+                                    it.newClient.registrationTime?.toIsoDateTimeString() ?: "",
                                     it.newClient.name
                                 )
                             )
@@ -159,7 +160,7 @@ class WireActivityViewModel @Inject constructor(
                         is NewClientResult.InOtherAccount -> {
                             globalAppState = globalAppState.copy(
                                 newClientDialog = NewClientData.OtherUser(
-                                    it.newClient.registrationTime,
+                                    it.newClient.registrationTime?.toIsoDateTimeString() ?: "",
                                     it.newClient.name,
                                     it.userId,
                                     it.userName,

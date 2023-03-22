@@ -22,13 +22,15 @@ package com.wire.android.framework
 
 import com.wire.kalium.logic.data.client.Client
 import com.wire.kalium.logic.data.client.ClientType
+import com.wire.kalium.logic.data.client.DeviceType
 import com.wire.kalium.logic.data.conversation.ClientId
+import kotlinx.datetime.Instant
 
 object TestClient {
     val CLIENT_ID = ClientId("test")
 
     val CLIENT = Client(
-        CLIENT_ID, ClientType.Permanent, "time", null,
-        null, "label", "cookie", null, "model", emptyMap()
+        CLIENT_ID, ClientType.Permanent, Instant.DISTANT_FUTURE, false,
+        isValid = true, DeviceType.Desktop, "label", null
     )
 }

@@ -203,6 +203,15 @@ sealed class UIMessageContent {
             if (isSelfTriggered) R.string.label_system_message_added_by_self else R.string.label_system_message_added_by_other
         )
 
+        data class MemberJoined(
+            val author: UIText,
+            val isSelfTriggered: Boolean = false
+        ) : SystemMessage(
+            R.drawable.ic_add,
+            if (isSelfTriggered) R.string.label_system_message_joined_the_conversation_by_self
+            else R.string.label_system_message_joined_the_conversation_by_other
+        )
+
         data class MemberRemoved(
             val author: UIText,
             val memberNames: List<UIText>,

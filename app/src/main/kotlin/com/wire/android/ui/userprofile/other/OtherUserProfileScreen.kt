@@ -62,6 +62,7 @@ import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.PagerState
 import com.google.accompanist.pager.rememberPagerState
 import com.wire.android.R
+import com.wire.android.ui.authentication.devices.model.Device
 import com.wire.android.ui.common.CollapsingTopBarScaffold
 import com.wire.android.ui.common.MoreOptionIcon
 import com.wire.android.ui.common.TabItem
@@ -251,7 +252,8 @@ fun OtherProfileScreenContent(
                     lazyListStates = lazyListStates,
                     openChangeRoleBottomSheet = openChangeRoleBottomSheet,
                     openRemoveConversationMemberDialog = removeMemberDialogState::show,
-                    getOtherUserClients = eventsHandler::getOtherUserClients
+                    getOtherUserClients = eventsHandler::observeClientList,
+                    onDeviceClick = eventsHandler::onDeviceClick
                 )
             },
             bottomBar = {
@@ -370,6 +372,7 @@ private fun Content(
     openChangeRoleBottomSheet: () -> Unit,
     openRemoveConversationMemberDialog: (RemoveConversationMemberState) -> Unit,
     getOtherUserClients: () -> Unit,
+    onDeviceClick: (Device) -> Unit
 ) {
     Crossfade(targetState = tabItems to state) { (tabItems, state) ->
         when {
@@ -395,7 +398,11 @@ private fun Content(
 
                             OtherUserProfileTabItem.DEVICES -> {
                                 getOtherUserClients()
-                                OtherUserDevicesScreen(lazyListState = lazyListStates[tabItem]!!, state = state)
+                                OtherUserDevicesScreen(
+                                    lazyListState = lazyListStates[tabItem]!!,
+                                    state = state,
+                                    onDeviceClick = onDeviceClick
+                                )
                             }
                         }
                     }

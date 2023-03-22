@@ -4,16 +4,17 @@ import androidx.test.platform.app.InstrumentationRegistry
 import com.wire.android.ui.home.conversations.SelfDeletionTimer
 import com.wire.android.ui.home.conversations.model.ExpirationStatus
 import com.wire.kalium.logic.data.message.Message
-import org.junit.jupiter.api.Test
+import org.junit.Test
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
 
 class SelfDeletionTimerTest {
 
+    private val context = InstrumentationRegistry.getInstrumentation().targetContext
+
     @Test
     fun givenTimeLeftIsAboveOneHour_whenGettingTheUpdateInterval_ThenIsEqualToMinutesLeftTillWholeHour() {
 
-        val context = InstrumentationRegistry.getInstrumentation().targetContext
 
         val selfDeletionTimer = SelfDeletionTimer(context).fromExpirationStatus(
             ExpirationStatus.Expirable(
@@ -21,7 +22,6 @@ class SelfDeletionTimerTest {
                 selfDeletionStatus = Message.ExpirationData.SelfDeletionStatus.NotStarted
             )
         )
-
 
         assert(selfDeletionTimer is SelfDeletionTimer.SelfDeletionTimerState.Expirable)
 

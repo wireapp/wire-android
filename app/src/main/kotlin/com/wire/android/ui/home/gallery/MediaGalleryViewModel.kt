@@ -30,6 +30,9 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.model.ImageAsset
 import com.wire.android.model.parseIntoPrivateImageAsset
 import com.wire.android.navigation.EXTRA_IMAGE_DATA
+import com.wire.android.navigation.EXTRA_ON_MESSAGE_DETAILS_CLICKED
+import com.wire.android.navigation.EXTRA_ON_MESSAGE_REACTED
+import com.wire.android.navigation.EXTRA_ON_MESSAGE_REPLIED
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.conversations.MediaGallerySnackbarMessages
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogActiveState
@@ -58,7 +61,7 @@ import kotlinx.coroutines.withContext
 import okio.Path
 import javax.inject.Inject
 
-@Suppress("LongParameterList")
+@Suppress("LongParameterList", "TooManyFunctions")
 @HiltViewModel
 class MediaGalleryViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
@@ -123,6 +126,18 @@ class MediaGalleryViewModel @Inject constructor(
                     updateMediaGalleryTitle(getScreenTitle(it))
                 }
         }
+    }
+
+    fun onMessageReacted(emoji: String) = viewModelScope.launch {
+        navigationManager.navigateBack(mapOf(EXTRA_ON_MESSAGE_REACTED to Pair(imageAssetId.messageId, emoji)))
+    }
+
+    fun onMessageReplied() = viewModelScope.launch {
+        navigationManager.navigateBack(mapOf(EXTRA_ON_MESSAGE_REPLIED to imageAssetId.messageId))
+    }
+
+    fun onMessageDetailsClicked() = viewModelScope.launch {
+        navigationManager.navigateBack(mapOf(EXTRA_ON_MESSAGE_DETAILS_CLICKED to Pair(imageAssetId.messageId, imageAssetId.isSelfAsset)))
     }
 
     private fun getScreenTitle(conversationDetails: ConversationDetails): String? =

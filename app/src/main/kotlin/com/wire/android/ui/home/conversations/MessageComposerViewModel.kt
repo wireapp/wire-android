@@ -187,16 +187,13 @@ class MessageComposerViewModel @Inject constructor(
 
     internal fun checkPendingActions() {
         // Check if there are messages to delete
-        val messageToDeleteId = savedStateHandle
-            .getBackNavArg<String>(EXTRA_MESSAGE_TO_DELETE_ID)
-        val messageToDeleteIsSelf = savedStateHandle
-            .getBackNavArg<Boolean>(EXTRA_MESSAGE_TO_DELETE_IS_SELF)
+        val messageToDeleteId = savedStateHandle.getBackNavArg<String>(EXTRA_MESSAGE_TO_DELETE_ID)
 
-        val groupDeletedName = savedStateHandle
-            .getBackNavArg<String>(EXTRA_GROUP_DELETED_NAME)
+        val messageToDeleteIsSelf = savedStateHandle.getBackNavArg<Boolean>(EXTRA_MESSAGE_TO_DELETE_IS_SELF)
 
-        val leftGroup = savedStateHandle
-            .getBackNavArg(EXTRA_LEFT_GROUP) ?: false
+        val groupDeletedName = savedStateHandle.getBackNavArg<String>(EXTRA_GROUP_DELETED_NAME)
+
+        val leftGroup = savedStateHandle.getBackNavArg(EXTRA_LEFT_GROUP) ?: false
 
         if (messageToDeleteId != null && messageToDeleteIsSelf != null) {
             showDeleteMessageDialog(messageToDeleteId, messageToDeleteIsSelf)

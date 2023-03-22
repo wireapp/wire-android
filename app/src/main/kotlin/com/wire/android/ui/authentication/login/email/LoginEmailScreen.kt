@@ -34,7 +34,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -55,7 +54,6 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.ui.authentication.login.LoginError
@@ -77,13 +75,12 @@ import com.wire.android.util.CustomTabsHelper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun LoginEmailScreen(
+    loginEmailViewModel: LoginEmailViewModel,
     scrollState: ScrollState = rememberScrollState()
 ) {
     val scope = rememberCoroutineScope()
-    val loginEmailViewModel: LoginEmailViewModel = hiltViewModel()
     val loginEmailState: LoginState = loginEmailViewModel.loginState
 
     clearAutofillTree()
@@ -148,7 +145,8 @@ private fun LoginEmailContent(
                 error = when (loginState.loginError) {
                     LoginError.TextFieldError.InvalidValue -> stringResource(R.string.login_error_invalid_user_identifier)
                     else -> null
-                }
+                },
+                isEnabled = loginState.userIdentifierEnabled
             )
             PasswordInput(
                 modifier = Modifier
@@ -202,6 +200,7 @@ private fun UserIdentifierInput(
     userIdentifier: TextFieldValue,
     error: String?,
     onUserIdentifierChange: (TextFieldValue) -> Unit,
+    isEnabled: Boolean,
 ) {
     AutoFillTextField(
         autofillTypes = listOf(AutofillType.EmailAddress, AutofillType.Username),
@@ -209,7 +208,11 @@ private fun UserIdentifierInput(
         onValueChange = onUserIdentifierChange,
         placeholderText = stringResource(R.string.login_user_identifier_placeholder),
         labelText = stringResource(R.string.login_user_identifier_label),
-        state = if (error != null) WireTextFieldState.Error(error) else WireTextFieldState.Default,
+        state = when {
+            !isEnabled -> WireTextFieldState.Disabled
+            error != null -> WireTextFieldState.Error(error)
+            else -> WireTextFieldState.Default
+        },
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Next),
         modifier = modifier.testTag("emailField")
     )

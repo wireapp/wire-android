@@ -49,7 +49,6 @@ import com.wire.kalium.logic.feature.user.IsMLSEnabledUseCase
 import com.wire.kalium.logic.feature.user.IsSelfATeamMemberUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
 @Suppress("LongParameterList", "TooManyFunctions")
@@ -78,10 +77,16 @@ class NewConversationViewModel @Inject constructor(
     var newGroupState: GroupMetadataState by mutableStateOf(
         GroupMetadataState(
             mlsEnabled = isMLSEnabled(),
-            isSelfTeamMember = runBlocking { isSelfATeamMember() })
+        )
     )
 
     var groupOptionsState: GroupOptionState by mutableStateOf(GroupOptionState())
+
+    init {
+        viewModelScope.launch {
+            newGroupState = newGroupState.copy(isSelfTeamMember = isSelfATeamMember())
+        }
+    }
 
     fun onGroupNameChange(newText: TextFieldValue) {
         newGroupState = GroupNameValidator.onGroupNameChange(newText, newGroupState)
@@ -93,22 +98,10 @@ class NewConversationViewModel @Inject constructor(
 
     fun onAllowGuestStatusChanged(status: Boolean) {
         groupOptionsState = groupOptionsState.copy(isAllowGuestEnabled = status)
-        if (!status) {
-            groupOptionsState.accessRoleState.remove(Conversation.AccessRole.NON_TEAM_MEMBER)
-            groupOptionsState.accessRoleState.remove(Conversation.AccessRole.GUEST)
-        } else {
-            groupOptionsState.accessRoleState.add(Conversation.AccessRole.NON_TEAM_MEMBER)
-            groupOptionsState.accessRoleState.add(Conversation.AccessRole.GUEST)
-        }
     }
 
     fun onAllowServicesStatusChanged(status: Boolean) {
         groupOptionsState = groupOptionsState.copy(isAllowServicesEnabled = status)
-        if (!status) {
-            groupOptionsState.accessRoleState.remove(Conversation.AccessRole.SERVICE)
-        } else {
-            groupOptionsState.accessRoleState.add(Conversation.AccessRole.SERVICE)
-        }
     }
 
     fun onReadReceiptStatusChanged(status: Boolean) {
@@ -122,25 +115,24 @@ class NewConversationViewModel @Inject constructor(
     fun onAllowGuestsClicked() {
         onAllowGuestsDialogDismissed()
         onAllowGuestStatusChanged(true)
-        createGroupWithCustomOptions(false)
+        createGroupForTeamAccounts(false)
     }
 
     fun onNotAllowGuestClicked() {
         onAllowGuestsDialogDismissed()
         onAllowGuestStatusChanged(false)
         removeGuestsIfNotAllowed()
-        createGroupWithCustomOptions(false)
+        createGroupForTeamAccounts(false)
     }
 
     private fun removeGuestsIfNotAllowed() {
         if (!groupOptionsState.isAllowGuestEnabled) {
-            for (item in state.contactsAddedToGroup) {
-                if (item.membership == Membership.Guest ||
-                    item.membership == Membership.Federated
-                ) {
-                    removeContactFromGroup(item)
-                }
-            }
+            val contactsToRemove = state
+                .contactsAddedToGroup
+                .filter {
+                    it.membership in setOf(Membership.Guest, Membership.Federated)
+                }.toSet()
+            removeContactsFromGroup(contactsToRemove)
         }
     }
 
@@ -159,14 +151,17 @@ class NewConversationViewModel @Inject constructor(
     }
 
     fun createGroup() {
-        if (newGroupState.isSelfTeamMember) {
-            createGroupWithCustomOptions(true)
-        } else {
-            createGroupWithoutOption()
+        newGroupState.isSelfTeamMember?.let {
+            if (it) {
+                createGroupForTeamAccounts(true)
+            } else {
+                // Personal Account
+                createGroupForPersonalAccounts()
+            }
         }
     }
 
-    private fun createGroupWithoutOption() {
+    private fun createGroupForPersonalAccounts() {
         viewModelScope.launch {
             newGroupState = newGroupState.copy(isLoading = true)
             val result = createGroupConversation(
@@ -175,14 +170,15 @@ class NewConversationViewModel @Inject constructor(
                 userIdList = state.contactsAddedToGroup.map { contact -> UserId(contact.id, contact.domain) },
                 options = ConversationOptions().copy(
                     protocol = ConversationOptions.Protocol.PROTEUS,
-                    accessRole = null
+                    accessRole = Conversation.defaultGroupAccessRoles,
+                    access = Conversation.defaultGroupAccess
                 )
             )
             handleNewGroupCreationResult(result)
         }
     }
 
-    private fun createGroupWithCustomOptions(shouldCheckGuests: Boolean = true) {
+    private fun createGroupForTeamAccounts(shouldCheckGuests: Boolean = true) {
         if (shouldCheckGuests && checkIfGuestAdded()) return
         viewModelScope.launch {
             newGroupState = newGroupState.copy(isLoading = true)
@@ -193,7 +189,12 @@ class NewConversationViewModel @Inject constructor(
                 options = ConversationOptions().copy(
                     protocol = newGroupState.groupProtocol,
                     readReceiptsEnabled = groupOptionsState.isReadReceiptEnabled,
-                    accessRole = groupOptionsState.accessRoleState
+                    accessRole = Conversation.accessRolesFor(
+                        guestAllowed = groupOptionsState.isAllowGuestEnabled,
+                        servicesAllowed = groupOptionsState.isAllowServicesEnabled,
+                        nonTeamMembersAllowed = groupOptionsState.isAllowGuestEnabled
+                    ),
+                    access = Conversation.accessFor(groupOptionsState.isAllowGuestEnabled)
                 )
             )
             handleNewGroupCreationResult(result)

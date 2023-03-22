@@ -46,7 +46,7 @@ fun RemoveDeviceDialog(
             stringResource(
                 R.string.remove_device_id_and_time_label,
                 state.device.clientId.value,
-                state.device.registrationTime.formatMediumDateTime() ?: ""
+                state.device.registrationTime?.formatMediumDateTime() ?: ""
             ),
         onDismiss = onDialogDismissHideKeyboard,
         dismissButtonProperties = WireDialogButtonProperties(

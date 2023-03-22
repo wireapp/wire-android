@@ -1,13 +1,18 @@
 package com.wire.android.ui.settings.devices
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -18,29 +23,40 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.wire.android.BuildConfig
 import com.wire.android.R
-import com.wire.android.model.Clickable
 import com.wire.android.navigation.hiltSavedStateViewModel
 import com.wire.android.ui.authentication.devices.model.Device
 import com.wire.android.ui.authentication.devices.remove.RemoveDeviceDialog
 import com.wire.android.ui.authentication.devices.remove.RemoveDeviceDialogState
 import com.wire.android.ui.authentication.devices.remove.RemoveDeviceError
+import com.wire.android.ui.common.CopyButton
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
+import com.wire.android.ui.common.WireSwitch
+import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.button.wirePrimaryButtonColors
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.settings.devices.model.DeviceDetailsState
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.dialogErrorStrings
+import com.wire.android.util.extension.formatAsFingerPrint
 import com.wire.android.util.extension.formatAsString
 import com.wire.android.util.formatMediumDateTime
 import com.wire.kalium.logic.data.conversation.ClientId
@@ -52,17 +68,16 @@ fun DeviceDetailsScreen(
     backNavArgs: ImmutableMap<String, Any> = persistentMapOf(),
     viewModel: DeviceDetailsViewModel = hiltSavedStateViewModel(backNavArgs = backNavArgs)
 ) {
-    viewModel.state?.let { state ->
-        DeviceDetailsContent(
-            state = state,
-            onDeleteDevice = viewModel::removeDevice,
-            onPasswordChange = viewModel::onPasswordChange,
-            onRemoveConfirm = viewModel::onRemoveConfirmed,
-            onDialogDismiss = viewModel::onDialogDismissed,
-            onErrorDialogDismiss = viewModel::clearDeleteClientError,
-            onNavigateBack = viewModel::navigateBack
-        )
-    }
+    DeviceDetailsContent(
+        state = viewModel.state,
+        onDeleteDevice = viewModel::removeDevice,
+        onPasswordChange = viewModel::onPasswordChange,
+        onRemoveConfirm = viewModel::onRemoveConfirmed,
+        onDialogDismiss = viewModel::onDialogDismissed,
+        onErrorDialogDismiss = viewModel::clearDeleteClientError,
+        onNavigateBack = viewModel::navigateBack,
+        onUpdateClientVerification = viewModel::onUpdateVerificationStatus
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -74,8 +89,10 @@ fun DeviceDetailsContent(
     onPasswordChange: (TextFieldValue) -> Unit = {},
     onRemoveConfirm: () -> Unit = {},
     onDialogDismiss: () -> Unit = {},
-    onErrorDialogDismiss: () -> Unit = {}
+    onErrorDialogDismiss: () -> Unit = {},
+    onUpdateClientVerification: (Boolean) -> Unit = {}
 ) {
+    val screenState = rememberConversationScreenState()
     Scaffold(
         topBar = {
             WireCenterAlignedTopAppBar(
@@ -84,15 +101,27 @@ fun DeviceDetailsContent(
                 title = state.device.name
             )
         },
+        snackbarHost = {
+            SwipeDismissSnackbarHost(
+                hostState = screenState.snackBarHostState,
+                modifier = Modifier.fillMaxWidth()
+            )
+        },
         bottomBar = {
             Column(
                 Modifier
                     .background(MaterialTheme.wireColorScheme.surface)
                     .wrapContentWidth(Alignment.CenterHorizontally)
             ) {
-                if (!state.isCurrentDevice) {
+                if (!state.isCurrentDevice && state.isSelfClient) {
                     Text(
-                        text = stringResource(id = R.string.remove_device_details_description),
+                        text = stringResource(
+                            id = if (BuildConfig.WIPE_ON_DEVICE_REMOVAL) {
+                                R.string.remove_device_details_description_with_wipe
+                            } else {
+                                R.string.remove_device_details_description
+                            }
+                        ),
                         style = MaterialTheme.wireTypography.body01,
                         color = MaterialTheme.wireColorScheme.onBackground,
                         modifier = Modifier.padding(dimensions().spacing16x)
@@ -117,16 +146,38 @@ fun DeviceDetailsContent(
                 .padding(internalPadding)
                 .background(MaterialTheme.wireColorScheme.surface)
         ) {
-            item {
-                with(state.device.registrationTime) {
+
+            state.device.registrationTime?.formatMediumDateTime()?.let {
+                item {
                     DeviceDetailSectionContent(
                         stringResource(id = R.string.label_client_added_time),
-                        this.formatMediumDateTime() ?: this
+                        AnnotatedString(it)
                     )
+                    Divider(color = MaterialTheme.wireColorScheme.background)
                 }
             }
+
             item {
-                DeviceDetailSectionContent(stringResource(id = R.string.label_client_device_id), state.device.clientId.formatAsString())
+                DeviceIdItem(state, screenState::copyMessage)
+                Divider(color = MaterialTheme.wireColorScheme.background)
+            }
+
+            item {
+                DeviceKeyFingerprintItem(state.fingerPrint, screenState::copyMessage)
+                Divider(color = MaterialTheme.wireColorScheme.background)
+            }
+
+            if (!state.isCurrentDevice) {
+                item {
+                    DeviceVerificationItem(
+                        state.device.isVerified,
+                        state.fingerPrint != null,
+                        state.isSelfClient,
+                        state.userName,
+                        onUpdateClientVerification
+                    )
+                    Divider(color = MaterialTheme.wireColorScheme.background)
+                }
             }
         }
         if (state.removeDeviceDialogState is RemoveDeviceDialogState.Visible) {
@@ -156,11 +207,170 @@ fun DeviceDetailsContent(
 }
 
 @Composable
+private fun DeviceIdItem(state: DeviceDetailsState, onCopy: (String) -> Unit) {
+    DeviceDetailSectionContent(
+        sectionTitle = stringResource(id = R.string.label_client_device_id),
+        sectionText = AnnotatedString(state.device.clientId.formatAsString()),
+        titleTrailingItem = {
+            CopyButton(
+                onCopyClicked = {
+                    state.device.clientId.formatAsString().let { id -> onCopy(id) }
+                }
+            )
+        }
+    )
+}
+
+@Composable
+fun DeviceKeyFingerprintItem(
+    clientFingerPrint: String?,
+    onCopy: (String) -> Unit
+) {
+    DeviceDetailSectionContent(
+        stringResource(id = R.string.title_device_key_fingerprint),
+        sectionText = clientFingerPrint?.formatAsFingerPrint()
+            ?: AnnotatedString(stringResource(id = R.string.label_client_key_fingerprint_not_available)),
+        enabled = clientFingerPrint != null,
+        titleTrailingItem = {
+            CopyButton(
+                onCopyClicked = {
+                    clientFingerPrint?.let { fingerprint -> onCopy(fingerprint) }
+                },
+                state = if (clientFingerPrint != null) WireButtonState.Default else WireButtonState.Disabled
+            )
+        }
+    )
+}
+
+@Composable
+fun DeviceVerificationItem(
+    state: Boolean,
+    enabled: Boolean,
+    isSelfClient: Boolean,
+    userName: String?,
+    onStatusChange: (Boolean) -> Unit,
+) {
+    @StringRes
+    val subTitle = if (state) {
+        R.string.label_client_verified
+    } else {
+        R.string.label_client_unverified
+    }
+    DeviceDetailSectionContent(
+        stringResource(id = R.string.title_device_key_fingerprint),
+        AnnotatedString(stringResource(id = subTitle)),
+        titleTrailingItem = {
+            WireSwitch(
+                checked = state,
+                onCheckedChange = onStatusChange,
+                enabled = enabled,
+                modifier = Modifier.padding(end = dimensions().spacing16x)
+            )
+        }
+    )
+    VerificationDescription(isSelfClient, userName)
+}
+
+@Composable
+private fun VerificationDescription(
+    isSelfClient: Boolean,
+    userName: String?
+) {
+    val context = LocalContext.current
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(
+                start = dimensions().spacing16x,
+                end = dimensions().spacing16x,
+                bottom = dimensions().spacing16x
+            )
+    ) {
+
+        if (isSelfClient) {
+            DescriptionText(
+                text = stringResource(id = R.string.label_self_client_verification_description),
+                leanMoreLink = stringResource(id = R.string.url_self_client_verification_learn_more)
+            )
+        } else {
+            DescriptionText(
+                text = stringResource(
+                    id = R.string.label_client_verification_description,
+                    userName ?: stringResource(id = R.string.unknown_user_name)
+                ), leanMoreLink = stringResource(id = R.string.url_self_client_verification_learn_more)
+            )
+        }
+
+        Spacer(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(16.dp)
+        )
+
+        if (isSelfClient) {
+            DescriptionText(
+                text = stringResource(id = R.string.label_self_fingerprint_description),
+                leanMoreLink = stringResource(id = R.string.url_self_client_fingerprint_learn_more)
+            )
+        } else {
+            DescriptionText(text = stringResource(id = R.string.label_fingerprint_description), leanMoreLink = null)
+        }
+    }
+}
+
+@Composable
+private fun DescriptionText(
+    text: String,
+    leanMoreLink: String?,
+) {
+
+    val context = LocalContext.current
+    buildAnnotatedString {
+        withStyle(
+            SpanStyle(
+                color = MaterialTheme.wireColorScheme.secondaryText,
+                fontWeight = MaterialTheme.wireTypography.body01.fontWeight,
+                fontSize = MaterialTheme.wireTypography.body01.fontSize
+            )
+        ) {
+            append(text)
+        }
+
+        leanMoreLink?.let {
+            pushStringAnnotation(
+                tag = "learn_more",
+                annotation = it
+            )
+            append(" ")
+            withStyle(
+                style = SpanStyle(
+                    color = MaterialTheme.wireColorScheme.onTertiaryButtonSelected,
+                    fontWeight = MaterialTheme.wireTypography.label05.fontWeight,
+                    fontSize = MaterialTheme.wireTypography.label05.fontSize,
+                    textDecoration = TextDecoration.Underline
+                )
+            ) {
+                append(stringResource(id = R.string.label_learn_more))
+            }
+        }
+    }.let { annotatedString ->
+
+        ClickableText(text = annotatedString, onClick = { offset ->
+            leanMoreLink?.let {
+                annotatedString.getStringAnnotations(tag = "learn_more", start = offset, end = offset).firstOrNull()?.let {
+                    CustomTabsHelper.launchUrl(context, it.item)
+                }
+            }
+        })
+    }
+}
+
+@Composable
 private fun DeviceDetailSectionContent(
     sectionTitle: String,
-    sectionText: String = "",
-    titleTrailingItem: (@Composable () -> Unit)? = null,
-    clickable: Clickable = Clickable(enabled = false, onClick = { /* not handled */ }, onLongClick = { /* not handled */ })
+    sectionText: AnnotatedString,
+    enabled: Boolean = true,
+    titleTrailingItem: (@Composable () -> Unit)? = null
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -186,16 +396,17 @@ private fun DeviceDetailSectionContent(
                 Text(
                     text = sectionText,
                     style = MaterialTheme.wireTypography.body01,
-                    color = MaterialTheme.wireColorScheme.onBackground,
+                    color = if (enabled) MaterialTheme.wireColorScheme.onBackground
+                    else MaterialTheme.wireColorScheme.secondaryText,
                     modifier = Modifier.weight(weight = 1f, fill = true)
                 )
+
                 if (titleTrailingItem != null) {
                     Box(modifier = Modifier.padding(horizontal = MaterialTheme.wireDimensions.spacing8x)) { titleTrailingItem() }
                 }
             }
         }
     }
-    Divider(color = MaterialTheme.wireColorScheme.background)
 }
 
 @Preview

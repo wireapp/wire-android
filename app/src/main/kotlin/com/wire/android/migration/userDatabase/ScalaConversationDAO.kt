@@ -57,9 +57,9 @@ class ScalaConversationDAO(
             val domainIndex = cursor.getColumnIndex(COLUMN_DOMAIN).orNullIfNegative()
             val idIndex = cursor.getColumnIndex(COLUMN_ID)
             val remoteIdIndex = cursor.getColumnIndex(COLUMN_REMOTE_ID)
-            val nameIndex = cursor.getColumnIndex(COLUMN_NAME)
+            val nameIndex = cursor.getColumnIndex(COLUMN_NAME).orNullIfNegative()
             val typeIndex = cursor.getColumnIndex(COLUMN_TYPE)
-            val teamIndex = cursor.getColumnIndex(COLUMN_TEAM)
+            val teamIndex = cursor.getColumnIndex(COLUMN_TEAM).orNullIfNegative()
             val mutedStatusIndex = cursor.getColumnIndex(COLUMN_MUTED_STATUS)
             val accessIndex = cursor.getColumnIndex(COLUMN_ACCESS)
             val creatorIdIndex = cursor.getColumnIndex(COLUMN_CREATOR)
@@ -80,9 +80,9 @@ class ScalaConversationDAO(
                     id = cursor.getStringOrNull(idIndex).orEmpty(),
                     remoteId = remoteId,
                     domain = domainIndex?.let { cursor.getStringOrNull(it) },
-                    name = cursor.getStringOrNull(nameIndex),
+                    name = nameIndex?.let { cursor.getStringOrNull(it) },
                     type = cursor.getInt(typeIndex),
-                    teamId = cursor.getStringOrNull(teamIndex),
+                    teamId = teamIndex?.let { cursor.getStringOrNull(it) },
                     mutedStatus = cursor.getInt(mutedStatusIndex),
                     access = cursor.getStringOrNull(accessIndex).orEmpty(),
                     creatorId = cursor.getStringOrNull(creatorIdIndex).orEmpty(),

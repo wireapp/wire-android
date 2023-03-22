@@ -47,11 +47,13 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
     KEEP_WEB_SOCKET_ON("keep_websocket_on", ConfigType.BOOLEAN),
     MAX_ACCOUNTS("maxAccounts", ConfigType.INT),
     WIPE_ON_COOKIE_INVALID("wipe_on_cookie_invalid", ConfigType.BOOLEAN),
+    WIPE_ON_DEVICE_REMOVAL("wipe_on_device_removal", ConfigType.BOOLEAN),
     SUPPORT_EMAIL("supportEmail", ConfigType.STRING),
     TEAMS_URL("teamsUrl", ConfigType.STRING),
     WEB_LINK_PREVIEW("web_link_preview", ConfigType.BOOLEAN),
     WEB_SOCKET_URL("websocketUrl", ConfigType.STRING),
     ENCRYPT_PROTEUS_STORAGE("encrypt_proteus_storage", ConfigType.BOOLEAN),
+    GUEST_ROOM_LINK("guest_room_link", ConfigType.BOOLEAN),
     UPDATE_APP_URL("update_app_url", ConfigType.STRING),
 
     CERTIFICATE_PIN("certificatePin", ConfigType.CERTIFICATE_PIN),

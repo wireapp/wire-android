@@ -173,6 +173,7 @@ data class MessageComposerInnerState(
             messageText = TextFieldValue(text = originalText, selection = TextRange(originalText.length)),
             type = MessageComposeInputType.EditMessage(messageId, originalText)
         )
+        quotedMessageData = null
         inputFocusRequester.requestFocus()
     }
 

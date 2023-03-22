@@ -39,7 +39,6 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.window.DialogProperties
-import androidx.core.app.ShareCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.NavHostController
 import com.wire.android.BuildConfig
@@ -66,7 +65,9 @@ import com.wire.android.util.LocalSyncStateObserver
 import com.wire.android.util.SyncStateObserver
 import com.wire.android.util.debug.FeatureVisibilityFlags
 import com.wire.android.util.debug.LocalFeatureVisibilityFlags
+import com.wire.android.util.formatMediumDateTime
 import com.wire.android.util.ui.updateScreenSettings
+import com.wire.kalium.logic.data.user.UserId
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -74,9 +75,13 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import javax.inject.Inject
 
-@AndroidEntryPoint
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class, ExperimentalCoroutinesApi::class)
+@OptIn(
+    ExperimentalMaterial3Api::class,
+    ExperimentalComposeUiApi::class,
+    ExperimentalCoroutinesApi::class
+)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
+@AndroidEntryPoint
 @Suppress("TooManyFunctions")
 class WireActivity : AppCompatActivity() {
 
@@ -96,21 +101,22 @@ class WireActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         proximitySensorManager.initialize()
         lifecycle.addObserver(currentScreenManager)
-        viewModel.handleDeepLink(intent)
-        setComposableContent()
+
+        handleDeepLink(intent, savedInstanceState)
+        viewModel.observePersistentConnectionStatus()
+        val startDestination = viewModel.startNavigationRoute()
+        setComposableContent(startDestination)
     }
 
     override fun onNewIntent(intent: Intent?) {
         if (viewModel.isSharingIntent(intent)) {
             setIntent(intent)
         }
-        if (viewModel.handleDeepLinkOnNewIntent(intent)) {
-            recreate()
-        }
+        handleDeepLink(intent)
         super.onNewIntent(intent)
     }
 
-    private fun setComposableContent() {
+    private fun setComposableContent(startDestination: String) {
         setContent {
             CompositionLocalProvider(
                 LocalFeatureVisibilityFlags provides FeatureVisibilityFlags,
@@ -119,11 +125,7 @@ class WireActivity : AppCompatActivity() {
                 WireTheme {
                     val scope = rememberCoroutineScope()
                     val navController = rememberTrackingAnimatedNavController { NavigationItem.fromRoute(it)?.itemName }
-                    setUpNavigationGraph(
-                        viewModel.startNavigationRoute(hasSharingIntent = ShareCompat.IntentReader(this).isShareIntent),
-                        navController,
-                        scope
-                    )
+                    setUpNavigationGraph(startDestination, navController, scope)
                     handleDialogs()
                 }
             }
@@ -133,7 +135,7 @@ class WireActivity : AppCompatActivity() {
     @Composable
     fun setUpNavigationGraph(startDestination: String, navController: NavHostController, scope: CoroutineScope) {
         Scaffold {
-            NavigationGraph(navController = navController, startDestination, viewModel.navigationArguments())
+            NavigationGraph(navController = navController, startDestination)
         }
         setUpNavigation(navController, scope)
     }
@@ -172,6 +174,12 @@ class WireActivity : AppCompatActivity() {
         customBackendDialog(viewModel.globalAppState.customBackendDialog.shouldShowDialog)
         maxAccountDialog(viewModel::openProfile, viewModel::dismissMaxAccountDialog, viewModel.globalAppState.maxAccountDialog)
         accountLoggedOutDialog(viewModel.globalAppState.blockUserUI)
+        newClientDialog(
+            viewModel.globalAppState.newClientDialog,
+            viewModel::openDeviceManager,
+            viewModel::switchAccount,
+            viewModel::dismissNewClientDialog
+        )
     }
 
     @Composable
@@ -240,22 +248,38 @@ class WireActivity : AppCompatActivity() {
     @Composable
     fun accountLoggedOutDialog(reason: CurrentSessionErrorState, navigateAway: () -> Unit) {
         appLogger.e("AccountLongedOutDialog: $reason")
-        val (@StringRes title: Int, @StringRes text: Int) = when (reason) {
+        val (@StringRes title: Int, text: String) = when (reason) {
             CurrentSessionErrorState.SessionExpired -> {
-                R.string.session_expired_error_title to R.string.session_expired_error_message
+                if (BuildConfig.WIPE_ON_COOKIE_INVALID) {
+                    R.string.session_expired_error_title to (
+                            stringResource(id = R.string.session_expired_error_message)
+                                    + "\n\n"
+                                    + stringResource(id = R.string.conversation_history_wipe_explanation)
+                            )
+                } else {
+                    R.string.session_expired_error_title to stringResource(id = R.string.session_expired_error_message)
+                }
             }
 
             CurrentSessionErrorState.RemovedClient -> {
-                R.string.removed_client_error_title to R.string.removed_client_error_message
+                if (BuildConfig.WIPE_ON_DEVICE_REMOVAL) {
+                    R.string.removed_client_error_title to (
+                            stringResource(id = R.string.removed_client_error_message)
+                                    + "\n\n"
+                                    + stringResource(id = R.string.conversation_history_wipe_explanation)
+                            )
+                } else {
+                    R.string.removed_client_error_title to stringResource(R.string.removed_client_error_message)
+                }
             }
 
             CurrentSessionErrorState.DeletedAccount -> {
-                R.string.deleted_user_error_title to R.string.deleted_user_error_message
+                R.string.deleted_user_error_title to stringResource(R.string.deleted_user_error_message)
             }
         }
         WireDialog(
             title = stringResource(id = title),
-            text = stringResource(id = text),
+            text = text,
             onDismiss = remember { { } },
             optionButton1Properties = WireDialogButtonProperties(
                 text = stringResource(R.string.label_ok),
@@ -263,6 +287,55 @@ class WireActivity : AppCompatActivity() {
                 type = WireDialogButtonType.Primary
             )
         )
+    }
+
+    @Composable
+    private fun newClientDialog(
+        data: NewClientData?,
+        openDeviceManager: () -> Unit,
+        switchAccount: (UserId) -> Unit,
+        dismiss: () -> Unit
+    ) {
+        data?.let {
+            val date = data.date.formatMediumDateTime() ?: ""
+            val title: String
+            val text: String
+            val btnText: String
+            val btnAction: () -> Unit
+            when (data) {
+                is NewClientData.OtherUser -> {
+                    title = stringResource(R.string.new_device_dialog_other_user_title, data.userName ?: "", data.userHandle ?: "")
+                    text = stringResource(R.string.new_device_dialog_other_user_message, date, data.deviceInfo)
+                    btnText = stringResource(R.string.new_device_dialog_other_user_btn)
+                    btnAction = { switchAccount(data.userId) }
+                }
+                is NewClientData.CurrentUser -> {
+                    title = stringResource(R.string.new_device_dialog_current_user_title)
+                    text = stringResource(R.string.new_device_dialog_current_user_message, date, data.deviceInfo)
+                    btnText = stringResource(R.string.new_device_dialog_current_user_btn)
+                    btnAction = openDeviceManager
+                }
+            }
+            WireDialog(
+                title = title,
+                text = text,
+                onDismiss = dismiss,
+                optionButton1Properties = WireDialogButtonProperties(
+                    onClick = {
+                        dismiss()
+                        btnAction()
+                    },
+                    text = btnText,
+                    type = WireDialogButtonType.Secondary
+                ),
+                optionButton2Properties = WireDialogButtonProperties(
+                    text = stringResource(id = R.string.label_ok),
+                    onClick = dismiss,
+                    type = WireDialogButtonType.Primary
+                ),
+                properties = DialogProperties(usePlatformDefaultWidth = true)
+            )
+        }
     }
 
     private fun updateTheApp() {
@@ -279,5 +352,28 @@ class WireActivity : AppCompatActivity() {
     override fun onPause() {
         super.onPause()
         proximitySensorManager.unRegisterListener()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putBoolean(HANDLED_DEEPLINK_FLAG, true)
+        super.onSaveInstanceState(outState)
+    }
+
+    private fun handleDeepLink(
+        intent: Intent?,
+        savedInstanceState: Bundle? = null
+    ) {
+        if (intent == null
+            || intent.flags and Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY != 0
+            || savedInstanceState?.getBoolean(HANDLED_DEEPLINK_FLAG, false) == true
+        ) {
+            return
+        }
+
+        viewModel.handleDeepLink(intent)
+    }
+
+    companion object {
+        private const val HANDLED_DEEPLINK_FLAG = "deeplink_handled_flag_key"
     }
 }

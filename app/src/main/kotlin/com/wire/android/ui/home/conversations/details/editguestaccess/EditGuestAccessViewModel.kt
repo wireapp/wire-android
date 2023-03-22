@@ -31,6 +31,7 @@ import com.wire.android.navigation.EXTRA_EDIT_GUEST_ACCESS_PARAMS
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
 import com.wire.android.util.dispatchers.DispatcherProvider
+import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
@@ -40,6 +41,7 @@ import com.wire.kalium.logic.feature.conversation.guestroomlink.GenerateGuestRoo
 import com.wire.kalium.logic.feature.conversation.guestroomlink.ObserveGuestRoomLinkUseCase
 import com.wire.kalium.logic.feature.conversation.guestroomlink.RevokeGuestRoomLinkResult
 import com.wire.kalium.logic.feature.conversation.guestroomlink.RevokeGuestRoomLinkUseCase
+import com.wire.kalium.logic.feature.user.guestroomlink.ObserveGuestRoomLinkFeatureFlagUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
@@ -65,6 +67,7 @@ class EditGuestAccessViewModel @Inject constructor(
     private val generateGuestRoomLink: GenerateGuestRoomLinkUseCase,
     private val revokeGuestRoomLink: RevokeGuestRoomLinkUseCase,
     private val observeGuestRoomLink: ObserveGuestRoomLinkUseCase,
+    private val observeGuestRoomLinkFeatureFlag: ObserveGuestRoomLinkFeatureFlagUseCase,
     savedStateHandle: SavedStateHandle,
     qualifiedIdMapper: QualifiedIdMapper,
 ) : ViewModel() {
@@ -91,6 +94,17 @@ class EditGuestAccessViewModel @Inject constructor(
     init {
         observeConversationDetails()
         startObservingGuestRoomLink()
+        observeGuestRoomLinkFeature()
+    }
+
+    private fun observeGuestRoomLinkFeature() {
+        viewModelScope.launch {
+            observeGuestRoomLinkFeatureFlag().collect {
+                it.isGuestRoomLinkEnabled?.let { isEnabled ->
+                    editGuestAccessState = editGuestAccessState.copy(isGuestRoomLinkFeatureEnabled = isEnabled)
+                }
+            }
+        }
     }
 
     private fun observeConversationDetails() {
@@ -130,19 +144,31 @@ class EditGuestAccessViewModel @Inject constructor(
     fun updateGuestAccess(shouldEnableGuestAccess: Boolean) {
         updateState(editGuestAccessState.copy(isUpdatingGuestAccess = true, isGuestAccessAllowed = shouldEnableGuestAccess))
         when (shouldEnableGuestAccess) {
-            true -> updateGuestRemoteRequest(shouldEnableGuestAccess)
+            true -> updateGuestRemoteRequest(true)
             false -> updateState(editGuestAccessState.copy(shouldShowGuestAccessChangeConfirmationDialog = true))
         }
     }
 
     private fun updateGuestRemoteRequest(shouldEnableGuestAccess: Boolean) {
+
+        val newAccessRoles = Conversation
+            .accessRolesFor(
+                guestAllowed = shouldEnableGuestAccess,
+                servicesAllowed = editGuestAccessState.isServicesAccessAllowed,
+                nonTeamMembersAllowed = shouldEnableGuestAccess // Guest access controls non-team member access
+                )
+        val newAccess = Conversation
+            .accessFor(shouldEnableGuestAccess)
+
         viewModelScope.launch {
             withContext(dispatcher.io()) {
+                if (!shouldEnableGuestAccess) {
+                    removeGuestLink()
+                }
                 updateConversationAccessRole(
-                    allowGuest = shouldEnableGuestAccess,
-                    allowNonTeamMember = shouldEnableGuestAccess,
-                    allowServices = editGuestAccessState.isServicesAccessAllowed,
-                    conversationId = conversationId
+                    conversationId = conversationId,
+                    accessRoles = newAccessRoles,
+                    access = newAccess
                 )
             }.also {
                 when (it) {
@@ -151,7 +177,6 @@ class EditGuestAccessViewModel @Inject constructor(
                             isGuestAccessAllowed = !shouldEnableGuestAccess
                         )
                     )
-
                     is UpdateConversationAccessRoleUseCase.Result.Success -> Unit
                 }
                 updateState(editGuestAccessState.copy(isUpdatingGuestAccess = false))
@@ -199,6 +224,10 @@ class EditGuestAccessViewModel @Inject constructor(
     }
 
     fun onRevokeDialogConfirm() {
+        removeGuestLink()
+    }
+
+    private fun removeGuestLink() {
         updateState(editGuestAccessState.copy(shouldShowRevokeLinkConfirmationDialog = false, isRevokingLink = true))
         viewModelScope.launch {
             revokeGuestRoomLink(conversationId).also {
@@ -221,6 +250,10 @@ class EditGuestAccessViewModel @Inject constructor(
     fun onRevokeGuestRoomFailureDialogDismiss() {
         editGuestAccessState = editGuestAccessState.copy(isFailedToRevokeGuestRoomLink = false)
     }
+
+    fun shouldDisableGenerateGuestLinkButton() = !editGuestAccessState.isGuestRoomLinkFeatureEnabled ||
+            !editGuestAccessState.isGuestAccessAllowed ||
+            editGuestAccessState.isGeneratingGuestRoomLink
 
     fun navigateBack(args: Map<String, Boolean> = mapOf()) {
         viewModelScope.launch { navigationManager.navigateBack(args) }

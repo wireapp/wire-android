@@ -25,8 +25,10 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.wire.android.BuildConfig
+import com.wire.android.migration.failure.UserMigrationStatus
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
@@ -47,6 +49,7 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
         private val IS_LOGGING_ENABLED = booleanPreferencesKey("is_logging_enabled")
         private val IS_ENCRYPTED_PROTEUS_STORAGE_ENABLED = booleanPreferencesKey("is_encrypted_proteus_storage_enabled")
         private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = PREFERENCES_NAME)
+        private fun userMigrationStatusKey(userId: String): Preferences.Key<Int> = intPreferencesKey("user_migration_status_$userId")
     }
 
     suspend fun clear() {
@@ -87,4 +90,16 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
     suspend fun setWelcomeScreenNotPresented() {
         context.dataStore.edit { it[WELCOME_SCREEN_PRESENTED] = false }
     }
+
+    suspend fun setUserMigrationStatus(userId: String, status: UserMigrationStatus) {
+        context.dataStore.edit { it[userMigrationStatusKey(userId)] = status.value }
+    }
+
+    /**
+     * Returns the migration status of the user with the given [userId].
+     * If there is no status stored, the status will be [UserMigrationStatus.NoNeed]
+     * meaning that the user does not need to be migrated.
+     */
+    fun getUserMigrationStatus(userId: String): Flow<UserMigrationStatus?> =
+        context.dataStore.data.map { it[userMigrationStatusKey(userId)]?.let { status -> UserMigrationStatus.fromInt(status) } }
 }

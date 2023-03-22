@@ -72,7 +72,9 @@ fun ImportMediaScreen(
 
 @Composable
 fun checkIfSharingIsEnabled(featureFlagNotificationViewModel: FeatureFlagNotificationViewModel) {
-    featureFlagNotificationViewModel.loadInitialSync()
+    LaunchedEffect(Unit) {
+        featureFlagNotificationViewModel.loadInitialSync()
+    }
 
     val fileSharingRestrictedDialogState = rememberVisibilityState<FileSharingRestrictedDialogState>()
     FileSharingRestrictedDialogContent(dialogState = fileSharingRestrictedDialogState)
@@ -153,7 +155,7 @@ fun ImportMediaContent(importMediaViewModel: ImportMediaViewModel) {
                             }
                         }
                     }
-                    Divider(color = colorsScheme().outline, thickness = 1.dp)
+                    Divider(color = colorsScheme().outline, thickness = 1.dp, modifier = Modifier.padding(top = dimensions().spacing12x))
                     Box(Modifier.padding(dimensions().spacing6x)) {
                         SearchTopBar(
                             isSearchActive = searchBarState.isSearchActive,
@@ -200,6 +202,7 @@ fun ImportMediaContent(importMediaViewModel: ImportMediaViewModel) {
             }
         )
     }
+    BackHandler { importMediaViewModel.navigateBack() }
     SnackBarMessage(importMediaViewModel.infoMessage, snackbarHostState)
 }
 

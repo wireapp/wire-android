@@ -23,7 +23,6 @@ package com.wire.android.ui.calling.initiating
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.media.CallRinger
 import com.wire.android.navigation.NavigationManager
-import com.wire.android.ui.home.conversations.mockConversationDetailsGroup
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
@@ -31,8 +30,6 @@ import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.IsLastCallClosedUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.StartCallUseCase
-import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
-import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase.Result
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -42,7 +39,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
-import kotlinx.coroutines.test.TestCoroutineScheduler
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
@@ -116,9 +112,6 @@ class InitiatingCallViewModelTest {
         private lateinit var startCall: StartCallUseCase
 
         @MockK
-        private lateinit var observeConversationDetailsUseCase: ObserveConversationDetailsUseCase
-
-        @MockK
         private lateinit var qualifiedIdMapper: QualifiedIdMapper
 
         @MockK
@@ -134,7 +127,6 @@ class InitiatingCallViewModelTest {
             InitiatingCallViewModel(
                 savedStateHandle = savedStateHandle,
                 navigationManager = navigationManager,
-                conversationDetails = observeConversationDetailsUseCase,
                 observeEstablishedCalls = establishedCalls,
                 startCall = startCall,
                 endCall = endCall,
@@ -146,7 +138,6 @@ class InitiatingCallViewModelTest {
 
         init {
             val dummyConversationId = ConversationId("some-dummy-value", "some.dummy.domain")
-            val dummyConversationDetails = mockConversationDetailsGroup("Some Mocked Group", dummyConversationId)
             MockKAnnotations.init(this)
             every { savedStateHandle.get<String>(any()) } returns "${dummyConversationId.value}@${dummyConversationId.domain}"
             every { savedStateHandle.set(any(), any<String>()) } returns Unit
@@ -155,7 +146,6 @@ class InitiatingCallViewModelTest {
             } returns QualifiedID("some-dummy-value", "some.dummy.domain")
             coEvery { navigationManager.navigateBack(any()) } returns Unit
             coEvery { establishedCalls() } returns flowOf(emptyList())
-            coEvery { observeConversationDetailsUseCase(any()) } returns flowOf(Result.Success(dummyConversationDetails))
         }
 
         fun withEndingCall(): Arrangement = apply {
@@ -165,7 +155,7 @@ class InitiatingCallViewModelTest {
         }
 
         fun withNoInternetConnection(): Arrangement = apply {
-            coEvery { startCall(any(), any(), any(), any()) } returns StartCallUseCase.Result.SyncFailure
+            coEvery { startCall(any(), any()) } returns StartCallUseCase.Result.SyncFailure
             every { callRinger.stop() } returns Unit
             coEvery { navigationManager.navigateBack() } returns Unit
         }

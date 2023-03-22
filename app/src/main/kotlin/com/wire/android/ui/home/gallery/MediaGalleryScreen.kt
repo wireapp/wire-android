@@ -48,6 +48,9 @@ import com.wire.android.ui.common.bottomsheet.MenuItemIcon
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
+import com.wire.android.ui.edit.MessageDetailsMenuOption
+import com.wire.android.ui.edit.ReactionOption
+import com.wire.android.ui.edit.ReplyMessageOption
 import com.wire.android.ui.home.conversations.MediaGallerySnackbarMessages
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialog
 import com.wire.android.util.permission.rememberWriteStorageRequestFlow
@@ -78,7 +81,20 @@ fun MediaGalleryScreen(mediaGalleryViewModel: MediaGalleryViewModel = hiltViewMo
                 },
                 onDownloadImage = onSaveImageWriteStorageRequest::launch,
                 onShareImage = {
+                    mediaGalleryScreenState.showContextualMenu(false)
                     mediaGalleryViewModel.shareAsset(context)
+                },
+                onReactionClick = { emoji ->
+                    mediaGalleryScreenState.showContextualMenu(false)
+                    mediaGalleryViewModel.onMessageReacted(emoji)
+                },
+                onImageReplied = {
+                    mediaGalleryScreenState.showContextualMenu(false)
+                    mediaGalleryViewModel.onMessageReplied()
+                },
+                onMessageDetails = {
+                    mediaGalleryScreenState.showContextualMenu(false)
+                    mediaGalleryViewModel.onMessageDetailsClicked()
                 }
             ),
             content = {
@@ -163,11 +179,17 @@ private fun getSnackbarMessage(messageCode: MediaGallerySnackbarMessages, resour
 
 @Composable
 fun EditGalleryMenuItems(
+    onReactionClick: (emoji: String) -> Unit,
+    onImageReplied: () -> Unit,
+    onMessageDetails: () -> Unit,
     onDownloadImage: () -> Unit,
     onDeleteMessage: () -> Unit,
     onShareImage: () -> Unit
 ): List<@Composable () -> Unit> {
     return buildList {
+        add { ReactionOption(onReactionClick = onReactionClick) }
+        add { MessageDetailsMenuOption(onMessageDetailsClick = onMessageDetails) }
+        add { ReplyMessageOption(onReplyItemClick = onImageReplied) }
         add {
             CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.secondary) {
                 MenuBottomSheetItem(

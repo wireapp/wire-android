@@ -76,6 +76,7 @@ internal fun MessageComposerInput(
     membersToMention: List<Contact>,
     actions: MessageComposerInputActions,
     inputFocusRequester: FocusRequester,
+    isFileSharingEnabled: Boolean,
 ) {
     when (interactionAvailability) {
         InteractionAvailability.BLOCKED_USER -> BlockedUserComposerInput()
@@ -90,6 +91,7 @@ internal fun MessageComposerInput(
                 membersToMention = membersToMention,
                 actions = actions,
                 inputFocusRequester = inputFocusRequester,
+                isFileSharingEnabled = isFileSharingEnabled
             )
         }
     }
@@ -105,6 +107,7 @@ private fun EnabledMessageComposerInput(
     membersToMention: List<Contact>,
     actions: MessageComposerInputActions,
     inputFocusRequester: FocusRequester,
+    isFileSharingEnabled: Boolean
 ) {
     Box {
         var currentSelectedLineIndex by remember { mutableStateOf(0) }
@@ -119,6 +122,7 @@ private fun EnabledMessageComposerInput(
                 onLineBottomCoordinateChange = { cursorCoordinateY = it },
                 actions = actions,
                 inputFocusRequester = inputFocusRequester,
+                isFileSharingEnabled = isFileSharingEnabled,
                 modifier = Modifier
                     .fillMaxWidth()
                     .let {
@@ -129,6 +133,7 @@ private fun EnabledMessageComposerInput(
             MessageComposeActionsBox(
                 transition = transition,
                 isMentionActive = membersToMention.isNotEmpty(),
+                isFileSharingEnabled = isFileSharingEnabled,
                 startMention = actions.startMention,
                 onAdditionalOptionButtonClicked = actions.onAdditionalOptionButtonClicked,
                 modifier = Modifier.background(colorsScheme().messageComposerBackgroundColor),
@@ -152,6 +157,7 @@ private fun MessageComposeInput(
     onLineBottomCoordinateChange: (Float) -> Unit,
     actions: MessageComposerInputActions,
     inputFocusRequester: FocusRequester,
+    isFileSharingEnabled: Boolean,
     modifier: Modifier
 ) {
     Column(
@@ -198,7 +204,8 @@ private fun MessageComposeInput(
             onLineBottomYCoordinateChanged = onLineBottomCoordinateChange,
             onAdditionalOptionButtonClicked = actions.onAdditionalOptionButtonClicked,
             onEditCancelButtonClicked = actions.onEditCancelButtonClicked,
-            onEditSaveButtonClicked = actions.onEditSaveButtonClicked
+            onEditSaveButtonClicked = actions.onEditSaveButtonClicked,
+            isFileSharingEnabled = isFileSharingEnabled,
         )
     }
 }
@@ -268,7 +275,8 @@ private fun generatePreviewWithState(state: MessageComposeInputState) {
         quotedMessageData = null,
         membersToMention = listOf(),
         actions = MessageComposerInputActions(),
-        inputFocusRequester = FocusRequester()
+        inputFocusRequester = FocusRequester(),
+        isFileSharingEnabled = true
     )
 }
 

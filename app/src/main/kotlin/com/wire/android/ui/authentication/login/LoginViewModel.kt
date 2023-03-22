@@ -21,7 +21,6 @@
 package com.wire.android.ui.authentication.login
 
 import androidx.annotation.VisibleForTesting
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -33,10 +32,13 @@ import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.di.ClientScopeProvider
 import com.wire.android.navigation.BackStackMode
+import com.wire.android.navigation.EXTRA_USER_HANDLE
+import com.wire.android.navigation.EXTRA_SSO_LOGIN_RESULT
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.util.EMPTY
+import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.kalium.logic.data.client.ClientCapability
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
@@ -46,9 +48,10 @@ import com.wire.kalium.logic.feature.client.RegisterClientUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
 import javax.inject.Inject
 
-@ExperimentalMaterialApi
 @HiltViewModel
 @Suppress("TooManyFunctions")
 open class LoginViewModel @Inject constructor(
@@ -60,13 +63,27 @@ open class LoginViewModel @Inject constructor(
 ) : ViewModel() {
     val serverConfig = authServerConfigProvider.authServer.value
 
+    private val preFilledUserIdentifier: PreFilledUserIdentifierType = savedStateHandle.get<String>(EXTRA_USER_HANDLE).let {
+        if (it.isNullOrEmpty()) PreFilledUserIdentifierType.None else PreFilledUserIdentifierType.PreFilled(it)
+    }
+
+    val ssoLoginResult = savedStateHandle.get<String>(EXTRA_SSO_LOGIN_RESULT).let {
+        if (it.isNullOrEmpty()) null
+        else Json.decodeFromString<DeepLinkResult.SSOLogin>(it)
+    }
+
     var loginState by mutableStateOf(
         LoginState(
             ssoCode = TextFieldValue(savedStateHandle[SSO_CODE_SAVED_STATE_KEY] ?: String.EMPTY),
-            userIdentifier = TextFieldValue(savedStateHandle[USER_IDENTIFIER_SAVED_STATE_KEY] ?: String.EMPTY),
+            userIdentifier = TextFieldValue(
+                if (preFilledUserIdentifier is PreFilledUserIdentifierType.PreFilled) preFilledUserIdentifier.userIdentifier
+                else savedStateHandle[USER_IDENTIFIER_SAVED_STATE_KEY] ?: String.EMPTY
+            ),
+            userIdentifierEnabled = preFilledUserIdentifier is PreFilledUserIdentifierType.None,
             password = TextFieldValue(String.EMPTY),
-            isProxyAuthRequired = if (serverConfig.apiProxy?.needsAuthentication != null)
-                serverConfig.apiProxy?.needsAuthentication!! else false,
+            isProxyAuthRequired =
+                if (serverConfig.apiProxy?.needsAuthentication != null) serverConfig.apiProxy?.needsAuthentication!!
+                else false,
             isProxyEnabled = serverConfig.apiProxy != null
         )
     )
@@ -113,23 +130,26 @@ open class LoginViewModel @Inject constructor(
     suspend fun registerClient(
         userId: UserId,
         password: String?,
-        capabilities: List<ClientCapability>? = null
+        secondFactorVerificationCode: String? = null,
+        capabilities: List<ClientCapability>? = null,
     ): RegisterClientResult {
         val clientScope = clientScopeProviderFactory.create(userId).clientScope
         return clientScope.getOrRegister(
             RegisterClientUseCase.RegisterClientParam(
                 password = password,
-                capabilities = capabilities
+                capabilities = capabilities,
+                secondFactorVerificationCode = secondFactorVerificationCode
             )
         )
     }
 
     @VisibleForTesting
     fun navigateAfterRegisterClientSuccess(userId: UserId) = viewModelScope.launch {
-        if (userDataStoreProvider.getOrCreate(userId).initialSyncCompleted.first())
+        if (userDataStoreProvider.getOrCreate(userId).initialSyncCompleted.first()) {
             navigationManager.navigate(NavigationCommand(NavigationItem.Home.getRouteWithArgs(), BackStackMode.CLEAR_WHOLE))
-        else
+        } else {
             navigationManager.navigate(NavigationCommand(NavigationItem.InitialSync.getRouteWithArgs(), BackStackMode.CLEAR_WHOLE))
+        }
     }
 
     fun navigateBack() = viewModelScope.launch {
@@ -153,18 +173,23 @@ open class LoginViewModel @Inject constructor(
 fun AuthenticationResult.Failure.toLoginError() = when (this) {
     is AuthenticationResult.Failure.SocketError -> LoginError.DialogError.ProxyError
     is AuthenticationResult.Failure.Generic -> LoginError.DialogError.GenericError(this.genericFailure)
-    AuthenticationResult.Failure.InvalidCredentials -> LoginError.DialogError.InvalidCredentialsError
-    AuthenticationResult.Failure.InvalidUserIdentifier -> LoginError.TextFieldError.InvalidValue
+    is AuthenticationResult.Failure.InvalidCredentials -> LoginError.DialogError.InvalidCredentialsError
+    is AuthenticationResult.Failure.InvalidUserIdentifier -> LoginError.TextFieldError.InvalidValue
 }
 
 fun RegisterClientResult.Failure.toLoginError() = when (this) {
     is RegisterClientResult.Failure.Generic -> LoginError.DialogError.GenericError(this.genericFailure)
-    RegisterClientResult.Failure.InvalidCredentials -> LoginError.DialogError.InvalidCredentialsError
-    RegisterClientResult.Failure.TooManyClients -> LoginError.TooManyDevicesError
-    RegisterClientResult.Failure.PasswordAuthRequired -> LoginError.DialogError.PasswordNeededToRegisterClient
+    is RegisterClientResult.Failure.InvalidCredentials -> LoginError.DialogError.InvalidCredentialsError
+    is RegisterClientResult.Failure.TooManyClients -> LoginError.TooManyDevicesError
+    is RegisterClientResult.Failure.PasswordAuthRequired -> LoginError.DialogError.PasswordNeededToRegisterClient
 }
 
 fun AddAuthenticatedUserUseCase.Result.Failure.toLoginError(): LoginError = when (this) {
     is AddAuthenticatedUserUseCase.Result.Failure.Generic -> LoginError.DialogError.GenericError(this.genericFailure)
     AddAuthenticatedUserUseCase.Result.Failure.UserAlreadyExists -> LoginError.DialogError.UserAlreadyExists
+}
+
+sealed interface PreFilledUserIdentifierType {
+    object None : PreFilledUserIdentifierType
+    data class PreFilled(val userIdentifier: String) : PreFilledUserIdentifierType
 }

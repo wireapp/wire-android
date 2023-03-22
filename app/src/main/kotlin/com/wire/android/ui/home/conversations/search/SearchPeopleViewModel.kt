@@ -261,15 +261,31 @@ abstract class SearchPeopleViewModel(
         }
     }
 
+    /**
+     * Do not under any circumstances call this function in a loop.
+     * It will cause the to emit a value each time. This in turn
+     * will result in synchronous execution of functions on the main
+     * thread like to use outdated values.
+     */
     fun addContactToGroup(contact: Contact) {
         viewModelScope.launch {
             selectedContactsFlow.emit(selectedContactsFlow.value + contact)
         }
     }
 
+    /**
+     * Do not under any circumstances call this function in a loop.
+     * It will cause the state to emit a value each time. This in turn
+     * will result in synchronous execution of functions on the main
+     * thread like to use outdated values.
+     * Use [removeContactsFromGroup] instead.
+     */
     fun removeContactFromGroup(contact: Contact) {
+        removeContactsFromGroup(setOf(contact))
+    }
+    fun removeContactsFromGroup(contacts: Set<Contact>) {
         viewModelScope.launch {
-            selectedContactsFlow.emit(selectedContactsFlow.value - contact)
+            selectedContactsFlow.emit(selectedContactsFlow.value - contacts)
         }
     }
 

@@ -41,7 +41,7 @@ import com.wire.kalium.logic.feature.client.GetOrRegisterClientUseCase
 import com.wire.kalium.logic.feature.client.RegisterClientResult
 import com.wire.kalium.logic.feature.client.RegisterClientUseCase
 import com.wire.kalium.logic.feature.client.SelfClientsResult
-import com.wire.kalium.logic.feature.client.SelfClientsUseCase
+import com.wire.kalium.logic.feature.client.FetchSelfClientsFromRemoteUseCase
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
@@ -52,7 +52,7 @@ import javax.inject.Inject
 @HiltViewModel
 class RemoveDeviceViewModel @Inject constructor(
     private val navigationManager: NavigationManager,
-    private val selfClientsUseCase: SelfClientsUseCase,
+    private val fetchSelfClientsFromRemote: FetchSelfClientsFromRemoteUseCase,
     private val deleteClientUseCase: DeleteClientUseCase,
     private val registerClientUseCase: GetOrRegisterClientUseCase,
     private val isPasswordRequired: IsPasswordRequiredUseCase,
@@ -71,7 +71,7 @@ class RemoveDeviceViewModel @Inject constructor(
     private fun loadClientsList() {
         viewModelScope.launch {
             state = state.copy(isLoadingClientsList = true)
-            val selfClientsResult = selfClientsUseCase()
+            val selfClientsResult = fetchSelfClientsFromRemote()
             if (selfClientsResult is SelfClientsResult.Success)
                 state = state.copy(
                     isLoadingClientsList = false,
@@ -129,8 +129,8 @@ class RemoveDeviceViewModel @Inject constructor(
                     /* the check for password is done before this function is called */
                 }
                 is RegisterClientResult.Failure.Generic -> state = state.copy(error = RemoveDeviceError.GenericError(result.genericFailure))
-                RegisterClientResult.Failure.InvalidCredentials -> state = state.copy(error = RemoveDeviceError.InvalidCredentialsError)
-                RegisterClientResult.Failure.TooManyClients -> loadClientsList()
+                is RegisterClientResult.Failure.InvalidCredentials -> state = state.copy(error = RemoveDeviceError.InvalidCredentialsError)
+                is RegisterClientResult.Failure.TooManyClients -> loadClientsList()
                 is RegisterClientResult.Success -> {
                     navigateAfterRegisterClientSuccess()
                 }

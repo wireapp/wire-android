@@ -70,7 +70,6 @@ internal class NewConversationViewModelArrangement {
         coEvery { searchKnownUsers(any()) } returns flowOf(
             SearchUsersResult.Success(userSearchResult = UserSearchResult(listOf(KNOWN_USER)))
         )
-//        coEvery { getAllKnownUsers() } returns flowOf(GetAllContactsResult.Success(listOf()))
         coEvery { createGroupConversation(any(), any(), any()) } returns CreateGroupConversationUseCase.Result.Success(CONVERSATION)
         every { contactMapper.fromOtherUser(PUBLIC_USER) } returns Contact(
             id = "publicValue",
@@ -223,6 +222,16 @@ internal class NewConversationViewModelArrangement {
 
     fun withIsSelfTeamMember(result: Boolean) = apply {
         coEvery { isSelfTeamMember() } returns result
+    }
+
+    fun withGuestEnabled(isGuestModeEnabled: Boolean) = apply {
+        viewModel.groupOptionsState = viewModel
+            .groupOptionsState
+            .copy(isAllowGuestEnabled = isGuestModeEnabled)
+    }
+
+    fun withServicesEnabled(areServicesEnabled: Boolean) = apply {
+        viewModel.groupOptionsState = viewModel.groupOptionsState.copy(isAllowServicesEnabled = areServicesEnabled)
     }
 
     fun arrange() = this to viewModel

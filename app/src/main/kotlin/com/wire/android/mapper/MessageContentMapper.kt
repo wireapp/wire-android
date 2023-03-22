@@ -167,6 +167,7 @@ class MessageContentMapper @Inject constructor(
     ): UIMessageContent.SystemMessage? {
         val sender = userList.findUser(userId = senderUserId)
         val isAuthorSelfAction = content.members.size == 1 && senderUserId == content.members.first()
+        val isSelfTriggered = sender is SelfUser
         val authorName = toSystemMessageMemberName(user = sender, type = SelfNameType.ResourceTitleCase)
         val memberNameList = content.members.map {
             toSystemMessageMemberName(
@@ -177,16 +178,24 @@ class MessageContentMapper @Inject constructor(
         return when (content) {
             is Added ->
                 if (isAuthorSelfAction) {
-                    null // we don't want to show "You added you to the conversation"
+                    UIMessageContent.SystemMessage.MemberJoined(author = authorName, isSelfTriggered = isSelfTriggered)
                 } else {
-                    UIMessageContent.SystemMessage.MemberAdded(author = authorName, memberNames = memberNameList)
+                    UIMessageContent.SystemMessage.MemberAdded(
+                        author = authorName,
+                        memberNames = memberNameList,
+                        isSelfTriggered = isSelfTriggered
+                    )
                 }
 
             is Removed ->
                 if (isAuthorSelfAction) {
-                    UIMessageContent.SystemMessage.MemberLeft(author = authorName)
+                    UIMessageContent.SystemMessage.MemberLeft(author = authorName, isSelfTriggered = isSelfTriggered)
                 } else {
-                    UIMessageContent.SystemMessage.MemberRemoved(author = authorName, memberNames = memberNameList)
+                    UIMessageContent.SystemMessage.MemberRemoved(
+                        author = authorName,
+                        memberNames = memberNameList,
+                        isSelfTriggered = isSelfTriggered
+                    )
                 }
         }
     }
@@ -272,12 +281,14 @@ class MessageContentMapper @Inject constructor(
                         it.isQuotingSelfUser
                     )
                 )
+
                 AttachmentType.AUDIO -> QuotedMessageUIData.AudioMessage
                 AttachmentType.GENERIC_FILE -> QuotedMessageUIData.GenericAsset(
                     quotedContent.assetName,
                     quotedContent.assetMimeType
                 )
             }
+
             is MessageContent.QuotedMessageDetails.Text -> QuotedMessageUIData.Text(quotedContent.value)
             MessageContent.QuotedMessageDetails.Deleted -> QuotedMessageUIData.Deleted
             MessageContent.QuotedMessageDetails.Invalid -> QuotedMessageUIData.Invalid

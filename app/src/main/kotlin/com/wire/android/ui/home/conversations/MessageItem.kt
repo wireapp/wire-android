@@ -83,7 +83,7 @@ fun MessageItem(
     onAssetMessageClicked: (String) -> Unit,
     onAudioClick: (String) -> Unit,
     onChangeAudioPosition: (String, Int) -> Unit,
-    onImageMessageClicked: (String, Boolean) -> Unit,
+    onImageMessageClicked: (UIMessage, Boolean) -> Unit,
     onOpenProfile: (String) -> Unit,
     onReactionClicked: (String, String) -> Unit,
     onResetSessionClicked: (senderUserId: UserId, clientId: String?) -> Unit
@@ -139,7 +139,7 @@ fun MessageItem(
                         val currentOnImageClick = remember {
                             Clickable(enabled = true, onClick = {
                                 onImageMessageClicked(
-                                    message.messageHeader.messageId,
+                                    message,
                                     message.messageSource == MessageSource.Self
                                 )
                             }, onLongClick = {
@@ -172,7 +172,7 @@ fun MessageItem(
                 }
 
                 if (message.sendingFailed) {
-                    MessageSendFailureWarning(messageHeader.messageStatus)
+                    MessageSendFailureWarning(messageHeader.messageStatus as MessageStatus.MessageSendFailureStatus)
                 }
             }
         }
@@ -320,7 +320,10 @@ private fun MessageContent(
         is UIMessageContent.RestrictedAsset -> {
             when {
                 messageContent.mimeType.contains("image/") -> {
-                    RestrictedAssetMessage(R.drawable.ic_gallery, stringResource(id = R.string.prohibited_images_message))
+                    RestrictedAssetMessage(
+                        R.drawable.ic_gallery,
+                        stringResource(id = R.string.prohibited_images_message)
+                    )
                 }
 
                 messageContent.mimeType.contains("video/") -> {
@@ -328,7 +331,10 @@ private fun MessageContent(
                 }
 
                 messageContent.mimeType.contains("audio/") -> {
-                    RestrictedAssetMessage(R.drawable.ic_speaker_on, stringResource(id = R.string.prohibited_audio_message))
+                    RestrictedAssetMessage(
+                        R.drawable.ic_speaker_on,
+                        stringResource(id = R.string.prohibited_audio_message)
+                    )
                 }
 
                 else -> {
@@ -338,25 +344,17 @@ private fun MessageContent(
         }
 
         is UIMessageContent.AudioAssetMessage -> {
-            // in case the user did not play the audio message yet, we don't have the audio state
-            // that is coming from ConversationMessageAudioPlayer, in that case we refer to
-            // the default values for the audio message, which is PAUSED state and 0 as current position
-            // we treat totalTimeInMs from backend as the source of truth
-            // in order to be sure that all clients are in sync regarding the audio message duration
-            // however if it returns 0 we fallback to the duration from the audio player
-            val audioMessageState: AudioState =
-                audioMessagesState[message.messageHeader.messageId] ?: AudioState.DEFAULT
+            val audioMessageState: AudioState = audioMessagesState[message.messageHeader.messageId]
+                ?: AudioState.DEFAULT
 
-            val totalTimeInMs = if (messageContent.audioMessageDurationInMs.toInt() == 0) {
-                audioMessageState.totalTimeInMs
-            } else {
-                messageContent.audioMessageDurationInMs.toInt()
+            val adjustedMessageState: AudioState = remember(audioMessagesState) {
+                audioMessageState.sanitizeTotalTime(messageContent.audioMessageDurationInMs.toInt())
             }
 
             AudioMessage(
-                audioMediaPlayingState = audioMessageState.audioMediaPlayingState,
-                totalTimeInMs = totalTimeInMs,
-                currentPositionInMs = audioMessageState.currentPositionInMs,
+                audioMediaPlayingState = adjustedMessageState.audioMediaPlayingState,
+                totalTimeInMs = adjustedMessageState.totalTimeInMs,
+                currentPositionInMs = adjustedMessageState.currentPositionInMs,
                 onPlayButtonClick = { onAudioClick(message.messageHeader.messageId) },
                 onSliderPositionChange = { position ->
                     onChangeAudioPosition(message.messageHeader.messageId, position.toInt())
@@ -366,6 +364,7 @@ private fun MessageContent(
         }
 
         is UIMessageContent.SystemMessage.MemberAdded -> {}
+        is UIMessageContent.SystemMessage.MemberJoined -> {}
         is UIMessageContent.SystemMessage.MemberLeft -> {}
         is UIMessageContent.SystemMessage.MemberRemoved -> {}
         is UIMessageContent.SystemMessage.RenamedConversation -> {}
@@ -387,21 +386,14 @@ private fun MessageContent(
 
 @Composable
 private fun MessageStatusLabel(messageStatus: MessageStatus) {
-    when (messageStatus) {
-        MessageStatus.Deleted,
-        is MessageStatus.Edited,
-        MessageStatus.ReceiveFailure -> StatusBox(messageStatus.text.asString())
-
-        is MessageStatus.DecryptionFailure,
-        is MessageStatus.SendRemotelyFailure, MessageStatus.SendFailure, MessageStatus.Untouched -> {
-            /** Don't display anything **/
-        }
+    messageStatus.badgeText?.let {
+        StatusBox(it.asString())
     }
 }
 
 @Composable
 private fun MessageSendFailureWarning(
-    messageStatus: MessageStatus
+    messageStatus: MessageStatus.MessageSendFailureStatus
     /* TODO: add onRetryClick handler */
 ) {
     val context = LocalContext.current
@@ -411,7 +403,7 @@ private fun MessageSendFailureWarning(
     ) {
         Column {
             Text(
-                text = messageStatus.text.asString(),
+                text = messageStatus.errorText.asString(),
                 style = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.error)
             )
             if (messageStatus is MessageStatus.SendRemotelyFailure) {
@@ -453,7 +445,7 @@ private fun MessageDecryptionFailure(
         Column {
             VerticalSpace.x4()
             Text(
-                text = decryptionStatus.text.asString(),
+                text = decryptionStatus.errorText.asString(),
                 style = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.error)
             )
             Text(
@@ -474,7 +466,14 @@ private fun MessageDecryptionFailure(
                 Row {
                     WireSecondaryButton(
                         text = stringResource(R.string.label_reset_session),
-                        onClick = { messageHeader.userId?.let { userId -> onResetSessionClicked(userId, messageHeader.clientId?.value) } },
+                        onClick = {
+                            messageHeader.userId?.let { userId ->
+                                onResetSessionClicked(
+                                    userId,
+                                    messageHeader.clientId?.value
+                                )
+                            }
+                        },
                         minHeight = dimensions().spacing32x,
                         fillMaxWidth = false
                     )

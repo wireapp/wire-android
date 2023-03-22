@@ -67,6 +67,7 @@ import com.wire.kalium.logic.feature.conversation.ObserveConversationInteraction
 import com.wire.kalium.logic.feature.conversation.ObserveSecurityClassificationLabelUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationReadDateUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
+import com.wire.kalium.logic.feature.message.SendEditTextMessageUseCase
 import com.wire.kalium.logic.feature.message.SendKnockUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
@@ -118,6 +119,9 @@ internal class ConversationsViewModelArrangement {
 
     @MockK
     lateinit var sendTextMessage: SendTextMessageUseCase
+
+    @MockK
+    lateinit var sendEditTextMessage: SendEditTextMessageUseCase
 
     @MockK
     lateinit var sendAssetMessage: ScheduleNewAssetMessageUseCase
@@ -184,6 +188,7 @@ internal class ConversationsViewModelArrangement {
             navigationManager = navigationManager,
             qualifiedIdMapper = qualifiedIdMapper,
             sendTextMessage = sendTextMessage,
+            sendEditTextMessage = sendEditTextMessage,
             sendAssetMessage = sendAssetMessage,
             deleteMessage = deleteMessage,
             dispatchers = TestDispatcherProvider(),

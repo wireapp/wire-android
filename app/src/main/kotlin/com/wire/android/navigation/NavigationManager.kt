@@ -21,18 +21,21 @@
 package com.wire.android.navigation
 
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
 
 class NavigationManager {
 
-    var navigateState = MutableSharedFlow<NavigationCommand?>()
-    var navigateBack = MutableSharedFlow<Map<String, Any>>()
+    private val _navigateState = MutableSharedFlow<NavigationCommand?>(1)
+    private val _navigateBack = MutableSharedFlow<Map<String, Any>>()
+    var navigateState: SharedFlow<NavigationCommand?> = _navigateState
+    var navigateBack: SharedFlow<Map<String, Any>> = _navigateBack
 
     suspend fun navigate(command: NavigationCommand) {
-        navigateState.emit(command)
+        _navigateState.emit(command)
     }
 
     suspend fun navigateBack(previousBackStackPassedArgs: Map<String, Any> = mapOf()) {
-        navigateBack.emit(previousBackStackPassedArgs)
+        _navigateBack.emit(previousBackStackPassedArgs)
     }
 }
 
@@ -55,7 +58,7 @@ data class NavigationCommand(
      */
     val previousBackStackPassedArgs: List<Pair<String, Any>>? = null
 
-    //TODO add in/out animations here
+    // TODO add in/out animations here
 )
 
 enum class BackStackMode {

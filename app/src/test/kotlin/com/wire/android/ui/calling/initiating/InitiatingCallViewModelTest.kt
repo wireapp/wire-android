@@ -155,7 +155,7 @@ class InitiatingCallViewModelTest {
         }
 
         fun withNoInternetConnection(): Arrangement = apply {
-            coEvery { startCall(any(), any(), any()) } returns StartCallUseCase.Result.SyncFailure
+            coEvery { startCall(any(), any()) } returns StartCallUseCase.Result.SyncFailure
             every { callRinger.stop() } returns Unit
             coEvery { navigationManager.navigateBack() } returns Unit
         }

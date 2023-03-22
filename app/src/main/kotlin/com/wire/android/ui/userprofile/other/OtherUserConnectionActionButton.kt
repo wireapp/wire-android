@@ -93,6 +93,7 @@ fun OtherUserConnectionActionButton(
                     Icon(
                         painter = painterResource(id = R.drawable.ic_close),
                         contentDescription = stringResource(R.string.content_description_right_arrow),
+                        modifier = Modifier.padding(dimensions().spacing8x)
                     )
                 }
             )

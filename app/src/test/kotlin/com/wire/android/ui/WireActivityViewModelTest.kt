@@ -59,6 +59,7 @@ import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.GetSessionsUseCase
 import com.wire.kalium.logic.feature.user.webSocketStatus.ObservePersistentWebSocketConnectionStatusUseCase
 import com.wire.kalium.logic.sync.ObserveSyncStateUseCase
+import com.wire.kalium.util.DateTimeUtil.toIsoDateTimeString
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -564,7 +565,7 @@ class WireActivityViewModelTest {
             .arrange()
 
         assertEquals(
-            NewClientData.CurrentUser(TestClient.CLIENT.registrationTime, TestClient.CLIENT.name),
+            NewClientData.CurrentUser(TestClient.CLIENT.registrationTime?.toIsoDateTimeString()!!, TestClient.CLIENT.name),
             viewModel.globalAppState.newClientDialog
         )
     }
@@ -577,7 +578,13 @@ class WireActivityViewModelTest {
             .arrange()
 
         assertEquals(
-            NewClientData.OtherUser(TestClient.CLIENT.registrationTime, TestClient.CLIENT.name, USER_ID, "name", "handle"),
+            NewClientData.OtherUser(
+                TestClient.CLIENT.registrationTime?.toIsoDateTimeString()!!,
+                TestClient.CLIENT.name,
+                USER_ID,
+                "name",
+                "handle"
+            ),
             viewModel.globalAppState.newClientDialog
         )
     }

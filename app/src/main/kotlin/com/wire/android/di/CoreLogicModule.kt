@@ -49,8 +49,10 @@ import com.wire.kalium.logic.feature.call.usecase.TurnLoudSpeakerOffUseCase
 import com.wire.kalium.logic.feature.call.usecase.TurnLoudSpeakerOnUseCase
 import com.wire.kalium.logic.feature.call.usecase.UnMuteCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.UpdateVideoStateUseCase
-import com.wire.kalium.logic.feature.client.GetClientDetailsUseCase
+import com.wire.kalium.logic.feature.client.ClientFingerprintUseCase
+import com.wire.kalium.logic.feature.client.ObserveClientDetailsUseCase
 import com.wire.kalium.logic.feature.client.ObserveCurrentClientIdUseCase
+import com.wire.kalium.logic.feature.client.UpdateClientVerificationStatusUseCase
 import com.wire.kalium.logic.feature.connection.BlockUserUseCase
 import com.wire.kalium.logic.feature.connection.UnblockUserUseCase
 import com.wire.kalium.logic.feature.conversation.AddMemberToConversationUseCase
@@ -967,8 +969,8 @@ class UseCaseModule {
     fun provideGetClientDetailsUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
-    ): GetClientDetailsUseCase =
-        coreLogic.getSessionScope(currentAccount).client.getClientDetailsUseCase
+    ): ObserveClientDetailsUseCase =
+        coreLogic.getSessionScope(currentAccount).client.observeClientDetailsUseCase
 
     @ViewModelScoped
     @Provides
@@ -1016,4 +1018,20 @@ class UseCaseModule {
     @Provides
     fun provideObserveNewClientsUseCaseUseCase(@KaliumCoreLogic coreLogic: CoreLogic) =
         coreLogic.getGlobalScope().observeNewClientsUseCase
+
+    @ViewModelScoped
+    @Provides
+    fun provideClientFingerPrintUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): ClientFingerprintUseCase =
+        coreLogic.getSessionScope(currentAccount).client.remoteClientFingerPrint
+
+    @ViewModelScoped
+    @Provides
+    fun provideUpdateClientVerificationStatusUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): UpdateClientVerificationStatusUseCase =
+        coreLogic.getSessionScope(currentAccount).client.updateClientVerificationStatus
 }

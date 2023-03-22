@@ -25,6 +25,7 @@ package com.wire.android.ui.authentication.login.email
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
+import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
 import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.di.AuthServerConfigProvider
@@ -43,6 +44,7 @@ import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.auth.verification.VerifiableAction
 import com.wire.kalium.logic.data.client.Client
 import com.wire.kalium.logic.data.client.ClientType
+import com.wire.kalium.logic.data.client.DeviceType
 import com.wire.kalium.logic.data.conversation.ClientId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
@@ -70,6 +72,7 @@ import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestCoroutineScheduler
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
+import kotlinx.datetime.Instant
 import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeInstanceOf
@@ -149,7 +152,8 @@ class LoginEmailViewModelTest {
             savedStateHandle,
             navigationManager,
             authServerConfigProvider,
-            userDataStoreProvider
+            userDataStoreProvider,
+            TestDispatcherProvider()
         )
     }
 
@@ -405,8 +409,8 @@ class LoginEmailViewModelTest {
     companion object {
         val CLIENT_ID = ClientId("test")
         val CLIENT = Client(
-            CLIENT_ID, ClientType.Permanent, "time", null,
-            null, "label", "cookie", null, "model", emptyMap()
+            CLIENT_ID, ClientType.Permanent, Instant.DISTANT_FUTURE, false,
+            isValid = true, DeviceType.Desktop, "label", null
         )
         val SSO_ID: SsoId = SsoId("scim_id", null, null)
         val AUTH_TOKEN = AuthTokens(

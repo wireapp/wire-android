@@ -220,13 +220,14 @@ enum class NavigationItem(
 
     DeviceDetails(
         primaryRoute = DEVICE_DETAILS,
-        canonicalRoute = "$DEVICE_DETAILS?$EXTRA_DEVICE_ID={$EXTRA_DEVICE_ID}",
+        canonicalRoute = "$DEVICE_DETAILS?$EXTRA_USER_ID={$EXTRA_USER_ID}&$EXTRA_DEVICE_ID={$EXTRA_DEVICE_ID}",
         content = { DeviceDetailsScreen(it.navBackStackEntry.savedStateHandle.getBackNavArgs()) },
         animationConfig = NavigationAnimationConfig.DelegatedAnimation
     ) {
         override fun getRouteWithArgs(arguments: List<Any>): String {
-            val clientIdString: String = arguments.filterIsInstance<ClientId>().firstOrNull()?.value.toString()
-            return "$DEVICE_DETAILS?$EXTRA_DEVICE_ID=$clientIdString"
+            val clientIdString: String = arguments.filterIsInstance<ClientId>().firstOrNull()?.value!!
+            val userId: UserId = arguments.filterIsInstance<UserId>().firstOrNull()!!
+            return "$DEVICE_DETAILS?$EXTRA_USER_ID=$userId&$EXTRA_DEVICE_ID=$clientIdString"
         }
     },
 
@@ -501,7 +502,9 @@ const val EXTRA_IS_SELF_MESSAGE = "extra_is_self_message"
 const val EXTRA_MESSAGE_TO_DELETE_ID = "extra_message_to_delete"
 const val EXTRA_MESSAGE_TO_DELETE_IS_SELF = "extra_message_to_delete_is_self"
 const val EXTRA_DEVICE_ID = "extra_device_id"
-
+const val EXTRA_ON_MESSAGE_REACTED = "extra_on_message_reacted"
+const val EXTRA_ON_MESSAGE_REPLIED = "extra_on_message_replied"
+const val EXTRA_ON_MESSAGE_DETAILS_CLICKED = "extra_on_message_details_clicked"
 const val EXTRA_CONNECTION_IGNORED_USER_NAME = "extra_connection_ignored_user_name"
 const val EXTRA_GROUP_DELETED_NAME = "extra_group_deleted_name"
 const val EXTRA_GROUP_NAME_CHANGED = "extra_group_name_changed"

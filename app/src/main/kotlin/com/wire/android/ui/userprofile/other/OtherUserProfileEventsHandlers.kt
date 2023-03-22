@@ -20,6 +20,7 @@
 
 package com.wire.android.ui.userprofile.other
 
+import com.wire.android.ui.authentication.devices.model.Device
 import com.wire.android.ui.common.dialogs.BlockUserDialogState
 import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.userprofile.group.RemoveConversationMemberState
@@ -35,7 +36,8 @@ interface OtherUserProfileEventsHandler {
     fun onBlockUser(blockUserState: BlockUserDialogState)
     fun onRemoveConversationMember(state: RemoveConversationMemberState)
     fun onUnblockUser(userId: UserId)
-    fun getOtherUserClients()
+    fun observeClientList()
+    fun onDeviceClick(device: Device)
 
     companion object {
         @Suppress("TooManyFunctions")
@@ -43,7 +45,8 @@ interface OtherUserProfileEventsHandler {
             override fun onBlockUser(blockUserState: BlockUserDialogState) {}
             override fun onRemoveConversationMember(state: RemoveConversationMemberState) {}
             override fun onUnblockUser(userId: UserId) {}
-            override fun getOtherUserClients() {}
+            override fun observeClientList() {}
+            override fun onDeviceClick(device: Device) {}
             override fun navigateBack(): Job {
                 TODO()
             }
@@ -66,7 +69,6 @@ interface OtherUserProfileFooterEventsHandler {
             override fun onCancelConnectionRequest() {}
             override fun onAcceptConnectionRequest() {}
             override fun onIgnoreConnectionRequest() {}
-
         }
     }
 }

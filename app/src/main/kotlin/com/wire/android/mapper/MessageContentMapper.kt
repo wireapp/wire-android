@@ -180,7 +180,7 @@ class MessageContentMapper @Inject constructor(
         return when (content) {
             is Added ->
                 if (isAuthorSelfAction) {
-                    null // we don't want to show "You added you to the conversation"
+                    UIMessageContent.SystemMessage.MemberJoined(author = authorName, isSelfTriggered = isSelfTriggered)
                 } else {
                     UIMessageContent.SystemMessage.MemberAdded(
                         author = authorName,

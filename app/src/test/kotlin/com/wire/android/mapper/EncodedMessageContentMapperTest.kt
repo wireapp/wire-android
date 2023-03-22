@@ -164,7 +164,10 @@ class EncodedMessageContentMapperTest {
                 resultContentAdded.memberNames[0].asString(arrangement.resources) == member2.name &&
                 resultContentAdded.memberNames[1].asString(arrangement.resources) == member3.name
         )
-        assertTrue(resultContentAddedSelf == null)
+        assertTrue(
+            resultContentAddedSelf is SystemMessage.MemberJoined &&
+                    resultContentAddedSelf.author.asString(arrangement.resources) == member1.name
+        )
         assertTrue(
             resultOtherMissedCall is SystemMessage.MissedCall &&
                 resultOtherMissedCall.author.asString(arrangement.resources) == TestUser.OTHER_USER.name

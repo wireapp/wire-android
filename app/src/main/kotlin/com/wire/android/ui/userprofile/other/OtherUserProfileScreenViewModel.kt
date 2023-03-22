@@ -37,6 +37,7 @@ import com.wire.android.navigation.EXTRA_USER_ID
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.ui.authentication.devices.model.Device
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationSheetContent
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationTypeDetail
 import com.wire.android.ui.common.dialogs.BlockUserDialogState
@@ -62,6 +63,7 @@ import com.wire.android.ui.userprofile.other.OtherUserProfileInfoMessageType.Unb
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.WireSessionImageLoader
+import com.wire.kalium.logic.data.client.DeviceType
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
@@ -70,8 +72,7 @@ import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.id.toQualifiedID
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.feature.client.GetOtherUserClientsResult
-import com.wire.kalium.logic.feature.client.GetOtherUserClientsUseCase
+import com.wire.kalium.logic.feature.client.ObserveClientsByUserIdUseCase
 import com.wire.kalium.logic.feature.client.PersistOtherUserClientsUseCase
 import com.wire.kalium.logic.feature.connection.AcceptConnectionRequestUseCase
 import com.wire.kalium.logic.feature.connection.AcceptConnectionRequestUseCaseResult
@@ -128,7 +129,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     private val observeConversationRoleForUser: ObserveConversationRoleForUserUseCase,
     private val removeMemberFromConversation: RemoveMemberFromConversationUseCase,
     private val updateMemberRole: UpdateConversationMemberRoleUseCase,
-    private val getOtherUserClients: GetOtherUserClientsUseCase,
+    private val observeClientList: ObserveClientsByUserIdUseCase,
     private val persistOtherUserClients: PersistOtherUserClientsUseCase,
     private val clearConversationContentUseCase: ClearConversationContentUseCase,
     private val getOtherUserSecurityClassificationLabel: GetOtherUserSecurityClassificationLabelUseCase,
@@ -156,6 +157,38 @@ class OtherUserProfileScreenViewModel @Inject constructor(
         setClassificationType()
     }
 
+    override fun observeClientList() {
+        viewModelScope.launch {
+            observeClientList(userId)
+                .collect {
+                    when (it) {
+                        is ObserveClientsByUserIdUseCase.Result.Failure -> {
+                            /* no-op */
+                        }
+
+                        is ObserveClientsByUserIdUseCase.Result.Success -> {
+                            state = state.copy(otherUserDevices = it.clients.map { item ->
+                                Device(
+                                    name = item.deviceType?.name ?: DeviceType.Unknown.name,
+                                    clientId = item.id,
+                                    isValid = item.isValid,
+                                    isVerified = item.isVerified
+                                )
+                            })
+                        }
+                    }
+                }
+        }
+    }
+
+    override fun onDeviceClick(device: Device) {
+        viewModelScope.launch {
+            navigationManager.navigate(
+                NavigationCommand(NavigationItem.DeviceDetails.getRouteWithArgs(listOf(device.clientId, userId)))
+            )
+        }
+    }
+
     private fun persistClients() {
         viewModelScope.launch(dispatchers.io()) {
             persistOtherUserClients(userId)
@@ -173,6 +206,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                             appLogger.d("Couldn't not find the user with provided id: $userId")
                             closeBottomSheetAndShowInfoMessage(LoadUserInformationError)
                         }
+
                         is GetUserInfoResult.Success -> {
                             updateUserInfoState(userResult, groupInfo)
                         }
@@ -412,27 +446,6 @@ class OtherUserProfileScreenViewModel @Inject constructor(
             closeBottomSheetAndShowInfoMessage(OtherUserProfileInfoMessageType.ConversationContentDeleteFailure)
         } else {
             closeBottomSheetAndShowInfoMessage(OtherUserProfileInfoMessageType.ConversationContentDeleted)
-        }
-    }
-
-    override fun getOtherUserClients() {
-        viewModelScope.launch {
-            val result = withContext(dispatchers.io()) { getOtherUserClients(userId) }
-            result.let {
-                when (it) {
-                    is GetOtherUserClientsResult.Failure.UserNotFound -> {
-                        appLogger.e("User or Domain not found while fetching user clients ")
-                    }
-
-                    is GetOtherUserClientsResult.Failure.Generic -> {
-                        appLogger.e("Error while fetching the user clients : ${it.genericFailure}")
-                    }
-
-                    is GetOtherUserClientsResult.Success -> {
-                        state = state.copy(otherUserClients = it.otherUserClients)
-                    }
-                }
-            }
         }
     }
 

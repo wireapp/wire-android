@@ -55,12 +55,6 @@ class CallNotificationManager @Inject constructor(private val context: Context) 
 
     fun hideIncomingCallNotification() {
         appLogger.i("$TAG: hiding incoming call")
-
-        // This delay is just so when the user receives two calling signals one straight after the other [INCOMING -> CANCEL]
-        // Due to the signals being one after the other we are creating a notification when we are trying to cancel it, it wasn't properly
-        // cancelling vibration as probably when we were cancelling, the vibration object was still being created and started and thus
-        // never stopped.
-        TimeUnit.MILLISECONDS.sleep(CANCEL_CALL_NOTIFICATION_DELAY)
         notificationManager.cancel(NotificationConstants.CALL_INCOMING_NOTIFICATION_ID)
     }
 

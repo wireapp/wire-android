@@ -35,25 +35,32 @@ class SelfDeletionTimer(private val context: Context) {
     fun fromExpirationStatus(expirationStatus: ExpirationStatus): SelfDeletionTimerState {
         return if (expirationStatus is ExpirationStatus.Expirable) {
             with(expirationStatus) {
-                val timeLeft = if (selfDeletionStatus is Message.ExpirationData.SelfDeletionStatus.Started) {
-                    val timeElapsedSinceSelfDeletionStartDate = Clock.System.now() - selfDeletionStatus.selfDeletionStartDate
-
-                    // time left for deletion it can be a negative value if the time difference between the self deletion start date and
-                    // now is greater then expire after millis, we normalize it to 0 seconds
-                    val timeLeft = expireAfter - timeElapsedSinceSelfDeletionStartDate
-
-                    if (timeLeft.isNegative()) {
-                        ZERO
-                    } else {
-                        timeLeft
-                    }
-                } else {
-                    expireAfter
-                }
-
+                val timeLeft = calculateTimeLeft(selfDeletionStatus, expireAfter)
                 SelfDeletionTimerState.Expirable(context.resources, timeLeft, expireAfter)
             }
-        } else SelfDeletionTimerState.NotExpirable
+        } else {
+            SelfDeletionTimerState.NotExpirable
+        }
+    }
+
+    private fun calculateTimeLeft(
+        selfDeletionStatus: Message.ExpirationData.SelfDeletionStatus?,
+        expireAfter: Duration
+    ): Duration {
+        return if (selfDeletionStatus is Message.ExpirationData.SelfDeletionStatus.Started) {
+            val timeElapsedSinceSelfDeletionStartDate = Clock.System.now() - selfDeletionStatus.selfDeletionStartDate
+            val timeLeft = expireAfter - timeElapsedSinceSelfDeletionStartDate
+
+            // time left for deletion it can be a negative value if the time difference between the self deletion start date and
+            // now is greater then expire after millis, we normalize it to 0 seconds
+            if (timeLeft.isNegative()) {
+                ZERO
+            } else {
+                timeLeft
+            }
+        } else {
+            expireAfter
+        }
     }
 
     sealed class SelfDeletionTimerState {

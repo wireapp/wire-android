@@ -39,20 +39,38 @@ import com.wire.kalium.logic.data.user.AssetId
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserId
 
-data class UIMessage(
-    val userAvatarData: UserAvatarData,
-    val messageSource: MessageSource,
-    val messageHeader: MessageHeader,
-    val messageContent: UIMessageContent?,
-    val messageFooter: MessageFooter
+sealed class UIMessage(
+    open val header: MessageHeader,
+    open val source: MessageSource,
 ) {
-    val isDeleted: Boolean = messageHeader.messageStatus == Deleted
-    val sendingFailed: Boolean = messageHeader.messageStatus is MessageStatus.MessageSendFailureStatus
-    val decryptionFailed: Boolean = messageHeader.messageStatus is DecryptionFailure
-    val receivingFailed: Boolean = messageHeader.messageStatus == ReceiveFailure || decryptionFailed
-    val isAvailable: Boolean = !isDeleted && !sendingFailed && !receivingFailed
-    val isMyMessage = messageSource == MessageSource.Self
-    val isTextMessage = messageContent is UIMessageContent.TextMessage
+
+    data class Regular(
+        override val header: MessageHeader,
+        override val source: MessageSource,
+        val userAvatarData: UserAvatarData,
+        val messageContent: UIMessageContent.Regular?,
+        val messageFooter: MessageFooter
+    ) : UIMessage(header, source) {
+        val isTextMessage = messageContent is UIMessageContent.TextMessage
+
+        val isDeleted: Boolean = header.messageStatus == Deleted
+        val sendingFailed: Boolean = header.messageStatus is MessageStatus.MessageSendFailureStatus
+        val decryptionFailed: Boolean = header.messageStatus is DecryptionFailure
+        val receivingFailed: Boolean = header.messageStatus == ReceiveFailure || decryptionFailed
+        val isAvailable: Boolean = !isDeleted && !sendingFailed && !receivingFailed
+        val isMyMessage = source == MessageSource.Self
+    }
+
+    data class System(
+        override val header: MessageHeader,
+        override val source: MessageSource,
+        val messageContent: UIMessageContent.SystemMessage
+    ) : UIMessage(header, source) {
+        val sendingFailed: Boolean = header.messageStatus is MessageStatus.MessageSendFailureStatus
+        val decryptionFailed: Boolean = header.messageStatus is DecryptionFailure
+        val receivingFailed: Boolean = header.messageStatus == ReceiveFailure || decryptionFailed
+    }
+
 }
 
 @Stable
@@ -130,17 +148,17 @@ sealed class UILastMessageContent {
 }
 
 sealed class UIMessageContent {
-    sealed class ClientMessage : UIMessageContent()
+    sealed class Regular : UIMessageContent()
 
     object PreviewAssetMessage : UIMessageContent()
 
-    data class TextMessage(val messageBody: MessageBody) : ClientMessage()
+    data class TextMessage(val messageBody: MessageBody) : Regular()
 
     data class RestrictedAsset(
         val mimeType: String,
         val assetSizeInBytes: Long,
         val assetName: String
-    ) : ClientMessage()
+    ) : Regular()
 
     @Stable
     data class AssetMessage(
@@ -150,7 +168,7 @@ sealed class UIMessageContent {
         val assetSizeInBytes: Long,
         val uploadStatus: Message.UploadStatus,
         val downloadStatus: Message.DownloadStatus
-    ) : UIMessageContent()
+    ) : Regular()
 
     data class ImageMessage(
         val assetId: AssetId,
@@ -159,7 +177,7 @@ sealed class UIMessageContent {
         val height: Int,
         val uploadStatus: Message.UploadStatus,
         val downloadStatus: Message.DownloadStatus
-    ) : UIMessageContent()
+    ) : Regular()
 
     @Stable
     data class AudioAssetMessage(
@@ -169,7 +187,7 @@ sealed class UIMessageContent {
         val audioMessageDurationInMs: Long,
         val uploadStatus: Message.UploadStatus,
         val downloadStatus: Message.DownloadStatus
-    ) : UIMessageContent()
+    ) : Regular()
 
     sealed class SystemMessage(
         @DrawableRes val iconResId: Int?,

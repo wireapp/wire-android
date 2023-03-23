@@ -308,8 +308,8 @@ pipeline {
           sh './gradlew runAcceptanceTests'
         }
 
-        publishHTML(allowMissing: true, alwaysLinkToLastBuild: true, keepAll: true, reportDir: "app/build/reports/androidTests/connected/flavors/${flavor.toUpperCase()}/", reportFiles: 'index.html', reportName: 'Acceptance Test Report', reportTitles: 'Acceptance Test')
-        zip archive: true, defaultExcludes: false, dir: "app/build/reports/androidTests/connected/flavors/${flavor.toUpperCase()}/", overwrite: true, glob: "", zipFile: "integration-tests-android.zip"
+        publishHTML(allowMissing: true, alwaysLinkToLastBuild: true, keepAll: true, reportDir: "app/build/reports/androidTests/connected/flavors/${flavor.toLowerCase()}", reportFiles: 'index.html', reportName: 'Acceptance Test Report', reportTitles: 'Acceptance Test')
+        zip archive: true, defaultExcludes: false, dir: "app/build/reports/androidTests/connected/flavors/${flavor.toLowerCase()}", overwrite: true, glob: "", zipFile: "integration-tests-android.zip"
       }
     }
 

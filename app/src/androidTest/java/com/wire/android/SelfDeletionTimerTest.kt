@@ -232,7 +232,6 @@ class SelfDeletionTimerTest {
                 selfDeletionStatus = Message.ExpirationData.SelfDeletionStatus.NotStarted
             )
         )
-
         assert(selfDeletionTimer is SelfDeletionTimer.SelfDeletionTimerState.Expirable)
         val timeLeftLabel = (selfDeletionTimer as SelfDeletionTimer.SelfDeletionTimerState.Expirable).timeLeftFormatted()
         assert(timeLeftLabel == "1 minute left")

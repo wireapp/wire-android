@@ -76,6 +76,7 @@ import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMess
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
+import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.user.UserId
 
 // TODO: a definite candidate for a refactor and cleanup
@@ -161,7 +162,7 @@ fun MessageItem(
                     Spacer(modifier = Modifier.height(fullAvatarOuterPadding))
                     MessageHeader(messageHeader)
                     if (selfDeletionTimerState is SelfDeletionTimer.SelfDeletionTimerState.Expirable) {
-                        MessageExpireLabel(selfDeletionTimerState.timeLeftFormatted())
+                        MessageExpireLabel(messageContent, selfDeletionTimerState.timeLeftFormatted())
                     }
                     if (!isDeleted) {
                         if (!decryptionFailed) {
@@ -220,8 +221,32 @@ fun MessageItem(
 }
 
 @Composable
-fun MessageExpireLabel(timeLeft: String) {
-    StatusBox(statusText = "Self-deleting message •  $timeLeft")
+fun MessageExpireLabel(messageContent: UIMessageContent?, timeLeft: String) {
+    when (messageContent) {
+        is UIMessageContent.TextMessage -> {
+            StatusBox(statusText = "Self-deleting message •  $timeLeft")
+        }
+
+        is UIMessageContent.AssetMessage -> {
+            StatusBox(
+                statusText = "Self-deleting message ${if (messageContent.downloadStatus == Message.DownloadStatus.SAVED_INTERNALLY) "•$timeLeft" else ""}"
+            )
+        }
+
+        is UIMessageContent.AudioAssetMessage -> {
+            StatusBox(
+                statusText = "Self-deleting message ${if (messageContent.downloadStatus == Message.DownloadStatus.SAVED_INTERNALLY) "•$timeLeft" else ""}"
+            )
+        }
+
+        is UIMessageContent.ImageMessage -> {
+            StatusBox(
+                statusText = "Self-deleting message ${if (messageContent.downloadStatus == Message.DownloadStatus.SAVED_INTERNALLY) "•$timeLeft" else ""}"
+            )
+        }
+
+        else -> {}
+    }
 }
 
 @Composable

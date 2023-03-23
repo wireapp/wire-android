@@ -204,21 +204,21 @@ fun startDeletionTimer(
     message.messageContent?.let {
         when (val messageContent = message.messageContent) {
             is UIMessageContent.AssetMessage -> startAssetDeletion(
-                expirableTimer,
+                expirableTimer = expirableTimer,
                 onSelfDeletingMessageRead = { onStartMessageSelfDeletion(message) },
-                messageContent.downloadStatus
+                downloadStatus = messageContent.downloadStatus
             )
 
             is UIMessageContent.AudioAssetMessage -> startAssetDeletion(
-                expirableTimer,
+                expirableTimer = expirableTimer,
                 onSelfDeletingMessageRead = { onStartMessageSelfDeletion(message) },
-                messageContent.downloadStatus
+                downloadStatus = messageContent.downloadStatus
             )
 
             is UIMessageContent.ImageMessage -> startAssetDeletion(
-                expirableTimer,
+                expirableTimer = expirableTimer,
                 onSelfDeletingMessageRead = { onStartMessageSelfDeletion(message) },
-                messageContent.downloadStatus
+                downloadStatus = messageContent.downloadStatus
             )
 
             is UIMessageContent.TextMessage -> {

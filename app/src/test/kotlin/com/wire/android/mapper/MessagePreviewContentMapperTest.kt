@@ -144,7 +144,7 @@ class MessagePreviewContentMapperTest {
         val senderWithMessage = messagePreview.uiLastMessageContent().shouldBeInstanceOf<UILastMessageContent.SenderWithMessage>()
         val result = senderWithMessage.message.shouldBeInstanceOf<UIText.StringResource>()
 
-        result.resId shouldBeEqualTo R.string.last_message_audio
+        result.resId shouldBeEqualTo R.string.last_message_self_user_shared_audio
     }
 
     @Test
@@ -156,7 +156,7 @@ class MessagePreviewContentMapperTest {
         val senderWithMessage = messagePreview.uiLastMessageContent().shouldBeInstanceOf<UILastMessageContent.SenderWithMessage>()
         val result = senderWithMessage.message.shouldBeInstanceOf<UIText.StringResource>()
 
-        result.resId shouldBeEqualTo R.string.last_message_image
+        result.resId shouldBeEqualTo R.string.last_message_self_user_shared_image
     }
 
     @Test
@@ -168,7 +168,7 @@ class MessagePreviewContentMapperTest {
         val senderWithMessage = messagePreview.uiLastMessageContent().shouldBeInstanceOf<UILastMessageContent.SenderWithMessage>()
         val result = senderWithMessage.message.shouldBeInstanceOf<UIText.StringResource>()
 
-        result.resId shouldBeEqualTo R.string.last_message_video
+        result.resId shouldBeEqualTo R.string.last_message_self_user_shared_video
     }
 
     @Test
@@ -180,7 +180,7 @@ class MessagePreviewContentMapperTest {
         val senderWithMessage = messagePreview.uiLastMessageContent().shouldBeInstanceOf<UILastMessageContent.SenderWithMessage>()
         val result = senderWithMessage.message.shouldBeInstanceOf<UIText.StringResource>()
 
-        result.resId shouldBeEqualTo R.string.last_message_change_conversation_name
+        result.resId shouldBeEqualTo R.string.last_message_other_changed_conversation_name
     }
 
     @Test
@@ -192,7 +192,7 @@ class MessagePreviewContentMapperTest {
         val senderWithMessage = messagePreview.uiLastMessageContent().shouldBeInstanceOf<UILastMessageContent.SenderWithMessage>()
         val result = senderWithMessage.message.shouldBeInstanceOf<UIText.StringResource>()
 
-        result.resId shouldBeEqualTo R.string.last_message_knock
+        result.resId shouldBeEqualTo R.string.last_message_self_user_knock
     }
 
     @Test
@@ -204,7 +204,7 @@ class MessagePreviewContentMapperTest {
         val senderWithMessage = messagePreview.uiLastMessageContent().shouldBeInstanceOf<UILastMessageContent.SenderWithMessage>()
         val result = senderWithMessage.message.shouldBeInstanceOf<UIText.StringResource>()
 
-        result.resId shouldBeEqualTo R.string.last_message_left_conversation
+        result.resId shouldBeEqualTo R.string.last_message_self_user_left_conversation
     }
 
     @Test
@@ -216,7 +216,7 @@ class MessagePreviewContentMapperTest {
         val senderWithMessage = messagePreview.uiLastMessageContent().shouldBeInstanceOf<UILastMessageContent.SenderWithMessage>()
         val result = senderWithMessage.message.shouldBeInstanceOf<UIText.StringResource>()
 
-        result.resId shouldBeEqualTo R.string.last_message_joined_conversation
+        result.resId shouldBeEqualTo R.string.last_message_self_user_joined_conversation
     }
 
     @Test
@@ -229,7 +229,7 @@ class MessagePreviewContentMapperTest {
             val uiPreviewMessage = messagePreview.uiLastMessageContent().shouldBeInstanceOf<UILastMessageContent.TextMessage>()
             val previewString = uiPreviewMessage.messageBody.message.shouldBeInstanceOf<UIText.PluralResource>()
             previewString.count shouldBeEqualTo 0
-            previewString.resId shouldBeEqualTo R.plurals.last_message_other_removed_self_user
+            previewString.resId shouldBeEqualTo R.plurals.last_message_other_removed_self_user_and_others
         }
 
     @Test
@@ -262,7 +262,7 @@ class MessagePreviewContentMapperTest {
             val uiPreviewMessage = messagePreview.uiLastMessageContent().shouldBeInstanceOf<UILastMessageContent.TextMessage>()
             val previewString = uiPreviewMessage.messageBody.message.shouldBeInstanceOf<UIText.PluralResource>()
             previewString.count shouldBeEqualTo otherRemovedUsers.size
-            previewString.resId shouldBeEqualTo R.plurals.last_message_other_removed_self_user
+            previewString.resId shouldBeEqualTo R.plurals.last_message_other_removed_self_user_and_others
         }
 
     @Test

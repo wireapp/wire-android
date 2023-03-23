@@ -141,6 +141,7 @@ sealed class UILastMessageContent {
 }
 
 sealed class UIMessageContent {
+
     sealed class ClientMessage : UIMessageContent()
 
     object PreviewAssetMessage : UIMessageContent()

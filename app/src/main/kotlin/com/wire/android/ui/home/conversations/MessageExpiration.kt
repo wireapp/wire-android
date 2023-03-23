@@ -3,6 +3,7 @@ package com.wire.android.ui.home.conversations
 import android.content.Context
 import android.content.res.Resources
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -10,7 +11,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import com.wire.android.R
 import com.wire.android.ui.home.conversations.model.ExpirationStatus
+import com.wire.android.ui.home.conversations.model.UIMessage
+import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.kalium.logic.data.message.Message
+import kotlinx.coroutines.delay
 import kotlinx.datetime.Clock
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.ZERO
@@ -58,8 +62,7 @@ class SelfDeletionTimer(private val context: Context) {
             private val resources: Resources,
             timeLeft: Duration,
             private val expireAfter: Duration
-        ) :
-            SelfDeletionTimerState() {
+        ) : SelfDeletionTimerState() {
             companion object {
                 private const val TIME_LEFT_RATIO_BOUNDARY_FOR_ALMOST_TIME_LEFT_ELAPSED_ALPHA = 0.75
                 private const val PAST_RATIO_BOUNDARY_FOR_ALMOST_TIME_LEFT_ALPHA_VALUE = 0F
@@ -191,3 +194,72 @@ class SelfDeletionTimer(private val context: Context) {
         object NotExpirable : SelfDeletionTimerState()
     }
 }
+
+@Composable
+fun startDeletionTimer(
+    message: UIMessage,
+    expirableTimer: SelfDeletionTimer.SelfDeletionTimerState.Expirable,
+    onStartMessageSelfDeletion: (UIMessage) -> Unit
+) {
+    message.messageContent?.let {
+        when (val messageContent = message.messageContent) {
+            is UIMessageContent.AssetMessage -> startAssetDeletion(
+                expirableTimer,
+                onSelfDeletingMessageRead = { onStartMessageSelfDeletion(message) },
+                messageContent.downloadStatus
+            )
+
+            is UIMessageContent.AudioAssetMessage -> startAssetDeletion(
+                expirableTimer,
+                onSelfDeletingMessageRead = { onStartMessageSelfDeletion(message) },
+                messageContent.downloadStatus
+            )
+
+            is UIMessageContent.ImageMessage -> startAssetDeletion(
+                expirableTimer,
+                onSelfDeletingMessageRead = { onStartMessageSelfDeletion(message) },
+                messageContent.downloadStatus
+            )
+
+            is UIMessageContent.TextMessage -> {
+                LaunchedEffect(Unit) {
+                    onStartMessageSelfDeletion(message)
+                }
+                LaunchedEffect(expirableTimer.timeLeft) {
+                    with(expirableTimer) {
+                        if (timeLeft != ZERO) {
+                            delay(updateInterval())
+                            decreaseTimeLeft(updateInterval())
+                        }
+                    }
+                }
+            }
+
+            else -> {}
+        }
+    }
+}
+
+@Composable
+private fun startAssetDeletion(
+    expirableTimer: SelfDeletionTimer.SelfDeletionTimerState.Expirable,
+    onSelfDeletingMessageRead: () -> Unit,
+    downloadStatus: Message.DownloadStatus
+) {
+    LaunchedEffect(downloadStatus) {
+        if (downloadStatus == Message.DownloadStatus.SAVED_EXTERNALLY || downloadStatus == Message.DownloadStatus.SAVED_INTERNALLY) {
+            onSelfDeletingMessageRead()
+        }
+    }
+    LaunchedEffect(expirableTimer.timeLeft, downloadStatus) {
+        if (downloadStatus == Message.DownloadStatus.SAVED_EXTERNALLY || downloadStatus == Message.DownloadStatus.SAVED_INTERNALLY) {
+            with(expirableTimer) {
+                if (timeLeft != ZERO) {
+                    delay(updateInterval())
+                    decreaseTimeLeft(updateInterval())
+                }
+            }
+        }
+    }
+}
+

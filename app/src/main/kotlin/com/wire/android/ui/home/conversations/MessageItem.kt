@@ -38,7 +38,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -78,8 +77,6 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
 import com.wire.kalium.logic.data.user.UserId
-import kotlinx.coroutines.delay
-import kotlin.time.Duration
 
 // TODO: a definite candidate for a refactor and cleanup
 @Suppress("ComplexMethod")
@@ -99,28 +96,21 @@ fun MessageItem(
     onSelfDeletingMessageRead: (UIMessage) -> Unit
 ) {
     with(message) {
-        val selfDeletionTimer = rememberSelfDeletionTimer(expirationStatus)
+        val selfDeletionTimerState = rememberSelfDeletionTimer(expirationStatus)
 
-        if (selfDeletionTimer is SelfDeletionTimer.SelfDeletionTimerState.Expirable) {
-            LaunchedEffect(Unit) {
-                onSelfDeletingMessageRead(message)
-            }
-
-            LaunchedEffect(selfDeletionTimer.timeLeft) {
-                with(selfDeletionTimer) {
-                    if (timeLeft != Duration.ZERO) {
-                        delay(updateInterval())
-                        decreaseTimeLeft(updateInterval())
-                    }
-                }
-            }
+        if (selfDeletionTimerState is SelfDeletionTimer.SelfDeletionTimerState.Expirable) {
+            startDeletionTimer(
+                message = message,
+                expirableTimer = selfDeletionTimerState,
+                onStartMessageSelfDeletion = onSelfDeletingMessageRead
+            )
         }
 
         val backgroundColorModifier = if (message.sendingFailed || message.receivingFailed) {
             Modifier.background(colorsScheme().messageErrorBackgroundColor)
-        } else if (selfDeletionTimer is SelfDeletionTimer.SelfDeletionTimerState.Expirable) {
+        } else if (selfDeletionTimerState is SelfDeletionTimer.SelfDeletionTimerState.Expirable) {
             val color by animateColorAsState(
-                colorsScheme().primaryVariant.copy(selfDeletionTimer.alphaBackgroundColor()),
+                colorsScheme().primaryVariant.copy(selfDeletionTimerState.alphaBackgroundColor()),
                 tween()
             )
 
@@ -170,8 +160,8 @@ fun MessageItem(
                 Column {
                     Spacer(modifier = Modifier.height(fullAvatarOuterPadding))
                     MessageHeader(messageHeader)
-                    if (selfDeletionTimer is SelfDeletionTimer.SelfDeletionTimerState.Expirable) {
-                        MessageExpireLabel(selfDeletionTimer.timeLeftFormatted())
+                    if (selfDeletionTimerState is SelfDeletionTimer.SelfDeletionTimerState.Expirable) {
+                        MessageExpireLabel(selfDeletionTimerState.timeLeftFormatted())
                     }
                     if (!isDeleted) {
                         if (!decryptionFailed) {

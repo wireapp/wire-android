@@ -949,7 +949,7 @@
         <item quantity="other">%1$d weeks left</item>
     </plurals>
     <plurals name="days_left">
-        <item quantity="one">1 week left</item>
+        <item quantity="one">1 day left</item>
         <item quantity="other">%1$d days left</item>
     </plurals>
     <plurals name="hours_left">

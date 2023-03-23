@@ -61,12 +61,6 @@ class SelfDeletionTimer(private val context: Context) {
         ) :
             SelfDeletionTimerState() {
             companion object {
-                private const val DAYS_IN_A_WEEK = 7
-                private const val FOUR_WEEK_DAYS = DAYS_IN_A_WEEK * 4
-                private const val THREE_WEEK_DAYS = DAYS_IN_A_WEEK * 3
-                private const val TWO_WEEK_DAYS = DAYS_IN_A_WEEK * 2
-                private const val ONE_WEEK_DAYS = DAYS_IN_A_WEEK * 1
-
                 private const val TIME_LEFT_RATIO_BOUNDARY_FOR_ALMOST_TIME_LEFT_ELAPSED_ALPHA = 0.75
                 private const val PAST_RATIO_BOUNDARY_FOR_ALMOST_TIME_LEFT_ALPHA_VALUE = 0F
                 private const val BEFORE_RATIO_BOUNDARY_FOR_ALMOST_TIME_LEFT_ALPHA_VALUE = 1F
@@ -77,56 +71,57 @@ class SelfDeletionTimer(private val context: Context) {
             fun timeLeftFormatted(): String {
                 val timeLeftLabel = when {
                     // weeks
-                    timeLeft.inWholeDays >= FOUR_WEEK_DAYS ->
+                    timeLeft >= 28.days -> {
                         resources.getQuantityString(
                             R.plurals.weeks_left,
                             4,
                             4
                         )
+                    }
 
-                    timeLeft.inWholeDays in THREE_WEEK_DAYS until FOUR_WEEK_DAYS ->
+                    timeLeft >= 21.days && timeLeft < 28.days ->
                         resources.getQuantityString(
                             R.plurals.weeks_left,
                             3,
                             3
                         )
 
-                    timeLeft.inWholeDays in TWO_WEEK_DAYS until THREE_WEEK_DAYS ->
+                    timeLeft >= 14.days && timeLeft < 21.days ->
                         resources.getQuantityString(
                             R.plurals.weeks_left,
                             2,
                             2
                         )
 
-                    timeLeft.inWholeDays in ONE_WEEK_DAYS until TWO_WEEK_DAYS ->
+                    timeLeft >= 7.days && timeLeft < 14.days ->
                         resources.getQuantityString(
                             R.plurals.weeks_left,
                             1,
                             1
                         )
                     // days
-                    timeLeft.inWholeDays in 1 until 7 ->
+                    timeLeft >= 1.days && timeLeft < 7.days ->
                         resources.getQuantityString(
                             R.plurals.days_left,
                             timeLeft.inWholeDays.toInt(),
                             timeLeft.inWholeDays.toInt()
                         )
                     // hours
-                    timeLeft.inWholeHours in 1 until 24 ->
+                    timeLeft >= 1.hours && timeLeft < 24.hours ->
                         resources.getQuantityString(
                             R.plurals.hours_left,
                             timeLeft.inWholeHours.toInt(),
                             timeLeft.inWholeHours.toInt()
                         )
                     // minutes
-                    timeLeft.inWholeMinutes in 1 until 60 ->
+                    timeLeft >= 1.minutes && timeLeft < 60.minutes ->
                         resources.getQuantityString(
                             R.plurals.minutes_left,
                             timeLeft.inWholeMinutes.toInt(),
                             timeLeft.inWholeMinutes.toInt()
                         )
                     // seconds
-                    timeLeft.inWholeSeconds < 60 ->
+                    timeLeft < 60.seconds ->
                         resources.getQuantityString(
                             R.plurals.seconds_left,
                             timeLeft.inWholeSeconds.toInt(),

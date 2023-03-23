@@ -34,10 +34,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.conversationslist.model.hasLabel
-import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 
@@ -63,7 +61,10 @@ fun MembershipQualifierLabel(membership: Membership, modifier: Modifier = Modifi
                         color = colorsScheme().primaryVariant,
                         shape = RoundedCornerShape(MaterialTheme.wireDimensions.corner4x)
                     )
-                    .padding(horizontal = MaterialTheme.wireDimensions.spacing4x, vertical = MaterialTheme.wireDimensions.spacing2x)
+                    .padding(
+                        horizontal = MaterialTheme.wireDimensions.spacing4x,
+                        vertical = MaterialTheme.wireDimensions.spacing2x
+                    )
             )
         }
     }

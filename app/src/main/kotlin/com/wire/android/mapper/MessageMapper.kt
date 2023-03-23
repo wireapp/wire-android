@@ -20,7 +20,6 @@
 
 package com.wire.android.mapper
 
-import android.util.Log
 import com.wire.android.R
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.home.conversations.findUser

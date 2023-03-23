@@ -68,6 +68,7 @@ class SelfDeletionTimer(private val context: Context) {
 
             var timeLeft by mutableStateOf(timeLeft)
 
+            @Suppress("MagicNumber")
             fun timeLeftFormatted(): String {
                 val timeLeftLabel = when {
                     // weeks
@@ -188,6 +189,5 @@ class SelfDeletionTimer(private val context: Context) {
         }
 
         object NotExpirable : SelfDeletionTimerState()
-
     }
 }

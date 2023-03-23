@@ -306,4 +306,3 @@ fun getMockedMessages(): List<UIMessage> = listOf(
         messageFooter = mockFooter
     )
 )
-

@@ -57,7 +57,7 @@ fun WirePrimaryButton(
     trailingIconAlignment: IconAlignment = IconAlignment.Border,
     text: String? = null,
     fillMaxWidth: Boolean = true,
-    textStyle: TextStyle = if(fillMaxWidth) MaterialTheme.wireTypography.button02 else MaterialTheme.wireTypography.button03,
+    textStyle: TextStyle = if (fillMaxWidth) MaterialTheme.wireTypography.button02 else MaterialTheme.wireTypography.button03,
     state: WireButtonState = WireButtonState.Default,
     clickBlockParams: ClickBlockParams = ClickBlockParams(),
     minHeight: Dp = MaterialTheme.wireDimensions.buttonMinSize.height,
@@ -94,7 +94,6 @@ fun WirePrimaryButton(
     interactionSource = interactionSource,
     modifier = modifier
 )
-
 
 @Preview(name = "Default WirePrimaryButton")
 @Composable

@@ -58,7 +58,7 @@ fun OtherUserConnectionActionButton(
             text = stringResource(R.string.label_open_conversation),
             onClick = onOpenConversation,
         )
-        ConnectionState.IGNORED ->  WirePrimaryButton(
+        ConnectionState.IGNORED -> WirePrimaryButton(
             text = stringResource(R.string.connection_label_accept),
             onClick = acceptConnectionRequest,
             clickBlockParams = ClickBlockParams(blockUntilSynced = true, blockUntilConnected = true),

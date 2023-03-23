@@ -95,7 +95,7 @@ internal fun ConversationMainSheetContent(
             customBottomPadding = dimensions().spacing8x
         ),
         menuItems = buildList<@Composable () -> Unit> {
-            if (conversationSheetContent.canEditNotifications())
+            if (conversationSheetContent.canEditNotifications()) {
                 add {
                     MenuBottomSheetItem(
                         title = stringResource(R.string.label_notifications),
@@ -109,6 +109,7 @@ internal fun ConversationMainSheetContent(
                         onItemClick = navigateToNotification
                     )
                 }
+            }
 // TODO(profile): enable when implemented
 //
 //            if (conversationSheetContent.canAddToFavourite())
@@ -168,7 +169,7 @@ internal fun ConversationMainSheetContent(
                     }
                 )
             }
-            if (conversationSheetContent.canBlockUser())
+            if (conversationSheetContent.canBlockUser()) {
                 add {
                     CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.error) {
                         MenuBottomSheetItem(
@@ -191,7 +192,8 @@ internal fun ConversationMainSheetContent(
                         )
                     }
                 }
-            if (conversationSheetContent.canUnblockUser())
+            }
+            if (conversationSheetContent.canUnblockUser()) {
                 add {
                     CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.onBackground) {
                         MenuBottomSheetItem(
@@ -213,7 +215,8 @@ internal fun ConversationMainSheetContent(
                         )
                     }
                 }
-            if (conversationSheetContent.canLeaveTheGroup())
+            }
+            if (conversationSheetContent.canLeaveTheGroup()) {
                 add {
                     CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.error) {
                         MenuBottomSheetItem(
@@ -235,7 +238,8 @@ internal fun ConversationMainSheetContent(
                         )
                     }
                 }
-            if (conversationSheetContent.canDeleteGroup())
+            }
+            if (conversationSheetContent.canDeleteGroup()) {
                 add {
                     CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.error) {
                         MenuBottomSheetItem(
@@ -257,6 +261,7 @@ internal fun ConversationMainSheetContent(
                         )
                     }
                 }
+            }
         }
     )
 }
@@ -278,4 +283,3 @@ fun NotificationsOptionsItemAction(
         ArrowRightIcon()
     }
 }
-

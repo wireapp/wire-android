@@ -90,7 +90,6 @@ fun WireTertiaryButton(
     modifier = modifier
 )
 
-
 @Preview(name = "Default WireSecondaryButton")
 @Composable
 fun PreviewWireTertiaryButton() {
@@ -137,4 +136,3 @@ fun PreviewWireTertiaryButtonSelected() {
 fun PreviewWireTertiaryButtonError() {
     WireTertiaryButton(onClick = { }, state = WireButtonState.Error, text = "text", fillMaxWidth = false)
 }
-

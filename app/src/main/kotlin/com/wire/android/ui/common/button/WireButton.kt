@@ -61,7 +61,6 @@ import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import java.lang.Integer.max
 
-
 @Composable
 fun WireButton(
     onClick: () -> Unit,
@@ -174,12 +173,13 @@ private fun InnerButtonBox(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             if (leadingIconAlignment == IconAlignment.Center) leadingItem()
-            if (!text.isNullOrEmpty())
+            if (!text.isNullOrEmpty()) {
                 Text(
                     text = text,
                     style = textStyle,
                     color = contentColor
                 )
+            }
             if (trailingIconAlignment == IconAlignment.Center) trailingItem()
         }
 
@@ -198,4 +198,3 @@ fun getMinTouchMargins(minSize: DpSize) = PaddingValues(
 )
 
 enum class IconAlignment { Border, Center }
-

@@ -46,7 +46,6 @@ import com.wire.android.ui.common.Icon
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 
-
 @Composable
 fun WireSecondaryButton(
     onClick: () -> Unit,
@@ -57,7 +56,7 @@ fun WireSecondaryButton(
     trailingIconAlignment: IconAlignment = IconAlignment.Border,
     text: String? = null,
     fillMaxWidth: Boolean = true,
-    textStyle: TextStyle = if(fillMaxWidth) MaterialTheme.wireTypography.button02 else MaterialTheme.wireTypography.button03,
+    textStyle: TextStyle = if (fillMaxWidth) MaterialTheme.wireTypography.button02 else MaterialTheme.wireTypography.button03,
     state: WireButtonState = WireButtonState.Default,
     clickBlockParams: ClickBlockParams = ClickBlockParams(),
     minHeight: Dp = MaterialTheme.wireDimensions.buttonMinSize.height,
@@ -94,7 +93,6 @@ fun WireSecondaryButton(
     interactionSource = interactionSource,
     modifier = modifier
 )
-
 
 @Preview(name = "Default WireSecondaryButton")
 @Composable

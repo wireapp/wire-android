@@ -82,6 +82,7 @@ import kotlinx.coroutines.delay
 import kotlin.time.Duration
 
 // TODO: a definite candidate for a refactor and cleanup
+@Suppress("ComplexMethod")
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun MessageItem(

@@ -21,7 +21,6 @@
 package com.wire.android.mapper
 
 import com.wire.android.config.CoroutineTestExtension
-import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.framework.TestMessage
 import com.wire.android.framework.TestUser
 import com.wire.android.ui.home.conversations.model.MessageBody
@@ -92,8 +91,16 @@ class MessageMapperTest {
         val userId2 = UserId("user-id2", "user-domain")
         val message1 = arrangement.testMessage(senderUserId = userId1, date = now)
         val message2 = arrangement.testMessage(senderUserId = userId2, status = Message.Status.FAILED, date = yesterday)
-        val message3 = arrangement.testMessage(senderUserId = userId1, editStatus = Message.EditStatus.Edited(now), date = now)
-        val message4 = arrangement.testMessage(senderUserId = userId1, visibility = Message.Visibility.DELETED, date = now)
+        val message3 = arrangement.testMessage(
+            senderUserId = userId1,
+            editStatus = Message.EditStatus.Edited(now),
+            date = now
+        )
+        val message4 = arrangement.testMessage(
+            senderUserId = userId1,
+            visibility = Message.Visibility.DELETED,
+            date = now
+        )
         val member1 = TestUser.MEMBER_SELF.copy(TestUser.SELF_USER.copy(id = userId1))
         val member2 = TestUser.MEMBER_OTHER.copy(TestUser.OTHER_USER.copy(id = userId2))
         val members = listOf(member1.user, member2.user)
@@ -167,7 +174,9 @@ class MessageMapperTest {
             coEvery { messageContentMapper.fromMessage(any(), any()) } returns TextMessage(
                 MessageBody(UIText.DynamicString("some message text"))
             )
-            coEvery { messageContentMapper.toSystemMessageMemberName(any(), any()) } returns UIText.DynamicString("username")
+            coEvery { messageContentMapper.toSystemMessageMemberName(any(), any()) } returns UIText.DynamicString(
+                "username"
+            )
             every { isoFormatter.fromISO8601ToTimeFormat(any()) } answers { firstArg<String>().uiMessageDateTime() ?: "" }
         }
 

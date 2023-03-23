@@ -78,7 +78,7 @@ class SelfDeletionTimer(private val context: Context) {
 
             var timeLeft by mutableStateOf(timeLeft)
 
-            @Suppress("MagicNumber")
+            @Suppress("MagicNumber", "ComplexMethod")
             fun timeLeftFormatted(): String {
                 val timeLeftLabel = when {
                     // weeks
@@ -195,7 +195,6 @@ class SelfDeletionTimer(private val context: Context) {
                     BEFORE_RATIO_BOUNDARY_FOR_ALMOST_TIME_LEFT_ALPHA_VALUE
                 }
             }
-
         }
 
         object NotExpirable : SelfDeletionTimerState()
@@ -269,4 +268,3 @@ private fun startAssetDeletion(
         }
     }
 }
-

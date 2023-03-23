@@ -229,19 +229,22 @@ fun MessageExpireLabel(messageContent: UIMessageContent?, timeLeft: String) {
 
         is UIMessageContent.AssetMessage -> {
             StatusBox(
-                statusText = "Self-deleting message ${if (messageContent.downloadStatus == Message.DownloadStatus.SAVED_INTERNALLY) "•$timeLeft" else ""}"
+                statusText = "Self-deleting message " +
+                        if (messageContent.downloadStatus == Message.DownloadStatus.SAVED_INTERNALLY) "•$timeLeft" else ""
             )
         }
 
         is UIMessageContent.AudioAssetMessage -> {
             StatusBox(
-                statusText = "Self-deleting message ${if (messageContent.downloadStatus == Message.DownloadStatus.SAVED_INTERNALLY) "•$timeLeft" else ""}"
+                statusText = "Self-deleting message " +
+                        if (messageContent.downloadStatus == Message.DownloadStatus.SAVED_INTERNALLY) "•$timeLeft" else ""
             )
         }
 
         is UIMessageContent.ImageMessage -> {
             StatusBox(
-                statusText = "Self-deleting message ${if (messageContent.downloadStatus == Message.DownloadStatus.SAVED_INTERNALLY) "•$timeLeft" else ""}"
+                statusText = "Self-deleting message" +
+                        " ${if (messageContent.downloadStatus == Message.DownloadStatus.SAVED_INTERNALLY) "•$timeLeft" else ""}"
             )
         }
 

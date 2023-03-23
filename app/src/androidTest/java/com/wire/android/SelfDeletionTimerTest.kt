@@ -39,7 +39,7 @@ class SelfDeletionTimerTest {
         )
         assert(selfDeletionTimer is SelfDeletionTimer.SelfDeletionTimerState.Expirable)
         val interval = (selfDeletionTimer as SelfDeletionTimer.SelfDeletionTimerState.Expirable).updateInterval()
-        assert(interval == 1.minutes)
+        assert(interval == 1.hours)
     }
 
     @Test
@@ -342,7 +342,25 @@ class SelfDeletionTimerTest {
     }
 
     @Test
-    fun test() {
+    fun givenTimeLeftIsEqualToOneDayAndTwelveHours_whenDecreasingTimeWithInterval_thenTimeLeftIsEqualToExpecetedTimeLeft() {
+        val selfDeletionTimer = selfDeletionTimer.fromExpirationStatus(
+            ExpirationStatus.Expirable(
+                expireAfter = 1.days + 12.hours,
+                selfDeletionStatus = Message.ExpirationData.SelfDeletionStatus.NotStarted
+            )
+        )
+        assert(selfDeletionTimer is SelfDeletionTimer.SelfDeletionTimerState.Expirable)
+        (selfDeletionTimer as SelfDeletionTimer.SelfDeletionTimerState.Expirable).decreaseTimeLeft(
+            selfDeletionTimer.updateInterval()
+        )
+        assert(selfDeletionTimer.timeLeftFormatted() == "1 day left")
+
+        selfDeletionTimer.decreaseTimeLeft(selfDeletionTimer.updateInterval())
+        assert(selfDeletionTimer.timeLeftFormatted() == "23 hours left")
+    }
+
+    @Test
+    fun givenTimeLeftIsEqualToTwentyThreeHoursAndTwentyThreeMinutes_whenDecreasingTimeWithInterval_thenTimeLeftIsEqualToExpecetedTimeLeft() {
         val selfDeletionTimer = selfDeletionTimer.fromExpirationStatus(
             ExpirationStatus.Expirable(
                 expireAfter = 23.hours + 23.minutes,
@@ -374,7 +392,7 @@ class SelfDeletionTimerTest {
         selfDeletionTimer.decreaseTimeLeft(
             selfDeletionTimer.updateInterval()
         )
-        assert(selfDeletionTimer.timeLeftFormatted() == "59 minutes")
+        assert(selfDeletionTimer.timeLeftFormatted() == "59 minutes left")
     }
 
     @Test
@@ -389,13 +407,10 @@ class SelfDeletionTimerTest {
         (selfDeletionTimer as SelfDeletionTimer.SelfDeletionTimerState.Expirable).decreaseTimeLeft(
             selfDeletionTimer.updateInterval()
         )
-        assert(selfDeletionTimer.timeLeftFormatted() == "1 minutes left")
+        assert(selfDeletionTimer.timeLeftFormatted() == "1 minute left")
         selfDeletionTimer.decreaseTimeLeft(
             selfDeletionTimer.updateInterval()
         )
-        selfDeletionTimer.decreaseTimeLeft(
-            selfDeletionTimer.updateInterval()
-        )
-        assert(selfDeletionTimer.timeLeftFormatted() == "59 minutes")
+        assert(selfDeletionTimer.timeLeftFormatted() == "59 seconds left")
     }
 }

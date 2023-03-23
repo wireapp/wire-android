@@ -151,7 +151,7 @@ class SelfDeletionTimer(private val context: Context) {
                     }
 
                     timeLeft <= 24.hours && timeLeft > 1.hours -> {
-                        val timeLeftTillWholeHour = (timeLeft.inWholeMinutes % 1.hours.inWholeMinutes).minutes
+                        val timeLeftTillWholeHour = (timeLeft.inWholeSeconds % 1.hours.inWholeSeconds).seconds
                         if (timeLeftTillWholeHour == ZERO) {
                             1.hours
                         } else {
@@ -160,7 +160,7 @@ class SelfDeletionTimer(private val context: Context) {
                     }
 
                     timeLeft <= 1.hours && timeLeft > 1.minutes -> {
-                        val timeLeftTillWholeMinute = (timeLeft.inWholeSeconds % 1.minutes.inWholeSeconds).minutes
+                        val timeLeftTillWholeMinute = (timeLeft.inWholeSeconds % 1.minutes.inWholeSeconds).seconds
                         if (timeLeftTillWholeMinute == ZERO) {
                             1.minutes
                         } else {

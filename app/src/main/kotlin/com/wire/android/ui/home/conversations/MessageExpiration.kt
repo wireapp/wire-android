@@ -79,81 +79,72 @@ class SelfDeletionTimer(private val context: Context) {
             var timeLeft by mutableStateOf(timeLeft)
 
             @Suppress("MagicNumber", "ComplexMethod")
-            fun timeLeftFormatted(): String {
-                val timeLeftLabel = when {
-                    // weeks
-                    timeLeft >= 28.days -> {
-                        resources.getQuantityString(
-                            R.plurals.weeks_left,
-                            4,
-                            4
-                        )
-                    }
+            fun timeLeftFormatted(): String = when {
+                timeLeft > 28.days ->
+                    resources.getQuantityString(
+                        R.plurals.weeks_left,
+                        4,
+                        4
+                    )
+                // 4 weeks
+                timeLeft >= 27.days && timeLeft <= 28.days ->
+                    resources.getQuantityString(
+                        R.plurals.weeks_left,
+                        4,
+                        4
+                    )
+                // days below 4 weeks
+                timeLeft <= 27.days && timeLeft > 7.days ->
+                    resources.getQuantityString(
+                        R.plurals.days_left,
+                        timeLeft.inWholeDays.toInt(),
+                        timeLeft.inWholeDays.toInt()
+                    )
+                // one week
+                timeLeft >= 6.days && timeLeft <= 7.days ->
+                    resources.getQuantityString(
+                        R.plurals.weeks_left,
+                        1,
+                        1
+                    )
+                // days below 1 week
+                timeLeft < 7.days && timeLeft >= 1.days ->
+                    resources.getQuantityString(
+                        R.plurals.days_left,
+                        timeLeft.inWholeDays.toInt(),
+                        timeLeft.inWholeDays.toInt()
+                    )
+                // hours below one day
+                timeLeft >= 1.hours && timeLeft < 24.hours ->
+                    resources.getQuantityString(
+                        R.plurals.hours_left,
+                        timeLeft.inWholeHours.toInt(),
+                        timeLeft.inWholeHours.toInt()
+                    )
+                // minutes below hour
+                timeLeft >= 1.minutes && timeLeft < 60.minutes ->
+                    resources.getQuantityString(
+                        R.plurals.minutes_left,
+                        timeLeft.inWholeMinutes.toInt(),
+                        timeLeft.inWholeMinutes.toInt()
+                    )
+                // seconds below minute
+                timeLeft < 60.seconds ->
+                    resources.getQuantityString(
+                        R.plurals.seconds_left,
+                        timeLeft.inWholeSeconds.toInt(),
+                        timeLeft.inWholeSeconds.toInt()
+                    )
 
-                    timeLeft >= 21.days && timeLeft < 28.days ->
-                        resources.getQuantityString(
-                            R.plurals.weeks_left,
-                            3,
-                            3
-                        )
-
-                    timeLeft >= 14.days && timeLeft < 21.days ->
-                        resources.getQuantityString(
-                            R.plurals.weeks_left,
-                            2,
-                            2
-                        )
-
-                    timeLeft >= 7.days && timeLeft < 14.days ->
-                        resources.getQuantityString(
-                            R.plurals.weeks_left,
-                            1,
-                            1
-                        )
-                    // days
-                    timeLeft >= 1.days && timeLeft < 7.days ->
-                        resources.getQuantityString(
-                            R.plurals.days_left,
-                            timeLeft.inWholeDays.toInt(),
-                            timeLeft.inWholeDays.toInt()
-                        )
-                    // hours
-                    timeLeft >= 1.hours && timeLeft < 24.hours ->
-                        resources.getQuantityString(
-                            R.plurals.hours_left,
-                            timeLeft.inWholeHours.toInt(),
-                            timeLeft.inWholeHours.toInt()
-                        )
-                    // minutes
-                    timeLeft >= 1.minutes && timeLeft < 60.minutes ->
-                        resources.getQuantityString(
-                            R.plurals.minutes_left,
-                            timeLeft.inWholeMinutes.toInt(),
-                            timeLeft.inWholeMinutes.toInt()
-                        )
-                    // seconds
-                    timeLeft < 60.seconds ->
-                        resources.getQuantityString(
-                            R.plurals.seconds_left,
-                            timeLeft.inWholeSeconds.toInt(),
-                            timeLeft.inWholeSeconds.toInt()
-                        )
-
-                    else -> throw IllegalStateException("Not possible state for a time left label")
-                }
-
-                return timeLeftLabel
+                else -> throw IllegalStateException("Not possible state for a time left label")
             }
 
-            // we returns minute in case we fit exactly 60 minutes into a day or 60 minutes into a hour,
-            // in that case we would return 0 as interval, which would mean that the timer would never update
-            // any better ideas for this ?
             fun updateInterval(): Duration {
                 val timeLeftUpdateInterval = when {
                     timeLeft > 24.hours -> {
-                        val timeLeftTillWholeDay = ((timeLeft).inWholeMinutes % (1.days.inWholeMinutes)).minutes
+                        val timeLeftTillWholeDay = (timeLeft.inWholeMinutes % 1.days.inWholeMinutes).minutes
                         if (timeLeftTillWholeDay == ZERO) {
-                            1.minutes
+                            1.days
                         } else {
                             timeLeftTillWholeDay
                         }
@@ -162,14 +153,19 @@ class SelfDeletionTimer(private val context: Context) {
                     timeLeft <= 24.hours && timeLeft > 1.hours -> {
                         val timeLeftTillWholeHour = (timeLeft.inWholeMinutes % 1.hours.inWholeMinutes).minutes
                         if (timeLeftTillWholeHour == ZERO) {
-                            1.minutes
+                            1.hours
                         } else {
                             timeLeftTillWholeHour
                         }
                     }
 
                     timeLeft <= 1.hours && timeLeft > 1.minutes -> {
-                        1.minutes
+                        val timeLeftTillWholeMinute = (timeLeft.inWholeSeconds % 1.minutes.inWholeSeconds).minutes
+                        if (timeLeftTillWholeMinute == ZERO) {
+                            1.minutes
+                        } else {
+                            timeLeftTillWholeMinute
+                        }
                     }
 
                     timeLeft <= 1.minutes -> {

@@ -954,7 +954,7 @@
     </plurals>
     <plurals name="hours_left">
         <item quantity="one">1 hour left</item>
-        <item quantity="other">%1$d hour left</item>
+        <item quantity="other">%1$d hours left</item>
     </plurals>
     <plurals name="minutes_left">
         <item quantity="one">1 minute left</item>

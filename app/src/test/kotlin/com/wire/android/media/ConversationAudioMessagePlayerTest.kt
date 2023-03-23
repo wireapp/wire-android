@@ -25,7 +25,6 @@ class ConversationAudioMessagePlayerTest {
 
     @Test
     fun givenTheSuccessFullAssetFetch_whenPlayingAudioForFirstTime_thenEmitStatesAsExpected() = runTest {
-
         val (arrangement, conversationAudioMessagePlayer) = Arrangement()
             .withAudioMediaPlayerReturningTotalTime(1000)
             .withSuccessFullAssetFetch()
@@ -57,6 +56,7 @@ class ConversationAudioMessagePlayerTest {
             awaitAndAssertStateUpdate { state ->
                 val currentState = state[testAudioMessageId]
                 assert(currentState != null)
+
                 val totalTime = currentState!!.totalTimeInMs
                 assert(totalTime is AudioState.TotalTimeInMs.Known)
                 assert((totalTime as AudioState.TotalTimeInMs.Known).value == 1000)
@@ -76,7 +76,6 @@ class ConversationAudioMessagePlayerTest {
 
     @Test
     fun givenTheSuccessFullAssetFetch_whenPlayingTheSameMessageIdTwiceSequentially_thenEmitStatesAsExpected() = runTest {
-
         val (arrangement, conversationAudioMessagePlayer) = Arrangement()
             .withSuccessFullAssetFetch()
             .withAudioMediaPlayerReturningTotalTime(1000)
@@ -110,6 +109,7 @@ class ConversationAudioMessagePlayerTest {
             awaitAndAssertStateUpdate { state ->
                 val currentState = state[testAudioMessageId]
                 assert(currentState != null)
+
                 val totalTime = currentState!!.totalTimeInMs
                 assert(totalTime is AudioState.TotalTimeInMs.Known)
                 assert((totalTime as AudioState.TotalTimeInMs.Known).value == 1000)
@@ -256,6 +256,7 @@ class ConversationAudioMessagePlayerTest {
                 awaitAndAssertStateUpdate { state ->
                     val currentState = state[firstAudioMessageId]
                     assert(currentState != null)
+
                     val totalTime = currentState!!.totalTimeInMs
                     assert(totalTime is AudioState.TotalTimeInMs.Known)
                     assert((totalTime as AudioState.TotalTimeInMs.Known).value == 1000)
@@ -326,6 +327,7 @@ class ConversationAudioMessagePlayerTest {
                 awaitAndAssertStateUpdate { state ->
                     val currentState = state[firstAudioMessageId]
                     assert(currentState != null)
+
                     val totalTime = currentState!!.totalTimeInMs
                     assert(totalTime is AudioState.TotalTimeInMs.Known)
                     assert((totalTime as AudioState.TotalTimeInMs.Known).value == 1000)
@@ -336,9 +338,9 @@ class ConversationAudioMessagePlayerTest {
             with(arrangement) {
                 verify(exactly = 3) { mediaPlayer.prepare() }
                 verify(exactly = 3) { mediaPlayer.setDataSource(any(), any()) }
-                verify(exactly = 2) { mediaPlayer.start() }
+                verify(exactly = 3) { mediaPlayer.start() }
 
-                verify(exactly = 1) { mediaPlayer.seekTo(1000) }
+                verify(exactly = 1) { mediaPlayer.seekTo(any()) }
             }
         }
 

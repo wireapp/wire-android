@@ -116,7 +116,8 @@ fun MessageComposer(
                     )
                 }
                 messageComposerState.focusManager.clearFocus()
-                messageComposerState.toInactive(clearInput = true)
+                messageComposerState.setMessageTextValue(TextFieldValue(""))
+                messageComposerState.toInactive()
             }
         }
 
@@ -284,7 +285,8 @@ private fun MessageComposer(
                                 onEditSaveButtonClicked = onEditSaveButtonClicked,
                                 onEditCancelButtonClicked = {
                                     messageComposerState.focusManager.clearFocus()
-                                    messageComposerState.toInactive(clearInput = true)
+                                    messageComposerState.setMessageTextValue(TextFieldValue(""))
+                                    messageComposerState.toInactive()
                                 }
                             )
                         }

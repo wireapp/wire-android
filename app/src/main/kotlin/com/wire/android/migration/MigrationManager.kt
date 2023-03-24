@@ -31,9 +31,10 @@ import androidx.work.workDataOf
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.datastore.GlobalDataStore
+import com.wire.android.di.KaliumCoreLogic
+import com.wire.android.migration.failure.MigrationFailure
 import com.wire.android.migration.failure.UserMigrationStatus
 import com.wire.android.migration.feature.MarkUsersAsNeedToBeMigrated
-import com.wire.android.migration.failure.MigrationFailure
 import com.wire.android.migration.feature.MigrateActiveAccountsUseCase
 import com.wire.android.migration.feature.MigrateClientsDataUseCase
 import com.wire.android.migration.feature.MigrateConversationsUseCase
@@ -41,13 +42,14 @@ import com.wire.android.migration.feature.MigrateMessagesUseCase
 import com.wire.android.migration.feature.MigrateServerConfigUseCase
 import com.wire.android.migration.feature.MigrateUsersUseCase
 import com.wire.android.migration.util.ScalaDBNameProvider
-import com.wire.kalium.logger.obfuscateId
 import com.wire.android.notification.NotificationConstants
 import com.wire.android.notification.openAppPendingIntent
 import com.wire.android.notification.openMigrationLoginPendingIntent
 import com.wire.android.util.EMPTY
 import com.wire.android.util.ui.stringWithBoldArgs
+import com.wire.kalium.logger.obfuscateId
 import com.wire.kalium.logic.CoreFailure
+import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.EncryptionFailure
 import com.wire.kalium.logic.MLSFailure
 import com.wire.kalium.logic.NetworkFailure
@@ -71,6 +73,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
+import kotlinx.datetime.Instant
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentMap
 import javax.inject.Inject
@@ -81,6 +84,7 @@ import javax.inject.Singleton
 @Singleton
 class MigrationManager @Inject constructor(
     @ApplicationContext private val applicationContext: Context,
+    @KaliumCoreLogic private val coreLogic: CoreLogic,
     private val globalDataStore: GlobalDataStore,
     private val migrateServerConfig: MigrateServerConfigUseCase,
     private val migrateActiveAccounts: MigrateActiveAccountsUseCase,
@@ -89,7 +93,7 @@ class MigrationManager @Inject constructor(
     private val migrateConversations: MigrateConversationsUseCase,
     private val migrateMessages: MigrateMessagesUseCase,
     private val markUsersAsNeedToBeMigrated: MarkUsersAsNeedToBeMigrated,
-    private val notificationManager: NotificationManager
+    private val notificationManager: NotificationManager,
 ) {
     private fun isScalaDBPresent(): Boolean =
         applicationContext.getDatabasePath(ScalaDBNameProvider.globalDB()).let { it.isFile && it.exists() }
@@ -126,19 +130,28 @@ class MigrationManager @Inject constructor(
                 appLogger.d("$TAG - Step 5 - Migrating messages for ${userId.value.obfuscateId()}")
                 migrateMessages(userId, it, coroutineScope).let { failedConversation ->
                     if (failedConversation.isEmpty()) {
-                        Either.Right(Unit)
+                        Either.Right(it)
                     } else {
                         Either.Left(failedConversation.values.first())
                     }
                 }
-            }.fold({
-                when (it) {
-                    is NetworkFailure.NoNetworkConnection -> MigrationData.Result.Failure.NoNetwork
-                    else -> MigrationData.Result.Failure.Messages(it.getErrorCode().toString())
+            }
+                .map {
+                    appLogger.d("$TAG - Step 6 - Clean read messages for ${userId.value.obfuscateId()}")
+                    it.forEach { conversation ->
+                        coreLogic.getSessionScope(userId).conversations.updateConversationReadDateUseCase(
+                            conversation.id, Instant.parse(conversation.lastReadDate)
+                        )
+                    }
                 }
-            }, {
-                MigrationData.Result.Success
-            })
+                .fold({
+                    when (it) {
+                        is NetworkFailure.NoNetworkConnection -> MigrationData.Result.Failure.NoNetwork
+                        else -> MigrationData.Result.Failure.Messages(it.getErrorCode().toString())
+                    }
+                }, {
+                    MigrationData.Result.Success
+                })
         } catch (e: Exception) {
             appLogger.e("$TAG - Migration failed for ${userId.value.obfuscateId()}")
             throw e

@@ -22,10 +22,10 @@ package com.wire.android.migration.feature
 
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.migration.MigrationMapper
-import com.wire.android.migration.userDatabase.ScalaConversationData
 import com.wire.android.migration.userDatabase.ScalaUserDatabaseProvider
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.CoreLogic
+import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.functional.Either
 import com.wire.kalium.logic.functional.flatMap
@@ -43,11 +43,11 @@ class MigrateConversationsUseCase @Inject constructor(
     // Note: 1:1 conversations with team members are marked as 0 (GROUP) in scala database
     // atm we insert the conversation that does not exist remotely anymore aka deleted
     // and in that case leaving it as group will not be an issue
-    suspend operator fun invoke(userId: UserId): Either<CoreFailure, List<ScalaConversationData>> =
+    suspend operator fun invoke(userId: UserId): Either<CoreFailure, List<Conversation>> =
         scalaUserDatabase.conversationDAO(userId.value).flatMap { scalaConvDAO ->
             val conversations = scalaConvDAO.conversations()
             if (conversations.isEmpty()) {
-                return@flatMap Either.Right(conversations)
+                return@flatMap Either.Right(listOf())
             }
 
             val mappedConversations = conversations.mapNotNull { scalaConversation ->
@@ -55,6 +55,6 @@ class MigrateConversationsUseCase @Inject constructor(
             }
             coreLogic.sessionScope(userId) {
                 migration.persistMigratedConversation(mappedConversations)
-            }.map { conversations }
+            }.map { mappedConversations }
         }
 }

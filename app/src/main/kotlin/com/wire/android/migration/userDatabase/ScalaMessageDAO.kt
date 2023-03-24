@@ -26,6 +26,7 @@ import com.wire.android.appLogger
 import com.wire.android.migration.util.getBlobOrNull
 import com.wire.android.migration.util.getStringOrNull
 import com.wire.android.migration.util.orNullIfNegative
+import com.wire.kalium.logic.data.conversation.Conversation
 import kotlinx.coroutines.withContext
 import java.sql.SQLException
 import kotlin.coroutines.CoroutineContext
@@ -92,7 +93,7 @@ class ScalaMessageDAO(
     private val queryContext: CoroutineContext
 ) {
 
-    suspend fun messages(scalaConversations: List<ScalaConversationData>): List<ScalaMessageData> =
+    suspend fun messages(scalaConversations: List<Conversation>): List<ScalaMessageData> =
         withContext(queryContext) {
             val accumulator = mutableListOf<ScalaMessageData>()
             scalaConversations.forEach { scalaConversation ->
@@ -101,13 +102,13 @@ class ScalaMessageDAO(
             accumulator
         }
 
-    private fun messagesFromConversation(scalaConversation: ScalaConversationData): List<ScalaMessageData> {
+    private fun messagesFromConversation(scalaConversation: Conversation): List<ScalaMessageData> {
         val cursor = db.rawQuery(
             "SELECT *" + // Assets are required, otherwise we get exception "requesting column name with table name".
                     "FROM $MESSAGES_TABLE_NAME AS m " +
                     "LEFT JOIN $ASSETS_TABLE_NAME ON m.$COLUMN_ASSET_ID = $ASSETS_TABLE_NAME.$COLUMN_ID " +
                     "WHERE m.$COLUMN_CONVERSATION_ID = ?" +
-                    "ORDER BY m.$COLUMN_TIME ASC ", arrayOf(scalaConversation.id)
+                    "ORDER BY m.$COLUMN_TIME ASC ", arrayOf(scalaConversation.id.value)
         )
         return try {
             if (!cursor.moveToFirst()) {
@@ -125,9 +126,9 @@ class ScalaMessageDAO(
                 do {
                     accumulator += ScalaMessageData(
                         id = cursor.getString(0),
-                        conversationId = scalaConversation.id,
-                        conversationRemoteId = scalaConversation.remoteId,
-                        conversationDomain = scalaConversation.domain,
+                        conversationId = scalaConversation.id.value,
+                        conversationRemoteId = scalaConversation.id.value,
+                        conversationDomain = scalaConversation.id.domain,
                         time = cursor.getLong(timeIndex),
                         editTime = editTimeIndex?.let { cursor.getLongOrNull(it) },
                         senderId = cursor.getStringOrNull(userIdIndex).orEmpty(),

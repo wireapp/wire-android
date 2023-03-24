@@ -22,12 +22,12 @@ package com.wire.android.migration.feature
 
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.migration.MigrationMapper
-import com.wire.android.migration.userDatabase.ScalaConversationData
 import com.wire.android.migration.userDatabase.ScalaMessageDAO
 import com.wire.android.migration.userDatabase.ScalaUserDAO
 import com.wire.android.migration.userDatabase.ScalaUserDatabaseProvider
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.CoreLogic
+import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.functional.flatMap
 import com.wire.kalium.logic.functional.getOrNull
@@ -52,7 +52,7 @@ class MigrateMessagesUseCase @Inject constructor(
      */
     suspend operator fun invoke(
         userId: UserId,
-        scalaConversations: List<ScalaConversationData>,
+        scalaConversations: List<Conversation>,
         coroutineScope: CoroutineScope
     ): Map<String, CoreFailure> {
         val (messageDAO: ScalaMessageDAO, userDAO: ScalaUserDAO) = scalaUserDatabase.messageDAO(userId.value).flatMap { messageDAO ->
@@ -74,7 +74,7 @@ class MigrateMessagesUseCase @Inject constructor(
             }
             coreLogic.sessionScope(userId) {
                 persistMigratedMessage(mappedMessages, coroutineScope).onFailure {
-                    errorsAcc[scalaConversation.id] = it
+                    errorsAcc[scalaConversation.id.value] = it
                 }
             }
         }

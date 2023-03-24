@@ -35,7 +35,7 @@ object AndroidClient {
     const val appId = "com.wire.android"
     val versionCode = Versionizer().versionCode
     const val versionName = "4.1.1"
-    const val testRunner = "com.wire.android.HiltAwareTestRunner"
+    const val testRunner = "androidx.test.runner.AndroidJUnitRunner"
 }
 
 object BuildPlugins {

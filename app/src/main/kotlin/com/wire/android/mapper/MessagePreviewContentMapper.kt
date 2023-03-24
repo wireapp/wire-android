@@ -105,7 +105,7 @@ private fun String?.userUiText(isSelfMessage: Boolean): UIText = when {
     else -> UIText.StringResource(R.string.username_unavailable_label)
 }
 
-@Suppress("LongMethod", "ComplexMethod")
+@Suppress("LongMethod", "ComplexMethod", "NestedBlockDepth")
 fun MessagePreview.uiLastMessageContent(): UILastMessageContent {
     return when (content) {
         is WithUser -> {

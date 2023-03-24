@@ -150,26 +150,36 @@ class MessagePreviewContentMapperTest {
     @Test
     fun givenLastAssetImageConversationMessage_whenMappingToUILastMessageContent_thenCorrectContentShouldBeReturned() = runTest {
         val messagePreview = TestMessage.PREVIEW.copy(
-            content = MessagePreviewContent.WithUser.Asset("admin", AssetType.IMAGE),
+            content = MessagePreviewContent.WithUser.Asset("admin", AssetType.IMAGE), isSelfMessage = true
         )
 
         val senderWithMessage = messagePreview.uiLastMessageContent().shouldBeInstanceOf<UILastMessageContent.SenderWithMessage>()
         val result = senderWithMessage.message.shouldBeInstanceOf<UIText.StringResource>()
 
         result.resId shouldBeEqualTo R.string.last_message_self_user_shared_image
+
+        val otherUserPreview = TestMessage.PREVIEW.copy(
+            content = MessagePreviewContent.WithUser.Asset("admin", AssetType.IMAGE), isSelfMessage = false
+        )
+
+        val otherUserWithMessage = otherUserPreview.uiLastMessageContent().shouldBeInstanceOf<UILastMessageContent.SenderWithMessage>()
+        val otherSenderResult = otherUserWithMessage.message.shouldBeInstanceOf<UIText.StringResource>()
+
+        otherSenderResult.resId shouldBeEqualTo R.string.last_message_other_user_shared_image
     }
 
     @Test
-    fun givenLastAssetVideoConversationMessage_whenMappingToUILastMessageContent_thenCorrectContentShouldBeReturned() = runTest {
-        val messagePreview = TestMessage.PREVIEW.copy(
-            content = MessagePreviewContent.WithUser.Asset("admin", AssetType.VIDEO),
-        )
+    fun givenSelfUserSharedLastAssetVideoConversationMessage_whenMappingToUILastMessageContent_thenCorrectContentShouldBeReturned() =
+        runTest {
+            val messagePreview = TestMessage.PREVIEW.copy(
+                content = MessagePreviewContent.WithUser.Asset("admin", AssetType.VIDEO), isSelfMessage = true
+            )
 
-        val senderWithMessage = messagePreview.uiLastMessageContent().shouldBeInstanceOf<UILastMessageContent.SenderWithMessage>()
-        val result = senderWithMessage.message.shouldBeInstanceOf<UIText.StringResource>()
+            val senderWithMessage = messagePreview.uiLastMessageContent().shouldBeInstanceOf<UILastMessageContent.SenderWithMessage>()
+            val result = senderWithMessage.message.shouldBeInstanceOf<UIText.StringResource>()
 
-        result.resId shouldBeEqualTo R.string.last_message_self_user_shared_video
-    }
+            result.resId shouldBeEqualTo R.string.last_message_self_user_shared_video
+        }
 
     @Test
     fun givenLastConversationRenamedMessage_whenMappingToUILastMessageContent_thenCorrectContentShouldBeReturned() = runTest {
@@ -185,26 +195,40 @@ class MessagePreviewContentMapperTest {
 
     @Test
     fun givenLastConversationKnockMessage_whenMappingToUILastMessageContent_thenCorrectContentShouldBeReturned() = runTest {
-        val messagePreview = TestMessage.PREVIEW.copy(
-            content = MessagePreviewContent.WithUser.Knock("admin"),
+        val selfUserMessagePreview = TestMessage.PREVIEW.copy(
+            content = MessagePreviewContent.WithUser.Knock("admin"), isSelfMessage = true
+        )
+        val otherUserMessagePreview = TestMessage.PREVIEW.copy(
+            content = MessagePreviewContent.WithUser.Knock("admin"), isSelfMessage = false
         )
 
-        val senderWithMessage = messagePreview.uiLastMessageContent().shouldBeInstanceOf<UILastMessageContent.SenderWithMessage>()
-        val result = senderWithMessage.message.shouldBeInstanceOf<UIText.StringResource>()
+        val selfUserMessage = selfUserMessagePreview.uiLastMessageContent().shouldBeInstanceOf<UILastMessageContent.SenderWithMessage>()
+        val otherUserMessage = otherUserMessagePreview.uiLastMessageContent().shouldBeInstanceOf<UILastMessageContent.SenderWithMessage>()
+        val selfUserResult = selfUserMessage.message.shouldBeInstanceOf<UIText.StringResource>()
+        val otherUserResult = otherUserMessage.message.shouldBeInstanceOf<UIText.StringResource>()
 
-        result.resId shouldBeEqualTo R.string.last_message_self_user_knock
+        selfUserResult.resId shouldBeEqualTo R.string.last_message_self_user_knock
+        otherUserResult.resId shouldBeEqualTo R.string.last_message_other_user_knock
     }
 
     @Test
     fun givenUserLeftConversationMessage_whenMappingToUILastMessageContent_thenCorrectContentShouldBeReturned() = runTest {
-        val messagePreview = TestMessage.PREVIEW.copy(
-            content = MessagePreviewContent.WithUser.MemberLeft("user"),
+        val selfUserMessagePreview = TestMessage.PREVIEW.copy(
+            content = MessagePreviewContent.WithUser.MemberLeft("user"), isSelfMessage = true
+        )
+        val otherUserMessagePreview = TestMessage.PREVIEW.copy(
+            content = MessagePreviewContent.WithUser.MemberLeft("user"), isSelfMessage = false
         )
 
-        val senderWithMessage = messagePreview.uiLastMessageContent().shouldBeInstanceOf<UILastMessageContent.SenderWithMessage>()
-        val result = senderWithMessage.message.shouldBeInstanceOf<UIText.StringResource>()
+        val selfSenderWithMessage =
+            selfUserMessagePreview.uiLastMessageContent().shouldBeInstanceOf<UILastMessageContent.SenderWithMessage>()
+        val otherSenderWithMessage =
+            otherUserMessagePreview.uiLastMessageContent().shouldBeInstanceOf<UILastMessageContent.SenderWithMessage>()
+        val result = selfSenderWithMessage.message.shouldBeInstanceOf<UIText.StringResource>()
+        val otherUserResult = otherSenderWithMessage.message.shouldBeInstanceOf<UIText.StringResource>()
 
         result.resId shouldBeEqualTo R.string.last_message_self_user_left_conversation
+        otherUserResult.resId shouldBeEqualTo R.string.last_message_other_user_left_conversation
     }
 
     @Test
@@ -216,21 +240,19 @@ class MessagePreviewContentMapperTest {
         val senderWithMessage = messagePreview.uiLastMessageContent().shouldBeInstanceOf<UILastMessageContent.SenderWithMessage>()
         val result = senderWithMessage.message.shouldBeInstanceOf<UIText.StringResource>()
 
-        result.resId shouldBeEqualTo R.string.last_message_self_user_joined_conversation
+        result.resId shouldBeEqualTo R.string.last_message_other_user_joined_conversation
     }
 
     @Test
-    fun givenSelfUserWasRemovedFromConversationMessage_whenMappingToUILastMessageContent_thenCorrectContentShouldBeReturned() =
-        runTest {
-            val messagePreview = TestMessage.PREVIEW.copy(
-                content = MessagePreviewContent.WithUser.MembersRemoved("admin", isSelfUserRemoved = true, listOf()),
-            )
+    fun givenSelfUserWasRemovedFromConversationMessage_whenMappingToUILastMessageContent_thenCorrectContentShouldBeReturned() = runTest {
+        val messagePreview = TestMessage.PREVIEW.copy(
+            content = MessagePreviewContent.WithUser.MembersRemoved("admin", isSelfUserRemoved = true, listOf()),
+        )
 
-            val uiPreviewMessage = messagePreview.uiLastMessageContent().shouldBeInstanceOf<UILastMessageContent.TextMessage>()
-            val previewString = uiPreviewMessage.messageBody.message.shouldBeInstanceOf<UIText.PluralResource>()
-            previewString.count shouldBeEqualTo 0
-            previewString.resId shouldBeEqualTo R.plurals.last_message_other_removed_self_user_and_others
-        }
+        val uiPreviewMessage = messagePreview.uiLastMessageContent().shouldBeInstanceOf<UILastMessageContent.TextMessage>()
+        val previewString = uiPreviewMessage.messageBody.message.shouldBeInstanceOf<UIText.StringResource>()
+        previewString.resId shouldBeEqualTo R.string.last_message_other_removed_only_self_user
+    }
 
     @Test
     fun givenSelfUserRemovedOtherUsersFromConversationMessage_whenMappingToUILastMessageContent_thenCorrectContentShouldBeReturned() =
@@ -284,23 +306,22 @@ class MessagePreviewContentMapperTest {
         }
 
     @Test
-    fun givenSelfAddedOtherUsersToConversationMessage_whenMappingToUILastMessageContent_thenCorrectContentShouldBeReturned() =
-        runTest {
-            val otherUsersAdded = listOf(UserId("otherValue", "a-domain"), UserId("otherValue2", "a-domain2"))
-            val messagePreview = TestMessage.PREVIEW.copy(
-                content = MessagePreviewContent.WithUser.MembersAdded(
-                    "admin",
-                    isSelfUserAdded = false,
-                    otherUsersAdded
-                ),
-                isSelfMessage = true
-            )
+    fun givenSelfAddedOtherUsersToConversationMessage_whenMappingToUILastMessageContent_thenCorrectContentShouldBeReturned() = runTest {
+        val otherUsersAdded = listOf(UserId("otherValue", "a-domain"), UserId("otherValue2", "a-domain2"))
+        val messagePreview = TestMessage.PREVIEW.copy(
+            content = MessagePreviewContent.WithUser.MembersAdded(
+                "admin",
+                isSelfUserAdded = false,
+                otherUsersAdded
+            ),
+            isSelfMessage = true
+        )
 
-            val uiPreviewMessage = messagePreview.uiLastMessageContent().shouldBeInstanceOf<UILastMessageContent.TextMessage>()
-            val previewString = uiPreviewMessage.messageBody.message.shouldBeInstanceOf<UIText.PluralResource>()
-            previewString.count shouldBeEqualTo otherUsersAdded.size
-            previewString.resId shouldBeEqualTo R.plurals.last_message_self_added_users
-        }
+        val uiPreviewMessage = messagePreview.uiLastMessageContent().shouldBeInstanceOf<UILastMessageContent.TextMessage>()
+        val previewString = uiPreviewMessage.messageBody.message.shouldBeInstanceOf<UIText.PluralResource>()
+        previewString.count shouldBeEqualTo otherUsersAdded.size
+        previewString.resId shouldBeEqualTo R.plurals.last_message_self_added_users
+    }
 
     @Test
     fun givenOtherUsersWereAddedToConversationMessage_whenMappingToUILastMessageContent_thenCorrectContentShouldBeReturned() =

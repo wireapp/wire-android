@@ -102,14 +102,14 @@ class CallRinger @Inject constructor(private val context: Context) {
                         it.vibrate(VIBRATE_PATTERN, 1)
                     }
                 } else {
-                    appLogger.i("Skipping vibration");
+                    appLogger.i("Skipping vibration")
                 }
             }
         }
     }
 
     fun stop() {
-        appLogger.i("Stopping ringing");
+        appLogger.i("Stopping ringing")
         try {
             vibrator?.cancel()
             mediaPlayer?.apply {

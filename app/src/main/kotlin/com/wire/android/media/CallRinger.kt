@@ -95,10 +95,11 @@ class CallRinger @Inject constructor(private val context: Context) {
                 if (ringerMode == AudioManager.RINGER_MODE_VIBRATE) {
                     appLogger.i("Starting vibration");
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                        it.vibrate(VibrationEffect.createWaveform(VIBRATE_PATTERN, VibrationEffect.EFFECT_DOUBLE_CLICK))
+                        it.cancel()
+                        it.vibrate(VibrationEffect.createWaveform(VIBRATE_PATTERN, 1))
                     } else {
                         @Suppress("DEPRECATION")
-                        it.vibrate(VIBRATE_PATTERN, VibrationEffect.EFFECT_DOUBLE_CLICK)
+                        it.vibrate(VIBRATE_PATTERN, 1)
                     }
                 } else {
                     appLogger.i("Skipping vibration");

@@ -377,7 +377,7 @@ class SelfDeletionTimerTest {
     }
 
     @Test
-    fun test1() {
+    fun givenTimeLeftIsEqualToOneHourAndTwelveMinutes_whenDecreasingTimeWithInterval_thenTimeLeftIsEqualToExpecetedTimeLeft() {
         val selfDeletionTimer = selfDeletionTimer.fromExpirationStatus(
             ExpirationStatus.Expirable(
                 expireAfter = 1.hours + 12.minutes,
@@ -396,7 +396,7 @@ class SelfDeletionTimerTest {
     }
 
     @Test
-    fun test2() {
+    fun givenTimeLeftIsEqualToOneHourAndTwentyThreeSeconds_whenDecreasingTimeWithInterval_thenTimeLeftIsEqualToExpecetedTimeLeft() {
         val selfDeletionTimer = selfDeletionTimer.fromExpirationStatus(
             ExpirationStatus.Expirable(
                 expireAfter = 1.minutes + 23.seconds,

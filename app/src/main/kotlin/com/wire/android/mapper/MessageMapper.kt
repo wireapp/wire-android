@@ -76,7 +76,7 @@ class MessageMapper @Inject constructor(
         )
     }.distinct()
 
-    fun toUIMessages(userList: List<User>, messages: List<Message.Standalone>): List<UIMessage> = messages.mapNotNull { message ->
+    fun toUIMessage(userList: List<User>, message: Message.Standalone): UIMessage? {
         val sender = userList.findUser(message.senderUserId)
         val content = messageContentMapper.fromMessage(
             message = message,
@@ -120,7 +120,8 @@ class MessageMapper @Inject constructor(
         // Also hidden messages should not be displayed, as well preview images
         val shouldNotDisplay =
             message is Message.System && content == null || message.visibility == HIDDEN || content is UIMessageContent.PreviewAssetMessage
-        if (shouldNotDisplay) {
+
+        return if (shouldNotDisplay) {
             null
         } else {
             UIMessage(
@@ -166,6 +167,7 @@ class MessageMapper @Inject constructor(
                     utcISO = (message.editStatus as Message.EditStatus.Edited).lastTimeStamp
                 )
             )
+
         message.status == Message.Status.FAILED -> MessageStatus.SendFailure
         message.status == Message.Status.FAILED_REMOTELY -> MessageStatus.SendRemotelyFailure(message.conversationId.domain)
         message.visibility == Message.Visibility.DELETED -> MessageStatus.Deleted
@@ -175,8 +177,10 @@ class MessageMapper @Inject constructor(
                     utcISO = (message.editStatus as Message.EditStatus.Edited).lastTimeStamp
                 )
             )
+
         message is Message.Regular && message.content is MessageContent.FailedDecryption ->
             MessageStatus.DecryptionFailure((message.content as MessageContent.FailedDecryption).isDecryptionResolved)
+
         else -> MessageStatus.Untouched
     }
 

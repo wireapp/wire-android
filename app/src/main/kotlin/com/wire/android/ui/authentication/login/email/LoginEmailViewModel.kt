@@ -36,6 +36,7 @@ import com.wire.android.ui.authentication.login.toLoginError
 import com.wire.android.ui.authentication.login.updateEmailLoginEnabled
 import com.wire.android.ui.authentication.verificationcode.VerificationCodeState
 import com.wire.android.ui.common.textfield.CodeFieldValue
+import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.auth.login.ProxyCredentials
 import com.wire.kalium.logic.data.auth.verification.VerifiableAction
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
@@ -46,6 +47,7 @@ import com.wire.kalium.logic.feature.auth.verification.RequestSecondFactorVerifi
 import com.wire.kalium.logic.feature.client.RegisterClientResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @Suppress("LongParameterList", "ComplexMethod")
@@ -57,7 +59,8 @@ class LoginEmailViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
     navigationManager: NavigationManager,
     authServerConfigProvider: AuthServerConfigProvider,
-    userDataStoreProvider: UserDataStoreProvider
+    userDataStoreProvider: UserDataStoreProvider,
+    private val dispatchers: DispatcherProvider,
 ) : LoginViewModel(
     savedStateHandle,
     navigationManager,
@@ -74,51 +77,57 @@ class LoginEmailViewModel @Inject constructor(
     fun login() {
         loginState = loginState.copy(emailLoginLoading = true, loginError = LoginError.None).updateEmailLoginEnabled()
         viewModelScope.launch {
-            val authScope = resolveCurrentAuthScope() ?: return@launch
+            val authScope = withContext(dispatchers.io()) { resolveCurrentAuthScope() } ?: return@launch
 
             val secondFactorVerificationCode = secondFactorVerificationCodeState.code.text.text
-            val loginResult = authScope.login(
-                userIdentifier = loginState.userIdentifier.text,
-                password = loginState.password.text,
-                shouldPersistClient = true,
-                secondFactorVerificationCode = secondFactorVerificationCode
-            )
+            val loginResult = withContext(dispatchers.io()) {
+                authScope.login(
+                    userIdentifier = loginState.userIdentifier.text,
+                    password = loginState.password.text,
+                    shouldPersistClient = true,
+                    secondFactorVerificationCode = secondFactorVerificationCode
+                )
+            }
             if (loginResult !is AuthenticationResult.Success) {
                 loginResult as AuthenticationResult.Failure
                 handleAuthenticationFailure(loginResult, authScope)
                 return@launch
             }
-            val storedUserId = addAuthenticatedUser(
-                authTokens = loginResult.authData,
-                ssoId = loginResult.ssoID,
-                serverConfigId = loginResult.serverConfigId,
-                proxyCredentials = loginResult.proxyCredentials,
-                replace = false
-            ).let {
-                when (it) {
-                    is AddAuthenticatedUserUseCase.Result.Failure -> {
-                        updateEmailLoginError(it.toLoginError())
-                        return@launch
-                    }
+            val storedUserId = withContext(dispatchers.io()) {
+                addAuthenticatedUser(
+                    authTokens = loginResult.authData,
+                    ssoId = loginResult.ssoID,
+                    serverConfigId = loginResult.serverConfigId,
+                    proxyCredentials = loginResult.proxyCredentials,
+                    replace = false
+                )
+            }.let {
+                    when (it) {
+                        is AddAuthenticatedUserUseCase.Result.Failure -> {
+                            updateEmailLoginError(it.toLoginError())
+                            return@launch
+                        }
 
-                    is AddAuthenticatedUserUseCase.Result.Success -> it.userId
-                }
-            }
-            registerClient(
-                userId = storedUserId,
-                password = loginState.password.text,
-            ).let {
-                when (it) {
-                    is RegisterClientResult.Failure -> {
-                        updateEmailLoginError(it.toLoginError())
-                        return@launch
-                    }
-
-                    is RegisterClientResult.Success -> {
-                        navigateAfterRegisterClientSuccess(storedUserId)
+                        is AddAuthenticatedUserUseCase.Result.Success -> it.userId
                     }
                 }
-            }
+            withContext(dispatchers.io()) {
+                registerClient(
+                    userId = storedUserId,
+                    password = loginState.password.text,
+                )
+            }.let {
+                    when (it) {
+                        is RegisterClientResult.Failure -> {
+                            updateEmailLoginError(it.toLoginError())
+                            return@launch
+                        }
+
+                        is RegisterClientResult.Success -> {
+                            navigateAfterRegisterClientSuccess(storedUserId)
+                        }
+                    }
+                }
         }
     }
 
@@ -127,22 +136,21 @@ class LoginEmailViewModel @Inject constructor(
             ProxyCredentials(loginState.proxyIdentifier.text, loginState.proxyPassword.text)
         )
     ).let {
-        loginState = loginState.copy(emailLoginLoading = false)
         when (it) {
             is AutoVersionAuthScopeUseCase.Result.Success -> it.authenticationScope
 
             is AutoVersionAuthScopeUseCase.Result.Failure.UnknownServerVersion -> {
-                loginState = loginState.copy(loginError = LoginError.DialogError.ServerVersionNotSupported)
+                updateEmailLoginError(LoginError.DialogError.ServerVersionNotSupported)
                 return null
             }
 
             is AutoVersionAuthScopeUseCase.Result.Failure.TooNewVersion -> {
-                loginState = loginState.copy(loginError = LoginError.DialogError.ClientUpdateRequired)
+                updateEmailLoginError(LoginError.DialogError.ClientUpdateRequired)
                 return null
             }
 
             is AutoVersionAuthScopeUseCase.Result.Failure.Generic -> {
-                loginState = loginState.copy(loginError = LoginError.DialogError.GenericError(it.genericFailure))
+                updateEmailLoginError(LoginError.DialogError.GenericError(it.genericFailure))
                 return null
             }
         }
@@ -176,7 +184,7 @@ class LoginEmailViewModel @Inject constructor(
                     isCodeSent = true,
                     emailUsed = email,
                 )
-                loginState = loginState.copy(loginError = LoginError.None)
+                updateEmailLoginError(LoginError.None)
             }
 
             is RequestSecondFactorVerificationCodeUseCase.Result.Failure -> {

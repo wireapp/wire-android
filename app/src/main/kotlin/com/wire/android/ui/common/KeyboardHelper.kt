@@ -39,5 +39,4 @@ object KeyboardHelper {
                 ?.getInsetsIgnoringVisibility(WindowInsetsCompat.Type.navigationBars())?.bottom ?: 0
             with(LocalDensity.current) { (calculatedImeHeight - calculatedNavBarHeight).toDp() }
         }
-
 }

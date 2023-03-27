@@ -33,6 +33,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import com.wire.android.R
+import com.wire.android.model.ClickBlockParams
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.ArrowRightIcon
 import com.wire.android.ui.common.UserProfileAvatar
@@ -94,7 +95,7 @@ internal fun ConversationMainSheetContent(
             customBottomPadding = dimensions().spacing8x
         ),
         menuItems = buildList<@Composable () -> Unit> {
-            if (conversationSheetContent.canEditNotifications())
+            if (conversationSheetContent.canEditNotifications()) {
                 add {
                     MenuBottomSheetItem(
                         title = stringResource(R.string.label_notifications),
@@ -108,6 +109,7 @@ internal fun ConversationMainSheetContent(
                         onItemClick = navigateToNotification
                     )
                 }
+            }
 // TODO(profile): enable when implemented
 //
 //            if (conversationSheetContent.canAddToFavourite())
@@ -167,7 +169,7 @@ internal fun ConversationMainSheetContent(
                     }
                 )
             }
-            if (conversationSheetContent.canBlockUser())
+            if (conversationSheetContent.canBlockUser()) {
                 add {
                     CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.error) {
                         MenuBottomSheetItem(
@@ -178,7 +180,7 @@ internal fun ConversationMainSheetContent(
                                 )
                             },
                             title = stringResource(R.string.label_block),
-                            blockUntilSynced = true,
+                            clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
                             onItemClick = {
                                 blockUserClick(
                                     BlockUserDialogState(
@@ -190,7 +192,8 @@ internal fun ConversationMainSheetContent(
                         )
                     }
                 }
-            if (conversationSheetContent.canUnblockUser())
+            }
+            if (conversationSheetContent.canUnblockUser()) {
                 add {
                     CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.onBackground) {
                         MenuBottomSheetItem(
@@ -212,7 +215,8 @@ internal fun ConversationMainSheetContent(
                         )
                     }
                 }
-            if (conversationSheetContent.canLeaveTheGroup())
+            }
+            if (conversationSheetContent.canLeaveTheGroup()) {
                 add {
                     CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.error) {
                         MenuBottomSheetItem(
@@ -234,7 +238,8 @@ internal fun ConversationMainSheetContent(
                         )
                     }
                 }
-            if (conversationSheetContent.canDeleteGroup())
+            }
+            if (conversationSheetContent.canDeleteGroup()) {
                 add {
                     CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.error) {
                         MenuBottomSheetItem(
@@ -256,6 +261,7 @@ internal fun ConversationMainSheetContent(
                         )
                     }
                 }
+            }
         }
     )
 }

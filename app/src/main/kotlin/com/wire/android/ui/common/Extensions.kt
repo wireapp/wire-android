@@ -48,6 +48,7 @@ import com.google.accompanist.placeholder.PlaceholderHighlight
 import com.google.accompanist.placeholder.placeholder
 import com.google.accompanist.placeholder.shimmer
 import com.wire.android.R
+import com.wire.android.model.ClickBlockParams
 import com.wire.android.model.Clickable
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
@@ -94,23 +95,9 @@ fun Modifier.shimmerPlaceholder(
 fun Modifier.clickable(clickable: Clickable?) = clickable?.let {
     val syncStateObserver = LocalSyncStateObserver.current
     val context = LocalContext.current
-    val onClick = remember(clickable) {
-        {
-            if (clickable.blockUntilSynced && !syncStateObserver.isSynced)
-                Toast.makeText(context, context.getString(R.string.label_wait_until_synchronised), Toast.LENGTH_SHORT).show()
-            else
-                clickable.onClick()
-        }
-    }
+    val onClick = rememberClickBlockAction(clickable.clickBlockParams, clickable.onClick)
     val onLongClick = clickable.onLongClick?.let { onLongClick ->
-        remember(clickable) {
-            {
-                if (clickable.blockUntilSynced && !syncStateObserver.isSynced)
-                    Toast.makeText(context, context.getString(R.string.label_wait_until_synchronised), Toast.LENGTH_SHORT).show()
-                else
-                    onLongClick()
-            }
-        }
+        rememberClickBlockAction(clickable.clickBlockParams, onLongClick)
     }
     this.combinedClickable(
         enabled = clickable.enabled,
@@ -118,6 +105,23 @@ fun Modifier.clickable(clickable: Clickable?) = clickable?.let {
         onLongClick = onLongClick
     )
 } ?: this
+
+@Composable
+fun rememberClickBlockAction(clickBlockParams: ClickBlockParams, clickAction: () -> Unit): () -> Unit {
+    val syncStateObserver = LocalSyncStateObserver.current
+    val context = LocalContext.current
+    return remember(clickBlockParams, syncStateObserver, clickAction) {
+        {
+            when {
+                clickBlockParams.blockWhenConnecting && syncStateObserver.isConnecting ->
+                    Toast.makeText(context, context.getString(R.string.label_wait_until_connected), Toast.LENGTH_SHORT).show()
+                clickBlockParams.blockWhenSyncing && syncStateObserver.isSyncing ->
+                    Toast.makeText(context, context.getString(R.string.label_wait_until_synchronised), Toast.LENGTH_SHORT).show()
+                else -> clickAction()
+            }
+        }
+    }
+}
 
 @Composable
 fun <T> rememberFlow(

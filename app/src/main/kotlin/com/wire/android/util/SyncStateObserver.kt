@@ -26,7 +26,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
 class SyncStateObserver(private val stateFlow : StateFlow<SyncState?> = MutableStateFlow(null)) {
-    val isSynced get() = stateFlow.value == SyncState.Live
+    val isSyncing get() = stateFlow.value is SyncState.SlowSync || stateFlow.value is SyncState.GatheringPendingEvents
+    val isConnecting get() = stateFlow.value is SyncState.Failed || stateFlow.value is SyncState.Waiting
 }
 
 val LocalSyncStateObserver = staticCompositionLocalOf { SyncStateObserver() }

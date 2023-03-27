@@ -37,6 +37,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
+import com.wire.android.model.ClickBlockParams
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.wireDimensions
 
@@ -50,7 +51,7 @@ fun WirePrimaryIconButton(
     minWidth: Dp = dimensions().spacing40x,
     state: WireButtonState = WireButtonState.Default,
     colors: WireButtonColors = wirePrimaryButtonColors(),
-    blockUntilSynced: Boolean = false,
+    clickBlockParams: ClickBlockParams = ClickBlockParams(),
     modifier: Modifier = Modifier
 ) {
     WirePrimaryButton(
@@ -69,7 +70,7 @@ fun WirePrimaryIconButton(
         leadingIconAlignment = IconAlignment.Center,
         state = state,
         colors = colors,
-        blockUntilSynced = blockUntilSynced,
+        clickBlockParams = clickBlockParams,
         fillMaxWidth = false,
         modifier = modifier
     )

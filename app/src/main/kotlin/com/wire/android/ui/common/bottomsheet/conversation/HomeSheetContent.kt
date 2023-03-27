@@ -180,7 +180,7 @@ internal fun ConversationMainSheetContent(
                                 )
                             },
                             title = stringResource(R.string.label_block),
-                            clickBlockParams = ClickBlockParams(blockUntilSynced = true, blockUntilConnected = true),
+                            clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
                             onItemClick = {
                                 blockUserClick(
                                     BlockUserDialogState(

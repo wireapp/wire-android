@@ -28,6 +28,6 @@ data class Clickable(
 )
 
 data class ClickBlockParams(
-    val blockUntilSynced: Boolean = false,
-    val blockUntilConnected: Boolean = false,
+    val blockWhenSyncing: Boolean = false,
+    val blockWhenConnecting: Boolean = false,
 )

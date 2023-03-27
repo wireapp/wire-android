@@ -264,7 +264,7 @@ private fun SelfUserProfileTopBar(
                 fillMaxWidth = false,
                 minHeight = dimensions().userProfileLogoutBtnHeight,
                 state = WireButtonState.Error,
-                clickBlockParams = ClickBlockParams(blockUntilSynced = true, blockUntilConnected = true),
+                clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
             )
         }
     )

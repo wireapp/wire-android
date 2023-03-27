@@ -189,7 +189,7 @@ private fun callControlButton(
             fillMaxWidth = false,
             minHeight = MaterialTheme.wireDimensions.spacing32x,
             minWidth = MaterialTheme.wireDimensions.spacing40x,
-            clickBlockParams = ClickBlockParams(blockUntilSynced = true, blockUntilConnected = true),
+            clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
             shape = RoundedCornerShape(size = MaterialTheme.wireDimensions.corner12x),
             contentPadding = PaddingValues(0.dp)
         )

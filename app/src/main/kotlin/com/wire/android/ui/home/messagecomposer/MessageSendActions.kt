@@ -79,7 +79,7 @@ private fun SendButton(
         state = if (isEnabled) WireButtonState.Default else WireButtonState.Disabled,
         shape = RoundedCornerShape(dimensions().spacing20x),
         colors = wireSendPrimaryButtonColors(),
-        clickBlockParams = ClickBlockParams(blockUntilSynced = true, blockUntilConnected = false),
+        clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = false),
         minHeight = dimensions().spacing40x,
         minWidth = dimensions().spacing40x
     )

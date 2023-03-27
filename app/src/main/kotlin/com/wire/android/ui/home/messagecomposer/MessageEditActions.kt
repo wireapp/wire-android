@@ -76,7 +76,7 @@ fun MessageEditActions(
                 contentDescription = R.string.content_description_edit_the_message,
                 state = if (editButtonEnabled) WireButtonState.Default else WireButtonState.Disabled,
                 colors = wireSendPrimaryButtonColors(),
-                clickBlockParams = ClickBlockParams(blockUntilSynced = true, blockUntilConnected = false),
+                clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = false),
                 shape = CircleShape,
                 minHeight = dimensions().spacing40x,
                 minWidth = dimensions().spacing40x,

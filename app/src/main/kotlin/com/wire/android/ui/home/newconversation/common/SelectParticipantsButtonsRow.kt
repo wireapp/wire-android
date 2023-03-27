@@ -152,7 +152,7 @@ private fun SelectParticipantsButtonsRow(
                 leadingIcon = leadingIcon,
                 onClick = onMainButtonClick,
                 state = computeButtonState(selectedParticipantsCount, shouldAllowNoSelectionContinue),
-                clickBlockParams = ClickBlockParams(blockUntilSynced = true, blockUntilConnected = true),
+                clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
                 modifier = Modifier.weight(1f)
             )
             if (onMoreButtonClick != null) {

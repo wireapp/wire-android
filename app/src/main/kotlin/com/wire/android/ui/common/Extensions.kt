@@ -111,9 +111,9 @@ fun rememberClickBlockAction(clickBlockParams: ClickBlockParams, clickAction: ()
     return remember(clickBlockParams, syncStateObserver, clickAction) {
         {
             when {
-                clickBlockParams.blockUntilConnected && syncStateObserver.isConnecting ->
+                clickBlockParams.blockWhenConnecting && syncStateObserver.isConnecting ->
                     Toast.makeText(context, context.getString(R.string.label_wait_until_connected), Toast.LENGTH_SHORT).show()
-                clickBlockParams.blockUntilSynced && syncStateObserver.isSyncing ->
+                clickBlockParams.blockWhenSyncing && syncStateObserver.isSyncing ->
                     Toast.makeText(context, context.getString(R.string.label_wait_until_synchronised), Toast.LENGTH_SHORT).show()
                 else -> clickAction()
             }

@@ -92,7 +92,7 @@ fun UserProfileInfo(
                 clickable = remember(editableState) {
                     Clickable(
                         enabled = editableState is EditableState.IsEditable,
-                        clickBlockParams = ClickBlockParams(blockUntilSynced = true, blockUntilConnected = true),
+                        clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
                     ) { onUserProfileClick?.invoke() }
                 }
             )

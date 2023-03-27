@@ -198,4 +198,3 @@ fun getMinTouchMargins(minSize: DpSize) = PaddingValues(
 )
 
 enum class IconAlignment { Border, Center }
-

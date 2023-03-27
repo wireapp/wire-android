@@ -95,7 +95,6 @@ fun WirePrimaryButton(
     modifier = modifier
 )
 
-
 @Preview(name = "Default WirePrimaryButton")
 @Composable
 fun PreviewWirePrimaryButton() {

@@ -283,4 +283,3 @@ fun NotificationsOptionsItemAction(
         ArrowRightIcon()
     }
 }
-

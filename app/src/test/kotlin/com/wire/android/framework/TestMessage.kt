@@ -91,7 +91,8 @@ object TestMessage {
         senderUserId = UserId("user-id", "domain"),
         senderClientId = ClientId("client-id"),
         status = Message.Status.SENT,
-        editStatus = Message.EditStatus.NotEdited
+        editStatus = Message.EditStatus.NotEdited,
+        isSelfMessage = false
     )
 
     fun buildAssetMessage(assetContent: AssetContent) = Message.Regular(

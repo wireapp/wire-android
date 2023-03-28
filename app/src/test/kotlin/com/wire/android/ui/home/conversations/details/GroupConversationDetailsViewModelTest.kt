@@ -370,6 +370,7 @@ class GroupConversationDetailsViewModelTest {
     @Test
     fun `given user has no teamId and conversation has no teamId, when initialising group options, then read receipt update allowed result is disabled`() = runTest {
         // given
+        // when
         val details = testGroup.copy(conversation = testGroup.conversation.copy(teamId = null))
         val (_, viewModel) = GroupConversationDetailsViewModelArrangement()
             .withUpdateConversationReceiptModeReturningSuccess()
@@ -377,7 +378,6 @@ class GroupConversationDetailsViewModelTest {
             .withSelfTeamUseCaseReturns(result = null)
             .arrange()
 
-        // when
         // then
         assertEquals(false, viewModel.groupOptionsState.value.isUpdatingReadReceiptAllowed)
     }
@@ -397,6 +397,8 @@ class GroupConversationDetailsViewModelTest {
             isSelfAnAdmin = true
         )
         val details = testGroup.copy(conversation = testGroup.conversation.copy(teamId = TeamId("team_id")))
+
+        // when
         val (_, viewModel) = GroupConversationDetailsViewModelArrangement()
             .withUpdateConversationReceiptModeReturningSuccess()
             .withConversationDetailUpdate(details)
@@ -404,7 +406,6 @@ class GroupConversationDetailsViewModelTest {
             .withSelfTeamUseCaseReturns(result = null)
             .arrange()
 
-        // when
         // then
         assertEquals(true, viewModel.groupOptionsState.value.isUpdatingReadReceiptAllowed)
     }
@@ -424,6 +425,8 @@ class GroupConversationDetailsViewModelTest {
             isSelfAnAdmin = true
         )
         val details = testGroup.copy(conversation = testGroup.conversation.copy(teamId = TeamId("team_id")))
+
+        // when
         val (_, viewModel) = GroupConversationDetailsViewModelArrangement()
             .withUpdateConversationReceiptModeReturningSuccess()
             .withConversationDetailUpdate(details)
@@ -431,7 +434,6 @@ class GroupConversationDetailsViewModelTest {
             .withSelfTeamUseCaseReturns(result = null)
             .arrange()
 
-        // when
         // then
         assertEquals(true, viewModel.groupOptionsState.value.isUpdatingReadReceiptAllowed)
     }
@@ -452,6 +454,8 @@ class GroupConversationDetailsViewModelTest {
         )
         val details = testGroup.copy(conversation = testGroup.conversation.copy(teamId = TeamId("team_id")))
         val selfTeam = Team("team_id", "team_name", "icon")
+
+        // when
         val (_, viewModel) = GroupConversationDetailsViewModelArrangement()
             .withUpdateConversationReceiptModeReturningSuccess()
             .withConversationDetailUpdate(details)
@@ -459,7 +463,6 @@ class GroupConversationDetailsViewModelTest {
             .withSelfTeamUseCaseReturns(result = selfTeam)
             .arrange()
 
-        // when
         // then
         assertEquals(true, viewModel.groupOptionsState.value.isUpdatingReadReceiptAllowed)
     }

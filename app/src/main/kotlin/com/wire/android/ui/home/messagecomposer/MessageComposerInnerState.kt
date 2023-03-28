@@ -357,7 +357,7 @@ data class UiMention(
     val userId: UserId,
     val handler: String // name that should be displayed in a message
 ) {
-    fun intoMessageMention() = MessageMention(start, length, userId)
+    fun intoMessageMention() = MessageMention(start, length, userId, false) // We can never send a self mention message
 }
 
 class AttachmentInnerState(val context: Context) {

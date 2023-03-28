@@ -224,27 +224,36 @@ fun MessageItem(
 fun MessageExpireLabel(messageContent: UIMessageContent?, timeLeft: String) {
     when (messageContent) {
         is UIMessageContent.TextMessage -> {
-            StatusBox(statusText = "Self-deleting message •  $timeLeft")
+            StatusBox(statusText = stringResource(R.string.self_deleting_message_time_left, timeLeft))
         }
 
         is UIMessageContent.AssetMessage -> {
             StatusBox(
-                statusText = "Self-deleting message " +
-                        if (messageContent.downloadStatus == Message.DownloadStatus.SAVED_INTERNALLY) "•$timeLeft" else ""
+                statusText = if (messageContent.downloadStatus == Message.DownloadStatus.SAVED_INTERNALLY) stringResource(
+                    R.string.self_deleting_message_time_left,
+                    timeLeft
+                )
+                else stringResource(R.string.self_deleting_message_label, timeLeft)
             )
         }
 
         is UIMessageContent.AudioAssetMessage -> {
             StatusBox(
-                statusText = "Self-deleting message " +
-                        if (messageContent.downloadStatus == Message.DownloadStatus.SAVED_INTERNALLY) "•$timeLeft" else ""
+                statusText = if (messageContent.downloadStatus == Message.DownloadStatus.SAVED_INTERNALLY) stringResource(
+                    R.string.self_deleting_message_time_left,
+                    timeLeft
+                )
+                else stringResource(R.string.self_deleting_message_label, timeLeft)
             )
         }
 
         is UIMessageContent.ImageMessage -> {
             StatusBox(
-                statusText = "Self-deleting message" +
-                        " ${if (messageContent.downloadStatus == Message.DownloadStatus.SAVED_INTERNALLY) "•$timeLeft" else ""}"
+                statusText = if (messageContent.downloadStatus == Message.DownloadStatus.SAVED_INTERNALLY) stringResource(
+                    R.string.self_deleting_message_time_left,
+                    timeLeft
+                )
+                else stringResource(R.string.self_deleting_message_label, timeLeft)
             )
         }
 

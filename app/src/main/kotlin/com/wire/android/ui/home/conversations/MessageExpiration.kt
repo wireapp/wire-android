@@ -139,6 +139,14 @@ class SelfDeletionTimer(private val context: Context) {
                 else -> throw IllegalStateException("Not possible state for a time left label")
             }
 
+            /**
+             * Calculates when the next update should be done based on the [timeLeft]
+             * For example, it's unnecessary to update on each second when the timer
+             * is still marking 4 weeks left.
+             * However, when there's less than a minute left, the timer should be
+             * updated every second.
+             * @return how long until the next timer update.
+             */
             fun updateInterval(): Duration {
                 val timeLeftUpdateInterval = when {
                     timeLeft > 24.hours -> {

@@ -366,6 +366,100 @@ class GroupConversationDetailsViewModelTest {
         }
     }
 
+    @Test
+    fun `given user has no teamId and conversation has no teamId, when initialising group options, then read receipt update allowed result is disabled`() = runTest {
+        // given
+        val details = testGroup.copy(conversation = testGroup.conversation.copy(teamId = null))
+        val (_, viewModel) = GroupConversationDetailsViewModelArrangement()
+            .withUpdateConversationReceiptModeReturningSuccess()
+            .withConversationDetailUpdate(details)
+            .withSelfTeamUseCaseReturns(result = null)
+            .arrange()
+
+        // when
+        // then
+        assertEquals(false, viewModel.groupOptionsState.value.isUpdatingReadReceiptAllowed)
+    }
+
+    @Test
+    fun `given user has no teamId and conversation has teamId and user is an admin, when initialising group options, then read receipt update allowed result is enabled`() = runTest {
+        // given
+        val members = buildList {
+            for (i in 1..5) {
+                add(testUIParticipant(i))
+            }
+        }
+        val conversationParticipantsData = ConversationParticipantsData(
+            participants = members.take(GroupConversationDetailsViewModel.MAX_NUMBER_OF_PARTICIPANTS),
+            allParticipantsCount = members.size,
+            isSelfAnAdmin = true
+        )
+        val details = testGroup.copy(conversation = testGroup.conversation.copy(teamId = TeamId("team_id")))
+        val (_, viewModel) = GroupConversationDetailsViewModelArrangement()
+            .withUpdateConversationReceiptModeReturningSuccess()
+            .withConversationDetailUpdate(details)
+            .withConversationMembersUpdate(conversationParticipantsData)
+            .withSelfTeamUseCaseReturns(result = null)
+            .arrange()
+
+        // when
+        // then
+        assertEquals(true, viewModel.groupOptionsState.value.isUpdatingReadReceiptAllowed)
+    }
+
+    @Test
+    fun `given user has no teamId and conversation has teamId and user is not an admin, when initialising group options, then read receipt update allowed result is enabled`() = runTest {
+        // given
+        val members = buildList {
+            for (i in 1..5) {
+                add(testUIParticipant(i))
+            }
+        }
+        val conversationParticipantsData = ConversationParticipantsData(
+            participants = members.take(GroupConversationDetailsViewModel.MAX_NUMBER_OF_PARTICIPANTS),
+            allParticipantsCount = members.size,
+            isSelfAnAdmin = true
+        )
+        val details = testGroup.copy(conversation = testGroup.conversation.copy(teamId = TeamId("team_id")))
+        val (_, viewModel) = GroupConversationDetailsViewModelArrangement()
+            .withUpdateConversationReceiptModeReturningSuccess()
+            .withConversationDetailUpdate(details)
+            .withConversationMembersUpdate(conversationParticipantsData)
+            .withSelfTeamUseCaseReturns(result = null)
+            .arrange()
+
+        // when
+        // then
+        assertEquals(true, viewModel.groupOptionsState.value.isUpdatingReadReceiptAllowed)
+    }
+
+    @Test
+    fun `given user has teamId and conversation has teamId and user is an admin, when initialising group options, then read receipt update allowed result is enabled`() = runTest {
+        // given
+        val members = buildList {
+            for (i in 1..5) {
+                add(testUIParticipant(i))
+            }
+        }
+        val conversationParticipantsData = ConversationParticipantsData(
+            participants = members.take(GroupConversationDetailsViewModel.MAX_NUMBER_OF_PARTICIPANTS),
+            allParticipantsCount = members.size,
+            isSelfAnAdmin = true
+        )
+        val details = testGroup.copy(conversation = testGroup.conversation.copy(teamId = TeamId("team_id")))
+        val selfTeam = Team("team_id", "team_name", "icon")
+        val (_, viewModel) = GroupConversationDetailsViewModelArrangement()
+            .withUpdateConversationReceiptModeReturningSuccess()
+            .withConversationDetailUpdate(details)
+            .withConversationMembersUpdate(conversationParticipantsData)
+            .withSelfTeamUseCaseReturns(result = selfTeam)
+            .arrange()
+
+        // when
+        // then
+        assertEquals(true, viewModel.groupOptionsState.value.isUpdatingReadReceiptAllowed)
+    }
+
     companion object {
         val dummyConversationId = ConversationId("some-dummy-value", "some.dummy.domain")
         val testGroup = ConversationDetails.Group(

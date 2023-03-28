@@ -72,10 +72,9 @@ class OngoingCallService : Service() {
         val userIdString = intent?.getStringExtra(EXTRA_USER_ID)
         val conversationIdString = intent?.getStringExtra(EXTRA_CONVERSATION_ID)
         val callName = intent?.getStringExtra(EXTRA_CALL_NAME)
-
         if (userIdString != null && conversationIdString != null && callName != null) {
             val userId = qualifiedIdMapper.fromStringToQualifiedID(userIdString)
-
+            generateForegroundNotification(callName, conversationIdString, userId)
             scope.launch {
                 coreLogic.getSessionScope(userId).calls.establishedCall().collect { establishedCall ->
                     if (establishedCall.isEmpty()) {
@@ -84,8 +83,6 @@ class OngoingCallService : Service() {
                     }
                 }
             }
-
-            generateForegroundNotification(callName, conversationIdString, userId)
         } else {
             appLogger.w(
                 "$TAG: stopSelf. Reason: some of the parameter is absent. " +
@@ -105,6 +102,7 @@ class OngoingCallService : Service() {
     }
 
     private fun generateForegroundNotification(callName: String, conversationId: String, userId: UserId) {
+        appLogger.i("generating foregroundNotification for OngoingCallService..")
         val notification: Notification = callNotificationManager.getOngoingCallNotification(callName, conversationId, userId)
         startForeground(CALL_ONGOING_NOTIFICATION_ID, notification)
     }

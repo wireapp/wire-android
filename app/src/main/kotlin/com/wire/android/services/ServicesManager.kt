@@ -24,6 +24,7 @@ import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.os.Build
+import com.wire.android.appLogger
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
 import javax.inject.Inject
@@ -38,7 +39,8 @@ class ServicesManager @Inject constructor(private val context: Context) {
 
     // Ongoing call
     fun startOngoingCallService(notificationTitle: String, conversationId: ConversationId, userId: UserId) {
-        startService(OngoingCallService.newIntent(context, userId.toString(), conversationId.toString(), notificationTitle))
+        val onGoingCallService = OngoingCallService.newIntent(context, userId.toString(), conversationId.toString(), notificationTitle)
+        startService(onGoingCallService)
     }
 
     fun stopOngoingCallService() {
@@ -58,6 +60,7 @@ class ServicesManager @Inject constructor(private val context: Context) {
         PersistentWebSocketService.isServiceStarted
 
     private fun startService(intent: Intent) {
+        appLogger.i("ServicesManager: starting service for $intent")
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             context.startForegroundService(intent)
         } else {

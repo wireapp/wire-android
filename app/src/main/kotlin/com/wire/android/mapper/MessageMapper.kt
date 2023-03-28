@@ -122,18 +122,15 @@ class MessageMapper @Inject constructor(
     }
 
     private fun provideExpirationData(message: Message.Standalone): ExpirationStatus {
-        val expirationStatus = if (message is Message.Regular) {
-            message.expirationData?.let {
-                ExpirationStatus.Expirable(
-                    it.expireAfter,
-                    it.selfDeletionStatus
-                )
-            } ?: ExpirationStatus.NotExpirable
-        } else {
+        val expirationData = (message as? Message.Regular)?.expirationData
+        return if (expirationData == null) {
             ExpirationStatus.NotExpirable
+        } else {
+            ExpirationStatus.Expirable(
+                expireAfter = expirationData.expireAfter,
+                selfDeletionStatus = expirationData.selfDeletionStatus
+            )
         }
-
-        return expirationStatus
     }
 
     private fun isHeart(it: String) = it == "❤️" || it == "❤"
@@ -171,10 +168,7 @@ class MessageMapper @Inject constructor(
             )
 
         message.status == Message.Status.FAILED -> MessageStatus.SendFailure
-        message.status == Message.Status.FAILED_REMOTELY -> MessageStatus.SendRemotelyFailure(
-            message.conversationId.domain
-        )
-
+        message.status == Message.Status.FAILED_REMOTELY -> MessageStatus.SendRemotelyFailure(message.conversationId.domain)
         message.visibility == Message.Visibility.DELETED -> MessageStatus.Deleted
         message is Message.Regular && message.editStatus is Message.EditStatus.Edited ->
             MessageStatus.Edited(

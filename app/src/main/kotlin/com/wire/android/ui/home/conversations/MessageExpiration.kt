@@ -72,7 +72,7 @@ class SelfDeletionTimer(private val context: Context) {
         ) : SelfDeletionTimerState() {
             companion object {
                 private const val TIME_LEFT_RATIO_BOUNDARY_FOR_ALMOST_TIME_LEFT_ELAPSED_ALPHA = 0.75
-                private const val PAST_RATIO_BOUNDARY_FOR_ALMOST_TIME_LEFT_ALPHA_VALUE = 0F
+                private const val PAST_RATIO_BOUNDARY_FOR_ALMOST_NO_TIME_LEFT_ALPHA_VALUE = 0F
                 private const val BEFORE_RATIO_BOUNDARY_FOR_ALMOST_TIME_LEFT_ALPHA_VALUE = 1F
             }
 
@@ -194,7 +194,7 @@ class SelfDeletionTimer(private val context: Context) {
                 val totalTimeLeftRatio = timeLeft / expireAfter
 
                 return if (totalTimeLeftRatio >= TIME_LEFT_RATIO_BOUNDARY_FOR_ALMOST_TIME_LEFT_ELAPSED_ALPHA) {
-                    PAST_RATIO_BOUNDARY_FOR_ALMOST_TIME_LEFT_ALPHA_VALUE
+                    PAST_RATIO_BOUNDARY_FOR_ALMOST_NO_TIME_LEFT_ALPHA_VALUE
                 } else {
                     BEFORE_RATIO_BOUNDARY_FOR_ALMOST_TIME_LEFT_ALPHA_VALUE
                 }

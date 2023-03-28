@@ -105,7 +105,7 @@ private fun String?.userUiText(isSelfMessage: Boolean): UIText = when {
     else -> UIText.StringResource(R.string.username_unavailable_label)
 }
 
-@Suppress("LongMethod", "ComplexMethod")
+@Suppress("LongMethod", "ComplexMethod", "NestedBlockDepth")
 fun MessagePreview.uiLastMessageContent(): UILastMessageContent {
     return when (content) {
         is WithUser -> {
@@ -114,39 +114,77 @@ fun MessagePreview.uiLastMessageContent(): UILastMessageContent {
             when ((userContent)) {
                 is WithUser.Asset -> when ((content as WithUser.Asset).type) {
                     AssetType.AUDIO ->
-                        UILastMessageContent.SenderWithMessage(userUIText, UIText.StringResource(R.string.last_message_audio))
+                        UILastMessageContent.SenderWithMessage(
+                            userUIText,
+                            UIText.StringResource(R.string.last_message_self_user_shared_audio)
+                        )
 
                     AssetType.IMAGE ->
-                        UILastMessageContent.SenderWithMessage(userUIText, UIText.StringResource(R.string.last_message_image))
+                        UILastMessageContent.SenderWithMessage(
+                            userUIText,
+                            UIText.StringResource(
+                                if (isSelfMessage) R.string.last_message_self_user_shared_image
+                                else R.string.last_message_other_user_shared_image
+                            )
+                        )
 
                     AssetType.VIDEO ->
-                        UILastMessageContent.SenderWithMessage(userUIText, UIText.StringResource(R.string.last_message_video))
+                        UILastMessageContent.SenderWithMessage(
+                            userUIText,
+                            UIText.StringResource(
+                                if (isSelfMessage) R.string.last_message_self_user_shared_video
+                                else R.string.last_message_other_user_shared_video
+                            )
+                        )
 
                     AssetType.ASSET ->
-                        UILastMessageContent.SenderWithMessage(userUIText, UIText.StringResource(R.string.last_message_asset))
+                        UILastMessageContent.SenderWithMessage(
+                            userUIText, UIText.StringResource(
+                                if (isSelfMessage) R.string.last_message_self_user_shared_asset
+                                else R.string.last_message_other_user_shared_asset
+                            )
+                        )
 
                     AssetType.FILE ->
-                        UILastMessageContent.SenderWithMessage(userUIText, UIText.StringResource(R.string.last_message_file))
+                        UILastMessageContent.SenderWithMessage(
+                            userUIText,
+                            UIText.StringResource(
+                                if (isSelfMessage) R.string.last_message_self_user_shared_file
+                                else R.string.last_message_other_user_shared_file
+                            )
+                        )
                 }
 
                 is WithUser.ConversationNameChange -> UILastMessageContent.SenderWithMessage(
                     userUIText,
-                    UIText.StringResource(R.string.last_message_change_conversation_name)
+                    UIText.StringResource(
+                        if (isSelfMessage) R.string.last_message_self_changed_conversation_name
+                        else R.string.last_message_other_changed_conversation_name
+                    )
                 )
 
                 is WithUser.Knock -> UILastMessageContent.SenderWithMessage(
                     userUIText,
-                    UIText.StringResource(R.string.last_message_knock)
+                    UIText.StringResource(
+                        if (isSelfMessage) R.string.last_message_self_user_knock
+                        else R.string.last_message_other_user_knock
+                    )
                 )
 
                 is WithUser.MemberJoined -> UILastMessageContent.SenderWithMessage(
                     userUIText,
-                    UIText.StringResource(R.string.last_message_joined_conversation)
+                    UIText.StringResource(
+                        if (isSelfMessage) R.string.last_message_self_user_joined_conversation
+                        else R.string.last_message_other_user_joined_conversation
+                    )
                 )
 
                 is WithUser.MemberLeft -> UILastMessageContent.SenderWithMessage(
                     userUIText,
-                    UIText.StringResource(R.string.last_message_left_conversation)
+                    UIText.StringResource(
+                        if (isSelfMessage) R.string.last_message_self_user_left_conversation
+                        else R.string.last_message_other_user_left_conversation
+                    )
                 )
 
                 is WithUser.MembersAdded -> {
@@ -155,17 +193,16 @@ fun MessagePreview.uiLastMessageContent(): UILastMessageContent {
                     val otherUsersSize = membersAddedContent.otherUserIdList.size
 
                     val previewMessageContent = when {
-                        // This case would never be applicable. If self added self, this will be a MemberJoined
-                        isSelfMessage && isSelfAdded -> {
-                            UIText.StringResource(R.string.last_message_joined_conversation)
-                        }
-
                         isSelfMessage && otherUsersSize > 0 -> {
                             UIText.PluralResource(R.plurals.last_message_self_added_users, otherUsersSize, otherUsersSize)
                         }
 
                         !isSelfMessage && isSelfAdded -> {
-                            UIText.PluralResource(R.plurals.last_message_other_added_self_user, otherUsersSize, otherUsersSize)
+                            if (otherUsersSize == 0) {
+                                UIText.StringResource(R.string.last_message_other_added_only_self_user)
+                            } else {
+                                UIText.PluralResource(R.plurals.last_message_other_added_self_user, otherUsersSize, otherUsersSize)
+                            }
                         }
 
                         else -> {
@@ -182,17 +219,20 @@ fun MessagePreview.uiLastMessageContent(): UILastMessageContent {
                     val otherUsersSize = membersRemovedContent.otherUserIdList.size
 
                     val previewMessageContent = when {
-                        // This case would never be applicable. If self added self, this will be a MemberLeft
-                        isSelfMessage && isSelfRemoved -> {
-                            UIText.StringResource(R.string.last_message_left_conversation)
-                        }
-
                         isSelfMessage && otherUsersSize > 0 -> {
                             UIText.PluralResource(R.plurals.last_message_self_removed_users, otherUsersSize, otherUsersSize)
                         }
 
                         !isSelfMessage && isSelfRemoved -> {
-                            UIText.PluralResource(R.plurals.last_message_other_removed_self_user, otherUsersSize, otherUsersSize)
+                            if (otherUsersSize == 0) {
+                                UIText.StringResource(R.string.last_message_other_removed_only_self_user)
+                            } else {
+                                UIText.PluralResource(
+                                    R.plurals.last_message_other_removed_self_user_and_others,
+                                    otherUsersSize,
+                                    otherUsersSize
+                                )
+                            }
                         }
 
                         else -> {
@@ -230,6 +270,3 @@ fun MessagePreview.uiLastMessageContent(): UILastMessageContent {
         Unknown -> UILastMessageContent.None
     }
 }
-
-fun <T> List<T>.plusIf(condition: () -> Boolean, element: T): List<T> = plus(if (condition()) listOf(element) else listOf())
-fun <T> List<T>.plusIf(condition: () -> Boolean, elements: List<T>): List<T> = plus(if (condition()) elements else listOf())

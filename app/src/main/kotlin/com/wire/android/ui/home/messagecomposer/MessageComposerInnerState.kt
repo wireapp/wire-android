@@ -154,6 +154,12 @@ data class MessageComposerInnerState(
         _mentionQueryFlowState.value = null
     }
 
+    fun closeEditToInactive() {
+        focusManager.clearFocus()
+        setMessageTextValue(TextFieldValue(""))
+        toInactive()
+    }
+
     fun toInactive() {
         if (messageComposeInputState !is MessageComposeInputState.Inactive) {
             messageComposeInputState = messageComposeInputState.toInactive()

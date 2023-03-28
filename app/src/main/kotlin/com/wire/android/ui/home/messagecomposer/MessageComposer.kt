@@ -115,9 +115,7 @@ fun MessageComposer(
                         )
                     )
                 }
-                messageComposerState.focusManager.clearFocus()
-                messageComposerState.setMessageTextValue(TextFieldValue(""))
-                messageComposerState.toInactive()
+                messageComposerState.closeEditToInactive()
             }
         }
 
@@ -283,11 +281,7 @@ private fun MessageComposer(
                                     messageComposerState.showAttachmentOptions()
                                 },
                                 onEditSaveButtonClicked = onEditSaveButtonClicked,
-                                onEditCancelButtonClicked = {
-                                    messageComposerState.focusManager.clearFocus()
-                                    messageComposerState.setMessageTextValue(TextFieldValue(""))
-                                    messageComposerState.toInactive()
-                                }
+                                onEditCancelButtonClicked = messageComposerState::closeEditToInactive
                             )
                         }
                     )

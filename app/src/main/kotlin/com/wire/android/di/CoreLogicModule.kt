@@ -177,9 +177,7 @@ class CoreLogicModule {
 
     @Singleton
     @Provides
-    fun provideWorkManager(@ApplicationContext applicationContext: Context) = WorkManager.getInstance(
-        applicationContext
-    )
+    fun provideWorkManager(@ApplicationContext applicationContext: Context) = WorkManager.getInstance(applicationContext)
 }
 
 @Module
@@ -202,10 +200,7 @@ class SessionModule {
 
     @ViewModelScoped
     @Provides
-    fun provideCurrentAccountUserDataStore(
-        @CurrentAccount currentAccount: UserId,
-        userDataStoreProvider: UserDataStoreProvider
-    ) =
+    fun provideCurrentAccountUserDataStore(@CurrentAccount currentAccount: UserId, userDataStoreProvider: UserDataStoreProvider) =
         userDataStoreProvider.getOrCreate(currentAccount)
 }
 
@@ -214,34 +209,22 @@ class SessionModule {
 class ConnectionModule {
     @ViewModelScoped
     @Provides
-    fun provideSendConnectionRequestUseCase(
-        @KaliumCoreLogic coreLogic: CoreLogic,
-        @CurrentAccount currentAccount: UserId
-    ) =
+    fun provideSendConnectionRequestUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
         coreLogic.getSessionScope(currentAccount).connection.sendConnectionRequest
 
     @ViewModelScoped
     @Provides
-    fun provideCancelConnectionRequestUseCase(
-        @KaliumCoreLogic coreLogic: CoreLogic,
-        @CurrentAccount currentAccount: UserId
-    ) =
+    fun provideCancelConnectionRequestUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
         coreLogic.getSessionScope(currentAccount).connection.cancelConnectionRequest
 
     @ViewModelScoped
     @Provides
-    fun provideIgnoreConnectionRequestUseCase(
-        @KaliumCoreLogic coreLogic: CoreLogic,
-        @CurrentAccount currentAccount: UserId
-    ) =
+    fun provideIgnoreConnectionRequestUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
         coreLogic.getSessionScope(currentAccount).connection.ignoreConnectionRequest
 
     @ViewModelScoped
     @Provides
-    fun provideAcceptConnectionRequestUseCase(
-        @KaliumCoreLogic coreLogic: CoreLogic,
-        @CurrentAccount currentAccount: UserId
-    ) =
+    fun provideAcceptConnectionRequestUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
         coreLogic.getSessionScope(currentAccount).connection.acceptConnectionRequest
 }
 
@@ -292,10 +275,7 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
-    fun provideObserveConversationListDetails(
-        @KaliumCoreLogic coreLogic: CoreLogic,
-        @CurrentAccount currentAccount: UserId
-    ) =
+    fun provideObserveConversationListDetails(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
         coreLogic.getSessionScope(currentAccount).conversations.observeConversationListDetails
 
     @ViewModelScoped
@@ -330,18 +310,12 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
-    fun provideSelfClientsUseCase(
-        @CurrentAccount currentAccount: UserId,
-        clientScopeProviderFactory: ClientScopeProvider.Factory
-    ) =
+    fun provideSelfClientsUseCase(@CurrentAccount currentAccount: UserId, clientScopeProviderFactory: ClientScopeProvider.Factory) =
         clientScopeProviderFactory.create(currentAccount).clientScope.selfClients
 
     @ViewModelScoped
     @Provides
-    fun provideMlsKeyPackageCountUseCase(
-        @CurrentAccount currentAccount: UserId,
-        clientScopeProviderFactory: ClientScopeProvider.Factory
-    ) =
+    fun provideMlsKeyPackageCountUseCase(@CurrentAccount currentAccount: UserId, clientScopeProviderFactory: ClientScopeProvider.Factory) =
         clientScopeProviderFactory.create(currentAccount).clientScope.mlsKeyPackageCountUseCase
 
     @ViewModelScoped
@@ -369,42 +343,27 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
-    fun provideObserveConversationDetailsUseCase(
-        @KaliumCoreLogic coreLogic: CoreLogic,
-        @CurrentAccount currentAccount: UserId
-    ) =
+    fun provideObserveConversationDetailsUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
         coreLogic.getSessionScope(currentAccount).conversations.observeConversationDetails
 
     @ViewModelScoped
     @Provides
-    fun provideDeleteTeamConversationUseCase(
-        @KaliumCoreLogic coreLogic: CoreLogic,
-        @CurrentAccount currentAccount: UserId
-    ) =
+    fun provideDeleteTeamConversationUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
         coreLogic.getSessionScope(currentAccount).conversations.deleteTeamConversation
 
     @ViewModelScoped
     @Provides
-    fun provideObserveIsSelfConversationMemberUseCase(
-        @KaliumCoreLogic coreLogic: CoreLogic,
-        @CurrentAccount currentAccount: UserId
-    ) =
+    fun provideObserveIsSelfConversationMemberUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
         coreLogic.getSessionScope(currentAccount).conversations.observeIsSelfUserMemberUseCase
 
     @ViewModelScoped
     @Provides
-    fun provideObserveConversationInteractionAvailability(
-        @KaliumCoreLogic coreLogic: CoreLogic,
-        @CurrentAccount currentAccount: UserId
-    ) =
+    fun provideObserveConversationInteractionAvailability(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
         coreLogic.getSessionScope(currentAccount).conversations.observeConversationInteractionAvailabilityUseCase
 
     @ViewModelScoped
     @Provides
-    fun provideObserveConversationMembersUseCase(
-        @KaliumCoreLogic coreLogic: CoreLogic,
-        @CurrentAccount currentAccount: UserId
-    ) =
+    fun provideObserveConversationMembersUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
         coreLogic.getSessionScope(currentAccount).conversations.observeConversationMembers
 
     @ViewModelScoped
@@ -422,50 +381,32 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
-    fun provideGetPaginatedMessagesUseCase(
-        @KaliumCoreLogic coreLogic: CoreLogic,
-        @CurrentAccount currentAccount: UserId
-    ) =
+    fun provideGetPaginatedMessagesUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
         coreLogic.getSessionScope(currentAccount).messages.getPaginatedFlowOfMessagesByConversation
 
     @ViewModelScoped
     @Provides
-    fun provideDeleteClientUseCase(
-        @CurrentAccount currentAccount: UserId,
-        clientScopeProviderFactory: ClientScopeProvider.Factory
-    ) =
+    fun provideDeleteClientUseCase(@CurrentAccount currentAccount: UserId, clientScopeProviderFactory: ClientScopeProvider.Factory) =
         clientScopeProviderFactory.create(currentAccount).clientScope.deleteClient
 
     @ViewModelScoped
     @Provides
-    fun provideGetOrRegisterClientUseCase(
-        @CurrentAccount currentAccount: UserId,
-        clientScopeProviderFactory: ClientScopeProvider.Factory
-    ) =
+    fun provideGetOrRegisterClientUseCase(@CurrentAccount currentAccount: UserId, clientScopeProviderFactory: ClientScopeProvider.Factory) =
         clientScopeProviderFactory.create(currentAccount).clientScope.getOrRegister
 
     @ViewModelScoped
     @Provides
-    fun providePersistOtherUsersClients(
-        @CurrentAccount currentAccount: UserId,
-        clientScopeProviderFactory: ClientScopeProvider.Factory
-    ) =
+    fun providePersistOtherUsersClients(@CurrentAccount currentAccount: UserId, clientScopeProviderFactory: ClientScopeProvider.Factory) =
         clientScopeProviderFactory.create(currentAccount).clientScope.persistOtherUserClients
 
     @ViewModelScoped
     @Provides
-    fun provideGetOtherUsersClients(
-        @CurrentAccount currentAccount: UserId,
-        clientScopeProviderFactory: ClientScopeProvider.Factory
-    ) =
+    fun provideGetOtherUsersClients(@CurrentAccount currentAccount: UserId, clientScopeProviderFactory: ClientScopeProvider.Factory) =
         clientScopeProviderFactory.create(currentAccount).clientScope.getOtherUserClients
 
     @ViewModelScoped
     @Provides
-    fun provideNeedsToRegisterClientUseCase(
-        @KaliumCoreLogic coreLogic: CoreLogic,
-        @CurrentAccount currentAccount: UserId
-    ) =
+    fun provideNeedsToRegisterClientUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
         coreLogic.getSessionScope(currentAccount).client.needsToRegisterClient
 
     @ViewModelScoped
@@ -752,18 +693,12 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
-    fun provideMarkMessagesAsNotifiedUseCase(
-        @KaliumCoreLogic coreLogic: CoreLogic,
-        @CurrentAccount currentAccount: UserId
-    ) =
+    fun provideMarkMessagesAsNotifiedUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
         coreLogic.getSessionScope(currentAccount).messages.markMessagesAsNotified
 
     @ViewModelScoped
     @Provides
-    fun provideUpdateAssetMessageDownloadStatusUseCase(
-        @KaliumCoreLogic coreLogic: CoreLogic,
-        @CurrentAccount currentAccount: UserId
-    ) =
+    fun provideUpdateAssetMessageDownloadStatusUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
         coreLogic.getSessionScope(currentAccount).messages.updateAssetMessageDownloadStatus
 
     @ViewModelScoped
@@ -793,10 +728,7 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
-    fun provideUpdateSelfAvailabilityStatusUseCase(
-        @KaliumCoreLogic coreLogic: CoreLogic,
-        @CurrentAccount currentAccount: UserId
-    ) =
+    fun provideUpdateSelfAvailabilityStatusUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
         coreLogic.getSessionScope(currentAccount).users.updateSelfAvailabilityStatus
 
     @ViewModelScoped
@@ -806,18 +738,12 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
-    fun provideIsFileSharingEnabledUseCase(
-        @KaliumCoreLogic coreLogic: CoreLogic,
-        @CurrentAccount currentAccount: UserId
-    ) =
+    fun provideIsFileSharingEnabledUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
         coreLogic.getSessionScope(currentAccount).isFileSharingEnabled
 
     @ViewModelScoped
     @Provides
-    fun provideFileSharingStatusFlowUseCase(
-        @KaliumCoreLogic coreLogic: CoreLogic,
-        @CurrentAccount currentAccount: UserId
-    ) =
+    fun provideFileSharingStatusFlowUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
         coreLogic.getSessionScope(currentAccount).observeFileSharingStatus
 
     @ViewModelScoped
@@ -992,10 +918,7 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
-    fun providePersistReadReceiptsStatusConfig(
-        @KaliumCoreLogic coreLogic: CoreLogic,
-        @CurrentAccount currentAccount: UserId
-    ) =
+    fun providePersistReadReceiptsStatusConfig(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
         coreLogic.getSessionScope(currentAccount).users.persistReadReceiptsStatusConfig
 
     @ViewModelScoped
@@ -1076,18 +999,12 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
-    fun provideObserveGuestRoomLinkFeatureFlagUseCase(
-        @KaliumCoreLogic coreLogic: CoreLogic,
-        @CurrentAccount currentAccount: UserId
-    ) =
+    fun provideObserveGuestRoomLinkFeatureFlagUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
         coreLogic.getSessionScope(currentAccount).observeGuestRoomLinkFeatureFlag
 
     @ViewModelScoped
     @Provides
-    fun provideMarkGuestLinkFeatureFlagAsNotChangedUseCase(
-        @KaliumCoreLogic coreLogic: CoreLogic,
-        @CurrentAccount currentAccount: UserId
-    ) =
+    fun provideMarkGuestLinkFeatureFlagAsNotChangedUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
         coreLogic.getSessionScope(currentAccount).markGuestLinkFeatureFlagAsNotChanged
 
     @ViewModelScoped

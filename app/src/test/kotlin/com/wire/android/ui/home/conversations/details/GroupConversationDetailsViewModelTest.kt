@@ -366,6 +366,7 @@ class GroupConversationDetailsViewModelTest {
         }
     }
 
+    @Suppress("MaxLineLength")
     @Test
     fun `given user has no teamId and conversation has no teamId, when initialising group options, then read receipt update allowed result is disabled`() = runTest {
         // given
@@ -381,6 +382,7 @@ class GroupConversationDetailsViewModelTest {
         assertEquals(false, viewModel.groupOptionsState.value.isUpdatingReadReceiptAllowed)
     }
 
+    @Suppress("MaxLineLength")
     @Test
     fun `given user has no teamId and conversation has teamId and user is an admin, when initialising group options, then read receipt update allowed result is enabled`() = runTest {
         // given
@@ -407,6 +409,7 @@ class GroupConversationDetailsViewModelTest {
         assertEquals(true, viewModel.groupOptionsState.value.isUpdatingReadReceiptAllowed)
     }
 
+    @Suppress("MaxLineLength")
     @Test
     fun `given user has no teamId and conversation has teamId and user is not an admin, when initialising group options, then read receipt update allowed result is enabled`() = runTest {
         // given
@@ -433,6 +436,7 @@ class GroupConversationDetailsViewModelTest {
         assertEquals(true, viewModel.groupOptionsState.value.isUpdatingReadReceiptAllowed)
     }
 
+    @Suppress("MaxLineLength")
     @Test
     fun `given user has teamId and conversation has teamId and user is an admin, when initialising group options, then read receipt update allowed result is enabled`() = runTest {
         // given

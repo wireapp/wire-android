@@ -21,6 +21,7 @@
 package com.wire.android.ui.calling.initiating
 
 import android.view.View
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -81,6 +82,10 @@ private fun InitiatingCallContent(
     onVideoPreviewCreated: (view: View) -> Unit,
     onSelfClearVideoPreview: () -> Unit
 ) {
+    BackHandler {
+        // DO NOTHING
+    }
+
     val scaffoldState = rememberBottomSheetScaffoldState()
 
     BottomSheetScaffold(

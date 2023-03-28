@@ -50,6 +50,7 @@ import androidx.compose.ui.unit.TextUnit
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.util.ui.UIText
 
+@Suppress("ComplexMethod")
 @Composable
 fun LinkifyText(
     text: UIText,

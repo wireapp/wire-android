@@ -94,7 +94,6 @@ fun WireSecondaryButton(
     modifier = modifier
 )
 
-
 @Preview(name = "Default WireSecondaryButton")
 @Composable
 fun PreviewWireSecondaryButton() {

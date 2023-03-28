@@ -93,8 +93,6 @@ fun Modifier.shimmerPlaceholder(
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun Modifier.clickable(clickable: Clickable?) = clickable?.let {
-    val syncStateObserver = LocalSyncStateObserver.current
-    val context = LocalContext.current
     val onClick = rememberClickBlockAction(clickable.clickBlockParams, clickable.onClick)
     val onLongClick = clickable.onLongClick?.let { onLongClick ->
         rememberClickBlockAction(clickable.clickBlockParams, onLongClick)

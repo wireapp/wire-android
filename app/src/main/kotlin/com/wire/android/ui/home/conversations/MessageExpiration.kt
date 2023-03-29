@@ -71,8 +71,12 @@ class SelfDeletionTimer(private val context: Context) {
             private val expireAfter: Duration
         ) : SelfDeletionTimerState() {
             companion object {
-                private const val TIME_ELAPSED_RATIO_BOUNDARY_FOR_FULL_ALPHA = 0.50
+                private const val HIGH_TIME_ELAPSED_RATIO_BOUNDARY_FOR_PROPONTIAL_ALPHA_CHANGE = 0.75
+                private const val LOW_TIME_ELAPSED_RATIO_BOUNDARY_FOR_PROPONTIAL_ALPHA_CHANGE = 0.50
+                private const val QUARTER_RATIO_VALUE = 0.25
+                private const val HALF_RATIO_VALUE = 0.50
                 private const val INVISIBLE_BACKGROUND_COLOR_ALPHA_VALUE = 0F
+                private const val OPAQUE_BACKGROUND_COLOR_ALPHA_VALUE = 1F
             }
 
             var timeLeft by mutableStateOf(timeLeft)
@@ -193,9 +197,9 @@ class SelfDeletionTimer(private val context: Context) {
                 val timeElapsed = expireAfter - timeLeft
                 val timeElapsedRatio = timeElapsed / expireAfter
 
-                return if (timeElapsedRatio < TIME_ELAPSED_RATIO_BOUNDARY_FOR_FULL_ALPHA) {
+                return if (timeElapsedRatio < LOW_TIME_ELAPSED_RATIO_BOUNDARY_FOR_PROPONTIAL_ALPHA_CHANGE) {
                     INVISIBLE_BACKGROUND_COLOR_ALPHA_VALUE
-                } else if (timeElapsedRatio in 0.50..0.75) {
+                } else if (timeElapsedRatio in LOW_TIME_ELAPSED_RATIO_BOUNDARY_FOR_PROPONTIAL_ALPHA_CHANGE..HIGH_TIME_ELAPSED_RATIO_BOUNDARY_FOR_PROPONTIAL_ALPHA_CHANGE) {
                     // if the time elapsed ratio is between 0.50 and 0.75
                     // we want to change the value proportionally to how much
                     // time is left between 0.50 and 0.75, we doing that by dividing
@@ -207,15 +211,15 @@ class SelfDeletionTimer(private val context: Context) {
                     // timeElapsedFromHalfTimeSlice = 6 sec - 5 sec = 1 sec
                     // alpha value is equal to the ratio = 1 / 2.5 = 0.4
 
-                    val halfTimeSlice = expireAfter.times(0.50)
-                    val quarterTimeLeftSlice = expireAfter.times(0.25)
+                    val halfTimeSlice = expireAfter.times(HALF_RATIO_VALUE)
+                    val quarterTimeLeftSlice = expireAfter.times(QUARTER_RATIO_VALUE)
 
                     val durationInBetweenHalfTimeAndQuarterSlice = halfTimeSlice - quarterTimeLeftSlice
                     val timeElapsedFromHalfTimeSlice = timeElapsed - halfTimeSlice
 
                     (timeElapsedFromHalfTimeSlice / durationInBetweenHalfTimeAndQuarterSlice).toFloat()
                 } else {
-                    1F
+                    OPAQUE_BACKGROUND_COLOR_ALPHA_VALUE
                 }
 
             }

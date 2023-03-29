@@ -55,6 +55,7 @@ import com.wire.kalium.logic.MLSFailure
 import com.wire.kalium.logic.NetworkFailure
 import com.wire.kalium.logic.ProteusFailure
 import com.wire.kalium.logic.StorageFailure
+import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.functional.Either
 import com.wire.kalium.logic.functional.flatMap
@@ -138,11 +139,7 @@ class MigrationManager @Inject constructor(
             }
                 .map {
                     appLogger.d("$TAG - Step 6 - Clean read messages for ${userId.value.obfuscateId()}")
-                    it.forEach { conversation ->
-                        coreLogic.getSessionScope(userId).conversations.updateConversationReadDateUseCase(
-                            conversation.id, Instant.parse(conversation.lastReadDate)
-                        )
-                    }
+                    clearReadMessages(it, userId)
                 }
                 .fold({
                     when (it) {
@@ -160,6 +157,17 @@ class MigrationManager @Inject constructor(
             // and avoid any possible crash loops
             globalDataStore.setUserMigrationStatus(userId.value, UserMigrationStatus.Completed)
         }
+
+    private suspend fun clearReadMessages(
+        it: List<Conversation>,
+        userId: UserId
+    ) {
+        it.forEach { conversation ->
+            coreLogic.getSessionScope(userId).conversations.updateConversationReadDateUseCase(
+                conversation.id, Instant.parse(conversation.lastReadDate)
+            )
+        }
+    }
 
     suspend fun migrate(
         coroutineScope: CoroutineScope,
@@ -273,16 +281,20 @@ class MigrationManager @Inject constructor(
                     appLogger.d("$TAG - Step 5 - Migrating messages for ${userId.value.obfuscateId()}")
                     migrateMessages(userId, it, coroutineScope).let { failedConversations ->
                         if (failedConversations.isEmpty()) {
-                            Either.Right(Unit)
+                            Either.Right(it)
                         } else {
                             Either.Left(failedConversations.values.first())
                         }
                     }
-                }.onSuccess {
-                    globalDataStore.setUserMigrationStatus(userId.value, UserMigrationStatus.Completed)
-                }.also {
-                    resultAcc[userId.value] = it
+                }.map {
+                    appLogger.d("$TAG - Step 6 - Clean read messages for ${userId.value.obfuscateId()}")
+                    clearReadMessages(it, userId)
                 }
+                    .onSuccess {
+                        globalDataStore.setUserMigrationStatus(userId.value, UserMigrationStatus.Completed)
+                    }.also {
+                        resultAcc[userId.value] = it
+                    }
             }
         }
         migrationJobs.joinAll()

@@ -199,7 +199,9 @@ class SelfDeletionTimer(private val context: Context) {
 
                 return if (timeElapsedRatio < LOW_TIME_ELAPSED_RATIO_BOUNDARY_FOR_PROPONTIAL_ALPHA_CHANGE) {
                     INVISIBLE_BACKGROUND_COLOR_ALPHA_VALUE
-                } else if (timeElapsedRatio in LOW_TIME_ELAPSED_RATIO_BOUNDARY_FOR_PROPONTIAL_ALPHA_CHANGE..HIGH_TIME_ELAPSED_RATIO_BOUNDARY_FOR_PROPONTIAL_ALPHA_CHANGE) {
+                } else if (timeElapsedRatio in LOW_TIME_ELAPSED_RATIO_BOUNDARY_FOR_PROPONTIAL_ALPHA_CHANGE
+                    ..HIGH_TIME_ELAPSED_RATIO_BOUNDARY_FOR_PROPONTIAL_ALPHA_CHANGE
+                ) {
                     // if the time elapsed ratio is between 0.50 and 0.75
                     // we want to change the value proportionally to how much
                     // time is left between 0.50 and 0.75, we doing that by dividing

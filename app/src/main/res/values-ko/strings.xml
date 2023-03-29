@@ -806,6 +806,7 @@
     <string name="label_reactions">Reactions</string>
     <string name="label_more_comming_soon">(more coming soon)</string>
     <string name="label_wait_until_synchronised">Please wait until the app is synchronized</string>
+    <string name="label_wait_until_connected">Please wait until the Internet connection is restored</string>
     <string name="label_textfield_optional_password">Password (optional)</string>
     <!--create and restore backup-->
     <string name="backup_dialog_create_backup_set_password_title">Set password</string>

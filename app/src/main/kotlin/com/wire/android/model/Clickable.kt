@@ -22,7 +22,12 @@ package com.wire.android.model
 
 data class Clickable(
     val enabled: Boolean = true,
-    val blockUntilSynced: Boolean = false,
+    val clickBlockParams: ClickBlockParams = ClickBlockParams(),
     val onLongClick: (() -> Unit)? = null,
     val onClick: () -> Unit = {}
+)
+
+data class ClickBlockParams(
+    val blockWhenSyncing: Boolean = false,
+    val blockWhenConnecting: Boolean = false,
 )

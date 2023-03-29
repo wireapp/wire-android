@@ -20,7 +20,6 @@
 
 package com.wire.android.ui.common.button
 
-import android.widget.Toast
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -48,21 +47,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
-import com.wire.android.R
+import com.wire.android.model.ClickBlockParams
 import com.wire.android.ui.common.Tint
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
+import com.wire.android.ui.common.rememberClickBlockAction
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
-import com.wire.android.util.LocalSyncStateObserver
 import java.lang.Integer.max
-
 
 @Composable
 fun WireButton(
@@ -76,7 +73,7 @@ fun WireButton(
     fillMaxWidth: Boolean = true,
     textStyle: TextStyle = if (fillMaxWidth) MaterialTheme.wireTypography.button02 else MaterialTheme.wireTypography.button03,
     state: WireButtonState = WireButtonState.Default,
-    blockUntilSynced: Boolean = false,
+    clickBlockParams: ClickBlockParams = ClickBlockParams(),
     minHeight: Dp = MaterialTheme.wireDimensions.buttonMinSize.height,
     minWidth: Dp = MaterialTheme.wireDimensions.buttonMinSize.width,
     shape: Shape = RoundedCornerShape(MaterialTheme.wireDimensions.buttonCornerSize),
@@ -102,16 +99,7 @@ fun WireButton(
         disabledContainerColor = colors.containerColor(state, interactionSource).value,
         disabledContentColor = colors.rippleColor(),
     )
-    val syncStateObserver = LocalSyncStateObserver.current
-    val context = LocalContext.current
-    val onClickWithSyncObserver = remember(blockUntilSynced, syncStateObserver, onClick) {
-        {
-            if (blockUntilSynced && !syncStateObserver.isSynced)
-                Toast.makeText(context, context.getString(R.string.label_wait_until_synchronised), Toast.LENGTH_SHORT).show()
-            else
-                onClick()
-        }
-    }
+    val onClickWithSyncObserver = rememberClickBlockAction(clickBlockParams, onClick)
     Button(
         onClick = onClickWithSyncObserver,
         modifier = modifier
@@ -185,12 +173,13 @@ private fun InnerButtonBox(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             if (leadingIconAlignment == IconAlignment.Center) leadingItem()
-            if (!text.isNullOrEmpty())
+            if (!text.isNullOrEmpty()) {
                 Text(
                     text = text,
                     style = textStyle,
                     color = contentColor
                 )
+            }
             if (trailingIconAlignment == IconAlignment.Center) trailingItem()
         }
 
@@ -209,4 +198,3 @@ fun getMinTouchMargins(minSize: DpSize) = PaddingValues(
 )
 
 enum class IconAlignment { Border, Center }
-

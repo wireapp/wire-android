@@ -244,26 +244,27 @@ class SharedCallingViewModelTest {
     }
 
     @Test
-    fun `given an video call, when pauseVideo is called, then clear the video preview and update video state to PAUSED`() {
+    fun `given a video call, when stopping video, then clear Video Preview and turn off speaker`() {
         sharedCallingViewModel.callState = sharedCallingViewModel.callState.copy(isCameraOn = true)
         coEvery { setVideoPreview(any(), any()) } returns Unit
-        coEvery { updateVideoState(any(), any()) } returns Unit
+        coEvery { turnLoudSpeakerOff() } returns Unit
 
-        runTest { sharedCallingViewModel.pauseVideo() }
+        runTest { sharedCallingViewModel.stopVideo() }
 
-        coVerify(exactly = 1) { updateVideoState(any(), VideoState.PAUSED) }
+        coVerify(exactly = 1) { setVideoPreview(any(), any()) }
+        coVerify(exactly = 1) { turnLoudSpeakerOff() }
     }
 
     @Test
-    fun `given an audio call, when pauseVideo is called, then do not pause the video`() {
+    fun `given an audio call, when stopVideo is invoked, then do not do anything`() {
         sharedCallingViewModel.callState = sharedCallingViewModel.callState.copy(isCameraOn = false)
         coEvery { setVideoPreview(any(), any()) } returns Unit
-        coEvery { updateVideoState(any(), any()) } returns Unit
+        coEvery { turnLoudSpeakerOff() } returns Unit
 
-        runTest { sharedCallingViewModel.pauseVideo() }
+        runTest { sharedCallingViewModel.stopVideo() }
 
         coVerify(inverse = true) { setVideoPreview(any(), any()) }
-        coVerify(inverse = true) { updateVideoState(any(), VideoState.PAUSED) }
+        coVerify(inverse = true) { turnLoudSpeakerOff() }
     }
 
     companion object {

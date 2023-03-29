@@ -183,8 +183,6 @@ fun ConversationScreen(
         onDeleteMessage = messageComposerViewModel::showDeleteMessageDialog,
         onSendAttachment = messageComposerViewModel::sendAttachmentMessage,
         onAssetItemClicked = conversationMessagesViewModel::downloadOrFetchAssetAndShowDialog,
-        onDownloadAssetExternallyClicked = conversationMessagesViewModel::downloadAssetExternally,
-        onOpenAssetClicked = conversationMessagesViewModel::downloadAndOpenAsset,
         onImageFullScreenMode = { message, isSelfMessage ->
             messageComposerViewModel.navigateToGallery(message.messageHeader.messageId, isSelfMessage)
             conversationMessagesViewModel.updateImageOnFullscreenMode(message)
@@ -296,8 +294,6 @@ private fun ConversationScreen(
     onAudioClick: (String) -> Unit,
     onChangeAudioPosition: (String, Int) -> Unit,
     onAssetItemClicked: (String) -> Unit,
-    onDownloadAssetExternallyClicked: (String) -> Unit,
-    onOpenAssetClicked: (String) -> Unit,
     onImageFullScreenMode: (UIMessage, Boolean) -> Unit,
     onOpenOngoingCallScreen: () -> Unit,
     onStartCall: () -> Unit,
@@ -645,8 +641,6 @@ fun PreviewConversationScreen() {
         onDeleteMessage = { _, _ -> },
         onSendAttachment = { },
         onAssetItemClicked = { },
-        onOpenAssetClicked = { _ -> },
-        onDownloadAssetExternallyClicked = { _ -> },
         onImageFullScreenMode = { _, _ -> },
         onOpenOngoingCallScreen = { },
         onStartCall = { },

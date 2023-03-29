@@ -72,10 +72,16 @@ class SelfDeletionTimer(private val context: Context) {
         ) : SelfDeletionTimerState() {
             companion object {
                 // the ratio for when the timeLeft / expireAfter is a subject for alpha change to
-                // message background color
-                private const val TIME_LEFT_RATIO_BOUNDARY_FOR_ALMOST_TIME_LEFT_ELAPSED_ALPHA = 0.75
+                // full opacity for message background color
+                private const val TIME_LEFT_RATIO_BOUNDARY_WHEN_MESSAGE_NEARLY_EXPIRED = 0.75
+
+                // the ratio for when the timeLeft / expireAfter is a subject for alpha change to
+                // full opacity for message background color
+                private const val TIME_LEFT_RATIO_BOUNDARY_WHEN_HALF_OF_EXPIRE_TIME_LEFT = 0.50
+
                 // alpha value when the timeLeft is past the ratio boundary
                 private const val PAST_RATIO_BOUNDARY_FOR_ALMOST_NO_TIME_LEFT_ALPHA_VALUE = 1F
+
                 // alpha value when the timeLeft is before the ratio boundary
                 private const val BEFORE_RATIO_BOUNDARY_FOR_ALMOST_TIME_LEFT_ALPHA_VALUE = 0F
             }
@@ -197,7 +203,11 @@ class SelfDeletionTimer(private val context: Context) {
             fun alphaBackgroundColor(): Float {
                 val totalTimeLeftRatio = timeLeft / expireAfter
 
-                return if (totalTimeLeftRatio <= TIME_LEFT_RATIO_BOUNDARY_FOR_ALMOST_TIME_LEFT_ELAPSED_ALPHA) {
+
+
+                return if (totalTimeLeftRatio > TIME_LEFT_RATIO_BOUNDARY_WHEN_HALF_OF_EXPIRE_TIME_LEFT && totalTimeLeftRatio <= TIME_LEFT_RATIO_BOUNDARY_WHEN_MESSAGE_NEARLY_EXPIRED) {
+                    val time123 = expireAfter.times(0.25)
+                } else if (totalTimeLeftRatio => TIME_LEFT_RATIO_BOUNDARY_WHEN_MESSAGE_NEARLY_EXPIRED) {
                     BEFORE_RATIO_BOUNDARY_FOR_ALMOST_TIME_LEFT_ALPHA_VALUE
                 } else {
                     PAST_RATIO_BOUNDARY_FOR_ALMOST_NO_TIME_LEFT_ALPHA_VALUE

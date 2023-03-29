@@ -70,7 +70,6 @@ sealed class UIMessage(
         val decryptionFailed: Boolean = header.messageStatus is DecryptionFailure
         val receivingFailed: Boolean = header.messageStatus == ReceiveFailure || decryptionFailed
     }
-
 }
 
 @Stable

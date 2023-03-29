@@ -119,9 +119,12 @@ internal fun MessageDecryptionFailure(
 
 @Composable
 internal fun Modifier.customizeMessageBackground(
-    sendingFailed: Boolean, receivingFailed: Boolean
+    sendingFailed: Boolean,
+    receivingFailed: Boolean
 ) = run {
     if (sendingFailed || receivingFailed) {
         background(MaterialTheme.wireColorScheme.messageErrorBackgroundColor)
-    } else this
+    } else {
+        this
+    }
 }

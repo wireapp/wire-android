@@ -111,11 +111,13 @@ private fun MessageComposeActions(
             if (RichTextIcon) RichTextEditingAction()
             if (!isEditMessage && EmojiIcon) AddEmojiAction()
             if (!isEditMessage && GifIcon) AddGifAction()
-            AddMentionAction(isMentionsSelected, startMention)
+            if (!isEditMessage) SelfDeletingMessageAction()
             if (!isEditMessage && PingIcon) PingAction(onPingClicked = onPingClicked)
+            AddMentionAction(isMentionsSelected, startMention)
         }
     }
 }
+
 
 @Composable
 private fun RichTextEditingAction() {
@@ -165,6 +167,16 @@ private fun AddMentionAction(isSelected: Boolean, addMentionAction: () -> Unit) 
 private fun PingAction(onPingClicked: () -> Unit) {
     WireSecondaryIconButton(
         onButtonClicked = onPingClicked,
+        clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
+        iconResource = R.drawable.ic_ping,
+        contentDescription = R.string.content_description_ping_everyone
+    )
+}
+
+@Composable
+fun SelfDeletingMessageAction() {
+    WireSecondaryIconButton(
+        onButtonClicked = { },
         clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
         iconResource = R.drawable.ic_ping,
         contentDescription = R.string.content_description_ping_everyone

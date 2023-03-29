@@ -90,7 +90,6 @@ fun MessageComposerInputRow(
                 .weight(weight = 1f, fill = true)
                 .wrapContentSize()
         ) {
-
             MessageComposerInput(
                 messageText = messageComposeInputState.messageText,
                 onMessageTextChanged = onMessageTextChanged,

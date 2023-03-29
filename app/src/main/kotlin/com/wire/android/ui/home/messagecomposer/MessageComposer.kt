@@ -82,6 +82,7 @@ fun MessageComposer(
     securityClassificationType: SecurityClassificationType,
     membersToMention: List<Contact>,
     onPingClicked: () -> Unit,
+    onShowSelfDeletionOption : () -> Unit,
     tempWritableImageUri: Uri?,
     tempWritableVideoUri: Uri?
 ) {
@@ -154,7 +155,6 @@ fun MessageComposer(
 }
 
 @Suppress("ComplexMethod", "ComplexCondition")
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun MessageComposer(
     messagesContent: @Composable () -> Unit,

@@ -324,25 +324,31 @@ private fun ConversationScreen(
     MenuModalSheetLayout(
         sheetState = conversationScreenState.modalBottomSheetState,
         coroutineScope = conversationScreenState.coroutineScope,
-        menuItems = conversationScreenState.selectedMessage?.let { message ->
-            EditMessageMenuItems(
-                message = message,
-                hideEditMessageMenu = conversationScreenState::hideEditContextMenu,
-                onCopyClick = conversationScreenState::copyMessage,
-                onDeleteClick = onDeleteMessage,
-                onReactionClick = onReactionClick,
-                onDetailsClick = onMessageDetailsClick,
-                onReplyClick = messageComposerInnerState::reply,
-                onEditClick = messageComposerInnerState::toEditMessage,
-                onShareAsset = {
-                    conversationScreenState.selectedMessage?.messageHeader?.messageId?.let {
-                        conversationMessagesViewModel.shareAsset(context, it)
-                        conversationScreenState.hideEditContextMenu()
+        menuItems = when (val dupa = conversationScreenState.dupa) {
+            is ConversationScreenState.BottomSheetMenuType.Edit -> {
+                EditMessageMenuItems(
+                    message = dupa.selectedMessage,
+                    hideEditMessageMenu = conversationScreenState::hideEditContextMenu,
+                    onCopyClick = conversationScreenState::copyMessage,
+                    onDeleteClick = onDeleteMessage,
+                    onReactionClick = onReactionClick,
+                    onDetailsClick = onMessageDetailsClick,
+                    onReplyClick = messageComposerInnerState::reply,
+                    onEditClick = messageComposerInnerState::toEditMessage,
+                    onShareAsset = {
+                        dupa.selectedMessage.messageHeader.messageId.let {
+                            conversationMessagesViewModel.shareAsset(context, it)
+                            conversationScreenState.hideEditContextMenu()
+                        }
                     }
-                }
 
-            )
-        } ?: emptyList()
+                )
+            }
+            is ConversationScreenState.BottomSheetMenuType.SelfDeletion -> emptyList()
+            ConversationScreenState.BottomSheetMenuType.None -> emptyList()
+        }
+
+
     ) {
         Scaffold(
             topBar = {
@@ -396,7 +402,8 @@ private fun ConversationScreen(
                         onOpenProfile = onOpenProfile,
                         onUpdateConversationReadDate = onUpdateConversationReadDate,
                         onMessageComposerError = onSnackbarMessage,
-                        onShowContextMenu = conversationScreenState::showEditContextMenu,
+                        onShowEditiingOptions = conversationScreenState::showEditContextMenu,
+                        onShowSelfDeletionOption = conversationScreenState::showSelfDeletionContextMenu,
                         onPingClicked = onPingClicked,
                         tempWritableImageUri = tempWritableImageUri,
                         tempWritableVideoUri = tempWritableVideoUri
@@ -433,7 +440,8 @@ private fun ConversationScreenContent(
     onOpenProfile: (String) -> Unit,
     onUpdateConversationReadDate: (String) -> Unit,
     onMessageComposerError: (ConversationSnackbarMessages) -> Unit,
-    onShowContextMenu: (UIMessage) -> Unit,
+    onShowEditiingOptions: (UIMessage) -> Unit,
+    onShowSelfDeletionOption: () -> Unit,
     onPingClicked: () -> Unit,
     tempWritableImageUri: Uri?,
     tempWritableVideoUri: Uri?
@@ -463,7 +471,7 @@ private fun ConversationScreenContent(
                 onOpenProfile = onOpenProfile,
                 onReactionClicked = onReactionClicked,
                 onResetSessionClicked = onResetSessionClicked,
-                onShowContextMenu = onShowContextMenu
+                onShowEditingOption = onShowEditiingOptions
             )
         },
         onSendTextMessage = { message, mentions, messageId ->
@@ -481,6 +489,7 @@ private fun ConversationScreenContent(
         },
         onMentionMember = onMentionMember,
         onMessageComposerError = onMessageComposerError,
+        onShowSelfDeletionOption = onShowSelfDeletionOption,
         isFileSharingEnabled = isFileSharingEnabled,
         tempCachePath = tempCachePath,
         interactionAvailability = interactionAvailability,
@@ -551,7 +560,7 @@ fun MessageList(
     onChangeAudioPosition: (String, Int) -> Unit,
     onReactionClicked: (String, String) -> Unit,
     onResetSessionClicked: (senderUserId: UserId, clientId: String?) -> Unit,
-    onShowContextMenu: (UIMessage) -> Unit
+    onShowEditingOption: (UIMessage) -> Unit
 ) {
     val mostRecentMessage = lazyPagingMessages.itemCount.takeIf { it > 0 }?.let { lazyPagingMessages[0] }
 
@@ -598,7 +607,7 @@ fun MessageList(
                     audioMessagesState = audioMessagesState,
                     onAudioClick = onAudioClick,
                     onChangeAudioPosition = onChangeAudioPosition,
-                    onLongClicked = onShowContextMenu,
+                    onLongClicked = onShowEditingOption,
                     onAssetMessageClicked = onDownloadAsset,
                     onImageMessageClicked = onImageFullScreenMode,
                     onOpenProfile = onOpenProfile,

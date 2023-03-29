@@ -72,11 +72,10 @@ class ConversationScreenState(
     val coroutineScope: CoroutineScope
 ) {
 
-    var selectedMessage by mutableStateOf<UIMessage?>(null)
+    var dupa: BottomSheetMenuType by mutableStateOf(BottomSheetMenuType.None)
 
     fun showEditContextMenu(message: UIMessage) {
-        selectedMessage = message
-
+        dupa = BottomSheetMenuType.Edit(message)
         coroutineScope.launch { modalBottomSheetState.animateTo(ModalBottomSheetValue.Expanded) }
     }
 
@@ -93,5 +92,17 @@ class ConversationScreenState(
             modalBottomSheetState.animateTo(ModalBottomSheetValue.Hidden)
             snackBarHostState.showSnackbar(context.getString(R.string.info_message_copied))
         }
+    }
+
+    fun showSelfDeletionContextMenu() {
+
+    }
+
+    sealed class BottomSheetMenuType(open val selectedMessage: UIMessage?) {
+        class Edit(override val selectedMessage: UIMessage) : BottomSheetMenuType(selectedMessage)
+
+        class SelfDeletion(override val selectedMessage: UIMessage) : BottomSheetMenuType(selectedMessage)
+
+        object None : BottomSheetMenuType(null)
     }
 }

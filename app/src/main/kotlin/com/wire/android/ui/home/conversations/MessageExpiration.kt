@@ -281,7 +281,7 @@ fun startDeletionTimer(
                 }
             }
 
-            else -> {}
+            else -> { }
         }
     }
 }

@@ -71,19 +71,8 @@ class SelfDeletionTimer(private val context: Context) {
             private val expireAfter: Duration
         ) : SelfDeletionTimerState() {
             companion object {
-                // the ratio for when the timeLeft / expireAfter is a subject for alpha change to
-                // full opacity for message background color
-                private const val TIME_LEFT_RATIO_BOUNDARY_WHEN_MESSAGE_NEARLY_EXPIRED = 0.75
-
-                // the ratio for when the timeLeft / expireAfter is a subject for alpha change to
-                // full opacity for message background color
-                private const val TIME_LEFT_RATIO_BOUNDARY_WHEN_HALF_OF_EXPIRE_TIME_LEFT = 0.50
-
-                // alpha value when the timeLeft is past the ratio boundary
-                private const val PAST_RATIO_BOUNDARY_FOR_ALMOST_NO_TIME_LEFT_ALPHA_VALUE = 1F
-
-                // alpha value when the timeLeft is before the ratio boundary
-                private const val BEFORE_RATIO_BOUNDARY_FOR_ALMOST_TIME_LEFT_ALPHA_VALUE = 0F
+                private const val TIME_ELAPSED_RATIO_BOUNDARY_FOR_FULL_ALPHA = 0.50
+                private const val INVISIBLE_BACKGROUND_COLOR_ALPHA_VALUE = 0F
             }
 
             var timeLeft by mutableStateOf(timeLeft)
@@ -201,17 +190,34 @@ class SelfDeletionTimer(private val context: Context) {
             }
 
             fun alphaBackgroundColor(): Float {
-                val totalTimeLeftRatio = timeLeft / expireAfter
+                val timeElapsed = expireAfter - timeLeft
+                val timeElapsedRatio = timeElapsed / expireAfter
 
+                return if (timeElapsedRatio < TIME_ELAPSED_RATIO_BOUNDARY_FOR_FULL_ALPHA) {
+                    INVISIBLE_BACKGROUND_COLOR_ALPHA_VALUE
+                } else if (timeElapsedRatio in 0.50..0.75) {
+                    // if the time elapsed ratio is between 0.50 and 0.75
+                    // we want to change the value proportionally to how much
+                    // time is left between 0.50 and 0.75, we doing that by dividing
+                    // how much time is elapsed since half of the total expire after time by
+                    // the "time slice" that fits between 0.5 and 0.75
+                    // for example. expireAfter = 10 sec, timeElapsed = 6 sec
+                    // quarterTimeLeftSlice = 2.5 sec, halfTimeSlice = 5 sec
+                    // durationInBetweenHalfTimeAndQuarterSlice = 5 sec - 2.5 sec = 2.5 sec
+                    // timeElapsedFromHalfTimeSlice = 6 sec - 5 sec = 1 sec
+                    // alpha value is equal to the ratio = 1 / 2.5 = 0.4
 
+                    val halfTimeSlice = expireAfter.times(0.50)
+                    val quarterTimeLeftSlice = expireAfter.times(0.25)
 
-                return if (totalTimeLeftRatio > TIME_LEFT_RATIO_BOUNDARY_WHEN_HALF_OF_EXPIRE_TIME_LEFT && totalTimeLeftRatio <= TIME_LEFT_RATIO_BOUNDARY_WHEN_MESSAGE_NEARLY_EXPIRED) {
-                    val time123 = expireAfter.times(0.25)
-                } else if (totalTimeLeftRatio => TIME_LEFT_RATIO_BOUNDARY_WHEN_MESSAGE_NEARLY_EXPIRED) {
-                    BEFORE_RATIO_BOUNDARY_FOR_ALMOST_TIME_LEFT_ALPHA_VALUE
+                    val durationInBetweenHalfTimeAndQuarterSlice = halfTimeSlice - quarterTimeLeftSlice
+                    val timeElapsedFromHalfTimeSlice = timeElapsed - halfTimeSlice
+
+                    (timeElapsedFromHalfTimeSlice / durationInBetweenHalfTimeAndQuarterSlice).toFloat()
                 } else {
-                    PAST_RATIO_BOUNDARY_FOR_ALMOST_NO_TIME_LEFT_ALPHA_VALUE
+                    1F
                 }
+
             }
         }
 

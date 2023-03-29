@@ -40,7 +40,7 @@
     <string name="label_membership_external">External</string>
     <string name="label_membership_service">Service</string>
     <string name="label_user_deleted">Deleted</string>
-    <string name="label_message_sent_failure">Message could not be sent.</string>
+    <string name="label_message_sent_failure">Message could not be sent due to connectivity issues.</string>
     <string name="label_message_edit_sent_failure">The edited message could not be sent due to connectivity issues.</string>
     <string name="label_message_sent_remotely_failure">Message could not be sent, as the backend %s appears to be offline.</string>
     <string name="label_message_receive_failure">Download Error</string>
@@ -515,7 +515,7 @@
     <string name="label_system_message_new_conversation_receipt_mode">Read receipts are %1$s</string>
     <string name="label_system_message_read_receipt_changed_by_self">%1$s turned read receipts %2$s for everyone</string>
     <string name="label_system_message_read_receipt_changed_by_other">%1$s turned read receipts %2$s for everyone</string>
-    <string name="label_system_message_conversation_history_lost">YOU HAVEN\'T USED THIS DEVICE FOR A WHILE. SOME MESSAGES MAY NOT APPEAR HERE.</string>
+    <string name="label_system_message_conversation_history_lost">You haven\'t used this device for a while. some messages may not appear here.</string>
     <string name="label_system_message_receipt_mode_on">on</string>
     <string name="label_system_message_receipt_mode_off">off</string>
     <!-- Last messages -->
@@ -806,6 +806,7 @@
     <string name="label_reactions">Reactions</string>
     <string name="label_more_comming_soon">(more coming soon)</string>
     <string name="label_wait_until_synchronised">Please wait until the app is synchronized</string>
+    <string name="label_wait_until_connected">Please wait until the Internet connection is restored</string>
     <string name="label_textfield_optional_password">Password (optional)</string>
     <!--create and restore backup-->
     <string name="backup_dialog_create_backup_set_password_title">Set password</string>

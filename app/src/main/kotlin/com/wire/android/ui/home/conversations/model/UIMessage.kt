@@ -257,35 +257,40 @@ sealed class UIMessageContent {
 
 data class MessageBody(
     val message: UIText,
-    val quotedMessage: QuotedMessageUIData? = null
+    val quotedMessage: UIQuotedMessage? = null
 )
 
-data class QuotedMessageUIData(
-    val messageId: String,
-    val senderId: UserId,
-    val senderName: UIText,
-    val originalMessageDateDescription: UIText,
-    val editedTimeDescription: UIText?,
-    val quotedContent: Content
-) {
+sealed class UIQuotedMessage {
 
-    sealed interface Content
+    object UnavailableData: UIQuotedMessage()
 
-    data class Text(val value: String) : Content
+    data class UIQuotedData(
+        val messageId: String,
+        val senderId: UserId,
+        val senderName: UIText,
+        val originalMessageDateDescription: UIText,
+        val editedTimeDescription: UIText?,
+        val quotedContent: Content
+    ): UIQuotedMessage() {
 
-    data class GenericAsset(
-        val assetName: String?,
-        val assetMimeType: String
-    ) : Content
+        sealed interface Content
 
-    data class DisplayableImage(
-        val displayable: ImageAsset.PrivateAsset
-    ) : Content
+        data class Text(val value: String) : Content
 
-    object AudioMessage : Content
+        data class GenericAsset(
+            val assetName: String?,
+            val assetMimeType: String
+        ) : Content
 
-    object Deleted : Content
-    object Invalid : Content
+        data class DisplayableImage(
+            val displayable: ImageAsset.PrivateAsset
+        ) : Content
+
+        object AudioMessage : Content
+
+        object Deleted : Content
+        object Invalid : Content
+    }
 }
 
 enum class MessageSource {

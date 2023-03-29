@@ -76,6 +76,7 @@ class SelfDeletionTimer(private val context: Context) {
                  * on which the proportional background alpha color changes
                  */
                 private const val HIGH_END_TIME_ELAPSED_RATIO_BOUNDARY_FOR_PROPORTIONAL_ALPHA_CHANGE = 0.75
+
                 /**
                  * low end boundary ratio between elapsed time which is equal to [expireAfter] - [timeLeft] and [expireAfter]
                  * on which the proportional background alpha color changes
@@ -281,7 +282,7 @@ fun startDeletionTimer(
                 }
             }
 
-            else -> { }
+            else -> {}
         }
     }
 }

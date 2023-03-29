@@ -111,7 +111,7 @@ fun EditMessageMenuItems(
     val onDownloadAssetClick = remember(message) {
         {
             hideEditMessageMenu {
-                onDownloadAsset(message.messageHeader.messageId,)
+                onDownloadAsset(message.messageHeader.messageId)
             }
         }
     }
@@ -142,8 +142,8 @@ fun EditMessageMenuItems(
                 }
             }
             add { ReplyMessageOption(onReplyItemClick) }
-            if (isAssetMessage) { DownloadAssetExternallyOption(onDownloadAssetClick) }
-            if (isGenericAsset) { OpenAssetExternallyOption(onOpenAssetClick) }
+            if (isAssetMessage) add { DownloadAssetExternallyOption(onDownloadAssetClick) }
+            if (isGenericAsset) add { OpenAssetExternallyOption(onOpenAssetClick) }
             if (isEditable) {
                 add {
                     MenuBottomSheetItem(

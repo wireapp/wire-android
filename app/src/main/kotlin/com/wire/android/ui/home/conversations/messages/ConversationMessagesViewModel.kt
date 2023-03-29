@@ -166,34 +166,36 @@ class ConversationMessagesViewModel @Inject constructor(
 
     private suspend fun attemptDownloadOfAsset(messageId: String): Pair<String, AssetBundle>? {
         val messageDataResult = getMessageByIdUseCase(conversationId, messageId)
-        if (messageDataResult !is GetMessageByIdUseCase.Result.Success) {
-            appLogger.w("Failed when fetching details of message to download asset: $messageDataResult")
-            return null
-        }
-        val message = messageDataResult.message
-        val messageContent = message.content
-
-        if (messageContent !is MessageContent.Asset) {
-            // This _should_ not even happen, tho. Unless UI is buggy. So... do we crash?! Better not.
-            appLogger.w("Attempting to download assets of a non-asset message. Ignoring user input.")
-            return null
-        }
-        val assetContent = messageContent.value
-        return try {
-            assetDataPath(conversationId, messageId)?.let { (path, _) ->
-                messageId to AssetBundle(
-                    dataPath = path,
-                    fileName = assetContent.name ?: DEFAULT_ASSET_NAME,
-                    dataSize = assetContent.sizeInBytes,
-                    mimeType = assetContent.mimeType,
-                    assetType = AttachmentType.fromMimeTypeString(assetContent.mimeType)
-                )
+        return when {
+            messageDataResult !is GetMessageByIdUseCase.Result.Success -> {
+                appLogger.w("Failed when fetching details of message to download asset: $messageDataResult")
+                null
             }
-        } catch (e: OutOfMemoryError) {
-            appLogger.e("There was an OutOfMemory error while downloading the asset")
-            onSnackbarMessage(ConversationSnackbarMessages.ErrorDownloadingAsset)
-            updateAssetMessageDownloadStatus(Message.DownloadStatus.FAILED_DOWNLOAD, conversationId, messageId)
-            null
+
+            messageDataResult.message.content !is MessageContent.Asset -> {
+                // This _should_ not even happen, tho. Unless UI is buggy. So... do we crash?! Better not.
+                appLogger.w("Attempting to download assets of a non-asset message. Ignoring user input.")
+                null
+            }
+
+            else -> try {
+                val messageContent = messageDataResult.message.content as MessageContent.Asset
+                val assetContent = messageContent.value
+                assetDataPath(conversationId, messageId)?.let { (path, _) ->
+                    messageId to AssetBundle(
+                        dataPath = path,
+                        fileName = assetContent.name ?: DEFAULT_ASSET_NAME,
+                        dataSize = assetContent.sizeInBytes,
+                        mimeType = assetContent.mimeType,
+                        assetType = AttachmentType.fromMimeTypeString(assetContent.mimeType)
+                    )
+                }
+            } catch (e: OutOfMemoryError) {
+                appLogger.e("There was an OutOfMemory error while downloading the asset")
+                onSnackbarMessage(ConversationSnackbarMessages.ErrorDownloadingAsset)
+                updateAssetMessageDownloadStatus(Message.DownloadStatus.FAILED_DOWNLOAD, conversationId, messageId)
+                null
+            }
         }
     }
 

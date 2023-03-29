@@ -57,7 +57,7 @@ import com.wire.android.ui.common.KeyboardHelper
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages
 import com.wire.android.ui.home.conversations.mention.MemberItemToMention
-import com.wire.android.ui.home.conversations.model.AttachmentBundle
+import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.android.ui.home.conversations.model.EditMessageBundle
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.messagecomposer.attachment.AttachmentOptions
@@ -73,7 +73,7 @@ fun MessageComposer(
     messageContent: @Composable () -> Unit,
     onSendTextMessage: (String, List<UiMention>, messageId: String?) -> Unit,
     onSendEditTextMessage: (EditMessageBundle) -> Unit,
-    onSendAttachment: (AttachmentBundle?) -> Unit,
+    onSendAttachment: (AssetBundle?) -> Unit,
     onMentionMember: (String?) -> Unit,
     onMessageComposerError: (ConversationSnackbarMessages) -> Unit,
     isFileSharingEnabled: Boolean,
@@ -117,7 +117,7 @@ fun MessageComposer(
         }
 
         val onSendAttachmentClicked = remember {
-            { attachmentBundle: AttachmentBundle? ->
+            { attachmentBundle: AssetBundle? ->
                 onSendAttachment(attachmentBundle)
                 messageComposerState.hideAttachmentOptions()
             }
@@ -165,7 +165,7 @@ private fun MessageComposer(
     interactionAvailability: InteractionAvailability,
     membersToMention: List<Contact>,
     onMessageComposerError: (ConversationSnackbarMessages) -> Unit,
-    onSendAttachmentClicked: (AttachmentBundle?) -> Unit,
+    onSendAttachmentClicked: (AssetBundle?) -> Unit,
     securityClassificationType: SecurityClassificationType,
     tempWritableImageUri: Uri?,
     tempWritableVideoUri: Uri?,

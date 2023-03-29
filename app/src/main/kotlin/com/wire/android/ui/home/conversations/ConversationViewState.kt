@@ -21,13 +21,13 @@
 package com.wire.android.ui.home.conversations
 
 import com.wire.android.model.ImageAsset.UserAvatarAsset
+import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.team.Team
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
-import okio.Path
 import com.wire.kalium.logic.data.id.QualifiedID as ConversationId
 
 data class ConversationViewState(
@@ -44,13 +44,13 @@ sealed class ConversationAvatar {
 
 sealed class DownloadedAssetDialogVisibilityState {
     object Hidden : DownloadedAssetDialogVisibilityState()
-    data class Displayed(val assetName: String, val assetDataPath: Path, val assetSize: Long, val messageId: String) :
-        DownloadedAssetDialogVisibilityState()
+    data class Displayed(val assetData: AssetBundle, val messageId: String) : DownloadedAssetDialogVisibilityState()
 }
 
 sealed class ConversationDetailsData {
     object None : ConversationDetailsData()
     data class OneOne(val otherUserId: UserId, val connectionState: ConnectionState, val isBlocked: Boolean, val isDeleted: Boolean) :
         ConversationDetailsData()
+
     data class Group(val conversationId: QualifiedID) : ConversationDetailsData()
 }

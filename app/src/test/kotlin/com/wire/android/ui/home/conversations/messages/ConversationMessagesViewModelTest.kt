@@ -51,7 +51,7 @@ class ConversationMessagesViewModelTest {
             .withGetMessageByIdReturning(message)
             .arrange()
 
-        viewModel.downloadOrFetchAssetToInternalStorage(message.id)
+        viewModel.downloadOrFetchAssetAndShowDialog(message.id)
 
         coVerify(exactly = 1) { arrangement.getMessageById(arrangement.conversationId, message.id) }
     }

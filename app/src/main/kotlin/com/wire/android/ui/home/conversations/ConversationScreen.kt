@@ -77,7 +77,7 @@ import com.wire.android.ui.home.conversations.info.ConversationInfoViewModel
 import com.wire.android.ui.home.conversations.info.ConversationInfoViewState
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewModel
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewState
-import com.wire.android.ui.home.conversations.model.AttachmentBundle
+import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.android.ui.home.conversations.model.EditMessageBundle
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent
@@ -182,7 +182,9 @@ fun ConversationScreen(
         onSendEditMessage = messageComposerViewModel::sendEditMessage,
         onDeleteMessage = messageComposerViewModel::showDeleteMessageDialog,
         onSendAttachment = messageComposerViewModel::sendAttachmentMessage,
-        onDownloadAsset = conversationMessagesViewModel::downloadOrFetchAssetToInternalStorage,
+        onAssetItemClicked = conversationMessagesViewModel::downloadOrFetchAssetAndShowDialog,
+        onDownloadAssetExternallyClicked = conversationMessagesViewModel::downloadAssetExternally,
+        onOpenAssetClicked = conversationMessagesViewModel::downloadAndOpenAsset,
         onImageFullScreenMode = { message, isSelfMessage ->
             messageComposerViewModel.navigateToGallery(message.messageHeader.messageId, isSelfMessage)
             conversationMessagesViewModel.updateImageOnFullscreenMode(message)
@@ -223,8 +225,8 @@ fun ConversationScreen(
     )
     DownloadedAssetDialog(
         downloadedAssetDialogState = conversationMessagesViewModel.conversationViewState.downloadedAssetDialogState,
-        onSaveFileToExternalStorage = conversationMessagesViewModel::onSaveFile,
-        onOpenFileWithExternalApp = conversationMessagesViewModel::onOpenFileWithExternalApp,
+        onSaveFileToExternalStorage = conversationMessagesViewModel::downloadAssetExternally,
+        onOpenFileWithExternalApp = conversationMessagesViewModel::downloadAndOpenAsset,
         hideOnAssetDownloadedDialog = conversationMessagesViewModel::hideOnAssetDownloadedDialog
     )
 }
@@ -290,10 +292,12 @@ private fun ConversationScreen(
     onSendMessage: (String, List<UiMention>, String?) -> Unit,
     onSendEditMessage: (EditMessageBundle) -> Unit,
     onDeleteMessage: (String, Boolean) -> Unit,
-    onSendAttachment: (AttachmentBundle?) -> Unit,
+    onSendAttachment: (AssetBundle?) -> Unit,
     onAudioClick: (String) -> Unit,
     onChangeAudioPosition: (String, Int) -> Unit,
-    onDownloadAsset: (String) -> Unit,
+    onAssetItemClicked: (String) -> Unit,
+    onDownloadAssetExternallyClicked: (String) -> Unit,
+    onOpenAssetClicked: (String) -> Unit,
     onImageFullScreenMode: (UIMessage, Boolean) -> Unit,
     onOpenOngoingCallScreen: () -> Unit,
     onStartCall: () -> Unit,
@@ -343,8 +347,9 @@ private fun ConversationScreen(
                         conversationMessagesViewModel.shareAsset(context, it)
                         conversationScreenState.hideEditContextMenu()
                     }
-                }
-
+                },
+                onDownloadAsset = conversationMessagesViewModel::downloadAssetExternally,
+                onOpenAsset = conversationMessagesViewModel::downloadAndOpenAsset,
             )
         } ?: emptyList()
     ) {
@@ -391,8 +396,8 @@ private fun ConversationScreen(
                         onSendEditMessage = onSendEditMessage,
                         onSendAttachment = onSendAttachment,
                         onMentionMember = onMentionMember,
-                        onDownloadAsset = onDownloadAsset,
-                        onAudioClick = onAudioClick,
+                        onAssetItemClicked = onAssetItemClicked,
+                        onAudioItemClicked = onAudioClick,
                         onChangeAudioPosition = onChangeAudioPosition,
                         onImageFullScreenMode = onImageFullScreenMode,
                         onReactionClicked = onReactionClick,
@@ -426,10 +431,10 @@ private fun ConversationScreenContent(
     messages: Flow<PagingData<UIMessage>>,
     onSendMessage: (String, List<UiMention>, String?) -> Unit,
     onSendEditMessage: (EditMessageBundle) -> Unit,
-    onSendAttachment: (AttachmentBundle?) -> Unit,
+    onSendAttachment: (AssetBundle?) -> Unit,
     onMentionMember: (String?) -> Unit,
-    onDownloadAsset: (String) -> Unit,
-    onAudioClick: (String) -> Unit,
+    onAssetItemClicked: (String) -> Unit,
+    onAudioItemClicked: (String) -> Unit,
     onChangeAudioPosition: (String, Int) -> Unit,
     onImageFullScreenMode: (UIMessage, Boolean) -> Unit,
     onReactionClicked: (String, String) -> Unit,
@@ -460,8 +465,8 @@ private fun ConversationScreenContent(
                 lastUnreadMessageInstant = lastUnreadMessageInstant,
                 audioMessagesState = audioMessagesState,
                 onUpdateConversationReadDate = onUpdateConversationReadDate,
-                onDownloadAsset = onDownloadAsset,
-                onAudioClick = onAudioClick,
+                onAssetItemClicked = onAssetItemClicked,
+                onAudioItemClicked = onAudioItemClicked,
                 onChangeAudioPosition = onChangeAudioPosition,
                 onImageFullScreenMode = onImageFullScreenMode,
                 onOpenProfile = onOpenProfile,
@@ -548,10 +553,10 @@ fun MessageList(
     lastUnreadMessageInstant: Instant?,
     audioMessagesState: Map<String, AudioState>,
     onUpdateConversationReadDate: (String) -> Unit,
-    onDownloadAsset: (String) -> Unit,
+    onAssetItemClicked: (String) -> Unit,
     onImageFullScreenMode: (UIMessage, Boolean) -> Unit,
     onOpenProfile: (String) -> Unit,
-    onAudioClick: (String) -> Unit,
+    onAudioItemClicked: (String) -> Unit,
     onChangeAudioPosition: (String, Int) -> Unit,
     onReactionClicked: (String, String) -> Unit,
     onResetSessionClicked: (senderUserId: UserId, clientId: String?) -> Unit,
@@ -600,10 +605,10 @@ fun MessageList(
                 MessageItem(
                     message = message,
                     audioMessagesState = audioMessagesState,
-                    onAudioClick = onAudioClick,
+                    onAudioClick = onAudioItemClicked,
                     onChangeAudioPosition = onChangeAudioPosition,
                     onLongClicked = onShowContextMenu,
-                    onAssetMessageClicked = onDownloadAsset,
+                    onAssetMessageClicked = onAssetItemClicked,
                     onImageMessageClicked = onImageFullScreenMode,
                     onOpenProfile = onOpenProfile,
                     onReactionClicked = onReactionClicked,
@@ -639,7 +644,9 @@ fun PreviewConversationScreen() {
         onSendEditMessage = { _ -> },
         onDeleteMessage = { _, _ -> },
         onSendAttachment = { },
-        onDownloadAsset = { },
+        onAssetItemClicked = { },
+        onOpenAssetClicked = { _ -> },
+        onDownloadAssetExternallyClicked = { _ -> },
         onImageFullScreenMode = { _, _ -> },
         onOpenOngoingCallScreen = { },
         onStartCall = { },

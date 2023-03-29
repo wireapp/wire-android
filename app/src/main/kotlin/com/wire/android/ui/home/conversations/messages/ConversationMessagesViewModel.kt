@@ -43,6 +43,8 @@ import com.wire.android.navigation.getBackNavArg
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.OnResetSession
 import com.wire.android.ui.home.conversations.DownloadedAssetDialogVisibilityState
+import com.wire.android.ui.home.conversations.model.AssetBundle
+import com.wire.android.ui.home.conversations.model.AttachmentType
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.usecase.GetMessagesForConversationUseCase
 import com.wire.android.util.FileManager
@@ -143,24 +145,30 @@ class ConversationMessagesViewModel @Inject constructor(
     }
 
     // This will download the asset remotely to an internal temporary storage or fetch it from the local database if it had been previously
-// downloaded. After doing so, a dialog is shown to ask the user whether he wants to open the file or download it to external storage
-    fun downloadOrFetchAssetToInternalStorage(messageId: String) = viewModelScope.launch {
-        withContext(dispatchers.io()) {
-            try {
-                attemptDownloadOfAsset(messageId)
-            } catch (e: OutOfMemoryError) {
-                appLogger.e("There was an OutOfMemory error while downloading the asset")
-                onSnackbarMessage(ConversationSnackbarMessages.ErrorDownloadingAsset)
-                updateAssetMessageDownloadStatus(Message.DownloadStatus.FAILED_DOWNLOAD, conversationId, messageId)
-            }
+    // downloaded. After doing so, a dialog is shown to ask the user whether he wants to open the file or download it to external storage
+    fun downloadOrFetchAssetAndShowDialog(messageId: String) = viewModelScope.launch(dispatchers.io()) {
+        attemptDownloadOfAsset(messageId)?.let { (messageId, bundle) ->
+            showOnAssetDownloadedDialog(bundle, messageId)
         }
     }
 
-    private suspend fun attemptDownloadOfAsset(messageId: String) {
+    fun downloadAssetExternally(messageId: String) = viewModelScope.launch(dispatchers.io()) {
+        attemptDownloadOfAsset(messageId)?.let { (messageId, bundle) ->
+            onSaveFile(bundle.fileName, bundle.dataPath, bundle.dataSize, messageId)
+        }
+    }
+
+    fun downloadAndOpenAsset(messageId: String) = viewModelScope.launch(dispatchers.io()) {
+        attemptDownloadOfAsset(messageId)?.let { (_, bundle) ->
+            onOpenFileWithExternalApp(bundle.dataPath, bundle.fileName)
+        }
+    }
+
+    private suspend fun attemptDownloadOfAsset(messageId: String): Pair<String, AssetBundle>? {
         val messageDataResult = getMessageByIdUseCase(conversationId, messageId)
         if (messageDataResult !is GetMessageByIdUseCase.Result.Success) {
             appLogger.w("Failed when fetching details of message to download asset: $messageDataResult")
-            return
+            return null
         }
         val message = messageDataResult.message
         val messageContent = message.content
@@ -168,15 +176,28 @@ class ConversationMessagesViewModel @Inject constructor(
         if (messageContent !is MessageContent.Asset) {
             // This _should_ not even happen, tho. Unless UI is buggy. So... do we crash?! Better not.
             appLogger.w("Attempting to download assets of a non-asset message. Ignoring user input.")
-            return
+            return null
         }
         val assetContent = messageContent.value
-        assetDataPath(conversationId, messageId)?.run {
-            showOnAssetDownloadedDialog(assetContent.name ?: "", first, assetContent.sizeInBytes, messageId)
+        return try {
+            assetDataPath(conversationId, messageId)?.let { (path, _) ->
+                messageId to AssetBundle(
+                    dataPath = path,
+                    fileName = assetContent.name ?: DEFAULT_ASSET_NAME,
+                    dataSize = assetContent.sizeInBytes,
+                    mimeType = assetContent.mimeType,
+                    assetType = AttachmentType.fromMimeTypeString(assetContent.mimeType)
+                )
+            }
+        } catch (e: OutOfMemoryError) {
+            appLogger.e("There was an OutOfMemory error while downloading the asset")
+            onSnackbarMessage(ConversationSnackbarMessages.ErrorDownloadingAsset)
+            updateAssetMessageDownloadStatus(Message.DownloadStatus.FAILED_DOWNLOAD, conversationId, messageId)
+            null
         }
     }
 
-    fun onOpenFileWithExternalApp(assetDataPath: Path, assetName: String?) {
+    private fun onOpenFileWithExternalApp(assetDataPath: Path, assetName: String?) {
         viewModelScope.launch {
             withContext(dispatchers.io()) {
                 fileManager.openWithExternalApp(assetDataPath, assetName) { onOpenFileError() }
@@ -185,7 +206,7 @@ class ConversationMessagesViewModel @Inject constructor(
         }
     }
 
-    fun onSaveFile(assetName: String, assetDataPath: Path, assetSize: Long, messageId: String) {
+    private fun onSaveFile(assetName: String, assetDataPath: Path, assetSize: Long, messageId: String) {
         viewModelScope.launch {
             withContext(dispatchers.io()) {
                 fileManager.saveToExternalStorage(assetName, assetDataPath, assetSize) { savedFileName: String? ->
@@ -197,16 +218,10 @@ class ConversationMessagesViewModel @Inject constructor(
         }
     }
 
-    fun showOnAssetDownloadedDialog(assetName: String, assetDataPath: Path, assetSize: Long, messageId: String) {
-        conversationViewState =
-            conversationViewState.copy(
-                downloadedAssetDialogState = DownloadedAssetDialogVisibilityState.Displayed(
-                    assetName,
-                    assetDataPath,
-                    assetSize,
-                    messageId
-                )
-            )
+    fun showOnAssetDownloadedDialog(assetBundle: AssetBundle, messageId: String) {
+        conversationViewState = conversationViewState.copy(
+            downloadedAssetDialogState = DownloadedAssetDialogVisibilityState.Displayed(assetBundle, messageId)
+        )
     }
 
     fun hideOnAssetDownloadedDialog() {
@@ -325,5 +340,6 @@ class ConversationMessagesViewModel @Inject constructor(
 
     private companion object {
         const val TAG = "ConversationMessagesViewModel"
+        const val DEFAULT_ASSET_NAME = "Wire File"
     }
 }

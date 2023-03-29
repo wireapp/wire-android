@@ -38,8 +38,6 @@ import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -81,8 +79,6 @@ import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.android.ui.home.conversations.model.EditMessageBundle
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent
-import com.wire.android.ui.home.messagecomposer.MessageComposeInputState
-import com.wire.android.ui.home.messagecomposer.MessageComposeInputType
 import com.wire.android.ui.home.messagecomposer.MessageComposer
 import com.wire.android.ui.home.messagecomposer.MessageComposerInnerState
 import com.wire.android.ui.home.messagecomposer.UiMention
@@ -496,22 +492,22 @@ private fun ConversationScreenContent(
         tempWritableVideoUri = tempWritableVideoUri
     )
 
-    val currentEditMessageId: String? by remember(messageComposerInnerState.messageComposeInputState) {
-        derivedStateOf {
-            (messageComposerInnerState.messageComposeInputState as? MessageComposeInputState.Active)?.let {
-                (it.type as? MessageComposeInputType.EditMessage)?.messageId
-            }
-        }
-    }
-
-    LaunchedEffect(currentEditMessageId) {
-        // executes when the id of currently being edited message changes, if not currently editing then it's just null
-        if (currentEditMessageId != null) {
-            lazyPagingMessages.itemSnapshotList.items
-                .indexOfFirst { it.messageHeader.messageId == currentEditMessageId }
-                .let { if (it >= 0) lazyListState.animateScrollToItem(it) }
-        }
-    }
+    // TODO: uncomment when we have the "scroll to bottom" button implemented
+//    val currentEditMessageId: String? by remember(messageComposerInnerState.messageComposeInputState) {
+//        derivedStateOf {
+//            (messageComposerInnerState.messageComposeInputState as? MessageComposeInputState.Active)?.let {
+//                (it.type as? MessageComposeInputType.EditMessage)?.messageId
+//            }
+//        }
+//    }
+//    LaunchedEffect(currentEditMessageId) {
+//        // executes when the id of currently being edited message changes, if not currently editing then it's just null
+//        if (currentEditMessageId != null) {
+//            lazyPagingMessages.itemSnapshotList.items
+//                .indexOfFirst { it.messageHeader.messageId == currentEditMessageId }
+//                .let { if (it >= 0) lazyListState.animateScrollToItem(it) }
+//        }
+//    }
 }
 
 @Composable

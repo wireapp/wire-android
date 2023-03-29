@@ -43,6 +43,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
+import com.wire.android.model.ClickBlockParams
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WireSecondaryIconButton
 import com.wire.android.ui.common.dimensions
@@ -120,7 +121,7 @@ private fun MessageComposeActions(
 private fun RichTextEditingAction() {
     WireSecondaryIconButton(
         onButtonClicked = {},
-        blockUntilSynced = true,
+        clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
         iconResource = R.drawable.ic_rich_text,
         contentDescription = R.string.content_description_conversation_enable_rich_text_mode
     )
@@ -130,7 +131,7 @@ private fun RichTextEditingAction() {
 private fun AddEmojiAction() {
     WireSecondaryIconButton(
         onButtonClicked = {},
-        blockUntilSynced = true,
+        clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
         iconResource = R.drawable.ic_emoticon,
         contentDescription = R.string.content_description_conversation_send_emoticon
     )
@@ -140,7 +141,7 @@ private fun AddEmojiAction() {
 private fun AddGifAction() {
     WireSecondaryIconButton(
         onButtonClicked = {},
-        blockUntilSynced = true,
+        clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
         iconResource = R.drawable.ic_gif,
         contentDescription = R.string.content_description_conversation_send_gif
     )
@@ -153,7 +154,7 @@ private fun AddMentionAction(isSelected: Boolean, addMentionAction: () -> Unit) 
     }
     WireSecondaryIconButton(
         onButtonClicked = onButtonClicked,
-        blockUntilSynced = true,
+        clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
         iconResource = R.drawable.ic_mention,
         contentDescription = R.string.content_description_conversation_mention_someone,
         state = if (isSelected) WireButtonState.Selected else WireButtonState.Default
@@ -164,7 +165,7 @@ private fun AddMentionAction(isSelected: Boolean, addMentionAction: () -> Unit) 
 private fun PingAction(onPingClicked: () -> Unit) {
     WireSecondaryIconButton(
         onButtonClicked = onPingClicked,
-        blockUntilSynced = true,
+        clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
         iconResource = R.drawable.ic_ping,
         contentDescription = R.string.content_description_ping_everyone
     )

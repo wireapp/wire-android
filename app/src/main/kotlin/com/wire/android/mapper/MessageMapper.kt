@@ -63,7 +63,7 @@ class MessageMapper @Inject constructor(
         )
     }.distinct()
 
-    fun toUIMessages(userList: List<User>, messages: List<Message.Standalone>): List<UIMessage> = messages.mapNotNull { message ->
+    fun toUIMessage(userList: List<User>, message: Message.Standalone): UIMessage? {
         val sender = userList.findUser(message.senderUserId)
         val content = messageContentMapper.fromMessage(
             message = message,
@@ -82,18 +82,20 @@ class MessageMapper @Inject constructor(
                 message.reactions.totalReactions
                     .filter { !isHeart(it.key) }
                     .run {
-                        if (totalHeartsCount != 0)
+                        if (totalHeartsCount != 0) {
                             plus("❤" to totalHeartsCount)
-                        else
+                        } else {
                             this
+                        }
                     },
                 message.reactions.selfUserReactions
                     .filter { isHeart(it) }.toSet()
                     .run {
-                        if (hasSelfHeart)
+                        if (hasSelfHeart) {
                             plus("❤")
-                        else
+                        } else {
                             this
+                        }
                     }
             )
         } else {
@@ -102,7 +104,7 @@ class MessageMapper @Inject constructor(
 
         // System messages don't have header so without the content there is nothing to be displayed.
         // Also hidden messages should not be displayed, as well preview images
-        when (content) {
+        return when (content) {
             is UIMessageContent.Regular -> {
                 if (message.visibility == HIDDEN) {
                     null
@@ -160,6 +162,7 @@ class MessageMapper @Inject constructor(
                     utcISO = (message.editStatus as Message.EditStatus.Edited).lastTimeStamp
                 )
             )
+
         message.status == Message.Status.FAILED -> MessageStatus.SendFailure
         message.status == Message.Status.FAILED_REMOTELY -> MessageStatus.SendRemotelyFailure(message.conversationId.domain)
         message.visibility == Message.Visibility.DELETED -> MessageStatus.Deleted
@@ -169,8 +172,10 @@ class MessageMapper @Inject constructor(
                     utcISO = (message.editStatus as Message.EditStatus.Edited).lastTimeStamp
                 )
             )
+
         message is Message.Regular && message.content is MessageContent.FailedDecryption ->
             MessageStatus.DecryptionFailure((message.content as MessageContent.FailedDecryption).isDecryptionResolved)
+
         else -> MessageStatus.Untouched
     }
 

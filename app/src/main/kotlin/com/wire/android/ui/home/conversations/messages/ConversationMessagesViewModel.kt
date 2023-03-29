@@ -32,13 +32,18 @@ import com.wire.android.appLogger
 import com.wire.android.media.audiomessage.ConversationAudioMessagePlayer
 import com.wire.android.model.SnackBarMessage
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
+import com.wire.android.navigation.EXTRA_ON_MESSAGE_DETAILS_CLICKED
+import com.wire.android.navigation.EXTRA_ON_MESSAGE_REACTED
+import com.wire.android.navigation.EXTRA_ON_MESSAGE_REPLIED
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.navigation.SavedStateViewModel
+import com.wire.android.navigation.getBackNavArg
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.OnResetSession
 import com.wire.android.ui.home.conversations.DownloadedAssetDialogVisibilityState
+import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.usecase.GetMessagesForConversationUseCase
 import com.wire.android.util.FileManager
 import com.wire.android.util.dispatchers.DispatcherProvider
@@ -92,6 +97,7 @@ class ConversationMessagesViewModel @Inject constructor(
         savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)!!
     )
 
+    private var lastImageMessageShownOnGallery: UIMessage.Regular? = null
     private val _infoMessage = MutableSharedFlow<SnackBarMessage>()
     val infoMessage = _infoMessage.asSharedFlow()
 
@@ -273,6 +279,42 @@ class ConversationMessagesViewModel @Inject constructor(
     fun changeAudioPosition(messageId: String, position: Int) {
         viewModelScope.launch {
             conversationAudioMessagePlayer.setPosition(messageId, position)
+        }
+    }
+
+    fun updateImageOnFullscreenMode(message: UIMessage.Regular?) {
+        lastImageMessageShownOnGallery = message
+    }
+
+    /**
+     * This method is called to check whether we need to perform any pending action triggered by previously shown screens (e.g. reply or
+     * react to a specific message, show message details, etc.)
+     */
+    fun checkPendingActions(onMessageReply: (UIMessage.Regular) -> Unit) = viewModelScope.launch {
+        savedStateHandle.getBackNavArg<Pair<String, String>>(EXTRA_ON_MESSAGE_REACTED)?.let { (messageId, emoji) ->
+            toggleReaction(messageId, emoji)
+        }
+        savedStateHandle.getBackNavArg<String>(EXTRA_ON_MESSAGE_REPLIED)?.let { messageId ->
+            lastImageMessageShownOnGallery?.let { onFullscreenMessage ->
+                // We need to reset the lastImageMessageShownOnGallery as we are already handling it here
+                updateImageOnFullscreenMode(null)
+                // This condition should always be true, but we check it just in case the lastImageMessageShownOnGallery
+                // is not the same one that we are replying to
+                if (onFullscreenMessage.header.messageId == messageId) {
+                    onMessageReply(onFullscreenMessage)
+                }
+            }
+        }
+        savedStateHandle.getBackNavArg<Pair<String, Boolean>>(EXTRA_ON_MESSAGE_DETAILS_CLICKED)?.let { (messageId, isSelfAsset) ->
+            lastImageMessageShownOnGallery?.let { onFullscreenMessage ->
+                // We need to reset the lastImageMessageShownOnGallery as we are already handling it here
+                updateImageOnFullscreenMode(null) // We need to reset the imageOnFullscreenMode as we handle it here
+                // This condition should always be true, but we check it just in case the lastImageMessageShownOnGallery
+                // is not the same one that the one we are showing its details
+                if (onFullscreenMessage.header.messageId == messageId) {
+                    openMessageDetails(messageId, isSelfAsset)
+                }
+            }
         }
     }
 

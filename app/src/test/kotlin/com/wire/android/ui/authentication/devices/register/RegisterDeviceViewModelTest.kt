@@ -23,6 +23,7 @@ package com.wire.android.ui.authentication.devices.register
 import androidx.compose.ui.text.input.TextFieldValue
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.mockUri
+import com.wire.android.datastore.UserDataStore
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
@@ -40,9 +41,11 @@ import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
+import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestCoroutineScheduler
 import kotlinx.coroutines.test.runTest
@@ -68,6 +71,9 @@ class RegisterDeviceViewModelTest {
     @MockK
     private lateinit var isPasswordRequiredUseCase: IsPasswordRequiredUseCase
 
+    @MockK
+    lateinit var userDataStore: UserDataStore
+
     private lateinit var registerDeviceViewModel: RegisterDeviceViewModel
 
     @BeforeEach
@@ -75,11 +81,13 @@ class RegisterDeviceViewModelTest {
         MockKAnnotations.init(this)
         mockUri()
         coEvery { isPasswordRequiredUseCase() } returns IsPasswordRequiredUseCase.Result.Success(true)
+        every { userDataStore.initialSyncCompleted } returns flowOf(true)
         registerDeviceViewModel =
             RegisterDeviceViewModel(
                 navigationManager,
                 registerClientUseCase,
-                isPasswordRequiredUseCase
+                isPasswordRequiredUseCase,
+                userDataStore
             )
     }
 

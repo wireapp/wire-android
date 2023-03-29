@@ -38,8 +38,6 @@ import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -80,8 +78,6 @@ import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewS
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.conversations.model.EditMessageBundle
 import com.wire.android.ui.home.conversations.model.UIMessage
-import com.wire.android.ui.home.messagecomposer.MessageComposeInputState
-import com.wire.android.ui.home.messagecomposer.MessageComposeInputType
 import com.wire.android.ui.home.messagecomposer.MessageComposer
 import com.wire.android.ui.home.messagecomposer.MessageComposerInnerState
 import com.wire.android.ui.home.messagecomposer.UiMention
@@ -97,6 +93,7 @@ import com.wire.kalium.logic.feature.call.usecase.ConferenceCallingResult
 import com.wire.kalium.logic.feature.conversation.InteractionAvailability
 import kotlinx.collections.immutable.ImmutableMap
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -104,6 +101,7 @@ import kotlinx.coroutines.launch
 import kotlinx.datetime.Instant
 import okio.Path
 import okio.Path.Companion.toPath
+import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * The maximum number of messages the user can scroll while still
@@ -134,7 +132,6 @@ fun ConversationScreen(
     LaunchedEffect(messageComposerViewModel.savedStateHandle) {
         messageComposerViewModel.checkPendingActions()
     }
-
     LaunchedEffect(Unit) {
         conversationInfoViewModel.observeConversationDetails()
     }
@@ -181,7 +178,10 @@ fun ConversationScreen(
         onDeleteMessage = messageComposerViewModel::showDeleteMessageDialog,
         onSendAttachment = messageComposerViewModel::sendAttachmentMessage,
         onDownloadAsset = conversationMessagesViewModel::downloadOrFetchAssetToInternalStorage,
-        onImageFullScreenMode = messageComposerViewModel::navigateToGallery,
+        onImageFullScreenMode = { message, isSelfMessage ->
+            messageComposerViewModel.navigateToGallery(message.header.messageId, isSelfMessage)
+            conversationMessagesViewModel.updateImageOnFullscreenMode(message)
+        },
         onOpenOngoingCallScreen = commonTopAppBarViewModel::openOngoingCallScreen,
         onStartCall = {
             startCallIfPossible(
@@ -194,7 +194,9 @@ fun ConversationScreen(
             )
         },
         onJoinCall = conversationCallViewModel::joinOngoingCall,
-        onReactionClick = conversationMessagesViewModel::toggleReaction,
+        onReactionClick = { messageId, emoji ->
+            conversationMessagesViewModel.toggleReaction(messageId, emoji)
+        },
         onAudioClick = conversationMessagesViewModel::audioClick,
         onChangeAudioPosition = conversationMessagesViewModel::changeAudioPosition,
         onResetSessionClick = conversationMessagesViewModel::onResetSession,
@@ -287,7 +289,7 @@ private fun ConversationScreen(
     onAudioClick: (String) -> Unit,
     onChangeAudioPosition: (String, Int) -> Unit,
     onDownloadAsset: (String) -> Unit,
-    onImageFullScreenMode: (String, Boolean) -> Unit,
+    onImageFullScreenMode: (UIMessage.Regular, Boolean) -> Unit,
     onOpenOngoingCallScreen: () -> Unit,
     onStartCall: () -> Unit,
     onJoinCall: () -> Unit,
@@ -308,6 +310,16 @@ private fun ConversationScreen(
     val conversationScreenState = rememberConversationScreenState()
     val messageComposerInnerState = rememberMessageComposerInnerState()
     val context = LocalContext.current
+
+    LaunchedEffect(conversationMessagesViewModel.savedStateHandle) {
+        // We need to check if we come from the media gallery screen and the user triggered any action there like reply
+        conversationMessagesViewModel.checkPendingActions(
+            onMessageReply = {
+                withSmoothScreenLoad {
+                    messageComposerInnerState.reply(it)
+                }
+            })
+    }
     MenuModalSheetLayout(
         sheetState = conversationScreenState.modalBottomSheetState,
         coroutineScope = conversationScreenState.coroutineScope,
@@ -414,7 +426,7 @@ private fun ConversationScreenContent(
     onDownloadAsset: (String) -> Unit,
     onAudioClick: (String) -> Unit,
     onChangeAudioPosition: (String, Int) -> Unit,
-    onImageFullScreenMode: (String, Boolean) -> Unit,
+    onImageFullScreenMode: (UIMessage.Regular, Boolean) -> Unit,
     onReactionClicked: (String, String) -> Unit,
     onResetSessionClicked: (senderUserId: UserId, clientId: String?) -> Unit,
     onOpenProfile: (String) -> Unit,
@@ -478,22 +490,22 @@ private fun ConversationScreenContent(
         tempWritableVideoUri = tempWritableVideoUri
     )
 
-    val currentEditMessageId: String? by remember(messageComposerInnerState.messageComposeInputState) {
-        derivedStateOf {
-            (messageComposerInnerState.messageComposeInputState as? MessageComposeInputState.Active)?.let {
-                (it.type as? MessageComposeInputType.EditMessage)?.messageId
-            }
-        }
-    }
-
-    LaunchedEffect(currentEditMessageId) {
-        // executes when the id of currently being edited message changes, if not currently editing then it's just null
-        if (currentEditMessageId != null) {
-            lazyPagingMessages.itemSnapshotList.items
-                .indexOfFirst { it.header.messageId == currentEditMessageId }
-                .let { if (it >= 0) lazyListState.animateScrollToItem(it) }
-        }
-    }
+    // TODO: uncomment when we have the "scroll to bottom" button implemented
+//    val currentEditMessageId: String? by remember(messageComposerInnerState.messageComposeInputState) {
+//        derivedStateOf {
+//            (messageComposerInnerState.messageComposeInputState as? MessageComposeInputState.Active)?.let {
+//                (it.type as? MessageComposeInputType.EditMessage)?.messageId
+//            }
+//        }
+//    }
+//    LaunchedEffect(currentEditMessageId) {
+//        // executes when the id of currently being edited message changes, if not currently editing then it's just null
+//        if (currentEditMessageId != null) {
+//            lazyPagingMessages.itemSnapshotList.items
+//                .indexOfFirst { it.header.messageId == currentEditMessageId }
+//                .let { if (it >= 0) lazyListState.animateScrollToItem(it) }
+//        }
+//    }
 }
 
 @Composable
@@ -532,7 +544,7 @@ fun MessageList(
     audioMessagesState: Map<String, AudioState>,
     onUpdateConversationReadDate: (String) -> Unit,
     onDownloadAsset: (String) -> Unit,
-    onImageFullScreenMode: (String, Boolean) -> Unit,
+    onImageFullScreenMode: (UIMessage.Regular, Boolean) -> Unit,
     onOpenProfile: (String) -> Unit,
     onAudioClick: (String) -> Unit,
     onChangeAudioPosition: (String, Int) -> Unit,
@@ -594,6 +606,12 @@ fun MessageList(
             }
         }
     }
+}
+
+private fun CoroutineScope.withSmoothScreenLoad(block: () -> Unit) = launch {
+    val smoothAnimationDuration = 200.milliseconds
+    delay(smoothAnimationDuration) // we wait a bit until the whole screen is loaded to show the animation properly
+    block()
 }
 
 @Preview

@@ -45,11 +45,11 @@
     <string name="label_message_sent_remotely_failure">No se pudo enviar el mensaje, ya que el servidor %s parece estar fuera de l&#237;nea.</string>
     <string name="label_message_receive_failure">Error de descarga</string>
     <string name="label_message_decryption_failure_message">El mensaje no se pudo descifrar.</string>
-    <string name="label_message_decryption_failure_informative_message">Intente restablecer la sesi&#243;n para generar nuevas claves de cifrado.</string>
+    <string name="label_message_decryption_failure_informative_message">Intenta restablecer la sesión para generar nuevas claves de cifrado.</string>
     <string name="label_message_knock">%s llam&#243;</string>
     <string name="label_try_again">Intentar de nuevo</string>
     <string name="label_reset_session">Restablecer la sesi&#243;n</string>
-    <string name="label_reset_session_success">Sesi&#243;n restablecida con &#233;xito</string>
+    <string name="label_reset_session_success">Sesión restablecida con éxito</string>
     <string name="label_federated_membership">Federado</string>
     <string name="label_update">Actualizar</string>
     <string name="label_close">Cerrar</string>
@@ -86,7 +86,7 @@
     <string name="content_description_leave_the_group">Abandonar el grupo</string>
     <string name="content_description_delete_the_group">Eliminar el grupo</string>
     <string name="content_description_conversation_phone_icon">Comenzar llamada de audio</string>
-    <string name="content_description_welcome_wire_logo">Wire</string>
+    <string name="content_description_welcome_wire_logo">Logo de Wire</string>
     <string name="content_description_conversation_search_icon">Icono de b&#250;squeda de conversaci&#243;n</string>
     <string name="content_description_conversation_enable_rich_text_mode">Bot&#243;n de modo de texto enriquecido</string>
     <string name="content_description_conversation_send_emoticon">Bot&#243;n Enviar emoticono</string>
@@ -196,7 +196,7 @@ URL del backend:
     <string name="migration_title_almost_done">&#161;Casi lista!</string>
     <string name="migration_title_updated">Configurando Wire</string>
     <string name="migration_login_required">Para migrar sus mensajes desde la versi&#243;n anterior de Wire, debe iniciar sesi&#243;n en su cuenta.</string>
-    <string name="migration_login_required_specific_account">Para migrar sus mensajes desde la versi&#243;n anterior de Wire, debe iniciar sesi&#243;n en su cuenta %s.</string>
+    <string name="migration_login_required_specific_account">Para migrar tus mensajes desde la versión anterior de Wire, debes iniciar sesión en tu cuenta %s.</string>
     <string name="migration_login_required_specific_account_name">%1$s (@%2$s)</string>
     <string name="migration_messages_failure">Lamentablemente, no todos los mensajes y conversaciones pudieron migrarse debido a incompatibilidades con la versi&#243;n anterior de Wire (c&#243;digo de error: %s)</string>
     <string name="migration_cancel_title">Cancelar migraci&#243;n</string>
@@ -290,9 +290,9 @@ Un mensaje eliminado no puede ser restaurado.</string>
     <string name="create_account_email_blacklisted_error">Tu correo electr&#243;nico ha sido identificado como no confiable, por ejemplo, debido a un rechazo por un filtro de spam.</string>
     <string name="create_account_email_invalid_error">Por favor, introduce un formato v&#225;lido para tu correo electr&#243;nico.</string>
     <string name="create_account_email_domain_blocked_error">No puedes crear esta cuenta porque tu dominio de correo electr&#243;nico est&#225; bloqueado intencionalmente.</string>
-    <string name="create_account_details_first_name_placeholder">Jane</string>
+    <string name="create_account_details_first_name_placeholder">Julia</string>
     <string name="create_account_details_first_name_label">NOMBRE</string>
-    <string name="create_account_details_last_name_placeholder">Doe</string>
+    <string name="create_account_details_last_name_placeholder">Martín</string>
     <string name="create_account_details_last_name_label">APELLIDO</string>
     <string name="create_account_details_team_name_placeholder">Equipo Impresionante</string>
     <string name="create_account_details_team_name_label">NOMBRE DEL EQUIPO</string>
@@ -308,7 +308,7 @@ Un mensaje eliminado no puede ser restaurado.</string>
     <string name="create_account_code_error_personal_account_creation_restricted">Esta versi&#243;n de la aplicaci&#243;n no permite la creaci&#243;n de cuentas personales.</string>
     <string name="create_account_code_error_team_creation_restricted">Esta versi&#243;n de la aplicaci&#243;n no permite la creaci&#243;n de equipos.</string>
     <string name="create_account_username_title">Tu nombre de usuario</string>
-    <string name="create_account_username_placeholder">jane.doe</string>
+    <string name="create_account_username_placeholder">julia.martinez</string>
     <string name="create_account_username_label">NOMBRE DE USUARIO</string>
     <string name="create_account_username_text">Introduce tu nombre de usuario. Ayuda a otros a encontrarte en Wire y conectarse contigo.</string>
     <string name="create_account_username_taken_error">Este nombre de usuario ya est&#225; registrado. Por favor, elije otro.</string>
@@ -504,8 +504,8 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
     <string name="label_system_message_you_called">%1$s llam&#243;</string>
     <string name="label_system_message_and">%1$s y %2$s</string>
     <plurals name="label_system_message_x_more">
-        <item quantity="one">%1$d more</item>
-        <item quantity="other">%1$d more</item>
+        <item quantity="one">%1$d más</item>
+        <item quantity="other">%1$d más</item>
     </plurals>
     <string name="label_system_message_blocked_user">%1$s bloque&#243; a este usuario</string>
     <string name="label_system_message_renamed_the_conversation">%1$s renombr&#243; la conversaci&#243;n
@@ -520,30 +520,30 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
     <string name="label_system_message_receipt_mode_off">apagado</string>
     <!-- Last messages -->
     <plurals name="last_message_self_added_users">
-        <item quantity="one">You added 1 person to the conversation</item>
-        <item quantity="other">You added %1$d people to the conversation</item>
+        <item quantity="one">Has añadido a 1 persona a la conversación</item>
+        <item quantity="other">Has añadido %1$d personas a la conversación</item>
     </plurals>
     <string name="last_message_other_added_only_self_user">Te agregaron a la conversaci&#243;n</string>
     <plurals name="last_message_other_added_self_user">
-        <item quantity="one">You and 1 other person were added to the conversation</item>
-        <item quantity="other">You and %1$d people were added to the conversation</item>
+        <item quantity="one">Tú y 1 otra persona fuisteis añadidos a la conversación</item>
+        <item quantity="other">Tú y %1$d personas más fuisteis añadidos a la conversación</item>
     </plurals>
     <plurals name="last_message_other_added_other_users">
-        <item quantity="one">1 person was added to the conversation</item>
-        <item quantity="other">%1$d people were added to the conversation</item>
+        <item quantity="one">1 persona se añadió a la conversación</item>
+        <item quantity="other">%1$d personas se añadieron a la conversación</item>
     </plurals>
     <plurals name="last_message_self_removed_users">
-        <item quantity="one">You removed 1 person from the conversation</item>
-        <item quantity="other">You removed %1$d people from the conversation</item>
+        <item quantity="one">Eliminaste a 1 persona de la conversación</item>
+        <item quantity="other">Eliminaste a %1$d personas de la conversación</item>
     </plurals>
     <string name="last_message_other_removed_only_self_user">Te eliminaron de la conversaci&#243;n</string>
     <plurals name="last_message_other_removed_self_user_and_others">
-        <item quantity="one">You and 1 other person were removed from the conversation</item>
-        <item quantity="other">You and %1$d people were removed from the conversation</item>
+        <item quantity="one">Tú y otra persona más fuisteis eliminados de la conversación</item>
+        <item quantity="other">Tú y %1$d personas más fuisteis eliminados de la conversación</item>
     </plurals>
     <plurals name="last_message_other_removed_other_users">
-        <item quantity="one">1 person was removed from the conversation</item>
-        <item quantity="other">%1$d people were removed from the conversation</item>
+        <item quantity="one">Se eliminó 1 persona de la conversación</item>
+        <item quantity="other">Se eliminaron %1$d personas de la conversación</item>
     </plurals>
     <string name="last_message_self_user_shared_asset">comparti&#243; un archivo multimedia</string>
     <string name="last_message_other_user_shared_asset">comparti&#243; un archivo multimedia</string>
@@ -573,20 +573,20 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
         <item quantity="other">%1$d pings</item>
     </plurals>
     <plurals name="unread_event_call">
-        <item quantity="one">%1$d missed call</item>
-        <item quantity="other">%1$d missed calls</item>
+        <item quantity="one">%1$d llamada perdida</item>
+        <item quantity="other">%1$d llamadas perdidas</item>
     </plurals>
     <plurals name="unread_event_mention">
-        <item quantity="one">%1$d mention</item>
-        <item quantity="other">%1$d mentions</item>
+        <item quantity="one">%1$d mención</item>
+        <item quantity="other">%1$d menciones</item>
     </plurals>
     <plurals name="unread_event_reply">
-        <item quantity="one">%1$d reply</item>
-        <item quantity="other">%1$d replies</item>
+        <item quantity="one">%1$d respuesta</item>
+        <item quantity="other">%1$d respuestas</item>
     </plurals>
     <plurals name="unread_event_message">
-        <item quantity="one">%1$d message</item>
-        <item quantity="other">%1$d messages</item>
+        <item quantity="one">%1$d mensaje</item>
+        <item quantity="other">%1$d mensajes</item>
     </plurals>
     <!--Search Contact-->
     <string name="label_contacts">CONTACTOS</string>
@@ -742,7 +742,7 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
     <string name="block_user_dialog_confirm_button">Bloquear</string>
     <string name="other_user_devices_description"><![CDATA[Wire asigna una huella digital &#250;nica a cada dispositivo. Comparelas con %1$s y verifique su conversaci&#243;n. ]]></string>
     <!--Settings -->
-    <string name="url_why_verify_conversation">/hc/en-us/articles/207859815</string>
+    <string name="url_why_verify_conversation">/hc/es/articles/207859815</string>
     <string name="settings_general_label">General</string>
     <string name="settings_account_settings_label">Configuraci&#243;n de la cuenta</string>
     <string name="settings_devices_label">Dispositivos</string>
@@ -820,7 +820,7 @@ URL del backend:
     <string name="label_reactions">Reacciones</string>
     <string name="label_more_comming_soon">(m&#225;s pr&#243;ximamente)</string>
     <string name="label_wait_until_synchronised">Espera hasta que la aplicaci&#243;n est&#233; sincronizada</string>
-    <string name="label_wait_until_connected">Please wait until the Internet connection is restored</string>
+    <string name="label_wait_until_connected">Por favor espera hasta que la conexión de internet se haya recuperado</string>
     <string name="label_textfield_optional_password">Contrase&#241;a (opcional)</string>
     <!--create and restore backup-->
     <string name="backup_dialog_create_backup_set_password_title">Establecer contrase&#241;a</string>

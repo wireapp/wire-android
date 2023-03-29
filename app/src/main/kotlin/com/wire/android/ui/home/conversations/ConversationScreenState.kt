@@ -79,7 +79,7 @@ class ConversationScreenState(
         coroutineScope.launch { modalBottomSheetState.animateTo(ModalBottomSheetValue.Expanded) }
     }
 
-    fun hideEditContextMenu(onComplete: () -> Unit = {}) {
+    fun hideContextMenu(onComplete: () -> Unit = {}) {
         coroutineScope.launch {
             modalBottomSheetState.animateTo(ModalBottomSheetValue.Hidden)
             onComplete()
@@ -95,14 +95,15 @@ class ConversationScreenState(
     }
 
     fun showSelfDeletionContextMenu() {
-
+        dupa = BottomSheetMenuType.SelfDeletion
+        coroutineScope.launch { modalBottomSheetState.animateTo(ModalBottomSheetValue.Expanded) }
     }
 
-    sealed class BottomSheetMenuType(open val selectedMessage: UIMessage?) {
-        class Edit(override val selectedMessage: UIMessage) : BottomSheetMenuType(selectedMessage)
+    sealed class BottomSheetMenuType {
+        class Edit(val selectedMessage: UIMessage) : BottomSheetMenuType()
 
-        class SelfDeletion(override val selectedMessage: UIMessage) : BottomSheetMenuType(selectedMessage)
+        object SelfDeletion : BottomSheetMenuType()
 
-        object None : BottomSheetMenuType(null)
+        object None : BottomSheetMenuType()
     }
 }

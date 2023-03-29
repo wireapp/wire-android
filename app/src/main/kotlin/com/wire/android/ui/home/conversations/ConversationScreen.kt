@@ -328,7 +328,7 @@ private fun ConversationScreen(
             is ConversationScreenState.BottomSheetMenuType.Edit -> {
                 EditMessageMenuItems(
                     message = dupa.selectedMessage,
-                    hideEditMessageMenu = conversationScreenState::hideEditContextMenu,
+                    hideEditMessageMenu = conversationScreenState::hideContextMenu,
                     onCopyClick = conversationScreenState::copyMessage,
                     onDeleteClick = onDeleteMessage,
                     onReactionClick = onReactionClick,
@@ -338,7 +338,7 @@ private fun ConversationScreen(
                     onShareAsset = {
                         dupa.selectedMessage.messageHeader.messageId.let {
                             conversationMessagesViewModel.shareAsset(context, it)
-                            conversationScreenState.hideEditContextMenu()
+                            conversationScreenState.hideContextMenu()
                         }
                     }
 
@@ -402,7 +402,7 @@ private fun ConversationScreen(
                         onOpenProfile = onOpenProfile,
                         onUpdateConversationReadDate = onUpdateConversationReadDate,
                         onMessageComposerError = onSnackbarMessage,
-                        onShowEditiingOptions = conversationScreenState::showEditContextMenu,
+                        onShowEditingOptions = conversationScreenState::showEditContextMenu,
                         onShowSelfDeletionOption = conversationScreenState::showSelfDeletionContextMenu,
                         onPingClicked = onPingClicked,
                         tempWritableImageUri = tempWritableImageUri,
@@ -440,7 +440,7 @@ private fun ConversationScreenContent(
     onOpenProfile: (String) -> Unit,
     onUpdateConversationReadDate: (String) -> Unit,
     onMessageComposerError: (ConversationSnackbarMessages) -> Unit,
-    onShowEditiingOptions: (UIMessage) -> Unit,
+    onShowEditingOptions: (UIMessage) -> Unit,
     onShowSelfDeletionOption: () -> Unit,
     onPingClicked: () -> Unit,
     tempWritableImageUri: Uri?,
@@ -471,7 +471,7 @@ private fun ConversationScreenContent(
                 onOpenProfile = onOpenProfile,
                 onReactionClicked = onReactionClicked,
                 onResetSessionClicked = onResetSessionClicked,
-                onShowEditingOption = onShowEditiingOptions
+                onShowEditingOption = onShowEditingOptions
             )
         },
         onSendTextMessage = { message, mentions, messageId ->

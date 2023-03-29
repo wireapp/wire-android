@@ -1,0 +1,13 @@
+<component name="CopyrightManager">
+  <settings default="wire-swiss-gmbh">
+    <module2copyright>
+      <element module="Production" copyright="wire-swiss-gmbh" />
+      <element module="Tests" copyright="wire-swiss-gmbh" />
+      <element module="All" copyright="wire-swiss-gmbh" />
+    </module2copyright>
+    <LanguageOptions name="Kotlin" />
+    <LanguageOptions name="__TEMPLATE__">
+      <option name="addBlankAfter" value="false" />
+    </LanguageOptions>
+  </settings>
+</component>

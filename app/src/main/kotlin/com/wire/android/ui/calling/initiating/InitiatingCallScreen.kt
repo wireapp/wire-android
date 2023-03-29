@@ -21,6 +21,7 @@
 package com.wire.android.ui.calling.initiating
 
 import android.view.View
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -49,7 +50,6 @@ import com.wire.android.ui.calling.controlbuttons.CallOptionsControls
 import com.wire.android.ui.calling.controlbuttons.HangUpButton
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 
 @Composable
@@ -81,6 +81,10 @@ private fun InitiatingCallContent(
     onVideoPreviewCreated: (view: View) -> Unit,
     onSelfClearVideoPreview: () -> Unit
 ) {
+    BackHandler {
+        // DO NOTHING
+    }
+
     val scaffoldState = rememberBottomSheetScaffoldState()
 
     BottomSheetScaffold(

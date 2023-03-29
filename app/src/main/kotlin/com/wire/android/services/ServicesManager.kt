@@ -27,6 +27,7 @@ import android.os.Build
 import com.wire.android.appLogger
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
+import kotlinx.coroutines.delay
 import javax.inject.Inject
 import kotlin.reflect.KClass
 
@@ -38,8 +39,9 @@ import kotlin.reflect.KClass
 class ServicesManager @Inject constructor(private val context: Context) {
 
     // Ongoing call
-    fun startOngoingCallService(notificationTitle: String, conversationId: ConversationId, userId: UserId) {
+    suspend fun startOngoingCallService(notificationTitle: String, conversationId: ConversationId, userId: UserId) {
         val onGoingCallService = OngoingCallService.newIntent(context, userId.toString(), conversationId.toString(), notificationTitle)
+        delay(300)
         startService(onGoingCallService)
     }
 

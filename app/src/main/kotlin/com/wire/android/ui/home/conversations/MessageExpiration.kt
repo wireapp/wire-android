@@ -193,6 +193,18 @@ class SelfDeletionTimer(private val context: Context) {
                 if (timeLeft.inWholeSeconds != 0L) timeLeft -= interval
             }
 
+            /**
+            * if the time elapsed ratio is between 0.50 and 0.75
+            * we want to change the value proportionally to how much
+            * time is left between 0.50 and 0.75, we doing that by dividing
+            * how much time is elapsed since half of the total expire after time by
+            * the "time slice" that fits between 0.5 and 0.75
+            * for example. [expireAfter] = 10 sec, timeElapsed = 6 sec
+            * quarterTimeLeftSlice = 2.5 sec, halfTimeSlice = 5 sec
+            * durationInBetweenHalfTimeAndQuarterSlice = 5 sec - 2.5 sec = 2.5 sec
+            * timeElapsedFromHalfTimeSlice = 6 sec - 5 sec = 1 sec
+            * alpha value is equal to the ratio = 1 / 2.5 = 0.4
+             */
             fun alphaBackgroundColor(): Float {
                 val timeElapsed = expireAfter - timeLeft
                 val timeElapsedRatio = timeElapsed / expireAfter
@@ -202,17 +214,6 @@ class SelfDeletionTimer(private val context: Context) {
                 } else if (timeElapsedRatio in LOW_TIME_ELAPSED_RATIO_BOUNDARY_FOR_PROPONTIAL_ALPHA_CHANGE
                     ..HIGH_TIME_ELAPSED_RATIO_BOUNDARY_FOR_PROPONTIAL_ALPHA_CHANGE
                 ) {
-                    // if the time elapsed ratio is between 0.50 and 0.75
-                    // we want to change the value proportionally to how much
-                    // time is left between 0.50 and 0.75, we doing that by dividing
-                    // how much time is elapsed since half of the total expire after time by
-                    // the "time slice" that fits between 0.5 and 0.75
-                    // for example. expireAfter = 10 sec, timeElapsed = 6 sec
-                    // quarterTimeLeftSlice = 2.5 sec, halfTimeSlice = 5 sec
-                    // durationInBetweenHalfTimeAndQuarterSlice = 5 sec - 2.5 sec = 2.5 sec
-                    // timeElapsedFromHalfTimeSlice = 6 sec - 5 sec = 1 sec
-                    // alpha value is equal to the ratio = 1 / 2.5 = 0.4
-
                     val halfTimeSlice = expireAfter.times(HALF_RATIO_VALUE)
                     val quarterTimeLeftSlice = expireAfter.times(QUARTER_RATIO_VALUE)
 

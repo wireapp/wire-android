@@ -63,6 +63,7 @@ class MessageMapper @Inject constructor(
         )
     }.distinct()
 
+    @Suppress("LongMethod")
     fun toUIMessage(userList: List<User>, message: Message.Standalone): UIMessage? {
         val sender = userList.findUser(message.senderUserId)
         val content = messageContentMapper.fromMessage(

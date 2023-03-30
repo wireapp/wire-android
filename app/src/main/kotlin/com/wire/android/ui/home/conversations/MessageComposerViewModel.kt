@@ -51,6 +51,7 @@ import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogHelper
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogsState
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.conversations.model.AttachmentType
+import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.EditMessageBundle
 import com.wire.android.ui.home.messagecomposer.UiMention
 import com.wire.android.ui.home.newconversation.model.Contact
@@ -71,6 +72,7 @@ import com.wire.kalium.logic.feature.conversation.ObserveConversationInteraction
 import com.wire.kalium.logic.feature.conversation.ObserveSecurityClassificationLabelUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationReadDateUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
+import com.wire.kalium.logic.feature.message.ephemeral.EnqueueMessageSelfDeletionUseCase
 import com.wire.kalium.logic.feature.message.SendEditTextMessageUseCase
 import com.wire.kalium.logic.feature.message.SendKnockUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
@@ -109,6 +111,7 @@ class MessageComposerViewModel @Inject constructor(
     private val membersToMention: MembersToMentionUseCase,
     private val getAssetSizeLimit: GetAssetSizeLimitUseCase,
     private val sendKnockUseCase: SendKnockUseCase,
+    private val enqueueMessageSelfDeletionUseCase: EnqueueMessageSelfDeletionUseCase,
     private val pingRinger: PingRinger,
     private val imageUtil: ImageUtil,
     private val fileManager: FileManager
@@ -365,6 +368,10 @@ class MessageComposerViewModel @Inject constructor(
         viewModelScope.launch(dispatchers.io()) {
             updateConversationReadDateUseCase(conversationId, Instant.parse(utcISO))
         }
+    }
+
+    fun startSelfDeletion(uiMessage: UIMessage) {
+        enqueueMessageSelfDeletionUseCase(conversationId, uiMessage.messageHeader.messageId)
     }
 
     fun navigateBack(previousBackStackPassedArgs: Map<String, Any> = mapOf()) {

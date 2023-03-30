@@ -23,6 +23,7 @@ package com.wire.android.mapper
 import com.wire.android.R
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.home.conversations.findUser
+import com.wire.android.ui.home.conversations.model.ExpirationStatus
 import com.wire.android.ui.home.conversations.model.MessageFooter
 import com.wire.android.ui.home.conversations.model.MessageHeader
 import com.wire.android.ui.home.conversations.model.MessageSource
@@ -32,7 +33,6 @@ import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.conversations.previewAsset
 import com.wire.android.ui.home.conversationslist.model.Membership
-import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.time.ISOFormatter
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.WireSessionImageLoader
@@ -47,7 +47,6 @@ import com.wire.kalium.logic.data.user.UserId
 import javax.inject.Inject
 
 class MessageMapper @Inject constructor(
-    private val dispatcherProvider: DispatcherProvider,
     private val userTypeMapper: UserTypeMapper,
     private val messageContentMapper: MessageContentMapper,
     private val isoFormatter: ISOFormatter,
@@ -78,7 +77,8 @@ class MessageMapper @Inject constructor(
 
             val hasSelfHeart = message.reactions.selfUserReactions.any { isHeart(it) }
 
-            MessageFooter(message.id,
+            MessageFooter(
+                message.id,
                 message.reactions.totalReactions
                     .filter { !isHeart(it.key) }
                     .run {
@@ -114,8 +114,21 @@ class MessageMapper @Inject constructor(
                 messageContent = content,
                 messageSource = if (sender is SelfUser) MessageSource.Self else MessageSource.OtherUser,
                 messageHeader = provideMessageHeader(sender, message),
+                expirationStatus = provideExpirationData(message),
                 messageFooter = footer,
                 userAvatarData = getUserAvatarData(sender)
+            )
+        }
+    }
+
+    private fun provideExpirationData(message: Message.Standalone): ExpirationStatus {
+        val expirationData = (message as? Message.Regular)?.expirationData
+        return if (expirationData == null) {
+            ExpirationStatus.NotExpirable
+        } else {
+            ExpirationStatus.Expirable(
+                expireAfter = expirationData.expireAfter,
+                selfDeletionStatus = expirationData.selfDeletionStatus
             )
         }
     }

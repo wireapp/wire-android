@@ -106,7 +106,6 @@ class ConversationMessagesViewModel @Inject constructor(
         loadLastMessageInstant()
         observeAudioPlayerState()
     }
-
     private fun observeAudioPlayerState() {
         viewModelScope.launch {
             conversationAudioMessagePlayer.observableAudioMessagesState.collect {

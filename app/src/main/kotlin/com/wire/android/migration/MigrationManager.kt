@@ -360,7 +360,6 @@ sealed class MigrationData {
                 const val KEY_FAILURE_USER_HANDLE = "failure_user_handle"
                 const val KEY_FAILURE_ERROR_CODE = "failure_error_code"
                 const val KEY_MIGRATION_EXCEPTION = "failure_error_message"
-                const val KEY_MIGRATION_REPORT = "migration_report"
             }
         }
     }
@@ -413,20 +412,20 @@ fun Data.getMigrationFailure(): MigrationData.Result.Failure = when (this.getStr
     MigrationData.Result.Failure.FAILURE_TYPE_ACCOUNT_SPECIFIC -> MigrationData.Result.Failure.Account.Specific(
         this.getString(MigrationData.Result.Failure.KEY_FAILURE_USER_NAME) ?: "",
         this.getString(MigrationData.Result.Failure.KEY_FAILURE_USER_HANDLE) ?: "",
-        this.getString(MigrationData.Result.Failure.KEY_MIGRATION_REPORT)
+        null
     )
 
     MigrationData.Result.Failure.FAILURE_TYPE_ACCOUNT_ANY -> MigrationData.Result.Failure.Account.Any
 
     MigrationData.Result.Failure.FAILURE_TYPE_MESSAGES -> MigrationData.Result.Failure.Messages(
         this.getString(MigrationData.Result.Failure.KEY_FAILURE_ERROR_CODE) ?: "",
-        this.getString(MigrationData.Result.Failure.KEY_MIGRATION_REPORT)
+        null
     )
 
     MigrationData.Result.Failure.FAILURE_TYPE_NO_NETWORK -> MigrationData.Result.Failure.NoNetwork
 
     else -> MigrationData.Result.Failure.Unknown(
         this.keyValueMap[MigrationData.Result.Failure.KEY_MIGRATION_EXCEPTION]?.let { it as? Throwable },
-        this.getString(MigrationData.Result.Failure.KEY_MIGRATION_REPORT)
+        null
     )
 }

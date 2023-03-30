@@ -63,6 +63,8 @@ import com.wire.kalium.logic.functional.fold
 import com.wire.kalium.logic.functional.isLeft
 import com.wire.kalium.logic.functional.isRight
 import com.wire.kalium.logic.functional.map
+import com.wire.kalium.logic.functional.onFailure
+import com.wire.kalium.logic.functional.onSuccess
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
@@ -140,20 +142,17 @@ class MigrationManager @Inject constructor(
                     }.also { report.addMessagesReport(userId, it) }
                 }
             }.fold({
-                when (it) {
+                globalDataStore.setUserMigrationStatus(userId.value, UserMigrationStatus.CompletedWithErrors)when (it) {
                     is NetworkFailure.NoNetworkConnection -> MigrationData.Result.Failure.NoNetwork
                     else -> MigrationData.Result.Failure.Messages(it.getErrorCode().toString())
                 }
-            }, {
+            }, {globalDataStore.setUserMigrationStatus(userId.value, UserMigrationStatus.Successfully)
                 MigrationData.Result.Success
             })
         } catch (e: Exception) {
+            globalDataStore.setUserMigrationStatus(userId.value, UserMigrationStatus.CompletedWithErrors)
             appLogger.e("$TAG - Migration failed for ${userId.value.obfuscateId()}")
             throw e
-        } finally {
-            // if migration crashed for any reason, we want to set migration as completed so that we don't try to migrate again
-            // and avoid any possible crash loops
-            globalDataStore.setUserMigrationStatus(userId.value, UserMigrationStatus.Completed)
         }
 
     // Because in migration conversation with last read state are inserted before messages
@@ -300,9 +299,11 @@ class MigrationManager @Inject constructor(
                     clearUnreadMessages(it, userId)
                 }.also { report.addMessagesReport(userId, it) }
                     .also {
-                        globalDataStore.setUserMigrationStatus(userId.value, UserMigrationStatus.Completed)
-
                         resultAcc[userId.value] = it
+                    }.onFailure {
+                        globalDataStore.setUserMigrationStatus(userId.value, UserMigrationStatus.CompletedWithErrors)
+                    }.onSuccess {
+                        globalDataStore.setUserMigrationStatus(userId.value, UserMigrationStatus.Successfully)
                     }
             }
         }

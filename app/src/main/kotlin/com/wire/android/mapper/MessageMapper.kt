@@ -119,11 +119,15 @@ class MessageMapper @Inject constructor(
                 }
             }
             is UIMessageContent.SystemMessage ->
-                UIMessage.System(
-                    messageContent = content,
-                    source = if (sender is SelfUser) MessageSource.Self else MessageSource.OtherUser,
-                    header = provideMessageHeader(sender, message),
-                )
+                if (message.visibility == HIDDEN) {
+                    null
+                } else {
+                    UIMessage.System(
+                        messageContent = content,
+                        source = if (sender is SelfUser) MessageSource.Self else MessageSource.OtherUser,
+                        header = provideMessageHeader(sender, message),
+                    )
+                }
             null -> null
             UIMessageContent.PreviewAssetMessage -> null
         }

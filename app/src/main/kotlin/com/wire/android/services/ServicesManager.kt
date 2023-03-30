@@ -41,7 +41,7 @@ class ServicesManager @Inject constructor(private val context: Context) {
     // Ongoing call
     suspend fun startOngoingCallService(notificationTitle: String, conversationId: ConversationId, userId: UserId) {
         val onGoingCallService = OngoingCallService.newIntent(context, userId.toString(), conversationId.toString(), notificationTitle)
-        delay(300)
+        delay(DELAY_START_SERVICE)
         startService(onGoingCallService)
     }
 
@@ -72,5 +72,8 @@ class ServicesManager @Inject constructor(private val context: Context) {
 
     private fun stopService(serviceClass: KClass<out Service>) {
         context.stopService(Intent(context, serviceClass.java))
+    }
+    companion object {
+        const val DELAY_START_SERVICE = 300L
     }
 }

@@ -970,4 +970,47 @@
     <string name="label_fingerprint_description">If fingerprints don’t match, reset the session to generate new encryption keys on both sides.</string>
     <string name="label_self_fingerprint_description">To let others verify this device, share this fingerprint or the QR code with them.</string>
     <string name="unknown_user_name">unknown</string>
+    <string name="self_deleting_message_time_left">Self-deleting message • %1$s</string>
+    <string name="self_deleting_message_label">Self-deleting message</string>
+    <!-- Expirable messages -->
+    <plurals name="weeks_left">
+        <item quantity="zero">%1$d weeks left</item>
+        <item quantity="one">1 week left</item>
+        <item quantity="two">%1$d weeks left</item>
+        <item quantity="few">%1$d weeks left</item>
+        <item quantity="many">%1$d weeks left</item>
+        <item quantity="other">%1$d weeks left</item>
+    </plurals>
+    <plurals name="days_left">
+        <item quantity="zero">%1$d days left</item>
+        <item quantity="one">1 day left</item>
+        <item quantity="two">%1$d days left</item>
+        <item quantity="few">%1$d days left</item>
+        <item quantity="many">%1$d days left</item>
+        <item quantity="other">%1$d days left</item>
+    </plurals>
+    <plurals name="hours_left">
+        <item quantity="zero">%1$d hours left</item>
+        <item quantity="one">1 hour left</item>
+        <item quantity="two">%1$d hours left</item>
+        <item quantity="few">%1$d hours left</item>
+        <item quantity="many">%1$d hours left</item>
+        <item quantity="other">%1$d hours left</item>
+    </plurals>
+    <plurals name="minutes_left">
+        <item quantity="zero">%1$d minutes left</item>
+        <item quantity="one">1 minute left</item>
+        <item quantity="two">%1$d minutes left</item>
+        <item quantity="few">%1$d minutes left</item>
+        <item quantity="many">%1$d minutes left</item>
+        <item quantity="other">%1$d minutes left</item>
+    </plurals>
+    <plurals name="seconds_left">
+        <item quantity="zero">%1$d seconds left</item>
+        <item quantity="one">1 second left</item>
+        <item quantity="two">%1$d seconds left</item>
+        <item quantity="few">%1$d seconds left</item>
+        <item quantity="many">%1$d seconds left</item>
+        <item quantity="other">%1$d seconds left</item>
+    </plurals>
 </resources>

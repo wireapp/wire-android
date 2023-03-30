@@ -262,7 +262,7 @@ data class MessageBody(
 
 sealed class UIQuotedMessage {
 
-    object UnavailableData: UIQuotedMessage()
+    object UnavailableData : UIQuotedMessage()
 
     data class UIQuotedData(
         val messageId: String,
@@ -271,7 +271,7 @@ sealed class UIQuotedMessage {
         val originalMessageDateDescription: UIText,
         val editedTimeDescription: UIText?,
         val quotedContent: Content
-    ): UIQuotedMessage() {
+    ) : UIQuotedMessage() {
 
         sealed interface Content
 

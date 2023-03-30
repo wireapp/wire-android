@@ -40,7 +40,7 @@
     <string name="label_membership_external">External</string>
     <string name="label_membership_service">Service</string>
     <string name="label_user_deleted">Deleted</string>
-    <string name="label_message_sent_failure">Message could not be sent.</string>
+    <string name="label_message_sent_failure">Message could not be sent due to connectivity issues.</string>
     <string name="label_message_edit_sent_failure">The edited message could not be sent due to connectivity issues.</string>
     <string name="label_message_sent_remotely_failure">Message could not be sent, as the backend %s appears to be offline.</string>
     <string name="label_message_receive_failure">Download Error</string>
@@ -515,7 +515,7 @@
     <string name="label_system_message_new_conversation_receipt_mode">Read receipts are %1$s</string>
     <string name="label_system_message_read_receipt_changed_by_self">%1$s turned read receipts %2$s for everyone</string>
     <string name="label_system_message_read_receipt_changed_by_other">%1$s turned read receipts %2$s for everyone</string>
-    <string name="label_system_message_conversation_history_lost">YOU HAVEN\'T USED THIS DEVICE FOR A WHILE. SOME MESSAGES MAY NOT APPEAR HERE.</string>
+    <string name="label_system_message_conversation_history_lost">You haven\'t used this device for a while. some messages may not appear here.</string>
     <string name="label_system_message_receipt_mode_on">on</string>
     <string name="label_system_message_receipt_mode_off">off</string>
     <!-- Last messages -->
@@ -910,4 +910,22 @@
     <string name="label_fingerprint_description">If fingerprints don’t match, reset the session to generate new encryption keys on both sides.</string>
     <string name="label_self_fingerprint_description">To let others verify this device, share this fingerprint or the QR code with them.</string>
     <string name="unknown_user_name">unknown</string>
+    <string name="self_deleting_message_time_left">Self-deleting message • %1$s</string>
+    <string name="self_deleting_message_label">Self-deleting message</string>
+    <!-- Expirable messages -->
+    <plurals name="weeks_left">
+        <item quantity="other">%1$d weeks left</item>
+    </plurals>
+    <plurals name="days_left">
+        <item quantity="other">%1$d days left</item>
+    </plurals>
+    <plurals name="hours_left">
+        <item quantity="other">%1$d hours left</item>
+    </plurals>
+    <plurals name="minutes_left">
+        <item quantity="other">%1$d minutes left</item>
+    </plurals>
+    <plurals name="seconds_left">
+        <item quantity="other">%1$d seconds left</item>
+    </plurals>
 </resources>

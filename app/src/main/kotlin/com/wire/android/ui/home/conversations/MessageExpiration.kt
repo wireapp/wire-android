@@ -234,7 +234,6 @@ class SelfDeletionTimer(private val context: Context) {
                 } else {
                     OPAQUE_BACKGROUND_COLOR_ALPHA_VALUE
                 }
-
             }
         }
 

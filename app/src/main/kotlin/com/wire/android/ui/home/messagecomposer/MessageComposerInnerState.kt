@@ -154,10 +154,14 @@ data class MessageComposerInnerState(
         _mentionQueryFlowState.value = null
     }
 
-    fun toInactive(clearInput: Boolean = false) {
-        if (clearInput) {
-            messageComposeInputState = messageComposeInputState.toInactive(messageText = TextFieldValue(""))
-        } else if (messageComposeInputState !is MessageComposeInputState.Inactive) {
+    fun closeEditToInactive() {
+        focusManager.clearFocus()
+        setMessageTextValue(TextFieldValue(""))
+        toInactive()
+    }
+
+    fun toInactive() {
+        if (messageComposeInputState !is MessageComposeInputState.Inactive) {
             messageComposeInputState = messageComposeInputState.toInactive()
         }
     }
@@ -357,7 +361,7 @@ data class UiMention(
     val userId: UserId,
     val handler: String // name that should be displayed in a message
 ) {
-    fun intoMessageMention() = MessageMention(start, length, userId)
+    fun intoMessageMention() = MessageMention(start, length, userId, false) // We can never send a self mention message
 }
 
 class AttachmentInnerState(val context: Context) {
@@ -436,7 +440,7 @@ sealed class MessageComposeInputState {
         get() = this is Active && this.type is MessageComposeInputType.NewMessage && messageText.text.trim().isNotBlank()
     val editSaveButtonEnabled: Boolean
         get() = this is Active && this.type is MessageComposeInputType.EditMessage && messageText.text.trim().isNotBlank()
-                && messageText.text.trim() != this.type.originalText.trim()
+                && messageText.text != this.type.originalText
 }
 
 enum class MessageComposeInputSize {

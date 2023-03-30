@@ -1,5 +1,6 @@
 package com.wire.android.migration.failure
 
+@Suppress("MagicNumber")
 sealed interface UserMigrationStatus {
     val value: Int
 

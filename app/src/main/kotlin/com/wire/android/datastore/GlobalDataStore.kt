@@ -36,6 +36,7 @@ import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
 
+@Suppress("TooManyFunctions")
 @Singleton
 class GlobalDataStore @Inject constructor(@ApplicationContext private val context: Context) {
 

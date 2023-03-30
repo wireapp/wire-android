@@ -221,8 +221,8 @@ class SelfDeletionTimer(private val context: Context) {
 
                 return if (timeElapsedRatio < LOW_END_TIME_ELAPSED_RATIO_BOUNDARY_FOR_PROPORTIONAL_ALPHA_CHANGE) {
                     INVISIBLE_BACKGROUND_COLOR_ALPHA_VALUE
-                } else if (timeElapsedRatio in LOW_END_TIME_ELAPSED_RATIO_BOUNDARY_FOR_PROPORTIONAL_ALPHA_CHANGE
-                    ..HIGH_END_TIME_ELAPSED_RATIO_BOUNDARY_FOR_PROPORTIONAL_ALPHA_CHANGE
+                } else if (timeElapsedRatio in LOW_END_TIME_ELAPSED_RATIO_BOUNDARY_FOR_PROPORTIONAL_ALPHA_CHANGE..
+                    HIGH_END_TIME_ELAPSED_RATIO_BOUNDARY_FOR_PROPORTIONAL_ALPHA_CHANGE
                 ) {
                     val halfTimeSlice = expireAfter.times(HALF_RATIO_VALUE)
                     val quarterTimeLeftSlice = expireAfter.times(QUARTER_RATIO_VALUE)

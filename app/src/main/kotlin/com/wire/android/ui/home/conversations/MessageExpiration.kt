@@ -51,8 +51,10 @@ class SelfDeletionTimer(private val context: Context) {
             val timeElapsedSinceSelfDeletionStartDate = Clock.System.now() - selfDeletionStatus.selfDeletionStartDate
             val timeLeft = expireAfter - timeElapsedSinceSelfDeletionStartDate
 
-            // time left for deletion it can be a negative value if the time difference between the self deletion start date and
-            // now is greater then expire after millis, we normalize it to 0 seconds
+            /**
+             * time left for deletion, can be a negative value if the time difference between the self deletion start date and
+             * Clock.System.now() is greater then [expireAfter], we normalize it to 0 seconds
+             */
             if (timeLeft.isNegative()) {
                 ZERO
             } else {
@@ -221,8 +223,8 @@ class SelfDeletionTimer(private val context: Context) {
 
                 return if (timeElapsedRatio < LOW_END_TIME_ELAPSED_RATIO_BOUNDARY_FOR_PROPORTIONAL_ALPHA_CHANGE) {
                     INVISIBLE_BACKGROUND_COLOR_ALPHA_VALUE
-                } else if (timeElapsedRatio in LOW_END_TIME_ELAPSED_RATIO_BOUNDARY_FOR_PROPORTIONAL_ALPHA_CHANGE..
-                    HIGH_END_TIME_ELAPSED_RATIO_BOUNDARY_FOR_PROPORTIONAL_ALPHA_CHANGE
+                } else if (LOW_END_TIME_ELAPSED_RATIO_BOUNDARY_FOR_PROPORTIONAL_ALPHA_CHANGE <= timeElapsedRatio
+                    && timeElapsedRatio <= HIGH_END_TIME_ELAPSED_RATIO_BOUNDARY_FOR_PROPORTIONAL_ALPHA_CHANGE
                 ) {
                     val halfTimeSlice = expireAfter.times(HALF_RATIO_VALUE)
                     val quarterTimeLeftSlice = expireAfter.times(QUARTER_RATIO_VALUE)

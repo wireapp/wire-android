@@ -53,6 +53,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
+import com.wire.android.model.ClickBlockParams
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.ArrowRightIcon
 import com.wire.android.ui.common.RowItemTemplate
@@ -263,7 +264,7 @@ private fun SelfUserProfileTopBar(
                 fillMaxWidth = false,
                 minHeight = dimensions().userProfileLogoutBtnHeight,
                 state = WireButtonState.Error,
-                blockUntilSynced = true
+                clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
             )
         }
     )

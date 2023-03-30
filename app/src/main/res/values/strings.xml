@@ -542,8 +542,8 @@
         <item quantity="one">You added 1 person to the conversation</item>
         <item quantity="other">You added %1$d people to the conversation</item>
     </plurals>
+    <string name="last_message_other_added_only_self_user">You were added to the conversation</string>
     <plurals name="last_message_other_added_self_user">
-        <item quantity="zero">You were added to the conversation</item>
         <item quantity="one">You and 1 other person were added to the conversation</item>
         <item quantity="other">You and %1$d people were added to the conversation</item>
     </plurals>
@@ -556,8 +556,8 @@
         <item quantity="one">You removed 1 person from the conversation</item>
         <item quantity="other">You removed %1$d people from the conversation</item>
     </plurals>
-    <plurals name="last_message_other_removed_self_user">
-        <item quantity="zero">You were removed from the conversation</item>
+    <string name="last_message_other_removed_only_self_user">You were removed from the conversation</string>
+    <plurals name="last_message_other_removed_self_user_and_others">
         <item quantity="one">You and 1 other person were removed from the conversation</item>
         <item quantity="other">You and %1$d people were removed from the conversation</item>
     </plurals>
@@ -565,33 +565,28 @@
         <item quantity="one">1 person was removed from the conversation</item>
         <item quantity="other">%1$d people were removed from the conversation</item>
     </plurals>
-    <string name="last_message_asset">shared media asset</string>
-    <string name="last_message_image">shared an image.</string>
-    <string name="last_message_video">shared a video.</string>
-    <string name="last_message_audio">shared an audio message.</string>
-    <string name="last_message_file">shared a file.</string>
-    <string name="last_message_knock">pinged.</string>
+    <string name="last_message_self_user_shared_asset">shared media asset</string>
+    <string name="last_message_other_user_shared_asset">shared media asset</string>
+    <string name="last_message_self_user_shared_image">shared an image.</string>
+    <string name="last_message_other_user_shared_image">shared an image.</string>
+    <string name="last_message_self_user_shared_video">shared a video.</string>
+    <string name="last_message_other_user_shared_video">shared a video.</string>
+    <string name="last_message_self_user_shared_audio">shared an audio message.</string>
+    <string name="last_message_other_user_shared_audio">shared an audio message.</string>
+    <string name="last_message_self_user_shared_file">shared a file.</string>
+    <string name="last_message_other_user_shared_file">shared a file.</string>
+    <string name="last_message_self_user_knock">pinged.</string>
+    <string name="last_message_other_user_knock">pinged.</string>
     <string name="last_message_call">called.</string>
     <string name="last_message_mentioned">mentioned you</string>
     <string name="last_message_replied">replied to you</string>
-    <string name="last_message_change_conversation_name">changed conversation name</string>
+    <string name="last_message_other_changed_conversation_name">changed conversation name</string>
+    <string name="last_message_self_changed_conversation_name">changed conversation name</string>
     <string name="last_message_calling">%1$s calling...</string>
-    <plurals name="last_message_people_added">
-        <item quantity="one">added %1$d person</item>
-        <item quantity="other">added %1$d people</item>
-    </plurals>
-    <plurals name="last_message_people_removed">
-        <item quantity="one">removed %1$d person</item>
-        <item quantity="other">removed %1$d people</item>
-    </plurals>
-    <plurals name="last_message_people">
-        <item quantity="one">%1$d person</item>
-        <item quantity="other">%1$d people</item>
-    </plurals>
-    <string name="last_message_joined_conversation">joined the conversation.</string>
-    <string name="last_message_left_conversation">left the conversation.</string>
-    <string name="last_message_to_conversation">to conversation</string>
-    <string name="last_message_from_conversation">from conversation</string>
+    <string name="last_message_self_user_joined_conversation">joined the conversation.</string>
+    <string name="last_message_self_user_left_conversation">left the conversation.</string>
+    <string name="last_message_other_user_joined_conversation">joined the conversation.</string>
+    <string name="last_message_other_user_left_conversation">left the conversation.</string>
     <!-- Unread Events -->
     <plurals name="unread_event_knock">
         <item quantity="one">%1$d ping</item>
@@ -843,6 +838,7 @@
     <string name="label_reactions">Reactions</string>
     <string name="label_more_comming_soon">(more coming soon)</string>
     <string name="label_wait_until_synchronised">Please wait until the app is synchronized</string>
+    <string name="label_wait_until_connected">Please wait until the Internet connection is restored</string>
     <string name="label_textfield_optional_password">Password (optional)</string>
     <!--create and restore backup-->
     <string name="backup_dialog_create_backup_set_password_title">Set password</string>

@@ -101,11 +101,12 @@ class NotificationChannelsManager @Inject constructor(
 
         val chanelId = NotificationConstants.getIncomingChannelId(userId)
         val notificationChannel = NotificationChannelCompat
-            .Builder(chanelId, NotificationManagerCompat.IMPORTANCE_HIGH)
+            .Builder(chanelId, NotificationManagerCompat.IMPORTANCE_MAX)
             .setName(NotificationConstants.INCOMING_CALL_CHANNEL_NAME)
+            .setImportance(NotificationManagerCompat.IMPORTANCE_MAX)
             .setSound(incomingCallSoundUri, audioAttributes)
             .setShowBadge(false)
-            .setVibrationEnabled(true)
+            .setVibrationPattern(VIBRATE_PATTERN)
             .setGroup(groupId)
             .build()
 
@@ -118,7 +119,7 @@ class NotificationChannelsManager @Inject constructor(
             .Builder(chanelId, NotificationManagerCompat.IMPORTANCE_MAX)
             .setName(NotificationConstants.ONGOING_CALL_CHANNEL_NAME)
             .setVibrationEnabled(false)
-            .setImportance(NotificationManagerCompat.IMPORTANCE_DEFAULT)
+            .setImportance(NotificationManagerCompat.IMPORTANCE_MAX)
             .setSound(null, null)
             .setGroup(groupId)
             .build()
@@ -170,6 +171,7 @@ class NotificationChannelsManager @Inject constructor(
 
     companion object {
         private fun getChanelGroupNameForUser(userName: String): String = userName
+        private val VIBRATE_PATTERN = longArrayOf(0, 1000, 1000)
 
         const val TAG = "NotificationChannelsManager"
     }

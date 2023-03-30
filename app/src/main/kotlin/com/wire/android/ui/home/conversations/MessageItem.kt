@@ -20,10 +20,13 @@
 
 package com.wire.android.ui.home.conversations
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -35,6 +38,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -51,6 +55,7 @@ import com.wire.android.ui.common.StatusBox
 import com.wire.android.ui.common.UserBadge
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.button.WireSecondaryButton
+import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.home.conversations.messages.QuotedMessage
@@ -71,9 +76,11 @@ import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMess
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
+import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.user.UserId
 
 // TODO: a definite candidate for a refactor and cleanup
+@Suppress("ComplexMethod")
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun MessageItem(
@@ -86,93 +93,127 @@ fun MessageItem(
     onImageMessageClicked: (UIMessage, Boolean) -> Unit,
     onOpenProfile: (String) -> Unit,
     onReactionClicked: (String, String) -> Unit,
-    onResetSessionClicked: (senderUserId: UserId, clientId: String?) -> Unit
+    onResetSessionClicked: (senderUserId: UserId, clientId: String?) -> Unit,
+    onSelfDeletingMessageRead: (UIMessage) -> Unit
 ) {
     with(message) {
-        val fullAvatarOuterPadding = dimensions().userAvatarClickablePadding + dimensions().userAvatarStatusBorderSize
-        Row(
-            Modifier
-                .customizeMessageBackground(message)
-                .padding(
-                    end = dimensions().spacing16x,
-                    bottom = dimensions().messageItemBottomPadding - fullAvatarOuterPadding
-                )
-                .fillMaxWidth()
-                .let {
-                    if (!message.isDeleted) it.combinedClickable(
-                        // TODO: implement some action onClick
-                        onClick = { },
-                        onLongClick = { onLongClicked(message) }
-                    ) else it
-                }
-        ) {
-            Spacer(Modifier.padding(start = dimensions().spacing8x - fullAvatarOuterPadding))
+        val selfDeletionTimerState = rememberSelfDeletionTimer(expirationStatus)
 
-            val isProfileRedirectEnabled =
-                message.messageHeader.userId != null &&
-                        !(message.messageHeader.isSenderDeleted || message.messageHeader.isSenderUnavailable)
-
-            val avatarClickable = remember {
-                Clickable(enabled = isProfileRedirectEnabled) {
-                    onOpenProfile(message.messageHeader.userId!!.toString())
-                }
-            }
-            UserProfileAvatar(
-                avatarData = message.userAvatarData,
-                clickable = avatarClickable
+        if (selfDeletionTimerState is SelfDeletionTimer.SelfDeletionTimerState.Expirable) {
+            startDeletionTimer(
+                message = message,
+                expirableTimer = selfDeletionTimerState,
+                onStartMessageSelfDeletion = onSelfDeletingMessageRead
             )
-            Spacer(Modifier.padding(start = dimensions().spacing16x - fullAvatarOuterPadding))
-            Column {
-                Spacer(modifier = Modifier.height(fullAvatarOuterPadding))
-                MessageHeader(messageHeader)
+        }
 
-                if (!isDeleted) {
-                    if (!decryptionFailed) {
-                        val currentOnAssetClicked = remember {
-                            Clickable(enabled = true, onClick = {
-                                onAssetMessageClicked(message.messageHeader.messageId)
-                            }, onLongClick = {
-                                onLongClicked(message)
-                            })
-                        }
+        val backgroundColorModifier = if (message.sendingFailed || message.receivingFailed) {
+            Modifier.background(colorsScheme().messageErrorBackgroundColor)
+        } else if (selfDeletionTimerState is SelfDeletionTimer.SelfDeletionTimerState.Expirable) {
+            val color by animateColorAsState(
+                colorsScheme().primaryVariant.copy(selfDeletionTimerState.alphaBackgroundColor()),
+                tween()
+            )
 
-                        val currentOnImageClick = remember {
-                            Clickable(enabled = true, onClick = {
-                                onImageMessageClicked(
-                                    message,
-                                    message.messageSource == MessageSource.Self
-                                )
-                            }, onLongClick = {
-                                onLongClicked(message)
-                            })
+            Modifier.background(color)
+        } else {
+            Modifier
+        }
+
+        Box(backgroundColorModifier) {
+            val fullAvatarOuterPadding = dimensions().userAvatarClickablePadding + dimensions().userAvatarStatusBorderSize
+
+            Row(
+                Modifier
+                    .padding(
+                        end = dimensions().spacing16x,
+                        bottom = dimensions().messageItemBottomPadding - fullAvatarOuterPadding
+                    )
+                    .fillMaxWidth()
+                    .then(
+                        if (!message.isDeleted) {
+                            Modifier.combinedClickable(
+                                // TODO: implement some action onClick
+                                onClick = { },
+                                onLongClick = { onLongClicked(message) }
+                            )
+                        } else {
+                            Modifier
                         }
-                        val onLongClick = remember { { onLongClicked(message) } }
-                        MessageContent(
-                            message = message,
-                            messageContent = messageContent,
-                            audioMessagesState = audioMessagesState,
-                            onAudioClick = onAudioClick,
-                            onChangeAudioPosition = onChangeAudioPosition,
-                            onAssetClick = currentOnAssetClicked,
-                            onImageClick = currentOnImageClick,
-                            onLongClick = onLongClick,
-                            onOpenProfile = onOpenProfile
-                        )
-                        MessageFooter(
-                            messageFooter,
-                            onReactionClicked
-                        )
-                    } else {
-                        MessageDecryptionFailure(
-                            messageHeader = messageHeader,
-                            decryptionStatus = messageHeader.messageStatus as MessageStatus.DecryptionFailure,
-                            onResetSessionClicked = onResetSessionClicked
-                        )
+                    )
+            ) {
+                Spacer(Modifier.padding(start = dimensions().spacing8x - fullAvatarOuterPadding))
+
+                val isProfileRedirectEnabled =
+                    message.messageHeader.userId != null &&
+                            !(message.messageHeader.isSenderDeleted || message.messageHeader.isSenderUnavailable)
+
+                val avatarClickable = remember {
+                    Clickable(enabled = isProfileRedirectEnabled) {
+                        onOpenProfile(message.messageHeader.userId!!.toString())
                     }
                 }
+                UserProfileAvatar(
+                    avatarData = message.userAvatarData,
+                    clickable = avatarClickable
+                )
+                Spacer(Modifier.padding(start = dimensions().spacing16x - fullAvatarOuterPadding))
+                Column {
+                    Spacer(modifier = Modifier.height(fullAvatarOuterPadding))
+                    MessageHeader(messageHeader)
+                    if (selfDeletionTimerState is SelfDeletionTimer.SelfDeletionTimerState.Expirable) {
+                        MessageExpireLabel(messageContent, selfDeletionTimerState.timeLeftFormatted())
+                    }
+                    if (!isDeleted) {
+                        if (!decryptionFailed) {
+                            val currentOnAssetClicked = remember {
+                                Clickable(enabled = true, onClick = {
+                                    onAssetMessageClicked(message.messageHeader.messageId)
+                                }, onLongClick = {
+                                    onLongClicked(message)
+                                })
+                            }
 
-                if (message.sendingFailed) {
-                    MessageSendFailureWarning(messageHeader.messageStatus as MessageStatus.MessageSendFailureStatus)
+                            val currentOnImageClick = remember {
+                                Clickable(enabled = true, onClick = {
+                                    onImageMessageClicked(
+                                        message,
+                                        message.messageSource == MessageSource.Self
+                                    )
+                                }, onLongClick = {
+                                    onLongClicked(message)
+                                })
+                            }
+
+                            val onLongClick = remember { { onLongClicked(message) } }
+
+                            MessageContent(
+                                message = message,
+                                messageContent = messageContent,
+                                audioMessagesState = audioMessagesState,
+                                onAudioClick = onAudioClick,
+                                onChangeAudioPosition = onChangeAudioPosition,
+                                onAssetClick = currentOnAssetClicked,
+                                onImageClick = currentOnImageClick,
+                                onLongClick = onLongClick,
+                                onOpenProfile = onOpenProfile
+                            )
+                            MessageFooter(
+                                messageFooter,
+                                onReactionClicked
+                            )
+                        } else {
+                            MessageDecryptionFailure(
+                                messageHeader = messageHeader,
+                                decryptionStatus = messageHeader.messageStatus as MessageStatus.DecryptionFailure,
+                                onResetSessionClicked = onResetSessionClicked
+                            )
+                        }
+                    }
+
+                    if (message.sendingFailed) {
+                        MessageSendFailureWarning(messageHeader.messageStatus as MessageStatus.MessageSendFailureStatus)
+                    }
                 }
             }
         }
@@ -180,12 +221,44 @@ fun MessageItem(
 }
 
 @Composable
-private fun Modifier.customizeMessageBackground(
-    message: UIMessage
-) = run {
-    if (message.sendingFailed || message.receivingFailed) {
-        background(MaterialTheme.wireColorScheme.messageErrorBackgroundColor)
-    } else this
+fun MessageExpireLabel(messageContent: UIMessageContent?, timeLeft: String) {
+    when (messageContent) {
+        is UIMessageContent.TextMessage -> {
+            StatusBox(statusText = stringResource(R.string.self_deleting_message_time_left, timeLeft))
+        }
+
+        is UIMessageContent.AssetMessage -> {
+            StatusBox(
+                statusText = if (messageContent.downloadStatus == Message.DownloadStatus.SAVED_INTERNALLY) stringResource(
+                    R.string.self_deleting_message_time_left,
+                    timeLeft
+                )
+                else stringResource(R.string.self_deleting_message_label, timeLeft)
+            )
+        }
+
+        is UIMessageContent.AudioAssetMessage -> {
+            StatusBox(
+                statusText = if (messageContent.downloadStatus == Message.DownloadStatus.SAVED_INTERNALLY) stringResource(
+                    R.string.self_deleting_message_time_left,
+                    timeLeft
+                )
+                else stringResource(R.string.self_deleting_message_label, timeLeft)
+            )
+        }
+
+        is UIMessageContent.ImageMessage -> {
+            StatusBox(
+                statusText = if (messageContent.downloadStatus == Message.DownloadStatus.SAVED_INTERNALLY) stringResource(
+                    R.string.self_deleting_message_time_left,
+                    timeLeft
+                )
+                else stringResource(R.string.self_deleting_message_label, timeLeft)
+            )
+        }
+
+        else -> {}
+    }
 }
 
 @Composable
@@ -200,14 +273,12 @@ private fun MessageHeader(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Username(username.asString(), modifier = Modifier.weight(weight = 1f, fill = false))
-
                     UserBadge(
                         membership = membership,
                         connectionState = connectionState,
                         startPadding = dimensions().spacing6x,
                         isDeleted = isSenderDeleted
                     )
-
                     if (isLegalHold) {
                         LegalHoldIndicator(modifier = Modifier.padding(start = dimensions().spacing6x))
                     }

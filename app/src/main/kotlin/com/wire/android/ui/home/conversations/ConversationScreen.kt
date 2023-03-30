@@ -210,6 +210,7 @@ fun ConversationScreen(
         conversationMessages = conversationMessagesViewModel.infoMessage,
         conversationMessagesViewModel = conversationMessagesViewModel,
         onPingClicked = messageComposerViewModel::sendPing,
+        onSelfDeletingMessageRead = messageComposerViewModel::startSelfDeletion,
         tempWritableImageUri = messageComposerViewModel.tempWritableImageUri,
         tempWritableVideoUri = messageComposerViewModel.tempWritableVideoUri
     )
@@ -305,6 +306,7 @@ private fun ConversationScreen(
     conversationMessages: SharedFlow<SnackBarMessage>,
     conversationMessagesViewModel: ConversationMessagesViewModel,
     onPingClicked: () -> Unit,
+    onSelfDeletingMessageRead: (UIMessage) -> Unit,
     tempWritableImageUri: Uri?,
     tempWritableVideoUri: Uri?
 ) {
@@ -398,6 +400,7 @@ private fun ConversationScreen(
                         onMessageComposerError = onSnackbarMessage,
                         onShowContextMenu = conversationScreenState::showEditContextMenu,
                         onPingClicked = onPingClicked,
+                        onSelfDeletingMessageRead = onSelfDeletingMessageRead,
                         tempWritableImageUri = tempWritableImageUri,
                         tempWritableVideoUri = tempWritableVideoUri
                     )
@@ -435,6 +438,7 @@ private fun ConversationScreenContent(
     onMessageComposerError: (ConversationSnackbarMessages) -> Unit,
     onShowContextMenu: (UIMessage) -> Unit,
     onPingClicked: () -> Unit,
+    onSelfDeletingMessageRead: (UIMessage) -> Unit,
     tempWritableImageUri: Uri?,
     tempWritableVideoUri: Uri?
 ) {
@@ -463,7 +467,9 @@ private fun ConversationScreenContent(
                 onOpenProfile = onOpenProfile,
                 onReactionClicked = onReactionClicked,
                 onResetSessionClicked = onResetSessionClicked,
-                onShowContextMenu = onShowContextMenu
+                onShowContextMenu = onShowContextMenu,
+                onSelfDeletingMessageRead = onSelfDeletingMessageRead
+
             )
         },
         onSendTextMessage = { message, mentions, messageId ->
@@ -551,7 +557,8 @@ fun MessageList(
     onChangeAudioPosition: (String, Int) -> Unit,
     onReactionClicked: (String, String) -> Unit,
     onResetSessionClicked: (senderUserId: UserId, clientId: String?) -> Unit,
-    onShowContextMenu: (UIMessage) -> Unit
+    onShowContextMenu: (UIMessage) -> Unit,
+    onSelfDeletingMessageRead: (UIMessage) -> Unit
 ) {
     val mostRecentMessage = lazyPagingMessages.itemCount.takeIf { it > 0 }?.let { lazyPagingMessages[0] }
 
@@ -603,7 +610,8 @@ fun MessageList(
                     onImageMessageClicked = onImageFullScreenMode,
                     onOpenProfile = onOpenProfile,
                     onReactionClicked = onReactionClicked,
-                    onResetSessionClicked = onResetSessionClicked
+                    onResetSessionClicked = onResetSessionClicked,
+                    onSelfDeletingMessageRead = onSelfDeletingMessageRead,
                 )
             }
         }
@@ -653,6 +661,7 @@ fun PreviewConversationScreen() {
         conversationMessages = MutableStateFlow(ErrorDownloadingAsset),
         conversationMessagesViewModel = hiltViewModel(),
         onPingClicked = {},
+        onSelfDeletingMessageRead = {},
         tempWritableImageUri = null,
         tempWritableVideoUri = null
     )

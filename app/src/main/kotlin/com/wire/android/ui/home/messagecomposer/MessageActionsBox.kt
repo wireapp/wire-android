@@ -59,6 +59,7 @@ fun MessageComposeActionsBox(
     startMention: () -> Unit,
     onAdditionalOptionButtonClicked: () -> Unit,
     onPingClicked: () -> Unit,
+    onSelfDeletionOptionButtonClicked: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(modifier.wrapContentSize()) {
@@ -79,7 +80,8 @@ fun MessageComposeActionsBox(
                         isFileSharingEnabled,
                         startMention,
                         onAdditionalOptionButtonClicked,
-                        onPingClicked
+                        onPingClicked,
+                        onSelfDeletionOptionButtonClicked
                     )
                 }
             }
@@ -95,7 +97,8 @@ private fun MessageComposeActions(
     isFileSharingEnabled: Boolean = true,
     startMention: () -> Unit,
     onAdditionalOptionButtonClicked: () -> Unit,
-    onPingClicked: () -> Unit
+    onPingClicked: () -> Unit,
+    onSelfDeletionOptionButtonClicked: () -> Unit
 ) {
     val localFeatureVisibilityFlags = LocalFeatureVisibilityFlags.current
 
@@ -111,7 +114,7 @@ private fun MessageComposeActions(
             if (RichTextIcon) RichTextEditingAction()
             if (!isEditMessage && EmojiIcon) AddEmojiAction()
             if (!isEditMessage && GifIcon) AddGifAction()
-            if (!isEditMessage) SelfDeletingMessageAction()
+            if (!isEditMessage) SelfDeletingMessageAction(onButtonClicked = onSelfDeletionOptionButtonClicked)
             if (!isEditMessage && PingIcon) PingAction(onPingClicked = onPingClicked)
             AddMentionAction(isMentionsSelected, startMention)
         }
@@ -174,9 +177,9 @@ private fun PingAction(onPingClicked: () -> Unit) {
 }
 
 @Composable
-fun SelfDeletingMessageAction() {
+fun SelfDeletingMessageAction(onButtonClicked: () -> Unit) {
     WireSecondaryIconButton(
-        onButtonClicked = { },
+        onButtonClicked = onButtonClicked,
         clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
         iconResource = R.drawable.ic_ping,
         contentDescription = R.string.content_description_ping_everyone

@@ -137,7 +137,8 @@ private fun EnabledMessageComposerInput(
                 startMention = actions.startMention,
                 onAdditionalOptionButtonClicked = actions.onAdditionalOptionButtonClicked,
                 modifier = Modifier.background(colorsScheme().messageComposerBackgroundColor),
-                onPingClicked = actions.onPingClicked
+                onPingClicked = actions.onPingClicked,
+                onSelfDeletionOptionButtonClicked = actions.onShowSelfDeletionOption
             )
         }
         if (membersToMention.isNotEmpty() && messageComposeInputState.isExpanded) {
@@ -263,7 +264,8 @@ data class MessageComposerInputActions(
     val onAdditionalOptionButtonClicked: () -> Unit = {},
     val onEditSaveButtonClicked: () -> Unit = {},
     val onEditCancelButtonClicked: () -> Unit = {},
-    val onPingClicked: () -> Unit = {}
+    val onPingClicked: () -> Unit = {},
+    val onShowSelfDeletionOption: () -> Unit = { }
 )
 
 @Composable

@@ -29,7 +29,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -82,7 +81,7 @@ fun MessageComposer(
     securityClassificationType: SecurityClassificationType,
     membersToMention: List<Contact>,
     onPingClicked: () -> Unit,
-    onShowSelfDeletionOption : () -> Unit,
+    onShowSelfDeletionOption: () -> Unit,
     tempWritableImageUri: Uri?,
     tempWritableVideoUri: Uri?
 ) {
@@ -148,6 +147,7 @@ fun MessageComposer(
             onEditSaveButtonClicked = onSendEditButtonClicked,
             onMentionPicked = onMentionPicked,
             onPingClicked = onPingClicked,
+            onShowSelfDeletionOption = onShowSelfDeletionOption,
             tempWritableImageUri = tempWritableImageUri,
             tempWritableVideoUri = tempWritableVideoUri
         )
@@ -171,7 +171,8 @@ private fun MessageComposer(
     onSendButtonClicked: () -> Unit,
     onEditSaveButtonClicked: () -> Unit,
     onMentionPicked: (Contact) -> Unit,
-    onPingClicked: () -> Unit
+    onPingClicked: () -> Unit,
+    onShowSelfDeletionOption: () -> Unit
 ) {
     Surface(color = colorsScheme().messageComposerBackgroundColor) {
         val transition = updateTransition(
@@ -274,7 +275,8 @@ private fun MessageComposer(
                                     messageComposerState.showAttachmentOptions()
                                 },
                                 onEditSaveButtonClicked = onEditSaveButtonClicked,
-                                onEditCancelButtonClicked = messageComposerState::closeEditToInactive
+                                onEditCancelButtonClicked = messageComposerState::closeEditToInactive,
+                                onShowSelfDeletionOption = onShowSelfDeletionOption
                             )
                         }
                     )

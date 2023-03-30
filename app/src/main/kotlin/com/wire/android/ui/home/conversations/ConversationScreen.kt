@@ -55,6 +55,7 @@ import com.wire.android.R
 import com.wire.android.media.audiomessage.AudioState
 import com.wire.android.model.SnackBarMessage
 import com.wire.android.navigation.hiltSavedStateViewModel
+import com.wire.android.ui.common.bottomsheet.MenuModalSheetHeader
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
 import com.wire.android.ui.common.dialogs.CallingFeatureUnavailableDialog
 import com.wire.android.ui.common.dialogs.OngoingActiveCallDialog
@@ -79,6 +80,7 @@ import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.conversations.model.EditMessageBundle
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent
+import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMenuItems
 import com.wire.android.ui.home.messagecomposer.MessageComposer
 import com.wire.android.ui.home.messagecomposer.MessageComposerInnerState
 import com.wire.android.ui.home.messagecomposer.UiMention
@@ -321,7 +323,15 @@ private fun ConversationScreen(
                 }
             })
     }
+
+    val menuModalHeader = if (conversationScreenState.dupa is ConversationScreenState.BottomSheetMenuType.SelfDeletion) {
+        MenuModalSheetHeader.Visible(
+            title = "Automatically delete message after"
+        )
+    } else MenuModalSheetHeader.Gone
+
     MenuModalSheetLayout(
+        header = menuModalHeader,
         sheetState = conversationScreenState.modalBottomSheetState,
         coroutineScope = conversationScreenState.coroutineScope,
         menuItems = when (val dupa = conversationScreenState.dupa) {
@@ -341,14 +351,18 @@ private fun ConversationScreen(
                             conversationScreenState.hideContextMenu()
                         }
                     }
-
                 )
             }
-            is ConversationScreenState.BottomSheetMenuType.SelfDeletion -> emptyList()
+
+            is ConversationScreenState.BottomSheetMenuType.SelfDeletion -> {
+                SelfDeletionMenuItems(
+                    currentlySelected = messageComposerInnerState.selfDeletionDuration,
+                    onSelfDeletionDurationChanged = { messageComposerInnerState.specifySelfDeletionTime(it) }
+                )
+            }
+
             ConversationScreenState.BottomSheetMenuType.None -> emptyList()
         }
-
-
     ) {
         Scaffold(
             topBar = {

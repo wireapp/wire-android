@@ -67,6 +67,11 @@ import okio.Path
 import okio.Path.Companion.toPath
 import java.io.IOException
 import java.util.UUID
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.days
+import kotlin.time.Duration.Companion.hours
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
 
 @Composable
 fun rememberMessageComposerInnerState(): MessageComposerInnerState {
@@ -110,6 +115,9 @@ data class MessageComposerInnerState(
     var mentions by mutableStateOf(listOf<UiMention>())
 
     var quotedMessageData: QuotedMessageUIData? by mutableStateOf(null)
+
+    var selfDeletionDuration: SelfDeletionDuration by mutableStateOf(SelfDeletionDuration.None)
+        private set
 
     fun setMessageTextValue(text: TextFieldValue) {
         updateMentionsIfNeeded(text)
@@ -342,6 +350,10 @@ data class MessageComposerInnerState(
     fun cancelReply() {
         quotedMessageData = null
     }
+
+    fun specifySelfDeletionTime(selfDeletionDuration: SelfDeletionDuration) {
+        this.selfDeletionDuration = selfDeletionDuration
+    }
 }
 
 private fun TextFieldValue.currentMentionStartIndex(): Int {
@@ -467,4 +479,14 @@ sealed class AttachmentState {
     object NotPicked : AttachmentState()
     class Picked(val attachmentBundle: AttachmentBundle) : AttachmentState()
     object Error : AttachmentState()
+}
+
+enum class SelfDeletionDuration(val value: Duration?, val label: String) {
+    None(null, "Off"),
+    TenSeconds(10.seconds, "10 seconds"),
+    FiveMinutes(5.minutes, "5 minutes"),
+    OneHour(1.hours, "1 hour"),
+    OneDay(1.days, "1 day"),
+    OneWeek(7.days, "1 week"),
+    FourWeeks(28.days, "4 weeks")
 }

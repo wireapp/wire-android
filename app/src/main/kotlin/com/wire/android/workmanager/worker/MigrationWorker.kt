@@ -70,17 +70,17 @@ class MigrationWorker
             is MigrationData.Result.Success -> Result.success()
             is MigrationData.Result.Failure.NoNetwork -> Result.retry()
             is MigrationData.Result.Failure.Messages -> {
-                throw Exception(result.migrationReport)
+                result.migrationReport?.let { error(it) }
                 Result.failure(result.toData())
             }
 
             is MigrationData.Result.Failure.Account -> {
-                throw Exception(result.migrationReport)
+                result.migrationReport?.let { error(it) }
                 Result.failure(result.toData())
             }
 
             is MigrationData.Result.Failure.Unknown -> {
-                throw Exception(result.migrationReport)
+                result.migrationReport?.let { error(it) }
                 Result.failure(result.toData())
             }
         }

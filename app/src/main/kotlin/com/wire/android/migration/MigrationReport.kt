@@ -13,7 +13,7 @@ import com.wire.kalium.logic.functional.map
 import com.wire.kalium.logic.functional.mapLeft
 
 class MigrationReport {
-    private val report: MutableMap<String, Either<CoreFailure, Unit>> = mutableMapOf()
+    private val report: MutableMap<String, Either<CoreFailure, Any>> = mutableMapOf()
 
     fun toFormattedString(): String =
         report.entries.joinToString(separator = "\n") { (key, value) ->
@@ -21,11 +21,11 @@ class MigrationReport {
         }
 
     fun addServerConfigReport(result: Either<CoreFailure, ServerConfig>) {
-        result.map { }.also { addReport("Migrate ServerConfig", it) }
+        result.also { addReport("Migrate ServerConfig", it) }
     }
 
     fun addAccountsReport(result: MigrateActiveAccountsUseCase.Result) {
-        result.userIds.values.firstOrNull() { it.isLeft() }?.let {
+        result.userIds.values.firstOrNull { it.isLeft() }?.let {
             it.mapLeft { it.cause }.map { }.also { addReport("Migrate Accounts", it) }
         } ?: addReport("Migrate Accounts", Either.Right(Unit))
     }
@@ -35,13 +35,13 @@ class MigrationReport {
     }
 
     fun addUserReport(userId: UserId, result: Either<CoreFailure, UserId>) {
-        result.map { }.also {
+        result.also {
             addReport("Migrate User ${userId.value.obfuscateId().hashCode()}", it)
         }
     }
 
     fun addConversationReport(userId: UserId, result: Either<CoreFailure, List<ScalaConversationData>>) {
-        result.map { }.also {
+        result.also {
             addReport("Migrate Conversation ${userId.value.obfuscateId().hashCode()}", it)
         }
     }
@@ -50,7 +50,7 @@ class MigrationReport {
         addReport("Migrate Messages ${userId.value.obfuscateId().hashCode()}", result)
     }
 
-    private fun addReport(key: String, value: Either<CoreFailure, Unit>) {
+    private fun addReport(key: String, value: Either<CoreFailure, Any>) {
         report[key] = value
     }
 

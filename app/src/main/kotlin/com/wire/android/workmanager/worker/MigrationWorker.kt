@@ -66,16 +66,23 @@ class MigrationWorker
 
     @Suppress("TooGenericExceptionCaught")
     override suspend fun doWork(): Result = coroutineScope {
-        try {
-            when (val result = migrationManager.migrate(this, { setProgress(it.type.toData()) })) {
-                is MigrationData.Result.Success -> Result.success()
-                is MigrationData.Result.Failure.NoNetwork -> Result.retry()
-                is MigrationData.Result.Failure.Messages -> Result.failure(result.toData())
-                is MigrationData.Result.Failure.Account -> Result.failure(result.toData())
-                is MigrationData.Result.Failure.Unknown -> Result.failure(result.toData())
+        when (val result = migrationManager.migrate(this, { setProgress(it.type.toData()) })) {
+            is MigrationData.Result.Success -> Result.success()
+            is MigrationData.Result.Failure.NoNetwork -> Result.retry()
+            is MigrationData.Result.Failure.Messages -> {
+                result.migrationReport?.let { error(it) }
+                Result.failure(result.toData())
             }
-        } catch (e: Exception) {
-            Result.failure(e.toData())
+
+            is MigrationData.Result.Failure.Account -> {
+                result.migrationReport?.let { error(it) }
+                Result.failure(result.toData())
+            }
+
+            is MigrationData.Result.Failure.Unknown -> {
+                result.migrationReport?.let { error(it) }
+                Result.failure(result.toData())
+            }
         }
     }
 
@@ -125,15 +132,15 @@ suspend fun WorkManager.enqueueMigrationWorker(): Flow<MigrationData> {
     return getWorkInfosForUniqueWorkLiveData(MigrationWorker.NAME).asFlow()
         .dropWhile { it.first().state == WorkInfo.State.ENQUEUED }
         .map {
-        it.first().let { workInfo ->
-            when (workInfo.state) {
-                WorkInfo.State.SUCCEEDED -> MigrationData.Result.Success
-                WorkInfo.State.FAILED -> workInfo.outputData.getMigrationFailure()
-                WorkInfo.State.CANCELLED -> workInfo.outputData.getMigrationFailure()
-                WorkInfo.State.RUNNING -> MigrationData.Progress(workInfo.progress.getMigrationProgress())
-                WorkInfo.State.ENQUEUED -> workInfo.outputData.getMigrationFailure()
-                WorkInfo.State.BLOCKED -> null
+            it.first().let { workInfo ->
+                when (workInfo.state) {
+                    WorkInfo.State.SUCCEEDED -> MigrationData.Result.Success
+                    WorkInfo.State.FAILED -> workInfo.outputData.getMigrationFailure()
+                    WorkInfo.State.CANCELLED -> workInfo.outputData.getMigrationFailure()
+                    WorkInfo.State.RUNNING -> MigrationData.Progress(workInfo.progress.getMigrationProgress())
+                    WorkInfo.State.ENQUEUED -> workInfo.outputData.getMigrationFailure()
+                    WorkInfo.State.BLOCKED -> null
+                }
             }
-        }
-    }.filterNotNull()
+        }.filterNotNull()
 }

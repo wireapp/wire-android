@@ -24,6 +24,7 @@ import android.app.NotificationManager
 import android.content.Context
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.core.app.NotificationManagerCompat
+import com.wire.android.BuildConfig
 import com.wire.android.mapper.MessageResourceProvider
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.util.dispatchers.DefaultDispatcherProvider
@@ -33,11 +34,20 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import javax.inject.Qualifier
 import javax.inject.Singleton
+
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class CurrentAppVersion
 
 @Module
 @InstallIn(SingletonComponent::class)
 object AppModule {
+
+    @CurrentAppVersion
+    @Provides
+    fun provideCurrentAppVersion(): Int = BuildConfig.VERSION_CODE
 
     @ExperimentalMaterial3Api
     @Singleton

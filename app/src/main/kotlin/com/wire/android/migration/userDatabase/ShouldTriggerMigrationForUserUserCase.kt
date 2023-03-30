@@ -3,6 +3,7 @@ package com.wire.android.migration.userDatabase
 import android.content.Context
 import com.wire.android.BuildConfig
 import com.wire.android.datastore.GlobalDataStore
+import com.wire.android.di.CurrentAppVersion
 import com.wire.android.migration.failure.UserMigrationStatus
 import com.wire.android.migration.util.ScalaDBNameProvider
 import com.wire.kalium.logic.data.user.UserId
@@ -14,7 +15,8 @@ import javax.inject.Inject
 @ViewModelScoped
 class ShouldTriggerMigrationForUserUserCase @Inject constructor(
     @ApplicationContext private val applicationContext: Context,
-    private val globalDataStore: GlobalDataStore
+    private val globalDataStore: GlobalDataStore,
+    @CurrentAppVersion private val currentAppVersion: Int
 ) {
     suspend operator fun invoke(userId: UserId) = globalDataStore.getUserMigrationStatus(userId.value)
         .first().let { migrationStatus ->
@@ -34,8 +36,12 @@ class ShouldTriggerMigrationForUserUserCase @Inject constructor(
                     // and if the app version is the same as the one that was used to migrate the user
                     // if the app version is different, we need to migrate the user again
                     val appVersion = globalDataStore.getUserMigrationAppVersion(userId.value)
-                    val isNotSameVersion = appVersion != BuildConfig.VERSION_CODE
-                    checkForScalaDB(userId) && isNotSameVersion
+                    val isNotSameVersion = appVersion != currentAppVersion
+                    return@let if (!isNotSameVersion) {
+                        false
+                    } else {
+                        checkForScalaDB(userId)
+                    }
                 }
             }
         }

@@ -78,7 +78,16 @@ class MigrationViewModel @Inject constructor(
     fun accountLogin(userHandle: String) {
         viewModelScope.launch {
             migrationManager.dismissMigrationFailureNotification()
-            navigateToLogin(userHandle)
+            when (getCurrentSession()) {
+                is CurrentSessionResult.Failure.Generic,
+                CurrentSessionResult.Failure.SessionNotFound -> navigateToLogin(userHandle)
+                is CurrentSessionResult.Success -> navigationManager.navigate(
+                    NavigationCommand(
+                        NavigationItem.Home.getRouteWithArgs(),
+                        BackStackMode.CLEAR_WHOLE
+                    )
+                )
+            }
         }
     }
 
@@ -134,7 +143,8 @@ class MigrationViewModel @Inject constructor(
     }
 
     private suspend fun navigateToLogin(userHandle: String) {
-        navigationManager.navigate(NavigationCommand(NavigationItem.Login.getRouteWithArgs(listOf(userHandle)))
+        navigationManager.navigate(
+            NavigationCommand(NavigationItem.Login.getRouteWithArgs(listOf(userHandle)), BackStackMode.CLEAR_WHOLE)
         )
     }
 }

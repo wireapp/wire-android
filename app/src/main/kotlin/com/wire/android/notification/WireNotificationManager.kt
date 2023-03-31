@@ -375,6 +375,7 @@ class WireNotificationManager @Inject constructor(
                         }
                 }
             }
+            .distinctUntilChanged()
             .collect { ongoingCallData ->
                 if (ongoingCallData == null) {
                     servicesManager.stopOngoingCallService()

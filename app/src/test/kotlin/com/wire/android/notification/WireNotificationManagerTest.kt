@@ -416,7 +416,7 @@ class WireNotificationManagerTest {
         manager.observeNotificationsAndCallsWhileRunning(listOf(provideUserId()), this) {}
         runCurrent()
 
-        coVerify(exactly = 1) { arrangement.servicesManager.startOngoingCallService(any(), any(), any()) }
+        verify(exactly = 1) { arrangement.servicesManager.startOngoingCallService(any(), any(), any()) }
     }
 
     @Test
@@ -552,7 +552,7 @@ class WireNotificationManagerTest {
             coEvery { markMessagesAsNotified(any<MarkMessagesAsNotifiedUseCase.UpdateTarget.SingleConversation>()) } returns Result.Success
             coEvery { globalKaliumScope.session.currentSession } returns currentSessionUseCase
             coEvery { getSelfUser.invoke() } returns flowOf(TestUser.SELF_USER)
-            coEvery { servicesManager.startOngoingCallService(any(), any(), any()) } returns Unit
+            every { servicesManager.startOngoingCallService(any(), any(), any()) } returns Unit
             every { servicesManager.stopOngoingCallService() } returns Unit
             every { pingRinger.ping(any(), any()) } returns Unit
         }

@@ -238,3 +238,27 @@ fun PreviewMessageWithSystemMessage() {
         )
     }
 }
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewMessagesWithUnavailableQuotedMessage() {
+    MessageItem(
+        message = mockMessageWithText.copy(
+            messageContent = UIMessageContent.TextMessage(
+                MessageBody(
+                    message = UIText.DynamicString("Confirmed"),
+                    quotedMessage = UIQuotedMessage.UnavailableData
+                )
+            )
+        ),
+        onLongClicked = {},
+        onAssetMessageClicked = {},
+        onImageMessageClicked = { _, _ -> },
+        onOpenProfile = { _ -> },
+        onReactionClicked = { _, _ -> },
+        onResetSessionClicked = { _, _ -> },
+        onChangeAudioPosition = { _, _ -> },
+        onAudioClick = {},
+        audioMessagesState = emptyMap()
+    )
+}

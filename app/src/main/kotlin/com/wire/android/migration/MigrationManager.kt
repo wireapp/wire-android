@@ -71,6 +71,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
+import okio.IOException
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentMap
 import javax.inject.Inject
@@ -120,6 +121,7 @@ class MigrationManager @Inject constructor(
             val report: MigrationReport = MigrationReport()
             updateProgress(MigrationData.Progress(MigrationData.Progress.Type.MESSAGES))
             appLogger.d("$TAG - Step 1 - Migrating users for ${userId.value.obfuscateId()}")
+            throw IOException()
             migrateUsers(userId)
                 .also { report.addUserReport(userId, it) }
                 .flatMap {

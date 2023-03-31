@@ -188,7 +188,7 @@ fun OtherProfileScreenContent(
         derivedStateOf {
             listOfNotNull(
                 state.groupState?.let { OtherUserProfileTabItem.GROUP },
-                OtherUserProfileTabItem.DETAILS,
+                state.hasValidDetailsInformation().let { hasInfo -> if (hasInfo) OtherUserProfileTabItem.DETAILS else null },
                 OtherUserProfileTabItem.DEVICES
             )
         }

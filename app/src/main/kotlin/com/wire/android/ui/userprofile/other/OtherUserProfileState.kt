@@ -60,6 +60,12 @@ data class OtherUserProfileState(
         } ?: this
     }
 
+    /**
+     * This serves the purpose to hide the details tab in case there is no data to show.
+     * Ie. Public users don't have email for privacy reasons, so no need to show the tab.
+     */
+    fun hasValidDetailsInformation() = email.isNotBlank()
+
     companion object {
         val PREVIEW = OtherUserProfileState(
             userId = UserId("some_user", "domain.com"),

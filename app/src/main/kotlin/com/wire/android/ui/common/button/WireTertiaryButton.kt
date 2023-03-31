@@ -37,6 +37,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.wire.android.model.ClickBlockParams
 import com.wire.android.ui.common.Icon
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
@@ -53,7 +54,7 @@ fun WireTertiaryButton(
     fillMaxWidth: Boolean = true,
     textStyle: TextStyle = MaterialTheme.wireTypography.button04,
     state: WireButtonState = WireButtonState.Default,
-    blockUntilSynced: Boolean = false,
+    clickBlockParams: ClickBlockParams = ClickBlockParams(),
     minHeight: Dp = MaterialTheme.wireDimensions.buttonMinSize.height,
     minWidth: Dp = MaterialTheme.wireDimensions.buttonMinSize.width,
     shape: Shape = RoundedCornerShape(MaterialTheme.wireDimensions.buttonCornerSize),
@@ -76,7 +77,7 @@ fun WireTertiaryButton(
     text = text,
     textStyle = textStyle,
     state = state,
-    blockUntilSynced = blockUntilSynced,
+    clickBlockParams = clickBlockParams,
     minHeight = minHeight,
     minWidth = minWidth,
     fillMaxWidth = fillMaxWidth,
@@ -88,7 +89,6 @@ fun WireTertiaryButton(
     interactionSource = interactionSource,
     modifier = modifier
 )
-
 
 @Preview(name = "Default WireSecondaryButton")
 @Composable
@@ -136,4 +136,3 @@ fun PreviewWireTertiaryButtonSelected() {
 fun PreviewWireTertiaryButtonError() {
     WireTertiaryButton(onClick = { }, state = WireButtonState.Error, text = "text", fillMaxWidth = false)
 }
-

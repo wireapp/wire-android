@@ -31,11 +31,11 @@ import com.wire.android.migration.feature.MigrateConversationsUseCase
 import com.wire.android.migration.feature.MigrateMessagesUseCase
 import com.wire.android.migration.feature.MigrateServerConfigUseCase
 import com.wire.android.migration.feature.MigrateUsersUseCase
+import com.wire.android.migration.userDatabase.ScalaConversationData
 import com.wire.android.util.newServerConfig
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.configuration.server.ServerConfig
-import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.functional.Either
 import io.mockk.MockKAnnotations
@@ -220,7 +220,7 @@ class MigrationManagerTest {
             coEvery { migrateUsers(any()) } returns result
         }
 
-        fun withMigrateConversations(result: Either<CoreFailure, List<Conversation>>) = apply {
+        fun withMigrateConversations(result: Either<CoreFailure, List<ScalaConversationData>>) = apply {
             coEvery { migrateConversations(any()) } returns result
         }
 

@@ -73,13 +73,13 @@ fun PreviewMessageWithReply() {
             messageContent = UIMessageContent.TextMessage(
                 MessageBody(
                     message = UIText.DynamicString("Sure, go ahead!"),
-                    quotedMessage = QuotedMessageUIData(
+                    quotedMessage = UIQuotedMessage.UIQuotedData(
                         messageId = "asdoij",
                         senderId = previewUserId,
                         senderName = UIText.DynamicString("John Doe"),
                         originalMessageDateDescription = UIText.StringResource(R.string.label_quote_original_message_date, "10:30"),
                         editedTimeDescription = UIText.StringResource(R.string.label_message_status_edited_with_date, "10:32"),
-                        quotedContent = QuotedMessageUIData.Text("Hey, can I call right now?")
+                        quotedContent = UIQuotedMessage.UIQuotedData.Text("Hey, can I call right now?")
                     )
                 )
             )
@@ -237,4 +237,28 @@ fun PreviewMessageWithSystemMessage() {
             )
         )
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewMessagesWithUnavailableQuotedMessage() {
+    MessageItem(
+        message = mockMessageWithText.copy(
+            messageContent = UIMessageContent.TextMessage(
+                MessageBody(
+                    message = UIText.DynamicString("Confirmed"),
+                    quotedMessage = UIQuotedMessage.UnavailableData
+                )
+            )
+        ),
+        onLongClicked = {},
+        onAssetMessageClicked = {},
+        onImageMessageClicked = { _, _ -> },
+        onOpenProfile = { _ -> },
+        onReactionClicked = { _, _ -> },
+        onResetSessionClicked = { _, _ -> },
+        onChangeAudioPosition = { _, _ -> },
+        onAudioClick = {},
+        audioMessagesState = emptyMap()
+    )
 }

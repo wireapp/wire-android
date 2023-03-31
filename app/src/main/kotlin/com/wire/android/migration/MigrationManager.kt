@@ -139,7 +139,7 @@ class MigrationManager @Inject constructor(
             }
                 .map {
                     appLogger.d("$TAG - Step 6 - Clean read messages for ${userId.value.obfuscateId()}")
-                    clearReadMessages(it, userId)
+                    clearUnreadReadMessages(it, userId)
                 }
                 .fold({
                     when (it) {
@@ -158,7 +158,9 @@ class MigrationManager @Inject constructor(
             globalDataStore.setUserMigrationStatus(userId.value, UserMigrationStatus.Completed)
         }
 
-    private suspend fun clearReadMessages(
+    // Because in migration conversation with last read state are inserted before messages
+    // we need to clear unread messages after messages migration
+    private suspend fun clearUnreadReadMessages(
         it: List<Conversation>,
         userId: UserId
     ) {
@@ -288,7 +290,7 @@ class MigrationManager @Inject constructor(
                     }
                 }.map {
                     appLogger.d("$TAG - Step 6 - Clean read messages for ${userId.value.obfuscateId()}")
-                    clearReadMessages(it, userId)
+                    clearUnreadReadMessages(it, userId)
                 }
                     .onSuccess {
                         globalDataStore.setUserMigrationStatus(userId.value, UserMigrationStatus.Completed)

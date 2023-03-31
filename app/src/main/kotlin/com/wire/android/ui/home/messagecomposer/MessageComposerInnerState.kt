@@ -40,9 +40,9 @@ import androidx.compose.ui.text.input.TextFieldValue
 import com.wire.android.appLogger
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.conversations.model.AttachmentType
-import com.wire.android.ui.home.conversations.model.UIQuotedMessage
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent
+import com.wire.android.ui.home.conversations.model.UIQuotedMessage
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.util.DEFAULT_FILE_MIME_TYPE
@@ -146,7 +146,7 @@ data class MessageComposerInnerState(
             start = messageComposeInputState.messageText.currentMentionStartIndex(),
             length = contact.name.length + 1, // +1 cause there is an "@" before it
             userId = UserId(contact.id, contact.domain),
-            handler = String.MENTION_SYMBOL + contact.name
+            handler = String.MENTION_SYMBOL + contact.name,
         )
 
         insertMentionIntoText(mention)
@@ -361,7 +361,7 @@ data class UiMention(
     val userId: UserId,
     val handler: String // name that should be displayed in a message
 ) {
-    fun intoMessageMention() = MessageMention(start, length, userId)
+    fun intoMessageMention() = MessageMention(start, length, userId, false) // TODO Gonzo check if it's ok
 }
 
 class AttachmentInnerState(val context: Context) {

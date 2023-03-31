@@ -238,7 +238,7 @@ private fun MessageComposer(
                         messagesContent()
                         if (membersToMention.isNotEmpty()) {
                             MembersMentionList(
-                                membersToMention = membersToMention,
+                                membersToMention  = membersToMention,
                                 onMentionPicked = onMentionPicked
                             )
                         }

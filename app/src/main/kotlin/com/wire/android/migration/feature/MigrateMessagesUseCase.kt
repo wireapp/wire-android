@@ -28,12 +28,14 @@ import com.wire.android.migration.userDatabase.ScalaUserDAO
 import com.wire.android.migration.userDatabase.ScalaUserDatabaseProvider
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.CoreLogic
+import com.wire.kalium.logic.StorageFailure
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.functional.flatMap
 import com.wire.kalium.logic.functional.getOrNull
 import com.wire.kalium.logic.functional.map
 import com.wire.kalium.logic.functional.onFailure
 import kotlinx.coroutines.CoroutineScope
+import okio.IOException
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -55,7 +57,6 @@ class MigrateMessagesUseCase @Inject constructor(
         scalaConversations: List<ScalaConversationData>,
         coroutineScope: CoroutineScope
     ): Map<String, CoreFailure> {
-
         val (messageDAO: ScalaMessageDAO, userDAO: ScalaUserDAO) = scalaUserDatabase.messageDAO(userId.value).flatMap { messageDAO ->
             scalaUserDatabase.userDAO(userId.value).map { messageDAO to it }
         }.getOrNull() ?: return emptyMap()
@@ -80,6 +81,8 @@ class MigrateMessagesUseCase @Inject constructor(
                 }
             }
         }
-        return errorsAcc
+        return errorsAcc.apply {
+            put("error", StorageFailure.Generic(IOException()))
+        }
     }
 }

@@ -33,7 +33,7 @@ import com.wire.android.ui.home.conversationslist.model.hasLabel
 
 @Composable
 fun UserLabel(
-    searchQuery : String,
+    searchQuery: String,
     userInfoLabel: UserInfoLabel,
     modifier: Modifier = Modifier
 ) {

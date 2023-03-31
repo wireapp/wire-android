@@ -30,15 +30,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.ime
-import androidx.compose.foundation.layout.isImeVisible
-import androidx.compose.foundation.layout.navigationBarsIgnoringVisibility
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.Divider
 import androidx.compose.material3.MaterialTheme
@@ -58,6 +53,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.model.Clickable
+import com.wire.android.ui.common.KeyboardHelper
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages
 import com.wire.android.ui.home.conversations.mention.MemberItemToMention
@@ -115,8 +111,7 @@ fun MessageComposer(
                         )
                     )
                 }
-                messageComposerState.focusManager.clearFocus()
-                messageComposerState.toInactive(clearInput = true)
+                messageComposerState.closeEditToInactive()
             }
         }
 
@@ -195,12 +190,10 @@ private fun MessageComposer(
 
                 // when MessageComposer is composed for the first time we do not know the height until users opens the keyboard
                 var keyboardHeight: KeyboardHeight by remember { mutableStateOf(KeyboardHeight.NotKnown) }
-                val isKeyboardVisible = WindowInsets.isImeVisible
+                val isKeyboardVisible = KeyboardHelper.isKeyboardVisible()
                 if (isKeyboardVisible) {
                     // ime covers also the navigation bar so we need to subtract navigation bars height
-                    val calculatedImeHeight = WindowInsets.ime.asPaddingValues().calculateBottomPadding()
-                    val calculatedNavBarHeight = WindowInsets.navigationBarsIgnoringVisibility.asPaddingValues().calculateBottomPadding()
-                    val calculatedKeyboardHeight = calculatedImeHeight - calculatedNavBarHeight
+                    val calculatedKeyboardHeight = KeyboardHelper.getCalculatedKeyboardHeight()
                     val notKnownAndCalculated = keyboardHeight is KeyboardHeight.NotKnown && calculatedKeyboardHeight > 0.dp
                     val knownAndDifferent = keyboardHeight is KeyboardHeight.Known && keyboardHeight.height != calculatedKeyboardHeight
                     if (notKnownAndCalculated || knownAndDifferent) {
@@ -282,10 +275,7 @@ private fun MessageComposer(
                                     messageComposerState.showAttachmentOptions()
                                 },
                                 onEditSaveButtonClicked = onEditSaveButtonClicked,
-                                onEditCancelButtonClicked = {
-                                    messageComposerState.focusManager.clearFocus()
-                                    messageComposerState.toInactive(clearInput = true)
-                                }
+                                onEditCancelButtonClicked = messageComposerState::closeEditToInactive
                             )
                         }
                     )

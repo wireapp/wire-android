@@ -41,6 +41,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
+import com.wire.android.model.ClickBlockParams
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.ArrowRightIcon
 import com.wire.android.ui.common.clickable
@@ -55,10 +56,10 @@ fun MenuBottomSheetItem(
     title: String,
     icon: @Composable () -> Unit,
     action: (@Composable () -> Unit)? = null,
-    blockUntilSynced: Boolean = false,
+    clickBlockParams: ClickBlockParams = ClickBlockParams(),
     onItemClick: () -> Unit = {}
 ) {
-    val clickable = remember(onItemClick, blockUntilSynced) { Clickable(blockUntilSynced = blockUntilSynced) { onItemClick() } }
+    val clickable = remember(onItemClick, clickBlockParams) { Clickable(clickBlockParams = clickBlockParams, onClick = onItemClick) }
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier

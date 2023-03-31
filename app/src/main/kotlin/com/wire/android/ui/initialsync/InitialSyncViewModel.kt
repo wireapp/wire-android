@@ -34,7 +34,9 @@ import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.sync.ObserveSyncStateUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
@@ -47,12 +49,12 @@ class InitialSyncViewModel @Inject constructor(
 ) : ViewModel() {
 
     fun waitUntilSyncIsCompleted() {
-        viewModelScope.launch(dispatchers.io()) {
-            observeSyncState().collect { syncState ->
-                if (syncState is SyncState.Live) {
-                    userDataStoreProvider.getOrCreate(userId).setInitialSyncCompleted()
-                    navigateToConvScreen()
-                }
+        viewModelScope.launch {
+            withContext(dispatchers.io()) {
+                observeSyncState().firstOrNull { it is SyncState.Live }
+            }?.let {
+                userDataStoreProvider.getOrCreate(userId).setInitialSyncCompleted()
+                navigateToConvScreen()
             }
         }
     }

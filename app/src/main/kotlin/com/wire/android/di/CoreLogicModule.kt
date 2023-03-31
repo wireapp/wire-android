@@ -23,6 +23,7 @@ package com.wire.android.di
 import android.content.Context
 import androidx.work.WorkManager
 import com.wire.android.datastore.UserDataStoreProvider
+import com.wire.android.ui.common.snackbar.ShowSnackBarUseCase
 import com.wire.android.util.ImageUtil
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
@@ -468,6 +469,10 @@ class UseCaseModule {
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
     ): SendKnockUseCase = coreLogic.getSessionScope(currentAccount).messages.sendKnock
+
+    @ViewModelScoped
+    @Provides
+    fun provideShowSnackBar(): ShowSnackBarUseCase = ShowSnackBarUseCase()
 
     @ViewModelScoped
     @Provides

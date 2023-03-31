@@ -107,6 +107,7 @@ object Libraries {
         const val ktxDateTime = "0.4.0"
         const val ktxSerialization = "1.3.2"
         const val ktxImmutableCollections = "0.3.5"
+        const val resaca = "2.3.4"
     }
 
     // AndroidX Dependencies
@@ -148,6 +149,7 @@ object Libraries {
     const val coilCompose               = "io.coil-kt:coil-compose:${Versions.coil}"
     const val dataDog                   = "com.datadoghq:dd-sdk-android:${Versions.dataDog}"
     const val dataDogCompose            = "com.datadoghq:dd-sdk-android-compose:${Versions.dataDog}"
+    const val resaca                    = "com.github.sebaslogen.resaca:resaca:${Versions.resaca}"
 
     object Hilt {
         const val android = "com.google.dagger:hilt-android:${Versions.hilt}"
@@ -156,6 +158,7 @@ object Libraries {
         const val navigationCompose = "androidx.hilt:hilt-navigation-compose:${Versions.composeHiltNavigation}"
         const val hiltTest = "com.google.dagger:hilt-android-testing:${Versions.hilt}"
         const val hiltWork = "androidx.hilt:hilt-work:${Versions.hiltWork}"
+        const val resaca = "com.github.sebaslogen.resaca:resacahilt:${Versions.resaca}"
     }
 
     object Lifecycle {

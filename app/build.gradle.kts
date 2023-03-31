@@ -183,6 +183,10 @@ dependencies {
     implementation(Libraries.Hilt.navigationCompose)
     kapt(Libraries.Hilt.compiler)
 
+    // smaller view models
+    implementation (Libraries.resaca)
+    implementation (Libraries.Hilt.resaca)
+
     // firebase
     implementation(platform(Libraries.Firebase.firebaseBOM))
     implementation(Libraries.Firebase.firebaseCloudMessaging)

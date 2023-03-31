@@ -145,7 +145,7 @@ class MigrationViewModel @Inject constructor(
 
     private suspend fun navigateToLogin(userHandle: String) {
         navigationManager.navigate(
-            NavigationCommand(NavigationItem.Login.getRouteWithArgs(listOf(userHandle)))
+            NavigationCommand(NavigationItem.Login.getRouteWithArgs(listOf(userHandle)), BackStackMode.CLEAR_WHOLE)
         )
     }
 }

@@ -41,11 +41,13 @@ import com.wire.android.migration.feature.MigrateConversationsUseCase
 import com.wire.android.migration.feature.MigrateMessagesUseCase
 import com.wire.android.migration.feature.MigrateServerConfigUseCase
 import com.wire.android.migration.feature.MigrateUsersUseCase
+import com.wire.android.migration.userDatabase.ScalaConversationData
 import com.wire.android.migration.util.ScalaDBNameProvider
 import com.wire.android.notification.NotificationConstants
 import com.wire.android.notification.openAppPendingIntent
 import com.wire.android.notification.openMigrationLoginPendingIntent
 import com.wire.android.util.EMPTY
+import com.wire.android.util.orDefault
 import com.wire.android.util.ui.stringWithBoldArgs
 import com.wire.kalium.logger.obfuscateId
 import com.wire.kalium.logic.CoreFailure
@@ -55,7 +57,7 @@ import com.wire.kalium.logic.MLSFailure
 import com.wire.kalium.logic.NetworkFailure
 import com.wire.kalium.logic.ProteusFailure
 import com.wire.kalium.logic.StorageFailure
-import com.wire.kalium.logic.data.conversation.Conversation
+import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.functional.Either
 import com.wire.kalium.logic.functional.flatMap
@@ -139,7 +141,7 @@ class MigrationManager @Inject constructor(
             }
                 .map {
                     appLogger.d("$TAG - Step 6 - Clean read messages for ${userId.value.obfuscateId()}")
-                    clearUnreadReadMessages(it, userId)
+                    clearUnreadMessages(it, userId)
                 }
                 .fold({
                     when (it) {
@@ -160,13 +162,14 @@ class MigrationManager @Inject constructor(
 
     // Because in migration conversation with last read state are inserted before messages
     // we need to clear unread messages after messages migration
-    private suspend fun clearUnreadReadMessages(
-        it: List<Conversation>,
+    private suspend fun clearUnreadMessages(
+        conversations: List<ScalaConversationData>,
         userId: UserId
-    ) {
-        it.forEach { conversation ->
+    ) = conversations.forEach { conversation ->
+        conversation.lastReadTime?.let { lastReadInMillis ->
             coreLogic.getSessionScope(userId).conversations.updateConversationReadDateUseCase(
-                conversation.id, Instant.parse(conversation.lastReadDate)
+                QualifiedID(conversation.remoteId, conversation.domain.orDefault(userId.domain)),
+                Instant.fromEpochMilliseconds(lastReadInMillis)
             )
         }
     }
@@ -290,7 +293,7 @@ class MigrationManager @Inject constructor(
                     }
                 }.map {
                     appLogger.d("$TAG - Step 6 - Clean read messages for ${userId.value.obfuscateId()}")
-                    clearUnreadReadMessages(it, userId)
+                    clearUnreadMessages(it, userId)
                 }
                     .onSuccess {
                         globalDataStore.setUserMigrationStatus(userId.value, UserMigrationStatus.Completed)

@@ -115,10 +115,11 @@ class MigrationManager @Inject constructor(
         userId: UserId,
         coroutineScope: CoroutineScope,
         updateProgress: suspend (MigrationData.Progress) -> Unit,
-    ): MigrationData.Result =
-        try {
-            val report: MigrationReport = MigrationReport()
-            updateProgress(MigrationData.Progress(MigrationData.Progress.Type.MESSAGES))
+    ): MigrationData.Result {
+        val report: MigrationReport = MigrationReport()
+        updateProgress(MigrationData.Progress(MigrationData.Progress.Type.MESSAGES))
+
+        return try {
             appLogger.d("$TAG - Step 1 - Migrating users for ${userId.value.obfuscateId()}")
             migrateUsers(userId)
                 .also { report.addUserReport(userId, it) }
@@ -152,8 +153,12 @@ class MigrationManager @Inject constructor(
         } catch (e: Exception) {
             globalDataStore.setUserMigrationStatus(userId.value, UserMigrationStatus.CompletedWithErrors)
             appLogger.e("$TAG - Migration failed for ${userId.value.obfuscateId()}")
-            throw e
+            MigrationData.Result.Failure.Messages(
+                CoreFailure.Unknown(e).getErrorCode().toString(),
+                report.toFormattedString()
+            )
         }
+    }
 
     suspend fun migrate(
         coroutineScope: CoroutineScope,
@@ -259,32 +264,37 @@ class MigrationManager @Inject constructor(
 
         val migrationJobs: List<Job> = migratedAccounts.map { userId ->
             coroutineScope.launch(migrationDispatcher) {
-                appLogger.d("$TAG - Step 2 - Migrating clients for ${userId.value.obfuscateId()}")
-                migrateClientsData(userId, isFederated)
-                    .also { report.addClientReport(userId, it) }
-                appLogger.d("$TAG - Step 3 - Migrating users for ${userId.value.obfuscateId()}")
-                migrateUsers(userId)
-                    .also { report.addUserReport(userId, it) }
-                    .flatMap {
-                        appLogger.d("$TAG - Step 4 - Migrating conversations for ${userId.value.obfuscateId()}")
-                        migrateConversations(it)
-                            .also { report.addConversationReport(userId, it) }
-                    }.flatMap {
-                        appLogger.d("$TAG - Step 5 - Migrating messages for ${userId.value.obfuscateId()}")
-                        migrateMessages(userId, it, coroutineScope).let { failedConversations ->
-                            if (failedConversations.isEmpty()) {
-                                Either.Right(Unit)
-                            } else {
-                                Either.Left(failedConversations.values.first())
-                            }
-                        }.also { report.addMessagesReport(userId, it) }
-                    }.also {
-                        resultAcc[userId.value] = it
-                    }.onFailure {
-                        globalDataStore.setUserMigrationStatus(userId.value, UserMigrationStatus.CompletedWithErrors)
-                    }.onSuccess {
-                        globalDataStore.setUserMigrationStatus(userId.value, UserMigrationStatus.Successfully)
-                    }
+                try {
+                    appLogger.d("$TAG - Step 2 - Migrating clients for ${userId.value.obfuscateId()}")
+                    migrateClientsData(userId, isFederated)
+                        .also { report.addClientReport(userId, it) }
+                    appLogger.d("$TAG - Step 3 - Migrating users for ${userId.value.obfuscateId()}")
+                    migrateUsers(userId)
+                        .also { report.addUserReport(userId, it) }
+                        .flatMap {
+                            appLogger.d("$TAG - Step 4 - Migrating conversations for ${userId.value.obfuscateId()}")
+                            migrateConversations(it)
+                                .also { report.addConversationReport(userId, it) }
+                        }.flatMap {
+                            appLogger.d("$TAG - Step 5 - Migrating messages for ${userId.value.obfuscateId()}")
+                            migrateMessages(userId, it, coroutineScope).let { failedConversations ->
+                                if (failedConversations.isEmpty()) {
+                                    Either.Right(Unit)
+                                } else {
+                                    Either.Left(failedConversations.values.first())
+                                }
+                            }.also { report.addMessagesReport(userId, it) }
+                        }.also {
+                            resultAcc[userId.value] = it
+                        }.onFailure {
+                            globalDataStore.setUserMigrationStatus(userId.value, UserMigrationStatus.CompletedWithErrors)
+                        }.onSuccess {
+                            globalDataStore.setUserMigrationStatus(userId.value, UserMigrationStatus.Successfully)
+                        }
+                } catch (e: Exception) {
+                    resultAcc[userId.value] = Either.Left(CoreFailure.Unknown(e))
+                    globalDataStore.setUserMigrationStatus(userId.value, UserMigrationStatus.CompletedWithErrors)
+                }
             }
         }
         migrationJobs.joinAll()

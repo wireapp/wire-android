@@ -46,6 +46,7 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
@@ -56,7 +57,7 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.typography
 import com.wire.android.ui.home.conversations.messages.QuotedMessageStyle.COMPLETE
 import com.wire.android.ui.home.conversations.messages.QuotedMessageStyle.PREVIEW
-import com.wire.android.ui.home.conversations.model.QuotedMessageUIData
+import com.wire.android.ui.home.conversations.model.UIQuotedMessage
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.util.ui.UIText
 
@@ -84,15 +85,15 @@ enum class QuotedMessageStyle {
 
 @Composable
 internal fun QuotedMessage(
-    messageData: QuotedMessageUIData,
+    messageData: UIQuotedMessage.UIQuotedData,
     style: QuotedMessageStyle = COMPLETE,
     modifier: Modifier = Modifier,
     startContent: @Composable () -> Unit = {}
 ) {
     when (val quotedContent = messageData.quotedContent) {
-        QuotedMessageUIData.Invalid -> QuotedInvalid(style)
+        UIQuotedMessage.UIQuotedData.Invalid -> QuotedInvalid(style)
 
-        is QuotedMessageUIData.GenericAsset -> QuotedGenericAsset(
+        is UIQuotedMessage.UIQuotedData.GenericAsset -> QuotedGenericAsset(
             senderName = messageData.senderName,
             originalDateTimeText = messageData.originalMessageDateDescription,
             assetName = quotedContent.assetName,
@@ -101,7 +102,7 @@ internal fun QuotedMessage(
             startContent = startContent
         )
 
-        is QuotedMessageUIData.DisplayableImage -> QuotedImage(
+        is UIQuotedMessage.UIQuotedData.DisplayableImage -> QuotedImage(
             senderName = messageData.senderName,
             asset = quotedContent.displayable,
             originalDateTimeText = messageData.originalMessageDateDescription,
@@ -110,14 +111,14 @@ internal fun QuotedMessage(
             startContent = startContent
         )
 
-        QuotedMessageUIData.Deleted -> QuotedDeleted(
+        UIQuotedMessage.UIQuotedData.Deleted -> QuotedDeleted(
             senderName = messageData.senderName,
             originalDateDescription = messageData.originalMessageDateDescription,
             modifier = modifier,
             style = style,
         )
 
-        is QuotedMessageUIData.Text -> QuotedText(
+        is UIQuotedMessage.UIQuotedData.Text -> QuotedText(
             text = quotedContent.value,
             editedTimeDescription = messageData.editedTimeDescription,
             originalDateTimeDescription = messageData.originalMessageDateDescription,
@@ -127,7 +128,7 @@ internal fun QuotedMessage(
             startContent = startContent
         )
 
-        is QuotedMessageUIData.AudioMessage -> QuotedAudioMessage(
+        is UIQuotedMessage.UIQuotedData.AudioMessage -> QuotedAudioMessage(
             senderName = messageData.senderName,
             originalDateTimeText = messageData.originalMessageDateDescription,
             modifier = modifier,
@@ -139,7 +140,7 @@ internal fun QuotedMessage(
 
 @Composable
 fun QuotedMessagePreview(
-    quotedMessageData: QuotedMessageUIData,
+    quotedMessageData: UIQuotedMessage.UIQuotedData,
     onCancelReply: () -> Unit
 ) {
     QuotedMessage(quotedMessageData, style = PREVIEW) {
@@ -252,7 +253,14 @@ private fun QuotedMessageTopRow(
 }
 
 @Composable
-private fun QuotedInvalid(style: QuotedMessageStyle) {
+fun QuotedUnavailable(style: QuotedMessageStyle) {
+    QuotedMessageContent(stringResource(R.string.username_unavailable_label), style = style, centerContent = {
+        MainContentText(stringResource(R.string.label_quote_invalid_or_not_found), fontStyle = FontStyle.Italic)
+    })
+}
+
+@Composable
+fun QuotedInvalid(style: QuotedMessageStyle) {
     QuotedMessageContent(null, style = style, centerContent = {
         StatusBox(stringResource(R.string.label_quote_invalid_or_not_found))
     })
@@ -379,13 +387,14 @@ fun QuotedAudioMessage(
 }
 
 @Composable
-private fun MainContentText(text: String) {
+private fun MainContentText(text: String, fontStyle: FontStyle = FontStyle.Normal) {
     Text(
         text = text,
         style = typography().subline01,
         maxLines = TEXT_QUOTE_MAX_LINES,
         overflow = TextOverflow.Ellipsis,
-        color = colorsScheme().secondaryText
+        color = colorsScheme().secondaryText,
+        fontStyle = fontStyle
     )
 }
 

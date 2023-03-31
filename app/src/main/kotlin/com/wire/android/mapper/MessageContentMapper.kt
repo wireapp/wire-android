@@ -263,12 +263,13 @@ class MessageContentMapper @Inject constructor(
         return MessageBody(
             when (content) {
                 is MessageContent.Text -> UIText.DynamicString(content.value, content.mentions)
-                is MessageContent.Unknown -> UIText.StringResource(
-                    messageResourceProvider.sentAMessageWithContent, content.typeName ?: "Unknown"
-                )
-
+                is MessageContent.Unknown -> content.typeName?.let {
+                    UIText.StringResource(
+                        messageResourceProvider.sentAMessageWithContent, it
+                    )
+                } ?: UIText.StringResource(R.string.sent_a_message_with_unknown_content)
                 is MessageContent.FailedDecryption -> UIText.StringResource(R.string.label_message_decryption_failure_message)
-                else -> UIText.StringResource(messageResourceProvider.sentAMessageWithContent, "Unknown")
+                else -> UIText.StringResource(R.string.sent_a_message_with_unknown_content)
             },
             quotedMessage = quotedMessage
         ).let { messageBody -> UIMessageContent.TextMessage(messageBody = messageBody) }

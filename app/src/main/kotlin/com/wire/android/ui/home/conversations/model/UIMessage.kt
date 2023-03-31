@@ -38,6 +38,7 @@ import com.wire.kalium.logic.data.message.MessageContent
 import com.wire.kalium.logic.data.user.AssetId
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserId
+import kotlin.time.Duration
 
 sealed class UIMessage(
     open val header: MessageHeader,
@@ -49,7 +50,8 @@ sealed class UIMessage(
         override val source: MessageSource,
         val userAvatarData: UserAvatarData,
         val messageContent: UIMessageContent.Regular?,
-        val messageFooter: MessageFooter
+        val messageFooter: MessageFooter,
+        val expirationStatus: ExpirationStatus = ExpirationStatus.NotExpirable
     ) : UIMessage(header, source) {
         val isTextMessage = messageContent is UIMessageContent.TextMessage
 
@@ -93,6 +95,15 @@ data class MessageFooter(
     val reactions: Map<String, Int> = emptyMap(),
     val ownReactions: Set<String> = emptySet()
 )
+
+sealed class ExpirationStatus {
+    data class Expirable(
+        val expireAfter: Duration,
+        val selfDeletionStatus: Message.ExpirationData.SelfDeletionStatus
+    ) : ExpirationStatus()
+
+    object NotExpirable : ExpirationStatus()
+}
 
 sealed class MessageStatus(
     open val errorText: UIText? = null, // error description text shown below the content of the message
@@ -147,6 +158,7 @@ sealed class UILastMessageContent {
 }
 
 sealed class UIMessageContent {
+
     sealed class Regular : UIMessageContent()
 
     object PreviewAssetMessage : UIMessageContent()

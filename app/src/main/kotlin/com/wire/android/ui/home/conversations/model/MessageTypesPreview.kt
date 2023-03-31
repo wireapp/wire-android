@@ -57,6 +57,7 @@ fun PreviewMessage() {
         onResetSessionClicked = { _, _ -> },
         onChangeAudioPosition = { _, _ -> },
         onAudioClick = {},
+        onSelfDeletingMessageRead = {},
         audioMessagesState = emptyMap()
     )
 }
@@ -93,6 +94,7 @@ fun PreviewMessageWithReply() {
         onResetSessionClicked = { _, _ -> },
         onChangeAudioPosition = { _, _ -> },
         onAudioClick = {},
+        onSelfDeletingMessageRead = {},
         audioMessagesState = emptyMap()
     )
 }
@@ -112,6 +114,7 @@ fun PreviewDeletedMessage() {
         onResetSessionClicked = { _, _ -> },
         onChangeAudioPosition = { _, _ -> },
         onAudioClick = {},
+        onSelfDeletingMessageRead = { },
         audioMessagesState = emptyMap()
     )
 }
@@ -129,6 +132,7 @@ fun PreviewAssetMessage() {
         onResetSessionClicked = { _, _ -> },
         onChangeAudioPosition = { _, _ -> },
         onAudioClick = {},
+        onSelfDeletingMessageRead = { },
         audioMessagesState = emptyMap()
     )
 }
@@ -176,6 +180,7 @@ fun PreviewImageMessageUploaded() {
         onResetSessionClicked = { _, _ -> },
         onChangeAudioPosition = { _, _ -> },
         onAudioClick = {},
+        onSelfDeletingMessageRead = { },
         audioMessagesState = emptyMap()
     )
 }
@@ -193,6 +198,7 @@ fun PreviewImageMessageUploading() {
         onResetSessionClicked = { _, _ -> },
         onChangeAudioPosition = { _, _ -> },
         onAudioClick = {},
+        onSelfDeletingMessageRead = { },
         audioMessagesState = emptyMap()
     )
 }
@@ -210,6 +216,7 @@ fun PreviewImageMessageFailedUpload() {
         onResetSessionClicked = { _, _ -> },
         onChangeAudioPosition = { _, _ -> },
         onAudioClick = {},
+        onSelfDeletingMessageRead = { },
         audioMessagesState = emptyMap()
     )
 }
@@ -228,6 +235,7 @@ fun PreviewMessageWithSystemMessage() {
             onResetSessionClicked = { _, _ -> },
             onChangeAudioPosition = { _, _ -> },
             onAudioClick = {},
+            onSelfDeletingMessageRead = { },
             audioMessagesState = emptyMap()
         )
         SystemMessageItem(

@@ -21,7 +21,6 @@
 package com.wire.android.mapper
 
 import com.wire.android.config.CoroutineTestExtension
-import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.framework.TestMessage
 import com.wire.android.framework.TestUser
 import com.wire.android.ui.home.conversations.model.MessageBody
@@ -104,6 +103,7 @@ class MessageMapperTest {
         val uiMessage4 = mapper.toUIMessage(members, message4)
         // Then
         assert(
+
             checkMessageData(
                 uiMessage = uiMessage1,
                 time = message1.date.uiMessageDateTime()
@@ -157,7 +157,7 @@ class MessageMapperTest {
         private lateinit var wireSessionImageLoader: WireSessionImageLoader
 
         private val messageMapper by lazy {
-            MessageMapper(TestDispatcherProvider(), userTypeMapper, messageContentMapper, isoFormatter, wireSessionImageLoader)
+            MessageMapper(userTypeMapper, messageContentMapper, isoFormatter, wireSessionImageLoader)
         }
 
         init {
@@ -166,7 +166,9 @@ class MessageMapperTest {
             coEvery { messageContentMapper.fromMessage(any(), any()) } returns TextMessage(
                 MessageBody(UIText.DynamicString("some message text"))
             )
-            coEvery { messageContentMapper.toSystemMessageMemberName(any(), any()) } returns UIText.DynamicString("username")
+            coEvery { messageContentMapper.toSystemMessageMemberName(any(), any()) } returns UIText.DynamicString(
+                "username"
+            )
             every { isoFormatter.fromISO8601ToTimeFormat(any()) } answers { firstArg<String>().uiMessageDateTime() ?: "" }
         }
 

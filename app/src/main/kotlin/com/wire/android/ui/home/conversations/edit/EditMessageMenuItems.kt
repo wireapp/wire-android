@@ -111,14 +111,14 @@ fun EditMessageMenuItems(
     val onDownloadAssetClick = remember(message) {
         {
             hideEditMessageMenu {
-                onDownloadAsset(message.messageHeader.messageId)
+                onDownloadAsset(message.header.messageId)
             }
         }
     }
     val onOpenAssetClick = remember(message) {
         {
             hideEditMessageMenu {
-                onOpenAsset(message.messageHeader.messageId)
+                onOpenAsset(message.header.messageId)
             }
         }
     }

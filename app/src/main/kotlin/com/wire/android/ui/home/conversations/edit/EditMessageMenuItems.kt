@@ -39,12 +39,12 @@ import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 
 @Composable
 fun EditMessageMenuItems(
-    message: UIMessage,
+    message: UIMessage.Regular,
     hideEditMessageMenu: (OnComplete) -> Unit,
     onCopyClick: (text: String) -> Unit,
     onDeleteClick: (messageId: String, isMyMessage: Boolean) -> Unit,
     onReactionClick: (messageId: String, emoji: String) -> Unit,
-    onReplyClick: (message: UIMessage) -> Unit,
+    onReplyClick: (message: UIMessage.Regular) -> Unit,
     onDetailsClick: (messageId: String, isMyMessage: Boolean) -> Unit,
     onEditClick: (messageId: String, originalText: String) -> Unit,
     onShareAsset: () -> Unit,
@@ -68,14 +68,14 @@ fun EditMessageMenuItems(
     val onDeleteItemClick = remember(message) {
         {
             hideEditMessageMenu {
-                onDeleteClick(message.messageHeader.messageId, message.isMyMessage)
+                onDeleteClick(message.header.messageId, message.isMyMessage)
             }
         }
     }
     val onReactionItemClick = remember(message) {
         { emoji: String ->
             hideEditMessageMenu {
-                onReactionClick(message.messageHeader.messageId, emoji)
+                onReactionClick(message.header.messageId, emoji)
             }
         }
     }
@@ -89,7 +89,7 @@ fun EditMessageMenuItems(
     val onDetailsItemClick = remember(message) {
         {
             hideEditMessageMenu {
-                onDetailsClick(message.messageHeader.messageId, message.isMyMessage)
+                onDetailsClick(message.header.messageId, message.isMyMessage)
             }
         }
     }
@@ -97,7 +97,7 @@ fun EditMessageMenuItems(
         {
             hideEditMessageMenu {
                 onEditClick(
-                    message.messageHeader.messageId,
+                    message.header.messageId,
                     (message.messageContent as UIMessageContent.TextMessage).messageBody.message.asString(localContext.resources)
                 )
             }

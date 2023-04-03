@@ -62,6 +62,7 @@ class MessageMapper @Inject constructor(
         )
     }.distinct()
 
+    @Suppress("LongMethod")
     fun toUIMessage(userList: List<User>, message: Message.Standalone): UIMessage? {
         val sender = userList.findUser(message.senderUserId)
         val content = messageContentMapper.fromMessage(
@@ -104,20 +105,33 @@ class MessageMapper @Inject constructor(
 
         // System messages don't have header so without the content there is nothing to be displayed.
         // Also hidden messages should not be displayed, as well preview images
-        val shouldNotDisplay =
-            message is Message.System && content == null || message.visibility == HIDDEN || content is UIMessageContent.PreviewAssetMessage
-
-        return if (shouldNotDisplay) {
-            null
-        } else {
-            UIMessage(
-                messageContent = content,
-                messageSource = if (sender is SelfUser) MessageSource.Self else MessageSource.OtherUser,
-                messageHeader = provideMessageHeader(sender, message),
-                expirationStatus = provideExpirationData(message),
-                messageFooter = footer,
-                userAvatarData = getUserAvatarData(sender)
-            )
+        return when (content) {
+            is UIMessageContent.Regular -> {
+                if (message.visibility == HIDDEN) {
+                    null
+                } else {
+                    UIMessage.Regular(
+                        messageContent = content,
+                        source = if (sender is SelfUser) MessageSource.Self else MessageSource.OtherUser,
+                        header = provideMessageHeader(sender, message),
+                        messageFooter = footer,
+                        userAvatarData = getUserAvatarData(sender),
+                        expirationStatus = provideExpirationData(message),
+                    )
+                }
+            }
+            is UIMessageContent.SystemMessage ->
+                if (message.visibility == HIDDEN) {
+                    null
+                } else {
+                    UIMessage.System(
+                        messageContent = content,
+                        source = if (sender is SelfUser) MessageSource.Self else MessageSource.OtherUser,
+                        header = provideMessageHeader(sender, message),
+                    )
+                }
+            null -> null
+            UIMessageContent.PreviewAssetMessage -> null
         }
     }
 

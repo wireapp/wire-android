@@ -22,7 +22,7 @@ import androidx.compose.runtime.Composable
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.bottomsheet.RichMenuItemState
 import com.wire.android.ui.common.bottomsheet.SelectableMenuBottomSheetItem
-import com.wire.android.ui.home.messagecomposer.SelfDeletionDuration
+import com.wire.android.ui.home.messagecomposer.state.SelfDeletionDuration
 import com.wire.android.ui.theme.wireTypography
 
 

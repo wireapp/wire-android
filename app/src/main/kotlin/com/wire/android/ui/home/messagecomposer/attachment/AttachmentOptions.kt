@@ -50,8 +50,8 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorPickingAttachment
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
-import com.wire.android.ui.home.messagecomposer.AttachmentInnerState
-import com.wire.android.ui.home.messagecomposer.AttachmentState
+import com.wire.android.ui.home.messagecomposer.state.AttachmentStateHolder
+import com.wire.android.ui.home.messagecomposer.state.AttachmentState
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 import com.wire.android.util.permission.UseCameraRequestFlow
@@ -68,7 +68,7 @@ import okio.Path.Companion.toPath
 
 @Composable
 fun AttachmentOptions(
-    attachmentInnerState: AttachmentInnerState,
+    attachmentStateHolder: AttachmentStateHolder,
     onSendAttachment: (AttachmentBundle?) -> Unit,
     onMessageComposerError: (ConversationSnackbarMessages) -> Unit,
     tempWritableImageUri: Uri?,
@@ -82,7 +82,7 @@ fun AttachmentOptions(
     ) {
         Divider(color = MaterialTheme.wireColorScheme.outline)
         AttachmentOptionsComponent(
-            attachmentInnerState,
+            attachmentStateHolder,
             onSendAttachment,
             onMessageComposerError,
             tempWritableImageUri,
@@ -95,7 +95,7 @@ fun AttachmentOptions(
 
 @Composable
 private fun AttachmentOptionsComponent(
-    attachmentInnerState: AttachmentInnerState,
+    attachmentStateHolder: AttachmentStateHolder,
     onSendAttachment: (AttachmentBundle?) -> Unit,
     onError: (ConversationSnackbarMessages) -> Unit,
     tempWritableImageUri: Uri?,
@@ -111,10 +111,10 @@ private fun AttachmentOptionsComponent(
         tempWritableVideoUri
     ) { pickedUri ->
         scope.launch {
-            attachmentInnerState.pickAttachment(pickedUri, tempCachePath)
+            attachmentStateHolder.pickAttachment(pickedUri, tempCachePath)
         }
     }
-    configureStateHandling(attachmentInnerState, onSendAttachment, onError)
+    configureStateHandling(attachmentStateHolder, onSendAttachment, onError)
 
     BoxWithConstraints(Modifier.fillMaxSize()) {
         val fullWidth: Dp = with(LocalDensity.current) { constraints.maxWidth.toDp() }
@@ -157,20 +157,20 @@ private fun calculateGridParams(minPadding: Dp, minColumnWidth: Dp, fullWidth: D
 
 @Composable
 private fun configureStateHandling(
-    attachmentInnerState: AttachmentInnerState,
+    attachmentStateHolder: AttachmentStateHolder,
     onSendAttachment: (AttachmentBundle?) -> Unit,
     onError: (ConversationSnackbarMessages) -> Unit
 ) {
-    when (val state = attachmentInnerState.attachmentState) {
+    when (val state = attachmentStateHolder.attachmentState) {
         is AttachmentState.NotPicked -> appLogger.d("Not picked yet")
         is AttachmentState.Picked -> {
             onSendAttachment(state.attachmentBundle)
-            attachmentInnerState.resetAttachmentState()
+            attachmentStateHolder.resetAttachmentState()
         }
 
         is AttachmentState.Error -> {
             onError(ErrorPickingAttachment)
-            attachmentInnerState.resetAttachmentState()
+            attachmentStateHolder.resetAttachmentState()
         }
     }
 }
@@ -319,7 +319,7 @@ private data class AttachmentOptionItem(
 fun PreviewAttachmentComponents() {
     val context = LocalContext.current
     AttachmentOptionsComponent(
-        AttachmentInnerState(context),
+        AttachmentStateHolder(context),
         {},
         {},
         isFileSharingEnabled = true,

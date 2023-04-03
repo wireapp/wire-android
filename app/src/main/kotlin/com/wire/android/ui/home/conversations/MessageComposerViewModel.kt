@@ -54,7 +54,7 @@ import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.conversations.model.AttachmentType
 import com.wire.android.ui.home.conversations.model.EditMessageBundle
 import com.wire.android.ui.home.conversations.model.UIMessage
-import com.wire.android.ui.home.messagecomposer.UiMention
+import com.wire.android.ui.home.messagecomposer.model.UiMention
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.util.FileManager
 import com.wire.android.util.ImageUtil

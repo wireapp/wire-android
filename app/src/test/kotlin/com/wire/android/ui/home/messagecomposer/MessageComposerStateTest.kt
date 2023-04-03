@@ -28,6 +28,9 @@ import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.ui.home.conversationslist.model.Membership
+import com.wire.android.ui.home.messagecomposer.state.AttachmentStateHolder
+import com.wire.android.ui.home.messagecomposer.state.MessageComposerState
+import com.wire.android.ui.home.messagecomposer.model.UiMention
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserId
@@ -42,7 +45,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class)
-class MessageComposerInnerStateTest {
+class MessageComposerStateTest {
 
     @MockK
     lateinit var context: Context
@@ -218,9 +221,9 @@ class MessageComposerInnerStateTest {
     )
 
     companion object {
-        fun createState(context: Context, focusManager: FocusManager, focusRequester: FocusRequester) = MessageComposerInnerState(
+        fun createState(context: Context, focusManager: FocusManager, focusRequester: FocusRequester) = MessageComposerState(
             context,
-            AttachmentInnerState(context),
+            AttachmentStateHolder(context),
             focusManager,
             focusRequester,
             SpanStyle(),

@@ -79,12 +79,11 @@ import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewS
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.conversations.model.EditMessageBundle
 import com.wire.android.ui.home.conversations.model.UIMessage
-import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMenuItems
 import com.wire.android.ui.home.messagecomposer.MessageComposer
-import com.wire.android.ui.home.messagecomposer.MessageComposerInnerState
-import com.wire.android.ui.home.messagecomposer.UiMention
-import com.wire.android.ui.home.messagecomposer.rememberMessageComposerInnerState
+import com.wire.android.ui.home.messagecomposer.state.MessageComposerState
+import com.wire.android.ui.home.messagecomposer.model.UiMention
+import com.wire.android.ui.home.messagecomposer.state.rememberMessageComposerState
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.util.permission.CallingAudioRequestFlow
 import com.wire.android.util.permission.rememberCallingRecordAudioBluetoothRequestFlow
@@ -314,7 +313,7 @@ private fun ConversationScreen(
     tempWritableVideoUri: Uri?
 ) {
     val conversationScreenState = rememberConversationScreenState()
-    val messageComposerInnerState = rememberMessageComposerInnerState()
+    val messageComposerInnerState = rememberMessageComposerState()
     val context = LocalContext.current
 
     LaunchedEffect(conversationMessagesViewModel.savedStateHandle) {
@@ -404,7 +403,7 @@ private fun ConversationScreen(
                         isFileSharingEnabled = conversationViewState.isFileSharingEnabled,
                         lastUnreadMessageInstant = conversationMessagesViewState.firstUnreadInstant,
                         conversationState = conversationViewState,
-                        messageComposerInnerState = messageComposerInnerState,
+                        messageComposerState = messageComposerInnerState,
                         messages = conversationMessagesViewState.messages,
                         onSendMessage = onSendMessage,
                         onSendEditMessage = onSendEditMessage,
@@ -443,7 +442,7 @@ private fun ConversationScreenContent(
     lastUnreadMessageInstant: Instant?,
     conversationState: ConversationViewState,
     audioMessagesState: Map<String, AudioState>,
-    messageComposerInnerState: MessageComposerInnerState,
+    messageComposerState: MessageComposerState,
     messages: Flow<PagingData<UIMessage>>,
     onSendMessage: (String, List<UiMention>, String?, expireAfter : Duration?) -> Unit,
     onSendEditMessage: (EditMessageBundle) -> Unit,
@@ -475,7 +474,7 @@ private fun ConversationScreenContent(
     }
 
     MessageComposer(
-        messageComposerState = messageComposerInnerState,
+        messageComposerState = messageComposerState,
         messageContent = {
             MessageList(
                 lazyPagingMessages = lazyPagingMessages,

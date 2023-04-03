@@ -47,6 +47,7 @@ import com.wire.android.model.ClickBlockParams
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WireSecondaryIconButton
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.home.messagecomposer.state.MessageComposeInputState
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 
@@ -76,7 +77,7 @@ fun MessageComposeActionsBox(
                     MessageComposeActions(
                         state.attachmentOptionsDisplayed,
                         isMentionActive,
-                        state.isEditMessage,
+                        true,
                         isFileSharingEnabled,
                         startMention,
                         onAdditionalOptionButtonClicked,

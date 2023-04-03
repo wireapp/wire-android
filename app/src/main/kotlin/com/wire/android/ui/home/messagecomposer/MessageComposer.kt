@@ -60,6 +60,10 @@ import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.conversations.model.EditMessageBundle
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.messagecomposer.attachment.AttachmentOptions
+import com.wire.android.ui.home.messagecomposer.state.MessageComposeInputState
+import com.wire.android.ui.home.messagecomposer.state.MessageComposeInputType
+import com.wire.android.ui.home.messagecomposer.state.MessageComposerState
+import com.wire.android.ui.home.messagecomposer.model.UiMention
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.kalium.logic.feature.conversation.InteractionAvailability
@@ -69,7 +73,7 @@ import kotlin.time.Duration
 
 @Composable
 fun MessageComposer(
-    messageComposerState: MessageComposerInnerState,
+    messageComposerState: MessageComposerState,
     messageContent: @Composable () -> Unit,
     onSendTextMessage: (String, List<UiMention>, messageId: String?, expireAfter: Duration?) -> Unit,
     onSendEditTextMessage: (EditMessageBundle) -> Unit,
@@ -160,7 +164,7 @@ fun MessageComposer(
 @Composable
 private fun MessageComposer(
     messagesContent: @Composable () -> Unit,
-    messageComposerState: MessageComposerInnerState,
+    messageComposerState: MessageComposerState,
     isFileSharingEnabled: Boolean,
     tempCachePath: Path,
     interactionAvailability: InteractionAvailability,
@@ -208,7 +212,7 @@ private fun MessageComposer(
 
                 LaunchedEffect(isKeyboardVisible) {
                     if (!isKeyboardVisible && !messageComposerState.messageComposeInputState.attachmentOptionsDisplayed) {
-                        if (!messageComposerState.messageComposeInputState.isEditMessage) {
+                        if (true) {
                             messageComposerState.toInactive()
                         }
                         messageComposerState.focusManager.clearFocus()
@@ -290,7 +294,7 @@ private fun MessageComposer(
                 // we get the effect of overlapping it
                 if (attachmentOptionsVisible) {
                     AttachmentOptions(
-                        attachmentInnerState = messageComposerState.attachmentInnerState,
+                        attachmentStateHolder = messageComposerState.attachmentStateHolder,
                         onSendAttachment = onSendAttachmentClicked,
                         onMessageComposerError = onMessageComposerError,
                         isFileSharingEnabled = isFileSharingEnabled,

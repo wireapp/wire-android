@@ -82,15 +82,15 @@ class CommonTopAppBarViewModel @Inject constructor(
                                  * could be called when the screen is changed, so we delayed
                                  * showing the banner until getting the correct calling values
                                  */
-                                if (connectivityUIState is ConnectivityUIState.Info.EstablishedCall)
+                                if (connectivityUIState is ConnectivityUIState.Info.EstablishedCall) {
                                     delay(WAITING_TIME_TO_SHOW_ONGOING_CALL_BANNER)
+                                }
                                 connectivityState = connectivityState.copy(info = connectivityUIState)
                             }
                         }
                     }
                 }
             }
-
         }
     }
 
@@ -105,7 +105,7 @@ class CommonTopAppBarViewModel @Inject constructor(
             return ConnectivityUIState.Info.EstablishedCall(activeCall.conversationId, activeCall.isMuted)
         }
 
-        return when(connectivity) {
+        return when (connectivity) {
             Connectivity.WAITING_CONNECTION -> ConnectivityUIState.Info.WaitingConnection
             Connectivity.CONNECTING -> ConnectivityUIState.Info.Connecting
             Connectivity.CONNECTED -> ConnectivityUIState.Info.None

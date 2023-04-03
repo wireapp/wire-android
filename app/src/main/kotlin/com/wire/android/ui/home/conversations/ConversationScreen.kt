@@ -104,6 +104,7 @@ import kotlinx.coroutines.launch
 import kotlinx.datetime.Instant
 import okio.Path
 import okio.Path.Companion.toPath
+import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 
 /**
@@ -286,7 +287,7 @@ private fun ConversationScreen(
     conversationMessagesViewState: ConversationMessagesViewState,
     onOpenProfile: (String) -> Unit,
     onMessageDetailsClick: (messageId: String, isSelfMessage: Boolean) -> Unit,
-    onSendMessage: (String, List<UiMention>, String?) -> Unit,
+    onSendMessage: (String, List<UiMention>, String?, Duration?) -> Unit,
     onSendEditMessage: (EditMessageBundle) -> Unit,
     onDeleteMessage: (String, Boolean) -> Unit,
     onSendAttachment: (AttachmentBundle?) -> Unit,
@@ -348,7 +349,7 @@ private fun ConversationScreen(
                     onReplyClick = messageComposerInnerState::reply,
                     onEditClick = messageComposerInnerState::toEditMessage,
                     onShareAsset = {
-                        dupa.selectedMessage.messageHeader.messageId.let {
+                        dupa.selectedMessage.header.messageId.let {
                             conversationMessagesViewModel.shareAsset(context, it)
                             conversationScreenState.hideContextMenu()
                         }
@@ -444,7 +445,7 @@ private fun ConversationScreenContent(
     audioMessagesState: Map<String, AudioState>,
     messageComposerInnerState: MessageComposerInnerState,
     messages: Flow<PagingData<UIMessage>>,
-    onSendMessage: (String, List<UiMention>, String?) -> Unit,
+    onSendMessage: (String, List<UiMention>, String?, expireAfter : Duration?) -> Unit,
     onSendEditMessage: (EditMessageBundle) -> Unit,
     onSendAttachment: (AttachmentBundle?) -> Unit,
     onMentionMember: (String?) -> Unit,
@@ -493,11 +494,11 @@ private fun ConversationScreenContent(
                 onShowEditingOption = onShowEditingOptions
             )
         },
-        onSendTextMessage = { message, mentions, messageId ->
+        onSendTextMessage = { message, mentions, messageId, expireAfter ->
             scope.launch {
                 lazyListState.scrollToItem(0)
             }
-            onSendMessage(message, mentions, messageId)
+            onSendMessage(message, mentions, messageId, expireAfter)
         },
         onSendEditTextMessage = onSendEditMessage,
         onSendAttachment = {
@@ -660,7 +661,7 @@ fun PreviewConversationScreen() {
         conversationMessagesViewState = ConversationMessagesViewState(),
         onOpenProfile = { _ -> },
         onMessageDetailsClick = { _, _ -> },
-        onSendMessage = { _, _, _ -> },
+        onSendMessage = { _, _, _, _ -> },
         onSendEditMessage = { _ -> },
         onDeleteMessage = { _, _ -> },
         onSendAttachment = { },

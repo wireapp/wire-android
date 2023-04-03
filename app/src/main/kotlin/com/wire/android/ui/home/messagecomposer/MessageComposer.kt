@@ -65,12 +65,13 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.kalium.logic.feature.conversation.InteractionAvailability
 import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
 import okio.Path
+import kotlin.time.Duration
 
 @Composable
 fun MessageComposer(
     messageComposerState: MessageComposerInnerState,
     messageContent: @Composable () -> Unit,
-    onSendTextMessage: (String, List<UiMention>, messageId: String?) -> Unit,
+    onSendTextMessage: (String, List<UiMention>, messageId: String?, expireAfter: Duration?) -> Unit,
     onSendEditTextMessage: (EditMessageBundle) -> Unit,
     onSendAttachment: (AttachmentBundle?) -> Unit,
     onMentionMember: (String?) -> Unit,
@@ -92,6 +93,7 @@ fun MessageComposer(
                     messageComposerState.messageComposeInputState.messageText.text,
                     messageComposerState.mentions,
                     messageComposerState.quotedMessageData?.messageId,
+                    messageComposerState.selfDeletionDuration.value
                 )
                 messageComposerState.quotedMessageData = null
                 messageComposerState.setMessageTextValue(TextFieldValue(""))
@@ -238,7 +240,7 @@ private fun MessageComposer(
                         messagesContent()
                         if (membersToMention.isNotEmpty()) {
                             MembersMentionList(
-                                membersToMention  = membersToMention,
+                                membersToMention = membersToMention,
                                 onMentionPicked = onMentionPicked
                             )
                         }

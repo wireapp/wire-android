@@ -100,7 +100,7 @@ class ConversationScreenState(
     }
 
     sealed class BottomSheetMenuType {
-        class Edit(val selectedMessage: UIMessage) : BottomSheetMenuType()
+        class Edit(val selectedMessage: UIMessage.Regular) : BottomSheetMenuType()
 
         object SelfDeletion : BottomSheetMenuType()
 

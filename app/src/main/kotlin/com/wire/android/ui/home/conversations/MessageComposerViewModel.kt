@@ -21,6 +21,7 @@
 package com.wire.android.ui.home.conversations
 
 import android.net.Uri
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -87,6 +88,7 @@ import kotlinx.coroutines.withContext
 import kotlinx.datetime.Instant
 import okio.Path
 import javax.inject.Inject
+import kotlin.time.Duration
 import com.wire.kalium.logic.data.id.QualifiedID as ConversationId
 
 @Suppress("LongParameterList", "TooManyFunctions")
@@ -209,14 +211,17 @@ class MessageComposerViewModel @Inject constructor(
     fun sendMessage(
         message: String,
         mentions: List<UiMention>,
-        quotedMessageId: String?
+        quotedMessageId: String?,
+        expireAfter: Duration?
     ) {
+        Log.d("TEST","expire fater $expireAfter")
         viewModelScope.launch {
             sendTextMessage(
                 conversationId = conversationId,
                 text = message,
                 mentions = mentions.map { it.intoMessageMention() },
-                quotedMessageId = quotedMessageId
+                quotedMessageId = quotedMessageId,
+                expireAfter = expireAfter
             )
         }
     }

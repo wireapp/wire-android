@@ -54,6 +54,7 @@
     <string name="label_update">Actualizar</string>
     <string name="label_close">Cerrar</string>
     <string name="label_download">Descargar</string>
+    <string name="label_open_asset_externally">Open</string>
     <string name="label_show">Mostrar</string>
     <string name="label_show_all">Mostrar todo</string>
     <string name="label_show_less">Mostrar menos</string>
@@ -78,6 +79,7 @@
     <string name="content_description_muted_conversation">Conversaci&#243;n silenciada</string>
     <string name="content_description_check">Marca de verificaci&#243;n</string>
     <string name="content_description_download_icon">Icono de descarga</string>
+    <string name="content_description_open_asset_icon">Open icon</string>
     <string name="content_description_add_to_favourite">Agregar a Favoritos</string>
     <string name="content_description_move_to_folder">Mover a carpeta</string>
     <string name="content_description_move_to_archive">Mover a archivo</string>
@@ -545,16 +547,14 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
         <item quantity="one">Se eliminó 1 persona de la conversación</item>
         <item quantity="other">Se eliminaron %1$d personas de la conversación</item>
     </plurals>
-    <string name="last_message_self_user_shared_asset">comparti&#243; un archivo multimedia</string>
-    <string name="last_message_other_user_shared_asset">comparti&#243; un archivo multimedia</string>
+    <string name="last_message_self_user_shared_asset">shared a file.</string>
+    <string name="last_message_other_user_shared_asset">shared a file.</string>
     <string name="last_message_self_user_shared_image">comparti&#243; una imagen.</string>
     <string name="last_message_other_user_shared_image">comparti&#243; una imagen.</string>
     <string name="last_message_self_user_shared_video">comparti&#243; un video.</string>
     <string name="last_message_other_user_shared_video">comparti&#243; un video.</string>
     <string name="last_message_self_user_shared_audio">comparti&#243; un mensaje de audio.</string>
     <string name="last_message_other_user_shared_audio">comparti&#243; un mensaje de audio.</string>
-    <string name="last_message_self_user_shared_file">comparti&#243; un archivo.</string>
-    <string name="last_message_other_user_shared_file">comparti&#243; un archivo.</string>
     <string name="last_message_self_user_knock">hizo un ping.</string>
     <string name="last_message_other_user_knock">hizo un ping.</string>
     <string name="last_message_call">llam&#243;.</string>

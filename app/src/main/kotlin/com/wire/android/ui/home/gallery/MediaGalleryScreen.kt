@@ -48,6 +48,7 @@ import com.wire.android.ui.common.bottomsheet.MenuItemIcon
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
+import com.wire.android.ui.edit.DownloadAssetExternallyOption
 import com.wire.android.ui.edit.MessageDetailsMenuOption
 import com.wire.android.ui.edit.ReactionOption
 import com.wire.android.ui.edit.ReplyMessageOption
@@ -190,19 +191,8 @@ fun EditGalleryMenuItems(
         add { ReactionOption(onReactionClick = onReactionClick) }
         add { MessageDetailsMenuOption(onMessageDetailsClick = onMessageDetails) }
         add { ReplyMessageOption(onReplyItemClick = onImageReplied) }
+        add { DownloadAssetExternallyOption(onDownloadClick = onDownloadImage) }
         add {
-            CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.secondary) {
-                MenuBottomSheetItem(
-                    icon = {
-                        MenuItemIcon(
-                            id = R.drawable.ic_download,
-                            contentDescription = stringResource(R.string.content_description_download_icon),
-                        )
-                    },
-                    title = stringResource(R.string.label_download),
-                    onItemClick = onDownloadImage
-                )
-            }
             CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.secondary) {
                 MenuBottomSheetItem(
                     icon = {

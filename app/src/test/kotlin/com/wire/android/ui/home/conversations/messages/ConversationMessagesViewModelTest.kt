@@ -25,13 +25,15 @@ import androidx.paging.map
 import app.cash.turbine.test
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.framework.TestMessage
+import com.wire.android.framework.TestMessage.GENERIC_ASSET_CONTENT
 import com.wire.android.ui.home.conversations.DownloadedAssetDialogVisibilityState
 import com.wire.android.ui.home.conversations.mockUITextMessage
+import com.wire.kalium.logic.data.message.MessageContent
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.util.fileExtension
 import io.mockk.coVerify
 import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import okio.Path.Companion.toPath
 import org.amshove.kluent.shouldBeEqualTo
@@ -47,11 +49,12 @@ class ConversationMessagesViewModelTest {
     fun `given an message ID, when downloading or fetching into internal storage, then should get message details by ID`() = runTest {
         val message = TestMessage.ASSET_MESSAGE
         val (arrangement, viewModel) = ConversationMessagesViewModelArrangement()
+            .withObservableAudioMessagesState(flowOf())
             .withGetMessageAssetUseCaseReturning("path".toPath(), 42L)
             .withGetMessageByIdReturning(message)
             .arrange()
 
-        viewModel.downloadOrFetchAssetToInternalStorage(message.id)
+        viewModel.downloadOrFetchAssetAndShowDialog(message.id)
 
         coVerify(exactly = 1) { arrangement.getMessageById(arrangement.conversationId, message.id) }
     }
@@ -62,13 +65,22 @@ class ConversationMessagesViewModelTest {
         val messageId = "mocked-msg-id"
         val assetName = "mocked-asset-name.zip"
         val assetDataPath = "asset-data-path".toPath()
+        val assetMimeType = "application/zip"
+        val assetSize = 8192L
+        val message = TestMessage.ASSET_MESSAGE.copy(
+            id = messageId,
+            content = MessageContent.Asset(GENERIC_ASSET_CONTENT.copy(name = assetName, mimeType = assetMimeType, sizeInBytes = assetSize))
+        )
         val (arrangement, viewModel) = ConversationMessagesViewModelArrangement()
-            .withSuccessfulOpenAssetMessage(assetName, assetDataPath, 1L, messageId)
+            .withGetMessageByIdReturning(message)
+            .withObservableAudioMessagesState(flowOf())
+            .withGetMessageAssetUseCaseReturning(assetDataPath, assetSize)
+            .withSuccessfulOpenAssetMessage(assetMimeType, assetName, assetDataPath, assetSize, messageId)
             .arrange()
 
         // When
         assert(viewModel.conversationViewState.downloadedAssetDialogState is DownloadedAssetDialogVisibilityState.Displayed)
-        viewModel.onOpenFileWithExternalApp(assetDataPath, assetName.fileExtension())
+        viewModel.downloadAndOpenAsset(messageId)
 
         // Then
         verify(exactly = 1) { arrangement.fileManager.openWithExternalApp(any(), any(), any()) }
@@ -81,14 +93,23 @@ class ConversationMessagesViewModelTest {
             // Given
             val messageId = "mocked-msg-id"
             val assetName = "mocked-asset-name.zip"
-            val assetDataPath = "asset-data-path".toPath()
+            val dataPath = "asset-data-path".toPath()
+            val mimeType = "application/zip"
+            val assetSize = 42L
+            val message = TestMessage.ASSET_MESSAGE.copy(
+                id = messageId,
+                content = MessageContent.Asset(GENERIC_ASSET_CONTENT.copy(name = assetName, mimeType = mimeType, sizeInBytes = assetSize))
+            )
             val (arrangement, viewModel) = ConversationMessagesViewModelArrangement()
-                .withSuccessfulSaveAssetMessage(assetName, assetDataPath, 1L, messageId)
+                .withObservableAudioMessagesState(flowOf())
+                .withGetMessageByIdReturning(message)
+                .withGetMessageAssetUseCaseReturning(dataPath, assetSize)
+                .withSuccessfulSaveAssetMessage(mimeType, assetName, dataPath, assetSize, messageId)
                 .arrange()
 
             // When
             assert(viewModel.conversationViewState.downloadedAssetDialogState is DownloadedAssetDialogVisibilityState.Displayed)
-            viewModel.onSaveFile(assetName, assetDataPath, 1L, messageId)
+            viewModel.downloadAssetExternally(messageId)
 
             // Then
             coVerify(exactly = 1) { arrangement.fileManager.saveToExternalStorage(any(), any(), any(), any(), any()) }

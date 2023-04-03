@@ -24,8 +24,11 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.paging.PagingData
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
+import com.wire.android.media.audiomessage.AudioState
 import com.wire.android.media.audiomessage.ConversationAudioMessagePlayer
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.ui.home.conversations.model.AssetBundle
+import com.wire.android.ui.home.conversations.model.AttachmentType
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.usecase.GetMessagesForConversationUseCase
 import com.wire.android.util.FileManager
@@ -48,6 +51,7 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
@@ -129,12 +133,14 @@ class ConversationMessagesViewModelArrangement {
     }
 
     fun withSuccessfulOpenAssetMessage(
+        assetMimeType: String,
         assetName: String,
         assetDataPath: Path,
         assetSize: Long,
         messageId: String
     ) = apply {
-        viewModel.showOnAssetDownloadedDialog(assetName, assetDataPath, assetSize, messageId)
+        val assetBundle = AssetBundle(assetMimeType, assetDataPath, assetSize, assetName, AttachmentType.fromMimeTypeString(assetMimeType))
+        viewModel.showOnAssetDownloadedDialog(assetBundle, messageId)
         every { fileManager.openWithExternalApp(any(), any(), any()) }.answers {
             viewModel.hideOnAssetDownloadedDialog()
         }
@@ -154,17 +160,23 @@ class ConversationMessagesViewModelArrangement {
         )
     }
 
+    fun withObservableAudioMessagesState(audioFlow: Flow<Map<String, AudioState>>) = apply {
+        coEvery { conversationAudioMessagePlayer.observableAudioMessagesState } returns audioFlow
+    }
+
     suspend fun withPaginatedMessagesReturning(pagingDataFlow: PagingData<UIMessage>) = apply {
         messagesChannel.send(pagingDataFlow)
     }
 
     fun withSuccessfulSaveAssetMessage(
+        assetMimeType: String,
         assetName: String,
         assetDataPath: Path,
         assetSize: Long,
         messageId: String
     ) = apply {
-        viewModel.showOnAssetDownloadedDialog(assetName, assetDataPath, assetSize, messageId)
+        val assetBundle = AssetBundle(assetMimeType, assetDataPath, assetSize, assetName, AttachmentType.fromMimeTypeString(assetMimeType))
+        viewModel.showOnAssetDownloadedDialog(assetBundle, messageId)
         coEvery { fileManager.saveToExternalStorage(any(), any(), any(), any(), any()) }.answers {
             viewModel.hideOnAssetDownloadedDialog()
         }

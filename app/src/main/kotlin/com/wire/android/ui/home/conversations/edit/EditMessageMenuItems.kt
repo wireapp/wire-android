@@ -30,7 +30,9 @@ import androidx.compose.ui.res.stringResource
 import com.wire.android.R
 import com.wire.android.ui.common.bottomsheet.MenuBottomSheetItem
 import com.wire.android.ui.common.bottomsheet.MenuItemIcon
+import com.wire.android.ui.edit.DownloadAssetExternallyOption
 import com.wire.android.ui.edit.MessageDetailsMenuOption
+import com.wire.android.ui.edit.OpenAssetExternallyOption
 import com.wire.android.ui.edit.ReactionOption
 import com.wire.android.ui.edit.ReplyMessageOption
 import com.wire.android.ui.home.conversations.model.UIMessage
@@ -48,6 +50,8 @@ fun EditMessageMenuItems(
     onDetailsClick: (messageId: String, isMyMessage: Boolean) -> Unit,
     onEditClick: (messageId: String, originalText: String) -> Unit,
     onShareAsset: () -> Unit,
+    onDownloadAsset: (messageId: String) -> Unit,
+    onOpenAsset: (messageId: String) -> Unit,
 ): List<@Composable () -> Unit> {
     val localFeatureVisibilityFlags = LocalFeatureVisibilityFlags.current
     val localContext = LocalContext.current
@@ -57,6 +61,7 @@ fun EditMessageMenuItems(
             || message.messageContent is UIMessageContent.ImageMessage
             || message.messageContent is UIMessageContent.AudioAssetMessage
     val isEditable = message.isTextMessage && message.isMyMessage && localFeatureVisibilityFlags.MessageEditIcon
+    val isGenericAsset = message.messageContent is UIMessageContent.AssetMessage
 
     val onCopyItemClick = remember(message) {
         {
@@ -103,6 +108,20 @@ fun EditMessageMenuItems(
             }
         }
     }
+    val onDownloadAssetClick = remember(message) {
+        {
+            hideEditMessageMenu {
+                onDownloadAsset(message.header.messageId)
+            }
+        }
+    }
+    val onOpenAssetClick = remember(message) {
+        {
+            hideEditMessageMenu {
+                onOpenAsset(message.header.messageId)
+            }
+        }
+    }
 
     return buildList {
         if (isAvailable) {
@@ -123,6 +142,8 @@ fun EditMessageMenuItems(
                 }
             }
             add { ReplyMessageOption(onReplyItemClick) }
+            if (isAssetMessage) add { DownloadAssetExternallyOption(onDownloadAssetClick) }
+            if (isGenericAsset) add { OpenAssetExternallyOption(onOpenAssetClick) }
             if (isEditable) {
                 add {
                     MenuBottomSheetItem(

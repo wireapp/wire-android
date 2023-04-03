@@ -20,6 +20,7 @@
 
 package com.wire.android.navigation
 
+import androidx.compose.animation.fadeOut
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
@@ -382,7 +383,7 @@ enum class NavigationItem(
         canonicalRoute = "$ONGOING_CALL/{$EXTRA_CONVERSATION_ID}",
         content = { OngoingCallScreen() },
         screenMode = ScreenMode.WAKE_UP,
-        animationConfig = NavigationAnimationConfig.CustomAnimation(null, shrinkOutFromView())
+        animationConfig = NavigationAnimationConfig.CustomAnimation(null, fadeOut())
     ) {
         override fun getRouteWithArgs(arguments: List<Any>): String = routeWithConversationIdArg(arguments)
     },

@@ -34,10 +34,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.conversationslist.model.hasLabel
-import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 
@@ -48,22 +46,25 @@ fun MembershipQualifierLabel(membership: Membership, modifier: Modifier = Modifi
             modifier = modifier.border(
                 width = MaterialTheme.wireDimensions.spacing1x,
                 shape = RoundedCornerShape(MaterialTheme.wireDimensions.spacing4x),
-                color = MaterialTheme.wireColorScheme.primaryVariant
+                color = colorsScheme().secondaryButtonSelectedOutline
             )
         ) {
             Text(
                 text = stringResource(id = membership.stringResourceId),
-                color = MaterialTheme.wireColorScheme.onPrimaryVariant,
+                color = colorsScheme().onPrimaryVariant,
                 style = MaterialTheme.wireTypography.label03.copy(textAlign = TextAlign.Center),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier
                     .wrapContentWidth()
                     .background(
-                        color = MaterialTheme.wireColorScheme.primaryVariant,
+                        color = colorsScheme().primaryVariant,
                         shape = RoundedCornerShape(MaterialTheme.wireDimensions.corner4x)
                     )
-                    .padding(horizontal = MaterialTheme.wireDimensions.spacing4x, vertical = MaterialTheme.wireDimensions.spacing2x)
+                    .padding(
+                        horizontal = MaterialTheme.wireDimensions.spacing4x,
+                        vertical = MaterialTheme.wireDimensions.spacing2x
+                    )
             )
         }
     }

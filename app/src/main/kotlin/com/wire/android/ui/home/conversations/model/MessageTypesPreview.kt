@@ -28,6 +28,7 @@ import com.wire.android.model.Clickable
 import com.wire.android.ui.home.conversations.MessageItem
 import com.wire.android.ui.home.conversations.SystemMessageItem
 import com.wire.android.ui.home.conversations.mock.mockAssetMessage
+import com.wire.android.ui.home.conversations.mock.mockMessageWithKnock
 import com.wire.android.ui.home.conversations.mock.mockMessageWithText
 import com.wire.android.ui.home.conversations.mock.mockedImageUIMessage
 import com.wire.android.util.ui.UIText
@@ -41,7 +42,7 @@ private val previewUserId = UserId("value", "domain")
 fun PreviewMessage() {
     MessageItem(
         message = mockMessageWithText.copy(
-            messageHeader = mockMessageWithText.messageHeader.copy(
+            header = mockMessageWithText.header.copy(
                 username = UIText.DynamicString(
                     "Pablo Diego José Francisco de Paula Juan Nepomuceno María de los Remedios Cipriano de la Santísima Trinidad " +
                             "Ruiz y Picasso"
@@ -56,6 +57,7 @@ fun PreviewMessage() {
         onResetSessionClicked = { _, _ -> },
         onChangeAudioPosition = { _, _ -> },
         onAudioClick = {},
+        onSelfDeletingMessageRead = {},
         audioMessagesState = emptyMap()
     )
 }
@@ -65,7 +67,7 @@ fun PreviewMessage() {
 fun PreviewMessageWithReply() {
     MessageItem(
         message = mockMessageWithText.copy(
-            messageHeader = mockMessageWithText.messageHeader.copy(
+            header = mockMessageWithText.header.copy(
                 username = UIText.DynamicString(
                     "Don Joe"
                 )
@@ -92,6 +94,7 @@ fun PreviewMessageWithReply() {
         onResetSessionClicked = { _, _ -> },
         onChangeAudioPosition = { _, _ -> },
         onAudioClick = {},
+        onSelfDeletingMessageRead = {},
         audioMessagesState = emptyMap()
     )
 }
@@ -101,7 +104,7 @@ fun PreviewMessageWithReply() {
 fun PreviewDeletedMessage() {
     MessageItem(
         message = mockMessageWithText.let {
-            it.copy(messageHeader = it.messageHeader.copy(messageStatus = MessageStatus.Edited("")))
+            it.copy(header = it.header.copy(messageStatus = MessageStatus.Edited("")))
         },
         onLongClicked = {},
         onAssetMessageClicked = {},
@@ -111,6 +114,7 @@ fun PreviewDeletedMessage() {
         onResetSessionClicked = { _, _ -> },
         onChangeAudioPosition = { _, _ -> },
         onAudioClick = {},
+        onSelfDeletingMessageRead = { },
         audioMessagesState = emptyMap()
     )
 }
@@ -128,6 +132,7 @@ fun PreviewAssetMessage() {
         onResetSessionClicked = { _, _ -> },
         onChangeAudioPosition = { _, _ -> },
         onAudioClick = {},
+        onSelfDeletingMessageRead = { },
         audioMessagesState = emptyMap()
     )
 }
@@ -175,6 +180,7 @@ fun PreviewImageMessageUploaded() {
         onResetSessionClicked = { _, _ -> },
         onChangeAudioPosition = { _, _ -> },
         onAudioClick = {},
+        onSelfDeletingMessageRead = { },
         audioMessagesState = emptyMap()
     )
 }
@@ -192,6 +198,7 @@ fun PreviewImageMessageUploading() {
         onResetSessionClicked = { _, _ -> },
         onChangeAudioPosition = { _, _ -> },
         onAudioClick = {},
+        onSelfDeletingMessageRead = { },
         audioMessagesState = emptyMap()
     )
 }
@@ -209,6 +216,7 @@ fun PreviewImageMessageFailedUpload() {
         onResetSessionClicked = { _, _ -> },
         onChangeAudioPosition = { _, _ -> },
         onAudioClick = {},
+        onSelfDeletingMessageRead = { },
         audioMessagesState = emptyMap()
     )
 }
@@ -227,13 +235,22 @@ fun PreviewMessageWithSystemMessage() {
             onResetSessionClicked = { _, _ -> },
             onChangeAudioPosition = { _, _ -> },
             onAudioClick = {},
+            onSelfDeletingMessageRead = { },
             audioMessagesState = emptyMap()
         )
-        SystemMessageItem(UIMessageContent.SystemMessage.MissedCall.YouCalled(UIText.DynamicString("You")))
         SystemMessageItem(
-            UIMessageContent.SystemMessage.MemberAdded(
-                UIText.DynamicString("You"),
-                listOf(UIText.DynamicString("Adam Smith"))
+            mockMessageWithKnock.copy(
+                messageContent = UIMessageContent.SystemMessage.MissedCall.YouCalled(
+                    UIText.DynamicString("You")
+                )
+            )
+        )
+        SystemMessageItem(
+            mockMessageWithKnock.copy(
+                messageContent = UIMessageContent.SystemMessage.MemberAdded(
+                    UIText.DynamicString("You"),
+                    listOf(UIText.DynamicString("Adam Smith"))
+                )
             )
         )
     }

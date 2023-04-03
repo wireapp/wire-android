@@ -74,7 +74,7 @@ class ConversationScreenState(
 
     var dupa: BottomSheetMenuType by mutableStateOf(BottomSheetMenuType.None)
 
-    fun showEditContextMenu(message: UIMessage) {
+    fun showEditContextMenu(message: UIMessage.Regular) {
         dupa = BottomSheetMenuType.Edit(message)
         coroutineScope.launch { modalBottomSheetState.animateTo(ModalBottomSheetValue.Expanded) }
     }

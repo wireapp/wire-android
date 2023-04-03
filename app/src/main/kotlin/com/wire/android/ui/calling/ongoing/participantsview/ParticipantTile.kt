@@ -77,7 +77,7 @@ fun ParticipantTile(
 ) {
     Surface(
         modifier = modifier,
-        color = colorsScheme().callingParticipantTileBackgroundColor ,
+        color = colorsScheme().callingParticipantTileBackgroundColor,
         shape = RoundedCornerShape(dimensions().corner6x)
     ) {
 

@@ -296,9 +296,9 @@ data class MessageComposerInnerState(
         }
     }
 
-    fun reply(uiMessage: UIMessage) {
-        val authorName = uiMessage.messageHeader.username
-        val authorId = uiMessage.messageHeader.userId ?: return
+    fun reply(uiMessage: UIMessage.Regular) {
+        val authorName = uiMessage.header.username
+        val authorId = uiMessage.header.userId ?: return
 
         val content = when (val content = uiMessage.messageContent) {
             is UIMessageContent.AssetMessage -> QuotedMessageUIData.GenericAsset(
@@ -328,7 +328,7 @@ data class MessageComposerInnerState(
         }
         content?.let { quotedContent ->
             quotedMessageData = QuotedMessageUIData(
-                messageId = uiMessage.messageHeader.messageId,
+                messageId = uiMessage.header.messageId,
                 senderId = authorId,
                 senderName = authorName,
                 originalMessageDateDescription = "".toUIText(),

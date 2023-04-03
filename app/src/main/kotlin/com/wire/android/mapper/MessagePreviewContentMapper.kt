@@ -136,12 +136,13 @@ fun MessagePreview.uiLastMessageContent(): UILastMessageContent {
                                 else R.string.last_message_other_user_shared_video
                             )
                         )
-                    AssetType.GENERIC_ASSET -> UILastMessageContent.SenderWithMessage(
-                        userUIText, UIText.StringResource(
-                            if (isSelfMessage) R.string.last_message_self_user_shared_asset
-                            else R.string.last_message_other_user_shared_asset
+                    AssetType.GENERIC_ASSET ->
+                        UILastMessageContent.SenderWithMessage(
+                            userUIText, UIText.StringResource(
+                                if (isSelfMessage) R.string.last_message_self_user_shared_asset
+                                else R.string.last_message_other_user_shared_asset
+                            )
                         )
-                    )
                 }
 
                 is WithUser.ConversationNameChange -> UILastMessageContent.SenderWithMessage(

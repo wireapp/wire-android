@@ -49,7 +49,7 @@ import com.wire.android.ui.common.AttachmentButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorPickingAttachment
-import com.wire.android.ui.home.conversations.model.AttachmentBundle
+import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.android.ui.home.messagecomposer.AttachmentInnerState
 import com.wire.android.ui.home.messagecomposer.AttachmentState
 import com.wire.android.ui.theme.wireColorScheme
@@ -69,7 +69,7 @@ import okio.Path.Companion.toPath
 @Composable
 fun AttachmentOptions(
     attachmentInnerState: AttachmentInnerState,
-    onSendAttachment: (AttachmentBundle?) -> Unit,
+    onSendAttachment: (AssetBundle?) -> Unit,
     onMessageComposerError: (ConversationSnackbarMessages) -> Unit,
     tempWritableImageUri: Uri?,
     tempWritableVideoUri: Uri?,
@@ -96,7 +96,7 @@ fun AttachmentOptions(
 @Composable
 private fun AttachmentOptionsComponent(
     attachmentInnerState: AttachmentInnerState,
-    onSendAttachment: (AttachmentBundle?) -> Unit,
+    onSendAttachment: (AssetBundle?) -> Unit,
     onError: (ConversationSnackbarMessages) -> Unit,
     tempWritableImageUri: Uri?,
     tempWritableVideoUri: Uri?,
@@ -158,7 +158,7 @@ private fun calculateGridParams(minPadding: Dp, minColumnWidth: Dp, fullWidth: D
 @Composable
 private fun configureStateHandling(
     attachmentInnerState: AttachmentInnerState,
-    onSendAttachment: (AttachmentBundle?) -> Unit,
+    onSendAttachment: (AssetBundle?) -> Unit,
     onError: (ConversationSnackbarMessages) -> Unit
 ) {
     when (val state = attachmentInnerState.attachmentState) {

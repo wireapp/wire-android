@@ -174,10 +174,6 @@ class ShouldTriggerMigrationForUserUserCaseTest {
             coEvery { globalDataStore.getUserMigrationAppVersion(any()) } returns currentAppVersion + 1
         }
 
-        fun withCurrentAppVersion(version: Int?) = apply {
-            every {  }
-        }
-
         private val useCase = ShouldTriggerMigrationForUserUserCase(
             applicationContext,
             globalDataStore,

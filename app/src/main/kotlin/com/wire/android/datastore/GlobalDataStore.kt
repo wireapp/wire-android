@@ -51,7 +51,6 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
         private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = PREFERENCES_NAME)
         private fun userMigrationStatusKey(userId: String): Preferences.Key<Int> = intPreferencesKey("user_migration_status_$userId")
         private fun userLastMigrationAppVersion(userId: String): Preferences.Key<Int> = intPreferencesKey("migration_app_version_$userId")
-
     }
 
     suspend fun clear() {
@@ -121,5 +120,4 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
 
     suspend fun getUserMigrationAppVersion(userId: String): Int? =
         context.dataStore.data.map { it[userLastMigrationAppVersion(userId)] }.firstOrNull()
-
 }

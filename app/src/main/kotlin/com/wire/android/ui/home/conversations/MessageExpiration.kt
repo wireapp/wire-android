@@ -245,9 +245,9 @@ class SelfDeletionTimer(private val context: Context) {
 
 @Composable
 fun startDeletionTimer(
-    message: UIMessage,
+    message: UIMessage.Regular,
     expirableTimer: SelfDeletionTimer.SelfDeletionTimerState.Expirable,
-    onStartMessageSelfDeletion: (UIMessage) -> Unit
+    onStartMessageSelfDeletion: (UIMessage.Regular) -> Unit
 ) {
     message.messageContent?.let {
         when (val messageContent = message.messageContent) {

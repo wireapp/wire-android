@@ -126,10 +126,10 @@ object TestMessage {
         isSenderDeleted = false,
         isSenderUnavailable = false
     )
-    val UI_TEXT_MESSAGE = UIMessage(
+    val UI_TEXT_MESSAGE = UIMessage.Regular(
         userAvatarData = UserAvatarData(asset = null, availabilityStatus = UserAvailabilityStatus.NONE),
-        messageSource = MessageSource.OtherUser,
-        messageHeader = UI_MESSAGE_HEADER,
+        source = MessageSource.OtherUser,
+        header = UI_MESSAGE_HEADER,
         messageContent = TextMessage(MessageBody(UIText.DynamicString("Some Text Message"))),
         messageFooter = MessageFooter(UI_MESSAGE_HEADER.messageId)
     )

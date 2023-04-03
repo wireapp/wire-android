@@ -129,7 +129,8 @@ private fun OngoingCallContent(
         initialValue = sheetInitialValue
     ).also {
         LaunchedEffect(Unit) {
-            it.animateTo(sheetInitialValue) // same issue with expanded on other sheets, we need to use animateTo to fully expand programmatically
+            // same issue with expanded on other sheets, we need to use animateTo to fully expand programmatically.
+            it.animateTo(sheetInitialValue)
         }
     }
 
@@ -220,7 +221,7 @@ private fun OngoingCallTopBar(
     )
 }
 
-//TODO(refactor) use CallOptionsControls to avoid duplication
+// TODO(refactor) use CallOptionsControls to avoid duplication
 @Composable
 private fun CallingControls(
     isMuted: Boolean,

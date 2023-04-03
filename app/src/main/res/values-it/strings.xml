@@ -54,6 +54,7 @@
     <string name="label_update">Aggiorna</string>
     <string name="label_close">Chiudi</string>
     <string name="label_download">Scarica</string>
+    <string name="label_open_asset_externally">Open</string>
     <string name="label_show">Mostra</string>
     <string name="label_show_all">Mostra tutto</string>
     <string name="label_show_less">Mostra meno</string>
@@ -78,6 +79,7 @@
     <string name="content_description_muted_conversation">Conversazione silenziata</string>
     <string name="content_description_check">Segno di spunta</string>
     <string name="content_description_download_icon">Icona di download</string>
+    <string name="content_description_open_asset_icon">Open icon</string>
     <string name="content_description_add_to_favourite">Aggiungi ai preferiti</string>
     <string name="content_description_move_to_folder">Sposta nella cartella</string>
     <string name="content_description_move_to_archive">Sposta in archivio</string>
@@ -545,16 +547,14 @@ Fino a 500 persone possono unirsi a una conversazione di gruppo.</string>
         <item quantity="one">1 partecipante é stato rimosso dalla conversazione</item>
         <item quantity="other">%1$d partecipanti sono stati rimossi dalla conversazione</item>
     </plurals>
-    <string name="last_message_self_user_shared_asset">hai condiviso un contenuto multimediale</string>
-    <string name="last_message_other_user_shared_asset">ha condiviso un contenuto multimediale</string>
+    <string name="last_message_self_user_shared_asset">shared a file.</string>
+    <string name="last_message_other_user_shared_asset">shared a file.</string>
     <string name="last_message_self_user_shared_image">hai condiviso un\'immagine</string>
     <string name="last_message_other_user_shared_image">ha condiviso un\'immagine</string>
     <string name="last_message_self_user_shared_video">hai condiviso un video</string>
     <string name="last_message_other_user_shared_video">ha condiviso un video</string>
     <string name="last_message_self_user_shared_audio">hai condiviso un messaggio audio</string>
     <string name="last_message_other_user_shared_audio">ha condiviso un messaggio audio</string>
-    <string name="last_message_self_user_shared_file">hai condiviso un file</string>
-    <string name="last_message_other_user_shared_file">ha condiviso un file</string>
     <string name="last_message_self_user_knock">hai fatto ping</string>
     <string name="last_message_other_user_knock">ha fatto ping</string>
     <string name="last_message_call">ha chiamato</string>

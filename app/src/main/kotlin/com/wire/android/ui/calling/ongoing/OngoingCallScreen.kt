@@ -61,9 +61,6 @@ import com.wire.android.ui.common.SecurityClassificationBanner
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.common.topappbar.CommonTopAppBar
-import com.wire.android.ui.common.topappbar.CommonTopAppBarViewModel
-import com.wire.android.ui.common.topappbar.ConnectivityUIState
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.wireColorScheme
@@ -75,7 +72,6 @@ import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
 fun OngoingCallScreen(
     ongoingCallViewModel: OngoingCallViewModel = hiltViewModel(),
     sharedCallingViewModel: SharedCallingViewModel = hiltViewModel(),
-    commonTopAppBarViewModel: CommonTopAppBarViewModel = hiltViewModel(),
 ) {
 
     with(sharedCallingViewModel.callState) {
@@ -83,10 +79,9 @@ fun OngoingCallScreen(
             conversationName,
             participants,
             isMuted ?: true,
-            isCameraOn ?: false,
+            isCameraOn,
             isSpeakerOn,
             securityClassificationType,
-            commonTopAppBarViewModel.connectivityState,
             sharedCallingViewModel::toggleSpeaker,
             sharedCallingViewModel::toggleMute,
             sharedCallingViewModel::hangUpCall,
@@ -111,7 +106,6 @@ private fun OngoingCallContent(
     isCameraOn: Boolean,
     isSpeakerOn: Boolean,
     classificationType: SecurityClassificationType,
-    connectivityState: ConnectivityUIState,
     toggleSpeaker: () -> Unit,
     toggleMute: () -> Unit,
     hangUpCall: () -> Unit,
@@ -131,10 +125,6 @@ private fun OngoingCallContent(
         sheetBackgroundColor = colorsScheme().background,
         backgroundColor = colorsScheme().background,
         topBar = {
-            CommonTopAppBar(
-                connectivityUIState = connectivityState,
-                onReturnToCallClick = { }
-            )
             OngoingCallTopBar(
                 conversationName = when (conversationName) {
                     is ConversationName.Known -> conversationName.name

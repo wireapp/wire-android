@@ -40,6 +40,7 @@ import androidx.compose.material.rememberBottomSheetScaffoldState
 import androidx.compose.material.rememberBottomSheetState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -58,9 +59,10 @@ import com.wire.android.ui.calling.controlbuttons.SpeakerButton
 import com.wire.android.ui.calling.model.UICallParticipant
 import com.wire.android.ui.calling.ongoing.participantsview.VerticalCallingPager
 import com.wire.android.ui.common.SecurityClassificationBanner
-import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.progress.WireCircularProgressIndicator
+import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.common.topappbar.CommonTopAppBar
 import com.wire.android.ui.common.topappbar.CommonTopAppBarViewModel
 import com.wire.android.ui.common.topappbar.ConnectivityUIState
@@ -121,9 +123,17 @@ private fun OngoingCallContent(
     navigateBack: () -> Unit,
     requestVideoStreams: (participants: List<UICallParticipant>) -> Unit
 ) {
+    val sheetInitialValue =
+        if (classificationType == SecurityClassificationType.NONE) BottomSheetValue.Collapsed else BottomSheetValue.Expanded
     val sheetState = rememberBottomSheetState(
-        initialValue = if (classificationType == SecurityClassificationType.NONE) BottomSheetValue.Collapsed else BottomSheetValue.Expanded
-    )
+        initialValue = sheetInitialValue
+    ).also {
+        LaunchedEffect(Unit) {
+            // same issue with expanded on other sheets, we need to use animateTo to fully expand programmatically.
+            it.animateTo(sheetInitialValue)
+        }
+    }
+
     val scaffoldState = rememberBottomSheetScaffoldState(
         bottomSheetState = sheetState
     )
@@ -211,7 +221,7 @@ private fun OngoingCallTopBar(
     )
 }
 
-//TODO(refactor) use CallOptionsControls to avoid duplication
+// TODO(refactor) use CallOptionsControls to avoid duplication
 @Composable
 private fun CallingControls(
     isMuted: Boolean,
@@ -251,6 +261,7 @@ private fun CallingControls(
             onHangUpButtonClicked = onHangUpCall
         )
     }
+    VerticalSpace.x8()
     SecurityClassificationBanner(classificationType)
 }
 

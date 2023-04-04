@@ -39,15 +39,16 @@ fun MessageComposerClassifiedBanner(
     securityClassificationType: SecurityClassificationType,
     paddingValues: PaddingValues = PaddingValues()
 ) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(color = colorsScheme().backgroundVariant)
-            .padding(paddingValues)
-    ) {
-        val isClassifiedConversation = securityClassificationType != SecurityClassificationType.NONE
-        if (isClassifiedConversation) {
+    val isClassifiedConversation = securityClassificationType != SecurityClassificationType.NONE
+    if (isClassifiedConversation) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(color = colorsScheme().backgroundVariant)
+                .padding(paddingValues)
+        ) {
+
             Box(Modifier.fillMaxWidth()) {
                 VerticalSpace.x8()
                 SecurityClassificationBanner(securityClassificationType = securityClassificationType)

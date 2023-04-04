@@ -101,7 +101,7 @@ class MessageMapper @Inject constructor(
         } else {
             MessageFooter(message.id)
         }
-        
+
         return when (content) {
             is UIMessageContent.Regular -> {
                 UIMessage.Regular(

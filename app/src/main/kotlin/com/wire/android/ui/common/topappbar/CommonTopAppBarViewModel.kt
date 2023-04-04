@@ -68,8 +68,9 @@ class CommonTopAppBarViewModel @Inject constructor(
                  * could be called when the screen is changed, so we delayed
                  * showing the banner until getting the correct calling values
                  */
-                if (it is ConnectivityUIState.Info.EstablishedCall)
+                if (it is ConnectivityUIState.Info.EstablishedCall) {
                     delay(WAITING_TIME_TO_SHOW_ONGOING_CALL_BANNER)
+                }
                 connectivityState = connectivityState.copy(info = it)
             }
         }

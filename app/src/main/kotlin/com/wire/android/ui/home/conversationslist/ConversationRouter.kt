@@ -268,7 +268,6 @@ class ConversationRouterState(
     fun closeSearch() {
         conversationItemType = initialItemType
     }
-
 }
 
 @Composable

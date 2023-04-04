@@ -339,7 +339,6 @@ class ConversationListViewModel @Inject constructor(
                     )
                 )
             }
-
         }
     }
 

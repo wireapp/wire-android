@@ -114,8 +114,6 @@ class IncomingCallViewModelTest {
         coVerify(exactly = 1) { rejectCall(conversationId = any()) }
         verify(exactly = 1) { callRinger.stop() }
     }
-
-
     @Test
     fun `given no ongoing call, when user tries to accept an incoming call, then invoke answerCall call use case`() {
         viewModel.incomingCallState = viewModel.incomingCallState.copy(hasEstablishedCall = false)

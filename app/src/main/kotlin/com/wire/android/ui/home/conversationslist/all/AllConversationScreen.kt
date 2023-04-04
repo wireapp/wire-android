@@ -127,8 +127,6 @@ fun ConversationListEmptyStateScreen() {
         )
     }
 }
-
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Composable

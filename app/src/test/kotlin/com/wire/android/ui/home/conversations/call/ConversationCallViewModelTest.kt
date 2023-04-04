@@ -42,7 +42,6 @@ import org.junit.jupiter.api.extension.ExtendWith
 @ExtendWith(CoroutineTestExtension::class)
 class ConversationCallViewModelTest {
 
-
     @MockK
     private lateinit var savedStateHandle: SavedStateHandle
 

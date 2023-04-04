@@ -330,6 +330,7 @@ Un mensaje eliminado no puede ser restaurado.</string>
     <string name="conversations_calls_tab_title">Llamadas</string>
     <string name="conversations_mentions_tab_title">Menciones</string>
     <string name="sent_a_message_with_content">envi&#243; un mensaje con contenido %s</string>
+    <string name="sent_a_message_with_unknown_content">sent a message with unknown content</string>
     <string name="new_group_title">Nuevo Grupo</string>
     <string name="new_group_description">Hasta 500 personas pueden unirse a una conversaci&#243;n grupal.</string>
     <string name="group_name_title">Nombre del grupo</string>

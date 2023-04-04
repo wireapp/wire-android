@@ -39,7 +39,7 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.runTest
+import org.amshove.kluent.internal.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -115,27 +115,52 @@ class IncomingCallViewModelTest {
         verify(exactly = 1) { callRinger.stop() }
     }
 
+
     @Test
-    fun `given an incoming call, when the user accepts the call, then the accept call use case is called`() {
-        coEvery { endCall(any()) } returns Unit
+    fun `given no ongoing call, when user tries to accept an incoming call, then invoke answerCall call use case`() {
+        viewModel.incomingCallState = viewModel.incomingCallState.copy(hasEstablishedCall = false)
+
         coEvery { navigationManager.navigate(command = any()) } returns Unit
+        coEvery { acceptCall(conversationId = any()) } returns Unit
+        every { callRinger.stop() } returns Unit
 
         viewModel.acceptCall()
 
         coVerify(exactly = 1) { acceptCall(conversationId = any()) }
+        coVerify(exactly = 1) { navigationManager.navigate(command = any()) }
         verify(exactly = 1) { callRinger.stop() }
         coVerify(inverse = true) { endCall(any()) }
+        assertEquals(false, viewModel.incomingCallState.shouldShowJoinCallAnywayDialog)
     }
 
     @Test
-    fun `given an active call, when accepting a new incoming call, then end the current call and accept the newer one`() = runTest{
-        viewModel.establishedCallConversationId = ConversationId("value", "Domain")
-        coEvery { endCall(viewModel.establishedCallConversationId!!) } returns Unit
+    fun `given an ongoing call, when user tries to accept an incoming call, then show JoinCallAnywayDialog`() {
+        viewModel.incomingCallState = viewModel.incomingCallState.copy(hasEstablishedCall = true)
 
         viewModel.acceptCall()
 
-        verify(exactly = 1) { callRinger.stop() }
-        coVerify(exactly = 1) { endCall(viewModel.establishedCallConversationId!!) }
-        coVerify(exactly = 1) { acceptCall(conversationId = any()) }
+        assertEquals(true, viewModel.incomingCallState.shouldShowJoinCallAnywayDialog)
+        coVerify(inverse = true) { acceptCall(conversationId = any()) }
+        verify(inverse = true) { callRinger.stop() }
+    }
+
+    @Test
+    fun `given an ongoing call, when user confirms dialog to accept an incoming call, then end current call and accept the newer one`() {
+        viewModel.incomingCallState = viewModel.incomingCallState.copy(hasEstablishedCall = true)
+        viewModel.establishedCallConversationId = ConversationId("value", "Domain")
+        coEvery { endCall(any()) } returns Unit
+
+        viewModel.acceptCallAnyway()
+
+        coVerify(exactly = 1) { endCall(any()) }
+    }
+
+    @Test
+    fun `given join dialog displayed, when user dismisses it, then hide it`() {
+        viewModel.incomingCallState = viewModel.incomingCallState.copy(shouldShowJoinCallAnywayDialog = true)
+
+        viewModel.dismissJoinCallAnywayDialog()
+
+        assertEquals(false, viewModel.incomingCallState.shouldShowJoinCallAnywayDialog)
     }
 }

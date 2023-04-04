@@ -66,9 +66,8 @@ class ConversationCallViewModel @Inject constructor(
         savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)!!
     )
     var conversationCallViewState by mutableStateOf(ConversationCallViewState())
-        private set
 
-    private var establishedCallConversationId: QualifiedID? = null
+    var establishedCallConversationId: QualifiedID? = null
 
     init {
         listenOngoingCall()
@@ -100,7 +99,7 @@ class ConversationCallViewModel @Inject constructor(
         viewModelScope.launch {
             establishedCallConversationId?.let {
                 endCall(it)
-                delay(200)
+                delay(DELAY_END_CALL)
             }
             joinOngoingCall()
         }
@@ -156,4 +155,8 @@ class ConversationCallViewModel @Inject constructor(
 
     suspend fun isConferenceCallingEnabled(conversationType: Conversation.Type): ConferenceCallingResult =
         isConferenceCallingEnabled.invoke(conversationId, conversationType)
+
+    companion object {
+        const val DELAY_END_CALL = 200L
+    }
 }

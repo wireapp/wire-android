@@ -114,7 +114,6 @@ class ConversationListViewModel @Inject constructor(
 ) : ViewModel() {
 
     var conversationListState by mutableStateOf(ConversationListState())
-        private set
 
     val homeSnackBarState = MutableSharedFlow<HomeSnackbarState>()
 
@@ -128,7 +127,7 @@ class ConversationListViewModel @Inject constructor(
         .asStateFlow()
         .debounce(SearchPeopleViewModel.DEFAULT_SEARCH_QUERY_DEBOUNCE)
 
-    private var establishedCallConversationId: QualifiedID? = null
+    var establishedCallConversationId: QualifiedID? = null
     private var conversationId: QualifiedID? = null
 
     private fun observeEstablishedCall() = viewModelScope.launch {
@@ -320,7 +319,7 @@ class ConversationListViewModel @Inject constructor(
         viewModelScope.launch {
             establishedCallConversationId?.let {
                 endCall(it)
-                delay(200)
+                delay(DELAY_END_CALL)
             }
             joinOngoingCall(conversationId)
         }
@@ -477,6 +476,9 @@ class ConversationListViewModel @Inject constructor(
         } else {
             homeSnackBarState.emit(HomeSnackbarState.ClearConversationContentSuccess(isGroup))
         }
+    }
+    companion object {
+        const val DELAY_END_CALL = 200L
     }
 }
 

@@ -124,7 +124,7 @@ class IncomingCallViewModel @Inject constructor(
         }
     }
 
-    fun showJoinCallAnywayDialog() {
+    private fun showJoinCallAnywayDialog() {
         incomingCallState = incomingCallState.copy(shouldShowJoinCallAnywayDialog = true)
     }
 
@@ -136,7 +136,7 @@ class IncomingCallViewModel @Inject constructor(
         viewModelScope.launch {
             establishedCallConversationId?.let {
                 endCall(it)
-                delay(200)
+                delay(DELAY_END_CALL)
             }
             acceptCall()
         }
@@ -162,5 +162,9 @@ class IncomingCallViewModel @Inject constructor(
                 )
             }
         }
+    }
+
+    companion object {
+        const val DELAY_END_CALL = 200L
     }
 }

@@ -26,7 +26,7 @@ import com.wire.android.model.ImageAsset
 import com.wire.android.ui.home.conversations.findUser
 import com.wire.android.ui.home.conversations.model.AttachmentType
 import com.wire.android.ui.home.conversations.model.MessageBody
-import com.wire.android.ui.home.conversations.model.QuotedMessageUIData
+import com.wire.android.ui.home.conversations.model.UIQuotedMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.util.time.ISOFormatter
 import com.wire.android.util.ui.UIText
@@ -250,20 +250,32 @@ class MessageContentMapper @Inject constructor(
         }
     }
 
-    fun toText(conversationId: ConversationId, content: MessageContent) = MessageBody(
-        when (content) {
-            is MessageContent.Text -> UIText.DynamicString(content.value, content.mentions)
-            is MessageContent.Unknown -> UIText.StringResource(
-                messageResourceProvider.sentAMessageWithContent, content.typeName ?: "Unknown"
-            )
+    fun toText(conversationId: ConversationId, content: MessageContent): UIMessageContent.TextMessage {
+        val messageTextContent = (content as? MessageContent.Text)
 
-            is MessageContent.FailedDecryption -> UIText.StringResource(R.string.label_message_decryption_failure_message)
-            else -> UIText.StringResource(messageResourceProvider.sentAMessageWithContent, "Unknown")
-        },
-        quotedMessage = (content as? MessageContent.Text)?.quotedMessageDetails?.let { mapQuoteData(conversationId, it) }
-    ).let { messageBody -> UIMessageContent.TextMessage(messageBody = messageBody) }
+        val quotedMessage = messageTextContent?.quotedMessageDetails?.let { mapQuoteData(conversationId, it) }
+            ?: if (messageTextContent?.quotedMessageReference?.quotedMessageId != null) {
+                UIQuotedMessage.UnavailableData
+            } else {
+                null
+            }
 
-    private fun mapQuoteData(conversationId: ConversationId, it: MessageContent.QuotedMessageDetails) = QuotedMessageUIData(
+        return MessageBody(
+            when (content) {
+                is MessageContent.Text -> UIText.DynamicString(content.value, content.mentions)
+                is MessageContent.Unknown -> content.typeName?.let {
+                    UIText.StringResource(
+                        messageResourceProvider.sentAMessageWithContent, it
+                    )
+                } ?: UIText.StringResource(R.string.sent_a_message_with_unknown_content)
+                is MessageContent.FailedDecryption -> UIText.StringResource(R.string.label_message_decryption_failure_message)
+                else -> UIText.StringResource(R.string.sent_a_message_with_unknown_content)
+            },
+            quotedMessage = quotedMessage
+        ).let { messageBody -> UIMessageContent.TextMessage(messageBody = messageBody) }
+    }
+
+    private fun mapQuoteData(conversationId: ConversationId, it: MessageContent.QuotedMessageDetails) = UIQuotedMessage.UIQuotedData(
         it.messageId,
         it.senderId,
         it.senderName.orUnknownName(),
@@ -273,7 +285,7 @@ class MessageContentMapper @Inject constructor(
         },
         when (val quotedContent = it.quotedContent) {
             is MessageContent.QuotedMessageDetails.Asset -> when (AttachmentType.fromMimeTypeString(quotedContent.assetMimeType)) {
-                AttachmentType.IMAGE -> QuotedMessageUIData.DisplayableImage(
+                AttachmentType.IMAGE -> UIQuotedMessage.UIQuotedData.DisplayableImage(
                     ImageAsset.PrivateAsset(
                         wireSessionImageLoader,
                         conversationId,
@@ -282,16 +294,16 @@ class MessageContentMapper @Inject constructor(
                     )
                 )
 
-                AttachmentType.AUDIO -> QuotedMessageUIData.AudioMessage
-                AttachmentType.GENERIC_FILE -> QuotedMessageUIData.GenericAsset(
+                AttachmentType.AUDIO -> UIQuotedMessage.UIQuotedData.AudioMessage
+                AttachmentType.GENERIC_FILE -> UIQuotedMessage.UIQuotedData.GenericAsset(
                     quotedContent.assetName,
                     quotedContent.assetMimeType
                 )
             }
 
-            is MessageContent.QuotedMessageDetails.Text -> QuotedMessageUIData.Text(quotedContent.value)
-            MessageContent.QuotedMessageDetails.Deleted -> QuotedMessageUIData.Deleted
-            MessageContent.QuotedMessageDetails.Invalid -> QuotedMessageUIData.Invalid
+            is MessageContent.QuotedMessageDetails.Text -> UIQuotedMessage.UIQuotedData.Text(quotedContent.value)
+            MessageContent.QuotedMessageDetails.Deleted -> UIQuotedMessage.UIQuotedData.Deleted
+            MessageContent.QuotedMessageDetails.Invalid -> UIQuotedMessage.UIQuotedData.Invalid
         }
     )
 

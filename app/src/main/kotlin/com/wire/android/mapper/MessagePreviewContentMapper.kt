@@ -137,20 +137,11 @@ fun MessagePreview.uiLastMessageContent(): UILastMessageContent {
                             )
                         )
 
-                    AssetType.ASSET ->
+                    AssetType.GENERIC_ASSET ->
                         UILastMessageContent.SenderWithMessage(
                             userUIText, UIText.StringResource(
                                 if (isSelfMessage) R.string.last_message_self_user_shared_asset
                                 else R.string.last_message_other_user_shared_asset
-                            )
-                        )
-
-                    AssetType.FILE ->
-                        UILastMessageContent.SenderWithMessage(
-                            userUIText,
-                            UIText.StringResource(
-                                if (isSelfMessage) R.string.last_message_self_user_shared_file
-                                else R.string.last_message_other_user_shared_file
                             )
                         )
                 }

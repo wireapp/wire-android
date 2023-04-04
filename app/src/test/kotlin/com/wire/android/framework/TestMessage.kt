@@ -72,6 +72,15 @@ object TestMessage {
         Message.UploadStatus.NOT_UPLOADED,
         Message.DownloadStatus.NOT_DOWNLOADED
     )
+    val GENERIC_ASSET_CONTENT = AssetContent(
+        0L,
+        "name",
+        "application/zip",
+        null,
+        DUMMY_ASSET_REMOTE_DATA,
+        Message.UploadStatus.NOT_UPLOADED,
+        Message.DownloadStatus.NOT_DOWNLOADED
+    )
     val ASSET_MESSAGE = Message.Regular(
         id = "messageID",
         content = MessageContent.Asset(ASSET_IMAGE_CONTENT),

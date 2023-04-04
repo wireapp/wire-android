@@ -38,11 +38,11 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import com.wire.android.appLogger
-import com.wire.android.ui.home.conversations.model.AttachmentBundle
+import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.android.ui.home.conversations.model.AttachmentType
-import com.wire.android.ui.home.conversations.model.QuotedMessageUIData
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent
+import com.wire.android.ui.home.conversations.model.UIQuotedMessage
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.util.DEFAULT_FILE_MIME_TYPE
@@ -109,7 +109,7 @@ data class MessageComposerInnerState(
 
     var mentions by mutableStateOf(listOf<UiMention>())
 
-    var quotedMessageData: QuotedMessageUIData? by mutableStateOf(null)
+    var quotedMessageData: UIQuotedMessage.UIQuotedData? by mutableStateOf(null)
 
     fun setMessageTextValue(text: TextFieldValue) {
         updateMentionsIfNeeded(text)
@@ -301,24 +301,24 @@ data class MessageComposerInnerState(
         val authorId = uiMessage.header.userId ?: return
 
         val content = when (val content = uiMessage.messageContent) {
-            is UIMessageContent.AssetMessage -> QuotedMessageUIData.GenericAsset(
+            is UIMessageContent.AssetMessage -> UIQuotedMessage.UIQuotedData.GenericAsset(
                 assetName = content.assetName,
                 assetMimeType = content.assetExtension
             )
 
-            is UIMessageContent.RestrictedAsset -> QuotedMessageUIData.GenericAsset(
+            is UIMessageContent.RestrictedAsset -> UIQuotedMessage.UIQuotedData.GenericAsset(
                 assetName = content.assetName,
                 assetMimeType = content.mimeType
             )
 
-            is UIMessageContent.TextMessage -> QuotedMessageUIData.Text(
+            is UIMessageContent.TextMessage -> UIQuotedMessage.UIQuotedData.Text(
                 value = content.messageBody.message.asString(context.resources)
             )
 
-            is UIMessageContent.AudioAssetMessage -> QuotedMessageUIData.AudioMessage
+            is UIMessageContent.AudioAssetMessage -> UIQuotedMessage.UIQuotedData.AudioMessage
 
             is UIMessageContent.ImageMessage -> content.asset?.let {
-                QuotedMessageUIData.DisplayableImage(displayable = content.asset)
+                UIQuotedMessage.UIQuotedData.DisplayableImage(displayable = content.asset)
             }
 
             else -> {
@@ -327,7 +327,7 @@ data class MessageComposerInnerState(
             }
         }
         content?.let { quotedContent ->
-            quotedMessageData = QuotedMessageUIData(
+            quotedMessageData = UIQuotedMessage.UIQuotedData(
                 messageId = uiMessage.header.messageId,
                 senderId = authorId,
                 senderName = authorName,
@@ -383,7 +383,7 @@ class AttachmentInnerState(val context: Context) {
             } else {
                 fileManager.copyToTempPath(attachmentUri, fullTempAssetPath)
             }
-            val attachment = AttachmentBundle(mimeType, fullTempAssetPath, assetSize, assetFileName, attachmentType)
+            val attachment = AssetBundle(mimeType, fullTempAssetPath, assetSize, assetFileName, attachmentType)
             AttachmentState.Picked(attachment)
         } catch (e: IOException) {
             appLogger.e("There was an error while obtaining the file from disk", e)
@@ -465,6 +465,6 @@ sealed class MessageComposeInputType {
 
 sealed class AttachmentState {
     object NotPicked : AttachmentState()
-    class Picked(val attachmentBundle: AttachmentBundle) : AttachmentState()
+    class Picked(val attachmentBundle: AssetBundle) : AttachmentState()
     object Error : AttachmentState()
 }

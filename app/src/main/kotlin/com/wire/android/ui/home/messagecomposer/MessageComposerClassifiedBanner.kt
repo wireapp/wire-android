@@ -22,6 +22,7 @@ package com.wire.android.ui.home.messagecomposer
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -30,18 +31,20 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.wire.android.ui.common.SecurityClassificationBanner
 import com.wire.android.ui.common.colorsScheme
-import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
 
 @Composable
-fun DisabledComposerInput(securityClassificationType: SecurityClassificationType) {
+fun MessageComposerClassifiedBanner(
+    securityClassificationType: SecurityClassificationType,
+    paddingValues: PaddingValues = PaddingValues()
+) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
             .fillMaxWidth()
             .background(color = colorsScheme().backgroundVariant)
-            .padding(vertical = dimensions().spacing16x)
+            .padding(paddingValues)
     ) {
         val isClassifiedConversation = securityClassificationType != SecurityClassificationType.NONE
         if (isClassifiedConversation) {

@@ -21,12 +21,10 @@
 package com.wire.android.ui.home.messagecomposer
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -38,10 +36,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import com.wire.android.R
-import com.wire.android.ui.common.SecurityClassificationBanner
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.stringWithStyledArgs
 import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
@@ -79,19 +75,5 @@ fun BlockedUserComposerInput(securityClassificationType: SecurityClassificationT
                 .padding(start = dimensions().spacing16x)
         )
     }
-    val isClassifiedConversation = securityClassificationType != SecurityClassificationType.NONE
-    if (isClassifiedConversation) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(color = colorsScheme().backgroundVariant)
-        ) {
-
-            Box(Modifier.fillMaxWidth()) {
-                VerticalSpace.x8()
-                SecurityClassificationBanner(securityClassificationType = securityClassificationType)
-            }
-        }
-    }
+    MessageComposerClassifiedBanner(securityClassificationType = securityClassificationType)
 }

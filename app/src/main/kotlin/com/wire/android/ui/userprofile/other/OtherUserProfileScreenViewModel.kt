@@ -30,8 +30,6 @@ import com.wire.android.appLogger
 import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.model.ImageAsset
 import com.wire.android.model.SnackBarMessage
-import com.wire.android.navigation.BackStackMode
-import com.wire.android.navigation.EXTRA_CONNECTION_IGNORED_USER_NAME
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.EXTRA_USER_ID
 import com.wire.android.navigation.NavigationCommand
@@ -49,16 +47,9 @@ import com.wire.android.ui.userprofile.group.RemoveConversationMemberState
 import com.wire.android.ui.userprofile.other.OtherUserProfileInfoMessageType.BlockingUserOperationError
 import com.wire.android.ui.userprofile.other.OtherUserProfileInfoMessageType.BlockingUserOperationSuccess
 import com.wire.android.ui.userprofile.other.OtherUserProfileInfoMessageType.ChangeGroupRoleError
-import com.wire.android.ui.userprofile.other.OtherUserProfileInfoMessageType.ConnectionAcceptError
-import com.wire.android.ui.userprofile.other.OtherUserProfileInfoMessageType.ConnectionCancelError
-import com.wire.android.ui.userprofile.other.OtherUserProfileInfoMessageType.ConnectionIgnoreError
-import com.wire.android.ui.userprofile.other.OtherUserProfileInfoMessageType.ConnectionRequestError
 import com.wire.android.ui.userprofile.other.OtherUserProfileInfoMessageType.LoadUserInformationError
 import com.wire.android.ui.userprofile.other.OtherUserProfileInfoMessageType.MutingOperationError
 import com.wire.android.ui.userprofile.other.OtherUserProfileInfoMessageType.RemoveConversationMemberError
-import com.wire.android.ui.userprofile.other.OtherUserProfileInfoMessageType.SuccessConnectionAcceptRequest
-import com.wire.android.ui.userprofile.other.OtherUserProfileInfoMessageType.SuccessConnectionCancelRequest
-import com.wire.android.ui.userprofile.other.OtherUserProfileInfoMessageType.SuccessConnectionSentRequest
 import com.wire.android.ui.userprofile.other.OtherUserProfileInfoMessageType.UnblockingUserOperationError
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.UIText
@@ -70,20 +61,11 @@ import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.id.toQualifiedID
-import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.client.ObserveClientsByUserIdUseCase
 import com.wire.kalium.logic.feature.client.PersistOtherUserClientsUseCase
-import com.wire.kalium.logic.feature.connection.AcceptConnectionRequestUseCase
-import com.wire.kalium.logic.feature.connection.AcceptConnectionRequestUseCaseResult
 import com.wire.kalium.logic.feature.connection.BlockUserResult
 import com.wire.kalium.logic.feature.connection.BlockUserUseCase
-import com.wire.kalium.logic.feature.connection.CancelConnectionRequestUseCase
-import com.wire.kalium.logic.feature.connection.CancelConnectionRequestUseCaseResult
-import com.wire.kalium.logic.feature.connection.IgnoreConnectionRequestUseCase
-import com.wire.kalium.logic.feature.connection.IgnoreConnectionRequestUseCaseResult
-import com.wire.kalium.logic.feature.connection.SendConnectionRequestResult
-import com.wire.kalium.logic.feature.connection.SendConnectionRequestUseCase
 import com.wire.kalium.logic.feature.connection.UnblockUserResult
 import com.wire.kalium.logic.feature.connection.UnblockUserUseCase
 import com.wire.kalium.logic.feature.conversation.ClearConversationContentUseCase
@@ -98,8 +80,6 @@ import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusU
 import com.wire.kalium.logic.feature.user.GetUserInfoResult
 import com.wire.kalium.logic.feature.user.ObserveUserInfoUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import java.util.Date
-import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -109,6 +89,8 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.Date
+import javax.inject.Inject
 
 @Suppress("LongParameterList", "TooManyFunctions")
 @HiltViewModel
@@ -120,10 +102,6 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     private val unblockUser: UnblockUserUseCase,
     private val getOrCreateOneToOneConversation: GetOrCreateOneToOneConversationUseCase,
     private val observeUserInfo: ObserveUserInfoUseCase,
-    private val sendConnectionRequest: SendConnectionRequestUseCase,
-    private val cancelConnectionRequest: CancelConnectionRequestUseCase,
-    private val acceptConnectionRequest: AcceptConnectionRequestUseCase,
-    private val ignoreConnectionRequest: IgnoreConnectionRequestUseCase,
     private val userTypeMapper: UserTypeMapper,
     private val wireSessionImageLoader: WireSessionImageLoader,
     private val observeConversationRoleForUser: ObserveConversationRoleForUserUseCase,
@@ -135,7 +113,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     private val getOtherUserSecurityClassificationLabel: GetOtherUserSecurityClassificationLabelUseCase,
     savedStateHandle: SavedStateHandle,
     qualifiedIdMapper: QualifiedIdMapper
-) : ViewModel(), OtherUserProfileEventsHandler, OtherUserProfileBottomSheetEventsHandler, OtherUserProfileFooterEventsHandler {
+) : ViewModel(), OtherUserProfileEventsHandler, OtherUserProfileBottomSheetEventsHandler {
 
     private val userId: QualifiedID = savedStateHandle.get<String>(EXTRA_USER_ID)!!.toQualifiedID(qualifiedIdMapper)
     private val conversationId: QualifiedID? = savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)?.toQualifiedID(qualifiedIdMapper)
@@ -229,89 +207,6 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                     }
                 }
         } ?: flowOf(null)
-    }
-
-    override fun onOpenConversation() {
-        viewModelScope.launch {
-            when (val result = withContext(dispatchers.io()) { getOrCreateOneToOneConversation(userId) }) {
-                is CreateConversationResult.Failure -> appLogger.d(("Couldn't retrieve or create the conversation"))
-                is CreateConversationResult.Success ->
-                    navigationManager.navigate(
-                        command = NavigationCommand(
-                            destination = NavigationItem.Conversation.getRouteWithArgs(listOf(result.conversation.id)),
-                            backStackMode = BackStackMode.UPDATE_EXISTED
-                        )
-                    )
-            }
-        }
-    }
-
-    override fun onSendConnectionRequest() {
-        viewModelScope.launch {
-            when (sendConnectionRequest(userId)) {
-                is SendConnectionRequestResult.Failure -> {
-                    appLogger.d(("Couldn't send a connect request to user $userId"))
-                    closeBottomSheetAndShowInfoMessage(ConnectionRequestError)
-                }
-
-                is SendConnectionRequestResult.Success -> {
-                    state = state.copy(connectionState = ConnectionState.SENT)
-                    closeBottomSheetAndShowInfoMessage(SuccessConnectionSentRequest)
-                }
-            }
-        }
-    }
-
-    override fun onCancelConnectionRequest() {
-        viewModelScope.launch {
-            when (cancelConnectionRequest(userId)) {
-                is CancelConnectionRequestUseCaseResult.Failure -> {
-                    appLogger.d(("Couldn't cancel a connect request to user $userId"))
-                    closeBottomSheetAndShowInfoMessage(ConnectionCancelError)
-                }
-
-                is CancelConnectionRequestUseCaseResult.Success -> {
-                    state = state.copy(connectionState = ConnectionState.NOT_CONNECTED)
-                    closeBottomSheetAndShowInfoMessage(SuccessConnectionCancelRequest)
-                }
-            }
-        }
-    }
-
-    override fun onAcceptConnectionRequest() {
-        viewModelScope.launch {
-            when (acceptConnectionRequest(userId)) {
-                is AcceptConnectionRequestUseCaseResult.Failure -> {
-                    appLogger.d(("Couldn't accept a connect request to user $userId"))
-                    closeBottomSheetAndShowInfoMessage(ConnectionAcceptError)
-                }
-
-                is AcceptConnectionRequestUseCaseResult.Success -> {
-                    state = state.copy(connectionState = ConnectionState.ACCEPTED)
-                    closeBottomSheetAndShowInfoMessage(SuccessConnectionAcceptRequest)
-                }
-            }
-        }
-    }
-
-    override fun onIgnoreConnectionRequest() {
-        viewModelScope.launch {
-            when (ignoreConnectionRequest(userId)) {
-                is IgnoreConnectionRequestUseCaseResult.Failure -> {
-                    appLogger.d(("Couldn't ignore a connect request to user $userId"))
-                    closeBottomSheetAndShowInfoMessage(ConnectionIgnoreError)
-                }
-
-                is IgnoreConnectionRequestUseCaseResult.Success -> {
-                    state = state.copy(connectionState = ConnectionState.IGNORED)
-                    navigationManager.navigateBack(
-                        mapOf(
-                            EXTRA_CONNECTION_IGNORED_USER_NAME to state.userName
-                        )
-                    )
-                }
-            }
-        }
     }
 
     override fun onChangeMemberRole(role: Conversation.Member.Role) {

@@ -22,10 +22,12 @@ import com.wire.android.util.ui.UIText
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import javax.inject.Singleton
 
 /**
  * Provides a way to control flow of messages for snackBar
  */
+@Singleton
 class ShowSnackBarUseCase internal constructor() {
 
     private val _snackBarStateFlow = MutableStateFlow(State())

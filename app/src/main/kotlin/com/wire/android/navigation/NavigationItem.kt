@@ -492,8 +492,10 @@ object NavigationItemDestinationsRoutes {
 }
 
 const val EXTRA_USER_ID = "extra_user_id"
+const val EXTRA_USER_NAME = "extra_user_name"
 const val EXTRA_USER_DOMAIN = "extra_user_domain"
 const val EXTRA_USER_HANDLE = "extra_user_handle"
+const val EXTRA_CONNECTION_STATE = "extra_connection_state"
 
 const val EXTRA_CONVERSATION_ID = "extra_conversation_id"
 const val EXTRA_CREATE_ACCOUNT_FLOW_TYPE = "extra_create_account_flow_type"

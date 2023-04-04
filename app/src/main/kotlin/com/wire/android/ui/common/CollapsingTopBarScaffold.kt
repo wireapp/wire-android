@@ -47,6 +47,7 @@ import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.Velocity
+import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.theme.wireDimensions
 import kotlin.math.roundToInt
 
@@ -74,7 +75,7 @@ fun CollapsingTopBarScaffold(
     topBarHeader: @Composable (elevation: Dp) -> Unit,
     topBarCollapsing: @Composable () -> Unit,
     topBarFooter: @Composable () -> Unit = {},
-    snackbarHost: @Composable () -> Unit = {},
+    snackbarHost: (@Composable (() -> Unit)?) = null,
     content: @Composable () -> Unit,
     bottomBar: @Composable () -> Unit = {},
     floatingActionButton: @Composable () -> Unit = {},
@@ -125,7 +126,7 @@ fun CollapsingTopBarScaffold(
         private fun Float.toOffset() = Offset(0f, this)
     }
 
-    Scaffold(
+    WireScaffold(
         topBar = { topBarHeader(with(LocalDensity.current) { topBarElevationState.toDp() }) },
         snackbarHost = snackbarHost,
         bottomBar = bottomBar,

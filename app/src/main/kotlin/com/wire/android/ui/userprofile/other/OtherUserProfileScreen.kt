@@ -30,7 +30,6 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.LocalOverscrollConfiguration
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -74,10 +73,10 @@ import com.wire.android.ui.common.dialogs.BlockUserDialogState
 import com.wire.android.ui.common.dialogs.UnblockUserDialogContent
 import com.wire.android.ui.common.dialogs.UnblockUserDialogState
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.common.topBarElevation
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.visbility.rememberVisibilityState
+import com.wire.android.ui.connection.ConnectionActionButton
 import com.wire.android.ui.home.conversations.details.dialog.ClearConversationContentDialog
 import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.home.conversationslist.model.Membership
@@ -115,7 +114,6 @@ fun OtherUserProfileScreen(viewModel: OtherUserProfileScreenViewModel = hiltView
         closeBottomSheet = closeBottomSheet,
         snackbarHostState = snackbarHostState,
         eventsHandler = viewModel,
-        footerEventsHandler = viewModel,
         bottomSheetEventsHandler = viewModel
     )
 
@@ -146,7 +144,6 @@ fun OtherProfileScreenContent(
     openBottomSheet: () -> Unit,
     closeBottomSheet: () -> Unit,
     eventsHandler: OtherUserProfileEventsHandler,
-    footerEventsHandler: OtherUserProfileFooterEventsHandler,
     bottomSheetEventsHandler: OtherUserProfileBottomSheetEventsHandler,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
 ) {
@@ -227,12 +224,6 @@ fun OtherProfileScreenContent(
         }
     ) {
         CollapsingTopBarScaffold(
-            snackbarHost = {
-                SwipeDismissSnackbarHost(
-                    hostState = otherUserProfileScreenState.snackbarHostState,
-                    modifier = Modifier.fillMaxWidth()
-                )
-            },
             topBarHeader = { elevation ->
                 TopBarHeader(
                     state = state,
@@ -259,9 +250,7 @@ fun OtherProfileScreenContent(
             bottomBar = {
                 ContentFooter(
                     state,
-                    maxBarElevation,
-                    footerEventsHandler,
-                    unblockUserDialogState::show
+                    maxBarElevation
                 )
             },
             isSwipeable = state.connectionState == ConnectionState.ACCEPTED
@@ -419,9 +408,7 @@ private fun Content(
 @Composable
 private fun ContentFooter(
     state: OtherUserProfileState,
-    maxBarElevation: Dp,
-    footerEventsHandler: OtherUserProfileFooterEventsHandler,
-    onUnblockUser: (UnblockUserDialogState) -> Unit
+    maxBarElevation: Dp
 ) {
     AnimatedVisibility(
         visible = !state.isDataLoading,
@@ -435,14 +422,11 @@ private fun ContentFooter(
             Box(modifier = Modifier.padding(all = dimensions().spacing16x)) {
                 // TODO show open conversation button for service bots after AR-2135
                 if (state.membership != Membership.Service) {
-                    OtherUserConnectionActionButton(
-                        state.connectionState,
-                        footerEventsHandler::onSendConnectionRequest,
-                        footerEventsHandler::onOpenConversation,
-                        footerEventsHandler::onCancelConnectionRequest,
-                        footerEventsHandler::onAcceptConnectionRequest,
-                        footerEventsHandler::onIgnoreConnectionRequest
-                    ) { onUnblockUser(UnblockUserDialogState(state.userName, state.userId)) }
+                    ConnectionActionButton(
+                        state.userId,
+                        state.userName,
+                        state.connectionState
+                    )
                 }
             }
         }
@@ -465,7 +449,7 @@ fun PreviewOtherProfileScreenContent() {
             OtherUserProfileState.PREVIEW.copy(connectionState = ConnectionState.ACCEPTED), false,
             rememberModalBottomSheetState(ModalBottomSheetValue.Hidden),
             {}, {}, OtherUserProfileEventsHandler.PREVIEW,
-            OtherUserProfileFooterEventsHandler.PREVIEW, OtherUserProfileBottomSheetEventsHandler.PREVIEW
+            OtherUserProfileBottomSheetEventsHandler.PREVIEW
         )
     }
 }
@@ -480,7 +464,7 @@ fun PreviewOtherProfileScreenContentNotConnected() {
             OtherUserProfileState.PREVIEW.copy(connectionState = ConnectionState.CANCELLED), false,
             rememberModalBottomSheetState(ModalBottomSheetValue.Hidden),
             {}, {}, OtherUserProfileEventsHandler.PREVIEW,
-            OtherUserProfileFooterEventsHandler.PREVIEW, OtherUserProfileBottomSheetEventsHandler.PREVIEW
+            OtherUserProfileBottomSheetEventsHandler.PREVIEW
         )
     }
 }

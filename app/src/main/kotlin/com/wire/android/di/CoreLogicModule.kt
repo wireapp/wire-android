@@ -179,6 +179,10 @@ class CoreLogicModule {
     @Singleton
     @Provides
     fun provideWorkManager(@ApplicationContext applicationContext: Context) = WorkManager.getInstance(applicationContext)
+
+    @Singleton
+    @Provides
+    fun provideShowSnackBar(): ShowSnackBarUseCase = ShowSnackBarUseCase()
 }
 
 @Module
@@ -470,10 +474,6 @@ class UseCaseModule {
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
     ): SendKnockUseCase = coreLogic.getSessionScope(currentAccount).messages.sendKnock
-
-    @ViewModelScoped
-    @Provides
-    fun provideShowSnackBar(): ShowSnackBarUseCase = ShowSnackBarUseCase()
 
     @ViewModelScoped
     @Provides

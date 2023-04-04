@@ -52,9 +52,9 @@ class SingleUserMigrationWorker @AssistedInject constructor(
         when (val result = migrationManager.migrateSingleUser(userId, this) { setProgress(it.type.toData()) }) {
             is MigrationData.Result.Success -> Result.success()
             is MigrationData.Result.Failure.NoNetwork -> Result.retry()
-            is MigrationData.Result.Failure.Messages -> Result.failure(result.toData()).also { appLogger.d("Messages failed ${result.toData().keyValueMap}") }
-            is MigrationData.Result.Failure.Account -> Result.failure(result.toData()).also { appLogger.d("Account failed ${result.toData().keyValueMap}}") }
-            is MigrationData.Result.Failure.Unknown -> Result.failure(result.toData()).also { appLogger.d("Unknown failed ${result.toData().keyValueMap}}") }
+            is MigrationData.Result.Failure.Messages -> Result.failure(result.toData())
+            is MigrationData.Result.Failure.Account -> Result.failure(result.toData())
+            is MigrationData.Result.Failure.Unknown -> Result.failure(result.toData())
         }
     }
 

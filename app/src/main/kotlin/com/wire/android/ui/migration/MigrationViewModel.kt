@@ -41,7 +41,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import com.wire.android.appLogger
-import com.wire.android.di.CurrentAccount
 import com.wire.android.navigation.EXTRA_USER_ID
 import com.wire.kalium.logger.obfuscateId
 import com.wire.kalium.logic.data.id.QualifiedIdMapperImpl
@@ -122,13 +121,25 @@ class MigrationViewModel @Inject constructor(
             is MigrationData.Result.Success -> navigateAfterMigration()
             is MigrationData.Progress -> state = MigrationState.InProgress(data.type)
             is MigrationData.Result.Failure -> state = when (data) {
-                is MigrationData.Result.Failure.Account.Any -> MigrationState.Failed.Account.Any
-                is MigrationData.Result.Failure.Account.Specific -> MigrationState.Failed.Account.Specific(data.userName, data.userHandle)
-                is MigrationData.Result.Failure.Messages -> MigrationState.Failed.Messages(data.errorCode)
+                is MigrationData.Result.Failure.Account.Any -> {
+                    data.migrationReport?.let { error(it) }
+                    MigrationState.Failed.Account.Any
+                }
+                is MigrationData.Result.Failure.Account.Specific -> {
+                    data.migrationReport?.let { error(it) }
+                    MigrationState.Failed.Account.Specific(data.userName, data.userHandle)
+                }
+                is MigrationData.Result.Failure.Messages -> {
+                    data.migrationReport?.let { error(it) }
+                    MigrationState.Failed.Messages(data.errorCode)
+                }
                 is MigrationData.Result.Failure.NoNetwork -> MigrationState.Failed.NoNetwork
                 // for now we treat such an unknown error as one that requires re-logging in,
                 // we do not show a special screen with any error code to users to not to discourage them
-                is MigrationData.Result.Failure.Unknown -> MigrationState.Failed.Account.Any
+                is MigrationData.Result.Failure.Unknown -> {
+                    data.migrationReport?.let { error(it) }
+                    MigrationState.Failed.Account.Any
+                }
             }
         }
     }

@@ -17,6 +17,7 @@ import androidx.work.WorkerParameters
 import androidx.work.await
 import androidx.work.workDataOf
 import com.wire.android.R
+import com.wire.android.appLogger
 import com.wire.android.migration.MigrationData
 import com.wire.android.migration.MigrationManager
 import com.wire.android.migration.getMigrationFailure
@@ -48,9 +49,12 @@ class SingleUserMigrationWorker @AssistedInject constructor(
             QualifiedIdMapperImpl(null).fromStringToQualifiedID(userId)
         } ?: return@coroutineScope Result.failure()
 
-        when (migrationManager.migrateSingleUser(userId, this) { setProgress(it.type.toData()) }) {
+        when (val result = migrationManager.migrateSingleUser(userId, this) { setProgress(it.type.toData()) }) {
             is MigrationData.Result.Success -> Result.success()
-            is MigrationData.Result.Failure -> Result.failure()
+            is MigrationData.Result.Failure.NoNetwork -> Result.retry()
+            is MigrationData.Result.Failure.Messages -> Result.failure(result.toData()).also { appLogger.d("Messages failed ${result.toData().keyValueMap}") }
+            is MigrationData.Result.Failure.Account -> Result.failure(result.toData()).also { appLogger.d("Account failed ${result.toData().keyValueMap}}") }
+            is MigrationData.Result.Failure.Unknown -> Result.failure(result.toData()).also { appLogger.d("Unknown failed ${result.toData().keyValueMap}}") }
         }
     }
 

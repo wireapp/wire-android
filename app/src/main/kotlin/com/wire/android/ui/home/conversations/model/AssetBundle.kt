@@ -25,18 +25,18 @@ import com.wire.kalium.logic.data.asset.isDisplayableImageMimeType
 import okio.Path
 
 /**
- * Represents an attachment part of a message to be sent
+ * Represents a set of metadata information of an asset message
  */
-data class AttachmentBundle(
+data class AssetBundle(
     val mimeType: String,
     val dataPath: Path,
     val dataSize: Long,
     val fileName: String,
-    val attachmentType: AttachmentType
+    val assetType: AttachmentType
 )
 
 enum class AttachmentType {
-    // TODO: Add audio or video later on
+    // TODO: Add video or any other sort of specific asset type later on
     IMAGE, GENERIC_FILE, AUDIO;
 
     companion object {

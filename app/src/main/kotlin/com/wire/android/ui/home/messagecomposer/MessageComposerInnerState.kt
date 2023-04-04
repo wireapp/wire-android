@@ -38,7 +38,7 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import com.wire.android.appLogger
-import com.wire.android.ui.home.conversations.model.AttachmentBundle
+import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.android.ui.home.conversations.model.AttachmentType
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent
@@ -146,7 +146,7 @@ data class MessageComposerInnerState(
             start = messageComposeInputState.messageText.currentMentionStartIndex(),
             length = contact.name.length + 1, // +1 cause there is an "@" before it
             userId = UserId(contact.id, contact.domain),
-            handler = String.MENTION_SYMBOL + contact.name,
+            handler = String.MENTION_SYMBOL + contact.name
         )
 
         insertMentionIntoText(mention)
@@ -296,9 +296,9 @@ data class MessageComposerInnerState(
         }
     }
 
-    fun reply(uiMessage: UIMessage) {
-        val authorName = uiMessage.messageHeader.username
-        val authorId = uiMessage.messageHeader.userId ?: return
+    fun reply(uiMessage: UIMessage.Regular) {
+        val authorName = uiMessage.header.username
+        val authorId = uiMessage.header.userId ?: return
 
         val content = when (val content = uiMessage.messageContent) {
             is UIMessageContent.AssetMessage -> UIQuotedMessage.UIQuotedData.GenericAsset(
@@ -328,7 +328,7 @@ data class MessageComposerInnerState(
         }
         content?.let { quotedContent ->
             quotedMessageData = UIQuotedMessage.UIQuotedData(
-                messageId = uiMessage.messageHeader.messageId,
+                messageId = uiMessage.header.messageId,
                 senderId = authorId,
                 senderName = authorName,
                 originalMessageDateDescription = "".toUIText(),
@@ -383,7 +383,7 @@ class AttachmentInnerState(val context: Context) {
             } else {
                 fileManager.copyToTempPath(attachmentUri, fullTempAssetPath)
             }
-            val attachment = AttachmentBundle(mimeType, fullTempAssetPath, assetSize, assetFileName, attachmentType)
+            val attachment = AssetBundle(mimeType, fullTempAssetPath, assetSize, assetFileName, attachmentType)
             AttachmentState.Picked(attachment)
         } catch (e: IOException) {
             appLogger.e("There was an error while obtaining the file from disk", e)
@@ -465,6 +465,6 @@ sealed class MessageComposeInputType {
 
 sealed class AttachmentState {
     object NotPicked : AttachmentState()
-    class Picked(val attachmentBundle: AttachmentBundle) : AttachmentState()
+    class Picked(val attachmentBundle: AssetBundle) : AttachmentState()
     object Error : AttachmentState()
 }

@@ -77,10 +77,9 @@ import com.wire.android.ui.home.conversations.info.ConversationInfoViewModel
 import com.wire.android.ui.home.conversations.info.ConversationInfoViewState
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewModel
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewState
-import com.wire.android.ui.home.conversations.model.AttachmentBundle
+import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.android.ui.home.conversations.model.EditMessageBundle
 import com.wire.android.ui.home.conversations.model.UIMessage
-import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.messagecomposer.MessageComposer
 import com.wire.android.ui.home.messagecomposer.MessageComposerInnerState
 import com.wire.android.ui.home.messagecomposer.UiMention
@@ -190,9 +189,9 @@ fun ConversationScreen(
         onSendEditMessage = messageComposerViewModel::sendEditMessage,
         onDeleteMessage = messageComposerViewModel::showDeleteMessageDialog,
         onSendAttachment = messageComposerViewModel::sendAttachmentMessage,
-        onDownloadAsset = conversationMessagesViewModel::downloadOrFetchAssetToInternalStorage,
+        onAssetItemClicked = conversationMessagesViewModel::downloadOrFetchAssetAndShowDialog,
         onImageFullScreenMode = { message, isSelfMessage ->
-            messageComposerViewModel.navigateToGallery(message.messageHeader.messageId, isSelfMessage)
+            messageComposerViewModel.navigateToGallery(message.header.messageId, isSelfMessage)
             conversationMessagesViewModel.updateImageOnFullscreenMode(message)
         },
         onOpenOngoingCallScreen = commonTopAppBarViewModel::openOngoingCallScreen,
@@ -232,8 +231,8 @@ fun ConversationScreen(
     )
     DownloadedAssetDialog(
         downloadedAssetDialogState = conversationMessagesViewModel.conversationViewState.downloadedAssetDialogState,
-        onSaveFileToExternalStorage = conversationMessagesViewModel::onSaveFile,
-        onOpenFileWithExternalApp = conversationMessagesViewModel::onOpenFileWithExternalApp,
+        onSaveFileToExternalStorage = conversationMessagesViewModel::downloadAssetExternally,
+        onOpenFileWithExternalApp = conversationMessagesViewModel::downloadAndOpenAsset,
         hideOnAssetDownloadedDialog = conversationMessagesViewModel::hideOnAssetDownloadedDialog
     )
 }
@@ -299,11 +298,11 @@ private fun ConversationScreen(
     onSendMessage: (String, List<UiMention>, String?) -> Unit,
     onSendEditMessage: (EditMessageBundle) -> Unit,
     onDeleteMessage: (String, Boolean) -> Unit,
-    onSendAttachment: (AttachmentBundle?) -> Unit,
+    onSendAttachment: (AssetBundle?) -> Unit,
     onAudioClick: (String) -> Unit,
     onChangeAudioPosition: (String, Int) -> Unit,
-    onDownloadAsset: (String) -> Unit,
-    onImageFullScreenMode: (UIMessage, Boolean) -> Unit,
+    onAssetItemClicked: (String) -> Unit,
+    onImageFullScreenMode: (UIMessage.Regular, Boolean) -> Unit,
     onOpenOngoingCallScreen: () -> Unit,
     onStartCall: () -> Unit,
     onJoinCall: () -> Unit,
@@ -318,7 +317,7 @@ private fun ConversationScreen(
     conversationMessages: SharedFlow<SnackBarMessage>,
     conversationMessagesViewModel: ConversationMessagesViewModel,
     onPingClicked: () -> Unit,
-    onSelfDeletingMessageRead: (UIMessage) -> Unit,
+    onSelfDeletingMessageRead: (UIMessage.Regular) -> Unit,
     tempWritableImageUri: Uri?,
     tempWritableVideoUri: Uri?
 ) {
@@ -349,12 +348,13 @@ private fun ConversationScreen(
                 onReplyClick = messageComposerInnerState::reply,
                 onEditClick = messageComposerInnerState::toEditMessage,
                 onShareAsset = {
-                    conversationScreenState.selectedMessage?.messageHeader?.messageId?.let {
+                    conversationScreenState.selectedMessage?.header?.messageId?.let {
                         conversationMessagesViewModel.shareAsset(context, it)
                         conversationScreenState.hideEditContextMenu()
                     }
-                }
-
+                },
+                onDownloadAsset = conversationMessagesViewModel::downloadAssetExternally,
+                onOpenAsset = conversationMessagesViewModel::downloadAndOpenAsset,
             )
         } ?: emptyList()
     ) {
@@ -401,8 +401,8 @@ private fun ConversationScreen(
                         onSendEditMessage = onSendEditMessage,
                         onSendAttachment = onSendAttachment,
                         onMentionMember = onMentionMember,
-                        onDownloadAsset = onDownloadAsset,
-                        onAudioClick = onAudioClick,
+                        onAssetItemClicked = onAssetItemClicked,
+                        onAudioItemClicked = onAudioClick,
                         onChangeAudioPosition = onChangeAudioPosition,
                         onImageFullScreenMode = onImageFullScreenMode,
                         onReactionClicked = onReactionClick,
@@ -437,20 +437,20 @@ private fun ConversationScreenContent(
     messages: Flow<PagingData<UIMessage>>,
     onSendMessage: (String, List<UiMention>, String?) -> Unit,
     onSendEditMessage: (EditMessageBundle) -> Unit,
-    onSendAttachment: (AttachmentBundle?) -> Unit,
+    onSendAttachment: (AssetBundle?) -> Unit,
     onMentionMember: (String?) -> Unit,
-    onDownloadAsset: (String) -> Unit,
-    onAudioClick: (String) -> Unit,
+    onAssetItemClicked: (String) -> Unit,
+    onAudioItemClicked: (String) -> Unit,
     onChangeAudioPosition: (String, Int) -> Unit,
-    onImageFullScreenMode: (UIMessage, Boolean) -> Unit,
+    onImageFullScreenMode: (UIMessage.Regular, Boolean) -> Unit,
     onReactionClicked: (String, String) -> Unit,
     onResetSessionClicked: (senderUserId: UserId, clientId: String?) -> Unit,
     onOpenProfile: (String) -> Unit,
     onUpdateConversationReadDate: (String) -> Unit,
     onMessageComposerError: (ConversationSnackbarMessages) -> Unit,
-    onShowContextMenu: (UIMessage) -> Unit,
+    onShowContextMenu: (UIMessage.Regular) -> Unit,
     onPingClicked: () -> Unit,
-    onSelfDeletingMessageRead: (UIMessage) -> Unit,
+    onSelfDeletingMessageRead: (UIMessage.Regular) -> Unit,
     tempWritableImageUri: Uri?,
     tempWritableVideoUri: Uri?
 ) {
@@ -472,8 +472,8 @@ private fun ConversationScreenContent(
                 lastUnreadMessageInstant = lastUnreadMessageInstant,
                 audioMessagesState = audioMessagesState,
                 onUpdateConversationReadDate = onUpdateConversationReadDate,
-                onDownloadAsset = onDownloadAsset,
-                onAudioClick = onAudioClick,
+                onAssetItemClicked = onAssetItemClicked,
+                onAudioItemClicked = onAudioItemClicked,
                 onChangeAudioPosition = onChangeAudioPosition,
                 onImageFullScreenMode = onImageFullScreenMode,
                 onOpenProfile = onOpenProfile,
@@ -521,7 +521,7 @@ private fun ConversationScreenContent(
 //        // executes when the id of currently being edited message changes, if not currently editing then it's just null
 //        if (currentEditMessageId != null) {
 //            lazyPagingMessages.itemSnapshotList.items
-//                .indexOfFirst { it.messageHeader.messageId == currentEditMessageId }
+//                .indexOfFirst { it.header.messageId == currentEditMessageId }
 //                .let { if (it >= 0) lazyListState.animateScrollToItem(it) }
 //        }
 //    }
@@ -562,15 +562,15 @@ fun MessageList(
     lastUnreadMessageInstant: Instant?,
     audioMessagesState: Map<String, AudioState>,
     onUpdateConversationReadDate: (String) -> Unit,
-    onDownloadAsset: (String) -> Unit,
-    onImageFullScreenMode: (UIMessage, Boolean) -> Unit,
+    onAssetItemClicked: (String) -> Unit,
+    onImageFullScreenMode: (UIMessage.Regular, Boolean) -> Unit,
     onOpenProfile: (String) -> Unit,
-    onAudioClick: (String) -> Unit,
+    onAudioItemClicked: (String) -> Unit,
     onChangeAudioPosition: (String, Int) -> Unit,
     onReactionClicked: (String, String) -> Unit,
     onResetSessionClicked: (senderUserId: UserId, clientId: String?) -> Unit,
-    onShowContextMenu: (UIMessage) -> Unit,
-    onSelfDeletingMessageRead: (UIMessage) -> Unit
+    onShowContextMenu: (UIMessage.Regular) -> Unit,
+    onSelfDeletingMessageRead: (UIMessage.Regular) -> Unit
 ) {
     val mostRecentMessage = lazyPagingMessages.itemCount.takeIf { it > 0 }?.let { lazyPagingMessages[0] }
 
@@ -585,12 +585,12 @@ fun MessageList(
         if (!lazyListState.isScrollInProgress && lazyPagingMessages.itemCount > 0) {
             val lastVisibleMessage = lazyPagingMessages[lazyListState.firstVisibleItemIndex] ?: return@LaunchedEffect
 
-            val lastVisibleMessageInstant = Instant.parse(lastVisibleMessage.messageHeader.messageTime.utcISO)
+            val lastVisibleMessageInstant = Instant.parse(lastVisibleMessage.header.messageTime.utcISO)
 
             // TODO: This IF condition should be in the UseCase
             //       If there are no unread messages, then use distant future and don't update read date
             if (lastVisibleMessageInstant > (lastUnreadMessageInstant ?: Instant.DISTANT_FUTURE)) {
-                onUpdateConversationReadDate(lastVisibleMessage.messageHeader.messageTime.utcISO)
+                onUpdateConversationReadDate(lastVisibleMessage.header.messageTime.utcISO)
             }
         }
     }
@@ -603,28 +603,28 @@ fun MessageList(
             .fillMaxWidth()
     ) {
         items(lazyPagingMessages, key = { uiMessage ->
-            uiMessage.messageHeader.messageId
+            uiMessage.header.messageId
         }) { message ->
             if (message == null) {
                 // We can draw a placeholder here, as we fetch the next page of messages
                 return@items
             }
-            if (message.messageContent is UIMessageContent.SystemMessage) {
-                SystemMessageItem(message = message.messageContent)
-            } else {
-                MessageItem(
+            when (message) {
+                is UIMessage.Regular -> MessageItem(
                     message = message,
                     audioMessagesState = audioMessagesState,
-                    onAudioClick = onAudioClick,
+                    onAudioClick = onAudioItemClicked,
                     onChangeAudioPosition = onChangeAudioPosition,
                     onLongClicked = onShowContextMenu,
-                    onAssetMessageClicked = onDownloadAsset,
+                    onAssetMessageClicked = onAssetItemClicked,
                     onImageMessageClicked = onImageFullScreenMode,
                     onOpenProfile = onOpenProfile,
                     onReactionClicked = onReactionClicked,
                     onResetSessionClicked = onResetSessionClicked,
                     onSelfDeletingMessageRead = onSelfDeletingMessageRead,
                 )
+
+                is UIMessage.System -> SystemMessageItem(message = message)
             }
         }
     }
@@ -655,7 +655,7 @@ fun PreviewConversationScreen() {
         onSendEditMessage = { _ -> },
         onDeleteMessage = { _, _ -> },
         onSendAttachment = { },
-        onDownloadAsset = { },
+        onAssetItemClicked = { },
         onImageFullScreenMode = { _, _ -> },
         onOpenOngoingCallScreen = { },
         onStartCall = { },

@@ -52,12 +52,14 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.items
 import com.wire.android.R
+import com.wire.android.appLogger
 import com.wire.android.media.audiomessage.AudioState
 import com.wire.android.model.SnackBarMessage
 import com.wire.android.navigation.hiltSavedStateViewModel
+import com.wire.android.ui.common.dialogs.calling.JoinAnywayDialog
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
-import com.wire.android.ui.common.dialogs.CallingFeatureUnavailableDialog
-import com.wire.android.ui.common.dialogs.OngoingActiveCallDialog
+import com.wire.android.ui.common.dialogs.calling.CallingFeatureUnavailableDialog
+import com.wire.android.ui.common.dialogs.calling.OngoingActiveCallDialog
 import com.wire.android.ui.common.error.CoreFailureErrorDialog
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.common.topappbar.CommonTopAppBar
@@ -135,6 +137,16 @@ fun ConversationScreen(
     }
     LaunchedEffect(Unit) {
         conversationInfoViewModel.observeConversationDetails()
+    }
+
+    with(conversationCallViewModel) {
+        if (conversationCallViewState.shouldShowJoinAnywayDialog) {
+            appLogger.i("showing showJoinAnywayDialog..")
+            JoinAnywayDialog(
+                onDismiss = ::dismissJoinCallAnywayDialog,
+                onConfirm = ::joinAnyway
+            )
+        }
     }
 
     when (showDialog.value) {

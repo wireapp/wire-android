@@ -39,6 +39,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -124,7 +125,7 @@ class CommonTopAppBarViewModel @Inject constructor(
         }
     }
 
-    private suspend fun activeCallFlow() = establishedCalls().map { calls ->
+    private suspend fun activeCallFlow() = establishedCalls().distinctUntilChanged().map { calls ->
         calls.firstOrNull()
     }
 

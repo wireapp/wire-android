@@ -40,7 +40,9 @@ data class ConversationListState(
     val allMentions: ImmutableList<ConversationItem> = persistentListOf(),
     val newActivityCount: Long = 0,
     val missedCallsCount: Long = 0,
-    val unreadMentionsCount: Long = 0
+    val unreadMentionsCount: Long = 0,
+    val hasEstablishedCall: Boolean = false,
+    val shouldShowJoinAnywayDialog: Boolean = false
 ) {
     fun findConversationById(conversationId: ConversationId): ConversationItem? =
         allConversations.firstOrNull { it.conversationId == conversationId }

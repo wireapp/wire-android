@@ -42,6 +42,8 @@ import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveOngoingCallsUseCase
 import com.wire.kalium.logic.sync.ObserveSyncStateUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -66,7 +68,7 @@ class ConversationCallViewModel @Inject constructor(
     var conversationCallViewState by mutableStateOf(ConversationCallViewState())
         private set
 
-    var establishedCallConversationId: QualifiedID? = null
+    private var establishedCallConversationId: QualifiedID? = null
 
     init {
         listenOngoingCall()
@@ -83,24 +85,49 @@ class ConversationCallViewModel @Inject constructor(
     }
 
     private fun observeEstablishedCall() = viewModelScope.launch {
-        observeEstablishedCalls().collect {
-            val hasEstablishedCall = it.isNotEmpty()
-            establishedCallConversationId = if (it.isNotEmpty()) {
-                it.first().conversationId
-            } else null
-            conversationCallViewState = conversationCallViewState.copy(hasEstablishedCall = hasEstablishedCall)
+        observeEstablishedCalls()
+            .distinctUntilChanged()
+            .collect {
+                val hasEstablishedCall = it.isNotEmpty()
+                establishedCallConversationId = if (it.isNotEmpty()) {
+                    it.first().conversationId
+                } else null
+                conversationCallViewState = conversationCallViewState.copy(hasEstablishedCall = hasEstablishedCall)
+            }
+    }
+
+    fun joinAnyway() {
+        viewModelScope.launch {
+            establishedCallConversationId?.let {
+                endCall(it)
+                delay(200)
+            }
+            joinOngoingCall()
         }
     }
 
     fun joinOngoingCall() {
         viewModelScope.launch {
-            answerCall(conversationId = conversationId)
-            navigationManager.navigate(
-                command = NavigationCommand(
-                    destination = NavigationItem.OngoingCall.getRouteWithArgs(listOf(conversationId))
+            if (conversationCallViewState.hasEstablishedCall) {
+                showJoinCallAnywayDialog()
+            } else {
+                dismissJoinCallAnywayDialog()
+                answerCall(conversationId = conversationId)
+                navigationManager.navigate(
+                    command = NavigationCommand(
+                        destination = NavigationItem.OngoingCall.getRouteWithArgs(listOf(conversationId))
+                    )
                 )
-            )
+            }
         }
+    }
+
+    private fun showJoinCallAnywayDialog() {
+        conversationCallViewState = conversationCallViewState.copy(shouldShowJoinAnywayDialog = true)
+    }
+
+    fun dismissJoinCallAnywayDialog() {
+        conversationCallViewState = conversationCallViewState.copy(shouldShowJoinAnywayDialog = false)
     }
 
     fun navigateToInitiatingCallScreen() {

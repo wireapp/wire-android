@@ -211,7 +211,6 @@ private fun OngoingCallTopBar(
     )
 }
 
-//TODO(refactor) use CallOptionsControls to avoid duplication
 @Composable
 private fun CallingControls(
     isMuted: Boolean,

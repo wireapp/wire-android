@@ -256,7 +256,6 @@ class SelfUserProfileViewModel @Inject constructor(
 
     fun changeStatus(status: UserAvailabilityStatus) {
         setNotShowStatusRationaleAgainIfNeeded(status)
-        // TODO add the broadcast message to inform everyone about the self user new status
         viewModelScope.launch { updateStatus(status) }
         dismissStatusDialog()
     }

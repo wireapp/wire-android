@@ -79,9 +79,9 @@ internal fun MessageComposerInput(
     isFileSharingEnabled: Boolean,
 ) {
     when (interactionAvailability) {
-        InteractionAvailability.BLOCKED_USER -> BlockedUserComposerInput()
-        InteractionAvailability.DELETED_USER -> DeletedUserComposerInput()
-        InteractionAvailability.NOT_MEMBER, InteractionAvailability.DISABLED -> {}
+        InteractionAvailability.BLOCKED_USER -> BlockedUserComposerInput(securityClassificationType)
+        InteractionAvailability.DELETED_USER -> DeletedUserComposerInput(securityClassificationType)
+        InteractionAvailability.NOT_MEMBER, InteractionAvailability.DISABLED -> DisabledComposerInput(securityClassificationType)
         InteractionAvailability.ENABLED -> {
             EnabledMessageComposerInput(
                 transition = transition,

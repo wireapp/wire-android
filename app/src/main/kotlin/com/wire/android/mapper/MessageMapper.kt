@@ -37,7 +37,6 @@ import com.wire.android.util.time.ISOFormatter
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.message.Message
-import com.wire.kalium.logic.data.message.Message.Visibility.HIDDEN
 import com.wire.kalium.logic.data.message.MessageContent
 import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.SelfUser
@@ -102,36 +101,26 @@ class MessageMapper @Inject constructor(
         } else {
             MessageFooter(message.id)
         }
-
-        // System messages don't have header so without the content there is nothing to be displayed.
-        // Also hidden messages should not be displayed, as well preview images
+        
         return when (content) {
             is UIMessageContent.Regular -> {
-                if (message.visibility == HIDDEN) {
-                    null
-                } else {
-                    UIMessage.Regular(
-                        messageContent = content,
-                        source = if (sender is SelfUser) MessageSource.Self else MessageSource.OtherUser,
-                        header = provideMessageHeader(sender, message),
-                        messageFooter = footer,
-                        userAvatarData = getUserAvatarData(sender),
-                        expirationStatus = provideExpirationData(message),
-                    )
-                }
+                UIMessage.Regular(
+                    messageContent = content,
+                    source = if (sender is SelfUser) MessageSource.Self else MessageSource.OtherUser,
+                    header = provideMessageHeader(sender, message),
+                    messageFooter = footer,
+                    userAvatarData = getUserAvatarData(sender),
+                    expirationStatus = provideExpirationData(message),
+                )
             }
             is UIMessageContent.SystemMessage ->
-                if (message.visibility == HIDDEN) {
-                    null
-                } else {
-                    UIMessage.System(
-                        messageContent = content,
-                        source = if (sender is SelfUser) MessageSource.Self else MessageSource.OtherUser,
-                        header = provideMessageHeader(sender, message),
-                    )
-                }
+                UIMessage.System(
+                    messageContent = content,
+                    source = if (sender is SelfUser) MessageSource.Self else MessageSource.OtherUser,
+                    header = provideMessageHeader(sender, message),
+                )
             null -> null
-            UIMessageContent.PreviewAssetMessage -> null
+            UIMessageContent.PreviewAssetMessage -> null // Preview images messages should not be displayed
         }
     }
 

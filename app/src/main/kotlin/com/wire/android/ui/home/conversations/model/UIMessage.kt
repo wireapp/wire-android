@@ -165,6 +165,8 @@ sealed class UIMessageContent {
 
     data class TextMessage(val messageBody: MessageBody) : Regular()
 
+    object Deleted : Regular()
+
     data class RestrictedAsset(
         val mimeType: String,
         val assetSizeInBytes: Long,

@@ -69,20 +69,9 @@ class MigrationWorker
         when (val result = migrationManager.migrate(this, { setProgress(it.type.toData()) })) {
             is MigrationData.Result.Success -> Result.success()
             is MigrationData.Result.Failure.NoNetwork -> Result.retry()
-            is MigrationData.Result.Failure.Messages -> {
-                result.migrationReport?.let { error(it) }
-                Result.failure(result.toData())
-            }
-
-            is MigrationData.Result.Failure.Account -> {
-                result.migrationReport?.let { error(it) }
-                Result.failure(result.toData())
-            }
-
-            is MigrationData.Result.Failure.Unknown -> {
-                result.migrationReport?.let { error(it) }
-                Result.failure(result.toData())
-            }
+            is MigrationData.Result.Failure.Messages -> Result.failure(result.toData())
+            is MigrationData.Result.Failure.Account -> Result.failure(result.toData())
+            is MigrationData.Result.Failure.Unknown -> Result.failure(result.toData())
         }
     }
 

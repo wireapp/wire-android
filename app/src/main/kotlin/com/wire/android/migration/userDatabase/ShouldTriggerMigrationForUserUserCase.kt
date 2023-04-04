@@ -36,8 +36,8 @@ class ShouldTriggerMigrationForUserUserCase @Inject constructor(
                     // and if the app version is the same as the one that was used to migrate the user
                     // if the app version is different, we need to migrate the user again
                     val appVersion = globalDataStore.getUserMigrationAppVersion(userId.value)
-                    val isNotSameVersion = appVersion != currentAppVersion
-                    return@let if (!isNotSameVersion) {
+                    val isSameAppVersion = appVersion == currentAppVersion
+                    return@let if (isSameAppVersion) {
                         false
                     } else {
                         checkForScalaDB(userId)

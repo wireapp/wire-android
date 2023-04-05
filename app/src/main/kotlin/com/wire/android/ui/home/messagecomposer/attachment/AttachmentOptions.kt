@@ -50,8 +50,8 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorPickingAttachment
 import com.wire.android.ui.home.conversations.model.AssetBundle
-import com.wire.android.ui.home.messagecomposer.AttachmentInnerState
-import com.wire.android.ui.home.messagecomposer.AttachmentState
+import com.wire.android.ui.home.messagecomposer.state.AttachmentInnerState
+import com.wire.android.ui.home.messagecomposer.state.AttachmentState
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 import com.wire.android.util.permission.UseCameraRequestFlow

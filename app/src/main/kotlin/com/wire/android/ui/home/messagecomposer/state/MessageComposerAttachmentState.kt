@@ -19,9 +19,11 @@ package com.wire.android.ui.home.messagecomposer.state
 
 import android.content.Context
 import android.net.Uri
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import com.wire.android.appLogger
-import com.wire.android.ui.home.conversations.model.AttachmentBundle
+import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.android.ui.home.conversations.model.AttachmentType
 import com.wire.android.util.DEFAULT_FILE_MIME_TYPE
 import com.wire.android.util.FileManager
@@ -34,15 +36,14 @@ import com.wire.android.util.resampleImageAndCopyToTempPath
 import kotlinx.coroutines.withContext
 import okio.Path.Companion.toPath
 import java.io.IOException
-import java.nio.file.Path
 import java.util.UUID
 
-class AttachmentStateHolder(val context: Context) {
+class AttachmentInnerState(val context: Context) {
     var attachmentState by mutableStateOf<AttachmentState>(AttachmentState.NotPicked)
 
     suspend fun pickAttachment(
         attachmentUri: Uri,
-        tempCachePath: Path,
+        tempCachePath: okio.Path,
         dispatcherProvider: DispatcherProvider = DefaultDispatcherProvider()
     ) = withContext(dispatcherProvider.io()) {
         val fileManager = FileManager(context)
@@ -56,7 +57,7 @@ class AttachmentStateHolder(val context: Context) {
             } else {
                 fileManager.copyToTempPath(attachmentUri, fullTempAssetPath)
             }
-            val attachment = AttachmentBundle(mimeType, fullTempAssetPath, assetSize, assetFileName, attachmentType)
+            val attachment = AssetBundle(mimeType, fullTempAssetPath, assetSize, assetFileName, attachmentType)
             AttachmentState.Picked(attachment)
         } catch (e: IOException) {
             appLogger.e("There was an error while obtaining the file from disk", e)
@@ -72,6 +73,6 @@ class AttachmentStateHolder(val context: Context) {
 
 sealed class AttachmentState {
     object NotPicked : AttachmentState()
-    class Picked(val attachmentBundle: AttachmentBundle) : AttachmentState()
+    class Picked(val attachmentBundle: AssetBundle) : AttachmentState()
     object Error : AttachmentState()
 }

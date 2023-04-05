@@ -62,8 +62,8 @@ import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.messagecomposer.attachment.AttachmentOptions
 import com.wire.android.ui.home.messagecomposer.state.MessageComposeInputState
 import com.wire.android.ui.home.messagecomposer.state.MessageComposeInputType
-import com.wire.android.ui.home.messagecomposer.state.MessageComposerState
 import com.wire.android.ui.home.messagecomposer.model.UiMention
+import com.wire.android.ui.home.messagecomposer.state.MessageComposerInnerState
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.kalium.logic.feature.conversation.InteractionAvailability
@@ -73,7 +73,7 @@ import kotlin.time.Duration
 
 @Composable
 fun MessageComposer(
-    messageComposerState: MessageComposerState,
+    messageComposerState: MessageComposerInnerState,
     messageContent: @Composable () -> Unit,
     onSendTextMessage: (String, List<UiMention>, messageId: String?, expireAfter: Duration?) -> Unit,
     onSendEditTextMessage: (EditMessageBundle) -> Unit,
@@ -97,7 +97,7 @@ fun MessageComposer(
                     messageComposerState.messageComposeInputState.messageText.text,
                     messageComposerState.mentions,
                     messageComposerState.quotedMessageData?.messageId,
-                    messageComposerState.selfDeletionDuration.value
+                    null
                 )
                 messageComposerState.quotedMessageData = null
                 messageComposerState.setMessageTextValue(TextFieldValue(""))
@@ -164,7 +164,7 @@ fun MessageComposer(
 @Composable
 private fun MessageComposer(
     messagesContent: @Composable () -> Unit,
-    messageComposerState: MessageComposerState,
+    messageComposerState: MessageComposerInnerState,
     isFileSharingEnabled: Boolean,
     tempCachePath: Path,
     interactionAvailability: InteractionAvailability,
@@ -284,7 +284,7 @@ private fun MessageComposer(
                                 },
                                 onEditSaveButtonClicked = onEditSaveButtonClicked,
                                 onEditCancelButtonClicked = messageComposerState::closeEditToInactive,
-                                onShowSelfDeletionOption = onShowSelfDeletionOption
+//                                onShowSelfDeletionOption = onShowSelfDeletionOption
                             )
                         }
                     )
@@ -296,7 +296,7 @@ private fun MessageComposer(
                 // we get the effect of overlapping it
                 if (attachmentOptionsVisible) {
                     AttachmentOptions(
-                        attachmentStateHolder = messageComposerState.attachmentStateHolder,
+                        attachmentInnerState = messageComposerState.attachmentInnerState,
                         onSendAttachment = onSendAttachmentClicked,
                         onMessageComposerError = onMessageComposerError,
                         isFileSharingEnabled = isFileSharingEnabled,

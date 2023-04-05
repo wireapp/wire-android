@@ -33,7 +33,7 @@ sealed class MessageComposeInputState {
     @Stable
     data class Inactive(
         override val messageText: TextFieldValue = TextFieldValue(""),
-        override val inputFocused: Boolean = false,
+        override val inputFocused: Boolean = false
     ) : MessageComposeInputState()
 
     @Stable
@@ -42,14 +42,7 @@ sealed class MessageComposeInputState {
         override val inputFocused: Boolean = false,
         val type: MessageComposeInputType = MessageComposeInputType.NewMessage(),
         val size: MessageComposeInputSize = MessageComposeInputSize.COLLAPSED,
-    ) : MessageComposeInputState(){
-
-        val editSaveButtonEnabled: Boolean
-            get() = this.type is MessageComposeInputType.EditMessage && messageText.text.trim().isNotBlank()
-                    && messageText.text != this.type.originalText
-        val sendButtonEnabled: Boolean
-            get() = this.type is MessageComposeInputType.NewMessage && messageText.text.trim().isNotBlank()
-    }
+    ) : MessageComposeInputState()
 
     fun toActive(messageText: TextFieldValue = this.messageText, inputFocused: Boolean = this.inputFocused) = when (this) {
         is Active -> Active(messageText, inputFocused, this.type, this.size)
@@ -64,14 +57,20 @@ sealed class MessageComposeInputState {
         is Inactive -> Inactive(messageText, inputFocused)
     }
 
+    val isNewMessage: Boolean
+        get() = this is Active && this.type is MessageComposeInputType.NewMessage
     val isExpanded: Boolean
         get() = this is Active && this.size == MessageComposeInputSize.EXPANDED
-
     val attachmentOptionsDisplayed: Boolean
         get() = this is Active && this.type is MessageComposeInputType.NewMessage && this.type.attachmentOptionsDisplayed
 
-    val isEphemeralMessage : Boolean
-        get() = this is Active && this.type is MessageComposeInputType.SelfDeletingMessage
+    val isEditMessage : Boolean
+        get() = this is Active && this.type is MessageComposeInputType.EditMessage
+    val editSaveButtonEnabled: Boolean
+        get() = this is Active && this.type is MessageComposeInputType.EditMessage && messageText.text.trim().isNotBlank()
+                && messageText.text != this.type.originalText
+    val sendButtonEnabled: Boolean
+        get() = this is Active && this.type is MessageComposeInputType.NewMessage && messageText.text.trim().isNotBlank()
 }
 
 enum class MessageComposeInputSize {
@@ -96,7 +95,7 @@ sealed class MessageComposeInputType {
     @Stable
     data class SelfDeletingMessage(
         val messageId: String,
-        val expireAfters : Duration? = null
+        val expireAfters: Duration? = null
     ) : MessageComposeInputType()
 }
 
@@ -109,3 +108,4 @@ enum class SelfDeletionDuration(val value: Duration?, val label: String) {
     OneWeek(7.days, "1 week"),
     FourWeeks(28.days, "4 weeks")
 }
+

@@ -51,6 +51,9 @@ import com.wire.android.R
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.wireTextFieldColors
+import com.wire.android.ui.home.messagecomposer.state.MessageComposeInputSize
+import com.wire.android.ui.home.messagecomposer.state.MessageComposeInputState
+import com.wire.android.ui.home.messagecomposer.state.MessageComposeInputType
 import com.wire.android.ui.theme.wireTypography
 
 @OptIn(ExperimentalAnimationApi::class)
@@ -121,11 +124,16 @@ fun MessageComposerInputRow(
                 when (val type = messageComposeInputState.type) {
                     is MessageComposeInputType.EditMessage -> {
                         AnimatedVisibility(visible = true) {
-                            EditExtraOptions(messageComposeInputState.editSaveButtonEnabled, onEditSaveButtonClicked, onEditCancelButtonClicked)
+                            EditExtraOptions(
+                                messageComposeInputState.editSaveButtonEnabled,
+                                onEditSaveButtonClicked,
+                                onEditCancelButtonClicked
+                            )
                         }
                     }
 
                     is MessageComposeInputType.NewMessage -> {}
+                    is MessageComposeInputType.SelfDeletingMessage -> {}
                 }
             }
         }
@@ -224,7 +232,7 @@ fun PreviewMessageComposerInputRowActiveExpanded() {
 fun PreviewMessageComposerInputRowActiveEdit() {
     val state = MessageComposeInputState.Active(
         messageText = TextFieldValue("original text"),
-        type = MessageComposeInputType.EditMessage("", "original text", TextFieldValue(""))
+        type = MessageComposeInputType.EditMessage("", "original text")
     )
     MessageComposerInputRow(updateTransition(targetState = state, label = ""), state)
 }
@@ -234,7 +242,7 @@ fun PreviewMessageComposerInputRowActiveEdit() {
 fun PreviewMessageComposerInputRowActiveEditSaveEnabled() {
     val state = MessageComposeInputState.Active(
         messageText = TextFieldValue("current text"),
-        type = MessageComposeInputType.EditMessage("", "original text", TextFieldValue(""))
+        type = MessageComposeInputType.EditMessage("", "original text")
     )
     MessageComposerInputRow(updateTransition(targetState = state, label = ""), state)
 }

@@ -18,7 +18,7 @@
  *
  */
 
-package com.wire.android.ui.home.messagecomposer
+package com.wire.android.ui.home.messagecomposer.state
 
 import android.content.Context
 import android.net.Uri
@@ -43,6 +43,7 @@ import com.wire.android.ui.home.conversations.model.AttachmentType
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.conversations.model.UIQuotedMessage
+import com.wire.android.ui.home.messagecomposer.model.UiMention
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.util.DEFAULT_FILE_MIME_TYPE
@@ -175,7 +176,7 @@ data class MessageComposerInnerState(
     fun toEditMessage(messageId: String, originalText: String) {
         messageComposeInputState = MessageComposeInputState.Active(
             messageText = TextFieldValue(text = originalText, selection = TextRange(originalText.length)),
-            type = MessageComposeInputType.EditMessage(messageId, originalText, messageComposeInputState.messageText)
+            type = MessageComposeInputType.EditMessage(messageId, originalText)
         )
         quotedMessageData = null
         inputFocusRequester.requestFocus()
@@ -353,121 +354,4 @@ private fun TextFieldValue.currentMentionStartIndex(): Int {
 
         else -> -1
     }
-}
-
-data class UiMention(
-    val start: Int,
-    val length: Int,
-    val userId: UserId,
-    val handler: String // name that should be displayed in a message
-) {
-    fun intoMessageMention() = MessageMention(start, length, userId, false) // We can never send a self mention message
-}
-
-class AttachmentInnerState(val context: Context) {
-    var attachmentState by mutableStateOf<AttachmentState>(AttachmentState.NotPicked)
-
-    suspend fun pickAttachment(
-        attachmentUri: Uri,
-        tempCachePath: Path,
-        dispatcherProvider: DispatcherProvider = DefaultDispatcherProvider()
-    ) = withContext(dispatcherProvider.io()) {
-        val fileManager = FileManager(context)
-        attachmentState = try {
-            val fullTempAssetPath = "$tempCachePath/${UUID.randomUUID()}".toPath()
-            val assetFileName = context.getFileName(attachmentUri) ?: throw IOException("The selected asset has an invalid name")
-            val mimeType = attachmentUri.getMimeType(context).orDefault(DEFAULT_FILE_MIME_TYPE)
-            val attachmentType = AttachmentType.fromMimeTypeString(mimeType)
-            val assetSize = if (attachmentType == AttachmentType.IMAGE) {
-                attachmentUri.resampleImageAndCopyToTempPath(context, fullTempAssetPath)
-            } else {
-                fileManager.copyToTempPath(attachmentUri, fullTempAssetPath)
-            }
-            val attachment = AssetBundle(mimeType, fullTempAssetPath, assetSize, assetFileName, attachmentType)
-            AttachmentState.Picked(attachment)
-        } catch (e: IOException) {
-            appLogger.e("There was an error while obtaining the file from disk", e)
-            AttachmentState.Error
-        }
-    }
-
-    fun resetAttachmentState() {
-        attachmentState = AttachmentState.NotPicked
-    }
-}
-
-@Stable
-sealed class MessageComposeInputState {
-    abstract val messageText: TextFieldValue
-    abstract val inputFocused: Boolean
-
-    @Stable
-    data class Inactive(
-        override val messageText: TextFieldValue = TextFieldValue(""),
-        override val inputFocused: Boolean = false,
-    ) : MessageComposeInputState()
-
-    @Stable
-    data class Active(
-        override val messageText: TextFieldValue = TextFieldValue(""),
-        override val inputFocused: Boolean = false,
-        val type: MessageComposeInputType = MessageComposeInputType.NewMessage(),
-        val size: MessageComposeInputSize = MessageComposeInputSize.COLLAPSED,
-    ) : MessageComposeInputState()
-
-    fun toActive(messageText: TextFieldValue = this.messageText, inputFocused: Boolean = this.inputFocused) = when (this) {
-        is Active -> Active(messageText, inputFocused, this.type, this.size)
-        is Inactive -> Active(messageText, inputFocused)
-    }
-
-    fun toInactive(messageText: TextFieldValue = this.messageText, inputFocused: Boolean = this.inputFocused) =
-        Inactive(messageText, inputFocused)
-
-    fun copyCurrent(messageText: TextFieldValue = this.messageText, inputFocused: Boolean = this.inputFocused) = when (this) {
-        is Active -> Active(messageText, inputFocused, this.type, this.size)
-        is Inactive -> Inactive(messageText, inputFocused)
-    }
-
-    val isExpanded: Boolean
-        get() = this is Active && this.size == MessageComposeInputSize.EXPANDED
-    val isEditMessage: Boolean
-        get() = this is Active && this.type is MessageComposeInputType.EditMessage
-    val isNewMessage: Boolean
-        get() = this is Active && this.type is MessageComposeInputType.NewMessage
-    val attachmentOptionsDisplayed: Boolean
-        get() = this is Active && this.type is MessageComposeInputType.NewMessage && this.type.attachmentOptionsDisplayed
-    val sendButtonEnabled: Boolean
-        get() = this is Active && this.type is MessageComposeInputType.NewMessage && messageText.text.trim().isNotBlank()
-    val editSaveButtonEnabled: Boolean
-        get() = this is Active && this.type is MessageComposeInputType.EditMessage && messageText.text.trim().isNotBlank()
-                && messageText.text != this.type.originalText
-
-}
-
-enum class MessageComposeInputSize {
-    COLLAPSED, // wrap content
-    EXPANDED; // fullscreen
-}
-
-@Stable
-sealed class MessageComposeInputType {
-
-    @Stable
-    data class NewMessage(
-        val attachmentOptionsDisplayed: Boolean = false,
-    ) : MessageComposeInputType()
-
-    @Stable
-    data class EditMessage(
-        val messageId: String,
-        val originalText: String,
-        val messageText: TextFieldValue
-    ) : MessageComposeInputType()
-
-}
-
-sealed class AttachmentState {
-    object NotPicked : AttachmentState()
-    class Picked(val attachmentBundle: AssetBundle) : AttachmentState()
-    object Error : AttachmentState()
 }

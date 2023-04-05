@@ -54,7 +54,7 @@ class ProximitySensorManager @Inject constructor(
         sensorManager = context.getSystemService(AppCompatActivity.SENSOR_SERVICE) as SensorManager
         proximity = sensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY)
         val powerManager = context.getSystemService(AppCompatActivity.POWER_SERVICE) as PowerManager
-        wakeLock = powerManager.newWakeLock(field, TAG);
+        wakeLock = powerManager.newWakeLock(field, TAG)
     }
 
     fun registerListener() {

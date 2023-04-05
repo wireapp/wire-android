@@ -154,9 +154,11 @@ fun FileSharingRestrictedContent(
             .padding(internalPadding)
             .padding(horizontal = dimensions().spacing48x)
     ) {
-        val textRes = if (sharingRestrictedState == FeatureFlagState.SharingRestrictedState.NO_USER)
+        val textRes = if (sharingRestrictedState == FeatureFlagState.SharingRestrictedState.NO_USER) {
             R.string.file_sharing_restricted_description_no_users
-        else R.string.file_sharing_restricted_description_by_team
+        } else {
+            R.string.file_sharing_restricted_description_by_team
+        }
         Text(
             text = stringResource(textRes),
             textAlign = TextAlign.Center,

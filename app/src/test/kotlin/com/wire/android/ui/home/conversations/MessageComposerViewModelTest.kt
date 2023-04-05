@@ -26,7 +26,7 @@ import com.wire.kalium.logic.feature.asset.GetAssetSizeLimitUseCaseImpl.Companio
 import com.wire.kalium.logic.feature.asset.GetAssetSizeLimitUseCaseImpl.Companion.IMAGE_SIZE_LIMIT_BYTES
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogActiveState
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogsState
-import com.wire.android.ui.home.conversations.model.AttachmentBundle
+import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.android.ui.home.conversations.model.AttachmentType
 import com.wire.kalium.logic.data.team.Team
 import io.mockk.coVerify
@@ -155,7 +155,7 @@ class MessageComposerViewModelTest {
             .withSuccessfulSendAttachmentMessage()
             .withGetAssetSizeLimitUseCase(false, 25000000)
             .arrange()
-        val mockedAttachment = AttachmentBundle(
+        val mockedAttachment = AssetBundle(
             "file/x-zip", "Mocked-data-path".toPath(), 1L, "mocked_file.zip", AttachmentType.GENERIC_FILE
         )
 
@@ -179,7 +179,7 @@ class MessageComposerViewModelTest {
             .withSuccessfulSendAttachmentMessage()
             .withGetAssetSizeLimitUseCase(true, 15000000)
             .arrange()
-        val mockedAttachment = AttachmentBundle(
+        val mockedAttachment = AssetBundle(
             "image/jpeg", assetPath, assetSize, assetName, AttachmentType.IMAGE
         )
 
@@ -213,7 +213,7 @@ class MessageComposerViewModelTest {
             .withSuccessfulSendAttachmentMessage()
             .withGetAssetSizeLimitUseCase(true, 15000000)
             .arrange()
-        val mockedAttachment = AttachmentBundle(
+        val mockedAttachment = AssetBundle(
             "image/jpeg", "some-data-path".toPath(), IMAGE_SIZE_LIMIT_BYTES + 1L, "mocked_image.jpeg", AttachmentType.IMAGE
         )
 
@@ -236,7 +236,7 @@ class MessageComposerViewModelTest {
                 .withSuccessfulSendAttachmentMessage()
                 .withGetAssetSizeLimitUseCase(false, 15000000)
                 .arrange()
-            val mockedAttachment = AttachmentBundle(
+            val mockedAttachment = AssetBundle(
                 "file/x-zip",
                 "some-data-path".toPath(),
                 ASSET_SIZE_DEFAULT_LIMIT_BYTES + 1L,
@@ -264,7 +264,7 @@ class MessageComposerViewModelTest {
             .withGetAssetSizeLimitUseCase(false, 100000000)
             .withTeamUser(userTeam)
             .arrange()
-        val mockedAttachment = AttachmentBundle(
+        val mockedAttachment = AssetBundle(
             "file/x-zip", "some-data-path".toPath(), ASSET_SIZE_DEFAULT_LIMIT_BYTES + 1L, "mocked_asset.jpeg", AttachmentType.GENERIC_FILE
         )
 

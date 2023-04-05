@@ -547,16 +547,14 @@
     <item quantity="one">1 Person wurde aus der Unterhaltung entfernt</item>
     <item quantity="other">%1$d Personen wurden aus der Unterhaltung entfernt</item>
   </plurals>
-  <string name="last_message_self_user_shared_asset">haben eine Mediendatei geteilt</string>
-  <string name="last_message_other_user_shared_asset">hat eine Mediendatei geteilt</string>
+  <string name="last_message_self_user_shared_asset">haben eine Datei geteilt</string>
+  <string name="last_message_other_user_shared_asset">hat eine Datei geteilt</string>
   <string name="last_message_self_user_shared_image">haben ein Bild geteilt.</string>
   <string name="last_message_other_user_shared_image">hat ein Bild geteilt.</string>
   <string name="last_message_self_user_shared_video">haben ein Video geteilt.</string>
   <string name="last_message_other_user_shared_video">hat ein Video geteilt.</string>
   <string name="last_message_self_user_shared_audio">haben eine Audionachricht geteilt.</string>
   <string name="last_message_other_user_shared_audio">hat eine Audionachricht geteilt.</string>
-  <string name="last_message_self_user_shared_file">haben eine Datei geteilt.</string>
-  <string name="last_message_other_user_shared_file">hat eine Datei geteilt.</string>
   <string name="last_message_self_user_knock">haben gepingt.</string>
   <string name="last_message_other_user_knock">hat gepingt.</string>
   <string name="last_message_call">hat angerufen.</string>

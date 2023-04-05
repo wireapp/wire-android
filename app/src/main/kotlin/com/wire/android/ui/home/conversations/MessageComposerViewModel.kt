@@ -50,7 +50,7 @@ import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.Error
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogActiveState
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogHelper
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogsState
-import com.wire.android.ui.home.conversations.model.AttachmentBundle
+import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.android.ui.home.conversations.model.AttachmentType
 import com.wire.android.ui.home.conversations.model.EditMessageBundle
 import com.wire.android.ui.home.conversations.model.UIMessage
@@ -238,11 +238,11 @@ class MessageComposerViewModel @Inject constructor(
     }
 
     @Suppress("MagicNumber")
-    fun sendAttachmentMessage(attachmentBundle: AttachmentBundle?) {
+    fun sendAttachmentMessage(attachmentBundle: AssetBundle?) {
         viewModelScope.launch {
             withContext(dispatchers.io()) {
                 attachmentBundle?.run {
-                    when (attachmentType) {
+                    when (assetType) {
                         AttachmentType.IMAGE -> {
                             if (dataSize > getAssetSizeLimit(isImage = true)) onSnackbarMessage(ErrorMaxImageSize)
                             else {
@@ -293,7 +293,9 @@ class MessageComposerViewModel @Inject constructor(
                             }
                         }
 
-                        AttachmentType.AUDIO -> TODO()
+                        AttachmentType.AUDIO -> {
+                            // TODO()
+                        }
                     }
                 }
             }

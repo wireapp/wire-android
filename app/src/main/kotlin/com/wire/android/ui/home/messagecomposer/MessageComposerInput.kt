@@ -58,10 +58,7 @@ import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.home.conversations.messages.QuotedMessagePreview
-import com.wire.android.ui.home.conversations.model.QuotedMessageUIData
-import com.wire.android.ui.home.messagecomposer.state.MessageComposeInputSize
-import com.wire.android.ui.home.messagecomposer.state.MessageComposeInputState
-import com.wire.android.ui.home.messagecomposer.state.MessageComposeInputType
+import com.wire.android.ui.home.conversations.model.UIQuotedMessage
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.kalium.logic.feature.conversation.InteractionAvailability
@@ -75,7 +72,7 @@ internal fun MessageComposerInput(
     interactionAvailability: InteractionAvailability,
     securityClassificationType: SecurityClassificationType,
     messageComposeInputState: MessageComposeInputState,
-    quotedMessageData: QuotedMessageUIData?,
+    quotedMessageData: UIQuotedMessage.UIQuotedData?,
     membersToMention: List<Contact>,
     actions: MessageComposerInputActions,
     inputFocusRequester: FocusRequester,
@@ -106,7 +103,7 @@ private fun EnabledMessageComposerInput(
     transition: Transition<MessageComposeInputState>,
     securityClassificationType: SecurityClassificationType,
     messageComposeInputState: MessageComposeInputState,
-    quotedMessageData: QuotedMessageUIData?,
+    quotedMessageData: UIQuotedMessage.UIQuotedData?,
     membersToMention: List<Contact>,
     actions: MessageComposerInputActions,
     inputFocusRequester: FocusRequester,
@@ -140,8 +137,7 @@ private fun EnabledMessageComposerInput(
                 startMention = actions.startMention,
                 onAdditionalOptionButtonClicked = actions.onAdditionalOptionButtonClicked,
                 modifier = Modifier.background(colorsScheme().messageComposerBackgroundColor),
-                onPingClicked = actions.onPingClicked,
-                onSelfDeletionOptionButtonClicked = actions.onShowSelfDeletionOption
+                onPingClicked = actions.onPingClicked
             )
         }
         if (membersToMention.isNotEmpty() && messageComposeInputState.isExpanded) {
@@ -155,7 +151,7 @@ private fun EnabledMessageComposerInput(
 private fun MessageComposeInput(
     transition: Transition<MessageComposeInputState>,
     messageComposeInputState: MessageComposeInputState,
-    quotedMessageData: QuotedMessageUIData?,
+    quotedMessageData: UIQuotedMessage.UIQuotedData?,
     securityClassificationType: SecurityClassificationType,
     onSelectedLineIndexChange: (Int) -> Unit,
     onLineBottomCoordinateChange: (Float) -> Unit,
@@ -167,7 +163,7 @@ private fun MessageComposeInput(
     Column(
         modifier = modifier
             .background(
-                if (true) colorsScheme().messageComposerEditBackgroundColor
+                if (messageComposeInputState.isEditMessage) colorsScheme().messageComposerEditBackgroundColor
                 else colorsScheme().messageComposerBackgroundColor
             )
     ) {
@@ -197,24 +193,20 @@ private fun MessageComposeInput(
         // when other we center it vertically. Once we go to Fullscreen, we set the weight to 1f
         // so that it fills the whole Row which is = height of the whole screen - height of TopBar -
         // - height of container with additional options
-        when(messageComposeInputState){
-            is MessageComposeInputState.Active -> ActiveMessageComposerInputRow(activeMessageComposerInput = messageComposeInputState)
-            is MessageComposeInputState.Inactive ->  InActiveMessageComposerInputRow(messageComposeInputState = messageComposeInputState)
-        }
-//        MessageComposerInputRow(
-//            transition = transition,
-//            messageComposeInputState = messageComposeInputState,
-//            onMessageTextChanged = actions.onMessageTextChanged,
-//            onInputFocusChanged = actions.onInputFocusChanged,
-//            focusRequester = inputFocusRequester,
-//            onSendButtonClicked = actions.onSendButtonClicked,
-//            onSelectedLineIndexChanged = onSelectedLineIndexChange,
-//            onLineBottomYCoordinateChanged = onLineBottomCoordinateChange,
-//            onAdditionalOptionButtonClicked = actions.onAdditionalOptionButtonClicked,
-//            onEditCancelButtonClicked = actions.onEditCancelButtonClicked,
-//            onEditSaveButtonClicked = actions.onEditSaveButtonClicked,
-//            isFileSharingEnabled = isFileSharingEnabled,
-//        )
+        MessageComposerInputRow(
+            transition = transition,
+            messageComposeInputState = messageComposeInputState,
+            onMessageTextChanged = actions.onMessageTextChanged,
+            onInputFocusChanged = actions.onInputFocusChanged,
+            focusRequester = inputFocusRequester,
+            onSendButtonClicked = actions.onSendButtonClicked,
+            onSelectedLineIndexChanged = onSelectedLineIndexChange,
+            onLineBottomYCoordinateChanged = onLineBottomCoordinateChange,
+            onAdditionalOptionButtonClicked = actions.onAdditionalOptionButtonClicked,
+            onEditCancelButtonClicked = actions.onEditCancelButtonClicked,
+            onEditSaveButtonClicked = actions.onEditSaveButtonClicked,
+            isFileSharingEnabled = isFileSharingEnabled,
+        )
     }
 }
 
@@ -271,8 +263,7 @@ data class MessageComposerInputActions(
     val onAdditionalOptionButtonClicked: () -> Unit = {},
     val onEditSaveButtonClicked: () -> Unit = {},
     val onEditCancelButtonClicked: () -> Unit = {},
-    val onPingClicked: () -> Unit = {},
-    val onShowSelfDeletionOption: () -> Unit = { }
+    val onPingClicked: () -> Unit = {}
 )
 
 @Composable
@@ -310,5 +301,5 @@ fun PreviewEnabledMessageComposerInputActiveExpanded() {
 @Preview
 @Composable
 fun PreviewEnabledMessageComposerInputActiveEdit() {
-    generatePreviewWithState(MessageComposeInputState.Active(type = MessageComposeInputType.EditMessage("", "")))
+    generatePreviewWithState(MessageComposeInputState.Active(type = MessageComposeInputType.EditMessage("", "", TextFieldValue(""))))
 }

@@ -113,7 +113,7 @@ fun LinkifyText(
                     addStyle(
                         style = SpanStyle(
                             fontWeight = typography().body02.fontWeight,
-                            color = if (it.isSelfMention) onPrimaryVariant else primary,
+                            color = onPrimaryVariant,
                             background = if (it.isSelfMention) primaryVariant else Color.Unspecified
                         ),
                         start = it.start,

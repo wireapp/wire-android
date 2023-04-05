@@ -56,7 +56,7 @@ import com.wire.android.ui.common.KeyboardHelper
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages
 import com.wire.android.ui.home.conversations.mention.MemberItemToMention
-import com.wire.android.ui.home.conversations.model.AttachmentBundle
+import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.android.ui.home.conversations.model.EditMessageBundle
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.messagecomposer.attachment.AttachmentOptions
@@ -77,7 +77,7 @@ fun MessageComposer(
     messageContent: @Composable () -> Unit,
     onSendTextMessage: (String, List<UiMention>, messageId: String?, expireAfter: Duration?) -> Unit,
     onSendEditTextMessage: (EditMessageBundle) -> Unit,
-    onSendAttachment: (AttachmentBundle?) -> Unit,
+    onSendAttachment: (AssetBundle?) -> Unit,
     onMentionMember: (String?) -> Unit,
     onMessageComposerError: (ConversationSnackbarMessages) -> Unit,
     isFileSharingEnabled: Boolean,
@@ -122,7 +122,7 @@ fun MessageComposer(
         }
 
         val onSendAttachmentClicked = remember {
-            { attachmentBundle: AttachmentBundle? ->
+            { attachmentBundle: AssetBundle? ->
                 onSendAttachment(attachmentBundle)
                 messageComposerState.hideAttachmentOptions()
             }
@@ -170,7 +170,7 @@ private fun MessageComposer(
     interactionAvailability: InteractionAvailability,
     membersToMention: List<Contact>,
     onMessageComposerError: (ConversationSnackbarMessages) -> Unit,
-    onSendAttachmentClicked: (AttachmentBundle?) -> Unit,
+    onSendAttachmentClicked: (AssetBundle?) -> Unit,
     securityClassificationType: SecurityClassificationType,
     tempWritableImageUri: Uri?,
     tempWritableVideoUri: Uri?,
@@ -210,6 +210,8 @@ private fun MessageComposer(
                         && !isKeyboardVisible
                         && interactionAvailability == InteractionAvailability.ENABLED
 
+                // Whenever the user closes the keyboard manually that is not clicking outside of the input text field
+                // but for example pressing the back button when the keyboard is visible
                 LaunchedEffect(isKeyboardVisible) {
                     if (!isKeyboardVisible && !messageComposerState.messageComposeInputState.attachmentOptionsDisplayed) {
                         if (true) {

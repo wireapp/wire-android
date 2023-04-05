@@ -91,15 +91,15 @@ class WireActivity : AppCompatActivity() {
     @Inject
     lateinit var currentScreenManager: CurrentScreenManager
 
-    @Inject
-    lateinit var proximitySensorManager: ProximitySensorManager
+//    @Inject
+//    lateinit var proximitySensorManager: ProximitySensorManager
 
     val viewModel: WireActivityViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         super.onCreate(savedInstanceState)
-        proximitySensorManager.initialize()
+//        proximitySensorManager.initialize()
         lifecycle.addObserver(currentScreenManager)
 
         handleDeepLink(intent, savedInstanceState)
@@ -344,15 +344,15 @@ class WireActivity : AppCompatActivity() {
         startActivity(intent)
     }
 
-    override fun onResume() {
-        super.onResume()
-        proximitySensorManager.registerListener()
-    }
-
-    override fun onPause() {
-        super.onPause()
-        proximitySensorManager.unRegisterListener()
-    }
+//    override fun onResume() {
+//        super.onResume()
+//        proximitySensorManager.registerListener()
+//    }
+//
+//    override fun onPause() {
+//        super.onPause()
+//        proximitySensorManager.unRegisterListener()
+//    }
 
     override fun onSaveInstanceState(outState: Bundle) {
         outState.putBoolean(HANDLED_DEEPLINK_FLAG, true)

@@ -203,6 +203,8 @@ private fun MessageComposer(
                         && !isKeyboardVisible
                         && interactionAvailability == InteractionAvailability.ENABLED
 
+                // Whenever the user closes the keyboard manually that is not clicking outside of the input text field
+                // but for example pressing the back button when the keyboard is visible
                 LaunchedEffect(isKeyboardVisible) {
                     if (!isKeyboardVisible && !messageComposerState.messageComposeInputState.attachmentOptionsDisplayed) {
                         if (!messageComposerState.messageComposeInputState.isEditMessage) {

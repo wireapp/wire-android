@@ -58,7 +58,6 @@ import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseC
 import com.wire.kalium.logic.feature.conversation.ObserveSecurityClassificationLabelUseCase
 import com.wire.kalium.logic.util.PlatformView
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.SharedFlow
@@ -71,6 +70,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import javax.inject.Inject
 
 @Suppress("LongParameterList", "TooManyFunctions")
 @HiltViewModel
@@ -149,9 +149,7 @@ class SharedCallingViewModel @Inject constructor(
     private suspend fun observeScreenState() {
         currentScreenManager.observeCurrentScreen(viewModelScope).collect {
             if (it == CurrentScreen.InBackground) {
-                pauseVideo()
-            } else if (it == CurrentScreen.OngoingCallScreen(conversationId)) {
-                unPauseVideo()
+                stopVideo()
             }
         }
     }
@@ -170,6 +168,7 @@ class SharedCallingViewModel @Inject constructor(
                             conversationType = ConversationType.Conference
                         )
                     }
+
                     is ConversationDetails.OneOne -> {
                         callState.copy(
                             conversationName = getConversationName(details.otherUser.name),
@@ -180,6 +179,7 @@ class SharedCallingViewModel @Inject constructor(
                             membership = userTypeMapper.toMembership(details.otherUser.userType)
                         )
                     }
+
                     else -> throw IllegalStateException("Invalid conversation type")
                 }
             }
@@ -213,8 +213,7 @@ class SharedCallingViewModel @Inject constructor(
         sharedFlow.first()?.let { call ->
             callState = callState.copy(
                 callStatus = call.status,
-                callerName = call.callerName,
-                isCameraOn = call.isCameraOn
+                callerName = call.callerName
             )
         }
     }
@@ -234,7 +233,7 @@ class SharedCallingViewModel @Inject constructor(
 
     fun navigateBack() {
         viewModelScope.launch {
-            pauseVideo()
+            stopVideo()
             navigationManager.navigateBack()
         }
     }
@@ -299,19 +298,12 @@ class SharedCallingViewModel @Inject constructor(
         }
     }
 
-    fun pauseVideo() {
+    fun stopVideo() {
         viewModelScope.launch {
             if (callState.isCameraOn) {
-                updateVideoState(conversationId, VideoState.PAUSED)
-            }
-        }
-    }
-
-    private fun unPauseVideo() {
-        viewModelScope.launch {
-            // We should turn on video only for established call
-            if (callState.isCameraOn && callState.participants.isNotEmpty()) {
-                updateVideoState(conversationId, VideoState.STARTED)
+                callState = callState.copy(isCameraOn = false, isSpeakerOn = false)
+                clearVideoPreview()
+                turnLoudSpeakerOff()
             }
         }
     }

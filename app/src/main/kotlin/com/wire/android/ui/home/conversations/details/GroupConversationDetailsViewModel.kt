@@ -154,6 +154,11 @@ class GroupConversationDetailsViewModel @Inject constructor(
                     selfRole = groupDetails.selfRole
                 )
                 val isGuestAllowed = groupDetails.conversation.isGuestAllowed() || groupDetails.conversation.isNonTeamMemberAllowed()
+                val isUpdatingReadReceiptAllowed = if (selfTeam == null) {
+                    if (groupDetails.conversation.teamId != null) isSelfAnAdmin else false
+                } else {
+                    isSelfAnAdmin
+                }
 
                 updateState(
                     groupOptionsState.value.copy(
@@ -165,7 +170,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
                         isUpdatingAllowed = isSelfAnAdmin,
                         isUpdatingGuestAllowed = isSelfAnAdmin && isSelfInOwnerTeam,
                         isReadReceiptAllowed = groupDetails.conversation.receiptMode == Conversation.ReceiptMode.ENABLED,
-                        isUpdatingReadReceiptAllowed = isSelfAnAdmin
+                        isUpdatingReadReceiptAllowed = isUpdatingReadReceiptAllowed
                     )
                 )
             }.collect {}

@@ -19,7 +19,7 @@ object KeyboardHelper {
 
     @Composable
     fun isKeyboardVisible(): Boolean =
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             WindowInsets.isImeVisible
         } else {
             ViewCompat.getRootWindowInsets(LocalView.current)?.isVisible(WindowInsetsCompat.Type.ime()) ?: false

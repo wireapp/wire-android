@@ -26,8 +26,8 @@ import com.wire.android.model.ImageAsset
 import com.wire.android.ui.home.conversations.findUser
 import com.wire.android.ui.home.conversations.model.AttachmentType
 import com.wire.android.ui.home.conversations.model.MessageBody
-import com.wire.android.ui.home.conversations.model.UIQuotedMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent
+import com.wire.android.ui.home.conversations.model.UIQuotedMessage
 import com.wire.android.util.time.ISOFormatter
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.WireSessionImageLoader
@@ -61,15 +61,21 @@ class MessageContentMapper @Inject constructor(
         message: Message.Standalone,
         userList: List<User>
     ): UIMessageContent? {
-        return when (message.visibility) {
-            Message.Visibility.VISIBLE ->
-                return when (message) {
-                    is Message.Regular -> mapRegularMessage(message, userList.findUser(message.senderUserId))
-                    is Message.System -> mapSystemMessage(message, userList)
+        return when (message) {
+            is Message.Regular -> {
+                when (message.visibility) {
+                    Message.Visibility.VISIBLE -> mapRegularMessage(message, userList.findUser(message.senderUserId))
+                    Message.Visibility.DELETED -> UIMessageContent.Deleted // for deleted , there is a state label displayed only
+                    Message.Visibility.HIDDEN -> null // we don't want to show hidden message content in any way
                 }
-
-            Message.Visibility.DELETED, // for deleted, there is a state label displayed only
-            Message.Visibility.HIDDEN -> null // we don't want to show hidden nor deleted message content in any way
+            }
+            is Message.System -> {
+                when (message.visibility) {
+                    Message.Visibility.VISIBLE -> mapSystemMessage(message, userList)
+                    Message.Visibility.DELETED,
+                    Message.Visibility.HIDDEN -> null // we don't want to show hidden nor deleted message content in any way
+                }
+            }
         }
     }
 

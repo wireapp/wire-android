@@ -428,7 +428,7 @@ private fun MessageContent(
                 onAudioMessageLongClick = onLongClick
             )
         }
-
+        UIMessageContent.Deleted -> {}
         is UIMessageContent.SystemMessage.MemberAdded -> {}
         is UIMessageContent.SystemMessage.MemberJoined -> {}
         is UIMessageContent.SystemMessage.MemberLeft -> {}

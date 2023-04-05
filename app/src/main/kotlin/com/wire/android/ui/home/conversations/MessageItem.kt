@@ -53,6 +53,8 @@ import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.home.conversations.messages.QuotedMessage
+import com.wire.android.ui.home.conversations.messages.QuotedMessageStyle
+import com.wire.android.ui.home.conversations.messages.QuotedUnavailable
 import com.wire.android.ui.home.conversations.messages.ReactionPill
 import com.wire.android.ui.home.conversations.model.MessageBody
 import com.wire.android.ui.home.conversations.model.MessageFooter
@@ -63,6 +65,7 @@ import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.model.MessageStatus
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent
+import com.wire.android.ui.home.conversations.model.UIQuotedMessage
 import com.wire.android.ui.home.conversations.model.messagetypes.asset.RestrictedAssetMessage
 import com.wire.android.ui.home.conversations.model.messagetypes.asset.RestrictedGenericFileMessage
 import com.wire.android.ui.home.conversations.model.messagetypes.audio.AudioMessage
@@ -358,7 +361,10 @@ private fun MessageContent(
         is UIMessageContent.TextMessage -> {
             messageContent.messageBody.quotedMessage?.let {
                 VerticalSpace.x4()
-                QuotedMessage(it)
+                when (it) {
+                    is UIQuotedMessage.UIQuotedData -> QuotedMessage(it)
+                    UIQuotedMessage.UnavailableData -> QuotedUnavailable(QuotedMessageStyle.COMPLETE)
+                }
                 VerticalSpace.x4()
             }
             MessageBody(
@@ -422,7 +428,7 @@ private fun MessageContent(
                 onAudioMessageLongClick = onLongClick
             )
         }
-
+        UIMessageContent.Deleted -> {}
         is UIMessageContent.SystemMessage.MemberAdded -> {}
         is UIMessageContent.SystemMessage.MemberJoined -> {}
         is UIMessageContent.SystemMessage.MemberLeft -> {}

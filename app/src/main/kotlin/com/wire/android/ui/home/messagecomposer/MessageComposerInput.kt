@@ -28,6 +28,7 @@ import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -58,7 +59,7 @@ import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.home.conversations.messages.QuotedMessagePreview
-import com.wire.android.ui.home.conversations.model.QuotedMessageUIData
+import com.wire.android.ui.home.conversations.model.UIQuotedMessage
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.kalium.logic.feature.conversation.InteractionAvailability
@@ -72,16 +73,17 @@ internal fun MessageComposerInput(
     interactionAvailability: InteractionAvailability,
     securityClassificationType: SecurityClassificationType,
     messageComposeInputState: MessageComposeInputState,
-    quotedMessageData: QuotedMessageUIData?,
+    quotedMessageData: UIQuotedMessage.UIQuotedData?,
     membersToMention: List<Contact>,
     actions: MessageComposerInputActions,
     inputFocusRequester: FocusRequester,
     isFileSharingEnabled: Boolean,
 ) {
     when (interactionAvailability) {
-        InteractionAvailability.BLOCKED_USER -> BlockedUserComposerInput()
-        InteractionAvailability.DELETED_USER -> DeletedUserComposerInput()
-        InteractionAvailability.NOT_MEMBER, InteractionAvailability.DISABLED -> {}
+        InteractionAvailability.BLOCKED_USER -> BlockedUserComposerInput(securityClassificationType)
+        InteractionAvailability.DELETED_USER -> DeletedUserComposerInput(securityClassificationType)
+        InteractionAvailability.NOT_MEMBER, InteractionAvailability.DISABLED ->
+            MessageComposerClassifiedBanner(securityClassificationType, PaddingValues(vertical = dimensions().spacing16x))
         InteractionAvailability.ENABLED -> {
             EnabledMessageComposerInput(
                 transition = transition,
@@ -103,7 +105,7 @@ private fun EnabledMessageComposerInput(
     transition: Transition<MessageComposeInputState>,
     securityClassificationType: SecurityClassificationType,
     messageComposeInputState: MessageComposeInputState,
-    quotedMessageData: QuotedMessageUIData?,
+    quotedMessageData: UIQuotedMessage.UIQuotedData?,
     membersToMention: List<Contact>,
     actions: MessageComposerInputActions,
     inputFocusRequester: FocusRequester,
@@ -151,7 +153,7 @@ private fun EnabledMessageComposerInput(
 private fun MessageComposeInput(
     transition: Transition<MessageComposeInputState>,
     messageComposeInputState: MessageComposeInputState,
-    quotedMessageData: QuotedMessageUIData?,
+    quotedMessageData: UIQuotedMessage.UIQuotedData?,
     securityClassificationType: SecurityClassificationType,
     onSelectedLineIndexChange: (Int) -> Unit,
     onLineBottomCoordinateChange: (Float) -> Unit,

@@ -90,7 +90,6 @@ fun MessageComposerInputRow(
                 .weight(weight = 1f, fill = true)
                 .wrapContentSize()
         ) {
-
             MessageComposerInput(
                 messageText = messageComposeInputState.messageText,
                 onMessageTextChanged = onMessageTextChanged,
@@ -118,17 +117,16 @@ fun MessageComposerInputRow(
                 onSelectedLineIndexChanged = onSelectedLineIndexChanged,
                 onLineBottomYCoordinateChanged = onLineBottomYCoordinateChanged
             )
+            if (messageComposeInputState is MessageComposeInputState.Active) {
+                when (val type = messageComposeInputState.type) {
+                    is MessageComposeInputType.EditMessage -> {
+                        AnimatedVisibility(visible = true) {
+                            EditExtraOptions(type, onEditSaveButtonClicked, onEditCancelButtonClicked)
+                        }
+                    }
 
-            transition.AnimatedVisibility(
-                visible = { it.isEditMessage },
-                enter = fadeIn(),
-                exit = fadeOut()
-            ) {
-                MessageEditActions(
-                    onEditSaveButtonClicked = onEditSaveButtonClicked,
-                    onEditCancelButtonClicked = onEditCancelButtonClicked,
-                    editButtonEnabled = messageComposeInputState.editSaveButtonEnabled
-                )
+                    is MessageComposeInputType.NewMessage -> {}
+                }
             }
         }
         transition.AnimatedVisibility(
@@ -142,6 +140,19 @@ fun MessageComposerInputRow(
             )
         }
     }
+}
+
+@Composable
+fun EditExtraOptions(
+    editMessageType: MessageComposeInputType.EditMessage,
+    onEditSaveButtonClicked: () -> Unit,
+    onEditCancelButtonClicked: () -> Unit
+) {
+    MessageEditActions(
+        onEditSaveButtonClicked = onEditSaveButtonClicked,
+        onEditCancelButtonClicked = onEditCancelButtonClicked,
+        editButtonEnabled = true
+    )
 }
 
 @Composable

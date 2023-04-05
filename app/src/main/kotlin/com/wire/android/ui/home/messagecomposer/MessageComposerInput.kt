@@ -301,5 +301,5 @@ fun PreviewEnabledMessageComposerInputActiveExpanded() {
 @Preview
 @Composable
 fun PreviewEnabledMessageComposerInputActiveEdit() {
-    generatePreviewWithState(MessageComposeInputState.Active(type = MessageComposeInputType.EditMessage("", "")))
+    generatePreviewWithState(MessageComposeInputState.Active(type = MessageComposeInputType.EditMessage("", "", TextFieldValue(""))))
 }

@@ -121,7 +121,7 @@ fun MessageComposerInputRow(
                 when (val type = messageComposeInputState.type) {
                     is MessageComposeInputType.EditMessage -> {
                         AnimatedVisibility(visible = true) {
-                            EditExtraOptions(type, onEditSaveButtonClicked, onEditCancelButtonClicked)
+                            EditExtraOptions(messageComposeInputState.editSaveButtonEnabled, onEditSaveButtonClicked, onEditCancelButtonClicked)
                         }
                     }
 
@@ -144,14 +144,14 @@ fun MessageComposerInputRow(
 
 @Composable
 fun EditExtraOptions(
-    editMessageType: MessageComposeInputType.EditMessage,
+    editButtonEnabled: Boolean,
     onEditSaveButtonClicked: () -> Unit,
     onEditCancelButtonClicked: () -> Unit
 ) {
     MessageEditActions(
         onEditSaveButtonClicked = onEditSaveButtonClicked,
         onEditCancelButtonClicked = onEditCancelButtonClicked,
-        editButtonEnabled = true
+        editButtonEnabled = editButtonEnabled
     )
 }
 
@@ -224,7 +224,7 @@ fun PreviewMessageComposerInputRowActiveExpanded() {
 fun PreviewMessageComposerInputRowActiveEdit() {
     val state = MessageComposeInputState.Active(
         messageText = TextFieldValue("original text"),
-        type = MessageComposeInputType.EditMessage("", "original text")
+        type = MessageComposeInputType.EditMessage("", "original text", TextFieldValue(""))
     )
     MessageComposerInputRow(updateTransition(targetState = state, label = ""), state)
 }
@@ -234,7 +234,7 @@ fun PreviewMessageComposerInputRowActiveEdit() {
 fun PreviewMessageComposerInputRowActiveEditSaveEnabled() {
     val state = MessageComposeInputState.Active(
         messageText = TextFieldValue("current text"),
-        type = MessageComposeInputType.EditMessage("", "original text")
+        type = MessageComposeInputType.EditMessage("", "original text", TextFieldValue(""))
     )
     MessageComposerInputRow(updateTransition(targetState = state, label = ""), state)
 }

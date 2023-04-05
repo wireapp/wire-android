@@ -175,7 +175,7 @@ data class MessageComposerInnerState(
     fun toEditMessage(messageId: String, originalText: String) {
         messageComposeInputState = MessageComposeInputState.Active(
             messageText = TextFieldValue(text = originalText, selection = TextRange(originalText.length)),
-            type = MessageComposeInputType.EditMessage(messageId, originalText)
+            type = MessageComposeInputType.EditMessage(messageId, originalText, messageComposeInputState.messageText)
         )
         quotedMessageData = null
         inputFocusRequester.requestFocus()
@@ -441,6 +441,7 @@ sealed class MessageComposeInputState {
     val editSaveButtonEnabled: Boolean
         get() = this is Active && this.type is MessageComposeInputType.EditMessage && messageText.text.trim().isNotBlank()
                 && messageText.text != this.type.originalText
+
 }
 
 enum class MessageComposeInputSize {
@@ -460,7 +461,9 @@ sealed class MessageComposeInputType {
     data class EditMessage(
         val messageId: String,
         val originalText: String,
+        val messageText: TextFieldValue
     ) : MessageComposeInputType()
+
 }
 
 sealed class AttachmentState {

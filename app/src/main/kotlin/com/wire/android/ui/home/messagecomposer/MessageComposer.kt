@@ -121,6 +121,11 @@ fun MessageComposer(
             }
         }
 
+        val onSendSelfDeletingMessage = remember{
+
+
+        }
+
         val onSendAttachmentClicked = remember {
             { attachmentBundle: AssetBundle? ->
                 onSendAttachment(attachmentBundle)

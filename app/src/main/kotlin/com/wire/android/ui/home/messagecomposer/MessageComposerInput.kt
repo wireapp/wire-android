@@ -58,7 +58,7 @@ import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.home.conversations.messages.QuotedMessagePreview
-import com.wire.android.ui.home.conversations.model.QuotedMessageUIData
+import com.wire.android.ui.home.conversations.model.UIQuotedMessage
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.kalium.logic.feature.conversation.InteractionAvailability
@@ -72,7 +72,7 @@ internal fun MessageComposerInput(
     interactionAvailability: InteractionAvailability,
     securityClassificationType: SecurityClassificationType,
     messageComposeInputState: MessageComposeInputState,
-    quotedMessageData: QuotedMessageUIData?,
+    quotedMessageData: UIQuotedMessage.UIQuotedData?,
     membersToMention: List<Contact>,
     actions: MessageComposerInputActions,
     inputFocusRequester: FocusRequester,
@@ -103,7 +103,7 @@ private fun EnabledMessageComposerInput(
     transition: Transition<MessageComposeInputState>,
     securityClassificationType: SecurityClassificationType,
     messageComposeInputState: MessageComposeInputState,
-    quotedMessageData: QuotedMessageUIData?,
+    quotedMessageData: UIQuotedMessage.UIQuotedData?,
     membersToMention: List<Contact>,
     actions: MessageComposerInputActions,
     inputFocusRequester: FocusRequester,
@@ -151,7 +151,7 @@ private fun EnabledMessageComposerInput(
 private fun MessageComposeInput(
     transition: Transition<MessageComposeInputState>,
     messageComposeInputState: MessageComposeInputState,
-    quotedMessageData: QuotedMessageUIData?,
+    quotedMessageData: UIQuotedMessage.UIQuotedData?,
     securityClassificationType: SecurityClassificationType,
     onSelectedLineIndexChange: (Int) -> Unit,
     onLineBottomCoordinateChange: (Float) -> Unit,

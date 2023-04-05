@@ -50,7 +50,6 @@ import com.wire.android.navigation.NavigationManager
 import com.wire.android.navigation.navigateToItem
 import com.wire.android.navigation.popWithArguments
 import com.wire.android.navigation.rememberTrackingAnimatedNavController
-import com.wire.android.ui.calling.ProximitySensorManager
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType

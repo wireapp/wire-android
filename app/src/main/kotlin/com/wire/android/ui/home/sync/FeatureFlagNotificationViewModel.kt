@@ -138,7 +138,7 @@ class FeatureFlagNotificationViewModel @Inject constructor(
         // correctly for some strange reason.
         runBlocking {
             if (checkNumberOfSessions() > 0) {
-                featureFlagState = featureFlagState.copy(showFileSharingRestrictedDialog = featureFlagState.isFileSharingEnabledState)
+                featureFlagState = featureFlagState.copy(showFileSharingRestrictedDialog = !featureFlagState.isFileSharingEnabledState)
             }
         }
     }

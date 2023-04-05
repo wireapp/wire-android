@@ -120,32 +120,27 @@ fun MessageComposerInputRow(
                 onSelectedLineIndexChanged = onSelectedLineIndexChanged,
                 onLineBottomYCoordinateChanged = onLineBottomYCoordinateChanged
             )
-            if (messageComposeInputState is MessageComposeInputState.Active) {
-                when (val type = messageComposeInputState.type) {
-                    is MessageComposeInputType.EditMessage -> {
-                        AnimatedVisibility(visible = true) {
-                            EditExtraOptions(
-                                messageComposeInputState.editSaveButtonEnabled,
-                                onEditSaveButtonClicked,
-                                onEditCancelButtonClicked
-                            )
-                        }
-                    }
-
-                    is MessageComposeInputType.NewMessage -> {}
-                    is MessageComposeInputType.SelfDeletingMessage -> {}
-                }
+            AnimatedVisibility(messageComposeInputState.isEditMessage) {
+                EditExtraOptions(messageComposeInputState.editSaveButtonEnabled, onEditSaveButtonClicked, onEditCancelButtonClicked)
             }
+
         }
-        transition.AnimatedVisibility(
-            visible = { it.isNewMessage },
-            enter = fadeIn(),
-            exit = fadeOut()
-        ) {
-            MessageSendActions(
-                onSendButtonClicked = onSendButtonClicked,
-                sendButtonEnabled = messageComposeInputState.sendButtonEnabled
-            )
+        if (messageComposeInputState is MessageComposeInputState.Active) {
+            when (messageComposeInputState.type) {
+                is MessageComposeInputType.NewMessage ->
+                    MessageSendActions(
+                        onSendButtonClicked = onSendButtonClicked,
+                        sendButtonEnabled = messageComposeInputState.sendButtonEnabled
+                    )
+
+                is MessageComposeInputType.SelfDeletingMessage ->
+                    MessageSendActions(
+                        onSendButtonClicked = onSendButtonClicked,
+                        sendButtonEnabled = messageComposeInputState.sendButtonEnabled
+                    )
+
+                else -> {}
+            }
         }
     }
 }

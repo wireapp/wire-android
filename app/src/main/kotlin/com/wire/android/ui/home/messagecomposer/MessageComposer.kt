@@ -284,7 +284,7 @@ private fun MessageComposer(
                                 },
                                 onEditSaveButtonClicked = onEditSaveButtonClicked,
                                 onEditCancelButtonClicked = messageComposerState::closeEditToInactive,
-//                                onShowSelfDeletionOption = onShowSelfDeletionOption
+                                onSelfDeletionOptionButtonClicked = onShowSelfDeletionOption
                             )
                         }
                     )

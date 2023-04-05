@@ -70,7 +70,6 @@ class AttachmentInnerState(val context: Context) {
     }
 }
 
-
 sealed class AttachmentState {
     object NotPicked : AttachmentState()
     class Picked(val attachmentBundle: AssetBundle) : AttachmentState()

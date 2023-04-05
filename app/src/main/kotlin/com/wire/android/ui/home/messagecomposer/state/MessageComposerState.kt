@@ -343,6 +343,14 @@ data class MessageComposerInnerState(
     fun cancelReply() {
         quotedMessageData = null
     }
+
+    fun specifySelfDeletionTime(selfDeletionDuration: SelfDeletionDuration) {
+        messageComposeInputState =  MessageComposeInputState.Active(
+            messageText =  messageComposeInputState.messageText,
+            inputFocused = true,
+            type = MessageComposeInputType.SelfDeletingMessage(selfDeletionDuration.value)
+        )
+    }
 }
 
 private fun TextFieldValue.currentMentionStartIndex(): Int {

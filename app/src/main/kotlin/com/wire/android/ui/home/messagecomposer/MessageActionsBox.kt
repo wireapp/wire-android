@@ -77,7 +77,7 @@ fun MessageComposeActionsBox(
                     MessageComposeActions(
                         state.attachmentOptionsDisplayed,
                         isMentionActive,
-                        true,
+                        state.isEditMessage,
                         isFileSharingEnabled,
                         startMention,
                         onAdditionalOptionButtonClicked,

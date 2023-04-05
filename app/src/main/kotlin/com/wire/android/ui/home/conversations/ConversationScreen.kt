@@ -79,9 +79,11 @@ import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewS
 import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.android.ui.home.conversations.model.EditMessageBundle
 import com.wire.android.ui.home.conversations.model.UIMessage
+import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMenuItems
 import com.wire.android.ui.home.messagecomposer.MessageComposer
 import com.wire.android.ui.home.messagecomposer.state.MessageComposerInnerState
 import com.wire.android.ui.home.messagecomposer.model.UiMention
+import com.wire.android.ui.home.messagecomposer.state.SelfDeletionDuration
 import com.wire.android.ui.home.messagecomposer.state.rememberMessageComposerInnerState
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.util.permission.CallingAudioRequestFlow
@@ -358,11 +360,10 @@ private fun ConversationScreen(
             }
 
             is ConversationScreenState.BottomSheetMenuType.SelfDeletion -> {
-                emptyList()
-//                SelfDeletionMenuItems(
-//                    currentlySelected =
-//                    onSelfDeletionDurationChanged = { messageComposerInnerState.specifySelfDeletionTime(it) }
-//                )
+                SelfDeletionMenuItems(
+                    currentlySelected = SelfDeletionDuration.FiveMinutes,
+                    onSelfDeletionDurationChanged = { messageComposerInnerState.specifySelfDeletionTime(it) }
+                )
             }
 
             ConversationScreenState.BottomSheetMenuType.None -> emptyList()

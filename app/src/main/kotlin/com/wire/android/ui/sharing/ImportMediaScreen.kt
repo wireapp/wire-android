@@ -42,6 +42,7 @@ import com.wire.android.model.Clickable
 import com.wire.android.model.SnackBarMessage
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.UserProfileAvatar
+import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
@@ -50,6 +51,7 @@ import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.topappbar.search.SearchBarState
 import com.wire.android.ui.common.topappbar.search.SearchTopBar
 import com.wire.android.ui.common.topappbar.search.rememberSearchbarState
+import com.wire.android.ui.home.FeatureFlagState
 import com.wire.android.ui.home.conversationslist.common.ConversationList
 import com.wire.android.ui.home.conversationslist.model.ConversationFolder
 import com.wire.android.ui.home.newconversation.common.SendContentButton
@@ -114,14 +116,18 @@ fun ImportMediaContent(importMediaViewModel: ImportMediaViewModel, featureFlagNo
             },
             modifier = Modifier.background(colorsScheme().background),
             content = { internalPadding ->
-                if (featureFlagNotificationViewModel.featureFlagState.showFileSharingRestrictedDialog) {
-                    FileSharingRestrictedContent(internalPadding)
-                } else {
+                if (featureFlagNotificationViewModel.featureFlagState.isSharingAllowed()) {
                     ImportMediaContent(this, internalPadding, importMediaViewModel, searchBarState)
+                } else {
+                    FileSharingRestrictedContent(
+                        internalPadding,
+                        featureFlagNotificationViewModel.featureFlagState.fileSharingRestrictedState,
+                        featureFlagNotificationViewModel::closeScreen
+                    )
                 }
             },
             bottomBar = {
-                if (!featureFlagNotificationViewModel.featureFlagState.showFileSharingRestrictedDialog) {
+                if (featureFlagNotificationViewModel.featureFlagState.isSharingAllowed()) {
                     ImportMediaBottomBar(importMediaViewModel)
                 }
             }
@@ -132,7 +138,11 @@ fun ImportMediaContent(importMediaViewModel: ImportMediaViewModel, featureFlagNo
 }
 
 @Composable
-fun FileSharingRestrictedContent(internalPadding: PaddingValues) {
+fun FileSharingRestrictedContent(
+    internalPadding: PaddingValues,
+    sharingRestrictedState: FeatureFlagState.SharingRestrictedState,
+    openWireAction: () -> Unit
+) {
     val context = LocalContext.current
     val learnMoreUrl = stringResource(R.string.file_sharing_restricted_lear_more_link)
 
@@ -144,22 +154,35 @@ fun FileSharingRestrictedContent(internalPadding: PaddingValues) {
             .padding(internalPadding)
             .padding(horizontal = dimensions().spacing48x)
     ) {
+        val textRes = if (sharingRestrictedState == FeatureFlagState.SharingRestrictedState.NO_USER)
+            R.string.file_sharing_restricted_description_no_users
+        else R.string.file_sharing_restricted_description_by_team
         Text(
-            text = stringResource(R.string.file_sharing_restricted_description),
+            text = stringResource(textRes),
             textAlign = TextAlign.Center,
             style = MaterialTheme.wireTypography.body01,
             overflow = TextOverflow.Ellipsis,
         )
+
         Spacer(modifier = Modifier.height(dimensions().spacing16x))
-        LinkText(
-            linkTextData = listOf(
-                LinkTextData(text = stringResource(R.string.label_learn_more),
-                    tag = "learn_more",
-                    annotation = learnMoreUrl,
-                    onClick = { CustomTabsHelper.launchUrl(context, learnMoreUrl) }
+
+        if (sharingRestrictedState == FeatureFlagState.SharingRestrictedState.NO_USER) {
+            WirePrimaryButton(
+                onClick = openWireAction,
+                text = stringResource(R.string.file_sharing_restricted_button_text_no_users),
+                fillMaxWidth = false
+            )
+        } else {
+            LinkText(
+                linkTextData = listOf(
+                    LinkTextData(text = stringResource(R.string.label_learn_more),
+                        tag = "learn_more",
+                        annotation = learnMoreUrl,
+                        onClick = { CustomTabsHelper.launchUrl(context, learnMoreUrl) }
+                    )
                 )
             )
-        )
+        }
     }
 }
 

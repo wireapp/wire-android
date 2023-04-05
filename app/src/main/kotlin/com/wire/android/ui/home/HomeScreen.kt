@@ -110,16 +110,26 @@ fun HomeScreen(
         )
     }
 
-    FileRestrictionDialog(
-        featureFlagState = featureFlagNotificationViewModel.featureFlagState,
-        hideDialogStatus = featureFlagNotificationViewModel::dismissFileSharingDialog
-    )
-
     with(featureFlagNotificationViewModel.featureFlagState) {
+        if (showFileSharingDialog) {
+            FileRestrictionDialog(
+                isFileSharingEnabled = featureFlagNotificationViewModel.featureFlagState.showFileSharingDialog,
+                hideDialogStatus = featureFlagNotificationViewModel::dismissFileSharingDialog
+            )
+        }
+
         if (shouldShowGuestRoomLinkDialog) {
             GuestRoomLinkFeatureFlagDialog(
                 isGuestRoomLinkEnabled = isGuestRoomLinkEnabled,
                 onDismiss = featureFlagNotificationViewModel::dismissGuestRoomLinkDialog
+            )
+        }
+
+        if (shouldShowSelfDeletingMessagesDialog) {
+            SelfDeletingMessagesDialog(
+                isSelfDeletingMessagesEnabled = areSelfDeletedMessagesEnabled,
+                enforcedTimeout = null,
+                hideDialogStatus = featureFlagNotificationViewModel::dismissSelfDeletingMessagesDialog
             )
         }
     }

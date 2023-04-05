@@ -25,5 +25,7 @@ data class FeatureFlagState(
     val isFileSharingEnabledState: Boolean = true,
     val showFileSharingRestrictedDialog: Boolean = false,
     val shouldShowGuestRoomLinkDialog: Boolean = false,
-    val isGuestRoomLinkEnabled: Boolean = true
+    val isGuestRoomLinkEnabled: Boolean = true,
+    val shouldShowSelfDeletingMessagesDialog: Boolean = false,
+    val areSelfDeletedMessagesEnabled: Boolean = true
 )

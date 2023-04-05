@@ -32,6 +32,7 @@ import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.AccountInfo
+import com.wire.kalium.logic.feature.selfdeletingMessages.ObserveSelfDeletingMessagesUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
@@ -39,6 +40,7 @@ import com.wire.kalium.logic.feature.user.guestroomlink.MarkGuestLinkFeatureFlag
 import com.wire.kalium.logic.feature.user.guestroomlink.ObserveGuestRoomLinkFeatureFlagUseCase
 import com.wire.kalium.logic.feature.session.GetSessionsUseCase
 import com.wire.kalium.logic.feature.user.MarkFileSharingChangeAsNotifiedUseCase
+import com.wire.kalium.logic.feature.user.MarkSelfDeletingMessagesChangeAsNotifiedUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
@@ -51,6 +53,8 @@ class FeatureFlagNotificationViewModel @Inject constructor(
     private val getSessions: GetSessionsUseCase,
     private val currentSessionUseCase: CurrentSessionUseCase,
     private val markFileSharingAsNotified: MarkFileSharingChangeAsNotifiedUseCase,
+    private val markSelfDeletingMessagesAsNotified: MarkSelfDeletingMessagesChangeAsNotifiedUseCase,
+    private val observeSelfDeletingMessages: ObserveSelfDeletingMessagesUseCase,
     private val observeGuestRoomLinkFeatureFlag: ObserveGuestRoomLinkFeatureFlagUseCase,
     private val markGuestLinkFeatureFlagAsNotChanged: MarkGuestLinkFeatureFlagAsNotChangedUseCase
 ) : ViewModel() {
@@ -80,6 +84,7 @@ class FeatureFlagNotificationViewModel @Inject constructor(
                             .firstOrNull { it == SyncState.Live }?.let {
                                 setFileSharingState(currentSessionResult.accountInfo.userId)
                                 setGuestRoomLinkFeatureFlag()
+                                setSelfDeletedMessagesFeatureFlag()
                             }
                     }
                 }
@@ -110,6 +115,26 @@ class FeatureFlagNotificationViewModel @Inject constructor(
                     featureFlagState = featureFlagState.copy(shouldShowGuestRoomLinkDialog = it)
                 }
             }
+        }
+    }
+
+    private suspend fun setSelfDeletedMessagesFeatureFlag() {
+        viewModelScope.launch {
+            observeSelfDeletingMessages().collect { selfDeletingMessagesStatus ->
+                selfDeletingMessagesStatus.isEnabled.let {
+                    featureFlagState = featureFlagState.copy(areSelfDeletedMessagesEnabled = it)
+                }
+                selfDeletingMessagesStatus.isStatusChanged?.let {
+                    featureFlagState = featureFlagState.copy(shouldShowSelfDeletingMessagesDialog = it)
+                }
+            }
+        }
+    }
+
+    fun dismissSelfDeletingMessagesDialog() {
+        featureFlagState = featureFlagState.copy(shouldShowSelfDeletingMessagesDialog = false)
+        viewModelScope.launch {
+            markSelfDeletingMessagesAsNotified()
         }
     }
 

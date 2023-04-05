@@ -21,9 +21,8 @@
 package com.wire.android.ui.home.messagecomposer
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
@@ -41,18 +40,15 @@ fun MessageComposerClassifiedBanner(
 ) {
     val isClassifiedConversation = securityClassificationType != SecurityClassificationType.NONE
     if (isClassifiedConversation) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
                 .fillMaxWidth()
                 .background(color = colorsScheme().backgroundVariant)
                 .padding(paddingValues)
         ) {
-
-            Box(Modifier.fillMaxWidth()) {
-                VerticalSpace.x8()
-                SecurityClassificationBanner(securityClassificationType = securityClassificationType)
-            }
+            VerticalSpace.x8()
+            SecurityClassificationBanner(securityClassificationType = securityClassificationType)
         }
     }
 }

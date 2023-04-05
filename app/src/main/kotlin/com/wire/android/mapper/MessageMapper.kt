@@ -23,6 +23,7 @@ package com.wire.android.mapper
 import com.wire.android.R
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.home.conversations.findUser
+import com.wire.android.ui.home.conversations.model.ExpirationStatus
 import com.wire.android.ui.home.conversations.model.MessageFooter
 import com.wire.android.ui.home.conversations.model.MessageHeader
 import com.wire.android.ui.home.conversations.model.MessageSource
@@ -32,13 +33,11 @@ import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.conversations.previewAsset
 import com.wire.android.ui.home.conversationslist.model.Membership
-import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.time.ISOFormatter
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.message.DeliveryStatus
 import com.wire.kalium.logic.data.message.Message
-import com.wire.kalium.logic.data.message.Message.Visibility.HIDDEN
 import com.wire.kalium.logic.data.message.MessageContent
 import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.SelfUser
@@ -48,7 +47,6 @@ import com.wire.kalium.logic.data.user.UserId
 import javax.inject.Inject
 
 class MessageMapper @Inject constructor(
-    private val dispatcherProvider: DispatcherProvider,
     private val userTypeMapper: UserTypeMapper,
     private val messageContentMapper: MessageContentMapper,
     private val isoFormatter: ISOFormatter,
@@ -76,6 +74,7 @@ class MessageMapper @Inject constructor(
         )
     }.distinct()
 
+    @Suppress("LongMethod")
     fun toUIMessage(userList: List<User>, message: Message.Standalone): UIMessage? {
         val sender = userList.findUser(message.senderUserId)
         val content = messageContentMapper.fromMessage(
@@ -116,20 +115,36 @@ class MessageMapper @Inject constructor(
             MessageFooter(message.id)
         }
 
-        // System messages don't have header so without the content there is nothing to be displayed.
-        // Also hidden messages should not be displayed, as well preview images
-        val shouldNotDisplay =
-            message is Message.System && content == null || message.visibility == HIDDEN || content is UIMessageContent.PreviewAssetMessage
+        return when (content) {
+            is UIMessageContent.Regular -> {
+                UIMessage.Regular(
+                    messageContent = content,
+                    source = if (sender is SelfUser) MessageSource.Self else MessageSource.OtherUser,
+                    header = provideMessageHeader(sender, message),
+                    messageFooter = footer,
+                    userAvatarData = getUserAvatarData(sender),
+                    expirationStatus = provideExpirationData(message),
+                )
+            }
+            is UIMessageContent.SystemMessage ->
+                UIMessage.System(
+                    messageContent = content,
+                    source = if (sender is SelfUser) MessageSource.Self else MessageSource.OtherUser,
+                    header = provideMessageHeader(sender, message),
+                )
+            null -> null
+            UIMessageContent.PreviewAssetMessage -> null // Preview images messages should not be displayed
+        }
+    }
 
-        return if (shouldNotDisplay) {
-            null
+    private fun provideExpirationData(message: Message.Standalone): ExpirationStatus {
+        val expirationData = (message as? Message.Regular)?.expirationData
+        return if (expirationData == null) {
+            ExpirationStatus.NotExpirable
         } else {
-            UIMessage(
-                messageContent = content,
-                messageSource = if (sender is SelfUser) MessageSource.Self else MessageSource.OtherUser,
-                messageHeader = provideMessageHeader(sender, message),
-                messageFooter = footer,
-                userAvatarData = getUserAvatarData(sender)
+            ExpirationStatus.Expirable(
+                expireAfter = expirationData.expireAfter,
+                selfDeletionStatus = expirationData.selfDeletionStatus
             )
         }
     }

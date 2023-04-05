@@ -32,25 +32,25 @@ import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.home.conversations.model.MessageBody
 import com.wire.android.ui.home.conversations.model.MessageFooter
-import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.conversations.model.MessageHeader
 import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.model.MessageStatus
 import com.wire.android.ui.home.conversations.model.MessageTime
 import com.wire.android.ui.home.conversations.model.UIMessage
+import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.message.Message
-import com.wire.kalium.logic.data.user.UserAssetId
 import com.wire.kalium.logic.data.user.ConnectionState
+import com.wire.kalium.logic.data.user.UserAssetId
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 
 val mockFooter = MessageFooter("", mapOf("👍" to 1), setOf("👍"))
 
-val mockMessageWithText = UIMessage(
+val mockMessageWithText = UIMessage.Regular(
     userAvatarData = UserAvatarData(null, UserAvailabilityStatus.AVAILABLE),
-    messageHeader = MessageHeader(
+    header = MessageHeader(
         username = UIText.DynamicString("John Doe"),
         membership = Membership.Guest,
         isLegalHold = true,
@@ -71,8 +71,24 @@ val mockMessageWithText = UIMessage(
             )
         )
     ),
-    messageSource = MessageSource.Self,
+    source = MessageSource.Self,
     messageFooter = mockFooter
+)
+
+val mockMessageWithKnock = UIMessage.System(
+    header = MessageHeader(
+        username = UIText.DynamicString("John Doe"),
+        membership = Membership.Guest,
+        isLegalHold = true,
+        messageTime = MessageTime("12.23pm"),
+        messageStatus = MessageStatus.Untouched,
+        messageId = "",
+        connectionState = ConnectionState.ACCEPTED,
+        isSenderDeleted = false,
+        isSenderUnavailable = false
+    ),
+    messageContent = UIMessageContent.SystemMessage.Knock(UIText.DynamicString("John Doe pinged")),
+    source = MessageSource.Self,
 )
 
 val mockImageLoader = WireSessionImageLoader(object : ImageLoader {
@@ -86,13 +102,12 @@ val mockImageLoader = WireSessionImageLoader(object : ImageLoader {
     override fun shutdown() = TODO("Not yet implemented")
 })
 
-
-fun mockAssetMessage(uploadStatus: Message.UploadStatus = Message.UploadStatus.UPLOADED) = UIMessage(
+fun mockAssetMessage(uploadStatus: Message.UploadStatus = Message.UploadStatus.UPLOADED) = UIMessage.Regular(
     userAvatarData = UserAvatarData(
         UserAvatarAsset(mockImageLoader, UserAssetId("a", "domain")),
         UserAvailabilityStatus.AVAILABLE
     ),
-    messageHeader = MessageHeader(
+    header = MessageHeader(
         username = UIText.DynamicString("John Doe"),
         membership = Membership.Guest,
         isLegalHold = true,
@@ -102,7 +117,7 @@ fun mockAssetMessage(uploadStatus: Message.UploadStatus = Message.UploadStatus.U
         connectionState = ConnectionState.ACCEPTED,
         isSenderDeleted = false,
         isSenderUnavailable = false
-        ),
+    ),
     messageContent = UIMessageContent.AssetMessage(
         assetName = "This is some test asset message that has a not so long title",
         assetExtension = "ZIP",
@@ -112,7 +127,7 @@ fun mockAssetMessage(uploadStatus: Message.UploadStatus = Message.UploadStatus.U
         downloadStatus = Message.DownloadStatus.NOT_DOWNLOADED
     ),
     messageFooter = mockFooter,
-    messageSource = MessageSource.Self
+    source = MessageSource.Self
 )
 
 @Suppress("MagicNumber")
@@ -124,9 +139,9 @@ fun mockedImg(
 )
 
 @Suppress("MagicNumber")
-fun mockedImageUIMessage(uploadStatus: Message.UploadStatus = Message.UploadStatus.UPLOADED) = UIMessage(
+fun mockedImageUIMessage(uploadStatus: Message.UploadStatus = Message.UploadStatus.UPLOADED) = UIMessage.Regular(
     userAvatarData = UserAvatarData(null, UserAvailabilityStatus.AVAILABLE),
-    messageHeader = MessageHeader(
+    header = MessageHeader(
         username = UIText.DynamicString("John Doe"),
         membership = Membership.External,
         isLegalHold = false,
@@ -136,17 +151,17 @@ fun mockedImageUIMessage(uploadStatus: Message.UploadStatus = Message.UploadStat
         connectionState = ConnectionState.ACCEPTED,
         isSenderDeleted = false,
         isSenderUnavailable = false
-        ),
+    ),
     messageContent = mockedImg(uploadStatus),
     messageFooter = mockFooter,
-    messageSource = MessageSource.Self
+    source = MessageSource.Self
 )
 
 @Suppress("LongMethod", "MagicNumber")
 fun getMockedMessages(): List<UIMessage> = listOf(
-    UIMessage(
+    UIMessage.Regular(
         userAvatarData = UserAvatarData(null, UserAvailabilityStatus.AVAILABLE),
-        messageHeader = MessageHeader(
+        header = MessageHeader(
             username = UIText.DynamicString("John Doe"),
             membership = Membership.Guest,
             isLegalHold = true,
@@ -167,12 +182,12 @@ fun getMockedMessages(): List<UIMessage> = listOf(
                 )
             )
         ),
-        messageSource = MessageSource.Self,
+        source = MessageSource.Self,
         messageFooter = mockFooter,
-        ),
-    UIMessage(
+    ),
+    UIMessage.Regular(
         userAvatarData = UserAvatarData(null, UserAvailabilityStatus.AVAILABLE),
-        messageHeader = MessageHeader(
+        header = MessageHeader(
             username = UIText.DynamicString("John Doe"),
             membership = Membership.Guest,
             isLegalHold = true,
@@ -184,12 +199,12 @@ fun getMockedMessages(): List<UIMessage> = listOf(
             isSenderUnavailable = false
         ),
         messageContent = mockedImg(),
-        messageSource = MessageSource.Self,
+        source = MessageSource.Self,
         messageFooter = mockFooter,
-        ),
-    UIMessage(
+    ),
+    UIMessage.Regular(
         userAvatarData = UserAvatarData(null, UserAvailabilityStatus.AVAILABLE),
-        messageHeader = MessageHeader(
+        header = MessageHeader(
             username = UIText.DynamicString("John Doe"),
             membership = Membership.External,
             isLegalHold = false,
@@ -201,12 +216,12 @@ fun getMockedMessages(): List<UIMessage> = listOf(
             isSenderUnavailable = false
         ),
         messageContent = mockedImg(),
-        messageSource = MessageSource.Self,
+        source = MessageSource.Self,
         messageFooter = mockFooter,
-        ),
-    UIMessage(
+    ),
+    UIMessage.Regular(
         userAvatarData = UserAvatarData(null, UserAvailabilityStatus.AVAILABLE),
-        messageHeader = MessageHeader(
+        header = MessageHeader(
             username = UIText.DynamicString("John Doe"),
             membership = Membership.External,
             isLegalHold = false,
@@ -218,12 +233,12 @@ fun getMockedMessages(): List<UIMessage> = listOf(
             isSenderUnavailable = false
         ),
         messageContent = mockedImg(),
-        messageSource = MessageSource.Self,
+        source = MessageSource.Self,
         messageFooter = mockFooter,
-        ),
-    UIMessage(
+    ),
+    UIMessage.Regular(
         userAvatarData = UserAvatarData(null, UserAvailabilityStatus.AVAILABLE),
-        messageHeader = MessageHeader(
+        header = MessageHeader(
             username = UIText.DynamicString("John Doe"),
             membership = Membership.External,
             isLegalHold = false,
@@ -244,12 +259,12 @@ fun getMockedMessages(): List<UIMessage> = listOf(
                 )
             )
         ),
-        messageSource = MessageSource.Self,
+        source = MessageSource.Self,
         messageFooter = mockFooter
-        ),
-    UIMessage(
+    ),
+    UIMessage.Regular(
         userAvatarData = UserAvatarData(null, UserAvailabilityStatus.AVAILABLE),
-        messageHeader = MessageHeader(
+        header = MessageHeader(
             username = UIText.DynamicString("John Doe"),
             membership = Membership.External,
             isLegalHold = false,
@@ -261,12 +276,12 @@ fun getMockedMessages(): List<UIMessage> = listOf(
             isSenderUnavailable = false
         ),
         messageContent = mockedImg(),
-        messageSource = MessageSource.Self,
+        source = MessageSource.Self,
         messageFooter = mockFooter,
-        ),
-    UIMessage(
+    ),
+    UIMessage.Regular(
         userAvatarData = UserAvatarData(null, UserAvailabilityStatus.AVAILABLE),
-        messageHeader = MessageHeader(
+        header = MessageHeader(
             username = UIText.DynamicString("John Doe"),
             membership = Membership.External,
             isLegalHold = false,
@@ -303,8 +318,7 @@ fun getMockedMessages(): List<UIMessage> = listOf(
                 )
             )
         ),
-        messageSource = MessageSource.Self,
+        source = MessageSource.Self,
         messageFooter = mockFooter
-        )
+    )
 )
-

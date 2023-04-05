@@ -28,6 +28,7 @@ import com.wire.android.framework.TestConversation
 import com.wire.android.framework.TestMessage
 import com.wire.android.framework.TestMessage.buildAssetMessage
 import com.wire.android.framework.TestUser
+import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.conversations.model.UIMessageContent.AssetMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent.PreviewAssetMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent.SystemMessage
@@ -306,7 +307,7 @@ class EncodedMessageContentMapperTest {
         val resultContentHidden = mapper.fromMessage(hiddenMessage, listOf())
         // Then
         assertTrue(resultContentVisible != null)
-        assertTrue(resultContentDeleted == null)
+        assertTrue(resultContentDeleted == UIMessageContent.Deleted)
         assertTrue(resultContentHidden == null)
     }
 

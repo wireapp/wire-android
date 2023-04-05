@@ -57,6 +57,7 @@
     <string name="label_update">Update</string>
     <string name="label_close">Close</string>
     <string name="label_download">Download</string>
+    <string name="label_open_asset_externally">Open</string>
     <string name="label_show">Show</string>
     <string name="label_show_all">Show All</string>
     <string name="label_show_less">Show Less</string>
@@ -83,6 +84,7 @@
     <string name="content_description_muted_conversation">Muted conversation</string>
     <string name="content_description_check">Check mark</string>
     <string name="content_description_download_icon">Download icon</string>
+    <string name="content_description_open_asset_icon">Open icon</string>
     <string name="content_description_add_to_favourite">Add to Favorites</string>
     <string name="content_description_move_to_folder">Move to folder</string>
     <string name="content_description_move_to_archive">Move to archive</string>
@@ -344,6 +346,7 @@
     <string name="conversations_calls_tab_title">Calls</string>
     <string name="conversations_mentions_tab_title">Mentions</string>
     <string name="sent_a_message_with_content">sent a message with %s content</string>
+    <string name="sent_a_message_with_unknown_content">sent a message with unknown content</string>
     <string name="new_group_title">New Group</string>
     <string name="new_group_description">Up to 500 people can join a group conversation.</string>
     <string name="group_name_title">Group Name</string>
@@ -565,16 +568,14 @@
         <item quantity="one">1 person was removed from the conversation</item>
         <item quantity="other">%1$d people were removed from the conversation</item>
     </plurals>
-    <string name="last_message_self_user_shared_asset">shared media asset</string>
-    <string name="last_message_other_user_shared_asset">shared media asset</string>
+    <string name="last_message_self_user_shared_asset">shared a file.</string>
+    <string name="last_message_other_user_shared_asset">shared a file.</string>
     <string name="last_message_self_user_shared_image">shared an image.</string>
     <string name="last_message_other_user_shared_image">shared an image.</string>
     <string name="last_message_self_user_shared_video">shared a video.</string>
     <string name="last_message_other_user_shared_video">shared a video.</string>
     <string name="last_message_self_user_shared_audio">shared an audio message.</string>
     <string name="last_message_other_user_shared_audio">shared an audio message.</string>
-    <string name="last_message_self_user_shared_file">shared a file.</string>
-    <string name="last_message_other_user_shared_file">shared a file.</string>
     <string name="last_message_self_user_knock">pinged.</string>
     <string name="last_message_other_user_knock">pinged.</string>
     <string name="last_message_call">called.</string>
@@ -945,4 +946,27 @@
     <string name="label_fingerprint_description">If fingerprints don’t match, reset the session to generate new encryption keys on both sides.</string>
     <string name="label_self_fingerprint_description">To let others verify this device, share this fingerprint or the QR code with them.</string>
     <string name="unknown_user_name">unknown</string>
+    <string name="self_deleting_message_time_left">Self-deleting message • %1$s</string>
+    <string name="self_deleting_message_label">Self-deleting message</string>
+    <!-- Expirable messages -->
+    <plurals name="weeks_left">
+        <item quantity="one">1 week left</item>
+        <item quantity="other">%1$d weeks left</item>
+    </plurals>
+    <plurals name="days_left">
+        <item quantity="one">1 day left</item>
+        <item quantity="other">%1$d days left</item>
+    </plurals>
+    <plurals name="hours_left">
+        <item quantity="one">1 hour left</item>
+        <item quantity="other">%1$d hours left</item>
+    </plurals>
+    <plurals name="minutes_left">
+        <item quantity="one">1 minute left</item>
+        <item quantity="other">%1$d minutes left</item>
+    </plurals>
+    <plurals name="seconds_left">
+        <item quantity="one">1 second left</item>
+        <item quantity="other">%1$d seconds left</item>
+    </plurals>
 </resources>

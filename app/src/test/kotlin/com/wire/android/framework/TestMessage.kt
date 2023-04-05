@@ -72,6 +72,15 @@ object TestMessage {
         Message.UploadStatus.NOT_UPLOADED,
         Message.DownloadStatus.NOT_DOWNLOADED
     )
+    val GENERIC_ASSET_CONTENT = AssetContent(
+        0L,
+        "name",
+        "application/zip",
+        null,
+        DUMMY_ASSET_REMOTE_DATA,
+        Message.UploadStatus.NOT_UPLOADED,
+        Message.DownloadStatus.NOT_DOWNLOADED
+    )
     val ASSET_MESSAGE = Message.Regular(
         id = "messageID",
         content = MessageContent.Asset(ASSET_IMAGE_CONTENT),
@@ -137,10 +146,10 @@ object TestMessage {
         isSenderDeleted = false,
         isSenderUnavailable = false
     )
-    val UI_TEXT_MESSAGE = UIMessage(
+    val UI_TEXT_MESSAGE = UIMessage.Regular(
         userAvatarData = UserAvatarData(asset = null, availabilityStatus = UserAvailabilityStatus.NONE),
-        messageSource = MessageSource.OtherUser,
-        messageHeader = UI_MESSAGE_HEADER,
+        source = MessageSource.OtherUser,
+        header = UI_MESSAGE_HEADER,
         messageContent = TextMessage(MessageBody(UIText.DynamicString("Some Text Message"))),
         messageFooter = MessageFooter(UI_MESSAGE_HEADER.messageId)
     )

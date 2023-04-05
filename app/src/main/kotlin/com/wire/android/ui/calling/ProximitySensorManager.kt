@@ -26,6 +26,7 @@ import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.os.PowerManager
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import com.wire.android.di.ApplicationScope
 import com.wire.android.di.KaliumCoreLogic
@@ -77,9 +78,13 @@ class ProximitySensorManager @Inject constructor(
                             val isCallRunning = coreLogic.getSessionScope(userId).calls.isCallRunning()
                             val distance = event.values.first()
                             val shouldTurnOffScreen = !wakeLock.isHeld && distance == NEAR_DISTANCE && isCallRunning
+                            Log.d(TAG, "onSensorChanged: isCallRunning: $isCallRunning distance: $distance " +
+                                    "shouldTurnOffScreen: $shouldTurnOffScreen")
                             if (shouldTurnOffScreen) {
+                                Log.d(TAG, "onSensorChanged: acquire wakeLock")
                                 wakeLock.acquire()
                             } else if (wakeLock.isHeld) {
+                                Log.d(TAG, "onSensorChanged: release wakeLock")
                                 wakeLock.release()
                             }
                         }
@@ -93,6 +98,7 @@ class ProximitySensorManager @Inject constructor(
         }
 
         override fun onAccuracyChanged(p0: Sensor?, p1: Int) {
+            Log.d(TAG, "onAccuracyChanged: p0: $p0 p1: $p1")
             // Do something here if sensor accuracy changes.
         }
     }
@@ -103,5 +109,3 @@ class ProximitySensorManager @Inject constructor(
         const val NEAR_DISTANCE = 0F
     }
 }
-
-

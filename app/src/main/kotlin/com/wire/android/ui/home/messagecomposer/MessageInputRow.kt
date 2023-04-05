@@ -25,8 +25,6 @@ import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Transition
 import androidx.compose.animation.core.updateTransition
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -37,6 +35,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -126,18 +125,19 @@ fun MessageComposerInputRow(
 
         }
         if (messageComposeInputState is MessageComposeInputState.Active) {
-            when (messageComposeInputState.type) {
+            when (val type = messageComposeInputState.type) {
                 is MessageComposeInputType.NewMessage ->
                     MessageSendActions(
                         onSendButtonClicked = onSendButtonClicked,
                         sendButtonEnabled = messageComposeInputState.sendButtonEnabled
                     )
 
-                is MessageComposeInputType.SelfDeletingMessage ->
-                    MessageSendActions(
-                        onSendButtonClicked = onSendButtonClicked,
-                        sendButtonEnabled = messageComposeInputState.sendButtonEnabled
+                is MessageComposeInputType.SelfDeletingMessage -> {
+                    Text(type.expireAfters?.let { it.inWholeSeconds.toString() } ?: "dupa")
+                    ScheduleMessageButton(
+                        sendButtonEnabled = messageComposeInputState.sendEphemeralMessageButtonEnabled
                     )
+                }
 
                 else -> {}
             }

@@ -57,20 +57,21 @@ sealed class MessageComposeInputState {
         is Inactive -> Inactive(messageText, inputFocused)
     }
 
-    val isNewMessage: Boolean
-        get() = this is Active && this.type is MessageComposeInputType.NewMessage
     val isExpanded: Boolean
         get() = this is Active && this.size == MessageComposeInputSize.EXPANDED
     val attachmentOptionsDisplayed: Boolean
         get() = this is Active && this.type is MessageComposeInputType.NewMessage && this.type.attachmentOptionsDisplayed
 
-    val isEditMessage : Boolean
+    val isEditMessage: Boolean
         get() = this is Active && this.type is MessageComposeInputType.EditMessage
     val editSaveButtonEnabled: Boolean
         get() = this is Active && this.type is MessageComposeInputType.EditMessage && messageText.text.trim().isNotBlank()
                 && messageText.text != this.type.originalText
     val sendButtonEnabled: Boolean
         get() = this is Active && this.type is MessageComposeInputType.NewMessage && messageText.text.trim().isNotBlank()
+
+    val sendEphemeralMessageButtonEnabled: Boolean
+        get() = this is Active && this.type is MessageComposeInputType.SelfDeletingMessage && messageText.text.trim().isNotBlank()
 }
 
 enum class MessageComposeInputSize {

@@ -144,7 +144,7 @@ fun FileSharingRestrictedContent(
     openWireAction: () -> Unit
 ) {
     val context = LocalContext.current
-    val learnMoreUrl = stringResource(R.string.file_sharing_restricted_lear_more_link)
+    val learnMoreUrl = stringResource(R.string.file_sharing_restricted_learn_more_link)
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,

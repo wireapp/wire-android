@@ -139,13 +139,13 @@ class FeatureFlagNotificationViewModel @Inject constructor(
         // This function needs to be executed blocking the main thread because otherwise the list of imported assets will not be updated
         // correctly for some strange reason.
         runBlocking {
-            val fileSharingRestrictedWallState = if (checkNumberOfSessions() > 0) {
+            val fileSharingRestrictedState = if (checkNumberOfSessions() > 0) {
                 if (featureFlagState.isFileSharingEnabledState) FeatureFlagState.SharingRestrictedState.NONE
                 else FeatureFlagState.SharingRestrictedState.RESTRICTED_IN_TEAM
             } else {
                 FeatureFlagState.SharingRestrictedState.NO_USER
             }
-            featureFlagState = featureFlagState.copy(fileSharingRestrictedState = fileSharingRestrictedWallState)
+            featureFlagState = featureFlagState.copy(fileSharingRestrictedState = fileSharingRestrictedState)
         }
     }
 

@@ -896,7 +896,7 @@
   <string name="label_system_message_session_reset">%1$s was unable to decrypt some of your messages but has solved the issue. This affected all conversations you share together.</string>
   <string name="label_manual_migration_title">Migrate from version 3.82.38</string>
   <string name="start_manual_migration">Start migration form version 3.82.38 manually</string>
-  <string name="file_sharing_restricted_lear_more_link">https://support.wire.com/hc/en-us/articles/4406404582673-How-can-I-restrict-file-sharing-for-my-team-</string>
+  <string name="file_sharing_restricted_learn_more_link">https://support.wire.com/hc/en-us/articles/4406404582673-How-can-I-restrict-file-sharing-for-my-team-</string>
   <string name="file_sharing_restricted_description_by_team">You can not share this file because this feature is disabled for this account.</string>
   <!-- join conversation dialog -->
   <string name="join_conversation_dialog_title">Join conversation?</string>

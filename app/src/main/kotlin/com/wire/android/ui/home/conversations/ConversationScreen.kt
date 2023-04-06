@@ -329,7 +329,7 @@ private fun ConversationScreen(
 
     val menuModalHeader = if (conversationScreenState.bottomSheetMenuType is ConversationScreenState.BottomSheetMenuType.SelfDeletion) {
         MenuModalSheetHeader.Visible(
-            title = "Automatically delete message after"
+            title = stringResource(R.string.automatically_delete_message_after)
         )
     } else MenuModalSheetHeader.Gone
 

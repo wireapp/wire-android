@@ -143,7 +143,9 @@ fun MessageComposerInputRow(
                             text = type.selfDeletionDuration.label,
                             style = typography().label02,
                             color = colorsScheme().primary,
-                            modifier = Modifier.padding(horizontal = 16.dp).clickable { onChangeSelfDeletionTimeClicked() }
+                            modifier = Modifier
+                                .padding(horizontal = 16.dp)
+                                .clickable { onChangeSelfDeletionTimeClicked() }
                         )
                         ScheduleMessageButton(
                             onSendButtonClicked = onSendButtonClicked,
@@ -183,7 +185,7 @@ private fun MessageComposerInput(
     onLineBottomYCoordinateChanged: (Float) -> Unit = { }
 ) {
     val placeHolderText =
-        if (messageComposerInputState.isEphemeral) "Self-deleting message" else stringResource(R.string.label_type_a_message)
+        if (messageComposerInputState.isEphemeral) stringResource(R.string.self_deleting_message_label) else stringResource(R.string.label_type_a_message)
 
     WireTextField(
         value = messageText,

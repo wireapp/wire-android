@@ -72,10 +72,10 @@ class ConversationScreenState(
     val coroutineScope: CoroutineScope
 ) {
 
-    var dupa: BottomSheetMenuType by mutableStateOf(BottomSheetMenuType.None)
+    var bottomSheetMenuType: BottomSheetMenuType by mutableStateOf(BottomSheetMenuType.None)
 
     fun showEditContextMenu(message: UIMessage.Regular) {
-        dupa = BottomSheetMenuType.Edit(message)
+        bottomSheetMenuType = BottomSheetMenuType.Edit(message)
         coroutineScope.launch { modalBottomSheetState.animateTo(ModalBottomSheetValue.Expanded) }
     }
 
@@ -95,7 +95,7 @@ class ConversationScreenState(
     }
 
     fun showSelfDeletionContextMenu() {
-        dupa = BottomSheetMenuType.SelfDeletion
+        bottomSheetMenuType = BottomSheetMenuType.SelfDeletion
         coroutineScope.launch { modalBottomSheetState.animateTo(ModalBottomSheetValue.Expanded) }
     }
 

@@ -50,6 +50,14 @@ fun SelfDeletionMenuItems(
             )
         }
         add {
+            val duration = SelfDeletionDuration.TenSeconds
+            SelfDeletionDurationMenuItem(
+                duration = duration,
+                isSelected = currentlySelected == duration,
+                onSelfDeletionDurationSelected = onSelfDeletionDurationSelected
+            )
+        }
+        add {
             val duration = SelfDeletionDuration.FiveMinutes
             SelfDeletionDurationMenuItem(
                 duration = duration,
@@ -109,5 +117,3 @@ private fun SelfDeletionDurationMenuItem(
         )
     }
 }
-
-

@@ -21,10 +21,8 @@
 package com.wire.android.ui.home.messagecomposer.state
 
 import android.content.Context
-import android.net.Uri
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -38,39 +36,23 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import com.wire.android.appLogger
-import com.wire.android.ui.home.conversations.model.AssetBundle
-import com.wire.android.ui.home.conversations.model.AttachmentType
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.conversations.model.UIQuotedMessage
 import com.wire.android.ui.home.messagecomposer.model.UiMention
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.ui.theme.wireColorScheme
-import com.wire.android.util.DEFAULT_FILE_MIME_TYPE
 import com.wire.android.util.EMPTY
-import com.wire.android.util.FileManager
 import com.wire.android.util.MENTION_SYMBOL
 import com.wire.android.util.NEW_LINE_SYMBOL
 import com.wire.android.util.WHITE_SPACE
-import com.wire.android.util.dispatchers.DefaultDispatcherProvider
-import com.wire.android.util.dispatchers.DispatcherProvider
-import com.wire.android.util.getFileName
-import com.wire.android.util.getMimeType
-import com.wire.android.util.orDefault
-import com.wire.android.util.resampleImageAndCopyToTempPath
 import com.wire.android.util.ui.toUIText
-import com.wire.kalium.logic.data.message.mention.MessageMention
 import com.wire.kalium.logic.data.user.UserId
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.withContext
-import okio.Path
-import okio.Path.Companion.toPath
-import java.io.IOException
-import java.util.UUID
 
 @Composable
-fun rememberMessageComposerInnerState(): MessageComposerInnerState {
+fun rememberMessageComposerState(): MessageComposerState {
     val context = LocalContext.current
 
     val defaultAttachmentInnerState = AttachmentInnerState(context)
@@ -84,7 +66,7 @@ fun rememberMessageComposerInnerState(): MessageComposerInnerState {
     val inputFocusRequester = FocusRequester()
 
     return remember {
-        MessageComposerInnerState(
+        MessageComposerState(
             context = context,
             focusManager = focusManager,
             inputFocusRequester = inputFocusRequester,
@@ -95,7 +77,7 @@ fun rememberMessageComposerInnerState(): MessageComposerInnerState {
 }
 
 @Suppress("TooManyFunctions")
-data class MessageComposerInnerState(
+data class MessageComposerState(
     val context: Context,
     val attachmentInnerState: AttachmentInnerState,
     val focusManager: FocusManager,

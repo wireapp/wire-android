@@ -81,10 +81,9 @@ import com.wire.android.ui.home.conversations.model.EditMessageBundle
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMenuItems
 import com.wire.android.ui.home.messagecomposer.MessageComposer
-import com.wire.android.ui.home.messagecomposer.state.MessageComposerInnerState
+import com.wire.android.ui.home.messagecomposer.state.MessageComposerState
 import com.wire.android.ui.home.messagecomposer.model.UiMention
-import com.wire.android.ui.home.messagecomposer.state.SelfDeletionDuration
-import com.wire.android.ui.home.messagecomposer.state.rememberMessageComposerInnerState
+import com.wire.android.ui.home.messagecomposer.state.rememberMessageComposerState
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.util.permission.CallingAudioRequestFlow
 import com.wire.android.util.permission.rememberCallingRecordAudioBluetoothRequestFlow
@@ -314,7 +313,7 @@ private fun ConversationScreen(
     tempWritableVideoUri: Uri?
 ) {
     val conversationScreenState = rememberConversationScreenState()
-    val messageComposerInnerState = rememberMessageComposerInnerState()
+    val messageComposerInnerState = rememberMessageComposerState()
     val context = LocalContext.current
 
     LaunchedEffect(conversationMessagesViewModel.savedStateHandle) {
@@ -328,7 +327,7 @@ private fun ConversationScreen(
         )
     }
 
-    val menuModalHeader = if (conversationScreenState.dupa is ConversationScreenState.BottomSheetMenuType.SelfDeletion) {
+    val menuModalHeader = if (conversationScreenState.bottomSheetMenuType is ConversationScreenState.BottomSheetMenuType.SelfDeletion) {
         MenuModalSheetHeader.Visible(
             title = "Automatically delete message after"
         )
@@ -338,7 +337,7 @@ private fun ConversationScreen(
         header = menuModalHeader,
         sheetState = conversationScreenState.modalBottomSheetState,
         coroutineScope = conversationScreenState.coroutineScope,
-        menuItems = when (val dupa = conversationScreenState.dupa) {
+        menuItems = when (val dupa = conversationScreenState.bottomSheetMenuType) {
             is ConversationScreenState.BottomSheetMenuType.Edit -> {
                 EditMessageMenuItems(
                     message = dupa.selectedMessage,
@@ -447,7 +446,7 @@ private fun ConversationScreenContent(
     lastUnreadMessageInstant: Instant?,
     conversationState: ConversationViewState,
     audioMessagesState: Map<String, AudioState>,
-    messageComposerState: MessageComposerInnerState,
+    messageComposerState: MessageComposerState,
     messages: Flow<PagingData<UIMessage>>,
     onSendMessage: (String, List<UiMention>, String?, expireAfter : Duration?) -> Unit,
     onSendEditMessage: (EditMessageBundle) -> Unit,

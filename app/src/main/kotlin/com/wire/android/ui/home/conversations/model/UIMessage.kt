@@ -61,7 +61,7 @@ sealed class UIMessage(
         val receivingFailed: Boolean = header.messageStatus == ReceiveFailure || decryptionFailed
         val isAvailable: Boolean = !isDeleted && !sendingFailed && !receivingFailed
         val isMyMessage = source == MessageSource.Self
-        val wasPartiallyDelivered = messageContent is UIMessageContent.PartialDeliverable &&
+        val isPartialDelivery = messageContent is UIMessageContent.PartialDeliverable &&
                 (messageContent.deliveryStatus as? DeliveryStatusContent.PartialDelivery)?.hasFailures == true
     }
 

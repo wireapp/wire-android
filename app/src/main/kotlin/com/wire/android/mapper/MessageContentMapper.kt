@@ -260,7 +260,8 @@ class MessageContentMapper @Inject constructor(
     }
 
     fun toText(conversationId: ConversationId, message: Message, userList: List<User>): UIMessageContent.TextMessage {
-        val messageTextContent = (message.content as? MessageContent.Text)
+        val content = message.content
+        val messageTextContent = (content as? MessageContent.Text)
 
         val quotedMessage = messageTextContent?.quotedMessageDetails?.let { mapQuoteData(conversationId, it) }
             ?: if (messageTextContent?.quotedMessageReference?.quotedMessageId != null) {
@@ -270,7 +271,7 @@ class MessageContentMapper @Inject constructor(
             }
 
         return MessageBody(
-            when (val content = message.content) {
+            when (content) {
                 is MessageContent.Text -> UIText.DynamicString(content.value, content.mentions)
                 is MessageContent.Unknown -> content.typeName?.let {
                     UIText.StringResource(

@@ -103,7 +103,7 @@ fun MessageItem(
             )
         }
 
-        val backgroundColorModifier = if (message.sendingFailed || message.receivingFailed) {
+        val backgroundColorModifier = if (message.sendingFailed || message.receivingFailed || message.isPartialDelivery) {
             Modifier.background(colorsScheme().messageErrorBackgroundColor)
         } else if (selfDeletionTimerState is SelfDeletionTimer.SelfDeletionTimerState.Expirable) {
             val color by animateColorAsState(
@@ -253,15 +253,6 @@ fun MessageExpireLabel(messageContent: UIMessageContent?, timeLeft: String) {
         else -> {}
     }
 }
-
-//@Composable
-//private fun Modifier.customizeMessageBackground(
-//    message: UIMessage
-//) = run {
-//    if (message.sendingFailed || message.receivingFailed || message.wasPartiallyDelivered) {
-//        background(MaterialTheme.wireColorScheme.messageErrorBackgroundColor)
-//    } else this
-//}
 
 @Composable
 private fun MessageHeader(

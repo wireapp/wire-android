@@ -61,6 +61,47 @@ sealed class UIText {
         is StringResource -> resources.getString(resId, *formatArgs)
         is PluralResource -> resources.getQuantityString(resId, count, *formatArgs)
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || javaClass != other.javaClass) return false
+
+        return when (this) {
+            is DynamicString -> {
+                other as DynamicString
+                value == other.value && mentions == other.mentions
+            }
+            is StringResource -> {
+                other as StringResource
+                resId == other.resId && formatArgs.contentEquals(other.formatArgs)
+            }
+            is PluralResource -> {
+                other as PluralResource
+                resId == other.resId && count == other.count &&
+                        formatArgs.contentEquals(other.formatArgs)
+            }
+        }
+    }
+
+    override fun hashCode(): Int {
+        var result = javaClass.hashCode()
+        when (this) {
+            is DynamicString -> {
+                result += value.hashCode()
+                result += mentions.hashCode()
+            }
+            is StringResource -> {
+                result += resId
+                result += formatArgs.contentHashCode()
+            }
+            is PluralResource -> {
+                result += resId
+                result += count
+                result += formatArgs.contentHashCode()
+            }
+        }
+        return result
+    }
 }
 
 fun String.toUIText() = UIText.DynamicString(this)

@@ -35,22 +35,15 @@ import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.feature.client.ObserveClientsByUserIdUseCase
 import com.wire.kalium.logic.feature.client.PersistOtherUserClientsUseCase
-import com.wire.kalium.logic.feature.connection.AcceptConnectionRequestUseCase
-import com.wire.kalium.logic.feature.connection.AcceptConnectionRequestUseCaseResult
 import com.wire.kalium.logic.feature.connection.BlockUserResult
 import com.wire.kalium.logic.feature.connection.BlockUserUseCase
-import com.wire.kalium.logic.feature.connection.CancelConnectionRequestUseCase
-import com.wire.kalium.logic.feature.connection.CancelConnectionRequestUseCaseResult
-import com.wire.kalium.logic.feature.connection.IgnoreConnectionRequestUseCase
-import com.wire.kalium.logic.feature.connection.IgnoreConnectionRequestUseCaseResult
-import com.wire.kalium.logic.feature.connection.SendConnectionRequestResult
-import com.wire.kalium.logic.feature.connection.SendConnectionRequestUseCase
 import com.wire.kalium.logic.feature.connection.UnblockUserUseCase
 import com.wire.kalium.logic.feature.conversation.ClearConversationContentUseCase
 import com.wire.kalium.logic.feature.conversation.CreateConversationResult
 import com.wire.kalium.logic.feature.conversation.GetOrCreateOneToOneConversationUseCase
 import com.wire.kalium.logic.feature.conversation.GetOtherUserSecurityClassificationLabelUseCase
 import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
+import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleResult
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
@@ -75,18 +68,6 @@ internal class OtherUserProfileViewModelArrangement {
 
     @MockK
     lateinit var observeUserInfo: ObserveUserInfoUseCase
-
-    @MockK
-    lateinit var sendConnectionRequest: SendConnectionRequestUseCase
-
-    @MockK
-    lateinit var cancelConnectionRequest: CancelConnectionRequestUseCase
-
-    @MockK
-    lateinit var acceptConnectionRequest: AcceptConnectionRequestUseCase
-
-    @MockK
-    lateinit var ignoreConnectionRequest: IgnoreConnectionRequestUseCase
 
     @MockK
     lateinit var wireSessionImageLoader: WireSessionImageLoader
@@ -139,10 +120,6 @@ internal class OtherUserProfileViewModelArrangement {
             unblockUser,
             getOrCreateOneToOneConversation,
             observeUserInfo,
-            sendConnectionRequest,
-            cancelConnectionRequest,
-            acceptConnectionRequest,
-            ignoreConnectionRequest,
             userTypeMapper,
             wireSessionImageLoader,
             observeConversationRoleForUserUseCase,
@@ -160,8 +137,8 @@ internal class OtherUserProfileViewModelArrangement {
     init {
         MockKAnnotations.init(this, relaxUnitFun = true)
         mockUri()
-        every { savedStateHandle.get<String>(eq(EXTRA_USER_ID)) } returns OtherUserProfileScreenViewModelTest.CONVERSATION_ID.toString()
-        every { savedStateHandle.get<String>(eq(EXTRA_CONVERSATION_ID)) } returns
+        every { savedStateHandle.get<String>(EXTRA_USER_ID) } returns OtherUserProfileScreenViewModelTest.CONVERSATION_ID.toString()
+        every { savedStateHandle.get<String>(EXTRA_CONVERSATION_ID) } returns
                 OtherUserProfileScreenViewModelTest.CONVERSATION_ID.toString()
         coEvery {
             observeConversationRoleForUserUseCase.invoke(any(), any())
@@ -181,6 +158,7 @@ internal class OtherUserProfileViewModelArrangement {
             OtherUserProfileScreenViewModelTest.CONVERSATION
         )
         coEvery { navigationManager.navigate(command = any()) } returns Unit
+        coEvery { getOtherUserSecurityClassificationLabel(any()) } returns SecurityClassificationType.NONE
     }
 
     suspend fun withBlockUserResult(result: BlockUserResult) = apply {
@@ -197,22 +175,6 @@ internal class OtherUserProfileViewModelArrangement {
 
     fun withGetOneToOneConversation(result: CreateConversationResult) = apply {
         coEvery { getOrCreateOneToOneConversation(OtherUserProfileScreenViewModelTest.USER_ID) } returns result
-    }
-
-    fun withAcceptConnectionRequest(result: AcceptConnectionRequestUseCaseResult) = apply {
-        coEvery { acceptConnectionRequest(any()) } returns result
-    }
-
-    fun withCancelConnectionRequest(result: CancelConnectionRequestUseCaseResult) = apply {
-        coEvery { cancelConnectionRequest(any()) } returns result
-    }
-
-    fun withIgnoreConnectionRequest(result: IgnoreConnectionRequestUseCaseResult) = apply {
-        coEvery { ignoreConnectionRequest(any()) } returns result
-    }
-
-    fun withSendConnectionRequest(result: SendConnectionRequestResult) = apply {
-        coEvery { sendConnectionRequest(any()) } returns result
     }
 
     suspend fun withUserInfo(result: GetUserInfoResult) = apply {

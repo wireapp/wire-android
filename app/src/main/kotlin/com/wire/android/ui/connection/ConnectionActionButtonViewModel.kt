@@ -45,8 +45,6 @@ import com.wire.kalium.logic.data.id.toQualifiedID
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.feature.connection.AcceptConnectionRequestUseCase
 import com.wire.kalium.logic.feature.connection.AcceptConnectionRequestUseCaseResult
-import com.wire.kalium.logic.feature.connection.BlockUserResult
-import com.wire.kalium.logic.feature.connection.BlockUserUseCase
 import com.wire.kalium.logic.feature.connection.CancelConnectionRequestUseCase
 import com.wire.kalium.logic.feature.connection.CancelConnectionRequestUseCaseResult
 import com.wire.kalium.logic.feature.connection.IgnoreConnectionRequestUseCase
@@ -62,24 +60,22 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
-abstract class ConnectionActionButtonViewModel: ViewModel() {
+abstract class ConnectionActionButtonViewModel : ViewModel() {
 
     abstract fun onSendConnectionRequest()
     abstract fun onCancelConnectionRequest()
     abstract fun onAcceptConnectionRequest()
     abstract fun onIgnoreConnectionRequest()
-    abstract fun onBlockUser()
     abstract fun onUnblockUser()
     abstract fun onOpenConversation()
 
 }
 
-object ConnectionActionButtonPreviewModel: ConnectionActionButtonViewModel() {
+object ConnectionActionButtonPreviewModel : ConnectionActionButtonViewModel() {
     override fun onSendConnectionRequest() {}
     override fun onCancelConnectionRequest() {}
     override fun onAcceptConnectionRequest() {}
     override fun onIgnoreConnectionRequest() {}
-    override fun onBlockUser() {}
     override fun onUnblockUser() {}
     override fun onOpenConversation() {}
 }
@@ -93,7 +89,6 @@ class ConnectionActionButtonHilt @Inject constructor(
     private val cancelConnectionRequest: CancelConnectionRequestUseCase,
     private val acceptConnectionRequest: AcceptConnectionRequestUseCase,
     private val ignoreConnectionRequest: IgnoreConnectionRequestUseCase,
-    private val blockUser: BlockUserUseCase,
     private val unblockUser: UnblockUserUseCase,
     private val getOrCreateOneToOneConversation: GetOrCreateOneToOneConversationUseCase,
     private val showSnackBarUseCase: ShowSnackBarUseCase,
@@ -103,7 +98,6 @@ class ConnectionActionButtonHilt @Inject constructor(
 
     private val userId: QualifiedID = savedStateHandle.get<String>(EXTRA_USER_ID)!!.toQualifiedID(qualifiedIdMapper)
     private val userName: String = savedStateHandle.get<String>(EXTRA_USER_NAME)!!
-
     private val extraConnectionState: ConnectionState = ConnectionState.valueOf(savedStateHandle.get<String>(EXTRA_CONNECTION_STATE)!!)
 
     var state: ConnectionState by mutableStateOf(extraConnectionState)
@@ -174,24 +168,6 @@ class ConnectionActionButtonHilt @Inject constructor(
                     )
                 }
             }
-        }
-    }
-
-    override fun onBlockUser() {
-        viewModelScope.launch {
-            requestInProgress = true
-            when (val result = withContext(dispatchers.io()) { blockUser(userId) }) {
-                BlockUserResult.Success -> {
-                    appLogger.i("User $userId was blocked")
-                    showSnackBarUseCase(UIText.StringResource(R.string.blocking_user_success, userName))
-                }
-
-                is BlockUserResult.Failure -> {
-                    appLogger.e("Error while blocking user $userId ; Error ${result.coreFailure}")
-                    showSnackBarUseCase(UIText.StringResource(R.string.error_blocking_user))
-                }
-            }
-            requestInProgress = false
         }
     }
 

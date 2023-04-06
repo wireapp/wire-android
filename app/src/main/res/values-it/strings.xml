@@ -741,7 +741,7 @@ Rispondendo qui, verr&#224; riagganciata l\'altra chiamata.</string>
     <string name="block_user_dialog_title">Bloccare l\'utente?</string>
     <string name="block_user_dialog_body">%1$s non potrà contattarti o aggiungerti a conversazioni di gruppo. Non verranno informati di questo.</string>
     <string name="block_user_dialog_confirm_button">Blocca</string>
-    <string name="other_user_devices_description"><![CDATA[\Wire assegna a ogni dispositivo un'impronta digitale univoca. Confrontale con %1$s e verifica la tua conversazione.\]]></string>
+    <string name="other_user_devices_description"><![CDATA[Wire assegna a ogni dispositivo un'impronta digitale univoca. Confrontale con %1$s e verifica la tua conversazione.]]></string>
     <!--Settings -->
     <string name="url_why_verify_conversation">/hc/en-us/articles/207859815</string>
     <string name="settings_general_label">Generale</string>
@@ -884,9 +884,7 @@ URL del backend:
     <string name="file_sharing_restricted_dialog_description">Non puoi condividere questo file poich&#233; questa funzione &#232; disattivata.</string>
     <!-- join conversation dialog -->
     <string name="join_conversation_dialog_title">Unirsi alla conversazione?</string>
-    <string name="join_conversation_dialog_message">Sei stato invitato ad una conversazione.
-
-%1$s</string>
+    <string name="join_conversation_dialog_message">Sei stato invitato ad una conversazione.\n\n%1$s</string>
     <string name="join_conversation_dialog_button">Unisciti</string>
     <string name="join_conversation_via_deeplink_error_title">Impossibile unirsi alla conversazione</string>
     <string name="join_conversation_via_deeplink_error_link_expired">Il link per questa conversazione di gruppo &#232; scaduto o la conversazione &#232; stata impostata come privata.</string>

@@ -218,7 +218,7 @@ private fun MessageComposer(
                 // but for example pressing the back button when the keyboard is visible
                 LaunchedEffect(isKeyboardVisible) {
                     if (!isKeyboardVisible && !messageComposerState.messageComposeInputState.attachmentOptionsDisplayed) {
-                        if (true) {
+                        if (!messageComposerState.messageComposeInputState.isEditMessage) {
                             messageComposerState.toInactive()
                         }
                         messageComposerState.focusManager.clearFocus()

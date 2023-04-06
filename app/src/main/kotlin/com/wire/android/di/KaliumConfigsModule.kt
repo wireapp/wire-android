@@ -57,6 +57,7 @@ class KaliumConfigsModule {
             developmentApiEnabled = BuildConfig.DEVELOPMENT_API_ENABLED,
             encryptProteusStorage = runBlocking { globalDataStore.isEncryptedProteusStorageEnabled().first() },
             guestRoomLink = BuildConfig.GUEST_ROOM_LINK,
+            selfDeletingMessages = BuildConfig.SELF_DELETING_MESSAGES,
             wipeOnCookieInvalid = BuildConfig.WIPE_ON_COOKIE_INVALID,
             wipeOnDeviceRemoval = BuildConfig.WIPE_ON_DEVICE_REMOVAL
         )

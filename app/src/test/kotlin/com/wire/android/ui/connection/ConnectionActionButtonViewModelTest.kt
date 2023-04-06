@@ -266,7 +266,6 @@ internal class ConnectionActionButtonHiltArrangement {
         coEvery {
             qualifiedIdMapper.fromStringToQualifiedID("some_value@some_domain")
         } returns TestUser.USER_ID
-
     }
 
     fun withGetOneToOneConversation(result: CreateConversationResult) = apply {

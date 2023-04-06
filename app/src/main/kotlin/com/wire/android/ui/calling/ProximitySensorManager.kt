@@ -77,15 +77,21 @@ class ProximitySensorManager @Inject constructor(
                             val userId = currentSession.accountInfo.userId
                             val isCallRunning = coreLogic.getSessionScope(userId).calls.isCallRunning()
                             val distance = event.values.first()
-                            val shouldTurnOffScreen = !wakeLock.isHeld && distance == NEAR_DISTANCE && isCallRunning
-                            Log.d(TAG, "onSensorChanged: isCallRunning: $isCallRunning distance: $distance " +
-                                    "shouldTurnOffScreen: $shouldTurnOffScreen")
+                            val shouldTurnOffScreen = distance == NEAR_DISTANCE && isCallRunning
+                            Log.d(
+                                TAG, "onSensorChanged: isCallRunning: $isCallRunning distance: $distance " +
+                                        "shouldTurnOffScreen: $shouldTurnOffScreen"
+                            )
                             if (shouldTurnOffScreen) {
-                                Log.d(TAG, "onSensorChanged: acquire wakeLock")
-                                wakeLock.acquire()
-                            } else if (wakeLock.isHeld) {
-                                Log.d(TAG, "onSensorChanged: release wakeLock")
-                                wakeLock.release()
+                                if (!wakeLock.isHeld) {
+                                    Log.d(TAG, "onSensorChanged: acquire wakeLock")
+                                    wakeLock.acquire()
+                                }
+                            } else {
+                                if (wakeLock.isHeld) {
+                                    Log.d(TAG, "onSensorChanged: release wakeLock")
+                                    wakeLock.release()
+                                }
                             }
                         }
 

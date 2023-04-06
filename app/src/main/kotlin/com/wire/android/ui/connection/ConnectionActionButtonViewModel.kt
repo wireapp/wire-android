@@ -68,7 +68,6 @@ abstract class ConnectionActionButtonBaseViewModel : ViewModel() {
     abstract fun onIgnoreConnectionRequest()
     abstract fun onUnblockUser()
     abstract fun onOpenConversation()
-
 }
 
 @Suppress("LongParameterList", "TooManyFunctions")
@@ -197,9 +196,9 @@ class ConnectionActionButtonViewModel @Inject constructor(
     companion object {
         const val MY_ARGS_KEY = "ConnectionActionButtonViewModelKey"
     }
-
 }
 
+@Suppress("EmptyFunctionBlock")
 object ConnectionActionButtonPreviewModel : ConnectionActionButtonBaseViewModel() {
     override fun onSendConnectionRequest() {}
     override fun onCancelConnectionRequest() {}

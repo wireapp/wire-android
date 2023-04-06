@@ -65,7 +65,7 @@ fun WireScaffold(
         topBar = topBar,
         bottomBar = bottomBar,
         snackbarHost = {
-            if(snackbarHost != null) {
+            if (snackbarHost != null) {
                 snackbarHost()
             } else {
                 SwipeDismissSnackbarHost(snackbarHostState)

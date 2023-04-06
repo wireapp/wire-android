@@ -36,5 +36,4 @@ class ShowSnackBarUseCase internal constructor() {
     suspend operator fun invoke(message: UIText) = _snackBarStateFlow.emit(State(message))
 
     data class State(val message: UIText? = null)
-
 }

@@ -28,29 +28,25 @@ import com.wire.android.appLogger
 @ExperimentalMaterial3Api
 internal fun NavController.navigateToItem(command: NavigationCommand) {
     currentBackStackEntry?.savedStateHandle?.remove<Map<String, Any>>(EXTRA_BACK_NAVIGATION_ARGUMENTS)
-    try {
-        navigate(command.destination) {
-            when (command.backStackMode) {
-                BackStackMode.CLEAR_WHOLE, BackStackMode.CLEAR_TILL_START -> {
-                    val inclusive = command.backStackMode == BackStackMode.CLEAR_WHOLE
-                    popBackStack(inclusive) { backQueue.firstOrNull { it.destination.route != null } }
-                }
-                BackStackMode.REMOVE_CURRENT -> {
-                    popBackStack(true) { backQueue.lastOrNull { it.destination.route != null } }
-                }
-                BackStackMode.UPDATE_EXISTED -> {
-                    NavigationItem.fromRoute(command.destination)?.let { navItem ->
-                        popBackStack(true) { backQueue.firstOrNull { it.destination.route == navItem.getCanonicalRoute() } }
-                    }
-                }
-                BackStackMode.NONE -> {
+    navigate(command.destination) {
+        when (command.backStackMode) {
+            BackStackMode.CLEAR_WHOLE, BackStackMode.CLEAR_TILL_START -> {
+                val inclusive = command.backStackMode == BackStackMode.CLEAR_WHOLE
+                popBackStack(inclusive) { backQueue.firstOrNull { it.destination.route != null } }
+            }
+            BackStackMode.REMOVE_CURRENT -> {
+                popBackStack(true) { backQueue.lastOrNull { it.destination.route != null } }
+            }
+            BackStackMode.UPDATE_EXISTED -> {
+                NavigationItem.fromRoute(command.destination)?.let { navItem ->
+                    popBackStack(true) { backQueue.firstOrNull { it.destination.route == navItem.getCanonicalRoute() } }
                 }
             }
-            launchSingleTop = true
-            restoreState = true
+            BackStackMode.NONE -> {
+            }
         }
-    } catch(e: NullPointerException) {
-        appLogger.e("NullPointerException on destination ${command.destination}", e)
+        launchSingleTop = true
+        restoreState = true
     }
 }
 

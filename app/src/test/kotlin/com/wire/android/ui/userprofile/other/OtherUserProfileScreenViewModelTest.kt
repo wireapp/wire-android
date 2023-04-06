@@ -38,11 +38,7 @@ import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.data.user.type.UserType
-import com.wire.kalium.logic.feature.connection.AcceptConnectionRequestUseCaseResult
 import com.wire.kalium.logic.feature.connection.BlockUserResult
-import com.wire.kalium.logic.feature.connection.CancelConnectionRequestUseCaseResult
-import com.wire.kalium.logic.feature.connection.IgnoreConnectionRequestUseCaseResult
-import com.wire.kalium.logic.feature.connection.SendConnectionRequestResult
 import com.wire.kalium.logic.feature.conversation.CreateConversationResult
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleResult
 import com.wire.kalium.logic.feature.user.GetUserInfoResult
@@ -229,7 +225,7 @@ class OtherUserProfileScreenViewModelTest {
             .withGetOneToOneConversation(CreateConversationResult.Success(CONVERSATION))
             .arrange()
 
-        //when
+        // when
         viewModel.loadConversationBottomSheetContent()
 
         // then
@@ -248,7 +244,7 @@ class OtherUserProfileScreenViewModelTest {
             .withGetOneToOneConversation(CreateConversationResult.Failure(Unknown(RuntimeException("some error"))))
             .arrange()
 
-        //when
+        // when
         viewModel.loadConversationBottomSheetContent()
 
         // then

@@ -548,8 +548,8 @@ Fino a 500 persone possono unirsi a una conversazione di gruppo.</string>
         <item quantity="one">1 partecipante é stato rimosso dalla conversazione</item>
         <item quantity="other">%1$d partecipanti sono stati rimossi dalla conversazione</item>
     </plurals>
-    <string name="last_message_self_user_shared_asset">shared a file.</string>
-    <string name="last_message_other_user_shared_asset">shared a file.</string>
+    <string name="last_message_self_user_shared_asset">hai condiviso un contenuto multimediale</string>
+    <string name="last_message_other_user_shared_asset">ha condiviso un contenuto multimediale</string>
     <string name="last_message_self_user_shared_image">hai condiviso un\'immagine</string>
     <string name="last_message_other_user_shared_image">ha condiviso un\'immagine</string>
     <string name="last_message_self_user_shared_video">hai condiviso un video</string>

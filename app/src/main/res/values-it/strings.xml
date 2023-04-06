@@ -741,7 +741,7 @@ Rispondendo qui, verr&#224; riagganciata l\'altra chiamata.</string>
     <string name="block_user_dialog_title">Bloccare l\'utente?</string>
     <string name="block_user_dialog_body">%1$s non potrà contattarti o aggiungerti a conversazioni di gruppo. Non verranno informati di questo.</string>
     <string name="block_user_dialog_confirm_button">Blocca</string>
-    <string name="other_user_devices_description"><![CDATA[Wire assegna a ogni dispositivo una impronta digitale univoca. Confrontale con %1$s e verifica la tua conversazione.]]></string>
+    <string name="other_user_devices_description">Wire assegna a ogni dispositivo una impronta digitale univoca. Confrontale con %1$s e verifica la tua conversazione.</string>
     <!--Settings -->
     <string name="url_why_verify_conversation">/hc/en-us/articles/207859815</string>
     <string name="settings_general_label">Generale</string>
@@ -911,16 +911,10 @@ URL del backend:
     <string name="guest_room_link_disabled">La generazione di link ospiti &#232; stata disabilitata per tutti gli amministratori di gruppo</string>
     <!-- New Device dialog -->
     <string name="new_device_dialog_current_user_title">Il tuo account &#232; stato utilizzato su</string>
-    <string name="new_device_dialog_current_user_message">%1$s
-Da: %2$s
-
-Se non sei stato tu, rimuovi il dispositivo e resetta la tua password.</string>
+    <string name="new_device_dialog_current_user_message">%1$s\nFrom: %2$s \n\nIf you didn\'t do this, remove the device and reset your password.</string>
     <string name="new_device_dialog_current_user_btn">Gestisci dispositivi</string>
     <string name="new_device_dialog_other_user_title">Il tuo account \"%1$s (@%2$s)\" &#232; stato utilizzato su:</string>
-    <string name="new_device_dialog_other_user_message">%1$s
-Da: %2$s
-
-Se non sei stato tu, rimuovi il dispositivo (vai su \"Gestisci dispositivi\" nella sezione Impostazioni di questo account) e resetta la tua password.</string>
+    <string name="new_device_dialog_other_user_message">%1$s\nFrom: %2$s \n\nIf you didn\'t do this, remove the device (navigate to “Manage Devices” in the Settings section of this account), and reset your password.</string>
     <string name="new_device_dialog_other_user_btn">Cambia Account</string>
     <string name="label_system_message_joined_the_conversation_by_self">%1$s si è unito alla conversazione</string>
     <string name="label_system_message_joined_the_conversation_by_other">%1$s si è unito alla conversazione</string>

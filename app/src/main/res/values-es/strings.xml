@@ -741,7 +741,7 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
     <string name="block_user_dialog_title">&#191;Bloquear usuario?</string>
     <string name="block_user_dialog_body">%1$s no podr&#225; contactarte ni agregarte a conversaciones grupales. No se le notificar&#225; sobre esto.</string>
     <string name="block_user_dialog_confirm_button">Bloquear</string>
-    <string name="other_user_devices_description"><![CDATA[Wire asigna una huella digital &#250;nica a cada dispositivo. Comparelas con %1$s y verifique su conversaci&#243;n. ]]></string>
+    <string name="other_user_devices_description">Wire asigna una huella digital &#250;nica a cada dispositivo. Comparelas con %1$s y verifique su conversaci&#243;n. </string>
     <!--Settings -->
     <string name="url_why_verify_conversation">/hc/es/articles/207859815</string>
     <string name="settings_general_label">General</string>
@@ -913,16 +913,10 @@ URL del backend:
     <string name="guest_room_link_disabled">La generaci&#243;n de enlaces de invitado ahora est&#225; desactivada para todos los administradores del grupo</string>
     <!-- New Device dialog -->
     <string name="new_device_dialog_current_user_title">Su cuenta se utiliz&#243; en</string>
-    <string name="new_device_dialog_current_user_message">%1$s
-Desde: %2$s 
-
-Si no lo hizo, retire el dispositivo y restablezca su contrase&#241;a.</string>
+    <string name="new_device_dialog_current_user_message">%1$s\nFrom: %2$s \n\nIf you didn\'t do this, remove the device and reset your password.</string>
     <string name="new_device_dialog_current_user_btn">Administrar dispositivos</string>
     <string name="new_device_dialog_other_user_title">Su cuenta &#8220;%1$s (@%2$s)&#8221; se utiliz&#243; en:</string>
-    <string name="new_device_dialog_other_user_message">%1$s
-Desde: %2$s 
-
-Si no lo hizo, retire el dispositivo (navegue a &#8220;Administrar dispositivos&#8221; en la secci&#243;n de Configuraci&#243;n de esta cuenta) y restablezca su contrase&#241;a.</string>
+    <string name="new_device_dialog_other_user_message">%1$s\nFrom: %2$s \n\nIf you didn\'t do this, remove the device (navigate to “Manage Devices” in the Settings section of this account), and reset your password.</string>
     <string name="new_device_dialog_other_user_btn">Cambiar de cuenta</string>
     <string name="label_system_message_joined_the_conversation_by_self">%1$s se uni&#243; a la conversaci&#243;n</string>
     <string name="label_system_message_joined_the_conversation_by_other">%1$s se uni&#243; a la conversaci&#243;n</string>

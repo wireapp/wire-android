@@ -22,8 +22,7 @@ enum class ConfigType(val type: String) {
     STRING("String"),
     BOOLEAN("Boolean"),
     INT("int"),
-    CERTIFICATE_PIN("certificatePin"),
-    FLAVOUR_CONFIG("flavourConfigs")
+    CERTIFICATE_PIN("certificatePin")
 }
 
 enum class FeatureConfigs(val value: String, val configType: ConfigType) {
@@ -31,6 +30,7 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
     ALLOW_MARKETING_COMMUNICATION("allowMarketingCommunication", ConfigType.BOOLEAN),
     ALLOW_SSO("allowSSO", ConfigType.BOOLEAN),
     ALLOW_ACCOUNT_CREATION("allow_account_creation", ConfigType.BOOLEAN),
+    ACCOUNTS_URL("accountsUrl", ConfigType.STRING),
     BACKEND_URL("backendUrl", ConfigType.STRING),
     BLACKLIST_HOST("blacklistHost", ConfigType.STRING),
     BLOCK_ON_JAILBREAK_OR_ROOT("block_on_jailbreak_or_root", ConfigType.BOOLEAN),
@@ -56,17 +56,7 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
     GUEST_ROOM_LINK("guest_room_link", ConfigType.BOOLEAN),
     UPDATE_APP_URL("update_app_url", ConfigType.STRING),
 
-    CERTIFICATE_PIN("certificatePin", ConfigType.CERTIFICATE_PIN),
-
-
-    CANDIDATE("candidate", ConfigType.FLAVOUR_CONFIG),
-    EXPERIMENTAL("experimental", ConfigType.FLAVOUR_CONFIG),
-    FDROID("fdroid", ConfigType.FLAVOUR_CONFIG),
-    DEV("dev", ConfigType.FLAVOUR_CONFIG),
-    INTERNAL("internal", ConfigType.FLAVOUR_CONFIG),
-    STAGING("staging", ConfigType.FLAVOUR_CONFIG),
-    PROD("prod", ConfigType.FLAVOUR_CONFIG),
-    BETA("beta", ConfigType.FLAVOUR_CONFIG);
+    CERTIFICATE_PIN("certificatePin", ConfigType.CERTIFICATE_PIN);
 }
 
 enum class CertificatePin(val value: String, val configType: ConfigType) {
@@ -74,7 +64,7 @@ enum class CertificatePin(val value: String, val configType: ConfigType) {
     DOMAIN("domain", ConfigType.STRING);
 }
 
-enum class FlavourConfigs(val value: String, val configType: ConfigType) {
+enum class FlavourConfigs(val configFileKey: String, val configType: ConfigType) {
     COMMENT("_comment", ConfigType.STRING),
     APP_NAME("appName", ConfigType.STRING),
     APPLICATION_ID("applicationId", ConfigType.STRING),
@@ -88,6 +78,6 @@ enum class FlavourConfigs(val value: String, val configType: ConfigType) {
     FIREBASE_PUSH_SENDER_ID("firebasePushSenderId", ConfigType.STRING),
     GOOGLE_API_KEY("googleApiKey", ConfigType.STRING),
     FCM_PROJECT_ID("fcmProjectID", ConfigType.STRING),
-    IS_STAGING("isStaging", ConfigType.BOOLEAN),
+    STANDARD_BACKEND("standardBackend", ConfigType.STRING),
     USER_ID("userId", ConfigType.STRING);
 }

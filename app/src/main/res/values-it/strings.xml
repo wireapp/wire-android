@@ -172,16 +172,10 @@
     <string name="welcome_screen_carousel_item_message_4">Condivisione sicura dei file con i tuoi team e clienti</string>
     <string name="welcome_screen_carousel_item_message_5">Wire &#232; indipendentemente verificato e conforme ad ISO, CCPA, GDPR, SOX</string>
     <string name="welcome_button_create_team">Crea un Team</string>
-    <string name="server_details_dialog_body">Nome backend:
-%1$s
-
-URL backend:
-%2$s</string>
+    <string name="server_details_dialog_body">Nome backend:\n%1$s\n\nURL backend:\n%2$s</string>
     <string name="server_details_dialog_title">Backend In Situ</string>
     <string name="welcome_migration_dialog_title">Benvenuto nella nuova app per Android &#128075;</string>
-    <string name="welcome_migration_dialog_content">Abbiamo ricostruito l\'app per renderla pi&#249; adatta a tutti. 
-
-Scopri di pi&#249; sulla nuova app Wire: nuove opzioni e miglior accessibilit&#224;, con la stessa forte sicurezza.</string>
+    <string name="welcome_migration_dialog_content">Abbiamo ricostruito l\'app per renderla pi&#249; adatta a tutti.\n\nScopri di pi&#249; sulla nuova app Wire: nuove opzioni e miglior accessibilit&#224;, con la stessa forte sicurezza.</string>
     <string name="welcome_migration_dialog_continue">Inizia ad usare Wire</string>
     <!-- API Versioning Dialogs -->
     <string name="api_versioning_client_update_required_title">Aggiorna l\'app</string>
@@ -239,8 +233,7 @@ Scopri di pi&#249; sulla nuova app Wire: nuove opzioni e miglior accessibilit&#2
     <string name="remove_device_title">Rimuovi un dispositivo</string>
     <string name="remove_device_message">Rimuovi un altro dispositivo per iniziare ad usare Wire su questo.</string>
     <string name="remove_device_label">I TUOI DISPOSITIVI</string>
-    <string name="remove_device_id_and_time_label">ID: %1$s
-Aggiunto: %2$s</string>
+    <string name="remove_device_id_and_time_label">ID: %1$s\nAggiunto: %2$s</string>
     <string name="remove_device_id_label">ID: %1$s</string>
     <string name="remove_device_dialog_title">Rimuovere il seguente dispositivo?</string>
     <string name="remove_device_invalid_password">Password invalida</string>
@@ -251,17 +244,11 @@ Aggiunto: %2$s</string>
     <string name="register_device_text">Inserisci la tua password per usare Wire su questo dispositivo.</string>
     <!-- Delete Message -->
     <string name="delete_message_dialog_title">Eliminare questo messaggio?</string>
-    <string name="delete_message_dialog_message">Se elimini il messaggio solo per te, sar&#224; visibile solo agli altri partecipanti.
-
-Se lo elimini per tutti, il messaggio verr&#224; eliminato per tutti i partecipanti.
-
-Un messaggio eliminato non pu&#242; essere ripristinato.</string>
+    <string name="delete_message_dialog_message">Se elimini il messaggio solo per te, sar&#224; visibile solo agli altri partecipanti.\n\nSe lo elimini per tutti, il messaggio verr&#224; eliminato per tutti i partecipanti.\n\nUn messaggio eliminato non pu&#242; essere ripristinato.</string>
     <string name="label_delete_for_me">Elimina per me</string>
     <string name="label_delete_for_everyone">Elimina per tutti</string>
     <string name="delete_message_for_yourself_dialog_title">Eliminare questo messaggio solo per te?</string>
-    <string name="delete_message_for_yourself_dialog_message">Se elimini il messaggio solo per te, sar&#224; visibile solo agli altri partecipanti.
-
-Un messaggio eliminato non pu&#242; essere ripristinato.</string>
+    <string name="delete_message_for_yourself_dialog_message">Se elimini il messaggio solo per te, sar&#224; visibile solo agli altri partecipanti.\n\nUn messaggio eliminato non pu&#242; essere ripristinato.</string>
     <string name="deleted_message_text">Messaggio eliminato</string>
     <!-- Replies/Quotes to other messages -->
     <string name="label_quote_invalid_or_not_found">Non puoi visualizzare questo messaggio</string>
@@ -364,8 +351,7 @@ Un messaggio eliminato non pu&#242; essere ripristinato.</string>
     <string name="conversation_details_options_group_name">NOME DEL GRUPPO</string>
     <string name="conversation_details_group_admins">AMMINISTRATORI DI GRUPPO (%d)</string>
     <string name="conversation_details_group_members">MEMBRI DEL GRUPPO (%d)</string>
-    <string name="conversation_details_participants_info">Questo gruppo ha %s partecipanti.
-Fino a 500 persone possono unirsi a una conversazione di gruppo.</string>
+    <string name="conversation_details_participants_info">Questo gruppo ha %s partecipanti.\nFino a 500 persone possono unirsi a una conversazione di gruppo.</string>
     <string name="conversation_details_show_all_participants">Mostra tutti i partecipanti (%d)</string>
     <string name="conversation_details_group_participants_title">Partecipanti del gruppo</string>
     <string name="conversation_details_group_participants_add">Aggiungi partecipanti</string>
@@ -511,8 +497,7 @@ Fino a 500 persone possono unirsi a una conversazione di gruppo.</string>
         <item quantity="other">%1$d more</item>
     </plurals>
     <string name="label_system_message_blocked_user">%1$s ha bloccato questo utente</string>
-    <string name="label_system_message_renamed_the_conversation">%1$s ha rinominato la conversazione
-%2$s</string>
+    <string name="label_system_message_renamed_the_conversation">%1$s ha rinominato la conversazione\n%2$s</string>
     <string name="label_system_message_team_member_left">%1$s &#232; stato rimosso dal team</string>
     <string name="label_system_message_user_not_available">Questo utente non &#232; pi&#249; disponibile</string>
     <string name="label_system_message_new_conversation_receipt_mode">Le ricevute di lettura sono %1$s</string>
@@ -676,8 +661,7 @@ Fino a 500 persone possono unirsi a una conversazione di gruppo.</string>
     <string name="calling_label_constant_bit_rate">BIT RATE costante</string>
     <string name="calling_minimize_view">Minimizza la vista</string>
     <string name="calling_ongoing_call_title_alert">Riagganciare la chiamata in corso?</string>
-    <string name="calling_ongoing_call_start_message_alert">C\'&#232; una chiamata attiva in un\'altra conversazione.
-Rispondendo qui, verr&#224; riagganciata l\'altra chiamata.</string>
+    <string name="calling_ongoing_call_start_message_alert">C\'&#232; una chiamata attiva in un\'altra conversazione.\nRispondendo qui, verr&#224; riagganciata l\'altra chiamata.</string>
     <string name="calling_ongoing_call_start_anyway">Chiama comunque</string>
     <string name="calling_ongoing_call_join_message_alert">Una chiamata é attiva in un\'altra conversazione.\nSe ti unisci a questa chiamata lascerai l\'altra</string>
     <string name="calling_ongoing_call_join_anyway">Unisciti comunque</string>
@@ -741,7 +725,7 @@ Rispondendo qui, verr&#224; riagganciata l\'altra chiamata.</string>
     <string name="block_user_dialog_title">Bloccare l\'utente?</string>
     <string name="block_user_dialog_body">%1$s non potrà contattarti o aggiungerti a conversazioni di gruppo. Non verranno informati di questo.</string>
     <string name="block_user_dialog_confirm_button">Blocca</string>
-    <string name="other_user_devices_description"><![CDATA[\Wire assegna a ogni dispositivo un'impronta digitale univoca. Confrontale con %1$s e verifica la tua conversazione.\]]></string>
+    <string name="other_user_devices_description"><![CDATA[\Wire assegna a ogni dispositivo un\'impronta digitale univoca. Confrontale con %1$s e verifica la tua conversazione.\]]></string>
     <!--Settings -->
     <string name="url_why_verify_conversation">/hc/en-us/articles/207859815</string>
     <string name="settings_general_label">Generale</string>
@@ -788,13 +772,7 @@ Rispondendo qui, verr&#224; riagganciata l\'altra chiamata.</string>
     <string name="max_account_reached_dialog_button_open_profile">Apri il profilo</string>
     <string name="cant_switch_account_in_call">Non puoi cambiare account durante una chiamata</string>
     <string name="custom_backend_dialog_title">Redirect verso un backend on-premises?</string>
-    <string name="custom_backend_dialog_body">Se procedi, il tuo client verr&#224; reindirizzato al seguente backend on-premises:
-
-Nome del backend:
- %1$s 
-
-URL del backend:
- %2$s</string>
+    <string name="custom_backend_dialog_body">Se procedi, il tuo client verr&#224; reindirizzato al seguente backend on-premises:\n\nNome del backend:\n%1$s\n\nURL del backend:\n%2$s</string>
     <string name="label_fetching_your_messages">Ricezione nuovi messaggi in corso</string>
     <string name="label_text_copied">Testo copiato negli appunti</string>
     <string name="label_logs_option_title">Registri</string>
@@ -884,9 +862,7 @@ URL del backend:
     <string name="file_sharing_restricted_dialog_description">Non puoi condividere questo file poich&#233; questa funzione &#232; disattivata.</string>
     <!-- join conversation dialog -->
     <string name="join_conversation_dialog_title">Unirsi alla conversazione?</string>
-    <string name="join_conversation_dialog_message">Sei stato invitato ad una conversazione.
-
-%1$s</string>
+    <string name="join_conversation_dialog_message">Sei stato invitato ad una conversazione.\n\n%1$s</string>
     <string name="join_conversation_dialog_button">Unisciti</string>
     <string name="join_conversation_via_deeplink_error_title">Impossibile unirsi alla conversazione</string>
     <string name="join_conversation_via_deeplink_error_link_expired">Il link per questa conversazione di gruppo &#232; scaduto o la conversazione &#232; stata impostata come privata.</string>
@@ -913,16 +889,10 @@ URL del backend:
     <string name="guest_room_link_disabled">La generazione di link ospiti &#232; stata disabilitata per tutti gli amministratori di gruppo</string>
     <!-- New Device dialog -->
     <string name="new_device_dialog_current_user_title">Il tuo account &#232; stato utilizzato su</string>
-    <string name="new_device_dialog_current_user_message">%1$s
-Da: %2$s
-
-Se non sei stato tu, rimuovi il dispositivo e resetta la tua password.</string>
+    <string name="new_device_dialog_current_user_message">%1$s\nDa: %2$s\n\nSe non sei stato tu, rimuovi il dispositivo e resetta la tua password.</string>
     <string name="new_device_dialog_current_user_btn">Gestisci dispositivi</string>
-    <string name="new_device_dialog_other_user_title">Il tuo account \"%1$s (@%2$s)\" &#232; stato utilizzato su:</string>
-    <string name="new_device_dialog_other_user_message">%1$s
-Da: %2$s
-
-Se non sei stato tu, rimuovi il dispositivo (vai su \"Gestisci dispositivi\" nella sezione Impostazioni di questo account) e resetta la tua password.</string>
+    <string name="new_device_dialog_other_user_title">Il tuo account "%1$s (@%2$s)" stato utilizzato su:</string>
+    <string name="new_device_dialog_other_user_message">%1$s\nDa: %2$s\n\nSe non sei stato tu, rimuovi il dispositivo (vai su \"Gestisci dispositivi\" nella sezione Impostazioni di questo account) e resetta la tua password.</string>
     <string name="new_device_dialog_other_user_btn">Cambia Account</string>
     <string name="label_system_message_joined_the_conversation_by_self">%1$s si è unito alla conversazione</string>
     <string name="label_system_message_joined_the_conversation_by_other">%1$s si è unito alla conversazione</string>
@@ -937,23 +907,23 @@ Se non sei stato tu, rimuovi il dispositivo (vai su \"Gestisci dispositivi\" nel
     <string name="self_deleting_message_label">Self-deleting message</string>
     <!-- Expirable messages -->
     <plurals name="weeks_left">
-        <item quantity="one">1 week left</item>
-        <item quantity="other">%1$d weeks left</item>
+        <item quantity="one">1 settimana rimanente</item>
+        <item quantity="other">%1$d settimane rimaste</item>
     </plurals>
     <plurals name="days_left">
-        <item quantity="one">1 day left</item>
-        <item quantity="other">%1$d days left</item>
+        <item quantity="one">1 giorno rimasto</item>
+        <item quantity="other">%1$d giorni rimasti</item>
     </plurals>
     <plurals name="hours_left">
-        <item quantity="one">1 hour left</item>
-        <item quantity="other">%1$d hours left</item>
+        <item quantity="one">1 ora rimanente</item>
+        <item quantity="other">%1$d ore rimaste</item>
     </plurals>
     <plurals name="minutes_left">
-        <item quantity="one">1 minute left</item>
-        <item quantity="other">%1$d minutes left</item>
+        <item quantity="one">1 minuto rimanente</item>
+        <item quantity="other">%1$d minuti rimanenti</item>
     </plurals>
     <plurals name="seconds_left">
-        <item quantity="one">1 second left</item>
-        <item quantity="other">%1$d seconds left</item>
+        <item quantity="one">1 secondo rimanenti</item>
+        <item quantity="other">%1$d secondi rimanenti</item>
     </plurals>
 </resources>

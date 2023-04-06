@@ -337,10 +337,10 @@ private fun ConversationScreen(
         header = menuModalHeader,
         sheetState = conversationScreenState.modalBottomSheetState,
         coroutineScope = conversationScreenState.coroutineScope,
-        menuItems = when (val dupa = conversationScreenState.bottomSheetMenuType) {
+        menuItems = when (val menuType = conversationScreenState.bottomSheetMenuType) {
             is ConversationScreenState.BottomSheetMenuType.Edit -> {
                 EditMessageMenuItems(
-                    message = dupa.selectedMessage,
+                    message = menuType.selectedMessage,
                     hideEditMessageMenu = conversationScreenState::hideContextMenu,
                     onCopyClick = conversationScreenState::copyMessage,
                     onDeleteClick = onDeleteMessage,
@@ -349,7 +349,7 @@ private fun ConversationScreen(
                     onReplyClick = messageComposerInnerState::reply,
                     onEditClick = messageComposerInnerState::toEditMessage,
                     onShareAsset = {
-                        dupa.selectedMessage.header.messageId.let {
+                        menuType.selectedMessage.header.messageId.let {
                             conversationMessagesViewModel.shareAsset(context, it)
                             conversationScreenState.hideContextMenu()
                         }

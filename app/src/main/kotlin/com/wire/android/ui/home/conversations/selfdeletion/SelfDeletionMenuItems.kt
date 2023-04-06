@@ -26,7 +26,6 @@ import com.wire.android.ui.home.conversations.edit.OnComplete
 import com.wire.android.ui.home.messagecomposer.state.SelfDeletionDuration
 import com.wire.android.ui.theme.wireTypography
 
-
 @Composable
 fun SelfDeletionMenuItems(
     currentlySelected: SelfDeletionDuration,

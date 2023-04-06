@@ -35,6 +35,7 @@ import com.wire.android.ui.edit.MessageDetailsMenuOption
 import com.wire.android.ui.edit.OpenAssetExternallyOption
 import com.wire.android.ui.edit.ReactionOption
 import com.wire.android.ui.edit.ReplyMessageOption
+import com.wire.android.ui.home.conversations.model.ExpirationStatus
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.util.debug.LocalFeatureVisibilityFlags
@@ -61,6 +62,7 @@ fun EditMessageMenuItems(
             || message.messageContent is UIMessageContent.ImageMessage
             || message.messageContent is UIMessageContent.AudioAssetMessage
     val isEditable = message.isTextMessage && message.isMyMessage && localFeatureVisibilityFlags.MessageEditIcon
+    val isEphemeral = message.expirationStatus is ExpirationStatus.Expirable
     val isGenericAsset = message.messageContent is UIMessageContent.AssetMessage
 
     val onCopyItemClick = remember(message) {
@@ -141,10 +143,10 @@ fun EditMessageMenuItems(
                     )
                 }
             }
-            add { ReplyMessageOption(onReplyItemClick) }
+           if(!isEphemeral) add { ReplyMessageOption(onReplyItemClick) }
             if (isAssetMessage) add { DownloadAssetExternallyOption(onDownloadAssetClick) }
             if (isGenericAsset) add { OpenAssetExternallyOption(onOpenAssetClick) }
-            if (isEditable) {
+            if (isEditable || !isEphemeral) {
                 add {
                     MenuBottomSheetItem(
                         icon = {

@@ -769,7 +769,7 @@ Do&#322;&#261;czenie do tego po&#322;&#261;czenia spowoduje zako&#324;czenie tam
     <string name="block_user_dialog_title">Zablokowa&#263; u&#380;ytkownika?</string>
     <string name="block_user_dialog_body">%1$s nie b&#281;dzie m&#243;g&#322; si&#281; z tob&#261; skontaktowa&#263; ani doda&#263; ci&#281; do rozm&#243;w grupowych. Nie zostanie o tym poinformowany.</string>
     <string name="block_user_dialog_confirm_button">Zablokuj</string>
-    <string name="other_user_devices_description"><![CDATA[\Wire nadaje ka&#380;demu urz&#261;dzeniu unikalny odcisk palca. Por&#243;wnaj je z %1$s i zweryfikuj swoj&#261; konwersacj&#281;. \]]></string>
+    <string name="other_user_devices_description">\Wire nadaje ka&#380;demu urz&#261;dzeniu unikalny odcisk palca. Por&#243;wnaj je z %1$s i zweryfikuj swoj&#261; konwersacj&#281;. \</string>
     <!--Settings -->
     <string name="url_why_verify_conversation">/hc/en-us/articles/207859815</string>
     <string name="settings_general_label">Og&#243;lne</string>
@@ -940,16 +940,10 @@ Prosimy u&#380;y&#263; zarz&#261;dzania zespo&#322;ami (%1$s) na tym &#347;rodow
     <string name="guest_room_link_disabled">Generowanie link&#243;w dla go&#347;ci jest teraz wy&#322;&#261;czone dla wszystkich administrator&#243;w grupy</string>
     <!-- New Device dialog -->
     <string name="new_device_dialog_current_user_title">Twoje konto zosta&#322;o u&#380;yte na</string>
-    <string name="new_device_dialog_current_user_message">%1$s
-Z: %2$s 
-
-Je&#347;li nie ty tego dokona&#322;e&#347;, usu&#324; urz&#261;dzenie i zresetuj has&#322;o.</string>
+    <string name="new_device_dialog_current_user_message">%1$s\nFrom: %2$s \n\nIf you didn\'t do this, remove the device and reset your password.</string>
     <string name="new_device_dialog_current_user_btn">Zarz&#261;dzaj urz&#261;dzeniami</string>
     <string name="new_device_dialog_other_user_title">Twoje konto \"%1$s (@%2$s)\" zosta&#322;o u&#380;yte na</string>
-    <string name="new_device_dialog_other_user_message">%1$s
-Z: %2$s 
-
-Je&#347;li nie ty tego dokona&#322;e&#347;, usu&#324; urz&#261;dzenie (wejd&#378; w &#8222;Zarz&#261;dzanie urz&#261;dzeniami&#8221; w sekcji Ustawienia tego konta) oraz zresetuj has&#322;o.</string>
+    <string name="new_device_dialog_other_user_message">%1$s\nFrom: %2$s \n\nIf you didn\'t do this, remove the device (navigate to “Manage Devices” in the Settings section of this account), and reset your password.</string>
     <string name="new_device_dialog_other_user_btn">Prze&#322;&#261;cz konto</string>
     <string name="label_system_message_joined_the_conversation_by_self">%1$s do&#322;&#261;czy&#322; do rozmowy</string>
     <string name="label_system_message_joined_the_conversation_by_other">%1$s do&#322;&#261;czy&#322; do rozmowy</string>

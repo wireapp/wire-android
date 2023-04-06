@@ -75,6 +75,7 @@ fun MessageComposeActionsBox(
             ) { state ->
                 if (state is MessageComposeInputState.Active) {
                     MessageComposeActions(
+                        state.isEphemeral,
                         state.attachmentOptionsDisplayed,
                         isMentionActive,
                         state.isEditMessage,
@@ -92,6 +93,7 @@ fun MessageComposeActionsBox(
 
 @Composable
 private fun MessageComposeActions(
+    selfDeletingOptionSelected : Boolean,
     attachmentOptionsDisplayed: Boolean,
     isMentionsSelected: Boolean,
     isEditMessage: Boolean,
@@ -115,7 +117,7 @@ private fun MessageComposeActions(
             if (RichTextIcon) RichTextEditingAction()
             if (!isEditMessage && EmojiIcon) AddEmojiAction()
             if (!isEditMessage && GifIcon) AddGifAction()
-            if (!isEditMessage) SelfDeletingMessageAction(onButtonClicked = onSelfDeletionOptionButtonClicked)
+            if (!isEditMessage) SelfDeletingMessageAction(isSelected = selfDeletingOptionSelected, onButtonClicked = onSelfDeletionOptionButtonClicked)
             if (!isEditMessage && PingIcon) PingAction(onPingClicked = onPingClicked)
             AddMentionAction(isMentionsSelected, startMention)
         }
@@ -178,12 +180,13 @@ private fun PingAction(onPingClicked: () -> Unit) {
 }
 
 @Composable
-fun SelfDeletingMessageAction(onButtonClicked: () -> Unit) {
+fun SelfDeletingMessageAction(isSelected : Boolean,onButtonClicked: () -> Unit) {
     WireSecondaryIconButton(
         onButtonClicked = onButtonClicked,
         clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
-        iconResource = R.drawable.ic_ping,
-        contentDescription = R.string.content_description_ping_everyone
+        iconResource = R.drawable.ic_timer,
+        contentDescription = R.string.content_description_ping_everyone,
+        state = if(isSelected) WireButtonState.Selected else WireButtonState.Default
     )
 }
 

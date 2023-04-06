@@ -72,6 +72,9 @@ sealed class MessageComposeInputState {
 
     val sendEphemeralMessageButtonEnabled: Boolean
         get() = this is Active && this.type is MessageComposeInputType.SelfDeletingMessage && messageText.text.trim().isNotBlank()
+
+    val isEphemeral: Boolean
+        get() = this is Active && this.type is MessageComposeInputType.SelfDeletingMessage
 }
 
 enum class MessageComposeInputSize {

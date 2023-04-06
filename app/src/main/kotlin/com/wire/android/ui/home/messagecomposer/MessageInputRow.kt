@@ -47,10 +47,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.wire.android.R
+import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.wireTextFieldColors
+import com.wire.android.ui.common.typography
 import com.wire.android.ui.home.messagecomposer.state.MessageComposeInputSize
 import com.wire.android.ui.home.messagecomposer.state.MessageComposeInputState
 import com.wire.android.ui.home.messagecomposer.state.MessageComposeInputType
@@ -135,11 +138,18 @@ fun MessageComposerInputRow(
                     )
 
                 is MessageComposeInputType.SelfDeletingMessage -> {
-                    Text(type.selfDeletionDuration.label, Modifier.clickable { onChangeSelfDeletionTimeClicked() })
-                    ScheduleMessageButton(
-                        onSendButtonClicked = onSendButtonClicked,
-                        sendButtonEnabled = messageComposeInputState.sendEphemeralMessageButtonEnabled
-                    )
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            text = type.selfDeletionDuration.label,
+                            style = typography().label02,
+                            color = colorsScheme().primary,
+                            modifier = Modifier.padding(horizontal = 16.dp).clickable { onChangeSelfDeletionTimeClicked() }
+                        )
+                        ScheduleMessageButton(
+                            onSendButtonClicked = onSendButtonClicked,
+                            sendButtonEnabled = messageComposeInputState.sendEphemeralMessageButtonEnabled
+                        )
+                    }
                 }
 
                 else -> {}
@@ -172,19 +182,23 @@ private fun MessageComposerInput(
     onSelectedLineIndexChanged: (Int) -> Unit = { },
     onLineBottomYCoordinateChanged: (Float) -> Unit = { }
 ) {
+    val placeHolderText =
+        if (messageComposerInputState.isEphemeral) "Self-deleting message" else stringResource(R.string.label_type_a_message)
+
     WireTextField(
         value = messageText,
         onValueChange = onMessageTextChanged,
         colors = wireTextFieldColors(
             backgroundColor = Color.Transparent,
             borderColor = Color.Transparent,
-            focusColor = Color.Transparent
+            focusColor = Color.Transparent,
+            placeholderColor = if (messageComposerInputState.isEphemeral) colorsScheme().primary else colorsScheme().secondaryText
         ),
         singleLine = messageComposerInputState is MessageComposeInputState.Inactive,
         maxLines = Int.MAX_VALUE,
         textStyle = MaterialTheme.wireTypography.body01,
         // Add an extra space so that the cursor is placed one space before "Type a message"
-        placeholderText = " " + stringResource(R.string.label_type_a_message),
+        placeholderText = " $placeHolderText",
         modifier = modifier.then(
             Modifier
                 .onFocusChanged { focusState ->

@@ -363,7 +363,7 @@ private fun ConversationScreen(
             is ConversationScreenState.BottomSheetMenuType.SelfDeletion -> {
                 SelfDeletionMenuItems(
                     hideEditMessageMenu = conversationScreenState::hideContextMenu,
-                    currentlySelected = SelfDeletionDuration.FiveMinutes,
+                    currentlySelected = messageComposerInnerState.getSelfDeletionTime(),
                     onSelfDeletionDurationChanged = { messageComposerInnerState.specifySelfDeletionTime(it) }
                 )
             }

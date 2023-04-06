@@ -345,11 +345,25 @@ data class MessageComposerInnerState(
     }
 
     fun specifySelfDeletionTime(selfDeletionDuration: SelfDeletionDuration) {
-        messageComposeInputState =  MessageComposeInputState.Active(
-            messageText =  messageComposeInputState.messageText,
-            inputFocused = true,
-            type = MessageComposeInputType.SelfDeletingMessage(selfDeletionDuration)
-        )
+        messageComposeInputState = if (selfDeletionDuration == SelfDeletionDuration.None) {
+            MessageComposeInputState.Active(
+                messageText = messageComposeInputState.messageText,
+                inputFocused = true,
+                type = MessageComposeInputType.NewMessage()
+            )
+        } else {
+            MessageComposeInputState.Active(
+                messageText = messageComposeInputState.messageText,
+                inputFocused = true,
+                type = MessageComposeInputType.SelfDeletingMessage(selfDeletionDuration)
+            )
+        }
+    }
+
+    fun getSelfDeletionTime(): SelfDeletionDuration {
+        return (messageComposeInputState as? MessageComposeInputState.Active)
+            ?.let { it.type as? MessageComposeInputType.SelfDeletingMessage }?.selfDeletionDuration
+            ?: SelfDeletionDuration.None
     }
 }
 

@@ -48,9 +48,11 @@ import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseC
 import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationAccessRoleUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
+import com.wire.kalium.logic.feature.conversation.UpdateConversationReceiptModeUseCase
 import com.wire.kalium.logic.feature.team.DeleteTeamConversationUseCase
 import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
+import com.wire.kalium.logic.feature.user.IsMLSEnabledUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -531,9 +533,11 @@ internal class GroupConversationDetailsViewModelArrangement {
     lateinit var clearConversationContentUseCase: ClearConversationContentUseCase
 
     @MockK
+    lateinit var isMLSEnabledUseCase: IsMLSEnabledUseCase
+
+    @MockK
     lateinit var updateConversationReceiptMode: UpdateConversationReceiptModeUseCase
 
-    lateinit var updateConversationReceiptMode: UpdateConversationReceiptModeUseCase
 
     @MockK
     private lateinit var qualifiedIdMapper: QualifiedIdMapper
@@ -557,7 +561,8 @@ internal class GroupConversationDetailsViewModelArrangement {
             qualifiedIdMapper = qualifiedIdMapper,
             updateConversationMutedStatus = updateConversationMutedStatus,
             clearConversationContent = clearConversationContentUseCase,
-            updateConversationReceiptMode = updateConversationReceiptMode
+            updateConversationReceiptMode = updateConversationReceiptMode,
+            isMLSEnabled = isMLSEnabledUseCase
         )
     }
 

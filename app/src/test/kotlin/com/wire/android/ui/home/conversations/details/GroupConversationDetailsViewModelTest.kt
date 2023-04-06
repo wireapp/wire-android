@@ -535,6 +535,7 @@ internal class GroupConversationDetailsViewModelArrangement {
     @MockK
     lateinit var isMLSEnabledUseCase: IsMLSEnabledUseCase
 
+    @MockK
     lateinit var updateConversationReceiptMode: UpdateConversationReceiptModeUseCase
 
     @MockK
@@ -559,6 +560,7 @@ internal class GroupConversationDetailsViewModelArrangement {
             qualifiedIdMapper = qualifiedIdMapper,
             updateConversationMutedStatus = updateConversationMutedStatus,
             clearConversationContent = clearConversationContentUseCase,
+            updateConversationReceiptMode = updateConversationReceiptMode,
             isMLSEnabled = isMLSEnabledUseCase
         )
     }

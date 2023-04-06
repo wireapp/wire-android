@@ -82,6 +82,7 @@ import com.wire.kalium.logic.feature.message.SendEditTextMessageUseCase
 import com.wire.kalium.logic.feature.message.SendKnockUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.message.ToggleReactionUseCase
+import com.wire.kalium.logic.feature.message.ephemeral.EnqueueMessageSelfDeletionUseCase
 import com.wire.kalium.logic.feature.message.getPaginatedFlowOfMessagesByConversation
 import com.wire.kalium.logic.feature.publicuser.GetAllContactsUseCase
 import com.wire.kalium.logic.feature.publicuser.GetKnownUserUseCase
@@ -112,9 +113,9 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.scopes.ServiceScoped
 import dagger.hilt.android.scopes.ViewModelScoped
 import dagger.hilt.components.SingletonComponent
+import kotlinx.coroutines.runBlocking
 import javax.inject.Qualifier
 import javax.inject.Singleton
-import kotlinx.coroutines.runBlocking
 
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
@@ -1008,7 +1009,7 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
-    fun getOtherUserSecurityClassificationLabelUseCase(
+    fun provideGetOtherUserSecurityClassificationLabelUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
     ): GetOtherUserSecurityClassificationLabelUseCase =
@@ -1018,6 +1019,13 @@ class UseCaseModule {
     @Provides
     fun provideObserveNewClientsUseCaseUseCase(@KaliumCoreLogic coreLogic: CoreLogic) =
         coreLogic.getGlobalScope().observeNewClientsUseCase
+
+    @ViewModelScoped
+    @Provides
+    fun provideEnqueueMessageSelfDeletionUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): EnqueueMessageSelfDeletionUseCase = coreLogic.getSessionScope(currentAccount).enqueueMessageSelfDeletionUseCase
 
     @ViewModelScoped
     @Provides

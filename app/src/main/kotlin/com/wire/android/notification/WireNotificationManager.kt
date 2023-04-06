@@ -45,7 +45,6 @@ import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -58,10 +57,8 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import kotlinx.coroutines.withTimeout
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlin.time.Duration.Companion.seconds
 
 @ExperimentalCoroutinesApi
 @Suppress("TooManyFunctions", "LongParameterList")
@@ -80,7 +77,6 @@ class WireNotificationManager @Inject constructor(
     private val scope = CoroutineScope(SupervisorJob() + dispatcherProvider.default())
     private val fetchOnceMutex = Mutex()
     private val fetchOnceJobs = hashMapOf<UserId, Job>()
-    private val fetchCallsOnceJobs = hashMapOf<UserId, Job>()
     private val observingWhileRunningJobs = hashMapOf<UserId, ObservingJobs>()
     private val observingPersistentlyJobs = hashMapOf<UserId, ObservingJobs>()
 
@@ -118,13 +114,10 @@ class WireNotificationManager @Inject constructor(
         val userId = checkIfUserIsAuthenticated(userIdValue) ?: return
 
         val syncAndNotificationJobForUser = fetchAndShowMessageNotificationsJob(userId)
-        val callsJobForUser = checkCallsNotificationOnceJob(userId)
 
         // Join the jobs for the user, waiting for its completion
         syncAndNotificationJobForUser?.start()
         syncAndNotificationJobForUser?.join()
-        callsJobForUser.start()
-        callsJobForUser.join()
     }
 
     private suspend fun fetchAndShowMessageNotificationsJob(userId: UserId): Job? =
@@ -176,43 +169,6 @@ class WireNotificationManager @Inject constructor(
         } else {
             scope.launch { observeMessageNotifications(userId, MutableStateFlow(CurrentScreen.InBackground)) }
         }
-    }
-
-    private suspend fun checkCallsNotificationOnceJob(userId: UserId): Job =
-        fetchOnceMutex.withLock {
-            val callsJob = scope.launch(start = CoroutineStart.LAZY) {
-
-                appLogger.d("$TAG checking calls once")
-                try {
-                    withTimeout(8.seconds) {
-                        fetchAndShowCallNotificationsOnce(userId)
-                    }
-                } catch (timeout: TimeoutCancellationException) {
-                    appLogger.d("$TAG Fetching call notifications was stopped due to timeout", timeout)
-                }
-            }
-            fetchCallsOnceJobs[userId]?.let {
-                appLogger.d("$TAG cancelling prev. calls job")
-                it.cancel()
-                // if the calls have been already observed (fetchCallsOnceJobs[userId] != null),
-                // we need to start observing it again immediately to not loose a call.
-                callsJob.start()
-            }
-            fetchCallsOnceJobs[userId] = callsJob
-
-            callsJob
-        }
-
-    private suspend fun fetchAndShowCallNotificationsOnce(userId: QualifiedID) {
-        coreLogic.getSessionScope(userId)
-            .calls
-            .getIncomingCalls()
-            .distinctUntilChanged()
-            .cancellable()
-            .collect { callsList ->
-                appLogger.d(" Collecting incoming calls for user: ${userId.toString().obfuscateId()} calls : $callsList..")
-                callNotificationManager.handleIncomingCallNotifications(callsList, userId)
-            }
     }
 
     /**
@@ -419,6 +375,7 @@ class WireNotificationManager @Inject constructor(
                         }
                 }
             }
+            .distinctUntilChanged()
             .collect { ongoingCallData ->
                 if (ongoingCallData == null) {
                     servicesManager.stopOngoingCallService()

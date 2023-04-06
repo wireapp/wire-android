@@ -50,6 +50,7 @@ import androidx.compose.ui.unit.TextUnit
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.util.ui.UIText
 
+@Suppress("ComplexMethod")
 @Composable
 fun LinkifyText(
     text: UIText,
@@ -84,44 +85,47 @@ fun LinkifyText(
     }
     val annotatedString = buildAnnotatedString {
         append(textAsString)
-        linkInfos.forEach {
-            if (it.end - it.start <= 0) {
-                return@forEach
-            }
-            addStyle(
-                style = SpanStyle(
-                    color = MaterialTheme.wireColorScheme.primary,
-                    textDecoration = TextDecoration.Underline
-                ),
-                start = it.start,
-                end = it.end
-            )
-            addStringAnnotation(
-                tag = "linkTag",
-                annotation = it.url,
-                start = it.start,
-                end = it.end
-            )
-        }
-        if (text is UIText.DynamicString && text.mentions.isNotEmpty()) {
-            text.mentions.forEach {
-                if (it.length <= 0) {
+        with(MaterialTheme.wireColorScheme) {
+            linkInfos.forEach {
+                if (it.end - it.start <= 0) {
                     return@forEach
                 }
                 addStyle(
                     style = SpanStyle(
-                        color = MaterialTheme.wireColorScheme.onPrimaryVariant,
-                        background = MaterialTheme.wireColorScheme.primaryVariant
+                        color = primary,
+                        textDecoration = TextDecoration.Underline
                     ),
                     start = it.start,
-                    end = it.start + it.length
+                    end = it.end
                 )
                 addStringAnnotation(
-                    tag = "mentionTag",
-                    annotation = it.userId.toString(),
+                    tag = "linkTag",
+                    annotation = it.url,
                     start = it.start,
-                    end = it.start + it.length
+                    end = it.end
                 )
+            }
+            if (text is UIText.DynamicString && text.mentions.isNotEmpty()) {
+                text.mentions.forEach {
+                    if (it.length <= 0) {
+                        return@forEach
+                    }
+                    addStyle(
+                        style = SpanStyle(
+                            fontWeight = typography().body02.fontWeight,
+                            color = onPrimaryVariant,
+                            background = if (it.isSelfMention) primaryVariant else Color.Unspecified
+                        ),
+                        start = it.start,
+                        end = it.start + it.length
+                    )
+                    addStringAnnotation(
+                        tag = "mentionTag",
+                        annotation = it.userId.toString(),
+                        start = it.start,
+                        end = it.start + it.length
+                    )
+                }
             }
         }
     }

@@ -49,9 +49,10 @@ import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.Error
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogActiveState
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogHelper
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogsState
-import com.wire.android.ui.home.conversations.model.AttachmentBundle
+import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.android.ui.home.conversations.model.AttachmentType
 import com.wire.android.ui.home.conversations.model.EditMessageBundle
+import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.messagecomposer.UiMention
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.util.FileManager
@@ -74,6 +75,7 @@ import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.SendEditTextMessageUseCase
 import com.wire.kalium.logic.feature.message.SendKnockUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
+import com.wire.kalium.logic.feature.message.ephemeral.EnqueueMessageSelfDeletionUseCase
 import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
 import com.wire.kalium.logic.feature.user.IsFileSharingEnabledUseCase
 import com.wire.kalium.logic.functional.onFailure
@@ -109,6 +111,7 @@ class MessageComposerViewModel @Inject constructor(
     private val membersToMention: MembersToMentionUseCase,
     private val getAssetSizeLimit: GetAssetSizeLimitUseCase,
     private val sendKnockUseCase: SendKnockUseCase,
+    private val enqueueMessageSelfDeletionUseCase: EnqueueMessageSelfDeletionUseCase,
     private val pingRinger: PingRinger,
     private val imageUtil: ImageUtil,
     private val fileManager: FileManager
@@ -230,11 +233,11 @@ class MessageComposerViewModel @Inject constructor(
     }
 
     @Suppress("MagicNumber")
-    fun sendAttachmentMessage(attachmentBundle: AttachmentBundle?) {
+    fun sendAttachmentMessage(attachmentBundle: AssetBundle?) {
         viewModelScope.launch {
             withContext(dispatchers.io()) {
                 attachmentBundle?.run {
-                    when (attachmentType) {
+                    when (assetType) {
                         AttachmentType.IMAGE -> {
                             if (dataSize > getAssetSizeLimit(isImage = true)) onSnackbarMessage(ErrorMaxImageSize)
                             else {
@@ -285,7 +288,9 @@ class MessageComposerViewModel @Inject constructor(
                             }
                         }
 
-                        AttachmentType.AUDIO -> TODO()
+                        AttachmentType.AUDIO -> {
+                            // TODO()
+                        }
                     }
                 }
             }
@@ -365,6 +370,10 @@ class MessageComposerViewModel @Inject constructor(
         viewModelScope.launch(dispatchers.io()) {
             updateConversationReadDateUseCase(conversationId, Instant.parse(utcISO))
         }
+    }
+
+    fun startSelfDeletion(uiMessage: UIMessage.Regular) {
+        enqueueMessageSelfDeletionUseCase(conversationId, uiMessage.header.messageId)
     }
 
     fun navigateBack(previousBackStackPassedArgs: Map<String, Any> = mapOf()) {

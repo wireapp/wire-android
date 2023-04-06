@@ -746,7 +746,7 @@
     <string name="block_user_dialog_title">Benutzer blockieren?</string>
     <string name="block_user_dialog_body">%1$s wird Sie nicht kontaktieren oder zu Gruppenunterhaltungen hinzufügen können und wird darüber nicht informiert.</string>
     <string name="block_user_dialog_confirm_button">Blockieren</string>
-    <string name="other_user_devices_description"><![CDATA[\Wire gibt jedem Gerät einen einzigartigen Fingerabdruck. Vergleichen Sie diese mit %1$s und überprüfen Sie Ihre Unterhaltung. \]]></string>
+    <string name="other_user_devices_description"><![CDATA[Wire gibt jedem Gerät einen einzigartigen Fingerabdruck. Vergleichen Sie diese mit %1$s und überprüfen Sie Ihre Unterhaltung.]]></string>
     <!--Settings -->
     <string name="url_why_verify_conversation">/hc/de/articles/207859815</string>
     <string name="settings_general_label">Allgemein</string>

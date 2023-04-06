@@ -733,7 +733,7 @@
     <string name="block_user_dialog_title">Block user?</string>
     <string name="block_user_dialog_body">%1$s won’t be able to contact you or add you to group conversations. They will not be notified about this.</string>
     <string name="block_user_dialog_confirm_button">Block</string>
-    <string name="other_user_devices_description"><![CDATA[\Wire gives every device a unique fingerprint. Compare them with %1$s and verify your conversation. \]]></string>
+    <string name="other_user_devices_description"><![CDATA[Wire gives every device a unique fingerprint. Compare them with %1$s and verify your conversation.]]></string>
     <!--Settings -->
     <string name="url_why_verify_conversation">/hc/en-us/articles/207859815</string>
     <string name="settings_general_label">General</string>

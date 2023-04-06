@@ -548,8 +548,8 @@ Fino a 500 persone possono unirsi a una conversazione di gruppo.</string>
         <item quantity="one">1 partecipante é stato rimosso dalla conversazione</item>
         <item quantity="other">%1$d partecipanti sono stati rimossi dalla conversazione</item>
     </plurals>
-    <string name="last_message_self_user_shared_asset">shared a file.</string>
-    <string name="last_message_other_user_shared_asset">shared a file.</string>
+    <string name="last_message_self_user_shared_asset">hai condiviso un contenuto multimediale</string>
+    <string name="last_message_other_user_shared_asset">ha condiviso un contenuto multimediale</string>
     <string name="last_message_self_user_shared_image">hai condiviso un\'immagine</string>
     <string name="last_message_other_user_shared_image">ha condiviso un\'immagine</string>
     <string name="last_message_self_user_shared_video">hai condiviso un video</string>
@@ -741,7 +741,7 @@ Rispondendo qui, verr&#224; riagganciata l\'altra chiamata.</string>
     <string name="block_user_dialog_title">Bloccare l\'utente?</string>
     <string name="block_user_dialog_body">%1$s non potrà contattarti o aggiungerti a conversazioni di gruppo. Non verranno informati di questo.</string>
     <string name="block_user_dialog_confirm_button">Blocca</string>
-    <string name="other_user_devices_description"><![CDATA[\Wire assegna a ogni dispositivo un'impronta digitale univoca. Confrontale con %1$s e verifica la tua conversazione.\]]></string>
+    <string name="other_user_devices_description"><![CDATA[Wire assegna a ogni dispositivo una impronta digitale univoca. Confrontale con %1$s e verifica la tua conversazione.]]></string>
     <!--Settings -->
     <string name="url_why_verify_conversation">/hc/en-us/articles/207859815</string>
     <string name="settings_general_label">Generale</string>
@@ -884,9 +884,7 @@ URL del backend:
     <string name="file_sharing_restricted_dialog_description">Non puoi condividere questo file poich&#233; questa funzione &#232; disattivata.</string>
     <!-- join conversation dialog -->
     <string name="join_conversation_dialog_title">Unirsi alla conversazione?</string>
-    <string name="join_conversation_dialog_message">Sei stato invitato ad una conversazione.
-
-%1$s</string>
+    <string name="join_conversation_dialog_message">Sei stato invitato ad una conversazione.\n\n%1$s</string>
     <string name="join_conversation_dialog_button">Unisciti</string>
     <string name="join_conversation_via_deeplink_error_title">Impossibile unirsi alla conversazione</string>
     <string name="join_conversation_via_deeplink_error_link_expired">Il link per questa conversazione di gruppo &#232; scaduto o la conversazione &#232; stata impostata come privata.</string>

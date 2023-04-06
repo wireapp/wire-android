@@ -741,7 +741,7 @@ Rispondendo qui, verr&#224; riagganciata l\'altra chiamata.</string>
     <string name="block_user_dialog_title">Bloccare l\'utente?</string>
     <string name="block_user_dialog_body">%1$s non potrà contattarti o aggiungerti a conversazioni di gruppo. Non verranno informati di questo.</string>
     <string name="block_user_dialog_confirm_button">Blocca</string>
-    <string name="other_user_devices_description"><![CDATA[Wire assegna a ogni dispositivo un'impronta digitale univoca. Confrontale con %1$s e verifica la tua conversazione.]]></string>
+    <string name="other_user_devices_description"><![CDATA[Wire assegna a ogni dispositivo una impronta digitale univoca. Confrontale con %1$s e verifica la tua conversazione.]]></string>
     <!--Settings -->
     <string name="url_why_verify_conversation">/hc/en-us/articles/207859815</string>
     <string name="settings_general_label">Generale</string>

@@ -63,7 +63,7 @@ import kotlinx.coroutines.test.setMain
 import org.amshove.kluent.internal.assertEquals
 import org.junit.jupiter.api.Test
 
-class ConnectionActionButtonHiltTest {
+class ConnectionActionButtonViewModelTest {
 
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
@@ -231,7 +231,7 @@ internal class ConnectionActionButtonHiltArrangement {
     lateinit var qualifiedIdMapper: QualifiedIdMapper
 
     private val viewModel by lazy {
-        ConnectionActionButtonHilt(
+        ConnectionActionButtonViewModel(
             navigationManager,
             TestDispatcherProvider(),
             sendConnectionRequest,

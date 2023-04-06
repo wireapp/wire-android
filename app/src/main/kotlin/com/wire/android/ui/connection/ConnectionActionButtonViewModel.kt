@@ -60,7 +60,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
-abstract class ConnectionActionButtonViewModel : ViewModel() {
+abstract class ConnectionActionButtonBaseViewModel : ViewModel() {
 
     abstract fun onSendConnectionRequest()
     abstract fun onCancelConnectionRequest()
@@ -71,18 +71,9 @@ abstract class ConnectionActionButtonViewModel : ViewModel() {
 
 }
 
-object ConnectionActionButtonPreviewModel : ConnectionActionButtonViewModel() {
-    override fun onSendConnectionRequest() {}
-    override fun onCancelConnectionRequest() {}
-    override fun onAcceptConnectionRequest() {}
-    override fun onIgnoreConnectionRequest() {}
-    override fun onUnblockUser() {}
-    override fun onOpenConversation() {}
-}
-
 @Suppress("LongParameterList", "TooManyFunctions")
 @HiltViewModel
-class ConnectionActionButtonHilt @Inject constructor(
+class ConnectionActionButtonViewModel @Inject constructor(
     private val navigationManager: NavigationManager,
     private val dispatchers: DispatcherProvider,
     private val sendConnectionRequest: SendConnectionRequestUseCase,
@@ -94,7 +85,7 @@ class ConnectionActionButtonHilt @Inject constructor(
     private val showSnackBarUseCase: ShowSnackBarUseCase,
     private val savedStateHandle: SavedStateHandle,
     qualifiedIdMapper: QualifiedIdMapper
-) : ConnectionActionButtonViewModel() {
+) : ConnectionActionButtonBaseViewModel() {
 
     private val userId: QualifiedID = savedStateHandle.get<String>(EXTRA_USER_ID)!!.toQualifiedID(qualifiedIdMapper)
     private val userName: String = savedStateHandle.get<String>(EXTRA_USER_NAME)!!
@@ -207,4 +198,13 @@ class ConnectionActionButtonHilt @Inject constructor(
         const val MY_ARGS_KEY = "ConnectionActionButtonViewModelKey"
     }
 
+}
+
+object ConnectionActionButtonPreviewModel : ConnectionActionButtonBaseViewModel() {
+    override fun onSendConnectionRequest() {}
+    override fun onCancelConnectionRequest() {}
+    override fun onAcceptConnectionRequest() {}
+    override fun onIgnoreConnectionRequest() {}
+    override fun onUnblockUser() {}
+    override fun onOpenConversation() {}
 }

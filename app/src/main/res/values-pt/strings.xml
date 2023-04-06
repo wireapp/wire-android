@@ -741,7 +741,7 @@ Até 500 pessoas podem participar de uma conversa em grupo.</string>
     <string name="block_user_dialog_title">Bloquear usuário?</string>
     <string name="block_user_dialog_body">%1$s não será capaz de contactar-te ou adicinar-te à conversas em grupo. Ele(a) não será informado(a) a respeito.</string>
     <string name="block_user_dialog_confirm_button">Bloquear</string>
-    <string name="other_user_devices_description"><![CDATA[Wire cria uma identificação única para cada dispositivo. Compare-as com %1$s para verificar conversa.]]></string>
+    <string name="other_user_devices_description">Wire cria uma identificação única para cada dispositivo. Compare-as com %1$s para verificar conversa.</string>
     <!--Settings -->
     <string name="url_why_verify_conversation">/hc/pt/articles/207859815</string>
     <string name="settings_general_label">Geral</string>
@@ -914,16 +914,10 @@ Por favor, use o gerenciamento de equipe (%1$s) neste backend.</string>
     <string name="guest_room_link_disabled">A geração de links de convidado agora está desabilitada para todos os administradores de grupo</string>
     <!-- New Device dialog -->
     <string name="new_device_dialog_current_user_title">Sua conta foi usada em</string>
-    <string name="new_device_dialog_current_user_message">%1$s
-De: %2$s
-
-Se você não fez isso, remova o dispositivo e redefina sua senha.</string>
+    <string name="new_device_dialog_current_user_message">%1$s\nFrom: %2$s \n\nIf you didn\'t do this, remove the device and reset your password.</string>
     <string name="new_device_dialog_current_user_btn">Gerenciar dispositivos</string>
     <string name="new_device_dialog_other_user_title">Sua conta \"%1$s (@%2$s)\" foi usada em:</string>
-    <string name="new_device_dialog_other_user_message">%1$s
-De: %2$s
-
-Se você não fez isso, remova o dispositivo (vá para \"Gerenciar dispositivos\" na seção Configurações desta conta), e redefina sua senha.</string>
+    <string name="new_device_dialog_other_user_message">%1$s\nFrom: %2$s \n\nIf you didn\'t do this, remove the device (navigate to “Manage Devices” in the Settings section of this account), and reset your password.</string>
     <string name="new_device_dialog_other_user_btn">Mudar de Conta</string>
     <string name="label_system_message_joined_the_conversation_by_self">%1$s entrou na conversa</string>
     <string name="label_system_message_joined_the_conversation_by_other">%1$s entrou na conversa</string>

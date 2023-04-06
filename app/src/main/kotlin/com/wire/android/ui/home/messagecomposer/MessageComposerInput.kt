@@ -269,7 +269,8 @@ data class MessageComposerInputActions(
     val onEditSaveButtonClicked: () -> Unit = {},
     val onEditCancelButtonClicked: () -> Unit = {},
     val onPingClicked: () -> Unit = {},
-    val onSelfDeletionOptionButtonClicked: () -> Unit = { }
+    val onSelfDeletionOptionButtonClicked: () -> Unit = { },
+    val onSendSelfDeletingMessageClicked: () -> Unit = {}
 )
 
 @Composable

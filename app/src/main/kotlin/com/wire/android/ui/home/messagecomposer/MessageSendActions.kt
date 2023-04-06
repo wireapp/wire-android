@@ -54,9 +54,12 @@ fun MessageSendActions(
 }
 
 @Composable
- fun ScheduleMessageButton(sendButtonEnabled: Boolean) {
+fun ScheduleMessageButton(
+    sendButtonEnabled: Boolean,
+    onSendButtonClicked: () -> Unit
+) {
     WirePrimaryIconButton(
-        onButtonClicked = {  },
+        onButtonClicked = onSendButtonClicked,
         iconResource = R.drawable.ic_timer,
         contentDescription = R.string.content_description_send_button,
         state = if (sendButtonEnabled) WireButtonState.Default else WireButtonState.Disabled,
@@ -91,6 +94,7 @@ private fun SendButton(
 fun PreviewMessageSendActionsEnabled() {
     MessageSendActions(true, {})
 }
+
 @Preview
 @Composable
 fun PreviewMessageSendActionsDisabled() {

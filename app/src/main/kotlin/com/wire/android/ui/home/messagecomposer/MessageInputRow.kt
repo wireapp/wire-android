@@ -137,6 +137,7 @@ fun MessageComposerInputRow(
                 is MessageComposeInputType.SelfDeletingMessage -> {
                     Text(type.selfDeletionDuration.label, Modifier.clickable { onChangeSelfDeletionTimeClicked() })
                     ScheduleMessageButton(
+                        onSendButtonClicked = onSendButtonClicked,
                         sendButtonEnabled = messageComposeInputState.sendEphemeralMessageButtonEnabled
                     )
                 }

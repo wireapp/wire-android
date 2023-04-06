@@ -93,11 +93,15 @@ fun MessageComposer(
     BoxWithConstraints {
         val onSendButtonClicked = remember {
             {
+                val expireAfter = (messageComposerState.messageComposeInputState as? MessageComposeInputState.Active)?.let {
+                    (it.type as? MessageComposeInputType.SelfDeletingMessage)
+                }?.selfDeletionDuration?.value
+
                 onSendTextMessage(
                     messageComposerState.messageComposeInputState.messageText.text,
                     messageComposerState.mentions,
                     messageComposerState.quotedMessageData?.messageId,
-                    null
+                    expireAfter
                 )
                 messageComposerState.quotedMessageData = null
                 messageComposerState.setMessageTextValue(TextFieldValue(""))
@@ -119,10 +123,6 @@ fun MessageComposer(
                 }
                 messageComposerState.closeEditToInactive()
             }
-        }
-
-        val onSendSelfDeletingMessage = remember{
-
         }
 
         val onSendAttachmentClicked = remember {

@@ -324,7 +324,8 @@ private fun ConversationScreen(
                 withSmoothScreenLoad {
                     messageComposerInnerState.reply(it)
                 }
-            })
+            }
+        )
     }
 
     val menuModalHeader = if (conversationScreenState.dupa is ConversationScreenState.BottomSheetMenuType.SelfDeletion) {
@@ -361,6 +362,7 @@ private fun ConversationScreen(
 
             is ConversationScreenState.BottomSheetMenuType.SelfDeletion -> {
                 SelfDeletionMenuItems(
+                    hideEditMessageMenu = conversationScreenState::hideContextMenu,
                     currentlySelected = SelfDeletionDuration.FiveMinutes,
                     onSelfDeletionDurationChanged = { messageComposerInnerState.specifySelfDeletionTime(it) }
                 )

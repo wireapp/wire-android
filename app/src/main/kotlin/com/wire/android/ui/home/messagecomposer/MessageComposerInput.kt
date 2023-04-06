@@ -209,6 +209,7 @@ private fun MessageComposeInput(
             onAdditionalOptionButtonClicked = actions.onAdditionalOptionButtonClicked,
             onEditCancelButtonClicked = actions.onEditCancelButtonClicked,
             onEditSaveButtonClicked = actions.onEditSaveButtonClicked,
+            onChangeSelfDeletionTimeClicked = actions.onSelfDeletionOptionButtonClicked,
             isFileSharingEnabled = isFileSharingEnabled,
         )
     }

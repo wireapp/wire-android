@@ -348,7 +348,7 @@ data class MessageComposerInnerState(
         messageComposeInputState =  MessageComposeInputState.Active(
             messageText =  messageComposeInputState.messageText,
             inputFocused = true,
-            type = MessageComposeInputType.SelfDeletingMessage(selfDeletionDuration.value)
+            type = MessageComposeInputType.SelfDeletingMessage(selfDeletionDuration)
         )
     }
 }

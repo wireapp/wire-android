@@ -95,7 +95,7 @@ sealed class MessageComposeInputType {
 
     @Stable
     data class SelfDeletingMessage(
-        val expireAfters: Duration?
+        val selfDeletionDuration: SelfDeletionDuration
     ) : MessageComposeInputType()
 }
 

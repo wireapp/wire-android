@@ -22,6 +22,7 @@ import androidx.compose.runtime.Composable
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.bottomsheet.RichMenuItemState
 import com.wire.android.ui.common.bottomsheet.SelectableMenuBottomSheetItem
+import com.wire.android.ui.home.conversations.edit.OnComplete
 import com.wire.android.ui.home.messagecomposer.state.SelfDeletionDuration
 import com.wire.android.ui.theme.wireTypography
 
@@ -29,15 +30,23 @@ import com.wire.android.ui.theme.wireTypography
 @Composable
 fun SelfDeletionMenuItems(
     currentlySelected: SelfDeletionDuration,
+    hideEditMessageMenu: (OnComplete) -> Unit,
     onSelfDeletionDurationChanged: (SelfDeletionDuration) -> Unit,
 ): List<@Composable () -> Unit> {
+
+    val onSelfDeletionDurationSelected: (SelfDeletionDuration) -> Unit = { selfDeleteDuration ->
+        hideEditMessageMenu {
+            onSelfDeletionDurationChanged(selfDeleteDuration)
+        }
+    }
+
     return buildList {
         add {
             val duration = SelfDeletionDuration.None
             SelfDeletionDurationMenuItem(
                 duration = duration,
                 isSelected = currentlySelected == duration,
-                onSelfDeletionDurationSelected = onSelfDeletionDurationChanged
+                onSelfDeletionDurationSelected = onSelfDeletionDurationSelected
             )
         }
         add {
@@ -45,7 +54,7 @@ fun SelfDeletionMenuItems(
             SelfDeletionDurationMenuItem(
                 duration = duration,
                 isSelected = currentlySelected == duration,
-                onSelfDeletionDurationSelected = onSelfDeletionDurationChanged
+                onSelfDeletionDurationSelected = onSelfDeletionDurationSelected
             )
         }
         add {
@@ -53,7 +62,7 @@ fun SelfDeletionMenuItems(
             SelfDeletionDurationMenuItem(
                 duration = duration,
                 isSelected = currentlySelected == duration,
-                onSelfDeletionDurationSelected = onSelfDeletionDurationChanged
+                onSelfDeletionDurationSelected = onSelfDeletionDurationSelected
             )
         }
         add {
@@ -61,7 +70,7 @@ fun SelfDeletionMenuItems(
             SelfDeletionDurationMenuItem(
                 duration = SelfDeletionDuration.OneDay,
                 isSelected = currentlySelected == duration,
-                onSelfDeletionDurationSelected = onSelfDeletionDurationChanged
+                onSelfDeletionDurationSelected = onSelfDeletionDurationSelected
             )
         }
         add {
@@ -69,7 +78,7 @@ fun SelfDeletionMenuItems(
             SelfDeletionDurationMenuItem(
                 duration = SelfDeletionDuration.OneWeek,
                 isSelected = currentlySelected == duration,
-                onSelfDeletionDurationSelected = onSelfDeletionDurationChanged
+                onSelfDeletionDurationSelected = onSelfDeletionDurationSelected
             )
         }
         add {
@@ -77,7 +86,7 @@ fun SelfDeletionMenuItems(
             SelfDeletionDurationMenuItem(
                 duration = SelfDeletionDuration.FourWeeks,
                 isSelected = currentlySelected == duration,
-                onSelfDeletionDurationSelected = onSelfDeletionDurationChanged
+                onSelfDeletionDurationSelected = onSelfDeletionDurationSelected
             )
         }
     }

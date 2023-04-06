@@ -25,6 +25,7 @@ import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Transition
 import androidx.compose.animation.core.updateTransition
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -69,6 +70,7 @@ fun MessageComposerInputRow(
     onAdditionalOptionButtonClicked: () -> Unit = { },
     onEditSaveButtonClicked: () -> Unit = { },
     onEditCancelButtonClicked: () -> Unit = { },
+    onChangeSelfDeletionTimeClicked: () -> Unit = { },
     isFileSharingEnabled: Boolean = true,
 ) {
     Row(
@@ -133,7 +135,7 @@ fun MessageComposerInputRow(
                     )
 
                 is MessageComposeInputType.SelfDeletingMessage -> {
-                    Text(type.expireAfters?.let { it.inWholeSeconds.toString() } ?: "dupa")
+                    Text(type.selfDeletionDuration.label, Modifier.clickable { onChangeSelfDeletionTimeClicked() })
                     ScheduleMessageButton(
                         sendButtonEnabled = messageComposeInputState.sendEphemeralMessageButtonEnabled
                     )

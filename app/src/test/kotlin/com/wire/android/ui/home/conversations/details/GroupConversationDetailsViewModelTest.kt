@@ -537,7 +537,7 @@ internal class GroupConversationDetailsViewModelArrangement {
 
     @MockK
     lateinit var updateConversationReceiptMode: UpdateConversationReceiptModeUseCase
-    
+
     @MockK
     private lateinit var qualifiedIdMapper: QualifiedIdMapper
 

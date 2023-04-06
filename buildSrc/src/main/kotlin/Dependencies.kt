@@ -80,7 +80,7 @@ object Libraries {
         const val pinEditText = "1.2.3"
         const val sqlLiteJdbc = "3.36.0"
         const val desugaring = "1.1.5"
-        const val workManager = "2.8.0"
+        const val workManager = "2.8.1"
         const val fragment = "1.5.5"
         const val compose = "1.3.1"
         const val composeCompiler = "1.4.3"

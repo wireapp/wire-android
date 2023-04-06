@@ -182,7 +182,6 @@ internal fun MessageDecryptionFailure(
     }
 }
 
-// todo(yamil): add background to partial delivery
 @Composable
 internal fun Modifier.customizeMessageBackground(
     sendingFailed: Boolean,

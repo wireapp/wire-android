@@ -27,6 +27,7 @@ import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.os.PowerManager
 import androidx.appcompat.app.AppCompatActivity
+import com.wire.android.appLogger
 import com.wire.android.di.ApplicationScope
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.kalium.logic.CoreLogic
@@ -53,7 +54,7 @@ class ProximitySensorManager @Inject constructor(
         sensorManager = context.getSystemService(AppCompatActivity.SENSOR_SERVICE) as SensorManager
         proximity = sensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY)
         val powerManager = context.getSystemService(AppCompatActivity.POWER_SERVICE) as PowerManager
-        wakeLock = powerManager.newWakeLock(field, TAG);
+        wakeLock = powerManager.newWakeLock(field, TAG)
     }
 
     fun registerListener() {
@@ -76,11 +77,19 @@ class ProximitySensorManager @Inject constructor(
                             val userId = currentSession.accountInfo.userId
                             val isCallRunning = coreLogic.getSessionScope(userId).calls.isCallRunning()
                             val distance = event.values.first()
-                            val shouldTurnOffScreen = !wakeLock.isHeld && distance == NEAR_DISTANCE && isCallRunning
+                            val shouldTurnOffScreen = distance == NEAR_DISTANCE && isCallRunning
+                            appLogger.i(
+                                "$TAG onSensorChanged: isCallRunning: $isCallRunning distance: $distance " +
+                                        "shouldTurnOffScreen: $shouldTurnOffScreen"
+                            )
                             if (shouldTurnOffScreen) {
-                                wakeLock.acquire()
-                            } else if (wakeLock.isHeld) {
-                                wakeLock.release()
+                                if (!wakeLock.isHeld) {
+                                    wakeLock.acquire()
+                                }
+                            } else {
+                                if (wakeLock.isHeld) {
+                                    wakeLock.release()
+                                }
                             }
                         }
 
@@ -103,5 +112,3 @@ class ProximitySensorManager @Inject constructor(
         const val NEAR_DISTANCE = 0F
     }
 }
-
-

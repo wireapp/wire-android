@@ -168,12 +168,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
 
                         is ObserveClientsByUserIdUseCase.Result.Success -> {
                             state = state.copy(otherUserDevices = it.clients.map { item ->
-                                Device(
-                                    name = item.deviceType?.name ?: DeviceType.Unknown.name,
-                                    clientId = item.id,
-                                    isValid = item.isValid,
-                                    isVerified = item.isVerified
-                                )
+                                Device(item)
                             })
                         }
                     }

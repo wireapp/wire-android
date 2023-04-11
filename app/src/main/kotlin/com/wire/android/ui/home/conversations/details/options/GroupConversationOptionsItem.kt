@@ -134,10 +134,7 @@ fun ConversationOptionSwitch(
             WireSwitch(
                 checked = switchState.value,
                 enabled = switchState is SwitchState.Enabled,
-                onCheckedChange = (switchState as? SwitchState.Enabled)?.onCheckedChange,
-                modifier = Modifier
-                    .scale(scaleX = 0.75f, scaleY = 0.75f)
-                    .size(width = 36.dp, height = 24.dp),
+                onCheckedChange = (switchState as? SwitchState.Enabled)?.onCheckedChange
             )
         }
     }

@@ -263,8 +263,7 @@ fun DeviceVerificationItem(
             WireSwitch(
                 checked = state,
                 onCheckedChange = onStatusChange,
-                enabled = enabled,
-                modifier = Modifier.padding(end = dimensions().spacing16x)
+                enabled = enabled
             )
         }
     )
@@ -276,7 +275,6 @@ private fun VerificationDescription(
     isSelfClient: Boolean,
     userName: String?
 ) {
-    val context = LocalContext.current
     Column(
         modifier = Modifier
             .fillMaxWidth()

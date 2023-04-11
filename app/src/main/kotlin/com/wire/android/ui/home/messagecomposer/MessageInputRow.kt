@@ -184,8 +184,8 @@ private fun MessageComposerInput(
     onSelectedLineIndexChanged: (Int) -> Unit = { },
     onLineBottomYCoordinateChanged: (Float) -> Unit = { }
 ) {
-    val placeHolderText =
-        if (messageComposerInputState.isEphemeral) stringResource(R.string.self_deleting_message_label) else stringResource(R.string.label_type_a_message)
+    val placeHolderText = if (messageComposerInputState.isEphemeral) stringResource(R.string.self_deleting_message_label)
+    else stringResource(R.string.label_type_a_message)
 
     WireTextField(
         value = messageText,

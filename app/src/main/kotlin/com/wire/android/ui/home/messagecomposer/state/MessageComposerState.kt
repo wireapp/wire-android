@@ -168,12 +168,22 @@ data class MessageComposerState(
     fun hideAttachmentOptions() = changeAttachmentOptionsVisibility(false)
     private fun changeAttachmentOptionsVisibility(newValue: Boolean) {
         (messageComposeInputState as? MessageComposeInputState.Active)?.let { activeState ->
-            (activeState.type as? MessageComposeInputType.NewMessage)?.let { newMessageType ->
-                messageComposeInputState = activeState.copy(
-                    type = newMessageType.copy(
-                        attachmentOptionsDisplayed = newValue
+            when(val currentType = activeState.type){
+                is MessageComposeInputType.NewMessage -> {
+                    messageComposeInputState = activeState.copy(
+                        type = currentType.copy(
+                            attachmentOptionsDisplayed = newValue
+                        )
                     )
-                )
+                }
+                is MessageComposeInputType.SelfDeletingMessage -> {
+                    messageComposeInputState = activeState.copy(
+                        type = currentType.copy(
+                            attachmentOptionsDisplayed = newValue
+                        )
+                    )
+                }
+                else -> {}
             }
         }
     }

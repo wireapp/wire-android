@@ -238,7 +238,7 @@ class MessageComposerViewModel @Inject constructor(
     }
 
     @Suppress("MagicNumber")
-    fun sendAttachmentMessage(attachmentBundle: AssetBundle?) {
+    fun sendAttachmentMessage(attachmentBundle: AssetBundle?,expireAfter: Duration?) {
         viewModelScope.launch {
             withContext(dispatchers.io()) {
                 attachmentBundle?.run {
@@ -281,7 +281,8 @@ class MessageComposerViewModel @Inject constructor(
                                         assetMimeType = mimeType,
                                         assetDataSize = dataSize,
                                         assetHeight = null,
-                                        assetWidth = null
+                                        assetWidth = null,
+                                        expireAfter = expireAfter
                                     )
                                     if (result is ScheduleNewAssetMessageResult.Failure) {
                                         onSnackbarMessage(ConversationSnackbarMessages.ErrorSendingAsset)

@@ -450,7 +450,7 @@ private fun ConversationScreenContent(
     messages: Flow<PagingData<UIMessage>>,
     onSendMessage: (String, List<UiMention>, String?, expireAfter : Duration?) -> Unit,
     onSendEditMessage: (EditMessageBundle) -> Unit,
-    onSendAttachment: (AssetBundle?) -> Unit,
+    onSendAttachment: (AssetBundle?, Duration?) -> Unit,
     onMentionMember: (String?) -> Unit,
     onAssetItemClicked: (String) -> Unit,
     onAudioItemClicked: (String) -> Unit,
@@ -504,11 +504,11 @@ private fun ConversationScreenContent(
             onSendMessage(message, mentions, messageId, expireAfter)
         },
         onSendEditTextMessage = onSendEditMessage,
-        onSendAttachment = {
+        onSendAttachment = { attachmentBundle , expireAfter ->
             scope.launch {
                 lazyListState.scrollToItem(0)
             }
-            onSendAttachment(it)
+            onSendAttachment(attachmentBundle, expireAfter)
         },
         onMentionMember = onMentionMember,
         onMessageComposerError = onMessageComposerError,

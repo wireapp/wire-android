@@ -77,7 +77,7 @@ fun MessageComposer(
     messageContent: @Composable () -> Unit,
     onSendTextMessage: (String, List<UiMention>, messageId: String?, expireAfter: Duration?) -> Unit,
     onSendEditTextMessage: (EditMessageBundle) -> Unit,
-    onSendAttachment: (AssetBundle?) -> Unit,
+    onSendAttachment: (assetBundle: AssetBundle?, expireAfter: Duration?) -> Unit,
     onMentionMember: (String?) -> Unit,
     onMessageComposerError: (ConversationSnackbarMessages) -> Unit,
     isFileSharingEnabled: Boolean,
@@ -126,8 +126,13 @@ fun MessageComposer(
         }
 
         val onSendAttachmentClicked = remember {
+            val expireAfter = (messageComposerState.messageComposeInputState as? MessageComposeInputState.Active)?.let {
+                (it.type as? MessageComposeInputType.SelfDeletingMessage)
+            }?.selfDeletionDuration?.value
+
+
             { attachmentBundle: AssetBundle? ->
-                onSendAttachment(attachmentBundle)
+                onSendAttachment(attachmentBundle,expireAfter)
                 messageComposerState.hideAttachmentOptions()
             }
         }
@@ -283,7 +288,9 @@ private fun MessageComposer(
                                 },
                                 onAdditionalOptionButtonClicked = {
                                     messageComposerState.focusManager.clearFocus()
-                                    messageComposerState.toActive()
+                                    if (messageComposerState.messageComposeInputState is MessageComposeInputState.Active) {
+                                        messageComposerState.toActive()
+                                    }
                                     messageComposerState.showAttachmentOptions()
                                 },
                                 onEditSaveButtonClicked = onEditSaveButtonClicked,

@@ -127,7 +127,7 @@ fun EditMessageMenuItems(
 
     return buildList {
         if (isAvailable) {
-            add { ReactionOption(onReactionItemClick) }
+           if(!isEphemeral) add { ReactionOption(onReactionItemClick) }
             add { MessageDetailsMenuOption(onDetailsItemClick) }
             if (isCopyable) {
                 add {
@@ -160,7 +160,7 @@ fun EditMessageMenuItems(
                     )
                 }
             }
-            if (isAssetMessage) {
+            if (isAssetMessage && !isEphemeral) {
                 add {
                     MenuBottomSheetItem(
                         icon = {
@@ -175,18 +175,20 @@ fun EditMessageMenuItems(
                 }
             }
         }
-        add {
-            CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.error) {
-                MenuBottomSheetItem(
-                    icon = {
-                        MenuItemIcon(
-                            id = R.drawable.ic_delete,
-                            contentDescription = stringResource(R.string.content_description_delete_the_message),
-                        )
-                    },
-                    title = stringResource(R.string.label_delete),
-                    onItemClick = onDeleteItemClick
-                )
+        if(!isEphemeral) {
+            add {
+                CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.error) {
+                    MenuBottomSheetItem(
+                        icon = {
+                            MenuItemIcon(
+                                id = R.drawable.ic_delete,
+                                contentDescription = stringResource(R.string.content_description_delete_the_message),
+                            )
+                        },
+                        title = stringResource(R.string.label_delete),
+                        onItemClick = onDeleteItemClick
+                    )
+                }
             }
         }
     }

@@ -23,10 +23,14 @@ package com.wire.android.ui.common.topappbar
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.util.CurrentScreen
 import com.wire.android.util.CurrentScreenManager
+import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.sync.SyncState
+import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.auth.AccountInfo
 import com.wire.kalium.logic.feature.call.Call
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
+import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.sync.ObserveSyncStateUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -34,6 +38,7 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -48,6 +53,7 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class CommonTopAppBarViewModelTest {
 
     private val dispatcher = StandardTestDispatcher()
@@ -65,6 +71,7 @@ class CommonTopAppBarViewModelTest {
     @Test
     fun givenNoActiveCallAndHomeScreenAndSlowSync_whenGettingState_thenShouldHaveConnectingInfo() = runTest(dispatcher) {
         val (_, commonTopAppBarViewModel) = Arrangement()
+            .withCurrentSessionExist()
             .withoutActiveCall()
             .withCurrentScreen(CurrentScreen.Home)
             .withSyncState(SyncState.SlowSync)
@@ -80,6 +87,7 @@ class CommonTopAppBarViewModelTest {
     @Test
     fun givenNoActiveCallAndHomeScreenAndGathering_whenGettingState_thenShouldHaveConnectingInfo() = runTest(dispatcher) {
         val (_, commonTopAppBarViewModel) = Arrangement()
+            .withCurrentSessionExist()
             .withoutActiveCall()
             .withCurrentScreen(CurrentScreen.Home)
             .withSyncState(SyncState.GatheringPendingEvents)
@@ -95,6 +103,7 @@ class CommonTopAppBarViewModelTest {
     @Test
     fun givenActiveCallAndHomeScreenAndConnectivityIssues_whenGettingState_thenShouldHaveActiveCallInfo() = runTest(dispatcher) {
         val (arrangement, commonTopAppBarViewModel) = Arrangement()
+            .withCurrentSessionExist()
             .withActiveCall()
             .withCurrentScreen(CurrentScreen.Home)
             .withSyncState(SyncState.Waiting)
@@ -112,6 +121,7 @@ class CommonTopAppBarViewModelTest {
     @Test
     fun givenActiveCallAndCallScreenAndConnectivityIssues_whenGettingState_thenShouldHaveConnectivityInfo() = runTest(dispatcher) {
         val (_, commonTopAppBarViewModel) = Arrangement()
+            .withCurrentSessionExist()
             .withActiveCall()
             .withCurrentScreen(CurrentScreen.OngoingCallScreen(mockk()))
             .withSyncState(SyncState.Waiting)
@@ -127,6 +137,7 @@ class CommonTopAppBarViewModelTest {
     @Test
     fun givenActiveCallAndCallIsMuted_whenGettingState_thenShouldHaveMutedCallInfo() = runTest(dispatcher) {
         val (_, commonTopAppBarViewModel) = Arrangement()
+            .withCurrentSessionExist()
             .withActiveCall()
             .withCurrentScreen(CurrentScreen.Conversation(mockk()))
             .withCallMuted(true)
@@ -145,6 +156,7 @@ class CommonTopAppBarViewModelTest {
     @Test
     fun givenActiveCallAndCallIsNotMuted_whenGettingState_thenShouldNotHaveMutedCallInfo() = runTest(dispatcher) {
         val (_, commonTopAppBarViewModel) = Arrangement()
+            .withCurrentSessionExist()
             .withActiveCall()
             .withCurrentScreen(CurrentScreen.Conversation(mockk()))
             .withCallMuted(false)
@@ -175,6 +187,19 @@ class CommonTopAppBarViewModelTest {
         info shouldBeInstanceOf ConnectivityUIState.Info.None::class
     }
 
+    @Test
+    fun givenNoCurrentSession_whenGettingState_thenNone() = runTest(dispatcher) {
+        val (_, commonTopAppBarViewModel) = Arrangement()
+            .withNotCurrentSession()
+            .arrange()
+
+        advanceUntilIdle()
+        val state = commonTopAppBarViewModel.connectivityState
+
+        val info = state.info
+        info shouldBeInstanceOf ConnectivityUIState.Info.None::class
+    }
+
     private class Arrangement {
 
         val activeCall: Call = mockk()
@@ -194,18 +219,31 @@ class CommonTopAppBarViewModelTest {
         @MockK
         private lateinit var observeSyncState: ObserveSyncStateUseCase
 
+        @MockK
+        private lateinit var coreLogic: CoreLogic
+
         init {
             MockKAnnotations.init(this)
             every { activeCall.conversationId } returns conversationId
+            every {
+                coreLogic.sessionScope(any()) {
+                    observeSyncState
+                }
+            } returns observeSyncState
+
+            every {
+                coreLogic.sessionScope(any()) {
+                    calls.establishedCall
+                }
+            } returns establishedCalls
         }
 
         private val commonTopAppBarViewModel by lazy {
             every { activeCall.isMuted } returns isCallMuted
             CommonTopAppBarViewModel(
                 navigationManager,
-                establishedCalls,
                 currentScreenManager,
-                observeSyncState
+                coreLogic
             )
         }
 
@@ -225,11 +263,24 @@ class CommonTopAppBarViewModelTest {
             every { observeSyncState() } returns flowOf(syncState)
         }
 
+        fun withNotCurrentSession() = apply {
+            every { coreLogic.globalScope { session.currentSessionFlow() } } returns flowOf(
+                CurrentSessionResult.Failure.SessionNotFound
+            )
+        }
+
+        fun withCurrentSessionExist() = apply {
+            every { coreLogic.globalScope { session.currentSessionFlow() } } returns flowOf(
+                CurrentSessionResult.Success(
+                    AccountInfo.Valid(UserId("userId", "domain"))
+                )
+            )
+        }
+
         fun withCurrentScreen(currentScreen: CurrentScreen) = apply {
             coEvery { currentScreenManager.observeCurrentScreen(any()) } returns MutableStateFlow(currentScreen)
         }
 
         fun arrange() = this to commonTopAppBarViewModel
-
     }
 }

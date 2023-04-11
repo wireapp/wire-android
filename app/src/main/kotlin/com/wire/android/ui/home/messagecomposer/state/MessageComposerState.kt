@@ -183,7 +183,7 @@ data class MessageComposerState(
                         )
                     )
                 }
-                else -> {}
+                else -> { }
             }
         }
     }

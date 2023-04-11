@@ -257,7 +257,8 @@ class MessageComposerViewModel @Inject constructor(
                                     assetWidth = imgWidth,
                                     assetHeight = imgHeight,
                                     assetDataSize = dataSize,
-                                    assetMimeType = mimeType
+                                    assetMimeType = mimeType,
+                                    expireAfter = expireAfter
                                 )
                                 if (result is ScheduleNewAssetMessageResult.Failure) {
                                     onSnackbarMessage(ConversationSnackbarMessages.ErrorSendingImage)

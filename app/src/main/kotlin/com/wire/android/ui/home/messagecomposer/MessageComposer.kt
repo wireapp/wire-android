@@ -126,12 +126,11 @@ fun MessageComposer(
         }
 
         val onSendAttachmentClicked = remember {
-            val expireAfter = (messageComposerState.messageComposeInputState as? MessageComposeInputState.Active)?.let {
-                (it.type as? MessageComposeInputType.SelfDeletingMessage)
-            }?.selfDeletionDuration?.value
-
-
             { attachmentBundle: AssetBundle? ->
+                val expireAfter = (messageComposerState.messageComposeInputState as? MessageComposeInputState.Active)?.let {
+                    (it.type as? MessageComposeInputType.SelfDeletingMessage)
+                }?.selfDeletionDuration?.value
+
                 onSendAttachment(attachmentBundle,expireAfter)
                 messageComposerState.hideAttachmentOptions()
             }

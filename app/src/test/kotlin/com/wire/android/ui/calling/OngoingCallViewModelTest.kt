@@ -78,12 +78,15 @@ class OngoingCallViewModelTest {
         MockKAnnotations.init(this)
         every { savedStateHandle.get<String>(any()) } returns dummyConversationId
         every { savedStateHandle.set(any(), any<String>()) } returns Unit
+        coEvery {
+            qualifiedIdMapper.fromStringToQualifiedID("some-dummy-value@some.dummy.domain")
+        } returns QualifiedID("some-dummy-value", "some.dummy.domain")
 
         ongoingCallViewModel = OngoingCallViewModel(
             savedStateHandle = savedStateHandle,
             qualifiedIdMapper = qualifiedIdMapper,
             navigationManager = navigationManager,
-            establishedCall = establishedCall,
+            establishedCalls = establishedCall,
             requestVideoStreams = requestVideoStreams,
             currentScreenManager = currentScreenManager
         )

@@ -42,6 +42,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -135,7 +136,7 @@ class CommonTopAppBarViewModel @Inject constructor(
     }
 
     private suspend fun activeCallFlow(userId: UserId): Flow<Call?> = coreLogic.sessionScope(userId) {
-        calls.establishedCall().map { calls ->
+        calls.establishedCall().distinctUntilChanged().map { calls ->
             calls.firstOrNull()
         }
     }

@@ -23,6 +23,7 @@
 package com.wire.android.ui.common.topappbar
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.expandIn
 import androidx.compose.animation.shrinkOut
 import androidx.compose.foundation.background
@@ -101,6 +102,7 @@ private fun ConnectivityStatusBar(
     }
 
     val barModifier = Modifier
+        .animateContentSize()
         .fillMaxWidth()
         .height(MaterialTheme.wireDimensions.ongoingCallLabelHeight)
         .background(backgroundColor).run {

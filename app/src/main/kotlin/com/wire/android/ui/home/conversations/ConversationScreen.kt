@@ -62,9 +62,7 @@ import com.wire.android.ui.common.dialogs.calling.CallingFeatureUnavailableDialo
 import com.wire.android.ui.common.dialogs.calling.OngoingActiveCallDialog
 import com.wire.android.ui.common.error.CoreFailureErrorDialog
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
-import com.wire.android.ui.common.topappbar.CommonTopAppBar
 import com.wire.android.ui.common.topappbar.CommonTopAppBarViewModel
-import com.wire.android.ui.common.topappbar.ConnectivityUIState
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorDownloadingAsset
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.OnFileDownloaded
 import com.wire.android.ui.home.conversations.banner.ConversationBanner
@@ -176,7 +174,6 @@ fun ConversationScreen(
     ConversationScreen(
         tempCachePath = messageComposerViewModel.provideTempCachePath(),
         bannerMessage = conversationBannerViewModel.bannerState,
-        connectivityUIState = commonTopAppBarViewModel.connectivityState,
         interactionAvailability = messageComposerViewModel.interactionAvailability,
         membersToMention = messageComposerViewModel.mentionsToSelect,
         conversationViewState = uiState,
@@ -194,7 +191,6 @@ fun ConversationScreen(
             messageComposerViewModel.navigateToGallery(message.header.messageId, isSelfMessage)
             conversationMessagesViewModel.updateImageOnFullscreenMode(message)
         },
-        onOpenOngoingCallScreen = commonTopAppBarViewModel::openOngoingCallScreen,
         onStartCall = {
             startCallIfPossible(
                 conversationCallViewModel,
@@ -286,7 +282,6 @@ private fun StartCallAudioBluetoothPermissionCheckFlow(
 private fun ConversationScreen(
     tempCachePath: Path,
     bannerMessage: UIText?,
-    connectivityUIState: ConnectivityUIState,
     interactionAvailability: InteractionAvailability,
     membersToMention: List<Contact>,
     conversationViewState: ConversationViewState,
@@ -303,7 +298,6 @@ private fun ConversationScreen(
     onChangeAudioPosition: (String, Int) -> Unit,
     onAssetItemClicked: (String) -> Unit,
     onImageFullScreenMode: (UIMessage.Regular, Boolean) -> Unit,
-    onOpenOngoingCallScreen: () -> Unit,
     onStartCall: () -> Unit,
     onJoinCall: () -> Unit,
     onReactionClick: (messageId: String, reactionEmoji: String) -> Unit,
@@ -361,10 +355,6 @@ private fun ConversationScreen(
         Scaffold(
             topBar = {
                 Column {
-                    CommonTopAppBar(
-                        connectivityUIState = connectivityUIState,
-                        onReturnToCallClick = onOpenOngoingCallScreen,
-                    )
                     ConversationScreenTopAppBar(
                         conversationInfoViewState = conversationInfoViewState,
                         onBackButtonClick = onBackButtonClick,
@@ -642,7 +632,6 @@ fun PreviewConversationScreen() {
     ConversationScreen(
         tempCachePath = "".toPath(),
         bannerMessage = null,
-        connectivityUIState = ConnectivityUIState(info = ConnectivityUIState.Info.None),
         interactionAvailability = InteractionAvailability.ENABLED,
         membersToMention = listOf(),
         conversationViewState = ConversationViewState(),
@@ -657,7 +646,6 @@ fun PreviewConversationScreen() {
         onSendAttachment = { },
         onAssetItemClicked = { },
         onImageFullScreenMode = { _, _ -> },
-        onOpenOngoingCallScreen = { },
         onStartCall = { },
         onJoinCall = { },
         onReactionClick = { _, _ -> },

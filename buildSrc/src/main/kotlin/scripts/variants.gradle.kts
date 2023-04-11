@@ -20,20 +20,18 @@
 
 package scripts
 
-import CertificatePin
-import ClientConfig
-import ConfigFields
-import ConfigType
-import Customization
-import Customization.getBuildtimeConfiguration
-import FeatureConfigs
-import FeatureFlags
-import Features
+import customization.ClientConfig
+import customization.ConfigFields
+import customization.ConfigType
+import customization.Customization.getBuildtimeConfiguration
+import customization.FeatureConfigs
+import customization.FeatureFlags
+import customization.Features
 import com.android.build.api.dsl.ApplicationProductFlavor
 import com.android.build.api.dsl.ProductFlavor
 
 plugins { id("com.android.application") apply false }
-// DO NOT USE CABITAL LETTER FOR THE BUILD TYPE NAME OR JENKINS WILL BE MAD
+// DO NOT USE CAPITAL LETTER FOR THE BUILD TYPE NAME OR JENKINS WILL BE MAD
 object BuildTypes {
     const val DEBUG = "debug"
     const val RELEASE = "release"
@@ -213,41 +211,11 @@ android {
                         buildtimeConfiguration.flavorMap[flavor.name]?.get(configs.value).toString()
                     )
                 }
-
-                ConfigType.CERTIFICATE_PIN -> {
-                    buildCertificatePinConfig(flavor, buildtimeConfiguration.flavorMap[flavor.name]?.get(configs.value) as Map<String, *>)
-                }
             }
         }
     }
 }
 
-// TODO(improvement): Make this generic, in a way that any submap can create build configs, or just remove completely as it's not being used
-fun buildCertificatePinConfig(
-    productFlavour: ProductFlavor,
-    certificatePinMap: Map<String, *>
-) {
-    CertificatePin.values().forEach { certificatePin ->
-        when (certificatePin.configType) {
-            ConfigType.STRING -> {
-                buildStringConfig(
-                    productFlavour, certificatePin.configType.type,
-                    certificatePin.name,
-                    certificatePinMap[certificatePin.value].toString()
-                )
-            }
-
-            ConfigType.INT, ConfigType.BOOLEAN -> {
-                buildNonStringConfig(
-                    productFlavour,
-                    certificatePin.configType.type,
-                    certificatePin.name,
-                    certificatePinMap[certificatePin.value].toString()
-                )
-            }
-        }
-    }
-}
 
 fun buildStringConfig(productFlavour: ProductFlavor, type: String, name: String, value: String?) {
     productFlavour.buildConfigField(

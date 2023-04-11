@@ -15,14 +15,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  *
- *
  */
+package customization
 
 enum class ConfigType(val type: String) {
     STRING("String"),
     BOOLEAN("Boolean"),
     INT("int"),
-    CERTIFICATE_PIN("certificatePin")
 }
 
 enum class FeatureConfigs(val value: String, val configType: ConfigType) {
@@ -35,8 +34,6 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
     BLACKLIST_HOST("blacklistHost", ConfigType.STRING),
     BLOCK_ON_JAILBREAK_OR_ROOT("block_on_jailbreak_or_root", ConfigType.BOOLEAN),
     BLOCK_ON_PASSWORD_POLICY("block_on_password_policy", ConfigType.BOOLEAN),
-    COUNTLY_APP_KEY("countly_app_key", ConfigType.STRING),
-    COUNTLY_SERVER_URL("countly_server_url", ConfigType.STRING),
     CUSTOM_URL_SCHEME("custom_url_scheme", ConfigType.STRING),
     ENABLE_BLACK_LIST("enableBlacklist", ConfigType.BOOLEAN),
     FILE_RESTRICTION_ENABLED("file_restriction_enabled", ConfigType.BOOLEAN),
@@ -55,17 +52,6 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
     ENCRYPT_PROTEUS_STORAGE("encrypt_proteus_storage", ConfigType.BOOLEAN),
     GUEST_ROOM_LINK("guest_room_link", ConfigType.BOOLEAN),
     UPDATE_APP_URL("update_app_url", ConfigType.STRING),
-
-    CERTIFICATE_PIN("certificatePin", ConfigType.CERTIFICATE_PIN);
-}
-
-enum class CertificatePin(val value: String, val configType: ConfigType) {
-    CERTIFICATE("certificate", ConfigType.STRING),
-    DOMAIN("domain", ConfigType.STRING);
-}
-
-enum class FlavourConfigs(val configFileKey: String, val configType: ConfigType) {
-    COMMENT("_comment", ConfigType.STRING),
     APP_NAME("appName", ConfigType.STRING),
     APPLICATION_ID("applicationId", ConfigType.STRING),
     DEVELOPER_FEATURES_ENABLED("developer_features_enabled", ConfigType.BOOLEAN),

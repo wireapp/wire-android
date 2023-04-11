@@ -81,13 +81,14 @@ fun GroupConversationOptionsItem(
             modifier = Modifier
                 .weight(1f)
         ) {
-            if (label != null)
+            if (label != null) {
                 Text(
                     text = label,
                     style = MaterialTheme.wireTypography.label01,
                     color = MaterialTheme.wireColorScheme.secondaryText,
                     modifier = Modifier.padding(bottom = MaterialTheme.wireDimensions.spacing4x)
                 )
+            }
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     text = title,
@@ -95,22 +96,26 @@ fun GroupConversationOptionsItem(
                     color = MaterialTheme.wireColorScheme.onBackground,
                     modifier = Modifier.weight(weight = 1f, fill = true)
                 )
-                if (titleTrailingItem != null)
+                if (titleTrailingItem != null) {
                     Box(modifier = Modifier.padding(horizontal = MaterialTheme.wireDimensions.spacing8x)) { titleTrailingItem() }
-
+                }
                 ConversationOptionSwitch(switchState)
 
-                if (arrowType == ArrowType.TITLE_ALIGNED) ArrowRight()
+                if (arrowType == ArrowType.TITLE_ALIGNED) {
+                    ArrowRight()
+                }
             }
-            if (subtitle != null)
+            if (subtitle != null) {
                 Text(
                     text = subtitle,
                     style = MaterialTheme.wireTypography.body01,
                     color = MaterialTheme.wireColorScheme.secondaryText,
                     modifier = Modifier.padding(top = MaterialTheme.wireDimensions.spacing2x)
                 )
-            if (footer != null)
+            }
+            if (footer != null) {
                 Box(modifier = Modifier.padding(top = MaterialTheme.wireDimensions.spacing8x)) { footer() }
+            }
         }
         if (arrowType == ArrowType.CENTER_ALIGNED) ArrowRight()
     }

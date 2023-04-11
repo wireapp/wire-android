@@ -52,17 +52,17 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.items
 import com.wire.android.R
+import com.wire.android.appLogger
 import com.wire.android.media.audiomessage.AudioState
 import com.wire.android.model.SnackBarMessage
 import com.wire.android.navigation.hiltSavedStateViewModel
+import com.wire.android.ui.common.dialogs.calling.JoinAnywayDialog
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
-import com.wire.android.ui.common.dialogs.CallingFeatureUnavailableDialog
-import com.wire.android.ui.common.dialogs.OngoingActiveCallDialog
+import com.wire.android.ui.common.dialogs.calling.CallingFeatureUnavailableDialog
+import com.wire.android.ui.common.dialogs.calling.OngoingActiveCallDialog
 import com.wire.android.ui.common.error.CoreFailureErrorDialog
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
-import com.wire.android.ui.common.topappbar.CommonTopAppBar
 import com.wire.android.ui.common.topappbar.CommonTopAppBarViewModel
-import com.wire.android.ui.common.topappbar.ConnectivityUIState
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorDownloadingAsset
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.OnFileDownloaded
 import com.wire.android.ui.home.conversations.banner.ConversationBanner
@@ -134,6 +134,16 @@ fun ConversationScreen(
         conversationInfoViewModel.observeConversationDetails()
     }
 
+    with(conversationCallViewModel) {
+        if (conversationCallViewState.shouldShowJoinAnywayDialog) {
+            appLogger.i("showing showJoinAnywayDialog..")
+            JoinAnywayDialog(
+                onDismiss = ::dismissJoinCallAnywayDialog,
+                onConfirm = ::joinAnyway
+            )
+        }
+    }
+
     when (showDialog.value) {
         ConversationScreenDialogType.ONGOING_ACTIVE_CALL -> {
             OngoingActiveCallDialog(onJoinAnyways = {
@@ -161,7 +171,6 @@ fun ConversationScreen(
 
     ConversationScreen(
         bannerMessage = conversationBannerViewModel.bannerState,
-        connectivityUIState = commonTopAppBarViewModel.connectivityState,
         messageComposerViewState = uiState,
         conversationCallViewState = conversationCallViewModel.conversationCallViewState,
         conversationInfoViewState = conversationInfoViewModel.conversationInfoViewState,
@@ -177,7 +186,6 @@ fun ConversationScreen(
             messageComposerViewModel.navigateToGallery(message.header.messageId, isSelfMessage)
             conversationMessagesViewModel.updateImageOnFullscreenMode(message)
         },
-        onOpenOngoingCallScreen = commonTopAppBarViewModel::openOngoingCallScreen,
         onStartCall = {
             startCallIfPossible(
                 conversationCallViewModel,
@@ -271,7 +279,6 @@ private fun StartCallAudioBluetoothPermissionCheckFlow(
 @Composable
 private fun ConversationScreen(
     bannerMessage: UIText?,
-    connectivityUIState: ConnectivityUIState,
     messageComposerViewState: MessageComposerViewState,
     conversationCallViewState: ConversationCallViewState,
     conversationInfoViewState: ConversationInfoViewState,
@@ -286,7 +293,6 @@ private fun ConversationScreen(
     onChangeAudioPosition: (String, Int) -> Unit,
     onAssetItemClicked: (String) -> Unit,
     onImageFullScreenMode: (UIMessage.Regular, Boolean) -> Unit,
-    onOpenOngoingCallScreen: () -> Unit,
     onStartCall: () -> Unit,
     onJoinCall: () -> Unit,
     onReactionClick: (messageId: String, reactionEmoji: String) -> Unit,
@@ -343,10 +349,6 @@ private fun ConversationScreen(
         Scaffold(
             topBar = {
                 Column {
-                    CommonTopAppBar(
-                        connectivityUIState = connectivityUIState,
-                        onReturnToCallClick = onOpenOngoingCallScreen,
-                    )
                     ConversationScreenTopAppBar(
                         conversationInfoViewState = conversationInfoViewState,
                         onBackButtonClick = onBackButtonClick,
@@ -619,7 +621,6 @@ private fun CoroutineScope.withSmoothScreenLoad(block: () -> Unit) = launch {
 fun PreviewConversationScreen() {
     ConversationScreen(
         bannerMessage = null,
-        connectivityUIState = ConnectivityUIState(info = ConnectivityUIState.Info.None),
         messageComposerViewState = MessageComposerViewState(),
         conversationCallViewState = ConversationCallViewState(),
         conversationInfoViewState = ConversationInfoViewState(conversationName = UIText.DynamicString("Some test conversation")),
@@ -632,7 +633,6 @@ fun PreviewConversationScreen() {
         onAttachmentPicked = { },
         onAssetItemClicked = { },
         onImageFullScreenMode = { _, _ -> },
-        onOpenOngoingCallScreen = { },
         onStartCall = { },
         onJoinCall = { },
         onReactionClick = { _, _ -> },

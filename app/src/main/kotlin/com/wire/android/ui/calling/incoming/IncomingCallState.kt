@@ -14,14 +14,10 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
+package com.wire.android.ui.calling.incoming
 
-package com.wire.android.ui.home.conversations.call
-
-data class ConversationCallViewState(
-    val hasOngoingCall: Boolean = false,
+data class IncomingCallState(
     val hasEstablishedCall: Boolean = false,
-    val shouldShowJoinAnywayDialog: Boolean = false
+    val shouldShowJoinCallAnywayDialog: Boolean = false
 )

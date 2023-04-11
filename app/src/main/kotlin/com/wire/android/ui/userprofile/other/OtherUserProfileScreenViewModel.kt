@@ -63,7 +63,6 @@ import com.wire.android.ui.userprofile.other.OtherUserProfileInfoMessageType.Unb
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.WireSessionImageLoader
-import com.wire.kalium.logic.data.client.DeviceType
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId

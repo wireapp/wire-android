@@ -139,7 +139,12 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     private val userId: QualifiedID = savedStateHandle.get<String>(EXTRA_USER_ID)!!.toQualifiedID(qualifiedIdMapper)
     private val conversationId: QualifiedID? = savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)?.toQualifiedID(qualifiedIdMapper)
 
-    var state: OtherUserProfileState by mutableStateOf(OtherUserProfileState(userId = userId, conversationId = conversationId))
+    var state: OtherUserProfileState by mutableStateOf(OtherUserProfileState(
+        userId = userId,
+        conversationId = conversationId,
+        isDataLoading = true,
+        isAvatarLoading = true
+    ))
     var requestInProgress: Boolean by mutableStateOf(false)
 
     private val _infoMessage = MutableSharedFlow<UIText>()
@@ -149,8 +154,6 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     val closeBottomSheet = _closeBottomSheet.asSharedFlow()
 
     init {
-        state = state.copy(isDataLoading = true, isAvatarLoading = true)
-
         observeUserInfoAndUpdateViewState()
         persistClients()
         setClassificationType()
@@ -484,7 +487,8 @@ class OtherUserProfileScreenViewModel @Inject constructor(
 
     private fun setClassificationType() {
         viewModelScope.launch {
-            state = state.copy(securityClassificationType = getOtherUserSecurityClassificationLabel(userId))
+            val result = getOtherUserSecurityClassificationLabel(userId)
+            state = state.copy(securityClassificationType = result)
         }
     }
 

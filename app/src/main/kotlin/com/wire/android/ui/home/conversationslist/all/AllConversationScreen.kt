@@ -151,4 +151,4 @@ fun ConversationListEmptyStateScreenPreview() {
     )
 }
 
-private const val TAG = "WireFirebaseMessagingService"
+private const val TAG = "AllConversationScreen"

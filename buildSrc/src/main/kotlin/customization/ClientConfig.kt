@@ -15,8 +15,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  *
- *
  */
+package customization
 
 import scripts.Variants_gradle.BuildTypes
 
@@ -39,7 +39,7 @@ object ClientConfig {
         BuildTypes.COMPAT to ConfigFields.values().associate { Pair(it, it.defaultValue) },
 
         // Config field values for RELEASE Build Type
-        // TODO: Certificate pinning, change backend based on flavour
+        // TODO: Certificate pinning
         BuildTypes.RELEASE to mapOf(
             ConfigFields.SUPPORT_URL to """"https://support.wire.com"""",
             ConfigFields.SENDER_ID to """"782078216207""""

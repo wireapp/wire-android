@@ -41,6 +41,8 @@ import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.call.usecase.AnswerCallUseCase
+import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
+import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.connection.BlockUserResult
 import com.wire.kalium.logic.feature.connection.BlockUserUseCase
 import com.wire.kalium.logic.feature.connection.UnblockUserResult
@@ -58,6 +60,7 @@ import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
+import org.amshove.kluent.internal.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -99,6 +102,12 @@ class ConversationListViewModelTest {
     @MockK
     private lateinit var wireSessionImageLoader: WireSessionImageLoader
 
+    @MockK
+    private lateinit var endCall: EndCallUseCase
+
+    @MockK
+    private lateinit var observeEstablishedCalls: ObserveEstablishedCallsUseCase
+
     @BeforeEach
     fun setUp() {
         MockKAnnotations.init(this, relaxUnitFun = true)
@@ -117,6 +126,8 @@ class ConversationListViewModelTest {
                 unblockUserUseCase = unblockUser,
                 clearConversationContentUseCase = clearConversationContent,
                 wireSessionImageLoader = wireSessionImageLoader,
+                endCall = endCall,
+                observeEstablishedCalls = observeEstablishedCalls,
                 userTypeMapper = UserTypeMapper(),
             )
 
@@ -195,6 +206,52 @@ class ConversationListViewModelTest {
         conversationListViewModel.unblockUser(userId)
 
         coVerify(exactly = 1) { unblockUser(userId) }
+    }
+
+    @Test
+    fun `given join dialog displayed, when user dismiss it, then hide it`() {
+        conversationListViewModel.conversationListState = conversationListViewModel.conversationListState.copy(
+            shouldShowJoinAnywayDialog = true
+        )
+
+        conversationListViewModel.dismissJoinCallAnywayDialog()
+
+        assertEquals(false, conversationListViewModel.conversationListState.shouldShowJoinAnywayDialog)
+    }
+
+    @Test
+    fun `given no ongoing call, when user tries to join a call, then invoke answerCall call use case`() {
+        conversationListViewModel.conversationListState = conversationListViewModel.conversationListState.copy(hasEstablishedCall = false)
+
+        coEvery { navigationManager.navigate(command = any()) } returns Unit
+        coEvery { joinCall(conversationId = any()) } returns Unit
+
+        conversationListViewModel.joinOngoingCall(conversationId)
+
+        coVerify(exactly = 1) { joinCall(conversationId = any()) }
+        coVerify(exactly = 1) { navigationManager.navigate(command = any()) }
+        assertEquals(false, conversationListViewModel.conversationListState.shouldShowJoinAnywayDialog)
+    }
+
+    @Test
+    fun `given an ongoing call, when user tries to join a call, then show JoinCallAnywayDialog`() {
+        conversationListViewModel.conversationListState = conversationListViewModel.conversationListState.copy(hasEstablishedCall = true)
+
+        conversationListViewModel.joinOngoingCall(conversationId)
+
+        assertEquals(true, conversationListViewModel.conversationListState.shouldShowJoinAnywayDialog)
+        coVerify(inverse = true) { joinCall(conversationId = any()) }
+    }
+
+    @Test
+    fun `given an ongoing call, when user confirms dialog to join a call, then end current call and join the newer one`() {
+        conversationListViewModel.conversationListState = conversationListViewModel.conversationListState.copy(hasEstablishedCall = true)
+        conversationListViewModel.establishedCallConversationId = ConversationId("value", "Domain")
+        coEvery { endCall(any()) } returns Unit
+
+        conversationListViewModel.joinAnyway(conversationId)
+
+        coVerify(exactly = 1) { endCall(any()) }
     }
 
     companion object {

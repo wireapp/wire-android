@@ -39,9 +39,10 @@ import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.stringWithStyledArgs
+import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
 
 @Composable
-fun DeletedUserComposerInput() {
+fun DeletedUserComposerInput(securityClassificationType: SecurityClassificationType) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
@@ -72,4 +73,5 @@ fun DeletedUserComposerInput() {
                 .padding(start = dimensions().spacing16x)
         )
     }
+    MessageComposerClassifiedBanner(securityClassificationType = securityClassificationType)
 }

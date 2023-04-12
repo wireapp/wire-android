@@ -14,11 +14,9 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 
-package com.wire.android.ui.common.dialogs
+package com.wire.android.ui.common.dialogs.calling
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
@@ -28,14 +26,19 @@ import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 
 @Composable
-fun CallingFeatureUnavailableDialog(onDialogDismiss: () -> Unit) {
+fun OngoingActiveCallDialog(onJoinAnyways: () -> Unit, onDialogDismiss: () -> Unit) {
     WireDialog(
-        title = stringResource(id = R.string.calling_feature_unavailable_title_alert),
-        text = stringResource(id = R.string.calling_feature_unavailable_message_alert),
+        title = stringResource(id = R.string.calling_ongoing_call_title_alert),
+        text = stringResource(id = R.string.calling_ongoing_call_start_message_alert),
         onDismiss = onDialogDismiss,
         optionButton1Properties = WireDialogButtonProperties(
             onClick = onDialogDismiss,
-            text = stringResource(id = R.string.label_ok),
+            text = stringResource(id = R.string.label_cancel),
+            type = WireDialogButtonType.Secondary
+        ),
+        optionButton2Properties = WireDialogButtonProperties(
+            onClick = onJoinAnyways,
+            text = stringResource(id = R.string.calling_ongoing_call_start_anyway),
             type = WireDialogButtonType.Primary
         )
     )

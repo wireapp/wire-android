@@ -28,6 +28,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -55,6 +56,8 @@ import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.dialogs.CustomBEDeeplinkDialog
+import com.wire.android.ui.common.topappbar.CommonTopAppBar
+import com.wire.android.ui.common.topappbar.CommonTopAppBarViewModel
 import com.wire.android.ui.joinConversation.JoinConversationViaCodeState
 import com.wire.android.ui.joinConversation.JoinConversationViaDeepLinkDialog
 import com.wire.android.ui.joinConversation.JoinConversationViaInviteLinkError
@@ -94,7 +97,9 @@ class WireActivity : AppCompatActivity() {
     @Inject
     lateinit var proximitySensorManager: ProximitySensorManager
 
-    val viewModel: WireActivityViewModel by viewModels()
+    private val viewModel: WireActivityViewModel by viewModels()
+
+    private val commonTopAppBarViewModel: CommonTopAppBarViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
@@ -123,10 +128,17 @@ class WireActivity : AppCompatActivity() {
                 LocalSyncStateObserver provides SyncStateObserver(viewModel.observeSyncFlowState)
             ) {
                 WireTheme {
-                    val scope = rememberCoroutineScope()
-                    val navController = rememberTrackingAnimatedNavController { NavigationItem.fromRoute(it)?.itemName }
-                    setUpNavigationGraph(startDestination, navController, scope)
-                    handleDialogs()
+
+                    Column {
+                        CommonTopAppBar(
+                            connectivityUIState = commonTopAppBarViewModel.connectivityState,
+                            onReturnToCallClick = commonTopAppBarViewModel::openOngoingCallScreen
+                        )
+                        val scope = rememberCoroutineScope()
+                        val navController = rememberTrackingAnimatedNavController { NavigationItem.fromRoute(it)?.itemName }
+                        setUpNavigationGraph(startDestination, navController, scope)
+                        handleDialogs()
+                    }
                 }
             }
         }

@@ -410,4 +410,3 @@ sealed class MessageComposeInputType {
         val originalText: String,
     ) : MessageComposeInputType()
 }
-

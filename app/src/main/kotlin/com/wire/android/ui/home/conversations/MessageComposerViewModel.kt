@@ -219,7 +219,6 @@ class MessageComposerViewModel @Inject constructor(
         }
     }
 
-    @Suppress("MagicNumber")
     fun sendAttachmentMessage(attachmentBundle: AssetBundle?) {
         viewModelScope.launch {
             withContext(dispatchers.io()) {
@@ -371,6 +370,7 @@ class MessageComposerViewModel @Inject constructor(
         }
     }
 
+    @Suppress("MagicNumber")
     fun attachmentPicked(attachmentUri: UriAsset) = viewModelScope.launch(dispatchers.io()) {
         val tempCachePath = kaliumFileSystem.rootCachePath
         val assetBundle = fileManager.getAssetBundleFromUri(attachmentUri.uri, tempCachePath)

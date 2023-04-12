@@ -261,7 +261,7 @@ Usuni&#281;tej wiadomo&#347;ci nie mo&#380;na przywr&#243;ci&#263;.</string>
     <string name="label_delete_for_me">Usu&#324; dla mnie</string>
     <string name="label_delete_for_everyone">Usu&#324; dla wszystkich</string>
     <string name="delete_message_for_yourself_dialog_title">Usun&#261;&#263; t&#281; wiadomo&#347;&#263; dla siebie?</string>
-    <string name="delete_message_for_yourself_dialog_message">Je&#347;li usuniesz wiadomo&#347;&#263; dla siebie, b&#281;dzie widoczna tylko dla innych uczestnik&#243;w. 
+    <string name="delete_message_for_yourself_dialog_message">Je&#347;li usuniesz wiadomo&#347;&#263; dla siebie, b&#281;dzie widoczna tylko dla innych uczestnik&#243;w.
 
 Usuni&#281;ta wiadomo&#347;&#263; nie mo&#380;e zosta&#263; przywr&#243;cona.</string>
     <string name="deleted_message_text">Usuni&#281;ta wiadomo&#347;&#263;</string>
@@ -909,8 +909,8 @@ Prosimy u&#380;y&#263; zarz&#261;dzania zespo&#322;ami (%1$s) na tym &#347;rodow
     <string name="label_system_message_session_reset">%1$s nie m&#243;g&#322; zdekodowa&#263; niekt&#243;rych Twoich wiadomo&#347;ci, ale rozwi&#261;za&#322; problem. To dotyczy wszystkich Twoich wsp&#243;lnych konwersacji.</string>
     <string name="label_manual_migration_title">Migruj z wersji 3.82.38</string>
     <string name="start_manual_migration">Rozpocznij migracj&#281; z wersji 3.82.38 r&#281;cznie</string>
-    <string name="file_sharing_restricted_dialog_title">Ograniczenia dotycz&#261;ce udost&#281;pniania plik&#243;w</string>
-    <string name="file_sharing_restricted_dialog_description">Nie mo&#380;esz udost&#281;pnia&#263; tego pliku, poniewa&#380; ta funkcja jest wy&#322;&#261;czona.</string>
+    <string name="file_sharing_restricted_learn_more_link">https://support.wire.com/hc/en-us/articles/4406404582673-How-can-I-restrict-file-sharing-for-my-team-</string>
+    <string name="file_sharing_restricted_description_by_team">Nie mo&#380;esz udost&#281;pnia&#263; tego pliku, poniewa&#380; ta funkcja jest wy&#322;&#261;czona.</string>
     <!-- join conversation dialog -->
     <string name="join_conversation_dialog_title">Do&#322;&#261;czy&#263; do rozmowy?</string>
     <string name="join_conversation_dialog_message">Zosta&#322;e&#347; zaproszony do rozmowy.\n\n%1$s</string>
@@ -941,13 +941,13 @@ Prosimy u&#380;y&#263; zarz&#261;dzania zespo&#322;ami (%1$s) na tym &#347;rodow
     <!-- New Device dialog -->
     <string name="new_device_dialog_current_user_title">Twoje konto zosta&#322;o u&#380;yte na</string>
     <string name="new_device_dialog_current_user_message">%1$s
-Z: %2$s 
+Z: %2$s
 
 Je&#347;li nie ty tego dokona&#322;e&#347;, usu&#324; urz&#261;dzenie i zresetuj has&#322;o.</string>
     <string name="new_device_dialog_current_user_btn">Zarz&#261;dzaj urz&#261;dzeniami</string>
     <string name="new_device_dialog_other_user_title">Twoje konto \"%1$s (@%2$s)\" zosta&#322;o u&#380;yte na</string>
     <string name="new_device_dialog_other_user_message">%1$s
-Z: %2$s 
+Z: %2$s
 
 Je&#347;li nie ty tego dokona&#322;e&#347;, usu&#324; urz&#261;dzenie (wejd&#378; w &#8222;Zarz&#261;dzanie urz&#261;dzeniami&#8221; w sekcji Ustawienia tego konta) oraz zresetuj has&#322;o.</string>
     <string name="new_device_dialog_other_user_btn">Prze&#322;&#261;cz konto</string>

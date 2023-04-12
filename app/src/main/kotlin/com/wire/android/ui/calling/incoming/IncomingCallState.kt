@@ -14,22 +14,10 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
+package com.wire.android.ui.calling.incoming
 
-package com.wire.android.ui.home
-
-data class FeatureFlagState(
-    val showFileSharingDialog: Boolean = false,
-    val isFileSharingEnabledState: Boolean = true,
-    val fileSharingRestrictedState: SharingRestrictedState = SharingRestrictedState.NONE,
-    val shouldShowGuestRoomLinkDialog: Boolean = false,
-    val isGuestRoomLinkEnabled: Boolean = true
-) {
-
-    fun isSharingAllowed() = fileSharingRestrictedState == SharingRestrictedState.NONE
-    enum class SharingRestrictedState {
-        NONE, NO_USER, RESTRICTED_IN_TEAM
-    }
-}
+data class IncomingCallState(
+    val hasEstablishedCall: Boolean = false,
+    val shouldShowJoinCallAnywayDialog: Boolean = false
+)

@@ -1,7 +1,6 @@
 package com.wire.android.migration.userDatabase
 
 import android.content.Context
-import com.wire.android.BuildConfig
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.di.CurrentAppVersion
 import com.wire.android.migration.failure.UserMigrationStatus

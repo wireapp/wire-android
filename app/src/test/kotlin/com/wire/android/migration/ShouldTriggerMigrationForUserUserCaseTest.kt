@@ -62,6 +62,7 @@ class ShouldTriggerMigrationForUserUserCaseTest {
         verify(exactly = 1) { arrangement.globalDataStore.getUserMigrationStatus(userId.value) }
         verify(exactly = 0) { arrangement.applicationContext.getDatabasePath(userId.value) }
     }
+
     @Test
     fun givenUserMigrationComplete_whenAppVersionIsNewAndUserHaveScalaDB_thenReturnTrue() = runTest {
         val (arrangement, useCase) = Arrangement()
@@ -175,7 +176,7 @@ class ShouldTriggerMigrationForUserUserCaseTest {
         }
 
         fun withCurrentAppVersion(version: Int?) = apply {
-            every {  }
+            every { }
         }
 
         private val useCase = ShouldTriggerMigrationForUserUserCase(

@@ -53,6 +53,4 @@ class MigrationReport {
     private fun addReport(key: String, value: Either<CoreFailure, Any>) {
         report[key] = value
     }
-
 }
-

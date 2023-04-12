@@ -17,7 +17,6 @@ import androidx.work.WorkerParameters
 import androidx.work.await
 import androidx.work.workDataOf
 import com.wire.android.R
-import com.wire.android.appLogger
 import com.wire.android.migration.MigrationData
 import com.wire.android.migration.MigrationManager
 import com.wire.android.migration.getMigrationFailure

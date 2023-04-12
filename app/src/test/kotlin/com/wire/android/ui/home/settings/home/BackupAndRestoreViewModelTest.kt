@@ -164,7 +164,7 @@ class BackupAndRestoreViewModelTest {
         assert(backupAndRestoreViewModel.state.restoreFileValidation == RestoreFileValidation.ValidNonEncryptedBackup)
         assert(arrangement.fakeKaliumFileSystem.exists(backupAndRestoreViewModel.latestImportedBackupTempPath))
         coVerify(exactly = 1) {
-            arrangement.fileManager.copyToPath(backupUri, arrangement.fakeKaliumFileSystem.rootCachePath, any())
+            arrangement.fileManager.copyToPath(backupUri, backupAndRestoreViewModel.latestImportedBackupTempPath, any())
         }
     }
 
@@ -185,7 +185,7 @@ class BackupAndRestoreViewModelTest {
         assert(backupAndRestoreViewModel.state.restoreFileValidation == RestoreFileValidation.PasswordRequired)
         assert(arrangement.fakeKaliumFileSystem.exists(backupAndRestoreViewModel.latestImportedBackupTempPath))
         coVerify(exactly = 1) {
-            arrangement.fileManager.copyToPath(backupUri, arrangement.fakeKaliumFileSystem.rootCachePath, any())
+            arrangement.fileManager.copyToPath(backupUri, backupAndRestoreViewModel.latestImportedBackupTempPath, any())
         }
     }
 
@@ -205,7 +205,7 @@ class BackupAndRestoreViewModelTest {
         assert(backupAndRestoreViewModel.state.restoreFileValidation == RestoreFileValidation.IncompatibleBackup)
         assert(arrangement.fakeKaliumFileSystem.exists(backupAndRestoreViewModel.latestImportedBackupTempPath))
         coVerify(exactly = 1) {
-            arrangement.fileManager.copyToPath(backupUri, arrangement.fakeKaliumFileSystem.rootCachePath, any())
+            arrangement.fileManager.copyToPath(backupUri, backupAndRestoreViewModel.latestImportedBackupTempPath, any())
         }
     }
 
@@ -226,7 +226,7 @@ class BackupAndRestoreViewModelTest {
         assert(backupAndRestoreViewModel.state.backupRestoreProgress == BackupRestoreProgress.Failed)
         assert(arrangement.fakeKaliumFileSystem.exists(backupAndRestoreViewModel.latestImportedBackupTempPath))
         coVerify(exactly = 1) {
-            arrangement.fileManager.copyToPath(backupUri, arrangement.fakeKaliumFileSystem.rootCachePath, any())
+            arrangement.fileManager.copyToPath(backupUri, backupAndRestoreViewModel.latestImportedBackupTempPath, any())
         }
     }
 
@@ -251,7 +251,7 @@ class BackupAndRestoreViewModelTest {
         assert(backupAndRestoreViewModel.state.restorePasswordValidation == PasswordValidation.NotVerified)
         assert(!arrangement.fakeKaliumFileSystem.exists(backupAndRestoreViewModel.latestImportedBackupTempPath))
         coVerify(exactly = 1) {
-            arrangement.fileManager.copyToPath(backupUri, arrangement.fakeKaliumFileSystem.rootCachePath, any())
+            arrangement.fileManager.copyToPath(backupUri, backupAndRestoreViewModel.latestImportedBackupTempPath, any())
         }
     }
 

@@ -44,11 +44,6 @@ import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import com.wire.android.appLogger
-import com.wire.android.di.CurrentAccount
-import com.wire.android.navigation.EXTRA_USER_ID
-import com.wire.kalium.logger.obfuscateId
-import com.wire.kalium.logic.data.id.QualifiedIdMapperImpl
 
 @HiltViewModel
 class MigrationViewModel @Inject constructor(

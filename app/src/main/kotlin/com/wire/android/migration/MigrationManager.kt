@@ -31,6 +31,7 @@ import androidx.work.workDataOf
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.datastore.GlobalDataStore
+import com.wire.android.migration.failure.MigrationFailure
 import com.wire.android.migration.failure.UserMigrationStatus
 import com.wire.android.migration.feature.MarkUsersAsNeedToBeMigrated
 import com.wire.android.migration.feature.MigrateActiveAccountsUseCase
@@ -39,23 +40,19 @@ import com.wire.android.migration.feature.MigrateConversationsUseCase
 import com.wire.android.migration.feature.MigrateMessagesUseCase
 import com.wire.android.migration.feature.MigrateServerConfigUseCase
 import com.wire.android.migration.feature.MigrateUsersUseCase
-import com.wire.android.migration.userDatabase.ScalaConversationData
 import com.wire.android.migration.util.ScalaDBNameProvider
 import com.wire.android.notification.NotificationConstants
 import com.wire.android.notification.openAppPendingIntent
 import com.wire.android.notification.openMigrationLoginPendingIntent
 import com.wire.android.util.EMPTY
-import com.wire.android.util.orDefault
 import com.wire.android.util.ui.stringWithBoldArgs
 import com.wire.kalium.logger.obfuscateId
 import com.wire.kalium.logic.CoreFailure
-import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.EncryptionFailure
 import com.wire.kalium.logic.MLSFailure
 import com.wire.kalium.logic.NetworkFailure
 import com.wire.kalium.logic.ProteusFailure
 import com.wire.kalium.logic.StorageFailure
-import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.functional.Either
 import com.wire.kalium.logic.functional.flatMap
@@ -74,7 +71,6 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
-import kotlinx.datetime.Instant
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentMap
 import javax.inject.Inject
@@ -85,7 +81,6 @@ import javax.inject.Singleton
 @Singleton
 class MigrationManager @Inject constructor(
     @ApplicationContext private val applicationContext: Context,
-    @KaliumCoreLogic private val coreLogic: CoreLogic,
     private val globalDataStore: GlobalDataStore,
     private val migrateServerConfig: MigrateServerConfigUseCase,
     private val migrateActiveAccounts: MigrateActiveAccountsUseCase,
@@ -94,7 +89,7 @@ class MigrationManager @Inject constructor(
     private val migrateConversations: MigrateConversationsUseCase,
     private val migrateMessages: MigrateMessagesUseCase,
     private val markUsersAsNeedToBeMigrated: MarkUsersAsNeedToBeMigrated,
-    private val notificationManager: NotificationManager,
+    private val notificationManager: NotificationManager
 ) {
     private fun isScalaDBPresent(): Boolean =
         applicationContext.getDatabasePath(ScalaDBNameProvider.globalDB()).let { it.isFile && it.exists() }
@@ -136,40 +131,31 @@ class MigrationManager @Inject constructor(
                     appLogger.d("$TAG - Step 3 - Migrating messages for ${userId.value.obfuscateId()}")
                     migrateMessages(userId, it, coroutineScope).let { failedConversation ->
                         if (failedConversation.isEmpty()) {
-                            Either.Right(it)
+                            Either.Right(Unit)
                         } else {
                             Either.Left(failedConversation.values.first())
                         }
                     }.also { report.addMessagesReport(userId, it) }
                 }
-            }.fold({
-                globalDataStore.setUserMigrationStatus(userId.value, UserMigrationStatus.CompletedWithErrors)when (it) {
-                    is NetworkFailure.NoNetworkConnection -> MigrationData.Result.Failure.NoNetwork
-                    else -> MigrationData.Result.Failure.Messages(it.getErrorCode().toString())
-                }
-            }, {globalDataStore.setUserMigrationStatus(userId.value, UserMigrationStatus.Successfully)
-                MigrationData.Result.Success
-            })
+                .fold({
+                    globalDataStore.setUserMigrationStatus(userId.value, UserMigrationStatus.CompletedWithErrors)
+                    when (it) {
+                        is NetworkFailure.NoNetworkConnection -> MigrationData.Result.Failure.NoNetwork
+                        else -> MigrationData.Result.Failure.Messages(
+                            it.getErrorCode().toString(),
+                            report.toFormattedString()
+                        )
+                    }
+                }, {
+                    globalDataStore.setUserMigrationStatus(userId.value, UserMigrationStatus.Successfully)
+                    MigrationData.Result.Success
+                })
         } catch (e: Exception) {
             globalDataStore.setUserMigrationStatus(userId.value, UserMigrationStatus.CompletedWithErrors)
             appLogger.e("$TAG - Migration failed for ${userId.value.obfuscateId()}")
             MigrationData.Result.Failure.Messages(
                 CoreFailure.Unknown(e).getErrorCode().toString(),
                 report.toFormattedString()
-            )
-        }
-    }
-
-    // Because in migration conversation with last read state are inserted before messages
-    // we need to clear unread messages after messages migration
-    private suspend fun clearUnreadMessages(
-        conversations: List<ScalaConversationData>,
-        userId: UserId
-    ) = conversations.forEach { conversation ->
-        conversation.lastReadTime?.let { lastReadInMillis ->
-            coreLogic.getSessionScope(userId).conversations.updateConversationReadDateUseCase(
-                QualifiedID(conversation.remoteId, conversation.domain.orDefault(userId.domain)),
-                Instant.fromEpochMilliseconds(lastReadInMillis)
             )
         }
     }
@@ -295,16 +281,12 @@ class MigrationManager @Inject constructor(
                             appLogger.d("$TAG - Step 5 - Migrating messages for ${userId.value.obfuscateId()}")
                             migrateMessages(userId, it, coroutineScope).let { failedConversations ->
                                 if (failedConversations.isEmpty()) {
-                                    Either.Right(it)
-                        } else {
-                            Either.Left(failedConversations.values.first())
-                        }
-                    }
-                }.map {
-                    appLogger.d("$TAG - Step 6 - Clean read messages for ${userId.value.obfuscateId()}")
-                    clearUnreadMessages(it, userId)
-                }.also { report.addMessagesReport(userId, it) }
-                    .also {
+                                    Either.Right(Unit)
+                                } else {
+                                    Either.Left(failedConversations.values.first())
+                                }
+                            }.also { report.addMessagesReport(userId, it) }
+                        }.also {
                             resultAcc[userId.value] = it
                         }.onFailure {
                             globalDataStore.setUserMigrationStatus(userId.value, UserMigrationStatus.CompletedWithErrors)

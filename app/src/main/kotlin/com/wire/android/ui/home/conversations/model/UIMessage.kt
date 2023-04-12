@@ -51,7 +51,6 @@ sealed class UIMessage(
         val userAvatarData: UserAvatarData,
         val messageContent: UIMessageContent.Regular?,
         val messageFooter: MessageFooter,
-        val showAuthor: Boolean,
         val expirationStatus: ExpirationStatus = ExpirationStatus.NotExpirable
     ) : UIMessage(header, source) {
         val isTextMessage = messageContent is UIMessageContent.TextMessage

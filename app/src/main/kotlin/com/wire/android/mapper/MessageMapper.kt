@@ -104,22 +104,6 @@ class MessageMapper @Inject constructor(
             MessageFooter(message.id)
         }
 
-        // TODO KBX
-        // To aggregate messages from the same message we need to check if the next message
-        // is from the same [senderUserId] and [date] difference is less than [AGGREGATION_TIME_WINDOW]
-//        var showAuthor = true
-//        val nextIndex = index + 1
-//        if (nextIndex < messages.size) {
-//            val nextUiMessage = messages[nextIndex]
-//            val difference = DateTimeUtil.calculateMillisDifference(
-//                message.date,
-//                nextUiMessage.date
-//            )
-//            appLogger.d("KBX difference $difference")
-//            showAuthor = message.senderUserId != nextUiMessage.senderUserId || difference > AGGREGATION_TIME_WINDOW
-//        }
-//        appLogger.d("KBX showAuthor $index $showAuthor")
-
         return when (content) {
             is UIMessageContent.Regular -> {
                 UIMessage.Regular(
@@ -128,8 +112,7 @@ class MessageMapper @Inject constructor(
                     header = provideMessageHeader(sender, message),
                     messageFooter = footer,
                     userAvatarData = getUserAvatarData(sender),
-                    expirationStatus = provideExpirationData(message),
-                    showAuthor = true
+                    expirationStatus = provideExpirationData(message)
                 )
             }
             is UIMessageContent.SystemMessage ->
@@ -216,8 +199,4 @@ class MessageMapper @Inject constructor(
             is OtherUser -> sender.connectionStatus
             is SelfUser, null -> null
         }
-
-    companion object {
-        val AGGREGATION_TIME_WINDOW: Int = 60000
-    }
 }

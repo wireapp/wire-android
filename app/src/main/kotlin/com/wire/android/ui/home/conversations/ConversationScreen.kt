@@ -603,19 +603,9 @@ fun MessageList(
             }
             when (message) {
                 is UIMessage.Regular -> {
-                    var showHeader = true
-                    val nextIndex = index + 1
-                    if (nextIndex < lazyPagingMessages.itemSnapshotList.items.size) {
-                        val nextUiMessage = lazyPagingMessages.itemSnapshotList.items[nextIndex]
-                        val difference = DateTimeUtil.calculateMillisDifference(
-                            message.header.messageTime.utcISO,
-                            nextUiMessage.header.messageTime.utcISO
-                        )
-                        showHeader = message.header.userId != nextUiMessage.header.userId || difference > AGGREGATION_TIME_WINDOW
-                    }
                     MessageItem(
                         message = message,
-                        showAuthor = showHeader,
+                        showAuthor = shouldShowHeader(index, lazyPagingMessages.itemSnapshotList.items, message),
                         audioMessagesState = audioMessagesState,
                         onAudioClick = onAudioItemClicked,
                         onChangeAudioPosition = onChangeAudioPosition,
@@ -633,6 +623,20 @@ fun MessageList(
             }
         }
     }
+}
+
+private fun shouldShowHeader(index: Int, messages: List<UIMessage>, currentMessage: UIMessage): Boolean {
+    var showHeader = true
+    val nextIndex = index + 1
+    if (nextIndex < messages.size) {
+        val nextUiMessage = messages[nextIndex]
+        val difference = DateTimeUtil.calculateMillisDifference(
+            nextUiMessage.header.messageTime.utcISO,
+            currentMessage.header.messageTime.utcISO,
+        )
+        showHeader = currentMessage.header.userId != nextUiMessage.header.userId || difference > AGGREGATION_TIME_WINDOW
+    }
+    return showHeader
 }
 
 private fun CoroutineScope.withSmoothScreenLoad(block: () -> Unit) = launch {

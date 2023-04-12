@@ -28,6 +28,7 @@ import com.wire.android.model.Clickable
 import com.wire.android.ui.home.conversations.MessageItem
 import com.wire.android.ui.home.conversations.SystemMessageItem
 import com.wire.android.ui.home.conversations.mock.mockAssetMessage
+import com.wire.android.ui.home.conversations.mock.mockHeader
 import com.wire.android.ui.home.conversations.mock.mockMessageWithKnock
 import com.wire.android.ui.home.conversations.mock.mockMessageWithText
 import com.wire.android.ui.home.conversations.mock.mockedImageUIMessage
@@ -279,4 +280,63 @@ fun PreviewMessagesWithUnavailableQuotedMessage() {
         audioMessagesState = emptyMap(),
         onSelfDeletingMessageRead = {}
     )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewAggregatedMessagesWithErrorMessage() {
+    Column {
+        MessageItem(
+            message = mockMessageWithText,
+            onLongClicked = {},
+            onAssetMessageClicked = {},
+            onImageMessageClicked = { _, _ -> },
+            onOpenProfile = { _ -> },
+            onReactionClicked = { _, _ -> },
+            onResetSessionClicked = { _, _ -> },
+            onChangeAudioPosition = { _, _ -> },
+            onAudioClick = {},
+            audioMessagesState = emptyMap(),
+            onSelfDeletingMessageRead = {}
+        )
+        MessageItem(
+            message = mockMessageWithText.copy(
+                messageContent = UIMessageContent.TextMessage(
+                    MessageBody(
+                        message = UIText.DynamicString("Confirmed"),
+                        quotedMessage = UIQuotedMessage.UnavailableData
+                    )
+                )
+            ),
+            showAuthor = false,
+            onLongClicked = {},
+            onAssetMessageClicked = {},
+            onImageMessageClicked = { _, _ -> },
+            onOpenProfile = { _ -> },
+            onReactionClicked = { _, _ -> },
+            onResetSessionClicked = { _, _ -> },
+            onChangeAudioPosition = { _, _ -> },
+            onAudioClick = {},
+            audioMessagesState = emptyMap(),
+            onSelfDeletingMessageRead = {}
+        )
+        MessageItem(
+            message = mockMessageWithText.copy(
+                header = mockHeader.copy(
+                    messageStatus = MessageStatus.SendFailure
+                )
+            ),
+            showAuthor = false,
+            onLongClicked = {},
+            onAssetMessageClicked = {},
+            onImageMessageClicked = { _, _ -> },
+            onOpenProfile = { _ -> },
+            onReactionClicked = { _, _ -> },
+            onResetSessionClicked = { _, _ -> },
+            onChangeAudioPosition = { _, _ -> },
+            onAudioClick = {},
+            audioMessagesState = emptyMap(),
+            onSelfDeletingMessageRead = {}
+        )
+    }
 }

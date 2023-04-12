@@ -226,7 +226,7 @@ class MessageContentMapper @Inject constructor(
 
                 is AssetContent.AssetMetadata.Image, is AssetContent.AssetMetadata.Video, null -> {
                     val assetMessageContentMetadata = AssetMessageContentMetadata(content.value)
-                    toUIMessageContent(assetMessageContentMetadata, message, sender)
+                    toUIMessageContent(assetMessageContentMetadata, message, sender, userList, message.deliveryStatus)
                 }
             }
         }
@@ -239,8 +239,14 @@ class MessageContentMapper @Inject constructor(
             }
         )
 
-        is MessageContent.RestrictedAsset -> toRestrictedAsset(content.mimeType, content.sizeInBytes, content.name)
-        else -> toText(message.conversationId, message, userList)
+        is MessageContent.RestrictedAsset -> toRestrictedAsset(
+            content.mimeType,
+            content.sizeInBytes,
+            content.name,
+            userList,
+            message.deliveryStatus
+        )
+        else -> toText(message.conversationId, message.content, userList, message.deliveryStatus)
     }
 
     private fun mapAudio(
@@ -259,8 +265,12 @@ class MessageContentMapper @Inject constructor(
         }
     }
 
-    fun toText(conversationId: ConversationId, message: Message, userList: List<User>): UIMessageContent.TextMessage {
-        val content = message.content
+    fun toText(
+        conversationId: ConversationId,
+        content: MessageContent,
+        userList: List<User>,
+        deliveryStatus: DeliveryStatus
+    ): UIMessageContent.TextMessage {
         val messageTextContent = (content as? MessageContent.Text)
 
         val quotedMessage = messageTextContent?.quotedMessageDetails?.let { mapQuoteData(conversationId, it) }
@@ -285,18 +295,18 @@ class MessageContentMapper @Inject constructor(
         ).let { messageBody ->
             UIMessageContent.TextMessage(
                 messageBody = messageBody,
-                deliveryStatus = mapRecipientsFailure(userList, message as? Message.Regular)
+                deliveryStatus = mapRecipientsFailure(userList, deliveryStatus)
             )
         }
     }
 
-    private fun mapRecipientsFailure(userList: List<User>, regular: Message.Regular?): DeliveryStatusContent {
-        return when (val usersIds = regular?.deliveryStatus) {
+    private fun mapRecipientsFailure(userList: List<User>, deliveryStatus: DeliveryStatus?): DeliveryStatusContent {
+        return when (deliveryStatus) {
             is DeliveryStatus.PartialDelivery -> DeliveryStatusContent.PartialDelivery(
-                failedRecipients = usersIds.recipientsFailedDelivery.map { userId ->
+                failedRecipients = deliveryStatus.recipientsFailedDelivery.map { userId ->
                     userList.findUser(userId = userId)?.name.orUnknownName()
                 },
-                noClients = usersIds.recipientsFailedWithNoClients.map { userId ->
+                noClients = deliveryStatus.recipientsFailedWithNoClients.map { userId ->
                     userList.findUser(userId = userId)?.name.orUnknownName()
                 }
             )
@@ -336,7 +346,13 @@ class MessageContentMapper @Inject constructor(
         }
     )
 
-    fun toUIMessageContent(assetMessageContentMetadata: AssetMessageContentMetadata, message: Message, sender: User?): UIMessageContent =
+    fun toUIMessageContent(
+        assetMessageContentMetadata: AssetMessageContentMetadata,
+        message: Message.Regular,
+        sender: User?,
+        userList: List<User>,
+        deliveryStatus: DeliveryStatus
+    ): UIMessageContent =
         with(assetMessageContentMetadata.assetMessageContent) {
             when {
                 assetMessageContentMetadata.isDisplayableImage() && !assetMessageContentMetadata.assetMessageContent.hasValidRemoteData() ->
@@ -355,7 +371,8 @@ class MessageContentMapper @Inject constructor(
                         width = assetMessageContentMetadata.imgWidth,
                         height = assetMessageContentMetadata.imgHeight,
                         uploadStatus = uploadStatus,
-                        downloadStatus = downloadStatus
+                        downloadStatus = downloadStatus,
+                        deliveryStatus = mapRecipientsFailure(userList, deliveryStatus)
                     )
                 }
 
@@ -367,7 +384,8 @@ class MessageContentMapper @Inject constructor(
                         assetId = AssetId(remoteData.assetId, remoteData.assetDomain.orEmpty()),
                         assetSizeInBytes = sizeInBytes,
                         uploadStatus = uploadStatus,
-                        downloadStatus = downloadStatus
+                        downloadStatus = downloadStatus,
+                        deliveryStatus = mapRecipientsFailure(userList, deliveryStatus)
                     )
                 }
             }
@@ -376,12 +394,15 @@ class MessageContentMapper @Inject constructor(
     private fun toRestrictedAsset(
         mimeType: String,
         assetSize: Long,
-        assetName: String
+        assetName: String,
+        userList: List<User>,
+        deliveryStatus: DeliveryStatus
     ): UIMessageContent {
         return UIMessageContent.RestrictedAsset(
             mimeType = mimeType,
             assetSizeInBytes = assetSize,
-            assetName = assetName
+            assetName = assetName,
+            deliveryStatus = mapRecipientsFailure(userList, deliveryStatus)
         )
     }
 

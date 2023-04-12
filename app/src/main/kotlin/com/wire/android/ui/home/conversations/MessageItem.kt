@@ -351,13 +351,16 @@ private fun MessageContent(
     onOpenProfile: (String) -> Unit
 ) {
     when (messageContent) {
-        is UIMessageContent.ImageMessage -> MessageImage(
-            asset = messageContent.asset,
-            imgParams = ImageMessageParams(messageContent.width, messageContent.height),
-            uploadStatus = messageContent.uploadStatus,
-            downloadStatus = messageContent.downloadStatus,
-            onImageClick = onImageClick
-        )
+        is UIMessageContent.ImageMessage -> {
+            MessageImage(
+                asset = messageContent.asset,
+                imgParams = ImageMessageParams(messageContent.width, messageContent.height),
+                uploadStatus = messageContent.uploadStatus,
+                downloadStatus = messageContent.downloadStatus,
+                onImageClick = onImageClick
+            )
+            PartialDeliveryInformation(messageContent.deliveryStatus)
+        }
 
         is UIMessageContent.TextMessage -> {
             messageContent.messageBody.quotedMessage?.let {
@@ -373,24 +376,20 @@ private fun MessageContent(
                 onLongClick = onLongClick,
                 onOpenProfile = onOpenProfile
             )
-
-            // TODO(ym): add animation for displaying the messages
-            (messageContent.deliveryStatus as? DeliveryStatusContent.PartialDelivery)?.let { partialDelivery ->
-                if (partialDelivery.hasFailures) {
-                    VerticalSpace.x4()
-                    MessageSentPartialDeliveryFailures(partialDelivery)
-                }
-            }
+            PartialDeliveryInformation(messageContent.deliveryStatus)
         }
 
-        is UIMessageContent.AssetMessage -> MessageGenericAsset(
-            assetName = messageContent.assetName,
-            assetExtension = messageContent.assetExtension,
-            assetSizeInBytes = messageContent.assetSizeInBytes,
-            assetUploadStatus = messageContent.uploadStatus,
-            assetDownloadStatus = messageContent.downloadStatus,
-            onAssetClick = onAssetClick
-        )
+        is UIMessageContent.AssetMessage -> {
+            MessageGenericAsset(
+                assetName = messageContent.assetName,
+                assetExtension = messageContent.assetExtension,
+                assetSizeInBytes = messageContent.assetSizeInBytes,
+                assetUploadStatus = messageContent.uploadStatus,
+                assetDownloadStatus = messageContent.downloadStatus,
+                onAssetClick = onAssetClick
+            )
+            PartialDeliveryInformation(messageContent.deliveryStatus)
+        }
 
         is UIMessageContent.RestrictedAsset -> {
             when {
@@ -416,6 +415,7 @@ private fun MessageContent(
                     RestrictedGenericFileMessage(messageContent.assetName, messageContent.assetSizeInBytes)
                 }
             }
+            PartialDeliveryInformation(messageContent.deliveryStatus)
         }
 
         is UIMessageContent.AudioAssetMessage -> {
@@ -456,6 +456,16 @@ private fun MessageContent(
 
         is UIMessageContent.SystemMessage.Knock -> {}
         is UIMessageContent.SystemMessage.HistoryLost -> {}
+    }
+}
+
+@Composable
+private fun PartialDeliveryInformation(deliveryStatus: DeliveryStatusContent) {
+    (deliveryStatus as? DeliveryStatusContent.PartialDelivery)?.let { partialDelivery ->
+        if (partialDelivery.hasFailures) {
+            VerticalSpace.x4()
+            MessageSentPartialDeliveryFailures(partialDelivery)
+        }
     }
 }
 

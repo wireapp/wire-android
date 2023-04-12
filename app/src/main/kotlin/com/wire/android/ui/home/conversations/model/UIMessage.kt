@@ -61,8 +61,6 @@ sealed class UIMessage(
         val receivingFailed: Boolean = header.messageStatus == ReceiveFailure || decryptionFailed
         val isAvailable: Boolean = !isDeleted && !sendingFailed && !receivingFailed
         val isMyMessage = source == MessageSource.Self
-        val isPartialDelivery = messageContent is UIMessageContent.PartialDeliverable &&
-                (messageContent.deliveryStatus as? DeliveryStatusContent.PartialDelivery)?.hasFailures == true
     }
 
     data class System(
@@ -211,8 +209,9 @@ sealed class UIMessageContent {
         val assetId: AssetId,
         val audioMessageDurationInMs: Long,
         val uploadStatus: Message.UploadStatus,
-        val downloadStatus: Message.DownloadStatus
-    ) : Regular()
+        val downloadStatus: Message.DownloadStatus,
+        override val deliveryStatus: DeliveryStatusContent = DeliveryStatusContent.CompleteDelivery
+    ) : Regular(), PartialDeliverable
 
     sealed class SystemMessage(
         @DrawableRes val iconResId: Int?,

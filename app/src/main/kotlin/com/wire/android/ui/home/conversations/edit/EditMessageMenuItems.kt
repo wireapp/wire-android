@@ -62,7 +62,6 @@ fun EditMessageMenuItems(
             || message.messageContent is UIMessageContent.ImageMessage
             || message.messageContent is UIMessageContent.AudioAssetMessage
     val isEditable = message.isTextMessage && message.isMyMessage && localFeatureVisibilityFlags.MessageEditIcon
-    val isEphemeral = message.expirationStatus is ExpirationStatus.Expirable
     val isGenericAsset = message.messageContent is UIMessageContent.AssetMessage
 
     val onCopyItemClick = remember(message) {
@@ -125,57 +124,104 @@ fun EditMessageMenuItems(
         }
     }
 
-    return buildList {
-        if (isAvailable) {
-           if(!isEphemeral) add { ReactionOption(onReactionItemClick) }
-            add { MessageDetailsMenuOption(onDetailsItemClick) }
-            if (isCopyable) {
-                add {
-                    MenuBottomSheetItem(
-                        icon = {
-                            MenuItemIcon(
-                                id = R.drawable.ic_copy,
-                                contentDescription = stringResource(R.string.content_description_copy_the_message),
-                            )
-                        },
-                        title = stringResource(R.string.label_copy),
-                        onItemClick = onCopyItemClick
-                    )
+    if (message.expirationStatus is ExpirationStatus.Expirable) {
+        return EphemeralMessageEditMenuItems(
+            message = message,
+            onDetailsClick = onDetailsItemClick,
+            onDownloadAsset = onDownloadAssetClick,
+            onOpenAsset = onOpenAssetClick,
+            onDeleteMessage = onDeleteItemClick
+        )
+    } else {
+        return buildList {
+            if (isAvailable) {
+                add { ReactionOption(onReactionItemClick) }
+                add { MessageDetailsMenuOption(onDetailsItemClick) }
+                if (isCopyable) {
+                    add {
+                        MenuBottomSheetItem(
+                            icon = {
+                                MenuItemIcon(
+                                    id = R.drawable.ic_copy,
+                                    contentDescription = stringResource(R.string.content_description_copy_the_message),
+                                )
+                            },
+                            title = stringResource(R.string.label_copy),
+                            onItemClick = onCopyItemClick
+                        )
+                    }
                 }
-            }
-            if(!isEphemeral) add { ReplyMessageOption(onReplyItemClick) }
-            if (isAssetMessage) add { DownloadAssetExternallyOption(onDownloadAssetClick) }
-            if (isGenericAsset) add { OpenAssetExternallyOption(onOpenAssetClick) }
-            if (isEditable && !isEphemeral) {
                 add {
-                    MenuBottomSheetItem(
-                        icon = {
-                            MenuItemIcon(
-                                id = R.drawable.ic_edit,
-                                contentDescription = stringResource(R.string.content_description_edit_the_message)
+                    ReplyMessageOption(onReplyItemClick)
+                    if (isAssetMessage) add { DownloadAssetExternallyOption(onDownloadAssetClick) }
+                    if (isGenericAsset) add { OpenAssetExternallyOption(onOpenAssetClick) }
+                    if (isEditable) {
+                        add {
+                            MenuBottomSheetItem(
+                                icon = {
+                                    MenuItemIcon(
+                                        id = R.drawable.ic_edit,
+                                        contentDescription = stringResource(R.string.content_description_edit_the_message)
+                                    )
+                                },
+                                title = stringResource(R.string.label_edit),
+                                onItemClick = onEditItemClick
                             )
-                        },
-                        title = stringResource(R.string.label_edit),
-                        onItemClick = onEditItemClick
-                    )
+                        }
+                    }
+                    if (isAssetMessage) {
+                        add {
+                            MenuBottomSheetItem(
+                                icon = {
+                                    MenuItemIcon(
+                                        id = R.drawable.ic_share_file,
+                                        contentDescription = stringResource(R.string.content_description_share_the_file),
+                                    )
+                                },
+                                title = stringResource(R.string.label_share),
+                                onItemClick = onShareAsset
+                            )
+                        }
+                    }
                 }
-            }
-            if (isAssetMessage && !isEphemeral) {
                 add {
-                    MenuBottomSheetItem(
-                        icon = {
-                            MenuItemIcon(
-                                id = R.drawable.ic_share_file,
-                                contentDescription = stringResource(R.string.content_description_share_the_file),
-                            )
-                        },
-                        title = stringResource(R.string.label_share),
-                        onItemClick = onShareAsset
-                    )
+                    CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.error) {
+                        MenuBottomSheetItem(
+                            icon = {
+                                MenuItemIcon(
+                                    id = R.drawable.ic_delete,
+                                    contentDescription = stringResource(R.string.content_description_delete_the_message),
+                                )
+                            },
+                            title = stringResource(R.string.label_delete),
+                            onItemClick = onDeleteItemClick
+                        )
+                    }
                 }
             }
         }
-        if(!isEphemeral) {
+    }
+}
+
+@Composable
+private fun EphemeralMessageEditMenuItems(
+    message: UIMessage.Regular,
+    onDetailsClick: () -> Unit,
+    onDownloadAsset: () -> Unit,
+    onOpenAsset: () -> Unit,
+    onDeleteMessage: () -> Unit
+): List<@Composable () -> Unit> {
+    val isAvailable = message.isAvailable
+    val isAssetMessage = message.messageContent is UIMessageContent.AssetMessage
+            || message.messageContent is UIMessageContent.ImageMessage
+            || message.messageContent is UIMessageContent.AudioAssetMessage
+    val isGenericAsset = message.messageContent is UIMessageContent.AssetMessage
+
+    return buildList {
+        if (isAvailable) {
+            add { MessageDetailsMenuOption(onDetailsClick) }
+            if (isAssetMessage) add { DownloadAssetExternallyOption(onDownloadAsset) }
+            if (isGenericAsset) add { OpenAssetExternallyOption(onOpenAsset) }
             add {
                 CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.error) {
                     MenuBottomSheetItem(
@@ -186,7 +232,7 @@ fun EditMessageMenuItems(
                             )
                         },
                         title = stringResource(R.string.label_delete),
-                        onItemClick = onDeleteItemClick
+                        onItemClick = onDeleteMessage
                     )
                 }
             }

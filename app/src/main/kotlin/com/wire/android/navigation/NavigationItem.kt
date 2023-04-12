@@ -40,6 +40,7 @@ import com.wire.android.navigation.NavigationItemDestinationsRoutes.DEBUG
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.DEVICE_DETAILS
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.EDIT_CONVERSATION_NAME
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.EDIT_DISPLAY_NAME
+import com.wire.android.navigation.NavigationItemDestinationsRoutes.EDIT_EMAIL
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.EDIT_GUEST_ACCESS
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.GROUP_CONVERSATION_ALL_PARTICIPANTS
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.GROUP_CONVERSATION_DETAILS
@@ -250,6 +251,11 @@ enum class NavigationItem(
     EditDisplayName(
         primaryRoute = EDIT_DISPLAY_NAME,
         content = { com.wire.android.ui.home.settings.account.displayname.ChangeDisplayNameScreen() }
+    ),
+
+    EditEmailAddress(
+        primaryRoute = EDIT_EMAIL,
+        content = { TODO() }
     ),
 
     NetworkSettings(
@@ -477,6 +483,7 @@ object NavigationItemDestinationsRoutes {
     const val BACKUP_AND_RESTORE = "backup_and_restore_screen"
     const val MY_ACCOUNT = "my_account_screen"
     const val EDIT_DISPLAY_NAME = "edit_display_name_screen"
+    const val EDIT_EMAIL = "edit_email_screen"
     const val DEBUG = "debug_screen"
     const val REMOVE_DEVICES = "remove_devices_screen"
     const val REGISTER_DEVICE = "register_device_screen"

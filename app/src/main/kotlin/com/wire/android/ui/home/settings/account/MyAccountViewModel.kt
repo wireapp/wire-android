@@ -136,6 +136,17 @@ class MyAccountViewModel @Inject constructor(
         }
     }
 
+    fun navigateToChangeEmail() {
+        viewModelScope.launch {
+            navigationManager.navigate(
+                NavigationCommand(
+                    destination = NavigationItem.EditEmailAddress.getRouteWithArgs(),
+                    backStackMode = BackStackMode.NONE
+                )
+            )
+        }
+    }
+
     fun checkForPendingMessages(): SettingsOperationResult {
         return with(savedStateHandle) {
             when (getBackNavArg<Boolean>(EXTRA_SETTINGS_DISPLAY_NAME_CHANGED)) {

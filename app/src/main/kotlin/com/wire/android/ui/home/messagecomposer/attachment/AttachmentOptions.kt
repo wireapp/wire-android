@@ -44,16 +44,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import com.wire.android.R
-import com.wire.android.appLogger
 import com.wire.android.ui.common.AttachmentButton
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.home.conversations.ConversationSnackbarMessages
-import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorPickingAttachment
-import com.wire.android.ui.home.conversations.model.AttachmentBundle
-import com.wire.android.ui.home.messagecomposer.AttachmentInnerState
-import com.wire.android.ui.home.messagecomposer.AttachmentState
+import com.wire.android.ui.home.conversations.model.UriAsset
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.util.debug.LocalFeatureVisibilityFlags
+import com.wire.android.util.permission.UseCameraAndWriteStorageRequestFlow
 import com.wire.android.util.permission.UseCameraRequestFlow
 import com.wire.android.util.permission.UseStorageRequestFlow
 import com.wire.android.util.permission.rememberCaptureVideoFlow
@@ -62,19 +58,13 @@ import com.wire.android.util.permission.rememberOpenFileBrowserFlow
 import com.wire.android.util.permission.rememberOpenGalleryFlow
 import com.wire.android.util.permission.rememberRecordAudioRequestFlow
 import com.wire.android.util.permission.rememberTakePictureFlow
-import kotlinx.coroutines.launch
-import okio.Path
-import okio.Path.Companion.toPath
 
 @Composable
 fun AttachmentOptions(
-    attachmentInnerState: AttachmentInnerState,
-    onSendAttachment: (AttachmentBundle?) -> Unit,
-    onMessageComposerError: (ConversationSnackbarMessages) -> Unit,
+    onAttachmentPicked: (UriAsset) -> Unit,
     tempWritableImageUri: Uri?,
     tempWritableVideoUri: Uri?,
     isFileSharingEnabled: Boolean,
-    tempCachePath: Path,
     modifier: Modifier = Modifier
 ) {
     Box(
@@ -82,39 +72,29 @@ fun AttachmentOptions(
     ) {
         Divider(color = MaterialTheme.wireColorScheme.outline)
         AttachmentOptionsComponent(
-            attachmentInnerState,
-            onSendAttachment,
-            onMessageComposerError,
+            onAttachmentPicked,
             tempWritableImageUri,
             tempWritableVideoUri,
             isFileSharingEnabled,
-            tempCachePath
         )
     }
 }
 
 @Composable
 private fun AttachmentOptionsComponent(
-    attachmentInnerState: AttachmentInnerState,
-    onSendAttachment: (AttachmentBundle?) -> Unit,
-    onError: (ConversationSnackbarMessages) -> Unit,
+    onAttachmentPicked: (UriAsset) -> Unit,
     tempWritableImageUri: Uri?,
     tempWritableVideoUri: Uri?,
     isFileSharingEnabled: Boolean,
-    tempCachePath: Path,
     modifier: Modifier = Modifier
 ) {
     val scope = rememberCoroutineScope()
     val attachmentOptions = buildAttachmentOptionItems(
         isFileSharingEnabled,
         tempWritableImageUri,
-        tempWritableVideoUri
-    ) { pickedUri ->
-        scope.launch {
-            attachmentInnerState.pickAttachment(pickedUri, tempCachePath)
-        }
-    }
-    configureStateHandling(attachmentInnerState, onSendAttachment, onError)
+        tempWritableVideoUri,
+        onAttachmentPicked
+    )
 
     BoxWithConstraints(Modifier.fillMaxSize()) {
         val fullWidth: Dp = with(LocalDensity.current) { constraints.maxWidth.toDp() }
@@ -152,26 +132,6 @@ private fun calculateGridParams(minPadding: Dp, minColumnWidth: Dp, fullWidth: D
     } else {
         val currentPadding = (availableWidth - (minColumnWidth * itemsCount)) / 2
         GridCells.Fixed(itemsCount) to PaddingValues(vertical = minPadding, horizontal = currentPadding)
-    }
-}
-
-@Composable
-private fun configureStateHandling(
-    attachmentInnerState: AttachmentInnerState,
-    onSendAttachment: (AttachmentBundle?) -> Unit,
-    onError: (ConversationSnackbarMessages) -> Unit
-) {
-    when (val state = attachmentInnerState.attachmentState) {
-        is AttachmentState.NotPicked -> appLogger.d("Not picked yet")
-        is AttachmentState.Picked -> {
-            onSendAttachment(state.attachmentBundle)
-            attachmentInnerState.resetAttachmentState()
-        }
-
-        is AttachmentState.Error -> {
-            onError(ErrorPickingAttachment)
-            attachmentInnerState.resetAttachmentState()
-        }
     }
 }
 
@@ -214,7 +174,7 @@ private fun TakePictureFlow(
 private fun CaptureVideoFlow(
     tempWritableVideoUri: Uri?,
     onVideoCaptured: (Uri) -> Unit
-): UseCameraRequestFlow? {
+): UseCameraAndWriteStorageRequestFlow? {
     tempWritableVideoUri?.let {
         return rememberCaptureVideoFlow(
             onVideoRecorded = { hasCapturedVideo ->
@@ -246,12 +206,12 @@ private fun buildAttachmentOptionItems(
     isFileSharingEnabled: Boolean,
     tempWritableImageUri: Uri?,
     tempWritableVideoUri: Uri?,
-    onFilePicked: (Uri) -> Unit,
+    onFilePicked: (UriAsset) -> Unit,
 ): List<AttachmentOptionItem> {
-    val fileFlow = FileBrowserFlow(onFilePicked)
-    val galleryFlow = GalleryFlow(onFilePicked)
-    val cameraFlow = TakePictureFlow(tempWritableImageUri, onFilePicked)
-    val captureVideoFlow = CaptureVideoFlow(tempWritableVideoUri, onFilePicked)
+    val fileFlow = FileBrowserFlow(remember { { onFilePicked(UriAsset(it, false)) } })
+    val galleryFlow = GalleryFlow(remember { { onFilePicked(UriAsset(it, false)) } })
+    val cameraFlow = TakePictureFlow(tempWritableImageUri, remember { { onFilePicked(UriAsset(it, false)) } })
+    val captureVideoFlow = CaptureVideoFlow(tempWritableVideoUri, remember { { onFilePicked(UriAsset(it, true)) } })
     val shareCurrentLocationFlow = ShareCurrentLocationFlow()
     val recordAudioFlow = RecordAudioFlow()
 
@@ -319,11 +279,8 @@ private data class AttachmentOptionItem(
 fun PreviewAttachmentComponents() {
     val context = LocalContext.current
     AttachmentOptionsComponent(
-        AttachmentInnerState(context),
-        {},
         {},
         isFileSharingEnabled = true,
-        tempCachePath = "".toPath(),
         tempWritableImageUri = null,
         tempWritableVideoUri = null
     )

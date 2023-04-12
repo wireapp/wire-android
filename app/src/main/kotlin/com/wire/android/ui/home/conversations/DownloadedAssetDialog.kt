@@ -27,6 +27,7 @@ import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.util.permission.rememberWriteStorageRequestFlow
+import com.wire.android.ui.home.conversations.messages.DownloadedAssetDialogVisibilityState
 import okio.Path
 
 @Composable

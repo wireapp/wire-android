@@ -44,16 +44,14 @@ import com.wire.android.navigation.SavedStateViewModel
 import com.wire.android.navigation.getBackNavArg
 import com.wire.android.navigation.getBackNavArgs
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorDeletingMessage
-import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorMaxAssetSize
-import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorMaxImageSize
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogActiveState
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogHelper
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogsState
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.conversations.model.AttachmentType
 import com.wire.android.ui.home.conversations.model.EditMessageBundle
+import com.wire.android.ui.home.conversations.model.UriAsset
 import com.wire.android.ui.home.messagecomposer.UiMention
-import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.util.FileManager
 import com.wire.android.util.ImageUtil
 import com.wire.android.util.dispatchers.DispatcherProvider
@@ -74,7 +72,6 @@ import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.SendEditTextMessageUseCase
 import com.wire.kalium.logic.feature.message.SendKnockUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
-import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
 import com.wire.kalium.logic.feature.user.IsFileSharingEnabledUseCase
 import com.wire.kalium.logic.functional.onFailure
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -83,7 +80,6 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.Instant
-import okio.Path
 import javax.inject.Inject
 import com.wire.kalium.logic.data.id.QualifiedID as ConversationId
 
@@ -98,7 +94,6 @@ class MessageComposerViewModel @Inject constructor(
     private val sendEditTextMessage: SendEditTextMessageUseCase,
     private val deleteMessage: DeleteMessageUseCase,
     private val dispatchers: DispatcherProvider,
-    private val getSelfUserTeam: GetSelfTeamUseCase,
     private val isFileSharingEnabled: IsFileSharingEnabledUseCase,
     private val observeConversationInteractionAvailability: ObserveConversationInteractionAvailabilityUseCase,
     private val wireSessionImageLoader: WireSessionImageLoader,
@@ -114,7 +109,7 @@ class MessageComposerViewModel @Inject constructor(
     private val fileManager: FileManager
 ) : SavedStateViewModel(savedStateHandle) {
 
-    var conversationViewState by mutableStateOf(ConversationViewState())
+    var messageComposerViewState by mutableStateOf(MessageComposerViewState())
         private set
 
     var tempWritableVideoUri: Uri? = null
@@ -123,10 +118,7 @@ class MessageComposerViewModel @Inject constructor(
     var tempWritableImageUri: Uri? = null
         private set
 
-    var interactionAvailability by mutableStateOf(InteractionAvailability.ENABLED)
-
-    var mentionsToSelect by mutableStateOf<List<Contact>>(listOf())
-
+    // TODO: should be moved to ConversationMessagesViewModel?
     var deleteMessageDialogsState: DeleteMessageDialogsState by mutableStateOf(
         DeleteMessageDialogsState.States(
             forYourself = DeleteMessageDialogActiveState.Hidden,
@@ -153,7 +145,6 @@ class MessageComposerViewModel @Inject constructor(
 
     init {
         observeIsTypingAvailable()
-        fetchSelfUserTeam()
         fetchConversationClassificationType()
         setFileSharingStatus()
         initTempWritableVideoUri()
@@ -166,22 +157,18 @@ class MessageComposerViewModel @Inject constructor(
 
     private fun observeIsTypingAvailable() = viewModelScope.launch {
         observeConversationInteractionAvailability(conversationId).collect { result ->
-            interactionAvailability = when (result) {
-                is IsInteractionAvailableResult.Failure -> InteractionAvailability.DISABLED
-                is IsInteractionAvailableResult.Success -> result.interactionAvailability
-            }
-        }
-    }
-
-    private fun fetchSelfUserTeam() = viewModelScope.launch {
-        getSelfUserTeam().collect {
-            conversationViewState = conversationViewState.copy(userTeam = it)
+            messageComposerViewState = messageComposerViewState.copy(
+                interactionAvailability = when (result) {
+                    is IsInteractionAvailableResult.Failure -> InteractionAvailability.DISABLED
+                    is IsInteractionAvailableResult.Success -> result.interactionAvailability
+                }
+            )
         }
     }
 
     private fun fetchConversationClassificationType() = viewModelScope.launch {
         observeSecurityClassificationLabel(conversationId).collect { classificationType ->
-            conversationViewState = conversationViewState.copy(securityClassificationType = classificationType)
+            messageComposerViewState = messageComposerViewState.copy(securityClassificationType = classificationType)
         }
     }
 
@@ -229,59 +216,48 @@ class MessageComposerViewModel @Inject constructor(
         }
     }
 
-    @Suppress("MagicNumber")
     fun sendAttachmentMessage(attachmentBundle: AttachmentBundle?) {
         viewModelScope.launch {
             withContext(dispatchers.io()) {
                 attachmentBundle?.run {
                     when (attachmentType) {
                         AttachmentType.IMAGE -> {
-                            if (dataSize > getAssetSizeLimit(isImage = true)) onSnackbarMessage(ErrorMaxImageSize)
-                            else {
-                                val (imgWidth, imgHeight) = imageUtil.extractImageWidthAndHeight(
-                                    kaliumFileSystem,
-                                    attachmentBundle.dataPath
-                                )
+                            val (imgWidth, imgHeight) = imageUtil.extractImageWidthAndHeight(
+                                kaliumFileSystem,
+                                attachmentBundle.dataPath
+                            )
+                            val result = sendAssetMessage(
+                                conversationId = conversationId,
+                                assetDataPath = dataPath,
+                                assetName = fileName,
+                                assetWidth = imgWidth,
+                                assetHeight = imgHeight,
+                                assetDataSize = dataSize,
+                                assetMimeType = mimeType
+                            )
+                            if (result is ScheduleNewAssetMessageResult.Failure) {
+                                onSnackbarMessage(ConversationSnackbarMessages.ErrorSendingImage)
+                            }
+                        }
+
+                        AttachmentType.VIDEO,
+                        AttachmentType.GENERIC_FILE -> {
+                            try {
                                 val result = sendAssetMessage(
                                     conversationId = conversationId,
                                     assetDataPath = dataPath,
                                     assetName = fileName,
-                                    assetWidth = imgWidth,
-                                    assetHeight = imgHeight,
+                                    assetMimeType = mimeType,
                                     assetDataSize = dataSize,
-                                    assetMimeType = mimeType
+                                    assetHeight = null,
+                                    assetWidth = null
                                 )
                                 if (result is ScheduleNewAssetMessageResult.Failure) {
-                                    onSnackbarMessage(ConversationSnackbarMessages.ErrorSendingImage)
-                                }
-                            }
-                        }
-
-                        AttachmentType.GENERIC_FILE -> {
-                            // The max limit for sending assets changes between user types. Currently, is25MB for free users, and 100MB for
-                            // users that belong to a team
-                            val assetLimitInBytes = getAssetLimitInBytes()
-                            val sizeOf1MB = 1024 * 1024
-                            if (dataSize > assetLimitInBytes) {
-                                onSnackbarMessage(ErrorMaxAssetSize(assetLimitInBytes.div(sizeOf1MB)))
-                            } else {
-                                try {
-                                    val result = sendAssetMessage(
-                                        conversationId = conversationId,
-                                        assetDataPath = dataPath,
-                                        assetName = fileName,
-                                        assetMimeType = mimeType,
-                                        assetDataSize = dataSize,
-                                        assetHeight = null,
-                                        assetWidth = null
-                                    )
-                                    if (result is ScheduleNewAssetMessageResult.Failure) {
-                                        onSnackbarMessage(ConversationSnackbarMessages.ErrorSendingAsset)
-                                    }
-                                } catch (e: OutOfMemoryError) {
-                                    appLogger.e("There was an OutOfMemory error while uploading the asset")
                                     onSnackbarMessage(ConversationSnackbarMessages.ErrorSendingAsset)
                                 }
+                            } catch (e: OutOfMemoryError) {
+                                appLogger.e("There was an OutOfMemory error while uploading the asset")
+                                onSnackbarMessage(ConversationSnackbarMessages.ErrorSendingAsset)
                             }
                         }
 
@@ -301,40 +277,38 @@ class MessageComposerViewModel @Inject constructor(
 
     private fun initTempWritableVideoUri() {
         viewModelScope.launch {
-            tempWritableVideoUri = fileManager.getTempWritableVideoUri(provideTempCachePath())
+            tempWritableVideoUri = fileManager.getTempWritableVideoUri(kaliumFileSystem.rootCachePath)
         }
     }
 
     private fun initTempWritableImageUri() {
         viewModelScope.launch {
-            tempWritableImageUri = fileManager.getTempWritableImageUri(provideTempCachePath())
+            tempWritableImageUri = fileManager.getTempWritableImageUri(kaliumFileSystem.rootCachePath)
         }
     }
 
     fun mentionMember(searchQuery: String?) {
         viewModelScope.launch(dispatchers.io()) {
-            mentionsToSelect = if (searchQuery == null) {
-                listOf()
-            } else {
-                val members = membersToMention(conversationId, searchQuery)
-                members.map {
-                    contactMapper.fromOtherUser(it.user as OtherUser)
+            messageComposerViewState = messageComposerViewState.copy(
+                mentionsToSelect = if (searchQuery == null) {
+                    listOf()
+                } else {
+                    val members = membersToMention(conversationId, searchQuery)
+                    members.map {
+                        contactMapper.fromOtherUser(it.user as OtherUser)
+                    }
                 }
-            }
+            )
         }
     }
 
     private fun setFileSharingStatus() {
         viewModelScope.launch {
             if (isFileSharingEnabled().isFileSharingEnabled != null) {
-                conversationViewState = conversationViewState.copy(isFileSharingEnabled = isFileSharingEnabled().isFileSharingEnabled!!)
+                messageComposerViewState =
+                    messageComposerViewState.copy(isFileSharingEnabled = isFileSharingEnabled().isFileSharingEnabled!!)
             }
         }
-    }
-
-    private suspend fun getAssetLimitInBytes(): Int {
-        // Users with a team attached have larger asset sending limits than default users
-        return getAssetSizeLimit(false).toInt()
     }
 
     fun showDeleteMessageDialog(messageId: String, isMyMessage: Boolean) =
@@ -387,5 +361,35 @@ class MessageComposerViewModel @Inject constructor(
         }
     }
 
-    fun provideTempCachePath(): Path = kaliumFileSystem.rootCachePath
+    @Suppress("MagicNumber")
+    fun attachmentPicked(attachmentUri: UriAsset) = viewModelScope.launch(dispatchers.io()) {
+        val tempCachePath = kaliumFileSystem.rootCachePath
+        val assetBundle = fileManager.getAssetBundleFromUri(attachmentUri.uri, tempCachePath)
+        if (assetBundle != null) {
+            // The max limit for sending assets changes between user types. Currently, is25MB for free users, and 100MB for
+            // users that belong to a team
+            val maxSizeLimitInBytes = getAssetSizeLimit(isImage = assetBundle.attachmentType == AttachmentType.IMAGE)
+            if (assetBundle.dataSize <= maxSizeLimitInBytes) {
+                sendAttachmentMessage(assetBundle)
+            } else {
+                if (attachmentUri.saveToDeviceIfInvalid) {
+                    with(assetBundle) { fileManager.saveToExternalMediaStorage(fileName, dataPath, dataSize, mimeType, dispatchers) }
+                }
+                val sizeOf1MB = 1024 * 1024
+                messageComposerViewState = messageComposerViewState.copy(
+                    assetTooLargeDialogState = AssetTooLargeDialogState.Visible(
+                        type = assetBundle.attachmentType,
+                        maxLimitInMB = maxSizeLimitInBytes.div(sizeOf1MB).toInt(),
+                        savedToDevice = attachmentUri.saveToDeviceIfInvalid
+                    )
+                )
+            }
+        } else {
+            onSnackbarMessage(ConversationSnackbarMessages.ErrorPickingAttachment)
+        }
+    }
+
+    fun hideAssetTooLargeError() {
+        messageComposerViewState = messageComposerViewState.copy(assetTooLargeDialogState = AssetTooLargeDialogState.Hidden)
+    }
 }

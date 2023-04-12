@@ -20,8 +20,10 @@
 
 package com.wire.android.ui.home.conversations.model
 
+import android.net.Uri
 import com.wire.kalium.logic.data.asset.isAudioMimeType
 import com.wire.kalium.logic.data.asset.isDisplayableImageMimeType
+import com.wire.kalium.logic.data.asset.isVideoMimeType
 import okio.Path
 
 /**
@@ -36,13 +38,24 @@ data class AttachmentBundle(
 )
 
 enum class AttachmentType {
-    // TODO: Add audio or video later on
-    IMAGE, GENERIC_FILE, AUDIO;
+    // TODO: Add any other sort of specific asset type later on
+    IMAGE, GENERIC_FILE, AUDIO, VIDEO;
 
     companion object {
-        fun fromMimeTypeString(mimeType: String): AttachmentType =
-            if (isDisplayableImageMimeType(mimeType)) IMAGE
-            else if (isAudioMimeType(mimeType)) AUDIO
-            else GENERIC_FILE
+        fun fromMimeTypeString(mimeType: String): AttachmentType = when {
+            isDisplayableImageMimeType(mimeType) -> IMAGE
+            isAudioMimeType(mimeType) -> AUDIO
+            isVideoMimeType(mimeType) -> VIDEO
+            else -> GENERIC_FILE
+        }
     }
 }
+
+/**
+ * @param uri Uri of the asset
+ * @param saveToDeviceIfInvalid if true then the asset will be copied to the public "media" directory if it's invalid (e.g. too large)
+ */
+data class UriAsset(
+    val uri: Uri,
+    val saveToDeviceIfInvalid: Boolean = false
+)

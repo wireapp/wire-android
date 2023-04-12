@@ -259,6 +259,7 @@ fun MessagePreview.uiLastMessageContent(): UILastMessageContent {
 
         MessagePreviewContent.CryptoSessionReset -> UILastMessageContent.None
         Unknown -> UILastMessageContent.None
+        MessagePreviewContent.Ephemeral -> UILastMessageContent.None
     }
 }
 

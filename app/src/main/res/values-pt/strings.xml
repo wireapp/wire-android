@@ -19,911 +19,942 @@
   ~
   -->
 <resources>
-  <string name="app_version">App version: %s</string>
-  <string name="build_variant_name">Build variant: %s</string>
-  <string name="label_new">New</string>
-  <string name="label_login">Login</string>
-  <string name="label_ok">OK</string>
-  <string name="label_cancel">Cancel</string>
-  <string name="label_confirm">Confirm</string>
-  <string name="label_continue">Continue</string>
-  <string name="label_save">Save</string>
-  <string name="label_get_started">Get Started</string>
-  <string name="label_remove">Remove</string>
-  <string name="label_proceed">Proceed</string>
-  <string name="label_leave">Leave</string>
-  <string name="label_add_device">Add Device</string>
-  <string name="label_learn_more">Learn more</string>
-  <string name="label_removing">Removing…</string>
-  <string name="label_logging_in">Logging in…</string>
-  <string name="label_membership_guest">Guest</string>
-  <string name="label_membership_external">External</string>
-  <string name="label_membership_service">Service</string>
-  <string name="label_user_deleted">Deleted</string>
-  <string name="label_message_sent_failure">Message could not be sent.</string>
-  <string name="label_message_edit_sent_failure">The edited message could not be sent due to connectivity issues.</string>
-  <string name="label_message_sent_remotely_failure">Message could not be sent, as the backend %s appears to be offline.</string>
-  <string name="label_message_receive_failure">Download Error</string>
-  <string name="label_message_decryption_failure_message">Message could not be decrypted.</string>
-  <string name="label_message_decryption_failure_informative_message">Try resetting the session to generate new encryption keys.</string>
-  <string name="label_message_knock">%s pinged</string>
-  <string name="label_try_again">Try again</string>
-  <string name="label_reset_session">Reset Session</string>
-  <string name="label_reset_session_success">Session successfully reset</string>
-  <string name="label_federated_membership">Federated</string>
-  <string name="label_update">Update</string>
-  <string name="label_close">Close</string>
-  <string name="label_download">Download</string>
-  <string name="label_show">Show</string>
-  <string name="label_show_all">Show All</string>
-  <string name="label_show_less">Show Less</string>
-  <string name="label_message_status_edited_with_date">Edited on %s</string>
-  <string name="label_on">ON</string>
-  <string name="label_off">OFF</string>
-  <string name="label_value_copied">%s copied</string>
-  <string name="label_disable">Disable</string>
-  <string name="folder_label_access">Access</string>
-  <string name="folder_label_protocol_details">Protocol details (beta)</string>
-  <string name="folder_label_messaging">Messaging</string>
-  <string name="label_user_blocked">Blocked</string>
-  <string name="label_and">and</string>
-  <string name="label_retry">Retry</string>
-  <!-- Content descriptions https://wearezeta.atlassian.net/wiki/spaces/AR/pages/122520039/Code+Style+Guideline#Content-description-strings -->
-  <string name="content_description_app_logo">App Logo</string>
-  <string name="content_description_reveal_password">Show password</string>
-  <string name="content_description_hide_password">Hide password</string>
-  <string name="content_description_search_back">Search back icon</string>
-  <string name="content_description_clear_content">Clear content</string>
-  <string name="content_description_user_avatar">Profile picture</string>
-  <string name="content_description_muted_conversation">Muted conversation</string>
-  <string name="content_description_check">Check mark</string>
-  <string name="content_description_download_icon">Download icon</string>
-  <string name="content_description_add_to_favourite">Add to Favorites</string>
-  <string name="content_description_move_to_folder">Move to folder</string>
-  <string name="content_description_move_to_archive">Move to archive</string>
-  <string name="content_description_block_the_user">Block</string>
-  <string name="content_description_unblock_the_user">Unblock</string>
-  <string name="content_description_leave_the_group">Leave the group</string>
-  <string name="content_description_delete_the_group">Delete the group</string>
-  <string name="content_description_conversation_phone_icon">Start audio call</string>
-  <string name="content_description_welcome_wire_logo">Wire</string>
-  <string name="content_description_conversation_search_icon">Conversation search icon</string>
-  <string name="content_description_conversation_enable_rich_text_mode">Enable rich text mode button</string>
-  <string name="content_description_conversation_send_emoticon">Send Emoticon button</string>
-  <string name="content_description_conversation_send_gif">Send GIF button</string>
-  <string name="content_description_conversation_mention_someone">Mention someone</string>
-  <string name="content_description_new_conversation">Start a new conversation</string>
-  <string name="content_description_back_button">Back button</string>
-  <string name="content_description_send_button">Send</string>
-  <string name="content_description_timed_message_button">Self-deleting messages, button</string>
-  <string name="content_description_close_button">Close button</string>
-  <string name="content_description_menu_button">Main navigation</string>
-  <string name="content_description_drop_down_icon">Drop down arrow</string>
-  <string name="content_description_remove_devices_screen_device_item_icon">Device item</string>
-  <string name="content_description_remove_devices_screen_remove_icon">Remove device</string>
-  <string name="content_description_avatar_preview">Preview of profile picture</string>
-  <string name="content_description_choose_from_gallery">Choose from gallery</string>
-  <string name="content_description_take_a_picture">Take a picture</string>
-  <string name="content_description_right_arrow">Right arrow</string>
-  <string name="content_description_left_arrow">Go back</string>
-  <string name="content_description_mention_icon">Mention icon</string>
-  <string name="content_description_attachment_item">Attach new item to conversation</string>
-  <string name="content_description_open_message_details">Open Message Details</string>
-  <string name="content_description_copy_the_message">Copy the message</string>
-  <string name="content_description_share_the_file">Share the selected file with other app</string>
-  <string name="content_description_delete_the_message">Delete the message</string>
-  <string name="content_description_edit_the_message">Edit the message</string>
-  <string name="content_description_more_options">More options</string>
-  <string name="content_description_add_contact">Add contact</string>
-  <string name="content_description_image_message">Image message</string>
-  <string name="content_description_file_message">File message</string>
-  <string name="content_description_ping_everyone">Ping</string>
-  <string name="content_description_calling_hang_up_call">Hang up call</string>
-  <string name="content_description_calling_accept_call">Accept call</string>
-  <string name="content_description_calling_decline_call">Decline call</string>
-  <string name="content_description_calling_flip_camera_on">Flip to front camera</string>
-  <string name="content_description_calling_flip_camera_off">Flip to back camera</string>
-  <string name="content_description_calling_participant_muted">Participant muted</string>
-  <string name="content_description_calling_mute_call">Mute call</string>
-  <string name="content_description_calling_unmute_call">Unmute call</string>
-  <string name="content_description_calling_turn_camera_on">Turn camera on</string>
-  <string name="content_description_calling_turn_camera_off">Turn camera off</string>
-  <string name="content_description_calling_turn_speaker_on">Turn speaker on</string>
-  <string name="content_description_calling_turn_speaker_off">Turn speaker off</string>
-  <string name="content_description_show_more_options">Show more options</string>
-  <string name="content_description_reply_to_messge">Reply to the message</string>
-  <string name="content_description_reply_cancel">Cancel message reply</string>
-  <string name="content_description_ping_message">Ping message</string>
-  <string name="content_description_copy">Copy</string>
-  <string name="content_description_edit">Edit</string>
-  <string name="content_description_calling_call_muted">Call Muted</string>
-  <string name="content_description_calling_call_unmuted">Call Unmuted</string>
-  <string name="content_description_calling_call_paused_camera">Paused Camera</string>
-  <string name="content_description_more_emojis">More emojis</string>
-  <!-- Non translatable strings-->
-  <!-- Navigation -->
-  <string name="vault_screen_title">Vault</string>
-  <string name="archive_screen_title">Archive</string>
-  <string name="user_profile_screen_title">User Profile</string>
-  <string name="settings_screen_title">Settings</string>
-  <string name="app_settings_screen_title">App Settings</string>
-  <string name="give_feedback_screen_title">Give Feedback</string>
-  <string name="report_bug_screen_title">Report Bug</string>
-  <string name="debug_settings_screen_title">Debug Settings</string>
-  <string name="support_screen_title">Support</string>
-  <string name="backup_and_restore_screen_title">Back up &amp; Restore Conversations</string>
-  <string name="search_bar_conversations_hint">Search conversations</string>
-  <string name="search_no_results">No matches found</string>
-  <!-- Settings -->
-  <string name="settings_backups_group_title">Backups</string>
-  <string name="settings_other_group_title">Other</string>
-  <string name="settings_backup_info">Create a backup to preserve your conversation history. You can use this to restore history if you lose your device or switch to a new one.\n\nChoose a strong password to protect the backup file.</string>
-  <string name="settings_backup_create">Create a Backup</string>
-  <string name="settings_backup_restore">Restore from Backup</string>
-  <!-- Welcome -->
-  <string name="welcome_footer_text">Want to chat with friends and family?</string>
-  <string name="welcome_footer_link">Create a private account for free</string>
-  <string name="welcome_button_create_personal_account">Create a Personal Account</string>
-  <string name="welcome_screen_carousel_item_message_1">Welcome to Wire, the most secure collaboration platform!</string>
-  <string name="welcome_screen_carousel_item_message_2">Absolute confidence your information is\u00A0secure</string>
-  <string name="welcome_screen_carousel_item_message_3">Encrypted audio &amp; video conferencing with up\u00A0to 50\u00A0participants</string>
-  <string name="welcome_screen_carousel_item_message_4">Secure file sharing with teams and\u00A0clients</string>
-  <string name="welcome_screen_carousel_item_message_5">Wire is independently audited and ISO, CCPA, GDPR, SOX-compliant</string>
-  <string name="welcome_button_create_team">Create a Team</string>
-  <string name="server_details_dialog_body">Backend name:\n%1$s\n\nBackend URL:\n%2$s</string>
-  <string name="server_details_dialog_title">On-premises Backend</string>
-  <string name="welcome_migration_dialog_title">Welcome To Our New Android App 👋</string>
-  <string name="welcome_migration_dialog_content">We rebuilt the app to make it more usable for everyone.\n\nFind out more about Wire’s redesigned app—new options and improved accessibility, with the same strong security.</string>
-  <string name="welcome_migration_dialog_continue">Start Using Wire</string>
-  <!-- API Versioning Dialogs -->
-  <string name="api_versioning_client_update_required_title">Update required</string>
-  <string name="api_versioning_client_update_required_message">You are missing out on new features. Update to the latest version of Wire to continue using the app with this account.</string>
-  <string name="api_versioning_server_version_not_supported_title">Server version not supported</string>
-  <string name="api_versioning_server_version_not_supported_message">Your Wire server needs to be updated. Please notify your system administrator.</string>
-  <!-- Migration -->
-  <string name="migration_title">Setting up Wire</string>
-  <string name="migration_message">Please wait while we set up the app for you</string>
-  <string name="migration_message_unknown">Please wait while we migrate data for you</string>
-  <string name="migration_accounts_message">Migrating your accounts...</string>
-  <string name="migration_messages_message">Migrating your messages...</string>
-  <string name="migration_title_step">Step %1$d/%2$d</string>
-  <string name="migration_title_almost_done">Almost done!</string>
-  <string name="migration_title_updated">Setting up Wire</string>
-  <string name="migration_login_required">In order to migrate your messages from the old version of Wire, you need to log in to your account.</string>
-  <string name="migration_login_required_specific_account">In order to migrate your messages from the old version of Wire, you need to log in to your account %s.</string>
-  <string name="migration_login_required_specific_account_name">“%1$s (@%2$s)“</string>
-  <string name="migration_messages_failure">Unfortunately, not all messages and conversations could not be migrated due to incompatibility with the older version of Wire (error code: %s)</string>
-  <string name="migration_cancel_title">Cancel migration</string>
-  <string name="migration_cancel_message">Are you sure you want to close the application and cancel the ongoing migration?</string>
-  <!-- Login -->
-  <string name="login_title">Log in</string>
-  <string name="login_forgot_password">Forgot password?</string>
-  <string name="login_user_identifier_placeholder">jane@example.com or jane.doe</string>
-  <string name="login_user_identifier_label">EMAIL OR USERNAME</string>
-  <string name="login_proxy_identifier_label">PROXY EMAIL OR USERNAME</string>
-  <string name="login_error_invalid_credentials_title">Invalid information</string>
-  <string name="login_error_invalid_credentials_message">These account credentials are incorrect.
-        Please verify your details and try again.
-    </string>
-  <string name="login_error_invalid_user_identifier">This email or username is invalid. Please
-        verify and try again.
-    </string>
-  <string name="login_error_user_already_logged_in_title">Account in use</string>
-  <string name="login_error_user_already_logged_in_message">You are already logged in with those credentials on this device.</string>
-  <string name="login_sso_error_invalid_cookie_title">Invalid Cookie!</string>
-  <string name="login_sso_error_invalid_cookie_message">The session is invalid or expired! Please try again to log in.</string>
-  <string name="login_password_placeholder">Password</string>
-  <string name="login_password_label">PASSWORD</string>
-  <string name="login_tab_email">EMAIL</string>
-  <string name="login_tab_sso">SSO LOGIN</string>
-  <string name="login_sso_code_placeholder">wire-</string>
-  <string name="login_sso_code_label">SSO CODE</string>
-  <string name="login_error_invalid_sso_code">Please enter a valid SSO code.</string>
-  <string name="login_error_invalid_sso_code_format">Enter a valid SSO code</string>
-  <string name="deleted_user_error_title">Deleted account</string>
-  <string name="deleted_user_error_message">You were logged out because your account was
-        deleted.
-    </string>
-  <string name="removed_client_error_title">Removed Device</string>
-  <string name="removed_client_error_message">You were logged out because your device was
-        removed.
-    </string>
-  <string name="session_expired_error_title">Session expired</string>
-  <string name="session_expired_error_message">The application did not communicate with the server
-        for a long period of time, or your session has been remotely invalidated.
-    </string>
-  <string name="conversation_history_wipe_explanation">According to your team\'s security
-        settings, your conversation history has also been deleted.</string>
-  <!-- Second Factor Authentication -->
-  <string name="second_factor_authentication_title">Verify your account</string>
-  <string name="second_factor_authentication_instructions_label">Enter the verification code sent to the email %1$s</string>
-  <string name="second_factor_code_error">Invalid code, or maximum attempts exceeded. Please retry, or request another code</string>
-  <!-- Remove Device -->
-  <string name="remove_device_title">Remove a Device</string>
-  <string name="remove_device_message">Remove one of your other devices to start using Wire on
-        this one.
-    </string>
-  <string name="remove_device_label">YOUR DEVICES</string>
-  <string name="remove_device_id_and_time_label">ID: %1$s\nAdded: %2$s</string>
-  <string name="remove_device_id_label">ID: %1$s</string>
-  <string name="remove_device_dialog_title">Remove the following device?</string>
-  <string name="remove_device_invalid_password">Invalid password</string>
-  <string name="remove_device_details_description">Remove this device if you have stopped using it. You will be logged out of this device immediately.</string>
-  <string name="remove_device_details_description_with_wipe">Remove your device if you have stopped using it. According to your team\'s security settings, your conversation history will also be deleted.</string>
-  <!-- Register Device -->
-  <string name="register_device_title">Add this Device</string>
-  <string name="register_device_text">Enter your password to use Wire on this device.</string>
-  <!-- Delete Message -->
-  <string name="delete_message_dialog_title">Delete Message?</string>
-  <string name="delete_message_dialog_message">If you delete the message for yourself, it will only be visible to other participants.\n\nIf you delete it for everyone, the message will be removed for all participants.\n\nA deleted message can not be restored.</string>
-  <string name="label_delete_for_me">Delete for Me</string>
-  <string name="label_delete_for_everyone">Delete for Everyone</string>
-  <string name="delete_message_for_yourself_dialog_title">Delete this Message for yourself?</string>
-  <string name="delete_message_for_yourself_dialog_message">If you delete the message for yourself, it will only be visible to other participants.\n\nA deleted message can not be restored.</string>
-  <string name="deleted_message_text">Deleted message</string>
-  <!-- Replies/Quotes to other messages -->
-  <string name="label_quote_invalid_or_not_found">You can not see this message</string>
-  <string name="label_quote_original_message_is_a_picture">Picture</string>
-  <string name="label_quote_original_message_date">Original message from %s</string>
-  <!-- Create Account -->
-  <string name="create_personal_account_title">Create a Personal Account</string>
-  <string name="create_personal_account_summary_title">Personal Account Created</string>
-  <string name="create_personal_account_text">Securely chat with friends and family using Wire\'s public cloud server.</string>
-  <string name="create_personal_account_email_text">Enter your email to start using the most secure collaboration platform.</string>
-  <string name="create_personal_account_details_text">Enter your personal details:</string>
-  <string name="create_personal_account_summary_text">You have successfully created your personal account. Start communicating securely – wherever you are!</string>
-  <string name="create_team_title">Create a Team</string>
-  <string name="create_team_summary_title">Team Created</string>
-  <string name="create_team_content_title">Wire for Free</string>
-  <string name="create_team_text">Messaging for small organizations or single person consulting firms.\n</string>
-  <string name="create_team_learn_more">Learn more about plans and pricing</string>
-  <string name="create_team_email_text">Enter your email to create your team:</string>
-  <string name="create_team_details_text">Enter your email to create your team:</string>
-  <string name="create_team_summary_text">You have successfully created your team account. Start communicating securely – wherever you are!</string>
-  <string name="create_account_email_placeholder">jane@example.com</string>
-  <string name="create_account_email_label">EMAIL</string>
-  <string name="create_account_email_footer_text">Already have an account? </string>
-  <string name="create_account_email_terms_dialog_title">Terms of Use</string>
-  <string name="create_account_email_terms_dialog_text">By clicking continue you are agreeing to our Terms of Use and Privacy Policy.</string>
-  <string name="create_account_email_terms_dialog_view_policy">View ToU and Privacy Policy</string>
-  <string name="create_account_email_already_in_use_error">The email address is already in use.</string>
-  <string name="create_account_email_blacklisted_error">Your email has been identified as not trusted, for example, due to a rejection by a spam filter.</string>
-  <string name="create_account_email_invalid_error">Please enter a valid format for your email.</string>
-  <string name="create_account_email_domain_blocked_error">You can\'t create this account as your email domain is intentionally blocked.</string>
-  <string name="create_account_details_first_name_placeholder">Jane</string>
-  <string name="create_account_details_first_name_label">FIRST NAME</string>
-  <string name="create_account_details_last_name_placeholder">Doe</string>
-  <string name="create_account_details_last_name_label">LAST NAME</string>
-  <string name="create_account_details_team_name_placeholder">Team Awesome</string>
-  <string name="create_account_details_team_name_label">TEAM NAME</string>
-  <string name="create_account_details_password_description">Use at least 8 characters, with one lowercase letter, one capital letter, a number, and a special character.</string>
-  <string name="create_account_details_password_error">Invalid password</string>
-  <string name="create_account_details_password_not_matching_error">Passwords do not match</string>
-  <string name="create_account_details_confirm_password_label">CONFIRM PASSWORD</string>
-  <string name="create_account_code_text">Please, check your email %1$s for the verification code and enter it below.</string>
-  <string name="create_account_code_resend">Resend code</string>
-  <string name="create_account_code_error">Invalid code, or maximum attempts exceeded. Please retry, or request another code</string>
-  <string name="create_account_code_error_title">Invalid information</string>
-  <string name="create_account_code_error_team_members_limit_reached">This team has reached its membership limit.</string>
-  <string name="create_account_code_error_personal_account_creation_restricted">This application version does not allow creation of personal accounts.</string>
-  <string name="create_account_code_error_team_creation_restricted">This application version does not allow creation of teams.</string>
-  <string name="create_account_username_title">Your Username</string>
-  <string name="create_account_username_placeholder">jane.doe</string>
-  <string name="create_account_username_label">USERNAME</string>
-  <string name="create_account_username_text">Enter your username. It helps others to find you in Wire and connect with you.</string>
-  <string name="create_account_username_taken_error">This username is already taken. Please choose another one.</string>
-  <string name="create_account_username_description">At least 2 characters, a-z, 0-9 and _</string>
-  <!-- Conversations -->
-  <string name="calls_label_missed_calls">MISSED CALLS</string>
-  <string name="calls_label_calls_history">CALL HISTORY</string>
-  <string name="conversation_label_new_activity">NEW ACTIVITY</string>
-  <string name="conversation_label_favorites">FAVORITES</string>
-  <string name="conversation_label_conversations">CONVERSATIONS</string>
-  <string name="mention_label_unread_mentions">UNREAD MENTIONS</string>
-  <string name="mention_label_all_mentions">ALL MENTIONS</string>
-  <string name="label_message_status_deleted">Deleted</string>
-  <string name="label_message_status_edited">Edited</string>
-  <string name="conversations_screen_title">Conversations</string>
-  <string name="conversations_all_tab_title">All</string>
-  <string name="conversations_calls_tab_title">Calls</string>
-  <string name="conversations_mentions_tab_title">Mentions</string>
-  <string name="sent_a_message_with_content">sent a message with %s content</string>
-  <string name="new_group_title">New Group</string>
-  <string name="new_group_description">Up to 500 people can join a group conversation.</string>
-  <string name="group_name_title">Group Name</string>
-  <string name="group_name_placeholder">Enter a name</string>
-  <string name="group_name_description">Give this group a meaningful name.</string>
-  <string name="protocol">Protocol</string>
-  <string name="mls">MLS</string>
-  <string name="cipher_suite">Cipher Suite</string>
-  <string name="last_key_material_update_label">Last Key Material Update</string>
-  <string name="group_state_label">Group State</string>
-  <string name="empty_group_name_error">Please enter a group name</string>
-  <string name="group_name_exceeded_limit_error">Group name should not exceed 64 characters
-    </string>
-  <string name="asset_message_tap_to_download_text">Tap to download</string>
-  <string name="asset_message_upload_in_progress_text">Uploading…</string>
-  <string name="asset_message_download_in_progress_text">Downloading…</string>
-  <string name="asset_message_downloaded_internally_text">Downloaded</string>
-  <string name="asset_message_saved_externally_text">Saved</string>
-  <string name="asset_message_failed_download_text">File not available</string>
-  <string name="asset_message_failed_upload_text">File upload failed</string>
-  <string name="asset_download_dialog_text">Do you want to open the file or save it to your
-        device\'s download folder?
- </string>
-  <string name="asset_download_dialog_open_text">Open</string>
-  <string name="asset_download_dialog_save_text">Save</string>
-  <string name="member_name_deleted_label">Deleted account</string>
-  <string name="member_name_you_label_titlecase">You</string>
-  <string name="member_name_you_label_lowercase">you</string>
-  <string name="label_add_participants">Add Participants</string>
-  <string name="username_unavailable_label">Username unavailable</string>
-  <string name="conversation_details_title">Conversation Details</string>
-  <string name="conversation_details_options_tab">OPTIONS</string>
-  <string name="conversation_details_participants_tab">PARTICIPANTS</string>
-  <string name="conversation_details_options_group_name">GROUP NAME</string>
-  <string name="conversation_details_group_admins">GROUP ADMINS (%d)</string>
-  <string name="conversation_details_group_members">GROUP MEMBERS (%d)</string>
-  <string name="conversation_details_participants_info">This group has %s participants.\nUp to 500 people can join a group conversation.</string>
-  <string name="conversation_details_show_all_participants">Show all participants (%d)</string>
-  <string name="conversation_details_group_participants_title">Group Participants</string>
-  <string name="conversation_details_group_participants_add">Add participants</string>
-  <string name="conversation_participant_you_label">(You)</string>
-  <string name="conversation_details_is_classified">SECURITY LEVEL: VS-NfD</string>
-  <string name="conversation_details_is_not_classified">SECURITY LEVEL: UNCLASSIFIED</string>
-  <string name="conversation_options_guests_label">Guests</string>
-  <string name="conversation_details_guest_description">When this is ON, people from outside your team can join this conversation</string>
-  <string name="conversation_options_guest_description">Turn this option ON to open this conversation to people outside your team, even if they don\'t have Wire.</string>
-  <string name="conversation_options_guest_not_editable_description">You cannot disable the guest option in this conversation, since it has been created by someone from another team.</string>
-  <string name="conversation_options_services_label">Services</string>
-  <string name="conversation_options_services_description">Turn this option ON to open this conversation to services.</string>
-  <string name="conversation_options_renamed">Conversation renamed</string>
-  <string name="disable_guest_dialog_title">Disable guest access?</string>
-  <string name="disable_guest_dialog_text">Current guests will be removed from the conversation. New guests will not be allowed.</string>
-  <string name="disable_services_dialog_title">Disable services access?</string>
-  <string name="disable_services_dialog_text">Current services will be removed from the conversation. New services will not be allowed.</string>
-  <string name="leave_group_conversation_menu_item">Leave Group…</string>
-  <string name="leave_group_conversation_dialog_title">Leave “%s”?</string>
-  <string name="leave_group_conversation_dialog_description">You will then no longer be able to send or read messages in this group on any device.</string>
-  <string name="delete_group_conversation_menu_item">Delete Group…</string>
-  <string name="delete_group_conversation_dialog_title">Remove “%s”?</string>
-  <string name="delete_group_conversation_dialog_description">The group will be removed from your conversations list on all devices. You will no longer be able to access the group and its content.</string>
-  <!-- Import/Export External Media -->
-  <string name="import_media_content_title">Share With Wire</string>
-  <string name="import_media_searchbar_title">Search for conversation</string>
-  <string name="import_media_send_button_title">Send</string>
-  <string name="export_media_subject_title">Sharing Media from Wire</string>
-  <!--Read receipts -->
-  <string name="conversation_options_read_receipt_label">Read receipts</string>
-  <string name="conversation_options_read_receipt_description">When this is on, people can see when their messages in this conversation are read.</string>
-  <!-- Messages -->
-  <string name="message_details_title">Message Details</string>
-  <string name="message_details_reactions_tab">REACTIONS (%s)</string>
-  <string name="message_details_read_receipts_tab">READ RECEIPTS (%s)</string>
-  <string name="message_details_reactions_empty_text">No one reacted on this message yet 😱</string>
-  <string name="message_details_reactions_empty_learn_more">Learn more about reactions</string>
-  <string name="message_details_read_receipts_empty_text">No one read this message yet 👀</string>
-  <string name="message_details_read_receipts_empty_learn_more">Learn more about read receipts</string>
-  <!-- Attachment options -->
-  <string name="attachment_share_file">Attach File</string>
-  <string name="attachment_share_image">Attach Picture</string>
-  <string name="attachment_take_photo">Take Photo</string>
-  <string name="attachment_record_video">Record Video</string>
-  <string name="attachment_voice_message">Audio Message</string>
-  <string name="attachment_share_location">Share Location</string>
-  <!-- User Profile -->
-  <string name="user_profile_title">User Profile</string>
-  <string name="user_profile_close_description">Close User profile</string>
-  <string name="user_profile_logout">Log out</string>
-  <string name="user_profile_other_accs">Your Other Accounts</string>
-  <string name="user_profile_status_availability">Availability</string>
-  <string name="user_profile_status_available">Available</string>
-  <string name="user_profile_status_busy">Busy</string>
-  <string name="user_profile_status_away">Away</string>
-  <string name="user_profile_status_none">None</string>
-  <string name="user_profile_new_account_text">New Team or Account</string>
-  <string name="user_profile_details_tab">Details</string>
-  <string name="user_profile_devices_tab">Devices</string>
-  <string name="user_profile_group_tab">Group</string>
-  <string name="user_profile_group_member">Member of the group ”%s”</string>
-  <string name="user_profile_group_role">ROLE</string>
-  <string name="user_profile_role_in_group">Role in ”%s”</string>
-  <string name="user_profile_role_change_error">There was an error trying to change the role. Please check your internet connection and try again</string>
-  <string name="user_profile_unblock_user">Unblock User</string>
-  <string name="user_profile_group_remove_button">Remove from group</string>
-  <!-- Remove Conversation Member Dialog -->
-  <string name="dialog_remove_conversation_member_title">Remove from group?</string>
-  <string name="dialog_remove_conversation_member_description">%1$s (@%2$s) will not be able to send or receive messages in this conversation.</string>
-  <string name="dialog_remove_conversation_member_error">There was an error while removing the participant from the group</string>
-  <string name="group_role_admin">Admin</string>
-  <string name="group_role_member">Member</string>
-  <!-- Logout Wipe Data Dialog -->
-  <string name="dialog_logout_wipe_data_title">Clear Data?</string>
-  <string name="dialog_logout_wipe_data_checkbox">Delete all your personal information and conversations on this device</string>
-  <!-- User Profile status dialog-->
-  <string name="user_profile_change_status_dialog_available_title">Set yourself to Available</string>
-  <string name="user_profile_change_status_dialog_available_text">You will appear as Available to other people. You will receive notifications for incoming calls and for messages according to the Notifications setting in each conversation.</string>
-  <string name="user_profile_change_status_dialog_busy_title">Set yourself to Busy</string>
-  <string name="user_profile_change_status_dialog_busy_text">You will appear as Busy to other people. You will only receive notifications for mentions, replies, and calls in conversations that are not muted.</string>
-  <string name="user_profile_change_status_dialog_away_title">Set yourself to Away</string>
-  <string name="user_profile_change_status_dialog_away_text">You will appear as Away to other people. You will not receive notifications about any incoming calls or messages.</string>
-  <string name="user_profile_change_status_dialog_none_title">No Status Set</string>
-  <string name="user_profile_change_status_dialog_none_text">You will receive notifications for incoming calls and for messages according to the Notifications setting in each conversation.</string>
-  <string name="user_profile_change_status_dialog_checkbox_text">Do not display this information again</string>
-  <!-- Conversations BottomSheet -->
-  <string name="label_notifications">Notifications</string>
-  <string name="label_add_to_favourites">Add to Favorites</string>
-  <string name="label_move_to_folder">Move to Folder</string>
-  <string name="label_move_to_archive">Move to Archive</string>
-  <string name="label_clear_content">Clear Content…</string>
-  <string name="label_block">Block</string>
-  <string name="label_unblock">Unblock</string>
-  <string name="label_leave_group">Leave Group</string>
-  <string name="label_delete_group">Delete Group</string>
-  <!-- Muting options BottomSheet -->
-  <string name="muting_option_all_allowed_title">Everything</string>
-  <string name="muting_option_all_allowed_text">Receive notifications for this conversation about everything (including audio and video calls)</string>
-  <string name="muting_option_only_mentions_title">Mentions and replies</string>
-  <string name="muting_option_only_mentions_text">Only receive notifications for this conversation when someone mentions you or replies to you</string>
-  <string name="muting_option_all_muted_title">Nothing</string>
-  <string name="muting_option_all_muted_text">Receive no notifications for this conversation at all</string>
-  <!--Profile image-->
-  <string name="profile_image_top_bar_label">Profile picture</string>
-  <string name="profile_image_modal_sheet_header_title">Change Image</string>
-  <string name="profile_image_choose_from_gallery_menu_item">Choose from gallery</string>
-  <string name="profile_image_take_a_picture_menu_item">Take a picture</string>
-  <string name="profile_image_change_image_button_label">Change Picture…</string>
-  <!--Conversation-->
-  <string name="label_message_details">Message Details</string>
-  <string name="label_copy">Copy</string>
-  <string name="label_share">Share</string>
-  <string name="label_edit">Edit</string>
-  <string name="label_delete">Delete</string>
-  <string name="info_message_copied">Message copied</string>
-  <string name="conversation_banner_federated_externals_guests_services_present">Federated users, externals, guests and services are present</string>
-  <string name="conversation_banner_federated_externals_guests_present">Federated users, externals and guests are present</string>
-  <string name="conversation_banner_federated_externals_services_present">Federated users, externals and services are present</string>
-  <string name="conversation_banner_federated_guests_services_present">Federated users, guests and services are present</string>
-  <string name="conversation_banner_federated_services_present">Federated users and services are present</string>
-  <string name="conversation_banner_federated_guests_present">Federated users and guests are present</string>
-  <string name="conversation_banner_federated_externals_present">Federated users and Externals are present</string>
-  <string name="conversation_banner_externals_guests_services_present">Externals, guests and services are present</string>
-  <string name="conversation_banner_externals_services_present">Externals and services are present</string>
-  <string name="conversation_banner_externals_guests_present">Externals and guests are present</string>
-  <string name="conversation_banner_guests_services_present">Guests and services are present</string>
-  <string name="conversation_banner_federated_present">Federated users are present</string>
-  <string name="conversation_banner_guests_present">Guests are present</string>
-  <string name="conversation_banner_externals_present">Externals are present</string>
-  <string name="conversation_banner_services_active">Services are active</string>
-  <!-- System messages -->
-  <string name="label_system_message_added_by_self">%1$s added %2$s to the conversation</string>
-  <string name="label_system_message_removed_by_self">%1$s removed %2$s from the conversation</string>
-  <string name="label_system_message_added_by_other">%1$s added %2$s to the conversation</string>
-  <string name="label_system_message_removed_by_other">%1$s removed %2$s from the conversation</string>
-  <string name="label_system_message_left_the_conversation_by_self">%1$s left the conversation</string>
-  <string name="label_system_message_left_the_conversation_by_other">%1$s left the conversation</string>
-  <string name="label_system_message_other_called">%1$s called</string>
-  <string name="label_system_message_you_called">%1$s called</string>
-  <string name="label_system_message_and">%1$s and %2$s</string>
-  <plurals name="label_system_message_x_more">
-    <item quantity="one">%1$d more</item>
-    <item quantity="other">%1$d more</item>
-  </plurals>
-  <string name="label_system_message_blocked_user">%1$s blocked this user</string>
-  <string name="label_system_message_renamed_the_conversation">%1$s renamed the conversation\n%2$s</string>
-  <string name="label_system_message_team_member_left">%1$s was removed from the team</string>
-  <string name="label_system_message_user_not_available">This user is no longer available</string>
-  <string name="label_system_message_new_conversation_receipt_mode">Read receipts are %1$s</string>
-  <string name="label_system_message_read_receipt_changed_by_self">%1$s turned read receipts %2$s for everyone</string>
-  <string name="label_system_message_read_receipt_changed_by_other">%1$s turned read receipts %2$s for everyone</string>
-  <string name="label_system_message_conversation_history_lost">YOU HAVEN\'T USED THIS DEVICE FOR A WHILE. SOME MESSAGES MAY NOT APPEAR HERE.</string>
-  <string name="label_system_message_receipt_mode_on">on</string>
-  <string name="label_system_message_receipt_mode_off">off</string>
-  <!-- Last messages -->
-  <plurals name="last_message_self_added_users">
-    <item quantity="one">You added 1 person to the conversation</item>
-    <item quantity="other">You added %1$d people to the conversation</item>
-  </plurals>
-  <plurals name="last_message_other_added_self_user">
-    <item quantity="one">You and 1 other person were added to the conversation</item>
-    <item quantity="other">You and %1$d people were added to the conversation</item>
-    <item quantity="zero">You were added to the conversation</item>
-  </plurals>
-  <plurals name="last_message_other_added_other_users">
-    <item quantity="one">1 person was added to the conversation</item>
-    <item quantity="other">%1$d people were added to the conversation</item>
-  </plurals>
-  <plurals name="last_message_self_removed_users">
-    <item quantity="one">You removed 1 person from the conversation</item>
-    <item quantity="other">You removed %1$d people from the conversation</item>
-  </plurals>
-  <plurals name="last_message_other_removed_self_user_and_others">
-    <item quantity="zero">You were removed from the conversation</item>
-    <item quantity="one">You and 1 other person were removed from the conversation</item>
-    <item quantity="other">You and %1$d people were removed from the conversation</item>
-  </plurals>
-  <plurals name="last_message_other_removed_other_users">
-    <item quantity="one">1 person was removed from the conversation</item>
-    <item quantity="other">%1$d people were removed from the conversation</item>
-  </plurals>
-  <string name="last_message_self_user_shared_asset">shared media asset</string>
-  <string name="last_message_self_user_shared_image">shared an image.</string>
-  <string name="last_message_self_user_shared_video">shared a video.</string>
-  <string name="last_message_self_user_shared_audio">shared an audio message.</string>
-  <string name="last_message_self_user_shared_file">shared a file.</string>
-  <string name="last_message_self_user_knock">pinged.</string>
-  <string name="last_message_call">called.</string>
-  <string name="last_message_mentioned">mentioned you</string>
-  <string name="last_message_replied">replied to you</string>
-  <string name="last_message_other_changed_conversation_name">changed conversation name</string>
-  <string name="last_message_calling">%1$s calling...</string>
-  <plurals name="last_message_people_added">
-    <item quantity="one">added %1$d person</item>
-    <item quantity="other">added %1$d people</item>
-  </plurals>
-  <plurals name="last_message_people_removed">
-    <item quantity="one">removed %1$d person</item>
-    <item quantity="other">removed %1$d people</item>
-  </plurals>
-  <plurals name="last_message_people">
-    <item quantity="one">%1$d person</item>
-    <item quantity="other">%1$d people</item>
-  </plurals>
-  <string name="last_message_self_user_joined_conversation">joined the conversation.</string>
-  <string name="last_message_self_user_left_conversation">left the conversation.</string>
-  <string name="last_message_to_conversation">to conversation</string>
-  <string name="last_message_from_conversation">from conversation</string>
-  <!-- Unread Events -->
-  <plurals name="unread_event_knock">
-    <item quantity="one">%1$d ping</item>
-    <item quantity="other">%1$d pings</item>
-  </plurals>
-  <plurals name="unread_event_call">
-    <item quantity="one">%1$d missed call</item>
-    <item quantity="other">%1$d missed calls</item>
-  </plurals>
-  <plurals name="unread_event_mention">
-    <item quantity="one">%1$d mention</item>
-    <item quantity="other">%1$d mentions</item>
-  </plurals>
-  <plurals name="unread_event_reply">
-    <item quantity="one">%1$d reply</item>
-    <item quantity="other">%1$d replies</item>
-  </plurals>
-  <plurals name="unread_event_message">
-    <item quantity="one">%1$d message</item>
-    <item quantity="other">%1$d messages</item>
-  </plurals>
-  <!--Search Contact-->
-  <string name="label_contacts">CONTACTS</string>
-  <string name="label_new_group">New Group</string>
-  <string name="label_new_conversation">New Conversation</string>
-  <string name="label_search_people">Search people</string>
-  <string name="label_public_wire">PUBLIC WIRE</string>
-  <string name="label_search_people_instruction">Search for people by their profile name or @username</string>
-  <string name="label_learn_more_searching_user">Learn more</string>
-  <string name="label_no_results_found">No results could be found. Please try again.</string>
-  <string name="label_general_error">Something went wrong</string>
-  <!-- Snackbar messages -->
-  <string name="error_unknown_title">Something went wrong</string>
-  <string name="error_unknown_message">Please try again</string>
-  <string name="error_server_miscommunication_title">Server error</string>
-  <string name="error_server_miscommunication_message">Please try again</string>
-  <string name="error_socket_title">Invalid information</string>
-  <string name="error_socket_message">The proxy credentials are incorrect. Please verify your details and try again.</string>
-  <string name="error_no_network_title">Waiting for network</string>
-  <string name="error_no_network_message">Please check your Internet connection and try again</string>
-  <string name="error_downloading_self_user_profile_picture">There was an error downloading your profile picture. Please check your Internet connection</string>
-  <string name="error_uploading_user_avatar">Picture could not be uploaded</string>
-  <string name="error_uploading_image_message">Image upload failed</string>
-  <string name="error_downloading_image_message">Image download failed</string>
-  <string name="error_updating_muting_setting">Notifications could not be updated</string>
-  <string name="error_conversation_sending_image">The picture could not be sent. Please check your internet connection and try again.</string>
-  <string name="error_conversation_sending_asset">There was an error trying to send that file. Please check your Internet connection and try again</string>
-  <string name="error_conversation_downloading_asset">There was an error trying to download that file. Please try again</string>
-  <string name="error_conversation_opening_asset_file">Found no app to open the selected file</string>
-  <string name="error_conversation_deleting_message">The message could not be deleted</string>
-  <string name="error_conversation_max_image_size_limit">The image you chose is too large. Please choose an image smaller than 15MB</string>
-  <string name="error_conversation_max_asset_size_limit">The file you chose is too large. Please choose a file smaller than %sMB</string>
-  <string name="error_conversation_generic">Something went wrong. The message could not be sent.</string>
-  <string name="conversation_on_file_downloaded">The file %s was saved successfully to the Downloads folder</string>
-  <string name="error_blocking_user">User could not be blocked</string>
-  <string name="blocking_user_success">%s blocked</string>
-  <string name="conversation_group_removed_success">“%s” removed</string>
-  <string name="leave_group_conversation_error">There was an error while leaving conversation</string>
-  <string name="joined_conversation_group_success">You joined the conversation.</string>
-  <string name="left_conversation_group_success">You left the conversation.</string>
-  <string name="error_unblocking_user">User could not be unblocked</string>
-  <string name="delete_group_conversation_error">There was an error while deleting conversation</string>
-  <string name="error_limit_number_assets_imported_exceeded">You can only send up to 20 files at once</string>
-  <string name="edit_message_not_yet_available">Saving edits to messages is not yet available</string>
-  <!-- TODO: temporary, to be removed when the proper implementation of editing messages is finished -->
-  <!-- Animation label -->
-  <string name="label_open_conversation">Open Conversation</string>
-  <string name="email_label">Email</string>
-  <string name="phone_label">Phone</string>
-  <!-- Notifications -->
-  <string name="notification_shared_picture">Shared a picture</string>
-  <string name="notification_shared_file">Shared a file</string>
-  <string name="notification_reacted">Added a reaction</string>
-  <string name="notification_missed_call">Missed call</string>
-  <string name="notification_knock">Pinged</string>
-  <string name="notification_reply">Reply: %1$s</string>
-  <string name="notification_not_supported_issue">Feature not supported</string>
-  <string name="notification_connection_request">Wants to connect</string>
-  <string name="notification_conversation_deleted">Deleted the group</string>
-  <string name="notification_action_reply">Reply</string>
-  <string name="notification_receiver_name">You</string>
-  <string name="label_type_a_message">Type a message</string>
-  <string name="notification_action_open_call">Open Call</string>
-  <string name="notification_action_decline_call">Decline</string>
-  <string name="notification_action_hang_up_call">Hang Up</string>
-  <string name="notification_incoming_call_content">Calling…</string>
-  <string name="notification_ongoing_call_content">Ongoing call…</string>
-  <string name="notification_group_call_content">%s calling...</string>
-  <string name="notification_call_default_caller_name">Someone</string>
-  <string name="notification_call_default_group_name">Incoming group call</string>
-  <!-- Calling-->
-  <string name="calling_button_label_microphone">Microphone</string>
-  <string name="calling_button_label_camera">Camera</string>
-  <string name="calling_button_label_speaker">Speaker</string>
-  <string name="calling_button_label_flip">Flip</string>
-  <string name="calling_button_label_decline">Decline</string>
-  <string name="calling_button_label_accept">Accept</string>
-  <string name="calling_button_label_join_call">Join</string>
-  <string name="calling_hang_up_call">Hang up call</string>
-  <string name="calling_accept_call">Accept call</string>
-  <string name="calling_decline_call">Decline call</string>
-  <string name="calling_label_ringing_call">Ringing…</string>
-  <string name="calling_label_incoming_call">Calling…</string>
-  <string name="calling_label_incoming_call_someone_calling">%s is calling…</string>
-  <string name="calling_label_default_caller_name">Incoming call</string>
-  <string name="calling_label_constant_bit_rate">CONSTANT BIT RATE</string>
-  <string name="calling_minimize_view">Minimize view</string>
-  <string name="calling_ongoing_call_title_alert">Hang up current call?</string>
-  <string name="calling_ongoing_call_start_message_alert">A call is active in another conversation.\nCalling here will hang up the other call.</string>
-  <string name="calling_ongoing_call_start_anyway">Call Anyway</string>
-  <string name="calling_ongoing_call_join_message_alert">A call is active in another conversation.\nJoining this call will hang up the other one.</string>
-  <string name="calling_ongoing_call_join_anyway">Join Anyway</string>
-  <string name="calling_feature_unavailable_title_alert">Feature unavailable</string>
-  <string name="calling_feature_unavailable_message_alert">The option to initiate a conference call is only available in the paid version of Wire.</string>
-  <!-- Connectivity Status Bar -->
-  <string name="connectivity_status_bar_return_to_call">Return to call</string>
-  <string name="connectivity_status_bar_connecting">Connecting</string>
-  <string name="connectivity_status_bar_waiting_for_network">Waiting for network</string>
-  <!-- Connections -->
-  <string name="connection_label_connect">Connect</string>
-  <string name="connection_label_cancel_request">Cancel Request</string>
-  <string name="connection_label_member_not_belongs_to_team">This user does not belong to your team. If they accept your connection request, they are available as a contact</string>
-  <string name="connection_label_member_not_conneted">When your connection request is accepted, you can communicate directly with this contact.</string>
-  <string name="connection_request_sent">Connection request sent</string>
-  <string name="connection_request_canceled">Connection request canceled</string>
-  <string name="connection_request_ignored">You ignored %1$s\'s request</string>
-  <string name="connection_request_accepted">Connection request accepted</string>
-  <string name="connection_request_sent_error">Connection request could not be sent</string>
-  <string name="connection_request_accept_error">Connection request could not be accepted</string>
-  <string name="connection_request_ignore_error">Connection request could not be ignored</string>
-  <string name="connection_request_cancel_error">Connection request could not be canceled</string>
-  <string name="connection_pending_message">Wants to connect</string>
-  <string name="connection_pending_label">pending</string>
-  <string name="connection_label_user_wants_to_conect">This user wants to connect with you.</string>
-  <string name="connection_label_accepting_request_description">If you accept their request, they will be added as a contact and you two can communicate directly.</string>
-  <string name="connection_label_accept">Accept</string>
-  <string name="connection_label_ignore">Ignore</string>
-  <!-- Gallery -->
-  <string name="media_gallery_default_title_name">Media Gallery</string>
-  <string name="media_gallery_on_image_downloaded">Saved to Downloads folder</string>
-  <string name="media_gallery_on_image_download_error">There was an error when saving the image to
-        Downloads folder. Please check your Internet connection and try again
-    </string>
-  <!--sso dialog-->
-  <string name="sso_error_dialog_title">Unable to log in with SSO</string>
-  <string name="sso_error_dialog_message">Please try again. If this does not help, contact your
-        admin and provide this code:\n%d\"
-    </string>
-  <string name="asset_download_dialog_default_title">Download file</string>
-  <string name="empty_group_label">Unnamed conversation</string>
-  <string name="label_show_more">Show More</string>
-  <!--prohibited asset messages -->
-  <string name="prohibited_images_message">Receiving images is prohibited</string>
-  <string name="prohibited_videos_message">Receiving videos is prohibited</string>
-  <string name="prohibited_audio_message">Receiving audio messages is prohibited</string>
-  <string name="prohibited_file_message">Receiving files is prohibited</string>
-  <string name="team_settings_changed">Team Settings Changed</string>
-  <string name="sharing_files_enabled">Sharing and receiving files of any type is now enabled</string>
-  <string name="sharing_files_disabled">Sharing and receiving files of any type is now disabled</string>
-  <!--wire dropdown-->
-  <string name="wire_dropdown_default_indicator">" (default)"</string>
-  <string name="wire_dropdown_placeholder">Select an Item</string>
-  <string name="change">Change</string>
-  <string name="allow_guests">Allow guests</string>
-  <string name="allow_guest_switch_description">Open this conversation to people outside your team. You can always change it later.</string>
-  <string name="allow_services">Allow services</string>
-  <string name="allow_services_description">Open this conversation to services. You can always change it later.</string>
-  <string name="read_receipts">Read receipts</string>
-  <string name="read_receipts_description">When this is on, people can see when their messages in this conversation are read.</string>
-  <string name="disable_guests_dialog_title">Not Allow Guests?</string>
-  <string name="disable_guests_dialog_description">Guests you selected in the previous step won\'t be part of the group if you do not allow guest access.</string>
-  <string name="disable_guests_dialog_button">Not Allow Guests</string>
-  <!--block user dialog -->
-  <string name="block_user_dialog_title">Block user?</string>
-  <string name="block_user_dialog_body">%1$s won’t be able to contact you or add you to group conversations. They will not be notified about this.</string>
-  <string name="block_user_dialog_confirm_button">Block</string>
-  <string name="other_user_devices_description"><![CDATA[\Wire gives every device a unique fingerprint. Compare them with %1$s and verify your conversation. \]]></string>
-  <!--Settings -->
-  <string name="url_why_verify_conversation">/hc/en-us/articles/207859815</string>
-  <string name="settings_general_label">General</string>
-  <string name="settings_account_settings_label">Account Settings</string>
-  <string name="settings_devices_label">Devices</string>
-  <string name="settings_backups_label">Backups</string>
-  <string name="settings_others_label">OTHERS</string>
-  <string name="settings_your_account_label">Account Details</string>
-  <string name="settings_app_settings_label">App Settings</string>
-  <string name="settings_privacy_settings_label">Privacy Settings</string>
-  <string name="settings_network_settings_label">Network Settings</string>
-  <string name="settings_manage_devices_label">Manage your Devices</string>
-  <string name="settings_keep_connection_to_websocket">Keep Connection to Websocket</string>
-  <string name="settings_keep_connection_to_websocket_description">Improve receiving notifications by keeping a constant connection to %1$s. It will replace notification services if Google Services are not available on your device.</string>
-  <string name="settings_service_is_running">service is running</string>
-  <!--Settings, My Account -->
-  <string name="settings_myaccount_title">Account Data</string>
-  <string name="settings_myaccount_display_name">PROFILE NAME</string>
-  <string name="settings_myaccount_username">USERNAME</string>
-  <string name="settings_myaccount_email">EMAIL</string>
-  <string name="settings_myaccount_team">TEAM</string>
-  <string name="settings_myaccount_domain">DOMAIN</string>
-  <string name="settings_myaccount_reset_password">Reset Password</string>
-  <!--Settings, My Account > Display name -->
-  <string name="settings_myaccount_display_name_title">Your profile name</string>
-  <string name="settings_myaccount_display_name_description">People see your profile name in conversations, calls, and user search. It is not unique in Wire.</string>
-  <string name="settings_myaccount_display_name_error">Please enter your profile name</string>
-  <string name="settings_myaccount_display_name_exceeded_limit_error">Minimum of 1 and maximum of 64 characters</string>
-  <string name="settings_myaccount_display_name_updated">Your profile name changed</string>
-  <!--Privacy Settings -->
-  <string name="settings_send_read_receipts">Send read receipts</string>
-  <string name="settings_send_read_receipts_description">If this is OFF, you won’t be able to see read receipts from other people. This setting does not apply to group conversations.</string>
-  <!--Devices -->
-  <string name="devices_title">Your Devices</string>
-  <string name="current_device_label">Current Device</string>
-  <string name="other_devices_label">Other Devices</string>
-  <!--unblock user dialog -->
-  <string name="unblock_user_dialog_title">Unblock user?</string>
-  <string name="unblock_user_dialog_body">%1$s will be able to contact you or add you to group conversations. You will be able to access a 1:1 conversation with them.</string>
-  <string name="unblock_user_dialog_confirm_button">Unblock</string>
-  <!--max account reached dialog-->
-  <string name="max_account_reached_dialog_title">Three accounts active</string>
-  <string name="max_account_reached_dialog_message">You can only be logged in with three accounts at once. Log out from one to add another.</string>
-  <string name="max_account_reached_dialog_button_open_profile">Open Profile</string>
-  <string name="cant_switch_account_in_call">You can\'t switch accounts while in a call</string>
-  <string name="custom_backend_dialog_title">Redirect to an on-premises backend?</string>
-  <string name="custom_backend_dialog_body">If you proceed, your client will be redirected to the following on-premises backend:\n\nBackend name:\n%1$s\n\nBackend URL:\n%2$s</string>
-  <string name="label_fetching_your_messages">Receiving new messages</string>
-  <string name="label_text_copied">Text copied to clipboard</string>
-  <string name="label_logs_option_title">Logs</string>
-  <string name="label_share_logs">Share Logs</string>
-  <string name="label_delete_logs">Delete All Logs</string>
-  <string name="label_restart_slowsync_for_recovery">Restart SlowSync for Recovery</string>
-  <string name="label_mls_option_title">MLS DATA</string>
-  <string name="label_enable_logging">Enable Logging</string>
-  <string name="label_proteus_option_title">Proteus</string>
-  <string name="label_enable_encrypted_proteus_storage">Enable encrypted proteus storage</string>
-  <string name="label_debug_title">Debug</string>
-  <string name="label_client_option_title">Client ID</string>
-  <string name="label_device_id">Device ID: %1$s</string>
-  <string name="label_code_commit_id">Commit Hash: %1$s</string>
-  <string name="label_client_id">Client ID: %1$s</string>
-  <string name="label_client_added_time">ADDED</string>
-  <string name="label_client_device_id">DEVICE ID</string>
-  <string name="label_key_packages_count">Key-packages count: %1$s</string>
-  <string name="label_mls_client_id">MLS-client ID: %1$s</string>
-  <string name="conversation_empty_list_description">Connect with others or create a new group to start collaborating!</string>
-  <string name="conversation_empty_list_title">Welcome 👋</string>
-  <string name="label_no_conversation_found">No conversations could be found.</string>
-  <string name="label_connect_with_new_users">Connect with new users or start a new conversation</string>
-  <string name="label_reactions">Reactions</string>
-  <string name="label_more_comming_soon">(more coming soon)</string>
-  <string name="label_wait_until_synchronised">Please wait until the app is synchronized</string>
-  <string name="label_textfield_optional_password">Password (optional)</string>
-  <!--create and restore backup-->
-  <string name="backup_dialog_create_backup_set_password_title">Set password</string>
-  <string name="backup_dialog_create_backup_set_password_message">The backup will be compressed, and you can encrypt it with a password.</string>
-  <string name="backup_dialog_create_backup_now">Back Up Now</string>
-  <string name="backup_dialog_create_backup_title">Creating Backup</string>
-  <string name="backup_dialog_create_backup_subtitle">Saving conversations...</string>
-  <string name="backup_dialog_create_error_title">Something went wrong</string>
-  <string name="backup_dialog_create_error_subtitle">Backup could not be created. Please try again or contact Wire support.</string>
-  <string name="backup_label_conversation_successfully_saved">Conversations successfully saved</string>
-  <string name="backup_label_saving_conversations">Saving conversations</string>
-  <string name="backup_label_wrong_password">Wrong password</string>
-  <string name="backup_label_verify_input">Please verify your input and try again</string>
-  <string name="backup_dialog_restoring_backup_title">Restoring backup...</string>
-  <string name="backup_label_conversation_restored">Conversations have been restored</string>
-  <string name="backup_label_loading_conversations">Loading conversations</string>
-  <string name="backup_dialog_restore_backup_title">Restore from backup </string>
-  <string name="backup_dialog_restore_backup_message">The backup contents will replace the conversation history on this device. You can only restore history from a backup of the same platform.</string>
-  <string name="backup_dialog_choose_backup_file_option">Choose Backup File</string>
-  <string name="backup_label_enter_password">Enter password</string>
-  <string name="backup_dialog_restore_backup_password_message">This backup is password protected.</string>
-  <string name="send_feedback_choose_email">\"Select email provider:\"</string>
-  <string name="backup_dialog_create_backup_save">Save File</string>
-  <string name="backup_dialog_restore_incompatible_version_error_title">Incompatible backup</string>
-  <string name="backup_dialog_restore_incompatible_version_error_message">This backup was created by a newer or outdated version of Wire and cannot be restored here.</string>
-  <string name="backup_dialog_restore_wrong_user_error_title">Wrong backup file</string>
-  <string name="backup_dialog_restore_wrong_user_error_message">You cannot restore history from a different account.</string>
-  <string name="backup_dialog_restore_general_error_title">Something Went Wrong</string>
-  <string name="backup_dialog_restore_general_error_message">Your history could not be restored. Please try again or contact the Wire customer support.</string>
-  <string name="group_content_deleted">Group content was deleted</string>
-  <string name="conversation_content_deleted">Conversation content was deleted</string>
-  <string name="group_content_delete_failure">Group content could not be deleted</string>
-  <string name="conversation_content_delete_failure">Conversation content could not be deleted</string>
-  <string name="group_label">group</string>
-  <string name="conversation_label">conversation</string>
-  <string name="proxy_credential_description">This backend is configured to use the following proxy server: %1$s</string>
-  <string name="label_proxy_credentials">PROXY CREDENTIALS</string>
-  <string name="label_proxy_password">PROXY PASSWORD</string>
-  <string name="label_wire_credentials">WIRE CREDENTIALS</string>
-  <string name="dialog_clear_content_title">Clear content?</string>
-  <string name="dialog_clear_content_option">Clear content</string>
-  <string name="dialog_clear_content_text">\"This will clear the previous conversation history on all your devices. You remain in the %1$s and have access to all new %1$s activity</string>
-  <string name="not_supported_dialog_title">Not supported</string>
-  <string name="sso_not_supported_dialog_description">You can\'t log in via SSO on an on-premises backend with proxy support.</string>
-  <string name="create_personal_account_not_supported_dialog_description">You can\'t create a personal account on an on-premises backend with proxy support.</string>
-  <string name="create_team_not_supported_dialog_description">You can\'t create a new team on an on-premises backend with proxy support in the app.\nPlease use team management (%1$s) instead on this backend.</string>
-  <string name="to_team_management_action">Open Team Management</string>
-  <!-- Update App dialog -->
-  <string name="update_app_dialog_title">Update required</string>
-  <string name="update_app_dialog_body">You are missing out on new features. Update to the latest version of Wire to continue using the app with this account.</string>
-  <string name="update_app_dialog_button">Update</string>
-  <string name="cancel_login_button_label">Cancel</string>
-  <string name="cancel_login_dialog_description">If you cancel now, you will be logged out.</string>
-  <string name="cancel_login_dialog_title">Are you sure you want to cancel?</string>
-  <!-- session reset -->
-  <string name="label_system_message_session_reset">%1$s was unable to decrypt some of your messages but has solved the issue. This affected all conversations you share together.</string>
-  <string name="label_manual_migration_title">Migrate from version 3.82.38</string>
-  <string name="start_manual_migration">Start migration form version 3.82.38 manually</string>
-  <string name="file_sharing_restricted_learn_more_link">https://support.wire.com/hc/en-us/articles/4406404582673-How-can-I-restrict-file-sharing-for-my-team-</string>
-  <string name="file_sharing_restricted_description_by_team">You can not share this file because this feature is disabled for this account.</string>
-  <!-- join conversation dialog -->
-  <string name="join_conversation_dialog_title">Join conversation?</string>
-  <string name="join_conversation_dialog_message">You have been invited to a conversation.\n\n%1$s</string>
-  <string name="join_conversation_dialog_button">Join</string>
-  <string name="join_conversation_via_deeplink_error_title">Unable to join conversation</string>
-  <string name="join_conversation_via_deeplink_error_link_expired">The link to this group conversation expired or the conversation was set to private.</string>
-  <string name="join_conversation_via_deeplink_error_max_number_of_participent">The maximum number of participants in this conversation has been reached.</string>
-  <string name="join_conversation_via_deeplink_error_general">Due to an error you could not be added to the group conversation.</string>
-  <!-- guest room link -->
-  <string name="folder_label_guest_link">Guest link</string>
-  <string name="guest_link_description">Invite others with a link to this conversation. Anyone with the link can join the conversation, even if they don’t have Wire.</string>
-  <string name="guest_link_button_create_link">Create Link</string>
-  <string name="guest_link_button_copy_link">Copy Link</string>
-  <string name="guest_link_button_share_link">Share Link</string>
-  <string name="guest_link_button_revoke_link">Revoke Link</string>
-  <string name="audio_not_available">Audio not available</string>
-  <string name="audio_not_available_explanation">Something went wrong while downloading this audio file. Please ask the sender to upload it again</string>
-  <string name="guest_link_generate_error_message">There was an error trying to create Guest Link. Please try again</string>
-  <string name="guest_link_revoke_error_message">There was an error trying to revoke Guest Link. Please try again</string>
-  <string name="revoke_guest__room_link_dialog_text">New guests will not be able to join with this link. Current guests will still have access.</string>
-  <string name="revoke_guest__room_link_dialog_title">Revoke guest link?</string>
-  <string name="guest__room_link_copied">Guest link was copied to clipboard</string>
-  <string name="title_device_key_fingerprint">DEVICE KEY FINGERPRINT</string>
-  <string name="label_client_key_fingerprint_not_available">NOT AVAILABLE</string>
-  <string name="guest_room_link_copied">Guest link was copied to clipboard</string>
-  <string name="guest_room_link_enabled">Generating guest links is now enabled for all group admins</string>
-  <string name="guest_room_link_disabled">Generating guest links is now disabled for all group admins</string>
-  <!-- New Device dialog -->
-  <string name="new_device_dialog_current_user_title">Your account was used on</string>
-  <string name="new_device_dialog_current_user_message">%1$s\nFrom: %2$s \n\nIf you didn’t do this, remove the device and reset your password.</string>
-  <string name="new_device_dialog_current_user_btn">Manage Devices</string>
-  <string name="new_device_dialog_other_user_title">Your account “%1$s (@%2$s)” was used on:</string>
-  <string name="new_device_dialog_other_user_message">%1$s\nFrom: %2$s \n\nIf you didn’t do this, remove the device (navigate to “Manage Devices” in the Settings section of this account), and reset your password.</string>
-  <string name="new_device_dialog_other_user_btn">Switch Account</string>
-  <string name="label_system_message_joined_the_conversation_by_self">%1$s joined the conversation</string>
-  <string name="label_system_message_joined_the_conversation_by_other">%1$s joined the conversation</string>
-  <string name="label_client_verified">Verified</string>
-  <string name="label_client_unverified">Not Verified</string>
-  <string name="label_self_client_verification_description">To verify your own device, compare this key fingerprint with the same key fingerprint on another device.</string>
-  <string name="label_client_verification_description">Verify that this device fingerprint matches the fingerprint shown on %s’s device.</string>
-  <string name="label_fingerprint_description">If fingerprints don’t match, reset the session to generate new encryption keys on both sides.</string>
-  <string name="label_self_fingerprint_description">To let others verify this device, share this fingerprint or the QR code with them.</string>
-  <string name="unknown_user_name">unknown</string>
+    <string name="app_version">Versão do aplicativo: %s</string>
+    <string name="build_variant_name">Variante de compilação: %s</string>
+    <string name="label_new">Novo</string>
+    <string name="label_login">Entrar</string>
+    <string name="label_ok">OK</string>
+    <string name="label_cancel">Cancelar</string>
+    <string name="label_confirm">Confirmar</string>
+    <string name="label_continue">Continuar</string>
+    <string name="label_save">Salvar</string>
+    <string name="label_get_started">Começar</string>
+    <string name="label_remove">Remover</string>
+    <string name="label_proceed">Proceder</string>
+    <string name="label_leave">Sair</string>
+    <string name="label_add_device">Adicionar Dispositivo</string>
+    <string name="label_learn_more">Saiba mais</string>
+    <string name="label_removing">Removendo…</string>
+    <string name="label_logging_in">Entrando…</string>
+    <string name="label_membership_guest">Convidado</string>
+    <string name="label_membership_external">Externo</string>
+    <string name="label_membership_service">Serviço</string>
+    <string name="label_user_deleted">Excluído</string>
+    <string name="label_message_sent_failure">A mensagem não pôde ser enviada devido a problemas de conectividade.</string>
+    <string name="label_message_edit_sent_failure">A mensagem editada não pôde ser enviada devido a problemas de conectividade.</string>
+    <string name="label_message_sent_remotely_failure">A mensagem não pôde ser enviada, pois o backend %s parece estar offline.</string>
+    <string name="label_message_receive_failure">Erro de download</string>
+    <string name="label_message_decryption_failure_message">A mensagem não pôde ser descriptografada.</string>
+    <string name="label_message_decryption_failure_informative_message">Tente redefinir a sessão para gerar novas chaves de criptografia.</string>
+    <string name="label_message_knock">%s chamou</string>
+    <string name="label_try_again">Tentar novamente</string>
+    <string name="label_reset_session">Redefinir sessão</string>
+    <string name="label_reset_session_success">Sessão reiniciada com sucesso</string>
+    <string name="label_federated_membership">Federado</string>
+    <string name="label_update">Atualizar</string>
+    <string name="label_close">Fechar</string>
+    <string name="label_download">Download</string>
+    <string name="label_open_asset_externally">Open</string>
+    <string name="label_show">Mostrar</string>
+    <string name="label_show_all">Mostrar tudo</string>
+    <string name="label_show_less">Mostrar menos</string>
+    <string name="label_message_status_edited_with_date">Editado em %s</string>
+    <string name="label_on">Ligado</string>
+    <string name="label_off">Desligado</string>
+    <string name="label_value_copied">%s copiado</string>
+    <string name="label_disable">Desabilitar</string>
+    <string name="folder_label_access">Acesso</string>
+    <string name="folder_label_protocol_details">Detalhes do protocolo (beta)</string>
+    <string name="folder_label_messaging">Mensagens</string>
+    <string name="label_user_blocked">Bloqueado</string>
+    <string name="label_and">e</string>
+    <string name="label_retry">Tentar novamente</string>
+    <!-- Content descriptions https://wearezeta.atlassian.net/wiki/spaces/AR/pages/122520039/Code+Style+Guideline#Content-description-strings -->
+    <string name="content_description_app_logo">Logo do aplicativo</string>
+    <string name="content_description_reveal_password">Mostrar senha</string>
+    <string name="content_description_hide_password">Esconder senha</string>
+    <string name="content_description_search_back">Ícone de busca</string>
+    <string name="content_description_clear_content">Limpar conteúdo</string>
+    <string name="content_description_user_avatar">Imagem de perfil</string>
+    <string name="content_description_muted_conversation">Conversa silenciada</string>
+    <string name="content_description_check">Marca de seleção</string>
+    <string name="content_description_download_icon">Ícone de download</string>
+    <string name="content_description_open_asset_icon">Open icon</string>
+    <string name="content_description_add_to_favourite">Adicionar aos Favoritos</string>
+    <string name="content_description_move_to_folder">Mover para pasta</string>
+    <string name="content_description_move_to_archive">Arquivar</string>
+    <string name="content_description_block_the_user">Bloquear</string>
+    <string name="content_description_unblock_the_user">Desbloquear</string>
+    <string name="content_description_leave_the_group">Sair do grupo</string>
+    <string name="content_description_delete_the_group">Excluir o grupo</string>
+    <string name="content_description_conversation_phone_icon">Iniciar chamada de áudio</string>
+    <string name="content_description_welcome_wire_logo">Wire</string>
+    <string name="content_description_conversation_search_icon">Ícone de pesquisa na conversa</string>
+    <string name="content_description_conversation_enable_rich_text_mode">Habilitar modo de texto avançado</string>
+    <string name="content_description_conversation_send_emoticon">Enviar Emoticon</string>
+    <string name="content_description_conversation_send_gif">Enviar GIF</string>
+    <string name="content_description_conversation_mention_someone">Mencionar alguém</string>
+    <string name="content_description_new_conversation">Iniciar uma nova conversa</string>
+    <string name="content_description_back_button">Botão Voltar</string>
+    <string name="content_description_send_button">Enviar</string>
+    <string name="content_description_timed_message_button">Mensagens autodestrutivas, botão</string>
+    <string name="content_description_close_button">Botão Fechar</string>
+    <string name="content_description_menu_button">Navegação principal</string>
+    <string name="content_description_drop_down_icon">Seta para baixo</string>
+    <string name="content_description_remove_devices_screen_device_item_icon">Dispositivo</string>
+    <string name="content_description_remove_devices_screen_remove_icon">Remover dispositivo</string>
+    <string name="content_description_avatar_preview">Visualização da foto de perfil</string>
+    <string name="content_description_choose_from_gallery">Escolher da galeria</string>
+    <string name="content_description_take_a_picture">Tirar uma foto</string>
+    <string name="content_description_right_arrow">Seta para a direita</string>
+    <string name="content_description_left_arrow">Voltar</string>
+    <string name="content_description_mention_icon">Ícone de menção</string>
+    <string name="content_description_attachment_item">Anexar novo item à conversa</string>
+    <string name="content_description_open_message_details">Abrir detalhes da mensagem</string>
+    <string name="content_description_copy_the_message">Copiar a mensagem</string>
+    <string name="content_description_share_the_file">Compartilhar o arquivo selecionado com outro aplicativo</string>
+    <string name="content_description_delete_the_message">Apagar a mensagem</string>
+    <string name="content_description_edit_the_message">Editar a mensagem</string>
+    <string name="content_description_more_options">Mais opções</string>
+    <string name="content_description_add_contact">Adicionar contato</string>
+    <string name="content_description_image_message">Mensagem de imagem</string>
+    <string name="content_description_file_message">Mensagem de arquivo</string>
+    <string name="content_description_ping_everyone">Pingar todos</string>
+    <string name="content_description_calling_hang_up_call">Desligar a chamada</string>
+    <string name="content_description_calling_accept_call">Aceitar a chamada</string>
+    <string name="content_description_calling_decline_call">Recusar a chamada</string>
+    <string name="content_description_calling_flip_camera_on">Mudar para a câmera frontal</string>
+    <string name="content_description_calling_flip_camera_off">Mudar para a câmera traseira</string>
+    <string name="content_description_calling_participant_muted">Participante mudo</string>
+    <string name="content_description_calling_mute_call">Mutar a chamada</string>
+    <string name="content_description_calling_unmute_call">Desmutar a chamada</string>
+    <string name="content_description_calling_turn_camera_on">Ligar a câmera</string>
+    <string name="content_description_calling_turn_camera_off">Desligar a câmera</string>
+    <string name="content_description_calling_turn_speaker_on">Ligar o alto-falante</string>
+    <string name="content_description_calling_turn_speaker_off">Desligar o alto-falante</string>
+    <string name="content_description_show_more_options">Mostrar mais opções</string>
+    <string name="content_description_reply_to_messge">Responder a mensagem</string>
+    <string name="content_description_reply_cancel">Cancelar resposta da mensagem</string>
+    <string name="content_description_ping_message">Pingar a mensagem</string>
+    <string name="content_description_copy">Copiar</string>
+    <string name="content_description_edit">Editar</string>
+    <string name="content_description_calling_call_muted">Chamada muda</string>
+    <string name="content_description_calling_call_unmuted">Chamada não-muda</string>
+    <string name="content_description_calling_call_paused_camera">Câmera pausada</string>
+    <string name="content_description_more_emojis">Mais emojis</string>
+    <!-- Non translatable strings-->
+    <!-- Navigation -->
+    <string name="vault_screen_title">Cofre</string>
+    <string name="archive_screen_title">Arquivo</string>
+    <string name="user_profile_screen_title">Perfil do Usuário</string>
+    <string name="settings_screen_title">Configurações</string>
+    <string name="app_settings_screen_title">Configurações do aplicativo</string>
+    <string name="give_feedback_screen_title">Enviar feedback</string>
+    <string name="report_bug_screen_title">Reportar um bug</string>
+    <string name="debug_settings_screen_title">Configurações de depuração</string>
+    <string name="support_screen_title">Suporte</string>
+    <string name="backup_and_restore_screen_title">Fazer backup e restaurar conversas</string>
+    <string name="search_bar_conversations_hint">Procurar conversas</string>
+    <string name="search_no_results">Sem resultados</string>
+    <!-- Settings -->
+    <string name="settings_backups_group_title">Backups</string>
+    <string name="settings_other_group_title">Outros</string>
+    <string name="settings_backup_info">Crie um backup para preservar seu histórico de conversas. Você pode usar isso para restaurar o histórico se perder seu dispositivo ou mudar para um novo.
+
+Escolha uma senha forte para proteger o arquivo de backup.</string>
+    <string name="settings_backup_create">Criar um backup</string>
+    <string name="settings_backup_restore">Restaurar de um backup</string>
+    <!-- Welcome -->
+    <string name="welcome_footer_text">Quer conversar com amigos e familiares?</string>
+    <string name="welcome_footer_link">Crie uma conta privada gratuitamente</string>
+    <string name="welcome_button_create_personal_account">Criar uma conta pessoal</string>
+    <string name="welcome_screen_carousel_item_message_1">Bem-vindo ao Wire, a plataforma de colaboração mais segura!</string>
+    <string name="welcome_screen_carousel_item_message_2">Total confidência de que suas informações estão seguras</string>
+    <string name="welcome_screen_carousel_item_message_3">Áudio e videoconferencias com até 50 participantes</string>
+    <string name="welcome_screen_carousel_item_message_4">Compartilhamento seguro de arquivos com equipes e clientes</string>
+    <string name="welcome_screen_carousel_item_message_5">Wire é auditado independentemente e compatível com ISO, CCPA, GDPR, SOX</string>
+    <string name="welcome_button_create_team">Criar equipe</string>
+    <string name="server_details_dialog_body">Nome do Backend:
+%1$s
+
+URL do Backend:
+%2$s</string>
+    <string name="server_details_dialog_title">Backend local</string>
+    <string name="welcome_migration_dialog_title">Bem-vindo ao nosso novo aplicativo para Android 👋</string>
+    <string name="welcome_migration_dialog_content">Recriamos o aplicativo para torná-lo mais útil para todos.
+
+Descubra mais sobre o aplicativo da Wire - novas opções e melhor acessibilidade, com a mesma segurança.</string>
+    <string name="welcome_migration_dialog_continue">Começar a usar o Wire</string>
+    <!-- API Versioning Dialogs -->
+    <string name="api_versioning_client_update_required_title">Atualização necessária</string>
+    <string name="api_versioning_client_update_required_message">Você está perdendo novos recursos. Atualize para a versão mais recente do Wire para continuar a usar o aplicativo com esta conta.</string>
+    <string name="api_versioning_server_version_not_supported_title">Versão do servidor não suportada</string>
+    <string name="api_versioning_server_version_not_supported_message">Seu servidor do Wire precisa ser atualizado. Por favor, notifique o administrador do sistema.</string>
+    <!-- Migration -->
+    <string name="migration_title">Configurando o Wire</string>
+    <string name="migration_message">Por favor, aguarde enquanto configuramos o aplicativo para você</string>
+    <string name="migration_message_unknown">Por favor, aguarde enquanto migrarmos os dados para você</string>
+    <string name="migration_accounts_message">Migrando suas contas…</string>
+    <string name="migration_messages_message">Migrando suas mensagens…</string>
+    <string name="migration_title_step">Passo %1$d/%2$d</string>
+    <string name="migration_title_almost_done">Quase pronto!</string>
+    <string name="migration_title_updated">Configurando o Wire</string>
+    <string name="migration_login_required">Para migrar suas mensagens da versão antiga do Wire, você precisa entrar na sua conta.</string>
+    <string name="migration_login_required_specific_account">Para migrar suas mensagens da versão antiga do Wire, você precisa entrar na sua conta %s.</string>
+    <string name="migration_login_required_specific_account_name">%1$s (@%2$s)</string>
+    <string name="migration_messages_failure">Infelizmente, nem todas as mensagens e conversas puderam ser migradas devido à incompatibilidade com a versão antiga do Wire (código de erro: %s)</string>
+    <string name="migration_cancel_title">Cancelar a migração</string>
+    <string name="migration_cancel_message">Tem certeza de que deseja fechar o aplicativo e cancelar a migração em andamento?</string>
+    <!-- Login -->
+    <string name="login_title">Entrar</string>
+    <string name="login_forgot_password">Esqueceu a senha?</string>
+    <string name="login_user_identifier_placeholder">jane@exemplo.com ou jane.doe</string>
+    <string name="login_user_identifier_label">E-MAIL OU USUÁRIO</string>
+    <string name="login_proxy_identifier_label">E-MAIL OU USUÁRIO DE PROXY</string>
+    <string name="login_error_invalid_credentials_title">Informações inválidas</string>
+    <string name="login_error_invalid_credentials_message">As credenciais da conta estão incorretas. Por favor, verifique seus detalhes e tente novamente.</string>
+    <string name="login_error_invalid_user_identifier">Este e-mail ou nome de usuário é inválido. Por favor, verifique e tente novamente.</string>
+    <string name="login_error_user_already_logged_in_title">Conta em uso</string>
+    <string name="login_error_user_already_logged_in_message">Você já está logado com essas credenciais neste dispositivo.</string>
+    <string name="login_sso_error_invalid_cookie_title">Cookie inválido!</string>
+    <string name="login_sso_error_invalid_cookie_message">A sessão é inválida ou expirou! Por favor, tente fazer login novamente.</string>
+    <string name="login_password_placeholder">Senha</string>
+    <string name="login_password_label">SENHA</string>
+    <string name="login_tab_email">E-MAIL</string>
+    <string name="login_tab_sso">LOGIN SSO</string>
+    <string name="login_sso_code_placeholder">wire-</string>
+    <string name="login_sso_code_label">CÓDIGO SSO</string>
+    <string name="login_error_invalid_sso_code">Por favor, insira um código SSO válido.</string>
+    <string name="login_error_invalid_sso_code_format">Insira um código SSO válido</string>
+    <string name="deleted_user_error_title">Conta excluída</string>
+    <string name="deleted_user_error_message">Você foi desconectado porque sua conta foi excluída.</string>
+    <string name="removed_client_error_title">Dispositivo removido</string>
+    <string name="removed_client_error_message">Você foi desconectado porque seu dispositivo foi removido.</string>
+    <string name="session_expired_error_title">Sessão expirada</string>
+    <string name="session_expired_error_message">O aplicativo não se comunicou com o servidor por um longo período de tempo, ou sua sessão foi invalidada remotamente.</string>
+    <string name="conversation_history_wipe_explanation">De acordo com as configurações de segurança da sua equipe, seu histórico de conversas também foi excluído.</string>
+    <!-- Second Factor Authentication -->
+    <string name="second_factor_authentication_title">Verifique sua conta</string>
+    <string name="second_factor_authentication_instructions_label">Digite o código de verificação enviado para o e-mail %1$s</string>
+    <string name="second_factor_code_error">Código inválido ou tentativas máximas excedidas. Por favor, tente novamente ou solicite outro código.</string>
+    <!-- Remove Device -->
+    <string name="remove_device_title">Remover um dispositivo</string>
+    <string name="remove_device_message">Remova um dos seus outros dispositivos para começar a usar o Wire neste aparelho.</string>
+    <string name="remove_device_label">SEUS DISPOSITIVOS</string>
+    <string name="remove_device_id_and_time_label">ID: %1$s
+Adicionado: %2$s</string>
+    <string name="remove_device_id_label">ID: %1$s</string>
+    <string name="remove_device_dialog_title">Remover o seguinte dispositivo?</string>
+    <string name="remove_device_invalid_password">Senha inválida</string>
+    <string name="remove_device_details_description">Remova este dispositivo se você parou de usá-lo. Você será desconectado imediatamente deste dispositivo.</string>
+    <string name="remove_device_details_description_with_wipe">Remova seu dispositivo se você parou de usá-lo. De acordo com as configurações de segurança da sua equipe, seu histórico de conversas também será excluído.</string>
+    <!-- Register Device -->
+    <string name="register_device_title">Adicionar este dispositivo</string>
+    <string name="register_device_text">Digite sua senha para usar o Wire neste dispositivo.</string>
+    <!-- Delete Message -->
+    <string name="delete_message_dialog_title">Excluir mensagem?</string>
+    <string name="delete_message_dialog_message">Se você excluir a mensagem para si mesmo, ela só será visível para outros participantes.
+
+Se você excluí-la para todos, a mensagem será removida para todos os participantes.
+
+Uma mensagem excluída não pode ser restaurada.</string>
+    <string name="label_delete_for_me">Excluir para mim</string>
+    <string name="label_delete_for_everyone">Excluir para todos</string>
+    <string name="delete_message_for_yourself_dialog_title">Excluir esta mensagem para você mesmo?</string>
+    <string name="delete_message_for_yourself_dialog_message">Se você excluir a mensagem para si mesmo, ela só será visível para outros participantes.
+
+Uma mensagem excluída não pode ser restaurada.</string>
+    <string name="deleted_message_text">Mensagem excluída</string>
+    <!-- Replies/Quotes to other messages -->
+    <string name="label_quote_invalid_or_not_found">Você não pode ver esta mensagem</string>
+    <string name="label_quote_original_message_is_a_picture">Imagem</string>
+    <string name="label_quote_original_message_date">Mensagem original de %s</string>
+    <!-- Create Account -->
+    <string name="create_personal_account_title">Criar uma Conta Pessoal</string>
+    <string name="create_personal_account_summary_title">Conta Pessoal Criada</string>
+    <string name="create_personal_account_text">Converse com segurança com amigos e familiares usando o servidor de nuvem público do Wire.</string>
+    <string name="create_personal_account_email_text">Digite seu e-mail para começar a usar a plataforma de colaboração mais segura.</string>
+    <string name="create_personal_account_details_text">Digite seus detalhes pessoais:</string>
+    <string name="create_personal_account_summary_text">Você criou sua conta pessoal com sucesso. Comece a se comunicar com segurança - onde quer que esteja!</string>
+    <string name="create_team_title">Criar uma Equipe</string>
+    <string name="create_team_summary_title">Equipe Criada</string>
+    <string name="create_team_content_title">Wire Grátis</string>
+    <string name="create_team_text">Mensagens para pequenas organizações ou empresas de consultoria de uma pessoa.</string>
+    <string name="create_team_learn_more">Saiba mais sobre planos e preços</string>
+    <string name="create_team_email_text">Digite seu email para criar sua equipe:</string>
+    <string name="create_team_details_text">Digite seu email para criar sua equipe:</string>
+    <string name="create_team_summary_text">Sua conta de equipe foi criada com sucesso. Comece a se comunicar com segurança - onde quer que esteja!</string>
+    <string name="create_account_email_placeholder">maria@exemplo.org</string>
+    <string name="create_account_email_label">EMAIL</string>
+    <string name="create_account_email_footer_text">Já possui uma conta?</string>
+    <string name="create_account_email_terms_dialog_title">Termos de Uso</string>
+    <string name="create_account_email_terms_dialog_text">Ao clicar em continuar, você concorda com nossos Termos de Uso e Política de Privacidade.</string>
+    <string name="create_account_email_terms_dialog_view_policy">Ver Termos de Uso e Política de Privacidade</string>
+    <string name="create_account_email_already_in_use_error">Este endereço de email já está em uso.</string>
+    <string name="create_account_email_blacklisted_error">Seu email foi identificado como não confiável, por exemplo, devido a uma rejeição por um filtro anti-spam.</string>
+    <string name="create_account_email_invalid_error">Por favor, insira um formato válido de email.</string>
+    <string name="create_account_email_domain_blocked_error">Você não pode criar esta conta, pois o seu domínio de email está bloqueado.</string>
+    <string name="create_account_details_first_name_placeholder">Maria</string>
+    <string name="create_account_details_first_name_label">NOME</string>
+    <string name="create_account_details_last_name_placeholder">Silva</string>
+    <string name="create_account_details_last_name_label">SOBRENOME</string>
+    <string name="create_account_details_team_name_placeholder">Time Incrível</string>
+    <string name="create_account_details_team_name_label">NOME DA EQUIPE</string>
+    <string name="create_account_details_password_description">Use pelo menos 8 caracteres, com uma letra minúscula, uma letra maiúscula, um número e um caractere especial.</string>
+    <string name="create_account_details_password_error">Senha inválida</string>
+    <string name="create_account_details_password_not_matching_error">As senhas não se correspondem</string>
+    <string name="create_account_details_confirm_password_label">CONFIRMAR SENHA</string>
+    <string name="create_account_code_text">Por favor, verifique seu email %1$s para o código de verificação e insira abaixo.</string>
+    <string name="create_account_code_resend">Reenviar código</string>
+    <string name="create_account_code_error">Código inválido ou máximo de tentativas atingido. Por favor, tente novamente ou solicite outro código.</string>
+    <string name="create_account_code_error_title">Informação inválida</string>
+    <string name="create_account_code_error_team_members_limit_reached">Esta equipe atingiu seu limite de membros.</string>
+    <string name="create_account_code_error_personal_account_creation_restricted">Esta versão de aplicativo não permite a criação de contas pessoais.</string>
+    <string name="create_account_code_error_team_creation_restricted">This application version does not allow creation of teams.</string>
+    <string name="create_account_username_title">Seu nome de usuário</string>
+    <string name="create_account_username_placeholder">maria.silva</string>
+    <string name="create_account_username_label">NOME DE USUÁRIO</string>
+    <string name="create_account_username_text">Digite seu nome de usuário. Isso ajuda outras pessoas a te encontrarem e conectarem contigo no Wire.</string>
+    <string name="create_account_username_taken_error">Esse nome de usuário já está sendo usado. Por favor escolha outro.</string>
+    <string name="create_account_username_description">Ao menos 2 caracteres, a-z, 0-9, e _</string>
+    <!-- Conversations -->
+    <string name="calls_label_missed_calls">CHAMADAS PERDIDAS</string>
+    <string name="calls_label_calls_history">HISTÓRICO DE CHAMADAS</string>
+    <string name="conversation_label_new_activity">NOVA ATIVIDADE</string>
+    <string name="conversation_label_favorites">FAVORITOS</string>
+    <string name="conversation_label_conversations">CONVERSAS</string>
+    <string name="mention_label_unread_mentions">MENÇÕES NÃO-LIDAS</string>
+    <string name="mention_label_all_mentions">TODAS AS MENÇÕES</string>
+    <string name="label_message_status_deleted">Deletada</string>
+    <string name="label_message_status_edited">Editada</string>
+    <string name="conversations_screen_title">Conversas</string>
+    <string name="conversations_all_tab_title">Todas</string>
+    <string name="conversations_calls_tab_title">Chamadas</string>
+    <string name="conversations_mentions_tab_title">Menções</string>
+    <string name="sent_a_message_with_content">enviou uma mensagem com conteúdo de %s</string>
+    <string name="sent_a_message_with_unknown_content">sent a message with unknown content</string>
+    <string name="new_group_title">Novo Grupo</string>
+    <string name="new_group_description">Até 500 pessoas podem participar de uma conversa.</string>
+    <string name="group_name_title">Nome do Grupo</string>
+    <string name="group_name_placeholder">Digite um nome</string>
+    <string name="group_name_description">Dê um nome ao grupo.</string>
+    <string name="protocol">Protocolo</string>
+    <string name="mls">MLS</string>
+    <string name="cipher_suite">Cipher Suite</string>
+    <string name="last_key_material_update_label">Última atualização de material criptográfico</string>
+    <string name="group_state_label">Estado do Grupo</string>
+    <string name="empty_group_name_error">Por favor, insira um nome para o grupo</string>
+    <string name="group_name_exceeded_limit_error">O nome do grupo não deve exceder 64 caracteres</string>
+    <string name="asset_message_tap_to_download_text">Toque para baixar</string>
+    <string name="asset_message_upload_in_progress_text">Fazendo upload…</string>
+    <string name="asset_message_download_in_progress_text">Baixando…</string>
+    <string name="asset_message_downloaded_internally_text">Baixado</string>
+    <string name="asset_message_saved_externally_text">Salvo</string>
+    <string name="asset_message_failed_download_text">Arquivo não disponível</string>
+    <string name="asset_message_failed_upload_text">Falha ao enviar o arquivo</string>
+    <string name="asset_download_dialog_text">Você quer abrir o arquivo ou salvá-lo na pasta de download do dispositivo?</string>
+    <string name="asset_download_dialog_open_text">Abrir</string>
+    <string name="asset_download_dialog_save_text">Salvar</string>
+    <string name="member_name_deleted_label">Conta deletada</string>
+    <string name="member_name_you_label_titlecase">Você</string>
+    <string name="member_name_you_label_lowercase">você</string>
+    <string name="label_add_participants">Adicionar participantes</string>
+    <string name="username_unavailable_label">Nome de usuário indisponível</string>
+    <string name="conversation_details_title">Detalhes da Conversa</string>
+    <string name="conversation_details_options_tab">OPÇÕES</string>
+    <string name="conversation_details_participants_tab">PARTICIPANTES</string>
+    <string name="conversation_details_options_group_name">NOME DO GRUPO</string>
+    <string name="conversation_details_group_admins">ADMINISTRADORES DO GRUPO (%d)</string>
+    <string name="conversation_details_group_members">MEMBROS DO GRUPO (%d)</string>
+    <string name="conversation_details_participants_info">Este grupo tem %s participantes.
+Até 500 pessoas podem participar de uma conversa em grupo.</string>
+    <string name="conversation_details_show_all_participants">Mostrar todos os participantes (%d)</string>
+    <string name="conversation_details_group_participants_title">Participantes do Grupo</string>
+    <string name="conversation_details_group_participants_add">Adicionar participantes</string>
+    <string name="conversation_participant_you_label">(Você)</string>
+    <string name="conversation_details_is_classified">NÍVEL DE SEGURANÇA: VS-NfD</string>
+    <string name="conversation_details_is_not_classified">DETALHES DA CONVERSA: NÍVEL DE SEGURANÇA: NÃO CONFIDENCIAL</string>
+    <string name="conversation_options_guests_label">Convidados</string>
+    <string name="conversation_details_guest_description">Quando isso está LIGADO, pessoas de fora do seu time podem se juntar a essa conversa</string>
+    <string name="conversation_options_guest_description">Ative essa opção para abrir essa conversa para pessoas fora do seu time, mesmo que elas não tenham o Wire.</string>
+    <string name="conversation_options_guest_not_editable_description">Você não pode desativar a opção de convidado nesta conversa, pois ela foi criada por alguém de outro time.</string>
+    <string name="conversation_options_services_label">Serviços</string>
+    <string name="conversation_options_services_description">Ative essa opção para abrir essa conversa para serviços.</string>
+    <string name="conversation_options_renamed">Conversa renomeada</string>
+    <string name="disable_guest_dialog_title">Desativar acesso de convidado?</string>
+    <string name="disable_guest_dialog_text">Os convidados atuais serão removidos da conversa. Novos convidados não serão permitidos.</string>
+    <string name="disable_services_dialog_title">Desativar acesso de serviços?</string>
+    <string name="disable_services_dialog_text">Os serviços atuais serão removidos da conversa. Novos serviços não serão permitidos.</string>
+    <string name="leave_group_conversation_menu_item">Sair do Grupo…</string>
+    <string name="leave_group_conversation_dialog_title">Sair de \"%s\"?</string>
+    <string name="leave_group_conversation_dialog_description">Você não poderá mais enviar ou ler mensagens nesse grupo em nenhum dispositivo.</string>
+    <string name="delete_group_conversation_menu_item">Deletar Grupo…</string>
+    <string name="delete_group_conversation_dialog_title">Remover \"%s\"?</string>
+    <string name="delete_group_conversation_dialog_description">O grupo será removido da sua lista de conversas em todos os dispositivos. Você não poderá mais acessar o grupo e seu conteúdo.</string>
+    <!-- Import/Export External Media -->
+    <string name="import_media_content_title">Compartilhar com o Wire</string>
+    <string name="import_media_searchbar_title">Buscar conversa</string>
+    <string name="import_media_send_button_title">Enviar</string>
+    <string name="export_media_subject_title">Compartilhando mídia do Wire</string>
+    <!--Read receipts -->
+    <string name="conversation_options_read_receipt_label">Confirmações de leitura</string>
+    <string name="conversation_options_read_receipt_description">Quando isso está ativado, as pessoas podem ver quando suas mensagens nesta conversa são lidas.</string>
+    <!-- Messages -->
+    <string name="message_details_title">Detalhes da mensagem</string>
+    <string name="message_details_reactions_tab">REAÇÕES (%s)</string>
+    <string name="message_details_read_receipts_tab">CONFIRMAÇÕES DE LEITURA (%s)</string>
+    <string name="message_details_reactions_empty_text">Ninguém reagiu a esta mensagem ainda 😱</string>
+    <string name="message_details_reactions_empty_learn_more">Saiba mais sobre as reações</string>
+    <string name="message_details_read_receipts_empty_text">Ninguém leu esta mensagem ainda 👀</string>
+    <string name="message_details_read_receipts_empty_learn_more">Saber mais sobre recibos de leitura</string>
+    <!-- Attachment options -->
+    <string name="attachment_share_file">Enviar arquivo</string>
+    <string name="attachment_share_image">Enviar imagem</string>
+    <string name="attachment_take_photo">Tirar foto</string>
+    <string name="attachment_record_video">Gravar vídeo</string>
+    <string name="attachment_voice_message">Mensagem de áudio</string>
+    <string name="attachment_share_location">Compartilhar localização</string>
+    <!-- User Profile -->
+    <string name="user_profile_title">Perfil do usuário</string>
+    <string name="user_profile_close_description">Fechar perfil do usuário</string>
+    <string name="user_profile_logout">Sair</string>
+    <string name="user_profile_other_accs">Suas outras contas</string>
+    <string name="user_profile_status_availability">Disponibilidade</string>
+    <string name="user_profile_status_available">Disponível</string>
+    <string name="user_profile_status_busy">Ocupado</string>
+    <string name="user_profile_status_away">Ausente</string>
+    <string name="user_profile_status_none">Nenhum</string>
+    <string name="user_profile_new_account_text">Nova equipe ou conta</string>
+    <string name="user_profile_details_tab">Detalhes</string>
+    <string name="user_profile_devices_tab">Dispositivos</string>
+    <string name="user_profile_group_tab">Grupo</string>
+    <string name="user_profile_group_member">Membro do grupo \"%s\"</string>
+    <string name="user_profile_group_role">FUNÇÃO</string>
+    <string name="user_profile_role_in_group">Função em \"%s\"</string>
+    <string name="user_profile_role_change_error">Houve um erro ao tentar alterar a função. Por favor, verifique sua conexão com a internet e tente novamente</string>
+    <string name="user_profile_unblock_user">Desbloquear usuário</string>
+    <string name="user_profile_group_remove_button">Remover do grupo</string>
+    <!-- Remove Conversation Member Dialog -->
+    <string name="dialog_remove_conversation_member_title">Remover do grupo?</string>
+    <string name="dialog_remove_conversation_member_description">%1$s (@%2$s) não poderá enviar nem receber mensagens nesta conversa.</string>
+    <string name="dialog_remove_conversation_member_error">Houve um erro ao remover o participante do grupo</string>
+    <string name="group_role_admin">Administrador</string>
+    <string name="group_role_member">Membro</string>
+    <!-- Logout Wipe Data Dialog -->
+    <string name="dialog_logout_wipe_data_title">Limpar Dados?</string>
+    <string name="dialog_logout_wipe_data_checkbox">Excluir todas as suas informações pessoais e conversas deste dispositivo</string>
+    <!-- User Profile status dialog-->
+    <string name="user_profile_change_status_dialog_available_title">Definir-se como Disponível</string>
+    <string name="user_profile_change_status_dialog_available_text">Você aparecerá como Disponível para outras pessoas. Você receberá notificações para chamadas recebidas e mensagens de acordo com as configurações de notificação em cada conversa.</string>
+    <string name="user_profile_change_status_dialog_busy_title">Definir-se como Ocupado</string>
+    <string name="user_profile_change_status_dialog_busy_text">Você aparecerá como Ocupado para outras pessoas. Você receberá apenas notificações para menções, respostas e chamadas em conversas não silenciadas.</string>
+    <string name="user_profile_change_status_dialog_away_title">Definir-se como Ausente</string>
+    <string name="user_profile_change_status_dialog_away_text">Você aparecerá como Ausente para outras pessoas. Você não receberá notificações sobre chamadas ou mensagens recebidas.</string>
+    <string name="user_profile_change_status_dialog_none_title">Nenhum status definido</string>
+    <string name="user_profile_change_status_dialog_none_text">Você receberá notificações para chamadas recebidas e mensagens de acordo com as configurações de notificação em cada conversa.</string>
+    <string name="user_profile_change_status_dialog_checkbox_text">Não mostrar esta informação novamente</string>
+    <!-- Conversations BottomSheet -->
+    <string name="label_notifications">Notificações</string>
+    <string name="label_add_to_favourites">Adicionar aos Favoritos</string>
+    <string name="label_move_to_folder">Mover para Pasta</string>
+    <string name="label_move_to_archive">Mover para Arquivo</string>
+    <string name="label_clear_content">Limpar Conteúdo…</string>
+    <string name="label_block">Bloquear</string>
+    <string name="label_unblock">Desbloquear</string>
+    <string name="label_leave_group">Sair do Grupo</string>
+    <string name="label_delete_group">Excluir Grupo</string>
+    <!-- Muting options BottomSheet -->
+    <string name="muting_option_all_allowed_title">Tudo</string>
+    <string name="muting_option_all_allowed_text">Receber notificações para esta conversa sobre tudo (incluindo chamadas de áudio e vídeo)</string>
+    <string name="muting_option_only_mentions_title">Menções e Respostas</string>
+    <string name="muting_option_only_mentions_text">Receber apenas notificações para esta conversa quando alguém mencionar ou responder a você</string>
+    <string name="muting_option_all_muted_title">Nada</string>
+    <string name="muting_option_all_muted_text">Não receber nenhuma notificação para esta conversa</string>
+    <!--Profile image-->
+    <string name="profile_image_top_bar_label">Foto de perfil</string>
+    <string name="profile_image_modal_sheet_header_title">Mudar Imagem</string>
+    <string name="profile_image_choose_from_gallery_menu_item">Escolher da Galeria</string>
+    <string name="profile_image_take_a_picture_menu_item">Tirar uma foto</string>
+    <string name="profile_image_change_image_button_label">Mudar foto…</string>
+    <!--Conversation-->
+    <string name="label_message_details">Detalhes da mensagem</string>
+    <string name="label_copy">Copiar</string>
+    <string name="label_share">Compartilhar</string>
+    <string name="label_edit">Editar</string>
+    <string name="label_delete">Excluir</string>
+    <string name="info_message_copied">Mensagem copiada</string>
+    <string name="conversation_banner_federated_externals_guests_services_present">Usuários federados, externos, convidados e serviços estão presentes</string>
+    <string name="conversation_banner_federated_externals_guests_present">Usuários federados, externos e convidados estão presentes</string>
+    <string name="conversation_banner_federated_externals_services_present">Usuários federados, externos e serviços estão presentes</string>
+    <string name="conversation_banner_federated_guests_services_present">Usuários federados, convidados e serviços estão presentes</string>
+    <string name="conversation_banner_federated_services_present">Usuários federados e serviços estão presentes</string>
+    <string name="conversation_banner_federated_guests_present">Usuários federados e convidados estão presentes</string>
+    <string name="conversation_banner_federated_externals_present">Usuários federados e externos estão presentes</string>
+    <string name="conversation_banner_externals_guests_services_present">Externos, convidados e serviços estão presentes</string>
+    <string name="conversation_banner_externals_services_present">Externos e serviços estão presentes</string>
+    <string name="conversation_banner_externals_guests_present">Externos e convidados estão presentes</string>
+    <string name="conversation_banner_guests_services_present">Convidados e serviços estão presentes</string>
+    <string name="conversation_banner_federated_present">Usuários federados estão presentes</string>
+    <string name="conversation_banner_guests_present">Convidados estão presentes</string>
+    <string name="conversation_banner_externals_present">Externos estão presentes</string>
+    <string name="conversation_banner_services_active">Serviços estão ativos</string>
+    <!-- System messages -->
+    <string name="label_system_message_added_by_self">%1$s adicionou %2$s à conversa</string>
+    <string name="label_system_message_removed_by_self">%1$s removeu %2$s da conversa</string>
+    <string name="label_system_message_added_by_other">%1$s adicionou %2$s à conversa</string>
+    <string name="label_system_message_removed_by_other">%1$s removeu %2$s da conversa</string>
+    <string name="label_system_message_left_the_conversation_by_self">%1$s deixou a conversa</string>
+    <string name="label_system_message_left_the_conversation_by_other">%1$s deixou a conversa</string>
+    <string name="label_system_message_other_called">%1$s ligou</string>
+    <string name="label_system_message_you_called">%1$s chamou</string>
+    <string name="label_system_message_and">%1$s e %2$s</string>
+    <plurals name="label_system_message_x_more">
+        <item quantity="one">mais %1$d</item>
+        <item quantity="other">%1$d more</item>
+    </plurals>
+    <string name="label_system_message_blocked_user">%1$s bloqueou este usuário</string>
+    <string name="label_system_message_renamed_the_conversation">%1$s renomeou a conversa %2$s</string>
+    <string name="label_system_message_team_member_left">%1$s foi removido da equipe</string>
+    <string name="label_system_message_user_not_available">Este usuário não está mais disponível</string>
+    <string name="label_system_message_new_conversation_receipt_mode">As confirmações de leitura estão %1$s</string>
+    <string name="label_system_message_read_receipt_changed_by_self">%1$s ativou as confirmações de leitura para %2$s</string>
+    <string name="label_system_message_read_receipt_changed_by_other">%1$s ativou as confirmações de leitura para %2$s</string>
+    <string name="label_system_message_conversation_history_lost">Você não usou este dispositivo por um tempo. Algumas mensagens podem não aparecer aqui.</string>
+    <string name="label_system_message_receipt_mode_on">ativadas</string>
+    <string name="label_system_message_receipt_mode_off">desativadas</string>
+    <!-- Last messages -->
+    <plurals name="last_message_self_added_users">
+        <item quantity="one">Você adicionou uma pessoa à conversa</item>
+        <item quantity="other">Você adicionou %1$d pessoas à conversa</item>
+    </plurals>
+    <string name="last_message_other_added_only_self_user">Você foi adicionado à conversa</string>
+    <plurals name="last_message_other_added_self_user">
+        <item quantity="one">Você e uma outra pessoa foram adicionados à conversa</item>
+        <item quantity="other">Você e %1$d pessoas foram adicionadas à conversa</item>
+    </plurals>
+    <plurals name="last_message_other_added_other_users">
+        <item quantity="one">Uma pessoa foi adicionada à conversa</item>
+        <item quantity="other">%1$d pessoas foram adicionadas à conversa</item>
+    </plurals>
+    <plurals name="last_message_self_removed_users">
+        <item quantity="one">Você removeu uma pessoa da conversa</item>
+        <item quantity="other">Você removeu %1$d pessoas da conversa</item>
+    </plurals>
+    <string name="last_message_other_removed_only_self_user">Você foi removido da conversa</string>
+    <plurals name="last_message_other_removed_self_user_and_others">
+        <item quantity="one">Você e uma outra pessoa foram removidos da conversa</item>
+        <item quantity="other">Você e %1$d pessoas foram removidos da conversa</item>
+    </plurals>
+    <plurals name="last_message_other_removed_other_users">
+        <item quantity="one">Uma pessoa foi removida da conversa</item>
+        <item quantity="other">%1$d pessoas foram removidas da conversa</item>
+    </plurals>
+    <string name="last_message_self_user_shared_asset">compartilhou um arquivo de mídia</string>
+    <string name="last_message_other_user_shared_asset">compartilhou um arquivo de mídia</string>
+    <string name="last_message_self_user_shared_image">compartilhou uma imagem</string>
+    <string name="last_message_other_user_shared_image">compartilhou uma imagem</string>
+    <string name="last_message_self_user_shared_video">compartilhou um vídeo</string>
+    <string name="last_message_other_user_shared_video">compartilhou um vídeo</string>
+    <string name="last_message_self_user_shared_audio">compartilhou uma mensagem de áudio</string>
+    <string name="last_message_other_user_shared_audio">compartilhou uma mensagem de áudio</string>
+    <string name="last_message_self_user_knock">pingou</string>
+    <string name="last_message_other_user_knock">pingou</string>
+    <string name="last_message_call">chamou</string>
+    <string name="last_message_mentioned">mencionou você</string>
+    <string name="last_message_replied">respondeu a você</string>
+    <string name="last_message_other_changed_conversation_name">alterou o nome da conversa</string>
+    <string name="last_message_self_changed_conversation_name">alterou o nome da conversa</string>
+    <string name="last_message_calling">%1$s está ligando…</string>
+    <string name="last_message_self_user_joined_conversation">entrou na conversa</string>
+    <string name="last_message_self_user_left_conversation">saiu da conversa</string>
+    <string name="last_message_other_user_joined_conversation">entrou na conversa</string>
+    <string name="last_message_other_user_left_conversation">saiu da conversa</string>
+    <!-- Unread Events -->
+    <plurals name="unread_event_knock">
+        <item quantity="one">%1$d ping</item>
+        <item quantity="other">%1$d pings</item>
+    </plurals>
+    <plurals name="unread_event_call">
+        <item quantity="one">%1$d chamada perdida</item>
+        <item quantity="other">%1$d chamadas perdidads</item>
+    </plurals>
+    <plurals name="unread_event_mention">
+        <item quantity="one">%1$d menção</item>
+        <item quantity="other">%1$d menções</item>
+    </plurals>
+    <plurals name="unread_event_reply">
+        <item quantity="one">%1$d respsota</item>
+        <item quantity="other">%1$d respostas</item>
+    </plurals>
+    <plurals name="unread_event_message">
+        <item quantity="one">%1$d mensagem</item>
+        <item quantity="other">%1$d mensagens</item>
+    </plurals>
+    <!--Search Contact-->
+    <string name="label_contacts">CONTATOS</string>
+    <string name="label_new_group">Novo Grupo</string>
+    <string name="label_new_conversation">Nova Conversa</string>
+    <string name="label_search_people">Procurar pessoas</string>
+    <string name="label_public_wire">WIRE PÚBLICO</string>
+    <string name="label_search_people_instruction">Pesquise pessoas pelo seu nome de perfil ou @nome.de.usuario</string>
+    <string name="label_learn_more_searching_user">Saiba mais</string>
+    <string name="label_no_results_found">Não foi possível encontrar nenhum resultado. Por favor, tente novamente.</string>
+    <string name="label_general_error">Algo deu errado</string>
+    <!-- Snackbar messages -->
+    <string name="error_unknown_title">Algo deu errado</string>
+    <string name="error_unknown_message">Por favor, tente novamente.</string>
+    <string name="error_server_miscommunication_title">Erro do servidor</string>
+    <string name="error_server_miscommunication_message">Por favor, tente novamente.</string>
+    <string name="error_socket_title">Informação inválida</string>
+    <string name="error_socket_message">As credenciais do proxy estão incorretas. Por favor, verifique suas informações e tente novamente.</string>
+    <string name="error_no_network_title">Aguardando conexão</string>
+    <string name="error_no_network_message">Por favor, verifique sua conexão com a Internet e tente novamente.</string>
+    <string name="error_downloading_self_user_profile_picture">Ocorreu um erro ao baixar a sua foto de perfil. Por favor, verifique sua conexão com a Internet.</string>
+    <string name="error_uploading_user_avatar">A imagem não pôde ser enviada.</string>
+    <string name="error_uploading_image_message">Falha no envio da imagem.</string>
+    <string name="error_downloading_image_message">Falha no download da imagem.</string>
+    <string name="error_updating_muting_setting">As notificações não puderam ser atualizadas.</string>
+    <string name="error_conversation_sending_image">A imagem não pôde ser enviada. Verifique sua conexão com a Internet e tente novamente.</string>
+    <string name="error_conversation_sending_asset">Houve um erro tentando enviar esse arquivo. Verifique sua conexão com a Internet e tente novamente.</string>
+    <string name="error_conversation_downloading_asset">Houve um erro ao tentar baixar esse arquivo. Por favor, tente novamente.</string>
+    <string name="error_conversation_opening_asset_file">Nenhum aplicativo foi encontrado para abrir o arquivo selecionado.</string>
+    <string name="error_conversation_deleting_message">Não foi possível excluir a mensagem.</string>
+    <string name="error_conversation_max_image_size_limit">A imagem escolhida é muito grande. Por favor, escolha uma imagem menor que 15MB.</string>
+    <string name="error_conversation_max_asset_size_limit">O arquivo escolhido é muito grande. Por favor, escolha um arquivo menor que %sMB.</string>
+    <string name="error_conversation_generic">Ocorreu um erro. A mensagem não pôde ser enviada.</string>
+    <string name="conversation_on_file_downloaded">O arquivo %s foi salvo com sucesso na pasta Downloads.</string>
+    <string name="error_blocking_user">O usuário não pôde ser bloqueado.</string>
+    <string name="blocking_user_success">%s bloqueado.</string>
+    <string name="conversation_group_removed_success">\"%s\" removido.</string>
+    <string name="leave_group_conversation_error">Ocorreu um erro ao sair da conversa.</string>
+    <string name="joined_conversation_group_success">Você entrou na conversa.</string>
+    <string name="left_conversation_group_success">Você saiu da conversa.</string>
+    <string name="error_unblocking_user">O usuário não pôde ser desbloqueado.</string>
+    <string name="delete_group_conversation_error">Ocorreu um erro ao excluir a conversa.</string>
+    <string name="error_limit_number_assets_imported_exceeded">Você só pode enviar até 20 arquivos de uma vez.</string>
+    <string name="edit_message_not_yet_available">Salvar edições em mensagens ainda não está disponível.</string>
+    <!-- TODO: temporary, to be removed when the proper implementation of editing messages is finished -->
+    <!-- Animation label -->
+    <string name="label_open_conversation">Abrir conversa</string>
+    <string name="email_label">E-mail</string>
+    <string name="phone_label">Telefone</string>
+    <!-- Notifications -->
+    <string name="notification_shared_picture">Compartilhou uma imagem</string>
+    <string name="notification_shared_file">Compartilhou um arquivo</string>
+    <string name="notification_reacted">Adicionou uma reação</string>
+    <string name="notification_missed_call">Chamada perdida</string>
+    <string name="notification_knock">Pinged</string>
+    <string name="notification_reply">Resposta: %1$s</string>
+    <string name="notification_not_supported_issue">Recurso não suportado</string>
+    <string name="notification_connection_request">Deseja conectar-se</string>
+    <string name="notification_conversation_deleted">O grupo foi deletado</string>
+    <string name="notification_action_reply">Responder</string>
+    <string name="notification_receiver_name">Você</string>
+    <string name="label_type_a_message">Digite uma mensagem</string>
+    <string name="notification_action_open_call">Abrir Chamada</string>
+    <string name="notification_action_decline_call">Recusar</string>
+    <string name="notification_action_hang_up_call">Desligar</string>
+    <string name="notification_incoming_call_content">Chamando…</string>
+    <string name="notification_ongoing_call_content">Chamada em andamento…</string>
+    <string name="notification_group_call_content">%s está chamando…</string>
+    <string name="notification_call_default_caller_name">Alguém</string>
+    <string name="notification_call_default_group_name">Chamada em Grupo Recebida</string>
+    <!-- Calling-->
+    <string name="calling_button_label_microphone">Microfone</string>
+    <string name="calling_button_label_camera">Câmera</string>
+    <string name="calling_button_label_speaker">Alto-falante</string>
+    <string name="calling_button_label_flip">Virar</string>
+    <string name="calling_button_label_decline">Recusar</string>
+    <string name="calling_button_label_accept">Aceitar</string>
+    <string name="calling_button_label_join_call">Participar</string>
+    <string name="calling_hang_up_call">Desligar chamada</string>
+    <string name="calling_accept_call">Aceitar chamada</string>
+    <string name="calling_decline_call">Recusar chamada</string>
+    <string name="calling_label_ringing_call">Chamando…</string>
+    <string name="calling_label_incoming_call">Chamada recebida</string>
+    <string name="calling_label_incoming_call_someone_calling">%s está chamando…</string>
+    <string name="calling_label_default_caller_name">Chamada Recebida</string>
+    <string name="calling_label_constant_bit_rate">TAXA DE BITS CONSTANTE</string>
+    <string name="calling_minimize_view">Minimizar visualização</string>
+    <string name="calling_ongoing_call_title_alert">Encerrar chamada atual?</string>
+    <string name="calling_ongoing_call_start_message_alert">Uma chamada está em andamento em outra conversa. Iniciar uma chamada aqui encerrará a outra.</string>
+    <string name="calling_ongoing_call_start_anyway">Iniciar ligação mesmo assim</string>
+    <string name="calling_ongoing_call_join_message_alert">Já existe uma chamada ativa em outra conversa. Participar desta chamada irá encerrar a outra.</string>
+    <string name="calling_ongoing_call_join_anyway">Participar mesmo assim</string>
+    <string name="calling_feature_unavailable_title_alert">Funcionalidade não disponível</string>
+    <string name="calling_feature_unavailable_message_alert">A opção para iniciar uma conferência é apenas disponível na versão paga do Wire.</string>
+    <!-- Connectivity Status Bar -->
+    <string name="connectivity_status_bar_return_to_call">Retornar à chamada</string>
+    <string name="connectivity_status_bar_connecting">Conectando</string>
+    <string name="connectivity_status_bar_waiting_for_network">Aguardando conexão</string>
+    <!-- Connections -->
+    <string name="connection_label_connect">Conectar</string>
+    <string name="connection_label_cancel_request">Cancelar solicitação</string>
+    <string name="connection_label_member_not_belongs_to_team">Esse usuário não pertence à sua equipe. Se ele aceitar sua solicitação de conexão, estará disponível como um contato.</string>
+    <string name="connection_label_member_not_conneted">Quando sua solicitação de conexão for aceita, você poderá se comunicar diretamente com este contato.</string>
+    <string name="connection_request_sent">Solicitação de conexão enviada</string>
+    <string name="connection_request_canceled">Solicitação de conexão cancelada</string>
+    <string name="connection_request_ignored">Você ignorou a solicitação de %1$s</string>
+    <string name="connection_request_accepted">Solicitação de conexão aceita</string>
+    <string name="connection_request_sent_error">Não foi possível enviar a solicitação de conexão</string>
+    <string name="connection_request_accept_error">Não foi possível aceitar a solicitação de conexão</string>
+    <string name="connection_request_ignore_error">Não foi possível ignorar a solicitação de conexão</string>
+    <string name="connection_request_cancel_error">Não foi possível cancelar a solicitação de conexão</string>
+    <string name="connection_pending_message">quer se conectar</string>
+    <string name="connection_pending_label">pendente</string>
+    <string name="connection_label_user_wants_to_conect">Este usuário quer se conectar com você.</string>
+    <string name="connection_label_accepting_request_description">Se você aceitar a solicitação deles, eles serão adicionados como um contato e você poderá comunicar diretamente com eles.</string>
+    <string name="connection_label_accept">Aceitar</string>
+    <string name="connection_label_ignore">Ignorar</string>
+    <!-- Gallery -->
+    <string name="media_gallery_default_title_name">Galeria de mídia</string>
+    <string name="media_gallery_on_image_downloaded">Salvo na pasta de Downloads</string>
+    <string name="media_gallery_on_image_download_error">Ocorreu um erro ao salvar a imagem na pasta de Downloads. Verifique sua conexão com a internet e tente novamente.</string>
+    <!--sso dialog-->
+    <string name="sso_error_dialog_title">Não foi possível fazer login com SSO</string>
+    <string name="sso_error_dialog_message">Por favor tente novamente. Se isso não resolver, contate um administrador e forneça este código:\n%d\"</string>
+    <string name="asset_download_dialog_default_title">Baixar arquivo</string>
+    <string name="empty_group_label">Conversa sem nome</string>
+    <string name="label_show_more">Mostrar Mais</string>
+    <!--prohibited asset messages -->
+    <string name="prohibited_images_message">O recebimento de imagens está desabilitado</string>
+    <string name="prohibited_videos_message">O recebimento de videos está desabilitado</string>
+    <string name="prohibited_audio_message">O recebimento de áudios está desabilitado</string>
+    <string name="prohibited_file_message">O recebimento de arquivos está desabilitado</string>
+    <string name="team_settings_changed">Configurações do time mudaram</string>
+    <string name="sharing_files_enabled">Compartilhar e receber arquivos de todos os tipos está habilitado</string>
+    <string name="sharing_files_disabled">Compartilhar e receber arquivos de todos os tipos está desabilitado</string>
+    <!--wire dropdown-->
+    <string name="wire_dropdown_default_indicator">" (default)"</string>
+    <string name="wire_dropdown_placeholder">Selecione um item</string>
+    <string name="change">Trocar</string>
+    <string name="allow_guests">Permitir convidados</string>
+    <string name="allow_guest_switch_description">Abrir esta conversa para pessoas fora do seu time. Você pode sempre alterar isso depois.</string>
+    <string name="allow_services">Permitir serviços</string>
+    <string name="allow_services_description">Abrir esta conversa para serviços. Voce pode sempre alterar isso depois.</string>
+    <string name="read_receipts">Confirmações de leitura</string>
+    <string name="read_receipts_description">Com isso ligado, pessoas podem ver quando suas próprias mensagens foram lidas nesta conversa.</string>
+    <string name="disable_guests_dialog_title">Desabilitar Convidados?</string>
+    <string name="disable_guests_dialog_description">Os convidados selecionados anteriormente não farão parte do grupo se não for permitido o acessso.</string>
+    <string name="disable_guests_dialog_button">Desabilitar Convidados</string>
+    <!--block user dialog -->
+    <string name="block_user_dialog_title">Bloquear usuário?</string>
+    <string name="block_user_dialog_body">%1$s não será capaz de contactar-te ou adicinar-te à conversas em grupo. Ele(a) não será informado(a) a respeito.</string>
+    <string name="block_user_dialog_confirm_button">Bloquear</string>
+    <string name="other_user_devices_description"><![CDATA[Wire cria uma identificação única para cada dispositivo. Compare-as com %1$s para verificar conversa.]]></string>
+    <!--Settings -->
+    <string name="url_why_verify_conversation">/hc/pt/articles/207859815</string>
+    <string name="settings_general_label">Geral</string>
+    <string name="settings_account_settings_label">Configurações da Conta</string>
+    <string name="settings_devices_label">Dispositivos</string>
+    <string name="settings_backups_label">Backups</string>
+    <string name="settings_others_label">Outros</string>
+    <string name="settings_your_account_label">Detalhes da Conta</string>
+    <string name="settings_app_settings_label">Configurações do Aplicativo</string>
+    <string name="settings_privacy_settings_label">Configurações de Privacidade</string>
+    <string name="settings_network_settings_label">Configurações de Conexão</string>
+    <string name="settings_manage_devices_label">Gerenciar seus Dispositivos</string>
+    <string name="settings_keep_connection_to_websocket">Manter conexão ativa</string>
+    <string name="settings_keep_connection_to_websocket_description">Melhore o recebimento de notificações mantendo uma conexão ativa com %1$s. Recomendado se seu aparalho não possui serviços da Google para recebimentos de notificações.</string>
+    <string name="settings_service_is_running">Serviço está rodando</string>
+    <!--Settings, My Account -->
+    <string name="settings_myaccount_title">Dados do Perfil</string>
+    <string name="settings_myaccount_display_name">NOME DO PERFIL</string>
+    <string name="settings_myaccount_username">NOME DE USUÁRIO</string>
+    <string name="settings_myaccount_email">EMAIL</string>
+    <string name="settings_myaccount_team">EQUIPE</string>
+    <string name="settings_myaccount_domain">DOMÍNIO</string>
+    <string name="settings_myaccount_reset_password">Resetar Senha</string>
+    <!--Settings, My Account > Display name -->
+    <string name="settings_myaccount_display_name_title">Seu nome de perfil</string>
+    <string name="settings_myaccount_display_name_description">Pessoas veem seu nome nas conversas, chamadas, e busca.</string>
+    <string name="settings_myaccount_display_name_error">Por favor digite seu nome de perfil</string>
+    <string name="settings_myaccount_display_name_exceeded_limit_error">Mínimo de 1 e máximo de 64 caracteres</string>
+    <string name="settings_myaccount_display_name_updated">Seu nome de perfil foi atualizado</string>
+    <!--Privacy Settings -->
+    <string name="settings_send_read_receipts">Enviar confirmações de leitura</string>
+    <string name="settings_send_read_receipts_description">Se isso está desligado, voce não poderá ver confirmações de leitura de outras pessoas. Essa configuração não se aplica a conversas em grupo.</string>
+    <!--Devices -->
+    <string name="devices_title">Seus Dispositivos</string>
+    <string name="current_device_label">Dispositivos Atuais</string>
+    <string name="other_devices_label">Outros Dispositivos</string>
+    <!--unblock user dialog -->
+    <string name="unblock_user_dialog_title">Desbloquear usuário?</string>
+    <string name="unblock_user_dialog_body">%1$s poderá contactá-lo e adicioná-lo a conversas em grupo. Você poderá acessar uma conversa com ele(a).</string>
+    <string name="unblock_user_dialog_confirm_button">Desbloquear</string>
+    <!--max account reached dialog-->
+    <string name="max_account_reached_dialog_title">Três contas ativas</string>
+    <string name="max_account_reached_dialog_message">Você só pode estar logado em três contas ao mesmo tempo. É necessário sair de uma para adicionar outra.</string>
+    <string name="max_account_reached_dialog_button_open_profile">Abrir Perfil</string>
+    <string name="cant_switch_account_in_call">Você não pode mudar de conta enquanto estiver em uma chamada</string>
+    <string name="custom_backend_dialog_title">Redirecionar para um backend local?</string>
+    <string name="custom_backend_dialog_body">Se você prosseguir, o seu cliente será redirecionado para o seguinte backend local:
+
+Nome do backend:
+%1$s
+
+URL do backend:
+%2$s</string>
+    <string name="label_fetching_your_messages">Recebendo novas mensagens</string>
+    <string name="label_text_copied">Texto copiado para a área de transferência</string>
+    <string name="label_logs_option_title">Logs</string>
+    <string name="label_share_logs">Compartilhar Logs</string>
+    <string name="label_delete_logs">Excluir todos os Logs</string>
+    <string name="label_restart_slowsync_for_recovery">Reiniciar SlowSync para Recuperação</string>
+    <string name="label_mls_option_title">Dados de MLS</string>
+    <string name="label_enable_logging">Ativar Logging</string>
+    <string name="label_proteus_option_title">Proteus</string>
+    <string name="label_enable_encrypted_proteus_storage">Ativar armazenamento protegido por criptografia do Proteus</string>
+    <string name="label_debug_title">Debug</string>
+    <string name="label_client_option_title">ID do Cliente</string>
+    <string name="label_device_id">ID do Dispositivo: %1$s</string>
+    <string name="label_code_commit_id">Hash do Commit: %1$s</string>
+    <string name="label_client_id">ID do Cliente: %1$s</string>
+    <string name="label_client_added_time">ADICIONADO</string>
+    <string name="label_client_device_id">ID DO DISPOSITIVO</string>
+    <string name="label_key_packages_count">Contagem de Pacotes de Chave: %1$s</string>
+    <string name="label_mls_client_id">ID do Cliente MLS: %1$s</string>
+    <string name="conversation_empty_list_description">Conecte-se com outros usuários ou crie um novo grupo para começar a colaborar!</string>
+    <string name="conversation_empty_list_title">Bem-vindo 👋</string>
+    <string name="label_no_conversation_found">Nenhuma conversa foi encontrada.</string>
+    <string name="label_connect_with_new_users">Conecte-se com novos usuários ou comece uma nova conversa</string>
+    <string name="label_reactions">Reações</string>
+    <string name="label_more_comming_soon">(mais em breve)</string>
+    <string name="label_wait_until_synchronised">Por favor, aguarde até que o aplicativo esteja sincronizado</string>
+    <string name="label_wait_until_connected">Please wait until the Internet connection is restored</string>
+    <string name="label_textfield_optional_password">Senha (opcional)</string>
+    <!--create and restore backup-->
+    <string name="backup_dialog_create_backup_set_password_title">Definir senha</string>
+    <string name="backup_dialog_create_backup_set_password_message">O backup será comprimido e você pode criptografá-lo com uma senha.</string>
+    <string name="backup_dialog_create_backup_now">Fazer backup agora</string>
+    <string name="backup_dialog_create_backup_title">Criando backup</string>
+    <string name="backup_dialog_create_backup_subtitle">Salvando conversas…</string>
+    <string name="backup_dialog_create_error_title">Algo deu errado</string>
+    <string name="backup_dialog_create_error_subtitle">Não foi possível criar o backup. Por favor, tente novamente ou entre em contato com o suporte do Wire.</string>
+    <string name="backup_label_conversation_successfully_saved">Conversas salvas com sucesso</string>
+    <string name="backup_label_saving_conversations">Salvando conversas</string>
+    <string name="backup_label_wrong_password">Senha incorreta</string>
+    <string name="backup_label_verify_input">Por favor, verifique suas informações e tente novamente</string>
+    <string name="backup_dialog_restoring_backup_title">Restaurando backup…</string>
+    <string name="backup_label_conversation_restored">Conversas foram restauradas</string>
+    <string name="backup_label_loading_conversations">Carregando conversas</string>
+    <string name="backup_dialog_restore_backup_title">Restaurar a partir do backup</string>
+    <string name="backup_dialog_restore_backup_message">O conteúdo do backup substituirá o histórico de conversas neste dispositivo. Você só pode restaurar o histórico de um backup da mesma plataforma.</string>
+    <string name="backup_dialog_choose_backup_file_option">Escolha o arquivo de backup</string>
+    <string name="backup_label_enter_password">Insira a senha</string>
+    <string name="backup_dialog_restore_backup_password_message">Este backup está protegido por senha.</string>
+    <string name="send_feedback_choose_email">Selecione um provedor de e-mail:</string>
+    <string name="backup_dialog_create_backup_save">Salvar arquivo</string>
+    <string name="backup_dialog_restore_incompatible_version_error_title">Backup incompatível</string>
+    <string name="backup_dialog_restore_incompatible_version_error_message">Este backup foi criado por uma versão mais recente ou desatualizada do Wire e não pode ser restaurado aqui.</string>
+    <string name="backup_dialog_restore_wrong_user_error_title">Arquivo de backup incorreto</string>
+    <string name="backup_dialog_restore_wrong_user_error_message">Não é possível restaurar o histórico de outra conta.</string>
+    <string name="backup_dialog_restore_general_error_title">Algo deu errado</string>
+    <string name="backup_dialog_restore_general_error_message">Não foi possível restaurar seu histórico. Por favor, tente novamente ou entre em contato com o suporte ao cliente do Wire.</string>
+    <string name="group_content_deleted">Conteúdo do grupo foi excluído</string>
+    <string name="conversation_content_deleted">Conteúdo da conversa foi excluído</string>
+    <string name="group_content_delete_failure">Não foi possível excluir o conteúdo do grupo</string>
+    <string name="conversation_content_delete_failure">Não foi possível excluir o conteúdo da conversa</string>
+    <string name="group_label">grupo</string>
+    <string name="conversation_label">conversa</string>
+    <string name="proxy_credential_description">Este backend está configurado para utilizar o seguinte servidor proxy: %1$s</string>
+    <string name="label_proxy_credentials">CREDENCIAIS DE PROXY</string>
+    <string name="label_proxy_password">SENHA DE PROXY</string>
+    <string name="label_wire_credentials">CREDENCIAIS DO WIRE</string>
+    <string name="dialog_clear_content_title">Apagar conteúdo?</string>
+    <string name="dialog_clear_content_option">Apagar conteúdo</string>
+    <string name="dialog_clear_content_text">Isso apagará o histórico da conversa anterior em todos os seus dispositivos. Você permanecerá no %1$s e terá acesso a toda nova atividade do %1$s.</string>
+    <string name="not_supported_dialog_title">Não suportado</string>
+    <string name="sso_not_supported_dialog_description">Você não pode entrar via SSO em um backend local com suporte de proxy.</string>
+    <string name="create_personal_account_not_supported_dialog_description">Não é possível criar uma conta pessoal em um backend local com suporte de proxy.</string>
+    <string name="create_team_not_supported_dialog_description">Você não pode criar uma nova equipe em um backend local com suporte de proxy no aplicativo.
+Por favor, use o gerenciamento de equipe (%1$s) neste backend.</string>
+    <string name="to_team_management_action">Abrir Gerenciamento de Equipe</string>
+    <!-- Update App dialog -->
+    <string name="update_app_dialog_title">Atualização necessária</string>
+    <string name="update_app_dialog_body">Você está perdendo novos recursos. Atualize para a versão mais recente do Wire para continuar utilizando o aplicativo com esta conta.</string>
+    <string name="update_app_dialog_button">Atualização</string>
+    <string name="cancel_login_button_label">Cancelar</string>
+    <string name="cancel_login_dialog_description">Se você cancelar agora, será desconectado.</string>
+    <string name="cancel_login_dialog_title">Tem certeza de que deseja cancelar?</string>
+    <!-- session reset -->
+    <string name="label_system_message_session_reset">%1$s não conseguiu decifrar algumas de suas mensagens, mas resolveu o problema. Isso afetou todas as conversas que você compartilha juntos.</string>
+    <string name="label_manual_migration_title">Migrar da versão 3.82.38</string>
+    <string name="start_manual_migration">Iniciar migração da versão 3.82.38 manualmente</string>
+    <string name="file_sharing_restricted_learn_more_link">https://support.wire.com/hc/en-us/articles/4406404582673-How-can-I-restrict-file-sharing-for-my-team-</string>
+    <string name="file_sharing_restricted_description_by_team">Você não pode compartilhar este arquivo porque este recurso está desativado.</string>
+    <!-- join conversation dialog -->
+    <string name="join_conversation_dialog_title">Entrar na conversa?</string>
+    <string name="join_conversation_dialog_message">Você foi convidado para uma conversa.
+
+%1$s</string>
+    <string name="join_conversation_dialog_button">Entrar</string>
+    <string name="join_conversation_via_deeplink_error_title">Não foi possível entrar na conversa</string>
+    <string name="join_conversation_via_deeplink_error_link_expired">O link para esta conversa expirou ou a conversa foi definida como privada.</string>
+    <string name="join_conversation_via_deeplink_error_max_number_of_participent">O número máximo de participantes nesta conversa foi atingido.</string>
+    <string name="join_conversation_via_deeplink_error_general">Devido a um erro, você não pôde ser adicionado à conversa em grupo.</string>
+    <!-- guest room link -->
+    <string name="folder_label_guest_link">Link de convidado</string>
+    <string name="guest_link_description">Convide outras pessoas com um link para esta conversa. Qualquer pessoa com o link pode entrar na conversa, mesmo que não tenha o Wire.</string>
+    <string name="guest_link_button_create_link">Criar Link</string>
+    <string name="guest_link_button_copy_link">Copiar Link</string>
+    <string name="guest_link_button_share_link">Compartilhar Link</string>
+    <string name="guest_link_button_revoke_link">Revogar Link</string>
+    <string name="audio_not_available">Áudio indisponível</string>
+    <string name="audio_not_available_explanation">Algo deu errado ao baixar este arquivo de áudio. Por favor, peça ao remetente para fazer o upload novamente.</string>
+    <string name="guest_link_generate_error_message">Ocorreu um erro ao tentar criar o link de convidado. Por favor, tente novamente.</string>
+    <string name="guest_link_revoke_error_message">Ocorreu um erro ao tentar revogar o link de convidado. Por favor, tente novamente.</string>
+    <string name="revoke_guest__room_link_dialog_text">Novos convidados não poderão entrar com este link. Os convidados atuais ainda terão acesso.</string>
+    <string name="revoke_guest__room_link_dialog_title">Revogar o link de convidado?</string>
+    <string name="guest__room_link_copied">O link de convidado foi copiado para a área de transferência</string>
+    <string name="title_device_key_fingerprint">IDENTIFICAÇÃO DO DISPOSITIVO</string>
+    <string name="label_client_key_fingerprint_not_available">NÃO DISPONÍVEL</string>
+    <string name="guest_room_link_copied">O link para convidados foi copiado</string>
+    <string name="guest_room_link_enabled">A geração de links de convidado agora está habilitada para todos os administradores de grupo</string>
+    <string name="guest_room_link_disabled">A geração de links de convidado agora está desabilitada para todos os administradores de grupo</string>
+    <!-- New Device dialog -->
+    <string name="new_device_dialog_current_user_title">Sua conta foi usada em</string>
+    <string name="new_device_dialog_current_user_message">%1$s
+De: %2$s
+
+Se você não fez isso, remova o dispositivo e redefina sua senha.</string>
+    <string name="new_device_dialog_current_user_btn">Gerenciar dispositivos</string>
+    <string name="new_device_dialog_other_user_title">Sua conta \"%1$s (@%2$s)\" foi usada em:</string>
+    <string name="new_device_dialog_other_user_message">%1$s
+De: %2$s
+
+Se você não fez isso, remova o dispositivo (vá para \"Gerenciar dispositivos\" na seção Configurações desta conta), e redefina sua senha.</string>
+    <string name="new_device_dialog_other_user_btn">Mudar de Conta</string>
+    <string name="label_system_message_joined_the_conversation_by_self">%1$s entrou na conversa</string>
+    <string name="label_system_message_joined_the_conversation_by_other">%1$s entrou na conversa</string>
+    <string name="label_client_verified">Verificado</string>
+    <string name="label_client_unverified">Não Verificado</string>
+    <string name="label_self_client_verification_description">Para verificar o seu próprio dispositivo, compare esta impressão digital com a mesma impressão digital em outro dispositivo.</string>
+    <string name="label_client_verification_description">Verificar se esta impressão digital do dispositivo corresponde à impressão digital mostrada no dispositivo de %s.</string>
+    <string name="label_fingerprint_description">Se as impressões digitais não coincidirem, reinicie a sessão para gerar novas chaves de criptografia em ambos os lados.</string>
+    <string name="label_self_fingerprint_description">Para permitir que outros verifiquem este dispositivo, compartilhe esta impressão digital ou o código QR com eles.</string>
+    <string name="unknown_user_name">usuário desconhecido</string>
+    <string name="self_deleting_message_time_left">Self-deleting message • %1$s</string>
+    <string name="self_deleting_message_label">Self-deleting message</string>
+    <!-- Expirable messages -->
+    <plurals name="weeks_left">
+        <item quantity="one">1 week left</item>
+        <item quantity="other">%1$d weeks left</item>
+    </plurals>
+    <plurals name="days_left">
+        <item quantity="one">1 day left</item>
+        <item quantity="other">%1$d days left</item>
+    </plurals>
+    <plurals name="hours_left">
+        <item quantity="one">1 hour left</item>
+        <item quantity="other">%1$d hours left</item>
+    </plurals>
+    <plurals name="minutes_left">
+        <item quantity="one">1 minute left</item>
+        <item quantity="other">%1$d minutes left</item>
+    </plurals>
+    <plurals name="seconds_left">
+        <item quantity="one">1 second left</item>
+        <item quantity="other">%1$d seconds left</item>
+    </plurals>
 </resources>

@@ -61,9 +61,6 @@ import com.wire.android.ui.common.WireBottomNavigationItemData
 import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
-import com.wire.android.ui.common.topappbar.CommonTopAppBar
-import com.wire.android.ui.common.topappbar.CommonTopAppBarViewModel
-import com.wire.android.ui.common.topappbar.ConnectivityUIState
 import com.wire.android.ui.common.topappbar.search.SearchTopBar
 import com.wire.android.ui.home.conversationslist.ConversationListState
 import com.wire.android.ui.home.conversationslist.ConversationListViewModel
@@ -81,7 +78,6 @@ fun HomeScreen(
     backNavArgs: ImmutableMap<String, Any> = persistentMapOf(),
     homeViewModel: HomeViewModel = hiltSavedStateViewModel(backNavArgs = backNavArgs),
     featureFlagNotificationViewModel: FeatureFlagNotificationViewModel = hiltViewModel(),
-    commonTopAppBarViewModel: CommonTopAppBarViewModel = hiltViewModel(),
     conversationListViewModel: ConversationListViewModel = hiltViewModel(), // TODO: move required elements from this one to HomeViewModel?
 ) {
     homeViewModel.checkRequirements()
@@ -125,11 +121,9 @@ fun HomeScreen(
     }
 
     HomeContent(
-        connectivityState = commonTopAppBarViewModel.connectivityState,
         homeState = homeState,
         homeStateHolder = homeScreenState,
         conversationListState = conversationListViewModel.conversationListState,
-        onReturnToCallClick = commonTopAppBarViewModel::openOngoingCallScreen,
         onNewConversationClick = conversationListViewModel::openNewConversation,
         onSelfUserClick = homeViewModel::navigateToSelfUserProfile,
         navigateToItem = homeViewModel::navigateTo
@@ -143,11 +137,9 @@ fun HomeScreen(
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
 @Composable
 fun HomeContent(
-    connectivityState: ConnectivityUIState,
     homeState: HomeState,
     homeStateHolder: HomeStateHolder,
     conversationListState: ConversationListState,
-    onReturnToCallClick: () -> Unit,
     onNewConversationClick: () -> Unit,
     onSelfUserClick: () -> Unit,
     navigateToItem: (NavigationItem) -> Unit
@@ -186,10 +178,6 @@ fun HomeContent(
                             keepElevationWhenCollapsed = true,
                             topBarHeader = { elevation ->
                                 Column(modifier = Modifier.animateContentSize()) {
-                                    CommonTopAppBar(
-                                        connectivityUIState = connectivityState,
-                                        onReturnToCallClick = onReturnToCallClick
-                                    )
                                     AnimatedVisibility(visible = !searchBarState.isSearchActive) {
                                         HomeTopBar(
                                             avatarAsset = homeState.avatarAsset,

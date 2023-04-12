@@ -881,8 +881,10 @@ Por favor, use o gerenciamento de equipe (%1$s) neste backend.</string>
     <string name="label_system_message_session_reset">%1$s não conseguiu decifrar algumas de suas mensagens, mas resolveu o problema. Isso afetou todas as conversas que você compartilha juntos.</string>
     <string name="label_manual_migration_title">Migrar da versão 3.82.38</string>
     <string name="start_manual_migration">Iniciar migração da versão 3.82.38 manualmente</string>
-    <string name="file_sharing_restricted_dialog_title">Restrições no compartilhamento de arquivos</string>
-    <string name="file_sharing_restricted_dialog_description">Você não pode compartilhar este arquivo porque este recurso está desativado.</string>
+    <string name="file_sharing_restricted_learn_more_link">https://support.wire.com/hc/en-us/articles/4406404582673-How-can-I-restrict-file-sharing-for-my-team-</string>
+    <string name="file_sharing_restricted_description_by_team">You can not share this file because this feature is disabled for this account.</string>
+    <string name="file_sharing_restricted_description_no_users">You need to be logged in to Wire before you can share anything</string>
+    <string name="file_sharing_restricted_button_text_no_users">Open Wire</string>
     <!-- join conversation dialog -->
     <string name="join_conversation_dialog_title">Entrar na conversa?</string>
     <string name="join_conversation_dialog_message">Você foi convidado para uma conversa.

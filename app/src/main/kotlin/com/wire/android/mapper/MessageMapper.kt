@@ -21,8 +21,6 @@
 package com.wire.android.mapper
 
 import com.wire.android.R
-import com.wire.android.appLogger
-import com.wire.android.appLogger
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.home.conversations.findUser
 import com.wire.android.ui.home.conversations.model.ExpirationStatus

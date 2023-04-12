@@ -27,5 +27,6 @@ data class FeatureFlagState(
     val shouldShowGuestRoomLinkDialog: Boolean = false,
     val isGuestRoomLinkEnabled: Boolean = true,
     val shouldShowSelfDeletingMessagesDialog: Boolean = false,
+    val enforcedTimeoutInSeconds: Int? = null,
     val areSelfDeletedMessagesEnabled: Boolean = true
 )

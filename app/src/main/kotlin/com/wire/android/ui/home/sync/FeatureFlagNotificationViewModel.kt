@@ -36,11 +36,11 @@ import com.wire.kalium.logic.feature.selfdeletingMessages.ObserveSelfDeletingMes
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
-import com.wire.kalium.logic.feature.user.guestroomlink.MarkGuestLinkFeatureFlagAsNotChangedUseCase
-import com.wire.kalium.logic.feature.user.guestroomlink.ObserveGuestRoomLinkFeatureFlagUseCase
 import com.wire.kalium.logic.feature.session.GetSessionsUseCase
 import com.wire.kalium.logic.feature.user.MarkFileSharingChangeAsNotifiedUseCase
 import com.wire.kalium.logic.feature.user.MarkSelfDeletingMessagesChangeAsNotifiedUseCase
+import com.wire.kalium.logic.feature.user.guestroomlink.MarkGuestLinkFeatureFlagAsNotChangedUseCase
+import com.wire.kalium.logic.feature.user.guestroomlink.ObserveGuestRoomLinkFeatureFlagUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
@@ -125,7 +125,10 @@ class FeatureFlagNotificationViewModel @Inject constructor(
                     featureFlagState = featureFlagState.copy(areSelfDeletedMessagesEnabled = it)
                 }
                 selfDeletingMessagesStatus.isStatusChanged?.let {
-                    featureFlagState = featureFlagState.copy(shouldShowSelfDeletingMessagesDialog = it)
+                    featureFlagState = featureFlagState.copy(
+                        shouldShowSelfDeletingMessagesDialog = it,
+                        enforcedTimeoutInSeconds = selfDeletingMessagesStatus.enforcedTimeoutInSeconds
+                    )
                 }
             }
         }

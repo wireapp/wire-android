@@ -30,6 +30,9 @@ import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.util.CustomTabsHelper
+import kotlin.time.Duration.Companion.seconds
+import kotlin.time.DurationUnit
+import kotlin.time.toDuration
 
 
 @Composable
@@ -54,12 +57,13 @@ fun FileRestrictionDialog(
 @Composable
 fun SelfDeletingMessagesDialog(
     isSelfDeletingMessagesEnabled: Boolean,
-    enforcedTimeout: String?,
+    enforcedTimeout: Int?,
     hideDialogStatus: () -> Unit,
 ) {
     val text: String = if (isSelfDeletingMessagesEnabled) {
-        enforcedTimeout?.let { timeout ->
-            stringResource(id = R.string.self_deleting_messages_team_setting_enabled_enforced_timeout, timeout)
+        enforcedTimeout?.let { rawTimeout ->
+            val formattedTimeout = formatEnforcedTimeout(rawTimeout)
+            stringResource(id = R.string.self_deleting_messages_team_setting_enabled_enforced_timeout, formattedTimeout)
         } ?: stringResource(id = R.string.self_deleting_messages_team_setting_enabled)
     } else stringResource(id = R.string.self_deleting_messages_team_setting_disabled)
 
@@ -74,6 +78,26 @@ fun SelfDeletingMessagesDialog(
             type = WireDialogButtonType.Primary,
         )
     )
+}
+
+@Composable
+private fun formatEnforcedTimeout(rawTimeoutInSeconds: Int): String {
+    val timeout10Seconds = 10.seconds
+    val timeout5Minutes = 300.seconds
+    val timeout1Hour = 3600.seconds
+    val timeout1Day = 86400.seconds
+    val timeout1Week = 604800.seconds
+    val timeout4Weeks = 2419200.seconds
+
+    return when (rawTimeoutInSeconds.toDuration(DurationUnit.SECONDS)) {
+        timeout10Seconds -> stringResource(id = R.string.self_deleting_messages_team_setting_enabled_enforced_timeout_seconds)
+        timeout5Minutes -> stringResource(id = R.string.self_deleting_messages_team_setting_enabled_enforced_timeout_minutes)
+        timeout1Hour -> stringResource(id = R.string.self_deleting_messages_team_setting_enabled_enforced_timeout_one_hour)
+        timeout1Day -> stringResource(id = R.string.self_deleting_messages_team_setting_enabled_enforced_timeout_one_day)
+        timeout1Week -> stringResource(id = R.string.self_deleting_messages_team_setting_enabled_enforced_timeout_one_week)
+        timeout4Weeks -> stringResource(id = R.string.self_deleting_messages_team_setting_enabled_enforced_timeout_four_weeks)
+        else -> stringResource(id = R.string.self_deleting_messages_team_setting_enabled)
+    }
 }
 
 @Composable

@@ -45,12 +45,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.model.ClickBlockParams
@@ -63,6 +65,7 @@ import com.wire.android.ui.common.WireDropDown
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.button.WireSecondaryButton
+import com.wire.android.ui.common.dialogs.ProgressDialog
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.common.topappbar.NavigationIconType
@@ -233,6 +236,8 @@ private fun SelfUserProfileContent(
                 dialogState = logoutOptionsDialogState,
                 logout = logout
             )
+
+            LoggingOutDialog(isLoggingOut)
         }
     }
 }
@@ -378,6 +383,17 @@ private fun OtherAccountItem(
         clickable = clickable,
         modifier = Modifier.padding(start = dimensions().spacing8x)
     )
+}
+
+@OptIn(ExperimentalComposeUiApi::class)
+@Composable
+private fun LoggingOutDialog(isLoggingOut: Boolean) {
+    if (isLoggingOut) {
+        ProgressDialog(
+            title = stringResource(R.string.user_profile_loggin_out_progress),
+            properties = DialogProperties(dismissOnBackPress = false, dismissOnClickOutside = false, usePlatformDefaultWidth = true)
+        )
+    }
 }
 
 @Preview(widthDp = 400, heightDp = 800)

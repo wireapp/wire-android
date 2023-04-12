@@ -29,7 +29,6 @@ import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.home.conversations.model.MessageStatus.DecryptionFailure
 import com.wire.android.ui.home.conversations.model.MessageStatus.Deleted
 import com.wire.android.ui.home.conversations.model.MessageStatus.ReceiveFailure
-import com.wire.android.ui.home.conversations.model.MessageStatus.SendFailure
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.uiMessageDateTime
@@ -39,23 +38,41 @@ import com.wire.kalium.logic.data.message.MessageContent
 import com.wire.kalium.logic.data.user.AssetId
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserId
+import kotlin.time.Duration
 
-data class UIMessage(
-    val userAvatarData: UserAvatarData,
-    val messageSource: MessageSource,
-    val messageHeader: MessageHeader,
-    val messageContent: UIMessageContent?,
-    val messageFooter: MessageFooter,
-    val showAuthor: Boolean
+sealed class UIMessage(
+    open val header: MessageHeader,
+    open val source: MessageSource,
 ) {
-    val isDeleted: Boolean = messageHeader.messageStatus == Deleted
-    val sendingFailed: Boolean =
-        messageHeader.messageStatus == SendFailure || messageHeader.messageStatus is MessageStatus.SendRemotelyFailure
-    val decryptionFailed: Boolean = messageHeader.messageStatus is DecryptionFailure
-    val receivingFailed: Boolean = messageHeader.messageStatus == ReceiveFailure || decryptionFailed
-    val isAvailable: Boolean = !isDeleted && !sendingFailed && !receivingFailed
-    val isMyMessage = messageSource == MessageSource.Self
-    val isTextMessage = messageContent is UIMessageContent.TextMessage
+
+    data class Regular(
+        override val header: MessageHeader,
+        override val source: MessageSource,
+        val userAvatarData: UserAvatarData,
+        val messageContent: UIMessageContent.Regular?,
+        val messageFooter: MessageFooter,
+        val showAuthor: Boolean,
+        val expirationStatus: ExpirationStatus = ExpirationStatus.NotExpirable
+    ) : UIMessage(header, source) {
+        val isTextMessage = messageContent is UIMessageContent.TextMessage
+
+        val isDeleted: Boolean = header.messageStatus == Deleted
+        val sendingFailed: Boolean = header.messageStatus is MessageStatus.MessageSendFailureStatus
+        val decryptionFailed: Boolean = header.messageStatus is DecryptionFailure
+        val receivingFailed: Boolean = header.messageStatus == ReceiveFailure || decryptionFailed
+        val isAvailable: Boolean = !isDeleted && !sendingFailed && !receivingFailed
+        val isMyMessage = source == MessageSource.Self
+    }
+
+    data class System(
+        override val header: MessageHeader,
+        override val source: MessageSource,
+        val messageContent: UIMessageContent.SystemMessage
+    ) : UIMessage(header, source) {
+        val sendingFailed: Boolean = header.messageStatus is MessageStatus.MessageSendFailureStatus
+        val decryptionFailed: Boolean = header.messageStatus is DecryptionFailure
+        val receivingFailed: Boolean = header.messageStatus == ReceiveFailure || decryptionFailed
+    }
 }
 
 @Stable
@@ -80,19 +97,52 @@ data class MessageFooter(
     val ownReactions: Set<String> = emptySet()
 )
 
-sealed class MessageStatus(val text: UIText) {
-    object Untouched : MessageStatus(UIText.DynamicString(""))
-    object Deleted : MessageStatus(UIText.StringResource(R.string.deleted_message_text))
-    data class Edited(val formattedEditTimeStamp: String) :
-        MessageStatus(UIText.StringResource(R.string.label_message_status_edited_with_date, formattedEditTimeStamp))
+sealed class ExpirationStatus {
+    data class Expirable(
+        val expireAfter: Duration,
+        val selfDeletionStatus: Message.ExpirationData.SelfDeletionStatus
+    ) : ExpirationStatus()
 
-    object SendFailure : MessageStatus(UIText.StringResource(R.string.label_message_sent_failure))
-    data class SendRemotelyFailure(val backendWithFailure: String) :
-        MessageStatus(UIText.StringResource(R.string.label_message_sent_remotely_failure, backendWithFailure))
+    object NotExpirable : ExpirationStatus()
+}
 
-    object ReceiveFailure : MessageStatus(UIText.StringResource(R.string.label_message_receive_failure))
-    data class DecryptionFailure(val isDecryptionResolved: Boolean) :
-        MessageStatus(UIText.StringResource(R.string.label_message_decryption_failure_message))
+sealed class MessageStatus(
+    open val errorText: UIText? = null, // error description text shown below the content of the message
+    open val badgeText: UIText? = null, // text shown between the user name and the content in the outlined box with a text inside
+) {
+    sealed class MessageSendFailureStatus : MessageStatus() {
+        abstract override val errorText: UIText
+    }
+
+    object Untouched : MessageStatus()
+    object Deleted : MessageStatus() {
+        override val badgeText: UIText = UIText.StringResource(R.string.deleted_message_text)
+    }
+
+    data class Edited(val formattedEditTimeStamp: String) : MessageStatus() {
+        override val badgeText: UIText = UIText.StringResource(R.string.label_message_status_edited_with_date, formattedEditTimeStamp)
+    }
+
+    data class EditSendFailure(val formattedEditTimeStamp: String) : MessageSendFailureStatus() {
+        override val errorText: UIText = UIText.StringResource(R.string.label_message_edit_sent_failure)
+        override val badgeText: UIText = UIText.StringResource(R.string.label_message_status_edited_with_date, formattedEditTimeStamp)
+    }
+
+    object SendFailure : MessageSendFailureStatus() {
+        override val errorText: UIText = UIText.StringResource(R.string.label_message_sent_failure)
+    }
+
+    data class SendRemotelyFailure(val backendWithFailure: String) : MessageSendFailureStatus() {
+        override val errorText: UIText = UIText.StringResource(R.string.label_message_sent_remotely_failure, backendWithFailure)
+    }
+
+    object ReceiveFailure : MessageStatus() {
+        override val errorText: UIText = UIText.StringResource(R.string.label_message_receive_failure)
+    }
+
+    data class DecryptionFailure(val isDecryptionResolved: Boolean) : MessageStatus() {
+        override val errorText: UIText = UIText.StringResource(R.string.label_message_decryption_failure_message)
+    }
 }
 
 @Stable
@@ -109,17 +159,20 @@ sealed class UILastMessageContent {
 }
 
 sealed class UIMessageContent {
-    sealed class ClientMessage : UIMessageContent()
+
+    sealed class Regular : UIMessageContent()
 
     object PreviewAssetMessage : UIMessageContent()
 
-    data class TextMessage(val messageBody: MessageBody) : ClientMessage()
+    data class TextMessage(val messageBody: MessageBody) : Regular()
+
+    object Deleted : Regular()
 
     data class RestrictedAsset(
         val mimeType: String,
         val assetSizeInBytes: Long,
         val assetName: String
-    ) : ClientMessage()
+    ) : Regular()
 
     @Stable
     data class AssetMessage(
@@ -129,7 +182,7 @@ sealed class UIMessageContent {
         val assetSizeInBytes: Long,
         val uploadStatus: Message.UploadStatus,
         val downloadStatus: Message.DownloadStatus
-    ) : UIMessageContent()
+    ) : Regular()
 
     data class ImageMessage(
         val assetId: AssetId,
@@ -138,7 +191,7 @@ sealed class UIMessageContent {
         val height: Int,
         val uploadStatus: Message.UploadStatus,
         val downloadStatus: Message.DownloadStatus
-    ) : UIMessageContent()
+    ) : Regular()
 
     @Stable
     data class AudioAssetMessage(
@@ -148,7 +201,7 @@ sealed class UIMessageContent {
         val audioMessageDurationInMs: Long,
         val uploadStatus: Message.UploadStatus,
         val downloadStatus: Message.DownloadStatus
-    ) : UIMessageContent()
+    ) : Regular()
 
     sealed class SystemMessage(
         @DrawableRes val iconResId: Int?,
@@ -169,6 +222,15 @@ sealed class UIMessageContent {
         ) : SystemMessage(
             R.drawable.ic_add,
             if (isSelfTriggered) R.string.label_system_message_added_by_self else R.string.label_system_message_added_by_other
+        )
+
+        data class MemberJoined(
+            val author: UIText,
+            val isSelfTriggered: Boolean = false
+        ) : SystemMessage(
+            R.drawable.ic_add,
+            if (isSelfTriggered) R.string.label_system_message_joined_the_conversation_by_self
+            else R.string.label_system_message_joined_the_conversation_by_other
         )
 
         data class MemberRemoved(
@@ -227,35 +289,40 @@ sealed class UIMessageContent {
 
 data class MessageBody(
     val message: UIText,
-    val quotedMessage: QuotedMessageUIData? = null
+    val quotedMessage: UIQuotedMessage? = null
 )
 
-data class QuotedMessageUIData(
-    val messageId: String,
-    val senderId: UserId,
-    val senderName: UIText,
-    val originalMessageDateDescription: UIText,
-    val editedTimeDescription: UIText?,
-    val quotedContent: Content
-) {
+sealed class UIQuotedMessage {
 
-    sealed interface Content
+    object UnavailableData : UIQuotedMessage()
 
-    data class Text(val value: String) : Content
+    data class UIQuotedData(
+        val messageId: String,
+        val senderId: UserId,
+        val senderName: UIText,
+        val originalMessageDateDescription: UIText,
+        val editedTimeDescription: UIText?,
+        val quotedContent: Content
+    ) : UIQuotedMessage() {
 
-    data class GenericAsset(
-        val assetName: String?,
-        val assetMimeType: String
-    ) : Content
+        sealed interface Content
 
-    data class DisplayableImage(
-        val displayable: ImageAsset.PrivateAsset
-    ) : Content
+        data class Text(val value: String) : Content
 
-    object AudioMessage : Content
+        data class GenericAsset(
+            val assetName: String?,
+            val assetMimeType: String
+        ) : Content
 
-    object Deleted : Content
-    object Invalid : Content
+        data class DisplayableImage(
+            val displayable: ImageAsset.PrivateAsset
+        ) : Content
+
+        object AudioMessage : Content
+
+        object Deleted : Content
+        object Invalid : Content
+    }
 }
 
 enum class MessageSource {

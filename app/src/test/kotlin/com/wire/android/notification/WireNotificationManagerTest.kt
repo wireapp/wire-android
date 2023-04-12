@@ -109,15 +109,13 @@ class WireNotificationManagerTest {
     fun givenAuthenticatedUser_whenFetchAndShowNotificationsOnceCalled_thenConnectionPolicyManagerIsCalled() =
         runTest(dispatcherProvider.main()) {
             val (arrangement, manager) = Arrangement().withSession(GetAllSessionsResult.Success(listOf(TEST_AUTH_TOKEN)))
-                .withCurrentUserSession(provideCurrentValidUserSession()).withMessageNotifications(listOf()).withIncomingCalls(listOf())
+                .withMessageNotifications(listOf())
                 .arrange()
 
             manager.fetchAndShowNotificationsOnce("user_id")
             advanceUntilIdle()
 
-            verify(atLeast = 1) { arrangement.coreLogic.getSessionScope(any()) }
             coVerify(exactly = 1) { arrangement.connectionPolicyManager.handleConnectionOnPushNotification(TEST_AUTH_TOKEN.userId) }
-            verify(exactly = 1) { arrangement.callNotificationManager.handleIncomingCallNotifications(listOf(), any()) }
         }
 
     @Test

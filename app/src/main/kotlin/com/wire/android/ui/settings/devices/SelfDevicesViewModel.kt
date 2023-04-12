@@ -25,21 +25,28 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.di.CurrentAccount
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.authentication.devices.model.Device
 import com.wire.android.ui.settings.devices.model.SelfDevicesState
-import com.wire.kalium.logic.feature.client.SelfClientsResult
-import com.wire.kalium.logic.feature.client.SelfClientsUseCase
+import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.client.FetchSelfClientsFromRemoteUseCase
+import com.wire.kalium.logic.feature.client.ObserveClientsByUserIdUseCase
+import com.wire.kalium.logic.feature.client.ObserveCurrentClientIdUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.firstOrNull
 import javax.inject.Inject
 import kotlinx.coroutines.launch
 
 @HiltViewModel
 class SelfDevicesViewModel @Inject constructor(
+    @CurrentAccount private val currentAccountId: UserId,
     private val navigationManager: NavigationManager,
-    private val selfClientsUseCase: SelfClientsUseCase
+    private val fetchSelfClientsFromRemote: FetchSelfClientsFromRemoteUseCase,
+    private val observeClientList: ObserveClientsByUserIdUseCase,
+    private val currentClientIdUseCase: ObserveCurrentClientIdUseCase
 ) : ViewModel() {
 
     var state: SelfDevicesState by mutableStateOf(
@@ -48,23 +55,35 @@ class SelfDevicesViewModel @Inject constructor(
         private set
 
     init {
+        // this will cause the list to be refreshed
         loadClientsList()
+        observeClientList()
+    }
+
+    private fun observeClientList() {
+        viewModelScope.launch {
+            observeClientList(currentAccountId).collect { result ->
+                state = when (result) {
+                    is ObserveClientsByUserIdUseCase.Result.Failure -> state.copy(isLoadingClientsList = false)
+                    is ObserveClientsByUserIdUseCase.Result.Success -> {
+                        val currentClientId = currentClientIdUseCase().firstOrNull()
+                        state.copy(
+                            isLoadingClientsList = false,
+                            currentDevice = result.clients
+                                .firstOrNull { it.id == currentClientId }?.let { Device(it) },
+                            deviceList = result.clients
+                                .filter { it.id != currentClientId }
+                                .map { Device(it) }
+                        )
+                    }
+                }
+            }
+        }
     }
 
     private fun loadClientsList() {
         viewModelScope.launch {
-            state = state.copy(isLoadingClientsList = true)
-            val selfClientsResult = selfClientsUseCase()
-            if (selfClientsResult is SelfClientsResult.Success) {
-                state = state.copy(
-                    currentDevice = selfClientsResult.clients
-                        .firstOrNull { it.id == selfClientsResult.currentClientId }?.let { Device(it) },
-                    isLoadingClientsList = false,
-                    deviceList = selfClientsResult.clients
-                        .filter { it.id != selfClientsResult.currentClientId }
-                        .map { Device(it) }
-                )
-            }
+            fetchSelfClientsFromRemote()
         }
     }
 
@@ -76,7 +95,7 @@ class SelfDevicesViewModel @Inject constructor(
         viewModelScope.launch {
             navigationManager.navigate(
                 NavigationCommand(
-                    NavigationItem.DeviceDetails.getRouteWithArgs(listOf(device.clientId))
+                    NavigationItem.DeviceDetails.getRouteWithArgs(listOf(device.clientId, currentAccountId))
                 )
             )
         }

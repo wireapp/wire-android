@@ -49,8 +49,10 @@ import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.Error
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogActiveState
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogHelper
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogsState
-import com.wire.android.ui.home.conversations.model.AttachmentBundle
+import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.android.ui.home.conversations.model.AttachmentType
+import com.wire.android.ui.home.conversations.model.EditMessageBundle
+import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.messagecomposer.UiMention
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.util.FileManager
@@ -70,8 +72,10 @@ import com.wire.kalium.logic.feature.conversation.ObserveConversationInteraction
 import com.wire.kalium.logic.feature.conversation.ObserveSecurityClassificationLabelUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationReadDateUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
+import com.wire.kalium.logic.feature.message.SendEditTextMessageUseCase
 import com.wire.kalium.logic.feature.message.SendKnockUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
+import com.wire.kalium.logic.feature.message.ephemeral.EnqueueMessageSelfDeletionUseCase
 import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
 import com.wire.kalium.logic.feature.user.IsFileSharingEnabledUseCase
 import com.wire.kalium.logic.functional.onFailure
@@ -93,6 +97,7 @@ class MessageComposerViewModel @Inject constructor(
     private val navigationManager: NavigationManager,
     private val sendAssetMessage: ScheduleNewAssetMessageUseCase,
     private val sendTextMessage: SendTextMessageUseCase,
+    private val sendEditTextMessage: SendEditTextMessageUseCase,
     private val deleteMessage: DeleteMessageUseCase,
     private val dispatchers: DispatcherProvider,
     private val getSelfUserTeam: GetSelfTeamUseCase,
@@ -106,6 +111,7 @@ class MessageComposerViewModel @Inject constructor(
     private val membersToMention: MembersToMentionUseCase,
     private val getAssetSizeLimit: GetAssetSizeLimitUseCase,
     private val sendKnockUseCase: SendKnockUseCase,
+    private val enqueueMessageSelfDeletionUseCase: EnqueueMessageSelfDeletionUseCase,
     private val pingRinger: PingRinger,
     private val imageUtil: ImageUtil,
     private val fileManager: FileManager
@@ -184,16 +190,13 @@ class MessageComposerViewModel @Inject constructor(
 
     internal fun checkPendingActions() {
         // Check if there are messages to delete
-        val messageToDeleteId = savedStateHandle
-            .getBackNavArg<String>(EXTRA_MESSAGE_TO_DELETE_ID)
-        val messageToDeleteIsSelf = savedStateHandle
-            .getBackNavArg<Boolean>(EXTRA_MESSAGE_TO_DELETE_IS_SELF)
+        val messageToDeleteId = savedStateHandle.getBackNavArg<String>(EXTRA_MESSAGE_TO_DELETE_ID)
 
-        val groupDeletedName = savedStateHandle
-            .getBackNavArg<String>(EXTRA_GROUP_DELETED_NAME)
+        val messageToDeleteIsSelf = savedStateHandle.getBackNavArg<Boolean>(EXTRA_MESSAGE_TO_DELETE_IS_SELF)
 
-        val leftGroup = savedStateHandle
-            .getBackNavArg(EXTRA_LEFT_GROUP) ?: false
+        val groupDeletedName = savedStateHandle.getBackNavArg<String>(EXTRA_GROUP_DELETED_NAME)
+
+        val leftGroup = savedStateHandle.getBackNavArg(EXTRA_LEFT_GROUP) ?: false
 
         if (messageToDeleteId != null && messageToDeleteIsSelf != null) {
             showDeleteMessageDialog(messageToDeleteId, messageToDeleteIsSelf)
@@ -218,12 +221,23 @@ class MessageComposerViewModel @Inject constructor(
         }
     }
 
+    fun sendEditMessage(editMessageBundle: EditMessageBundle) {
+        viewModelScope.launch {
+            sendEditTextMessage(
+                conversationId = conversationId,
+                originalMessageId = editMessageBundle.originalMessageId,
+                text = editMessageBundle.newContent,
+                mentions = editMessageBundle.newMentions.map { it.intoMessageMention() },
+            )
+        }
+    }
+
     @Suppress("MagicNumber")
-    fun sendAttachmentMessage(attachmentBundle: AttachmentBundle?) {
+    fun sendAttachmentMessage(attachmentBundle: AssetBundle?) {
         viewModelScope.launch {
             withContext(dispatchers.io()) {
                 attachmentBundle?.run {
-                    when (attachmentType) {
+                    when (assetType) {
                         AttachmentType.IMAGE -> {
                             if (dataSize > getAssetSizeLimit(isImage = true)) onSnackbarMessage(ErrorMaxImageSize)
                             else {
@@ -274,7 +288,9 @@ class MessageComposerViewModel @Inject constructor(
                             }
                         }
 
-                        AttachmentType.AUDIO -> TODO()
+                        AttachmentType.AUDIO -> {
+                            // TODO()
+                        }
                     }
                 }
             }
@@ -354,6 +370,10 @@ class MessageComposerViewModel @Inject constructor(
         viewModelScope.launch(dispatchers.io()) {
             updateConversationReadDateUseCase(conversationId, Instant.parse(utcISO))
         }
+    }
+
+    fun startSelfDeletion(uiMessage: UIMessage.Regular) {
+        enqueueMessageSelfDeletionUseCase(conversationId, uiMessage.header.messageId)
     }
 
     fun navigateBack(previousBackStackPassedArgs: Map<String, Any> = mapOf()) {

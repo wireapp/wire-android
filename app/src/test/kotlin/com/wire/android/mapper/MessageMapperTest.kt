@@ -21,14 +21,13 @@
 package com.wire.android.mapper
 
 import com.wire.android.config.CoroutineTestExtension
-import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.framework.TestMessage
 import com.wire.android.framework.TestUser
 import com.wire.android.ui.home.conversations.model.MessageBody
-import com.wire.android.ui.home.conversations.model.UIMessageContent.TextMessage
 import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.model.MessageStatus
 import com.wire.android.ui.home.conversations.model.UIMessage
+import com.wire.android.ui.home.conversations.model.UIMessageContent.TextMessage
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.util.time.ISOFormatter
 import com.wire.android.util.ui.UIText
@@ -42,7 +41,6 @@ import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
@@ -84,9 +82,9 @@ class MessageMapperTest {
             .apply { timeZone = TimeZone.getTimeZone("UTC") }
 
         val now = serverDateFormatter.format(Date())
-        val calender = Calendar.getInstance()
-        calender.add(Calendar.DATE, -1);
-        val yesterday = serverDateFormatter.format(calender.time)
+        val calendar = Calendar.getInstance()
+        calendar.add(Calendar.DATE, -1)
+        val yesterday = serverDateFormatter.format(calendar.time)
 
         val (arrangement, mapper) = Arrangement().arrange()
         val userId1 = UserId("user-id1", "user-domain")
@@ -95,45 +93,55 @@ class MessageMapperTest {
         val message2 = arrangement.testMessage(senderUserId = userId2, status = Message.Status.FAILED, date = yesterday)
         val message3 = arrangement.testMessage(senderUserId = userId1, editStatus = Message.EditStatus.Edited(now), date = now)
         val message4 = arrangement.testMessage(senderUserId = userId1, visibility = Message.Visibility.DELETED, date = now)
-        val messages = listOf(message1, message2, message3, message4)
         val member1 = TestUser.MEMBER_SELF.copy(TestUser.SELF_USER.copy(id = userId1))
         val member2 = TestUser.MEMBER_OTHER.copy(TestUser.OTHER_USER.copy(id = userId2))
         val members = listOf(member1.user, member2.user)
         // When
-        val result = mapper.toUIMessages(members, messages)
+        val uiMessage1 = mapper.toUIMessage(members, message1)
+        val uiMessage2 = mapper.toUIMessage(members, message2)
+        val uiMessage3 = mapper.toUIMessage(members, message3)
+        val uiMessage4 = mapper.toUIMessage(members, message4)
         // Then
-        assert(result.size == 4)
-        assert(checkMessageData(
-            uiMessage = result[0],
-            time = message1.date.uiMessageDateTime()
-        ))
-        assert(checkMessageData(
-            uiMessage = result[1],
-            time = message2.date.uiMessageDateTime(),
-            source = MessageSource.OtherUser,
-            membership = Membership.Guest,
-            status = MessageStatus.SendFailure
-        ))
-        assert(checkMessageData(
-            uiMessage = result[2],
-            time = message3.date.uiMessageDateTime(),
-            status = MessageStatus.Edited(now.uiMessageDateTime() ?: "")
-        ))
-        assert(checkMessageData(
-            uiMessage = result[3],
-            time = message4.date.uiMessageDateTime(),
-            status = MessageStatus.Deleted
-        ))
+        assert(
+
+            checkMessageData(
+                uiMessage = uiMessage1,
+                time = message1.date.uiMessageDateTime()
+            )
+        )
+        assert(
+            checkMessageData(
+                uiMessage = uiMessage2,
+                time = message2.date.uiMessageDateTime(),
+                source = MessageSource.OtherUser,
+                membership = Membership.Guest,
+                status = MessageStatus.SendFailure
+            )
+        )
+        assert(
+            checkMessageData(
+                uiMessage = uiMessage3,
+                time = message3.date.uiMessageDateTime(),
+                status = MessageStatus.Edited(now.uiMessageDateTime() ?: "")
+            )
+        )
+        assert(
+            checkMessageData(
+                uiMessage = uiMessage4,
+                time = message4.date.uiMessageDateTime(),
+                status = MessageStatus.Deleted
+            )
+        )
     }
 
     private fun checkMessageData(
-        uiMessage: UIMessage,
+        uiMessage: UIMessage?,
         time: String?,
         source: MessageSource = MessageSource.Self,
         membership: Membership = Membership.None,
         status: MessageStatus = MessageStatus.Untouched
-    ) = uiMessage.messageSource == source && uiMessage.messageHeader.membership == membership
-                && uiMessage.messageHeader.messageTime.formattedDate == time && uiMessage.messageHeader.messageStatus == status
+    ) = uiMessage?.source == source && uiMessage.header.membership == membership
+            && uiMessage.header.messageTime.formattedDate == time && uiMessage.header.messageStatus == status
 
     private class Arrangement {
         @MockK
@@ -149,7 +157,7 @@ class MessageMapperTest {
         private lateinit var wireSessionImageLoader: WireSessionImageLoader
 
         private val messageMapper by lazy {
-            MessageMapper(TestDispatcherProvider(), userTypeMapper, messageContentMapper, isoFormatter, wireSessionImageLoader)
+            MessageMapper(userTypeMapper, messageContentMapper, isoFormatter, wireSessionImageLoader)
         }
 
         init {
@@ -158,7 +166,9 @@ class MessageMapperTest {
             coEvery { messageContentMapper.fromMessage(any(), any()) } returns TextMessage(
                 MessageBody(UIText.DynamicString("some message text"))
             )
-            coEvery { messageContentMapper.toSystemMessageMemberName(any(), any()) } returns UIText.DynamicString("username")
+            coEvery { messageContentMapper.toSystemMessageMemberName(any(), any()) } returns UIText.DynamicString(
+                "username"
+            )
             every { isoFormatter.fromISO8601ToTimeFormat(any()) } answers { firstArg<String>().uiMessageDateTime() ?: "" }
         }
 

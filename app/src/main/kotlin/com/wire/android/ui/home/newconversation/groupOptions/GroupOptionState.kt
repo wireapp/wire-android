@@ -20,9 +20,6 @@
 
 package com.wire.android.ui.home.newconversation.groupOptions
 
-import com.wire.kalium.logic.data.conversation.Conversation
-import com.wire.kalium.logic.data.conversation.Conversation.AccessRole.SERVICE
-
 data class GroupOptionState(
     val continueEnabled: Boolean = true,
     val isLoading: Boolean = false,
@@ -30,10 +27,6 @@ data class GroupOptionState(
     val isAllowServicesEnabled: Boolean = true,
     val isReadReceiptEnabled: Boolean = true,
     val showAllowGuestsDialog: Boolean = false,
-    val accessRoleState: MutableSet<Conversation.AccessRole> = Conversation
-        .defaultGroupAccessRoles
-        .toMutableSet()
-        .apply { add(Conversation.AccessRole.SERVICE) },
     val error: Error? = null
 ) {
     sealed interface Error {

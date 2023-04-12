@@ -41,6 +41,7 @@
     <string name="label_membership_service">Сервіс</string>
     <string name="label_user_deleted">Deleted</string>
     <string name="label_message_sent_failure">Не вдалося надіслати повідомлення.</string>
+    <string name="label_message_edit_sent_failure">The edited message could not be sent due to connectivity issues.</string>
     <string name="label_message_sent_remotely_failure">Message could not be sent, as the backend %s appears to be offline.</string>
     <string name="label_message_receive_failure">Помилка завантаження</string>
     <string name="label_message_decryption_failure_message">Message could not be decrypted.</string>
@@ -53,6 +54,7 @@
     <string name="label_update">Оновити</string>
     <string name="label_close">Закрити</string>
     <string name="label_download">Завантажити</string>
+    <string name="label_open_asset_externally">Open</string>
     <string name="label_show">Показати</string>
     <string name="label_show_all">Розгорнути</string>
     <string name="label_show_less">Згорнути</string>
@@ -77,6 +79,7 @@
     <string name="content_description_muted_conversation">Вимкнена бесіда</string>
     <string name="content_description_check">Check mark</string>
     <string name="content_description_download_icon">Завантажити значок</string>
+    <string name="content_description_open_asset_icon">Open icon</string>
     <string name="content_description_add_to_favourite">Add to Favorites</string>
     <string name="content_description_move_to_folder">Перемістити в папку</string>
     <string name="content_description_move_to_archive">Перемістити в архів</string>
@@ -183,12 +186,15 @@
     <string name="migration_title">Setting up Wire</string>
     <string name="migration_message">Please wait while we set up the app for you</string>
     <string name="migration_message_unknown">Please wait while we migrate data for you</string>
-    <string name="migration_server_configs_message">Please wait while we migrate backends for you</string>
-    <string name="migration_accounts_message">Please wait while we migrate accounts for you</string>
-    <string name="migration_clients_message">Please wait while we migrate clients for you</string>
-    <string name="migration_users_message">Please wait while we migrate users for you</string>
-    <string name="migration_conversations_message">Please wait while we migrate conversations for you</string>
-    <string name="migration_messages_message">Please wait while we migrate messages for you</string>
+    <string name="migration_accounts_message">Migrating your accounts...</string>
+    <string name="migration_messages_message">Migrating your messages...</string>
+    <string name="migration_title_step">Step %1$d/%2$d</string>
+    <string name="migration_title_almost_done">Almost done!</string>
+    <string name="migration_title_updated">Setting up Wire</string>
+    <string name="migration_login_required">In order to migrate your messages from the old version of Wire, you need to log in to your account.</string>
+    <string name="migration_login_required_specific_account">In order to migrate your messages from the old version of Wire, you need to log in to your account %s.</string>
+    <string name="migration_login_required_specific_account_name">“%1$s (@%2$s)“</string>
+    <string name="migration_messages_failure">Unfortunately, not all messages and conversations could not be migrated due to incompatibility with the older version of Wire (error code: %s)</string>
     <string name="migration_cancel_title">Cancel migration</string>
     <string name="migration_cancel_message">Are you sure you want to close the application and cancel the ongoing migration?</string>
     <!-- Login -->
@@ -228,6 +234,12 @@
     <string name="session_expired_error_message">The application did not communicate with the server
         for a long period of time, or your session has been remotely invalidated.
     </string>
+    <string name="conversation_history_wipe_explanation">According to your team\'s security
+        settings, your conversation history has also been deleted.</string>
+    <!-- Second Factor Authentication -->
+    <string name="second_factor_authentication_title">Verify your account</string>
+    <string name="second_factor_authentication_instructions_label">Enter the verification code sent to the email %1$s</string>
+    <string name="second_factor_code_error">Invalid code, or maximum attempts exceeded. Please retry, or request another code</string>
     <!-- Remove Device -->
     <string name="remove_device_title">Remove a Device</string>
     <string name="remove_device_message">Remove one of your other devices to start using Wire on
@@ -239,6 +251,7 @@
     <string name="remove_device_dialog_title">Remove the following device?</string>
     <string name="remove_device_invalid_password">Invalid password</string>
     <string name="remove_device_details_description">Remove this device if you have stopped using it. You will be logged out of this device immediately.</string>
+    <string name="remove_device_details_description_with_wipe">Remove your device if you have stopped using it. According to your team\'s security settings, your conversation history will also be deleted.</string>
     <!-- Register Device -->
     <string name="register_device_title">Add this Device</string>
     <string name="register_device_text">Enter your password to use Wire on this device.</string>
@@ -317,6 +330,7 @@
     <string name="conversations_calls_tab_title">Calls</string>
     <string name="conversations_mentions_tab_title">Mentions</string>
     <string name="sent_a_message_with_content">sent a message with %s content</string>
+    <string name="sent_a_message_with_unknown_content">sent a message with unknown content</string>
     <string name="new_group_title">New Group</string>
     <string name="new_group_description">Up to 500 people can join a group conversation.</string>
     <string name="group_name_title">Group Name</string>
@@ -377,10 +391,11 @@
     <string name="delete_group_conversation_menu_item">Delete Group…</string>
     <string name="delete_group_conversation_dialog_title">Remove “%s”?</string>
     <string name="delete_group_conversation_dialog_description">The group will be removed from your conversations list on all devices. You will no longer be able to access the group and its content.</string>
-    <!-- Import External Media -->
+    <!-- Import/Export External Media -->
     <string name="import_media_content_title">Share With Wire</string>
     <string name="import_media_searchbar_title">Search for conversation</string>
     <string name="import_media_send_button_title">Send</string>
+    <string name="export_media_subject_title">Sharing Media from Wire</string>
     <!--Read receipts -->
     <string name="conversation_options_read_receipt_label">Read receipts</string>
     <string name="conversation_options_read_receipt_description">When this is on, people can see when their messages in this conversation are read.</string>
@@ -421,7 +436,7 @@
     <string name="user_profile_group_remove_button">Remove from group</string>
     <!-- Remove Conversation Member Dialog -->
     <string name="dialog_remove_conversation_member_title">Remove from group?</string>
-    <string name="dialog_remove_conversation_member_description">%s (@%s) will not be able to send or receive messages in this conversation.</string>
+    <string name="dialog_remove_conversation_member_description">%1$s (@%2$s) will not be able to send or receive messages in this conversation.</string>
     <string name="dialog_remove_conversation_member_error">There was an error while removing the participant from the group</string>
     <string name="group_role_admin">Admin</string>
     <string name="group_role_member">Member</string>
@@ -486,7 +501,10 @@
     <!-- System messages -->
     <string name="label_system_message_added_by_self">%1$s added %2$s to the conversation</string>
     <string name="label_system_message_removed_by_self">%1$s removed %2$s from the conversation</string>
+    <string name="label_system_message_added_by_other">%1$s added %2$s to the conversation</string>
+    <string name="label_system_message_removed_by_other">%1$s removed %2$s from the conversation</string>
     <string name="label_system_message_left_the_conversation_by_self">%1$s left the conversation</string>
+    <string name="label_system_message_left_the_conversation_by_other">%1$s left the conversation</string>
     <string name="label_system_message_other_called">%1$s called</string>
     <string name="label_system_message_you_called">%1$s called</string>
     <string name="label_system_message_and">%1$s and %2$s</string>
@@ -507,41 +525,64 @@
     <string name="label_system_message_receipt_mode_on">on</string>
     <string name="label_system_message_receipt_mode_off">off</string>
     <!-- Last messages -->
-    <string name="last_message_added">added</string>
-    <string name="last_message_removed">removed</string>
-    <string name="last_message_asset">shared media asset</string>
-    <string name="last_message_image">shared an image.</string>
-    <string name="last_message_video">shared a video.</string>
-    <string name="last_message_audio">shared an audio message.</string>
-    <string name="last_message_file">shared a file.</string>
-    <string name="last_message_knock">pinged.</string>
+    <plurals name="last_message_self_added_users">
+        <item quantity="one">You added 1 person to the conversation</item>
+        <item quantity="few">You added %1$d people to the conversation</item>
+        <item quantity="many">You added %1$d people to the conversation</item>
+        <item quantity="other">You added %1$d people to the conversation</item>
+    </plurals>
+    <string name="last_message_other_added_only_self_user">You were added to the conversation</string>
+    <plurals name="last_message_other_added_self_user">
+        <item quantity="one">You and 1 other person were added to the conversation</item>
+        <item quantity="few">You and %1$d people were added to the conversation</item>
+        <item quantity="many">You and %1$d people were added to the conversation</item>
+        <item quantity="other">You and %1$d people were added to the conversation</item>
+    </plurals>
+    <plurals name="last_message_other_added_other_users">
+        <item quantity="one">1 person was added to the conversation</item>
+        <item quantity="few">%1$d people were added to the conversation</item>
+        <item quantity="many">%1$d people were added to the conversation</item>
+        <item quantity="other">%1$d people were added to the conversation</item>
+    </plurals>
+    <plurals name="last_message_self_removed_users">
+        <item quantity="one">You removed 1 person from the conversation</item>
+        <item quantity="few">You removed %1$d people from the conversation</item>
+        <item quantity="many">You removed %1$d people from the conversation</item>
+        <item quantity="other">You removed %1$d people from the conversation</item>
+    </plurals>
+    <string name="last_message_other_removed_only_self_user">You were removed from the conversation</string>
+    <plurals name="last_message_other_removed_self_user_and_others">
+        <item quantity="one">You and 1 other person were removed from the conversation</item>
+        <item quantity="few">You and %1$d people were removed from the conversation</item>
+        <item quantity="many">You and %1$d people were removed from the conversation</item>
+        <item quantity="other">You and %1$d people were removed from the conversation</item>
+    </plurals>
+    <plurals name="last_message_other_removed_other_users">
+        <item quantity="one">1 person was removed from the conversation</item>
+        <item quantity="few">%1$d people were removed from the conversation</item>
+        <item quantity="many">%1$d people were removed from the conversation</item>
+        <item quantity="other">%1$d people were removed from the conversation</item>
+    </plurals>
+    <string name="last_message_self_user_shared_asset">shared a file.</string>
+    <string name="last_message_other_user_shared_asset">shared a file.</string>
+    <string name="last_message_self_user_shared_image">shared an image.</string>
+    <string name="last_message_other_user_shared_image">shared an image.</string>
+    <string name="last_message_self_user_shared_video">shared a video.</string>
+    <string name="last_message_other_user_shared_video">shared a video.</string>
+    <string name="last_message_self_user_shared_audio">shared an audio message.</string>
+    <string name="last_message_other_user_shared_audio">shared an audio message.</string>
+    <string name="last_message_self_user_knock">pinged.</string>
+    <string name="last_message_other_user_knock">pinged.</string>
     <string name="last_message_call">called.</string>
     <string name="last_message_mentioned">mentioned you</string>
     <string name="last_message_replied">replied to you</string>
-    <string name="last_message_change_conversation_name">changed conversation name</string>
+    <string name="last_message_other_changed_conversation_name">changed conversation name</string>
+    <string name="last_message_self_changed_conversation_name">changed conversation name</string>
     <string name="last_message_calling">%1$s calling...</string>
-    <plurals name="last_message_people_added">
-        <item quantity="one">added %1$d person</item>
-        <item quantity="few">added %1$d people</item>
-        <item quantity="many">added %1$d people</item>
-        <item quantity="other">added %1$d people</item>
-    </plurals>
-    <plurals name="last_message_people_removed">
-        <item quantity="one">removed %1$d person</item>
-        <item quantity="few">removed %1$d people</item>
-        <item quantity="many">removed %1$d people</item>
-        <item quantity="other">removed %1$d people</item>
-    </plurals>
-    <plurals name="last_message_people">
-        <item quantity="one">%1$d person</item>
-        <item quantity="few">%1$d people</item>
-        <item quantity="many">%1$d people</item>
-        <item quantity="other">%1$d people</item>
-    </plurals>
-    <string name="last_message_joined_conversation">joined the conversation.</string>
-    <string name="last_message_left_conversation">left the conversation.</string>
-    <string name="last_message_to_conversation">to conversation</string>
-    <string name="last_message_from_conversation">from conversation</string>
+    <string name="last_message_self_user_joined_conversation">joined the conversation.</string>
+    <string name="last_message_self_user_left_conversation">left the conversation.</string>
+    <string name="last_message_other_user_joined_conversation">joined the conversation.</string>
+    <string name="last_message_other_user_left_conversation">left the conversation.</string>
     <!-- Unread Events -->
     <plurals name="unread_event_knock">
         <item quantity="one">%1$d ping</item>
@@ -708,7 +749,7 @@
     <string name="prohibited_videos_message">Receiving videos is prohibited</string>
     <string name="prohibited_audio_message">Receiving audio messages is prohibited</string>
     <string name="prohibited_file_message">Receiving files is prohibited</string>
-    <string name="team_settings_changed">Team settings changed</string>
+    <string name="team_settings_changed">Team Settings Changed</string>
     <string name="sharing_files_enabled">Отримання та надсилання файлів будь-якого типу було увімкнено</string>
     <string name="sharing_files_disabled">Отримання та надсилання файлів будь-якого типу було вимкнено</string>
     <!--wire dropdown-->
@@ -728,7 +769,7 @@
     <string name="block_user_dialog_title">Block user?</string>
     <string name="block_user_dialog_body">%1$s won’t be able to contact you or add you to group conversations. They will not be notified about this.</string>
     <string name="block_user_dialog_confirm_button">Block</string>
-    <string name="other_user_devices_description"><![CDATA[\Wire gives every device a unique fingerprint. Compare them with %1$s and verify your conversation. \]]></string>
+    <string name="other_user_devices_description"><![CDATA[Wire gives every device a unique fingerprint. Compare them with %1$s and verify your conversation.]]></string>
     <!--Settings -->
     <string name="url_why_verify_conversation">/hc/en-us/articles/207859815</string>
     <string name="settings_general_label">General</string>
@@ -802,6 +843,7 @@
     <string name="label_reactions">Reactions</string>
     <string name="label_more_comming_soon">(more coming soon)</string>
     <string name="label_wait_until_synchronised">Please wait until the app is synchronized</string>
+    <string name="label_wait_until_connected">Please wait until the Internet connection is restored</string>
     <string name="label_textfield_optional_password">Password (optional)</string>
     <!--create and restore backup-->
     <string name="backup_dialog_create_backup_set_password_title">Set password</string>
@@ -858,6 +900,8 @@
     <string name="cancel_login_dialog_title">Are you sure you want to cancel?</string>
     <!-- session reset -->
     <string name="label_system_message_session_reset">%1$s was unable to decrypt some of your messages but has solved the issue. This affected all conversations you share together.</string>
+    <string name="label_manual_migration_title">Migrate from version 3.82.38</string>
+    <string name="start_manual_migration">Start migration form version 3.82.38 manually</string>
     <string name="file_sharing_restricted_dialog_title">File Sharing Restrictions</string>
     <string name="file_sharing_restricted_dialog_description">You can not share this file because this feature is disabled.</string>
     <!-- join conversation dialog -->
@@ -868,16 +912,72 @@
     <string name="join_conversation_via_deeplink_error_link_expired">The link to this group conversation expired or the conversation was set to private.</string>
     <string name="join_conversation_via_deeplink_error_max_number_of_participent">The maximum number of participants in this conversation has been reached.</string>
     <string name="join_conversation_via_deeplink_error_general">Due to an error you could not be added to the group conversation.</string>
-    <!-- guest link -->
+    <!-- guest room link -->
     <string name="folder_label_guest_link">Guest link</string>
     <string name="guest_link_description">Invite others with a link to this conversation. Anyone with the link can join the conversation, even if they don’t have Wire.</string>
     <string name="guest_link_button_create_link">Create Link</string>
     <string name="guest_link_button_copy_link">Copy Link</string>
     <string name="guest_link_button_share_link">Share Link</string>
     <string name="guest_link_button_revoke_link">Revoke Link</string>
+    <string name="audio_not_available">Audio not available</string>
+    <string name="audio_not_available_explanation">Something went wrong while downloading this audio file. Please ask the sender to upload it again</string>
     <string name="guest_link_generate_error_message">There was an error trying to create Guest Link. Please try again</string>
     <string name="guest_link_revoke_error_message">There was an error trying to revoke Guest Link. Please try again</string>
     <string name="revoke_guest__room_link_dialog_text">New guests will not be able to join with this link. Current guests will still have access.</string>
     <string name="revoke_guest__room_link_dialog_title">Revoke guest link?</string>
     <string name="guest__room_link_copied">Guest link was copied to clipboard</string>
+    <string name="title_device_key_fingerprint">DEVICE KEY FINGERPRINT</string>
+    <string name="label_client_key_fingerprint_not_available">NOT AVAILABLE</string>
+    <string name="guest_room_link_copied">Guest link was copied to clipboard</string>
+    <string name="guest_room_link_enabled">Generating guest links is now enabled for all group admins</string>
+    <string name="guest_room_link_disabled">Generating guest links is now disabled for all group admins</string>
+    <!-- New Device dialog -->
+    <string name="new_device_dialog_current_user_title">Your account was used on</string>
+    <string name="new_device_dialog_current_user_message">%1$s\nFrom: %2$s \n\nIf you didn’t do this, remove the device and reset your password.</string>
+    <string name="new_device_dialog_current_user_btn">Manage Devices</string>
+    <string name="new_device_dialog_other_user_title">Your account “%1$s (@%2$s)” was used on:</string>
+    <string name="new_device_dialog_other_user_message">%1$s\nFrom: %2$s \n\nIf you didn’t do this, remove the device (navigate to “Manage Devices” in the Settings section of this account), and reset your password.</string>
+    <string name="new_device_dialog_other_user_btn">Switch Account</string>
+    <string name="label_system_message_joined_the_conversation_by_self">%1$s joined the conversation</string>
+    <string name="label_system_message_joined_the_conversation_by_other">%1$s joined the conversation</string>
+    <string name="label_client_verified">Verified</string>
+    <string name="label_client_unverified">Not Verified</string>
+    <string name="label_self_client_verification_description">To verify your own device, compare this key fingerprint with the same key fingerprint on another device.</string>
+    <string name="label_client_verification_description">Verify that this device fingerprint matches the fingerprint shown on %s’s device.</string>
+    <string name="label_fingerprint_description">If fingerprints don’t match, reset the session to generate new encryption keys on both sides.</string>
+    <string name="label_self_fingerprint_description">To let others verify this device, share this fingerprint or the QR code with them.</string>
+    <string name="unknown_user_name">unknown</string>
+    <string name="self_deleting_message_time_left">Self-deleting message • %1$s</string>
+    <string name="self_deleting_message_label">Self-deleting message</string>
+    <!-- Expirable messages -->
+    <plurals name="weeks_left">
+        <item quantity="one">1 week left</item>
+        <item quantity="few">%1$d weeks left</item>
+        <item quantity="many">%1$d weeks left</item>
+        <item quantity="other">%1$d weeks left</item>
+    </plurals>
+    <plurals name="days_left">
+        <item quantity="one">1 day left</item>
+        <item quantity="few">%1$d days left</item>
+        <item quantity="many">%1$d days left</item>
+        <item quantity="other">%1$d days left</item>
+    </plurals>
+    <plurals name="hours_left">
+        <item quantity="one">1 hour left</item>
+        <item quantity="few">%1$d hours left</item>
+        <item quantity="many">%1$d hours left</item>
+        <item quantity="other">%1$d hours left</item>
+    </plurals>
+    <plurals name="minutes_left">
+        <item quantity="one">1 minute left</item>
+        <item quantity="few">%1$d minutes left</item>
+        <item quantity="many">%1$d minutes left</item>
+        <item quantity="other">%1$d minutes left</item>
+    </plurals>
+    <plurals name="seconds_left">
+        <item quantity="one">1 second left</item>
+        <item quantity="few">%1$d seconds left</item>
+        <item quantity="many">%1$d seconds left</item>
+        <item quantity="other">%1$d seconds left</item>
+    </plurals>
 </resources>

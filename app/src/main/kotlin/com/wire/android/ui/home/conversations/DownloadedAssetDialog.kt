@@ -27,24 +27,20 @@ import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.util.permission.rememberWriteStorageRequestFlow
-import com.wire.kalium.logic.util.fileExtension
-import okio.Path
 
 @Composable
 fun DownloadedAssetDialog(
     downloadedAssetDialogState: DownloadedAssetDialogVisibilityState,
-    onSaveFileToExternalStorage: (String, Path, Long, String) -> Unit,
-    onOpenFileWithExternalApp: (Path, String?) -> Unit,
+    onSaveFileToExternalStorage: (String) -> Unit,
+    onOpenFileWithExternalApp: (String) -> Unit,
     hideOnAssetDownloadedDialog: () -> Unit
 ) {
     if (downloadedAssetDialogState is DownloadedAssetDialogVisibilityState.Displayed) {
-        val assetName = downloadedAssetDialogState.assetName
-        val assetDataPath = downloadedAssetDialogState.assetDataPath
-        val assetSize = downloadedAssetDialogState.assetSize
+        val assetName = downloadedAssetDialogState.assetData.fileName
         val messageId = downloadedAssetDialogState.messageId
 
         val onSaveFileWriteStorageRequest = rememberWriteStorageRequestFlow(
-            onGranted = { onSaveFileToExternalStorage(assetName, assetDataPath, assetSize, messageId) },
+            onGranted = { onSaveFileToExternalStorage(messageId) },
             onDenied = { /** TODO: Show a dialog rationale explaining why the permission is needed **/ }
         )
 
@@ -56,7 +52,7 @@ fun DownloadedAssetDialog(
             optionButton2Properties = WireDialogButtonProperties(
                 text = stringResource(R.string.asset_download_dialog_open_text),
                 type = WireDialogButtonType.Primary,
-                onClick = { onOpenFileWithExternalApp(assetDataPath, assetName.fileExtension()) }
+                onClick = { onOpenFileWithExternalApp(messageId) }
             ),
             optionButton1Properties = WireDialogButtonProperties(
                 text = stringResource(R.string.asset_download_dialog_save_text),

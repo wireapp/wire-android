@@ -60,6 +60,9 @@ import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.spacers.VerticalSpace
+import com.wire.android.ui.home.conversations.mock.mockMessageWithKnock
+import com.wire.android.ui.home.conversations.model.MessageStatus
+import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent.SystemMessage
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
@@ -68,10 +71,11 @@ import com.wire.android.util.ui.stringWithStyledArgs
 import com.wire.android.util.ui.toUIText
 
 @Composable
-fun SystemMessageItem(message: SystemMessage) {
+fun SystemMessageItem(message: UIMessage.System) {
     val fullAvatarOuterPadding = dimensions().userAvatarClickablePadding + dimensions().userAvatarStatusBorderSize
     Row(
         Modifier
+            .customizeMessageBackground(message.sendingFailed, message.receivingFailed)
             .padding(
                 end = dimensions().spacing16x,
                 start = dimensions().spacing8x,
@@ -85,7 +89,7 @@ fun SystemMessageItem(message: SystemMessage) {
                 .width(dimensions().userAvatarDefaultSize),
             contentAlignment = Alignment.TopEnd
         ) {
-            if (message.iconResId != null) {
+            if (message.messageContent.iconResId != null) {
                 Box(
                     modifier = Modifier.size(
                         width = dimensions().systemMessageIconLargeSize,
@@ -94,12 +98,12 @@ fun SystemMessageItem(message: SystemMessage) {
                     contentAlignment = Alignment.Center
                 ) {
                     val size =
-                        if (message.isSmallIcon) dimensions().systemMessageIconSize
+                        if (message.messageContent.isSmallIcon) dimensions().systemMessageIconSize
                         else dimensions().systemMessageIconLargeSize
                     Image(
-                        painter = painterResource(id = message.iconResId),
+                        painter = painterResource(id = message.messageContent.iconResId),
                         contentDescription = null,
-                        colorFilter = getColorFilter(message),
+                        colorFilter = getColorFilter(message.messageContent),
                         modifier = Modifier.size(size),
                         contentScale = ContentScale.Crop
                     )
@@ -121,7 +125,7 @@ fun SystemMessageItem(message: SystemMessage) {
                     ),
                 style = MaterialTheme.wireTypography.body01,
                 lineHeight = MaterialTheme.wireTypography.body02.lineHeight,
-                text = message.annotatedString(
+                text = message.messageContent.annotatedString(
                     res = context.resources,
                     expanded = expanded,
                     normalStyle = MaterialTheme.wireTypography.body01,
@@ -130,10 +134,10 @@ fun SystemMessageItem(message: SystemMessage) {
                     boldColor = MaterialTheme.wireColorScheme.onBackground
                 )
             )
-            if (message is SystemMessage.Knock) {
+            if (message.messageContent is SystemMessage.Knock) {
                 VerticalSpace.x8()
             }
-            if (message.expandable) {
+            if (message.messageContent.expandable) {
                 WireSecondaryButton(
                     onClick = { expanded = !expanded },
                     text = stringResource(if (expanded) R.string.label_show_less else R.string.label_show_all),
@@ -147,6 +151,9 @@ fun SystemMessageItem(message: SystemMessage) {
                         .height(height = dimensions().spacing32x)
                 )
             }
+            if (message.sendingFailed) {
+                MessageSendFailureWarning(message.header.messageStatus as MessageStatus.MessageSendFailureStatus)
+            }
         }
     }
 }
@@ -158,6 +165,7 @@ private fun getColorFilter(message: SystemMessage): ColorFilter? {
         is SystemMessage.MissedCall.YouCalled -> null
         is SystemMessage.Knock -> ColorFilter.tint(colorsScheme().primary)
         is SystemMessage.MemberAdded -> ColorFilter.tint(colorsScheme().onBackground)
+        is SystemMessage.MemberJoined -> ColorFilter.tint(colorsScheme().onBackground)
         is SystemMessage.MemberLeft -> ColorFilter.tint(colorsScheme().onBackground)
         is SystemMessage.MemberRemoved -> ColorFilter.tint(colorsScheme().onBackground)
         is SystemMessage.CryptoSessionReset -> ColorFilter.tint(colorsScheme().onBackground)
@@ -173,16 +181,18 @@ private fun getColorFilter(message: SystemMessage): ColorFilter? {
 @Composable
 fun PreviewSystemMessageAdded7Users() {
     SystemMessageItem(
-        message = SystemMessage.MemberAdded(
-            "Barbara Cotolina".toUIText(),
-            listOf(
-                "Albert Lewis".toUIText(),
-                "Bert Strunk".toUIText(),
-                "Claudia Schiffer".toUIText(),
-                "Dorothee Friedrich".toUIText(),
-                "Erich Weinert".toUIText(),
-                "Frieda Kahlo".toUIText(),
-                "Gudrun Gut".toUIText()
+        message = mockMessageWithKnock.copy(
+            messageContent = SystemMessage.MemberAdded(
+                "Barbara Cotolina".toUIText(),
+                listOf(
+                    "Albert Lewis".toUIText(),
+                    "Bert Strunk".toUIText(),
+                    "Claudia Schiffer".toUIText(),
+                    "Dorothee Friedrich".toUIText(),
+                    "Erich Weinert".toUIText(),
+                    "Frieda Kahlo".toUIText(),
+                    "Gudrun Gut".toUIText()
+                )
             )
         )
     )
@@ -192,9 +202,16 @@ fun PreviewSystemMessageAdded7Users() {
 @Composable
 fun PreviewSystemMessageAdded4Users() {
     SystemMessageItem(
-        message = SystemMessage.MemberAdded(
-            "Barbara Cotolina".toUIText(),
-            listOf("Albert Lewis".toUIText(), "Bert Strunk".toUIText(), "Claudia Schiffer".toUIText(), "Dorothee Friedrich".toUIText())
+        message = mockMessageWithKnock.copy(
+            messageContent = SystemMessage.MemberAdded(
+                "Barbara Cotolina".toUIText(),
+                listOf(
+                    "Albert Lewis".toUIText(),
+                    "Bert Strunk".toUIText(),
+                    "Claudia Schiffer".toUIText(),
+                    "Dorothee Friedrich".toUIText()
+                )
+            )
         )
     )
 }
@@ -203,9 +220,16 @@ fun PreviewSystemMessageAdded4Users() {
 @Composable
 fun PreviewSystemMessageRemoved4Users() {
     SystemMessageItem(
-        message = SystemMessage.MemberRemoved(
-            "Barbara Cotolina".toUIText(),
-            listOf("Albert Lewis".toUIText(), "Bert Strunk".toUIText(), "Claudia Schiffer".toUIText(), "Dorothee Friedrich".toUIText())
+        message = mockMessageWithKnock.copy(
+            messageContent = SystemMessage.MemberRemoved(
+                "Barbara Cotolina".toUIText(),
+                listOf(
+                    "Albert Lewis".toUIText(),
+                    "Bert Strunk".toUIText(),
+                    "Claudia Schiffer".toUIText(),
+                    "Dorothee Friedrich".toUIText()
+                )
+            )
         )
     )
 }
@@ -213,25 +237,38 @@ fun PreviewSystemMessageRemoved4Users() {
 @Preview
 @Composable
 fun PreviewSystemMessageLeft() {
-    SystemMessageItem(message = SystemMessage.MemberLeft(UIText.DynamicString("Barbara Cotolina")))
+    SystemMessageItem(
+        message = mockMessageWithKnock.copy(
+            messageContent = SystemMessage.MemberLeft(UIText.DynamicString("Barbara Cotolina"))
+        )
+    )
 }
 
 @Preview
 @Composable
 fun PreviewSystemMessageMissedCall() {
-    SystemMessageItem(message = SystemMessage.MissedCall.OtherCalled(UIText.DynamicString("Barbara Cotolina")))
+    SystemMessageItem(
+        message = mockMessageWithKnock.copy(
+            messageContent = SystemMessage.MissedCall.OtherCalled(UIText.DynamicString("Barbara Cotolina"))
+        )
+    )
 }
 
 @Preview
 @Composable
 fun PreviewSystemMessageKnock() {
-    SystemMessageItem(message = SystemMessage.Knock(UIText.DynamicString("Barbara Cotolina")))
+    SystemMessageItem(
+        message = mockMessageWithKnock.copy(
+            messageContent = SystemMessage.Knock(UIText.DynamicString("Barbara Cotolina"))
+        )
+    )
 }
 
 private val SystemMessage.expandable
     get() = when (this) {
         is SystemMessage.MemberAdded -> this.memberNames.size > EXPANDABLE_THRESHOLD
         is SystemMessage.MemberRemoved -> this.memberNames.size > EXPANDABLE_THRESHOLD
+        is SystemMessage.MemberJoined -> false
         is SystemMessage.MemberLeft -> false
         is SystemMessage.MissedCall -> false
         is SystemMessage.RenamedConversation -> false
@@ -258,7 +295,7 @@ private fun List<UIText>.limitUserNamesList(res: Resources, threshold: Int): Lis
             .plus(res.getQuantityString(R.plurals.label_system_message_x_more, moreCount, moreCount))
     }
 
-@Suppress("LongParameterList", "SpreadOperator")
+@Suppress("LongParameterList", "SpreadOperator", "ComplexMethod")
 fun SystemMessage.annotatedString(
     res: Resources,
     expanded: Boolean,
@@ -278,6 +315,7 @@ fun SystemMessage.annotatedString(
                 author.asString(res),
                 memberNames.limitUserNamesList(res, if (expanded) memberNames.size else EXPANDABLE_THRESHOLD).toUserNamesListString(res)
             )
+        is SystemMessage.MemberJoined -> arrayOf(author.asString(res))
         is SystemMessage.MemberLeft -> arrayOf(author.asString(res))
         is SystemMessage.MissedCall -> arrayOf(author.asString(res))
         is SystemMessage.RenamedConversation -> arrayOf(author.asString(res), additionalContent)

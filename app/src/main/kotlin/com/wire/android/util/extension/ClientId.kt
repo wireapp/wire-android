@@ -20,10 +20,17 @@
 
 package com.wire.android.util.extension
 
+import androidx.compose.runtime.Stable
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight.Companion.Bold
+import androidx.compose.ui.text.withStyle
 import com.wire.kalium.logic.data.conversation.ClientId
 
 private const val REQUIRED_DISPLAY_LENGTH = 16
 
+@Stable
 fun ClientId.formatAsString(): String {
     val actualLength = value.length
 
@@ -33,5 +40,25 @@ fun ClientId.formatAsString(): String {
         value
     }
 
-    return validatedValue.chunked(2).joinToString(separator = " ")
+    return validatedValue.uppercase().chunked(2).joinToString(separator = " ")
 }
+
+@Stable
+fun String.formatAsFingerPrint(): AnnotatedString =
+    buildAnnotatedString {
+        this@formatAsFingerPrint
+            .uppercase()
+            .chunked(2)
+            .forEachIndexed { index, str ->
+                if (index % 2 == 0) {
+                    withStyle(style = SpanStyle(fontWeight = Bold, shadow = null)) {
+                        append(str)
+                    }
+                } else {
+                    append(str)
+                }
+                if (index != this.length - 1) {
+                    append(" ")
+                }
+            }
+    }

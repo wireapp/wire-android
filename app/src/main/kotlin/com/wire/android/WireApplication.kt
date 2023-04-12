@@ -138,21 +138,23 @@ class WireApplication : Application(), Configuration.Provider {
     }
 
     private fun initializeApplicationLoggingFrameworks() {
-        // 1. Datadog should be initialized first
-        enableDatadog()
-        // 2. Initialize our internal logging framework
-        appLogger = KaliumLogger(
-            config = KaliumLogger.Config(
-                severity = if (BuildConfig.PRIVATE_BUILD) KaliumLogLevel.DEBUG else KaliumLogLevel.DISABLED,
-                tag = "WireAppLogger"
-            ),
-            DataDogLogger,
-            platformLogWriter()
-        )
-        // 3. Initialize our internal FILE logging framework
-        enableLoggingAndInitiateFileLogging()
-        // 4. Everything ready, now we can log device info
-        logDeviceInformation()
+        globalAppScope.launch {
+            // 1. Datadog should be initialized first
+            enableDatadog()
+            // 2. Initialize our internal logging framework
+            appLogger = KaliumLogger(
+                config = KaliumLogger.Config(
+                    severity = if (BuildConfig.PRIVATE_BUILD) KaliumLogLevel.DEBUG else KaliumLogLevel.DISABLED,
+                    tag = "WireAppLogger"
+                ),
+                DataDogLogger,
+                platformLogWriter()
+            )
+            // 3. Initialize our internal FILE logging framework
+            enableLoggingAndInitiateFileLogging()
+            // 4. Everything ready, now we can log device info
+            logDeviceInformation()
+        }
     }
 
     private fun logDeviceInformation() {

@@ -67,8 +67,10 @@ import com.wire.kalium.logic.feature.conversation.ObserveConversationInteraction
 import com.wire.kalium.logic.feature.conversation.ObserveSecurityClassificationLabelUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationReadDateUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
+import com.wire.kalium.logic.feature.message.SendEditTextMessageUseCase
 import com.wire.kalium.logic.feature.message.SendKnockUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
+import com.wire.kalium.logic.feature.message.ephemeral.EnqueueMessageSelfDeletionUseCase
 import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
 import com.wire.kalium.logic.feature.user.IsFileSharingEnabledUseCase
 import com.wire.kalium.logic.functional.Either
@@ -118,6 +120,9 @@ internal class ConversationsViewModelArrangement {
 
     @MockK
     lateinit var sendTextMessage: SendTextMessageUseCase
+
+    @MockK
+    lateinit var sendEditTextMessage: SendEditTextMessageUseCase
 
     @MockK
     lateinit var sendAssetMessage: ScheduleNewAssetMessageUseCase
@@ -176,6 +181,9 @@ internal class ConversationsViewModelArrangement {
     @MockK
     private lateinit var getAssetSizeLimitUseCase: GetAssetSizeLimitUseCase
 
+    @MockK
+    private lateinit var enqueueMessageSelfDeletionUseCase: EnqueueMessageSelfDeletionUseCase
+
     private val fakeKaliumFileSystem = FakeKaliumFileSystem()
 
     private val viewModel by lazy {
@@ -184,6 +192,7 @@ internal class ConversationsViewModelArrangement {
             navigationManager = navigationManager,
             qualifiedIdMapper = qualifiedIdMapper,
             sendTextMessage = sendTextMessage,
+            sendEditTextMessage = sendEditTextMessage,
             sendAssetMessage = sendAssetMessage,
             deleteMessage = deleteMessage,
             dispatchers = TestDispatcherProvider(),
@@ -200,7 +209,8 @@ internal class ConversationsViewModelArrangement {
             imageUtil = imageUtil,
             pingRinger = pingRinger,
             sendKnockUseCase = sendKnockUseCase,
-            fileManager = fileManger
+            fileManager = fileManger,
+            enqueueMessageSelfDeletionUseCase = enqueueMessageSelfDeletionUseCase
         )
     }
 
@@ -294,10 +304,10 @@ internal fun mockConversationDetailsGroup(
 )
 
 internal fun mockUITextMessage(id: String = "someId", userName: String = "mockUserName"): UIMessage {
-    return mockk<UIMessage>().also {
+    return mockk<UIMessage.Regular>().also {
         every { it.userAvatarData } returns UserAvatarData()
-        every { it.messageSource } returns MessageSource.OtherUser
-        every { it.messageHeader } returns mockk<MessageHeader>().also {
+        every { it.source } returns MessageSource.OtherUser
+        every { it.header } returns mockk<MessageHeader>().also {
             every { it.messageId } returns id
             every { it.username } returns UIText.DynamicString(userName)
             every { it.isLegalHold } returns false

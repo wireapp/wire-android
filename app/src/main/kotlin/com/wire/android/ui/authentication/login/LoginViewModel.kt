@@ -21,7 +21,6 @@
 package com.wire.android.ui.authentication.login
 
 import androidx.annotation.VisibleForTesting
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -53,7 +52,6 @@ import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import javax.inject.Inject
 
-@ExperimentalMaterialApi
 @HiltViewModel
 @Suppress("TooManyFunctions")
 open class LoginViewModel @Inject constructor(
@@ -132,13 +130,15 @@ open class LoginViewModel @Inject constructor(
     suspend fun registerClient(
         userId: UserId,
         password: String?,
-        capabilities: List<ClientCapability>? = null
+        secondFactorVerificationCode: String? = null,
+        capabilities: List<ClientCapability>? = null,
     ): RegisterClientResult {
         val clientScope = clientScopeProviderFactory.create(userId).clientScope
         return clientScope.getOrRegister(
             RegisterClientUseCase.RegisterClientParam(
                 password = password,
-                capabilities = capabilities
+                capabilities = capabilities,
+                secondFactorVerificationCode = secondFactorVerificationCode
             )
         )
     }

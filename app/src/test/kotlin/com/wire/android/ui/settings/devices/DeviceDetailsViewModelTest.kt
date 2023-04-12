@@ -8,11 +8,17 @@ import com.wire.android.ui.authentication.devices.remove.RemoveDeviceDialogState
 import com.wire.android.ui.authentication.devices.remove.RemoveDeviceError
 import com.wire.android.ui.settings.devices.DeviceDetailsViewModelTest.Arrangement.Companion.CLIENT_ID
 import com.wire.kalium.logic.CoreFailure
+import com.wire.kalium.logic.NetworkFailure
+import com.wire.kalium.logic.data.conversation.ClientId
+import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.client.ClientFingerprintUseCase
 import com.wire.kalium.logic.feature.client.DeleteClientResult
 import com.wire.kalium.logic.feature.client.DeleteClientUseCase
 import com.wire.kalium.logic.feature.client.GetClientDetailsResult
-import com.wire.kalium.logic.feature.client.GetClientDetailsUseCase
+import com.wire.kalium.logic.feature.client.ObserveClientDetailsUseCase
+import com.wire.kalium.logic.feature.client.UpdateClientVerificationStatusUseCase
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
+import com.wire.kalium.logic.feature.user.ObserveUserInfoUseCase
 import io.mockk.Called
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -20,7 +26,9 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
+import okio.IOException
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
@@ -53,7 +61,7 @@ class DeviceDetailsViewModelTest {
             .arrange()
 
         // then
-        assertEquals(null, viewModel.state?.device?.clientId)
+        assertEquals(ClientId(""), viewModel.state.device?.clientId)
     }
 
     @Test
@@ -179,23 +187,39 @@ class DeviceDetailsViewModelTest {
         lateinit var deleteClientUseCase: DeleteClientUseCase
 
         @MockK
-        lateinit var getClientDetailsUseCase: GetClientDetailsUseCase
+        lateinit var observeClientDetails: ObserveClientDetailsUseCase
+
+        @MockK
+        lateinit var deviceFingerprint: ClientFingerprintUseCase
+
+        @MockK
+        lateinit var updateClientVerificationStatus: UpdateClientVerificationStatusUseCase
 
         @MockK
         lateinit var isPasswordRequiredUseCase: IsPasswordRequiredUseCase
+
+        @MockK
+        lateinit var observeUserInfo: ObserveUserInfoUseCase
+
+        val currentUserId = UserId("currentUserId", "currentUserDomain")
 
         val viewModel by lazy {
             DeviceDetailsViewModel(
                 savedStateHandle = savedStateHandle,
                 navigationManager = navigationManager,
                 deleteClient = deleteClientUseCase,
-                getClientDetails = getClientDetailsUseCase,
-                isPasswordRequired = isPasswordRequiredUseCase
+                observeClientDetails = observeClientDetails,
+                isPasswordRequired = isPasswordRequiredUseCase,
+                fingerprintUseCase = deviceFingerprint,
+                updateClientVerificationStatus = updateClientVerificationStatus,
+                currentUserId = currentUserId,
+                observeUserInfo = observeUserInfo
             )
         }
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
+            withFingerprintSuccess()
         }
 
         fun withUserRequiresPasswordResult(result: IsPasswordRequiredUseCase.Result = IsPasswordRequiredUseCase.Result.Success(true)) =
@@ -203,8 +227,20 @@ class DeviceDetailsViewModelTest {
                 coEvery { isPasswordRequiredUseCase() } returns result
             }
 
+        fun withFingerprintSuccess() = apply {
+            coEvery { deviceFingerprint(any(), any()) } returns ClientFingerprintUseCase.Result.Success("fingerprint".encodeToByteArray())
+        }
+
+        fun withFingerprintFailure() = apply {
+            coEvery { deviceFingerprint(any(), any()) } returns ClientFingerprintUseCase.Result.Failure(
+                NetworkFailure.NoNetworkConnection(
+                    IOException()
+                )
+            )
+        }
+
         fun withClientDetailsResult(result: GetClientDetailsResult) = apply {
-            coEvery { getClientDetailsUseCase(any()) } returns result
+            coEvery { observeClientDetails(any(), any()) } returns flowOf(result)
         }
 
         fun withDeleteDeviceResult(result: DeleteClientResult) = apply {

@@ -38,8 +38,6 @@ import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -54,17 +52,17 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemsIndexed
 import com.wire.android.R
+import com.wire.android.appLogger
 import com.wire.android.media.audiomessage.AudioState
 import com.wire.android.model.SnackBarMessage
 import com.wire.android.navigation.hiltSavedStateViewModel
+import com.wire.android.ui.common.dialogs.calling.JoinAnywayDialog
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
-import com.wire.android.ui.common.dialogs.CallingFeatureUnavailableDialog
-import com.wire.android.ui.common.dialogs.OngoingActiveCallDialog
+import com.wire.android.ui.common.dialogs.calling.CallingFeatureUnavailableDialog
+import com.wire.android.ui.common.dialogs.calling.OngoingActiveCallDialog
 import com.wire.android.ui.common.error.CoreFailureErrorDialog
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
-import com.wire.android.ui.common.topappbar.CommonTopAppBar
 import com.wire.android.ui.common.topappbar.CommonTopAppBarViewModel
-import com.wire.android.ui.common.topappbar.ConnectivityUIState
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorDownloadingAsset
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.OnFileDownloaded
 import com.wire.android.ui.home.conversations.banner.ConversationBanner
@@ -77,11 +75,9 @@ import com.wire.android.ui.home.conversations.info.ConversationInfoViewModel
 import com.wire.android.ui.home.conversations.info.ConversationInfoViewState
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewModel
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewState
-import com.wire.android.ui.home.conversations.model.AttachmentBundle
+import com.wire.android.ui.home.conversations.model.AssetBundle
+import com.wire.android.ui.home.conversations.model.EditMessageBundle
 import com.wire.android.ui.home.conversations.model.UIMessage
-import com.wire.android.ui.home.conversations.model.UIMessageContent
-import com.wire.android.ui.home.messagecomposer.MessageComposeInputState
-import com.wire.android.ui.home.messagecomposer.MessageComposeInputType
 import com.wire.android.ui.home.messagecomposer.MessageComposer
 import com.wire.android.ui.home.messagecomposer.MessageComposerInnerState
 import com.wire.android.ui.home.messagecomposer.UiMention
@@ -98,6 +94,7 @@ import com.wire.kalium.logic.feature.conversation.InteractionAvailability
 import com.wire.kalium.util.DateTimeUtil
 import kotlinx.collections.immutable.ImmutableMap
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -105,6 +102,7 @@ import kotlinx.coroutines.launch
 import kotlinx.datetime.Instant
 import okio.Path
 import okio.Path.Companion.toPath
+import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * The maximum number of messages the user can scroll while still
@@ -136,9 +134,18 @@ fun ConversationScreen(
     LaunchedEffect(messageComposerViewModel.savedStateHandle) {
         messageComposerViewModel.checkPendingActions()
     }
-
     LaunchedEffect(Unit) {
         conversationInfoViewModel.observeConversationDetails()
+    }
+
+    with(conversationCallViewModel) {
+        if (conversationCallViewState.shouldShowJoinAnywayDialog) {
+            appLogger.i("showing showJoinAnywayDialog..")
+            JoinAnywayDialog(
+                onDismiss = ::dismissJoinCallAnywayDialog,
+                onConfirm = ::joinAnyway
+            )
+        }
     }
 
     when (showDialog.value) {
@@ -169,7 +176,6 @@ fun ConversationScreen(
     ConversationScreen(
         tempCachePath = messageComposerViewModel.provideTempCachePath(),
         bannerMessage = conversationBannerViewModel.bannerState,
-        connectivityUIState = commonTopAppBarViewModel.connectivityState,
         interactionAvailability = messageComposerViewModel.interactionAvailability,
         membersToMention = messageComposerViewModel.mentionsToSelect,
         conversationViewState = uiState,
@@ -179,11 +185,14 @@ fun ConversationScreen(
         onOpenProfile = conversationInfoViewModel::navigateToProfile,
         onMessageDetailsClick = conversationMessagesViewModel::openMessageDetails,
         onSendMessage = messageComposerViewModel::sendMessage,
+        onSendEditMessage = messageComposerViewModel::sendEditMessage,
         onDeleteMessage = messageComposerViewModel::showDeleteMessageDialog,
         onSendAttachment = messageComposerViewModel::sendAttachmentMessage,
-        onDownloadAsset = conversationMessagesViewModel::downloadOrFetchAssetToInternalStorage,
-        onImageFullScreenMode = messageComposerViewModel::navigateToGallery,
-        onOpenOngoingCallScreen = commonTopAppBarViewModel::openOngoingCallScreen,
+        onAssetItemClicked = conversationMessagesViewModel::downloadOrFetchAssetAndShowDialog,
+        onImageFullScreenMode = { message, isSelfMessage ->
+            messageComposerViewModel.navigateToGallery(message.header.messageId, isSelfMessage)
+            conversationMessagesViewModel.updateImageOnFullscreenMode(message)
+        },
         onStartCall = {
             startCallIfPossible(
                 conversationCallViewModel,
@@ -195,7 +204,9 @@ fun ConversationScreen(
             )
         },
         onJoinCall = conversationCallViewModel::joinOngoingCall,
-        onReactionClick = conversationMessagesViewModel::toggleReaction,
+        onReactionClick = { messageId, emoji ->
+            conversationMessagesViewModel.toggleReaction(messageId, emoji)
+        },
         onAudioClick = conversationMessagesViewModel::audioClick,
         onChangeAudioPosition = conversationMessagesViewModel::changeAudioPosition,
         onResetSessionClick = conversationMessagesViewModel::onResetSession,
@@ -208,6 +219,7 @@ fun ConversationScreen(
         conversationMessages = conversationMessagesViewModel.infoMessage,
         conversationMessagesViewModel = conversationMessagesViewModel,
         onPingClicked = messageComposerViewModel::sendPing,
+        onSelfDeletingMessageRead = messageComposerViewModel::startSelfDeletion,
         tempWritableImageUri = messageComposerViewModel.tempWritableImageUri,
         tempWritableVideoUri = messageComposerViewModel.tempWritableVideoUri
     )
@@ -217,8 +229,8 @@ fun ConversationScreen(
     )
     DownloadedAssetDialog(
         downloadedAssetDialogState = conversationMessagesViewModel.conversationViewState.downloadedAssetDialogState,
-        onSaveFileToExternalStorage = conversationMessagesViewModel::onSaveFile,
-        onOpenFileWithExternalApp = conversationMessagesViewModel::onOpenFileWithExternalApp,
+        onSaveFileToExternalStorage = conversationMessagesViewModel::downloadAssetExternally,
+        onOpenFileWithExternalApp = conversationMessagesViewModel::downloadAndOpenAsset,
         hideOnAssetDownloadedDialog = conversationMessagesViewModel::hideOnAssetDownloadedDialog
     )
 }
@@ -272,7 +284,6 @@ private fun StartCallAudioBluetoothPermissionCheckFlow(
 private fun ConversationScreen(
     tempCachePath: Path,
     bannerMessage: UIText?,
-    connectivityUIState: ConnectivityUIState,
     interactionAvailability: InteractionAvailability,
     membersToMention: List<Contact>,
     conversationViewState: ConversationViewState,
@@ -282,13 +293,13 @@ private fun ConversationScreen(
     onOpenProfile: (String) -> Unit,
     onMessageDetailsClick: (messageId: String, isSelfMessage: Boolean) -> Unit,
     onSendMessage: (String, List<UiMention>, String?) -> Unit,
+    onSendEditMessage: (EditMessageBundle) -> Unit,
     onDeleteMessage: (String, Boolean) -> Unit,
-    onSendAttachment: (AttachmentBundle?) -> Unit,
+    onSendAttachment: (AssetBundle?) -> Unit,
     onAudioClick: (String) -> Unit,
     onChangeAudioPosition: (String, Int) -> Unit,
-    onDownloadAsset: (String) -> Unit,
-    onImageFullScreenMode: (String, Boolean) -> Unit,
-    onOpenOngoingCallScreen: () -> Unit,
+    onAssetItemClicked: (String) -> Unit,
+    onImageFullScreenMode: (UIMessage.Regular, Boolean) -> Unit,
     onStartCall: () -> Unit,
     onJoinCall: () -> Unit,
     onReactionClick: (messageId: String, reactionEmoji: String) -> Unit,
@@ -302,12 +313,23 @@ private fun ConversationScreen(
     conversationMessages: SharedFlow<SnackBarMessage>,
     conversationMessagesViewModel: ConversationMessagesViewModel,
     onPingClicked: () -> Unit,
+    onSelfDeletingMessageRead: (UIMessage.Regular) -> Unit,
     tempWritableImageUri: Uri?,
     tempWritableVideoUri: Uri?
 ) {
     val conversationScreenState = rememberConversationScreenState()
     val messageComposerInnerState = rememberMessageComposerInnerState()
     val context = LocalContext.current
+
+    LaunchedEffect(conversationMessagesViewModel.savedStateHandle) {
+        // We need to check if we come from the media gallery screen and the user triggered any action there like reply
+        conversationMessagesViewModel.checkPendingActions(
+            onMessageReply = {
+                withSmoothScreenLoad {
+                    messageComposerInnerState.reply(it)
+                }
+            })
+    }
     MenuModalSheetLayout(
         sheetState = conversationScreenState.modalBottomSheetState,
         coroutineScope = conversationScreenState.coroutineScope,
@@ -322,22 +344,19 @@ private fun ConversationScreen(
                 onReplyClick = messageComposerInnerState::reply,
                 onEditClick = messageComposerInnerState::toEditMessage,
                 onShareAsset = {
-                    conversationScreenState.selectedMessage?.messageHeader?.messageId?.let {
+                    conversationScreenState.selectedMessage?.header?.messageId?.let {
                         conversationMessagesViewModel.shareAsset(context, it)
                         conversationScreenState.hideEditContextMenu()
                     }
-                }
-
+                },
+                onDownloadAsset = conversationMessagesViewModel::downloadAssetExternally,
+                onOpenAsset = conversationMessagesViewModel::downloadAndOpenAsset,
             )
         } ?: emptyList()
     ) {
         Scaffold(
             topBar = {
                 Column {
-                    CommonTopAppBar(
-                        connectivityUIState = connectivityUIState,
-                        onReturnToCallClick = onOpenOngoingCallScreen,
-                    )
                     ConversationScreenTopAppBar(
                         conversationInfoViewState = conversationInfoViewState,
                         onBackButtonClick = onBackButtonClick,
@@ -371,10 +390,11 @@ private fun ConversationScreen(
                         messageComposerInnerState = messageComposerInnerState,
                         messages = conversationMessagesViewState.messages,
                         onSendMessage = onSendMessage,
+                        onSendEditMessage = onSendEditMessage,
                         onSendAttachment = onSendAttachment,
                         onMentionMember = onMentionMember,
-                        onDownloadAsset = onDownloadAsset,
-                        onAudioClick = onAudioClick,
+                        onAssetItemClicked = onAssetItemClicked,
+                        onAudioItemClicked = onAudioClick,
                         onChangeAudioPosition = onChangeAudioPosition,
                         onImageFullScreenMode = onImageFullScreenMode,
                         onReactionClicked = onReactionClick,
@@ -384,6 +404,7 @@ private fun ConversationScreen(
                         onMessageComposerError = onSnackbarMessage,
                         onShowContextMenu = conversationScreenState::showEditContextMenu,
                         onPingClicked = onPingClicked,
+                        onSelfDeletingMessageRead = onSelfDeletingMessageRead,
                         tempWritableImageUri = tempWritableImageUri,
                         tempWritableVideoUri = tempWritableVideoUri
                     )
@@ -407,19 +428,21 @@ private fun ConversationScreenContent(
     messageComposerInnerState: MessageComposerInnerState,
     messages: Flow<PagingData<UIMessage>>,
     onSendMessage: (String, List<UiMention>, String?) -> Unit,
-    onSendAttachment: (AttachmentBundle?) -> Unit,
+    onSendEditMessage: (EditMessageBundle) -> Unit,
+    onSendAttachment: (AssetBundle?) -> Unit,
     onMentionMember: (String?) -> Unit,
-    onDownloadAsset: (String) -> Unit,
-    onAudioClick: (String) -> Unit,
+    onAssetItemClicked: (String) -> Unit,
+    onAudioItemClicked: (String) -> Unit,
     onChangeAudioPosition: (String, Int) -> Unit,
-    onImageFullScreenMode: (String, Boolean) -> Unit,
+    onImageFullScreenMode: (UIMessage.Regular, Boolean) -> Unit,
     onReactionClicked: (String, String) -> Unit,
     onResetSessionClicked: (senderUserId: UserId, clientId: String?) -> Unit,
     onOpenProfile: (String) -> Unit,
     onUpdateConversationReadDate: (String) -> Unit,
     onMessageComposerError: (ConversationSnackbarMessages) -> Unit,
-    onShowContextMenu: (UIMessage) -> Unit,
+    onShowContextMenu: (UIMessage.Regular) -> Unit,
     onPingClicked: () -> Unit,
+    onSelfDeletingMessageRead: (UIMessage.Regular) -> Unit,
     tempWritableImageUri: Uri?,
     tempWritableVideoUri: Uri?
 ) {
@@ -441,14 +464,16 @@ private fun ConversationScreenContent(
                 lastUnreadMessageInstant = lastUnreadMessageInstant,
                 audioMessagesState = audioMessagesState,
                 onUpdateConversationReadDate = onUpdateConversationReadDate,
-                onDownloadAsset = onDownloadAsset,
-                onAudioClick = onAudioClick,
+                onAssetItemClicked = onAssetItemClicked,
+                onAudioItemClicked = onAudioItemClicked,
                 onChangeAudioPosition = onChangeAudioPosition,
                 onImageFullScreenMode = onImageFullScreenMode,
                 onOpenProfile = onOpenProfile,
                 onReactionClicked = onReactionClicked,
                 onResetSessionClicked = onResetSessionClicked,
-                onShowContextMenu = onShowContextMenu
+                onShowContextMenu = onShowContextMenu,
+                onSelfDeletingMessageRead = onSelfDeletingMessageRead
+
             )
         },
         onSendTextMessage = { message, mentions, messageId ->
@@ -457,6 +482,7 @@ private fun ConversationScreenContent(
             }
             onSendMessage(message, mentions, messageId)
         },
+        onSendEditTextMessage = onSendEditMessage,
         onSendAttachment = {
             scope.launch {
                 lazyListState.scrollToItem(0)
@@ -475,22 +501,22 @@ private fun ConversationScreenContent(
         tempWritableVideoUri = tempWritableVideoUri
     )
 
-    val currentEditMessageId: String? by remember(messageComposerInnerState.messageComposeInputState) {
-        derivedStateOf {
-            (messageComposerInnerState.messageComposeInputState as? MessageComposeInputState.Active)?.let {
-                (it.type as? MessageComposeInputType.EditMessage)?.messageId
-            }
-        }
-    }
-
-    LaunchedEffect(currentEditMessageId) {
-        // executes when the id of currently being edited message changes, if not currently editing then it's just null
-        if (currentEditMessageId != null) {
-            lazyPagingMessages.itemSnapshotList.items
-                .indexOfFirst { it.messageHeader.messageId == currentEditMessageId }
-                .let { if (it >= 0) lazyListState.animateScrollToItem(it) }
-        }
-    }
+    // TODO: uncomment when we have the "scroll to bottom" button implemented
+//    val currentEditMessageId: String? by remember(messageComposerInnerState.messageComposeInputState) {
+//        derivedStateOf {
+//            (messageComposerInnerState.messageComposeInputState as? MessageComposeInputState.Active)?.let {
+//                (it.type as? MessageComposeInputType.EditMessage)?.messageId
+//            }
+//        }
+//    }
+//    LaunchedEffect(currentEditMessageId) {
+//        // executes when the id of currently being edited message changes, if not currently editing then it's just null
+//        if (currentEditMessageId != null) {
+//            lazyPagingMessages.itemSnapshotList.items
+//                .indexOfFirst { it.header.messageId == currentEditMessageId }
+//                .let { if (it >= 0) lazyListState.animateScrollToItem(it) }
+//        }
+//    }
 }
 
 @Composable
@@ -528,14 +554,15 @@ fun MessageList(
     lastUnreadMessageInstant: Instant?,
     audioMessagesState: Map<String, AudioState>,
     onUpdateConversationReadDate: (String) -> Unit,
-    onDownloadAsset: (String) -> Unit,
-    onImageFullScreenMode: (String, Boolean) -> Unit,
+    onAssetItemClicked: (String) -> Unit,
+    onImageFullScreenMode: (UIMessage.Regular, Boolean) -> Unit,
     onOpenProfile: (String) -> Unit,
-    onAudioClick: (String) -> Unit,
+    onAudioItemClicked: (String) -> Unit,
     onChangeAudioPosition: (String, Int) -> Unit,
     onReactionClicked: (String, String) -> Unit,
     onResetSessionClicked: (senderUserId: UserId, clientId: String?) -> Unit,
-    onShowContextMenu: (UIMessage) -> Unit
+    onShowContextMenu: (UIMessage.Regular) -> Unit,
+    onSelfDeletingMessageRead: (UIMessage.Regular) -> Unit
 ) {
     val mostRecentMessage = lazyPagingMessages.itemCount.takeIf { it > 0 }?.let { lazyPagingMessages[0] }
 
@@ -550,12 +577,12 @@ fun MessageList(
         if (!lazyListState.isScrollInProgress && lazyPagingMessages.itemCount > 0) {
             val lastVisibleMessage = lazyPagingMessages[lazyListState.firstVisibleItemIndex] ?: return@LaunchedEffect
 
-            val lastVisibleMessageInstant = Instant.parse(lastVisibleMessage.messageHeader.messageTime.utcISO)
+            val lastVisibleMessageInstant = Instant.parse(lastVisibleMessage.header.messageTime.utcISO)
 
             // TODO: This IF condition should be in the UseCase
             //       If there are no unread messages, then use distant future and don't update read date
             if (lastVisibleMessageInstant > (lastUnreadMessageInstant ?: Instant.DISTANT_FUTURE)) {
-                onUpdateConversationReadDate(lastVisibleMessage.messageHeader.messageTime.utcISO)
+                onUpdateConversationReadDate(lastVisibleMessage.header.messageTime.utcISO)
             }
         }
     }
@@ -568,42 +595,50 @@ fun MessageList(
             .fillMaxWidth()
     ) {
         itemsIndexed(lazyPagingMessages, key = { _, uiMessage ->
-            uiMessage.messageHeader.messageId
+            uiMessage.header.messageId
         }) { index, message ->
             if (message == null) {
                 // We can draw a placeholder here, as we fetch the next page of messages
                 return@itemsIndexed
             }
-            if (message.messageContent is UIMessageContent.SystemMessage) {
-                SystemMessageItem(message = message.messageContent)
-            } else {
-
-                var showHeader = true
-                val nextIndex = index + 1
-                if (nextIndex < lazyPagingMessages.itemSnapshotList.items.size) {
-                    val nextUiMessage = lazyPagingMessages.itemSnapshotList.items[nextIndex]
-                    val difference = DateTimeUtil.calculateMillisDifference(
-                        message.messageHeader.messageTime.utcISO,
-                        nextUiMessage.messageHeader.messageTime.utcISO
+            when (message) {
+                is UIMessage.Regular -> {
+                    var showHeader = true
+                    val nextIndex = index + 1
+                    if (nextIndex < lazyPagingMessages.itemSnapshotList.items.size) {
+                        val nextUiMessage = lazyPagingMessages.itemSnapshotList.items[nextIndex]
+                        val difference = DateTimeUtil.calculateMillisDifference(
+                            message.header.messageTime.utcISO,
+                            nextUiMessage.header.messageTime.utcISO
+                        )
+                        showHeader = message.header.userId != nextUiMessage.header.userId || difference > AGGREGATION_TIME_WINDOW
+                    }
+                    MessageItem(
+                        message = message,
+                        showAuthor = showHeader,
+                        audioMessagesState = audioMessagesState,
+                        onAudioClick = onAudioItemClicked,
+                        onChangeAudioPosition = onChangeAudioPosition,
+                        onLongClicked = onShowContextMenu,
+                        onAssetMessageClicked = onAssetItemClicked,
+                        onImageMessageClicked = onImageFullScreenMode,
+                        onOpenProfile = onOpenProfile,
+                        onReactionClicked = onReactionClicked,
+                        onResetSessionClicked = onResetSessionClicked,
+                        onSelfDeletingMessageRead = onSelfDeletingMessageRead,
                     )
-                    showHeader = message.messageHeader.userId != nextUiMessage.messageHeader.userId || difference > AGGREGATION_TIME_WINDOW
                 }
-                MessageItem(
-                    message = message,
-                    showAuthor = showHeader,
-                    audioMessagesState = audioMessagesState,
-                    onAudioClick = onAudioClick,
-                    onChangeAudioPosition = onChangeAudioPosition,
-                    onLongClicked = onShowContextMenu,
-                    onAssetMessageClicked = onDownloadAsset,
-                    onImageMessageClicked = onImageFullScreenMode,
-                    onOpenProfile = onOpenProfile,
-                    onReactionClicked = onReactionClicked,
-                    onResetSessionClicked = onResetSessionClicked
-                )
+
+                is UIMessage.System -> SystemMessageItem(message = message)
             }
         }
     }
+}
+
+private fun CoroutineScope.withSmoothScreenLoad(block: () -> Unit) = launch {
+    val smoothAnimationDuration = 200.milliseconds
+    delay(smoothAnimationDuration) // we wait a bit until the whole screen is loaded to show the animation properly
+    block()
 }
 
 @Preview
@@ -612,7 +647,6 @@ fun PreviewConversationScreen() {
     ConversationScreen(
         tempCachePath = "".toPath(),
         bannerMessage = null,
-        connectivityUIState = ConnectivityUIState(info = ConnectivityUIState.Info.None),
         interactionAvailability = InteractionAvailability.ENABLED,
         membersToMention = listOf(),
         conversationViewState = ConversationViewState(),
@@ -622,11 +656,11 @@ fun PreviewConversationScreen() {
         onOpenProfile = { _ -> },
         onMessageDetailsClick = { _, _ -> },
         onSendMessage = { _, _, _ -> },
+        onSendEditMessage = { _ -> },
         onDeleteMessage = { _, _ -> },
         onSendAttachment = { },
-        onDownloadAsset = { },
+        onAssetItemClicked = { },
         onImageFullScreenMode = { _, _ -> },
-        onOpenOngoingCallScreen = { },
         onStartCall = { },
         onJoinCall = { },
         onReactionClick = { _, _ -> },
@@ -642,6 +676,7 @@ fun PreviewConversationScreen() {
         conversationMessages = MutableStateFlow(ErrorDownloadingAsset),
         conversationMessagesViewModel = hiltViewModel(),
         onPingClicked = {},
+        onSelfDeletingMessageRead = {},
         tempWritableImageUri = null,
         tempWritableVideoUri = null
     )

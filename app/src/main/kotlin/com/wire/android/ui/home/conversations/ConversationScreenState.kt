@@ -72,9 +72,9 @@ class ConversationScreenState(
     val coroutineScope: CoroutineScope
 ) {
 
-    var selectedMessage by mutableStateOf<UIMessage?>(null)
+    var selectedMessage by mutableStateOf<UIMessage.Regular?>(null)
 
-    fun showEditContextMenu(message: UIMessage) {
+    fun showEditContextMenu(message: UIMessage.Regular) {
         selectedMessage = message
 
         coroutineScope.launch { modalBottomSheetState.animateTo(ModalBottomSheetValue.Expanded) }

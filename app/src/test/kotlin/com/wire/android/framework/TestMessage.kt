@@ -52,7 +52,8 @@ object TestMessage {
         senderUserId = UserId("user-id", "domain"),
         senderClientId = ClientId("client-id"),
         status = Message.Status.SENT,
-        editStatus = Message.EditStatus.NotEdited
+        editStatus = Message.EditStatus.NotEdited,
+        isSelfMessage = false
     )
     val DUMMY_ASSET_REMOTE_DATA = AssetContent.RemoteData(
         otrKey = ByteArray(0),
@@ -71,6 +72,15 @@ object TestMessage {
         Message.UploadStatus.NOT_UPLOADED,
         Message.DownloadStatus.NOT_DOWNLOADED
     )
+    val GENERIC_ASSET_CONTENT = AssetContent(
+        0L,
+        "name",
+        "application/zip",
+        null,
+        DUMMY_ASSET_REMOTE_DATA,
+        Message.UploadStatus.NOT_UPLOADED,
+        Message.DownloadStatus.NOT_DOWNLOADED
+    )
     val ASSET_MESSAGE = Message.Regular(
         id = "messageID",
         content = MessageContent.Asset(ASSET_IMAGE_CONTENT),
@@ -79,7 +89,8 @@ object TestMessage {
         senderUserId = UserId("user-id", "domain"),
         senderClientId = ClientId("client-id"),
         status = Message.Status.SENT,
-        editStatus = Message.EditStatus.NotEdited
+        editStatus = Message.EditStatus.NotEdited,
+        isSelfMessage = false
     )
 
     fun buildAssetMessage(assetContent: AssetContent) = Message.Regular(
@@ -90,7 +101,8 @@ object TestMessage {
         senderUserId = UserId("user-id", "domain"),
         senderClientId = ClientId("client-id"),
         status = Message.Status.SENT,
-        editStatus = Message.EditStatus.NotEdited
+        editStatus = Message.EditStatus.NotEdited,
+        isSelfMessage = false
     )
 
     val MEMBER_REMOVED_MESSAGE = Message.System(
@@ -123,10 +135,10 @@ object TestMessage {
         isSenderDeleted = false,
         isSenderUnavailable = false
     )
-    val UI_TEXT_MESSAGE = UIMessage(
+    val UI_TEXT_MESSAGE = UIMessage.Regular(
         userAvatarData = UserAvatarData(asset = null, availabilityStatus = UserAvailabilityStatus.NONE),
-        messageSource = MessageSource.OtherUser,
-        messageHeader = UI_MESSAGE_HEADER,
+        source = MessageSource.OtherUser,
+        header = UI_MESSAGE_HEADER,
         messageContent = TextMessage(MessageBody(UIText.DynamicString("Some Text Message"))),
         messageFooter = MessageFooter(UI_MESSAGE_HEADER.messageId)
     )

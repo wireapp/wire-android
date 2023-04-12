@@ -51,7 +51,6 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -89,6 +88,7 @@ class PersistentWebSocketService : Service() {
     override fun onCreate() {
         super.onCreate()
         isServiceStarted = true
+        generateForegroundNotification()
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -99,6 +99,7 @@ class PersistentWebSocketService : Service() {
                     is ObservePersistentWebSocketConnectionStatusUseCase.Result.Failure -> {
                         appLogger.e("Failure while fetching persistent web socket status flow from service")
                     }
+
                     is ObservePersistentWebSocketConnectionStatusUseCase.Result.Success -> {
                         result.persistentWebSocketStatusListFlow.collect { statuses ->
 
@@ -113,10 +114,8 @@ class PersistentWebSocketService : Service() {
 
                             statuses.map { persistentWebSocketStatus ->
                                 if (persistentWebSocketStatus.isPersistentWebSocketEnabled) {
-                                    runBlocking {
-                                        coreLogic.getSessionScope(persistentWebSocketStatus.userId)
-                                            .setConnectionPolicy(ConnectionPolicy.KEEP_ALIVE)
-                                    }
+                                    coreLogic.getSessionScope(persistentWebSocketStatus.userId)
+                                        .setConnectionPolicy(ConnectionPolicy.KEEP_ALIVE)
                                 }
                             }
                         }
@@ -124,7 +123,6 @@ class PersistentWebSocketService : Service() {
                 }
             }
         }
-        generateForegroundNotification()
         return START_STICKY
     }
 

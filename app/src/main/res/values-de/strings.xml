@@ -879,8 +879,10 @@
     <string name="label_system_message_session_reset">%1$s konnte einige Ihrer Nachrichten nicht entschlüsseln, hat das Problem aber gelöst. Dies betraf alle Unterhaltungen, die Sie gemeinsam nutzen.</string>
     <string name="label_manual_migration_title">Migrate from version 3.82.38</string>
     <string name="start_manual_migration">Start migration form version 3.82.38 manually</string>
-    <string name="file_sharing_restricted_dialog_title">File Sharing Restrictions</string>
-    <string name="file_sharing_restricted_dialog_description">You can not share this file because this feature is disabled.</string>
+    <string name="file_sharing_restricted_learn_more_link">https://support.wire.com/hc/en-us/articles/4406404582673-How-can-I-restrict-file-sharing-for-my-team-</string>
+    <string name="file_sharing_restricted_description_by_team">You can not share this file because this feature is disabled for this account.</string>
+    <string name="file_sharing_restricted_description_no_users">You need to be logged in to Wire before you can share anything</string>
+    <string name="file_sharing_restricted_button_text_no_users">Open Wire</string>
     <!-- join conversation dialog -->
     <string name="join_conversation_dialog_title">Unterhaltung beitreten?</string>
     <string name="join_conversation_dialog_message">Sie wurden zu dieser Unterhaltung eingeladen.\n\n%1$s</string>

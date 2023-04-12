@@ -909,8 +909,10 @@ Prosimy u&#380;y&#263; zarz&#261;dzania zespo&#322;ami (%1$s) na tym &#347;rodow
     <string name="label_system_message_session_reset">%1$s nie m&#243;g&#322; zdekodowa&#263; niekt&#243;rych Twoich wiadomo&#347;ci, ale rozwi&#261;za&#322; problem. To dotyczy wszystkich Twoich wsp&#243;lnych konwersacji.</string>
     <string name="label_manual_migration_title">Migruj z wersji 3.82.38</string>
     <string name="start_manual_migration">Rozpocznij migracj&#281; z wersji 3.82.38 r&#281;cznie</string>
-    <string name="file_sharing_restricted_dialog_title">Ograniczenia dotycz&#261;ce udost&#281;pniania plik&#243;w</string>
-    <string name="file_sharing_restricted_dialog_description">Nie mo&#380;esz udost&#281;pnia&#263; tego pliku, poniewa&#380; ta funkcja jest wy&#322;&#261;czona.</string>
+    <string name="file_sharing_restricted_learn_more_link">https://support.wire.com/hc/en-us/articles/4406404582673-How-can-I-restrict-file-sharing-for-my-team-</string>
+    <string name="file_sharing_restricted_description_by_team">You can not share this file because this feature is disabled for this account.</string>
+    <string name="file_sharing_restricted_description_no_users">You need to be logged in to Wire before you can share anything</string>
+    <string name="file_sharing_restricted_button_text_no_users">Open Wire</string>
     <!-- join conversation dialog -->
     <string name="join_conversation_dialog_title">Do&#322;&#261;czy&#263; do rozmowy?</string>
     <string name="join_conversation_dialog_message">Zosta&#322;e&#347; zaproszony do rozmowy.\n\n%1$s</string>

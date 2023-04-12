@@ -20,21 +20,18 @@
 
 package scripts
 
-import CertificatePin
-import ClientConfig
-import ConfigFields
-import ConfigType
-import Customization
-import Customization.defaultBuildtimeConfiguration
-import FeatureConfigs
-import FeatureFlags
-import Features
-import FlavourConfigs
+import customization.ClientConfig
+import customization.ConfigFields
+import customization.ConfigType
+import customization.Customization.getBuildtimeConfiguration
+import customization.FeatureConfigs
+import customization.FeatureFlags
+import customization.Features
 import com.android.build.api.dsl.ApplicationProductFlavor
 import com.android.build.api.dsl.ProductFlavor
 
 plugins { id("com.android.application") apply false }
-// DO NOT USE CABITAL LETTER FOR THE BUILD TYPE NAME OR JENKINS WILL BE MAD
+// DO NOT USE CAPITAL LETTER FOR THE BUILD TYPE NAME OR JENKINS WILL BE MAD
 object BuildTypes {
     const val DEBUG = "debug"
     const val RELEASE = "release"
@@ -169,9 +166,7 @@ android {
      *
      * @see "ClientConfig.kt" file definition.
      */
-    val buildtimeConfiguration = defaultBuildtimeConfiguration(rootDir = rootDir)
-
-    buildTypes.map { type ->
+    buildTypes.forEach { type ->
         ConfigFields.values().forEach { configField ->
             val configValuesMap = ClientConfig.properties[type.name].orEmpty()
             if (configValuesMap.isNotEmpty()) {
@@ -183,13 +178,15 @@ android {
         }
     }
 
+    val buildtimeConfiguration = getBuildtimeConfiguration(rootDir = rootDir)
+
     /**
      * Process feature flags and if the feature is not included in a product flavor,
      * a default value of "false" or "deactivated" is used.
      *
      * @see "FeatureFlags.kt" file definition.
      */
-    productFlavors.map { flavor ->
+    productFlavors.forEach { flavor ->
         Features.values().forEach { feature ->
             val activated = FeatureFlags.activated[flavor.name].orEmpty().contains(feature)
             flavor.buildConfigField("Boolean", feature.name, activated.toString())
@@ -202,56 +199,16 @@ android {
                         flavor,
                         configs.configType.type,
                         configs.name,
-                        buildtimeConfiguration?.configuration?.get(configs.value).toString()
+                        buildtimeConfiguration.flavorMap[flavor.name]?.get(configs.value)?.toString()
                     )
                 }
 
                 ConfigType.INT, ConfigType.BOOLEAN -> {
                     buildNonStringConfig(
                         flavor,
-                        configs.configType.type, configs.name, buildtimeConfiguration?.configuration?.get(configs.value).toString()
-                    )
-                }
-
-                ConfigType.CERTIFICATE_PIN -> {
-                    buildCertificatePinConfig(flavor, buildtimeConfiguration)
-                }
-
-                ConfigType.FLAVOUR_CONFIG -> {
-                    buildFlavorConfig(flavor, configs, buildtimeConfiguration)
-
-                }
-            }
-
-        }
-    }
-
-}
-
-fun buildFlavorConfig(
-    productFlavour: ProductFlavor,
-    configs: FeatureConfigs,
-    buildTimeConfiguration: Customization.BuildTimeConfiguration?
-) {
-    if (configs.value == productFlavour.name.toLowerCase()) {
-        val falvourMap = buildTimeConfiguration?.configuration?.get(productFlavour.name.toLowerCase()) as Map<*, *>
-
-        FlavourConfigs.values().forEach { flavourConfigs ->
-            when (flavourConfigs.configType) {
-                ConfigType.STRING -> {
-                    buildStringConfig(
-                        productFlavour,
-                        flavourConfigs.configType.type,
-                        flavourConfigs.name,
-                        falvourMap[flavourConfigs.value].toString()
-                    )
-                }
-
-                ConfigType.INT, ConfigType.BOOLEAN -> {
-                    buildNonStringConfig(
-                        productFlavour, flavourConfigs.configType.type,
-                        flavourConfigs.name,
-                        falvourMap[flavourConfigs.value].toString()
+                        configs.configType.type,
+                        configs.name,
+                        buildtimeConfiguration.flavorMap[flavor.name]?.get(configs.value).toString()
                     )
                 }
             }
@@ -260,37 +217,12 @@ fun buildFlavorConfig(
 }
 
 
-fun buildCertificatePinConfig(productFlavour: ProductFlavor, buildTimeConfiguration: Customization.BuildTimeConfiguration?) {
-    val certificatePinMap = buildTimeConfiguration?.configuration?.get(FeatureConfigs.CERTIFICATE_PIN.value) as Map<*, *>
-    CertificatePin.values().forEach { certificatePin ->
-        when (certificatePin.configType) {
-            ConfigType.STRING -> {
-                buildStringConfig(
-                    productFlavour, certificatePin.configType.type,
-                    certificatePin.name,
-                    certificatePinMap[certificatePin.value].toString()
-                )
-            }
-
-            ConfigType.INT, ConfigType.BOOLEAN -> {
-                buildNonStringConfig(
-                    productFlavour,
-                    certificatePin.configType.type,
-                    certificatePin.name,
-                    certificatePinMap[certificatePin.value].toString()
-                )
-            }
-        }
-    }
-}
-
-fun buildStringConfig(productFlavour: ProductFlavor, type: String, name: String, value: String) {
+fun buildStringConfig(productFlavour: ProductFlavor, type: String, name: String, value: String?) {
     productFlavour.buildConfigField(
         type,
         name,
-        """"$value""""
+        value?.let { """"$it"""" } ?: "null"
     )
-
 }
 
 fun buildNonStringConfig(productFlavour: ProductFlavor, type: String, name: String, value: String) {
@@ -299,5 +231,4 @@ fun buildNonStringConfig(productFlavour: ProductFlavor, type: String, name: Stri
         name,
         value
     )
-
 }

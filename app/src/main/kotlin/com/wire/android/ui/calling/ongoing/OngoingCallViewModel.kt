@@ -47,7 +47,7 @@ class OngoingCallViewModel @OptIn(ExperimentalCoroutinesApi::class)
     savedStateHandle: SavedStateHandle,
     qualifiedIdMapper: QualifiedIdMapper,
     private val navigationManager: NavigationManager,
-    private val establishedCall: ObserveEstablishedCallsUseCase,
+    private val establishedCalls: ObserveEstablishedCallsUseCase,
     private val requestVideoStreams: RequestVideoStreamsUseCase,
     private val currentScreenManager: CurrentScreenManager,
 ) : ViewModel() {
@@ -58,7 +58,7 @@ class OngoingCallViewModel @OptIn(ExperimentalCoroutinesApi::class)
 
     init {
         viewModelScope.launch {
-            establishedCall().first { it.isNotEmpty() }.run {
+            establishedCalls().first { it.isNotEmpty() }.run {
                 // We start observing once we have an ongoing call
                 observeCurrentCall()
             }
@@ -67,7 +67,7 @@ class OngoingCallViewModel @OptIn(ExperimentalCoroutinesApi::class)
 
     @OptIn(ExperimentalCoroutinesApi::class)
     private suspend fun observeCurrentCall() {
-        establishedCall()
+        establishedCalls()
             .distinctUntilChanged()
             .collect { calls ->
                 val currentCall = calls.find { call -> call.conversationId == conversationId }

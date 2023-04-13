@@ -65,5 +65,5 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
     GOOGLE_API_KEY("googleApiKey", ConfigType.STRING),
     FCM_PROJECT_ID("fcmProjectID", ConfigType.STRING),
     STANDARD_BACKEND("standardBackend", ConfigType.STRING),
-    USER_ID("userId", ConfigType.STRING),
+    USER_ID("userId", ConfigType.STRING);
 }

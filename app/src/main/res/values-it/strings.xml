@@ -926,10 +926,11 @@ URL del backend:
     <string name="label_self_client_verification_description">Per verificare il tuo dispositivo, confronta questa impronta digitale con la stessa impronta digitale su un altro dispositivo.</string>
     <string name="label_client_verification_description">Verifica che l\'impronta digitale di questo dispositivo corrisponda all\'impronta digitale mostrata sul dispositivo di %s.</string>
     <string name="label_fingerprint_description">Se le impronte digitali non corrispondono, reimposta la sessione per generare nuove chiavi di crittografia su entrambi i lati.</string>
-    <string name="label_self_fingerprint_description">Per consentire agli altri di verificare questo dispositivo, condividi questa impronta digitale o il codice QR con loro.</string>
+    <string name="label_self_fingerprint_description">Share this key fingerprint with other participants in a conversation, so that they can verify it and make sure the conversation is secure.</string>
     <string name="unknown_user_name">sconosciuto</string>
     <string name="self_deleting_message_time_left">Self-deleting message • %1$s</string>
     <string name="self_deleting_message_label">Self-deleting message</string>
+    <string name="device_name_unknown">Unknown device</string>
     <!-- Expirable messages -->
     <plurals name="weeks_left">
         <item quantity="one">1 week left</item>

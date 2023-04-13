@@ -67,6 +67,7 @@
         }
     },
     "maxAccounts": 3,
+    "allow_account_creation" : true,
     "supportEmail": "support@wire.com",
     "allowMarketingCommunication": true,
     "enableBlacklist": true,

@@ -435,6 +435,7 @@
     <string name="user_profile_role_change_error">Beim Ändern der Rolle ist ein Fehler aufgetreten. Bitte überprüfen Sie Ihre Internetverbindung und versuchen Sie es erneut</string>
     <string name="user_profile_unblock_user">Benutzer freigeben</string>
     <string name="user_profile_group_remove_button">Aus Gruppe entfernen</string>
+    <string name="user_profile_logging_out_progress">Logging out...</string>
     <!-- Remove Conversation Member Dialog -->
     <string name="dialog_remove_conversation_member_title">Aus Gruppe entfernen?</string>
     <string name="dialog_remove_conversation_member_description">%1$s (@%2$s) wird in dieser Unterhaltung keine Nachrichten schicken oder empfangen können.</string>

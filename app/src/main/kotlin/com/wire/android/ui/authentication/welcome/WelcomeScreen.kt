@@ -185,7 +185,6 @@ private fun WelcomeContent(viewModel: WelcomeViewModel) {
                 )
             }
         }
-
     }
 }
 

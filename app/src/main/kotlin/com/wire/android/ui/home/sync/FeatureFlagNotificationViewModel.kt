@@ -82,9 +82,9 @@ class FeatureFlagNotificationViewModel @Inject constructor(
                     is CurrentSessionResult.Success -> {
                         coreLogic.getSessionScope(currentSessionResult.accountInfo.userId).observeSyncState()
                             .firstOrNull { it == SyncState.Live }?.let {
-                                setFileSharingState(currentSessionResult.accountInfo.userId)
-                                setGuestRoomLinkFeatureFlag()
-                                setSelfDeletedMessagesFeatureFlag()
+                                observeFileSharingStateFlag(currentSessionResult.accountInfo.userId)
+                                observeGuestRoomLinkFlag()
+                                observeSelfDeletedMessagesFlag()
                             }
                     }
                 }
@@ -92,7 +92,7 @@ class FeatureFlagNotificationViewModel @Inject constructor(
         }
     }
 
-    private fun setFileSharingState(userId: UserId) {
+    private fun observeFileSharingStateFlag(userId: UserId) {
         viewModelScope.launch {
             coreLogic.getSessionScope(userId).observeFileSharingStatus().collect { fileSharingStatus ->
                 fileSharingStatus.isFileSharingEnabled?.let {
@@ -105,7 +105,7 @@ class FeatureFlagNotificationViewModel @Inject constructor(
         }
     }
 
-    private suspend fun setGuestRoomLinkFeatureFlag() {
+    private suspend fun observeGuestRoomLinkFlag() {
         viewModelScope.launch {
             observeGuestRoomLinkFeatureFlag().collect { guestRoomLinkStatus ->
                 guestRoomLinkStatus.isGuestRoomLinkEnabled?.let {
@@ -118,7 +118,7 @@ class FeatureFlagNotificationViewModel @Inject constructor(
         }
     }
 
-    private suspend fun setSelfDeletedMessagesFeatureFlag() {
+    private suspend fun observeSelfDeletedMessagesFlag() {
         viewModelScope.launch {
             observeSelfDeletingMessages().collect { selfDeletingMessagesStatus ->
                 selfDeletingMessagesStatus.isEnabled.let {

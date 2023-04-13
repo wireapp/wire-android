@@ -259,7 +259,9 @@ fun MessagePreview.uiLastMessageContent(): UILastMessageContent {
 
         MessagePreviewContent.CryptoSessionReset -> UILastMessageContent.None
         Unknown -> UILastMessageContent.None
-        MessagePreviewContent.Ephemeral -> UILastMessageContent.None
+        MessagePreviewContent.Ephemeral -> UILastMessageContent.TextMessage(
+            MessageBody(UIText.PluralResource(R.plurals.unread_event_call, 1, 1))
+        )
     }
 }
 

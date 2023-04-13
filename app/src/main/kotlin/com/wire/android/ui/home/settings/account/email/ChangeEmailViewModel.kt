@@ -17,7 +17,107 @@
  */
 package com.wire.android.ui.home.settings.account.email
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.wire.android.navigation.NavigationManager
+import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
+import com.wire.kalium.logic.feature.user.UpdateEmailUseCase
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class ChangeEmailViewModel: ViewModel() {
+@HiltViewModel
+class ChangeEmailViewModel @Inject constructor(
+    private val navigationManager: NavigationManager,
+    private val updateEmail: UpdateEmailUseCase,
+    private val getSelf: GetSelfUserUseCase,
+) : ViewModel() {
+
+    var state: ChangeEmailState by mutableStateOf(
+        ChangeEmailState(
+            isEmailTextEditEnabled = true
+        )
+    )
+        private set
+
+    private var currentEmail: String? = null
+
+    init {
+        viewModelScope.launch {
+            getSelf().firstOrNull()?.email?.let {
+                currentEmail = it
+                state = state.copy(email = TextFieldValue(it))
+            } ?: onBackPressed()
+        }
+    }
+
+    fun onSaveClicked() {
+        state = state.copy(saveEnabled = false, isEmailTextEditEnabled = false)
+        viewModelScope.launch {
+            when (updateEmail(state.email.text)) {
+                UpdateEmailUseCase.Result.Failure.EmailAlreadyInUse -> state =
+                    state.copy(
+                        isEmailTextEditEnabled = true,
+                        saveEnabled = false,
+                        error = ChangeEmailState.EmailError.TextFieldError.AlreadyInUse
+                    )
+
+                UpdateEmailUseCase.Result.Failure.InvalidEmail -> state =
+                    state.copy(
+                        isEmailTextEditEnabled = true,
+                        saveEnabled = false,
+                        error = ChangeEmailState.EmailError.TextFieldError.InvalidEmail
+                    )
+
+                is UpdateEmailUseCase.Result.Failure.GenericFailure -> state =
+                    state.copy(
+                        isEmailTextEditEnabled = true,
+                        saveEnabled = false,
+                        error = ChangeEmailState.EmailError.TextFieldError.InvalidEmail
+                    )
+
+                UpdateEmailUseCase.Result.Success -> state =
+                    state.copy(isUpdateSuccessful = true)
+            }
+        }
+    }
+
+    fun onEmailChange(newEmail: TextFieldValue) {
+        val cleanEmail = newEmail.text.trim()
+        val isValidEmail = cleanEmail.contains('@')
+        when {
+            cleanEmail.isBlank() -> state =
+                state.copy(
+                    saveEnabled = false,
+                    email = newEmail,
+                )
+
+            cleanEmail == currentEmail -> state = state.copy(
+                saveEnabled = false,
+                email = newEmail,
+                error = ChangeEmailState.EmailError.None
+            )
+
+            else -> state = state.copy(
+                saveEnabled = isValidEmail,
+                email = newEmail,
+                error = ChangeEmailState.EmailError.None
+            )
+        }
+    }
+
+    fun onEmailErrorAnimated() {
+        state = state.copy(animatedEmailError = false)
+    }
+
+    fun onBackPressed() {
+        viewModelScope.launch {
+            navigationManager.navigateBack()
+        }
+    }
 }

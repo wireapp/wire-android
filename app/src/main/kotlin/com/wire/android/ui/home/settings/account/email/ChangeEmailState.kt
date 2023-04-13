@@ -19,12 +19,13 @@ package com.wire.android.ui.home.settings.account.email
 
 import androidx.compose.ui.text.input.TextFieldValue
 
-class ChangeEmailState (
-    val originalEmail: String = "",
-    val newEmail: TextFieldValue = TextFieldValue(""),
+data class ChangeEmailState(
+    val email: TextFieldValue = TextFieldValue(""),
     val error: EmailError = EmailError.None,
-    val animatedNameError: Boolean = false,
-    val continueEnabled: Boolean = false
+    val isUpdateSuccessful: Boolean = false,
+    val isEmailTextEditEnabled: Boolean = true,
+    val animatedEmailError: Boolean = false,
+    val saveEnabled: Boolean = false
 ) {
     sealed interface EmailError {
         object None : EmailError

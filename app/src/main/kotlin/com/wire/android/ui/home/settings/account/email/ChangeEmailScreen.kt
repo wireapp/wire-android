@@ -56,16 +56,18 @@ import com.wire.android.ui.common.rememberTopBarElevationState
 import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
-import com.wire.android.ui.home.settings.account.displayname.ChangeDisplayNameViewModel
-import com.wire.android.ui.home.settings.account.displayname.DisplayNameState
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 
 @Composable
-fun ChangeEmaulScreen(viewModel: ChangeEmailViewModel = hiltViewModel()) {
+fun ChangeEmailScreen(viewModel: ChangeEmailViewModel = hiltViewModel()) {
     ChangeEmailContent(
-
+        state = viewModel.state,
+        onEmailChange = viewModel::onEmailChange,
+        onEmailErrorAnimated = viewModel::onEmailErrorAnimated,
+        onBackPressed = viewModel::onBackPressed,
+        onSaveClicked = viewModel::onSaveClicked
     )
 }
 
@@ -73,6 +75,9 @@ fun ChangeEmaulScreen(viewModel: ChangeEmailViewModel = hiltViewModel()) {
 @Composable
 fun ChangeEmailContent(
     state: ChangeEmailState,
+    onEmailChange: (TextFieldValue) -> Unit,
+    onSaveClicked: () -> Unit,
+    onEmailErrorAnimated: () -> Unit,
     onBackPressed: () -> Unit
 ) {
     val scrollState = rememberScrollState()
@@ -112,14 +117,14 @@ fun ChangeEmailContent(
 
                     Box {
                         ShakeAnimation { animate ->
-//                            if (animatedNameError) {
-//                                animate()
-//                                onNameErrorAnimated()
-//                            }
+                            if (animatedEmailError) {
+                                animate()
+                                onEmailErrorAnimated()
+                            }
                             WireTextField(
-                                value = TextFieldValue(text = "name"),
-                                onValueChange = { },
-                                labelText = stringResource(R.string.settings_myaccount_display_name).uppercase(),
+                                value = email,
+                                onValueChange = onEmailChange,
+                                labelText = stringResource(R.string.email_label).uppercase(),
                                 state = computeEmailErrorState(error),
                                 keyboardOptions = KeyboardOptions(
                                     keyboardType = KeyboardType.Text,
@@ -145,7 +150,7 @@ fun ChangeEmailContent(
                             onClick = onSaveClicked,
                             fillMaxWidth = true,
                             trailingIcon = Icons.Filled.ChevronRight.Icon(),
-                            state = if (continueEnabled) Default else Disabled,
+                            state = if (saveEnabled) Default else Disabled,
                             modifier = Modifier.fillMaxWidth()
                         )
                     }
@@ -174,9 +179,10 @@ private fun computeEmailErrorState(error: ChangeEmailState.EmailError): WireText
 @Composable
 fun PreviewChangeDisplayName() {
     ChangeEmailContent(
-        state = ChangeEmailState(
-            continueEnabled = true,
-            animatedNameError = false,
-        ),
-        onBackPressed = { })
+        state = ChangeEmailState(),
+        onBackPressed = { },
+        onSaveClicked = { },
+        onEmailChange = { },
+        onEmailErrorAnimated = { }
+    )
 }

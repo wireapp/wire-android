@@ -82,6 +82,7 @@ import com.wire.android.ui.home.HomeScreen
 import com.wire.android.ui.home.conversations.ConversationScreen
 import com.wire.android.ui.home.conversations.details.GroupConversationDetailsScreen
 import com.wire.android.ui.home.conversations.details.editguestaccess.EditGuestAccessParams
+import com.wire.android.ui.home.conversations.details.editguestaccess.EditGuestAccessScreen
 import com.wire.android.ui.home.conversations.details.metadata.EditConversationNameScreen
 import com.wire.android.ui.home.conversations.details.participants.GroupConversationAllParticipantsScreen
 import com.wire.android.ui.home.conversations.messagedetails.MessageDetailsScreen
@@ -89,6 +90,8 @@ import com.wire.android.ui.home.conversations.search.AddMembersSearchRouter
 import com.wire.android.ui.home.gallery.MediaGalleryScreen
 import com.wire.android.ui.home.newconversation.NewConversationRouter
 import com.wire.android.ui.home.settings.account.MyAccountScreen
+import com.wire.android.ui.home.settings.account.displayname.ChangeDisplayNameScreen
+import com.wire.android.ui.home.settings.account.email.ChangeEmailScreen
 import com.wire.android.ui.home.settings.appsettings.AppSettingsScreen
 import com.wire.android.ui.home.settings.appsettings.networkSettings.NetworkSettingsScreen
 import com.wire.android.ui.home.settings.backup.BackupAndRestoreScreen
@@ -107,7 +110,6 @@ import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.UserId
 import io.github.esentsov.PackagePrivate
-import com.wire.android.ui.home.conversations.details.editguestaccess.EditGuestAccessScreen
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
@@ -250,12 +252,12 @@ enum class NavigationItem(
 
     EditDisplayName(
         primaryRoute = EDIT_DISPLAY_NAME,
-        content = { com.wire.android.ui.home.settings.account.displayname.ChangeDisplayNameScreen() }
+        content = { ChangeDisplayNameScreen() }
     ),
 
     EditEmailAddress(
         primaryRoute = EDIT_EMAIL,
-        content = { TODO() }
+        content = { ChangeEmailScreen() }
     ),
 
     NetworkSettings(

@@ -201,6 +201,7 @@ class SelfUserProfileViewModel @Inject constructor(
 
     fun logout(wipeData: Boolean) {
         viewModelScope.launch {
+            userProfileState = userProfileState.copy(isLoggingOut = true)
             launch {
                 establishedCallsList.value.forEach { call ->
                     endCall(call.conversationId)

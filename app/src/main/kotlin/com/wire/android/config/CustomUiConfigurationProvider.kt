@@ -20,10 +20,12 @@ package com.wire.android.config
 import androidx.compose.runtime.staticCompositionLocalOf
 import com.wire.android.BuildConfig
 
-object CustomConfigurationProvider {
-    val allowAccountCreation = BuildConfig.ALLOW_ACCOUNT_CREATION ?: false
-    val resetPasswordUrl = BuildConfig.ACCOUNTS_URL ?: ""
-    val supportUrl = BuildConfig.SUPPORT_URL
+/**
+ * A provider which provides flags for the custom build configuration related to the UI
+ *
+ */
+object CustomUiConfigurationProvider {
+    val isAccountCreationButtonVisible = BuildConfig.ALLOW_ACCOUNT_CREATION ?: false
 }
 
-val LocalCustomConfigurationProvider = staticCompositionLocalOf { CustomConfigurationProvider }
+val LocalCustomUiConfigurationProvider = staticCompositionLocalOf { CustomUiConfigurationProvider }

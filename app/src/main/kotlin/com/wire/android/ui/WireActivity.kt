@@ -45,8 +45,9 @@ import androidx.navigation.NavHostController
 import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.appLogger
-import com.wire.android.config.CustomConfigurationProvider
+import com.wire.android.config.CustomUiConfigurationProvider
 import com.wire.android.config.LocalCustomConfigurationProvider
+import com.wire.android.config.LocalCustomUiConfigurationProvider
 import com.wire.android.navigation.NavigationGraph
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
@@ -128,7 +129,7 @@ class WireActivity : AppCompatActivity() {
             CompositionLocalProvider(
                 LocalFeatureVisibilityFlags provides FeatureVisibilityFlags,
                 LocalSyncStateObserver provides SyncStateObserver(viewModel.observeSyncFlowState),
-                LocalCustomConfigurationProvider provides CustomConfigurationProvider
+                LocalCustomUiConfigurationProvider provides CustomUiConfigurationProvider
             ) {
                 WireTheme {
                     Column {

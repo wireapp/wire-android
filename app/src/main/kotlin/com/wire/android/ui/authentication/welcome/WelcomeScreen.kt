@@ -144,10 +144,12 @@ private fun WelcomeContent(viewModel: WelcomeViewModel) {
                 )
             ) {
                 LoginButton(viewModel::goToLogin)
-                FeatureDisabledWithProxyDialogContent(dialogState = enterpriseDisabledWithProxyDialogState,
+                FeatureDisabledWithProxyDialogContent(
+                    dialogState = enterpriseDisabledWithProxyDialogState,
                     onActionButtonClicked = {
                         CustomTabsHelper.launchUrl(context, viewModel.state.teams)
-                    })
+                    }
+                )
                 FeatureDisabledWithProxyDialogContent(dialogState = createPersonalAccountDisabledWithProxyDialogState)
 
                 if (LocalCustomUiConfigurationProvider.current.isAccountCreationAllowed) {
@@ -155,7 +157,8 @@ private fun WelcomeContent(viewModel: WelcomeViewModel) {
                         if (viewModel.isProxyEnabled()) {
                             enterpriseDisabledWithProxyDialogState.show(
                                 enterpriseDisabledWithProxyDialogState.savedState ?: FeatureDisabledWithProxyDialogState(
-                                    R.string.create_team_not_supported_dialog_description, viewModel.state.teams
+                                    R.string.create_team_not_supported_dialog_description,
+                                viewModel.state.teams
                                 )
                             )
                         } else {
@@ -166,7 +169,8 @@ private fun WelcomeContent(viewModel: WelcomeViewModel) {
             }
 
             if (LocalCustomUiConfigurationProvider.current.isAccountCreationAllowed) {
-                WelcomeFooter(modifier = Modifier.padding(horizontal = MaterialTheme.wireDimensions.welcomeTextHorizontalPadding),
+                WelcomeFooter(
+                    modifier = Modifier.padding(horizontal = MaterialTheme.wireDimensions.welcomeTextHorizontalPadding),
                     onPrivateAccountClick = {
                         if (viewModel.isProxyEnabled()) {
                             createPersonalAccountDisabledWithProxyDialogState.show(
@@ -177,7 +181,8 @@ private fun WelcomeContent(viewModel: WelcomeViewModel) {
                         } else {
                             viewModel.goToCreatePrivateAccount()
                         }
-                    })
+                    }
+                )
             }
         }
 
@@ -204,7 +209,9 @@ private fun WelcomeCarousel() {
 
     CompositionLocalProvider(LocalOverscrollConfiguration provides null) {
         HorizontalPager(
-            state = pagerState, count = circularItemsList.size, modifier = Modifier.fillMaxWidth()
+            state = pagerState,
+            count = circularItemsList.size,
+            modifier = Modifier.fillMaxWidth()
         ) { page ->
             val (pageIconResId, pageText) = circularItemsList[page]
             WelcomeCarouselItem(pageIconResId = pageIconResId, pageText = pageText)
@@ -214,7 +221,10 @@ private fun WelcomeCarousel() {
 
 @OptIn(ExperimentalPagerApi::class, ExperimentalCoroutinesApi::class)
 private suspend fun autoScrollCarousel(
-    pageState: PagerState, initialPage: Int, circularItemsList: List<CarouselPageData>, delay: Long
+    pageState: PagerState,
+    initialPage: Int,
+    circularItemsList: List<CarouselPageData>,
+    delay: Long
 ) = snapshotFlow { pageState.currentPage }.distinctUntilChanged()
     .scan(initialPage to initialPage) { (_, previousPage), currentPage -> previousPage to currentPage }
     .flatMapLatest { (previousPage, currentPage) ->
@@ -234,7 +244,11 @@ private suspend fun autoScrollCarousel(
                 circularItemsList.lastIndex
             ) -> flow { emit(CarouselScrollData(scrollToPage = circularItemsList.lastIndex - 1, animate = false)) }
 
-            else -> flow { emit(CarouselScrollData(scrollToPage = pageState.currentPage + 1, animate = true)) }.onEach { delay(delay) }
+            else -> flow { emit(CarouselScrollData(scrollToPage = pageState.currentPage + 1, animate = true)) }.onEach {
+                delay(
+                delay
+            )
+            }
         }
     }.collect { (scrollToPage, animate) ->
         if (pageState.pageCount != 0) {
@@ -299,12 +313,18 @@ private fun WelcomeFooter(modifier: Modifier, onPrivateAccountClick: () -> Unit)
         )
 
         Text(
-            text = stringResource(R.string.welcome_button_create_personal_account), style = MaterialTheme.wireTypography.body02.copy(
-                textDecoration = TextDecoration.Underline, color = MaterialTheme.colorScheme.primary
-            ), textAlign = TextAlign.Center, modifier = Modifier
+            text = stringResource(R.string.welcome_button_create_personal_account),
+            style = MaterialTheme.wireTypography.body02.copy(
+                textDecoration = TextDecoration.Underline,
+                color = MaterialTheme.colorScheme.primary
+            ),
+            textAlign = TextAlign.Center,
+            modifier = Modifier
                 .fillMaxWidth()
                 .clickable(
-                    interactionSource = remember { MutableInteractionSource() }, indication = null, onClick = onPrivateAccountClick
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null,
+                    onClick = onPrivateAccountClick
                 )
         )
 
@@ -338,4 +358,3 @@ fun PreviewWelcomeScreen() {
 
 private data class CarouselScrollData(val scrollToPage: Int, val animate: Boolean)
 private data class CarouselPageData(@DrawableRes val icon: Int, val text: String)
-

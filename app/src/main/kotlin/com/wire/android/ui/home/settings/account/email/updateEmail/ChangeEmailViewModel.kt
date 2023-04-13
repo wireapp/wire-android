@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.ui.home.settings.account.email
+package com.wire.android.ui.home.settings.account.email.updateEmail
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -23,6 +23,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.navigation.BackStackMode
+import com.wire.android.navigation.NavigationCommand
+import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.UpdateEmailUseCase
@@ -81,9 +84,19 @@ class ChangeEmailViewModel @Inject constructor(
                         error = ChangeEmailState.EmailError.TextFieldError.InvalidEmail
                     )
 
-                UpdateEmailUseCase.Result.Success -> state =
-                    state.copy(isUpdateSuccessful = true)
+                UpdateEmailUseCase.Result.Success -> onUpdateEmailSuccess()
             }
+        }
+    }
+
+    private fun onUpdateEmailSuccess() {
+        viewModelScope.launch {
+            navigationManager.navigate(
+                NavigationCommand(
+                    NavigationItem.VerifyEmailAddress.getRouteWithArgs(listOf(state.email.text)),
+                    BackStackMode.REMOVE_CURRENT
+                )
+            )
         }
     }
 

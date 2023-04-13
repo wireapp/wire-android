@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.ui.home.settings.account.email
+package com.wire.android.ui.home.settings.account.email.updateEmail
 
 
 import androidx.compose.foundation.layout.Box
@@ -78,82 +78,80 @@ fun ChangeEmailContent(
     onEmailChange: (TextFieldValue) -> Unit,
     onSaveClicked: () -> Unit,
     onEmailErrorAnimated: () -> Unit,
-    onBackPressed: () -> Unit
+    onBackPressed: () -> Unit,
 ) {
     val scrollState = rememberScrollState()
-    with(state) {
-        Scaffold(topBar = {
-            WireCenterAlignedTopAppBar(
-                elevation = scrollState.rememberTopBarElevationState().value,
-                onNavigationPressed = onBackPressed,
-                title = stringResource(id = R.string.create_account_email_title)
-            )
-        }) { internalPadding ->
+    Scaffold(topBar = {
+        WireCenterAlignedTopAppBar(
+            elevation = scrollState.rememberTopBarElevationState().value,
+            onNavigationPressed = onBackPressed,
+            title = stringResource(id = R.string.create_account_email_title)
+        )
+    }) { internalPadding ->
+        Column(
+            modifier = Modifier
+                .padding(internalPadding)
+                .fillMaxSize()
+        ) {
 
             Column(
                 modifier = Modifier
-                    .padding(internalPadding)
-                    .fillMaxSize()
+                    .weight(weight = 1f, fill = true)
+                    .fillMaxWidth()
+                    .verticalScroll(scrollState)
             ) {
-                Column(
+                val keyboardController = LocalSoftwareKeyboardController.current
+                Text(
+                    text = stringResource(id = R.string.settings_myaccount_email_description),
+                    style = MaterialTheme.wireTypography.body01,
                     modifier = Modifier
-                        .weight(weight = 1f, fill = true)
                         .fillMaxWidth()
-                        .verticalScroll(scrollState)
-                ) {
-                    val keyboardController = LocalSoftwareKeyboardController.current
-                    Text(
-                        text = stringResource(id = R.string.settings_myaccount_email_description),
-                        style = MaterialTheme.wireTypography.body01,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(
-                                horizontal = MaterialTheme.wireDimensions.spacing16x,
-                                vertical = MaterialTheme.wireDimensions.spacing16x
-                            )
-                    )
+                        .padding(
+                            horizontal = MaterialTheme.wireDimensions.spacing16x,
+                            vertical = MaterialTheme.wireDimensions.spacing16x
+                        )
+                )
 
-                    Spacer(modifier = Modifier.weight(0.5f))
+                Spacer(modifier = Modifier.weight(0.5f))
 
-                    Box {
-                        ShakeAnimation { animate ->
-                            if (animatedEmailError) {
-                                animate()
-                                onEmailErrorAnimated()
-                            }
-                            WireTextField(
-                                value = email,
-                                onValueChange = onEmailChange,
-                                labelText = stringResource(R.string.email_label).uppercase(),
-                                state = computeEmailErrorState(error),
-                                keyboardOptions = KeyboardOptions(
-                                    keyboardType = KeyboardType.Text,
-                                    imeAction = ImeAction.Done
-                                ),
-                                keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
-                                modifier = Modifier.padding(
-                                    horizontal = MaterialTheme.wireDimensions.spacing16x
-                                )
-                            )
+                Box {
+                    ShakeAnimation { animate ->
+                        if (state.animatedEmailError) {
+                            animate()
+                            onEmailErrorAnimated()
                         }
-                    }
-                    Spacer(modifier = Modifier.weight(1f))
-                }
-
-                Surface(
-                    shadowElevation = scrollState.rememberBottomBarElevationState().value,
-                    color = MaterialTheme.wireColorScheme.background
-                ) {
-                    Box(modifier = Modifier.padding(MaterialTheme.wireDimensions.spacing16x)) {
-                        WirePrimaryButton(
-                            text = stringResource(R.string.label_save),
-                            onClick = onSaveClicked,
-                            fillMaxWidth = true,
-                            trailingIcon = Icons.Filled.ChevronRight.Icon(),
-                            state = if (saveEnabled) Default else Disabled,
-                            modifier = Modifier.fillMaxWidth()
+                        WireTextField(
+                            value = state.email,
+                            onValueChange = onEmailChange,
+                            labelText = stringResource(R.string.email_label).uppercase(),
+                            state = computeEmailErrorState(state.error),
+                            keyboardOptions = KeyboardOptions(
+                                keyboardType = KeyboardType.Text,
+                                imeAction = ImeAction.Done
+                            ),
+                            keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
+                            modifier = Modifier.padding(
+                                horizontal = MaterialTheme.wireDimensions.spacing16x
+                            )
                         )
                     }
+                }
+                Spacer(modifier = Modifier.weight(1f))
+            }
+
+            Surface(
+                shadowElevation = scrollState.rememberBottomBarElevationState().value,
+                color = MaterialTheme.wireColorScheme.background
+            ) {
+                Box(modifier = Modifier.padding(MaterialTheme.wireDimensions.spacing16x)) {
+                    WirePrimaryButton(
+                        text = stringResource(R.string.label_save),
+                        onClick = onSaveClicked,
+                        fillMaxWidth = true,
+                        trailingIcon = Icons.Filled.ChevronRight.Icon(),
+                        state = if (state.saveEnabled) Default else Disabled,
+                        modifier = Modifier.fillMaxWidth()
+                    )
                 }
             }
         }
@@ -165,10 +163,11 @@ private fun computeEmailErrorState(error: ChangeEmailState.EmailError): WireText
     if (error is ChangeEmailState.EmailError.TextFieldError) {
         when (error) {
             ChangeEmailState.EmailError.TextFieldError.AlreadyInUse -> WireTextFieldState.Error(
-                stringResource(id = R.string.settings_myaccount_display_name_error)
+                stringResource(id = R.string.settings_myaccount_email_already_in_use_error)
             )
+
             ChangeEmailState.EmailError.TextFieldError.InvalidEmail -> WireTextFieldState.Error(
-                stringResource(id = R.string.settings_myaccount_display_name_exceeded_limit_error)
+                stringResource(id = R.string.settings_myaccount_email_invalid_imail_error)
             )
         }
     } else {

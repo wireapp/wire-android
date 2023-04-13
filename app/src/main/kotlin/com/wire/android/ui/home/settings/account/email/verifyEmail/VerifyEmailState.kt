@@ -15,23 +15,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.ui.home.settings.account.email
+package com.wire.android.ui.home.settings.account.email.verifyEmail
 
-import androidx.compose.ui.text.input.TextFieldValue
-
-data class ChangeEmailState(
-    val email: TextFieldValue = TextFieldValue(""),
-    val error: EmailError = EmailError.None,
-    val isUpdateSuccessful: Boolean = false,
-    val isEmailTextEditEnabled: Boolean = true,
-    val animatedEmailError: Boolean = false,
-    val saveEnabled: Boolean = false
-) {
-    sealed interface EmailError {
-        object None : EmailError
-        sealed interface TextFieldError : EmailError {
-            object AlreadyInUse : TextFieldError
-            object InvalidEmail : TextFieldError
-        }
-    }
-}
+data class VerifyEmailState(
+    val isResendEmailEnabled: Boolean = true
+)

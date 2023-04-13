@@ -434,6 +434,7 @@ Até 500 pessoas podem participar de uma conversa em grupo.</string>
     <string name="user_profile_role_change_error">Houve um erro ao tentar alterar a função. Por favor, verifique sua conexão com a internet e tente novamente</string>
     <string name="user_profile_unblock_user">Desbloquear usuário</string>
     <string name="user_profile_group_remove_button">Remover do grupo</string>
+    <string name="user_profile_logging_out_progress">Logging out...</string>
     <!-- Remove Conversation Member Dialog -->
     <string name="dialog_remove_conversation_member_title">Remover do grupo?</string>
     <string name="dialog_remove_conversation_member_description">%1$s (@%2$s) não poderá enviar nem receber mensagens nesta conversa.</string>

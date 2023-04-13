@@ -432,6 +432,7 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
     <string name="user_profile_role_change_error">Ocurri&#243; un error al intentar cambiar el rol. Por favor, verifica tu conexi&#243;n a internet e intenta de nuevo.</string>
     <string name="user_profile_unblock_user">Desbloquear usuario</string>
     <string name="user_profile_group_remove_button">Eliminar del grupo</string>
+    <string name="user_profile_logging_out_progress">Logging out...</string>
     <!-- Remove Conversation Member Dialog -->
     <string name="dialog_remove_conversation_member_title">&#191;Eliminar del grupo?</string>
     <string name="dialog_remove_conversation_member_description">%1$s (@%2$s) no podr&#225; enviar ni recibir mensajes en esta conversaci&#243;n.</string>

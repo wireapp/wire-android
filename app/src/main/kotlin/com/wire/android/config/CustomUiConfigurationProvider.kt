@@ -25,7 +25,7 @@ import com.wire.android.BuildConfig
  *
  */
 object CustomUiConfigurationProvider {
-    val isAccountCreationButtonVisible = BuildConfig.ALLOW_ACCOUNT_CREATION ?: false
+    val isAccountCreationAllowed = BuildConfig.ALLOW_ACCOUNT_CREATION ?: true
 }
 
 val LocalCustomUiConfigurationProvider = staticCompositionLocalOf { CustomUiConfigurationProvider }

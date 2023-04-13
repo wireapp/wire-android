@@ -46,7 +46,6 @@ import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.config.CustomUiConfigurationProvider
-import com.wire.android.config.LocalCustomConfigurationProvider
 import com.wire.android.config.LocalCustomUiConfigurationProvider
 import com.wire.android.navigation.NavigationGraph
 import com.wire.android.navigation.NavigationItem

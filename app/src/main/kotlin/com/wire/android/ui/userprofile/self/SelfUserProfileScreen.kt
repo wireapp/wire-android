@@ -390,7 +390,7 @@ private fun OtherAccountItem(
 private fun LoggingOutDialog(isLoggingOut: Boolean) {
     if (isLoggingOut) {
         ProgressDialog(
-            title = stringResource(R.string.user_profile_loggin_out_progress),
+            title = stringResource(R.string.user_profile_logging_out_progress),
             properties = DialogProperties(dismissOnBackPress = false, dismissOnClickOutside = false, usePlatformDefaultWidth = true)
         )
     }

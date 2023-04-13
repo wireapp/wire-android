@@ -929,10 +929,11 @@ Por favor, use o gerenciamento de equipe (%1$s) neste backend.</string>
     <string name="label_self_client_verification_description">Para verificar o seu próprio dispositivo, compare esta impressão digital com a mesma impressão digital em outro dispositivo.</string>
     <string name="label_client_verification_description">Verificar se esta impressão digital do dispositivo corresponde à impressão digital mostrada no dispositivo de %s.</string>
     <string name="label_fingerprint_description">Se as impressões digitais não coincidirem, reinicie a sessão para gerar novas chaves de criptografia em ambos os lados.</string>
-    <string name="label_self_fingerprint_description">Para permitir que outros verifiquem este dispositivo, compartilhe esta impressão digital ou o código QR com eles.</string>
+    <string name="label_self_fingerprint_description">Share this key fingerprint with other participants in a conversation, so that they can verify it and make sure the conversation is secure.</string>
     <string name="unknown_user_name">usuário desconhecido</string>
     <string name="self_deleting_message_time_left">Self-deleting message • %1$s</string>
     <string name="self_deleting_message_label">Self-deleting message</string>
+    <string name="device_name_unknown">Unknown device</string>
     <!-- Expirable messages -->
     <plurals name="weeks_left">
         <item quantity="one">1 week left</item>

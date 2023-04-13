@@ -434,6 +434,7 @@ Do grupy mo&#380;e do&#322;&#261;czy&#263; maksymalnie 500 os&#243;b.</string>
     <string name="user_profile_role_change_error">Wyst&#261;pi&#322; b&#322;&#261;d podczas zmiany roli. Sprawd&#378; swoje po&#322;&#261;czenie internetowe i spr&#243;buj ponownie.</string>
     <string name="user_profile_unblock_user">Odblokuj u&#380;ytkownika</string>
     <string name="user_profile_group_remove_button">Usu&#324; z grupy</string>
+    <string name="user_profile_logging_out_progress">Logging out...</string>
     <!-- Remove Conversation Member Dialog -->
     <string name="dialog_remove_conversation_member_title">Usun&#261;&#263; z grupy?</string>
     <string name="dialog_remove_conversation_member_description">%1$s (@%2$s) nie b&#281;dzie m&#243;g&#322; wysy&#322;a&#263; ani odbiera&#263; wiadomo&#347;ci w tej rozmowie.</string>

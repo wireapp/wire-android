@@ -57,6 +57,5 @@ class VerifyEmailViewModel @Inject constructor(
                 state = state.copy(isResendEmailEnabled = true)
             }
         }
-
     }
 }

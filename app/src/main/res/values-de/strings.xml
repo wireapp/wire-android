@@ -925,10 +925,11 @@
     <string name="label_self_client_verification_description">To verify your own device, compare this key fingerprint with the same key fingerprint on another device.</string>
     <string name="label_client_verification_description">Verify that this device fingerprint matches the fingerprint shown on %s’s device.</string>
     <string name="label_fingerprint_description">If fingerprints don’t match, reset the session to generate new encryption keys on both sides.</string>
-    <string name="label_self_fingerprint_description">To let others verify this device, share this fingerprint or the QR code with them.</string>
+    <string name="label_self_fingerprint_description">Share this key fingerprint with other participants in a conversation, so that they can verify it and make sure the conversation is secure.</string>
     <string name="unknown_user_name">unknown</string>
     <string name="self_deleting_message_time_left">Self-deleting message • %1$s</string>
     <string name="self_deleting_message_label">Self-deleting message</string>
+    <string name="device_name_unknown">Unknown device</string>
     <!-- Expirable messages -->
     <plurals name="weeks_left">
         <item quantity="one">1 week left</item>

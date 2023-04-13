@@ -34,7 +34,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.wire.android.ui.calling.ConversationName
 import com.wire.android.ui.calling.getConversationName
@@ -65,10 +64,16 @@ fun OneOnOneCallView(
             // we need to check that we are on first page for self user
             val isSelfUser = pageIndex == 0 && participants.first() == participant
 
-            val isCameraOn = if (isSelfUser)
-                isSelfUserCameraOn else participant.isCameraOn
-            val isMuted = if (isSelfUser)
-                isSelfUserMuted else participant.isMuted
+            val isCameraOn = if (isSelfUser) {
+                isSelfUserCameraOn
+            } else {
+                participant.isCameraOn
+            }
+            val isMuted = if (isSelfUser) {
+                isSelfUserMuted
+            } else {
+                participant.isMuted
+            }
 
             val username = when (val conversationName = getConversationName(participant.name)) {
                 is ConversationName.Known -> conversationName.name
@@ -104,7 +109,4 @@ fun OneOnOneCallView(
             )
         }
     }
-
 }
-
-

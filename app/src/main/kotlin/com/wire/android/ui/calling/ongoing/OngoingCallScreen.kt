@@ -233,7 +233,6 @@ private fun OngoingCallTopBar(
             )
         }
     }
-
 }
 
 @Composable

@@ -35,7 +35,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.wire.android.ui.calling.ConversationName
 import com.wire.android.ui.calling.getConversationName
@@ -87,9 +86,11 @@ fun GroupCallGrid(
             else participant.isMuted
 
             // if we have more than 6 participants then we reduce avatar size
-            val userAvatarSize = if (participants.size <= 6 || config.screenHeightDp > MIN_SCREEN_HEIGHT)
+            val userAvatarSize = if (participants.size <= 6 || config.screenHeightDp > MIN_SCREEN_HEIGHT) {
                 dimensions().onGoingCallUserAvatarSize
-            else dimensions().onGoingCallUserAvatarMinimizedSize
+            } else {
+                dimensions().onGoingCallUserAvatarMinimizedSize
+            }
             val usernameString = when (val conversationName = getConversationName(participant.name)) {
                 is ConversationName.Known -> conversationName.name
                 is ConversationName.Unknown -> stringResource(id = conversationName.resourceId)

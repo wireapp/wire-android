@@ -674,6 +674,7 @@
     <string name="notification_call_default_caller_name">Someone</string>
     <string name="notification_call_default_group_name">Incoming group call</string>
     <!-- Calling-->
+    <string name="calling_constant_bit_rate_indication">Constant Bit Rate</string>
     <string name="calling_button_label_microphone">Microphone</string>
     <string name="calling_button_label_camera">Camera</string>
     <string name="calling_button_label_speaker">Speaker</string>

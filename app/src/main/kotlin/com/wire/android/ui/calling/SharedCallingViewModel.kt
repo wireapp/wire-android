@@ -211,8 +211,9 @@ class SharedCallingViewModel @Inject constructor(
         sharedFlow.first()?.let { call ->
             callState = callState.copy(
                 callStatus = call.status,
-                callerName = call.callerName
-            )
+                callerName = call.callerName,
+                isCbrEnabled = call.isCbrEnabled
+                )
         }
     }
 
@@ -222,6 +223,7 @@ class SharedCallingViewModel @Inject constructor(
                 callState = callState.copy(
                     isMuted = call.isMuted,
                     callStatus = it.status,
+                    isCbrEnabled = it.isCbrEnabled,
                     callerName = it.callerName,
                     participants = it.participants.map { participant -> uiCallParticipantMapper.toUICallParticipant(participant) }
                 )

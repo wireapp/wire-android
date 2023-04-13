@@ -103,8 +103,9 @@ fun OneOnOneCallView(
                     if (isSelfUser) onSelfVideoPreviewCreated(it)
                 },
                 onClearSelfUserVideoPreview = {
-                    if (isSelfUser)
+                    if (isSelfUser) {
                         onSelfClearVideoPreview()
+                    }
                 }
             )
         }

@@ -15,15 +15,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  *
- *
  */
+package customization
 
 enum class ConfigType(val type: String) {
     STRING("String"),
     BOOLEAN("Boolean"),
     INT("int"),
-    CERTIFICATE_PIN("certificatePin"),
-    FLAVOUR_CONFIG("flavourConfigs")
 }
 
 enum class FeatureConfigs(val value: String, val configType: ConfigType) {
@@ -31,12 +29,11 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
     ALLOW_MARKETING_COMMUNICATION("allowMarketingCommunication", ConfigType.BOOLEAN),
     ALLOW_SSO("allowSSO", ConfigType.BOOLEAN),
     ALLOW_ACCOUNT_CREATION("allow_account_creation", ConfigType.BOOLEAN),
+    ACCOUNTS_URL("accountsUrl", ConfigType.STRING),
     BACKEND_URL("backendUrl", ConfigType.STRING),
     BLACKLIST_HOST("blacklistHost", ConfigType.STRING),
     BLOCK_ON_JAILBREAK_OR_ROOT("block_on_jailbreak_or_root", ConfigType.BOOLEAN),
     BLOCK_ON_PASSWORD_POLICY("block_on_password_policy", ConfigType.BOOLEAN),
-    COUNTLY_APP_KEY("countly_app_key", ConfigType.STRING),
-    COUNTLY_SERVER_URL("countly_server_url", ConfigType.STRING),
     CUSTOM_URL_SCHEME("custom_url_scheme", ConfigType.STRING),
     ENABLE_BLACK_LIST("enableBlacklist", ConfigType.BOOLEAN),
     FILE_RESTRICTION_ENABLED("file_restriction_enabled", ConfigType.BOOLEAN),
@@ -55,27 +52,6 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
     ENCRYPT_PROTEUS_STORAGE("encrypt_proteus_storage", ConfigType.BOOLEAN),
     GUEST_ROOM_LINK("guest_room_link", ConfigType.BOOLEAN),
     UPDATE_APP_URL("update_app_url", ConfigType.STRING),
-
-    CERTIFICATE_PIN("certificatePin", ConfigType.CERTIFICATE_PIN),
-
-
-    CANDIDATE("candidate", ConfigType.FLAVOUR_CONFIG),
-    EXPERIMENTAL("experimental", ConfigType.FLAVOUR_CONFIG),
-    FDROID("fdroid", ConfigType.FLAVOUR_CONFIG),
-    DEV("dev", ConfigType.FLAVOUR_CONFIG),
-    INTERNAL("internal", ConfigType.FLAVOUR_CONFIG),
-    STAGING("staging", ConfigType.FLAVOUR_CONFIG),
-    PROD("prod", ConfigType.FLAVOUR_CONFIG),
-    BETA("beta", ConfigType.FLAVOUR_CONFIG);
-}
-
-enum class CertificatePin(val value: String, val configType: ConfigType) {
-    CERTIFICATE("certificate", ConfigType.STRING),
-    DOMAIN("domain", ConfigType.STRING);
-}
-
-enum class FlavourConfigs(val value: String, val configType: ConfigType) {
-    COMMENT("_comment", ConfigType.STRING),
     APP_NAME("appName", ConfigType.STRING),
     APPLICATION_ID("applicationId", ConfigType.STRING),
     DEVELOPER_FEATURES_ENABLED("developer_features_enabled", ConfigType.BOOLEAN),
@@ -88,6 +64,6 @@ enum class FlavourConfigs(val value: String, val configType: ConfigType) {
     FIREBASE_PUSH_SENDER_ID("firebasePushSenderId", ConfigType.STRING),
     GOOGLE_API_KEY("googleApiKey", ConfigType.STRING),
     FCM_PROJECT_ID("fcmProjectID", ConfigType.STRING),
-    IS_STAGING("isStaging", ConfigType.BOOLEAN),
+    STANDARD_BACKEND("standardBackend", ConfigType.STRING),
     USER_ID("userId", ConfigType.STRING);
 }

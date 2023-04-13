@@ -42,12 +42,12 @@ fun RemoveDeviceDialog(
     }
     WireDialog(
         title = stringResource(R.string.remove_device_dialog_title),
-        text = state.device.name + "\n" +
-            stringResource(
-                R.string.remove_device_id_and_time_label,
-                state.device.clientId.value,
-                state.device.registrationTime?.formatMediumDateTime() ?: ""
-            ),
+        text = state.device.name.asString() + "\n" +
+                stringResource(
+                    R.string.remove_device_id_and_time_label,
+                    state.device.clientId.value,
+                    state.device.registrationTime?.formatMediumDateTime() ?: ""
+                ),
         onDismiss = onDialogDismissHideKeyboard,
         dismissButtonProperties = WireDialogButtonProperties(
             onClick = onDialogDismissHideKeyboard,

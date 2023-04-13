@@ -59,6 +59,7 @@ import com.wire.android.util.dialogErrorStrings
 import com.wire.android.util.extension.formatAsFingerPrint
 import com.wire.android.util.extension.formatAsString
 import com.wire.android.util.formatMediumDateTime
+import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.ClientId
 import kotlinx.collections.immutable.ImmutableMap
 import kotlinx.collections.immutable.persistentMapOf
@@ -98,7 +99,7 @@ fun DeviceDetailsContent(
             WireCenterAlignedTopAppBar(
                 onNavigationPressed = onNavigateBack,
                 elevation = 0.dp,
-                title = state.device.name
+                title = state.device.name.asString()
             )
         },
         snackbarHost = {
@@ -263,8 +264,7 @@ fun DeviceVerificationItem(
             WireSwitch(
                 checked = state,
                 onCheckedChange = onStatusChange,
-                enabled = enabled,
-                modifier = Modifier.padding(end = dimensions().spacing16x)
+                enabled = enabled
             )
         }
     )
@@ -276,7 +276,6 @@ private fun VerificationDescription(
     isSelfClient: Boolean,
     userName: String?
 ) {
-    val context = LocalContext.current
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -416,7 +415,7 @@ fun PreviewDeviceDetailsScreen() {
         state = DeviceDetailsState(
             device = Device(
                 clientId = ClientId(""),
-                name = "My Device",
+                name = UIText.DynamicString("My Device"),
                 registrationTime = "2022-03-24T18:02:30.360Z"
             ),
             isCurrentDevice = false

@@ -37,6 +37,9 @@ jobs:
       - name: Gradle cache
         uses: gradle/gradle-build-action@v2
 
+      - name: Test Build Logic
+        run: ./gradlew -p buildSrc test
+
       - name: Test with coverage
         run: ./gradlew testCoverage
         env:

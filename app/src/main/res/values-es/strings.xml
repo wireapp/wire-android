@@ -928,10 +928,11 @@ URL del backend:
     <string name="label_self_client_verification_description">Para verificar su propio dispositivo, compare esta huella digital con la misma huella digital en otro dispositivo.</string>
     <string name="label_client_verification_description">Verifica que la huella digital de este dispositivo coincide con la huella digital mostrada en el dispositivo de %s.</string>
     <string name="label_fingerprint_description">Si las huellas digitales no coinciden, restablezca la sesi&#243;n para generar nuevas claves de cifrado en ambos lados.</string>
-    <string name="label_self_fingerprint_description">Para permitir que otros verifiquen este dispositivo, comparta esta huella digital o el c&#243;digo QR con ellos.</string>
+    <string name="label_self_fingerprint_description">Share this key fingerprint with other participants in a conversation, so that they can verify it and make sure the conversation is secure.</string>
     <string name="unknown_user_name">desconocido</string>
     <string name="self_deleting_message_time_left">Self-deleting message • %1$s</string>
     <string name="self_deleting_message_label">Self-deleting message</string>
+    <string name="device_name_unknown">Unknown device</string>
     <!-- Expirable messages -->
     <plurals name="weeks_left">
         <item quantity="one">1 week left</item>

@@ -955,10 +955,11 @@ Prosimy u&#380;y&#263; zarz&#261;dzania zespo&#322;ami (%1$s) na tym &#347;rodow
     <string name="label_self_client_verification_description">Aby zweryfikowa&#263; swoje urz&#261;dzenie, por&#243;wnaj ten odcisk klucza z tym samym odciskiem klucza na innym urz&#261;dzeniu.</string>
     <string name="label_client_verification_description">Zweryfikuj, czy odcisk klucza na tym urz&#261;dzeniu odpowiada odciskowi klucza wy&#347;wietlanemu na urz&#261;dzeniu %s.</string>
     <string name="label_fingerprint_description">Je&#347;li odciski klucza si&#281; nie zgadzaj&#261;, zresetuj sesj&#281;, aby wygenerowa&#263; nowe klucze szyfrowania po obu stronach.</string>
-    <string name="label_self_fingerprint_description">Aby pozwoli&#263; innym zweryfikowa&#263; to urz&#261;dzenie, udost&#281;pnij im ten odcisk klucza lub kod QR.</string>
+    <string name="label_self_fingerprint_description">Share this key fingerprint with other participants in a conversation, so that they can verify it and make sure the conversation is secure.</string>
     <string name="unknown_user_name">nieznany</string>
     <string name="self_deleting_message_time_left">Self-deleting message • %1$s</string>
     <string name="self_deleting_message_label">Self-deleting message</string>
+    <string name="device_name_unknown">Unknown device</string>
     <!-- Expirable messages -->
     <plurals name="weeks_left">
         <item quantity="one">1 week left</item>

@@ -46,6 +46,7 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
     WIPE_ON_COOKIE_INVALID("wipe_on_cookie_invalid", ConfigType.BOOLEAN),
     WIPE_ON_DEVICE_REMOVAL("wipe_on_device_removal", ConfigType.BOOLEAN),
     SUPPORT_EMAIL("supportEmail", ConfigType.STRING),
+    SUPPORT_URL("supportUrl", ConfigType.STRING),
     TEAMS_URL("teamsUrl", ConfigType.STRING),
     WEB_LINK_PREVIEW("web_link_preview", ConfigType.BOOLEAN),
     WEB_SOCKET_URL("websocketUrl", ConfigType.STRING),

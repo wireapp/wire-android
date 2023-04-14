@@ -253,24 +253,24 @@ class SharedCallingViewModel @Inject constructor(
 
     fun toggleSpeaker() {
         viewModelScope.launch {
-            callState = if (callState.isSpeakerOn) {
+            if (callState.isSpeakerOn) {
+                callState = callState.copy(isSpeakerOn = false)
                 turnLoudSpeakerOff()
-                callState.copy(isSpeakerOn = false)
             } else {
+                callState = callState.copy(isSpeakerOn = true)
                 turnLoudSpeakerOn()
-                callState.copy(isSpeakerOn = true)
             }
         }
     }
 
     fun flipCamera() {
         viewModelScope.launch {
-            callState = if (callState.isOnFrontCamera) {
+            if (callState.isOnFrontCamera) {
+                callState = callState.copy(isOnFrontCamera = false)
                 flipToBackCamera(conversationId)
-                callState.copy(isOnFrontCamera = false)
             } else {
+                callState = callState.copy(isOnFrontCamera = true)
                 flipToFrontCamera(conversationId)
-                callState.copy(isOnFrontCamera = true)
             }
         }
     }
@@ -278,12 +278,12 @@ class SharedCallingViewModel @Inject constructor(
     fun toggleMute() {
         viewModelScope.launch {
             callState.isMuted?.let {
-                callState = if (it) {
+                if (it) {
+                    callState = callState.copy(isMuted = false)
                     unMuteCall(conversationId)
-                    callState.copy(isMuted = false)
                 } else {
+                    callState = callState.copy(isMuted = true)
                     muteCall(conversationId)
-                    callState.copy(isMuted = true)
                 }
             }
         }

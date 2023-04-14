@@ -47,10 +47,10 @@
             "private_build": true,
             "development_api_enabled": false,
             "mls_support_enabled": true,
-            "firebasePushSenderId": "782078216207",
             "standardBackend": "prod"
         }
     },
+    "firebasePushSenderId": "782078216207",
     "firebaseAppId": "1:782078216207:android:d3db2443512d2055",
     "googleApiKey": "AIzaSyBXtNKuX6GCKv2jDtsFImUaxCRL21DTLEQ",
     "fcmProjectID": "w966768976",

@@ -20,34 +20,22 @@
 
 package com.wire.android
 
-import android.app.Activity
 import android.app.Application
 import android.content.ComponentCallbacks2
 import android.os.Build
 import android.os.StrictMode
 import androidx.work.Configuration
 import co.touchlab.kermit.platformLogWriter
-import com.datadog.android.Datadog
-import com.datadog.android.DatadogSite
-import com.datadog.android.core.configuration.Credentials
-import com.datadog.android.privacy.TrackingConsent
-import com.datadog.android.rum.GlobalRum
-import com.datadog.android.rum.RumMonitor
-import com.datadog.android.rum.tracking.ActivityViewTrackingStrategy
-import com.datadog.android.rum.tracking.ComponentPredicate
 import com.google.firebase.FirebaseApp
 import com.google.firebase.FirebaseOptions
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.di.ApplicationScope
 import com.wire.android.di.KaliumCoreLogic
-import com.wire.android.ui.WireActivity
 import com.wire.android.util.DataDogLogger
 import com.wire.android.util.LogFileWriter
 import com.wire.android.util.extension.isGoogleServicesAvailable
-import com.wire.android.util.getDeviceId
 import com.wire.android.util.getGitBuildId
 import com.wire.android.util.lifecycle.ConnectionPolicyManager
-import com.wire.android.util.sha256
 import com.wire.android.workmanager.WireWorkerFactory
 import com.wire.kalium.logger.KaliumLogLevel
 import com.wire.kalium.logger.KaliumLogger
@@ -57,7 +45,6 @@ import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
 // App wide global logger, carefully initialized when our application is "onCreate"
@@ -119,6 +106,8 @@ class WireApplication : Application(), Configuration.Provider {
     }
 
     private fun enableStrictMode() {
+        if (!BuildConfig.DEBUG) return
+
         StrictMode.setThreadPolicy(
             StrictMode.ThreadPolicy.Builder()
                 .detectDiskReads()
@@ -139,7 +128,7 @@ class WireApplication : Application(), Configuration.Provider {
 
     private fun initializeApplicationLoggingFrameworks() {
         // 1. Datadog should be initialized first
-        enableDatadog()
+        ExternalLoggerManager.initDatadogLogger(this, globalDataStore)
         // 2. Initialize our internal logging framework
         appLogger = KaliumLogger(
             config = KaliumLogger.Config(
@@ -180,51 +169,6 @@ class WireApplication : Application(), Configuration.Provider {
         }
     }
 
-    private fun enableDatadog() {
-
-        val clientToken = "pub98ad02250435b6082337bb79f66cbc19"
-        val applicationId = "619af3ef-2fa6-41e2-8bb1-b42041d50802"
-
-        val environmentName = "internal"
-        val appVariantName = "com.wire.android.${BuildConfig.FLAVOR}.${BuildConfig.BUILD_TYPE}"
-
-        val configuration = com.datadog.android.core.configuration.Configuration.Builder(
-            logsEnabled = true,
-            tracesEnabled = true,
-            rumEnabled = true,
-            crashReportsEnabled = true,
-        )
-            .useViewTrackingStrategy(
-                ActivityViewTrackingStrategy(
-                    trackExtras = true,
-                    componentPredicate = object : ComponentPredicate<Activity> {
-                        override fun accept(component: Activity): Boolean {
-                            // reject Activities which are hosts of Compose views, so that they are not counted as views
-                            return component !is WireActivity
-                        }
-
-                        override fun getViewName(component: Activity): String? = null
-                    }
-                )
-            )
-            .trackInteractions()
-            .trackBackgroundRumEvents(true)
-            .trackLongTasks(LONG_TASK_THRESH_HOLD_MS)
-            .useSite(DatadogSite.EU1)
-            .build()
-
-        val credentials = Credentials(clientToken, environmentName, appVariantName, applicationId)
-        val extraInfo = mapOf(
-            "encrypted_proteus_storage_enabled" to runBlocking {
-                globalDataStore.isEncryptedProteusStorageEnabled().first()
-            }
-        )
-
-        Datadog.initialize(this, credentials, configuration, TrackingConsent.GRANTED)
-        Datadog.setUserInfo(id = getDeviceId()?.sha256(), extraInfo = extraInfo)
-        GlobalRum.registerIfAbsent(RumMonitor.Builder().build())
-    }
-
     override fun onTrimMemory(level: Int) {
         super.onTrimMemory(level)
         appLogger.w(
@@ -240,8 +184,6 @@ class WireApplication : Application(), Configuration.Provider {
     }
 
     private companion object {
-        const val LONG_TASK_THRESH_HOLD_MS = 1000L
-
         enum class MemoryLevel(val level: Int) {
             TRIM_MEMORY_BACKGROUND(ComponentCallbacks2.TRIM_MEMORY_BACKGROUND),
             TRIM_MEMORY_COMPLETE(ComponentCallbacks2.TRIM_MEMORY_COMPLETE),

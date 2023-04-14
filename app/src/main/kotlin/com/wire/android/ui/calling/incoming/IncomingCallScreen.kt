@@ -21,6 +21,7 @@
 package com.wire.android.ui.calling.incoming
 
 import android.view.View
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -55,7 +56,6 @@ import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
-
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.permission.rememberCallingRecordAudioBluetoothRequestFlow
 import com.wire.kalium.logic.data.call.ConversationType
@@ -125,6 +125,9 @@ private fun IncomingCallContent(
     onVideoPreviewCreated: (view: View) -> Unit,
     onSelfClearVideoPreview: () -> Unit
 ) {
+    BackHandler {
+        // DO NOTHING
+    }
 
     val scaffoldState = rememberBottomSheetScaffoldState()
 

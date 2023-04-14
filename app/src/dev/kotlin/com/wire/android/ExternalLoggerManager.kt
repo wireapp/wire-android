@@ -1,4 +1,4 @@
-package com.wire.android.navigation
+package com.wire.android
 
 import android.app.Activity
 import android.content.Context
@@ -10,16 +10,18 @@ import com.datadog.android.rum.GlobalRum
 import com.datadog.android.rum.RumMonitor
 import com.datadog.android.rum.tracking.ActivityViewTrackingStrategy
 import com.datadog.android.rum.tracking.ComponentPredicate
-import com.wire.android.BuildConfig
+import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.ui.WireActivity
 import com.wire.android.util.getDeviceId
 import com.wire.android.util.sha256
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
 
 private const val LONG_TASK_THRESH_HOLD_MS = 1000L
 
 object ExternalLoggerManager {
 
-    fun initDatadogLogger(context: Context, isEncryptedProteusStorageEnabled: Boolean) {
+    fun initDatadogLogger(context: Context, globalDataStore: GlobalDataStore) {
 
         val clientToken = "pub98ad02250435b6082337bb79f66cbc19"
         val applicationId = "619af3ef-2fa6-41e2-8bb1-b42041d50802"
@@ -54,7 +56,7 @@ object ExternalLoggerManager {
 
         val credentials = Credentials(clientToken, environmentName, appVariantName, applicationId)
         val extraInfo = mapOf(
-            "encrypted_proteus_storage_enabled" to isEncryptedProteusStorageEnabled
+            "encrypted_proteus_storage_enabled" to runBlocking { globalDataStore.isEncryptedProteusStorageEnabled().first() }
         )
 
         Datadog.initialize(context, credentials, configuration, TrackingConsent.GRANTED)

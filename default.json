@@ -71,5 +71,7 @@
     "update_app_url": "https://wire.com/en/download/",
     "guest_room_link": true,
     "wipe_on_cookie_invalid": false,
-    "wipe_on_device_removal": false
+    "wipe_on_device_removal": false,
+    "report_bug_menu_item_enabled": true,
+    "debug_screen_enabled": true
 }

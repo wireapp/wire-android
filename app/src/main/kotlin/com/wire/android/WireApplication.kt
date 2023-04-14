@@ -20,7 +20,6 @@
 
 package com.wire.android
 
-import android.app.Activity
 import android.app.Application
 import android.content.ComponentCallbacks2
 import android.os.Build
@@ -32,7 +31,6 @@ import com.google.firebase.FirebaseOptions
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.di.ApplicationScope
 import com.wire.android.di.KaliumCoreLogic
-import com.wire.android.ui.WireActivity
 import com.wire.android.util.DataDogLogger
 import com.wire.android.util.LogFileWriter
 import com.wire.android.util.extension.isGoogleServicesAvailable
@@ -47,7 +45,6 @@ import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
 // App wide global logger, carefully initialized when our application is "onCreate"
@@ -131,7 +128,7 @@ class WireApplication : Application(), Configuration.Provider {
 
     private fun initializeApplicationLoggingFrameworks() {
         // 1. Datadog should be initialized first
-        ExternalLoggerManager.initDatadogLogger(this)
+        ExternalLoggerManager.initDatadogLogger(this, globalDataStore)
         // 2. Initialize our internal logging framework
         appLogger = KaliumLogger(
             config = KaliumLogger.Config(

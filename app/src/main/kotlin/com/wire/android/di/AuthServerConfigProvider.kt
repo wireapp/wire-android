@@ -29,9 +29,14 @@ import javax.inject.Singleton
 
 @Singleton
 class AuthServerConfigProvider @Inject constructor() {
-    //todo check with soft logout
-    private val serverConfigDefaultLinks = if (BuildConfig.IS_STAGING) ServerConfig.STAGING else ServerConfig.PRODUCTION
-    private val _authServer: MutableStateFlow<ServerConfig.Links> = MutableStateFlow(serverConfigDefaultLinks)
+    // todo check with soft logout
+    private val defaultBackendConfigs = when (BuildConfig.STANDARD_BACKEND) {
+        "staging" -> ServerConfig.STAGING
+        "prod" -> ServerConfig.PRODUCTION
+        null -> TODO("Create ServerConfig based on keys")
+        else -> throw IllegalArgumentException("Default backend not configured properly")
+    }
+    private val _authServer: MutableStateFlow<ServerConfig.Links> = MutableStateFlow(defaultBackendConfigs)
     val authServer: StateFlow<ServerConfig.Links> = _authServer
 
     fun updateAuthServer(serverLinks: ServerConfig.Links) {

@@ -33,7 +33,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -41,12 +41,14 @@ import com.wire.android.R
 import com.wire.android.ui.common.button.WireButtonState.Default
 import com.wire.android.ui.common.button.WireButtonState.Disabled
 import com.wire.android.ui.common.button.WirePrimaryButton
+import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.rememberBottomBarElevationState
 import com.wire.android.ui.common.rememberTopBarElevationState
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.ui.stringWithStyledArgs
 
 @Composable
 fun VerifyEmailScreen(viewModel: VerifyEmailViewModel = hiltViewModel()) {
@@ -85,9 +87,15 @@ fun VerifyEmailContent(
                     .fillMaxWidth()
                     .verticalScroll(scrollState)
             ) {
-                val keyboardController = LocalSoftwareKeyboardController.current
                 Text(
-                    text = stringResource(id = R.string.settings_myaccount_email_verification_email_sent, newEmail),
+                    text = LocalContext.current.resources.stringWithStyledArgs(
+                        R.string.settings_myaccount_email_verification_email_sent,
+                        MaterialTheme.wireTypography.body01,
+                        MaterialTheme.wireTypography.body02,
+                        colorsScheme().onBackground,
+                        colorsScheme().onBackground,
+                        newEmail
+                    ),
                     style = MaterialTheme.wireTypography.body01,
                     modifier = Modifier
                         .fillMaxWidth()

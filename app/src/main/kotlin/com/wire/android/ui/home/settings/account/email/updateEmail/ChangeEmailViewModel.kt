@@ -84,7 +84,9 @@ class ChangeEmailViewModel @Inject constructor(
                         error = ChangeEmailState.EmailError.TextFieldError.InvalidEmail
                     )
 
-                UpdateEmailUseCase.Result.Success -> onUpdateEmailSuccess()
+                is UpdateEmailUseCase.Result.Success.VerificationEmailSent -> onUpdateEmailSuccess()
+                is UpdateEmailUseCase.Result.Success.NoChange -> onBackPressed()
+
             }
         }
     }

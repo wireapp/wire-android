@@ -114,6 +114,9 @@ import com.wire.kalium.logic.data.user.UserId
 import io.github.esentsov.PackagePrivate
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets.UTF_8
+
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 /**
@@ -267,7 +270,9 @@ enum class NavigationItem(
         content = { VerifyEmailScreen() }
     ) {
         override fun getRouteWithArgs(arguments: List<Any>): String {
-            val newEmail: String = arguments.filterIsInstance<String>().first()
+            val newEmail: String = arguments.filterIsInstance<String>().first().let {
+                URLEncoder.encode(it, UTF_8.name())
+            }
             return "$VERIFY_EMAIL?$EXTRA_NEW_EMAIL=$newEmail"
         }
     },

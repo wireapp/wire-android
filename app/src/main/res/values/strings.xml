@@ -603,6 +603,8 @@
         <item quantity="one">%1$d message</item>
         <item quantity="other">%1$d messages</item>
     </plurals>
+    <string name="ephemeral_onetoone_event_message">"Sent a message"</string>
+    <string name= "ephemeral_group_event_message">"Someone sent a message"</string>
     <!--Search Contact-->
     <string name="label_contacts">CONTACTS</string>
     <string name="label_new_group">New Group</string>

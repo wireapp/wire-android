@@ -257,11 +257,22 @@ fun MessagePreview.uiLastMessageContent(): UILastMessageContent {
             }
         }
 
+        is MessagePreviewContent.Ephemeral -> {
+            val ephemeralContent = (content as MessagePreviewContent.Ephemeral)
+            if (ephemeralContent.isGroupConversation) {
+                UILastMessageContent.TextMessage(
+                    MessageBody(UIText.StringResource(R.string.ephemeral_group_event_message))
+                )
+            } else {
+                UILastMessageContent.TextMessage(
+                    MessageBody(UIText.StringResource(R.string.ephemeral_onetoone_event_message))
+                )
+            }
+
+        }
+
         MessagePreviewContent.CryptoSessionReset -> UILastMessageContent.None
         Unknown -> UILastMessageContent.None
-        MessagePreviewContent.Ephemeral -> UILastMessageContent.TextMessage(
-            MessageBody(UIText.PluralResource(R.plurals.unread_event_call, 1, 1))
-        )
     }
 }
 

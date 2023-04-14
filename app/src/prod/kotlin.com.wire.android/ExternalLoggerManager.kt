@@ -21,8 +21,6 @@ private const val LONG_TASK_THRESH_HOLD_MS = 1000L
 
 object ExternalLoggerManager {
 
-    fun initDatadogLogger(context: Context, globalDataStore: GlobalDataStore) {
-        /* no-op */
-    }
+    fun initDatadogLogger(context: Context, globalDataStore: GlobalDataStore) = Unit
 
 }

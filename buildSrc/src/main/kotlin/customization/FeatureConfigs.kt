@@ -66,5 +66,7 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
     GOOGLE_API_KEY("googleApiKey", ConfigType.STRING),
     FCM_PROJECT_ID("fcmProjectID", ConfigType.STRING),
     STANDARD_BACKEND("standardBackend", ConfigType.STRING),
-    USER_ID("userId", ConfigType.STRING);
+    USER_ID("userId", ConfigType.STRING),
+    DEBUG_SCREEN_ENABLED("debug_screen_enabled", ConfigType.BOOLEAN),
+    REPORT_BUG_MENU_ITEM_ENABLED("report_bug_menu_item_enabled", ConfigType.BOOLEAN);
 }

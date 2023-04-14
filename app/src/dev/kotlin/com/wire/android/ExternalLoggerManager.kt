@@ -63,5 +63,4 @@ object ExternalLoggerManager {
         Datadog.setUserInfo(id = context.getDeviceId()?.sha256(), extraInfo = extraInfo)
         GlobalRum.registerIfAbsent(RumMonitor.Builder().build())
     }
-
 }

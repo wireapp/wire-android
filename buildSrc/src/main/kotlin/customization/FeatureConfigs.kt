@@ -29,6 +29,7 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
     ALLOW_MARKETING_COMMUNICATION("allowMarketingCommunication", ConfigType.BOOLEAN),
     ALLOW_SSO("allowSSO", ConfigType.BOOLEAN),
     ALLOW_ACCOUNT_CREATION("allow_account_creation", ConfigType.BOOLEAN),
+    SUPPORT_URL("webSiteUrl", ConfigType.STRING),
     ACCOUNTS_URL("accountsUrl", ConfigType.STRING),
     BACKEND_URL("backendUrl", ConfigType.STRING),
     BLACKLIST_HOST("blacklistHost", ConfigType.STRING),

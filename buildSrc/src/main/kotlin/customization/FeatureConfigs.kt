@@ -73,5 +73,7 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
     BLACKLIST_ENABLE("enableBlacklist", ConfigType.BOOLEAN),
     // TODO: Add support for default proxy configs
 
-    USER_ID("userId", ConfigType.STRING);
+    USER_ID("userId", ConfigType.STRING),
+    DEBUG_SCREEN_ENABLED("debug_screen_enabled", ConfigType.BOOLEAN),
+    REPORT_BUG_MENU_ITEM_ENABLED("report_bug_menu_item_enabled", ConfigType.BOOLEAN);
 }

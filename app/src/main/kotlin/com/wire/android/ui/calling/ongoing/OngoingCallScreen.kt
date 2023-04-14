@@ -21,7 +21,6 @@
 package com.wire.android.ui.calling.ongoing
 
 import android.view.View
-import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -43,7 +42,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -78,20 +76,22 @@ fun OngoingCallScreen(
 
     with(sharedCallingViewModel.callState) {
         OngoingCallContent(
-            conversationName,
-            participants,
-            isMuted ?: true,
-            isCameraOn,
-            isSpeakerOn,
-            securityClassificationType,
-            sharedCallingViewModel::toggleSpeaker,
-            sharedCallingViewModel::toggleMute,
-            sharedCallingViewModel::hangUpCall,
-            sharedCallingViewModel::toggleVideo,
-            sharedCallingViewModel::setVideoPreview,
-            sharedCallingViewModel::clearVideoPreview,
-            sharedCallingViewModel::navigateBack,
-            ongoingCallViewModel::requestVideoStreams
+            conversationName = conversationName,
+            participants = participants,
+            isMuted = isMuted ?: true,
+            isCameraOn = isCameraOn,
+            isSpeakerOn = isSpeakerOn,
+            isOnFrontCamera = isOnFrontCamera,
+            classificationType = securityClassificationType,
+            toggleSpeaker = sharedCallingViewModel::toggleSpeaker,
+            toggleMute = sharedCallingViewModel::toggleMute,
+            hangUpCall = sharedCallingViewModel::hangUpCall,
+            toggleVideo = sharedCallingViewModel::toggleVideo,
+            flipCamera = sharedCallingViewModel::flipCamera,
+            setVideoPreview = sharedCallingViewModel::setVideoPreview,
+            clearVideoPreview = sharedCallingViewModel::clearVideoPreview,
+            navigateBack = sharedCallingViewModel::navigateBack,
+            requestVideoStreams = ongoingCallViewModel::requestVideoStreams
         )
         isCameraOn?.let {
             BackHandler(enabled = it, sharedCallingViewModel::navigateBack)
@@ -106,12 +106,14 @@ private fun OngoingCallContent(
     participants: List<UICallParticipant>,
     isMuted: Boolean,
     isCameraOn: Boolean,
+    isOnFrontCamera: Boolean,
     isSpeakerOn: Boolean,
     classificationType: SecurityClassificationType,
     toggleSpeaker: () -> Unit,
     toggleMute: () -> Unit,
     hangUpCall: () -> Unit,
     toggleVideo: () -> Unit,
+    flipCamera: () -> Unit,
     setVideoPreview: (view: View) -> Unit,
     clearVideoPreview: () -> Unit,
     navigateBack: () -> Unit,
@@ -152,12 +154,14 @@ private fun OngoingCallContent(
             CallingControls(
                 isMuted = isMuted,
                 isCameraOn = isCameraOn,
+                isOnFrontCamera = isOnFrontCamera,
                 isSpeakerOn = isSpeakerOn,
                 classificationType = classificationType,
                 toggleSpeaker = toggleSpeaker,
                 toggleMute = toggleMute,
                 onHangUpCall = hangUpCall,
-                onToggleVideo = toggleVideo
+                onToggleVideo = toggleVideo,
+                flipCamera = flipCamera
             )
         },
     ) {
@@ -217,11 +221,13 @@ private fun CallingControls(
     isMuted: Boolean,
     isCameraOn: Boolean,
     isSpeakerOn: Boolean,
+    isOnFrontCamera: Boolean,
     classificationType: SecurityClassificationType,
     toggleSpeaker: () -> Unit,
     toggleMute: () -> Unit,
     onHangUpCall: () -> Unit,
-    onToggleVideo: () -> Unit
+    onToggleVideo: () -> Unit,
+    flipCamera: () -> Unit,
 ) {
     Row(
         horizontalArrangement = Arrangement.SpaceEvenly,
@@ -236,15 +242,15 @@ private fun CallingControls(
             onCameraPermissionDenied = { },
             onCameraButtonClicked = onToggleVideo
         )
-        if (isCameraOn) {
-            val context = LocalContext.current
-            CameraFlipButton {
-                Toast.makeText(context, "Not implemented yet =)", Toast.LENGTH_SHORT).show()
-            }
-        } else SpeakerButton(
+
+        SpeakerButton(
             isSpeakerOn = isSpeakerOn,
             onSpeakerButtonClicked = toggleSpeaker
         )
+
+        if (isCameraOn) {
+            CameraFlipButton(isOnFrontCamera, flipCamera)
+        }
 
         HangUpButton(
             modifier = Modifier.size(MaterialTheme.wireDimensions.defaultCallingHangUpButtonSize),

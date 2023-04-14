@@ -46,6 +46,8 @@ import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.feature.call.Call
 import com.wire.kalium.logic.feature.call.CallStatus
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
+import com.wire.kalium.logic.feature.call.usecase.FlipToBackCameraUseCase
+import com.wire.kalium.logic.feature.call.usecase.FlipToFrontCameraUseCase
 import com.wire.kalium.logic.feature.call.usecase.GetAllCallsWithSortedParticipantsUseCase
 import com.wire.kalium.logic.feature.call.usecase.MuteCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveSpeakerUseCase
@@ -87,6 +89,8 @@ class SharedCallingViewModel @Inject constructor(
     private val setVideoPreview: SetVideoPreviewUseCase,
     private val turnLoudSpeakerOff: TurnLoudSpeakerOffUseCase,
     private val turnLoudSpeakerOn: TurnLoudSpeakerOnUseCase,
+    private val flipToFrontCamera: FlipToFrontCameraUseCase,
+    private val flipToBackCamera: FlipToBackCameraUseCase,
     private val observeSpeaker: ObserveSpeakerUseCase,
     private val callRinger: CallRinger,
     private val uiCallParticipantMapper: UICallParticipantMapper,
@@ -168,6 +172,7 @@ class SharedCallingViewModel @Inject constructor(
                             conversationType = ConversationType.Conference
                         )
                     }
+
                     is ConversationDetails.OneOne -> {
                         callState.copy(
                             conversationName = getConversationName(details.otherUser.name),
@@ -178,6 +183,7 @@ class SharedCallingViewModel @Inject constructor(
                             membership = userTypeMapper.toMembership(details.otherUser.userType)
                         )
                     }
+
                     else -> throw IllegalStateException("Invalid conversation type")
                 }
             }
@@ -253,6 +259,18 @@ class SharedCallingViewModel @Inject constructor(
             } else {
                 turnLoudSpeakerOn()
                 callState.copy(isSpeakerOn = true)
+            }
+        }
+    }
+
+    fun flipCamera() {
+        viewModelScope.launch {
+            callState = if (callState.isOnFrontCamera) {
+                flipToBackCamera(conversationId)
+                callState.copy(isOnFrontCamera = false)
+            } else {
+                flipToFrontCamera(conversationId)
+                callState.copy(isOnFrontCamera = true)
             }
         }
     }

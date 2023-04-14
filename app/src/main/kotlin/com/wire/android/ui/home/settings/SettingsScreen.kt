@@ -42,6 +42,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.navigation.isExternalRoute
@@ -113,7 +114,12 @@ fun SettingsScreenContent(
 
             folderWithElements(
                 header = context.getString(R.string.settings_other_group_title),
-                items = listOf(SettingsItem.Support, SettingsItem.DebugSettings),
+                items = buildList {
+                    add(SettingsItem.Support)
+                    if (BuildConfig.DEBUG_SCREEN_ENABLED) {
+                        add(SettingsItem.DebugSettings)
+                    }
+                },
                 onItemClicked = onItemClicked
             )
         }

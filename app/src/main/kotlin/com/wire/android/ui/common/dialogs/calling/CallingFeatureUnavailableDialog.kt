@@ -1,4 +1,3 @@
-
 /*
  * Wire
  * Copyright (C) 2023 Wire Swiss GmbH
@@ -15,36 +14,27 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 
-package com.wire.android.ui.common.dialogs
+package com.wire.android.ui.common.dialogs.calling
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
-import com.wire.android.ui.common.VisibilityState
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
-import com.wire.android.ui.common.visbility.VisibilityState
 
 @Composable
-fun FileSharingRestrictedDialogContent(
-    dialogState: VisibilityState<FileSharingRestrictedDialogState>
-) {
-    VisibilityState(dialogState) {
-        WireDialog(
-            title = stringResource(R.string.file_sharing_restricted_dialog_title),
-            text = stringResource(R.string.file_sharing_restricted_dialog_description),
-            onDismiss = dialogState::dismiss,
-            optionButton1Properties =
-            WireDialogButtonProperties(
-                onClick = dialogState::dismiss,
-                text = stringResource(R.string.label_ok),
-                type = WireDialogButtonType.Primary
-            )
+fun CallingFeatureUnavailableDialog(onDialogDismiss: () -> Unit) {
+    WireDialog(
+        title = stringResource(id = R.string.calling_feature_unavailable_title_alert),
+        text = stringResource(id = R.string.calling_feature_unavailable_message_alert),
+        onDismiss = onDialogDismiss,
+        optionButton1Properties = WireDialogButtonProperties(
+            onClick = onDialogDismiss,
+            text = stringResource(id = R.string.label_ok),
+            type = WireDialogButtonType.Primary
         )
-    }
+    )
 }

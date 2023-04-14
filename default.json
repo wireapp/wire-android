@@ -1,90 +1,75 @@
 {
-    "prod": {
-        "developer_features_enabled": false,
-        "logging_enabled": false,
-        "safe_logging": false,
-        "private_build": false,
-        "development_api_enabled": false,
-        "mls_support_enabled": false,
-        "firebasePushSenderId": "782078216207",
-        "firebaseAppId": "1:782078216207:android:d3db2443512d2055",
-        "googleApiKey": "AIzaSyBXtNKuX6GCKv2jDtsFImUaxCRL21DTLEQ",
-        "fcmProjectID": "w966768976",
-        "isStaging": false
+    "flavors": {
+        "prod": {
+            "developer_features_enabled": false,
+            "logging_enabled": false,
+            "safe_logging": false,
+            "private_build": false,
+            "development_api_enabled": false,
+            "mls_support_enabled": false,
+            "standardBackend": "prod"
+        },
+        "dev": {
+            "developer_features_enabled": true,
+            "logging_enabled": true,
+            "safe_logging": false,
+            "private_build": true,
+            "development_api_enabled": true,
+            "mls_support_enabled": true,
+            "standardBackend": "staging"
+        },
+        "staging": {
+            "developer_features_enabled": true,
+            "logging_enabled": true,
+            "safe_logging": false,
+            "private_build": true,
+            "development_api_enabled": false,
+            "mls_support_enabled": true,
+            "firebasePushSenderId": "723990470614",
+            "firebaseAppId": "1:723990470614:android:10cf802bfcc7bb71d28e77",
+            "googleApiKey": "AIzaSyAGCoJGUtDBLJJiQPLxHQRrdkbyI0wlbo8",
+            "fcmProjectID": "wiregcmpushstaging",
+            "standardBackend": "staging"
+        },
+        "beta": {
+            "developer_features_enabled": true,
+            "logging_enabled": true,
+            "safe_logging": true,
+            "private_build": true,
+            "development_api_enabled": false,
+            "mls_support_enabled": false,
+            "standardBackend": "prod"
+        },
+        "internal": {
+            "developer_features_enabled": true,
+            "logging_enabled": true,
+            "safe_logging": true,
+            "private_build": true,
+            "development_api_enabled": false,
+            "mls_support_enabled": true,
+            "firebasePushSenderId": "782078216207",
+            "standardBackend": "prod"
+        }
     },
-    "dev": {
-        "developer_features_enabled": true,
-        "logging_enabled": true,
-        "safe_logging": false,
-        "private_build": true,
-        "development_api_enabled": true,
-        "mls_support_enabled": true,
-        "firebasePushSenderId": "782078216207",
-        "firebaseAppId": "1:782078216207:android:d3db2443512d2055",
-        "googleApiKey": "AIzaSyBXtNKuX6GCKv2jDtsFImUaxCRL21DTLEQ",
-        "fcmProjectID": "w966768976",
-        "isStaging": false
-    },
-    "staging": {
-        "developer_features_enabled": true,
-        "logging_enabled": true,
-        "safe_logging": false,
-        "private_build": true,
-        "development_api_enabled": false,
-        "mls_support_enabled": true,
-        "firebasePushSenderId": "723990470614",
-        "firebaseAppId": "1:723990470614:android:10cf802bfcc7bb71d28e77",
-        "googleApiKey": "AIzaSyAGCoJGUtDBLJJiQPLxHQRrdkbyI0wlbo8",
-        "fcmProjectID": "wiregcmpushstaging",
-        "isStaging": true
-    },
-    "beta": {
-        "developer_features_enabled": true,
-        "logging_enabled": true,
-        "safe_logging": true,
-        "private_build": true,
-        "development_api_enabled": false,
-        "mls_support_enabled": false,
-        "firebasePushSenderId": "782078216207",
-        "firebaseAppId": "1:782078216207:android:d3db2443512d2055",
-        "googleApiKey": "AIzaSyBXtNKuX6GCKv2jDtsFImUaxCRL21DTLEQ",
-        "fcmProjectID": "w966768976",
-        "isStaging": false
-    },
-    "internal": {
-        "developer_features_enabled": true,
-        "logging_enabled": true,
-        "safe_logging": true,
-        "private_build": true,
-        "development_api_enabled": false,
-        "mls_support_enabled": true,
-        "firebasePushSenderId": "782078216207",
-        "firebaseAppId": "1:782078216207:android:d3db2443512d2055",
-        "googleApiKey": "AIzaSyBXtNKuX6GCKv2jDtsFImUaxCRL21DTLEQ",
-        "fcmProjectID": "w966768976",
-        "isStaging": false
-    },
+    "firebaseAppId": "1:782078216207:android:d3db2443512d2055",
+    "googleApiKey": "AIzaSyBXtNKuX6GCKv2jDtsFImUaxCRL21DTLEQ",
+    "fcmProjectID": "w966768976",
+    "supportUrl": "https://support.wire.com",
     "maxAccounts": 3,
     "supportEmail": "support@wire.com",
     "allowMarketingCommunication": true,
     "enableBlacklist": true,
     "blacklistHost": "https://clientblacklist.wire.com/prod/android",
     "allowChangeOfEmail": true,
-    "certificatePin": {
-        "domain": "*.wire.com",
-        "certificate": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAreYzBWuvnVKYfgNNX3dVjUnqIVtl4XqQnCcY6m/sWM15TTK0bo9FKnMxNAPtDzB6ViRvpZsKEefX8pi15Jcs4uZiuZ81ISV1bqxtpsjJ56Yjeme99Dca5ck35pThYuK6jZ8vG6pJiY9mRY9nGadid4qWL7uwAeoInx2mOM7HepCCh2NOXd+EjQ4sBsfgb+kWrcVQmBzvLHPUDoykm/m+BvL2eJ1njPNiM/GoeXbmIW1WM3ifucYJoD9g+V5NfHfANrVu2w4YcLDad0C85Nb8U1sgFNkrgOqzhd/1xHok1uOyjoeLTIHHYkryvbBEmdl6v+f2J1EM0+Fj9vseI2TYrQIDAQAB"
-    },
     "http_proxy_url": "none",
     "http_proxy_port": "8888",
     "file_restriction_enabled": false,
     "file_restriction_list": "3gpp, aac, amr, avi, bmp, css, csv, dib, doc, docx, eml, flac, gif, html, ico, jfif, jpeg, jpg, jpg-large, key, m4a, m4v, md, midi, mkv, mov, mp3, mp4, mpeg, mpeg3, mpg, msg, ods, odt, ogg, pdf, pjp, pjpeg, png, pps, ppt, pptx, psd, pst, rtf, sql, svg, tex, tiff, txt, vcf, vid, wav, webm, webp, wmv, xls, xlsx, xml",
-    "countly_server_url": "https://countly.wire.com",
-    "countly_app_key": "79c8fc20713e0e877aa8d320ea078530604d3ea6",
     "force_constant_bitrate_calls": false,
     "mls_support_enabled": true,
     "encrypt_proteus_storage": false,
     "update_app_url": "https://wire.com/en/download/",
     "guest_room_link": true,
-    "wipe_on_cookie_invalid" : false,
-    "wipe_on_device_removal" : false
+    "wipe_on_cookie_invalid": false,
+    "wipe_on_device_removal": false
 }

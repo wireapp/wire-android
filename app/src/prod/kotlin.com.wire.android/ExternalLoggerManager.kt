@@ -1,3 +1,5 @@
 package com.wire.android
 
-fun initDatadogLogger(context: Context) = Unit
+object ExternalLoggerManager {
+    fun initDatadogLogger(context: Context, isEncryptedProteusStorageEnabled: Boolean) = Unit
+}

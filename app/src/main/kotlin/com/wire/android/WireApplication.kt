@@ -27,12 +27,6 @@ import android.os.Build
 import android.os.StrictMode
 import androidx.work.Configuration
 import co.touchlab.kermit.platformLogWriter
-import com.datadog.android.Datadog
-import com.datadog.android.DatadogSite
-import com.datadog.android.core.configuration.Credentials
-import com.datadog.android.privacy.TrackingConsent
-import com.datadog.android.rum.GlobalRum
-import com.datadog.android.rum.RumMonitor
 import com.google.firebase.FirebaseApp
 import com.google.firebase.FirebaseOptions
 import com.wire.android.datastore.GlobalDataStore
@@ -137,7 +131,7 @@ class WireApplication : Application(), Configuration.Provider {
 
     private fun initializeApplicationLoggingFrameworks() {
         // 1. Datadog should be initialized first
-        initDatadogLogger(this)
+        ExternalLoggerManager.initDatadogLogger(this)
         // 2. Initialize our internal logging framework
         appLogger = KaliumLogger(
             config = KaliumLogger.Config(

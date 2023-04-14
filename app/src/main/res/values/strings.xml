@@ -942,7 +942,7 @@
     <string name="unknown_user_name">unknown</string>
     <string name="self_deleting_message_time_left">Self-deleting message • %1$s</string>
     <string name="self_deleting_message_label">Self-deleting message</string>
-    <string name="automatically_delete_message_after">Automatically delete message after</string>
+    <string name="automatically_delete_message_after">Automatically delete message after:</string>
     <!-- Expirable messages -->
     <plurals name="weeks_left">
         <item quantity="one">1 week left</item>

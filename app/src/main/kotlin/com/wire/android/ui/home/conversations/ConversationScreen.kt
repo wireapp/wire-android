@@ -333,42 +333,44 @@ private fun ConversationScreen(
         )
     } else MenuModalSheetHeader.Gone
 
+    val menuItems = when (val menuType = conversationScreenState.bottomSheetMenuType) {
+        is ConversationScreenState.BottomSheetMenuType.Edit -> {
+            EditMessageMenuItems(
+                message = menuType.selectedMessage,
+                hideEditMessageMenu = conversationScreenState::hideContextMenu,
+                onCopyClick = conversationScreenState::copyMessage,
+                onDeleteClick = onDeleteMessage,
+                onReactionClick = onReactionClick,
+                onDetailsClick = onMessageDetailsClick,
+                onReplyClick = messageComposerInnerState::reply,
+                onEditClick = messageComposerInnerState::toEditMessage,
+                onShareAsset = {
+                    menuType.selectedMessage.header.messageId.let {
+                        conversationMessagesViewModel.shareAsset(context, it)
+                        conversationScreenState.hideContextMenu()
+                    }
+                },
+                onDownloadAsset = conversationMessagesViewModel::downloadAssetExternally,
+                onOpenAsset = conversationMessagesViewModel::downloadAndOpenAsset
+            )
+        }
+
+        is ConversationScreenState.BottomSheetMenuType.SelfDeletion -> {
+            SelfDeletionMenuItems(
+                hideEditMessageMenu = conversationScreenState::hideContextMenu,
+                currentlySelected = messageComposerInnerState.getSelfDeletionTime(),
+                onSelfDeletionDurationChanged = { messageComposerInnerState.specifySelfDeletionTime(it) }
+            )
+        }
+
+        ConversationScreenState.BottomSheetMenuType.None -> emptyList()
+    }
+
     MenuModalSheetLayout(
         header = menuModalHeader,
         sheetState = conversationScreenState.modalBottomSheetState,
         coroutineScope = conversationScreenState.coroutineScope,
-        menuItems = when (val menuType = conversationScreenState.bottomSheetMenuType) {
-            is ConversationScreenState.BottomSheetMenuType.Edit -> {
-                EditMessageMenuItems(
-                    message = menuType.selectedMessage,
-                    hideEditMessageMenu = conversationScreenState::hideContextMenu,
-                    onCopyClick = conversationScreenState::copyMessage,
-                    onDeleteClick = onDeleteMessage,
-                    onReactionClick = onReactionClick,
-                    onDetailsClick = onMessageDetailsClick,
-                    onReplyClick = messageComposerInnerState::reply,
-                    onEditClick = messageComposerInnerState::toEditMessage,
-                    onShareAsset = {
-                        menuType.selectedMessage.header.messageId.let {
-                            conversationMessagesViewModel.shareAsset(context, it)
-                            conversationScreenState.hideContextMenu()
-                        }
-                    },
-                    onDownloadAsset = conversationMessagesViewModel::downloadAssetExternally,
-                    onOpenAsset = conversationMessagesViewModel::downloadAndOpenAsset
-                    )
-            }
-
-            is ConversationScreenState.BottomSheetMenuType.SelfDeletion -> {
-                SelfDeletionMenuItems(
-                    hideEditMessageMenu = conversationScreenState::hideContextMenu,
-                    currentlySelected = messageComposerInnerState.getSelfDeletionTime(),
-                    onSelfDeletionDurationChanged = { messageComposerInnerState.specifySelfDeletionTime(it) }
-                )
-            }
-
-            ConversationScreenState.BottomSheetMenuType.None -> emptyList()
-        }
+        menuItems = menuItems
     ) {
         Scaffold(
             topBar = {
@@ -448,7 +450,7 @@ private fun ConversationScreenContent(
     audioMessagesState: Map<String, AudioState>,
     messageComposerState: MessageComposerState,
     messages: Flow<PagingData<UIMessage>>,
-    onSendMessage: (String, List<UiMention>, String?, expireAfter : Duration?) -> Unit,
+    onSendMessage: (String, List<UiMention>, String?, expireAfter: Duration?) -> Unit,
     onSendEditMessage: (EditMessageBundle) -> Unit,
     onSendAttachment: (AssetBundle?) -> Unit,
     onMentionMember: (String?) -> Unit,

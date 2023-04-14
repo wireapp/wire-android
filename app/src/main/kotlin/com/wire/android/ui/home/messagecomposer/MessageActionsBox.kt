@@ -113,17 +113,23 @@ private fun MessageComposeActions(
             .height(dimensions().spacing56x)
     ) {
         with(localFeatureVisibilityFlags) {
-            if (!isEditMessage) AdditionalOptionButton(attachmentOptionsDisplayed, isFileSharingEnabled, onAdditionalOptionButtonClicked)
+            if (!isEditMessage) AdditionalOptionButton(
+                isSelected = attachmentOptionsDisplayed,
+                isEnabled = isFileSharingEnabled,
+                onClick = onAdditionalOptionButtonClicked
+            )
             if (RichTextIcon) RichTextEditingAction()
             if (!isEditMessage && EmojiIcon) AddEmojiAction()
             if (!isEditMessage && GifIcon) AddGifAction()
-            if (!isEditMessage) SelfDeletingMessageAction(isSelected = selfDeletingOptionSelected, onButtonClicked = onSelfDeletionOptionButtonClicked)
+            if (!isEditMessage) SelfDeletingMessageAction(
+                isSelected = selfDeletingOptionSelected,
+                onButtonClicked = onSelfDeletionOptionButtonClicked
+            )
             if (!isEditMessage && PingIcon) PingAction(onPingClicked = onPingClicked)
             AddMentionAction(isMentionsSelected, startMention)
         }
     }
 }
-
 
 @Composable
 private fun RichTextEditingAction() {
@@ -186,7 +192,7 @@ fun SelfDeletingMessageAction(isSelected : Boolean,onButtonClicked: () -> Unit) 
         clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
         iconResource = R.drawable.ic_timer,
         contentDescription = R.string.content_description_ping_everyone,
-        state = if(isSelected) WireButtonState.Selected else WireButtonState.Default
+        state = if (isSelected) WireButtonState.Selected else WireButtonState.Default
     )
 }
 

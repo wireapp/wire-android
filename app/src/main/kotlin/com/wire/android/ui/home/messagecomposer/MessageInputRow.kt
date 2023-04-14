@@ -47,7 +47,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
@@ -87,7 +86,10 @@ fun MessageComposerInputRow(
             visible = { it is MessageComposeInputState.Inactive }
         ) {
             Box(modifier = Modifier.padding(start = dimensions().spacing8x)) {
-                AdditionalOptionButton(isSelected = messageComposeInputState.attachmentOptionsDisplayed, isEnabled = isFileSharingEnabled) {
+                AdditionalOptionButton(
+                    isSelected = messageComposeInputState.attachmentOptionsDisplayed,
+                    isEnabled = isFileSharingEnabled
+                ) {
                     onAdditionalOptionButtonClicked()
                 }
             }
@@ -125,7 +127,11 @@ fun MessageComposerInputRow(
                 onLineBottomYCoordinateChanged = onLineBottomYCoordinateChanged
             )
             AnimatedVisibility(messageComposeInputState.isEditMessage) {
-                EditExtraOptions(messageComposeInputState.editSaveButtonEnabled, onEditSaveButtonClicked, onEditCancelButtonClicked)
+                EditExtraOptions(
+                    editButtonEnabled = messageComposeInputState.editSaveButtonEnabled,
+                    onEditSaveButtonClicked = onEditSaveButtonClicked,
+                    onEditCancelButtonClicked = onEditCancelButtonClicked
+                )
             }
 
         }
@@ -144,7 +150,7 @@ fun MessageComposerInputRow(
                             style = typography().label02,
                             color = colorsScheme().primary,
                             modifier = Modifier
-                                .padding(horizontal = 16.dp)
+                                .padding(horizontal = dimensions().spacing16x)
                                 .clickable { onChangeSelfDeletionTimeClicked() }
                         )
                         ScheduleMessageButton(
@@ -184,8 +190,9 @@ private fun MessageComposerInput(
     onSelectedLineIndexChanged: (Int) -> Unit = { },
     onLineBottomYCoordinateChanged: (Float) -> Unit = { }
 ) {
-    val placeHolderText =
-        if (messageComposerInputState.isEphemeral) stringResource(R.string.self_deleting_message_label) else stringResource(R.string.label_type_a_message)
+    val placeHolderText = if (messageComposerInputState.isEphemeral)
+        stringResource(R.string.self_deleting_message_label)
+    else stringResource(R.string.label_type_a_message)
 
     WireTextField(
         value = messageText,
@@ -230,7 +237,10 @@ fun PreviewMessageComposerInputRowActiveCollapsed() {
 @Preview
 @Composable
 fun PreviewMessageComposerInputRowActiveCollapsedSendEnabled() {
-    val state = MessageComposeInputState.Active(messageText = TextFieldValue("text"), size = MessageComposeInputSize.COLLAPSED)
+    val state = MessageComposeInputState.Active(
+        messageText = TextFieldValue("text"),
+        size = MessageComposeInputSize.COLLAPSED
+    )
     MessageComposerInputRow(updateTransition(targetState = state, label = ""), state)
 }
 

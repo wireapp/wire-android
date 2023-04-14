@@ -143,7 +143,7 @@ fun EditMessageMenuItems(
                     )
                 }
             }
-            if(!isEphemeral) add { ReplyMessageOption(onReplyItemClick) }
+            if (!isEphemeral) add { ReplyMessageOption(onReplyItemClick) }
             if (isAssetMessage) add { DownloadAssetExternallyOption(onDownloadAssetClick) }
             if (isGenericAsset) add { OpenAssetExternallyOption(onOpenAssetClick) }
             if (isEditable && !isEphemeral) {

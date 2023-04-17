@@ -44,7 +44,6 @@ class KaliumConfigsModule {
             fileRestrictionEnabled = BuildConfig.FILE_RESTRICTION_ENABLED,
             forceConstantBitrateCalls = BuildConfig.FORCE_CONSTANT_BITRATE_CALLS,
             developerFeaturesEnabled = BuildConfig.DEVELOPER_FEATURES_ENABLED,
-            isSafeLoggingEnabled = BuildConfig.SAFE_LOGGING,
             enableBlacklist = BuildConfig.ENABLE_BLACK_LIST,
             maxAccount = BuildConfig.MAX_ACCOUNTS,
             // we use upsert, available from SQL3.24, which is supported from Android API30, so for older APIs we have to use SQLCipher

@@ -366,8 +366,8 @@ class MessageComposerViewModel @Inject constructor(
         val tempCachePath = kaliumFileSystem.rootCachePath
         val assetBundle = fileManager.getAssetBundleFromUri(attachmentUri.uri, tempCachePath)
         if (assetBundle != null) {
-            // The max limit for sending assets changes between user types. Currently, is25MB for free users, and 100MB for
-            // users that belong to a team
+            // The max limit for sending assets changes between user and asset types.
+            // Check [GetAssetSizeLimitUseCase] class for more detailed information about the real limits.
             val maxSizeLimitInBytes = getAssetSizeLimit(isImage = assetBundle.attachmentType == AttachmentType.IMAGE)
             if (assetBundle.dataSize <= maxSizeLimitInBytes) {
                 sendAttachmentMessage(assetBundle)

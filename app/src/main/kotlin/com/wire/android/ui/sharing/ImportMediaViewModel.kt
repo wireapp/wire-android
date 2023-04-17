@@ -231,20 +231,16 @@ class ImportMediaViewModel @Inject constructor(
 
     suspend fun handleReceivedDataFromSharingIntent(activity: AppCompatActivity) {
         val incomingIntent = ShareCompat.IntentReader(activity)
-        appLogger.e("Received data from sharing intent ${incomingIntent.streamCount}")
+        appLogger.e("Received data from sharing intent ${incomingIntent.streamCount} isMultipleShare: $isMultipleShare")
         importMediaState = importMediaState.copy(isImporting = true)
-        when (incomingIntent.streamCount) {
-            0 -> {
-                // if stream count is 0 the type will be text, we check the type to double check if it is text
-                // todo : handle the text , we can get the text from incomingIntent.text
-            }
-
-            1 -> {
+        if(incomingIntent.streamCount == 0) {
+            // if stream count is 0 the type will be text, we check the type to double check if it is text
+            // todo : handle the text , we can get the text from incomingIntent.text
+        } else {
+            if(incomingIntent.isSingleShare) {
                 // ACTION_SEND
                 handleSingleIntent(incomingIntent, activity)
-            }
-
-            else -> {
+            } else {
                 // ACTION_SEND_MULTIPLE
                 handleMultipleActionIntent(activity)
             }

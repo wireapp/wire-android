@@ -179,7 +179,7 @@ URL backend:
 %2$s</string>
     <string name="server_details_dialog_title">Backend In Situ</string>
     <string name="welcome_migration_dialog_title">Benvenuto nella nuova app per Android &#128075;</string>
-    <string name="welcome_migration_dialog_content">Abbiamo ricostruito l\'app per renderla pi&#249; adatta a tutti. 
+    <string name="welcome_migration_dialog_content">Abbiamo ricostruito l\'app per renderla pi&#249; adatta a tutti.
 
 Scopri di pi&#249; sulla nuova app Wire: nuove opzioni e miglior accessibilit&#224;, con la stessa forte sicurezza.</string>
     <string name="welcome_migration_dialog_continue">Inizia ad usare Wire</string>
@@ -791,7 +791,7 @@ Rispondendo qui, verr&#224; riagganciata l\'altra chiamata.</string>
     <string name="custom_backend_dialog_body">Se procedi, il tuo client verr&#224; reindirizzato al seguente backend on-premises:
 
 Nome del backend:
- %1$s 
+ %1$s
 
 URL del backend:
  %2$s</string>
@@ -880,8 +880,8 @@ URL del backend:
     <string name="label_system_message_session_reset">%1$s non &#232; stato in grado di decrittare alcuni dei tuoi messaggi ma ha risolto il problema. Questo ha influenzato tutte le conversazioni condivise.</string>
     <string name="label_manual_migration_title">Migrazione dalla versione 3.82.38</string>
     <string name="start_manual_migration">Avvia manualmente la migrazione dalla versione 3.82.38</string>
-    <string name="file_sharing_restricted_dialog_title">Restrizioni sulla condivisione di file</string>
-    <string name="file_sharing_restricted_dialog_description">Non puoi condividere questo file poich&#233; questa funzione &#232; disattivata.</string>
+    <string name="file_sharing_restricted_learn_more_link">https://support.wire.com/hc/en-us/articles/4406404582673-How-can-I-restrict-file-sharing-for-my-team-</string>
+    <string name="file_sharing_restricted_description_by_team">Non puoi condividere questo file poich&#233; questa funzione &#232; disattivata.</string>
     <!-- join conversation dialog -->
     <string name="join_conversation_dialog_title">Unirsi alla conversazione?</string>
     <string name="join_conversation_dialog_message">Sei stato invitato ad una conversazione.\n\n%1$s</string>

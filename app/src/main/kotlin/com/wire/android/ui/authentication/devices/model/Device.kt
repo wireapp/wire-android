@@ -20,16 +20,33 @@
 
 package com.wire.android.ui.authentication.devices.model
 
+import androidx.compose.runtime.Stable
+import com.wire.android.R
+import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.client.Client
 import com.wire.kalium.logic.data.conversation.ClientId
 import com.wire.kalium.util.DateTimeUtil.toIsoDateTimeString
 
 data class Device(
-    val name: String = "",
+    val name: UIText = UIText.DynamicString(""),
     val clientId: ClientId = ClientId(""),
     val registrationTime: String? = null,
     val isValid: Boolean = true,
     val isVerified: Boolean = false
 ) {
-    constructor(client: Client) : this(client.name, client.id, client.registrationTime?.toIsoDateTimeString(), true, client.isVerified)
+    constructor(client: Client) : this(
+        client.displayName(),
+        client.id,
+        client.registrationTime?.toIsoDateTimeString(),
+        true,
+        client.isVerified
+    )
 }
+
+/**
+ * Returns the device name if it is not null, otherwise returns the device type.
+ */
+@Stable
+fun Client.displayName(): UIText = (model ?: deviceType?.name)?.let {
+    UIText.DynamicString(it)
+} ?: UIText.StringResource(R.string.device_name_unknown)

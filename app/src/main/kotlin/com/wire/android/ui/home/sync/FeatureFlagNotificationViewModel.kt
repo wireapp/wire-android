@@ -27,6 +27,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
 import com.wire.android.di.KaliumCoreLogic
+import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.FeatureFlagState
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.sync.SyncState
@@ -56,7 +57,8 @@ class FeatureFlagNotificationViewModel @Inject constructor(
     private val markSelfDeletingMessagesAsNotified: MarkSelfDeletingMessagesChangeAsNotifiedUseCase,
     private val observeSelfDeletingMessages: ObserveSelfDeletingMessagesUseCase,
     private val observeGuestRoomLinkFeatureFlag: ObserveGuestRoomLinkFeatureFlagUseCase,
-    private val markGuestLinkFeatureFlagAsNotChanged: MarkGuestLinkFeatureFlagAsNotChangedUseCase
+    private val markGuestLinkFeatureFlagAsNotChanged: MarkGuestLinkFeatureFlagAsNotChangedUseCase,
+    private val navigationManager: NavigationManager
 ) : ViewModel() {
 
     var featureFlagState by mutableStateOf(FeatureFlagState())
@@ -165,14 +167,22 @@ class FeatureFlagNotificationViewModel @Inject constructor(
         // This function needs to be executed blocking the main thread because otherwise the list of imported assets will not be updated
         // correctly for some strange reason.
         runBlocking {
-            if (checkNumberOfSessions() > 0) {
-                featureFlagState = featureFlagState.copy(showFileSharingRestrictedDialog = featureFlagState.isFileSharingEnabledState)
+            val fileSharingRestrictedState = if (checkNumberOfSessions() > 0) {
+                if (featureFlagState.isFileSharingEnabledState) FeatureFlagState.SharingRestrictedState.NONE
+                else FeatureFlagState.SharingRestrictedState.RESTRICTED_IN_TEAM
+            } else {
+                FeatureFlagState.SharingRestrictedState.NO_USER
             }
+            featureFlagState = featureFlagState.copy(fileSharingRestrictedState = fileSharingRestrictedState)
         }
     }
 
     fun dismissGuestRoomLinkDialog() {
         markGuestLinkFeatureFlagAsNotChanged()
         featureFlagState = featureFlagState.copy(shouldShowGuestRoomLinkDialog = false)
+    }
+
+    fun closeScreen() {
+        viewModelScope.launch { navigationManager.navigateBack() }
     }
 }

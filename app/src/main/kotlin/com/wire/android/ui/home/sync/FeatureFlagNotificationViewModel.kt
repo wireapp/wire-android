@@ -27,7 +27,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
 import com.wire.android.di.KaliumCoreLogic
-import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.FeatureFlagState
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.sync.SyncState
@@ -36,10 +35,7 @@ import com.wire.kalium.logic.feature.auth.AccountInfo
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
-import com.wire.kalium.logic.feature.user.guestroomlink.MarkGuestLinkFeatureFlagAsNotChangedUseCase
-import com.wire.kalium.logic.feature.user.guestroomlink.ObserveGuestRoomLinkFeatureFlagUseCase
 import com.wire.kalium.logic.feature.session.GetSessionsUseCase
-import com.wire.kalium.logic.feature.user.MarkFileSharingChangeAsNotifiedUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
@@ -50,15 +46,13 @@ import javax.inject.Inject
 class FeatureFlagNotificationViewModel @Inject constructor(
     @KaliumCoreLogic private val coreLogic: CoreLogic,
     private val getSessions: GetSessionsUseCase,
-    private val currentSessionUseCase: CurrentSessionUseCase,
-    private val markFileSharingAsNotified: MarkFileSharingChangeAsNotifiedUseCase,
-    private val observeGuestRoomLinkFeatureFlag: ObserveGuestRoomLinkFeatureFlagUseCase,
-    private val markGuestLinkFeatureFlagAsNotChanged: MarkGuestLinkFeatureFlagAsNotChangedUseCase,
-    private val navigationManager: NavigationManager
+    private val currentSessionUseCase: CurrentSessionUseCase
 ) : ViewModel() {
 
     var featureFlagState by mutableStateOf(FeatureFlagState())
         private set
+
+    private var currentUserId by mutableStateOf<UserId?>(null)
 
     /**
      * The FeatureFlagNotificationViewModel is an attempt to encapsulate the logic regarding the different user feature flags, like for
@@ -80,8 +74,9 @@ class FeatureFlagNotificationViewModel @Inject constructor(
                     is CurrentSessionResult.Success -> {
                         coreLogic.getSessionScope(currentSessionResult.accountInfo.userId).observeSyncState()
                             .firstOrNull { it == SyncState.Live }?.let {
+                                currentUserId = currentSessionResult.accountInfo.userId
                                 setFileSharingState(currentSessionResult.accountInfo.userId)
-                                setGuestRoomLinkFeatureFlag()
+                                setGuestRoomLinkFeatureFlag(currentSessionResult.accountInfo.userId)
                             }
                     }
                 }
@@ -102,9 +97,9 @@ class FeatureFlagNotificationViewModel @Inject constructor(
         }
     }
 
-    private suspend fun setGuestRoomLinkFeatureFlag() {
+    private suspend fun setGuestRoomLinkFeatureFlag(userId: UserId) {
         viewModelScope.launch {
-            observeGuestRoomLinkFeatureFlag().collect { guestRoomLinkStatus ->
+            coreLogic.getSessionScope(userId).observeGuestRoomLinkFeatureFlag().collect { guestRoomLinkStatus ->
                 guestRoomLinkStatus.isGuestRoomLinkEnabled?.let {
                     featureFlagState = featureFlagState.copy(isGuestRoomLinkEnabled = it)
                 }
@@ -118,7 +113,7 @@ class FeatureFlagNotificationViewModel @Inject constructor(
     fun dismissFileSharingDialog() {
         featureFlagState = featureFlagState.copy(showFileSharingDialog = false)
         viewModelScope.launch {
-            markFileSharingAsNotified()
+            currentUserId?.let { coreLogic.getSessionScope(it).markFileSharingStatusAsNotified() }
         }
     }
 
@@ -150,11 +145,9 @@ class FeatureFlagNotificationViewModel @Inject constructor(
     }
 
     fun dismissGuestRoomLinkDialog() {
-        markGuestLinkFeatureFlagAsNotChanged()
+        viewModelScope.launch {
+            currentUserId?.let { coreLogic.getSessionScope(it).markGuestLinkFeatureFlagAsNotChanged() }
+        }
         featureFlagState = featureFlagState.copy(shouldShowGuestRoomLinkDialog = false)
-    }
-
-    fun closeScreen() {
-        viewModelScope.launch { navigationManager.navigateBack() }
     }
 }

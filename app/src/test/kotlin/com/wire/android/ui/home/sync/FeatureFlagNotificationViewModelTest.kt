@@ -6,16 +6,16 @@ import com.wire.android.ui.home.FeatureFlagState
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.configuration.FileSharingStatus
 import com.wire.kalium.logic.data.sync.SyncState
+import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.AccountInfo
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import com.wire.kalium.logic.feature.session.GetSessionsUseCase
-import com.wire.kalium.logic.feature.user.MarkFileSharingChangeAsNotifiedUseCase
 import com.wire.kalium.logic.feature.user.guestroomlink.MarkGuestLinkFeatureFlagAsNotChangedUseCase
-import com.wire.kalium.logic.feature.user.guestroomlink.ObserveGuestRoomLinkFeatureFlagUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
+import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.verify
 import kotlinx.coroutines.DelicateCoroutinesApi
@@ -50,7 +50,10 @@ class FeatureFlagNotificationViewModelTest {
 
     @Test
     fun givenGuestDialogIsShown_whenDismissingIt_thenInvokeMarkGuestLinkFeatureFlagAsNotChanged() {
-        val (arrangement, viewModel) = Arrangement().arrange()
+        val (arrangement, viewModel) = Arrangement()
+            .withCurrentSessions(CurrentSessionResult.Success(AccountInfo.Valid(UserId("value", "domain"))))
+            .arrange()
+        viewModel.loadInitialSync()
         viewModel.dismissGuestRoomLinkDialog()
 
         verify(exactly = 1) { arrangement.markGuestLinkFeatureFlagAsNotChanged() }
@@ -125,13 +128,7 @@ class FeatureFlagNotificationViewModelTest {
         lateinit var coreLogic: CoreLogic
 
         @MockK
-        lateinit var observeGuestRoomLinkFeatureFlag: ObserveGuestRoomLinkFeatureFlagUseCase
-
-        @MockK
         lateinit var markGuestLinkFeatureFlagAsNotChanged: MarkGuestLinkFeatureFlagAsNotChangedUseCase
-
-        @MockK
-        lateinit var markFileSharingAsNotified: MarkFileSharingChangeAsNotifiedUseCase
 
         @MockK
         lateinit var navigationManager: NavigationManager
@@ -139,12 +136,12 @@ class FeatureFlagNotificationViewModelTest {
         val viewModel: FeatureFlagNotificationViewModel = FeatureFlagNotificationViewModel(
             coreLogic = coreLogic,
             getSessions = getSessions,
-            currentSessionUseCase = currentSession,
-            markFileSharingAsNotified = markFileSharingAsNotified,
-            observeGuestRoomLinkFeatureFlag = observeGuestRoomLinkFeatureFlag,
-            markGuestLinkFeatureFlagAsNotChanged = markGuestLinkFeatureFlagAsNotChanged,
-            navigationManager = navigationManager
+            currentSessionUseCase = currentSession
         )
+
+        init {
+            every { coreLogic.getSessionScope(any()).markGuestLinkFeatureFlagAsNotChanged } returns markGuestLinkFeatureFlagAsNotChanged
+        }
 
         fun withSessions(result: GetAllSessionsResult) = apply {
             coEvery { getSessions() } returns result

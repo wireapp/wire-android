@@ -65,7 +65,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 @Suppress("LongParameterList", "TooManyFunctions")
-class ImportMediaViewModel @Inject constructor(
+class ImportMediaAuthorisedViewModel @Inject constructor(
     private val getSelf: GetSelfUserUseCase,
     private val userTypeMapper: UserTypeMapper,
     private val observeConversationListDetails: ObserveConversationListDetailsUseCase,

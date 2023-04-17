@@ -28,7 +28,6 @@ data class FeatureFlagState(
     val isGuestRoomLinkEnabled: Boolean = true
 ) {
 
-    fun isSharingAllowed() = fileSharingRestrictedState == SharingRestrictedState.NONE
     enum class SharingRestrictedState {
         NONE, NO_USER, RESTRICTED_IN_TEAM
     }

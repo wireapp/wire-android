@@ -63,7 +63,6 @@ import com.wire.android.ui.userprofile.other.OtherUserProfileInfoMessageType.Unb
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.WireSessionImageLoader
-import com.wire.kalium.logic.data.client.DeviceType
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
@@ -171,12 +170,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
 
                         is ObserveClientsByUserIdUseCase.Result.Success -> {
                             state = state.copy(otherUserDevices = it.clients.map { item ->
-                                Device(
-                                    name = item.deviceType?.name ?: DeviceType.Unknown.name,
-                                    clientId = item.id,
-                                    isValid = item.isValid,
-                                    isVerified = item.isVerified
-                                )
+                                Device(item)
                             })
                         }
                     }

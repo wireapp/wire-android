@@ -20,6 +20,7 @@
 
 package com.wire.android.ui.home.sync
 
+import androidx.annotation.VisibleForTesting
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -65,20 +66,25 @@ class FeatureFlagNotificationViewModel @Inject constructor(
      */
     fun loadInitialSync() {
         viewModelScope.launch {
-            currentSessionUseCase().let { currentSessionResult ->
-                when (currentSessionResult) {
-                    is CurrentSessionResult.Failure -> {
-                        appLogger.e("Failure while getting current session from FeatureFlagNotificationViewModel")
-                    }
+            initialSync()
+        }
+    }
 
-                    is CurrentSessionResult.Success -> {
-                        coreLogic.getSessionScope(currentSessionResult.accountInfo.userId).observeSyncState()
-                            .firstOrNull { it == SyncState.Live }?.let {
-                                currentUserId = currentSessionResult.accountInfo.userId
-                                setFileSharingState(currentSessionResult.accountInfo.userId)
-                                setGuestRoomLinkFeatureFlag(currentSessionResult.accountInfo.userId)
-                            }
-                    }
+    @VisibleForTesting
+    suspend fun initialSync() {
+        currentSessionUseCase().let { currentSessionResult ->
+            when (currentSessionResult) {
+                is CurrentSessionResult.Failure -> {
+                    appLogger.e("Failure while getting current session from FeatureFlagNotificationViewModel")
+                }
+
+                is CurrentSessionResult.Success -> {
+                    coreLogic.getSessionScope(currentSessionResult.accountInfo.userId).observeSyncState()
+                        .firstOrNull { it == SyncState.Live }?.let {
+                            currentUserId = currentSessionResult.accountInfo.userId
+                            setFileSharingState(currentSessionResult.accountInfo.userId)
+                            setGuestRoomLinkFeatureFlag(currentSessionResult.accountInfo.userId)
+                        }
                 }
             }
         }

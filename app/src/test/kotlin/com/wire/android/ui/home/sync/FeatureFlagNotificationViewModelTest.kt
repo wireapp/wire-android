@@ -12,7 +12,9 @@ import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import com.wire.kalium.logic.feature.session.GetSessionsUseCase
+import com.wire.kalium.logic.feature.user.ObserveFileSharingStatusUseCase
 import com.wire.kalium.logic.feature.user.guestroomlink.MarkGuestLinkFeatureFlagAsNotChangedUseCase
+import com.wire.kalium.logic.feature.user.guestroomlink.ObserveGuestRoomLinkFeatureFlagUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.every
@@ -23,8 +25,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.newSingleThreadContext
 import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.amshove.kluent.internal.assertEquals
 import org.junit.jupiter.api.AfterEach
@@ -49,11 +53,11 @@ class FeatureFlagNotificationViewModelTest {
     }
 
     @Test
-    fun givenGuestDialogIsShown_whenDismissingIt_thenInvokeMarkGuestLinkFeatureFlagAsNotChanged() {
+    fun givenGuestDialogIsShown_whenDismissingIt_thenInvokeMarkGuestLinkFeatureFlagAsNotChanged() = runTest {
         val (arrangement, viewModel) = Arrangement()
             .withCurrentSessions(CurrentSessionResult.Success(AccountInfo.Valid(UserId("value", "domain"))))
             .arrange()
-        viewModel.loadInitialSync()
+        launch { viewModel.initialSync() }.join()
         viewModel.dismissGuestRoomLinkDialog()
 
         verify(exactly = 1) { arrangement.markGuestLinkFeatureFlagAsNotChanged() }
@@ -131,6 +135,12 @@ class FeatureFlagNotificationViewModelTest {
         lateinit var markGuestLinkFeatureFlagAsNotChanged: MarkGuestLinkFeatureFlagAsNotChangedUseCase
 
         @MockK
+        lateinit var observeFileSharingStatusUseCase: ObserveFileSharingStatusUseCase
+
+        @MockK
+        lateinit var observeGuestRoomLinkFeatureFlagUseCase: ObserveGuestRoomLinkFeatureFlagUseCase
+
+        @MockK
         lateinit var navigationManager: NavigationManager
 
         val viewModel: FeatureFlagNotificationViewModel = FeatureFlagNotificationViewModel(
@@ -141,6 +151,10 @@ class FeatureFlagNotificationViewModelTest {
 
         init {
             every { coreLogic.getSessionScope(any()).markGuestLinkFeatureFlagAsNotChanged } returns markGuestLinkFeatureFlagAsNotChanged
+            every { coreLogic.getSessionScope(any()).observeFileSharingStatus } returns observeFileSharingStatusUseCase
+            every { coreLogic.getSessionScope(any()).observeGuestRoomLinkFeatureFlag } returns observeGuestRoomLinkFeatureFlagUseCase
+            coEvery { observeFileSharingStatusUseCase.invoke() } returns flowOf()
+            coEvery { observeGuestRoomLinkFeatureFlagUseCase.invoke() } returns flowOf()
         }
 
         fun withSessions(result: GetAllSessionsResult) = apply {

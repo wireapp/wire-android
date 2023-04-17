@@ -110,6 +110,8 @@ class FileManager @Inject constructor(@ApplicationContext private val context: C
                 val assetSize = if (attachmentType == AttachmentType.IMAGE) {
                     attachmentUri.resampleImageAndCopyToTempPath(context, fullTempAssetPath)
                 } else {
+                    // TODO: We should add also a video resampling logic soon, that way we could drastically reduce as well the number
+                    //  of video assets hitting the max limit.
                     copyToPath(attachmentUri, fullTempAssetPath)
                 }
                 AssetBundle(mimeType, fullTempAssetPath, assetSize, assetFileName, attachmentType)

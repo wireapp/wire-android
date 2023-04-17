@@ -370,7 +370,6 @@ class MessageComposerViewModel @Inject constructor(
         }
     }
 
-    @Suppress("MagicNumber")
     fun attachmentPicked(attachmentUri: UriAsset) = viewModelScope.launch(dispatchers.io()) {
         val tempCachePath = kaliumFileSystem.rootCachePath
         val assetBundle = fileManager.getAssetBundleFromUri(attachmentUri.uri, tempCachePath)
@@ -384,10 +383,10 @@ class MessageComposerViewModel @Inject constructor(
                 if (attachmentUri.saveToDeviceIfInvalid) {
                     with(assetBundle) { fileManager.saveToExternalMediaStorage(fileName, dataPath, dataSize, mimeType, dispatchers) }
                 }
-                val sizeOf1MB = 1024 * 1024
+
                 messageComposerViewState = messageComposerViewState.copy(
                     assetTooLargeDialogState = AssetTooLargeDialogState.Visible(
-                        type = assetBundle.assetType,
+                        assetType = assetBundle.assetType,
                         maxLimitInMB = maxSizeLimitInBytes.div(sizeOf1MB).toInt(),
                         savedToDevice = attachmentUri.saveToDeviceIfInvalid
                     )
@@ -400,5 +399,9 @@ class MessageComposerViewModel @Inject constructor(
 
     fun hideAssetTooLargeError() {
         messageComposerViewState = messageComposerViewState.copy(assetTooLargeDialogState = AssetTooLargeDialogState.Hidden)
+    }
+
+    companion object {
+        private const val sizeOf1MB = 1024 * 1024
     }
 }

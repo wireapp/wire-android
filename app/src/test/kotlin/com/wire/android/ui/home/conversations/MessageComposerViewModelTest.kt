@@ -267,7 +267,7 @@ class MessageComposerViewModelTest {
                 .withSuccessfulSendAttachmentMessage()
                 .withGetAssetSizeLimitUseCase(false, limit)
                 .withGetAssetBundleFromUri(mockedAttachment)
-                .withGetAssetBundleFromUri("mocked_image.jpeg")
+                .withSaveToExternalMediaStorage("mocked_image.jpeg")
                 .arrange()
             val mockedUri = UriAsset("mocked_image.jpeg".toUri(), true)
 
@@ -278,6 +278,30 @@ class MessageComposerViewModelTest {
             coVerify(inverse = true) { arrangement.sendAssetMessage.invoke(any(), any(), any(), any(), any(), any(), any()) }
             coVerify { arrangement.fileManager.saveToExternalMediaStorage(any(), any(), any(), any(), any()) }
             assert(viewModel.messageComposerViewState.assetTooLargeDialogState is AssetTooLargeDialogState.Visible)
+        }
+
+    @Test
+    fun `given attachment picked and null when getting asset bundle from uri, then show message to user`() =
+        runTest {
+            // Given
+            val limit = ASSET_SIZE_DEFAULT_LIMIT_BYTES
+            val (arrangement, viewModel) = MessageComposerViewModelArrangement()
+                .withSuccessfulViewModelInit()
+                .withSuccessfulSendAttachmentMessage()
+                .withGetAssetSizeLimitUseCase(false, limit)
+                .withGetAssetBundleFromUri(null)
+                .withSaveToExternalMediaStorage("mocked_image.jpeg")
+                .arrange()
+            val mockedUri = UriAsset("mocked_image.jpeg".toUri(), true)
+
+            // When
+            viewModel.infoMessage.test {
+                viewModel.attachmentPicked(mockedUri)
+
+                // Then
+                coVerify(inverse = true) { arrangement.sendAssetMessage.invoke(any(), any(), any(), any(), any(), any(), any()) }
+                assertEquals(ConversationSnackbarMessages.ErrorPickingAttachment, awaitItem())
+            }
         }
 
     @Test

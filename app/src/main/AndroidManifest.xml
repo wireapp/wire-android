@@ -21,7 +21,8 @@
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
-        package="com.wire.android">
+        package="com.wire.android"
+        android:sharedUserId="${sharedUserId}">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -63,10 +64,10 @@
             android:allowBackup="false"
             android:fullBackupContent="false"
             android:hardwareAccelerated="true"
-            android:icon="@mipmap/ic_launcher_beta"
+            android:icon="@mipmap/ic_launcher"
             android:label="@string/app_name"
             android:requestLegacyExternalStorage="true"
-            android:roundIcon="@mipmap/ic_launcher_round_beta"
+            android:roundIcon="@mipmap/ic_launcher_round"
             android:supportsRtl="false"
             android:theme="@style/AppTheme.SplashScreen"
             tools:replace="android:allowBackup,android:supportsRtl"

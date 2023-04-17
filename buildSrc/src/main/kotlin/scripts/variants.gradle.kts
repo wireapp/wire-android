@@ -20,8 +20,6 @@
 
 package scripts
 
-import customization.ClientConfig
-import customization.ConfigFields
 import customization.ConfigType
 import customization.Customization.getBuildtimeConfiguration
 import customization.FeatureConfigs
@@ -159,23 +157,6 @@ android {
         createAppFlavour(ProductFlavors.Beta)
         createAppFlavour(ProductFlavors.Internal)
         createAppFlavour(ProductFlavors.Production)
-    }
-
-    /**
-     * Process client configuration properties.
-     *
-     * @see "ClientConfig.kt" file definition.
-     */
-    buildTypes.forEach { type ->
-        ConfigFields.values().forEach { configField ->
-            val configValuesMap = ClientConfig.properties[type.name].orEmpty()
-            if (configValuesMap.isNotEmpty()) {
-                type.buildConfigField(
-                    "String", configField.name,
-                    configValuesMap[configField] ?: configField.defaultValue
-                )
-            }
-        }
     }
 
     val buildtimeConfiguration = getBuildtimeConfiguration(rootDir = rootDir)

@@ -34,7 +34,6 @@ import kotlin.time.Duration.Companion.seconds
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 
-
 @Composable
 fun FileRestrictionDialog(
     isFileSharingEnabled: Boolean,
@@ -66,7 +65,6 @@ fun SelfDeletingMessagesDialog(
             stringResource(id = R.string.self_deleting_messages_team_setting_enabled_enforced_timeout, formattedTimeout)
         } ?: stringResource(id = R.string.self_deleting_messages_team_setting_enabled)
     } else stringResource(id = R.string.self_deleting_messages_team_setting_disabled)
-
 
     WireDialog(
         title = stringResource(id = R.string.team_settings_changed),

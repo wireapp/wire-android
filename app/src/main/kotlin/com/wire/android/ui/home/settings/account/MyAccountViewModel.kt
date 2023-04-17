@@ -25,6 +25,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import com.google.android.gms.common.util.VisibleForTesting
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.navigation.BackStackMode
@@ -49,8 +50,10 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
+import kotlin.properties.Delegates
 
 @HiltViewModel
 class MyAccountViewModel @Inject constructor(
@@ -67,41 +70,44 @@ class MyAccountViewModel @Inject constructor(
     var myAccountState by mutableStateOf(MyAccountState())
         private set
 
+    @VisibleForTesting
+    var hasSAMLCred by Delegates.notNull<Boolean>()
+
+    @VisibleForTesting
+    var managedByWire by Delegates.notNull<Boolean>()
+
     init {
+        runBlocking {
+            hasSAMLCred = when (val result = isPasswordRequired()) {
+                is IsPasswordRequiredUseCase.Result.Failure -> false
+                is IsPasswordRequiredUseCase.Result.Success -> {
+                    !result.value
+                }
+            }
+
+            // is the account is read only it means it is not maneged by wire
+            managedByWire = !isReadOnlyAccount()
+        }
         viewModelScope.launch {
             fetchSelfUser()
-            loadPasswordChangeContextIfPossible()
-            fetchIsReadOnlyAccount()
         }
-    }
-
-    private suspend fun fetchIsReadOnlyAccount() {
         viewModelScope.launch {
-            myAccountState = myAccountState.copy(isReadOnlyAccount = isReadOnlyAccount())
-        }
-    }
-
-    private suspend fun loadPasswordChangeContextIfPossible() {
-        viewModelScope.launch {
-            when (val result = withContext(dispatchers.io()) { isPasswordRequired() }) {
-                is IsPasswordRequiredUseCase.Result.Failure -> appLogger.e(
-                    "Error when fetching if user can change password"
-                )
-                is IsPasswordRequiredUseCase.Result.Success -> {
-                    when (result.value) {
-                        true -> fetchChangePasswordUrl()
-                        false -> appLogger.i("The current user has SSO identity, so it does not require password")
-                    }
-                }
+            myAccountState = myAccountState.copy(
+                isReadOnlyAccount = !managedByWire,
+                isEditEmailAllowed = !hasSAMLCred && managedByWire
+            )
+            if (!hasSAMLCred) {
+                loadChangePasswordUrl()
             }
         }
     }
 
-    private suspend fun fetchChangePasswordUrl() {
+    private suspend fun loadChangePasswordUrl() {
         when (val result = withContext(dispatchers.io()) { serverConfig() }) {
             is SelfServerConfigUseCase.Result.Failure -> appLogger.e(
                 "Error when fetching the accounts url for change password"
             )
+
             is SelfServerConfigUseCase.Result.Success ->
                 myAccountState = myAccountState.copy(changePasswordUrl = result.serverLinks.links.forgotPassword)
         }

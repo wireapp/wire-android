@@ -23,6 +23,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.android.gms.common.util.VisibleForTesting
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
@@ -46,7 +47,8 @@ class ChangeEmailViewModel @Inject constructor(
             isEmailTextEditEnabled = true
         )
     )
-        private set
+        @VisibleForTesting
+        set
 
     private var currentEmail: String? = null
 

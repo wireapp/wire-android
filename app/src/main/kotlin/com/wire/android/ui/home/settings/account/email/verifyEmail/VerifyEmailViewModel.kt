@@ -43,6 +43,14 @@ class VerifyEmailViewModel @Inject constructor(
     val newEmail: String? =
         savedStateHandle.get<String>(EXTRA_NEW_EMAIL)
 
+    init {
+        if (newEmail == null) {
+            viewModelScope.launch {
+                navigationManager.navigateBack()
+            }
+        }
+    }
+
     fun onBackPressed() {
         viewModelScope.launch {
             navigationManager.navigateBack()
@@ -53,7 +61,15 @@ class VerifyEmailViewModel @Inject constructor(
         newEmail?.let {
             state = state.copy(isResendEmailEnabled = false)
             viewModelScope.launch {
-                updateEmail(newEmail)
+                when (updateEmail(newEmail)) {
+                    UpdateEmailUseCase.Result.Failure.EmailAlreadyInUse,
+                    is UpdateEmailUseCase.Result.Failure.GenericFailure,
+                    UpdateEmailUseCase.Result.Failure.InvalidEmail,
+                    UpdateEmailUseCase.Result.Success.VerificationEmailSent -> { /*no-op*/
+                    }
+
+                    UpdateEmailUseCase.Result.Success.NoChange -> onBackPressed()
+                }
                 state = state.copy(isResendEmailEnabled = true)
             }
         }

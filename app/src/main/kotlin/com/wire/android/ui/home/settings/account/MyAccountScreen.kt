@@ -89,7 +89,7 @@ private fun mapToUISections(viewModel: MyAccountViewModel, state: MyAccountState
             if (userName.isNotBlank()) Username("@$userName") else null,
             if (email.isNotBlank()) Email(
                 email,
-                clickableActionIfPossible(state.isReadOnlyAccount) { viewModel.navigateToChangeEmail() }) else null,
+                clickableActionIfPossible(state.isEditEmailAllowed) { viewModel.navigateToChangeEmail() }) else null,
             if (teamName.isNotBlank()) Team(teamName) else null,
             if (domain.isNotBlank()) Domain(domain) else null
         )

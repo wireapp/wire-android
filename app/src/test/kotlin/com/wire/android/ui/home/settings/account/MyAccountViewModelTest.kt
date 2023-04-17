@@ -23,8 +23,12 @@ package com.wire.android.ui.home.settings.account
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
+import com.wire.android.framework.TestTeam
+import com.wire.android.framework.TestUser
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.util.newServerConfig
 import com.wire.kalium.logic.StorageFailure
+import com.wire.kalium.logic.data.id.TeamId
 import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
@@ -39,7 +43,10 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -48,20 +55,62 @@ import org.junit.jupiter.api.extension.ExtendWith
 class MyAccountViewModelTest {
 
     @Test
-    fun `when trying to compute if the user requires password, and fails then should not load forgot password url context`() = runTest {
+    fun `when trying to compute if the user requires password fails, then hasSAMLCred is false`() = runTest {
         val (arrangement, _) = Arrangement()
             .withUserRequiresPasswordResult(IsPasswordRequiredUseCase.Result.Failure(StorageFailure.DataNotFound))
+            .withIsReadOnlyAccountResult(true)
             .arrange()
 
-        verify {
-            arrangement.selfServerConfigUseCase wasNot Called
-        }
+        assertFalse(arrangement.viewModel.hasSAMLCred)
     }
+
+    @Test
+    fun `when trying to compute if the user requires password return true, then hasSAMLCred is false`() = runTest {
+        val (arrangement, _) = Arrangement()
+            .withUserRequiresPasswordResult(Success(true))
+            .withIsReadOnlyAccountResult(true)
+            .arrange()
+
+        assertFalse(arrangement.viewModel.hasSAMLCred)
+    }
+
+    @Test
+    fun `when trying to compute if the user requires password return false, then hasSAMLCred is true`() = runTest {
+        val (arrangement, _) = Arrangement()
+            .withUserRequiresPasswordResult(Success(false))
+            .withIsReadOnlyAccountResult(true)
+            .arrange()
+
+        assertTrue(arrangement.viewModel.hasSAMLCred)
+    }
+
+
+    @Test
+    fun `when isAccountReadOnly return true, then managedByWire is false`() = runTest {
+        val (arrangement, _) = Arrangement()
+            .withUserRequiresPasswordResult(Success(false))
+            .withIsReadOnlyAccountResult(true)
+            .arrange()
+
+        assertFalse(arrangement.viewModel.managedByWire)
+    }
+
+    @Test
+    fun `when isAccountReadOnly return false, then managedByWire is true`() = runTest {
+        val (arrangement, _) = Arrangement()
+            .withUserRequiresPasswordResult(Success(false))
+            .withIsReadOnlyAccountResult(false)
+            .arrange()
+
+        assertTrue(arrangement.viewModel.managedByWire)
+    }
+
 
     @Test
     fun `when user does not requires password, then should not load forgot password url context`() = runTest {
         val (arrangement, _) = Arrangement()
             .withUserRequiresPasswordResult(Success(false))
+            .withIsReadOnlyAccountResult(true)
             .arrange()
 
         verify {
@@ -73,6 +122,7 @@ class MyAccountViewModelTest {
     fun `when user requires a password, then should load forgot password url context`() = runTest {
         val (arrangement, _) = Arrangement()
             .withUserRequiresPasswordResult(Success(true))
+            .withIsReadOnlyAccountResult(true)
             .arrange()
 
         coVerify(exactly = 1) { arrangement.selfServerConfigUseCase() }
@@ -80,7 +130,10 @@ class MyAccountViewModelTest {
 
     @Test
     fun `when navigating back requested, then should delegate call to manager navigateBack`() = runTest {
-        val (arrangement, viewModel) = Arrangement().arrange()
+        val (arrangement, viewModel) = Arrangement()
+            .withUserRequiresPasswordResult(Success(true))
+            .withIsReadOnlyAccountResult(true)
+            .arrange()
         viewModel.navigateBack()
 
         coVerify(exactly = 1) { arrangement.navigationManager.navigateBack() }
@@ -124,10 +177,17 @@ class MyAccountViewModelTest {
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
             every { savedStateHandle.get<String>(any()) } returns "SOMETHING"
+            coEvery { getSelfUserUseCase() } returns flowOf(TestUser.SELF_USER.copy(teamId = TeamId(TestTeam.TEAM.id)))
+            coEvery { getSelfTeamUseCase() } returns flowOf(TestTeam.TEAM)
+            coEvery { selfServerConfigUseCase() } returns SelfServerConfigUseCase.Result.Success(newServerConfig(1))
         }
 
         fun withUserRequiresPasswordResult(result: IsPasswordRequiredUseCase.Result = Success(true)) = apply {
             coEvery { isPasswordRequiredUseCase() } returns result
+        }
+
+        fun withIsReadOnlyAccountResult(result: Boolean) = apply {
+            coEvery { isReadOnlyAccountUseCase() } returns result
         }
 
         fun arrange() = this to viewModel

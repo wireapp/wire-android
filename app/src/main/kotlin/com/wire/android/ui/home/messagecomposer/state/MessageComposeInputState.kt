@@ -111,4 +111,3 @@ enum class SelfDeletionDuration(val value: Duration?, val label: String) {
     OneWeek(7.days, "1 week"),
     FourWeeks(28.days, "4 weeks")
 }
-

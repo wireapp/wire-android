@@ -93,7 +93,7 @@ fun MessageComposeActionsBox(
 
 @Composable
 private fun MessageComposeActions(
-    selfDeletingOptionSelected : Boolean,
+    selfDeletingOptionSelected: Boolean,
     attachmentOptionsDisplayed: Boolean,
     isMentionsSelected: Boolean,
     isEditMessage: Boolean,
@@ -186,7 +186,7 @@ private fun PingAction(onPingClicked: () -> Unit) {
 }
 
 @Composable
-fun SelfDeletingMessageAction(isSelected : Boolean,onButtonClicked: () -> Unit) {
+fun SelfDeletingMessageAction(isSelected: Boolean, onButtonClicked: () -> Unit) {
     WireSecondaryIconButton(
         onButtonClicked = onButtonClicked,
         clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),

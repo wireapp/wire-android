@@ -133,7 +133,6 @@ fun MessageComposerInputRow(
                     onEditCancelButtonClicked = onEditCancelButtonClicked
                 )
             }
-
         }
         if (messageComposeInputState is MessageComposeInputState.Active) {
             when (val type = messageComposeInputState.type) {
@@ -190,9 +189,11 @@ private fun MessageComposerInput(
     onSelectedLineIndexChanged: (Int) -> Unit = { },
     onLineBottomYCoordinateChanged: (Float) -> Unit = { }
 ) {
-    val placeHolderText = if (messageComposerInputState.isEphemeral)
+    val placeHolderText = if (messageComposerInputState.isEphemeral) {
         stringResource(R.string.self_deleting_message_label)
-    else stringResource(R.string.label_type_a_message)
+    } else {
+        stringResource(R.string.label_type_a_message)
+    }
 
     WireTextField(
         value = messageText,

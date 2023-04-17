@@ -214,7 +214,6 @@ class MessageComposerViewModel @Inject constructor(
         quotedMessageId: String?,
         expireAfter: Duration?
     ) {
-        Log.d("TEST","expire fater $expireAfter")
         viewModelScope.launch {
             sendTextMessage(
                 conversationId = conversationId,

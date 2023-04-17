@@ -88,7 +88,6 @@ class ChangeEmailViewModel @Inject constructor(
 
                 is UpdateEmailUseCase.Result.Success.VerificationEmailSent -> onUpdateEmailSuccess()
                 is UpdateEmailUseCase.Result.Success.NoChange -> onBackPressed()
-
             }
         }
     }

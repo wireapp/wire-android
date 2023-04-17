@@ -84,7 +84,6 @@ class MyAccountViewModelTest {
         assertTrue(arrangement.viewModel.hasSAMLCred)
     }
 
-
     @Test
     fun `when isAccountReadOnly return true, then managedByWire is false`() = runTest {
         val (arrangement, _) = Arrangement()
@@ -104,7 +103,6 @@ class MyAccountViewModelTest {
 
         assertTrue(arrangement.viewModel.managedByWire)
     }
-
 
     @Test
     fun `when user does not requires password, then should not load forgot password url context`() = runTest {

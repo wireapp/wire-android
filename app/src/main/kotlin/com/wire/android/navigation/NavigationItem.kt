@@ -117,7 +117,6 @@ import kotlinx.serialization.json.Json
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets.UTF_8
 
-
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 /**
  * The class encapsulating the app main navigational items.

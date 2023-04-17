@@ -880,8 +880,8 @@ URL del backend:
     <string name="label_system_message_session_reset">%1$s no pudo descifrar algunos de tus mensajes pero ha resuelto el problema. Esto afect&#243; a todas las conversaciones que compartes juntos.</string>
     <string name="label_manual_migration_title">Migrar desde la versi&#243;n 3.82.38</string>
     <string name="start_manual_migration">Iniciar migraci&#243;n desde la versi&#243;n 3.82.38 manualmente</string>
-    <string name="file_sharing_restricted_dialog_title">Restricciones para compartir archivos</string>
-    <string name="file_sharing_restricted_dialog_description">No se puede compartir este archivo porque esta funci&#243;n est&#225; deshabilitada.</string>
+    <string name="file_sharing_restricted_learn_more_link">https://support.wire.com/hc/en-us/articles/4406404582673-How-can-I-restrict-file-sharing-for-my-team-</string>
+    <string name="file_sharing_restricted_description_by_team">No se puede compartir este archivo porque esta funci&#243;n est&#225; deshabilitada.</string>
     <!-- join conversation dialog -->
     <string name="join_conversation_dialog_title">&#191;Unirse a la conversaci&#243;n?</string>
     <string name="join_conversation_dialog_message">Te han invitado a una conversaci&#243;n.
@@ -914,13 +914,13 @@ URL del backend:
     <!-- New Device dialog -->
     <string name="new_device_dialog_current_user_title">Su cuenta se utiliz&#243; en</string>
     <string name="new_device_dialog_current_user_message">%1$s
-Desde: %2$s 
+Desde: %2$s
 
 Si no lo hizo, retire el dispositivo y restablezca su contrase&#241;a.</string>
     <string name="new_device_dialog_current_user_btn">Administrar dispositivos</string>
     <string name="new_device_dialog_other_user_title">Su cuenta &#8220;%1$s (@%2$s)&#8221; se utiliz&#243; en:</string>
     <string name="new_device_dialog_other_user_message">%1$s
-Desde: %2$s 
+Desde: %2$s
 
 Si no lo hizo, retire el dispositivo (navegue a &#8220;Administrar dispositivos&#8221; en la secci&#243;n de Configuraci&#243;n de esta cuenta) y restablezca su contrase&#241;a.</string>
     <string name="new_device_dialog_other_user_btn">Cambiar de cuenta</string>

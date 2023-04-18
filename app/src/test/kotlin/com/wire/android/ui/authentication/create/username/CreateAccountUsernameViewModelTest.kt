@@ -52,7 +52,6 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
-
 @OptIn(ExperimentalMaterialApi::class, ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class)
 class CreateAccountUsernameViewModelTest {
@@ -193,4 +192,3 @@ class CreateAccountUsernameViewModelTest {
         createAccountUsernameViewModel.state.error shouldBe HandleUpdateErrorState.None
     }
 }
-

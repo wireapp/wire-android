@@ -57,18 +57,21 @@ class CreateAccountUsernameViewModel @Inject constructor(
                     continueEnabled = !state.loading,
                     animateUsernameError = false
                 )
+
                 is ValidateUserHandleResult.Invalid.InvalidCharacters -> state.copy(
                     username = newText.copy(text = textState.handle),
                     error = HandleUpdateErrorState.None,
                     continueEnabled = !state.loading,
                     animateUsernameError = true
                 )
+
                 is ValidateUserHandleResult.Invalid.TooLong -> state.copy(
                     username = newText.copy(text = textState.handle),
                     error = HandleUpdateErrorState.None,
                     continueEnabled = false,
                     animateUsernameError = false
                 )
+
                 is ValidateUserHandleResult.Invalid.TooShort -> state.copy(
                     username = newText.copy(text = textState.handle),
                     error = HandleUpdateErrorState.None,
@@ -87,23 +90,31 @@ class CreateAccountUsernameViewModel @Inject constructor(
         state = state.copy(loading = true, continueEnabled = false)
         viewModelScope.launch {
             // FIXME: no need to check the handle again since it's checked every time the text change
-            val usernameError = if (validateUserHandleUseCase(state.username.text.trim()) is ValidateUserHandleResult.Invalid)
+            val usernameError = if (validateUserHandleUseCase(state.username.text.trim()) is ValidateUserHandleResult.Invalid) {
                 HandleUpdateErrorState.TextFieldError.UsernameInvalidError
-            else when (val result = setUserHandleUseCase(state.username.text.trim())) {
-                is SetUserHandleResult.Failure.Generic ->
-                    HandleUpdateErrorState.DialogError.GenericError(result.error)
+            } else {
+                when (val result = setUserHandleUseCase(state.username.text.trim())) {
+                    is SetUserHandleResult.Failure.Generic ->
+                        HandleUpdateErrorState.DialogError.GenericError(result.error)
 
-                SetUserHandleResult.Failure.HandleExists ->
-                    HandleUpdateErrorState.TextFieldError.UsernameTakenError
+                    SetUserHandleResult.Failure.HandleExists ->
+                        HandleUpdateErrorState.TextFieldError.UsernameTakenError
 
-                SetUserHandleResult.Failure.InvalidHandle ->
-                    HandleUpdateErrorState.TextFieldError.UsernameInvalidError
+                    SetUserHandleResult.Failure.InvalidHandle ->
+                        HandleUpdateErrorState.TextFieldError.UsernameInvalidError
 
-                SetUserHandleResult.Success -> HandleUpdateErrorState.None
+                    SetUserHandleResult.Success -> HandleUpdateErrorState.None
+                }
             }
             state = state.copy(loading = false, continueEnabled = true, error = usernameError)
-            if (usernameError is HandleUpdateErrorState.None)
-                navigationManager.navigate(NavigationCommand(NavigationItem.InitialSync.getRouteWithArgs(), BackStackMode.CLEAR_WHOLE))
+            if (usernameError is HandleUpdateErrorState.None) {
+                navigationManager.navigate(
+                    NavigationCommand(
+                        NavigationItem.InitialSync.getRouteWithArgs(),
+                        BackStackMode.CLEAR_WHOLE
+                    )
+                )
+            }
         }
     }
 

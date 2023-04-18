@@ -51,8 +51,9 @@ fun UsernameTextField(
     onUsernameErrorAnimated: () -> Unit
 ) {
     clearAutofillTree()
-    if (errorState is HandleUpdateErrorState.DialogError.GenericError)
+    if (errorState is HandleUpdateErrorState.DialogError.GenericError) {
         CoreFailureErrorDialog(errorState.coreFailure, onErrorDismiss)
+    }
 
     val keyboardController = LocalSoftwareKeyboardController.current
     ShakeAnimation { animate ->

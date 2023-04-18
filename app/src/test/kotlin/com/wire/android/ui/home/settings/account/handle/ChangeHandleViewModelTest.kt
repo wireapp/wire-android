@@ -177,6 +177,5 @@ class ChangeHandleViewModelTest {
         }
 
         fun arrange() = this to viewModel
-
     }
 }

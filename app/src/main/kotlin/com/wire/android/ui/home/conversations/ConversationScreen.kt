@@ -89,6 +89,7 @@ import com.wire.android.util.permission.CallingAudioRequestFlow
 import com.wire.android.util.permission.rememberCallingRecordAudioBluetoothRequestFlow
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.NetworkFailure
+import com.wire.kalium.logic.configuration.SelfDeletingMessagesStatus
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.call.usecase.ConferenceCallingResult
@@ -221,6 +222,7 @@ fun ConversationScreen(
         conversationMessagesViewModel = conversationMessagesViewModel,
         onPingClicked = messageComposerViewModel::sendPing,
         onSelfDeletingMessageRead = messageComposerViewModel::startSelfDeletion,
+        currentSelfDeletingMessagesStatus = messageComposerViewModel.conversationViewState.selfDeletingMessagesStatus,
         tempWritableImageUri = messageComposerViewModel.tempWritableImageUri,
         tempWritableVideoUri = messageComposerViewModel.tempWritableVideoUri
     )
@@ -315,6 +317,7 @@ private fun ConversationScreen(
     conversationMessagesViewModel: ConversationMessagesViewModel,
     onPingClicked: () -> Unit,
     onSelfDeletingMessageRead: (UIMessage.Regular) -> Unit,
+    currentSelfDeletingMessagesStatus: SelfDeletingMessagesStatus,
     tempWritableImageUri: Uri?,
     tempWritableVideoUri: Uri?
 ) {
@@ -428,6 +431,7 @@ private fun ConversationScreen(
                         onMessageComposerError = onSnackbarMessage,
                         onShowEditingOptions = conversationScreenState::showEditContextMenu,
                         onShowSelfDeletionOption = conversationScreenState::showSelfDeletionContextMenu,
+                        currentSelfDeletingMessagesStatus = currentSelfDeletingMessagesStatus,
                         onPingClicked = onPingClicked,
                         onSelfDeletingMessageRead = onSelfDeletingMessageRead,
                         tempWritableImageUri = tempWritableImageUri,
@@ -469,6 +473,7 @@ private fun ConversationScreenContent(
     onShowSelfDeletionOption: () -> Unit,
     onPingClicked: () -> Unit,
     onSelfDeletingMessageRead: (UIMessage.Regular) -> Unit,
+    currentSelfDeletingMessagesStatus: SelfDeletingMessagesStatus,
     tempWritableImageUri: Uri?,
     tempWritableVideoUri: Uri?
 ) {
@@ -517,6 +522,7 @@ private fun ConversationScreenContent(
         onMentionMember = onMentionMember,
         onMessageComposerError = onMessageComposerError,
         onShowSelfDeletionOption = onShowSelfDeletionOption,
+        currentSelfDeletingMessagesStatus = currentSelfDeletingMessagesStatus,
         isFileSharingEnabled = isFileSharingEnabled,
         tempCachePath = tempCachePath,
         interactionAvailability = interactionAvailability,
@@ -690,6 +696,7 @@ fun PreviewConversationScreen() {
         conversationMessagesViewModel = hiltViewModel(),
         onPingClicked = {},
         onSelfDeletingMessageRead = {},
+        currentSelfDeletingMessagesStatus = SelfDeletingMessagesStatus(true, null, null),
         tempWritableImageUri = null,
         tempWritableVideoUri = null
     )

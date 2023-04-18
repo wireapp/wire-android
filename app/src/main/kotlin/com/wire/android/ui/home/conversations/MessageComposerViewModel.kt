@@ -60,6 +60,7 @@ import com.wire.android.util.FileManager
 import com.wire.android.util.ImageUtil
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.WireSessionImageLoader
+import com.wire.kalium.logic.configuration.SelfDeletingMessagesStatus
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.user.OtherUser
@@ -77,6 +78,7 @@ import com.wire.kalium.logic.feature.message.SendEditTextMessageUseCase
 import com.wire.kalium.logic.feature.message.SendKnockUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.message.ephemeral.EnqueueMessageSelfDeletionUseCase
+import com.wire.kalium.logic.feature.selfdeletingMessages.ObserveSelfDeletingMessagesUseCase
 import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
 import com.wire.kalium.logic.feature.user.IsFileSharingEnabledUseCase
 import com.wire.kalium.logic.functional.onFailure
@@ -114,6 +116,7 @@ class MessageComposerViewModel @Inject constructor(
     private val getAssetSizeLimit: GetAssetSizeLimitUseCase,
     private val sendKnockUseCase: SendKnockUseCase,
     private val enqueueMessageSelfDeletionUseCase: EnqueueMessageSelfDeletionUseCase,
+    private val observeSelfDeletingMessages: ObserveSelfDeletingMessagesUseCase,
     private val pingRinger: PingRinger,
     private val imageUtil: ImageUtil,
     private val fileManager: FileManager
@@ -157,12 +160,13 @@ class MessageComposerViewModel @Inject constructor(
     val infoMessage = _infoMessage.asSharedFlow()
 
     init {
-        observeIsTypingAvailable()
-        fetchSelfUserTeam()
-        fetchConversationClassificationType()
-        setFileSharingStatus()
         initTempWritableVideoUri()
         initTempWritableImageUri()
+        fetchSelfUserTeam()
+        fetchConversationClassificationType()
+        observeIsTypingAvailable()
+        observeSelfDeletingMessagesStatus()
+        setFileSharingStatus()
     }
 
     fun onSnackbarMessage(type: SnackBarMessage) = viewModelScope.launch {
@@ -175,6 +179,12 @@ class MessageComposerViewModel @Inject constructor(
                 is IsInteractionAvailableResult.Failure -> InteractionAvailability.DISABLED
                 is IsInteractionAvailableResult.Success -> result.interactionAvailability
             }
+        }
+    }
+
+    private fun observeSelfDeletingMessagesStatus() = viewModelScope.launch {
+        observeSelfDeletingMessages().collect { selfDeletingStatus ->
+            conversationViewState = conversationViewState.copy(selfDeletingMessagesStatus = selfDeletingStatus)
         }
     }
 

@@ -22,6 +22,7 @@ package com.wire.android.ui.home.conversations
 
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.ui.home.conversations.model.AssetBundle
+import com.wire.kalium.logic.configuration.SelfDeletingMessagesStatus
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.team.Team
 import com.wire.kalium.logic.data.user.ConnectionState
@@ -33,7 +34,8 @@ import com.wire.kalium.logic.data.id.QualifiedID as ConversationId
 data class ConversationViewState(
     val userTeam: Team? = null,
     val isFileSharingEnabled: Boolean = true,
-    val securityClassificationType: SecurityClassificationType = SecurityClassificationType.NONE
+    val securityClassificationType: SecurityClassificationType = SecurityClassificationType.NONE,
+    val selfDeletingMessagesStatus: SelfDeletingMessagesStatus = SelfDeletingMessagesStatus(false, null, null),
 )
 
 sealed class ConversationAvatar {

@@ -66,6 +66,7 @@ import com.wire.android.ui.home.messagecomposer.model.UiMention
 import com.wire.android.ui.home.messagecomposer.state.MessageComposerState
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.ui.theme.wireColorScheme
+import com.wire.kalium.logic.configuration.SelfDeletingMessagesStatus
 import com.wire.kalium.logic.feature.conversation.InteractionAvailability
 import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
 import okio.Path
@@ -87,6 +88,7 @@ fun MessageComposer(
     membersToMention: List<Contact>,
     onPingClicked: () -> Unit,
     onShowSelfDeletionOption: () -> Unit,
+    currentSelfDeletingMessagesStatus: SelfDeletingMessagesStatus,
     tempWritableImageUri: Uri?,
     tempWritableVideoUri: Uri?
 ) {
@@ -158,6 +160,7 @@ fun MessageComposer(
             onMentionPicked = onMentionPicked,
             onPingClicked = onPingClicked,
             onShowSelfDeletionOption = onShowSelfDeletionOption,
+            currentSelfDeletingMessagesStatus = currentSelfDeletingMessagesStatus,
             tempWritableImageUri = tempWritableImageUri,
             tempWritableVideoUri = tempWritableVideoUri
         )
@@ -182,7 +185,8 @@ private fun MessageComposer(
     onEditSaveButtonClicked: () -> Unit,
     onMentionPicked: (Contact) -> Unit,
     onPingClicked: () -> Unit,
-    onShowSelfDeletionOption: () -> Unit
+    onShowSelfDeletionOption: () -> Unit,
+    currentSelfDeletingMessagesStatus: SelfDeletingMessagesStatus
 ) {
     Surface(color = colorsScheme().messageComposerBackgroundColor) {
         val transition = updateTransition(
@@ -265,6 +269,7 @@ private fun MessageComposer(
                         quotedMessageData = messageComposerState.quotedMessageData,
                         membersToMention = membersToMention,
                         inputFocusRequester = messageComposerState.inputFocusRequester,
+                        currentSelfDeletingStatus = currentSelfDeletingMessagesStatus,
                         actions = remember(messageComposerState) {
                             MessageComposerInputActions(
                                 onMessageTextChanged = messageComposerState::setMessageTextValue,
@@ -288,7 +293,7 @@ private fun MessageComposer(
                                 },
                                 onEditSaveButtonClicked = onEditSaveButtonClicked,
                                 onEditCancelButtonClicked = messageComposerState::closeEditToInactive,
-                                onSelfDeletionOptionButtonClicked = onShowSelfDeletionOption
+                                onSelfDeletionOptionButtonClicked = onShowSelfDeletionOption,
                             )
                         }
                     )

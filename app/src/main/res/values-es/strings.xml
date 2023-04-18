@@ -933,6 +933,13 @@ URL del backend:
     <string name="self_deleting_message_time_left">Self-deleting message • %1$s</string>
     <string name="self_deleting_message_label">Self-deleting message</string>
     <string name="device_name_unknown">Unknown device</string>
+    <string name="title_video_could_not_be_sent">Video could not be sent</string>
+    <string name="title_image_could_not_be_sent">Image could not be sent</string>
+    <string name="title_file_could_not_be_sent">File could not be sent</string>
+    <string name="label_shared_video_too_large">You can only share a video up to %d MB.</string>
+    <string name="label_shared_image_too_large">You can only share an image up to %d MB.</string>
+    <string name="label_shared_file_too_large">You can only share a file up to %d MB.</string>
+    <string name="label_file_saved_to_device">The file was saved to your device.</string>
     <!-- Expirable messages -->
     <plurals name="weeks_left">
         <item quantity="one">1 week left</item>

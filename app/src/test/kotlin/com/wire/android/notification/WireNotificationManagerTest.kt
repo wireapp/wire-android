@@ -615,7 +615,8 @@ class WireNotificationManagerTest {
             conversationName = "ONE_ON_ONE Name",
             conversationType = Conversation.Type.ONE_ON_ONE,
             callerName = "otherUsername",
-            callerTeamName = "team_1"
+            callerTeamName = "team_1",
+            isCbrEnabled = false,
         )
 
         private fun provideLocalNotificationConversation(

@@ -28,6 +28,7 @@ import com.wire.kalium.logic.feature.auth.ValidateUserHandleUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.SetUserHandleResult
 import com.wire.kalium.logic.feature.user.SetUserHandleUseCase
+import io.mockk.Called
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -69,9 +70,6 @@ class ChangeHandleViewModelTest {
         viewModel.onSaveClicked()
 
         assertEquals(viewModel.state.error, HandleUpdateErrorState.TextFieldError.UsernameTakenError)
-        coVerify(exactly = 1) {
-            arrangement.validateHandle("handle")
-        }
     }
 
     @Test
@@ -84,27 +82,25 @@ class ChangeHandleViewModelTest {
         viewModel.onSaveClicked()
 
         assertEquals(viewModel.state.error, HandleUpdateErrorState.TextFieldError.UsernameInvalidError)
-        coVerify(exactly = 1) {
-            arrangement.validateHandle("handle")
+        coVerify {
+            arrangement.validateHandle("handle") wasNot Called
         }
     }
 
     @Test
     fun `given updateHandle returns generic Error, when onSaveClicked is called, then update error state`() = runTest {
+        val expectedError = NetworkFailure.NoNetworkConnection(IOException())
         val (arrangement, viewModel) = Arrangement()
             .withHandle("handle")
-            .withUpdateHandleResult(SetUserHandleResult.Failure.Generic(NetworkFailure.NoNetworkConnection(IOException())))
+            .withUpdateHandleResult(SetUserHandleResult.Failure.Generic(expectedError))
             .arrange()
 
         viewModel.onSaveClicked()
 
         assertEquals(
             viewModel.state.error,
-            HandleUpdateErrorState.DialogError.GenericError(NetworkFailure.NoNetworkConnection(IOException()))
+            HandleUpdateErrorState.DialogError.GenericError(expectedError)
         )
-        coVerify(exactly = 1) {
-            arrangement.validateHandle("handle")
-        }
     }
 
     @Test

@@ -20,6 +20,9 @@
 
 package com.wire.android.ui.calling.incoming
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -41,6 +44,7 @@ import com.wire.kalium.logic.feature.call.usecase.RejectCallUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -58,14 +62,15 @@ class IncomingCallViewModel @Inject constructor(
     private val endCall: EndCallUseCase,
 ) : ViewModel() {
 
-    private val incomingCallConversationId: QualifiedID = qualifiedIdMapper.fromStringToQualifiedID(
-        checkNotNull(savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)) {
+    private val incomingCallConversationId: QualifiedID =
+        qualifiedIdMapper.fromStringToQualifiedID(checkNotNull(savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)) {
             "No conversationId was provided via savedStateHandle to IncomingCallViewModel"
-        }
-    )
+        })
 
     lateinit var observeIncomingCallJob: Job
     var establishedCallConversationId: ConversationId? = null
+
+    var incomingCallState by mutableStateOf(IncomingCallState())
 
     init {
         viewModelScope.launch {
@@ -80,15 +85,19 @@ class IncomingCallViewModel @Inject constructor(
     }
 
     private fun observeEstablishedCall() = viewModelScope.launch {
-        observeEstablishedCalls().collect {
-            if (it.isNotEmpty()) {
-                establishedCallConversationId = it.first().conversationId
+        observeEstablishedCalls()
+            .distinctUntilChanged()
+            .collect {
+                val hasEstablishedCall = it.isNotEmpty()
+                establishedCallConversationId = if (it.isNotEmpty()) {
+                    it.first().conversationId
+                } else null
+                incomingCallState = incomingCallState.copy(hasEstablishedCall = hasEstablishedCall)
             }
-        }
     }
 
     private suspend fun observeIncomingCall() {
-        incomingCalls().collect { calls ->
+        incomingCalls().distinctUntilChanged().collect { calls ->
             calls.find { call -> call.conversationId == incomingCallConversationId }.also {
                 if (it == null) {
                     onCallClosed()
@@ -115,35 +124,47 @@ class IncomingCallViewModel @Inject constructor(
         }
     }
 
-    fun acceptCall() {
-        callRinger.stop()
+    private fun showJoinCallAnywayDialog() {
+        incomingCallState = incomingCallState.copy(shouldShowJoinCallAnywayDialog = true)
+    }
+
+    fun dismissJoinCallAnywayDialog() {
+        incomingCallState = incomingCallState.copy(shouldShowJoinCallAnywayDialog = false)
+    }
+
+    fun acceptCallAnyway() {
         viewModelScope.launch {
-            var backStackNode = ACCEPT_CALL_DEFAULT_BACKSTACK_NODE
-            var delayTime = ACCEPT_CALL_DEFAULT_DELAY_TIME
-            // if there is already an active call, then end it to accept the new incoming call
             establishedCallConversationId?.let {
                 endCall(it)
-                backStackNode = BackStackMode.UPDATE_EXISTED
-                delayTime = DELAY_TIME_AFTER_ENDING_CALL
+                delay(DELAY_END_CALL)
             }
-            observeIncomingCallJob.cancel()
+            acceptCall()
+        }
+    }
 
-            acceptCall(conversationId = incomingCallConversationId)
-            // We need to add some delay, for the case of joining a call while there is an active one,
-            // to get all values returned by avs callbacks
-            delay(delayTime)
-            navigationManager.navigate(
-                command = NavigationCommand(
-                    destination = NavigationItem.OngoingCall.getRouteWithArgs(listOf(incomingCallConversationId)),
-                    backStackMode = backStackNode
+    fun acceptCall() {
+        viewModelScope.launch {
+            if (incomingCallState.hasEstablishedCall) {
+                showJoinCallAnywayDialog()
+            } else {
+                callRinger.stop()
+
+                dismissJoinCallAnywayDialog()
+                observeIncomingCallJob.cancel()
+
+                acceptCall(conversationId = incomingCallConversationId)
+
+                navigationManager.navigate(
+                    command = NavigationCommand(
+                        destination = NavigationItem.OngoingCall.getRouteWithArgs(listOf(incomingCallConversationId)),
+                        backStackMode = BackStackMode.REMOVE_CURRENT_AND_REPLACE
+                    )
                 )
-            )
+            }
         }
     }
 
     companion object {
-        private const val DELAY_TIME_AFTER_ENDING_CALL = 1000L
-        private val ACCEPT_CALL_DEFAULT_BACKSTACK_NODE = BackStackMode.REMOVE_CURRENT
-        private const val ACCEPT_CALL_DEFAULT_DELAY_TIME = 200L
+        const val DELAY_END_CALL = 200L
     }
 }

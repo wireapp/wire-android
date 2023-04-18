@@ -40,7 +40,7 @@
     <string name="label_membership_external">External</string>
     <string name="label_membership_service">Service</string>
     <string name="label_user_deleted">Deleted</string>
-    <string name="label_message_sent_failure">Message could not be sent.</string>
+    <string name="label_message_sent_failure">Message could not be sent due to connectivity issues.</string>
     <string name="label_message_edit_sent_failure">The edited message could not be sent due to connectivity issues.</string>
     <string name="label_message_sent_remotely_failure">Message could not be sent, as the backend %s appears to be offline.</string>
     <string name="label_message_receive_failure">Download Error</string>
@@ -519,7 +519,7 @@
     <string name="label_system_message_new_conversation_receipt_mode">Read receipts are %1$s</string>
     <string name="label_system_message_read_receipt_changed_by_self">%1$s turned read receipts %2$s for everyone</string>
     <string name="label_system_message_read_receipt_changed_by_other">%1$s turned read receipts %2$s for everyone</string>
-    <string name="label_system_message_conversation_history_lost">YOU HAVEN\'T USED THIS DEVICE FOR A WHILE. SOME MESSAGES MAY NOT APPEAR HERE.</string>
+    <string name="label_system_message_conversation_history_lost">You haven\'t used this device for a while. some messages may not appear here.</string>
     <string name="label_system_message_receipt_mode_on">on</string>
     <string name="label_system_message_receipt_mode_off">off</string>
     <!-- Last messages -->
@@ -917,6 +917,13 @@
     <string name="self_deleting_message_time_left">Self-deleting message • %1$s</string>
     <string name="self_deleting_message_label">Self-deleting message</string>
     <string name="device_name_unknown">Unknown device</string>
+    <string name="create_account_email_title">Your Email</string>
+    <string name="settings_myaccount_email_description">Your email is part of your login details for this account. It may be visible to your contacts.</string>
+    <string name="settings_myaccount_email_invalid_imail_error">Please enter a valid email format</string>
+    <string name="settings_myaccount_email_already_in_use_error">The email address you provided has already been  registered. Please try again.</string>
+    <string name="settings_myaccount_email_verification_email_sent">A verification email has been sent to your email %1$s.\n\nYour current email address is not changed until you verified your new one. Please check your email inbox and follow the instructions.</string>
+    <string name="label_resend_verification_email">Resend Verification Email</string>
+    <string name="settings_myaccount_email_generic_error">Something went wrong. Please try again.</string>
     <string name="title_video_could_not_be_sent">Video could not be sent</string>
     <string name="title_image_could_not_be_sent">Image could not be sent</string>
     <string name="title_file_could_not_be_sent">File could not be sent</string>

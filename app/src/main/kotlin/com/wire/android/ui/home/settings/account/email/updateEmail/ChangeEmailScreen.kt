@@ -179,7 +179,7 @@ private fun computeEmailErrorState(error: ChangeEmailState.EmailError): WireText
 
 @Preview
 @Composable
-fun PreviewChangeDisplayName() {
+fun PreviewChangeEmailName() {
     ChangeEmailContent(
         state = ChangeEmailState(),
         onBackPressed = { },

@@ -127,7 +127,7 @@ fun VerifyEmailContent(
 
 @Preview
 @Composable
-fun PreviewChangeDisplayName() {
+fun PreviewVerifyEmailContent() {
     VerifyEmailContent(
         state = VerifyEmailState(),
         onBackPressed = { },

@@ -83,7 +83,7 @@ class ChangeEmailViewModel @Inject constructor(
                     state.copy(
                         isEmailTextEditEnabled = true,
                         saveEnabled = false,
-                        error = ChangeEmailState.EmailError.TextFieldError.InvalidEmail
+                        error = ChangeEmailState.EmailError.TextFieldError.Generic
                     )
 
                 is UpdateEmailUseCase.Result.Success.VerificationEmailSent -> onUpdateEmailSuccess()

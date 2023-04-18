@@ -168,6 +168,10 @@ private fun computeEmailErrorState(error: ChangeEmailState.EmailError): WireText
             ChangeEmailState.EmailError.TextFieldError.InvalidEmail -> WireTextFieldState.Error(
                 stringResource(id = R.string.settings_myaccount_email_invalid_imail_error)
             )
+
+            ChangeEmailState.EmailError.TextFieldError.Generic -> WireTextFieldState.Error(
+                stringResource(id = R.string.settings_myaccount_email_generic_error)
+            )
         }
     } else {
         WireTextFieldState.Default

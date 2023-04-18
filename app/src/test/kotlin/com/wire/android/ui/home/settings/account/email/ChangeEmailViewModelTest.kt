@@ -10,6 +10,7 @@ import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.settings.account.email.updateEmail.ChangeEmailState
 import com.wire.android.ui.home.settings.account.email.updateEmail.ChangeEmailViewModel
+import com.wire.kalium.logic.NetworkFailure
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.UpdateEmailUseCase
 import io.mockk.MockKAnnotations
@@ -19,6 +20,7 @@ import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
+import okio.IOException
 import org.amshove.kluent.internal.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -72,6 +74,21 @@ class ChangeEmailViewModelTest {
         viewModel.onSaveClicked()
 
         assertEquals(ChangeEmailState.EmailError.TextFieldError.AlreadyInUse, viewModel.state.error)
+
+        coVerify(exactly = 0) { arrangement.navigationManager.navigate(any()) }
+        coVerify(exactly = 1) { arrangement.updateEmail(any()) }
+    }
+
+    @Test
+    fun `given update error is returned, when onSaveClicked is called, then show error state is updated`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withNewEmail("newEmail")
+            .withUpdateEmailResult(UpdateEmailUseCase.Result.Failure.GenericFailure(NetworkFailure.NoNetworkConnection(IOException())))
+            .arrange()
+
+        viewModel.onSaveClicked()
+
+        assertEquals(ChangeEmailState.EmailError.TextFieldError.Generic, viewModel.state.error)
 
         coVerify(exactly = 0) { arrangement.navigationManager.navigate(any()) }
         coVerify(exactly = 1) { arrangement.updateEmail(any()) }

@@ -31,6 +31,7 @@ data class ChangeEmailState(
         sealed interface TextFieldError : EmailError {
             object AlreadyInUse : TextFieldError
             object InvalidEmail : TextFieldError
+            object Generic : TextFieldError
         }
     }
 }

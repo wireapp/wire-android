@@ -19,7 +19,6 @@ package com.wire.android.ui.home.conversations.selfdeletion
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.text.capitalize
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.bottomsheet.RichMenuItemState
 import com.wire.android.ui.common.bottomsheet.SelectableMenuBottomSheetItem

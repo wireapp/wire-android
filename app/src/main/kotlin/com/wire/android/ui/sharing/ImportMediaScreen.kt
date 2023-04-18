@@ -106,15 +106,8 @@ fun ImportMediaContent(
 @Composable
 fun ImportMediaRestrictedContent(
     featureFlagNotificationViewModel: FeatureFlagNotificationViewModel,
-    importMediaViewModel: ImportMediaAuthorizedViewModel = hiltViewModel()
+    importMediaViewModel: ImportMediaAuthenticatedViewModel = hiltViewModel()
 ) {
-    val context = LocalContext.current
-    LaunchedEffect(importMediaViewModel.importMediaState.importedAssets) {
-        if (importMediaViewModel.importMediaState.importedAssets.isEmpty()) {
-            context.getActivity()?.let { importMediaViewModel.handleReceivedDataFromSharingIntent(it) }
-        }
-    }
-
     with(importMediaViewModel.importMediaState) {
         Scaffold(
             topBar = {
@@ -144,7 +137,7 @@ fun ImportMediaRestrictedContent(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ImportMediaRegularContent(authorizedViewModel: ImportMediaAuthorizedViewModel = hiltViewModel()) {
+fun ImportMediaRegularContent(authorizedViewModel: ImportMediaAuthenticatedViewModel = hiltViewModel()) {
     val context = LocalContext.current
     LaunchedEffect(authorizedViewModel.importMediaState.importedAssets) {
         if (authorizedViewModel.importMediaState.importedAssets.isEmpty()) {
@@ -262,7 +255,7 @@ fun FileSharingRestrictedContent(
 }
 
 @Composable
-private fun ImportMediaBottomBar(importMediaViewModel: ImportMediaAuthorizedViewModel) {
+private fun ImportMediaBottomBar(importMediaViewModel: ImportMediaAuthenticatedViewModel) {
     SendContentButton(
         mainButtonText = stringResource(R.string.import_media_send_button_title),
         count = importMediaViewModel.currentSelectedConversationsCount(),
@@ -275,7 +268,7 @@ private fun ImportMediaBottomBar(importMediaViewModel: ImportMediaAuthorizedView
 private fun ImportMediaContent(
     state: ImportMediaState,
     internalPadding: PaddingValues,
-    importMediaViewModel: ImportMediaAuthorizedViewModel,
+    importMediaViewModel: ImportMediaAuthenticatedViewModel,
     searchBarState: SearchBarState
 ) {
     val importedItemsList: List<ImportedMediaAsset> = state.importedAssets

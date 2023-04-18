@@ -35,5 +35,5 @@ data class MessageComposerViewState(
 
 sealed class AssetTooLargeDialogState {
     object Hidden : AssetTooLargeDialogState()
-    data class Visible(val type: AttachmentType, val maxLimitInMB: Int, val savedToDevice: Boolean) : AssetTooLargeDialogState()
+    data class Visible(val assetType: AttachmentType, val maxLimitInMB: Int, val savedToDevice: Boolean) : AssetTooLargeDialogState()
 }

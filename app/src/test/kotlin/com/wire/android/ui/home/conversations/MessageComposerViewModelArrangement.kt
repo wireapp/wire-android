@@ -253,7 +253,7 @@ internal class MessageComposerViewModelArrangement {
         coEvery { fileManager.getAssetBundleFromUri(any(), any(), any()) } returns assetBundle
     }
 
-    fun withGetAssetBundleFromUri(resultFileName: String?) = apply {
+    fun withSaveToExternalMediaStorage(resultFileName: String?) = apply {
         coEvery { fileManager.saveToExternalMediaStorage(any(), any(), any(), any(), any()) } returns resultFileName
     }
 

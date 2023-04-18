@@ -375,10 +375,10 @@ class MessageComposerViewModel @Inject constructor(
                 if (attachmentUri.saveToDeviceIfInvalid) {
                     with(assetBundle) { fileManager.saveToExternalMediaStorage(fileName, dataPath, dataSize, mimeType, dispatchers) }
                 }
-                val sizeOf1MB = 1024 * 1024
+
                 messageComposerViewState = messageComposerViewState.copy(
                     assetTooLargeDialogState = AssetTooLargeDialogState.Visible(
-                        type = assetBundle.attachmentType,
+                        assetType = assetBundle.attachmentType,
                         maxLimitInMB = maxSizeLimitInBytes.div(sizeOf1MB).toInt(),
                         savedToDevice = attachmentUri.saveToDeviceIfInvalid
                     )
@@ -391,5 +391,9 @@ class MessageComposerViewModel @Inject constructor(
 
     fun hideAssetTooLargeError() {
         messageComposerViewState = messageComposerViewState.copy(assetTooLargeDialogState = AssetTooLargeDialogState.Hidden)
+    }
+
+    companion object {
+        private const val sizeOf1MB = 1024 * 1024
     }
 }

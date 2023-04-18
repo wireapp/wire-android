@@ -32,24 +32,9 @@ import com.wire.android.ui.home.conversations.model.AttachmentType
 @Composable
 fun AssetTooLargeDialog(dialogState: AssetTooLargeDialogState, hideDialog: () -> Unit) {
     if (dialogState is AssetTooLargeDialogState.Visible) {
-        val title = when (dialogState.type) {
-            AttachmentType.IMAGE -> stringResource(R.string.title_image_could_not_be_sent)
-            AttachmentType.VIDEO -> stringResource(R.string.title_video_could_not_be_sent)
-            AttachmentType.AUDIO, // TODO
-            AttachmentType.GENERIC_FILE -> stringResource(R.string.title_file_could_not_be_sent)
-        }
-        var label = when (dialogState.type) {
-            AttachmentType.IMAGE -> stringResource(R.string.label_shared_image_too_large, dialogState.maxLimitInMB)
-            AttachmentType.VIDEO -> stringResource(R.string.label_shared_video_too_large, dialogState.maxLimitInMB)
-            AttachmentType.AUDIO, // TODO
-            AttachmentType.GENERIC_FILE -> stringResource(R.string.label_shared_file_too_large, dialogState.maxLimitInMB)
-        }
-        if (dialogState.savedToDevice) {
-            label += "\n" + stringResource(R.string.label_file_saved_to_device)
-        }
         WireDialog(
-            title = title,
-            text = label,
+            title = getTitle(dialogState),
+            text = getLabel(dialogState),
             buttonsHorizontalAlignment = false,
             onDismiss = hideDialog,
             optionButton1Properties = WireDialogButtonProperties(
@@ -59,6 +44,25 @@ fun AssetTooLargeDialog(dialogState: AssetTooLargeDialogState, hideDialog: () ->
             )
         )
     }
+}
+
+@Composable
+private fun getTitle(dialogState: AssetTooLargeDialogState.Visible) = when (dialogState.assetType) {
+    AttachmentType.IMAGE -> stringResource(R.string.title_image_could_not_be_sent)
+    AttachmentType.VIDEO -> stringResource(R.string.title_video_could_not_be_sent)
+    AttachmentType.AUDIO, // TODO
+    AttachmentType.GENERIC_FILE -> stringResource(R.string.title_file_could_not_be_sent)
+}
+
+@Composable
+private fun getLabel(dialogState: AssetTooLargeDialogState.Visible) = when (dialogState.assetType) {
+    AttachmentType.IMAGE -> stringResource(R.string.label_shared_image_too_large, dialogState.maxLimitInMB)
+    AttachmentType.VIDEO -> stringResource(R.string.label_shared_video_too_large, dialogState.maxLimitInMB)
+    AttachmentType.AUDIO, // TODO
+    AttachmentType.GENERIC_FILE -> stringResource(R.string.label_shared_file_too_large, dialogState.maxLimitInMB)
+}.let {
+    if (dialogState.savedToDevice) it + "\n" + stringResource(R.string.label_file_saved_to_device)
+    else it
 }
 
 @Preview

@@ -90,7 +90,8 @@ class MyAccountViewModel @Inject constructor(
         }
         myAccountState = myAccountState.copy(
             isReadOnlyAccount = !managedByWire,
-            isEditEmailAllowed = !hasSAMLCred && managedByWire
+            isEditEmailAllowed = !hasSAMLCred && managedByWire,
+            isEditHandleAllowed = managedByWire
         )
         viewModelScope.launch {
             fetchSelfUser()
@@ -148,6 +149,17 @@ class MyAccountViewModel @Inject constructor(
             navigationManager.navigate(
                 NavigationCommand(
                     destination = NavigationItem.EditEmailAddress.getRouteWithArgs(),
+                    backStackMode = BackStackMode.NONE
+                )
+            )
+        }
+    }
+
+    fun navigateToChangeHandle() {
+        viewModelScope.launch {
+            navigationManager.navigate(
+                NavigationCommand(
+                    destination = NavigationItem.EditHandle.getRouteWithArgs(),
                     backStackMode = BackStackMode.NONE
                 )
             )

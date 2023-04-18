@@ -86,7 +86,11 @@ private fun mapToUISections(viewModel: MyAccountViewModel, state: MyAccountState
             } else {
                 null
             },
-            if (userName.isNotBlank()) Username("@$userName") else null,
+            if (userName.isNotBlank()) {
+                Username("@$userName", clickableActionIfPossible(state.isEditHandleAllowed) { viewModel.navigateToChangeHandle() })
+            } else {
+                null
+            },
             if (email.isNotBlank()) Email(
                 email,
                 clickableActionIfPossible(state.isEditEmailAllowed) { viewModel.navigateToChangeEmail() }) else null,
@@ -183,7 +187,7 @@ fun PreviewMyAccountScreen() {
     MyAccountContent(
         accountDetailItems = listOf(
             DisplayName("Bob", Clickable(enabled = true) {}),
-            Username("@bob_wire"),
+            Username("@bob_wire", Clickable(enabled = true) {}),
             Email("bob@wire.com", Clickable(enabled = true) {}),
             Team("Wire")
         ),

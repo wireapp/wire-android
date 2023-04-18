@@ -1,6 +1,8 @@
 package com.wire.android.migration
 
 import android.content.Context
+import com.wire.android.config.CoroutineTestExtension
+import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.migration.failure.UserMigrationStatus
 import com.wire.android.migration.userDatabase.ShouldTriggerMigrationForUserUserCase
@@ -14,12 +16,14 @@ import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
-import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 import java.io.File
 
 @OptIn(ExperimentalCoroutinesApi::class)
+@ExtendWith(CoroutineTestExtension::class)
 class ShouldTriggerMigrationForUserUserCaseTest {
 
     @Test
@@ -61,6 +65,7 @@ class ShouldTriggerMigrationForUserUserCaseTest {
         verify(exactly = 1) { arrangement.globalDataStore.getUserMigrationStatus(userId.value) }
         verify(exactly = 0) { arrangement.applicationContext.getDatabasePath(userId.value) }
     }
+
     @Test
     fun givenUserMigrationComplite_thenReturnFalse() = runTest {
         val (arrangement, useCase) = Arrangement()
@@ -134,7 +139,8 @@ class ShouldTriggerMigrationForUserUserCaseTest {
 
         private val useCase = ShouldTriggerMigrationForUserUserCase(
             applicationContext,
-            globalDataStore
+            globalDataStore,
+            TestDispatcherProvider()
         )
 
         fun arrange() = this to useCase

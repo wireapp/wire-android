@@ -40,6 +40,7 @@ import com.wire.android.navigation.NavigationItemDestinationsRoutes.DEBUG
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.DEVICE_DETAILS
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.EDIT_CONVERSATION_NAME
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.EDIT_DISPLAY_NAME
+import com.wire.android.navigation.NavigationItemDestinationsRoutes.EDIT_EMAIL
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.EDIT_GUEST_ACCESS
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.GROUP_CONVERSATION_ALL_PARTICIPANTS
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.GROUP_CONVERSATION_DETAILS
@@ -63,6 +64,7 @@ import com.wire.android.navigation.NavigationItemDestinationsRoutes.REGISTER_DEV
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.REMOVE_DEVICES
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.SELF_DEVICES
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.SELF_USER_PROFILE
+import com.wire.android.navigation.NavigationItemDestinationsRoutes.VERIFY_EMAIL
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.WELCOME
 import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
 import com.wire.android.ui.authentication.create.personalaccount.CreatePersonalAccountScreen
@@ -81,6 +83,7 @@ import com.wire.android.ui.home.HomeScreen
 import com.wire.android.ui.home.conversations.ConversationScreen
 import com.wire.android.ui.home.conversations.details.GroupConversationDetailsScreen
 import com.wire.android.ui.home.conversations.details.editguestaccess.EditGuestAccessParams
+import com.wire.android.ui.home.conversations.details.editguestaccess.EditGuestAccessScreen
 import com.wire.android.ui.home.conversations.details.metadata.EditConversationNameScreen
 import com.wire.android.ui.home.conversations.details.participants.GroupConversationAllParticipantsScreen
 import com.wire.android.ui.home.conversations.messagedetails.MessageDetailsScreen
@@ -88,6 +91,9 @@ import com.wire.android.ui.home.conversations.search.AddMembersSearchRouter
 import com.wire.android.ui.home.gallery.MediaGalleryScreen
 import com.wire.android.ui.home.newconversation.NewConversationRouter
 import com.wire.android.ui.home.settings.account.MyAccountScreen
+import com.wire.android.ui.home.settings.account.displayname.ChangeDisplayNameScreen
+import com.wire.android.ui.home.settings.account.email.updateEmail.ChangeEmailScreen
+import com.wire.android.ui.home.settings.account.email.verifyEmail.VerifyEmailScreen
 import com.wire.android.ui.home.settings.appsettings.AppSettingsScreen
 import com.wire.android.ui.home.settings.appsettings.networkSettings.NetworkSettingsScreen
 import com.wire.android.ui.home.settings.backup.BackupAndRestoreScreen
@@ -106,9 +112,10 @@ import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.UserId
 import io.github.esentsov.PackagePrivate
-import com.wire.android.ui.home.conversations.details.editguestaccess.EditGuestAccessScreen
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets.UTF_8
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 /**
@@ -249,8 +256,25 @@ enum class NavigationItem(
 
     EditDisplayName(
         primaryRoute = EDIT_DISPLAY_NAME,
-        content = { com.wire.android.ui.home.settings.account.displayname.ChangeDisplayNameScreen() }
+        content = { ChangeDisplayNameScreen() }
     ),
+
+    EditEmailAddress(
+        primaryRoute = EDIT_EMAIL,
+        content = { ChangeEmailScreen() }
+    ),
+
+    VerifyEmailAddress(
+        primaryRoute = "$VERIFY_EMAIL?$EXTRA_NEW_EMAIL={$EXTRA_NEW_EMAIL}",
+        content = { VerifyEmailScreen() }
+    ) {
+        override fun getRouteWithArgs(arguments: List<Any>): String {
+            val newEmail: String = arguments.filterIsInstance<String>().first().let {
+                URLEncoder.encode(it, UTF_8.name())
+            }
+            return "$VERIFY_EMAIL?$EXTRA_NEW_EMAIL=$newEmail"
+        }
+    },
 
     NetworkSettings(
         primaryRoute = NETWORK_SETTINGS,
@@ -477,6 +501,8 @@ object NavigationItemDestinationsRoutes {
     const val BACKUP_AND_RESTORE = "backup_and_restore_screen"
     const val MY_ACCOUNT = "my_account_screen"
     const val EDIT_DISPLAY_NAME = "edit_display_name_screen"
+    const val EDIT_EMAIL = "edit_email_screen"
+    const val VERIFY_EMAIL = "verify_email_screen"
     const val DEBUG = "debug_screen"
     const val REMOVE_DEVICES = "remove_devices_screen"
     const val REGISTER_DEVICE = "register_device_screen"
@@ -494,6 +520,8 @@ object NavigationItemDestinationsRoutes {
 const val EXTRA_USER_ID = "extra_user_id"
 const val EXTRA_USER_DOMAIN = "extra_user_domain"
 const val EXTRA_USER_HANDLE = "extra_user_handle"
+
+const val EXTRA_NEW_EMAIL = "extra_new_email"
 
 const val EXTRA_CONVERSATION_ID = "extra_conversation_id"
 const val EXTRA_CREATE_ACCOUNT_FLOW_TYPE = "extra_create_account_flow_type"

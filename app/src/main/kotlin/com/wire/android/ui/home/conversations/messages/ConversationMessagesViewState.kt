@@ -22,7 +22,7 @@ package com.wire.android.ui.home.conversations.messages
 
 import androidx.paging.PagingData
 import com.wire.android.media.audiomessage.AudioState
-import com.wire.android.ui.home.conversations.DownloadedAssetDialogVisibilityState
+import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.android.ui.home.conversations.model.UIMessage
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
@@ -34,3 +34,8 @@ data class ConversationMessagesViewState(
     val downloadedAssetDialogState: DownloadedAssetDialogVisibilityState = DownloadedAssetDialogVisibilityState.Hidden,
     val audioMessagesState: Map<String, AudioState> = emptyMap()
 )
+
+sealed class DownloadedAssetDialogVisibilityState {
+    object Hidden : DownloadedAssetDialogVisibilityState()
+    data class Displayed(val assetData: AssetBundle, val messageId: String) : DownloadedAssetDialogVisibilityState()
+}

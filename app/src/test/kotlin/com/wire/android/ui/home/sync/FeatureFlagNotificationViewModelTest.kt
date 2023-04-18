@@ -5,6 +5,7 @@ import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.FeatureFlagState
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.configuration.FileSharingStatus
+import com.wire.kalium.logic.configuration.GuestRoomLinkStatus
 import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.AccountInfo
@@ -56,6 +57,7 @@ class FeatureFlagNotificationViewModelTest {
     fun givenGuestDialogIsShown_whenDismissingIt_thenInvokeMarkGuestLinkFeatureFlagAsNotChanged() = runTest {
         val (arrangement, viewModel) = Arrangement()
             .withCurrentSessions(CurrentSessionResult.Success(AccountInfo.Valid(UserId("value", "domain"))))
+            .withGuestRoomLinkFeatureFlag(flowOf(GuestRoomLinkStatus(true, false)))
             .arrange()
         launch { viewModel.initialSync() }.join()
         viewModel.dismissGuestRoomLinkDialog()
@@ -80,25 +82,20 @@ class FeatureFlagNotificationViewModelTest {
         )
     }
 
-//    this test always fails cause viewModel.loadInitialSync() launches a separate Coroutine and updating of
-//    FeatureFlagState.isFileSharingEnabledState happens after it's used in viewModel.updateSharingStateIfNeeded()
+    @Test
+    fun givenLoggedInUser_whenFileSharingRestrictedForTeam_thenSharingRestricted() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withSessions(GetAllSessionsResult.Success(listOf(AccountInfo.Valid(TestUser.USER_ID))))
+            .withFileSharingStatus(flowOf(FileSharingStatus(false, false)))
+            .arrange()
+        launch { viewModel.initialSync() }.join()
+        viewModel.updateSharingStateIfNeeded()
 
-//    @Test
-//    fun givenLoggedInUser_whenFileSharingRestrictedForTeam_thenSharingRestricted() = runTest {
-//        val (_, viewModel) = Arrangement()
-//            .withSessions(GetAllSessionsResult.Success(listOf(AccountInfo.Valid(TestUser.USER_ID))))
-//            .withFileSharingStatus(flowOf(FileSharingStatus(false, false)))
-//            .arrange()
-//        launch(Dispatchers.Main) {
-//            viewModel.loadInitialSync()
-//        }
-//        viewModel.updateSharingStateIfNeeded()
-//
-//        assertEquals(
-//            expected = FeatureFlagState.SharingRestrictedState.RESTRICTED_IN_TEAM,
-//            actual = viewModel.featureFlagState.fileSharingRestrictedState
-//        )
-//    }
+        assertEquals(
+            expected = FeatureFlagState.SharingRestrictedState.RESTRICTED_IN_TEAM,
+            actual = viewModel.featureFlagState.fileSharingRestrictedState
+        )
+    }
 
     @Test
     fun givenLoggedInUser_whenFileSharingAllowed_thenSharingRestricted() {
@@ -135,10 +132,10 @@ class FeatureFlagNotificationViewModelTest {
         lateinit var markGuestLinkFeatureFlagAsNotChanged: MarkGuestLinkFeatureFlagAsNotChangedUseCase
 
         @MockK
-        lateinit var observeFileSharingStatusUseCase: ObserveFileSharingStatusUseCase
+        lateinit var observeFileSharingStatus: ObserveFileSharingStatusUseCase
 
         @MockK
-        lateinit var observeGuestRoomLinkFeatureFlagUseCase: ObserveGuestRoomLinkFeatureFlagUseCase
+        lateinit var observeGuestRoomLinkFeatureFlag: ObserveGuestRoomLinkFeatureFlagUseCase
 
         @MockK
         lateinit var navigationManager: NavigationManager
@@ -151,10 +148,10 @@ class FeatureFlagNotificationViewModelTest {
 
         init {
             every { coreLogic.getSessionScope(any()).markGuestLinkFeatureFlagAsNotChanged } returns markGuestLinkFeatureFlagAsNotChanged
-            every { coreLogic.getSessionScope(any()).observeFileSharingStatus } returns observeFileSharingStatusUseCase
-            every { coreLogic.getSessionScope(any()).observeGuestRoomLinkFeatureFlag } returns observeGuestRoomLinkFeatureFlagUseCase
-            coEvery { observeFileSharingStatusUseCase.invoke() } returns flowOf()
-            coEvery { observeGuestRoomLinkFeatureFlagUseCase.invoke() } returns flowOf()
+            every { coreLogic.getSessionScope(any()).observeFileSharingStatus } returns observeFileSharingStatus
+            every { coreLogic.getSessionScope(any()).observeGuestRoomLinkFeatureFlag } returns observeGuestRoomLinkFeatureFlag
+            coEvery { observeFileSharingStatus.invoke() } returns flowOf()
+            coEvery { observeGuestRoomLinkFeatureFlag.invoke() } returns flowOf()
         }
 
         fun withSessions(result: GetAllSessionsResult) = apply {
@@ -170,7 +167,11 @@ class FeatureFlagNotificationViewModelTest {
         }
 
         fun withFileSharingStatus(stateFlow: Flow<FileSharingStatus>) = apply {
-            coEvery { coreLogic.getSessionScope(any()).observeFileSharingStatus() } returns stateFlow
+            coEvery { observeFileSharingStatus() } returns stateFlow
+        }
+
+        fun withGuestRoomLinkFeatureFlag(stateFlow: Flow<GuestRoomLinkStatus>) = apply {
+            coEvery { observeGuestRoomLinkFeatureFlag() } returns stateFlow
         }
 
         fun arrange() = this to viewModel

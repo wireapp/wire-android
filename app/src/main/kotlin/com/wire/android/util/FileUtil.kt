@@ -36,6 +36,7 @@ import android.os.Environment
 import android.os.Environment.DIRECTORY_DOWNLOADS
 import android.os.Parcelable
 import android.provider.MediaStore
+import android.provider.MediaStore.MediaColumns.DATA
 import android.provider.MediaStore.MediaColumns.DISPLAY_NAME
 import android.provider.MediaStore.MediaColumns.MIME_TYPE
 import android.provider.MediaStore.MediaColumns.SIZE
@@ -139,18 +140,58 @@ private fun Context.saveFileDataToDownloadsFolder(assetName: String, downloadedD
             )
         }
         uri
-    }?.also { downloadedUri ->
-        resolver.openOutputStream(downloadedUri).use { outputStream ->
-            val brr = ByteArray(DATA_COPY_BUFFER_SIZE)
-            var len: Int
-            val bufferedInputStream: InputStream = File(downloadedDataPath.toString()).inputStream()
-            while ((bufferedInputStream.read(brr, 0, brr.size).also { len = it }) != -1) {
-                outputStream?.write(brr, 0, len)
-            }
-            outputStream?.flush()
-            bufferedInputStream.close()
+    }?.also { downloadedUri -> resolver.copyFile(downloadedUri, downloadedDataPath) }
+}
+
+private fun ContentResolver.copyFile(destinationUri: Uri, sourcePath: Path) {
+    openOutputStream(destinationUri).use { outputStream ->
+        val brr = ByteArray(DATA_COPY_BUFFER_SIZE)
+        var len: Int
+        val bufferedInputStream: InputStream = File(sourcePath.toString()).inputStream()
+        while ((bufferedInputStream.read(brr, 0, brr.size).also { len = it }) != -1) {
+            outputStream?.write(brr, 0, len)
+        }
+        outputStream?.flush()
+        bufferedInputStream.close()
+    }
+}
+
+private fun Context.saveFileDataToMediaFolder(assetName: String, downloadedDataPath: Path, fileSize: Long, mimeType: String): Uri? {
+    val resolver = contentResolver
+    val directory = Environment.getExternalStoragePublicDirectory(
+        when {
+            isVideoFile(mimeType) -> Environment.DIRECTORY_MOVIES
+            isImageFile(mimeType) -> Environment.DIRECTORY_PICTURES
+            isAudioFile(mimeType) -> Environment.DIRECTORY_MUSIC
+            else -> Environment.DIRECTORY_DOCUMENTS
+        }
+    )
+    directory.mkdirs()
+    val contentValues = ContentValues().apply {
+        val availableAssetName = findFirstUniqueName(directory, assetName.ifEmpty { ATTACHMENT_FILENAME })
+        put(DISPLAY_NAME, availableAssetName)
+        put(MIME_TYPE, mimeType)
+        put(SIZE, fileSize)
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+            put(DATA, "$directory/$availableAssetName")
         }
     }
+    val volume = if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) MediaStore.VOLUME_EXTERNAL else MediaStore.VOLUME_EXTERNAL_PRIMARY
+    val externalContentUri = when {
+        isVideoFile(mimeType) -> MediaStore.Video.Media.getContentUri(volume)
+        isImageFile(mimeType) -> MediaStore.Images.Media.getContentUri(volume)
+        isAudioFile(mimeType) -> MediaStore.Audio.Media.getContentUri(volume)
+        else -> MediaStore.Files.getContentUri(volume)
+    }
+    val insertedUri = resolver.insert(externalContentUri, contentValues) ?: run {
+        val authority = getProviderAuthority()
+        // we need to find the next available name with copy counter by ourselves before copying
+        val availableAssetName = findFirstUniqueName(directory, assetName.ifEmpty { ATTACHMENT_FILENAME })
+        val destinationFile = File(directory, availableAssetName)
+        FileProvider.getUriForFile(this, authority, destinationFile)
+    }
+    resolver.copyFile(insertedUri, downloadedDataPath)
+    return insertedUri
 }
 
 fun Context.pathToUri(assetDataPath: Path, assetName: String?): Uri =
@@ -223,6 +264,9 @@ fun Context.startFileShareIntent(path: Path, assetName: String?) {
 
 fun saveFileToDownloadsFolder(assetName: String, assetDataPath: Path, assetDataSize: Long, context: Context): Uri? =
     context.saveFileDataToDownloadsFolder(assetName, assetDataPath, assetDataSize)
+
+fun saveFileDataToMediaFolder(assetName: String, assetDataPath: Path, assetDataSize: Long, assetMimeType: String, context: Context): Uri? =
+    context.saveFileDataToMediaFolder(assetName, assetDataPath, assetDataSize, assetMimeType)
 
 fun Context.multipleFileSharingIntent(uris: ArrayList<Uri>): Intent {
 

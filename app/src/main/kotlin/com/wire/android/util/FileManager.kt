@@ -22,12 +22,17 @@ package com.wire.android.util
 
 import android.content.Context
 import android.net.Uri
+import com.wire.android.appLogger
+import com.wire.android.ui.home.conversations.model.AssetBundle
+import com.wire.android.ui.home.conversations.model.AttachmentType
 import com.wire.android.util.dispatchers.DefaultDispatcherProvider
 import com.wire.android.util.dispatchers.DispatcherProvider
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.withContext
 import okio.Path
 import okio.Path.Companion.toPath
+import java.io.IOException
+import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -45,6 +50,16 @@ class FileManager @Inject constructor(@ApplicationContext private val context: C
             .also { onFileSaved(it) }
     }
 
+    suspend fun saveToExternalMediaStorage(
+        assetName: String,
+        assetDataPath: Path,
+        assetDataSize: Long,
+        assetMimeType: String,
+        dispatcher: DispatcherProvider = DefaultDispatcherProvider()
+    ): String? = withContext(dispatcher.io()) {
+        saveFileDataToMediaFolder(assetName, assetDataPath, assetDataSize, assetMimeType, context)?.let { context.getFileName(it) }
+    }
+
     fun openWithExternalApp(assetDataPath: Path, assetName: String?, onError: () -> Unit) {
         openAssetFileWithExternalApp(assetDataPath, context, assetName, onError)
     }
@@ -53,9 +68,9 @@ class FileManager @Inject constructor(@ApplicationContext private val context: C
         shareAssetFileWithExternalApp(assetDataPath, context, assetName, onError)
     }
 
-    suspend fun copyToTempPath(uri: Uri, tempCachePath: Path, dispatcher: DispatcherProvider = DefaultDispatcherProvider()): Long =
+    suspend fun copyToPath(uri: Uri, path: Path, dispatcher: DispatcherProvider = DefaultDispatcherProvider()): Long =
         withContext(dispatcher.io()) {
-            val file = tempCachePath.toFile()
+            val file = path.toFile()
             var size: Long
             file.setWritable(true)
             context.contentResolver.openInputStream(uri).use { inputStream ->
@@ -80,6 +95,30 @@ class FileManager @Inject constructor(@ApplicationContext private val context: C
     ): Uri = withContext(dispatcher.io()) {
         val tempImagePath = "$tempCachePath/$TEMP_IMG_ATTACHMENT_FILENAME".toPath()
         return@withContext getTempWritableAttachmentUri(context, tempImagePath)
+    }
+
+    suspend fun getAssetBundleFromUri(
+        attachmentUri: Uri,
+        tempCachePath: Path,
+        dispatcher: DispatcherProvider = DefaultDispatcherProvider(),
+    ): AssetBundle? = withContext(dispatcher.io()) {
+            try {
+                val assetFileName = context.getFileName(attachmentUri) ?: throw IOException("The selected asset has an invalid name")
+                val fullTempAssetPath = "$tempCachePath/${UUID.randomUUID()}".toPath()
+                val mimeType = attachmentUri.getMimeType(context).orDefault(DEFAULT_FILE_MIME_TYPE)
+                val attachmentType = AttachmentType.fromMimeTypeString(mimeType)
+                val assetSize = if (attachmentType == AttachmentType.IMAGE) {
+                    attachmentUri.resampleImageAndCopyToTempPath(context, fullTempAssetPath)
+                } else {
+                    // TODO: We should add also a video resampling logic soon, that way we could drastically reduce as well the number
+                    //  of video assets hitting the max limit.
+                    copyToPath(attachmentUri, fullTempAssetPath)
+                }
+                AssetBundle(mimeType, fullTempAssetPath, assetSize, assetFileName, attachmentType)
+            } catch (e: IOException) {
+                appLogger.e("There was an error while obtaining the file from disk", e)
+                null
+            }
     }
 
     companion object {

@@ -42,6 +42,7 @@ import com.wire.android.navigation.NavigationItemDestinationsRoutes.EDIT_CONVERS
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.EDIT_DISPLAY_NAME
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.EDIT_EMAIL
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.EDIT_GUEST_ACCESS
+import com.wire.android.navigation.NavigationItemDestinationsRoutes.EDIT_HANDLE
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.GROUP_CONVERSATION_ALL_PARTICIPANTS
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.GROUP_CONVERSATION_DETAILS
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.HOME
@@ -94,6 +95,7 @@ import com.wire.android.ui.home.settings.account.MyAccountScreen
 import com.wire.android.ui.home.settings.account.displayname.ChangeDisplayNameScreen
 import com.wire.android.ui.home.settings.account.email.updateEmail.ChangeEmailScreen
 import com.wire.android.ui.home.settings.account.email.verifyEmail.VerifyEmailScreen
+import com.wire.android.ui.home.settings.account.handle.ChangeHandleScreen
 import com.wire.android.ui.home.settings.appsettings.AppSettingsScreen
 import com.wire.android.ui.home.settings.appsettings.networkSettings.NetworkSettingsScreen
 import com.wire.android.ui.home.settings.backup.BackupAndRestoreScreen
@@ -262,6 +264,11 @@ enum class NavigationItem(
     EditEmailAddress(
         primaryRoute = EDIT_EMAIL,
         content = { ChangeEmailScreen() }
+    ),
+
+    EditHandle(
+        primaryRoute = EDIT_HANDLE,
+        content = { ChangeHandleScreen() }
     ),
 
     VerifyEmailAddress(
@@ -502,6 +509,7 @@ object NavigationItemDestinationsRoutes {
     const val MY_ACCOUNT = "my_account_screen"
     const val EDIT_DISPLAY_NAME = "edit_display_name_screen"
     const val EDIT_EMAIL = "edit_email_screen"
+    const val EDIT_HANDLE = "edit_handle_screen"
     const val VERIFY_EMAIL = "verify_email_screen"
     const val DEBUG = "debug_screen"
     const val REMOVE_DEVICES = "remove_devices_screen"

@@ -14,19 +14,19 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
+package com.wire.android.ui.authentication.create.common.handle
 
-package com.wire.android.ui.authentication.create.username
+import com.wire.kalium.logic.CoreFailure
 
-import androidx.compose.ui.text.input.TextFieldValue
-import com.wire.android.ui.authentication.create.common.handle.HandleUpdateErrorState
+sealed class HandleUpdateErrorState {
+    object None : HandleUpdateErrorState()
+    sealed class TextFieldError : HandleUpdateErrorState() {
+        object UsernameTakenError : TextFieldError()
+        object UsernameInvalidError : TextFieldError()
+    }
 
-data class CreateAccountUsernameViewState(
-    val username: TextFieldValue = TextFieldValue(""),
-    val animateUsernameError: Boolean = false,
-    val continueEnabled: Boolean = false,
-    val loading: Boolean = false,
-    val error: HandleUpdateErrorState = HandleUpdateErrorState.None
-)
+    sealed class DialogError : HandleUpdateErrorState() {
+        data class GenericError(val coreFailure: CoreFailure) : DialogError()
+    }
+}

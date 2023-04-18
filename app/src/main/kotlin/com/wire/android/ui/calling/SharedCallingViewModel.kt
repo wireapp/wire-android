@@ -213,7 +213,7 @@ class SharedCallingViewModel @Inject constructor(
                 callStatus = call.status,
                 callerName = call.callerName,
                 isCbrEnabled = call.isCbrEnabled
-                )
+            )
         }
     }
 

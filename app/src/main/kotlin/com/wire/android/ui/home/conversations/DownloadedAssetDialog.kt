@@ -26,6 +26,7 @@ import com.wire.android.R
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
+import com.wire.android.ui.home.conversations.messages.DownloadedAssetDialogVisibilityState
 import com.wire.android.util.permission.rememberWriteStorageRequestFlow
 
 @Composable

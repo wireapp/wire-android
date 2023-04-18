@@ -52,6 +52,7 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
     WEB_SOCKET_URL("websocketUrl", ConfigType.STRING),
     ENCRYPT_PROTEUS_STORAGE("encrypt_proteus_storage", ConfigType.BOOLEAN),
     GUEST_ROOM_LINK("guest_room_link", ConfigType.BOOLEAN),
+    SELF_DELETING_MESSAGES("self_deleting_messages", ConfigType.BOOLEAN),
     UPDATE_APP_URL("update_app_url", ConfigType.STRING),
     APP_NAME("appName", ConfigType.STRING),
     APPLICATION_ID("applicationId", ConfigType.STRING),

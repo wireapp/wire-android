@@ -25,9 +25,11 @@ data class FeatureFlagState(
     val isFileSharingEnabledState: Boolean = true,
     val fileSharingRestrictedState: SharingRestrictedState = SharingRestrictedState.NONE,
     val shouldShowGuestRoomLinkDialog: Boolean = false,
-    val isGuestRoomLinkEnabled: Boolean = true
+    val isGuestRoomLinkEnabled: Boolean = true,
+    val shouldShowSelfDeletingMessagesDialog: Boolean = false,
+    val enforcedTimeoutInSeconds: Int? = null,
+    val areSelfDeletedMessagesEnabled: Boolean = true
 ) {
-
     fun isSharingAllowed() = fileSharingRestrictedState == SharingRestrictedState.NONE
     enum class SharingRestrictedState {
         NONE, NO_USER, RESTRICTED_IN_TEAM

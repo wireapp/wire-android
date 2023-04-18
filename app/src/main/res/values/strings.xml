@@ -943,11 +943,20 @@
     <string name="label_fingerprint_description">If fingerprints don’t match, reset the session to generate new encryption keys on both sides.</string>
     <string name="label_self_fingerprint_description">Share this key fingerprint with other participants in a conversation, so that they can verify it and make sure the conversation is secure.</string>
     <string name="unknown_user_name">unknown</string>
-    <string name="self_deleting_message_time_left">Self-deleting message • %1$s</string>
-    <string name="self_deleting_message_label">Self-deleting message</string>
-    <string name="automatically_delete_message_after">Automatically delete message after:</string>
     <string name="device_name_unknown">Unknown device</string>
     <!-- Expirable messages -->
+    <string name="self_deleting_message_time_left">Self-deleting message • %1$s</string>
+    <string name="self_deleting_message_label">Self-deleting message</string>
+    <string name="self_deleting_messages_team_setting_disabled">Self-deleting messages are disabled.</string>
+    <string name="self_deleting_messages_team_setting_enabled">Self-deleting messages are enabled. You can set a timer before writing a message.</string>
+    <string name="self_deleting_messages_team_setting_enabled_enforced_timeout">Self-deleting messages are now mandatory. New messages will self-delete after %1$s.</string>
+    <string name="self_deleting_messages_team_setting_enabled_enforced_timeout_seconds">10 seconds</string>
+    <string name="self_deleting_messages_team_setting_enabled_enforced_timeout_minutes">5 minutes</string>
+    <string name="self_deleting_messages_team_setting_enabled_enforced_timeout_one_hour">1 hour</string>
+    <string name="self_deleting_messages_team_setting_enabled_enforced_timeout_one_day">1 day</string>
+    <string name="self_deleting_messages_team_setting_enabled_enforced_timeout_one_week">1 week</string>
+    <string name="self_deleting_messages_team_setting_enabled_enforced_timeout_four_weeks">4 weeks</string>
+    <string name="automatically_delete_message_after">Automatically delete message after:</string>
     <plurals name="weeks_left">
         <item quantity="one">1 week left</item>
         <item quantity="other">%1$d weeks left</item>

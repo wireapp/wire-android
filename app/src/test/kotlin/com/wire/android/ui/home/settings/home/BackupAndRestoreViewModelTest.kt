@@ -164,7 +164,7 @@ class BackupAndRestoreViewModelTest {
         assert(backupAndRestoreViewModel.state.restoreFileValidation == RestoreFileValidation.ValidNonEncryptedBackup)
         assert(arrangement.fakeKaliumFileSystem.exists(backupAndRestoreViewModel.latestImportedBackupTempPath))
         coVerify(exactly = 1) {
-            arrangement.fileManager.copyToTempPath(backupUri, any(), any())
+            arrangement.fileManager.copyToPath(backupUri, backupAndRestoreViewModel.latestImportedBackupTempPath, any())
         }
     }
 
@@ -185,7 +185,7 @@ class BackupAndRestoreViewModelTest {
         assert(backupAndRestoreViewModel.state.restoreFileValidation == RestoreFileValidation.PasswordRequired)
         assert(arrangement.fakeKaliumFileSystem.exists(backupAndRestoreViewModel.latestImportedBackupTempPath))
         coVerify(exactly = 1) {
-            arrangement.fileManager.copyToTempPath(backupUri, any(), any())
+            arrangement.fileManager.copyToPath(backupUri, backupAndRestoreViewModel.latestImportedBackupTempPath, any())
         }
     }
 
@@ -205,7 +205,7 @@ class BackupAndRestoreViewModelTest {
         assert(backupAndRestoreViewModel.state.restoreFileValidation == RestoreFileValidation.IncompatibleBackup)
         assert(arrangement.fakeKaliumFileSystem.exists(backupAndRestoreViewModel.latestImportedBackupTempPath))
         coVerify(exactly = 1) {
-            arrangement.fileManager.copyToTempPath(backupUri, any(), any())
+            arrangement.fileManager.copyToPath(backupUri, backupAndRestoreViewModel.latestImportedBackupTempPath, any())
         }
     }
 
@@ -226,7 +226,7 @@ class BackupAndRestoreViewModelTest {
         assert(backupAndRestoreViewModel.state.backupRestoreProgress == BackupRestoreProgress.Failed)
         assert(arrangement.fakeKaliumFileSystem.exists(backupAndRestoreViewModel.latestImportedBackupTempPath))
         coVerify(exactly = 1) {
-            arrangement.fileManager.copyToTempPath(backupUri, any(), any())
+            arrangement.fileManager.copyToPath(backupUri, backupAndRestoreViewModel.latestImportedBackupTempPath, any())
         }
     }
 
@@ -251,7 +251,7 @@ class BackupAndRestoreViewModelTest {
         assert(backupAndRestoreViewModel.state.restorePasswordValidation == PasswordValidation.NotVerified)
         assert(!arrangement.fakeKaliumFileSystem.exists(backupAndRestoreViewModel.latestImportedBackupTempPath))
         coVerify(exactly = 1) {
-            arrangement.fileManager.copyToTempPath(backupUri, any(), any())
+            arrangement.fileManager.copyToPath(backupUri, backupAndRestoreViewModel.latestImportedBackupTempPath, any())
         }
     }
 
@@ -430,7 +430,7 @@ class BackupAndRestoreViewModelTest {
         }
 
         fun withSuccessfulDBImport(isEncrypted: Boolean) = apply {
-            coEvery { fileManager.copyToTempPath(any(), any(), any()) } returns (100L).also {
+            coEvery { fileManager.copyToPath(any(), any(), any()) } returns (100L).also {
                 viewModel.latestImportedBackupTempPath =
                     fakeKaliumFileSystem.tempFilePath(BackupAndRestoreViewModel.TEMP_IMPORTED_BACKUP_FILE_NAME)
                 fakeKaliumFileSystem.sink(viewModel.latestImportedBackupTempPath).buffer().use {
@@ -444,7 +444,7 @@ class BackupAndRestoreViewModelTest {
         }
 
         fun withFailedBackupVerification() = apply {
-            coEvery { fileManager.copyToTempPath(any(), any(), any()) } returns (100L).also {
+            coEvery { fileManager.copyToPath(any(), any(), any()) } returns (100L).also {
                 viewModel.latestImportedBackupTempPath =
                     fakeKaliumFileSystem.tempFilePath(BackupAndRestoreViewModel.TEMP_IMPORTED_BACKUP_FILE_NAME)
                 fakeKaliumFileSystem.sink(viewModel.latestImportedBackupTempPath).buffer().use {
@@ -456,7 +456,7 @@ class BackupAndRestoreViewModelTest {
         }
 
         fun withFailedDBImport(error: Failure = Failure(IncompatibleBackup("DB failed to import"))) = apply {
-            coEvery { fileManager.copyToTempPath(any(), any(), any()) } returns (100L).also {
+            coEvery { fileManager.copyToPath(any(), any(), any()) } returns (100L).also {
                 viewModel.latestImportedBackupTempPath =
                     fakeKaliumFileSystem.tempFilePath(BackupAndRestoreViewModel.TEMP_IMPORTED_BACKUP_FILE_NAME)
                 fakeKaliumFileSystem.sink(viewModel.latestImportedBackupTempPath).buffer().use {

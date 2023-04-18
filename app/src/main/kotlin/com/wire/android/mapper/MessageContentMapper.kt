@@ -301,6 +301,7 @@ class MessageContentMapper @Inject constructor(
                 )
 
                 AttachmentType.AUDIO -> UIQuotedMessage.UIQuotedData.AudioMessage
+                AttachmentType.VIDEO,
                 AttachmentType.GENERIC_FILE -> UIQuotedMessage.UIQuotedData.GenericAsset(
                     quotedContent.assetName,
                     quotedContent.assetMimeType

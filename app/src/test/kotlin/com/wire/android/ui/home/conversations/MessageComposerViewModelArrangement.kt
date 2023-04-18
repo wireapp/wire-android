@@ -20,6 +20,7 @@
 
 package com.wire.android.ui.home.conversations
 
+import android.net.Uri
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
@@ -29,6 +30,7 @@ import com.wire.android.mapper.ContactMapper
 import com.wire.android.media.PingRinger
 import com.wire.android.model.UserAvatarData
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.android.ui.home.conversations.model.MessageHeader
 import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.model.MessageStatus
@@ -47,7 +49,6 @@ import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.sync.SyncState
-import com.wire.kalium.logic.data.team.Team
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.UserAssetId
@@ -71,7 +72,6 @@ import com.wire.kalium.logic.feature.message.SendEditTextMessageUseCase
 import com.wire.kalium.logic.feature.message.SendKnockUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.message.ephemeral.EnqueueMessageSelfDeletionUseCase
-import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
 import com.wire.kalium.logic.feature.user.IsFileSharingEnabledUseCase
 import com.wire.kalium.logic.functional.Either
 import com.wire.kalium.logic.sync.ObserveSyncStateUseCase
@@ -85,7 +85,7 @@ import kotlinx.coroutines.flow.flowOf
 import okio.Path
 import okio.buffer
 
-internal class ConversationsViewModelArrangement {
+internal class MessageComposerViewModelArrangement {
 
     val conversationId: ConversationId = ConversationId("some-dummy-value", "some.dummy.domain")
 
@@ -96,7 +96,6 @@ internal class ConversationsViewModelArrangement {
         every { savedStateHandle.get<String>(any()) } returns conversationId.toString()
 
         // Default empty values
-        coEvery { getSelfUserTeam() } returns flowOf()
         every { isFileSharingEnabledUseCase() } returns FileSharingStatus(null, null)
         coEvery { observeOngoingCallsUseCase() } returns flowOf(listOf())
         coEvery { observeEstablishedCallsUseCase() } returns flowOf(listOf())
@@ -107,6 +106,8 @@ internal class ConversationsViewModelArrangement {
 
         every { pingRinger.ping(any(), any()) } returns Unit
         coEvery { sendKnockUseCase(any(), any()) } returns Either.Right(Unit)
+        coEvery { fileManager.getTempWritableVideoUri(any(), any()) } returns Uri.parse("video.mp4")
+        coEvery { fileManager.getTempWritableImageUri(any(), any()) } returns Uri.parse("image.jpg")
     }
 
     @MockK
@@ -129,9 +130,6 @@ internal class ConversationsViewModelArrangement {
 
     @MockK
     lateinit var deleteMessage: DeleteMessageUseCase
-
-    @MockK
-    lateinit var getSelfUserTeam: GetSelfTeamUseCase
 
     @MockK
     lateinit var isFileSharingEnabledUseCase: IsFileSharingEnabledUseCase
@@ -158,7 +156,7 @@ internal class ConversationsViewModelArrangement {
     lateinit var sendKnockUseCase: SendKnockUseCase
 
     @MockK
-    lateinit var fileManger: FileManager
+    lateinit var fileManager: FileManager
 
     @MockK
     private lateinit var observeSecurityClassificationType: ObserveSecurityClassificationLabelUseCase
@@ -196,7 +194,6 @@ internal class ConversationsViewModelArrangement {
             sendAssetMessage = sendAssetMessage,
             deleteMessage = deleteMessage,
             dispatchers = TestDispatcherProvider(),
-            getSelfUserTeam = getSelfUserTeam,
             isFileSharingEnabled = isFileSharingEnabledUseCase,
             wireSessionImageLoader = wireSessionImageLoader,
             kaliumFileSystem = fakeKaliumFileSystem,
@@ -209,7 +206,7 @@ internal class ConversationsViewModelArrangement {
             imageUtil = imageUtil,
             pingRinger = pingRinger,
             sendKnockUseCase = sendKnockUseCase,
-            fileManager = fileManger,
+            fileManager = fileManager,
             enqueueMessageSelfDeletionUseCase = enqueueMessageSelfDeletionUseCase
         )
     }
@@ -252,14 +249,17 @@ internal class ConversationsViewModelArrangement {
         return this
     }
 
-    fun withTeamUser(userTeam: Team) = apply {
-        coEvery { getSelfUserTeam() } returns flowOf(userTeam)
-        return this
-    }
-
     fun withGetAssetSizeLimitUseCase(isImage: Boolean, assetSizeLimit: Long) = apply {
         coEvery { getAssetSizeLimitUseCase(eq(isImage)) } returns assetSizeLimit
         return this
+    }
+
+    fun withGetAssetBundleFromUri(assetBundle: AssetBundle?) = apply {
+        coEvery { fileManager.getAssetBundleFromUri(any(), any(), any()) } returns assetBundle
+    }
+
+    fun withSaveToExternalMediaStorage(resultFileName: String?) = apply {
+        coEvery { fileManager.saveToExternalMediaStorage(any(), any(), any(), any(), any()) } returns resultFileName
     }
 
     fun arrange() = this to viewModel

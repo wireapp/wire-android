@@ -41,7 +41,7 @@ fun rememberCaptureVideoFlow(
     onVideoRecorded: (Boolean) -> Unit,
     onPermissionDenied: () -> Unit,
     targetVideoFileUri: Uri
-): UseCameraRequestFlow {
+): UseCameraAndWriteStorageRequestFlow {
     val context = LocalContext.current
 
     val captureVideoLauncher: ManagedActivityResultLauncher<Uri, Boolean> = rememberLauncherForActivityResult(
@@ -50,9 +50,9 @@ fun rememberCaptureVideoFlow(
         onVideoRecorded(hasCapturedVideo)
     }
 
-    val requestVideoPermissionLauncher: ManagedActivityResultLauncher<String, Boolean> =
-        rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
-            if (isGranted) {
+    val requestVideoPermissionLauncher: ManagedActivityResultLauncher<Array<String>, Map<String, @JvmSuppressWildcards Boolean>> =
+        rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { areGranted ->
+            if (areGranted.all { it.value }) {
                 captureVideoLauncher.launch(targetVideoFileUri)
             } else {
                 onPermissionDenied()
@@ -60,6 +60,6 @@ fun rememberCaptureVideoFlow(
         }
 
     return remember {
-        UseCameraRequestFlow(context, targetVideoFileUri, captureVideoLauncher, requestVideoPermissionLauncher)
+        UseCameraAndWriteStorageRequestFlow(context, targetVideoFileUri, captureVideoLauncher, requestVideoPermissionLauncher)
     }
 }

@@ -24,7 +24,6 @@ import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.framework.TestUser
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
-import com.wire.android.ui.home.conversations.ConversationAvatar
 import com.wire.android.ui.home.conversations.mockConversationDetailsGroup
 import com.wire.android.ui.home.conversations.withMockConversationDetailsOneOnOne
 import com.wire.android.util.EMPTY

@@ -13,9 +13,7 @@ import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import com.wire.kalium.logic.feature.session.GetSessionsUseCase
-import com.wire.kalium.logic.feature.user.ObserveFileSharingStatusUseCase
 import com.wire.kalium.logic.feature.user.guestroomlink.MarkGuestLinkFeatureFlagAsNotChangedUseCase
-import com.wire.kalium.logic.feature.user.guestroomlink.ObserveGuestRoomLinkFeatureFlagUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.every
@@ -132,12 +130,6 @@ class FeatureFlagNotificationViewModelTest {
         lateinit var markGuestLinkFeatureFlagAsNotChanged: MarkGuestLinkFeatureFlagAsNotChangedUseCase
 
         @MockK
-        lateinit var observeFileSharingStatus: ObserveFileSharingStatusUseCase
-
-        @MockK
-        lateinit var observeGuestRoomLinkFeatureFlag: ObserveGuestRoomLinkFeatureFlagUseCase
-
-        @MockK
         lateinit var navigationManager: NavigationManager
 
         val viewModel: FeatureFlagNotificationViewModel = FeatureFlagNotificationViewModel(
@@ -148,10 +140,8 @@ class FeatureFlagNotificationViewModelTest {
 
         init {
             every { coreLogic.getSessionScope(any()).markGuestLinkFeatureFlagAsNotChanged } returns markGuestLinkFeatureFlagAsNotChanged
-            every { coreLogic.getSessionScope(any()).observeFileSharingStatus } returns observeFileSharingStatus
-            every { coreLogic.getSessionScope(any()).observeGuestRoomLinkFeatureFlag } returns observeGuestRoomLinkFeatureFlag
-            coEvery { observeFileSharingStatus.invoke() } returns flowOf()
-            coEvery { observeGuestRoomLinkFeatureFlag.invoke() } returns flowOf()
+            coEvery { coreLogic.getSessionScope(any()).observeFileSharingStatus.invoke() } returns flowOf()
+            coEvery { coreLogic.getSessionScope(any()).observeGuestRoomLinkFeatureFlag.invoke() } returns flowOf()
         }
 
         fun withSessions(result: GetAllSessionsResult) = apply {
@@ -167,11 +157,11 @@ class FeatureFlagNotificationViewModelTest {
         }
 
         fun withFileSharingStatus(stateFlow: Flow<FileSharingStatus>) = apply {
-            coEvery { observeFileSharingStatus() } returns stateFlow
+            coEvery { coreLogic.getSessionScope(any()).observeFileSharingStatus() } returns stateFlow
         }
 
         fun withGuestRoomLinkFeatureFlag(stateFlow: Flow<GuestRoomLinkStatus>) = apply {
-            coEvery { observeGuestRoomLinkFeatureFlag() } returns stateFlow
+            coEvery { coreLogic.getSessionScope(any()).observeGuestRoomLinkFeatureFlag() } returns stateFlow
         }
 
         fun arrange() = this to viewModel

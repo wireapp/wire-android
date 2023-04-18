@@ -41,29 +41,29 @@ import java.util.UUID
 class AttachmentInnerState(val context: Context) {
     var attachmentState by mutableStateOf<AttachmentState>(AttachmentState.NotPicked)
 
-    suspend fun pickAttachment(
-        attachmentUri: Uri,
-        tempCachePath: okio.Path,
-        dispatcherProvider: DispatcherProvider = DefaultDispatcherProvider()
-    ) = withContext(dispatcherProvider.io()) {
-        val fileManager = FileManager(context)
-        attachmentState = try {
-            val fullTempAssetPath = "$tempCachePath/${UUID.randomUUID()}".toPath()
-            val assetFileName = context.getFileName(attachmentUri) ?: throw IOException("The selected asset has an invalid name")
-            val mimeType = attachmentUri.getMimeType(context).orDefault(DEFAULT_FILE_MIME_TYPE)
-            val attachmentType = AttachmentType.fromMimeTypeString(mimeType)
-            val assetSize = if (attachmentType == AttachmentType.IMAGE) {
-                attachmentUri.resampleImageAndCopyToTempPath(context, fullTempAssetPath)
-            } else {
-                fileManager.copyToTempPath(attachmentUri, fullTempAssetPath)
-            }
-            val attachment = AssetBundle(mimeType, fullTempAssetPath, assetSize, assetFileName, attachmentType)
-            AttachmentState.Picked(attachment)
-        } catch (e: IOException) {
-            appLogger.e("There was an error while obtaining the file from disk", e)
-            AttachmentState.Error
-        }
-    }
+//    suspend fun pickAttachment(
+//        attachmentUri: Uri,
+//        tempCachePath: okio.Path,
+//        dispatcherProvider: DispatcherProvider = DefaultDispatcherProvider()
+//    ) = withContext(dispatcherProvider.io()) {
+//        val fileManager = FileManager(context)
+//        attachmentState = try {
+//            val fullTempAssetPath = "$tempCachePath/${UUID.randomUUID()}".toPath()
+//            val assetFileName = context.getFileName(attachmentUri) ?: throw IOException("The selected asset has an invalid name")
+//            val mimeType = attachmentUri.getMimeType(context).orDefault(DEFAULT_FILE_MIME_TYPE)
+//            val attachmentType = AttachmentType.fromMimeTypeString(mimeType)
+//            val assetSize = if (attachmentType == AttachmentType.IMAGE) {
+//                attachmentUri.resampleImageAndCopyToTempPath(context, fullTempAssetPath)
+//            } else {
+//                fileManager.copyToTempPath(attachmentUri, fullTempAssetPath)
+//            }
+//            val attachment = AssetBundle(mimeType, fullTempAssetPath, assetSize, assetFileName, attachmentType)
+//            AttachmentState.Picked(attachment)
+//        } catch (e: IOException) {
+//            appLogger.e("There was an error while obtaining the file from disk", e)
+//            AttachmentState.Error
+//        }
+//    }
 
     fun resetAttachmentState() {
         attachmentState = AttachmentState.NotPicked

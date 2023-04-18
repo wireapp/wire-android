@@ -77,7 +77,8 @@ class MyAccountViewModel @Inject constructor(
 
     private suspend fun fetchIsReadOnlyAccount() {
         viewModelScope.launch {
-            myAccountState = myAccountState.copy(isReadOnlyAccount = isReadOnlyAccount())
+            val isReadOnlyAccount = isReadOnlyAccount()
+            myAccountState = myAccountState.copy(isReadOnlyAccount = isReadOnlyAccount)
         }
     }
 

@@ -54,11 +54,10 @@ import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.KeyboardHelper
 import com.wire.android.ui.common.colorsScheme
-import com.wire.android.ui.home.conversations.ConversationSnackbarMessages
 import com.wire.android.ui.home.conversations.mention.MemberItemToMention
-import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.android.ui.home.conversations.model.EditMessageBundle
 import com.wire.android.ui.home.conversations.model.SendMessageBundle
+import com.wire.android.ui.home.conversations.model.UriAsset
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.messagecomposer.attachment.AttachmentOptions
 import com.wire.android.ui.home.messagecomposer.state.MessageComposeInputState
@@ -78,12 +77,10 @@ fun MessageComposer(
     messageContent: @Composable () -> Unit,
     onSendTextMessage: (SendMessageBundle) -> Unit,
     onSendEditTextMessage: (EditMessageBundle) -> Unit,
-    onSendAttachment: (AssetBundle?) -> Unit,
     onMentionMember: (String?) -> Unit,
-    onMessageComposerError: (ConversationSnackbarMessages) -> Unit,
+    onAttachmentPicked: (UriAsset) -> Unit,
     isFileSharingEnabled: Boolean,
     interactionAvailability: InteractionAvailability,
-    tempCachePath: Path,
     securityClassificationType: SecurityClassificationType,
     membersToMention: List<Contact>,
     onPingClicked: () -> Unit,
@@ -128,13 +125,6 @@ fun MessageComposer(
             }
         }
 
-        val onSendAttachmentClicked = remember {
-            { attachmentBundle: AssetBundle? ->
-                onSendAttachment(attachmentBundle)
-                messageComposerState.hideAttachmentOptions()
-            }
-        }
-
         val onMentionPicked = remember {
             { contact: Contact ->
                 messageComposerState.addMention(contact)
@@ -150,11 +140,9 @@ fun MessageComposer(
             messagesContent = messageContent,
             messageComposerState = messageComposerState,
             isFileSharingEnabled = isFileSharingEnabled,
-            tempCachePath = tempCachePath,
             interactionAvailability = interactionAvailability,
             membersToMention = membersToMention,
-            onMessageComposerError = onMessageComposerError,
-            onSendAttachmentClicked = onSendAttachmentClicked,
+            onAttachmentPicked = onAttachmentPicked,
             securityClassificationType = securityClassificationType,
             onSendButtonClicked = onSendButtonClicked,
             onEditSaveButtonClicked = onSendEditButtonClicked,
@@ -173,11 +161,9 @@ private fun MessageComposer(
     messagesContent: @Composable () -> Unit,
     messageComposerState: MessageComposerState,
     isFileSharingEnabled: Boolean,
-    tempCachePath: Path,
     interactionAvailability: InteractionAvailability,
     membersToMention: List<Contact>,
-    onMessageComposerError: (ConversationSnackbarMessages) -> Unit,
-    onSendAttachmentClicked: (AssetBundle?) -> Unit,
+    onAttachmentPicked: (UriAsset) -> Unit,
     securityClassificationType: SecurityClassificationType,
     tempWritableImageUri: Uri?,
     tempWritableVideoUri: Uri?,
@@ -303,13 +289,10 @@ private fun MessageComposer(
                 // we get the effect of overlapping it
                 if (attachmentOptionsVisible) {
                     AttachmentOptions(
-                        attachmentInnerState = messageComposerState.attachmentInnerState,
-                        onSendAttachment = onSendAttachmentClicked,
-                        onMessageComposerError = onMessageComposerError,
+                        onAttachmentPicked = onAttachmentPicked,
                         isFileSharingEnabled = isFileSharingEnabled,
                         tempWritableImageUri = tempWritableImageUri,
                         tempWritableVideoUri = tempWritableVideoUri,
-                        tempCachePath = tempCachePath,
                         modifier = Modifier
                             .height(keyboardHeight.height)
                             .fillMaxWidth()

@@ -309,9 +309,9 @@ class MessageComposerViewModel @Inject constructor(
 
     private fun setFileSharingStatus() {
         viewModelScope.launch {
-            if (isFileSharingEnabled().isFileSharingEnabled != null) {
-                messageComposerViewState =
-                    messageComposerViewState.copy(isFileSharingEnabled = isFileSharingEnabled().isFileSharingEnabled!!)
+            val isFileSharingEnabled = isFileSharingEnabled().isFileSharingEnabled
+            if (isFileSharingEnabled != null) {
+                messageComposerViewState = messageComposerViewState.copy(isFileSharingEnabled = isFileSharingEnabled)
             }
         }
     }

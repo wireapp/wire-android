@@ -75,7 +75,7 @@ fun SelfDeletionMenuItems(
         add {
             val duration = SelfDeletionDuration.OneDay
             SelfDeletionDurationMenuItem(
-                duration = SelfDeletionDuration.OneDay,
+                duration = duration,
                 isSelected = currentlySelected == duration,
                 onSelfDeletionDurationSelected = onSelfDeletionDurationSelected
             )
@@ -83,7 +83,7 @@ fun SelfDeletionMenuItems(
         add {
             val duration = SelfDeletionDuration.OneWeek
             SelfDeletionDurationMenuItem(
-                duration = SelfDeletionDuration.OneWeek,
+                duration = duration,
                 isSelected = currentlySelected == duration,
                 onSelfDeletionDurationSelected = onSelfDeletionDurationSelected
             )
@@ -91,7 +91,7 @@ fun SelfDeletionMenuItems(
         add {
             val duration = SelfDeletionDuration.FourWeeks
             SelfDeletionDurationMenuItem(
-                duration = SelfDeletionDuration.FourWeeks,
+                duration = duration,
                 isSelected = currentlySelected == duration,
                 onSelfDeletionDurationSelected = onSelfDeletionDurationSelected
             )

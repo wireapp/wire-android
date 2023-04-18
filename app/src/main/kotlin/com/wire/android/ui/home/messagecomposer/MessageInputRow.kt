@@ -127,10 +127,10 @@ fun MessageComposerInputRow(
                 onLineBottomYCoordinateChanged = onLineBottomYCoordinateChanged
             )
             AnimatedVisibility(messageComposeInputState.isEditMessage) {
-                EditExtraOptions(
-                    editButtonEnabled = messageComposeInputState.editSaveButtonEnabled,
+                MessageEditActions(
                     onEditSaveButtonClicked = onEditSaveButtonClicked,
-                    onEditCancelButtonClicked = onEditCancelButtonClicked
+                    onEditCancelButtonClicked = onEditCancelButtonClicked,
+                    editButtonEnabled = messageComposeInputState.editSaveButtonEnabled
                 )
             }
         }
@@ -163,19 +163,6 @@ fun MessageComposerInputRow(
             }
         }
     }
-}
-
-@Composable
-fun EditExtraOptions(
-    editButtonEnabled: Boolean,
-    onEditSaveButtonClicked: () -> Unit,
-    onEditCancelButtonClicked: () -> Unit
-) {
-    MessageEditActions(
-        onEditSaveButtonClicked = onEditSaveButtonClicked,
-        onEditCancelButtonClicked = onEditCancelButtonClicked,
-        editButtonEnabled = editButtonEnabled
-    )
 }
 
 @Composable

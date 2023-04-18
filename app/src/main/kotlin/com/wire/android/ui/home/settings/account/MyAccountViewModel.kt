@@ -88,14 +88,15 @@ class MyAccountViewModel @Inject constructor(
             // is the account is read only it means it is not maneged by wire
             managedByWire = !isReadOnlyAccount()
         }
+        myAccountState = myAccountState.copy(
+            isReadOnlyAccount = !managedByWire,
+            isEditEmailAllowed = !hasSAMLCred && managedByWire
+        )
         viewModelScope.launch {
             fetchSelfUser()
         }
+
         viewModelScope.launch {
-            myAccountState = myAccountState.copy(
-                isReadOnlyAccount = !managedByWire,
-                isEditEmailAllowed = !hasSAMLCred && managedByWire
-            )
             if (!hasSAMLCred) {
                 loadChangePasswordUrl()
             }

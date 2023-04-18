@@ -32,7 +32,6 @@ fun SelfDeletionMenuItems(
     hideEditMessageMenu: (OnComplete) -> Unit,
     onSelfDeletionDurationChanged: (SelfDeletionDuration) -> Unit,
 ): List<@Composable () -> Unit> {
-
     val onSelfDeletionDurationSelected: (SelfDeletionDuration) -> Unit = { selfDeleteDuration ->
         hideEditMessageMenu {
             onSelfDeletionDurationChanged(selfDeleteDuration)
@@ -40,61 +39,14 @@ fun SelfDeletionMenuItems(
     }
 
     return buildList {
-        add {
-            val duration = SelfDeletionDuration.None
-            SelfDeletionDurationMenuItem(
-                duration = duration,
-                isSelected = currentlySelected == duration,
-                onSelfDeletionDurationSelected = onSelfDeletionDurationSelected
-            )
-        }
-        add {
-            val duration = SelfDeletionDuration.TenSeconds
-            SelfDeletionDurationMenuItem(
-                duration = duration,
-                isSelected = currentlySelected == duration,
-                onSelfDeletionDurationSelected = onSelfDeletionDurationSelected
-            )
-        }
-        add {
-            val duration = SelfDeletionDuration.FiveMinutes
-            SelfDeletionDurationMenuItem(
-                duration = duration,
-                isSelected = currentlySelected == duration,
-                onSelfDeletionDurationSelected = onSelfDeletionDurationSelected
-            )
-        }
-        add {
-            val duration = SelfDeletionDuration.OneHour
-            SelfDeletionDurationMenuItem(
-                duration = duration,
-                isSelected = currentlySelected == duration,
-                onSelfDeletionDurationSelected = onSelfDeletionDurationSelected
-            )
-        }
-        add {
-            val duration = SelfDeletionDuration.OneDay
-            SelfDeletionDurationMenuItem(
-                duration = duration,
-                isSelected = currentlySelected == duration,
-                onSelfDeletionDurationSelected = onSelfDeletionDurationSelected
-            )
-        }
-        add {
-            val duration = SelfDeletionDuration.OneWeek
-            SelfDeletionDurationMenuItem(
-                duration = duration,
-                isSelected = currentlySelected == duration,
-                onSelfDeletionDurationSelected = onSelfDeletionDurationSelected
-            )
-        }
-        add {
-            val duration = SelfDeletionDuration.FourWeeks
-            SelfDeletionDurationMenuItem(
-                duration = duration,
-                isSelected = currentlySelected == duration,
-                onSelfDeletionDurationSelected = onSelfDeletionDurationSelected
-            )
+        SelfDeletionDuration.values().forEach { duration ->
+            add {
+                SelfDeletionDurationMenuItem(
+                    duration = duration,
+                    isSelected = currentlySelected == duration,
+                    onSelfDeletionDurationSelected = onSelfDeletionDurationSelected
+                )
+            }
         }
     }
 }

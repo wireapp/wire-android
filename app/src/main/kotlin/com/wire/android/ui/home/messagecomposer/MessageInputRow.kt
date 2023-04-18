@@ -145,7 +145,7 @@ fun MessageComposerInputRow(
                 is MessageComposeInputType.SelfDeletingMessage -> {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
-                            text = type.selfDeletionDuration.label,
+                            text = type.selfDeletionDuration.label.asString(),
                             style = typography().label02,
                             color = colorsScheme().primary,
                             modifier = Modifier

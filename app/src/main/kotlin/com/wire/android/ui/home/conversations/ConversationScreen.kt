@@ -78,6 +78,7 @@ import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewM
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewState
 import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.android.ui.home.conversations.model.EditMessageBundle
+import com.wire.android.ui.home.conversations.model.SendMessageBundle
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMenuItems
 import com.wire.android.ui.home.messagecomposer.MessageComposer
@@ -103,7 +104,6 @@ import kotlinx.coroutines.launch
 import kotlinx.datetime.Instant
 import okio.Path
 import okio.Path.Companion.toPath
-import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 
 /**
@@ -293,7 +293,7 @@ private fun ConversationScreen(
     conversationMessagesViewState: ConversationMessagesViewState,
     onOpenProfile: (String) -> Unit,
     onMessageDetailsClick: (messageId: String, isSelfMessage: Boolean) -> Unit,
-    onSendMessage: (String, List<UiMention>, String?, Duration?) -> Unit,
+    onSendMessage: (SendMessageBundle) -> Unit,
     onSendEditMessage: (EditMessageBundle) -> Unit,
     onDeleteMessage: (String, Boolean) -> Unit,
     onSendAttachment: (AssetBundle?) -> Unit,
@@ -452,7 +452,7 @@ private fun ConversationScreenContent(
     audioMessagesState: Map<String, AudioState>,
     messageComposerState: MessageComposerState,
     messages: Flow<PagingData<UIMessage>>,
-    onSendMessage: (String, List<UiMention>, String?, expireAfter: Duration?) -> Unit,
+    onSendMessage: (SendMessageBundle) -> Unit,
     onSendEditMessage: (EditMessageBundle) -> Unit,
     onSendAttachment: (AssetBundle?) -> Unit,
     onMentionMember: (String?) -> Unit,
@@ -501,11 +501,11 @@ private fun ConversationScreenContent(
                 onShowEditingOption = onShowEditingOptions
             )
         },
-        onSendTextMessage = { message, mentions, messageId, expireAfter ->
+        onSendTextMessage = { messageBundle ->
             scope.launch {
                 lazyListState.scrollToItem(0)
             }
-            onSendMessage(message, mentions, messageId, expireAfter)
+            onSendMessage(messageBundle )
         },
         onSendEditTextMessage = onSendEditMessage,
         onSendAttachment = {
@@ -666,10 +666,10 @@ fun PreviewConversationScreen() {
         conversationCallViewState = ConversationCallViewState(),
         conversationInfoViewState = ConversationInfoViewState(conversationName = UIText.DynamicString("Some test conversation")),
         conversationMessagesViewState = ConversationMessagesViewState(),
-        onOpenProfile = { _ -> },
+        onOpenProfile = { },
         onMessageDetailsClick = { _, _ -> },
-        onSendMessage = { _, _, _, _ -> },
-        onSendEditMessage = { _ -> },
+        onSendMessage = { },
+        onSendEditMessage = { },
         onDeleteMessage = { _, _ -> },
         onSendAttachment = { },
         onAssetItemClicked = { },
@@ -683,7 +683,7 @@ fun PreviewConversationScreen() {
         onMentionMember = { },
         onUpdateConversationReadDate = { },
         onDropDownClick = { },
-        onSnackbarMessage = { _ -> },
+        onSnackbarMessage = { },
         onBackButtonClick = {},
         composerMessages = MutableStateFlow(ErrorDownloadingAsset),
         conversationMessages = MutableStateFlow(ErrorDownloadingAsset),

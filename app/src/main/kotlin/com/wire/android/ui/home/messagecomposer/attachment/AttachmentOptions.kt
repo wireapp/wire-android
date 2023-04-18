@@ -88,7 +88,6 @@ private fun AttachmentOptionsComponent(
     isFileSharingEnabled: Boolean,
     modifier: Modifier = Modifier
 ) {
-    val scope = rememberCoroutineScope()
     val attachmentOptions = buildAttachmentOptionItems(
         isFileSharingEnabled,
         tempWritableImageUri,

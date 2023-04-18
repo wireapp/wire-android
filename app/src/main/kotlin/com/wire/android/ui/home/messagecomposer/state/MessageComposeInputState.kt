@@ -17,7 +17,6 @@
  */
 package com.wire.android.ui.home.messagecomposer.state
 
-import androidx.annotation.StringRes
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.text.input.TextFieldValue
 import com.wire.android.R
@@ -105,6 +104,7 @@ sealed class MessageComposeInputType {
     ) : MessageComposeInputType()
 }
 
+@Suppress("MagicNumber")
 enum class SelfDeletionDuration(val value: Duration?, val label: UIText) {
     None(null, UIText.StringResource(R.string.label_off)),
     TenSeconds(10.seconds, UIText.PluralResource(R.plurals.seconds_label, 10, 10)),

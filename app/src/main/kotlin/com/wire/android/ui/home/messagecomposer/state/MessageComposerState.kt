@@ -326,7 +326,7 @@ data class MessageComposerState(
         messageComposeInputState = MessageComposeInputState.Active(
                 messageText = messageComposeInputState.messageText,
                 inputFocused = true,
-                type =  if (selfDeletionDuration == SelfDeletionDuration.None) MessageComposeInputType.NewMessage()
+                type = if (selfDeletionDuration == SelfDeletionDuration.None) MessageComposeInputType.NewMessage()
                 else MessageComposeInputType.SelfDeletingMessage(selfDeletionDuration)
             )
     }

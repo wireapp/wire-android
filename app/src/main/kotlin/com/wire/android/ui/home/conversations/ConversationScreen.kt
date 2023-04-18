@@ -494,7 +494,7 @@ private fun ConversationScreenContent(
             scope.launch {
                 lazyListState.scrollToItem(0)
             }
-            onSendMessage(messageBundle )
+            onSendMessage(messageBundle)
         },
         onSendEditTextMessage = onSendEditMessage,
         onAttachmentPicked = remember {

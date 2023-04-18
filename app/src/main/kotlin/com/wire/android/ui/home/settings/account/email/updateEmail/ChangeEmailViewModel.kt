@@ -17,6 +17,7 @@
  */
 package com.wire.android.ui.home.settings.account.email.updateEmail
 
+import android.util.Patterns
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -105,7 +106,7 @@ class ChangeEmailViewModel @Inject constructor(
 
     fun onEmailChange(newEmail: TextFieldValue) {
         val cleanEmail = newEmail.text.trim()
-        val isValidEmail = cleanEmail.contains('@')
+        val isValidEmail = Patterns.EMAIL_ADDRESS.matcher(cleanEmail).matches()
         when {
             cleanEmail.isBlank() -> state =
                 state.copy(

@@ -58,6 +58,7 @@ import com.wire.android.ui.home.conversations.ConversationSnackbarMessages
 import com.wire.android.ui.home.conversations.mention.MemberItemToMention
 import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.android.ui.home.conversations.model.EditMessageBundle
+import com.wire.android.ui.home.conversations.model.SendMessageBundle
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.messagecomposer.attachment.AttachmentOptions
 import com.wire.android.ui.home.messagecomposer.state.MessageComposeInputState
@@ -75,7 +76,7 @@ import kotlin.time.Duration
 fun MessageComposer(
     messageComposerState: MessageComposerState,
     messageContent: @Composable () -> Unit,
-    onSendTextMessage: (String, List<UiMention>, messageId: String?, expireAfter: Duration?) -> Unit,
+    onSendTextMessage: (SendMessageBundle) -> Unit,
     onSendEditTextMessage: (EditMessageBundle) -> Unit,
     onSendAttachment: (AssetBundle?) -> Unit,
     onMentionMember: (String?) -> Unit,
@@ -98,10 +99,12 @@ fun MessageComposer(
                 }?.selfDeletionDuration?.value
 
                 onSendTextMessage(
-                    messageComposerState.messageComposeInputState.messageText.text,
-                    messageComposerState.mentions,
-                    messageComposerState.quotedMessageData?.messageId,
-                    expireAfter
+                    SendMessageBundle(
+                        message = messageComposerState.messageComposeInputState.messageText.text,
+                        mentions = messageComposerState.mentions,
+                        quotedMessageId = messageComposerState.quotedMessageData?.messageId,
+                        expireAfter = expireAfter
+                    )
                 )
                 messageComposerState.quotedMessageData = null
                 messageComposerState.setMessageTextValue(TextFieldValue(""))

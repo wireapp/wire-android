@@ -18,12 +18,11 @@
  *
  */
 
-package com.wire.android.ui.home.messagecomposer
+package com.wire.android.ui.home.messagecomposer.state
 
 import android.content.Context
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -40,6 +39,7 @@ import com.wire.android.appLogger
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.conversations.model.UIQuotedMessage
+import com.wire.android.ui.home.messagecomposer.model.UiMention
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.util.EMPTY
@@ -47,13 +47,12 @@ import com.wire.android.util.MENTION_SYMBOL
 import com.wire.android.util.NEW_LINE_SYMBOL
 import com.wire.android.util.WHITE_SPACE
 import com.wire.android.util.ui.toUIText
-import com.wire.kalium.logic.data.message.mention.MessageMention
 import com.wire.kalium.logic.data.user.UserId
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
 @Composable
-fun rememberMessageComposerInnerState(): MessageComposerInnerState {
+fun rememberMessageComposerState(): MessageComposerState {
     val context = LocalContext.current
 
     val mentionSpanStyle = SpanStyle(
@@ -65,7 +64,7 @@ fun rememberMessageComposerInnerState(): MessageComposerInnerState {
     val inputFocusRequester = FocusRequester()
 
     return remember {
-        MessageComposerInnerState(
+        MessageComposerState(
             context = context,
             focusManager = focusManager,
             inputFocusRequester = inputFocusRequester,
@@ -75,7 +74,7 @@ fun rememberMessageComposerInnerState(): MessageComposerInnerState {
 }
 
 @Suppress("TooManyFunctions")
-data class MessageComposerInnerState(
+data class MessageComposerState(
     val context: Context,
     val focusManager: FocusManager,
     val inputFocusRequester: FocusRequester,
@@ -322,6 +321,21 @@ data class MessageComposerInnerState(
     fun cancelReply() {
         quotedMessageData = null
     }
+
+    fun specifySelfDeletionTime(selfDeletionDuration: SelfDeletionDuration) {
+        messageComposeInputState = MessageComposeInputState.Active(
+                messageText = messageComposeInputState.messageText,
+                inputFocused = true,
+                type = if (selfDeletionDuration == SelfDeletionDuration.None) MessageComposeInputType.NewMessage()
+                else MessageComposeInputType.SelfDeletingMessage(selfDeletionDuration)
+            )
+    }
+
+    fun getSelfDeletionTime(): SelfDeletionDuration {
+        return (messageComposeInputState as? MessageComposeInputState.Active)
+            ?.let { it.type as? MessageComposeInputType.SelfDeletingMessage }?.selfDeletionDuration
+            ?: SelfDeletionDuration.None
+    }
 }
 
 private fun TextFieldValue.currentMentionStartIndex(): Int {
@@ -333,80 +347,4 @@ private fun TextFieldValue.currentMentionStartIndex(): Int {
 
         else -> -1
     }
-}
-
-data class UiMention(
-    val start: Int,
-    val length: Int,
-    val userId: UserId,
-    val handler: String // name that should be displayed in a message
-) {
-    fun intoMessageMention() = MessageMention(start, length, userId, false) // We can never send a self mention message
-}
-
-@Stable
-sealed class MessageComposeInputState {
-    abstract val messageText: TextFieldValue
-    abstract val inputFocused: Boolean
-
-    @Stable
-    data class Inactive(
-        override val messageText: TextFieldValue = TextFieldValue(""),
-        override val inputFocused: Boolean = false,
-    ) : MessageComposeInputState()
-
-    @Stable
-    data class Active(
-        override val messageText: TextFieldValue = TextFieldValue(""),
-        override val inputFocused: Boolean = false,
-        val type: MessageComposeInputType = MessageComposeInputType.NewMessage(),
-        val size: MessageComposeInputSize = MessageComposeInputSize.COLLAPSED,
-    ) : MessageComposeInputState()
-
-    fun toActive(messageText: TextFieldValue = this.messageText, inputFocused: Boolean = this.inputFocused) = when (this) {
-        is Active -> Active(messageText, inputFocused, this.type, this.size)
-        is Inactive -> Active(messageText, inputFocused)
-    }
-
-    fun toInactive(messageText: TextFieldValue = this.messageText, inputFocused: Boolean = this.inputFocused) =
-        Inactive(messageText, inputFocused)
-
-    fun copyCurrent(messageText: TextFieldValue = this.messageText, inputFocused: Boolean = this.inputFocused) = when (this) {
-        is Active -> Active(messageText, inputFocused, this.type, this.size)
-        is Inactive -> Inactive(messageText, inputFocused)
-    }
-
-    val isExpanded: Boolean
-        get() = this is Active && this.size == MessageComposeInputSize.EXPANDED
-    val isEditMessage: Boolean
-        get() = this is Active && this.type is MessageComposeInputType.EditMessage
-    val isNewMessage: Boolean
-        get() = this is Active && this.type is MessageComposeInputType.NewMessage
-    val attachmentOptionsDisplayed: Boolean
-        get() = this is Active && this.type is MessageComposeInputType.NewMessage && this.type.attachmentOptionsDisplayed
-    val sendButtonEnabled: Boolean
-        get() = this is Active && this.type is MessageComposeInputType.NewMessage && messageText.text.trim().isNotBlank()
-    val editSaveButtonEnabled: Boolean
-        get() = this is Active && this.type is MessageComposeInputType.EditMessage && messageText.text.trim().isNotBlank()
-                && messageText.text != this.type.originalText
-}
-
-enum class MessageComposeInputSize {
-    COLLAPSED, // wrap content
-    EXPANDED; // fullscreen
-}
-
-@Stable
-sealed class MessageComposeInputType {
-
-    @Stable
-    data class NewMessage(
-        val attachmentOptionsDisplayed: Boolean = false,
-    ) : MessageComposeInputType()
-
-    @Stable
-    data class EditMessage(
-        val messageId: String,
-        val originalText: String,
-    ) : MessageComposeInputType()
 }

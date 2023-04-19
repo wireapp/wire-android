@@ -25,8 +25,7 @@ import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Transition
 import androidx.compose.animation.core.updateTransition
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -37,6 +36,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -48,9 +48,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
+import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.wireTextFieldColors
+import com.wire.android.ui.common.typography
+import com.wire.android.ui.home.messagecomposer.state.MessageComposeInputSize
+import com.wire.android.ui.home.messagecomposer.state.MessageComposeInputState
+import com.wire.android.ui.home.messagecomposer.state.MessageComposeInputType
 import com.wire.android.ui.theme.wireTypography
 
 @OptIn(ExperimentalAnimationApi::class)
@@ -67,6 +72,7 @@ fun MessageComposerInputRow(
     onAdditionalOptionButtonClicked: () -> Unit = { },
     onEditSaveButtonClicked: () -> Unit = { },
     onEditCancelButtonClicked: () -> Unit = { },
+    onChangeSelfDeletionTimeClicked: () -> Unit = { },
     isFileSharingEnabled: Boolean = true,
 ) {
     Row(
@@ -80,7 +86,10 @@ fun MessageComposerInputRow(
             visible = { it is MessageComposeInputState.Inactive }
         ) {
             Box(modifier = Modifier.padding(start = dimensions().spacing8x)) {
-                AdditionalOptionButton(isSelected = messageComposeInputState.attachmentOptionsDisplayed, isEnabled = isFileSharingEnabled) {
+                AdditionalOptionButton(
+                    isSelected = messageComposeInputState.attachmentOptionsDisplayed,
+                    isEnabled = isFileSharingEnabled
+                ) {
                     onAdditionalOptionButtonClicked()
                 }
             }
@@ -90,7 +99,6 @@ fun MessageComposerInputRow(
                 .weight(weight = 1f, fill = true)
                 .wrapContentSize()
         ) {
-
             MessageComposerInput(
                 messageText = messageComposeInputState.messageText,
                 onMessageTextChanged = onMessageTextChanged,
@@ -118,12 +126,7 @@ fun MessageComposerInputRow(
                 onSelectedLineIndexChanged = onSelectedLineIndexChanged,
                 onLineBottomYCoordinateChanged = onLineBottomYCoordinateChanged
             )
-
-            transition.AnimatedVisibility(
-                visible = { it.isEditMessage },
-                enter = fadeIn(),
-                exit = fadeOut()
-            ) {
+            AnimatedVisibility(messageComposeInputState.isEditMessage) {
                 MessageEditActions(
                     onEditSaveButtonClicked = onEditSaveButtonClicked,
                     onEditCancelButtonClicked = onEditCancelButtonClicked,
@@ -131,15 +134,33 @@ fun MessageComposerInputRow(
                 )
             }
         }
-        transition.AnimatedVisibility(
-            visible = { it.isNewMessage },
-            enter = fadeIn(),
-            exit = fadeOut()
-        ) {
-            MessageSendActions(
-                onSendButtonClicked = onSendButtonClicked,
-                sendButtonEnabled = messageComposeInputState.sendButtonEnabled
-            )
+        if (messageComposeInputState is MessageComposeInputState.Active) {
+            when (val type = messageComposeInputState.type) {
+                is MessageComposeInputType.NewMessage ->
+                    MessageSendActions(
+                        onSendButtonClicked = onSendButtonClicked,
+                        sendButtonEnabled = messageComposeInputState.sendButtonEnabled
+                    )
+
+                is MessageComposeInputType.SelfDeletingMessage -> {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            text = type.selfDeletionDuration.label.asString(),
+                            style = typography().label02,
+                            color = colorsScheme().primary,
+                            modifier = Modifier
+                                .padding(horizontal = dimensions().spacing16x)
+                                .clickable { onChangeSelfDeletionTimeClicked() }
+                        )
+                        ScheduleMessageButton(
+                            onSendButtonClicked = onSendButtonClicked,
+                            sendButtonEnabled = messageComposeInputState.sendEphemeralMessageButtonEnabled
+                        )
+                    }
+                }
+
+                else -> {}
+            }
         }
     }
 }
@@ -155,19 +176,26 @@ private fun MessageComposerInput(
     onSelectedLineIndexChanged: (Int) -> Unit = { },
     onLineBottomYCoordinateChanged: (Float) -> Unit = { }
 ) {
+    val placeHolderText = if (messageComposerInputState.isEphemeral) {
+        stringResource(R.string.self_deleting_message_label)
+    } else {
+        stringResource(R.string.label_type_a_message)
+    }
+
     WireTextField(
         value = messageText,
         onValueChange = onMessageTextChanged,
         colors = wireTextFieldColors(
             backgroundColor = Color.Transparent,
             borderColor = Color.Transparent,
-            focusColor = Color.Transparent
+            focusColor = Color.Transparent,
+            placeholderColor = if (messageComposerInputState.isEphemeral) colorsScheme().primary else colorsScheme().secondaryText
         ),
         singleLine = messageComposerInputState is MessageComposeInputState.Inactive,
         maxLines = Int.MAX_VALUE,
         textStyle = MaterialTheme.wireTypography.body01,
         // Add an extra space so that the cursor is placed one space before "Type a message"
-        placeholderText = " " + stringResource(R.string.label_type_a_message),
+        placeholderText = " $placeHolderText",
         modifier = modifier.then(
             Modifier
                 .onFocusChanged { focusState ->
@@ -197,7 +225,10 @@ fun PreviewMessageComposerInputRowActiveCollapsed() {
 @Preview
 @Composable
 fun PreviewMessageComposerInputRowActiveCollapsedSendEnabled() {
-    val state = MessageComposeInputState.Active(messageText = TextFieldValue("text"), size = MessageComposeInputSize.COLLAPSED)
+    val state = MessageComposeInputState.Active(
+        messageText = TextFieldValue("text"),
+        size = MessageComposeInputSize.COLLAPSED
+    )
     MessageComposerInputRow(updateTransition(targetState = state, label = ""), state)
 }
 

@@ -50,9 +50,9 @@ import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogsState
 import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.android.ui.home.conversations.model.AttachmentType
 import com.wire.android.ui.home.conversations.model.EditMessageBundle
+import com.wire.android.ui.home.conversations.model.SendMessageBundle
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UriAsset
-import com.wire.android.ui.home.messagecomposer.UiMention
 import com.wire.android.util.FileManager
 import com.wire.android.util.ImageUtil
 import com.wire.android.util.dispatchers.DispatcherProvider
@@ -194,16 +194,15 @@ class MessageComposerViewModel @Inject constructor(
     }
 
     fun sendMessage(
-        message: String,
-        mentions: List<UiMention>,
-        quotedMessageId: String?
+        sendMessageBundle: SendMessageBundle
     ) {
         viewModelScope.launch {
             sendTextMessage(
                 conversationId = conversationId,
-                text = message,
-                mentions = mentions.map { it.intoMessageMention() },
-                quotedMessageId = quotedMessageId
+                text = sendMessageBundle.message,
+                mentions = sendMessageBundle.mentions.map { it.intoMessageMention() },
+                quotedMessageId = sendMessageBundle.quotedMessageId,
+                expireAfter = sendMessageBundle.expireAfter
             )
         }
     }

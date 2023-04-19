@@ -47,6 +47,7 @@ import com.wire.android.model.ClickBlockParams
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WireSecondaryIconButton
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.home.messagecomposer.state.MessageComposeInputState
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 
@@ -59,6 +60,7 @@ fun MessageComposeActionsBox(
     startMention: () -> Unit,
     onAdditionalOptionButtonClicked: () -> Unit,
     onPingClicked: () -> Unit,
+    onSelfDeletionOptionButtonClicked: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(modifier.wrapContentSize()) {
@@ -73,13 +75,15 @@ fun MessageComposeActionsBox(
             ) { state ->
                 if (state is MessageComposeInputState.Active) {
                     MessageComposeActions(
+                        state.isEphemeral,
                         state.attachmentOptionsDisplayed,
                         isMentionActive,
                         state.isEditMessage,
                         isFileSharingEnabled,
                         startMention,
                         onAdditionalOptionButtonClicked,
-                        onPingClicked
+                        onPingClicked,
+                        onSelfDeletionOptionButtonClicked
                     )
                 }
             }
@@ -89,13 +93,15 @@ fun MessageComposeActionsBox(
 
 @Composable
 private fun MessageComposeActions(
+    selfDeletingOptionSelected: Boolean,
     attachmentOptionsDisplayed: Boolean,
     isMentionsSelected: Boolean,
     isEditMessage: Boolean,
     isFileSharingEnabled: Boolean = true,
     startMention: () -> Unit,
     onAdditionalOptionButtonClicked: () -> Unit,
-    onPingClicked: () -> Unit
+    onPingClicked: () -> Unit,
+    onSelfDeletionOptionButtonClicked: () -> Unit
 ) {
     val localFeatureVisibilityFlags = LocalFeatureVisibilityFlags.current
 
@@ -107,12 +113,20 @@ private fun MessageComposeActions(
             .height(dimensions().spacing56x)
     ) {
         with(localFeatureVisibilityFlags) {
-            if (!isEditMessage) AdditionalOptionButton(attachmentOptionsDisplayed, isFileSharingEnabled, onAdditionalOptionButtonClicked)
+            if (!isEditMessage) AdditionalOptionButton(
+                isSelected = attachmentOptionsDisplayed,
+                isEnabled = isFileSharingEnabled,
+                onClick = onAdditionalOptionButtonClicked
+            )
             if (RichTextIcon) RichTextEditingAction()
             if (!isEditMessage && EmojiIcon) AddEmojiAction()
             if (!isEditMessage && GifIcon) AddGifAction()
-            AddMentionAction(isMentionsSelected, startMention)
+            if (!isEditMessage) SelfDeletingMessageAction(
+                isSelected = selfDeletingOptionSelected,
+                onButtonClicked = onSelfDeletionOptionButtonClicked
+            )
             if (!isEditMessage && PingIcon) PingAction(onPingClicked = onPingClicked)
+            AddMentionAction(isMentionsSelected, startMention)
         }
     }
 }
@@ -168,6 +182,17 @@ private fun PingAction(onPingClicked: () -> Unit) {
         clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
         iconResource = R.drawable.ic_ping,
         contentDescription = R.string.content_description_ping_everyone
+    )
+}
+
+@Composable
+fun SelfDeletingMessageAction(isSelected: Boolean, onButtonClicked: () -> Unit) {
+    WireSecondaryIconButton(
+        onButtonClicked = onButtonClicked,
+        clickBlockParams = ClickBlockParams(blockWhenSyncing = false, blockWhenConnecting = false),
+        iconResource = R.drawable.ic_timer,
+        contentDescription = R.string.content_description_ping_everyone,
+        state = if (isSelected) WireButtonState.Selected else WireButtonState.Default
     )
 }
 

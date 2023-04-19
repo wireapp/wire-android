@@ -129,8 +129,7 @@ fun MessageComposerInputRow(
                 onLineBottomYCoordinateChanged = onLineBottomYCoordinateChanged
             )
             AnimatedVisibility(messageComposeInputState.isEditMessage) {
-                EditExtraOptions(
-                    editButtonEnabled = messageComposeInputState.editSaveButtonEnabled,
+                MessageEditActions(
                     onEditSaveButtonClicked = onEditSaveButtonClicked,
                     onEditCancelButtonClicked = onEditCancelButtonClicked
                 )
@@ -150,7 +149,7 @@ fun MessageComposerInputRow(
 
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
-                            text = type.selfDeletionDuration.label,
+                            text = type.selfDeletionDuration.label.asString(),
                             style = typography().label02,
                             color = if (isSelfDeletingDurationEnforced) colorsScheme().secondaryButtonDisabled else colorsScheme().primary,
                             modifier = Modifier

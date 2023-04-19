@@ -55,8 +55,6 @@ import kotlinx.coroutines.flow.StateFlow
 fun rememberMessageComposerState(): MessageComposerState {
     val context = LocalContext.current
 
-    val defaultAttachmentInnerState = AttachmentInnerState(context)
-
     val mentionSpanStyle = SpanStyle(
         color = MaterialTheme.wireColorScheme.onPrimaryVariant,
         background = MaterialTheme.wireColorScheme.primaryVariant
@@ -70,7 +68,6 @@ fun rememberMessageComposerState(): MessageComposerState {
             context = context,
             focusManager = focusManager,
             inputFocusRequester = inputFocusRequester,
-            attachmentInnerState = defaultAttachmentInnerState,
             mentionSpanStyle = mentionSpanStyle
         )
     }
@@ -79,7 +76,6 @@ fun rememberMessageComposerState(): MessageComposerState {
 @Suppress("TooManyFunctions")
 data class MessageComposerState(
     val context: Context,
-    val attachmentInnerState: AttachmentInnerState,
     val focusManager: FocusManager,
     val inputFocusRequester: FocusRequester,
     private val mentionSpanStyle: SpanStyle
@@ -327,19 +323,12 @@ data class MessageComposerState(
     }
 
     fun specifySelfDeletionTime(selfDeletionDuration: SelfDeletionDuration) {
-        messageComposeInputState = if (selfDeletionDuration == SelfDeletionDuration.None) {
-            MessageComposeInputState.Active(
-                messageText = messageComposeInputState.messageText,
-                inputFocused = true,
-                type = MessageComposeInputType.NewMessage()
-            )
-        } else {
-            MessageComposeInputState.Active(
-                messageText = messageComposeInputState.messageText,
-                inputFocused = true,
-                type = MessageComposeInputType.SelfDeletingMessage(selfDeletionDuration)
-            )
-        }
+        messageComposeInputState = MessageComposeInputState.Active(
+            messageText = messageComposeInputState.messageText,
+            inputFocused = true,
+            type = if (selfDeletionDuration == SelfDeletionDuration.None) MessageComposeInputType.NewMessage()
+            else MessageComposeInputType.SelfDeletingMessage(selfDeletionDuration)
+        )
     }
 
     fun getSelfDeletionTime(): SelfDeletionDuration {

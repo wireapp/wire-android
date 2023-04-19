@@ -195,7 +195,7 @@ private fun PingAction(onPingClicked: () -> Unit) {
 fun SelfDeletingMessageAction(isSelected: Boolean, onButtonClicked: () -> Unit) {
     WireSecondaryIconButton(
         onButtonClicked = onButtonClicked,
-        clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
+        clickBlockParams = ClickBlockParams(blockWhenSyncing = false, blockWhenConnecting = false),
         iconResource = R.drawable.ic_timer,
         contentDescription = R.string.content_description_ping_everyone,
         state = if (isSelected) WireButtonState.Selected else WireButtonState.Default

@@ -348,7 +348,7 @@ class ImportMediaViewModel @Inject constructor(
             }
 
             else -> {
-                fileManager.copyToTempPath(uri, tempAssetPath)
+                fileManager.copyToPath(uri, tempAssetPath)
                 return@withContext ImportedMediaAsset.GenericAsset(
                     name = fileMetadata.name,
                     size = fileMetadata.size,

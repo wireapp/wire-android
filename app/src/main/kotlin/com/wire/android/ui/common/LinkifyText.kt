@@ -24,11 +24,7 @@ import android.os.Build
 import android.text.SpannableString
 import android.text.style.URLSpan
 import android.text.util.Linkify
-import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.indication
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.material.LocalTextStyle
 import androidx.compose.material.Text
 import androidx.compose.material3.MaterialTheme

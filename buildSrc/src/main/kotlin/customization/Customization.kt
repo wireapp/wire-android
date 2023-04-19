@@ -29,7 +29,7 @@ object Customization {
 
     internal const val GIT_PROPERTIES_FILE_NAME = "local.properties"
     internal const val CUSTOM_CHECKOUT_DIR_NAME = "custom"
-    internal const val CUSTOM_JSON_FILE_NAME = "custom.json"
+    internal const val CUSTOM_JSON_FILE_NAME = "custom-reloaded.json"
     internal const val DEFAULT_JSON_FILE_NAME = "default.json"
 
     private val configurationFileImporter = ConfigurationFileImporter()

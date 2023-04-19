@@ -282,7 +282,7 @@ enum class NavigationItem(
     ),
 
     Support(
-        primaryRoute = BuildConfig.SUPPORT_URL,
+        primaryRoute = BuildConfig.URL_SUPPORT,
         content = { },
     ),
 

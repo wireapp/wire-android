@@ -156,7 +156,7 @@ class EditGuestAccessViewModel @Inject constructor(
                 guestAllowed = shouldEnableGuestAccess,
                 servicesAllowed = editGuestAccessState.isServicesAccessAllowed,
                 nonTeamMembersAllowed = shouldEnableGuestAccess // Guest access controls non-team member access
-                )
+            )
         val newAccess = Conversation
             .accessFor(shouldEnableGuestAccess)
 
@@ -224,19 +224,19 @@ class EditGuestAccessViewModel @Inject constructor(
     }
 
     fun onRevokeDialogConfirm() {
-        removeGuestLink()
+        viewModelScope.launch {
+            removeGuestLink()
+        }
     }
 
-    private fun removeGuestLink() {
+    private suspend fun removeGuestLink() {
         updateState(editGuestAccessState.copy(shouldShowRevokeLinkConfirmationDialog = false, isRevokingLink = true))
-        viewModelScope.launch {
-            revokeGuestRoomLink(conversationId).also {
-                if (it is RevokeGuestRoomLinkResult.Failure) {
-                    updateState(editGuestAccessState.copy(isFailedToRevokeGuestRoomLink = true))
-                }
+        revokeGuestRoomLink(conversationId).also {
+            if (it is RevokeGuestRoomLinkResult.Failure) {
+                updateState(editGuestAccessState.copy(isFailedToRevokeGuestRoomLink = true))
             }
-            updateState(editGuestAccessState.copy(isRevokingLink = false))
         }
+        updateState(editGuestAccessState.copy(isRevokingLink = false))
     }
 
     private fun startObservingGuestRoomLink() {

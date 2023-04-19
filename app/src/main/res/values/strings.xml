@@ -956,7 +956,6 @@
     <string name="label_shared_file_too_large">You can only share a file up to %d MB.</string>
     <string name="label_file_saved_to_device">The file was saved to your device.</string>
 
-    <string name="automatically_delete_message_after">Automatically delete message after</string>
     <!-- Expirable messages -->
     <plurals name="weeks_left">
         <item quantity="one">1 week left</item>

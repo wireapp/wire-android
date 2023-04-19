@@ -43,7 +43,10 @@ import com.wire.kalium.logic.NetworkFailure
 
 /**
  * This class is meant to handle the visibility of the different dialogs that can be displayed in the conversation screen. Each dialog can
- * have its own internal state and logic (or not)
+ * have its own internal state and logic (or not) to decide the actions of their buttons, and internal navigation. However, this class is
+ * ultimately responsible to decide which dialog should be displayed. Otherwise, if we keep adding more dialogs, we might end up showing two
+ * or more dialogs at the same time by mistake.
+ * TODO: We should consider creating a unified VM or interactor component instead of passing all these VMs as parameters to this class.
  */
 @Composable
 fun ConversationScreenDialogs(

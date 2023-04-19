@@ -91,11 +91,6 @@ pipeline {
           steps {
             script {
               last_started = env.STAGE_NAME
-              String flavorText = ""
-              List<String> list = defineFlavor()
-              for (int i = 0; i < list.size(); i++) {
-                flavorText = flavorText + list[i] + " " + defineBuildType(list.get(i)) + "\n"
-                }
                            sh '''echo ANDROID_HOME: $ANDROID_HOME
                                  echo NDK_HOME: $NDK_HOME
                                  echo FLAVOR: $flavorText
@@ -278,15 +273,12 @@ pipeline {
                 def flavor = list[i]
                 def buildType = defineBuildType(flavor)
                 dynamicBuildStages["${flavor}"] = {
-                    stage('Assemble APK ${flavor}') {
-                        steps {
-                            withGradle() {
-                                sh './gradlew assemble${flavor}${buildType}'
-                            }
-                        }
+                    withGradle() {
+                        def assembleCommand = './gradlew assemble'+flavor+buildType
+                        sh assembleCommand
                     }
                 }
-          }
+            }
             parallel dynamicBuildStages
         }
       }

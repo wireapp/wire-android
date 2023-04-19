@@ -267,17 +267,19 @@ pipeline {
       steps {
         script {
           last_started = env.STAGE_NAME
-            def list = defineFlavor()
-            def dynamicBuildStages = "./gradlew"
-            for (int i = 0; i < list.size(); i++) {
-                if(i > 0) {
-                    dynamicBuildStages += (" assemble"+flavor+buildType)
-                }
-            }
-            if (list.size() > 0) {
-                dynamicBuildStages += " --parallel"
-            }
+          def list = defineFlavor()
+          def dynamicBuildStages = "./gradlew"
+          for (int i = 0; i < list.size(); i++) {
+            def flavor = list[i]
+            def buildType = defineBuildType(flavor)
+            dynamicBuildStages += (" assemble"+flavor+buildType)
+          }
+          if (list.size() > 1) {
+            dynamicBuildStages += " --parallel"
+          }
+          withGradle() {
             sh dynamicBuildStages
+          }
         }
       }
     }

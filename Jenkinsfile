@@ -291,17 +291,15 @@ pipeline {
                 def flavor = list[i]
                 def buildType = defineBuildType(flavor)
                 dynamicBuildStages["${flavor}"] = {
-                    node {
-                        stage('Assemble APK ${flavor}') {
-                            steps {
-                                withGradle() {
-                                    sh './gradlew assemble${flavor}${buildType}'
-                                }
+                    stage('Assemble APK ${flavor}') {
+                        steps {
+                            withGradle() {
+                                sh './gradlew assemble${flavor}${buildType}'
                             }
                         }
                     }
                 }
-            }
+          }
             parallel dynamicBuildStages
         }
       }

@@ -60,8 +60,8 @@ object FlavorDimensions {
 }
 
 object Default {
-    val BUILD_FLAVOR: String = System.getenv("flavor") ?: ProductFlavors.Dev.buildName
-    val BUILD_TYPE = System.getenv("buildType") ?: BuildTypes.DEBUG
+    val BUILD_FLAVOR: String = System.getenv("flavor") ?: System.getenv("FLAVOR") ?: ProductFlavors.Dev.buildName
+    val BUILD_TYPE = System.getenv("buildType") ?: System.getenv("BUILD_TYPE") ?: BuildTypes.DEBUG
 
     val BUILD_VARIANT = "${BUILD_FLAVOR.capitalize()}${BUILD_TYPE.capitalize()}"
 }

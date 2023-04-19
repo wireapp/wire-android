@@ -8,23 +8,22 @@ def defineFlavor() {
     def branchName = env.BRANCH_NAME
 
     if (branchName == "main") {
-        return 'Beta'
+        return ['Beta']
     } else if(branchName == "develop") {
-        return 'Staging'
+        return ['Staging', 'Dev']
     } else if(branchName == "prod") {
-        return 'Prod'
+        return ['Prod']
     } else if(branchName == "internal") {
-        return 'Internal'
+        return ['Internal']
     }
-    return 'Staging'
+    return ['Staging', 'Dev']
 }
 
-def defineBuildType() {
+def defineBuildType(String flavor) {
     def overwrite = env.CUSTOM_BUILD_TYPE
     if(overwrite != null) {
         return overwrite
     }
-    def flavor = defineFlavor()
 
     // internal is used for wire beta builds
     if (flavor == 'Beta') {
@@ -92,16 +91,21 @@ pipeline {
           steps {
             script {
               last_started = env.STAGE_NAME
+              String flavorText = ""
+              List<String> list = defineFlavor()
+              for (int i = 0; i < list.size(); i++) {
+                flavorText = flavorText + list[i] + " " + defineBuildType(list.get(i)) + "\n"
+                }
+                           sh '''echo ANDROID_HOME: $ANDROID_HOME
+                                 echo NDK_HOME: $NDK_HOME
+                                 echo FLAVOR: $flavorText
+                                 echo AdbPort: $adbPort
+                                 echo EmulatorPrefix: $emulatorPrefix
+                                 echo TrackName: $trackName
+                                 echo ChangeId: $CHANGE_ID
+                              '''
             }
-            sh '''echo ANDROID_HOME: $ANDROID_HOME
-                  echo NDK_HOME: $NDK_HOME
-                  echo Flavor: $flavor
-                  echo BuildType: $buildType
-                  echo AdbPort: $adbPort
-                  echo EmulatorPrefix: $emulatorPrefix
-                  echo TrackName: $trackName
-                  echo ChangeId: $CHANGE_ID
-               '''
+
           }
         }
 
@@ -245,6 +249,8 @@ pipeline {
       }
       steps {
         script {
+          String flavor = defineFlavor()[0]
+          String buildType = defineBuildType(flavor)
           last_started = env.STAGE_NAME
         }
 
@@ -301,6 +307,8 @@ pipeline {
       }
       steps {
         script {
+         String flavor = defineFlavor()[0]
+         String buildType = defineBuildType(flavor)
           last_started = env.STAGE_NAME
         }
 
@@ -318,20 +326,29 @@ pipeline {
       steps {
         script {
           last_started = env.STAGE_NAME
-        }
-
-        withGradle() {
-          sh './gradlew assemble${flavor}${buildType}'
+          for (int i = 0; i < flavorList.size(); i++) {
+            String flavor = flavorList[i]
+            String buildType = defineBuildType(flavor)
+            stage('Assemble APK ${flavor}') {
+              steps {
+                withGradle() {
+                  sh './gradlew assemble${flavor}${buildType}'
+                }
+              }
+            }
+          }
         }
       }
     }
 
     stage('Bundle AAB') {
       when {
-        expression { env.buildType == 'Release' }
+        expression { env.buildType == 'Compatrelease' }
       }
       steps {
         script {
+           String flavor = defineFlavor()[0]
+           String buildType = defineBuildType(flavor)
           last_started = env.STAGE_NAME
         }
 
@@ -348,6 +365,10 @@ pipeline {
               expression { env.buildType == 'Release' }
             }
             steps {
+                        script {
+                            String flavor = defineFlavor()[0]
+                            String buildType = defineBuildType(flavor)
+                        }
               sh "ls -la app/build/outputs/bundle/${flavor.toLowerCase()}${buildType.capitalize()}/"
               archiveArtifacts(artifacts: "app/build/outputs/bundle/${flavor.toLowerCase()}${buildType.capitalize()}/com.wire.android-*.aab", allowEmptyArchive: true, onlyIfSuccessful: true)
             }
@@ -366,6 +387,10 @@ pipeline {
       parallel {
           stage('S3 Bucket') {
             steps {
+                      script {
+                        String flavor = defineFlavor()[0]
+                        String buildType = defineBuildType(flavor)
+                        }
               echo 'Checking folder before S3 Bucket upload'
               sh "ls -la app/build/outputs/apk/${flavor.toLowerCase()}/${buildType.toLowerCase()}/"
               echo 'Uploading file to S3 Bucket'
@@ -382,6 +407,10 @@ pipeline {
               expression { env.trackName != 'None' && env.flavor == 'Beta' && env.CHANGE_ID == null }
             }
             steps {
+                                  script {
+                                    String flavor = defineFlavor()[0]
+                                    String buildType = defineBuildType(flavor)
+                                    }
               echo 'Checking folder before playstore upload'
               sh "ls -la app/build/outputs/bundle/${flavor.toLowerCase()}${buildType.capitalize()}/"
               echo 'Uploading file to Playstore track ${trackName}'
@@ -394,8 +423,9 @@ pipeline {
 
   environment {
     propertiesFile = 'local.properties'
-    flavor = defineFlavor()
-    buildType = defineBuildType()
+    flavorList = defineFlavor()
+    flavor = flavorList[0]
+    buildType = defineBuildType(flavor)
     adbPort = '5555'
     emulatorPrefix = "${BRANCH_NAME.replaceAll('/','_')}"
     trackName = defineTrackName()

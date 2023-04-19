@@ -30,12 +30,17 @@ import javax.inject.Singleton
 @Singleton
 class AuthServerConfigProvider @Inject constructor() {
     // todo check with soft logout
-    private val defaultBackendConfigs = when (BuildConfig.STANDARD_BACKEND) {
-        "staging" -> ServerConfig.STAGING
-        "prod" -> ServerConfig.PRODUCTION
-        null -> TODO("Create ServerConfig based on keys")
-        else -> throw IllegalArgumentException("Default backend not configured properly")
-    }
+    private val defaultBackendConfigs = ServerConfig.Links(
+        api = BuildConfig.DEFAULT_BACKEND_URL_BASE_API,
+        accounts = BuildConfig.DEFAULT_BACKEND_URL_ACCOUNTS,
+        webSocket = BuildConfig.DEFAULT_BACKEND_URL_BASE_WEBSOCKET,
+        teams = BuildConfig.DEFAULT_BACKEND_URL_TEAM_MANAGEMENT,
+        blackList = BuildConfig.DEFAULT_BACKEND_URL_BLACKLIST,
+        website = BuildConfig.DEFAULT_BACKEND_URL_WEBSITE,
+        title = BuildConfig.DEFAULT_BACKEND_TITLE,
+        isOnPremises = false,
+        apiProxy = null
+    )
     private val _authServer: MutableStateFlow<ServerConfig.Links> = MutableStateFlow(defaultBackendConfigs)
     val authServer: StateFlow<ServerConfig.Links> = _authServer
 

@@ -14,12 +14,17 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 
-package com.wire.android.ui.home.conversations
+package com.wire.android.ui.home.conversations.dialogs
 
 enum class ConversationScreenDialogType {
-    ONGOING_ACTIVE_CALL, NO_CONNECTIVITY, CALLING_FEATURE_UNAVAILABLE, NONE
+    ONGOING_ACTIVE_CALL,
+    NO_CONNECTIVITY,
+    CALLING_FEATURE_UNAVAILABLE,
+    JOIN_CALL_ANYWAY,
+    DELETE_MESSAGE,
+    DOWNLOADED_ASSET,
+    ASSET_TOO_LARGE,
+    NONE
 }

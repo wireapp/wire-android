@@ -37,7 +37,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -52,15 +51,10 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.items
 import com.wire.android.R
-import com.wire.android.appLogger
 import com.wire.android.media.audiomessage.AudioState
 import com.wire.android.model.SnackBarMessage
 import com.wire.android.navigation.hiltSavedStateViewModel
-import com.wire.android.ui.common.dialogs.calling.JoinAnywayDialog
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
-import com.wire.android.ui.common.dialogs.calling.CallingFeatureUnavailableDialog
-import com.wire.android.ui.common.dialogs.calling.OngoingActiveCallDialog
-import com.wire.android.ui.common.error.CoreFailureErrorDialog
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.common.topappbar.CommonTopAppBarViewModel
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorDownloadingAsset
@@ -69,7 +63,8 @@ import com.wire.android.ui.home.conversations.banner.ConversationBanner
 import com.wire.android.ui.home.conversations.banner.ConversationBannerViewModel
 import com.wire.android.ui.home.conversations.call.ConversationCallViewModel
 import com.wire.android.ui.home.conversations.call.ConversationCallViewState
-import com.wire.android.ui.home.conversations.delete.DeleteMessageDialog
+import com.wire.android.ui.home.conversations.dialogs.ConversationScreenDialogType
+import com.wire.android.ui.home.conversations.dialogs.ConversationScreenDialogs
 import com.wire.android.ui.home.conversations.edit.EditMessageMenuItems
 import com.wire.android.ui.home.conversations.info.ConversationInfoViewModel
 import com.wire.android.ui.home.conversations.info.ConversationInfoViewState
@@ -86,7 +81,6 @@ import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.util.permission.CallingAudioRequestFlow
 import com.wire.android.util.permission.rememberCallingRecordAudioBluetoothRequestFlow
 import com.wire.android.util.ui.UIText
-import com.wire.kalium.logic.NetworkFailure
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.call.usecase.ConferenceCallingResult
@@ -120,7 +114,6 @@ fun ConversationScreen(
     messageComposerViewModel: MessageComposerViewModel = hiltSavedStateViewModel(backNavArgs = backNavArgs)
 ) {
     val coroutineScope = rememberCoroutineScope()
-    val showDialog = remember { mutableStateOf(ConversationScreenDialogType.NONE) }
 
     val startCallAudioPermissionCheck = StartCallAudioBluetoothPermissionCheckFlow {
         conversationCallViewModel.navigateToInitiatingCallScreen()
@@ -134,39 +127,13 @@ fun ConversationScreen(
         conversationInfoViewModel.observeConversationDetails()
     }
 
-    with(conversationCallViewModel) {
-        if (conversationCallViewState.shouldShowJoinAnywayDialog) {
-            appLogger.i("showing showJoinAnywayDialog..")
-            JoinAnywayDialog(
-                onDismiss = ::dismissJoinCallAnywayDialog,
-                onConfirm = ::joinAnyway
-            )
-        }
+    val dialogStateType = remember { mutableStateOf(ConversationScreenDialogType.NONE) }
+    fun updateDialogType(newDialogType: ConversationScreenDialogType) {
+        dialogStateType.value = newDialogType
     }
 
-    when (showDialog.value) {
-        ConversationScreenDialogType.ONGOING_ACTIVE_CALL -> {
-            OngoingActiveCallDialog(onJoinAnyways = {
-                conversationCallViewModel.navigateToInitiatingCallScreen()
-                showDialog.value = ConversationScreenDialogType.NONE
-            }, onDialogDismiss = {
-                showDialog.value = ConversationScreenDialogType.NONE
-            })
-        }
-
-        ConversationScreenDialogType.NO_CONNECTIVITY -> {
-            CoreFailureErrorDialog(coreFailure = NetworkFailure.NoNetworkConnection(null)) {
-                showDialog.value = ConversationScreenDialogType.NONE
-            }
-        }
-
-        ConversationScreenDialogType.CALLING_FEATURE_UNAVAILABLE -> {
-            CallingFeatureUnavailableDialog(onDialogDismiss = {
-                showDialog.value = ConversationScreenDialogType.NONE
-            })
-        }
-
-        ConversationScreenDialogType.NONE -> {}
+    ConversationScreenDialogs(conversationCallViewModel, messageComposerViewModel, dialogStateType.value, conversationMessagesViewModel) {
+        updateDialogType(it)
     }
 
     ConversationScreen(
@@ -189,12 +156,13 @@ fun ConversationScreen(
         onStartCall = {
             startCallIfPossible(
                 conversationCallViewModel,
-                showDialog,
                 startCallAudioPermissionCheck,
                 coroutineScope,
                 conversationInfoViewModel.conversationInfoViewState.conversationType,
                 commonTopAppBarViewModel::openOngoingCallScreen
-            )
+            ) {
+                updateDialogType(it)
+            }
         },
         onJoinCall = conversationCallViewModel::joinOngoingCall,
         onReactionClick = { messageId, emoji ->
@@ -215,34 +183,20 @@ fun ConversationScreen(
         tempWritableImageUri = messageComposerViewModel.tempWritableImageUri,
         tempWritableVideoUri = messageComposerViewModel.tempWritableVideoUri
     )
-    DeleteMessageDialog(
-        state = messageComposerViewModel.deleteMessageDialogsState,
-        actions = messageComposerViewModel.deleteMessageHelper
-    )
-    DownloadedAssetDialog(
-        downloadedAssetDialogState = conversationMessagesViewModel.conversationViewState.downloadedAssetDialogState,
-        onSaveFileToExternalStorage = conversationMessagesViewModel::downloadAssetExternally,
-        onOpenFileWithExternalApp = conversationMessagesViewModel::downloadAndOpenAsset,
-        hideOnAssetDownloadedDialog = conversationMessagesViewModel::hideOnAssetDownloadedDialog
-    )
-    AssetTooLargeDialog(
-        dialogState = messageComposerViewModel.messageComposerViewState.assetTooLargeDialogState,
-        hideDialog = messageComposerViewModel::hideAssetTooLargeError
-    )
 }
 
 @Suppress("LongParameterList")
 private fun startCallIfPossible(
     conversationCallViewModel: ConversationCallViewModel,
-    showDialog: MutableState<ConversationScreenDialogType>,
     startCallAudioPermissionCheck: CallingAudioRequestFlow,
     coroutineScope: CoroutineScope,
     conversationType: Conversation.Type,
-    onOpenOngoingCallScreen: () -> Unit
+    onOpenOngoingCallScreen: () -> Unit,
+    onDialogTypeUpdated: (ConversationScreenDialogType) -> Unit,
 ) {
     coroutineScope.launch {
         if (!conversationCallViewModel.hasStableConnectivity()) {
-            showDialog.value = ConversationScreenDialogType.NO_CONNECTIVITY
+            onDialogTypeUpdated(ConversationScreenDialogType.NO_CONNECTIVITY)
         } else {
             val dialogValue = when (conversationCallViewModel.isConferenceCallingEnabled(conversationType)) {
                 ConferenceCallingResult.Enabled -> {
@@ -260,7 +214,7 @@ private fun startCallIfPossible(
                 else -> ConversationScreenDialogType.NONE
             }
 
-            showDialog.value = dialogValue
+            onDialogTypeUpdated(dialogValue)
         }
     }
 }

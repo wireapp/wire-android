@@ -37,7 +37,7 @@ import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.conversations.MediaGallerySnackbarMessages
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogActiveState
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogHelper
-import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogsState
+import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogsStates
 import com.wire.android.util.FileManager
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.startFileShareIntent
@@ -208,8 +208,8 @@ class MediaGalleryViewModel @Inject constructor(
         }
     }
 
-    private fun updateDeleteDialogState(newValue: (DeleteMessageDialogsState.States) -> DeleteMessageDialogsState) {
-        (mediaGalleryViewState.deleteMessageDialogsState as? DeleteMessageDialogsState.States)?.let {
+    private fun updateDeleteDialogState(newValue: (DeleteMessageDialogsStates) -> DeleteMessageDialogsStates) {
+        (mediaGalleryViewState.deleteMessageDialogsState as? DeleteMessageDialogsStates)?.let {
             mediaGalleryViewState = mediaGalleryViewState.copy(deleteMessageDialogsState = newValue(it))
         }
     }

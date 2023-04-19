@@ -27,7 +27,7 @@ import kotlinx.coroutines.launch
 class DeleteMessageDialogHelper(
     val scope: CoroutineScope,
     val conversationId: QualifiedID,
-    private val updateDeleteDialogState: ((DeleteMessageDialogsState.States) -> DeleteMessageDialogsState) -> Unit,
+    private val updateDeleteDialogState: ((DeleteMessageDialogsStates) -> DeleteMessageDialogsStates) -> Unit,
     private val deleteMessage: suspend (String, Boolean) -> Unit
 ) {
 

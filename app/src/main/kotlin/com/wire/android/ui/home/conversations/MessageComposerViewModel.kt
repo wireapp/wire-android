@@ -46,13 +46,14 @@ import com.wire.android.navigation.getBackNavArgs
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorDeletingMessage
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogActiveState
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogHelper
-import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogsState
+import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogsStates
 import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.android.ui.home.conversations.model.AttachmentType
 import com.wire.android.ui.home.conversations.model.EditMessageBundle
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UriAsset
 import com.wire.android.ui.home.messagecomposer.UiMention
+import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.util.FileManager
 import com.wire.android.util.ImageUtil
 import com.wire.android.util.dispatchers.DispatcherProvider
@@ -119,11 +120,10 @@ class MessageComposerViewModel @Inject constructor(
         private set
 
     var tempWritableImageUri: Uri? = null
-        private set
 
     // TODO: should be moved to ConversationMessagesViewModel?
-    var deleteMessageDialogsState: DeleteMessageDialogsState by mutableStateOf(
-        DeleteMessageDialogsState.States(
+    var deleteMessageDialogsState: DeleteMessageDialogsStates by mutableStateOf(
+        DeleteMessageDialogsStates(
             forYourself = DeleteMessageDialogActiveState.Hidden,
             forEveryone = DeleteMessageDialogActiveState.Hidden
         )
@@ -337,8 +337,8 @@ class MessageComposerViewModel @Inject constructor(
             }
         }
 
-    private fun updateDeleteDialogState(newValue: (DeleteMessageDialogsState.States) -> DeleteMessageDialogsState) =
-        (deleteMessageDialogsState as? DeleteMessageDialogsState.States)?.let { deleteMessageDialogsState = newValue(it) }
+    private fun updateDeleteDialogState(newValue: (DeleteMessageDialogsStates) -> DeleteMessageDialogsStates) =
+        deleteMessageDialogsState.let { deleteMessageDialogsState = newValue(it) }
 
     fun updateConversationReadDate(utcISO: String) {
         viewModelScope.launch(dispatchers.io()) {

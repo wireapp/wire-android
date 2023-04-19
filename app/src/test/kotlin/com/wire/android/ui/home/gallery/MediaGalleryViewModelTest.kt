@@ -28,7 +28,7 @@ import com.wire.android.framework.FakeKaliumFileSystem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.conversations.MediaGallerySnackbarMessages
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogActiveState
-import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogsState
+import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogsStates
 import com.wire.android.util.FileManager
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.CoreFailure
@@ -163,8 +163,8 @@ class MediaGalleryViewModelTest {
 
         // Then
         val deleteMessageDialogsState = viewModel.mediaGalleryViewState.deleteMessageDialogsState
-        assert(deleteMessageDialogsState is DeleteMessageDialogsState.States)
-        assert((deleteMessageDialogsState as DeleteMessageDialogsState.States).forEveryone is DeleteMessageDialogActiveState.Visible)
+        assert(deleteMessageDialogsState is DeleteMessageDialogsStates)
+        assert((deleteMessageDialogsState as DeleteMessageDialogsStates).forEveryone is DeleteMessageDialogActiveState.Visible)
     }
 
     @Test

@@ -24,7 +24,7 @@ import androidx.core.net.toUri
 import app.cash.turbine.test
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogActiveState
-import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogsState
+import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogsStates
 import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.android.ui.home.conversations.model.AttachmentType
 import com.wire.android.ui.home.conversations.model.UriAsset
@@ -54,7 +54,7 @@ class MessageComposerViewModelTest {
         viewModel.showDeleteMessageDialog("", true)
 
         // Then
-        viewModel.deleteMessageDialogsState shouldBeEqualTo DeleteMessageDialogsState.States(
+        viewModel.deleteMessageDialogsState shouldBeEqualTo DeleteMessageDialogsStates(
             forYourself = DeleteMessageDialogActiveState.Hidden,
             forEveryone = DeleteMessageDialogActiveState.Visible("", viewModel.conversationId)
         )
@@ -71,7 +71,7 @@ class MessageComposerViewModelTest {
         viewModel.showDeleteMessageDialog("", false)
 
         // Then
-        viewModel.deleteMessageDialogsState shouldBeEqualTo DeleteMessageDialogsState.States(
+        viewModel.deleteMessageDialogsState shouldBeEqualTo DeleteMessageDialogsStates(
             forYourself = DeleteMessageDialogActiveState.Visible("", viewModel.conversationId),
             forEveryone = DeleteMessageDialogActiveState.Hidden
         )
@@ -88,7 +88,7 @@ class MessageComposerViewModelTest {
         viewModel.deleteMessageHelper.showDeleteMessageForYourselfDialog("")
 
         // Then
-        viewModel.deleteMessageDialogsState shouldBeEqualTo DeleteMessageDialogsState.States(
+        viewModel.deleteMessageDialogsState shouldBeEqualTo DeleteMessageDialogsStates(
             forYourself = DeleteMessageDialogActiveState.Visible("", viewModel.conversationId),
             forEveryone = DeleteMessageDialogActiveState.Hidden
         )
@@ -103,7 +103,7 @@ class MessageComposerViewModelTest {
         viewModel.deleteMessageHelper.onDeleteDialogDismissed()
 
         // Then
-        viewModel.deleteMessageDialogsState shouldBeEqualTo DeleteMessageDialogsState.States(
+        viewModel.deleteMessageDialogsState shouldBeEqualTo DeleteMessageDialogsStates(
             forYourself = DeleteMessageDialogActiveState.Hidden, forEveryone = DeleteMessageDialogActiveState.Hidden
         )
     }
@@ -140,7 +140,7 @@ class MessageComposerViewModelTest {
         viewModel.deleteMessageHelper.onDeleteMessage("messageId", true)
 
         // Then
-        val expectedState = DeleteMessageDialogsState.States(
+        val expectedState = DeleteMessageDialogsStates(
             DeleteMessageDialogActiveState.Hidden,
             DeleteMessageDialogActiveState.Hidden
         )
@@ -223,11 +223,11 @@ class MessageComposerViewModelTest {
         val mockedUri = UriAsset("mocked_image.jpeg".toUri(), false)
 
         // When
-            viewModel.attachmentPicked(mockedUri)
+        viewModel.attachmentPicked(mockedUri)
 
-            // Then
-            coVerify(inverse = true) { arrangement.sendAssetMessage.invoke(any(), any(), any(), any(), any(), any(), any()) }
-            assert(viewModel.messageComposerViewState.assetTooLargeDialogState is AssetTooLargeDialogState.Visible)
+        // Then
+        coVerify(inverse = true) { arrangement.sendAssetMessage.invoke(any(), any(), any(), any(), any(), any(), any()) }
+        assert(viewModel.messageComposerViewState.assetTooLargeDialogState is AssetTooLargeDialogState.Visible)
     }
 
     @Test
@@ -247,11 +247,11 @@ class MessageComposerViewModelTest {
             val mockedUri = UriAsset("mocked_image.jpeg".toUri(), false)
 
             // When
-                viewModel.attachmentPicked(mockedUri)
+            viewModel.attachmentPicked(mockedUri)
 
-                // Then
-                coVerify(inverse = true) { arrangement.sendAssetMessage.invoke(any(), any(), any(), any(), any(), any(), any()) }
-                assert(viewModel.messageComposerViewState.assetTooLargeDialogState is AssetTooLargeDialogState.Visible)
+            // Then
+            coVerify(inverse = true) { arrangement.sendAssetMessage.invoke(any(), any(), any(), any(), any(), any(), any()) }
+            assert(viewModel.messageComposerViewState.assetTooLargeDialogState is AssetTooLargeDialogState.Visible)
         }
 
     @Test
@@ -318,11 +318,11 @@ class MessageComposerViewModelTest {
         )
 
         // When
-            viewModel.sendAttachmentMessage(mockedAttachment)
+        viewModel.sendAttachmentMessage(mockedAttachment)
 
-            // Then
-            coVerify(exactly = 1) { arrangement.sendAssetMessage.invoke(any(), any(), any(), any(), any(), any(), any()) }
-            assert(viewModel.messageComposerViewState.assetTooLargeDialogState is AssetTooLargeDialogState.Hidden)
+        // Then
+        coVerify(exactly = 1) { arrangement.sendAssetMessage.invoke(any(), any(), any(), any(), any(), any(), any()) }
+        assert(viewModel.messageComposerViewState.assetTooLargeDialogState is AssetTooLargeDialogState.Hidden)
     }
 
     @Test

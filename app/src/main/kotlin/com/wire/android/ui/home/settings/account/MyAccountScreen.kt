@@ -82,12 +82,12 @@ private fun mapToUISections(viewModel: MyAccountViewModel, state: MyAccountState
     return with(state) {
         listOfNotNull(
             if (fullName.isNotBlank()) {
-                DisplayName(fullName, clickableActionIfPossible(state.isReadOnlyAccount) { viewModel.navigateToChangeDisplayName() })
+                DisplayName(fullName, clickableActionIfPossible(!state.isReadOnlyAccount) { viewModel.navigateToChangeDisplayName() })
             } else {
                 null
             },
             if (userName.isNotBlank()) {
-                Username("@$userName", clickableActionIfPossible(state.isEditHandleAllowed) { viewModel.navigateToChangeHandle() })
+                Username("@$userName", clickableActionIfPossible(!state.isEditHandleAllowed) { viewModel.navigateToChangeHandle() })
             } else {
                 null
             },

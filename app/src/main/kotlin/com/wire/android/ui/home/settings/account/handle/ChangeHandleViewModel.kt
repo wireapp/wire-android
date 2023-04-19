@@ -59,10 +59,10 @@ class ChangeHandleViewModel @Inject constructor(
         }
     }
 
-    fun onHandleChanged(handle: TextFieldValue) {
-        state = state.copy(handle = handle)
+    fun onHandleChanged(newHandle: TextFieldValue) {
+        state = state.copy(handle = newHandle)
         viewModelScope.launch {
-            state = when (validateHandle(handle.text)) {
+            state = when (validateHandle(newHandle.text)) {
                 is ValidateUserHandleResult.Invalid.InvalidCharacters,
                 is ValidateUserHandleResult.Invalid.TooLong,
                 is ValidateUserHandleResult.Invalid.TooShort -> state.copy(
@@ -72,7 +72,7 @@ class ChangeHandleViewModel @Inject constructor(
 
                 is ValidateUserHandleResult.Valid -> state.copy(
                     error = HandleUpdateErrorState.None,
-                    isSaveButtonEnabled = true
+                    isSaveButtonEnabled = newHandle.text != currentHandle
                 )
             }
         }

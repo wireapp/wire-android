@@ -132,7 +132,7 @@ fun ChangeHandleContent(
                         onClick = onSaveClicked,
                         fillMaxWidth = true,
                         trailingIcon = Icons.Filled.ChevronRight.Icon(),
-                        state = if (state.saveEnabled) Default else Disabled,
+                        state = if (state.isSaveButtonEnabled) Default else Disabled,
                         modifier = Modifier.fillMaxWidth()
                     )
                 }

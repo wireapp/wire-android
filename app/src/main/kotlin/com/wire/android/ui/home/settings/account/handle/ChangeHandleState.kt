@@ -25,5 +25,4 @@ data class ChangeHandleState(
     val error: HandleUpdateErrorState = HandleUpdateErrorState.None,
     val isSaveButtonEnabled: Boolean = false,
     val animatedHandleError: Boolean = false,
-    val saveEnabled: Boolean = false,
 )

@@ -31,6 +31,8 @@ import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.messagecomposer.state.AttachmentStateHolder
 import com.wire.android.ui.home.messagecomposer.state.MessageComposerState
 import com.wire.android.ui.home.messagecomposer.model.UiMention
+import com.wire.android.ui.home.messagecomposer.state.MessageComposerState
+import com.wire.android.ui.home.messagecomposer.model.UiMention
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserId
@@ -223,7 +225,6 @@ class MessageComposerStateTest {
     companion object {
         fun createState(context: Context, focusManager: FocusManager, focusRequester: FocusRequester) = MessageComposerState(
             context,
-            AttachmentStateHolder(context),
             focusManager,
             focusRequester,
             SpanStyle(),

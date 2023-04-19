@@ -63,7 +63,6 @@ import com.wire.android.ui.userprofile.other.OtherUserProfileInfoMessageType.Unb
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.WireSessionImageLoader
-import com.wire.kalium.logic.data.client.DeviceType
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
@@ -140,7 +139,12 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     private val userId: QualifiedID = savedStateHandle.get<String>(EXTRA_USER_ID)!!.toQualifiedID(qualifiedIdMapper)
     private val conversationId: QualifiedID? = savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)?.toQualifiedID(qualifiedIdMapper)
 
-    var state: OtherUserProfileState by mutableStateOf(OtherUserProfileState(userId = userId, conversationId = conversationId))
+    var state: OtherUserProfileState by mutableStateOf(OtherUserProfileState(
+        userId = userId,
+        conversationId = conversationId,
+        isDataLoading = true,
+        isAvatarLoading = true
+    ))
     var requestInProgress: Boolean by mutableStateOf(false)
 
     private val _infoMessage = MutableSharedFlow<UIText>()
@@ -150,8 +154,6 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     val closeBottomSheet = _closeBottomSheet.asSharedFlow()
 
     init {
-        state = state.copy(isDataLoading = true, isAvatarLoading = true)
-
         observeUserInfoAndUpdateViewState()
         persistClients()
         setClassificationType()
@@ -168,12 +170,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
 
                         is ObserveClientsByUserIdUseCase.Result.Success -> {
                             state = state.copy(otherUserDevices = it.clients.map { item ->
-                                Device(
-                                    name = item.deviceType?.name ?: DeviceType.Unknown.name,
-                                    clientId = item.id,
-                                    isValid = item.isValid,
-                                    isVerified = item.isVerified
-                                )
+                                Device(item)
                             })
                         }
                     }
@@ -490,7 +487,8 @@ class OtherUserProfileScreenViewModel @Inject constructor(
 
     private fun setClassificationType() {
         viewModelScope.launch {
-            state = state.copy(securityClassificationType = getOtherUserSecurityClassificationLabel(userId))
+            val result = getOtherUserSecurityClassificationLabel(userId)
+            state = state.copy(securityClassificationType = result)
         }
     }
 

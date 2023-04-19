@@ -60,7 +60,6 @@ import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
 import com.wire.kalium.logic.feature.user.UpdateSelfAvailabilityStatusUseCase
 import com.wire.kalium.logic.featureFlags.KaliumConfigs
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
@@ -71,6 +70,7 @@ import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import javax.inject.Inject
 
 // Suppress for now after removing mockMethodForAvatar it should not complain
 @Suppress("TooManyFunctions", "LongParameterList")
@@ -112,12 +112,14 @@ class SelfUserProfileViewModel @Inject constructor(
     }
 
     private suspend fun fetchIsReadOnlyAccount() {
-        userProfileState = userProfileState.copy(isReadOnlyAccount = isReadOnlyAccount())
+        val isReadOnlyAccount = isReadOnlyAccount()
+        userProfileState = userProfileState.copy(isReadOnlyAccount = isReadOnlyAccount)
     }
 
     private fun observeEstablishedCall() {
         viewModelScope.launch {
             establishedCallsList = observeEstablishedCalls()
+                .distinctUntilChanged()
                 .flowOn(dispatchers.io())
                 .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
         }
@@ -200,6 +202,7 @@ class SelfUserProfileViewModel @Inject constructor(
 
     fun logout(wipeData: Boolean) {
         viewModelScope.launch {
+            userProfileState = userProfileState.copy(isLoggingOut = true)
             launch {
                 establishedCallsList.value.forEach { call ->
                     endCall(call.conversationId)

@@ -169,11 +169,8 @@ fun ConversationRouterHomeBridge(
                     AllConversationScreen(
                         conversations = foldersWithConversations,
                         hasNoConversations = hasNoConversations,
-                        onOpenConversation = viewModel::openConversation,
                         onEditConversation = onEditConversationItem,
-                        onOpenUserProfile = viewModel::openUserProfile,
                         onOpenConversationNotificationsSettings = onEditNotifications,
-                        onJoinCall = viewModel::joinOngoingCall
                     )
 
                 ConversationItemType.CALLS ->
@@ -271,7 +268,6 @@ class ConversationRouterState(
     fun closeSearch() {
         conversationItemType = initialItemType
     }
-
 }
 
 @Composable

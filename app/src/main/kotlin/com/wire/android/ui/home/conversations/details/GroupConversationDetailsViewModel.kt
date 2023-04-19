@@ -66,6 +66,7 @@ import com.wire.kalium.logic.feature.team.DeleteTeamConversationUseCase
 import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
 import com.wire.kalium.logic.feature.team.Result
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
+import com.wire.kalium.logic.feature.user.IsMLSEnabledUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -98,6 +99,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
     private val clearConversationContent: ClearConversationContentUseCase,
     private val updateConversationReceiptMode: UpdateConversationReceiptModeUseCase,
     override val savedStateHandle: SavedStateHandle,
+    private val isMLSEnabled: IsMLSEnabledUseCase,
     qualifiedIdMapper: QualifiedIdMapper
 ) : GroupConversationParticipantsViewModel(
     savedStateHandle, navigationManager, observeConversationMembers, qualifiedIdMapper
@@ -169,6 +171,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
                         isServicesAllowed = groupDetails.conversation.isServicesAllowed(),
                         isUpdatingAllowed = isSelfAnAdmin,
                         isUpdatingGuestAllowed = isSelfAnAdmin && isSelfInOwnerTeam,
+                        mlsEnabled = isMLSEnabled(),
                         isReadReceiptAllowed = groupDetails.conversation.receiptMode == Conversation.ReceiptMode.ENABLED,
                         isUpdatingReadReceiptAllowed = isUpdatingReadReceiptAllowed
                     )

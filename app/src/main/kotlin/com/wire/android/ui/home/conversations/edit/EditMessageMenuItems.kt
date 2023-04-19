@@ -62,6 +62,7 @@ fun EditMessageMenuItems(
             || message.messageContent is UIMessageContent.ImageMessage
             || message.messageContent is UIMessageContent.AudioAssetMessage
     val isEditable = message.isTextMessage && message.isMyMessage && localFeatureVisibilityFlags.MessageEditIcon
+    val isEphemeral = message.expirationStatus is ExpirationStatus.Expirable
     val isGenericAsset = message.messageContent is UIMessageContent.AssetMessage
 
     val onCopyItemClick = remember(message) {
@@ -151,11 +152,11 @@ fun EditMessageMenuItems(
                         )
                     }
                 }
-                add {
+                if (!isEphemeral)add {
                     ReplyMessageOption(onReplyItemClick)
                     if (isAssetMessage) add { DownloadAssetExternallyOption(onDownloadAssetClick) }
                     if (isGenericAsset) add { OpenAssetExternallyOption(onOpenAssetClick) }
-                    if (isEditable) {
+                    if (isEditable&& !isEphemeral) {
                         add {
                             MenuBottomSheetItem(
                                 icon = {

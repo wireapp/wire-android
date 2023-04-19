@@ -79,6 +79,10 @@ enum class BackStackMode {
     // if no instance in backStack, then just add screen in top of stack.
     UPDATE_EXISTED,
 
+    // remove the current item from backstack and then pops stack till that screen and replace it by the new screen.
+    // it's REMOVE_CURRENT and UPDATE_EXISTED applied one after the other respectively
+    REMOVE_CURRENT_AND_REPLACE,
+
     // screen will be added to the existing backstack.
     NONE;
 }

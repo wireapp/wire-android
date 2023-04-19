@@ -42,9 +42,6 @@ fun MessageSendActions(
 ) {
     Box(modifier) {
         Row(Modifier.padding(end = dimensions().spacing8x)) {
-//            if (messageComposerState.sendButtonEnabled) {
-//                ScheduleMessageButton()
-//            }
             SendButton(
                 isEnabled = sendButtonEnabled,
                 onSendButtonClicked = onSendButtonClicked

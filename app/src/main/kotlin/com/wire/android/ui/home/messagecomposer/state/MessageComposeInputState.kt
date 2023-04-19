@@ -19,6 +19,8 @@ package com.wire.android.ui.home.messagecomposer.state
 
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.text.input.TextFieldValue
+import com.wire.android.R
+import com.wire.android.util.ui.UIText
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.hours
@@ -104,13 +106,14 @@ sealed class MessageComposeInputType {
     ) : MessageComposeInputType()
 }
 
-enum class SelfDeletionDuration(val value: Duration?, val label: String) {
-    None(null, "Off"),
-    TenSeconds(10.seconds, "10 seconds"),
-    FiveMinutes(5.minutes, "5 minutes"),
-    OneHour(1.hours, "1 hour"),
-    OneDay(1.days, "1 day"),
-    OneWeek(7.days, "1 week"),
-    FourWeeks(28.days, "4 weeks")
-}
 
+@Suppress("MagicNumber")
+enum class SelfDeletionDuration(val value: Duration?, val label: UIText) {
+    None(null, UIText.StringResource(R.string.label_off)),
+    TenSeconds(10.seconds, UIText.PluralResource(R.plurals.seconds_label, 10, 10)),
+    FiveMinutes(5.minutes, UIText.PluralResource(R.plurals.minutes_label, 5, 5)),
+    OneHour(1.hours, UIText.PluralResource(R.plurals.hours_label, 1, 1)),
+    OneDay(1.days, UIText.PluralResource(R.plurals.days_label, 1, 1)),
+    OneWeek(7.days, UIText.PluralResource(R.plurals.days_label, 7, 7)),
+    FourWeeks(28.days, UIText.PluralResource(R.plurals.weeks_label, 4, 4))
+}

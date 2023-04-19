@@ -104,6 +104,7 @@ import com.wire.kalium.logic.feature.user.ObserveUserInfoUseCase
 import com.wire.kalium.logic.feature.user.ObserveValidAccountsUseCase
 import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
 import com.wire.kalium.logic.feature.user.UpdateDisplayNameUseCase
+import com.wire.kalium.logic.feature.user.UpdateEmailUseCase
 import com.wire.kalium.logic.featureFlags.KaliumConfigs
 import dagger.Module
 import dagger.Provides
@@ -1047,4 +1048,12 @@ class UseCaseModule {
         @CurrentAccount currentAccount: UserId
     ): UpdateClientVerificationStatusUseCase =
         coreLogic.getSessionScope(currentAccount).client.updateClientVerificationStatus
+
+    @ViewModelScoped
+    @Provides
+    fun provideUpdateEmailUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): UpdateEmailUseCase =
+        coreLogic.getSessionScope(currentAccount).users.updateEmail
 }

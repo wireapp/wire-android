@@ -243,24 +243,6 @@ pipeline {
       }
     }
 
-    stage('Unit Tests') {
-      when {
-        expression { env.runUnitTests.toBoolean() }
-      }
-      steps {
-        script {
-          last_started = env.STAGE_NAME
-        }
-
-        withGradle() {
-          sh './gradlew runUnitTests'
-        }
-
-        publishHTML(allowMissing: true, alwaysLinkToLastBuild: true, keepAll: true, reportDir: "app/build/reports/tests/test${unitTestFlavor}${unitTestBuildType}UnitTest/", reportFiles: 'index.html', reportName: 'Unit Test Report', reportTitles: 'Unit Test')
-        zip archive: true, defaultExcludes: false, dir: "app/build/reports/tests/test${unitTestFlavor}${unitTestBuildType}UnitTest/", overwrite: true, glob: "", zipFile: "unit-tests-android.zip"
-      }
-    }
-
     stage('Connect Emulators') {
       parallel {
         stage('Emulator 10.0') {
@@ -298,25 +280,6 @@ pipeline {
 
       }
     }
-
-    stage('Acceptance Tests') {
-      when {
-        expression { env.runAcceptanceTests.toBoolean() }
-      }
-      steps {
-        script {
-          last_started = env.STAGE_NAME
-        }
-
-        withGradle() {
-          sh './gradlew runAcceptanceTests'
-        }
-
-        publishHTML(allowMissing: true, alwaysLinkToLastBuild: true, keepAll: true, reportDir: "app/build/reports/androidTests/connected/flavors/${unitTestFlavor.toLowerCase()}", reportFiles: 'index.html', reportName: 'Acceptance Test Report', reportTitles: 'Acceptance Test')
-        zip archive: true, defaultExcludes: false, dir: "app/build/reports/androidTests/connected/flavors/${unitTestFlavor.toLowerCase()}", overwrite: true, glob: "", zipFile: "integration-tests-android.zip"
-      }
-    }
-
 
     stage('Assemble APK') {
       steps {

@@ -268,35 +268,39 @@ pipeline {
         script {
           last_started = env.STAGE_NAME
             def list = defineFlavor()
-            def dynamicBuildStages = [:]
+            def dynamicBuildStages = "./gradlew"
             for (int i = 0; i < list.size(); i++) {
-                def flavor = list[i]
-                def buildType = defineBuildType(flavor)
-                dynamicBuildStages["${flavor}"] = {
-                    withGradle() {
-                        def assembleCommand = './gradlew assemble'+flavor+buildType
-                        sh assembleCommand
-                    }
+                if(i > 0) {
+                    dynamicBuildStages += (" assemble"+flavor+buildType)
                 }
             }
-            parallel dynamicBuildStages
+            if (list.size() > 0) {
+                dynamicBuildStages += " --parallel"
+            }
+            sh dynamicBuildStages
         }
       }
     }
 
     stage('Bundle AAB') {
-      when {
-        expression { env.buildType == 'Compatrelease' }
-      }
       steps {
         script {
-           String flavor = defineFlavor()[0]
-           String buildType = defineBuildType(flavor)
           last_started = env.STAGE_NAME
-        }
-
-        withGradle() {
-          sh './gradlew bundle${flavor}${buildType}'
+          def list = defineFlavor()
+          def dynamicBuildStages = [:]
+          for (int i = 0; i < list.size(); i++) {
+            def flavor = list[i]
+            def buildType = defineBuildType(flavor)
+            if (buildType == "Release" || buildType == "Compatrelease") {
+              dynamicBuildStages["${flavor}${buildType}"] = {
+                withGradle() {
+                  def assembleCommand = './gradlew bundle'+flavor+buildType
+                    sh assembleCommand
+                }
+              }
+            }
+          }
+          parallel dynamicBuildStages
         }
       }
     }

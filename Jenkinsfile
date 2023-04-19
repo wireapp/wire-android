@@ -322,17 +322,24 @@ pipeline {
       steps {
         script {
           last_started = env.STAGE_NAME
-          for (int i = 0; i < flavorList.size(); i++) {
-            String flavor = flavorList[i]
-            String buildType = defineBuildType(flavor)
-            stage('Assemble APK ${flavor}') {
-              steps {
-                withGradle() {
-                  sh './gradlew assemble${flavor}${buildType}'
+            def list = defineFlavor()
+            def dynamicBuildStages = [:]
+            for (int i = 0; i < list.size(); i++) {
+                def flavor = list[i]
+                def buildType = defineBuildType(flavor)
+                dynamicBuildStages["${flavor}"] = {
+                    node('android') {
+                        stage('Assemble APK ${flavor}') {
+                            steps {
+                                withGradle() {
+                                    sh './gradlew assemble${flavor}${buildType}'
+                                }
+                            }
+                        }
+                    }
                 }
-              }
             }
-          }
+            parallel dynamicBuildStages
         }
       }
     }

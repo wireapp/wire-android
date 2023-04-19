@@ -6,12 +6,7 @@
             "safe_logging": false,
             "private_build": false,
             "development_api_enabled": false,
-            "mls_support_enabled": false,
-            "firebasePushSenderId": "782078216207",
-            "firebaseAppId": "1:782078216207:android:d3db2443512d2055",
-            "googleApiKey": "AIzaSyBXtNKuX6GCKv2jDtsFImUaxCRL21DTLEQ",
-            "fcmProjectID": "w966768976",
-            "standardBackend": "prod"
+            "mls_support_enabled": false
         },
         "dev": {
             "developer_features_enabled": true,
@@ -20,11 +15,13 @@
             "private_build": true,
             "development_api_enabled": true,
             "mls_support_enabled": true,
-            "firebasePushSenderId": "782078216207",
-            "firebaseAppId": "1:782078216207:android:d3db2443512d2055",
-            "googleApiKey": "AIzaSyBXtNKuX6GCKv2jDtsFImUaxCRL21DTLEQ",
-            "fcmProjectID": "w966768976",
-            "standardBackend": "prod"
+            "default_backend_url_base_api": "https://staging-nginz-https.zinfra.io",
+            "default_backend_url_accounts": "https://wire-account-staging.zinfra.io",
+            "default_backend_url_base_websocket": "https://staging-nginz-ssl.zinfra.io",
+            "default_backend_url_teams": "https://wire-teams-staging.zinfra.io",
+            "default_backend_url_blacklist": "https://clientblacklist.wire.com/staging",
+            "default_backend_url_website": "https://wire.com",
+            "default_backend_title": "wire-staging"
         },
         "staging": {
             "developer_features_enabled": true,
@@ -37,7 +34,13 @@
             "firebaseAppId": "1:723990470614:android:10cf802bfcc7bb71d28e77",
             "googleApiKey": "AIzaSyAGCoJGUtDBLJJiQPLxHQRrdkbyI0wlbo8",
             "fcmProjectID": "wiregcmpushstaging",
-            "standardBackend": "staging"
+            "default_backend_url_base_api": "https://staging-nginz-https.zinfra.io",
+            "default_backend_url_accounts": "https://wire-account-staging.zinfra.io",
+            "default_backend_url_base_websocket": "https://staging-nginz-ssl.zinfra.io",
+            "default_backend_url_teams": "https://wire-teams-staging.zinfra.io",
+            "default_backend_url_blacklist": "https://clientblacklist.wire.com/staging",
+            "default_backend_url_website": "https://wire.com",
+            "default_backend_title": "wire-staging"
         },
         "beta": {
             "developer_features_enabled": true,
@@ -45,12 +48,7 @@
             "safe_logging": true,
             "private_build": true,
             "development_api_enabled": false,
-            "mls_support_enabled": false,
-            "firebasePushSenderId": "782078216207",
-            "firebaseAppId": "1:782078216207:android:d3db2443512d2055",
-            "googleApiKey": "AIzaSyBXtNKuX6GCKv2jDtsFImUaxCRL21DTLEQ",
-            "fcmProjectID": "w966768976",
-            "standardBackend": "prod"
+            "mls_support_enabled": false
         },
         "internal": {
             "developer_features_enabled": true,
@@ -58,14 +56,21 @@
             "safe_logging": true,
             "private_build": true,
             "development_api_enabled": false,
-            "mls_support_enabled": true,
-            "firebasePushSenderId": "782078216207",
-            "firebaseAppId": "1:782078216207:android:d3db2443512d2055",
-            "googleApiKey": "AIzaSyBXtNKuX6GCKv2jDtsFImUaxCRL21DTLEQ",
-            "fcmProjectID": "w966768976",
-            "standardBackend": "prod"
+            "mls_support_enabled": true
         }
     },
+    "default_backend_url_base_api": "https://prod-nginz-https.wire.com",
+    "default_backend_url_accounts": "https://account.wire.com",
+    "default_backend_url_base_websocket": "https://prod-nginz-ssl.wire.com",
+    "default_backend_url_teams": "https://teams.wire.com",
+    "default_backend_url_blacklist": "https://clientblacklist.wire.com/prod",
+    "default_backend_url_website": "https://wire.com",
+    "default_backend_title": "wire-production",
+    "firebasePushSenderId": "782078216207",
+    "firebaseAppId": "1:782078216207:android:d3db2443512d2055",
+    "googleApiKey": "AIzaSyBXtNKuX6GCKv2jDtsFImUaxCRL21DTLEQ",
+    "fcmProjectID": "w966768976",
+    "url_support": "https://support.wire.com",
     "maxAccounts": 3,
     "supportEmail": "support@wire.com",
     "allowMarketingCommunication": true,
@@ -82,5 +87,7 @@
     "update_app_url": "https://wire.com/en/download/",
     "guest_room_link": true,
     "wipe_on_cookie_invalid": false,
-    "wipe_on_device_removal": false
+    "wipe_on_device_removal": false,
+    "report_bug_menu_item_enabled": true,
+    "debug_screen_enabled": true
 }

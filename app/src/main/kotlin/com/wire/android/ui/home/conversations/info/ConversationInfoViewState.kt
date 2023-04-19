@@ -20,15 +20,32 @@
 
 package com.wire.android.ui.home.conversations.info
 
-import com.wire.android.ui.home.conversations.ConversationAvatar
-import com.wire.android.ui.home.conversations.ConversationDetailsData
+import com.wire.android.model.ImageAsset
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.Conversation
+import com.wire.kalium.logic.data.id.QualifiedID
+import com.wire.kalium.logic.data.user.ConnectionState
+import com.wire.kalium.logic.data.user.UserAvailabilityStatus
+import com.wire.kalium.logic.data.user.UserId
 
 data class ConversationInfoViewState(
     val conversationName: UIText = UIText.DynamicString(""),
     val conversationDetailsData: ConversationDetailsData = ConversationDetailsData.None,
     val conversationAvatar: ConversationAvatar = ConversationAvatar.None,
-    val hasUserPermissionToEdit : Boolean = false,
+    val hasUserPermissionToEdit: Boolean = false,
     val conversationType: Conversation.Type = Conversation.Type.ONE_ON_ONE
 )
+
+sealed class ConversationDetailsData {
+    object None : ConversationDetailsData()
+    data class OneOne(val otherUserId: UserId, val connectionState: ConnectionState, val isBlocked: Boolean, val isDeleted: Boolean) :
+        ConversationDetailsData()
+
+    data class Group(val conversationId: QualifiedID) : ConversationDetailsData()
+}
+
+sealed class ConversationAvatar {
+    object None : ConversationAvatar()
+    data class OneOne(val avatarAsset: ImageAsset.UserAvatarAsset?, val status: UserAvailabilityStatus) : ConversationAvatar()
+    data class Group(val conversationId: QualifiedID) : ConversationAvatar()
+}

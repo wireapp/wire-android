@@ -35,6 +35,7 @@ import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.services.ServicesManager
+import com.wire.android.ui.authentication.devices.model.displayName
 import com.wire.android.ui.common.dialogs.CustomBEDeeplinkDialogState
 import com.wire.android.ui.joinConversation.JoinConversationViaCodeState
 import com.wire.android.util.deeplink.DeepLinkProcessor
@@ -565,7 +566,7 @@ class WireActivityViewModelTest {
             .arrange()
 
         assertEquals(
-            NewClientData.CurrentUser(TestClient.CLIENT.registrationTime?.toIsoDateTimeString()!!, TestClient.CLIENT.name),
+            NewClientData.CurrentUser(TestClient.CLIENT.registrationTime?.toIsoDateTimeString()!!, TestClient.CLIENT.displayName()),
             viewModel.globalAppState.newClientDialog
         )
     }
@@ -580,7 +581,7 @@ class WireActivityViewModelTest {
         assertEquals(
             NewClientData.OtherUser(
                 TestClient.CLIENT.registrationTime?.toIsoDateTimeString()!!,
-                TestClient.CLIENT.name,
+                TestClient.CLIENT.displayName(),
                 USER_ID,
                 "name",
                 "handle"

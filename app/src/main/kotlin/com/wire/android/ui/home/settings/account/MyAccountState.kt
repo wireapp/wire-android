@@ -27,5 +27,6 @@ data class MyAccountState(
     val teamName: String = "",
     val domain: String = "",
     val changePasswordUrl: String? = null,
-    val isReadOnlyAccount: Boolean = true
+    val isReadOnlyAccount: Boolean = true,
+    val isEditEmailAllowed: Boolean = false
 )

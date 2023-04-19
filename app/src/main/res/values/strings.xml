@@ -447,6 +447,7 @@
     <string name="user_profile_role_change_error">There was an error trying to change the role. Please check your internet connection and try again</string>
     <string name="user_profile_unblock_user">Unblock User</string>
     <string name="user_profile_group_remove_button">Remove from group</string>
+    <string name="user_profile_logging_out_progress">Logging out...</string>
     <!-- Remove Conversation Member Dialog -->
     <string name="dialog_remove_conversation_member_title">Remove from group?</string>
     <string name="dialog_remove_conversation_member_description">%1$s (@%2$s) will not be able to send or receive messages in this conversation.</string>
@@ -894,8 +895,10 @@
     <string name="label_system_message_session_reset">%1$s was unable to decrypt some of your messages but has solved the issue. This affected all conversations you share together.</string>
     <string name="label_manual_migration_title">Migrate from version 3.82.38</string>
     <string name="start_manual_migration">Start migration form version 3.82.38 manually</string>
-    <string name="file_sharing_restricted_dialog_title">File Sharing Restrictions</string>
-    <string name="file_sharing_restricted_dialog_description">You can not share this file because this feature is disabled.</string>
+    <string name="file_sharing_restricted_learn_more_link">https://support.wire.com/hc/en-us/articles/4406404582673-How-can-I-restrict-file-sharing-for-my-team-</string>
+    <string name="file_sharing_restricted_description_by_team">You can not share this file because this feature is disabled for this account.</string>
+    <string name="file_sharing_restricted_description_no_users">You need to be logged in to Wire before you can share anything</string>
+    <string name="file_sharing_restricted_button_text_no_users">Open Wire</string>
 
     <!-- join conversation dialog -->
     <string name="join_conversation_dialog_title">Join conversation?</string>
@@ -940,10 +943,27 @@
     <string name="label_self_client_verification_description">To verify your own device, compare this key fingerprint with the same key fingerprint on another device.</string>
     <string name="label_client_verification_description">Verify that this device fingerprint matches the fingerprint shown on %s’s device.</string>
     <string name="label_fingerprint_description">If fingerprints don’t match, reset the session to generate new encryption keys on both sides.</string>
-    <string name="label_self_fingerprint_description">To let others verify this device, share this fingerprint or the QR code with them.</string>
+    <string name="label_self_fingerprint_description">Share this key fingerprint with other participants in a conversation, so that they can verify it and make sure the conversation is secure.</string>
     <string name="unknown_user_name">unknown</string>
     <string name="self_deleting_message_time_left">Self-deleting message • %1$s</string>
     <string name="self_deleting_message_label">Self-deleting message</string>
+    <string name="device_name_unknown">Unknown device</string>
+    <string name="create_account_email_title">Your Email</string>
+    <string name="settings_myaccount_email_description">Your email is part of your login details for this account. It may be visible to your contacts.</string>
+    <string name="settings_myaccount_email_invalid_imail_error">Please enter a valid email format</string>
+    <string name="settings_myaccount_email_already_in_use_error">The email address you provided has already been  registered. Please try again.</string>
+    <string name="settings_myaccount_email_verification_email_sent">A verification email has been sent to your email %1$s.\n\nYour current email address is not changed until you verified your new one. Please check your email inbox and follow the instructions.</string>
+    <string name="label_resend_verification_email">Resend Verification Email</string>
+    <string name="settings_myaccount_email_generic_error">Something went wrong. Please try again.</string>
+
+    <string name="title_video_could_not_be_sent">Video could not be sent</string>
+    <string name="title_image_could_not_be_sent">Image could not be sent</string>
+    <string name="title_file_could_not_be_sent">File could not be sent</string>
+    <string name="label_shared_video_too_large">You can only share a video up to %d MB.</string>
+    <string name="label_shared_image_too_large">You can only share an image up to %d MB.</string>
+    <string name="label_shared_file_too_large">You can only share a file up to %d MB.</string>
+    <string name="label_file_saved_to_device">The file was saved to your device.</string>
+
     <!-- Expirable messages -->
     <plurals name="weeks_left">
         <item quantity="one">1 week left</item>

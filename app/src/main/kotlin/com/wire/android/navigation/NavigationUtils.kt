@@ -37,6 +37,12 @@ internal fun NavController.navigateToItem(command: NavigationCommand) {
             BackStackMode.REMOVE_CURRENT -> {
                 popBackStack(true) { backQueue.lastOrNull { it.destination.route != null } }
             }
+            BackStackMode.REMOVE_CURRENT_AND_REPLACE -> {
+                popBackStack(true) { backQueue.lastOrNull { it.destination.route != null } }
+                NavigationItem.fromRoute(command.destination)?.let { navItem ->
+                    popBackStack(true) { backQueue.firstOrNull { it.destination.route == navItem.getCanonicalRoute() } }
+                }
+            }
             BackStackMode.UPDATE_EXISTED -> {
                 NavigationItem.fromRoute(command.destination)?.let { navItem ->
                     popBackStack(true) { backQueue.firstOrNull { it.destination.route == navItem.getCanonicalRoute() } }

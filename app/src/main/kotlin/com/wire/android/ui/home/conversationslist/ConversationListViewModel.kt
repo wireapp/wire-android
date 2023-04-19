@@ -58,11 +58,14 @@ import com.wire.kalium.logic.data.conversation.LegalHoldStatus
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.conversation.UnreadEventCount
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.message.UnreadEventType
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.call.usecase.AnswerCallUseCase
+import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
+import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.connection.BlockUserResult
 import com.wire.kalium.logic.feature.connection.BlockUserUseCase
 import com.wire.kalium.logic.feature.connection.UnblockUserResult
@@ -78,10 +81,12 @@ import com.wire.kalium.logic.feature.team.Result
 import com.wire.kalium.logic.functional.combine
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.toImmutableMap
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -102,12 +107,13 @@ class ConversationListViewModel @Inject constructor(
     private val blockUserUseCase: BlockUserUseCase,
     private val unblockUserUseCase: UnblockUserUseCase,
     private val clearConversationContentUseCase: ClearConversationContentUseCase,
+    private val observeEstablishedCalls: ObserveEstablishedCallsUseCase,
     private val wireSessionImageLoader: WireSessionImageLoader,
     private val userTypeMapper: UserTypeMapper,
+    private val endCall: EndCallUseCase,
 ) : ViewModel() {
 
     var conversationListState by mutableStateOf(ConversationListState())
-        private set
 
     val homeSnackBarState = MutableSharedFlow<HomeSnackbarState>()
 
@@ -121,7 +127,25 @@ class ConversationListViewModel @Inject constructor(
         .asStateFlow()
         .debounce(SearchPeopleViewModel.DEFAULT_SEARCH_QUERY_DEBOUNCE)
 
+    var establishedCallConversationId: QualifiedID? = null
+    private var conversationId: QualifiedID? = null
+
+    private fun observeEstablishedCall() = viewModelScope.launch {
+        observeEstablishedCalls()
+            .distinctUntilChanged()
+            .collect {
+                val hasEstablishedCall = it.isNotEmpty()
+                establishedCallConversationId = if (it.isNotEmpty()) {
+                    it.first().conversationId
+                } else null
+                conversationListState = conversationListState.copy(hasEstablishedCall = hasEstablishedCall)
+            }
+    }
+
     init {
+        viewModelScope.launch {
+            observeEstablishedCall()
+        }
         viewModelScope.launch {
             searchQueryFlow.combine(observeConversationListDetails()
                 .map {
@@ -188,12 +212,14 @@ class ConversationListViewModel @Inject constructor(
                     is BadgeEventType.UnreadMessage -> true
                     BadgeEventType.UnreadReply -> true
                 }
+
                 MutedConversationStatus.OnlyMentionsAndRepliesAllowed -> when (it.badgeEventType) {
                     BadgeEventType.UnreadReply -> true
                     BadgeEventType.UnreadMention -> true
                     BadgeEventType.ReceivedConnectionRequest -> true
                     else -> false
                 }
+
                 MutedConversationStatus.AllMuted -> false
             } || (it is ConversationItem.GroupConversation && it.hasOnGoingCall)
         }
@@ -216,14 +242,18 @@ class ConversationListViewModel @Inject constructor(
                         is OneOne -> it.unreadEventCount.isNotEmpty()
                         else -> false // TODO should connection requests also be listed on "new activities"?
                     }
+
                 MutedConversationStatus.OnlyMentionsAndRepliesAllowed ->
                     when (it) {
                         is Group -> it.unreadEventCount.containsKey(UnreadEventType.MENTION)
                                 || it.unreadEventCount.containsKey(UnreadEventType.REPLY)
+
                         is OneOne -> it.unreadEventCount.containsKey(UnreadEventType.MENTION)
                                 || it.unreadEventCount.containsKey(UnreadEventType.REPLY)
+
                         else -> false
                     }
+
                 else -> false
             }
                     || (it is Connection && it.connection.status == ConnectionState.PENDING)
@@ -285,15 +315,39 @@ class ConversationListViewModel @Inject constructor(
         }
     }
 
-    fun joinOngoingCall(conversationId: ConversationId) {
+    fun joinAnyway(conversationId: ConversationId) {
         viewModelScope.launch {
-            answerCall(conversationId = conversationId)
-            navigationManager.navigate(
-                command = NavigationCommand(
-                    destination = NavigationItem.OngoingCall.getRouteWithArgs(listOf(conversationId))
-                )
-            )
+            establishedCallConversationId?.let {
+                endCall(it)
+                delay(DELAY_END_CALL)
+            }
+            joinOngoingCall(conversationId)
         }
+    }
+
+    fun joinOngoingCall(conversationId: ConversationId) {
+        this.conversationId = conversationId
+        viewModelScope.launch {
+            if (conversationListState.hasEstablishedCall) {
+                showJoinCallAnywayDialog()
+            } else {
+                dismissJoinCallAnywayDialog()
+                answerCall(conversationId = conversationId)
+                navigationManager.navigate(
+                    command = NavigationCommand(
+                        destination = NavigationItem.OngoingCall.getRouteWithArgs(listOf(conversationId))
+                    )
+                )
+            }
+        }
+    }
+
+    private fun showJoinCallAnywayDialog() {
+        conversationListState = conversationListState.copy(shouldShowJoinAnywayDialog = true)
+    }
+
+    fun dismissJoinCallAnywayDialog() {
+        conversationListState = conversationListState.copy(shouldShowJoinAnywayDialog = false)
     }
 
     fun blockUser(blockUserState: BlockUserDialogState) {
@@ -422,6 +476,9 @@ class ConversationListViewModel @Inject constructor(
             homeSnackBarState.emit(HomeSnackbarState.ClearConversationContentSuccess(isGroup))
         }
     }
+    companion object {
+        const val DELAY_END_CALL = 200L
+    }
 }
 
 fun LegalHoldStatus.showLegalHoldIndicator() = this == LegalHoldStatus.ENABLED
@@ -529,6 +586,7 @@ fun parseConversationEventType(
             unreadEventCount.containsKey(UnreadEventType.MISSED_CALL) -> BadgeEventType.MissedCall
             else -> BadgeEventType.None
         }
+
     else -> {
         val unreadMessagesCount = unreadEventCount.values.sum()
         when {

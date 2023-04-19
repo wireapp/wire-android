@@ -26,39 +26,52 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
+import com.wire.android.appLogger
+import com.wire.android.ui.common.dialogs.calling.JoinAnywayDialog
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.home.conversationslist.ConversationListViewModel
 import com.wire.android.ui.home.conversationslist.common.ConversationList
 import com.wire.android.ui.home.conversationslist.model.ConversationFolder
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.kalium.logic.data.id.ConversationId
-import com.wire.kalium.logic.data.user.UserId
 import kotlinx.collections.immutable.ImmutableMap
 import kotlinx.collections.immutable.persistentMapOf
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AllConversationScreen(
     conversations: ImmutableMap<ConversationFolder, List<ConversationItem>>,
     hasNoConversations: Boolean,
-    onOpenConversation: (ConversationId) -> Unit,
+    viewModel: ConversationListViewModel = hiltViewModel(),
     onEditConversation: (ConversationItem) -> Unit,
-    onOpenUserProfile: (UserId) -> Unit,
     onOpenConversationNotificationsSettings: (ConversationItem) -> Unit,
-    onJoinCall: (ConversationId) -> Unit
 ) {
     val lazyListState = rememberLazyListState()
+    val callConversationIdToJoin = remember { mutableStateOf(ConversationId("", "")) }
 
+    if (viewModel.conversationListState.shouldShowJoinAnywayDialog) {
+        appLogger.i("$TAG showing showJoinAnywayDialog..")
+        JoinAnywayDialog(
+            onDismiss = viewModel::dismissJoinCallAnywayDialog,
+            onConfirm = { viewModel.joinAnyway(callConversationIdToJoin.value) }
+        )
+    }
     if (hasNoConversations) {
         ConversationListEmptyStateScreen()
     } else {
@@ -66,11 +79,14 @@ fun AllConversationScreen(
             lazyListState = lazyListState,
             conversationListItems = conversations,
             searchQuery = "",
-            onOpenConversation = onOpenConversation,
+            onOpenConversation = viewModel::openConversation,
             onEditConversation = onEditConversation,
-            onOpenUserProfile = onOpenUserProfile,
+            onOpenUserProfile = viewModel::openUserProfile,
             onOpenConversationNotificationsSettings = onOpenConversationNotificationsSettings,
-            onJoinCall = onJoinCall
+            onJoinCall = {
+                callConversationIdToJoin.value = it
+                viewModel.joinOngoingCall(it)
+            }
         )
     }
 }
@@ -111,32 +127,28 @@ fun ConversationListEmptyStateScreen() {
         )
     }
 }
-
-
+@OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Composable
 fun PreviewAllConversationScreen() {
     AllConversationScreen(
         conversations = persistentMapOf(),
         hasNoConversations = false,
-        onOpenConversation = {},
         onEditConversation = {},
-        onOpenUserProfile = {},
-        onOpenConversationNotificationsSettings = {},
-        onJoinCall = {}
+        onOpenConversationNotificationsSettings = {}
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Composable
 fun ConversationListEmptyStateScreenPreview() {
     AllConversationScreen(
         conversations = persistentMapOf(),
         hasNoConversations = true,
-        onOpenConversation = {},
         onEditConversation = {},
-        onOpenUserProfile = {},
-        onOpenConversationNotificationsSettings = {},
-        onJoinCall = {}
+        onOpenConversationNotificationsSettings = {}
     )
 }
+
+private const val TAG = "AllConversationScreen"

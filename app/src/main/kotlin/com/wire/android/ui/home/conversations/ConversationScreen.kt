@@ -52,12 +52,14 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.items
 import com.wire.android.R
+import com.wire.android.appLogger
 import com.wire.android.media.audiomessage.AudioState
 import com.wire.android.model.SnackBarMessage
 import com.wire.android.navigation.hiltSavedStateViewModel
+import com.wire.android.ui.common.dialogs.calling.JoinAnywayDialog
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
-import com.wire.android.ui.common.dialogs.CallingFeatureUnavailableDialog
-import com.wire.android.ui.common.dialogs.OngoingActiveCallDialog
+import com.wire.android.ui.common.dialogs.calling.CallingFeatureUnavailableDialog
+import com.wire.android.ui.common.dialogs.calling.OngoingActiveCallDialog
 import com.wire.android.ui.common.error.CoreFailureErrorDialog
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.common.topappbar.CommonTopAppBarViewModel
@@ -73,9 +75,9 @@ import com.wire.android.ui.home.conversations.info.ConversationInfoViewModel
 import com.wire.android.ui.home.conversations.info.ConversationInfoViewState
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewModel
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewState
-import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.android.ui.home.conversations.model.EditMessageBundle
 import com.wire.android.ui.home.conversations.model.UIMessage
+import com.wire.android.ui.home.conversations.model.UriAsset
 import com.wire.android.ui.home.messagecomposer.MessageComposer
 import com.wire.android.ui.home.messagecomposer.MessageComposerInnerState
 import com.wire.android.ui.home.messagecomposer.UiMention
@@ -97,8 +99,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Instant
-import okio.Path
-import okio.Path.Companion.toPath
 import kotlin.time.Duration.Companion.milliseconds
 
 /**
@@ -125,13 +125,23 @@ fun ConversationScreen(
     val startCallAudioPermissionCheck = StartCallAudioBluetoothPermissionCheckFlow {
         conversationCallViewModel.navigateToInitiatingCallScreen()
     }
-    val uiState = messageComposerViewModel.conversationViewState
+    val uiState = messageComposerViewModel.messageComposerViewState
 
     LaunchedEffect(messageComposerViewModel.savedStateHandle) {
         messageComposerViewModel.checkPendingActions()
     }
     LaunchedEffect(Unit) {
         conversationInfoViewModel.observeConversationDetails()
+    }
+
+    with(conversationCallViewModel) {
+        if (conversationCallViewState.shouldShowJoinAnywayDialog) {
+            appLogger.i("showing showJoinAnywayDialog..")
+            JoinAnywayDialog(
+                onDismiss = ::dismissJoinCallAnywayDialog,
+                onConfirm = ::joinAnyway
+            )
+        }
     }
 
     when (showDialog.value) {
@@ -160,11 +170,8 @@ fun ConversationScreen(
     }
 
     ConversationScreen(
-        tempCachePath = messageComposerViewModel.provideTempCachePath(),
         bannerMessage = conversationBannerViewModel.bannerState,
-        interactionAvailability = messageComposerViewModel.interactionAvailability,
-        membersToMention = messageComposerViewModel.mentionsToSelect,
-        conversationViewState = uiState,
+        messageComposerViewState = uiState,
         conversationCallViewState = conversationCallViewModel.conversationCallViewState,
         conversationInfoViewState = conversationInfoViewModel.conversationInfoViewState,
         conversationMessagesViewState = conversationMessagesViewModel.conversationViewState,
@@ -173,7 +180,7 @@ fun ConversationScreen(
         onSendMessage = messageComposerViewModel::sendMessage,
         onSendEditMessage = messageComposerViewModel::sendEditMessage,
         onDeleteMessage = messageComposerViewModel::showDeleteMessageDialog,
-        onSendAttachment = messageComposerViewModel::sendAttachmentMessage,
+        onAttachmentPicked = messageComposerViewModel::attachmentPicked,
         onAssetItemClicked = conversationMessagesViewModel::downloadOrFetchAssetAndShowDialog,
         onImageFullScreenMode = { message, isSelfMessage ->
             messageComposerViewModel.navigateToGallery(message.header.messageId, isSelfMessage)
@@ -199,7 +206,6 @@ fun ConversationScreen(
         onMentionMember = messageComposerViewModel::mentionMember,
         onUpdateConversationReadDate = messageComposerViewModel::updateConversationReadDate,
         onDropDownClick = conversationInfoViewModel::navigateToDetails,
-        onSnackbarMessage = messageComposerViewModel::onSnackbarMessage,
         onBackButtonClick = messageComposerViewModel::navigateBack,
         composerMessages = messageComposerViewModel.infoMessage,
         conversationMessages = conversationMessagesViewModel.infoMessage,
@@ -218,6 +224,10 @@ fun ConversationScreen(
         onSaveFileToExternalStorage = conversationMessagesViewModel::downloadAssetExternally,
         onOpenFileWithExternalApp = conversationMessagesViewModel::downloadAndOpenAsset,
         hideOnAssetDownloadedDialog = conversationMessagesViewModel::hideOnAssetDownloadedDialog
+    )
+    AssetTooLargeDialog(
+        dialogState = messageComposerViewModel.messageComposerViewState.assetTooLargeDialogState,
+        hideDialog = messageComposerViewModel::hideAssetTooLargeError
     )
 }
 
@@ -268,11 +278,8 @@ private fun StartCallAudioBluetoothPermissionCheckFlow(
 @Suppress("LongParameterList")
 @Composable
 private fun ConversationScreen(
-    tempCachePath: Path,
     bannerMessage: UIText?,
-    interactionAvailability: InteractionAvailability,
-    membersToMention: List<Contact>,
-    conversationViewState: ConversationViewState,
+    messageComposerViewState: MessageComposerViewState,
     conversationCallViewState: ConversationCallViewState,
     conversationInfoViewState: ConversationInfoViewState,
     conversationMessagesViewState: ConversationMessagesViewState,
@@ -281,7 +288,7 @@ private fun ConversationScreen(
     onSendMessage: (String, List<UiMention>, String?) -> Unit,
     onSendEditMessage: (EditMessageBundle) -> Unit,
     onDeleteMessage: (String, Boolean) -> Unit,
-    onSendAttachment: (AssetBundle?) -> Unit,
+    onAttachmentPicked: (UriAsset) -> Unit,
     onAudioClick: (String) -> Unit,
     onChangeAudioPosition: (String, Int) -> Unit,
     onAssetItemClicked: (String) -> Unit,
@@ -293,7 +300,6 @@ private fun ConversationScreen(
     onMentionMember: (String?) -> Unit,
     onUpdateConversationReadDate: (String) -> Unit,
     onDropDownClick: () -> Unit,
-    onSnackbarMessage: (ConversationSnackbarMessages) -> Unit,
     onBackButtonClick: () -> Unit,
     composerMessages: SharedFlow<SnackBarMessage>,
     conversationMessages: SharedFlow<SnackBarMessage>,
@@ -352,7 +358,7 @@ private fun ConversationScreen(
                         onPhoneButtonClick = onStartCall,
                         hasOngoingCall = conversationCallViewState.hasOngoingCall,
                         onJoinCallButtonClick = onJoinCall,
-                        isInteractionEnabled = interactionAvailability == InteractionAvailability.ENABLED
+                        isInteractionEnabled = messageComposerViewState.interactionAvailability == InteractionAvailability.ENABLED
                     )
                     ConversationBanner(bannerMessage)
                 }
@@ -366,18 +372,17 @@ private fun ConversationScreen(
             content = { internalPadding ->
                 Box(modifier = Modifier.padding(internalPadding)) {
                     ConversationScreenContent(
-                        interactionAvailability = interactionAvailability,
-                        tempCachePath = tempCachePath,
-                        membersToMention = membersToMention,
+                        interactionAvailability = messageComposerViewState.interactionAvailability,
+                        membersToMention = messageComposerViewState.mentionsToSelect,
                         audioMessagesState = conversationMessagesViewState.audioMessagesState,
-                        isFileSharingEnabled = conversationViewState.isFileSharingEnabled,
+                        isFileSharingEnabled = messageComposerViewState.isFileSharingEnabled,
                         lastUnreadMessageInstant = conversationMessagesViewState.firstUnreadInstant,
-                        conversationState = conversationViewState,
+                        conversationState = messageComposerViewState,
                         messageComposerInnerState = messageComposerInnerState,
                         messages = conversationMessagesViewState.messages,
                         onSendMessage = onSendMessage,
                         onSendEditMessage = onSendEditMessage,
-                        onSendAttachment = onSendAttachment,
+                        onAttachmentPicked = onAttachmentPicked,
                         onMentionMember = onMentionMember,
                         onAssetItemClicked = onAssetItemClicked,
                         onAudioItemClicked = onAudioClick,
@@ -387,7 +392,6 @@ private fun ConversationScreen(
                         onResetSessionClicked = onResetSessionClick,
                         onOpenProfile = onOpenProfile,
                         onUpdateConversationReadDate = onUpdateConversationReadDate,
-                        onMessageComposerError = onSnackbarMessage,
                         onShowContextMenu = conversationScreenState::showEditContextMenu,
                         onPingClicked = onPingClicked,
                         onSelfDeletingMessageRead = onSelfDeletingMessageRead,
@@ -405,17 +409,16 @@ private fun ConversationScreen(
 @Composable
 private fun ConversationScreenContent(
     interactionAvailability: InteractionAvailability,
-    tempCachePath: Path,
     membersToMention: List<Contact>,
     isFileSharingEnabled: Boolean,
     lastUnreadMessageInstant: Instant?,
-    conversationState: ConversationViewState,
+    conversationState: MessageComposerViewState,
     audioMessagesState: Map<String, AudioState>,
     messageComposerInnerState: MessageComposerInnerState,
     messages: Flow<PagingData<UIMessage>>,
     onSendMessage: (String, List<UiMention>, String?) -> Unit,
     onSendEditMessage: (EditMessageBundle) -> Unit,
-    onSendAttachment: (AssetBundle?) -> Unit,
+    onAttachmentPicked: (UriAsset) -> Unit,
     onMentionMember: (String?) -> Unit,
     onAssetItemClicked: (String) -> Unit,
     onAudioItemClicked: (String) -> Unit,
@@ -425,7 +428,6 @@ private fun ConversationScreenContent(
     onResetSessionClicked: (senderUserId: UserId, clientId: String?) -> Unit,
     onOpenProfile: (String) -> Unit,
     onUpdateConversationReadDate: (String) -> Unit,
-    onMessageComposerError: (ConversationSnackbarMessages) -> Unit,
     onShowContextMenu: (UIMessage.Regular) -> Unit,
     onPingClicked: () -> Unit,
     onSelfDeletingMessageRead: (UIMessage.Regular) -> Unit,
@@ -469,16 +471,16 @@ private fun ConversationScreenContent(
             onSendMessage(message, mentions, messageId)
         },
         onSendEditTextMessage = onSendEditMessage,
-        onSendAttachment = {
-            scope.launch {
-                lazyListState.scrollToItem(0)
+        onAttachmentPicked = remember {
+            {
+                scope.launch {
+                    lazyListState.scrollToItem(0)
+                }
+                onAttachmentPicked(it)
             }
-            onSendAttachment(it)
         },
         onMentionMember = onMentionMember,
-        onMessageComposerError = onMessageComposerError,
         isFileSharingEnabled = isFileSharingEnabled,
-        tempCachePath = tempCachePath,
         interactionAvailability = interactionAvailability,
         securityClassificationType = conversationState.securityClassificationType,
         membersToMention = membersToMention,
@@ -618,11 +620,8 @@ private fun CoroutineScope.withSmoothScreenLoad(block: () -> Unit) = launch {
 @Composable
 fun PreviewConversationScreen() {
     ConversationScreen(
-        tempCachePath = "".toPath(),
         bannerMessage = null,
-        interactionAvailability = InteractionAvailability.ENABLED,
-        membersToMention = listOf(),
-        conversationViewState = ConversationViewState(),
+        messageComposerViewState = MessageComposerViewState(),
         conversationCallViewState = ConversationCallViewState(),
         conversationInfoViewState = ConversationInfoViewState(conversationName = UIText.DynamicString("Some test conversation")),
         conversationMessagesViewState = ConversationMessagesViewState(),
@@ -631,7 +630,7 @@ fun PreviewConversationScreen() {
         onSendMessage = { _, _, _ -> },
         onSendEditMessage = { _ -> },
         onDeleteMessage = { _, _ -> },
-        onSendAttachment = { },
+        onAttachmentPicked = { },
         onAssetItemClicked = { },
         onImageFullScreenMode = { _, _ -> },
         onStartCall = { },
@@ -643,7 +642,6 @@ fun PreviewConversationScreen() {
         onMentionMember = { },
         onUpdateConversationReadDate = { },
         onDropDownClick = { },
-        onSnackbarMessage = { _ -> },
         onBackButtonClick = {},
         composerMessages = MutableStateFlow(ErrorDownloadingAsset),
         conversationMessages = MutableStateFlow(ErrorDownloadingAsset),

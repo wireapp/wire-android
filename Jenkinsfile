@@ -291,7 +291,7 @@ pipeline {
                 def flavor = list[i]
                 def buildType = defineBuildType(flavor)
                 dynamicBuildStages["${flavor}"] = {
-                    node('android') {
+                    node {
                         stage('Assemble APK ${flavor}') {
                             steps {
                                 withGradle() {

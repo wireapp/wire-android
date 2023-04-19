@@ -241,7 +241,7 @@ class MessageComposerViewModel @Inject constructor(
                                 assetHeight = imgHeight,
                                 assetDataSize = dataSize,
                                 assetMimeType = mimeType,
-                                    expireAfter = expireAfter
+                                expireAfter = expireAfter
                                 )
                                 if (result is ScheduleNewAssetMessageResult.Failure) {
                                     onSnackbarMessage(ConversationSnackbarMessages.ErrorSendingImage)
@@ -260,7 +260,7 @@ class MessageComposerViewModel @Inject constructor(
                                     assetDataSize = dataSize,
                                     assetHeight = null,
                                     assetWidth = null,
-                                        expireAfter = expireAfter
+                                    expireAfter = expireAfter
                                     )
                                     if (result is ScheduleNewAssetMessageResult.Failure) {
                                         onSnackbarMessage(ConversationSnackbarMessages.ErrorSendingAsset)
@@ -378,7 +378,7 @@ class MessageComposerViewModel @Inject constructor(
         }
     }
 
-    fun attachmentPicked(attachmentUri: UriAsset) = viewModelScope.launch(dispatchers.io()) {
+    fun attachmentPicked(attachmentUri: UriAsset,duration: Duration?) = viewModelScope.launch(dispatchers.io()) {
         val tempCachePath = kaliumFileSystem.rootCachePath
         val assetBundle = fileManager.getAssetBundleFromUri(attachmentUri.uri, tempCachePath)
         if (assetBundle != null) {
@@ -386,7 +386,7 @@ class MessageComposerViewModel @Inject constructor(
             // Check [GetAssetSizeLimitUseCase] class for more detailed information about the real limits.
             val maxSizeLimitInBytes = getAssetSizeLimit(isImage = assetBundle.assetType == AttachmentType.IMAGE)
             if (assetBundle.dataSize <= maxSizeLimitInBytes) {
-                sendAttachmentMessage(assetBundle)
+                sendAttachmentMessage(assetBundle,duration)
             } else {
                 if (attachmentUri.saveToDeviceIfInvalid) {
                     with(assetBundle) { fileManager.saveToExternalMediaStorage(fileName, dataPath, dataSize, mimeType, dispatchers) }

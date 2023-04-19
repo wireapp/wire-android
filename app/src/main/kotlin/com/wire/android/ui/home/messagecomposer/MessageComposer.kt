@@ -62,16 +62,11 @@ import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.messagecomposer.attachment.AttachmentOptions
 import com.wire.android.ui.home.messagecomposer.state.MessageComposeInputState
 import com.wire.android.ui.home.messagecomposer.state.MessageComposeInputType
-import com.wire.android.ui.home.messagecomposer.model.UiMention
-import com.wire.android.ui.home.messagecomposer.state.MessageComposerState
-import com.wire.android.ui.home.messagecomposer.state.MessageComposeInputState
-import com.wire.android.ui.home.messagecomposer.state.MessageComposeInputType
 import com.wire.android.ui.home.messagecomposer.state.MessageComposerState
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.kalium.logic.feature.conversation.InteractionAvailability
 import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
-import okio.Path
 import kotlin.time.Duration
 
 @Composable
@@ -80,9 +75,8 @@ fun MessageComposer(
     messageContent: @Composable () -> Unit,
     onSendTextMessage: (SendMessageBundle) -> Unit,
     onSendEditTextMessage: (EditMessageBundle) -> Unit,
-    onSendAttachment: (assetBundle: AssetBundle?, expireAfter: Duration?) -> Unit,
     onMentionMember: (String?) -> Unit,
-    onAttachmentPicked: (UriAsset) -> Unit,
+    onAttachmentPicked: (UriAsset, Duration?) -> Unit,
     isFileSharingEnabled: Boolean,
     interactionAvailability: InteractionAvailability,
     securityClassificationType: SecurityClassificationType,
@@ -178,7 +172,7 @@ private fun MessageComposer(
     isFileSharingEnabled: Boolean,
     interactionAvailability: InteractionAvailability,
     membersToMention: List<Contact>,
-    onAttachmentPicked: (UriAsset) -> Unit,
+    onAttachmentPicked: (UriAsset, Duration?) -> Unit,
     securityClassificationType: SecurityClassificationType,
     tempWritableImageUri: Uri?,
     tempWritableVideoUri: Uri?,
@@ -306,7 +300,7 @@ private fun MessageComposer(
                 // we get the effect of overlapping it
                 if (attachmentOptionsVisible) {
                     AttachmentOptions(
-                        onAttachmentPicked = onAttachmentPicked,
+                        onAttachmentPicked = { onAttachmentPicked(it,messageComposerState.getSelfDeletionTime().value) },
                         isFileSharingEnabled = isFileSharingEnabled,
                         tempWritableImageUri = tempWritableImageUri,
                         tempWritableVideoUri = tempWritableVideoUri,

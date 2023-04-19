@@ -80,13 +80,9 @@ import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.android.ui.home.conversations.model.EditMessageBundle
 import com.wire.android.ui.home.conversations.model.SendMessageBundle
 import com.wire.android.ui.home.conversations.model.UIMessage
-import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMenuItems
 import com.wire.android.ui.home.conversations.model.UriAsset
 import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMenuItems
 import com.wire.android.ui.home.messagecomposer.MessageComposer
-import com.wire.android.ui.home.messagecomposer.state.MessageComposerState
-import com.wire.android.ui.home.messagecomposer.model.UiMention
-import com.wire.android.ui.home.messagecomposer.state.rememberMessageComposerState
 import com.wire.android.ui.home.messagecomposer.state.MessageComposerState
 import com.wire.android.ui.home.messagecomposer.state.rememberMessageComposerState
 import com.wire.android.ui.home.newconversation.model.Contact
@@ -106,8 +102,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Instant
-import okio.Path
-import okio.Path.Companion.toPath
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -284,7 +278,7 @@ private fun StartCallAudioBluetoothPermissionCheckFlow(
     // TODO display an error dialog
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class, ExperimentalLayoutApi::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Suppress("LongParameterList")
 @Composable
 private fun ConversationScreen(
@@ -298,8 +292,7 @@ private fun ConversationScreen(
     onSendMessage: (SendMessageBundle) -> Unit,
     onSendEditMessage: (EditMessageBundle) -> Unit,
     onDeleteMessage: (String, Boolean) -> Unit,
-    onSendAttachment: (AssetBundle?, Duration?) -> Unit,
-    onAttachmentPicked: (UriAsset) -> Unit,
+    onAttachmentPicked: (UriAsset, Duration?) -> Unit,
     onAudioClick: (String) -> Unit,
     onChangeAudioPosition: (String, Int) -> Unit,
     onAssetItemClicked: (String) -> Unit,
@@ -453,7 +446,7 @@ private fun ConversationScreenContent(
     messages: Flow<PagingData<UIMessage>>,
     onSendMessage: (SendMessageBundle) -> Unit,
     onSendEditMessage: (EditMessageBundle) -> Unit,
-    onAttachmentPicked: (UriAsset) -> Unit,
+    onAttachmentPicked: (UriAsset, Duration?) -> Unit,
     onMentionMember: (String?) -> Unit,
     onAssetItemClicked: (String) -> Unit,
     onAudioItemClicked: (String) -> Unit,
@@ -463,9 +456,6 @@ private fun ConversationScreenContent(
     onResetSessionClicked: (senderUserId: UserId, clientId: String?) -> Unit,
     onOpenProfile: (String) -> Unit,
     onUpdateConversationReadDate: (String) -> Unit,
-    onShowEditingOptions: (UIMessage.Regular) -> Unit,
-    onShowSelfDeletionOption: () -> Unit,
-    onMessageComposerError: (ConversationSnackbarMessages) -> Unit,
     onShowEditingOptions: (UIMessage.Regular) -> Unit,
     onShowSelfDeletionOption: () -> Unit,
     onPingClicked: () -> Unit,
@@ -514,12 +504,10 @@ private fun ConversationScreenContent(
                 scope.launch {
                     lazyListState.scrollToItem(0)
                 }
-                onAttachmentPicked(it)
+                onAttachmentPicked(attachmentBundle,expireAfter)
             }
-            onSendAttachment(attachmentBundle, expireAfter)
         },
         onMentionMember = onMentionMember,
-        onShowSelfDeletionOption = onShowSelfDeletionOption,
         onShowSelfDeletionOption = onShowSelfDeletionOption,
         isFileSharingEnabled = isFileSharingEnabled,
         interactionAvailability = interactionAvailability,

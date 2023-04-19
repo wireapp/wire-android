@@ -1,4 +1,4 @@
-def defineFlavor() {
+List<String> defineFlavor() {
     //check if the pipeline has the custom flavor env variable set
     def overwrite = env.CUSTOM_FLAVOR
     if(overwrite != null) {
@@ -19,7 +19,7 @@ def defineFlavor() {
     return ['Staging', 'Dev']
 }
 
-def defineBuildType(String flavor) {
+String defineBuildType(String flavor) {
     def overwrite = env.CUSTOM_BUILD_TYPE
     if(overwrite != null) {
         return overwrite
@@ -33,6 +33,49 @@ def defineBuildType(String flavor) {
     }
     // use the scala client signing keys for testing upgrades.
     return "Compat"
+}
+
+// build the assemble command for the given flavors
+// if there is more than one flavor, we need to build in parallel
+// example:
+// ./gradlew assembleStagingDebug assembleDevDebug --parallel
+// ./gradlew assembleStagingDebug assembleDevDebug
+String buildAssembleCommand(List<String> flavors) {
+    def command = "./gradlew"
+    for (int i = 0; i < flavors.size(); i++) {
+      def flavor = flavors[i]
+      def buildType = defineBuildType(flavor)
+      command += (" assemble"+flavor+buildType)
+    }
+    if (flavors.size() > 1) {
+      command += " --parallel"
+    }
+
+    return command
+}
+
+String buildBundleCommand(List<String> flavors) {
+    def command = './gradlew'
+    flavors.each { flavor ->
+      def buildType = defineBuildType(flavor)
+      if(shouldCreateBundle(buildType)) {
+        command += (" bundle"+flavor+buildType)
+      }
+    }
+    if (flavors.size() > 1) {
+      command += " --parallel"
+    }
+    if(command.size() > 10) {
+      return command
+    }
+    return null
+}
+
+def shouldCreateBundle(String buildType) {
+    if (buildType == "Release" || buildType == "Compatrelease") {
+      return true
+    }
+    return false
 }
 
 def defineTrackName() {
@@ -91,16 +134,17 @@ pipeline {
           steps {
             script {
               last_started = env.STAGE_NAME
-                           sh '''echo ANDROID_HOME: $ANDROID_HOME
-                                 echo NDK_HOME: $NDK_HOME
-                                 echo FLAVOR: $flavorText
-                                 echo AdbPort: $adbPort
-                                 echo EmulatorPrefix: $emulatorPrefix
-                                 echo TrackName: $trackName
-                                 echo ChangeId: $CHANGE_ID
-                              '''
-            }
 
+             // TODO: make sure the flavor in the echo is not empty
+              sh '''echo ANDROID_HOME: $ANDROID_HOME
+                    echo NDK_HOME: $NDK_HOME
+                    echo FLAVOR: $flavorText
+                    echo AdbPort: $adbPort
+                    echo EmulatorPrefix: $emulatorPrefix
+                    echo TrackName: $trackName
+                    echo ChangeId: $CHANGE_ID
+                    '''
+            }
           }
         }
 
@@ -268,17 +312,9 @@ pipeline {
         script {
           last_started = env.STAGE_NAME
           def list = defineFlavor()
-          def dynamicBuildStages = "./gradlew"
-          for (int i = 0; i < list.size(); i++) {
-            def flavor = list[i]
-            def buildType = defineBuildType(flavor)
-            dynamicBuildStages += (" assemble"+flavor+buildType)
-          }
-          if (list.size() > 1) {
-            dynamicBuildStages += " --parallel"
-          }
+          def assembleCommand = buildAssembleCommand(list)
           withGradle() {
-            sh dynamicBuildStages
+            sh assembleCommand
           }
         }
       }
@@ -289,20 +325,12 @@ pipeline {
         script {
           last_started = env.STAGE_NAME
           def list = defineFlavor()
-          def dynamicBuildStages = [:]
-          for (int i = 0; i < list.size(); i++) {
-            def flavor = list[i]
-            def buildType = defineBuildType(flavor)
-            if (buildType == "Release" || buildType == "Compatrelease") {
-              dynamicBuildStages["${flavor}${buildType}"] = {
-                withGradle() {
-                  def assembleCommand = './gradlew bundle'+flavor+buildType
-                    sh assembleCommand
-                }
-              }
+          def bundleCommand = buildBundleCommand(list)
+          if (bundleCommand != null) {
+            withGradle() {
+              sh bundleCommand
             }
           }
-          parallel dynamicBuildStages
         }
       }
     }
@@ -310,23 +338,34 @@ pipeline {
     stage('Archive') {
         parallel {
           stage('AAB') {
-            when {
-              expression { env.buildType == 'Release' }
-            }
             steps {
-                        script {
-                            String flavor = defineFlavor()[0]
-                            String buildType = defineBuildType(flavor)
-                        }
-              sh "ls -la app/build/outputs/bundle/${flavor.toLowerCase()}${buildType.capitalize()}/"
-              archiveArtifacts(artifacts: "app/build/outputs/bundle/${flavor.toLowerCase()}${buildType.capitalize()}/com.wire.android-*.aab", allowEmptyArchive: true, onlyIfSuccessful: true)
+              script {
+                def list = defineFlavor()
+                list.each { flavor ->
+                  def buildType = defineBuildType(flavor)
+                  if (shouldCreateBundle(buildType)) {
+                    def lsBundleCommand = "ls -la app/build/outputs/bundle/${flavor.toLowerCase()}${buildType.capitalize()}/"
+                    def archiveCommand = "app/build/outputs/bundle/${flavor.toLowerCase()}${buildType.capitalize()}/com.wire.android-*.aab"
+                    sh lsBundleCommand
+                    archiveArtifacts(artifacts: archiveCommand, allowEmptyArchive: true, onlyIfSuccessful: true)
+                  }
+                }
+              }
             }
           }
 
           stage('APK') {
             steps {
-              sh "ls -la app/build/outputs/apk/${flavor.toLowerCase()}/${buildType.toLowerCase()}/"
-              archiveArtifacts(artifacts: "app/build/outputs/apk/${flavor.toLowerCase()}/${buildType.toLowerCase()}/com.wire.android-*.apk, app/build/**/mapping/**/*.txt, app/build/**/logs/**/*.txt", allowEmptyArchive: true, onlyIfSuccessful: true)
+              script {
+                def list = defineFlavor()
+                list.each { flavor ->
+                  def buildType = defineBuildType(flavor)
+                  def lsApkCommand = "ls -la app/build/outputs/apk/${flavor.toLowerCase()}/${buildType.toLowerCase()}/"
+                  def archiveCommand = "app/build/outputs/apk/${flavor.toLowerCase()}/${buildType.toLowerCase()}/com.wire.android-*.apk, app/build/**/mapping/**/*.txt, app/build/**/logs/**/*.txt"
+                  sh lsApkCommand
+                  archiveArtifacts(artifacts: archiveCommand, allowEmptyArchive: true, onlyIfSuccessful: true)
+                }
+              }
             }
           }
         }
@@ -336,10 +375,13 @@ pipeline {
       parallel {
           stage('S3 Bucket') {
             steps {
-                      script {
-                        String flavor = defineFlavor()[0]
-                        String buildType = defineBuildType(flavor)
-                        }
+                 script {
+                    def list = defineFlavor()
+                    list.each { flavor ->
+                    def buildType = defineBuildType(flavor)
+
+                    }
+                }
               echo 'Checking folder before S3 Bucket upload'
               sh "ls -la app/build/outputs/apk/${flavor.toLowerCase()}/${buildType.toLowerCase()}/"
               echo 'Uploading file to S3 Bucket'

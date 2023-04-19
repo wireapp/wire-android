@@ -55,7 +55,7 @@ fun OtherUserDevicesScreen(
     onDeviceClick: (Device) -> Unit
 ) {
     val context = LocalContext.current
-    val supportUrl = BuildConfig.SUPPORT_URL + stringResource(id = R.string.url_why_verify_conversation)
+    val supportUrl = BuildConfig.URL_SUPPORT + stringResource(id = R.string.url_why_verify_conversation)
     with(state) {
         LazyColumn(
             state = lazyListState,

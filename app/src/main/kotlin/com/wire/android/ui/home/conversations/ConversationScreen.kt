@@ -500,11 +500,11 @@ private fun ConversationScreenContent(
         },
         onSendEditTextMessage = onSendEditMessage,
         onAttachmentPicked = remember {
-            { attachmentBundle , expireAfter ->
+            { uriAsset , expireAfter ->
                 scope.launch {
                     lazyListState.scrollToItem(0)
                 }
-                onAttachmentPicked(attachmentBundle,expireAfter)
+                onAttachmentPicked(uriAsset, expireAfter)
             }
         },
         onMentionMember = onMentionMember,

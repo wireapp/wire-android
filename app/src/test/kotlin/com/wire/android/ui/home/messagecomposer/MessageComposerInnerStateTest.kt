@@ -220,7 +220,6 @@ class MessageComposerInnerStateTest {
     companion object {
         fun createState(context: Context, focusManager: FocusManager, focusRequester: FocusRequester) = MessageComposerInnerState(
             context,
-            AttachmentInnerState(context),
             focusManager,
             focusRequester,
             SpanStyle(),

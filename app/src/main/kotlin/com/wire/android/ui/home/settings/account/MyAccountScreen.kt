@@ -82,7 +82,7 @@ private fun mapToUISections(viewModel: MyAccountViewModel, state: MyAccountState
     return with(state) {
         listOfNotNull(
             if (fullName.isNotBlank()) {
-                DisplayName(fullName, clickableActionIfPossible(!state.isReadOnlyAccount) { viewModel.navigateToChangeDisplayName() })
+                DisplayName(fullName, clickableActionIfPossible(state.isReadOnlyAccount) { viewModel.navigateToChangeDisplayName() })
             } else {
                 null
             },
@@ -93,7 +93,7 @@ private fun mapToUISections(viewModel: MyAccountViewModel, state: MyAccountState
             },
             if (email.isNotBlank()) Email(
                 email,
-                clickableActionIfPossible(state.isEditEmailAllowed) { viewModel.navigateToChangeEmail() }) else null,
+                clickableActionIfPossible(!state.isEditEmailAllowed) { viewModel.navigateToChangeEmail() }) else null,
             if (teamName.isNotBlank()) Team(teamName) else null,
             if (domain.isNotBlank()) Domain(domain) else null
         )

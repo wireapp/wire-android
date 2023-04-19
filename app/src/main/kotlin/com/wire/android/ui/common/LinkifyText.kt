@@ -219,8 +219,6 @@ private fun ClickableText(
     onLongClick: (() -> Unit)? = null,
 ) {
     val layoutResult = remember { mutableStateOf<TextLayoutResult?>(null) }
-    val tapped = remember { mutableStateOf(false) }
-    val interactionSource = remember { MutableInteractionSource() }
 
     val pressIndicator = Modifier.pointerInput(Unit) {
         detectTapGestures(
@@ -229,21 +227,12 @@ private fun ClickableText(
                     onClick(layoutResult.getOffsetForPosition(pos))
                 }
             },
-            onPress = { offset ->
-                tapped.value = true
-                val press = PressInteraction.Press(offset)
-                interactionSource.emit(press)
-                interactionSource.emit(PressInteraction.Release(press))
-                tapped.value = false
-            },
             onLongPress = { onLongClick?.invoke() }
         )
     }
     Text(
         text = text,
-        modifier = modifier
-            .then(pressIndicator)
-            .indication(interactionSource, LocalIndication.current),
+        modifier = modifier.then(pressIndicator),
         color = color,
         fontSize = fontSize,
         fontStyle = fontStyle,

@@ -620,11 +620,13 @@ private fun shouldShowHeader(index: Int, messages: List<UIMessage>, currentMessa
     val nextIndex = index + 1
     if (nextIndex < messages.size) {
         val nextUiMessage = messages[nextIndex]
-        val difference = DateTimeUtil.calculateMillisDifference(
-            nextUiMessage.header.messageTime.utcISO,
-            currentMessage.header.messageTime.utcISO,
-        )
-        showHeader = currentMessage.header.userId != nextUiMessage.header.userId || difference > AGGREGATION_TIME_WINDOW
+        if(currentMessage.header.userId == nextUiMessage.header.userId) {
+            val difference = DateTimeUtil.calculateMillisDifference(
+                nextUiMessage.header.messageTime.utcISO,
+                currentMessage.header.messageTime.utcISO,
+            )
+            showHeader = difference > AGGREGATION_TIME_WINDOW
+        }
     }
     return showHeader
 }

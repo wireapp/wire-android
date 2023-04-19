@@ -9,7 +9,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class ImportMediaUnauthorizedViewModel @Inject constructor(
+class ImportMediaUnauthenticatedViewModel @Inject constructor(
     private val navigationManager: NavigationManager,
     val dispatchers: DispatcherProvider,
 ) : ViewModel() {

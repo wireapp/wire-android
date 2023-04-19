@@ -66,7 +66,7 @@ import kotlinx.coroutines.flow.SharedFlow
 
 @Composable
 fun ImportMediaScreen(
-    importMediaViewModel: ImportMediaUnauthorizedViewModel = hiltViewModel(),
+    importMediaViewModel: ImportMediaUnauthenticatedViewModel = hiltViewModel(),
     featureFlagNotificationViewModel: FeatureFlagNotificationViewModel = hiltViewModel()
 ) {
     checkIfSharingIsEnabled(featureFlagNotificationViewModel)
@@ -84,7 +84,7 @@ fun checkIfSharingIsEnabled(featureFlagNotificationViewModel: FeatureFlagNotific
 
 @Composable
 fun ImportMediaContent(
-    unauthorizedViewModel: ImportMediaUnauthorizedViewModel,
+    unauthorizedViewModel: ImportMediaUnauthenticatedViewModel,
     featureFlagNotificationViewModel: FeatureFlagNotificationViewModel
 ) {
 
@@ -181,7 +181,7 @@ fun ImportMediaRegularContent(authorizedViewModel: ImportMediaAuthenticatedViewM
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ImportMediaLoggedOutContent(
-    viewModel: ImportMediaUnauthorizedViewModel,
+    viewModel: ImportMediaUnauthenticatedViewModel,
     featureFlagNotificationViewModel: FeatureFlagNotificationViewModel
 ) {
     Scaffold(

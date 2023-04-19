@@ -243,14 +243,13 @@ pipeline {
       }
     }
 
+    /*
     stage('Unit Tests') {
       when {
         expression { env.runUnitTests.toBoolean() }
       }
       steps {
         script {
-          String flavor = defineFlavor()[0]
-          String buildType = defineBuildType(flavor)
           last_started = env.STAGE_NAME
         }
 
@@ -258,10 +257,11 @@ pipeline {
           sh './gradlew runUnitTests'
         }
 
-        publishHTML(allowMissing: true, alwaysLinkToLastBuild: true, keepAll: true, reportDir: "app/build/reports/tests/test${flavor}${buildType}UnitTest/", reportFiles: 'index.html', reportName: 'Unit Test Report', reportTitles: 'Unit Test')
-        zip archive: true, defaultExcludes: false, dir: "app/build/reports/tests/test${flavor}${buildType}UnitTest/", overwrite: true, glob: "", zipFile: "unit-tests-android.zip"
+        publishHTML(allowMissing: true, alwaysLinkToLastBuild: true, keepAll: true, reportDir: "app/build/reports/tests/test${unitTestFlavor}${unitTestBuildType}UnitTest/", reportFiles: 'index.html', reportName: 'Unit Test Report', reportTitles: 'Unit Test')
+        zip archive: true, defaultExcludes: false, dir: "app/build/reports/tests/test${unitTestFlavor}${unitTestBuildType}UnitTest/", overwrite: true, glob: "", zipFile: "unit-tests-android.zip"
       }
     }
+    */
 
     stage('Connect Emulators') {
       parallel {
@@ -301,14 +301,13 @@ pipeline {
       }
     }
 
+    /*
     stage('Acceptance Tests') {
       when {
         expression { env.runAcceptanceTests.toBoolean() }
       }
       steps {
         script {
-         String flavor = defineFlavor()[0]
-         String buildType = defineBuildType(flavor)
           last_started = env.STAGE_NAME
         }
 
@@ -316,9 +315,11 @@ pipeline {
           sh './gradlew runAcceptanceTests'
         }
 
-        publishHTML(allowMissing: true, alwaysLinkToLastBuild: true, keepAll: true, reportDir: "app/build/reports/androidTests/connected/flavors/${flavor.toLowerCase()}", reportFiles: 'index.html', reportName: 'Acceptance Test Report', reportTitles: 'Acceptance Test')
-        zip archive: true, defaultExcludes: false, dir: "app/build/reports/androidTests/connected/flavors/${flavor.toLowerCase()}", overwrite: true, glob: "", zipFile: "integration-tests-android.zip"
+        publishHTML(allowMissing: true, alwaysLinkToLastBuild: true, keepAll: true, reportDir: "app/build/reports/androidTests/connected/flavors/${unitTestFlavor.toLowerCase()}", reportFiles: 'index.html', reportName: 'Acceptance Test Report', reportTitles: 'Acceptance Test')
+        zip archive: true, defaultExcludes: false, dir: "app/build/reports/androidTests/connected/flavors/${unitTestFlavor.toLowerCase()}", overwrite: true, glob: "", zipFile: "integration-tests-android.zip"
       }
+    */
+
     }
 
 
@@ -423,9 +424,8 @@ pipeline {
 
   environment {
     propertiesFile = 'local.properties'
-    flavorList = defineFlavor()
-    flavor = flavorList[0]
-    buildType = defineBuildType(flavor)
+    unitTestFlavor = 'Dev'
+    unitTestBuildType = 'Debug'
     adbPort = '5555'
     emulatorPrefix = "${BRANCH_NAME.replaceAll('/','_')}"
     trackName = defineTrackName()

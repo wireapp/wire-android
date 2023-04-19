@@ -82,10 +82,17 @@ jobs:
           rm -f ~/.gradle/caches/modules-2/modules-2.lock
           rm -f ~/.gradle/caches/modules-2/gc.properties
 
-  build-staging:
+  build-beta:
     if: ${{ github.event_name == 'pull_request' }}
     needs: [unit-tests]
     uses: ./.github/workflows/build-app.yml
     with:
-      flavour: "staging"
+      flavour: "beta-debug"
+
+  build-dev:
+    if: ${{ github.event_name == 'pull_request' }}
+    needs: [unit-tests]
+    uses: ./.github/workflows/build-app.yml
+    with:
+      flavour: "dev-debug"
 

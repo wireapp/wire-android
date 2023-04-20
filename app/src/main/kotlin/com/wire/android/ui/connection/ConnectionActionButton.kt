@@ -52,7 +52,7 @@ fun ConnectionActionButton(
     connectionStatus: ConnectionState
 ) {
     val viewModel: ConnectionActionButtonBaseViewModel = if (LocalInspectionMode.current) {
-        ConnectionActionButtonPreviewModel
+        ConnectionActionButtonPreviewModel(connectionStatus)
     } else {
         hiltViewModelScoped<ConnectionActionButtonViewModel>(
             key = "${ConnectionActionButtonViewModel.MY_ARGS_KEY}$userId",
@@ -64,7 +64,7 @@ fun ConnectionActionButton(
         )
     }
 
-    when (connectionStatus) {
+    when (viewModel.state()) {
         ConnectionState.SENT -> WireSecondaryButton(
             text = stringResource(R.string.connection_label_cancel_request),
             onClick = viewModel::onCancelConnectionRequest,

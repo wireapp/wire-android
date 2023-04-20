@@ -62,6 +62,7 @@ import javax.inject.Inject
 
 abstract class ConnectionActionButtonBaseViewModel : ViewModel() {
 
+    abstract fun state() : ConnectionState
     abstract fun onSendConnectionRequest()
     abstract fun onCancelConnectionRequest()
     abstract fun onAcceptConnectionRequest()
@@ -92,6 +93,7 @@ class ConnectionActionButtonViewModel @Inject constructor(
 
     var state: ConnectionState by mutableStateOf(extraConnectionState)
     var requestInProgress: Boolean by mutableStateOf(false)
+    override fun state(): ConnectionState = state
 
     override fun onSendConnectionRequest() {
         viewModelScope.launch {
@@ -199,7 +201,8 @@ class ConnectionActionButtonViewModel @Inject constructor(
 }
 
 @Suppress("EmptyFunctionBlock")
-object ConnectionActionButtonPreviewModel : ConnectionActionButtonBaseViewModel() {
+class ConnectionActionButtonPreviewModel(private val state: ConnectionState) : ConnectionActionButtonBaseViewModel() {
+    override fun state(): ConnectionState = state
     override fun onSendConnectionRequest() {}
     override fun onCancelConnectionRequest() {}
     override fun onAcceptConnectionRequest() {}

@@ -50,6 +50,7 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
         private val IS_ENCRYPTED_PROTEUS_STORAGE_ENABLED = booleanPreferencesKey("is_encrypted_proteus_storage_enabled")
         private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = PREFERENCES_NAME)
         private fun userMigrationStatusKey(userId: String): Preferences.Key<Int> = intPreferencesKey("user_migration_status_$userId")
+        private fun userLastMigrationAppVersion(userId: String): Preferences.Key<Int> = intPreferencesKey("migration_app_version_$userId")
     }
 
     suspend fun clear() {
@@ -93,6 +94,16 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
 
     suspend fun setUserMigrationStatus(userId: String, status: UserMigrationStatus) {
         context.dataStore.edit { it[userMigrationStatusKey(userId)] = status.value }
+        when (status) {
+            UserMigrationStatus.Completed,
+            UserMigrationStatus.CompletedWithErrors,
+            UserMigrationStatus.Successfully -> setUserMigrationAppVersion(userId, BuildConfig.VERSION_CODE)
+
+            UserMigrationStatus.NoNeed,
+            UserMigrationStatus.NotStarted -> {
+                /* no-op */
+            }
+        }
     }
 
     /**
@@ -102,4 +113,11 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
      */
     fun getUserMigrationStatus(userId: String): Flow<UserMigrationStatus?> =
         context.dataStore.data.map { it[userMigrationStatusKey(userId)]?.let { status -> UserMigrationStatus.fromInt(status) } }
+
+    suspend fun setUserMigrationAppVersion(userId: String, version: Int) {
+        context.dataStore.edit { it[userLastMigrationAppVersion(userId)] = version }
+    }
+
+    suspend fun getUserMigrationAppVersion(userId: String): Int? =
+        context.dataStore.data.map { it[userLastMigrationAppVersion(userId)] }.firstOrNull()
 }

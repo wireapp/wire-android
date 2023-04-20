@@ -6,6 +6,7 @@ import com.wire.android.migration.failure.UserMigrationStatus
 import com.wire.android.migration.userDatabase.ShouldTriggerMigrationForUserUserCase
 import com.wire.kalium.logic.data.user.UserId
 import io.mockk.MockKAnnotations
+import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
@@ -61,10 +62,28 @@ class ShouldTriggerMigrationForUserUserCaseTest {
         verify(exactly = 1) { arrangement.globalDataStore.getUserMigrationStatus(userId.value) }
         verify(exactly = 0) { arrangement.applicationContext.getDatabasePath(userId.value) }
     }
+
     @Test
-    fun givenUserMigrationComplite_thenReturnFalse() = runTest {
+    fun givenUserMigrationComplete_whenAppVersionIsNewAndUserHaveScalaDB_thenReturnTrue() = runTest {
         val (arrangement, useCase) = Arrangement()
             .withUserMigrationStatus(UserMigrationStatus.Completed)
+            .withNewAppVersion()
+            .withUserHaveAValidDB()
+            .arrange()
+
+        val userId = UserId("userId", "domain")
+        assertTrue(useCase(userId))
+
+        verify(exactly = 1) { arrangement.globalDataStore.getUserMigrationStatus(userId.value) }
+        verify(exactly = 1) { arrangement.applicationContext.getDatabasePath(userId.value) }
+    }
+
+    @Test
+    fun givenUserMigrationComplete_whenAppVersionIsSameAndUserHaveScalaDB_thenReturnFalse() = runTest {
+        val (arrangement, useCase) = Arrangement()
+            .withUserMigrationStatus(UserMigrationStatus.Completed)
+            .withSameAppVersion()
+            .withUserHaveAValidDB()
             .arrange()
 
         val userId = UserId("userId", "domain")
@@ -72,6 +91,21 @@ class ShouldTriggerMigrationForUserUserCaseTest {
 
         verify(exactly = 1) { arrangement.globalDataStore.getUserMigrationStatus(userId.value) }
         verify(exactly = 0) { arrangement.applicationContext.getDatabasePath(userId.value) }
+    }
+
+    @Test
+    fun givenUserMigrationComplete_whenAppVersionIsNewAndUserHaveNoScalaDB_thenReturnFalse() = runTest {
+        val (arrangement, useCase) = Arrangement()
+            .withUserMigrationStatus(UserMigrationStatus.Completed)
+            .withNewAppVersion()
+            .withUserDoesNotHaveScalaDB()
+            .arrange()
+
+        val userId = UserId("userId", "domain")
+        assertFalse(useCase(userId))
+
+        verify(exactly = 1) { arrangement.globalDataStore.getUserMigrationStatus(userId.value) }
+        verify(exactly = 1) { arrangement.applicationContext.getDatabasePath(userId.value) }
     }
 
     @Test
@@ -114,6 +148,7 @@ class ShouldTriggerMigrationForUserUserCaseTest {
         @MockK
         lateinit var globalDataStore: GlobalDataStore
 
+        val currentAppVersion = 10
         fun withUserHaveAValidDB() = apply {
             val dbFile: File = mockk()
             every { dbFile.exists() } returns true
@@ -132,9 +167,22 @@ class ShouldTriggerMigrationForUserUserCaseTest {
             every { globalDataStore.getUserMigrationStatus(any()) } returns flowOf(status)
         }
 
+        fun withSameAppVersion() = apply {
+            coEvery { globalDataStore.getUserMigrationAppVersion(any()) } returns currentAppVersion
+        }
+
+        fun withNewAppVersion() = apply {
+            coEvery { globalDataStore.getUserMigrationAppVersion(any()) } returns currentAppVersion + 1
+        }
+
+        fun withCurrentAppVersion(version: Int?) = apply {
+            every { }
+        }
+
         private val useCase = ShouldTriggerMigrationForUserUserCase(
             applicationContext,
-            globalDataStore
+            globalDataStore,
+            currentAppVersion
         )
 
         fun arrange() = this to useCase

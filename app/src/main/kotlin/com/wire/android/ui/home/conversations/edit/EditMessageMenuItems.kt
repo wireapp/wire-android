@@ -137,105 +137,59 @@ fun EditMessageMenuItems(
             if (isAvailable) {
                 add { ReactionOption(onReactionItemClick) }
                 add { MessageDetailsMenuOption(onDetailsItemClick) }
-                if (isCopyable) {
-                    add {
-                        MenuBottomSheetItem(
-                            icon = {
-                                MenuItemIcon(
-                                    id = R.drawable.ic_copy,
-                                    contentDescription = stringResource(R.string.content_description_copy_the_message),
-                                )
-                            },
-                            title = stringResource(R.string.label_copy),
-                            onItemClick = onCopyItemClick
-                        )
-                    }
-                }
-                    ReplyMessageOption(onReplyItemClick)
-                    if (isAssetMessage) add { DownloadAssetExternallyOption(onDownloadAssetClick) }
-                    if (isGenericAsset) add { OpenAssetExternallyOption(onOpenAssetClick) }
-                    if (isEditable) {
-                        add {
-                            MenuBottomSheetItem(
-                                icon = {
-                                    MenuItemIcon(
-                                        id = R.drawable.ic_edit,
-                                        contentDescription = stringResource(R.string.content_description_edit_the_message)
-                                    )
-                                },
-                                title = stringResource(R.string.label_edit),
-                                onItemClick = onEditItemClick
-                            )
-                        }
-                    }
-                    if (isAssetMessage) {
-                        add {
-                            MenuBottomSheetItem(
-                                icon = {
-                                    MenuItemIcon(
-                                        id = R.drawable.ic_share_file,
-                                        contentDescription = stringResource(R.string.content_description_share_the_file),
-                                    )
-                                },
-                                title = stringResource(R.string.label_share),
-                                onItemClick = onShareAsset
-                            )
-                        }
-                    }
-                add {
-                    CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.error) {
-                        MenuBottomSheetItem(
-                            icon = {
-                                MenuItemIcon(
-                                    id = R.drawable.ic_delete,
-                                    contentDescription = stringResource(R.string.content_description_delete_the_message),
-                                )
-                            },
-                            title = stringResource(R.string.label_delete),
-                            onItemClick = onDeleteItemClick
-                        )
-                    }
-                }
+                if (isCopyable) add { CopyItemMenuOption(onCopyItemClick) }
+                ReplyMessageOption(onReplyItemClick)
+                if (isAssetMessage) add { DownloadAssetExternallyOption(onDownloadAssetClick) }
+                if (isGenericAsset) add { OpenAssetExternallyOption(onOpenAssetClick) }
+                if (isEditable) { add { EditMessageMenuOption(onEditItemClick) } }
+                if (isAssetMessage) { add { ShareAssetMenuOption(onShareAsset) } }
+                add { DeleteItemMenuOption(onDeleteItemClick) }
             }
         }
     }
 }
 
 @Composable
-private fun EphemeralMessageEditMenuItems(
-    message: UIMessage.Regular,
-    onDetailsClick: () -> Unit,
-    onDownloadAsset: () -> Unit,
-    onOpenAsset: () -> Unit,
-    onDeleteMessage: () -> Unit
-): List<@Composable () -> Unit> {
-    val isAvailable = message.isAvailable
-    val isAssetMessage = message.messageContent is UIMessageContent.AssetMessage
-            || message.messageContent is UIMessageContent.ImageMessage
-            || message.messageContent is UIMessageContent.AudioAssetMessage
-    val isGenericAsset = message.messageContent is UIMessageContent.AssetMessage
+fun CopyItemMenuOption(onCopyItemClick: () -> Unit) {
+    MenuBottomSheetItem(
+        icon = {
+            MenuItemIcon(
+                id = R.drawable.ic_copy,
+                contentDescription = stringResource(R.string.content_description_copy_the_message),
+            )
+        },
+        title = stringResource(R.string.label_copy),
+        onItemClick = onCopyItemClick
+    )
+}
 
-    return buildList {
-        if (isAvailable) {
-            add { MessageDetailsMenuOption(onDetailsClick) }
-            if (isAssetMessage) add { DownloadAssetExternallyOption(onDownloadAsset) }
-            if (isGenericAsset) add { OpenAssetExternallyOption(onOpenAsset) }
-            add {
-                CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.error) {
-                    MenuBottomSheetItem(
-                        icon = {
-                            MenuItemIcon(
-                                id = R.drawable.ic_delete,
-                                contentDescription = stringResource(R.string.content_description_delete_the_message),
-                            )
-                        },
-                        title = stringResource(R.string.label_delete),
-                        onItemClick = onDeleteMessage
-                    )
-                }
-            }
-        }
-    }
+
+@Composable
+fun ShareAssetMenuOption(onShareAsset: () -> Unit) {
+    MenuBottomSheetItem(
+        icon = {
+            MenuItemIcon(
+                id = R.drawable.ic_share_file,
+                contentDescription = stringResource(R.string.content_description_share_the_file),
+            )
+        },
+        title = stringResource(R.string.label_share),
+        onItemClick = onShareAsset
+    )
+}
+
+@Composable
+private fun EditMessageMenuOption(onEditItemClick: () -> Unit) {
+    MenuBottomSheetItem(
+        icon = {
+            MenuItemIcon(
+                id = R.drawable.ic_edit,
+                contentDescription = stringResource(R.string.content_description_edit_the_message)
+            )
+        },
+        title = stringResource(R.string.label_edit),
+        onItemClick = onEditItemClick
+    )
 }
 
 typealias OnComplete = () -> Unit

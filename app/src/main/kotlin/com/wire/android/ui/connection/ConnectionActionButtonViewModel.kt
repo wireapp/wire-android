@@ -62,7 +62,7 @@ import javax.inject.Inject
 
 abstract class ConnectionActionButtonBaseViewModel : ViewModel() {
 
-    abstract fun state() : ConnectionState
+    abstract fun state(): ConnectionState
     abstract fun onSendConnectionRequest()
     abstract fun onCancelConnectionRequest()
     abstract fun onAcceptConnectionRequest()

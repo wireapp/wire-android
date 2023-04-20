@@ -233,18 +233,14 @@ class ImportMediaViewModel @Inject constructor(
         val incomingIntent = ShareCompat.IntentReader(activity)
         appLogger.e("Received data from sharing intent ${incomingIntent.streamCount}")
         importMediaState = importMediaState.copy(isImporting = true)
-        when (incomingIntent.streamCount) {
-            0 -> {
-                // if stream count is 0 the type will be text, we check the type to double check if it is text
-                // todo : handle the text , we can get the text from incomingIntent.text
-            }
-
-            1 -> {
+        if (incomingIntent.streamCount == 0) {
+            // if stream count is 0 the type will be text, we check the type to double check if it is text
+            // todo : handle the text , we can get the text from incomingIntent.text
+        } else {
+            if (incomingIntent.isSingleShare) {
                 // ACTION_SEND
                 handleSingleIntent(incomingIntent, activity)
-            }
-
-            else -> {
+            } else {
                 // ACTION_SEND_MULTIPLE
                 handleMultipleActionIntent(activity)
             }
@@ -348,7 +344,7 @@ class ImportMediaViewModel @Inject constructor(
             }
 
             else -> {
-                fileManager.copyToTempPath(uri, tempAssetPath)
+                fileManager.copyToPath(uri, tempAssetPath)
                 return@withContext ImportedMediaAsset.GenericAsset(
                     name = fileMetadata.name,
                     size = fileMetadata.size,

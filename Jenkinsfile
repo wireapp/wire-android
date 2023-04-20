@@ -460,18 +460,21 @@ pipeline {
         if (env.BRANCH_NAME.startsWith('PR-')) {
           def payload = "Build [${BUILD_NUMBER}](${env.BUILD_URL}) **succeeded**.\n\n"
 
-          def apks = findFiles(glob: "app/build/outputs/apk/${flavor.toLowerCase()}/${buildType.toLowerCase()}/com.wire.android-*.apk")
+          def flavorList = defineFlavor()
+          flavorList.each { flavor ->
+            def buildType = defineBuildType(flavor)
+            def apks = findFiles(glob: "app/build/outputs/apk/${flavor.toLowerCase()}/${buildType.toLowerCase()}/com.wire.android-*.apk")
 
-          if (apks.size() == 0) {
-            payload += "The build did not produce any APK artifacts."
-          } else {
-            payload += "The build produced the following APK's:\n"
+            if (apks.size() > 0) {
+              payload += "$flavor$buildType produced the following APK's:\n"
 
-            for (a in apks) {
-              payload += "- [${a.name}](https://z-lohika.s3-eu-west-1.amazonaws.com/megazord/android/reloaded/${flavor.toLowerCase()}/${buildType.toLowerCase()}/${a.name})\n"
+              for (a in apks) {
+                payload += "- [${a.name}](https://z-lohika.s3-eu-west-1.amazonaws.com/megazord/android/reloaded/${flavor.toLowerCase()}/${buildType.toLowerCase()}/${a.name})\n"
+              }
+            } else {
+              payload += "$flavor$buildType did not produce any APK artifacts.\n"
             }
           }
-
           postGithubComment(env.CHANGE_ID, payload)
         }
       }

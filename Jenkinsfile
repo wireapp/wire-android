@@ -259,6 +259,19 @@ pipeline {
       }
     }
 
+    stage('Compile') {
+      steps {
+        script {
+          last_started = env.STAGE_NAME
+        }
+
+        withGradle() {
+          sh './gradlew compileApp'
+        }
+
+      }
+    }
+
     stage('Static Code Analysis') {
       when {
         expression { env.runStaticCodeAnalysis.toBoolean() }

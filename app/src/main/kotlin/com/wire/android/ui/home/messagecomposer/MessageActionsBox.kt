@@ -51,6 +51,7 @@ import com.wire.android.ui.home.messagecomposer.state.MessageComposeInputState
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 import com.wire.kalium.logic.configuration.SelfDeletingMessagesStatus
+import com.wire.kalium.logic.util.isGreaterThan
 
 @ExperimentalAnimationApi
 @Composable
@@ -109,7 +110,9 @@ private fun MessageComposeActions(
 ) {
     val localFeatureVisibilityFlags = LocalFeatureVisibilityFlags.current
     // We shouldn't show the self-deleting option if there is a compulsory duration already set on the team settings level
-    val showSelfDeletingOption = selfDeletingMessagesStatus.isEnabled && (selfDeletingMessagesStatus.enforcedTimeoutInSeconds ?: 0) > 0
+    val showSelfDeletingOption = with(selfDeletingMessagesStatus) {
+        isEnabled && !enforcedTimeoutInSeconds.isGreaterThan(0)
+    }
 
     Row(
         verticalAlignment = Alignment.CenterVertically,

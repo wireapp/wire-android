@@ -14,19 +14,24 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
+package com.wire.android.ui.home.settings.account.email.updateEmail
 
-package com.wire.android.ui.home.settings.account
+import androidx.compose.ui.text.input.TextFieldValue
 
-data class MyAccountState(
-    val fullName: String = "",
-    val userName: String = "",
-    val email: String = "",
-    val teamName: String = "",
-    val domain: String = "",
-    val changePasswordUrl: String? = null,
-    val isReadOnlyAccount: Boolean = true,
-    val isEditEmailAllowed: Boolean = false
-)
+data class ChangeEmailState(
+    val email: TextFieldValue = TextFieldValue(""),
+    val error: EmailError = EmailError.None,
+    val isEmailTextEditEnabled: Boolean = true,
+    val animatedEmailError: Boolean = false,
+    val saveEnabled: Boolean = false,
+) {
+    sealed interface EmailError {
+        object None : EmailError
+        sealed interface TextFieldError : EmailError {
+            object AlreadyInUse : TextFieldError
+            object InvalidEmail : TextFieldError
+            object Generic : TextFieldError
+        }
+    }
+}

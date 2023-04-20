@@ -124,7 +124,7 @@ fun HomeScreen(
         if (shouldShowSelfDeletingMessagesDialog) {
             SelfDeletingMessagesDialog(
                 isSelfDeletingMessagesEnabled = areSelfDeletedMessagesEnabled,
-                enforcedTimeout = enforcedTimeoutInSeconds,
+                enforcedTimeout = enforcedTimeoutDuration,
                 hideDialogStatus = featureFlagNotificationViewModel::dismissSelfDeletingMessagesDialog
             )
         }

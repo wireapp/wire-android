@@ -80,6 +80,7 @@ import com.wire.android.ui.home.conversations.model.EditMessageBundle
 import com.wire.android.ui.home.conversations.model.SendMessageBundle
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UriAsset
+import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMapper.toSelfDeletionDuration
 import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMenuItems
 import com.wire.android.ui.home.messagecomposer.MessageComposer
 import com.wire.android.ui.home.messagecomposer.state.MessageComposerState
@@ -328,6 +329,12 @@ private fun ConversationScreen(
                     messageComposerInnerState.reply(it)
                 }
             }
+        )
+    }
+
+    LaunchedEffect(currentSelfDeletingMessagesStatus) {
+        messageComposerInnerState.specifySelfDeletionTime(
+            currentSelfDeletingMessagesStatus.enforcedTimeoutInSeconds.toSelfDeletionDuration()
         )
     }
 

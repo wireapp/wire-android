@@ -29,6 +29,7 @@ import com.wire.android.appLogger
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.FeatureFlagState
+import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMapper.toSelfDeletionDuration
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.data.user.UserId
@@ -129,7 +130,7 @@ class FeatureFlagNotificationViewModel @Inject constructor(
                 selfDeletingMessagesStatus.isStatusChanged?.let {
                     featureFlagState = featureFlagState.copy(
                         shouldShowSelfDeletingMessagesDialog = it,
-                        enforcedTimeoutInSeconds = selfDeletingMessagesStatus.enforcedTimeoutInSeconds
+                        enforcedTimeoutDuration = selfDeletingMessagesStatus.enforcedTimeoutInSeconds.toSelfDeletionDuration()
                     )
                 }
             }

@@ -14,26 +14,20 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
-
-package com.wire.android.ui.home
+package com.wire.android.ui.home.conversations.selfdeletion
 
 import com.wire.android.ui.home.messagecomposer.state.SelfDeletionDuration
 
-data class FeatureFlagState(
-    val showFileSharingDialog: Boolean = false,
-    val isFileSharingEnabledState: Boolean = true,
-    val fileSharingRestrictedState: SharingRestrictedState = SharingRestrictedState.NONE,
-    val shouldShowGuestRoomLinkDialog: Boolean = false,
-    val isGuestRoomLinkEnabled: Boolean = true,
-    val shouldShowSelfDeletingMessagesDialog: Boolean = false,
-    val enforcedTimeoutDuration: SelfDeletionDuration = SelfDeletionDuration.None,
-    val areSelfDeletedMessagesEnabled: Boolean = true
-) {
-    fun isSharingAllowed() = fileSharingRestrictedState == SharingRestrictedState.NONE
-    enum class SharingRestrictedState {
-        NONE, NO_USER, RESTRICTED_IN_TEAM
-    }
+object SelfDeletionMapper {
+    fun Int?.toSelfDeletionDuration(): SelfDeletionDuration =
+        when (this) {
+            in 1..10 -> SelfDeletionDuration.TenSeconds
+            in 11..300 -> SelfDeletionDuration.FiveMinutes
+            in 301..3600 -> SelfDeletionDuration.OneHour
+            in 3601..86400 -> SelfDeletionDuration.OneDay
+            in 86401..604800 -> SelfDeletionDuration.OneWeek
+            in 604801..2592000 -> SelfDeletionDuration.FourWeeks
+            else -> SelfDeletionDuration.None
+        }
 }

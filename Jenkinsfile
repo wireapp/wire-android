@@ -39,11 +39,10 @@ String defineBuildType(String flavor) {
 // if there is more than one flavor, we need to build in parallel
 // example:
 // ./gradlew assembleStagingDebug assembleDevDebug --parallel
-// ./gradlew assembleStagingDebug assembleDevDebug
+// ./gradlew assembleStagingDebug
 String buildAssembleCommand(List<String> flavors) {
     def command = "./gradlew"
-    for (int i = 0; i < flavors.size(); i++) {
-      def flavor = flavors[i]
+    flavors.each { flavor->
       def buildType = defineBuildType(flavor)
       command += (" assemble"+flavor+buildType)
     }
@@ -73,6 +72,13 @@ String buildBundleCommand(List<String> flavors) {
 
 def shouldCreateBundle(String buildType) {
     if (buildType == "Release" || buildType == "Compatrelease") {
+      return true
+    }
+    return false
+}
+
+def shouldPublishToStore(String flavor, String buildType) {
+    if (buildType == "Release" && flavor == "Beta") {
       return true
     }
     return false
@@ -375,37 +381,44 @@ pipeline {
       parallel {
           stage('S3 Bucket') {
             steps {
-                 script {
-                    def list = defineFlavor()
-                    list.each { flavor ->
-                    def buildType = defineBuildType(flavor)
-
-                    }
-                }
-              echo 'Checking folder before S3 Bucket upload'
-              sh "ls -la app/build/outputs/apk/${flavor.toLowerCase()}/${buildType.toLowerCase()}/"
-              echo 'Uploading file to S3 Bucket'
-              s3Upload(acl:'Private', workingDir: "app/build/outputs/apk/${flavor.toLowerCase()}/${buildType.toLowerCase()}/", includePathPattern:'com.wire.android-*.apk', bucket: 'z-lohika', path: "megazord/android/reloaded/${flavor.toLowerCase()}/${buildType.toLowerCase()}/")
               script {
-                if (env.BRANCH_NAME.startsWith("PR-") || env.BRANCH_NAME == "develop") {
-                  s3Upload(acl:'Private', workingDir: "app/build/outputs/apk/${flavor.toLowerCase()}/${buildType.toLowerCase()}/", includePathPattern:'com.wire.android-*.apk', bucket: 'z-lohika', path: "megazord/android/reloaded/by-branch/${env.BRANCH_NAME}/")
+                def list = defineFlavor()
+                list.each { flavor ->
+                  def buildType = defineBuildType(flavor)
+                  def checkFolderCommand = "ls -la app/build/outputs/apk/${flavor.toLowerCase()}/${buildType.toLowerCase()}/"
+                  def workingDir = "app/build/outputs/apk/${flavor.toLowerCase()}/${buildType.toLowerCase()}/"
+                  def megazordPath = "megazord/android/reloaded/${flavor.toLowerCase()}/${buildType.toLowerCase()}/"
+                  echo 'Checking folder before S3 Bucket upload ${flavor} ${buildType}'
+                  sh checkFolderCommand
+                  echo 'Uploading file to S3 Bucket ${flavor} ${buildType}'
+                  s3Upload(acl:'Private', workingDir: workingDir, includePathPattern:'com.wire.android-*.apk', bucket: 'z-lohika', path: megazordPath)
+                  if (env.BRANCH_NAME.startsWith("PR-") || env.BRANCH_NAME == "develop") {
+                    s3Upload(acl:'Private', workingDir: workingDir, includePathPattern:'com.wire.android-*.apk', bucket: 'z-lohika', path: "megazord/android/reloaded/by-branch/${env.BRANCH_NAME}/")
+                  }
                 }
               }
             }
           }
+
           stage('Playstore') {
             when {
-              expression { env.trackName != 'None' && env.flavor == 'Beta' && env.CHANGE_ID == null }
+              expression { env.trackName != 'None' && env.CHANGE_ID == null }
             }
             steps {
-                                  script {
-                                    String flavor = defineFlavor()[0]
-                                    String buildType = defineBuildType(flavor)
-                                    }
-              echo 'Checking folder before playstore upload'
-              sh "ls -la app/build/outputs/bundle/${flavor.toLowerCase()}${buildType.capitalize()}/"
-              echo 'Uploading file to Playstore track ${trackName}'
-              androidApkUpload(googleCredentialsId: 'google play access', filesPattern: "app/build/outputs/bundle/${flavor.toLowerCase()}${buildType.capitalize()}/com.wire.android-*.aab", trackName: "${trackName}", rolloutPercentage: '100', releaseName: "${trackName} Release")
+              script {
+                def flavors = defineFlavor()
+                flavors.each { flavor ->
+                  def buildType = defineBuildType(flavor)
+                  if (shouldCreateBundle(buildType)) {
+                    def lsBundleCommand = "ls -la app/build/outputs/bundle/${flavor.toLowerCase()}${buildType.capitalize()}/"
+                    def filePath = "app/build/outputs/bundle/${flavor.toLowerCase()}${buildType.capitalize()}/com.wire.android-*.aab"
+                    echo 'Checking folder before playstore upload'
+                    sh lsBundleCommand
+                    echo 'Uploading file to Playstore track ${trackName}'
+                    androidApkUpload(googleCredentialsId: 'google play access', filesPattern: filePath, trackName: "${trackName}", rolloutPercentage: '100', releaseName: "${trackName} Release")
+                  }
+                }
+              }
             }
           }
       }

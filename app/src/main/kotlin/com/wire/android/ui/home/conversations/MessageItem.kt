@@ -32,6 +32,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -41,6 +42,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
 import com.google.accompanist.flowlayout.FlowRow
 import com.wire.android.R
 import com.wire.android.media.audiomessage.AudioState
@@ -71,6 +73,7 @@ import com.wire.android.ui.home.conversations.model.messagetypes.asset.Restricte
 import com.wire.android.ui.home.conversations.model.messagetypes.audio.AudioMessage
 import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMessageParams
 import com.wire.android.ui.theme.wireColorScheme
+import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.user.UserId
@@ -81,6 +84,7 @@ import com.wire.kalium.logic.data.user.UserId
 @Composable
 fun MessageItem(
     message: UIMessage.Regular,
+    showAuthor: Boolean = true,
     audioMessagesState: Map<String, AudioState>,
     onLongClicked: (UIMessage.Regular) -> Unit,
     onAssetMessageClicked: (String) -> Unit,
@@ -116,7 +120,11 @@ fun MessageItem(
         }
 
         Box(backgroundColorModifier) {
-            val fullAvatarOuterPadding = dimensions().userAvatarClickablePadding + dimensions().userAvatarStatusBorderSize
+            val fullAvatarOuterPadding = if (showAuthor) {
+                dimensions().userAvatarClickablePadding + dimensions().userAvatarStatusBorderSize
+            } else {
+                0.dp
+            }
             Row(
                 Modifier
                     .padding(
@@ -142,19 +150,23 @@ fun MessageItem(
                     header.userId != null &&
                             !(header.isSenderDeleted || header.isSenderUnavailable)
 
-                val avatarClickable = remember {
-                    Clickable(enabled = isProfileRedirectEnabled) {
-                        onOpenProfile(header.userId!!.toString())
+                if (showAuthor) {
+                    val avatarClickable = remember {
+                        Clickable(enabled = isProfileRedirectEnabled) {
+                            onOpenProfile(header.userId!!.toString())
+                        }
                     }
+                    UserProfileAvatar(
+                        avatarData = message.userAvatarData,
+                        clickable = avatarClickable
+                    )
+                } else {
+                    Spacer(Modifier.width(MaterialTheme.wireDimensions.userAvatarDefaultSize))
                 }
-                UserProfileAvatar(
-                    avatarData = message.userAvatarData,
-                    clickable = avatarClickable
-                )
                 Spacer(Modifier.padding(start = dimensions().spacing16x - fullAvatarOuterPadding))
                 Column {
                     Spacer(modifier = Modifier.height(fullAvatarOuterPadding))
-                    MessageHeader(header)
+                    MessageHeader(header, showAuthor)
                     if (selfDeletionTimerState is SelfDeletionTimer.SelfDeletionTimerState.Expirable) {
                         MessageExpireLabel(messageContent, selfDeletionTimerState.timeLeftFormatted())
                     }
@@ -255,30 +267,33 @@ fun MessageExpireLabel(messageContent: UIMessageContent?, timeLeft: String) {
 
 @Composable
 private fun MessageHeader(
-    messageHeader: MessageHeader
+    messageHeader: MessageHeader,
+    showAuthor: Boolean
 ) {
     with(messageHeader) {
         Column {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Row(
-                    modifier = Modifier.weight(weight = 1f, fill = true),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Username(username.asString(), modifier = Modifier.weight(weight = 1f, fill = false))
-                    UserBadge(
-                        membership = membership,
-                        connectionState = connectionState,
-                        startPadding = dimensions().spacing6x,
-                        isDeleted = isSenderDeleted
-                    )
-                    if (isLegalHold) {
-                        LegalHoldIndicator(modifier = Modifier.padding(start = dimensions().spacing6x))
+            if (showAuthor) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Row(
+                        modifier = Modifier.weight(weight = 1f, fill = true),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Username(username.asString(), modifier = Modifier.weight(weight = 1f, fill = false))
+                        UserBadge(
+                            membership = membership,
+                            connectionState = connectionState,
+                            startPadding = dimensions().spacing6x,
+                            isDeleted = isSenderDeleted
+                        )
+                        if (isLegalHold) {
+                            LegalHoldIndicator(modifier = Modifier.padding(start = dimensions().spacing6x))
+                        }
                     }
+                    MessageTimeLabel(
+                        time = messageHeader.messageTime.formattedDate,
+                        modifier = Modifier.padding(start = dimensions().spacing6x)
+                    )
                 }
-                MessageTimeLabel(
-                    time = messageHeader.messageTime.formattedDate,
-                    modifier = Modifier.padding(start = dimensions().spacing6x)
-                )
             }
             MessageStatusLabel(messageStatus = messageStatus)
         }

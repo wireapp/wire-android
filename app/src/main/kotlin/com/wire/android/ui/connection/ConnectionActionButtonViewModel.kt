@@ -60,15 +60,15 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
-abstract class ConnectionActionButtonBaseViewModel : ViewModel() {
+interface ConnectionActionButtonBaseViewModel {
 
-    abstract fun state(): ConnectionState
-    abstract fun onSendConnectionRequest()
-    abstract fun onCancelConnectionRequest()
-    abstract fun onAcceptConnectionRequest()
-    abstract fun onIgnoreConnectionRequest()
-    abstract fun onUnblockUser()
-    abstract fun onOpenConversation()
+    fun state(): ConnectionState
+    fun onSendConnectionRequest()
+    fun onCancelConnectionRequest()
+    fun onAcceptConnectionRequest()
+    fun onIgnoreConnectionRequest()
+    fun onUnblockUser()
+    fun onOpenConversation()
 }
 
 @Suppress("LongParameterList", "TooManyFunctions")
@@ -85,7 +85,7 @@ class ConnectionActionButtonViewModel @Inject constructor(
     private val showSnackBarUseCase: ShowSnackBarUseCase,
     private val savedStateHandle: SavedStateHandle,
     qualifiedIdMapper: QualifiedIdMapper
-) : ConnectionActionButtonBaseViewModel() {
+) : ConnectionActionButtonBaseViewModel, ViewModel() {
 
     private val userId: QualifiedID = savedStateHandle.get<String>(EXTRA_USER_ID)!!.toQualifiedID(qualifiedIdMapper)
     private val userName: String = savedStateHandle.get<String>(EXTRA_USER_NAME)!!
@@ -201,7 +201,7 @@ class ConnectionActionButtonViewModel @Inject constructor(
 }
 
 @Suppress("EmptyFunctionBlock")
-class ConnectionActionButtonPreviewModel(private val state: ConnectionState) : ConnectionActionButtonBaseViewModel() {
+class ConnectionActionButtonPreviewModel(private val state: ConnectionState) : ConnectionActionButtonBaseViewModel {
     override fun state(): ConnectionState = state
     override fun onSendConnectionRequest() {}
     override fun onCancelConnectionRequest() {}

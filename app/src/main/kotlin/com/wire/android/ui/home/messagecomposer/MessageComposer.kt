@@ -268,13 +268,13 @@ private fun MessageComposer(
                                 onInputFocusChanged = { isFocused ->
                                     messageComposerState.messageComposeInputFocusChange(isFocused)
                                     if (isFocused) {
-                                        messageComposerState.toActive()
+                                        messageComposerState.toActive(currentSelfDeletingMessagesStatus)
                                         messageComposerState.hideAttachmentOptions()
                                     }
                                 },
                                 onAdditionalOptionButtonClicked = {
                                     messageComposerState.focusManager.clearFocus()
-                                    messageComposerState.toActive()
+                                    messageComposerState.toActive(currentSelfDeletingMessagesStatus)
                                     messageComposerState.showAttachmentOptions()
                                 },
                                 onEditSaveButtonClicked = onEditSaveButtonClicked,

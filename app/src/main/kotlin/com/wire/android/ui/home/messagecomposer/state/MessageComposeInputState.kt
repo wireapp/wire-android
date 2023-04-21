@@ -20,7 +20,9 @@ package com.wire.android.ui.home.messagecomposer.state
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.text.input.TextFieldValue
 import com.wire.android.R
+import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMapper.toSelfDeletionDuration
 import com.wire.android.util.ui.UIText
+import com.wire.kalium.logic.configuration.SelfDeletingMessagesStatus
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.hours
@@ -46,8 +48,17 @@ sealed class MessageComposeInputState {
         val size: MessageComposeInputSize = MessageComposeInputSize.COLLAPSED,
     ) : MessageComposeInputState()
 
-    fun toActive(messageText: TextFieldValue = this.messageText, inputFocused: Boolean = this.inputFocused) = when (this) {
-        is Active -> Active(messageText, inputFocused, this.type, this.size)
+    fun toActive(
+        messageText: TextFieldValue = this.messageText,
+        inputFocused: Boolean = this.inputFocused,
+        selfDeletingStatus: SelfDeletingMessagesStatus
+    ) = when (this) {
+        is Active -> {
+            val inputType = if (selfDeletingStatus.globalSelfDeletionDuration.toSelfDeletionDuration() != SelfDeletionDuration.None) {
+                MessageComposeInputType.SelfDeletingMessage(selfDeletingStatus.globalSelfDeletionDuration.toSelfDeletionDuration())
+            } else this.type
+            Active(messageText, inputFocused, inputType, this.size)
+        }
         is Inactive -> Active(messageText, inputFocused)
     }
 
@@ -100,7 +111,8 @@ sealed class MessageComposeInputType {
 
     @Stable
     data class SelfDeletingMessage(
-        val selfDeletionDuration: SelfDeletionDuration
+        val selfDeletionDuration: SelfDeletionDuration,
+        val isEnforced: Boolean = false
     ) : MessageComposeInputType()
 }
 

@@ -111,7 +111,7 @@ private fun MessageComposeActions(
     val localFeatureVisibilityFlags = LocalFeatureVisibilityFlags.current
     // We shouldn't show the self-deleting option if there is a compulsory duration already set on the team settings level
     val showSelfDeletingOption = with(selfDeletingMessagesStatus) {
-        isEnabled && !enforcedTimeoutInSeconds.isGreaterThan(0)
+        isEnabled && !isEnforced
     }
 
     Row(

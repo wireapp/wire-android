@@ -57,6 +57,7 @@ import com.wire.android.util.FileManager
 import com.wire.android.util.ImageUtil
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.WireSessionImageLoader
+import com.wire.kalium.logic.configuration.SelfDeletingMessagesStatus
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.user.OtherUser
@@ -75,6 +76,7 @@ import com.wire.kalium.logic.feature.message.SendKnockUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.message.ephemeral.EnqueueMessageSelfDeletionUseCase
 import com.wire.kalium.logic.feature.selfdeletingMessages.ObserveSelfDeletingMessagesUseCase
+import com.wire.kalium.logic.feature.selfdeletingMessages.PersistNewSelfDeletingStatusUseCase
 import com.wire.kalium.logic.feature.user.IsFileSharingEnabledUseCase
 import com.wire.kalium.logic.functional.onFailure
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -109,6 +111,7 @@ class MessageComposerViewModel @Inject constructor(
     private val sendKnockUseCase: SendKnockUseCase,
     private val enqueueMessageSelfDeletionUseCase: EnqueueMessageSelfDeletionUseCase,
     private val observeSelfDeletingMessages: ObserveSelfDeletingMessagesUseCase,
+    private val persistNewSelfDeletingStatus: PersistNewSelfDeletingStatusUseCase,
     private val pingRinger: PingRinger,
     private val imageUtil: ImageUtil,
     private val fileManager: FileManager
@@ -356,6 +359,10 @@ class MessageComposerViewModel @Inject constructor(
 
     fun startSelfDeletion(uiMessage: UIMessage.Regular) {
         enqueueMessageSelfDeletionUseCase(conversationId, uiMessage.header.messageId)
+    }
+
+    fun updateSelfDeletingMessages(newSelfDeletingStatus: SelfDeletingMessagesStatus) = viewModelScope.launch {
+        persistNewSelfDeletingStatus(newSelfDeletingStatus)
     }
 
     fun navigateBack(previousBackStackPassedArgs: Map<String, Any> = mapOf()) {

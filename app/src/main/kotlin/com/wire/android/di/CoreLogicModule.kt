@@ -89,6 +89,7 @@ import com.wire.kalium.logic.feature.publicuser.GetKnownUserUseCase
 import com.wire.kalium.logic.feature.publicuser.search.SearchKnownUsersUseCase
 import com.wire.kalium.logic.feature.publicuser.search.SearchPublicUsersUseCase
 import com.wire.kalium.logic.feature.selfdeletingMessages.ObserveSelfDeletingMessagesUseCase
+import com.wire.kalium.logic.feature.selfdeletingMessages.PersistNewSelfDeletingStatusUseCase
 import com.wire.kalium.logic.feature.server.ServerConfigForAccountUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.GetSessionsUseCase
@@ -976,8 +977,14 @@ class UseCaseModule {
     fun provideObserveSelfDeletingMessagesUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
-    ): ObserveSelfDeletingMessagesUseCase =
-        coreLogic.getSessionScope(currentAccount).observeSelfDeletingMessagesFeatureFlag
+    ): ObserveSelfDeletingMessagesUseCase = coreLogic.getSessionScope(currentAccount).observeSelfDeletingMessagesFeatureFlag
+
+    @ViewModelScoped
+    @Provides
+    fun providePersistNewSelfDeletingMessagesUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): PersistNewSelfDeletingStatusUseCase = coreLogic.getSessionScope(currentAccount).persistNewSelfDeletingStatusUseCase
 
     @ViewModelScoped
     @Provides
@@ -988,32 +995,27 @@ class UseCaseModule {
     fun provideGetClientDetailsUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
-    ): ObserveClientDetailsUseCase =
-        coreLogic.getSessionScope(currentAccount).client.observeClientDetailsUseCase
+    ): ObserveClientDetailsUseCase = coreLogic.getSessionScope(currentAccount).client.observeClientDetailsUseCase
 
     @ViewModelScoped
     @Provides
     fun provideGenerateGuestRoomLinkUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
-    ): GenerateGuestRoomLinkUseCase =
-        coreLogic.getSessionScope(currentAccount).conversations.generateGuestRoomLink
+    ): GenerateGuestRoomLinkUseCase = coreLogic.getSessionScope(currentAccount).conversations.generateGuestRoomLink
 
     @ViewModelScoped
     @Provides
     fun provideRevokeGuestRoomLinkUseCase(
-        @KaliumCoreLogic coreLogic: CoreLogic,
-        @CurrentAccount currentAccount: UserId
-    ): RevokeGuestRoomLinkUseCase =
-        coreLogic.getSessionScope(currentAccount).conversations.revokeGuestRoomLink
+        @KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId
+    ): RevokeGuestRoomLinkUseCase = coreLogic.getSessionScope(currentAccount).conversations.revokeGuestRoomLink
 
     @ViewModelScoped
     @Provides
     fun provideObserveGuestRoomLinkUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
-    ): ObserveGuestRoomLinkUseCase =
-        coreLogic.getSessionScope(currentAccount).conversations.observeGuestRoomLink
+    ): ObserveGuestRoomLinkUseCase = coreLogic.getSessionScope(currentAccount).conversations.observeGuestRoomLink
 
     @ViewModelScoped
     @Provides

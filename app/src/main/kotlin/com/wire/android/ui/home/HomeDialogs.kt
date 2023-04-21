@@ -62,7 +62,9 @@ fun SelfDeletingMessagesDialog(
 ) {
     val text: String = if (isSelfDeletingMessagesEnabled) {
         val formattedTimeout = formatEnforcedTimeout(enforcedTimeout)
-        stringResource(id = R.string.self_deleting_messages_team_setting_enabled_enforced_timeout, formattedTimeout)
+        if (enforcedTimeout == SelfDeletionDuration.None)
+            stringResource(id = R.string.self_deleting_messages_team_setting_enabled)
+        else stringResource(id = R.string.self_deleting_messages_team_setting_enabled_enforced_timeout, formattedTimeout)
     } else stringResource(id = R.string.self_deleting_messages_team_setting_disabled)
 
     WireDialog(
@@ -85,7 +87,7 @@ private fun formatEnforcedTimeout(selfDeletionDuration: SelfDeletionDuration): S
     SelfDeletionDuration.OneDay -> stringResource(id = R.string.self_deleting_messages_team_setting_enabled_enforced_timeout_one_day)
     SelfDeletionDuration.OneWeek -> stringResource(id = R.string.self_deleting_messages_team_setting_enabled_enforced_timeout_one_week)
     SelfDeletionDuration.FourWeeks -> stringResource(id = R.string.self_deleting_messages_team_setting_enabled_enforced_timeout_four_weeks)
-    else -> stringResource(id = R.string.self_deleting_messages_team_setting_enabled)
+    SelfDeletionDuration.None -> ""
 }
 
 @Composable

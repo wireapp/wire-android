@@ -25,7 +25,6 @@ import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -80,10 +79,12 @@ import com.wire.android.ui.home.conversations.model.EditMessageBundle
 import com.wire.android.ui.home.conversations.model.SendMessageBundle
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UriAsset
+import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMapper.toSeconds
 import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMapper.toSelfDeletionDuration
 import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMenuItems
 import com.wire.android.ui.home.messagecomposer.MessageComposer
 import com.wire.android.ui.home.messagecomposer.state.MessageComposerState
+import com.wire.android.ui.home.messagecomposer.state.SelfDeletionDuration
 import com.wire.android.ui.home.messagecomposer.state.rememberMessageComposerState
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.util.permission.CallingAudioRequestFlow
@@ -95,6 +96,7 @@ import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.call.usecase.ConferenceCallingResult
 import com.wire.kalium.logic.feature.conversation.InteractionAvailability
+import com.wire.kalium.logic.util.isGreaterThan
 import com.wire.kalium.util.DateTimeUtil
 import kotlinx.collections.immutable.ImmutableMap
 import kotlinx.coroutines.CoroutineScope
@@ -219,6 +221,7 @@ fun ConversationScreen(
         onPingClicked = messageComposerViewModel::sendPing,
         onSelfDeletingMessageRead = messageComposerViewModel::startSelfDeletion,
         currentSelfDeletingMessagesStatus = messageComposerViewModel.messageComposerViewState.selfDeletingMessagesStatus,
+        onNewSelfDeletingMessagesStatus = messageComposerViewModel::updateSelfDeletingMessages,
         tempWritableImageUri = messageComposerViewModel.tempWritableImageUri,
         tempWritableVideoUri = messageComposerViewModel.tempWritableVideoUri
     )
@@ -281,7 +284,7 @@ private fun StartCallAudioBluetoothPermissionCheckFlow(
     // TODO display an error dialog
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class, ExperimentalLayoutApi::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Suppress("LongParameterList")
 @Composable
 private fun ConversationScreen(
@@ -314,6 +317,7 @@ private fun ConversationScreen(
     onPingClicked: () -> Unit,
     onSelfDeletingMessageRead: (UIMessage.Regular) -> Unit,
     currentSelfDeletingMessagesStatus: SelfDeletingMessagesStatus,
+    onNewSelfDeletingMessagesStatus: (SelfDeletingMessagesStatus) -> Unit,
     tempWritableImageUri: Uri?,
     tempWritableVideoUri: Uri?
 ) {
@@ -326,15 +330,16 @@ private fun ConversationScreen(
         conversationMessagesViewModel.checkPendingActions(
             onMessageReply = {
                 withSmoothScreenLoad {
-                    messageComposerInnerState.reply(it)
+                    messageComposerInnerState.reply(it, currentSelfDeletingMessagesStatus)
                 }
             }
         )
     }
 
     LaunchedEffect(currentSelfDeletingMessagesStatus) {
-        messageComposerInnerState.specifySelfDeletionTime(
-            currentSelfDeletingMessagesStatus.enforcedTimeoutInSeconds.toSelfDeletionDuration()
+        messageComposerInnerState.updateSelfDeletionTime(
+            newSelfDeletionDuration = currentSelfDeletingMessagesStatus.globalSelfDeletionDuration.toSelfDeletionDuration(),
+            isEnforced = currentSelfDeletingMessagesStatus.globalSelfDeletionDuration.isGreaterThan(0)
         )
     }
 
@@ -353,7 +358,9 @@ private fun ConversationScreen(
                 onDeleteClick = onDeleteMessage,
                 onReactionClick = onReactionClick,
                 onDetailsClick = onMessageDetailsClick,
-                onReplyClick = messageComposerInnerState::reply,
+                onReplyClick = {
+                    messageComposerInnerState.reply(it, currentSelfDeletingMessagesStatus)
+                },
                 onEditClick = messageComposerInnerState::toEditMessage,
                 onShareAsset = {
                     menuType.selectedMessage.header.messageId.let {
@@ -370,7 +377,16 @@ private fun ConversationScreen(
             SelfDeletionMenuItems(
                 hideEditMessageMenu = conversationScreenState::hideContextMenu,
                 currentlySelected = messageComposerInnerState.getSelfDeletionTime(),
-                onSelfDeletionDurationChanged = { messageComposerInnerState.specifySelfDeletionTime(it) }
+                onSelfDeletionDurationChanged = {
+                    val newSelfDeletingMessagesStatus = SelfDeletingMessagesStatus(
+                        isEnabled = it != SelfDeletionDuration.None,
+                        hasFlagChanged = false,
+                        globalSelfDeletionDuration = it.toSeconds(),
+                        isEnforced = false
+                    )
+                    messageComposerInnerState.updateSelfDeletionTime(newSelfDeletionDuration = it, isEnforced = false)
+                    onNewSelfDeletingMessagesStatus(newSelfDeletingMessagesStatus)
+                }
             )
         }
 
@@ -710,6 +726,7 @@ fun PreviewConversationScreen() {
         onPingClicked = {},
         onSelfDeletingMessageRead = {},
         currentSelfDeletingMessagesStatus = SelfDeletingMessagesStatus(true, null, null),
+        onNewSelfDeletingMessagesStatus = { SelfDeletingMessagesStatus(true, null, null, false) },
         tempWritableImageUri = null,
         tempWritableVideoUri = null
     )

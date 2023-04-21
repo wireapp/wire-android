@@ -30,4 +30,15 @@ object SelfDeletionMapper {
             in 604801..2592000 -> SelfDeletionDuration.FourWeeks
             else -> SelfDeletionDuration.None
         }
+
+    fun SelfDeletionDuration.toSeconds(): Int? =
+        when (this) {
+            SelfDeletionDuration.TenSeconds -> 10
+            SelfDeletionDuration.FiveMinutes -> 300
+            SelfDeletionDuration.OneHour -> 3600
+            SelfDeletionDuration.OneDay -> 86400
+            SelfDeletionDuration.OneWeek -> 604800
+            SelfDeletionDuration.FourWeeks -> 2592000
+            SelfDeletionDuration.None -> null
+        }
 }

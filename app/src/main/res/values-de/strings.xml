@@ -662,6 +662,7 @@
     <string name="notification_call_default_caller_name">Jemand</string>
     <string name="notification_call_default_group_name">Eingehender Gruppenanruf</string>
     <!-- Calling-->
+    <string name="calling_constant_bit_rate_indication">Constant Bit Rate</string>
     <string name="calling_button_label_microphone">Mikrofon</string>
     <string name="calling_button_label_camera">Kamera</string>
     <string name="calling_button_label_speaker">Lautsprecher</string>

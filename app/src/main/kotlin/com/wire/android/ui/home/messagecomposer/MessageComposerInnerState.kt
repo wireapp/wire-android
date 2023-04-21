@@ -152,11 +152,12 @@ data class MessageComposerInnerState(
         }
     }
 
-    fun toEditMessage(messageId: String, originalText: String) {
+    fun toEditMessage(messageId: String, originalText: String, originalMentions: List<MessageMention>) {
         messageComposeInputState = MessageComposeInputState.Active(
             messageText = TextFieldValue(text = originalText, selection = TextRange(originalText.length)),
             type = MessageComposeInputType.EditMessage(messageId, originalText)
         )
+        mentions = originalMentions.map { it.toUiMention(originalText) }
         quotedMessageData = null
         inputFocusRequester.requestFocus()
     }
@@ -343,6 +344,13 @@ data class UiMention(
 ) {
     fun intoMessageMention() = MessageMention(start, length, userId, false) // We can never send a self mention message
 }
+
+fun MessageMention.toUiMention(originalText: String) = UiMention(
+    start = this.start,
+    length = this.length,
+    userId = this.userId,
+    handler = originalText.substring(start, start + length)
+)
 
 @Stable
 sealed class MessageComposeInputState {

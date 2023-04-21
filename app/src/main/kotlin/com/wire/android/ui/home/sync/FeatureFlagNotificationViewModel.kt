@@ -91,8 +91,8 @@ class FeatureFlagNotificationViewModel @Inject constructor(
         }
     }
 
-    private fun setFileSharingState(userId: UserId) {
-        viewModelScope.launch {
+    private suspend fun setFileSharingState(userId: UserId) {
+//        viewModelScope.launch {
             coreLogic.getSessionScope(userId).observeFileSharingStatus().collect { fileSharingStatus ->
                 println("testing by boris: VM isFileSharingEnabled: ${fileSharingStatus.isFileSharingEnabled}")
                 fileSharingStatus.isFileSharingEnabled?.let {
@@ -110,7 +110,7 @@ class FeatureFlagNotificationViewModel @Inject constructor(
                 println("testing by boris: observeFileSharingStatus finished")
             }
         }
-    }
+//    }
 
     private fun setGuestRoomLinkFeatureFlag(userId: UserId) {
         viewModelScope.launch {

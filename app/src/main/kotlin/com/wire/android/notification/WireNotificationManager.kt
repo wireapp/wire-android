@@ -366,6 +366,19 @@ class WireNotificationManager @Inject constructor(
                 if (currentScreen !is CurrentScreen.InBackground) {
                     flowOf(null)
                 } else {
+                    try {
+                        coreLogic
+                            .getSessionScope(userId)
+                            .calls
+                            .establishedCall()
+                            .map {
+                                it.firstOrNull()?.let { call ->
+                                    OngoingCallData(callNotificationManager.getNotificationTitle(call), call.conversationId, userId)
+                                }
+                            }
+                    } catch (e: IllegalArgumentException) {
+                        flowOf(null)
+                    }
                     coreLogic.getSessionScope(userId).calls
                         .establishedCall()
                         .map {

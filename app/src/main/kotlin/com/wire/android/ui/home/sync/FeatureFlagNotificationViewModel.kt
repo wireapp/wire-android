@@ -20,7 +20,6 @@
 
 package com.wire.android.ui.home.sync
 
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -74,15 +73,15 @@ class FeatureFlagNotificationViewModel @Inject constructor(
             when (currentSessionResult) {
                 is CurrentSessionResult.Failure -> {
                     appLogger.e("Failure while getting current session from FeatureFlagNotificationViewModel")
-                    Log.d("testing by boris", "currentSessionResult failure")
+                    println("testing by boris: currentSessionResult failure")
                     featureFlagState = featureFlagState.copy(fileSharingRestrictedState = FeatureFlagState.SharingRestrictedState.NO_USER)
                 }
 
                 is CurrentSessionResult.Success -> {
-                    Log.d("testing by boris", "currentSessionResult success")
+                    println("testing by boris: currentSessionResult success")
                     coreLogic.getSessionScope(currentSessionResult.accountInfo.userId).observeSyncState()
                         .firstOrNull { it == SyncState.Live }?.let {
-                            Log.d("testing by boris", "observeSyncState")
+                            println("testing by boris: observeSyncState")
                             currentUserId = currentSessionResult.accountInfo.userId
                             setFileSharingState(currentSessionResult.accountInfo.userId)
                             setGuestRoomLinkFeatureFlag(currentSessionResult.accountInfo.userId)
@@ -95,7 +94,7 @@ class FeatureFlagNotificationViewModel @Inject constructor(
     private fun setFileSharingState(userId: UserId) {
         viewModelScope.launch {
             coreLogic.getSessionScope(userId).observeFileSharingStatus().collect { fileSharingStatus ->
-                Log.d("testing by boris", "VM isFileSharingEnabled: ${fileSharingStatus.isFileSharingEnabled}")
+                println("testing by boris: VM isFileSharingEnabled: ${fileSharingStatus.isFileSharingEnabled}")
                 fileSharingStatus.isFileSharingEnabled?.let {
                     val fileSharingRestrictedState = if (it) FeatureFlagState.SharingRestrictedState.NONE
                     else FeatureFlagState.SharingRestrictedState.RESTRICTED_IN_TEAM
@@ -108,7 +107,7 @@ class FeatureFlagNotificationViewModel @Inject constructor(
                 fileSharingStatus.isStatusChanged?.let {
                     featureFlagState = featureFlagState.copy(showFileSharingDialog = it)
                 }
-                Log.d("testing by boris", "observeFileSharingStatus finished")
+                println("testing by boris: observeFileSharingStatus finished")
             }
         }
     }

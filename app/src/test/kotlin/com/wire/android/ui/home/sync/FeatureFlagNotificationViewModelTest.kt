@@ -58,11 +58,11 @@ class FeatureFlagNotificationViewModelTest {
         val (_, viewModel) = Arrangement()
             .withCurrentSessions(CurrentSessionResult.Failure.SessionNotFound)
             .arrange()
-        Log.d("testing by boris", "NO_USER start")
+        println("testing by boris: NO_USER start")
         viewModel.initialSync()
         advanceUntilIdle()
 
-        Log.d("testing by boris", "NO_USER asserting")
+        println("testing by boris: NO_USER asserting")
         assertEquals(
             expected = FeatureFlagState.SharingRestrictedState.NO_USER,
             actual = viewModel.featureFlagState.fileSharingRestrictedState
@@ -75,11 +75,11 @@ class FeatureFlagNotificationViewModelTest {
             .withSessions(GetAllSessionsResult.Success(listOf(AccountInfo.Valid(TestUser.USER_ID))))
             .withFileSharingStatus(flowOf(FileSharingStatus(false, false)))
             .arrange()
-        Log.d("testing by boris", "RESTRICTED_IN_TEAM start")
+        println("testing by boris: RESTRICTED_IN_TEAM start")
         viewModel.initialSync()
         advanceUntilIdle()
 
-        Log.d("testing by boris", "RESTRICTED_IN_TEAM asserting")
+        println("testing by boris: RESTRICTED_IN_TEAM asserting")
         assertEquals(
             expected = FeatureFlagState.SharingRestrictedState.RESTRICTED_IN_TEAM,
             actual = viewModel.featureFlagState.fileSharingRestrictedState

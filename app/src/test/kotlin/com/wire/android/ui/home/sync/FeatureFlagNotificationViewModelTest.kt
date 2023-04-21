@@ -1,6 +1,5 @@
 package com.wire.android.ui.home.sync
 
-import android.util.Log
 import com.wire.android.framework.TestUser
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.FeatureFlagState

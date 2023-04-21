@@ -11,8 +11,6 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.AccountInfo
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
-import com.wire.kalium.logic.feature.session.GetAllSessionsResult
-import com.wire.kalium.logic.feature.session.GetSessionsUseCase
 import com.wire.kalium.logic.feature.user.guestroomlink.MarkGuestLinkFeatureFlagAsNotChangedUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -25,7 +23,6 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.newSingleThreadContext
-import kotlinx.coroutines.test.TestCoroutineScheduler
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
@@ -53,7 +50,7 @@ class FeatureFlagNotificationViewModelTest {
     }
 
     @Test
-    fun givenNoLoggedInUsers_thenSharingRestricted() = runTest {
+    fun givenNoLoggedInUsers_thenSharingRestricted() = runTest(mainThreadSurrogate) {
         val (_, viewModel) = Arrangement()
             .withCurrentSessions(CurrentSessionResult.Failure.SessionNotFound)
             .arrange()
@@ -69,16 +66,14 @@ class FeatureFlagNotificationViewModelTest {
     }
 
     @Test
-    fun givenLoggedInUser_whenFileSharingRestrictedForTeam_thenSharingRestricted() = runTest(TestCoroutineScheduler()) {
+    fun givenLoggedInUser_whenFileSharingRestrictedForTeam_thenSharingRestricted() = runTest(mainThreadSurrogate) {
         val (_, viewModel) = Arrangement()
-            .withSessions(GetAllSessionsResult.Success(listOf(AccountInfo.Valid(TestUser.USER_ID))))
+            .withCurrentSessions(CurrentSessionResult.Success(AccountInfo.Valid(TestUser.USER_ID)))
             .withFileSharingStatus(flowOf(FileSharingStatus(false, false)))
             .arrange()
-        println("testing by boris: RESTRICTED_IN_TEAM start")
         viewModel.initialSync()
         advanceUntilIdle()
 
-        println("testing by boris: RESTRICTED_IN_TEAM asserting")
         assertEquals(
             expected = FeatureFlagState.SharingRestrictedState.RESTRICTED_IN_TEAM,
             actual = viewModel.featureFlagState.fileSharingRestrictedState
@@ -86,7 +81,7 @@ class FeatureFlagNotificationViewModelTest {
     }
 
     @Test
-    fun givenGuestDialogIsShown_whenDismissingIt_thenInvokeMarkGuestLinkFeatureFlagAsNotChanged() = runTest {
+    fun givenGuestDialogIsShown_whenDismissingIt_thenInvokeMarkGuestLinkFeatureFlagAsNotChanged() = runTest(mainThreadSurrogate) {
         val (arrangement, viewModel) = Arrangement()
             .withCurrentSessions(CurrentSessionResult.Success(AccountInfo.Valid(UserId("value", "domain"))))
             .withGuestRoomLinkFeatureFlag(flowOf(GuestRoomLinkStatus(true, false)))
@@ -104,9 +99,9 @@ class FeatureFlagNotificationViewModelTest {
     }
 
     @Test
-    fun givenLoggedInUser_whenFileSharingAllowed_thenSharingNotRestricted() = runTest {
+    fun givenLoggedInUser_whenFileSharingAllowed_thenSharingNotRestricted() = runTest(mainThreadSurrogate) {
         val (_, viewModel) = Arrangement()
-            .withSessions(GetAllSessionsResult.Success(listOf(AccountInfo.Valid(TestUser.USER_ID))))
+            .withCurrentSessions(CurrentSessionResult.Success(AccountInfo.Valid(TestUser.USER_ID)))
             .withFileSharingStatus(flowOf(FileSharingStatus(true, false)))
             .arrange()
         viewModel.initialSync()
@@ -127,9 +122,6 @@ class FeatureFlagNotificationViewModelTest {
         }
 
         @MockK
-        lateinit var getSessions: GetSessionsUseCase
-
-        @MockK
         lateinit var currentSession: CurrentSessionUseCase
 
         @MockK
@@ -143,7 +135,6 @@ class FeatureFlagNotificationViewModelTest {
 
         val viewModel: FeatureFlagNotificationViewModel = FeatureFlagNotificationViewModel(
             coreLogic = coreLogic,
-            getSessions = getSessions,
             currentSessionUseCase = currentSession
         )
 
@@ -151,10 +142,6 @@ class FeatureFlagNotificationViewModelTest {
             every { coreLogic.getSessionScope(any()).markGuestLinkFeatureFlagAsNotChanged } returns markGuestLinkFeatureFlagAsNotChanged
             coEvery { coreLogic.getSessionScope(any()).observeFileSharingStatus.invoke() } returns flowOf()
             coEvery { coreLogic.getSessionScope(any()).observeGuestRoomLinkFeatureFlag.invoke() } returns flowOf()
-        }
-
-        fun withSessions(result: GetAllSessionsResult) = apply {
-            coEvery { getSessions() } returns result
         }
 
         fun withCurrentSessions(result: CurrentSessionResult) = apply {

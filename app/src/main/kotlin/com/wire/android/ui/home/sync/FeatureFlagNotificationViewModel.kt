@@ -32,11 +32,8 @@ import com.wire.android.ui.home.FeatureFlagState
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.feature.auth.AccountInfo
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
-import com.wire.kalium.logic.feature.session.GetAllSessionsResult
-import com.wire.kalium.logic.feature.session.GetSessionsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
@@ -45,7 +42,6 @@ import javax.inject.Inject
 @HiltViewModel
 class FeatureFlagNotificationViewModel @Inject constructor(
     @KaliumCoreLogic private val coreLogic: CoreLogic,
-    private val getSessions: GetSessionsUseCase,
     private val currentSessionUseCase: CurrentSessionUseCase
 ) : ViewModel() {
 
@@ -73,15 +69,12 @@ class FeatureFlagNotificationViewModel @Inject constructor(
             when (currentSessionResult) {
                 is CurrentSessionResult.Failure -> {
                     appLogger.e("Failure while getting current session from FeatureFlagNotificationViewModel")
-                    println("testing by boris: currentSessionResult failure")
                     featureFlagState = featureFlagState.copy(fileSharingRestrictedState = FeatureFlagState.SharingRestrictedState.NO_USER)
                 }
 
                 is CurrentSessionResult.Success -> {
-                    println("testing by boris: currentSessionResult success")
                     coreLogic.getSessionScope(currentSessionResult.accountInfo.userId).observeSyncState()
                         .firstOrNull { it == SyncState.Live }?.let {
-                            println("testing by boris: observeSyncState")
                             currentUserId = currentSessionResult.accountInfo.userId
                             setFileSharingState(currentSessionResult.accountInfo.userId)
                             setGuestRoomLinkFeatureFlag(currentSessionResult.accountInfo.userId)
@@ -92,9 +85,8 @@ class FeatureFlagNotificationViewModel @Inject constructor(
     }
 
     private suspend fun setFileSharingState(userId: UserId) {
-//        viewModelScope.launch {
+        viewModelScope.launch {
             coreLogic.getSessionScope(userId).observeFileSharingStatus().collect { fileSharingStatus ->
-                println("testing by boris: VM isFileSharingEnabled: ${fileSharingStatus.isFileSharingEnabled}")
                 fileSharingStatus.isFileSharingEnabled?.let {
                     val fileSharingRestrictedState = if (it) FeatureFlagState.SharingRestrictedState.NONE
                     else FeatureFlagState.SharingRestrictedState.RESTRICTED_IN_TEAM
@@ -107,10 +99,9 @@ class FeatureFlagNotificationViewModel @Inject constructor(
                 fileSharingStatus.isStatusChanged?.let {
                     featureFlagState = featureFlagState.copy(showFileSharingDialog = it)
                 }
-                println("testing by boris: observeFileSharingStatus finished")
             }
         }
-//    }
+    }
 
     private fun setGuestRoomLinkFeatureFlag(userId: UserId) {
         viewModelScope.launch {
@@ -129,19 +120,6 @@ class FeatureFlagNotificationViewModel @Inject constructor(
         featureFlagState = featureFlagState.copy(showFileSharingDialog = false)
         viewModelScope.launch {
             currentUserId?.let { coreLogic.getSessionScope(it).markFileSharingStatusAsNotified() }
-        }
-    }
-
-    private suspend fun checkNumberOfSessions(): Int {
-        getSessions().let {
-            return when (it) {
-                is GetAllSessionsResult.Success -> {
-                    it.sessions.filterIsInstance<AccountInfo.Valid>().size
-                }
-
-                is GetAllSessionsResult.Failure.Generic -> 0
-                GetAllSessionsResult.Failure.NoSessionFound -> 0
-            }
         }
     }
 

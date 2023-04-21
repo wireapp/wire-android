@@ -660,6 +660,7 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
     <string name="notification_call_default_caller_name">Alguien</string>
     <string name="notification_call_default_group_name">Llamada en grupo entrante</string>
     <!-- Calling-->
+    <string name="calling_constant_bit_rate_indication">Constant Bit Rate</string>
     <string name="calling_button_label_microphone">Micr&#243;fono</string>
     <string name="calling_button_label_camera">C&#225;mara</string>
     <string name="calling_button_label_speaker">Altavoz</string>

@@ -62,6 +62,7 @@
     "allow_sso_authentication_option": true,
 
     "url_support": "https://support.wire.com",
+    "allow_account_creation" : true,
     "max_accounts": 3,
     "enable_blacklist": true,
     "allow_email_change": true,

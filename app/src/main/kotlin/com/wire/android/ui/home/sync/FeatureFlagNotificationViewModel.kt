@@ -73,12 +73,15 @@ class FeatureFlagNotificationViewModel @Inject constructor(
             when (currentSessionResult) {
                 is CurrentSessionResult.Failure -> {
                     appLogger.e("Failure while getting current session from FeatureFlagNotificationViewModel")
+                    println("testing by boris: currentSessionResult failure")
                     featureFlagState = featureFlagState.copy(fileSharingRestrictedState = FeatureFlagState.SharingRestrictedState.NO_USER)
                 }
 
                 is CurrentSessionResult.Success -> {
+                    println("testing by boris: currentSessionResult success")
                     coreLogic.getSessionScope(currentSessionResult.accountInfo.userId).observeSyncState()
                         .firstOrNull { it == SyncState.Live }?.let {
+                            println("testing by boris: observeSyncState")
                             currentUserId = currentSessionResult.accountInfo.userId
                             setFileSharingState(currentSessionResult.accountInfo.userId)
                             setGuestRoomLinkFeatureFlag(currentSessionResult.accountInfo.userId)
@@ -91,6 +94,7 @@ class FeatureFlagNotificationViewModel @Inject constructor(
     private fun setFileSharingState(userId: UserId) {
         viewModelScope.launch {
             coreLogic.getSessionScope(userId).observeFileSharingStatus().collect { fileSharingStatus ->
+                println("testing by boris: VM isFileSharingEnabled: ${fileSharingStatus.isFileSharingEnabled}")
                 fileSharingStatus.isFileSharingEnabled?.let {
                     val fileSharingRestrictedState = if (it) FeatureFlagState.SharingRestrictedState.NONE
                     else FeatureFlagState.SharingRestrictedState.RESTRICTED_IN_TEAM
@@ -103,6 +107,7 @@ class FeatureFlagNotificationViewModel @Inject constructor(
                 fileSharingStatus.isStatusChanged?.let {
                     featureFlagState = featureFlagState.copy(showFileSharingDialog = it)
                 }
+                println("testing by boris: observeFileSharingStatus finished")
             }
         }
     }

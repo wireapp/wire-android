@@ -112,7 +112,8 @@ class SelfUserProfileViewModel @Inject constructor(
     }
 
     private suspend fun fetchIsReadOnlyAccount() {
-        userProfileState = userProfileState.copy(isReadOnlyAccount = isReadOnlyAccount())
+        val isReadOnlyAccount = isReadOnlyAccount()
+        userProfileState = userProfileState.copy(isReadOnlyAccount = isReadOnlyAccount)
     }
 
     private fun observeEstablishedCall() {

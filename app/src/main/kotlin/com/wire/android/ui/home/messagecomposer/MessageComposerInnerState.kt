@@ -21,7 +21,6 @@
 package com.wire.android.ui.home.messagecomposer
 
 import android.content.Context
-import android.net.Uri
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
@@ -38,41 +37,24 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import com.wire.android.appLogger
-import com.wire.android.ui.home.conversations.model.AssetBundle
-import com.wire.android.ui.home.conversations.model.AttachmentType
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.conversations.model.UIQuotedMessage
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.ui.theme.wireColorScheme
-import com.wire.android.util.DEFAULT_FILE_MIME_TYPE
 import com.wire.android.util.EMPTY
-import com.wire.android.util.FileManager
 import com.wire.android.util.MENTION_SYMBOL
 import com.wire.android.util.NEW_LINE_SYMBOL
 import com.wire.android.util.WHITE_SPACE
-import com.wire.android.util.dispatchers.DefaultDispatcherProvider
-import com.wire.android.util.dispatchers.DispatcherProvider
-import com.wire.android.util.getFileName
-import com.wire.android.util.getMimeType
-import com.wire.android.util.orDefault
-import com.wire.android.util.resampleImageAndCopyToTempPath
 import com.wire.android.util.ui.toUIText
 import com.wire.kalium.logic.data.message.mention.MessageMention
 import com.wire.kalium.logic.data.user.UserId
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.withContext
-import okio.Path
-import okio.Path.Companion.toPath
-import java.io.IOException
-import java.util.UUID
 
 @Composable
 fun rememberMessageComposerInnerState(): MessageComposerInnerState {
     val context = LocalContext.current
-
-    val defaultAttachmentInnerState = AttachmentInnerState(context)
 
     val mentionSpanStyle = SpanStyle(
         color = MaterialTheme.wireColorScheme.onPrimaryVariant,
@@ -87,7 +69,6 @@ fun rememberMessageComposerInnerState(): MessageComposerInnerState {
             context = context,
             focusManager = focusManager,
             inputFocusRequester = inputFocusRequester,
-            attachmentInnerState = defaultAttachmentInnerState,
             mentionSpanStyle = mentionSpanStyle
         )
     }
@@ -96,7 +77,6 @@ fun rememberMessageComposerInnerState(): MessageComposerInnerState {
 @Suppress("TooManyFunctions")
 data class MessageComposerInnerState(
     val context: Context,
-    val attachmentInnerState: AttachmentInnerState,
     val focusManager: FocusManager,
     val inputFocusRequester: FocusRequester,
     private val mentionSpanStyle: SpanStyle
@@ -172,11 +152,12 @@ data class MessageComposerInnerState(
         }
     }
 
-    fun toEditMessage(messageId: String, originalText: String) {
+    fun toEditMessage(messageId: String, originalText: String, originalMentions: List<MessageMention>) {
         messageComposeInputState = MessageComposeInputState.Active(
             messageText = TextFieldValue(text = originalText, selection = TextRange(originalText.length)),
             type = MessageComposeInputType.EditMessage(messageId, originalText)
         )
+        mentions = originalMentions.map { it.toUiMention(originalText) }
         quotedMessageData = null
         inputFocusRequester.requestFocus()
     }
@@ -364,37 +345,12 @@ data class UiMention(
     fun intoMessageMention() = MessageMention(start, length, userId, false) // We can never send a self mention message
 }
 
-class AttachmentInnerState(val context: Context) {
-    var attachmentState by mutableStateOf<AttachmentState>(AttachmentState.NotPicked)
-
-    suspend fun pickAttachment(
-        attachmentUri: Uri,
-        tempCachePath: Path,
-        dispatcherProvider: DispatcherProvider = DefaultDispatcherProvider()
-    ) = withContext(dispatcherProvider.io()) {
-        val fileManager = FileManager(context)
-        attachmentState = try {
-            val fullTempAssetPath = "$tempCachePath/${UUID.randomUUID()}".toPath()
-            val assetFileName = context.getFileName(attachmentUri) ?: throw IOException("The selected asset has an invalid name")
-            val mimeType = attachmentUri.getMimeType(context).orDefault(DEFAULT_FILE_MIME_TYPE)
-            val attachmentType = AttachmentType.fromMimeTypeString(mimeType)
-            val assetSize = if (attachmentType == AttachmentType.IMAGE) {
-                attachmentUri.resampleImageAndCopyToTempPath(context, fullTempAssetPath)
-            } else {
-                fileManager.copyToTempPath(attachmentUri, fullTempAssetPath)
-            }
-            val attachment = AssetBundle(mimeType, fullTempAssetPath, assetSize, assetFileName, attachmentType)
-            AttachmentState.Picked(attachment)
-        } catch (e: IOException) {
-            appLogger.e("There was an error while obtaining the file from disk", e)
-            AttachmentState.Error
-        }
-    }
-
-    fun resetAttachmentState() {
-        attachmentState = AttachmentState.NotPicked
-    }
-}
+fun MessageMention.toUiMention(originalText: String) = UiMention(
+    start = this.start,
+    length = this.length,
+    userId = this.userId,
+    handler = originalText.substring(start, start + length)
+)
 
 @Stable
 sealed class MessageComposeInputState {
@@ -461,10 +417,4 @@ sealed class MessageComposeInputType {
         val messageId: String,
         val originalText: String,
     ) : MessageComposeInputType()
-}
-
-sealed class AttachmentState {
-    object NotPicked : AttachmentState()
-    class Picked(val attachmentBundle: AssetBundle) : AttachmentState()
-    object Error : AttachmentState()
 }

@@ -20,8 +20,6 @@
 
 package scripts
 
-import customization.ClientConfig
-import customization.ConfigFields
 import customization.ConfigType
 import customization.Customization.getBuildtimeConfiguration
 import customization.FeatureConfigs
@@ -62,8 +60,8 @@ object FlavorDimensions {
 }
 
 object Default {
-    val BUILD_FLAVOR: String = System.getenv("flavor") ?: ProductFlavors.Dev.buildName
-    val BUILD_TYPE = System.getenv("buildType") ?: BuildTypes.DEBUG
+    val BUILD_FLAVOR: String = System.getenv("flavor") ?: System.getenv("FLAVOR") ?: ProductFlavors.Dev.buildName
+    val BUILD_TYPE = System.getenv("buildType") ?: System.getenv("BUILD_TYPE") ?: BuildTypes.DEBUG
 
     val BUILD_VARIANT = "${BUILD_FLAVOR.capitalize()}${BUILD_TYPE.capitalize()}"
 }
@@ -159,23 +157,6 @@ android {
         createAppFlavour(ProductFlavors.Beta)
         createAppFlavour(ProductFlavors.Internal)
         createAppFlavour(ProductFlavors.Production)
-    }
-
-    /**
-     * Process client configuration properties.
-     *
-     * @see "ClientConfig.kt" file definition.
-     */
-    buildTypes.forEach { type ->
-        ConfigFields.values().forEach { configField ->
-            val configValuesMap = ClientConfig.properties[type.name].orEmpty()
-            if (configValuesMap.isNotEmpty()) {
-                type.buildConfigField(
-                    "String", configField.name,
-                    configValuesMap[configField] ?: configField.defaultValue
-                )
-            }
-        }
     }
 
     val buildtimeConfiguration = getBuildtimeConfiguration(rootDir = rootDir)

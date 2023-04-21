@@ -36,7 +36,6 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
     BLOCK_ON_JAILBREAK_OR_ROOT("block_on_jailbreak_or_root", ConfigType.BOOLEAN),
     BLOCK_ON_PASSWORD_POLICY("block_on_password_policy", ConfigType.BOOLEAN),
     CUSTOM_URL_SCHEME("custom_url_scheme", ConfigType.STRING),
-    ENABLE_BLACK_LIST("enableBlacklist", ConfigType.BOOLEAN),
     FILE_RESTRICTION_ENABLED("file_restriction_enabled", ConfigType.BOOLEAN),
     MLS_SUPPORT_ENABLED("mls_support_enabled", ConfigType.BOOLEAN),
     FORCE_APP_LOCK("force_app_lock", ConfigType.BOOLEAN),
@@ -49,22 +48,36 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
     SUPPORT_EMAIL("supportEmail", ConfigType.STRING),
     TEAMS_URL("teamsUrl", ConfigType.STRING),
     WEB_LINK_PREVIEW("web_link_preview", ConfigType.BOOLEAN),
-    WEB_SOCKET_URL("websocketUrl", ConfigType.STRING),
     ENCRYPT_PROTEUS_STORAGE("encrypt_proteus_storage", ConfigType.BOOLEAN),
     GUEST_ROOM_LINK("guest_room_link", ConfigType.BOOLEAN),
     UPDATE_APP_URL("update_app_url", ConfigType.STRING),
     APP_NAME("appName", ConfigType.STRING),
     APPLICATION_ID("applicationId", ConfigType.STRING),
-    DEVELOPER_FEATURES_ENABLED("developer_features_enabled", ConfigType.BOOLEAN),
     LAUNCHER_ICON("launcherIcon", ConfigType.STRING),
     LOGGING_ENABLED("logging_enabled", ConfigType.BOOLEAN),
     SAFE_LOGGING("safe_logging", ConfigType.BOOLEAN),
     PRIVATE_BUILD("private_build", ConfigType.BOOLEAN),
-    DEVELOPMENT_API_ENABLED("development_api_enabled", ConfigType.BOOLEAN),
     FIREBASE_APP_ID("firebaseAppId", ConfigType.STRING),
     FIREBASE_PUSH_SENDER_ID("firebasePushSenderId", ConfigType.STRING),
     GOOGLE_API_KEY("googleApiKey", ConfigType.STRING),
     FCM_PROJECT_ID("fcmProjectID", ConfigType.STRING),
-    STANDARD_BACKEND("standardBackend", ConfigType.STRING),
-    USER_ID("userId", ConfigType.STRING);
+
+    DEVELOPER_FEATURES_ENABLED("developer_features_enabled", ConfigType.BOOLEAN),
+    DEVELOPMENT_API_ENABLED("development_api_enabled", ConfigType.BOOLEAN),
+
+    URL_SUPPORT("url_support", ConfigType.STRING),
+
+    DEFAULT_BACKEND_URL_ACCOUNTS("default_backend_url_accounts", ConfigType.STRING),
+    DEFAULT_BACKEND_URL_BASE_API("default_backend_url_base_api", ConfigType.STRING),
+    DEFAULT_BACKEND_URL_BASE_WEBSOCKET("default_backend_url_base_websocket", ConfigType.STRING),
+    DEFAULT_BACKEND_URL_TEAM_MANAGEMENT("default_backend_url_teams", ConfigType.STRING),
+    DEFAULT_BACKEND_URL_BLACKLIST("default_backend_url_blacklist", ConfigType.STRING),
+    DEFAULT_BACKEND_URL_WEBSITE("default_backend_url_website", ConfigType.STRING),
+    DEFAULT_BACKEND_TITLE("default_backend_title", ConfigType.STRING),
+    BLACKLIST_ENABLE("enableBlacklist", ConfigType.BOOLEAN),
+    // TODO: Add support for default proxy configs
+
+    USER_ID("userId", ConfigType.STRING),
+    DEBUG_SCREEN_ENABLED("debug_screen_enabled", ConfigType.BOOLEAN),
+    REPORT_BUG_MENU_ITEM_ENABLED("report_bug_menu_item_enabled", ConfigType.BOOLEAN);
 }

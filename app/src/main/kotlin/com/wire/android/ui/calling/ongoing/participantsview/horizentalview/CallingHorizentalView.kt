@@ -49,6 +49,7 @@ fun OneOnOneCallView(
     pageIndex: Int,
     isSelfUserMuted: Boolean,
     isSelfUserCameraOn: Boolean,
+    topAppBarAndBottomSheetHeight: Int,
     onSelfVideoPreviewCreated: (view: View) -> Unit,
     onSelfClearVideoPreview: () -> Unit
 ) {
@@ -63,10 +64,16 @@ fun OneOnOneCallView(
             // we need to check that we are on first page for self user
             val isSelfUser = pageIndex == 0 && participants.first() == participant
 
-            val isCameraOn = if (isSelfUser)
-                isSelfUserCameraOn else participant.isCameraOn
-            val isMuted = if (isSelfUser)
-                isSelfUserMuted else participant.isMuted
+            val isCameraOn = if (isSelfUser) {
+                isSelfUserCameraOn
+            } else {
+                participant.isCameraOn
+            }
+            val isMuted = if (isSelfUser) {
+                isSelfUserMuted
+            } else {
+                participant.isMuted
+            }
 
             val username = when (val conversationName = getConversationName(participant.name)) {
                 is ConversationName.Known -> conversationName.name
@@ -84,7 +91,7 @@ fun OneOnOneCallView(
                 avatar = participant.avatar,
                 membership = participant.membership
             )
-            val maxHeight = (config.screenHeightDp - TOP_APP_BAR_AND_BOTTOM_SHEET_HEIGHT) / participants.size
+            val maxHeight = (config.screenHeightDp - topAppBarAndBottomSheetHeight) / participants.size
             ParticipantTile(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -96,13 +103,11 @@ fun OneOnOneCallView(
                     if (isSelfUser) onSelfVideoPreviewCreated(it)
                 },
                 onClearSelfUserVideoPreview = {
-                    if (isSelfUser)
+                    if (isSelfUser) {
                         onSelfClearVideoPreview()
+                    }
                 }
             )
         }
     }
-
 }
-
-private const val TOP_APP_BAR_AND_BOTTOM_SHEET_HEIGHT = 170

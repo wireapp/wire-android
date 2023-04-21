@@ -107,7 +107,7 @@ fun MessageComposer(
                         EditMessageBundle(
                             originalMessageId = originalMessageId,
                             newContent = messageComposerState.messageComposeInputState.messageText.text,
-                            messageComposerState.mentions,
+                            newMentions = messageComposerState.mentions,
                         )
                     )
                 }

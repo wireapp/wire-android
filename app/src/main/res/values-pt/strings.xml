@@ -661,6 +661,7 @@ Até 500 pessoas podem participar de uma conversa em grupo.</string>
     <string name="notification_call_default_caller_name">Alguém</string>
     <string name="notification_call_default_group_name">Chamada em Grupo Recebida</string>
     <!-- Calling-->
+    <string name="calling_constant_bit_rate_indication">Constant Bit Rate</string>
     <string name="calling_button_label_microphone">Microfone</string>
     <string name="calling_button_label_camera">Câmera</string>
     <string name="calling_button_label_speaker">Alto-falante</string>

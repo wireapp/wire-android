@@ -69,17 +69,9 @@ fun ImportMediaScreen(
     importMediaViewModel: ImportMediaUnauthenticatedViewModel = hiltViewModel(),
     featureFlagNotificationViewModel: FeatureFlagNotificationViewModel = hiltViewModel()
 ) {
-    checkIfSharingIsEnabled(featureFlagNotificationViewModel)
+    featureFlagNotificationViewModel.loadInitialSync()
 
     ImportMediaContent(importMediaViewModel, featureFlagNotificationViewModel)
-}
-
-@Composable
-fun checkIfSharingIsEnabled(featureFlagNotificationViewModel: FeatureFlagNotificationViewModel) {
-    LaunchedEffect(Unit) {
-        featureFlagNotificationViewModel.loadInitialSync()
-    }
-    featureFlagNotificationViewModel.updateSharingStateIfNeeded()
 }
 
 @Composable
@@ -88,14 +80,12 @@ fun ImportMediaContent(
     featureFlagNotificationViewModel: FeatureFlagNotificationViewModel
 ) {
 
-    when (featureFlagNotificationViewModel.featureFlagState.fileSharingRestrictedState) {
+    when (val state = featureFlagNotificationViewModel.featureFlagState.fileSharingRestrictedState) {
         FeatureFlagState.SharingRestrictedState.NO_USER -> ImportMediaLoggedOutContent(
-            featureFlagNotificationViewModel = featureFlagNotificationViewModel,
+            fileSharingRestrictedState = state,
             viewModel = unauthorizedViewModel
         )
-        FeatureFlagState.SharingRestrictedState.RESTRICTED_IN_TEAM -> ImportMediaRestrictedContent(
-            featureFlagNotificationViewModel = featureFlagNotificationViewModel
-        )
+        FeatureFlagState.SharingRestrictedState.RESTRICTED_IN_TEAM -> ImportMediaRestrictedContent(state)
         FeatureFlagState.SharingRestrictedState.NONE -> ImportMediaRegularContent()
     }
 
@@ -105,7 +95,7 @@ fun ImportMediaContent(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ImportMediaRestrictedContent(
-    featureFlagNotificationViewModel: FeatureFlagNotificationViewModel,
+    fileSharingRestrictedState: FeatureFlagState.SharingRestrictedState,
     importMediaViewModel: ImportMediaAuthenticatedViewModel = hiltViewModel()
 ) {
     with(importMediaViewModel.importMediaState) {
@@ -127,7 +117,7 @@ fun ImportMediaRestrictedContent(
             content = { internalPadding ->
                 FileSharingRestrictedContent(
                     internalPadding,
-                    featureFlagNotificationViewModel.featureFlagState.fileSharingRestrictedState,
+                    fileSharingRestrictedState,
                     importMediaViewModel::navigateBack
                 )
             }
@@ -182,7 +172,7 @@ fun ImportMediaRegularContent(authorizedViewModel: ImportMediaAuthenticatedViewM
 @Composable
 fun ImportMediaLoggedOutContent(
     viewModel: ImportMediaUnauthenticatedViewModel,
-    featureFlagNotificationViewModel: FeatureFlagNotificationViewModel
+    fileSharingRestrictedState: FeatureFlagState.SharingRestrictedState
 ) {
     Scaffold(
         topBar = {
@@ -196,7 +186,7 @@ fun ImportMediaLoggedOutContent(
         content = { internalPadding ->
             FileSharingRestrictedContent(
                 internalPadding,
-                featureFlagNotificationViewModel.featureFlagState.fileSharingRestrictedState,
+                fileSharingRestrictedState,
                 viewModel::navigateBack
             )
         }

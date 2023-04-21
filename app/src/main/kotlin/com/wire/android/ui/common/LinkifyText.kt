@@ -215,6 +215,7 @@ private fun ClickableText(
     onLongClick: (() -> Unit)? = null,
 ) {
     val layoutResult = remember { mutableStateOf<TextLayoutResult?>(null) }
+
     val pressIndicator = Modifier.pointerInput(Unit) {
         detectTapGestures(
             onTap = { pos ->

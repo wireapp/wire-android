@@ -686,6 +686,7 @@ Do grupy mo&#380;e do&#322;&#261;czy&#263; maksymalnie 500 os&#243;b.</string>
     <string name="notification_call_default_caller_name">Kto&#347;</string>
     <string name="notification_call_default_group_name">Po&#322;&#261;czenie grupowe przychodz&#261;ce</string>
     <!-- Calling-->
+    <string name="calling_constant_bit_rate_indication">Constant Bit Rate</string>
     <string name="calling_button_label_microphone">Mikrofon</string>
     <string name="calling_button_label_camera">Kamera</string>
     <string name="calling_button_label_speaker">G&#322;o&#347;nik</string>

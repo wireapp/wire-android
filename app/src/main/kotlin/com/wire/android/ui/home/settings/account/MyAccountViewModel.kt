@@ -26,6 +26,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.common.util.VisibleForTesting
+import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.navigation.BackStackMode
@@ -91,7 +92,7 @@ class MyAccountViewModel @Inject constructor(
         myAccountState = myAccountState.copy(
             isReadOnlyAccount = !managedByWire,
             isEditEmailAllowed = !hasSAMLCred && managedByWire,
-            isEditHandleAllowed = managedByWire
+            isEditHandleAllowed = managedByWire && BuildConfig.ALLOW_CHANGE_OF_EMAIL
         )
         viewModelScope.launch {
             fetchSelfUser()

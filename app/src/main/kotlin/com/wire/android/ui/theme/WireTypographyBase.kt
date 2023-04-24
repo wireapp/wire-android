@@ -69,6 +69,12 @@ object WireTypographyBase {
         lineHeight = 19.sp,
         letterSpacing = 0.35.sp
     )
+    val Body05 = TextStyle(
+        fontWeight = FontWeight.W400,
+        fontSize = 15.sp,
+        lineHeight = 19.sp,
+        fontStyle = FontStyle.Italic
+    )
     val SubLine01 = TextStyle(
         fontWeight = FontWeight.Normal,
         fontSize = 12.sp,

@@ -32,18 +32,18 @@ import io.github.esentsov.PackagePrivate
 
 @Immutable
 data class WireTypography(
-    val title01: TextStyle,  val title02: TextStyle,  val title03: TextStyle,  val title04: TextStyle,
-    val body01: TextStyle,   val body02: TextStyle,   val body03: TextStyle,   val body04: TextStyle,
+    val title01: TextStyle, val title02: TextStyle, val title03: TextStyle, val title04: TextStyle,
+    val body01: TextStyle, val body02: TextStyle, val body03: TextStyle, val body04: TextStyle, val body05: TextStyle,
     val button01: TextStyle, val button02: TextStyle, val button03: TextStyle, val button04: TextStyle, val button05: TextStyle,
-    val label01: TextStyle,  val label02: TextStyle,  val label03: TextStyle,  val label04: TextStyle, val label05: TextStyle,
+    val label01: TextStyle, val label02: TextStyle, val label03: TextStyle, val label04: TextStyle, val label05: TextStyle,
     val badge01: TextStyle,
     val subline01: TextStyle,
-    val code01: TextStyle,
+    val code01: TextStyle
 ) {
     fun toTypography() = Typography(
-        titleLarge = title01,  titleMedium = title02, titleSmall = title03,
+        titleLarge = title01, titleMedium = title02, titleSmall = title03,
         labelLarge = button02, labelMedium = label02, labelSmall = label03,
-        bodyLarge = body01,    bodyMedium = label04,  bodySmall = subline01
+        bodyLarge = body01, bodyMedium = label04, bodySmall = subline01
     )
 }
 
@@ -56,6 +56,7 @@ private val DefaultWireTypography = WireTypography(
     body02 = WireTypographyBase.Body02,
     body03 = WireTypographyBase.Body03,
     body04 = WireTypographyBase.Body04,
+    body05 = WireTypographyTypes.Body05,
     button01 = WireTypographyBase.Button01,
     button02 = WireTypographyBase.Button02,
     button03 = WireTypographyBase.Button03,

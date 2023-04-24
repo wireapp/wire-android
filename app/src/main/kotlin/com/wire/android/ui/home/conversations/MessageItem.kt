@@ -57,6 +57,7 @@ import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.spacers.VerticalSpace
+import com.wire.android.ui.common.typography
 import com.wire.android.ui.home.conversations.messages.QuotedMessage
 import com.wire.android.ui.home.conversations.messages.QuotedMessageStyle
 import com.wire.android.ui.home.conversations.messages.QuotedUnavailable
@@ -182,7 +183,10 @@ fun MessageItem(
                         MessageExpireLabel(messageContent, selfDeletionTimerState.timeLeftFormatted())
 
                         if (isDeleted) {
-                            Text("After one participant has seen your message and the timer has expired on their side, this note disappears.")
+                            Text(
+                                "After one participant has seen your message and the timer has expired on their side, this note disappears.",
+                                style = typography().informative01
+                            )
                         }
                     } else {
                         MessageStatusLabel(messageStatus = message.header.messageStatus)

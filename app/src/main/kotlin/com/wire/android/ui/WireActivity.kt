@@ -136,7 +136,7 @@ class WireActivity : AppCompatActivity() {
     }
 
     @Composable
-    fun setUpNavigationGraph(startDestination: String, navController: NavHostController, scope: CoroutineScope) {
+    private fun setUpNavigationGraph(startDestination: String, navController: NavHostController, scope: CoroutineScope) {
         Scaffold {
             NavigationGraph(navController = navController, startDestination)
         }
@@ -172,21 +172,38 @@ class WireActivity : AppCompatActivity() {
 
     @Composable
     private fun handleDialogs() {
-        updateAppDialog({ updateTheApp() }, viewModel.globalAppState.updateAppDialog)
-        joinConversationDialog(viewModel.globalAppState.conversationJoinedDialog)
-        customBackendDialog(viewModel.globalAppState.customBackendDialog.shouldShowDialog)
-        maxAccountDialog(viewModel::openProfile, viewModel::dismissMaxAccountDialog, viewModel.globalAppState.maxAccountDialog)
-        accountLoggedOutDialog(viewModel.globalAppState.blockUserUI)
-        newClientDialog(
+        UpdateAppDialog({ updateTheApp() }, viewModel.globalAppState.updateAppDialog)
+        JoinConversationDialog(viewModel.globalAppState.conversationJoinedDialog)
+        CustomBackendDialog(viewModel.globalAppState.customBackendDialog.shouldShowDialog)
+        MaxAccountDialog(viewModel::openProfile, viewModel::dismissMaxAccountDialog, viewModel.globalAppState.maxAccountDialog)
+        AccountLoggedOutDialog(viewModel.globalAppState.blockUserUI)
+        NewClientDialog(
             viewModel.globalAppState.newClientDialog,
             viewModel::openDeviceManager,
             viewModel::switchAccount,
             viewModel::dismissNewClientDialog
         )
+        JailBreakDetectedDialog(viewModel.globalAppState.jailBreakDetected)
     }
 
     @Composable
-    private fun updateAppDialog(onUpdateClick: () -> Unit, shouldShow: Boolean) {
+    private fun JailBreakDetectedDialog(shouldShow: Boolean) {
+                if(shouldShow){
+                    WireDialog(
+                        title = stringResource(id = R.string.update_app_dialog_title),
+                        text = stringResource(id = R.string.update_app_dialog_body),
+                        onDismiss = { },
+                        properties = DialogProperties(
+                            dismissOnBackPress = false,
+                            dismissOnClickOutside = false,
+                            usePlatformDefaultWidth = true
+                        )
+                    )
+                }
+    }
+
+    @Composable
+    private fun UpdateAppDialog(onUpdateClick: () -> Unit, shouldShow: Boolean) {
         if (shouldShow) {
             WireDialog(
                 title = stringResource(id = R.string.update_app_dialog_title),
@@ -207,7 +224,7 @@ class WireActivity : AppCompatActivity() {
     }
 
     @Composable
-    private fun joinConversationDialog(joinedDialogState: JoinConversationViaCodeState?) {
+    private fun JoinConversationDialog(joinedDialogState: JoinConversationViaCodeState?) {
         joinedDialogState?.let {
             when (it) {
                 is JoinConversationViaCodeState.Error -> JoinConversationViaInviteLinkError(
@@ -226,14 +243,14 @@ class WireActivity : AppCompatActivity() {
     }
 
     @Composable
-    private fun customBackendDialog(shouldShow: Boolean) {
+    private fun CustomBackendDialog(shouldShow: Boolean) {
         if (shouldShow) {
             CustomBEDeeplinkDialog(viewModel)
         }
     }
 
     @Composable
-    private fun maxAccountDialog(onConfirm: () -> Unit, onDismiss: () -> Unit, shouldShow: Boolean) {
+    private fun MaxAccountDialog(onConfirm: () -> Unit, onDismiss: () -> Unit, shouldShow: Boolean) {
         if (shouldShow) {
             MaxAccountReachedDialog(
                 onConfirm = onConfirm,
@@ -244,12 +261,12 @@ class WireActivity : AppCompatActivity() {
     }
 
     @Composable
-    private fun accountLoggedOutDialog(blockUserUI: CurrentSessionErrorState?) {
-        blockUserUI?.let { accountLoggedOutDialog(it, viewModel::navigateToNextAccountOrWelcome) }
+    private fun AccountLoggedOutDialog(blockUserUI: CurrentSessionErrorState?) {
+        blockUserUI?.let { AccountLoggedOutDialog(it, viewModel::navigateToNextAccountOrWelcome) }
     }
 
     @Composable
-    fun accountLoggedOutDialog(reason: CurrentSessionErrorState, navigateAway: () -> Unit) {
+    fun AccountLoggedOutDialog(reason: CurrentSessionErrorState, navigateAway: () -> Unit) {
         appLogger.e("AccountLongedOutDialog: $reason")
         val (@StringRes title: Int, text: String) = when (reason) {
             CurrentSessionErrorState.SessionExpired -> {
@@ -293,7 +310,7 @@ class WireActivity : AppCompatActivity() {
     }
 
     @Composable
-    private fun newClientDialog(
+    private fun NewClientDialog(
         data: NewClientData?,
         openDeviceManager: () -> Unit,
         switchAccount: (UserId) -> Unit,

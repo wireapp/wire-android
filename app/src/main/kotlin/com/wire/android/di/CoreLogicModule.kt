@@ -87,6 +87,7 @@ import com.wire.kalium.logic.feature.publicuser.GetAllContactsUseCase
 import com.wire.kalium.logic.feature.publicuser.GetKnownUserUseCase
 import com.wire.kalium.logic.feature.publicuser.search.SearchKnownUsersUseCase
 import com.wire.kalium.logic.feature.publicuser.search.SearchPublicUsersUseCase
+import com.wire.kalium.logic.feature.rootDetection.CheckSystemIntegrityUseCase
 import com.wire.kalium.logic.feature.server.ServerConfigForAccountUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.GetSessionsUseCase
@@ -1034,4 +1035,10 @@ class UseCaseModule {
         @CurrentAccount currentAccount: UserId
     ): UpdateClientVerificationStatusUseCase =
         coreLogic.getSessionScope(currentAccount).client.updateClientVerificationStatus
+
+    @ViewModelScoped
+    fun provideCheckSystemIntegrityUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic
+    ): CheckSystemIntegrityUseCase =
+        coreLogic.getGlobalScope().checkSystemIntegrity
 }

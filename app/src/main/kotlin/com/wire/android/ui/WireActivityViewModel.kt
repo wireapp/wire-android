@@ -57,6 +57,7 @@ import com.wire.kalium.logic.feature.client.NewClientResult
 import com.wire.kalium.logic.feature.client.ObserveNewClientsUseCase
 import com.wire.kalium.logic.feature.conversation.CheckConversationInviteCodeUseCase
 import com.wire.kalium.logic.feature.conversation.JoinConversationViaCodeUseCase
+import com.wire.kalium.logic.feature.rootDetection.CheckSystemIntegrityUseCase
 import com.wire.kalium.logic.feature.server.GetServerConfigResult
 import com.wire.kalium.logic.feature.server.GetServerConfigUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
@@ -101,6 +102,7 @@ class WireActivityViewModel @Inject constructor(
     private val observeSyncStateUseCaseProviderFactory: ObserveSyncStateUseCaseProvider.Factory,
     private val observeIfAppUpdateRequired: ObserveIfAppUpdateRequiredUseCase,
     private val observeNewClients: ObserveNewClientsUseCase,
+    private val checkSystemIntegrity: CheckSystemIntegrityUseCase
 ) : ViewModel() {
 
     var globalAppState: GlobalAppState by mutableStateOf(GlobalAppState())
@@ -157,6 +159,7 @@ class WireActivityViewModel @Inject constructor(
                                 )
                             )
                         }
+
                         is NewClientResult.InOtherAccount -> {
                             globalAppState = globalAppState.copy(
                                 newClientDialog = NewClientData.OtherUser(
@@ -168,9 +171,16 @@ class WireActivityViewModel @Inject constructor(
                                 )
                             )
                         }
+
                         else -> {}
                     }
                 }
+        }
+        viewModelScope.launch(dispatchers.io()) {
+            when (checkSystemIntegrity()) {
+                CheckSystemIntegrityUseCase.Result.Failed -> globalAppState = globalAppState.copy(jailBreakDetected = true)
+                CheckSystemIntegrityUseCase.Result.Success -> {}
+            }
         }
     }
 
@@ -489,4 +499,5 @@ data class GlobalAppState(
     val updateAppDialog: Boolean = false,
     val conversationJoinedDialog: JoinConversationViaCodeState? = null,
     val newClientDialog: NewClientData? = null,
+    val jailBreakDetected: Boolean
 )

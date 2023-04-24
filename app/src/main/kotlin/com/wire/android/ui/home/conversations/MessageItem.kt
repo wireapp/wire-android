@@ -110,23 +110,18 @@ fun MessageItem(
             )
         }
 
+        // in case the message is marked as deleted and is expirable, it means that the message
+        // is belonging to the sender and we are waiting for the receiver timer to expire to permanently delete it
+        // we also do not want any background color
         val backgroundColorModifier = if (message.sendingFailed || message.receivingFailed) {
             Modifier.background(colorsScheme().messageErrorBackgroundColor)
-        } else if (selfDeletionTimerState is SelfDeletionTimer.SelfDeletionTimerState.Expirable) {
-            // in case the message is marked as deleted and is expirable, it means that the message
-            // is belonging to the sender and we are waiting for the receiver timer to expire to permanently delete it
-            // we also do not want any background color
-            if (message.isDeleted) {
-                Modifier
-            } else {
-                val color by animateColorAsState(
-                    colorsScheme().primaryVariant.copy(selfDeletionTimerState.alphaBackgroundColor()),
-                    tween()
-                )
+        } else if (selfDeletionTimerState is SelfDeletionTimer.SelfDeletionTimerState.Expirable && !message.isDeleted) {
+            val color by animateColorAsState(
+                colorsScheme().primaryVariant.copy(selfDeletionTimerState.alphaBackgroundColor()),
+                tween()
+            )
 
-                Modifier.background(color)
-            }
-
+            Modifier.background(color)
         } else {
             Modifier
         }
@@ -182,30 +177,34 @@ fun MessageItem(
                     if (selfDeletionTimerState is SelfDeletionTimer.SelfDeletionTimerState.Expirable) {
                         MessageExpireLabel(messageContent, selfDeletionTimerState.timeLeftFormatted())
                     }
-//                    if (!isDeleted) {
-                    if (!decryptionFailed) {
-                        val currentOnAssetClicked = remember {
-                            Clickable(enabled = true, onClick = {
-                                onAssetMessageClicked(header.messageId)
-                            }, onLongClick = {
-                                onLongClicked(message)
-                            })
-                        }
+                    val isSelfDeletingMessageWaitingForReceiver =
+                        selfDeletionTimerState is SelfDeletionTimer.SelfDeletionTimerState.Expirable
+                                && message.isDeleted
 
-                        val currentOnImageClick = remember {
-                            Clickable(enabled = true, onClick = {
-                                onImageMessageClicked(
-                                    message,
-                                    source == MessageSource.Self
-                                )
-                            }, onLongClick = {
-                                onLongClicked(message)
-                            })
-                        }
-                        val onLongClick = remember { { onLongClicked(message) } }
-                        if (selfDeletionTimerState is SelfDeletionTimer.SelfDeletionTimerState.Expirable) {
-                            Text("Text")
-                        } else {
+                    if (isSelfDeletingMessageWaitingForReceiver) {
+                        Text("Waiting on receiver")
+                    }
+                    if (!isDeleted) {
+                        if (!decryptionFailed) {
+                            val currentOnAssetClicked = remember {
+                                Clickable(enabled = true, onClick = {
+                                    onAssetMessageClicked(header.messageId)
+                                }, onLongClick = {
+                                    onLongClicked(message)
+                                })
+                            }
+
+                            val currentOnImageClick = remember {
+                                Clickable(enabled = true, onClick = {
+                                    onImageMessageClicked(
+                                        message,
+                                        source == MessageSource.Self
+                                    )
+                                }, onLongClick = {
+                                    onLongClicked(message)
+                                })
+                            }
+                            val onLongClick = remember { { onLongClicked(message) } }
                             MessageContent(
                                 message = message,
                                 messageContent = messageContent,
@@ -217,23 +216,22 @@ fun MessageItem(
                                 onLongClick = onLongClick,
                                 onOpenProfile = onOpenProfile
                             )
+                        } else {
+                            MessageDecryptionFailure(
+                                messageHeader = header,
+                                decryptionStatus = header.messageStatus as MessageStatus.DecryptionFailure,
+                                onResetSessionClicked = onResetSessionClicked
+                            )
                         }
                         MessageFooter(
                             messageFooter,
                             onReactionClicked
                         )
-                    } else {
-                        MessageDecryptionFailure(
-                            messageHeader = header,
-                            decryptionStatus = header.messageStatus as MessageStatus.DecryptionFailure,
-                            onResetSessionClicked = onResetSessionClicked
-                        )
                     }
-//                    }
+                }
 
-                    if (message.sendingFailed) {
-                        MessageSendFailureWarning(header.messageStatus as MessageStatus.MessageSendFailureStatus)
-                    }
+                if (message.sendingFailed) {
+                    MessageSendFailureWarning(header.messageStatus as MessageStatus.MessageSendFailureStatus)
                 }
             }
         }

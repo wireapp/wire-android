@@ -41,7 +41,7 @@
     <string name="label_membership_service">Dienst</string>
     <string name="label_user_deleted">Gelöscht</string>
     <string name="label_message_sent_failure">Nachricht konnte aufgrund von Verbindungsproblemen nicht gesendet werden.</string>
-    <string name="label_message_edit_sent_failure">The edited message could not be sent due to connectivity issues.</string>
+    <string name="label_message_edit_sent_failure">Bearbeitete Nachricht konnte aufgrund von Verbindungsproblemen nicht gesendet werden.</string>
     <string name="label_message_sent_remotely_failure">Message could not be sent, as the backend %s appears to be offline.</string>
     <string name="label_message_receive_failure">Fehler beim Herunterladen</string>
     <string name="label_message_decryption_failure_message">Die Nachricht konnte nicht entschlüsselt werden.</string>
@@ -54,7 +54,7 @@
     <string name="label_update">Aktualisieren</string>
     <string name="label_close">Schließen</string>
     <string name="label_download">Herunterladen</string>
-    <string name="label_open_asset_externally">Open</string>
+    <string name="label_open_asset_externally">Öffnen</string>
     <string name="label_show">Anzeigen</string>
     <string name="label_show_all">Alle anzeigen</string>
     <string name="label_show_less">Weniger anzeigen</string>
@@ -68,7 +68,7 @@
     <string name="folder_label_messaging">Messaging</string>
     <string name="label_user_blocked">Blockiert</string>
     <string name="label_and">und</string>
-    <string name="label_retry">Retry</string>
+    <string name="label_retry">Wiederholen</string>
     <!-- Content descriptions https://wearezeta.atlassian.net/wiki/spaces/AR/pages/122520039/Code+Style+Guideline#Content-description-strings -->
     <string name="content_description_app_logo">App Logo</string>
     <string name="content_description_reveal_password">Passwort anzeigen</string>
@@ -194,7 +194,7 @@
     <string name="migration_login_required">Bitte melden Sie sich an, um Ihre Nachrichten aus der alten Version von Wire zu migrieren.</string>
     <string name="migration_login_required_specific_account">Bitte melden Sie sich in Ihrem Benutzerkonto %s an, um Ihre Nachrichten aus der alten Version von Wire zu migrieren.</string>
     <string name="migration_login_required_specific_account_name">“%1$s (@%2$s)“</string>
-    <string name="migration_messages_failure">Unfortunately, not all messages and conversations could not be migrated due to incompatibility with the older version of Wire (error code: %s)</string>
+    <string name="migration_messages_failure">Aufgrund der Inkompatibilität mit der älteren Version von Wire konnten nicht alle Nachrichten und Unterhaltungen migriert werden (Fehlercode: %s)</string>
     <string name="migration_cancel_title">Migration abbrechen</string>
     <string name="migration_cancel_message">Sind Sie sicher, dass Sie die App schließen und die laufende Migration abbrechen möchten?</string>
     <!-- Login -->
@@ -238,8 +238,8 @@
         settings, your conversation history has also been deleted.</string>
     <!-- Second Factor Authentication -->
     <string name="second_factor_authentication_title">Verify your account</string>
-    <string name="second_factor_authentication_instructions_label">Enter the verification code sent to the email %1$s</string>
-    <string name="second_factor_code_error">Invalid code, or maximum attempts exceeded. Please retry, or request another code</string>
+    <string name="second_factor_authentication_instructions_label">Geben Sie den Bestätigungscode ein, der an die E-Mail-Adresse %1$s gesendet wurde</string>
+    <string name="second_factor_code_error">Ungültiger Code oder maximale Versuche überschritten. Bitte versuchen Sie es erneut oder fordern Sie einen anderen Code an</string>
     <!-- Remove Device -->
     <string name="remove_device_title">Bitte ein Gerät entfernen</string>
     <string name="remove_device_message">Entfernen Sie eines Ihrer anderen Geräte, um Wire
@@ -330,7 +330,7 @@
     <string name="conversations_calls_tab_title">Anrufe</string>
     <string name="conversations_mentions_tab_title">Erwähnungen</string>
     <string name="sent_a_message_with_content">hat eine Nachricht mit %s Inhalt gesendet</string>
-    <string name="sent_a_message_with_unknown_content">sent a message with unknown content</string>
+    <string name="sent_a_message_with_unknown_content">hat eine Nachricht mit unbekanntem Inhalt gesendet</string>
     <string name="new_group_title">Neue Gruppe</string>
     <string name="new_group_description">Bis zu 500 Personen können an einer Gruppenunterhaltung teilnehmen.</string>
     <string name="group_name_title">Gruppenname</string>
@@ -393,8 +393,8 @@
     <string name="delete_group_conversation_dialog_title">\"%s\" entfernen?</string>
     <string name="delete_group_conversation_dialog_description">Die Gruppe wird auf allen Geräten aus der Liste Ihrer Unterhaltungen entfernt. Sie können dann nicht mehr auf die Gruppe und ihren Inhalt zugreifen.</string>
     <!-- Import/Export External Media -->
-    <string name="import_media_content_title">Share With Wire</string>
-    <string name="import_media_searchbar_title">Search for conversation</string>
+    <string name="import_media_content_title">Mit Wire teilen</string>
+    <string name="import_media_searchbar_title">Nach Unterhaltung suchen</string>
     <string name="import_media_send_button_title">Senden</string>
     <string name="export_media_subject_title">Sharing Media from Wire</string>
     <!--Read receipts -->
@@ -521,7 +521,7 @@
     <string name="label_system_message_new_conversation_receipt_mode">Lesebestätigungen sind %1$s</string>
     <string name="label_system_message_read_receipt_changed_by_self">%1$s haben Lesebestätigungen für alle %2$sgeschaltet</string>
     <string name="label_system_message_read_receipt_changed_by_other">%1$s hat Lesebestätigungen für alle %2$sgeschaltet</string>
-    <string name="label_system_message_conversation_history_lost">DIESES GERÄT WURDE FÜR EINE WEILE NICHT BENUTZT. EINIGE MELDUNGEN WERDEN HIER VIELLEICHT NICHT ANGEZEIGT.</string>
+    <string name="label_system_message_conversation_history_lost">Sie haben das Gerät eine Weile nicht benutzt. Einige Nachrichten werden hier eventuell nicht angezeigt.</string>
     <string name="label_system_message_receipt_mode_on">ein</string>
     <string name="label_system_message_receipt_mode_off">aus</string>
     <!-- Last messages -->
@@ -662,7 +662,7 @@
     <string name="notification_call_default_caller_name">Jemand</string>
     <string name="notification_call_default_group_name">Eingehender Gruppenanruf</string>
     <!-- Calling-->
-    <string name="calling_constant_bit_rate_indication">Constant Bit Rate</string>
+    <string name="calling_constant_bit_rate_indication">Konstante Bitrate</string>
     <string name="calling_button_label_microphone">Mikrofon</string>
     <string name="calling_button_label_camera">Kamera</string>
     <string name="calling_button_label_speaker">Lautsprecher</string>
@@ -728,7 +728,7 @@
     <string name="prohibited_videos_message">Empfang von Videos ist verboten</string>
     <string name="prohibited_audio_message">Empfang von Audiodateien ist verboten</string>
     <string name="prohibited_file_message">Empfang von Dateien ist verboten</string>
-    <string name="team_settings_changed">Team Settings Changed</string>
+    <string name="team_settings_changed">Team-Einstellungen geändert</string>
     <string name="sharing_files_enabled">Das Teilen und Empfangen von Dateien jeder Art ist jetzt aktiviert</string>
     <string name="sharing_files_disabled">Das Teilen und Empfangen von Dateien jeder Art ist jetzt deaktiviert</string>
     <!--wire dropdown-->
@@ -812,7 +812,7 @@
     <string name="label_code_commit_id">Commit-Hash: %1$s</string>
     <string name="label_client_id">Client-ID: %1$s</string>
     <string name="label_client_added_time">ADDED</string>
-    <string name="label_client_device_id">DEVICE ID</string>
+    <string name="label_client_device_id">GERÄTE-ID</string>
     <string name="label_key_packages_count">Anzahl der Schlüssel-Pakete: %1$s</string>
     <string name="label_mls_client_id">MLS-Client-ID: %1$s</string>
     <string name="conversation_empty_list_description">Verbinden Sie sich mit anderen oder erstellen Sie eine neue Gruppe, um zu kommunizieren!</string>
@@ -884,15 +884,15 @@
     <string name="file_sharing_restricted_learn_more_link">https://support.wire.com/hc/en-us/articles/4406404582673-How-can-I-restrict-file-sharing-for-my-team-</string>
     <string name="file_sharing_restricted_description_by_team">You can not share this file because this feature is disabled for this account.</string>
     <string name="file_sharing_restricted_description_no_users">You need to be logged in to Wire before you can share anything</string>
-    <string name="file_sharing_restricted_button_text_no_users">Open Wire</string>
+    <string name="file_sharing_restricted_button_text_no_users">Wire öffnen</string>
     <!-- join conversation dialog -->
     <string name="join_conversation_dialog_title">Unterhaltung beitreten?</string>
     <string name="join_conversation_dialog_message">Sie wurden zu dieser Unterhaltung eingeladen.\n\n%1$s</string>
     <string name="join_conversation_dialog_button">Beitreten</string>
     <string name="join_conversation_via_deeplink_error_title">Sie konnten der Unterhaltung nicht beitreten</string>
     <string name="join_conversation_via_deeplink_error_link_expired">The link to this group conversation expired or the conversation was set to private.</string>
-    <string name="join_conversation_via_deeplink_error_max_number_of_participent">The maximum number of participants in this conversation has been reached.</string>
-    <string name="join_conversation_via_deeplink_error_general">Due to an error you could not be added to the group conversation.</string>
+    <string name="join_conversation_via_deeplink_error_max_number_of_participent">Die maximale Teilnehmeranzahl in dieser Unterhaltung wurde erreicht.</string>
+    <string name="join_conversation_via_deeplink_error_general">Aufgrund eines Fehlers konnten Sie nicht zur Gruppenunterhaltung hinzugefügt werden.</string>
     <!-- guest room link -->
     <string name="folder_label_guest_link">Gäste-Link</string>
     <string name="guest_link_description">Laden Sie andere mit einem Link zu dieser Unterhaltung ein. Jeder kann mit dem Link an der Unterhaltung teilnehmen – auch ohne Wire.</string>
@@ -901,69 +901,70 @@
     <string name="guest_link_button_share_link">Link teilen</string>
     <string name="guest_link_button_revoke_link">Link widerrufen</string>
     <string name="audio_not_available">Audio not available</string>
-    <string name="audio_not_available_explanation">Something went wrong while downloading this audio file. Please ask the sender to upload it again</string>
-    <string name="guest_link_generate_error_message">Link couldn\'t be created. Please try again</string>
-    <string name="guest_link_revoke_error_message">Link couldn\'t be revoked. Please try again</string>
+    <string name="audio_not_available_explanation">Beim Herunterladen dieser Audiodatei ist ein Fehler aufgetreten. Bitten Sie den Absender, die Datei erneut hochzuladen</string>
+    <string name="guest_link_generate_error_message">Link konnte nicht erstellt werden. Bitte versuchen Sie es erneut</string>
+    <string name="guest_link_revoke_error_message">Link konnte nicht widerrufen werden. Bitte versuchen Sie es erneut</string>
     <string name="revoke_guest__room_link_dialog_text">Neue Gäste werden sich nicht mehr mit diesem Link anmelden können. Aktuelle Gäste haben weiterhin Zugang zum Gästebereich.</string>
     <string name="revoke_guest__room_link_dialog_title">Gäste-Link widerrufen?</string>
-    <string name="guest__room_link_copied">Link copied to clipboard</string>
+    <string name="guest__room_link_copied">Link in Zwischenablage kopiert</string>
     <string name="title_device_key_fingerprint">DEVICE KEY FINGERPRINT</string>
-    <string name="label_client_key_fingerprint_not_available">NOT AVAILABLE</string>
+    <string name="label_client_key_fingerprint_not_available">NICHT VERFÜGBAR</string>
     <string name="guest_room_link_copied">Gäste-Link in Zwischenablage kopiert</string>
     <string name="guest_room_link_enabled">Erstellen von Gäste-Links ist nun für alle Gruppen-Admins aktiviert</string>
     <string name="guest_room_link_disabled">Erstellen von Gäste-Links ist nun für alle Gruppen-Admins deaktiviert</string>
     <!-- New Device dialog -->
-    <string name="new_device_dialog_current_user_title">Your account was used on</string>
+    <string name="new_device_dialog_current_user_title">Ihr Benutzerkonto wurde verwendet</string>
     <string name="new_device_dialog_current_user_message">%1$s\nFrom: %2$s \n\nIf you didn\'t do this, remove the device and reset your password.</string>
-    <string name="new_device_dialog_current_user_btn">Manage Devices</string>
-    <string name="new_device_dialog_other_user_title">Your account “%1$s (@%2$s)” was used on:</string>
+    <string name="new_device_dialog_current_user_btn">Geräte verwalten</string>
+    <string name="new_device_dialog_other_user_title">Ihr Benutzerkonto \"%1$s (@%2$s)” wurde verwendet:</string>
     <string name="new_device_dialog_other_user_message">%1$s\nFrom: %2$s \n\nIf you didn\'t do this, remove the device (navigate to “Manage Devices” in the Settings section of this account), and reset your password.</string>
-    <string name="new_device_dialog_other_user_btn">Switch Account</string>
-    <string name="label_system_message_joined_the_conversation_by_self">%1$s joined the conversation</string>
-    <string name="label_system_message_joined_the_conversation_by_other">%1$s joined the conversation</string>
-    <string name="label_client_verified">Verified</string>
-    <string name="label_client_unverified">Not Verified</string>
-    <string name="label_self_client_verification_description">To verify your own device, compare this key fingerprint with the same key fingerprint on another device.</string>
-    <string name="label_client_verification_description">Verify that this device fingerprint matches the fingerprint shown on %s’s device.</string>
-    <string name="label_fingerprint_description">If fingerprints don’t match, reset the session to generate new encryption keys on both sides.</string>
-    <string name="label_self_fingerprint_description">Share this key fingerprint with other participants in a conversation, so that they can verify it and make sure the conversation is secure.</string>
-    <string name="unknown_user_name">unknown</string>
-    <string name="self_deleting_message_time_left">Self-deleting message • %1$s</string>
-    <string name="self_deleting_message_label">Self-deleting message</string>
-    <string name="device_name_unknown">Unknown device</string>
-    <string name="create_account_email_title">Your Email</string>
+    <string name="new_device_dialog_other_user_btn">Benutzerkonto wechseln</string>
+    <string name="label_system_message_joined_the_conversation_by_self">%1$s sind der Unterhaltung beigetreten</string>
+    <string name="label_system_message_joined_the_conversation_by_other">%1$s Ist der Unterhaltung beigetreten</string>
+    <string name="label_client_verified">Überprüft</string>
+    <string name="label_client_unverified">Nicht überprüft</string>
+    <string name="label_self_client_verification_description">Um Ihr eigenes Gerät zu verifizieren, vergleichen Sie diesen Schlüssel-Fingerabdruck mit dem gleichen Schlüssel-Fingerabdruck auf einem anderen Gerät.</string>
+    <string name="label_client_verification_description">Überprüfen Sie, ob dieser Geräte-Fingerabdruck mit dem auf %ss Gerät übereinstimmt.</string>
+    <string name="label_fingerprint_description">Falls die Fingerabdrücke nicht übereinstimmen, setzen Sie die Session zurück, um neue Schlüssel auf beiden Seiten zu erstellen.</string>
+    <string name="label_self_fingerprint_description">Teilen Sie diesen Schlüssel-Fingerabdruck mit anderen Teilnehmern einer Unterhaltung, damit diese ihn überprüfen und sicherstellen können, dass die Unterhaltung sicher ist.</string>
+    <string name="unknown_user_name">unbekannt</string>
+    <string name="self_deleting_message_time_left">Selbstlöschende Nachricht • %1$s</string>
+    <string name="self_deleting_message_label">Selbstlöschende Nachricht</string>
+    <string name="device_name_unknown">Unbekanntes Gerät</string>
+    <string name="create_account_email_title">Ihre E-Mail-Adresse</string>
     <string name="settings_myaccount_email_description">Your email is part of your login details for this account. It may be visible to your contacts.</string>
     <string name="settings_myaccount_email_invalid_imail_error">Please enter a valid email format</string>
-    <string name="settings_myaccount_email_already_in_use_error">The email address you provided has already been  registered. Please try again.</string>
+    <string name="settings_myaccount_email_already_in_use_error">Die verwendete E-Mail-Adresse wurde bereits  
+registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="settings_myaccount_email_verification_email_sent">A verification email has been sent to your email %1$s.\n\nYour current email address is not changed until you verified your new one. Please check your email inbox and follow the instructions.</string>
     <string name="label_resend_verification_email">Resend Verification Email</string>
-    <string name="settings_myaccount_email_generic_error">Something went wrong. Please try again.</string>
-    <string name="title_video_could_not_be_sent">Video could not be sent</string>
-    <string name="title_image_could_not_be_sent">Image could not be sent</string>
-    <string name="title_file_could_not_be_sent">File could not be sent</string>
-    <string name="label_shared_video_too_large">You can only share a video up to %d MB.</string>
-    <string name="label_shared_image_too_large">You can only share an image up to %d MB.</string>
-    <string name="label_shared_file_too_large">You can only share a file up to %d MB.</string>
-    <string name="label_file_saved_to_device">The file was saved to your device.</string>
+    <string name="settings_myaccount_email_generic_error">Ein Fehler ist aufgetreten, bitte erneut versuchen.</string>
+    <string name="title_video_could_not_be_sent">Video konnte nicht gesendet werden</string>
+    <string name="title_image_could_not_be_sent">Bild konnte nicht gesendet werden</string>
+    <string name="title_file_could_not_be_sent">Datei konnte nicht gesendet werden</string>
+    <string name="label_shared_video_too_large">Sie können Videos bis zu %d MB senden.</string>
+    <string name="label_shared_image_too_large">Sie können Bilder bis zu %d MB senden.</string>
+    <string name="label_shared_file_too_large">Sie können Dateien bis zu %d MB senden.</string>
+    <string name="label_file_saved_to_device">Datei wurde auf Ihrem Gerät gespeichert.</string>
     <!-- Expirable messages -->
     <plurals name="weeks_left">
-        <item quantity="one">1 week left</item>
-        <item quantity="other">%1$d weeks left</item>
+        <item quantity="one">Noch 1 Woche</item>
+        <item quantity="other">Noch %1$d Wochen</item>
     </plurals>
     <plurals name="days_left">
-        <item quantity="one">1 day left</item>
-        <item quantity="other">%1$d days left</item>
+        <item quantity="one">Noch 1 Tag</item>
+        <item quantity="other">Noch %1$d Tage</item>
     </plurals>
     <plurals name="hours_left">
-        <item quantity="one">1 hour left</item>
-        <item quantity="other">%1$d hours left</item>
+        <item quantity="one">Noch 1 Stunde</item>
+        <item quantity="other">Noch %1$d Stunden</item>
     </plurals>
     <plurals name="minutes_left">
-        <item quantity="one">1 minute left</item>
-        <item quantity="other">%1$d minutes left</item>
+        <item quantity="one">Noch 1 Minute</item>
+        <item quantity="other">Noch %1$d Minuten</item>
     </plurals>
     <plurals name="seconds_left">
-        <item quantity="one">1 second left</item>
-        <item quantity="other">%1$d seconds left</item>
+        <item quantity="one">Noch 1 Sekunde</item>
+        <item quantity="other">Noch %1$d Sekunden</item>
     </plurals>
 </resources>

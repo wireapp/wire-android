@@ -189,7 +189,6 @@ private fun SelfVideo(
     } else onClearSelfUserVideoPreview()
 }
 
-
 @Composable
 private fun AvatarTile(
     modifier: Modifier,

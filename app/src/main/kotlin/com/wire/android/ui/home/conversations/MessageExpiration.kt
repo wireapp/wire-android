@@ -2,6 +2,7 @@ package com.wire.android.ui.home.conversations
 
 import android.content.Context
 import android.content.res.Resources
+import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -202,6 +203,7 @@ class SelfDeletionTimer(private val context: Context) {
 
             fun decreaseTimeLeft(interval: Duration) {
                 if (timeLeft.inWholeSeconds != 0L) timeLeft -= interval
+                Log.d("TEST","time left ${timeLeft.inWholeSeconds}")
             }
 
             /**

@@ -20,6 +20,7 @@
 
 package com.wire.android.ui.home.conversations
 
+import android.util.Log
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -40,6 +41,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -78,6 +80,7 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.user.UserId
 import kotlin.time.Duration.Companion.ZERO
+import kotlin.time.Duration.Companion.seconds
 
 // TODO: a definite candidate for a refactor and cleanup
 @Suppress("ComplexMethod")
@@ -109,13 +112,21 @@ fun MessageItem(
 
         val backgroundColorModifier = if (message.sendingFailed || message.receivingFailed) {
             Modifier.background(colorsScheme().messageErrorBackgroundColor)
-        } else if (selfDeletionTimerState is SelfDeletionTimer.SelfDeletionTimerState.Expirable && selfDeletionTimerState.timeLeft != ZERO){
-            val color by animateColorAsState(
-                colorsScheme().primaryVariant.copy(selfDeletionTimerState.alphaBackgroundColor()),
-                tween()
-            )
+        } else if (selfDeletionTimerState is SelfDeletionTimer.SelfDeletionTimerState.Expirable) {
+            // in case the message is marked as deleted and is expirable, it means that the message
+            // is belonging to the sender and we are waiting for the receiver timer to expire to permanently delete it
+            // we also do not want any background color
+            if (message.isDeleted) {
+                Modifier
+            } else {
+                val color by animateColorAsState(
+                    colorsScheme().primaryVariant.copy(selfDeletionTimerState.alphaBackgroundColor()),
+                    tween()
+                )
 
-            Modifier.background(color)
+                Modifier.background(color)
+            }
+
         } else {
             Modifier
         }
@@ -172,52 +183,52 @@ fun MessageItem(
                         MessageExpireLabel(messageContent, selfDeletionTimerState.timeLeftFormatted())
                     }
 //                    if (!isDeleted) {
-                        if (!decryptionFailed) {
-                            val currentOnAssetClicked = remember {
-                                Clickable(enabled = true, onClick = {
-                                    onAssetMessageClicked(header.messageId)
-                                }, onLongClick = {
-                                    onLongClicked(message)
-                                })
-                            }
+                    if (!decryptionFailed) {
+                        val currentOnAssetClicked = remember {
+                            Clickable(enabled = true, onClick = {
+                                onAssetMessageClicked(header.messageId)
+                            }, onLongClick = {
+                                onLongClicked(message)
+                            })
+                        }
 
-                            val currentOnImageClick = remember {
-                                Clickable(enabled = true, onClick = {
-                                    onImageMessageClicked(
-                                        message,
-                                        source == MessageSource.Self
-                                    )
-                                }, onLongClick = {
-                                    onLongClicked(message)
-                                })
-                            }
-                            val onLongClick = remember { { onLongClicked(message) } }
-                            if (selfDeletionTimerState is SelfDeletionTimer.SelfDeletionTimerState.Expirable && selfDeletionTimerState.timeLeft == ZERO) {
-                                Text("Text")
-                            } else {
-                                MessageContent(
-                                    message = message,
-                                    messageContent = messageContent,
-                                    audioMessagesState = audioMessagesState,
-                                    onAudioClick = onAudioClick,
-                                    onChangeAudioPosition = onChangeAudioPosition,
-                                    onAssetClick = currentOnAssetClicked,
-                                    onImageClick = currentOnImageClick,
-                                    onLongClick = onLongClick,
-                                    onOpenProfile = onOpenProfile
+                        val currentOnImageClick = remember {
+                            Clickable(enabled = true, onClick = {
+                                onImageMessageClicked(
+                                    message,
+                                    source == MessageSource.Self
                                 )
-                            }
-                            MessageFooter(
-                                messageFooter,
-                                onReactionClicked
-                            )
+                            }, onLongClick = {
+                                onLongClicked(message)
+                            })
+                        }
+                        val onLongClick = remember { { onLongClicked(message) } }
+                        if (selfDeletionTimerState is SelfDeletionTimer.SelfDeletionTimerState.Expirable) {
+                            Text("Text")
                         } else {
-                            MessageDecryptionFailure(
-                                messageHeader = header,
-                                decryptionStatus = header.messageStatus as MessageStatus.DecryptionFailure,
-                                onResetSessionClicked = onResetSessionClicked
+                            MessageContent(
+                                message = message,
+                                messageContent = messageContent,
+                                audioMessagesState = audioMessagesState,
+                                onAudioClick = onAudioClick,
+                                onChangeAudioPosition = onChangeAudioPosition,
+                                onAssetClick = currentOnAssetClicked,
+                                onImageClick = currentOnImageClick,
+                                onLongClick = onLongClick,
+                                onOpenProfile = onOpenProfile
                             )
                         }
+                        MessageFooter(
+                            messageFooter,
+                            onReactionClicked
+                        )
+                    } else {
+                        MessageDecryptionFailure(
+                            messageHeader = header,
+                            decryptionStatus = header.messageStatus as MessageStatus.DecryptionFailure,
+                            onResetSessionClicked = onResetSessionClicked
+                        )
+                    }
 //                    }
 
                     if (message.sendingFailed) {

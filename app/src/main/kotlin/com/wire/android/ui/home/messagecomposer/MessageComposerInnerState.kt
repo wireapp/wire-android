@@ -172,11 +172,12 @@ data class MessageComposerInnerState(
         }
     }
 
-    fun toEditMessage(messageId: String, originalText: String) {
+    fun toEditMessage(messageId: String, originalText: String, originalMentions: List<MessageMention>) {
         messageComposeInputState = MessageComposeInputState.Active(
             messageText = TextFieldValue(text = originalText, selection = TextRange(originalText.length)),
             type = MessageComposeInputType.EditMessage(messageId, originalText)
         )
+        mentions = originalMentions.map { it.toUiMention(originalText) }
         quotedMessageData = null
         inputFocusRequester.requestFocus()
     }
@@ -363,6 +364,13 @@ data class UiMention(
 ) {
     fun intoMessageMention() = MessageMention(start, length, userId, false) // TODO Gonzo check if it's ok
 }
+
+fun MessageMention.toUiMention(originalText: String) = UiMention(
+    start = this.start,
+    length = this.length,
+    userId = this.userId,
+    handler = originalText.substring(start, start + length)
+)
 
 class AttachmentInnerState(val context: Context) {
     var attachmentState by mutableStateOf<AttachmentState>(AttachmentState.NotPicked)

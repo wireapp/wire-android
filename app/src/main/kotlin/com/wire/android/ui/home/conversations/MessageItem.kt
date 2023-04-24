@@ -77,6 +77,7 @@ import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.user.UserId
+import kotlin.time.Duration.Companion.ZERO
 
 // TODO: a definite candidate for a refactor and cleanup
 @Suppress("ComplexMethod")
@@ -108,7 +109,7 @@ fun MessageItem(
 
         val backgroundColorModifier = if (message.sendingFailed || message.receivingFailed) {
             Modifier.background(colorsScheme().messageErrorBackgroundColor)
-        } else if (selfDeletionTimerState is SelfDeletionTimer.SelfDeletionTimerState.Expirable) {
+        } else if (selfDeletionTimerState is SelfDeletionTimer.SelfDeletionTimerState.Expirable && selfDeletionTimerState.timeLeft != ZERO){
             val color by animateColorAsState(
                 colorsScheme().primaryVariant.copy(selfDeletionTimerState.alphaBackgroundColor()),
                 tween()
@@ -170,7 +171,7 @@ fun MessageItem(
                     if (selfDeletionTimerState is SelfDeletionTimer.SelfDeletionTimerState.Expirable) {
                         MessageExpireLabel(messageContent, selfDeletionTimerState.timeLeftFormatted())
                     }
-                    if (!isDeleted) {
+//                    if (!isDeleted) {
                         if (!decryptionFailed) {
                             val currentOnAssetClicked = remember {
                                 Clickable(enabled = true, onClick = {
@@ -191,17 +192,21 @@ fun MessageItem(
                                 })
                             }
                             val onLongClick = remember { { onLongClicked(message) } }
-                            MessageContent(
-                                message = message,
-                                messageContent = messageContent,
-                                audioMessagesState = audioMessagesState,
-                                onAudioClick = onAudioClick,
-                                onChangeAudioPosition = onChangeAudioPosition,
-                                onAssetClick = currentOnAssetClicked,
-                                onImageClick = currentOnImageClick,
-                                onLongClick = onLongClick,
-                                onOpenProfile = onOpenProfile
-                            )
+                            if (selfDeletionTimerState is SelfDeletionTimer.SelfDeletionTimerState.Expirable && selfDeletionTimerState.timeLeft == ZERO) {
+                                Text("Text")
+                            } else {
+                                MessageContent(
+                                    message = message,
+                                    messageContent = messageContent,
+                                    audioMessagesState = audioMessagesState,
+                                    onAudioClick = onAudioClick,
+                                    onChangeAudioPosition = onChangeAudioPosition,
+                                    onAssetClick = currentOnAssetClicked,
+                                    onImageClick = currentOnImageClick,
+                                    onLongClick = onLongClick,
+                                    onOpenProfile = onOpenProfile
+                                )
+                            }
                             MessageFooter(
                                 messageFooter,
                                 onReactionClicked
@@ -213,7 +218,7 @@ fun MessageItem(
                                 onResetSessionClicked = onResetSessionClicked
                             )
                         }
-                    }
+//                    }
 
                     if (message.sendingFailed) {
                         MessageSendFailureWarning(header.messageStatus as MessageStatus.MessageSendFailureStatus)
@@ -443,6 +448,7 @@ private fun MessageContent(
                 onAudioMessageLongClick = onLongClick
             )
         }
+
         UIMessageContent.Deleted -> {}
         is UIMessageContent.SystemMessage.MemberAdded -> {}
         is UIMessageContent.SystemMessage.MemberJoined -> {}

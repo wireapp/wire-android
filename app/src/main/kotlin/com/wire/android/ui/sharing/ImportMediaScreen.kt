@@ -87,6 +87,9 @@ fun ImportMediaContent(
         )
         FeatureFlagState.SharingRestrictedState.RESTRICTED_IN_TEAM -> ImportMediaRestrictedContent(state)
         FeatureFlagState.SharingRestrictedState.NONE -> ImportMediaRegularContent()
+        null -> {
+            // state is not calculated yet, need to wait to avoid crash while requesting currentUser where it's absent
+        }
     }
 
     BackHandler { unauthorizedViewModel.navigateBack() }

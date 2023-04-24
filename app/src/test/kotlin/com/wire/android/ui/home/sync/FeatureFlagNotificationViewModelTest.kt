@@ -47,15 +47,13 @@ class FeatureFlagNotificationViewModelTest {
     }
 
     @Test
-    fun givenNoLoggedInUsers_thenSharingRestricted() = runTest(mainThreadSurrogate) {
+    fun givenNoCurrentUser_thenSharingRestricted() = runTest(mainThreadSurrogate) {
         val (_, viewModel) = Arrangement()
             .withCurrentSessions(CurrentSessionResult.Failure.SessionNotFound)
             .arrange()
-        println("testing by boris: NO_USER start")
         viewModel.initialSync()
         advanceUntilIdle()
 
-        println("testing by boris: NO_USER asserting")
         assertEquals(
             expected = FeatureFlagState.SharingRestrictedState.NO_USER,
             actual = viewModel.featureFlagState.fileSharingRestrictedState

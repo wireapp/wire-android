@@ -78,7 +78,16 @@ class MigrationViewModel @Inject constructor(
     fun accountLogin(userHandle: String) {
         viewModelScope.launch {
             migrationManager.dismissMigrationFailureNotification()
-            navigateToLogin(userHandle)
+            when (getCurrentSession()) {
+                is CurrentSessionResult.Failure.Generic,
+                CurrentSessionResult.Failure.SessionNotFound -> navigateToLogin(userHandle)
+                is CurrentSessionResult.Success -> navigationManager.navigate(
+                    NavigationCommand(
+                        NavigationItem.Home.getRouteWithArgs(),
+                        BackStackMode.CLEAR_WHOLE
+                    )
+                )
+            }
         }
     }
 
@@ -112,13 +121,25 @@ class MigrationViewModel @Inject constructor(
             is MigrationData.Result.Success -> navigateAfterMigration()
             is MigrationData.Progress -> state = MigrationState.InProgress(data.type)
             is MigrationData.Result.Failure -> state = when (data) {
-                is MigrationData.Result.Failure.Account.Any -> MigrationState.Failed.Account.Any
-                is MigrationData.Result.Failure.Account.Specific -> MigrationState.Failed.Account.Specific(data.userName, data.userHandle)
-                is MigrationData.Result.Failure.Messages -> MigrationState.Failed.Messages(data.errorCode)
+                is MigrationData.Result.Failure.Account.Any -> {
+                    data.migrationReport?.let { error(it) }
+                    MigrationState.Failed.Account.Any
+                }
+                is MigrationData.Result.Failure.Account.Specific -> {
+                    data.migrationReport?.let { error(it) }
+                    MigrationState.Failed.Account.Specific(data.userName, data.userHandle)
+                }
+                is MigrationData.Result.Failure.Messages -> {
+                    data.migrationReport?.let { error(it) }
+                    MigrationState.Failed.Messages(data.errorCode)
+                }
                 is MigrationData.Result.Failure.NoNetwork -> MigrationState.Failed.NoNetwork
                 // for now we treat such an unknown error as one that requires re-logging in,
                 // we do not show a special screen with any error code to users to not to discourage them
-                is MigrationData.Result.Failure.Unknown -> MigrationState.Failed.Account.Any
+                is MigrationData.Result.Failure.Unknown -> {
+                    data.migrationReport?.let { error(it) }
+                    MigrationState.Failed.Account.Any
+                }
             }
         }
     }
@@ -134,7 +155,8 @@ class MigrationViewModel @Inject constructor(
     }
 
     private suspend fun navigateToLogin(userHandle: String) {
-        navigationManager.navigate(NavigationCommand(NavigationItem.Login.getRouteWithArgs(listOf(userHandle)))
+        navigationManager.navigate(
+            NavigationCommand(NavigationItem.Login.getRouteWithArgs(listOf(userHandle)), BackStackMode.CLEAR_WHOLE)
         )
     }
 }

@@ -2,6 +2,7 @@ package com.wire.android.migration.userDatabase
 
 import android.content.Context
 import com.wire.android.datastore.GlobalDataStore
+import com.wire.android.di.CurrentAppVersion
 import com.wire.android.migration.failure.UserMigrationStatus
 import com.wire.android.migration.util.ScalaDBNameProvider
 import com.wire.android.util.dispatchers.DispatcherProvider
@@ -16,6 +17,7 @@ import javax.inject.Inject
 class ShouldTriggerMigrationForUserUserCase @Inject constructor(
     @ApplicationContext private val applicationContext: Context,
     private val globalDataStore: GlobalDataStore,
+    @CurrentAppVersion private val currentAppVersion: Int,
     private val dispatcherProvider: DispatcherProvider
 ) {
     suspend operator fun invoke(userId: UserId) = withContext(dispatcherProvider.io()) {
@@ -23,13 +25,27 @@ class ShouldTriggerMigrationForUserUserCase @Inject constructor(
             .first().let { migrationStatus ->
                 when (migrationStatus) {
                     // if the user has already been migrated, we don't need to do it again
-                    UserMigrationStatus.Completed,
+                    UserMigrationStatus.Successfully,
                     UserMigrationStatus.NoNeed -> return@let false
 
                     // if the user has not been migrated yet, we check if the database exists
                     // also check when null since it can mean the migration is done on 4.0.1
                     UserMigrationStatus.NotStarted,
                     null -> checkForScalaDB(userId)
+
+                    UserMigrationStatus.Completed,
+                    UserMigrationStatus.CompletedWithErrors -> {
+                        // if the user has been migrated but with errors, we check if the database exists
+                        // and if the app version is the same as the one that was used to migrate the user
+                        // if the app version is different, we need to migrate the user again
+                        val appVersion = globalDataStore.getUserMigrationAppVersion(userId.value)
+                        val isSameAppVersion = appVersion == currentAppVersion
+                        return@let if (isSameAppVersion) {
+                            false
+                        } else {
+                            checkForScalaDB(userId)
+                        }
+                    }
                 }
             }
     }

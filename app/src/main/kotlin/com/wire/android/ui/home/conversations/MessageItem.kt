@@ -42,6 +42,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -176,13 +177,10 @@ fun MessageItem(
                     MessageHeader(header, showAuthor)
                     if (selfDeletionTimerState is SelfDeletionTimer.SelfDeletionTimerState.Expirable) {
                         MessageExpireLabel(messageContent, selfDeletionTimerState.timeLeftFormatted())
-                    }
-                    val isSelfDeletingMessageWaitingForReceiver =
-                        selfDeletionTimerState is SelfDeletionTimer.SelfDeletionTimerState.Expirable
-                                && message.isDeleted
 
-                    if (isSelfDeletingMessageWaitingForReceiver) {
-                        Text("Waiting on receiver")
+                        if (isDeleted) {
+                            Text("After one participant has seen your message and the timer has expired on their side, this note disappears.")
+                        }
                     }
                     if (!isDeleted) {
                         if (!decryptionFailed) {
@@ -272,6 +270,21 @@ fun MessageExpireLabel(messageContent: UIMessageContent?, timeLeft: String) {
                     timeLeft
                 )
                 else stringResource(R.string.self_deleting_message_label, timeLeft)
+            )
+        }
+
+        is UIMessageContent.Deleted -> {
+            val context = LocalContext.current
+
+            StatusBox(
+                statusText = stringResource(
+                    R.string.self_deleting_message_time_left,
+                    context.resources.getQuantityString(
+                        R.plurals.seconds_left,
+                        0,
+                        0
+                    )
+                )
             )
         }
 

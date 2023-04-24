@@ -28,7 +28,9 @@ import kotlin.time.Duration.Companion.seconds
 fun rememberSelfDeletionTimer(expirationStatus: ExpirationStatus): SelfDeletionTimer.SelfDeletionTimerState {
     val context = LocalContext.current
 
-    return remember { SelfDeletionTimer(context).fromExpirationStatus(expirationStatus) }
+    return remember {
+        Log.d("TEST","remembering once again")
+        SelfDeletionTimer(context).fromExpirationStatus(expirationStatus) }
 }
 
 class SelfDeletionTimer(private val context: Context) {

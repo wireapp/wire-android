@@ -190,7 +190,7 @@
     <string name="migration_messages_message">Ihre Nachrichten werden migriert...</string>
     <string name="migration_title_step">Step %1$d/%2$d</string>
     <string name="migration_title_almost_done">Fast fertig!</string>
-    <string name="migration_title_updated">Setting up Wire</string>
+    <string name="migration_title_updated">Einrichten von Wire</string>
     <string name="migration_login_required">Bitte melden Sie sich an, um Ihre Nachrichten aus der alten Version von Wire zu migrieren.</string>
     <string name="migration_login_required_specific_account">Bitte melden Sie sich in Ihrem Benutzerkonto %s an, um Ihre Nachrichten aus der alten Version von Wire zu migrieren.</string>
     <string name="migration_login_required_specific_account_name">“%1$s (@%2$s)“</string>
@@ -435,7 +435,7 @@
     <string name="user_profile_role_change_error">Beim Ändern der Rolle ist ein Fehler aufgetreten. Bitte überprüfen Sie Ihre Internetverbindung und versuchen Sie es erneut</string>
     <string name="user_profile_unblock_user">Benutzer freigeben</string>
     <string name="user_profile_group_remove_button">Aus Gruppe entfernen</string>
-    <string name="user_profile_logging_out_progress">Logging out...</string>
+    <string name="user_profile_logging_out_progress">Abmelden...</string>
     <!-- Remove Conversation Member Dialog -->
     <string name="dialog_remove_conversation_member_title">Aus Gruppe entfernen?</string>
     <string name="dialog_remove_conversation_member_description">%1$s (@%2$s) wird in dieser Unterhaltung keine Nachrichten schicken oder empfangen können.</string>
@@ -811,7 +811,7 @@
     <string name="label_device_id">Geräte-ID: %1$s</string>
     <string name="label_code_commit_id">Commit-Hash: %1$s</string>
     <string name="label_client_id">Client-ID: %1$s</string>
-    <string name="label_client_added_time">ADDED</string>
+    <string name="label_client_added_time">HINZUGEFÜGT</string>
     <string name="label_client_device_id">GERÄTE-ID</string>
     <string name="label_key_packages_count">Anzahl der Schlüssel-Pakete: %1$s</string>
     <string name="label_mls_client_id">MLS-Client-ID: %1$s</string>
@@ -822,7 +822,7 @@
     <string name="label_reactions">Reaktionen</string>
     <string name="label_more_comming_soon">(weitere kommen in Kürze)</string>
     <string name="label_wait_until_synchronised">Bitte warten Sie, bis die App synchronisiert ist</string>
-    <string name="label_wait_until_connected">Please wait until the Internet connection is restored</string>
+    <string name="label_wait_until_connected">Bitte warten Sie, bis die Internetverbindung wiederhergestellt ist</string>
     <string name="label_textfield_optional_password">Passwort (optional)</string>
     <!--create and restore backup-->
     <string name="backup_dialog_create_backup_set_password_title">Passwort festlegen</string>
@@ -881,16 +881,16 @@
     <string name="label_system_message_session_reset">%1$s konnte einige Ihrer Nachrichten nicht entschlüsseln, hat das Problem aber gelöst. Dies betraf alle Unterhaltungen, die Sie gemeinsam nutzen.</string>
     <string name="label_manual_migration_title">Migrate from version 3.82.38</string>
     <string name="start_manual_migration">Start migration form version 3.82.38 manually</string>
-    <string name="file_sharing_restricted_learn_more_link">https://support.wire.com/hc/en-us/articles/4406404582673-How-can-I-restrict-file-sharing-for-my-team-</string>
-    <string name="file_sharing_restricted_description_by_team">You can not share this file because this feature is disabled for this account.</string>
-    <string name="file_sharing_restricted_description_no_users">You need to be logged in to Wire before you can share anything</string>
+    <string name="file_sharing_restricted_learn_more_link">https://support.wire.com/hc/de/articles/4406404582673-Wie-kann-ich-die-Dateifreigabe-für-mein-Team-einschränken-</string>
+    <string name="file_sharing_restricted_description_by_team">Sie können diese Datei nicht teilen, da diese Funktion deaktiviert ist.</string>
+    <string name="file_sharing_restricted_description_no_users">Sie müssen sich bei Wire anmelden, bevor Sie etwas freigeben können</string>
     <string name="file_sharing_restricted_button_text_no_users">Wire öffnen</string>
     <!-- join conversation dialog -->
     <string name="join_conversation_dialog_title">Unterhaltung beitreten?</string>
     <string name="join_conversation_dialog_message">Sie wurden zu dieser Unterhaltung eingeladen.\n\n%1$s</string>
     <string name="join_conversation_dialog_button">Beitreten</string>
     <string name="join_conversation_via_deeplink_error_title">Sie konnten der Unterhaltung nicht beitreten</string>
-    <string name="join_conversation_via_deeplink_error_link_expired">The link to this group conversation expired or the conversation was set to private.</string>
+    <string name="join_conversation_via_deeplink_error_link_expired">Der Link zu dieser Gruppenunterhaltung ist abgelaufen oder nicht mehr gültig.</string>
     <string name="join_conversation_via_deeplink_error_max_number_of_participent">Die maximale Teilnehmeranzahl in dieser Unterhaltung wurde erreicht.</string>
     <string name="join_conversation_via_deeplink_error_general">Aufgrund eines Fehlers konnten Sie nicht zur Gruppenunterhaltung hinzugefügt werden.</string>
     <!-- guest room link -->

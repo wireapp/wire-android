@@ -184,8 +184,8 @@ fun MessageItem(
 
                         if (isDeleted) {
                             Text(
-                                "After one participant has seen your message and the timer has expired on their side, this note disappears.",
-                                style = typography().informative01
+                                stringResource(R.string.label_information_waiting_for_recipent_timer_to_expire),
+                                style = typography().body05
                             )
                         }
                     } else {

@@ -34,7 +34,6 @@ import com.wire.android.migration.feature.MigrateUsersUseCase
 import com.wire.android.migration.userDatabase.ScalaConversationData
 import com.wire.android.util.newServerConfig
 import com.wire.kalium.logic.CoreFailure
-import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.functional.Either
@@ -134,9 +133,6 @@ class MigrationManagerTest {
         lateinit var globalDataStore: GlobalDataStore
 
         @MockK
-        lateinit var coreLogic: CoreLogic
-
-        @MockK
         lateinit var migrateServerConfigUseCase: MigrateServerConfigUseCase
 
         @MockK
@@ -170,7 +166,6 @@ class MigrationManagerTest {
         private val manager: MigrationManager by lazy {
             MigrationManager(
                 applicationContext,
-                coreLogic,
                 globalDataStore,
                 migrateServerConfigUseCase,
                 migrateActiveAccounts,

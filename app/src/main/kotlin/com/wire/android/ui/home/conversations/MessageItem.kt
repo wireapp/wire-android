@@ -174,13 +174,18 @@ fun MessageItem(
                 Spacer(Modifier.padding(start = dimensions().spacing16x - fullAvatarOuterPadding))
                 Column {
                     Spacer(modifier = Modifier.height(fullAvatarOuterPadding))
-                    MessageHeader(header, showAuthor)
+                    if (showAuthor) {
+                        MessageAuthorRow(messageHeader = message.header)
+                    }
+
                     if (selfDeletionTimerState is SelfDeletionTimer.SelfDeletionTimerState.Expirable) {
                         MessageExpireLabel(messageContent, selfDeletionTimerState.timeLeftFormatted())
 
                         if (isDeleted) {
                             Text("After one participant has seen your message and the timer has expired on their side, this note disappears.")
                         }
+                    } else {
+                        MessageStatusLabel(messageStatus = message.header.messageStatus)
                     }
                     if (!isDeleted) {
                         if (!decryptionFailed) {
@@ -293,36 +298,28 @@ fun MessageExpireLabel(messageContent: UIMessageContent?, timeLeft: String) {
 }
 
 @Composable
-private fun MessageHeader(
-    messageHeader: MessageHeader,
-    showAuthor: Boolean
-) {
+private fun MessageAuthorRow(messageHeader: MessageHeader) {
     with(messageHeader) {
-        Column {
-            if (showAuthor) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Row(
-                        modifier = Modifier.weight(weight = 1f, fill = true),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Username(username.asString(), modifier = Modifier.weight(weight = 1f, fill = false))
-                        UserBadge(
-                            membership = membership,
-                            connectionState = connectionState,
-                            startPadding = dimensions().spacing6x,
-                            isDeleted = isSenderDeleted
-                        )
-                        if (isLegalHold) {
-                            LegalHoldIndicator(modifier = Modifier.padding(start = dimensions().spacing6x))
-                        }
-                    }
-                    MessageTimeLabel(
-                        time = messageHeader.messageTime.formattedDate,
-                        modifier = Modifier.padding(start = dimensions().spacing6x)
-                    )
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Row(
+                modifier = Modifier.weight(weight = 1f, fill = true),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Username(username.asString(), modifier = Modifier.weight(weight = 1f, fill = false))
+                UserBadge(
+                    membership = membership,
+                    connectionState = connectionState,
+                    startPadding = dimensions().spacing6x,
+                    isDeleted = isSenderDeleted
+                )
+                if (isLegalHold) {
+                    LegalHoldIndicator(modifier = Modifier.padding(start = dimensions().spacing6x))
                 }
             }
-            MessageStatusLabel(messageStatus = messageStatus)
+            MessageTimeLabel(
+                time = messageHeader.messageTime.formattedDate,
+                modifier = Modifier.padding(start = dimensions().spacing6x)
+            )
         }
     }
 }

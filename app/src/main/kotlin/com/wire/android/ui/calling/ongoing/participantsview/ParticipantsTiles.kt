@@ -52,6 +52,7 @@ fun VerticalCallingPager(
     participants: List<UICallParticipant>,
     isSelfUserMuted: Boolean,
     isSelfUserCameraOn: Boolean,
+    topAppBarAndBottomSheetHeight: Int,
     onSelfVideoPreviewCreated: (view: View) -> Unit,
     onSelfClearVideoPreview: () -> Unit,
     requestVideoStreams: (participants: List<UICallParticipant>) -> Unit
@@ -87,6 +88,7 @@ fun VerticalCallingPager(
                             pageIndex = pageIndex,
                             isSelfUserMuted = isSelfUserMuted,
                             isSelfUserCameraOn = isSelfUserCameraOn,
+                            topAppBarAndBottomSheetHeight = topAppBarAndBottomSheetHeight,
                             onSelfVideoPreviewCreated = onSelfVideoPreviewCreated,
                             onSelfClearVideoPreview = onSelfClearVideoPreview
                         )
@@ -96,6 +98,7 @@ fun VerticalCallingPager(
                             pageIndex = pageIndex,
                             isSelfUserMuted = isSelfUserMuted,
                             isSelfUserCameraOn = isSelfUserCameraOn,
+                            topAppBarAndBottomSheetHeight = topAppBarAndBottomSheetHeight,
                             onSelfVideoPreviewCreated = onSelfVideoPreviewCreated,
                             onSelfClearVideoPreview = onSelfClearVideoPreview
                         )
@@ -140,7 +143,7 @@ private fun pagesCount(size: Int): Int {
 }
 
 private const val MAX_TILES_PER_PAGE = 8
-private const val MAX_ITEMS_FOR_ONE_ON_ONE_VIEW = 3
+private const val MAX_ITEMS_FOR_ONE_ON_ONE_VIEW = 2
 
 @Composable
 @Preview
@@ -149,6 +152,7 @@ fun PreviewVerticalCallingPager() {
         participants = listOf(),
         isSelfUserMuted = false,
         isSelfUserCameraOn = false,
+        topAppBarAndBottomSheetHeight = 200,
         onSelfVideoPreviewCreated = {},
         onSelfClearVideoPreview = {},
         requestVideoStreams = {}

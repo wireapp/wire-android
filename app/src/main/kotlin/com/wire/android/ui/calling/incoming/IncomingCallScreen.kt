@@ -183,7 +183,8 @@ private fun IncomingCallContent(
 
             CallerDetails(
                 conversationName = callState.conversationName,
-                isCameraOn = callState.isCameraOn ?: false,
+                isCameraOn = callState.isCameraOn,
+                isCbrEnabled = callState.isCbrEnabled,
                 avatarAssetId = callState.avatarAssetId,
                 conversationType = callState.conversationType,
                 membership = callState.membership,

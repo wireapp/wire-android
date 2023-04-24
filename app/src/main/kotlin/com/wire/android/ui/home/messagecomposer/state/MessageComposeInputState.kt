@@ -52,14 +52,18 @@ sealed class MessageComposeInputState {
         messageText: TextFieldValue = this.messageText,
         inputFocused: Boolean = this.inputFocused,
         selfDeletingStatus: SelfDeletingMessagesStatus
-    ) = when (this) {
-        is Active -> {
-            val inputType = if (selfDeletingStatus.globalSelfDeletionDuration.toSelfDeletionDuration() != SelfDeletionDuration.None) {
-                MessageComposeInputType.SelfDeletingMessage(selfDeletingStatus.globalSelfDeletionDuration.toSelfDeletionDuration())
-            } else this.type
-            Active(messageText, inputFocused, inputType, this.size)
+    ): MessageComposeInputState {
+        val selfDeletionDuration = selfDeletingStatus.globalSelfDeletionDuration.toSelfDeletionDuration()
+        val isSelfDeletingType = selfDeletingStatus.isFeatureEnabled && selfDeletionDuration != SelfDeletionDuration.None
+
+        return when {
+            isSelfDeletingType -> {
+                val selfDeletingType = MessageComposeInputType.SelfDeletingMessage(selfDeletionDuration)
+                Active(messageText, inputFocused, selfDeletingType)
+            }
+
+            else -> Active(messageText, inputFocused)
         }
-        is Inactive -> Active(messageText, inputFocused)
     }
 
     fun toInactive(messageText: TextFieldValue = this.messageText, inputFocused: Boolean = this.inputFocused) =
@@ -117,12 +121,20 @@ sealed class MessageComposeInputType {
 }
 
 @Suppress("MagicNumber")
-enum class SelfDeletionDuration(val value: Duration?, val label: UIText) {
-    None(null, UIText.StringResource(R.string.label_off)),
-    TenSeconds(10.seconds, UIText.PluralResource(R.plurals.seconds_label, 10, 10)),
-    FiveMinutes(5.minutes, UIText.PluralResource(R.plurals.minutes_label, 5, 5)),
-    OneHour(1.hours, UIText.PluralResource(R.plurals.hours_label, 1, 1)),
-    OneDay(1.days, UIText.PluralResource(R.plurals.days_label, 1, 1)),
-    OneWeek(7.days, UIText.PluralResource(R.plurals.days_label, 7, 7)),
-    FourWeeks(28.days, UIText.PluralResource(R.plurals.weeks_label, 4, 4))
+enum class SelfDeletionDuration(val value: Duration?, val longLabel: UIText, val shortLabel: UIText) {
+    None(null, UIText.StringResource(R.string.label_off), UIText.StringResource(R.string.label_off)),
+    TenSeconds(
+        10.seconds,
+        UIText.PluralResource(R.plurals.seconds_long_label, 10, 10),
+        UIText.StringResource(R.string.ten_seconds_short_label)
+    ),
+    FiveMinutes(
+        5.minutes,
+        UIText.PluralResource(R.plurals.minutes_long_label, 5, 5),
+        UIText.StringResource(R.string.five_minutes_short_label)
+    ),
+    OneHour(1.hours, UIText.PluralResource(R.plurals.hours_long_label, 1, 1), UIText.StringResource(R.string.one_hour_short_label)),
+    OneDay(1.days, UIText.PluralResource(R.plurals.days_long_label, 1, 1), UIText.StringResource(R.string.one_day_short_label)),
+    OneWeek(7.days, UIText.PluralResource(R.plurals.days_long_label, 7, 7), UIText.StringResource(R.string.one_week_short_label)),
+    FourWeeks(28.days, UIText.PluralResource(R.plurals.weeks_long_label, 4, 4), UIText.StringResource(R.string.four_weeks_short_label)),
 }

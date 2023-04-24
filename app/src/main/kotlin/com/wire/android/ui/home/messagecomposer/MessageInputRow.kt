@@ -144,19 +144,18 @@ fun MessageComposerInputRow(
                     )
 
                 is MessageComposeInputType.SelfDeletingMessage -> {
-                    val isSelfDeletingDurationEnforced =
-                        currentSelfDeletingMessagesStatus.isEnabled && (currentSelfDeletingMessagesStatus.globalSelfDeletionDuration ?: 0) > 0
+                    val isSelfDeletionEnforced = currentSelfDeletingMessagesStatus.isFeatureEnabled && currentSelfDeletingMessagesStatus.isEnforced
 
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
-                            text = type.selfDeletionDuration.label.asString(),
+                            text = type.selfDeletionDuration.shortLabel.asString(),
                             style = typography().label02,
-                            color = if (isSelfDeletingDurationEnforced) colorsScheme().secondaryButtonDisabled else colorsScheme().primary,
+                            color = if (isSelfDeletionEnforced) colorsScheme().onSecondaryButtonDisabled else colorsScheme().primary,
                             modifier = Modifier
                                 .padding(horizontal = dimensions().spacing16x)
-                                .clickable {
+                                .clickable(enabled = !isSelfDeletionEnforced) {
                                     // Don't show the duration picker if the self-deleting messages duration is enforced from TM Settings
-                                    if (isSelfDeletingDurationEnforced) onChangeSelfDeletionTimeClicked()
+                                    onChangeSelfDeletionTimeClicked()
                                 }
                         )
                         ScheduleMessageButton(
@@ -232,7 +231,7 @@ private fun MessageComposerInput(
 @Composable
 fun PreviewMessageComposerInputRowInactive() {
     val state = MessageComposeInputState.Inactive()
-    val selfDeletingStatus = SelfDeletingMessagesStatus(isEnabled = true, hasFlagChanged = null, globalSelfDeletionDuration = null)
+    val selfDeletingStatus = SelfDeletingMessagesStatus(isFeatureEnabled = true, hasFeatureChanged = null, globalSelfDeletionDuration = null)
     MessageComposerInputRow(
         updateTransition(targetState = state, label = ""),
         messageComposeInputState = state,
@@ -244,7 +243,7 @@ fun PreviewMessageComposerInputRowInactive() {
 @Composable
 fun PreviewMessageComposerInputRowActiveCollapsed() {
     val state = MessageComposeInputState.Active(size = MessageComposeInputSize.COLLAPSED)
-    val selfDeletingStatus = SelfDeletingMessagesStatus(isEnabled = true, hasFlagChanged = null, globalSelfDeletionDuration = null)
+    val selfDeletingStatus = SelfDeletingMessagesStatus(isFeatureEnabled = true, hasFeatureChanged = null, globalSelfDeletionDuration = null)
     MessageComposerInputRow(
         updateTransition(targetState = state, label = ""),
         state,
@@ -259,7 +258,7 @@ fun PreviewMessageComposerInputRowActiveCollapsedSendEnabled() {
         messageText = TextFieldValue("text"),
         size = MessageComposeInputSize.COLLAPSED
     )
-    val selfDeletingStatus = SelfDeletingMessagesStatus(isEnabled = true, hasFlagChanged = null, globalSelfDeletionDuration = null)
+    val selfDeletingStatus = SelfDeletingMessagesStatus(isFeatureEnabled = true, hasFeatureChanged = null, globalSelfDeletionDuration = null)
     MessageComposerInputRow(
         updateTransition(targetState = state, label = ""),
         messageComposeInputState = state,
@@ -274,7 +273,7 @@ fun PreviewMessageComposerInputRowActiveCollapsedSelfDeletingSendEnforced() {
         messageText = TextFieldValue("text"),
         size = MessageComposeInputSize.COLLAPSED
     )
-    val selfDeletingStatus = SelfDeletingMessagesStatus(isEnabled = true, hasFlagChanged = null, globalSelfDeletionDuration = 3600)
+    val selfDeletingStatus = SelfDeletingMessagesStatus(isFeatureEnabled = true, hasFeatureChanged = null, globalSelfDeletionDuration = 3600)
     MessageComposerInputRow(
         updateTransition(targetState = state, label = ""),
         messageComposeInputState = state,
@@ -286,7 +285,7 @@ fun PreviewMessageComposerInputRowActiveCollapsedSelfDeletingSendEnforced() {
 @Composable
 fun PreviewMessageComposerInputRowActiveExpanded() {
     val state = MessageComposeInputState.Active(size = MessageComposeInputSize.EXPANDED)
-    val selfDeletingStatus = SelfDeletingMessagesStatus(isEnabled = true, hasFlagChanged = null, globalSelfDeletionDuration = null)
+    val selfDeletingStatus = SelfDeletingMessagesStatus(isFeatureEnabled = true, hasFeatureChanged = null, globalSelfDeletionDuration = null)
     MessageComposerInputRow(
         updateTransition(targetState = state, label = ""),
         messageComposeInputState = state,
@@ -301,7 +300,7 @@ fun PreviewMessageComposerInputRowActiveEdit() {
         messageText = TextFieldValue("original text"),
         type = MessageComposeInputType.EditMessage("", "original text")
     )
-    val selfDeletingStatus = SelfDeletingMessagesStatus(isEnabled = true, hasFlagChanged = null, globalSelfDeletionDuration = null)
+    val selfDeletingStatus = SelfDeletingMessagesStatus(isFeatureEnabled = true, hasFeatureChanged = null, globalSelfDeletionDuration = null)
     MessageComposerInputRow(
         updateTransition(targetState = state, label = ""),
         messageComposeInputState = state,
@@ -316,7 +315,7 @@ fun PreviewMessageComposerInputRowActiveEditSaveEnabled() {
         messageText = TextFieldValue("current text"),
         type = MessageComposeInputType.EditMessage("", "original text")
     )
-    val selfDeletingStatus = SelfDeletingMessagesStatus(isEnabled = true, hasFlagChanged = null, globalSelfDeletionDuration = null)
+    val selfDeletingStatus = SelfDeletingMessagesStatus(isFeatureEnabled = true, hasFeatureChanged = null, globalSelfDeletionDuration = null)
     MessageComposerInputRow(
         updateTransition(targetState = state, label = ""),
         messageComposeInputState = state,

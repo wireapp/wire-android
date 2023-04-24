@@ -32,7 +32,7 @@ data class MessageComposerViewState(
     val interactionAvailability: InteractionAvailability = InteractionAvailability.ENABLED,
     val mentionsToSelect: List<Contact> = listOf(),
     val assetTooLargeDialogState: AssetTooLargeDialogState = AssetTooLargeDialogState.Hidden,
-    val selfDeletingMessagesStatus: SelfDeletingMessagesStatus = SelfDeletingMessagesStatus(false, null, null)
+    val selfDeletingMessagesStatus: SelfDeletingMessagesStatus = SelfDeletingMessagesStatus(true, null, null)
 )
 
 sealed class AssetTooLargeDialogState {

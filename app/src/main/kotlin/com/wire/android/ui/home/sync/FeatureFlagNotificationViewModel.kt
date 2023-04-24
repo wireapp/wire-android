@@ -124,10 +124,10 @@ class FeatureFlagNotificationViewModel @Inject constructor(
     private suspend fun observeSelfDeletedMessagesFlag() {
         viewModelScope.launch {
             observeSelfDeletingMessages().collect { selfDeletingMessagesStatus ->
-                selfDeletingMessagesStatus.isEnabled.let {
+                selfDeletingMessagesStatus.isFeatureEnabled.let {
                     featureFlagState = featureFlagState.copy(areSelfDeletedMessagesEnabled = it)
                 }
-                selfDeletingMessagesStatus.hasFlagChanged?.let {
+                selfDeletingMessagesStatus.hasFeatureChanged?.let {
                     featureFlagState = featureFlagState.copy(
                         shouldShowSelfDeletingMessagesDialog = it,
                         enforcedTimeoutDuration = selfDeletingMessagesStatus.globalSelfDeletionDuration.toSelfDeletionDuration()

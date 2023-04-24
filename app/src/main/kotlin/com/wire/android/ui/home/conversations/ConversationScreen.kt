@@ -84,7 +84,6 @@ import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMapper.to
 import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMenuItems
 import com.wire.android.ui.home.messagecomposer.MessageComposer
 import com.wire.android.ui.home.messagecomposer.state.MessageComposerState
-import com.wire.android.ui.home.messagecomposer.state.SelfDeletionDuration
 import com.wire.android.ui.home.messagecomposer.state.rememberMessageComposerState
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.util.permission.CallingAudioRequestFlow
@@ -96,7 +95,6 @@ import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.call.usecase.ConferenceCallingResult
 import com.wire.kalium.logic.feature.conversation.InteractionAvailability
-import com.wire.kalium.logic.util.isGreaterThan
 import com.wire.kalium.util.DateTimeUtil
 import kotlinx.collections.immutable.ImmutableMap
 import kotlinx.coroutines.CoroutineScope
@@ -339,7 +337,7 @@ private fun ConversationScreen(
     LaunchedEffect(currentSelfDeletingMessagesStatus) {
         messageComposerInnerState.updateSelfDeletionTime(
             newSelfDeletionDuration = currentSelfDeletingMessagesStatus.globalSelfDeletionDuration.toSelfDeletionDuration(),
-            isEnforced = currentSelfDeletingMessagesStatus.globalSelfDeletionDuration.isGreaterThan(0)
+            isEnforced = currentSelfDeletingMessagesStatus.isEnforced
         )
     }
 
@@ -379,8 +377,8 @@ private fun ConversationScreen(
                 currentlySelected = messageComposerInnerState.getSelfDeletionTime(),
                 onSelfDeletionDurationChanged = {
                     val newSelfDeletingMessagesStatus = SelfDeletingMessagesStatus(
-                        isEnabled = it != SelfDeletionDuration.None,
-                        hasFlagChanged = false,
+                        isFeatureEnabled = true, // Otherwise the menu wouldn't be visible
+                        hasFeatureChanged = false,
                         globalSelfDeletionDuration = it.toSeconds(),
                         isEnforced = false
                     )

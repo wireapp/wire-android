@@ -901,14 +901,14 @@
     <string name="guest_link_button_revoke_link">Revoke Link</string>
     <string name="audio_not_available">Audio not available</string>
     <string name="audio_not_available_explanation">Something went wrong while downloading this audio file. Please ask the sender to upload it again</string>
-    <string name="guest_link_generate_error_message">There was an error trying to create Guest Link. Please try again</string>
-    <string name="guest_link_revoke_error_message">There was an error trying to revoke Guest Link. Please try again</string>
+    <string name="guest_link_generate_error_message">Link couldn\'t be created. Please try again</string>
+    <string name="guest_link_revoke_error_message">Link couldn\'t be revoked. Please try again</string>
     <string name="revoke_guest__room_link_dialog_text">New guests will not be able to join with this link. Current guests will still have access.</string>
     <string name="revoke_guest__room_link_dialog_title">Revoke guest link?</string>
-    <string name="guest__room_link_copied">Guest link was copied to clipboard</string>
+    <string name="guest__room_link_copied">Link copied to clipboard</string>
     <string name="title_device_key_fingerprint">DEVICE KEY FINGERPRINT</string>
     <string name="label_client_key_fingerprint_not_available">NOT AVAILABLE</string>
-    <string name="guest_room_link_copied">Guest link was copied to clipboard</string>
+    <string name="guest_room_link_copied">Link copied to clipboard</string>
     <string name="guest_room_link_enabled">Generating guest links is now enabled for all group admins</string>
     <string name="guest_room_link_disabled">Generating guest links is now disabled for all group admins</string>
     <!-- New Device dialog -->

@@ -67,6 +67,7 @@ class ChangeHandleViewModel @Inject constructor(
                 is ValidateUserHandleResult.Invalid.TooLong,
                 is ValidateUserHandleResult.Invalid.TooShort -> state.copy(
                     error = HandleUpdateErrorState.TextFieldError.UsernameInvalidError,
+                    animatedHandleError = true,
                     isSaveButtonEnabled = false
                 )
 

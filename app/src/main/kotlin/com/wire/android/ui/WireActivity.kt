@@ -70,7 +70,6 @@ import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 import com.wire.android.util.formatMediumDateTime
 import com.wire.android.util.ui.updateScreenSettings
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.feature.rootDetection.CheckSystemIntegrityUseCase
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -218,7 +217,7 @@ class WireActivity : AppCompatActivity() {
     }
 
     @Composable
-    private fun JailBreakDetectedDialog(){
+    private fun JailBreakDetectedDialog() {
         WireDialog(
             title = stringResource(R.string.label_jailbreak_detected_dialog_title),
             text = stringResource(R.string.label_jailbreak_detected_dialog_text),

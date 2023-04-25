@@ -27,6 +27,7 @@ import com.wire.android.appLogger
 
 @ExperimentalMaterial3Api
 internal fun NavController.navigateToItem(command: NavigationCommand) {
+    appLogger.d("[$TAG] -> command: ${command.destination}")
     currentBackStackEntry?.savedStateHandle?.remove<Map<String, Any>>(EXTRA_BACK_NAVIGATION_ARGUMENTS)
     navigate(command.destination) {
         when (command.backStackMode) {
@@ -97,3 +98,6 @@ fun String.getPrimaryRoute(): String {
     }
     return primaryRoute
 }
+
+private const val TAG = "NavigationUtils"
+

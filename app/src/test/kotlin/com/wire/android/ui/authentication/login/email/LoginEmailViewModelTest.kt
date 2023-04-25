@@ -353,6 +353,18 @@ class LoginEmailViewModelTest {
     }
 
     @Test
+    fun `given login fails with missing 2fa, when logging in, then should state 2FA input is needed`() = runTest {
+        val email = "some.email@example.org"
+        coEvery { loginUseCase(any(), any(), any(), any(), any()) } returns AuthenticationResult.Failure.InvalidCredentials.Missing2FA
+        coEvery { requestSecondFactorCodeUseCase(any(), any()) } returns RequestSecondFactorVerificationCodeUseCase.Result.Success
+        loginViewModel.onUserIdentifierChange(TextFieldValue(email))
+
+        loginViewModel.login()
+
+        loginViewModel.secondFactorVerificationCodeState.isCodeInputNecessary shouldBe true
+    }
+
+    @Test
     fun `given login fails with invalid 2fa, when logging in, then should mark the current code as invalid`() = runTest {
         coEvery { loginUseCase(any(), any(), any(), any(), any()) } returns AuthenticationResult.Failure.InvalidCredentials.Invalid2FA
         loginViewModel.onUserIdentifierChange(TextFieldValue("some.email@example.org"))
@@ -383,6 +395,28 @@ class LoginEmailViewModelTest {
         coVerify(exactly = 1) { loginUseCase(email, any(), any(), any(), code) }
         coVerify(exactly = 1) { getOrRegisterClientUseCase(any()) }
         coVerify(exactly = 1) { navigationManager.navigate(any()) }
+    }
+
+    @Test
+    fun `given 2fa login succeeds and registration fails, when code is filled, then should no longer require input`() = runTest {
+        val email = "some.email@example.org"
+        val code = "123456"
+
+        coEvery { loginUseCase(any(), any(), any(), any(), any()) } returns AuthenticationResult.Success(
+            AUTH_TOKEN,
+            SSO_ID,
+            SERVER_CONFIG.id,
+            null
+        )
+        coEvery { addAuthenticatedUserUseCase(any(), any(), any(), any()) } returns AddAuthenticatedUserUseCase.Result.Success(userId)
+        coEvery { navigationManager.navigate(any()) } returns Unit
+        coEvery { getOrRegisterClientUseCase(any()) } returns RegisterClientResult.Failure.TooManyClients
+        every { userDataStoreProvider.getOrCreate(any()).initialSyncCompleted } returns flowOf(true)
+
+        loginViewModel.onUserIdentifierChange(TextFieldValue(email))
+        loginViewModel.onCodeChange(CodeFieldValue(TextFieldValue(code), true))
+
+        loginViewModel.secondFactorVerificationCodeState.isCodeInputNecessary shouldBe false
     }
 
     @Test

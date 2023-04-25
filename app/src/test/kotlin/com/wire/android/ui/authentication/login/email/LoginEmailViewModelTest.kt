@@ -386,6 +386,27 @@ class LoginEmailViewModelTest {
     }
 
     @Test
+    fun `given 2fa login succeeds and registration fails, when code is filled, then should no longer require input`() = runTest {
+        val email = "some.email@example.org"
+        val code = "123456"
+        coEvery { loginUseCase(any(), any(), any(), any(), any()) } returns AuthenticationResult.Success(
+            AUTH_TOKEN,
+            SSO_ID,
+            SERVER_CONFIG.id,
+            null
+        )
+        coEvery { addAuthenticatedUserUseCase(any(), any(), any(), any()) } returns AddAuthenticatedUserUseCase.Result.Success(userId)
+        coEvery { navigationManager.navigate(any()) } returns Unit
+        coEvery { getOrRegisterClientUseCase(any()) } returns RegisterClientResult.Failure.TooManyClients
+        every { userDataStoreProvider.getOrCreate(any()).initialSyncCompleted } returns flowOf(true)
+
+        loginViewModel.onUserIdentifierChange(TextFieldValue(email))
+        loginViewModel.onCodeChange(CodeFieldValue(TextFieldValue(code), true))
+
+        loginViewModel.secondFactorVerificationCodeState.isCodeInputNecessary shouldBe false
+    }
+
+    @Test
     fun `given 2fa is needed, when code is filled, then should register client without explicit 2fa code`() = runTest {
         val email = "some.email@example.org"
         val code = "123456"

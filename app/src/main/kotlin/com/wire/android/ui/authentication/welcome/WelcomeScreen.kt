@@ -68,6 +68,7 @@ import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.PagerState
 import com.google.accompanist.pager.rememberPagerState
 import com.wire.android.R
+import com.wire.android.config.LocalCustomUiConfigurationProvider
 import com.wire.android.ui.authentication.ServerTitle
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.button.WireSecondaryButton
@@ -148,16 +149,17 @@ private fun WelcomeContent(viewModel: WelcomeViewModel) {
                         CustomTabsHelper.launchUrl(context, viewModel.state.teams)
                     })
                 FeatureDisabledWithProxyDialogContent(dialogState = createPersonalAccountDisabledWithProxyDialogState)
-
-                CreateEnterpriseAccountButton {
-                    if (viewModel.isProxyEnabled()) {
-                        enterpriseDisabledWithProxyDialogState.show(
-                            enterpriseDisabledWithProxyDialogState.savedState ?: FeatureDisabledWithProxyDialogState(
-                                R.string.create_team_not_supported_dialog_description, viewModel.state.teams
+                if (LocalCustomUiConfigurationProvider.current.isAccountCreationAllowed) {
+                    CreateEnterpriseAccountButton {
+                        if (viewModel.isProxyEnabled()) {
+                            enterpriseDisabledWithProxyDialogState.show(
+                                enterpriseDisabledWithProxyDialogState.savedState ?: FeatureDisabledWithProxyDialogState(
+                                    R.string.create_team_not_supported_dialog_description, viewModel.state.teams
+                                )
                             )
-                        )
-                    } else {
-                        viewModel.goToCreateEnterpriseAccount()
+                        } else {
+                            viewModel.goToCreateEnterpriseAccount()
+                        }
                     }
                 }
             }

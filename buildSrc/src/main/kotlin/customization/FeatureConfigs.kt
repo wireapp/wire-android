@@ -54,12 +54,7 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
     WIPE_ON_COOKIE_INVALID("wipe_on_cookie_invalid", ConfigType.BOOLEAN),
     WIPE_ON_ROOTED_DEVICE("wipe_on_rooted_device", ConfigType.BOOLEAN),
     WIPE_ON_DEVICE_REMOVAL("wipe_on_device_removal", ConfigType.BOOLEAN),
-    SUPPORT_EMAIL("supportEmail", ConfigType.STRING),
-    TEAMS_URL("teamsUrl", ConfigType.STRING),
-    WEB_LINK_PREVIEW("web_link_preview", ConfigType.BOOLEAN),
-    GUEST_ROOM_LINK("guest_room_link", ConfigType.BOOLEAN),
     SELF_DELETING_MESSAGES("self_deleting_messages", ConfigType.BOOLEAN),
-    LAUNCHER_ICON("launcherIcon", ConfigType.STRING),
 
     /**
      * 3rd party services API Keys and IDs

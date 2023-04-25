@@ -36,6 +36,7 @@ data class CallState(
     val isMuted: Boolean? = null,
     val isCameraOn: Boolean = false,
     val isSpeakerOn: Boolean = false,
+    val isCbrEnabled: Boolean = false,
     val isCameraFlipped: Boolean = false,
     val conversationType: ConversationType = ConversationType.OneOnOne,
     val membership: Membership = Membership.None,

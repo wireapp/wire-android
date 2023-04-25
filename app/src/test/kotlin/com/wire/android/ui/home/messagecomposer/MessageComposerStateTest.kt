@@ -28,8 +28,8 @@ import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.ui.home.conversationslist.model.Membership
-import com.wire.android.ui.home.messagecomposer.model.UiMention
 import com.wire.android.ui.home.messagecomposer.state.MessageComposerState
+import com.wire.android.ui.home.messagecomposer.model.UiMention
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserId
@@ -204,7 +204,7 @@ class MessageComposerStateTest {
         val originalMessageText = "original message text"
         val state = createState(context, focusManager, focusRequester)
         state.setMessageTextValue(textFieldValueWithSelection("start text"))
-        state.toEditMessage("message-id", originalMessageText)
+        state.toEditMessage("message-id", originalMessageText, listOf())
         assert(state.messageComposeInputState.isEditMessage)
         assertEquals(originalMessageText, state.messageComposeInputState.messageText.text)
     }

@@ -100,4 +100,3 @@ fun String.getPrimaryRoute(): String {
 }
 
 private const val TAG = "NavigationUtils"
-

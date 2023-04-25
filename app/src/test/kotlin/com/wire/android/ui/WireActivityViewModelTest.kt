@@ -374,6 +374,7 @@ class WireActivityViewModelTest {
     fun `given appUpdate is required, then should show the appUpdate dialog`() {
         val (_, viewModel) = Arrangement()
             .withNoCurrentSession()
+            .withDeviceNotRooted()
             .withAppUpdateRequired(true)
             .arrange()
 
@@ -563,6 +564,7 @@ class WireActivityViewModelTest {
     fun `given newClient is registered for the current user, then should show the NewClient dialog`() {
         val (_, viewModel) = Arrangement()
             .withNoCurrentSession()
+            .withDeviceNotRooted()
             .withNewClient(NewClientResult.InCurrentAccount(TestClient.CLIENT))
             .arrange()
 
@@ -576,6 +578,7 @@ class WireActivityViewModelTest {
     fun `given newClient is registered for the other user, then should show the NewClient dialog`() {
         val (_, viewModel) = Arrangement()
             .withNoCurrentSession()
+            .withDeviceNotRooted()
             .withNewClient(NewClientResult.InOtherAccount(TestClient.CLIENT, USER_ID, "name", "handle"))
             .arrange()
 
@@ -744,6 +747,10 @@ class WireActivityViewModelTest {
 
         fun withNewClient(result: NewClientResult) = apply {
             coEvery { observeNewClients() } returns flowOf(result)
+        }
+
+        fun withDeviceNotRooted() = apply {
+            coEvery { checkSystemIntegrity() } returns CheckSystemIntegrityUseCase.Result.Success
         }
 
         fun arrange() = this to viewModel

@@ -92,6 +92,7 @@ private fun SuccessfulAudioMessage(
     onSliderPositionChange: (Float) -> Unit,
     onAudioMessageLongClick: (() -> Unit)? = null
 ) {
+    val stiffness = 5f
     val audioDuration by remember(currentPositionInMs) {
         mutableStateOf(
             AudioDuration(totalTimeInMs, currentPositionInMs)
@@ -116,7 +117,7 @@ private fun SuccessfulAudioMessage(
         )
         val progress by animateFloatAsState(
             targetValue = audioDuration.currentPositionInMs.toFloat(),
-            animationSpec = spring(stiffness = 5f)
+            animationSpec = spring(stiffness = stiffness)
         )
 
         Slider(

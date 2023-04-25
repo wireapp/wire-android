@@ -39,11 +39,13 @@ import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.services.ServicesManager
+import com.wire.android.ui.authentication.devices.model.displayName
 import com.wire.android.ui.common.dialogs.CustomBEDeeplinkDialogState
 import com.wire.android.ui.joinConversation.JoinConversationViaCodeState
 import com.wire.android.util.deeplink.DeepLinkProcessor
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.android.util.dispatchers.DispatcherProvider
+import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.id.ConversationId
@@ -164,7 +166,7 @@ class WireActivityViewModel @Inject constructor(
                             globalAppState = globalAppState.copy(
                                 newClientDialog = NewClientData.CurrentUser(
                                     it.newClient.registrationTime?.toIsoDateTimeString() ?: "",
-                                    it.newClient.name
+                                    it.newClient.displayName()
                                 )
                             )
                         }
@@ -173,7 +175,7 @@ class WireActivityViewModel @Inject constructor(
                             globalAppState = globalAppState.copy(
                                 newClientDialog = NewClientData.OtherUser(
                                     it.newClient.registrationTime?.toIsoDateTimeString() ?: "",
-                                    it.newClient.name,
+                                    it.newClient.displayName(),
                                     it.userId,
                                     it.userName,
                                     it.userHandle
@@ -484,11 +486,11 @@ sealed class CurrentSessionErrorState {
     object SessionExpired : CurrentSessionErrorState()
 }
 
-sealed class NewClientData(open val date: String, open val deviceInfo: String) {
-    data class CurrentUser(override val date: String, override val deviceInfo: String) : NewClientData(date, deviceInfo)
+sealed class NewClientData(open val date: String, open val deviceInfo: UIText) {
+    data class CurrentUser(override val date: String, override val deviceInfo: UIText) : NewClientData(date, deviceInfo)
     data class OtherUser(
         override val date: String,
-        override val deviceInfo: String,
+        override val deviceInfo: UIText,
         val userId: UserId,
         val userName: String?,
         val userHandle: String?

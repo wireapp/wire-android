@@ -1040,4 +1040,9 @@ class UseCaseModule {
         @CurrentAccount currentAccount: UserId
     ): UpdateClientVerificationStatusUseCase =
         coreLogic.getSessionScope(currentAccount).client.updateClientVerificationStatus
+
+    @ViewModelScoped
+    @Provides
+    fun provideCheckSystemIntegrityUseCase(@KaliumCoreLogic coreLogic: CoreLogic) =
+        coreLogic.getGlobalScope().checkSystemIntegrity
 }

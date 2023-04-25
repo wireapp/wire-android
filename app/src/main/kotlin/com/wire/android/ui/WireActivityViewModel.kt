@@ -59,6 +59,7 @@ import com.wire.kalium.logic.feature.client.NewClientResult
 import com.wire.kalium.logic.feature.client.ObserveNewClientsUseCase
 import com.wire.kalium.logic.feature.conversation.CheckConversationInviteCodeUseCase
 import com.wire.kalium.logic.feature.conversation.JoinConversationViaCodeUseCase
+import com.wire.kalium.logic.feature.rootDetection.CheckSystemIntegrityUseCase
 import com.wire.kalium.logic.feature.server.GetServerConfigResult
 import com.wire.kalium.logic.feature.server.GetServerConfigUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
@@ -103,6 +104,7 @@ class WireActivityViewModel @Inject constructor(
     private val observeSyncStateUseCaseProviderFactory: ObserveSyncStateUseCaseProvider.Factory,
     private val observeIfAppUpdateRequired: ObserveIfAppUpdateRequiredUseCase,
     private val observeNewClients: ObserveNewClientsUseCase,
+    private val checkSystemIntegrity: CheckSystemIntegrityUseCase
 ) : ViewModel() {
 
     var globalAppState: GlobalAppState by mutableStateOf(GlobalAppState())
@@ -133,6 +135,15 @@ class WireActivityViewModel @Inject constructor(
 
     init {
         viewModelScope.launch(dispatchers.io()) {
+            when (checkSystemIntegrity()) {
+                CheckSystemIntegrityUseCase.Result.Failed -> globalAppState = globalAppState.copy(jailBreakDetected = true)
+                CheckSystemIntegrityUseCase.Result.Success -> initialize()
+            }
+        }
+    }
+
+    private fun initialize() {
+        viewModelScope.launch(dispatchers.io()) {
             observeUserId
                 .flatMapLatest {
                     it?.let { observeSyncStateUseCaseProviderFactory.create(it).observeSyncState() } ?: flowOf(null)
@@ -159,6 +170,7 @@ class WireActivityViewModel @Inject constructor(
                                 )
                             )
                         }
+
                         is NewClientResult.InOtherAccount -> {
                             globalAppState = globalAppState.copy(
                                 newClientDialog = NewClientData.OtherUser(
@@ -170,6 +182,7 @@ class WireActivityViewModel @Inject constructor(
                                 )
                             )
                         }
+
                         else -> {}
                     }
                 }
@@ -491,4 +504,5 @@ data class GlobalAppState(
     val updateAppDialog: Boolean = false,
     val conversationJoinedDialog: JoinConversationViaCodeState? = null,
     val newClientDialog: NewClientData? = null,
+    val jailBreakDetected: Boolean = false
 )

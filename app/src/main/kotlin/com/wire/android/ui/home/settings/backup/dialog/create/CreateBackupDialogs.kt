@@ -95,7 +95,6 @@ fun CreateBackupDialog(
     onDismissDialog: () -> Unit
 ) {
     val progress by animateFloatAsState(targetValue = createBackupProgress)
-
     WireDialog(
         title = stringResource(R.string.backup_dialog_create_backup_title),
         onDismiss = onDismissDialog,

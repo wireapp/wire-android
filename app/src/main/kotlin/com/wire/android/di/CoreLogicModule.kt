@@ -1038,7 +1038,6 @@ class UseCaseModule {
     @ViewModelScoped
     @Provides
     fun provideCheckSystemIntegrityUseCase(
-        @KaliumCoreLogic coreLogic: CoreLogic
-    ) = coreLogic.getGlobalScope().checkSystemIntegrity
-
+        @KaliumCoreLogic coreLogic: CoreLogic ) =
+        coreLogic.getGlobalScope().checkSystemIntegrity
 }

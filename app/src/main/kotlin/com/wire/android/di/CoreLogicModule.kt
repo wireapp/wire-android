@@ -113,10 +113,9 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.scopes.ServiceScoped
 import dagger.hilt.android.scopes.ViewModelScoped
 import dagger.hilt.components.SingletonComponent
+import kotlinx.coroutines.runBlocking
 import javax.inject.Qualifier
 import javax.inject.Singleton
-import kotlinx.coroutines.runBlocking
-import okhttp3.internal.userAgent
 
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
@@ -141,7 +140,11 @@ class CoreLogicModule {
     @KaliumCoreLogic
     @Singleton
     @Provides
-    fun provideCoreLogic(@ApplicationContext context: Context, kaliumConfigs: KaliumConfigs, userAgentProvider: UserAgentProvider): CoreLogic {
+    fun provideCoreLogic(
+        @ApplicationContext context: Context,
+        kaliumConfigs: KaliumConfigs,
+        userAgentProvider: UserAgentProvider
+    ): CoreLogic {
         val rootPath = context.getDir("accounts", Context.MODE_PRIVATE).path
 
         return CoreLogic(

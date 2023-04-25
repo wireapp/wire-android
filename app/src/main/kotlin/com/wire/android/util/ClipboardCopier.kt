@@ -26,3 +26,4 @@ import androidx.compose.ui.text.AnnotatedString
 fun ClipboardManager.copyLinkToClipboard(link: String) {
     setText(AnnotatedString(link))
 }
+

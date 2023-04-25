@@ -6,6 +6,7 @@ import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.notification.NotificationChannelsManager
 import com.wire.android.notification.WireNotificationManager
+import com.wire.android.util.UserAgentProvider
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.id.ConversationId
@@ -24,6 +25,7 @@ import javax.inject.Singleton
 class GlobalObserversManager @Inject constructor(
     dispatcherProvider: DispatcherProvider,
     @KaliumCoreLogic private val coreLogic: CoreLogic,
+    private val userAgentProvider: UserAgentProvider,
     private val notificationManager: WireNotificationManager,
     private val navigationManager: NavigationManager,
     private val notificationChannelsManager: NotificationChannelsManager
@@ -35,7 +37,7 @@ class GlobalObserversManager @Inject constructor(
     }
 
     private suspend fun observeAccountsToCreateChannels() {
-        coreLogic.getGlobalScope().observeValidAccounts()
+        coreLogic.getGlobalScope().observeValidAccounts(userAgent = userAgentProvider.defaultUserAgent)
             .distinctUntilChanged()
             .collect { list ->
                 notificationChannelsManager.createUserNotificationChannels(list.map { it.first })

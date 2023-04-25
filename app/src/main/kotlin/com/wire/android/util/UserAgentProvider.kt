@@ -13,9 +13,8 @@ import javax.inject.Singleton
         "Wire/${BuildConfig.VERSION_NAME}/${context.getGitBuildId()}/${getAndroidVersion()}/${systemAgent() ?: "unknownSystemAgent"}"
 
     private fun getAndroidVersion(): String {
-        val release: String = Build.VERSION.RELEASE
         val sdkVersion: Int = Build.VERSION.SDK_INT
-        return "android:$release/sdk:$sdkVersion"
+        return "sdk:$sdkVersion"
     }
 
     @Suppress("TooGenericExceptionCaught")

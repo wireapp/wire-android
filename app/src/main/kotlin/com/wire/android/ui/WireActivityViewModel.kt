@@ -499,5 +499,5 @@ data class GlobalAppState(
     val updateAppDialog: Boolean = false,
     val conversationJoinedDialog: JoinConversationViaCodeState? = null,
     val newClientDialog: NewClientData? = null,
-    val jailBreakDetected: Boolean
+    val jailBreakDetected: Boolean = false
 )

@@ -59,6 +59,7 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun WireDialog(
     title: String,
@@ -99,6 +100,7 @@ fun WireDialog(
     )
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun WireDialog(
     title: String,

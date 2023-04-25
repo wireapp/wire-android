@@ -122,7 +122,7 @@ private fun MainContent(
     VerticalSpace.x32()
     VerificationCode(
         codeLength = codeState.codeLength,
-        currentCode = codeState.code.text,
+        currentCode = codeState.codeInput.text,
         isLoading = isLoading,
         isCurrentCodeInvalid = codeState.isCurrentCodeInvalid,
         onCodeChange = onCodeChange,
@@ -135,7 +135,7 @@ private fun MainContent(
 internal fun LoginEmailVerificationCodeScreenPreview() = LoginEmailVerificationCodeContent(
     VerificationCodeState(
         codeLength = 6,
-        code = CodeFieldValue(TextFieldValue("12"), false),
+        codeInput = CodeFieldValue(TextFieldValue("12"), false),
         isCurrentCodeInvalid = false,
         emailUsed = ""
     ),

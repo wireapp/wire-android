@@ -35,6 +35,7 @@ import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.services.ServicesManager
+import com.wire.android.ui.authentication.devices.model.displayName
 import com.wire.android.ui.common.dialogs.CustomBEDeeplinkDialogState
 import com.wire.android.ui.joinConversation.JoinConversationViaCodeState
 import com.wire.android.util.deeplink.DeepLinkProcessor
@@ -52,6 +53,7 @@ import com.wire.kalium.logic.feature.client.NewClientResult
 import com.wire.kalium.logic.feature.client.ObserveNewClientsUseCase
 import com.wire.kalium.logic.feature.conversation.CheckConversationInviteCodeUseCase
 import com.wire.kalium.logic.feature.conversation.JoinConversationViaCodeUseCase
+import com.wire.kalium.logic.feature.rootDetection.CheckSystemIntegrityUseCase
 import com.wire.kalium.logic.feature.server.GetServerConfigResult
 import com.wire.kalium.logic.feature.server.GetServerConfigUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
@@ -372,6 +374,7 @@ class WireActivityViewModelTest {
     fun `given appUpdate is required, then should show the appUpdate dialog`() {
         val (_, viewModel) = Arrangement()
             .withNoCurrentSession()
+            .withDeviceNotRooted()
             .withAppUpdateRequired(true)
             .arrange()
 
@@ -561,11 +564,12 @@ class WireActivityViewModelTest {
     fun `given newClient is registered for the current user, then should show the NewClient dialog`() {
         val (_, viewModel) = Arrangement()
             .withNoCurrentSession()
+            .withDeviceNotRooted()
             .withNewClient(NewClientResult.InCurrentAccount(TestClient.CLIENT))
             .arrange()
 
         assertEquals(
-            NewClientData.CurrentUser(TestClient.CLIENT.registrationTime?.toIsoDateTimeString()!!, TestClient.CLIENT.name),
+            NewClientData.CurrentUser(TestClient.CLIENT.registrationTime?.toIsoDateTimeString()!!, TestClient.CLIENT.displayName()),
             viewModel.globalAppState.newClientDialog
         )
     }
@@ -574,13 +578,14 @@ class WireActivityViewModelTest {
     fun `given newClient is registered for the other user, then should show the NewClient dialog`() {
         val (_, viewModel) = Arrangement()
             .withNoCurrentSession()
+            .withDeviceNotRooted()
             .withNewClient(NewClientResult.InOtherAccount(TestClient.CLIENT, USER_ID, "name", "handle"))
             .arrange()
 
         assertEquals(
             NewClientData.OtherUser(
                 TestClient.CLIENT.registrationTime?.toIsoDateTimeString()!!,
-                TestClient.CLIENT.name,
+                TestClient.CLIENT.displayName(),
                 USER_ID,
                 "name",
                 "handle"
@@ -650,6 +655,9 @@ class WireActivityViewModelTest {
         @MockK
         lateinit var observeNewClients: ObserveNewClientsUseCase
 
+        @MockK
+        lateinit var checkSystemIntegrity: CheckSystemIntegrityUseCase
+
         private val viewModel by lazy {
             WireActivityViewModel(
                 coreLogic = coreLogic,
@@ -665,7 +673,8 @@ class WireActivityViewModelTest {
                 servicesManager = servicesManager,
                 observeSyncStateUseCaseProviderFactory = observeSyncStateUseCaseProviderFactory,
                 observeIfAppUpdateRequired = observeIfAppUpdateRequired,
-                observeNewClients = observeNewClients
+                observeNewClients = observeNewClients,
+                checkSystemIntegrity = checkSystemIntegrity
             )
         }
 
@@ -738,6 +747,10 @@ class WireActivityViewModelTest {
 
         fun withNewClient(result: NewClientResult) = apply {
             coEvery { observeNewClients() } returns flowOf(result)
+        }
+
+        fun withDeviceNotRooted() = apply {
+            coEvery { checkSystemIntegrity() } returns CheckSystemIntegrityUseCase.Result.Success
         }
 
         fun arrange() = this to viewModel

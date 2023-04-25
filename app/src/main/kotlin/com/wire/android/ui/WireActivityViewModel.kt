@@ -39,11 +39,13 @@ import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.services.ServicesManager
+import com.wire.android.ui.authentication.devices.model.displayName
 import com.wire.android.ui.common.dialogs.CustomBEDeeplinkDialogState
 import com.wire.android.ui.joinConversation.JoinConversationViaCodeState
 import com.wire.android.util.deeplink.DeepLinkProcessor
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.android.util.dispatchers.DispatcherProvider
+import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.id.ConversationId
@@ -57,6 +59,7 @@ import com.wire.kalium.logic.feature.client.NewClientResult
 import com.wire.kalium.logic.feature.client.ObserveNewClientsUseCase
 import com.wire.kalium.logic.feature.conversation.CheckConversationInviteCodeUseCase
 import com.wire.kalium.logic.feature.conversation.JoinConversationViaCodeUseCase
+import com.wire.kalium.logic.feature.rootDetection.CheckSystemIntegrityUseCase
 import com.wire.kalium.logic.feature.server.GetServerConfigResult
 import com.wire.kalium.logic.feature.server.GetServerConfigUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
@@ -101,6 +104,7 @@ class WireActivityViewModel @Inject constructor(
     private val observeSyncStateUseCaseProviderFactory: ObserveSyncStateUseCaseProvider.Factory,
     private val observeIfAppUpdateRequired: ObserveIfAppUpdateRequiredUseCase,
     private val observeNewClients: ObserveNewClientsUseCase,
+    private val checkSystemIntegrity: CheckSystemIntegrityUseCase
 ) : ViewModel() {
 
     var globalAppState: GlobalAppState by mutableStateOf(GlobalAppState())
@@ -131,6 +135,15 @@ class WireActivityViewModel @Inject constructor(
 
     init {
         viewModelScope.launch(dispatchers.io()) {
+            when (checkSystemIntegrity()) {
+                CheckSystemIntegrityUseCase.Result.Failed -> globalAppState = globalAppState.copy(jailBreakDetected = true)
+                CheckSystemIntegrityUseCase.Result.Success -> initialize()
+            }
+        }
+    }
+
+    private fun initialize() {
+        viewModelScope.launch(dispatchers.io()) {
             observeUserId
                 .flatMapLatest {
                     it?.let { observeSyncStateUseCaseProviderFactory.create(it).observeSyncState() } ?: flowOf(null)
@@ -153,21 +166,23 @@ class WireActivityViewModel @Inject constructor(
                             globalAppState = globalAppState.copy(
                                 newClientDialog = NewClientData.CurrentUser(
                                     it.newClient.registrationTime?.toIsoDateTimeString() ?: "",
-                                    it.newClient.name
+                                    it.newClient.displayName()
                                 )
                             )
                         }
+
                         is NewClientResult.InOtherAccount -> {
                             globalAppState = globalAppState.copy(
                                 newClientDialog = NewClientData.OtherUser(
                                     it.newClient.registrationTime?.toIsoDateTimeString() ?: "",
-                                    it.newClient.name,
+                                    it.newClient.displayName(),
                                     it.userId,
                                     it.userName,
                                     it.userHandle
                                 )
                             )
                         }
+
                         else -> {}
                     }
                 }
@@ -471,11 +486,11 @@ sealed class CurrentSessionErrorState {
     object SessionExpired : CurrentSessionErrorState()
 }
 
-sealed class NewClientData(open val date: String, open val deviceInfo: String) {
-    data class CurrentUser(override val date: String, override val deviceInfo: String) : NewClientData(date, deviceInfo)
+sealed class NewClientData(open val date: String, open val deviceInfo: UIText) {
+    data class CurrentUser(override val date: String, override val deviceInfo: UIText) : NewClientData(date, deviceInfo)
     data class OtherUser(
         override val date: String,
-        override val deviceInfo: String,
+        override val deviceInfo: UIText,
         val userId: UserId,
         val userName: String?,
         val userHandle: String?
@@ -489,4 +504,5 @@ data class GlobalAppState(
     val updateAppDialog: Boolean = false,
     val conversationJoinedDialog: JoinConversationViaCodeState? = null,
     val newClientDialog: NewClientData? = null,
+    val jailBreakDetected: Boolean = false
 )

@@ -21,6 +21,7 @@
 package com.wire.android.ui.common
 
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchColors
@@ -31,13 +32,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.wire.android.ui.theme.wireColorScheme
 
 @Composable
 fun WireSwitch(
     checked: Boolean,
     onCheckedChange: ((Boolean) -> Unit)?,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier
+        .scale(scaleX = 0.75f, scaleY = 0.75f)
+        .size(width = 36.dp, height = 24.dp),
     thumbContent: @Composable () -> Unit = { },
     enabled: Boolean = true,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },

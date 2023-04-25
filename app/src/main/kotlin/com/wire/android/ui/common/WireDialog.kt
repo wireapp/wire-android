@@ -65,7 +65,7 @@ fun WireDialog(
     title: String,
     text: String,
     onDismiss: () -> Unit,
-    optionButton1Properties: WireDialogButtonProperties,
+    optionButton1Properties: WireDialogButtonProperties? = null,
     optionButton2Properties: WireDialogButtonProperties? = null,
     dismissButtonProperties: WireDialogButtonProperties? = null,
     buttonsHorizontalAlignment: Boolean = true,
@@ -106,7 +106,7 @@ fun WireDialog(
     title: String,
     text: AnnotatedString? = null,
     onDismiss: () -> Unit,
-    optionButton1Properties: WireDialogButtonProperties,
+    optionButton1Properties: WireDialogButtonProperties? = null,
     optionButton2Properties: WireDialogButtonProperties? = null,
     dismissButtonProperties: WireDialogButtonProperties? = null,
     buttonsHorizontalAlignment: Boolean = true,
@@ -139,7 +139,7 @@ fun WireDialog(
 private fun WireDialogContent(
     title: String,
     text: AnnotatedString? = null,
-    optionButton1Properties: WireDialogButtonProperties,
+    optionButton1Properties: WireDialogButtonProperties? = null,
     optionButton2Properties: WireDialogButtonProperties? = null,
     dismissButtonProperties: WireDialogButtonProperties? = null,
     buttonsHorizontalAlignment: Boolean = true,
@@ -182,14 +182,14 @@ private fun WireDialogContent(
                     dismissButtonProperties.getButton(Modifier.weight(1f))
                     if (dismissButtonProperties != null)
                         Spacer(Modifier.width(MaterialTheme.wireDimensions.dialogButtonsSpacing))
-                    optionButton1Properties.getButton(Modifier.weight(1f))
+                    optionButton1Properties?.getButton(Modifier.weight(1f))
                     if (optionButton2Properties != null)
                         Spacer(Modifier.width(MaterialTheme.wireDimensions.dialogButtonsSpacing))
                     optionButton2Properties.getButton(Modifier.weight(1f))
                 }
             else
                 Column(Modifier.padding(top = MaterialTheme.wireDimensions.dialogButtonsSpacing)) {
-                    optionButton1Properties.getButton()
+                    optionButton1Properties?.getButton()
 
                     if (optionButton2Properties != null)
                         Spacer(Modifier.height(MaterialTheme.wireDimensions.dialogButtonsSpacing))
@@ -210,8 +210,10 @@ private fun WireDialogButtonProperties?.getButton(modifier: Modifier = Modifier)
             when (type) {
                 WireDialogButtonType.Primary ->
                     WirePrimaryButton(onClick = onClick, text = text, state = state, loading = loading, modifier = modifier)
+
                 WireDialogButtonType.Secondary ->
                     WireSecondaryButton(onClick = onClick, text = text, state = state, loading = loading, modifier = modifier)
+
                 WireDialogButtonType.Tertiary ->
                     WireTertiaryButton(onClick = onClick, text = text, state = state, loading = loading, modifier = modifier)
             }

@@ -363,6 +363,7 @@ class MessageComposerViewModel @Inject constructor(
 
     fun updateSelfDeletingMessages(newSelfDeletingStatus: SelfDeletingMessagesStatus) = viewModelScope.launch {
         persistNewSelfDeletingStatus(newSelfDeletingStatus)
+        messageComposerViewState = messageComposerViewState.copy(selfDeletingMessagesStatus = newSelfDeletingStatus)
     }
 
     fun navigateBack(previousBackStackPassedArgs: Map<String, Any> = mapOf()) {

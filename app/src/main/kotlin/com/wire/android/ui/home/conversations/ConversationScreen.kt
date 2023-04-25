@@ -320,7 +320,7 @@ private fun ConversationScreen(
     tempWritableVideoUri: Uri?
 ) {
     val conversationScreenState = rememberConversationScreenState()
-    val messageComposerInnerState = rememberMessageComposerState()
+    val messageComposerState = rememberMessageComposerState()
     val context = LocalContext.current
 
     LaunchedEffect(conversationMessagesViewModel.savedStateHandle) {
@@ -328,14 +328,14 @@ private fun ConversationScreen(
         conversationMessagesViewModel.checkPendingActions(
             onMessageReply = {
                 withSmoothScreenLoad {
-                    messageComposerInnerState.reply(it, currentSelfDeletingMessagesStatus)
+                    messageComposerState.reply(it, currentSelfDeletingMessagesStatus)
                 }
             }
         )
     }
 
     LaunchedEffect(currentSelfDeletingMessagesStatus) {
-        messageComposerInnerState.updateSelfDeletionTime(
+        messageComposerState.updateSelfDeletionTime(
             newSelfDeletionDuration = currentSelfDeletingMessagesStatus.globalSelfDeletionDuration.toSelfDeletionDuration(),
             isEnforced = currentSelfDeletingMessagesStatus.isEnforced
         )
@@ -357,9 +357,9 @@ private fun ConversationScreen(
                 onReactionClick = onReactionClick,
                 onDetailsClick = onMessageDetailsClick,
                 onReplyClick = {
-                    messageComposerInnerState.reply(it, currentSelfDeletingMessagesStatus)
+                    messageComposerState.reply(it, currentSelfDeletingMessagesStatus)
                 },
-                onEditClick = messageComposerInnerState::toEditMessage,
+                onEditClick = messageComposerState::toEditMessage,
                 onShareAsset = {
                     menuType.selectedMessage.header.messageId.let {
                         conversationMessagesViewModel.shareAsset(context, it)
@@ -374,7 +374,7 @@ private fun ConversationScreen(
         is ConversationScreenState.BottomSheetMenuType.SelfDeletion -> {
             SelfDeletionMenuItems(
                 hideEditMessageMenu = conversationScreenState::hideContextMenu,
-                currentlySelected = messageComposerInnerState.getSelfDeletionTime(),
+                currentlySelected = messageComposerState.getSelfDeletionTime(),
                 onSelfDeletionDurationChanged = {
                     val newSelfDeletingMessagesStatus = SelfDeletingMessagesStatus(
                         isFeatureEnabled = true, // Otherwise the menu wouldn't be visible
@@ -382,7 +382,6 @@ private fun ConversationScreen(
                         globalSelfDeletionDuration = it.toSeconds(),
                         isEnforced = false
                     )
-                    messageComposerInnerState.updateSelfDeletionTime(newSelfDeletionDuration = it, isEnforced = false)
                     onNewSelfDeletingMessagesStatus(newSelfDeletingMessagesStatus)
                 }
             )
@@ -429,7 +428,7 @@ private fun ConversationScreen(
                         isFileSharingEnabled = messageComposerViewState.isFileSharingEnabled,
                         lastUnreadMessageInstant = conversationMessagesViewState.firstUnreadInstant,
                         conversationState = messageComposerViewState,
-                        messageComposerState = messageComposerInnerState,
+                        messageComposerState = messageComposerState,
                         messages = conversationMessagesViewState.messages,
                         onSendMessage = onSendMessage,
                         onSendEditMessage = onSendEditMessage,

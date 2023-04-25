@@ -174,9 +174,6 @@ private fun MessageComposer(
     onShowSelfDeletionOption: () -> Unit,
     currentSelfDeletingMessagesStatus: SelfDeletingMessagesStatus
 ) {
-    val savedSelfDeletingStatus = remember {
-        mutableStateOf(currentSelfDeletingMessagesStatus)
-    }
     Surface(color = colorsScheme().messageComposerBackgroundColor) {
         val transition = updateTransition(
             targetState = messageComposerState.messageComposeInputState,
@@ -271,7 +268,7 @@ private fun MessageComposer(
                                 onInputFocusChanged = { isFocused ->
                                     messageComposerState.messageComposeInputFocusChange(isFocused)
                                     if (isFocused) {
-                                        messageComposerState.toActive(savedSelfDeletingStatus.value)
+                                        messageComposerState.toActive(currentSelfDeletingMessagesStatus)
                                         messageComposerState.hideAttachmentOptions()
                                     }
                                 },

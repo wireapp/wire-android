@@ -66,6 +66,7 @@ import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.extension.formatAsString
 import com.wire.android.util.formatMediumDateTime
+import com.wire.android.util.ui.UIText
 
 @Composable
 fun DeviceItem(
@@ -174,7 +175,7 @@ private fun DeviceItemTexts(
         Text(
             style = MaterialTheme.wireTypography.body02,
             color = MaterialTheme.wireColorScheme.onBackground,
-            text = device.name,
+            text = device.name.asString(),
             modifier = Modifier
                 .wrapContentWidth()
                 .shimmerPlaceholder(visible = placeholder)
@@ -246,7 +247,7 @@ fun VerifyLabel(isVerified: Boolean, modifier: Modifier = Modifier) {
 fun PreviewDeviceItem() {
     Box(modifier = Modifier.fillMaxWidth()) {
         DeviceItem(
-            device = Device(name = "name"),
+            device = Device(name = UIText.DynamicString("name")),
             placeholder = false,
             shouldShowVerifyLabel = true,
             background = null,

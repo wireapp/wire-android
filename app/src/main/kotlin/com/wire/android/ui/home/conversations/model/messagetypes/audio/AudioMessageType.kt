@@ -1,5 +1,7 @@
 package com.wire.android.ui.home.conversations.model.messagetypes.audio
 
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -112,9 +114,13 @@ private fun SuccessfulAudioMessage(
             state = if (audioMediaPlayingState is AudioMediaPlayingState.Fetching) WireButtonState.Disabled else WireButtonState.Default,
             onButtonClicked = onPlayButtonClick
         )
+        val progress by animateFloatAsState(
+            targetValue = audioDuration.currentPositionInMs.toFloat(),
+            animationSpec = spring(stiffness = 5f)
+        )
 
         Slider(
-            value = audioDuration.currentPositionInMs.toFloat(),
+            value = progress,
             onValueChange = onSliderPositionChange,
             valueRange = 0f..if (totalTimeInMs is AudioState.TotalTimeInMs.Known) totalTimeInMs.value.toFloat() else 0f,
             colors = SliderDefaults.colors(

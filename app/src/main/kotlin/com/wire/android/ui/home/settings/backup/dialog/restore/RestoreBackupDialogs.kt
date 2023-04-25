@@ -21,6 +21,7 @@
 package com.wire.android.ui.home.settings.backup.dialog.restore
 
 import android.net.Uri
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -120,6 +121,8 @@ fun RestoreProgressDialog(
     onOpenConversation: () -> Unit,
     onCancelBackupRestore: () -> Unit
 ) {
+    val progress by animateFloatAsState(targetValue = restoreProgress)
+    
     WireDialog(
         title = stringResource(R.string.backup_dialog_restoring_backup_title),
         onDismiss = {
@@ -147,7 +150,7 @@ fun RestoreProgressDialog(
                 }
             }
             VerticalSpace.x16()
-            LinearProgressIndicator(modifier = Modifier.fillMaxWidth(), progress = restoreProgress)
+            LinearProgressIndicator(modifier = Modifier.fillMaxWidth(), progress = progress)
             VerticalSpace.x16()
         }
     }

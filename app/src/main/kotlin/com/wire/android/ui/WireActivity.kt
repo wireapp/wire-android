@@ -104,10 +104,11 @@ class WireActivity : AppCompatActivity() {
         proximitySensorManager.initialize()
         lifecycle.addObserver(currentScreenManager)
 
-        handleDeepLink(intent, savedInstanceState)
         viewModel.observePersistentConnectionStatus()
         val startDestination = viewModel.startNavigationRoute()
-        setComposableContent(startDestination)
+        setComposableContent(startDestination) {
+            handleDeepLink(intent, savedInstanceState)
+        }
     }
 
     override fun onNewIntent(intent: Intent?) {
@@ -118,7 +119,10 @@ class WireActivity : AppCompatActivity() {
         super.onNewIntent(intent)
     }
 
-    private fun setComposableContent(startDestination: String) {
+    private fun setComposableContent(
+        startDestination: String,
+        onComplete: () -> Unit
+    ) {
         setContent {
             if (viewModel.globalAppState.jailBreakDetected) {
                 JailBreakDetectedDialog()
@@ -131,7 +135,7 @@ class WireActivity : AppCompatActivity() {
                     WireTheme {
                         val scope = rememberCoroutineScope()
                         val navController = rememberTrackingAnimatedNavController { NavigationItem.fromRoute(it)?.itemName }
-                        setUpNavigationGraph(startDestination, navController, scope)
+                        setUpNavigationGraph(startDestination, navController, scope) { onComplete() }
                         handleDialogs()
                     }
                 }
@@ -140,9 +144,19 @@ class WireActivity : AppCompatActivity() {
     }
 
     @Composable
-    private fun setUpNavigationGraph(startDestination: String, navController: NavHostController, scope: CoroutineScope) {
+    private fun setUpNavigationGraph(
+        startDestination: String,
+        navController: NavHostController,
+        scope: CoroutineScope,
+        onComplete: () -> Unit
+    ) {
         Scaffold {
-            NavigationGraph(navController = navController, startDestination)
+            NavigationGraph(
+                navController = navController,
+                startDestination = startDestination
+            ) {
+                onComplete()
+            }
         }
         setUpNavigation(navController, scope)
     }

@@ -346,11 +346,11 @@ data class MessageTime(val utcISO: String) {
 sealed interface DeliveryStatusContent {
     class PartialDelivery(
         val failedRecipients: List<UIText> = emptyList(),
-        val noClients: List<UIText> = emptyList()
+        val noClients: List<UIText> = emptyList(),
     ) : DeliveryStatusContent {
 
-        val totalUsersWithFailures: Int
-            get() = failedRecipients.size + noClients.size
+        val totalUsersWithFailures by lazy { (failedRecipients + noClients).distinct().count() }
+        val onlyOneUser by lazy { totalUsersWithFailures == 1 }
 
         val hasFailures: Boolean
             get() = totalUsersWithFailures > 0

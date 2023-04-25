@@ -303,11 +303,11 @@ class MessageContentMapper @Inject constructor(
     private fun mapRecipientsFailure(userList: List<User>, deliveryStatus: DeliveryStatus?): DeliveryStatusContent {
         return when (deliveryStatus) {
             is DeliveryStatus.PartialDelivery -> DeliveryStatusContent.PartialDelivery(
-                failedRecipients = deliveryStatus.recipientsFailedDelivery.map { userId ->
-                    userList.findUser(userId = userId)?.name.orUnknownName()
-                },
-                noClients = deliveryStatus.recipientsFailedWithNoClients.map { userId ->
-                    userList.findUser(userId = userId)?.name.orUnknownName()
+                failedRecipients = deliveryStatus.recipientsFailedDelivery
+                    .map { userId -> UIText.DynamicString(userList.findUser(userId = userId)?.name.orEmpty()) }
+                    .filter { it.value.isNotEmpty() },
+                noClients = deliveryStatus.recipientsFailedWithNoClients.groupBy { it.domain }.map {
+                    UIText.DynamicString(it.value.joinToString(prefix = "${it.value.size} "){ it.domain })
                 }
             )
             is DeliveryStatus.CompleteDelivery, null -> DeliveryStatusContent.CompleteDelivery

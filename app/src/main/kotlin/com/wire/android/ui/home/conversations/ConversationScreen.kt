@@ -314,7 +314,7 @@ private fun ConversationScreen(
     tempWritableVideoUri: Uri?
 ) {
     val conversationScreenState = rememberConversationScreenState()
-    val messageComposerInnerState = rememberMessageComposerState()
+    val messageComposerState = rememberMessageComposerState()
     val context = LocalContext.current
 
     LaunchedEffect(conversationMessagesViewModel.savedStateHandle) {
@@ -322,7 +322,7 @@ private fun ConversationScreen(
         conversationMessagesViewModel.checkPendingActions(
             onMessageReply = {
                 withSmoothScreenLoad {
-                    messageComposerInnerState.reply(it)
+                    messageComposerState.reply(it)
                 }
             }
         )
@@ -343,8 +343,8 @@ private fun ConversationScreen(
                 onDeleteClick = onDeleteMessage,
                 onReactionClick = onReactionClick,
                 onDetailsClick = onMessageDetailsClick,
-                onReplyClick = messageComposerInnerState::reply,
-                onEditClick = messageComposerInnerState::toEditMessage,
+                onReplyClick = messageComposerState::reply,
+                onEditClick = messageComposerState::toEditMessage,
                 onShareAsset = {
                     menuType.selectedMessage.header.messageId.let {
                         conversationMessagesViewModel.shareAsset(context, it)
@@ -359,8 +359,8 @@ private fun ConversationScreen(
         is ConversationScreenState.BottomSheetMenuType.SelfDeletion -> {
             SelfDeletionMenuItems(
                 hideEditMessageMenu = conversationScreenState::hideContextMenu,
-                currentlySelected = messageComposerInnerState.getSelfDeletionTime(),
-                onSelfDeletionDurationChanged = { messageComposerInnerState.specifySelfDeletionTime(it) }
+                currentlySelected = messageComposerState.getSelfDeletionTime(),
+                onSelfDeletionDurationChanged = { messageComposerState.specifySelfDeletionTime(it) }
             )
         }
 
@@ -405,7 +405,7 @@ private fun ConversationScreen(
                         isFileSharingEnabled = messageComposerViewState.isFileSharingEnabled,
                         lastUnreadMessageInstant = conversationMessagesViewState.firstUnreadInstant,
                         conversationState = messageComposerViewState,
-                        messageComposerState = messageComposerInnerState,
+                        messageComposerState = messageComposerState,
                         messages = conversationMessagesViewState.messages,
                         onSendMessage = onSendMessage,
                         onSendEditMessage = onSendEditMessage,

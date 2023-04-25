@@ -53,11 +53,13 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.EMPTY
 import com.wire.kalium.logic.data.call.ConversationType
 import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
+import java.util.Locale
 
 @Composable
 fun CallerDetails(
     conversationName: ConversationName?,
     isCameraOn: Boolean,
+    isCbrEnabled: Boolean,
     avatarAssetId: ImageAsset.UserAvatarAsset?,
     conversationType: ConversationType,
     membership: Membership,
@@ -82,6 +84,13 @@ fun CallerDetails(
             Image(
                 painter = painterResource(id = R.drawable.ic_collapse),
                 contentDescription = stringResource(id = R.string.calling_minimize_view),
+            )
+        }
+        if (isCbrEnabled) {
+            Text(
+                text = stringResource(id = R.string.calling_constant_bit_rate_indication).uppercase(Locale.getDefault()),
+                color = colorsScheme().secondaryText,
+                style = MaterialTheme.wireTypography.title03,
             )
         }
         Text(
@@ -125,6 +134,7 @@ fun PreviewCallerDetails() {
     CallerDetails(
         conversationName = ConversationName.Known("User"),
         isCameraOn = false,
+        isCbrEnabled = false,
         avatarAssetId = null,
         conversationType = ConversationType.OneOnOne,
         membership = Membership.Guest,

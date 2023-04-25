@@ -84,7 +84,8 @@ class NewConversationViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            newGroupState = newGroupState.copy(isSelfTeamMember = isSelfATeamMember())
+            val isSelfTeamMember = isSelfATeamMember()
+            newGroupState = newGroupState.copy(isSelfTeamMember = isSelfTeamMember)
         }
     }
 

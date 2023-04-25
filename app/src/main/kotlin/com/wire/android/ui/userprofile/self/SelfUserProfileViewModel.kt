@@ -112,7 +112,8 @@ class SelfUserProfileViewModel @Inject constructor(
     }
 
     private suspend fun fetchIsReadOnlyAccount() {
-        userProfileState = userProfileState.copy(isReadOnlyAccount = isReadOnlyAccount())
+        val isReadOnlyAccount = isReadOnlyAccount()
+        userProfileState = userProfileState.copy(isReadOnlyAccount = isReadOnlyAccount)
     }
 
     private fun observeEstablishedCall() {
@@ -201,6 +202,7 @@ class SelfUserProfileViewModel @Inject constructor(
 
     fun logout(wipeData: Boolean) {
         viewModelScope.launch {
+            userProfileState = userProfileState.copy(isLoggingOut = true)
             launch {
                 establishedCallsList.value.forEach { call ->
                     endCall(call.conversationId)

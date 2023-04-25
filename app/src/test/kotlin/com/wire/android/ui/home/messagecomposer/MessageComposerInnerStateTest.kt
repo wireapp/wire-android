@@ -202,7 +202,7 @@ class MessageComposerInnerStateTest {
         val originalMessageText = "original message text"
         val state = createState(context, focusManager, focusRequester)
         state.setMessageTextValue(textFieldValueWithSelection("start text"))
-        state.toEditMessage("message-id", originalMessageText)
+        state.toEditMessage("message-id", originalMessageText, listOf())
         assert(state.messageComposeInputState.isEditMessage)
         assertEquals(originalMessageText, state.messageComposeInputState.messageText.text)
     }
@@ -220,7 +220,6 @@ class MessageComposerInnerStateTest {
     companion object {
         fun createState(context: Context, focusManager: FocusManager, focusRequester: FocusRequester) = MessageComposerInnerState(
             context,
-            AttachmentInnerState(context),
             focusManager,
             focusRequester,
             SpanStyle(),

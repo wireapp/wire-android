@@ -53,6 +53,7 @@ import com.wire.kalium.logic.feature.client.NewClientResult
 import com.wire.kalium.logic.feature.client.ObserveNewClientsUseCase
 import com.wire.kalium.logic.feature.conversation.CheckConversationInviteCodeUseCase
 import com.wire.kalium.logic.feature.conversation.JoinConversationViaCodeUseCase
+import com.wire.kalium.logic.feature.rootDetection.CheckSystemIntegrityUseCase
 import com.wire.kalium.logic.feature.server.GetServerConfigResult
 import com.wire.kalium.logic.feature.server.GetServerConfigUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
@@ -651,6 +652,9 @@ class WireActivityViewModelTest {
         @MockK
         lateinit var observeNewClients: ObserveNewClientsUseCase
 
+        @MockK
+        lateinit var checkSystemIntegrity: CheckSystemIntegrityUseCase
+
         private val viewModel by lazy {
             WireActivityViewModel(
                 coreLogic = coreLogic,
@@ -666,7 +670,8 @@ class WireActivityViewModelTest {
                 servicesManager = servicesManager,
                 observeSyncStateUseCaseProviderFactory = observeSyncStateUseCaseProviderFactory,
                 observeIfAppUpdateRequired = observeIfAppUpdateRequired,
-                observeNewClients = observeNewClients
+                observeNewClients = observeNewClients,
+                checkSystemIntegrity = checkSystemIntegrity
             )
         }
 

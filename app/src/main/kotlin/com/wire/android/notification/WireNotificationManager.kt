@@ -81,6 +81,14 @@ class WireNotificationManager @Inject constructor(
     private val observingPersistentlyJobs = hashMapOf<UserId, ObservingJobs>()
 
     /**
+     * Stops all the ObservingNotifications jobs that are currently running, for a specific User.
+     */
+    fun stopObservingOnLogout(userId: UserId) {
+        stopObservingForUser(userId, observingWhileRunningJobs)
+        stopObservingForUser(userId, observingPersistentlyJobs)
+    }
+
+    /**
      * Observes all the Message and Call notifications while app is running
      */
     suspend fun observeNotificationsAndCallsWhileRunning(
@@ -206,13 +214,8 @@ class WireNotificationManager @Inject constructor(
         val currentScreenState = currentScreenManager.observeCurrentScreen(scope)
 
         // removing notifications and stop observing it for the users that are not logged in anymore
-        val userIdsToCancelJobs = observingJobs.keys.filter { !userIds.contains(it) }
-        userIdsToCancelJobs
-            .forEach { userId ->
-                messagesNotificationManager.hideAllNotificationsForUser(userId)
-                observingJobs[userId]?.cancelAll()
-                observingJobs.remove(userId)
-            }
+        observingJobs.keys.filter { !userIds.contains(it) }
+            .forEach { userId -> stopObservingForUser(userId, observingJobs) }
 
         if (userIds.isEmpty()) {
             // userIds.isEmpty() means there is no current user (logged out e.g.)
@@ -246,6 +249,12 @@ class WireNotificationManager @Inject constructor(
                 )
                 observingJobs[userId] = jobs
             }
+    }
+
+    private fun stopObservingForUser(userId: UserId, observingJobs: HashMap<UserId, ObservingJobs>) {
+        messagesNotificationManager.hideAllNotificationsForUser(userId)
+        observingJobs[userId]?.cancelAll()
+        observingJobs.remove(userId)
     }
 
     /**

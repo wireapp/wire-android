@@ -941,4 +941,6 @@
     <string name="label_self_fingerprint_description">Share this key fingerprint with other participants in a conversation, so that they can verify it and make sure the conversation is secure.</string>
     <string name="unknown_user_name">unknown</string>
     <string name="device_name_unknown">Unknown device</string>
+    <string name="label_jailbreak_detected_dialog_title">Jailbreak/root detected</string>
+    <string name="label_jailbreak_detected_dialog_text">You can not use Wire on this device</string>
 </resources>

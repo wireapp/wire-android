@@ -122,7 +122,6 @@ fun RestoreProgressDialog(
     onCancelBackupRestore: () -> Unit
 ) {
     val progress by animateFloatAsState(targetValue = restoreProgress)
-    
     WireDialog(
         title = stringResource(R.string.backup_dialog_restoring_backup_title),
         onDismiss = {

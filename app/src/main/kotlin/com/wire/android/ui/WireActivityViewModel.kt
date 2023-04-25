@@ -133,6 +133,15 @@ class WireActivityViewModel @Inject constructor(
 
     init {
         viewModelScope.launch(dispatchers.io()) {
+            when (checkSystemIntegrity()) {
+                CheckSystemIntegrityUseCase.Result.Failed -> globalAppState = globalAppState.copy(jailBreakDetected = true)
+                CheckSystemIntegrityUseCase.Result.Success -> initialize()
+            }
+        }
+    }
+
+    private fun initialize() {
+        viewModelScope.launch(dispatchers.io()) {
             observeUserId
                 .flatMapLatest {
                     it?.let { observeSyncStateUseCaseProviderFactory.create(it).observeSyncState() } ?: flowOf(null)
@@ -175,12 +184,6 @@ class WireActivityViewModel @Inject constructor(
                         else -> {}
                     }
                 }
-        }
-        viewModelScope.launch(dispatchers.io()) {
-            when (checkSystemIntegrity()) {
-                CheckSystemIntegrityUseCase.Result.Failed -> globalAppState = globalAppState.copy(jailBreakDetected = true)
-                CheckSystemIntegrityUseCase.Result.Success -> {}
-            }
         }
     }
 

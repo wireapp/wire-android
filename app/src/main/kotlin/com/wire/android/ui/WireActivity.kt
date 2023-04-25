@@ -70,6 +70,7 @@ import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 import com.wire.android.util.formatMediumDateTime
 import com.wire.android.util.ui.updateScreenSettings
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.rootDetection.CheckSystemIntegrityUseCase
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -120,16 +121,20 @@ class WireActivity : AppCompatActivity() {
 
     private fun setComposableContent(startDestination: String) {
         setContent {
-            CompositionLocalProvider(
-                LocalFeatureVisibilityFlags provides FeatureVisibilityFlags,
-                LocalSyncStateObserver provides SyncStateObserver(viewModel.observeSyncFlowState),
-                LocalCustomUiConfigurationProvider provides CustomUiConfigurationProvider
-            ) {
-                WireTheme {
-                    val scope = rememberCoroutineScope()
-                    val navController = rememberTrackingAnimatedNavController { NavigationItem.fromRoute(it)?.itemName }
-                    setUpNavigationGraph(startDestination, navController, scope)
-                    handleDialogs()
+            if (viewModel.globalAppState.jailBreakDetected) {
+                JailBreakDetectedDialog()
+            } else {
+                CompositionLocalProvider(
+                    LocalFeatureVisibilityFlags provides FeatureVisibilityFlags,
+                    LocalSyncStateObserver provides SyncStateObserver(viewModel.observeSyncFlowState),
+                    LocalCustomUiConfigurationProvider provides CustomUiConfigurationProvider
+                ) {
+                    WireTheme {
+                        val scope = rememberCoroutineScope()
+                        val navController = rememberTrackingAnimatedNavController { NavigationItem.fromRoute(it)?.itemName }
+                        setUpNavigationGraph(startDestination, navController, scope)
+                        handleDialogs()
+                    }
                 }
             }
         }
@@ -172,34 +177,44 @@ class WireActivity : AppCompatActivity() {
 
     @Composable
     private fun handleDialogs() {
-        UpdateAppDialog({ updateTheApp() }, viewModel.globalAppState.updateAppDialog)
-        JoinConversationDialog(viewModel.globalAppState.conversationJoinedDialog)
-        CustomBackendDialog(viewModel.globalAppState.customBackendDialog.shouldShowDialog)
-        MaxAccountDialog(viewModel::openProfile, viewModel::dismissMaxAccountDialog, viewModel.globalAppState.maxAccountDialog)
-        AccountLoggedOutDialog(viewModel.globalAppState.blockUserUI)
-        NewClientDialog(
-            viewModel.globalAppState.newClientDialog,
-            viewModel::openDeviceManager,
-            viewModel::switchAccount,
-            viewModel::dismissNewClientDialog
+        UpdateAppDialog(
+            onUpdateClick = ::updateTheApp,
+            shouldShow = viewModel.globalAppState.updateAppDialog
         )
-        JailBreakDetectedDialog(viewModel.globalAppState.jailBreakDetected)
+        JoinConversationDialog(
+            viewModel.globalAppState.conversationJoinedDialog
+        )
+        CustomBackendDialog(
+            viewModel.globalAppState.customBackendDialog.shouldShowDialog
+        )
+        MaxAccountDialog(
+            onConfirm = viewModel::openProfile,
+            onDismiss = viewModel::dismissMaxAccountDialog,
+            shouldShow = viewModel.globalAppState.maxAccountDialog
+        )
+        AccountLoggedOutDialog(
+            blockUserUI = viewModel.globalAppState.blockUserUI
+        )
+        NewClientDialog(
+            data = viewModel.globalAppState.newClientDialog,
+            openDeviceManager = viewModel::openDeviceManager,
+            switchAccount = viewModel::switchAccount,
+            dismiss = viewModel::dismissNewClientDialog
+        )
     }
 
     @Composable
-    private fun JailBreakDetectedDialog(shouldShow: Boolean) {
-                if(shouldShow){
-                    WireDialog(
-                        title = stringResource(id = R.string.update_app_dialog_title),
-                        text = stringResource(id = R.string.update_app_dialog_body),
-                        onDismiss = { },
-                        properties = DialogProperties(
-                            dismissOnBackPress = false,
-                            dismissOnClickOutside = false,
-                            usePlatformDefaultWidth = true
-                        )
-                    )
-                }
+    private fun JailBreakDetectedDialog(){
+        WireDialog(
+            title = stringResource(R.string.label_jailbreak_detected_dialog_title),
+            text = stringResource(R.string.label_jailbreak_detected_dialog_text),
+            onDismiss = { },
+            properties = DialogProperties(
+                dismissOnBackPress = true,
+                dismissOnClickOutside = false,
+                usePlatformDefaultWidth = true
+            )
+        )
     }
 
     @Composable

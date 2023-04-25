@@ -940,4 +940,6 @@
     <string name="label_fingerprint_description">If fingerprints don’t match, reset the session to generate new encryption keys on both sides.</string>
     <string name="label_self_fingerprint_description">To let others verify this device, share this fingerprint or the QR code with them.</string>
     <string name="unknown_user_name">unknown</string>
+    <string name="label_jailbreak_detected_dialog_title">Jailbreak/root detected</string>
+    <string name="label_jailbreak_detected_dialog_text">You can not use Wire on this device</string>
 </resources>

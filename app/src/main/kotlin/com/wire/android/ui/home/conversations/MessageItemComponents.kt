@@ -91,6 +91,7 @@ internal fun MessageSentPartialDeliveryFailures(partialDeliveryFailureContent: D
             VerticalSpace.x4()
             if (expanded) {
                 if (partialDeliveryFailureContent.noClients.isNotEmpty()) {
+                    // map to domain count
                     Text(
                         text = stringResource(
                             id = R.string.label_message_partial_delivery_participants_wont_deliver,
@@ -100,6 +101,7 @@ internal fun MessageSentPartialDeliveryFailures(partialDeliveryFailureContent: D
                     )
                 }
                 if (partialDeliveryFailureContent.failedRecipients.isNotEmpty()) {
+                    // ignore users without metadata
                     Text(
                         text = stringResource(
                             id = R.string.label_message_partial_delivery_participants_deliver_later,

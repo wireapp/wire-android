@@ -20,7 +20,7 @@
 
 package com.wire.android.ui.home.conversations
 
-import android.util.Log
+import androidx.annotation.StringRes
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -41,7 +41,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -58,6 +57,7 @@ import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.common.typography
+import com.wire.android.ui.home.conversations.info.ConversationDetailsData
 import com.wire.android.ui.home.conversations.messages.QuotedMessage
 import com.wire.android.ui.home.conversations.messages.QuotedMessageStyle
 import com.wire.android.ui.home.conversations.messages.QuotedUnavailable
@@ -79,10 +79,9 @@ import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMess
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
+import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.user.UserId
-import kotlin.time.Duration.Companion.ZERO
-import kotlin.time.Duration.Companion.seconds
 
 // TODO: a definite candidate for a refactor and cleanup
 @Suppress("ComplexMethod")
@@ -90,6 +89,7 @@ import kotlin.time.Duration.Companion.seconds
 @Composable
 fun MessageItem(
     message: UIMessage.Regular,
+    conversationDetailsData: ConversationDetailsData,
     showAuthor: Boolean = true,
     audioMessagesState: Map<String, AudioState>,
     onLongClicked: (UIMessage.Regular) -> Unit,
@@ -183,10 +183,7 @@ fun MessageItem(
                         MessageExpireLabel(messageContent, selfDeletionTimerState.timeLeftFormatted())
 
                         if (isDeleted) {
-                            Text(
-                                stringResource(R.string.label_information_waiting_for_recipent_timer_to_expire),
-                                style = typography().body05
-                            )
+                            EphemeralMessageExpiredLabel(conversationDetailsData)
                         }
                     } else {
                         MessageStatusLabel(messageStatus = message.header.messageStatus)
@@ -243,6 +240,23 @@ fun MessageItem(
             }
         }
     }
+}
+
+@Composable
+fun EphemeralMessageExpiredLabel(conversationDetailsData: ConversationDetailsData) {
+    val stringResource = if (conversationDetailsData is ConversationDetailsData.OneOne) {
+        stringResource(
+            R.string.label_information_waiting_for_recipent_timer_to_expire_one_to_one,
+            conversationDetailsData.otherUserName ?: ""
+        )
+    } else {
+        stringResource(R.string.label_information_waiting_for_recipent_timer_to_expire_group)
+    }
+
+    Text(
+        text = stringResource,
+        style = typography().body05
+    )
 }
 
 @Composable

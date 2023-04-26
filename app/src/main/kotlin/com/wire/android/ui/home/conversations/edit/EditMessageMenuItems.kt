@@ -150,7 +150,7 @@ fun EditMessageMenuItems(
 }
 
 @Composable
-fun CopyItemMenuOption(onCopyItemClick: () -> Unit) {
+private fun CopyItemMenuOption(onCopyItemClick: () -> Unit) {
     MenuBottomSheetItem(
         icon = {
             MenuItemIcon(
@@ -163,9 +163,8 @@ fun CopyItemMenuOption(onCopyItemClick: () -> Unit) {
     )
 }
 
-
 @Composable
-fun ShareAssetMenuOption(onShareAsset: () -> Unit) {
+private fun ShareAssetMenuOption(onShareAsset: () -> Unit) {
     MenuBottomSheetItem(
         icon = {
             MenuItemIcon(

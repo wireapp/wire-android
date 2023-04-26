@@ -43,12 +43,15 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 abstract class CommonTopAppBarBaseViewModel : ViewModel()
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class CommonTopAppBarViewModel @Inject constructor(
     private val navigationManager: NavigationManager,
@@ -62,11 +65,10 @@ class CommonTopAppBarViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             coreLogic.globalScope {
-                session.currentSessionFlow().collect {
+                session.currentSessionFlow().flatMapLatest {
                     when (it) {
                         is CurrentSessionResult.Failure.Generic,
-                        CurrentSessionResult.Failure.SessionNotFound -> connectivityState =
-                            connectivityState.copy(info = ConnectivityUIState.Info.None)
+                        CurrentSessionResult.Failure.SessionNotFound -> flowOf(ConnectivityUIState.Info.None)
                         is CurrentSessionResult.Success -> {
                             val userId = it.accountInfo.userId
                             combine(
@@ -75,21 +77,21 @@ class CommonTopAppBarViewModel @Inject constructor(
                                 connectivityFlow(userId)
                             ) { activeCall, currentScreen, connectivity ->
                                 mapToUIState(currentScreen, connectivity, activeCall)
-                            }.collectLatest { connectivityUIState ->
-                                /**
-                                 * Adding some delay here to avoid some bad UX : ongoing call banner displayed and
-                                 * hided in a short time when the user hangs up the call
-                                 * Call events could take some time to be received and this function
-                                 * could be called when the screen is changed, so we delayed
-                                 * showing the banner until getting the correct calling values
-                                 */
-                                if (connectivityUIState is ConnectivityUIState.Info.EstablishedCall) {
-                                    delay(WAITING_TIME_TO_SHOW_ONGOING_CALL_BANNER)
-                                }
-                                connectivityState = connectivityState.copy(info = connectivityUIState)
                             }
                         }
                     }
+                }.collectLatest { connectivityUIState ->
+                    /**
+                     * Adding some delay here to avoid some bad UX : ongoing call banner displayed and
+                     * hided in a short time when the user hangs up the call
+                     * Call events could take some time to be received and this function
+                     * could be called when the screen is changed, so we delayed
+                     * showing the banner until getting the correct calling values
+                     */
+                    if (connectivityUIState is ConnectivityUIState.Info.EstablishedCall) {
+                        delay(WAITING_TIME_TO_SHOW_ONGOING_CALL_BANNER)
+                    }
+                    connectivityState = connectivityState.copy(info = connectivityUIState)
                 }
             }
         }

@@ -48,19 +48,21 @@ import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 
 val mockFooter = MessageFooter("", mapOf("👍" to 1), setOf("👍"))
 
+val mockHeader = MessageHeader(
+    username = UIText.DynamicString("John Doe"),
+    membership = Membership.Guest,
+    isLegalHold = true,
+    messageTime = MessageTime("12.23pm"),
+    messageStatus = MessageStatus.Untouched,
+    messageId = "",
+    connectionState = ConnectionState.ACCEPTED,
+    isSenderDeleted = false,
+    isSenderUnavailable = false
+)
+
 val mockMessageWithText = UIMessage.Regular(
     userAvatarData = UserAvatarData(null, UserAvailabilityStatus.AVAILABLE),
-    header = MessageHeader(
-        username = UIText.DynamicString("John Doe"),
-        membership = Membership.Guest,
-        isLegalHold = true,
-        messageTime = MessageTime("12.23pm"),
-        messageStatus = MessageStatus.Untouched,
-        messageId = "",
-        connectionState = ConnectionState.ACCEPTED,
-        isSenderDeleted = false,
-        isSenderUnavailable = false
-    ),
+    header = mockHeader,
     messageContent = UIMessageContent.TextMessage(
         messageBody = MessageBody(
             UIText.DynamicString(
@@ -76,17 +78,7 @@ val mockMessageWithText = UIMessage.Regular(
 )
 
 val mockMessageWithKnock = UIMessage.System(
-    header = MessageHeader(
-        username = UIText.DynamicString("John Doe"),
-        membership = Membership.Guest,
-        isLegalHold = true,
-        messageTime = MessageTime("12.23pm"),
-        messageStatus = MessageStatus.Untouched,
-        messageId = "",
-        connectionState = ConnectionState.ACCEPTED,
-        isSenderDeleted = false,
-        isSenderUnavailable = false
-    ),
+    header = mockHeader,
     messageContent = UIMessageContent.SystemMessage.Knock(UIText.DynamicString("John Doe pinged")),
     source = MessageSource.Self,
 )
@@ -183,7 +175,7 @@ fun getMockedMessages(): List<UIMessage> = listOf(
             )
         ),
         source = MessageSource.Self,
-        messageFooter = mockFooter,
+        messageFooter = mockFooter
     ),
     UIMessage.Regular(
         userAvatarData = UserAvatarData(null, UserAvailabilityStatus.AVAILABLE),
@@ -200,7 +192,7 @@ fun getMockedMessages(): List<UIMessage> = listOf(
         ),
         messageContent = mockedImg(),
         source = MessageSource.Self,
-        messageFooter = mockFooter,
+        messageFooter = mockFooter
     ),
     UIMessage.Regular(
         userAvatarData = UserAvatarData(null, UserAvailabilityStatus.AVAILABLE),
@@ -217,7 +209,7 @@ fun getMockedMessages(): List<UIMessage> = listOf(
         ),
         messageContent = mockedImg(),
         source = MessageSource.Self,
-        messageFooter = mockFooter,
+        messageFooter = mockFooter
     ),
     UIMessage.Regular(
         userAvatarData = UserAvatarData(null, UserAvailabilityStatus.AVAILABLE),
@@ -234,7 +226,7 @@ fun getMockedMessages(): List<UIMessage> = listOf(
         ),
         messageContent = mockedImg(),
         source = MessageSource.Self,
-        messageFooter = mockFooter,
+        messageFooter = mockFooter
     ),
     UIMessage.Regular(
         userAvatarData = UserAvatarData(null, UserAvailabilityStatus.AVAILABLE),
@@ -277,7 +269,7 @@ fun getMockedMessages(): List<UIMessage> = listOf(
         ),
         messageContent = mockedImg(),
         source = MessageSource.Self,
-        messageFooter = mockFooter,
+        messageFooter = mockFooter
     ),
     UIMessage.Regular(
         userAvatarData = UserAvatarData(null, UserAvailabilityStatus.AVAILABLE),

@@ -75,56 +75,80 @@ internal fun MessageSendFailureWarning(
 
 @Composable
 internal fun MessageSentPartialDeliveryFailures(partialDeliveryFailureContent: DeliveryStatusContent.PartialDelivery) {
-    val resources = LocalContext.current.resources
+    val context = LocalContext.current
+    val resources = context.resources
     var expanded: Boolean by remember { mutableStateOf(false) }
     CompositionLocalProvider(
         LocalTextStyle provides MaterialTheme.typography.labelSmall.copy(color = MaterialTheme.wireColorScheme.error)
     ) {
-        Column {
-            Text(
-                text = stringResource(
-                    id = R.string.label_message_partial_delivery_participants_count,
-                    partialDeliveryFailureContent.totalUsersWithFailures
-                ),
-                textAlign = TextAlign.Start
-            )
-            VerticalSpace.x4()
-            if (expanded) {
-                if (partialDeliveryFailureContent.noClients.isNotEmpty()) {
-                    // map to domain count
-                    Text(
-                        text = stringResource(
-                            id = R.string.label_message_partial_delivery_participants_wont_deliver,
-                            partialDeliveryFailureContent.noClients.joinToString(", ") { it.asString(resources) }
-                        ),
-                        textAlign = TextAlign.Start
-                    )
-                }
-                if (partialDeliveryFailureContent.failedRecipients.isNotEmpty()) {
-                    // ignore users without metadata
-                    Text(
-                        text = stringResource(
-                            id = R.string.label_message_partial_delivery_participants_deliver_later,
-                            partialDeliveryFailureContent.failedRecipients.joinToString(", ") { it.asString(resources) }
-                        ),
-                        textAlign = TextAlign.Start
-                    )
-                }
-            }
-            VerticalSpace.x4()
-            if (partialDeliveryFailureContent.expandable) {
-                WireSecondaryButton(
-                    onClick = { expanded = !expanded },
-                    text = stringResource(if (expanded) R.string.label_hide_details else R.string.label_show_details),
-                    fillMaxWidth = false,
-                    minHeight = dimensions().spacing32x,
-                    minWidth = dimensions().spacing40x,
-                    shape = RoundedCornerShape(size = dimensions().corner12x),
-                    contentPadding = PaddingValues(horizontal = dimensions().spacing12x, vertical = dimensions().spacing8x),
-                    modifier = Modifier
-                        .padding(top = dimensions().spacing4x)
-                        .height(height = dimensions().spacing32x)
+        if (partialDeliveryFailureContent.onlyOneUser) {
+            val learnMoreUrl = stringResource(R.string.url_message_details_offline_backends_learn_more)
+            Column {
+                Text(
+                    text = stringResource(
+                        id = R.string.label_message_partial_delivery_participants_deliver_later,
+                        partialDeliveryFailureContent.failedRecipients.joinToString(", ") { it.asString(resources) }
+                    ),
+                    textAlign = TextAlign.Start
                 )
+                Text(
+                    modifier = Modifier
+                        .clickable { CustomTabsHelper.launchUrl(context, learnMoreUrl) },
+                    style = LocalTextStyle.current.copy(
+                        color = MaterialTheme.wireColorScheme.onTertiaryButtonSelected,
+                        textDecoration = TextDecoration.Underline
+                    ),
+                    text = stringResource(R.string.label_learn_more)
+                )
+                VerticalSpace.x4()
+            }
+        } else {
+            Column {
+                Text(
+                    text = stringResource(
+                        id = R.string.label_message_partial_delivery_participants_count,
+                        partialDeliveryFailureContent.totalUsersWithFailures
+                    ),
+                    textAlign = TextAlign.Start
+                )
+                VerticalSpace.x4()
+                if (expanded) {
+                    if (partialDeliveryFailureContent.noClients.isNotEmpty()) {
+                        // map to domain count
+                        Text(
+                            text = stringResource(
+                                id = R.string.label_message_partial_delivery_participants_wont_deliver,
+                                partialDeliveryFailureContent.noClients.joinToString(", ") { it.asString(resources) }
+                            ),
+                            textAlign = TextAlign.Start
+                        )
+                    }
+                    if (partialDeliveryFailureContent.failedRecipients.isNotEmpty()) {
+                        // ignore users without metadata
+                        Text(
+                            text = stringResource(
+                                id = R.string.label_message_partial_delivery_participants_deliver_later,
+                                partialDeliveryFailureContent.failedRecipients.joinToString(", ") { it.asString(resources) }
+                            ),
+                            textAlign = TextAlign.Start
+                        )
+                    }
+                }
+                VerticalSpace.x4()
+                if (partialDeliveryFailureContent.expandable) {
+                    WireSecondaryButton(
+                        onClick = { expanded = !expanded },
+                        text = stringResource(if (expanded) R.string.label_hide_details else R.string.label_show_details),
+                        fillMaxWidth = false,
+                        minHeight = dimensions().spacing32x,
+                        minWidth = dimensions().spacing40x,
+                        shape = RoundedCornerShape(size = dimensions().corner12x),
+                        contentPadding = PaddingValues(horizontal = dimensions().spacing12x, vertical = dimensions().spacing8x),
+                        modifier = Modifier
+                            .padding(top = dimensions().spacing4x)
+                            .height(height = dimensions().spacing32x)
+                    )
+                }
             }
         }
     }

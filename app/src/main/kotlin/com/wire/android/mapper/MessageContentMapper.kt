@@ -56,7 +56,7 @@ import javax.inject.Inject
 class MessageContentMapper @Inject constructor(
     private val messageResourceProvider: MessageResourceProvider,
     private val wireSessionImageLoader: WireSessionImageLoader,
-    private val isoFormatter: ISOFormatter,
+    private val isoFormatter: ISOFormatter
 ) {
 
     fun fromMessage(
@@ -152,7 +152,7 @@ class MessageContentMapper @Inject constructor(
     }
 
     private fun mapTeamMemberRemovedMessage(
-        content: MessageContent.TeamMemberRemoved,
+        content: MessageContent.TeamMemberRemoved
     ): UIMessageContent.SystemMessage = UIMessageContent.SystemMessage.TeamMemberRemoved(content)
 
     private fun mapConversationRenamedMessage(
@@ -251,7 +251,7 @@ class MessageContentMapper @Inject constructor(
 
     private fun mapAudio(
         assetContent: AssetContent,
-        metadata: AssetContent.AssetMetadata.Audio,
+        metadata: AssetContent.AssetMetadata.Audio
     ): UIMessageContent {
         with(assetContent) {
             return UIMessageContent.AudioAssetMessage(
@@ -285,7 +285,8 @@ class MessageContentMapper @Inject constructor(
                 is MessageContent.Text -> UIText.DynamicString(content.value, content.mentions)
                 is MessageContent.Unknown -> content.typeName?.let {
                     UIText.StringResource(
-                        messageResourceProvider.sentAMessageWithContent, it
+                        messageResourceProvider.sentAMessageWithContent,
+                        it
                     )
                 } ?: UIText.StringResource(R.string.sent_a_message_with_unknown_content)
                 is MessageContent.FailedDecryption -> UIText.StringResource(R.string.label_message_decryption_failure_message)
@@ -306,9 +307,9 @@ class MessageContentMapper @Inject constructor(
                 failedRecipients = deliveryStatus.recipientsFailedDelivery
                     .map { userId -> UIText.DynamicString(userList.findUser(userId = userId)?.name.orEmpty()) }
                     .filter { it.value.isNotEmpty() },
-                noClients = deliveryStatus.recipientsFailedWithNoClients.groupBy { it.domain }.map {
-                    UIText.DynamicString(it.value.joinToString(prefix = "${it.value.size} "){ it.domain })
-                }
+                noClients = deliveryStatus.recipientsFailedWithNoClients
+                    .map { userId -> UIText.DynamicString(userList.findUser(userId = userId)?.name.orEmpty()) }
+                    .filter { it.value.isNotEmpty() }
             )
             is DeliveryStatus.CompleteDelivery, null -> DeliveryStatusContent.CompleteDelivery
         }
@@ -439,7 +440,7 @@ class AssetMessageContentMetadata(val assetMessageContent: AssetContent) {
         }
 
     fun isDisplayableImage(): Boolean = isDisplayableImageMimeType(assetMessageContent.mimeType) &&
-            imgWidth.isGreaterThan(0) && imgHeight.isGreaterThan(0)
+        imgWidth.isGreaterThan(0) && imgHeight.isGreaterThan(0)
 }
 
 // TODO: should we keep it here ?

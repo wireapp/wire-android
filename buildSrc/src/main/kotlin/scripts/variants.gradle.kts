@@ -20,13 +20,13 @@
 
 package scripts
 
+import com.android.build.api.dsl.ApplicationProductFlavor
+import com.android.build.api.dsl.ProductFlavor
 import customization.ConfigType
 import customization.Customization.getBuildtimeConfiguration
 import customization.FeatureConfigs
 import customization.FeatureFlags
 import customization.Features
-import com.android.build.api.dsl.ApplicationProductFlavor
-import com.android.build.api.dsl.ProductFlavor
 
 plugins { id("com.android.application") apply false }
 // DO NOT USE CAPITAL LETTER FOR THE BUILD TYPE NAME OR JENKINS WILL BE MAD
@@ -38,21 +38,19 @@ object BuildTypes {
 }
 
 sealed class ProductFlavors(
-    val applicationId: String,
     val buildName: String,
     val appName: String,
-    val applicationIdSuffix: String? = null,
     val dimensions: String = FlavorDimensions.DEFAULT,
     val shareduserId: String = ""
 ) {
     override fun toString(): String = this.buildName
 
-    object Dev : ProductFlavors("com.waz.zclient.dev", "dev", "Wire Dev")
-    object Staging : ProductFlavors("com.waz.zclient.dev", "staging", "Wire Staging")
+    object Dev : ProductFlavors("dev", "Wire Dev")
+    object Staging : ProductFlavors("staging", "Wire Staging")
 
-    object Beta : ProductFlavors("com.wire.android", "beta", "Wire Beta", applicationIdSuffix = "internal")
-    object Internal : ProductFlavors("com.wire", "internal", "Wire Internal", applicationIdSuffix = "internal")
-    object Production : ProductFlavors("com.wire", "prod", "Wire", shareduserId = "com.waz.userid")
+    object Beta : ProductFlavors("beta", "Wire Beta")
+    object Internal : ProductFlavors("internal", "Wire Internal")
+    object Production : ProductFlavors("prod", "Wire", shareduserId = "com.waz.userid")
 }
 
 object FlavorDimensions {
@@ -66,14 +64,14 @@ object Default {
     val BUILD_VARIANT = "${BUILD_FLAVOR.capitalize()}${BUILD_TYPE.capitalize()}"
 }
 
-fun NamedDomainObjectContainer<ApplicationProductFlavor>.createAppFlavour(flavour: ProductFlavors) {
+fun NamedDomainObjectContainer<ApplicationProductFlavor>.createAppFlavour(
+    applicationId: String,
+    flavour: ProductFlavors
+) {
     create(flavour.buildName) {
         dimension = flavour.dimensions
         applicationId = flavour.applicationId
         versionNameSuffix = "-${flavour.buildName}"
-        if (!flavour.applicationIdSuffix.isNullOrBlank()) {
-            applicationIdSuffix = ".${flavour.applicationIdSuffix}"
-        }
         resValue("string", "app_name", flavour.appName)
         manifestPlaceholders.apply {
             put("sharedUserId", flavour.shareduserId)
@@ -150,16 +148,21 @@ android {
         }
     }
 
+    val buildtimeConfiguration = getBuildtimeConfiguration(rootDir = rootDir)
+
     flavorDimensions(FlavorDimensions.DEFAULT)
     productFlavors {
-        createAppFlavour(ProductFlavors.Dev)
-        createAppFlavour(ProductFlavors.Staging)
-        createAppFlavour(ProductFlavors.Beta)
-        createAppFlavour(ProductFlavors.Internal)
-        createAppFlavour(ProductFlavors.Production)
+        fun createFlavor(flavor: ProductFlavors) {
+            val applicationId = buildtimeConfiguration.flavorMap[flavor.buildName]!![FeatureConfigs.APPLICATION_ID]!!
+            createAppFlavour(applicationId, flavor)
+        }
+        createFlavor(ProductFlavors.Dev)
+        createFlavour(ProductFlavors.Staging)
+        createFlavour(ProductFlavors.Beta)
+        createFlavour(ProductFlavors.Internal)
+        createFlavour(ProductFlavors.Production)
     }
 
-    val buildtimeConfiguration = getBuildtimeConfiguration(rootDir = rootDir)
 
     /**
      * Process feature flags and if the feature is not included in a product flavor,

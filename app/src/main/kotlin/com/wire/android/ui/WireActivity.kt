@@ -45,6 +45,8 @@ import androidx.navigation.NavHostController
 import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.appLogger
+import com.wire.android.config.CustomUiConfigurationProvider
+import com.wire.android.config.LocalCustomUiConfigurationProvider
 import com.wire.android.navigation.NavigationGraph
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
@@ -107,10 +109,11 @@ class WireActivity : AppCompatActivity() {
         proximitySensorManager.initialize()
         lifecycle.addObserver(currentScreenManager)
 
-        handleDeepLink(intent, savedInstanceState)
         viewModel.observePersistentConnectionStatus()
         val startDestination = viewModel.startNavigationRoute()
-        setComposableContent(startDestination)
+        setComposableContent(startDestination) {
+            handleDeepLink(intent, savedInstanceState)
+        }
     }
 
     override fun onNewIntent(intent: Intent?) {
@@ -121,14 +124,17 @@ class WireActivity : AppCompatActivity() {
         super.onNewIntent(intent)
     }
 
-    private fun setComposableContent(startDestination: String) {
+    private fun setComposableContent(
+        startDestination: String,
+        onComplete: () -> Unit
+    ) {
         setContent {
             CompositionLocalProvider(
                 LocalFeatureVisibilityFlags provides FeatureVisibilityFlags,
-                LocalSyncStateObserver provides SyncStateObserver(viewModel.observeSyncFlowState)
+                LocalSyncStateObserver provides SyncStateObserver(viewModel.observeSyncFlowState),
+                LocalCustomUiConfigurationProvider provides CustomUiConfigurationProvider
             ) {
                 WireTheme {
-
                     Column {
                         CommonTopAppBar(
                             connectivityUIState = commonTopAppBarViewModel.connectivityState,
@@ -136,7 +142,7 @@ class WireActivity : AppCompatActivity() {
                         )
                         val scope = rememberCoroutineScope()
                         val navController = rememberTrackingAnimatedNavController { NavigationItem.fromRoute(it)?.itemName }
-                        setUpNavigationGraph(startDestination, navController, scope)
+                        setUpNavigationGraph(startDestination, navController, scope) { onComplete() }
                         handleDialogs()
                     }
                 }
@@ -145,9 +151,19 @@ class WireActivity : AppCompatActivity() {
     }
 
     @Composable
-    fun setUpNavigationGraph(startDestination: String, navController: NavHostController, scope: CoroutineScope) {
+    fun setUpNavigationGraph(
+        startDestination: String,
+        navController: NavHostController,
+        scope: CoroutineScope,
+        onComplete: () -> Unit
+    ) {
         Scaffold {
-            NavigationGraph(navController = navController, startDestination)
+            NavigationGraph(
+                navController = navController,
+                startDestination = startDestination
+            ) {
+                onComplete()
+            }
         }
         setUpNavigation(navController, scope)
     }
@@ -321,6 +337,7 @@ class WireActivity : AppCompatActivity() {
                     btnText = stringResource(R.string.new_device_dialog_other_user_btn)
                     btnAction = { switchAccount(data.userId) }
                 }
+
                 is NewClientData.CurrentUser -> {
                     title = stringResource(R.string.new_device_dialog_current_user_title)
                     text = stringResource(R.string.new_device_dialog_current_user_message, date, data.deviceInfo)

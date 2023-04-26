@@ -181,12 +181,13 @@ private fun SelfVideo(
     if (isCameraOn) {
         val context = LocalContext.current
         AndroidView(factory = {
-            val videoPreview = VideoPreview(context).also(onSelfUserVideoPreviewCreated)
+            val videoPreview = VideoPreview(context).apply {
+                setShouldFill(false)
+            }.also(onSelfUserVideoPreviewCreated)
             videoPreview
         })
     } else onClearSelfUserVideoPreview()
 }
-
 
 @Composable
 private fun AvatarTile(

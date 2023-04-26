@@ -125,7 +125,7 @@ private fun LoginContent(
             )
         }
     }
-    val targetRoute: String = if (loginEmailViewModel.secondFactorVerificationCodeState.isCodeSent) {
+    val targetRoute: String = if (loginEmailViewModel.secondFactorVerificationCodeState.isCodeInputNecessary) {
         LoginNavigationItem.EMAIL_SECOND_FACTOR_INPUT.route
     } else {
         LoginNavigationItem.MAIN_LOGIN_FORM_SELECTION.route

@@ -28,7 +28,12 @@ import com.google.accompanist.navigation.animation.composable
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
-fun NavigationGraph(navController: NavHostController, startDestination: String, appInitialArgs: List<Any> = emptyList()) {
+fun NavigationGraph(
+    navController: NavHostController,
+    startDestination: String,
+    appInitialArgs: List<Any> = emptyList(),
+    onComplete: () -> Unit
+) {
     AnimatedNavHost(navController, startDestination) {
         NavigationItem.values().onEach { item ->
             composable(
@@ -39,5 +44,6 @@ fun NavigationGraph(navController: NavHostController, startDestination: String, 
                 exitTransition = { item.animationConfig.exitTransition }
             )
         }
+        onComplete()
     }
 }

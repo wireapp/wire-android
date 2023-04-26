@@ -34,4 +34,6 @@ enum class Membership(@StringRes val stringResourceId: Int) {
     None(-1)
 }
 
-fun Membership.hasLabel(): Boolean = stringResourceId != -1;
+fun Membership.hasLabel(): Boolean = stringResourceId != -1
+
+fun Membership.allowsRoleEdition() = this != Membership.Federated && this != Membership.Service

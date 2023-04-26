@@ -65,12 +65,12 @@ object Default {
 }
 
 fun NamedDomainObjectContainer<ApplicationProductFlavor>.createAppFlavour(
-    applicationId: String,
+    flavorApplicationId: String,
     flavour: ProductFlavors
 ) {
     create(flavour.buildName) {
         dimension = flavour.dimensions
-        applicationId = flavour.applicationId
+        applicationId = flavorApplicationId
         versionNameSuffix = "-${flavour.buildName}"
         resValue("string", "app_name", flavour.appName)
         manifestPlaceholders.apply {
@@ -153,14 +153,22 @@ android {
     flavorDimensions(FlavorDimensions.DEFAULT)
     productFlavors {
         fun createFlavor(flavor: ProductFlavors) {
-            val applicationId = buildtimeConfiguration.flavorMap[flavor.buildName]!![FeatureConfigs.APPLICATION_ID]!!
-            createAppFlavour(applicationId, flavor)
+            val flavorName = flavor.buildName
+            val flavorSpecificMap = buildtimeConfiguration.flavorMap[flavorName]
+            requireNotNull(flavorSpecificMap) {
+                "Missing configs in json file for the flavor '$flavorName'"
+            }
+            val flavorApplicationId = flavorSpecificMap[FeatureConfigs.APPLICATION_ID.value] as? String
+            requireNotNull(flavorApplicationId) {
+                "Missing application ID definition for the flavor '$flavorName'"
+            }
+            createAppFlavour(flavorApplicationId, flavor)
         }
         createFlavor(ProductFlavors.Dev)
-        createFlavour(ProductFlavors.Staging)
-        createFlavour(ProductFlavors.Beta)
-        createFlavour(ProductFlavors.Internal)
-        createFlavour(ProductFlavors.Production)
+        createFlavor(ProductFlavors.Staging)
+        createFlavor(ProductFlavors.Beta)
+        createFlavor(ProductFlavors.Internal)
+        createFlavor(ProductFlavors.Production)
     }
 
 

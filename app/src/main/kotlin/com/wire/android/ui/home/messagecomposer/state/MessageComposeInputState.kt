@@ -85,6 +85,7 @@ enum class MessageComposeInputSize {
     EXPANDED; // fullscreen
 }
 
+//TODO: think about extracting attachmentOptionsDisplayed to something more global
 @Stable
 sealed class MessageComposeInputType {
 

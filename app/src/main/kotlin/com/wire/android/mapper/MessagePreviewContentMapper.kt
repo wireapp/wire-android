@@ -265,7 +265,7 @@ fun MessagePreview.uiLastMessageContent(): UILastMessageContent {
                 )
             } else {
                 UILastMessageContent.TextMessage(
-                    MessageBody(UIText.StringResource(R.string.ephemeral_onetoone_event_message))
+                    MessageBody(UIText.StringResource(R.string.ephemeral_one_to_one_event_message))
                 )
             }
 

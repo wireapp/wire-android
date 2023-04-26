@@ -237,11 +237,10 @@ class MessageComposerViewModel @Inject constructor(
                                 assetHeight = imgHeight,
                                 assetDataSize = dataSize,
                                 assetMimeType = mimeType,
-                                    expireAfter = null
-                                )
-                                if (result is ScheduleNewAssetMessageResult.Failure) {
-                                    onSnackbarMessage(ConversationSnackbarMessages.ErrorSendingImage)
-
+                                expireAfter = null
+                            )
+                            if (result is ScheduleNewAssetMessageResult.Failure) {
+                                onSnackbarMessage(ConversationSnackbarMessages.ErrorSendingAsset)
                             }
                         }
 
@@ -256,14 +255,14 @@ class MessageComposerViewModel @Inject constructor(
                                     assetDataSize = dataSize,
                                     assetHeight = null,
                                     assetWidth = null,
-                                        expireAfter = null
-                                    )
-                                    if (result is ScheduleNewAssetMessageResult.Failure) {
-                                        onSnackbarMessage(ConversationSnackbarMessages.ErrorSendingAsset)
-                                    }
-                                } catch (e: OutOfMemoryError) {
-                                    appLogger.e("There was an OutOfMemory error while uploading the asset")
+                                    expireAfter = null
+                                )
+                                if (result is ScheduleNewAssetMessageResult.Failure) {
                                     onSnackbarMessage(ConversationSnackbarMessages.ErrorSendingAsset)
+                                }
+                            } catch (e: OutOfMemoryError) {
+                                appLogger.e("There was an OutOfMemory error while uploading the asset")
+                                onSnackbarMessage(ConversationSnackbarMessages.ErrorSendingAsset)
 
                             }
                         }

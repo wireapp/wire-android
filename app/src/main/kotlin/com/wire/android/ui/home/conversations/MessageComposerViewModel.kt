@@ -240,7 +240,7 @@ class MessageComposerViewModel @Inject constructor(
                                 expireAfter = null
                             )
                             if (result is ScheduleNewAssetMessageResult.Failure) {
-                                onSnackbarMessage(ConversationSnackbarMessages.ErrorSendingAsset)
+                                onSnackbarMessage(ConversationSnackbarMessages.ErrorSendingImage)
                             }
                         }
 

@@ -25,44 +25,59 @@ enum class ConfigType(val type: String) {
 }
 
 enum class FeatureConfigs(val value: String, val configType: ConfigType) {
-    ALLOW_CHANGE_OF_EMAIL("allowChangeOfEmail", ConfigType.BOOLEAN),
-    ALLOW_MARKETING_COMMUNICATION("allowMarketingCommunication", ConfigType.BOOLEAN),
-    ALLOW_SSO("allowSSO", ConfigType.BOOLEAN),
-    ALLOW_ACCOUNT_CREATION("allow_account_creation", ConfigType.BOOLEAN),
-    BLOCK_ON_JAILBREAK_OR_ROOT("block_on_jailbreak_or_root", ConfigType.BOOLEAN),
-    BLOCK_ON_PASSWORD_POLICY("block_on_password_policy", ConfigType.BOOLEAN),
-    CUSTOM_URL_SCHEME("custom_url_scheme", ConfigType.STRING),
-    FILE_RESTRICTION_ENABLED("file_restriction_enabled", ConfigType.BOOLEAN),
-    MLS_SUPPORT_ENABLED("mls_support_enabled", ConfigType.BOOLEAN),
-    FORCE_APP_LOCK("force_app_lock", ConfigType.BOOLEAN),
-    FORCE_CONSTANT_BITRATE_CALLS("force_constant_bitrate_calls", ConfigType.BOOLEAN),
-    FORCE_HIDE_SCREEN_CONTENT("force_hide_screen_content", ConfigType.BOOLEAN),
-    KEEP_WEB_SOCKET_ON("keep_websocket_on", ConfigType.BOOLEAN),
-    MAX_ACCOUNTS("maxAccounts", ConfigType.INT),
-    WIPE_ON_COOKIE_INVALID("wipe_on_cookie_invalid", ConfigType.BOOLEAN),
-    WIPE_ON_DEVICE_REMOVAL("wipe_on_device_removal", ConfigType.BOOLEAN),
-    SUPPORT_EMAIL("supportEmail", ConfigType.STRING),
-    TEAMS_URL("teamsUrl", ConfigType.STRING),
-    WEB_LINK_PREVIEW("web_link_preview", ConfigType.BOOLEAN),
-    ENCRYPT_PROTEUS_STORAGE("encrypt_proteus_storage", ConfigType.BOOLEAN),
-    GUEST_ROOM_LINK("guest_room_link", ConfigType.BOOLEAN),
-    UPDATE_APP_URL("update_app_url", ConfigType.STRING),
-    APP_NAME("appName", ConfigType.STRING),
-    APPLICATION_ID("applicationId", ConfigType.STRING),
-    LAUNCHER_ICON("launcherIcon", ConfigType.STRING),
-    LOGGING_ENABLED("logging_enabled", ConfigType.BOOLEAN),
-    SAFE_LOGGING("safe_logging", ConfigType.BOOLEAN),
-    PRIVATE_BUILD("private_build", ConfigType.BOOLEAN),
-    FIREBASE_APP_ID("firebaseAppId", ConfigType.STRING),
-    FIREBASE_PUSH_SENDER_ID("firebasePushSenderId", ConfigType.STRING),
-    GOOGLE_API_KEY("googleApiKey", ConfigType.STRING),
-    FCM_PROJECT_ID("fcmProjectID", ConfigType.STRING),
+    /**
+     * General APP Coordinates
+     */
+    APP_NAME("application_name", ConfigType.STRING), // Currently not being used (?)
+    APPLICATION_ID("application_id", ConfigType.STRING), // Currently not being used (?)
+    USER_ID("application_user_id", ConfigType.STRING),
+    PRIVATE_BUILD("application_is_private_build", ConfigType.BOOLEAN),
 
+    /**
+     * Feature flags in general
+     */
+    ALLOW_CHANGE_OF_EMAIL("allow_email_change", ConfigType.BOOLEAN),
+    ALLOW_SSO("allow_sso_authentication_option", ConfigType.BOOLEAN),
+    ALLOW_ACCOUNT_CREATION("allow_account_creation", ConfigType.BOOLEAN),
+    FILE_RESTRICTION_ENABLED("file_restriction_enabled", ConfigType.BOOLEAN),
+    FORCE_CONSTANT_BITRATE_CALLS("force_constant_bitrate_calls", ConfigType.BOOLEAN),
+    MAX_ACCOUNTS("max_accounts", ConfigType.INT),
+    ENABLE_GUEST_ROOM_LINK("enable_guest_room_link", ConfigType.BOOLEAN),
+    UPDATE_APP_URL("update_app_url", ConfigType.STRING),
+    ENABLE_BLACKLIST("enable_blacklist", ConfigType.BOOLEAN),
+
+    /**
+     * Security/Cryptography stuff
+     */
+    MLS_SUPPORT_ENABLED("mls_support_enabled", ConfigType.BOOLEAN),
+    ENCRYPT_PROTEUS_STORAGE("encrypt_proteus_storage", ConfigType.BOOLEAN),
+    WIPE_ON_COOKIE_INVALID("wipe_on_cookie_invalid", ConfigType.BOOLEAN),
+    WIPE_ON_ROOTED_DEVICE("wipe_on_rooted_device", ConfigType.BOOLEAN),
+    WIPE_ON_DEVICE_REMOVAL("wipe_on_device_removal", ConfigType.BOOLEAN),
+
+    /**
+     * 3rd party services API Keys and IDs
+     */
+    FIREBASE_APP_ID("firebase_app_id", ConfigType.STRING),
+    FIREBASE_PUSH_SENDER_ID("firebase_push_sender_id", ConfigType.STRING),
+    GOOGLE_API_KEY("google_api_key", ConfigType.STRING),
+    FCM_PROJECT_ID("fcm_project_id", ConfigType.STRING),
+
+    /**
+     * Development/Logging stuff
+     */
+    LOGGING_ENABLED("logging_enabled", ConfigType.BOOLEAN),
+    DEBUG_SCREEN_ENABLED("debug_screen_enabled", ConfigType.BOOLEAN),
     DEVELOPER_FEATURES_ENABLED("developer_features_enabled", ConfigType.BOOLEAN),
     DEVELOPMENT_API_ENABLED("development_api_enabled", ConfigType.BOOLEAN),
+    REPORT_BUG_MENU_ITEM_ENABLED("report_bug_menu_item_enabled", ConfigType.BOOLEAN),
 
     URL_SUPPORT("url_support", ConfigType.STRING),
 
+    /**
+     * In runtime, will use these values to determine which backend to use.
+     * Alternatively, the user can open a deeplink which will allow them to authenticate in a different backend.
+     */
     DEFAULT_BACKEND_URL_ACCOUNTS("default_backend_url_accounts", ConfigType.STRING),
     DEFAULT_BACKEND_URL_BASE_API("default_backend_url_base_api", ConfigType.STRING),
     DEFAULT_BACKEND_URL_BASE_WEBSOCKET("default_backend_url_base_websocket", ConfigType.STRING),
@@ -70,10 +85,6 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
     DEFAULT_BACKEND_URL_BLACKLIST("default_backend_url_blacklist", ConfigType.STRING),
     DEFAULT_BACKEND_URL_WEBSITE("default_backend_url_website", ConfigType.STRING),
     DEFAULT_BACKEND_TITLE("default_backend_title", ConfigType.STRING),
-    BLACKLIST_ENABLE("enableBlacklist", ConfigType.BOOLEAN),
     // TODO: Add support for default proxy configs
 
-    USER_ID("userId", ConfigType.STRING),
-    DEBUG_SCREEN_ENABLED("debug_screen_enabled", ConfigType.BOOLEAN),
-    REPORT_BUG_MENU_ITEM_ENABLED("report_bug_menu_item_enabled", ConfigType.BOOLEAN);
 }

@@ -120,7 +120,7 @@ fun MessageItem(
         } else if (selfDeletionTimerState is SelfDeletionTimer.SelfDeletionTimerState.Expirable && !message.isDeleted) {
             val color by animateColorAsState(
                 colorsScheme().primaryVariant.copy(selfDeletionTimerState.alphaBackgroundColor()),
-                tween()
+                tween(), label = "message background color"
             )
 
             Modifier.background(color)

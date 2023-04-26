@@ -49,6 +49,7 @@ import com.wire.android.util.WHITE_SPACE
 import com.wire.android.util.ui.toUIText
 import com.wire.kalium.logic.data.user.UserId
 import kotlinx.coroutines.flow.MutableStateFlow
+import com.wire.kalium.logic.data.message.mention.MessageMention
 import kotlinx.coroutines.flow.StateFlow
 
 @Composable
@@ -151,11 +152,12 @@ data class MessageComposerState(
         }
     }
 
-    fun toEditMessage(messageId: String, originalText: String) {
+    fun toEditMessage(messageId: String, originalText: String, originalMentions: List<MessageMention>) {
         messageComposeInputState = MessageComposeInputState.Active(
             messageText = TextFieldValue(text = originalText, selection = TextRange(originalText.length)),
             type = MessageComposeInputType.EditMessage(messageId, originalText)
         )
+        mentions = originalMentions.map { it.toUiMention(originalText) }
         quotedMessageData = null
         inputFocusRequester.requestFocus()
     }
@@ -348,3 +350,10 @@ private fun TextFieldValue.currentMentionStartIndex(): Int {
         else -> -1
     }
 }
+
+fun MessageMention.toUiMention(originalText: String) = UiMention(
+    start = this.start,
+    length = this.length,
+    userId = this.userId,
+    handler = originalText.substring(start, start + length)
+)

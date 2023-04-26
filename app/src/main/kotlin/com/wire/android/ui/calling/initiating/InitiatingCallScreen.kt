@@ -101,7 +101,7 @@ private fun InitiatingCallContent(
             ) {
                 CallOptionsControls(
                     isMuted = callState.isMuted ?: true,
-                    isCameraOn = callState.isCameraOn ?: false,
+                    isCameraOn = callState.isCameraOn,
                     isSpeakerOn = callState.isSpeakerOn,
                     toggleSpeaker = toggleSpeaker,
                     toggleMute = toggleMute,
@@ -123,13 +123,14 @@ private fun InitiatingCallContent(
     ) {
         Box {
             CallVideoPreview(
-                isCameraOn = callState.isCameraOn ?: false,
+                isCameraOn = callState.isCameraOn,
                 onVideoPreviewCreated = onVideoPreviewCreated,
                 onSelfClearVideoPreview = onSelfClearVideoPreview
             )
             CallerDetails(
                 conversationName = callState.conversationName,
-                isCameraOn = callState.isCameraOn ?: false,
+                isCameraOn = callState.isCameraOn,
+                isCbrEnabled = callState.isCbrEnabled,
                 avatarAssetId = callState.avatarAssetId,
                 conversationType = callState.conversationType,
                 membership = callState.membership,

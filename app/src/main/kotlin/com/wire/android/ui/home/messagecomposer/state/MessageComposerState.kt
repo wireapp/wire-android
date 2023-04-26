@@ -39,6 +39,7 @@ import com.wire.android.appLogger
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.conversations.model.UIQuotedMessage
+import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMapper.toSelfDeletionDuration
 import com.wire.android.ui.home.messagecomposer.model.UiMention
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.ui.theme.wireColorScheme
@@ -48,9 +49,9 @@ import com.wire.android.util.NEW_LINE_SYMBOL
 import com.wire.android.util.WHITE_SPACE
 import com.wire.android.util.ui.toUIText
 import com.wire.kalium.logic.configuration.SelfDeletingMessagesStatus
+import com.wire.kalium.logic.data.message.mention.MessageMention
 import com.wire.kalium.logic.data.user.UserId
 import kotlinx.coroutines.flow.MutableStateFlow
-import com.wire.kalium.logic.data.message.mention.MessageMention
 import kotlinx.coroutines.flow.StateFlow
 
 @Composable
@@ -84,6 +85,8 @@ data class MessageComposerState(
 ) {
     var messageComposeInputState: MessageComposeInputState by mutableStateOf(MessageComposeInputState.Inactive())
         private set
+
+    private var currentSelfDeletingStatus: SelfDeletingMessagesStatus by mutableStateOf(SelfDeletingMessagesStatus(true, null))
 
     private val _mentionQueryFlowState: MutableStateFlow<String?> = MutableStateFlow(null)
 
@@ -147,9 +150,9 @@ data class MessageComposerState(
         }
     }
 
-    fun toActive(currentSelfDeletingMessagesStatus: SelfDeletingMessagesStatus) {
+    fun toActive() {
         if (messageComposeInputState !is MessageComposeInputState.Active) {
-            messageComposeInputState = messageComposeInputState.toActive(selfDeletingStatus = currentSelfDeletingMessagesStatus)
+            messageComposeInputState = messageComposeInputState.toActive(selfDeletingStatus = currentSelfDeletingStatus)
         }
     }
 
@@ -278,7 +281,7 @@ data class MessageComposerState(
         }
     }
 
-    fun reply(uiMessage: UIMessage.Regular, currentSelfDeletingMessagesStatus: SelfDeletingMessagesStatus) {
+    fun reply(uiMessage: UIMessage.Regular) {
         val authorName = uiMessage.header.username
         val authorId = uiMessage.header.userId ?: return
 
@@ -318,26 +321,29 @@ data class MessageComposerState(
                 quotedContent = quotedContent
             )
         }
-        toActive(currentSelfDeletingMessagesStatus)
+        toActive()
     }
 
     fun cancelReply() {
         quotedMessageData = null
     }
 
-    fun updateSelfDeletionTime(newSelfDeletionDuration: SelfDeletionDuration, isEnforced: Boolean) {
+    fun updateSelfDeletionTime(newSelfDeletionStatus: SelfDeletingMessagesStatus) = with(newSelfDeletionStatus) {
+        currentSelfDeletingStatus = newSelfDeletionStatus
+        val selfDeletionDuration = globalSelfDeletionDuration.toSelfDeletionDuration()
         messageComposeInputState = MessageComposeInputState.Active(
             messageText = messageComposeInputState.messageText,
             inputFocused = true,
-            type = if (newSelfDeletionDuration == SelfDeletionDuration.None) MessageComposeInputType.NewMessage()
-            else MessageComposeInputType.SelfDeletingMessage(newSelfDeletionDuration, isEnforced)
+            type = if (selfDeletionDuration == SelfDeletionDuration.None) MessageComposeInputType.NewMessage()
+            else MessageComposeInputType.SelfDeletingMessage(selfDeletionDuration, isEnforced)
         )
     }
 
-    fun getSelfDeletionTime(): SelfDeletionDuration {
-        return (messageComposeInputState as? MessageComposeInputState.Active)
-            ?.let { it.type as? MessageComposeInputType.SelfDeletingMessage }?.selfDeletionDuration
-            ?: SelfDeletionDuration.None
+    fun getSelfDeletionTime(): SelfDeletionDuration = currentSelfDeletingStatus.globalSelfDeletionDuration.toSelfDeletionDuration()
+
+    fun shouldShowSelfDeletionOption(): Boolean = with(currentSelfDeletingStatus) {
+        // We shouldn't show the self-deleting option if there is a compulsory duration already set on the team settings level
+        isFeatureEnabled && !isEnforced
     }
 }
 

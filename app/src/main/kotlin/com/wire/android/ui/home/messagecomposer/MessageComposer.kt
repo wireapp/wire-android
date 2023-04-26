@@ -65,7 +65,6 @@ import com.wire.android.ui.home.messagecomposer.state.MessageComposeInputType
 import com.wire.android.ui.home.messagecomposer.state.MessageComposerState
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.ui.theme.wireColorScheme
-import com.wire.kalium.logic.configuration.SelfDeletingMessagesStatus
 import com.wire.kalium.logic.feature.conversation.InteractionAvailability
 import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
 
@@ -83,7 +82,7 @@ fun MessageComposer(
     membersToMention: List<Contact>,
     onPingClicked: () -> Unit,
     onShowSelfDeletionOption: () -> Unit,
-    currentSelfDeletingMessagesStatus: SelfDeletingMessagesStatus,
+    showSelfDeletingOption: Boolean,
     tempWritableImageUri: Uri?,
     tempWritableVideoUri: Uri?
 ) {
@@ -148,7 +147,7 @@ fun MessageComposer(
             onMentionPicked = onMentionPicked,
             onPingClicked = onPingClicked,
             onShowSelfDeletionOption = onShowSelfDeletionOption,
-            currentSelfDeletingMessagesStatus = currentSelfDeletingMessagesStatus,
+            showSelfDeletingOption = showSelfDeletingOption,
             tempWritableImageUri = tempWritableImageUri,
             tempWritableVideoUri = tempWritableVideoUri
         )
@@ -172,7 +171,7 @@ private fun MessageComposer(
     onMentionPicked: (Contact) -> Unit,
     onPingClicked: () -> Unit,
     onShowSelfDeletionOption: () -> Unit,
-    currentSelfDeletingMessagesStatus: SelfDeletingMessagesStatus
+    showSelfDeletingOption: Boolean
 ) {
     Surface(color = colorsScheme().messageComposerBackgroundColor) {
         val transition = updateTransition(
@@ -255,7 +254,7 @@ private fun MessageComposer(
                         quotedMessageData = messageComposerState.quotedMessageData,
                         membersToMention = membersToMention,
                         inputFocusRequester = messageComposerState.inputFocusRequester,
-                        currentSelfDeletingStatus = currentSelfDeletingMessagesStatus,
+                        showSelfDeletingOption = showSelfDeletingOption,
                         actions = remember(messageComposerState) {
                             MessageComposerInputActions(
                                 onMessageTextChanged = messageComposerState::setMessageTextValue,
@@ -268,13 +267,13 @@ private fun MessageComposer(
                                 onInputFocusChanged = { isFocused ->
                                     messageComposerState.messageComposeInputFocusChange(isFocused)
                                     if (isFocused) {
-                                        messageComposerState.toActive(currentSelfDeletingMessagesStatus)
+                                        messageComposerState.toActive()
                                         messageComposerState.hideAttachmentOptions()
                                     }
                                 },
                                 onAdditionalOptionButtonClicked = {
                                     messageComposerState.focusManager.clearFocus()
-                                    messageComposerState.toActive(currentSelfDeletingMessagesStatus)
+                                    messageComposerState.toActive()
                                     messageComposerState.showAttachmentOptions()
                                 },
                                 onEditSaveButtonClicked = onEditSaveButtonClicked,

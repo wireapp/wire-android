@@ -82,7 +82,7 @@ internal fun MessageComposerInput(
     actions: MessageComposerInputActions,
     inputFocusRequester: FocusRequester,
     isFileSharingEnabled: Boolean,
-    currentSelfDeletingStatus: SelfDeletingMessagesStatus
+    showSelfDeletingOption: Boolean
 ) {
     when (interactionAvailability) {
         InteractionAvailability.BLOCKED_USER -> BlockedUserComposerInput(securityClassificationType)
@@ -100,7 +100,7 @@ internal fun MessageComposerInput(
                 actions = actions,
                 inputFocusRequester = inputFocusRequester,
                 isFileSharingEnabled = isFileSharingEnabled,
-                currentSelfDeletingStatus = currentSelfDeletingStatus
+                showSelfDeletingOption = showSelfDeletingOption
             )
         }
     }
@@ -117,7 +117,7 @@ private fun EnabledMessageComposerInput(
     actions: MessageComposerInputActions,
     inputFocusRequester: FocusRequester,
     isFileSharingEnabled: Boolean,
-    currentSelfDeletingStatus: SelfDeletingMessagesStatus
+    showSelfDeletingOption: Boolean
 ) {
     Box {
         var currentSelectedLineIndex by remember { mutableStateOf(0) }
@@ -133,7 +133,6 @@ private fun EnabledMessageComposerInput(
                 actions = actions,
                 inputFocusRequester = inputFocusRequester,
                 isFileSharingEnabled = isFileSharingEnabled,
-                currentSelfDeletingStatus = currentSelfDeletingStatus,
                 modifier = Modifier
                     .fillMaxWidth()
                     .let {
@@ -150,7 +149,7 @@ private fun EnabledMessageComposerInput(
                 modifier = Modifier.background(colorsScheme().messageComposerBackgroundColor),
                 onPingClicked = actions.onPingClicked,
                 onSelfDeletionOptionButtonClicked = actions.onSelfDeletionOptionButtonClicked,
-                currentSelfDeletingMessagesStatus = currentSelfDeletingStatus
+                showSelfDeletingOption = showSelfDeletingOption
             )
         }
         if (membersToMention.isNotEmpty() && messageComposeInputState.isExpanded) {
@@ -171,7 +170,6 @@ private fun MessageComposeInput(
     actions: MessageComposerInputActions,
     inputFocusRequester: FocusRequester,
     isFileSharingEnabled: Boolean,
-    currentSelfDeletingStatus: SelfDeletingMessagesStatus,
     modifier: Modifier
 ) {
     Column(
@@ -220,7 +218,6 @@ private fun MessageComposeInput(
             onEditCancelButtonClicked = actions.onEditCancelButtonClicked,
             onEditSaveButtonClicked = actions.onEditSaveButtonClicked,
             onChangeSelfDeletionTimeClicked = actions.onSelfDeletionOptionButtonClicked,
-            currentSelfDeletingMessagesStatus = currentSelfDeletingStatus,
             isFileSharingEnabled = isFileSharingEnabled,
         )
     }
@@ -295,7 +292,7 @@ private fun generatePreviewWithState(state: MessageComposeInputState) {
         actions = MessageComposerInputActions(),
         inputFocusRequester = FocusRequester(),
         isFileSharingEnabled = true,
-        currentSelfDeletingStatus = SelfDeletingMessagesStatus(true, null, null)
+        showSelfDeletingOption = true
     )
 }
 

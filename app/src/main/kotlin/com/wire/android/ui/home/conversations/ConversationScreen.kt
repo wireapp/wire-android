@@ -80,7 +80,6 @@ import com.wire.android.ui.home.conversations.model.SendMessageBundle
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UriAsset
 import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMapper.toSeconds
-import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMapper.toSelfDeletionDuration
 import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMenuItems
 import com.wire.android.ui.home.messagecomposer.MessageComposer
 import com.wire.android.ui.home.messagecomposer.state.MessageComposerState
@@ -328,17 +327,14 @@ private fun ConversationScreen(
         conversationMessagesViewModel.checkPendingActions(
             onMessageReply = {
                 withSmoothScreenLoad {
-                    messageComposerState.reply(it, currentSelfDeletingMessagesStatus)
+                    messageComposerState.reply(it)
                 }
             }
         )
     }
 
     LaunchedEffect(currentSelfDeletingMessagesStatus) {
-        messageComposerState.updateSelfDeletionTime(
-            newSelfDeletionDuration = currentSelfDeletingMessagesStatus.globalSelfDeletionDuration.toSelfDeletionDuration(),
-            isEnforced = currentSelfDeletingMessagesStatus.isEnforced
-        )
+        messageComposerState.updateSelfDeletionTime(currentSelfDeletingMessagesStatus)
     }
 
     val menuModalHeader = if (conversationScreenState.bottomSheetMenuType is ConversationScreenState.BottomSheetMenuType.SelfDeletion) {
@@ -356,9 +352,7 @@ private fun ConversationScreen(
                 onDeleteClick = onDeleteMessage,
                 onReactionClick = onReactionClick,
                 onDetailsClick = onMessageDetailsClick,
-                onReplyClick = {
-                    messageComposerState.reply(it, currentSelfDeletingMessagesStatus)
-                },
+                onReplyClick = messageComposerState::reply,
                 onEditClick = messageComposerState::toEditMessage,
                 onShareAsset = {
                     menuType.selectedMessage.header.messageId.let {
@@ -444,7 +438,6 @@ private fun ConversationScreen(
                         onUpdateConversationReadDate = onUpdateConversationReadDate,
                         onShowEditingOptions = conversationScreenState::showEditContextMenu,
                         onShowSelfDeletionOption = conversationScreenState::showSelfDeletionContextMenu,
-                        currentSelfDeletingMessagesStatus = currentSelfDeletingMessagesStatus,
                         onPingClicked = onPingClicked,
                         onSelfDeletingMessageRead = onSelfDeletingMessageRead,
                         tempWritableImageUri = tempWritableImageUri,
@@ -484,7 +477,6 @@ private fun ConversationScreenContent(
     onShowSelfDeletionOption: () -> Unit,
     onPingClicked: () -> Unit,
     onSelfDeletingMessageRead: (UIMessage.Regular) -> Unit,
-    currentSelfDeletingMessagesStatus: SelfDeletingMessagesStatus,
     tempWritableImageUri: Uri?,
     tempWritableVideoUri: Uri?
 ) {
@@ -534,7 +526,7 @@ private fun ConversationScreenContent(
         },
         onMentionMember = onMentionMember,
         onShowSelfDeletionOption = onShowSelfDeletionOption,
-        currentSelfDeletingMessagesStatus = currentSelfDeletingMessagesStatus,
+        showSelfDeletingOption = messageComposerState.shouldShowSelfDeletionOption(),
         isFileSharingEnabled = isFileSharingEnabled,
         interactionAvailability = interactionAvailability,
         securityClassificationType = conversationState.securityClassificationType,

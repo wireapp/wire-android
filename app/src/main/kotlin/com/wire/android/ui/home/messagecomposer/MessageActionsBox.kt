@@ -62,7 +62,7 @@ fun MessageComposeActionsBox(
     onAdditionalOptionButtonClicked: () -> Unit,
     onPingClicked: () -> Unit,
     onSelfDeletionOptionButtonClicked: () -> Unit,
-    currentSelfDeletingMessagesStatus: SelfDeletingMessagesStatus,
+    showSelfDeletingOption: Boolean,
     modifier: Modifier = Modifier,
 ) {
     Column(modifier.wrapContentSize()) {
@@ -86,7 +86,7 @@ fun MessageComposeActionsBox(
                         onAdditionalOptionButtonClicked,
                         onPingClicked,
                         onSelfDeletionOptionButtonClicked,
-                        currentSelfDeletingMessagesStatus
+                        showSelfDeletingOption
                     )
                 }
             }
@@ -105,13 +105,9 @@ private fun MessageComposeActions(
     onAdditionalOptionButtonClicked: () -> Unit,
     onPingClicked: () -> Unit,
     onSelfDeletionOptionButtonClicked: () -> Unit,
-    selfDeletingMessagesStatus: SelfDeletingMessagesStatus
+    showSelfDeletingOption: Boolean,
 ) {
     val localFeatureVisibilityFlags = LocalFeatureVisibilityFlags.current
-    // We shouldn't show the self-deleting option if there is a compulsory duration already set on the team settings level
-    val showSelfDeletingOption = with(selfDeletingMessagesStatus) {
-        isFeatureEnabled && !isEnforced
-    }
 
     Row(
         verticalAlignment = Alignment.CenterVertically,

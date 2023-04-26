@@ -207,7 +207,7 @@ class MessageComposerStateTest {
         val originalMessageText = "original message text"
         val state = createState(context, focusManager, focusRequester)
         state.setMessageTextValue(textFieldValueWithSelection("start text"))
-        state.toEditMessage("message-id", originalMessageText)
+        state.toEditMessage("message-id", originalMessageText, listOf())
         assert(state.messageComposeInputState.isEditMessage)
         assertEquals(originalMessageText, state.messageComposeInputState.messageText.text)
     }

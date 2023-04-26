@@ -110,7 +110,7 @@ class MessageMapper @Inject constructor(
                     header = provideMessageHeader(sender, message),
                     messageFooter = footer,
                     userAvatarData = getUserAvatarData(sender),
-                    expirationStatus = provideExpirationData(message),
+                    expirationStatus = provideExpirationData(message)
                 )
             }
             is UIMessageContent.SystemMessage ->

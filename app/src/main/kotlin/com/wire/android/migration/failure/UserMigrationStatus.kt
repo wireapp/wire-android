@@ -1,5 +1,6 @@
 package com.wire.android.migration.failure
 
+@Suppress("MagicNumber")
 sealed interface UserMigrationStatus {
     val value: Int
 
@@ -22,8 +23,17 @@ sealed interface UserMigrationStatus {
     /**
      * User migration has completed.
      */
+    @Deprecated("Use CompletedWithErrors, or Successfully instead")
     object Completed : UserMigrationStatus {
         override val value: Int = 2
+    }
+
+    object CompletedWithErrors : UserMigrationStatus {
+        override val value: Int = 3
+    }
+
+    object Successfully : UserMigrationStatus {
+        override val value: Int = 4
     }
 
     companion object {
@@ -31,6 +41,8 @@ sealed interface UserMigrationStatus {
             0 -> NoNeed
             1 -> NotStarted
             2 -> Completed
+            3 -> CompletedWithErrors
+            4 -> Successfully
             else -> throw IllegalArgumentException("Invalid value for UserMigrationStatus: $value")
         }
     }

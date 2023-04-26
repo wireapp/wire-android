@@ -39,6 +39,8 @@ import com.wire.android.ui.home.conversations.model.ExpirationStatus
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.util.debug.LocalFeatureVisibilityFlags
+import com.wire.android.util.ui.UIText
+import com.wire.kalium.logic.data.message.mention.MessageMention
 
 @Composable
 fun EditMessageMenuItems(
@@ -49,7 +51,7 @@ fun EditMessageMenuItems(
     onReactionClick: (messageId: String, emoji: String) -> Unit,
     onReplyClick: (message: UIMessage.Regular) -> Unit,
     onDetailsClick: (messageId: String, isMyMessage: Boolean) -> Unit,
-    onEditClick: (messageId: String, originalText: String) -> Unit,
+    onEditClick: (messageId: String, originalText: String, originalMentions: List<MessageMention>) -> Unit,
     onShareAsset: () -> Unit,
     onDownloadAsset: (messageId: String) -> Unit,
     onOpenAsset: (messageId: String) -> Unit,
@@ -102,10 +104,13 @@ fun EditMessageMenuItems(
     val onEditItemClick = remember(message) {
         {
             hideEditMessageMenu {
-                onEditClick(
-                    message.header.messageId,
-                    (message.messageContent as UIMessageContent.TextMessage).messageBody.message.asString(localContext.resources)
-                )
+                with(message.messageContent as UIMessageContent.TextMessage) {
+                    onEditClick(
+                        message.header.messageId,
+                        messageBody.message.asString(localContext.resources),
+                        if (messageBody.message is UIText.DynamicString) messageBody.message.mentions else listOf()
+                    )
+                }
             }
         }
     }

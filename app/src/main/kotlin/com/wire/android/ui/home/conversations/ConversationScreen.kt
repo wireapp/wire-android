@@ -50,7 +50,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
-import androidx.paging.compose.items
+import androidx.paging.compose.itemsIndexed
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.media.audiomessage.AudioState
@@ -94,6 +94,7 @@ import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.call.usecase.ConferenceCallingResult
 import com.wire.kalium.logic.feature.conversation.InteractionAvailability
+import com.wire.kalium.util.DateTimeUtil
 import kotlinx.collections.immutable.ImmutableMap
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
@@ -111,6 +112,7 @@ import kotlin.time.Duration.Companion.milliseconds
  * Once the user scrolls further into older messages, we stop autoscroll.
  */
 private const val MAXIMUM_SCROLLED_MESSAGES_UNTIL_AUTOSCROLL_STOPS = 5
+private const val AGGREGATION_TIME_WINDOW: Int = 30000
 
 // TODO: !! this screen definitely needs a refactor and some cleanup !!
 @Composable
@@ -314,7 +316,7 @@ private fun ConversationScreen(
     tempWritableVideoUri: Uri?
 ) {
     val conversationScreenState = rememberConversationScreenState()
-    val messageComposerInnerState = rememberMessageComposerState()
+    val messageComposerState = rememberMessageComposerState()
     val context = LocalContext.current
 
     LaunchedEffect(conversationMessagesViewModel.savedStateHandle) {
@@ -322,7 +324,7 @@ private fun ConversationScreen(
         conversationMessagesViewModel.checkPendingActions(
             onMessageReply = {
                 withSmoothScreenLoad {
-                    messageComposerInnerState.reply(it)
+                    messageComposerState.reply(it)
                 }
             }
         )
@@ -343,8 +345,8 @@ private fun ConversationScreen(
                 onDeleteClick = onDeleteMessage,
                 onReactionClick = onReactionClick,
                 onDetailsClick = onMessageDetailsClick,
-                onReplyClick = messageComposerInnerState::reply,
-                onEditClick = messageComposerInnerState::toEditMessage,
+                onReplyClick = messageComposerState::reply,
+                onEditClick = messageComposerState::toEditMessage,
                 onShareAsset = {
                     menuType.selectedMessage.header.messageId.let {
                         conversationMessagesViewModel.shareAsset(context, it)
@@ -359,8 +361,8 @@ private fun ConversationScreen(
         is ConversationScreenState.BottomSheetMenuType.SelfDeletion -> {
             SelfDeletionMenuItems(
                 hideEditMessageMenu = conversationScreenState::hideContextMenu,
-                currentlySelected = messageComposerInnerState.getSelfDeletionTime(),
-                onSelfDeletionDurationChanged = { messageComposerInnerState.specifySelfDeletionTime(it) }
+                currentlySelected = messageComposerState.getSelfDeletionTime(),
+                onSelfDeletionDurationChanged = { messageComposerState.specifySelfDeletionTime(it) }
             )
         }
 
@@ -405,7 +407,7 @@ private fun ConversationScreen(
                         isFileSharingEnabled = messageComposerViewState.isFileSharingEnabled,
                         lastUnreadMessageInstant = conversationMessagesViewState.firstUnreadInstant,
                         conversationState = messageComposerViewState,
-                        messageComposerState = messageComposerInnerState,
+                        messageComposerState = messageComposerState,
                         messages = conversationMessagesViewState.messages,
                         onSendMessage = onSendMessage,
                         onSendEditMessage = onSendEditMessage,
@@ -611,32 +613,51 @@ fun MessageList(
             .fillMaxHeight()
             .fillMaxWidth()
     ) {
-        items(lazyPagingMessages, key = { uiMessage ->
+        itemsIndexed(lazyPagingMessages, key = { _, uiMessage ->
             uiMessage.header.messageId
-        }) { message ->
+        }) { index, message ->
             if (message == null) {
                 // We can draw a placeholder here, as we fetch the next page of messages
-                return@items
+                return@itemsIndexed
             }
             when (message) {
-                is UIMessage.Regular -> MessageItem(
-                    message = message,
-                    audioMessagesState = audioMessagesState,
-                    onAudioClick = onAudioItemClicked,
-                    onChangeAudioPosition = onChangeAudioPosition,
-                    onLongClicked = onShowEditingOption,
-                    onAssetMessageClicked = onAssetItemClicked,
-                    onImageMessageClicked = onImageFullScreenMode,
-                    onOpenProfile = onOpenProfile,
-                    onReactionClicked = onReactionClicked,
-                    onResetSessionClicked = onResetSessionClicked,
-                    onSelfDeletingMessageRead = onSelfDeletingMessageRead,
-                )
+                is UIMessage.Regular -> {
+                    MessageItem(
+                        message = message,
+                        showAuthor = shouldShowHeader(index, lazyPagingMessages.itemSnapshotList.items, message),
+                        audioMessagesState = audioMessagesState,
+                        onAudioClick = onAudioItemClicked,
+                        onChangeAudioPosition = onChangeAudioPosition,
+                        onLongClicked = onShowEditingOption,
+                        onAssetMessageClicked = onAssetItemClicked,
+                        onImageMessageClicked = onImageFullScreenMode,
+                        onOpenProfile = onOpenProfile,
+                        onReactionClicked = onReactionClicked,
+                        onResetSessionClicked = onResetSessionClicked,
+                        onSelfDeletingMessageRead = onSelfDeletingMessageRead,
+                    )
+                }
 
                 is UIMessage.System -> SystemMessageItem(message = message)
             }
         }
     }
+}
+
+private fun shouldShowHeader(index: Int, messages: List<UIMessage>, currentMessage: UIMessage): Boolean {
+    var showHeader = true
+    val nextIndex = index + 1
+    if (nextIndex < messages.size) {
+        val nextUiMessage = messages[nextIndex]
+        if (currentMessage.header.userId == nextUiMessage.header.userId) {
+            val difference = DateTimeUtil.calculateMillisDifference(
+                nextUiMessage.header.messageTime.utcISO,
+                currentMessage.header.messageTime.utcISO,
+            )
+            showHeader = difference > AGGREGATION_TIME_WINDOW
+        }
+    }
+    return showHeader
 }
 
 private fun CoroutineScope.withSmoothScreenLoad(block: () -> Unit) = launch {

@@ -29,6 +29,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -45,6 +46,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -69,6 +71,7 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
+import java.util.Locale
 
 @Composable
 fun OngoingCallScreen(
@@ -83,6 +86,7 @@ fun OngoingCallScreen(
             isMuted ?: true,
             isCameraOn,
             isSpeakerOn,
+            isCbrEnabled,
             securityClassificationType,
             sharedCallingViewModel::toggleSpeaker,
             sharedCallingViewModel::toggleMute,
@@ -107,6 +111,7 @@ private fun OngoingCallContent(
     isMuted: Boolean,
     isCameraOn: Boolean,
     isSpeakerOn: Boolean,
+    isCbrEnabled: Boolean,
     classificationType: SecurityClassificationType,
     toggleSpeaker: () -> Unit,
     toggleMute: () -> Unit,
@@ -117,7 +122,6 @@ private fun OngoingCallContent(
     navigateBack: () -> Unit,
     requestVideoStreams: (participants: List<UICallParticipant>) -> Unit
 ) {
-
     val sheetInitialValue =
         if (classificationType == SecurityClassificationType.NONE) BottomSheetValue.Collapsed else BottomSheetValue.Expanded
     val sheetState = rememberBottomSheetState(
@@ -142,6 +146,7 @@ private fun OngoingCallContent(
                     is ConversationName.Unknown -> stringResource(id = conversationName.resourceId)
                     else -> ""
                 },
+                isCbrEnabled = isCbrEnabled,
                 onCollapse = navigateBack
             )
         },
@@ -183,10 +188,14 @@ private fun OngoingCallContent(
                     bottom = 95.dp
                 )
             ) {
+                val topAppBarAndBottomSheetHeight = if (isCbrEnabled) APP_BAR_AND_BOTTOM_SHEET_HEIGHT_WITH_CBR_INDICATOR
+                else DEFAULT_TOP_APP_BAR_AND_BOTTOM_SHEET_HEIGHT
+
                 VerticalCallingPager(
                     participants = participants,
                     isSelfUserCameraOn = isCameraOn,
                     isSelfUserMuted = isMuted,
+                    topAppBarAndBottomSheetHeight = topAppBarAndBottomSheetHeight,
                     onSelfVideoPreviewCreated = setVideoPreview,
                     onSelfClearVideoPreview = clearVideoPreview,
                     requestVideoStreams = requestVideoStreams
@@ -199,17 +208,31 @@ private fun OngoingCallContent(
 @Composable
 private fun OngoingCallTopBar(
     conversationName: String,
+    isCbrEnabled: Boolean,
     onCollapse: () -> Unit
 ) {
-    WireCenterAlignedTopAppBar(
-        onNavigationPressed = onCollapse,
-        titleStyle = MaterialTheme.wireTypography.title02,
-        maxLines = 1,
-        title = conversationName,
-        navigationIconType = NavigationIconType.Collapse,
-        elevation = 0.dp,
-        actions = {}
-    )
+    Column {
+        WireCenterAlignedTopAppBar(
+            onNavigationPressed = onCollapse,
+            titleStyle = MaterialTheme.wireTypography.title02,
+            maxLines = 1,
+            title = conversationName,
+            navigationIconType = NavigationIconType.Collapse,
+            elevation = 0.dp,
+            actions = {}
+        )
+        if (isCbrEnabled) {
+            Text(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .offset(y = -(5).dp),
+                textAlign = TextAlign.Center,
+                text = stringResource(id = R.string.calling_constant_bit_rate_indication).uppercase(Locale.getDefault()),
+                color = colorsScheme().secondaryText,
+                style = MaterialTheme.wireTypography.title03,
+            )
+        }
+    }
 }
 
 @Composable
@@ -258,5 +281,8 @@ private fun CallingControls(
 @Composable
 @Preview
 fun PreviewOngoingCallTopBar() {
-    OngoingCallTopBar("Default") { }
+    OngoingCallTopBar("Default", true) { }
 }
+
+private const val DEFAULT_TOP_APP_BAR_AND_BOTTOM_SHEET_HEIGHT = 185
+private const val APP_BAR_AND_BOTTOM_SHEET_HEIGHT_WITH_CBR_INDICATOR = 200

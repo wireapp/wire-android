@@ -52,6 +52,7 @@ fun GroupCallGrid(
     pageIndex: Int,
     isSelfUserMuted: Boolean,
     isSelfUserCameraOn: Boolean,
+    topAppBarAndBottomSheetHeight: Int,
     onSelfVideoPreviewCreated: (view: View) -> Unit,
     onSelfClearVideoPreview: () -> Unit
 ) {
@@ -85,9 +86,11 @@ fun GroupCallGrid(
             else participant.isMuted
 
             // if we have more than 6 participants then we reduce avatar size
-            val userAvatarSize = if (participants.size <= 6 || config.screenHeightDp > MIN_SCREEN_HEIGHT)
+            val userAvatarSize = if (participants.size <= 6 || config.screenHeightDp > MIN_SCREEN_HEIGHT) {
                 dimensions().onGoingCallUserAvatarSize
-            else dimensions().onGoingCallUserAvatarMinimizedSize
+            } else {
+                dimensions().onGoingCallUserAvatarMinimizedSize
+            }
             val usernameString = when (val conversationName = getConversationName(participant.name)) {
                 is ConversationName.Known -> conversationName.name
                 is ConversationName.Unknown -> stringResource(id = conversationName.resourceId)
@@ -107,7 +110,7 @@ fun GroupCallGrid(
 
             ParticipantTile(
                 modifier = Modifier
-                    .height(((config.screenHeightDp - TOP_APP_BAR_AND_BOTTOM_SHEET_HEIGHT) / numberOfTilesRows).dp)
+                    .height(((config.screenHeightDp - topAppBarAndBottomSheetHeight) / numberOfTilesRows).dp)
                     .animateItemPlacement(tween(durationMillis = 200)),
                 participantTitleState = participantState,
                 onGoingCallTileUsernameMaxWidth = MaterialTheme.wireDimensions.onGoingCallTileUsernameMaxWidth,
@@ -141,7 +144,6 @@ private fun getContentType(
 ) = if (isCameraOn || isSharingScreen) "videoRender" else null
 
 private const val NUMBER_OF_GRID_CELLS = 2
-private const val TOP_APP_BAR_AND_BOTTOM_SHEET_HEIGHT = 170
 private const val MIN_SCREEN_HEIGHT = 800
 
 @Preview
@@ -172,6 +174,7 @@ fun PreviewGroupCallGrid() {
                 membership = Membership.Admin,
             )
         ),
+        topAppBarAndBottomSheetHeight = 200,
         pageIndex = 0,
         isSelfUserMuted = true,
         isSelfUserCameraOn = false,

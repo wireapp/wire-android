@@ -12,11 +12,10 @@ concurrency:
 
 jobs:
   ui-tests:
-    if: ${{ contains(github.head_ref, 'qa/') || contains(github.ref_name, 'qa/')}}  # disable for as they are not yet completed
     runs-on: buildjet-8vcpu-ubuntu-2204
     strategy:
       matrix:
-        api-level: [30]
+        api-level: [29]
 
     steps:
       - name: Checkout
@@ -52,15 +51,17 @@ jobs:
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: ${{ matrix.api-level }}
+          target: google_apis
           force-avd-creation: false
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
-          disable-animations: false
+          disable-animations: true
           script: echo "Generated AVD snapshot for caching."
 
       - name: Android Instrumentation Tests
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: ${{ matrix.api-level }}
+          target: google_apis
           script: ./gradlew runAcceptanceTests
         env:
             GITHUB_USER: ${{ github.actor }}

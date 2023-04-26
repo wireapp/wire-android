@@ -77,4 +77,4 @@ fun EmptySearchQueryScreen() {
     }
 }
 
-private const val LEARN_ABOUT_SEARCH_URL = "${BuildConfig.SUPPORT_URL}/hc/en-us/articles/203121850-How-can-I-find-someone"
+private const val LEARN_ABOUT_SEARCH_URL = "${BuildConfig.URL_SUPPORT}/hc/en-us/articles/203121850-How-can-I-find-someone"

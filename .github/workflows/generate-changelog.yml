@@ -1,6 +1,13 @@
 name: 'Generate Changelog'
 
 on:
+  workflow_dispatch:
+    inputs:
+      current-release-tag:
+        type: string
+        description: 'The tag of the current release starting with v'
+        required: false
+        default: ''
   push:
     tags:
       - 'v*'
@@ -16,11 +23,16 @@ jobs:
           fetch-depth: 0
           submodules: recursive # Needed in order to fetch Kalium sources for building
 
-      - name: 'Set current Git tag'
+      - name: 'Set current Git tag from input'
+        if: "${{ github.event.inputs.current-release-tag != '' }}"
+        run: echo "CURRENT_TAG=${{github.event.inputs.current-release-tag}}" >> "$GITHUB_ENV"
+        
+      - name: 'Set current Git tag from commit'
+        if: "${{ github.event.inputs.current-release-tag == '' }}"
         run: echo "CURRENT_TAG=$(git tag --points-at ${{github.sha}})" >> "$GITHUB_ENV"
 
-      - name: 'Set previous Git tag'
-        run: echo "PREVIOUS_TAG=$(git describe --tags --abbrev=0 --exclude ${{env.CURRENT_TAG}})" >> "$GITHUB_ENV"
+      - name: 'Set previous Git tag from commit'
+        run: echo "PREVIOUS_TAG=$(git tag | grep ^v | tail -n 2 | head -n 1)" >> "$GITHUB_ENV"
 
       - name: 'Print environment variables'
         run: |

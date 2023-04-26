@@ -48,9 +48,12 @@ class SingleUserMigrationWorker @AssistedInject constructor(
             QualifiedIdMapperImpl(null).fromStringToQualifiedID(userId)
         } ?: return@coroutineScope Result.failure()
 
-        when (migrationManager.migrateSingleUser(userId, this) { setProgress(it.type.toData()) }) {
+        when (val result = migrationManager.migrateSingleUser(userId, this) { setProgress(it.type.toData()) }) {
             is MigrationData.Result.Success -> Result.success()
-            is MigrationData.Result.Failure -> Result.failure()
+            is MigrationData.Result.Failure.NoNetwork -> Result.retry()
+            is MigrationData.Result.Failure.Messages -> Result.failure(result.toData())
+            is MigrationData.Result.Failure.Account -> Result.failure(result.toData())
+            is MigrationData.Result.Failure.Unknown -> Result.failure(result.toData())
         }
     }
 

@@ -44,8 +44,7 @@ class KaliumConfigsModule {
             fileRestrictionEnabled = BuildConfig.FILE_RESTRICTION_ENABLED,
             forceConstantBitrateCalls = BuildConfig.FORCE_CONSTANT_BITRATE_CALLS,
             developerFeaturesEnabled = BuildConfig.DEVELOPER_FEATURES_ENABLED,
-            isSafeLoggingEnabled = BuildConfig.SAFE_LOGGING,
-            enableBlacklist = BuildConfig.BLACKLIST_ENABLE,
+            enableBlacklist = BuildConfig.ENABLE_BLACKLIST,
             maxAccount = BuildConfig.MAX_ACCOUNTS,
             // we use upsert, available from SQL3.24, which is supported from Android API30, so for older APIs we have to use SQLCipher
             shouldEncryptData = !BuildConfig.DEBUG || Build.VERSION.SDK_INT < Build.VERSION_CODES.R,
@@ -54,9 +53,10 @@ class KaliumConfigsModule {
             isMLSSupportEnabled = BuildConfig.MLS_SUPPORT_ENABLED,
             developmentApiEnabled = BuildConfig.DEVELOPMENT_API_ENABLED,
             encryptProteusStorage = runBlocking { globalDataStore.isEncryptedProteusStorageEnabled().first() },
-            guestRoomLink = BuildConfig.GUEST_ROOM_LINK,
+            guestRoomLink = BuildConfig.ENABLE_GUEST_ROOM_LINK,
             wipeOnCookieInvalid = BuildConfig.WIPE_ON_COOKIE_INVALID,
-            wipeOnDeviceRemoval = BuildConfig.WIPE_ON_DEVICE_REMOVAL
+            wipeOnDeviceRemoval = BuildConfig.WIPE_ON_DEVICE_REMOVAL,
+            wipeOnRootedDevice = BuildConfig.WIPE_ON_ROOTED_DEVICE
         )
     }
 }

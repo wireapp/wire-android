@@ -155,13 +155,14 @@ pipeline {
       }
     }
 
-    stage('Spawn Wrapper and Emulators') {
+    stage('Fetch submodules') {
+      steps {
+        sh 'git submodule update --init --recursive'
+      }
+    }
+
+    stage('Configure workspace and Emulators') {
       parallel {
-        stage('Fetch submodules') {
-          steps {
-            sh 'git submodule update --init --recursive'
-          }
-        }
 
         stage('Copy local.properties to Kalium') {
           steps {

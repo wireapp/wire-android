@@ -79,7 +79,7 @@ class LoginEmailViewModel @Inject constructor(
         viewModelScope.launch {
             val authScope = withContext(dispatchers.io()) { resolveCurrentAuthScope() } ?: return@launch
 
-            val secondFactorVerificationCode = secondFactorVerificationCodeState.code.text.text
+            val secondFactorVerificationCode = secondFactorVerificationCodeState.codeInput.text.text
             val loginResult = withContext(dispatchers.io()) {
                 authScope.login(
                     userIdentifier = loginState.userIdentifier.text,
@@ -93,6 +93,7 @@ class LoginEmailViewModel @Inject constructor(
                 handleAuthenticationFailure(loginResult, authScope)
                 return@launch
             }
+            secondFactorVerificationCodeState = secondFactorVerificationCodeState.copy(isCodeInputNecessary = false)
             val storedUserId = withContext(dispatchers.io()) {
                 addAuthenticatedUser(
                     authTokens = loginResult.authData,
@@ -181,7 +182,7 @@ class LoginEmailViewModel @Inject constructor(
         when (result) {
             is RequestSecondFactorVerificationCodeUseCase.Result.Success -> {
                 secondFactorVerificationCodeState = secondFactorVerificationCodeState.copy(
-                    isCodeSent = true,
+                    isCodeInputNecessary = true,
                     emailUsed = email,
                 )
                 updateEmailLoginError(LoginError.None)
@@ -215,7 +216,7 @@ class LoginEmailViewModel @Inject constructor(
     }
 
     fun onCodeChange(newValue: CodeFieldValue) {
-        secondFactorVerificationCodeState = secondFactorVerificationCodeState.copy(code = newValue, isCurrentCodeInvalid = false)
+        secondFactorVerificationCodeState = secondFactorVerificationCodeState.copy(codeInput = newValue, isCurrentCodeInvalid = false)
         if (newValue.isFullyFilled) {
             login()
         }
@@ -223,8 +224,8 @@ class LoginEmailViewModel @Inject constructor(
 
     fun onCodeVerificationBackPress() {
         secondFactorVerificationCodeState = secondFactorVerificationCodeState.copy(
-            code = CodeFieldValue(TextFieldValue(""), false),
-            isCodeSent = false,
+            codeInput = CodeFieldValue(TextFieldValue(""), false),
+            isCodeInputNecessary = false,
             emailUsed = "",
         )
     }

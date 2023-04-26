@@ -263,7 +263,6 @@ class MessageComposerViewModel @Inject constructor(
                             } catch (e: OutOfMemoryError) {
                                 appLogger.e("There was an OutOfMemory error while uploading the asset")
                                 onSnackbarMessage(ConversationSnackbarMessages.ErrorSendingAsset)
-
                             }
                         }
 

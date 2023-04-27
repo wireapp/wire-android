@@ -333,14 +333,14 @@ class WireActivity : AppCompatActivity() {
             when (data) {
                 is NewClientData.OtherUser -> {
                     title = stringResource(R.string.new_device_dialog_other_user_title, data.userName ?: "", data.userHandle ?: "")
-                    text = stringResource(R.string.new_device_dialog_other_user_message, date, data.deviceInfo)
+                    text = stringResource(R.string.new_device_dialog_other_user_message, date, data.deviceInfo.asString())
                     btnText = stringResource(R.string.new_device_dialog_other_user_btn)
                     btnAction = { switchAccount(data.userId) }
                 }
 
                 is NewClientData.CurrentUser -> {
                     title = stringResource(R.string.new_device_dialog_current_user_title)
-                    text = stringResource(R.string.new_device_dialog_current_user_message, date, data.deviceInfo)
+                    text = stringResource(R.string.new_device_dialog_current_user_message, date, data.deviceInfo.asString())
                     btnText = stringResource(R.string.new_device_dialog_current_user_btn)
                     btnAction = openDeviceManager
                 }

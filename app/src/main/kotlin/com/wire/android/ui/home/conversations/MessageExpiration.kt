@@ -203,7 +203,6 @@ class SelfDeletionTimer(private val context: Context) {
 
             fun decreaseTimeLeft(interval: Duration) {
                 if (timeLeft.inWholeSeconds != 0L) timeLeft -= interval
-                Log.d("TEST", "time left ${timeLeft.inWholeSeconds}")
             }
 
             /**
@@ -220,7 +219,7 @@ class SelfDeletionTimer(private val context: Context) {
              * alpha value is equal to the ratio = 1 / 2.5 = 0.4
              */
             fun alphaBackgroundColor(): Float {
-                return if (timeLeft != ZERO) {
+                return if (timeLeft > ZERO) {
                     val timeElapsed = expireAfter - timeLeft
                     val timeElapsedRatio = timeElapsed / expireAfter
 

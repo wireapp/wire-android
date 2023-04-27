@@ -18,6 +18,7 @@
 package com.wire.android.ui.home.conversations.edit
 
 import androidx.compose.runtime.Composable
+import com.wire.android.ui.edit.DeleteItemMenuOption
 import com.wire.android.ui.edit.DownloadAssetExternallyOption
 import com.wire.android.ui.edit.MessageDetailsMenuOption
 import com.wire.android.ui.edit.OpenAssetExternallyOption

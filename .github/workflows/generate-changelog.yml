@@ -24,8 +24,10 @@ jobs:
           submodules: recursive # Needed in order to fetch Kalium sources for building
 
       - name: 'Set current Git tag from input'
+        env:
+            INPUT_RELEASE_TAG: ${{github.event.inputs.current-release-tag}}
         if: "${{ github.event.inputs.current-release-tag != '' }}"
-        run: echo "CURRENT_TAG=${{github.event.inputs.current-release-tag}}" >> "$GITHUB_ENV"
+        run: echo "CURRENT_TAG=$INPUT_RELEASE_TAG" >> "$GITHUB_ENV"
         
       - name: 'Set current Git tag from commit'
         if: "${{ github.event.inputs.current-release-tag == '' }}"
@@ -36,14 +38,14 @@ jobs:
 
       - name: 'Print environment variables'
         run: |
-          echo -e "PREVIOUS_TAG = ${{env.PREVIOUS_TAG}}"
-          echo -e "CURRENT_TAG = ${{env.CURRENT_TAG}}"
+          echo -e "PREVIOUS_TAG = $PREVIOUS_TAG"
+          echo -e "CURRENT_TAG = $CURRENT_TAG"
           echo -e "Node.js version = $(node --version)"
 
       - name: 'Generate changelog'
         run: |
           echo "{}" > ./package.json
-          npx generate-changelog@1.8.0 -t ${{env.PREVIOUS_TAG}}...${{env.CURRENT_TAG}}
+          npx generate-changelog@1.8.0 -t "$PREVIOUS_TAG...$CURRENT_TAG"
 
       - name: 'Attach changelog to tag'
         uses: softprops/action-gh-release@v1

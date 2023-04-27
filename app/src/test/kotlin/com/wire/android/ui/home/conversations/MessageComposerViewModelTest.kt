@@ -20,15 +20,15 @@
 
 package com.wire.android.ui.home.conversations
 
+import androidx.core.net.toUri
 import app.cash.turbine.test
 import com.wire.android.config.CoroutineTestExtension
-import com.wire.kalium.logic.feature.asset.GetAssetSizeLimitUseCaseImpl.Companion.ASSET_SIZE_DEFAULT_LIMIT_BYTES
-import com.wire.kalium.logic.feature.asset.GetAssetSizeLimitUseCaseImpl.Companion.IMAGE_SIZE_LIMIT_BYTES
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogActiveState
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogsState
 import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.android.ui.home.conversations.model.AttachmentType
-import com.wire.kalium.logic.data.team.Team
+import com.wire.android.ui.home.conversations.model.UriAsset
+import com.wire.kalium.logic.feature.asset.GetAssetSizeLimitUseCaseImpl.Companion.ASSET_SIZE_DEFAULT_LIMIT_BYTES
 import io.mockk.coVerify
 import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -46,7 +46,7 @@ class MessageComposerViewModelTest {
     @Test
     fun `validate deleteMessageDialogsState states when deleteMessageDialog is visible for my message`() = runTest {
         // Given
-        val (_, viewModel) = ConversationsViewModelArrangement()
+        val (_, viewModel) = MessageComposerViewModelArrangement()
             .withSuccessfulViewModelInit()
             .arrange()
 
@@ -63,7 +63,7 @@ class MessageComposerViewModelTest {
     @Test
     fun `validate deleteMessageDialogsState states when deleteMessageDialog is visible for others message`() = runTest {
         // Given
-        val (_, viewModel) = ConversationsViewModelArrangement()
+        val (_, viewModel) = MessageComposerViewModelArrangement()
             .withSuccessfulViewModelInit()
             .arrange()
 
@@ -80,7 +80,7 @@ class MessageComposerViewModelTest {
     @Test
     fun `validate deleteMessageDialogsState states when deleteMessageForYourselfDialog is visible`() = runTest {
         // Given
-        val (_, viewModel) = ConversationsViewModelArrangement()
+        val (_, viewModel) = MessageComposerViewModelArrangement()
             .withSuccessfulViewModelInit()
             .arrange()
 
@@ -97,7 +97,7 @@ class MessageComposerViewModelTest {
     @Test
     fun `validate deleteMessageDialogsState states when dialogs are dismissed`() {
         // Given
-        val (_, viewModel) = ConversationsViewModelArrangement().arrange()
+        val (_, viewModel) = MessageComposerViewModelArrangement().arrange()
 
         // When
         viewModel.deleteMessageHelper.onDeleteDialogDismissed()
@@ -111,11 +111,11 @@ class MessageComposerViewModelTest {
     @Test
     fun `given a failure, when deleting messages, then the error state is updated`() = runTest {
         // Given
-        val (_, viewModel) = ConversationsViewModelArrangement()
+        val (_, viewModel) = MessageComposerViewModelArrangement()
             .withSuccessfulViewModelInit()
             .withFailureOnDeletingMessages().arrange()
 
-        viewModel.conversationViewState
+        viewModel.messageComposerViewState
         viewModel.infoMessage.test {
 
             // when
@@ -130,12 +130,12 @@ class MessageComposerViewModelTest {
     @Test
     fun `given a failure, when deleting messages, then the delete dialog state is closed`() = runTest {
         // Given
-        val (_, viewModel) = ConversationsViewModelArrangement()
+        val (_, viewModel) = MessageComposerViewModelArrangement()
             .withSuccessfulViewModelInit()
             .withFailureOnDeletingMessages()
             .arrange()
 
-        viewModel.conversationViewState
+        viewModel.messageComposerViewState
         // When
         viewModel.deleteMessageHelper.onDeleteMessage("messageId", true)
 
@@ -150,10 +150,11 @@ class MessageComposerViewModelTest {
     @Test
     fun `given the user sends an asset message, when invoked, then sendAssetMessageUseCase gets called`() = runTest {
         // Given
-        val (arrangement, viewModel) = ConversationsViewModelArrangement()
+        val limit = ASSET_SIZE_DEFAULT_LIMIT_BYTES
+        val (arrangement, viewModel) = MessageComposerViewModelArrangement()
             .withSuccessfulViewModelInit()
             .withSuccessfulSendAttachmentMessage()
-            .withGetAssetSizeLimitUseCase(false, 25000000)
+            .withGetAssetSizeLimitUseCase(false, limit)
             .arrange()
         val mockedAttachment = AssetBundle(
             "file/x-zip", "Mocked-data-path".toPath(), 1L, "mocked_file.zip", AttachmentType.GENERIC_FILE
@@ -163,21 +164,22 @@ class MessageComposerViewModelTest {
         viewModel.sendAttachmentMessage(mockedAttachment)
 
         // Then
-        coVerify(exactly = 1) { arrangement.sendAssetMessage.invoke(any(), any(), any(), any(), any(), any(), any()) }
+        coVerify(exactly = 1) { arrangement.sendAssetMessage.invoke(any(), any(), any(), any(), any(), any(), any(), any()) }
     }
 
     @Test
     fun `given the user sends an image message, when invoked, then sendAssetMessageUseCase gets called`() = runTest {
         // Given
+        val limit = ASSET_SIZE_DEFAULT_LIMIT_BYTES
         val assetPath = "mocked-asset-data-path".toPath()
         val assetContent = "some-dummy-image".toByteArray()
         val assetName = "mocked_image.jpeg"
-        val assetSize = assetContent.size.toLong()
-        val (arrangement, viewModel) = ConversationsViewModelArrangement()
+        val assetSize = 1L
+        val (arrangement, viewModel) = MessageComposerViewModelArrangement()
             .withSuccessfulViewModelInit()
             .withStoredAsset(assetPath, assetContent)
             .withSuccessfulSendAttachmentMessage()
-            .withGetAssetSizeLimitUseCase(true, 15000000)
+            .withGetAssetSizeLimitUseCase(true, limit)
             .arrange()
         val mockedAttachment = AssetBundle(
             "image/jpeg", assetPath, assetSize, assetName, AttachmentType.IMAGE
@@ -187,13 +189,13 @@ class MessageComposerViewModelTest {
         viewModel.sendAttachmentMessage(mockedAttachment)
 
         // Then
-        coVerify(exactly = 1) { arrangement.sendAssetMessage.invoke(any(), any(), any(), any(), any(), any(), any()) }
+        coVerify(exactly = 1) { arrangement.sendAssetMessage.invoke(any(), any(), any(), any(), any(), any(), any(), any()) }
     }
 
     @Test
     fun `given the user picks a null attachment, when invoking sendAttachmentMessage, no use case gets called`() = runTest {
         // Given
-        val (arrangement, viewModel) = ConversationsViewModelArrangement()
+        val (arrangement, viewModel) = MessageComposerViewModelArrangement()
             .withSuccessfulViewModelInit()
             .withSuccessfulSendAttachmentMessage()
             .arrange()
@@ -202,86 +204,131 @@ class MessageComposerViewModelTest {
         // When
         viewModel.sendAttachmentMessage(mockedAttachment)
 
-        coVerify(inverse = true) { arrangement.sendAssetMessage.invoke(any(), any(), any(), any(), any(), any(), any()) }
+        coVerify(inverse = true) { arrangement.sendAssetMessage.invoke(any(), any(), any(), any(), any(), any(), any(), any()) }
     }
 
     @Test
-    fun `given a user sends an image message larger than 15MB, when invoked, then sendAssetMessageUseCase isn't called`() = runTest {
+    fun `given a user picks an image asset larger than 15MB, when invoked, then sendAssetMessageUseCase isn't called`() = runTest {
         // Given
-        val (arrangement, viewModel) = ConversationsViewModelArrangement()
+        val limit = ASSET_SIZE_DEFAULT_LIMIT_BYTES
+        val mockedAttachment = AssetBundle(
+            "image/jpeg", "some-data-path".toPath(), limit + 1L, "mocked_image.jpeg", AttachmentType.IMAGE
+        )
+        val (arrangement, viewModel) = MessageComposerViewModelArrangement()
             .withSuccessfulViewModelInit()
             .withSuccessfulSendAttachmentMessage()
-            .withGetAssetSizeLimitUseCase(true, 15000000)
+            .withGetAssetSizeLimitUseCase(true, limit)
+            .withGetAssetBundleFromUri(mockedAttachment)
             .arrange()
-        val mockedAttachment = AssetBundle(
-            "image/jpeg", "some-data-path".toPath(), IMAGE_SIZE_LIMIT_BYTES + 1L, "mocked_image.jpeg", AttachmentType.IMAGE
-        )
+        val mockedUri = UriAsset("mocked_image.jpeg".toUri(), false)
 
         // When
-        viewModel.infoMessage.test {
-            viewModel.sendAttachmentMessage(mockedAttachment)
+            viewModel.attachmentPicked(mockedUri)
 
             // Then
-            coVerify(inverse = true) { arrangement.sendAssetMessage.invoke(any(), any(), any(), any(), any(), any(), any()) }
-            assertEquals(ConversationSnackbarMessages.ErrorMaxImageSize, awaitItem())
-        }
+            coVerify(inverse = true) { arrangement.sendAssetMessage.invoke(any(), any(), any(), any(), any(), any(), any(), any()) }
+            assert(viewModel.messageComposerViewState.assetTooLargeDialogState is AssetTooLargeDialogState.Visible)
     }
 
     @Test
-    fun `given that a free user sends an asset message larger than 25MB, when invoked, then sendAssetMessageUseCase isn't called`() =
+    fun `given that a free user picks an asset larger than 25MB, when invoked, then sendAssetMessageUseCase isn't called`() =
         runTest {
             // Given
-            val (arrangement, viewModel) = ConversationsViewModelArrangement()
+            val limit = ASSET_SIZE_DEFAULT_LIMIT_BYTES
+            val mockedAttachment = AssetBundle(
+                "file/x-zip", "some-data-path".toPath(), limit + 1L, "mocked_asset.zip", AttachmentType.GENERIC_FILE
+            )
+            val (arrangement, viewModel) = MessageComposerViewModelArrangement()
                 .withSuccessfulViewModelInit()
                 .withSuccessfulSendAttachmentMessage()
-                .withGetAssetSizeLimitUseCase(false, 15000000)
+                .withGetAssetSizeLimitUseCase(false, limit)
+                .withGetAssetBundleFromUri(mockedAttachment)
                 .arrange()
+            val mockedUri = UriAsset("mocked_image.jpeg".toUri(), false)
+
+            // When
+                viewModel.attachmentPicked(mockedUri)
+
+                // Then
+                coVerify(inverse = true) { arrangement.sendAssetMessage.invoke(any(), any(), any(), any(), any(), any(), any(), any()) }
+                assert(viewModel.messageComposerViewState.assetTooLargeDialogState is AssetTooLargeDialogState.Visible)
+        }
+
+    @Test
+    fun `given that a user picks too large asset that heeds saving if invalid, when invoked, then saveToExternalMediaStorage is called`() =
+        runTest {
+            // Given
+            val limit = ASSET_SIZE_DEFAULT_LIMIT_BYTES
             val mockedAttachment = AssetBundle(
-                "file/x-zip",
-                "some-data-path".toPath(),
-                ASSET_SIZE_DEFAULT_LIMIT_BYTES + 1L,
-                "mocked_asset.jpeg",
-                AttachmentType.GENERIC_FILE
+                "file/x-zip", "some-data-path".toPath(), limit + 1L, "mocked_asset.zip", AttachmentType.GENERIC_FILE
             )
+            val (arrangement, viewModel) = MessageComposerViewModelArrangement()
+                .withSuccessfulViewModelInit()
+                .withSuccessfulSendAttachmentMessage()
+                .withGetAssetSizeLimitUseCase(false, limit)
+                .withGetAssetBundleFromUri(mockedAttachment)
+                .withSaveToExternalMediaStorage("mocked_image.jpeg")
+                .arrange()
+            val mockedUri = UriAsset("mocked_image.jpeg".toUri(), true)
+
+            // When
+            viewModel.attachmentPicked(mockedUri)
+
+            // Then
+            coVerify(inverse = true) { arrangement.sendAssetMessage.invoke(any(), any(), any(), any(), any(), any(), any(), any()) }
+            coVerify { arrangement.fileManager.saveToExternalMediaStorage(any(), any(), any(), any(), any()) }
+            assert(viewModel.messageComposerViewState.assetTooLargeDialogState is AssetTooLargeDialogState.Visible)
+        }
+
+    @Test
+    fun `given attachment picked and null when getting asset bundle from uri, then show message to user`() =
+        runTest {
+            // Given
+            val limit = ASSET_SIZE_DEFAULT_LIMIT_BYTES
+            val (arrangement, viewModel) = MessageComposerViewModelArrangement()
+                .withSuccessfulViewModelInit()
+                .withSuccessfulSendAttachmentMessage()
+                .withGetAssetSizeLimitUseCase(false, limit)
+                .withGetAssetBundleFromUri(null)
+                .withSaveToExternalMediaStorage("mocked_image.jpeg")
+                .arrange()
+            val mockedUri = UriAsset("mocked_image.jpeg".toUri(), true)
 
             // When
             viewModel.infoMessage.test {
-                viewModel.sendAttachmentMessage(mockedAttachment)
+                viewModel.attachmentPicked(mockedUri)
 
                 // Then
-                coVerify(inverse = true) { arrangement.sendAssetMessage.invoke(any(), any(), any(), any(), any(), any(), any()) }
-                assert(awaitItem() is ConversationSnackbarMessages.ErrorMaxAssetSize)
+                coVerify(inverse = true) { arrangement.sendAssetMessage.invoke(any(), any(), any(), any(), any(), any(), any(), any()) }
+                assertEquals(ConversationSnackbarMessages.ErrorPickingAttachment, awaitItem())
             }
         }
 
     @Test
     fun `given that a team user sends an asset message larger than 25MB, when invoked, then sendAssetMessageUseCase is called`() = runTest {
         // Given
-        val userTeam = Team("mocked-team-id", "mocked-team-name", "icon")
-        val (arrangement, viewModel) = ConversationsViewModelArrangement()
+        val limit = ASSET_SIZE_DEFAULT_LIMIT_BYTES
+        val (arrangement, viewModel) = MessageComposerViewModelArrangement()
             .withSuccessfulViewModelInit()
             .withSuccessfulSendAttachmentMessage()
-            .withGetAssetSizeLimitUseCase(false, 100000000)
-            .withTeamUser(userTeam)
+            .withGetAssetSizeLimitUseCase(false, limit)
             .arrange()
         val mockedAttachment = AssetBundle(
-            "file/x-zip", "some-data-path".toPath(), ASSET_SIZE_DEFAULT_LIMIT_BYTES + 1L, "mocked_asset.jpeg", AttachmentType.GENERIC_FILE
+            "file/x-zip", "some-data-path".toPath(), limit + 1, "mocked_asset.jpeg", AttachmentType.GENERIC_FILE
         )
 
         // When
-        viewModel.infoMessage.test {
             viewModel.sendAttachmentMessage(mockedAttachment)
 
             // Then
-            coVerify(exactly = 1) { arrangement.sendAssetMessage.invoke(any(), any(), any(), any(), any(), any(), any()) }
-            expectNoEvents()
-        }
+            coVerify(exactly = 1) { arrangement.sendAssetMessage.invoke(any(), any(), any(), any(), any(), any(), any(), any()) }
+            assert(viewModel.messageComposerViewState.assetTooLargeDialogState is AssetTooLargeDialogState.Hidden)
     }
 
     @Test
     fun `given that a user sends an ping message, when invoked, then sendKnockUseCase and pingRinger are called`() = runTest {
         // Given
-        val (arrangement, viewModel) = ConversationsViewModelArrangement()
+        val (arrangement, viewModel) = MessageComposerViewModelArrangement()
             .withSuccessfulViewModelInit()
             .arrange()
 

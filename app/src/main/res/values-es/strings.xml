@@ -432,7 +432,7 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
     <string name="user_profile_role_change_error">Ocurri&#243; un error al intentar cambiar el rol. Por favor, verifica tu conexi&#243;n a internet e intenta de nuevo.</string>
     <string name="user_profile_unblock_user">Desbloquear usuario</string>
     <string name="user_profile_group_remove_button">Eliminar del grupo</string>
-    <string name="user_profile_logging_out_progress">Logging out...</string>
+    <string name="user_profile_logging_out_progress">Cerrando sesión...</string>
     <!-- Remove Conversation Member Dialog -->
     <string name="dialog_remove_conversation_member_title">&#191;Eliminar del grupo?</string>
     <string name="dialog_remove_conversation_member_description">%1$s (@%2$s) no podr&#225; enviar ni recibir mensajes en esta conversaci&#243;n.</string>
@@ -590,8 +590,8 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
         <item quantity="one">%1$d mensaje</item>
         <item quantity="other">%1$d mensajes</item>
     </plurals>
-    <string name="ephemeral_one_to_one_event_message">"Sent a message"</string>
-    <string name="ephemeral_group_event_message">"Someone sent a message"</string>
+    <string name="ephemeral_one_to_one_event_message">"Envió un mensaje"</string>
+    <string name="ephemeral_group_event_message">"Alguien envió un mensaje"</string>
     <!--Search Contact-->
     <string name="label_contacts">CONTACTOS</string>
     <string name="label_new_group">Nuevo Grupo</string>
@@ -662,7 +662,7 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
     <string name="notification_call_default_caller_name">Alguien</string>
     <string name="notification_call_default_group_name">Llamada en grupo entrante</string>
     <!-- Calling-->
-    <string name="calling_constant_bit_rate_indication">Constant Bit Rate</string>
+    <string name="calling_constant_bit_rate_indication">Bit Rate Constante</string>
     <string name="calling_button_label_microphone">Micr&#243;fono</string>
     <string name="calling_button_label_camera">C&#225;mara</string>
     <string name="calling_button_label_speaker">Altavoz</string>
@@ -745,7 +745,7 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
     <string name="block_user_dialog_title">&#191;Bloquear usuario?</string>
     <string name="block_user_dialog_body">%1$s no podr&#225; contactarte ni agregarte a conversaciones grupales. No se le notificar&#225; sobre esto.</string>
     <string name="block_user_dialog_confirm_button">Bloquear</string>
-    <string name="other_user_devices_description">Wire asigna una huella digital &#250;nica a cada dispositivo. Comparelas con %1$s y verifique su conversaci&#243;n. </string>
+    <string name="other_user_devices_description">Wire asigna una huella digital única a cada dispositivo. Compáralas con %1$s y verifica tu conversación. </string>
     <!--Settings -->
     <string name="url_why_verify_conversation">/hc/es/articles/207859815</string>
     <string name="settings_general_label">General</string>
@@ -885,9 +885,9 @@ URL del backend:
     <string name="label_manual_migration_title">Migrar desde la versi&#243;n 3.82.38</string>
     <string name="start_manual_migration">Iniciar migraci&#243;n desde la versi&#243;n 3.82.38 manualmente</string>
     <string name="file_sharing_restricted_learn_more_link">https://support.wire.com/hc/en-us/articles/4406404582673-How-can-I-restrict-file-sharing-for-my-team-</string>
-    <string name="file_sharing_restricted_description_by_team">You can not share this file because this feature is disabled for this account.</string>
-    <string name="file_sharing_restricted_description_no_users">You need to be logged in to Wire before you can share anything</string>
-    <string name="file_sharing_restricted_button_text_no_users">Open Wire</string>
+    <string name="file_sharing_restricted_description_by_team">No puedes compartir este archivo porque esta función está deshabilitada para esta cuenta.</string>
+    <string name="file_sharing_restricted_description_no_users">Necesitas estar registrado en Wire antes de compartir nada</string>
+    <string name="file_sharing_restricted_button_text_no_users">Abrir Wire</string>
     <!-- join conversation dialog -->
     <string name="join_conversation_dialog_title">&#191;Unirse a la conversaci&#243;n?</string>
     <string name="join_conversation_dialog_message">Te han invitado a una conversaci&#243;n.
@@ -907,22 +907,22 @@ URL del backend:
     <string name="guest_link_button_revoke_link">Revocar enlace</string>
     <string name="audio_not_available">Audio no disponible</string>
     <string name="audio_not_available_explanation">Algo sali&#243; mal al descargar este archivo de audio. P&#237;dele al remitente que lo vuelva a subir.</string>
-    <string name="guest_link_generate_error_message">There was an error trying to create Guest Link. Please try again</string>
-    <string name="guest_link_revoke_error_message">There was an error trying to revoke Guest Link. Please try again</string>
+    <string name="guest_link_generate_error_message">Se produjo un error al intentar crear el enlace de invitado. Por favor, int&#233;ntalo de nuevo.</string>
+    <string name="guest_link_revoke_error_message">Se produjo un error al intentar revocar el enlace de invitado. Por favor, int&#233;ntalo de nuevo.</string>
     <string name="revoke_guest__room_link_dialog_text">Los nuevos invitados no podr&#225;n unirse con este enlace. Los invitados actuales a&#250;n tendr&#225;n acceso.</string>
     <string name="revoke_guest__room_link_dialog_title">&#191;Revocar enlace de invitado?</string>
-    <string name="guest__room_link_copied">Guest link was copied to clipboard</string>
-    <string name="title_device_key_fingerprint">HU&#201;LLA DIGITAL DE LA LLAVE DEL DISPOSITIVO</string>
+    <string name="guest__room_link_copied">Se ha copiado el enlace al portapapeles</string>
+    <string name="title_device_key_fingerprint">HUELLA DIGITAL DE LA CLAVE DEL DISPOSITIVO</string>
     <string name="label_client_key_fingerprint_not_available">NO DISPONIBLE</string>
-    <string name="guest_room_link_copied">Guest link was copied to clipboard</string>
+    <string name="guest_room_link_copied">Se ha copiado el enlace al portapapeles</string>
     <string name="guest_room_link_enabled">La generaci&#243;n de enlaces de invitado ahora est&#225; activada para todos los administradores del grupo</string>
     <string name="guest_room_link_disabled">La generaci&#243;n de enlaces de invitado ahora est&#225; desactivada para todos los administradores del grupo</string>
     <!-- New Device dialog -->
     <string name="new_device_dialog_current_user_title">Su cuenta se utiliz&#243; en</string>
-    <string name="new_device_dialog_current_user_message">%1$s\nFrom: %2$s \n\nIf you didn\'t do this, remove the device and reset your password.</string>
+    <string name="new_device_dialog_current_user_message">%1$s\nDesde: %2$s \n\nSi no fuiste tú, retira el dispositivo y restablece tu contraseña.</string>
     <string name="new_device_dialog_current_user_btn">Administrar dispositivos</string>
-    <string name="new_device_dialog_other_user_title">Su cuenta &#8220;%1$s (@%2$s)&#8221; se utiliz&#243; en:</string>
-    <string name="new_device_dialog_other_user_message">%1$s\nFrom: %2$s \n\nIf you didn\'t do this, remove the device (navigate to “Manage Devices” in the Settings section of this account), and reset your password.</string>
+    <string name="new_device_dialog_other_user_title">Tu cuenta &#8220;%1$s (@%2$s)&#8221; se utiliz&#243; en:</string>
+    <string name="new_device_dialog_other_user_message">%1$s\nDesde: %2$s \n\nSi no lo fuiste tú, retira el dispositivo (navega a "Administrar dispositivos" en la sección de Configuración de esta cuenta) y restablece tu contraseña.</string>
     <string name="new_device_dialog_other_user_btn">Cambiar de cuenta</string>
     <string name="label_system_message_joined_the_conversation_by_self">%1$s se uni&#243; a la conversaci&#243;n</string>
     <string name="label_system_message_joined_the_conversation_by_other">%1$s se uni&#243; a la conversaci&#243;n</string>
@@ -931,7 +931,7 @@ URL del backend:
     <string name="label_self_client_verification_description">Para verificar su propio dispositivo, compare esta huella digital con la misma huella digital en otro dispositivo.</string>
     <string name="label_client_verification_description">Verifica que la huella digital de este dispositivo coincide con la huella digital mostrada en el dispositivo de %s.</string>
     <string name="label_fingerprint_description">Si las huellas digitales no coinciden, restablezca la sesi&#243;n para generar nuevas claves de cifrado en ambos lados.</string>
-    <string name="label_self_fingerprint_description">Share this key fingerprint with other participants in a conversation, so that they can verify it and make sure the conversation is secure.</string>
+    <string name="label_self_fingerprint_description">Comparte esta huella digital con otros participantes en una conversación para que ellos puedan verificarla y asegurarse de que esta conversación es segura.</string>
     <string name="unknown_user_name">desconocido</string>
     <string name="self_deleting_message_time_left">Self-deleting message • %1$s</string>
     <string name="self_deleting_message_label">Self-deleting message</string>

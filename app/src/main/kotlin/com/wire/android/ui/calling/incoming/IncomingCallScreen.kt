@@ -34,8 +34,6 @@ import androidx.compose.material.Text
 import androidx.compose.material.rememberBottomSheetScaffoldState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -51,12 +49,9 @@ import com.wire.android.ui.calling.common.CallerDetails
 import com.wire.android.ui.calling.controlbuttons.AcceptButton
 import com.wire.android.ui.calling.controlbuttons.CallOptionsControls
 import com.wire.android.ui.calling.controlbuttons.HangUpButton
-import com.wire.android.ui.common.WireDialog
-import com.wire.android.ui.common.WireDialogButtonProperties
-import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.colorsScheme
+import com.wire.android.ui.common.dialogs.calling.JoinAnywayDialog
 import com.wire.android.ui.common.dimensions
-
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.permission.rememberCallingRecordAudioBluetoothRequestFlow
 import com.wire.kalium.logic.data.call.ConversationType
@@ -66,32 +61,19 @@ fun IncomingCallScreen(
     sharedCallingViewModel: SharedCallingViewModel = hiltViewModel(),
     incomingCallViewModel: IncomingCallViewModel = hiltViewModel()
 ) {
-    val showDialog = remember { mutableStateOf(false) }
 
     val audioPermissionCheck = AudioBluetoothPermissionCheckFlow(
         { incomingCallViewModel.acceptCall() },
         { incomingCallViewModel.declineCall() }
     )
 
-    if (showDialog.value) {
-        WireDialog(
-            title = stringResource(id = R.string.calling_ongoing_call_title_alert),
-            text = stringResource(id = R.string.calling_ongoing_call_join_message_alert),
-            onDismiss = { showDialog.value = false },
-            optionButton1Properties = WireDialogButtonProperties(
-                onClick = { showDialog.value = false },
-                text = stringResource(id = R.string.label_cancel),
-                type = WireDialogButtonType.Secondary
-            ),
-            optionButton2Properties = WireDialogButtonProperties(
-                onClick = {
-                    audioPermissionCheck.launch()
-                    showDialog.value = false
-                },
-                text = stringResource(id = R.string.calling_ongoing_call_join_anyway),
-                type = WireDialogButtonType.Primary
+    with(incomingCallViewModel) {
+        if (incomingCallState.shouldShowJoinCallAnywayDialog) {
+            JoinAnywayDialog(
+                onDismiss = ::dismissJoinCallAnywayDialog,
+                onConfirm = ::acceptCallAnyway
             )
-        )
+        }
     }
 
     with(sharedCallingViewModel) {
@@ -101,13 +83,7 @@ fun IncomingCallScreen(
             toggleSpeaker = ::toggleSpeaker,
             toggleVideo = ::toggleVideo,
             declineCall = incomingCallViewModel::declineCall,
-            acceptCall = {
-                incomingCallViewModel.establishedCallConversationId?.let {
-                    showDialog.value = true
-                } ?: run {
-                    audioPermissionCheck.launch()
-                }
-            },
+            acceptCall = { audioPermissionCheck.launch() },
             onVideoPreviewCreated = ::setVideoPreview,
             onSelfClearVideoPreview = ::clearVideoPreview
         )
@@ -207,7 +183,8 @@ private fun IncomingCallContent(
 
             CallerDetails(
                 conversationName = callState.conversationName,
-                isCameraOn = callState.isCameraOn ?: false,
+                isCameraOn = callState.isCameraOn,
+                isCbrEnabled = callState.isCbrEnabled,
                 avatarAssetId = callState.avatarAssetId,
                 conversationType = callState.conversationType,
                 membership = callState.membership,

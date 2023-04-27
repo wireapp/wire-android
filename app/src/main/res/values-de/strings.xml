@@ -911,7 +911,7 @@
     <string name="guest__room_link_copied">Guest link was copied to clipboard</string>
     <string name="title_device_key_fingerprint">DEVICE KEY FINGERPRINT</string>
     <string name="label_client_key_fingerprint_not_available">NICHT VERFÜGBAR</string>
-    <string name="guest_room_link_copied">Guest link was copied to clipboard</string>
+    <string name="guest_room_link_copied">Link in Zwischenablage kopiert</string>
     <string name="guest_room_link_enabled">Erstellen von Gäste-Links ist nun für alle Gruppen-Admins aktiviert</string>
     <string name="guest_room_link_disabled">Erstellen von Gäste-Links ist nun für alle Gruppen-Admins deaktiviert</string>
     <!-- New Device dialog -->
@@ -936,7 +936,7 @@
     <string name="create_account_email_title">Ihre E-Mail-Adresse</string>
     <string name="settings_myaccount_email_description">Your email is part of your login details for this account. It may be visible to your contacts.</string>
     <string name="settings_myaccount_email_invalid_imail_error">Please enter a valid email format</string>
-    <string name="settings_myaccount_email_already_in_use_error">Die verwendete E-Mail-Adresse wurde bereits  
+    <string name="settings_myaccount_email_already_in_use_error">Die verwendete E-Mail-Adresse wurde bereits
 registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="settings_myaccount_email_verification_email_sent">A verification email has been sent to your email %1$s.\n\nYour current email address is not changed until you verified your new one. Please check your email inbox and follow the instructions.</string>
     <string name="label_resend_verification_email">Resend Verification Email</string>

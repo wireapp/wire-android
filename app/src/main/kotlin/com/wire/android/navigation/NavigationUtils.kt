@@ -24,9 +24,11 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import com.wire.android.appLogger
+import com.wire.kalium.logger.obfuscateId
 
 @ExperimentalMaterial3Api
 internal fun NavController.navigateToItem(command: NavigationCommand) {
+    appLogger.d("[$TAG] -> command: ${command.destination.obfuscateId()}")
     currentBackStackEntry?.savedStateHandle?.remove<Map<String, Any>>(EXTRA_BACK_NAVIGATION_ARGUMENTS)
     navigate(command.destination) {
         when (command.backStackMode) {
@@ -36,6 +38,12 @@ internal fun NavController.navigateToItem(command: NavigationCommand) {
             }
             BackStackMode.REMOVE_CURRENT -> {
                 popBackStack(true) { backQueue.lastOrNull { it.destination.route != null } }
+            }
+            BackStackMode.REMOVE_CURRENT_AND_REPLACE -> {
+                popBackStack(true) { backQueue.lastOrNull { it.destination.route != null } }
+                NavigationItem.fromRoute(command.destination)?.let { navItem ->
+                    popBackStack(true) { backQueue.firstOrNull { it.destination.route == navItem.getCanonicalRoute() } }
+                }
             }
             BackStackMode.UPDATE_EXISTED -> {
                 NavigationItem.fromRoute(command.destination)?.let { navItem ->
@@ -91,3 +99,5 @@ fun String.getPrimaryRoute(): String {
     }
     return primaryRoute
 }
+
+private const val TAG = "NavigationUtils"

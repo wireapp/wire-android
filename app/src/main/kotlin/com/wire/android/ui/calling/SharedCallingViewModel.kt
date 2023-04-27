@@ -46,6 +46,8 @@ import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.feature.call.Call
 import com.wire.kalium.logic.feature.call.CallStatus
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
+import com.wire.kalium.logic.feature.call.usecase.FlipToBackCameraUseCase
+import com.wire.kalium.logic.feature.call.usecase.FlipToFrontCameraUseCase
 import com.wire.kalium.logic.feature.call.usecase.GetAllCallsWithSortedParticipantsUseCase
 import com.wire.kalium.logic.feature.call.usecase.MuteCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveSpeakerUseCase
@@ -87,6 +89,8 @@ class SharedCallingViewModel @Inject constructor(
     private val setVideoPreview: SetVideoPreviewUseCase,
     private val turnLoudSpeakerOff: TurnLoudSpeakerOffUseCase,
     private val turnLoudSpeakerOn: TurnLoudSpeakerOnUseCase,
+    private val flipToFrontCamera: FlipToFrontCameraUseCase,
+    private val flipToBackCamera: FlipToBackCameraUseCase,
     private val observeSpeaker: ObserveSpeakerUseCase,
     private val callRinger: CallRinger,
     private val uiCallParticipantMapper: UICallParticipantMapper,
@@ -168,6 +172,7 @@ class SharedCallingViewModel @Inject constructor(
                             conversationType = ConversationType.Conference
                         )
                     }
+
                     is ConversationDetails.OneOne -> {
                         callState.copy(
                             conversationName = getConversationName(details.otherUser.name),
@@ -178,6 +183,7 @@ class SharedCallingViewModel @Inject constructor(
                             membership = userTypeMapper.toMembership(details.otherUser.userType)
                         )
                     }
+
                     else -> throw IllegalStateException("Invalid conversation type")
                 }
             }
@@ -211,7 +217,8 @@ class SharedCallingViewModel @Inject constructor(
         sharedFlow.first()?.let { call ->
             callState = callState.copy(
                 callStatus = call.status,
-                callerName = call.callerName
+                callerName = call.callerName,
+                isCbrEnabled = call.isCbrEnabled
             )
         }
     }
@@ -222,6 +229,7 @@ class SharedCallingViewModel @Inject constructor(
                 callState = callState.copy(
                     isMuted = call.isMuted,
                     callStatus = it.status,
+                    isCbrEnabled = it.isCbrEnabled,
                     callerName = it.callerName,
                     participants = it.participants.map { participant -> uiCallParticipantMapper.toUICallParticipant(participant) }
                 )
@@ -247,12 +255,24 @@ class SharedCallingViewModel @Inject constructor(
 
     fun toggleSpeaker() {
         viewModelScope.launch {
-            callState = if (callState.isSpeakerOn) {
+            if (callState.isSpeakerOn) {
+                callState = callState.copy(isSpeakerOn = false)
                 turnLoudSpeakerOff()
-                callState.copy(isSpeakerOn = false)
             } else {
+                callState = callState.copy(isSpeakerOn = true)
                 turnLoudSpeakerOn()
-                callState.copy(isSpeakerOn = true)
+            }
+        }
+    }
+
+    fun flipCamera() {
+        viewModelScope.launch {
+            if (callState.isOnFrontCamera) {
+                callState = callState.copy(isOnFrontCamera = false)
+                flipToBackCamera(conversationId)
+            } else {
+                callState = callState.copy(isOnFrontCamera = true)
+                flipToFrontCamera(conversationId)
             }
         }
     }
@@ -260,12 +280,12 @@ class SharedCallingViewModel @Inject constructor(
     fun toggleMute() {
         viewModelScope.launch {
             callState.isMuted?.let {
-                callState = if (it) {
+                if (it) {
+                    callState = callState.copy(isMuted = false)
                     unMuteCall(conversationId)
-                    callState.copy(isMuted = false)
                 } else {
+                    callState = callState.copy(isMuted = true)
                     muteCall(conversationId)
-                    callState.copy(isMuted = true)
                 }
             }
         }

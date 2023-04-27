@@ -21,7 +21,6 @@
 package com.wire.android.ui.calling.ongoing
 
 import android.view.View
-import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -29,6 +28,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -43,8 +43,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -63,40 +63,39 @@ import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.common.spacers.VerticalSpace
-import com.wire.android.ui.common.topappbar.CommonTopAppBar
-import com.wire.android.ui.common.topappbar.CommonTopAppBarViewModel
-import com.wire.android.ui.common.topappbar.ConnectivityUIState
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
+import java.util.Locale
 
 @Composable
 fun OngoingCallScreen(
     ongoingCallViewModel: OngoingCallViewModel = hiltViewModel(),
     sharedCallingViewModel: SharedCallingViewModel = hiltViewModel(),
-    commonTopAppBarViewModel: CommonTopAppBarViewModel = hiltViewModel(),
 ) {
 
     with(sharedCallingViewModel.callState) {
         OngoingCallContent(
-            conversationName,
-            participants,
-            isMuted ?: true,
-            isCameraOn ?: false,
-            isSpeakerOn,
-            securityClassificationType,
-            commonTopAppBarViewModel.connectivityState,
-            sharedCallingViewModel::toggleSpeaker,
-            sharedCallingViewModel::toggleMute,
-            sharedCallingViewModel::hangUpCall,
-            sharedCallingViewModel::toggleVideo,
-            sharedCallingViewModel::setVideoPreview,
-            sharedCallingViewModel::clearVideoPreview,
-            sharedCallingViewModel::navigateBack,
-            ongoingCallViewModel::requestVideoStreams
+            conversationName = conversationName,
+            participants = participants,
+            isMuted = isMuted ?: true,
+            isCameraOn = isCameraOn,
+            isSpeakerOn = isSpeakerOn,
+            isCbrEnabled = isCbrEnabled,
+            isOnFrontCamera = isOnFrontCamera,
+            classificationType = securityClassificationType,
+            toggleSpeaker = sharedCallingViewModel::toggleSpeaker,
+            toggleMute = sharedCallingViewModel::toggleMute,
+            hangUpCall = sharedCallingViewModel::hangUpCall,
+            toggleVideo = sharedCallingViewModel::toggleVideo,
+            flipCamera = sharedCallingViewModel::flipCamera,
+            setVideoPreview = sharedCallingViewModel::setVideoPreview,
+            clearVideoPreview = sharedCallingViewModel::clearVideoPreview,
+            navigateBack = sharedCallingViewModel::navigateBack,
+            requestVideoStreams = ongoingCallViewModel::requestVideoStreams
         )
         isCameraOn?.let {
             BackHandler(enabled = it, sharedCallingViewModel::navigateBack)
@@ -111,19 +110,20 @@ private fun OngoingCallContent(
     participants: List<UICallParticipant>,
     isMuted: Boolean,
     isCameraOn: Boolean,
+    isOnFrontCamera: Boolean,
     isSpeakerOn: Boolean,
+    isCbrEnabled: Boolean,
     classificationType: SecurityClassificationType,
-    connectivityState: ConnectivityUIState,
     toggleSpeaker: () -> Unit,
     toggleMute: () -> Unit,
     hangUpCall: () -> Unit,
     toggleVideo: () -> Unit,
+    flipCamera: () -> Unit,
     setVideoPreview: (view: View) -> Unit,
     clearVideoPreview: () -> Unit,
     navigateBack: () -> Unit,
     requestVideoStreams: (participants: List<UICallParticipant>) -> Unit
 ) {
-
     val sheetInitialValue =
         if (classificationType == SecurityClassificationType.NONE) BottomSheetValue.Collapsed else BottomSheetValue.Expanded
     val sheetState = rememberBottomSheetState(
@@ -142,16 +142,13 @@ private fun OngoingCallContent(
         sheetBackgroundColor = colorsScheme().background,
         backgroundColor = colorsScheme().background,
         topBar = {
-            CommonTopAppBar(
-                connectivityUIState = connectivityState,
-                onReturnToCallClick = { }
-            )
             OngoingCallTopBar(
                 conversationName = when (conversationName) {
                     is ConversationName.Known -> conversationName.name
                     is ConversationName.Unknown -> stringResource(id = conversationName.resourceId)
                     else -> ""
                 },
+                isCbrEnabled = isCbrEnabled,
                 onCollapse = navigateBack
             )
         },
@@ -162,12 +159,14 @@ private fun OngoingCallContent(
             CallingControls(
                 isMuted = isMuted,
                 isCameraOn = isCameraOn,
+                isOnFrontCamera = isOnFrontCamera,
                 isSpeakerOn = isSpeakerOn,
                 classificationType = classificationType,
                 toggleSpeaker = toggleSpeaker,
                 toggleMute = toggleMute,
                 onHangUpCall = hangUpCall,
-                onToggleVideo = toggleVideo
+                onToggleVideo = toggleVideo,
+                flipCamera = flipCamera
             )
         },
     ) {
@@ -193,10 +192,14 @@ private fun OngoingCallContent(
                     bottom = 95.dp
                 )
             ) {
+                val topAppBarAndBottomSheetHeight = if (isCbrEnabled) APP_BAR_AND_BOTTOM_SHEET_HEIGHT_WITH_CBR_INDICATOR
+                else DEFAULT_TOP_APP_BAR_AND_BOTTOM_SHEET_HEIGHT
+
                 VerticalCallingPager(
                     participants = participants,
                     isSelfUserCameraOn = isCameraOn,
                     isSelfUserMuted = isMuted,
+                    topAppBarAndBottomSheetHeight = topAppBarAndBottomSheetHeight,
                     onSelfVideoPreviewCreated = setVideoPreview,
                     onSelfClearVideoPreview = clearVideoPreview,
                     requestVideoStreams = requestVideoStreams
@@ -209,30 +212,45 @@ private fun OngoingCallContent(
 @Composable
 private fun OngoingCallTopBar(
     conversationName: String,
+    isCbrEnabled: Boolean,
     onCollapse: () -> Unit
 ) {
-    WireCenterAlignedTopAppBar(
-        onNavigationPressed = onCollapse,
-        titleStyle = MaterialTheme.wireTypography.title02,
-        maxLines = 1,
-        title = conversationName,
-        navigationIconType = NavigationIconType.Collapse,
-        elevation = 0.dp,
-        actions = {}
-    )
+    Column {
+        WireCenterAlignedTopAppBar(
+            onNavigationPressed = onCollapse,
+            titleStyle = MaterialTheme.wireTypography.title02,
+            maxLines = 1,
+            title = conversationName,
+            navigationIconType = NavigationIconType.Collapse,
+            elevation = 0.dp,
+            actions = {}
+        )
+        if (isCbrEnabled) {
+            Text(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .offset(y = -(5).dp),
+                textAlign = TextAlign.Center,
+                text = stringResource(id = R.string.calling_constant_bit_rate_indication).uppercase(Locale.getDefault()),
+                color = colorsScheme().secondaryText,
+                style = MaterialTheme.wireTypography.title03,
+            )
+        }
+    }
 }
 
-// TODO(refactor) use CallOptionsControls to avoid duplication
 @Composable
 private fun CallingControls(
     isMuted: Boolean,
     isCameraOn: Boolean,
     isSpeakerOn: Boolean,
+    isOnFrontCamera: Boolean,
     classificationType: SecurityClassificationType,
     toggleSpeaker: () -> Unit,
     toggleMute: () -> Unit,
     onHangUpCall: () -> Unit,
-    onToggleVideo: () -> Unit
+    onToggleVideo: () -> Unit,
+    flipCamera: () -> Unit,
 ) {
     Row(
         horizontalArrangement = Arrangement.SpaceEvenly,
@@ -247,15 +265,15 @@ private fun CallingControls(
             onCameraPermissionDenied = { },
             onCameraButtonClicked = onToggleVideo
         )
-        if (isCameraOn) {
-            val context = LocalContext.current
-            CameraFlipButton {
-                Toast.makeText(context, "Not implemented yet =)", Toast.LENGTH_SHORT).show()
-            }
-        } else SpeakerButton(
+
+        SpeakerButton(
             isSpeakerOn = isSpeakerOn,
             onSpeakerButtonClicked = toggleSpeaker
         )
+
+        if (isCameraOn) {
+            CameraFlipButton(isOnFrontCamera, flipCamera)
+        }
 
         HangUpButton(
             modifier = Modifier.size(MaterialTheme.wireDimensions.defaultCallingHangUpButtonSize),
@@ -269,5 +287,8 @@ private fun CallingControls(
 @Composable
 @Preview
 fun PreviewOngoingCallTopBar() {
-    OngoingCallTopBar("Default") { }
+    OngoingCallTopBar("Default", true) { }
 }
+
+private const val DEFAULT_TOP_APP_BAR_AND_BOTTOM_SHEET_HEIGHT = 185
+private const val APP_BAR_AND_BOTTOM_SHEET_HEIGHT_WITH_CBR_INDICATOR = 200

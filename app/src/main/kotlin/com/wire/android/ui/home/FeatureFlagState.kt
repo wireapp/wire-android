@@ -23,7 +23,13 @@ package com.wire.android.ui.home
 data class FeatureFlagState(
     val showFileSharingDialog: Boolean = false,
     val isFileSharingEnabledState: Boolean = true,
-    val showFileSharingRestrictedDialog: Boolean = false,
+    val fileSharingRestrictedState: SharingRestrictedState = SharingRestrictedState.NONE,
     val shouldShowGuestRoomLinkDialog: Boolean = false,
     val isGuestRoomLinkEnabled: Boolean = true
-)
+) {
+
+    fun isSharingAllowed() = fileSharingRestrictedState == SharingRestrictedState.NONE
+    enum class SharingRestrictedState {
+        NONE, NO_USER, RESTRICTED_IN_TEAM
+    }
+}

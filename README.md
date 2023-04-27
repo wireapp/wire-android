@@ -60,4 +60,12 @@ It might be that after cloning the Android Reloaded project, some build issues a
 - There is a valid SDK path on your `local.properties` AND `kalium/local.properties` files pointing to the Android SDK folder. In Mac, that folder can be usually found under `sdk.dir=/Users/YOUR_USER_FOLDER/Library/Android/sdk`. The IDE **will not** create `kalium/local.properties` automatically, so you might want to copy/paste the one in the project root
 - When you've already started working on the project adding some commits, it might occur that your local build breaks, if that is the case, make sure you've updated the `kalium` submodule reference by running: `git submodule update --remote --merge`
 
-## Happy coding!!!
+## Contributing
+
+If you want to help Wire to speak more languages, please refer to our [site](https://support.wire.com/hc/en-us/articles/202856874-Language-support), to see the official list of supported languages and those who are open to contribute.
+
+To do so, you will find instructions there, but you can do the following:
+
+1. Create a [Crowdin account](https://crowdin.com/).
+2. Request access to add translations in our [project](https://crowdin.com/project/wire-android-reloaded).
+3. Translate away.

@@ -34,7 +34,7 @@ object AndroidNdk {
 object AndroidClient {
     const val appId = "com.wire.android"
     val versionCode = Versionizer().versionCode
-    const val versionName = "4.1.1"
+    const val versionName = "4.2.0"
     const val testRunner = "androidx.test.runner.AndroidJUnitRunner"
 }
 
@@ -71,7 +71,7 @@ object Repositories {
 
 object Libraries {
     object Versions {
-        const val kotlin = "1.8.10"
+        const val kotlin = "1.8.20"
         const val coroutines = "1.6.1-native-mt"
         const val jetpack = "1.1.0"
         const val constraintLayout = "2.1.4"
@@ -83,7 +83,7 @@ object Libraries {
         const val workManager = "2.8.1"
         const val fragment = "1.5.6"
         const val compose = "1.3.1"
-        const val composeCompiler = "1.4.3"
+        const val composeCompiler = "1.4.6"
         const val composeMaterial = "1.3.1"
         const val composeMaterial3 = "1.0.1"
         const val composeActivity = "1.6.1"

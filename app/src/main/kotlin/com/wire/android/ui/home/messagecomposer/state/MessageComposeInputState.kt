@@ -107,7 +107,6 @@ sealed class MessageComposeInputType {
     ) : MessageComposeInputType()
 }
 
-
 @Suppress("MagicNumber")
 enum class SelfDeletionDuration(val value: Duration?, val label: UIText) {
     None(null, UIText.StringResource(R.string.label_off)),

@@ -54,7 +54,7 @@
     <string name="label_update">Actualizar</string>
     <string name="label_close">Cerrar</string>
     <string name="label_download">Descargar</string>
-    <string name="label_open_asset_externally">Open</string>
+    <string name="label_open_asset_externally">Abrir</string>
     <string name="label_show">Mostrar</string>
     <string name="label_show_all">Mostrar todo</string>
     <string name="label_show_less">Mostrar menos</string>
@@ -79,7 +79,7 @@
     <string name="content_description_muted_conversation">Conversaci&#243;n silenciada</string>
     <string name="content_description_check">Marca de verificaci&#243;n</string>
     <string name="content_description_download_icon">Icono de descarga</string>
-    <string name="content_description_open_asset_icon">Open icon</string>
+    <string name="content_description_open_asset_icon">Abrir icono</string>
     <string name="content_description_add_to_favourite">Agregar a Favoritos</string>
     <string name="content_description_move_to_folder">Mover a carpeta</string>
     <string name="content_description_move_to_archive">Mover a archivo</string>
@@ -330,7 +330,7 @@ Un mensaje eliminado no puede ser restaurado.</string>
     <string name="conversations_calls_tab_title">Llamadas</string>
     <string name="conversations_mentions_tab_title">Menciones</string>
     <string name="sent_a_message_with_content">envi&#243; un mensaje con contenido %s</string>
-    <string name="sent_a_message_with_unknown_content">sent a message with unknown content</string>
+    <string name="sent_a_message_with_unknown_content">envió un mensaje con contenido desconocido</string>
     <string name="new_group_title">Nuevo Grupo</string>
     <string name="new_group_description">Hasta 500 personas pueden unirse a una conversaci&#243;n grupal.</string>
     <string name="group_name_title">Nombre del grupo</string>
@@ -549,8 +549,8 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
         <item quantity="one">Se eliminó 1 persona de la conversación</item>
         <item quantity="other">Se eliminaron %1$d personas de la conversación</item>
     </plurals>
-    <string name="last_message_self_user_shared_asset">shared a file.</string>
-    <string name="last_message_other_user_shared_asset">shared a file.</string>
+    <string name="last_message_self_user_shared_asset">compartiste un archivo.</string>
+    <string name="last_message_other_user_shared_asset">compartió un archivo.</string>
     <string name="last_message_self_user_shared_image">comparti&#243; una imagen.</string>
     <string name="last_message_other_user_shared_image">comparti&#243; una imagen.</string>
     <string name="last_message_self_user_shared_video">comparti&#243; un video.</string>
@@ -662,7 +662,7 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
     <string name="notification_call_default_caller_name">Alguien</string>
     <string name="notification_call_default_group_name">Llamada en grupo entrante</string>
     <!-- Calling-->
-    <string name="calling_constant_bit_rate_indication">Bit Rate Constante</string>
+    <string name="calling_constant_bit_rate_indication">Bit Rate constante</string>
     <string name="calling_button_label_microphone">Micr&#243;fono</string>
     <string name="calling_button_label_camera">C&#225;mara</string>
     <string name="calling_button_label_speaker">Altavoz</string>
@@ -745,7 +745,7 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
     <string name="block_user_dialog_title">&#191;Bloquear usuario?</string>
     <string name="block_user_dialog_body">%1$s no podr&#225; contactarte ni agregarte a conversaciones grupales. No se le notificar&#225; sobre esto.</string>
     <string name="block_user_dialog_confirm_button">Bloquear</string>
-    <string name="other_user_devices_description">Wire asigna una huella digital única a cada dispositivo. Compáralas con %1$s y verifica tu conversación. </string>
+    <string name="other_user_devices_description">Wire asigna una huella digital &#250;nica a cada dispositivo. Comparelas con %1$s y verifique su conversaci&#243;n. </string>
     <!--Settings -->
     <string name="url_why_verify_conversation">/hc/es/articles/207859815</string>
     <string name="settings_general_label">General</string>
@@ -886,7 +886,7 @@ URL del backend:
     <string name="start_manual_migration">Iniciar migraci&#243;n desde la versi&#243;n 3.82.38 manualmente</string>
     <string name="file_sharing_restricted_learn_more_link">https://support.wire.com/hc/en-us/articles/4406404582673-How-can-I-restrict-file-sharing-for-my-team-</string>
     <string name="file_sharing_restricted_description_by_team">No puedes compartir este archivo porque esta función está deshabilitada para esta cuenta.</string>
-    <string name="file_sharing_restricted_description_no_users">Necesitas estar registrado en Wire antes de compartir nada</string>
+    <string name="file_sharing_restricted_description_no_users">Necesitas iniciar sesión en Wire antes de poder compartir nada</string>
     <string name="file_sharing_restricted_button_text_no_users">Abrir Wire</string>
     <!-- join conversation dialog -->
     <string name="join_conversation_dialog_title">&#191;Unirse a la conversaci&#243;n?</string>
@@ -907,68 +907,68 @@ URL del backend:
     <string name="guest_link_button_revoke_link">Revocar enlace</string>
     <string name="audio_not_available">Audio no disponible</string>
     <string name="audio_not_available_explanation">Algo sali&#243; mal al descargar este archivo de audio. P&#237;dele al remitente que lo vuelva a subir.</string>
-    <string name="guest_link_generate_error_message">Se produjo un error al intentar crear el enlace de invitado. Por favor, int&#233;ntalo de nuevo.</string>
-    <string name="guest_link_revoke_error_message">Se produjo un error al intentar revocar el enlace de invitado. Por favor, int&#233;ntalo de nuevo.</string>
+    <string name="guest_link_generate_error_message">Hubo un error al crear el enlace. Por favor, inténtalo de nuevo</string>
+    <string name="guest_link_revoke_error_message">Hubo un error al revocar el enlace. Por favor inténtalo de nuevo</string>
     <string name="revoke_guest__room_link_dialog_text">Los nuevos invitados no podr&#225;n unirse con este enlace. Los invitados actuales a&#250;n tendr&#225;n acceso.</string>
     <string name="revoke_guest__room_link_dialog_title">&#191;Revocar enlace de invitado?</string>
-    <string name="guest__room_link_copied">Se ha copiado el enlace al portapapeles</string>
-    <string name="title_device_key_fingerprint">HUELLA DIGITAL DE LA CLAVE DEL DISPOSITIVO</string>
+    <string name="guest__room_link_copied">Link copiado al portapapeles</string>
+    <string name="title_device_key_fingerprint">HU&#201;LLA DIGITAL DE LA LLAVE DEL DISPOSITIVO</string>
     <string name="label_client_key_fingerprint_not_available">NO DISPONIBLE</string>
-    <string name="guest_room_link_copied">Se ha copiado el enlace al portapapeles</string>
+    <string name="guest_room_link_copied">Link copiado al portapapeles</string>
     <string name="guest_room_link_enabled">La generaci&#243;n de enlaces de invitado ahora est&#225; activada para todos los administradores del grupo</string>
     <string name="guest_room_link_disabled">La generaci&#243;n de enlaces de invitado ahora est&#225; desactivada para todos los administradores del grupo</string>
     <!-- New Device dialog -->
     <string name="new_device_dialog_current_user_title">Su cuenta se utiliz&#243; en</string>
-    <string name="new_device_dialog_current_user_message">%1$s\nDesde: %2$s \n\nSi no fuiste tú, retira el dispositivo y restablece tu contraseña.</string>
+    <string name="new_device_dialog_current_user_message">%1$s\nDesde: %2$s \n\nSi no fuiste tú, elimina el dispositivo y restablece tu contraseña.</string>
     <string name="new_device_dialog_current_user_btn">Administrar dispositivos</string>
-    <string name="new_device_dialog_other_user_title">Tu cuenta &#8220;%1$s (@%2$s)&#8221; se utiliz&#243; en:</string>
-    <string name="new_device_dialog_other_user_message">%1$s\nDesde: %2$s \n\nSi no lo fuiste tú, retira el dispositivo (navega a "Administrar dispositivos" en la sección de Configuración de esta cuenta) y restablece tu contraseña.</string>
+    <string name="new_device_dialog_other_user_title">Su cuenta &#8220;%1$s (@%2$s)&#8221; se utiliz&#243; en:</string>
+    <string name="new_device_dialog_other_user_message">%1$s\nDesde: %2$s \n\nSi no fuiste tú elimina el dispositivo (navega a \"Administrar dispositivos\" en la sección Configuración de esta cuenta) y restablece tu contraseña.</string>
     <string name="new_device_dialog_other_user_btn">Cambiar de cuenta</string>
     <string name="label_system_message_joined_the_conversation_by_self">%1$s se uni&#243; a la conversaci&#243;n</string>
     <string name="label_system_message_joined_the_conversation_by_other">%1$s se uni&#243; a la conversaci&#243;n</string>
     <string name="label_client_verified">Verificado</string>
     <string name="label_client_unverified">No verificado</string>
-    <string name="label_self_client_verification_description">Para verificar su propio dispositivo, compare esta huella digital con la misma huella digital en otro dispositivo.</string>
+    <string name="label_self_client_verification_description">Para verificar tu propio dispositivo, compara esta huella digital con la misma huella digital en otro dispositivo.</string>
     <string name="label_client_verification_description">Verifica que la huella digital de este dispositivo coincide con la huella digital mostrada en el dispositivo de %s.</string>
     <string name="label_fingerprint_description">Si las huellas digitales no coinciden, restablezca la sesi&#243;n para generar nuevas claves de cifrado en ambos lados.</string>
-    <string name="label_self_fingerprint_description">Comparte esta huella digital con otros participantes en una conversación para que ellos puedan verificarla y asegurarse de que esta conversación es segura.</string>
+    <string name="label_self_fingerprint_description">Comparte esta huella digital con otros participantes en una conversación, para que puedan verificarla y asegurarse de que la conversación es segura.</string>
     <string name="unknown_user_name">desconocido</string>
-    <string name="self_deleting_message_time_left">Self-deleting message • %1$s</string>
-    <string name="self_deleting_message_label">Self-deleting message</string>
-    <string name="device_name_unknown">Unknown device</string>
-    <string name="create_account_email_title">Your Email</string>
-    <string name="settings_myaccount_email_description">Your email is part of your login details for this account. It may be visible to your contacts.</string>
-    <string name="settings_myaccount_email_invalid_imail_error">Please enter a valid email format</string>
-    <string name="settings_myaccount_email_already_in_use_error">The email address you provided has already been  registered. Please try again.</string>
-    <string name="settings_myaccount_email_verification_email_sent">A verification email has been sent to your email %1$s.\n\nYour current email address is not changed until you verified your new one. Please check your email inbox and follow the instructions.</string>
-    <string name="label_resend_verification_email">Resend Verification Email</string>
-    <string name="settings_myaccount_email_generic_error">Something went wrong. Please try again.</string>
-    <string name="title_video_could_not_be_sent">Video could not be sent</string>
-    <string name="title_image_could_not_be_sent">Image could not be sent</string>
-    <string name="title_file_could_not_be_sent">File could not be sent</string>
-    <string name="label_shared_video_too_large">You can only share a video up to %d MB.</string>
-    <string name="label_shared_image_too_large">You can only share an image up to %d MB.</string>
-    <string name="label_shared_file_too_large">You can only share a file up to %d MB.</string>
-    <string name="label_file_saved_to_device">The file was saved to your device.</string>
+    <string name="self_deleting_message_time_left">Mensaje con autoborrado • %1$s</string>
+    <string name="self_deleting_message_label">Mensaje con autoborrado</string>
+    <string name="device_name_unknown">Dispositivo desconocido</string>
+    <string name="create_account_email_title">Tu Email</string>
+    <string name="settings_myaccount_email_description">Tu correo electrónico es parte de tus datos de acceso para esta cuenta. Puede ser visible para tus contactos.</string>
+    <string name="settings_myaccount_email_invalid_imail_error">Por favor, introduce una dirección de correo electrónico válida</string>
+    <string name="settings_myaccount_email_already_in_use_error">El email que proporcionaste ya está registrado. Por favor, inténtalo con otro.</string>
+    <string name="settings_myaccount_email_verification_email_sent">Se ha enviado un correo electrónico de verificación a tu correo electrónico %1$s.\n\nTu dirección de correo electrónico actual no se actualizará hasta que verifiques la nueva. Por favor, revisa tu bandeja de entrada y sigue las instrucciones.</string>
+    <string name="label_resend_verification_email">Reenviar el correo de verificación</string>
+    <string name="settings_myaccount_email_generic_error">Algo salió mal. Por favor inténtalo de nuevo.</string>
+    <string name="title_video_could_not_be_sent">El video no se pudo enviar</string>
+    <string name="title_image_could_not_be_sent">La imagen no se pudo enviar</string>
+    <string name="title_file_could_not_be_sent">No se pudo enviar el archivo</string>
+    <string name="label_shared_video_too_large">Solo puedes compartir un vídeo de hasta %d MB.</string>
+    <string name="label_shared_image_too_large">Solo puedes compartir imágenes de hasta %d MB.</string>
+    <string name="label_shared_file_too_large">Solo puedes compartir archivos hasta %d MB.</string>
+    <string name="label_file_saved_to_device">El archivo se guardó en tu dispositivo.</string>
     <!-- Expirable messages -->
     <plurals name="weeks_left">
-        <item quantity="one">1 week left</item>
-        <item quantity="other">%1$d weeks left</item>
+        <item quantity="one">Falta 1 semana</item>
+        <item quantity="other">Faltan %1$d semanas</item>
     </plurals>
     <plurals name="days_left">
-        <item quantity="one">1 day left</item>
-        <item quantity="other">%1$d days left</item>
+        <item quantity="one">Falta 1 día</item>
+        <item quantity="other">Faltan %1$d días</item>
     </plurals>
     <plurals name="hours_left">
-        <item quantity="one">1 hour left</item>
-        <item quantity="other">%1$d hours left</item>
+        <item quantity="one">Falta 1 hora</item>
+        <item quantity="other">Faltan %1$d horas</item>
     </plurals>
     <plurals name="minutes_left">
-        <item quantity="one">1 minute left</item>
-        <item quantity="other">%1$d minutes left</item>
+        <item quantity="one">Falta 1 minuto</item>
+        <item quantity="other">Faltan %1$d minutos</item>
     </plurals>
     <plurals name="seconds_left">
-        <item quantity="one">1 second left</item>
-        <item quantity="other">%1$d seconds left</item>
+        <item quantity="one">Falta 1 segundo</item>
+        <item quantity="other">Faltan %1$d segundos</item>
     </plurals>
 </resources>

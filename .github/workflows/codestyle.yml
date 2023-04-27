@@ -2,6 +2,9 @@ name: "Check Codestyle"
 
 on: [workflow_call]
 
+permissions:
+  contents: read
+
 jobs:
   static-code-analysis:
     runs-on: buildjet-2vcpu-ubuntu-2204

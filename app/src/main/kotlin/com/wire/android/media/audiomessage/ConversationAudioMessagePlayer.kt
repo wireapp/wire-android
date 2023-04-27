@@ -39,6 +39,8 @@ class ConversationAudioMessagePlayer
                     )
                 )
                 seekToAudioPosition.tryEmit(currentAudioMessageId!! to 0)
+
+                currentAudioMessageId = null
             }
         }
     }
@@ -129,7 +131,9 @@ class ConversationAudioMessagePlayer
         if (isRequestedAudioMessageCurrentlyPlaying) {
             resumeOrPauseCurrentlyPlayingAudioMessage(requestedAudioMessageId)
         } else {
-            stopCurrentlyPlayingAudioMessage()
+            if (currentAudioMessageId != null) {
+                stopCurrentlyPlayingAudioMessage()
+            }
             playAudioMessage(
                 conversationId = conversationId,
                 messageId = requestedAudioMessageId,
@@ -149,11 +153,9 @@ class ConversationAudioMessagePlayer
     }
 
     private suspend fun stopCurrentlyPlayingAudioMessage() {
-        if (currentAudioMessageId != null) {
-            val currentAudioState = audioMessageStateHistory[currentAudioMessageId]
-            if (currentAudioState?.audioMediaPlayingState != AudioMediaPlayingState.Fetching) {
-                stop(currentAudioMessageId!!)
-            }
+        val currentAudioState = audioMessageStateHistory[currentAudioMessageId]
+        if (currentAudioState?.audioMediaPlayingState != AudioMediaPlayingState.Fetching) {
+            stop(currentAudioMessageId!!)
         }
     }
 
@@ -193,6 +195,8 @@ class ConversationAudioMessagePlayer
                         val isFetchedAudioCurrentlyQueuedToPlay = messageId == currentAudioMessageId
 
                         if (isFetchedAudioCurrentlyQueuedToPlay) {
+                            audioMediaPlayer.reset()
+
                             audioMediaPlayer.setDataSource(
                                 context,
                                 Uri.parse(result.decodedAssetPath.toString())

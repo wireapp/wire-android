@@ -590,6 +590,8 @@ Fino a 500 persone possono unirsi a una conversazione di gruppo.</string>
         <item quantity="one">%1$d messaggio</item>
         <item quantity="other">%1$d messaggi</item>
     </plurals>
+    <string name="ephemeral_one_to_one_event_message">"Sent a message"</string>
+    <string name="ephemeral_group_event_message">"Someone sent a message"</string>
     <!--Search Contact-->
     <string name="label_contacts">CONTATTI</string>
     <string name="label_new_group">Nuovo Gruppo</string>
@@ -903,14 +905,14 @@ URL del backend:
     <string name="guest_link_button_revoke_link">Revoca link</string>
     <string name="audio_not_available">Audio non disponibile</string>
     <string name="audio_not_available_explanation">Qualcosa &#232; andato storto durante il download di questo file audio. Chiedi all\'utente che l\'ha inviato di caricarlo di nuovo.</string>
-    <string name="guest_link_generate_error_message">Si &#232; verificato un errore durante la creazione del link ospite. Riprova.</string>
-    <string name="guest_link_revoke_error_message">Si &#232; verificato un errore durante la revoca del link ospite. Riprova.</string>
+    <string name="guest_link_generate_error_message">There was an error trying to create Guest Link. Please try again</string>
+    <string name="guest_link_revoke_error_message">There was an error trying to revoke Guest Link. Please try again</string>
     <string name="revoke_guest__room_link_dialog_text">I nuovi ospiti non potranno unirsi con questo link. Gli ospiti attuali avranno ancora accesso.</string>
     <string name="revoke_guest__room_link_dialog_title">Revocare il link ospite?</string>
-    <string name="guest__room_link_copied">Il link ospite &#232; stato copiato negli appunti</string>
+    <string name="guest__room_link_copied">Guest link was copied to clipboard</string>
     <string name="title_device_key_fingerprint">IMPRONTA CHIAVE DISPOSITIVO</string>
     <string name="label_client_key_fingerprint_not_available">NON DISPONIBILE</string>
-    <string name="guest_room_link_copied">Il link ospite &#232; stato copiato negli appunti</string>
+    <string name="guest_room_link_copied">Guest link was copied to clipboard</string>
     <string name="guest_room_link_enabled">La generazione di link ospiti &#232; ora abilitata per tutti gli amministratori di gruppo</string>
     <string name="guest_room_link_disabled">La generazione di link ospiti &#232; stata disabilitata per tutti gli amministratori di gruppo</string>
     <!-- New Device dialog -->

@@ -288,6 +288,7 @@ class ImportMediaViewModel @Inject constructor(
                         assetMimeType = importedAsset.mimeType,
                         assetWidth = if (isImage) (importedAsset as ImportedMediaAsset.Image).width else 0,
                         assetHeight = if (isImage) (importedAsset as ImportedMediaAsset.Image).height else 0,
+                        expireAfter = null
                     )
                 }
                 jobs = jobs.plus(job)

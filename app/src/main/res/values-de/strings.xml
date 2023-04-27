@@ -593,7 +593,7 @@
         <item quantity="other">%1$d Nachrichten</item>
     </plurals>
     <string name="ephemeral_one_to_one_event_message">"Sent a message"</string>
-    <string name="ephemeral_group_event_message">"Someone sent a message"</string>
+    <string name="ephemeral_group_event_message">"Jemand hat eine Nachricht gesendet"</string>
     <!--Search Contact-->
     <string name="label_contacts">KONTAKTE</string>
     <string name="label_new_group">Neue Gruppe</string>
@@ -902,7 +902,7 @@
     <string name="guest_link_button_copy_link">Link kopieren</string>
     <string name="guest_link_button_share_link">Link teilen</string>
     <string name="guest_link_button_revoke_link">Link widerrufen</string>
-    <string name="audio_not_available">Audio not available</string>
+    <string name="audio_not_available">Audio nicht verfügbar</string>
     <string name="audio_not_available_explanation">Beim Herunterladen dieser Audiodatei ist ein Fehler aufgetreten. Bitten Sie den Absender, die Datei erneut hochzuladen</string>
     <string name="guest_link_generate_error_message">There was an error trying to create Guest Link. Please try again</string>
     <string name="guest_link_revoke_error_message">There was an error trying to revoke Guest Link. Please try again</string>

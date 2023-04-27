@@ -134,9 +134,7 @@ android {
 
     flavorDimensions(FlavorDimensions.DEFAULT)
 
-    val buildtimeConfiguration = getBuildtimeConfiguration(rootDir = rootDir,
-        Customization.CustomizationOption.FromFile(rootProject.file("custom/custom-reloaded.json"))
-    )
+    val buildtimeConfiguration = getBuildtimeConfiguration(rootDir = rootDir)
     val flavorMap = buildtimeConfiguration.flavorSettings.flavorMap
 
     productFlavors {

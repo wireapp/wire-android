@@ -909,7 +909,7 @@
     <string name="revoke_guest__room_link_dialog_text">Neue Gäste werden sich nicht mehr mit diesem Link anmelden können. Aktuelle Gäste haben weiterhin Zugang zum Gästebereich.</string>
     <string name="revoke_guest__room_link_dialog_title">Gäste-Link widerrufen?</string>
     <string name="guest__room_link_copied">Guest link was copied to clipboard</string>
-    <string name="title_device_key_fingerprint">DEVICE KEY FINGERPRINT</string>
+    <string name="title_device_key_fingerprint">SCHLÜSSEL-FINGERABDRUCK</string>
     <string name="label_client_key_fingerprint_not_available">NICHT VERFÜGBAR</string>
     <string name="guest_room_link_copied">Guest link was copied to clipboard</string>
     <string name="guest_room_link_enabled">Erstellen von Gäste-Links ist nun für alle Gruppen-Admins aktiviert</string>

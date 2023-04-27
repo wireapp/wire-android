@@ -301,15 +301,14 @@ class MessageContentMapper @Inject constructor(
         }
     }
 
+    // todo(fed): do the mapping here?
     private fun mapRecipientsFailure(userList: List<User>, deliveryStatus: DeliveryStatus?): DeliveryStatusContent {
         return when (deliveryStatus) {
             is DeliveryStatus.PartialDelivery -> DeliveryStatusContent.PartialDelivery(
                 failedRecipients = deliveryStatus.recipientsFailedDelivery
-                    .map { userId -> UIText.DynamicString(userList.findUser(userId = userId)?.name.orEmpty()) }
-                    .filter { it.value.isNotEmpty() },
-                noClients = deliveryStatus.recipientsFailedWithNoClients
-                    .map { userId -> UIText.DynamicString(userList.findUser(userId = userId)?.name.orEmpty()) }
-                    .filter { it.value.isNotEmpty() }
+                    .map { userId -> UIText.DynamicString(userList.findUser(userId = userId)?.name.orEmpty()) },
+                noClients = deliveryStatus.recipientsFailedWithNoClients.groupBy { it.domain }
+                    .mapValues { (_, userIds) -> userIds.map { UIText.DynamicString(userList.findUser(userId = it)?.name.orEmpty()) } }
             )
             is DeliveryStatus.CompleteDelivery, null -> DeliveryStatusContent.CompleteDelivery
         }
@@ -440,7 +439,7 @@ class AssetMessageContentMetadata(val assetMessageContent: AssetContent) {
         }
 
     fun isDisplayableImage(): Boolean = isDisplayableImageMimeType(assetMessageContent.mimeType) &&
-        imgWidth.isGreaterThan(0) && imgHeight.isGreaterThan(0)
+            imgWidth.isGreaterThan(0) && imgHeight.isGreaterThan(0)
 }
 
 // TODO: should we keep it here ?

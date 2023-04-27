@@ -31,6 +31,7 @@ import com.wire.android.ui.home.conversations.model.MessageHeader
 import com.wire.android.ui.home.conversations.model.MessageStatus
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.util.CustomTabsHelper
+import com.wire.android.util.EMPTY
 import com.wire.kalium.logic.data.user.UserId
 
 @Composable
@@ -86,7 +87,7 @@ internal fun MessageSentPartialDeliveryFailures(partialDeliveryFailureContent: D
             Column {
                 Text(
                     text = stringResource(
-                        id = R.string.label_message_partial_delivery_participants_deliver_later,
+                        id = R.string.label_message_partial_delivery_participants_wont_deliver,
                         partialDeliveryFailureContent.failedRecipients.joinToString(", ") { it.asString(resources) }
                     ),
                     textAlign = TextAlign.Start
@@ -114,21 +115,25 @@ internal fun MessageSentPartialDeliveryFailures(partialDeliveryFailureContent: D
                 VerticalSpace.x4()
                 if (expanded) {
                     if (partialDeliveryFailureContent.noClients.isNotEmpty()) {
-                        // map to domain count
                         Text(
-                            text = stringResource(
-                                id = R.string.label_message_partial_delivery_participants_wont_deliver,
-                                partialDeliveryFailureContent.noClients.joinToString(", ") { it.asString(resources) }
+                            text = partialDeliveryFailureContent.noClients.entries.map {
+                                stringResource(R.string.label_message_partial_delivery_x_participants_from_backend, it.value.size, it.key)
+                            }.joinToString(", ") + stringResource(
+                                R.string.label_message_partial_delivery_participants_wont_deliver,
+                                String.EMPTY
                             ),
                             textAlign = TextAlign.Start
                         )
                     }
                     if (partialDeliveryFailureContent.failedRecipients.isNotEmpty()) {
-                        // ignore users without metadata
                         Text(
                             text = stringResource(
                                 id = R.string.label_message_partial_delivery_participants_deliver_later,
-                                partialDeliveryFailureContent.failedRecipients.joinToString(", ") { it.asString(resources) }
+                                partialDeliveryFailureContent.failedRecipients
+                                    .filter {
+                                        !it.asString(resources).contentEquals(resources.getString(R.string.username_unavailable_label))
+                                    }
+                                    .joinToString(", ") { it.asString(resources) }
                             ),
                             textAlign = TextAlign.Start
                         )

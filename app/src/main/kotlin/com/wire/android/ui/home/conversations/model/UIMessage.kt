@@ -343,13 +343,14 @@ data class MessageTime(val utcISO: String) {
     val formattedDate = utcISO.uiMessageDateTime() ?: ""
 }
 
+@Stable
 sealed interface DeliveryStatusContent {
     class PartialDelivery(
         val failedRecipients: List<UIText> = emptyList(),
-        val noClients: List<UIText> = emptyList(),
+        val noClients: Map<String, List<UIText>> = emptyMap(),
     ) : DeliveryStatusContent {
 
-        val totalUsersWithFailures by lazy { (failedRecipients + noClients).distinct().count() }
+        val totalUsersWithFailures by lazy { (failedRecipients + noClients.values.flatten()).distinct().count() }
         val onlyOneUser by lazy { totalUsersWithFailures == 1 }
 
         val hasFailures: Boolean

@@ -10,9 +10,6 @@ concurrency:
     group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
     cancel-in-progress: true
 
-permissions:
-    contents: read
-
 jobs:
   detekt:
     uses: ./.github/workflows/codestyle.yml

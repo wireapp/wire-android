@@ -33,16 +33,15 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
-import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 
 @Composable
 fun CameraFlipButton(
-    isCameraFlipped: Boolean = false,
+    isOnFrontCamera: Boolean = false,
     onCameraFlipButtonClicked: () -> Unit
 ) {
     WireCallControlButton(
-        isCameraFlipped
+        isSelected = !isOnFrontCamera
     ) { iconColor ->
         Icon(
             modifier = Modifier
@@ -51,14 +50,19 @@ fun CameraFlipButton(
                     interactionSource = remember { MutableInteractionSource() },
                     indication = rememberRipple(bounded = false, radius = dimensions().defaultCallingControlsSize / 2),
                     role = Role.Button,
-                    onClick = {
-                        onCameraFlipButtonClicked()
-                    }
+                    onClick = onCameraFlipButtonClicked
+
                 ),
-            painter = painterResource(id = R.drawable.ic_camera_flip),
+            painter = painterResource(
+                id = if (isOnFrontCamera) {
+                    R.drawable.ic_camera_flipped
+                } else {
+                    R.drawable.ic_camera_flip
+                }
+            ),
             tint = iconColor,
             contentDescription = stringResource(
-                id = if (isCameraFlipped) R.string.content_description_calling_flip_camera_on
+                id = if (isOnFrontCamera) R.string.content_description_calling_flip_camera_on
                 else R.string.content_description_calling_flip_camera_off
             )
         )

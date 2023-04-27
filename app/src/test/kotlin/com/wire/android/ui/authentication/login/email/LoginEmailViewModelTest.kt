@@ -38,6 +38,7 @@ import com.wire.android.ui.authentication.login.LoginError
 import com.wire.android.ui.common.textfield.CodeFieldValue
 import com.wire.android.util.EMPTY
 import com.wire.android.util.newServerConfig
+import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.NetworkFailure
 import com.wire.kalium.logic.configuration.server.CommonApiVersionType
 import com.wire.kalium.logic.configuration.server.ServerConfig
@@ -353,7 +354,35 @@ class LoginEmailViewModelTest {
     }
 
     @Test
-    fun `given login fails with missing 2fa and 2fa too many requests, when logging in, then should assume email was sent`() = runTest {
+    fun `given login fails with 2fa missing and 2fa request succeeds, when logging in, then should request user input`() = runTest {
+        val email = "some.email@example.org"
+        coEvery { loginUseCase(any(), any(), any(), any(), any()) } returns AuthenticationResult.Failure.InvalidCredentials.Missing2FA
+        coEvery { requestSecondFactorCodeUseCase(any(), any()) } returns RequestSecondFactorVerificationCodeUseCase.Result.Success
+        loginViewModel.onUserIdentifierChange(TextFieldValue(email))
+
+        loginViewModel.login()
+
+        loginViewModel.secondFactorVerificationCodeState.isCodeInputNecessary shouldBe true
+        coVerify(exactly = 1) { requestSecondFactorCodeUseCase(email, VerifiableAction.LOGIN_OR_CLIENT_REGISTRATION) }
+    }
+
+    @Test
+    fun `given login fails with 2fa missing and 2fa request fails generically, when logging in, then should NOT request user input`() = runTest {
+        val email = "some.email@example.org"
+        coEvery { loginUseCase(any(), any(), any(), any(), any()) } returns AuthenticationResult.Failure.InvalidCredentials.Missing2FA
+        coEvery { requestSecondFactorCodeUseCase(any(), any()) } returns RequestSecondFactorVerificationCodeUseCase.Result.Failure.Generic(
+            CoreFailure.Unknown(null)
+        )
+        loginViewModel.onUserIdentifierChange(TextFieldValue(email))
+
+        loginViewModel.login()
+
+        loginViewModel.secondFactorVerificationCodeState.isCodeInputNecessary shouldBe false
+        coVerify(exactly = 1) { requestSecondFactorCodeUseCase(email, VerifiableAction.LOGIN_OR_CLIENT_REGISTRATION) }
+    }
+
+    @Test
+    fun `given 2fa code request fails with too many requests, when logging in, then should request user input`() = runTest {
         val email = "some.email@example.org"
         coEvery { loginUseCase(any(), any(), any(), any(), any()) } returns AuthenticationResult.Failure.InvalidCredentials.Missing2FA
         coEvery {
@@ -363,6 +392,7 @@ class LoginEmailViewModelTest {
 
         loginViewModel.login()
 
+        loginViewModel.secondFactorVerificationCodeState.isCodeInputNecessary shouldBe true
         coVerify(exactly = 1) { requestSecondFactorCodeUseCase(email, VerifiableAction.LOGIN_OR_CLIENT_REGISTRATION) }
     }
 

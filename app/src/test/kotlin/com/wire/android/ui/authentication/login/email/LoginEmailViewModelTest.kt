@@ -353,6 +353,20 @@ class LoginEmailViewModelTest {
     }
 
     @Test
+    fun `given login fails with missing 2fa and 2fa too many requests, when logging in, then should assume email was sent`() = runTest {
+        val email = "some.email@example.org"
+        coEvery { loginUseCase(any(), any(), any(), any(), any()) } returns AuthenticationResult.Failure.InvalidCredentials.Missing2FA
+        coEvery {
+            requestSecondFactorCodeUseCase(any(), any())
+        } returns RequestSecondFactorVerificationCodeUseCase.Result.Failure.TooManyRequests
+        loginViewModel.onUserIdentifierChange(TextFieldValue(email))
+
+        loginViewModel.login()
+
+        coVerify(exactly = 1) { requestSecondFactorCodeUseCase(email, VerifiableAction.LOGIN_OR_CLIENT_REGISTRATION) }
+    }
+
+    @Test
     fun `given login fails with missing 2fa, when logging in, then should state 2FA input is needed`() = runTest {
         val email = "some.email@example.org"
         coEvery { loginUseCase(any(), any(), any(), any(), any()) } returns AuthenticationResult.Failure.InvalidCredentials.Missing2FA

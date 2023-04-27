@@ -24,17 +24,17 @@ jobs:
         continue-on-error: true
         # git merge-base --is-ancestor A B returns 0 when A is ancestor of B
         # In our case, if FROM is not an ancestor of TO, then it returns 1
-        run: | 
+        run: |
           KALIUM_TO_REF="$(git rev-parse HEAD:kalium)"
           git fetch
-          git checkout $GH_BASE_REF
+          git checkout "$GH_BASE_REF"
           git pull
           git submodule update
           KALIUM_FROM_REF="$(git rev-parse HEAD:kalium)"
           echo "kalium_from=$KALIUM_FROM_REF" >> $GITHUB_OUTPUT
           echo "kalium_to=$KALIUM_TO_REF" >> $GITHUB_OUTPUT
           cd kalium
-          git merge-base --is-ancestor $KALIUM_FROM_REF $KALIUM_TO_REF || echo "is_kalium_rollback=$?" >> $GITHUB_OUTPUT
+          git merge-base --is-ancestor "$KALIUM_FROM_REF" "$KALIUM_TO_REF" || echo "is_kalium_rollback=$?" >> $GITHUB_OUTPUT
           unset KALIUM_TO_REF
           unset KALIUM_FROM_REF
 
@@ -46,13 +46,14 @@ jobs:
             KALIUM_FROM: ${{ steps.validate_kalium.outputs.kalium_from }}
             KALIUM_TO: ${{ steps.validate_kalium.outputs.kalium_to }}
             GH_BASE_REF: ${{github.base_ref}}
+            GH_HEAD_REF: ${{github.head_ref}}
         run: |
-          gh pr comment "${{github.head_ref}}" --body "@$PR_AUTHOR looks like you are rolling back kalium to a previous commitish.
+          gh pr comment "$GH_HEAD_REF" --body "@$PR_AUTHOR looks like you are rolling back kalium to a previous commitish.
 
           This means that the PR's target branch ($GH_BASE_REF) is using a newer version of Kalium, and the changes in this PR will rollback Kalium to an older version.
 
           | $GH_BASE_REF | This PR |
           | ------------ | ------- |
           | [$KALIUM_FROM](https://github.com/wireapp/kalium/tree/$KALIUM_FROM) | [$KALIUM_TO](https://github.com/wireapp/kalium/tree/$KALIUM_TO) |
-          
+
           Is this intentional?"

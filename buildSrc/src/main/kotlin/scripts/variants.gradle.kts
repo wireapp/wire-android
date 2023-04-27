@@ -23,10 +23,14 @@ package scripts
 import com.android.build.api.dsl.ApplicationProductFlavor
 import com.android.build.api.dsl.ProductFlavor
 import customization.ConfigType
+import customization.Customization
 import customization.Customization.getBuildtimeConfiguration
 import customization.FeatureConfigs
 import customization.FeatureFlags
 import customization.Features
+import customization.overrideResourcesForAllFlavors
+import flavor.FlavorDimensions
+import flavor.ProductFlavors
 
 plugins { id("com.android.application") apply false }
 // DO NOT USE CAPITAL LETTER FOR THE BUILD TYPE NAME OR JENKINS WILL BE MAD
@@ -35,26 +39,6 @@ object BuildTypes {
     const val RELEASE = "release"
     const val COMPAT = "compat"
     const val COMPAT_RELEASE = "compatrelease"
-}
-
-sealed class ProductFlavors(
-    val buildName: String,
-    val appName: String,
-    val dimensions: String = FlavorDimensions.DEFAULT,
-    val shareduserId: String = ""
-) {
-    override fun toString(): String = this.buildName
-
-    object Dev : ProductFlavors("dev", "Wire Dev")
-    object Staging : ProductFlavors("staging", "Wire Staging")
-
-    object Beta : ProductFlavors("beta", "Wire Beta")
-    object Internal : ProductFlavors("internal", "Wire Internal")
-    object Production : ProductFlavors("prod", "Wire", shareduserId = "com.waz.userid")
-}
-
-object FlavorDimensions {
-    const val DEFAULT = "default"
 }
 
 object Default {
@@ -148,13 +132,17 @@ android {
         }
     }
 
-    val buildtimeConfiguration = getBuildtimeConfiguration(rootDir = rootDir)
-
     flavorDimensions(FlavorDimensions.DEFAULT)
+
+    val buildtimeConfiguration = getBuildtimeConfiguration(rootDir = rootDir,
+        Customization.CustomizationOption.FromFile(rootProject.file("custom/custom-reloaded.json"))
+    )
+    val flavorMap = buildtimeConfiguration.flavorSettings.flavorMap
+
     productFlavors {
         fun createFlavor(flavor: ProductFlavors) {
             val flavorName = flavor.buildName
-            val flavorSpecificMap = buildtimeConfiguration.flavorMap[flavorName]
+            val flavorSpecificMap = flavorMap[flavorName]
             requireNotNull(flavorSpecificMap) {
                 "Missing configs in json file for the flavor '$flavorName'"
             }
@@ -164,11 +152,11 @@ android {
             }
             createAppFlavour(flavorApplicationId, flavor)
         }
-        createFlavor(ProductFlavors.Dev)
-        createFlavor(ProductFlavors.Staging)
-        createFlavor(ProductFlavors.Beta)
-        createFlavor(ProductFlavors.Internal)
-        createFlavor(ProductFlavors.Production)
+        ProductFlavors.all.forEach(::createFlavor)
+    }
+
+    buildtimeConfiguration.customResourceOverrideDirectory?.let {
+        overrideResourcesForAllFlavors(it)
     }
 
 
@@ -191,7 +179,7 @@ android {
                         flavor,
                         configs.configType.type,
                         configs.name,
-                        buildtimeConfiguration.flavorMap[flavor.name]?.get(configs.value)?.toString()
+                        flavorMap[flavor.name]?.get(configs.value)?.toString()
                     )
                 }
 
@@ -200,7 +188,7 @@ android {
                         flavor,
                         configs.configType.type,
                         configs.name,
-                        buildtimeConfiguration.flavorMap[flavor.name]?.get(configs.value).toString()
+                        flavorMap[flavor.name]?.get(configs.value).toString()
                     )
                 }
             }

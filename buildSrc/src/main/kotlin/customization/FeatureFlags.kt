@@ -18,7 +18,7 @@
  */
 package customization
 
-import scripts.Variants_gradle.ProductFlavors
+import flavor.ProductFlavors
 
 /**
  * By convention use the prefix FEATURE_ for every

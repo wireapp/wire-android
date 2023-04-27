@@ -34,6 +34,8 @@ import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
+import com.wire.kalium.logic.feature.call.usecase.FlipToBackCameraUseCase
+import com.wire.kalium.logic.feature.call.usecase.FlipToFrontCameraUseCase
 import com.wire.kalium.logic.feature.call.usecase.GetAllCallsWithSortedParticipantsUseCase
 import com.wire.kalium.logic.feature.call.usecase.MuteCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveSpeakerUseCase
@@ -94,6 +96,12 @@ class SharedCallingViewModelTest {
     private lateinit var turnLoudSpeakerOn: TurnLoudSpeakerOnUseCase
 
     @MockK
+    private lateinit var flipToBackCamera: FlipToBackCameraUseCase
+
+    @MockK
+    private lateinit var flipToFrontCamera: FlipToFrontCameraUseCase
+
+    @MockK
     private lateinit var observeSpeaker: ObserveSpeakerUseCase
 
     @MockK
@@ -140,6 +148,8 @@ class SharedCallingViewModelTest {
             allCalls = allCalls,
             endCall = endCall,
             muteCall = muteCall,
+            flipToFrontCamera = flipToFrontCamera,
+            flipToBackCamera = flipToBackCamera,
             unMuteCall = unMuteCall,
             setVideoPreview = setVideoPreview,
             updateVideoState = updateVideoState,
@@ -187,6 +197,28 @@ class SharedCallingViewModelTest {
 
         coVerify(exactly = 1) { unMuteCall(any()) }
         sharedCallingViewModel.callState.isMuted shouldBeEqualTo false
+    }
+
+    @Test
+    fun `given front facing camera, when flipping it, then switch to back camera`() {
+        sharedCallingViewModel.callState = sharedCallingViewModel.callState.copy(isOnFrontCamera = true)
+        coEvery { flipToBackCamera(conversationId) } returns Unit
+
+        runTest { sharedCallingViewModel.flipCamera() }
+
+        coVerify(exactly = 1) { flipToBackCamera(any()) }
+        sharedCallingViewModel.callState.isOnFrontCamera shouldBeEqualTo false
+    }
+
+    @Test
+    fun `given back facing camera, when flipping it, then switch to front camera`() {
+        sharedCallingViewModel.callState = sharedCallingViewModel.callState.copy(isOnFrontCamera = false)
+        coEvery { flipToFrontCamera(conversationId) } returns Unit
+
+        runTest { sharedCallingViewModel.flipCamera() }
+
+        coVerify(exactly = 1) { flipToFrontCamera(any()) }
+        sharedCallingViewModel.callState.isOnFrontCamera shouldBeEqualTo true
     }
 
     @Test

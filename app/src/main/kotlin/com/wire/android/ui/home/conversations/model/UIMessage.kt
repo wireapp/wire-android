@@ -349,10 +349,10 @@ sealed interface DeliveryStatusContent {
         val failedRecipients: List<UIText> = emptyList(),
         val noClients: Map<String, List<UIText>> = emptyMap(),
     ) : DeliveryStatusContent {
-
-        val totalUsersWithFailures by lazy { (failedRecipients + noClients.values.flatten()).distinct().count() }
-        val onlyOneUser by lazy { totalUsersWithFailures == 1 }
-
+        private val usersWithNoClients by lazy { noClients.values.flatten() }
+        val filteredRecipientsFailure by lazy { failedRecipients.filter { it !in usersWithNoClients } }
+        val isSingleUserFailure by lazy { totalUsersWithFailures == 1 }
+        val totalUsersWithFailures by lazy { (failedRecipients + usersWithNoClients).distinct().count() }
         val hasFailures: Boolean
             get() = totalUsersWithFailures > 0
     }

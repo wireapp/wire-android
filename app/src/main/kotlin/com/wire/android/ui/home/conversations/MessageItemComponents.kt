@@ -1,5 +1,7 @@
 package com.wire.android.ui.home.conversations
 
+import android.content.Context
+import android.content.res.Resources
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -76,33 +78,13 @@ internal fun MessageSendFailureWarning(
 
 @Composable
 internal fun MessageSentPartialDeliveryFailures(partialDeliveryFailureContent: DeliveryStatusContent.PartialDelivery) {
-    val context = LocalContext.current
-    val resources = context.resources
+    val resources = LocalContext.current.resources
     var expanded: Boolean by remember { mutableStateOf(false) }
     CompositionLocalProvider(
         LocalTextStyle provides MaterialTheme.typography.labelSmall.copy(color = MaterialTheme.wireColorScheme.error)
     ) {
-        if (partialDeliveryFailureContent.onlyOneUser) {
-            val learnMoreUrl = stringResource(R.string.url_message_details_offline_backends_learn_more)
-            Column {
-                Text(
-                    text = stringResource(
-                        id = R.string.label_message_partial_delivery_participants_wont_deliver,
-                        partialDeliveryFailureContent.failedRecipients.joinToString(", ") { it.asString(resources) }
-                    ),
-                    textAlign = TextAlign.Start
-                )
-                Text(
-                    modifier = Modifier
-                        .clickable { CustomTabsHelper.launchUrl(context, learnMoreUrl) },
-                    style = LocalTextStyle.current.copy(
-                        color = MaterialTheme.wireColorScheme.onTertiaryButtonSelected,
-                        textDecoration = TextDecoration.Underline
-                    ),
-                    text = stringResource(R.string.label_learn_more)
-                )
-                VerticalSpace.x4()
-            }
+        if (partialDeliveryFailureContent.isSingleUserFailure) {
+            SingleUserDeliveryFailure(partialDeliveryFailureContent, resources)
         } else {
             Column {
                 Text(
@@ -114,6 +96,19 @@ internal fun MessageSentPartialDeliveryFailures(partialDeliveryFailureContent: D
                 )
                 VerticalSpace.x4()
                 if (expanded) {
+                    if (partialDeliveryFailureContent.filteredRecipientsFailure.isNotEmpty()) {
+                        Text(
+                            text = stringResource(
+                                id = R.string.label_message_partial_delivery_participants_deliver_later,
+                                partialDeliveryFailureContent.filteredRecipientsFailure
+                                    .filter {
+                                        !it.asString(resources).contentEquals(resources.getString(R.string.username_unavailable_label))
+                                    }
+                                    .joinToString(", ") { it.asString(resources) }
+                            ),
+                            textAlign = TextAlign.Start
+                        )
+                    }
                     if (partialDeliveryFailureContent.noClients.isNotEmpty()) {
                         Text(
                             text = partialDeliveryFailureContent.noClients.entries.map {
@@ -121,19 +116,6 @@ internal fun MessageSentPartialDeliveryFailures(partialDeliveryFailureContent: D
                             }.joinToString(", ") + stringResource(
                                 R.string.label_message_partial_delivery_participants_wont_deliver,
                                 String.EMPTY
-                            ),
-                            textAlign = TextAlign.Start
-                        )
-                    }
-                    if (partialDeliveryFailureContent.failedRecipients.isNotEmpty()) {
-                        Text(
-                            text = stringResource(
-                                id = R.string.label_message_partial_delivery_participants_deliver_later,
-                                partialDeliveryFailureContent.failedRecipients
-                                    .filter {
-                                        !it.asString(resources).contentEquals(resources.getString(R.string.username_unavailable_label))
-                                    }
-                                    .joinToString(", ") { it.asString(resources) }
                             ),
                             textAlign = TextAlign.Start
                         )
@@ -156,6 +138,34 @@ internal fun MessageSentPartialDeliveryFailures(partialDeliveryFailureContent: D
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun SingleUserDeliveryFailure(
+    partialDeliveryFailureContent: DeliveryStatusContent.PartialDelivery,
+    resources: Resources,
+    context: Context = LocalContext.current
+) {
+    val learnMoreUrl = stringResource(R.string.url_message_details_offline_backends_learn_more)
+    Column {
+        Text(
+            text = stringResource(
+                id = R.string.label_message_partial_delivery_participants_wont_deliver,
+                partialDeliveryFailureContent.failedRecipients.joinToString(", ") { it.asString(resources) }
+            ),
+            textAlign = TextAlign.Start
+        )
+        Text(
+            modifier = Modifier
+                .clickable { CustomTabsHelper.launchUrl(context, learnMoreUrl) },
+            style = LocalTextStyle.current.copy(
+                color = MaterialTheme.wireColorScheme.onTertiaryButtonSelected,
+                textDecoration = TextDecoration.Underline
+            ),
+            text = stringResource(R.string.label_learn_more)
+        )
+        VerticalSpace.x4()
     }
 }
 

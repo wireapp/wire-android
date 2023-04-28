@@ -80,69 +80,77 @@ internal fun MessageSendFailureWarning(
 @Composable
 internal fun MessageSentPartialDeliveryFailures(partialDeliveryFailureContent: DeliveryStatusContent.PartialDelivery) {
     val resources = LocalContext.current.resources
-    var expanded: Boolean by remember { mutableStateOf(false) }
     CompositionLocalProvider(
         LocalTextStyle provides MaterialTheme.typography.labelSmall.copy(color = MaterialTheme.wireColorScheme.error)
     ) {
         if (partialDeliveryFailureContent.isSingleUserFailure) {
             SingleUserDeliveryFailure(partialDeliveryFailureContent, resources)
         } else {
-            Column {
+            MultiUserDeliveryFailure(partialDeliveryFailureContent, resources)
+        }
+    }
+}
+
+@Composable
+private fun MultiUserDeliveryFailure(
+    partialDeliveryFailureContent: DeliveryStatusContent.PartialDelivery,
+    resources: Resources
+) {
+    var expanded: Boolean by remember { mutableStateOf(false) }
+    Column {
+        Text(
+            text = stringResource(
+                id = R.string.label_message_partial_delivery_participants_count,
+                partialDeliveryFailureContent.totalUsersWithFailures
+            ),
+            textAlign = TextAlign.Start
+        )
+        VerticalSpace.x4()
+        if (expanded) {
+            if (partialDeliveryFailureContent.filteredRecipientsFailure.isNotEmpty()) {
                 Text(
                     text = stringResource(
-                        id = R.string.label_message_partial_delivery_participants_count,
-                        partialDeliveryFailureContent.totalUsersWithFailures
+                        id = R.string.label_message_partial_delivery_participants_deliver_later,
+                        partialDeliveryFailureContent.filteredRecipientsFailure
+                            .filter {
+                                !it.asString(resources).contentEquals(resources.getString(R.string.username_unavailable_label))
+                            }
+                            .joinToString(", ") { it.asString(resources) }
                     ),
                     textAlign = TextAlign.Start
                 )
-                VerticalSpace.x4()
-                if (expanded) {
-                    if (partialDeliveryFailureContent.filteredRecipientsFailure.isNotEmpty()) {
-                        Text(
-                            text = stringResource(
-                                id = R.string.label_message_partial_delivery_participants_deliver_later,
-                                partialDeliveryFailureContent.filteredRecipientsFailure
-                                    .filter {
-                                        !it.asString(resources).contentEquals(resources.getString(R.string.username_unavailable_label))
-                                    }
-                                    .joinToString(", ") { it.asString(resources) }
-                            ),
-                            textAlign = TextAlign.Start
-                        )
-                    }
-                    if (partialDeliveryFailureContent.noClients.isNotEmpty()) {
-                        Text(
-                            text = partialDeliveryFailureContent.noClients.entries.map {
-                                pluralStringResource(
-                                    R.plurals.label_message_partial_delivery_x_participants_from_backend,
-                                    it.value.size,
-                                    it.value.size,
-                                    it.key
-                                )
-                            }.joinToString(", ") + stringResource(
-                                R.string.label_message_partial_delivery_participants_wont_deliver,
-                                String.EMPTY
-                            ),
-                            textAlign = TextAlign.Start
-                        )
-                    }
-                }
-                VerticalSpace.x4()
-                if (partialDeliveryFailureContent.expandable) {
-                    WireSecondaryButton(
-                        onClick = { expanded = !expanded },
-                        text = stringResource(if (expanded) R.string.label_hide_details else R.string.label_show_details),
-                        fillMaxWidth = false,
-                        minHeight = dimensions().spacing32x,
-                        minWidth = dimensions().spacing40x,
-                        shape = RoundedCornerShape(size = dimensions().corner12x),
-                        contentPadding = PaddingValues(horizontal = dimensions().spacing12x, vertical = dimensions().spacing8x),
-                        modifier = Modifier
-                            .padding(top = dimensions().spacing4x)
-                            .height(height = dimensions().spacing32x)
-                    )
-                }
             }
+            if (partialDeliveryFailureContent.noClients.isNotEmpty()) {
+                Text(
+                    text = partialDeliveryFailureContent.noClients.entries.map {
+                        pluralStringResource(
+                            R.plurals.label_message_partial_delivery_x_participants_from_backend,
+                            it.value.size,
+                            it.value.size,
+                            it.key
+                        )
+                    }.joinToString(", ") + stringResource(
+                        R.string.label_message_partial_delivery_participants_wont_deliver,
+                        String.EMPTY
+                    ),
+                    textAlign = TextAlign.Start
+                )
+            }
+        }
+        VerticalSpace.x4()
+        if (partialDeliveryFailureContent.expandable) {
+            WireSecondaryButton(
+                onClick = { expanded = !expanded },
+                text = stringResource(if (expanded) R.string.label_hide_details else R.string.label_show_details),
+                fillMaxWidth = false,
+                minHeight = dimensions().spacing32x,
+                minWidth = dimensions().spacing40x,
+                shape = RoundedCornerShape(size = dimensions().corner12x),
+                contentPadding = PaddingValues(horizontal = dimensions().spacing12x, vertical = dimensions().spacing8x),
+                modifier = Modifier
+                    .padding(top = dimensions().spacing4x)
+                    .height(height = dimensions().spacing32x)
+            )
         }
     }
 }

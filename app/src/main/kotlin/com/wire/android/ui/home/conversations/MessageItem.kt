@@ -179,9 +179,9 @@ fun MessageItem(
                     if (selfDeletionTimerState is SelfDeletionTimer.SelfDeletionTimerState.Expirable) {
                         MessageExpireLabel(messageContent, selfDeletionTimerState.timeLeftFormatted())
 
-                        // in case the message is marked as deleted and is expirable, it means that the message
-                        // is belonging to the sender and it has expired,
-                        // we are waiting for the receiver timer to expire to permanently delete it
+                        // if the message is marked as deleted and is [SelfDeletionTimer.SelfDeletionTimerState.Expirable]
+                        // the deletion responsibility belongs to the receiver, therefore we need to wait for the receiver
+                        // timer to expire to permanently delete the message, in the meantime we show the EphemeralMessageExpiredLabel
                         if (isDeleted) {
                             EphemeralMessageExpiredLabel(conversationDetailsData)
                         }

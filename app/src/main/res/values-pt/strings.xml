@@ -635,8 +635,6 @@ Até 500 pessoas podem participar de uma conversa em grupo.</string>
     <string name="error_unblocking_user">O usuário não pôde ser desbloqueado.</string>
     <string name="delete_group_conversation_error">Ocorreu um erro ao excluir a conversa.</string>
     <string name="error_limit_number_assets_imported_exceeded">Você só pode enviar até 20 arquivos de uma vez.</string>
-    <string name="edit_message_not_yet_available">Salvar edições em mensagens ainda não está disponível.</string>
-    <!-- TODO: temporary, to be removed when the proper implementation of editing messages is finished -->
     <!-- Animation label -->
     <string name="label_open_conversation">Abrir conversa</string>
     <string name="email_label">E-mail</string>
@@ -908,14 +906,13 @@ Por favor, use o gerenciamento de equipe (%1$s) neste backend.</string>
     <string name="guest_link_button_revoke_link">Revogar Link</string>
     <string name="audio_not_available">Áudio indisponível</string>
     <string name="audio_not_available_explanation">Algo deu errado ao baixar este arquivo de áudio. Por favor, peça ao remetente para fazer o upload novamente.</string>
-    <string name="guest_link_generate_error_message">There was an error trying to create Guest Link. Please try again</string>
-    <string name="guest_link_revoke_error_message">There was an error trying to revoke Guest Link. Please try again</string>
+    <string name="guest_link_generate_error_message">Link couldn\'t be created. Please try again</string>
+    <string name="guest_link_revoke_error_message">Link couldn\'t be revoked. Please try again</string>
     <string name="revoke_guest__room_link_dialog_text">Novos convidados não poderão entrar com este link. Os convidados atuais ainda terão acesso.</string>
     <string name="revoke_guest__room_link_dialog_title">Revogar o link de convidado?</string>
-    <string name="guest__room_link_copied">Guest link was copied to clipboard</string>
     <string name="title_device_key_fingerprint">IDENTIFICAÇÃO DO DISPOSITIVO</string>
     <string name="label_client_key_fingerprint_not_available">NÃO DISPONÍVEL</string>
-    <string name="guest_room_link_copied">Guest link was copied to clipboard</string>
+    <string name="guest_room_link_copied">Link copied to clipboard</string>
     <string name="guest_room_link_enabled">A geração de links de convidado agora está habilitada para todos os administradores de grupo</string>
     <string name="guest_room_link_disabled">A geração de links de convidado agora está desabilitada para todos os administradores de grupo</string>
     <!-- New Device dialog -->

@@ -120,7 +120,8 @@ fun PreviewDeletedMessage() {
         onReactionClicked = { _, _ -> },
         onResetSessionClicked = { _, _ -> },
         onSelfDeletingMessageRead = { },
-        conversationDetailsData = ConversationDetailsData.None    )
+        conversationDetailsData = ConversationDetailsData.None
+    )
 }
 
 @Preview(showBackground = true)

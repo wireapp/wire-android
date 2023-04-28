@@ -49,6 +49,8 @@ import com.wire.kalium.logic.data.user.User
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.sync.receiver.conversation.message.hasValidRemoteData
 import com.wire.kalium.logic.util.isGreaterThan
+import kotlinx.collections.immutable.toPersistentList
+import kotlinx.collections.immutable.toPersistentMap
 import javax.inject.Inject
 
 // TODO: splits mapping into more classes
@@ -305,10 +307,12 @@ class MessageContentMapper @Inject constructor(
         return when (deliveryStatus) {
             is DeliveryStatus.PartialDelivery -> DeliveryStatusContent.PartialDelivery(
                 failedRecipients = deliveryStatus.recipientsFailedDelivery
-                    .map { userId -> UIText.DynamicString(userList.findUser(userId = userId)?.name.orEmpty()) },
+                    .map { userId -> UIText.DynamicString(userList.findUser(userId = userId)?.name.orEmpty()) }
+                    .toPersistentList(),
                 noClients = deliveryStatus.recipientsFailedWithNoClients
                     .groupBy { it.domain }
                     .mapValues { (_, userIds) -> userIds.map { UIText.DynamicString(userList.findUser(userId = it)?.name.orEmpty()) } }
+                    .toPersistentMap()
             )
             is DeliveryStatus.CompleteDelivery, null -> DeliveryStatusContent.CompleteDelivery
         }

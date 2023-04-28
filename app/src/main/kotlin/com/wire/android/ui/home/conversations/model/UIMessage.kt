@@ -38,6 +38,11 @@ import com.wire.kalium.logic.data.message.MessageContent
 import com.wire.kalium.logic.data.user.AssetId
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserId
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.ImmutableMap
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.persistentMapOf
+import kotlinx.collections.immutable.toImmutableList
 import kotlin.time.Duration
 
 sealed class UIMessage(
@@ -346,11 +351,11 @@ data class MessageTime(val utcISO: String) {
 @Stable
 sealed interface DeliveryStatusContent {
     class PartialDelivery(
-        val failedRecipients: List<UIText> = emptyList(),
-        val noClients: Map<String, List<UIText>> = emptyMap(),
+        val failedRecipients: ImmutableList<UIText> = persistentListOf(),
+        val noClients: ImmutableMap<String, List<UIText>> = persistentMapOf(),
     ) : DeliveryStatusContent {
         private val usersWithNoClients by lazy { noClients.values.flatten() }
-        val filteredRecipientsFailure by lazy { failedRecipients.filter { it !in usersWithNoClients } }
+        val filteredRecipientsFailure by lazy { failedRecipients.filter { it !in usersWithNoClients }.toImmutableList() }
         val isSingleUserFailure by lazy { totalUsersWithFailures == 1 }
         val totalUsersWithFailures by lazy { (failedRecipients + usersWithNoClients).distinct().count() }
         val hasFailures: Boolean

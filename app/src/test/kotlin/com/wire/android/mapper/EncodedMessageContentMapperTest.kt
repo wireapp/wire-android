@@ -41,6 +41,7 @@ import com.wire.kalium.logic.data.conversation.MemberDetails
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.message.AssetContent
 import com.wire.kalium.logic.data.message.AssetContent.AssetMetadata
+import com.wire.kalium.logic.data.message.DeliveryStatus
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.MessageContent
 import com.wire.kalium.logic.data.user.ConnectionState
@@ -86,11 +87,11 @@ class EncodedMessageContentMapperTest {
         assertTrue(selfName is UIText.DynamicString && selfName.value == selfMemberDetails.name)
         assertTrue(
             selfResLower is UIText.StringResource &&
-                selfResLower.resId == arrangement.messageResourceProvider.memberNameYouLowercase
+                    selfResLower.resId == arrangement.messageResourceProvider.memberNameYouLowercase
         )
         assertTrue(
             selfResTitle is UIText.StringResource &&
-                selfResTitle.resId == arrangement.messageResourceProvider.memberNameYouTitlecase
+                    selfResTitle.resId == arrangement.messageResourceProvider.memberNameYouTitlecase
         )
         assertTrue(deleted is UIText.StringResource && deleted.resId == arrangement.messageResourceProvider.memberNameDeleted)
         assertTrue(otherName is UIText.DynamicString && otherName.value == otherMemberDetails.name)
@@ -102,21 +103,19 @@ class EncodedMessageContentMapperTest {
         val (arrangement, mapper) = Arrangement().arrange()
         val textContent = MessageContent.Text("Some Text Message")
         val nonTextContent = TestMessage.UNKNOWN_MESSAGE
-        val userMembers = listOf(TestUser.MEMBER_SELF.user, TestUser.MEMBER_OTHER.user)
         // When
-        val resultText =
-            mapper.toText(TestConversation.ID, TestMessage.TEXT_MESSAGE, userMembers)
-        val resultNonText = mapper.toText(TestConversation.ID, nonTextContent, userMembers)
+        val resultText = mapper.toText(TestConversation.ID, TestMessage.TEXT_MESSAGE.content, userMembers, DeliveryStatus.CompleteDelivery)
+        val resultNonText = mapper.toText(TestConversation.ID, nonTextContent.content, userMembers, DeliveryStatus.CompleteDelivery)
         with(resultText) {
             assertTrue(
                 messageBody.message is UIText.DynamicString &&
-                    (messageBody.message as UIText.DynamicString).value == textContent.value
+                        (messageBody.message as UIText.DynamicString).value == textContent.value
             )
         }
         with(resultNonText) {
             assertTrue(
                 messageBody.message is UIText.StringResource &&
-                    (messageBody.message as UIText.StringResource).resId == arrangement.messageResourceProvider.sentAMessageWithContent
+                        (messageBody.message as UIText.StringResource).resId == arrangement.messageResourceProvider.sentAMessageWithContent
             )
         }
     }
@@ -149,21 +148,21 @@ class EncodedMessageContentMapperTest {
         // Then
         assertTrue(
             resultContentLeft is SystemMessage.MemberLeft &&
-                resultContentLeft.author.asString(arrangement.resources) == member1.name
+                    resultContentLeft.author.asString(arrangement.resources) == member1.name
         )
         assertTrue(
             resultContentRemoved is SystemMessage.MemberRemoved &&
-                resultContentRemoved.author.asString(arrangement.resources) == member1.name &&
-                resultContentRemoved.memberNames.size == 1 &&
-                resultContentRemoved.memberNames[0].asString(arrangement.resources) == member2.name
+                    resultContentRemoved.author.asString(arrangement.resources) == member1.name &&
+                    resultContentRemoved.memberNames.size == 1 &&
+                    resultContentRemoved.memberNames[0].asString(arrangement.resources) == member2.name
 
         )
         assertTrue(
             resultContentAdded is SystemMessage.MemberAdded &&
-                resultContentAdded.author.asString(arrangement.resources) == member1.name &&
-                resultContentAdded.memberNames.size == 2 &&
-                resultContentAdded.memberNames[0].asString(arrangement.resources) == member2.name &&
-                resultContentAdded.memberNames[1].asString(arrangement.resources) == member3.name
+                    resultContentAdded.author.asString(arrangement.resources) == member1.name &&
+                    resultContentAdded.memberNames.size == 2 &&
+                    resultContentAdded.memberNames[0].asString(arrangement.resources) == member2.name &&
+                    resultContentAdded.memberNames[1].asString(arrangement.resources) == member3.name
         )
         assertTrue(
             resultContentAddedSelf is SystemMessage.MemberJoined &&
@@ -171,11 +170,11 @@ class EncodedMessageContentMapperTest {
         )
         assertTrue(
             resultOtherMissedCall is SystemMessage.MissedCall &&
-                resultOtherMissedCall.author.asString(arrangement.resources) == TestUser.OTHER_USER.name
+                    resultOtherMissedCall.author.asString(arrangement.resources) == TestUser.OTHER_USER.name
         )
         assertTrue(
             resultMyMissedCall is SystemMessage.MissedCall &&
-                (resultMyMissedCall.author as UIText.StringResource).resId == arrangement.messageResourceProvider.memberNameYouTitlecase
+                    (resultMyMissedCall.author as UIText.StringResource).resId == arrangement.messageResourceProvider.memberNameYouTitlecase
         )
     }
 
@@ -212,15 +211,24 @@ class EncodedMessageContentMapperTest {
         with(arrangement) {
             // When - Then
             val resultContentOther =
-                mapper.toUIMessageContent(AssetMessageContentMetadata(unknownImageMessageContent), testMessage1, sender)
+                mapper.toUIMessageContent(
+                    AssetMessageContentMetadata(unknownImageMessageContent),
+                    testMessage1,
+                    sender,
+                    userMembers,
+                    DeliveryStatus.CompleteDelivery
+                )
             coVerify(exactly = 0) { arrangement.getMessageAssetUseCase.invoke(any(), any()) }
             assertTrue(
                 resultContentOther is AssetMessage &&
-                    resultContentOther.assetId.value == unknownImageMessageContent.remoteData.assetId
+                        resultContentOther.assetId.value == unknownImageMessageContent.remoteData.assetId
             )
 
             // When - Then
-            val resultContentImage = mapper.toUIMessageContent(AssetMessageContentMetadata(correctJPGImage), testMessage2, sender)
+            val resultContentImage = mapper.toUIMessageContent(
+                AssetMessageContentMetadata(correctJPGImage), testMessage2, sender, userMembers,
+                DeliveryStatus.CompleteDelivery
+            )
             assertTrue(resultContentImage is PreviewAssetMessage)
         }
     }
@@ -241,7 +249,13 @@ class EncodedMessageContentMapperTest {
         val testMessage = buildAssetMessage(contentImage)
 
         // When
-        val resultContentImage = mapper.toUIMessageContent(AssetMessageContentMetadata(contentImage), testMessage, sender)
+        val resultContentImage = mapper.toUIMessageContent(
+            AssetMessageContentMetadata(contentImage),
+            testMessage,
+            sender,
+            userMembers,
+            DeliveryStatus.CompleteDelivery
+        )
 
         // Then
         coVerify(inverse = true) { arrangement.getMessageAssetUseCase.invoke(any(), any()) }
@@ -279,8 +293,20 @@ class EncodedMessageContentMapperTest {
 
         // When
         with(arrangement) {
-            val resultContentImage1 = mapper.toUIMessageContent(AssetMessageContentMetadata(contentImage1), testMessage1, sender)
-            val resultContentImage2 = mapper.toUIMessageContent(AssetMessageContentMetadata(contentImage2), testMessage2, sender)
+            val resultContentImage1 = mapper.toUIMessageContent(
+                AssetMessageContentMetadata(contentImage1),
+                testMessage1,
+                sender,
+                userMembers,
+                DeliveryStatus.CompleteDelivery
+            )
+            val resultContentImage2 = mapper.toUIMessageContent(
+                AssetMessageContentMetadata(contentImage2),
+                testMessage2,
+                sender,
+                userMembers,
+                DeliveryStatus.CompleteDelivery
+            )
 
             // Then
             assertTrue(resultContentImage1 is AssetMessage)
@@ -377,5 +403,7 @@ class EncodedMessageContentMapperTest {
             botService = null,
             deleted = false
         )
+
+        val userMembers = listOf(TestUser.MEMBER_SELF.user, TestUser.MEMBER_OTHER.user)
     }
 }

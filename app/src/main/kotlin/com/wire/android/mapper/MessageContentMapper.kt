@@ -49,6 +49,8 @@ import com.wire.kalium.logic.data.user.User
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.sync.receiver.conversation.message.hasValidRemoteData
 import com.wire.kalium.logic.util.isGreaterThan
+import kotlinx.collections.immutable.toPersistentList
+import kotlinx.collections.immutable.toPersistentMap
 import javax.inject.Inject
 
 // TODO: splits mapping into more classes
@@ -56,7 +58,7 @@ import javax.inject.Inject
 class MessageContentMapper @Inject constructor(
     private val messageResourceProvider: MessageResourceProvider,
     private val wireSessionImageLoader: WireSessionImageLoader,
-    private val isoFormatter: ISOFormatter,
+    private val isoFormatter: ISOFormatter
 ) {
 
     fun fromMessage(
@@ -152,7 +154,7 @@ class MessageContentMapper @Inject constructor(
     }
 
     private fun mapTeamMemberRemovedMessage(
-        content: MessageContent.TeamMemberRemoved,
+        content: MessageContent.TeamMemberRemoved
     ): UIMessageContent.SystemMessage = UIMessageContent.SystemMessage.TeamMemberRemoved(content)
 
     private fun mapConversationRenamedMessage(
@@ -251,7 +253,7 @@ class MessageContentMapper @Inject constructor(
 
     private fun mapAudio(
         assetContent: AssetContent,
-        metadata: AssetContent.AssetMetadata.Audio,
+        metadata: AssetContent.AssetMetadata.Audio
     ): UIMessageContent {
         with(assetContent) {
             return UIMessageContent.AudioAssetMessage(
@@ -285,7 +287,8 @@ class MessageContentMapper @Inject constructor(
                 is MessageContent.Text -> UIText.DynamicString(content.value, content.mentions)
                 is MessageContent.Unknown -> content.typeName?.let {
                     UIText.StringResource(
-                        messageResourceProvider.sentAMessageWithContent, it
+                        messageResourceProvider.sentAMessageWithContent,
+                        it
                     )
                 } ?: UIText.StringResource(R.string.sent_a_message_with_unknown_content)
                 is MessageContent.FailedDecryption -> UIText.StringResource(R.string.label_message_decryption_failure_message)
@@ -303,12 +306,13 @@ class MessageContentMapper @Inject constructor(
     private fun mapRecipientsFailure(userList: List<User>, deliveryStatus: DeliveryStatus?): DeliveryStatusContent {
         return when (deliveryStatus) {
             is DeliveryStatus.PartialDelivery -> DeliveryStatusContent.PartialDelivery(
-                failedRecipients = deliveryStatus.recipientsFailedDelivery.map { userId ->
-                    userList.findUser(userId = userId)?.name.orUnknownName()
-                },
-                noClients = deliveryStatus.recipientsFailedWithNoClients.map { userId ->
-                    userList.findUser(userId = userId)?.name.orUnknownName()
-                }
+                failedRecipients = deliveryStatus.recipientsFailedDelivery
+                    .map { userId -> UIText.DynamicString(userList.findUser(userId = userId)?.name.orEmpty()) }
+                    .toPersistentList(),
+                noClients = deliveryStatus.recipientsFailedWithNoClients
+                    .groupBy { it.domain }
+                    .mapValues { (_, userIds) -> userIds.map { UIText.DynamicString(userList.findUser(userId = it)?.name.orEmpty()) } }
+                    .toPersistentMap()
             )
             is DeliveryStatus.CompleteDelivery, null -> DeliveryStatusContent.CompleteDelivery
         }

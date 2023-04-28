@@ -25,7 +25,6 @@ import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -76,7 +75,6 @@ import com.wire.android.ui.home.conversations.info.ConversationInfoViewModel
 import com.wire.android.ui.home.conversations.info.ConversationInfoViewState
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewModel
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewState
-import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.android.ui.home.conversations.model.EditMessageBundle
 import com.wire.android.ui.home.conversations.model.SendMessageBundle
 import com.wire.android.ui.home.conversations.model.UIMessage
@@ -502,7 +500,7 @@ private fun ConversationScreenContent(
         },
         onSendEditTextMessage = onSendEditMessage,
         onAttachmentPicked = remember {
-            { uriAsset , expireAfter ->
+            { uriAsset, expireAfter ->
                 scope.launch {
                     lazyListState.scrollToItem(0)
                 }
@@ -548,7 +546,11 @@ private fun SnackBarMessage(
     val context = LocalContext.current
 
     LaunchedEffect(Unit) {
-        composerMessages.collect { conversationScreenState.snackBarHostState.showSnackbar(message = it.uiText.asString(context.resources)) }
+        composerMessages.collect {
+            conversationScreenState.snackBarHostState.showSnackbar(
+            message = it.uiText.asString(context.resources)
+        )
+        }
     }
 
     LaunchedEffect(Unit) {
@@ -673,7 +675,9 @@ fun PreviewConversationScreen() {
         bannerMessage = null,
         messageComposerViewState = MessageComposerViewState(),
         conversationCallViewState = ConversationCallViewState(),
-        conversationInfoViewState = ConversationInfoViewState(conversationName = UIText.DynamicString("Some test conversation")),
+        conversationInfoViewState = ConversationInfoViewState(
+            conversationName = UIText.DynamicString("Some test conversation")
+        ),
         conversationMessagesViewState = ConversationMessagesViewState(),
         onOpenProfile = { },
         onMessageDetailsClick = { _, _ -> },

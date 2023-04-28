@@ -47,7 +47,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions

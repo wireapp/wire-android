@@ -121,14 +121,14 @@ private fun MessageComposeActions(
             if (RichTextIcon) RichTextEditingAction()
             if (!isEditMessage && EmojiIcon) AddEmojiAction()
             if (!isEditMessage && GifIcon) AddGifAction()
-            if (!isEditMessage) SelfDeletingMessageAction(isSelected = selfDeletingOptionSelected, onButtonClicked = onSelfDeletionOptionButtonClicked
+            if (!isEditMessage) SelfDeletingMessageAction(
+                isSelected = selfDeletingOptionSelected, onButtonClicked = onSelfDeletionOptionButtonClicked
             )
             if (!isEditMessage && PingIcon) PingAction(onPingClicked = onPingClicked)
             AddMentionAction(isMentionsSelected, startMention)
         }
     }
 }
-
 
 @Composable
 private fun RichTextEditingAction() {

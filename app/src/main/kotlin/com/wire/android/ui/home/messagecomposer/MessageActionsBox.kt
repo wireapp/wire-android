@@ -122,8 +122,7 @@ private fun MessageComposeActions(
             if (!isEditMessage && EmojiIcon) AddEmojiAction()
             if (!isEditMessage && GifIcon) AddGifAction()
             if (!isEditMessage) SelfDeletingMessageAction(
-                isSelected = selfDeletingOptionSelected,
-                onButtonClicked = onSelfDeletionOptionButtonClicked
+                isSelected = selfDeletingOptionSelected, onButtonClicked = onSelfDeletionOptionButtonClicked
             )
             if (!isEditMessage && PingIcon) PingAction(onPingClicked = onPingClicked)
             AddMentionAction(isMentionsSelected, startMention)

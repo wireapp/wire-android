@@ -62,7 +62,8 @@ sealed class MessageComposeInputState {
     val isExpanded: Boolean
         get() = this is Active && this.size == MessageComposeInputSize.EXPANDED
     val attachmentOptionsDisplayed: Boolean
-        get() = this is Active && this.type is MessageComposeInputType.NewMessage && this.type.attachmentOptionsDisplayed
+        get() = (this is Active && this.type is MessageComposeInputType.NewMessage && this.type.attachmentOptionsDisplayed)
+                || (this is Active && this.type is MessageComposeInputType.SelfDeletingMessage && this.type.attachmentOptionsDisplayed)
 
     val isEditMessage: Boolean
         get() = this is Active && this.type is MessageComposeInputType.EditMessage
@@ -84,6 +85,7 @@ enum class MessageComposeInputSize {
     EXPANDED; // fullscreen
 }
 
+// TODO: think about extracting attachmentOptionsDisplayed to something more global
 @Stable
 sealed class MessageComposeInputType {
 
@@ -100,7 +102,8 @@ sealed class MessageComposeInputType {
 
     @Stable
     data class SelfDeletingMessage(
-        val selfDeletionDuration: SelfDeletionDuration
+        val selfDeletionDuration: SelfDeletionDuration,
+        val attachmentOptionsDisplayed: Boolean = false,
     ) : MessageComposeInputType()
 }
 

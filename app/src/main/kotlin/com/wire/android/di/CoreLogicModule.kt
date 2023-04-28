@@ -1026,7 +1026,7 @@ class UseCaseModule {
     fun provideEnqueueMessageSelfDeletionUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
-    ): EnqueueMessageSelfDeletionUseCase = coreLogic.getSessionScope(currentAccount).enqueueMessageSelfDeletionUseCase
+    ): EnqueueMessageSelfDeletionUseCase = coreLogic.getSessionScope(currentAccount).messages.enqueueMessageSelfDeletion
 
     @ViewModelScoped
     @Provides

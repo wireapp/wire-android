@@ -20,16 +20,14 @@
 
 package com.wire.android.ui.home.conversations.edit
 
-import androidx.compose.material3.LocalContentColor
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
 import com.wire.android.ui.common.bottomsheet.MenuBottomSheetItem
 import com.wire.android.ui.common.bottomsheet.MenuItemIcon
+import com.wire.android.ui.edit.DeleteItemMenuOption
 import com.wire.android.ui.edit.DownloadAssetExternallyOption
 import com.wire.android.ui.edit.MessageDetailsMenuOption
 import com.wire.android.ui.edit.OpenAssetExternallyOption
@@ -64,7 +62,6 @@ fun EditMessageMenuItems(
             || message.messageContent is UIMessageContent.ImageMessage
             || message.messageContent is UIMessageContent.AudioAssetMessage
     val isEditable = message.isTextMessage && message.isMyMessage && localFeatureVisibilityFlags.MessageEditIcon
-    val isEphemeral = message.expirationStatus is ExpirationStatus.Expirable
     val isGenericAsset = message.messageContent is UIMessageContent.AssetMessage
 
     val onCopyItemClick = remember(message) {
@@ -130,71 +127,71 @@ fun EditMessageMenuItems(
         }
     }
 
-    return buildList {
-        if (isAvailable) {
-            add { ReactionOption(onReactionItemClick) }
-            add { MessageDetailsMenuOption(onDetailsItemClick) }
-            if (isCopyable) {
-                add {
-                    MenuBottomSheetItem(
-                        icon = {
-                            MenuItemIcon(
-                                id = R.drawable.ic_copy,
-                                contentDescription = stringResource(R.string.content_description_copy_the_message),
-                            )
-                        },
-                        title = stringResource(R.string.label_copy),
-                        onItemClick = onCopyItemClick
-                    )
-                }
-            }
-            if (!isEphemeral) add { ReplyMessageOption(onReplyItemClick) }
-            if (isAssetMessage) add { DownloadAssetExternallyOption(onDownloadAssetClick) }
-            if (isGenericAsset) add { OpenAssetExternallyOption(onOpenAssetClick) }
-            if (isEditable && !isEphemeral) {
-                add {
-                    MenuBottomSheetItem(
-                        icon = {
-                            MenuItemIcon(
-                                id = R.drawable.ic_edit,
-                                contentDescription = stringResource(R.string.content_description_edit_the_message)
-                            )
-                        },
-                        title = stringResource(R.string.label_edit),
-                        onItemClick = onEditItemClick
-                    )
-                }
-            }
-            if (isAssetMessage) {
-                add {
-                    MenuBottomSheetItem(
-                        icon = {
-                            MenuItemIcon(
-                                id = R.drawable.ic_share_file,
-                                contentDescription = stringResource(R.string.content_description_share_the_file),
-                            )
-                        },
-                        title = stringResource(R.string.label_share),
-                        onItemClick = onShareAsset
-                    )
-                }
-            }
-        }
-        add {
-            CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.error) {
-                MenuBottomSheetItem(
-                    icon = {
-                        MenuItemIcon(
-                            id = R.drawable.ic_delete,
-                            contentDescription = stringResource(R.string.content_description_delete_the_message),
-                        )
-                    },
-                    title = stringResource(R.string.label_delete),
-                    onItemClick = onDeleteItemClick
-                )
+    if (message.expirationStatus is ExpirationStatus.Expirable) {
+        return EphemeralMessageEditMenuItems(
+            message = message,
+            onDetailsClick = onDetailsItemClick,
+            onDownloadAsset = onDownloadAssetClick,
+            onOpenAsset = onOpenAssetClick,
+            onDeleteMessage = onDeleteItemClick
+        )
+    } else {
+        return buildList {
+            if (isAvailable) {
+                add { ReactionOption(onReactionItemClick) }
+                add { MessageDetailsMenuOption(onDetailsItemClick) }
+                if (isCopyable) add { CopyItemMenuOption(onCopyItemClick) }
+                ReplyMessageOption(onReplyItemClick)
+                if (isAssetMessage) add { DownloadAssetExternallyOption(onDownloadAssetClick) }
+                if (isGenericAsset) add { OpenAssetExternallyOption(onOpenAssetClick) }
+                if (isEditable) { add { EditMessageMenuOption(onEditItemClick) } }
+                if (isAssetMessage) { add { ShareAssetMenuOption(onShareAsset) } }
+                add { DeleteItemMenuOption(onDeleteItemClick) }
             }
         }
     }
+}
+
+@Composable
+private fun CopyItemMenuOption(onCopyItemClick: () -> Unit) {
+    MenuBottomSheetItem(
+        icon = {
+            MenuItemIcon(
+                id = R.drawable.ic_copy,
+                contentDescription = stringResource(R.string.content_description_copy_the_message),
+            )
+        },
+        title = stringResource(R.string.label_copy),
+        onItemClick = onCopyItemClick
+    )
+}
+
+@Composable
+private fun ShareAssetMenuOption(onShareAsset: () -> Unit) {
+    MenuBottomSheetItem(
+        icon = {
+            MenuItemIcon(
+                id = R.drawable.ic_share_file,
+                contentDescription = stringResource(R.string.content_description_share_the_file),
+            )
+        },
+        title = stringResource(R.string.label_share),
+        onItemClick = onShareAsset
+    )
+}
+
+@Composable
+private fun EditMessageMenuOption(onEditItemClick: () -> Unit) {
+    MenuBottomSheetItem(
+        icon = {
+            MenuItemIcon(
+                id = R.drawable.ic_edit,
+                contentDescription = stringResource(R.string.content_description_edit_the_message)
+            )
+        },
+        title = stringResource(R.string.label_edit),
+        onItemClick = onEditItemClick
+    )
 }
 
 typealias OnComplete = () -> Unit

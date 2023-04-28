@@ -21,6 +21,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
@@ -112,7 +113,12 @@ internal fun MessageSentPartialDeliveryFailures(partialDeliveryFailureContent: D
                     if (partialDeliveryFailureContent.noClients.isNotEmpty()) {
                         Text(
                             text = partialDeliveryFailureContent.noClients.entries.map {
-                                stringResource(R.string.label_message_partial_delivery_x_participants_from_backend, it.value.size, it.key)
+                                pluralStringResource(
+                                    R.plurals.label_message_partial_delivery_x_participants_from_backend,
+                                    it.value.size,
+                                    it.value.size,
+                                    it.key
+                                )
                             }.joinToString(", ") + stringResource(
                                 R.string.label_message_partial_delivery_participants_wont_deliver,
                                 String.EMPTY
@@ -151,7 +157,7 @@ private fun SingleUserDeliveryFailure(
     Column {
         Text(
             text = stringResource(
-                id = R.string.label_message_partial_delivery_participants_wont_deliver,
+                id = R.string.label_message_partial_delivery_participants_deliver_later,
                 partialDeliveryFailureContent.failedRecipients.joinToString(", ") { it.asString(resources) }
             ),
             textAlign = TextAlign.Start

@@ -112,9 +112,6 @@ fun MessageItem(
             )
         }
 
-        // in case the message is marked as deleted and is expirable, it means that the message
-        // is belonging to the sender and we are waiting for the receiver timer to expire to permanently delete it
-        // we also do not want any background color
         val backgroundColorModifier = if (message.sendingFailed || message.receivingFailed) {
             Modifier.background(colorsScheme().messageErrorBackgroundColor)
         } else if (selfDeletionTimerState is SelfDeletionTimer.SelfDeletionTimerState.Expirable && !message.isDeleted) {
@@ -182,6 +179,9 @@ fun MessageItem(
                     if (selfDeletionTimerState is SelfDeletionTimer.SelfDeletionTimerState.Expirable) {
                         MessageExpireLabel(messageContent, selfDeletionTimerState.timeLeftFormatted())
 
+                        // in case the message is marked as deleted and is expirable, it means that the message
+                        // is belonging to the sender and it has expired,
+                        // we are waiting for the receiver timer to expire to permanently delete it
                         if (isDeleted) {
                             EphemeralMessageExpiredLabel(conversationDetailsData)
                         }
@@ -220,6 +220,10 @@ fun MessageItem(
                                 onLongClick = onLongClick,
                                 onOpenProfile = onOpenProfile
                             )
+                            MessageFooter(
+                                messageFooter,
+                                onReactionClicked
+                            )
                         } else {
                             MessageDecryptionFailure(
                                 messageHeader = header,
@@ -227,10 +231,6 @@ fun MessageItem(
                                 onResetSessionClicked = onResetSessionClicked
                             )
                         }
-                        MessageFooter(
-                            messageFooter,
-                            onReactionClicked
-                        )
                     }
                 }
 
@@ -245,10 +245,12 @@ fun MessageItem(
 @Composable
 fun EphemeralMessageExpiredLabel(conversationDetailsData: ConversationDetailsData) {
     val stringResource = if (conversationDetailsData is ConversationDetailsData.OneOne) {
-        stringResource(
-            R.string.label_information_waiting_for_recipent_timer_to_expire_one_to_one,
-            conversationDetailsData.otherUserName ?: ""
-        )
+        conversationDetailsData.otherUserName?.let {
+            stringResource(
+                R.string.label_information_waiting_for_recipent_timer_to_expire_one_to_one,
+                conversationDetailsData.otherUserName
+            )
+        } ?: stringResource(id = R.string.unknown_user_name)
     } else {
         stringResource(R.string.label_information_waiting_for_recipent_timer_to_expire_group)
     }

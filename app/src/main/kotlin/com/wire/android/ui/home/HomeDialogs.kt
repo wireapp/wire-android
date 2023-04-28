@@ -21,6 +21,7 @@
 package com.wire.android.ui.home
 
 import android.content.Context
+import android.content.res.Resources
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -31,9 +32,6 @@ import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.home.messagecomposer.state.SelfDeletionDuration
 import com.wire.android.util.CustomTabsHelper
-import kotlin.time.Duration.Companion.seconds
-import kotlin.time.DurationUnit
-import kotlin.time.toDuration
 
 @Composable
 fun FileRestrictionDialog(
@@ -56,12 +54,12 @@ fun FileRestrictionDialog(
 
 @Composable
 fun SelfDeletingMessagesDialog(
-    isSelfDeletingMessagesEnabled: Boolean,
+    areSelfDeletingMessagesEnabled: Boolean,
     enforcedTimeout: SelfDeletionDuration,
     hideDialogStatus: () -> Unit,
 ) {
-    val text: String = if (isSelfDeletingMessagesEnabled) {
-        val formattedTimeout = formatEnforcedTimeout(enforcedTimeout)
+    val text: String = if (areSelfDeletingMessagesEnabled) {
+        val formattedTimeout = enforcedTimeout.longLabel.asString()
         if (enforcedTimeout == SelfDeletionDuration.None)
             stringResource(id = R.string.self_deleting_messages_team_setting_enabled)
         else stringResource(id = R.string.self_deleting_messages_team_setting_enabled_enforced_timeout, formattedTimeout)
@@ -77,17 +75,6 @@ fun SelfDeletingMessagesDialog(
             type = WireDialogButtonType.Primary,
         )
     )
-}
-
-@Composable
-private fun formatEnforcedTimeout(selfDeletionDuration: SelfDeletionDuration): String = when (selfDeletionDuration) {
-    SelfDeletionDuration.TenSeconds -> stringResource(id = R.string.self_deleting_messages_team_setting_enabled_enforced_timeout_seconds)
-    SelfDeletionDuration.FiveMinutes -> stringResource(id = R.string.self_deleting_messages_team_setting_enabled_enforced_timeout_minutes)
-    SelfDeletionDuration.OneHour -> stringResource(id = R.string.self_deleting_messages_team_setting_enabled_enforced_timeout_one_hour)
-    SelfDeletionDuration.OneDay -> stringResource(id = R.string.self_deleting_messages_team_setting_enabled_enforced_timeout_one_day)
-    SelfDeletionDuration.OneWeek -> stringResource(id = R.string.self_deleting_messages_team_setting_enabled_enforced_timeout_one_week)
-    SelfDeletionDuration.FourWeeks -> stringResource(id = R.string.self_deleting_messages_team_setting_enabled_enforced_timeout_four_weeks)
-    SelfDeletionDuration.None -> ""
 }
 
 @Composable

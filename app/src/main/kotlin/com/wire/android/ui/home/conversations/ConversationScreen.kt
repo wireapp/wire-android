@@ -79,10 +79,10 @@ import com.wire.android.ui.home.conversations.model.EditMessageBundle
 import com.wire.android.ui.home.conversations.model.SendMessageBundle
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UriAsset
-import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMapper.toSeconds
 import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMenuItems
 import com.wire.android.ui.home.messagecomposer.MessageComposer
 import com.wire.android.ui.home.messagecomposer.state.MessageComposerState
+import com.wire.android.ui.home.messagecomposer.state.SelfDeletionDuration
 import com.wire.android.ui.home.messagecomposer.state.rememberMessageComposerState
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.util.permission.CallingAudioRequestFlow
@@ -314,7 +314,7 @@ private fun ConversationScreen(
     onPingClicked: () -> Unit,
     onSelfDeletingMessageRead: (UIMessage.Regular) -> Unit,
     currentSelfDeletingMessagesStatus: SelfDeletingMessagesStatus,
-    onNewSelfDeletingMessagesStatus: (SelfDeletingMessagesStatus) -> Unit,
+    onNewSelfDeletingMessagesStatus: (SelfDeletionDuration) -> Unit,
     tempWritableImageUri: Uri?,
     tempWritableVideoUri: Uri?
 ) {
@@ -369,14 +369,8 @@ private fun ConversationScreen(
             SelfDeletionMenuItems(
                 hideEditMessageMenu = conversationScreenState::hideContextMenu,
                 currentlySelected = messageComposerState.getSelfDeletionTime(),
-                onSelfDeletionDurationChanged = {
-                    val newSelfDeletingMessagesStatus = SelfDeletingMessagesStatus(
-                        isFeatureEnabled = true, // Otherwise the menu wouldn't be visible
-                        hasFeatureChanged = false,
-                        globalSelfDeletionDuration = it.toSeconds(),
-                        isEnforced = false
-                    )
-                    onNewSelfDeletingMessagesStatus(newSelfDeletingMessagesStatus)
+                onSelfDeletionDurationChanged = { newDuration ->
+                    onNewSelfDeletingMessagesStatus(newDuration)
                 }
             )
         }

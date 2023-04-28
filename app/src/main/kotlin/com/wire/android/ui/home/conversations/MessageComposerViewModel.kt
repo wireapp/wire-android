@@ -53,11 +53,11 @@ import com.wire.android.ui.home.conversations.model.EditMessageBundle
 import com.wire.android.ui.home.conversations.model.SendMessageBundle
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UriAsset
+import com.wire.android.ui.home.messagecomposer.state.SelfDeletionDuration
 import com.wire.android.util.FileManager
 import com.wire.android.util.ImageUtil
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.WireSessionImageLoader
-import com.wire.kalium.logic.configuration.SelfDeletingMessagesStatus
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.user.OtherUser
@@ -361,9 +361,11 @@ class MessageComposerViewModel @Inject constructor(
         enqueueMessageSelfDeletionUseCase(conversationId, uiMessage.header.messageId)
     }
 
-    fun updateSelfDeletingMessages(newSelfDeletingStatus: SelfDeletingMessagesStatus) = viewModelScope.launch {
+    fun updateSelfDeletingMessages(newSelfDeletionDuration: SelfDeletionDuration) = viewModelScope.launch {
+        val newSelfDeletingStatus = messageComposerViewState.selfDeletingMessagesStatus.copy(
+            globalSelfDeletionDuration = newSelfDeletionDuration.value?.inWholeSeconds
+        )
         persistNewSelfDeletingStatus(newSelfDeletingStatus)
-        messageComposerViewState = messageComposerViewState.copy(selfDeletingMessagesStatus = newSelfDeletingStatus)
     }
 
     fun navigateBack(previousBackStackPassedArgs: Map<String, Any> = mapOf()) {

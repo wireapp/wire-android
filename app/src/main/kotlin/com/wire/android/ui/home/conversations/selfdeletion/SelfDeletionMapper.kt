@@ -18,27 +18,16 @@
 package com.wire.android.ui.home.conversations.selfdeletion
 
 import com.wire.android.ui.home.messagecomposer.state.SelfDeletionDuration
+import kotlin.time.Duration.Companion.seconds
 
 object SelfDeletionMapper {
-    fun Int?.toSelfDeletionDuration(): SelfDeletionDuration =
-        when (this) {
-            in 1..10 -> SelfDeletionDuration.TenSeconds
-            in 11..300 -> SelfDeletionDuration.FiveMinutes
-            in 301..3600 -> SelfDeletionDuration.OneHour
-            in 3601..86400 -> SelfDeletionDuration.OneDay
-            in 86401..604800 -> SelfDeletionDuration.OneWeek
-            in 604801..2592000 -> SelfDeletionDuration.FourWeeks
-            else -> SelfDeletionDuration.None
-        }
-
-    fun SelfDeletionDuration.toSeconds(): Int? =
-        when (this) {
-            SelfDeletionDuration.TenSeconds -> 10
-            SelfDeletionDuration.FiveMinutes -> 300
-            SelfDeletionDuration.OneHour -> 3600
-            SelfDeletionDuration.OneDay -> 86400
-            SelfDeletionDuration.OneWeek -> 604800
-            SelfDeletionDuration.FourWeeks -> 2592000
-            SelfDeletionDuration.None -> null
-        }
+    fun Long?.toSelfDeletionDuration(): SelfDeletionDuration = when (this?.seconds) {
+        SelfDeletionDuration.TenSeconds.value -> SelfDeletionDuration.TenSeconds
+        SelfDeletionDuration.FiveMinutes.value -> SelfDeletionDuration.FiveMinutes
+        SelfDeletionDuration.OneHour.value -> SelfDeletionDuration.OneHour
+        SelfDeletionDuration.OneDay.value -> SelfDeletionDuration.OneDay
+        SelfDeletionDuration.OneWeek.value -> SelfDeletionDuration.OneWeek
+        SelfDeletionDuration.FourWeeks.value -> SelfDeletionDuration.FourWeeks
+        else -> SelfDeletionDuration.None
+    }
 }

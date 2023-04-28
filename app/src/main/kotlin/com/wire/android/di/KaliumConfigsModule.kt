@@ -23,6 +23,7 @@ package com.wire.android.di
 import android.os.Build
 import com.wire.android.BuildConfig
 import com.wire.android.datastore.GlobalDataStore
+import com.wire.kalium.logic.featureFlags.BuildFileRestrictionState
 import com.wire.kalium.logic.featureFlags.KaliumConfigs
 import dagger.Module
 import dagger.Provides
@@ -37,11 +38,19 @@ class KaliumConfigsModule {
 
     @Provides
     fun provideKaliumConfigs(globalDataStore: GlobalDataStore): KaliumConfigs {
+        val fileRestriction: BuildFileRestrictionState = if (BuildConfig.FILE_RESTRICTION_ENABLED) {
+            BuildConfig.FILE_RESTRICTION_LIST.split(",").map { it.trim() }.let {
+                BuildFileRestrictionState.AllowSome(it)
+            }
+        } else {
+            BuildFileRestrictionState.NoRestriction
+        }
+
         return KaliumConfigs(
             isChangeEmailEnabled = BuildConfig.ALLOW_CHANGE_OF_EMAIL,
             isLoggingEnabled = BuildConfig.LOGGING_ENABLED,
             blacklistHost = BuildConfig.DEFAULT_BACKEND_URL_BLACKLIST,
-            fileRestrictionEnabled = BuildConfig.FILE_RESTRICTION_ENABLED,
+            fileRestrictionState = fileRestriction,
             forceConstantBitrateCalls = BuildConfig.FORCE_CONSTANT_BITRATE_CALLS,
             developerFeaturesEnabled = BuildConfig.DEVELOPER_FEATURES_ENABLED,
             enableBlacklist = BuildConfig.ENABLE_BLACKLIST,

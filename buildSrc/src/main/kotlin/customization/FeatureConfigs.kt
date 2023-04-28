@@ -40,6 +40,7 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
     ALLOW_SSO("allow_sso_authentication_option", ConfigType.BOOLEAN),
     ALLOW_ACCOUNT_CREATION("allow_account_creation", ConfigType.BOOLEAN),
     FILE_RESTRICTION_ENABLED("file_restriction_enabled", ConfigType.BOOLEAN),
+    FILE_RESTRICTION_LIST("file_restriction_list", ConfigType.STRING),
     FORCE_CONSTANT_BITRATE_CALLS("force_constant_bitrate_calls", ConfigType.BOOLEAN),
     MAX_ACCOUNTS("max_accounts", ConfigType.INT),
     ENABLE_GUEST_ROOM_LINK("enable_guest_room_link", ConfigType.BOOLEAN),

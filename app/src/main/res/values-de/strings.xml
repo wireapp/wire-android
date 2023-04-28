@@ -42,7 +42,7 @@
     <string name="label_user_deleted">Gelöscht</string>
     <string name="label_message_sent_failure">Nachricht konnte aufgrund von Verbindungsproblemen nicht gesendet werden.</string>
     <string name="label_message_edit_sent_failure">Bearbeitete Nachricht konnte aufgrund von Verbindungsproblemen nicht gesendet werden.</string>
-    <string name="label_message_sent_remotely_failure">Message could not be sent, as the backend %s appears to be offline.</string>
+    <string name="label_message_sent_remotely_failure">Die Nachricht konnte nicht gesendet werden, da das Backend %s offline zu sein scheint.</string>
     <string name="label_message_receive_failure">Fehler beim Herunterladen</string>
     <string name="label_message_decryption_failure_message">Die Nachricht konnte nicht entschlüsselt werden.</string>
     <string name="label_message_decryption_failure_informative_message">Versuchen Sie, die Session zurückzusetzen, um neue Verschlüsselungsschlüssel zu erzeugen.</string>
@@ -185,7 +185,7 @@
     <!-- Migration -->
     <string name="migration_title">Einrichten von Wire</string>
     <string name="migration_message">Bitte warten Sie, während wir die App für Sie einrichten</string>
-    <string name="migration_message_unknown">Please wait while we migrate data for you</string>
+    <string name="migration_message_unknown">Bitte warten Sie, während wir die Daten für Sie migrieren</string>
     <string name="migration_accounts_message">Ihre Benutzerkonten werden migriert...</string>
     <string name="migration_messages_message">Ihre Nachrichten werden migriert...</string>
     <string name="migration_title_step">Step %1$d/%2$d</string>
@@ -234,10 +234,10 @@
     <string name="session_expired_error_message">Die App hat über einen längeren Zeitraum nicht mit dem Server 
         kommuniziert oder die Session wurde per Fernzugriff für ungültig erklärt.
     </string>
-    <string name="conversation_history_wipe_explanation">According to your team\'s security
-        settings, your conversation history has also been deleted.</string>
+    <string name="conversation_history_wipe_explanation">Den Sicherheitseinstellungen Ihres Teams entsprechend
+        wurde auch Ihr Gesprächsverlauf gelöscht.</string>
     <!-- Second Factor Authentication -->
-    <string name="second_factor_authentication_title">Verify your account</string>
+    <string name="second_factor_authentication_title">Überprüfen Sie Ihr Benutzerkonto</string>
     <string name="second_factor_authentication_instructions_label">Geben Sie den Bestätigungscode ein, der an die E-Mail-Adresse %1$s gesendet wurde</string>
     <string name="second_factor_code_error">Ungültiger Code oder maximale Versuche überschritten. Bitte versuchen Sie es erneut oder fordern Sie einen anderen Code an</string>
     <!-- Remove Device -->
@@ -251,7 +251,7 @@
     <string name="remove_device_dialog_title">Folgendes Gerät entfernen?</string>
     <string name="remove_device_invalid_password">Ungültiges Passwort</string>
     <string name="remove_device_details_description">Entfernen Sie dieses Gerät, wenn Sie es nicht mehr nutzen. Sie werden sofort auf diesem Gerät abgemeldet.</string>
-    <string name="remove_device_details_description_with_wipe">Remove your device if you have stopped using it. According to your team\'s security settings, your conversation history will also be deleted.</string>
+    <string name="remove_device_details_description_with_wipe">Entfernen Sie Ihr Gerät, wenn Sie es nicht mehr nutzen. Den Sicherheitseinstellungen Ihres Teams entsprechend wird auch Ihr Gesprächsverlauf gelöscht.</string>
     <!-- Register Device -->
     <string name="register_device_title">Dieses Gerät hinzufügen</string>
     <string name="register_device_text">Geben Sie Ihr Passwort ein, um Wire auf diesem Gerät zu verwenden.</string>
@@ -361,7 +361,7 @@
     <string name="member_name_you_label_titlecase">Sie</string>
     <string name="member_name_you_label_lowercase">Sie</string>
     <string name="label_add_participants">Teilnehmer hinzufügen</string>
-    <string name="username_unavailable_label">Username unavailable</string>
+    <string name="username_unavailable_label">Name nicht verfügbar</string>
     <string name="conversation_details_title">Unterhaltungsdetails</string>
     <string name="conversation_details_options_tab">OPTIONEN</string>
     <string name="conversation_details_participants_tab">TEILNEHMER</string>
@@ -592,7 +592,7 @@
         <item quantity="one">%1$d Nachricht</item>
         <item quantity="other">%1$d Nachrichten</item>
     </plurals>
-    <string name="ephemeral_one_to_one_event_message">"Sent a message"</string>
+    <string name="ephemeral_one_to_one_event_message">"Hat eine Nachricht gesendet"</string>
     <string name="ephemeral_group_event_message">"Jemand hat eine Nachricht gesendet"</string>
     <!--Search Contact-->
     <string name="label_contacts">KONTAKTE</string>
@@ -803,7 +803,7 @@
     <string name="label_logs_option_title">Protokolle</string>
     <string name="label_share_logs">Protokolle teilen</string>
     <string name="label_delete_logs">Alle Protokolle löschen</string>
-    <string name="label_restart_slowsync_for_recovery">Restart SlowSync for Recovery</string>
+    <string name="label_restart_slowsync_for_recovery">SlowSync zur Wiederherstellung neu starten</string>
     <string name="label_mls_option_title">MLS-DATEN</string>
     <string name="label_enable_logging">Protokollierung aktivieren</string>
     <string name="label_proteus_option_title">Proteus</string>
@@ -881,8 +881,8 @@
     <string name="cancel_login_dialog_title">Sind Sie sicher, dass Sie den Vorgang abbrechen möchten?</string>
     <!-- session reset -->
     <string name="label_system_message_session_reset">%1$s konnte einige Ihrer Nachrichten nicht entschlüsseln, hat das Problem aber gelöst. Dies betraf alle Unterhaltungen, die Sie gemeinsam nutzen.</string>
-    <string name="label_manual_migration_title">Migrate from version 3.82.38</string>
-    <string name="start_manual_migration">Start migration form version 3.82.38 manually</string>
+    <string name="label_manual_migration_title">Migration von Version 3.82.38</string>
+    <string name="start_manual_migration">Starten Sie die Migration von Version 3.82.38 manuell</string>
     <string name="file_sharing_restricted_learn_more_link">https://support.wire.com/hc/de/articles/4406404582673-Wie-kann-ich-die-Dateifreigabe-für-mein-Team-einschränken-</string>
     <string name="file_sharing_restricted_description_by_team">Sie können diese Datei nicht teilen, da diese Funktion deaktiviert ist.</string>
     <string name="file_sharing_restricted_description_no_users">Sie müssen sich bei Wire anmelden, bevor Sie etwas freigeben können</string>
@@ -934,12 +934,12 @@
     <string name="self_deleting_message_label">Selbstlöschende Nachricht</string>
     <string name="device_name_unknown">Unbekanntes Gerät</string>
     <string name="create_account_email_title">Ihre E-Mail-Adresse</string>
-    <string name="settings_myaccount_email_description">Your email is part of your login details for this account. It may be visible to your contacts.</string>
-    <string name="settings_myaccount_email_invalid_imail_error">Please enter a valid email format</string>
+    <string name="settings_myaccount_email_description">Ihre E-Mail-Adresse ist Teil Ihrer Anmeldedaten für dieses Benutzerkonto. Sie kann für Ihre Kontakte sichtbar sein.</string>
+    <string name="settings_myaccount_email_invalid_imail_error">Bitte geben Sie eine gültige E-Mail-Adresse ein</string>
     <string name="settings_myaccount_email_already_in_use_error">Die verwendete E-Mail-Adresse wurde bereits  
 registriert. Bitte versuchen Sie es mit einer anderen.</string>
-    <string name="settings_myaccount_email_verification_email_sent">A verification email has been sent to your email %1$s.\n\nYour current email address is not changed until you verified your new one. Please check your email inbox and follow the instructions.</string>
-    <string name="label_resend_verification_email">Resend Verification Email</string>
+    <string name="settings_myaccount_email_verification_email_sent">Wir haben Ihnen eine Bestätigungsmail an Ihre E-Mail-Adresse %1$s geschickt.\n\nIhre aktuelle E-Mail-Adresse wird erst geändert, wenn Ihre neue Adresse verifiziert ist. Überprüfen Sie Ihren Posteingang und folgen Sie den Anweisungen.</string>
+    <string name="label_resend_verification_email">Bestätigungsmail erneut senden</string>
     <string name="settings_myaccount_email_generic_error">Ein Fehler ist aufgetreten, bitte erneut versuchen.</string>
     <string name="title_video_could_not_be_sent">Video konnte nicht gesendet werden</string>
     <string name="title_image_could_not_be_sent">Bild konnte nicht gesendet werden</string>

@@ -188,7 +188,7 @@
     <string name="migration_message_unknown">Bitte warten Sie, während wir die Daten für Sie migrieren</string>
     <string name="migration_accounts_message">Ihre Benutzerkonten werden migriert...</string>
     <string name="migration_messages_message">Ihre Nachrichten werden migriert...</string>
-    <string name="migration_title_step">Step %1$d/%2$d</string>
+    <string name="migration_title_step">Schritt %1$d/%2$d</string>
     <string name="migration_title_almost_done">Fast fertig!</string>
     <string name="migration_title_updated">Einrichten von Wire</string>
     <string name="migration_login_required">Bitte melden Sie sich an, um Ihre Nachrichten aus der alten Version von Wire zu migrieren.</string>
@@ -396,7 +396,7 @@
     <string name="import_media_content_title">Mit Wire teilen</string>
     <string name="import_media_searchbar_title">Nach Unterhaltung suchen</string>
     <string name="import_media_send_button_title">Senden</string>
-    <string name="export_media_subject_title">Sharing Media from Wire</string>
+    <string name="export_media_subject_title">Teilen von Medien aus Wire</string>
     <!--Read receipts -->
     <string name="conversation_options_read_receipt_label">Lesebestätigungen</string>
     <string name="conversation_options_read_receipt_description">Wenn diese Option aktiviert ist, können Sender sehen, wenn ihre Nachrichten gelesen werden.</string>
@@ -807,7 +807,7 @@
     <string name="label_mls_option_title">MLS-DATEN</string>
     <string name="label_enable_logging">Protokollierung aktivieren</string>
     <string name="label_proteus_option_title">Proteus</string>
-    <string name="label_enable_encrypted_proteus_storage">Enable encrypted proteus storage</string>
+    <string name="label_enable_encrypted_proteus_storage">Verschlüsselte Proteus-Speicherung aktivieren</string>
     <string name="label_debug_title">Fehlerbehebung</string>
     <string name="label_client_option_title">Client-ID</string>
     <string name="label_device_id">Geräte-ID: %1$s</string>
@@ -916,10 +916,10 @@
     <string name="guest_room_link_disabled">Erstellen von Gäste-Links ist nun für alle Gruppen-Admins deaktiviert</string>
     <!-- New Device dialog -->
     <string name="new_device_dialog_current_user_title">Ihr Benutzerkonto wurde verwendet</string>
-    <string name="new_device_dialog_current_user_message">%1$s\nFrom: %2$s \n\nIf you didn\'t do this, remove the device and reset your password.</string>
+    <string name="new_device_dialog_current_user_message">%1$s\nAuf: %2$s \n\nIWenn Sie dies nicht getan haben, entfernen Sie das Gerät und setzen Sie Ihr Passwort zurück.</string>
     <string name="new_device_dialog_current_user_btn">Geräte verwalten</string>
     <string name="new_device_dialog_other_user_title">Ihr Benutzerkonto \"%1$s (@%2$s)” wurde verwendet:</string>
-    <string name="new_device_dialog_other_user_message">%1$s\nFrom: %2$s \n\nIf you didn\'t do this, remove the device (navigate to “Manage Devices” in the Settings section of this account), and reset your password.</string>
+    <string name="new_device_dialog_other_user_message">%1$s\nAuf: %2$s \n\nIWenn Sie dies nicht getan haben, entfernen Sie das Gerät, indem Sie in den Einstellungen \"Geräte verwalten\" auswählen, und setzen Sie Ihr Passwort zurück.</string>
     <string name="new_device_dialog_other_user_btn">Benutzerkonto wechseln</string>
     <string name="label_system_message_joined_the_conversation_by_self">%1$s sind der Unterhaltung beigetreten</string>
     <string name="label_system_message_joined_the_conversation_by_other">%1$s Ist der Unterhaltung beigetreten</string>

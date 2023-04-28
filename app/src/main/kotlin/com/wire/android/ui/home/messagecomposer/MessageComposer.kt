@@ -289,7 +289,7 @@ private fun MessageComposer(
                 // we get the effect of overlapping it
                 if (attachmentOptionsVisible) {
                     AttachmentOptions(
-                        onAttachmentPicked = { onAttachmentPicked(it,messageComposerState.getSelfDeletionTime().value) },
+                        onAttachmentPicked = { onAttachmentPicked(it, messageComposerState.getSelfDeletionTime().value) },
                         isFileSharingEnabled = isFileSharingEnabled,
                         tempWritableImageUri = tempWritableImageUri,
                         tempWritableVideoUri = tempWritableVideoUri,

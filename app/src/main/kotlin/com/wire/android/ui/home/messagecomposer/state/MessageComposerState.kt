@@ -111,7 +111,10 @@ data class MessageComposerState(
                 }
             }
         val afterSelection = messageComposeInputState.messageText.text
-            .subSequence(messageComposeInputState.messageText.selection.max, messageComposeInputState.messageText.text.length)
+            .subSequence(
+                messageComposeInputState.messageText.selection.max,
+                messageComposeInputState.messageText.text.length
+            )
         val resultText = StringBuilder(beforeSelection)
             .append(String.MENTION_SYMBOL)
             .append(afterSelection)
@@ -166,7 +169,7 @@ data class MessageComposerState(
     fun hideAttachmentOptions() = changeAttachmentOptionsVisibility(false)
     private fun changeAttachmentOptionsVisibility(newValue: Boolean) {
         (messageComposeInputState as? MessageComposeInputState.Active)?.let { activeState ->
-            when(val currentType = activeState.type){
+            when (val currentType = activeState.type) {
                 is MessageComposeInputType.NewMessage -> {
                     messageComposeInputState = activeState.copy(
                         type = currentType.copy(
@@ -224,7 +227,10 @@ data class MessageComposerState(
         val beforeMentionText = messageComposeInputState.messageText.text
             .subSequence(0, mention.start)
         val afterMentionText = messageComposeInputState.messageText.text
-            .subSequence(messageComposeInputState.messageText.selection.max, messageComposeInputState.messageText.text.length)
+            .subSequence(
+                messageComposeInputState.messageText.selection.max,
+                messageComposeInputState.messageText.text.length
+            )
         val resultText = StringBuilder()
             .append(beforeMentionText)
             .append(mention.handler)

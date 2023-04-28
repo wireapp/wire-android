@@ -634,8 +634,6 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
     <string name="error_unblocking_user">No se pudo desbloquear al usuario.</string>
     <string name="delete_group_conversation_error">Ocurri&#243; un error al eliminar la conversaci&#243;n.</string>
     <string name="error_limit_number_assets_imported_exceeded">Solo puedes enviar hasta 20 archivos a la vez.</string>
-    <string name="edit_message_not_yet_available">La edici&#243;n de mensajes todav&#237;a no est&#225; disponible.</string>
-    <!-- TODO: temporary, to be removed when the proper implementation of editing messages is finished -->
     <!-- Animation label -->
     <string name="label_open_conversation">Abrir conversaci&#243;n</string>
     <string name="email_label">Correo electr&#243;nico</string>
@@ -907,14 +905,13 @@ URL del backend:
     <string name="guest_link_button_revoke_link">Revocar enlace</string>
     <string name="audio_not_available">Audio no disponible</string>
     <string name="audio_not_available_explanation">Algo sali&#243; mal al descargar este archivo de audio. P&#237;dele al remitente que lo vuelva a subir.</string>
-    <string name="guest_link_generate_error_message">Hubo un error al crear el enlace. Por favor, inténtalo de nuevo</string>
-    <string name="guest_link_revoke_error_message">Hubo un error al revocar el enlace. Por favor inténtalo de nuevo</string>
+    <string name="guest_link_generate_error_message">Link couldn\'t be created. Please try again</string>
+    <string name="guest_link_revoke_error_message">Link couldn\'t be revoked. Please try again</string>
     <string name="revoke_guest__room_link_dialog_text">Los nuevos invitados no podr&#225;n unirse con este enlace. Los invitados actuales a&#250;n tendr&#225;n acceso.</string>
     <string name="revoke_guest__room_link_dialog_title">&#191;Revocar enlace de invitado?</string>
-    <string name="guest__room_link_copied">Link copiado al portapapeles</string>
     <string name="title_device_key_fingerprint">HU&#201;LLA DIGITAL DE LA LLAVE DEL DISPOSITIVO</string>
     <string name="label_client_key_fingerprint_not_available">NO DISPONIBLE</string>
-    <string name="guest_room_link_copied">Link copiado al portapapeles</string>
+    <string name="guest_room_link_copied">Link copied to clipboard</string>
     <string name="guest_room_link_enabled">La generaci&#243;n de enlaces de invitado ahora est&#225; activada para todos los administradores del grupo</string>
     <string name="guest_room_link_disabled">La generaci&#243;n de enlaces de invitado ahora est&#225; desactivada para todos los administradores del grupo</string>
     <!-- New Device dialog -->

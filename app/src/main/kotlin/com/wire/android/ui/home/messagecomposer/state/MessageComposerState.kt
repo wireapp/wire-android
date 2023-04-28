@@ -53,6 +53,7 @@ import com.wire.kalium.logic.data.message.mention.MessageMention
 import com.wire.kalium.logic.data.user.UserId
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlin.time.Duration.Companion.ZERO
 
 @Composable
 fun rememberMessageComposerState(): MessageComposerState {
@@ -86,7 +87,7 @@ data class MessageComposerState(
     var messageComposeInputState: MessageComposeInputState by mutableStateOf(MessageComposeInputState.Inactive())
         private set
 
-    private var currentSelfDeletingStatus: SelfDeletingMessagesStatus by mutableStateOf(SelfDeletingMessagesStatus(true, null))
+    private var currentSelfDeletingStatus: SelfDeletingMessagesStatus by mutableStateOf(SelfDeletingMessagesStatus(true, null, ZERO))
 
     private val _mentionQueryFlowState: MutableStateFlow<String?> = MutableStateFlow(null)
 

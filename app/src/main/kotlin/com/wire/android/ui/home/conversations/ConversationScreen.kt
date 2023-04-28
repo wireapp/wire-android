@@ -103,6 +103,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Instant
+import kotlin.time.Duration.Companion.ZERO
 import kotlin.time.Duration.Companion.milliseconds
 
 /**
@@ -708,8 +709,8 @@ fun PreviewConversationScreen() {
         conversationMessagesViewModel = hiltViewModel(),
         onPingClicked = {},
         onSelfDeletingMessageRead = {},
-        currentSelfDeletingMessagesStatus = SelfDeletingMessagesStatus(true, null, null),
-        onNewSelfDeletingMessagesStatus = { SelfDeletingMessagesStatus(true, null, null, false) },
+        currentSelfDeletingMessagesStatus = SelfDeletingMessagesStatus(true, null, ZERO),
+        onNewSelfDeletingMessagesStatus = {},
         tempWritableImageUri = null,
         tempWritableVideoUri = null
     )

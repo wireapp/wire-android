@@ -24,6 +24,7 @@ import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMapper.to
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.configuration.SelfDeletingMessagesStatus
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.ZERO
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
@@ -58,7 +59,7 @@ sealed class MessageComposeInputState {
 
         return when {
             isSelfDeletingType -> {
-                val selfDeletingType = MessageComposeInputType.SelfDeletingMessage(selfDeletionDuration)
+                val selfDeletingType = MessageComposeInputType.SelfDeletingMessage(selfDeletionDuration, selfDeletingStatus.isEnforced)
                 Active(messageText, inputFocused, selfDeletingType)
             }
 
@@ -116,13 +117,13 @@ sealed class MessageComposeInputType {
     @Stable
     data class SelfDeletingMessage(
         val selfDeletionDuration: SelfDeletionDuration,
-        val isEnforced: Boolean = false
+        val isEnforced: Boolean
     ) : MessageComposeInputType()
 }
 
 @Suppress("MagicNumber")
-enum class SelfDeletionDuration(val value: Duration?, val longLabel: UIText, val shortLabel: UIText) {
-    None(null, UIText.StringResource(R.string.label_off), UIText.StringResource(R.string.label_off)),
+enum class SelfDeletionDuration(val value: Duration, val longLabel: UIText, val shortLabel: UIText) {
+    None(ZERO, UIText.StringResource(R.string.label_off), UIText.StringResource(R.string.label_off)),
     TenSeconds(
         10.seconds,
         UIText.PluralResource(R.plurals.seconds_long_label, 10, 10),

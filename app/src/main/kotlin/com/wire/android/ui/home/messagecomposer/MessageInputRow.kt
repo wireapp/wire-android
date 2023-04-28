@@ -154,7 +154,7 @@ fun MessageComposerInputRow(
                             modifier = Modifier
                                 .padding(horizontal = dimensions().spacing16x)
                                 .clickable(enabled = !isSelfDeletionEnforced) {
-                                    // Don't show the duration picker if the self-deleting messages duration is enforced from TM Settings
+                                    // Don't allow clicking the duration picker if the self-deleting duration is enforced from TM Settings
                                     onChangeSelfDeletionTimeClicked()
                                 }
                         )

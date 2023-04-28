@@ -25,6 +25,7 @@ import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.kalium.logic.configuration.SelfDeletingMessagesStatus
 import com.wire.kalium.logic.feature.conversation.InteractionAvailability
 import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
+import kotlin.time.Duration.Companion.ZERO
 
 data class MessageComposerViewState(
     val isFileSharingEnabled: Boolean = true,
@@ -32,7 +33,7 @@ data class MessageComposerViewState(
     val interactionAvailability: InteractionAvailability = InteractionAvailability.ENABLED,
     val mentionsToSelect: List<Contact> = listOf(),
     val assetTooLargeDialogState: AssetTooLargeDialogState = AssetTooLargeDialogState.Hidden,
-    val selfDeletingMessagesStatus: SelfDeletingMessagesStatus = SelfDeletingMessagesStatus(true, null, null)
+    val selfDeletingMessagesStatus: SelfDeletingMessagesStatus = SelfDeletingMessagesStatus(true, null, ZERO)
 )
 
 sealed class AssetTooLargeDialogState {

@@ -25,7 +25,6 @@ import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -103,6 +102,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Instant
+import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 
 /**
@@ -279,7 +279,7 @@ private fun StartCallAudioBluetoothPermissionCheckFlow(
     // TODO display an error dialog
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class, ExperimentalLayoutApi::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Suppress("LongParameterList")
 @Composable
 private fun ConversationScreen(
@@ -293,7 +293,7 @@ private fun ConversationScreen(
     onSendMessage: (SendMessageBundle) -> Unit,
     onSendEditMessage: (EditMessageBundle) -> Unit,
     onDeleteMessage: (String, Boolean) -> Unit,
-    onAttachmentPicked: (UriAsset) -> Unit,
+    onAttachmentPicked: (UriAsset, Duration?) -> Unit,
     onAudioClick: (String) -> Unit,
     onChangeAudioPosition: (String, Int) -> Unit,
     onAssetItemClicked: (String) -> Unit,
@@ -448,7 +448,7 @@ private fun ConversationScreenContent(
     messages: Flow<PagingData<UIMessage>>,
     onSendMessage: (SendMessageBundle) -> Unit,
     onSendEditMessage: (EditMessageBundle) -> Unit,
-    onAttachmentPicked: (UriAsset) -> Unit,
+    onAttachmentPicked: (UriAsset, Duration?) -> Unit,
     onMentionMember: (String?) -> Unit,
     onAssetItemClicked: (String) -> Unit,
     onAudioItemClicked: (String) -> Unit,
@@ -504,11 +504,11 @@ private fun ConversationScreenContent(
         },
         onSendEditTextMessage = onSendEditMessage,
         onAttachmentPicked = remember {
-            {
+            { uriAsset, expireAfter ->
                 scope.launch {
                     lazyListState.scrollToItem(0)
                 }
-                onAttachmentPicked(it)
+                onAttachmentPicked(uriAsset, expireAfter)
             }
         },
         onMentionMember = onMentionMember,
@@ -550,7 +550,11 @@ private fun SnackBarMessage(
     val context = LocalContext.current
 
     LaunchedEffect(Unit) {
-        composerMessages.collect { conversationScreenState.snackBarHostState.showSnackbar(message = it.uiText.asString(context.resources)) }
+        composerMessages.collect {
+            conversationScreenState.snackBarHostState.showSnackbar(
+            message = it.uiText.asString(context.resources)
+        )
+        }
     }
 
     LaunchedEffect(Unit) {
@@ -677,14 +681,16 @@ fun PreviewConversationScreen() {
         bannerMessage = null,
         messageComposerViewState = MessageComposerViewState(),
         conversationCallViewState = ConversationCallViewState(),
-        conversationInfoViewState = ConversationInfoViewState(conversationName = UIText.DynamicString("Some test conversation")),
+        conversationInfoViewState = ConversationInfoViewState(
+            conversationName = UIText.DynamicString("Some test conversation")
+        ),
         conversationMessagesViewState = ConversationMessagesViewState(),
         onOpenProfile = { },
         onMessageDetailsClick = { _, _ -> },
         onSendMessage = { },
         onSendEditMessage = { },
         onDeleteMessage = { _, _ -> },
-        onAttachmentPicked = { },
+        onAttachmentPicked = { _, _ -> },
         onAssetItemClicked = { },
         onImageFullScreenMode = { _, _ -> },
         onStartCall = { },

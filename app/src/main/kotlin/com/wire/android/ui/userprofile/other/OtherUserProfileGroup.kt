@@ -39,10 +39,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.RowItemTemplate
-import com.wire.android.ui.common.button.WireSecondaryIconButton
 import com.wire.android.ui.common.SurfaceBackgroundWrapper
 import com.wire.android.ui.common.button.WireButton
+import com.wire.android.ui.common.button.WireSecondaryIconButton
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.home.conversationslist.model.allowsRoleEdition
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.ui.userprofile.group.RemoveConversationMemberState
@@ -90,7 +91,8 @@ fun OtherUserProfileGroup(
                 label = stringResource(id = R.string.user_profile_group_role),
                 value = AnnotatedString(state.groupState!!.role.name.asString()),
                 isSelfAdmin = state.groupState.isSelfAdmin,
-                openChangeRoleBottomSheet = openChangeRoleBottomSheet
+                openChangeRoleBottomSheet = openChangeRoleBottomSheet,
+                isRoleEditable = state.membership.allowsRoleEdition()
             )
         }
     }
@@ -100,7 +102,7 @@ fun OtherUserProfileGroup(
 private fun UserGroupDetailsInformation(
     title: AnnotatedString,
     isSelfAdmin: Boolean,
-    onRemoveFromConversation: () -> Unit,
+    onRemoveFromConversation: () -> Unit
 ) {
     SurfaceBackgroundWrapper {
         Column(modifier = Modifier.padding(horizontal = dimensions().spacing16x)) {
@@ -108,7 +110,7 @@ private fun UserGroupDetailsInformation(
             Text(
                 style = MaterialTheme.wireTypography.body01,
                 color = MaterialTheme.wireColorScheme.labelText,
-                text = title,
+                text = title
             )
             Spacer(modifier = Modifier.height(dimensions().spacing16x))
             if (isSelfAdmin) {
@@ -116,7 +118,7 @@ private fun UserGroupDetailsInformation(
                     text = stringResource(id = R.string.user_profile_group_remove_button),
                     minHeight = dimensions().spacing32x,
                     fillMaxWidth = false,
-                    onClick = onRemoveFromConversation,
+                    onClick = onRemoveFromConversation
                 )
                 Spacer(modifier = Modifier.height(dimensions().spacing16x))
             }
@@ -130,6 +132,7 @@ private fun UserRoleInformation(
     value: AnnotatedString,
     clickable: Clickable = Clickable(enabled = false) {},
     isSelfAdmin: Boolean,
+    isRoleEditable: Boolean,
     openChangeRoleBottomSheet: () -> Unit
 ) {
     RowItemTemplate(
@@ -149,7 +152,7 @@ private fun UserRoleInformation(
             )
         },
         actions = {
-            if (isSelfAdmin) {
+            if (isSelfAdmin && isRoleEditable) {
                 EditButton(onEditClicked = openChangeRoleBottomSheet)
             }
         },

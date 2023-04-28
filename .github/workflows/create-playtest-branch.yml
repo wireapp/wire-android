@@ -29,11 +29,12 @@ jobs:
         run: |
           git checkout develop
           git submodule update
-          git checkout -b ${{ env.PLAYTEST_BRANCH_NAME }}
-          git push origin ${{ env.PLAYTEST_BRANCH_NAME }}
-          gh pr create --draft --base main --title "Playtest Placeholder PR ${{ github.event.inputs.playtest-branch-manual-name }}" --body "Do not merge"
+          git checkout -b "$PLAYTEST_BRANCH_NAME"
+          git push origin "$PLAYTEST_BRANCH_NAME"
+          gh pr create --draft --base main --title "Playtest Placeholder PR $PLAYTEST_NAME" --body "Do not merge"
         env:
           PLAYTEST_BRANCH_NAME: playtest/${{ github.event.inputs.playtest-branch-manual-name }}
+          PLAYTEST_NAME: ${{ github.event.inputs.playtest-branch-manual-name }}
       - name: Notify on Wire (Manual branch)
         uses: 8398a7/action-slack@v3
         if: ${{ github.event.inputs.playtest-branch-manual-name }}
@@ -47,8 +48,8 @@ jobs:
         run: |
           git checkout develop
           git submodule update
-          git checkout -b ${{ env.PLAYTEST_BRANCH_NAME }}
-          git push origin ${{ env.PLAYTEST_BRANCH_NAME }}
+          git checkout -b "$PLAYTEST_BRANCH_NAME"
+          git push origin "$PLAYTEST_BRANCH_NAME"
           gh pr create --draft --base main --title "Playtest Placeholder PR ${{ steps.date.outputs.date }}" --body "Do not merge"
         env:
           PLAYTEST_BRANCH_NAME: playtest/${{ steps.date.outputs.date }}
@@ -59,4 +60,4 @@ jobs:
           PLAYTEST_BRANCH_NAME: playtest/${{ steps.date.outputs.date }}
         with:
           status: ${{ job.status }}
-          text: "Playtest branch **${{env.PLAYTEST_BRANCH_NAME}}** created 🚀 - Hotfixes only on this branch"
+          text: "Playtest branch **$PLAYTEST_BRANCH_NAME** created 🚀 - Hotfixes only on this branch"

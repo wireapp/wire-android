@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Wire
   ~ Copyright (C) 2023 Wire Swiss GmbH
   ~
@@ -15,10 +14,14 @@
   ~
   ~ You should have received a copy of the GNU General Public License
   ~ along with this program. If not, see http://www.gnu.org/licenses/.
-  ~
-  ~
   -->
-<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
-    <background android:drawable="@drawable/ic_launcher_background"/>
-    <foreground android:drawable="@drawable/ic_launcher_foreground"/>
-</adaptive-icon>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+        android:width="20dp"
+        android:height="20dp"
+        android:viewportWidth="20"
+        android:viewportHeight="20">
+    <path
+            android:fillColor="#ffffff"
+            android:fillType="evenOdd"
+            android:pathData="M11.25,5.058C16.183,5.519 20,8.675 20,12.5C20,16.642 15.523,20 10,20C4.477,20 0,16.642 0,12.5C0,10.132 1.464,8.019 3.75,6.645V6.645V9.781C2.955,10.585 2.5,11.531 2.5,12.5C2.5,15.08 5.727,17.5 10,17.5C14.273,17.5 17.5,15.08 17.5,12.5C17.5,10.179 14.887,7.986 11.25,7.571V12.5L6.25,6.25L11.25,0V5.058V5.058Z" />
+</vector>

@@ -257,10 +257,20 @@ fun MessagePreview.uiLastMessageContent(): UILastMessageContent {
             }
         }
 
+        is MessagePreviewContent.Ephemeral -> {
+            val ephemeralContent = (content as MessagePreviewContent.Ephemeral)
+            if (ephemeralContent.isGroupConversation) {
+                UILastMessageContent.TextMessage(
+                    MessageBody(UIText.StringResource(R.string.ephemeral_group_event_message))
+                )
+            } else {
+                UILastMessageContent.TextMessage(
+                    MessageBody(UIText.StringResource(R.string.ephemeral_one_to_one_event_message))
+                )
+            }
+        }
+
         MessagePreviewContent.CryptoSessionReset -> UILastMessageContent.None
         Unknown -> UILastMessageContent.None
     }
 }
-
-fun <T> List<T>.plusIf(condition: () -> Boolean, element: T): List<T> = plus(if (condition()) listOf(element) else listOf())
-fun <T> List<T>.plusIf(condition: () -> Boolean, elements: List<T>): List<T> = plus(if (condition()) elements else listOf())

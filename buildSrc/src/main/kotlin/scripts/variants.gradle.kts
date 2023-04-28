@@ -20,13 +20,17 @@
 
 package scripts
 
+import com.android.build.api.dsl.ApplicationProductFlavor
+import com.android.build.api.dsl.ProductFlavor
 import customization.ConfigType
+import customization.Customization
 import customization.Customization.getBuildtimeConfiguration
 import customization.FeatureConfigs
 import customization.FeatureFlags
 import customization.Features
-import com.android.build.api.dsl.ApplicationProductFlavor
-import com.android.build.api.dsl.ProductFlavor
+import customization.overrideResourcesForAllFlavors
+import flavor.FlavorDimensions
+import flavor.ProductFlavors
 
 plugins { id("com.android.application") apply false }
 // DO NOT USE CAPITAL LETTER FOR THE BUILD TYPE NAME OR JENKINS WILL BE MAD
@@ -37,28 +41,6 @@ object BuildTypes {
     const val COMPAT_RELEASE = "compatrelease"
 }
 
-sealed class ProductFlavors(
-    val applicationId: String,
-    val buildName: String,
-    val appName: String,
-    val applicationIdSuffix: String? = null,
-    val dimensions: String = FlavorDimensions.DEFAULT,
-    val shareduserId: String = ""
-) {
-    override fun toString(): String = this.buildName
-
-    object Dev : ProductFlavors("com.waz.zclient.dev", "dev", "Wire Dev")
-    object Staging : ProductFlavors("com.waz.zclient.dev", "staging", "Wire Staging")
-
-    object Beta : ProductFlavors("com.wire.android", "beta", "Wire Beta", applicationIdSuffix = "internal")
-    object Internal : ProductFlavors("com.wire", "internal", "Wire Internal", applicationIdSuffix = "internal")
-    object Production : ProductFlavors("com.wire", "prod", "Wire", shareduserId = "com.waz.userid")
-}
-
-object FlavorDimensions {
-    const val DEFAULT = "default"
-}
-
 object Default {
     val BUILD_FLAVOR: String = System.getenv("flavor") ?: System.getenv("FLAVOR") ?: ProductFlavors.Dev.buildName
     val BUILD_TYPE = System.getenv("buildType") ?: System.getenv("BUILD_TYPE") ?: BuildTypes.DEBUG
@@ -66,14 +48,14 @@ object Default {
     val BUILD_VARIANT = "${BUILD_FLAVOR.capitalize()}${BUILD_TYPE.capitalize()}"
 }
 
-fun NamedDomainObjectContainer<ApplicationProductFlavor>.createAppFlavour(flavour: ProductFlavors) {
+fun NamedDomainObjectContainer<ApplicationProductFlavor>.createAppFlavour(
+    flavorApplicationId: String,
+    flavour: ProductFlavors
+) {
     create(flavour.buildName) {
         dimension = flavour.dimensions
-        applicationId = flavour.applicationId
+        applicationId = flavorApplicationId
         versionNameSuffix = "-${flavour.buildName}"
-        if (!flavour.applicationIdSuffix.isNullOrBlank()) {
-            applicationIdSuffix = ".${flavour.applicationIdSuffix}"
-        }
         resValue("string", "app_name", flavour.appName)
         manifestPlaceholders.apply {
             put("sharedUserId", flavour.shareduserId)
@@ -151,15 +133,30 @@ android {
     }
 
     flavorDimensions(FlavorDimensions.DEFAULT)
-    productFlavors {
-        createAppFlavour(ProductFlavors.Dev)
-        createAppFlavour(ProductFlavors.Staging)
-        createAppFlavour(ProductFlavors.Beta)
-        createAppFlavour(ProductFlavors.Internal)
-        createAppFlavour(ProductFlavors.Production)
-    }
 
     val buildtimeConfiguration = getBuildtimeConfiguration(rootDir = rootDir)
+    val flavorMap = buildtimeConfiguration.flavorSettings.flavorMap
+
+    productFlavors {
+        fun createFlavor(flavor: ProductFlavors) {
+            val flavorName = flavor.buildName
+            val flavorSpecificMap = flavorMap[flavorName]
+            requireNotNull(flavorSpecificMap) {
+                "Missing configs in json file for the flavor '$flavorName'"
+            }
+            val flavorApplicationId = flavorSpecificMap[FeatureConfigs.APPLICATION_ID.value] as? String
+            requireNotNull(flavorApplicationId) {
+                "Missing application ID definition for the flavor '$flavorName'"
+            }
+            createAppFlavour(flavorApplicationId, flavor)
+        }
+        ProductFlavors.all.forEach(::createFlavor)
+    }
+
+    buildtimeConfiguration.customResourceOverrideDirectory?.let {
+        overrideResourcesForAllFlavors(it)
+    }
+
 
     /**
      * Process feature flags and if the feature is not included in a product flavor,
@@ -180,7 +177,7 @@ android {
                         flavor,
                         configs.configType.type,
                         configs.name,
-                        buildtimeConfiguration.flavorMap[flavor.name]?.get(configs.value)?.toString()
+                        flavorMap[flavor.name]?.get(configs.value)?.toString()
                     )
                 }
 
@@ -189,7 +186,7 @@ android {
                         flavor,
                         configs.configType.type,
                         configs.name,
-                        buildtimeConfiguration.flavorMap[flavor.name]?.get(configs.value).toString()
+                        flavorMap[flavor.name]?.get(configs.value).toString()
                     )
                 }
             }

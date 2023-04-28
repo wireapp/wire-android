@@ -1,6 +1,7 @@
 {
     "flavors": {
         "prod": {
+            "application_id": "com.wire",
             "developer_features_enabled": false,
             "logging_enabled": false,
             "application_is_private_build": false,
@@ -8,6 +9,7 @@
             "mls_support_enabled": false
         },
         "dev": {
+            "application_id": "com.waz.zclient.dev",
             "developer_features_enabled": true,
             "logging_enabled": true,
             "application_is_private_build": true,
@@ -26,6 +28,7 @@
             "default_backend_title": "wire-staging"
         },
         "staging": {
+            "application_id": "com.waz.zclient.dev",
             "developer_features_enabled": true,
             "logging_enabled": true,
             "application_is_private_build": true,
@@ -44,6 +47,7 @@
             "default_backend_title": "wire-staging"
         },
         "beta": {
+            "application_id": "com.wire.android.internal",
             "developer_features_enabled": true,
             "logging_enabled": true,
             "application_is_private_build": true,
@@ -51,6 +55,7 @@
             "mls_support_enabled": false
         },
         "internal": {
+            "application_id": "com.wire.internal",
             "developer_features_enabled": true,
             "logging_enabled": true,
             "application_is_private_build": true,

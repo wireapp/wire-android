@@ -20,6 +20,7 @@
 
 package com.wire.android.ui.home.settings.backup.dialog.create
 
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -93,6 +94,7 @@ fun CreateBackupDialog(
     onSaveBackup: () -> Unit,
     onDismissDialog: () -> Unit
 ) {
+    val progress by animateFloatAsState(targetValue = createBackupProgress)
     WireDialog(
         title = stringResource(R.string.backup_dialog_create_backup_title),
         onDismiss = onDismissDialog,
@@ -124,7 +126,7 @@ fun CreateBackupDialog(
                 }
             }
             VerticalSpace.x16()
-            LinearProgressIndicator(modifier = Modifier.fillMaxWidth(), progress = createBackupProgress)
+            LinearProgressIndicator(modifier = Modifier.fillMaxWidth(), progress = progress)
             VerticalSpace.x16()
         }
     }

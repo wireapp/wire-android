@@ -24,6 +24,7 @@ import android.content.Context
 import androidx.work.WorkManager
 import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.util.ImageUtil
+import com.wire.android.util.UserAgentProvider
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.data.id.FederatedIdMapper
@@ -112,9 +113,9 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.scopes.ServiceScoped
 import dagger.hilt.android.scopes.ViewModelScoped
 import dagger.hilt.components.SingletonComponent
+import kotlinx.coroutines.runBlocking
 import javax.inject.Qualifier
 import javax.inject.Singleton
-import kotlinx.coroutines.runBlocking
 
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
@@ -139,10 +140,15 @@ class CoreLogicModule {
     @KaliumCoreLogic
     @Singleton
     @Provides
-    fun provideCoreLogic(@ApplicationContext context: Context, kaliumConfigs: KaliumConfigs): CoreLogic {
+    fun provideCoreLogic(
+        @ApplicationContext context: Context,
+        kaliumConfigs: KaliumConfigs,
+        userAgentProvider: UserAgentProvider
+    ): CoreLogic {
         val rootPath = context.getDir("accounts", Context.MODE_PRIVATE).path
 
         return CoreLogic(
+            userAgent = userAgentProvider.defaultUserAgent,
             appContext = context,
             rootPath = rootPath,
             kaliumConfigs = kaliumConfigs

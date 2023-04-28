@@ -21,7 +21,7 @@
 const val appId = "com.wire.android"
 
 object AndroidSdk {
-    const val min = 24
+    const val min = 26
     const val compile = 33
     const val target = compile
 }
@@ -34,8 +34,8 @@ object AndroidNdk {
 object AndroidClient {
     const val appId = "com.wire.android"
     val versionCode = Versionizer().versionCode
-    const val versionName = "4.1.0"
-    const val testRunner = "com.wire.android.HiltAwareTestRunner"
+    const val versionName = "4.1.2"
+    const val testRunner = "androidx.test.runner.AndroidJUnitRunner"
 }
 
 object BuildPlugins {

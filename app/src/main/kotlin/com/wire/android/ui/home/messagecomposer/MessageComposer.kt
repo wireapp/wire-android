@@ -270,9 +270,7 @@ private fun MessageComposer(
                                 },
                                 onAdditionalOptionButtonClicked = {
                                     messageComposerState.focusManager.clearFocus()
-                                    if (messageComposerState.messageComposeInputState is MessageComposeInputState.Active) {
-                                        messageComposerState.toActive()
-                                    }
+                                    messageComposerState.toActive()
                                     messageComposerState.showAttachmentOptions()
                                 },
                                 onEditSaveButtonClicked = onEditSaveButtonClicked,

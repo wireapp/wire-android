@@ -179,7 +179,7 @@ URL backend:
 %2$s</string>
     <string name="server_details_dialog_title">Backend In Situ</string>
     <string name="welcome_migration_dialog_title">Benvenuto nella nuova app per Android &#128075;</string>
-    <string name="welcome_migration_dialog_content">Abbiamo ricostruito l\'app per renderla pi&#249; adatta a tutti.
+    <string name="welcome_migration_dialog_content">Abbiamo ricostruito l\'app per renderla pi&#249; adatta a tutti. 
 
 Scopri di pi&#249; sulla nuova app Wire: nuove opzioni e miglior accessibilit&#224;, con la stessa forte sicurezza.</string>
     <string name="welcome_migration_dialog_continue">Inizia ad usare Wire</string>
@@ -432,6 +432,7 @@ Fino a 500 persone possono unirsi a una conversazione di gruppo.</string>
     <string name="user_profile_role_change_error">There was an error trying to change the role. Please check your internet connection and try again</string>
     <string name="user_profile_unblock_user">Unblock User</string>
     <string name="user_profile_group_remove_button">Remove from group</string>
+    <string name="user_profile_logging_out_progress">Logging out...</string>
     <!-- Remove Conversation Member Dialog -->
     <string name="dialog_remove_conversation_member_title">Remove from group?</string>
     <string name="dialog_remove_conversation_member_description">%1$s (@%2$s) will not be able to send or receive messages in this conversation.</string>
@@ -589,6 +590,8 @@ Fino a 500 persone possono unirsi a una conversazione di gruppo.</string>
         <item quantity="one">%1$d messaggio</item>
         <item quantity="other">%1$d messaggi</item>
     </plurals>
+    <string name="ephemeral_one_to_one_event_message">"Sent a message"</string>
+    <string name="ephemeral_group_event_message">"Someone sent a message"</string>
     <!--Search Contact-->
     <string name="label_contacts">CONTATTI</string>
     <string name="label_new_group">Nuovo Gruppo</string>
@@ -659,6 +662,7 @@ Fino a 500 persone possono unirsi a una conversazione di gruppo.</string>
     <string name="notification_call_default_caller_name">Qualcuno</string>
     <string name="notification_call_default_group_name">Chiamata di gruppo in entrata</string>
     <!-- Calling-->
+    <string name="calling_constant_bit_rate_indication">Constant Bit Rate</string>
     <string name="calling_button_label_microphone">Microfono</string>
     <string name="calling_button_label_camera">Fotocamera</string>
     <string name="calling_button_label_speaker">Altoparlante</string>
@@ -741,7 +745,7 @@ Rispondendo qui, verr&#224; riagganciata l\'altra chiamata.</string>
     <string name="block_user_dialog_title">Bloccare l\'utente?</string>
     <string name="block_user_dialog_body">%1$s non potrà contattarti o aggiungerti a conversazioni di gruppo. Non verranno informati di questo.</string>
     <string name="block_user_dialog_confirm_button">Blocca</string>
-    <string name="other_user_devices_description"><![CDATA[Wire assegna a ogni dispositivo una impronta digitale univoca. Confrontale con %1$s e verifica la tua conversazione.]]></string>
+    <string name="other_user_devices_description">Wire assegna a ogni dispositivo una impronta digitale univoca. Confrontale con %1$s e verifica la tua conversazione.</string>
     <!--Settings -->
     <string name="url_why_verify_conversation">/hc/en-us/articles/207859815</string>
     <string name="settings_general_label">Generale</string>
@@ -791,7 +795,7 @@ Rispondendo qui, verr&#224; riagganciata l\'altra chiamata.</string>
     <string name="custom_backend_dialog_body">Se procedi, il tuo client verr&#224; reindirizzato al seguente backend on-premises:
 
 Nome del backend:
- %1$s
+ %1$s 
 
 URL del backend:
  %2$s</string>
@@ -881,7 +885,9 @@ URL del backend:
     <string name="label_manual_migration_title">Migrazione dalla versione 3.82.38</string>
     <string name="start_manual_migration">Avvia manualmente la migrazione dalla versione 3.82.38</string>
     <string name="file_sharing_restricted_learn_more_link">https://support.wire.com/hc/en-us/articles/4406404582673-How-can-I-restrict-file-sharing-for-my-team-</string>
-    <string name="file_sharing_restricted_description_by_team">Non puoi condividere questo file poich&#233; questa funzione &#232; disattivata.</string>
+    <string name="file_sharing_restricted_description_by_team">You can not share this file because this feature is disabled for this account.</string>
+    <string name="file_sharing_restricted_description_no_users">You need to be logged in to Wire before you can share anything</string>
+    <string name="file_sharing_restricted_button_text_no_users">Open Wire</string>
     <!-- join conversation dialog -->
     <string name="join_conversation_dialog_title">Unirsi alla conversazione?</string>
     <string name="join_conversation_dialog_message">Sei stato invitato ad una conversazione.\n\n%1$s</string>
@@ -899,28 +905,22 @@ URL del backend:
     <string name="guest_link_button_revoke_link">Revoca link</string>
     <string name="audio_not_available">Audio non disponibile</string>
     <string name="audio_not_available_explanation">Qualcosa &#232; andato storto durante il download di questo file audio. Chiedi all\'utente che l\'ha inviato di caricarlo di nuovo.</string>
-    <string name="guest_link_generate_error_message">Si &#232; verificato un errore durante la creazione del link ospite. Riprova.</string>
-    <string name="guest_link_revoke_error_message">Si &#232; verificato un errore durante la revoca del link ospite. Riprova.</string>
+    <string name="guest_link_generate_error_message">There was an error trying to create Guest Link. Please try again</string>
+    <string name="guest_link_revoke_error_message">There was an error trying to revoke Guest Link. Please try again</string>
     <string name="revoke_guest__room_link_dialog_text">I nuovi ospiti non potranno unirsi con questo link. Gli ospiti attuali avranno ancora accesso.</string>
     <string name="revoke_guest__room_link_dialog_title">Revocare il link ospite?</string>
-    <string name="guest__room_link_copied">Il link ospite &#232; stato copiato negli appunti</string>
+    <string name="guest__room_link_copied">Guest link was copied to clipboard</string>
     <string name="title_device_key_fingerprint">IMPRONTA CHIAVE DISPOSITIVO</string>
     <string name="label_client_key_fingerprint_not_available">NON DISPONIBILE</string>
-    <string name="guest_room_link_copied">Il link ospite &#232; stato copiato negli appunti</string>
+    <string name="guest_room_link_copied">Guest link was copied to clipboard</string>
     <string name="guest_room_link_enabled">La generazione di link ospiti &#232; ora abilitata per tutti gli amministratori di gruppo</string>
     <string name="guest_room_link_disabled">La generazione di link ospiti &#232; stata disabilitata per tutti gli amministratori di gruppo</string>
     <!-- New Device dialog -->
     <string name="new_device_dialog_current_user_title">Il tuo account &#232; stato utilizzato su</string>
-    <string name="new_device_dialog_current_user_message">%1$s
-Da: %2$s
-
-Se non sei stato tu, rimuovi il dispositivo e resetta la tua password.</string>
+    <string name="new_device_dialog_current_user_message">%1$s\nFrom: %2$s \n\nIf you didn\'t do this, remove the device and reset your password.</string>
     <string name="new_device_dialog_current_user_btn">Gestisci dispositivi</string>
     <string name="new_device_dialog_other_user_title">Il tuo account \"%1$s (@%2$s)\" &#232; stato utilizzato su:</string>
-    <string name="new_device_dialog_other_user_message">%1$s
-Da: %2$s
-
-Se non sei stato tu, rimuovi il dispositivo (vai su \"Gestisci dispositivi\" nella sezione Impostazioni di questo account) e resetta la tua password.</string>
+    <string name="new_device_dialog_other_user_message">%1$s\nFrom: %2$s \n\nIf you didn\'t do this, remove the device (navigate to “Manage Devices” in the Settings section of this account), and reset your password.</string>
     <string name="new_device_dialog_other_user_btn">Cambia Account</string>
     <string name="label_system_message_joined_the_conversation_by_self">%1$s si è unito alla conversazione</string>
     <string name="label_system_message_joined_the_conversation_by_other">%1$s si è unito alla conversazione</string>
@@ -929,10 +929,25 @@ Se non sei stato tu, rimuovi il dispositivo (vai su \"Gestisci dispositivi\" nel
     <string name="label_self_client_verification_description">Per verificare il tuo dispositivo, confronta questa impronta digitale con la stessa impronta digitale su un altro dispositivo.</string>
     <string name="label_client_verification_description">Verifica che l\'impronta digitale di questo dispositivo corrisponda all\'impronta digitale mostrata sul dispositivo di %s.</string>
     <string name="label_fingerprint_description">Se le impronte digitali non corrispondono, reimposta la sessione per generare nuove chiavi di crittografia su entrambi i lati.</string>
-    <string name="label_self_fingerprint_description">Per consentire agli altri di verificare questo dispositivo, condividi questa impronta digitale o il codice QR con loro.</string>
+    <string name="label_self_fingerprint_description">Share this key fingerprint with other participants in a conversation, so that they can verify it and make sure the conversation is secure.</string>
     <string name="unknown_user_name">sconosciuto</string>
     <string name="self_deleting_message_time_left">Self-deleting message • %1$s</string>
     <string name="self_deleting_message_label">Self-deleting message</string>
+    <string name="device_name_unknown">Unknown device</string>
+    <string name="create_account_email_title">Your Email</string>
+    <string name="settings_myaccount_email_description">Your email is part of your login details for this account. It may be visible to your contacts.</string>
+    <string name="settings_myaccount_email_invalid_imail_error">Please enter a valid email format</string>
+    <string name="settings_myaccount_email_already_in_use_error">The email address you provided has already been  registered. Please try again.</string>
+    <string name="settings_myaccount_email_verification_email_sent">A verification email has been sent to your email %1$s.\n\nYour current email address is not changed until you verified your new one. Please check your email inbox and follow the instructions.</string>
+    <string name="label_resend_verification_email">Resend Verification Email</string>
+    <string name="settings_myaccount_email_generic_error">Something went wrong. Please try again.</string>
+    <string name="title_video_could_not_be_sent">Video could not be sent</string>
+    <string name="title_image_could_not_be_sent">Image could not be sent</string>
+    <string name="title_file_could_not_be_sent">File could not be sent</string>
+    <string name="label_shared_video_too_large">You can only share a video up to %d MB.</string>
+    <string name="label_shared_image_too_large">You can only share an image up to %d MB.</string>
+    <string name="label_shared_file_too_large">You can only share a file up to %d MB.</string>
+    <string name="label_file_saved_to_device">The file was saved to your device.</string>
     <!-- Expirable messages -->
     <plurals name="weeks_left">
         <item quantity="one">1 week left</item>

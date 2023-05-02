@@ -38,6 +38,7 @@ import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.notification.NotificationChannelsManager
+import com.wire.android.notification.WireNotificationManager
 import com.wire.android.ui.userprofile.self.dialog.StatusDialogData
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.WireSessionImageLoader
@@ -60,6 +61,7 @@ import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
 import com.wire.kalium.logic.feature.user.UpdateSelfAvailabilityStatusUseCase
 import com.wire.kalium.logic.featureFlags.KaliumConfigs
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
@@ -75,6 +77,7 @@ import javax.inject.Inject
 // Suppress for now after removing mockMethodForAvatar it should not complain
 @Suppress("TooManyFunctions", "LongParameterList")
 @ExperimentalMaterial3Api
+@ExperimentalCoroutinesApi
 @HiltViewModel
 class SelfUserProfileViewModel @Inject constructor(
     @CurrentAccount private val selfUserId: UserId,
@@ -95,7 +98,8 @@ class SelfUserProfileViewModel @Inject constructor(
     private val accountSwitch: AccountSwitchUseCase,
     private val endCall: EndCallUseCase,
     private val isReadOnlyAccount: IsReadOnlyAccountUseCase,
-    private val notificationChannelsManager: NotificationChannelsManager
+    private val notificationChannelsManager: NotificationChannelsManager,
+    private val notificationManager: WireNotificationManager
 ) : ViewModel() {
 
     var userProfileState by mutableStateOf(SelfUserProfileState())
@@ -216,6 +220,7 @@ class SelfUserProfileViewModel @Inject constructor(
                 dataStore.clear()
             }
 
+            notificationManager.stopObservingOnLogout(selfUserId)
             notificationChannelsManager.deleteChannelGroup(selfUserId)
             accountSwitch(SwitchAccountParam.SwitchToNextAccountOrWelcome)
         }

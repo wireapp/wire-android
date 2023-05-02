@@ -83,6 +83,7 @@ fun HomeScreen(
     homeViewModel.checkRequirements()
     LaunchedEffect(Unit) {
         featureFlagNotificationViewModel.loadInitialSync()
+        featureFlagNotificationViewModel.initialSync()
     }
     val homeScreenState = rememberHomeScreenState()
     val showNotificationsFlow = rememberRequestPushNotificationsPermissionFlow(

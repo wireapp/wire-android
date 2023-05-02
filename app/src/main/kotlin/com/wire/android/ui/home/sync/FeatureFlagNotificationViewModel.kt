@@ -25,7 +25,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.android.gms.common.util.VisibleForTesting
 import com.wire.android.appLogger
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.ui.home.FeatureFlagState
@@ -63,8 +62,7 @@ class FeatureFlagNotificationViewModel @Inject constructor(
         viewModelScope.launch { initialSync() }
     }
 
-    @VisibleForTesting
-    private suspend fun initialSync() {
+    suspend fun initialSync() {
         currentSessionUseCase().let { currentSessionResult ->
             when (currentSessionResult) {
                 is CurrentSessionResult.Failure -> {

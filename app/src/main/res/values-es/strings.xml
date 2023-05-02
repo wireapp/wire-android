@@ -190,8 +190,8 @@ URL del backend:
     <string name="api_versioning_server_version_not_supported_message">Su servidor de Wire debe actualizarse. Por favor, informe a su administrador del sistema.</string>
     <!-- Migration -->
     <string name="migration_title">Configurando Wire</string>
-    <string name="migration_message">Por favor, espere mientras configuramos la aplicaci&#243;n para usted.</string>
-    <string name="migration_message_unknown">Por favor, espere mientras migramos los datos para usted.</string>
+    <string name="migration_message">Espera por favor mientras configuramos tu aplicación</string>
+    <string name="migration_message_unknown">Por favor, espera mientras migramos tus datos</string>
     <string name="migration_accounts_message">Migrando sus cuentas...</string>
     <string name="migration_messages_message">Migrando sus mensajes...</string>
     <string name="migration_title_step">Paso %1$d/%2$d</string>
@@ -289,7 +289,7 @@ Un mensaje eliminado no puede ser restaurado.</string>
     <string name="create_account_email_terms_dialog_text">Al hacer clic en continuar, est&#225;s aceptando nuestros T&#233;rminos de uso y Pol&#237;tica de privacidad.</string>
     <string name="create_account_email_terms_dialog_view_policy">Ver ToU y Pol&#237;tica de privacidad</string>
     <string name="create_account_email_already_in_use_error">La direcci&#243;n de correo electr&#243;nico ya est&#225; en uso.</string>
-    <string name="create_account_email_blacklisted_error">Tu correo electr&#243;nico ha sido identificado como no confiable, por ejemplo, debido a un rechazo por un filtro de spam.</string>
+    <string name="create_account_email_blacklisted_error">Tu correo electrónico ha sido identificado como no confiable, por ejemplo, debido a un rechazo por un filtro de spam.</string>
     <string name="create_account_email_invalid_error">Por favor, introduce un formato v&#225;lido para tu correo electr&#243;nico.</string>
     <string name="create_account_email_domain_blocked_error">No puedes crear esta cuenta porque tu dominio de correo electr&#243;nico est&#225; bloqueado intencionalmente.</string>
     <string name="create_account_details_first_name_placeholder">Julia</string>
@@ -354,8 +354,8 @@ Un mensaje eliminado no puede ser restaurado.</string>
     <string name="asset_download_dialog_open_text">Abrir</string>
     <string name="asset_download_dialog_save_text">Guardar</string>
     <string name="member_name_deleted_label">Cuenta eliminada</string>
-    <string name="member_name_you_label_titlecase">Usted</string>
-    <string name="member_name_you_label_lowercase">usted</string>
+    <string name="member_name_you_label_titlecase">Tú</string>
+    <string name="member_name_you_label_lowercase">tú</string>
     <string name="label_add_participants">A&#241;adir participantes</string>
     <string name="username_unavailable_label">Nombre de usuario no disponible</string>
     <string name="conversation_details_title">Detalles de la conversaci&#243;n</string>
@@ -369,7 +369,7 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
     <string name="conversation_details_show_all_participants">Mostrar todos los participantes (%d)</string>
     <string name="conversation_details_group_participants_title">Participantes del grupo</string>
     <string name="conversation_details_group_participants_add">A&#241;adir participantes</string>
-    <string name="conversation_participant_you_label">(Usted)</string>
+    <string name="conversation_participant_you_label">(Tú)</string>
     <string name="conversation_details_is_classified">NIVEL DE SEGURIDAD: VS-NfD</string>
     <string name="conversation_details_is_not_classified">NIVEL DE SEGURIDAD: NO CLASIFICADO</string>
     <string name="conversation_options_guests_label">Invitados</string>
@@ -422,7 +422,7 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
     <string name="user_profile_status_busy">Ocupado</string>
     <string name="user_profile_status_away">Ausente</string>
     <string name="user_profile_status_none">Ninguno</string>
-    <string name="user_profile_new_account_text">Nueva equipo o cuenta</string>
+    <string name="user_profile_new_account_text">Nueva cuenta o equipo</string>
     <string name="user_profile_details_tab">Detalles</string>
     <string name="user_profile_devices_tab">Dispositivos</string>
     <string name="user_profile_group_tab">Grupo</string>

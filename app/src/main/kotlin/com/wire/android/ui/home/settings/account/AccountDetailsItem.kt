@@ -39,11 +39,11 @@ sealed class AccountDetailsItem(
         clickable = clickable
     )
 
-    data class Username(override val text: String) : AccountDetailsItem(
+    data class Username(override val text: String, override val clickable: Clickable?) : AccountDetailsItem(
         title = UIText.StringResource(R.string.settings_myaccount_username),
         text = text,
-        navigationItem = NavigationItem.Debug, // todo: replace later when implementing edit of field
-        clickable = Clickable(enabled = false) {}
+        navigationItem = NavigationItem.EditHandle,
+        clickable = clickable
     )
 
     data class Email(override val text: String, override val clickable: Clickable?) : AccountDetailsItem(

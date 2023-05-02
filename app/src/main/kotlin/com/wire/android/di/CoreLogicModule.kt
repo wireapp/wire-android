@@ -25,6 +25,7 @@ import androidx.work.WorkManager
 import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.ui.common.snackbar.ShowSnackBarUseCase
 import com.wire.android.util.ImageUtil
+import com.wire.android.util.UserAgentProvider
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.data.id.FederatedIdMapper
@@ -40,6 +41,8 @@ import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.LogoutUseCase
 import com.wire.kalium.logic.feature.auth.autoVersioningAuth.AutoVersionAuthScopeUseCase
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
+import com.wire.kalium.logic.feature.call.usecase.FlipToBackCameraUseCase
+import com.wire.kalium.logic.feature.call.usecase.FlipToFrontCameraUseCase
 import com.wire.kalium.logic.feature.call.usecase.GetAllCallsWithSortedParticipantsUseCase
 import com.wire.kalium.logic.feature.call.usecase.MuteCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
@@ -142,10 +145,15 @@ class CoreLogicModule {
     @KaliumCoreLogic
     @Singleton
     @Provides
-    fun provideCoreLogic(@ApplicationContext context: Context, kaliumConfigs: KaliumConfigs): CoreLogic {
+    fun provideCoreLogic(
+        @ApplicationContext context: Context,
+        kaliumConfigs: KaliumConfigs,
+        userAgentProvider: UserAgentProvider
+    ): CoreLogic {
         val rootPath = context.getDir("accounts", Context.MODE_PRIVATE).path
 
         return CoreLogic(
+            userAgent = userAgentProvider.defaultUserAgent,
             appContext = context,
             rootPath = rootPath,
             kaliumConfigs = kaliumConfigs
@@ -619,6 +627,20 @@ class UseCaseModule {
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
     ): SetVideoPreviewUseCase = coreLogic.getSessionScope(currentAccount).calls.setVideoPreview
+
+    @ViewModelScoped
+    @Provides
+    fun provideFlipToBackCameraUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): FlipToBackCameraUseCase = coreLogic.getSessionScope(currentAccount).calls.flipToBackCamera
+
+    @ViewModelScoped
+    @Provides
+    fun provideFlipToFrontCameraUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): FlipToFrontCameraUseCase = coreLogic.getSessionScope(currentAccount).calls.flipToFrontCamera
 
     @ViewModelScoped
     @Provides

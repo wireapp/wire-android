@@ -938,6 +938,8 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="settings_myaccount_email_verification_email_sent">Wir haben Ihnen eine Bestätigungsmail an Ihre E-Mail-Adresse %1$s geschickt.\n\nIhre aktuelle E-Mail-Adresse wird erst geändert, wenn Ihre neue Adresse verifiziert ist. Überprüfen Sie Ihren Posteingang und folgen Sie den Anweisungen.</string>
     <string name="label_resend_verification_email">Bestätigungsmail erneut senden</string>
     <string name="settings_myaccount_email_generic_error">Ein Fehler ist aufgetreten, bitte erneut versuchen.</string>
+    <string name="settings_myaccount_handle_description">Your username helps others to find you in Wire and connect with you. It is unique in Wire.</string>
+    <string name="create_account_handle_title">Your User Name</string>
     <string name="title_video_could_not_be_sent">Video konnte nicht gesendet werden</string>
     <string name="title_image_could_not_be_sent">Bild konnte nicht gesendet werden</string>
     <string name="title_file_could_not_be_sent">Datei konnte nicht gesendet werden</string>

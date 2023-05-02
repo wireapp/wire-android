@@ -162,9 +162,6 @@ class EditGuestAccessViewModel @Inject constructor(
 
         viewModelScope.launch {
             withContext(dispatcher.io()) {
-                if (!shouldEnableGuestAccess) {
-                    removeGuestLink()
-                }
                 updateConversationAccessRole(
                     conversationId = conversationId,
                     accessRoles = newAccessRoles,

@@ -64,7 +64,7 @@ class FeatureFlagNotificationViewModel @Inject constructor(
     }
 
     @VisibleForTesting
-    suspend fun initialSync() {
+    private suspend fun initialSync() {
         currentSessionUseCase().let { currentSessionResult ->
             when (currentSessionResult) {
                 is CurrentSessionResult.Failure -> {

@@ -14,19 +14,15 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
-
-package com.wire.android.ui.authentication.create.username
+package com.wire.android.ui.home.settings.account.handle
 
 import androidx.compose.ui.text.input.TextFieldValue
 import com.wire.android.ui.authentication.create.common.handle.HandleUpdateErrorState
 
-data class CreateAccountUsernameViewState(
-    val username: TextFieldValue = TextFieldValue(""),
-    val animateUsernameError: Boolean = false,
-    val continueEnabled: Boolean = false,
-    val loading: Boolean = false,
-    val error: HandleUpdateErrorState = HandleUpdateErrorState.None
+data class ChangeHandleState(
+    val handle: TextFieldValue = TextFieldValue(""),
+    val error: HandleUpdateErrorState = HandleUpdateErrorState.None,
+    val isSaveButtonEnabled: Boolean = false,
+    val animatedHandleError: Boolean = false,
 )

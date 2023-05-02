@@ -28,6 +28,7 @@ import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItemDestinationsRoutes
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.ui.authentication.create.common.handle.HandleUpdateErrorState
 import com.wire.android.util.EMPTY
 import com.wire.kalium.logic.NetworkFailure
 import com.wire.kalium.logic.feature.auth.ValidateUserHandleResult
@@ -50,7 +51,6 @@ import org.amshove.kluent.shouldBeInstanceOf
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class)
@@ -151,7 +151,7 @@ class CreateAccountUsernameViewModelTest {
         runTest { createAccountUsernameViewModel.onContinue() }
 
         createAccountUsernameViewModel.state.error shouldBeInstanceOf
-                CreateAccountUsernameViewState.UsernameError.TextFieldError.UsernameInvalidError::class
+                HandleUpdateErrorState.TextFieldError.UsernameInvalidError::class
     }
 
     @Test
@@ -162,7 +162,7 @@ class CreateAccountUsernameViewModelTest {
         runTest { createAccountUsernameViewModel.onContinue() }
 
         createAccountUsernameViewModel.state.error shouldBeInstanceOf
-                CreateAccountUsernameViewState.UsernameError.TextFieldError.UsernameTakenError::class
+                HandleUpdateErrorState.TextFieldError.UsernameTakenError::class
     }
 
     @Test
@@ -174,8 +174,8 @@ class CreateAccountUsernameViewModelTest {
         runTest { createAccountUsernameViewModel.onContinue() }
 
         createAccountUsernameViewModel.state.error shouldBeInstanceOf
-                CreateAccountUsernameViewState.UsernameError.DialogError.GenericError::class
-        val error = createAccountUsernameViewModel.state.error as CreateAccountUsernameViewState.UsernameError.DialogError.GenericError
+                HandleUpdateErrorState.DialogError.GenericError::class
+        val error = createAccountUsernameViewModel.state.error as HandleUpdateErrorState.DialogError.GenericError
         error.coreFailure shouldBe networkFailure
     }
 
@@ -187,9 +187,8 @@ class CreateAccountUsernameViewModelTest {
         runTest { createAccountUsernameViewModel.onContinue() }
 
         createAccountUsernameViewModel.state.error shouldBeInstanceOf
-                CreateAccountUsernameViewState.UsernameError.DialogError.GenericError::class
+                HandleUpdateErrorState.DialogError.GenericError::class
         createAccountUsernameViewModel.onErrorDismiss()
-        createAccountUsernameViewModel.state.error shouldBe CreateAccountUsernameViewState.UsernameError.None
+        createAccountUsernameViewModel.state.error shouldBe HandleUpdateErrorState.None
     }
 }
-

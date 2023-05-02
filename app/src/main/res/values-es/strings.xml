@@ -940,6 +940,8 @@ URL del backend:
     <string name="settings_myaccount_email_verification_email_sent">Se ha enviado un correo electrónico de verificación a tu correo electrónico %1$s.\n\nTu dirección de correo electrónico actual no se actualizará hasta que verifiques la nueva. Por favor, revisa tu bandeja de entrada y sigue las instrucciones.</string>
     <string name="label_resend_verification_email">Reenviar el correo de verificación</string>
     <string name="settings_myaccount_email_generic_error">Algo salió mal. Por favor inténtalo de nuevo.</string>
+    <string name="settings_myaccount_handle_description">Your username helps others to find you in Wire and connect with you. It is unique in Wire.</string>
+    <string name="create_account_handle_title">Your User Name</string>
     <string name="title_video_could_not_be_sent">El video no se pudo enviar</string>
     <string name="title_image_could_not_be_sent">La imagen no se pudo enviar</string>
     <string name="title_file_could_not_be_sent">No se pudo enviar el archivo</string>

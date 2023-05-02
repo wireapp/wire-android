@@ -190,7 +190,7 @@ class EditGuestAccessViewModelTest {
             revokeGuestRoomLink(any())
         } returns RevokeGuestRoomLinkResult.Success
 
-        editGuestAccessViewModel.onRevokeDialogConfirm()
+        editGuestAccessViewModel.removeGuestLink()
 
         coVerify(exactly = 1) {
             revokeGuestRoomLink(any())
@@ -204,7 +204,7 @@ class EditGuestAccessViewModelTest {
             revokeGuestRoomLink(any())
         } returns RevokeGuestRoomLinkResult.Failure(CoreFailure.MissingClientRegistration)
 
-        editGuestAccessViewModel.onRevokeDialogConfirm()
+        editGuestAccessViewModel.removeGuestLink()
 
         coVerify(exactly = 1) {
             revokeGuestRoomLink(any())

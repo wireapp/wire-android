@@ -220,20 +220,16 @@ class EditGuestAccessViewModel @Inject constructor(
         editGuestAccessState = editGuestAccessState.copy(shouldShowRevokeLinkConfirmationDialog = false)
     }
 
-    fun onRevokeDialogConfirm() {
+    fun removeGuestLink() {
         viewModelScope.launch {
-            removeGuestLink()
-        }
-    }
-
-    private suspend fun removeGuestLink() {
-        updateState(editGuestAccessState.copy(shouldShowRevokeLinkConfirmationDialog = false, isRevokingLink = true))
-        revokeGuestRoomLink(conversationId).also {
-            if (it is RevokeGuestRoomLinkResult.Failure) {
-                updateState(editGuestAccessState.copy(isFailedToRevokeGuestRoomLink = true))
+            updateState(editGuestAccessState.copy(shouldShowRevokeLinkConfirmationDialog = false, isRevokingLink = true))
+            revokeGuestRoomLink(conversationId).also {
+                if (it is RevokeGuestRoomLinkResult.Failure) {
+                    updateState(editGuestAccessState.copy(isFailedToRevokeGuestRoomLink = true))
+                }
             }
+            updateState(editGuestAccessState.copy(isRevokingLink = false))
         }
-        updateState(editGuestAccessState.copy(isRevokingLink = false))
     }
 
     private fun startObservingGuestRoomLink() {

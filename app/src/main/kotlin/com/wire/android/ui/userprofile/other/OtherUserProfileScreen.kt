@@ -68,6 +68,7 @@ import com.wire.android.ui.common.MoreOptionIcon
 import com.wire.android.ui.common.TabItem
 import com.wire.android.ui.common.WireTabRow
 import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
+import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.calculateCurrentTab
 import com.wire.android.ui.common.dialogs.BlockUserDialogContent
 import com.wire.android.ui.common.dialogs.BlockUserDialogState
@@ -305,7 +306,10 @@ private fun TopBarHeader(
         elevation = elevation,
         actions = {
             if (state.connectionState in listOf(ConnectionState.ACCEPTED, ConnectionState.BLOCKED)) {
-                MoreOptionIcon(openConversationBottomSheet)
+                MoreOptionIcon(
+                    onButtonClicked = openConversationBottomSheet,
+                    state = if (state.isMetadataEmpty()) WireButtonState.Disabled else WireButtonState.Default
+                )
             }
         }
     )
@@ -434,7 +438,7 @@ private fun ContentFooter(
         ) {
             Box(modifier = Modifier.padding(all = dimensions().spacing16x)) {
                 // TODO show open conversation button for service bots after AR-2135
-                if (state.membership != Membership.Service) {
+                if (!state.isMetadataEmpty() && state.membership != Membership.Service) {
                     OtherUserConnectionActionButton(
                         state.connectionState,
                         footerEventsHandler::onSendConnectionRequest,

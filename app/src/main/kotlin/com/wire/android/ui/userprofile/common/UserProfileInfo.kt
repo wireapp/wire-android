@@ -136,7 +136,7 @@ fun UserProfileInfo(
                     overflow = TextOverflow.Ellipsis,
                     maxLines = 1,
                     style = MaterialTheme.wireTypography.title02,
-                    color = MaterialTheme.colorScheme.onBackground
+                    color = if (fullName.isNotBlank()) MaterialTheme.colorScheme.onBackground else MaterialTheme.wireColorScheme.labelText
                 )
                 Text(
                     text = userName.ifNotEmpty { "@$userName" },

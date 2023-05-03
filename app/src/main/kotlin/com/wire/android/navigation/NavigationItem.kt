@@ -65,6 +65,7 @@ import com.wire.android.navigation.NavigationItemDestinationsRoutes.REGISTER_DEV
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.REMOVE_DEVICES
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.SELF_DEVICES
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.SELF_USER_PROFILE
+import com.wire.android.navigation.NavigationItemDestinationsRoutes.SERVICE_DETAILS
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.VERIFY_EMAIL
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.WELCOME
 import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
@@ -111,6 +112,7 @@ import com.wire.android.ui.sharing.ImportMediaScreen
 import com.wire.android.ui.userprofile.avatarpicker.AvatarPickerScreen
 import com.wire.android.ui.userprofile.other.OtherUserProfileScreen
 import com.wire.android.ui.userprofile.self.SelfUserProfileScreen
+import com.wire.android.ui.userprofile.service.ServiceDetailsScreen
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.kalium.logic.data.conversation.ClientId
 import com.wire.kalium.logic.data.id.ConversationId
@@ -320,6 +322,20 @@ enum class NavigationItem(
         }
     },
 
+    ServiceDetails(
+        primaryRoute = SERVICE_DETAILS,
+        canonicalRoute = "$SERVICE_DETAILS?$EXTRA_USER_ID={$EXTRA_USER_ID}&$EXTRA_CONVERSATION_ID={$EXTRA_CONVERSATION_ID}",
+        content = { ServiceDetailsScreen() },
+        animationConfig = NavigationAnimationConfig.NoAnimation
+    ) {
+        override fun getRouteWithArgs(arguments: List<Any>): String {
+            val userId: QualifiedID = arguments.filterIsInstance<QualifiedID>()[0]
+            val conversationId: QualifiedID? = arguments.filterIsInstance<QualifiedID>().getOrNull(1)
+            val baseRoute = "$primaryRoute?$EXTRA_USER_ID=$userId"
+            return conversationId?.let { "$baseRoute&$EXTRA_CONVERSATION_ID=$it" } ?: baseRoute
+        }
+    },
+
     ProfileImagePicker(
         primaryRoute = IMAGE_PICKER,
         content = { AvatarPickerScreen() },
@@ -497,6 +513,7 @@ object NavigationItemDestinationsRoutes {
     const val INITIAL_SYNC = "initial_sync_screen"
     const val SELF_USER_PROFILE = "self_user_profile_screen"
     const val OTHER_USER_PROFILE = "other_user_profile_screen"
+    const val SERVICE_DETAILS = "service_details_screen"
     const val CONVERSATION = "detailed_conversation_screen"
     const val EDIT_CONVERSATION_NAME = "edit_conversation_name_screen"
     const val EDIT_GUEST_ACCESS = "edit_guest_access_screen"

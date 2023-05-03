@@ -75,6 +75,7 @@ open class GroupConversationParticipantsViewModel @Inject constructor(
 
     fun openProfile(participant: UIParticipant) = viewModelScope.launch {
         if (participant.isSelf) navigateToSelfProfile()
+        else if (participant.isService) navigateToServiceProfile(participant.id)
         else navigateToOtherProfile(participant.id)
     }
 
@@ -83,5 +84,8 @@ open class GroupConversationParticipantsViewModel @Inject constructor(
 
     private suspend fun navigateToOtherProfile(id: UserId) =
         navigationManager.navigate(NavigationCommand(NavigationItem.OtherUserProfile.getRouteWithArgs(listOf(id, conversationId))))
+
+    private suspend fun navigateToServiceProfile(id: UserId) =
+        navigationManager.navigate(NavigationCommand(NavigationItem.ServiceDetails.getRouteWithArgs(listOf(id, conversationId))))
 
 }

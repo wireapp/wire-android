@@ -955,6 +955,9 @@
     <string name="label_resend_verification_email">Resend Verification Email</string>
     <string name="settings_myaccount_email_generic_error">Something went wrong. Please try again.</string>
 
+    <string name="settings_myaccount_handle_description">Your username helps others to find you in Wire and connect with you. It is unique in Wire.</string>
+    <string name="create_account_handle_title">Your User Name</string>
+
     <string name="title_video_could_not_be_sent">Video could not be sent</string>
     <string name="title_image_could_not_be_sent">Image could not be sent</string>
     <string name="title_file_could_not_be_sent">File could not be sent</string>

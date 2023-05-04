@@ -35,6 +35,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -94,7 +95,8 @@ fun ContactsScreen(
                                 belongsToGroup = contactsAddedToGroup.contains(this),
                                 addToGroup = { onAddToGroup(this) },
                                 removeFromGroup = { onRemoveFromGroup(this) },
-                                openUserProfile = { onOpenUserProfile(this) }
+                                openUserProfile = { onOpenUserProfile(this) },
+                                isMetadataNotAvailable = isMetadataEmpty()
                             )
                         }
                     }
@@ -123,6 +125,7 @@ private fun ContactItem(
     addToGroup: () -> Unit,
     removeFromGroup: () -> Unit,
     openUserProfile: () -> Unit,
+    isMetadataNotAvailable: Boolean = false
 ) {
     val clickable = remember {
         Clickable(
@@ -144,8 +147,8 @@ private fun ContactItem(
         title = {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    text = name,
-                    style = MaterialTheme.wireTypography.title02,
+                    text = if (isMetadataNotAvailable) name else stringResource(R.string.username_unavailable_label),
+                    style = MaterialTheme.wireTypography.title02.copy(),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.weight(weight = 1f, fill = false)

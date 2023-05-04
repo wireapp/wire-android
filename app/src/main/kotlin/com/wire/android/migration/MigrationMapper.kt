@@ -24,7 +24,6 @@ import com.wire.android.migration.globalDatabase.ScalaSsoIdEntity
 import com.wire.android.migration.userDatabase.ScalaConversationData
 import com.wire.android.migration.userDatabase.ScalaMessageData
 import com.wire.android.migration.userDatabase.ScalaUserData
-import com.wire.android.util.orDefault
 import com.wire.kalium.logic.data.conversation.ClientId
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.Conversation.Access
@@ -60,8 +59,18 @@ class MigrationMapper @Inject constructor() {
         )
     }
 
-    private fun toQualifiedId(remoteId: String, domain: String?, selfUserId: UserId): QualifiedID =
-        QualifiedID(remoteId, domain.orDefault(selfUserId.domain))
+    private fun toQualifiedId(remoteId: String, domain: String?, selfUserId: UserId): QualifiedID {
+        val actualDomain = if(domain.isNullOrEmpty()) {
+            selfUserId.domain
+        } else {
+            domain
+        }
+
+        return QualifiedID(
+            value = remoteId,
+            domain = actualDomain
+        )
+    }
 
     fun fromScalaConversationToConversation(scalaConversation: ScalaConversationData, selfUserId: UserId) = with(scalaConversation) {
         mapConversationType(type)?.let {
@@ -109,7 +118,7 @@ class MigrationMapper @Inject constructor() {
         with(scalaMessage) {
             MigratedMessage(
                 conversationId = toQualifiedId(conversationRemoteId, conversationDomain, selfUserId),
-                senderUserId = UserId(scalaSenderUserData.id, scalaSenderUserData.domain.orDefault(selfUserId.domain)),
+                senderUserId = toQualifiedId(scalaSenderUserData.id, scalaSenderUserData.domain, selfUserId),
                 senderClientId = ClientId(senderClientId.orEmpty()),
                 timestamp = time,
                 content = content.orEmpty(),

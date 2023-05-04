@@ -38,7 +38,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.model.UserAvatarData
@@ -53,6 +52,7 @@ import com.wire.android.ui.home.conversations.search.SearchResultState
 import com.wire.android.ui.home.conversations.search.widget.SearchFailureBox
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.newconversation.model.Contact
+import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.extension.folderWithElements
 import com.wire.kalium.logic.data.user.ConnectionState
@@ -147,8 +147,10 @@ private fun ContactItem(
         title = {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    text = if (isMetadataNotAvailable) name else stringResource(R.string.username_unavailable_label),
-                    style = MaterialTheme.wireTypography.title02.copy(),
+                    text = if (isMetadataNotAvailable) stringResource(R.string.username_unavailable_label) else name,
+                    style = MaterialTheme.wireTypography.title02.copy(
+                        color = if (isMetadataNotAvailable) MaterialTheme.wireColorScheme.secondaryText else MaterialTheme.wireTypography.title02.color
+                    ),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.weight(weight = 1f, fill = false)
@@ -164,7 +166,7 @@ private fun ContactItem(
             Box(
                 modifier = Modifier
                     .wrapContentWidth()
-                    .padding(end = 8.dp)
+                    .padding(end = dimensions().spacing8x)
             ) {
                 ArrowRightIcon(Modifier.align(Alignment.TopEnd))
             }

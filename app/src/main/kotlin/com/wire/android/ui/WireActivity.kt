@@ -30,17 +30,20 @@ import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.window.DialogProperties
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import com.wire.android.BuildConfig
 import com.wire.android.R
@@ -140,9 +143,10 @@ class WireActivity : AppCompatActivity() {
                             connectivityUIState = commonTopAppBarViewModel.connectivityState,
                             onReturnToCallClick = commonTopAppBarViewModel::openOngoingCallScreen
                         )
-                        val scope = rememberCoroutineScope()
-                        val navController = rememberTrackingAnimatedNavController { NavigationItem.fromRoute(it)?.itemName }
-                        setUpNavigationGraph(startDestination, navController, scope) { onComplete() }
+                        setUpNavigationGraph(
+                            startDestination = startDestination,
+                            onComplete = onComplete
+                        )
                         handleDialogs()
                     }
                 }
@@ -153,18 +157,17 @@ class WireActivity : AppCompatActivity() {
     @Composable
     fun setUpNavigationGraph(
         startDestination: String,
-        navController: NavHostController,
-        scope: CoroutineScope,
         onComplete: () -> Unit
     ) {
-        Scaffold {
-            NavigationGraph(
-                navController = navController,
-                startDestination = startDestination
-            ) {
-                onComplete()
-            }
-        }
+        val navController = rememberTrackingAnimatedNavController { NavigationItem.fromRoute(it)?.itemName }
+        val scope = rememberCoroutineScope()
+        NavigationGraph(
+            navController = navController,
+            startDestination = startDestination,
+            onComplete = onComplete
+        )
+        // This setup needs to be done after the navigation graph is created, because building the graph takes some time,
+        // and if any NavigationCommand is executed before the graph is fully built, it will cause a NullPointerException.
         setUpNavigation(navController, scope)
     }
 
@@ -173,25 +176,32 @@ class WireActivity : AppCompatActivity() {
         navController: NavHostController,
         scope: CoroutineScope
     ) {
-        val keyboardController = LocalSoftwareKeyboardController.current
-        // with the static key here we're sure that this effect wouldn't be canceled or restarted
-        LaunchedEffect(Unit) {
+        val currentKeyboardController by rememberUpdatedState(LocalSoftwareKeyboardController.current)
+        val currentNavController by rememberUpdatedState(navController)
+        LaunchedEffect(scope) {
             navigationManager.navigateState.onEach { command ->
                 if (command == null) return@onEach
-                keyboardController?.hide()
-                navController.navigateToItem(command)
+                currentKeyboardController?.hide()
+                currentNavController.navigateToItem(command)
             }.launchIn(scope)
 
             navigationManager.navigateBack.onEach {
-                if (!navController.popWithArguments(it)) finish()
+                if (!currentNavController.popWithArguments(it)) finish()
             }.launchIn(scope)
+        }
 
-            navController.addOnDestinationChangedListener { controller, _, _ ->
-                keyboardController?.hide()
-                updateScreenSettings(controller)
-            }
-
+        DisposableEffect(navController) {
+            val updateScreenSettingsListener = NavController.OnDestinationChangedListener { controller, _, _ ->
+                    currentKeyboardController?.hide()
+                    updateScreenSettings(controller)
+                }
+            navController.addOnDestinationChangedListener(updateScreenSettingsListener)
             navController.addOnDestinationChangedListener(currentScreenManager)
+
+            onDispose {
+                navController.removeOnDestinationChangedListener(updateScreenSettingsListener)
+                navController.removeOnDestinationChangedListener(currentScreenManager)
+            }
         }
     }
 

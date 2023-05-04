@@ -24,6 +24,7 @@ import android.content.Context
 import androidx.work.WorkManager
 import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.util.ImageUtil
+import com.wire.android.util.UserAgentProvider
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.data.id.FederatedIdMapper
@@ -39,6 +40,8 @@ import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.LogoutUseCase
 import com.wire.kalium.logic.feature.auth.autoVersioningAuth.AutoVersionAuthScopeUseCase
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
+import com.wire.kalium.logic.feature.call.usecase.FlipToBackCameraUseCase
+import com.wire.kalium.logic.feature.call.usecase.FlipToFrontCameraUseCase
 import com.wire.kalium.logic.feature.call.usecase.GetAllCallsWithSortedParticipantsUseCase
 import com.wire.kalium.logic.feature.call.usecase.MuteCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
@@ -90,7 +93,7 @@ import com.wire.kalium.logic.feature.publicuser.search.SearchKnownUsersUseCase
 import com.wire.kalium.logic.feature.publicuser.search.SearchPublicUsersUseCase
 import com.wire.kalium.logic.feature.selfdeletingMessages.ObserveSelfDeletingMessagesUseCase
 import com.wire.kalium.logic.feature.selfdeletingMessages.ObserveTeamSettingsSelfDeletingStatusUseCase
-import com.wire.kalium.logic.feature.selfdeletingMessages.PersistNewSelfDeletingStatusUseCase
+import com.wire.kalium.logic.feature.selfdeletingMessages.PersistNewSelfDeletionTimerUseCase
 import com.wire.kalium.logic.feature.server.ServerConfigForAccountUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.GetSessionsUseCase
@@ -145,10 +148,15 @@ class CoreLogicModule {
     @KaliumCoreLogic
     @Singleton
     @Provides
-    fun provideCoreLogic(@ApplicationContext context: Context, kaliumConfigs: KaliumConfigs): CoreLogic {
+    fun provideCoreLogic(
+        @ApplicationContext context: Context,
+        kaliumConfigs: KaliumConfigs,
+        userAgentProvider: UserAgentProvider
+    ): CoreLogic {
         val rootPath = context.getDir("accounts", Context.MODE_PRIVATE).path
 
         return CoreLogic(
+            userAgent = userAgentProvider.defaultUserAgent,
             appContext = context,
             rootPath = rootPath,
             kaliumConfigs = kaliumConfigs
@@ -621,6 +629,20 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
+    fun provideFlipToBackCameraUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): FlipToBackCameraUseCase = coreLogic.getSessionScope(currentAccount).calls.flipToBackCamera
+
+    @ViewModelScoped
+    @Provides
+    fun provideFlipToFrontCameraUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): FlipToFrontCameraUseCase = coreLogic.getSessionScope(currentAccount).calls.flipToFrontCamera
+
+    @ViewModelScoped
+    @Provides
     fun turnLoudSpeakerOffUseCaseProvider(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
@@ -992,7 +1014,7 @@ class UseCaseModule {
     fun providePersistNewSelfDeletingMessagesUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
-    ): PersistNewSelfDeletingStatusUseCase = coreLogic.getSessionScope(currentAccount).persistNewSelfDeletingStatusUseCase
+    ): PersistNewSelfDeletionTimerUseCase = coreLogic.getSessionScope(currentAccount).persistNewSelfDeletingStatusUseCase
 
     @ViewModelScoped
     @Provides

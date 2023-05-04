@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Wire
   ~ Copyright (C) 2023 Wire Swiss GmbH
   ~
@@ -15,18 +14,14 @@
   ~
   ~ You should have received a copy of the GNU General Public License
   ~ along with this program. If not, see http://www.gnu.org/licenses/.
-  ~
-  ~
   -->
-
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="21dp"
-    android:height="20dp"
-    android:viewportWidth="21"
-    android:viewportHeight="20">
-
+        android:width="20dp"
+        android:height="20dp"
+        android:viewportWidth="20"
+        android:viewportHeight="20">
     <path
-        android:fillColor="#ffffff"
-        android:fillType="evenOdd"
-        android:pathData="M11.9165 5.05803C16.8494 5.51937 20.6665 8.67536 20.6665 12.5C20.6665 16.6421 16.1894 20 10.6665 20C5.14366 20 0.666504 16.6421 0.666504 12.5C0.666504 10.1315 2.13035 8.01945 4.4165 6.64496V9.78071C3.62169 10.5848 3.1665 11.5312 3.1665 12.5C3.1665 15.0796 6.39366 17.5 10.6665 17.5C14.9394 17.5 18.1665 15.0796 18.1665 12.5C18.1665 10.1787 15.5533 7.98635 11.9165 7.57054V12.5L6.9165 6.25L11.9165 0V5.05803Z" />
+            android:fillColor="#000000"
+            android:fillType="evenOdd"
+            android:pathData="M11.25,5.058C16.183,5.519 20,8.675 20,12.5C20,16.642 15.523,20 10,20C4.477,20 0,16.642 0,12.5C0,10.132 1.464,8.019 3.75,6.645V6.645V9.781C2.955,10.585 2.5,11.531 2.5,12.5C2.5,15.08 5.727,17.5 10,17.5C14.273,17.5 17.5,15.08 17.5,12.5C17.5,10.179 14.887,7.986 11.25,7.571V12.5L6.25,6.25L11.25,0V5.058V5.058Z" />
 </vector>

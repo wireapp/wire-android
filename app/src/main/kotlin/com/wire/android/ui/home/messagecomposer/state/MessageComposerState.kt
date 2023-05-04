@@ -48,9 +48,9 @@ import com.wire.android.util.MENTION_SYMBOL
 import com.wire.android.util.NEW_LINE_SYMBOL
 import com.wire.android.util.WHITE_SPACE
 import com.wire.android.util.ui.toUIText
-import com.wire.kalium.logic.configuration.SelfDeletingMessagesStatus
 import com.wire.kalium.logic.data.message.mention.MessageMention
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.selfdeletingMessages.SelfDeletionTimer
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlin.time.Duration.Companion.ZERO
@@ -87,7 +87,7 @@ data class MessageComposerState(
     var messageComposeInputState: MessageComposeInputState by mutableStateOf(MessageComposeInputState.Inactive())
         private set
 
-    private var currentSelfDeletingStatus: SelfDeletingMessagesStatus by mutableStateOf(SelfDeletingMessagesStatus(true, null, ZERO))
+    private var currentSelfDeletionTimer: SelfDeletionTimer by mutableStateOf(SelfDeletionTimer.Enabled(ZERO))
 
     private val _mentionQueryFlowState: MutableStateFlow<String?> = MutableStateFlow(null)
 
@@ -116,7 +116,10 @@ data class MessageComposerState(
                 }
             }
         val afterSelection = messageComposeInputState.messageText.text
-            .subSequence(messageComposeInputState.messageText.selection.max, messageComposeInputState.messageText.text.length)
+            .subSequence(
+                messageComposeInputState.messageText.selection.max,
+                messageComposeInputState.messageText.text.length
+            )
         val resultText = StringBuilder(beforeSelection)
             .append(String.MENTION_SYMBOL)
             .append(afterSelection)
@@ -153,7 +156,7 @@ data class MessageComposerState(
 
     fun toActive() {
         if (messageComposeInputState !is MessageComposeInputState.Active) {
-            messageComposeInputState = messageComposeInputState.toActive(selfDeletionTimer = currentSelfDeletingStatus)
+            messageComposeInputState = messageComposeInputState.toActive(selfDeletionTimer = currentSelfDeletionTimer)
         }
     }
 
@@ -171,12 +174,24 @@ data class MessageComposerState(
     fun hideAttachmentOptions() = changeAttachmentOptionsVisibility(false)
     private fun changeAttachmentOptionsVisibility(newValue: Boolean) {
         (messageComposeInputState as? MessageComposeInputState.Active)?.let { activeState ->
-            (activeState.type as? MessageComposeInputType.NewMessage)?.let { newMessageType ->
-                messageComposeInputState = activeState.copy(
-                    type = newMessageType.copy(
-                        attachmentOptionsDisplayed = newValue
+            when (val currentType = activeState.type) {
+                is MessageComposeInputType.NewMessage -> {
+                    messageComposeInputState = activeState.copy(
+                        type = currentType.copy(
+                            attachmentOptionsDisplayed = newValue
+                        )
                     )
-                )
+                }
+
+                is MessageComposeInputType.SelfDeletingMessage -> {
+                    messageComposeInputState = activeState.copy(
+                        type = currentType.copy(
+                            attachmentOptionsDisplayed = newValue
+                        )
+                    )
+                }
+
+                else -> {}
             }
         }
     }
@@ -219,7 +234,10 @@ data class MessageComposerState(
         val beforeMentionText = messageComposeInputState.messageText.text
             .subSequence(0, mention.start)
         val afterMentionText = messageComposeInputState.messageText.text
-            .subSequence(messageComposeInputState.messageText.selection.max, messageComposeInputState.messageText.text.length)
+            .subSequence(
+                messageComposeInputState.messageText.selection.max,
+                messageComposeInputState.messageText.text.length
+            )
         val resultText = StringBuilder()
             .append(beforeMentionText)
             .append(mention.handler)
@@ -329,9 +347,9 @@ data class MessageComposerState(
         quotedMessageData = null
     }
 
-    fun updateSelfDeletionTime(newSelfDeletionStatus: SelfDeletingMessagesStatus) = with(newSelfDeletionStatus) {
-        currentSelfDeletingStatus = newSelfDeletionStatus
-        val selfDeletionDuration = globalSelfDeletionDuration.toSelfDeletionDuration()
+    fun updateSelfDeletionTime(newSelfDeletionTimer: SelfDeletionTimer) = with(newSelfDeletionTimer) {
+        currentSelfDeletionTimer = newSelfDeletionTimer
+        val selfDeletionDuration = newSelfDeletionTimer.toDuration().toSelfDeletionDuration()
         messageComposeInputState = MessageComposeInputState.Active(
             messageText = messageComposeInputState.messageText,
             inputFocused = true,
@@ -340,11 +358,11 @@ data class MessageComposerState(
         )
     }
 
-    fun getSelfDeletionTime(): SelfDeletionDuration = currentSelfDeletingStatus.globalSelfDeletionDuration.toSelfDeletionDuration()
+    fun getSelfDeletionTime(): SelfDeletionDuration = currentSelfDeletionTimer.toDuration().toSelfDeletionDuration()
 
-    fun shouldShowSelfDeletionOption(): Boolean = with(currentSelfDeletingStatus) {
+    fun shouldShowSelfDeletionOption(): Boolean = with(currentSelfDeletionTimer) {
         // We shouldn't show the self-deleting option if there is a compulsory duration already set on the team settings level
-        isFeatureEnabled && !isEnforced
+        this !is SelfDeletionTimer.Disabled && !isEnforced
     }
 }
 

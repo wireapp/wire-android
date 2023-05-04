@@ -79,7 +79,7 @@ class LoginEmailViewModel @Inject constructor(
         viewModelScope.launch {
             val authScope = withContext(dispatchers.io()) { resolveCurrentAuthScope() } ?: return@launch
 
-            val secondFactorVerificationCode = secondFactorVerificationCodeState.code.text.text
+            val secondFactorVerificationCode = secondFactorVerificationCodeState.codeInput.text.text
             val loginResult = withContext(dispatchers.io()) {
                 authScope.login(
                     userIdentifier = loginState.userIdentifier.text,
@@ -93,6 +93,7 @@ class LoginEmailViewModel @Inject constructor(
                 handleAuthenticationFailure(loginResult, authScope)
                 return@launch
             }
+            secondFactorVerificationCodeState = secondFactorVerificationCodeState.copy(isCodeInputNecessary = false)
             val storedUserId = withContext(dispatchers.io()) {
                 addAuthenticatedUser(
                     authTokens = loginResult.authData,
@@ -102,32 +103,32 @@ class LoginEmailViewModel @Inject constructor(
                     replace = false
                 )
             }.let {
-                    when (it) {
-                        is AddAuthenticatedUserUseCase.Result.Failure -> {
-                            updateEmailLoginError(it.toLoginError())
-                            return@launch
-                        }
-
-                        is AddAuthenticatedUserUseCase.Result.Success -> it.userId
+                when (it) {
+                    is AddAuthenticatedUserUseCase.Result.Failure -> {
+                        updateEmailLoginError(it.toLoginError())
+                        return@launch
                     }
+
+                    is AddAuthenticatedUserUseCase.Result.Success -> it.userId
                 }
+            }
             withContext(dispatchers.io()) {
                 registerClient(
                     userId = storedUserId,
                     password = loginState.password.text,
                 )
             }.let {
-                    when (it) {
-                        is RegisterClientResult.Failure -> {
-                            updateEmailLoginError(it.toLoginError())
-                            return@launch
-                        }
+                when (it) {
+                    is RegisterClientResult.Failure -> {
+                        updateEmailLoginError(it.toLoginError())
+                        return@launch
+                    }
 
-                        is RegisterClientResult.Success -> {
-                            navigateAfterRegisterClientSuccess(storedUserId)
-                        }
+                    is RegisterClientResult.Success -> {
+                        navigateAfterRegisterClientSuccess(storedUserId)
                     }
                 }
+            }
         }
     }
 
@@ -179,15 +180,16 @@ class LoginEmailViewModel @Inject constructor(
             verifiableAction = VerifiableAction.LOGIN_OR_CLIENT_REGISTRATION
         )
         when (result) {
-            is RequestSecondFactorVerificationCodeUseCase.Result.Success -> {
+            is RequestSecondFactorVerificationCodeUseCase.Result.Success,
+            RequestSecondFactorVerificationCodeUseCase.Result.Failure.TooManyRequests -> {
                 secondFactorVerificationCodeState = secondFactorVerificationCodeState.copy(
-                    isCodeSent = true,
+                    isCodeInputNecessary = true,
                     emailUsed = email,
                 )
                 updateEmailLoginError(LoginError.None)
             }
 
-            is RequestSecondFactorVerificationCodeUseCase.Result.Failure -> {
+            is RequestSecondFactorVerificationCodeUseCase.Result.Failure.Generic -> {
                 updateEmailLoginError(LoginError.DialogError.GenericError(result.cause))
             }
         }
@@ -215,7 +217,7 @@ class LoginEmailViewModel @Inject constructor(
     }
 
     fun onCodeChange(newValue: CodeFieldValue) {
-        secondFactorVerificationCodeState = secondFactorVerificationCodeState.copy(code = newValue, isCurrentCodeInvalid = false)
+        secondFactorVerificationCodeState = secondFactorVerificationCodeState.copy(codeInput = newValue, isCurrentCodeInvalid = false)
         if (newValue.isFullyFilled) {
             login()
         }
@@ -223,8 +225,8 @@ class LoginEmailViewModel @Inject constructor(
 
     fun onCodeVerificationBackPress() {
         secondFactorVerificationCodeState = secondFactorVerificationCodeState.copy(
-            code = CodeFieldValue(TextFieldValue(""), false),
-            isCodeSent = false,
+            codeInput = CodeFieldValue(TextFieldValue(""), false),
+            isCodeInputNecessary = false,
             emailUsed = "",
         )
     }

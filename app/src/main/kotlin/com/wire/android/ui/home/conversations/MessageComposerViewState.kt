@@ -22,9 +22,9 @@ package com.wire.android.ui.home.conversations
 
 import com.wire.android.ui.home.conversations.model.AttachmentType
 import com.wire.android.ui.home.newconversation.model.Contact
-import com.wire.kalium.logic.configuration.SelfDeletingMessagesStatus
 import com.wire.kalium.logic.feature.conversation.InteractionAvailability
 import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
+import com.wire.kalium.logic.feature.selfdeletingMessages.SelfDeletionTimer
 import kotlin.time.Duration.Companion.ZERO
 
 data class MessageComposerViewState(
@@ -33,7 +33,7 @@ data class MessageComposerViewState(
     val interactionAvailability: InteractionAvailability = InteractionAvailability.ENABLED,
     val mentionsToSelect: List<Contact> = listOf(),
     val assetTooLargeDialogState: AssetTooLargeDialogState = AssetTooLargeDialogState.Hidden,
-    val selfDeletingMessagesStatus: SelfDeletingMessagesStatus = SelfDeletingMessagesStatus(true, null, ZERO)
+    val selfDeletionTimer: SelfDeletionTimer = SelfDeletionTimer.Enabled(ZERO)
 )
 
 sealed class AssetTooLargeDialogState {

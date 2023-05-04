@@ -161,10 +161,10 @@ class MessageComposerViewModelTest {
         )
 
         // When
-        viewModel.sendAttachmentMessage(mockedAttachment)
+        viewModel.sendAttachmentMessage(mockedAttachment, null)
 
         // Then
-        coVerify(exactly = 1) { arrangement.sendAssetMessage.invoke(any(), any(), any(), any(), any(), any(), any()) }
+        coVerify(exactly = 1) { arrangement.sendAssetMessage.invoke(any(), any(), any(), any(), any(), any(), any(), any()) }
     }
 
     @Test
@@ -186,10 +186,10 @@ class MessageComposerViewModelTest {
         )
 
         // When
-        viewModel.sendAttachmentMessage(mockedAttachment)
+        viewModel.sendAttachmentMessage(mockedAttachment, null)
 
         // Then
-        coVerify(exactly = 1) { arrangement.sendAssetMessage.invoke(any(), any(), any(), any(), any(), any(), any()) }
+        coVerify(exactly = 1) { arrangement.sendAssetMessage.invoke(any(), any(), any(), any(), any(), any(), any(), any()) }
     }
 
     @Test
@@ -202,9 +202,9 @@ class MessageComposerViewModelTest {
         val mockedAttachment = null
 
         // When
-        viewModel.sendAttachmentMessage(mockedAttachment)
+        viewModel.sendAttachmentMessage(mockedAttachment, null)
 
-        coVerify(inverse = true) { arrangement.sendAssetMessage.invoke(any(), any(), any(), any(), any(), any(), any()) }
+        coVerify(inverse = true) { arrangement.sendAssetMessage.invoke(any(), any(), any(), any(), any(), any(), any(), any()) }
     }
 
     @Test
@@ -223,10 +223,10 @@ class MessageComposerViewModelTest {
         val mockedUri = UriAsset("mocked_image.jpeg".toUri(), false)
 
         // When
-            viewModel.attachmentPicked(mockedUri)
+            viewModel.attachmentPicked(mockedUri, null)
 
             // Then
-            coVerify(inverse = true) { arrangement.sendAssetMessage.invoke(any(), any(), any(), any(), any(), any(), any()) }
+            coVerify(inverse = true) { arrangement.sendAssetMessage.invoke(any(), any(), any(), any(), any(), any(), any(), any()) }
             assert(viewModel.messageComposerViewState.assetTooLargeDialogState is AssetTooLargeDialogState.Visible)
     }
 
@@ -247,10 +247,10 @@ class MessageComposerViewModelTest {
             val mockedUri = UriAsset("mocked_image.jpeg".toUri(), false)
 
             // When
-                viewModel.attachmentPicked(mockedUri)
+                viewModel.attachmentPicked(mockedUri, null)
 
                 // Then
-                coVerify(inverse = true) { arrangement.sendAssetMessage.invoke(any(), any(), any(), any(), any(), any(), any()) }
+                coVerify(inverse = true) { arrangement.sendAssetMessage.invoke(any(), any(), any(), any(), any(), any(), any(), any()) }
                 assert(viewModel.messageComposerViewState.assetTooLargeDialogState is AssetTooLargeDialogState.Visible)
         }
 
@@ -272,10 +272,10 @@ class MessageComposerViewModelTest {
             val mockedUri = UriAsset("mocked_image.jpeg".toUri(), true)
 
             // When
-            viewModel.attachmentPicked(mockedUri)
+            viewModel.attachmentPicked(mockedUri, null)
 
             // Then
-            coVerify(inverse = true) { arrangement.sendAssetMessage.invoke(any(), any(), any(), any(), any(), any(), any()) }
+            coVerify(inverse = true) { arrangement.sendAssetMessage.invoke(any(), any(), any(), any(), any(), any(), any(), any()) }
             coVerify { arrangement.fileManager.saveToExternalMediaStorage(any(), any(), any(), any(), any()) }
             assert(viewModel.messageComposerViewState.assetTooLargeDialogState is AssetTooLargeDialogState.Visible)
         }
@@ -296,10 +296,10 @@ class MessageComposerViewModelTest {
 
             // When
             viewModel.infoMessage.test {
-                viewModel.attachmentPicked(mockedUri)
+                viewModel.attachmentPicked(mockedUri, null)
 
                 // Then
-                coVerify(inverse = true) { arrangement.sendAssetMessage.invoke(any(), any(), any(), any(), any(), any(), any()) }
+                coVerify(inverse = true) { arrangement.sendAssetMessage.invoke(any(), any(), any(), any(), any(), any(), any(), any()) }
                 assertEquals(ConversationSnackbarMessages.ErrorPickingAttachment, awaitItem())
             }
         }
@@ -318,10 +318,10 @@ class MessageComposerViewModelTest {
         )
 
         // When
-            viewModel.sendAttachmentMessage(mockedAttachment)
+            viewModel.sendAttachmentMessage(mockedAttachment, null)
 
             // Then
-            coVerify(exactly = 1) { arrangement.sendAssetMessage.invoke(any(), any(), any(), any(), any(), any(), any()) }
+            coVerify(exactly = 1) { arrangement.sendAssetMessage.invoke(any(), any(), any(), any(), any(), any(), any(), any()) }
             assert(viewModel.messageComposerViewState.assetTooLargeDialogState is AssetTooLargeDialogState.Hidden)
     }
 

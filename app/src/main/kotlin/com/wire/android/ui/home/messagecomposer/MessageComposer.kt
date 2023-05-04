@@ -67,6 +67,7 @@ import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.kalium.logic.feature.conversation.InteractionAvailability
 import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
+import kotlin.time.Duration
 
 @Composable
 fun MessageComposer(
@@ -75,7 +76,7 @@ fun MessageComposer(
     onSendTextMessage: (SendMessageBundle) -> Unit,
     onSendEditTextMessage: (EditMessageBundle) -> Unit,
     onMentionMember: (String?) -> Unit,
-    onAttachmentPicked: (UriAsset) -> Unit,
+    onAttachmentPicked: (UriAsset, Duration?) -> Unit,
     isFileSharingEnabled: Boolean,
     interactionAvailability: InteractionAvailability,
     securityClassificationType: SecurityClassificationType,
@@ -91,7 +92,7 @@ fun MessageComposer(
             {
                 val expireAfter = (messageComposerState.messageComposeInputState as? MessageComposeInputState.Active)?.let {
                     (it.type as? MessageComposeInputType.SelfDeletingMessage)
-                }?.selfDeletionDuration?.toDuration()
+                }?.selfDeletionDuration?.value
 
                 onSendTextMessage(
                     SendMessageBundle(
@@ -162,7 +163,7 @@ private fun MessageComposer(
     isFileSharingEnabled: Boolean,
     interactionAvailability: InteractionAvailability,
     membersToMention: List<Contact>,
-    onAttachmentPicked: (UriAsset) -> Unit,
+    onAttachmentPicked: (UriAsset, Duration?) -> Unit,
     securityClassificationType: SecurityClassificationType,
     tempWritableImageUri: Uri?,
     tempWritableVideoUri: Uri?,
@@ -290,7 +291,7 @@ private fun MessageComposer(
                 // we get the effect of overlapping it
                 if (attachmentOptionsVisible) {
                     AttachmentOptions(
-                        onAttachmentPicked = onAttachmentPicked,
+                        onAttachmentPicked = { onAttachmentPicked(it, messageComposerState.getSelfDeletionTime().value) },
                         isFileSharingEnabled = isFileSharingEnabled,
                         tempWritableImageUri = tempWritableImageUri,
                         tempWritableVideoUri = tempWritableVideoUri,

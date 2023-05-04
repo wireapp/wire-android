@@ -58,7 +58,11 @@ sealed class MessageComposeInputState {
 
         return when {
             isSelfDeletingType -> {
-                val selfDeletingType = MessageComposeInputType.SelfDeletingMessage(selfDeletionTimer)
+                val selfDeletingType = MessageComposeInputType.SelfDeletingMessage(
+                    selfDeletionDuration = selfDeletionTimer.toDuration().toSelfDeletionDuration(),
+                    isEnforced = selfDeletionTimer.isEnforced,
+                    attachmentOptionsDisplayed = attachmentOptionsDisplayed
+                )
                 Active(messageText, inputFocused, selfDeletingType)
             }
 
@@ -77,7 +81,8 @@ sealed class MessageComposeInputState {
     val isExpanded: Boolean
         get() = this is Active && this.size == MessageComposeInputSize.EXPANDED
     val attachmentOptionsDisplayed: Boolean
-        get() = this is Active && this.type is MessageComposeInputType.NewMessage && this.type.attachmentOptionsDisplayed
+        get() = (this is Active && this.type is MessageComposeInputType.NewMessage && this.type.attachmentOptionsDisplayed)
+                || (this is Active && this.type is MessageComposeInputType.SelfDeletingMessage && this.type.attachmentOptionsDisplayed)
 
     val isEditMessage: Boolean
         get() = this is Active && this.type is MessageComposeInputType.EditMessage
@@ -99,6 +104,7 @@ enum class MessageComposeInputSize {
     EXPANDED; // fullscreen
 }
 
+// TODO: think about extracting attachmentOptionsDisplayed to something more global
 @Stable
 sealed class MessageComposeInputType {
 
@@ -114,7 +120,11 @@ sealed class MessageComposeInputType {
     ) : MessageComposeInputType()
 
     @Stable
-    data class SelfDeletingMessage(val selfDeletionDuration: SelfDeletionTimer) : MessageComposeInputType()
+    data class SelfDeletingMessage(
+        val selfDeletionDuration: SelfDeletionDuration,
+        val isEnforced: Boolean,
+        val attachmentOptionsDisplayed: Boolean = false
+    ) : MessageComposeInputType()
 }
 
 @Suppress("MagicNumber")

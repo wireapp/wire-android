@@ -50,7 +50,6 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.messagecomposer.state.MessageComposeInputState
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.util.debug.LocalFeatureVisibilityFlags
-import com.wire.kalium.logic.configuration.SelfDeletingMessagesStatus
 
 @ExperimentalAnimationApi
 @Composable

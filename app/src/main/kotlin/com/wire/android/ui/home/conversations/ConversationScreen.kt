@@ -89,11 +89,11 @@ import com.wire.android.util.permission.CallingAudioRequestFlow
 import com.wire.android.util.permission.rememberCallingRecordAudioBluetoothRequestFlow
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.NetworkFailure
-import com.wire.kalium.logic.configuration.SelfDeletingMessagesStatus
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.call.usecase.ConferenceCallingResult
 import com.wire.kalium.logic.feature.conversation.InteractionAvailability
+import com.wire.kalium.logic.feature.selfdeletingMessages.SelfDeletionTimer
 import com.wire.kalium.util.DateTimeUtil
 import kotlinx.collections.immutable.ImmutableMap
 import kotlinx.coroutines.CoroutineScope
@@ -103,6 +103,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Instant
+import kotlin.time.Duration
 import kotlin.time.Duration.Companion.ZERO
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -218,7 +219,7 @@ fun ConversationScreen(
         conversationMessagesViewModel = conversationMessagesViewModel,
         onPingClicked = messageComposerViewModel::sendPing,
         onSelfDeletingMessageRead = messageComposerViewModel::startSelfDeletion,
-        currentSelfDeletingMessagesStatus = messageComposerViewModel.messageComposerViewState.selfDeletingMessagesStatus,
+        currentSelfDeletionTimer = messageComposerViewModel.messageComposerViewState.selfDeletionTimer,
         onNewSelfDeletingMessagesStatus = messageComposerViewModel::updateSelfDeletingMessages,
         tempWritableImageUri = messageComposerViewModel.tempWritableImageUri,
         tempWritableVideoUri = messageComposerViewModel.tempWritableVideoUri
@@ -296,7 +297,7 @@ private fun ConversationScreen(
     onSendMessage: (SendMessageBundle) -> Unit,
     onSendEditMessage: (EditMessageBundle) -> Unit,
     onDeleteMessage: (String, Boolean) -> Unit,
-    onAttachmentPicked: (UriAsset) -> Unit,
+    onAttachmentPicked: (UriAsset, Duration?) -> Unit,
     onAudioClick: (String) -> Unit,
     onChangeAudioPosition: (String, Int) -> Unit,
     onAssetItemClicked: (String) -> Unit,
@@ -314,8 +315,8 @@ private fun ConversationScreen(
     conversationMessagesViewModel: ConversationMessagesViewModel,
     onPingClicked: () -> Unit,
     onSelfDeletingMessageRead: (UIMessage.Regular) -> Unit,
-    currentSelfDeletingMessagesStatus: SelfDeletingMessagesStatus,
-    onNewSelfDeletingMessagesStatus: (SelfDeletionDuration) -> Unit,
+    currentSelfDeletionTimer: SelfDeletionTimer,
+    onNewSelfDeletingMessagesStatus: (SelfDeletionTimer) -> Unit,
     tempWritableImageUri: Uri?,
     tempWritableVideoUri: Uri?
 ) {
@@ -334,8 +335,8 @@ private fun ConversationScreen(
         )
     }
 
-    LaunchedEffect(currentSelfDeletingMessagesStatus) {
-        messageComposerState.updateSelfDeletionTime(currentSelfDeletingMessagesStatus)
+    LaunchedEffect(currentSelfDeletionTimer) {
+        messageComposerState.updateSelfDeletionTime(currentSelfDeletionTimer)
     }
 
     val menuModalHeader = if (conversationScreenState.bottomSheetMenuType is ConversationScreenState.BottomSheetMenuType.SelfDeletion) {
@@ -370,8 +371,8 @@ private fun ConversationScreen(
             SelfDeletionMenuItems(
                 hideEditMessageMenu = conversationScreenState::hideContextMenu,
                 currentlySelected = messageComposerState.getSelfDeletionTime(),
-                onSelfDeletionDurationChanged = { newDuration ->
-                    onNewSelfDeletingMessagesStatus(newDuration)
+                onSelfDeletionDurationChanged = { newTimer ->
+                    onNewSelfDeletingMessagesStatus(SelfDeletionTimer.Enabled(newTimer.value))
                 }
             )
         }
@@ -458,7 +459,7 @@ private fun ConversationScreenContent(
     messages: Flow<PagingData<UIMessage>>,
     onSendMessage: (SendMessageBundle) -> Unit,
     onSendEditMessage: (EditMessageBundle) -> Unit,
-    onAttachmentPicked: (UriAsset) -> Unit,
+    onAttachmentPicked: (UriAsset, Duration?) -> Unit,
     onMentionMember: (String?) -> Unit,
     onAssetItemClicked: (String) -> Unit,
     onAudioItemClicked: (String) -> Unit,
@@ -512,11 +513,11 @@ private fun ConversationScreenContent(
         },
         onSendEditTextMessage = onSendEditMessage,
         onAttachmentPicked = remember {
-            {
+            { uriAsset, expireAfter ->
                 scope.launch {
                     lazyListState.scrollToItem(0)
                 }
-                onAttachmentPicked(it)
+                onAttachmentPicked(uriAsset, expireAfter)
             }
         },
         onMentionMember = onMentionMember,
@@ -559,7 +560,11 @@ private fun SnackBarMessage(
     val context = LocalContext.current
 
     LaunchedEffect(Unit) {
-        composerMessages.collect { conversationScreenState.snackBarHostState.showSnackbar(message = it.uiText.asString(context.resources)) }
+        composerMessages.collect {
+            conversationScreenState.snackBarHostState.showSnackbar(
+                message = it.uiText.asString(context.resources)
+            )
+        }
     }
 
     LaunchedEffect(Unit) {
@@ -684,14 +689,16 @@ fun PreviewConversationScreen() {
         bannerMessage = null,
         messageComposerViewState = MessageComposerViewState(),
         conversationCallViewState = ConversationCallViewState(),
-        conversationInfoViewState = ConversationInfoViewState(conversationName = UIText.DynamicString("Some test conversation")),
+        conversationInfoViewState = ConversationInfoViewState(
+            conversationName = UIText.DynamicString("Some test conversation")
+        ),
         conversationMessagesViewState = ConversationMessagesViewState(),
         onOpenProfile = { },
         onMessageDetailsClick = { _, _ -> },
         onSendMessage = { },
         onSendEditMessage = { },
         onDeleteMessage = { _, _ -> },
-        onAttachmentPicked = { },
+        onAttachmentPicked = { _, _ -> },
         onAssetItemClicked = { },
         onImageFullScreenMode = { _, _ -> },
         onStartCall = { },
@@ -709,7 +716,7 @@ fun PreviewConversationScreen() {
         conversationMessagesViewModel = hiltViewModel(),
         onPingClicked = {},
         onSelfDeletingMessageRead = {},
-        currentSelfDeletingMessagesStatus = SelfDeletingMessagesStatus(true, null, ZERO),
+        currentSelfDeletionTimer = SelfDeletionTimer.Enabled(ZERO),
         onNewSelfDeletingMessagesStatus = {},
         tempWritableImageUri = null,
         tempWritableVideoUri = null

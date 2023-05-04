@@ -58,7 +58,6 @@ import com.wire.android.ui.home.messagecomposer.state.MessageComposeInputState
 import com.wire.android.ui.home.messagecomposer.state.MessageComposeInputType
 import com.wire.android.ui.home.messagecomposer.state.SelfDeletionDuration
 import com.wire.android.ui.theme.wireTypography
-import com.wire.kalium.logic.configuration.SelfDeletingMessagesStatus
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
@@ -268,7 +267,8 @@ fun PreviewMessageComposerInputRowActiveCollapsedSelfDeletingEnabled() {
         size = MessageComposeInputSize.COLLAPSED,
         type = MessageComposeInputType.SelfDeletingMessage(
             selfDeletionDuration = SelfDeletionDuration.FourWeeks,
-            isEnforced = false
+            isEnforced = false,
+            attachmentOptionsDisplayed = true
         )
     )
     MessageComposerInputRow(
@@ -285,7 +285,8 @@ fun PreviewMessageComposerInputRowActiveCollapsedSelfDeletingSendEnforced() {
         size = MessageComposeInputSize.COLLAPSED,
         type = MessageComposeInputType.SelfDeletingMessage(
             selfDeletionDuration = SelfDeletionDuration.OneDay,
-            isEnforced = true
+            isEnforced = true,
+            attachmentOptionsDisplayed = true
         )
     )
     MessageComposerInputRow(

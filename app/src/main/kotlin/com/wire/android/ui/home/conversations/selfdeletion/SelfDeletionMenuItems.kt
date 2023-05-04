@@ -32,6 +32,7 @@ fun SelfDeletionMenuItems(
     hideEditMessageMenu: (OnComplete) -> Unit,
     onSelfDeletionDurationChanged: (SelfDeletionDuration) -> Unit,
 ): List<@Composable () -> Unit> {
+
     val onSelfDeletionDurationSelected: (SelfDeletionDuration) -> Unit = { selfDeleteDuration ->
         hideEditMessageMenu {
             onSelfDeletionDurationChanged(selfDeleteDuration)

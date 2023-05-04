@@ -69,10 +69,7 @@ import com.wire.android.util.permission.rememberRequestPushNotificationsPermissi
 import kotlinx.collections.immutable.ImmutableMap
 import kotlinx.collections.immutable.persistentMapOf
 
-@OptIn(
-    ExperimentalMaterialApi::class,
-    ExperimentalMaterial3Api::class
-)
+@OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     backNavArgs: ImmutableMap<String, Any> = persistentMapOf(),

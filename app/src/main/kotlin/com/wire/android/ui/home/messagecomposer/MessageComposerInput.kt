@@ -65,7 +65,6 @@ import com.wire.android.ui.home.messagecomposer.state.MessageComposeInputState
 import com.wire.android.ui.home.messagecomposer.state.MessageComposeInputType
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.ui.theme.wireColorScheme
-import com.wire.kalium.logic.configuration.SelfDeletingMessagesStatus
 import com.wire.kalium.logic.feature.conversation.InteractionAvailability
 import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
 import io.github.esentsov.PackagePrivate

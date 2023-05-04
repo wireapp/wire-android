@@ -22,7 +22,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import com.wire.android.R
 import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMapper.toSelfDeletionDuration
 import com.wire.android.util.ui.UIText
-import com.wire.kalium.logic.configuration.SelfDeletingMessagesStatus
+import com.wire.kalium.logic.feature.selfdeletingMessages.SelfDeletionTimer
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.ZERO
 import kotlin.time.Duration.Companion.days
@@ -52,14 +52,13 @@ sealed class MessageComposeInputState {
     fun toActive(
         messageText: TextFieldValue = this.messageText,
         inputFocused: Boolean = this.inputFocused,
-        selfDeletingStatus: SelfDeletingMessagesStatus
+        selfDeletionTimer: SelfDeletionTimer
     ): MessageComposeInputState {
-        val selfDeletionDuration = selfDeletingStatus.globalSelfDeletionDuration.toSelfDeletionDuration()
-        val isSelfDeletingType = selfDeletingStatus.isFeatureEnabled && selfDeletionDuration != SelfDeletionDuration.None
+        val isSelfDeletingType = selfDeletionTimer !is SelfDeletionTimer.Disabled && selfDeletionTimer.toDuration() > ZERO
 
         return when {
             isSelfDeletingType -> {
-                val selfDeletingType = MessageComposeInputType.SelfDeletingMessage(selfDeletionDuration, selfDeletingStatus.isEnforced)
+                val selfDeletingType = MessageComposeInputType.SelfDeletingMessage(selfDeletionTimer)
                 Active(messageText, inputFocused, selfDeletingType)
             }
 
@@ -115,10 +114,7 @@ sealed class MessageComposeInputType {
     ) : MessageComposeInputType()
 
     @Stable
-    data class SelfDeletingMessage(
-        val selfDeletionDuration: SelfDeletionDuration,
-        val isEnforced: Boolean
-    ) : MessageComposeInputType()
+    data class SelfDeletingMessage(val selfDeletionDuration: SelfDeletionTimer) : MessageComposeInputType()
 }
 
 @Suppress("MagicNumber")

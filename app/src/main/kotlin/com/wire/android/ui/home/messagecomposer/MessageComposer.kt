@@ -91,7 +91,7 @@ fun MessageComposer(
             {
                 val expireAfter = (messageComposerState.messageComposeInputState as? MessageComposeInputState.Active)?.let {
                     (it.type as? MessageComposeInputType.SelfDeletingMessage)
-                }?.selfDeletionDuration?.value
+                }?.selfDeletionDuration?.toDuration()
 
                 onSendTextMessage(
                     SendMessageBundle(

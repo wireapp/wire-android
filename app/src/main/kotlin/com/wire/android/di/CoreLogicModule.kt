@@ -89,6 +89,7 @@ import com.wire.kalium.logic.feature.publicuser.GetKnownUserUseCase
 import com.wire.kalium.logic.feature.publicuser.search.SearchKnownUsersUseCase
 import com.wire.kalium.logic.feature.publicuser.search.SearchPublicUsersUseCase
 import com.wire.kalium.logic.feature.selfdeletingMessages.ObserveSelfDeletingMessagesUseCase
+import com.wire.kalium.logic.feature.selfdeletingMessages.ObserveTeamSettingsSelfDeletingStatusUseCase
 import com.wire.kalium.logic.feature.selfdeletingMessages.PersistNewSelfDeletingStatusUseCase
 import com.wire.kalium.logic.feature.server.ServerConfigForAccountUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
@@ -974,10 +975,17 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
+    fun provideObserveTeamSettingsSelfDeletionStatusFlagUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): ObserveTeamSettingsSelfDeletingStatusUseCase = coreLogic.getSessionScope(currentAccount).observeTeamSettingsSelfDeletionStatusFlag
+
+    @ViewModelScoped
+    @Provides
     fun provideObserveSelfDeletingMessagesUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
-    ): ObserveSelfDeletingMessagesUseCase = coreLogic.getSessionScope(currentAccount).observeSelfDeletingMessagesFeatureFlag
+    ): ObserveSelfDeletingMessagesUseCase = coreLogic.getSessionScope(currentAccount).observeSelfDeletingMessages
 
     @ViewModelScoped
     @Provides
@@ -1045,7 +1053,7 @@ class UseCaseModule {
     fun provideEnqueueMessageSelfDeletionUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
-    ): EnqueueMessageSelfDeletionUseCase = coreLogic.getSessionScope(currentAccount).enqueueMessageSelfDeletionUseCase
+    ): EnqueueMessageSelfDeletionUseCase = coreLogic.getSessionScope(currentAccount).messages.enqueueMessageSelfDeletion
 
     @ViewModelScoped
     @Provides

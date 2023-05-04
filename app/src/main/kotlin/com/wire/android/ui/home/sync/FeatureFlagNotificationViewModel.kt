@@ -34,7 +34,8 @@ import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.AccountInfo
-import com.wire.kalium.logic.feature.selfdeletingMessages.ObserveSelfDeletingMessagesUseCase
+import com.wire.kalium.logic.feature.selfdeletingMessages.ObserveTeamSettingsSelfDeletingStatusUseCase
+import com.wire.kalium.logic.feature.selfdeletingMessages.SelfDeletionTimer
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
@@ -56,7 +57,7 @@ class FeatureFlagNotificationViewModel @Inject constructor(
     private val currentSessionUseCase: CurrentSessionUseCase,
     private val markFileSharingAsNotified: MarkFileSharingChangeAsNotifiedUseCase,
     private val markSelfDeletingMessagesAsNotified: MarkSelfDeletingMessagesChangeAsNotifiedUseCase,
-    private val observeSelfDeletingMessages: ObserveSelfDeletingMessagesUseCase,
+    private val observeTeamSettingsSelfDeletingMessages: ObserveTeamSettingsSelfDeletingStatusUseCase,
     private val observeGuestRoomLinkFeatureFlag: ObserveGuestRoomLinkFeatureFlagUseCase,
     private val markGuestLinkFeatureFlagAsNotChanged: MarkGuestLinkFeatureFlagAsNotChangedUseCase,
     private val navigationManager: NavigationManager
@@ -123,16 +124,12 @@ class FeatureFlagNotificationViewModel @Inject constructor(
 
     private suspend fun observeSelfDeletedMessagesFlag() {
         viewModelScope.launch {
-            observeSelfDeletingMessages().collect { selfDeletingMessagesStatus ->
-                selfDeletingMessagesStatus.isFeatureEnabled.let {
-                    featureFlagState = featureFlagState.copy(areSelfDeletedMessagesEnabled = it)
-                }
-                selfDeletingMessagesStatus.hasFeatureChanged?.let {
-                    featureFlagState = featureFlagState.copy(
-                        shouldShowSelfDeletingMessagesDialog = it,
-                        enforcedTimeoutDuration = selfDeletingMessagesStatus.globalSelfDeletionDuration.toSelfDeletionDuration()
-                    )
-                }
+            observeTeamSettingsSelfDeletingMessages().collect { teamSettingsSelfDeletingStatus ->
+                featureFlagState = featureFlagState.copy(
+                    areSelfDeletedMessagesEnabled = teamSettingsSelfDeletingStatus.enforcedSelfDeletionTimer !is SelfDeletionTimer.Disabled,
+                    shouldShowSelfDeletingMessagesDialog = teamSettingsSelfDeletingStatus.hasFeatureChanged ?: false,
+                    enforcedTimeoutDuration = teamSettingsSelfDeletingStatus.enforcedSelfDeletionTimer.toDuration().toSelfDeletionDuration()
+                )
             }
         }
     }

@@ -24,13 +24,13 @@ import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 
 @Composable
-fun rememberSelfDeletionTimer(expirationStatus: ExpirationStatus): SelfDeletionTimer.SelfDeletionTimerState {
+fun rememberSelfDeletionTimer(expirationStatus: ExpirationStatus): SelfDeletionTimerHelper.SelfDeletionTimerState {
     val context = LocalContext.current
 
-    return remember { SelfDeletionTimer(context).fromExpirationStatus(expirationStatus) }
+    return remember { SelfDeletionTimerHelper(context).fromExpirationStatus(expirationStatus) }
 }
 
-class SelfDeletionTimer(private val context: Context) {
+class SelfDeletionTimerHelper(private val context: Context) {
 
     fun fromExpirationStatus(expirationStatus: ExpirationStatus): SelfDeletionTimerState {
         return if (expirationStatus is ExpirationStatus.Expirable) {
@@ -246,7 +246,7 @@ class SelfDeletionTimer(private val context: Context) {
 @Composable
 fun startDeletionTimer(
     message: UIMessage.Regular,
-    expirableTimer: SelfDeletionTimer.SelfDeletionTimerState.Expirable,
+    expirableTimer: SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable,
     onStartMessageSelfDeletion: (UIMessage.Regular) -> Unit
 ) {
     message.messageContent?.let {
@@ -290,7 +290,7 @@ fun startDeletionTimer(
 
 @Composable
 private fun startAssetDeletion(
-    expirableTimer: SelfDeletionTimer.SelfDeletionTimerState.Expirable,
+    expirableTimer: SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable,
     onSelfDeletingMessageRead: () -> Unit,
     downloadStatus: Message.DownloadStatus
 ) {

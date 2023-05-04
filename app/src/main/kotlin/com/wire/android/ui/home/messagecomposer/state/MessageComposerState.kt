@@ -153,7 +153,7 @@ data class MessageComposerState(
 
     fun toActive() {
         if (messageComposeInputState !is MessageComposeInputState.Active) {
-            messageComposeInputState = messageComposeInputState.toActive(selfDeletingStatus = currentSelfDeletingStatus)
+            messageComposeInputState = messageComposeInputState.toActive(selfDeletionTimer = currentSelfDeletingStatus)
         }
     }
 

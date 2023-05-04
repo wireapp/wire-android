@@ -153,7 +153,7 @@ class FeatureFlagNotificationViewModelTest {
             observeGuestRoomLinkFeatureFlag = observeGuestRoomLinkFeatureFlag,
             markGuestLinkFeatureFlagAsNotChanged = markGuestLinkFeatureFlagAsNotChanged,
             markSelfDeletingMessagesAsNotified = markSelfDeletingMessagesChangeAsNotified,
-            observeSelfDeletingMessages = observeSelfDeletingMessages,
+            observeTeamSettingsSelfDeletingMessages = observeSelfDeletingMessages,
             navigationManager = navigationManager
         )
 

@@ -108,9 +108,9 @@ fun ContactsScreen(
             SearchFailureBox(failureMessage = allKnownContactResult.failureString)
         }
 
-        //TODO: what to do when user has no contacts ?
+        // TODO: what to do when user has no contacts ?
         SearchResultState.EmptyResult -> {
-
+            /*NO OP*/
         }
     }
 }
@@ -149,7 +149,8 @@ private fun ContactItem(
                 Text(
                     text = if (isMetadataNotAvailable) stringResource(R.string.username_unavailable_label) else name,
                     style = MaterialTheme.wireTypography.title02.copy(
-                        color = if (isMetadataNotAvailable) MaterialTheme.wireColorScheme.secondaryText else MaterialTheme.wireTypography.title02.color
+                        color = if (isMetadataNotAvailable) MaterialTheme.wireColorScheme.secondaryText
+                        else MaterialTheme.wireTypography.title02.color
                     ),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,

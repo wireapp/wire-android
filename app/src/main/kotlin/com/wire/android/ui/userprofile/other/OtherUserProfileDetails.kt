@@ -81,7 +81,6 @@ fun OtherUserProfileDetails(
     }
 }
 
-
 @Composable
 private fun UserDetailInformation(
     title: String,

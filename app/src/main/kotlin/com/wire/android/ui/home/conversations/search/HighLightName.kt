@@ -91,7 +91,8 @@ fun HighlightName(
         Text(
             text = name,
             style = MaterialTheme.wireTypography.title02.copy(
-                color = if (name.isUnknownUser()) MaterialTheme.wireColorScheme.secondaryText else MaterialTheme.wireTypography.title02.color
+                color = if (name.isUnknownUser()) MaterialTheme.wireColorScheme.secondaryText
+                else MaterialTheme.wireTypography.title02.color
             ),
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
@@ -102,4 +103,3 @@ fun HighlightName(
 
 @Composable
 private fun String.isUnknownUser() = this == stringResource(id = R.string.username_unavailable_label)
-

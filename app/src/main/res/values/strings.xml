@@ -385,6 +385,8 @@
     <string name="conversation_participant_you_label">(You)</string>
     <string name="conversation_details_is_classified">SECURITY LEVEL: VS-NfD</string>
     <string name="conversation_details_is_not_classified">SECURITY LEVEL: UNCLASSIFIED</string>
+    <string name="conversation_options_self_deleting_messages_label">Self-deleting messages</string>
+    <string name="conversation_options_self_deleting_messages_description">When this is on, all messages in this group will disappear after a certain time.</string>
     <string name="conversation_options_guests_label">Guests</string>
     <string name="conversation_details_guest_description">When this is ON, people from outside your team can join this conversation</string>
     <string name="conversation_options_guest_description">Turn this option ON to open this conversation to people outside your team, even if they don\'t have Wire.</string>
@@ -914,6 +916,14 @@
     <string name="join_conversation_via_deeplink_error_link_expired">The link to this group conversation expired or the conversation was set to private.</string>
     <string name="join_conversation_via_deeplink_error_max_number_of_participent">The maximum number of participants in this conversation has been reached.</string>
     <string name="join_conversation_via_deeplink_error_general">Due to an error you could not be added to the group conversation.</string>
+
+    <!-- edit self-deleting messages -->
+    <string name="self_deleting_messages_title">Self-deleting Messages</string>
+    <string name="self_deleting_messages_option">Enforce message deletion</string>
+    <string name="self_deleting_messages_option_description">When this is on, all messages in this group will disappear after a certain time. This applies to all group participants.</string>
+    <string name="self_deleting_messages_folder_timer">Timer</string>
+    <string name="self_deleting_messages_folder_timer_description">Automatically delete messages after:</string>
+
     <!-- guest room link -->
     <string name="folder_label_guest_link">Guest link</string>
     <string name="guest_link_description">Invite others with a link to this conversation. Anyone with the link can join the conversation, even if they don’t have Wire.</string>

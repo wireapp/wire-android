@@ -415,6 +415,18 @@ class GroupConversationDetailsViewModel @Inject constructor(
         }
     }
 
+    fun navigateSelfDeletingMessagesScreen() {
+        viewModelScope.launch {
+            navigationManager.navigate(
+                command = NavigationCommand(
+                    destination = NavigationItem.EditSelfDeletingMessages.getRouteWithArgs(
+                        listOf(conversationId)
+                    )
+                )
+            )
+        }
+    }
+
     fun navigateToEditGuestAccessScreen() {
         if (groupOptionsState.value.isUpdatingAllowed) {
             viewModelScope.launch {

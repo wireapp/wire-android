@@ -383,4 +383,3 @@ fun MessageMention.toUiMention(originalText: String) = UiMention(
     userId = this.userId,
     handler = originalText.substring(start, start + length)
 )
-

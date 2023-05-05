@@ -171,19 +171,6 @@ fun MessageComposerInputRow(
 }
 
 @Composable
-fun EditExtraOptions(
-    editButtonEnabled: Boolean,
-    onEditSaveButtonClicked: () -> Unit,
-    onEditCancelButtonClicked: () -> Unit
-) {
-    MessageEditActions(
-        onEditSaveButtonClicked = onEditSaveButtonClicked,
-        onEditCancelButtonClicked = onEditCancelButtonClicked,
-        editButtonEnabled = editButtonEnabled
-    )
-}
-
-@Composable
 private fun MessageComposerInput(
     messageText: TextFieldValue,
     onMessageTextChanged: (TextFieldValue) -> Unit,

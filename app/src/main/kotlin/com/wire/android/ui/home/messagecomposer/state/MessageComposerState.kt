@@ -349,12 +349,12 @@ data class MessageComposerState(
 
     fun updateSelfDeletionTime(newSelfDeletionTimer: SelfDeletionTimer) = with(newSelfDeletionTimer) {
         currentSelfDeletionTimer = newSelfDeletionTimer
-        val selfDeletionDuration = newSelfDeletionTimer.toDuration().toSelfDeletionDuration()
+        val newSelfDeletionDuration = newSelfDeletionTimer.toDuration().toSelfDeletionDuration()
         messageComposeInputState = MessageComposeInputState.Active(
             messageText = messageComposeInputState.messageText,
             inputFocused = true,
-            type = if (selfDeletionDuration == SelfDeletionDuration.None) MessageComposeInputType.NewMessage()
-            else MessageComposeInputType.SelfDeletingMessage(selfDeletionDuration, isEnforced)
+            type = if (newSelfDeletionDuration == SelfDeletionDuration.None) MessageComposeInputType.NewMessage()
+            else MessageComposeInputType.SelfDeletingMessage(newSelfDeletionDuration, isEnforced)
         )
     }
 

@@ -102,7 +102,7 @@ fun MessageItem(
 ) {
     with(message) {
         val selfDeletionTimerState = rememberSelfDeletionTimer(expirationStatus)
-        if (selfDeletionTimerState is SelfDeletionTimer.SelfDeletionTimerState.Expirable) {
+        if (selfDeletionTimerState is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable) {
             startDeletionTimer(
                 message = message,
                 expirableTimer = selfDeletionTimerState,
@@ -112,7 +112,7 @@ fun MessageItem(
 
         val backgroundColorModifier = if (message.sendingFailed || message.receivingFailed) {
             Modifier.background(colorsScheme().messageErrorBackgroundColor)
-        } else if (selfDeletionTimerState is SelfDeletionTimer.SelfDeletionTimerState.Expirable && !message.isDeleted) {
+        } else if (selfDeletionTimerState is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable && !message.isDeleted) {
             val color by animateColorAsState(
                 colorsScheme().primaryVariant.copy(selfDeletionTimerState.alphaBackgroundColor()),
                 tween(),
@@ -174,8 +174,7 @@ fun MessageItem(
                     if (showAuthor) {
                         MessageAuthorRow(messageHeader = message.header)
                     }
-
-                    if (selfDeletionTimerState is SelfDeletionTimer.SelfDeletionTimerState.Expirable) {
+                    if (selfDeletionTimerState is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable) {
                         MessageExpireLabel(messageContent, selfDeletionTimerState.timeLeftFormatted())
 
                         // if the message is marked as deleted and is [SelfDeletionTimer.SelfDeletionTimerState.Expirable]
@@ -246,12 +245,12 @@ fun EphemeralMessageExpiredLabel(conversationDetailsData: ConversationDetailsDat
     val stringResource = if (conversationDetailsData is ConversationDetailsData.OneOne) {
         conversationDetailsData.otherUserName?.let {
             stringResource(
-                R.string.label_information_waiting_for_recipent_timer_to_expire_one_to_one,
+                R.string.label_information_waiting_for_recipient_timer_to_expire_one_to_one,
                 conversationDetailsData.otherUserName
             )
         } ?: stringResource(id = R.string.unknown_user_name)
     } else {
-        stringResource(R.string.label_information_waiting_for_recipent_timer_to_expire_group)
+        stringResource(R.string.label_information_waiting_for_recipient_timer_to_expire_group)
     }
 
     Text(

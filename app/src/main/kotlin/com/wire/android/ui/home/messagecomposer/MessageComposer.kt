@@ -83,6 +83,7 @@ fun MessageComposer(
     membersToMention: List<Contact>,
     onPingClicked: () -> Unit,
     onShowSelfDeletionOption: () -> Unit,
+    showSelfDeletingOption: Boolean,
     tempWritableImageUri: Uri?,
     tempWritableVideoUri: Uri?
 ) {
@@ -115,7 +116,7 @@ fun MessageComposer(
                         EditMessageBundle(
                             originalMessageId = originalMessageId,
                             newContent = messageComposerState.messageComposeInputState.messageText.text,
-                            newMentions = messageComposerState.mentions,
+                            messageComposerState.mentions,
                         )
                     )
                 }
@@ -147,6 +148,7 @@ fun MessageComposer(
             onMentionPicked = onMentionPicked,
             onPingClicked = onPingClicked,
             onShowSelfDeletionOption = onShowSelfDeletionOption,
+            showSelfDeletingOption = showSelfDeletingOption,
             tempWritableImageUri = tempWritableImageUri,
             tempWritableVideoUri = tempWritableVideoUri
         )
@@ -169,7 +171,8 @@ private fun MessageComposer(
     onEditSaveButtonClicked: () -> Unit,
     onMentionPicked: (Contact) -> Unit,
     onPingClicked: () -> Unit,
-    onShowSelfDeletionOption: () -> Unit
+    onShowSelfDeletionOption: () -> Unit,
+    showSelfDeletingOption: Boolean
 ) {
     Surface(color = colorsScheme().messageComposerBackgroundColor) {
         val transition = updateTransition(
@@ -252,6 +255,7 @@ private fun MessageComposer(
                         quotedMessageData = messageComposerState.quotedMessageData,
                         membersToMention = membersToMention,
                         inputFocusRequester = messageComposerState.inputFocusRequester,
+                        showSelfDeletingOption = showSelfDeletingOption,
                         actions = remember(messageComposerState) {
                             MessageComposerInputActions(
                                 onMessageTextChanged = messageComposerState::setMessageTextValue,

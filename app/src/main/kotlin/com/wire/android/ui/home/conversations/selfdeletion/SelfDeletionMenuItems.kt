@@ -60,7 +60,7 @@ private fun SelfDeletionDurationMenuItem(
 ) {
     with(duration) {
         SelectableMenuBottomSheetItem(
-            title = label.asString(),
+            title = longLabel.asString(),
             titleStyleUnselected = MaterialTheme.wireTypography.body01,
             titleStyleSelected = MaterialTheme.wireTypography.body01,
             onItemClick = Clickable { onSelfDeletionDurationSelected(duration) },

@@ -20,8 +20,11 @@ package com.wire.android.ui.home.messagecomposer.state
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.text.input.TextFieldValue
 import com.wire.android.R
+import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMapper.toSelfDeletionDuration
 import com.wire.android.util.ui.UIText
+import com.wire.kalium.logic.feature.selfdeletingMessages.SelfDeletionTimer
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.ZERO
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
@@ -46,9 +49,25 @@ sealed class MessageComposeInputState {
         val size: MessageComposeInputSize = MessageComposeInputSize.COLLAPSED,
     ) : MessageComposeInputState()
 
-    fun toActive(messageText: TextFieldValue = this.messageText, inputFocused: Boolean = this.inputFocused) = when (this) {
-        is Active -> Active(messageText, inputFocused, this.type, this.size)
-        is Inactive -> Active(messageText, inputFocused)
+    fun toActive(
+        messageText: TextFieldValue = this.messageText,
+        inputFocused: Boolean = this.inputFocused,
+        selfDeletionTimer: SelfDeletionTimer
+    ): MessageComposeInputState {
+        val isSelfDeletingType = selfDeletionTimer !is SelfDeletionTimer.Disabled && selfDeletionTimer.toDuration() > ZERO
+
+        return when {
+            isSelfDeletingType -> {
+                val selfDeletingType = MessageComposeInputType.SelfDeletingMessage(
+                    selfDeletionDuration = selfDeletionTimer.toDuration().toSelfDeletionDuration(),
+                    isEnforced = selfDeletionTimer.isEnforced,
+                    attachmentOptionsDisplayed = attachmentOptionsDisplayed
+                )
+                Active(messageText, inputFocused, selfDeletingType)
+            }
+
+            else -> Active(messageText, inputFocused)
+        }
     }
 
     fun toInactive(messageText: TextFieldValue = this.messageText, inputFocused: Boolean = this.inputFocused) =
@@ -103,17 +122,26 @@ sealed class MessageComposeInputType {
     @Stable
     data class SelfDeletingMessage(
         val selfDeletionDuration: SelfDeletionDuration,
-        val attachmentOptionsDisplayed: Boolean = false,
+        val isEnforced: Boolean,
+        val attachmentOptionsDisplayed: Boolean = false
     ) : MessageComposeInputType()
 }
 
 @Suppress("MagicNumber")
-enum class SelfDeletionDuration(val value: Duration?, val label: UIText) {
-    None(null, UIText.StringResource(R.string.label_off)),
-    TenSeconds(10.seconds, UIText.PluralResource(R.plurals.seconds_label, 10, 10)),
-    FiveMinutes(5.minutes, UIText.PluralResource(R.plurals.minutes_label, 5, 5)),
-    OneHour(1.hours, UIText.PluralResource(R.plurals.hours_label, 1, 1)),
-    OneDay(1.days, UIText.PluralResource(R.plurals.days_label, 1, 1)),
-    OneWeek(7.days, UIText.PluralResource(R.plurals.days_label, 7, 7)),
-    FourWeeks(28.days, UIText.PluralResource(R.plurals.weeks_label, 4, 4))
+enum class SelfDeletionDuration(val value: Duration, val longLabel: UIText, val shortLabel: UIText) {
+    None(ZERO, UIText.StringResource(R.string.label_off), UIText.StringResource(R.string.label_off)),
+    TenSeconds(
+        10.seconds,
+        UIText.PluralResource(R.plurals.seconds_long_label, 10, 10),
+        UIText.StringResource(R.string.ten_seconds_short_label)
+    ),
+    FiveMinutes(
+        5.minutes,
+        UIText.PluralResource(R.plurals.minutes_long_label, 5, 5),
+        UIText.StringResource(R.string.five_minutes_short_label)
+    ),
+    OneHour(1.hours, UIText.PluralResource(R.plurals.hours_long_label, 1, 1), UIText.StringResource(R.string.one_hour_short_label)),
+    OneDay(1.days, UIText.PluralResource(R.plurals.days_long_label, 1, 1), UIText.StringResource(R.string.one_day_short_label)),
+    OneWeek(7.days, UIText.PluralResource(R.plurals.days_long_label, 7, 7), UIText.StringResource(R.string.one_week_short_label)),
+    FourWeeks(28.days, UIText.PluralResource(R.plurals.weeks_long_label, 4, 4), UIText.StringResource(R.string.four_weeks_short_label)),
 }

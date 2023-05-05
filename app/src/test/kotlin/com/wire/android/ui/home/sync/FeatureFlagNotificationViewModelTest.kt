@@ -7,11 +7,13 @@ import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.configuration.FileSharingStatus
 import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.feature.auth.AccountInfo
+import com.wire.kalium.logic.feature.selfdeletingMessages.ObserveSelfDeletionTimerForConversationUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import com.wire.kalium.logic.feature.session.GetSessionsUseCase
 import com.wire.kalium.logic.feature.user.MarkFileSharingChangeAsNotifiedUseCase
+import com.wire.kalium.logic.feature.user.MarkSelfDeletingMessagesChangeAsNotifiedUseCase
 import com.wire.kalium.logic.feature.user.guestroomlink.MarkGuestLinkFeatureFlagAsNotChangedUseCase
 import com.wire.kalium.logic.feature.user.guestroomlink.ObserveGuestRoomLinkFeatureFlagUseCase
 import io.mockk.MockKAnnotations
@@ -113,6 +115,7 @@ class FeatureFlagNotificationViewModelTest {
             coEvery { navigationManager.navigateBack(any()) } returns Unit
             coEvery { currentSession() } returns CurrentSessionResult.Success(AccountInfo.Valid(TestUser.USER_ID))
             coEvery { coreLogic.getSessionScope(any()).observeSyncState() } returns flowOf(SyncState.Live)
+            coEvery { observeSelfDeletingMessages() } returns flowOf()
         }
 
         @MockK
@@ -123,6 +126,12 @@ class FeatureFlagNotificationViewModelTest {
 
         @MockK
         lateinit var coreLogic: CoreLogic
+
+        @MockK
+        lateinit var observeSelfDeletingMessages: ObserveSelfDeletionTimerForConversationUseCase
+
+        @MockK
+        lateinit var markSelfDeletingMessagesChangeAsNotified: MarkSelfDeletingMessagesChangeAsNotifiedUseCase
 
         @MockK
         lateinit var observeGuestRoomLinkFeatureFlag: ObserveGuestRoomLinkFeatureFlagUseCase
@@ -143,6 +152,8 @@ class FeatureFlagNotificationViewModelTest {
             markFileSharingAsNotified = markFileSharingAsNotified,
             observeGuestRoomLinkFeatureFlag = observeGuestRoomLinkFeatureFlag,
             markGuestLinkFeatureFlagAsNotChanged = markGuestLinkFeatureFlagAsNotChanged,
+            markSelfDeletingMessagesAsNotified = markSelfDeletingMessagesChangeAsNotified,
+            observeTeamSettingsSelfDeletingMessages = observeSelfDeletingMessages,
             navigationManager = navigationManager
         )
 

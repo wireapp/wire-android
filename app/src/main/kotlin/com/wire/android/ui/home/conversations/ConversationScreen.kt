@@ -93,6 +93,7 @@ import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.call.usecase.ConferenceCallingResult
 import com.wire.kalium.logic.feature.conversation.InteractionAvailability
+import com.wire.kalium.logic.feature.selfdeletingMessages.SelfDeletionTimer
 import com.wire.kalium.util.DateTimeUtil
 import kotlinx.collections.immutable.ImmutableMap
 import kotlinx.coroutines.CoroutineScope
@@ -103,6 +104,7 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Instant
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.ZERO
 import kotlin.time.Duration.Companion.milliseconds
 
 /**
@@ -217,6 +219,8 @@ fun ConversationScreen(
         conversationMessagesViewModel = conversationMessagesViewModel,
         onPingClicked = messageComposerViewModel::sendPing,
         onSelfDeletingMessageRead = messageComposerViewModel::startSelfDeletion,
+        currentSelfDeletionTimer = messageComposerViewModel.messageComposerViewState.selfDeletionTimer,
+        onNewSelfDeletingMessagesStatus = messageComposerViewModel::updateSelfDeletingMessages,
         tempWritableImageUri = messageComposerViewModel.tempWritableImageUri,
         tempWritableVideoUri = messageComposerViewModel.tempWritableVideoUri
     )
@@ -311,6 +315,8 @@ private fun ConversationScreen(
     conversationMessagesViewModel: ConversationMessagesViewModel,
     onPingClicked: () -> Unit,
     onSelfDeletingMessageRead: (UIMessage.Regular) -> Unit,
+    currentSelfDeletionTimer: SelfDeletionTimer,
+    onNewSelfDeletingMessagesStatus: (SelfDeletionTimer) -> Unit,
     tempWritableImageUri: Uri?,
     tempWritableVideoUri: Uri?
 ) {
@@ -327,6 +333,10 @@ private fun ConversationScreen(
                 }
             }
         )
+    }
+
+    LaunchedEffect(currentSelfDeletionTimer) {
+        messageComposerState.updateSelfDeletionTime(currentSelfDeletionTimer)
     }
 
     val menuModalHeader = if (conversationScreenState.bottomSheetMenuType is ConversationScreenState.BottomSheetMenuType.SelfDeletion) {
@@ -361,7 +371,9 @@ private fun ConversationScreen(
             SelfDeletionMenuItems(
                 hideEditMessageMenu = conversationScreenState::hideContextMenu,
                 currentlySelected = messageComposerState.getSelfDeletionTime(),
-                onSelfDeletionDurationChanged = { messageComposerState.specifySelfDeletionTime(it) }
+                onSelfDeletionDurationChanged = { newTimer ->
+                    onNewSelfDeletingMessagesStatus(SelfDeletionTimer.Enabled(newTimer.value))
+                }
             )
         }
 
@@ -513,6 +525,7 @@ private fun ConversationScreenContent(
         },
         onMentionMember = onMentionMember,
         onShowSelfDeletionOption = onShowSelfDeletionOption,
+        showSelfDeletingOption = messageComposerState.shouldShowSelfDeletionOption(),
         isFileSharingEnabled = isFileSharingEnabled,
         interactionAvailability = interactionAvailability,
         securityClassificationType = conversationState.securityClassificationType,
@@ -552,8 +565,8 @@ private fun SnackBarMessage(
     LaunchedEffect(Unit) {
         composerMessages.collect {
             conversationScreenState.snackBarHostState.showSnackbar(
-            message = it.uiText.asString(context.resources)
-        )
+                message = it.uiText.asString(context.resources)
+            )
         }
     }
 
@@ -708,6 +721,8 @@ fun PreviewConversationScreen() {
         conversationMessagesViewModel = hiltViewModel(),
         onPingClicked = {},
         onSelfDeletingMessageRead = {},
+        currentSelfDeletionTimer = SelfDeletionTimer.Enabled(ZERO),
+        onNewSelfDeletingMessagesStatus = {},
         tempWritableImageUri = null,
         tempWritableVideoUri = null
     )

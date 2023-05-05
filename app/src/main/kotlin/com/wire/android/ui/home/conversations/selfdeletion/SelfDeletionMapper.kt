@@ -14,26 +14,20 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
-
-package com.wire.android.ui.home
+package com.wire.android.ui.home.conversations.selfdeletion
 
 import com.wire.android.ui.home.messagecomposer.state.SelfDeletionDuration
+import kotlin.time.Duration
 
-data class FeatureFlagState(
-    val showFileSharingDialog: Boolean = false,
-    val isFileSharingEnabledState: Boolean = true,
-    val fileSharingRestrictedState: SharingRestrictedState = SharingRestrictedState.NONE,
-    val shouldShowGuestRoomLinkDialog: Boolean = false,
-    val isGuestRoomLinkEnabled: Boolean = true,
-    val shouldShowSelfDeletingMessagesDialog: Boolean = false,
-    val enforcedTimeoutDuration: SelfDeletionDuration = SelfDeletionDuration.None,
-    val areSelfDeletedMessagesEnabled: Boolean = true
-) {
-    fun isSharingAllowed() = fileSharingRestrictedState == SharingRestrictedState.NONE
-    enum class SharingRestrictedState {
-        NONE, NO_USER, RESTRICTED_IN_TEAM
+object SelfDeletionMapper {
+    fun Duration.toSelfDeletionDuration(): SelfDeletionDuration = when (this) {
+        SelfDeletionDuration.TenSeconds.value -> SelfDeletionDuration.TenSeconds
+        SelfDeletionDuration.FiveMinutes.value -> SelfDeletionDuration.FiveMinutes
+        SelfDeletionDuration.OneHour.value -> SelfDeletionDuration.OneHour
+        SelfDeletionDuration.OneDay.value -> SelfDeletionDuration.OneDay
+        SelfDeletionDuration.OneWeek.value -> SelfDeletionDuration.OneWeek
+        SelfDeletionDuration.FourWeeks.value -> SelfDeletionDuration.FourWeeks
+        else -> SelfDeletionDuration.None
     }
 }

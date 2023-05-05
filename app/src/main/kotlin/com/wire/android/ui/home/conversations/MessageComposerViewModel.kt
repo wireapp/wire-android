@@ -74,6 +74,9 @@ import com.wire.kalium.logic.feature.message.SendEditTextMessageUseCase
 import com.wire.kalium.logic.feature.message.SendKnockUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.message.ephemeral.EnqueueMessageSelfDeletionUseCase
+import com.wire.kalium.logic.feature.selfdeletingMessages.ObserveSelfDeletionTimerForConversationUseCase
+import com.wire.kalium.logic.feature.selfdeletingMessages.PersistNewSelfDeletionTimerUseCase
+import com.wire.kalium.logic.feature.selfdeletingMessages.SelfDeletionTimer
 import com.wire.kalium.logic.feature.user.IsFileSharingEnabledUseCase
 import com.wire.kalium.logic.functional.onFailure
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -108,6 +111,8 @@ class MessageComposerViewModel @Inject constructor(
     private val getAssetSizeLimit: GetAssetSizeLimitUseCase,
     private val sendKnockUseCase: SendKnockUseCase,
     private val enqueueMessageSelfDeletionUseCase: EnqueueMessageSelfDeletionUseCase,
+    private val observeSelfDeletingMessages: ObserveSelfDeletionTimerForConversationUseCase,
+    private val persistNewSelfDeletingStatus: PersistNewSelfDeletionTimerUseCase,
     private val pingRinger: PingRinger,
     private val imageUtil: ImageUtil,
     private val fileManager: FileManager
@@ -148,11 +153,12 @@ class MessageComposerViewModel @Inject constructor(
     val infoMessage = _infoMessage.asSharedFlow()
 
     init {
-        observeIsTypingAvailable()
-        fetchConversationClassificationType()
-        setFileSharingStatus()
         initTempWritableVideoUri()
         initTempWritableImageUri()
+        fetchConversationClassificationType()
+        observeIsTypingAvailable()
+        observeSelfDeletingMessagesStatus()
+        setFileSharingStatus()
     }
 
     fun onSnackbarMessage(type: SnackBarMessage) = viewModelScope.launch {
@@ -167,6 +173,12 @@ class MessageComposerViewModel @Inject constructor(
                     is IsInteractionAvailableResult.Success -> result.interactionAvailability
                 }
             )
+        }
+    }
+
+    private fun observeSelfDeletingMessagesStatus() = viewModelScope.launch {
+        observeSelfDeletingMessages(conversationId).collect { selfDeletingStatus ->
+            messageComposerViewState = messageComposerViewState.copy(selfDeletionTimer = selfDeletingStatus)
         }
     }
 
@@ -351,6 +363,11 @@ class MessageComposerViewModel @Inject constructor(
 
     fun startSelfDeletion(uiMessage: UIMessage.Regular) {
         enqueueMessageSelfDeletionUseCase(conversationId, uiMessage.header.messageId)
+    }
+
+    fun updateSelfDeletingMessages(newSelfDeletionTimer: SelfDeletionTimer) = viewModelScope.launch {
+        messageComposerViewState.copy(selfDeletionTimer = newSelfDeletionTimer)
+        persistNewSelfDeletingStatus(conversationId, newSelfDeletionTimer)
     }
 
     fun navigateBack(previousBackStackPassedArgs: Map<String, Any> = mapOf()) {

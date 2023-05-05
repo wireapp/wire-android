@@ -39,6 +39,7 @@ import com.wire.android.appLogger
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.conversations.model.UIQuotedMessage
+import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMapper.toSelfDeletionDuration
 import com.wire.android.ui.home.messagecomposer.model.UiMention
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.ui.theme.wireColorScheme
@@ -47,10 +48,12 @@ import com.wire.android.util.MENTION_SYMBOL
 import com.wire.android.util.NEW_LINE_SYMBOL
 import com.wire.android.util.WHITE_SPACE
 import com.wire.android.util.ui.toUIText
-import com.wire.kalium.logic.data.user.UserId
-import kotlinx.coroutines.flow.MutableStateFlow
 import com.wire.kalium.logic.data.message.mention.MessageMention
+import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.selfdeletingMessages.SelfDeletionTimer
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlin.time.Duration.Companion.ZERO
 
 @Composable
 fun rememberMessageComposerState(): MessageComposerState {
@@ -83,6 +86,9 @@ data class MessageComposerState(
 ) {
     var messageComposeInputState: MessageComposeInputState by mutableStateOf(MessageComposeInputState.Inactive())
         private set
+
+    private var currentSelfDeletionTimer: SelfDeletionTimer by mutableStateOf(SelfDeletionTimer.Enabled(ZERO))
+
     private val _mentionQueryFlowState: MutableStateFlow<String?> = MutableStateFlow(null)
 
     val mentionQueryFlowState: StateFlow<String?> = _mentionQueryFlowState
@@ -94,7 +100,6 @@ data class MessageComposerState(
     fun setMessageTextValue(text: TextFieldValue) {
         updateMentionsIfNeeded(text)
         requestMentionSuggestionIfNeeded(text)
-
         messageComposeInputState = messageComposeInputState.copyCurrent(messageText = applyMentionStylesIntoText(text))
     }
 
@@ -151,7 +156,7 @@ data class MessageComposerState(
 
     fun toActive() {
         if (messageComposeInputState !is MessageComposeInputState.Active) {
-            messageComposeInputState = messageComposeInputState.toActive()
+            messageComposeInputState = messageComposeInputState.toActive(selfDeletionTimer = currentSelfDeletionTimer)
         }
     }
 
@@ -177,6 +182,7 @@ data class MessageComposerState(
                         )
                     )
                 }
+
                 is MessageComposeInputType.SelfDeletingMessage -> {
                     messageComposeInputState = activeState.copy(
                         type = currentType.copy(
@@ -184,7 +190,8 @@ data class MessageComposerState(
                         )
                     )
                 }
-                else -> { }
+
+                else -> {}
             }
         }
     }
@@ -340,19 +347,22 @@ data class MessageComposerState(
         quotedMessageData = null
     }
 
-    fun specifySelfDeletionTime(selfDeletionDuration: SelfDeletionDuration) {
+    fun updateSelfDeletionTime(newSelfDeletionTimer: SelfDeletionTimer) = with(newSelfDeletionTimer) {
+        currentSelfDeletionTimer = newSelfDeletionTimer
+        val newSelfDeletionDuration = newSelfDeletionTimer.toDuration().toSelfDeletionDuration()
         messageComposeInputState = MessageComposeInputState.Active(
-                messageText = messageComposeInputState.messageText,
-                inputFocused = true,
-                type = if (selfDeletionDuration == SelfDeletionDuration.None) MessageComposeInputType.NewMessage()
-                else MessageComposeInputType.SelfDeletingMessage(selfDeletionDuration)
-            )
+            messageText = messageComposeInputState.messageText,
+            inputFocused = true,
+            type = if (newSelfDeletionDuration == SelfDeletionDuration.None) MessageComposeInputType.NewMessage()
+            else MessageComposeInputType.SelfDeletingMessage(newSelfDeletionDuration, isEnforced)
+        )
     }
 
-    fun getSelfDeletionTime(): SelfDeletionDuration {
-        return (messageComposeInputState as? MessageComposeInputState.Active)
-            ?.let { it.type as? MessageComposeInputType.SelfDeletingMessage }?.selfDeletionDuration
-            ?: SelfDeletionDuration.None
+    fun getSelfDeletionTime(): SelfDeletionDuration = currentSelfDeletionTimer.toDuration().toSelfDeletionDuration()
+
+    fun shouldShowSelfDeletionOption(): Boolean = with(currentSelfDeletionTimer) {
+        // We shouldn't show the self-deleting option if there is a compulsory duration already set on the team settings level
+        this !is SelfDeletionTimer.Disabled && !isEnforced
     }
 }
 

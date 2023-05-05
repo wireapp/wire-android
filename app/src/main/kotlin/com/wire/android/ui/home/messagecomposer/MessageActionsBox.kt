@@ -61,6 +61,7 @@ fun MessageComposeActionsBox(
     onAdditionalOptionButtonClicked: () -> Unit,
     onPingClicked: () -> Unit,
     onSelfDeletionOptionButtonClicked: () -> Unit,
+    showSelfDeletingOption: Boolean,
     modifier: Modifier = Modifier,
 ) {
     Column(modifier.wrapContentSize()) {
@@ -83,7 +84,8 @@ fun MessageComposeActionsBox(
                         startMention,
                         onAdditionalOptionButtonClicked,
                         onPingClicked,
-                        onSelfDeletionOptionButtonClicked
+                        onSelfDeletionOptionButtonClicked,
+                        showSelfDeletingOption
                     )
                 }
             }
@@ -101,7 +103,8 @@ private fun MessageComposeActions(
     startMention: () -> Unit,
     onAdditionalOptionButtonClicked: () -> Unit,
     onPingClicked: () -> Unit,
-    onSelfDeletionOptionButtonClicked: () -> Unit
+    onSelfDeletionOptionButtonClicked: () -> Unit,
+    showSelfDeletingOption: Boolean,
 ) {
     val localFeatureVisibilityFlags = LocalFeatureVisibilityFlags.current
 
@@ -121,8 +124,9 @@ private fun MessageComposeActions(
             if (RichTextIcon) RichTextEditingAction()
             if (!isEditMessage && EmojiIcon) AddEmojiAction()
             if (!isEditMessage && GifIcon) AddGifAction()
-            if (!isEditMessage) SelfDeletingMessageAction(
-                isSelected = selfDeletingOptionSelected, onButtonClicked = onSelfDeletionOptionButtonClicked
+            if (!isEditMessage && showSelfDeletingOption) SelfDeletingMessageAction(
+                isSelected = selfDeletingOptionSelected,
+                onButtonClicked = onSelfDeletionOptionButtonClicked
             )
             if (!isEditMessage && PingIcon) PingAction(onPingClicked = onPingClicked)
             AddMentionAction(isMentionsSelected, startMention)

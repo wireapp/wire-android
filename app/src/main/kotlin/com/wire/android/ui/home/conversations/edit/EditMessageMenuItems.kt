@@ -40,6 +40,8 @@ import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.message.mention.MessageMention
 
+// TODO: for now suppress, candidate for refactor
+@Suppress("ComplexMethod")
 @Composable
 fun EditMessageMenuItems(
     message: UIMessage.Regular,
@@ -67,7 +69,11 @@ fun EditMessageMenuItems(
     val onCopyItemClick = remember(message) {
         {
             hideEditMessageMenu {
-                onCopyClick((message.messageContent as UIMessageContent.TextMessage).messageBody.message.asString(localContext.resources))
+                onCopyClick(
+                    (message.messageContent as UIMessageContent.TextMessage).messageBody.message.asString(
+                        localContext.resources
+                    )
+                )
             }
         }
     }

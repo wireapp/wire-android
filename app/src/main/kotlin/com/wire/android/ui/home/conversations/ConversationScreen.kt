@@ -71,6 +71,7 @@ import com.wire.android.ui.home.conversations.call.ConversationCallViewModel
 import com.wire.android.ui.home.conversations.call.ConversationCallViewState
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialog
 import com.wire.android.ui.home.conversations.edit.EditMessageMenuItems
+import com.wire.android.ui.home.conversations.info.ConversationDetailsData
 import com.wire.android.ui.home.conversations.info.ConversationInfoViewModel
 import com.wire.android.ui.home.conversations.info.ConversationInfoViewState
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewModel
@@ -417,6 +418,7 @@ private fun ConversationScreen(
                         isFileSharingEnabled = messageComposerViewState.isFileSharingEnabled,
                         lastUnreadMessageInstant = conversationMessagesViewState.firstUnreadInstant,
                         conversationState = messageComposerViewState,
+                        conversationDetailsData = conversationInfoViewState.conversationDetailsData,
                         messageComposerState = messageComposerState,
                         messages = conversationMessagesViewState.messages,
                         onSendMessage = onSendMessage,
@@ -473,7 +475,8 @@ private fun ConversationScreenContent(
     onPingClicked: () -> Unit,
     onSelfDeletingMessageRead: (UIMessage.Regular) -> Unit,
     tempWritableImageUri: Uri?,
-    tempWritableVideoUri: Uri?
+    tempWritableVideoUri: Uri?,
+    conversationDetailsData: ConversationDetailsData
 ) {
     val scope = rememberCoroutineScope()
 
@@ -501,7 +504,8 @@ private fun ConversationScreenContent(
                 onReactionClicked = onReactionClicked,
                 onResetSessionClicked = onResetSessionClicked,
                 onSelfDeletingMessageRead = onSelfDeletingMessageRead,
-                onShowEditingOption = onShowEditingOptions
+                onShowEditingOption = onShowEditingOptions,
+                conversationDetailsData = conversationDetailsData
             )
         },
         onSendTextMessage = { messageBundle ->
@@ -596,7 +600,8 @@ fun MessageList(
     onReactionClicked: (String, String) -> Unit,
     onResetSessionClicked: (senderUserId: UserId, clientId: String?) -> Unit,
     onShowEditingOption: (UIMessage.Regular) -> Unit,
-    onSelfDeletingMessageRead: (UIMessage.Regular) -> Unit
+    onSelfDeletingMessageRead: (UIMessage.Regular) -> Unit,
+    conversationDetailsData: ConversationDetailsData
 ) {
     val mostRecentMessage = lazyPagingMessages.itemCount.takeIf { it > 0 }?.let { lazyPagingMessages[0] }
 
@@ -639,6 +644,7 @@ fun MessageList(
                 is UIMessage.Regular -> {
                     MessageItem(
                         message = message,
+                        conversationDetailsData = conversationDetailsData,
                         showAuthor = shouldShowHeader(index, lazyPagingMessages.itemSnapshotList.items, message),
                         audioMessagesState = audioMessagesState,
                         onAudioClick = onAudioItemClicked,

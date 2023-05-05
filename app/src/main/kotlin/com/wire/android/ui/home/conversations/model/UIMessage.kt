@@ -54,7 +54,6 @@ sealed class UIMessage(
         val expirationStatus: ExpirationStatus = ExpirationStatus.NotExpirable
     ) : UIMessage(header, source) {
         val isTextMessage = messageContent is UIMessageContent.TextMessage
-
         val isDeleted: Boolean = header.messageStatus == Deleted
         val sendingFailed: Boolean = header.messageStatus is MessageStatus.MessageSendFailureStatus
         val decryptionFailed: Boolean = header.messageStatus is DecryptionFailure

@@ -40,6 +40,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -54,6 +55,8 @@ import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.spacers.VerticalSpace
+import com.wire.android.ui.common.typography
+import com.wire.android.ui.home.conversations.info.ConversationDetailsData
 import com.wire.android.ui.home.conversations.messages.QuotedMessage
 import com.wire.android.ui.home.conversations.messages.QuotedMessageStyle
 import com.wire.android.ui.home.conversations.messages.QuotedUnavailable
@@ -84,6 +87,7 @@ import com.wire.kalium.logic.data.user.UserId
 @Composable
 fun MessageItem(
     message: UIMessage.Regular,
+    conversationDetailsData: ConversationDetailsData,
     showAuthor: Boolean = true,
     audioMessagesState: Map<String, AudioState>,
     onLongClicked: (UIMessage.Regular) -> Unit,
@@ -108,10 +112,11 @@ fun MessageItem(
 
         val backgroundColorModifier = if (message.sendingFailed || message.receivingFailed) {
             Modifier.background(colorsScheme().messageErrorBackgroundColor)
-        } else if (selfDeletionTimerState is SelfDeletionTimer.SelfDeletionTimerState.Expirable) {
+        } else if (selfDeletionTimerState is SelfDeletionTimer.SelfDeletionTimerState.Expirable && !message.isDeleted) {
             val color by animateColorAsState(
                 colorsScheme().primaryVariant.copy(selfDeletionTimerState.alphaBackgroundColor()),
-                tween(), label = "message background color"
+                tween(),
+                label = "message background color"
             )
 
             Modifier.background(color)
@@ -166,9 +171,21 @@ fun MessageItem(
                 Spacer(Modifier.padding(start = dimensions().spacing16x - fullAvatarOuterPadding))
                 Column {
                     Spacer(modifier = Modifier.height(fullAvatarOuterPadding))
-                    MessageHeader(header, showAuthor)
+                    if (showAuthor) {
+                        MessageAuthorRow(messageHeader = message.header)
+                    }
+
                     if (selfDeletionTimerState is SelfDeletionTimer.SelfDeletionTimerState.Expirable) {
                         MessageExpireLabel(messageContent, selfDeletionTimerState.timeLeftFormatted())
+
+                        // if the message is marked as deleted and is [SelfDeletionTimer.SelfDeletionTimerState.Expirable]
+                        // the deletion responsibility belongs to the receiver, therefore we need to wait for the receiver
+                        // timer to expire to permanently delete the message, in the meantime we show the EphemeralMessageExpiredLabel
+                        if (isDeleted) {
+                            EphemeralMessageExpiredLabel(conversationDetailsData)
+                        }
+                    } else {
+                        MessageStatusLabel(messageStatus = message.header.messageStatus)
                     }
                     if (!isDeleted) {
                         if (!decryptionFailed) {
@@ -214,14 +231,33 @@ fun MessageItem(
                             )
                         }
                     }
+                }
 
-                    if (message.sendingFailed) {
-                        MessageSendFailureWarning(header.messageStatus as MessageStatus.MessageSendFailureStatus)
-                    }
+                if (message.sendingFailed) {
+                    MessageSendFailureWarning(header.messageStatus as MessageStatus.MessageSendFailureStatus)
                 }
             }
         }
     }
+}
+
+@Composable
+fun EphemeralMessageExpiredLabel(conversationDetailsData: ConversationDetailsData) {
+    val stringResource = if (conversationDetailsData is ConversationDetailsData.OneOne) {
+        conversationDetailsData.otherUserName?.let {
+            stringResource(
+                R.string.label_information_waiting_for_recipent_timer_to_expire_one_to_one,
+                conversationDetailsData.otherUserName
+            )
+        } ?: stringResource(id = R.string.unknown_user_name)
+    } else {
+        stringResource(R.string.label_information_waiting_for_recipent_timer_to_expire_group)
+    }
+
+    Text(
+        text = stringResource,
+        style = typography().body05
+    )
 }
 
 @Composable
@@ -261,41 +297,48 @@ fun MessageExpireLabel(messageContent: UIMessageContent?, timeLeft: String) {
             )
         }
 
+        is UIMessageContent.Deleted -> {
+            val context = LocalContext.current
+
+            StatusBox(
+                statusText = stringResource(
+                    R.string.self_deleting_message_time_left,
+                    context.resources.getQuantityString(
+                        R.plurals.seconds_left,
+                        0,
+                        0
+                    )
+                )
+            )
+        }
+
         else -> {}
     }
 }
 
 @Composable
-private fun MessageHeader(
-    messageHeader: MessageHeader,
-    showAuthor: Boolean
-) {
+private fun MessageAuthorRow(messageHeader: MessageHeader) {
     with(messageHeader) {
-        Column {
-            if (showAuthor) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Row(
-                        modifier = Modifier.weight(weight = 1f, fill = true),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Username(username.asString(), modifier = Modifier.weight(weight = 1f, fill = false))
-                        UserBadge(
-                            membership = membership,
-                            connectionState = connectionState,
-                            startPadding = dimensions().spacing6x,
-                            isDeleted = isSenderDeleted
-                        )
-                        if (isLegalHold) {
-                            LegalHoldIndicator(modifier = Modifier.padding(start = dimensions().spacing6x))
-                        }
-                    }
-                    MessageTimeLabel(
-                        time = messageHeader.messageTime.formattedDate,
-                        modifier = Modifier.padding(start = dimensions().spacing6x)
-                    )
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Row(
+                modifier = Modifier.weight(weight = 1f, fill = true),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Username(username.asString(), modifier = Modifier.weight(weight = 1f, fill = false))
+                UserBadge(
+                    membership = membership,
+                    connectionState = connectionState,
+                    startPadding = dimensions().spacing6x,
+                    isDeleted = isSenderDeleted
+                )
+                if (isLegalHold) {
+                    LegalHoldIndicator(modifier = Modifier.padding(start = dimensions().spacing6x))
                 }
             }
-            MessageStatusLabel(messageStatus = messageStatus)
+            MessageTimeLabel(
+                time = messageHeader.messageTime.formattedDate,
+                modifier = Modifier.padding(start = dimensions().spacing6x)
+            )
         }
     }
 }

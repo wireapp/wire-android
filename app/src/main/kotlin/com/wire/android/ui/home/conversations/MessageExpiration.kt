@@ -218,21 +218,25 @@ class SelfDeletionTimer(private val context: Context) {
              * alpha value is equal to the ratio = 1 / 2.5 = 0.4
              */
             fun alphaBackgroundColor(): Float {
-                val timeElapsed = expireAfter - timeLeft
-                val timeElapsedRatio = timeElapsed / expireAfter
+                return if (timeLeft > ZERO) {
+                    val timeElapsed = expireAfter - timeLeft
+                    val timeElapsedRatio = timeElapsed / expireAfter
 
-                return if (timeElapsedRatio < LOW_END_TIME_ELAPSED_RATIO_BOUNDARY_FOR_PROPORTIONAL_ALPHA_CHANGE) {
-                    INVISIBLE_BACKGROUND_COLOR_ALPHA_VALUE
-                } else if (LOW_END_TIME_ELAPSED_RATIO_BOUNDARY_FOR_PROPORTIONAL_ALPHA_CHANGE <= timeElapsedRatio
-                    && timeElapsedRatio <= HIGH_END_TIME_ELAPSED_RATIO_BOUNDARY_FOR_PROPORTIONAL_ALPHA_CHANGE
-                ) {
-                    val halfTimeSlice = expireAfter.times(HALF_RATIO_VALUE)
-                    val quarterTimeLeftSlice = expireAfter.times(QUARTER_RATIO_VALUE)
+                    return if (timeElapsedRatio < LOW_END_TIME_ELAPSED_RATIO_BOUNDARY_FOR_PROPORTIONAL_ALPHA_CHANGE) {
+                        INVISIBLE_BACKGROUND_COLOR_ALPHA_VALUE
+                    } else if (LOW_END_TIME_ELAPSED_RATIO_BOUNDARY_FOR_PROPORTIONAL_ALPHA_CHANGE <= timeElapsedRatio
+                        && timeElapsedRatio <= HIGH_END_TIME_ELAPSED_RATIO_BOUNDARY_FOR_PROPORTIONAL_ALPHA_CHANGE
+                    ) {
+                        val halfTimeSlice = expireAfter.times(HALF_RATIO_VALUE)
+                        val quarterTimeLeftSlice = expireAfter.times(QUARTER_RATIO_VALUE)
 
-                    val durationInBetweenHalfTimeAndQuarterSlice = halfTimeSlice - quarterTimeLeftSlice
-                    val timeElapsedFromHalfTimeSlice = timeElapsed - halfTimeSlice
+                        val durationInBetweenHalfTimeAndQuarterSlice = halfTimeSlice - quarterTimeLeftSlice
+                        val timeElapsedFromHalfTimeSlice = timeElapsed - halfTimeSlice
 
-                    (timeElapsedFromHalfTimeSlice / durationInBetweenHalfTimeAndQuarterSlice).toFloat()
+                        (timeElapsedFromHalfTimeSlice / durationInBetweenHalfTimeAndQuarterSlice).toFloat()
+                    } else {
+                        OPAQUE_BACKGROUND_COLOR_ALPHA_VALUE
+                    }
                 } else {
                     OPAQUE_BACKGROUND_COLOR_ALPHA_VALUE
                 }

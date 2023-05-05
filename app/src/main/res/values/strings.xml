@@ -922,7 +922,6 @@
     <string name="self_deleting_messages_option">Enforce message deletion</string>
     <string name="self_deleting_messages_option_description">When this is on, all messages in this group will disappear after a certain time. This applies to all group participants.</string>
     <string name="self_deleting_messages_folder_timer">Timer</string>
-    <string name="self_deleting_messages_folder_timer_description">Automatically delete messages after:</string>
 
     <!-- guest room link -->
     <string name="folder_label_guest_link">Guest link</string>

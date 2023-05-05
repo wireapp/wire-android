@@ -66,7 +66,7 @@ inline fun <T, K : Any> LazyListScope.folderWithElements(
                     .animateItemPlacement()
             ) {
                 factory(item.value)
-                if (index < list.lastIndex)
+                if (index <= list.lastIndex)
                     divider()
             }
         }

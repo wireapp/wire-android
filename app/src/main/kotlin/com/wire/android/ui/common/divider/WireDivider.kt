@@ -23,10 +23,11 @@ package com.wire.android.ui.common.divider
 import androidx.compose.material3.Divider
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import com.wire.android.ui.common.colorsScheme
 
 @Composable
-fun WireDivider() {
-    Divider(color = colorsScheme().divider, thickness = Dp.Hairline, modifier = Modifier)
+fun WireDivider(color: Color? = null) {
+    Divider(color = color ?: colorsScheme().divider, thickness = Dp.Hairline, modifier = Modifier)
 }

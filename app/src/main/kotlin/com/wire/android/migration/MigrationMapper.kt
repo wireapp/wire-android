@@ -60,7 +60,7 @@ class MigrationMapper @Inject constructor() {
     }
 
     private fun toQualifiedId(remoteId: String, domain: String?, selfUserId: UserId): QualifiedID {
-        val actualDomain = if(domain.isNullOrEmpty()) {
+        val actualDomain = if (domain.isNullOrEmpty()) {
             selfUserId.domain
         } else {
             domain

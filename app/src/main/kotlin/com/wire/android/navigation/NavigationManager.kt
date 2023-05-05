@@ -25,7 +25,7 @@ import kotlinx.coroutines.flow.SharedFlow
 
 class NavigationManager {
 
-    private val _navigateState = MutableSharedFlow<NavigationCommand?>(1)
+    private val _navigateState = MutableSharedFlow<NavigationCommand?>()
     private val _navigateBack = MutableSharedFlow<Map<String, Any>>()
     var navigateState: SharedFlow<NavigationCommand?> = _navigateState
     var navigateBack: SharedFlow<Map<String, Any>> = _navigateBack

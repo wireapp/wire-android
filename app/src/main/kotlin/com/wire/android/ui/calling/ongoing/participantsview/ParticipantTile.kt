@@ -77,6 +77,7 @@ fun ParticipantTile(
     onGoingCallTileUsernameMaxWidth: Dp = 350.dp,
     avatarSize: Dp = dimensions().onGoingCallUserAvatarSize,
     isSelfUser: Boolean,
+    shouldFill: Boolean = true,
     onSelfUserVideoPreviewCreated: (view: View) -> Unit,
     onClearSelfUserVideoPreview: () -> Unit
 ) {
@@ -114,6 +115,8 @@ fun ParticipantTile(
                             false
                         ).apply {
                             layoutParams = FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT)
+                            setFillColor(0xFF34373D)
+                            setShouldFill(shouldFill)
                         }
                     }
                     AndroidView(factory = {

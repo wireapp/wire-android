@@ -23,6 +23,7 @@ package com.wire.android.ui.calling.ongoing.participantsview.gridview
 import android.view.View
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.height
@@ -32,9 +33,11 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.wire.android.ui.calling.ConversationName
 import com.wire.android.ui.calling.getConversationName
@@ -44,6 +47,7 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.kalium.logic.data.id.QualifiedID
+import com.wire.kalium.logic.data.user.UserId
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -52,9 +56,10 @@ fun GroupCallGrid(
     pageIndex: Int,
     isSelfUserMuted: Boolean,
     isSelfUserCameraOn: Boolean,
-    topAppBarAndBottomSheetHeight: Int,
+    contentHeight: Dp,
     onSelfVideoPreviewCreated: (view: View) -> Unit,
-    onSelfClearVideoPreview: () -> Unit
+    onSelfClearVideoPreview: () -> Unit,
+    onDoubleTap: (userId: UserId, clientId: String, isSelfUser: Boolean) -> Unit
 ) {
     val config = LocalConfiguration.current
 
@@ -107,10 +112,21 @@ fun GroupCallGrid(
                 avatar = participant.avatar,
                 membership = participant.membership
             )
+            val tileHeight = contentHeight / numberOfTilesRows
 
             ParticipantTile(
                 modifier = Modifier
-                    .height(((config.screenHeightDp - topAppBarAndBottomSheetHeight) / numberOfTilesRows).dp)
+                    .pointerInput(Unit) {
+                        detectTapGestures(
+                            onPress = { /* Called when the gesture starts */ },
+                            onDoubleTap = {
+                                onDoubleTap(participantState.id, participantState.clientId, isSelfUser)
+                            },
+                            onLongPress = { /* Called on Long Press */ },
+                            onTap = { /* Called on Tap */ }
+                        )
+                    }
+                    .height(tileHeight)
                     .animateItemPlacement(tween(durationMillis = 200)),
                 participantTitleState = participantState,
                 onGoingCallTileUsernameMaxWidth = MaterialTheme.wireDimensions.onGoingCallTileUsernameMaxWidth,
@@ -174,11 +190,12 @@ fun PreviewGroupCallGrid() {
                 membership = Membership.Admin,
             )
         ),
-        topAppBarAndBottomSheetHeight = 200,
+        contentHeight = 800.dp,
         pageIndex = 0,
         isSelfUserMuted = true,
         isSelfUserCameraOn = false,
         onSelfVideoPreviewCreated = { },
-        onSelfClearVideoPreview = { }
+        onSelfClearVideoPreview = { },
+        onDoubleTap = { _, _, _ -> {} }
     )
 }

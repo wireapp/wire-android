@@ -20,7 +20,6 @@
 
 package com.wire.android.ui
 
-import android.annotation.SuppressLint
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -88,7 +87,6 @@ import javax.inject.Inject
     ExperimentalComposeUiApi::class,
     ExperimentalCoroutinesApi::class
 )
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @AndroidEntryPoint
 @Suppress("TooManyFunctions")
 class WireActivity : AppCompatActivity() {

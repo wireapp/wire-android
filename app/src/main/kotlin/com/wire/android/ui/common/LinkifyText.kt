@@ -49,6 +49,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.TextUnit
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.util.ui.UIText
+import kotlin.math.min
 
 @Suppress("ComplexMethod")
 @Composable
@@ -107,7 +108,7 @@ fun LinkifyText(
             }
             if (text is UIText.DynamicString && text.mentions.isNotEmpty()) {
                 text.mentions.forEach {
-                    if (it.length <= 0 || (it.start + it.length) >= textAsString.length) {
+                    if (it.length <= 0) {
                         return@forEach
                     }
                     addStyle(
@@ -117,13 +118,13 @@ fun LinkifyText(
                             background = if (it.isSelfMention) primaryVariant else Color.Unspecified
                         ),
                         start = it.start,
-                        end = it.start + it.length
+                        end = min(it.start + it.length, textAsString.length)
                     )
                     addStringAnnotation(
                         tag = "mentionTag",
                         annotation = it.userId.toString(),
                         start = it.start,
-                        end = it.start + it.length
+                        end = min(it.start + it.length, textAsString.length)
                     )
                 }
             }

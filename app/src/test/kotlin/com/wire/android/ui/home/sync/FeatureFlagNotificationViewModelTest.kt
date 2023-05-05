@@ -7,7 +7,7 @@ import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.configuration.FileSharingStatus
 import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.feature.auth.AccountInfo
-import com.wire.kalium.logic.feature.selfdeletingMessages.ObserveSelfDeletingMessagesUseCase
+import com.wire.kalium.logic.feature.selfdeletingMessages.ObserveSelfDeletionTimerForConversationUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
@@ -128,7 +128,7 @@ class FeatureFlagNotificationViewModelTest {
         lateinit var coreLogic: CoreLogic
 
         @MockK
-        lateinit var observeSelfDeletingMessages: ObserveSelfDeletingMessagesUseCase
+        lateinit var observeSelfDeletingMessages: ObserveSelfDeletionTimerForConversationUseCase
 
         @MockK
         lateinit var markSelfDeletingMessagesChangeAsNotified: MarkSelfDeletingMessagesChangeAsNotifiedUseCase

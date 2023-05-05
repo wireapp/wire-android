@@ -91,7 +91,7 @@ import com.wire.kalium.logic.feature.publicuser.GetAllContactsUseCase
 import com.wire.kalium.logic.feature.publicuser.GetKnownUserUseCase
 import com.wire.kalium.logic.feature.publicuser.search.SearchKnownUsersUseCase
 import com.wire.kalium.logic.feature.publicuser.search.SearchPublicUsersUseCase
-import com.wire.kalium.logic.feature.selfdeletingMessages.ObserveSelfDeletingMessagesUseCase
+import com.wire.kalium.logic.feature.selfdeletingMessages.ObserveSelfDeletionTimerForConversationUseCase
 import com.wire.kalium.logic.feature.selfdeletingMessages.ObserveTeamSettingsSelfDeletingStatusUseCase
 import com.wire.kalium.logic.feature.selfdeletingMessages.PersistNewSelfDeletionTimerUseCase
 import com.wire.kalium.logic.feature.server.ServerConfigForAccountUseCase
@@ -1007,7 +1007,7 @@ class UseCaseModule {
     fun provideObserveSelfDeletingMessagesUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
-    ): ObserveSelfDeletingMessagesUseCase = coreLogic.getSessionScope(currentAccount).observeSelfDeletingMessages
+    ): ObserveSelfDeletionTimerForConversationUseCase = coreLogic.getSessionScope(currentAccount).observeSelfDeletingMessages
 
     @ViewModelScoped
     @Provides
@@ -1037,7 +1037,8 @@ class UseCaseModule {
     @ViewModelScoped
     @Provides
     fun provideRevokeGuestRoomLinkUseCase(
-        @KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
     ): RevokeGuestRoomLinkUseCase = coreLogic.getSessionScope(currentAccount).conversations.revokeGuestRoomLink
 
     @ViewModelScoped

@@ -21,7 +21,6 @@
 package com.wire.android.ui.home
 
 import android.content.Context
-import android.content.res.Resources
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -58,12 +57,20 @@ fun SelfDeletingMessagesDialog(
     enforcedTimeout: SelfDeletionDuration,
     hideDialogStatus: () -> Unit,
 ) {
-    val text: String = if (areSelfDeletingMessagesEnabled) {
-        val formattedTimeout = enforcedTimeout.longLabel.asString()
-        if (enforcedTimeout == SelfDeletionDuration.None)
+    val formattedTimeout = enforcedTimeout.longLabel.asString()
+    val text: String = when {
+        areSelfDeletingMessagesEnabled && enforcedTimeout == SelfDeletionDuration.None -> {
             stringResource(id = R.string.self_deleting_messages_team_setting_enabled)
-        else stringResource(id = R.string.self_deleting_messages_team_setting_enabled_enforced_timeout, formattedTimeout)
-    } else stringResource(id = R.string.self_deleting_messages_team_setting_disabled)
+        }
+
+        areSelfDeletingMessagesEnabled -> {
+            stringResource(R.string.self_deleting_messages_team_setting_enabled_enforced_timeout, formattedTimeout)
+        }
+
+        else -> {
+            stringResource(id = R.string.self_deleting_messages_team_setting_disabled)
+        }
+    }
 
     WireDialog(
         title = stringResource(id = R.string.team_settings_changed),

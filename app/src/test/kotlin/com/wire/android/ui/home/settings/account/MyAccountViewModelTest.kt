@@ -137,6 +137,26 @@ class MyAccountViewModelTest {
         coVerify(exactly = 1) { arrangement.navigationManager.navigateBack() }
     }
 
+    @Test
+    fun `when user is managed by Wire, then edit handle is allowed`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withUserRequiresPasswordResult(Success(true))
+            .withIsReadOnlyAccountResult(true)
+            .arrange()
+
+        assertFalse(viewModel.myAccountState.isEditHandleAllowed)
+    }
+
+    @Test
+    fun `when user is not managed by Wire, then edit handle is allowed`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withUserRequiresPasswordResult(Success(false))
+            .withIsReadOnlyAccountResult(false)
+            .arrange()
+
+        assertTrue(viewModel.myAccountState.isEditHandleAllowed)
+    }
+
     private class Arrangement {
         @MockK
         lateinit var navigationManager: NavigationManager

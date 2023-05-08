@@ -14,21 +14,19 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
+package com.wire.android.ui.authentication.create.common.handle
 
-package com.wire.android.ui.home
+import com.wire.kalium.logic.CoreFailure
 
-data class FeatureFlagState(
-    val showFileSharingDialog: Boolean = false,
-    val isFileSharingEnabledState: Boolean = true,
-    val fileSharingRestrictedState: SharingRestrictedState? = null,
-    val shouldShowGuestRoomLinkDialog: Boolean = false,
-    val isGuestRoomLinkEnabled: Boolean = true
-) {
+sealed class HandleUpdateErrorState {
+    object None : HandleUpdateErrorState()
+    sealed class TextFieldError : HandleUpdateErrorState() {
+        object UsernameTakenError : TextFieldError()
+        object UsernameInvalidError : TextFieldError()
+    }
 
-    enum class SharingRestrictedState {
-        NONE, NO_USER, RESTRICTED_IN_TEAM
+    sealed class DialogError : HandleUpdateErrorState() {
+        data class GenericError(val coreFailure: CoreFailure) : DialogError()
     }
 }

@@ -14,21 +14,15 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
+package com.wire.android.ui.home.settings.account.handle
 
-package com.wire.android.ui.home
+import androidx.compose.ui.text.input.TextFieldValue
+import com.wire.android.ui.authentication.create.common.handle.HandleUpdateErrorState
 
-data class FeatureFlagState(
-    val showFileSharingDialog: Boolean = false,
-    val isFileSharingEnabledState: Boolean = true,
-    val fileSharingRestrictedState: SharingRestrictedState? = null,
-    val shouldShowGuestRoomLinkDialog: Boolean = false,
-    val isGuestRoomLinkEnabled: Boolean = true
-) {
-
-    enum class SharingRestrictedState {
-        NONE, NO_USER, RESTRICTED_IN_TEAM
-    }
-}
+data class ChangeHandleState(
+    val handle: TextFieldValue = TextFieldValue(""),
+    val error: HandleUpdateErrorState = HandleUpdateErrorState.None,
+    val isSaveButtonEnabled: Boolean = false,
+    val animatedHandleError: Boolean = false,
+)

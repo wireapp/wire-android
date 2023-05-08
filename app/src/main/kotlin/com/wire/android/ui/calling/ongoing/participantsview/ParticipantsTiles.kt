@@ -45,7 +45,7 @@ import com.google.accompanist.pager.VerticalPager
 import com.google.accompanist.pager.rememberPagerState
 import com.wire.android.ui.calling.model.UICallParticipant
 import com.wire.android.ui.calling.ongoing.participantsview.gridview.GroupCallGrid
-import com.wire.android.ui.calling.ongoing.participantsview.horizentalview.OneOnOneCallView
+import com.wire.android.ui.calling.ongoing.participantsview.horizentalview.CallingHorizontalView
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.wireDimensions
@@ -91,7 +91,7 @@ fun VerticalCallingPager(
                     }
 
                     if (participantsChunkedList[pageIndex].size <= MAX_ITEMS_FOR_ONE_ON_ONE_VIEW) {
-                        OneOnOneCallView(
+                        CallingHorizontalView(
                             participants = participantsChunkedList[pageIndex],
                             pageIndex = pageIndex,
                             isSelfUserMuted = isSelfUserMuted,

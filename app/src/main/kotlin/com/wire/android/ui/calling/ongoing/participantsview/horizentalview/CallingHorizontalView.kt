@@ -46,7 +46,7 @@ import com.wire.kalium.logic.data.user.UserId
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun OneOnOneCallView(
+fun CallingHorizontalView(
     participants: List<UICallParticipant>,
     pageIndex: Int,
     isSelfUserMuted: Boolean,
@@ -97,7 +97,7 @@ fun OneOnOneCallView(
                 membership = participant.membership
             )
 
-            val tileHeight = contentHeight - dimensions().spacing4x / participants.size
+            val tileHeight = (contentHeight - dimensions().spacing4x) / participants.size
 
             ParticipantTile(
                 modifier = Modifier

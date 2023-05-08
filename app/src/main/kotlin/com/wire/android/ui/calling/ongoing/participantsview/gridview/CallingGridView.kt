@@ -112,7 +112,7 @@ fun GroupCallGrid(
                 avatar = participant.avatar,
                 membership = participant.membership
             )
-            val tileHeight = contentHeight - dimensions().spacing4x / numberOfTilesRows
+            val tileHeight = (contentHeight - dimensions().spacing4x) / numberOfTilesRows
 
             ParticipantTile(
                 modifier = Modifier

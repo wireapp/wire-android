@@ -993,7 +993,7 @@ class UseCaseModule {
     fun provideMarkSelfDeletingMessagesAsNotified(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
-    ): MarkSelfDeletingMessagesChangeAsNotifiedUseCase = coreLogic.getSessionScope(currentAccount).markSelfDeletingMessagesAsNotifiedUseCase
+    ): MarkSelfDeletingMessagesChangeAsNotifiedUseCase = coreLogic.getSessionScope(currentAccount).markSelfDeletingMessagesAsNotified
 
     @ViewModelScoped
     @Provides

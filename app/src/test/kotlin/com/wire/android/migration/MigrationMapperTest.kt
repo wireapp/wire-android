@@ -30,7 +30,7 @@ class MigrationMapperTest {
     }
 
     @Test
-    fun givenNonEmptyStringDomain_whenMappingIdFromScala_thenUserDomain() {
+    fun givenNonEmptyStringDomain_whenMappingIdFromScala_thenKeepTheDomainFromScala() {
         val scalaId = "123-321_123"
         val domain = "domain.com"
         val selfUser = UserId("self_id", "self_domain")

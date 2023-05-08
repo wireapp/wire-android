@@ -23,6 +23,8 @@ package com.wire.android.ui.calling.ongoing
 import android.view.View
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -46,9 +48,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -69,7 +68,6 @@ import com.wire.android.ui.common.SecurityClassificationBanner
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
-import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.wireColorScheme
@@ -134,11 +132,6 @@ private fun OngoingCallContent(
     requestVideoStreams: (participants: List<UICallParticipant>) -> Unit
 ) {
 
-    val localDensity = LocalDensity.current
-    var sheetHeight by remember { mutableStateOf(0.dp) }
-    var topAppBarHeight by remember { mutableStateOf(0.dp) }
-    var contentHeight by remember { mutableStateOf(0.dp) }
-
     val sheetInitialValue =
         if (classificationType == SecurityClassificationType.NONE) BottomSheetValue.Collapsed else BottomSheetValue.Expanded
     val sheetState = rememberBottomSheetState(
@@ -164,12 +157,6 @@ private fun OngoingCallContent(
         backgroundColor = colorsScheme().background,
         topBar = {
             OngoingCallTopBar(
-                modifier = Modifier
-                    .onGloballyPositioned {
-                        with(localDensity) {
-                            topAppBarHeight = it.size.height.toDp()
-                        }
-                    },
                 conversationName = when (conversationName) {
                     is ConversationName.Known -> conversationName.name
                     is ConversationName.Unknown -> stringResource(id = conversationName.resourceId)
@@ -184,12 +171,6 @@ private fun OngoingCallContent(
         scaffoldState = scaffoldState,
         sheetContent = {
             CallingControls(
-                modifier = Modifier
-                    .onGloballyPositioned {
-                        with(localDensity) {
-                            sheetHeight = it.size.height.toDp()
-                        }
-                    },
                 isMuted = isMuted,
                 isCameraOn = isCameraOn,
                 isOnFrontCamera = isOnFrontCamera,
@@ -203,78 +184,83 @@ private fun OngoingCallContent(
             )
         },
     ) {
-        if (participants.isEmpty()) {
-            Column(
-                modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                WireCircularProgressIndicator(
-                    progressColor = MaterialTheme.wireColorScheme.onSurface,
-                    modifier = Modifier.align(Alignment.CenterHorizontally),
-                    size = dimensions().spacing32x
-                )
-                Text(
-                    text = stringResource(id = R.string.connectivity_status_bar_connecting),
-                    modifier = Modifier.align(Alignment.CenterHorizontally),
-                )
-            }
-        } else {
-            val config = LocalConfiguration.current
-            contentHeight = config.screenHeightDp.dp - sheetHeight - topAppBarHeight
+        BoxWithConstraints(
+            modifier = Modifier.padding(
+                top = it.calculateTopPadding(),
+                bottom = dimensions().defaultSheetPeekHeight
+            )
+        ) {
 
-            // if there is only one in the call, do not allow full screen
-            if (participants.size == 1) {
-                shouldFullScreen = false
-            }
-
-            // if we are on full screen, and that user left the call, then we leave the full screen
-            if (participants.find { user -> user.id == userId } == null) {
-                shouldFullScreen = false
-            }
-
-            if (shouldFullScreen) {
-                FullScreenTile(
-                    userId = userId,
-                    clientId = clientId,
-                    isSelfUser = isSelfUser,
-                    height = contentHeight - 24.dp
+            if (participants.isEmpty()) {
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    shouldFullScreen = !shouldFullScreen
+                    WireCircularProgressIndicator(
+                        progressColor = MaterialTheme.wireColorScheme.onSurface,
+                        modifier = Modifier.align(Alignment.CenterHorizontally),
+                        size = dimensions().spacing32x
+                    )
+                    Text(
+                        text = stringResource(id = R.string.connectivity_status_bar_connecting),
+                        modifier = Modifier.align(Alignment.CenterHorizontally),
+                    )
                 }
             } else {
-                VerticalCallingPager(
-                    participants = participants,
-                    isSelfUserCameraOn = isCameraOn,
-                    isSelfUserMuted = isMuted,
-                    contentHeight = contentHeight - 50.dp,
-                    onSelfVideoPreviewCreated = setVideoPreview,
-                    onSelfClearVideoPreview = clearVideoPreview,
-                    requestVideoStreams = requestVideoStreams,
-                    onDoubleTap = { selectedUserId, selectedClientId, isSelf ->
-                        userId = selectedUserId
-                        clientId = selectedClientId
-                        isSelfUser = isSelf
-                        shouldFullScreen = !shouldFullScreen
+                Box(
+                    modifier = Modifier.fillMaxSize()
+                ) {
+
+                    // if there is only one in the call, do not allow full screen
+                    if (participants.size == 1) {
+                        shouldFullScreen = false
                     }
-                )
+
+                    // if we are on full screen, and that user left the call, then we leave the full screen
+                    if (participants.find { user -> user.id == userId } == null) {
+                        shouldFullScreen = false
+                    }
+
+                    if (shouldFullScreen) {
+                        FullScreenTile(
+                            userId = userId,
+                            clientId = clientId,
+                            isSelfUser = isSelfUser,
+                            height = this@BoxWithConstraints.maxHeight -4.dp
+                        ) {
+                            shouldFullScreen = !shouldFullScreen
+                        }
+                    } else {
+                        VerticalCallingPager(
+                            participants = participants,
+                            isSelfUserCameraOn = isCameraOn,
+                            isSelfUserMuted = isMuted,
+                            contentHeight = this@BoxWithConstraints.maxHeight,
+                            onSelfVideoPreviewCreated = setVideoPreview,
+                            onSelfClearVideoPreview = clearVideoPreview,
+                            requestVideoStreams = requestVideoStreams,
+                            onDoubleTap = { selectedUserId, selectedClientId, isSelf ->
+                                userId = selectedUserId
+                                clientId = selectedClientId
+                                isSelfUser = isSelf
+                                shouldFullScreen = !shouldFullScreen
+                            }
+                        )
+                    }
+                }
             }
-
-
         }
     }
 }
 
 @Composable
 private fun OngoingCallTopBar(
-    modifier: Modifier,
     conversationName: String,
     isCbrEnabled: Boolean,
     onCollapse: () -> Unit
 ) {
-    Column(
-        modifier = modifier
-    ) {
+    Column {
         WireCenterAlignedTopAppBar(
             onNavigationPressed = onCollapse,
             titleStyle = MaterialTheme.wireTypography.title02,
@@ -300,7 +286,6 @@ private fun OngoingCallTopBar(
 
 @Composable
 private fun CallingControls(
-    modifier: Modifier,
     isMuted: Boolean,
     isCameraOn: Boolean,
     isSpeakerOn: Boolean,
@@ -312,9 +297,7 @@ private fun CallingControls(
     onToggleVideo: () -> Unit,
     flipCamera: () -> Unit,
 ) {
-    Column(
-        modifier = modifier
-    ) {
+    Column {
         Row(
             horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically,
@@ -343,7 +326,6 @@ private fun CallingControls(
                 onHangUpButtonClicked = onHangUpCall
             )
         }
-        VerticalSpace.x8()
         SecurityClassificationBanner(classificationType)
     }
 }
@@ -351,6 +333,6 @@ private fun CallingControls(
 @Composable
 @Preview
 fun PreviewOngoingCallTopBar() {
-    OngoingCallTopBar(modifier = Modifier, "Default", true) { }
+    OngoingCallTopBar("Default", true) { }
 }
 

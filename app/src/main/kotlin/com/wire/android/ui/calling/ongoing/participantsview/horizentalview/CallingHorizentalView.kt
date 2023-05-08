@@ -36,7 +36,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
 import com.wire.android.ui.calling.ConversationName
 import com.wire.android.ui.calling.getConversationName
 import com.wire.android.ui.calling.model.UICallParticipant
@@ -59,7 +58,10 @@ fun OneOnOneCallView(
 ) {
 
     LazyColumn(
-        modifier = Modifier.padding(dimensions().spacing4x),
+        modifier = Modifier.padding(
+            start = dimensions().spacing4x,
+            end = dimensions().spacing4x
+        ),
         verticalArrangement = Arrangement.spacedBy(MaterialTheme.wireDimensions.spacing2x)
     ) {
         items(items = participants, key = { it.id.toString() + it.clientId }) { participant ->
@@ -95,7 +97,7 @@ fun OneOnOneCallView(
                 membership = participant.membership
             )
 
-            val tileHeight = contentHeight / participants.size
+            val tileHeight = contentHeight - dimensions().spacing4x / participants.size
 
             ParticipantTile(
                 modifier = Modifier

@@ -59,7 +59,6 @@ fun FullScreenTile(
                 }
                 .height(height)
                 .padding(
-                    top = 24.dp,
                     start = dimensions().spacing4x,
                     end = dimensions().spacing4x
                 ),

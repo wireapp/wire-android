@@ -109,9 +109,9 @@ class MigrateActiveAccountsUseCase @Inject constructor(
     }
 
     private fun isDataComplete(serverConfig: ServerConfig, activeAccount: ScalaActiveAccountsEntity): Boolean {
-        val isDomainExist = (!activeAccount.domain.isNullOrBlank()) or (serverConfig.metaData.domain != null)
-        val isAccessTokenExist = activeAccount.accessToken != null
-        return isDomainExist and isAccessTokenExist
+        val isDomainPresent = (!activeAccount.domain.isNullOrBlank()) or (serverConfig.metaData.domain != null)
+        val isAccessTokenPresent = activeAccount.accessToken != null
+        return isDomainPresent and isAccessTokenPresent
     }
 
     private suspend fun handleMissingData(

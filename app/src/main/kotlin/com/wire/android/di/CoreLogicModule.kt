@@ -92,6 +92,8 @@ import com.wire.kalium.logic.feature.publicuser.GetKnownUserUseCase
 import com.wire.kalium.logic.feature.publicuser.search.SearchKnownUsersUseCase
 import com.wire.kalium.logic.feature.publicuser.search.SearchPublicUsersUseCase
 import com.wire.kalium.logic.feature.server.ServerConfigForAccountUseCase
+import com.wire.kalium.logic.feature.service.GetServiceByIdUseCase
+import com.wire.kalium.logic.feature.service.ObserveIsServiceMemberUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.GetSessionsUseCase
 import com.wire.kalium.logic.feature.session.UpdateCurrentSessionUseCase
@@ -1073,4 +1075,20 @@ class UseCaseModule {
         @CurrentAccount currentAccount: UserId
     ): UpdateEmailUseCase =
         coreLogic.getSessionScope(currentAccount).users.updateEmail
+
+    @ViewModelScoped
+    @Provides
+    fun provideObserveIsServiceMemberUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): ObserveIsServiceMemberUseCase =
+        coreLogic.getSessionScope(currentAccount).service.observeIsServiceMember
+
+    @ViewModelScoped
+    @Provides
+    fun provideGetServiceByIdUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): GetServiceByIdUseCase =
+        coreLogic.getSessionScope(currentAccount).service.getServiceById
 }

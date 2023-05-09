@@ -30,6 +30,7 @@ import com.wire.android.ui.home.conversations.model.MessageStatus.DecryptionFail
 import com.wire.android.ui.home.conversations.model.MessageStatus.Deleted
 import com.wire.android.ui.home.conversations.model.MessageStatus.ReceiveFailure
 import com.wire.android.ui.home.conversationslist.model.Membership
+import com.wire.android.ui.home.messagecomposer.state.SelfDeletionDuration
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.uiMessageDateTime
 import com.wire.kalium.logic.data.conversation.ClientId
@@ -279,6 +280,25 @@ sealed class UIMessageContent {
             R.drawable.ic_view,
             if (isAuthorSelfUser) R.string.label_system_message_read_receipt_changed_by_self
             else R.string.label_system_message_read_receipt_changed_by_other
+        )
+
+        data class ConversationMessageTimerActivated(
+            val author: UIText,
+            val isAuthorSelfUser: Boolean = false,
+            val selfDeletionDuration: SelfDeletionDuration
+        ) : SystemMessage(
+            R.drawable.ic_timer,
+            if (isAuthorSelfUser) R.string.label_system_message_conversation_message_timer_activated_by_self
+            else R.string.label_system_message_conversation_message_timer_activated_by_other
+        )
+
+        data class ConversationMessageTimerDeactivated(
+            val author: UIText,
+            val isAuthorSelfUser: Boolean = false,
+        ) : SystemMessage(
+            R.drawable.ic_timer,
+            if (isAuthorSelfUser) R.string.label_system_message_conversation_message_timer_deactivated_by_self
+            else R.string.label_system_message_conversation_message_timer_deactivated_by_other
         )
 
         class HistoryLost : SystemMessage(R.drawable.ic_info, R.string.label_system_message_conversation_history_lost, true)

@@ -23,6 +23,7 @@ package com.wire.android.ui.home.conversations.details.options
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.feature.selfdeletingMessages.SelfDeletionTimer
 
 data class GroupConversationOptionsState(
     val conversationId: ConversationId,
@@ -40,7 +41,8 @@ data class GroupConversationOptionsState(
     val loadingServicesOption: Boolean = false,
     val loadingReadReceiptOption: Boolean = false,
     val error: Error = Error.None,
-    val mlsEnabled: Boolean = false
+    val mlsEnabled: Boolean = false,
+    val selfDeletionTimer: SelfDeletionTimer = SelfDeletionTimer.Disabled
 ) {
 
     sealed interface Error {

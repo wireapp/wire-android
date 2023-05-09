@@ -45,6 +45,7 @@ import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.collectAsStateLifecycleAware
 import com.wire.android.ui.home.conversations.details.GroupConversationDetailsViewModel
+import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMapper.toSelfDeletionDuration
 import com.wire.android.ui.home.conversationslist.common.FolderHeader
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.util.ui.UIText
@@ -61,6 +62,7 @@ fun GroupConversationOptions(
     GroupConversationSettings(
         state = state,
         onGuestItemClicked = viewModel::navigateToEditGuestAccessScreen,
+        onSelfDeletingClicked = viewModel::navigateSelfDeletingMessagesScreen,
         onServiceSwitchClicked = viewModel::onServicesUpdate,
         onReadReceiptSwitchClicked = viewModel::onReadReceiptUpdate,
         lazyListState = lazyListState,
@@ -79,6 +81,7 @@ fun GroupConversationOptions(
 fun GroupConversationSettings(
     state: GroupConversationOptionsState,
     onGuestItemClicked: () -> Unit,
+    onSelfDeletingClicked: () -> Unit,
     onServiceSwitchClicked: (Boolean) -> Unit,
     onReadReceiptSwitchClicked: (Boolean) -> Unit,
     onEditGroupName: () -> Unit,
@@ -118,6 +121,22 @@ fun GroupConversationSettings(
             }
         }
         item { FolderHeader(name = stringResource(id = R.string.folder_label_messaging)) }
+        if (!state.selfDeletionTimer.isDisabled) {
+            item {
+                GroupConversationOptionsItem(
+                    title = stringResource(id = R.string.conversation_options_self_deleting_messages_label),
+                    subtitle = stringResource(id = R.string.conversation_options_self_deleting_messages_description),
+                    trailingOnText = if(state.selfDeletionTimer.isEnforced)
+                        "(${state.selfDeletionTimer.toDuration().toSelfDeletionDuration().shortLabel.asString()})" else null,
+                    switchState = SwitchState.TextOnly(value = true),
+                    arrowType = if (state.isUpdatingAllowed && !state.selfDeletionTimer.isEnforcedByTeam)
+                        ArrowType.TITLE_ALIGNED
+                    else
+                        ArrowType.NONE,
+                    clickable = Clickable(enabled = state.isUpdatingAllowed, onClick = onSelfDeletingClicked, onLongClick = {}),
+                )
+            }
+        }
         item {
             ReadReceiptOption(
                 isSwitchEnabled = state.isUpdatingReadReceiptAllowed,
@@ -299,7 +318,7 @@ fun PreviewAdminTeamGroupConversationOptions() {
             isServicesAllowed = true,
             isUpdatingGuestAllowed = true
         ),
-        {}, {}, { }, {}
+        {}, {}, {}, {}, {}
     )
 }
 
@@ -316,7 +335,7 @@ fun PreviewGuestAdminTeamGroupConversationOptions() {
             isServicesAllowed = true,
             isUpdatingGuestAllowed = false
         ),
-        {}, {}, {}, {}
+        {}, {}, {}, {}, {}
     )
 }
 
@@ -333,7 +352,7 @@ fun PreviewMemberTeamGroupConversationOptions() {
             isServicesAllowed = true,
             isUpdatingGuestAllowed = false
         ),
-        {}, {}, { }, {}
+        {}, {}, {}, {}, {}
     )
 }
 
@@ -346,6 +365,6 @@ fun PreviewNormalGroupConversationOptions() {
             groupName = "Normal Group Conversation",
             areAccessOptionsAvailable = false
         ),
-        {}, {}, { }, {}
+        {}, {}, {}, {}, {}
     )
 }

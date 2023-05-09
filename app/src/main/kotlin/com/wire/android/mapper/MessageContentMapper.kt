@@ -28,6 +28,7 @@ import com.wire.android.ui.home.conversations.model.AttachmentType
 import com.wire.android.ui.home.conversations.model.MessageBody
 import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.conversations.model.UIQuotedMessage
+import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMapper.toSelfDeletionDuration
 import com.wire.android.util.time.ISOFormatter
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.WireSessionImageLoader
@@ -48,6 +49,7 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.sync.receiver.conversation.message.hasValidRemoteData
 import com.wire.kalium.logic.util.isGreaterThan
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.milliseconds
 
 // TODO: splits mapping into more classes
 @Suppress("TooManyFunctions")
@@ -91,6 +93,32 @@ class MessageContentMapper @Inject constructor(
         is MessageContent.NewConversationReceiptMode -> mapNewConversationReceiptMode(content)
         is MessageContent.ConversationReceiptModeChanged -> mapConversationReceiptModeChanged(message.senderUserId, content, members)
         is MessageContent.HistoryLost -> mapConversationHistoryLost()
+        is MessageContent.ConversationMessageTimerChanged -> mapConversationTimerChanged(message.senderUserId, content, members)
+    }
+
+    private fun mapConversationTimerChanged(
+        senderUserId: UserId,
+        content: MessageContent.ConversationMessageTimerChanged,
+        userList: List<User>
+    ): UIMessageContent.SystemMessage {
+        val sender = userList.findUser(userId = senderUserId)
+        val authorName = toSystemMessageMemberName(
+            user = sender,
+            type = SelfNameType.ResourceTitleCase
+        )
+
+        return if (content.messageTimer != null) {
+            UIMessageContent.SystemMessage.ConversationMessageTimerActivated(
+                author = authorName,
+                isAuthorSelfUser = sender is SelfUser,
+                selfDeletionDuration = (content.messageTimer ?: 0L).milliseconds.toSelfDeletionDuration()
+            )
+        } else {
+            UIMessageContent.SystemMessage.ConversationMessageTimerDeactivated(
+                author = authorName,
+                isAuthorSelfUser = sender is SelfUser
+            )
+        }
     }
 
     private fun mapResetSession(

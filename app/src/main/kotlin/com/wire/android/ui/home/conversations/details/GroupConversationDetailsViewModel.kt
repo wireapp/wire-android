@@ -62,6 +62,7 @@ import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUs
 import com.wire.kalium.logic.feature.conversation.UpdateConversationAccessRoleUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationReceiptModeUseCase
+import com.wire.kalium.logic.feature.selfdeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
 import com.wire.kalium.logic.feature.team.DeleteTeamConversationUseCase
 import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
 import com.wire.kalium.logic.feature.team.Result
@@ -98,6 +99,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
     private val updateConversationMutedStatus: UpdateConversationMutedStatusUseCase,
     private val clearConversationContent: ClearConversationContentUseCase,
     private val updateConversationReceiptMode: UpdateConversationReceiptModeUseCase,
+    private val observeSelfDeletionTimerSettingsForConversation: ObserveSelfDeletionTimerSettingsForConversationUseCase,
     override val savedStateHandle: SavedStateHandle,
     private val isMLSEnabled: IsMLSEnabledUseCase,
     qualifiedIdMapper: QualifiedIdMapper
@@ -143,7 +145,8 @@ class GroupConversationDetailsViewModel @Inject constructor(
                 groupDetailsFlow,
                 isSelfAdminFlow,
                 getSelfTeam(),
-            ) { groupDetails, isSelfAnAdmin, selfTeam ->
+                observeSelfDeletionTimerSettingsForConversation(conversationId, includeSelfSettings = false),
+            ) { groupDetails, isSelfAnAdmin, selfTeam, selfDeletionTimer ->
 
                 val isSelfInOwnerTeam = selfTeam?.id != null && selfTeam.id == groupDetails.conversation.teamId?.value
 
@@ -173,7 +176,8 @@ class GroupConversationDetailsViewModel @Inject constructor(
                         isUpdatingGuestAllowed = isSelfAnAdmin && isSelfInOwnerTeam,
                         mlsEnabled = isMLSEnabled(),
                         isReadReceiptAllowed = groupDetails.conversation.receiptMode == Conversation.ReceiptMode.ENABLED,
-                        isUpdatingReadReceiptAllowed = isUpdatingReadReceiptAllowed
+                        isUpdatingReadReceiptAllowed = isUpdatingReadReceiptAllowed,
+                        selfDeletionTimer = selfDeletionTimer
                     )
                 )
             }.collect {}

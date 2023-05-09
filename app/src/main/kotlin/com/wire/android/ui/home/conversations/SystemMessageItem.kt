@@ -174,6 +174,8 @@ private fun getColorFilter(message: SystemMessage): ColorFilter? {
         is SystemMessage.ConversationReceiptModeChanged -> ColorFilter.tint(colorsScheme().onBackground)
         is SystemMessage.HistoryLost -> ColorFilter.tint(colorsScheme().onBackground)
         is SystemMessage.NewConversationReceiptMode -> ColorFilter.tint(colorsScheme().onBackground)
+        is SystemMessage.ConversationMessageTimerActivated -> ColorFilter.tint(colorsScheme().onBackground)
+        is SystemMessage.ConversationMessageTimerDeactivated -> ColorFilter.tint(colorsScheme().onBackground)
     }
 }
 
@@ -278,6 +280,8 @@ private val SystemMessage.expandable
         is SystemMessage.ConversationReceiptModeChanged -> false
         is SystemMessage.Knock -> false
         is SystemMessage.HistoryLost -> false
+        is SystemMessage.ConversationMessageTimerActivated -> false
+        is SystemMessage.ConversationMessageTimerDeactivated -> false
     }
 
 private fun List<String>.toUserNamesListString(res: Resources) = when {
@@ -325,6 +329,15 @@ fun SystemMessage.annotatedString(
         is SystemMessage.ConversationReceiptModeChanged -> arrayOf(author.asString(res), receiptMode.asString(res))
         is SystemMessage.Knock -> arrayOf(author.asString(res))
         is SystemMessage.HistoryLost -> arrayOf()
+        is SystemMessage.ConversationMessageTimerActivated -> arrayOf(
+            author.asString(res),
+            res.getString(R.string.label_system_message_activated),
+            selfDeletionDuration.longLabel.asString(res)
+            )
+        is SystemMessage.ConversationMessageTimerDeactivated -> arrayOf(
+            author.asString(res),
+            res.getString(R.string.label_system_message_deactivated)
+        )
     }
     return res.stringWithStyledArgs(stringResId, normalStyle, boldStyle, normalColor, boldColor, *args)
 }

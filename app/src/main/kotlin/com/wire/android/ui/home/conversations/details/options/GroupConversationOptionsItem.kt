@@ -46,6 +46,7 @@ import com.wire.android.ui.common.ArrowRightIcon
 import com.wire.android.ui.common.WireSwitch
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.clickable
+import com.wire.android.ui.common.spacers.HorizontalSpace
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
@@ -55,6 +56,7 @@ fun GroupConversationOptionsItem(
     title: String,
     subtitle: String? = null,
     label: String? = null,
+    trailingOnText: String? = null,
     titleTrailingItem: (@Composable () -> Unit)? = null,
     footer: (@Composable () -> Unit)? = null,
     switchState: SwitchState = SwitchState.None,
@@ -99,7 +101,7 @@ fun GroupConversationOptionsItem(
                 if (titleTrailingItem != null) {
                     Box(modifier = Modifier.padding(horizontal = MaterialTheme.wireDimensions.spacing8x)) { titleTrailingItem() }
                 }
-                ConversationOptionSwitch(switchState)
+                ConversationOptionSwitch(switchState, trailingOnText)
 
                 if (arrowType == ArrowType.TITLE_ALIGNED) {
                     ArrowRight()
@@ -123,17 +125,27 @@ fun GroupConversationOptionsItem(
 
 @Composable
 fun ConversationOptionSwitch(
-    switchState: SwitchState
+    switchState: SwitchState,
+    trailingOnText: String?
 ) {
     if (switchState is SwitchState.Visible) {
         if (switchState.isOnOffVisible) {
+            HorizontalSpace.x8()
             Text(
                 text = stringResource(if (switchState.value) R.string.label_on else R.string.label_off),
                 style = MaterialTheme.wireTypography.body01,
-                color = MaterialTheme.wireColorScheme.onBackground,
-                modifier = Modifier.padding(horizontal = MaterialTheme.wireDimensions.spacing8x)
+                color = MaterialTheme.wireColorScheme.onBackground
             )
         }
+        if(trailingOnText != null) {
+            HorizontalSpace.x2()
+            Text(
+                text = trailingOnText,
+                style = MaterialTheme.wireTypography.body01,
+                color = MaterialTheme.wireColorScheme.secondaryText,
+            )
+        }
+        HorizontalSpace.x8()
         if (switchState.isSwitchVisible) {
             WireSwitch(
                 checked = switchState.value,

@@ -507,6 +507,8 @@ private fun MessageContent(
 
         is UIMessageContent.SystemMessage.Knock -> {}
         is UIMessageContent.SystemMessage.HistoryLost -> {}
+        is UIMessageContent.SystemMessage.ConversationMessageTimerActivated -> {}
+        is UIMessageContent.SystemMessage.ConversationMessageTimerDeactivated -> {}
     }
 }
 

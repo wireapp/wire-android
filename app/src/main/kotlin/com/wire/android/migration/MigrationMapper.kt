@@ -20,17 +20,14 @@
 
 package com.wire.android.migration
 
+import androidx.annotation.VisibleForTesting
 import com.wire.android.migration.globalDatabase.ScalaSsoIdEntity
 import com.wire.android.migration.userDatabase.ScalaConversationData
 import com.wire.android.migration.userDatabase.ScalaMessageData
 import com.wire.android.migration.userDatabase.ScalaUserData
-import com.wire.android.util.orDefault
 import com.wire.kalium.logic.data.conversation.ClientId
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.Conversation.Access
-import com.wire.kalium.logic.data.conversation.Conversation.AccessRole.NON_TEAM_MEMBER
-import com.wire.kalium.logic.data.conversation.Conversation.AccessRole.SERVICE
-import com.wire.kalium.logic.data.conversation.Conversation.AccessRole.TEAM_MEMBER
 import com.wire.kalium.logic.data.conversation.Conversation.ProtocolInfo
 import com.wire.kalium.logic.data.conversation.Conversation.Type
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
@@ -60,8 +57,19 @@ class MigrationMapper @Inject constructor() {
         )
     }
 
-    private fun toQualifiedId(remoteId: String, domain: String?, selfUserId: UserId): QualifiedID =
-        QualifiedID(remoteId, domain.orDefault(selfUserId.domain))
+    @VisibleForTesting
+    fun toQualifiedId(remoteId: String, domain: String?, selfUserId: UserId): QualifiedID {
+        val actualDomain = if (domain.isNullOrEmpty()) {
+            selfUserId.domain
+        } else {
+            domain
+        }
+
+        return QualifiedID(
+            value = remoteId,
+            domain = actualDomain
+        )
+    }
 
     fun fromScalaConversationToConversation(scalaConversation: ScalaConversationData, selfUserId: UserId) = with(scalaConversation) {
         mapConversationType(type)?.let {
@@ -86,7 +94,7 @@ class MigrationMapper @Inject constructor() {
                 protocol = ProtocolInfo.Proteus,
                 mutedStatus = mapMutedStatus(mutedStatus),
                 access = mapAccess(access),
-                accessRole = listOf(TEAM_MEMBER, NON_TEAM_MEMBER, SERVICE),
+                accessRole = emptyList(),
                 removedBy = null,
                 lastReadDate = conversationLastReadTime,
                 lastModifiedDate = lastEventTime,
@@ -109,7 +117,7 @@ class MigrationMapper @Inject constructor() {
         with(scalaMessage) {
             MigratedMessage(
                 conversationId = toQualifiedId(conversationRemoteId, conversationDomain, selfUserId),
-                senderUserId = UserId(scalaSenderUserData.id, scalaSenderUserData.domain.orDefault(selfUserId.domain)),
+                senderUserId = toQualifiedId(scalaSenderUserData.id, scalaSenderUserData.domain, selfUserId),
                 senderClientId = ClientId(senderClientId.orEmpty()),
                 timestamp = time,
                 content = content.orEmpty(),

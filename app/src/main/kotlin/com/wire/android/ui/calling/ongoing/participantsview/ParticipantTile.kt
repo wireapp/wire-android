@@ -24,6 +24,7 @@ import android.view.View
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.widget.FrameLayout
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -36,27 +37,29 @@ import androidx.compose.material.Text
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.constraintlayout.compose.ConstraintLayout
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
-import androidx.lifecycle.LifecycleOwner
 import com.waz.avs.VideoPreview
 import com.waz.avs.VideoRenderer
 import com.wire.android.R
@@ -78,6 +81,7 @@ fun ParticipantTile(
     avatarSize: Dp = dimensions().onGoingCallUserAvatarSize,
     isSelfUser: Boolean,
     shouldFill: Boolean = true,
+    shouldZoom: Boolean = false,
     onSelfUserVideoPreviewCreated: (view: View) -> Unit,
     onClearSelfUserVideoPreview: () -> Unit
 ) {
@@ -86,6 +90,10 @@ fun ParticipantTile(
         color = colorsScheme().callingParticipantTileBackgroundColor,
         shape = RoundedCornerShape(dimensions().corner6x)
     ) {
+        var size by remember { mutableStateOf(IntSize.Zero) }
+        var zoom by remember { mutableStateOf(1f) }
+        var offsetX by remember { mutableStateOf(0f) }
+        var offsetY by remember { mutableStateOf(0f) }
 
         ConstraintLayout {
             val (avatar, userName, muteIcon) = createRefs()
@@ -119,11 +127,37 @@ fun ParticipantTile(
                             setShouldFill(shouldFill)
                         }
                     }
-                    AndroidView(factory = {
-                        val frameLayout = FrameLayout(it)
-                        frameLayout.addView(videoRenderer)
-                        frameLayout
-                    })
+                    AndroidView(
+                        modifier = Modifier
+                            .onSizeChanged {
+                                size = it
+                            }
+                            .pointerInput(Unit) {
+                                // enable zooming only when camera is on
+                                detectTransformGestures { _, gesturePan, gestureZoom, _ ->
+                                    if (shouldZoom) {
+                                        zoom = (zoom * gestureZoom).coerceIn(1f, 3f)
+                                        val maxX = (size.width * (zoom - 1)) / 2
+                                        val minX = -maxX
+                                        offsetX = maxOf(minX, minOf(maxX, offsetX + gesturePan.x))
+                                        val maxY = (size.height * (zoom - 1)) / 2
+                                        val minY = -maxY
+                                        offsetY = maxOf(minY, minOf(maxY, offsetY + gesturePan.y))
+                                    }
+                                }
+                            }
+                            .graphicsLayer(
+                                scaleX = zoom,
+                                scaleY = zoom,
+                                translationX = offsetX,
+                                translationY = offsetY
+                            ),
+
+                        factory = {
+                            val frameLayout = FrameLayout(it)
+                            frameLayout.addView(videoRenderer)
+                            frameLayout
+                        })
                 }
             }
 

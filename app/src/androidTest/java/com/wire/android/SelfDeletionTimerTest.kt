@@ -1,7 +1,7 @@
 package com.wire.android
 
 import androidx.test.platform.app.InstrumentationRegistry
-import com.wire.android.ui.home.conversations.SelfDeletionTimer
+import com.wire.android.ui.home.conversations.SelfDeletionTimerHelper
 import com.wire.android.ui.home.conversations.model.ExpirationStatus
 import com.wire.kalium.logic.data.message.Message
 import org.junit.Test
@@ -12,7 +12,7 @@ import kotlin.time.Duration.Companion.seconds
 
 class SelfDeletionTimerTest {
 
-    private val selfDeletionTimer = SelfDeletionTimer(
+    private val selfDeletionTimer = SelfDeletionTimerHelper(
         context = InstrumentationRegistry.getInstrumentation().targetContext
     )
 
@@ -24,8 +24,8 @@ class SelfDeletionTimerTest {
                 selfDeletionStatus = Message.ExpirationData.SelfDeletionStatus.NotStarted
             )
         )
-        assert(selfDeletionTimer is SelfDeletionTimer.SelfDeletionTimerState.Expirable)
-        val interval = (selfDeletionTimer as SelfDeletionTimer.SelfDeletionTimerState.Expirable).updateInterval()
+        assert(selfDeletionTimer is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable)
+        val interval = (selfDeletionTimer as SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable).updateInterval()
         assert(interval == 30.minutes)
     }
 
@@ -37,8 +37,8 @@ class SelfDeletionTimerTest {
                 selfDeletionStatus = Message.ExpirationData.SelfDeletionStatus.NotStarted
             )
         )
-        assert(selfDeletionTimer is SelfDeletionTimer.SelfDeletionTimerState.Expirable)
-        val interval = (selfDeletionTimer as SelfDeletionTimer.SelfDeletionTimerState.Expirable).updateInterval()
+        assert(selfDeletionTimer is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable)
+        val interval = (selfDeletionTimer as SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable).updateInterval()
         assert(interval == 1.hours)
     }
 
@@ -50,8 +50,8 @@ class SelfDeletionTimerTest {
                 selfDeletionStatus = Message.ExpirationData.SelfDeletionStatus.NotStarted
             )
         )
-        assert(selfDeletionTimer is SelfDeletionTimer.SelfDeletionTimerState.Expirable)
-        val interval = (selfDeletionTimer as SelfDeletionTimer.SelfDeletionTimerState.Expirable).updateInterval()
+        assert(selfDeletionTimer is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable)
+        val interval = (selfDeletionTimer as SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable).updateInterval()
         assert(interval == 1.minutes)
     }
 
@@ -63,8 +63,8 @@ class SelfDeletionTimerTest {
                 selfDeletionStatus = Message.ExpirationData.SelfDeletionStatus.NotStarted
             )
         )
-        assert(selfDeletionTimer is SelfDeletionTimer.SelfDeletionTimerState.Expirable)
-        val interval = (selfDeletionTimer as SelfDeletionTimer.SelfDeletionTimerState.Expirable).updateInterval()
+        assert(selfDeletionTimer is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable)
+        val interval = (selfDeletionTimer as SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable).updateInterval()
         assert(interval == 1.seconds)
     }
 
@@ -76,8 +76,8 @@ class SelfDeletionTimerTest {
                 selfDeletionStatus = Message.ExpirationData.SelfDeletionStatus.NotStarted
             )
         )
-        assert(selfDeletionTimer is SelfDeletionTimer.SelfDeletionTimerState.Expirable)
-        val interval = (selfDeletionTimer as SelfDeletionTimer.SelfDeletionTimerState.Expirable).updateInterval()
+        assert(selfDeletionTimer is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable)
+        val interval = (selfDeletionTimer as SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable).updateInterval()
         assert(interval == 1.seconds)
     }
 
@@ -89,8 +89,8 @@ class SelfDeletionTimerTest {
                 selfDeletionStatus = Message.ExpirationData.SelfDeletionStatus.NotStarted
             )
         )
-        assert(selfDeletionTimer is SelfDeletionTimer.SelfDeletionTimerState.Expirable)
-        val timeLeftLabel = (selfDeletionTimer as SelfDeletionTimer.SelfDeletionTimerState.Expirable).timeLeftFormatted()
+        assert(selfDeletionTimer is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable)
+        val timeLeftLabel = (selfDeletionTimer as SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable).timeLeftFormatted()
         assert(timeLeftLabel == "4 weeks left")
     }
 
@@ -102,8 +102,8 @@ class SelfDeletionTimerTest {
                 selfDeletionStatus = Message.ExpirationData.SelfDeletionStatus.NotStarted
             )
         )
-        assert(selfDeletionTimer is SelfDeletionTimer.SelfDeletionTimerState.Expirable)
-        val timeLeftLabel = (selfDeletionTimer as SelfDeletionTimer.SelfDeletionTimerState.Expirable).timeLeftFormatted()
+        assert(selfDeletionTimer is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable)
+        val timeLeftLabel = (selfDeletionTimer as SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable).timeLeftFormatted()
         assert(timeLeftLabel == "4 weeks left")
     }
 
@@ -115,8 +115,8 @@ class SelfDeletionTimerTest {
                 selfDeletionStatus = Message.ExpirationData.SelfDeletionStatus.NotStarted
             )
         )
-        assert(selfDeletionTimer is SelfDeletionTimer.SelfDeletionTimerState.Expirable)
-        val timeLeftLabel = (selfDeletionTimer as SelfDeletionTimer.SelfDeletionTimerState.Expirable).timeLeftFormatted()
+        assert(selfDeletionTimer is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable)
+        val timeLeftLabel = (selfDeletionTimer as SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable).timeLeftFormatted()
         assert(timeLeftLabel == "4 weeks left")
     }
 
@@ -128,8 +128,8 @@ class SelfDeletionTimerTest {
                 selfDeletionStatus = Message.ExpirationData.SelfDeletionStatus.NotStarted
             )
         )
-        assert(selfDeletionTimer is SelfDeletionTimer.SelfDeletionTimerState.Expirable)
-        val timeLeftLabel = (selfDeletionTimer as SelfDeletionTimer.SelfDeletionTimerState.Expirable).timeLeftFormatted()
+        assert(selfDeletionTimer is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable)
+        val timeLeftLabel = (selfDeletionTimer as SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable).timeLeftFormatted()
         assert(timeLeftLabel == "4 weeks left")
     }
 
@@ -141,8 +141,8 @@ class SelfDeletionTimerTest {
                 selfDeletionStatus = Message.ExpirationData.SelfDeletionStatus.NotStarted
             )
         )
-        assert(selfDeletionTimer is SelfDeletionTimer.SelfDeletionTimerState.Expirable)
-        val timeLeftLabel = (selfDeletionTimer as SelfDeletionTimer.SelfDeletionTimerState.Expirable).timeLeftFormatted()
+        assert(selfDeletionTimer is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable)
+        val timeLeftLabel = (selfDeletionTimer as SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable).timeLeftFormatted()
         assert(timeLeftLabel == "4 weeks left")
     }
 
@@ -154,8 +154,8 @@ class SelfDeletionTimerTest {
                 selfDeletionStatus = Message.ExpirationData.SelfDeletionStatus.NotStarted
             )
         )
-        assert(selfDeletionTimer is SelfDeletionTimer.SelfDeletionTimerState.Expirable)
-        val timeLeftLabel = (selfDeletionTimer as SelfDeletionTimer.SelfDeletionTimerState.Expirable).timeLeftFormatted()
+        assert(selfDeletionTimer is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable)
+        val timeLeftLabel = (selfDeletionTimer as SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable).timeLeftFormatted()
         assert(timeLeftLabel == "21 days left")
     }
 
@@ -167,8 +167,8 @@ class SelfDeletionTimerTest {
                 selfDeletionStatus = Message.ExpirationData.SelfDeletionStatus.NotStarted
             )
         )
-        assert(selfDeletionTimer is SelfDeletionTimer.SelfDeletionTimerState.Expirable)
-        val timeLeftLabel = (selfDeletionTimer as SelfDeletionTimer.SelfDeletionTimerState.Expirable).timeLeftFormatted()
+        assert(selfDeletionTimer is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable)
+        val timeLeftLabel = (selfDeletionTimer as SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable).timeLeftFormatted()
         assert(timeLeftLabel == "14 days left")
     }
 
@@ -180,8 +180,8 @@ class SelfDeletionTimerTest {
                 selfDeletionStatus = Message.ExpirationData.SelfDeletionStatus.NotStarted
             )
         )
-        assert(selfDeletionTimer is SelfDeletionTimer.SelfDeletionTimerState.Expirable)
-        val timeLeftLabel = (selfDeletionTimer as SelfDeletionTimer.SelfDeletionTimerState.Expirable).timeLeftFormatted()
+        assert(selfDeletionTimer is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable)
+        val timeLeftLabel = (selfDeletionTimer as SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable).timeLeftFormatted()
         assert(timeLeftLabel == "20 days left")
     }
 
@@ -193,8 +193,8 @@ class SelfDeletionTimerTest {
                 selfDeletionStatus = Message.ExpirationData.SelfDeletionStatus.NotStarted
             )
         )
-        assert(selfDeletionTimer is SelfDeletionTimer.SelfDeletionTimerState.Expirable)
-        val timeLeftLabel = (selfDeletionTimer as SelfDeletionTimer.SelfDeletionTimerState.Expirable).timeLeftFormatted()
+        assert(selfDeletionTimer is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable)
+        val timeLeftLabel = (selfDeletionTimer as SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable).timeLeftFormatted()
         assert(timeLeftLabel == "1 week left")
     }
 
@@ -206,8 +206,8 @@ class SelfDeletionTimerTest {
                 selfDeletionStatus = Message.ExpirationData.SelfDeletionStatus.NotStarted
             )
         )
-        assert(selfDeletionTimer is SelfDeletionTimer.SelfDeletionTimerState.Expirable)
-        val timeLeftLabel = (selfDeletionTimer as SelfDeletionTimer.SelfDeletionTimerState.Expirable).timeLeftFormatted()
+        assert(selfDeletionTimer is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable)
+        val timeLeftLabel = (selfDeletionTimer as SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable).timeLeftFormatted()
         assert(timeLeftLabel == "1 week left")
     }
 
@@ -219,8 +219,8 @@ class SelfDeletionTimerTest {
                 selfDeletionStatus = Message.ExpirationData.SelfDeletionStatus.NotStarted
             )
         )
-        assert(selfDeletionTimer is SelfDeletionTimer.SelfDeletionTimerState.Expirable)
-        val timeLeftLabel = (selfDeletionTimer as SelfDeletionTimer.SelfDeletionTimerState.Expirable).timeLeftFormatted()
+        assert(selfDeletionTimer is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable)
+        val timeLeftLabel = (selfDeletionTimer as SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable).timeLeftFormatted()
         assert(timeLeftLabel == "1 week left")
     }
 
@@ -232,8 +232,8 @@ class SelfDeletionTimerTest {
                 selfDeletionStatus = Message.ExpirationData.SelfDeletionStatus.NotStarted
             )
         )
-        assert(selfDeletionTimer is SelfDeletionTimer.SelfDeletionTimerState.Expirable)
-        val timeLeftLabel = (selfDeletionTimer as SelfDeletionTimer.SelfDeletionTimerState.Expirable).timeLeftFormatted()
+        assert(selfDeletionTimer is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable)
+        val timeLeftLabel = (selfDeletionTimer as SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable).timeLeftFormatted()
         assert(timeLeftLabel == "1 week left")
     }
 
@@ -245,8 +245,8 @@ class SelfDeletionTimerTest {
                 selfDeletionStatus = Message.ExpirationData.SelfDeletionStatus.NotStarted
             )
         )
-        assert(selfDeletionTimer is SelfDeletionTimer.SelfDeletionTimerState.Expirable)
-        val timeLeftLabel = (selfDeletionTimer as SelfDeletionTimer.SelfDeletionTimerState.Expirable).timeLeftFormatted()
+        assert(selfDeletionTimer is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable)
+        val timeLeftLabel = (selfDeletionTimer as SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable).timeLeftFormatted()
         assert(timeLeftLabel == "13 days left")
     }
 
@@ -258,8 +258,8 @@ class SelfDeletionTimerTest {
                 selfDeletionStatus = Message.ExpirationData.SelfDeletionStatus.NotStarted
             )
         )
-        assert(selfDeletionTimer is SelfDeletionTimer.SelfDeletionTimerState.Expirable)
-        val timeLeftLabel = (selfDeletionTimer as SelfDeletionTimer.SelfDeletionTimerState.Expirable).timeLeftFormatted()
+        assert(selfDeletionTimer is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable)
+        val timeLeftLabel = (selfDeletionTimer as SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable).timeLeftFormatted()
         assert(timeLeftLabel == "1 day left")
     }
 
@@ -271,8 +271,8 @@ class SelfDeletionTimerTest {
                 selfDeletionStatus = Message.ExpirationData.SelfDeletionStatus.NotStarted
             )
         )
-        assert(selfDeletionTimer is SelfDeletionTimer.SelfDeletionTimerState.Expirable)
-        val timeLeftLabel = (selfDeletionTimer as SelfDeletionTimer.SelfDeletionTimerState.Expirable).timeLeftFormatted()
+        assert(selfDeletionTimer is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable)
+        val timeLeftLabel = (selfDeletionTimer as SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable).timeLeftFormatted()
         assert(timeLeftLabel == "1 day left")
     }
 
@@ -284,8 +284,8 @@ class SelfDeletionTimerTest {
                 selfDeletionStatus = Message.ExpirationData.SelfDeletionStatus.NotStarted
             )
         )
-        assert(selfDeletionTimer is SelfDeletionTimer.SelfDeletionTimerState.Expirable)
-        val timeLeftLabel = (selfDeletionTimer as SelfDeletionTimer.SelfDeletionTimerState.Expirable).timeLeftFormatted()
+        assert(selfDeletionTimer is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable)
+        val timeLeftLabel = (selfDeletionTimer as SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable).timeLeftFormatted()
         assert(timeLeftLabel == "23 hours left")
     }
 
@@ -297,8 +297,8 @@ class SelfDeletionTimerTest {
                 selfDeletionStatus = Message.ExpirationData.SelfDeletionStatus.NotStarted
             )
         )
-        assert(selfDeletionTimer is SelfDeletionTimer.SelfDeletionTimerState.Expirable)
-        val timeLeftLabel = (selfDeletionTimer as SelfDeletionTimer.SelfDeletionTimerState.Expirable).timeLeftFormatted()
+        assert(selfDeletionTimer is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable)
+        val timeLeftLabel = (selfDeletionTimer as SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable).timeLeftFormatted()
         assert(timeLeftLabel == "1 hour left")
     }
 
@@ -310,8 +310,8 @@ class SelfDeletionTimerTest {
                 selfDeletionStatus = Message.ExpirationData.SelfDeletionStatus.NotStarted
             )
         )
-        assert(selfDeletionTimer is SelfDeletionTimer.SelfDeletionTimerState.Expirable)
-        val timeLeftLabel = (selfDeletionTimer as SelfDeletionTimer.SelfDeletionTimerState.Expirable).timeLeftFormatted()
+        assert(selfDeletionTimer is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable)
+        val timeLeftLabel = (selfDeletionTimer as SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable).timeLeftFormatted()
         assert(timeLeftLabel == "1 minute left")
     }
 
@@ -323,8 +323,8 @@ class SelfDeletionTimerTest {
                 selfDeletionStatus = Message.ExpirationData.SelfDeletionStatus.NotStarted
             )
         )
-        assert(selfDeletionTimer is SelfDeletionTimer.SelfDeletionTimerState.Expirable)
-        val timeLeftLabel = (selfDeletionTimer as SelfDeletionTimer.SelfDeletionTimerState.Expirable).timeLeftFormatted()
+        assert(selfDeletionTimer is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable)
+        val timeLeftLabel = (selfDeletionTimer as SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable).timeLeftFormatted()
         assert(timeLeftLabel == "59 minutes left")
     }
 
@@ -336,8 +336,8 @@ class SelfDeletionTimerTest {
                 selfDeletionStatus = Message.ExpirationData.SelfDeletionStatus.NotStarted
             )
         )
-        assert(selfDeletionTimer is SelfDeletionTimer.SelfDeletionTimerState.Expirable)
-        val timeLeftLabel = (selfDeletionTimer as SelfDeletionTimer.SelfDeletionTimerState.Expirable).timeLeftFormatted()
+        assert(selfDeletionTimer is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable)
+        val timeLeftLabel = (selfDeletionTimer as SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable).timeLeftFormatted()
         assert(timeLeftLabel == "1 minute left")
     }
 
@@ -349,8 +349,8 @@ class SelfDeletionTimerTest {
                 selfDeletionStatus = Message.ExpirationData.SelfDeletionStatus.NotStarted
             )
         )
-        assert(selfDeletionTimer is SelfDeletionTimer.SelfDeletionTimerState.Expirable)
-        (selfDeletionTimer as SelfDeletionTimer.SelfDeletionTimerState.Expirable).decreaseTimeLeft(
+        assert(selfDeletionTimer is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable)
+        (selfDeletionTimer as SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable).decreaseTimeLeft(
             selfDeletionTimer.updateInterval()
         )
         assert(selfDeletionTimer.timeLeftFormatted() == "1 day left")
@@ -367,8 +367,8 @@ class SelfDeletionTimerTest {
                 selfDeletionStatus = Message.ExpirationData.SelfDeletionStatus.NotStarted
             )
         )
-        assert(selfDeletionTimer is SelfDeletionTimer.SelfDeletionTimerState.Expirable)
-        (selfDeletionTimer as SelfDeletionTimer.SelfDeletionTimerState.Expirable).decreaseTimeLeft(
+        assert(selfDeletionTimer is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable)
+        (selfDeletionTimer as SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable).decreaseTimeLeft(
             selfDeletionTimer.updateInterval()
         )
 
@@ -384,8 +384,8 @@ class SelfDeletionTimerTest {
                 selfDeletionStatus = Message.ExpirationData.SelfDeletionStatus.NotStarted
             )
         )
-        assert(selfDeletionTimer is SelfDeletionTimer.SelfDeletionTimerState.Expirable)
-        (selfDeletionTimer as SelfDeletionTimer.SelfDeletionTimerState.Expirable).decreaseTimeLeft(
+        assert(selfDeletionTimer is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable)
+        (selfDeletionTimer as SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable).decreaseTimeLeft(
             selfDeletionTimer.updateInterval()
         )
         assert(selfDeletionTimer.timeLeftFormatted() == "1 hour left")
@@ -403,8 +403,8 @@ class SelfDeletionTimerTest {
                 selfDeletionStatus = Message.ExpirationData.SelfDeletionStatus.NotStarted
             )
         )
-        assert(selfDeletionTimer is SelfDeletionTimer.SelfDeletionTimerState.Expirable)
-        (selfDeletionTimer as SelfDeletionTimer.SelfDeletionTimerState.Expirable).decreaseTimeLeft(
+        assert(selfDeletionTimer is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable)
+        (selfDeletionTimer as SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable).decreaseTimeLeft(
             selfDeletionTimer.updateInterval()
         )
         assert(selfDeletionTimer.timeLeftFormatted() == "1 minute left")

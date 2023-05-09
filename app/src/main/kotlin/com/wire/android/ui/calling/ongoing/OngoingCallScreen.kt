@@ -61,8 +61,8 @@ import com.wire.android.ui.calling.controlbuttons.CameraFlipButton
 import com.wire.android.ui.calling.controlbuttons.HangUpButton
 import com.wire.android.ui.calling.controlbuttons.MicrophoneButton
 import com.wire.android.ui.calling.controlbuttons.SpeakerButton
-import com.wire.android.ui.calling.ongoing.fullscreen.FullScreenTile
 import com.wire.android.ui.calling.model.UICallParticipant
+import com.wire.android.ui.calling.ongoing.fullscreen.FullScreenTile
 import com.wire.android.ui.calling.ongoing.participantsview.VerticalCallingPager
 import com.wire.android.ui.common.SecurityClassificationBanner
 import com.wire.android.ui.common.colorsScheme
@@ -148,9 +148,9 @@ private fun OngoingCallContent(
     )
 
     var shouldFullScreen by remember { mutableStateOf(false) }
-    var userId by remember { mutableStateOf(UserId(String.EMPTY, String.EMPTY)) }
-    var isSelfUser by remember { mutableStateOf(false) }
-    var clientId by remember { mutableStateOf(String.EMPTY) }
+    var selectedUserIdForFullScreen by remember { mutableStateOf(UserId(String.EMPTY, String.EMPTY)) }
+    var isSelectedUserSelfUser by remember { mutableStateOf(false) }
+    var selectedClientIdForFullScreen by remember { mutableStateOf(String.EMPTY) }
 
     BottomSheetScaffold(
         sheetBackgroundColor = colorsScheme().background,
@@ -185,10 +185,9 @@ private fun OngoingCallContent(
         },
     ) {
         BoxWithConstraints(
-            modifier = Modifier.padding(
-                top = it.calculateTopPadding(),
-                bottom = dimensions().defaultSheetPeekHeight
-            )
+            modifier = Modifier
+                .padding(it)
+                .padding(bottom = dimensions().defaultSheetPeekHeight)
         ) {
 
             if (participants.isEmpty()) {
@@ -218,16 +217,16 @@ private fun OngoingCallContent(
                     }
 
                     // if we are on full screen, and that user left the call, then we leave the full screen
-                    if (participants.find { user -> user.id == userId } == null) {
+                    if (participants.find { user -> user.id == selectedUserIdForFullScreen } == null) {
                         shouldFullScreen = false
                     }
 
                     if (shouldFullScreen) {
                         FullScreenTile(
-                            userId = userId,
-                            clientId = clientId,
-                            isSelfUser = isSelfUser,
-                            height = this@BoxWithConstraints.maxHeight -4.dp
+                            userId = selectedUserIdForFullScreen,
+                            clientId = selectedClientIdForFullScreen,
+                            isSelfUser = isSelectedUserSelfUser,
+                            height = this@BoxWithConstraints.maxHeight - dimensions().spacing4x
                         ) {
                             shouldFullScreen = !shouldFullScreen
                         }
@@ -241,9 +240,9 @@ private fun OngoingCallContent(
                             onSelfClearVideoPreview = clearVideoPreview,
                             requestVideoStreams = requestVideoStreams,
                             onDoubleTap = { selectedUserId, selectedClientId, isSelf ->
-                                userId = selectedUserId
-                                clientId = selectedClientId
-                                isSelfUser = isSelf
+                                selectedUserIdForFullScreen = selectedUserId
+                                selectedClientIdForFullScreen = selectedClientId
+                                isSelectedUserSelfUser = isSelf
                                 shouldFullScreen = !shouldFullScreen
                             }
                         )

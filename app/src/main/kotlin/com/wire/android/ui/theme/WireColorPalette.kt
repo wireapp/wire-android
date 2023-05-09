@@ -24,6 +24,8 @@ import androidx.compose.runtime.Stable
 import androidx.compose.ui.graphics.Color
 import io.github.esentsov.PackagePrivate
 
+const val GRAY_HEX = 0xFF34373D
+
 @PackagePrivate
 @Suppress("MagicNumber")
 object WireColorPalette {
@@ -168,7 +170,7 @@ object WireColorPalette {
     @Stable val Gray60 = Color(0xFF9FA1A7)
     @Stable val Gray70 = Color(0xFF676B71)
     @Stable val Gray80 = Color(0xFF54585F)
-    @Stable val Gray90 = Color(0xFF34373D)
+    @Stable val Gray90 = Color(GRAY_HEX)
     @Stable val Gray95 = Color(0xFF26272C)
     @Stable val Gray100 = Color(0xFF17181A)
 

@@ -73,12 +73,13 @@ class FeatureFlagNotificationViewModel @Inject constructor(
                 }
 
                 is CurrentSessionResult.Success -> {
-                    coreLogic.getSessionScope(currentSessionResult.accountInfo.userId).observeSyncState()
+                    val userId = currentSessionResult.accountInfo.userId
+                    coreLogic.getSessionScope(userId).observeSyncState()
                         .firstOrNull { it == SyncState.Live }?.let {
-                            currentUserId = currentSessionResult.accountInfo.userId
-                            setFileSharingState(currentSessionResult.accountInfo.userId)
-                            observeSelfDeletedMessagesFlag(currentSessionResult.accountInfo.userId)
-                            setGuestRoomLinkFeatureFlag(currentSessionResult.accountInfo.userId)
+                            currentUserId = userId
+                            setFileSharingState(userId)
+                            observeTeamSettingsSelfDeletionStatus(userId)
+                            setGuestRoomLinkFeatureFlag(userId)
                         }
                 }
             }
@@ -115,9 +116,9 @@ class FeatureFlagNotificationViewModel @Inject constructor(
         }
     }
 
-    private suspend fun observeSelfDeletedMessagesFlag(userId: UserId) {
+    private suspend fun observeTeamSettingsSelfDeletionStatus(userId: UserId) {
         viewModelScope.launch {
-            coreLogic.getSessionScope(userId).observeTeamSettingsSelfDeletionStatusFlag().collect { teamSettingsSelfDeletingStatus ->
+            coreLogic.getSessionScope(userId).observeTeamSettingsSelfDeletionStatus().collect { teamSettingsSelfDeletingStatus ->
                 featureFlagState = featureFlagState.copy(
                     areSelfDeletedMessagesEnabled = teamSettingsSelfDeletingStatus.enforcedSelfDeletionTimer !is SelfDeletionTimer.Disabled,
                     shouldShowSelfDeletingMessagesDialog = teamSettingsSelfDeletingStatus.hasFeatureChanged ?: false,

@@ -14,25 +14,17 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
+package com.wire.android.ui.home.messagecomposer.model
 
-package com.wire.android.ui.home
+import com.wire.kalium.logic.data.message.mention.MessageMention
+import com.wire.kalium.logic.data.user.UserId
 
-import com.wire.android.ui.home.messagecomposer.state.SelfDeletionDuration
-
-data class FeatureFlagState(
-    val showFileSharingDialog: Boolean = false,
-    val isFileSharingEnabledState: Boolean = true,
-    val fileSharingRestrictedState: SharingRestrictedState? = null,
-    val shouldShowGuestRoomLinkDialog: Boolean = false,
-    val isGuestRoomLinkEnabled: Boolean = true,
-    val shouldShowSelfDeletingMessagesDialog: Boolean = false,
-    val enforcedTimeoutDuration: SelfDeletionDuration = SelfDeletionDuration.None,
-    val areSelfDeletedMessagesEnabled: Boolean = true
+data class UiMention(
+    val start: Int,
+    val length: Int,
+    val userId: UserId,
+    val handler: String // name that should be displayed in a message
 ) {
-    enum class SharingRestrictedState {
-        NONE, NO_USER, RESTRICTED_IN_TEAM
-    }
+    fun intoMessageMention() = MessageMention(start, length, userId, false) // We can never send a self mention message
 }

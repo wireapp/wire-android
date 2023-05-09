@@ -78,6 +78,7 @@
 
     "mls_support_enabled": true,
     "encrypt_proteus_storage": false,
+    "self_deleting_messages": true,
     "wipe_on_cookie_invalid": false,
     "wipe_on_device_removal": false,
     "wipe_on_rooted_device": false,

@@ -65,7 +65,7 @@ open class GroupConversationParticipantsViewModel @Inject constructor(
 
     private fun refreshUsersWithoutMetadata() {
         viewModelScope.launch {
-            refreshUsersWithoutMetadata.syncUsersWithoutMetadata()
+            refreshUsersWithoutMetadata.invoke()
         }
     }
 

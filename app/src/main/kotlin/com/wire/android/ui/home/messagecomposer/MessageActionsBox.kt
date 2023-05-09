@@ -182,7 +182,7 @@ private fun AddMentionAction(isSelected: Boolean, addMentionAction: () -> Unit) 
 private fun PingAction(onPingClicked: () -> Unit) {
     WireSecondaryIconButton(
         onButtonClicked = onPingClicked,
-        clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
+        clickBlockParams = ClickBlockParams(blockWhenSyncing = false, blockWhenConnecting = false),
         iconResource = R.drawable.ic_ping,
         contentDescription = R.string.content_description_ping_everyone
     )

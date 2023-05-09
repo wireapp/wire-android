@@ -27,44 +27,29 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
 import com.wire.android.di.KaliumCoreLogic
-import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.FeatureFlagState
 import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMapper.toSelfDeletionDuration
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.feature.auth.AccountInfo
-import com.wire.kalium.logic.feature.selfdeletingMessages.ObserveTeamSettingsSelfDeletingStatusUseCase
 import com.wire.kalium.logic.feature.selfdeletingMessages.SelfDeletionTimer
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
-import com.wire.kalium.logic.feature.session.GetAllSessionsResult
-import com.wire.kalium.logic.feature.session.GetSessionsUseCase
-import com.wire.kalium.logic.feature.user.MarkFileSharingChangeAsNotifiedUseCase
-import com.wire.kalium.logic.feature.user.MarkSelfDeletingMessagesChangeAsNotifiedUseCase
-import com.wire.kalium.logic.feature.user.guestroomlink.MarkGuestLinkFeatureFlagAsNotChangedUseCase
-import com.wire.kalium.logic.feature.user.guestroomlink.ObserveGuestRoomLinkFeatureFlagUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
 @HiltViewModel
 class FeatureFlagNotificationViewModel @Inject constructor(
     @KaliumCoreLogic private val coreLogic: CoreLogic,
-    private val getSessions: GetSessionsUseCase,
-    private val currentSessionUseCase: CurrentSessionUseCase,
-    private val markFileSharingAsNotified: MarkFileSharingChangeAsNotifiedUseCase,
-    private val markSelfDeletingMessagesAsNotified: MarkSelfDeletingMessagesChangeAsNotifiedUseCase,
-    private val observeTeamSettingsSelfDeletingMessages: ObserveTeamSettingsSelfDeletingStatusUseCase,
-    private val observeGuestRoomLinkFeatureFlag: ObserveGuestRoomLinkFeatureFlagUseCase,
-    private val markGuestLinkFeatureFlagAsNotChanged: MarkGuestLinkFeatureFlagAsNotChangedUseCase,
-    private val navigationManager: NavigationManager
+    private val currentSessionUseCase: CurrentSessionUseCase
 ) : ViewModel() {
 
     var featureFlagState by mutableStateOf(FeatureFlagState())
         private set
+
+    private var currentUserId by mutableStateOf<UserId?>(null)
 
     /**
      * The FeatureFlagNotificationViewModel is an attempt to encapsulate the logic regarding the different user feature flags, like for
@@ -76,42 +61,51 @@ class FeatureFlagNotificationViewModel @Inject constructor(
      * state.
      */
     fun loadInitialSync() {
-        viewModelScope.launch {
-            currentSessionUseCase().let { currentSessionResult ->
-                when (currentSessionResult) {
-                    is CurrentSessionResult.Failure -> {
-                        appLogger.e("Failure while getting current session from FeatureFlagNotificationViewModel")
-                    }
+        viewModelScope.launch { initialSync() }
+    }
 
-                    is CurrentSessionResult.Success -> {
-                        coreLogic.getSessionScope(currentSessionResult.accountInfo.userId).observeSyncState()
-                            .firstOrNull { it == SyncState.Live }?.let {
-                                observeFileSharingStateFlag(currentSessionResult.accountInfo.userId)
-                                observeGuestRoomLinkFlag()
-                                observeSelfDeletedMessagesFlag()
-                            }
-                    }
+    suspend fun initialSync() {
+        currentSessionUseCase().let { currentSessionResult ->
+            when (currentSessionResult) {
+                is CurrentSessionResult.Failure -> {
+                    appLogger.e("Failure while getting current session from FeatureFlagNotificationViewModel")
+                    featureFlagState = featureFlagState.copy(fileSharingRestrictedState = FeatureFlagState.SharingRestrictedState.NO_USER)
+                }
+
+                is CurrentSessionResult.Success -> {
+                    val userId = currentSessionResult.accountInfo.userId
+                    coreLogic.getSessionScope(userId).observeSyncState()
+                        .firstOrNull { it == SyncState.Live }?.let {
+                            currentUserId = userId
+                            setFileSharingState(userId)
+                            observeTeamSettingsSelfDeletionStatus(userId)
+                            setGuestRoomLinkFeatureFlag(userId)
+                        }
                 }
             }
         }
     }
 
-    private fun observeFileSharingStateFlag(userId: UserId) {
-        viewModelScope.launch {
-            coreLogic.getSessionScope(userId).observeFileSharingStatus().collect { fileSharingStatus ->
-                fileSharingStatus.isFileSharingEnabled?.let {
-                    featureFlagState = featureFlagState.copy(isFileSharingEnabledState = it)
-                }
-                fileSharingStatus.isStatusChanged?.let {
-                    featureFlagState = featureFlagState.copy(showFileSharingDialog = it)
-                }
+    private fun setFileSharingState(userId: UserId) = viewModelScope.launch {
+        coreLogic.getSessionScope(userId).observeFileSharingStatus().collect { fileSharingStatus ->
+            fileSharingStatus.isFileSharingEnabled?.let {
+                val fileSharingRestrictedState = if (it) FeatureFlagState.SharingRestrictedState.NONE
+                else FeatureFlagState.SharingRestrictedState.RESTRICTED_IN_TEAM
+
+                featureFlagState = featureFlagState.copy(
+                    fileSharingRestrictedState = fileSharingRestrictedState,
+                    isFileSharingEnabledState = it
+                )
+            }
+            fileSharingStatus.isStatusChanged?.let {
+                featureFlagState = featureFlagState.copy(showFileSharingDialog = it)
             }
         }
     }
 
-    private suspend fun observeGuestRoomLinkFlag() {
+    private fun setGuestRoomLinkFeatureFlag(userId: UserId) {
         viewModelScope.launch {
-            observeGuestRoomLinkFeatureFlag().collect { guestRoomLinkStatus ->
+            coreLogic.getSessionScope(userId).observeGuestRoomLinkFeatureFlag().collect { guestRoomLinkStatus ->
                 guestRoomLinkStatus.isGuestRoomLinkEnabled?.let {
                     featureFlagState = featureFlagState.copy(isGuestRoomLinkEnabled = it)
                 }
@@ -122,9 +116,9 @@ class FeatureFlagNotificationViewModel @Inject constructor(
         }
     }
 
-    private suspend fun observeSelfDeletedMessagesFlag() {
+    private suspend fun observeTeamSettingsSelfDeletionStatus(userId: UserId) {
         viewModelScope.launch {
-            observeTeamSettingsSelfDeletingMessages().collect { teamSettingsSelfDeletingStatus ->
+            coreLogic.getSessionScope(userId).observeTeamSettingsSelfDeletionStatus().collect { teamSettingsSelfDeletingStatus ->
                 featureFlagState = featureFlagState.copy(
                     areSelfDeletedMessagesEnabled = teamSettingsSelfDeletingStatus.enforcedSelfDeletionTimer !is SelfDeletionTimer.Disabled,
                     shouldShowSelfDeletingMessagesDialog = teamSettingsSelfDeletingStatus.hasFeatureChanged ?: false,
@@ -137,50 +131,21 @@ class FeatureFlagNotificationViewModel @Inject constructor(
     fun dismissSelfDeletingMessagesDialog() {
         featureFlagState = featureFlagState.copy(shouldShowSelfDeletingMessagesDialog = false)
         viewModelScope.launch {
-            markSelfDeletingMessagesAsNotified()
+            currentUserId?.let { coreLogic.getSessionScope(it).markSelfDeletingMessagesAsNotified() }
         }
     }
 
     fun dismissFileSharingDialog() {
         featureFlagState = featureFlagState.copy(showFileSharingDialog = false)
         viewModelScope.launch {
-            markFileSharingAsNotified()
-        }
-    }
-
-    private suspend fun checkNumberOfSessions(): Int {
-        getSessions().let {
-            return when (it) {
-                is GetAllSessionsResult.Success -> {
-                    it.sessions.filterIsInstance<AccountInfo.Valid>().size
-                }
-
-                is GetAllSessionsResult.Failure.Generic -> 0
-                GetAllSessionsResult.Failure.NoSessionFound -> 0
-            }
-        }
-    }
-
-    fun updateSharingStateIfNeeded() {
-        // This function needs to be executed blocking the main thread because otherwise the list of imported assets will not be updated
-        // correctly for some strange reason.
-        runBlocking {
-            val fileSharingRestrictedState = if (checkNumberOfSessions() > 0) {
-                if (featureFlagState.isFileSharingEnabledState) FeatureFlagState.SharingRestrictedState.NONE
-                else FeatureFlagState.SharingRestrictedState.RESTRICTED_IN_TEAM
-            } else {
-                FeatureFlagState.SharingRestrictedState.NO_USER
-            }
-            featureFlagState = featureFlagState.copy(fileSharingRestrictedState = fileSharingRestrictedState)
+            currentUserId?.let { coreLogic.getSessionScope(it).markFileSharingStatusAsNotified() }
         }
     }
 
     fun dismissGuestRoomLinkDialog() {
-        markGuestLinkFeatureFlagAsNotChanged()
+        viewModelScope.launch {
+            currentUserId?.let { coreLogic.getSessionScope(it).markGuestLinkFeatureFlagAsNotChanged() }
+        }
         featureFlagState = featureFlagState.copy(shouldShowGuestRoomLinkDialog = false)
-    }
-
-    fun closeScreen() {
-        viewModelScope.launch { navigationManager.navigateBack() }
     }
 }

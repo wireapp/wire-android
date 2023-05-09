@@ -72,7 +72,6 @@ import com.wire.kalium.logic.feature.message.SendEditTextMessageUseCase
 import com.wire.kalium.logic.feature.message.SendKnockUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.message.ephemeral.EnqueueMessageSelfDeletionUseCase
-import com.wire.kalium.logic.feature.selfdeletingMessages.ConversationSelfDeletionStatus
 import com.wire.kalium.logic.feature.selfdeletingMessages.ObserveSelfDeletionTimerForConversationUseCase
 import com.wire.kalium.logic.feature.selfdeletingMessages.PersistNewSelfDeletionTimerUseCase
 import com.wire.kalium.logic.feature.selfdeletingMessages.SelfDeletionTimer

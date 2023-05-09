@@ -158,6 +158,7 @@ fun SystemMessageItem(message: UIMessage.System) {
     }
 }
 
+@Suppress("ComplexMethod")
 @Composable
 private fun getColorFilter(message: SystemMessage): ColorFilter? {
     return when (message) {

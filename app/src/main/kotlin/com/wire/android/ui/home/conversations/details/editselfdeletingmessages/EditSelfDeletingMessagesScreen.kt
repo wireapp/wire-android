@@ -21,10 +21,19 @@
 package com.wire.android.ui.home.conversations.details.editselfdeletingmessages
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.material3.*
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RadioButton
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -34,7 +43,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
-import com.wire.android.appLogger
 import com.wire.android.ui.common.divider.WireDivider
 import com.wire.android.ui.common.rememberTopBarElevationState
 import com.wire.android.ui.common.selectableBackground
@@ -79,7 +87,6 @@ fun EditSelfDeletingMessagesScreen(
             ) {
                 with(editGuestAccessViewModel) {
                     item {
-                        // TODO KBX
                         SelfDeletingMessageOption(
                             isSwitchEnabled = true,
                             isSwitchVisible = true,
@@ -88,36 +95,35 @@ fun EditSelfDeletingMessagesScreen(
                             onCheckedChange = ::updateSelfDeletingMessageOption
                         )
                     }
-                    if(editSelfDeletingMessagesState.isEnabled)
-                    folderWithElements(
-                        header = context.resources.getString(R.string.self_deleting_messages_folder_timer),
-                        items = SelfDeletionDuration.values().associateBy { it.name },
-                        divider = { WireDivider(color = MaterialTheme.wireColorScheme.outline) }
-                    ) { duration ->
-                        if (duration == SelfDeletionDuration.None) {
-                            Text(
-                                text = stringResource(id = R.string.automatically_delete_message_after),
-                                style = MaterialTheme.wireTypography.label04,
-                                color = MaterialTheme.wireColorScheme.secondaryText,
-                                textAlign = TextAlign.Start,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .background(color = MaterialTheme.wireColorScheme.surface)
-                                    .padding(all = MaterialTheme.wireDimensions.spacing16x)
-                            )
-                        } else {
-                            SelectableSelfDeletingItem(
-                                duration = duration,
-                                isSelected = editSelfDeletingMessagesState.currentlySelected == duration,
-                                onSelfDeletionDurationSelected = ::onSelectDuration
-                            )
+                    if (editSelfDeletingMessagesState.isEnabled)
+                        folderWithElements(
+                            header = context.resources.getString(R.string.self_deleting_messages_folder_timer),
+                            items = SelfDeletionDuration.values().associateBy { it.name },
+                            divider = { WireDivider(color = MaterialTheme.wireColorScheme.outline) }
+                        ) { duration ->
+                            if (duration == SelfDeletionDuration.None) {
+                                Text(
+                                    text = stringResource(id = R.string.automatically_delete_message_after),
+                                    style = MaterialTheme.wireTypography.label04,
+                                    color = MaterialTheme.wireColorScheme.secondaryText,
+                                    textAlign = TextAlign.Start,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .background(color = MaterialTheme.wireColorScheme.surface)
+                                        .padding(all = MaterialTheme.wireDimensions.spacing16x)
+                                )
+                            } else {
+                                SelectableSelfDeletingItem(
+                                    duration = duration,
+                                    isSelected = editSelfDeletingMessagesState.currentlySelected == duration,
+                                    onSelfDeletionDurationSelected = ::onSelectDuration
+                                )
+                            }
                         }
-                    }
                 }
             }
         }
     }
-
 }
 
 @Composable
@@ -141,9 +147,7 @@ fun SelectableSelfDeletingItem(
             color = MaterialTheme.wireColorScheme.onBackground
         )
     }
-
 }
-
 
 @Preview
 @Composable

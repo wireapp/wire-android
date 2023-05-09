@@ -293,7 +293,6 @@ private fun GroupConversationDetailsContent(
             bottomSheetEventsHandler.onClearConversationContent(it)
         }
     )
-
 }
 
 enum class GroupConversationDetailsTabItem(@StringRes override val titleResId: Int) : TabItem {

@@ -37,13 +37,10 @@ import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.feature.conversation.messagetimer.UpdateMessageTimerUseCase
 import com.wire.kalium.logic.feature.selfdeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -75,41 +72,46 @@ class EditSelfDeletingMessagesViewModel @Inject constructor(
 
     private fun observeSelfDeletingMessages() {
         viewModelScope.launch {
-            val selfDeletingMessagesFlow = observeSelfDeletionTimerSettingsForConversation(conversationId, includeSelfSettings = false)
-                .distinctUntilChanged()
-                .flowOn(dispatcher.io())
-                .shareIn(this, SharingStarted.WhileSubscribed(), 1)
-
-            val isSelfAdminFlow = observeConversationMembers(conversationId)
-                .map { it.isSelfAnAdmin }
-                .distinctUntilChanged()
-
             combine(
-                selfDeletingMessagesFlow,
-                isSelfAdminFlow
+                observeSelfDeletionTimerSettingsForConversation(conversationId, includeSelfSettings = false),
+                observeConversationMembers(conversationId)
+                    .map { it.isSelfAnAdmin }
+                    .distinctUntilChanged()
             ) { selfDeletingMessages, isSelfAnAdmin ->
                 editSelfDeletingMessagesState = editSelfDeletingMessagesState.copy(
+                    isLoading = selfDeletingMessages.isEnforcedByTeam || !isSelfAnAdmin,
                     isEnabled = selfDeletingMessages.isEnforcedByGroup,
                     selfDeletingDuration = selfDeletingMessages.toDuration(),
                     currentlySelected = selfDeletingMessages.toDuration().toSelfDeletionDuration()
                 )
-            }
+            }.collect()
         }
     }
 
     fun updateSelfDeletingMessageOption(shouldBeEnabled: Boolean) {
-        // TODO KBX implement use case
         viewModelScope.launch {
-            editSelfDeletingMessagesState = editSelfDeletingMessagesState.copy(
-                isLoading = true,
-                isEnabled = shouldBeEnabled
-            )
-            delay(2000)
-            editSelfDeletingMessagesState = editSelfDeletingMessagesState.copy(
-                isLoading = false
-            )
-        }
+            if (shouldBeEnabled) {
+                editSelfDeletingMessagesState = editSelfDeletingMessagesState.copy(
+                    isEnabled = true
+                )
+            } else {
+                editSelfDeletingMessagesState = editSelfDeletingMessagesState.copy(
+                    isLoading = true,
+                    isEnabled = false
+                )
+                editSelfDeletingMessagesState = when (updateMessageTimer(conversationId, null)) {
+                    is UpdateMessageTimerUseCase.Result.Failure -> editSelfDeletingMessagesState.copy(
+                        isLoading = false,
+                        isEnabled = true
+                    )
 
+                    UpdateMessageTimerUseCase.Result.Success -> editSelfDeletingMessagesState.copy(
+                        isLoading = false,
+                        isEnabled = false
+                    )
+                }
+            }
+        }
     }
 
     fun onSelectDuration(duration: SelfDeletionDuration) {
@@ -126,6 +128,7 @@ class EditSelfDeletingMessagesViewModel @Inject constructor(
                         currentlySelected = previousSelected
                     )
                 }
+
                 UpdateMessageTimerUseCase.Result.Success -> {
                     editSelfDeletingMessagesState.copy(
                         isLoading = false

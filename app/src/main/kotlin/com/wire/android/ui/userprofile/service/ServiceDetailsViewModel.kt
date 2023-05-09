@@ -34,6 +34,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
+@Suppress("LongParameterList")
 @HiltViewModel
 class ServiceDetailsViewModel @Inject constructor(
     private val navigationManager: NavigationManager,

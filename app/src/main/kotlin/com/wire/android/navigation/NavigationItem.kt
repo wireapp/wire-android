@@ -332,7 +332,7 @@ enum class NavigationItem(
         override fun getRouteWithArgs(arguments: List<Any>): String {
             val botServiceId: BotService = arguments.filterIsInstance<BotService>()[0]
             val conversationId: QualifiedID = arguments.filterIsInstance<QualifiedID>()[0]
-            return "$primaryRoute?$EXTRA_BOT_SERVICE_ID=${botServiceId}&$EXTRA_CONVERSATION_ID=$conversationId"
+            return "$primaryRoute?$EXTRA_BOT_SERVICE_ID=$botServiceId&$EXTRA_CONVERSATION_ID=$conversationId"
         }
     },
 

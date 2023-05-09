@@ -1,13 +1,11 @@
 package com.wire.android.ui.userprofile.service
 
 import com.wire.android.model.ImageAsset
-import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.service.ServiceDetails
 import com.wire.kalium.logic.data.service.ServiceId
-import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
 
 data class ServiceDetailsState(
     val serviceId: ServiceId? = null,

@@ -366,7 +366,7 @@ class MessageComposerViewModel @Inject constructor(
     }
 
     fun updateSelfDeletingMessages(newSelfDeletionTimer: SelfDeletionTimer) = viewModelScope.launch {
-        messageComposerViewState.copy(selfDeletionTimer = newSelfDeletionTimer)
+        messageComposerViewState = messageComposerViewState.copy(selfDeletionTimer = newSelfDeletionTimer)
         persistNewSelfDeletingStatus(conversationId, newSelfDeletionTimer)
     }
 

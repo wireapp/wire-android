@@ -4,6 +4,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
@@ -26,11 +28,13 @@ import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.ui.userprofile.common.EditableState
 import com.wire.android.ui.userprofile.common.UserProfileInfo
+import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -77,17 +81,19 @@ private fun ServiceDetailsTopAppBar(
 private fun ServiceDetailsProfileInfo(
     state: ServiceDetailsState
 ) {
-    UserProfileInfo(
-        isLoading = state.isAvatarLoading,
-        avatarAsset = state.userAvatarAsset,
-        fullName = state.fullName,
-        userName = state.userName,
-        teamName = null,
-        membership = state.membership,
-        editableState = EditableState.NotEditable,
-        modifier = Modifier.padding(bottom = dimensions().spacing16x),
-        securityClassificationType = state.securityClassificationType
-    )
+    state.serviceDetails?.let { serviceDetails ->
+        UserProfileInfo(
+            isLoading = state.isAvatarLoading,
+            avatarAsset = state.serviceAvatarAsset,
+            fullName = serviceDetails.name,
+            userName = "",
+            teamName = null,
+            membership = Membership.Service,
+            editableState = EditableState.NotEditable,
+            modifier = Modifier.padding(bottom = dimensions().spacing16x),
+            securityClassificationType = SecurityClassificationType.NONE
+        )
+    }
 }
 
 @Composable
@@ -97,20 +103,23 @@ private fun ServiceDetailsDescription(
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
+            .fillMaxWidth()
             .wrapContentSize(Alignment.Center)
     ) {
         Spacer(modifier = Modifier.height(MaterialTheme.wireDimensions.spacing16x))
         Text(
-            text = state.description,
+            // modifier = Modifier.fillMaxWidth(),
+            text = state.serviceDetails?.description ?: "",
             style = MaterialTheme.wireTypography.body01
         )
         Spacer(modifier = Modifier.height(MaterialTheme.wireDimensions.spacing24x))
         Text(
-            text = state.summary,
+            text = state.serviceDetails?.summary ?: "",
             style = MaterialTheme.wireTypography.body01,
             textAlign = TextAlign.Center,
             modifier = Modifier
                 .padding(horizontal = dimensions().spacing18x)
+                // .fillMaxWidth()
         )
     }
 }

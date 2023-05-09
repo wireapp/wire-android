@@ -190,8 +190,8 @@ URL del backend:
     <string name="api_versioning_server_version_not_supported_message">Su servidor de Wire debe actualizarse. Por favor, informe a su administrador del sistema.</string>
     <!-- Migration -->
     <string name="migration_title">Configurando Wire</string>
-    <string name="migration_message">Por favor, espere mientras configuramos la aplicaci&#243;n para usted.</string>
-    <string name="migration_message_unknown">Por favor, espere mientras migramos los datos para usted.</string>
+    <string name="migration_message">Espera por favor mientras configuramos tu aplicación</string>
+    <string name="migration_message_unknown">Por favor, espera mientras migramos tus datos</string>
     <string name="migration_accounts_message">Migrando sus cuentas...</string>
     <string name="migration_messages_message">Migrando sus mensajes...</string>
     <string name="migration_title_step">Paso %1$d/%2$d</string>
@@ -289,7 +289,7 @@ Un mensaje eliminado no puede ser restaurado.</string>
     <string name="create_account_email_terms_dialog_text">Al hacer clic en continuar, est&#225;s aceptando nuestros T&#233;rminos de uso y Pol&#237;tica de privacidad.</string>
     <string name="create_account_email_terms_dialog_view_policy">Ver ToU y Pol&#237;tica de privacidad</string>
     <string name="create_account_email_already_in_use_error">La direcci&#243;n de correo electr&#243;nico ya est&#225; en uso.</string>
-    <string name="create_account_email_blacklisted_error">Tu correo electr&#243;nico ha sido identificado como no confiable, por ejemplo, debido a un rechazo por un filtro de spam.</string>
+    <string name="create_account_email_blacklisted_error">Tu correo electrónico ha sido identificado como no confiable, por ejemplo, debido a un rechazo por un filtro de spam.</string>
     <string name="create_account_email_invalid_error">Por favor, introduce un formato v&#225;lido para tu correo electr&#243;nico.</string>
     <string name="create_account_email_domain_blocked_error">No puedes crear esta cuenta porque tu dominio de correo electr&#243;nico est&#225; bloqueado intencionalmente.</string>
     <string name="create_account_details_first_name_placeholder">Julia</string>
@@ -354,8 +354,8 @@ Un mensaje eliminado no puede ser restaurado.</string>
     <string name="asset_download_dialog_open_text">Abrir</string>
     <string name="asset_download_dialog_save_text">Guardar</string>
     <string name="member_name_deleted_label">Cuenta eliminada</string>
-    <string name="member_name_you_label_titlecase">Usted</string>
-    <string name="member_name_you_label_lowercase">usted</string>
+    <string name="member_name_you_label_titlecase">Tú</string>
+    <string name="member_name_you_label_lowercase">tú</string>
     <string name="label_add_participants">A&#241;adir participantes</string>
     <string name="username_unavailable_label">Nombre de usuario no disponible</string>
     <string name="conversation_details_title">Detalles de la conversaci&#243;n</string>
@@ -369,7 +369,7 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
     <string name="conversation_details_show_all_participants">Mostrar todos los participantes (%d)</string>
     <string name="conversation_details_group_participants_title">Participantes del grupo</string>
     <string name="conversation_details_group_participants_add">A&#241;adir participantes</string>
-    <string name="conversation_participant_you_label">(Usted)</string>
+    <string name="conversation_participant_you_label">(Tú)</string>
     <string name="conversation_details_is_classified">NIVEL DE SEGURIDAD: VS-NfD</string>
     <string name="conversation_details_is_not_classified">NIVEL DE SEGURIDAD: NO CLASIFICADO</string>
     <string name="conversation_options_guests_label">Invitados</string>
@@ -422,7 +422,7 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
     <string name="user_profile_status_busy">Ocupado</string>
     <string name="user_profile_status_away">Ausente</string>
     <string name="user_profile_status_none">Ninguno</string>
-    <string name="user_profile_new_account_text">Nueva equipo o cuenta</string>
+    <string name="user_profile_new_account_text">Nueva cuenta o equipo</string>
     <string name="user_profile_details_tab">Detalles</string>
     <string name="user_profile_devices_tab">Dispositivos</string>
     <string name="user_profile_group_tab">Grupo</string>
@@ -634,8 +634,6 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
     <string name="error_unblocking_user">No se pudo desbloquear al usuario.</string>
     <string name="delete_group_conversation_error">Ocurri&#243; un error al eliminar la conversaci&#243;n.</string>
     <string name="error_limit_number_assets_imported_exceeded">Solo puedes enviar hasta 20 archivos a la vez.</string>
-    <string name="edit_message_not_yet_available">La edici&#243;n de mensajes todav&#237;a no est&#225; disponible.</string>
-    <!-- TODO: temporary, to be removed when the proper implementation of editing messages is finished -->
     <!-- Animation label -->
     <string name="label_open_conversation">Abrir conversaci&#243;n</string>
     <string name="email_label">Correo electr&#243;nico</string>
@@ -907,14 +905,13 @@ URL del backend:
     <string name="guest_link_button_revoke_link">Revocar enlace</string>
     <string name="audio_not_available">Audio no disponible</string>
     <string name="audio_not_available_explanation">Algo sali&#243; mal al descargar este archivo de audio. P&#237;dele al remitente que lo vuelva a subir.</string>
-    <string name="guest_link_generate_error_message">Hubo un error al crear el enlace. Por favor, inténtalo de nuevo</string>
-    <string name="guest_link_revoke_error_message">Hubo un error al revocar el enlace. Por favor inténtalo de nuevo</string>
+    <string name="guest_link_generate_error_message">Link couldn\'t be created. Please try again</string>
+    <string name="guest_link_revoke_error_message">Link couldn\'t be revoked. Please try again</string>
     <string name="revoke_guest__room_link_dialog_text">Los nuevos invitados no podr&#225;n unirse con este enlace. Los invitados actuales a&#250;n tendr&#225;n acceso.</string>
     <string name="revoke_guest__room_link_dialog_title">&#191;Revocar enlace de invitado?</string>
-    <string name="guest__room_link_copied">Link copiado al portapapeles</string>
     <string name="title_device_key_fingerprint">HU&#201;LLA DIGITAL DE LA LLAVE DEL DISPOSITIVO</string>
     <string name="label_client_key_fingerprint_not_available">NO DISPONIBLE</string>
-    <string name="guest_room_link_copied">Link copiado al portapapeles</string>
+    <string name="guest_room_link_copied">Link copied to clipboard</string>
     <string name="guest_room_link_enabled">La generaci&#243;n de enlaces de invitado ahora est&#225; activada para todos los administradores del grupo</string>
     <string name="guest_room_link_disabled">La generaci&#243;n de enlaces de invitado ahora est&#225; desactivada para todos los administradores del grupo</string>
     <!-- New Device dialog -->
@@ -943,6 +940,8 @@ URL del backend:
     <string name="settings_myaccount_email_verification_email_sent">Se ha enviado un correo electrónico de verificación a tu correo electrónico %1$s.\n\nTu dirección de correo electrónico actual no se actualizará hasta que verifiques la nueva. Por favor, revisa tu bandeja de entrada y sigue las instrucciones.</string>
     <string name="label_resend_verification_email">Reenviar el correo de verificación</string>
     <string name="settings_myaccount_email_generic_error">Algo salió mal. Por favor inténtalo de nuevo.</string>
+    <string name="settings_myaccount_handle_description">Your username helps others to find you in Wire and connect with you. It is unique in Wire.</string>
+    <string name="create_account_handle_title">Your User Name</string>
     <string name="title_video_could_not_be_sent">El video no se pudo enviar</string>
     <string name="title_image_could_not_be_sent">La imagen no se pudo enviar</string>
     <string name="title_file_could_not_be_sent">No se pudo enviar el archivo</string>

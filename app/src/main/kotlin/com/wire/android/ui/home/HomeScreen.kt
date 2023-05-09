@@ -69,10 +69,7 @@ import com.wire.android.util.permission.rememberRequestPushNotificationsPermissi
 import kotlinx.collections.immutable.ImmutableMap
 import kotlinx.collections.immutable.persistentMapOf
 
-@OptIn(
-    ExperimentalMaterialApi::class,
-    ExperimentalMaterial3Api::class
-)
+@OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     backNavArgs: ImmutableMap<String, Any> = persistentMapOf(),
@@ -81,9 +78,7 @@ fun HomeScreen(
     conversationListViewModel: ConversationListViewModel = hiltViewModel(), // TODO: move required elements from this one to HomeViewModel?
 ) {
     homeViewModel.checkRequirements()
-    LaunchedEffect(Unit) {
-        featureFlagNotificationViewModel.loadInitialSync()
-    }
+    featureFlagNotificationViewModel.loadInitialSync()
     val homeScreenState = rememberHomeScreenState()
     val showNotificationsFlow = rememberRequestPushNotificationsPermissionFlow(
         onPermissionDenied = { /** TODO: Show a dialog rationale explaining why the permission is needed **/ })
@@ -106,16 +101,26 @@ fun HomeScreen(
         )
     }
 
-    FileRestrictionDialog(
-        featureFlagState = featureFlagNotificationViewModel.featureFlagState,
-        hideDialogStatus = featureFlagNotificationViewModel::dismissFileSharingDialog
-    )
-
     with(featureFlagNotificationViewModel.featureFlagState) {
+        if (showFileSharingDialog) {
+            FileRestrictionDialog(
+                isFileSharingEnabled = featureFlagNotificationViewModel.featureFlagState.showFileSharingDialog,
+                hideDialogStatus = featureFlagNotificationViewModel::dismissFileSharingDialog
+            )
+        }
+
         if (shouldShowGuestRoomLinkDialog) {
             GuestRoomLinkFeatureFlagDialog(
                 isGuestRoomLinkEnabled = isGuestRoomLinkEnabled,
                 onDismiss = featureFlagNotificationViewModel::dismissGuestRoomLinkDialog
+            )
+        }
+
+        if (shouldShowSelfDeletingMessagesDialog) {
+            SelfDeletingMessagesDialog(
+                areSelfDeletingMessagesEnabled = areSelfDeletedMessagesEnabled,
+                enforcedTimeout = enforcedTimeoutDuration,
+                hideDialogStatus = featureFlagNotificationViewModel::dismissSelfDeletingMessagesDialog
             )
         }
     }

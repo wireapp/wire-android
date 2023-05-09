@@ -66,39 +66,86 @@ import kotlinx.coroutines.flow.SharedFlow
 
 @Composable
 fun ImportMediaScreen(
-    importMediaViewModel: ImportMediaViewModel = hiltViewModel(),
+    importMediaViewModel: ImportMediaUnauthenticatedViewModel = hiltViewModel(),
     featureFlagNotificationViewModel: FeatureFlagNotificationViewModel = hiltViewModel()
 ) {
-    checkIfSharingIsEnabled(featureFlagNotificationViewModel)
-    val context = LocalContext.current
-    LaunchedEffect(importMediaViewModel.importMediaState.importedAssets) {
-        if (importMediaViewModel.importMediaState.importedAssets.isEmpty()) {
-            context.getActivity()?.let { importMediaViewModel.handleReceivedDataFromSharingIntent(it) }
-        }
-    }
+    featureFlagNotificationViewModel.loadInitialSync()
 
     ImportMediaContent(importMediaViewModel, featureFlagNotificationViewModel)
 }
 
 @Composable
-fun checkIfSharingIsEnabled(featureFlagNotificationViewModel: FeatureFlagNotificationViewModel) {
-    LaunchedEffect(Unit) {
-        featureFlagNotificationViewModel.loadInitialSync()
+fun ImportMediaContent(
+    unauthorizedViewModel: ImportMediaUnauthenticatedViewModel,
+    featureFlagNotificationViewModel: FeatureFlagNotificationViewModel
+) {
+
+    when (val state = featureFlagNotificationViewModel.featureFlagState.fileSharingRestrictedState) {
+        FeatureFlagState.SharingRestrictedState.NO_USER -> ImportMediaLoggedOutContent(
+            fileSharingRestrictedState = state,
+            viewModel = unauthorizedViewModel
+        )
+        FeatureFlagState.SharingRestrictedState.RESTRICTED_IN_TEAM -> ImportMediaRestrictedContent(state)
+        FeatureFlagState.SharingRestrictedState.NONE -> ImportMediaRegularContent()
+        null -> {
+            // state is not calculated yet, need to wait to avoid crash while requesting currentUser where it's absent
+        }
     }
-    featureFlagNotificationViewModel.updateSharingStateIfNeeded()
+
+    BackHandler { unauthorizedViewModel.navigateBack() }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ImportMediaContent(importMediaViewModel: ImportMediaViewModel, featureFlagNotificationViewModel: FeatureFlagNotificationViewModel) {
-    val snackbarHostState: SnackbarHostState = remember { SnackbarHostState() }
-    val searchBarState = rememberSearchbarState()
+fun ImportMediaRestrictedContent(
+    fileSharingRestrictedState: FeatureFlagState.SharingRestrictedState,
+    importMediaViewModel: ImportMediaAuthenticatedViewModel = hiltViewModel()
+) {
     with(importMediaViewModel.importMediaState) {
         Scaffold(
             topBar = {
                 WireCenterAlignedTopAppBar(
                     elevation = 0.dp,
                     onNavigationPressed = importMediaViewModel::navigateBack,
+                    title = stringResource(id = R.string.import_media_content_title),
+                    actions = {
+                        UserProfileAvatar(
+                            avatarData = UserAvatarData(avatarAsset),
+                            clickable = remember { Clickable(enabled = false) { } }
+                        )
+                    }
+                )
+            },
+            modifier = Modifier.background(colorsScheme().background),
+            content = { internalPadding ->
+                FileSharingRestrictedContent(
+                    internalPadding,
+                    fileSharingRestrictedState,
+                    importMediaViewModel::navigateBack
+                )
+            }
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ImportMediaRegularContent(authorizedViewModel: ImportMediaAuthenticatedViewModel = hiltViewModel()) {
+    val context = LocalContext.current
+    LaunchedEffect(authorizedViewModel.importMediaState.importedAssets) {
+        if (authorizedViewModel.importMediaState.importedAssets.isEmpty()) {
+            context.getActivity()?.let { authorizedViewModel.handleReceivedDataFromSharingIntent(it) }
+        }
+    }
+
+    val snackbarHostState: SnackbarHostState = remember { SnackbarHostState() }
+    val searchBarState = rememberSearchbarState()
+    with(authorizedViewModel.importMediaState) {
+        Scaffold(
+            topBar = {
+                WireCenterAlignedTopAppBar(
+                    elevation = 0.dp,
+                    onNavigationPressed = authorizedViewModel::navigateBack,
                     title = stringResource(id = R.string.import_media_content_title),
                     actions = {
                         UserProfileAvatar(
@@ -116,25 +163,37 @@ fun ImportMediaContent(importMediaViewModel: ImportMediaViewModel, featureFlagNo
             },
             modifier = Modifier.background(colorsScheme().background),
             content = { internalPadding ->
-                if (featureFlagNotificationViewModel.featureFlagState.isSharingAllowed()) {
-                    ImportMediaContent(this, internalPadding, importMediaViewModel, searchBarState)
-                } else {
-                    FileSharingRestrictedContent(
-                        internalPadding,
-                        featureFlagNotificationViewModel.featureFlagState.fileSharingRestrictedState,
-                        featureFlagNotificationViewModel::closeScreen
-                    )
-                }
+                ImportMediaContent(this, internalPadding, authorizedViewModel, searchBarState)
             },
-            bottomBar = {
-                if (featureFlagNotificationViewModel.featureFlagState.isSharingAllowed()) {
-                    ImportMediaBottomBar(importMediaViewModel)
-                }
-            }
+            bottomBar = { ImportMediaBottomBar(authorizedViewModel) }
         )
     }
-    BackHandler { importMediaViewModel.navigateBack() }
-    SnackBarMessage(importMediaViewModel.infoMessage, snackbarHostState)
+    SnackBarMessage(authorizedViewModel.infoMessage, snackbarHostState)
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ImportMediaLoggedOutContent(
+    viewModel: ImportMediaUnauthenticatedViewModel,
+    fileSharingRestrictedState: FeatureFlagState.SharingRestrictedState
+) {
+    Scaffold(
+        topBar = {
+            WireCenterAlignedTopAppBar(
+                elevation = 0.dp,
+                onNavigationPressed = viewModel::navigateBack,
+                title = stringResource(id = R.string.import_media_content_title),
+            )
+        },
+        modifier = Modifier.background(colorsScheme().background),
+        content = { internalPadding ->
+            FileSharingRestrictedContent(
+                internalPadding,
+                fileSharingRestrictedState,
+                viewModel::navigateBack
+            )
+        }
+    )
 }
 
 @Composable
@@ -189,7 +248,7 @@ fun FileSharingRestrictedContent(
 }
 
 @Composable
-private fun ImportMediaBottomBar(importMediaViewModel: ImportMediaViewModel) {
+private fun ImportMediaBottomBar(importMediaViewModel: ImportMediaAuthenticatedViewModel) {
     SendContentButton(
         mainButtonText = stringResource(R.string.import_media_send_button_title),
         count = importMediaViewModel.currentSelectedConversationsCount(),
@@ -202,7 +261,7 @@ private fun ImportMediaBottomBar(importMediaViewModel: ImportMediaViewModel) {
 private fun ImportMediaContent(
     state: ImportMediaState,
     internalPadding: PaddingValues,
-    importMediaViewModel: ImportMediaViewModel,
+    importMediaViewModel: ImportMediaAuthenticatedViewModel,
     searchBarState: SearchBarState
 ) {
     val importedItemsList: List<ImportedMediaAsset> = state.importedAssets

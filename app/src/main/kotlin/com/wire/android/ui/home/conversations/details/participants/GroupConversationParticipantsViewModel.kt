@@ -35,6 +35,7 @@ import com.wire.android.ui.home.conversations.details.participants.usecase.Obser
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.publicuser.RefreshUsersWithoutMetadataUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -45,6 +46,7 @@ open class GroupConversationParticipantsViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val navigationManager: NavigationManager,
     private val observeConversationMembers: ObserveParticipantsForConversationUseCase,
+    private val refreshUsersWithoutMetadata: RefreshUsersWithoutMetadataUseCase,
     qualifiedIdMapper: QualifiedIdMapper
 ) : GroupDetailsBaseViewModel(savedStateHandle) {
 
@@ -57,7 +59,14 @@ open class GroupConversationParticipantsViewModel @Inject constructor(
     )
 
     init {
+        refreshUsersWithoutMetadata()
         observeConversationMembers()
+    }
+
+    private fun refreshUsersWithoutMetadata() {
+        viewModelScope.launch {
+            refreshUsersWithoutMetadata.syncUsersWithoutMetadata()
+        }
     }
 
     private fun observeConversationMembers() {

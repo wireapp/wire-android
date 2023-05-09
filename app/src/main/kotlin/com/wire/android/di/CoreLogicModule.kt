@@ -89,6 +89,7 @@ import com.wire.kalium.logic.feature.message.ephemeral.EnqueueMessageSelfDeletio
 import com.wire.kalium.logic.feature.message.getPaginatedFlowOfMessagesByConversation
 import com.wire.kalium.logic.feature.publicuser.GetAllContactsUseCase
 import com.wire.kalium.logic.feature.publicuser.GetKnownUserUseCase
+import com.wire.kalium.logic.feature.publicuser.RefreshUsersWithoutMetadataUseCase
 import com.wire.kalium.logic.feature.publicuser.search.SearchKnownUsersUseCase
 import com.wire.kalium.logic.feature.publicuser.search.SearchPublicUsersUseCase
 import com.wire.kalium.logic.feature.server.ServerConfigForAccountUseCase
@@ -1073,4 +1074,11 @@ class UseCaseModule {
         @CurrentAccount currentAccount: UserId
     ): UpdateEmailUseCase =
         coreLogic.getSessionScope(currentAccount).users.updateEmail
+
+    @ViewModelScoped
+    @Provides
+    fun provideRefreshUsersWithoutMetadataUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): RefreshUsersWithoutMetadataUseCase = coreLogic.getSessionScope(currentAccount).users.refreshUsersWithoutMetadata
 }

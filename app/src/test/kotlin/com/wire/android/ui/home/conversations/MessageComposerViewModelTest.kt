@@ -29,6 +29,7 @@ import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.android.ui.home.conversations.model.AttachmentType
 import com.wire.android.ui.home.conversations.model.UriAsset
 import com.wire.kalium.logic.feature.asset.GetAssetSizeLimitUseCaseImpl.Companion.ASSET_SIZE_DEFAULT_LIMIT_BYTES
+import com.wire.kalium.logic.feature.selfdeletingMessages.SelfDeletionTimer
 import io.mockk.coVerify
 import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -38,6 +39,8 @@ import org.amshove.kluent.internal.assertEquals
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import kotlin.time.DurationUnit
+import kotlin.time.toDuration
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class)
@@ -161,7 +164,7 @@ class MessageComposerViewModelTest {
         )
 
         // When
-        viewModel.sendAttachmentMessage(mockedAttachment)
+        viewModel.sendAttachmentMessage(mockedAttachment, null)
 
         // Then
         coVerify(exactly = 1) { arrangement.sendAssetMessage.invoke(any(), any(), any(), any(), any(), any(), any(), any()) }
@@ -186,7 +189,7 @@ class MessageComposerViewModelTest {
         )
 
         // When
-        viewModel.sendAttachmentMessage(mockedAttachment)
+        viewModel.sendAttachmentMessage(mockedAttachment, null)
 
         // Then
         coVerify(exactly = 1) { arrangement.sendAssetMessage.invoke(any(), any(), any(), any(), any(), any(), any(), any()) }
@@ -202,7 +205,7 @@ class MessageComposerViewModelTest {
         val mockedAttachment = null
 
         // When
-        viewModel.sendAttachmentMessage(mockedAttachment)
+        viewModel.sendAttachmentMessage(mockedAttachment, null)
 
         coVerify(inverse = true) { arrangement.sendAssetMessage.invoke(any(), any(), any(), any(), any(), any(), any(), any()) }
     }
@@ -223,7 +226,7 @@ class MessageComposerViewModelTest {
         val mockedUri = UriAsset("mocked_image.jpeg".toUri(), false)
 
         // When
-            viewModel.attachmentPicked(mockedUri)
+            viewModel.attachmentPicked(mockedUri, null)
 
             // Then
             coVerify(inverse = true) { arrangement.sendAssetMessage.invoke(any(), any(), any(), any(), any(), any(), any(), any()) }
@@ -247,7 +250,7 @@ class MessageComposerViewModelTest {
             val mockedUri = UriAsset("mocked_image.jpeg".toUri(), false)
 
             // When
-                viewModel.attachmentPicked(mockedUri)
+                viewModel.attachmentPicked(mockedUri, null)
 
                 // Then
                 coVerify(inverse = true) { arrangement.sendAssetMessage.invoke(any(), any(), any(), any(), any(), any(), any(), any()) }
@@ -272,7 +275,7 @@ class MessageComposerViewModelTest {
             val mockedUri = UriAsset("mocked_image.jpeg".toUri(), true)
 
             // When
-            viewModel.attachmentPicked(mockedUri)
+            viewModel.attachmentPicked(mockedUri, null)
 
             // Then
             coVerify(inverse = true) { arrangement.sendAssetMessage.invoke(any(), any(), any(), any(), any(), any(), any(), any()) }
@@ -296,7 +299,7 @@ class MessageComposerViewModelTest {
 
             // When
             viewModel.infoMessage.test {
-                viewModel.attachmentPicked(mockedUri)
+                viewModel.attachmentPicked(mockedUri, null)
 
                 // Then
                 coVerify(inverse = true) { arrangement.sendAssetMessage.invoke(any(), any(), any(), any(), any(), any(), any(), any()) }
@@ -318,7 +321,7 @@ class MessageComposerViewModelTest {
         )
 
         // When
-            viewModel.sendAttachmentMessage(mockedAttachment)
+            viewModel.sendAttachmentMessage(mockedAttachment, null)
 
             // Then
             coVerify(exactly = 1) { arrangement.sendAssetMessage.invoke(any(), any(), any(), any(), any(), any(), any(), any()) }
@@ -338,5 +341,42 @@ class MessageComposerViewModelTest {
         // Then
         coVerify(exactly = 1) { arrangement.sendKnockUseCase.invoke(any(), any()) }
         verify(exactly = 1) { arrangement.pingRinger.ping(any(), isReceivingPing = false) }
+    }
+
+    @Test
+    fun `given that a user updates the self-deleting message timer, when invoked, then the timer gets successfully updated`() = runTest {
+        // Given
+        val expectedDuration = 1.toDuration(DurationUnit.HOURS)
+        val expectedTimer = SelfDeletionTimer.Enabled(expectedDuration)
+        val (arrangement, viewModel) = MessageComposerViewModelArrangement()
+            .withSuccessfulViewModelInit()
+            .withPersistSelfDeletionStatus()
+            .arrange()
+
+        // When
+        viewModel.updateSelfDeletingMessages(expectedTimer)
+
+        // Then
+        coVerify(exactly = 1) { arrangement.persistSelfDeletionStatus.invoke(arrangement.conversationId, expectedTimer) }
+        assert(viewModel.messageComposerViewState.selfDeletionTimer is SelfDeletionTimer.Enabled)
+        assert(viewModel.messageComposerViewState.selfDeletionTimer.toDuration() == expectedDuration)
+    }
+
+    @Test
+    fun `given a valid observed enforced self-deleting message timer, when invoked, then the timer gets successfully updated`() = runTest {
+        // Given
+        val expectedDuration = 1.toDuration(DurationUnit.DAYS)
+        val expectedTimer = SelfDeletionTimer.Enabled(expectedDuration)
+        val (arrangement, viewModel) = MessageComposerViewModelArrangement()
+            .withSuccessfulViewModelInit()
+            .withObserveSelfDeletingStatus(expectedTimer)
+            .arrange()
+
+        // When
+
+        // Then
+        coVerify(exactly = 1) { arrangement.observeConversationSelfDeletionStatus.invoke(arrangement.conversationId) }
+        assert(viewModel.messageComposerViewState.selfDeletionTimer is SelfDeletionTimer.Enabled)
+        assert(viewModel.messageComposerViewState.selfDeletionTimer.toDuration() == expectedDuration)
     }
 }

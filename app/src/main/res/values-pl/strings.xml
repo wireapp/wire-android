@@ -957,8 +957,6 @@ Prosimy u&#380;y&#263; zarz&#261;dzania zespo&#322;ami (%1$s) na tym &#347;rodow
     <string name="label_fingerprint_description">Je&#347;li odciski klucza si&#281; nie zgadzaj&#261;, zresetuj sesj&#281;, aby wygenerowa&#263; nowe klucze szyfrowania po obu stronach.</string>
     <string name="label_self_fingerprint_description">Share this key fingerprint with other participants in a conversation, so that they can verify it and make sure the conversation is secure.</string>
     <string name="unknown_user_name">nieznany</string>
-    <string name="self_deleting_message_time_left">Self-deleting message • %1$s</string>
-    <string name="self_deleting_message_label">Self-deleting message</string>
     <string name="device_name_unknown">Unknown device</string>
     <string name="create_account_email_title">Your Email</string>
     <string name="settings_myaccount_email_description">Your email is part of your login details for this account. It may be visible to your contacts.</string>
@@ -969,6 +967,7 @@ Prosimy u&#380;y&#263; zarz&#261;dzania zespo&#322;ami (%1$s) na tym &#347;rodow
     <string name="settings_myaccount_email_generic_error">Something went wrong. Please try again.</string>
     <string name="settings_myaccount_handle_description">Your username helps others to find you in Wire and connect with you. It is unique in Wire.</string>
     <string name="create_account_handle_title">Your User Name</string>
+    <!-- Asset limits error messages -->
     <string name="title_video_could_not_be_sent">Video could not be sent</string>
     <string name="title_image_could_not_be_sent">Image could not be sent</string>
     <string name="title_file_could_not_be_sent">File could not be sent</string>
@@ -976,7 +975,15 @@ Prosimy u&#380;y&#263; zarz&#261;dzania zespo&#322;ami (%1$s) na tym &#347;rodow
     <string name="label_shared_image_too_large">You can only share an image up to %d MB.</string>
     <string name="label_shared_file_too_large">You can only share a file up to %d MB.</string>
     <string name="label_file_saved_to_device">The file was saved to your device.</string>
-    <!-- Expirable messages -->
+    <!-- Expiring messages -->
+    <string name="self_deleting_message_time_left">Self-deleting message • %1$s</string>
+    <string name="self_deleting_message_label">Self-deleting message</string>
+    <string name="self_deleting_messages_team_setting_disabled">Self-deleting messages are disabled.</string>
+    <string name="self_deleting_messages_team_setting_enabled">Self-deleting messages are enabled. You can set a timer before writing a message.</string>
+    <string name="self_deleting_messages_team_setting_enabled_enforced_timeout">Self-deleting messages are now mandatory. New messages will self-delete after %1$s.</string>
+    <string name="automatically_delete_message_after">Automatically delete message after:</string>
+    <string name="label_information_waiting_for_recipient_timer_to_expire_group">After one participant has seen your message and the timer has expired on their side, this note disappears.</string>
+    <string name="label_information_waiting_for_recipient_timer_to_expire_one_to_one">After %1$s has seen your message and the timer has expired on their side, this note disappears.</string>
     <plurals name="weeks_left">
         <item quantity="one">1 week left</item>
         <item quantity="few">%1$d weeks left</item>
@@ -1007,4 +1014,40 @@ Prosimy u&#380;y&#263; zarz&#261;dzania zespo&#322;ami (%1$s) na tym &#347;rodow
         <item quantity="many">%1$d seconds left</item>
         <item quantity="other">%1$d seconds left</item>
     </plurals>
+    <plurals name="weeks_long_label">
+        <item quantity="one">1 week</item>
+        <item quantity="few">%1$d weeks</item>
+        <item quantity="many">%1$d weeks</item>
+        <item quantity="other">%1$d weeks</item>
+    </plurals>
+    <plurals name="days_long_label">
+        <item quantity="one">1 day</item>
+        <item quantity="few">%1$d days</item>
+        <item quantity="many">%1$d days</item>
+        <item quantity="other">%1$d days</item>
+    </plurals>
+    <plurals name="hours_long_label">
+        <item quantity="one">1 hour</item>
+        <item quantity="few">%1$d hours</item>
+        <item quantity="many">%1$d hours</item>
+        <item quantity="other">%1$d hours</item>
+    </plurals>
+    <plurals name="minutes_long_label">
+        <item quantity="one">1 minute</item>
+        <item quantity="few">%1$d minutes</item>
+        <item quantity="many">%1$d minutes</item>
+        <item quantity="other">%1$d minutes</item>
+    </plurals>
+    <plurals name="seconds_long_label">
+        <item quantity="one">1 second</item>
+        <item quantity="few">%1$d seconds</item>
+        <item quantity="many">%1$d seconds</item>
+        <item quantity="other">%1$d seconds</item>
+    </plurals>
+    <string name="four_weeks_short_label">4w</string>
+    <string name="one_week_short_label">1w</string>
+    <string name="one_day_short_label">1d</string>
+    <string name="one_hour_short_label">1h</string>
+    <string name="five_minutes_short_label">5m</string>
+    <string name="ten_seconds_short_label">10s</string>
 </resources>

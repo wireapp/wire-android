@@ -19,11 +19,11 @@
   ~
   -->
 <resources>
-    <string name="app_version">Versi&#243;n de la aplicaci&#243;n: %s</string>
-    <string name="build_variant_name">Variante de construcci&#243;n: %s</string>
+    <string name="app_version">Versión de la aplicación: %s</string>
+    <string name="build_variant_name">Variante de construcción: %s</string>
     <string name="label_new">Nuevo</string>
-    <string name="label_login">Iniciar sesi&#243;n</string>
-    <string name="label_ok">Aceptar</string>
+    <string name="label_login">Iniciar sesión</string>
+    <string name="label_ok">OK</string>
     <string name="label_cancel">Cancelar</string>
     <string name="label_confirm">Confirmar</string>
     <string name="label_continue">Continuar</string>
@@ -33,9 +33,9 @@
     <string name="label_proceed">Proceder</string>
     <string name="label_leave">Salir</string>
     <string name="label_add_device">Agregar Dispositivo</string>
-    <string name="label_learn_more">Aprender m&#225;s</string>
+    <string name="label_learn_more">Saber más</string>
     <string name="label_removing">Eliminando...</string>
-    <string name="label_logging_in">Iniciando sesi&#243;n...</string>
+    <string name="label_logging_in">Iniciando sesión…</string>
     <string name="label_membership_guest">Invitado</string>
     <string name="label_membership_external">Externo</string>
     <string name="label_membership_service">Servicio</string>
@@ -46,9 +46,9 @@
     <string name="label_message_receive_failure">Error de descarga</string>
     <string name="label_message_decryption_failure_message">El mensaje no se pudo descifrar.</string>
     <string name="label_message_decryption_failure_informative_message">Intenta restablecer la sesión para generar nuevas claves de cifrado.</string>
-    <string name="label_message_knock">%s llam&#243;</string>
+    <string name="label_message_knock">%s hizo ping</string>
     <string name="label_try_again">Intentar de nuevo</string>
-    <string name="label_reset_session">Restablecer la sesi&#243;n</string>
+    <string name="label_reset_session">Restablecer la sesión</string>
     <string name="label_reset_session_success">Sesión restablecida con éxito</string>
     <string name="label_federated_membership">Federado</string>
     <string name="label_update">Actualizar</string>
@@ -938,8 +938,8 @@ URL del backend:
     <string name="settings_myaccount_email_verification_email_sent">Se ha enviado un correo electrónico de verificación a tu correo electrónico %1$s.\n\nTu dirección de correo electrónico actual no se actualizará hasta que verifiques la nueva. Por favor, revisa tu bandeja de entrada y sigue las instrucciones.</string>
     <string name="label_resend_verification_email">Reenviar el correo de verificación</string>
     <string name="settings_myaccount_email_generic_error">Algo salió mal. Por favor inténtalo de nuevo.</string>
-    <string name="settings_myaccount_handle_description">Your username helps others to find you in Wire and connect with you. It is unique in Wire.</string>
-    <string name="create_account_handle_title">Your User Name</string>
+    <string name="settings_myaccount_handle_description">Tu nombre de usuario ayuda a otros a encontrarte en Wire y a conectar contigo. Es único en Wire.</string>
+    <string name="create_account_handle_title">Tu nombre de usuario</string>
     <!-- Asset limits error messages -->
     <string name="title_video_could_not_be_sent">El video no se pudo enviar</string>
     <string name="title_image_could_not_be_sent">La imagen no se pudo enviar</string>
@@ -951,12 +951,12 @@ URL del backend:
     <!-- Expiring messages -->
     <string name="self_deleting_message_time_left">Mensaje con autoborrado • %1$s</string>
     <string name="self_deleting_message_label">Mensaje con autoborrado</string>
-    <string name="self_deleting_messages_team_setting_disabled">Self-deleting messages are disabled.</string>
-    <string name="self_deleting_messages_team_setting_enabled">Self-deleting messages are enabled. You can set a timer before writing a message.</string>
-    <string name="self_deleting_messages_team_setting_enabled_enforced_timeout">Self-deleting messages are now mandatory. New messages will self-delete after %1$s.</string>
-    <string name="automatically_delete_message_after">Automatically delete message after:</string>
-    <string name="label_information_waiting_for_recipient_timer_to_expire_group">After one participant has seen your message and the timer has expired on their side, this note disappears.</string>
-    <string name="label_information_waiting_for_recipient_timer_to_expire_one_to_one">After %1$s has seen your message and the timer has expired on their side, this note disappears.</string>
+    <string name="self_deleting_messages_team_setting_disabled">Los mensajes de auto-borrado están deshabilitados.</string>
+    <string name="self_deleting_messages_team_setting_enabled">Los mensajes de auto-borrado están habilitados. Puedes configurar un temporizador antes de escribir un mensaje.</string>
+    <string name="self_deleting_messages_team_setting_enabled_enforced_timeout">El modo auto-borrado para enviar mensajes es obligatorio ahora en tu cuenta. Los nuevos mensajes enviados se eliminarán automáticamente después de %1$s.</string>
+    <string name="automatically_delete_message_after">Borrar el mensaje automáticamente después de:</string>
+    <string name="label_information_waiting_for_recipient_timer_to_expire_group">Una vez que un participante haya visto tu mensaje y su temporizador de éste haya finalizado, esta nota desaparecerá.</string>
+    <string name="label_information_waiting_for_recipient_timer_to_expire_one_to_one">Después de que %1$s haya visto tu mensaje y el temporizador haya caducado en su lado, esta nota desaparecerá.</string>
     <plurals name="weeks_left">
         <item quantity="one">Falta 1 semana</item>
         <item quantity="other">Faltan %1$d semanas</item>
@@ -978,29 +978,29 @@ URL del backend:
         <item quantity="other">Faltan %1$d segundos</item>
     </plurals>
     <plurals name="weeks_long_label">
-        <item quantity="one">1 week</item>
-        <item quantity="other">%1$d weeks</item>
+        <item quantity="one">1 semana</item>
+        <item quantity="other">%1$d semanas</item>
     </plurals>
     <plurals name="days_long_label">
-        <item quantity="one">1 day</item>
-        <item quantity="other">%1$d days</item>
+        <item quantity="one">1 día</item>
+        <item quantity="other">%1$d días</item>
     </plurals>
     <plurals name="hours_long_label">
-        <item quantity="one">1 hour</item>
-        <item quantity="other">%1$d hours</item>
+        <item quantity="one">1 hora</item>
+        <item quantity="other">%1$d horas</item>
     </plurals>
     <plurals name="minutes_long_label">
-        <item quantity="one">1 minute</item>
-        <item quantity="other">%1$d minutes</item>
+        <item quantity="one">1 minuto</item>
+        <item quantity="other">%1$d minutos</item>
     </plurals>
     <plurals name="seconds_long_label">
-        <item quantity="one">1 second</item>
-        <item quantity="other">%1$d seconds</item>
+        <item quantity="one">1 segundo</item>
+        <item quantity="other">%1$d segundos</item>
     </plurals>
-    <string name="four_weeks_short_label">4w</string>
-    <string name="one_week_short_label">1w</string>
+    <string name="four_weeks_short_label">4sem</string>
+    <string name="one_week_short_label">1sem</string>
     <string name="one_day_short_label">1d</string>
     <string name="one_hour_short_label">1h</string>
-    <string name="five_minutes_short_label">5m</string>
+    <string name="five_minutes_short_label">5min</string>
     <string name="ten_seconds_short_label">10s</string>
 </resources>

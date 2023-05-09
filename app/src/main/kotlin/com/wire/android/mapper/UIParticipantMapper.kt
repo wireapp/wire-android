@@ -52,7 +52,8 @@ class UIParticipantMapper @Inject constructor(
             membership = userTypeMapper.toMembership(userType),
             connectionState = connectionState,
             unavailable = unavailable,
-            isDeleted = (user is OtherUser && user.deleted)
+            isDeleted = (user is OtherUser && user.deleted),
+            botService = (user as? OtherUser)?.botService
         )
     }
 

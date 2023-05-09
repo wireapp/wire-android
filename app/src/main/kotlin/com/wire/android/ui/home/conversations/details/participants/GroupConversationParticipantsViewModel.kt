@@ -34,6 +34,7 @@ import com.wire.android.ui.home.conversations.details.participants.model.UIParti
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
+import com.wire.kalium.logic.data.user.BotService
 import com.wire.kalium.logic.data.user.UserId
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -75,7 +76,7 @@ open class GroupConversationParticipantsViewModel @Inject constructor(
 
     fun openProfile(participant: UIParticipant) = viewModelScope.launch {
         if (participant.isSelf) navigateToSelfProfile()
-        else if (participant.isService) navigateToServiceProfile(participant.id)
+        else if (participant.isService && participant.botService != null) navigateToServiceProfile(participant.botService)
         else navigateToOtherProfile(participant.id)
     }
 
@@ -85,7 +86,8 @@ open class GroupConversationParticipantsViewModel @Inject constructor(
     private suspend fun navigateToOtherProfile(id: UserId) =
         navigationManager.navigate(NavigationCommand(NavigationItem.OtherUserProfile.getRouteWithArgs(listOf(id, conversationId))))
 
-    private suspend fun navigateToServiceProfile(id: UserId) =
-        navigationManager.navigate(NavigationCommand(NavigationItem.ServiceDetails.getRouteWithArgs(listOf(id, conversationId))))
+    private suspend fun navigateToServiceProfile(botServiceId: BotService) {
+        navigationManager.navigate(NavigationCommand(NavigationItem.ServiceDetails.getRouteWithArgs(listOf(botServiceId, conversationId))))
+    }
 
 }

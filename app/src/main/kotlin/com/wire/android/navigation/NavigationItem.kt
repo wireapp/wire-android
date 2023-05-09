@@ -117,6 +117,7 @@ import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.kalium.logic.data.conversation.ClientId
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
+import com.wire.kalium.logic.data.user.BotService
 import com.wire.kalium.logic.data.user.UserId
 import io.github.esentsov.PackagePrivate
 import kotlinx.serialization.encodeToString
@@ -324,15 +325,14 @@ enum class NavigationItem(
 
     ServiceDetails(
         primaryRoute = SERVICE_DETAILS,
-        canonicalRoute = "$SERVICE_DETAILS?$EXTRA_USER_ID={$EXTRA_USER_ID}&$EXTRA_CONVERSATION_ID={$EXTRA_CONVERSATION_ID}",
+        canonicalRoute = "$SERVICE_DETAILS?$EXTRA_BOT_SERVICE_ID={$EXTRA_BOT_SERVICE_ID}&$EXTRA_CONVERSATION_ID={$EXTRA_CONVERSATION_ID}",
         content = { ServiceDetailsScreen() },
         animationConfig = NavigationAnimationConfig.NoAnimation
     ) {
         override fun getRouteWithArgs(arguments: List<Any>): String {
-            val userId: QualifiedID = arguments.filterIsInstance<QualifiedID>()[0]
-            val conversationId: QualifiedID? = arguments.filterIsInstance<QualifiedID>().getOrNull(1)
-            val baseRoute = "$primaryRoute?$EXTRA_USER_ID=$userId"
-            return conversationId?.let { "$baseRoute&$EXTRA_CONVERSATION_ID=$it" } ?: baseRoute
+            val botServiceId: BotService = arguments.filterIsInstance<BotService>()[0]
+            val conversationId: QualifiedID = arguments.filterIsInstance<QualifiedID>()[0]
+            return "$primaryRoute?$EXTRA_BOT_SERVICE_ID=${botServiceId}&$EXTRA_CONVERSATION_ID=$conversationId"
         }
     },
 
@@ -570,6 +570,7 @@ const val EXTRA_SETTINGS_DISPLAY_NAME_CHANGED = "extra_settings_display_name_cha
 const val EXTRA_BACK_NAVIGATION_ARGUMENTS = "extra_back_navigation_arguments"
 
 const val EXTRA_EDIT_GUEST_ACCESS_PARAMS = "extra_edit_guest_access_params"
+const val EXTRA_BOT_SERVICE_ID = "extra_bot_service_id"
 
 const val EXTRA_SSO_LOGIN_RESULT = "sso_login_result"
 

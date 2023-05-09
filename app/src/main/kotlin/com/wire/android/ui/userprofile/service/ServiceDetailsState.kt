@@ -10,7 +10,7 @@ import com.wire.kalium.logic.data.service.ServiceId
 import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
 
 data class ServiceDetailsState(
-    val serviceId: ServiceId,
+    val serviceId: ServiceId? = null,
     val conversationId: ConversationId,
     val serviceDetails: ServiceDetails? = null,
     val serviceAvatarAsset: ImageAsset.UserAvatarAsset? = null,

@@ -5,7 +5,7 @@ import com.wire.kalium.logic.data.service.ServiceId
 import javax.inject.Inject
 
 class ServiceDetailsMapper @Inject constructor() {
-    fun fromStringToServiceId(id: String): ServiceId {
+    fun fromStringToServiceId(id: String): ServiceId? {
         val components = id.split(VALUE_DOMAIN_SEPARATOR).filter { it.isNotBlank() }
         val count = id.count { it == VALUE_DOMAIN_SEPARATOR }
 
@@ -16,7 +16,7 @@ class ServiceDetailsMapper @Inject constructor() {
                     provider = components.last()
                 )
             }
-            else -> ServiceId(id = "", provider = "")
+            else -> null
         }
     }
 }

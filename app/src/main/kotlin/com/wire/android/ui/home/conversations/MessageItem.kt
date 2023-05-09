@@ -268,7 +268,9 @@ fun MessageExpireLabel(messageContent: UIMessageContent?, timeLeft: String) {
 
         is UIMessageContent.AssetMessage -> {
             StatusBox(
-                statusText = if (messageContent.downloadStatus == Message.DownloadStatus.SAVED_INTERNALLY) stringResource(
+                statusText = if (messageContent.downloadStatus == Message.DownloadStatus.SAVED_INTERNALLY
+                    || messageContent.downloadStatus == Message.DownloadStatus.SAVED_EXTERNALLY
+                ) stringResource(
                     R.string.self_deleting_message_time_left,
                     timeLeft
                 )

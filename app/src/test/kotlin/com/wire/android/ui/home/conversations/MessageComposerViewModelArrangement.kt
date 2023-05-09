@@ -72,6 +72,9 @@ import com.wire.kalium.logic.feature.message.SendEditTextMessageUseCase
 import com.wire.kalium.logic.feature.message.SendKnockUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.message.ephemeral.EnqueueMessageSelfDeletionUseCase
+import com.wire.kalium.logic.feature.selfdeletingMessages.ObserveSelfDeletionTimerForConversationUseCase
+import com.wire.kalium.logic.feature.selfdeletingMessages.PersistNewSelfDeletionTimerUseCase
+import com.wire.kalium.logic.feature.selfdeletingMessages.SelfDeletionTimer
 import com.wire.kalium.logic.feature.user.IsFileSharingEnabledUseCase
 import com.wire.kalium.logic.functional.Either
 import com.wire.kalium.logic.sync.ObserveSyncStateUseCase
@@ -182,6 +185,12 @@ internal class MessageComposerViewModelArrangement {
     @MockK
     private lateinit var enqueueMessageSelfDeletionUseCase: EnqueueMessageSelfDeletionUseCase
 
+    @MockK
+    lateinit var observeConversationSelfDeletionStatus: ObserveSelfDeletionTimerForConversationUseCase
+
+    @MockK
+    lateinit var persistSelfDeletionStatus: PersistNewSelfDeletionTimerUseCase
+
     private val fakeKaliumFileSystem = FakeKaliumFileSystem()
 
     private val viewModel by lazy {
@@ -207,7 +216,9 @@ internal class MessageComposerViewModelArrangement {
             pingRinger = pingRinger,
             sendKnockUseCase = sendKnockUseCase,
             fileManager = fileManager,
-            enqueueMessageSelfDeletionUseCase = enqueueMessageSelfDeletionUseCase
+            enqueueMessageSelfDeletionUseCase = enqueueMessageSelfDeletionUseCase,
+            observeSelfDeletingMessages = observeConversationSelfDeletionStatus,
+            persistNewSelfDeletingStatus = persistSelfDeletionStatus
         )
     }
 
@@ -217,6 +228,7 @@ internal class MessageComposerViewModelArrangement {
         coEvery { observeEstablishedCallsUseCase() } returns emptyFlow()
         coEvery { observeSecurityClassificationType(any()) } returns emptyFlow()
         coEvery { imageUtil.extractImageWidthAndHeight(any(), any()) } returns (1 to 1)
+        coEvery { observeConversationSelfDeletionStatus(any()) } returns emptyFlow()
         coEvery { observeConversationInteractionAvailabilityUseCase(any()) } returns flowOf(
             IsInteractionAvailableResult.Success(
                 InteractionAvailability.ENABLED
@@ -261,6 +273,14 @@ internal class MessageComposerViewModelArrangement {
 
     fun withSaveToExternalMediaStorage(resultFileName: String?) = apply {
         coEvery { fileManager.saveToExternalMediaStorage(any(), any(), any(), any(), any()) } returns resultFileName
+    }
+
+    fun withObserveSelfDeletingStatus(expectedSelfDeletionTimer: SelfDeletionTimer) = apply {
+        coEvery { observeConversationSelfDeletionStatus(conversationId) } returns flowOf(expectedSelfDeletionTimer)
+    }
+
+    fun withPersistSelfDeletionStatus() = apply {
+        coEvery { persistSelfDeletionStatus(any(), any()) } returns Unit
     }
 
     fun arrange() = this to viewModel

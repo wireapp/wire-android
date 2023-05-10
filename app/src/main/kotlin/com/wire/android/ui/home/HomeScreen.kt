@@ -44,10 +44,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.wire.android.R
@@ -214,18 +216,28 @@ fun HomeContent(
                                 }
                             },
                             content = {
-                                NavHost(
-                                    navController = navController,
-                                    // For now we only support Conversations screen
-                                    startDestination = HomeNavigationItem.Conversations.route
-                                ) {
-                                    HomeNavigationItem.values()
-                                        .forEach { item ->
-                                            composable(
-                                                route = item.route,
-                                                content = item.content(homeStateHolder)
-                                            )
-                                        }
+                                /**
+                                 * This "if" is a workaround, otherwise it can crash because of the SubcomposeLayout's nature.
+                                 * We need to communicate to the sub-compositions when they are to be disposed by the parent and ignore
+                                 * compositions in the round they are to be disposed. More here:
+                                 * https://github.com/google/accompanist/issues/1487
+                                 * https://issuetracker.google.com/issues/268422136
+                                 * https://issuetracker.google.com/issues/254645321
+                                 */
+                                if (LocalLifecycleOwner.current.lifecycle.currentState != Lifecycle.State.DESTROYED) {
+                                    NavHost(
+                                        navController = navController,
+                                        // For now we only support Conversations screen
+                                        startDestination = HomeNavigationItem.Conversations.route
+                                    ) {
+                                        HomeNavigationItem.values()
+                                            .forEach { item ->
+                                                composable(
+                                                    route = item.route,
+                                                    content = item.content(homeStateHolder)
+                                                )
+                                            }
+                                    }
                                 }
                             },
                             floatingActionButton = {

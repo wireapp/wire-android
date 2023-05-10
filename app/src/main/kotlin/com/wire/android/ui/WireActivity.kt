@@ -396,6 +396,7 @@ class WireActivity : AppCompatActivity() {
         super.onSaveInstanceState(outState)
     }
 
+    @Suppress("ComplexCondition")
     private fun handleDeepLink(
         intent: Intent?,
         savedInstanceState: Bundle? = null

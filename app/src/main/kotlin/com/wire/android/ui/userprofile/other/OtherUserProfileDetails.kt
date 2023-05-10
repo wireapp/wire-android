@@ -53,7 +53,14 @@ fun OtherUserProfileDetails(
         state = lazyListState,
         modifier = Modifier.fillMaxSize()
     ) {
-        if (state.email.isNotEmpty())
+        item(key = "user_details_domain") {
+            UserDetailInformation(
+                title = stringResource(R.string.settings_myaccount_domain),
+                value = state.userId.domain,
+                onCopy = null
+            )
+        }
+        if (state.email.isNotEmpty()) {
             item(key = "user_details_email") {
                 UserDetailInformation(
                     title = stringResource(R.string.email_label),
@@ -61,7 +68,8 @@ fun OtherUserProfileDetails(
                     onCopy = { otherUserProfileScreenState.copy(it, context) }
                 )
             }
-        if (state.phone.isNotEmpty())
+        }
+        if (state.phone.isNotEmpty()) {
             item(key = "user_details_phone") {
                 UserDetailInformation(
                     title = stringResource(R.string.phone_label),
@@ -69,15 +77,15 @@ fun OtherUserProfileDetails(
                     onCopy = { otherUserProfileScreenState.copy(it, context) }
                 )
             }
+        }
     }
 }
-
 
 @Composable
 private fun UserDetailInformation(
     title: String,
     value: String,
-    onCopy: (String) -> Unit
+    onCopy: ((String) -> Unit)?
 ) {
     RowItemTemplate(
         modifier = Modifier.padding(horizontal = dimensions().spacing8x),
@@ -95,7 +103,7 @@ private fun UserDetailInformation(
                 text = value
             )
         },
-        actions = { CopyButton(onCopyClicked = { onCopy(value) }) },
+        actions = { onCopy?.let { CopyButton(onCopyClicked = { onCopy(value) }) } },
         clickable = Clickable(enabled = false) {}
     )
 }

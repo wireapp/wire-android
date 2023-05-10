@@ -29,12 +29,15 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
+import com.wire.android.R
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.EMPTY
 import com.wire.android.util.MatchQueryResult
 import com.wire.android.util.QueryMatchExtractor
 import kotlinx.coroutines.launch
@@ -57,7 +60,7 @@ fun HighlightName(
             )
         }
     }
-    if (highlightIndexes.isNotEmpty()) {
+    if (searchQuery != String.EMPTY && highlightIndexes.isNotEmpty()) {
         Text(
             buildAnnotatedString {
                 withStyle(
@@ -87,10 +90,16 @@ fun HighlightName(
     } else {
         Text(
             text = name,
-            style = MaterialTheme.wireTypography.title02,
+            style = MaterialTheme.wireTypography.title02.copy(
+                color = if (name.isUnknownUser()) MaterialTheme.wireColorScheme.secondaryText
+                else MaterialTheme.wireTypography.title02.color
+            ),
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             modifier = modifier
         )
     }
 }
+
+@Composable
+private fun String.isUnknownUser() = this == stringResource(id = R.string.username_unavailable_label)

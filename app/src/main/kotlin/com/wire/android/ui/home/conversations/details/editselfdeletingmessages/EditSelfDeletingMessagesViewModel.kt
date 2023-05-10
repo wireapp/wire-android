@@ -37,9 +37,9 @@ import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.feature.conversation.messagetimer.UpdateMessageTimerUseCase
 import com.wire.kalium.logic.feature.selfdeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -74,17 +74,19 @@ class EditSelfDeletingMessagesViewModel @Inject constructor(
         viewModelScope.launch {
             combine(
                 observeSelfDeletionTimerSettingsForConversation(conversationId, includeSelfSettings = false),
-                observeConversationMembers(conversationId)
-                    .map { it.isSelfAnAdmin }
-                    .distinctUntilChanged()
-            ) { selfDeletingMessages, isSelfAnAdmin ->
-                editSelfDeletingMessagesState = editSelfDeletingMessagesState.copy(
-                    isLoading = selfDeletingMessages.isEnforcedByTeam || !isSelfAnAdmin,
-                    isEnabled = selfDeletingMessages.isEnforcedByGroup,
-                    selfDeletingDuration = selfDeletingMessages.toDuration(),
-                    currentlySelected = selfDeletingMessages.toDuration().toSelfDeletionDuration()
-                )
-            }.collect()
+                observeConversationMembers(conversationId).map { it.isSelfAnAdmin },
+                ::Pair
+            )
+                .distinctUntilChanged()
+                .flowOn(dispatcher.io())
+                .collect { (selfDeletingMessages, isSelfAnAdmin) ->
+                    editSelfDeletingMessagesState = editSelfDeletingMessagesState.copy(
+                        isLoading = selfDeletingMessages.isEnforcedByTeam || !isSelfAnAdmin,
+                        isEnabled = selfDeletingMessages.isEnforcedByGroup,
+                        selfDeletingDuration = selfDeletingMessages.toDuration(),
+                        currentlySelected = selfDeletingMessages.toDuration().toSelfDeletionDuration()
+                    )
+                }
         }
     }
 

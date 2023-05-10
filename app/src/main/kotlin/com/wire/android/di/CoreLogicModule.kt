@@ -59,6 +59,7 @@ import com.wire.kalium.logic.feature.client.UpdateClientVerificationStatusUseCas
 import com.wire.kalium.logic.feature.connection.BlockUserUseCase
 import com.wire.kalium.logic.feature.connection.UnblockUserUseCase
 import com.wire.kalium.logic.feature.conversation.AddMemberToConversationUseCase
+import com.wire.kalium.logic.feature.conversation.AddServiceToConversationUseCase
 import com.wire.kalium.logic.feature.conversation.ClearConversationContentUseCase
 import com.wire.kalium.logic.feature.conversation.CreateGroupConversationUseCase
 import com.wire.kalium.logic.feature.conversation.GetAllContactsNotInConversationUseCase
@@ -687,6 +688,14 @@ class UseCaseModule {
         @CurrentAccount currentAccount: UserId
     ): AddMemberToConversationUseCase =
         coreLogic.getSessionScope(currentAccount).conversations.addMemberToConversationUseCase
+
+    @ViewModelScoped
+    @Provides
+    fun provideAddServiceToConversationUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): AddServiceToConversationUseCase =
+        coreLogic.getSessionScope(currentAccount).conversations.addServiceToConversationUseCase
 
     @ViewModelScoped
     @Provides

@@ -50,6 +50,7 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.divider.WireDivider
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.ui.LinkText
 import com.wire.android.util.ui.LinkTextData
 
@@ -108,9 +109,7 @@ private fun OtherUserDevicesContent(
                             text = stringResource(id = R.string.label_learn_more),
                             tag = "learn_more",
                             annotation = supportUrl,
-                            onClick = {
-                                com.wire.android.util.CustomTabsHelper.launchUrl(context, supportUrl)
-                            }
+                            onClick = { CustomTabsHelper.launchUrl(context, supportUrl) }
                         )
                     ),
                     modifier = Modifier.padding(all = dimensions().spacing16x),

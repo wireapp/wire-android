@@ -35,6 +35,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapLatest
+import java.lang.Integer.max
 import javax.inject.Inject
 
 class GetMessagesForConversationUseCase @Inject constructor(
@@ -45,11 +46,11 @@ class GetMessagesForConversationUseCase @Inject constructor(
 ) {
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    suspend operator fun invoke(conversationId: ConversationId): Flow<PagingData<UIMessage>> {
+    suspend operator fun invoke(conversationId: ConversationId, lastReadIndex: Int): Flow<PagingData<UIMessage>> {
         val pagingConfig = PagingConfig(
             pageSize = PAGE_SIZE,
             prefetchDistance = PREFETCH_DISTANCE,
-            initialLoadSize = INITIAL_LOAD_SIZE
+            initialLoadSize = max(INITIAL_LOAD_SIZE, lastReadIndex + PREFETCH_DISTANCE)
         )
         return getMessages(
             conversationId,
@@ -66,7 +67,7 @@ class GetMessagesForConversationUseCase @Inject constructor(
 
     private companion object {
         const val PAGE_SIZE = 20
-        const val INITIAL_LOAD_SIZE = 50
-        const val PREFETCH_DISTANCE = 30
+        const val INITIAL_LOAD_SIZE = 10
+        const val PREFETCH_DISTANCE = 5
     }
 }

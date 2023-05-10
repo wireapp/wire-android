@@ -59,6 +59,7 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
 import com.wire.kalium.logic.feature.asset.UpdateAssetMessageDownloadStatusUseCase
+import com.wire.kalium.logic.feature.conversation.GetConversationUnreadEventsCountUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.message.GetMessageByIdUseCase
 import com.wire.kalium.logic.feature.message.ToggleReactionUseCase
@@ -73,6 +74,7 @@ import kotlinx.coroutines.withContext
 import kotlinx.datetime.Instant
 import okio.Path
 import javax.inject.Inject
+import kotlin.math.max
 
 @HiltViewModel
 @Suppress("LongParameterList", "TooManyFunctions")
@@ -89,7 +91,8 @@ class ConversationMessagesViewModel @Inject constructor(
     private val getMessageForConversation: GetMessagesForConversationUseCase,
     private val toggleReaction: ToggleReactionUseCase,
     private val resetSession: ResetSessionUseCase,
-    private val conversationAudioMessagePlayer: ConversationAudioMessagePlayer
+    private val conversationAudioMessagePlayer: ConversationAudioMessagePlayer,
+    private val getConversationUnreadEventsCountUseCase: GetConversationUnreadEventsCountUseCase
 ) : SavedStateViewModel(savedStateHandle) {
 
     var conversationViewState by mutableStateOf(ConversationMessagesViewState())
@@ -107,6 +110,7 @@ class ConversationMessagesViewModel @Inject constructor(
         loadLastMessageInstant()
         observeAudioPlayerState()
     }
+
     private fun observeAudioPlayerState() {
         viewModelScope.launch {
             conversationAudioMessagePlayer.observableAudioMessagesState.collect {
@@ -118,11 +122,19 @@ class ConversationMessagesViewModel @Inject constructor(
     }
 
     private fun loadPaginatedMessages() = viewModelScope.launch {
-        val paginatedMessagesFlow = getMessageForConversation(conversationId)
+        val lastReadIndex = when (val result = getConversationUnreadEventsCountUseCase(conversationId)) {
+            is GetConversationUnreadEventsCountUseCase.Result.Success -> result.amount.toInt()
+            is GetConversationUnreadEventsCountUseCase.Result.Failure -> 0
+        }
+
+        val paginatedMessagesFlow = getMessageForConversation(conversationId, lastReadIndex)
             .flowOn(dispatchers.io())
             .cachedIn(this)
 
-        conversationViewState = conversationViewState.copy(messages = paginatedMessagesFlow)
+        conversationViewState = conversationViewState.copy(
+            messages = paginatedMessagesFlow,
+            firstuUnreadEventIndex = max(lastReadIndex - 1, 0)
+        )
     }
 
     private fun loadLastMessageInstant() = viewModelScope.launch {

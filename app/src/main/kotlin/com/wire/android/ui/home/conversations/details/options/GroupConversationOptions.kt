@@ -126,13 +126,17 @@ fun GroupConversationSettings(
                 GroupConversationOptionsItem(
                     title = stringResource(id = R.string.conversation_options_self_deleting_messages_label),
                     subtitle = stringResource(id = R.string.conversation_options_self_deleting_messages_description),
-                    trailingOnText = if (state.selfDeletionTimer.isEnforced)
-                        "(${state.selfDeletionTimer.toDuration().toSelfDeletionDuration().shortLabel.asString()})" else null,
+                    trailingOnText = if (state.selfDeletionTimer.isEnforced) {
+                        "(${state.selfDeletionTimer.toDuration().toSelfDeletionDuration().shortLabel.asString()})"
+                    } else {
+                        null
+                    },
                     switchState = SwitchState.TextOnly(value = state.selfDeletionTimer.isEnforced),
-                    arrowType = if (state.isUpdatingAllowed && !state.selfDeletionTimer.isEnforcedByTeam)
+                    arrowType = if (state.isUpdatingAllowed && !state.selfDeletionTimer.isEnforcedByTeam) {
                         ArrowType.TITLE_ALIGNED
-                    else
-                        ArrowType.NONE,
+                    } else {
+                        ArrowType.NONE
+                    },
                     clickable = Clickable(
                         enabled = state.isUpdatingAllowed && !state.selfDeletionTimer.isEnforcedByTeam,
                         onClick = onSelfDeletingClicked,

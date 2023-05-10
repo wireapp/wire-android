@@ -319,4 +319,3 @@ fun PreviewGroupConversationDetails() {
         )
     }
 }
-

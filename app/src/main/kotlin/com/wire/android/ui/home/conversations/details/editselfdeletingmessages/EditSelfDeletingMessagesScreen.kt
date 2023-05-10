@@ -95,7 +95,7 @@ fun EditSelfDeletingMessagesScreen(
                             onCheckedChange = ::updateSelfDeletingMessageOption
                         )
                     }
-                    if (editSelfDeletingMessagesState.isEnabled)
+                    if (editSelfDeletingMessagesState.isEnabled) {
                         folderWithElements(
                             header = context.resources.getString(R.string.self_deleting_messages_folder_timer),
                             items = SelfDeletionDuration.values().associateBy { it.name },
@@ -120,6 +120,7 @@ fun EditSelfDeletingMessagesScreen(
                                 )
                             }
                         }
+                    }
                 }
             }
         }

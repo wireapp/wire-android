@@ -137,7 +137,7 @@ fun ConversationOptionSwitch(
                 color = MaterialTheme.wireColorScheme.onBackground
             )
         }
-        if(trailingOnText != null) {
+        if (trailingOnText != null) {
             HorizontalSpace.x2()
             Text(
                 text = trailingOnText,

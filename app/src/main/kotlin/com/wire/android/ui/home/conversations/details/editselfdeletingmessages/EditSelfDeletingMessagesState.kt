@@ -28,4 +28,4 @@ data class EditSelfDeletingMessagesState(
     val selfDeletingDuration: Duration = Duration.ZERO,
     val isLoading: Boolean = true,
     val currentlySelected: SelfDeletionDuration? = null
-    )
+)

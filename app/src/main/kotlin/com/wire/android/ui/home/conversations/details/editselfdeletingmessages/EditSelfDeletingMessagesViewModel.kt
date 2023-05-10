@@ -47,6 +47,7 @@ import javax.inject.Inject
 @HiltViewModel
 @Suppress("LongParameterList", "TooManyFunctions")
 class EditSelfDeletingMessagesViewModel @Inject constructor(
+    // TODO KBX cover with tests
     private val navigationManager: NavigationManager,
     private val dispatcher: DispatcherProvider,
     private val observeConversationMembers: ObserveParticipantsForConversationUseCase,
@@ -56,7 +57,7 @@ class EditSelfDeletingMessagesViewModel @Inject constructor(
     qualifiedIdMapper: QualifiedIdMapper,
 ) : ViewModel() {
 
-    val conversationId: QualifiedID = qualifiedIdMapper.fromStringToQualifiedID(
+    private val conversationId: QualifiedID = qualifiedIdMapper.fromStringToQualifiedID(
         checkNotNull(savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)) {
             "No conversationId was provided via savedStateHandle to EditSelfDeletingMessagesViewModel"
         }
@@ -67,10 +68,10 @@ class EditSelfDeletingMessagesViewModel @Inject constructor(
     )
 
     init {
-        observeSelfDeletingMessages()
+        observeSelfDeletionTimerSettingsForConversation()
     }
 
-    private fun observeSelfDeletingMessages() {
+    private fun observeSelfDeletionTimerSettingsForConversation() {
         viewModelScope.launch {
             combine(
                 observeSelfDeletionTimerSettingsForConversation(conversationId, considerSelfUserSettings = false),
@@ -92,26 +93,14 @@ class EditSelfDeletingMessagesViewModel @Inject constructor(
 
     fun updateSelfDeletingMessageOption(shouldBeEnabled: Boolean) {
         viewModelScope.launch {
-            if (shouldBeEnabled) {
-                editSelfDeletingMessagesState = editSelfDeletingMessagesState.copy(
-                    isEnabled = true
-                )
-            } else {
-                editSelfDeletingMessagesState = editSelfDeletingMessagesState.copy(
-                    isLoading = true,
-                    isEnabled = false
-                )
+            editSelfDeletingMessagesState = editSelfDeletingMessagesState.copy(isEnabled = shouldBeEnabled)
+            if (!shouldBeEnabled) {
+                editSelfDeletingMessagesState = editSelfDeletingMessagesState.copy(isLoading = true)
                 editSelfDeletingMessagesState = when (updateMessageTimer(conversationId, null)) {
-                    is UpdateMessageTimerUseCase.Result.Failure -> editSelfDeletingMessagesState.copy(
-                        isLoading = false,
-                        isEnabled = true
-                    )
-
-                    UpdateMessageTimerUseCase.Result.Success -> editSelfDeletingMessagesState.copy(
-                        isLoading = false,
-                        isEnabled = false
-                    )
+                    is UpdateMessageTimerUseCase.Result.Failure -> editSelfDeletingMessagesState.copy(isEnabled = true)
+                    UpdateMessageTimerUseCase.Result.Success -> editSelfDeletingMessagesState.copy(isEnabled = false)
                 }
+                editSelfDeletingMessagesState = editSelfDeletingMessagesState.copy(isLoading = false)
             }
         }
     }
@@ -131,11 +120,7 @@ class EditSelfDeletingMessagesViewModel @Inject constructor(
                     )
                 }
 
-                UpdateMessageTimerUseCase.Result.Success -> {
-                    editSelfDeletingMessagesState.copy(
-                        isLoading = false
-                    )
-                }
+                UpdateMessageTimerUseCase.Result.Success -> editSelfDeletingMessagesState.copy(isLoading = false)
             }
         }
     }

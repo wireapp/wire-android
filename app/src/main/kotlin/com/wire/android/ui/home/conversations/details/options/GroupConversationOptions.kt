@@ -62,7 +62,7 @@ fun GroupConversationOptions(
     GroupConversationSettings(
         state = state,
         onGuestItemClicked = viewModel::navigateToEditGuestAccessScreen,
-        onSelfDeletingClicked = viewModel::navigateSelfDeletingMessagesScreen,
+        onSelfDeletingClicked = viewModel::navigateToEditSelfDeletingMessagesScreen,
         onServiceSwitchClicked = viewModel::onServicesUpdate,
         onReadReceiptSwitchClicked = viewModel::onReadReceiptUpdate,
         lazyListState = lazyListState,

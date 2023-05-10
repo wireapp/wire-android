@@ -27,15 +27,13 @@ import com.wire.android.ui.home.conversations.details.options.GroupOptionWithSwi
 
 @Composable
 fun SelfDeletingMessageOption(
-    isSwitchEnabled: Boolean,
-    isSwitchVisible: Boolean,
     switchState: Boolean,
     isLoading: Boolean,
     onCheckedChange: (Boolean) -> Unit
 ) {
     GroupOptionWithSwitch(
-        switchClickable = isSwitchEnabled,
-        switchVisible = isSwitchVisible,
+        switchClickable = true,
+        switchVisible = true,
         switchState = switchState,
         onClick = onCheckedChange,
         isLoading = isLoading,
@@ -48,8 +46,6 @@ fun SelfDeletingMessageOption(
 @Composable
 fun PreviewGuestOption() {
     SelfDeletingMessageOption(
-        isSwitchEnabled = false,
-        isSwitchVisible = true,
         switchState = true,
         isLoading = false,
         onCheckedChange = {}

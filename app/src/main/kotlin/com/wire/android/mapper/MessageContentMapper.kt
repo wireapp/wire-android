@@ -71,6 +71,7 @@ class MessageContentMapper @Inject constructor(
                     Message.Visibility.HIDDEN -> null // we don't want to show hidden message content in any way
                 }
             }
+
             is Message.System -> {
                 when (message.visibility) {
                     Message.Visibility.VISIBLE -> mapSystemMessage(message, userList)
@@ -96,6 +97,7 @@ class MessageContentMapper @Inject constructor(
         is MessageContent.ConversationMessageTimerChanged -> mapConversationTimerChanged(message.senderUserId, content, members)
     }
 
+    // TODO KBX cover with tests
     private fun mapConversationTimerChanged(
         senderUserId: UserId,
         content: MessageContent.ConversationMessageTimerChanged,
@@ -302,6 +304,7 @@ class MessageContentMapper @Inject constructor(
                         messageResourceProvider.sentAMessageWithContent, it
                     )
                 } ?: UIText.StringResource(R.string.sent_a_message_with_unknown_content)
+
                 is MessageContent.FailedDecryption -> UIText.StringResource(R.string.label_message_decryption_failure_message)
                 else -> UIText.StringResource(R.string.sent_a_message_with_unknown_content)
             },

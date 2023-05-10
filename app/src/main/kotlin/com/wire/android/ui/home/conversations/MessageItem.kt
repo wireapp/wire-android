@@ -399,7 +399,7 @@ private fun Username(username: String, modifier: Modifier = Modifier) {
 @Composable
 private fun MessageContent(
     message: UIMessage,
-    messageContent: UIMessageContent?,
+    messageContent: UIMessageContent.Regular?,
     audioMessagesState: Map<String, AudioState>,
     onAssetClick: Clickable,
     onImageClick: Clickable,
@@ -489,26 +489,9 @@ private fun MessageContent(
         }
 
         UIMessageContent.Deleted -> {}
-        is UIMessageContent.SystemMessage.MemberAdded -> {}
-        is UIMessageContent.SystemMessage.MemberJoined -> {}
-        is UIMessageContent.SystemMessage.MemberLeft -> {}
-        is UIMessageContent.SystemMessage.MemberRemoved -> {}
-        is UIMessageContent.SystemMessage.RenamedConversation -> {}
-        is UIMessageContent.SystemMessage.TeamMemberRemoved -> {}
-        is UIMessageContent.SystemMessage.CryptoSessionReset -> {}
-        is UIMessageContent.PreviewAssetMessage -> {}
-        is UIMessageContent.SystemMessage.MissedCall.YouCalled -> {}
-        is UIMessageContent.SystemMessage.MissedCall.OtherCalled -> {}
-        is UIMessageContent.SystemMessage.NewConversationReceiptMode -> {}
-        is UIMessageContent.SystemMessage.ConversationReceiptModeChanged -> {}
         null -> {
             throw NullPointerException("messageContent is null")
         }
-
-        is UIMessageContent.SystemMessage.Knock -> {}
-        is UIMessageContent.SystemMessage.HistoryLost -> {}
-        is UIMessageContent.SystemMessage.ConversationMessageTimerActivated -> {}
-        is UIMessageContent.SystemMessage.ConversationMessageTimerDeactivated -> {}
     }
 }
 

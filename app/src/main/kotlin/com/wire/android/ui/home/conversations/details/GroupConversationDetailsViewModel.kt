@@ -415,7 +415,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
         }
     }
 
-    fun navigateSelfDeletingMessagesScreen() {
+    fun navigateToEditSelfDeletingMessagesScreen() {
         viewModelScope.launch {
             navigationManager.navigate(
                 command = NavigationCommand(

@@ -58,7 +58,7 @@ import com.wire.android.util.extension.folderWithElements
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditSelfDeletingMessagesScreen(
-    editGuestAccessViewModel: EditSelfDeletingMessagesViewModel = hiltViewModel(),
+    editSelfDeletingMessagesViewModel: EditSelfDeletingMessagesViewModel = hiltViewModel(),
 ) {
     val scrollState = rememberScrollState()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -68,7 +68,7 @@ fun EditSelfDeletingMessagesScreen(
         topBar = {
             WireCenterAlignedTopAppBar(
                 elevation = scrollState.rememberTopBarElevationState().value,
-                onNavigationPressed = editGuestAccessViewModel::navigateBack,
+                onNavigationPressed = editSelfDeletingMessagesViewModel::navigateBack,
                 title = stringResource(id = R.string.self_deleting_messages_title)
             )
         }, snackbarHost = {
@@ -85,11 +85,9 @@ fun EditSelfDeletingMessagesScreen(
                     .weight(1F)
                     .fillMaxSize()
             ) {
-                with(editGuestAccessViewModel) {
+                with(editSelfDeletingMessagesViewModel) {
                     item {
                         SelfDeletingMessageOption(
-                            isSwitchEnabled = true,
-                            isSwitchVisible = true,
                             switchState = editSelfDeletingMessagesState.isEnabled,
                             isLoading = editSelfDeletingMessagesState.isLoading,
                             onCheckedChange = ::updateSelfDeletingMessageOption

@@ -86,7 +86,6 @@ object TestConversation {
         messageTimer = null
     )
 
-
     fun one_on_one(convId: ConversationId) = Conversation(
         convId,
         "ONE_ON_ONE Name",
@@ -126,8 +125,7 @@ object TestConversation {
         accessRole = listOf(Conversation.AccessRole.NON_TEAM_MEMBER, Conversation.AccessRole.GUEST),
         lastReadDate = "2022-03-30T15:36:00.000Z",
         creatorId = null,
-        receiptMode =  Conversation.ReceiptMode.ENABLED,
+        receiptMode = Conversation.ReceiptMode.ENABLED,
         messageTimer = null
     )
-
 }

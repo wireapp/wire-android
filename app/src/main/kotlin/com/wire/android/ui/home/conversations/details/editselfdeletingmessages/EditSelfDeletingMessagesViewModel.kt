@@ -73,7 +73,7 @@ class EditSelfDeletingMessagesViewModel @Inject constructor(
     private fun observeSelfDeletingMessages() {
         viewModelScope.launch {
             combine(
-                observeSelfDeletionTimerSettingsForConversation(conversationId, includeSelfSettings = false),
+                observeSelfDeletionTimerSettingsForConversation(conversationId, considerSelfUserSettings = false),
                 observeConversationMembers(conversationId).map { it.isSelfAnAdmin },
                 ::Pair
             )

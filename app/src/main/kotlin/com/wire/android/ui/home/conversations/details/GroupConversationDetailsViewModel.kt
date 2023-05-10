@@ -145,7 +145,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
                 groupDetailsFlow,
                 isSelfAdminFlow,
                 getSelfTeam(),
-                observeSelfDeletionTimerSettingsForConversation(conversationId, includeSelfSettings = false),
+                observeSelfDeletionTimerSettingsForConversation(conversationId, considerSelfUserSettings = false),
             ) { groupDetails, isSelfAnAdmin, selfTeam, selfDeletionTimer ->
 
                 val isSelfInOwnerTeam = selfTeam?.id != null && selfTeam.id == groupDetails.conversation.teamId?.value

@@ -147,7 +147,7 @@ fun EditMessageMenuItems(
                 add { ReactionOption(onReactionItemClick) }
                 add { MessageDetailsMenuOption(onDetailsItemClick) }
                 if (isCopyable) add { CopyItemMenuOption(onCopyItemClick) }
-                ReplyMessageOption(onReplyItemClick)
+                add { ReplyMessageOption(onReplyItemClick) }
                 if (isAssetMessage) add { DownloadAssetExternallyOption(onDownloadAssetClick) }
                 if (isGenericAsset) add { OpenAssetExternallyOption(onOpenAssetClick) }
                 if (isEditable) { add { EditMessageMenuOption(onEditItemClick) } }

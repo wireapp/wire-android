@@ -223,6 +223,9 @@ fun MessageItem(
                                 messageFooter,
                                 onReactionClicked
                             )
+                            if (message.sendingFailed) {
+                                MessageSendFailureWarning(header.messageStatus as MessageStatus.MessageSendFailureStatus)
+                            }
                         } else {
                             MessageDecryptionFailure(
                                 messageHeader = header,
@@ -231,10 +234,6 @@ fun MessageItem(
                             )
                         }
                     }
-                }
-
-                if (message.sendingFailed) {
-                    MessageSendFailureWarning(header.messageStatus as MessageStatus.MessageSendFailureStatus)
                 }
             }
         }

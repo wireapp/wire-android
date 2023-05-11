@@ -99,7 +99,6 @@ fun FullScreenTile(
             ) {
                 shouldShowDoubleTapToast = false
             }
-
         }
     }
 }

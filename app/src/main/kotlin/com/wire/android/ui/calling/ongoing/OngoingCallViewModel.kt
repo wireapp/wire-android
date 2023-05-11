@@ -27,6 +27,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.appLogger
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.calling.model.UICallParticipant
@@ -109,7 +110,9 @@ class OngoingCallViewModel @OptIn(ExperimentalCoroutinesApi::class)
     private fun startDoubleTapToastDisplayCountDown() {
         doubleTapIndicatorCountDownTimer?.cancel()
         doubleTapIndicatorCountDownTimer = object : CountDownTimer(DOUBLE_TAP_TOAST_DISPLAY_TIME, COUNT_DOWN_INTERVAL) {
-            override fun onTick(p0: Long) {}
+            override fun onTick(p0: Long) {
+                appLogger.i("startDoubleTapToastDisplayCountDown: $p0")
+            }
 
             override fun onFinish() {
                 shouldShowDoubleTapToast = false
@@ -120,7 +123,7 @@ class OngoingCallViewModel @OptIn(ExperimentalCoroutinesApi::class)
 
     private fun showDoubleTapToast() {
         viewModelScope.launch {
-            delay(500)
+            delay(DELAY_TO_SHOW_DOUBLE_TAP_TOAST)
             shouldShowDoubleTapToast = true
             startDoubleTapToastDisplayCountDown()
         }
@@ -137,5 +140,6 @@ class OngoingCallViewModel @OptIn(ExperimentalCoroutinesApi::class)
     companion object {
         const val DOUBLE_TAP_TOAST_DISPLAY_TIME = 7000L
         const val COUNT_DOWN_INTERVAL = 1000L
+        const val DELAY_TO_SHOW_DOUBLE_TAP_TOAST = 500L
     }
 }

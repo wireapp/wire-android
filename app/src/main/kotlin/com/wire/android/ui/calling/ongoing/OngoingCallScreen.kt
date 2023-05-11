@@ -346,4 +346,3 @@ private fun CallingControls(
 fun PreviewOngoingCallTopBar() {
     OngoingCallTopBar("Default", true) { }
 }
-

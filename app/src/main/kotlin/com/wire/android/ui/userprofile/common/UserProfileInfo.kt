@@ -88,7 +88,11 @@ fun UserProfileInfo(
         Box(contentAlignment = Alignment.Center) {
             UserProfileAvatar(
                 size = dimensions().userAvatarDefaultBigSize,
-                avatarData = UserAvatarData(asset = avatarAsset, connectionState = connection),
+                avatarData = UserAvatarData(
+                    asset = avatarAsset,
+                    connectionState = connection,
+                    membership = membership
+                ),
                 clickable = remember(editableState) {
                     Clickable(
                         enabled = editableState is EditableState.IsEditable,
@@ -137,7 +141,7 @@ fun UserProfileInfo(
                     color = MaterialTheme.colorScheme.onBackground
                 )
                 Text(
-                    text = userName.ifNotEmpty { "@$userName" },
+                    text = if (membership == Membership.Service) userName else userName.ifNotEmpty { "@$userName" },
                     overflow = TextOverflow.Ellipsis,
                     style = MaterialTheme.wireTypography.body02,
                     maxLines = 1,

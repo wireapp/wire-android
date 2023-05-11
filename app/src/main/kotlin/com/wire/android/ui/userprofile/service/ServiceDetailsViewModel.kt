@@ -42,7 +42,7 @@ import javax.inject.Inject
 class ServiceDetailsViewModel @Inject constructor(
     private val navigationManager: NavigationManager,
     private val dispatchers: DispatcherProvider,
-    private val observerSelfUser: GetSelfUserUseCase,
+    private val observeSelfUser: GetSelfUserUseCase,
     private val getServiceById: GetServiceByIdUseCase,
     private val observeIsServiceMember: ObserveIsServiceMemberUseCase,
     private val observeConversationRoleForUser: ObserveConversationRoleForUserUseCase,
@@ -76,7 +76,7 @@ class ServiceDetailsViewModel @Inject constructor(
                     isAvatarLoading = true
                 )
 
-                selfUserId = observerSelfUser().first().id
+                selfUserId = observeSelfUser().first().id
                 getServiceDetailsAndUpdateViewState()
                 observeIsServiceConversationMember()
             } ?: serviceNotFound()

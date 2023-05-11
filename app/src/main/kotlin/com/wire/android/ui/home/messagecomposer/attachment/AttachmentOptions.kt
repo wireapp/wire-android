@@ -36,7 +36,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -88,7 +87,6 @@ private fun AttachmentOptionsComponent(
     isFileSharingEnabled: Boolean,
     modifier: Modifier = Modifier
 ) {
-    val scope = rememberCoroutineScope()
     val attachmentOptions = buildAttachmentOptionItems(
         isFileSharingEnabled,
         tempWritableImageUri,
@@ -191,7 +189,10 @@ private fun CaptureVideoFlow(
 
 @Composable
 private fun ShareCurrentLocationFlow() =
-    rememberCurrentLocationFlow(onLocationPicked = { /*TODO*/ }, onPermissionDenied = { /* TODO: Implement denied permission rationale */ })
+    rememberCurrentLocationFlow(
+        onLocationPicked = { /*TODO*/ },
+        onPermissionDenied = { /* TODO: Implement denied permission rationale */ }
+    )
 
 @Composable
 private fun RecordAudioFlow() =
@@ -253,7 +254,8 @@ private fun buildAttachmentOptionItems(
                         isFileSharingEnabled,
                         R.string.attachment_voice_message,
                         R.drawable.ic_mic_on
-                    ) { recordAudioFlow.launch() })
+                    ) { recordAudioFlow.launch() }
+                )
             }
             if (ShareLocationIcon) {
                 add(

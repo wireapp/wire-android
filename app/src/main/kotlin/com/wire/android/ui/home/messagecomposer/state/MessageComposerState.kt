@@ -18,12 +18,11 @@
  *
  */
 
-package com.wire.android.ui.home.messagecomposer
+package com.wire.android.ui.home.messagecomposer.state
 
 import android.content.Context
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -40,6 +39,8 @@ import com.wire.android.appLogger
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.conversations.model.UIQuotedMessage
+import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMapper.toSelfDeletionDuration
+import com.wire.android.ui.home.messagecomposer.model.UiMention
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.util.EMPTY
@@ -49,11 +50,13 @@ import com.wire.android.util.WHITE_SPACE
 import com.wire.android.util.ui.toUIText
 import com.wire.kalium.logic.data.message.mention.MessageMention
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.selfdeletingMessages.SelfDeletionTimer
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlin.time.Duration.Companion.ZERO
 
 @Composable
-fun rememberMessageComposerInnerState(): MessageComposerInnerState {
+fun rememberMessageComposerState(): MessageComposerState {
     val context = LocalContext.current
 
     val mentionSpanStyle = SpanStyle(
@@ -65,7 +68,7 @@ fun rememberMessageComposerInnerState(): MessageComposerInnerState {
     val inputFocusRequester = FocusRequester()
 
     return remember {
-        MessageComposerInnerState(
+        MessageComposerState(
             context = context,
             focusManager = focusManager,
             inputFocusRequester = inputFocusRequester,
@@ -75,7 +78,7 @@ fun rememberMessageComposerInnerState(): MessageComposerInnerState {
 }
 
 @Suppress("TooManyFunctions")
-data class MessageComposerInnerState(
+data class MessageComposerState(
     val context: Context,
     val focusManager: FocusManager,
     val inputFocusRequester: FocusRequester,
@@ -83,6 +86,9 @@ data class MessageComposerInnerState(
 ) {
     var messageComposeInputState: MessageComposeInputState by mutableStateOf(MessageComposeInputState.Inactive())
         private set
+
+    private var currentSelfDeletionTimer: SelfDeletionTimer by mutableStateOf(SelfDeletionTimer.Enabled(ZERO))
+
     private val _mentionQueryFlowState: MutableStateFlow<String?> = MutableStateFlow(null)
 
     val mentionQueryFlowState: StateFlow<String?> = _mentionQueryFlowState
@@ -94,7 +100,6 @@ data class MessageComposerInnerState(
     fun setMessageTextValue(text: TextFieldValue) {
         updateMentionsIfNeeded(text)
         requestMentionSuggestionIfNeeded(text)
-
         messageComposeInputState = messageComposeInputState.copyCurrent(messageText = applyMentionStylesIntoText(text))
     }
 
@@ -111,7 +116,10 @@ data class MessageComposerInnerState(
                 }
             }
         val afterSelection = messageComposeInputState.messageText.text
-            .subSequence(messageComposeInputState.messageText.selection.max, messageComposeInputState.messageText.text.length)
+            .subSequence(
+                messageComposeInputState.messageText.selection.max,
+                messageComposeInputState.messageText.text.length
+            )
         val resultText = StringBuilder(beforeSelection)
             .append(String.MENTION_SYMBOL)
             .append(afterSelection)
@@ -148,7 +156,7 @@ data class MessageComposerInnerState(
 
     fun toActive() {
         if (messageComposeInputState !is MessageComposeInputState.Active) {
-            messageComposeInputState = messageComposeInputState.toActive()
+            messageComposeInputState = messageComposeInputState.toActive(selfDeletionTimer = currentSelfDeletionTimer)
         }
     }
 
@@ -166,12 +174,24 @@ data class MessageComposerInnerState(
     fun hideAttachmentOptions() = changeAttachmentOptionsVisibility(false)
     private fun changeAttachmentOptionsVisibility(newValue: Boolean) {
         (messageComposeInputState as? MessageComposeInputState.Active)?.let { activeState ->
-            (activeState.type as? MessageComposeInputType.NewMessage)?.let { newMessageType ->
-                messageComposeInputState = activeState.copy(
-                    type = newMessageType.copy(
-                        attachmentOptionsDisplayed = newValue
+            when (val currentType = activeState.type) {
+                is MessageComposeInputType.NewMessage -> {
+                    messageComposeInputState = activeState.copy(
+                        type = currentType.copy(
+                            attachmentOptionsDisplayed = newValue
+                        )
                     )
-                )
+                }
+
+                is MessageComposeInputType.SelfDeletingMessage -> {
+                    messageComposeInputState = activeState.copy(
+                        type = currentType.copy(
+                            attachmentOptionsDisplayed = newValue
+                        )
+                    )
+                }
+
+                else -> {}
             }
         }
     }
@@ -214,7 +234,10 @@ data class MessageComposerInnerState(
         val beforeMentionText = messageComposeInputState.messageText.text
             .subSequence(0, mention.start)
         val afterMentionText = messageComposeInputState.messageText.text
-            .subSequence(messageComposeInputState.messageText.selection.max, messageComposeInputState.messageText.text.length)
+            .subSequence(
+                messageComposeInputState.messageText.selection.max,
+                messageComposeInputState.messageText.text.length
+            )
         val resultText = StringBuilder()
             .append(beforeMentionText)
             .append(mention.handler)
@@ -323,6 +346,24 @@ data class MessageComposerInnerState(
     fun cancelReply() {
         quotedMessageData = null
     }
+
+    fun updateSelfDeletionTime(newSelfDeletionTimer: SelfDeletionTimer) = with(newSelfDeletionTimer) {
+        currentSelfDeletionTimer = newSelfDeletionTimer
+        val newSelfDeletionDuration = newSelfDeletionTimer.toDuration().toSelfDeletionDuration()
+        messageComposeInputState = MessageComposeInputState.Active(
+            messageText = messageComposeInputState.messageText,
+            inputFocused = true,
+            type = if (newSelfDeletionDuration == SelfDeletionDuration.None) MessageComposeInputType.NewMessage()
+            else MessageComposeInputType.SelfDeletingMessage(newSelfDeletionDuration, isEnforced)
+        )
+    }
+
+    fun getSelfDeletionTime(): SelfDeletionDuration = currentSelfDeletionTimer.toDuration().toSelfDeletionDuration()
+
+    fun shouldShowSelfDeletionOption(): Boolean = with(currentSelfDeletionTimer) {
+        // We shouldn't show the self-deleting option if there is a compulsory duration already set on the team settings level
+        this !is SelfDeletionTimer.Disabled && !isEnforced
+    }
 }
 
 private fun TextFieldValue.currentMentionStartIndex(): Int {
@@ -336,85 +377,9 @@ private fun TextFieldValue.currentMentionStartIndex(): Int {
     }
 }
 
-data class UiMention(
-    val start: Int,
-    val length: Int,
-    val userId: UserId,
-    val handler: String // name that should be displayed in a message
-) {
-    fun intoMessageMention() = MessageMention(start, length, userId, false) // We can never send a self mention message
-}
-
 fun MessageMention.toUiMention(originalText: String) = UiMention(
     start = this.start,
     length = this.length,
     userId = this.userId,
     handler = originalText.substring(start, start + length)
 )
-
-@Stable
-sealed class MessageComposeInputState {
-    abstract val messageText: TextFieldValue
-    abstract val inputFocused: Boolean
-
-    @Stable
-    data class Inactive(
-        override val messageText: TextFieldValue = TextFieldValue(""),
-        override val inputFocused: Boolean = false,
-    ) : MessageComposeInputState()
-
-    @Stable
-    data class Active(
-        override val messageText: TextFieldValue = TextFieldValue(""),
-        override val inputFocused: Boolean = false,
-        val type: MessageComposeInputType = MessageComposeInputType.NewMessage(),
-        val size: MessageComposeInputSize = MessageComposeInputSize.COLLAPSED,
-    ) : MessageComposeInputState()
-
-    fun toActive(messageText: TextFieldValue = this.messageText, inputFocused: Boolean = this.inputFocused) = when (this) {
-        is Active -> Active(messageText, inputFocused, this.type, this.size)
-        is Inactive -> Active(messageText, inputFocused)
-    }
-
-    fun toInactive(messageText: TextFieldValue = this.messageText, inputFocused: Boolean = this.inputFocused) =
-        Inactive(messageText, inputFocused)
-
-    fun copyCurrent(messageText: TextFieldValue = this.messageText, inputFocused: Boolean = this.inputFocused) = when (this) {
-        is Active -> Active(messageText, inputFocused, this.type, this.size)
-        is Inactive -> Inactive(messageText, inputFocused)
-    }
-
-    val isExpanded: Boolean
-        get() = this is Active && this.size == MessageComposeInputSize.EXPANDED
-    val isEditMessage: Boolean
-        get() = this is Active && this.type is MessageComposeInputType.EditMessage
-    val isNewMessage: Boolean
-        get() = this is Active && this.type is MessageComposeInputType.NewMessage
-    val attachmentOptionsDisplayed: Boolean
-        get() = this is Active && this.type is MessageComposeInputType.NewMessage && this.type.attachmentOptionsDisplayed
-    val sendButtonEnabled: Boolean
-        get() = this is Active && this.type is MessageComposeInputType.NewMessage && messageText.text.trim().isNotBlank()
-    val editSaveButtonEnabled: Boolean
-        get() = this is Active && this.type is MessageComposeInputType.EditMessage && messageText.text.trim().isNotBlank()
-                && messageText.text != this.type.originalText
-}
-
-enum class MessageComposeInputSize {
-    COLLAPSED, // wrap content
-    EXPANDED; // fullscreen
-}
-
-@Stable
-sealed class MessageComposeInputType {
-
-    @Stable
-    data class NewMessage(
-        val attachmentOptionsDisplayed: Boolean = false,
-    ) : MessageComposeInputType()
-
-    @Stable
-    data class EditMessage(
-        val messageId: String,
-        val originalText: String,
-    ) : MessageComposeInputType()
-}

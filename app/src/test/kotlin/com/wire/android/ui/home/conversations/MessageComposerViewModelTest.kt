@@ -375,7 +375,7 @@ class MessageComposerViewModelTest {
         // When
 
         // Then
-        coVerify(exactly = 1) { arrangement.observeConversationSelfDeletionStatus.invoke(arrangement.conversationId) }
+        coVerify(exactly = 1) { arrangement.observeConversationSelfDeletionStatus.invoke(arrangement.conversationId, true) }
         assert(viewModel.messageComposerViewState.selfDeletionTimer is SelfDeletionTimer.Enabled)
         assert(viewModel.messageComposerViewState.selfDeletionTimer.toDuration() == expectedDuration)
     }

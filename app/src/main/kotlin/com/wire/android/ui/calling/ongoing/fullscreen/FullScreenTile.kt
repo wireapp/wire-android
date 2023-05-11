@@ -31,8 +31,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.ui.calling.SharedCallingViewModel
 import com.wire.android.ui.calling.ongoing.participantsview.ParticipantTile
 import com.wire.android.ui.common.dimensions
-import com.wire.android.util.EMPTY
-import com.wire.kalium.logic.data.user.UserId
 
 @Composable
 fun FullScreenTile(

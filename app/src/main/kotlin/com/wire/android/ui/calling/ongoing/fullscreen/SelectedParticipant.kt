@@ -19,7 +19,7 @@ package com.wire.android.ui.calling.ongoing.fullscreen
 
 import com.wire.kalium.logic.data.user.UserId
 
-data class SelectedParticipant (
+data class SelectedParticipant(
     val userId: UserId = UserId("", ""),
     val clientId: String = "",
     val isSelfUser: Boolean = false

@@ -24,7 +24,6 @@ import androidx.compose.runtime.Stable
 import androidx.compose.ui.graphics.Color
 import io.github.esentsov.PackagePrivate
 
-
 @PackagePrivate
 @Suppress("MagicNumber")
 object WireColorPalette {

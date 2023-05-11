@@ -158,22 +158,25 @@ fun SystemMessageItem(message: UIMessage.System) {
     }
 }
 
+@Suppress("ComplexMethod")
 @Composable
 private fun getColorFilter(message: SystemMessage): ColorFilter? {
     return when (message) {
         is SystemMessage.MissedCall.OtherCalled -> null
         is SystemMessage.MissedCall.YouCalled -> null
         is SystemMessage.Knock -> ColorFilter.tint(colorsScheme().primary)
-        is SystemMessage.MemberAdded -> ColorFilter.tint(colorsScheme().onBackground)
-        is SystemMessage.MemberJoined -> ColorFilter.tint(colorsScheme().onBackground)
-        is SystemMessage.MemberLeft -> ColorFilter.tint(colorsScheme().onBackground)
-        is SystemMessage.MemberRemoved -> ColorFilter.tint(colorsScheme().onBackground)
-        is SystemMessage.CryptoSessionReset -> ColorFilter.tint(colorsScheme().onBackground)
-        is SystemMessage.RenamedConversation -> ColorFilter.tint(colorsScheme().onBackground)
-        is SystemMessage.TeamMemberRemoved -> ColorFilter.tint(colorsScheme().onBackground)
-        is SystemMessage.ConversationReceiptModeChanged -> ColorFilter.tint(colorsScheme().onBackground)
-        is SystemMessage.HistoryLost -> ColorFilter.tint(colorsScheme().onBackground)
-        is SystemMessage.NewConversationReceiptMode -> ColorFilter.tint(colorsScheme().onBackground)
+        is SystemMessage.MemberAdded,
+        is SystemMessage.MemberJoined,
+        is SystemMessage.MemberLeft,
+        is SystemMessage.MemberRemoved,
+        is SystemMessage.CryptoSessionReset,
+        is SystemMessage.RenamedConversation,
+        is SystemMessage.TeamMemberRemoved,
+        is SystemMessage.ConversationReceiptModeChanged,
+        is SystemMessage.HistoryLost,
+        is SystemMessage.NewConversationReceiptMode,
+        is SystemMessage.ConversationMessageTimerActivated,
+        is SystemMessage.ConversationMessageTimerDeactivated -> ColorFilter.tint(colorsScheme().onBackground)
     }
 }
 
@@ -278,6 +281,8 @@ private val SystemMessage.expandable
         is SystemMessage.ConversationReceiptModeChanged -> false
         is SystemMessage.Knock -> false
         is SystemMessage.HistoryLost -> false
+        is SystemMessage.ConversationMessageTimerActivated -> false
+        is SystemMessage.ConversationMessageTimerDeactivated -> false
     }
 
 private fun List<String>.toUserNamesListString(res: Resources) = when {
@@ -310,11 +315,13 @@ fun SystemMessage.annotatedString(
                 author.asString(res),
                 memberNames.limitUserNamesList(res, if (expanded) memberNames.size else EXPANDABLE_THRESHOLD).toUserNamesListString(res)
             )
+
         is SystemMessage.MemberRemoved ->
             arrayOf(
                 author.asString(res),
                 memberNames.limitUserNamesList(res, if (expanded) memberNames.size else EXPANDABLE_THRESHOLD).toUserNamesListString(res)
             )
+
         is SystemMessage.MemberJoined -> arrayOf(author.asString(res))
         is SystemMessage.MemberLeft -> arrayOf(author.asString(res))
         is SystemMessage.MissedCall -> arrayOf(author.asString(res))
@@ -325,6 +332,16 @@ fun SystemMessage.annotatedString(
         is SystemMessage.ConversationReceiptModeChanged -> arrayOf(author.asString(res), receiptMode.asString(res))
         is SystemMessage.Knock -> arrayOf(author.asString(res))
         is SystemMessage.HistoryLost -> arrayOf()
+        is SystemMessage.ConversationMessageTimerActivated -> arrayOf(
+            author.asString(res),
+            res.getString(R.string.label_system_message_activated),
+            selfDeletionDuration.longLabel.asString(res)
+        )
+
+        is SystemMessage.ConversationMessageTimerDeactivated -> arrayOf(
+            author.asString(res),
+            res.getString(R.string.label_system_message_deactivated)
+        )
     }
     return res.stringWithStyledArgs(stringResId, normalStyle, boldStyle, normalColor, boldColor, *args)
 }

@@ -14,25 +14,18 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
+ *
+ *
  */
 
-package com.wire.android.ui.edit
+package com.wire.android.ui.home.conversations.details.editselfdeletingmessages
 
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.res.stringResource
-import com.wire.android.R
-import com.wire.android.ui.common.bottomsheet.MenuBottomSheetItem
-import com.wire.android.ui.common.bottomsheet.MenuItemIcon
+import com.wire.android.ui.home.messagecomposer.state.SelfDeletionDuration
+import kotlin.time.Duration
 
-@Composable
-fun DownloadAssetExternallyOption(onDownloadClick: () -> Unit) =
-    MenuBottomSheetItem(
-        icon = {
-            MenuItemIcon(
-                id = R.drawable.ic_download,
-                contentDescription = stringResource(R.string.content_description_download_icon),
-            )
-        },
-        title = stringResource(R.string.label_download),
-        onItemClick = onDownloadClick
-    )
+data class EditSelfDeletingMessagesState(
+    val isEnabled: Boolean = false,
+    val selfDeletingDuration: Duration = Duration.ZERO,
+    val isLoading: Boolean = true,
+    val currentlySelected: SelfDeletionDuration? = null
+)

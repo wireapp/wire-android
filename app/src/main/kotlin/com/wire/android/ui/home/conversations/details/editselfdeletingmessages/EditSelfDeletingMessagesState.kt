@@ -18,16 +18,14 @@
  *
  */
 
-package com.wire.android.ui.common.divider
+package com.wire.android.ui.home.conversations.details.editselfdeletingmessages
 
-import androidx.compose.material3.Divider
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.Dp
-import com.wire.android.ui.common.colorsScheme
+import com.wire.android.ui.home.messagecomposer.state.SelfDeletionDuration
+import kotlin.time.Duration
 
-@Composable
-fun WireDivider(color: Color = colorsScheme().divider) {
-    Divider(color = color, thickness = Dp.Hairline, modifier = Modifier)
-}
+data class EditSelfDeletingMessagesState(
+    val isEnabled: Boolean = false,
+    val selfDeletingDuration: Duration = Duration.ZERO,
+    val isLoading: Boolean = true,
+    val currentlySelected: SelfDeletionDuration? = null
+)

@@ -1004,7 +1004,7 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
-    fun provideObserveSelfDeletingMessagesUseCase(
+    fun provideObserveSelfDeletionTimerSettingsForConversationUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
     ): ObserveSelfDeletionTimerSettingsForConversationUseCase = coreLogic.getSessionScope(currentAccount).observeSelfDeletingMessages
@@ -1052,6 +1052,11 @@ class UseCaseModule {
     @Provides
     fun provideObserveGuestRoomLinkFeatureFlagUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
         coreLogic.getSessionScope(currentAccount).observeGuestRoomLinkFeatureFlag
+
+    @ViewModelScoped
+    @Provides
+    fun provideUpdateMessageTimerUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).conversations.updateMessageTimer
 
     @ViewModelScoped
     @Provides

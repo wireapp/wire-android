@@ -1103,7 +1103,6 @@ class UseCaseModule {
     ): UpdateEmailUseCase =
         coreLogic.getSessionScope(currentAccount).users.updateEmail
 
-
     @ViewModelScoped
     @Provides
     fun provideGetConversationUnreadEventsCountUseCase(

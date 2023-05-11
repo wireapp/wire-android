@@ -92,7 +92,7 @@ class ConversationMessagesViewModel @Inject constructor(
     private val toggleReaction: ToggleReactionUseCase,
     private val resetSession: ResetSessionUseCase,
     private val conversationAudioMessagePlayer: ConversationAudioMessagePlayer,
-    private val getConversationUnreadEventsCountUseCase: GetConversationUnreadEventsCountUseCase
+    private val getConversationUnreadEventsCount: GetConversationUnreadEventsCountUseCase
 ) : SavedStateViewModel(savedStateHandle) {
 
     var conversationViewState by mutableStateOf(ConversationMessagesViewState())
@@ -122,7 +122,7 @@ class ConversationMessagesViewModel @Inject constructor(
     }
 
     private fun loadPaginatedMessages() = viewModelScope.launch {
-        val lastReadIndex = when (val result = getConversationUnreadEventsCountUseCase(conversationId)) {
+        val lastReadIndex = when (val result = getConversationUnreadEventsCount(conversationId)) {
             is GetConversationUnreadEventsCountUseCase.Result.Success -> result.amount.toInt()
             is GetConversationUnreadEventsCountUseCase.Result.Failure -> 0
         }

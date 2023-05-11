@@ -190,9 +190,9 @@ class WireActivity : AppCompatActivity() {
 
         DisposableEffect(navController) {
             val updateScreenSettingsListener = NavController.OnDestinationChangedListener { controller, _, _ ->
-                    currentKeyboardController?.hide()
-                    updateScreenSettings(controller)
-                }
+                currentKeyboardController?.hide()
+                updateScreenSettings(controller)
+            }
             navController.addOnDestinationChangedListener(updateScreenSettingsListener)
             navController.addOnDestinationChangedListener(currentScreenManager)
 
@@ -396,6 +396,7 @@ class WireActivity : AppCompatActivity() {
         super.onSaveInstanceState(outState)
     }
 
+    @Suppress("ComplexCondition")
     private fun handleDeepLink(
         intent: Intent?,
         savedInstanceState: Bundle? = null
@@ -403,11 +404,13 @@ class WireActivity : AppCompatActivity() {
         if (intent == null
             || intent.flags and Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY != 0
             || savedInstanceState?.getBoolean(HANDLED_DEEPLINK_FLAG, false) == true
+            || intent.getBooleanExtra(HANDLED_DEEPLINK_FLAG, false)
         ) {
             return
+        } else {
+            viewModel.handleDeepLink(intent)
+            intent.putExtra(HANDLED_DEEPLINK_FLAG, true)
         }
-
-        viewModel.handleDeepLink(intent)
     }
 
     companion object {

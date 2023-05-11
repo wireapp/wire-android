@@ -43,6 +43,7 @@ import com.wire.android.navigation.NavigationItemDestinationsRoutes.EDIT_DISPLAY
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.EDIT_EMAIL
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.EDIT_GUEST_ACCESS
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.EDIT_HANDLE
+import com.wire.android.navigation.NavigationItemDestinationsRoutes.EDIT_SELF_DELETING_MESSAGES
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.GROUP_CONVERSATION_ALL_PARTICIPANTS
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.GROUP_CONVERSATION_DETAILS
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.HOME
@@ -85,6 +86,7 @@ import com.wire.android.ui.home.conversations.ConversationScreen
 import com.wire.android.ui.home.conversations.details.GroupConversationDetailsScreen
 import com.wire.android.ui.home.conversations.details.editguestaccess.EditGuestAccessParams
 import com.wire.android.ui.home.conversations.details.editguestaccess.EditGuestAccessScreen
+import com.wire.android.ui.home.conversations.details.editselfdeletingmessages.EditSelfDeletingMessagesScreen
 import com.wire.android.ui.home.conversations.details.metadata.EditConversationNameScreen
 import com.wire.android.ui.home.conversations.details.participants.GroupConversationAllParticipantsScreen
 import com.wire.android.ui.home.conversations.messagedetails.MessageDetailsScreen
@@ -411,6 +413,20 @@ enum class NavigationItem(
         }
     },
 
+    EditSelfDeletingMessages(
+        primaryRoute = EDIT_SELF_DELETING_MESSAGES,
+        canonicalRoute = "$EDIT_SELF_DELETING_MESSAGES?$EXTRA_CONVERSATION_ID={$EXTRA_CONVERSATION_ID}",
+        content = { EditSelfDeletingMessagesScreen() },
+        animationConfig = NavigationAnimationConfig.CustomAnimation(smoothSlideInFromRight(), smoothSlideOutFromLeft())
+    ) {
+        override fun getRouteWithArgs(arguments: List<Any>): String {
+            val conversationIdString: String = arguments.filterIsInstance<ConversationId>().firstOrNull()?.toString()
+                ?: "{$EXTRA_CONVERSATION_ID}"
+
+            return "$EDIT_SELF_DELETING_MESSAGES?$EXTRA_CONVERSATION_ID=$conversationIdString"
+        }
+    },
+
     OngoingCall(
         primaryRoute = ONGOING_CALL,
         canonicalRoute = "$ONGOING_CALL/{$EXTRA_CONVERSATION_ID}",
@@ -500,6 +516,7 @@ object NavigationItemDestinationsRoutes {
     const val CONVERSATION = "detailed_conversation_screen"
     const val EDIT_CONVERSATION_NAME = "edit_conversation_name_screen"
     const val EDIT_GUEST_ACCESS = "edit_guest_access_screen"
+    const val EDIT_SELF_DELETING_MESSAGES = "edit_self_deleting_messages_screen"
     const val GROUP_CONVERSATION_DETAILS = "group_conversation_details_screen"
     const val MESSAGE_DETAILS = "message_details_screen"
     const val GROUP_CONVERSATION_ALL_PARTICIPANTS = "group_conversation_all_participants_screen"

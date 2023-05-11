@@ -61,8 +61,8 @@ import com.wire.android.ui.calling.controlbuttons.CameraFlipButton
 import com.wire.android.ui.calling.controlbuttons.HangUpButton
 import com.wire.android.ui.calling.controlbuttons.MicrophoneButton
 import com.wire.android.ui.calling.controlbuttons.SpeakerButton
-import com.wire.android.ui.calling.ongoing.fullscreen.FullScreenTile
 import com.wire.android.ui.calling.model.UICallParticipant
+import com.wire.android.ui.calling.ongoing.fullscreen.FullScreenTile
 import com.wire.android.ui.calling.ongoing.participantsview.VerticalCallingPager
 import com.wire.android.ui.common.SecurityClassificationBanner
 import com.wire.android.ui.common.colorsScheme
@@ -227,7 +227,7 @@ private fun OngoingCallContent(
                             userId = userId,
                             clientId = clientId,
                             isSelfUser = isSelfUser,
-                            height = this@BoxWithConstraints.maxHeight -4.dp
+                            height = this@BoxWithConstraints.maxHeight - dimensions().spacing4x
                         ) {
                             shouldFullScreen = !shouldFullScreen
                         }
@@ -335,4 +335,3 @@ private fun CallingControls(
 fun PreviewOngoingCallTopBar() {
     OngoingCallTopBar("Default", true) { }
 }
-

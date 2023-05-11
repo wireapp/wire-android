@@ -15,24 +15,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
+package com.wire.android.ui.home.conversations.model
 
-package com.wire.android.ui.edit
+import com.wire.android.ui.home.messagecomposer.model.UiMention
+import kotlin.time.Duration
 
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.res.stringResource
-import com.wire.android.R
-import com.wire.android.ui.common.bottomsheet.MenuBottomSheetItem
-import com.wire.android.ui.common.bottomsheet.MenuItemIcon
-
-@Composable
-fun DownloadAssetExternallyOption(onDownloadClick: () -> Unit) =
-    MenuBottomSheetItem(
-        icon = {
-            MenuItemIcon(
-                id = R.drawable.ic_download,
-                contentDescription = stringResource(R.string.content_description_download_icon),
-            )
-        },
-        title = stringResource(R.string.label_download),
-        onItemClick = onDownloadClick
-    )
+data class SendMessageBundle(
+    val message: String,
+    val mentions: List<UiMention>,
+    val quotedMessageId: String?,
+    val expireAfter: Duration?
+)

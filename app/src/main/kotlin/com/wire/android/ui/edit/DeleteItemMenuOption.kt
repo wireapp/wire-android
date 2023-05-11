@@ -15,24 +15,29 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-
 package com.wire.android.ui.edit
 
+import androidx.compose.material.LocalContentColor
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
 import com.wire.android.ui.common.bottomsheet.MenuBottomSheetItem
 import com.wire.android.ui.common.bottomsheet.MenuItemIcon
 
 @Composable
-fun DownloadAssetExternallyOption(onDownloadClick: () -> Unit) =
-    MenuBottomSheetItem(
-        icon = {
-            MenuItemIcon(
-                id = R.drawable.ic_download,
-                contentDescription = stringResource(R.string.content_description_download_icon),
-            )
-        },
-        title = stringResource(R.string.label_download),
-        onItemClick = onDownloadClick
-    )
+fun DeleteItemMenuOption(onDeleteItemClick: () -> Unit) {
+    CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.error) {
+        MenuBottomSheetItem(
+            icon = {
+                MenuItemIcon(
+                    id = R.drawable.ic_delete,
+                    contentDescription = stringResource(R.string.content_description_delete_the_message),
+                )
+            },
+            title = stringResource(R.string.label_delete),
+            onItemClick = onDeleteItemClick
+        )
+    }
+}

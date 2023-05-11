@@ -50,9 +50,9 @@ import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogsState
 import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.android.ui.home.conversations.model.AttachmentType
 import com.wire.android.ui.home.conversations.model.EditMessageBundle
+import com.wire.android.ui.home.conversations.model.SendMessageBundle
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UriAsset
-import com.wire.android.ui.home.messagecomposer.UiMention
 import com.wire.android.util.FileManager
 import com.wire.android.util.ImageUtil
 import com.wire.android.util.dispatchers.DispatcherProvider
@@ -74,6 +74,9 @@ import com.wire.kalium.logic.feature.message.SendEditTextMessageUseCase
 import com.wire.kalium.logic.feature.message.SendKnockUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.message.ephemeral.EnqueueMessageSelfDeletionUseCase
+import com.wire.kalium.logic.feature.selfdeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
+import com.wire.kalium.logic.feature.selfdeletingMessages.PersistNewSelfDeletionTimerUseCase
+import com.wire.kalium.logic.feature.selfdeletingMessages.SelfDeletionTimer
 import com.wire.kalium.logic.feature.user.IsFileSharingEnabledUseCase
 import com.wire.kalium.logic.functional.onFailure
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -83,6 +86,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.Instant
 import javax.inject.Inject
+import kotlin.time.Duration
 import com.wire.kalium.logic.data.id.QualifiedID as ConversationId
 
 @Suppress("LongParameterList", "TooManyFunctions")
@@ -107,6 +111,8 @@ class MessageComposerViewModel @Inject constructor(
     private val getAssetSizeLimit: GetAssetSizeLimitUseCase,
     private val sendKnockUseCase: SendKnockUseCase,
     private val enqueueMessageSelfDeletionUseCase: EnqueueMessageSelfDeletionUseCase,
+    private val observeSelfDeletingMessages: ObserveSelfDeletionTimerSettingsForConversationUseCase,
+    private val persistNewSelfDeletingStatus: PersistNewSelfDeletionTimerUseCase,
     private val pingRinger: PingRinger,
     private val imageUtil: ImageUtil,
     private val fileManager: FileManager
@@ -147,11 +153,12 @@ class MessageComposerViewModel @Inject constructor(
     val infoMessage = _infoMessage.asSharedFlow()
 
     init {
-        observeIsTypingAvailable()
-        fetchConversationClassificationType()
-        setFileSharingStatus()
         initTempWritableVideoUri()
         initTempWritableImageUri()
+        fetchConversationClassificationType()
+        observeIsTypingAvailable()
+        observeSelfDeletingMessagesStatus()
+        setFileSharingStatus()
     }
 
     fun onSnackbarMessage(type: SnackBarMessage) = viewModelScope.launch {
@@ -166,6 +173,12 @@ class MessageComposerViewModel @Inject constructor(
                     is IsInteractionAvailableResult.Success -> result.interactionAvailability
                 }
             )
+        }
+    }
+
+    private fun observeSelfDeletingMessagesStatus() = viewModelScope.launch {
+        observeSelfDeletingMessages(conversationId).collect { selfDeletingStatus ->
+            messageComposerViewState = messageComposerViewState.copy(selfDeletionTimer = selfDeletingStatus)
         }
     }
 
@@ -194,16 +207,16 @@ class MessageComposerViewModel @Inject constructor(
     }
 
     fun sendMessage(
-        message: String,
-        mentions: List<UiMention>,
-        quotedMessageId: String?
+        sendMessageBundle: SendMessageBundle
     ) {
+
         viewModelScope.launch {
             sendTextMessage(
                 conversationId = conversationId,
-                text = message,
-                mentions = mentions.map { it.intoMessageMention() },
-                quotedMessageId = quotedMessageId
+                text = sendMessageBundle.message,
+                mentions = sendMessageBundle.mentions.map { it.intoMessageMention() },
+                quotedMessageId = sendMessageBundle.quotedMessageId,
+                expireAfter = sendMessageBundle.expireAfter
             )
         }
     }
@@ -219,7 +232,7 @@ class MessageComposerViewModel @Inject constructor(
         }
     }
 
-    fun sendAttachmentMessage(attachmentBundle: AssetBundle?) {
+    fun sendAttachmentMessage(attachmentBundle: AssetBundle?, expireAfter: Duration?) {
         viewModelScope.launch {
             withContext(dispatchers.io()) {
                 attachmentBundle?.run {
@@ -237,7 +250,7 @@ class MessageComposerViewModel @Inject constructor(
                                 assetHeight = imgHeight,
                                 assetDataSize = dataSize,
                                 assetMimeType = mimeType,
-                                expireAfter = null
+                                expireAfter = expireAfter
                             )
                             if (result is ScheduleNewAssetMessageResult.Failure) {
                                 onSnackbarMessage(ConversationSnackbarMessages.ErrorSendingImage)
@@ -255,7 +268,7 @@ class MessageComposerViewModel @Inject constructor(
                                     assetDataSize = dataSize,
                                     assetHeight = null,
                                     assetWidth = null,
-                                    expireAfter = null
+                                    expireAfter = expireAfter
                                 )
                                 if (result is ScheduleNewAssetMessageResult.Failure) {
                                     onSnackbarMessage(ConversationSnackbarMessages.ErrorSendingAsset)
@@ -352,6 +365,11 @@ class MessageComposerViewModel @Inject constructor(
         enqueueMessageSelfDeletionUseCase(conversationId, uiMessage.header.messageId)
     }
 
+    fun updateSelfDeletingMessages(newSelfDeletionTimer: SelfDeletionTimer) = viewModelScope.launch {
+        messageComposerViewState = messageComposerViewState.copy(selfDeletionTimer = newSelfDeletionTimer)
+        persistNewSelfDeletingStatus(conversationId, newSelfDeletionTimer)
+    }
+
     fun navigateBack(previousBackStackPassedArgs: Map<String, Any> = mapOf()) {
         viewModelScope.launch {
             navigationManager.navigateBack(previousBackStackPassedArgs)
@@ -372,7 +390,7 @@ class MessageComposerViewModel @Inject constructor(
         }
     }
 
-    fun attachmentPicked(attachmentUri: UriAsset) = viewModelScope.launch(dispatchers.io()) {
+    fun attachmentPicked(attachmentUri: UriAsset, duration: Duration?) = viewModelScope.launch(dispatchers.io()) {
         val tempCachePath = kaliumFileSystem.rootCachePath
         val assetBundle = fileManager.getAssetBundleFromUri(attachmentUri.uri, tempCachePath)
         if (assetBundle != null) {
@@ -380,7 +398,7 @@ class MessageComposerViewModel @Inject constructor(
             // Check [GetAssetSizeLimitUseCase] class for more detailed information about the real limits.
             val maxSizeLimitInBytes = getAssetSizeLimit(isImage = assetBundle.assetType == AttachmentType.IMAGE)
             if (assetBundle.dataSize <= maxSizeLimitInBytes) {
-                sendAttachmentMessage(assetBundle)
+                sendAttachmentMessage(assetBundle, duration)
             } else {
                 if (attachmentUri.saveToDeviceIfInvalid) {
                     with(assetBundle) { fileManager.saveToExternalMediaStorage(fileName, dataPath, dataSize, mimeType, dispatchers) }

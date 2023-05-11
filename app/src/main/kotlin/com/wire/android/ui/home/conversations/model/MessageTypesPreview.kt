@@ -27,6 +27,7 @@ import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.ui.home.conversations.MessageItem
 import com.wire.android.ui.home.conversations.SystemMessageItem
+import com.wire.android.ui.home.conversations.info.ConversationDetailsData
 import com.wire.android.ui.home.conversations.mock.mockAssetMessage
 import com.wire.android.ui.home.conversations.mock.mockHeader
 import com.wire.android.ui.home.conversations.mock.mockMessageWithKnock
@@ -50,16 +51,17 @@ fun PreviewMessage() {
                 )
             )
         ),
+        audioMessagesState = emptyMap(),
         onLongClicked = {},
         onAssetMessageClicked = {},
+        onAudioClick = {},
+        onChangeAudioPosition = { _, _ -> },
         onImageMessageClicked = { _, _ -> },
         onOpenProfile = { _ -> },
         onReactionClicked = { _, _ -> },
         onResetSessionClicked = { _, _ -> },
-        onChangeAudioPosition = { _, _ -> },
-        onAudioClick = {},
         onSelfDeletingMessageRead = {},
-        audioMessagesState = emptyMap()
+        conversationDetailsData = ConversationDetailsData.None
     )
 }
 
@@ -87,16 +89,17 @@ fun PreviewMessageWithReply() {
                 )
             )
         ),
+        audioMessagesState = emptyMap(),
         onLongClicked = {},
         onAssetMessageClicked = {},
+        onAudioClick = {},
+        onChangeAudioPosition = { _, _ -> },
         onImageMessageClicked = { _, _ -> },
         onOpenProfile = { _ -> },
         onReactionClicked = { _, _ -> },
         onResetSessionClicked = { _, _ -> },
-        onChangeAudioPosition = { _, _ -> },
-        onAudioClick = {},
         onSelfDeletingMessageRead = {},
-        audioMessagesState = emptyMap()
+        conversationDetailsData = ConversationDetailsData.None
     )
 }
 
@@ -107,16 +110,17 @@ fun PreviewDeletedMessage() {
         message = mockMessageWithText.let {
             it.copy(header = it.header.copy(messageStatus = MessageStatus.Edited("")))
         },
+        audioMessagesState = emptyMap(),
         onLongClicked = {},
         onAssetMessageClicked = {},
+        onAudioClick = {},
+        onChangeAudioPosition = { _, _ -> },
         onImageMessageClicked = { _, _ -> },
         onOpenProfile = { _ -> },
         onReactionClicked = { _, _ -> },
         onResetSessionClicked = { _, _ -> },
-        onChangeAudioPosition = { _, _ -> },
-        onAudioClick = {},
         onSelfDeletingMessageRead = { },
-        audioMessagesState = emptyMap()
+        conversationDetailsData = ConversationDetailsData.None
     )
 }
 
@@ -125,16 +129,17 @@ fun PreviewDeletedMessage() {
 fun PreviewAssetMessage() {
     MessageItem(
         message = mockAssetMessage(),
+        audioMessagesState = emptyMap(),
         onLongClicked = {},
         onAssetMessageClicked = {},
+        onAudioClick = {},
+        onChangeAudioPosition = { _, _ -> },
         onImageMessageClicked = { _, _ -> },
         onOpenProfile = { _ -> },
         onReactionClicked = { _, _ -> },
         onResetSessionClicked = { _, _ -> },
-        onChangeAudioPosition = { _, _ -> },
-        onAudioClick = {},
         onSelfDeletingMessageRead = { },
-        audioMessagesState = emptyMap()
+        conversationDetailsData = ConversationDetailsData.None
     )
 }
 
@@ -173,16 +178,17 @@ fun PreviewWideImportedAssetMessage() {
 fun PreviewImageMessageUploaded() {
     MessageItem(
         message = mockedImageUIMessage(Message.UploadStatus.UPLOADED),
+        audioMessagesState = emptyMap(),
         onLongClicked = {},
         onAssetMessageClicked = {},
+        onAudioClick = {},
+        onChangeAudioPosition = { _, _ -> },
         onImageMessageClicked = { _, _ -> },
         onOpenProfile = { _ -> },
         onReactionClicked = { _, _ -> },
         onResetSessionClicked = { _, _ -> },
-        onChangeAudioPosition = { _, _ -> },
-        onAudioClick = {},
         onSelfDeletingMessageRead = { },
-        audioMessagesState = emptyMap()
+        conversationDetailsData = ConversationDetailsData.None
     )
 }
 
@@ -191,16 +197,17 @@ fun PreviewImageMessageUploaded() {
 fun PreviewImageMessageUploading() {
     MessageItem(
         message = mockedImageUIMessage(Message.UploadStatus.UPLOAD_IN_PROGRESS),
+        audioMessagesState = emptyMap(),
         onLongClicked = {},
         onAssetMessageClicked = {},
+        onAudioClick = {},
+        onChangeAudioPosition = { _, _ -> },
         onImageMessageClicked = { _, _ -> },
         onOpenProfile = { _ -> },
         onReactionClicked = { _, _ -> },
         onResetSessionClicked = { _, _ -> },
-        onChangeAudioPosition = { _, _ -> },
-        onAudioClick = {},
         onSelfDeletingMessageRead = { },
-        audioMessagesState = emptyMap()
+        conversationDetailsData = ConversationDetailsData.None
     )
 }
 
@@ -209,16 +216,17 @@ fun PreviewImageMessageUploading() {
 fun PreviewImageMessageFailedUpload() {
     MessageItem(
         message = mockedImageUIMessage(Message.UploadStatus.FAILED_UPLOAD),
+        audioMessagesState = emptyMap(),
         onLongClicked = {},
         onAssetMessageClicked = {},
+        onAudioClick = {},
+        onChangeAudioPosition = { _, _ -> },
         onImageMessageClicked = { _, _ -> },
         onOpenProfile = { _ -> },
         onReactionClicked = { _, _ -> },
         onResetSessionClicked = { _, _ -> },
-        onChangeAudioPosition = { _, _ -> },
-        onAudioClick = {},
         onSelfDeletingMessageRead = { },
-        audioMessagesState = emptyMap()
+        conversationDetailsData = ConversationDetailsData.None
     )
 }
 
@@ -228,16 +236,17 @@ fun PreviewMessageWithSystemMessage() {
     Column {
         MessageItem(
             message = mockMessageWithText,
+            audioMessagesState = emptyMap(),
             onLongClicked = {},
             onAssetMessageClicked = {},
+            onAudioClick = {},
+            onChangeAudioPosition = { _, _ -> },
             onImageMessageClicked = { _, _ -> },
             onOpenProfile = { _ -> },
             onReactionClicked = { _, _ -> },
             onResetSessionClicked = { _, _ -> },
-            onChangeAudioPosition = { _, _ -> },
-            onAudioClick = {},
             onSelfDeletingMessageRead = { },
-            audioMessagesState = emptyMap()
+            conversationDetailsData = ConversationDetailsData.None
         )
         SystemMessageItem(
             mockMessageWithKnock.copy(
@@ -269,16 +278,17 @@ fun PreviewMessagesWithUnavailableQuotedMessage() {
                 )
             )
         ),
+        audioMessagesState = emptyMap(),
         onLongClicked = {},
         onAssetMessageClicked = {},
+        onAudioClick = {},
+        onChangeAudioPosition = { _, _ -> },
         onImageMessageClicked = { _, _ -> },
         onOpenProfile = { _ -> },
         onReactionClicked = { _, _ -> },
         onResetSessionClicked = { _, _ -> },
-        onChangeAudioPosition = { _, _ -> },
-        onAudioClick = {},
-        audioMessagesState = emptyMap(),
-        onSelfDeletingMessageRead = {}
+        onSelfDeletingMessageRead = {},
+        conversationDetailsData = ConversationDetailsData.None
     )
 }
 
@@ -288,16 +298,17 @@ fun PreviewAggregatedMessagesWithErrorMessage() {
     Column {
         MessageItem(
             message = mockMessageWithText,
+            audioMessagesState = emptyMap(),
             onLongClicked = {},
             onAssetMessageClicked = {},
+            onAudioClick = {},
+            onChangeAudioPosition = { _, _ -> },
             onImageMessageClicked = { _, _ -> },
             onOpenProfile = { _ -> },
             onReactionClicked = { _, _ -> },
             onResetSessionClicked = { _, _ -> },
-            onChangeAudioPosition = { _, _ -> },
-            onAudioClick = {},
-            audioMessagesState = emptyMap(),
-            onSelfDeletingMessageRead = {}
+            onSelfDeletingMessageRead = {},
+            conversationDetailsData = ConversationDetailsData.None
         )
         MessageItem(
             message = mockMessageWithText.copy(
@@ -309,16 +320,17 @@ fun PreviewAggregatedMessagesWithErrorMessage() {
                 )
             ),
             showAuthor = false,
+            audioMessagesState = emptyMap(),
             onLongClicked = {},
             onAssetMessageClicked = {},
+            onAudioClick = {},
+            onChangeAudioPosition = { _, _ -> },
             onImageMessageClicked = { _, _ -> },
             onOpenProfile = { _ -> },
             onReactionClicked = { _, _ -> },
             onResetSessionClicked = { _, _ -> },
-            onChangeAudioPosition = { _, _ -> },
-            onAudioClick = {},
-            audioMessagesState = emptyMap(),
-            onSelfDeletingMessageRead = {}
+            onSelfDeletingMessageRead = {},
+            conversationDetailsData = ConversationDetailsData.None
         )
         MessageItem(
             message = mockMessageWithText.copy(
@@ -327,16 +339,17 @@ fun PreviewAggregatedMessagesWithErrorMessage() {
                 )
             ),
             showAuthor = false,
+            audioMessagesState = emptyMap(),
             onLongClicked = {},
             onAssetMessageClicked = {},
+            onAudioClick = {},
+            onChangeAudioPosition = { _, _ -> },
             onImageMessageClicked = { _, _ -> },
             onOpenProfile = { _ -> },
             onReactionClicked = { _, _ -> },
             onResetSessionClicked = { _, _ -> },
-            onChangeAudioPosition = { _, _ -> },
-            onAudioClick = {},
-            audioMessagesState = emptyMap(),
-            onSelfDeletingMessageRead = {}
+            onSelfDeletingMessageRead = {},
+            conversationDetailsData = ConversationDetailsData.None
         )
     }
 }

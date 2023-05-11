@@ -24,10 +24,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.Text
-import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -164,102 +162,98 @@ internal fun ConversationMainSheetContent(
                                 conversationSheetContent.conversationId,
                                 conversationSheetContent.title,
                                 conversationSheetContent.conversationTypeDetail
-                        )
+                            )
                         )
                     }
                 )
             }
             if (conversationSheetContent.canBlockUser()) {
                 add {
-                    CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.error) {
-                        MenuBottomSheetItem(
-                            icon = {
-                                MenuItemIcon(
-                                    id = R.drawable.ic_block,
-                                    contentDescription = stringResource(R.string.content_description_block_the_user),
+                    MenuBottomSheetItem(
+                        icon = {
+                            MenuItemIcon(
+                                id = R.drawable.ic_block,
+                                contentDescription = stringResource(R.string.content_description_block_the_user),
+                            )
+                        },
+                        itemProvidedColor = MaterialTheme.colorScheme.error,
+                        title = stringResource(R.string.label_block),
+                        clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
+                        onItemClick = {
+                            blockUserClick(
+                                BlockUserDialogState(
+                                    userName = conversationSheetContent.title,
+                                    userId = (conversationSheetContent.conversationTypeDetail as ConversationTypeDetail.Private).userId
                                 )
-                            },
-                            title = stringResource(R.string.label_block),
-                            clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
-                            onItemClick = {
-                                blockUserClick(
-                                    BlockUserDialogState(
-                                        userName = conversationSheetContent.title,
-                                        userId = (conversationSheetContent.conversationTypeDetail as ConversationTypeDetail.Private).userId
-                                    )
-                                )
-                            }
-                        )
-                    }
+                            )
+                        }
+                    )
                 }
             }
             if (conversationSheetContent.canUnblockUser()) {
                 add {
-                    CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.onBackground) {
-                        MenuBottomSheetItem(
-                            icon = {
-                                MenuItemIcon(
-                                    id = R.drawable.ic_block,
-                                    contentDescription = stringResource(R.string.content_description_unblock_the_user)
+                    MenuBottomSheetItem(
+                        icon = {
+                            MenuItemIcon(
+                                id = R.drawable.ic_block,
+                                contentDescription = stringResource(R.string.content_description_unblock_the_user)
+                            )
+                        },
+                        itemProvidedColor = MaterialTheme.colorScheme.onBackground,
+                        title = stringResource(R.string.label_unblock),
+                        onItemClick = {
+                            unblockUserClick(
+                                UnblockUserDialogState(
+                                    userName = conversationSheetContent.title,
+                                    userId = (conversationSheetContent.conversationTypeDetail as ConversationTypeDetail.Private).userId
                                 )
-                            },
-                            title = stringResource(R.string.label_unblock),
-                            onItemClick = {
-                                unblockUserClick(
-                                    UnblockUserDialogState(
-                                        userName = conversationSheetContent.title,
-                                        userId = (conversationSheetContent.conversationTypeDetail as ConversationTypeDetail.Private).userId
-                                    )
-                                )
-                            }
-                        )
-                    }
+                            )
+                        }
+                    )
                 }
             }
             if (conversationSheetContent.canLeaveTheGroup()) {
                 add {
-                    CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.error) {
-                        MenuBottomSheetItem(
-                            icon = {
-                                MenuItemIcon(
-                                    id = R.drawable.ic_leave,
-                                    contentDescription = stringResource(R.string.content_description_leave_the_group),
+                    MenuBottomSheetItem(
+                        icon = {
+                            MenuItemIcon(
+                                id = R.drawable.ic_leave,
+                                contentDescription = stringResource(R.string.content_description_leave_the_group),
+                            )
+                        },
+                        itemProvidedColor = MaterialTheme.colorScheme.error,
+                        title = stringResource(R.string.label_leave_group),
+                        onItemClick = {
+                            leaveGroup(
+                                GroupDialogState(
+                                    conversationSheetContent.conversationId,
+                                    conversationSheetContent.title
                                 )
-                            },
-                            title = stringResource(R.string.label_leave_group),
-                            onItemClick = {
-                                leaveGroup(
-                                    GroupDialogState(
-                                        conversationSheetContent.conversationId,
-                                        conversationSheetContent.title
-                                    )
-                                )
-                            }
-                        )
-                    }
+                            )
+                        }
+                    )
                 }
             }
             if (conversationSheetContent.canDeleteGroup()) {
                 add {
-                    CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.error) {
-                        MenuBottomSheetItem(
-                            icon = {
-                                MenuItemIcon(
-                                    id = R.drawable.ic_remove,
-                                    contentDescription = stringResource(R.string.content_description_delete_the_group),
+                    MenuBottomSheetItem(
+                        icon = {
+                            MenuItemIcon(
+                                id = R.drawable.ic_remove,
+                                contentDescription = stringResource(R.string.content_description_delete_the_group),
+                            )
+                        },
+                        title = stringResource(R.string.label_delete_group),
+                        itemProvidedColor = MaterialTheme.colorScheme.error,
+                        onItemClick = {
+                            deleteGroup(
+                                GroupDialogState(
+                                    conversationSheetContent.conversationId,
+                                    conversationSheetContent.title
                                 )
-                            },
-                            title = stringResource(R.string.label_delete_group),
-                            onItemClick = {
-                                deleteGroup(
-                                    GroupDialogState(
-                                        conversationSheetContent.conversationId,
-                                        conversationSheetContent.title
-                                    )
-                                )
-                            }
-                        )
-                    }
+                            )
+                        }
+                    )
                 }
             }
         }

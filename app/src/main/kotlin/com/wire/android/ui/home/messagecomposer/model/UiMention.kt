@@ -15,24 +15,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
+package com.wire.android.ui.home.messagecomposer.model
 
-package com.wire.android.ui.edit
+import com.wire.kalium.logic.data.message.mention.MessageMention
+import com.wire.kalium.logic.data.user.UserId
 
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.res.stringResource
-import com.wire.android.R
-import com.wire.android.ui.common.bottomsheet.MenuBottomSheetItem
-import com.wire.android.ui.common.bottomsheet.MenuItemIcon
-
-@Composable
-fun DownloadAssetExternallyOption(onDownloadClick: () -> Unit) =
-    MenuBottomSheetItem(
-        icon = {
-            MenuItemIcon(
-                id = R.drawable.ic_download,
-                contentDescription = stringResource(R.string.content_description_download_icon),
-            )
-        },
-        title = stringResource(R.string.label_download),
-        onItemClick = onDownloadClick
-    )
+data class UiMention(
+    val start: Int,
+    val length: Int,
+    val userId: UserId,
+    val handler: String // name that should be displayed in a message
+) {
+    fun intoMessageMention() = MessageMention(start, length, userId, false) // We can never send a self mention message
+}

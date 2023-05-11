@@ -146,7 +146,17 @@ internal fun WireTextField(
                     }
                 },
             decorationBox = { innerTextField ->
-                InnerText(innerTextField, value, leadingIcon, trailingIcon, placeholderText, state, placeholderTextStyle, inputMinHeight)
+                InnerText(
+                    innerTextField,
+                    value,
+                    leadingIcon,
+                    trailingIcon,
+                    placeholderText,
+                    state,
+                    placeholderTextStyle,
+                    inputMinHeight,
+                    colors
+                )
             },
             onTextLayout = {
                 val lineOfText = it.getLineForOffset(value.selection.end)

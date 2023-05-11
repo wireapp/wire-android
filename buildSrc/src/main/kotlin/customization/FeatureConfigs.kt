@@ -54,6 +54,7 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
     WIPE_ON_COOKIE_INVALID("wipe_on_cookie_invalid", ConfigType.BOOLEAN),
     WIPE_ON_ROOTED_DEVICE("wipe_on_rooted_device", ConfigType.BOOLEAN),
     WIPE_ON_DEVICE_REMOVAL("wipe_on_device_removal", ConfigType.BOOLEAN),
+    SELF_DELETING_MESSAGES("self_deleting_messages", ConfigType.BOOLEAN),
 
     /**
      * 3rd party services API Keys and IDs

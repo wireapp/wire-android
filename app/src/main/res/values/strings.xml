@@ -756,6 +756,10 @@
     <string name="service_details_label">Service</string>
     <string name="service_details_add_service_label">Add To Group</string>
     <string name="service_details_remove_service_label">Remove From Group</string>
+    <string name="service_remove_success">Service removed from group</string>
+    <string name="service_remove_error">Unable to remove service from group</string>
+    <string name="service_add_success">Service added to group</string>
+    <string name="service_add_error">Unable to add service from group</string>
     <string name="read_receipts">Read receipts</string>
     <string name="read_receipts_description">When this is on, people can see when their messages in this conversation are read.</string>
     <string name="disable_guests_dialog_title">Not Allow Guests?</string>

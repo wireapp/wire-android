@@ -13,6 +13,7 @@ import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveConversationRoleForUserUseCase
 import com.wire.android.util.dispatchers.DispatcherProvider
+import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.QualifiedID
@@ -20,12 +21,15 @@ import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.id.toQualifiedID
 import com.wire.kalium.logic.data.service.ServiceId
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.conversation.AddServiceToConversationUseCase
 import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
 import com.wire.kalium.logic.feature.service.GetServiceByIdUseCase
 import com.wire.kalium.logic.feature.service.ObserveIsServiceMemberUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOn
@@ -45,6 +49,7 @@ class ServiceDetailsViewModel @Inject constructor(
     private val observeConversationRoleForUser: ObserveConversationRoleForUserUseCase,
     private val wireSessionImageLoader: WireSessionImageLoader,
     private val removeMemberFromConversation: RemoveMemberFromConversationUseCase,
+    private val addServiceToConversation: AddServiceToConversationUseCase,
     private val serviceDetailsMapper: ServiceDetailsMapper,
     savedStateHandle: SavedStateHandle,
     qualifiedIdMapper: QualifiedIdMapper
@@ -63,6 +68,8 @@ class ServiceDetailsViewModel @Inject constructor(
             isAvatarLoading = true
         )
     )
+    private val _infoMessage = MutableSharedFlow<UIText>()
+    val infoMessage = _infoMessage.asSharedFlow()
 
     init {
         viewModelScope.launch {
@@ -75,7 +82,23 @@ class ServiceDetailsViewModel @Inject constructor(
     fun navigateBack() = viewModelScope.launch { navigationManager.navigateBack() }
 
     fun addService() {
-        // TODO: Add logic
+        viewModelScope.launch {
+            serviceId?.let {
+                val response = withContext(dispatchers.io()) {
+                    addServiceToConversation.invoke(
+                        conversationId = conversationId,
+                        serviceId = serviceId
+                    )
+                }
+
+                val responseMessage = when (response) {
+                    is AddServiceToConversationUseCase.Result.Failure -> ServiceDetailsInfoMessageType.ErrorAddService
+                    is AddServiceToConversationUseCase.Result.Success -> ServiceDetailsInfoMessageType.SuccessAddService
+                }
+
+                _infoMessage.emit(responseMessage.uiText)
+            }
+        }
     }
 
     fun removeService() {
@@ -88,10 +111,12 @@ class ServiceDetailsViewModel @Inject constructor(
                     )
                 }
 
-                if (response is RemoveMemberFromConversationUseCase.Result.Failure) {
-                    // TODO: Add correct snackbar error message
-                    appLogger.i("[$TAG] - Error while trying to remove service from conversation.")
+                val responseMessage = when (response) {
+                    is RemoveMemberFromConversationUseCase.Result.Failure -> ServiceDetailsInfoMessageType.ErrorRemoveService
+                    is RemoveMemberFromConversationUseCase.Result.Success -> ServiceDetailsInfoMessageType.SuccessRemoveService
                 }
+
+                _infoMessage.emit(responseMessage.uiText)
             }
         }
     }

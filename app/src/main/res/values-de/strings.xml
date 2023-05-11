@@ -375,6 +375,8 @@
     <string name="conversation_participant_you_label">(Sie)</string>
     <string name="conversation_details_is_classified">SICHERHEITSNIVEAU: VS-NfD</string>
     <string name="conversation_details_is_not_classified">SICHERHEITSNIVEAU: NICHT EINGESTUFT</string>
+    <string name="conversation_options_self_deleting_messages_label">Self-deleting messages</string>
+    <string name="conversation_options_self_deleting_messages_description">When this is on, all messages in this group will disappear after a certain time.</string>
     <string name="conversation_options_guests_label">Gäste</string>
     <string name="conversation_details_guest_description">Wenn diese Option aktiviert ist, können Personen außerhalb des Teams an dieser Unterhaltung teilnehmen</string>
     <string name="conversation_options_guest_description">Aktivieren Sie diese Option, um die Unterhaltung für Personen außerhalb Ihres Teams zu öffnen – auch wenn diese Wire nicht nutzen.</string>
@@ -521,6 +523,12 @@
     <string name="label_system_message_new_conversation_receipt_mode">Lesebestätigungen sind %1$s</string>
     <string name="label_system_message_read_receipt_changed_by_self">%1$s haben Lesebestätigungen für alle %2$sgeschaltet</string>
     <string name="label_system_message_read_receipt_changed_by_other">%1$s hat Lesebestätigungen für alle %2$sgeschaltet</string>
+    <string name="label_system_message_conversation_message_timer_activated_by_self">%1$s %2$s the forced switching on for self-deleting messages (message timer: %3$s)</string>
+    <string name="label_system_message_conversation_message_timer_activated_by_other">%1$s %2$s the forced switching on for self-deleting messages (message timer: %3$s)</string>
+    <string name="label_system_message_activated">activated</string>
+    <string name="label_system_message_conversation_message_timer_deactivated_by_self">%1$s %2$s the forced switching on for self-deleting messages</string>
+    <string name="label_system_message_conversation_message_timer_deactivated_by_other">%1$s %2$s the forced switching on for self-deleting messages</string>
+    <string name="label_system_message_deactivated">deactivated</string>
     <string name="label_system_message_conversation_history_lost">Sie haben das Gerät eine Weile nicht benutzt. Einige Nachrichten werden hier eventuell nicht angezeigt.</string>
     <string name="label_system_message_receipt_mode_on">ein</string>
     <string name="label_system_message_receipt_mode_off">aus</string>
@@ -893,6 +901,11 @@
     <string name="join_conversation_via_deeplink_error_link_expired">Der Link zu dieser Gruppenunterhaltung ist abgelaufen oder nicht mehr gültig.</string>
     <string name="join_conversation_via_deeplink_error_max_number_of_participent">Die maximale Teilnehmeranzahl in dieser Unterhaltung wurde erreicht.</string>
     <string name="join_conversation_via_deeplink_error_general">Aufgrund eines Fehlers konnten Sie nicht zur Gruppenunterhaltung hinzugefügt werden.</string>
+    <!-- edit self-deleting messages -->
+    <string name="self_deleting_messages_title">Self-deleting Messages</string>
+    <string name="self_deleting_messages_option">Enforce message deletion</string>
+    <string name="self_deleting_messages_option_description">When this is on, all messages in this group will disappear after a certain time. This applies to all group participants.</string>
+    <string name="self_deleting_messages_folder_timer">Timer</string>
     <!-- guest room link -->
     <string name="folder_label_guest_link">Gäste-Link</string>
     <string name="guest_link_description">Laden Sie andere mit einem Link zu dieser Unterhaltung ein. Jeder kann mit dem Link an der Unterhaltung teilnehmen – auch ohne Wire.</string>

@@ -129,7 +129,7 @@ class WireApplication : Application(), Configuration.Provider {
     private fun initializeApplicationLoggingFrameworks() {
         globalAppScope.launch {
             // 1. Datadog should be initialized first
-            ExternalLoggerManager.initDatadogLogger(this@WireApplication, globalDataStore)
+            ExternalLoggerManager.initDatadogLogger(applicationContext, globalDataStore)
             // 2. Initialize our internal logging framework
             appLogger = KaliumLogger(
                 config = KaliumLogger.Config(

@@ -61,7 +61,6 @@ import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversationslist.model.Membership
-import com.wire.android.ui.theme.GRAY_HEX
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.kalium.logic.data.id.QualifiedID
@@ -102,6 +101,7 @@ fun ParticipantTile(
                 )
             } else {
                 val context = LocalContext.current
+                val rendererFillColor = colorsScheme().ongoingCallVideoFillColor
                 if (participantTitleState.isCameraOn || participantTitleState.isSharingScreen) {
                     val videoRenderer = remember {
                         VideoRenderer(
@@ -111,7 +111,7 @@ fun ParticipantTile(
                             false
                         ).apply {
                             layoutParams = FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT)
-                            setFillColor(GRAY_HEX)
+                            setFillColor(rendererFillColor)
                             setShouldFill(shouldFill)
                         }
                     }

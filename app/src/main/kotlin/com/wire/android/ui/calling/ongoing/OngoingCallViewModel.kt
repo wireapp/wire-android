@@ -20,6 +20,10 @@
 
 package com.wire.android.ui.calling.ongoing
 
+import android.os.CountDownTimer
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -35,6 +39,7 @@ import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.RequestVideoStreamsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -56,6 +61,9 @@ class OngoingCallViewModel @OptIn(ExperimentalCoroutinesApi::class)
         savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)!!
     )
 
+    var shouldShowDoubleTapToast by mutableStateOf(false)
+    private var doubleTapIndicatorCountDownTimer: CountDownTimer? = null
+
     init {
         viewModelScope.launch {
             establishedCalls().first { it.isNotEmpty() }.run {
@@ -63,6 +71,7 @@ class OngoingCallViewModel @OptIn(ExperimentalCoroutinesApi::class)
                 observeCurrentCall()
             }
         }
+        showDoubleTapToast()
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -97,7 +106,36 @@ class OngoingCallViewModel @OptIn(ExperimentalCoroutinesApi::class)
         }
     }
 
+    private fun startDoubleTapToastDisplayCountDown() {
+        doubleTapIndicatorCountDownTimer?.cancel()
+        doubleTapIndicatorCountDownTimer = object : CountDownTimer(DOUBLE_TAP_TOAST_DISPLAY_TIME, COUNT_DOWN_INTERVAL) {
+            override fun onTick(p0: Long) {}
+
+            override fun onFinish() {
+                shouldShowDoubleTapToast = false
+            }
+        }
+        doubleTapIndicatorCountDownTimer?.start()
+    }
+
+    private fun showDoubleTapToast() {
+        viewModelScope.launch {
+            delay(500)
+            shouldShowDoubleTapToast = true
+            startDoubleTapToastDisplayCountDown()
+        }
+    }
+
+    fun hideDoubleTapToast() {
+        shouldShowDoubleTapToast = false
+    }
+
     private suspend fun navigateBack() {
         navigationManager.navigateBack()
+    }
+
+    companion object {
+        const val DOUBLE_TAP_TOAST_DISPLAY_TIME = 7000L
+        const val COUNT_DOWN_INTERVAL = 1000L
     }
 }

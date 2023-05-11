@@ -61,8 +61,9 @@ import com.wire.android.ui.calling.controlbuttons.CameraFlipButton
 import com.wire.android.ui.calling.controlbuttons.HangUpButton
 import com.wire.android.ui.calling.controlbuttons.MicrophoneButton
 import com.wire.android.ui.calling.controlbuttons.SpeakerButton
-import com.wire.android.ui.calling.ongoing.fullscreen.FullScreenTile
 import com.wire.android.ui.calling.model.UICallParticipant
+import com.wire.android.ui.calling.ongoing.fullscreen.DoubleTapToast
+import com.wire.android.ui.calling.ongoing.fullscreen.FullScreenTile
 import com.wire.android.ui.calling.ongoing.participantsview.VerticalCallingPager
 import com.wire.android.ui.common.SecurityClassificationBanner
 import com.wire.android.ui.common.colorsScheme
@@ -94,6 +95,7 @@ fun OngoingCallScreen(
             isCbrEnabled = isCbrEnabled,
             isOnFrontCamera = isOnFrontCamera,
             classificationType = securityClassificationType,
+            shouldShowDoubleTapToast = ongoingCallViewModel.shouldShowDoubleTapToast,
             toggleSpeaker = sharedCallingViewModel::toggleSpeaker,
             toggleMute = sharedCallingViewModel::toggleMute,
             hangUpCall = sharedCallingViewModel::hangUpCall,
@@ -102,11 +104,10 @@ fun OngoingCallScreen(
             setVideoPreview = sharedCallingViewModel::setVideoPreview,
             clearVideoPreview = sharedCallingViewModel::clearVideoPreview,
             navigateBack = sharedCallingViewModel::navigateBack,
-            requestVideoStreams = ongoingCallViewModel::requestVideoStreams
+            requestVideoStreams = ongoingCallViewModel::requestVideoStreams,
+            hideDoubleTapToast = ongoingCallViewModel::hideDoubleTapToast
         )
-        isCameraOn?.let {
-            BackHandler(enabled = it, sharedCallingViewModel::navigateBack)
-        }
+        BackHandler(enabled = isCameraOn, sharedCallingViewModel::navigateBack)
     }
 }
 
@@ -120,6 +121,7 @@ private fun OngoingCallContent(
     isOnFrontCamera: Boolean,
     isSpeakerOn: Boolean,
     isCbrEnabled: Boolean,
+    shouldShowDoubleTapToast: Boolean,
     classificationType: SecurityClassificationType,
     toggleSpeaker: () -> Unit,
     toggleMute: () -> Unit,
@@ -129,6 +131,7 @@ private fun OngoingCallContent(
     setVideoPreview: (view: View) -> Unit,
     clearVideoPreview: () -> Unit,
     navigateBack: () -> Unit,
+    hideDoubleTapToast: () -> Unit,
     requestVideoStreams: (participants: List<UICallParticipant>) -> Unit
 ) {
 
@@ -223,11 +226,12 @@ private fun OngoingCallContent(
                     }
 
                     if (shouldFullScreen) {
+                        hideDoubleTapToast()
                         FullScreenTile(
                             userId = userId,
                             clientId = clientId,
                             isSelfUser = isSelfUser,
-                            height = this@BoxWithConstraints.maxHeight -4.dp
+                            height = this@BoxWithConstraints.maxHeight - 4.dp
                         ) {
                             shouldFullScreen = !shouldFullScreen
                         }
@@ -247,6 +251,13 @@ private fun OngoingCallContent(
                                 shouldFullScreen = !shouldFullScreen
                             }
                         )
+                        DoubleTapToast(
+                            modifier = Modifier.align(Alignment.TopCenter),
+                            enabled = shouldShowDoubleTapToast,
+                            text = stringResource(id = R.string.calling_ongoing_double_tap_for_full_screen)
+                        ) {
+                            hideDoubleTapToast()
+                        }
                     }
                 }
             }

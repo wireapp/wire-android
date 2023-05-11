@@ -372,6 +372,8 @@ Fino a 500 persone possono unirsi a una conversazione di gruppo.</string>
     <string name="conversation_participant_you_label">(Tu)</string>
     <string name="conversation_details_is_classified">LIVELLO DI SICUREZZA: VS-NfD</string>
     <string name="conversation_details_is_not_classified">Livello di sicurezza: NON CLASSIFICATO. </string>
+    <string name="conversation_options_self_deleting_messages_label">Self-deleting messages</string>
+    <string name="conversation_options_self_deleting_messages_description">When this is on, all messages in this group will disappear after a certain time.</string>
     <string name="conversation_options_guests_label">Ospiti</string>
     <string name="conversation_details_guest_description">Con questa opzione ATTIVA, persone al di fuori del tuo team possono unirsi a questa conversazione.</string>
     <string name="conversation_options_guest_description">Attiva questa opzione per aprire questa conversazione a persone al di fuori del tuo team, anche se non hanno Wire.</string>
@@ -519,6 +521,12 @@ Fino a 500 persone possono unirsi a una conversazione di gruppo.</string>
     <string name="label_system_message_new_conversation_receipt_mode">Le ricevute di lettura sono %1$s</string>
     <string name="label_system_message_read_receipt_changed_by_self">%1$s ha %2$s le ricevute di lettura per tutti</string>
     <string name="label_system_message_read_receipt_changed_by_other">%1$s ha %2$s le ricevute di lettura per tutti</string>
+    <string name="label_system_message_conversation_message_timer_activated_by_self">%1$s %2$s the forced switching on for self-deleting messages (message timer: %3$s)</string>
+    <string name="label_system_message_conversation_message_timer_activated_by_other">%1$s %2$s the forced switching on for self-deleting messages (message timer: %3$s)</string>
+    <string name="label_system_message_activated">activated</string>
+    <string name="label_system_message_conversation_message_timer_deactivated_by_self">%1$s %2$s the forced switching on for self-deleting messages</string>
+    <string name="label_system_message_conversation_message_timer_deactivated_by_other">%1$s %2$s the forced switching on for self-deleting messages</string>
+    <string name="label_system_message_deactivated">deactivated</string>
     <string name="label_system_message_conversation_history_lost">Non hai usato questo dispositivo per un po\'. Alcuni messaggi potrebbero non essere visualizzati qui.</string>
     <string name="label_system_message_receipt_mode_on">on</string>
     <string name="label_system_message_receipt_mode_off">off</string>
@@ -894,6 +902,11 @@ URL del backend:
     <string name="join_conversation_via_deeplink_error_link_expired">Il link per questa conversazione di gruppo &#232; scaduto o la conversazione &#232; stata impostata come privata.</string>
     <string name="join_conversation_via_deeplink_error_max_number_of_participent">Il numero massimo di partecipanti in questa conversazione &#232; stato raggiunto.</string>
     <string name="join_conversation_via_deeplink_error_general">A causa di un errore non sei stato aggiunto alla conversazione di gruppo.</string>
+    <!-- edit self-deleting messages -->
+    <string name="self_deleting_messages_title">Self-deleting Messages</string>
+    <string name="self_deleting_messages_option">Enforce message deletion</string>
+    <string name="self_deleting_messages_option_description">When this is on, all messages in this group will disappear after a certain time. This applies to all group participants.</string>
+    <string name="self_deleting_messages_folder_timer">Timer</string>
     <!-- guest room link -->
     <string name="folder_label_guest_link">Link ospite</string>
     <string name="guest_link_description">Invita altri con un link a questa conversazione. Chiunque abbia il link pu&#242; unirsi alla conversazione, anche se non ha Wire.</string>

@@ -9,13 +9,9 @@ import com.wire.kalium.logic.data.service.ServiceId
 
 data class ServiceDetailsState(
     val serviceId: ServiceId? = null,
-    val conversationId: ConversationId,
+    val conversationId: ConversationId? = null,
     val serviceDetails: ServiceDetails? = null,
     val serviceAvatarAsset: ImageAsset.UserAvatarAsset? = null,
-    val fullName: String = "",
-    val userName: String = "",
-    val description: String = "",
-    val summary: String = "",
     val isDataLoading: Boolean = false,
     val isAvatarLoading: Boolean = false,
     val buttonState: ServiceDetailsButtonState = ServiceDetailsButtonState.HIDDEN,

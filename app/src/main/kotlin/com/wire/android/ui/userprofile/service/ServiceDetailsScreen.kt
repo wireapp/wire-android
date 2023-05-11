@@ -38,6 +38,7 @@ import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.ui.userprofile.common.EditableState
 import com.wire.android.ui.userprofile.common.UserProfileInfo
+import com.wire.kalium.logic.data.service.ServiceDetails
 import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
 
 @Composable
@@ -81,8 +82,12 @@ private fun ServiceDetailsContent(
         },
         content = { internalPadding ->
             Column(modifier = Modifier.padding(internalPadding)) {
-                ServiceDetailsProfileInfo(state = viewModel.serviceDetailsState)
-                ServiceDetailsDescription(state = viewModel.serviceDetailsState)
+                viewModel.serviceDetailsState.serviceDetails?.let { serviceDetails ->
+                    ServiceDetailsProfileInfo(state = viewModel.serviceDetailsState)
+                    ServiceDetailsDescription(serviceDetails = serviceDetails)
+                } ?: ServiceDetailsNotFoundScreen(
+                    modifier = Modifier.padding(bottom = dimensions().spacing16x)
+                )
             }
         },
         bottomBar = {
@@ -127,7 +132,7 @@ private fun ServiceDetailsProfileInfo(
 
 @Composable
 private fun ServiceDetailsDescription(
-    state: ServiceDetailsState
+    serviceDetails: ServiceDetails
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -137,12 +142,12 @@ private fun ServiceDetailsDescription(
     ) {
         Spacer(modifier = Modifier.height(MaterialTheme.wireDimensions.spacing16x))
         Text(
-            text = state.serviceDetails?.description ?: "",
+            text = serviceDetails.description,
             style = MaterialTheme.wireTypography.body01
         )
         Spacer(modifier = Modifier.height(MaterialTheme.wireDimensions.spacing24x))
         Text(
-            text = state.serviceDetails?.summary ?: "",
+            text = serviceDetails.summary,
             style = MaterialTheme.wireTypography.body01,
             textAlign = TextAlign.Center,
             modifier = Modifier

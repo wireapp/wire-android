@@ -55,7 +55,10 @@ fun ServiceDetailsScreen(
     }
 
     ServiceDetailsContent(
-        viewModel = viewModel,
+        navigateBack = viewModel::navigateBack,
+        addService = viewModel::addService,
+        removeService = viewModel::removeService,
+        serviceDetailsState = viewModel.serviceDetailsState,
         snackbarHostState = snackbarHostState
     )
 }
@@ -63,7 +66,10 @@ fun ServiceDetailsScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ServiceDetailsContent(
-    viewModel: ServiceDetailsViewModel,
+    navigateBack: () -> Unit,
+    addService: () -> Unit,
+    removeService: () -> Unit,
+    serviceDetailsState: ServiceDetailsState,
     snackbarHostState: SnackbarHostState
 ) {
     Scaffold(
@@ -76,14 +82,14 @@ private fun ServiceDetailsContent(
         topBar = {
             Column {
                 ServiceDetailsTopAppBar(
-                    onBackPressed = viewModel::navigateBack
+                    onBackPressed = navigateBack
                 )
             }
         },
         content = { internalPadding ->
             Column(modifier = Modifier.padding(internalPadding)) {
-                viewModel.serviceDetailsState.serviceDetails?.let { serviceDetails ->
-                    ServiceDetailsProfileInfo(state = viewModel.serviceDetailsState)
+                serviceDetailsState.serviceDetails?.let { serviceDetails ->
+                    ServiceDetailsProfileInfo(state = serviceDetailsState)
                     ServiceDetailsDescription(serviceDetails = serviceDetails)
                 } ?: ServiceDetailsNotFoundScreen(
                     modifier = Modifier.padding(bottom = dimensions().spacing16x)
@@ -92,9 +98,9 @@ private fun ServiceDetailsContent(
         },
         bottomBar = {
             ServiceDetailsAddOrRemoveButton(
-                buttonState = viewModel.serviceDetailsState.buttonState,
-                addService = viewModel::addService,
-                removeService = viewModel::removeService
+                buttonState = serviceDetailsState.buttonState,
+                addService = addService,
+                removeService = removeService
             )
         }
     )

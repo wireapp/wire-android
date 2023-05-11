@@ -130,7 +130,8 @@ fun MessageComposerInputRow(
             AnimatedVisibility(messageComposeInputState.isEditMessage) {
                 MessageEditActions(
                     onEditSaveButtonClicked = onEditSaveButtonClicked,
-                    onEditCancelButtonClicked = onEditCancelButtonClicked
+                    onEditCancelButtonClicked = onEditCancelButtonClicked,
+                    editButtonEnabled = messageComposeInputState.editSaveButtonEnabled
                 )
             }
         }

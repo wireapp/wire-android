@@ -37,6 +37,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -59,9 +60,10 @@ fun MenuBottomSheetItem(
     icon: @Composable () -> Unit,
     action: (@Composable () -> Unit)? = null,
     clickBlockParams: ClickBlockParams = ClickBlockParams(),
+    itemProvidedColor: Color = MaterialTheme.colorScheme.secondary,
     onItemClick: () -> Unit = {}
 ) {
-    CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.secondary) {
+    CompositionLocalProvider(LocalContentColor provides itemProvidedColor) {
         val clickable = remember(onItemClick, clickBlockParams) { Clickable(clickBlockParams = clickBlockParams, onClick = onItemClick) }
         Row(
             verticalAlignment = Alignment.CenterVertically,

@@ -373,7 +373,7 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
     <string name="conversation_details_is_classified">NIVEL DE SEGURIDAD: VS-NfD</string>
     <string name="conversation_details_is_not_classified">NIVEL DE SEGURIDAD: NO CLASIFICADO</string>
     <string name="conversation_options_self_deleting_messages_label">Mensajes con auto-borrado</string>
-    <string name="conversation_options_self_deleting_messages_description">When this is on, all messages in this group will disappear after a certain time.</string>
+    <string name="conversation_options_self_deleting_messages_description">Cuando esté activado, todos los mensajes de este grupo desaparecerán después de un cierto tiempo.</string>
     <string name="conversation_options_guests_label">Invitados</string>
     <string name="conversation_details_guest_description">Cuando est&#225; activo, personas fuera de su equipo pueden unirse a esta conversaci&#243;n.</string>
     <string name="conversation_options_guest_description">Active esta opci&#243;n para abrir esta conversaci&#243;n a personas fuera de su equipo, incluso si no tienen Wire.</string>
@@ -522,11 +522,11 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
     <string name="label_system_message_read_receipt_changed_by_self">%1$s cambi&#243; los recibos de lectura %2$s para todos</string>
     <string name="label_system_message_read_receipt_changed_by_other">%1$s cambi&#243; los recibos de lectura %2$s para todos</string>
     <string name="label_system_message_conversation_message_timer_activated_by_self">%1$s %2$s el encendido forzado para mensajes con auto-borrado (temporizador de mensajes: %3$s)</string>
-    <string name="label_system_message_conversation_message_timer_activated_by_other">%1$s %2$s the forced switching on for self-deleting messages (message timer: %3$s)</string>
-    <string name="label_system_message_activated">activated</string>
-    <string name="label_system_message_conversation_message_timer_deactivated_by_self">%1$s %2$s the forced switching on for self-deleting messages</string>
-    <string name="label_system_message_conversation_message_timer_deactivated_by_other">%1$s %2$s the forced switching on for self-deleting messages</string>
-    <string name="label_system_message_deactivated">deactivated</string>
+    <string name="label_system_message_conversation_message_timer_activated_by_other">%1$s %2$s los mensajes con auto-borrado (temporizador de mensajes: %3$s)</string>
+    <string name="label_system_message_activated">ha activado</string>
+    <string name="label_system_message_conversation_message_timer_deactivated_by_self">%1$s %2$s los mensajes con auto-borrado</string>
+    <string name="label_system_message_conversation_message_timer_deactivated_by_other">%1$s %2$s los mensajes con auto-borrado</string>
+    <string name="label_system_message_deactivated">ha desactivado</string>
     <string name="label_system_message_conversation_history_lost">No has usado este dispositivo por un tiempo. Es posible que algunos mensajes no aparezcan aqu&#237;.</string>
     <string name="label_system_message_receipt_mode_on">encendido</string>
     <string name="label_system_message_receipt_mode_off">apagado</string>
@@ -906,9 +906,9 @@ URL del backend:
     <string name="join_conversation_via_deeplink_error_general">Debido a un error, no se pudo agregar a la conversaci&#243;n grupal.</string>
     <!-- edit self-deleting messages -->
     <string name="self_deleting_messages_title">Mensajes con auto-borrado</string>
-    <string name="self_deleting_messages_option">Enforce message deletion</string>
-    <string name="self_deleting_messages_option_description">When this is on, all messages in this group will disappear after a certain time. This applies to all group participants.</string>
-    <string name="self_deleting_messages_folder_timer">Timer</string>
+    <string name="self_deleting_messages_option">Forzar auto-borrado de mensajes</string>
+    <string name="self_deleting_messages_option_description">Cuando esté activado, todos los mensajes de este grupo desaparecerán después de un cierto tiempo. Esto se aplica a todos los participantes del grupo.</string>
+    <string name="self_deleting_messages_folder_timer">Contador</string>
     <!-- guest room link -->
     <string name="folder_label_guest_link">Enlace de invitado</string>
     <string name="guest_link_description">Invita a otros con un enlace a esta conversaci&#243;n. Cualquier persona con el enlace puede unirse a la conversaci&#243;n, incluso si no tiene Wire.</string>

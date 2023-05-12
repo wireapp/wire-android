@@ -63,6 +63,7 @@ import com.wire.kalium.logic.feature.conversation.AddServiceToConversationUseCas
 import com.wire.kalium.logic.feature.conversation.ClearConversationContentUseCase
 import com.wire.kalium.logic.feature.conversation.CreateGroupConversationUseCase
 import com.wire.kalium.logic.feature.conversation.GetAllContactsNotInConversationUseCase
+import com.wire.kalium.logic.feature.conversation.GetConversationUnreadEventsCountUseCase
 import com.wire.kalium.logic.feature.conversation.GetOrCreateOneToOneConversationUseCase
 import com.wire.kalium.logic.feature.conversation.GetOtherUserSecurityClassificationLabelUseCase
 import com.wire.kalium.logic.feature.conversation.LeaveConversationUseCase
@@ -1117,6 +1118,14 @@ class UseCaseModule {
         @CurrentAccount currentAccount: UserId
     ): UpdateEmailUseCase =
         coreLogic.getSessionScope(currentAccount).users.updateEmail
+
+    @ViewModelScoped
+    @Provides
+    fun provideGetConversationUnreadEventsCountUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): GetConversationUnreadEventsCountUseCase =
+        coreLogic.getSessionScope(currentAccount).conversations.getConversationUnreadEventsCountUseCase
 
     @ViewModelScoped
     @Provides

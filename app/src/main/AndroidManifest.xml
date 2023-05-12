@@ -216,7 +216,7 @@
         </service>
 
         <receiver
-                android:name=".ui.debugscreen.StartServiceReceiver"
+                android:name=".ui.debug.StartServiceReceiver"
                 android:enabled="true"
                 android:exported="false">
             <intent-filter>

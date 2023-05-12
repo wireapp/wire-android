@@ -27,8 +27,10 @@ import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.framework.TestMessage
 import com.wire.android.framework.TestMessage.GENERIC_ASSET_CONTENT
 import com.wire.android.ui.home.conversations.mockUITextMessage
+import com.wire.kalium.logic.StorageFailure
 import com.wire.kalium.logic.data.message.MessageContent
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.conversation.GetConversationUnreadEventsCountUseCase
 import io.mockk.coVerify
 import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -145,6 +147,24 @@ class ConversationMessagesViewModelTest {
         coVerify(exactly = 1) {
             arrangement.toggleReaction(arrangement.conversationId, messageId, reaction)
         }
+    }
+
+    @Test
+    fun `given getting UnreadEventsCount failed, then messages requested anyway`() = runTest {
+        val (arrangement, _) = ConversationMessagesViewModelArrangement()
+            .withConversationUnreadEventsCount(GetConversationUnreadEventsCountUseCase.Result.Failure(StorageFailure.DataNotFound))
+            .arrange()
+
+        coVerify(exactly = 1) { arrangement.getMessagesForConversationUseCase(any(), 0) }
+    }
+
+    @Test
+    fun `given getting UnreadEventsCount succeed, then messages requested with corresponding lastReadIndex`() = runTest {
+        val (arrangement, _) = ConversationMessagesViewModelArrangement()
+            .withConversationUnreadEventsCount(GetConversationUnreadEventsCountUseCase.Result.Success(12))
+            .arrange()
+
+        coVerify(exactly = 1) { arrangement.getMessagesForConversationUseCase(any(), 12) }
     }
 
     @Test

@@ -66,6 +66,7 @@ import com.wire.android.navigation.NavigationItemDestinationsRoutes.REGISTER_DEV
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.REMOVE_DEVICES
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.SELF_DEVICES
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.SELF_USER_PROFILE
+import com.wire.android.navigation.NavigationItemDestinationsRoutes.SERVICE_DETAILS
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.VERIFY_EMAIL
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.WELCOME
 import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
@@ -113,10 +114,12 @@ import com.wire.android.ui.sharing.ImportMediaScreen
 import com.wire.android.ui.userprofile.avatarpicker.AvatarPickerScreen
 import com.wire.android.ui.userprofile.other.OtherUserProfileScreen
 import com.wire.android.ui.userprofile.self.SelfUserProfileScreen
+import com.wire.android.ui.userprofile.service.ServiceDetailsScreen
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.kalium.logic.data.conversation.ClientId
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
+import com.wire.kalium.logic.data.user.BotService
 import com.wire.kalium.logic.data.user.UserId
 import io.github.esentsov.PackagePrivate
 import kotlinx.serialization.encodeToString
@@ -322,6 +325,19 @@ enum class NavigationItem(
         }
     },
 
+    ServiceDetails(
+        primaryRoute = SERVICE_DETAILS,
+        canonicalRoute = "$SERVICE_DETAILS?$EXTRA_BOT_SERVICE_ID={$EXTRA_BOT_SERVICE_ID}&$EXTRA_CONVERSATION_ID={$EXTRA_CONVERSATION_ID}",
+        content = { ServiceDetailsScreen() },
+        animationConfig = NavigationAnimationConfig.NoAnimation
+    ) {
+        override fun getRouteWithArgs(arguments: List<Any>): String {
+            val botServiceId: BotService = arguments.filterIsInstance<BotService>()[0]
+            val conversationId: QualifiedID = arguments.filterIsInstance<QualifiedID>()[0]
+            return "$primaryRoute?$EXTRA_BOT_SERVICE_ID=$botServiceId&$EXTRA_CONVERSATION_ID=$conversationId"
+        }
+    },
+
     ProfileImagePicker(
         primaryRoute = IMAGE_PICKER,
         content = { AvatarPickerScreen() },
@@ -513,6 +529,7 @@ object NavigationItemDestinationsRoutes {
     const val INITIAL_SYNC = "initial_sync_screen"
     const val SELF_USER_PROFILE = "self_user_profile_screen"
     const val OTHER_USER_PROFILE = "other_user_profile_screen"
+    const val SERVICE_DETAILS = "service_details_screen"
     const val CONVERSATION = "detailed_conversation_screen"
     const val EDIT_CONVERSATION_NAME = "edit_conversation_name_screen"
     const val EDIT_GUEST_ACCESS = "edit_guest_access_screen"
@@ -570,6 +587,7 @@ const val EXTRA_SETTINGS_DISPLAY_NAME_CHANGED = "extra_settings_display_name_cha
 const val EXTRA_BACK_NAVIGATION_ARGUMENTS = "extra_back_navigation_arguments"
 
 const val EXTRA_EDIT_GUEST_ACCESS_PARAMS = "extra_edit_guest_access_params"
+const val EXTRA_BOT_SERVICE_ID = "extra_bot_service_id"
 
 const val EXTRA_SSO_LOGIN_RESULT = "sso_login_result"
 

@@ -375,8 +375,8 @@
     <string name="conversation_participant_you_label">(Sie)</string>
     <string name="conversation_details_is_classified">SICHERHEITSNIVEAU: VS-NfD</string>
     <string name="conversation_details_is_not_classified">SICHERHEITSNIVEAU: NICHT EINGESTUFT</string>
-    <string name="conversation_options_self_deleting_messages_label">Self-deleting messages</string>
-    <string name="conversation_options_self_deleting_messages_description">When this is on, all messages in this group will disappear after a certain time.</string>
+    <string name="conversation_options_self_deleting_messages_label">Selbstlöschende Nachrichten</string>
+    <string name="conversation_options_self_deleting_messages_description">Wenn diese Option aktiviert ist, verschwinden alle Nachrichten in dieser Gruppe nach einer bestimmten Zeit.</string>
     <string name="conversation_options_guests_label">Gäste</string>
     <string name="conversation_details_guest_description">Wenn diese Option aktiviert ist, können Personen außerhalb des Teams an dieser Unterhaltung teilnehmen</string>
     <string name="conversation_options_guest_description">Aktivieren Sie diese Option, um die Unterhaltung für Personen außerhalb Ihres Teams zu öffnen – auch wenn diese Wire nicht nutzen.</string>
@@ -903,8 +903,8 @@
     <string name="join_conversation_via_deeplink_error_general">Aufgrund eines Fehlers konnten Sie nicht zur Gruppenunterhaltung hinzugefügt werden.</string>
     <!-- edit self-deleting messages -->
     <string name="self_deleting_messages_title">Self-deleting Messages</string>
-    <string name="self_deleting_messages_option">Enforce message deletion</string>
-    <string name="self_deleting_messages_option_description">When this is on, all messages in this group will disappear after a certain time. This applies to all group participants.</string>
+    <string name="self_deleting_messages_option">Löschen von Nachrichten erzwingen</string>
+    <string name="self_deleting_messages_option_description">Wenn diese Option aktiviert ist, verschwinden alle Nachrichten in dieser Gruppe nach einer bestimmten Zeit. Dies gilt für alle Teilnehmer der Gruppe.</string>
     <string name="self_deleting_messages_folder_timer">Timer</string>
     <!-- guest room link -->
     <string name="folder_label_guest_link">Gäste-Link</string>

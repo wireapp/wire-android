@@ -62,7 +62,7 @@ class ServiceDetailsViewModelTest {
     fun `given user clicks on navigate back, then navigates back`() = runTest {
         // given
         val (arrangement, viewModel) = Arrangement()
-            .withServiceId(serviceId = SERVICE_ID.toString())
+            .withServiceId(serviceId = stringServiceId)
             .withServiceDetails(serviceDetails = SERVICE_DETAILS)
             .withConversationRoleForUser(roleData = CONVERSATION_ROLE_DATA)
             .withIsServiceMember(memberId = MEMBER_ID)
@@ -82,7 +82,7 @@ class ServiceDetailsViewModelTest {
         runTest {
             // given
             val (_, viewModel) = Arrangement()
-                .withServiceId(serviceId = SERVICE_ID.toString())
+                .withServiceId(serviceId = stringServiceId)
                 .withServiceDetails(serviceDetails = SERVICE_DETAILS)
                 .withConversationRoleForUser(roleData = CONVERSATION_ROLE_DATA)
                 .withIsServiceMember(memberId = MEMBER_ID)
@@ -103,7 +103,7 @@ class ServiceDetailsViewModelTest {
         runTest {
             // given
             val (_, viewModel) = Arrangement()
-                .withServiceId(serviceId = SERVICE_ID.toString())
+                .withServiceId(serviceId = stringServiceId)
                 .withServiceDetails(serviceDetails = SERVICE_DETAILS)
                 .withConversationRoleForUser(roleData = CONVERSATION_ROLE_DATA)
                 .withIsServiceMember(memberId = null)
@@ -123,7 +123,7 @@ class ServiceDetailsViewModelTest {
         runTest {
             // given
             val (_, viewModel) = Arrangement()
-                .withServiceId(serviceId = SERVICE_ID.toString())
+                .withServiceId(serviceId = stringServiceId)
                 .withServiceDetails(serviceDetails = SERVICE_DETAILS)
                 .withConversationRoleForUser(
                     roleData = CONVERSATION_ROLE_DATA.copy(
@@ -168,7 +168,7 @@ class ServiceDetailsViewModelTest {
         runTest {
             // given
             val (arrangement, viewModel) = Arrangement()
-                .withServiceId(serviceId = SERVICE_ID.toString())
+                .withServiceId(serviceId = stringServiceId)
                 .withServiceDetails(serviceDetails = SERVICE_DETAILS)
                 .withConversationRoleForUser(roleData = CONVERSATION_ROLE_DATA)
                 .withIsServiceMember(memberId = MEMBER_ID)
@@ -195,7 +195,7 @@ class ServiceDetailsViewModelTest {
         runTest {
             // given
             val (arrangement, viewModel) = Arrangement()
-                .withServiceId(serviceId = SERVICE_ID.toString())
+                .withServiceId(serviceId = stringServiceId)
                 .withServiceDetails(serviceDetails = SERVICE_DETAILS)
                 .withConversationRoleForUser(roleData = CONVERSATION_ROLE_DATA)
                 .withIsServiceMember(memberId = MEMBER_ID)
@@ -222,7 +222,7 @@ class ServiceDetailsViewModelTest {
         runTest {
             // given
             val (arrangement, viewModel) = Arrangement()
-                .withServiceId(serviceId = SERVICE_ID.toString())
+                .withServiceId(serviceId = stringServiceId)
                 .withServiceDetails(serviceDetails = SERVICE_DETAILS)
                 .withConversationRoleForUser(roleData = CONVERSATION_ROLE_DATA)
                 .withIsServiceMember(memberId = MEMBER_ID)
@@ -249,7 +249,7 @@ class ServiceDetailsViewModelTest {
         runTest {
             // given
             val (arrangement, viewModel) = Arrangement()
-                .withServiceId(serviceId = SERVICE_ID.toString())
+                .withServiceId(serviceId = stringServiceId)
                 .withServiceDetails(serviceDetails = SERVICE_DETAILS)
                 .withConversationRoleForUser(roleData = CONVERSATION_ROLE_DATA)
                 .withIsServiceMember(memberId = MEMBER_ID)
@@ -272,6 +272,9 @@ class ServiceDetailsViewModelTest {
         }
 
     companion object {
+        const val serviceId = "serviceId"
+        const val providerId = "providerId"
+        val stringServiceId = "$serviceId@$providerId"
         val SERVICE_ID = ServiceId(id = "serviceId", provider = "providerId")
         val CONVERSATION_ID = ConversationId(value = "conversationId", domain = "conversationDomain")
         val MEMBER_ID = QualifiedID(value = "memberValue", domain = "memberDomain")

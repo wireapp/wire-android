@@ -27,7 +27,6 @@ import io.github.esentsov.PackagePrivate
 @PackagePrivate
 @Suppress("MagicNumber")
 object WireColorPalette {
-    const val GRAY_HEX = 0xFF34373D
 
     @Stable
     val LightBlue50 = Color(0xFFE7F0FA)
@@ -298,7 +297,7 @@ object WireColorPalette {
     @Stable
     val Gray80 = Color(0xFF54585F)
     @Stable
-    val Gray90 = Color(GRAY_HEX)
+    val Gray90 = Color(0xFF34373D)
     @Stable
     val Gray95 = Color(0xFF26272C)
     @Stable

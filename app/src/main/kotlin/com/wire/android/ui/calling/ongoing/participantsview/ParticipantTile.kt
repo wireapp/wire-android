@@ -101,7 +101,7 @@ fun ParticipantTile(
                 )
             } else {
                 val context = LocalContext.current
-                val rendererFillColor = colorsScheme().ongoingCallVideoFillColor
+                val rendererFillColor = (colorsScheme().callingParticipantTileBackgroundColor.value shr 32).toLong()
                 if (participantTitleState.isCameraOn || participantTitleState.isSharingScreen) {
                     val videoRenderer = remember {
                         VideoRenderer(

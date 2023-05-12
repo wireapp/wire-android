@@ -48,10 +48,12 @@ class UIParticipantMapper @Inject constructor(
             handle = handle.orEmpty(),
             avatarData = avatar(wireSessionImageLoader, connectionState),
             isSelf = user is SelfUser,
+            isService = userType == UserType.SERVICE,
             membership = userTypeMapper.toMembership(userType),
             connectionState = connectionState,
             unavailable = unavailable,
-            isDeleted = (user is OtherUser && user.deleted)
+            isDeleted = (user is OtherUser && user.deleted),
+            botService = (user as? OtherUser)?.botService
         )
     }
 

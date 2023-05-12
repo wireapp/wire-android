@@ -742,6 +742,15 @@ Até 500 pessoas podem participar de uma conversa em grupo.</string>
     <string name="allow_guest_switch_description">Abrir esta conversa para pessoas fora do seu time. Você pode sempre alterar isso depois.</string>
     <string name="allow_services">Permitir serviços</string>
     <string name="allow_services_description">Abrir esta conversa para serviços. Voce pode sempre alterar isso depois.</string>
+    <string name="service_details_label">Service</string>
+    <string name="service_details_add_service_label">Add To Group</string>
+    <string name="service_details_remove_service_label">Remove From Group</string>
+    <string name="service_remove_success">Service removed from group</string>
+    <string name="service_remove_error">Unable to remove service from group</string>
+    <string name="service_add_success">Service added to group</string>
+    <string name="service_add_error">Unable to add service from group</string>
+    <string name="service_no_information_available_title">No information available</string>
+    <string name="service_no_information_available_subtitle">Try again or reach out to your team admin</string>
     <string name="read_receipts">Confirmações de leitura</string>
     <string name="read_receipts_description">Com isso ligado, pessoas podem ver quando suas próprias mensagens foram lidas nesta conversa.</string>
     <string name="disable_guests_dialog_title">Desabilitar Convidados?</string>

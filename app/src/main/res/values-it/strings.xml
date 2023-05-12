@@ -742,6 +742,15 @@ Rispondendo qui, verr&#224; riagganciata l\'altra chiamata.</string>
     <string name="allow_guest_switch_description">Apri questa conversazione a persone esterne al tuo team. Puoi sempre cambiarla successivamente.</string>
     <string name="allow_services">Consenti servizi</string>
     <string name="allow_services_description">Apri questa conversazione ai servizi. Puoi sempre cambiarla successivamente.</string>
+    <string name="service_details_label">Service</string>
+    <string name="service_details_add_service_label">Add To Group</string>
+    <string name="service_details_remove_service_label">Remove From Group</string>
+    <string name="service_remove_success">Service removed from group</string>
+    <string name="service_remove_error">Unable to remove service from group</string>
+    <string name="service_add_success">Service added to group</string>
+    <string name="service_add_error">Unable to add service from group</string>
+    <string name="service_no_information_available_title">No information available</string>
+    <string name="service_no_information_available_subtitle">Try again or reach out to your team admin</string>
     <string name="read_receipts">Ricevute di lettura</string>
     <string name="read_receipts_description">Quando questa opzione è attiva, le persone possono vedere quando i loro messaggi in questa conversazione sono stati letti.</string>
     <string name="disable_guests_dialog_title">Non consentire ospiti?</string>

@@ -257,7 +257,8 @@ class MessageComposerViewModel @Inject constructor(
                             }
                         }
 
-                        AttachmentType.GENERIC_FILE -> {
+                        AttachmentType.GENERIC_FILE,
+                        AttachmentType.AUDIO -> {
                             // The max limit for sending assets changes between user types. Currently, is25MB for free users, and 100MB for
                             // users that belong to a team
                             val assetLimitInBytes = getAssetLimitInBytes()
@@ -284,8 +285,6 @@ class MessageComposerViewModel @Inject constructor(
                                 }
                             }
                         }
-
-                        AttachmentType.AUDIO -> TODO()
                     }
                 }
             }

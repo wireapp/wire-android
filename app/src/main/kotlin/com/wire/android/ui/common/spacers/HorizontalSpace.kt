@@ -29,6 +29,11 @@ import com.wire.android.ui.common.dimensions
 object HorizontalSpace {
 
     @Composable
+    fun x2() {
+        Spacer(Modifier.width(dimensions().spacing2x))
+    }
+
+    @Composable
     fun x8() {
         Spacer(Modifier.width(dimensions().spacing8x))
     }

@@ -119,7 +119,7 @@ class ConversationInfoViewModel @Inject constructor(
     }
 
     private fun handleConversationDetails(conversationDetails: ConversationDetails) {
-        val (isConversationUnavailable, isUserBlocked) = when (conversationDetails) {
+        val (isConversationUnavailable, _) = when (conversationDetails) {
             is ConversationDetails.OneOne -> conversationDetails.otherUser
                 .run { isUnavailableUser to (connectionStatus == ConnectionState.BLOCKED) }
             else -> false to false
@@ -140,6 +140,7 @@ class ConversationInfoViewModel @Inject constructor(
             is ConversationDetails.Group -> ConversationDetailsData.Group(conversationDetails.conversation.id)
             is ConversationDetails.OneOne -> ConversationDetailsData.OneOne(
                 otherUserId = conversationDetails.otherUser.id,
+                otherUserName = conversationDetails.otherUser.name,
                 connectionState = conversationDetails.otherUser.connectionStatus,
                 isBlocked = conversationDetails.otherUser.connectionStatus == ConnectionState.BLOCKED,
                 isDeleted = conversationDetails.otherUser.deleted

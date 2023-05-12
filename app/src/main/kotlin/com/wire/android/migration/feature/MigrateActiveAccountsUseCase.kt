@@ -62,7 +62,12 @@ class MigrateActiveAccountsUseCase @Inject constructor(
             val authTokensEither: Either<CoreFailure, AuthTokens> = if (isDataComplete) {
                 // when the data is complete it means the user has a domain and an access token
                 // which make the following double bang operator safe
-                val domain = activeAccount.domain ?: serverConfig.metaData.domain!!
+                val domain = if (!activeAccount.domain.isNullOrBlank()) {
+                    activeAccount.domain
+                } else {
+                    serverConfig.metaData.domain!!
+                }
+
                 val userId = UserId(activeAccount.id, domain)
                 Either.Right(
                     AuthTokens(
@@ -104,9 +109,9 @@ class MigrateActiveAccountsUseCase @Inject constructor(
     }
 
     private fun isDataComplete(serverConfig: ServerConfig, activeAccount: ScalaActiveAccountsEntity): Boolean {
-        val isDomainExist = (activeAccount.domain != null) or (serverConfig.metaData.domain != null)
-        val isAccessTokenExist = activeAccount.accessToken != null
-        return isDomainExist and isAccessTokenExist
+        val isDomainPresent = (!activeAccount.domain.isNullOrBlank()) or (serverConfig.metaData.domain != null)
+        val isAccessTokenPresent = activeAccount.accessToken != null
+        return isDomainPresent and isAccessTokenPresent
     }
 
     private suspend fun handleMissingData(
@@ -122,9 +127,9 @@ class MigrateActiveAccountsUseCase @Inject constructor(
         }
     }
 
-        data class Result(val userIds: Map<String, Either<AccountMigrationFailure, UserId>>, val isFederationEnabled: Boolean)
+    data class Result(val userIds: Map<String, Either<AccountMigrationFailure, UserId>>, val isFederationEnabled: Boolean)
 
-        data class AccountMigrationFailure(val userName: String?, val userHandle: String?, val cause: CoreFailure)
+    data class AccountMigrationFailure(val userName: String?, val userHandle: String?, val cause: CoreFailure)
 
     private companion object {
         const val REFRESH_TOKEN_PREFIX = "zuid="

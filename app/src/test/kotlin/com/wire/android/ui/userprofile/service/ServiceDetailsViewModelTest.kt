@@ -321,8 +321,7 @@ class ServiceDetailsViewModelTest {
         @MockK
         lateinit var addServiceToConversation: AddServiceToConversationUseCase
 
-        @MockK
-        lateinit var serviceDetailsMapper: ServiceDetailsMapper
+        val serviceDetailsMapper: ServiceDetailsMapper = ServiceDetailsMapper()
 
         @MockK
         lateinit var savedStateHandle: SavedStateHandle
@@ -351,18 +350,10 @@ class ServiceDetailsViewModelTest {
             MockKAnnotations.init(this, relaxUnitFun = true)
             mockUri()
             every { savedStateHandle.get<String>(EXTRA_CONVERSATION_ID) } returns CONVERSATION_ID.toString()
-
-            coEvery {
-                serviceDetailsMapper.fromStringToServiceId("serviceId@providerId")
-            } returns ServiceId("serviceId", "providerId")
-            coEvery {
-                serviceDetailsMapper.fromStringToServiceId("serviceId_MissingProvider")
-            } returns null
             coEvery {
                 qualifiedIdMapper.fromStringToQualifiedID("conversationId@conversationDomain")
             } returns QualifiedID("conversationId", "conversationDomain")
             coEvery { navigationManager.navigate(command = any()) } returns Unit
-
             coEvery { observeSelfUser() } returns flowOf(TestUser.SELF_USER)
         }
 

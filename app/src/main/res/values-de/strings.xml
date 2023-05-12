@@ -747,6 +747,15 @@
     <string name="allow_guest_switch_description">Öffnen Sie diese Unterhaltung für Personen außerhalb Ihres Teams. Diese Einstellung kann später jederzeit geändert werden.</string>
     <string name="allow_services">Dienste zulassen</string>
     <string name="allow_services_description">Öffnen Sie diese Unterhaltung für Dienste. Diese Einstellung kann später jederzeit geändert werden.</string>
+    <string name="service_details_label">Service</string>
+    <string name="service_details_add_service_label">Add To Group</string>
+    <string name="service_details_remove_service_label">Remove From Group</string>
+    <string name="service_remove_success">Service removed from group</string>
+    <string name="service_remove_error">Unable to remove service from group</string>
+    <string name="service_add_success">Service added to group</string>
+    <string name="service_add_error">Unable to add service from group</string>
+    <string name="service_no_information_available_title">No information available</string>
+    <string name="service_no_information_available_subtitle">Try again or reach out to your team admin</string>
     <string name="read_receipts">Lesebestätigungen</string>
     <string name="read_receipts_description">Wenn diese Option aktiviert ist, können Sender sehen, wenn ihre Nachrichten gelesen werden.</string>
     <string name="disable_guests_dialog_title">Gäste nicht zulassen?</string>

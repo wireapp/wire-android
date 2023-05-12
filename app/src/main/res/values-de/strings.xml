@@ -525,10 +525,10 @@
     <string name="label_system_message_read_receipt_changed_by_other">%1$s hat Lesebestätigungen für alle %2$sgeschaltet</string>
     <string name="label_system_message_conversation_message_timer_activated_by_self">%1$s %2$s the forced switching on for self-deleting messages (message timer: %3$s)</string>
     <string name="label_system_message_conversation_message_timer_activated_by_other">%1$s %2$s the forced switching on for self-deleting messages (message timer: %3$s)</string>
-    <string name="label_system_message_activated">activated</string>
+    <string name="label_system_message_activated">aktiviert</string>
     <string name="label_system_message_conversation_message_timer_deactivated_by_self">%1$s %2$s the forced switching on for self-deleting messages</string>
     <string name="label_system_message_conversation_message_timer_deactivated_by_other">%1$s %2$s the forced switching on for self-deleting messages</string>
-    <string name="label_system_message_deactivated">deactivated</string>
+    <string name="label_system_message_deactivated">deaktiviert</string>
     <string name="label_system_message_conversation_history_lost">Sie haben das Gerät eine Weile nicht benutzt. Einige Nachrichten werden hier eventuell nicht angezeigt.</string>
     <string name="label_system_message_receipt_mode_on">ein</string>
     <string name="label_system_message_receipt_mode_off">aus</string>
@@ -902,7 +902,7 @@
     <string name="join_conversation_via_deeplink_error_max_number_of_participent">Die maximale Teilnehmeranzahl in dieser Unterhaltung wurde erreicht.</string>
     <string name="join_conversation_via_deeplink_error_general">Aufgrund eines Fehlers konnten Sie nicht zur Gruppenunterhaltung hinzugefügt werden.</string>
     <!-- edit self-deleting messages -->
-    <string name="self_deleting_messages_title">Self-deleting Messages</string>
+    <string name="self_deleting_messages_title">Selbstlöschende Nachrichten</string>
     <string name="self_deleting_messages_option">Löschen von Nachrichten erzwingen</string>
     <string name="self_deleting_messages_option_description">Wenn diese Option aktiviert ist, verschwinden alle Nachrichten in dieser Gruppe nach einer bestimmten Zeit. Dies gilt für alle Teilnehmer der Gruppe.</string>
     <string name="self_deleting_messages_folder_timer">Timer</string>
@@ -949,8 +949,8 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="settings_myaccount_email_verification_email_sent">Wir haben Ihnen eine Bestätigungsmail an Ihre E-Mail-Adresse %1$s geschickt.\n\nIhre aktuelle E-Mail-Adresse wird erst geändert, wenn Ihre neue Adresse verifiziert ist. Überprüfen Sie Ihren Posteingang und folgen Sie den Anweisungen.</string>
     <string name="label_resend_verification_email">Bestätigungsmail erneut senden</string>
     <string name="settings_myaccount_email_generic_error">Ein Fehler ist aufgetreten, bitte erneut versuchen.</string>
-    <string name="settings_myaccount_handle_description">Your username helps others to find you in Wire and connect with you. It is unique in Wire.</string>
-    <string name="create_account_handle_title">Your User Name</string>
+    <string name="settings_myaccount_handle_description">Ihr Benutzername hilft anderen, Sie in Wire zu finden und sich mit Ihnen zu verbinden. Er ist einzigartig in Wire.</string>
+    <string name="create_account_handle_title">Ihr Benutzername</string>
     <!-- Asset limits error messages -->
     <string name="title_video_could_not_be_sent">Video konnte nicht gesendet werden</string>
     <string name="title_image_could_not_be_sent">Bild konnte nicht gesendet werden</string>
@@ -962,11 +962,11 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <!-- Expiring messages -->
     <string name="self_deleting_message_time_left">Selbstlöschende Nachricht • %1$s</string>
     <string name="self_deleting_message_label">Selbstlöschende Nachricht</string>
-    <string name="self_deleting_messages_team_setting_disabled">Self-deleting messages are disabled.</string>
-    <string name="self_deleting_messages_team_setting_enabled">Self-deleting messages are enabled. You can set a timer before writing a message.</string>
-    <string name="self_deleting_messages_team_setting_enabled_enforced_timeout">Self-deleting messages are now mandatory. New messages will self-delete after %1$s.</string>
-    <string name="automatically_delete_message_after">Automatically delete message after:</string>
-    <string name="label_information_waiting_for_recipient_timer_to_expire_group">After one participant has seen your message and the timer has expired on their side, this note disappears.</string>
+    <string name="self_deleting_messages_team_setting_disabled">Selbstlöschende Nachrichten sind deaktiviert.</string>
+    <string name="self_deleting_messages_team_setting_enabled">Selbstlöschende Nachrichten sind aktiviert. Sie können einen Timer setzen, bevor Sie eine Nachricht schreiben.</string>
+    <string name="self_deleting_messages_team_setting_enabled_enforced_timeout">Selbstlöschende Nachrichten sind ab jetzt verbindlich. Neue Nachrichten werden nach %1$s gelöscht.</string>
+    <string name="automatically_delete_message_after">Nachrichten automatisch löschen nach:</string>
+    <string name="label_information_waiting_for_recipient_timer_to_expire_group">Nachdem eine Person Ihre Nachricht gesehen hat und deren Timer abgelaufen ist, verschwindet diese Notiz.</string>
     <string name="label_information_waiting_for_recipient_timer_to_expire_one_to_one">After %1$s has seen your message and the timer has expired on their side, this note disappears.</string>
     <plurals name="weeks_left">
         <item quantity="one">Noch 1 Woche</item>
@@ -989,24 +989,24 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
         <item quantity="other">Noch %1$d Sekunden</item>
     </plurals>
     <plurals name="weeks_long_label">
-        <item quantity="one">1 week</item>
-        <item quantity="other">%1$d weeks</item>
+        <item quantity="one">1 Woche</item>
+        <item quantity="other">%1$d Wochen</item>
     </plurals>
     <plurals name="days_long_label">
-        <item quantity="one">1 day</item>
-        <item quantity="other">%1$d days</item>
+        <item quantity="one">1 Tag</item>
+        <item quantity="other">%1$d Tage</item>
     </plurals>
     <plurals name="hours_long_label">
-        <item quantity="one">1 hour</item>
-        <item quantity="other">%1$d hours</item>
+        <item quantity="one">1 Stunde</item>
+        <item quantity="other">%1$d Stunden</item>
     </plurals>
     <plurals name="minutes_long_label">
-        <item quantity="one">1 minute</item>
-        <item quantity="other">%1$d minutes</item>
+        <item quantity="one">1 Minute</item>
+        <item quantity="other">%1$d Minuten</item>
     </plurals>
     <plurals name="seconds_long_label">
-        <item quantity="one">1 second</item>
-        <item quantity="other">%1$d seconds</item>
+        <item quantity="one">1 Sekunde</item>
+        <item quantity="other">%1$d Sekunden</item>
     </plurals>
     <string name="four_weeks_short_label">4w</string>
     <string name="one_week_short_label">1w</string>

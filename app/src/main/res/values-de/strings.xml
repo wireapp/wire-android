@@ -967,7 +967,7 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="self_deleting_messages_team_setting_enabled_enforced_timeout">Selbstlöschende Nachrichten sind ab jetzt verbindlich. Neue Nachrichten werden nach %1$s gelöscht.</string>
     <string name="automatically_delete_message_after">Nachrichten automatisch löschen nach:</string>
     <string name="label_information_waiting_for_recipient_timer_to_expire_group">Nachdem eine Person Ihre Nachricht gesehen hat und deren Timer abgelaufen ist, verschwindet diese Notiz.</string>
-    <string name="label_information_waiting_for_recipient_timer_to_expire_one_to_one">After %1$s has seen your message and the timer has expired on their side, this note disappears.</string>
+    <string name="label_information_waiting_for_recipient_timer_to_expire_one_to_one">Nachdem %1$s Ihre Nachricht gesehen hat und der Timer abgelaufen ist, verschwindet diese Notiz.</string>
     <plurals name="weeks_left">
         <item quantity="one">Noch 1 Woche</item>
         <item quantity="other">Noch %1$d Wochen</item>
@@ -1008,10 +1008,10 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
         <item quantity="one">1 Sekunde</item>
         <item quantity="other">%1$d Sekunden</item>
     </plurals>
-    <string name="four_weeks_short_label">4w</string>
-    <string name="one_week_short_label">1w</string>
-    <string name="one_day_short_label">1d</string>
-    <string name="one_hour_short_label">1h</string>
-    <string name="five_minutes_short_label">5m</string>
-    <string name="ten_seconds_short_label">10s</string>
+    <string name="four_weeks_short_label">4Wo</string>
+    <string name="one_week_short_label">1Wo</string>
+    <string name="one_day_short_label">1Tag</string>
+    <string name="one_hour_short_label">1Std</string>
+    <string name="five_minutes_short_label">5Min</string>
+    <string name="ten_seconds_short_label">10Sek</string>
 </resources>

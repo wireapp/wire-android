@@ -770,6 +770,15 @@
     <string name="allow_guest_switch_description">Відкрийте цю бесіду людям, які не належать до вашої команди. Ви завжди можете змінити це пізніше.</string>
     <string name="allow_services">Дозволити служби</string>
     <string name="allow_services_description">Відкрийте цю розмову для служб. Ви завжди можете змінити це пізніше.</string>
+    <string name="service_details_label">Service</string>
+    <string name="service_details_add_service_label">Add To Group</string>
+    <string name="service_details_remove_service_label">Remove From Group</string>
+    <string name="service_remove_success">Service removed from group</string>
+    <string name="service_remove_error">Unable to remove service from group</string>
+    <string name="service_add_success">Service added to group</string>
+    <string name="service_add_error">Unable to add service from group</string>
+    <string name="service_no_information_available_title">No information available</string>
+    <string name="service_no_information_available_subtitle">Try again or reach out to your team admin</string>
     <string name="read_receipts">Прочитати квитанції</string>
     <string name="read_receipts_description">Коли цей параметр увімкнено, люди бачать, коли читаються їхні повідомлення в цій бесіді.</string>
     <string name="disable_guests_dialog_title">Not Allow Guests?</string>

@@ -261,7 +261,7 @@ Usuni&#281;tej wiadomo&#347;ci nie mo&#380;na przywr&#243;ci&#263;.</string>
     <string name="label_delete_for_me">Usu&#324; dla mnie</string>
     <string name="label_delete_for_everyone">Usu&#324; dla wszystkich</string>
     <string name="delete_message_for_yourself_dialog_title">Usun&#261;&#263; t&#281; wiadomo&#347;&#263; dla siebie?</string>
-    <string name="delete_message_for_yourself_dialog_message">Je&#347;li usuniesz wiadomo&#347;&#263; dla siebie, b&#281;dzie widoczna tylko dla innych uczestnik&#243;w.
+    <string name="delete_message_for_yourself_dialog_message">Je&#347;li usuniesz wiadomo&#347;&#263; dla siebie, b&#281;dzie widoczna tylko dla innych uczestnik&#243;w. 
 
 Usuni&#281;ta wiadomo&#347;&#263; nie mo&#380;e zosta&#263; przywr&#243;cona.</string>
     <string name="deleted_message_text">Usuni&#281;ta wiadomo&#347;&#263;</string>
@@ -434,6 +434,7 @@ Do grupy mo&#380;e do&#322;&#261;czy&#263; maksymalnie 500 os&#243;b.</string>
     <string name="user_profile_role_change_error">Wyst&#261;pi&#322; b&#322;&#261;d podczas zmiany roli. Sprawd&#378; swoje po&#322;&#261;czenie internetowe i spr&#243;buj ponownie.</string>
     <string name="user_profile_unblock_user">Odblokuj u&#380;ytkownika</string>
     <string name="user_profile_group_remove_button">Usu&#324; z grupy</string>
+    <string name="user_profile_logging_out_progress">Logging out...</string>
     <!-- Remove Conversation Member Dialog -->
     <string name="dialog_remove_conversation_member_title">Usun&#261;&#263; z grupy?</string>
     <string name="dialog_remove_conversation_member_description">%1$s (@%2$s) nie b&#281;dzie m&#243;g&#322; wysy&#322;a&#263; ani odbiera&#263; wiadomo&#347;ci w tej rozmowie.</string>
@@ -615,6 +616,8 @@ Do grupy mo&#380;e do&#322;&#261;czy&#263; maksymalnie 500 os&#243;b.</string>
         <item quantity="many">%1$d wiadomo&#347;ci</item>
         <item quantity="other">%1$d wiadomo&#347;ci</item>
     </plurals>
+    <string name="ephemeral_one_to_one_event_message">"Sent a message"</string>
+    <string name="ephemeral_group_event_message">"Someone sent a message"</string>
     <!--Search Contact-->
     <string name="label_contacts">KONTAKTY</string>
     <string name="label_new_group">Nowa grupa</string>
@@ -657,8 +660,6 @@ Do grupy mo&#380;e do&#322;&#261;czy&#263; maksymalnie 500 os&#243;b.</string>
     <string name="error_unblocking_user">Nie mo&#380;na odblokowa&#263; u&#380;ytkownika.</string>
     <string name="delete_group_conversation_error">Wyst&#261;pi&#322; b&#322;&#261;d podczas usuwania rozmowy.</string>
     <string name="error_limit_number_assets_imported_exceeded">Mo&#380;esz przes&#322;a&#263; jednocze&#347;nie maksymalnie 20 plik&#243;w</string>
-    <string name="edit_message_not_yet_available">Zapisywanie edycji wiadomo&#347;ci nie jest jeszcze dost&#281;pne</string>
-    <!-- TODO: temporary, to be removed when the proper implementation of editing messages is finished -->
     <!-- Animation label -->
     <string name="label_open_conversation">Otw&#243;rz konwersacj&#281;</string>
     <string name="email_label">E-mail</string>
@@ -685,6 +686,7 @@ Do grupy mo&#380;e do&#322;&#261;czy&#263; maksymalnie 500 os&#243;b.</string>
     <string name="notification_call_default_caller_name">Kto&#347;</string>
     <string name="notification_call_default_group_name">Po&#322;&#261;czenie grupowe przychodz&#261;ce</string>
     <!-- Calling-->
+    <string name="calling_constant_bit_rate_indication">Constant Bit Rate</string>
     <string name="calling_button_label_microphone">Mikrofon</string>
     <string name="calling_button_label_camera">Kamera</string>
     <string name="calling_button_label_speaker">G&#322;o&#347;nik</string>
@@ -769,7 +771,7 @@ Do&#322;&#261;czenie do tego po&#322;&#261;czenia spowoduje zako&#324;czenie tam
     <string name="block_user_dialog_title">Zablokowa&#263; u&#380;ytkownika?</string>
     <string name="block_user_dialog_body">%1$s nie b&#281;dzie m&#243;g&#322; si&#281; z tob&#261; skontaktowa&#263; ani doda&#263; ci&#281; do rozm&#243;w grupowych. Nie zostanie o tym poinformowany.</string>
     <string name="block_user_dialog_confirm_button">Zablokuj</string>
-    <string name="other_user_devices_description"><![CDATA[\Wire nadaje ka&#380;demu urz&#261;dzeniu unikalny odcisk palca. Por&#243;wnaj je z %1$s i zweryfikuj swoj&#261; konwersacj&#281;. \]]></string>
+    <string name="other_user_devices_description">\Wire nadaje ka&#380;demu urz&#261;dzeniu unikalny odcisk palca. Por&#243;wnaj je z %1$s i zweryfikuj swoj&#261; konwersacj&#281;. \</string>
     <!--Settings -->
     <string name="url_why_verify_conversation">/hc/en-us/articles/207859815</string>
     <string name="settings_general_label">Og&#243;lne</string>
@@ -910,7 +912,9 @@ Prosimy u&#380;y&#263; zarz&#261;dzania zespo&#322;ami (%1$s) na tym &#347;rodow
     <string name="label_manual_migration_title">Migruj z wersji 3.82.38</string>
     <string name="start_manual_migration">Rozpocznij migracj&#281; z wersji 3.82.38 r&#281;cznie</string>
     <string name="file_sharing_restricted_learn_more_link">https://support.wire.com/hc/en-us/articles/4406404582673-How-can-I-restrict-file-sharing-for-my-team-</string>
-    <string name="file_sharing_restricted_description_by_team">Nie mo&#380;esz udost&#281;pnia&#263; tego pliku, poniewa&#380; ta funkcja jest wy&#322;&#261;czona.</string>
+    <string name="file_sharing_restricted_description_by_team">You can not share this file because this feature is disabled for this account.</string>
+    <string name="file_sharing_restricted_description_no_users">You need to be logged in to Wire before you can share anything</string>
+    <string name="file_sharing_restricted_button_text_no_users">Open Wire</string>
     <!-- join conversation dialog -->
     <string name="join_conversation_dialog_title">Do&#322;&#261;czy&#263; do rozmowy?</string>
     <string name="join_conversation_dialog_message">Zosta&#322;e&#347; zaproszony do rozmowy.\n\n%1$s</string>
@@ -928,28 +932,21 @@ Prosimy u&#380;y&#263; zarz&#261;dzania zespo&#322;ami (%1$s) na tym &#347;rodow
     <string name="guest_link_button_revoke_link">Wycofaj link</string>
     <string name="audio_not_available">Audio niedost&#281;pne</string>
     <string name="audio_not_available_explanation">Co&#347; posz&#322;o nie tak podczas pobierania tego pliku audio. Popro&#347; nadawc&#281; o ponowne wys&#322;anie pliku.</string>
-    <string name="guest_link_generate_error_message">Wyst&#261;pi&#322; b&#322;&#261;d podczas tworzenia linku dla go&#347;ci. Spr&#243;buj ponownie.</string>
-    <string name="guest_link_revoke_error_message">Wyst&#261;pi&#322; b&#322;&#261;d podczas wycofywania linku dla go&#347;ci. Spr&#243;buj ponownie.</string>
+    <string name="guest_link_generate_error_message">Link couldn\'t be created. Please try again</string>
+    <string name="guest_link_revoke_error_message">Link couldn\'t be revoked. Please try again</string>
     <string name="revoke_guest__room_link_dialog_text">Nowi go&#347;cie nie b&#281;d&#261; mogli do&#322;&#261;czy&#263; z tym linkiem. Obecni go&#347;cie b&#281;d&#261; mie&#263; nadal dost&#281;p.</string>
     <string name="revoke_guest__room_link_dialog_title">Wycofa&#263; link dla go&#347;ci?</string>
-    <string name="guest__room_link_copied">Link dla go&#347;ci zosta&#322; skopiowany do schowka</string>
     <string name="title_device_key_fingerprint">ODCISK KLUCZA URZ&#260;DZENIA</string>
     <string name="label_client_key_fingerprint_not_available">NIEDOST&#280;PNY</string>
-    <string name="guest_room_link_copied">Link dla go&#347;ci zosta&#322; skopiowany do schowka</string>
+    <string name="guest_room_link_copied">Link copied to clipboard</string>
     <string name="guest_room_link_enabled">Generowanie link&#243;w dla go&#347;ci jest teraz w&#322;&#261;czone dla wszystkich administrator&#243;w grupy</string>
     <string name="guest_room_link_disabled">Generowanie link&#243;w dla go&#347;ci jest teraz wy&#322;&#261;czone dla wszystkich administrator&#243;w grupy</string>
     <!-- New Device dialog -->
     <string name="new_device_dialog_current_user_title">Twoje konto zosta&#322;o u&#380;yte na</string>
-    <string name="new_device_dialog_current_user_message">%1$s
-Z: %2$s
-
-Je&#347;li nie ty tego dokona&#322;e&#347;, usu&#324; urz&#261;dzenie i zresetuj has&#322;o.</string>
+    <string name="new_device_dialog_current_user_message">%1$s\nOd: %2$s \n\nJeśli tego nie zrobiłeś, usuń urządzenie i zresetuj swoje hasło.</string>
     <string name="new_device_dialog_current_user_btn">Zarz&#261;dzaj urz&#261;dzeniami</string>
     <string name="new_device_dialog_other_user_title">Twoje konto \"%1$s (@%2$s)\" zosta&#322;o u&#380;yte na</string>
-    <string name="new_device_dialog_other_user_message">%1$s
-Z: %2$s
-
-Je&#347;li nie ty tego dokona&#322;e&#347;, usu&#324; urz&#261;dzenie (wejd&#378; w &#8222;Zarz&#261;dzanie urz&#261;dzeniami&#8221; w sekcji Ustawienia tego konta) oraz zresetuj has&#322;o.</string>
+    <string name="new_device_dialog_other_user_message">%1$s\nOd: %2$s \n\nJeśli tego nie zrobiłeś, usuń urządzenie (przejdź do sekcji \"Zarządzaj swoimi urządzeniami\" w ustawieniach tego konta) i zresetuj swoje hasło.</string>
     <string name="new_device_dialog_other_user_btn">Prze&#322;&#261;cz konto</string>
     <string name="label_system_message_joined_the_conversation_by_self">%1$s do&#322;&#261;czy&#322; do rozmowy</string>
     <string name="label_system_message_joined_the_conversation_by_other">%1$s do&#322;&#261;czy&#322; do rozmowy</string>
@@ -958,10 +955,27 @@ Je&#347;li nie ty tego dokona&#322;e&#347;, usu&#324; urz&#261;dzenie (wejd&#378
     <string name="label_self_client_verification_description">Aby zweryfikowa&#263; swoje urz&#261;dzenie, por&#243;wnaj ten odcisk klucza z tym samym odciskiem klucza na innym urz&#261;dzeniu.</string>
     <string name="label_client_verification_description">Zweryfikuj, czy odcisk klucza na tym urz&#261;dzeniu odpowiada odciskowi klucza wy&#347;wietlanemu na urz&#261;dzeniu %s.</string>
     <string name="label_fingerprint_description">Je&#347;li odciski klucza si&#281; nie zgadzaj&#261;, zresetuj sesj&#281;, aby wygenerowa&#263; nowe klucze szyfrowania po obu stronach.</string>
-    <string name="label_self_fingerprint_description">Aby pozwoli&#263; innym zweryfikowa&#263; to urz&#261;dzenie, udost&#281;pnij im ten odcisk klucza lub kod QR.</string>
+    <string name="label_self_fingerprint_description">Share this key fingerprint with other participants in a conversation, so that they can verify it and make sure the conversation is secure.</string>
     <string name="unknown_user_name">nieznany</string>
     <string name="self_deleting_message_time_left">Self-deleting message • %1$s</string>
     <string name="self_deleting_message_label">Self-deleting message</string>
+    <string name="device_name_unknown">Unknown device</string>
+    <string name="create_account_email_title">Your Email</string>
+    <string name="settings_myaccount_email_description">Your email is part of your login details for this account. It may be visible to your contacts.</string>
+    <string name="settings_myaccount_email_invalid_imail_error">Please enter a valid email format</string>
+    <string name="settings_myaccount_email_already_in_use_error">The email address you provided has already been  registered. Please try again.</string>
+    <string name="settings_myaccount_email_verification_email_sent">A verification email has been sent to your email %1$s.\n\nYour current email address is not changed until you verified your new one. Please check your email inbox and follow the instructions.</string>
+    <string name="label_resend_verification_email">Resend Verification Email</string>
+    <string name="settings_myaccount_email_generic_error">Something went wrong. Please try again.</string>
+    <string name="settings_myaccount_handle_description">Your username helps others to find you in Wire and connect with you. It is unique in Wire.</string>
+    <string name="create_account_handle_title">Your User Name</string>
+    <string name="title_video_could_not_be_sent">Video could not be sent</string>
+    <string name="title_image_could_not_be_sent">Image could not be sent</string>
+    <string name="title_file_could_not_be_sent">File could not be sent</string>
+    <string name="label_shared_video_too_large">You can only share a video up to %d MB.</string>
+    <string name="label_shared_image_too_large">You can only share an image up to %d MB.</string>
+    <string name="label_shared_file_too_large">You can only share a file up to %d MB.</string>
+    <string name="label_file_saved_to_device">The file was saved to your device.</string>
     <!-- Expirable messages -->
     <plurals name="weeks_left">
         <item quantity="one">1 week left</item>

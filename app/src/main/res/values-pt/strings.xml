@@ -434,6 +434,7 @@ Até 500 pessoas podem participar de uma conversa em grupo.</string>
     <string name="user_profile_role_change_error">Houve um erro ao tentar alterar a função. Por favor, verifique sua conexão com a internet e tente novamente</string>
     <string name="user_profile_unblock_user">Desbloquear usuário</string>
     <string name="user_profile_group_remove_button">Remover do grupo</string>
+    <string name="user_profile_logging_out_progress">Logging out...</string>
     <!-- Remove Conversation Member Dialog -->
     <string name="dialog_remove_conversation_member_title">Remover do grupo?</string>
     <string name="dialog_remove_conversation_member_description">%1$s (@%2$s) não poderá enviar nem receber mensagens nesta conversa.</string>
@@ -590,6 +591,8 @@ Até 500 pessoas podem participar de uma conversa em grupo.</string>
         <item quantity="one">%1$d mensagem</item>
         <item quantity="other">%1$d mensagens</item>
     </plurals>
+    <string name="ephemeral_one_to_one_event_message">"Sent a message"</string>
+    <string name="ephemeral_group_event_message">"Someone sent a message"</string>
     <!--Search Contact-->
     <string name="label_contacts">CONTATOS</string>
     <string name="label_new_group">Novo Grupo</string>
@@ -632,8 +635,6 @@ Até 500 pessoas podem participar de uma conversa em grupo.</string>
     <string name="error_unblocking_user">O usuário não pôde ser desbloqueado.</string>
     <string name="delete_group_conversation_error">Ocorreu um erro ao excluir a conversa.</string>
     <string name="error_limit_number_assets_imported_exceeded">Você só pode enviar até 20 arquivos de uma vez.</string>
-    <string name="edit_message_not_yet_available">Salvar edições em mensagens ainda não está disponível.</string>
-    <!-- TODO: temporary, to be removed when the proper implementation of editing messages is finished -->
     <!-- Animation label -->
     <string name="label_open_conversation">Abrir conversa</string>
     <string name="email_label">E-mail</string>
@@ -660,6 +661,7 @@ Até 500 pessoas podem participar de uma conversa em grupo.</string>
     <string name="notification_call_default_caller_name">Alguém</string>
     <string name="notification_call_default_group_name">Chamada em Grupo Recebida</string>
     <!-- Calling-->
+    <string name="calling_constant_bit_rate_indication">Constant Bit Rate</string>
     <string name="calling_button_label_microphone">Microfone</string>
     <string name="calling_button_label_camera">Câmera</string>
     <string name="calling_button_label_speaker">Alto-falante</string>
@@ -741,7 +743,7 @@ Até 500 pessoas podem participar de uma conversa em grupo.</string>
     <string name="block_user_dialog_title">Bloquear usuário?</string>
     <string name="block_user_dialog_body">%1$s não será capaz de contactar-te ou adicinar-te à conversas em grupo. Ele(a) não será informado(a) a respeito.</string>
     <string name="block_user_dialog_confirm_button">Bloquear</string>
-    <string name="other_user_devices_description"><![CDATA[Wire cria uma identificação única para cada dispositivo. Compare-as com %1$s para verificar conversa.]]></string>
+    <string name="other_user_devices_description">Wire cria uma identificação única para cada dispositivo. Compare-as com %1$s para verificar conversa.</string>
     <!--Settings -->
     <string name="url_why_verify_conversation">/hc/pt/articles/207859815</string>
     <string name="settings_general_label">Geral</string>
@@ -882,7 +884,9 @@ Por favor, use o gerenciamento de equipe (%1$s) neste backend.</string>
     <string name="label_manual_migration_title">Migrar da versão 3.82.38</string>
     <string name="start_manual_migration">Iniciar migração da versão 3.82.38 manualmente</string>
     <string name="file_sharing_restricted_learn_more_link">https://support.wire.com/hc/en-us/articles/4406404582673-How-can-I-restrict-file-sharing-for-my-team-</string>
-    <string name="file_sharing_restricted_description_by_team">Você não pode compartilhar este arquivo porque este recurso está desativado.</string>
+    <string name="file_sharing_restricted_description_by_team">You can not share this file because this feature is disabled for this account.</string>
+    <string name="file_sharing_restricted_description_no_users">You need to be logged in to Wire before you can share anything</string>
+    <string name="file_sharing_restricted_button_text_no_users">Open Wire</string>
     <!-- join conversation dialog -->
     <string name="join_conversation_dialog_title">Entrar na conversa?</string>
     <string name="join_conversation_dialog_message">Você foi convidado para uma conversa.
@@ -902,28 +906,21 @@ Por favor, use o gerenciamento de equipe (%1$s) neste backend.</string>
     <string name="guest_link_button_revoke_link">Revogar Link</string>
     <string name="audio_not_available">Áudio indisponível</string>
     <string name="audio_not_available_explanation">Algo deu errado ao baixar este arquivo de áudio. Por favor, peça ao remetente para fazer o upload novamente.</string>
-    <string name="guest_link_generate_error_message">Ocorreu um erro ao tentar criar o link de convidado. Por favor, tente novamente.</string>
-    <string name="guest_link_revoke_error_message">Ocorreu um erro ao tentar revogar o link de convidado. Por favor, tente novamente.</string>
+    <string name="guest_link_generate_error_message">Link couldn\'t be created. Please try again</string>
+    <string name="guest_link_revoke_error_message">Link couldn\'t be revoked. Please try again</string>
     <string name="revoke_guest__room_link_dialog_text">Novos convidados não poderão entrar com este link. Os convidados atuais ainda terão acesso.</string>
     <string name="revoke_guest__room_link_dialog_title">Revogar o link de convidado?</string>
-    <string name="guest__room_link_copied">O link de convidado foi copiado para a área de transferência</string>
     <string name="title_device_key_fingerprint">IDENTIFICAÇÃO DO DISPOSITIVO</string>
     <string name="label_client_key_fingerprint_not_available">NÃO DISPONÍVEL</string>
-    <string name="guest_room_link_copied">O link para convidados foi copiado</string>
+    <string name="guest_room_link_copied">Link copied to clipboard</string>
     <string name="guest_room_link_enabled">A geração de links de convidado agora está habilitada para todos os administradores de grupo</string>
     <string name="guest_room_link_disabled">A geração de links de convidado agora está desabilitada para todos os administradores de grupo</string>
     <!-- New Device dialog -->
     <string name="new_device_dialog_current_user_title">Sua conta foi usada em</string>
-    <string name="new_device_dialog_current_user_message">%1$s
-De: %2$s
-
-Se você não fez isso, remova o dispositivo e redefina sua senha.</string>
+    <string name="new_device_dialog_current_user_message">%1$s\nFrom: %2$s \n\nIf you didn\'t do this, remove the device and reset your password.</string>
     <string name="new_device_dialog_current_user_btn">Gerenciar dispositivos</string>
     <string name="new_device_dialog_other_user_title">Sua conta \"%1$s (@%2$s)\" foi usada em:</string>
-    <string name="new_device_dialog_other_user_message">%1$s
-De: %2$s
-
-Se você não fez isso, remova o dispositivo (vá para \"Gerenciar dispositivos\" na seção Configurações desta conta), e redefina sua senha.</string>
+    <string name="new_device_dialog_other_user_message">%1$s\nFrom: %2$s \n\nIf you didn\'t do this, remove the device (navigate to “Manage Devices” in the Settings section of this account), and reset your password.</string>
     <string name="new_device_dialog_other_user_btn">Mudar de Conta</string>
     <string name="label_system_message_joined_the_conversation_by_self">%1$s entrou na conversa</string>
     <string name="label_system_message_joined_the_conversation_by_other">%1$s entrou na conversa</string>
@@ -932,10 +929,27 @@ Se você não fez isso, remova o dispositivo (vá para \"Gerenciar dispositivos\
     <string name="label_self_client_verification_description">Para verificar o seu próprio dispositivo, compare esta impressão digital com a mesma impressão digital em outro dispositivo.</string>
     <string name="label_client_verification_description">Verificar se esta impressão digital do dispositivo corresponde à impressão digital mostrada no dispositivo de %s.</string>
     <string name="label_fingerprint_description">Se as impressões digitais não coincidirem, reinicie a sessão para gerar novas chaves de criptografia em ambos os lados.</string>
-    <string name="label_self_fingerprint_description">Para permitir que outros verifiquem este dispositivo, compartilhe esta impressão digital ou o código QR com eles.</string>
+    <string name="label_self_fingerprint_description">Share this key fingerprint with other participants in a conversation, so that they can verify it and make sure the conversation is secure.</string>
     <string name="unknown_user_name">usuário desconhecido</string>
     <string name="self_deleting_message_time_left">Self-deleting message • %1$s</string>
     <string name="self_deleting_message_label">Self-deleting message</string>
+    <string name="device_name_unknown">Unknown device</string>
+    <string name="create_account_email_title">Your Email</string>
+    <string name="settings_myaccount_email_description">Your email is part of your login details for this account. It may be visible to your contacts.</string>
+    <string name="settings_myaccount_email_invalid_imail_error">Please enter a valid email format</string>
+    <string name="settings_myaccount_email_already_in_use_error">The email address you provided has already been  registered. Please try again.</string>
+    <string name="settings_myaccount_email_verification_email_sent">A verification email has been sent to your email %1$s.\n\nYour current email address is not changed until you verified your new one. Please check your email inbox and follow the instructions.</string>
+    <string name="label_resend_verification_email">Resend Verification Email</string>
+    <string name="settings_myaccount_email_generic_error">Something went wrong. Please try again.</string>
+    <string name="settings_myaccount_handle_description">Your username helps others to find you in Wire and connect with you. It is unique in Wire.</string>
+    <string name="create_account_handle_title">Your User Name</string>
+    <string name="title_video_could_not_be_sent">Video could not be sent</string>
+    <string name="title_image_could_not_be_sent">Image could not be sent</string>
+    <string name="title_file_could_not_be_sent">File could not be sent</string>
+    <string name="label_shared_video_too_large">You can only share a video up to %d MB.</string>
+    <string name="label_shared_image_too_large">You can only share an image up to %d MB.</string>
+    <string name="label_shared_file_too_large">You can only share a file up to %d MB.</string>
+    <string name="label_file_saved_to_device">The file was saved to your device.</string>
     <!-- Expirable messages -->
     <plurals name="weeks_left">
         <item quantity="one">1 week left</item>

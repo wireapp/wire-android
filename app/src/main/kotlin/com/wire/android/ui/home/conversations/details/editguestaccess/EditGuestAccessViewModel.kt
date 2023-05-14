@@ -156,15 +156,12 @@ class EditGuestAccessViewModel @Inject constructor(
                 guestAllowed = shouldEnableGuestAccess,
                 servicesAllowed = editGuestAccessState.isServicesAccessAllowed,
                 nonTeamMembersAllowed = shouldEnableGuestAccess // Guest access controls non-team member access
-                )
+            )
         val newAccess = Conversation
             .accessFor(shouldEnableGuestAccess)
 
         viewModelScope.launch {
             withContext(dispatcher.io()) {
-                if (!shouldEnableGuestAccess) {
-                    removeGuestLink()
-                }
                 updateConversationAccessRole(
                     conversationId = conversationId,
                     accessRoles = newAccessRoles,
@@ -223,13 +220,9 @@ class EditGuestAccessViewModel @Inject constructor(
         editGuestAccessState = editGuestAccessState.copy(shouldShowRevokeLinkConfirmationDialog = false)
     }
 
-    fun onRevokeDialogConfirm() {
-        removeGuestLink()
-    }
-
-    private fun removeGuestLink() {
-        updateState(editGuestAccessState.copy(shouldShowRevokeLinkConfirmationDialog = false, isRevokingLink = true))
+    fun removeGuestLink() {
         viewModelScope.launch {
+            updateState(editGuestAccessState.copy(shouldShowRevokeLinkConfirmationDialog = false, isRevokingLink = true))
             revokeGuestRoomLink(conversationId).also {
                 if (it is RevokeGuestRoomLinkResult.Failure) {
                     updateState(editGuestAccessState.copy(isFailedToRevokeGuestRoomLink = true))

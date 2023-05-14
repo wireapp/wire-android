@@ -48,6 +48,7 @@ repositories {
 
 android {
     compileSdk = AndroidSdk.compile
+    namespace = AndroidClient.namespace
 
     defaultConfig {
         applicationId = AndroidClient.appId

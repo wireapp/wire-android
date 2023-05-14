@@ -227,12 +227,12 @@ class WireActivityViewModel @Inject constructor(
                 result is DeepLinkResult.MigrationLogin -> openMigrationLogin(result.userHandle)
                 result is DeepLinkResult.CustomServerConfig -> onCustomServerConfig(result)
 
+                isSharingIntent(intent) -> navigateToImportMediaScreen()
+
                 shouldGoToWelcome() -> {
                     // to handle the deepLinks above user needs to be Logged in
                     // do nothing, navigating to Login is handled by startNavigationRoute()
                 }
-
-                isSharingIntent(intent) -> navigateToImportMediaScreen()
 
                 result is DeepLinkResult.IncomingCall -> openIncomingCall(result.conversationsId)
                 result is DeepLinkResult.OngoingCall -> openOngoingCall(result.conversationsId)

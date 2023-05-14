@@ -42,6 +42,8 @@ import com.wire.android.navigation.NavigationItemDestinationsRoutes.EDIT_CONVERS
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.EDIT_DISPLAY_NAME
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.EDIT_EMAIL
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.EDIT_GUEST_ACCESS
+import com.wire.android.navigation.NavigationItemDestinationsRoutes.EDIT_HANDLE
+import com.wire.android.navigation.NavigationItemDestinationsRoutes.EDIT_SELF_DELETING_MESSAGES
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.GROUP_CONVERSATION_ALL_PARTICIPANTS
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.GROUP_CONVERSATION_DETAILS
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.HOME
@@ -64,6 +66,7 @@ import com.wire.android.navigation.NavigationItemDestinationsRoutes.REGISTER_DEV
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.REMOVE_DEVICES
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.SELF_DEVICES
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.SELF_USER_PROFILE
+import com.wire.android.navigation.NavigationItemDestinationsRoutes.SERVICE_DETAILS
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.VERIFY_EMAIL
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.WELCOME
 import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
@@ -84,6 +87,7 @@ import com.wire.android.ui.home.conversations.ConversationScreen
 import com.wire.android.ui.home.conversations.details.GroupConversationDetailsScreen
 import com.wire.android.ui.home.conversations.details.editguestaccess.EditGuestAccessParams
 import com.wire.android.ui.home.conversations.details.editguestaccess.EditGuestAccessScreen
+import com.wire.android.ui.home.conversations.details.editselfdeletingmessages.EditSelfDeletingMessagesScreen
 import com.wire.android.ui.home.conversations.details.metadata.EditConversationNameScreen
 import com.wire.android.ui.home.conversations.details.participants.GroupConversationAllParticipantsScreen
 import com.wire.android.ui.home.conversations.messagedetails.MessageDetailsScreen
@@ -94,6 +98,10 @@ import com.wire.android.ui.home.settings.account.MyAccountScreen
 import com.wire.android.ui.home.settings.account.displayname.ChangeDisplayNameScreen
 import com.wire.android.ui.home.settings.account.email.updateEmail.ChangeEmailScreen
 import com.wire.android.ui.home.settings.account.email.verifyEmail.VerifyEmailScreen
+import com.wire.android.ui.home.settings.account.displayname.ChangeDisplayNameScreen
+import com.wire.android.ui.home.settings.account.email.updateEmail.ChangeEmailScreen
+import com.wire.android.ui.home.settings.account.email.verifyEmail.VerifyEmailScreen
+import com.wire.android.ui.home.settings.account.handle.ChangeHandleScreen
 import com.wire.android.ui.home.settings.appsettings.AppSettingsScreen
 import com.wire.android.ui.home.settings.appsettings.networkSettings.NetworkSettingsScreen
 import com.wire.android.ui.home.settings.backup.BackupAndRestoreScreen
@@ -106,10 +114,12 @@ import com.wire.android.ui.sharing.ImportMediaScreen
 import com.wire.android.ui.userprofile.avatarpicker.AvatarPickerScreen
 import com.wire.android.ui.userprofile.other.OtherUserProfileScreen
 import com.wire.android.ui.userprofile.self.SelfUserProfileScreen
+import com.wire.android.ui.userprofile.service.ServiceDetailsScreen
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.kalium.logic.data.conversation.ClientId
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
+import com.wire.kalium.logic.data.user.BotService
 import com.wire.kalium.logic.data.user.UserId
 import io.github.esentsov.PackagePrivate
 import kotlinx.serialization.encodeToString
@@ -263,7 +273,6 @@ enum class NavigationItem(
         primaryRoute = EDIT_EMAIL,
         content = { ChangeEmailScreen() }
     ),
-
     VerifyEmailAddress(
         primaryRoute = "$VERIFY_EMAIL?$EXTRA_NEW_EMAIL={$EXTRA_NEW_EMAIL}",
         content = { VerifyEmailScreen() }
@@ -275,6 +284,11 @@ enum class NavigationItem(
             return "$VERIFY_EMAIL?$EXTRA_NEW_EMAIL=$newEmail"
         }
     },
+
+    EditHandle(
+        primaryRoute = EDIT_HANDLE,
+        content = { ChangeHandleScreen() }
+    ),
 
     NetworkSettings(
         primaryRoute = NETWORK_SETTINGS,
@@ -308,6 +322,19 @@ enum class NavigationItem(
             val conversationId: QualifiedID? = arguments.filterIsInstance<QualifiedID>().getOrNull(1)
             val baseRoute = "$primaryRoute?$EXTRA_USER_ID=$userId"
             return conversationId?.let { "$baseRoute&$EXTRA_CONVERSATION_ID=$it" } ?: baseRoute
+        }
+    },
+
+    ServiceDetails(
+        primaryRoute = SERVICE_DETAILS,
+        canonicalRoute = "$SERVICE_DETAILS?$EXTRA_BOT_SERVICE_ID={$EXTRA_BOT_SERVICE_ID}&$EXTRA_CONVERSATION_ID={$EXTRA_CONVERSATION_ID}",
+        content = { ServiceDetailsScreen() },
+        animationConfig = NavigationAnimationConfig.NoAnimation
+    ) {
+        override fun getRouteWithArgs(arguments: List<Any>): String {
+            val botServiceId: BotService = arguments.filterIsInstance<BotService>()[0]
+            val conversationId: QualifiedID = arguments.filterIsInstance<QualifiedID>()[0]
+            return "$primaryRoute?$EXTRA_BOT_SERVICE_ID=$botServiceId&$EXTRA_CONVERSATION_ID=$conversationId"
         }
     },
 
@@ -402,6 +429,20 @@ enum class NavigationItem(
         }
     },
 
+    EditSelfDeletingMessages(
+        primaryRoute = EDIT_SELF_DELETING_MESSAGES,
+        canonicalRoute = "$EDIT_SELF_DELETING_MESSAGES?$EXTRA_CONVERSATION_ID={$EXTRA_CONVERSATION_ID}",
+        content = { EditSelfDeletingMessagesScreen() },
+        animationConfig = NavigationAnimationConfig.CustomAnimation(smoothSlideInFromRight(), smoothSlideOutFromLeft())
+    ) {
+        override fun getRouteWithArgs(arguments: List<Any>): String {
+            val conversationIdString: String = arguments.filterIsInstance<ConversationId>().firstOrNull()?.toString()
+                ?: "{$EXTRA_CONVERSATION_ID}"
+
+            return "$EDIT_SELF_DELETING_MESSAGES?$EXTRA_CONVERSATION_ID=$conversationIdString"
+        }
+    },
+
     OngoingCall(
         primaryRoute = ONGOING_CALL,
         canonicalRoute = "$ONGOING_CALL/{$EXTRA_CONVERSATION_ID}",
@@ -488,9 +529,11 @@ object NavigationItemDestinationsRoutes {
     const val INITIAL_SYNC = "initial_sync_screen"
     const val SELF_USER_PROFILE = "self_user_profile_screen"
     const val OTHER_USER_PROFILE = "other_user_profile_screen"
+    const val SERVICE_DETAILS = "service_details_screen"
     const val CONVERSATION = "detailed_conversation_screen"
     const val EDIT_CONVERSATION_NAME = "edit_conversation_name_screen"
     const val EDIT_GUEST_ACCESS = "edit_guest_access_screen"
+    const val EDIT_SELF_DELETING_MESSAGES = "edit_self_deleting_messages_screen"
     const val GROUP_CONVERSATION_DETAILS = "group_conversation_details_screen"
     const val MESSAGE_DETAILS = "message_details_screen"
     const val GROUP_CONVERSATION_ALL_PARTICIPANTS = "group_conversation_all_participants_screen"
@@ -503,6 +546,7 @@ object NavigationItemDestinationsRoutes {
     const val EDIT_DISPLAY_NAME = "edit_display_name_screen"
     const val EDIT_EMAIL = "edit_email_screen"
     const val VERIFY_EMAIL = "verify_email_screen"
+    const val EDIT_HANDLE = "edit_handle_screen"
     const val DEBUG = "debug_screen"
     const val REMOVE_DEVICES = "remove_devices_screen"
     const val REGISTER_DEVICE = "register_device_screen"
@@ -543,6 +587,7 @@ const val EXTRA_SETTINGS_DISPLAY_NAME_CHANGED = "extra_settings_display_name_cha
 const val EXTRA_BACK_NAVIGATION_ARGUMENTS = "extra_back_navigation_arguments"
 
 const val EXTRA_EDIT_GUEST_ACCESS_PARAMS = "extra_edit_guest_access_params"
+const val EXTRA_BOT_SERVICE_ID = "extra_bot_service_id"
 
 const val EXTRA_SSO_LOGIN_RESULT = "sso_login_result"
 

@@ -165,7 +165,7 @@ fun EditGuestAccessScreen(
         }
         if (editGuestAccessState.shouldShowRevokeLinkConfirmationDialog) {
             RevokeGuestConfirmationDialog(
-                onConfirm = ::onRevokeDialogConfirm, onDialogDismiss = ::onRevokeDialogDismiss
+                onConfirm = ::removeGuestLink, onDialogDismiss = ::onRevokeDialogDismiss
             )
         }
         if (editGuestAccessState.isFailedToGenerateGuestRoomLink) {

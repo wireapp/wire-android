@@ -24,12 +24,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
 import com.wire.android.model.ClickBlockParams
@@ -46,9 +42,6 @@ fun MessageSendActions(
 ) {
     Box(modifier) {
         Row(Modifier.padding(end = dimensions().spacing8x)) {
-//            if (messageComposerState.sendButtonEnabled) {
-//                ScheduleMessageButton()
-//            }
             SendButton(
                 isEnabled = sendButtonEnabled,
                 onSendButtonClicked = onSendButtonClicked
@@ -58,13 +51,21 @@ fun MessageSendActions(
 }
 
 @Composable
-private fun ScheduleMessageButton() {
-    IconButton(onClick = { }) {
-        Icon(
-            painter = painterResource(id = R.drawable.ic_timer),
-            contentDescription = stringResource(R.string.content_description_timed_message_button),
-        )
-    }
+fun ScheduleMessageButton(
+    sendButtonEnabled: Boolean,
+    onSendButtonClicked: () -> Unit
+) {
+    WirePrimaryIconButton(
+        onButtonClicked = onSendButtonClicked,
+        iconResource = R.drawable.ic_timer,
+        contentDescription = R.string.content_description_send_button,
+        state = if (sendButtonEnabled) WireButtonState.Default else WireButtonState.Disabled,
+        shape = RoundedCornerShape(dimensions().spacing20x),
+        colors = wireSendPrimaryButtonColors(),
+        clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = false),
+        minHeight = dimensions().spacing40x,
+        minWidth = dimensions().spacing40x
+    )
 }
 
 @Composable
@@ -90,6 +91,7 @@ private fun SendButton(
 fun PreviewMessageSendActionsEnabled() {
     MessageSendActions(true, {})
 }
+
 @Preview
 @Composable
 fun PreviewMessageSendActionsDisabled() {

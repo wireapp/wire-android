@@ -28,5 +28,6 @@ data class MyAccountState(
     val domain: String = "",
     val changePasswordUrl: String? = null,
     val isReadOnlyAccount: Boolean = true,
-    val isEditEmailAllowed: Boolean = false
+    val isEditEmailAllowed: Boolean = false,
+    val isEditHandleAllowed: Boolean = false,
 )

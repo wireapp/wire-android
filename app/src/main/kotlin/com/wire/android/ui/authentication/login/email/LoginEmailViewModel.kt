@@ -103,32 +103,32 @@ class LoginEmailViewModel @Inject constructor(
                     replace = false
                 )
             }.let {
-                    when (it) {
-                        is AddAuthenticatedUserUseCase.Result.Failure -> {
-                            updateEmailLoginError(it.toLoginError())
-                            return@launch
-                        }
-
-                        is AddAuthenticatedUserUseCase.Result.Success -> it.userId
+                when (it) {
+                    is AddAuthenticatedUserUseCase.Result.Failure -> {
+                        updateEmailLoginError(it.toLoginError())
+                        return@launch
                     }
+
+                    is AddAuthenticatedUserUseCase.Result.Success -> it.userId
                 }
+            }
             withContext(dispatchers.io()) {
                 registerClient(
                     userId = storedUserId,
                     password = loginState.password.text,
                 )
             }.let {
-                    when (it) {
-                        is RegisterClientResult.Failure -> {
-                            updateEmailLoginError(it.toLoginError())
-                            return@launch
-                        }
+                when (it) {
+                    is RegisterClientResult.Failure -> {
+                        updateEmailLoginError(it.toLoginError())
+                        return@launch
+                    }
 
-                        is RegisterClientResult.Success -> {
-                            navigateAfterRegisterClientSuccess(storedUserId)
-                        }
+                    is RegisterClientResult.Success -> {
+                        navigateAfterRegisterClientSuccess(storedUserId)
                     }
                 }
+            }
         }
     }
 
@@ -180,7 +180,8 @@ class LoginEmailViewModel @Inject constructor(
             verifiableAction = VerifiableAction.LOGIN_OR_CLIENT_REGISTRATION
         )
         when (result) {
-            is RequestSecondFactorVerificationCodeUseCase.Result.Success -> {
+            is RequestSecondFactorVerificationCodeUseCase.Result.Success,
+            RequestSecondFactorVerificationCodeUseCase.Result.Failure.TooManyRequests -> {
                 secondFactorVerificationCodeState = secondFactorVerificationCodeState.copy(
                     isCodeInputNecessary = true,
                     emailUsed = email,
@@ -188,7 +189,7 @@ class LoginEmailViewModel @Inject constructor(
                 updateEmailLoginError(LoginError.None)
             }
 
-            is RequestSecondFactorVerificationCodeUseCase.Result.Failure -> {
+            is RequestSecondFactorVerificationCodeUseCase.Result.Failure.Generic -> {
                 updateEmailLoginError(LoginError.DialogError.GenericError(result.cause))
             }
         }

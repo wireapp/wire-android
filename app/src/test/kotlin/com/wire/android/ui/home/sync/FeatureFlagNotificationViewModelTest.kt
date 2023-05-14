@@ -65,7 +65,7 @@ class FeatureFlagNotificationViewModelTest {
     fun givenLoggedInUser_whenFileSharingRestrictedForTeam_thenSharingRestricted() = runTest(mainThreadSurrogate) {
         val (_, viewModel) = Arrangement()
             .withCurrentSessions(CurrentSessionResult.Success(AccountInfo.Valid(TestUser.USER_ID)))
-            .withFileSharingStatus(flowOf(FileSharingStatus(false, false)))
+            .withFileSharingStatus(flowOf(FileSharingStatus(FileSharingStatus.Value.Disabled, false)))
             .arrange()
         viewModel.initialSync()
         advanceUntilIdle()
@@ -98,7 +98,7 @@ class FeatureFlagNotificationViewModelTest {
     fun givenLoggedInUser_whenFileSharingAllowed_thenSharingNotRestricted() = runTest(mainThreadSurrogate) {
         val (_, viewModel) = Arrangement()
             .withCurrentSessions(CurrentSessionResult.Success(AccountInfo.Valid(TestUser.USER_ID)))
-            .withFileSharingStatus(flowOf(FileSharingStatus(true, false)))
+            .withFileSharingStatus(flowOf(FileSharingStatus(FileSharingStatus.Value.EnabledAll, false)))
             .arrange()
         viewModel.initialSync()
         advanceUntilIdle()

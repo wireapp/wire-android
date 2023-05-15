@@ -15,24 +15,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
+package com.wire.android.ui.calling.ongoing.fullscreen
 
-package com.wire.android.ui.edit
+import com.wire.kalium.logic.data.user.UserId
 
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.res.stringResource
-import com.wire.android.R
-import com.wire.android.ui.common.bottomsheet.MenuBottomSheetItem
-import com.wire.android.ui.common.bottomsheet.MenuItemIcon
-
-@Composable
-fun OpenAssetExternallyOption(onOpenClick: () -> Unit) =
-    MenuBottomSheetItem(
-        icon = {
-            MenuItemIcon(
-                id = R.drawable.ic_view,
-                contentDescription = stringResource(R.string.content_description_open_asset_icon),
-            )
-        },
-        title = stringResource(R.string.label_open_asset_externally),
-        onItemClick = onOpenClick
-    )
+data class SelectedParticipant(
+    val userId: UserId = UserId("", ""),
+    val clientId: String = "",
+    val isSelfUser: Boolean = false
+)

@@ -40,15 +40,13 @@ import com.wire.kalium.logic.data.user.UserId
 @Composable
 fun FullScreenTile(
     sharedCallingViewModel: SharedCallingViewModel = hiltViewModel(),
-    userId: UserId,
-    clientId: String,
-    isSelfUser: Boolean,
+    selectedParticipant: SelectedParticipant,
     height: Dp,
     onDoubleTap: (offset: Offset) -> Unit
 ) {
 
     sharedCallingViewModel.callState.participants.find {
-        it.id == userId && it.clientId == clientId
+        it.id == selectedParticipant.userId && it.clientId == selectedParticipant.clientId
     }?.let {
         Box(modifier = Modifier) {
             ParticipantTile(
@@ -57,10 +55,7 @@ fun FullScreenTile(
                     .clipToBounds()
                     .pointerInput(Unit) {
                         detectTapGestures(
-                            onPress = { /* Called when the gesture starts */ },
-                            onDoubleTap = onDoubleTap,
-                            onLongPress = { /* Called on Long Press */ },
-                            onTap = { /* Called on Tap */ }
+                            onDoubleTap = onDoubleTap
                         )
                     }
                     .height(height)
@@ -83,9 +78,7 @@ fun FullScreenTile(
 @Composable
 fun PreviewFullScreenVideoCall() {
     FullScreenTile(
-        userId = UserId(String.EMPTY, String.EMPTY),
-        clientId = String.EMPTY,
-        isSelfUser = false,
+        selectedParticipant = SelectedParticipant(),
         height = 100.dp,
         onDoubleTap = { }
     )

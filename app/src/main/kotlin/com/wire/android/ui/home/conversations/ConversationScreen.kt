@@ -417,6 +417,7 @@ private fun ConversationScreen(
                         audioMessagesState = conversationMessagesViewState.audioMessagesState,
                         isFileSharingEnabled = messageComposerViewState.isFileSharingEnabled,
                         lastUnreadMessageInstant = conversationMessagesViewState.firstUnreadInstant,
+                        unreadEventCount = conversationMessagesViewState.firstuUnreadEventIndex,
                         conversationState = messageComposerViewState,
                         conversationDetailsData = conversationInfoViewState.conversationDetailsData,
                         messageComposerState = messageComposerState,
@@ -454,6 +455,7 @@ private fun ConversationScreenContent(
     membersToMention: List<Contact>,
     isFileSharingEnabled: Boolean,
     lastUnreadMessageInstant: Instant?,
+    unreadEventCount: Int,
     conversationState: MessageComposerViewState,
     audioMessagesState: Map<String, AudioState>,
     messageComposerState: MessageComposerState,
@@ -482,9 +484,8 @@ private fun ConversationScreenContent(
 
     val lazyPagingMessages = messages.collectAsLazyPagingItems()
 
-    val lazyListState = rememberSaveable(lazyPagingMessages, saver = LazyListState.Saver) {
-        // TODO: Autoscroll to last unread message
-        LazyListState(0)
+    val lazyListState = rememberSaveable(unreadEventCount, lazyPagingMessages, saver = LazyListState.Saver) {
+        LazyListState(unreadEventCount)
     }
 
     MessageComposer(

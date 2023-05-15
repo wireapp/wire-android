@@ -63,6 +63,7 @@ import com.wire.android.ui.calling.controlbuttons.MicrophoneButton
 import com.wire.android.ui.calling.controlbuttons.SpeakerButton
 import com.wire.android.ui.calling.model.UICallParticipant
 import com.wire.android.ui.calling.ongoing.fullscreen.FullScreenTile
+import com.wire.android.ui.calling.ongoing.fullscreen.SelectedParticipant
 import com.wire.android.ui.calling.ongoing.participantsview.VerticalCallingPager
 import com.wire.android.ui.common.SecurityClassificationBanner
 import com.wire.android.ui.common.colorsScheme
@@ -147,10 +148,8 @@ private fun OngoingCallContent(
         bottomSheetState = sheetState
     )
 
-    var shouldFullScreen by remember { mutableStateOf(false) }
-    var userId by remember { mutableStateOf(UserId(String.EMPTY, String.EMPTY)) }
-    var isSelfUser by remember { mutableStateOf(false) }
-    var clientId by remember { mutableStateOf(String.EMPTY) }
+    var shouldOpenFullScreen by remember { mutableStateOf(false) }
+    var selectedParticipantForFullScreen by remember { mutableStateOf(SelectedParticipant()) }
 
     BottomSheetScaffold(
         sheetBackgroundColor = colorsScheme().background,
@@ -185,10 +184,11 @@ private fun OngoingCallContent(
         },
     ) {
         BoxWithConstraints(
-            modifier = Modifier.padding(
-                top = it.calculateTopPadding(),
-                bottom = dimensions().defaultSheetPeekHeight
-            )
+            modifier = Modifier
+                .padding(
+                    top = it.calculateTopPadding(),
+                    bottom = dimensions().defaultSheetPeekHeight
+                )
         ) {
 
             if (participants.isEmpty()) {
@@ -214,22 +214,20 @@ private fun OngoingCallContent(
 
                     // if there is only one in the call, do not allow full screen
                     if (participants.size == 1) {
-                        shouldFullScreen = false
+                        shouldOpenFullScreen = false
                     }
 
                     // if we are on full screen, and that user left the call, then we leave the full screen
-                    if (participants.find { user -> user.id == userId } == null) {
-                        shouldFullScreen = false
+                    if (participants.find { user -> user.id == selectedParticipantForFullScreen.userId } == null) {
+                        shouldOpenFullScreen = false
                     }
 
-                    if (shouldFullScreen) {
+                    if (shouldOpenFullScreen) {
                         FullScreenTile(
-                            userId = userId,
-                            clientId = clientId,
-                            isSelfUser = isSelfUser,
+                            selectedParticipant = selectedParticipantForFullScreen,
                             height = this@BoxWithConstraints.maxHeight - dimensions().spacing4x
                         ) {
-                            shouldFullScreen = !shouldFullScreen
+                            shouldOpenFullScreen = !shouldOpenFullScreen
                         }
                     } else {
                         VerticalCallingPager(
@@ -241,10 +239,12 @@ private fun OngoingCallContent(
                             onSelfClearVideoPreview = clearVideoPreview,
                             requestVideoStreams = requestVideoStreams,
                             onDoubleTap = { selectedUserId, selectedClientId, isSelf ->
-                                userId = selectedUserId
-                                clientId = selectedClientId
-                                isSelfUser = isSelf
-                                shouldFullScreen = !shouldFullScreen
+                                selectedParticipantForFullScreen = SelectedParticipant(
+                                    userId = selectedUserId,
+                                    clientId = selectedClientId,
+                                    isSelfUser = isSelf
+                                )
+                                shouldOpenFullScreen = !shouldOpenFullScreen
                             }
                         )
                     }

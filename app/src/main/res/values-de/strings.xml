@@ -1017,10 +1017,10 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
         <item quantity="one">1 Sekunde</item>
         <item quantity="other">%1$d Sekunden</item>
     </plurals>
-    <string name="four_weeks_short_label">4Wo</string>
+    <string name="four_weeks_short_label">4 Wo</string>
     <string name="one_week_short_label">1 Wo</string>
     <string name="one_day_short_label">1Tag</string>
     <string name="one_hour_short_label">1 Std</string>
-    <string name="five_minutes_short_label">5Min</string>
-    <string name="ten_seconds_short_label">10Sek</string>
+    <string name="five_minutes_short_label">5 Min</string>
+    <string name="ten_seconds_short_label">10 Sek</string>
 </resources>

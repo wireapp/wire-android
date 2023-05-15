@@ -37,9 +37,6 @@ import com.wire.kalium.logger.KaliumLogLevel
 import com.wire.kalium.logic.CoreLogger
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.client.ObserveCurrentClientIdUseCase
-import com.wire.kalium.logic.feature.keypackage.MLSKeyPackageCountUseCase
-import com.wire.kalium.logic.sync.incremental.RestartSlowSyncProcessForRecoveryUseCase
-import com.wire.kalium.logic.sync.periodic.UpdateApiVersionsScheduler
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.launch
@@ -47,8 +44,7 @@ import javax.inject.Inject
 
 data class UserDebugState(
     val isLoggingEnabled: Boolean = false,
-    val currentClientId: String = String.EMPTY,
-    val keyPackagesCount: Int = 0,
+    val clientId: String = String.EMPTY
 )
 
 @Suppress("LongParameterList")
@@ -86,7 +82,7 @@ class UserDebugViewModel
         viewModelScope.launch {
             currentClientIdUseCase().collect {
                 val clientId = it?.let { clientId -> clientId.value } ?: "Client not fount"
-                state = state.copy(currentClientId = clientId)
+                state = state.copy(clientId = clientId)
             }
         }
     }

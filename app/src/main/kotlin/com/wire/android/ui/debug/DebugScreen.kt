@@ -43,18 +43,13 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.BuildConfig
 import com.wire.android.R
-import com.wire.android.model.Clickable
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.debug.dev.DevDebugContent
-import com.wire.android.ui.home.conversationslist.common.FolderHeader
-import com.wire.android.ui.home.settings.SettingsItem
-import com.wire.android.util.getDeviceId
 import com.wire.android.util.getMimeType
 import com.wire.android.util.getUrisOfFilesInDirectory
 import com.wire.android.util.multipleFileSharingIntent
 import java.io.File
-import kotlin.reflect.KFunction1
 
 @Composable
 fun DebugScreen() {
@@ -67,7 +62,7 @@ fun DebugScreen() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun UserDebugContent() {
+private fun UserDebugContent() {
     val userDebugViewModel: UserDebugViewModel = hiltViewModel()
     val debugContentState: DebugContentState = rememberDebugContentState(userDebugViewModel.logPath)
 
@@ -95,37 +90,15 @@ fun UserDebugContent() {
                     onShareLogs = debugContentState::shareLogs,
                 )
                 DebugDataOptions(
-                    deviceId = debugContentState.deviceId,
-                    onCopyDeviceId = debugContentState::copyToClipboard
+                    appVersion = BuildConfig.VERSION_NAME,
+                    buildVariant = "${BuildConfig.FLAVOR}${BuildConfig.BUILD_TYPE.replaceFirstChar { it.uppercase() }}",
+                    clientId = clientId,
+                    onCopyText = debugContentState::copyToClipboard
                 )
             }
         }
     }
 }
-
-@Composable
-private fun DebugDataOptions(deviceId: String?, onCopyDeviceId: KFunction1<String, Unit>) {
-    Column {
-        FolderHeader(stringResource(R.string.label_logs_option_title))
-        SettingsItem(
-            title = currentClientId,
-            trailingIcon = R.drawable.ic_copy,
-            onIconPressed = Clickable(
-                enabled = true,
-                onClick = { onCopyClientId(currentClientId) }
-            )
-        )
-        SettingsItem(
-            title = deviceId ?: "",
-            trailingIcon = R.drawable.ic_copy,
-            onIconPressed = Clickable(
-                enabled = true,
-                onClick = { onCopyDeviceId(deviceId ?: "") }
-            )
-        )
-    }
-}
-
 
 @Composable
 fun rememberDebugContentState(logPath: String): DebugContentState {
@@ -149,9 +122,6 @@ data class DebugContentState(
     val logPath: String,
     val scrollState: ScrollState
 ) {
-    val deviceId: String?
-        get() = context.getDeviceId()
-
     fun copyToClipboard(text: String) {
         clipboardManager.setText(AnnotatedString(text))
         Toast.makeText(

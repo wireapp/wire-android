@@ -40,16 +40,14 @@ import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
-import com.wire.android.ui.debug.ClientIdOptions
 import com.wire.android.ui.debug.DebugContentState
+import com.wire.android.ui.debug.DebugDataOptions
 import com.wire.android.ui.debug.LogOptions
 import com.wire.android.ui.debug.rememberDebugContentState
 import com.wire.android.ui.home.conversationslist.common.FolderHeader
 import com.wire.android.ui.home.settings.SettingsItem
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
-import kotlin.reflect.KFunction1
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -80,7 +78,6 @@ fun DevDebugContent() {
                     mlsErrorMessage = mlsErrorMessage,
                     restartSlowSyncForRecovery = devDebugViewModel::restartSlowSyncForRecovery
                 )
-
                 if (BuildConfig.PRIVATE_BUILD) {
                     ProteusOptions(
                         isEncryptedStorageEnabled = isEncryptedProteusStorageEnabled,
@@ -91,42 +88,21 @@ fun DevDebugContent() {
                         }
                     )
                 }
-
                 LogOptions(
                     isLoggingEnabled = isLoggingEnabled,
                     onLoggingEnabledChange = devDebugViewModel::setLoggingEnabledState,
                     onDeleteLogs = devDebugViewModel::deleteLogs,
                     onShareLogs = debugContentState::shareLogs
                 )
-
                 DebugDataOptions(
-                    deviceId = deviceId
-                            onCopyDeviceId = debugContentState ::copyToClipboard
+                    appVersion = BuildConfig.VERSION_NAME,
+                    buildVariant = "${BuildConfig.FLAVOR}${BuildConfig.BUILD_TYPE.replaceFirstChar { it.uppercase() }}",
+                    clientId = clientId,
+                    onCopyText = debugContentState::copyToClipboard
                 )
-
-
-                Text(
-                    text = stringResource(R.string.app_version, BuildConfig.VERSION_NAME),
-                    color = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.padding(dimensions().spacing12x)
-                )
-
-                Text(
-                    text = stringResource(
-                        R.string.build_variant_name, "${BuildConfig.FLAVOR}${
-                            BuildConfig.BUILD_TYPE.replaceFirstChar {
-                                it.uppercase()
-                            }
-                        }"
-                    ),
-                    color = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.padding(dimensions().spacing12x)
-                )
-
                 DevelopmentApiVersioningOptions(
                     onForceLatestDevelopmentApiChange = devDebugViewModel::forceUpdateApiVersions
                 )
-
                 if (isManualMigrationAllowed) {
                     ManualMigrationOptions(
                         onManualMigrationClicked = devDebugViewModel::onStartManualMigration
@@ -136,51 +112,6 @@ fun DevDebugContent() {
         }
     }
 }
-
-@Composable
-private fun DebugDataOptions(deviceId: String?, onCopyDeviceId: KFunction1<String, Unit>) {
-    Column {
-        FolderHeader(stringResource(R.string.label_logs_option_title))
-        SettingsItem(
-            title = currentClientId,
-            trailingIcon = R.drawable.ic_copy,
-            onIconPressed = Clickable(
-                enabled = true,
-                onClick = { onCopyClientId(currentClientId) }
-            )
-        )
-        SettingsItem(
-            title = deviceId ?: "",
-            trailingIcon = R.drawable.ic_copy,
-            onIconPressed = Clickable(
-                enabled = true,
-                onClick = { onCopyDeviceId(deviceId ?: "") }
-            )
-        )
-        SettingsItem(
-            title = stringResource(R.string.app_version, BuildConfig.VERSION_NAME),
-            trailingIcon = R.drawable.ic_copy,
-            onIconPressed = Clickable(
-                enabled = true,
-                onClick = { onCopyDeviceId(deviceId ?: "") }
-            )
-        )
-        SettingsItem(
-            title = stringResource(
-                R.string.build_variant_name, "${BuildConfig.FLAVOR}${
-                    BuildConfig.BUILD_TYPE.replaceFirstChar {
-                        it.uppercase()
-                    }
-                }"
-            ), trailingIcon = R.drawable.ic_copy,
-            onIconPressed = Clickable(
-                enabled = true,
-                onClick = { onCopyDeviceId(deviceId ?: "") }
-            )
-        )
-    }
-}
-
 
 @Composable
 private fun ManualMigrationOptions(
@@ -265,7 +196,8 @@ private fun DevelopmentApiVersioningOptions(
     onForceLatestDevelopmentApiChange: () -> Unit
 ) {
     FolderHeader(stringResource(R.string.debug_settings_api_versioning_title))
-    RowItemTemplate(modifier = Modifier.wrapContentWidth(),
+    RowItemTemplate(
+        modifier = Modifier.wrapContentWidth(),
         title = {
             Text(
                 style = MaterialTheme.wireTypography.body01,

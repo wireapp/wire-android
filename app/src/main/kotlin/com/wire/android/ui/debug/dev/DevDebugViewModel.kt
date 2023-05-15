@@ -52,7 +52,7 @@ import javax.inject.Inject
 data class DevDebugScreenState(
     val isLoggingEnabled: Boolean = false,
     val isEncryptedProteusStorageEnabled: Boolean = false,
-    val currentClientId: String = String.EMPTY,
+    val clientId: String = String.EMPTY,
     val keyPackagesCount: Int = 0,
     val mslClientId: String = String.EMPTY,
     val mlsErrorMessage: String = String.EMPTY,
@@ -73,6 +73,7 @@ class DevDebugViewModel
     private val globalDataStore: GlobalDataStore,
     private val restartSlowSyncProcessForRecovery: RestartSlowSyncProcessForRecoveryUseCase,
 ) : ViewModel() {
+
     val logPath: String = logFileWriter.activeLoggingFile.absolutePath
 
     var state by mutableStateOf(
@@ -122,7 +123,7 @@ class DevDebugViewModel
         viewModelScope.launch {
             currentClientIdUseCase().collect {
                 val clientId = it?.let { clientId -> clientId.value } ?: "Client not fount"
-                state = state.copy(currentClientId = clientId)
+                state = state.copy(clientId = clientId)
             }
         }
     }

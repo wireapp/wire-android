@@ -77,6 +77,7 @@ fun ParticipantTile(
     onGoingCallTileUsernameMaxWidth: Dp = 350.dp,
     avatarSize: Dp = dimensions().onGoingCallUserAvatarSize,
     isSelfUser: Boolean,
+    shouldFill: Boolean = true,
     onSelfUserVideoPreviewCreated: (view: View) -> Unit,
     onClearSelfUserVideoPreview: () -> Unit
 ) {
@@ -105,6 +106,7 @@ fun ParticipantTile(
                 )
             } else {
                 val context = LocalContext.current
+                val rendererFillColor = (colorsScheme().callingParticipantTileBackgroundColor.value shr 32).toLong()
                 if (participantTitleState.isCameraOn || participantTitleState.isSharingScreen) {
                     val videoRenderer = remember {
                         VideoRenderer(
@@ -114,6 +116,8 @@ fun ParticipantTile(
                             false
                         ).apply {
                             layoutParams = FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT)
+                            setFillColor(rendererFillColor)
+                            setShouldFill(shouldFill)
                         }
                     }
                     AndroidView(factory = {

@@ -238,11 +238,11 @@ fun PreviewSelectParticipantsButtonsRowDisabledButton() {
 @Preview
 @Composable
 fun PreviewSendButtonsRowDisabledButton() {
-    SendContentButton(mainButtonText = "Send", count = 0) {}
+    SendContentButton(mainButtonText = "Send", count = 0, onMainButtonClick = {}) {}
 }
 
 @Preview
 @Composable
 fun PreviewSendButtonsRowEnabledButton() {
-    SendContentButton(mainButtonText = "Send", count = 1) {}
+    SendContentButton(mainButtonText = "Send", count = 1, onMainButtonClick = {}) {}
 }

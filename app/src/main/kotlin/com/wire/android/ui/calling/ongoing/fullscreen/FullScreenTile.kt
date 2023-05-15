@@ -64,7 +64,7 @@ fun FullScreenTile(
                         end = dimensions().spacing4x
                     ),
                 participantTitleState = it,
-                isSelfUser = isSelfUser,
+                isSelfUser = selectedParticipant.isSelfUser,
                 shouldFill = false,
                 shouldZoom = true,
                 onSelfUserVideoPreviewCreated = sharedCallingViewModel::setVideoPreview,

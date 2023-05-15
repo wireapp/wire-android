@@ -49,6 +49,7 @@ import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUs
 import com.wire.kalium.logic.feature.conversation.UpdateConversationAccessRoleUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationReceiptModeUseCase
+import com.wire.kalium.logic.feature.publicuser.RefreshUsersWithoutMetadataUseCase
 import com.wire.kalium.logic.feature.team.DeleteTeamConversationUseCase
 import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
@@ -541,6 +542,9 @@ internal class GroupConversationDetailsViewModelArrangement {
     @MockK
     private lateinit var qualifiedIdMapper: QualifiedIdMapper
 
+    @MockK
+    private lateinit var refreshUsersWithoutMetadata: RefreshUsersWithoutMetadataUseCase
+
     private val conversationDetailsChannel = Channel<ConversationDetails>(capacity = Channel.UNLIMITED)
 
     private val observeParticipantsForConversationChannel = Channel<ConversationParticipantsData>(capacity = Channel.UNLIMITED)
@@ -561,6 +565,7 @@ internal class GroupConversationDetailsViewModelArrangement {
             updateConversationMutedStatus = updateConversationMutedStatus,
             clearConversationContent = clearConversationContentUseCase,
             updateConversationReceiptMode = updateConversationReceiptMode,
+            refreshUsersWithoutMetadata = refreshUsersWithoutMetadata,
             isMLSEnabled = isMLSEnabledUseCase
         )
     }

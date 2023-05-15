@@ -29,7 +29,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
@@ -37,7 +36,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import com.wire.android.R
@@ -62,7 +60,7 @@ fun SelectParticipantsButtonsAlwaysEnabled(
         .padding(horizontal = dimensions().spacing16x)
         .height(dimensions().groupButtonHeight)
         .fillMaxWidth(),
-    onMoreButtonClick: (() -> Unit)? = null,
+    onMoreButtonIcon: @Composable (() -> Unit)? = null,
     onMainButtonClick: () -> Unit,
 ) {
     SelectParticipantsButtonsRow(
@@ -71,7 +69,7 @@ fun SelectParticipantsButtonsAlwaysEnabled(
         shouldAllowNoSelectionContinue = true,
         elevation = elevation,
         modifier = modifier,
-        onMoreButtonClick = onMoreButtonClick,
+        onMoreButtonIcon = onMoreButtonIcon,
         onMainButtonClick = onMainButtonClick
     )
 }
@@ -85,8 +83,8 @@ fun SelectParticipantsButtonsRow(
         .padding(horizontal = dimensions().spacing16x)
         .height(dimensions().groupButtonHeight)
         .fillMaxWidth(),
-    onMoreButtonClick: (() -> Unit)? = null,
     onMainButtonClick: () -> Unit,
+    onMoreButtonIcon: @Composable (() -> Unit)? = null,
 ) {
     SelectParticipantsButtonsRow(
         selectedParticipantsCount = selectedParticipantsCount,
@@ -94,7 +92,7 @@ fun SelectParticipantsButtonsRow(
         shouldAllowNoSelectionContinue = false,
         elevation = elevation,
         modifier = modifier,
-        onMoreButtonClick = onMoreButtonClick,
+        onMoreButtonIcon = onMoreButtonIcon,
         onMainButtonClick = onMainButtonClick
     )
 }
@@ -105,36 +103,45 @@ fun SendContentButton(
     count: Int,
     selfDeletionTimer: SelfDeletionTimer = SelfDeletionTimer.Disabled,
     onMainButtonClick: () -> Unit,
-    onMoreButtonClick: () -> Unit,
+    onSelfDeletionTimerClicked: () -> Unit,
 ) {
     val isSelfDeletionEnabled = selfDeletionTimer !is SelfDeletionTimer.Disabled
-    SelectParticipantsButtonsRow(
-        showTotalSelectedItemsCount = false,
-        selectedParticipantsCount = count,
-        leadingIcon = {
-            Image(
-                painter = painterResource(id = R.drawable.ic_send),
-                contentDescription = null,
-                modifier = Modifier.padding(end = dimensions().spacing12x),
-                colorFilter = ColorFilter.tint(
-                    if (count > 0) colorsScheme().onPrimaryButtonEnabled else colorsScheme().onPrimaryButtonDisabled
+    Row(modifier = Modifier.fillMaxWidth()) {
+        SelectParticipantsButtonsRow(
+            showTotalSelectedItemsCount = false,
+            selectedParticipantsCount = count,
+            leadingIcon = {
+                Image(
+                    painter = painterResource(id = R.drawable.ic_send),
+                    contentDescription = null,
+                    modifier = Modifier.padding(end = dimensions().spacing12x),
+                    colorFilter = ColorFilter.tint(
+                        if (count > 0) colorsScheme().onPrimaryButtonEnabled else colorsScheme().onPrimaryButtonDisabled
+                    )
                 )
-            )
-        },
-        mainButtonText = mainButtonText,
-        onMoreButtonLeadingIcon = {
-            if (isSelfDeletionEnabled) {
-                SelfDeletionTimerButton(selfDeletionTimer)
+            },
+            mainButtonText = mainButtonText,
+            shouldAllowNoSelectionContinue = false,
+            onMainButtonClick = onMainButtonClick,
+            onMoreButtonIcon = {
+                if (isSelfDeletionEnabled) {
+                    Spacer(modifier = Modifier.width(dimensions().spacing4x))
+                    SelfDeletionTimerButton(
+                        selfDeletionTimer = selfDeletionTimer,
+                        modifier = Modifier.size(dimensions().spacing16x).weight(1f),
+                        onSelfDeletionTimerClicked = onSelfDeletionTimerClicked
+                    )
+                }
             }
-        },
-        shouldAllowNoSelectionContinue = false,
-        onMainButtonClick = onMainButtonClick,
-        onMoreButtonClick = onMoreButtonClick,
-    )
+        )
+    }
 }
 
 @Composable
-fun SelfDeletionTimerButton(selfDeletionTimer: SelfDeletionTimer) {
+fun SelfDeletionTimerButton(
+    selfDeletionTimer: SelfDeletionTimer,
+    modifier: Modifier = Modifier,
+    onSelfDeletionTimerClicked: () -> Unit) {
     val isSelected = selfDeletionTimer is SelfDeletionTimer.Enabled && selfDeletionTimer.userDuration != ZERO
     WireSecondaryButton(
         leadingIcon = {
@@ -148,10 +155,9 @@ fun SelfDeletionTimerButton(selfDeletionTimer: SelfDeletionTimer) {
             )
         },
         leadingIconAlignment = IconAlignment.Center,
-        onClick = {},
-        modifier = Modifier
+        onClick = onSelfDeletionTimerClicked,
+        modifier = modifier
             .padding(horizontal = dimensions().spacing16x)
-            .height(dimensions().groupButtonHeight)
             .fillMaxWidth()
     )
 }
@@ -164,12 +170,9 @@ private fun SelectParticipantsButtonsRow(
     mainButtonText: String,
     shouldAllowNoSelectionContinue: Boolean = true,
     elevation: Dp = MaterialTheme.wireDimensions.bottomNavigationShadowElevation,
-    modifier: Modifier = Modifier
-        .padding(horizontal = dimensions().spacing16x)
-        .height(dimensions().groupButtonHeight),
-    onMoreButtonLeadingIcon: @Composable (() -> Unit)? = null,
-    onMoreButtonClick: (() -> Unit)? = null,
+    modifier: Modifier = Modifier,
     onMainButtonClick: () -> Unit,
+    onMoreButtonIcon: @Composable (() -> Unit)? = null,
 ) {
     Surface(
         color = MaterialTheme.wireColorScheme.background,
@@ -178,7 +181,9 @@ private fun SelectParticipantsButtonsRow(
         Row(
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically,
-            modifier = modifier,
+            modifier = modifier
+                .padding(horizontal = dimensions().spacing16x)
+                .height(dimensions().groupButtonHeight),
         ) {
             val buttonText = if (showTotalSelectedItemsCount) "$mainButtonText ($selectedParticipantsCount)" else mainButtonText
             WirePrimaryButton(
@@ -187,23 +192,12 @@ private fun SelectParticipantsButtonsRow(
                 onClick = onMainButtonClick,
                 state = computeButtonState(selectedParticipantsCount, shouldAllowNoSelectionContinue),
                 clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
+                fillMaxWidth = onMoreButtonIcon == null
             )
-            if (onMoreButtonClick != null) {
+            if (onMoreButtonIcon != null) {
                 Spacer(Modifier.width(dimensions().spacing8x))
-                WireSecondaryButton(
-                    onClick = onMoreButtonClick,
-                    leadingIcon = onMoreButtonLeadingIcon ?: {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_more),
-                            contentDescription = stringResource(R.string.content_description_right_arrow),
-                            modifier = Modifier
-                                .size(dimensions().wireIconButtonSize)
-                        )
-                    },
-                    leadingIconAlignment = IconAlignment.Center,
-                    fillMaxWidth = false
-                )
+                onMoreButtonIcon()
             }
         }
     }
@@ -220,7 +214,7 @@ private fun computeButtonState(count: Int = 0, shouldAllowNoSelectionContinue: B
 @Preview
 @Composable
 fun PreviewSelectParticipantsButtonsRow() {
-    SelectParticipantsButtonsRow(selectedParticipantsCount = 3, mainButtonText = "Continue", onMainButtonClick = {}, onMoreButtonClick = {})
+    SelectParticipantsButtonsRow(selectedParticipantsCount = 3, mainButtonText = "Continue", onMainButtonClick = {}, onMoreButtonIcon = {})
 }
 
 @Preview
@@ -237,12 +231,11 @@ fun PreviewSelectParticipantsButtonsRowDisabledButton() {
 
 @Preview
 @Composable
-fun PreviewSendButtonsRowDisabledButton() {
-    SendContentButton(mainButtonText = "Send", count = 0, onMainButtonClick = {}) {}
-}
-
-@Preview
-@Composable
-fun PreviewSendButtonsRowEnabledButton() {
-    SendContentButton(mainButtonText = "Send", count = 1, onMainButtonClick = {}) {}
+fun PreviewSendContentButtons() {
+    SendContentButton(
+        mainButtonText = "Send",
+        count = 0,
+        selfDeletionTimer = SelfDeletionTimer.Enabled(ZERO),
+        onMainButtonClick = {},
+        onSelfDeletionTimerClicked = {})
 }

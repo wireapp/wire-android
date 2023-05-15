@@ -45,17 +45,18 @@ fun rememberImportMediaScreenState(
         bottomSheetState = bottomSheetState
     )
 }
+
 @OptIn(ExperimentalMaterialApi::class)
-class ImportMediaScreenState (
+class ImportMediaScreenState(
     val snackbarHostState: SnackbarHostState,
     val searchBarState: SearchBarState,
     val coroutineScope: CoroutineScope,
     val bottomSheetState: ModalBottomSheetState
 ) {
 
-    fun showBottomSheetMenu(){
+    fun toggleBottomSheetMenuVisibility() {
         coroutineScope.launch {
-            bottomSheetState.animateTo(ModalBottomSheetValue.Expanded)
+            bottomSheetState.animateTo(if (bottomSheetState.isVisible) ModalBottomSheetValue.Hidden else ModalBottomSheetValue.Expanded)
         }
     }
 

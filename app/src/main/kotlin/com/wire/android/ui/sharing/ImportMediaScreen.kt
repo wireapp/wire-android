@@ -16,9 +16,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.ModalBottomSheetState
-import androidx.compose.material.ModalBottomSheetValue
-import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -29,7 +26,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
@@ -57,7 +53,6 @@ import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.topappbar.search.SearchBarState
 import com.wire.android.ui.common.topappbar.search.SearchTopBar
-import com.wire.android.ui.common.topappbar.search.rememberSearchbarState
 import com.wire.android.ui.home.FeatureFlagState
 import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMapper.toSelfDeletionDuration
 import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMenuItems
@@ -71,9 +66,7 @@ import com.wire.android.util.extension.getActivity
 import com.wire.android.util.ui.LinkText
 import com.wire.android.util.ui.LinkTextData
 import kotlinx.collections.immutable.persistentMapOf
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.launch
 
 @Composable
 fun ImportMediaScreen(
@@ -273,15 +266,13 @@ private fun ImportMediaBottomBar(
     importMediaViewModel: ImportMediaAuthenticatedViewModel,
     importMediaScreenState: ImportMediaScreenState
 ) {
-    Row {
-        SendContentButton(
-            mainButtonText = stringResource(R.string.import_media_send_button_title),
-            count = importMediaViewModel.currentSelectedConversationsCount(),
-            selfDeletionTimer = importMediaViewModel.importMediaState.selfDeletingTimer,
-            onMainButtonClick = importMediaViewModel::checkRestrictionsAndSendImportedMedia,
-            onMoreButtonClick = importMediaScreenState::showBottomSheetMenu,
-        )
-    }
+    SendContentButton(
+        mainButtonText = stringResource(R.string.import_media_send_button_title),
+        count = importMediaViewModel.currentSelectedConversationsCount(),
+        selfDeletionTimer = importMediaViewModel.importMediaState.selfDeletingTimer,
+        onMainButtonClick = importMediaViewModel::checkRestrictionsAndSendImportedMedia,
+        onSelfDeletionTimerClicked = importMediaScreenState::toggleBottomSheetMenuVisibility,
+    )
 }
 
 @Composable

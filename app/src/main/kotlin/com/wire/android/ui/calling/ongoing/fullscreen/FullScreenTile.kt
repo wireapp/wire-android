@@ -46,7 +46,7 @@ fun FullScreenTile(
     sharedCallingViewModel.callState.participants.find {
         it.id == selectedParticipant.userId && it.clientId == selectedParticipant.clientId
     }?.let {
-        Box(modifier = Modifier) {
+        Box {
             ParticipantTile(
                 modifier = Modifier
                     .fillMaxWidth()

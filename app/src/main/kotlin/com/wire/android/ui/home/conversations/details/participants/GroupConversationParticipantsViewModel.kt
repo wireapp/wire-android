@@ -40,7 +40,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-
 @HiltViewModel
 open class GroupConversationParticipantsViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
@@ -92,5 +91,4 @@ open class GroupConversationParticipantsViewModel @Inject constructor(
 
     private suspend fun navigateToOtherProfile(id: UserId) =
         navigationManager.navigate(NavigationCommand(NavigationItem.OtherUserProfile.getRouteWithArgs(listOf(id, conversationId))))
-
 }

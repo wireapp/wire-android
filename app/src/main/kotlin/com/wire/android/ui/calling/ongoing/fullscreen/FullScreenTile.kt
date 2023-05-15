@@ -43,12 +43,7 @@ import com.wire.android.ui.calling.SharedCallingViewModel
 import com.wire.android.ui.calling.ongoing.OngoingCallViewModel.Companion.DOUBLE_TAP_TOAST_DISPLAY_TIME
 import com.wire.android.ui.calling.ongoing.participantsview.ParticipantTile
 import com.wire.android.ui.common.dimensions
-import com.wire.android.util.EMPTY
-import com.wire.kalium.logic.data.user.UserId
 import kotlinx.coroutines.delay
-import com.wire.android.ui.calling.SharedCallingViewModel
-import com.wire.android.ui.calling.ongoing.participantsview.ParticipantTile
-import com.wire.android.ui.common.dimensions
 
 @Composable
 fun FullScreenTile(

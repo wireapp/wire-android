@@ -33,7 +33,7 @@ fun DebugDataOptions(
     onCopyText: (String) -> Unit
 ) {
     Column {
-        FolderHeader(stringResource(R.string.label_logs_option_title))
+        FolderHeader(stringResource(R.string.label_debug_data))
         SettingsItem(
             title = appVersion,
             trailingIcon = R.drawable.ic_copy,

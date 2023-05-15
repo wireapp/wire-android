@@ -837,7 +837,7 @@
     <string name="label_enable_logging">Enable Logging</string>
     <string name="label_proteus_option_title">Proteus</string>
     <string name="label_enable_encrypted_proteus_storage">Enable encrypted proteus storage</string>
-    <string name="label_debug_title">Debug</string>
+    <string name="label_debug_title">Debug Settings</string>
     <string name="label_client_option_title">Client ID</string>
     <string name="label_device_id">Device ID: %1$s</string>
     <string name="label_code_commit_id">Commit Hash: %1$s</string>
@@ -1044,4 +1044,6 @@
     <string name="one_hour_short_label">1h</string>
     <string name="five_minutes_short_label">5m</string>
     <string name="ten_seconds_short_label">10s</string>
+    <string name="label_debug_data">Debug data</string>
+    <string name="title_internal_debugging">Internal debugging</string>
 </resources>

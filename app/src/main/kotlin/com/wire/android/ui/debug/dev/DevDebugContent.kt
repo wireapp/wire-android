@@ -58,7 +58,7 @@ fun DevDebugContent() {
     Scaffold(
         topBar = {
             WireCenterAlignedTopAppBar(
-                title = stringResource(R.string.label_debug_title),
+                title = stringResource(R.string.title_internal_debugging),
                 elevation = 0.dp,
                 navigationIconType = NavigationIconType.Back,
                 onNavigationPressed = devDebugViewModel::navigateBack

@@ -74,8 +74,6 @@ import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
-import com.wire.android.util.EMPTY
-import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
 import java.util.Locale
 

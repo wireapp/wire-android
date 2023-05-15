@@ -91,8 +91,11 @@ class FeatureFlagNotificationViewModel @Inject constructor(
         coreLogic.getSessionScope(userId).observeFileSharingStatus().collect { fileSharingStatus ->
             fileSharingStatus.state?.let {
                 // TODO: handle restriction when sending assets
-                val (fileSharingRestrictedState, state) = if (it is FileSharingStatus.Value.Disabled) FeatureFlagState.SharingRestrictedState.RESTRICTED_IN_TEAM to false
-                    else FeatureFlagState.SharingRestrictedState.NONE to true
+                val (fileSharingRestrictedState, state) = if (it is FileSharingStatus.Value.EnabledAll) {
+                    FeatureFlagState.SharingRestrictedState.NONE to true
+                } else {
+                    FeatureFlagState.SharingRestrictedState.RESTRICTED_IN_TEAM to false
+                }
 
                 featureFlagState = featureFlagState.copy(
                     fileSharingRestrictedState = fileSharingRestrictedState,

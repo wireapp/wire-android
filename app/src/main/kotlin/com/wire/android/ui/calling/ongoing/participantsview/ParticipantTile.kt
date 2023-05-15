@@ -39,6 +39,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -51,6 +54,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -60,6 +64,9 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleOwner
 import com.waz.avs.VideoPreview
 import com.waz.avs.VideoRenderer
 import com.wire.android.R
@@ -114,6 +121,7 @@ fun ParticipantTile(
                 )
             } else {
                 val context = LocalContext.current
+                val rendererFillColor = (colorsScheme().callingParticipantTileBackgroundColor.value shr 32).toLong()
                 if (participantTitleState.isCameraOn || participantTitleState.isSharingScreen) {
                     val videoRenderer = remember {
                         VideoRenderer(
@@ -123,7 +131,7 @@ fun ParticipantTile(
                             false
                         ).apply {
                             layoutParams = FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT)
-                            setFillColor(0xFF34373D)
+                            setFillColor(rendererFillColor)
                             setShouldFill(shouldFill)
                         }
                     }
@@ -158,6 +166,7 @@ fun ParticipantTile(
                             frameLayout.addView(videoRenderer)
                             frameLayout
                         })
+                    clearRendererIfNeeded(videoRenderer)
                 }
             }
 
@@ -188,6 +197,24 @@ fun ParticipantTile(
             )
         }
         TileBorder(participantTitleState.isSpeaking)
+    }
+}
+
+@Composable
+private fun clearRendererIfNeeded(videoRenderer: VideoRenderer) {
+    val lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_STOP) {
+                videoRenderer.destroyRenderer()
+            }
+        }
+
+        lifecycleOwner.lifecycle.addObserver(observer)
+
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
     }
 }
 

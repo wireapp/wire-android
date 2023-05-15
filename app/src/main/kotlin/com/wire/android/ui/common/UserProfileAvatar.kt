@@ -44,6 +44,7 @@ import androidx.compose.ui.unit.Dp
 import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.model.UserAvatarData
+import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.util.getUriFromDrawable
@@ -94,9 +95,17 @@ private fun painter(data: UserAvatarData): Painter =
     if (data.connectionState == ConnectionState.BLOCKED) {
         painterResource(id = R.drawable.ic_blocked_user_avatar)
     } else if (LocalInspectionMode.current || data.asset == null) {
-        painterResource(id = R.drawable.ic_default_user_avatar)
+        getDefaultAvatar(membership = data.membership)
     } else {
         data.asset.paint(getUriFromDrawable(LocalContext.current, R.drawable.ic_default_user_avatar))
+    }
+
+@Composable
+private fun getDefaultAvatar(membership: Membership): Painter =
+    if (membership == Membership.Service) {
+        painterResource(id = R.drawable.ic_default_service_avatar)
+    } else {
+        painterResource(id = R.drawable.ic_default_user_avatar)
     }
 
 @Preview

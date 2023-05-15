@@ -14,19 +14,13 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
+package com.wire.android.ui.calling.ongoing.fullscreen
 
-package com.wire.android.model
+import com.wire.kalium.logic.data.user.UserId
 
-import com.wire.android.ui.home.conversationslist.model.Membership
-import com.wire.kalium.logic.data.user.ConnectionState
-import com.wire.kalium.logic.data.user.UserAvailabilityStatus
-
-data class UserAvatarData(
-    val asset: ImageAsset.UserAvatarAsset? = null,
-    val availabilityStatus: UserAvailabilityStatus = UserAvailabilityStatus.NONE,
-    val connectionState: ConnectionState? = null,
-    val membership: Membership = Membership.None
+data class SelectedParticipant(
+    val userId: UserId = UserId("", ""),
+    val clientId: String = "",
+    val isSelfUser: Boolean = false
 )

@@ -46,23 +46,23 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.util.EMPTY
 import com.wire.kalium.logic.data.user.UserId
 import kotlinx.coroutines.delay
+import com.wire.android.ui.calling.SharedCallingViewModel
+import com.wire.android.ui.calling.ongoing.participantsview.ParticipantTile
+import com.wire.android.ui.common.dimensions
 
 @Composable
 fun FullScreenTile(
     sharedCallingViewModel: SharedCallingViewModel = hiltViewModel(),
-    userId: UserId,
-    clientId: String,
-    isSelfUser: Boolean,
+    selectedParticipant: SelectedParticipant,
     height: Dp,
     onDoubleTap: (offset: Offset) -> Unit
 ) {
-
     var shouldShowDoubleTapToast by remember { mutableStateOf(false) }
 
     sharedCallingViewModel.callState.participants.find {
-        it.id == userId && it.clientId == clientId
+        it.id == selectedParticipant.userId && it.clientId == selectedParticipant.clientId
     }?.let {
-        Box(modifier = Modifier) {
+        Box {
             ParticipantTile(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -78,7 +78,7 @@ fun FullScreenTile(
                         end = dimensions().spacing4x
                     ),
                 participantTitleState = it,
-                isSelfUser = isSelfUser,
+                isSelfUser = selectedParticipant.isSelfUser,
                 shouldFill = false,
                 shouldZoom = true,
                 onSelfUserVideoPreviewCreated = sharedCallingViewModel::setVideoPreview,
@@ -107,9 +107,7 @@ fun FullScreenTile(
 @Composable
 fun PreviewFullScreenVideoCall() {
     FullScreenTile(
-        userId = UserId(String.EMPTY, String.EMPTY),
-        clientId = String.EMPTY,
-        isSelfUser = false,
+        selectedParticipant = SelectedParticipant(),
         height = 100.dp,
         onDoubleTap = { }
     )

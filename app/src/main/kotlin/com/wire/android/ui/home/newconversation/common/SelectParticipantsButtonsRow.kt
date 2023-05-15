@@ -50,6 +50,8 @@ import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
+import com.wire.kalium.logic.feature.selfdeletingMessages.SelfDeletionTimer
+import kotlin.time.Duration.Companion.ZERO
 
 @Composable
 fun SelectParticipantsButtonsAlwaysEnabled(
@@ -101,8 +103,11 @@ fun SelectParticipantsButtonsRow(
 fun SendContentButton(
     mainButtonText: String,
     count: Int,
+    selfDeletionTimer: SelfDeletionTimer = SelfDeletionTimer.Disabled,
     onMainButtonClick: () -> Unit,
+    onMoreButtonClick: () -> Unit,
 ) {
+    val isSelfDeletionEnabled = selfDeletionTimer !is SelfDeletionTimer.Disabled
     SelectParticipantsButtonsRow(
         showTotalSelectedItemsCount = false,
         selectedParticipantsCount = count,
@@ -117,8 +122,37 @@ fun SendContentButton(
             )
         },
         mainButtonText = mainButtonText,
+        onMoreButtonLeadingIcon = {
+            if (isSelfDeletionEnabled) {
+                SelfDeletionTimerButton(selfDeletionTimer)
+            }
+        },
         shouldAllowNoSelectionContinue = false,
-        onMainButtonClick = onMainButtonClick
+        onMainButtonClick = onMainButtonClick,
+        onMoreButtonClick = onMoreButtonClick,
+    )
+}
+
+@Composable
+fun SelfDeletionTimerButton(selfDeletionTimer: SelfDeletionTimer) {
+    val isSelected = selfDeletionTimer is SelfDeletionTimer.Enabled && selfDeletionTimer.userDuration != ZERO
+    WireSecondaryButton(
+        leadingIcon = {
+            Image(
+                painter = painterResource(id = R.drawable.ic_timer),
+                contentDescription = null,
+                modifier = Modifier.size(dimensions().spacing16x),
+                colorFilter = ColorFilter.tint(
+                    if (isSelected) colorsScheme().onPrimaryButtonEnabled else colorsScheme().onPrimaryButtonDisabled
+                )
+            )
+        },
+        leadingIconAlignment = IconAlignment.Center,
+        onClick = {},
+        modifier = Modifier
+            .padding(horizontal = dimensions().spacing16x)
+            .height(dimensions().groupButtonHeight)
+            .fillMaxWidth()
     )
 }
 
@@ -132,8 +166,8 @@ private fun SelectParticipantsButtonsRow(
     elevation: Dp = MaterialTheme.wireDimensions.bottomNavigationShadowElevation,
     modifier: Modifier = Modifier
         .padding(horizontal = dimensions().spacing16x)
-        .height(dimensions().groupButtonHeight)
-        .fillMaxWidth(),
+        .height(dimensions().groupButtonHeight),
+    onMoreButtonLeadingIcon: @Composable (() -> Unit)? = null,
     onMoreButtonClick: (() -> Unit)? = null,
     onMainButtonClick: () -> Unit,
 ) {
@@ -159,7 +193,7 @@ private fun SelectParticipantsButtonsRow(
                 Spacer(Modifier.width(dimensions().spacing8x))
                 WireSecondaryButton(
                     onClick = onMoreButtonClick,
-                    leadingIcon = {
+                    leadingIcon = onMoreButtonLeadingIcon ?: {
                         Icon(
                             painter = painterResource(id = R.drawable.ic_more),
                             contentDescription = stringResource(R.string.content_description_right_arrow),

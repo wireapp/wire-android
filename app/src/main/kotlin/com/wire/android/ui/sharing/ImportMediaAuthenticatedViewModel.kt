@@ -31,6 +31,7 @@ import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.parseConversationEventType
 import com.wire.android.ui.home.conversationslist.parsePrivateConversationEventType
 import com.wire.android.ui.home.conversationslist.showLegalHoldIndicator
+import com.wire.android.ui.home.messagecomposer.state.SelfDeletionDuration
 import com.wire.android.util.FileManager
 import com.wire.android.util.ImageUtil
 import com.wire.android.util.dispatchers.DispatcherProvider
@@ -46,8 +47,12 @@ import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.feature.asset.GetAssetSizeLimitUseCase
 import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationListDetailsUseCase
+import com.wire.kalium.logic.feature.selfdeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
+import com.wire.kalium.logic.feature.selfdeletingMessages.ObserveTeamSettingsSelfDeletingStatusUseCase
+import com.wire.kalium.logic.feature.selfdeletingMessages.SelfDeletionTimer
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -55,6 +60,7 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.joinAll
@@ -64,6 +70,7 @@ import java.util.UUID
 import javax.inject.Inject
 
 @HiltViewModel
+@OptIn(FlowPreview::class)
 @Suppress("LongParameterList", "TooManyFunctions")
 class ImportMediaAuthenticatedViewModel @Inject constructor(
     private val getSelf: GetSelfUserUseCase,
@@ -74,6 +81,8 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
     private val sendAssetMessage: ScheduleNewAssetMessageUseCase,
     private val kaliumFileSystem: KaliumFileSystem,
     private val getAssetSizeLimit: GetAssetSizeLimitUseCase,
+    private val observeTeamSettingsSelfDeletingStatusUseCase: ObserveTeamSettingsSelfDeletingStatusUseCase,
+    private val observeSelfDeletionSettingsForConversation: ObserveSelfDeletionTimerSettingsForConversationUseCase,
     val wireSessionImageLoader: WireSessionImageLoader,
     val dispatchers: DispatcherProvider,
 ) : ViewModel() {
@@ -93,15 +102,17 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
         viewModelScope.launch {
             loadUserAvatar()
             observeConversationWithSearch()
+            observeTeamSettingsSelfDeletingStatus()
         }
     }
 
     private fun loadUserAvatar() = viewModelScope.launch(dispatchers.io()) {
         getSelf().collect { selfUser ->
             withContext(dispatchers.main()) {
-                importMediaState = importMediaState.copy(avatarAsset = selfUser.previewPicture?.let {
-                    ImageAsset.UserAvatarAsset(wireSessionImageLoader, it)
-                })
+                importMediaState =
+                    importMediaState.copy(avatarAsset = selfUser.previewPicture?.let {
+                        ImageAsset.UserAvatarAsset(wireSessionImageLoader, it)
+                    })
             }
         }
     }
@@ -118,10 +129,11 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
                     }
                 }, searchQueryFlow
         ) { conversations, searchQuery ->
-            val searchResult = if (searchQuery.isEmpty()) conversations else searchShareableConversation(
-                conversations,
-                searchQuery
-            )
+            val searchResult =
+                if (searchQuery.isEmpty()) conversations else searchShareableConversation(
+                    conversations,
+                    searchQuery
+                )
             ShareableConversationListState(
                 initialConversations = conversations,
                 searchQuery = searchQuery,
@@ -131,8 +143,17 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
         }
             .flowOn(dispatchers.io())
             .collect { updatedState ->
-                importMediaState = importMediaState.copy(shareableConversationListState = updatedState)
+                importMediaState =
+                    importMediaState.copy(shareableConversationListState = updatedState)
             }
+    }
+
+    private suspend fun observeTeamSettingsSelfDeletingStatus() = viewModelScope.launch {
+        observeTeamSettingsSelfDeletingStatusUseCase().collect { teamSettings ->
+            importMediaState = importMediaState.copy(
+                selfDeletingTimer = teamSettings.enforcedSelfDeletionTimer
+            )
+        }
     }
 
     fun onSearchQueryChanged(searchQuery: TextFieldValue) {
@@ -145,15 +166,18 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
         }
     }
 
-    fun addConversationItemToGroupSelection(conversation: ConversationItem) = viewModelScope.launch {
-        // TODO: change this conversation item to a list of conversation items in case we want to support sharing to multiple conversations
-        importMediaState = importMediaState.copy(selectedConversationItem = listOf(conversation))
-    }
+    fun addConversationItemToGroupSelection(conversation: ConversationItem) =
+        viewModelScope.launch {
+            // TODO: change this conversation item to a list of conversation items in case we want to support sharing to multiple conversations
+            importMediaState =
+                importMediaState.copy(selectedConversationItem = listOf(conversation))
+        }
 
     fun onConversationClicked(conversationId: ConversationId) {
-        importMediaState.shareableConversationListState.initialConversations.find { it.conversationId == conversationId }?.let {
-            addConversationItemToGroupSelection(it)
-        }
+        importMediaState.shareableConversationListState.initialConversations.find { it.conversationId == conversationId }
+            ?.let {
+                addConversationItemToGroupSelection(it)
+            }
     }
 
     @Suppress("LongMethod")
@@ -183,7 +207,12 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
         is ConversationDetails.OneOne -> {
             ConversationItem.PrivateConversation(
                 userAvatarData = UserAvatarData(
-                    otherUser.previewPicture?.let { ImageAsset.UserAvatarAsset(wireSessionImageLoader, it) },
+                    otherUser.previewPicture?.let {
+                        ImageAsset.UserAvatarAsset(
+                            wireSessionImageLoader,
+                            it
+                        )
+                    },
                     otherUser.availabilityStatus,
                     otherUser.connectionStatus
                 ),
@@ -213,12 +242,23 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
         else -> null // We don't care about connection requests
     }
 
-    private fun searchShareableConversation(conversationDetails: List<ConversationItem>, searchQuery: String): List<ConversationItem> {
+    private fun searchShareableConversation(
+        conversationDetails: List<ConversationItem>,
+        searchQuery: String
+    ): List<ConversationItem> {
         val matchingConversations =
             conversationDetails.filter { details ->
                 when (details) {
-                    is ConversationItem.GroupConversation -> details.groupName.contains(searchQuery, true)
-                    is ConversationItem.PrivateConversation -> details.conversationInfo.name.contains(searchQuery, true)
+                    is ConversationItem.GroupConversation -> details.groupName.contains(
+                        searchQuery,
+                        true
+                    )
+
+                    is ConversationItem.PrivateConversation -> details.conversationInfo.name.contains(
+                        searchQuery,
+                        true
+                    )
+
                     is ConversationItem.ConnectionConversation -> false
                 }
             }
@@ -226,7 +266,12 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
     }
 
     fun navigateBack() = viewModelScope.launch(dispatchers.main()) {
-        navigationManager.navigate(NavigationCommand(NavigationItem.Home.getRouteWithArgs(), BackStackMode.REMOVE_CURRENT))
+        navigationManager.navigate(
+            NavigationCommand(
+                NavigationItem.Home.getRouteWithArgs(),
+                BackStackMode.REMOVE_CURRENT
+            )
+        )
     }
 
     suspend fun handleReceivedDataFromSharingIntent(activity: AppCompatActivity) {
@@ -248,11 +293,15 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
         importMediaState = importMediaState.copy(isImporting = false)
     }
 
-    private suspend fun handleSingleIntent(incomingIntent: ShareCompat.IntentReader, activity: AppCompatActivity) {
+    private suspend fun handleSingleIntent(
+        incomingIntent: ShareCompat.IntentReader,
+        activity: AppCompatActivity
+    ) {
         incomingIntent.stream?.let { uri ->
             uri.getMimeType(activity)?.let { mimeType ->
                 handleImportedAsset(activity, mimeType, uri)?.let { importedAsset ->
-                    importMediaState = importMediaState.copy(importedAssets = mutableListOf(importedAsset))
+                    importMediaState =
+                        importMediaState.copy(importedAssets = mutableListOf(importedAsset))
                 }
             }
         }
@@ -262,7 +311,11 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
         val importedMediaAssets = mutableListOf<ImportedMediaAsset>()
         activity.intent.parcelableArrayList<Parcelable>(Intent.EXTRA_STREAM)?.forEach {
             val fileUri = it.toString().toUri()
-            handleImportedAsset(activity, fileUri.getMimeType(activity).toString(), fileUri)?.let { importedAsset ->
+            handleImportedAsset(
+                activity,
+                fileUri.getMimeType(activity).toString(),
+                fileUri
+            )?.let { importedAsset ->
                 importedMediaAssets.add(importedAsset)
             }
         }
@@ -299,6 +352,22 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
         }
     }
 
+    fun onNewConversationPicked(conversationId: ConversationId) = viewModelScope.launch {
+        importMediaState = importMediaState.copy(
+            selfDeletingTimer = observeSelfDeletionSettingsForConversation(
+                conversationId = conversationId,
+                considerSelfUserSettings = true
+            ).first()
+        )
+    }
+
+    fun onNewSelfDeletionTimerPicked(selfDeletionDuration: SelfDeletionDuration) =
+        viewModelScope.launch {
+            importMediaState = importMediaState.copy(
+                selfDeletingTimer = SelfDeletionTimer.Enabled(selfDeletionDuration.value)
+            )
+        }
+
     private suspend fun navigateToConversation(conversationId: ConversationId) {
         navigationManager.navigate(
             NavigationCommand(
@@ -309,7 +378,7 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
     }
 
     fun currentSelectedConversationsCount() = if (importMediaState.importedAssets.isNotEmpty()) {
-        importMediaState.selectedConversationItem.size ?: 0
+        importMediaState.selectedConversationItem.size
     } else {
         0
     }
@@ -327,10 +396,17 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
             isAboveLimit(isImageFile(mimeType), fileMetadata.size) -> null
             isImageFile(mimeType) -> {
                 // Only resample the image if it is too large
-                val resampleSize = uri.resampleImageAndCopyToTempPath(context, tempAssetPath, ImageUtil.ImageSizeClass.Medium)
+                val resampleSize = uri.resampleImageAndCopyToTempPath(
+                    context,
+                    tempAssetPath,
+                    ImageUtil.ImageSizeClass.Medium
+                )
                 if (resampleSize <= 0) return@withContext null
 
-                val (imgWidth, imgHeight) = ImageUtil.extractImageWidthAndHeight(kaliumFileSystem, tempAssetPath)
+                val (imgWidth, imgHeight) = ImageUtil.extractImageWidthAndHeight(
+                    kaliumFileSystem,
+                    tempAssetPath
+                )
 
                 return@withContext ImportedMediaAsset.Image(
                     name = fileMetadata.name,
@@ -363,7 +439,11 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
         val sizeOf1MB = SIZE_OF_1_MB * SIZE_OF_1_MB
         val isAboveLimit = size > assetLimitForCurrentUser
         if (isAboveLimit) {
-            onSnackbarMessage(ImportMediaSnackbarMessages.MaxAssetSizeExceeded(assetLimitForCurrentUser.div(sizeOf1MB)))
+            onSnackbarMessage(
+                ImportMediaSnackbarMessages.MaxAssetSizeExceeded(
+                    assetLimitForCurrentUser.div(sizeOf1MB)
+                )
+            )
         }
         return isAboveLimit
     }
@@ -384,5 +464,6 @@ data class ImportMediaState(
     val importedAssets: List<ImportedMediaAsset> = emptyList(),
     val isImporting: Boolean = false,
     val shareableConversationListState: ShareableConversationListState = ShareableConversationListState(),
-    val selectedConversationItem: List<ConversationItem> = emptyList()
+    val selectedConversationItem: List<ConversationItem> = emptyList(),
+    val selfDeletingTimer: SelfDeletionTimer = SelfDeletionTimer.Disabled
 )

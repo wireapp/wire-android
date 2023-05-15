@@ -18,10 +18,13 @@
 package com.wire.android.ui.calling.ongoing.fullscreen
 
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.tooling.preview.Preview
@@ -43,27 +46,29 @@ fun FullScreenTile(
     sharedCallingViewModel.callState.participants.find {
         it.id == selectedParticipant.userId && it.clientId == selectedParticipant.clientId
     }?.let {
-        ParticipantTile(
-            modifier = Modifier
-                .pointerInput(Unit) {
-                    detectTapGestures(
-                        onPress = { /* Called when the gesture starts */ },
-                        onDoubleTap = onDoubleTap,
-                        onLongPress = { /* Called on Long Press */ },
-                        onTap = { /* Called on Tap */ }
-                    )
-                }
-                .height(height)
-                .padding(
-                    start = dimensions().spacing4x,
-                    end = dimensions().spacing4x
-                ),
-            participantTitleState = it,
-            isSelfUser = selectedParticipant.isSelfUser,
-            shouldFill = false,
-            onSelfUserVideoPreviewCreated = sharedCallingViewModel::setVideoPreview,
-            onClearSelfUserVideoPreview = sharedCallingViewModel::clearVideoPreview
-        )
+        Box {
+            ParticipantTile(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clipToBounds()
+                    .pointerInput(Unit) {
+                        detectTapGestures(
+                            onDoubleTap = onDoubleTap
+                        )
+                    }
+                    .height(height)
+                    .padding(
+                        start = dimensions().spacing4x,
+                        end = dimensions().spacing4x
+                    ),
+                participantTitleState = it,
+                isSelfUser = selectedParticipant.isSelfUser,
+                shouldFill = false,
+                shouldZoom = true,
+                onSelfUserVideoPreviewCreated = sharedCallingViewModel::setVideoPreview,
+                onClearSelfUserVideoPreview = sharedCallingViewModel::clearVideoPreview
+            )
+        }
     }
 }
 

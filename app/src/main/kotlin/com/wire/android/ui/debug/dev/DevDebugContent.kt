@@ -48,11 +48,12 @@ import com.wire.android.ui.home.conversationslist.common.FolderHeader
 import com.wire.android.ui.home.settings.SettingsItem
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
+import kotlin.reflect.KFunction1
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun UserDebugContent() {
+fun DevDebugContent() {
     val devDebugViewModel: DevDebugViewModel = hiltViewModel()
     val debugContentState: DebugContentState = rememberDebugContentState(devDebugViewModel.logPath)
 
@@ -92,18 +93,17 @@ fun UserDebugContent() {
                 }
 
                 LogOptions(
-                    deviceId = debugContentState.deviceId,
                     isLoggingEnabled = isLoggingEnabled,
                     onLoggingEnabledChange = devDebugViewModel::setLoggingEnabledState,
                     onDeleteLogs = devDebugViewModel::deleteLogs,
-                    onShareLogs = debugContentState::shareLogs,
-                    onCopyDeviceId = debugContentState::copyToClipboard
+                    onShareLogs = debugContentState::shareLogs
                 )
 
-                ClientIdOptions(
-                    currentClientId = currentClientId,
-                    onCopyClientId = debugContentState::copyToClipboard
+                DebugDataOptions(
+                    deviceId = deviceId
+                            onCopyDeviceId = debugContentState ::copyToClipboard
                 )
+
 
                 Text(
                     text = stringResource(R.string.app_version, BuildConfig.VERSION_NAME),
@@ -138,10 +138,65 @@ fun UserDebugContent() {
 }
 
 @Composable
-private fun DebugDataOptions() {
-
+private fun DebugDataOptions(deviceId: String?, onCopyDeviceId: KFunction1<String, Unit>) {
+    Column {
+        FolderHeader(stringResource(R.string.label_logs_option_title))
+        SettingsItem(
+            title = currentClientId,
+            trailingIcon = R.drawable.ic_copy,
+            onIconPressed = Clickable(
+                enabled = true,
+                onClick = { onCopyClientId(currentClientId) }
+            )
+        )
+        SettingsItem(
+            title = deviceId ?: "",
+            trailingIcon = R.drawable.ic_copy,
+            onIconPressed = Clickable(
+                enabled = true,
+                onClick = { onCopyDeviceId(deviceId ?: "") }
+            )
+        )
+        SettingsItem(
+            title = stringResource(R.string.app_version, BuildConfig.VERSION_NAME),
+            trailingIcon = R.drawable.ic_copy,
+            onIconPressed = Clickable(
+                enabled = true,
+                onClick = { onCopyDeviceId(deviceId ?: "") }
+            )
+        )
+        SettingsItem(
+            title = stringResource(
+                R.string.build_variant_name, "${BuildConfig.FLAVOR}${
+                    BuildConfig.BUILD_TYPE.replaceFirstChar {
+                        it.uppercase()
+                    }
+                }"
+            ), trailingIcon = R.drawable.ic_copy,
+            onIconPressed = Clickable(
+                enabled = true,
+                onClick = { onCopyDeviceId(deviceId ?: "") }
+            )
+        )
+    }
 }
 
+
+@Composable
+private fun ManualMigrationOptions(
+    onManualMigrationClicked: () -> Unit,
+) {
+    Column {
+        FolderHeader(stringResource(R.string.label_manual_migration_title))
+        SettingsItem(
+            title = stringResource(R.string.start_manual_migration),
+            onRowPressed = Clickable(
+                enabled = true,
+                onClick = onManualMigrationClicked
+            )
+        )
+    }
+}
 
 @Composable
 private fun MlsOptions(
@@ -183,7 +238,7 @@ private fun MlsOptions(
 private fun EnableEncryptedProteusStorageSwitch(
     isEnabled: Boolean = false,
     onCheckedChange: ((Boolean) -> Unit)?,
-    modifier: androidx.compose.ui.Modifier = androidx.compose.ui.Modifier
+    modifier: Modifier = Modifier
 ) {
     RowItemTemplate(
         title = {
@@ -191,7 +246,7 @@ private fun EnableEncryptedProteusStorageSwitch(
                 style = MaterialTheme.wireTypography.body01,
                 color = MaterialTheme.wireColorScheme.onBackground,
                 text = stringResource(R.string.label_enable_encrypted_proteus_storage),
-                modifier = androidx.compose.ui.Modifier.padding(start = dimensions().spacing8x)
+                modifier = Modifier.padding(start = dimensions().spacing8x)
             )
         },
         actions = {
@@ -199,26 +254,24 @@ private fun EnableEncryptedProteusStorageSwitch(
                 checked = isEnabled,
                 onCheckedChange = onCheckedChange,
                 enabled = !isEnabled,
-                modifier = androidx.compose.ui.Modifier.padding(end = dimensions().spacing16x)
+                modifier = Modifier.padding(end = dimensions().spacing16x)
             )
         }
     )
 }
-
-
 
 @Composable
 private fun DevelopmentApiVersioningOptions(
     onForceLatestDevelopmentApiChange: () -> Unit
 ) {
     FolderHeader(stringResource(R.string.debug_settings_api_versioning_title))
-    RowItemTemplate(modifier = androidx.compose.ui.Modifier.wrapContentWidth(),
+    RowItemTemplate(modifier = Modifier.wrapContentWidth(),
         title = {
             Text(
                 style = MaterialTheme.wireTypography.body01,
                 color = MaterialTheme.wireColorScheme.onBackground,
                 text = stringResource(R.string.debug_settings_force_api_versioning_update),
-                modifier = androidx.compose.ui.Modifier.padding(start = dimensions().spacing8x)
+                modifier = Modifier.padding(start = dimensions().spacing8x)
             )
         },
         actions = {

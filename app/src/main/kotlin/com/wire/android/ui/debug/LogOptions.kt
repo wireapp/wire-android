@@ -38,21 +38,17 @@ import com.wire.android.util.getGitBuildId
 
 @Composable
 fun LogOptions(
-    deviceId: String?,
     isLoggingEnabled: Boolean,
     onLoggingEnabledChange: (Boolean) -> Unit,
     onDeleteLogs: () -> Unit,
-    onShareLogs: () -> Unit,
-    onCopyDeviceId: (String) -> Unit
+    onShareLogs: () -> Unit
 ) {
     Column {
         FolderHeader(stringResource(R.string.label_logs_option_title))
-
         EnableLoggingSwitch(
             isEnabled = isLoggingEnabled,
             onCheckedChange = onLoggingEnabledChange
         )
-
         if (isLoggingEnabled) {
             SettingsItem(
                 title = stringResource(R.string.label_share_logs),
@@ -69,22 +65,6 @@ fun LogOptions(
                 onIconPressed = Clickable(
                     enabled = true,
                     onClick = onDeleteLogs
-                )
-            )
-        }
-
-        val codeBuildNumber = LocalContext.current.getGitBuildId()
-        if (codeBuildNumber.isNotBlank()) {
-            SettingsItem(title = stringResource(R.string.label_code_commit_id, codeBuildNumber))
-        }
-
-        if (deviceId != null) {
-            SettingsItem(
-                title = stringResource(R.string.label_device_id, deviceId),
-                trailingIcon = R.drawable.ic_copy,
-                onIconPressed = Clickable(
-                    enabled = true,
-                    onClick = { onCopyDeviceId(deviceId) }
                 )
             )
         }

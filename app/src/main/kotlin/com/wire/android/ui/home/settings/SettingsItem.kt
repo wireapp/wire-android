@@ -20,9 +20,63 @@
 
 package com.wire.android.ui.home.settings
 
+import androidx.annotation.DrawableRes
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
 import com.wire.android.R
+import com.wire.android.model.Clickable
 import com.wire.android.navigation.NavigationItem
+import com.wire.android.ui.common.RowItemTemplate
+import com.wire.android.ui.common.clickable
+import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.theme.wireColorScheme
+import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.UIText
+
+
+@Composable
+fun SettingsItem(
+    title: String,
+    @DrawableRes trailingIcon: Int? = null,
+    onRowPressed: Clickable = Clickable(false),
+    onIconPressed: Clickable = Clickable(false)
+) {
+    RowItemTemplate(
+        title = {
+            Row {
+                Text(
+                    style = MaterialTheme.wireTypography.body01,
+                    color = MaterialTheme.wireColorScheme.onBackground,
+                    text = title,
+                    modifier = Modifier.padding(start = dimensions().spacing8x)
+                )
+            }
+        },
+        actions = {
+            trailingIcon?.let {
+                Icon(
+                    painter = painterResource(id = trailingIcon),
+                    contentDescription = "",
+                    tint = MaterialTheme.wireColorScheme.onSecondaryButtonEnabled,
+                    modifier = Modifier
+                        .defaultMinSize(80.dp)
+                        .clickable(onIconPressed)
+                )
+            } ?: Icons.Filled.ChevronRight
+        },
+        clickable = onRowPressed
+    )
+}
 
 enum class SettingsItem(val id: String, val title: UIText, val navigationItem: NavigationItem) {
     AppSettings(

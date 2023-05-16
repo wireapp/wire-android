@@ -434,7 +434,8 @@ class OtherUserProfileScreenViewModelTest {
             access = listOf(Conversation.Access.INVITE),
             accessRole = listOf(Conversation.AccessRole.NON_TEAM_MEMBER),
             creatorId = null,
-            receiptMode = Conversation.ReceiptMode.ENABLED
+            receiptMode = Conversation.ReceiptMode.ENABLED,
+            messageTimer = null
         )
         val CONVERSATION_ROLE_DATA = ConversationRoleData(
             "some_name",

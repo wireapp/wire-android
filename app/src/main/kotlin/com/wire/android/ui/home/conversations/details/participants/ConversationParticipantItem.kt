@@ -125,7 +125,7 @@ fun ConversationParticipantItem(
 @Composable
 fun PreviewGroupConversationParticipantItem() {
     ConversationParticipantItem(
-        UIParticipant(UserId("0", ""), "name", "handle", false, UserAvatarData(), Membership.Guest),
+        UIParticipant(UserId("0", ""), "name", "handle", false, false, UserAvatarData(), Membership.Guest),
         clickable = Clickable(enabled = true) {}
     )
 }

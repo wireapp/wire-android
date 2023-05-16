@@ -23,7 +23,7 @@ jobs:
           fetch-depth: 0
       - name: Get current date
         id: date
-        run: echo "::set-output name=date::$(date +'%Y-%m-%d')"
+        run: echo "date=$(date +'%Y-%m-%d')" >> $GITHUB_OUTPUT
       - name: Manually create a named playtest branch
         if: ${{ github.event.inputs.playtest-branch-manual-name }}  
         run: |

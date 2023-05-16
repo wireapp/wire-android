@@ -100,7 +100,8 @@ class MigrationMapper @Inject constructor() {
                 lastModifiedDate = lastEventTime,
                 lastNotificationDate = lastEventTime,
                 creatorId = creatorId,
-                receiptMode = fromScalaReceiptMode(receiptMode)
+                receiptMode = fromScalaReceiptMode(receiptMode),
+                messageTimer = null
             )
         }
     }

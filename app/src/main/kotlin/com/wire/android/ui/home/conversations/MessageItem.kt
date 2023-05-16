@@ -40,7 +40,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -146,10 +145,7 @@ fun MessageItem(
                         bottom = halfItemBottomPadding
                     )
             ) {
-                Spacer(
-                    Modifier
-                        .padding(start = dimensions().spacing8x - fullAvatarOuterPadding)
-                        .background(Color.Red))
+                Spacer(Modifier.padding(start = dimensions().spacing8x - fullAvatarOuterPadding))
 
                 val isProfileRedirectEnabled =
                     header.userId != null &&
@@ -400,7 +396,7 @@ private fun Username(username: String, modifier: Modifier = Modifier) {
 @Composable
 private fun MessageContent(
     message: UIMessage,
-    messageContent: UIMessageContent?,
+    messageContent: UIMessageContent.Regular?,
     audioMessagesState: Map<String, AudioState>,
     onAssetClick: Clickable,
     onImageClick: Clickable,
@@ -490,24 +486,9 @@ private fun MessageContent(
         }
 
         UIMessageContent.Deleted -> {}
-        is UIMessageContent.SystemMessage.MemberAdded -> {}
-        is UIMessageContent.SystemMessage.MemberJoined -> {}
-        is UIMessageContent.SystemMessage.MemberLeft -> {}
-        is UIMessageContent.SystemMessage.MemberRemoved -> {}
-        is UIMessageContent.SystemMessage.RenamedConversation -> {}
-        is UIMessageContent.SystemMessage.TeamMemberRemoved -> {}
-        is UIMessageContent.SystemMessage.CryptoSessionReset -> {}
-        is UIMessageContent.IncompleteAssetMessage -> {}
-        is UIMessageContent.SystemMessage.MissedCall.YouCalled -> {}
-        is UIMessageContent.SystemMessage.MissedCall.OtherCalled -> {}
-        is UIMessageContent.SystemMessage.NewConversationReceiptMode -> {}
-        is UIMessageContent.SystemMessage.ConversationReceiptModeChanged -> {}
         null -> {
             throw NullPointerException("messageContent is null")
         }
-
-        is UIMessageContent.SystemMessage.Knock -> {}
-        is UIMessageContent.SystemMessage.HistoryLost -> {}
     }
 }
 

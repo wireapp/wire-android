@@ -176,7 +176,7 @@ class MessageComposerViewModel @Inject constructor(
     }
 
     private fun observeSelfDeletingMessagesStatus() = viewModelScope.launch {
-        observeSelfDeletingMessages(conversationId).collect { selfDeletingStatus ->
+        observeSelfDeletingMessages(conversationId, considerSelfUserSettings = true).collect { selfDeletingStatus ->
             messageComposerViewState = messageComposerViewState.copy(selfDeletionTimer = selfDeletingStatus)
         }
     }

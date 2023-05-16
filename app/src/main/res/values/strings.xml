@@ -1046,4 +1046,5 @@
     <string name="ten_seconds_short_label">10s</string>
     <string name="label_debug_data">Debug data</string>
     <string name="title_internal_debugging">Internal debugging</string>
+    <string name="label_log_options_description">"This stores anonymized troubleshooting information locally. "</string>
 </resources>

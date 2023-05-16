@@ -53,7 +53,7 @@ import java.io.File
 
 @Composable
 fun DebugScreen() {
-    if (BuildConfig.DEBUG) {
+    if (false) {
         DevDebugContent()
     } else {
         UserDebugContent()

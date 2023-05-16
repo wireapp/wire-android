@@ -17,24 +17,31 @@
  */
 package com.wire.android.ui.debug
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
 import com.wire.android.model.Clickable
-import com.wire.android.ui.common.RowItemTemplate
+import com.wire.android.ui.common.SurfaceBackgroundWrapper
 import com.wire.android.ui.common.WireSwitch
+import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.typography
 import com.wire.android.ui.home.conversationslist.common.FolderHeader
 import com.wire.android.ui.home.settings.SettingsItem
 import com.wire.android.ui.theme.wireColorScheme
+import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
-import com.wire.android.util.getGitBuildId
 
 @Composable
 fun LogOptions(
@@ -77,21 +84,38 @@ fun EnableLoggingSwitch(
     onCheckedChange: ((Boolean) -> Unit)?,
     modifier: Modifier = Modifier
 ) {
-    RowItemTemplate(
-        title = {
+    SurfaceBackgroundWrapper {
+        Column(Modifier.padding(dimensions().spacing16x)) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = modifier
+                    .height(MaterialTheme.wireDimensions.conversationItemRowHeight)
+                    .fillMaxWidth()
+            ) {
+                Column(
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text(
+                        style = MaterialTheme.wireTypography.body01,
+                        color = MaterialTheme.wireColorScheme.onBackground,
+                        text = stringResource(R.string.label_enable_logging),
+                    )
+                }
+                Box(
+                    modifier = Modifier.wrapContentWidth()
+                ) {
+                    WireSwitch(
+                        checked = isEnabled,
+                        onCheckedChange = onCheckedChange,
+                        modifier = Modifier.padding(end = dimensions().spacing16x)
+                    )
+                }
+            }
             Text(
-                style = MaterialTheme.wireTypography.body01,
-                color = MaterialTheme.wireColorScheme.onBackground,
-                text = stringResource(R.string.label_enable_logging),
-                modifier = Modifier.padding(start = dimensions().spacing8x)
-            )
-        },
-        actions = {
-            WireSwitch(
-                checked = isEnabled,
-                onCheckedChange = onCheckedChange,
-                modifier = Modifier.padding(end = dimensions().spacing16x)
+                text = stringResource(R.string.label_log_options_description),
+                color = colorsScheme().secondaryText,
+                style = typography().body01
             )
         }
-    )
+    }
 }

@@ -54,7 +54,8 @@ fun SettingsScreen(
                     false -> viewModel.navigateTo(it.navigationItem)
                 }
             }
-        })
+        }
+    )
 }
 
 @Composable
@@ -63,7 +64,6 @@ fun SettingsScreenContent(
     onItemClicked: (SettingsItem) -> Unit
 ) {
     val context = LocalContext.current
-
     val featureVisibilityFlags = LocalFeatureVisibilityFlags.current
 
     with(featureVisibilityFlags) {

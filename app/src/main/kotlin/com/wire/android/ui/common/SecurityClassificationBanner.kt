@@ -42,6 +42,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
+import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
@@ -53,6 +54,7 @@ fun SecurityClassificationBanner(
 ) {
     if (securityClassificationType != SecurityClassificationType.NONE) {
         Column {
+            VerticalSpace.x8()
             Divider(color = getDividerColorFor(securityClassificationType))
             Row(
                 horizontalArrangement = Arrangement.Center,

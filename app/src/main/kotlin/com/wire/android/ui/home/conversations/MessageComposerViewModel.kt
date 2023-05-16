@@ -61,7 +61,6 @@ import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.feature.asset.GetAssetSizeLimitUseCase
-import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageResult
 import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageUseCase
 import com.wire.kalium.logic.feature.conversation.InteractionAvailability
 import com.wire.kalium.logic.feature.conversation.IsInteractionAvailableResult
@@ -206,10 +205,7 @@ class MessageComposerViewModel @Inject constructor(
         }
     }
 
-    fun sendMessage(
-        sendMessageBundle: SendMessageBundle
-    ) {
-
+    fun sendMessage(sendMessageBundle: SendMessageBundle) {
         viewModelScope.launch {
             sendTextMessage(
                 conversationId = conversationId,
@@ -242,7 +238,7 @@ class MessageComposerViewModel @Inject constructor(
                                 kaliumFileSystem,
                                 attachmentBundle.dataPath
                             )
-                            val result = sendAssetMessage(
+                            sendAssetMessage(
                                 conversationId = conversationId,
                                 assetDataPath = dataPath,
                                 assetName = fileName,
@@ -252,15 +248,12 @@ class MessageComposerViewModel @Inject constructor(
                                 assetMimeType = mimeType,
                                 expireAfter = expireAfter
                             )
-                            if (result is ScheduleNewAssetMessageResult.Failure) {
-                                onSnackbarMessage(ConversationSnackbarMessages.ErrorSendingImage)
-                            }
                         }
 
                         AttachmentType.VIDEO,
                         AttachmentType.GENERIC_FILE -> {
                             try {
-                                val result = sendAssetMessage(
+                                sendAssetMessage(
                                     conversationId = conversationId,
                                     assetDataPath = dataPath,
                                     assetName = fileName,
@@ -270,9 +263,6 @@ class MessageComposerViewModel @Inject constructor(
                                     assetWidth = null,
                                     expireAfter = expireAfter
                                 )
-                                if (result is ScheduleNewAssetMessageResult.Failure) {
-                                    onSnackbarMessage(ConversationSnackbarMessages.ErrorSendingAsset)
-                                }
                             } catch (e: OutOfMemoryError) {
                                 appLogger.e("There was an OutOfMemory error while uploading the asset")
                                 onSnackbarMessage(ConversationSnackbarMessages.ErrorSendingAsset)

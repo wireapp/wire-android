@@ -30,7 +30,7 @@ import com.wire.android.framework.TestMessage.buildAssetMessage
 import com.wire.android.framework.TestUser
 import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.conversations.model.UIMessageContent.AssetMessage
-import com.wire.android.ui.home.conversations.model.UIMessageContent.PreviewAssetMessage
+import com.wire.android.ui.home.conversations.model.UIMessageContent.IncompleteAssetMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent.SystemMessage
 import com.wire.android.ui.home.conversations.name
 import com.wire.android.util.time.ISOFormatter
@@ -219,7 +219,7 @@ class EncodedMessageContentMapperTest {
 
             // When - Then
             val resultContentImage = mapper.toUIMessageContent(AssetMessageContentMetadata(correctJPGImage), testMessage2, sender)
-            assertTrue(resultContentImage is PreviewAssetMessage)
+            assertTrue(resultContentImage is IncompleteAssetMessage)
         }
     }
 
@@ -282,7 +282,7 @@ class EncodedMessageContentMapperTest {
 
             // Then
             assertTrue(resultContentImage1 is AssetMessage)
-            assertTrue(resultContentImage2 is PreviewAssetMessage)
+            assertTrue(resultContentImage2 is IncompleteAssetMessage)
         }
     }
 

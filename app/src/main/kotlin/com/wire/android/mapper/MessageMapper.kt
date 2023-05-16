@@ -120,7 +120,7 @@ class MessageMapper @Inject constructor(
                     header = provideMessageHeader(sender, message),
                 )
             null -> null
-            UIMessageContent.PreviewAssetMessage -> null // Preview images messages should not be displayed
+            UIMessageContent.IncompleteAssetMessage -> null // Preview images messages should not be displayed
         }
     }
 

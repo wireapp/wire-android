@@ -317,8 +317,12 @@ class MessageContentMapper @Inject constructor(
     fun toUIMessageContent(assetMessageContentMetadata: AssetMessageContentMetadata, message: Message, sender: User?): UIMessageContent =
         with(assetMessageContentMetadata.assetMessageContent) {
             when {
-                assetMessageContentMetadata.isDisplayableImage() && !assetMessageContentMetadata.assetMessageContent.hasValidRemoteData() ->
-                    UIMessageContent.PreviewAssetMessage
+                assetMessageContentMetadata.isDisplayableImage()
+                        // assets uploaded by other clients have upload status NOT_UPLOADED
+                        && assetMessageContentMetadata.assetMessageContent.uploadStatus == Message.UploadStatus.NOT_UPLOADED
+                        // sometimes we can receive two asset messages, we want to show the image only after we get all required data
+                        && !assetMessageContentMetadata.assetMessageContent.hasValidRemoteData() ->
+                    UIMessageContent.IncompleteAssetMessage
 
                 // If it's an image, we delegate the download it right away to coil
                 assetMessageContentMetadata.isDisplayableImage() -> {

@@ -40,6 +40,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -130,26 +131,25 @@ fun MessageItem(
             } else {
                 0.dp
             }
+            val halfItemBottomPadding = dimensions().messageItemBottomPadding / 2
             Row(
                 Modifier
+                    .fillMaxWidth()
+                    .combinedClickable(
+                        enabled = !message.isDeleted,
+                        onClick = { }, // TODO: implement some action onClick
+                        onLongClick = remember { { onLongClicked(message) } }
+                    )
                     .padding(
                         end = dimensions().spacing16x,
-                        bottom = dimensions().messageItemBottomPadding - fullAvatarOuterPadding
-                    )
-                    .fillMaxWidth()
-                    .then(
-                        if (!message.isDeleted) {
-                            Modifier.combinedClickable(
-                                // TODO: implement some action onClick
-                                onClick = { },
-                                onLongClick = { onLongClicked(message) }
-                            )
-                        } else {
-                            Modifier
-                        }
+                        top = halfItemBottomPadding - fullAvatarOuterPadding,
+                        bottom = halfItemBottomPadding
                     )
             ) {
-                Spacer(Modifier.padding(start = dimensions().spacing8x - fullAvatarOuterPadding))
+                Spacer(
+                    Modifier
+                        .padding(start = dimensions().spacing8x - fullAvatarOuterPadding)
+                        .background(Color.Red))
 
                 val isProfileRedirectEnabled =
                     header.userId != null &&
@@ -230,10 +230,10 @@ fun MessageItem(
                             )
                         }
                     }
-                }
 
-                if (message.sendingFailed) {
-                    MessageSendFailureWarning(header.messageStatus as MessageStatus.MessageSendFailureStatus)
+                    if (message.sendingFailed) {
+                        MessageSendFailureWarning(header.messageStatus as MessageStatus.MessageSendFailureStatus)
+                    }
                 }
             }
         }
@@ -349,26 +349,27 @@ private fun MessageFooter(
     messageFooter: MessageFooter,
     onReactionClicked: (String, String) -> Unit
 ) {
-    FlowRow(
-        mainAxisSpacing = dimensions().spacing4x,
-        crossAxisSpacing = dimensions().spacing6x,
-        modifier = Modifier.padding(vertical = dimensions().spacing4x)
-    ) {
-        messageFooter.reactions.entries
-            .sortedBy { it.key }
-            .forEach {
-                val reaction = it.key
-                val count = it.value
-                ReactionPill(
-                    emoji = reaction,
-                    count = count,
-                    isOwn = messageFooter.ownReactions.contains(reaction),
-                    onTap = {
-                        onReactionClicked(messageFooter.messageId, reaction)
-                    }
-                )
-            }
-    }
+    if (messageFooter.reactions.entries.isNotEmpty()) // to eliminate adding unnecessary paddings when the list is empty
+        FlowRow(
+            mainAxisSpacing = dimensions().spacing4x,
+            crossAxisSpacing = dimensions().spacing6x,
+            modifier = Modifier.padding(vertical = dimensions().spacing4x)
+        ) {
+            messageFooter.reactions.entries
+                .sortedBy { it.key }
+                .forEach {
+                    val reaction = it.key
+                    val count = it.value
+                    ReactionPill(
+                        emoji = reaction,
+                        count = count,
+                        isOwn = messageFooter.ownReactions.contains(reaction),
+                        onTap = {
+                            onReactionClicked(messageFooter.messageId, reaction)
+                        }
+                    )
+                }
+        }
 }
 
 @Composable
@@ -496,7 +497,7 @@ private fun MessageContent(
         is UIMessageContent.SystemMessage.RenamedConversation -> {}
         is UIMessageContent.SystemMessage.TeamMemberRemoved -> {}
         is UIMessageContent.SystemMessage.CryptoSessionReset -> {}
-        is UIMessageContent.PreviewAssetMessage -> {}
+        is UIMessageContent.IncompleteAssetMessage -> {}
         is UIMessageContent.SystemMessage.MissedCall.YouCalled -> {}
         is UIMessageContent.SystemMessage.MissedCall.OtherCalled -> {}
         is UIMessageContent.SystemMessage.NewConversationReceiptMode -> {}

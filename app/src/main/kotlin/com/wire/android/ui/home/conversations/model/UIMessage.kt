@@ -160,7 +160,7 @@ sealed class UIMessageContent {
 
     sealed class Regular : UIMessageContent()
 
-    object PreviewAssetMessage : UIMessageContent()
+    object IncompleteAssetMessage : UIMessageContent()
 
     data class TextMessage(val messageBody: MessageBody) : Regular()
 

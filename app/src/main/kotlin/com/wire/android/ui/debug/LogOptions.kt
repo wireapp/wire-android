@@ -79,7 +79,7 @@ fun LogOptions(
 }
 
 @Composable
-fun EnableLoggingSwitch(
+private fun EnableLoggingSwitch(
     isEnabled: Boolean = false,
     onCheckedChange: ((Boolean) -> Unit)?,
     modifier: Modifier = Modifier

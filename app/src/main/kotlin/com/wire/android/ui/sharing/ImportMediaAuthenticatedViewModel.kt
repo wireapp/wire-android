@@ -48,7 +48,7 @@ import com.wire.kalium.logic.feature.asset.GetAssetSizeLimitUseCase
 import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationListDetailsUseCase
 import com.wire.kalium.logic.feature.selfdeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
-import com.wire.kalium.logic.feature.selfdeletingMessages.ObserveTeamSettingsSelfDeletingStatusUseCase
+import com.wire.kalium.logic.feature.selfdeletingMessages.PersistNewSelfDeletionTimerUseCase
 import com.wire.kalium.logic.feature.selfdeletingMessages.SelfDeletionTimer
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -68,6 +68,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.UUID
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.ZERO
 
 @HiltViewModel
 @OptIn(FlowPreview::class)
@@ -81,7 +82,7 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
     private val sendAssetMessage: ScheduleNewAssetMessageUseCase,
     private val kaliumFileSystem: KaliumFileSystem,
     private val getAssetSizeLimit: GetAssetSizeLimitUseCase,
-    private val observeTeamSettingsSelfDeletingStatusUseCase: ObserveTeamSettingsSelfDeletingStatusUseCase,
+    private val persistNewSelfDeletionTimerUseCase: PersistNewSelfDeletionTimerUseCase,
     private val observeSelfDeletionSettingsForConversation: ObserveSelfDeletionTimerSettingsForConversationUseCase,
     val wireSessionImageLoader: WireSessionImageLoader,
     val dispatchers: DispatcherProvider,
@@ -102,7 +103,6 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
         viewModelScope.launch {
             loadUserAvatar()
             observeConversationWithSearch()
-            observeTeamSettingsSelfDeletingStatus()
         }
     }
 
@@ -148,14 +148,6 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
             }
     }
 
-    private suspend fun observeTeamSettingsSelfDeletingStatus() = viewModelScope.launch {
-        observeTeamSettingsSelfDeletingStatusUseCase().collect { teamSettings ->
-            importMediaState = importMediaState.copy(
-                selfDeletingTimer = teamSettings.enforcedSelfDeletionTimer
-            )
-        }
-    }
-
     fun onSearchQueryChanged(searchQuery: TextFieldValue) {
         val textQueryChanged = mutableSearchQueryFlow.value != searchQuery.text
         // we set the state with a searchQuery, immediately to update the UI first
@@ -178,6 +170,7 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
             ?.let {
                 addConversationItemToGroupSelection(it)
             }
+        onNewConversationPicked(conversationId)
     }
 
     @Suppress("LongMethod")
@@ -366,6 +359,7 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
             importMediaState = importMediaState.copy(
                 selfDeletingTimer = SelfDeletionTimer.Enabled(selfDeletionDuration.value)
             )
+
         }
 
     private suspend fun navigateToConversation(conversationId: ConversationId) {
@@ -465,5 +459,5 @@ data class ImportMediaState(
     val isImporting: Boolean = false,
     val shareableConversationListState: ShareableConversationListState = ShareableConversationListState(),
     val selectedConversationItem: List<ConversationItem> = emptyList(),
-    val selfDeletingTimer: SelfDeletionTimer = SelfDeletionTimer.Disabled
+    val selfDeletingTimer: SelfDeletionTimer = SelfDeletionTimer.Enabled(ZERO)
 )

@@ -54,9 +54,9 @@ class ImportMediaScreenState(
     val bottomSheetState: ModalBottomSheetState
 ) {
 
-    fun toggleBottomSheetMenuVisibility() {
+    fun showBottomSheetMenu() {
         coroutineScope.launch {
-            bottomSheetState.animateTo(if (bottomSheetState.isVisible) ModalBottomSheetValue.Hidden else ModalBottomSheetValue.Expanded)
+            bottomSheetState.animateTo(ModalBottomSheetValue.Expanded)
         }
     }
 

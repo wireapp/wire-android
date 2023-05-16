@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -46,6 +45,7 @@ import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
 import com.wire.android.ui.common.button.WirePrimaryButton
+import com.wire.android.ui.common.button.wirePrimaryButtonColors
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
@@ -67,6 +67,7 @@ import com.wire.android.util.ui.LinkText
 import com.wire.android.util.ui.LinkTextData
 import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.coroutines.flow.SharedFlow
+import kotlin.time.Duration
 
 @Composable
 fun ImportMediaScreen(
@@ -266,12 +267,23 @@ private fun ImportMediaBottomBar(
     importMediaViewModel: ImportMediaAuthenticatedViewModel,
     importMediaScreenState: ImportMediaScreenState
 ) {
+    val selfDeletionTimer = importMediaViewModel.importMediaState.selfDeletingTimer
+    val shortDurationLabel = selfDeletionTimer.toDuration().toSelfDeletionDuration().shortLabel
+    val (mainButtonText, mainButtonColors) = if (selfDeletionTimer.toDuration() > Duration.ZERO) {
+        "${stringResource(id = R.string.self_deleting_message_label)} (${shortDurationLabel.asString()})" to wirePrimaryButtonColors().copy(
+            enabled = colorsScheme().onPrimaryButtonEnabled,
+            onEnabled = colorsScheme().primaryButtonEnabled
+        )
+    } else {
+        stringResource(id = R.string.import_media_send_button_title) to wirePrimaryButtonColors()
+    }
     SendContentButton(
-        mainButtonText = stringResource(R.string.import_media_send_button_title),
+        mainButtonText = mainButtonText,
         count = importMediaViewModel.currentSelectedConversationsCount(),
-        selfDeletionTimer = importMediaViewModel.importMediaState.selfDeletingTimer,
         onMainButtonClick = importMediaViewModel::checkRestrictionsAndSendImportedMedia,
-        onSelfDeletionTimerClicked = importMediaScreenState::toggleBottomSheetMenuVisibility,
+        selfDeletionTimer = selfDeletionTimer,
+        mainButtonColors = mainButtonColors,
+        onSelfDeletionTimerClicked = importMediaScreenState::showBottomSheetMenu,
     )
 }
 

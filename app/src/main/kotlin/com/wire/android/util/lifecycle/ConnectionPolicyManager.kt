@@ -109,7 +109,8 @@ class ConnectionPolicyManager @Inject constructor(
             if (syncManager.waitUntilLiveOrFailure().isLeft()) {
                 logger.w("$TAG Failed waiting until live")
             }
-            logger.d("$TAG Checking if downgrading policy is needed")
+            logger.d("$TAG Checking if downgrading policy is needed (after small delay)")
+            // this delay needed to have some time for getting the messages and calls from DB and displaying the notifications
             delay(1000)
             downgradePolicyIfNeeded(userId)
         }

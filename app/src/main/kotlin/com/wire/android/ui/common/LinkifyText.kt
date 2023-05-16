@@ -107,7 +107,7 @@ fun LinkifyText(
             }
             if (text is UIText.DynamicString && text.mentions.isNotEmpty()) {
                 text.mentions.forEach {
-                    if (it.length <= 0 || (it.start + it.length) >= textAsString.length) {
+                    if (it.length <= 0 || it.start >= length || it.start + it.length > length) {
                         return@forEach
                     }
                     addStyle(

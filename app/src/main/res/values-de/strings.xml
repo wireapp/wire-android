@@ -753,7 +753,7 @@
     <string name="service_remove_success">Dienst aus Gruppe entfernt</string>
     <string name="service_remove_error">Dienst kann nicht aus Gruppe entfernt werden</string>
     <string name="service_add_success">Dienst zur Gruppe hinzugefügt</string>
-    <string name="service_add_error">Unable to add service from group</string>
+    <string name="service_add_error">Unable to add service to group</string>
     <string name="service_no_information_available_title">No information available</string>
     <string name="service_no_information_available_subtitle">Try again or reach out to your team admin</string>
     <string name="read_receipts">Lesebestätigungen</string>

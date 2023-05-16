@@ -34,6 +34,7 @@ import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.notification.WireNotificationManager
 import com.wire.android.services.ServicesManager
 import com.wire.android.ui.authentication.devices.model.displayName
 import com.wire.android.ui.common.dialogs.CustomBEDeeplinkDialogState
@@ -556,6 +557,13 @@ class WireActivityViewModelTest {
 
         coVerify(exactly = 0) { arrangement.servicesManager.startPersistentWebSocketService() }
         coVerify(exactly = 0) { arrangement.servicesManager.stopPersistentWebSocketService() }
+        coVerify(exactly = 1) {
+            arrangement.notificationManager.observeNotificationsAndCallsWhileRunning(
+                listOf(TestUser.SELF_USER.id),
+                any(),
+                any()
+            )
+        }
     }
 
     @Test
@@ -651,6 +659,9 @@ class WireActivityViewModelTest {
         @MockK
         lateinit var observeNewClients: ObserveNewClientsUseCase
 
+        @MockK
+        lateinit var notificationManager: WireNotificationManager
+
         private val viewModel by lazy {
             WireActivityViewModel(
                 coreLogic = coreLogic,
@@ -666,7 +677,8 @@ class WireActivityViewModelTest {
                 servicesManager = servicesManager,
                 observeSyncStateUseCaseProviderFactory = observeSyncStateUseCaseProviderFactory,
                 observeIfAppUpdateRequired = observeIfAppUpdateRequired,
-                observeNewClients = observeNewClients
+                observeNewClients = observeNewClients,
+                notificationManager = notificationManager
             )
         }
 

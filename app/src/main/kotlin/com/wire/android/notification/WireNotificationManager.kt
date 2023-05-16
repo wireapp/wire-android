@@ -157,11 +157,13 @@ class WireNotificationManager @Inject constructor(
         appLogger.d("$TAG checking the notifications once")
 
         val observeMessagesJob = observeMessageNotificationsOnceJob(userId)
+        val observeCallsJob = observeCallNotificationsOnceJob(userId)
 
         appLogger.d("$TAG start syncing")
         connectionPolicyManager.handleConnectionOnPushNotification(userId)
 
         observeMessagesJob?.cancel("$TAG checked the notifications once, canceling observing.")
+        observeCallsJob?.cancel("$TAG checked the calls once, canceling observing.")
     }
 
     private suspend fun observeMessageNotificationsOnceJob(userId: UserId): Job? {
@@ -176,6 +178,21 @@ class WireNotificationManager @Inject constructor(
             null
         } else {
             scope.launch { observeMessageNotifications(userId, MutableStateFlow(CurrentScreen.InBackground)) }
+        }
+    }
+
+    private suspend fun observeCallNotificationsOnceJob(userId: UserId): Job? {
+        val isCallsAlreadyObserving =
+            observingWhileRunningJobs[userId]?.run { incomingCallsJob.isActive }
+                ?: observingPersistentlyJobs[userId]?.run { incomingCallsJob.isActive }
+                ?: false
+
+        return if (isCallsAlreadyObserving) {
+            // calls are already observed, just need to connect to websocket.
+            appLogger.d("$TAG checking the calls once, but calls are already observed, no need to start a new job")
+            null
+        } else {
+            scope.launch { observeIncomingCalls(userId, MutableStateFlow(CurrentScreen.InBackground)) {} }
         }
     }
 
@@ -239,7 +256,7 @@ class WireNotificationManager @Inject constructor(
                         observeCurrentScreenAndHideNotifications(currentScreenState, userId)
                     },
                     incomingCallsJob = scope.launch(dispatcherProvider.default()) {
-                        observeIncomingCalls(currentScreenState, userId, doIfCallCameAndAppVisible)
+                        observeIncomingCalls(userId, currentScreenState, doIfCallCameAndAppVisible)
                     },
                     messagesJob = scope.launch(dispatcherProvider.default()) {
                         observeMessageNotifications(userId, currentScreenState)
@@ -284,8 +301,8 @@ class WireNotificationManager @Inject constructor(
      * so we can decide: should we show notification, or run a @param[doIfCallCameAndAppVisible]
      */
     private suspend fun observeIncomingCalls(
-        currentScreenState: StateFlow<CurrentScreen>,
         userId: UserId,
+        currentScreenState: StateFlow<CurrentScreen>,
         doIfCallCameAndAppVisible: (Call) -> Unit
     ) {
         appLogger.d("$TAG observe incoming calls")

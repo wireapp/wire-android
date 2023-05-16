@@ -39,6 +39,7 @@ import com.wire.kalium.logic.functional.isLeft
 import com.wire.kalium.logic.functional.map
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -109,6 +110,7 @@ class ConnectionPolicyManager @Inject constructor(
                 logger.w("$TAG Failed waiting until live")
             }
             logger.d("$TAG Checking if downgrading policy is needed")
+            delay(1000)
             downgradePolicyIfNeeded(userId)
         }
     }

@@ -38,6 +38,7 @@ import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.notification.WireNotificationManager
 import com.wire.android.services.ServicesManager
 import com.wire.android.ui.authentication.devices.model.displayName
 import com.wire.android.ui.common.dialogs.CustomBEDeeplinkDialogState
@@ -103,6 +104,7 @@ class WireActivityViewModel @Inject constructor(
     private val observeSyncStateUseCaseProviderFactory: ObserveSyncStateUseCaseProvider.Factory,
     private val observeIfAppUpdateRequired: ObserveIfAppUpdateRequiredUseCase,
     private val observeNewClients: ObserveNewClientsUseCase,
+    private val notificationManager: WireNotificationManager
 ) : ViewModel() {
 
     var globalAppState: GlobalAppState by mutableStateOf(GlobalAppState())
@@ -451,6 +453,14 @@ class WireActivityViewModel @Inject constructor(
 
                     is ObservePersistentWebSocketConnectionStatusUseCase.Result.Success -> {
                         result.persistentWebSocketStatusListFlow.collect { statuses ->
+                            val usersToObserve = statuses
+                                .filter { !it.isPersistentWebSocketEnabled }
+                                .map { it.userId }
+
+                            notificationManager.observeNotificationsAndCallsWhileRunning(
+                                usersToObserve,
+                                this
+                            ) { call -> openIncomingCall(call.conversationId) }
 
                             if (statuses.any { it.isPersistentWebSocketEnabled }) {
                                 if (!servicesManager.isPersistentWebSocketServiceRunning()) {

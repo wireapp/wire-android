@@ -35,7 +35,6 @@ class GlobalObserversManagerTest {
             .arrange()
         manager.observe()
         coVerify(exactly = 1) { arrangement.notificationChannelsManager.createUserNotificationChannels(accounts) }
-        coVerify(exactly = 1) { arrangement.notificationManager.observeNotificationsAndCallsWhileRunning(any(), any(), any()) }
     }
 
     private class Arrangement {
@@ -46,19 +45,11 @@ class GlobalObserversManagerTest {
         @MockK
         lateinit var notificationChannelsManager: NotificationChannelsManager
 
-        @MockK
-        lateinit var notificationManager: WireNotificationManager
-
-        @MockK
-        lateinit var navigationManager: NavigationManager
-
         private val manager by lazy {
             GlobalObserversManager(
                 dispatcherProvider = TestDispatcherProvider(),
                 coreLogic = coreLogic,
-                notificationChannelsManager = notificationChannelsManager,
-                notificationManager = notificationManager,
-                navigationManager = navigationManager
+                notificationChannelsManager = notificationChannelsManager
             )
         }
 

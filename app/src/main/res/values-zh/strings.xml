@@ -40,7 +40,7 @@
     <string name="label_membership_external">External</string>
     <string name="label_membership_service">Service</string>
     <string name="label_user_deleted">Deleted</string>
-    <string name="label_message_sent_failure">Message could not be sent.</string>
+    <string name="label_message_sent_failure">Message could not be sent due to connectivity issues.</string>
     <string name="label_message_edit_sent_failure">The edited message could not be sent due to connectivity issues.</string>
     <string name="label_message_sent_remotely_failure">Message could not be sent, as the backend %s appears to be offline.</string>
     <string name="label_message_receive_failure">Download Error</string>
@@ -527,7 +527,7 @@
     <string name="label_system_message_conversation_message_timer_deactivated_by_self">%1$s %2$s the forced switching on for self-deleting messages</string>
     <string name="label_system_message_conversation_message_timer_deactivated_by_other">%1$s %2$s the forced switching on for self-deleting messages</string>
     <string name="label_system_message_deactivated">deactivated</string>
-    <string name="label_system_message_conversation_history_lost">YOU HAVEN\'T USED THIS DEVICE FOR A WHILE. SOME MESSAGES MAY NOT APPEAR HERE.</string>
+    <string name="label_system_message_conversation_history_lost">You haven\'t used this device for a while. some messages may not appear here.</string>
     <string name="label_system_message_receipt_mode_on">on</string>
     <string name="label_system_message_receipt_mode_off">off</string>
     <!-- Last messages -->
@@ -740,7 +740,7 @@
     <string name="service_remove_success">Service removed from group</string>
     <string name="service_remove_error">Unable to remove service from group</string>
     <string name="service_add_success">Service added to group</string>
-    <string name="service_add_error">Unable to add service from group</string>
+    <string name="service_add_error">Unable to add service to group</string>
     <string name="service_no_information_available_title">No information available</string>
     <string name="service_no_information_available_subtitle">Try again or reach out to your team admin</string>
     <string name="read_receipts">Read receipts</string>

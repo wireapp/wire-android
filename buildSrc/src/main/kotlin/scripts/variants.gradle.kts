@@ -66,6 +66,7 @@ object Default {
 
 fun NamedDomainObjectContainer<ApplicationProductFlavor>.createAppFlavour(
     flavorApplicationId: String,
+    sharedUserId: String,
     flavour: ProductFlavors
 ) {
     create(flavour.buildName) {
@@ -73,9 +74,7 @@ fun NamedDomainObjectContainer<ApplicationProductFlavor>.createAppFlavour(
         applicationId = flavorApplicationId
         versionNameSuffix = "-${flavour.buildName}"
         resValue("string", "app_name", flavour.appName)
-        manifestPlaceholders.apply {
-            put("sharedUserId", flavour.shareduserId)
-        }
+        manifestPlaceholders["sharedUserId"] = sharedUserId
     }
 }
 
@@ -116,7 +115,7 @@ android {
             isMinifyEnabled = false
             applicationIdSuffix = ".${BuildTypes.DEBUG}"
             isDebuggable = true
-// Just in case a developer is trying to debug some prod crashes by turning on minify
+            // Just in case a developer is trying to debug some prod crashes by turning on minify
             if (isMinifyEnabled) proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
             if (enableSigning)
                 signingConfig = signingConfigs.getByName("debug")
@@ -162,7 +161,13 @@ android {
             requireNotNull(flavorApplicationId) {
                 "Missing application ID definition for the flavor '$flavorName'"
             }
-            createAppFlavour(flavorApplicationId, flavor)
+            // prefer value from FeatureConfigs if defined, otherwise fallback to in-code flavor value.
+            val userId: String = (flavorSpecificMap[FeatureConfigs.USER_ID.value] as? String) ?: flavor.shareduserId
+            createAppFlavour(
+                flavorApplicationId = flavorApplicationId,
+                sharedUserId = userId,
+                flavour = flavor
+            )
         }
         createFlavor(ProductFlavors.Dev)
         createFlavor(ProductFlavors.Staging)
@@ -170,7 +175,6 @@ android {
         createFlavor(ProductFlavors.Internal)
         createFlavor(ProductFlavors.Production)
     }
-
 
     /**
      * Process feature flags and if the feature is not included in a product flavor,
@@ -207,7 +211,6 @@ android {
         }
     }
 }
-
 
 fun buildStringConfig(productFlavour: ProductFlavor, type: String, name: String, value: String?) {
     productFlavour.buildConfigField(

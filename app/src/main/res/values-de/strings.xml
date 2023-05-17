@@ -142,6 +142,7 @@
     <string name="content_description_calling_call_unmuted">Call Unmuted</string>
     <string name="content_description_calling_call_paused_camera">Paused Camera</string>
     <string name="content_description_more_emojis">More emojis</string>
+    <string name="content_description_self_deletion_selector_button">Toggle self deletion mode, button</string>
     <!-- Non translatable strings-->
     <!-- Navigation -->
     <string name="vault_screen_title">Tresor</string>

@@ -334,7 +334,7 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
                         assetMimeType = importedAsset.mimeType,
                         assetWidth = if (isImage) (importedAsset as ImportedMediaAsset.Image).width else 0,
                         assetHeight = if (isImage) (importedAsset as ImportedMediaAsset.Image).height else 0,
-                        expireAfter = null
+                        expireAfter = importMediaState.selfDeletingTimer.toDuration().let { if (it == ZERO) null else it }
                     )
                 }
                 jobs = jobs.plus(job)

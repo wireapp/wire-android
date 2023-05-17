@@ -137,7 +137,7 @@ fun MessageItem(
                     .combinedClickable(
                         enabled = !message.isDeleted,
                         onClick = { }, // TODO: implement some action onClick
-                        onLongClick = remember { { onLongClicked(message) } }
+                        onLongClick = remember(message) { { onLongClicked(message) } }
                     )
                     .padding(
                         end = dimensions().spacing16x,

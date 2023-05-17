@@ -109,9 +109,7 @@ class EditSelfDeletingMessagesViewModel @Inject constructor(
     }
 
     fun onSelectDuration(duration: SelfDeletionDuration) {
-        state = state.copy(
-            locallySelected = duration
-        )
+        state = state.copy(locallySelected = duration)
     }
 
     fun applyNewDuration() {

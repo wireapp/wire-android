@@ -52,7 +52,6 @@ import com.wire.android.ui.common.rememberTopBarElevationState
 import com.wire.android.ui.common.selectableBackground
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.common.spacers.HorizontalSpace
-import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.home.messagecomposer.state.SelfDeletionDuration
 import com.wire.android.ui.theme.wireColorScheme
@@ -125,15 +124,13 @@ fun EditSelfDeletingMessagesScreen(
                     }
                 }
                 WireDivider(color = MaterialTheme.wireColorScheme.outline)
-                VerticalSpace.x16()
                 WireButton(
                     loading = state.isLoading,
-                    state = if (state.didDurationChanged() && state.isEnabled) WireButtonState.Default else WireButtonState.Disabled,
+                    state = if (state.didDurationChange() && state.isEnabled) WireButtonState.Default else WireButtonState.Disabled,
                     onClick = ::applyNewDuration,
                     text = stringResource(id = R.string.label_apply),
-                    modifier = Modifier.padding(horizontal = MaterialTheme.wireDimensions.spacing16x)
+                    modifier = Modifier.padding(all = MaterialTheme.wireDimensions.spacing16x)
                 )
-                VerticalSpace.x16()
             }
         }
     }

@@ -75,8 +75,10 @@ class ConversationScreenState(
     var bottomSheetMenuType: BottomSheetMenuType by mutableStateOf(BottomSheetMenuType.None)
 
     fun showEditContextMenu(message: UIMessage.Regular) {
-        bottomSheetMenuType = BottomSheetMenuType.Edit(message)
-        coroutineScope.launch { modalBottomSheetState.animateTo(ModalBottomSheetValue.Expanded) }
+        if(message.isAvailable) {
+            bottomSheetMenuType = BottomSheetMenuType.Edit(message)
+            coroutineScope.launch { modalBottomSheetState.animateTo(ModalBottomSheetValue.Expanded) }
+        }
     }
 
     fun hideContextMenu(onComplete: () -> Unit = {}) {

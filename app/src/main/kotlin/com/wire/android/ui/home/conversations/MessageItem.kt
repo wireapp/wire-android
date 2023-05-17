@@ -347,7 +347,7 @@ private fun MessageFooter(
     messageFooter: MessageFooter,
     onReactionClicked: (String, String) -> Unit
 ) {
-    if (messageFooter.reactions.entries.isNotEmpty()) // to eliminate adding unnecessary paddings when the list is empty
+    if (messageFooter.reactions.entries.isNotEmpty()) { // to eliminate adding unnecessary paddings when the list is empty
         FlowRow(
             mainAxisSpacing = dimensions().spacing4x,
             crossAxisSpacing = dimensions().spacing6x,
@@ -368,6 +368,7 @@ private fun MessageFooter(
                     )
                 }
         }
+    }
 }
 
 @Composable

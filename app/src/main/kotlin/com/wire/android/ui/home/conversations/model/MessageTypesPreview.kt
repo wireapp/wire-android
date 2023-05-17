@@ -18,6 +18,8 @@
  *
  */
 
+@file:Suppress("TooManyFunctions")
+
 package com.wire.android.ui.home.conversations.model
 
 import androidx.compose.foundation.layout.Column

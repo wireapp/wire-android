@@ -139,7 +139,7 @@ class MessageMapperTest {
         time: String?,
         source: MessageSource = MessageSource.Self,
         membership: Membership = Membership.None,
-        status: MessageStatus = MessageStatus.Untouched
+        status: MessageStatus = MessageStatus.Untouched()
     ) = uiMessage?.source == source && uiMessage.header.membership == membership
             && uiMessage.header.messageTime.formattedDate == time && uiMessage.header.messageStatus == status
 

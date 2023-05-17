@@ -333,7 +333,7 @@ internal fun mockUITextMessage(id: String = "someId", userName: String = "mockUs
             every { it.username } returns UIText.DynamicString(userName)
             every { it.isLegalHold } returns false
             every { it.messageTime } returns MessageTime("")
-            every { it.messageStatus } returns MessageStatus.Untouched
+            every { it.messageStatus } returns MessageStatus.Untouched()
         }
         every { it.messageContent } returns null
     }

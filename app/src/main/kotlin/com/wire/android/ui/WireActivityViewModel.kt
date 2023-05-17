@@ -222,7 +222,7 @@ class WireActivityViewModel @Inject constructor(
         }
 
         viewModelScope.launch {
-            delay(SHORT_DELAY) // to make sure that the app is fully initialized before handling the deepLink
+            delay(SHORT_DELAY) // to make sure that the app is fully initialized before handling the import intent
             val result = intent?.data?.let { deepLinkProcessor(it) }
             when {
                 result is DeepLinkResult.SSOLogin -> openSsoLogin(result)
@@ -469,7 +469,7 @@ class WireActivityViewModel @Inject constructor(
     }
 
     companion object {
-        private val SHORT_DELAY = 100L
+        private const val SHORT_DELAY = 100L
     }
 }
 

@@ -160,7 +160,8 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
 
     fun addConversationItemToGroupSelection(conversation: ConversationItem) =
         viewModelScope.launch {
-            // TODO: change this conversation item to a list of conversation items in case we want to support sharing to multiple conversations
+            // TODO: change this conversation item to a list of conversation items in case we want to support
+            // sharing to multiple conversations
             importMediaState =
                 importMediaState.copy(selectedConversationItem = listOf(conversation))
         }

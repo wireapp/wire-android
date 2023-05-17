@@ -251,7 +251,8 @@ class MessageComposerViewModel @Inject constructor(
                         }
 
                         AttachmentType.VIDEO,
-                        AttachmentType.GENERIC_FILE -> {
+                        AttachmentType.GENERIC_FILE,
+                        AttachmentType.AUDIO -> {
                             try {
                                 sendAssetMessage(
                                     conversationId = conversationId,
@@ -267,10 +268,6 @@ class MessageComposerViewModel @Inject constructor(
                                 appLogger.e("There was an OutOfMemory error while uploading the asset")
                                 onSnackbarMessage(ConversationSnackbarMessages.ErrorSendingAsset)
                             }
-                        }
-
-                        AttachmentType.AUDIO -> {
-                            // TODO()
                         }
                     }
                 }

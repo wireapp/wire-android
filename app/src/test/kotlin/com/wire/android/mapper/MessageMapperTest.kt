@@ -166,9 +166,6 @@ class MessageMapperTest {
             coEvery { messageContentMapper.fromMessage(any(), any()) } returns TextMessage(
                 MessageBody(UIText.DynamicString("some message text"))
             )
-            coEvery { messageContentMapper.toSystemMessageMemberName(any(), any()) } returns UIText.DynamicString(
-                "username"
-            )
             every { isoFormatter.fromISO8601ToTimeFormat(any()) } answers { firstArg<String>().uiMessageDateTime() ?: "" }
         }
 

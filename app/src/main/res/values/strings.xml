@@ -143,6 +143,7 @@
     <string name="content_description_calling_call_unmuted">Call Unmuted</string>
     <string name="content_description_calling_call_paused_camera">Paused Camera</string>
     <string name="content_description_more_emojis">More emojis</string>
+    <string name="content_description_self_deletion_selector_button">Toggle self deletion mode, button</string>
     <!-- Non translatable strings-->
     <string name="url_decryption_failure_learn_more" translatable="false">https://support.wire.com/hc/en-us/articles/207948115-Why-was-I-notified-that-a-message-from-a-contact-was-not-received-</string>
     <string name="url_welcome_to_new_android" translatable="false">https://support.wire.com/hc/en-us/articles/6655706999581-What-s-new-on-Android-</string>

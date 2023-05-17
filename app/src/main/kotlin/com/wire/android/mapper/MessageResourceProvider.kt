@@ -14,19 +14,15 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
+package com.wire.android.mapper
 
-package com.wire.android.ui.home.conversations.details.editselfdeletingmessages
+import androidx.annotation.StringRes
+import com.wire.android.R
 
-import com.wire.android.ui.home.messagecomposer.state.SelfDeletionDuration
-
-data class EditSelfDeletingMessagesState(
-    val isEnabled: Boolean = false,
-    val isLoading: Boolean = true,
-    val locallySelected: SelfDeletionDuration? = null,
-    val remotelySelected: SelfDeletionDuration? = null,
-) {
-    fun didDurationChanged() = locallySelected != null && locallySelected != remotelySelected
-}
+data class MessageResourceProvider(
+    @StringRes val memberNameDeleted: Int = R.string.member_name_deleted_label,
+    @StringRes val memberNameYouLowercase: Int = R.string.member_name_you_label_lowercase,
+    @StringRes val memberNameYouTitlecase: Int = R.string.member_name_you_label_titlecase,
+    @StringRes val sentAMessageWithContent: Int = R.string.sent_a_message_with_content
+)

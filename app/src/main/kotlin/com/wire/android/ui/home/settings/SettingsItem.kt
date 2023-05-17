@@ -43,7 +43,6 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.UIText
 
-
 @Composable
 fun SettingsItem(
     title: String,

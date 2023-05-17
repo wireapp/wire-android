@@ -359,7 +359,10 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
             importMediaState = importMediaState.copy(
                 selfDeletingTimer = SelfDeletionTimer.Enabled(selfDeletionDuration.value)
             )
-
+            persistNewSelfDeletionTimerUseCase(
+                conversationId = importMediaState.selectedConversationItem.first().conversationId,
+                newSelfDeletionTimer = importMediaState.selfDeletingTimer
+            )
         }
 
     private suspend fun navigateToConversation(conversationId: ConversationId) {

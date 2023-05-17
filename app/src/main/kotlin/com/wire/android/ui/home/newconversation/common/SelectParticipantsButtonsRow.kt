@@ -89,7 +89,7 @@ fun SendContentButton(
     selfDeletionTimer: SelfDeletionTimer = SelfDeletionTimer.Disabled,
     onSelfDeletionTimerClicked: () -> Unit,
 ) {
-    val isSelfDeletionEnabled = selfDeletionTimer !is SelfDeletionTimer.Disabled
+    val isSelfDeletionButtonVisible = selfDeletionTimer is SelfDeletionTimer.Enabled
     SelectParticipantsButtonsRow(
         showTotalSelectedItemsCount = false,
         selectedParticipantsCount = count,
@@ -112,7 +112,7 @@ fun SendContentButton(
         shouldAllowNoSelectionContinue = false,
         onMainButtonClick = onMainButtonClick,
         onMoreButtonIcon = {
-            if (isSelfDeletionEnabled) {
+            if (isSelfDeletionButtonVisible) {
                 SelfDeletionTimerButton(
                     selfDeletionTimer = selfDeletionTimer,
                     onSelfDeletionTimerClicked = onSelfDeletionTimerClicked,

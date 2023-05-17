@@ -155,7 +155,6 @@ enum class SelfDeletionDuration(val value: Duration, val longLabel: UIText, val 
 
         // list which will filter [OneMinute] for release builds because it is only for testing purposes
         fun customValues(): List<SelfDeletionDuration> = values()
-            .filter { !(!BuildConfig.DEVELOPER_FEATURES_ENABLED && it == OneMinute)  }
-
+            .filter { !(!BuildConfig.DEVELOPER_FEATURES_ENABLED && it == OneMinute) }
     }
 }

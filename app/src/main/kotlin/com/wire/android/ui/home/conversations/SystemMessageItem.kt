@@ -56,7 +56,6 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
-import com.wire.android.appLogger
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
@@ -69,7 +68,6 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.annotatedText
-import com.wire.android.util.ui.stringWithStyledArgs
 import com.wire.android.util.ui.toUIText
 
 @Composable

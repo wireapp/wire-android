@@ -56,6 +56,7 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
+import com.wire.android.appLogger
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
@@ -337,15 +338,11 @@ fun SystemMessage.annotatedString(
             author.asString(res),
             selfDeletionDuration.longLabel.asString(res)
         )
+
         is SystemMessage.ConversationMessageTimerDeactivated -> arrayOf(author.asString(res))
     }
 
-    // TODO
-//    return if(this is SystemMessage.ConversationMessageTimerActivated || this is SystemMessage.ConversationMessageTimerDeactivated) {
-       return res.annotatedText(stringResId, normalStyle, boldStyle, normalColor, boldColor, *args)
-//    } else {
-//        res.stringWithStyledArgs(stringResId, normalStyle, boldStyle, normalColor, boldColor, *args)
-//    }
+    return res.annotatedText(stringResId, normalStyle, boldStyle, normalColor, boldColor, *args)
 }
 
 private const val EXPANDABLE_THRESHOLD = 4

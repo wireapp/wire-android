@@ -27,6 +27,7 @@
     <string name="label_cancel">Cancelar</string>
     <string name="label_confirm">Confirmar</string>
     <string name="label_continue">Continuar</string>
+    <string name="label_apply">Apply</string>
     <string name="label_save">Guardar</string>
     <string name="label_get_started">Empezar</string>
     <string name="label_remove">Eliminar</string>
@@ -522,11 +523,11 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
     <string name="label_system_message_new_conversation_receipt_mode">Los recibos de lectura est&#225;n %1$s</string>
     <string name="label_system_message_read_receipt_changed_by_self">%1$s cambi&#243; los recibos de lectura %2$s para todos</string>
     <string name="label_system_message_read_receipt_changed_by_other">%1$s cambi&#243; los recibos de lectura %2$s para todos</string>
-    <string name="label_system_message_conversation_message_timer_activated_by_self">%1$s %2$s el encendido forzado para mensajes con auto-borrado (temporizador de mensajes: %3$s)</string>
-    <string name="label_system_message_conversation_message_timer_activated_by_other">%1$s %2$s los mensajes con auto-borrado (temporizador de mensajes: %3$s)</string>
+    <string name="label_system_message_conversation_message_timer_activated_by_self">%1$s set self-deleting messages to %2$s for everyone</string>
+    <string name="label_system_message_conversation_message_timer_activated_by_other">%1$s set self-deleting messages to %2$s for everyone</string>
     <string name="label_system_message_activated">ha activado</string>
-    <string name="label_system_message_conversation_message_timer_deactivated_by_self">%1$s %2$s los mensajes con auto-borrado</string>
-    <string name="label_system_message_conversation_message_timer_deactivated_by_other">%1$s %2$s los mensajes con auto-borrado</string>
+    <string name="label_system_message_conversation_message_timer_deactivated_by_self">%1$s turned **off** the timer for self-deleting messages for everyone</string>
+    <string name="label_system_message_conversation_message_timer_deactivated_by_other">%1$s turned **off** the timer for self-deleting messages for everyone</string>
     <string name="label_system_message_deactivated">ha desactivado</string>
     <string name="label_system_message_conversation_history_lost">No has usado este dispositivo por un tiempo. Es posible que algunos mensajes no aparezcan aqu&#237;.</string>
     <string name="label_system_message_receipt_mode_on">encendido</string>
@@ -1025,5 +1026,6 @@ URL del backend:
     <string name="one_day_short_label">1d</string>
     <string name="one_hour_short_label">1h</string>
     <string name="five_minutes_short_label">5min</string>
+    <string name="one_minute_short_label">1m</string>
     <string name="ten_seconds_short_label">10s</string>
 </resources>

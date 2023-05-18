@@ -70,6 +70,8 @@ import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.internal.assertEquals
 import org.amshove.kluent.`should be equal to`
 import org.junit.jupiter.api.Test
@@ -103,7 +105,7 @@ class WireActivityViewModelTest {
     }
 
     @Test
-    fun `given Intent with SSOLogin, when currentSession is present, then navigation to Login with SSOLogin params is called`() {
+    fun `given Intent with SSOLogin, when currentSession is present, then navigation to Login with SSOLogin params is called`() = runTest {
         val result = DeepLinkResult.SSOLogin.Success("cookie", "config")
         val (arrangement, viewModel) = Arrangement()
             .withSomeCurrentSession()
@@ -111,6 +113,7 @@ class WireActivityViewModelTest {
             .arrange()
 
         viewModel.handleDeepLink(mockedIntent())
+        advanceUntilIdle()
 
         coVerify(exactly = 1) {
             arrangement.navigationManager.navigate(
@@ -121,13 +124,14 @@ class WireActivityViewModelTest {
     }
 
     @Test
-    fun `given Intent with ServerConfig, when currentSession is present, then startNavigation is Home and customBackEnd dialog is shown`() {
+    fun `given Intent with ServerConfig, when currentSession is present, then startNavigation is Home and customBackEnd dialog is shown`() = runTest {
         val (arrangement, viewModel) = Arrangement()
             .withSomeCurrentSession()
             .withDeepLinkResult(DeepLinkResult.CustomServerConfig("url"))
             .arrange()
 
         viewModel.handleDeepLink(mockedIntent())
+        advanceUntilIdle()
 
         coVerify(exactly = 0) { arrangement.navigationManager.navigate(any()) }
         assertEquals(NavigationItem.Home.getRouteWithArgs(), viewModel.startNavigationRoute())
@@ -135,13 +139,14 @@ class WireActivityViewModelTest {
     }
 
     @Test
-    fun `given Intent with ServerConfig, when currentSession is absent, then startNavigation is Welcome customBackEnd dialog is shown`() {
+    fun `given Intent with ServerConfig, when currentSession is absent, then startNavigation is Welcome customBackEnd dialog is shown`() = runTest{
         val (arrangement, viewModel) = Arrangement()
             .withNoCurrentSession()
             .withDeepLinkResult(DeepLinkResult.CustomServerConfig("url"))
             .arrange()
 
         viewModel.handleDeepLink(mockedIntent())
+        advanceUntilIdle()
 
         assertEquals(NavigationItem.Welcome.getRouteWithArgs(), viewModel.startNavigationRoute())
         coVerify(exactly = 0) { arrangement.navigationManager.navigate(any()) }
@@ -164,7 +169,7 @@ class WireActivityViewModelTest {
     }
 
     @Test
-    fun `given Intent with SSOLogin, when currentSession is present, then startNavigation is Home and navigate to SSOLogin`() {
+    fun `given Intent with SSOLogin, when currentSession is present, then startNavigation is Home and navigate to SSOLogin`() = runTest {
         val ssoLogin = DeepLinkResult.SSOLogin.Success("cookie", "serverConfig")
         val (arrangement, viewModel) = Arrangement()
             .withSomeCurrentSession()
@@ -172,6 +177,7 @@ class WireActivityViewModelTest {
             .arrange()
 
         viewModel.handleDeepLink(mockedIntent())
+        advanceUntilIdle()
 
         assertEquals(NavigationItem.Home.getRouteWithArgs(), viewModel.startNavigationRoute())
         coVerify(exactly = 1) {
@@ -185,7 +191,7 @@ class WireActivityViewModelTest {
     }
 
     @Test
-    fun `given Intent with SSOLogin, when currentSession is absent, then startNavigation is Welcome and navigate to SSOLogin`() {
+    fun `given Intent with SSOLogin, when currentSession is absent, then startNavigation is Welcome and navigate to SSOLogin`() = runTest {
         val ssoLogin = DeepLinkResult.SSOLogin.Success("cookie", "serverConfig")
         val (arrangement, viewModel) = Arrangement()
             .withNoCurrentSession()
@@ -193,6 +199,7 @@ class WireActivityViewModelTest {
             .arrange()
 
         viewModel.handleDeepLink(mockedIntent())
+        advanceUntilIdle()
 
         assertEquals(NavigationItem.Welcome.getRouteWithArgs(), viewModel.startNavigationRoute())
         coVerify(exactly = 1) {
@@ -206,13 +213,14 @@ class WireActivityViewModelTest {
     }
 
     @Test
-    fun `given Intent with MigrationLogin, when currentSession is present, then startNavigation is Home and navigate to Login`() {
+    fun `given Intent with MigrationLogin, when currentSession is present, then startNavigation is Home and navigate to Login`() = runTest {
         val (arrangement, viewModel) = Arrangement()
             .withSomeCurrentSession()
             .withDeepLinkResult(DeepLinkResult.MigrationLogin("handle"))
             .arrange()
 
         viewModel.handleDeepLink(mockedIntent())
+        advanceUntilIdle()
 
         assertEquals(NavigationItem.Home.getRouteWithArgs(), viewModel.startNavigationRoute())
         coVerify(exactly = 1) {
@@ -226,13 +234,14 @@ class WireActivityViewModelTest {
     }
 
     @Test
-    fun `given Intent with MigrationLogin, when currentSession is absent, then startNavigation is Welcome and navigate to Login`() {
+    fun `given Intent with MigrationLogin, when currentSession is absent, then startNavigation is Welcome and navigate to Login`() = runTest {
         val (arrangement, viewModel) = Arrangement()
             .withNoCurrentSession()
             .withDeepLinkResult(DeepLinkResult.MigrationLogin("handle"))
             .arrange()
 
         viewModel.handleDeepLink(mockedIntent())
+        advanceUntilIdle()
 
         assertEquals(NavigationItem.Welcome.getRouteWithArgs(), viewModel.startNavigationRoute())
         coVerify(exactly = 1) {
@@ -246,7 +255,7 @@ class WireActivityViewModelTest {
     }
 
     @Test
-    fun `given Intent with IncomingCall, when currentSession is present, then startNavigation is Home and navigate to call is called`() {
+    fun `given Intent with IncomingCall, when currentSession is present, then startNavigation is Home and navigate to call is called`() = runTest {
         val conversationsId = ConversationId("val", "dom")
         val (arrangement, viewModel) = Arrangement()
             .withSomeCurrentSession()
@@ -254,6 +263,7 @@ class WireActivityViewModelTest {
             .arrange()
 
         viewModel.handleDeepLink(mockedIntent())
+        advanceUntilIdle()
 
         assertEquals(NavigationItem.Home.getRouteWithArgs(), viewModel.startNavigationRoute())
         coVerify(exactly = 1) {
@@ -282,7 +292,7 @@ class WireActivityViewModelTest {
     }
 
     @Test
-    fun `given Intent with OpenConversation, when currentSession is present, then startNavigation is Home`() {
+    fun `given Intent with OpenConversation, when currentSession is present, then startNavigation is Home`() = runTest {
         val conversationsId = ConversationId("val", "dom")
         val (arrangement, viewModel) = Arrangement()
             .withSomeCurrentSession()
@@ -290,6 +300,7 @@ class WireActivityViewModelTest {
             .arrange()
 
         viewModel.handleDeepLink(mockedIntent())
+        advanceUntilIdle()
 
         assertEquals(NavigationItem.Home.getRouteWithArgs(), viewModel.startNavigationRoute())
         coVerify(exactly = 1) {
@@ -315,7 +326,7 @@ class WireActivityViewModelTest {
     }
 
     @Test
-    fun `given Intent with OpenOtherUser, when currentSession is present, then startNavigation is Home`() {
+    fun `given Intent with OpenOtherUser, when currentSession is present, then startNavigation is Home`() = runTest {
         val userId = QualifiedID("val", "dom")
         val (arrangement, viewModel) = Arrangement()
             .withSomeCurrentSession()
@@ -323,6 +334,7 @@ class WireActivityViewModelTest {
             .arrange()
 
         viewModel.handleDeepLink(mockedIntent())
+        advanceUntilIdle()
 
         assertEquals(NavigationItem.Home.getRouteWithArgs(), viewModel.startNavigationRoute())
         coVerify(exactly = 1) {
@@ -333,13 +345,14 @@ class WireActivityViewModelTest {
     }
 
     @Test
-    fun `given Intent with OpenOtherUser, when currentSession is absent, then startNavigation is Welcome`() {
+    fun `given Intent with OpenOtherUser, when currentSession is absent, then startNavigation is Welcome`() = runTest {
         val (arrangement, viewModel) = Arrangement()
             .withNoCurrentSession()
             .withDeepLinkResult(DeepLinkResult.OpenOtherUserProfile(QualifiedID("val", "dom")))
             .arrange()
 
         viewModel.handleDeepLink(mockedIntent())
+        advanceUntilIdle()
 
         assertEquals(NavigationItem.Welcome.getRouteWithArgs(), viewModel.startNavigationRoute())
         coVerify(exactly = 0) {
@@ -380,7 +393,7 @@ class WireActivityViewModelTest {
     }
 
     @Test
-    fun `given newIntent with Join Conversation Deep link, when user is not a member, then start join converstion flow`() {
+    fun `given newIntent with Join Conversation Deep link, when user is not a member, then start join converstion flow`() = runTest {
         val (code, key, domain) = Triple("code", "key", "domain")
         val (conversationName, conversationId, isSelfMember) = Triple("conversation_name", ConversationId("id", "domain"), false)
         val (arrangement, viewModel) = Arrangement()
@@ -395,6 +408,7 @@ class WireActivityViewModelTest {
             .arrange()
 
         viewModel.handleDeepLink(mockedIntent())
+        advanceUntilIdle()
 
         viewModel.globalAppState.conversationJoinedDialog `should be equal to` JoinConversationViaCodeState.Show(
             conversationName,
@@ -406,7 +420,7 @@ class WireActivityViewModelTest {
     }
 
     @Test
-    fun `given newIntent with Join Conversation Deep link, when user is a member, then navigate to the conversation`() {
+    fun `given newIntent with Join Conversation Deep link, when user is a member, then navigate to the conversation`() = runTest {
         val (code, key, domain) = Triple("code", "key", "domain")
         val (conversationName, conversationId, isSelfMember) = Triple("conversation_name", ConversationId("id", "domain"), true)
         val (arrangement, viewModel) = Arrangement()
@@ -421,6 +435,8 @@ class WireActivityViewModelTest {
             .arrange()
 
         viewModel.handleDeepLink(mockedIntent())
+        advanceUntilIdle()
+
         viewModel.globalAppState.conversationJoinedDialog `should be equal to` null
         coVerify(exactly = 1) {
             arrangement.navigationManager.navigate(

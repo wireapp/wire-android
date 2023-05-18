@@ -218,7 +218,7 @@ class SharedCallingViewModel @Inject constructor(
             callState = callState.copy(
                 callStatus = call.status,
                 callerName = call.callerName,
-                isCbrEnabled = call.isCbrEnabled
+                isCbrEnabled = call.isCbrEnabled && call.conversationType.equals(ConversationType.OneOnOne)
             )
         }
     }
@@ -229,7 +229,7 @@ class SharedCallingViewModel @Inject constructor(
                 callState = callState.copy(
                     isMuted = call.isMuted,
                     callStatus = it.status,
-                    isCbrEnabled = it.isCbrEnabled,
+                    isCbrEnabled = it.isCbrEnabled && call.conversationType.equals(ConversationType.OneOnOne),
                     callerName = it.callerName,
                     participants = it.participants.map { participant -> uiCallParticipantMapper.toUICallParticipant(participant) }
                 )

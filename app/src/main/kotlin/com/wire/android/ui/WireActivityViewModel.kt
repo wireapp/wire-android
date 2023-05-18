@@ -465,10 +465,6 @@ class WireActivityViewModel @Inject constructor(
             }
         }
     }
-
-    companion object {
-        private const val SHORT_DELAY = 100L
-    }
 }
 
 sealed class CurrentSessionErrorState {

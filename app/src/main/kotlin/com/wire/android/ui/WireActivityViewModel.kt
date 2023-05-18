@@ -69,7 +69,6 @@ import com.wire.kalium.logic.feature.user.webSocketStatus.ObservePersistentWebSo
 import com.wire.kalium.util.DateTimeUtil.toIsoDateTimeString
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -222,7 +221,6 @@ class WireActivityViewModel @Inject constructor(
         }
 
         viewModelScope.launch {
-            delay(SHORT_DELAY) // to make sure that the app is fully initialized before handling the import intent
             val result = intent?.data?.let { deepLinkProcessor(it) }
             when {
                 result is DeepLinkResult.SSOLogin -> openSsoLogin(result)

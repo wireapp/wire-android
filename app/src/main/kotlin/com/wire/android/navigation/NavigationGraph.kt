@@ -31,8 +31,7 @@ import com.google.accompanist.navigation.animation.composable
 fun NavigationGraph(
     navController: NavHostController,
     startDestination: String,
-    appInitialArgs: List<Any> = emptyList(),
-    onComplete: () -> Unit
+    appInitialArgs: List<Any> = emptyList()
 ) {
     AnimatedNavHost(navController, startDestination) {
         NavigationItem.values().onEach { item ->
@@ -44,6 +43,5 @@ fun NavigationGraph(
                 exitTransition = { item.animationConfig.exitTransition }
             )
         }
-        onComplete()
     }
 }

@@ -720,6 +720,8 @@ Po&#322;&#261;czenie tutaj spowoduje zako&#324;czenie tamtego po&#322;&#261;czen
     <string name="calling_ongoing_call_join_message_alert">W innej konwersacji jest ju&#380; aktywne po&#322;&#261;czenie.
 Do&#322;&#261;czenie do tego po&#322;&#261;czenia spowoduje zako&#324;czenie tamtego po&#322;&#261;czenia.</string>
     <string name="calling_ongoing_call_join_anyway">Do&#322;&#261;cz mimo to</string>
+    <string name="calling_ongoing_double_tap_for_full_screen">Double tap on a tile for fullscreen</string>
+    <string name="calling_ongoing_double_tap_to_go_back">Double tap to go back</string>
     <string name="calling_feature_unavailable_title_alert">Funkcja niedost&#281;pna</string>
     <string name="calling_feature_unavailable_message_alert">Opcja rozpocz&#281;cia po&#322;&#261;czenia konferencyjnego jest dost&#281;pna tylko w wersji p&#322;atnej aplikacji Wire.</string>
     <!-- Connectivity Status Bar -->

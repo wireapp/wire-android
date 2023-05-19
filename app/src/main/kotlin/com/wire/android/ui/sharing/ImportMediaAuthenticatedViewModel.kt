@@ -375,7 +375,7 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
                 selfDeletingTimer = SelfDeletionTimer.Enabled(selfDeletionDuration.value)
             )
             appLogger.d(
-                "New self deletion timer picked by user for conversationId=${conversationId} with selfDeletingTimer=" +
+                "New self deletion timer picked by user for conversationId=${conversationId.toLogString()} with selfDeletingTimer=" +
                         importMediaState.selfDeletingTimer.toLogString()
             )
             persistNewSelfDeletionTimerUseCase(

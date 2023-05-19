@@ -694,6 +694,8 @@
     <string name="calling_ongoing_call_start_anyway">Trotzdem anrufen</string>
     <string name="calling_ongoing_call_join_message_alert">In einer anderen Unterhaltung ist ein Anruf aktiv.\nDiesen Anruf anzunehmen, beendet den anderen.</string>
     <string name="calling_ongoing_call_join_anyway">Trotzdem beitreten</string>
+    <string name="calling_ongoing_double_tap_for_full_screen">Double tap on a tile for fullscreen</string>
+    <string name="calling_ongoing_double_tap_to_go_back">Double tap to go back</string>
     <string name="calling_feature_unavailable_title_alert">Funktion nicht verfügbar</string>
     <string name="calling_feature_unavailable_message_alert">Die Option, eine Telefonkonferenz zu starten, ist nur in der kostenpflichtigen Version verfügbar.</string>
     <!-- Connectivity Status Bar -->

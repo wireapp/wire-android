@@ -119,7 +119,6 @@ class EditSelfDeletingMessagesViewModel @Inject constructor(
             val currentSelectedDuration = state.locallySelected
             state = when (updateMessageTimer(conversationId, currentSelectedDuration!!.value.inWholeMilliseconds)) {
                 is UpdateMessageTimerUseCase.Result.Failure -> {
-                    viewModelScope.coroutineContext
                     appLogger.e("Failed to update self deleting enforced duration for conversation=${conversationId.toLogString()} " +
                             "with new duration=${currentSelectedDuration.name}")
                     state.copy(isLoading = true)

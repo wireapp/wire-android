@@ -4,10 +4,15 @@ import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
 import com.wire.android.framework.TestUser
+import com.wire.android.navigation.NavigationManager
 import com.wire.android.notification.NotificationChannelsManager
+import com.wire.android.notification.WireNotificationManager
+import com.wire.android.services.ServicesManager
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.team.Team
 import com.wire.kalium.logic.data.user.SelfUser
+import com.wire.kalium.logic.feature.auth.PersistentWebSocketStatus
+import com.wire.kalium.logic.feature.user.webSocketStatus.ObservePersistentWebSocketConnectionStatusUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -24,15 +29,93 @@ class GlobalObserversManagerTest {
 
     @Test
     fun `given few valid accounts, when starting observing accounts, then create user-specific notification channels`() {
+        val statuses = listOf(
+            PersistentWebSocketStatus(TestUser.SELF_USER.id, false),
+            PersistentWebSocketStatus(TestUser.USER_ID.copy(value = "something else"), false)
+        )
         val accounts = listOf(
             TestUser.SELF_USER,
             TestUser.SELF_USER.copy(id = TestUser.USER_ID.copy(value = "something else"))
         )
         val (arrangement, manager) = Arrangement()
             .withValidAccounts(accounts.map { it to null })
+            .withPersistentWebSocketConnectionStatuses(statuses)
             .arrange()
         manager.observe()
         coVerify(exactly = 1) { arrangement.notificationChannelsManager.createUserNotificationChannels(accounts) }
+        coVerify(exactly = 1) { arrangement.notificationManager.observeNotificationsAndCallsWhileRunning(any(), any(), any()) }
+    }
+
+    @Test
+    fun `given valid accounts, all with persistent socket disabled, then stop socket service`() {
+        val statuses = listOf(
+            PersistentWebSocketStatus(TestUser.SELF_USER.id, false),
+            PersistentWebSocketStatus(TestUser.USER_ID.copy(value = "something else"), false)
+        )
+        val accounts = listOf(
+            TestUser.SELF_USER,
+            TestUser.SELF_USER.copy(id = TestUser.USER_ID.copy(value = "something else"))
+        )
+        val (arrangement, manager) = Arrangement()
+            .withValidAccounts(accounts.map { it to null })
+            .withPersistentWebSocketConnectionStatuses(statuses)
+            .arrange()
+
+        manager.observe()
+
+        coVerify(exactly = 0) { arrangement.servicesManager.startPersistentWebSocketService() }
+        coVerify(exactly = 1) { arrangement.servicesManager.stopPersistentWebSocketService() }
+    }
+
+    @Test
+    fun `given valid accounts, at least one with persistent socket enabled, and socket service not running, then start service`() {
+        val statuses = listOf(
+            PersistentWebSocketStatus(TestUser.SELF_USER.id, false),
+            PersistentWebSocketStatus(TestUser.USER_ID.copy(value = "something else"), true)
+        )
+        val accounts = listOf(
+            TestUser.SELF_USER,
+            TestUser.SELF_USER.copy(id = TestUser.USER_ID.copy(value = "something else"))
+        )
+        val (arrangement, manager) = Arrangement()
+            .withValidAccounts(accounts.map { it to null })
+            .withPersistentWebSocketConnectionStatuses(statuses)
+            .withIsPersistentWebSocketServiceRunning(false)
+            .arrange()
+
+        manager.observe()
+
+        coVerify(exactly = 1) { arrangement.servicesManager.startPersistentWebSocketService() }
+        coVerify(exactly = 0) { arrangement.servicesManager.stopPersistentWebSocketService() }
+    }
+
+    @Test
+    fun `given valid accounts, at least one with persistent socket enabled, and socket service running, then do not start service again`() {
+        val statuses = listOf(
+            PersistentWebSocketStatus(TestUser.SELF_USER.id, false),
+            PersistentWebSocketStatus(TestUser.USER_ID.copy(value = "something else"), true)
+        )
+        val accounts = listOf(
+            TestUser.SELF_USER,
+            TestUser.SELF_USER.copy(id = TestUser.USER_ID.copy(value = "something else"))
+        )
+        val (arrangement, manager) = Arrangement()
+            .withValidAccounts(accounts.map { it to null })
+            .withPersistentWebSocketConnectionStatuses(statuses)
+            .withIsPersistentWebSocketServiceRunning(true)
+            .arrange()
+
+        manager.observe()
+
+        coVerify(exactly = 0) { arrangement.servicesManager.startPersistentWebSocketService() }
+        coVerify(exactly = 0) { arrangement.servicesManager.stopPersistentWebSocketService() }
+        coVerify(exactly = 1) {
+            arrangement.notificationManager.observeNotificationsAndCallsWhileRunning(
+                listOf(TestUser.SELF_USER.id),
+                any(),
+                any()
+            )
+        }
     }
 
     private class Arrangement {
@@ -43,11 +126,23 @@ class GlobalObserversManagerTest {
         @MockK
         lateinit var notificationChannelsManager: NotificationChannelsManager
 
+        @MockK
+        lateinit var notificationManager: WireNotificationManager
+
+        @MockK
+        lateinit var navigationManager: NavigationManager
+
+        @MockK
+        lateinit var servicesManager: ServicesManager
+
         private val manager by lazy {
             GlobalObserversManager(
                 dispatcherProvider = TestDispatcherProvider(),
                 coreLogic = coreLogic,
-                notificationChannelsManager = notificationChannelsManager
+                notificationChannelsManager = notificationChannelsManager,
+                notificationManager = notificationManager,
+                navigationManager = navigationManager,
+                servicesManager = servicesManager
             )
         }
 
@@ -62,6 +157,15 @@ class GlobalObserversManagerTest {
 
         fun withValidAccounts(list: List<Pair<SelfUser, Team?>>): Arrangement = apply {
             coEvery { coreLogic.getGlobalScope().observeValidAccounts() } returns flowOf(list)
+        }
+
+        fun withIsPersistentWebSocketServiceRunning(isRunning: Boolean): Arrangement = apply {
+            every { servicesManager.isPersistentWebSocketServiceRunning() } returns isRunning
+        }
+
+        fun withPersistentWebSocketConnectionStatuses(list: List<PersistentWebSocketStatus>): Arrangement = apply {
+            coEvery { coreLogic.getGlobalScope().observePersistentWebSocketConnectionStatus() } returns
+                    ObservePersistentWebSocketConnectionStatusUseCase.Result.Success(flowOf(list))
         }
 
         fun arrange() = this to manager

@@ -231,7 +231,6 @@ class WireNotificationManager @Inject constructor(
         val currentScreenState = currentScreenManager.observeCurrentScreen(scope)
 
         // removing notifications and stop observing it for the users that are not logged in anymore
-        val userIdsToCancelJobs = observingJobs.keys.filter { !userIds.contains(it) }
         observingJobs.keys.filter { !userIds.contains(it) }
             .forEach { userId -> stopObservingForUser(userId, observingJobs) }
 

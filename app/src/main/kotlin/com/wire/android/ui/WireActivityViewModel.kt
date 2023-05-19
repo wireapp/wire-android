@@ -73,6 +73,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
@@ -100,11 +101,9 @@ class WireActivityViewModel @Inject constructor(
     private val getSessions: GetSessionsUseCase,
     private val accountSwitch: AccountSwitchUseCase,
     private val migrationManager: MigrationManager,
-    private val servicesManager: ServicesManager,
     private val observeSyncStateUseCaseProviderFactory: ObserveSyncStateUseCaseProvider.Factory,
     private val observeIfAppUpdateRequired: ObserveIfAppUpdateRequiredUseCase,
     private val observeNewClients: ObserveNewClientsUseCase,
-    private val notificationManager: WireNotificationManager
 ) : ViewModel() {
 
     var globalAppState: GlobalAppState by mutableStateOf(GlobalAppState())
@@ -161,6 +160,7 @@ class WireActivityViewModel @Inject constructor(
                                 )
                             )
                         }
+
                         is NewClientResult.InOtherAccount -> {
                             globalAppState = globalAppState.copy(
                                 newClientDialog = NewClientData.OtherUser(
@@ -172,6 +172,7 @@ class WireActivityViewModel @Inject constructor(
                                 )
                             )
                         }
+
                         else -> {}
                     }
                 }
@@ -441,39 +442,6 @@ class WireActivityViewModel @Inject constructor(
 
     fun dismissMaxAccountDialog() {
         globalAppState = globalAppState.copy(maxAccountDialog = false)
-    }
-
-    fun observePersistentConnectionStatus() {
-        viewModelScope.launch {
-            coreLogic.getGlobalScope().observePersistentWebSocketConnectionStatus().let { result ->
-                when (result) {
-                    is ObservePersistentWebSocketConnectionStatusUseCase.Result.Failure -> {
-                        appLogger.e("Failure while fetching persistent web socket status flow from wire activity")
-                    }
-
-                    is ObservePersistentWebSocketConnectionStatusUseCase.Result.Success -> {
-                        result.persistentWebSocketStatusListFlow.collect { statuses ->
-                            val usersToObserve = statuses
-                                .filter { !it.isPersistentWebSocketEnabled }
-                                .map { it.userId }
-
-                            notificationManager.observeNotificationsAndCallsWhileRunning(
-                                usersToObserve,
-                                this
-                            ) { call -> openIncomingCall(call.conversationId) }
-
-                            if (statuses.any { it.isPersistentWebSocketEnabled }) {
-                                if (!servicesManager.isPersistentWebSocketServiceRunning()) {
-                                    servicesManager.startPersistentWebSocketService()
-                                }
-                            } else {
-                                servicesManager.stopPersistentWebSocketService()
-                            }
-                        }
-                    }
-                }
-            }
-        }
     }
 }
 

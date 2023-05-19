@@ -111,7 +111,6 @@ class WireActivity : AppCompatActivity() {
         proximitySensorManager.initialize()
         lifecycle.addObserver(currentScreenManager)
 
-        viewModel.observePersistentConnectionStatus()
         val startDestination = viewModel.startNavigationRoute()
         setComposableContent(startDestination) {
             handleDeepLink(intent, savedInstanceState)

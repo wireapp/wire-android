@@ -36,6 +36,7 @@ import coil.compose.AsyncImagePainter
 import coil.compose.rememberAsyncImagePainter
 import coil.decode.GifDecoder
 import coil.decode.ImageDecoderDecoder
+import coil.network.HttpException
 import coil.request.ImageRequest
 import com.wire.android.model.ImageAsset
 import com.wire.kalium.logic.feature.asset.DeleteAssetUseCase
@@ -51,6 +52,7 @@ import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 class WireSessionImageLoader(private val coilImageLoader: ImageLoader) {
     private companion object {
         const val RETRY_INCREMENT_ATTEMPT_PER_STEP = 1
+        const val ASSET_NOT_FOUND_ERROR_CODE = 404
     }
 
     /**
@@ -81,7 +83,11 @@ class WireSessionImageLoader(private val coilImageLoader: ImageLoader) {
         )
 
         if (painter.state is AsyncImagePainter.State.Error) {
-            retryHash += RETRY_INCREMENT_ATTEMPT_PER_STEP
+            val errorCode = ((painter.state as AsyncImagePainter.State.Error).result.throwable as? HttpException)?.response?.code
+
+            if (errorCode != ASSET_NOT_FOUND_ERROR_CODE) {
+                retryHash += RETRY_INCREMENT_ATTEMPT_PER_STEP
+            }
         }
 
         return painter

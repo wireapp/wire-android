@@ -59,6 +59,40 @@ fun Resources.stringWithStyledArgs(
     }
 }
 
+@Suppress("LongParameterList", "SpreadOperator")
+fun Resources.annotatedText(
+    @StringRes stringResId: Int,
+    normalStyle: TextStyle,
+    boldStyle: TextStyle,
+    normalColor: Color,
+    boldColor: Color,
+    vararg formatArgs: String
+): AnnotatedString {
+
+    // Mark all arguments as bold, by adding **
+    val input = this.getString(stringResId, *formatArgs.map { it.markdownBold() }.toTypedArray())
+    // The text gets split into pieces based on **
+    val splitText = input.split(BOLD_SEPARATOR).filter { it.isNotEmpty() }
+
+    // Prepare the annotated string
+    return buildAnnotatedString {
+        splitText.forEach { piece ->
+            when {
+                input.contains(BOLD_SEPARATOR + piece.trim() + BOLD_SEPARATOR) -> { // If the piece was between ** characters
+                    pushStyle(style = toSpanStyle(boldStyle, boldColor))
+                    append(piece)
+                    pop()
+                }
+
+                else -> {
+                    pushStyle(style = toSpanStyle(normalStyle, normalColor))
+                    append(piece)
+                }
+            }
+        }
+    }
+}
+
 // To be used outside of Composables, e.g. in notifications.
 @Suppress("LongParameterList", "SpreadOperator")
 fun Resources.stringWithBoldArgs(
@@ -83,8 +117,10 @@ private fun toSpanStyle(textStyle: TextStyle, color: Color) = SpanStyle(
 )
 
 private fun String.bold() = STYLE_SEPARATOR + this + STYLE_SEPARATOR
+private fun String.markdownBold() = BOLD_SEPARATOR + this + BOLD_SEPARATOR
 
 private const val STYLE_SEPARATOR: String = "\u0000"
+private const val BOLD_SEPARATOR: String = "**"
 
 data class LinkTextData(
     val text: String,

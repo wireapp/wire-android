@@ -67,7 +67,7 @@ import com.wire.android.ui.home.conversations.model.UIMessageContent.SystemMessa
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.UIText
-import com.wire.android.util.ui.stringWithStyledArgs
+import com.wire.android.util.ui.annotatedText
 import com.wire.android.util.ui.toUIText
 
 @Composable
@@ -334,16 +334,13 @@ fun SystemMessage.annotatedString(
         is SystemMessage.HistoryLost -> arrayOf()
         is SystemMessage.ConversationMessageTimerActivated -> arrayOf(
             author.asString(res),
-            res.getString(R.string.label_system_message_activated),
             selfDeletionDuration.longLabel.asString(res)
         )
 
-        is SystemMessage.ConversationMessageTimerDeactivated -> arrayOf(
-            author.asString(res),
-            res.getString(R.string.label_system_message_deactivated)
-        )
+        is SystemMessage.ConversationMessageTimerDeactivated -> arrayOf(author.asString(res))
     }
-    return res.stringWithStyledArgs(stringResId, normalStyle, boldStyle, normalColor, boldColor, *args)
+
+    return res.annotatedText(stringResId, normalStyle, boldStyle, normalColor, boldColor, *args)
 }
 
 private const val EXPANDABLE_THRESHOLD = 4

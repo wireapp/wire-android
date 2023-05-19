@@ -99,7 +99,7 @@ internal class MessageComposerViewModelArrangement {
         every { savedStateHandle.get<String>(any()) } returns conversationId.toString()
 
         // Default empty values
-        every { isFileSharingEnabledUseCase() } returns FileSharingStatus(null, null)
+        every { isFileSharingEnabledUseCase() } returns FileSharingStatus(FileSharingStatus.Value.EnabledAll, null)
         coEvery { observeOngoingCallsUseCase() } returns flowOf(listOf())
         coEvery { observeEstablishedCallsUseCase() } returns flowOf(listOf())
         coEvery { observeSyncState() } returns flowOf(SyncState.Live)
@@ -223,7 +223,7 @@ internal class MessageComposerViewModelArrangement {
     }
 
     suspend fun withSuccessfulViewModelInit() = apply {
-        coEvery { isFileSharingEnabledUseCase() } returns FileSharingStatus(null, null)
+        coEvery { isFileSharingEnabledUseCase() } returns FileSharingStatus(FileSharingStatus.Value.EnabledAll, null)
         coEvery { observeOngoingCallsUseCase() } returns emptyFlow()
         coEvery { observeEstablishedCallsUseCase() } returns emptyFlow()
         coEvery { observeSecurityClassificationType(any()) } returns emptyFlow()

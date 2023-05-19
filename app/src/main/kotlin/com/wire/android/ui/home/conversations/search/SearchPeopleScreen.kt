@@ -31,6 +31,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -61,6 +62,7 @@ fun SearchAllPeopleScreen(
     onRemoveFromGroup: (Contact) -> Unit,
     onOpenUserProfile: (Contact) -> Unit,
     onAddContactClicked: (Contact) -> Unit,
+    lazyListState: LazyListState = rememberLazyListState()
 ) {
     if (searchQuery.isEmpty()) {
         EmptySearchQueryScreen()
@@ -76,7 +78,8 @@ fun SearchAllPeopleScreen(
                     onAddToGroup = onAddToGroup,
                     onRemoveContactFromGroup = onRemoveFromGroup,
                     onOpenUserProfile = onOpenUserProfile,
-                    onAddContactClicked = onAddContactClicked
+                    onAddContactClicked = onAddContactClicked,
+                    lazyListState = lazyListState
                 )
             }
         }
@@ -92,9 +95,9 @@ private fun SearchResult(
     onRemoveContactFromGroup: (Contact) -> Unit,
     onOpenUserProfile: (Contact) -> Unit,
     onAddContactClicked: (Contact) -> Unit,
+    lazyListState: LazyListState = rememberLazyListState()
 ) {
     val searchPeopleScreenState = rememberSearchPeopleScreenState()
-    val lazyListState = rememberLazyListState()
     val context = LocalContext.current
 
     Column {

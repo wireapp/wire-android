@@ -32,7 +32,6 @@ class GlobalObserversManager @Inject constructor(
             .distinctUntilChanged()
             .collect { list ->
                 notificationChannelsManager.createUserNotificationChannels(list.map { it.first })
-                list.map { it.first.id }
             }
     }
 }

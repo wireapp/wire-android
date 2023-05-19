@@ -162,6 +162,11 @@ sealed class UIMessageContent {
 
     sealed class Regular : UIMessageContent()
 
+    /**
+     * IncompleteAssetMessage is a displayable asset that's missing the remote data.
+     * Sometimes client receives two events about the same asset, first one with only part of the data ("preview" type from web),
+     * so such asset shouldn't be shown until all the required data is received.
+     */
     object IncompleteAssetMessage : UIMessageContent()
 
     data class TextMessage(val messageBody: MessageBody) : Regular()

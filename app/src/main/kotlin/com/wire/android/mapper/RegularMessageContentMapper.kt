@@ -158,14 +158,10 @@ class RegularMessageMapper @Inject constructor(
     fun toUIMessageContent(assetMessageContentMetadata: AssetMessageContentMetadata, message: Message, sender: User?): UIMessageContent =
         with(assetMessageContentMetadata.assetMessageContent) {
             when {
-                assetMessageContentMetadata.isDisplayableImage()
-                        // assets uploaded by other clients have upload status NOT_UPLOADED
-                        && assetMessageContentMetadata.assetMessageContent.uploadStatus == Message.UploadStatus.NOT_UPLOADED
-                        // sometimes we can receive two asset messages, we want to show the image only after we get all required data
-                        && !assetMessageContentMetadata.assetMessageContent.hasValidRemoteData() ->
-                    UIMessageContent.IncompleteAssetMessage
+                // If some of image data are still missing, we mark it as incomplete which won't be shown until we get missing data
+                assetMessageContentMetadata.isIncompleteImage() -> UIMessageContent.IncompleteAssetMessage
 
-                // If it's an image, we delegate the download it right away to coil
+                // If it's a displayable image with valid data, we delegate the download it right away to coil
                 assetMessageContentMetadata.isDisplayableImage() -> {
                     UIMessageContent.ImageMessage(
                         assetId = AssetId(remoteData.assetId, remoteData.assetDomain.orEmpty()),
@@ -224,6 +220,14 @@ class AssetMessageContentMetadata(val assetMessageContent: AssetContent) {
 
     fun isDisplayableImage(): Boolean = isDisplayableImageMimeType(assetMessageContent.mimeType) &&
             imgWidth.isGreaterThan(0) && imgHeight.isGreaterThan(0)
+
+    // Sometimes client receives two events for the same asset, first one with only part of the data ("preview" type from web),
+    // so such asset shouldn't be shown until all the required data is received.
+    fun isIncompleteImage(): Boolean = isDisplayableImage()
+            // we check only assets uploaded by other clients and they have upload status NOT_UPLOADED
+            && assetMessageContent.uploadStatus == Message.UploadStatus.NOT_UPLOADED
+            // sometimes we can receive two asset events, we want to show the image only after we get all required data
+            && !assetMessageContent.hasValidRemoteData()
 }
 
 private fun String?.orUnknownName(): UIText = when {

@@ -26,6 +26,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.appLogger
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
@@ -36,6 +37,7 @@ import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.feature.conversation.messagetimer.UpdateMessageTimerUseCase
 import com.wire.kalium.logic.feature.selfdeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
+import com.wire.kalium.util.serialization.toJsonElement
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -117,13 +119,20 @@ class EditSelfDeletingMessagesViewModel @Inject constructor(
             val currentSelectedDuration = state.locallySelected
             state = when (updateMessageTimer(conversationId, currentSelectedDuration!!.value.inWholeMilliseconds)) {
                 is UpdateMessageTimerUseCase.Result.Failure -> {
+                    viewModelScope.coroutineContext
+                    appLogger.e("Failed to update self deleting enforced duration for conversation=${conversationId.toLogString()} " +
+                            "with new duration=${currentSelectedDuration.name}")
                     state.copy(isLoading = true)
                 }
 
-                UpdateMessageTimerUseCase.Result.Success -> state.copy(
-                    isLoading = false,
-                    remotelySelected = currentSelectedDuration
-                )
+                UpdateMessageTimerUseCase.Result.Success -> {
+                    appLogger.d("Success updating self deleting enforced duration for conversation=${conversationId.toLogString()} " +
+                            "with new duration=${currentSelectedDuration.name}")
+                    state.copy(
+                        isLoading = false,
+                        remotelySelected = currentSelectedDuration
+                    )
+                }
             }
         }
     }

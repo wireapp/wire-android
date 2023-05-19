@@ -45,6 +45,7 @@ import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.feature.asset.GetAssetSizeLimitUseCase
+import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageResult
 import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationListDetailsUseCase
 import com.wire.kalium.logic.feature.selfdeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
@@ -336,7 +337,19 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
                         assetWidth = if (isImage) (importedAsset as ImportedMediaAsset.Image).width else 0,
                         assetHeight = if (isImage) (importedAsset as ImportedMediaAsset.Image).height else 0,
                         expireAfter = importMediaState.selfDeletingTimer.toDuration().let { if (it == ZERO) null else it }
-                    )
+                    ).also {
+                        if (it is ScheduleNewAssetMessageResult.Failure) {
+                            appLogger.e(
+                                "Failed to import asset message to conversationId=${conversation.conversationId.toLogString()} " +
+                                        "with self deletion timer: ${importMediaState.selfDeletingTimer.toLogString()}"
+                            )
+                        } else {
+                            appLogger.d(
+                                "Successfully imported asset message to conversationId=${conversation.conversationId.toLogString()}"
+                                        + "with self deletion timer: ${importMediaState.selfDeletingTimer.toLogString()}"
+                            )
+                        }
+                    }
                 }
                 jobs = jobs.plus(job)
                 appLogger.d("Triggered sendAssetMessage job # ${jobs.size} -- path ${importedAsset.dataPath} -- isImage $isImage")
@@ -357,11 +370,16 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
 
     fun onNewSelfDeletionTimerPicked(selfDeletionDuration: SelfDeletionDuration) =
         viewModelScope.launch {
+            val conversationId = importMediaState.selectedConversationItem.first().conversationId
             importMediaState = importMediaState.copy(
                 selfDeletingTimer = SelfDeletionTimer.Enabled(selfDeletionDuration.value)
             )
+            appLogger.d(
+                "New self deletion timer picked by user for conversationId=${conversationId} with selfDeletingTimer=" +
+                        importMediaState.selfDeletingTimer.toLogString()
+            )
             persistNewSelfDeletionTimerUseCase(
-                conversationId = importMediaState.selectedConversationItem.first().conversationId,
+                conversationId = conversationId,
                 newSelfDeletionTimer = importMediaState.selfDeletingTimer
             )
         }

@@ -57,6 +57,7 @@ import com.wire.android.util.FileManager
 import com.wire.android.util.ImageUtil
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.WireSessionImageLoader
+import com.wire.kalium.logic.configuration.FileSharingStatus
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.user.OtherUser
@@ -320,10 +321,15 @@ class MessageComposerViewModel @Inject constructor(
     }
 
     private fun setFileSharingStatus() {
+        // TODO: handle restriction when sending assets
         viewModelScope.launch {
-            val isFileSharingEnabled = isFileSharingEnabled().isFileSharingEnabled
-            if (isFileSharingEnabled != null) {
-                messageComposerViewState = messageComposerViewState.copy(isFileSharingEnabled = isFileSharingEnabled)
+            when (isFileSharingEnabled().state) {
+                FileSharingStatus.Value.Disabled,
+                is FileSharingStatus.Value.EnabledSome ->
+                    messageComposerViewState = messageComposerViewState.copy(isFileSharingEnabled = false)
+
+                FileSharingStatus.Value.EnabledAll ->
+                    messageComposerViewState = messageComposerViewState.copy(isFileSharingEnabled = true)
             }
         }
     }

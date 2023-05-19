@@ -692,6 +692,8 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
     <string name="calling_ongoing_call_start_anyway">Llamar de todos modos</string>
     <string name="calling_ongoing_call_join_message_alert">Hay una llamada activa en otra conversaci&#243;n. Unirse a esta llamada colgar&#225; la otra.</string>
     <string name="calling_ongoing_call_join_anyway">Unirse de todos modos</string>
+    <string name="calling_ongoing_double_tap_for_full_screen">Double tap on a tile for fullscreen</string>
+    <string name="calling_ongoing_double_tap_to_go_back">Double tap to go back</string>
     <string name="calling_feature_unavailable_title_alert">Caracter&#237;stica no disponible</string>
     <string name="calling_feature_unavailable_message_alert">La opci&#243;n de iniciar una llamada en conferencia solo est&#225; disponible en la versi&#243;n de pago de Wire.</string>
     <!-- Connectivity Status Bar -->

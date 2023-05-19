@@ -18,6 +18,8 @@
  *
  */
 
+@file:Suppress("TooManyFunctions")
+
 package com.wire.android.ui.home.conversations.model
 
 import androidx.compose.foundation.layout.Column
@@ -108,7 +110,28 @@ fun PreviewMessageWithReply() {
 fun PreviewDeletedMessage() {
     MessageItem(
         message = mockMessageWithText.let {
-            it.copy(header = it.header.copy(messageStatus = MessageStatus.Edited("")))
+            it.copy(header = it.header.copy(messageStatus = MessageStatus.Deleted))
+        },
+        audioMessagesState = emptyMap(),
+        onLongClicked = {},
+        onAssetMessageClicked = {},
+        onAudioClick = {},
+        onChangeAudioPosition = { _, _ -> },
+        onImageMessageClicked = { _, _ -> },
+        onOpenProfile = { _ -> },
+        onReactionClicked = { _, _ -> },
+        onResetSessionClicked = { _, _ -> },
+        onSelfDeletingMessageRead = { },
+        conversationDetailsData = ConversationDetailsData.None
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewFailedMessage() {
+    MessageItem(
+        message = mockMessageWithText.let {
+            it.copy(header = it.header.copy(messageStatus = MessageStatus.SendFailure))
         },
         audioMessagesState = emptyMap(),
         onLongClicked = {},
@@ -145,7 +168,7 @@ fun PreviewAssetMessage() {
 
 @Preview(showBackground = true)
 @Composable
-fun PreviewImportedMediaAssetMessage() {
+fun PreviewImportedMediaAssetMessageContent() {
     MessageGenericAsset(
         assetName = "Some test cool long but very  cool long but very asjkl cool long but very long message",
         assetExtension = "rar.tgz",
@@ -160,7 +183,7 @@ fun PreviewImportedMediaAssetMessage() {
 
 @Preview(showBackground = true)
 @Composable
-fun PreviewWideImportedAssetMessage() {
+fun PreviewWideImportedAssetMessageContent() {
     MessageGenericAsset(
         assetName = "Some test cool long but very  cool long but very asjkl cool long but very long message",
         assetExtension = "rar.tgz",
@@ -170,6 +193,36 @@ fun PreviewWideImportedAssetMessage() {
         assetDownloadStatus = Message.DownloadStatus.NOT_DOWNLOADED,
         shouldFillMaxWidth = true,
         isImportedMediaAsset = true
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewLoadingAssetMessage() {
+    MessageGenericAsset(
+        assetName = "Some test cool long but very  cool long but very asjkl cool long but very long message",
+        assetExtension = "rar.tgz",
+        assetSizeInBytes = 99201224L,
+        onAssetClick = Clickable(enabled = false),
+        assetUploadStatus = Message.UploadStatus.NOT_UPLOADED,
+        assetDownloadStatus = Message.DownloadStatus.DOWNLOAD_IN_PROGRESS,
+        shouldFillMaxWidth = true,
+        isImportedMediaAsset = false
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewFailedDownloadAssetMessage() {
+    MessageGenericAsset(
+        assetName = "Some test cool long but very  cool long but very asjkl cool long but very long message",
+        assetExtension = "rar.tgz",
+        assetSizeInBytes = 99201224L,
+        onAssetClick = Clickable(enabled = false),
+        assetUploadStatus = Message.UploadStatus.NOT_UPLOADED,
+        assetDownloadStatus = Message.DownloadStatus.FAILED_DOWNLOAD,
+        shouldFillMaxWidth = true,
+        isImportedMediaAsset = false
     )
 }
 
@@ -215,7 +268,10 @@ fun PreviewImageMessageUploading() {
 @Composable
 fun PreviewImageMessageFailedUpload() {
     MessageItem(
-        message = mockedImageUIMessage(Message.UploadStatus.FAILED_UPLOAD),
+        message = mockedImageUIMessage(
+            uploadStatus = Message.UploadStatus.FAILED_UPLOAD,
+            messageStatus = MessageStatus.SendFailure
+        ),
         audioMessagesState = emptyMap(),
         onLongClicked = {},
         onAssetMessageClicked = {},

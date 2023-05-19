@@ -160,7 +160,7 @@ class WireNotificationManager @Inject constructor(
         val observeCallsJob = observeCallNotificationsOnceJob(userId)
 
         appLogger.d("$TAG start syncing")
-        connectionPolicyManager.handleConnectionOnPushNotification(userId)
+        connectionPolicyManager.handleConnectionOnPushNotification(userId, STAY_ALIVE_TIME_ON_PUSH_MS)
 
         observeMessagesJob?.cancel("$TAG checked the notifications once, canceling observing.")
         observeCallsJob?.cancel("$TAG checked the calls once, canceling observing.")
@@ -497,5 +497,6 @@ class WireNotificationManager @Inject constructor(
 
     companion object {
         private const val TAG = "WireNotificationManager"
+        private const val STAY_ALIVE_TIME_ON_PUSH_MS = 1000L
     }
 }

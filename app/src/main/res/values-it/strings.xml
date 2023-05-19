@@ -693,6 +693,8 @@ Rispondendo qui, verr&#224; riagganciata l\'altra chiamata.</string>
     <string name="calling_ongoing_call_start_anyway">Chiama comunque</string>
     <string name="calling_ongoing_call_join_message_alert">Una chiamata é attiva in un\'altra conversazione.\nSe ti unisci a questa chiamata lascerai l\'altra</string>
     <string name="calling_ongoing_call_join_anyway">Unisciti comunque</string>
+    <string name="calling_ongoing_double_tap_for_full_screen">Double tap on a tile for fullscreen</string>
+    <string name="calling_ongoing_double_tap_to_go_back">Double tap to go back</string>
     <string name="calling_feature_unavailable_title_alert">Funzione non disponibile</string>
     <string name="calling_feature_unavailable_message_alert">La possibilità di effetturare chiamate in conferenza é disponibile solo nella version a pagamento di Wire.</string>
     <!-- Connectivity Status Bar -->

@@ -30,6 +30,7 @@ import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.feature.call.usecase.AnswerCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.GetIncomingCallsUseCase
+import com.wire.kalium.logic.feature.call.usecase.MuteCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.RejectCallUseCase
 import io.mockk.MockKAnnotations
@@ -73,6 +74,9 @@ class IncomingCallViewModelTest {
     private lateinit var endCall: EndCallUseCase
 
     @MockK
+    private lateinit var muteCall: MuteCallUseCase
+
+    @MockK
     private lateinit var qualifiedIdMapper: QualifiedIdMapper
 
     private lateinit var viewModel: IncomingCallViewModel
@@ -103,6 +107,7 @@ class IncomingCallViewModelTest {
             callRinger = callRinger,
             observeEstablishedCalls = observeEstablishedCalls,
             endCall = endCall,
+            muteCall = muteCall,
             qualifiedIdMapper = qualifiedIdMapper
         )
     }
@@ -146,11 +151,13 @@ class IncomingCallViewModelTest {
     fun `given an ongoing call, when user confirms dialog to accept an incoming call, then end current call and accept the newer one`() {
         viewModel.incomingCallState = viewModel.incomingCallState.copy(hasEstablishedCall = true)
         viewModel.establishedCallConversationId = ConversationId("value", "Domain")
+        coEvery { muteCall(any(), eq(false)) } returns Unit
         coEvery { endCall(any()) } returns Unit
 
         viewModel.acceptCallAnyway()
 
         coVerify(exactly = 1) { endCall(any()) }
+        coVerify(exactly = 1) { muteCall(any(), eq(false)) }
     }
 
     @Test

@@ -18,19 +18,32 @@
 package com.wire.android.ui.calling.ongoing.fullscreen
 
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.wire.android.R
 import com.wire.android.ui.calling.SharedCallingViewModel
+import com.wire.android.ui.calling.ongoing.OngoingCallViewModel.Companion.DOUBLE_TAP_TOAST_DISPLAY_TIME
 import com.wire.android.ui.calling.ongoing.participantsview.ParticipantTile
 import com.wire.android.ui.common.dimensions
+import kotlinx.coroutines.delay
 
 @Composable
 fun FullScreenTile(
@@ -39,31 +52,49 @@ fun FullScreenTile(
     height: Dp,
     onDoubleTap: (offset: Offset) -> Unit
 ) {
+    var shouldShowDoubleTapToast by remember { mutableStateOf(false) }
 
     sharedCallingViewModel.callState.participants.find {
         it.id == selectedParticipant.userId && it.clientId == selectedParticipant.clientId
     }?.let {
-        ParticipantTile(
-            modifier = Modifier
-                .pointerInput(Unit) {
-                    detectTapGestures(
-                        onPress = { /* Called when the gesture starts */ },
-                        onDoubleTap = onDoubleTap,
-                        onLongPress = { /* Called on Long Press */ },
-                        onTap = { /* Called on Tap */ }
-                    )
-                }
-                .height(height)
-                .padding(
-                    start = dimensions().spacing4x,
-                    end = dimensions().spacing4x
-                ),
-            participantTitleState = it,
-            isSelfUser = selectedParticipant.isSelfUser,
-            shouldFill = false,
-            onSelfUserVideoPreviewCreated = sharedCallingViewModel::setVideoPreview,
-            onClearSelfUserVideoPreview = sharedCallingViewModel::clearVideoPreview
-        )
+        Box {
+            ParticipantTile(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clipToBounds()
+                    .pointerInput(Unit) {
+                        detectTapGestures(
+                            onDoubleTap = onDoubleTap
+                        )
+                    }
+                    .height(height)
+                    .padding(
+                        start = dimensions().spacing4x,
+                        end = dimensions().spacing4x
+                    ),
+                participantTitleState = it,
+                isSelfUser = selectedParticipant.isSelfUser,
+                shouldFill = false,
+                shouldZoom = true,
+                onSelfUserVideoPreviewCreated = sharedCallingViewModel::setVideoPreview,
+                onClearSelfUserVideoPreview = sharedCallingViewModel::clearVideoPreview
+            )
+            LaunchedEffect(Unit) {
+                delay(200)
+                shouldShowDoubleTapToast = true
+
+                delay(DOUBLE_TAP_TOAST_DISPLAY_TIME)
+                shouldShowDoubleTapToast = false
+            }
+            DoubleTapToast(
+                modifier = Modifier
+                    .align(Alignment.TopCenter),
+                enabled = shouldShowDoubleTapToast,
+                text = stringResource(id = R.string.calling_ongoing_double_tap_to_go_back)
+            ) {
+                shouldShowDoubleTapToast = false
+            }
+        }
     }
 }
 

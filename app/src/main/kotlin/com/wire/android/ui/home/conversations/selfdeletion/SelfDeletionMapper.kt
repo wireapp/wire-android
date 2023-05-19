@@ -23,6 +23,7 @@ import kotlin.time.Duration
 object SelfDeletionMapper {
     fun Duration.toSelfDeletionDuration(): SelfDeletionDuration = when (this) {
         SelfDeletionDuration.TenSeconds.value -> SelfDeletionDuration.TenSeconds
+        SelfDeletionDuration.OneMinute.value -> SelfDeletionDuration.OneMinute
         SelfDeletionDuration.FiveMinutes.value -> SelfDeletionDuration.FiveMinutes
         SelfDeletionDuration.OneHour.value -> SelfDeletionDuration.OneHour
         SelfDeletionDuration.OneDay.value -> SelfDeletionDuration.OneDay

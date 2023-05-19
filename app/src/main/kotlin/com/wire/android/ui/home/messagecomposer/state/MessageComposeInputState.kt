@@ -19,6 +19,7 @@ package com.wire.android.ui.home.messagecomposer.state
 
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.text.input.TextFieldValue
+import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMapper.toSelfDeletionDuration
 import com.wire.android.util.ui.UIText
@@ -135,6 +136,11 @@ enum class SelfDeletionDuration(val value: Duration, val longLabel: UIText, val 
         UIText.PluralResource(R.plurals.seconds_long_label, 10, 10),
         UIText.StringResource(R.string.ten_seconds_short_label)
     ),
+    OneMinute(
+        1.minutes,
+        UIText.PluralResource(R.plurals.minutes_long_label, 1, 1),
+        UIText.StringResource(R.string.one_minute_short_label)
+    ),
     FiveMinutes(
         5.minutes,
         UIText.PluralResource(R.plurals.minutes_long_label, 5, 5),
@@ -143,5 +149,12 @@ enum class SelfDeletionDuration(val value: Duration, val longLabel: UIText, val 
     OneHour(1.hours, UIText.PluralResource(R.plurals.hours_long_label, 1, 1), UIText.StringResource(R.string.one_hour_short_label)),
     OneDay(1.days, UIText.PluralResource(R.plurals.days_long_label, 1, 1), UIText.StringResource(R.string.one_day_short_label)),
     OneWeek(7.days, UIText.PluralResource(R.plurals.days_long_label, 7, 7), UIText.StringResource(R.string.one_week_short_label)),
-    FourWeeks(28.days, UIText.PluralResource(R.plurals.weeks_long_label, 4, 4), UIText.StringResource(R.string.four_weeks_short_label)),
+    FourWeeks(28.days, UIText.PluralResource(R.plurals.weeks_long_label, 4, 4), UIText.StringResource(R.string.four_weeks_short_label));
+
+    companion object {
+
+        // list which will filter [OneMinute] for release builds because it is only for testing purposes
+        fun customValues(): List<SelfDeletionDuration> = values()
+            .filter { !(!BuildConfig.DEVELOPER_FEATURES_ENABLED && it == OneMinute) }
+    }
 }

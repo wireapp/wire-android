@@ -121,7 +121,7 @@ class FeatureFlagNotificationViewModel @Inject constructor(
         }
     }
 
-    private suspend fun observeTeamSettingsSelfDeletionStatus(userId: UserId) {
+    private fun observeTeamSettingsSelfDeletionStatus(userId: UserId) {
         viewModelScope.launch {
             coreLogic.getSessionScope(userId).observeTeamSettingsSelfDeletionStatus().collect { teamSettingsSelfDeletingStatus ->
                 featureFlagState = featureFlagState.copy(

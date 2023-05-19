@@ -40,7 +40,7 @@ fun SelfDeletionMenuItems(
     }
 
     return buildList {
-        SelfDeletionDuration.values().forEach { duration ->
+        SelfDeletionDuration.customValues().forEach { duration ->
             add {
                 SelfDeletionDurationMenuItem(
                     duration = duration,

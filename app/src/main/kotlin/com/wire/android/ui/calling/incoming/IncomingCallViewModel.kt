@@ -39,6 +39,7 @@ import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.feature.call.usecase.AnswerCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.GetIncomingCallsUseCase
+import com.wire.kalium.logic.feature.call.usecase.MuteCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.RejectCallUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -58,6 +59,7 @@ class IncomingCallViewModel @Inject constructor(
     private val rejectCall: RejectCallUseCase,
     private val acceptCall: AnswerCallUseCase,
     private val callRinger: CallRinger,
+    private val muteCall: MuteCallUseCase,
     private val observeEstablishedCalls: ObserveEstablishedCallsUseCase,
     private val endCall: EndCallUseCase,
 ) : ViewModel() {
@@ -136,6 +138,8 @@ class IncomingCallViewModel @Inject constructor(
         viewModelScope.launch {
             establishedCallConversationId?.let {
                 endCall(it)
+                // we need to update mute state to false, so if the user re-join the call te mic will will be muted
+                muteCall(it, false)
                 delay(DELAY_END_CALL)
             }
             acceptCall()

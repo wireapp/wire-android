@@ -68,7 +68,7 @@ private fun SearchAllServicesContent(
             SearchFailureBox(failureMessage = result.failureString)
         }
 
-        //TODO: what to do when user team has no services?
+        // TODO: what to do when user team has no services?
         SearchResultState.EmptyResult -> {
             EmptySearchQueryScreen()
         }

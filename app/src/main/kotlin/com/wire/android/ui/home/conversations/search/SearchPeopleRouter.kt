@@ -282,7 +282,7 @@ enum class SearchPeopleTabItem(@StringRes override val titleResId: Int) : TabIte
     SERVICES(R.string.label_add_member_services);
 }
 
-enum class SearchPeopleScreenType() {
+enum class SearchPeopleScreenType {
     NEW_CONVERSATION,
     CONVERSATION_DETAILS
 }

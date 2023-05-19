@@ -43,9 +43,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.model.Clickable
-import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.home.conversations.search.widget.SearchFailureBox
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.util.extension.folderWithElements
@@ -176,9 +176,7 @@ private fun LazyListScope.internalSearchResults(
             )
         }
         // We do not display anything on Initial or Empty state
-        SearchResultState.Initial, SearchResultState.EmptyResult -> {
-        }
-
+        SearchResultState.Initial, SearchResultState.EmptyResult -> { }
     }
 }
 
@@ -234,7 +232,9 @@ private fun LazyListScope.internalSuccessItem(
 ) {
     if (searchResult.isNotEmpty()) {
         folderWithElements(header = searchTitle,
-            items = (if (showAllItems) searchResult else searchResult.take(DEFAULT_SEARCH_RESULT_ITEM_SIZE))
+            items = (if (showAllItems) searchResult else searchResult.take(
+                DEFAULT_SEARCH_RESULT_ITEM_SIZE
+            ))
                 .associateBy { it.id }) { contact ->
             with(contact) {
                 InternalContactSearchResultItem(
@@ -282,7 +282,8 @@ private fun LazyListScope.externalSuccessItem(
     onOpenUserProfile: (Contact) -> Unit,
     onAddContactClicked: (Contact) -> Unit,
 ) {
-    val itemsList = if (showAllItems) searchResult else searchResult.take(DEFAULT_SEARCH_RESULT_ITEM_SIZE)
+    val itemsList =
+        if (showAllItems) searchResult else searchResult.take(DEFAULT_SEARCH_RESULT_ITEM_SIZE)
 
     folderWithElements(
         header = searchTitle,

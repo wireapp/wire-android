@@ -127,4 +127,3 @@ private fun textStyleAlignment(isTopBarVisible: Boolean): TextStyle {
         textAlign = TextAlign.Start
     )
 }
-

@@ -62,6 +62,7 @@ import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUs
 import com.wire.kalium.logic.feature.conversation.UpdateConversationAccessRoleUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationReceiptModeUseCase
+import com.wire.kalium.logic.feature.publicuser.RefreshUsersWithoutMetadataUseCase
 import com.wire.kalium.logic.feature.team.DeleteTeamConversationUseCase
 import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
 import com.wire.kalium.logic.feature.team.Result
@@ -100,9 +101,10 @@ class GroupConversationDetailsViewModel @Inject constructor(
     private val updateConversationReceiptMode: UpdateConversationReceiptModeUseCase,
     override val savedStateHandle: SavedStateHandle,
     private val isMLSEnabled: IsMLSEnabledUseCase,
+    private val refreshUsersWithoutMetadata: RefreshUsersWithoutMetadataUseCase,
     qualifiedIdMapper: QualifiedIdMapper
 ) : GroupConversationParticipantsViewModel(
-    savedStateHandle, navigationManager, observeConversationMembers, qualifiedIdMapper
+    savedStateHandle, navigationManager, observeConversationMembers, refreshUsersWithoutMetadata, qualifiedIdMapper
 ), GroupConversationDetailsBottomSheetEventsHandler {
 
     override val maxNumberOfItems: Int get() = MAX_NUMBER_OF_PARTICIPANTS

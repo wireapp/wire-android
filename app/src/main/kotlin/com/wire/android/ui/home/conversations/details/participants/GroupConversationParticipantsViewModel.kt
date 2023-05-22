@@ -35,16 +35,17 @@ import com.wire.android.ui.home.conversations.details.participants.usecase.Obser
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.publicuser.RefreshUsersWithoutMetadataUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-
 
 @HiltViewModel
 open class GroupConversationParticipantsViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val navigationManager: NavigationManager,
     private val observeConversationMembers: ObserveParticipantsForConversationUseCase,
+    private val refreshUsersWithoutMetadata: RefreshUsersWithoutMetadataUseCase,
     qualifiedIdMapper: QualifiedIdMapper
 ) : GroupDetailsBaseViewModel(savedStateHandle) {
 
@@ -57,7 +58,14 @@ open class GroupConversationParticipantsViewModel @Inject constructor(
     )
 
     init {
+        runRefreshUsersWithoutMetadata()
         observeConversationMembers()
+    }
+
+    private fun runRefreshUsersWithoutMetadata() {
+        viewModelScope.launch {
+            refreshUsersWithoutMetadata()
+        }
     }
 
     private fun observeConversationMembers() {
@@ -83,5 +91,4 @@ open class GroupConversationParticipantsViewModel @Inject constructor(
 
     private suspend fun navigateToOtherProfile(id: UserId) =
         navigationManager.navigate(NavigationCommand(NavigationItem.OtherUserProfile.getRouteWithArgs(listOf(id, conversationId))))
-
 }

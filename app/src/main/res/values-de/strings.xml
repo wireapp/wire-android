@@ -27,7 +27,7 @@
     <string name="label_cancel">Abbrechen</string>
     <string name="label_confirm">Bestätigen</string>
     <string name="label_continue">Weiter</string>
-    <string name="label_apply">Apply</string>
+    <string name="label_apply">Anwenden</string>
     <string name="label_save">Speichern</string>
     <string name="label_get_started">Loslegen</string>
     <string name="label_remove">Entfernen</string>
@@ -525,10 +525,10 @@
     <string name="label_system_message_new_conversation_receipt_mode">Lesebestätigungen sind %1$s</string>
     <string name="label_system_message_read_receipt_changed_by_self">%1$s haben Lesebestätigungen für alle %2$sgeschaltet</string>
     <string name="label_system_message_read_receipt_changed_by_other">%1$s hat Lesebestätigungen für alle %2$sgeschaltet</string>
-    <string name="label_system_message_conversation_message_timer_activated_by_self">%1$s set self-deleting messages to %2$s for everyone</string>
-    <string name="label_system_message_conversation_message_timer_activated_by_other">%1$s set self-deleting messages to %2$s for everyone</string>
+    <string name="label_system_message_conversation_message_timer_activated_by_self">%1$s haben selbstlöschende Nachrichten für alle auf %2$s gestellt</string>
+    <string name="label_system_message_conversation_message_timer_activated_by_other">%1$s hat selbstlöschende Nachrichten für alle auf %2$s gestellt</string>
     <string name="label_system_message_activated">aktiviert</string>
-    <string name="label_system_message_conversation_message_timer_deactivated_by_self">%1$s turned **off** the timer for self-deleting messages for everyone</string>
+    <string name="label_system_message_conversation_message_timer_deactivated_by_self">%1$s hat selbstlöschende Nachrichten für alle **ausgeschaltet**</string>
     <string name="label_system_message_conversation_message_timer_deactivated_by_other">%1$s turned **off** the timer for self-deleting messages for everyone</string>
     <string name="label_system_message_deactivated">deaktiviert</string>
     <string name="label_system_message_conversation_history_lost">Sie haben das Gerät eine Weile nicht benutzt. Einige Nachrichten werden hier eventuell nicht angezeigt.</string>

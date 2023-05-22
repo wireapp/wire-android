@@ -18,7 +18,7 @@
  *
  */
 
-package com.wire.android.ui.debugscreen
+package com.wire.android.ui.debug
 
 import android.content.BroadcastReceiver
 import android.content.Context

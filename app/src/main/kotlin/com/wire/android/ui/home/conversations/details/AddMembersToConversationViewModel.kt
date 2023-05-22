@@ -28,6 +28,7 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.R
 import com.wire.android.mapper.ContactMapper
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
+import com.wire.android.navigation.EXTRA_IS_SERVICES_ALLOWED
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
@@ -84,6 +85,8 @@ class AddMembersToConversationViewModel @Inject constructor(
     private val conversationId: QualifiedID = qualifiedIdMapper.fromStringToQualifiedID(
         savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)!!
     )
+    private val isServicesAllowed: Boolean = savedStateHandle
+        .get<String>(EXTRA_IS_SERVICES_ALLOWED)!!.toBoolean()
 
     var state: SearchPeopleState by mutableStateOf(SearchPeopleState(isGroupCreationContext = false))
 
@@ -110,7 +113,8 @@ class AddMembersToConversationViewModel @Inject constructor(
                     contactsAddedToGroup = selectedContacts.toImmutableList(),
                     isGroupCreationContext = false,
                     servicesInitialContacts = initialServices,
-                    servicesSearchResult = servicesSearchResult
+                    servicesSearchResult = servicesSearchResult,
+                    isServicesAllowed = isServicesAllowed
                 )
             }.collect { updatedState ->
                 state = updatedState

@@ -173,7 +173,9 @@ fun SearchPeopleContent(
                     onInputClicked = onInputClicked,
                     onCloseSearchClicked = onCloseSearchClicked
                 ) {
-                    if (screenType == SearchPeopleScreenType.CONVERSATION_DETAILS) {
+                    if (screenType == SearchPeopleScreenType.CONVERSATION_DETAILS
+                        && searchPeopleState.isServicesAllowed
+                    ) {
                         WireTabRow(
                             tabs = SearchPeopleTabItem.values().toList(),
                             selectedTabIndex = currentTabState,

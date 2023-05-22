@@ -194,7 +194,7 @@ class ConversationListViewModel @Inject constructor(
         return matchingConversations
     }
 
-    suspend fun refreshUsersWithoutMetadata() {
+    suspend fun runRefreshUsersWithoutMetadata() {
         viewModelScope.launch {
             refreshUsersWithoutMetadata.invoke()
         }

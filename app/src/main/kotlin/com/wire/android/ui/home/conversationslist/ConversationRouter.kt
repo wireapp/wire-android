@@ -85,7 +85,7 @@ fun ConversationRouterHomeBridge(
     with(searchBarState) {
         LaunchedEffect(isSearchActive) {
             if (isSearchActive) {
-                viewModel.refreshUsersWithoutMetadata()
+                viewModel.runRefreshUsersWithoutMetadata()
                 conversationRouterHomeState.openSearch()
             } else {
                 conversationRouterHomeState.closeSearch()

@@ -50,11 +50,14 @@ import com.wire.kalium.logic.feature.conversation.GetAllContactsNotInConversatio
 import com.wire.kalium.logic.feature.conversation.Result
 import com.wire.kalium.logic.feature.publicuser.search.SearchKnownUsersUseCase
 import com.wire.kalium.logic.feature.service.ObserveAllServicesUseCase
+import com.wire.kalium.logic.feature.service.SearchServicesByNameUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -68,6 +71,7 @@ class AddMembersToConversationViewModel @Inject constructor(
     private val getAllServices: ObserveAllServicesUseCase,
     private val contactMapper: ContactMapper,
     private val addMemberToConversation: AddMemberToConversationUseCase,
+    private val searchServicesByName: SearchServicesByNameUseCase,
     private val dispatchers: DispatcherProvider,
     private val searchKnownUsers: SearchKnownUsersUseCase,
     savedStateHandle: SavedStateHandle,
@@ -90,8 +94,14 @@ class AddMembersToConversationViewModel @Inject constructor(
                 knownPeopleSearchQueryFlow,
                 searchQueryTextFieldFlow,
                 selectedContactsFlow,
-                initialServicesResultFlow()
-            ) { initialContacts, knownResult, searchQuery, selectedContacts, initialServices ->
+                combine(initialServicesResultFlow(), servicesSearchQueryFlow, ::Pair)
+            ) { initialContacts,
+                knownResult,
+                searchQuery,
+                selectedContacts,
+                services ->
+                val initialServices = services.first
+                val servicesSearchResult = services.second
                 SearchPeopleState(
                     initialContacts = initialContacts,
                     searchQuery = searchQuery,
@@ -99,7 +109,8 @@ class AddMembersToConversationViewModel @Inject constructor(
                     noneSearchSucceed = knownResult.searchResultState is SearchResultState.Failure,
                     contactsAddedToGroup = selectedContacts.toImmutableList(),
                     isGroupCreationContext = false,
-                    servicesInitialContacts = initialServices
+                    servicesInitialContacts = initialServices,
+                    servicesSearchResult = servicesSearchResult
                 )
             }.collect { updatedState ->
                 state = updatedState
@@ -145,6 +156,20 @@ class AddMembersToConversationViewModel @Inject constructor(
         }
     }
 
+    override suspend fun searchServices(searchTerm: String): Flow<SearchResultState> {
+        val searchServices = searchServicesByName(search = searchTerm)
+
+        return flowOf(
+            if (searchServices.first().isEmpty()) {
+                SearchResultState.Failure(R.string.label_no_results_found)
+            } else {
+                SearchResultState.Success(
+                    searchServices.first().map(contactMapper::fromService).toImmutableList()
+                )
+            }
+        )
+    }
+
     fun addMembersToConversation() {
         viewModelScope.launch {
             withContext(dispatchers.io()) {
@@ -168,7 +193,7 @@ class AddMembersToConversationViewModel @Inject constructor(
                                 id = contact.id,
                                 provider = contact.domain
                             ),
-                             conversationId
+                            conversationId
                         )
                     )
                 )

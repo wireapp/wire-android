@@ -47,7 +47,6 @@ import com.wire.kalium.logic.feature.publicuser.search.SearchKnownUsersUseCase
 import com.wire.kalium.logic.feature.publicuser.search.SearchPublicUsersUseCase
 import com.wire.kalium.logic.feature.publicuser.search.SearchUsersResult
 import com.wire.kalium.logic.feature.service.ObserveAllServicesUseCase
-import com.wire.kalium.logic.feature.service.SearchServicesByNameUseCase
 import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -58,7 +57,6 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
@@ -72,7 +70,6 @@ open class SearchAllPeopleViewModel(
     private val searchKnownUsers: SearchKnownUsersUseCase,
     private val searchPublicUsers: SearchPublicUsersUseCase,
     private val getAllServices: ObserveAllServicesUseCase,
-    private val searchServicesByName: SearchServicesByNameUseCase,
     private val contactMapper: ContactMapper,
     private val dispatcher: DispatcherProvider,
     sendConnectionRequest: SendConnectionRequestUseCase,
@@ -88,13 +85,11 @@ open class SearchAllPeopleViewModel(
         viewModelScope.launch {
             combine(
                 initialContactResultFlow(),
-                combine(publicPeopleSearchQueryFlow, knownPeopleSearchQueryFlow, ::Pair),
+                publicPeopleSearchQueryFlow,
+                knownPeopleSearchQueryFlow,
                 searchQueryTextFieldFlow,
-                selectedContactsFlow,
-                servicesSearchQuereyFlow
-            ) { initialContacts, publicKnownPairResult, searchQuery, selectedContacts, servicesSearchResult ->
-                val publicResult = publicKnownPairResult.first
-                val knownResult = publicKnownPairResult.second
+                selectedContactsFlow
+            ) { initialContacts, publicResult, knownResult, searchQuery, selectedContacts ->
 
                 SearchPeopleState(
                     initialContacts = initialContacts,
@@ -111,8 +106,7 @@ open class SearchAllPeopleViewModel(
                             && (knownResult.searchResultState is SearchResultState.Failure
                             || knownResult.searchResultState is SearchResultState.EmptyResult),
                     contactsAddedToGroup = selectedContacts.toImmutableList(),
-                    isGroupCreationContext = true,
-                    servicesSearchResult = servicesSearchResult
+                    isGroupCreationContext = true
                 )
             }.collect { updatedState ->
                 state = updatedState
@@ -181,17 +175,10 @@ open class SearchAllPeopleViewModel(
     }
 
     override suspend fun searchServices(searchTerm: String): Flow<SearchResultState> {
-        val searchServices = searchServicesByName(search = searchTerm)
-
-        return flowOf(
-            if (searchServices.first().isEmpty()) {
-                SearchResultState.Failure(R.string.label_no_results_found)
-            } else {
-                SearchResultState.Success(
-                    searchServices.first().map(contactMapper::fromService).toImmutableList()
-                )
-            }
-        )
+        // TODO(Service): This only needs to be implemented when adding services to group when
+        // group is being created.
+        // Currently not supported.
+        return flowOf(SearchResultState.EmptyResult)
     }
 
     private fun ContactSearchResult.filterContacts(contactSearchResult: ContactSearchResult): ContactSearchResult {
@@ -228,14 +215,6 @@ abstract class PublicWithKnownPeopleSearchViewModel(
                 }
         }
 
-    protected val servicesSearchQuereyFlow = mutableSearchQueryFlow
-        .flatMapLatest { searchTerm ->
-            searchServices(searchTerm)
-                .onStart {
-                    emit(SearchResultState.InProgress)
-                }
-        }
-
     fun addContact(contact: Contact) {
         viewModelScope.launch {
             val userId = UserId(contact.id, contact.domain)
@@ -253,14 +232,12 @@ abstract class PublicWithKnownPeopleSearchViewModel(
     }
 
     abstract suspend fun searchPublicPeople(searchTerm: String): Flow<ContactSearchResult.ExternalContact>
-
-    abstract suspend fun searchServices(searchTerm: String): Flow<SearchResultState>
 }
 
 @OptIn(ExperimentalCoroutinesApi::class)
 abstract class KnownPeopleSearchViewModel(
     navigationManager: NavigationManager
-) : SearchPeopleViewModel(
+) : SearchServicesViewModel(
     navigationManager = navigationManager
 ) {
 
@@ -273,6 +250,24 @@ abstract class KnownPeopleSearchViewModel(
         }
 
     abstract suspend fun searchKnownPeople(searchTerm: String): Flow<ContactSearchResult.InternalContact>
+}
+
+@OptIn(ExperimentalCoroutinesApi::class)
+abstract class SearchServicesViewModel(
+    navigationManager: NavigationManager
+) : SearchPeopleViewModel(
+    navigationManager = navigationManager
+) {
+
+    protected val servicesSearchQueryFlow = mutableSearchQueryFlow
+        .flatMapLatest { searchTerm ->
+            searchServices(searchTerm)
+                .onStart {
+                    emit(SearchResultState.InProgress)
+                }
+        }
+
+    abstract suspend fun searchServices(searchTerm: String): Flow<SearchResultState>
 }
 
 abstract class SearchPeopleViewModel(
@@ -295,7 +290,7 @@ abstract class SearchPeopleViewModel(
             }
 
             is SearchResult.Success -> {
-                SearchResultState.Success(result.contacts.toImmutableList())
+                SearchResultState.Success(result.contacts.sortedBy { it.name.lowercase() }.toImmutableList())
             }
         }
     }

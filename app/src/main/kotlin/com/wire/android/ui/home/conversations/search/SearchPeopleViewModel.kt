@@ -88,7 +88,12 @@ open class SearchAllPeopleViewModel(
                 selectedContactsFlow
             ) { initialContacts, publicResult, knownResult, searchQuery, selectedContacts ->
                 SearchPeopleState(
-                    initialContacts = initialContacts,
+                    initialContacts = when(initialContacts) {
+                        is SearchResultState.Success -> {
+                            SearchResultState.Success(initialContacts.result.sortedBy { it.name.lowercase() }.toImmutableList())
+                        }
+                        else -> initialContacts
+                    },
                     searchQuery = searchQuery,
                     searchResult = persistentMapOf(
                         SearchResultTitle(R.string.label_contacts) to knownResult,

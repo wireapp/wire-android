@@ -828,7 +828,7 @@ URL del backend:
     <string name="label_enable_logging">Abilita la registrazione</string>
     <string name="label_proteus_option_title">Proteus</string>
     <string name="label_enable_encrypted_proteus_storage">Abilita la memorizzazione Proteus cifrata</string>
-    <string name="label_debug_title">Debug</string>
+    <string name="label_debug_title">Debug Settings</string>
     <string name="label_client_option_title">ID del client</string>
     <string name="label_device_id">ID dispositivo: %1$s</string>
     <string name="label_code_commit_id">Hash del commit: %1$s</string>
@@ -1028,4 +1028,7 @@ URL del backend:
     <string name="five_minutes_short_label">5m</string>
     <string name="one_minute_short_label">1m</string>
     <string name="ten_seconds_short_label">10s</string>
+    <string name="label_debug_data">Debug data</string>
+    <string name="title_internal_debugging">Internal debugging</string>
+    <string name="label_log_options_description">"This stores anonymized troubleshooting information locally. "</string>
 </resources>

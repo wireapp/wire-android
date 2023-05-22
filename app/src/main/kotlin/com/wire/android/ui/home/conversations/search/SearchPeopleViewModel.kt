@@ -88,12 +88,7 @@ open class SearchAllPeopleViewModel(
                 selectedContactsFlow
             ) { initialContacts, publicResult, knownResult, searchQuery, selectedContacts ->
                 SearchPeopleState(
-                    initialContacts = when(initialContacts) {
-                        is SearchResultState.Success -> {
-                            SearchResultState.Success(initialContacts.result.sortedBy { it.name.lowercase() }.toImmutableList())
-                        }
-                        else -> initialContacts
-                    },
+                    initialContacts = initialContacts,
                     searchQuery = searchQuery,
                     searchResult = persistentMapOf(
                         SearchResultTitle(R.string.label_contacts) to knownResult,
@@ -247,9 +242,13 @@ abstract class SearchPeopleViewModel(
             is SearchResult.Failure -> {
                 SearchResultState.Failure(result.failureString)
             }
-
             is SearchResult.Success -> {
-                SearchResultState.Success(result.contacts.toImmutableList())
+                SearchResultState.Success(
+                    result
+                        .contacts
+                        .sortedBy { it.name.lowercase() }
+                        .toImmutableList()
+                )
             }
         }
     }

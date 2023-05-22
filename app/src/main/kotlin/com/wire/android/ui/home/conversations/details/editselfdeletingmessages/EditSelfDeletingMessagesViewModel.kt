@@ -47,7 +47,6 @@ import javax.inject.Inject
 @HiltViewModel
 @Suppress("LongParameterList", "TooManyFunctions")
 class EditSelfDeletingMessagesViewModel @Inject constructor(
-    // TODO KBX cover with tests
     private val navigationManager: NavigationManager,
     private val dispatcher: DispatcherProvider,
     private val observeConversationMembers: ObserveParticipantsForConversationUseCase,
@@ -63,7 +62,7 @@ class EditSelfDeletingMessagesViewModel @Inject constructor(
         }
     )
 
-    var editSelfDeletingMessagesState by mutableStateOf(
+    var state by mutableStateOf(
         EditSelfDeletingMessagesState()
     )
 
@@ -81,11 +80,11 @@ class EditSelfDeletingMessagesViewModel @Inject constructor(
                 .distinctUntilChanged()
                 .flowOn(dispatcher.io())
                 .collect { (selfDeletingMessages, isSelfAnAdmin) ->
-                    editSelfDeletingMessagesState = editSelfDeletingMessagesState.copy(
+                    state = state.copy(
                         isLoading = selfDeletingMessages.isEnforcedByTeam || !isSelfAnAdmin,
                         isEnabled = selfDeletingMessages.isEnforcedByGroup,
-                        selfDeletingDuration = selfDeletingMessages.toDuration(),
-                        currentlySelected = selfDeletingMessages.toDuration().toSelfDeletionDuration()
+                        remotelySelected = selfDeletingMessages.toDuration().toSelfDeletionDuration(),
+                        locallySelected = selfDeletingMessages.toDuration().toSelfDeletionDuration()
                     )
                 }
         }
@@ -93,34 +92,38 @@ class EditSelfDeletingMessagesViewModel @Inject constructor(
 
     fun updateSelfDeletingMessageOption(shouldBeEnabled: Boolean) {
         viewModelScope.launch {
-            editSelfDeletingMessagesState = editSelfDeletingMessagesState.copy(isEnabled = shouldBeEnabled)
+            state = state.copy(isEnabled = shouldBeEnabled)
             if (!shouldBeEnabled) {
-                editSelfDeletingMessagesState = editSelfDeletingMessagesState.copy(isLoading = true)
-                editSelfDeletingMessagesState = when (updateMessageTimer(conversationId, null)) {
-                    is UpdateMessageTimerUseCase.Result.Failure -> editSelfDeletingMessagesState.copy(isEnabled = true)
-                    UpdateMessageTimerUseCase.Result.Success -> editSelfDeletingMessagesState.copy(isEnabled = false)
+                state = state.copy(isLoading = true)
+                state = when (updateMessageTimer(conversationId, null)) {
+                    is UpdateMessageTimerUseCase.Result.Failure -> state.copy(isEnabled = true)
+                    UpdateMessageTimerUseCase.Result.Success -> state.copy(
+                        isEnabled = false,
+                        locallySelected = null,
+                        remotelySelected = null
+                    )
                 }
-                editSelfDeletingMessagesState = editSelfDeletingMessagesState.copy(isLoading = false)
+                state = state.copy(isLoading = false)
             }
         }
     }
 
     fun onSelectDuration(duration: SelfDeletionDuration) {
+        state = state.copy(locallySelected = duration)
+    }
+
+    fun applyNewDuration() {
         viewModelScope.launch {
-            val previousSelected = editSelfDeletingMessagesState.currentlySelected
-            editSelfDeletingMessagesState = editSelfDeletingMessagesState.copy(
-                isLoading = true,
-                currentlySelected = duration
-            )
-            editSelfDeletingMessagesState = when (updateMessageTimer(conversationId, duration.value.inWholeMilliseconds)) {
+            val currentSelectedDuration = state.locallySelected
+            state = when (updateMessageTimer(conversationId, currentSelectedDuration!!.value.inWholeMilliseconds)) {
                 is UpdateMessageTimerUseCase.Result.Failure -> {
-                    editSelfDeletingMessagesState.copy(
-                        isLoading = true,
-                        currentlySelected = previousSelected
-                    )
+                    state.copy(isLoading = true)
                 }
 
-                UpdateMessageTimerUseCase.Result.Success -> editSelfDeletingMessagesState.copy(isLoading = false)
+                UpdateMessageTimerUseCase.Result.Success -> state.copy(
+                    isLoading = false,
+                    remotelySelected = currentSelectedDuration
+                )
             }
         }
     }

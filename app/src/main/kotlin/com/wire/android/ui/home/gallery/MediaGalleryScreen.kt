@@ -95,30 +95,30 @@ fun MediaGalleryScreen(mediaGalleryViewModel: MediaGalleryViewModel = hiltViewMo
                     mediaGalleryScreenState.showContextualMenu(false)
                     mediaGalleryViewModel.onMessageDetailsClicked()
                 }
-            ),
-            content = {
-                Scaffold(
-                    topBar = {
-                        MediaGalleryScreenTopAppBar(
-                            title = screenTitle ?: stringResource(R.string.media_gallery_default_title_name),
-                            onCloseClick = mediaGalleryViewModel::navigateBack,
-                            onOptionsClick = { mediaGalleryScreenState.showContextualMenu(true) }
-                        )
-                    },
-                    content = { internalPadding ->
-                        Box(modifier = Modifier.padding(internalPadding)) {
-                            MediaGalleryContent(mediaGalleryViewModel, mediaGalleryScreenState)
-                        }
-                    },
-                    snackbarHost = {
-                        SwipeDismissSnackbarHost(
-                            hostState = mediaGalleryScreenState.snackbarHostState,
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                    },
-                )
-            }
-        )
+            )
+        ) {
+            Scaffold(
+                topBar = {
+                    MediaGalleryScreenTopAppBar(
+                        title = screenTitle
+                            ?: stringResource(R.string.media_gallery_default_title_name),
+                        onCloseClick = mediaGalleryViewModel::navigateBack,
+                        onOptionsClick = { mediaGalleryScreenState.showContextualMenu(true) }
+                    )
+                },
+                content = { internalPadding ->
+                    Box(modifier = Modifier.padding(internalPadding)) {
+                        MediaGalleryContent(mediaGalleryViewModel, mediaGalleryScreenState)
+                    }
+                },
+                snackbarHost = {
+                    SwipeDismissSnackbarHost(
+                        hostState = mediaGalleryScreenState.snackbarHostState,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                },
+            )
+        }
     }
 }
 

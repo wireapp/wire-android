@@ -27,6 +27,7 @@
     <string name="label_cancel">Cancel</string>
     <string name="label_confirm">Confirm</string>
     <string name="label_continue">Continue</string>
+    <string name="label_apply">Apply</string>
     <string name="label_save">Save</string>
     <string name="label_get_started">Get Started</string>
     <string name="label_remove">Remove</string>
@@ -142,6 +143,7 @@
     <string name="content_description_calling_call_unmuted">Call Unmuted</string>
     <string name="content_description_calling_call_paused_camera">Paused Camera</string>
     <string name="content_description_more_emojis">More emojis</string>
+    <string name="content_description_self_deletion_selector_button">Toggle self deletion mode, button</string>
     <!-- Non translatable strings-->
     <string name="url_decryption_failure_learn_more" translatable="false">https://support.wire.com/hc/en-us/articles/207948115-Why-was-I-notified-that-a-message-from-a-contact-was-not-received-</string>
     <string name="url_welcome_to_new_android" translatable="false">https://support.wire.com/hc/en-us/articles/6655706999581-What-s-new-on-Android-</string>
@@ -534,11 +536,11 @@
     <string name="label_system_message_new_conversation_receipt_mode">Read receipts are %1$s</string>
     <string name="label_system_message_read_receipt_changed_by_self">%1$s turned read receipts %2$s for everyone</string>
     <string name="label_system_message_read_receipt_changed_by_other">%1$s turned read receipts %2$s for everyone</string>
-    <string name="label_system_message_conversation_message_timer_activated_by_self">%1$s %2$s the forced switching on for self-deleting messages (message timer: %3$s)</string>
-    <string name="label_system_message_conversation_message_timer_activated_by_other">%1$s %2$s the forced switching on for self-deleting messages (message timer: %3$s)</string>
+    <string name="label_system_message_conversation_message_timer_activated_by_self">%1$s set self-deleting messages to %2$s for everyone</string>
+    <string name="label_system_message_conversation_message_timer_activated_by_other">%1$s set self-deleting messages to %2$s for everyone</string>
     <string name="label_system_message_activated">activated</string>
-    <string name="label_system_message_conversation_message_timer_deactivated_by_self">%1$s %2$s the forced switching on for self-deleting messages</string>
-    <string name="label_system_message_conversation_message_timer_deactivated_by_other">%1$s %2$s the forced switching on for self-deleting messages</string>
+    <string name="label_system_message_conversation_message_timer_deactivated_by_self">%1$s turned **off** the timer for self-deleting messages for everyone</string>
+    <string name="label_system_message_conversation_message_timer_deactivated_by_other">%1$s turned **off** the timer for self-deleting messages for everyone</string>
     <string name="label_system_message_deactivated">deactivated</string>
     <string name="label_system_message_conversation_history_lost">You haven\'t used this device for a while. some messages may not appear here.</string>
     <string name="label_system_message_receipt_mode_on">on</string>
@@ -706,6 +708,8 @@
     <string name="calling_ongoing_call_start_anyway">Call Anyway</string>
     <string name="calling_ongoing_call_join_message_alert">A call is active in another conversation.\nJoining this call will hang up the other one.</string>
     <string name="calling_ongoing_call_join_anyway">Join Anyway</string>
+    <string name="calling_ongoing_double_tap_for_full_screen">Double tap on a tile for fullscreen</string>
+    <string name="calling_ongoing_double_tap_to_go_back">Double tap to go back</string>
     <string name="calling_feature_unavailable_title_alert">Feature unavailable</string>
     <string name="calling_feature_unavailable_message_alert">The option to initiate a conference call is only available in the paid version of Wire.</string>
     <!-- Connectivity Status Bar -->
@@ -1043,6 +1047,7 @@
     <string name="one_day_short_label">1d</string>
     <string name="one_hour_short_label">1h</string>
     <string name="five_minutes_short_label">5m</string>
+    <string name="one_minute_short_label">1m</string>
     <string name="ten_seconds_short_label">10s</string>
     <string name="label_debug_data">Debug data</string>
     <string name="title_internal_debugging">Internal debugging</string>

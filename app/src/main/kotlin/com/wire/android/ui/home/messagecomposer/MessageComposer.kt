@@ -291,7 +291,14 @@ private fun MessageComposer(
                 // we get the effect of overlapping it
                 if (attachmentOptionsVisible) {
                     AttachmentOptions(
-                        onAttachmentPicked = { onAttachmentPicked(it, messageComposerState.getSelfDeletionTime().value) },
+                        onAttachmentPicked = remember {
+                            {
+                                val expireAfter = (messageComposerState.messageComposeInputState as? MessageComposeInputState.Active)?.let {
+                                    (it.type as? MessageComposeInputType.SelfDeletingMessage)
+                                }?.selfDeletionDuration?.value
+                                onAttachmentPicked(it, expireAfter)
+                            }
+                        },
                         isFileSharingEnabled = isFileSharingEnabled,
                         tempWritableImageUri = tempWritableImageUri,
                         tempWritableVideoUri = tempWritableVideoUri,

@@ -52,14 +52,14 @@ class ScalaServerConfigDAOTest {
         assert(dao.scalaServerConfig is ScalaServerConfig.Links)
         assertEquals(Arrangement.links, (dao.scalaServerConfig as ScalaServerConfig.Links).links)
     }
-    
+
     @Test
     fun givenOnlyConfigUrlData_whenRetrievingServerConfig_thenReturnConfigUrlResult() {
         val (_, dao) = Arrangement().withCustomConfig().arrange()
         assert(dao.scalaServerConfig is ScalaServerConfig.ConfigUrl)
         assertEquals(Arrangement.customConfigUrl, (dao.scalaServerConfig as ScalaServerConfig.ConfigUrl).customConfigUrl)
     }
-    
+
     @Test
     fun givenNoData_whenRetrievingServerConfig_thenReturnNoDataResult() {
         val (_, dao) = Arrangement().arrange()
@@ -111,11 +111,11 @@ class ScalaServerConfigDAOTest {
 
         fun arrange() = this to dao
 
-        
+
         companion object {
             const val customConfigUrl = "customConfigUrl"
             val links = newServerConfig(1).links
-            val versionInfo = ServerConfig.VersionInfo(true, listOf(0, 1, 2), "wire.com", listOf(2))
+            val versionInfo = ServerConfig.VersionInfo(true, listOf(0, 1, 2, 3, 4), "wire.com", listOf(4))
             const val versionInfoJson = "{ \"domain\": \"wire.com\", \"federation\": true, \"supported\": [0, 1, 2], \"development\": [2] }"
         }
     }

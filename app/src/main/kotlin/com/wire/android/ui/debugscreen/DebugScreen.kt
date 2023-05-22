@@ -56,6 +56,7 @@ import com.wire.android.ui.home.conversationslist.common.FolderHeader
 import com.wire.android.ui.home.settings.SettingsItem
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.extension.getActivity
 import com.wire.android.util.getDeviceId
 import com.wire.android.util.getGitBuildId
 import com.wire.android.util.getMimeType
@@ -77,7 +78,8 @@ fun DebugScreen() {
         onForceLatestDevelopmentApiChange = debugScreenViewModel::forceUpdateApiVersions,
         onManualMigrationClicked = debugScreenViewModel::onStartManualMigration,
         restartSlowSyncForRecovery = debugScreenViewModel::restartSlowSyncForRecovery,
-        enableEncryptedProteusStorage = debugScreenViewModel::enableEncryptedProteusStorage
+        enableEncryptedProteusStorage = debugScreenViewModel::enableEncryptedProteusStorage,
+        enrollE2EI = debugScreenViewModel::enrollE2EI
     )
 }
 
@@ -92,7 +94,8 @@ fun DebugContent(
     onForceLatestDevelopmentApiChange: () -> Unit,
     onManualMigrationClicked: () -> Unit,
     restartSlowSyncForRecovery: () -> Unit,
-    enableEncryptedProteusStorage: () -> Unit
+    enableEncryptedProteusStorage: () -> Unit,
+    enrollE2EI: (context: Context) -> Unit
 ) {
     val scrollState = rememberScrollState()
 
@@ -116,7 +119,7 @@ fun DebugContent(
                 keyPackagesCount = debugScreenState.keyPackagesCount,
                 mlsClientId = debugScreenState.mslClientId,
                 mlsErrorMessage = debugScreenState.mlsErrorMessage,
-                restartSlowSyncForRecovery = restartSlowSyncForRecovery
+                restartSlowSyncForRecovery = restartSlowSyncForRecovery,
             )
 
             if (BuildConfig.PRIVATE_BUILD) {
@@ -128,6 +131,7 @@ fun DebugContent(
                         }
                     }
                 )
+                E2EIOptions (enrollE2EI)
             }
 
             LogOptions(
@@ -214,12 +218,42 @@ private fun ProteusOptions(
     isEncryptedStorageEnabled: Boolean,
     onEncryptedStorageEnabledChange: (Boolean) -> Unit,
 ) {
+
     Column {
         FolderHeader(stringResource(R.string.label_proteus_option_title))
 
         EnableEncryptedProteusStorageSwitch(
             isEnabled = isEncryptedStorageEnabled,
             onCheckedChange = onEncryptedStorageEnabledChange
+        )
+    }
+}
+
+@Composable
+private fun E2EIOptions(
+    enrollE2EI: (context: Context) -> Unit
+) {
+    val context = LocalContext.current
+    Column {
+        FolderHeader(stringResource(R.string.debug_settings_api_versioning_title))
+        RowItemTemplate(modifier = Modifier.wrapContentWidth(),
+            title = {
+                Text(
+                    style = MaterialTheme.wireTypography.body01,
+                    color = MaterialTheme.wireColorScheme.onBackground,
+                    text = stringResource(R.string.label_enroll_e2ei),
+                    modifier = Modifier.padding(start = dimensions().spacing8x)
+                )
+            },
+            actions = {
+                WirePrimaryButton(
+                    onClick = {
+                              enrollE2EI(context)
+                    },
+                    text = stringResource(R.string.label_enroll_e2ei),
+                    fillMaxWidth = false
+                )
+            }
         )
     }
 }

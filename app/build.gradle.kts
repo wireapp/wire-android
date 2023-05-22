@@ -228,6 +228,10 @@ dependencies {
 
     implementation(Libraries.Hilt.hiltWork)
 
+    // oauth dependencies
+    implementation(Libraries.openIdAppAuth)
+    implementation(Libraries.jwt)
+
     // Development dependencies
     debugImplementation(DevLibraries.leakCanary)
 

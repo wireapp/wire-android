@@ -20,10 +20,16 @@
 
 package com.wire.android.ui.debugscreen
 
+import android.app.PendingIntent
+import android.app.PendingIntent.FLAG_CANCEL_CURRENT
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
+import androidx.core.app.ActivityCompat.startActivityForResult
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import co.touchlab.kermit.platformLogWriter
@@ -34,13 +40,16 @@ import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.ui.WireActivity
 import com.wire.android.util.DataDogLogger
 import com.wire.android.util.EMPTY
 import com.wire.android.util.LogFileWriter
+import com.wire.android.util.extension.getActivity
 import com.wire.kalium.logger.KaliumLogLevel
 import com.wire.kalium.logic.CoreLogger
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.client.ObserveCurrentClientIdUseCase
+import com.wire.kalium.logic.feature.e2ei.EnrolE2EIUseCase
 import com.wire.kalium.logic.feature.keypackage.MLSKeyPackageCountResult
 import com.wire.kalium.logic.feature.keypackage.MLSKeyPackageCountUseCase
 import com.wire.kalium.logic.sync.incremental.RestartSlowSyncProcessForRecoveryUseCase
@@ -49,7 +58,13 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import net.openid.appauth.AuthState
+import net.openid.appauth.AuthorizationRequest
+import net.openid.appauth.AuthorizationService
+import net.openid.appauth.AuthorizationServiceConfiguration
+import net.openid.appauth.ResponseTypeValues
 import javax.inject.Inject
+
 
 data class DebugScreenState(
     val isLoggingEnabled: Boolean = false,
@@ -74,6 +89,7 @@ class DebugScreenViewModel
     private val updateApiVersions: UpdateApiVersionsScheduler,
     private val globalDataStore: GlobalDataStore,
     private val restartSlowSyncProcessForRecovery: RestartSlowSyncProcessForRecoveryUseCase,
+    private val enrolE2EIUseCase: EnrolE2EIUseCase
 ) : ViewModel() {
     val logPath: String = logFileWriter.activeLoggingFile.absolutePath
 
@@ -164,6 +180,44 @@ class DebugScreenViewModel
         }
     }
 
+    fun enrollE2EI(context: Context) {
+        viewModelScope.launch {
+//            val clientId = "338888153072-ktbh66pv3mr0ua0dn64sphgimeo0p7ss.apps.googleusercontent.com"
+//            val authorityUrl = "https://accounts.google.com/o/oauth2/v2/auth"
+//            val redirectUri = Uri.parse("https://wire-e2ei.io")
+//            val serviceConfig = AuthorizationServiceConfiguration(
+//                Uri.parse(authorityUrl),  // authorization endpoint
+//                Uri.parse("https://idp.example.com/token")
+//            ) // token endpoint
+//            val authService = AuthorizationService(context)
+//            val authRequest = AuthorizationRequest.Builder(
+//                // OAuth 2.0 endpoint for Google's authorization server
+//                serviceConfig,
+//                // Client ID registered with Google
+//                clientId,
+//                // Response type, which should always be "code"
+//                ResponseTypeValues.CODE,
+//                // Redirect URI registered with Google
+//                redirectUri
+//            )
+//                .setScope("profile email openid")
+//                .build()
+//            authService.performAuthorizationRequest(
+//                authRequest, PendingIntent.getActivity(
+//                    context,
+//                    0,
+//                    Intent(context.applicationContext, WireActivity::class.java),
+//                    FLAG_CANCEL_CURRENT or PendingIntent.FLAG_IMMUTABLE
+//                )
+//            )
+//            OAuth.instance.init2(context)
+            OAuth.instance.initAuthServiceConfig()
+            OAuth.instance.initAuthService(context)
+            OAuth.instance.attemptAuthorization(context, enrolE2EIUseCase,viewModelScope)
+//            context.getActivity()?.let { startActivityForResult(it, OAuth.instance.attemptAuthorization(context), 10, null) }
+        }
+    }
+
     fun setLoggingEnabledState(isEnabled: Boolean) {
         viewModelScope.launch {
             globalDataStore.setLoggingEnabled(isEnabled)
@@ -187,8 +241,7 @@ class DebugScreenViewModel
         viewModelScope.launch {
             navigationManager.navigate(
                 NavigationCommand(
-                    NavigationItem.Migration.getRouteWithArgs(listOf(currentAccount)),
-                    BackStackMode.CLEAR_WHOLE
+                    NavigationItem.Migration.getRouteWithArgs(listOf(currentAccount)), BackStackMode.CLEAR_WHOLE
                 )
             )
         }

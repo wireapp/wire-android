@@ -20,6 +20,7 @@
 
 package com.wire.android.util.deeplink
 
+import android.content.Intent
 import android.net.Uri
 import androidx.annotation.VisibleForTesting
 import com.wire.android.feature.AccountSwitchUseCase
@@ -55,6 +56,8 @@ sealed class DeepLinkResult {
     data class OpenOtherUserProfile(val userId: QualifiedID) : DeepLinkResult()
     data class JoinConversation(val code: String, val key: String, val domain: String?) : DeepLinkResult()
     data class MigrationLogin(val userHandle: String) : DeepLinkResult()
+
+    data class OAuth(val intent: Intent)
 }
 
 @Singleton

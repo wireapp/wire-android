@@ -108,6 +108,8 @@ object Libraries {
         const val ktxDateTime = "0.4.0"
         const val ktxSerialization = "1.3.2"
         const val ktxImmutableCollections = "0.3.5"
+        const val openIdAppAuth = "0.11.1"
+        const val jwt = "2.0.0"
     }
 
     // AndroidX Dependencies
@@ -149,6 +151,8 @@ object Libraries {
     const val coilCompose               = "io.coil-kt:coil-compose:${Versions.coil}"
     const val dataDog                   = "com.datadoghq:dd-sdk-android:${Versions.dataDog}"
     const val dataDogCompose            = "com.datadoghq:dd-sdk-android-compose:${Versions.dataDog}"
+    const val openIdAppAuth             = "net.openid:appauth:${Versions.openIdAppAuth}"
+    const val jwt                       = "com.auth0.android:jwtdecode:${Versions.jwt}"
 
     object Hilt {
         const val android = "com.google.dagger:hilt-android:${Versions.hilt}"

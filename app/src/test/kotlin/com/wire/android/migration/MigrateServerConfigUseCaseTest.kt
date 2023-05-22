@@ -145,7 +145,7 @@ class MigrateServerConfigUseCaseTest {
         companion object {
             const val customConfigUrl = "customConfigUrl"
             val serverConfig = newServerConfig(1)
-            val versionInfo = ServerConfig.VersionInfo(true, listOf(0, 1, 2), "wire.com", listOf(2))
+            val versionInfo = ServerConfig.VersionInfo(true, listOf(0, 1, 2), "wire.com", listOf(4))
         }
     }
 }

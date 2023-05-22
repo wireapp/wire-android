@@ -20,10 +20,14 @@
 
 package com.wire.android.ui
 
+import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.result.registerForActivityResult
 import androidx.activity.viewModels
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
@@ -62,6 +66,7 @@ import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.dialogs.CustomBEDeeplinkDialog
 import com.wire.android.ui.common.topappbar.CommonTopAppBar
 import com.wire.android.ui.common.topappbar.CommonTopAppBarViewModel
+import com.wire.android.ui.debugscreen.OAuth
 import com.wire.android.ui.joinConversation.JoinConversationViaCodeState
 import com.wire.android.ui.joinConversation.JoinConversationViaDeepLinkDialog
 import com.wire.android.ui.joinConversation.JoinConversationViaInviteLinkError
@@ -80,6 +85,13 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import net.openid.appauth.AuthState
+import net.openid.appauth.AuthorizationException
+import net.openid.appauth.AuthorizationResponse
+import net.openid.appauth.AuthorizationService
+import net.openid.appauth.AuthorizationServiceConfiguration
+import net.openid.appauth.GrantTypeValues
+import net.openid.appauth.TokenRequest
 import kotlinx.coroutines.flow.onSubscription
 import javax.inject.Inject
 
@@ -122,7 +134,10 @@ class WireActivity : AppCompatActivity() {
         if (viewModel.isSharingIntent(intent)) {
             setIntent(intent)
         }
-        handleDeepLink(intent)
+//        if (intent != null) {
+//            OAuth.instance.handleAuthorizationResponse(intent)
+//        }
+        //handleDeepLink(intent)
         super.onNewIntent(intent)
     }
 
@@ -414,6 +429,45 @@ class WireActivity : AppCompatActivity() {
             viewModel.handleDeepLink(intent)
             intent.putExtra(HANDLED_DEEPLINK_FLAG, true)
         }
+
+        val response = AuthorizationResponse.fromIntent(intent!!)
+//        val error = AuthorizationException.fromIntent(intent)
+//        if (response != null) {
+//            val authorizationResponse : AuthorizationResponse? = AuthorizationResponse.fromIntent(intent)
+//            val error = AuthorizationException.fromIntent(intent)
+//
+//             authState = AuthState(authorizationResponse, error)
+//
+//            val tokenExchangeRequest = authorizationResponse!!.createTokenExchangeRequest()
+//
+//            // Exchange authorization code for access token
+//            val authorityUrl = "https://accounts.google.com/o/oauth2/v2/auth"
+//            val clientId = "338888153072-ktbh66pv3mr0ua0dn64sphgimeo0p7ss.apps.googleusercontent.com"
+//            val redirectUri = Uri.parse("https://wire-e2ei.io")
+//            val authServiceConfig = AuthorizationServiceConfiguration(
+//                Uri.parse(authorityUrl),  // authorization endpoint
+//                Uri.parse("https://idp.example.com/token")
+//            ) // token endpoint
+//            val tokenRequest = TokenRequest.Builder(
+//                // OAuth 2.0 endpoint for Google's token server
+//                serviceConfig,
+//                // Client ID registered with Google
+//                clientId
+//            )
+//                .setAuthorizationCode(response.authorizationCode!!)
+//                .setRedirectUri(redirectUri)
+//                .setGrantType(GrantTypeValues.AUTHORIZATION_CODE)
+//                .build()
+//
+//            // Exchange authorization code for access token
+////            val tokenResult = authService.performTokenRequest(tokenRequest,
+////                tokenExchangeRequest
+////            )
+////            val accessToken = tokenResult.accessToken
+//
+//            // Use the access token to make API requests on behalf of the user
+//            // ...
+//        }
     }
 
     companion object {

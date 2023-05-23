@@ -99,7 +99,7 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun OtherUserProfileScreen(viewModel: OtherUserProfileScreenViewModel = hiltViewModel()) {
-    val snackbarHostState = remember { SnackbarHostState() }
+    val snackbarHostState = LocalSnackbarHostState.current
     val context = LocalContext.current
 
     val scope = rememberCoroutineScope()
@@ -108,19 +108,17 @@ fun OtherUserProfileScreen(viewModel: OtherUserProfileScreenViewModel = hiltView
     val openBottomSheet: () -> Unit = remember { { scope.launch { sheetState.show() } } }
     val closeBottomSheet: () -> Unit = remember { { scope.launch { sheetState.hide() } } }
 
-    CompositionLocalProvider(LocalSnackbarHostState provides snackbarHostState) {
-        OtherProfileScreenContent(
-            scope = scope,
-            state = viewModel.state,
-            requestInProgress = viewModel.requestInProgress,
-            sheetState = sheetState,
-            openBottomSheet = openBottomSheet,
-            closeBottomSheet = closeBottomSheet,
-            snackbarHostState = snackbarHostState,
-            eventsHandler = viewModel,
-            bottomSheetEventsHandler = viewModel
-        )
-    }
+    OtherProfileScreenContent(
+        scope = scope,
+        state = viewModel.state,
+        requestInProgress = viewModel.requestInProgress,
+        sheetState = sheetState,
+        openBottomSheet = openBottomSheet,
+        closeBottomSheet = closeBottomSheet,
+        snackbarHostState = snackbarHostState,
+        eventsHandler = viewModel,
+        bottomSheetEventsHandler = viewModel
+    )
 
     LaunchedEffect(Unit) {
         viewModel.infoMessage.collect {

@@ -21,6 +21,7 @@ package com.wire.android.ui.connection
 
 import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
+import com.wire.android.R
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
 import com.wire.android.framework.TestConversation
@@ -30,6 +31,7 @@ import com.wire.android.navigation.EXTRA_USER_ID
 import com.wire.android.navigation.EXTRA_USER_NAME
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.userprofile.other.OtherUserProfileScreenViewModelTest
+import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
@@ -77,7 +79,8 @@ class ConnectionActionButtonViewModelTest {
             viewModel.onSendConnectionRequest()
 
             // then
-            awaitItem()
+            val result = awaitItem()
+            assertEquals(UIText.StringResource(R.string.connection_request_sent), result)
             coVerify { arrangement.sendConnectionRequest.invoke(eq(TestUser.USER_ID)) }
             assertEquals(ConnectionState.SENT, viewModel.loadableState().state)
         }
@@ -97,7 +100,8 @@ class ConnectionActionButtonViewModelTest {
                 viewModel.onSendConnectionRequest()
 
                 // then
-                awaitItem()
+                val result = awaitItem()
+                assertEquals(UIText.StringResource(R.string.connection_request_sent_error), result)
                 coVerify { arrangement.sendConnectionRequest.invoke(eq(TestUser.USER_ID)) }
                 assertEquals(ConnectionState.NOT_CONNECTED, viewModel.loadableState().state)
             }
@@ -135,7 +139,8 @@ class ConnectionActionButtonViewModelTest {
                 viewModel.onCancelConnectionRequest()
 
                 // then
-                awaitItem()
+                val result = awaitItem()
+                assertEquals(UIText.StringResource(R.string.connection_request_canceled), result)
                 coVerify { arrangement.cancelConnectionRequest.invoke(eq(TestUser.USER_ID)) }
                 assertEquals(ConnectionState.NOT_CONNECTED, viewModel.loadableState().state)
             }

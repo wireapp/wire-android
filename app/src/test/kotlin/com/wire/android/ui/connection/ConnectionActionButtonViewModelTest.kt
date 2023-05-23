@@ -72,7 +72,7 @@ class ConnectionActionButtonViewModelTest {
         val (arrangement, viewModel) = ConnectionActionButtonHiltArrangement()
             .withSendConnectionRequest(SendConnectionRequestResult.Success)
             .arrange()
-        assertEquals(ConnectionState.NOT_CONNECTED, viewModel.loadableState().state)
+        assertEquals(ConnectionState.NOT_CONNECTED, viewModel.actionableState().state)
 
         viewModel.infoMessage.test {
             // when
@@ -82,7 +82,7 @@ class ConnectionActionButtonViewModelTest {
             val result = awaitItem()
             assertEquals(UIText.StringResource(R.string.connection_request_sent), result)
             coVerify { arrangement.sendConnectionRequest.invoke(eq(TestUser.USER_ID)) }
-            assertEquals(ConnectionState.SENT, viewModel.loadableState().state)
+            assertEquals(ConnectionState.SENT, viewModel.actionableState().state)
         }
     }
 
@@ -93,7 +93,7 @@ class ConnectionActionButtonViewModelTest {
             val (arrangement, viewModel) = ConnectionActionButtonHiltArrangement()
                 .withSendConnectionRequest(SendConnectionRequestResult.Failure(CoreFailure.Unknown(RuntimeException("some error"))))
                 .arrange()
-            assertEquals(ConnectionState.NOT_CONNECTED, viewModel.loadableState().state)
+            assertEquals(ConnectionState.NOT_CONNECTED, viewModel.actionableState().state)
 
             viewModel.infoMessage.test {
                 // when
@@ -103,7 +103,7 @@ class ConnectionActionButtonViewModelTest {
                 val result = awaitItem()
                 assertEquals(UIText.StringResource(R.string.connection_request_sent_error), result)
                 coVerify { arrangement.sendConnectionRequest.invoke(eq(TestUser.USER_ID)) }
-                assertEquals(ConnectionState.NOT_CONNECTED, viewModel.loadableState().state)
+                assertEquals(ConnectionState.NOT_CONNECTED, viewModel.actionableState().state)
             }
         }
 
@@ -114,14 +114,14 @@ class ConnectionActionButtonViewModelTest {
             val (arrangement, viewModel) = ConnectionActionButtonHiltArrangement()
                 .withIgnoreConnectionRequest(IgnoreConnectionRequestUseCaseResult.Success)
                 .arrange()
-            assertEquals(ConnectionState.PENDING, viewModel.loadableState().state)
+            assertEquals(ConnectionState.PENDING, viewModel.actionableState().state)
 
             // when
             viewModel.onIgnoreConnectionRequest()
 
             // then
             coVerify { arrangement.ignoreConnectionRequest.invoke(eq(TestUser.USER_ID)) }
-            assertEquals(ConnectionState.IGNORED, viewModel.loadableState().state)
+            assertEquals(ConnectionState.IGNORED, viewModel.actionableState().state)
             coVerify { arrangement.navigationManager.navigateBack(any()) }
         }
 
@@ -132,7 +132,7 @@ class ConnectionActionButtonViewModelTest {
             val (arrangement, viewModel) = ConnectionActionButtonHiltArrangement()
                 .withCancelConnectionRequest(CancelConnectionRequestUseCaseResult.Success)
                 .arrange()
-            assertEquals(ConnectionState.SENT, viewModel.loadableState().state)
+            assertEquals(ConnectionState.SENT, viewModel.actionableState().state)
 
             viewModel.infoMessage.test {
                 // when
@@ -142,7 +142,7 @@ class ConnectionActionButtonViewModelTest {
                 val result = awaitItem()
                 assertEquals(UIText.StringResource(R.string.connection_request_canceled), result)
                 coVerify { arrangement.cancelConnectionRequest.invoke(eq(TestUser.USER_ID)) }
-                assertEquals(ConnectionState.NOT_CONNECTED, viewModel.loadableState().state)
+                assertEquals(ConnectionState.NOT_CONNECTED, viewModel.actionableState().state)
             }
         }
 
@@ -153,7 +153,7 @@ class ConnectionActionButtonViewModelTest {
             val (arrangement, viewModel) = ConnectionActionButtonHiltArrangement()
                 .withAcceptConnectionRequest(AcceptConnectionRequestUseCaseResult.Success)
                 .arrange()
-            assertEquals(ConnectionState.PENDING, viewModel.loadableState().state)
+            assertEquals(ConnectionState.PENDING, viewModel.actionableState().state)
 
             viewModel.infoMessage.test {
                 // when
@@ -162,7 +162,7 @@ class ConnectionActionButtonViewModelTest {
                 // then
                 awaitItem()
                 coVerify { arrangement.acceptConnectionRequest.invoke(eq(TestUser.USER_ID)) }
-                assertEquals(ConnectionState.ACCEPTED, viewModel.loadableState().state)
+                assertEquals(ConnectionState.ACCEPTED, viewModel.actionableState().state)
             }
         }
 

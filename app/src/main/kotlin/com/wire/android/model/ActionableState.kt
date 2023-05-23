@@ -21,13 +21,15 @@
 package com.wire.android.model
 
 /**
- * Wrapper for view model states with additional [isLoading] variable for UI purposes
+ * Wrapper for view model states with additional [isPerformingAction] which informs UI that action is being performed,
+ * like:
+ * - blocking button action when some action is already triggered
  */
-data class LoadableState<T>(
+data class ActionableState<T>(
     val state: T,
-    val isLoading: Boolean = false
+    val isPerformingAction: Boolean = false
 )
 
-fun <T> LoadableState<T>.startLoading(): LoadableState<T> = this.copy(isLoading = true)
-fun <T> LoadableState<T>.finishLoading(): LoadableState<T> = this.copy(isLoading = false)
-fun <T> LoadableState<T>.updateState(newState: T): LoadableState<T> = this.copy(state = newState, isLoading = false)
+fun <T> ActionableState<T>.performAction(): ActionableState<T> = this.copy(isPerformingAction = true)
+fun <T> ActionableState<T>.finishAction(): ActionableState<T> = this.copy(isPerformingAction = false)
+fun <T> ActionableState<T>.updateState(newState: T): ActionableState<T> = this.copy(state = newState, isPerformingAction = false)

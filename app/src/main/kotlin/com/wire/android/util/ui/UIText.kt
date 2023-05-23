@@ -24,12 +24,10 @@ import android.content.res.Resources
 import androidx.annotation.PluralsRes
 import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import com.wire.kalium.logic.data.message.mention.MessageMention
 
-@OptIn(ExperimentalComposeUiApi::class)
 sealed class UIText {
     data class DynamicString(
         val value: String,

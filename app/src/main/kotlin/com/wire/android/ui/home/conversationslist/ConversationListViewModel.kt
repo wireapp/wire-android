@@ -74,6 +74,7 @@ import com.wire.kalium.logic.feature.conversation.ClearConversationContentUseCas
 import com.wire.kalium.logic.feature.conversation.ConversationUpdateStatusResult
 import com.wire.kalium.logic.feature.conversation.LeaveConversationUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationListDetailsUseCase
+import com.wire.kalium.logic.feature.conversation.RefreshConversationsWithoutMetadataUseCase
 import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
 import com.wire.kalium.logic.feature.publicuser.RefreshUsersWithoutMetadataUseCase
@@ -112,7 +113,8 @@ class ConversationListViewModel @Inject constructor(
     private val wireSessionImageLoader: WireSessionImageLoader,
     private val userTypeMapper: UserTypeMapper,
     private val endCall: EndCallUseCase,
-    private val refreshUsersWithoutMetadata: RefreshUsersWithoutMetadataUseCase
+    private val refreshUsersWithoutMetadata: RefreshUsersWithoutMetadataUseCase,
+    private val refreshConversationsWithoutMetadata: RefreshConversationsWithoutMetadataUseCase
 ) : ViewModel() {
 
     var conversationListState by mutableStateOf(ConversationListState())
@@ -194,9 +196,10 @@ class ConversationListViewModel @Inject constructor(
         return matchingConversations
     }
 
-    suspend fun runRefreshUsersWithoutMetadata() {
+    suspend fun refreshMissingMetadata() {
         viewModelScope.launch {
-            refreshUsersWithoutMetadata.invoke()
+            refreshUsersWithoutMetadata()
+            refreshConversationsWithoutMetadata()
         }
     }
 
@@ -261,18 +264,18 @@ class ConversationListViewModel @Inject constructor(
                 MutedConversationStatus.OnlyMentionsAndRepliesAllowed ->
                     when (it) {
                         is Group -> it.unreadEventCount.containsKey(UnreadEventType.MENTION) ||
-                            it.unreadEventCount.containsKey(UnreadEventType.REPLY)
+                                it.unreadEventCount.containsKey(UnreadEventType.REPLY)
 
                         is OneOne -> it.unreadEventCount.containsKey(UnreadEventType.MENTION) ||
-                            it.unreadEventCount.containsKey(UnreadEventType.REPLY)
+                                it.unreadEventCount.containsKey(UnreadEventType.REPLY)
 
                         else -> false
                     }
 
                 else -> false
             } ||
-                (it is Connection && it.connection.status == ConnectionState.PENDING) ||
-                (it is Group && it.hasOngoingCall)
+                    (it is Connection && it.connection.status == ConnectionState.PENDING) ||
+                    (it is Group && it.hasOngoingCall)
         }
 
         val remainingConversations = this - unreadConversations.toSet()

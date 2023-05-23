@@ -69,6 +69,7 @@ import com.wire.kalium.logic.feature.conversation.GetOtherUserSecurityClassifica
 import com.wire.kalium.logic.feature.conversation.LeaveConversationUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveSecurityClassificationLabelUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveUserListByIdUseCase
+import com.wire.kalium.logic.feature.conversation.RefreshConversationsWithoutMetadataUseCase
 import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationAccessRoleUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleUseCase
@@ -1150,4 +1151,12 @@ class UseCaseModule {
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
     ): RefreshUsersWithoutMetadataUseCase = coreLogic.getSessionScope(currentAccount).users.refreshUsersWithoutMetadata
+
+    @ViewModelScoped
+    @Provides
+    fun provideRefreshConversationsWithoutMetadataUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): RefreshConversationsWithoutMetadataUseCase =
+        coreLogic.getSessionScope(currentAccount).conversations.refreshConversationsWithoutMetadata
 }

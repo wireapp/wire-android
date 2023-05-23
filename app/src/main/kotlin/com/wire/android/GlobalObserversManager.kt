@@ -6,7 +6,6 @@ import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.notification.NotificationChannelsManager
 import com.wire.android.notification.WireNotificationManager
-import com.wire.android.services.ServicesManager
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.id.ConversationId
@@ -31,15 +30,14 @@ class GlobalObserversManager @Inject constructor(
     private val notificationManager: WireNotificationManager,
     private val navigationManager: NavigationManager,
     private val notificationChannelsManager: NotificationChannelsManager,
-    private val servicesManager: ServicesManager,
 ) {
     private val scope = CoroutineScope(SupervisorJob() + dispatcherProvider.io())
 
     fun observe() {
-        scope.launch { observeAccountsToCreateChannelsAndObserveNotifications() }
+        scope.launch { setUpNotifications() }
     }
 
-    private suspend fun observeAccountsToCreateChannelsAndObserveNotifications() {
+    private suspend fun setUpNotifications() {
         val persistentStatusesFlow = coreLogic.getGlobalScope().observePersistentWebSocketConnectionStatus()
             .let { result ->
                 when (result) {
@@ -61,20 +59,15 @@ class GlobalObserversManager @Inject constructor(
                 notificationChannelsManager.createUserNotificationChannels(list.map { it.first })
 
                 list.map { it.first.id }
+                    // do not observe notifications for users with PersistentWebSocketEnabled, it will be done in PersistentWebSocketService
                     .filter { userId -> persistentStatuses.none { it.userId == userId && it.isPersistentWebSocketEnabled } }
                     .run {
                         notificationManager.observeNotificationsAndCallsWhileRunning(this, scope) {
                             openIncomingCall(it.conversationId)
                         }
                     }
-
-                if (persistentStatuses.any { it.isPersistentWebSocketEnabled }) {
-                    if (!servicesManager.isPersistentWebSocketServiceRunning()) {
-                        servicesManager.startPersistentWebSocketService()
-                    }
-                } else {
-                    servicesManager.stopPersistentWebSocketService()
-                }
+                // it would be nice to call all the notification observations in one place,
+                // but we can't start PersistentWebSocketService here, to avoid ForegroundServiceStartNotAllowedException
             }
     }
 

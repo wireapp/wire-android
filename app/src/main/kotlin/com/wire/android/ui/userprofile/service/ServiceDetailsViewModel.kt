@@ -14,6 +14,7 @@ import com.wire.android.ui.home.conversations.details.participants.usecase.Obser
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.WireSessionImageLoader
+import com.wire.kalium.logic.StorageFailure
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
@@ -25,6 +26,8 @@ import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUs
 import com.wire.kalium.logic.feature.service.GetServiceByIdUseCase
 import com.wire.kalium.logic.feature.service.ObserveIsServiceMemberUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
+import com.wire.kalium.logic.functional.Either
+import com.wire.kalium.logic.functional.fold
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -158,10 +161,15 @@ class ServiceDetailsViewModel @Inject constructor(
             )
                 .combine(observeGroupInfo(), ::Pair)
                 .flowOn(dispatchers.io())
-                .collect { (serviceMemberId: QualifiedID?, groupInfo: ServiceDetailsGroupState) ->
-                    updateViewStateButton(
-                        serviceMemberId = serviceMemberId,
-                        groupInfo = groupInfo
+                .collect { (serviceMemberId: Either<StorageFailure, UserId?>, groupInfo: ServiceDetailsGroupState) ->
+                    serviceMemberId.fold(
+                        { },
+                        {
+                            updateViewStateButton(
+                                serviceMemberId = it,
+                                groupInfo = groupInfo
+                            )
+                        }
                     )
                 }
         }
@@ -175,7 +183,7 @@ class ServiceDetailsViewModel @Inject constructor(
     }
 
     private fun updateViewStateButton(
-        serviceMemberId: QualifiedID?,
+        serviceMemberId: UserId?,
         groupInfo: ServiceDetailsGroupState
     ) {
         val buttonState = when (groupInfo.isSelfAdmin) {

@@ -143,7 +143,6 @@ class CommonTopAppBarViewModel @Inject constructor(
         }
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     private suspend fun currentScreenFlow() = currentScreenManager.observeCurrentScreen(viewModelScope)
 
     private companion object {

@@ -27,7 +27,7 @@
     <string name="label_cancel">Cancelar</string>
     <string name="label_confirm">Confirmar</string>
     <string name="label_continue">Continuar</string>
-    <string name="label_apply">Apply</string>
+    <string name="label_apply">Aplicar</string>
     <string name="label_save">Guardar</string>
     <string name="label_get_started">Empezar</string>
     <string name="label_remove">Eliminar</string>
@@ -143,7 +143,7 @@
     <string name="content_description_calling_call_unmuted">Llamada reanudada</string>
     <string name="content_description_calling_call_paused_camera">C&#225;mara pausada</string>
     <string name="content_description_more_emojis">M&#225;s emojis</string>
-    <string name="content_description_self_deletion_selector_button">Toggle self deletion mode, button</string>
+    <string name="content_description_self_deletion_selector_button">Cambiar modo de autoborrado, botón</string>
     <!-- Non translatable strings-->
     <!-- Navigation -->
     <string name="vault_screen_title">Caja fuerte</string>
@@ -523,8 +523,8 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
     <string name="label_system_message_new_conversation_receipt_mode">Los recibos de lectura est&#225;n %1$s</string>
     <string name="label_system_message_read_receipt_changed_by_self">%1$s cambi&#243; los recibos de lectura %2$s para todos</string>
     <string name="label_system_message_read_receipt_changed_by_other">%1$s cambi&#243; los recibos de lectura %2$s para todos</string>
-    <string name="label_system_message_conversation_message_timer_activated_by_self">%1$s set self-deleting messages to %2$s for everyone</string>
-    <string name="label_system_message_conversation_message_timer_activated_by_other">%1$s set self-deleting messages to %2$s for everyone</string>
+    <string name="label_system_message_conversation_message_timer_activated_by_self">%1$s estableciste mensajes de auto-borrado a %2$s para todos</string>
+    <string name="label_system_message_conversation_message_timer_activated_by_other">%1$s estableció mensajes de auto-borrado a %2$s para todos</string>
     <string name="label_system_message_activated">ha activado</string>
     <string name="label_system_message_conversation_message_timer_deactivated_by_self">%1$s turned **off** the timer for self-deleting messages for everyone</string>
     <string name="label_system_message_conversation_message_timer_deactivated_by_other">%1$s turned **off** the timer for self-deleting messages for everyone</string>

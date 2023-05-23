@@ -17,10 +17,8 @@
  */
 package com.wire.android.ui.edit
 
-import androidx.compose.material.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
 import com.wire.android.ui.common.bottomsheet.MenuBottomSheetItem
@@ -28,16 +26,15 @@ import com.wire.android.ui.common.bottomsheet.MenuItemIcon
 
 @Composable
 fun DeleteItemMenuOption(onDeleteItemClick: () -> Unit) {
-    CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.error) {
-        MenuBottomSheetItem(
-            icon = {
-                MenuItemIcon(
-                    id = R.drawable.ic_delete,
-                    contentDescription = stringResource(R.string.content_description_delete_the_message),
-                )
-            },
-            title = stringResource(R.string.label_delete),
-            onItemClick = onDeleteItemClick
-        )
-    }
+    MenuBottomSheetItem(
+        icon = {
+            MenuItemIcon(
+                id = R.drawable.ic_delete,
+                contentDescription = stringResource(R.string.content_description_delete_the_message),
+            )
+        },
+        itemProvidedColor = MaterialTheme.colorScheme.error,
+        title = stringResource(R.string.label_delete),
+        onItemClick = onDeleteItemClick
+    )
 }

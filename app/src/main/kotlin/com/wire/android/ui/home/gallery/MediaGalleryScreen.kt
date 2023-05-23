@@ -30,12 +30,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
@@ -97,30 +95,30 @@ fun MediaGalleryScreen(mediaGalleryViewModel: MediaGalleryViewModel = hiltViewMo
                     mediaGalleryScreenState.showContextualMenu(false)
                     mediaGalleryViewModel.onMessageDetailsClicked()
                 }
-            ),
-            content = {
-                Scaffold(
-                    topBar = {
-                        MediaGalleryScreenTopAppBar(
-                            title = screenTitle ?: stringResource(R.string.media_gallery_default_title_name),
-                            onCloseClick = mediaGalleryViewModel::navigateBack,
-                            onOptionsClick = { mediaGalleryScreenState.showContextualMenu(true) }
-                        )
-                    },
-                    content = { internalPadding ->
-                        Box(modifier = Modifier.padding(internalPadding)) {
-                            MediaGalleryContent(mediaGalleryViewModel, mediaGalleryScreenState)
-                        }
-                    },
-                    snackbarHost = {
-                        SwipeDismissSnackbarHost(
-                            hostState = mediaGalleryScreenState.snackbarHostState,
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                    },
-                )
-            }
-        )
+            )
+        ) {
+            Scaffold(
+                topBar = {
+                    MediaGalleryScreenTopAppBar(
+                        title = screenTitle
+                            ?: stringResource(R.string.media_gallery_default_title_name),
+                        onCloseClick = mediaGalleryViewModel::navigateBack,
+                        onOptionsClick = { mediaGalleryScreenState.showContextualMenu(true) }
+                    )
+                },
+                content = { internalPadding ->
+                    Box(modifier = Modifier.padding(internalPadding)) {
+                        MediaGalleryContent(mediaGalleryViewModel, mediaGalleryScreenState)
+                    }
+                },
+                snackbarHost = {
+                    SwipeDismissSnackbarHost(
+                        hostState = mediaGalleryScreenState.snackbarHostState,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                },
+            )
+        }
     }
 }
 
@@ -193,30 +191,27 @@ fun EditGalleryMenuItems(
         add { ReplyMessageOption(onReplyItemClick = onImageReplied) }
         add { DownloadAssetExternallyOption(onDownloadClick = onDownloadImage) }
         add {
-            CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.secondary) {
-                MenuBottomSheetItem(
-                    icon = {
-                        MenuItemIcon(
-                            id = R.drawable.ic_share_file,
-                            contentDescription = stringResource(R.string.content_description_share_the_file),
-                        )
-                    },
-                    title = stringResource(R.string.label_share),
-                    onItemClick = onShareImage
-                )
-            }
-            CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.error) {
-                MenuBottomSheetItem(
-                    icon = {
-                        MenuItemIcon(
-                            id = R.drawable.ic_delete,
-                            contentDescription = stringResource(R.string.content_description_delete_the_message),
-                        )
-                    },
-                    title = stringResource(R.string.label_delete),
-                    onItemClick = onDeleteMessage
-                )
-            }
+            MenuBottomSheetItem(
+                icon = {
+                    MenuItemIcon(
+                        id = R.drawable.ic_share_file,
+                        contentDescription = stringResource(R.string.content_description_share_the_file),
+                    )
+                },
+                title = stringResource(R.string.label_share),
+                onItemClick = onShareImage
+            )
+            MenuBottomSheetItem(
+                icon = {
+                    MenuItemIcon(
+                        id = R.drawable.ic_delete,
+                        contentDescription = stringResource(R.string.content_description_delete_the_message),
+                    )
+                },
+                itemProvidedColor = MaterialTheme.colorScheme.error,
+                title = stringResource(R.string.label_delete),
+                onItemClick = onDeleteMessage
+            )
         }
     }
 }

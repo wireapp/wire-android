@@ -49,6 +49,8 @@ import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUs
 import com.wire.kalium.logic.feature.conversation.UpdateConversationAccessRoleUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationReceiptModeUseCase
+import com.wire.kalium.logic.feature.selfdeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
+import com.wire.kalium.logic.feature.selfdeletingMessages.SelfDeletionTimer
 import com.wire.kalium.logic.feature.publicuser.RefreshUsersWithoutMetadataUseCase
 import com.wire.kalium.logic.feature.team.DeleteTeamConversationUseCase
 import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
@@ -485,7 +487,8 @@ class GroupConversationDetailsViewModelTest {
                 accessRole = Conversation.defaultGroupAccessRoles.toMutableList().apply { add(Conversation.AccessRole.GUEST) },
                 lastReadDate = "2022-04-04T16:11:28.388Z",
                 creatorId = null,
-                receiptMode = Conversation.ReceiptMode.ENABLED
+                receiptMode = Conversation.ReceiptMode.ENABLED,
+                messageTimer = null
             ),
             legalHoldStatus = LegalHoldStatus.DISABLED,
             hasOngoingCall = false,
@@ -540,6 +543,9 @@ internal class GroupConversationDetailsViewModelArrangement {
     lateinit var updateConversationReceiptMode: UpdateConversationReceiptModeUseCase
 
     @MockK
+    lateinit var observeSelfDeletionTimerSettingsForConversation: ObserveSelfDeletionTimerSettingsForConversationUseCase
+
+    @MockK
     private lateinit var qualifiedIdMapper: QualifiedIdMapper
 
     @MockK
@@ -565,8 +571,9 @@ internal class GroupConversationDetailsViewModelArrangement {
             updateConversationMutedStatus = updateConversationMutedStatus,
             clearConversationContent = clearConversationContentUseCase,
             updateConversationReceiptMode = updateConversationReceiptMode,
+            isMLSEnabled = isMLSEnabledUseCase,
+            observeSelfDeletionTimerSettingsForConversation = observeSelfDeletionTimerSettingsForConversation,
             refreshUsersWithoutMetadata = refreshUsersWithoutMetadata,
-            isMLSEnabled = isMLSEnabledUseCase
         )
     }
 
@@ -588,6 +595,7 @@ internal class GroupConversationDetailsViewModelArrangement {
             qualifiedIdMapper.fromStringToQualifiedID("conv_id@domain")
         } returns QualifiedID("conv_id", "domain")
         coEvery { updateConversationMutedStatus(any(), any(), any()) } returns ConversationUpdateStatusResult.Success
+        coEvery { observeSelfDeletionTimerSettingsForConversation(any(), any()) } returns flowOf(SelfDeletionTimer.Disabled)
     }
 
     fun withSavedStateConversationId(conversationId: ConversationId) = apply {

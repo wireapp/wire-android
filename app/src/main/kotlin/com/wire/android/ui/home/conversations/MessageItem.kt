@@ -131,23 +131,19 @@ fun MessageItem(
             } else {
                 0.dp
             }
+            val halfItemBottomPadding = dimensions().messageItemBottomPadding / 2
             Row(
                 Modifier
+                    .fillMaxWidth()
+                    .combinedClickable(
+                        enabled = message.isAvailable,
+                        onClick = { }, // TODO: implement some action onClick
+                        onLongClick = remember(message) { { onLongClicked(message) } }
+                    )
                     .padding(
                         end = dimensions().spacing16x,
-                        bottom = dimensions().messageItemBottomPadding - fullAvatarOuterPadding
-                    )
-                    .fillMaxWidth()
-                    .then(
-                        if (!message.isDeleted) {
-                            Modifier.combinedClickable(
-                                // TODO: implement some action onClick
-                                onClick = { },
-                                onLongClick = { onLongClicked(message) }
-                            )
-                        } else {
-                            Modifier
-                        }
+                        top = halfItemBottomPadding - fullAvatarOuterPadding,
+                        bottom = halfItemBottomPadding
                     )
             ) {
                 Spacer(Modifier.padding(start = dimensions().spacing8x - fullAvatarOuterPadding))
@@ -190,7 +186,7 @@ fun MessageItem(
                     if (!isDeleted) {
                         if (!decryptionFailed) {
                             val currentOnAssetClicked = remember {
-                                Clickable(enabled = true, onClick = {
+                                Clickable(enabled = isAvailable, onClick = {
                                     onAssetMessageClicked(header.messageId)
                                 }, onLongClick = {
                                     onLongClicked(message)
@@ -198,7 +194,7 @@ fun MessageItem(
                             }
 
                             val currentOnImageClick = remember {
-                                Clickable(enabled = true, onClick = {
+                                Clickable(enabled = isAvailable, onClick = {
                                     onImageMessageClicked(
                                         message,
                                         source == MessageSource.Self
@@ -207,7 +203,11 @@ fun MessageItem(
                                     onLongClicked(message)
                                 })
                             }
-                            val onLongClick = remember { { onLongClicked(message) } }
+                            val onLongClick: (() -> Unit)? = remember(message) {
+                                if (isAvailable) {
+                                    { onLongClicked(message) }
+                                } else null
+                            }
                             MessageContent(
                                 message = message,
                                 messageContent = messageContent,
@@ -223,9 +223,9 @@ fun MessageItem(
                                 messageFooter,
                                 onReactionClicked
                             )
-                            if (message.sendingFailed) {
-                                MessageSendFailureWarning(header.messageStatus as MessageStatus.MessageSendFailureStatus)
-                            }
+//                            if (message.sendingFailed) {
+//                                MessageSendFailureWarning(header.messageStatus as MessageStatus.MessageSendFailureStatus)
+//                            }
                         } else {
                             MessageDecryptionFailure(
                                 messageHeader = header,
@@ -233,6 +233,10 @@ fun MessageItem(
                                 onResetSessionClicked = onResetSessionClicked
                             )
                         }
+                    }
+
+                    if (message.sendingFailed) {
+                        MessageSendFailureWarning(header.messageStatus as MessageStatus.MessageSendFailureStatus)
                     }
                 }
             }
@@ -395,11 +399,11 @@ private fun Username(username: String, modifier: Modifier = Modifier) {
     )
 }
 
-@Suppress("ComplexMethod", "NestedBlockDepth")
+@Suppress("ComplexMethod")
 @Composable
 private fun MessageContent(
     message: UIMessage,
-    messageContent: UIMessageContent?,
+    messageContent: UIMessageContent.Regular?,
     audioMessagesState: Map<String, AudioState>,
     onAssetClick: Clickable,
     onImageClick: Clickable,
@@ -496,25 +500,10 @@ private fun MessageContent(
             )
         }
 
-        is UIMessageContent.Deleted -> {}
-        is UIMessageContent.SystemMessage.MemberAdded -> {}
-        is UIMessageContent.SystemMessage.MemberJoined -> {}
-        is UIMessageContent.SystemMessage.MemberLeft -> {}
-        is UIMessageContent.SystemMessage.MemberRemoved -> {}
-        is UIMessageContent.SystemMessage.RenamedConversation -> {}
-        is UIMessageContent.SystemMessage.TeamMemberRemoved -> {}
-        is UIMessageContent.SystemMessage.CryptoSessionReset -> {}
-        is UIMessageContent.PreviewAssetMessage -> {}
-        is UIMessageContent.SystemMessage.MissedCall.YouCalled -> {}
-        is UIMessageContent.SystemMessage.MissedCall.OtherCalled -> {}
-        is UIMessageContent.SystemMessage.NewConversationReceiptMode -> {}
-        is UIMessageContent.SystemMessage.ConversationReceiptModeChanged -> {}
+        UIMessageContent.Deleted -> {}
         null -> {
             throw NullPointerException("messageContent is null")
         }
-
-        is UIMessageContent.SystemMessage.Knock -> {}
-        is UIMessageContent.SystemMessage.HistoryLost -> {}
     }
 }
 
@@ -539,5 +528,6 @@ internal val DeliveryStatusContent.expandable
     get() = when {
         this is DeliveryStatusContent.PartialDelivery ||
                 (this as DeliveryStatusContent.PartialDelivery).hasFailures -> true
+
         else -> false
     }

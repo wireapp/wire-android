@@ -116,6 +116,15 @@ object TestMessage {
         isSelfMessage = false
     )
 
+    val SYSTEM_MESSAGE = Message.System(
+        id = "messageID",
+        content = MessageContent.MissedCall,
+        conversationId = ConversationId("convo-id", "convo.domain"),
+        date = "some-date",
+        senderUserId = UserId("user-id", "domain"),
+        status = Message.Status.SENT
+    )
+
     val MEMBER_REMOVED_MESSAGE = Message.System(
         id = "messageID",
         content = MessageContent.MemberChange.Removed(listOf(UserId("user-id", "domain"))),
@@ -140,7 +149,7 @@ object TestMessage {
         membership = Membership.Guest,
         isLegalHold = true,
         messageTime = MessageTime("12.23pm"),
-        messageStatus = MessageStatus.Untouched,
+        messageStatus = MessageStatus.Untouched(),
         messageId = "messageID",
         connectionState = null,
         isSenderDeleted = false,

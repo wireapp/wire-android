@@ -80,6 +80,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.onSubscription
 import javax.inject.Inject
 
 @OptIn(
@@ -161,23 +162,25 @@ class WireActivity : AppCompatActivity() {
         val scope = rememberCoroutineScope()
         NavigationGraph(
             navController = navController,
-            startDestination = startDestination,
-            onComplete = onComplete
+            startDestination = startDestination
         )
         // This setup needs to be done after the navigation graph is created, because building the graph takes some time,
         // and if any NavigationCommand is executed before the graph is fully built, it will cause a NullPointerException.
-        setUpNavigation(navController, scope)
+        setUpNavigation(navController, onComplete, scope)
     }
 
     @Composable
     private fun setUpNavigation(
         navController: NavHostController,
+        onComplete: () -> Unit,
         scope: CoroutineScope
     ) {
         val currentKeyboardController by rememberUpdatedState(LocalSoftwareKeyboardController.current)
         val currentNavController by rememberUpdatedState(navController)
         LaunchedEffect(scope) {
-            navigationManager.navigateState.onEach { command ->
+            navigationManager.navigateState
+                .onSubscription { onComplete() }
+                .onEach { command ->
                 if (command == null) return@onEach
                 currentKeyboardController?.hide()
                 currentNavController.navigateToItem(command)
@@ -190,9 +193,9 @@ class WireActivity : AppCompatActivity() {
 
         DisposableEffect(navController) {
             val updateScreenSettingsListener = NavController.OnDestinationChangedListener { controller, _, _ ->
-                    currentKeyboardController?.hide()
-                    updateScreenSettings(controller)
-                }
+                currentKeyboardController?.hide()
+                updateScreenSettings(controller)
+            }
             navController.addOnDestinationChangedListener(updateScreenSettingsListener)
             navController.addOnDestinationChangedListener(currentScreenManager)
 
@@ -396,6 +399,7 @@ class WireActivity : AppCompatActivity() {
         super.onSaveInstanceState(outState)
     }
 
+    @Suppress("ComplexCondition")
     private fun handleDeepLink(
         intent: Intent?,
         savedInstanceState: Bundle? = null
@@ -403,11 +407,13 @@ class WireActivity : AppCompatActivity() {
         if (intent == null
             || intent.flags and Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY != 0
             || savedInstanceState?.getBoolean(HANDLED_DEEPLINK_FLAG, false) == true
+            || intent.getBooleanExtra(HANDLED_DEEPLINK_FLAG, false)
         ) {
             return
+        } else {
+            viewModel.handleDeepLink(intent)
+            intent.putExtra(HANDLED_DEEPLINK_FLAG, true)
         }
-
-        viewModel.handleDeepLink(intent)
     }
 
     companion object {

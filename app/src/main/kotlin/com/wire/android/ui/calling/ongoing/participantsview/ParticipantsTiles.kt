@@ -24,6 +24,8 @@ import android.view.View
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -36,15 +38,18 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.VerticalPager
 import com.google.accompanist.pager.rememberPagerState
 import com.wire.android.ui.calling.model.UICallParticipant
 import com.wire.android.ui.calling.ongoing.participantsview.gridview.GroupCallGrid
-import com.wire.android.ui.calling.ongoing.participantsview.horizentalview.OneOnOneCallView
+import com.wire.android.ui.calling.ongoing.participantsview.horizentalview.CallingHorizontalView
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.wireDimensions
+import com.wire.kalium.logic.data.user.UserId
 
 @OptIn(ExperimentalPagerApi::class)
 @Composable
@@ -52,17 +57,20 @@ fun VerticalCallingPager(
     participants: List<UICallParticipant>,
     isSelfUserMuted: Boolean,
     isSelfUserCameraOn: Boolean,
-    topAppBarAndBottomSheetHeight: Int,
+    contentHeight: Dp,
     onSelfVideoPreviewCreated: (view: View) -> Unit,
     onSelfClearVideoPreview: () -> Unit,
-    requestVideoStreams: (participants: List<UICallParticipant>) -> Unit
+    requestVideoStreams: (participants: List<UICallParticipant>) -> Unit,
+    onDoubleTap: (userId: UserId, clientId: String, isSelfUser: Boolean) -> Unit
 ) {
-    Column(Modifier.fillMaxSize()) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(contentHeight)
+    ) {
         val pagerState = rememberPagerState()
         val pagesCount = pagesCount(participants.size)
-        Box(
-            modifier = Modifier.weight(1f),
-        ) {
+        Box {
             VerticalPager(
                 count = pagesCount,
                 state = pagerState,
@@ -83,14 +91,15 @@ fun VerticalCallingPager(
                     }
 
                     if (participantsChunkedList[pageIndex].size <= MAX_ITEMS_FOR_ONE_ON_ONE_VIEW) {
-                        OneOnOneCallView(
+                        CallingHorizontalView(
                             participants = participantsChunkedList[pageIndex],
                             pageIndex = pageIndex,
                             isSelfUserMuted = isSelfUserMuted,
                             isSelfUserCameraOn = isSelfUserCameraOn,
-                            topAppBarAndBottomSheetHeight = topAppBarAndBottomSheetHeight,
+                            contentHeight = contentHeight,
                             onSelfVideoPreviewCreated = onSelfVideoPreviewCreated,
-                            onSelfClearVideoPreview = onSelfClearVideoPreview
+                            onSelfClearVideoPreview = onSelfClearVideoPreview,
+                            onDoubleTap = onDoubleTap
                         )
                     } else {
                         GroupCallGrid(
@@ -98,9 +107,10 @@ fun VerticalCallingPager(
                             pageIndex = pageIndex,
                             isSelfUserMuted = isSelfUserMuted,
                             isSelfUserCameraOn = isSelfUserCameraOn,
-                            topAppBarAndBottomSheetHeight = topAppBarAndBottomSheetHeight,
+                            contentHeight = contentHeight,
                             onSelfVideoPreviewCreated = onSelfVideoPreviewCreated,
-                            onSelfClearVideoPreview = onSelfClearVideoPreview
+                            onSelfClearVideoPreview = onSelfClearVideoPreview,
+                            onDoubleTap = onDoubleTap
                         )
                     }
                 }
@@ -143,7 +153,7 @@ private fun pagesCount(size: Int): Int {
 }
 
 private const val MAX_TILES_PER_PAGE = 8
-private const val MAX_ITEMS_FOR_ONE_ON_ONE_VIEW = 2
+private const val MAX_ITEMS_FOR_ONE_ON_ONE_VIEW = 3
 
 @Composable
 @Preview
@@ -152,9 +162,10 @@ fun PreviewVerticalCallingPager() {
         participants = listOf(),
         isSelfUserMuted = false,
         isSelfUserCameraOn = false,
-        topAppBarAndBottomSheetHeight = 200,
+        contentHeight = 800.dp,
         onSelfVideoPreviewCreated = {},
         onSelfClearVideoPreview = {},
-        requestVideoStreams = {}
+        requestVideoStreams = {},
+        onDoubleTap = { _, _, _ -> }
     )
 }

@@ -52,11 +52,11 @@ fun ConnectionActionButton(
     userName: String,
     connectionStatus: ConnectionState
 ) {
-    val viewModel: ConnectionActionButtonBaseViewModel = if (LocalInspectionMode.current) {
+    val viewModel: ConnectionActionButtonViewModel = if (LocalInspectionMode.current) {
         ConnectionActionButtonPreviewModel(LoadableState(connectionStatus))
     } else {
-        hiltViewModelScoped<ConnectionActionButtonViewModel>(
-            key = "${ConnectionActionButtonViewModel.ARGS_KEY}$userId",
+        hiltViewModelScoped<ConnectionActionButtonViewModelImpl>(
+            key = "${ConnectionActionButtonViewModelImpl.ARGS_KEY}$userId",
             defaultArguments = bundleOf(
                 EXTRA_USER_ID to userId.toString(),
                 EXTRA_USER_NAME to userName,

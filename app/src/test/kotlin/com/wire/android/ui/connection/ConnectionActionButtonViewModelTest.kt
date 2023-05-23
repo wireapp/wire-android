@@ -72,7 +72,6 @@ class ConnectionActionButtonViewModelTest {
             .arrange()
         assertEquals(ConnectionState.NOT_CONNECTED, viewModel.loadableState().state)
 
-
         viewModel.infoMessage.test {
             // when
             viewModel.onSendConnectionRequest()
@@ -160,7 +159,6 @@ class ConnectionActionButtonViewModelTest {
                 coVerify { arrangement.acceptConnectionRequest.invoke(eq(TestUser.USER_ID)) }
                 assertEquals(ConnectionState.ACCEPTED, viewModel.loadableState().state)
             }
-
         }
 
     @Test
@@ -236,7 +234,7 @@ internal class ConnectionActionButtonHiltArrangement {
     lateinit var qualifiedIdMapper: QualifiedIdMapper
 
     private val viewModel by lazy {
-        ConnectionActionButtonViewModel(
+        ConnectionActionButtonViewModelImpl(
             navigationManager,
             TestDispatcherProvider(),
             sendConnectionRequest,

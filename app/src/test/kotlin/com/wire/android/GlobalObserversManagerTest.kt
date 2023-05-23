@@ -7,7 +7,6 @@ import com.wire.android.framework.TestUser
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.notification.NotificationChannelsManager
 import com.wire.android.notification.WireNotificationManager
-import com.wire.android.services.ServicesManager
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.team.Team
 import com.wire.kalium.logic.data.user.SelfUser

@@ -58,7 +58,6 @@ import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.flow.flowOf
-import java.util.Collections
 
 internal class NewConversationViewModelArrangement {
     init {

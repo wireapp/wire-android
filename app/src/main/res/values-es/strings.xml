@@ -526,8 +526,8 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
     <string name="label_system_message_conversation_message_timer_activated_by_self">%1$s estableciste mensajes de auto-borrado a %2$s para todos</string>
     <string name="label_system_message_conversation_message_timer_activated_by_other">%1$s estableció mensajes de auto-borrado a %2$s para todos</string>
     <string name="label_system_message_activated">ha activado</string>
-    <string name="label_system_message_conversation_message_timer_deactivated_by_self">%1$s turned **off** the timer for self-deleting messages for everyone</string>
-    <string name="label_system_message_conversation_message_timer_deactivated_by_other">%1$s turned **off** the timer for self-deleting messages for everyone</string>
+    <string name="label_system_message_conversation_message_timer_deactivated_by_self">%1$s **desactivaste** los mensajes de auto-borrado para todos</string>
+    <string name="label_system_message_conversation_message_timer_deactivated_by_other">%1$s **desactivó** los mensajes de auto-borrado para todos</string>
     <string name="label_system_message_deactivated">ha desactivado</string>
     <string name="label_system_message_conversation_history_lost">No has usado este dispositivo por un tiempo. Es posible que algunos mensajes no aparezcan aqu&#237;.</string>
     <string name="label_system_message_receipt_mode_on">encendido</string>
@@ -692,8 +692,8 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
     <string name="calling_ongoing_call_start_anyway">Llamar de todos modos</string>
     <string name="calling_ongoing_call_join_message_alert">Hay una llamada activa en otra conversaci&#243;n. Unirse a esta llamada colgar&#225; la otra.</string>
     <string name="calling_ongoing_call_join_anyway">Unirse de todos modos</string>
-    <string name="calling_ongoing_double_tap_for_full_screen">Double tap on a tile for fullscreen</string>
-    <string name="calling_ongoing_double_tap_to_go_back">Double tap to go back</string>
+    <string name="calling_ongoing_double_tap_for_full_screen">Toca dos veces para pantalla completa</string>
+    <string name="calling_ongoing_double_tap_to_go_back">Toca dos veces para volver atrás</string>
     <string name="calling_feature_unavailable_title_alert">Caracter&#237;stica no disponible</string>
     <string name="calling_feature_unavailable_message_alert">La opci&#243;n de iniciar una llamada en conferencia solo est&#225; disponible en la versi&#243;n de pago de Wire.</string>
     <!-- Connectivity Status Bar -->
@@ -746,15 +746,15 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
     <string name="allow_guest_switch_description">Abra esta conversaci&#243;n a personas fuera de su equipo. Siempre puede cambiarlo m&#225;s tarde.</string>
     <string name="allow_services">Permitir servicios</string>
     <string name="allow_services_description">Abra esta conversaci&#243;n a servicios. Siempre puede cambiarlo m&#225;s tarde.</string>
-    <string name="service_details_label">Service</string>
-    <string name="service_details_add_service_label">Add To Group</string>
-    <string name="service_details_remove_service_label">Remove From Group</string>
-    <string name="service_remove_success">Service removed from group</string>
-    <string name="service_remove_error">Unable to remove service from group</string>
-    <string name="service_add_success">Service added to group</string>
-    <string name="service_add_error">Unable to add service to group</string>
-    <string name="service_no_information_available_title">No information available</string>
-    <string name="service_no_information_available_subtitle">Try again or reach out to your team admin</string>
+    <string name="service_details_label">Servicio</string>
+    <string name="service_details_add_service_label">Añadir al grupo</string>
+    <string name="service_details_remove_service_label">Eliminar del grupo</string>
+    <string name="service_remove_success">Servicio eliminado del grupo</string>
+    <string name="service_remove_error">No se pudo eliminar el servicio del grupo</string>
+    <string name="service_add_success">Servicio añadido al grupo</string>
+    <string name="service_add_error">No se pudo añadir el servicio al grupo</string>
+    <string name="service_no_information_available_title">Ninguna información disponible</string>
+    <string name="service_no_information_available_subtitle">Inténtalo de nuevo o contacta con el administrador de tu equipo</string>
     <string name="read_receipts">Recibos de lectura</string>
     <string name="read_receipts_description">Cuando est&#225; activado, las personas pueden ver cu&#225;ndo sus mensajes en esta conversaci&#243;n han sido le&#237;dos.</string>
     <string name="disable_guests_dialog_title">&#191;No permitir invitados?</string>
@@ -828,7 +828,7 @@ URL del backend:
     <string name="label_enable_logging">Habilitar registro</string>
     <string name="label_proteus_option_title">Proteus</string>
     <string name="label_enable_encrypted_proteus_storage">Habilitar almacenamiento encriptado de Proteus</string>
-    <string name="label_debug_title">Debug Settings</string>
+    <string name="label_debug_title">Ajustes de Depuración</string>
     <string name="label_client_option_title">ID de cliente</string>
     <string name="label_device_id">ID de dispositivo: %1$s</string>
     <string name="label_code_commit_id">Hash de confirmaci&#243;n: %1$s</string>
@@ -1030,7 +1030,7 @@ URL del backend:
     <string name="five_minutes_short_label">5min</string>
     <string name="one_minute_short_label">1m</string>
     <string name="ten_seconds_short_label">10s</string>
-    <string name="label_debug_data">Debug data</string>
-    <string name="title_internal_debugging">Internal debugging</string>
-    <string name="label_log_options_description">"This stores anonymized troubleshooting information locally. "</string>
+    <string name="label_debug_data">Datos de depuración</string>
+    <string name="title_internal_debugging">Depuración interna</string>
+    <string name="label_log_options_description">"Esto almacena información anónima de solución de problemas localmente. "</string>
 </resources>

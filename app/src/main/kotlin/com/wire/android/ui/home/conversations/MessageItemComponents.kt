@@ -97,6 +97,8 @@ private fun MultiUserDeliveryFailure(
     resources: Resources
 ) {
     var expanded: Boolean by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+    val learnMoreUrl = stringResource(R.string.url_message_details_offline_backends_learn_more)
     Column {
         Text(
             text = stringResource(
@@ -134,6 +136,15 @@ private fun MultiUserDeliveryFailure(
                         String.EMPTY
                     ),
                     textAlign = TextAlign.Start
+                )
+                Text(
+                    modifier = Modifier
+                        .clickable { CustomTabsHelper.launchUrl(context, learnMoreUrl) },
+                    style = LocalTextStyle.current.copy(
+                        color = MaterialTheme.wireColorScheme.onTertiaryButtonSelected,
+                        textDecoration = TextDecoration.Underline
+                    ),
+                    text = stringResource(R.string.label_learn_more)
                 )
             }
         }

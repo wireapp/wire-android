@@ -10,7 +10,8 @@ import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 
 @OptIn(ExperimentalAnimationApi::class, ExperimentalTrackingApi::class)
 @Composable
-fun rememberTrackingAnimatedNavController(nameFromRoute: (String) -> String?) = rememberAnimatedNavController().apply {
+fun rememberTrackingAnimatedNavController(nameFromRoute: (String) -> String?) =
+    rememberAnimatedNavController().apply {
     NavigationViewTrackingEffect(
         navController = this,
         trackArguments = true,

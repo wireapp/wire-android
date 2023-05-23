@@ -32,16 +32,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.BottomSheetScaffold
-import androidx.compose.material.BottomSheetValue
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.Text
-import androidx.compose.material.rememberBottomSheetScaffoldState
-import androidx.compose.material.rememberBottomSheetState
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SheetValue
+import androidx.compose.material3.Text
+import androidx.compose.material3.rememberBottomSheetScaffoldState
+import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -66,6 +63,7 @@ import com.wire.android.ui.calling.ongoing.fullscreen.FullScreenTile
 import com.wire.android.ui.calling.ongoing.fullscreen.SelectedParticipant
 import com.wire.android.ui.calling.ongoing.participantsview.VerticalCallingPager
 import com.wire.android.ui.common.SecurityClassificationBanner
+import com.wire.android.ui.common.bottomsheet.WireBottomSheetScaffold
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
@@ -109,7 +107,7 @@ fun OngoingCallScreen(
     }
 }
 
-@OptIn(ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun OngoingCallContent(
     conversationName: ConversationName?,
@@ -132,14 +130,14 @@ private fun OngoingCallContent(
 ) {
 
     val sheetInitialValue =
-        if (classificationType == SecurityClassificationType.NONE) BottomSheetValue.Collapsed else BottomSheetValue.Expanded
-    val sheetState = rememberBottomSheetState(
+        if (classificationType == SecurityClassificationType.NONE) SheetValue.PartiallyExpanded else SheetValue.Expanded
+    val sheetState = rememberStandardBottomSheetState(
         initialValue = sheetInitialValue
     ).also {
-        LaunchedEffect(Unit) {
-            // Same issue with expanded on other sheets, we need to use animateTo to fully expand programmatically.
-            it.animateTo(sheetInitialValue)
-        }
+//        LaunchedEffect(Unit) {
+//            // Same issue with expanded on other sheets, we need to use animateTo to fully expand programmatically.
+//            it.show()
+//        } TODO
     }
 
     val scaffoldState = rememberBottomSheetScaffoldState(
@@ -149,9 +147,8 @@ private fun OngoingCallContent(
     var shouldOpenFullScreen by remember { mutableStateOf(false) }
     var selectedParticipantForFullScreen by remember { mutableStateOf(SelectedParticipant()) }
 
-    BottomSheetScaffold(
-        sheetBackgroundColor = colorsScheme().background,
-        backgroundColor = colorsScheme().background,
+    WireBottomSheetScaffold(
+        sheetDragHandle = null,
         topBar = {
             OngoingCallTopBar(
                 conversationName = when (conversationName) {
@@ -163,7 +160,6 @@ private fun OngoingCallContent(
                 onCollapse = navigateBack
             )
         },
-        sheetShape = RoundedCornerShape(topStart = dimensions().corner16x, topEnd = dimensions().corner16x),
         sheetPeekHeight = dimensions().defaultSheetPeekHeight,
         scaffoldState = scaffoldState,
         sheetContent = {

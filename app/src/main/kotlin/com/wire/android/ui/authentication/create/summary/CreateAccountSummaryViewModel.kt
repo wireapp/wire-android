@@ -20,7 +20,6 @@
 
 package com.wire.android.ui.authentication.create.summary
 
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -38,7 +37,6 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 
-@OptIn(ExperimentalMaterialApi::class)
 @HiltViewModel
 class CreateAccountSummaryViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,

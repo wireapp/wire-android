@@ -34,7 +34,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.DropdownMenuItem
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material3.Divider
@@ -258,30 +258,30 @@ private fun DropdownItem(
     leadingCompose: (@Composable () -> Unit)?,
     isSelected: Boolean,
     onClick: () -> Unit
-) = DropdownMenuItem(
-    onClick,
-    Modifier.background(
-        color = if (isSelected) MaterialTheme.wireColorScheme.secondaryButtonSelected
-        else MaterialTheme.wireColorScheme.tertiaryButtonEnabled
-    )
-) {
-    leadingCompose?.let {
-        LeadingIcon { it() }
-    }
-
-    Text(
-        text = text,
+) =
+    DropdownMenuItem(
+        text = {
+            Text(
+                text = text,
+                modifier = Modifier.fillMaxWidth(),
+                style = if (isSelected) MaterialTheme.wireTypography.body02 else MaterialTheme.wireTypography.body01,
+                color = if (isSelected) MaterialTheme.wireColorScheme.onSecondaryButtonSelected
+                else MaterialTheme.wireColorScheme.onSecondaryButtonEnabled
+            )
+        },
+        leadingIcon = leadingCompose,
+        trailingIcon = {
+            if (isSelected) {
+                WireCheckIcon()
+            }
+        },
+        onClick = onClick,
         modifier = Modifier
-            .weight(1f)
-            .fillMaxWidth(),
-        style = if (isSelected) MaterialTheme.wireTypography.body02 else MaterialTheme.wireTypography.body01,
-        color = if (isSelected) MaterialTheme.wireColorScheme.onSecondaryButtonSelected
-        else MaterialTheme.wireColorScheme.onSecondaryButtonEnabled
+            .background(
+                color = if (isSelected) MaterialTheme.wireColorScheme.secondaryButtonSelected
+                        else MaterialTheme.wireColorScheme.tertiaryButtonEnabled
+            )
     )
-    if (isSelected) {
-        WireCheckIcon()
-    }
-}
 
 @Composable
 private fun RowScope.LeadingIcon(convent: @Composable () -> Unit) {

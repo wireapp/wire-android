@@ -21,8 +21,6 @@
 package com.wire.android.navigation
 
 import androidx.compose.animation.fadeOut
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDeepLink
@@ -98,9 +96,6 @@ import com.wire.android.ui.home.settings.account.MyAccountScreen
 import com.wire.android.ui.home.settings.account.displayname.ChangeDisplayNameScreen
 import com.wire.android.ui.home.settings.account.email.updateEmail.ChangeEmailScreen
 import com.wire.android.ui.home.settings.account.email.verifyEmail.VerifyEmailScreen
-import com.wire.android.ui.home.settings.account.displayname.ChangeDisplayNameScreen
-import com.wire.android.ui.home.settings.account.email.updateEmail.ChangeEmailScreen
-import com.wire.android.ui.home.settings.account.email.verifyEmail.VerifyEmailScreen
 import com.wire.android.ui.home.settings.account.handle.ChangeHandleScreen
 import com.wire.android.ui.home.settings.appsettings.AppSettingsScreen
 import com.wire.android.ui.home.settings.appsettings.networkSettings.NetworkSettingsScreen
@@ -127,7 +122,6 @@ import kotlinx.serialization.json.Json
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets.UTF_8
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 /**
  * The class encapsulating the app main navigational items.
  */

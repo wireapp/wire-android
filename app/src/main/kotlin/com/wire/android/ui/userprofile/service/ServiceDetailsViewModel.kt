@@ -27,7 +27,7 @@ import com.wire.kalium.logic.feature.service.GetServiceByIdUseCase
 import com.wire.kalium.logic.feature.service.ObserveIsServiceMemberUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.functional.Either
-import com.wire.kalium.logic.functional.fold
+import com.wire.kalium.logic.functional.nullableFold
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -57,9 +57,11 @@ class ServiceDetailsViewModel @Inject constructor(
     qualifiedIdMapper: QualifiedIdMapper
 ) : ViewModel() {
 
-    private val _serviceId: ServiceId? = serviceDetailsMapper.fromStringToServiceId(savedStateHandle.get<String>(EXTRA_BOT_SERVICE_ID)!!)
+    private val _serviceId: ServiceId? =
+        serviceDetailsMapper.fromStringToServiceId(savedStateHandle.get<String>(EXTRA_BOT_SERVICE_ID)!!)
     private lateinit var serviceId: ServiceId
-    private val conversationId: QualifiedID = savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)!!.toQualifiedID(qualifiedIdMapper)
+    private val conversationId: QualifiedID =
+        savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)!!.toQualifiedID(qualifiedIdMapper)
 
     private lateinit var selfUserId: UserId
 
@@ -162,14 +164,10 @@ class ServiceDetailsViewModel @Inject constructor(
                 .combine(observeGroupInfo(), ::Pair)
                 .flowOn(dispatchers.io())
                 .collect { (serviceMemberId: Either<StorageFailure, UserId?>, groupInfo: ServiceDetailsGroupState) ->
-                    serviceMemberId.fold(
-                        { },
-                        {
-                            updateViewStateButton(
-                                serviceMemberId = it,
-                                groupInfo = groupInfo
-                            )
-                        }
+                    val memberId = serviceMemberId.nullableFold({ null }, { it })
+                    updateViewStateButton(
+                        serviceMemberId = memberId,
+                        groupInfo = groupInfo
                     )
                 }
         }

@@ -127,7 +127,7 @@ open class SearchAllPeopleViewModel(
         }
 
     override suspend fun getInitialServices(): Flow<SearchResult> =
-        getAllServices().map { result ->
+        getAllServices(viewModelScope).map { result ->
             SearchResult.Success(result.map(contactMapper::fromService))
         }
 

@@ -152,8 +152,8 @@ fun EditMessageMenuItems(
                 if (isGenericAsset) add { OpenAssetExternallyOption(onOpenAssetClick) }
                 if (isEditable) { add { EditMessageMenuOption(onEditItemClick) } }
                 if (isAssetMessage) { add { ShareAssetMenuOption(onShareAsset) } }
-                add { DeleteItemMenuOption(onDeleteItemClick) }
             }
+            add { DeleteItemMenuOption(onDeleteItemClick) }
         }
     }
 }

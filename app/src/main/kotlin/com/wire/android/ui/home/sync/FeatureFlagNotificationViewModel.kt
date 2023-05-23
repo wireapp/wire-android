@@ -30,6 +30,7 @@ import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.ui.home.FeatureFlagState
 import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMapper.toSelfDeletionDuration
 import com.wire.kalium.logic.CoreLogic
+import com.wire.kalium.logic.configuration.FileSharingStatus
 import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.selfdeletingMessages.SelfDeletionTimer
@@ -88,13 +89,17 @@ class FeatureFlagNotificationViewModel @Inject constructor(
 
     private fun setFileSharingState(userId: UserId) = viewModelScope.launch {
         coreLogic.getSessionScope(userId).observeFileSharingStatus().collect { fileSharingStatus ->
-            fileSharingStatus.isFileSharingEnabled?.let {
-                val fileSharingRestrictedState = if (it) FeatureFlagState.SharingRestrictedState.NONE
-                else FeatureFlagState.SharingRestrictedState.RESTRICTED_IN_TEAM
+            fileSharingStatus.state?.let {
+                // TODO: handle restriction when sending assets
+                val (fileSharingRestrictedState, state) = if (it is FileSharingStatus.Value.EnabledAll) {
+                    FeatureFlagState.SharingRestrictedState.NONE to true
+                } else {
+                    FeatureFlagState.SharingRestrictedState.RESTRICTED_IN_TEAM to false
+                }
 
                 featureFlagState = featureFlagState.copy(
                     fileSharingRestrictedState = fileSharingRestrictedState,
-                    isFileSharingEnabledState = it
+                    isFileSharingEnabledState = state
                 )
             }
             fileSharingStatus.isStatusChanged?.let {

@@ -77,7 +77,7 @@ fun IncomingCallScreen(
     with(sharedCallingViewModel) {
         IncomingCallContent(
             callState = callState,
-            toggleMute = ::toggleMute,
+            toggleMute = { sharedCallingViewModel.toggleMute(true) },
             toggleSpeaker = ::toggleSpeaker,
             toggleVideo = ::toggleVideo,
             declineCall = incomingCallViewModel::declineCall,

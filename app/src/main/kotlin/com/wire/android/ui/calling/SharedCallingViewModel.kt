@@ -24,7 +24,6 @@ import android.view.View
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -131,9 +130,6 @@ class SharedCallingViewModel @Inject constructor(
                 observeOnSpeaker(this)
             }
             launch {
-                observeOnMute()
-            }
-            launch {
                 setClassificationType()
             }
             launch {
@@ -196,21 +192,6 @@ class SharedCallingViewModel @Inject constructor(
             }
     }
 
-    private suspend fun observeOnMute() {
-        // We should only mute established calls
-        snapshotFlow { callState.isMuted to callState.callStatus }.collectLatest { (isMuted, callStatus) ->
-            if (callStatus == CallStatus.ESTABLISHED) {
-                isMuted?.let {
-                    if (it) {
-                        muteCall(conversationId)
-                    } else {
-                        unMuteCall(conversationId)
-                    }
-                }
-            }
-        }
-    }
-
     private suspend fun initCallState(sharedFlow: SharedFlow<Call?>) {
         sharedFlow.first()?.let { call ->
             callState = callState.copy(
@@ -225,7 +206,7 @@ class SharedCallingViewModel @Inject constructor(
         sharedFlow.collect { call ->
             call?.let {
                 callState = callState.copy(
-                    isMuted = call.isMuted,
+                    isMuted = it.isMuted,
                     callStatus = it.status,
                     isCbrEnabled = it.isCbrEnabled && call.conversationType.equals(ConversationType.OneOnOne),
                     callerName = it.callerName,
@@ -246,7 +227,8 @@ class SharedCallingViewModel @Inject constructor(
         viewModelScope.launch {
             navigateBack()
             endCall(conversationId)
-            muteCall(conversationId)
+            // we need to update mute state to false, so if the user re-join the call te mic will will be muted
+            muteCall(conversationId, false)
             callRinger.stop()
         }
     }
@@ -275,15 +257,15 @@ class SharedCallingViewModel @Inject constructor(
         }
     }
 
-    fun toggleMute() {
+    fun toggleMute(isOnPreviewScreen: Boolean = false) {
         viewModelScope.launch {
             callState.isMuted?.let {
                 if (it) {
                     callState = callState.copy(isMuted = false)
-                    unMuteCall(conversationId)
+                    unMuteCall(conversationId, !isOnPreviewScreen)
                 } else {
                     callState = callState.copy(isMuted = true)
-                    muteCall(conversationId)
+                    muteCall(conversationId, !isOnPreviewScreen)
                 }
             }
         }

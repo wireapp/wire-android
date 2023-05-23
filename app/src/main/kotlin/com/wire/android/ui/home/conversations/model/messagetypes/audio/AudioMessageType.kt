@@ -100,7 +100,7 @@ private fun SuccessfulAudioMessage(
         modifier = Modifier
             .fillMaxWidth()
             .height(dimensions().audioMessageHeight)
-            .clickable(Clickable(true, onLongClick = onAudioMessageLongClick)),
+            .clickable(Clickable(enabled = onAudioMessageLongClick != null, onLongClick = onAudioMessageLongClick)),
         verticalAlignment = Alignment.CenterVertically
     ) {
         WireSecondaryIconButton(

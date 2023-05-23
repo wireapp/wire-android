@@ -359,7 +359,7 @@ private fun ImportMediaContent(
             ),
             conversationsAddedToGroup = state.selectedConversationItem,
             isSelectableList = true,
-            onConversationSelectedOnRadioGroup = importMediaViewModel::addConversationItemToGroupSelection,
+            onConversationSelectedOnRadioGroup = importMediaViewModel::onConversationClicked,
             searchQuery = searchBarState.searchQuery.text,
             onOpenConversation = importMediaViewModel::onConversationClicked,
             onEditConversation = {},

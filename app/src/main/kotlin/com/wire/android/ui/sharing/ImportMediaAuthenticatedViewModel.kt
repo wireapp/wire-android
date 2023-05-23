@@ -52,17 +52,17 @@ import com.wire.kalium.logic.feature.selfdeletingMessages.PersistNewSelfDeletion
 import com.wire.kalium.logic.feature.selfdeletingMessages.SelfDeletionTimer
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -117,18 +117,16 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
         }
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     private suspend fun observeConversationWithSearch() = viewModelScope.launch {
-        combine(
-            observeConversationListDetails()
-                .map {
-                    it.mapNotNull { conversationDetails ->
-                        conversationDetails.toConversationItem(
-                            wireSessionImageLoader,
-                            userTypeMapper
-                        )
-                    }
-                }, searchQueryFlow
-        ) { conversations, searchQuery ->
+        searchQueryFlow.mapLatest { searchQuery ->
+            val conversations = observeConversationListDetails().first()
+                .mapNotNull { conversationDetails ->
+                    conversationDetails.toConversationItem(
+                        wireSessionImageLoader,
+                        userTypeMapper
+                    )
+                }
             val searchResult =
                 if (searchQuery.isEmpty()) conversations else searchShareableConversation(
                     conversations,
@@ -158,7 +156,7 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
         }
     }
 
-    fun addConversationItemToGroupSelection(conversation: ConversationItem) =
+    private fun addConversationItemToGroupSelection(conversation: ConversationItem) =
         viewModelScope.launch {
             // TODO: change this conversation item to a list of conversation items in case we want to support
             // sharing to multiple conversations

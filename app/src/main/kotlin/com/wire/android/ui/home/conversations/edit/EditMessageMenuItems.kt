@@ -39,127 +39,126 @@ import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.message.mention.MessageMention
+//
+//// TODO: for now suppress, candidate for refactor
+//@Suppress("ComplexMethod")
+//@Composable
+//fun EditMessageMenuItems(
+//    message: UIMessage.Regular,
+//    hideEditMessageMenu: (OnComplete) -> Unit,
+//    onCopyClick: (text: String) -> Unit,
+//    onDeleteClick: (messageId: String, isMyMessage: Boolean) -> Unit,
+//    onReactionClick: (messageId: String, emoji: String) -> Unit,
+//    onReplyClick: (message: UIMessage.Regular) -> Unit,
+//    onDetailsClick: (messageId: String, isMyMessage: Boolean) -> Unit,
+//    onEditClick: (messageId: String, originalText: String, originalMentions: List<MessageMention>) -> Unit,
+//    onShareAsset: () -> Unit,
+//    onDownloadAsset: (messageId: String) -> Unit,
+//    onOpenAsset: (messageId: String) -> Unit,
+//): List<@Composable () -> Unit> {
+//    val localContext = LocalContext.current
+//    val isCopyable = message.isTextMessage
+//    val isAvailable = message.isAvailable
+//    val isAssetMessage = message.messageContent is UIMessageContent.AssetMessage
+//            || message.messageContent is UIMessageContent.ImageMessage
+//            || message.messageContent is UIMessageContent.AudioAssetMessage
+//    val isEditable = message.isTextMessage && message.isMyMessage
+//    val isGenericAsset = message.messageContent is UIMessageContent.AssetMessage
+//
+//    val onCopyItemClick = remember(message) {
+//        {
+//            hideEditMessageMenu {
+//                onCopyClick(
+//                    (message.messageContent as UIMessageContent.TextMessage).messageBody.message.asString(
+//                        localContext.resources
+//                    )
+//                )
+//            }
+//        }
+//    }
+//    val onDeleteItemClick = remember(message) {
+//        {
+//            hideEditMessageMenu {
+//                onDeleteClick(message.header.messageId, message.isMyMessage)
+//            }
+//        }
+//    }
+//    val onReactionItemClick = remember(message) {
+//        { emoji: String ->
+//            hideEditMessageMenu {
+//                onReactionClick(message.header.messageId, emoji)
+//            }
+//        }
+//    }
+//    val onReplyItemClick = remember(message) {
+//        {
+//            hideEditMessageMenu {
+//                onReplyClick(message)
+//            }
+//        }
+//    }
+//    val onDetailsItemClick = remember(message) {
+//        {
+//            hideEditMessageMenu {
+//                onDetailsClick(message.header.messageId, message.isMyMessage)
+//            }
+//        }
+//    }
+//    val onEditItemClick = remember(message) {
+//        {
+//            hideEditMessageMenu {
+//                with(message.messageContent as UIMessageContent.TextMessage) {
+//                    onEditClick(
+//                        message.header.messageId,
+//                        messageBody.message.asString(localContext.resources),
+//                        if (messageBody.message is UIText.DynamicString) messageBody.message.mentions else listOf()
+//                    )
+//                }
+//            }
+//        }
+//    }
+//    val onDownloadAssetClick = remember(message) {
+//        {
+//            hideEditMessageMenu {
+//                onDownloadAsset(message.header.messageId)
+//            }
+//        }
+//    }
+//    val onOpenAssetClick = remember(message) {
+//        {
+//            hideEditMessageMenu {
+//                onOpenAsset(message.header.messageId)
+//            }
+//        }
+//    }
+//
+//    if (message.expirationStatus is ExpirationStatus.Expirable) {
+//        return EphemeralMessageEditMenuItems(
+//            message = message,
+//            onDetailsClick = onDetailsItemClick,
+//            onDownloadAsset = onDownloadAssetClick,
+//            onOpenAsset = onOpenAssetClick,
+//            onDeleteMessage = onDeleteItemClick
+//        )
+//    } else {
+//        return buildList {
+//            if (isAvailable) {
+//                add { ReactionOption(onReactionItemClick) }
+//                add { MessageDetailsMenuOption(onDetailsItemClick) }
+//                if (isCopyable) add { CopyItemMenuOption(onCopyItemClick) }
+//                add { ReplyMessageOption(onReplyItemClick) }
+//                if (isAssetMessage) add { DownloadAssetExternallyOption(onDownloadAssetClick) }
+//                if (isGenericAsset) add { OpenAssetExternallyOption(onOpenAssetClick) }
+//                if (isEditable) { add { EditMessageMenuOption(onEditItemClick) } }
+//                if (isAssetMessage) { add { ShareAssetMenuOption(onShareAsset) } }
+//                add { DeleteItemMenuOption(onDeleteItemClick) }
+//            }
+//        }
+//    }
+//}
 
-// TODO: for now suppress, candidate for refactor
-@Suppress("ComplexMethod")
 @Composable
-fun EditMessageMenuItems(
-    message: UIMessage.Regular,
-    hideEditMessageMenu: (OnComplete) -> Unit,
-    onCopyClick: (text: String) -> Unit,
-    onDeleteClick: (messageId: String, isMyMessage: Boolean) -> Unit,
-    onReactionClick: (messageId: String, emoji: String) -> Unit,
-    onReplyClick: (message: UIMessage.Regular) -> Unit,
-    onDetailsClick: (messageId: String, isMyMessage: Boolean) -> Unit,
-    onEditClick: (messageId: String, originalText: String, originalMentions: List<MessageMention>) -> Unit,
-    onShareAsset: () -> Unit,
-    onDownloadAsset: (messageId: String) -> Unit,
-    onOpenAsset: (messageId: String) -> Unit,
-): List<@Composable () -> Unit> {
-    val localFeatureVisibilityFlags = LocalFeatureVisibilityFlags.current
-    val localContext = LocalContext.current
-    val isCopyable = message.isTextMessage
-    val isAvailable = message.isAvailable
-    val isAssetMessage = message.messageContent is UIMessageContent.AssetMessage
-            || message.messageContent is UIMessageContent.ImageMessage
-            || message.messageContent is UIMessageContent.AudioAssetMessage
-    val isEditable = message.isTextMessage && message.isMyMessage && localFeatureVisibilityFlags.MessageEditIcon
-    val isGenericAsset = message.messageContent is UIMessageContent.AssetMessage
-
-    val onCopyItemClick = remember(message) {
-        {
-            hideEditMessageMenu {
-                onCopyClick(
-                    (message.messageContent as UIMessageContent.TextMessage).messageBody.message.asString(
-                        localContext.resources
-                    )
-                )
-            }
-        }
-    }
-    val onDeleteItemClick = remember(message) {
-        {
-            hideEditMessageMenu {
-                onDeleteClick(message.header.messageId, message.isMyMessage)
-            }
-        }
-    }
-    val onReactionItemClick = remember(message) {
-        { emoji: String ->
-            hideEditMessageMenu {
-                onReactionClick(message.header.messageId, emoji)
-            }
-        }
-    }
-    val onReplyItemClick = remember(message) {
-        {
-            hideEditMessageMenu {
-                onReplyClick(message)
-            }
-        }
-    }
-    val onDetailsItemClick = remember(message) {
-        {
-            hideEditMessageMenu {
-                onDetailsClick(message.header.messageId, message.isMyMessage)
-            }
-        }
-    }
-    val onEditItemClick = remember(message) {
-        {
-            hideEditMessageMenu {
-                with(message.messageContent as UIMessageContent.TextMessage) {
-                    onEditClick(
-                        message.header.messageId,
-                        messageBody.message.asString(localContext.resources),
-                        if (messageBody.message is UIText.DynamicString) messageBody.message.mentions else listOf()
-                    )
-                }
-            }
-        }
-    }
-    val onDownloadAssetClick = remember(message) {
-        {
-            hideEditMessageMenu {
-                onDownloadAsset(message.header.messageId)
-            }
-        }
-    }
-    val onOpenAssetClick = remember(message) {
-        {
-            hideEditMessageMenu {
-                onOpenAsset(message.header.messageId)
-            }
-        }
-    }
-
-    if (message.expirationStatus is ExpirationStatus.Expirable) {
-        return EphemeralMessageEditMenuItems(
-            message = message,
-            onDetailsClick = onDetailsItemClick,
-            onDownloadAsset = onDownloadAssetClick,
-            onOpenAsset = onOpenAssetClick,
-            onDeleteMessage = onDeleteItemClick
-        )
-    } else {
-        return buildList {
-            if (isAvailable) {
-                add { ReactionOption(onReactionItemClick) }
-                add { MessageDetailsMenuOption(onDetailsItemClick) }
-                if (isCopyable) add { CopyItemMenuOption(onCopyItemClick) }
-                add { ReplyMessageOption(onReplyItemClick) }
-                if (isAssetMessage) add { DownloadAssetExternallyOption(onDownloadAssetClick) }
-                if (isGenericAsset) add { OpenAssetExternallyOption(onOpenAssetClick) }
-                if (isEditable) { add { EditMessageMenuOption(onEditItemClick) } }
-                if (isAssetMessage) { add { ShareAssetMenuOption(onShareAsset) } }
-                add { DeleteItemMenuOption(onDeleteItemClick) }
-            }
-        }
-    }
-}
-
-@Composable
-private fun CopyItemMenuOption(onCopyItemClick: () -> Unit) {
+fun CopyItemMenuOption(onCopyItemClick: () -> Unit) {
     MenuBottomSheetItem(
         icon = {
             MenuItemIcon(
@@ -173,7 +172,7 @@ private fun CopyItemMenuOption(onCopyItemClick: () -> Unit) {
 }
 
 @Composable
-private fun ShareAssetMenuOption(onShareAsset: () -> Unit) {
+fun ShareAssetMenuOption(onShareAsset: () -> Unit) {
     MenuBottomSheetItem(
         icon = {
             MenuItemIcon(
@@ -187,7 +186,7 @@ private fun ShareAssetMenuOption(onShareAsset: () -> Unit) {
 }
 
 @Composable
-private fun EditMessageMenuOption(onEditItemClick: () -> Unit) {
+fun EditMessageMenuOption(onEditItemClick: () -> Unit) {
     MenuBottomSheetItem(
         icon = {
             MenuItemIcon(

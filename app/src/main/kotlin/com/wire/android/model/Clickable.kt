@@ -27,6 +27,13 @@ data class Clickable(
     val onClick: () -> Unit = {}
 )
 
+data class ClickableParams<T>(
+    val enabled: Boolean = true,
+    val clickBlockParams: ClickBlockParams = ClickBlockParams(),
+    val onLongClick: ((T) -> Unit)? = null,
+    val onClick: (T) -> Unit = {}
+)
+
 data class ClickBlockParams(
     val blockWhenSyncing: Boolean = false,
     val blockWhenConnecting: Boolean = false,

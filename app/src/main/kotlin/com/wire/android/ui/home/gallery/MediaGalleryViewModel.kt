@@ -45,10 +45,12 @@ import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
+import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult.Success
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
+import com.wire.kalium.logic.feature.message.GetMessageByIdUseCase
 import com.wire.kalium.logic.functional.onFailure
 import com.wire.kalium.logic.functional.onSuccess
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -73,37 +75,58 @@ class MediaGalleryViewModel @Inject constructor(
     private val getImageData: GetMessageAssetUseCase,
     private val fileManager: FileManager,
     private val deleteMessage: DeleteMessageUseCase,
+    private val getMessageByIdUseCase: GetMessageByIdUseCase
 ) : ViewModel() {
-
     var mediaGalleryViewState by mutableStateOf(MediaGalleryViewState())
         private set
 
     private val _snackbarMessage = MutableSharedFlow<MediaGallerySnackbarMessages>()
     val snackbarMessage = _snackbarMessage.asSharedFlow()
 
-    val imageAssetId: ImageAsset.PrivateAsset =
+    val imageAsset: ImageAsset.PrivateAsset =
         savedStateHandle.get<String>(EXTRA_IMAGE_DATA)!!.parseIntoPrivateImageAsset(
             wireSessionImageLoader,
             qualifiedIdMapper
         )
 
+    private val messageId = imageAsset.messageId
+    private val conversationId = imageAsset.conversationId
+
     val deleteMessageHelper = DeleteMessageDialogHelper(
         viewModelScope,
-        imageAssetId.conversationId,
+        conversationId,
         ::updateDeleteDialogState
     ) { messageId, deleteForEveryone ->
-        deleteMessage(conversationId = imageAssetId.conversationId, messageId = messageId, deleteForEveryone = deleteForEveryone)
+        deleteMessage(conversationId = conversationId, messageId = messageId, deleteForEveryone = deleteForEveryone)
             .onFailure { onSnackbarMessage(MediaGallerySnackbarMessages.DeletingMessageError) }
             .onSuccess { navigateBack() }
     }
 
     init {
-        observeConversationDetails()
+        isEphemeralMessage()
+        getConversationTitle()
+    }
+
+    private fun isEphemeralMessage() {
+        viewModelScope.launch {
+            when (val result = getMessageByIdUseCase(conversationId, messageId)) {
+                is GetMessageByIdUseCase.Result.Success -> {
+                    val message = result.message
+                    if (message is Message.Regular) {
+                        mediaGalleryViewState.copy(isEphemeral = message.expirationData != null)
+                    } else {
+                        throw IllegalStateException("Illegal state for MediaGalleryScreen, message is not regular")
+                    }
+                }
+
+                is GetMessageByIdUseCase.Result.Failure -> {}
+            }
+        }
     }
 
     fun shareAsset(context: Context) {
         viewModelScope.launch {
-            assetDataPath(imageAssetId.conversationId, imageAssetId.messageId)?.run {
+            assetDataPath(conversationId, messageId)?.run {
                 context.startFileShareIntent(first, second)
             }
         }
@@ -117,9 +140,9 @@ class MediaGalleryViewModel @Inject constructor(
             }
         }
 
-    private fun observeConversationDetails() {
+    private fun getConversationTitle() {
         viewModelScope.launch {
-            getConversationDetails(imageAssetId.conversationId)
+            getConversationDetails(conversationId)
                 .filterIsInstance<ObserveConversationDetailsUseCase.Result.Success>() // TODO handle StorageFailure
                 .map { it.conversationDetails }
                 .collect {
@@ -129,15 +152,17 @@ class MediaGalleryViewModel @Inject constructor(
     }
 
     fun onMessageReacted(emoji: String) = viewModelScope.launch {
-        navigationManager.navigateBack(mapOf(EXTRA_ON_MESSAGE_REACTED to Pair(imageAssetId.messageId, emoji)))
+        navigationManager.navigateBack(mapOf(EXTRA_ON_MESSAGE_REACTED to Pair(messageId, emoji)))
     }
 
     fun onMessageReplied() = viewModelScope.launch {
-        navigationManager.navigateBack(mapOf(EXTRA_ON_MESSAGE_REPLIED to imageAssetId.messageId))
+        navigationManager.navigateBack(mapOf(EXTRA_ON_MESSAGE_REPLIED to messageId))
     }
 
     fun onMessageDetailsClicked() = viewModelScope.launch {
-        navigationManager.navigateBack(mapOf(EXTRA_ON_MESSAGE_DETAILS_CLICKED to Pair(imageAssetId.messageId, imageAssetId.isSelfAsset)))
+        navigationManager.navigateBack(
+            mapOf(EXTRA_ON_MESSAGE_DETAILS_CLICKED to Pair(imageAsset.messageId, imageAsset.isSelfAsset))
+        )
     }
 
     private fun getScreenTitle(conversationDetails: ConversationDetails): String? =
@@ -154,9 +179,13 @@ class MediaGalleryViewModel @Inject constructor(
     fun saveImageToExternalStorage() {
         viewModelScope.launch {
             withContext(dispatchers.io()) {
-                val imageData = getImageData(imageAssetId.conversationId, imageAssetId.messageId).await()
+                val imageData = getImageData(conversationId, messageId).await()
                 if (imageData is Success) {
-                    fileManager.saveToExternalStorage(imageData.assetName, imageData.decodedAssetPath, imageData.assetSize) {
+                    fileManager.saveToExternalStorage(
+                        imageData.assetName,
+                        imageData.decodedAssetPath,
+                        imageData.assetSize
+                    ) {
                         onImageSavedToExternalStorage(it)
                     }
                 } else {
@@ -176,7 +205,7 @@ class MediaGalleryViewModel @Inject constructor(
         onSnackbarMessage(MediaGallerySnackbarMessages.OnImageDownloaded(fileName))
     }
 
-    internal fun onSaveError() {
+    private fun onSaveError() {
         onSnackbarMessage(MediaGallerySnackbarMessages.OnImageDownloadError)
     }
 
@@ -187,12 +216,12 @@ class MediaGalleryViewModel @Inject constructor(
     }
 
     fun deleteCurrentImage() {
-        if (imageAssetId.isSelfAsset) {
+        if (imageAsset.isSelfAsset) {
             updateDeleteDialogState {
                 it.copy(
                     forEveryone = DeleteMessageDialogActiveState.Visible(
-                        messageId = imageAssetId.messageId,
-                        conversationId = imageAssetId.conversationId
+                        messageId = imageAsset.messageId,
+                        conversationId = imageAsset.conversationId
                     )
                 )
             }
@@ -200,8 +229,8 @@ class MediaGalleryViewModel @Inject constructor(
             updateDeleteDialogState {
                 it.copy(
                     forYourself = DeleteMessageDialogActiveState.Visible(
-                        messageId = imageAssetId.messageId,
-                        conversationId = imageAssetId.conversationId
+                        messageId = messageId,
+                        conversationId = conversationId
                     )
                 )
             }

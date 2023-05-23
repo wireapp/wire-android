@@ -61,6 +61,10 @@ sealed class UIMessage(
         val receivingFailed: Boolean = header.messageStatus == ReceiveFailure || decryptionFailed
         val isAvailable: Boolean = !isDeleted && !sendingFailed && !receivingFailed && !header.messageStatus.isPending
         val isMyMessage = source == MessageSource.Self
+        val isEditable =  isTextMessage && isMyMessage
+        val isAssetMessage = messageContent is UIMessageContent.AssetMessage
+        || messageContent is UIMessageContent.ImageMessage
+        || messageContent is UIMessageContent.AudioAssetMessage
     }
 
     data class System(

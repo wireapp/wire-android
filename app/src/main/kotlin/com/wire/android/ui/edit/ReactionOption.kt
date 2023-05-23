@@ -38,7 +38,6 @@ fun ReactionOption(
     onReactionClick: (emoji: String) -> Unit,
     emojiFontSize: TextUnit = 28.sp
 ) {
-
     CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.secondary) {
         Column {
             Row {

@@ -86,7 +86,6 @@ import kotlinx.coroutines.flow.onSubscription
 import javax.inject.Inject
 
 @OptIn(
-    ExperimentalMaterial3Api::class,
     ExperimentalComposeUiApi::class,
     ExperimentalCoroutinesApi::class
 )

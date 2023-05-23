@@ -29,9 +29,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.ModalBottomSheetValue
-import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -64,6 +61,7 @@ import com.wire.android.ui.common.WireTabRow
 import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationSheetContent
 import com.wire.android.ui.common.bottomsheet.conversation.rememberConversationSheetState
+import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.calculateCurrentTab
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.common.topBarElevation
@@ -86,7 +84,6 @@ import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.util.ui.UIText
 import kotlinx.collections.immutable.ImmutableMap
 import kotlinx.collections.immutable.persistentMapOf
-import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -119,9 +116,7 @@ fun GroupConversationDetailsScreen(
     ExperimentalComposeUiApi::class,
     ExperimentalMaterial3Api::class,
     ExperimentalPagerApi::class,
-    ExperimentalMaterialApi::class,
-    ExperimentalFoundationApi::class,
-    InternalCoroutinesApi::class
+    ExperimentalFoundationApi::class
 )
 @Composable
 private fun GroupConversationDetailsContent(
@@ -149,7 +144,7 @@ private fun GroupConversationDetailsContent(
 
     val conversationSheetState = rememberConversationSheetState(conversationSheetContent)
 
-    val sheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
+    val sheetState = rememberWireModalSheetState()
     val openBottomSheet: () -> Unit = remember { { scope.launch { sheetState.show() } } }
     val closeBottomSheet: () -> Unit = remember { { scope.launch { sheetState.hide() } } }
     val getBottomSheetVisibility: () -> Boolean = remember(sheetState) { { sheetState.isVisible } }
@@ -185,6 +180,68 @@ private fun GroupConversationDetailsContent(
         leaveGroupDialogState.dismiss()
         clearConversationDialogState.dismiss()
     }
+    Scaffold(
+        topBar = {
+            WireCenterAlignedTopAppBar(
+                elevation = elevationState,
+                title = stringResource(R.string.conversation_details_title),
+                navigationIconType = NavigationIconType.Close,
+                onNavigationPressed = onBackPressed,
+                actions = { MoreOptionIcon(onButtonClicked = openBottomSheet) }
+            ) {
+                WireTabRow(
+                    tabs = GroupConversationDetailsTabItem.values().toList(),
+                    selectedTabIndex = currentTabState,
+                    onTabChange = { scope.launch { pagerState.animateScrollToPage(it) } },
+                    modifier = Modifier.padding(top = MaterialTheme.wireDimensions.spacing16x),
+                    divider = {} // no divider
+                )
+            }
+        },
+        modifier = Modifier.fillMaxHeight(),
+        snackbarHost = {
+            SwipeDismissSnackbarHost(
+                hostState = snackbarHostState,
+                modifier = Modifier.fillMaxWidth()
+            )
+        },
+    ) { internalPadding ->
+        var focusedTabIndex: Int by remember { mutableStateOf(initialPageIndex) }
+        val keyboardController = LocalSoftwareKeyboardController.current
+        val focusManager = LocalFocusManager.current
+
+        CompositionLocalProvider(LocalOverscrollConfiguration provides null) {
+            HorizontalPager(
+                state = pagerState,
+                count = GroupConversationDetailsTabItem.values().size,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(internalPadding)
+            ) { pageIndex ->
+                when (GroupConversationDetailsTabItem.values()[pageIndex]) {
+                    GroupConversationDetailsTabItem.OPTIONS -> GroupConversationOptions(
+                        lazyListState = lazyListStates[pageIndex]
+                    )
+
+                    GroupConversationDetailsTabItem.PARTICIPANTS -> GroupConversationParticipants(
+                        groupParticipantsState = groupParticipantsState,
+                        openFullListPressed = openFullListPressed,
+                        onAddParticipantsPressed = onAddParticipantsPressed,
+                        onProfilePressed = onProfilePressed,
+                        lazyListState = lazyListStates[pageIndex]
+                    )
+                }
+            }
+
+            LaunchedEffect(pagerState.isScrollInProgress, focusedTabIndex, pagerState.currentPage) {
+                if (!pagerState.isScrollInProgress && focusedTabIndex != pagerState.currentPage) {
+                    keyboardController?.hide()
+                    focusManager.clearFocus()
+                    focusedTabIndex = pagerState.currentPage
+                }
+            }
+        }
+    }
 
     WireModalSheetLayout(
         sheetState = sheetState,
@@ -209,70 +266,7 @@ private fun GroupConversationDetailsContent(
                 deleteGroup = deleteGroupDialogState::show
             )
         }
-    ) {
-        Scaffold(
-            topBar = {
-                WireCenterAlignedTopAppBar(
-                    elevation = elevationState,
-                    title = stringResource(R.string.conversation_details_title),
-                    navigationIconType = NavigationIconType.Close,
-                    onNavigationPressed = onBackPressed,
-                    actions = { MoreOptionIcon(onButtonClicked = openBottomSheet) }
-                ) {
-                    WireTabRow(
-                        tabs = GroupConversationDetailsTabItem.values().toList(),
-                        selectedTabIndex = currentTabState,
-                        onTabChange = { scope.launch { pagerState.animateScrollToPage(it) } },
-                        modifier = Modifier.padding(top = MaterialTheme.wireDimensions.spacing16x),
-                        divider = {} // no divider
-                    )
-                }
-            },
-            modifier = Modifier.fillMaxHeight(),
-            snackbarHost = {
-                SwipeDismissSnackbarHost(
-                    hostState = snackbarHostState,
-                    modifier = Modifier.fillMaxWidth()
-                )
-            },
-        ) { internalPadding ->
-            var focusedTabIndex: Int by remember { mutableStateOf(initialPageIndex) }
-            val keyboardController = LocalSoftwareKeyboardController.current
-            val focusManager = LocalFocusManager.current
-
-            CompositionLocalProvider(LocalOverscrollConfiguration provides null) {
-                HorizontalPager(
-                    state = pagerState,
-                    count = GroupConversationDetailsTabItem.values().size,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(internalPadding)
-                ) { pageIndex ->
-                    when (GroupConversationDetailsTabItem.values()[pageIndex]) {
-                        GroupConversationDetailsTabItem.OPTIONS -> GroupConversationOptions(
-                            lazyListState = lazyListStates[pageIndex]
-                        )
-
-                        GroupConversationDetailsTabItem.PARTICIPANTS -> GroupConversationParticipants(
-                            groupParticipantsState = groupParticipantsState,
-                            openFullListPressed = openFullListPressed,
-                            onAddParticipantsPressed = onAddParticipantsPressed,
-                            onProfilePressed = onProfilePressed,
-                            lazyListState = lazyListStates[pageIndex]
-                        )
-                    }
-                }
-
-                LaunchedEffect(pagerState.isScrollInProgress, focusedTabIndex, pagerState.currentPage) {
-                    if (!pagerState.isScrollInProgress && focusedTabIndex != pagerState.currentPage) {
-                        keyboardController?.hide()
-                        focusManager.clearFocus()
-                        focusedTabIndex = pagerState.currentPage
-                    }
-                }
-            }
-        }
-    }
+    )
 
     DeleteConversationGroupDialog(
         isLoading = isLoading,

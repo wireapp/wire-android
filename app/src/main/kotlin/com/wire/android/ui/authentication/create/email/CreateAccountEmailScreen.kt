@@ -32,7 +32,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -42,7 +41,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.autofill.AutofillType
-import androidx.compose.ui.platform.LocalAutofillTree
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
@@ -64,11 +62,10 @@ import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.button.WireButtonState
+import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.error.CoreFailureErrorDialog
 import com.wire.android.ui.common.textfield.AutoFillTextField
-import com.wire.android.ui.common.button.WirePrimaryButton
-import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.common.textfield.clearAutofillTree
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
@@ -94,7 +91,7 @@ fun CreateAccountEmailScreen(viewModel: CreateAccountEmailViewModel, serverConfi
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun EmailContent(
     state: CreateAccountEmailViewState,
@@ -171,15 +168,16 @@ private fun EmailContent(
             onViewPolicyPressed = { CustomTabsHelper.launchUrl(context, tosUrl) }
         )
     }
-    if (state.error is CreateAccountEmailViewState.EmailError.DialogError.GenericError)
+    if (state.error is CreateAccountEmailViewState.EmailError.DialogError.GenericError) {
         CoreFailureErrorDialog(state.error.coreFailure, onErrorDismiss)
+    }
 }
 
 @Composable
 private fun EmailErrorText(error: CreateAccountEmailViewState.EmailError) {
     val learnMoreTag = "learn_more"
     val context = LocalContext.current
-    val learnMoreUrl = "https://support.wire.com/hc/en-us/articles/115004082129" //TODO should we keep it in a different way?
+    val learnMoreUrl = "https://support.wire.com/hc/en-us/articles/115004082129" // TODO should we keep it in a different way?
     val learnMoreText = stringResource(id = R.string.label_learn_more)
     val annotatedText = buildAnnotatedString {
         append(

@@ -21,10 +21,7 @@
 package com.wire.android.ui.home.conversationslist
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -33,6 +30,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationOptionNavigation
+import com.wire.android.ui.common.bottomsheet.conversation.ConversationSheetContent
+import com.wire.android.ui.common.bottomsheet.conversation.rememberConversationSheetState
 import com.wire.android.ui.common.dialogs.BlockUserDialogContent
 import com.wire.android.ui.common.dialogs.BlockUserDialogState
 import com.wire.android.ui.common.dialogs.UnblockUserDialogContent
@@ -41,12 +40,10 @@ import com.wire.android.ui.common.topappbar.search.SearchBarState
 import com.wire.android.ui.common.visbility.VisibilityState
 import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.home.HomeSnackbarState
+import com.wire.android.ui.home.conversations.details.dialog.ClearConversationContentDialog
 import com.wire.android.ui.home.conversations.details.menu.DeleteConversationGroupDialog
 import com.wire.android.ui.home.conversations.details.menu.LeaveConversationGroupDialog
 import com.wire.android.ui.home.conversationslist.all.AllConversationScreen
-import com.wire.android.ui.common.bottomsheet.conversation.ConversationSheetContent
-import com.wire.android.ui.common.bottomsheet.conversation.rememberConversationSheetState
-import com.wire.android.ui.home.conversations.details.dialog.ClearConversationContentDialog
 import com.wire.android.ui.home.conversationslist.call.CallsScreen
 import com.wire.android.ui.home.conversationslist.mention.MentionScreen
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
@@ -55,9 +52,6 @@ import com.wire.android.ui.home.conversationslist.model.GroupDialogState
 import com.wire.android.ui.home.conversationslist.search.SearchConversationScreen
 import kotlinx.coroutines.flow.MutableSharedFlow
 
-@ExperimentalAnimationApi
-@ExperimentalMaterial3Api
-@ExperimentalMaterialApi
 // Since the HomeScreen is responsible for displaying the bottom sheet content,
 // we create a bridge that passes the content of the BottomSheet
 // also we expose the lambda which expands the BottomSheet from the HomeScreen

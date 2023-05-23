@@ -39,6 +39,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -137,10 +138,11 @@ private fun OngoingCallContent(
     val sheetState = rememberStandardBottomSheetState(
         initialValue = sheetInitialValue
     ).also {
-//        LaunchedEffect(Unit) {
-//            // Same issue with expanded on other sheets, we need to use animateTo to fully expand programmatically.
-//            it.show()
-//        } TODO
+        LaunchedEffect(Unit) {
+            // Same issue with expanded on other sheets, we need to use animateTo to fully expand programmatically.
+            if (sheetInitialValue == SheetValue.PartiallyExpanded) it.partialExpand()
+            else it.expand()
+        }
     }
 
     val scaffoldState = rememberBottomSheetScaffoldState(

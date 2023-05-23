@@ -47,8 +47,7 @@ import javax.inject.Inject
 
 @Suppress("LongParameterList")
 @HiltViewModel
-class OngoingCallViewModel
-@Inject constructor(
+class OngoingCallViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     qualifiedIdMapper: QualifiedIdMapper,
     private val navigationManager: NavigationManager,

@@ -31,17 +31,20 @@ import com.wire.android.ui.home.conversations.details.participants.usecase.Obser
 import com.wire.android.ui.userprofile.other.OtherUserProfileScreenViewModelTest
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.CoreFailure
+import com.wire.kalium.logic.StorageFailure
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.service.ServiceDetails
 import com.wire.kalium.logic.data.service.ServiceId
+import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.conversation.AddServiceToConversationUseCase
 import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
 import com.wire.kalium.logic.feature.service.GetServiceByIdUseCase
 import com.wire.kalium.logic.feature.service.ObserveIsServiceMemberUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
+import com.wire.kalium.logic.functional.Either
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -65,7 +68,7 @@ class ServiceDetailsViewModelTest {
             .withServiceId(serviceId = stringServiceId)
             .withServiceDetails(serviceDetails = SERVICE_DETAILS)
             .withConversationRoleForUser(roleData = CONVERSATION_ROLE_DATA)
-            .withIsServiceMember(memberId = MEMBER_ID)
+            .withIsServiceMember(eitherMember = EITHER_MEMBER_ID)
             .arrange()
 
         // when
@@ -85,7 +88,7 @@ class ServiceDetailsViewModelTest {
                 .withServiceId(serviceId = stringServiceId)
                 .withServiceDetails(serviceDetails = SERVICE_DETAILS)
                 .withConversationRoleForUser(roleData = CONVERSATION_ROLE_DATA)
-                .withIsServiceMember(memberId = MEMBER_ID)
+                .withIsServiceMember(eitherMember = EITHER_MEMBER_ID)
                 .arrange()
 
             // when
@@ -106,7 +109,7 @@ class ServiceDetailsViewModelTest {
                 .withServiceId(serviceId = stringServiceId)
                 .withServiceDetails(serviceDetails = SERVICE_DETAILS)
                 .withConversationRoleForUser(roleData = CONVERSATION_ROLE_DATA)
-                .withIsServiceMember(memberId = null)
+                .withIsServiceMember(eitherMember = Either.Left(StorageFailure.DataNotFound))
                 .arrange()
 
             // when
@@ -131,7 +134,7 @@ class ServiceDetailsViewModelTest {
                         selfRole = Conversation.Member.Role.Member
                     )
                 )
-                .withIsServiceMember(memberId = MEMBER_ID)
+                .withIsServiceMember(eitherMember = EITHER_MEMBER_ID)
                 .arrange()
 
             // when
@@ -151,7 +154,7 @@ class ServiceDetailsViewModelTest {
                 .withServiceId(serviceId = "serviceId_MissingProvider")
                 .withServiceDetails(serviceDetails = null)
                 .withConversationRoleForUser(roleData = CONVERSATION_ROLE_DATA)
-                .withIsServiceMember(memberId = null)
+                .withIsServiceMember(eitherMember = Either.Left(StorageFailure.DataNotFound))
                 .arrange()
 
             // when
@@ -171,7 +174,7 @@ class ServiceDetailsViewModelTest {
                 .withServiceId(serviceId = stringServiceId)
                 .withServiceDetails(serviceDetails = SERVICE_DETAILS)
                 .withConversationRoleForUser(roleData = CONVERSATION_ROLE_DATA)
-                .withIsServiceMember(memberId = MEMBER_ID)
+                .withIsServiceMember(eitherMember = EITHER_MEMBER_ID)
                 .withRemoveService(result = RemoveMemberFromConversationUseCase.Result.Success)
                 .arrange()
 
@@ -198,7 +201,7 @@ class ServiceDetailsViewModelTest {
                 .withServiceId(serviceId = stringServiceId)
                 .withServiceDetails(serviceDetails = SERVICE_DETAILS)
                 .withConversationRoleForUser(roleData = CONVERSATION_ROLE_DATA)
-                .withIsServiceMember(memberId = MEMBER_ID)
+                .withIsServiceMember(eitherMember = EITHER_MEMBER_ID)
                 .withRemoveService(result = RemoveMemberFromConversationUseCase.Result.Failure(cause = CoreFailure.Unknown(null)))
                 .arrange()
 
@@ -225,7 +228,7 @@ class ServiceDetailsViewModelTest {
                 .withServiceId(serviceId = stringServiceId)
                 .withServiceDetails(serviceDetails = SERVICE_DETAILS)
                 .withConversationRoleForUser(roleData = CONVERSATION_ROLE_DATA)
-                .withIsServiceMember(memberId = MEMBER_ID)
+                .withIsServiceMember(eitherMember = EITHER_MEMBER_ID)
                 .withAddService(result = AddServiceToConversationUseCase.Result.Success)
                 .arrange()
 
@@ -252,7 +255,7 @@ class ServiceDetailsViewModelTest {
                 .withServiceId(serviceId = stringServiceId)
                 .withServiceDetails(serviceDetails = SERVICE_DETAILS)
                 .withConversationRoleForUser(roleData = CONVERSATION_ROLE_DATA)
-                .withIsServiceMember(memberId = MEMBER_ID)
+                .withIsServiceMember(eitherMember = EITHER_MEMBER_ID)
                 .withAddService(result = AddServiceToConversationUseCase.Result.Failure(cause = CoreFailure.Unknown(null)))
                 .arrange()
 
@@ -278,6 +281,7 @@ class ServiceDetailsViewModelTest {
         val SERVICE_ID = ServiceId(id = "serviceId", provider = "providerId")
         val CONVERSATION_ID = ConversationId(value = "conversationId", domain = "conversationDomain")
         val MEMBER_ID = QualifiedID(value = "memberValue", domain = "memberDomain")
+        val EITHER_MEMBER_ID = Either.Right(MEMBER_ID)
         val SERVICE_DETAILS = ServiceDetails(
             id = SERVICE_ID,
             name = "Service Name",
@@ -371,8 +375,8 @@ class ServiceDetailsViewModelTest {
             coEvery { getServiceById(any()) } returns serviceDetails
         }
 
-        suspend fun withIsServiceMember(memberId: QualifiedID?) = apply {
-            coEvery { observeIsServiceMember(any(), any()) } returns flowOf(memberId)
+        suspend fun withIsServiceMember(eitherMember: Either<StorageFailure, UserId?>) = apply {
+            coEvery { observeIsServiceMember(any(), any()) } returns flowOf(eitherMember)
         }
 
         suspend fun withRemoveService(result: RemoveMemberFromConversationUseCase.Result) = apply {

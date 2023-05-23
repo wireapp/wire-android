@@ -40,12 +40,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
-import com.wire.android.model.Clickable
-import com.wire.android.model.ClickableParams
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
-import com.wire.android.ui.home.conversations.DisplayableAssetMenuItems
+import com.wire.android.ui.home.conversations.AssetMenuItems
 import com.wire.android.ui.home.conversations.MediaGallerySnackbarMessages
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialog
 import com.wire.android.util.permission.rememberWriteStorageRequestFlow
@@ -53,7 +51,7 @@ import com.wire.android.util.permission.rememberWriteStorageRequestFlow
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun MediaGalleryScreen(mediaGalleryViewModel: MediaGalleryViewModel = hiltViewModel()) {
-    val uiState = mediaGalleryViewModel.mediaGalleryViewState
+    val viewModelState = mediaGalleryViewModel.mediaGalleryViewState
     val mediaGalleryScreenState = rememberMediaGalleryScreenState()
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
@@ -65,17 +63,19 @@ fun MediaGalleryScreen(mediaGalleryViewModel: MediaGalleryViewModel = hiltViewMo
             // TODO
         })
 
-    with(uiState) {
+    with(viewModelState) {
         MenuModalSheetLayout(
             sheetState = mediaGalleryScreenState.modalBottomSheetState,
             coroutineScope = scope,
-            menuItems = DisplayableAssetMenuItems(
-                onDeleteClick = Clickable(),
-                onDetailsClick = Clickable(),
-                onShareAsset = Clickable(enabled = !uiState.isEphemeral),
-                onDownloadAsset = Clickable(),
-                onReplyClick = Clickable(enabled = !uiState.isEphemeral),
-                onReactionClick = ClickableParams(enabled = !uiState.isEphemeral),
+            menuItems = AssetMenuItems(
+                isEphemeral = viewModelState.isEphemeral,
+                onDeleteClick = { },
+                onDetailsClick = { },
+                onShareAsset = { },
+                onDownloadAsset = { },
+                onReplyClick = { },
+                onReactionClick = { },
+                onOpenAsset = null
             )
         ) {
             Scaffold(

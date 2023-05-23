@@ -87,6 +87,7 @@ import com.wire.android.ui.home.conversations.info.ConversationInfoViewState
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewModel
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewState
 import com.wire.android.ui.home.conversations.model.EditMessageBundle
+import com.wire.android.ui.home.conversations.model.ExpirationStatus
 import com.wire.android.ui.home.conversations.model.SendMessageBundle
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent
@@ -440,24 +441,27 @@ private fun ConversationScreen(
 fun EditMenuItems(selectedMessage: UIMessage.Regular): List<@Composable () -> Unit> = when (selectedMessage.messageContent) {
     is UIMessageContent.AssetMessage, is UIMessageContent.AudioAssetMessage,
     is UIMessageContent.RestrictedAsset, is UIMessageContent.ImageMessage -> {
-        DisplayableAssetMenuItems(
-            onDeleteClick = Clickable(),
-            onDetailsClick = Clickable(),
-            onShareAsset = Clickable(),
-            onDownloadAsset = Clickable(),
-            onReplyClick = Clickable(),
-            onReactionClick = ClickableParams(),
+        AssetMenuItems(
+            isEphemeral = selectedMessage.expirationStatus is ExpirationStatus.Expirable,
+            onDeleteClick = { },
+            onDetailsClick = { },
+            onShareAsset = { },
+            onDownloadAsset = { },
+            onReplyClick = { },
+            onReactionClick = { },
+            onOpenAsset = { }
         )
     }
 
     is UIMessageContent.TextMessage -> {
         TextMessageMenuItems(
-            onDeleteClick = Clickable(),
-            onDetailsClick = Clickable(),
-            onReactionClick = ClickableParams(),
-            onEditClick = Clickable(),
-            onCopyClick = Clickable(),
-            onReplyClick = Clickable()
+            isEphemeral = selectedMessage.expirationStatus is ExpirationStatus.Expirable,
+            onDeleteClick = { },
+            onDetailsClick = { },
+            onReactionClick = { },
+            onEditClick = { },
+            onCopyClick = { },
+            onReplyClick = { }
         )
     }
 
@@ -468,64 +472,43 @@ fun EditMenuItems(selectedMessage: UIMessage.Regular): List<@Composable () -> Un
 
 @Composable
 fun TextMessageMenuItems(
-    onDeleteClick: Clickable,
-    onDetailsClick: Clickable,
-    onReplyClick: Clickable,
-    onCopyClick: Clickable,
-    onReactionClick: ClickableParams<String>,
-    onEditClick: Clickable
+    isEphemeral: Boolean,
+    onDeleteClick: () -> Unit,
+    onDetailsClick: () -> Unit,
+    onReplyClick: () -> Unit,
+    onCopyClick: () -> Unit,
+    onReactionClick: (String) -> Unit,
+    onEditClick: () -> Unit
 ): List<@Composable () -> Unit> {
     return buildList {
-        if (onReactionClick.enabled) add { ReactionOption(onReactionClick.onClick) }
-        if (onDetailsClick.enabled) add { MessageDetailsMenuOption(onDetailsClick.onClick) }
-        if (onDetailsClick.enabled) add { CopyItemMenuOption(onCopyClick.onClick) }
-        if (onDetailsClick.enabled) add { ReplyMessageOption(onReplyClick.onClick) }
-        if (onDetailsClick.enabled) add { EditMessageMenuOption(onEditClick.onClick) }
-        if (onDetailsClick.enabled) add { DeleteItemMenuOption(onDeleteClick.onClick) }
+        if (!isEphemeral) add { ReactionOption(onReactionClick) }
+        add { MessageDetailsMenuOption(onDetailsClick) }
+        if (!isEphemeral) add { CopyItemMenuOption(onCopyClick) }
+        if (!isEphemeral) add { ReplyMessageOption(onReplyClick) }
+        if (!isEphemeral) add { EditMessageMenuOption(onEditClick) }
+        add { DeleteItemMenuOption(onDeleteClick) }
     }
 }
 
 @Composable
-fun AssetMenuItems() {
-
-}
-
-@Composable
-fun GenericAssetMenuItems(
-    onDeleteClick: Clickable,
-    onDetailsClick: Clickable,
-    onShareAsset: Clickable,
-    onDownloadAsset: Clickable,
-    onReplyClick: Clickable,
-    onReactionClick: ClickableParams<String>
-) :  List<@Composable () -> Unit> {
-    return buildList {
-        if (onReactionClick.enabled) add { ReactionOption(onReactionClick.onClick) }
-        if (onDetailsClick.enabled) add { MessageDetailsMenuOption(onDetailsClick.onClick) }
-        if (onReplyClick.enabled) add { ReplyMessageOption(onReplyClick.onClick) }
-        if (onDownloadAsset.enabled) add { DownloadAssetExternallyOption(onDownloadAsset.onClick) }
-        if (onOpenAsset.enabled) add { OpenAssetExternallyOption(onOpenAsset.onClick) }
-        if (onShareAsset.enabled) add { ShareAssetMenuOption(onShareAsset.onClick) }
-        if (onDeleteClick.enabled) add { DeleteItemMenuOption(onDeleteClick.onClick) }
-    }
-}
-
-@Composable
-fun DisplayableAssetMenuItems(
-    onDeleteClick: Clickable,
-    onDetailsClick: Clickable,
-    onShareAsset: Clickable,
-    onDownloadAsset: Clickable,
-    onReplyClick: Clickable,
-    onReactionClick: ClickableParams<String>,
+fun AssetMenuItems(
+    isEphemeral: Boolean,
+    onDeleteClick: () -> Unit,
+    onDetailsClick: () -> Unit,
+    onShareAsset: () -> Unit,
+    onDownloadAsset: () -> Unit,
+    onReplyClick: () -> Unit,
+    onReactionClick: (String) -> Unit,
+    onOpenAsset: (() -> Unit)? = null
 ): List<@Composable () -> Unit> {
     return buildList {
-        if (onReactionClick.enabled) add { ReactionOption(onReactionClick.onClick) }
-        if (onDetailsClick.enabled) add { MessageDetailsMenuOption(onDetailsClick.onClick) }
-        if (onReplyClick.enabled) add { ReplyMessageOption(onReplyClick.onClick) }
-        if (onDownloadAsset.enabled) add { DownloadAssetExternallyOption(onDownloadAsset.onClick) }
-        if (onShareAsset.enabled) add { ShareAssetMenuOption(onShareAsset.onClick) }
-        if (onDeleteClick.enabled) add { DeleteItemMenuOption(onDeleteClick.onClick) }
+        if (!isEphemeral) add { ReactionOption(onReactionClick) }
+        add { MessageDetailsMenuOption(onDetailsClick) }
+        if (!isEphemeral) add { ReplyMessageOption(onReplyClick) }
+        add { DownloadAssetExternallyOption(onDownloadAsset) }
+        if (!isEphemeral) add { ShareAssetMenuOption(onShareAsset) }
+        if (onOpenAsset != null && !isEphemeral) add { OpenAssetExternallyOption(onOpenAsset) }
+        add { DeleteItemMenuOption(onDeleteClick) }
     }
 }
 

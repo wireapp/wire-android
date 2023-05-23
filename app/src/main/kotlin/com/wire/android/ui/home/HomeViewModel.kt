@@ -20,7 +20,6 @@
 
 package com.wire.android.ui.home
 
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -48,7 +47,6 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @Suppress("LongParameterList")
-@ExperimentalMaterial3Api
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     override val savedStateHandle: SavedStateHandle,

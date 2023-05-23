@@ -24,15 +24,11 @@ package com.wire.android.ui.home
 
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.material.DrawerState
-import androidx.compose.material.DrawerValue
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.ModalBottomSheetState
-import androidx.compose.material.ModalBottomSheetValue
-import androidx.compose.material.rememberDrawerState
-import androidx.compose.material.rememberModalBottomSheetState
+import androidx.compose.material3.DrawerState
+import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -44,18 +40,19 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import com.wire.android.navigation.HomeNavigationItem
 import com.wire.android.navigation.navigateToItemInHome
 import com.wire.android.navigation.rememberTrackingAnimatedNavController
+import com.wire.android.ui.common.bottomsheet.WireModalSheetState
+import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.topappbar.search.SearchBarState
 import com.wire.android.ui.common.topappbar.search.rememberSearchbarState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @Suppress("LongParameterList")
-@OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 class HomeStateHolder(
     val coroutineScope: CoroutineScope,
     val navController: NavHostController,
     val drawerState: DrawerState,
-    val bottomSheetState: ModalBottomSheetState,
+    val bottomSheetState: WireModalSheetState,
     val currentNavigationItem: HomeNavigationItem,
     val snackBarHostState: SnackbarHostState,
     val searchBarState: SearchBarState
@@ -78,13 +75,13 @@ class HomeStateHolder(
 
     fun openBottomSheet() {
         coroutineScope.launch {
-            if (!bottomSheetState.isVisible) bottomSheetState.animateTo(ModalBottomSheetValue.Expanded)
+            if (!bottomSheetState.isVisible) bottomSheetState.show()
         }
     }
 
     fun closeBottomSheet() {
         coroutineScope.launch {
-            if (bottomSheetState.isVisible) bottomSheetState.animateTo(ModalBottomSheetValue.Hidden)
+            if (bottomSheetState.isVisible) bottomSheetState.hide()
         }
     }
 
@@ -111,13 +108,13 @@ class HomeStateHolder(
     }
 }
 
-@OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun rememberHomeScreenState(
     coroutineScope: CoroutineScope = rememberCoroutineScope(),
     navController: NavHostController = rememberTrackingAnimatedNavController() { HomeNavigationItem.fromRoute(it)?.itemName },
     drawerState: DrawerState = rememberDrawerState(DrawerValue.Closed),
-    bottomSheetState: ModalBottomSheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden),
+    bottomSheetState: WireModalSheetState = rememberWireModalSheetState(),
     snackBarHostState: SnackbarHostState = remember { SnackbarHostState() }
 ): HomeStateHolder {
     val navBackStackEntry by navController.currentBackStackEntryAsState()

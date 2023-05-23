@@ -26,7 +26,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -53,7 +52,6 @@ import com.wire.kalium.logic.data.id.ConversationId
 import kotlinx.collections.immutable.ImmutableMap
 import kotlinx.collections.immutable.persistentMapOf
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AllConversationScreen(
     conversations: ImmutableMap<ConversationFolder, List<ConversationItem>>,
@@ -127,7 +125,6 @@ fun ConversationListEmptyStateScreen() {
         )
     }
 }
-@OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Composable
 fun PreviewAllConversationScreen() {
@@ -139,7 +136,6 @@ fun PreviewAllConversationScreen() {
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Composable
 fun ConversationListEmptyStateScreenPreview() {

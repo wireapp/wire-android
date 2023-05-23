@@ -115,7 +115,6 @@ fun CollapsingTopBarScaffold(
                 else Velocity.Zero
             } else Velocity.Zero
 
-
         override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
             swipeableState.performFling(velocity = available.y)
             return super.onPostFling(consumed, available)

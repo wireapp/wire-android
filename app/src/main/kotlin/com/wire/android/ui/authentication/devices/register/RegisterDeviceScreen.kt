@@ -150,8 +150,9 @@ private fun RegisterDeviceContent(
             )
         }
     }
-    if (state.error is RegisterDeviceError.GenericError)
+    if (state.error is RegisterDeviceError.GenericError) {
         CoreFailureErrorDialog(state.error.coreFailure, onErrorDismiss)
+    }
 }
 
 @OptIn(ExperimentalComposeUiApi::class)

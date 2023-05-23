@@ -205,7 +205,6 @@ fun OtherProfileScreenContent(
         clearConversationDialogState.dismiss()
     }
 
-
     CollapsingTopBarScaffold(
         snackbarHost = {
             SwipeDismissSnackbarHost(

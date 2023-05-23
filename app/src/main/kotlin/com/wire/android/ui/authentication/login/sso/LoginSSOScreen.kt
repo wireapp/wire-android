@@ -137,7 +137,7 @@ private fun SSOCodeInput(
     ssoCode: TextFieldValue,
     error: String?,
     onCodeChange: (TextFieldValue) -> Unit,
-    //todo: temporary to show to pointing server
+    // TODO: temporary to show to pointing server
     serverTitle: String
 ) {
     WireTextField(

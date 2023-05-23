@@ -62,7 +62,7 @@ class WireModalSheetState(
         get() = currentValue != SheetValue.Hidden
 
     companion object {
-        fun Saver() = Saver<WireModalSheetState, SheetValue>(
+        fun saver() = Saver<WireModalSheetState, SheetValue>(
             save = { it.currentValue },
             restore = { savedValue -> WireModalSheetState(savedValue) }
         )
@@ -72,6 +72,6 @@ class WireModalSheetState(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun rememberWireModalSheetState(initialValue: SheetValue = SheetValue.Hidden): WireModalSheetState =
-    rememberSaveable(saver = WireModalSheetState.Saver()) {
+    rememberSaveable(saver = WireModalSheetState.saver()) {
         WireModalSheetState(initialValue)
     }

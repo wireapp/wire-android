@@ -168,15 +168,16 @@ private fun EmailContent(
             onViewPolicyPressed = { CustomTabsHelper.launchUrl(context, tosUrl) }
         )
     }
-    if (state.error is CreateAccountEmailViewState.EmailError.DialogError.GenericError)
+    if (state.error is CreateAccountEmailViewState.EmailError.DialogError.GenericError) {
         CoreFailureErrorDialog(state.error.coreFailure, onErrorDismiss)
+    }
 }
 
 @Composable
 private fun EmailErrorText(error: CreateAccountEmailViewState.EmailError) {
     val learnMoreTag = "learn_more"
     val context = LocalContext.current
-    val learnMoreUrl = "https://support.wire.com/hc/en-us/articles/115004082129" //TODO should we keep it in a different way?
+    val learnMoreUrl = "https://support.wire.com/hc/en-us/articles/115004082129" // TODO should we keep it in a different way?
     val learnMoreText = stringResource(id = R.string.label_learn_more)
     val annotatedText = buildAnnotatedString {
         append(

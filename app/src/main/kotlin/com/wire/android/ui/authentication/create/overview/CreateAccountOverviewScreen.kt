@@ -125,7 +125,7 @@ private fun OverviewContent(
 @Composable
 private fun OverviewTexts(overviewParams: CreateAccountOverviewParams, modifier: Modifier, onLearnMoreClick: () -> Unit) {
     Column(modifier = modifier) {
-        if (overviewParams.contentTitle.isNotEmpty())
+        if (overviewParams.contentTitle.isNotEmpty()) {
             Text(
                 text = overviewParams.contentTitle,
                 style = MaterialTheme.wireTypography.title01,
@@ -134,6 +134,7 @@ private fun OverviewTexts(overviewParams: CreateAccountOverviewParams, modifier:
                     .fillMaxWidth()
                     .padding(bottom = MaterialTheme.wireDimensions.spacing8x)
             )
+        }
         Text(
             text = overviewParams.contentText,
             style = MaterialTheme.wireTypography.body02,

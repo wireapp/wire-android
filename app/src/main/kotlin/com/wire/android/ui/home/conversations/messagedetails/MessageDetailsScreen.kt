@@ -209,5 +209,3 @@ private fun provideMessageDetailsTabItems(
 }
 
 data class MessageDetailsTabItem(@StringRes override val titleResId: Int, val count: Int) : TabItem
-
-

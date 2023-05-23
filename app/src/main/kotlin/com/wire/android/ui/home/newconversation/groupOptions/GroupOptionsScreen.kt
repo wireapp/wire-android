@@ -225,7 +225,7 @@ private fun GroupOptionState.ContinueButton(
         onClick = onContinuePressed,
         fillMaxWidth = true,
         loading = isLoading,
-        trailingIcon = if(isLoading) null else Icons.Filled.ChevronRight.Icon(),
+        trailingIcon = if (isLoading) null else Icons.Filled.ChevronRight.Icon(),
         state = if (continueEnabled && !isLoading) WireButtonState.Default else WireButtonState.Disabled,
         modifier = Modifier.fillMaxWidth().padding(MaterialTheme.wireDimensions.spacing16x)
     )
@@ -256,7 +256,6 @@ private fun AllowGuestsDialog(
         )
     )
 }
-
 
 @Composable
 private fun ErrorDialog(error: GroupOptionState.Error, onErrorDismissed: () -> Unit) {

@@ -120,7 +120,6 @@ private fun ProxyContent(
         )
 
         Spacer(modifier = Modifier.weight(1f))
-
     }
 }
 

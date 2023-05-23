@@ -195,4 +195,3 @@ private fun SSOLoginSessionResult.Failure.toLoginError() = when (this) {
     SSOLoginSessionResult.Failure.InvalidCookie -> LoginError.DialogError.InvalidSSOCookie
     is SSOLoginSessionResult.Failure.Generic -> LoginError.DialogError.GenericError(this.genericFailure)
 }
-

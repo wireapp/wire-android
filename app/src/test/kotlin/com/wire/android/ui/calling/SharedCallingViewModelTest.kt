@@ -200,6 +200,28 @@ class SharedCallingViewModelTest {
     }
 
     @Test
+    fun `given user on a preview screen, when muting microphone, then mute the call with false param`() {
+        sharedCallingViewModel.callState = sharedCallingViewModel.callState.copy(isMuted = false)
+        coEvery { muteCall(conversationId) } returns Unit
+
+        runTest { sharedCallingViewModel.toggleMute(true) }
+
+        coVerify(exactly = 1) { muteCall(any(), false) }
+        sharedCallingViewModel.callState.isMuted shouldBeEqualTo true
+    }
+
+    @Test
+    fun `given user on a preview screen, when un-muting microphone, then un-mute the call with false param`() {
+        sharedCallingViewModel.callState = sharedCallingViewModel.callState.copy(isMuted = true)
+        coEvery { unMuteCall(conversationId) } returns Unit
+
+        runTest { sharedCallingViewModel.toggleMute(true) }
+
+        coVerify(exactly = 1) { unMuteCall(any(), false) }
+        sharedCallingViewModel.callState.isMuted shouldBeEqualTo false
+    }
+
+    @Test
     fun `given front facing camera, when flipping it, then switch to back camera`() {
         sharedCallingViewModel.callState = sharedCallingViewModel.callState.copy(isOnFrontCamera = true)
         coEvery { flipToBackCamera(conversationId) } returns Unit
@@ -244,13 +266,13 @@ class SharedCallingViewModelTest {
     @Test
     fun `given an active call, when the user ends call, then invoke endCall useCase`() {
         coEvery { endCall(any()) } returns Unit
-        coEvery { muteCall(any()) } returns Unit
+        coEvery { muteCall(any(), false) } returns Unit
         every { callRinger.stop() } returns Unit
 
         runTest { sharedCallingViewModel.hangUpCall() }
 
         coVerify(exactly = 1) { endCall(any()) }
-        coVerify(exactly = 1) { muteCall(any()) }
+        coVerify(exactly = 1) { muteCall(any(), false) }
         coVerify(exactly = 1) { callRinger.stop() }
     }
 

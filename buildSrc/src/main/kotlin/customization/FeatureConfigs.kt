@@ -40,6 +40,7 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
     ALLOW_SSO("allow_sso_authentication_option", ConfigType.BOOLEAN),
     ALLOW_ACCOUNT_CREATION("allow_account_creation", ConfigType.BOOLEAN),
     FILE_RESTRICTION_ENABLED("file_restriction_enabled", ConfigType.BOOLEAN),
+    FILE_RESTRICTION_LIST("file_restriction_list", ConfigType.STRING),
     FORCE_CONSTANT_BITRATE_CALLS("force_constant_bitrate_calls", ConfigType.BOOLEAN),
     MAX_ACCOUNTS("max_accounts", ConfigType.INT),
     ENABLE_GUEST_ROOM_LINK("enable_guest_room_link", ConfigType.BOOLEAN),
@@ -54,6 +55,7 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
     WIPE_ON_COOKIE_INVALID("wipe_on_cookie_invalid", ConfigType.BOOLEAN),
     WIPE_ON_ROOTED_DEVICE("wipe_on_rooted_device", ConfigType.BOOLEAN),
     WIPE_ON_DEVICE_REMOVAL("wipe_on_device_removal", ConfigType.BOOLEAN),
+    SELF_DELETING_MESSAGES("self_deleting_messages", ConfigType.BOOLEAN),
 
     /**
      * 3rd party services API Keys and IDs

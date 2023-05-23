@@ -25,13 +25,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.wire.android.model.Clickable
-import com.wire.android.ui.common.spacers.HorizontalSpace
-import com.wire.android.ui.home.conversationslist.common.EventBadgeFactory
 import com.wire.android.ui.home.conversationslist.common.RowItem
-import com.wire.android.ui.home.conversationslist.model.BadgeEventType
 import com.wire.android.ui.theme.DEFAULT_WEIGHT
 
 @Composable

@@ -20,15 +20,18 @@
 
 package com.wire.android.ui.home
 
+import com.wire.android.ui.home.messagecomposer.state.SelfDeletionDuration
+
 data class FeatureFlagState(
     val showFileSharingDialog: Boolean = false,
     val isFileSharingEnabledState: Boolean = true,
-    val fileSharingRestrictedState: SharingRestrictedState = SharingRestrictedState.NONE,
+    val fileSharingRestrictedState: SharingRestrictedState? = null,
     val shouldShowGuestRoomLinkDialog: Boolean = false,
-    val isGuestRoomLinkEnabled: Boolean = true
+    val isGuestRoomLinkEnabled: Boolean = true,
+    val shouldShowSelfDeletingMessagesDialog: Boolean = false,
+    val enforcedTimeoutDuration: SelfDeletionDuration = SelfDeletionDuration.None,
+    val areSelfDeletedMessagesEnabled: Boolean = true
 ) {
-
-    fun isSharingAllowed() = fileSharingRestrictedState == SharingRestrictedState.NONE
     enum class SharingRestrictedState {
         NONE, NO_USER, RESTRICTED_IN_TEAM
     }

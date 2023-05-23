@@ -30,6 +30,7 @@ import com.wire.android.ui.home.conversations.model.MessageStatus.DecryptionFail
 import com.wire.android.ui.home.conversations.model.MessageStatus.Deleted
 import com.wire.android.ui.home.conversations.model.MessageStatus.ReceiveFailure
 import com.wire.android.ui.home.conversationslist.model.Membership
+import com.wire.android.ui.home.messagecomposer.state.SelfDeletionDuration
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.uiMessageDateTime
 import com.wire.kalium.logic.data.conversation.ClientId
@@ -54,12 +55,11 @@ sealed class UIMessage(
         val expirationStatus: ExpirationStatus = ExpirationStatus.NotExpirable
     ) : UIMessage(header, source) {
         val isTextMessage = messageContent is UIMessageContent.TextMessage
-
         val isDeleted: Boolean = header.messageStatus == Deleted
         val sendingFailed: Boolean = header.messageStatus is MessageStatus.MessageSendFailureStatus
         val decryptionFailed: Boolean = header.messageStatus is DecryptionFailure
         val receivingFailed: Boolean = header.messageStatus == ReceiveFailure || decryptionFailed
-        val isAvailable: Boolean = !isDeleted && !sendingFailed && !receivingFailed
+        val isAvailable: Boolean = !isDeleted && !sendingFailed && !receivingFailed && !header.messageStatus.isPending
         val isMyMessage = source == MessageSource.Self
     }
 
@@ -108,17 +108,18 @@ sealed class ExpirationStatus {
 sealed class MessageStatus(
     open val errorText: UIText? = null, // error description text shown below the content of the message
     open val badgeText: UIText? = null, // text shown between the user name and the content in the outlined box with a text inside
+    open val isPending: Boolean = false // if true then such message is still being sent
 ) {
     sealed class MessageSendFailureStatus : MessageStatus() {
         abstract override val errorText: UIText
     }
 
-    object Untouched : MessageStatus()
+    data class Untouched(override val isPending: Boolean = false) : MessageStatus()
     object Deleted : MessageStatus() {
         override val badgeText: UIText = UIText.StringResource(R.string.deleted_message_text)
     }
 
-    data class Edited(val formattedEditTimeStamp: String) : MessageStatus() {
+    data class Edited(val formattedEditTimeStamp: String, override val isPending: Boolean = false) : MessageStatus() {
         override val badgeText: UIText = UIText.StringResource(R.string.label_message_status_edited_with_date, formattedEditTimeStamp)
     }
 
@@ -161,7 +162,12 @@ sealed class UIMessageContent {
 
     sealed class Regular : UIMessageContent()
 
-    object PreviewAssetMessage : UIMessageContent()
+    /**
+     * IncompleteAssetMessage is a displayable asset that's missing the remote data.
+     * Sometimes client receives two events about the same asset, first one with only part of the data ("preview" type from web),
+     * so such asset shouldn't be shown until all the required data is received.
+     */
+    object IncompleteAssetMessage : UIMessageContent()
 
     data class TextMessage(val messageBody: MessageBody) : Regular()
 
@@ -280,6 +286,25 @@ sealed class UIMessageContent {
             R.drawable.ic_view,
             if (isAuthorSelfUser) R.string.label_system_message_read_receipt_changed_by_self
             else R.string.label_system_message_read_receipt_changed_by_other
+        )
+
+        data class ConversationMessageTimerActivated(
+            val author: UIText,
+            val isAuthorSelfUser: Boolean = false,
+            val selfDeletionDuration: SelfDeletionDuration
+        ) : SystemMessage(
+            R.drawable.ic_timer,
+            if (isAuthorSelfUser) R.string.label_system_message_conversation_message_timer_activated_by_self
+            else R.string.label_system_message_conversation_message_timer_activated_by_other
+        )
+
+        data class ConversationMessageTimerDeactivated(
+            val author: UIText,
+            val isAuthorSelfUser: Boolean = false,
+        ) : SystemMessage(
+            R.drawable.ic_timer,
+            if (isAuthorSelfUser) R.string.label_system_message_conversation_message_timer_deactivated_by_self
+            else R.string.label_system_message_conversation_message_timer_deactivated_by_other
         )
 
         class HistoryLost : SystemMessage(R.drawable.ic_info, R.string.label_system_message_conversation_history_lost, true)

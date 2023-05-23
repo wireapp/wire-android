@@ -242,9 +242,13 @@ abstract class SearchPeopleViewModel(
             is SearchResult.Failure -> {
                 SearchResultState.Failure(result.failureString)
             }
-
             is SearchResult.Success -> {
-                SearchResultState.Success(result.contacts.toImmutableList())
+                SearchResultState.Success(
+                    result
+                        .contacts
+                        .sortedBy { it.name.lowercase() }
+                        .toImmutableList()
+                )
             }
         }
     }

@@ -120,7 +120,12 @@ class MessageMapper @Inject constructor(
                     header = provideMessageHeader(sender, message),
                 )
             null -> null
-            UIMessageContent.PreviewAssetMessage -> null // Preview images messages should not be displayed
+            /**
+             * IncompleteAssetMessage is a displayable asset that's missing the remote data.
+             * Sometimes client receives two events about the same asset, first one with only part of the data ("preview" type from web),
+             * so such asset shouldn't be shown until all the required data is received.
+             */
+            UIMessageContent.IncompleteAssetMessage -> null
         }
     }
 
@@ -177,13 +182,14 @@ class MessageMapper @Inject constructor(
             MessageStatus.Edited(
                 isoFormatter.fromISO8601ToTimeFormat(
                     utcISO = (message.editStatus as Message.EditStatus.Edited).lastTimeStamp
-                )
+                ),
+                message.status == Message.Status.PENDING
             )
 
         message is Message.Regular && message.content is MessageContent.FailedDecryption ->
             MessageStatus.DecryptionFailure((message.content as MessageContent.FailedDecryption).isDecryptionResolved)
 
-        else -> MessageStatus.Untouched
+        else -> MessageStatus.Untouched(message.status == Message.Status.PENDING)
     }
 
     private fun getUserAvatarData(sender: User?) = UserAvatarData(

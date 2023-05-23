@@ -138,7 +138,7 @@ object TestMessage {
         membership = Membership.Guest,
         isLegalHold = true,
         messageTime = MessageTime("12.23pm"),
-        messageStatus = MessageStatus.Untouched,
+        messageStatus = MessageStatus.Untouched(),
         messageId = "messageID",
         connectionState = null,
         isSenderDeleted = false,

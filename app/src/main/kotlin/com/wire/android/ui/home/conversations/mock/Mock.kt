@@ -53,7 +53,7 @@ val mockHeader = MessageHeader(
     membership = Membership.Guest,
     isLegalHold = true,
     messageTime = MessageTime("12.23pm"),
-    messageStatus = MessageStatus.Untouched,
+    messageStatus = MessageStatus.Untouched(),
     messageId = "",
     connectionState = ConnectionState.ACCEPTED,
     isSenderDeleted = false,
@@ -104,7 +104,7 @@ fun mockAssetMessage(uploadStatus: Message.UploadStatus = Message.UploadStatus.U
         membership = Membership.Guest,
         isLegalHold = true,
         messageTime = MessageTime("12.23pm"),
-        messageStatus = MessageStatus.Untouched,
+        messageStatus = MessageStatus.Untouched(),
         messageId = "",
         connectionState = ConnectionState.ACCEPTED,
         isSenderDeleted = false,
@@ -127,18 +127,21 @@ fun mockedImg(
     uploadStatus: Message.UploadStatus = Message.UploadStatus.UPLOADED,
     downloadStatus: Message.DownloadStatus = Message.DownloadStatus.SAVED_INTERNALLY
 ) = UIMessageContent.ImageMessage(
-    UserAssetId("a", "domain"), null, 0, 0, uploadStatus = uploadStatus, downloadStatus = downloadStatus
+    UserAssetId("a", "domain"), null, 800, 600, uploadStatus = uploadStatus, downloadStatus = downloadStatus
 )
 
 @Suppress("MagicNumber")
-fun mockedImageUIMessage(uploadStatus: Message.UploadStatus = Message.UploadStatus.UPLOADED) = UIMessage.Regular(
+fun mockedImageUIMessage(
+    uploadStatus: Message.UploadStatus = Message.UploadStatus.UPLOADED,
+    messageStatus: MessageStatus = MessageStatus.Edited("May 31, 2022 12.24pm"),
+) = UIMessage.Regular(
     userAvatarData = UserAvatarData(null, UserAvailabilityStatus.AVAILABLE),
     header = MessageHeader(
         username = UIText.DynamicString("John Doe"),
         membership = Membership.External,
         isLegalHold = false,
         messageTime = MessageTime("12.23pm"),
-        messageStatus = MessageStatus.Edited("May 31, 2022 12.24pm"),
+        messageStatus = messageStatus,
         messageId = "4",
         connectionState = ConnectionState.ACCEPTED,
         isSenderDeleted = false,
@@ -158,7 +161,7 @@ fun getMockedMessages(): List<UIMessage> = listOf(
             membership = Membership.Guest,
             isLegalHold = true,
             messageTime = MessageTime("12.23pm"),
-            messageStatus = MessageStatus.Untouched,
+            messageStatus = MessageStatus.Untouched(),
             messageId = "1",
             connectionState = ConnectionState.ACCEPTED,
             isSenderDeleted = false,

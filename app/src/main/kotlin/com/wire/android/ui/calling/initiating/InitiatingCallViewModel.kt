@@ -38,6 +38,7 @@ import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.StartCallUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import java.util.Calendar
 import javax.inject.Inject
@@ -74,14 +75,14 @@ class InitiatingCallViewModel @Inject constructor(
 
     private suspend fun observeStartedCall() {
         observeEstablishedCalls()
+            .map { calls -> calls.map { it.conversationId } }
             .distinctUntilChanged()
-            .collect { calls ->
-                calls
-                    .find { call ->
-                        call.conversationId == conversationId
-                    }?.let {
-                        onCallEstablished()
-                    }
+            .collect { conversationIds ->
+                conversationIds.find { convId ->
+                    convId == conversationId
+                }?.let {
+                    onCallEstablished()
+                }
             }
     }
 

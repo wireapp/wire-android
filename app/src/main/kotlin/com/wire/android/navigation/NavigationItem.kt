@@ -81,7 +81,7 @@ import com.wire.android.ui.authentication.welcome.WelcomeScreen
 import com.wire.android.ui.calling.incoming.IncomingCallScreen
 import com.wire.android.ui.calling.initiating.InitiatingCallScreen
 import com.wire.android.ui.calling.ongoing.OngoingCallScreen
-import com.wire.android.ui.debugscreen.DebugScreen
+import com.wire.android.ui.debug.DebugScreen
 import com.wire.android.ui.home.HomeScreen
 import com.wire.android.ui.home.conversations.ConversationScreen
 import com.wire.android.ui.home.conversations.details.GroupConversationDetailsScreen
@@ -95,9 +95,6 @@ import com.wire.android.ui.home.conversations.search.AddMembersSearchRouter
 import com.wire.android.ui.home.gallery.MediaGalleryScreen
 import com.wire.android.ui.home.newconversation.NewConversationRouter
 import com.wire.android.ui.home.settings.account.MyAccountScreen
-import com.wire.android.ui.home.settings.account.displayname.ChangeDisplayNameScreen
-import com.wire.android.ui.home.settings.account.email.updateEmail.ChangeEmailScreen
-import com.wire.android.ui.home.settings.account.email.verifyEmail.VerifyEmailScreen
 import com.wire.android.ui.home.settings.account.displayname.ChangeDisplayNameScreen
 import com.wire.android.ui.home.settings.account.email.updateEmail.ChangeEmailScreen
 import com.wire.android.ui.home.settings.account.email.verifyEmail.VerifyEmailScreen

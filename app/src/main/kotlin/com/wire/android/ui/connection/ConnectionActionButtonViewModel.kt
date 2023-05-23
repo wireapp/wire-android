@@ -26,6 +26,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.R
 import com.wire.android.appLogger
+import com.wire.android.model.LoadableState
+import com.wire.android.model.finishLoading
+import com.wire.android.model.startLoading
+import com.wire.android.model.updateState
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.EXTRA_CONNECTION_IGNORED_USER_NAME
 import com.wire.android.navigation.EXTRA_CONNECTION_STATE
@@ -53,13 +57,15 @@ import com.wire.kalium.logic.feature.connection.UnblockUserUseCase
 import com.wire.kalium.logic.feature.conversation.CreateConversationResult
 import com.wire.kalium.logic.feature.conversation.GetOrCreateOneToOneConversationUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 interface ConnectionActionButtonBaseViewModel {
 
-    fun state(): ConnectionState
+    fun loadableState(): LoadableState<ConnectionState>
     fun onSendConnectionRequest()
     fun onCancelConnectionRequest()
     fun onAcceptConnectionRequest()
@@ -79,8 +85,7 @@ class ConnectionActionButtonViewModel @Inject constructor(
     private val ignoreConnectionRequest: IgnoreConnectionRequestUseCase,
     private val unblockUser: UnblockUserUseCase,
     private val getOrCreateOneToOneConversation: GetOrCreateOneToOneConversationUseCase,
-//    private val showSnackBarUseCase: ShowSnackBarUseCase,
-    private val savedStateHandle: SavedStateHandle,
+    savedStateHandle: SavedStateHandle,
     qualifiedIdMapper: QualifiedIdMapper
 ) : ConnectionActionButtonBaseViewModel, ViewModel() {
 
@@ -88,21 +93,26 @@ class ConnectionActionButtonViewModel @Inject constructor(
     private val userName: String = savedStateHandle.get<String>(EXTRA_USER_NAME)!!
     private val extraConnectionState: ConnectionState = ConnectionState.valueOf(savedStateHandle.get<String>(EXTRA_CONNECTION_STATE)!!)
 
-    var state: ConnectionState by mutableStateOf(extraConnectionState)
-    var requestInProgress: Boolean by mutableStateOf(false)
-    override fun state(): ConnectionState = state
+    var state: LoadableState<ConnectionState> by mutableStateOf(LoadableState(extraConnectionState))
+
+    private val _infoMessage = MutableSharedFlow<UIText>()
+    val infoMessage = _infoMessage.asSharedFlow()
+
+    override fun loadableState(): LoadableState<ConnectionState> = state
 
     override fun onSendConnectionRequest() {
         viewModelScope.launch {
+            state = state.startLoading()
             when (sendConnectionRequest(userId)) {
                 is SendConnectionRequestResult.Failure -> {
                     appLogger.d(("Couldn't send a connect request to user $userId"))
-//                    showSnackBarUseCase(UIText.StringResource(R.string.connection_request_sent_error))
+                    state = state.finishLoading()
+                    _infoMessage.emit(UIText.StringResource(R.string.connection_request_sent_error))
                 }
 
                 is SendConnectionRequestResult.Success -> {
-                    state = ConnectionState.SENT
-//                    showSnackBarUseCase(UIText.StringResource(R.string.connection_request_sent))
+                    state = state.updateState(ConnectionState.SENT)
+                    _infoMessage.emit(UIText.StringResource(R.string.connection_request_sent))
                 }
             }
         }
@@ -110,15 +120,17 @@ class ConnectionActionButtonViewModel @Inject constructor(
 
     override fun onCancelConnectionRequest() {
         viewModelScope.launch {
+            state = state.startLoading()
             when (cancelConnectionRequest(userId)) {
                 is CancelConnectionRequestUseCaseResult.Failure -> {
                     appLogger.d(("Couldn't cancel a connect request to user $userId"))
-                    showSnackBarUseCase(UIText.StringResource(R.string.connection_request_cancel_error))
+                    state = state.finishLoading()
+                    _infoMessage.emit(UIText.StringResource(R.string.connection_request_cancel_error))
                 }
 
                 is CancelConnectionRequestUseCaseResult.Success -> {
-                    state = ConnectionState.NOT_CONNECTED
-                    showSnackBarUseCase(UIText.StringResource(R.string.connection_request_canceled))
+                    state = state.updateState(ConnectionState.NOT_CONNECTED)
+                    _infoMessage.emit(UIText.StringResource(R.string.connection_request_canceled))
                 }
             }
         }
@@ -126,15 +138,17 @@ class ConnectionActionButtonViewModel @Inject constructor(
 
     override fun onAcceptConnectionRequest() {
         viewModelScope.launch {
+            state = state.startLoading()
             when (acceptConnectionRequest(userId)) {
                 is AcceptConnectionRequestUseCaseResult.Failure -> {
                     appLogger.d(("Couldn't accept a connect request to user $userId"))
-                    showSnackBarUseCase(UIText.StringResource(R.string.connection_request_accept_error))
+                    state = state.finishLoading()
+                    _infoMessage.emit(UIText.StringResource(R.string.connection_request_accept_error))
                 }
 
                 is AcceptConnectionRequestUseCaseResult.Success -> {
-                    state = ConnectionState.ACCEPTED
-                    showSnackBarUseCase(UIText.StringResource(R.string.connection_request_accepted))
+                    state = state.updateState(ConnectionState.ACCEPTED)
+                    _infoMessage.emit(UIText.StringResource(R.string.connection_request_accepted))
                 }
             }
         }
@@ -142,14 +156,16 @@ class ConnectionActionButtonViewModel @Inject constructor(
 
     override fun onIgnoreConnectionRequest() {
         viewModelScope.launch {
+            state = state.startLoading()
             when (ignoreConnectionRequest(userId)) {
                 is IgnoreConnectionRequestUseCaseResult.Failure -> {
                     appLogger.d(("Couldn't ignore a connect request to user $userId"))
-                    showSnackBarUseCase(UIText.StringResource(R.string.connection_request_ignore_error))
+                    state = state.finishLoading()
+                    _infoMessage.emit(UIText.StringResource(R.string.connection_request_ignore_error))
                 }
 
                 is IgnoreConnectionRequestUseCaseResult.Success -> {
-                    state = ConnectionState.IGNORED
+                    state = state.updateState(ConnectionState.IGNORED)
                     navigationManager.navigateBack(
                         mapOf(
                             EXTRA_CONNECTION_IGNORED_USER_NAME to userName
@@ -162,25 +178,31 @@ class ConnectionActionButtonViewModel @Inject constructor(
 
     override fun onUnblockUser() {
         viewModelScope.launch {
-            requestInProgress = true
+            state = state.startLoading()
             when (val result = withContext(dispatchers.io()) { unblockUser(userId) }) {
-                UnblockUserResult.Success -> {
-                    appLogger.i("User $userId was unblocked")
-                }
-
                 is UnblockUserResult.Failure -> {
                     appLogger.e("Error while unblocking user $userId ; Error ${result.coreFailure}")
-                    showSnackBarUseCase(UIText.StringResource(R.string.error_unblocking_user))
+                    state = state.finishLoading()
+                    _infoMessage.emit(UIText.StringResource(R.string.error_unblocking_user))
+                }
+
+                UnblockUserResult.Success -> {
+                    appLogger.i("User $userId was unblocked")
+                    state = state.updateState(ConnectionState.ACCEPTED)
                 }
             }
-            requestInProgress = false
         }
     }
 
     override fun onOpenConversation() {
         viewModelScope.launch {
+            state = state.startLoading()
             when (val result = withContext(dispatchers.io()) { getOrCreateOneToOneConversation(userId) }) {
-                is CreateConversationResult.Failure -> appLogger.d(("Couldn't retrieve or create the conversation"))
+                is CreateConversationResult.Failure -> {
+                    appLogger.d(("Couldn't retrieve or create the conversation"))
+                    state = state.finishLoading()
+                }
+
                 is CreateConversationResult.Success ->
                     navigationManager.navigate(
                         command = NavigationCommand(
@@ -193,13 +215,13 @@ class ConnectionActionButtonViewModel @Inject constructor(
     }
 
     companion object {
-        const val MY_ARGS_KEY = "ConnectionActionButtonViewModelKey"
+        const val ARGS_KEY = "ConnectionActionButtonViewModelKey"
     }
 }
 
 @Suppress("EmptyFunctionBlock")
-class ConnectionActionButtonPreviewModel(private val state: ConnectionState) : ConnectionActionButtonBaseViewModel {
-    override fun state(): ConnectionState = state
+class ConnectionActionButtonPreviewModel(private val state: LoadableState<ConnectionState>) : ConnectionActionButtonBaseViewModel {
+    override fun loadableState(): LoadableState<ConnectionState> = state
     override fun onSendConnectionRequest() {}
     override fun onCancelConnectionRequest() {}
     override fun onAcceptConnectionRequest() {}

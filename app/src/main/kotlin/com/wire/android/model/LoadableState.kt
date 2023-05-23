@@ -20,13 +20,14 @@
 
 package com.wire.android.model
 
-import com.wire.kalium.logic.CoreFailure
-
 /**
- * Wrapper for use case responses with additional [Loading] state for UI purposes
+ * Wrapper for view model states with additional [isLoading] variable for UI purposes
  */
-sealed class TriState<out T : Any> {
-    data class Data<out T : Any>(val value: T) : TriState<T>()
-    data class Error(val coreFailure: CoreFailure) : TriState<Nothing>()
-    object Loading : TriState<Nothing>()
-}
+data class LoadableState<T>(
+    val state: T,
+    val isLoading: Boolean = false
+)
+
+fun <T> LoadableState<T>.startLoading(): LoadableState<T> = this.copy(isLoading = true)
+fun <T> LoadableState<T>.finishLoading(): LoadableState<T> = this.copy(isLoading = false)
+fun <T> LoadableState<T>.updateState(newState: T): LoadableState<T> = this.copy(state = newState, isLoading = false)

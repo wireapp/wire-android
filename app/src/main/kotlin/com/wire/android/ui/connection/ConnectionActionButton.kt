@@ -14,8 +14,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 
 package com.wire.android.ui.connection
@@ -35,13 +33,16 @@ import androidx.core.os.bundleOf
 import com.sebaslogen.resaca.hilt.hiltViewModelScoped
 import com.wire.android.R
 import com.wire.android.model.ClickBlockParams
+import com.wire.android.model.LoadableState
 import com.wire.android.navigation.EXTRA_CONNECTION_STATE
 import com.wire.android.navigation.EXTRA_USER_ID
 import com.wire.android.navigation.EXTRA_USER_NAME
 import com.wire.android.ui.common.button.WireButtonState
+import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.common.button.WirePrimaryButton
+import com.wire.android.ui.snackbar.LocalSnackbarHostState
+import com.wire.android.ui.snackbar.collectAndShowSnackbar
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserId
 
@@ -52,30 +53,35 @@ fun ConnectionActionButton(
     connectionStatus: ConnectionState
 ) {
     val viewModel: ConnectionActionButtonBaseViewModel = if (LocalInspectionMode.current) {
-        ConnectionActionButtonPreviewModel(connectionStatus)
+        ConnectionActionButtonPreviewModel(LoadableState(connectionStatus))
     } else {
         hiltViewModelScoped<ConnectionActionButtonViewModel>(
-            key = "${ConnectionActionButtonViewModel.MY_ARGS_KEY}$userId",
+            key = "${ConnectionActionButtonViewModel.ARGS_KEY}$userId",
             defaultArguments = bundleOf(
                 EXTRA_USER_ID to userId.toString(),
                 EXTRA_USER_NAME to userName,
                 EXTRA_CONNECTION_STATE to connectionStatus.toString()
             )
-        )
+        ).also {
+            LocalSnackbarHostState.current.collectAndShowSnackbar(snackbarFlow = it.infoMessage)
+        }
     }
 
-    when (viewModel.state()) {
+    when (viewModel.loadableState().state) {
         ConnectionState.SENT -> WireSecondaryButton(
             text = stringResource(R.string.connection_label_cancel_request),
+            loading = viewModel.loadableState().isLoading,
             onClick = viewModel::onCancelConnectionRequest,
             clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
         )
         ConnectionState.ACCEPTED -> WirePrimaryButton(
             text = stringResource(R.string.label_open_conversation),
+            loading = viewModel.loadableState().isLoading,
             onClick = viewModel::onOpenConversation,
         )
         ConnectionState.IGNORED -> WirePrimaryButton(
             text = stringResource(R.string.connection_label_accept),
+            loading = viewModel.loadableState().isLoading,
             onClick = viewModel::onAcceptConnectionRequest,
             clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
             leadingIcon = {
@@ -89,6 +95,7 @@ fun ConnectionActionButton(
         ConnectionState.PENDING -> Column {
             WirePrimaryButton(
                 text = stringResource(R.string.connection_label_accept),
+                loading = viewModel.loadableState().isLoading,
                 onClick = viewModel::onAcceptConnectionRequest,
                 clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
                 leadingIcon = {
@@ -102,6 +109,7 @@ fun ConnectionActionButton(
             Spacer(modifier = Modifier.height(dimensions().spacing8x))
             WirePrimaryButton(
                 text = stringResource(R.string.connection_label_ignore),
+                loading = viewModel.loadableState().isLoading,
                 state = WireButtonState.Error,
                 onClick = viewModel::onIgnoreConnectionRequest,
                 clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
@@ -117,6 +125,7 @@ fun ConnectionActionButton(
         ConnectionState.BLOCKED -> {
             WireSecondaryButton(
                 text = stringResource(R.string.user_profile_unblock_user),
+                loading = viewModel.loadableState().isLoading,
                 onClick = viewModel::onUnblockUser,
                 clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
             )
@@ -125,6 +134,7 @@ fun ConnectionActionButton(
         ConnectionState.CANCELLED,
         ConnectionState.MISSING_LEGALHOLD_CONSENT -> WirePrimaryButton(
             text = stringResource(R.string.connection_label_connect),
+            loading = viewModel.loadableState().isLoading,
             onClick = viewModel::onSendConnectionRequest,
             clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
             leadingIcon = {

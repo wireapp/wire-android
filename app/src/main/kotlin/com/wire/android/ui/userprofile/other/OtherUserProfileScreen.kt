@@ -82,6 +82,7 @@ import com.wire.android.ui.connection.ConnectionActionButton
 import com.wire.android.ui.home.conversations.details.dialog.ClearConversationContentDialog
 import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.home.conversationslist.model.Membership
+import com.wire.android.ui.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
@@ -107,17 +108,19 @@ fun OtherUserProfileScreen(viewModel: OtherUserProfileScreenViewModel = hiltView
     val openBottomSheet: () -> Unit = remember { { scope.launch { sheetState.show() } } }
     val closeBottomSheet: () -> Unit = remember { { scope.launch { sheetState.hide() } } }
 
-    OtherProfileScreenContent(
-        scope = scope,
-        state = viewModel.state,
-        requestInProgress = viewModel.requestInProgress,
-        sheetState = sheetState,
-        openBottomSheet = openBottomSheet,
-        closeBottomSheet = closeBottomSheet,
-        snackbarHostState = snackbarHostState,
-        eventsHandler = viewModel,
-        bottomSheetEventsHandler = viewModel
-    )
+    CompositionLocalProvider(LocalSnackbarHostState provides snackbarHostState) {
+        OtherProfileScreenContent(
+            scope = scope,
+            state = viewModel.state,
+            requestInProgress = viewModel.requestInProgress,
+            sheetState = sheetState,
+            openBottomSheet = openBottomSheet,
+            closeBottomSheet = closeBottomSheet,
+            snackbarHostState = snackbarHostState,
+            eventsHandler = viewModel,
+            bottomSheetEventsHandler = viewModel
+        )
+    }
 
     LaunchedEffect(Unit) {
         viewModel.infoMessage.collect {

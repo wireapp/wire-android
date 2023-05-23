@@ -353,25 +353,27 @@ private fun MessageFooter(
     messageFooter: MessageFooter,
     onReactionClicked: (String, String) -> Unit
 ) {
-    FlowRow(
-        mainAxisSpacing = dimensions().spacing4x,
-        crossAxisSpacing = dimensions().spacing6x,
-        modifier = Modifier.padding(vertical = dimensions().spacing4x)
-    ) {
-        messageFooter.reactions.entries
-            .sortedBy { it.key }
-            .forEach {
-                val reaction = it.key
-                val count = it.value
-                ReactionPill(
-                    emoji = reaction,
-                    count = count,
-                    isOwn = messageFooter.ownReactions.contains(reaction),
-                    onTap = {
-                        onReactionClicked(messageFooter.messageId, reaction)
-                    }
-                )
-            }
+    if (messageFooter.reactions.entries.isNotEmpty()) { // to eliminate adding unnecessary paddings when the list is empty
+        FlowRow(
+            mainAxisSpacing = dimensions().spacing4x,
+            crossAxisSpacing = dimensions().spacing6x,
+            modifier = Modifier.padding(vertical = dimensions().spacing4x)
+        ) {
+            messageFooter.reactions.entries
+                .sortedBy { it.key }
+                .forEach {
+                    val reaction = it.key
+                    val count = it.value
+                    ReactionPill(
+                        emoji = reaction,
+                        count = count,
+                        isOwn = messageFooter.ownReactions.contains(reaction),
+                        onTap = {
+                            onReactionClicked(messageFooter.messageId, reaction)
+                        }
+                    )
+                }
+        }
     }
 }
 

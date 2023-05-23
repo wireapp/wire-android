@@ -20,7 +20,7 @@
 package com.wire.android.ui.connection
 
 import androidx.lifecycle.SavedStateHandle
-import com.wire.android.R
+import app.cash.turbine.test
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
 import com.wire.android.framework.TestConversation
@@ -29,9 +29,7 @@ import com.wire.android.navigation.EXTRA_CONNECTION_STATE
 import com.wire.android.navigation.EXTRA_USER_ID
 import com.wire.android.navigation.EXTRA_USER_NAME
 import com.wire.android.navigation.NavigationManager
-import com.wire.android.ui.common.snackbar.ShowSnackBarUseCase
 import com.wire.android.ui.userprofile.other.OtherUserProfileScreenViewModelTest
-import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
@@ -72,15 +70,18 @@ class ConnectionActionButtonViewModelTest {
         val (arrangement, viewModel) = ConnectionActionButtonHiltArrangement()
             .withSendConnectionRequest(SendConnectionRequestResult.Success)
             .arrange()
-        assertEquals(ConnectionState.NOT_CONNECTED, viewModel.state)
+        assertEquals(ConnectionState.NOT_CONNECTED, viewModel.loadableState().state)
 
-        // when
-        viewModel.onSendConnectionRequest()
 
-        // then
-        coVerify { arrangement.sendConnectionRequest.invoke(eq(TestUser.USER_ID)) }
-        coVerify { arrangement.showSnackBarUseCase(UIText.StringResource(R.string.connection_request_sent)) }
-        assertEquals(ConnectionState.SENT, viewModel.state)
+        viewModel.infoMessage.test {
+            // when
+            viewModel.onSendConnectionRequest()
+
+            // then
+            awaitItem()
+            coVerify { arrangement.sendConnectionRequest.invoke(eq(TestUser.USER_ID)) }
+            assertEquals(ConnectionState.SENT, viewModel.loadableState().state)
+        }
     }
 
     @Test
@@ -90,15 +91,17 @@ class ConnectionActionButtonViewModelTest {
             val (arrangement, viewModel) = ConnectionActionButtonHiltArrangement()
                 .withSendConnectionRequest(SendConnectionRequestResult.Failure(CoreFailure.Unknown(RuntimeException("some error"))))
                 .arrange()
-            assertEquals(ConnectionState.NOT_CONNECTED, viewModel.state)
+            assertEquals(ConnectionState.NOT_CONNECTED, viewModel.loadableState().state)
 
-            // when
-            viewModel.onSendConnectionRequest()
+            viewModel.infoMessage.test {
+                // when
+                viewModel.onSendConnectionRequest()
 
-            // then
-            coVerify { arrangement.sendConnectionRequest.invoke(eq(TestUser.USER_ID)) }
-            coVerify { arrangement.showSnackBarUseCase(UIText.StringResource(R.string.connection_request_sent_error)) }
-            assertEquals(ConnectionState.NOT_CONNECTED, viewModel.state)
+                // then
+                awaitItem()
+                coVerify { arrangement.sendConnectionRequest.invoke(eq(TestUser.USER_ID)) }
+                assertEquals(ConnectionState.NOT_CONNECTED, viewModel.loadableState().state)
+            }
         }
 
     @Test
@@ -108,14 +111,14 @@ class ConnectionActionButtonViewModelTest {
             val (arrangement, viewModel) = ConnectionActionButtonHiltArrangement()
                 .withIgnoreConnectionRequest(IgnoreConnectionRequestUseCaseResult.Success)
                 .arrange()
-            assertEquals(ConnectionState.PENDING, viewModel.state)
+            assertEquals(ConnectionState.PENDING, viewModel.loadableState().state)
 
             // when
             viewModel.onIgnoreConnectionRequest()
 
             // then
             coVerify { arrangement.ignoreConnectionRequest.invoke(eq(TestUser.USER_ID)) }
-            assertEquals(ConnectionState.IGNORED, viewModel.state)
+            assertEquals(ConnectionState.IGNORED, viewModel.loadableState().state)
             coVerify { arrangement.navigationManager.navigateBack(any()) }
         }
 
@@ -126,15 +129,17 @@ class ConnectionActionButtonViewModelTest {
             val (arrangement, viewModel) = ConnectionActionButtonHiltArrangement()
                 .withCancelConnectionRequest(CancelConnectionRequestUseCaseResult.Success)
                 .arrange()
-            assertEquals(ConnectionState.SENT, viewModel.state)
+            assertEquals(ConnectionState.SENT, viewModel.loadableState().state)
 
-            // when
-            viewModel.onCancelConnectionRequest()
+            viewModel.infoMessage.test {
+                // when
+                viewModel.onCancelConnectionRequest()
 
-            // then
-            coVerify { arrangement.cancelConnectionRequest.invoke(eq(TestUser.USER_ID)) }
-            coVerify { arrangement.showSnackBarUseCase(UIText.StringResource(R.string.connection_request_canceled)) }
-            assertEquals(ConnectionState.NOT_CONNECTED, viewModel.state)
+                // then
+                awaitItem()
+                coVerify { arrangement.cancelConnectionRequest.invoke(eq(TestUser.USER_ID)) }
+                assertEquals(ConnectionState.NOT_CONNECTED, viewModel.loadableState().state)
+            }
         }
 
     @Test
@@ -144,15 +149,18 @@ class ConnectionActionButtonViewModelTest {
             val (arrangement, viewModel) = ConnectionActionButtonHiltArrangement()
                 .withAcceptConnectionRequest(AcceptConnectionRequestUseCaseResult.Success)
                 .arrange()
-            assertEquals(ConnectionState.PENDING, viewModel.state)
+            assertEquals(ConnectionState.PENDING, viewModel.loadableState().state)
 
-            // when
-            viewModel.onAcceptConnectionRequest()
+            viewModel.infoMessage.test {
+                // when
+                viewModel.onAcceptConnectionRequest()
 
-            // then
-            coVerify { arrangement.acceptConnectionRequest.invoke(eq(TestUser.USER_ID)) }
-            coVerify { arrangement.showSnackBarUseCase(UIText.StringResource(R.string.connection_request_accepted)) }
-            assertEquals(ConnectionState.ACCEPTED, viewModel.state)
+                // then
+                awaitItem()
+                coVerify { arrangement.acceptConnectionRequest.invoke(eq(TestUser.USER_ID)) }
+                assertEquals(ConnectionState.ACCEPTED, viewModel.loadableState().state)
+            }
+
         }
 
     @Test
@@ -225,9 +233,6 @@ internal class ConnectionActionButtonHiltArrangement {
     lateinit var observeSelfUser: GetSelfUserUseCase
 
     @MockK
-    lateinit var showSnackBarUseCase: ShowSnackBarUseCase
-
-    @MockK
     lateinit var qualifiedIdMapper: QualifiedIdMapper
 
     private val viewModel by lazy {
@@ -240,7 +245,6 @@ internal class ConnectionActionButtonHiltArrangement {
             ignoreConnectionRequest,
             unblockUser,
             getOrCreateOneToOneConversation,
-            showSnackBarUseCase,
             savedStateHandle,
             qualifiedIdMapper
         )
@@ -262,7 +266,6 @@ internal class ConnectionActionButtonHiltArrangement {
         coEvery { navigationManager.navigate(command = any()) } returns Unit
         coEvery { navigationManager.navigateBack(any()) } returns Unit
 
-        coEvery { showSnackBarUseCase(any()) } returns Unit
         coEvery {
             qualifiedIdMapper.fromStringToQualifiedID("some_value@some_domain")
         } returns TestUser.USER_ID

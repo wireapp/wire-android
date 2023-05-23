@@ -93,7 +93,7 @@ class ConnectionActionButtonViewModel @Inject constructor(
     private val userName: String = savedStateHandle.get<String>(EXTRA_USER_NAME)!!
     private val extraConnectionState: ConnectionState = ConnectionState.valueOf(savedStateHandle.get<String>(EXTRA_CONNECTION_STATE)!!)
 
-    var state: LoadableState<ConnectionState> by mutableStateOf(LoadableState(extraConnectionState))
+    private var state: LoadableState<ConnectionState> by mutableStateOf(LoadableState(extraConnectionState))
 
     private val _infoMessage = MutableSharedFlow<UIText>()
     val infoMessage = _infoMessage.asSharedFlow()

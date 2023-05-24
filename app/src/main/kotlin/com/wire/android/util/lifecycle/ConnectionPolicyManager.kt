@@ -38,6 +38,7 @@ import com.wire.kalium.logic.functional.fold
 import com.wire.kalium.logic.functional.isLeft
 import com.wire.kalium.logic.functional.map
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -91,7 +92,7 @@ class ConnectionPolicyManager @Inject constructor(
      * Depending on the current screen and the active session,
      * this will downgrade the policy back to [ConnectionPolicy.DISCONNECT_AFTER_PENDING_EVENTS].
      */
-    suspend fun handleConnectionOnPushNotification(userId: UserId) {
+    suspend fun handleConnectionOnPushNotification(userId: UserId, stayAliveTimeMs: Long = 0) {
         logger.d(
             "$TAG Handling connection policy for push notification of " +
                     "user=${userId.value.obfuscateId()}@${userId.domain.obfuscateDomain()}"
@@ -105,7 +106,9 @@ class ConnectionPolicyManager @Inject constructor(
             if (syncManager.waitUntilLiveOrFailure().isLeft()) {
                 logger.w("$TAG Failed waiting until live")
             }
-            logger.d("$TAG Checking if downgrading policy is needed")
+            logger.d("$TAG Checking if downgrading policy is needed (after small delay)")
+            // this delay needed to have some time for getting the messages and calls from DB and displaying the notifications
+            delay(stayAliveTimeMs)
             downgradePolicyIfNeeded(userId)
         }
     }

@@ -77,6 +77,7 @@ import com.wire.android.ui.home.conversations.info.ConversationInfoViewState
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewModel
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewState
 import com.wire.android.ui.home.conversations.model.EditMessageBundle
+import com.wire.android.ui.home.conversations.model.ExpirationStatus
 import com.wire.android.ui.home.conversations.model.SendMessageBundle
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UriAsset
@@ -190,7 +191,11 @@ fun ConversationScreen(
         onAttachmentPicked = messageComposerViewModel::attachmentPicked,
         onAssetItemClicked = conversationMessagesViewModel::downloadOrFetchAssetAndShowDialog,
         onImageFullScreenMode = { message, isSelfMessage ->
-            messageComposerViewModel.navigateToGallery(message.header.messageId, isSelfMessage)
+            messageComposerViewModel.navigateToGallery(
+                messageId = message.header.messageId,
+                isSelfMessage = isSelfMessage,
+                isEphemeral = message.expirationStatus is ExpirationStatus.Expirable
+            )
             conversationMessagesViewModel.updateImageOnFullscreenMode(message)
         },
         onStartCall = {

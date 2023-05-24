@@ -77,12 +77,6 @@ class MediaGalleryViewModel @Inject constructor(
     private val deleteMessage: DeleteMessageUseCase,
     private val getMessageByIdUseCase: GetMessageByIdUseCase
 ) : ViewModel() {
-    var mediaGalleryViewState by mutableStateOf(MediaGalleryViewState())
-        private set
-
-    private val _snackbarMessage = MutableSharedFlow<MediaGallerySnackbarMessages>()
-    val snackbarMessage = _snackbarMessage.asSharedFlow()
-
     val imageAsset: ImageAsset.PrivateAsset =
         savedStateHandle.get<String>(EXTRA_IMAGE_DATA)!!.parseIntoPrivateImageAsset(
             wireSessionImageLoader,
@@ -91,6 +85,8 @@ class MediaGalleryViewModel @Inject constructor(
 
     private val messageId = imageAsset.messageId
     private val conversationId = imageAsset.conversationId
+    var mediaGalleryViewState by mutableStateOf(MediaGalleryViewState(isEphemeral = imageAsset.isEphemeral))
+        private set
 
     val deleteMessageHelper = DeleteMessageDialogHelper(
         viewModelScope,
@@ -102,26 +98,11 @@ class MediaGalleryViewModel @Inject constructor(
             .onSuccess { navigateBack() }
     }
 
+    private val _snackbarMessage = MutableSharedFlow<MediaGallerySnackbarMessages>()
+    val snackbarMessage = _snackbarMessage.asSharedFlow()
+
     init {
         getConversationTitle()
-        isEphemeralMessage()
-    }
-
-    private fun isEphemeralMessage() {
-        viewModelScope.launch {
-            when (val result = getMessageByIdUseCase(conversationId, messageId)) {
-                is GetMessageByIdUseCase.Result.Success -> {
-                    val message = result.message
-                    if (message is Message.Regular) {
-                        mediaGalleryViewState = mediaGalleryViewState.copy(isEphemeral = message.expirationData != null)
-                    } else {
-                        throw IllegalStateException("Illegal state for MediaGalleryScreen, message is not regular")
-                    }
-                }
-
-                is GetMessageByIdUseCase.Result.Failure -> {}
-            }
-        }
     }
 
     fun shareAsset(context: Context) {

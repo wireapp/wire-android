@@ -53,8 +53,6 @@ import androidx.paging.compose.itemsIndexed
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.media.audiomessage.AudioState
-import com.wire.android.model.Clickable
-import com.wire.android.model.ClickableParams
 import com.wire.android.model.SnackBarMessage
 import com.wire.android.navigation.hiltSavedStateViewModel
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetHeader
@@ -65,12 +63,6 @@ import com.wire.android.ui.common.dialogs.calling.OngoingActiveCallDialog
 import com.wire.android.ui.common.error.CoreFailureErrorDialog
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.common.topappbar.CommonTopAppBarViewModel
-import com.wire.android.ui.edit.DeleteItemMenuOption
-import com.wire.android.ui.edit.DownloadAssetExternallyOption
-import com.wire.android.ui.edit.MessageDetailsMenuOption
-import com.wire.android.ui.edit.OpenAssetExternallyOption
-import com.wire.android.ui.edit.ReactionOption
-import com.wire.android.ui.edit.ReplyMessageOption
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorDownloadingAsset
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.OnFileDownloaded
 import com.wire.android.ui.home.conversations.banner.ConversationBanner
@@ -78,19 +70,15 @@ import com.wire.android.ui.home.conversations.banner.ConversationBannerViewModel
 import com.wire.android.ui.home.conversations.call.ConversationCallViewModel
 import com.wire.android.ui.home.conversations.call.ConversationCallViewState
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialog
-import com.wire.android.ui.home.conversations.edit.CopyItemMenuOption
-import com.wire.android.ui.home.conversations.edit.EditMessageMenuOption
-import com.wire.android.ui.home.conversations.edit.ShareAssetMenuOption
+import com.wire.android.ui.home.conversations.edit.EditMessageMenuItems
 import com.wire.android.ui.home.conversations.info.ConversationDetailsData
 import com.wire.android.ui.home.conversations.info.ConversationInfoViewModel
 import com.wire.android.ui.home.conversations.info.ConversationInfoViewState
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewModel
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewState
 import com.wire.android.ui.home.conversations.model.EditMessageBundle
-import com.wire.android.ui.home.conversations.model.ExpirationStatus
 import com.wire.android.ui.home.conversations.model.SendMessageBundle
 import com.wire.android.ui.home.conversations.model.UIMessage
-import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.conversations.model.UriAsset
 import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMenuItems
 import com.wire.android.ui.home.messagecomposer.MessageComposer
@@ -362,14 +350,31 @@ private fun ConversationScreen(
         sheetState = conversationScreenState.modalBottomSheetState,
         coroutineScope = conversationScreenState.coroutineScope,
         menuItems = when (val menuType = conversationScreenState.bottomSheetMenuType) {
-            is ConversationScreenState.BottomSheetMenuType.Edit -> EditMenuItems(
-                selectedMessage = menuType.selectedMessage
+            is ConversationScreenState.BottomSheetMenuType.Edit -> EditMessageMenuItems(
+                message = menuType.selectedMessage,
+                hideEditMessageMenu = conversationScreenState::hideContextMenu,
+                onCopyClick = conversationScreenState::copyMessage,
+                onDeleteClick = onDeleteMessage,
+                onReactionClick = onReactionClick,
+                onDetailsClick = onMessageDetailsClick,
+                onReplyClick = messageComposerState::reply,
+                onEditClick = messageComposerState::toEditMessage,
+                onShareAssetClick = {
+                    menuType.selectedMessage.header.messageId.let {
+                        conversationMessagesViewModel.shareAsset(context, it)
+                        conversationScreenState.hideContextMenu()
+                    }
+                },
+                onDownloadAssetClick = conversationMessagesViewModel::downloadAssetExternally,
+                onOpenAssetClick = conversationMessagesViewModel::downloadAndOpenAsset
             )
 
             ConversationScreenState.BottomSheetMenuType.SelfDeletion -> SelfDeletionMenuItems(
                 currentlySelected = messageComposerState.getSelfDeletionTime(),
-                hideEditMessageMenu = {},
-                onSelfDeletionDurationChanged = {}
+                hideEditMessageMenu = conversationScreenState::hideContextMenu,
+                onSelfDeletionDurationChanged = { newTimer ->
+                    onNewSelfDeletingMessagesStatus(SelfDeletionTimer.Enabled(newTimer.value))
+                }
             )
 
             ConversationScreenState.BottomSheetMenuType.None -> emptyList()
@@ -435,81 +440,6 @@ private fun ConversationScreen(
         )
     }
     SnackBarMessage(composerMessages, conversationMessages, conversationScreenState)
-}
-
-@Composable
-fun EditMenuItems(selectedMessage: UIMessage.Regular): List<@Composable () -> Unit> = when (selectedMessage.messageContent) {
-    is UIMessageContent.AssetMessage, is UIMessageContent.AudioAssetMessage,
-    is UIMessageContent.RestrictedAsset, is UIMessageContent.ImageMessage -> {
-        AssetMenuItems(
-            isEphemeral = selectedMessage.expirationStatus is ExpirationStatus.Expirable,
-            onDeleteClick = { },
-            onDetailsClick = { },
-            onShareAsset = { },
-            onDownloadAsset = { },
-            onReplyClick = { },
-            onReactionClick = { },
-            onOpenAsset = { }
-        )
-    }
-
-    is UIMessageContent.TextMessage -> {
-        TextMessageMenuItems(
-            isEphemeral = selectedMessage.expirationStatus is ExpirationStatus.Expirable,
-            onDeleteClick = { },
-            onDetailsClick = { },
-            onReactionClick = { },
-            onEditClick = { },
-            onCopyClick = { },
-            onReplyClick = { }
-        )
-    }
-
-    else -> {
-        emptyList()
-    }
-}
-
-@Composable
-fun TextMessageMenuItems(
-    isEphemeral: Boolean,
-    onDeleteClick: () -> Unit,
-    onDetailsClick: () -> Unit,
-    onReplyClick: () -> Unit,
-    onCopyClick: () -> Unit,
-    onReactionClick: (String) -> Unit,
-    onEditClick: () -> Unit
-): List<@Composable () -> Unit> {
-    return buildList {
-        if (!isEphemeral) add { ReactionOption(onReactionClick) }
-        add { MessageDetailsMenuOption(onDetailsClick) }
-        if (!isEphemeral) add { CopyItemMenuOption(onCopyClick) }
-        if (!isEphemeral) add { ReplyMessageOption(onReplyClick) }
-        if (!isEphemeral) add { EditMessageMenuOption(onEditClick) }
-        add { DeleteItemMenuOption(onDeleteClick) }
-    }
-}
-
-@Composable
-fun AssetMenuItems(
-    isEphemeral: Boolean,
-    onDeleteClick: () -> Unit,
-    onDetailsClick: () -> Unit,
-    onShareAsset: () -> Unit,
-    onDownloadAsset: () -> Unit,
-    onReplyClick: () -> Unit,
-    onReactionClick: (String) -> Unit,
-    onOpenAsset: (() -> Unit)? = null
-): List<@Composable () -> Unit> {
-    return buildList {
-        if (!isEphemeral) add { ReactionOption(onReactionClick) }
-        add { MessageDetailsMenuOption(onDetailsClick) }
-        if (!isEphemeral) add { ReplyMessageOption(onReplyClick) }
-        add { DownloadAssetExternallyOption(onDownloadAsset) }
-        if (!isEphemeral) add { ShareAssetMenuOption(onShareAsset) }
-        if (onOpenAsset != null && !isEphemeral) add { OpenAssetExternallyOption(onOpenAsset) }
-        add { DeleteItemMenuOption(onDeleteClick) }
-    }
 }
 
 @Suppress("LongParameterList")

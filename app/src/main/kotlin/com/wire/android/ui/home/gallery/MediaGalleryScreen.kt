@@ -43,9 +43,9 @@ import com.wire.android.R
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
-import com.wire.android.ui.home.conversations.AssetMenuItems
 import com.wire.android.ui.home.conversations.MediaGallerySnackbarMessages
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialog
+import com.wire.android.ui.home.conversations.edit.AssetEditMenuItems
 import com.wire.android.util.permission.rememberWriteStorageRequestFlow
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
@@ -67,14 +67,30 @@ fun MediaGalleryScreen(mediaGalleryViewModel: MediaGalleryViewModel = hiltViewMo
         MenuModalSheetLayout(
             sheetState = mediaGalleryScreenState.modalBottomSheetState,
             coroutineScope = scope,
-            menuItems = AssetMenuItems(
+            menuItems = AssetEditMenuItems(
                 isEphemeral = viewModelState.isEphemeral,
-                onDeleteClick = { },
-                onDetailsClick = { },
-                onShareAsset = { },
-                onDownloadAsset = { },
-                onReplyClick = { },
-                onReactionClick = { },
+                onDeleteClick = {
+                    mediaGalleryScreenState.showContextualMenu(false)
+                    mediaGalleryViewModel.deleteCurrentImage()
+                },
+                onDetailsClick = {
+                    mediaGalleryScreenState.showContextualMenu(false)
+                    mediaGalleryViewModel.onMessageDetailsClicked()
+                },
+                onShareAsset = {
+                    mediaGalleryScreenState.showContextualMenu(false)
+                    mediaGalleryViewModel.shareAsset(context)
+                },
+                onDownloadAsset = onSaveImageWriteStorageRequest::launch,
+                onReplyClick = {
+                    mediaGalleryScreenState.showContextualMenu(false)
+                    mediaGalleryViewModel.onMessageReplied()
+                },
+                onReactionClick = { emoji ->
+                    mediaGalleryScreenState.showContextualMenu(false)
+                    mediaGalleryViewModel.onMessageReacted(emoji)
+
+                },
                 onOpenAsset = null
             )
         ) {
@@ -102,32 +118,6 @@ fun MediaGalleryScreen(mediaGalleryViewModel: MediaGalleryViewModel = hiltViewMo
         }
     }
 }
-
-//private fun(){
-//    EditGalleryMenuItems(
-//        onDeleteMessage = {
-//            mediaGalleryScreenState.showContextualMenu(false)
-//            mediaGalleryViewModel.deleteCurrentImage()
-//        },
-//        onDownloadImage = onSaveImageWriteStorageRequest::launch,
-//        onShareImage = {
-//            mediaGalleryScreenState.showContextualMenu(false)
-//            mediaGalleryViewModel.shareAsset(context)
-//        },
-//        onReactionClick = { emoji ->
-//            mediaGalleryScreenState.showContextualMenu(false)
-//            mediaGalleryViewModel.onMessageReacted(emoji)
-//        },
-//        onImageReplied = {
-//            mediaGalleryScreenState.showContextualMenu(false)
-//            mediaGalleryViewModel.onMessageReplied()
-//        },
-//        onMessageDetails = {
-//            mediaGalleryScreenState.showContextualMenu(false)
-//            mediaGalleryViewModel.onMessageDetailsClicked()
-//        }
-//    )
-//}
 
 @Composable
 fun MediaGalleryContent(viewModel: MediaGalleryViewModel, mediaGalleryScreenState: MediaGalleryScreenState) {
@@ -182,44 +172,3 @@ private fun getSnackbarMessage(messageCode: MediaGallerySnackbarMessages, resour
     }
     return msg to actionLabel
 }
-
-//// TODO: Unify with [com.wire.android.ui.home.conversations.edit.EditGalleryMenuItems]
-//@Composable
-//fun EditGalleryMenuItems(
-//    onReactionClick: (emoji: String) -> Unit,
-//    onImageReplied: () -> Unit,
-//    onMessageDetails: () -> Unit,
-//    onDownloadImage: () -> Unit,
-//    onDeleteMessage: () -> Unit,
-//    onShareImage: () -> Unit
-//): List<@Composable () -> Unit> {
-//    return buildList {
-//        add { ReactionOption(onReactionClick = onReactionClick) }
-//        add { MessageDetailsMenuOption(onMessageDetailsClick = onMessageDetails) }
-//        add { ReplyMessageOption(onReplyItemClick = onImageReplied) }
-//        add { DownloadAssetExternallyOption(onDownloadClick = onDownloadImage) }
-//        add {
-//            MenuBottomSheetItem(
-//                icon = {
-//                    MenuItemIcon(
-//                        id = R.drawable.ic_share_file,
-//                        contentDescription = stringResource(R.string.content_description_share_the_file),
-//                    )
-//                },
-//                title = stringResource(R.string.label_share),
-//                onItemClick = onShareImage
-//            )
-//            MenuBottomSheetItem(
-//                icon = {
-//                    MenuItemIcon(
-//                        id = R.drawable.ic_delete,
-//                        contentDescription = stringResource(R.string.content_description_delete_the_message),
-//                    )
-//                },
-//                itemProvidedColor = MaterialTheme.colorScheme.error,
-//                title = stringResource(R.string.label_delete),
-//                onItemClick = onDeleteMessage
-//            )
-//        }
-//    }
-//}

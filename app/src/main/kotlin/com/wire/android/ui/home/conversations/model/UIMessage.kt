@@ -379,12 +379,14 @@ sealed interface DeliveryStatusContent {
         val failedRecipients: ImmutableList<UIText> = persistentListOf(),
         val noClients: ImmutableMap<String, List<UIText>> = persistentMapOf(),
     ) : DeliveryStatusContent {
-        private val usersWithNoClients by lazy { noClients.values.flatten() }
-        val filteredRecipientsFailure by lazy { failedRecipients.filter { it !in usersWithNoClients }.toImmutableList() }
-        val isSingleUserFailure by lazy { totalUsersWithFailures == 1 }
-        val totalUsersWithFailures by lazy { (failedRecipients + usersWithNoClients).distinct().count() }
         val hasFailures: Boolean
             get() = totalUsersWithFailures > 0
+
+        val filteredRecipientsFailure by lazy { failedRecipients.filter { it !in noClients.values.flatten() }.toImmutableList() }
+        val isSingleUserFailure by lazy { totalUsersWithFailures == 1 }
+        val totalUsersWithFailures by lazy {
+            (failedRecipients + noClients.values.flatten()).distinct().count()
+        }
     }
 
     object CompleteDelivery : DeliveryStatusContent

@@ -527,9 +527,4 @@ private fun MessageStatusLabel(messageStatus: MessageStatus) {
 }
 
 internal val DeliveryStatusContent.expandable
-    get() = when {
-        this is DeliveryStatusContent.PartialDelivery ||
-                (this as DeliveryStatusContent.PartialDelivery).hasFailures -> true
-
-        else -> false
-    }
+    get() = this is DeliveryStatusContent.PartialDelivery && !this.isSingleUserFailure

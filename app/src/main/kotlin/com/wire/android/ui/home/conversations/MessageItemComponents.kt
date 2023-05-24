@@ -174,13 +174,34 @@ private fun SingleUserDeliveryFailure(
 ) {
     val learnMoreUrl = stringResource(R.string.url_message_details_offline_backends_learn_more)
     Column {
-        Text(
-            text = stringResource(
-                id = R.string.label_message_partial_delivery_participants_deliver_later,
-                partialDeliveryFailureContent.failedRecipients.joinToString(", ") { it.asString(resources) }
-            ),
-            textAlign = TextAlign.Start
-        )
+        if (partialDeliveryFailureContent.failedRecipients.isNotEmpty()) {
+            Text(
+                text = stringResource(
+                    id = R.string.label_message_partial_delivery_participants_deliver_later,
+                    partialDeliveryFailureContent.failedRecipients.joinToString(", ") {
+                        it.asString(resources).ifEmpty { resources.getString(R.string.username_unavailable_label) }
+                    }
+                ),
+                textAlign = TextAlign.Start
+            )
+
+        }
+        if (partialDeliveryFailureContent.noClients.isNotEmpty()) {
+            Text(
+                text = partialDeliveryFailureContent.noClients.entries.map {
+                    pluralStringResource(
+                        R.plurals.label_message_partial_delivery_x_participants_from_backend,
+                        it.value.size,
+                        it.value.size,
+                        it.key
+                    )
+                }.joinToString(", ") + stringResource(
+                    R.string.label_message_partial_delivery_participants_wont_deliver,
+                    String.EMPTY
+                ),
+                textAlign = TextAlign.Start
+            )
+        }
         Text(
             modifier = Modifier
                 .clickable { CustomTabsHelper.launchUrl(context, learnMoreUrl) },

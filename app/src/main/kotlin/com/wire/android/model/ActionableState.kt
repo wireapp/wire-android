@@ -20,13 +20,16 @@
 
 package com.wire.android.model
 
-import com.wire.kalium.logic.CoreFailure
-
 /**
- * Wrapper for use case responses with additional [Loading] state for UI purposes
+ * Wrapper for view model states with additional [isPerformingAction] which informs UI that action is being performed,
+ * like:
+ * - blocking button action when some action is already triggered
  */
-sealed class TriState<out T : Any> {
-    data class Data<out T : Any>(val value: T) : TriState<T>()
-    data class Error(val coreFailure: CoreFailure) : TriState<Nothing>()
-    object Loading : TriState<Nothing>()
-}
+data class ActionableState<T>(
+    val state: T,
+    val isPerformingAction: Boolean = false
+)
+
+fun <T> ActionableState<T>.performAction(): ActionableState<T> = this.copy(isPerformingAction = true)
+fun <T> ActionableState<T>.finishAction(): ActionableState<T> = this.copy(isPerformingAction = false)
+fun <T> ActionableState<T>.updateState(newState: T): ActionableState<T> = this.copy(state = newState, isPerformingAction = false)

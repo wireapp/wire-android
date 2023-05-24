@@ -14,19 +14,12 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
+package com.wire.android.ui.snackbar
 
-package com.wire.android.model
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.runtime.staticCompositionLocalOf
 
-import com.wire.kalium.logic.CoreFailure
-
-/**
- * Wrapper for use case responses with additional [Loading] state for UI purposes
- */
-sealed class TriState<out T : Any> {
-    data class Data<out T : Any>(val value: T) : TriState<T>()
-    data class Error(val coreFailure: CoreFailure) : TriState<Nothing>()
-    object Loading : TriState<Nothing>()
+val LocalSnackbarHostState = staticCompositionLocalOf<SnackbarHostState> {
+    error("No SnackbarHostState provided")
 }

@@ -103,8 +103,8 @@ class MediaGalleryViewModel @Inject constructor(
     }
 
     init {
-        isEphemeralMessage()
         getConversationTitle()
+        isEphemeralMessage()
     }
 
     private fun isEphemeralMessage() {
@@ -113,7 +113,7 @@ class MediaGalleryViewModel @Inject constructor(
                 is GetMessageByIdUseCase.Result.Success -> {
                     val message = result.message
                     if (message is Message.Regular) {
-                        mediaGalleryViewState.copy(isEphemeral = message.expirationData != null)
+                        mediaGalleryViewState = mediaGalleryViewState.copy(isEphemeral = message.expirationData != null)
                     } else {
                         throw IllegalStateException("Illegal state for MediaGalleryScreen, message is not regular")
                     }

@@ -270,7 +270,6 @@ private fun String?.orUnknownName(): UIText = when {
     else -> UIText.StringResource(R.string.username_unavailable_label)
 }
 
-// todo: consider do the filtering and manipulation here.
 private fun mapRecipientsFailure(userList: List<User>, deliveryStatus: DeliveryStatus?): DeliveryStatusContent {
     return when (deliveryStatus) {
         is DeliveryStatus.PartialDelivery -> DeliveryStatusContent.PartialDelivery(

@@ -18,6 +18,8 @@
  *
  */
 
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package com.wire.android.ui.userprofile.other
 
 import android.annotation.SuppressLint
@@ -94,6 +96,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OtherUserProfileScreen(viewModel: OtherUserProfileScreenViewModel = hiltViewModel()) {
     val snackbarHostState = LocalSnackbarHostState.current

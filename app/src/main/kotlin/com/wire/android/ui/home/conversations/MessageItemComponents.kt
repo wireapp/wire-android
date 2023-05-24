@@ -97,8 +97,6 @@ private fun MultiUserDeliveryFailure(
     resources: Resources
 ) {
     var expanded: Boolean by remember { mutableStateOf(false) }
-    val context = LocalContext.current
-    val learnMoreUrl = stringResource(R.string.url_message_details_offline_backends_learn_more)
     Column {
         Text(
             text = stringResource(
@@ -138,8 +136,7 @@ private fun MultiUserDeliveryFailure(
                     textAlign = TextAlign.Start
                 )
                 Text(
-                    modifier = Modifier
-                        .clickable { CustomTabsHelper.launchUrl(context, learnMoreUrl) },
+                    modifier = Modifier.offlineBackendsLearnMoreClickableModifier(),
                     style = LocalTextStyle.current.copy(
                         color = MaterialTheme.wireColorScheme.onTertiaryButtonSelected,
                         textDecoration = TextDecoration.Underline
@@ -169,10 +166,8 @@ private fun MultiUserDeliveryFailure(
 @Composable
 private fun SingleUserDeliveryFailure(
     partialDeliveryFailureContent: DeliveryStatusContent.PartialDelivery,
-    resources: Resources,
-    context: Context = LocalContext.current
+    resources: Resources
 ) {
-    val learnMoreUrl = stringResource(R.string.url_message_details_offline_backends_learn_more)
     Column {
         if (partialDeliveryFailureContent.failedRecipients.isNotEmpty()) {
             Text(
@@ -203,8 +198,7 @@ private fun SingleUserDeliveryFailure(
             )
         }
         Text(
-            modifier = Modifier
-                .clickable { CustomTabsHelper.launchUrl(context, learnMoreUrl) },
+            modifier = Modifier.offlineBackendsLearnMoreClickableModifier(),
             style = LocalTextStyle.current.copy(
                 color = MaterialTheme.wireColorScheme.onTertiaryButtonSelected,
                 textDecoration = TextDecoration.Underline
@@ -280,3 +274,13 @@ internal fun Modifier.customizeMessageBackground(
         this
     }
 }
+
+@Composable
+private fun Modifier.offlineBackendsLearnMoreClickableModifier(
+    context: Context = LocalContext.current
+) = run {
+    val learnMoreUrl = stringResource(R.string.url_message_details_offline_backends_learn_more)
+    this.clickable { CustomTabsHelper.launchUrl(context, learnMoreUrl) }
+}
+
+

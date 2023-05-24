@@ -30,8 +30,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -83,7 +81,6 @@ import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.android.util.dialogErrorStrings
 import kotlinx.coroutines.launch
 
-@ExperimentalMaterialApi
 @Composable
 fun LoginScreen() {
     val loginViewModel: LoginViewModel = hiltViewModel()
@@ -137,7 +134,6 @@ private fun LoginContent(
 
 @OptIn(
     ExperimentalComposeUiApi::class,
-    ExperimentalMaterial3Api::class,
     ExperimentalPagerApi::class,
     ExperimentalFoundationApi::class,
 )

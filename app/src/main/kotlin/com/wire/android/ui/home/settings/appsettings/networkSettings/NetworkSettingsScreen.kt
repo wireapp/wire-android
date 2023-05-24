@@ -23,7 +23,6 @@ package com.wire.android.ui.home.settings.appsettings.networkSettings
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -47,9 +46,6 @@ fun NetworkSettingsScreen(networkSettingsViewModel: NetworkSettingsViewModel = h
     )
 }
 
-@OptIn(
-    ExperimentalMaterial3Api::class,
-)
 @Composable
 fun NetworkSettingsScreenContent(
     onBackPressed: () -> Unit,

@@ -34,10 +34,8 @@ import com.wire.android.workmanager.worker.SingleUserMigrationWorker
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.sync.WrapperWorker
 import com.wire.kalium.logic.sync.WrapperWorkerFactory
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import javax.inject.Inject
 
-@OptIn(ExperimentalCoroutinesApi::class)
 class WireWorkerFactory @Inject constructor(
     private val wireNotificationManager: WireNotificationManager,
     private val notificationChannelsManager: NotificationChannelsManager,

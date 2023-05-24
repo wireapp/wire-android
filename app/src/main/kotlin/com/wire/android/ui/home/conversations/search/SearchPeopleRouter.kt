@@ -116,12 +116,6 @@ fun SearchPeopleRouter(
     )
 }
 
-@OptIn(
-    ExperimentalMaterial3Api::class,
-    ExperimentalPagerApi::class,
-    ExperimentalComposeUiApi::class,
-    ExperimentalFoundationApi::class
-)
 @Composable
 fun SearchPeopleContent(
     searchPeopleState: SearchPeopleState,

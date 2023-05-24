@@ -50,8 +50,8 @@ fun ModalSheetHeaderItem(header: MenuModalSheetHeader = MenuModalSheetHeader.Gon
                     modifier = Modifier.padding(
                         start = dimensions().modalBottomSheetHeaderHorizontalPadding,
                         end = dimensions().modalBottomSheetHeaderHorizontalPadding,
-                        top = dimensions().modalBottomSheetHeaderVerticalPadding,
-                        bottom = header.customBottomPadding ?: dimensions().modalBottomSheetHeaderVerticalPadding
+                        top = header.customVerticalPadding ?: dimensions().modalBottomSheetHeaderVerticalPadding,
+                        bottom = header.customVerticalPadding ?: dimensions().modalBottomSheetHeaderVerticalPadding
                     )
                 ) {
                     header.leadingIcon()
@@ -71,7 +71,7 @@ sealed class MenuModalSheetHeader {
     data class Visible(
         val title: String,
         val leadingIcon: @Composable () -> Unit = {},
-        val customBottomPadding: Dp? = null
+        val customVerticalPadding: Dp? = null
     ) : MenuModalSheetHeader()
 
     object Gone : MenuModalSheetHeader()

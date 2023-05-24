@@ -57,7 +57,6 @@ import javax.inject.Singleton
  * When the app is initialised without displaying any UI all sessions are
  * set to [ConnectionPolicy.DISCONNECT_AFTER_PENDING_EVENTS].
  */
-@OptIn(ExperimentalCoroutinesApi::class)
 @Singleton
 class ConnectionPolicyManager @Inject constructor(
     private val currentScreenManager: CurrentScreenManager,
@@ -72,7 +71,6 @@ class ConnectionPolicyManager @Inject constructor(
     /**
      * Starts observing the app state and take action.
      */
-    @OptIn(ExperimentalCoroutinesApi::class)
     fun startObservingAppLifecycle() {
         CoroutineScope(dispatcherProvider.default()).launch {
             combine(

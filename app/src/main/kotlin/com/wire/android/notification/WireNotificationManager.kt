@@ -60,7 +60,7 @@ import kotlinx.coroutines.sync.withLock
 import javax.inject.Inject
 import javax.inject.Singleton
 
-@ExperimentalCoroutinesApi
+@OptIn(ExperimentalCoroutinesApi::class)
 @Suppress("TooManyFunctions", "LongParameterList")
 @Singleton
 class WireNotificationManager @Inject constructor(
@@ -332,7 +332,6 @@ class WireNotificationManager @Inject constructor(
      * @param currentScreenState StateFlow that informs which screen is currently visible,
      * so we can filter the notifications if user is in the Conversation that receives a new messages
      */
-    @ExperimentalCoroutinesApi
     private suspend fun observeMessageNotifications(
         userId: UserId,
         currentScreenState: StateFlow<CurrentScreen>

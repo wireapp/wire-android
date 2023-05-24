@@ -384,9 +384,7 @@ sealed interface DeliveryStatusContent {
 
         val filteredRecipientsFailure by lazy { failedRecipients.filter { it !in noClients.values.flatten() }.toImmutableList() }
         val isSingleUserFailure by lazy { totalUsersWithFailures == 1 }
-        val totalUsersWithFailures by lazy {
-            (failedRecipients + noClients.values.flatten()).distinct().count()
-        }
+        val totalUsersWithFailures by lazy { (failedRecipients.size + noClients.values.distinct().sumOf { it.size }) }
     }
 
     object CompleteDelivery : DeliveryStatusContent

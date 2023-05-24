@@ -28,6 +28,7 @@ import androidx.activity.viewModels
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.Column
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
@@ -64,6 +65,7 @@ import com.wire.android.ui.common.topappbar.CommonTopAppBarViewModel
 import com.wire.android.ui.joinConversation.JoinConversationViaCodeState
 import com.wire.android.ui.joinConversation.JoinConversationViaDeepLinkDialog
 import com.wire.android.ui.joinConversation.JoinConversationViaInviteLinkError
+import com.wire.android.ui.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.userprofile.self.MaxAccountReachedDialog
 import com.wire.android.util.CurrentScreenManager
@@ -129,10 +131,13 @@ class WireActivity : AppCompatActivity() {
         onComplete: () -> Unit
     ) {
         setContent {
+            val snackbarHostState = remember { SnackbarHostState() }
+
             CompositionLocalProvider(
                 LocalFeatureVisibilityFlags provides FeatureVisibilityFlags,
                 LocalSyncStateObserver provides SyncStateObserver(viewModel.observeSyncFlowState),
-                LocalCustomUiConfigurationProvider provides CustomUiConfigurationProvider
+                LocalCustomUiConfigurationProvider provides CustomUiConfigurationProvider,
+                LocalSnackbarHostState provides snackbarHostState
             ) {
                 WireTheme {
                     Column {
@@ -179,10 +184,10 @@ class WireActivity : AppCompatActivity() {
             navigationManager.navigateState
                 .onSubscription { onComplete() }
                 .onEach { command ->
-                if (command == null) return@onEach
-                currentKeyboardController?.hide()
-                currentNavController.navigateToItem(command)
-            }.launchIn(scope)
+                    if (command == null) return@onEach
+                    currentKeyboardController?.hide()
+                    currentNavController.navigateToItem(command)
+                }.launchIn(scope)
 
             navigationManager.navigateBack.onEach {
                 if (!currentNavController.popWithArguments(it)) finish()

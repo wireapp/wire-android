@@ -14,19 +14,25 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
+package com.wire.android.ui.snackbar
 
-package com.wire.android.model
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.platform.LocalContext
+import com.wire.android.util.ui.UIText
+import kotlinx.coroutines.flow.SharedFlow
 
-import com.wire.kalium.logic.CoreFailure
+@Composable
+fun SnackbarHostState.collectAndShowSnackbar(
+    snackbarFlow: SharedFlow<UIText>
+) {
+    val localContext = LocalContext.current
 
-/**
- * Wrapper for use case responses with additional [Loading] state for UI purposes
- */
-sealed class TriState<out T : Any> {
-    data class Data<out T : Any>(val value: T) : TriState<T>()
-    data class Error(val coreFailure: CoreFailure) : TriState<Nothing>()
-    object Loading : TriState<Nothing>()
+    LaunchedEffect(snackbarFlow) {
+        snackbarFlow.collect {
+            showSnackbar(it.asString(localContext.resources))
+        }
+    }
 }

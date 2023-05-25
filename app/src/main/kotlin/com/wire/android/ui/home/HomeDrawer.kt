@@ -177,23 +177,6 @@ fun HomeDrawer(
                 }
             )
         }
-
-        Text(
-            text = stringResource(R.string.app_version, BuildConfig.VERSION_NAME),
-            color = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.padding(dimensions().spacing12x)
-        )
-        Text(
-            text = stringResource(
-                R.string.build_variant_name, "${BuildConfig.FLAVOR}${
-                    BuildConfig.BUILD_TYPE.replaceFirstChar {
-                        it.uppercase()
-                    }
-                }"
-            ),
-            color = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.padding(dimensions().spacing12x)
-        )
     }
 }
 

@@ -30,6 +30,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.Composable
@@ -75,7 +77,6 @@ import com.wire.android.ui.home.conversations.info.ConversationInfoViewState
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewModel
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewState
 import com.wire.android.ui.home.conversations.model.EditMessageBundle
-import com.wire.android.ui.home.conversations.model.ExpirationStatus
 import com.wire.android.ui.home.conversations.model.SendMessageBundle
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UriAsset
@@ -156,8 +157,8 @@ fun ConversationScreen(
                 conversationCallViewModel.navigateToInitiatingCallScreen()
                 showDialog.value = ConversationScreenDialogType.NONE
             }, onDialogDismiss = {
-                    showDialog.value = ConversationScreenDialogType.NONE
-                })
+                showDialog.value = ConversationScreenDialogType.NONE
+            })
         }
 
         ConversationScreenDialogType.NO_CONNECTIVITY -> {
@@ -189,12 +190,7 @@ fun ConversationScreen(
         onAttachmentPicked = messageComposerViewModel::attachmentPicked,
         onAssetItemClicked = conversationMessagesViewModel::downloadOrFetchAssetAndShowDialog,
         onImageFullScreenMode = { message, isSelfMessage ->
-            messageComposerViewModel.navigateToGallery(
-                messageId = message.header.messageId,
-                isSelfMessage = isSelfMessage,
-                isEphemeral = message.expirationStatus is ExpirationStatus.Expirable,
-
-            )
+            messageComposerViewModel.navigateToGallery(message.header.messageId, isSelfMessage)
             conversationMessagesViewModel.updateImageOnFullscreenMode(message)
         },
         onStartCall = {
@@ -287,6 +283,7 @@ private fun StartCallAudioBluetoothPermissionCheckFlow(
     // TODO display an error dialog
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Suppress("LongParameterList")
 @Composable
 private fun ConversationScreen(
@@ -346,16 +343,11 @@ private fun ConversationScreen(
         MenuModalSheetHeader.Visible(
             title = stringResource(R.string.automatically_delete_message_after)
         )
-    } else {
-        MenuModalSheetHeader.Gone
-    }
+    } else MenuModalSheetHeader.Gone
 
-    MenuModalSheetLayout(
-        header = menuModalHeader,
-        sheetState = conversationScreenState.modalBottomSheetState,
-        coroutineScope = conversationScreenState.coroutineScope,
-        menuItems = when (val menuType = conversationScreenState.bottomSheetMenuType) {
-            is ConversationScreenState.BottomSheetMenuType.Edit -> EditMessageMenuItems(
+    val menuItems = when (val menuType = conversationScreenState.bottomSheetMenuType) {
+        is ConversationScreenState.BottomSheetMenuType.Edit -> {
+            EditMessageMenuItems(
                 message = menuType.selectedMessage,
                 hideEditMessageMenu = conversationScreenState::hideContextMenu,
                 onCopyClick = conversationScreenState::copyMessage,
@@ -373,17 +365,26 @@ private fun ConversationScreen(
                 onDownloadAssetClick = conversationMessagesViewModel::downloadAssetExternally,
                 onOpenAssetClick = conversationMessagesViewModel::downloadAndOpenAsset
             )
+        }
 
-            ConversationScreenState.BottomSheetMenuType.SelfDeletion -> SelfDeletionMenuItems(
-                currentlySelected = messageComposerState.getSelfDeletionTime(),
+        is ConversationScreenState.BottomSheetMenuType.SelfDeletion -> {
+            SelfDeletionMenuItems(
                 hideEditMessageMenu = conversationScreenState::hideContextMenu,
+                currentlySelected = messageComposerState.getSelfDeletionTime(),
                 onSelfDeletionDurationChanged = { newTimer ->
                     onNewSelfDeletingMessagesStatus(SelfDeletionTimer.Enabled(newTimer.value))
                 }
             )
-
-            ConversationScreenState.BottomSheetMenuType.None -> emptyList()
         }
+
+        ConversationScreenState.BottomSheetMenuType.None -> emptyList()
+    }
+
+    MenuModalSheetLayout(
+        header = menuModalHeader,
+        sheetState = conversationScreenState.modalBottomSheetState,
+        coroutineScope = conversationScreenState.coroutineScope,
+        menuItems = menuItems
     ) {
         Scaffold(
             topBar = {
@@ -438,17 +439,12 @@ private fun ConversationScreen(
                         onPingClicked = onPingClicked,
                         onSelfDeletingMessageRead = onSelfDeletingMessageRead,
                         tempWritableImageUri = tempWritableImageUri,
-                        tempWritableVideoUri = tempWritableVideoUri)
-
-                MenuModalSheetLayout(
-                    header = menuModalHeader,
-                    sheetState = conversationScreenState.modalBottomSheetState,
-                    coroutineScope = conversationScreenState.coroutineScope,
-                    menuItems = menuItems
-                )
+                        tempWritableVideoUri = tempWritableVideoUri
+                    )
+                }
             }
-        }
-    )
+        )
+    }
     SnackBarMessage(composerMessages, conversationMessages, conversationScreenState)
 }
 

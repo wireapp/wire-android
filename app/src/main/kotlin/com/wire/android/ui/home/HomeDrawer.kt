@@ -25,7 +25,6 @@ import android.content.Intent.ACTION_SENDTO
 import android.net.Uri
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -36,8 +35,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -74,8 +71,6 @@ import com.wire.android.util.multipleFileSharingIntent
 import com.wire.android.util.sha256
 import java.io.File
 
-@ExperimentalMaterialApi
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
 @Composable
 // TODO: logFilePath does not belong in the UI logic
 fun HomeDrawer(
@@ -213,9 +208,6 @@ fun DrawerItem(data: DrawerItemData, selected: Boolean, onItemClick: () -> Unit)
 
 data class DrawerItemData(@StringRes val title: Int?, @DrawableRes val icon: Int?)
 
-@ExperimentalAnimationApi
-@ExperimentalMaterialApi
-@ExperimentalMaterial3Api
 private fun Any.getDrawerData(): DrawerItemData =
     when (this) {
         is HomeNavigationItem -> DrawerItemData(this.title, this.icon)
@@ -223,9 +215,6 @@ private fun Any.getDrawerData(): DrawerItemData =
         else -> DrawerItemData(null, null)
     }
 
-@ExperimentalAnimationApi
-@ExperimentalMaterialApi
-@ExperimentalMaterial3Api
 fun Any.route() = when (this) {
     is HomeNavigationItem -> this.route
     is NavigationItem -> this.getRouteWithArgs()

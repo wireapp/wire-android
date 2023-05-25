@@ -22,7 +22,6 @@ package com.wire.android.ui.home.newconversation
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
@@ -40,7 +39,6 @@ import com.wire.android.ui.home.newconversation.common.NewConversationNavigation
 import com.wire.android.ui.home.newconversation.groupOptions.GroupOptionScreen
 import com.wire.android.ui.home.newconversation.newgroup.NewGroupScreen
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NewConversationRouter() {
     val newConversationViewModel: NewConversationViewModel = hiltViewModel()

@@ -14,9 +14,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.Divider
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHostState
@@ -101,7 +99,6 @@ fun ImportMediaContent(
     BackHandler { unauthorizedViewModel.navigateBack() }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ImportMediaRestrictedContent(
     fileSharingRestrictedState: FeatureFlagState.SharingRestrictedState,
@@ -134,7 +131,6 @@ fun ImportMediaRestrictedContent(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable
 fun ImportMediaRegularContent(authorizedViewModel: ImportMediaAuthenticatedViewModel = hiltViewModel()) {
     val context = LocalContext.current
@@ -146,6 +142,32 @@ fun ImportMediaRegularContent(authorizedViewModel: ImportMediaAuthenticatedViewM
     val importMediaScreenState = rememberImportMediaScreenState()
 
     with(authorizedViewModel.importMediaState) {
+        Scaffold(
+            topBar = {
+                WireCenterAlignedTopAppBar(
+                    elevation = 0.dp,
+                    onNavigationPressed = authorizedViewModel::navigateBack,
+                    title = stringResource(id = R.string.import_media_content_title),
+                    actions = {
+                        UserProfileAvatar(
+                            avatarData = UserAvatarData(avatarAsset),
+                            clickable = remember { Clickable(enabled = false) { } }
+                        )
+                    }
+                )
+            },
+            snackbarHost = {
+                SwipeDismissSnackbarHost(
+                    hostState = importMediaScreenState.snackbarHostState,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            },
+            modifier = Modifier.background(colorsScheme().background),
+            content = { internalPadding ->
+                ImportMediaContent(this, internalPadding, authorizedViewModel, importMediaScreenState.searchBarState)
+            },
+            bottomBar = { ImportMediaBottomBar(authorizedViewModel, importMediaScreenState) }
+        )
         MenuModalSheetLayout(
             menuItems = SelfDeletionMenuItems(
                 currentlySelected = authorizedViewModel.importMediaState.selfDeletingTimer.toDuration().toSelfDeletionDuration(),
@@ -154,39 +176,11 @@ fun ImportMediaRegularContent(authorizedViewModel: ImportMediaAuthenticatedViewM
             ),
             sheetState = importMediaScreenState.bottomSheetState,
             coroutineScope = importMediaScreenState.coroutineScope
-        ) {
-            Scaffold(
-                topBar = {
-                    WireCenterAlignedTopAppBar(
-                        elevation = 0.dp,
-                        onNavigationPressed = authorizedViewModel::navigateBack,
-                        title = stringResource(id = R.string.import_media_content_title),
-                        actions = {
-                            UserProfileAvatar(
-                                avatarData = UserAvatarData(avatarAsset),
-                                clickable = remember { Clickable(enabled = false) { } }
-                            )
-                        }
-                    )
-                },
-                snackbarHost = {
-                    SwipeDismissSnackbarHost(
-                        hostState = importMediaScreenState.snackbarHostState,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                },
-                modifier = Modifier.background(colorsScheme().background),
-                content = { internalPadding ->
-                    ImportMediaContent(this, internalPadding, authorizedViewModel, importMediaScreenState.searchBarState)
-                },
-                bottomBar = { ImportMediaBottomBar(authorizedViewModel, importMediaScreenState) }
-            )
-        }
+        )
     }
     SnackBarMessage(authorizedViewModel.infoMessage, importMediaScreenState.snackbarHostState)
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ImportMediaLoggedOutContent(
     viewModel: ImportMediaUnauthenticatedViewModel,
@@ -395,7 +389,6 @@ fun PreviewImportMediaScreen() {
     ImportMediaScreen(hiltViewModel())
 }
 
-@OptIn(ExperimentalMaterialApi::class)
 @Preview(showBackground = true)
 @Composable
 fun PreviewImportMediaBottomBar() {

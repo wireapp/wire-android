@@ -31,10 +31,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.Divider
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.Scaffold
+import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
@@ -52,11 +51,11 @@ import com.wire.android.ui.common.bottomsheet.MenuItemIcon
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetHeader
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
 import com.wire.android.ui.common.button.WireButtonState
+import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.imagepreview.BulletHoleImagePreview
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
-import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.userprofile.avatarpicker.AvatarPickerViewModel.PictureState
@@ -68,7 +67,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okio.Path
 
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun AvatarPickerScreen(viewModel: AvatarPickerViewModel = hiltViewModel()) {
     val context = LocalContext.current
@@ -108,7 +106,6 @@ fun onNewAvatarPicked(originalUri: Uri, targetAvatarPath: Path, scope: Coroutine
     }
 }
 
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 private fun AvatarPickerContent(
     viewModel: AvatarPickerViewModel,
@@ -119,6 +116,42 @@ private fun AvatarPickerContent(
     LaunchedEffect(Unit) {
         viewModel.infoMessage.collect {
             state.showSnackbar(it)
+        }
+    }
+
+    Scaffold(
+        topBar = { AvatarPickerTopBar(onCloseClick = onCloseClick) },
+        snackbarHost = {
+            SwipeDismissSnackbarHost(
+                hostState = state.snackbarHostState,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+    ) { internalPadding ->
+        Box(
+            Modifier
+                .fillMaxSize()
+                .padding(internalPadding)
+        ) {
+            Column(
+                Modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.wireColorScheme.background)
+            ) {
+                Box(Modifier.weight(1f)) {
+                    Box(Modifier.align(Alignment.Center)) {
+                        AvatarPreview(viewModel.pictureState)
+                    }
+                }
+                Divider()
+                Spacer(Modifier.height(4.dp))
+                AvatarPickerActionButtons(
+                    pictureState = viewModel.pictureState,
+                    onSaveClick = onSaveClick,
+                    onCancelClick = viewModel::loadInitialAvatarState,
+                    onChangeImage = state::showModalBottomSheet,
+                )
+            }
         }
     }
 
@@ -153,43 +186,7 @@ private fun AvatarPickerContent(
                 )
             }
         )
-    ) {
-        Scaffold(
-            topBar = { AvatarPickerTopBar(onCloseClick = onCloseClick) },
-            snackbarHost = {
-                SwipeDismissSnackbarHost(
-                    hostState = state.snackbarHostState,
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
-        ) { internalPadding ->
-            Box(
-                Modifier
-                    .fillMaxSize()
-                    .padding(internalPadding)
-            ) {
-                Column(
-                    Modifier
-                        .fillMaxSize()
-                        .background(MaterialTheme.wireColorScheme.background)
-                ) {
-                    Box(Modifier.weight(1f)) {
-                        Box(Modifier.align(Alignment.Center)) {
-                            AvatarPreview(viewModel.pictureState)
-                        }
-                    }
-                    Divider()
-                    Spacer(Modifier.height(4.dp))
-                    AvatarPickerActionButtons(
-                        pictureState = viewModel.pictureState,
-                        onSaveClick = onSaveClick,
-                        onCancelClick = viewModel::loadInitialAvatarState,
-                        onChangeImage = state::showModalBottomSheet,
-                    )
-                }
-            }
-        }
-    }
+    )
 }
 
 @Composable
@@ -230,6 +227,7 @@ private fun AvatarPickerActionButtons(
                 )
             }
         }
+
         else -> {
             WirePrimaryButton(
                 modifier = Modifier.padding(dimensions().spacing16x),

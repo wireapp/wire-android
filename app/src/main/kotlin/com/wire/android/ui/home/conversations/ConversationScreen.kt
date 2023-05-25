@@ -30,8 +30,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.Composable
@@ -289,7 +287,6 @@ private fun StartCallAudioBluetoothPermissionCheckFlow(
     // TODO display an error dialog
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Suppress("LongParameterList")
 @Composable
 private fun ConversationScreen(
@@ -441,12 +438,17 @@ private fun ConversationScreen(
                         onPingClicked = onPingClicked,
                         onSelfDeletingMessageRead = onSelfDeletingMessageRead,
                         tempWritableImageUri = tempWritableImageUri,
-                        tempWritableVideoUri = tempWritableVideoUri
-                    )
-                }
+                        tempWritableVideoUri = tempWritableVideoUri)
+
+                MenuModalSheetLayout(
+                    header = menuModalHeader,
+                    sheetState = conversationScreenState.modalBottomSheetState,
+                    coroutineScope = conversationScreenState.coroutineScope,
+                    menuItems = menuItems
+                )
             }
-        )
-    }
+        }
+    )
     SnackBarMessage(composerMessages, conversationMessages, conversationScreenState)
 }
 

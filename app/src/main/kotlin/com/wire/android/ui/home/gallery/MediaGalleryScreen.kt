@@ -30,6 +30,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.Composable
@@ -48,7 +49,6 @@ import com.wire.android.ui.home.conversations.delete.DeleteMessageDialog
 import com.wire.android.ui.home.conversations.edit.AssetEditMenuItems
 import com.wire.android.util.permission.rememberWriteStorageRequestFlow
 
-@OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun MediaGalleryScreen(mediaGalleryViewModel: MediaGalleryViewModel = hiltViewModel()) {
     val viewModelState = mediaGalleryViewModel.mediaGalleryViewState
@@ -64,6 +64,27 @@ fun MediaGalleryScreen(mediaGalleryViewModel: MediaGalleryViewModel = hiltViewMo
         })
 
     with(viewModelState) {
+        Scaffold(
+            topBar = {
+                MediaGalleryScreenTopAppBar(
+                    title = screenTitle
+                        ?: stringResource(R.string.media_gallery_default_title_name),
+                    onCloseClick = mediaGalleryViewModel::navigateBack,
+                    onOptionsClick = { mediaGalleryScreenState.showContextualMenu(true) }
+                )
+            },
+            content = { internalPadding ->
+                Box(modifier = Modifier.padding(internalPadding)) {
+                    MediaGalleryContent(mediaGalleryViewModel, mediaGalleryScreenState)
+                }
+            },
+            snackbarHost = {
+                SwipeDismissSnackbarHost(
+                    hostState = mediaGalleryScreenState.snackbarHostState,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            },
+        )
         MenuModalSheetLayout(
             sheetState = mediaGalleryScreenState.modalBottomSheetState,
             coroutineScope = scope,
@@ -93,29 +114,7 @@ fun MediaGalleryScreen(mediaGalleryViewModel: MediaGalleryViewModel = hiltViewMo
                 },
                 onOpenAsset = null
             )
-        ) {
-            Scaffold(
-                topBar = {
-                    MediaGalleryScreenTopAppBar(
-                        title = screenTitle
-                            ?: stringResource(R.string.media_gallery_default_title_name),
-                        onCloseClick = mediaGalleryViewModel::navigateBack,
-                        onOptionsClick = { mediaGalleryScreenState.showContextualMenu(true) }
-                    )
-                },
-                content = { internalPadding ->
-                    Box(modifier = Modifier.padding(internalPadding)) {
-                        MediaGalleryContent(mediaGalleryViewModel, mediaGalleryScreenState)
-                    }
-                },
-                snackbarHost = {
-                    SwipeDismissSnackbarHost(
-                        hostState = mediaGalleryScreenState.snackbarHostState,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                },
-            )
-        }
+        )
     }
 }
 

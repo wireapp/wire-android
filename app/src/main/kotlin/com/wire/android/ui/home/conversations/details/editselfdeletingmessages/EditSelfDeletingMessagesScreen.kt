@@ -124,7 +124,7 @@ fun EditSelfDeletingMessagesScreen(
                 WireDivider(color = MaterialTheme.wireColorScheme.outline)
                 WireButton(
                     loading = state.isLoading,
-                    state = if (state.didDurationChange() && state.isEnabled) WireButtonState.Default else WireButtonState.Disabled,
+                    state = if (state.didDurationChange()) WireButtonState.Default else WireButtonState.Disabled,
                     onClick = ::applyNewDuration,
                     text = stringResource(id = R.string.label_apply),
                     modifier = Modifier.padding(all = MaterialTheme.wireDimensions.spacing16x)

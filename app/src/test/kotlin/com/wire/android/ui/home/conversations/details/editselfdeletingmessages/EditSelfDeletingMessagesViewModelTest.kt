@@ -61,6 +61,7 @@ class EditSelfDeletingMessagesViewModelTest {
 
             // Then
             assertEquals(false, viewModel.state.isEnabled)
+            assertEquals(null, viewModel.state.locallySelected)
         }
 
     @Test

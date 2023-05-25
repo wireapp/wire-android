@@ -60,7 +60,7 @@ import kotlinx.coroutines.sync.withLock
 import javax.inject.Inject
 import javax.inject.Singleton
 
-@ExperimentalCoroutinesApi
+@OptIn(ExperimentalCoroutinesApi::class)
 @Suppress("TooManyFunctions", "LongParameterList")
 @Singleton
 class WireNotificationManager @Inject constructor(
@@ -157,11 +157,13 @@ class WireNotificationManager @Inject constructor(
         appLogger.d("$TAG checking the notifications once")
 
         val observeMessagesJob = observeMessageNotificationsOnceJob(userId)
+        val observeCallsJob = observeCallNotificationsOnceJob(userId)
 
         appLogger.d("$TAG start syncing")
-        connectionPolicyManager.handleConnectionOnPushNotification(userId)
+        connectionPolicyManager.handleConnectionOnPushNotification(userId, STAY_ALIVE_TIME_ON_PUSH_MS)
 
         observeMessagesJob?.cancel("$TAG checked the notifications once, canceling observing.")
+        observeCallsJob?.cancel("$TAG checked the calls once, canceling observing.")
     }
 
     private suspend fun observeMessageNotificationsOnceJob(userId: UserId): Job? {
@@ -176,6 +178,21 @@ class WireNotificationManager @Inject constructor(
             null
         } else {
             scope.launch { observeMessageNotifications(userId, MutableStateFlow(CurrentScreen.InBackground)) }
+        }
+    }
+
+    private suspend fun observeCallNotificationsOnceJob(userId: UserId): Job? {
+        val isCallsAlreadyObserving =
+            observingWhileRunningJobs[userId]?.run { incomingCallsJob.isActive }
+                ?: observingPersistentlyJobs[userId]?.run { incomingCallsJob.isActive }
+                ?: false
+
+        return if (isCallsAlreadyObserving) {
+            // calls are already observed, just need to connect to websocket.
+            appLogger.d("$TAG checking the calls once, but calls are already observed, no need to start a new job")
+            null
+        } else {
+            scope.launch { observeIncomingCalls(userId, MutableStateFlow(CurrentScreen.InBackground)) {} }
         }
     }
 
@@ -214,7 +231,6 @@ class WireNotificationManager @Inject constructor(
         val currentScreenState = currentScreenManager.observeCurrentScreen(scope)
 
         // removing notifications and stop observing it for the users that are not logged in anymore
-        val userIdsToCancelJobs = observingJobs.keys.filter { !userIds.contains(it) }
         observingJobs.keys.filter { !userIds.contains(it) }
             .forEach { userId -> stopObservingForUser(userId, observingJobs) }
 
@@ -239,7 +255,7 @@ class WireNotificationManager @Inject constructor(
                         observeCurrentScreenAndHideNotifications(currentScreenState, userId)
                     },
                     incomingCallsJob = scope.launch(dispatcherProvider.default()) {
-                        observeIncomingCalls(currentScreenState, userId, doIfCallCameAndAppVisible)
+                        observeIncomingCalls(userId, currentScreenState, doIfCallCameAndAppVisible)
                     },
                     messagesJob = scope.launch(dispatcherProvider.default()) {
                         observeMessageNotifications(userId, currentScreenState)
@@ -284,8 +300,8 @@ class WireNotificationManager @Inject constructor(
      * so we can decide: should we show notification, or run a @param[doIfCallCameAndAppVisible]
      */
     private suspend fun observeIncomingCalls(
-        currentScreenState: StateFlow<CurrentScreen>,
         userId: UserId,
+        currentScreenState: StateFlow<CurrentScreen>,
         doIfCallCameAndAppVisible: (Call) -> Unit
     ) {
         appLogger.d("$TAG observe incoming calls")
@@ -316,7 +332,6 @@ class WireNotificationManager @Inject constructor(
      * @param currentScreenState StateFlow that informs which screen is currently visible,
      * so we can filter the notifications if user is in the Conversation that receives a new messages
      */
-    @ExperimentalCoroutinesApi
     private suspend fun observeMessageNotifications(
         userId: UserId,
         currentScreenState: StateFlow<CurrentScreen>
@@ -480,5 +495,6 @@ class WireNotificationManager @Inject constructor(
 
     companion object {
         private const val TAG = "WireNotificationManager"
+        private const val STAY_ALIVE_TIME_ON_PUSH_MS = 1000L
     }
 }

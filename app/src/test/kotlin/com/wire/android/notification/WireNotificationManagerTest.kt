@@ -115,7 +115,7 @@ class WireNotificationManagerTest {
             manager.fetchAndShowNotificationsOnce("user_id")
             advanceUntilIdle()
 
-            coVerify(exactly = 1) { arrangement.connectionPolicyManager.handleConnectionOnPushNotification(TEST_AUTH_TOKEN.userId) }
+            coVerify(exactly = 1) { arrangement.connectionPolicyManager.handleConnectionOnPushNotification(TEST_AUTH_TOKEN.userId, any()) }
         }
 
     @Test
@@ -341,7 +341,7 @@ class WireNotificationManagerTest {
                 .withSession(GetAllSessionsResult.Success(listOf(TEST_AUTH_TOKEN))).withCurrentUserSession(provideCurrentValidUserSession())
                 .withIncomingCalls(listOf()).withCurrentScreen(CurrentScreen.InBackground).arrange()
 
-            coEvery { arrangement.connectionPolicyManager.handleConnectionOnPushNotification(userId) } coAnswers {
+            coEvery { arrangement.connectionPolicyManager.handleConnectionOnPushNotification(userId, any()) } coAnswers {
                 // Push handling is taking 10 minutes
                 delay(10.minutes)
             }
@@ -356,15 +356,15 @@ class WireNotificationManagerTest {
             }
             // After first call, should have handled push once
             advanceTimeBy(1.minutes.inWholeMilliseconds)
-            coVerify(exactly = 1) { arrangement.connectionPolicyManager.handleConnectionOnPushNotification(userId) }
+            coVerify(exactly = 1) { arrangement.connectionPolicyManager.handleConnectionOnPushNotification(userId, any()) }
 
             // After second call, should have handled push once
             advanceTimeBy(6.minutes.inWholeMilliseconds)
-            coVerify(exactly = 1) { arrangement.connectionPolicyManager.handleConnectionOnPushNotification(userId) }
+            coVerify(exactly = 1) { arrangement.connectionPolicyManager.handleConnectionOnPushNotification(userId, any()) }
 
             // After everything ends, should have handled push once
             advanceUntilIdle()
-            coVerify(exactly = 1) { arrangement.connectionPolicyManager.handleConnectionOnPushNotification(userId) }
+            coVerify(exactly = 1) { arrangement.connectionPolicyManager.handleConnectionOnPushNotification(userId, any()) }
         }
 
     @Test
@@ -381,7 +381,7 @@ class WireNotificationManagerTest {
         manager.fetchAndShowNotificationsOnce(userId.value)
         advanceUntilIdle()
 
-        coVerify(exactly = 0) { arrangement.connectionPolicyManager.handleConnectionOnPushNotification(userId) }
+        coVerify(exactly = 0) { arrangement.connectionPolicyManager.handleConnectionOnPushNotification(userId, any()) }
     }
 
     @Test
@@ -399,7 +399,7 @@ class WireNotificationManagerTest {
             manager.fetchAndShowNotificationsOnce(userId.value)
             advanceUntilIdle()
 
-            coVerify(exactly = 1) { arrangement.connectionPolicyManager.handleConnectionOnPushNotification(userId) }
+            coVerify(exactly = 1) { arrangement.connectionPolicyManager.handleConnectionOnPushNotification(userId, any()) }
         }
 
     @Test

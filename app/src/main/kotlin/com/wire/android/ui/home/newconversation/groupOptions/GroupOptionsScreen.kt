@@ -29,7 +29,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ChevronRight
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -84,9 +83,6 @@ fun GroupOptionScreen(
     )
 }
 
-@OptIn(
-    ExperimentalMaterial3Api::class
-)
 @Composable
 fun GroupOptionScreenContent(
     groupOptionState: GroupOptionState,
@@ -229,7 +225,7 @@ private fun GroupOptionState.ContinueButton(
         onClick = onContinuePressed,
         fillMaxWidth = true,
         loading = isLoading,
-        trailingIcon = if(isLoading) null else Icons.Filled.ChevronRight.Icon(),
+        trailingIcon = if (isLoading) null else Icons.Filled.ChevronRight.Icon(),
         state = if (continueEnabled && !isLoading) WireButtonState.Default else WireButtonState.Disabled,
         modifier = Modifier.fillMaxWidth().padding(MaterialTheme.wireDimensions.spacing16x)
     )
@@ -260,7 +256,6 @@ private fun AllowGuestsDialog(
         )
     )
 }
-
 
 @Composable
 private fun ErrorDialog(error: GroupOptionState.Error, onErrorDismissed: () -> Unit) {

@@ -22,7 +22,6 @@ package com.wire.android.ui.home
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -33,10 +32,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.ModalDrawer
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalDrawerSheet
+import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -71,7 +69,6 @@ import com.wire.android.util.permission.rememberRequestPushNotificationsPermissi
 import kotlinx.collections.immutable.ImmutableMap
 import kotlinx.collections.immutable.persistentMapOf
 
-@OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     backNavArgs: ImmutableMap<String, Any> = persistentMapOf(),
@@ -141,7 +138,6 @@ fun HomeScreen(
     }
 }
 
-@OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
 @Composable
 fun HomeContent(
     homeState: HomeState,
@@ -152,24 +148,127 @@ fun HomeContent(
     navigateToItem: (NavigationItem) -> Unit
 ) {
     with(homeStateHolder) {
-        ModalDrawer(
-            drawerBackgroundColor = MaterialTheme.colorScheme.surface,
-            drawerElevation = 0.dp,
-            drawerShape = RectangleShape,
+        ModalNavigationDrawer(
             drawerState = drawerState,
             drawerContent = {
-                HomeDrawer(
-                    // TODO: logFilePath does not belong in the UI logic
-                    logFilePath = homeState.logFilePath,
-                    currentRoute = currentNavigationItem.route,
-                    navigateToHomeItem = ::navigateTo,
-                    navigateToItem = navigateToItem,
-                    onCloseDrawer = ::closeDrawer
-                )
+                ModalDrawerSheet(
+                    drawerContainerColor = MaterialTheme.colorScheme.surface,
+                    drawerTonalElevation = 0.dp,
+                    drawerShape = RectangleShape,
+                ) {
+                    HomeDrawer(
+                        // TODO: logFilePath does not belong in the UI logic
+                        logFilePath = homeState.logFilePath,
+                        currentRoute = currentNavigationItem.route,
+                        navigateToHomeItem = ::navigateTo,
+                        navigateToItem = navigateToItem,
+                        onCloseDrawer = ::closeDrawer
+                    )
+                }
             },
             gesturesEnabled = drawerState.isOpen,
             content = {
                 with(currentNavigationItem) {
+
+                    CollapsingTopBarScaffold(
+                        snapOnFling = false,
+                        keepElevationWhenCollapsed = true,
+                        topBarHeader = { elevation ->
+                            Column(modifier = Modifier.animateContentSize()) {
+                                AnimatedVisibility(visible = !searchBarState.isSearchActive) {
+                                    HomeTopBar(
+                                        avatarAsset = homeState.avatarAsset,
+                                        status = homeState.status,
+                                        title = stringResource(currentNavigationItem.title),
+                                        elevation = elevation,
+                                        onHamburgerMenuClick = ::openDrawer,
+                                        onNavigateToSelfUserProfile = onSelfUserClick
+                                    )
+                                }
+                            }
+                        },
+                        snackbarHost = {
+                            SwipeDismissSnackbarHost(
+                                hostState = snackBarHostState,
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        },
+                        topBarCollapsing = {
+                            if (currentNavigationItem.isSearchable) {
+                                SearchTopBar(
+                                    isSearchActive = searchBarState.isSearchActive,
+                                    searchBarHint = stringResource(R.string.search_bar_conversations_hint),
+                                    searchQuery = searchBarState.searchQuery,
+                                    onSearchQueryChanged = searchBarState::searchQueryChanged,
+                                    onInputClicked = searchBarState::openSearch,
+                                    onCloseSearchClicked = searchBarState::closeSearch,
+                                )
+                            }
+                        },
+                        content = {
+                            /**
+                             * This "if" is a workaround, otherwise it can crash because of the SubcomposeLayout's nature.
+                             * We need to communicate to the sub-compositions when they are to be disposed by the parent and ignore
+                             * compositions in the round they are to be disposed. More here:
+                             * https://github.com/google/accompanist/issues/1487
+                             * https://issuetracker.google.com/issues/268422136
+                             * https://issuetracker.google.com/issues/254645321
+                             */
+                            if (LocalLifecycleOwner.current.lifecycle.currentState != Lifecycle.State.DESTROYED) {
+                                NavHost(
+                                    navController = navController,
+                                    // For now we only support Conversations screen
+                                    startDestination = HomeNavigationItem.Conversations.route
+                                ) {
+                                    HomeNavigationItem.values()
+                                        .forEach { item ->
+                                            composable(
+                                                route = item.route,
+                                                content = item.content(homeStateHolder)
+                                            )
+                                        }
+                                }
+                            }
+                        },
+                        floatingActionButton = {
+                            AnimatedVisibility(
+                                visible = currentNavigationItem.withNewConversationFab && !searchBarState.isSearchActive,
+                                enter = fadeIn(),
+                                exit = fadeOut(),
+                            ) {
+                                FloatingActionButton(
+                                    text = stringResource(R.string.label_new),
+                                    icon = {
+                                        Image(
+                                            painter = painterResource(id = R.drawable.ic_conversation),
+                                            contentDescription = stringResource(R.string.content_description_new_conversation),
+                                            contentScale = ContentScale.FillBounds,
+                                            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onPrimary),
+                                            modifier = Modifier
+                                                .padding(start = dimensions().spacing4x, top = dimensions().spacing2x)
+                                                .size(dimensions().fabIconSize)
+                                        )
+                                    },
+                                    onClick = onNewConversationClick
+                                )
+                            }
+                        },
+                        bottomBar = {
+                            AnimatedVisibility(
+                                visible = currentNavigationItem.withBottomTabs,
+                                enter = slideInVertically(initialOffsetY = { it }),
+                                exit = slideOutVertically(targetOffsetY = { it }),
+                            ) {
+                                WireBottomNavigationBar(
+                                    items = HomeNavigationItem.bottomTabItems.toBottomNavigationItems(
+                                        conversationListState = conversationListState
+                                    ),
+                                    navController = navController
+                                )
+                            }
+                        }
+                    )
+
                     WireModalSheetLayout(
                         sheetState = bottomSheetState,
                         coroutineScope = coroutineScope,
@@ -179,106 +278,7 @@ fun HomeContent(
                         // recomposing the homeContent() when homeBottomSheetContent
                         // changes from null to "something"
                         sheetContent = homeBottomSheetContent ?: { }
-                    ) {
-                        CollapsingTopBarScaffold(
-                            snapOnFling = false,
-                            keepElevationWhenCollapsed = true,
-                            topBarHeader = { elevation ->
-                                Column(modifier = Modifier.animateContentSize()) {
-                                    AnimatedVisibility(visible = !searchBarState.isSearchActive) {
-                                        HomeTopBar(
-                                            avatarAsset = homeState.avatarAsset,
-                                            status = homeState.status,
-                                            title = stringResource(currentNavigationItem.title),
-                                            elevation = elevation,
-                                            onHamburgerMenuClick = ::openDrawer,
-                                            onNavigateToSelfUserProfile = onSelfUserClick
-                                        )
-                                    }
-                                }
-                            },
-                            snackbarHost = {
-                                SwipeDismissSnackbarHost(
-                                    hostState = snackBarHostState,
-                                    modifier = Modifier.fillMaxWidth()
-                                )
-                            },
-                            topBarCollapsing = {
-                                if (currentNavigationItem.isSearchable) {
-                                    SearchTopBar(
-                                        isSearchActive = searchBarState.isSearchActive,
-                                        searchBarHint = stringResource(R.string.search_bar_conversations_hint),
-                                        searchQuery = searchBarState.searchQuery,
-                                        onSearchQueryChanged = searchBarState::searchQueryChanged,
-                                        onInputClicked = searchBarState::openSearch,
-                                        onCloseSearchClicked = searchBarState::closeSearch,
-                                    )
-                                }
-                            },
-                            content = {
-                                /**
-                                 * This "if" is a workaround, otherwise it can crash because of the SubcomposeLayout's nature.
-                                 * We need to communicate to the sub-compositions when they are to be disposed by the parent and ignore
-                                 * compositions in the round they are to be disposed. More here:
-                                 * https://github.com/google/accompanist/issues/1487
-                                 * https://issuetracker.google.com/issues/268422136
-                                 * https://issuetracker.google.com/issues/254645321
-                                 */
-                                if (LocalLifecycleOwner.current.lifecycle.currentState != Lifecycle.State.DESTROYED) {
-                                    NavHost(
-                                        navController = navController,
-                                        // For now we only support Conversations screen
-                                        startDestination = HomeNavigationItem.Conversations.route
-                                    ) {
-                                        HomeNavigationItem.values()
-                                            .forEach { item ->
-                                                composable(
-                                                    route = item.route,
-                                                    content = item.content(homeStateHolder)
-                                                )
-                                            }
-                                    }
-                                }
-                            },
-                            floatingActionButton = {
-                                AnimatedVisibility(
-                                    visible = currentNavigationItem.withNewConversationFab && !searchBarState.isSearchActive,
-                                    enter = fadeIn(),
-                                    exit = fadeOut(),
-                                ) {
-                                    FloatingActionButton(
-                                        text = stringResource(R.string.label_new),
-                                        icon = {
-                                            Image(
-                                                painter = painterResource(id = R.drawable.ic_conversation),
-                                                contentDescription = stringResource(R.string.content_description_new_conversation),
-                                                contentScale = ContentScale.FillBounds,
-                                                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onPrimary),
-                                                modifier = Modifier
-                                                    .padding(start = dimensions().spacing4x, top = dimensions().spacing2x)
-                                                    .size(dimensions().fabIconSize)
-                                            )
-                                        },
-                                        onClick = onNewConversationClick
-                                    )
-                                }
-                            },
-                            bottomBar = {
-                                AnimatedVisibility(
-                                    visible = currentNavigationItem.withBottomTabs,
-                                    enter = slideInVertically(initialOffsetY = { it }),
-                                    exit = slideOutVertically(targetOffsetY = { it }),
-                                ) {
-                                    WireBottomNavigationBar(
-                                        items = HomeNavigationItem.bottomTabItems.toBottomNavigationItems(
-                                            conversationListState = conversationListState
-                                        ),
-                                        navController = navController
-                                    )
-                                }
-                            }
-                        )
-                    }
+                    )
                 }
             }
         )
@@ -331,9 +331,6 @@ private fun handleSnackBarMessage(
     }
 }
 
-@ExperimentalMaterialApi
-@ExperimentalMaterial3Api
-@ExperimentalAnimationApi
 @Composable
 private fun List<HomeNavigationItem>.toBottomNavigationItems(
     conversationListState: ConversationListState

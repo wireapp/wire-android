@@ -30,7 +30,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
@@ -59,7 +58,6 @@ import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.extension.folderWithElements
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditSelfDeletingMessagesScreen(
     editSelfDeletingMessagesViewModel: EditSelfDeletingMessagesViewModel = hiltViewModel(),
@@ -126,7 +124,7 @@ fun EditSelfDeletingMessagesScreen(
                 WireDivider(color = MaterialTheme.wireColorScheme.outline)
                 WireButton(
                     loading = state.isLoading,
-                    state = if (state.didDurationChange() && state.isEnabled) WireButtonState.Default else WireButtonState.Disabled,
+                    state = if (state.didDurationChange()) WireButtonState.Default else WireButtonState.Disabled,
                     onClick = ::applyNewDuration,
                     text = stringResource(id = R.string.label_apply),
                     modifier = Modifier.padding(all = MaterialTheme.wireDimensions.spacing16x)

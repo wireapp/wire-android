@@ -158,8 +158,8 @@ fun ConversationScreen(
                 conversationCallViewModel.navigateToInitiatingCallScreen()
                 showDialog.value = ConversationScreenDialogType.NONE
             }, onDialogDismiss = {
-                showDialog.value = ConversationScreenDialogType.NONE
-            })
+                    showDialog.value = ConversationScreenDialogType.NONE
+                })
         }
 
         ConversationScreenDialogType.NO_CONNECTIVITY -> {
@@ -194,7 +194,8 @@ fun ConversationScreen(
             messageComposerViewModel.navigateToGallery(
                 messageId = message.header.messageId,
                 isSelfMessage = isSelfMessage,
-                isEphemeral = message.expirationStatus is ExpirationStatus.Expirable
+                isEphemeral = message.expirationStatus is ExpirationStatus.Expirable,
+
             )
             conversationMessagesViewModel.updateImageOnFullscreenMode(message)
         },
@@ -348,7 +349,9 @@ private fun ConversationScreen(
         MenuModalSheetHeader.Visible(
             title = stringResource(R.string.automatically_delete_message_after)
         )
-    } else MenuModalSheetHeader.Gone
+    } else {
+        MenuModalSheetHeader.Gone
+    }
 
     MenuModalSheetLayout(
         header = menuModalHeader,

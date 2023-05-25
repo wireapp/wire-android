@@ -77,6 +77,7 @@ import com.wire.android.ui.home.conversations.info.ConversationInfoViewState
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewModel
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewState
 import com.wire.android.ui.home.conversations.model.EditMessageBundle
+import com.wire.android.ui.home.conversations.model.ExpirationStatus
 import com.wire.android.ui.home.conversations.model.SendMessageBundle
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UriAsset
@@ -190,7 +191,11 @@ fun ConversationScreen(
         onAttachmentPicked = messageComposerViewModel::attachmentPicked,
         onAssetItemClicked = conversationMessagesViewModel::downloadOrFetchAssetAndShowDialog,
         onImageFullScreenMode = { message, isSelfMessage ->
-            messageComposerViewModel.navigateToGallery(message.header.messageId, isSelfMessage)
+            messageComposerViewModel.navigateToGallery(
+                messageId = message.header.messageId,
+                isSelfMessage = isSelfMessage,
+                isEphemeral = message.expirationStatus is ExpirationStatus.Expirable,
+            )
             conversationMessagesViewModel.updateImageOnFullscreenMode(message)
         },
         onStartCall = {
@@ -385,66 +390,65 @@ private fun ConversationScreen(
         sheetState = conversationScreenState.modalBottomSheetState,
         coroutineScope = conversationScreenState.coroutineScope,
         menuItems = menuItems
-    ) {
-        Scaffold(
-            topBar = {
-                Column {
-                    ConversationScreenTopAppBar(
-                        conversationInfoViewState = conversationInfoViewState,
-                        onBackButtonClick = onBackButtonClick,
-                        onDropDownClick = onDropDownClick,
-                        isDropDownEnabled = conversationInfoViewState.hasUserPermissionToEdit,
-                        onSearchButtonClick = { },
-                        onPhoneButtonClick = onStartCall,
-                        hasOngoingCall = conversationCallViewState.hasOngoingCall,
-                        onJoinCallButtonClick = onJoinCall,
-                        isInteractionEnabled = messageComposerViewState.interactionAvailability == InteractionAvailability.ENABLED
-                    )
-                    ConversationBanner(bannerMessage)
-                }
-            },
-            snackbarHost = {
-                SwipeDismissSnackbarHost(
-                    hostState = conversationScreenState.snackBarHostState,
-                    modifier = Modifier.fillMaxWidth()
+    )
+    Scaffold(
+        topBar = {
+            Column {
+                ConversationScreenTopAppBar(
+                    conversationInfoViewState = conversationInfoViewState,
+                    onBackButtonClick = onBackButtonClick,
+                    onDropDownClick = onDropDownClick,
+                    isDropDownEnabled = conversationInfoViewState.hasUserPermissionToEdit,
+                    onSearchButtonClick = { },
+                    onPhoneButtonClick = onStartCall,
+                    hasOngoingCall = conversationCallViewState.hasOngoingCall,
+                    onJoinCallButtonClick = onJoinCall,
+                    isInteractionEnabled = messageComposerViewState.interactionAvailability == InteractionAvailability.ENABLED
                 )
-            },
-            content = { internalPadding ->
-                Box(modifier = Modifier.padding(internalPadding)) {
-                    ConversationScreenContent(
-                        interactionAvailability = messageComposerViewState.interactionAvailability,
-                        membersToMention = messageComposerViewState.mentionsToSelect,
-                        audioMessagesState = conversationMessagesViewState.audioMessagesState,
-                        isFileSharingEnabled = messageComposerViewState.isFileSharingEnabled,
-                        lastUnreadMessageInstant = conversationMessagesViewState.firstUnreadInstant,
-                        unreadEventCount = conversationMessagesViewState.firstuUnreadEventIndex,
-                        conversationState = messageComposerViewState,
-                        conversationDetailsData = conversationInfoViewState.conversationDetailsData,
-                        messageComposerState = messageComposerState,
-                        messages = conversationMessagesViewState.messages,
-                        onSendMessage = onSendMessage,
-                        onSendEditMessage = onSendEditMessage,
-                        onAttachmentPicked = onAttachmentPicked,
-                        onMentionMember = onMentionMember,
-                        onAssetItemClicked = onAssetItemClicked,
-                        onAudioItemClicked = onAudioClick,
-                        onChangeAudioPosition = onChangeAudioPosition,
-                        onImageFullScreenMode = onImageFullScreenMode,
-                        onReactionClicked = onReactionClick,
-                        onResetSessionClicked = onResetSessionClick,
-                        onOpenProfile = onOpenProfile,
-                        onUpdateConversationReadDate = onUpdateConversationReadDate,
-                        onShowEditingOptions = conversationScreenState::showEditContextMenu,
-                        onShowSelfDeletionOption = conversationScreenState::showSelfDeletionContextMenu,
-                        onPingClicked = onPingClicked,
-                        onSelfDeletingMessageRead = onSelfDeletingMessageRead,
-                        tempWritableImageUri = tempWritableImageUri,
-                        tempWritableVideoUri = tempWritableVideoUri
-                    )
-                }
+                ConversationBanner(bannerMessage)
             }
-        )
-    }
+        },
+        snackbarHost = {
+            SwipeDismissSnackbarHost(
+                hostState = conversationScreenState.snackBarHostState,
+                modifier = Modifier.fillMaxWidth()
+            )
+        },
+        content = { internalPadding ->
+            Box(modifier = Modifier.padding(internalPadding)) {
+                ConversationScreenContent(
+                    interactionAvailability = messageComposerViewState.interactionAvailability,
+                    membersToMention = messageComposerViewState.mentionsToSelect,
+                    audioMessagesState = conversationMessagesViewState.audioMessagesState,
+                    isFileSharingEnabled = messageComposerViewState.isFileSharingEnabled,
+                    lastUnreadMessageInstant = conversationMessagesViewState.firstUnreadInstant,
+                    unreadEventCount = conversationMessagesViewState.firstuUnreadEventIndex,
+                    conversationState = messageComposerViewState,
+                    conversationDetailsData = conversationInfoViewState.conversationDetailsData,
+                    messageComposerState = messageComposerState,
+                    messages = conversationMessagesViewState.messages,
+                    onSendMessage = onSendMessage,
+                    onSendEditMessage = onSendEditMessage,
+                    onAttachmentPicked = onAttachmentPicked,
+                    onMentionMember = onMentionMember,
+                    onAssetItemClicked = onAssetItemClicked,
+                    onAudioItemClicked = onAudioClick,
+                    onChangeAudioPosition = onChangeAudioPosition,
+                    onImageFullScreenMode = onImageFullScreenMode,
+                    onReactionClicked = onReactionClick,
+                    onResetSessionClicked = onResetSessionClick,
+                    onOpenProfile = onOpenProfile,
+                    onUpdateConversationReadDate = onUpdateConversationReadDate,
+                    onShowEditingOptions = conversationScreenState::showEditContextMenu,
+                    onShowSelfDeletionOption = conversationScreenState::showSelfDeletionContextMenu,
+                    onPingClicked = onPingClicked,
+                    onSelfDeletingMessageRead = onSelfDeletingMessageRead,
+                    tempWritableImageUri = tempWritableImageUri,
+                    tempWritableVideoUri = tempWritableVideoUri
+                )
+            }
+        }
+    )
     SnackBarMessage(composerMessages, conversationMessages, conversationScreenState)
 }
 

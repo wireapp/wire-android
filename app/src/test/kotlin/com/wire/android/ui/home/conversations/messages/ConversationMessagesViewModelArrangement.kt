@@ -28,7 +28,7 @@ import com.wire.android.media.audiomessage.AudioState
 import com.wire.android.media.audiomessage.ConversationAudioMessagePlayer
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.conversations.model.AssetBundle
-import com.wire.android.ui.home.conversations.model.AttachmentType
+import com.wire.kalium.logic.data.asset.AttachmentType
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.usecase.GetMessagesForConversationUseCase
 import com.wire.android.util.FileManager

@@ -291,6 +291,8 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
     ) {
         incomingIntent.stream?.let { uri ->
             uri.getMimeType(activity)?.let { mimeType ->
+                appLogger.d("KBX uri intent ${uri}")
+                appLogger.d("KBX mime intent $mimeType")
                 handleImportedAsset(activity, mimeType, uri)?.let { importedAsset ->
                     importMediaState =
                         importMediaState.copy(importedAssets = mutableListOf(importedAsset))

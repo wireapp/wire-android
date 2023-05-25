@@ -110,7 +110,6 @@ fun MediaGalleryScreen(mediaGalleryViewModel: MediaGalleryViewModel = hiltViewMo
                 onReactionClick = { emoji ->
                     mediaGalleryScreenState.showContextualMenu(false)
                     mediaGalleryViewModel.onMessageReacted(emoji)
-
                 },
                 onOpenAsset = null
             )

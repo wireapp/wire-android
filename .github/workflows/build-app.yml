@@ -38,6 +38,14 @@ jobs:
       run: |
         ./gradlew assembleDevDebug -p ./ --no-daemon
         cp app/build/outputs/apk/dev/debug/com.wire.*.apk wire-android-${{inputs.flavour}}-pr-${{ github.event.pull_request.number }}.apk
+    - name: Build dev flavour
+      if: ${{ inputs.flavour == 'beta-release' }}
+      env:
+        GITHUB_USER: ${{ github.actor }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        ./gradlew assembleBetaRelease -p ./ --no-daemon
+        cp app/build/outputs/apk/dev/debug/com.wire.*.apk wire-android-${{inputs.flavour}}-pr.apk
     - name: Upload APK
       if: success()
       uses: actions/upload-artifact@v3

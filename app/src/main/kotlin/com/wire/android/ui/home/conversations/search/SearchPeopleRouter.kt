@@ -202,7 +202,7 @@ fun SearchPeopleContent(
                             ) { pageIndex ->
                                 when (SearchPeopleTabItem.values()[pageIndex]) {
                                     SearchPeopleTabItem.PEOPLE -> {
-                                        getPeopleScreen(
+                                        GetPeopleScreen(
                                             isSearchActive = isSearchActive,
                                             searchQuery = searchQuery.text,
                                             noneSearchSucceed = noneSearchSucceed,
@@ -236,7 +236,7 @@ fun SearchPeopleContent(
                             }
                         }
                     } else {
-                        getPeopleScreen(
+                        GetPeopleScreen(
                             isSearchActive = isSearchActive,
                             searchQuery = searchQuery.text,
                             noneSearchSucceed = noneSearchSucceed,
@@ -288,7 +288,7 @@ enum class SearchPeopleScreenType {
 }
 
 @Composable
-private fun getPeopleScreen(
+private fun GetPeopleScreen(
     isSearchActive: Boolean,
     searchQuery: String,
     noneSearchSucceed: Boolean,

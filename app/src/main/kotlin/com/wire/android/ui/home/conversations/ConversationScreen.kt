@@ -21,8 +21,10 @@
 package com.wire.android.ui.home.conversations
 
 import android.app.DownloadManager
+import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.net.Uri
+import android.widget.Toast
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -560,6 +562,7 @@ private fun SnackBarMessage(
 ) {
     val showLabel = stringResource(R.string.label_show)
     val context = LocalContext.current
+    val errorToastMessage = stringResource(R.string.label_no_application_found_open_downloads_folder)
 
     LaunchedEffect(Unit) {
         composerMessages.collect {
@@ -578,7 +581,11 @@ private fun SnackBarMessage(
             )
             // Show downloads folder when clicking on Snackbar cta button
             if (it is OnFileDownloaded && snackbarResult == SnackbarResult.ActionPerformed) {
-                context.startActivity(Intent(DownloadManager.ACTION_VIEW_DOWNLOADS))
+                try {
+                    context.startActivity(Intent(DownloadManager.ACTION_VIEW_DOWNLOADS))
+                } catch (e: ActivityNotFoundException) {
+                    Toast.makeText(context, errorToastMessage, Toast.LENGTH_SHORT).show()
+                }
             }
         }
     }

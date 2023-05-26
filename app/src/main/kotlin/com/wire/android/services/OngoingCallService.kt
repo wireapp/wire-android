@@ -72,6 +72,7 @@ class OngoingCallService : Service() {
         val userIdString = intent?.getStringExtra(EXTRA_USER_ID)
         val conversationIdString = intent?.getStringExtra(EXTRA_CONVERSATION_ID)
         val callName = intent?.getStringExtra(EXTRA_CALL_NAME)
+        val isStopCall = intent?.getBooleanExtra(EXTRA_SHOULD_STOP, false) ?: false
         if (userIdString != null && conversationIdString != null && callName != null) {
             val userId = qualifiedIdMapper.fromStringToQualifiedID(userIdString)
             generateForegroundNotification(callName, conversationIdString, userId)
@@ -84,12 +85,15 @@ class OngoingCallService : Service() {
                 }
             }
         } else {
-            appLogger.w(
-                "$TAG: stopSelf. Reason: some of the parameter is absent. " +
-                        "userIdString: ${userIdString?.obfuscateId()}, " +
-                        "conversationIdString: ${conversationIdString?.obfuscateId()}, " +
-                        "callName: $callName"
-            )
+            if (!isStopCall) {
+                appLogger.w(
+                    "$TAG: stopSelf. Reason: some of the parameter is absent. " +
+                            "userIdString: ${userIdString?.obfuscateId()}, " +
+                            "conversationIdString: ${conversationIdString?.obfuscateId()}, " +
+                            "callName: $callName"
+                )
+            }
+            stopForeground(STOP_FOREGROUND_REMOVE)
             stopSelf()
         }
         return START_STICKY
@@ -112,6 +116,7 @@ class OngoingCallService : Service() {
         private const val EXTRA_USER_ID = "user_id_extra"
         private const val EXTRA_CONVERSATION_ID = "conversation_id_extra"
         private const val EXTRA_CALL_NAME = "call_name_extra"
+        private const val EXTRA_SHOULD_STOP = "stop_flag_extra"
 
         fun newIntent(context: Context, userId: String, conversationId: String, callName: String): Intent =
             Intent(context, OngoingCallService::class.java).apply {
@@ -119,5 +124,9 @@ class OngoingCallService : Service() {
                 putExtra(EXTRA_CONVERSATION_ID, conversationId)
                 putExtra(EXTRA_CALL_NAME, callName)
             }
+
+        fun stopIntent(context: Context): Intent =
+            Intent(context, OngoingCallService::class.java)
+                .apply { putExtra(EXTRA_SHOULD_STOP, true) }
     }
 }

@@ -53,6 +53,7 @@ import com.wire.android.ui.edit.ReplyMessageOption
 import com.wire.android.ui.home.conversations.MediaGallerySnackbarMessages
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialog
 import com.wire.android.util.permission.rememberWriteStorageRequestFlow
+import com.wire.android.util.ui.openDownloadFolder
 
 @Composable
 fun MediaGalleryScreen(mediaGalleryViewModel: MediaGalleryViewModel = hiltViewModel()) {
@@ -131,11 +132,7 @@ fun MediaGalleryContent(viewModel: MediaGalleryViewModel, mediaGalleryScreenStat
         when {
             // Show downloads folder when clicking on Snackbar cta button
             messageCode is MediaGallerySnackbarMessages.OnImageDownloaded && snackbarResult == SnackbarResult.ActionPerformed -> {
-                try {
-                    context.startActivity(Intent(DownloadManager.ACTION_VIEW_DOWNLOADS))
-                } catch (e: ActivityNotFoundException) {
-                    Toast.makeText(context, errorToastMessage, Toast.LENGTH_SHORT).show()
-                }
+                openDownloadFolder(context)
             }
         }
     }

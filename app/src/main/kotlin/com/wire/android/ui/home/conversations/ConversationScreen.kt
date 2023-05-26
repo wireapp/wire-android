@@ -81,7 +81,7 @@ import com.wire.android.ui.home.conversations.model.UriAsset
 import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMenuItems
 import com.wire.android.ui.home.messagecomposer.MessageComposer
 import com.wire.android.ui.home.messagecomposer.state.MessageComposerState
-import com.wire.android.ui.home.messagecomposer.state.rememberMessageComposerState
+import com.wire.android.ui.home.messagecomposer.state.rememberMessageComposerStateHolder
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.util.permission.CallingAudioRequestFlow
 import com.wire.android.util.permission.rememberCallingRecordAudioBluetoothRequestFlow
@@ -318,7 +318,7 @@ private fun ConversationScreen(
     tempWritableVideoUri: Uri?
 ) {
     val conversationScreenState = rememberConversationScreenState()
-    val messageComposerState = rememberMessageComposerState()
+    val messageComposerState = rememberMessageComposerStateHolder()
     val context = LocalContext.current
 
     LaunchedEffect(conversationMessagesViewModel.savedStateHandle) {

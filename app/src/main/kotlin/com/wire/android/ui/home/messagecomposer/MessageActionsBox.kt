@@ -62,6 +62,7 @@ fun MessageComposeActionsBox(
     onPingClicked: () -> Unit,
     onSelfDeletionOptionButtonClicked: () -> Unit,
     showSelfDeletingOption: Boolean,
+    onGifButtonClicked : () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(modifier.wrapContentSize()) {
@@ -85,7 +86,8 @@ fun MessageComposeActionsBox(
                         onAdditionalOptionButtonClicked,
                         onPingClicked,
                         onSelfDeletionOptionButtonClicked,
-                        showSelfDeletingOption
+                        showSelfDeletingOption,
+                        onGifButtonClicked
                     )
                 }
             }
@@ -94,17 +96,18 @@ fun MessageComposeActionsBox(
 }
 
 @Composable
-private fun MessageComposeActions(
+fun MessageComposeActions(
     selfDeletingOptionSelected: Boolean,
     attachmentOptionsDisplayed: Boolean,
     isMentionsSelected: Boolean,
     isEditMessage: Boolean,
     isFileSharingEnabled: Boolean = true,
-    startMention: () -> Unit,
+    onMentionButtonClicked: () -> Unit,
     onAdditionalOptionButtonClicked: () -> Unit,
-    onPingClicked: () -> Unit,
+    onPingButtonClicked: () -> Unit,
     onSelfDeletionOptionButtonClicked: () -> Unit,
     showSelfDeletingOption: Boolean,
+    onGifButtonClicked: () -> Unit
 ) {
     val localFeatureVisibilityFlags = LocalFeatureVisibilityFlags.current
 
@@ -123,13 +126,13 @@ private fun MessageComposeActions(
             )
             if (RichTextIcon) RichTextEditingAction()
             if (!isEditMessage && EmojiIcon) AddEmojiAction()
-            if (!isEditMessage && GifIcon) AddGifAction()
+            if (!isEditMessage && GifIcon) AddGifAction(true, onGifButtonClicked)
             if (!isEditMessage && showSelfDeletingOption) SelfDeletingMessageAction(
                 isSelected = selfDeletingOptionSelected,
                 onButtonClicked = onSelfDeletionOptionButtonClicked
             )
-            if (!isEditMessage && PingIcon) PingAction(onPingClicked = onPingClicked)
-            AddMentionAction(isMentionsSelected, startMention)
+            if (!isEditMessage && PingIcon) PingAction(onPingClicked = onPingButtonClicked)
+            AddMentionAction(isMentionsSelected, onMentionButtonClicked)
         }
     }
 }
@@ -155,9 +158,13 @@ private fun AddEmojiAction() {
 }
 
 @Composable
-private fun AddGifAction() {
+private fun AddGifAction(isSelected: Boolean, onPingClicked: () -> Unit) {
+    val onButtonClicked = remember(isSelected) {
+        { if (!isSelected) onPingClicked() }
+    }
+
     WireSecondaryIconButton(
-        onButtonClicked = {},
+        onButtonClicked = onButtonClicked,
         clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
         iconResource = R.drawable.ic_gif,
         contentDescription = R.string.content_description_conversation_send_gif
@@ -212,7 +219,7 @@ fun PreviewMessageActionsBox() {
         AdditionalOptionButton(isSelected = false, isEnabled = true, onClick = {})
         RichTextEditingAction()
         AddEmojiAction()
-        AddGifAction()
+        AddGifAction(false, {})
         AddMentionAction(isSelected = false, addMentionAction = {})
         PingAction {}
     }

@@ -32,9 +32,7 @@ import com.wire.android.notification.NotificationConstants
 import com.wire.android.notification.WireNotificationManager
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 
-@OptIn(ExperimentalCoroutinesApi::class)
 @HiltWorker
 class NotificationFetchWorker
 @AssistedInject constructor(

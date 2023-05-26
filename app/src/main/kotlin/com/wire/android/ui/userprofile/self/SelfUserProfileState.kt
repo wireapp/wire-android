@@ -20,14 +20,13 @@
 
 package com.wire.android.ui.userprofile.self
 
-import androidx.compose.material3.ExperimentalMaterial3Api
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.ui.userprofile.self.SelfUserProfileViewModel.ErrorCodes
 import com.wire.android.ui.userprofile.self.dialog.StatusDialogData
 import com.wire.android.ui.userprofile.self.model.OtherAccount
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 
-data class SelfUserProfileState @OptIn(ExperimentalMaterial3Api::class) constructor(
+data class SelfUserProfileState constructor(
     val avatarAsset: UserAvatarAsset? = null,
     val errorMessageCode: ErrorCodes? = null,
     val status: UserAvailabilityStatus = UserAvailabilityStatus.NONE,

@@ -34,7 +34,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -91,7 +90,6 @@ fun CreateAccountDetailsScreen(viewModel: CreateAccountDetailsViewModel, serverC
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 private fun DetailsContent(
     state: CreateAccountDetailsViewState,
@@ -149,7 +147,6 @@ private fun DetailsContent(
                 NameTextFields(state, onFirstNameChange, onLastNameChange, onTeamNameChange, coroutineScope)
                 PasswordTextFields(state, onPasswordChange, onConfirmPasswordChange, coroutineScope)
                 Spacer(modifier = Modifier.weight(1f))
-
             }
 
             Surface(
@@ -169,8 +166,9 @@ private fun DetailsContent(
             }
         }
     }
-    if (state.error is CreateAccountDetailsViewState.DetailsError.DialogError.GenericError)
+    if (state.error is CreateAccountDetailsViewState.DetailsError.DialogError.GenericError) {
         CoreFailureErrorDialog(state.error.coreFailure, onErrorDismiss)
+    }
 }
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -217,7 +215,7 @@ private fun NameTextFields(
             .bringIntoViewOnFocus(coroutineScope)
             .testTag("lastName")
     )
-    if (state.type == CreateAccountFlowType.CreateTeam)
+    if (state.type == CreateAccountFlowType.CreateTeam) {
         WireTextField(
             value = state.teamName,
             onValueChange = onTeamNameChange,
@@ -235,9 +233,10 @@ private fun NameTextFields(
                 .bringIntoViewOnFocus(coroutineScope)
                 .testTag("teamName")
         )
+    }
 }
 
-@OptIn(ExperimentalComposeUiApi::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun PasswordTextFields(
     state: CreateAccountDetailsViewState,
@@ -257,7 +256,7 @@ private fun PasswordTextFields(
             .padding(horizontal = MaterialTheme.wireDimensions.spacing16x)
             .bringIntoViewOnFocus(coroutineScope)
             .testTag("password"),
-        state = if (state.error is CreateAccountDetailsViewState.DetailsError.TextFieldError.InvalidPasswordError){
+        state = if (state.error is CreateAccountDetailsViewState.DetailsError.TextFieldError.InvalidPasswordError) {
             WireTextFieldState.Error()
         } else {
             WireTextFieldState.Default

@@ -14,11 +14,9 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
 
-package com.wire.android.ui.debugscreen
+package com.wire.android.ui.debug.dev
 
 import android.app.PendingIntent
 import android.app.PendingIntent.FLAG_CANCEL_CURRENT
@@ -66,10 +64,10 @@ import net.openid.appauth.ResponseTypeValues
 import javax.inject.Inject
 
 
-data class DebugScreenState(
+data class DevDebugScreenState(
     val isLoggingEnabled: Boolean = false,
     val isEncryptedProteusStorageEnabled: Boolean = false,
-    val currentClientId: String = String.EMPTY,
+    val clientId: String = String.EMPTY,
     val keyPackagesCount: Int = 0,
     val mslClientId: String = String.EMPTY,
     val mlsErrorMessage: String = String.EMPTY,
@@ -78,7 +76,7 @@ data class DebugScreenState(
 
 @Suppress("LongParameterList")
 @HiltViewModel
-class DebugScreenViewModel
+class DevDebugViewModel
 @Inject constructor(
     @ApplicationContext private val context: Context,
     @CurrentAccount val currentAccount: UserId,
@@ -91,10 +89,11 @@ class DebugScreenViewModel
     private val restartSlowSyncProcessForRecovery: RestartSlowSyncProcessForRecoveryUseCase,
     private val enrolE2EIUseCase: EnrolE2EIUseCase
 ) : ViewModel() {
+
     val logPath: String = logFileWriter.activeLoggingFile.absolutePath
 
     var state by mutableStateOf(
-        DebugScreenState()
+        DevDebugScreenState()
     )
 
     init {
@@ -140,7 +139,7 @@ class DebugScreenViewModel
         viewModelScope.launch {
             currentClientIdUseCase().collect {
                 val clientId = it?.let { clientId -> clientId.value } ?: "Client not fount"
-                state = state.copy(currentClientId = clientId)
+                state = state.copy(clientId = clientId)
             }
         }
     }

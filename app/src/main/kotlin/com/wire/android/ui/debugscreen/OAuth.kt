@@ -176,9 +176,9 @@ class OAuth {
                     jwt = JWT(response.idToken!!)
                     appLogger.e("####### idToken:  ${response.jsonSerializeString()}")
                     appLogger.e("####### idToken:  ${response.idToken}")
-//                    videModelScope.launch {
-//                        enrolE2EIUseCase.invoke(response.idToken.toString())
-//                    }
+                    videModelScope.launch {
+                        enrolE2EIUseCase.invoke(response.idToken.toString())
+                    }
                 }
             }
             persistState()

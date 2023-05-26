@@ -39,6 +39,7 @@ import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.WireActivity
+import com.wire.android.ui.debugscreen.OAuth
 import com.wire.android.util.DataDogLogger
 import com.wire.android.util.EMPTY
 import com.wire.android.util.LogFileWriter
@@ -210,9 +211,11 @@ class DevDebugViewModel
 //                )
 //            )
 //            OAuth.instance.init2(context)
-            OAuth.instance.initAuthServiceConfig()
-            OAuth.instance.initAuthService(context)
-            OAuth.instance.attemptAuthorization(context, enrolE2EIUseCase,viewModelScope)
+            enrolE2EIUseCase.invoke("idtoken")
+
+//            OAuth.instance.initAuthServiceConfig()
+//            OAuth.instance.initAuthService(context)
+//            OAuth.instance.attemptAuthorization(context, enrolE2EIUseCase,viewModelScope)
 //            context.getActivity()?.let { startActivityForResult(it, OAuth.instance.attemptAuthorization(context), 10, null) }
         }
     }

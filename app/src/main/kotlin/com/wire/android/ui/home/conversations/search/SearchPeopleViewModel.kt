@@ -252,24 +252,6 @@ abstract class KnownPeopleSearchViewModel(
     abstract suspend fun searchKnownPeople(searchTerm: String): Flow<ContactSearchResult.InternalContact>
 }
 
-@OptIn(ExperimentalCoroutinesApi::class)
-abstract class SearchServicesViewModel(
-    navigationManager: NavigationManager
-) : SearchPeopleViewModel(
-    navigationManager = navigationManager
-) {
-
-    protected val servicesSearchQueryFlow = mutableSearchQueryFlow
-        .flatMapLatest { searchTerm ->
-            searchServices(searchTerm)
-                .onStart {
-                    emit(SearchResultState.InProgress)
-                }
-        }
-
-    abstract suspend fun searchServices(searchTerm: String): Flow<SearchResultState>
-}
-
 abstract class SearchPeopleViewModel(
     val navigationManager: NavigationManager
 ) : ViewModel() {

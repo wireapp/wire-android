@@ -20,11 +20,7 @@
 
 package com.wire.android.ui.home.conversations
 
-import android.app.DownloadManager
-import android.content.ActivityNotFoundException
-import android.content.Intent
 import android.net.Uri
-import android.widget.Toast
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight

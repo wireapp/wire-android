@@ -203,7 +203,9 @@ fun MessageItem(
                                 })
                             }
                             val onLongClick: (() -> Unit)? = remember(message) {
-                                if (isAvailable) { { onLongClicked(message) } } else null
+                                if (isAvailable) {
+                                    { onLongClicked(message) }
+                                } else null
                             }
                             MessageContent(
                                 message = message,
@@ -266,33 +268,46 @@ fun MessageExpireLabel(messageContent: UIMessageContent?, timeLeft: String) {
 
         is UIMessageContent.AssetMessage -> {
             StatusBox(
-                statusText = if (messageContent.downloadStatus == Message.DownloadStatus.SAVED_INTERNALLY
-                    || messageContent.downloadStatus == Message.DownloadStatus.SAVED_EXTERNALLY
-                ) stringResource(
-                    R.string.self_deleting_message_time_left,
-                    timeLeft
-                )
-                else stringResource(R.string.self_deleting_message_label, timeLeft)
+                statusText = if (messageContent.downloadStatus == Message.DownloadStatus.SAVED_INTERNALLY ||
+                    messageContent.downloadStatus == Message.DownloadStatus.SAVED_EXTERNALLY
+                ) {
+                    stringResource(
+                        R.string.self_deleting_message_time_left,
+                        timeLeft
+                    )
+                } else {
+                    stringResource(R.string.self_deleting_message_label, timeLeft)
+                }
             )
         }
 
         is UIMessageContent.AudioAssetMessage -> {
             StatusBox(
-                statusText = if (messageContent.downloadStatus == Message.DownloadStatus.SAVED_INTERNALLY) stringResource(
-                    R.string.self_deleting_message_time_left,
-                    timeLeft
-                )
-                else stringResource(R.string.self_deleting_message_label, timeLeft)
+                statusText = if (messageContent.downloadStatus == Message.DownloadStatus.SAVED_INTERNALLY ||
+                    messageContent.downloadStatus == Message.DownloadStatus.SAVED_EXTERNALLY
+                ) {
+                    stringResource(
+                        R.string.self_deleting_message_time_left,
+                        timeLeft
+                    )
+                } else {
+                    stringResource(R.string.self_deleting_message_label, timeLeft)
+                }
             )
         }
 
         is UIMessageContent.ImageMessage -> {
             StatusBox(
-                statusText = if (messageContent.downloadStatus == Message.DownloadStatus.SAVED_INTERNALLY) stringResource(
-                    R.string.self_deleting_message_time_left,
-                    timeLeft
-                )
-                else stringResource(R.string.self_deleting_message_label, timeLeft)
+                statusText = if (messageContent.downloadStatus == Message.DownloadStatus.SAVED_INTERNALLY ||
+                    messageContent.downloadStatus == Message.DownloadStatus.SAVED_EXTERNALLY
+                ) {
+                    stringResource(
+                        R.string.self_deleting_message_time_left,
+                        timeLeft
+                    )
+                } else {
+                    stringResource(R.string.self_deleting_message_label, timeLeft)
+                }
             )
         }
 

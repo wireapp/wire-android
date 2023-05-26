@@ -6,6 +6,12 @@ on:
       flavour:
         required: true
         type: string
+  workflow_dispatch:
+    inputs:
+      flavour:
+        required: true
+        type: string
+
 
 jobs:
   build-app:

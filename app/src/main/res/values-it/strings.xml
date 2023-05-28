@@ -27,7 +27,7 @@
     <string name="label_cancel">Annulla</string>
     <string name="label_confirm">Conferma</string>
     <string name="label_continue">Continua</string>
-    <string name="label_apply">Apply</string>
+    <string name="label_apply">Applica</string>
     <string name="label_save">Salva</string>
     <string name="label_get_started">Inizia</string>
     <string name="label_remove">Rimuovi</string>
@@ -55,7 +55,7 @@
     <string name="label_update">Aggiorna</string>
     <string name="label_close">Chiudi</string>
     <string name="label_download">Scarica</string>
-    <string name="label_open_asset_externally">Open</string>
+    <string name="label_open_asset_externally">Apri</string>
     <string name="label_show">Mostra</string>
     <string name="label_show_all">Mostra tutto</string>
     <string name="label_show_less">Mostra meno</string>
@@ -330,7 +330,7 @@ Un messaggio eliminato non pu&#242; essere ripristinato.</string>
     <string name="conversations_screen_title">Conversazioni</string>
     <string name="conversations_all_tab_title">Tutte</string>
     <string name="conversations_calls_tab_title">Chiamate</string>
-    <string name="conversations_mentions_tab_title">Mentions</string>
+    <string name="conversations_mentions_tab_title">Menzioni</string>
     <string name="sent_a_message_with_content">ha inviato un messaggio con contenuto %s</string>
     <string name="sent_a_message_with_unknown_content">sent a message with unknown content</string>
     <string name="new_group_title">Nuovo Gruppo</string>
@@ -403,7 +403,7 @@ Fino a 500 persone possono unirsi a una conversazione di gruppo.</string>
     <string name="conversation_options_read_receipt_description">Con questa opzione ATTIVA, le persone possono vedere quando i loro messaggi in questa conversazione vengono letti.</string>
     <!-- Messages -->
     <string name="message_details_title">Dettagli messaggio</string>
-    <string name="message_details_reactions_tab">REACTIONS (%s)</string>
+    <string name="message_details_reactions_tab">REAZIONI (%s)</string>
     <string name="message_details_read_receipts_tab">NOTIFICHE DI LETTURA (%s)</string>
     <string name="message_details_reactions_empty_text">Ancora nessuno ha reagito a questo messaggio &#128561;</string>
     <string name="message_details_reactions_empty_learn_more">Scopri di pi&#249; sulle reazioni</string>
@@ -411,34 +411,34 @@ Fino a 500 persone possono unirsi a una conversazione di gruppo.</string>
     <string name="message_details_read_receipts_empty_learn_more">Learn more about read receipts</string>
     <!-- Attachment options -->
     <string name="attachment_share_file">Attach File</string>
-    <string name="attachment_share_image">Attach Picture</string>
-    <string name="attachment_take_photo">Take Photo</string>
-    <string name="attachment_record_video">Record Video</string>
-    <string name="attachment_voice_message">Audio Message</string>
-    <string name="attachment_share_location">Share Location</string>
+    <string name="attachment_share_image">Allega Immagine</string>
+    <string name="attachment_take_photo">Scatta Foto</string>
+    <string name="attachment_record_video">Registra un video</string>
+    <string name="attachment_voice_message">Messaggio vocale</string>
+    <string name="attachment_share_location">Condividi posizione</string>
     <!-- User Profile -->
-    <string name="user_profile_title">User Profile</string>
-    <string name="user_profile_close_description">Close User profile</string>
-    <string name="user_profile_logout">Log out</string>
+    <string name="user_profile_title">Profilo Utente</string>
+    <string name="user_profile_close_description">Chiudi profilo utente</string>
+    <string name="user_profile_logout">Logout</string>
     <string name="user_profile_other_accs">Your Other Accounts</string>
-    <string name="user_profile_status_availability">Availability</string>
-    <string name="user_profile_status_available">Available</string>
-    <string name="user_profile_status_busy">Busy</string>
-    <string name="user_profile_status_away">Away</string>
-    <string name="user_profile_status_none">None</string>
-    <string name="user_profile_new_account_text">New Team or Account</string>
-    <string name="user_profile_details_tab">Details</string>
-    <string name="user_profile_devices_tab">Devices</string>
-    <string name="user_profile_group_tab">Group</string>
+    <string name="user_profile_status_availability">Disponibilità</string>
+    <string name="user_profile_status_available">Disponibile</string>
+    <string name="user_profile_status_busy">Occupato</string>
+    <string name="user_profile_status_away">Assente</string>
+    <string name="user_profile_status_none">Nessuno</string>
+    <string name="user_profile_new_account_text">Nuovo team o account</string>
+    <string name="user_profile_details_tab">Dettagli</string>
+    <string name="user_profile_devices_tab">Dispositivi</string>
+    <string name="user_profile_group_tab">Gruppo</string>
     <string name="user_profile_group_member">Member of the group &#8221;%s&#8221;</string>
-    <string name="user_profile_group_role">ROLE</string>
+    <string name="user_profile_group_role">RUOLO</string>
     <string name="user_profile_role_in_group">Role in &#8221;%s&#8221;</string>
     <string name="user_profile_role_change_error">There was an error trying to change the role. Please check your internet connection and try again</string>
-    <string name="user_profile_unblock_user">Unblock User</string>
-    <string name="user_profile_group_remove_button">Remove from group</string>
-    <string name="user_profile_logging_out_progress">Logging out...</string>
+    <string name="user_profile_unblock_user">Sblocca Utente</string>
+    <string name="user_profile_group_remove_button">Rimuovi dal gruppo</string>
+    <string name="user_profile_logging_out_progress">Disconnessione...</string>
     <!-- Remove Conversation Member Dialog -->
-    <string name="dialog_remove_conversation_member_title">Remove from group?</string>
+    <string name="dialog_remove_conversation_member_title">Rimuovere dal gruppo?</string>
     <string name="dialog_remove_conversation_member_description">%1$s (@%2$s) will not be able to send or receive messages in this conversation.</string>
     <string name="dialog_remove_conversation_member_error">There was an error while removing the participant from the group</string>
     <string name="group_role_admin">Admin</string>

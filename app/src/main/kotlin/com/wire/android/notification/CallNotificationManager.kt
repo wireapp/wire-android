@@ -102,7 +102,7 @@ class CallNotificationManager @Inject constructor(private val context: Context) 
     }
 
     fun getOngoingCallNotification(callName: String, conversationId: String, userId: UserId): Notification {
-        val channelId = NotificationConstants.ONGOING_CALL_CHANNEL_NAME
+        val channelId = NotificationConstants.ONGOING_CALL_CHANNEL_ID
         return NotificationCompat.Builder(context, channelId)
             .setContentTitle(callName)
             .setContentText(context.getString(R.string.notification_ongoing_call_content))
@@ -125,7 +125,7 @@ class CallNotificationManager @Inject constructor(private val context: Context) 
      * once it's possible (e.g. [android.app.Service.onStartCommand])
      */
     fun getOngoingCallPlaceholderNotification(): Notification {
-        val channelId = NotificationConstants.ONGOING_CALL_CHANNEL_NAME
+        val channelId = NotificationConstants.ONGOING_CALL_CHANNEL_ID
         return NotificationCompat.Builder(context, channelId)
             .setContentText(context.getString(R.string.notification_ongoing_call_content))
             .setPriority(NotificationCompat.PRIORITY_HIGH)

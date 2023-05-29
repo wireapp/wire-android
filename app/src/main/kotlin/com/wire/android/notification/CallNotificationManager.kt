@@ -119,10 +119,10 @@ class CallNotificationManager @Inject constructor(private val context: Context) 
     }
 
     /**
-     * @return placeholder Notification for OngoingCall, that can be shown immediately after starting the Service (e.g. [android.app.Service.onCreate]).
-     * It has no any [NotificationCompat.Action], on click - just opens the app.
-     * This notification should be replace by the user-specific notification (with corresponding [NotificationCompat.Action], [android.content.Intent] and title)
-     * once it's possible (e.g. [android.app.Service.onStartCommand])
+     * @return placeholder Notification for OngoingCall, that can be shown immediately after starting the Service
+     * (e.g. in [android.app.Service.onCreate]). It has no any [NotificationCompat.Action], on click - just opens the app.
+     * This notification should be replace by the user-specific notification (with corresponding [NotificationCompat.Action],
+     * [android.content.Intent] and title) once it's possible (e.g. in [android.app.Service.onStartCommand])
      */
     fun getOngoingCallPlaceholderNotification(): Notification {
         val channelId = NotificationConstants.ONGOING_CALL_CHANNEL_ID

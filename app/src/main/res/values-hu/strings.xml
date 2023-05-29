@@ -177,56 +177,56 @@
     <string name="server_details_dialog_body">Kiszolgáló neve:\n%1$s\n\nKiszolgáló címe:\n%2$s</string>
     <string name="server_details_dialog_title">Helyszíni kiszolgáló</string>
     <string name="welcome_migration_dialog_title">Üdvözöljük az új androidos alkalmazásunkban 👋</string>
-    <string name="welcome_migration_dialog_content">We rebuilt the app to make it more usable for everyone.\n\nFind out more about Wire’s redesigned app—new options and improved accessibility, with the same strong security.</string>
-    <string name="welcome_migration_dialog_continue">Start Using Wire</string>
+    <string name="welcome_migration_dialog_content">Átdolgoztuk az alkalmazást, hogy még használhatóbbá tegyük mindenki számára.\n\nTudjon meg többet a Wire áttervezett applikációjáról—új opciók és fejlettebb hozzáférhetőség, ugyanolyan erős biztonság mellett.</string>
+    <string name="welcome_migration_dialog_continue">Kezdje el használni a Wire-t</string>
     <!-- API Versioning Dialogs -->
-    <string name="api_versioning_client_update_required_title">Update required</string>
-    <string name="api_versioning_client_update_required_message">You are missing out on new features. Update to the latest version of Wire to continue using the app with this account.</string>
-    <string name="api_versioning_server_version_not_supported_title">Server version not supported</string>
-    <string name="api_versioning_server_version_not_supported_message">Your Wire server needs to be updated. Please notify your system administrator.</string>
+    <string name="api_versioning_client_update_required_title">Frissítés szükséges</string>
+    <string name="api_versioning_client_update_required_message">Lemarad az új képességekről. Frissítsen a Wire legújabb verziójára, hogy tovább használja az alkalmazást ezzel a fiókkal.</string>
+    <string name="api_versioning_server_version_not_supported_title">Nem támogatott szerververzió</string>
+    <string name="api_versioning_server_version_not_supported_message">Az Ön Wire-kiszolgálója frissítést igényel. Értesítse rendszeradminisztrátorát.</string>
     <!-- Migration -->
-    <string name="migration_title">Setting up Wire</string>
-    <string name="migration_message">Please wait while we set up the app for you</string>
-    <string name="migration_message_unknown">Please wait while we migrate data for you</string>
-    <string name="migration_accounts_message">Migrating your accounts...</string>
-    <string name="migration_messages_message">Migrating your messages...</string>
-    <string name="migration_title_step">Step %1$d/%2$d</string>
-    <string name="migration_title_almost_done">Almost done!</string>
-    <string name="migration_title_updated">Setting up Wire</string>
-    <string name="migration_login_required">In order to migrate your messages from the old version of Wire, you need to log in to your account.</string>
-    <string name="migration_login_required_specific_account">In order to migrate your messages from the old version of Wire, you need to log in to your account %s.</string>
+    <string name="migration_title">A Wire beállítása</string>
+    <string name="migration_message">Kérjük várjon, amíg beállítjuk Önnek az alkalmazást</string>
+    <string name="migration_message_unknown">Kérjük várjon, amíg átköltöztetjük az adatait</string>
+    <string name="migration_accounts_message">Fiókjai átköltöztetése...</string>
+    <string name="migration_messages_message">Üzenetei átköltöztetése...</string>
+    <string name="migration_title_step">%1$d/%2$d lépés</string>
+    <string name="migration_title_almost_done">Már majdnem kész!</string>
+    <string name="migration_title_updated">A Wire beállítása</string>
+    <string name="migration_login_required">A Wire régi verziójában lévő üzenetei átköltöztetéséhez be kell lépnie a fiókjába.</string>
+    <string name="migration_login_required_specific_account">A Wire régi verziójában lévő üzenetei átköltöztetéséhez be kell lépnie a(z) %s fiókjába.</string>
     <string name="migration_login_required_specific_account_name">“%1$s (@%2$s)“</string>
-    <string name="migration_messages_failure">Unfortunately, not all messages and conversations could not be migrated due to incompatibility with the older version of Wire (error code: %s)</string>
-    <string name="migration_cancel_title">Cancel migration</string>
-    <string name="migration_cancel_message">Are you sure you want to close the application and cancel the ongoing migration?</string>
+    <string name="migration_messages_failure">Sajnos nem minden üzenetet és beszélgetést sikerült átköltöztetni a Wire régi verziójával meglévő inkompatibilitás miatt (hibakód: %s)</string>
+    <string name="migration_cancel_title">Költöztetés leállítása</string>
+    <string name="migration_cancel_message">Biztos benne, hogy be szeretné zárni az alkalmazást és leállítani a folyamatban lévő költöztetést?</string>
     <!-- Login -->
-    <string name="login_title">Log in</string>
-    <string name="login_forgot_password">Forgot password?</string>
-    <string name="login_user_identifier_placeholder">jane@example.com or jane.doe</string>
-    <string name="login_user_identifier_label">EMAIL OR USERNAME</string>
-    <string name="login_proxy_identifier_label">PROXY EMAIL OR USERNAME</string>
-    <string name="login_error_invalid_credentials_title">Invalid information</string>
-    <string name="login_error_invalid_credentials_message">These account credentials are incorrect.
-        Please verify your details and try again.
+    <string name="login_title">Bejelentkezés</string>
+    <string name="login_forgot_password">Elfelejtette a jelszavát?</string>
+    <string name="login_user_identifier_placeholder">jane@example.com vagy jane.doe</string>
+    <string name="login_user_identifier_label">E-MAIL VAGY FELHASZNÁLÓNÉV</string>
+    <string name="login_proxy_identifier_label">PROXY E-MAIL VAGY FELHASZNÁLÓNÉV</string>
+    <string name="login_error_invalid_credentials_title">Érvénytelen információ</string>
+    <string name="login_error_invalid_credentials_message">Ezek a fiókazonosítók helytelenek.
+        Ellenőrizze a bevitt adatokat, és próbálja újra.
     </string>
-    <string name="login_error_invalid_user_identifier">This email or username is invalid. Please
-        verify and try again.
+    <string name="login_error_invalid_user_identifier">Az e-mail cím vagy felhasználónév érvénytelen. Ellenőrizze
+        a beírtakat, és próbálja újra.
     </string>
-    <string name="login_error_user_already_logged_in_title">Account in use</string>
-    <string name="login_error_user_already_logged_in_message">You are already logged in with those credentials on this device.</string>
-    <string name="login_sso_error_invalid_cookie_title">Invalid Cookie!</string>
-    <string name="login_sso_error_invalid_cookie_message">The session is invalid or expired! Please try again to log in.</string>
-    <string name="login_password_placeholder">Password</string>
-    <string name="login_password_label">PASSWORD</string>
-    <string name="login_tab_email">EMAIL</string>
-    <string name="login_tab_sso">SSO LOGIN</string>
+    <string name="login_error_user_already_logged_in_title">A fiók már használatban van</string>
+    <string name="login_error_user_already_logged_in_message">A megadott azonosítókkal már bejelentkezett ezen az eszközön.</string>
+    <string name="login_sso_error_invalid_cookie_title">Érvénytelen süti!</string>
+    <string name="login_sso_error_invalid_cookie_message">A munkamenet érvénytelen vagy lejárt! Próbáljon újra bejelentkezni.</string>
+    <string name="login_password_placeholder">Jelszó</string>
+    <string name="login_password_label">JELSZÓ</string>
+    <string name="login_tab_email">E-MAIL</string>
+    <string name="login_tab_sso">SSO BEJELENTKEZÉS</string>
     <string name="login_sso_code_placeholder">wire-</string>
-    <string name="login_sso_code_label">SSO CODE</string>
-    <string name="login_error_invalid_sso_code">Please enter a valid SSO code.</string>
-    <string name="login_error_invalid_sso_code_format">Enter a valid SSO code</string>
-    <string name="deleted_user_error_title">Deleted account</string>
-    <string name="deleted_user_error_message">You were logged out because your account was
-        deleted.
+    <string name="login_sso_code_label">SSO KÓD</string>
+    <string name="login_error_invalid_sso_code">Kérjük, adjon meg egy érvényes SSO kódot.</string>
+    <string name="login_error_invalid_sso_code_format">Érvényes SSO kód megadása</string>
+    <string name="deleted_user_error_title">Törölt fiók</string>
+    <string name="deleted_user_error_message">Ki lett jelentkeztetve, mivel a fiókja
+        törölve lett.
     </string>
     <string name="removed_client_error_title">Eltávolított eszköz</string>
     <string name="removed_client_error_message">Ki lett jelentkeztetve, mivel az eszköze
@@ -397,66 +397,66 @@
     <string name="delete_group_conversation_dialog_description">Ez a csoport eltávolításra kerül a beszélgetések közül minden eszközön. Többé nem lesz hozzáférése a csoporthoz és annak tartalmához.</string>
     <!-- Import/Export External Media -->
     <string name="import_media_content_title">Megosztás Wire-rel</string>
-    <string name="import_media_searchbar_title">Search for conversation</string>
-    <string name="import_media_send_button_title">Send</string>
-    <string name="export_media_subject_title">Sharing Media from Wire</string>
+    <string name="import_media_searchbar_title">Beszélgetés keresése</string>
+    <string name="import_media_send_button_title">Küldés</string>
+    <string name="export_media_subject_title">Média megosztása Wire-ből</string>
     <!--Read receipts -->
-    <string name="conversation_options_read_receipt_label">Read receipts</string>
-    <string name="conversation_options_read_receipt_description">When this is on, people can see when their messages in this conversation are read.</string>
+    <string name="conversation_options_read_receipt_label">Olvasási visszaigazolások</string>
+    <string name="conversation_options_read_receipt_description">Amikor ez be van kapcsolva, az emberek láthatják, mikor olvasták el a beszélgetés üzeneteit.</string>
     <!-- Messages -->
-    <string name="message_details_title">Message Details</string>
-    <string name="message_details_reactions_tab">REACTIONS (%s)</string>
-    <string name="message_details_read_receipts_tab">READ RECEIPTS (%s)</string>
-    <string name="message_details_reactions_empty_text">No one reacted on this message yet 😱</string>
-    <string name="message_details_reactions_empty_learn_more">Learn more about reactions</string>
-    <string name="message_details_read_receipts_empty_text">No one read this message yet 👀</string>
-    <string name="message_details_read_receipts_empty_learn_more">Learn more about read receipts</string>
+    <string name="message_details_title">Üzenet részletei</string>
+    <string name="message_details_reactions_tab">REAKCIÓK (%s)</string>
+    <string name="message_details_read_receipts_tab">OLVASÁSI VISSZAIGAZOLÁSOK (%s)</string>
+    <string name="message_details_reactions_empty_text">Még senki nem reagált erre az üzenetre 😱</string>
+    <string name="message_details_reactions_empty_learn_more">Tudjon meg többet a reakciókról</string>
+    <string name="message_details_read_receipts_empty_text">Még senki sem olvasta el az üzenetet 👀</string>
+    <string name="message_details_read_receipts_empty_learn_more">Tudjon meg többet az olvasási visszaigazolásokról</string>
     <!-- Attachment options -->
-    <string name="attachment_share_file">Attach File</string>
-    <string name="attachment_share_image">Attach Picture</string>
-    <string name="attachment_take_photo">Take Photo</string>
-    <string name="attachment_record_video">Record Video</string>
-    <string name="attachment_voice_message">Audio Message</string>
-    <string name="attachment_share_location">Share Location</string>
+    <string name="attachment_share_file">Fájl csatolása</string>
+    <string name="attachment_share_image">Kép csatolása</string>
+    <string name="attachment_take_photo">Fotó készítése</string>
+    <string name="attachment_record_video">Videó felvétele</string>
+    <string name="attachment_voice_message">Hangüzenet</string>
+    <string name="attachment_share_location">Helyzet megosztása</string>
     <!-- User Profile -->
-    <string name="user_profile_title">User Profile</string>
-    <string name="user_profile_close_description">Close User profile</string>
-    <string name="user_profile_logout">Log out</string>
-    <string name="user_profile_other_accs">Your Other Accounts</string>
-    <string name="user_profile_status_availability">Availability</string>
-    <string name="user_profile_status_available">Available</string>
-    <string name="user_profile_status_busy">Busy</string>
-    <string name="user_profile_status_away">Away</string>
-    <string name="user_profile_status_none">None</string>
-    <string name="user_profile_new_account_text">New Team or Account</string>
-    <string name="user_profile_details_tab">Details</string>
-    <string name="user_profile_devices_tab">Devices</string>
-    <string name="user_profile_group_tab">Group</string>
-    <string name="user_profile_group_member">Member of the group ”%s”</string>
-    <string name="user_profile_group_role">ROLE</string>
-    <string name="user_profile_role_in_group">Role in ”%s”</string>
-    <string name="user_profile_role_change_error">There was an error trying to change the role. Please check your internet connection and try again</string>
-    <string name="user_profile_unblock_user">Unblock User</string>
-    <string name="user_profile_group_remove_button">Remove from group</string>
-    <string name="user_profile_logging_out_progress">Logging out...</string>
+    <string name="user_profile_title">Felhasználói profil</string>
+    <string name="user_profile_close_description">A felhasználói profil bezárása</string>
+    <string name="user_profile_logout">Kijelentkezés</string>
+    <string name="user_profile_other_accs">További fiókjai</string>
+    <string name="user_profile_status_availability">Elérhetőség</string>
+    <string name="user_profile_status_available">Elérhető</string>
+    <string name="user_profile_status_busy">Elfoglalt</string>
+    <string name="user_profile_status_away">Nincs a gépnél</string>
+    <string name="user_profile_status_none">Semmi</string>
+    <string name="user_profile_new_account_text">Új csapat vagy fiók</string>
+    <string name="user_profile_details_tab">Részletek</string>
+    <string name="user_profile_devices_tab">Eszközök</string>
+    <string name="user_profile_group_tab">Csoport</string>
+    <string name="user_profile_group_member">A(z) ”%s” csoport tagja</string>
+    <string name="user_profile_group_role">SZEREP</string>
+    <string name="user_profile_role_in_group">Szerep ”%s” csoportban</string>
+    <string name="user_profile_role_change_error">Hiba lépett fel szerepcsere közben. Ellenőrizze internetkapcsolatát, és próbálja újra</string>
+    <string name="user_profile_unblock_user">Felhasználótiltás levétele</string>
+    <string name="user_profile_group_remove_button">Eltávolítás a csoportból</string>
+    <string name="user_profile_logging_out_progress">Kijelentkezés...</string>
     <!-- Remove Conversation Member Dialog -->
-    <string name="dialog_remove_conversation_member_title">Remove from group?</string>
-    <string name="dialog_remove_conversation_member_description">%1$s (@%2$s) will not be able to send or receive messages in this conversation.</string>
-    <string name="dialog_remove_conversation_member_error">There was an error while removing the participant from the group</string>
+    <string name="dialog_remove_conversation_member_title">Eltávolítja a csoportból?</string>
+    <string name="dialog_remove_conversation_member_description">%1$s (@%2$s) ezután nem fog tudni üzenetet küldeni és fogadni ebben a beszélgetésben.</string>
+    <string name="dialog_remove_conversation_member_error">Hiba történt a résztvevő csoportból történő eltávolítása során</string>
     <string name="group_role_admin">Admin</string>
-    <string name="group_role_member">Member</string>
+    <string name="group_role_member">Tag</string>
     <!-- Logout Wipe Data Dialog -->
-    <string name="dialog_logout_wipe_data_title">Clear Data?</string>
-    <string name="dialog_logout_wipe_data_checkbox">Delete all your personal information and conversations on this device</string>
+    <string name="dialog_logout_wipe_data_title">Adatok törlése?</string>
+    <string name="dialog_logout_wipe_data_checkbox">Törölje az összes személyes adatát és beszélgetését erről az eszközről</string>
     <!-- User Profile status dialog-->
-    <string name="user_profile_change_status_dialog_available_title">Set yourself to Available</string>
-    <string name="user_profile_change_status_dialog_available_text">You will appear as Available to other people. You will receive notifications for incoming calls and for messages according to the Notifications setting in each conversation.</string>
+    <string name="user_profile_change_status_dialog_available_title">Elérhető állapot beállítása</string>
+    <string name="user_profile_change_status_dialog_available_text">Mások számára Elérhető állapotúként jelenik meg. Az egyes beszélgetésekben az Értesítések beállításnak megfelelően értesítéseket kap a bejövő hívásokról és az üzenetekről.</string>
     <string name="user_profile_change_status_dialog_busy_title">Set yourself to Busy</string>
     <string name="user_profile_change_status_dialog_busy_text">You will appear as Busy to other people. You will only receive notifications for mentions, replies, and calls in conversations that are not muted.</string>
     <string name="user_profile_change_status_dialog_away_title">Set yourself to Away</string>
     <string name="user_profile_change_status_dialog_away_text">Másoknak távol van állapotban fog megjelenni. A bejövő hívásokról vagy üzenetekről nem fog értesítést kapni.</string>
     <string name="user_profile_change_status_dialog_none_title">Nincs állapot megadva</string>
-    <string name="user_profile_change_status_dialog_none_text">Az egyes beszélgetésekben az Értesítések beállításnak megfelelően értesítéseket kapsz a bejövő hívásokról és az üzenetekről.</string>
+    <string name="user_profile_change_status_dialog_none_text">Az egyes beszélgetésekben az Értesítések beállításnak megfelelően értesítéseket kap a bejövő hívásokról és az üzenetekről.</string>
     <string name="user_profile_change_status_dialog_checkbox_text">Ne jelenítse meg újra ezt az információt</string>
     <!-- Conversations BottomSheet -->
     <string name="label_notifications">Értesítések</string>

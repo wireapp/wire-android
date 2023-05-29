@@ -71,16 +71,16 @@
     <string name="label_and">és</string>
     <string name="label_retry">Újra</string>
     <!-- Content descriptions https://wearezeta.atlassian.net/wiki/spaces/AR/pages/122520039/Code+Style+Guideline#Content-description-strings -->
-    <string name="content_description_app_logo">App Logo</string>
+    <string name="content_description_app_logo">App logó</string>
     <string name="content_description_reveal_password">Jelszó megjelenítése</string>
     <string name="content_description_hide_password">Jelszó elrejtése</string>
-    <string name="content_description_search_back">Search back icon</string>
+    <string name="content_description_search_back">Keresés vissza ikon</string>
     <string name="content_description_clear_content">Tartalom törlése</string>
     <string name="content_description_user_avatar">Profilkép</string>
     <string name="content_description_muted_conversation">Némított beszélgetés</string>
-    <string name="content_description_check">Check mark</string>
-    <string name="content_description_download_icon">Download icon</string>
-    <string name="content_description_open_asset_icon">Open icon</string>
+    <string name="content_description_check">Pipa jel</string>
+    <string name="content_description_download_icon">Letöltés ikon</string>
+    <string name="content_description_open_asset_icon">Megnyitás ikon</string>
     <string name="content_description_add_to_favourite">Hozzáadás a kedvencekhez</string>
     <string name="content_description_move_to_folder">Áthelyezés mappába</string>
     <string name="content_description_move_to_archive">Áthelyezés az archívumba</string>
@@ -136,7 +136,7 @@
     <string name="content_description_show_more_options">További lehetőségek megjelenítése</string>
     <string name="content_description_reply_to_messge">Válasz az üzenetre</string>
     <string name="content_description_reply_cancel">Mégsem válaszol az üzenetre</string>
-    <string name="content_description_ping_message">Ping message</string>
+    <string name="content_description_ping_message">Kopogás üzenet</string>
     <string name="content_description_copy">Másolás</string>
     <string name="content_description_edit">Szerkesztés</string>
     <string name="content_description_calling_call_muted">Hívás némítva</string>
@@ -175,8 +175,8 @@
     <string name="welcome_screen_carousel_item_message_5">A Wire külsőleg auditált és megfelel az ISO, CCPA, GDPR, SOX szabványoknak</string>
     <string name="welcome_button_create_team">Csapat létrehozása</string>
     <string name="server_details_dialog_body">Kiszolgáló neve:\n%1$s\n\nKiszolgáló címe:\n%2$s</string>
-    <string name="server_details_dialog_title">On-premises Backend</string>
-    <string name="welcome_migration_dialog_title">Welcome To Our New Android App 👋</string>
+    <string name="server_details_dialog_title">Helyszíni kiszolgáló</string>
+    <string name="welcome_migration_dialog_title">Üdvözöljük az új androidos alkalmazásunkban 👋</string>
     <string name="welcome_migration_dialog_content">We rebuilt the app to make it more usable for everyone.\n\nFind out more about Wire’s redesigned app—new options and improved accessibility, with the same strong security.</string>
     <string name="welcome_migration_dialog_continue">Start Using Wire</string>
     <!-- API Versioning Dialogs -->

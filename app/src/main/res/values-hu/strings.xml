@@ -72,55 +72,55 @@
     <string name="label_retry">Újra</string>
     <!-- Content descriptions https://wearezeta.atlassian.net/wiki/spaces/AR/pages/122520039/Code+Style+Guideline#Content-description-strings -->
     <string name="content_description_app_logo">App Logo</string>
-    <string name="content_description_reveal_password">Show password</string>
-    <string name="content_description_hide_password">Hide password</string>
+    <string name="content_description_reveal_password">Jelszó megjelenítése</string>
+    <string name="content_description_hide_password">Jelszó elrejtése</string>
     <string name="content_description_search_back">Search back icon</string>
-    <string name="content_description_clear_content">Clear content</string>
-    <string name="content_description_user_avatar">Profile picture</string>
-    <string name="content_description_muted_conversation">Muted conversation</string>
+    <string name="content_description_clear_content">Tartalom törlése</string>
+    <string name="content_description_user_avatar">Profilkép</string>
+    <string name="content_description_muted_conversation">Némított beszélgetés</string>
     <string name="content_description_check">Check mark</string>
     <string name="content_description_download_icon">Download icon</string>
     <string name="content_description_open_asset_icon">Open icon</string>
-    <string name="content_description_add_to_favourite">Add to Favorites</string>
-    <string name="content_description_move_to_folder">Move to folder</string>
-    <string name="content_description_move_to_archive">Move to archive</string>
-    <string name="content_description_block_the_user">Block</string>
-    <string name="content_description_unblock_the_user">Unblock</string>
-    <string name="content_description_leave_the_group">Leave the group</string>
-    <string name="content_description_delete_the_group">Delete the group</string>
-    <string name="content_description_conversation_phone_icon">Start audio call</string>
+    <string name="content_description_add_to_favourite">Hozzáadás a kedvencekhez</string>
+    <string name="content_description_move_to_folder">Áthelyezés mappába</string>
+    <string name="content_description_move_to_archive">Áthelyezés az archívumba</string>
+    <string name="content_description_block_the_user">Tiltás</string>
+    <string name="content_description_unblock_the_user">Tiltás feloldása</string>
+    <string name="content_description_leave_the_group">Kilépés a csoportból</string>
+    <string name="content_description_delete_the_group">Csoport törlése</string>
+    <string name="content_description_conversation_phone_icon">Hívás indítása</string>
     <string name="content_description_welcome_wire_logo">Wire</string>
-    <string name="content_description_conversation_search_icon">Conversation search icon</string>
-    <string name="content_description_conversation_enable_rich_text_mode">Enable rich text mode button</string>
-    <string name="content_description_conversation_send_emoticon">Send Emoticon button</string>
-    <string name="content_description_conversation_send_gif">Send GIF button</string>
-    <string name="content_description_conversation_mention_someone">Mention someone</string>
-    <string name="content_description_new_conversation">Start a new conversation</string>
-    <string name="content_description_back_button">Back button</string>
-    <string name="content_description_send_button">Send</string>
-    <string name="content_description_timed_message_button">Self-deleting messages, button</string>
-    <string name="content_description_close_button">Close button</string>
-    <string name="content_description_menu_button">Main navigation</string>
-    <string name="content_description_drop_down_icon">Drop down arrow</string>
-    <string name="content_description_remove_devices_screen_device_item_icon">Device item</string>
-    <string name="content_description_remove_devices_screen_remove_icon">Remove device</string>
-    <string name="content_description_avatar_preview">Preview of profile picture</string>
-    <string name="content_description_choose_from_gallery">Choose from gallery</string>
-    <string name="content_description_take_a_picture">Take a picture</string>
-    <string name="content_description_right_arrow">Right arrow</string>
-    <string name="content_description_left_arrow">Go back</string>
-    <string name="content_description_mention_icon">Mention icon</string>
-    <string name="content_description_attachment_item">Attach new item to conversation</string>
-    <string name="content_description_open_message_details">Open Message Details</string>
-    <string name="content_description_copy_the_message">Copy the message</string>
-    <string name="content_description_share_the_file">Share the selected file with other app</string>
-    <string name="content_description_delete_the_message">Delete the message</string>
-    <string name="content_description_edit_the_message">Edit the message</string>
-    <string name="content_description_more_options">More options</string>
-    <string name="content_description_add_contact">Add contact</string>
-    <string name="content_description_image_message">Image message</string>
-    <string name="content_description_file_message">File message</string>
-    <string name="content_description_ping_everyone">Ping</string>
+    <string name="content_description_conversation_search_icon">Beszélgetés keresése ikon</string>
+    <string name="content_description_conversation_enable_rich_text_mode">Formázott szöveg engedélyezése gomb</string>
+    <string name="content_description_conversation_send_emoticon">Hangulatjel küldése gomb</string>
+    <string name="content_description_conversation_send_gif">GIF küldése gomb</string>
+    <string name="content_description_conversation_mention_someone">Valaki megemlítése</string>
+    <string name="content_description_new_conversation">Új beszélgetés indítása</string>
+    <string name="content_description_back_button">Vissza gomb</string>
+    <string name="content_description_send_button">Küldés</string>
+    <string name="content_description_timed_message_button">Önmegsemmisítő üzenetek gomb</string>
+    <string name="content_description_close_button">Bezárás gomb</string>
+    <string name="content_description_menu_button">Menü gomb</string>
+    <string name="content_description_drop_down_icon">Lefelé nyíló ikon</string>
+    <string name="content_description_remove_devices_screen_device_item_icon">Eszköz ikon</string>
+    <string name="content_description_remove_devices_screen_remove_icon">Eszköz eltávolítása</string>
+    <string name="content_description_avatar_preview">Profilkép előnézete</string>
+    <string name="content_description_choose_from_gallery">Választás a galériából</string>
+    <string name="content_description_take_a_picture">Fotó készítése</string>
+    <string name="content_description_right_arrow">Jobbra nyíl</string>
+    <string name="content_description_left_arrow">Visszalépés</string>
+    <string name="content_description_mention_icon">Említés ikon</string>
+    <string name="content_description_attachment_item">Új elem csatolása a beszélgetéshez</string>
+    <string name="content_description_open_message_details">Üzenet részleteinek megnyitása</string>
+    <string name="content_description_copy_the_message">Üzenet másolása</string>
+    <string name="content_description_share_the_file">A kijelölt fájl megosztása másik alkalmazással</string>
+    <string name="content_description_delete_the_message">Üzenet törlése</string>
+    <string name="content_description_edit_the_message">Üzenet szerkesztése</string>
+    <string name="content_description_more_options">További lehetőségek</string>
+    <string name="content_description_add_contact">Kapcsolat hozzáadása</string>
+    <string name="content_description_image_message">Képüzenet</string>
+    <string name="content_description_file_message">Fájlüzenet</string>
+    <string name="content_description_ping_everyone">Kopogás</string>
     <string name="content_description_calling_hang_up_call">Hívás befejezése</string>
     <string name="content_description_calling_accept_call">Hívás fogadása</string>
     <string name="content_description_calling_decline_call">Hívás elutasítása</string>
@@ -166,15 +166,15 @@
     <string name="settings_backup_restore">Visszaállítás biztonsági másolatból</string>
     <!-- Welcome -->
     <string name="welcome_footer_text">Szeretne csevegni barátokkal és családtagokkal?</string>
-    <string name="welcome_footer_link">Create a private account for free</string>
-    <string name="welcome_button_create_personal_account">Create a Personal Account</string>
-    <string name="welcome_screen_carousel_item_message_1">Welcome to Wire, the most secure collaboration platform!</string>
-    <string name="welcome_screen_carousel_item_message_2">Absolute confidence your information is\u00A0secure</string>
-    <string name="welcome_screen_carousel_item_message_3">Encrypted audio &amp; video conferencing with up\u00A0to 50\u00A0participants</string>
-    <string name="welcome_screen_carousel_item_message_4">Secure file sharing with teams and\u00A0clients</string>
-    <string name="welcome_screen_carousel_item_message_5">Wire is independently audited and ISO, CCPA, GDPR, SOX-compliant</string>
-    <string name="welcome_button_create_team">Create a Team</string>
-    <string name="server_details_dialog_body">Backend name:\n%1$s\n\nBackend URL:\n%2$s</string>
+    <string name="welcome_footer_link">Készítsen ingyenes magánfiókot</string>
+    <string name="welcome_button_create_personal_account">Készítsen személyes fiókot</string>
+    <string name="welcome_screen_carousel_item_message_1">Üdvözli a Wire, a legbiztonságosabb együttműködési felület!</string>
+    <string name="welcome_screen_carousel_item_message_2">Teljesen biztos lehet abban, hogy adatai\u00A0biztonságban vannak</string>
+    <string name="welcome_screen_carousel_item_message_3">Titkosított hang- &amp; videókonferencia \u00A0akár 50\u00A0résztvevővel</string>
+    <string name="welcome_screen_carousel_item_message_4">Biztonságos fájlmegosztás csapattagokkal és\u00A0ügyfelekkel</string>
+    <string name="welcome_screen_carousel_item_message_5">A Wire külsőleg auditált és megfelel az ISO, CCPA, GDPR, SOX szabványoknak</string>
+    <string name="welcome_button_create_team">Csapat létrehozása</string>
+    <string name="server_details_dialog_body">Kiszolgáló neve:\n%1$s\n\nKiszolgáló címe:\n%2$s</string>
     <string name="server_details_dialog_title">On-premises Backend</string>
     <string name="welcome_migration_dialog_title">Welcome To Our New Android App 👋</string>
     <string name="welcome_migration_dialog_content">We rebuilt the app to make it more usable for everyone.\n\nFind out more about Wire’s redesigned app—new options and improved accessibility, with the same strong security.</string>
@@ -228,70 +228,70 @@
     <string name="deleted_user_error_message">You were logged out because your account was
         deleted.
     </string>
-    <string name="removed_client_error_title">Removed Device</string>
-    <string name="removed_client_error_message">You were logged out because your device was
-        removed.
+    <string name="removed_client_error_title">Eltávolított eszköz</string>
+    <string name="removed_client_error_message">Ki lett jelentkeztetve, mivel az eszköze
+        eltávolításra került.
     </string>
-    <string name="session_expired_error_title">Session expired</string>
-    <string name="session_expired_error_message">The application did not communicate with the server
-        for a long period of time, or your session has been remotely invalidated.
+    <string name="session_expired_error_title">Lejárt a munkamenet</string>
+    <string name="session_expired_error_message">Az alkalmazás nem kommunikált a kiszolgálóval
+        hosszú ideje, vagy a munkamenet távolról érvénytelenítve lett.
     </string>
-    <string name="conversation_history_wipe_explanation">According to your team\'s security
-        settings, your conversation history has also been deleted.</string>
+    <string name="conversation_history_wipe_explanation">A csapata biztonsági beállításainak
+        megfelelően, beszélgetési előzményei szintén törlésre kerültek.</string>
     <!-- Second Factor Authentication -->
-    <string name="second_factor_authentication_title">Verify your account</string>
-    <string name="second_factor_authentication_instructions_label">Enter the verification code sent to the email %1$s</string>
-    <string name="second_factor_code_error">Invalid code, or maximum attempts exceeded. Please retry, or request another code</string>
+    <string name="second_factor_authentication_title">Fiók hitelesítése</string>
+    <string name="second_factor_authentication_instructions_label">Írja be az ellenőrző kódot, amit a(z) %1$s e-mail címre küldtünk</string>
+    <string name="second_factor_code_error">Érvénytelen kód, vagy túllépte a kísérletek maximális számát. Próbálja újra, vagy kérjen másik kódot</string>
     <!-- Remove Device -->
-    <string name="remove_device_title">Remove a Device</string>
-    <string name="remove_device_message">Remove one of your other devices to start using Wire on
-        this one.
+    <string name="remove_device_title">Eszköz eltávolítása</string>
+    <string name="remove_device_message">Ahhoz, hogy használni tudja a Wire-t ezen az eszközön, először távolítsa el
+        egy másik készülékét.
     </string>
-    <string name="remove_device_label">YOUR DEVICES</string>
-    <string name="remove_device_id_and_time_label">ID: %1$s\nAdded: %2$s</string>
-    <string name="remove_device_id_label">ID: %1$s</string>
-    <string name="remove_device_dialog_title">Remove the following device?</string>
-    <string name="remove_device_invalid_password">Invalid password</string>
-    <string name="remove_device_details_description">Remove this device if you have stopped using it. You will be logged out of this device immediately.</string>
-    <string name="remove_device_details_description_with_wipe">Remove your device if you have stopped using it. According to your team\'s security settings, your conversation history will also be deleted.</string>
+    <string name="remove_device_label">ESZKÖZEI</string>
+    <string name="remove_device_id_and_time_label">Azonosító: %1$s\nHozzáadva: %2$s</string>
+    <string name="remove_device_id_label">AZONOSÍTÓ (ID): %1$s</string>
+    <string name="remove_device_dialog_title">Eltávolítja a következő eszközt?</string>
+    <string name="remove_device_invalid_password">Érvénytelen jelszó</string>
+    <string name="remove_device_details_description">Távolítsa el ezt az eszközt, ha már nem használja. Ezzel együtt azonnal ki is jelentkezik erről az eszközről.</string>
+    <string name="remove_device_details_description_with_wipe">Távolítsa el ezt az eszközt, ha már nem használja. A csapata biztonsági beállításainak megfelelően, beszélgetési előzményei szintén törlésre kerültek.</string>
     <!-- Register Device -->
-    <string name="register_device_title">Add this Device</string>
-    <string name="register_device_text">Enter your password to use Wire on this device.</string>
+    <string name="register_device_title">Ezen eszköz hozzáadása</string>
+    <string name="register_device_text">Adja meg jelszavát a Wire ezen eszközön történő használatához.</string>
     <!-- Delete Message -->
-    <string name="delete_message_dialog_title">Delete Message?</string>
-    <string name="delete_message_dialog_message">If you delete the message for yourself, it will only be visible to other participants.\n\nIf you delete it for everyone, the message will be removed for all participants.\n\nA deleted message can not be restored.</string>
-    <string name="label_delete_for_me">Delete for Me</string>
-    <string name="label_delete_for_everyone">Delete for Everyone</string>
-    <string name="delete_message_for_yourself_dialog_title">Delete this Message for yourself?</string>
-    <string name="delete_message_for_yourself_dialog_message">If you delete the message for yourself, it will only be visible to other participants.\n\nA deleted message can not be restored.</string>
-    <string name="deleted_message_text">Deleted message</string>
+    <string name="delete_message_dialog_title">Üzenet törlése?</string>
+    <string name="delete_message_dialog_message">Ha saját magánál törli az üzenetet, akkor az csak a többi résztvevő számára lesz látható.\n\nHa mindenkinél törli, akkor az összes résztvevőnél eltávolításra kerül.\n\nA törölt üzenet visszaállítására nincs lehetőség.</string>
+    <string name="label_delete_for_me">Törlés nálam</string>
+    <string name="label_delete_for_everyone">Törlés mindenkinél</string>
+    <string name="delete_message_for_yourself_dialog_title">Törli ezt az üzenetet saját magánál?</string>
+    <string name="delete_message_for_yourself_dialog_message">Ha saját magánál törli az üzenetet, akkor az csak a többi résztvevő számára lesz látható.\n\nA törölt üzenet visszaállítására nincs lehetőség.</string>
+    <string name="deleted_message_text">Törölt üzenet</string>
     <!-- Replies/Quotes to other messages -->
-    <string name="label_quote_invalid_or_not_found">You can not see this message</string>
-    <string name="label_quote_original_message_is_a_picture">Picture</string>
-    <string name="label_quote_original_message_date">Original message from %s</string>
+    <string name="label_quote_invalid_or_not_found">Ezt az üzenetet nem látod</string>
+    <string name="label_quote_original_message_is_a_picture">Kép</string>
+    <string name="label_quote_original_message_date">%s eredeti üzenete</string>
     <!-- Create Account -->
-    <string name="create_personal_account_title">Create a Personal Account</string>
-    <string name="create_personal_account_summary_title">Personal Account Created</string>
-    <string name="create_personal_account_text">Securely chat with friends and family using Wire\'s public cloud server.</string>
-    <string name="create_personal_account_email_text">Enter your email to start using the most secure collaboration platform.</string>
-    <string name="create_personal_account_details_text">Enter your personal details:</string>
-    <string name="create_personal_account_summary_text">You have successfully created your personal account. Start communicating securely – wherever you are!</string>
-    <string name="create_team_title">Create a Team</string>
-    <string name="create_team_summary_title">Team Created</string>
-    <string name="create_team_content_title">Wire for Free</string>
-    <string name="create_team_text">Messaging for small organizations or single person consulting firms.\n</string>
-    <string name="create_team_learn_more">Learn more about plans and pricing</string>
-    <string name="create_team_email_text">Enter your email to create your team:</string>
-    <string name="create_team_details_text">Enter your email to create your team:</string>
-    <string name="create_team_summary_text">You have successfully created your team account. Start communicating securely – wherever you are!</string>
-    <string name="create_account_email_placeholder">jane@example.com</string>
-    <string name="create_account_email_label">EMAIL</string>
-    <string name="create_account_email_footer_text">Already have an account? </string>
-    <string name="create_account_email_terms_dialog_title">Terms of Use</string>
-    <string name="create_account_email_terms_dialog_text">By clicking continue you are agreeing to our Terms of Use and Privacy Policy.</string>
-    <string name="create_account_email_terms_dialog_view_policy">View ToU and Privacy Policy</string>
-    <string name="create_account_email_already_in_use_error">The email address is already in use.</string>
-    <string name="create_account_email_blacklisted_error">Your email has been identified as not trusted, for example, due to a rejection by a spam filter.</string>
+    <string name="create_personal_account_title">Készítsen személyes fiókot</string>
+    <string name="create_personal_account_summary_title">Személyes fiók elkészítve</string>
+    <string name="create_personal_account_text">Biztonságos csevegés barátokkal és családtagokkal a Wire nyilvános kiszolgálóját használva.</string>
+    <string name="create_personal_account_email_text">Adja meg e-mail címét a legbiztonságosabb együttműködési felület használatához.</string>
+    <string name="create_personal_account_details_text">Adja meg személyes adatait:</string>
+    <string name="create_personal_account_summary_text">Sikeresen létrehozta személyes fiókját. Kezdjen biztonságosan kommunikálni – bárhol is legyen!</string>
+    <string name="create_team_title">Csapat létrehozása</string>
+    <string name="create_team_summary_title">Csapat létrehozva</string>
+    <string name="create_team_content_title">Ingyenes Wire</string>
+    <string name="create_team_text">Üzenetküldés kis szervezetek vagy egyszemélyes tanácsadó cégek számára.\n</string>
+    <string name="create_team_learn_more">Tudjon meg többet csomagjainkról és árazásunkról</string>
+    <string name="create_team_email_text">Adja meg e-mail címét csapata létrehozásához:</string>
+    <string name="create_team_details_text">Adja meg e-mail címét csapata létrehozásához:</string>
+    <string name="create_team_summary_text">Sikeresen létrehozta csapata fiókját. Kezdjen biztonságosan kommunikálni – bárhol is legyen!</string>
+    <string name="create_account_email_placeholder">nev@pelda.hu</string>
+    <string name="create_account_email_label">E-MAIL</string>
+    <string name="create_account_email_footer_text">Már van fiókja? </string>
+    <string name="create_account_email_terms_dialog_title">Felhasználási feltételek</string>
+    <string name="create_account_email_terms_dialog_text">A Folytatás gombra kattintva elfogadja Felhasználási feltételeinket és Adatvédelmi irányelveinket.</string>
+    <string name="create_account_email_terms_dialog_view_policy">Feltételek és adatvédelem</string>
+    <string name="create_account_email_already_in_use_error">Ez az e-mail cím már használatban van.</string>
+    <string name="create_account_email_blacklisted_error">Az e-mail címe nem megbízhatóként lett azonosítva, pl. fennakadt egy spam-szűrőn.</string>
     <string name="create_account_email_invalid_error">Please enter a valid format for your email.</string>
     <string name="create_account_email_domain_blocked_error">You can\'t create this account as your email domain is intentionally blocked.</string>
     <string name="create_account_details_first_name_placeholder">Jane</string>
@@ -343,16 +343,16 @@
     <string name="cipher_suite">Cipher Suite</string>
     <string name="last_key_material_update_label">Last Key Material Update</string>
     <string name="group_state_label">Group State</string>
-    <string name="empty_group_name_error">Please enter a group name</string>
-    <string name="group_name_exceeded_limit_error">Group name should not exceed 64 characters
+    <string name="empty_group_name_error">Adja meg a csoport nevét</string>
+    <string name="group_name_exceeded_limit_error">A csoport neve nem lehet 64 karakternél hosszabb
     </string>
-    <string name="asset_message_tap_to_download_text">Tap to download</string>
-    <string name="asset_message_upload_in_progress_text">Uploading…</string>
-    <string name="asset_message_download_in_progress_text">Downloading…</string>
-    <string name="asset_message_downloaded_internally_text">Downloaded</string>
-    <string name="asset_message_saved_externally_text">Saved</string>
-    <string name="asset_message_failed_download_text">File not available</string>
-    <string name="asset_message_failed_upload_text">File upload failed</string>
+    <string name="asset_message_tap_to_download_text">Érintse meg a letöltéshez</string>
+    <string name="asset_message_upload_in_progress_text">Feltöltés…</string>
+    <string name="asset_message_download_in_progress_text">Letöltés…</string>
+    <string name="asset_message_downloaded_internally_text">Letöltve</string>
+    <string name="asset_message_saved_externally_text">Mentve</string>
+    <string name="asset_message_failed_download_text">A fájl nem elérhető</string>
+    <string name="asset_message_failed_upload_text">A fájl feltöltése nem sikerült</string>
     <string name="asset_download_dialog_text">Do you want to open the file or save it to your
         device\'s download folder?
  </string>

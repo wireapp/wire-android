@@ -44,11 +44,7 @@ class ServicesManager @Inject constructor(private val context: Context) {
     }
 
     fun stopOngoingCallService() {
-        // starting Service to stop it not the most obvious solution,
-        // but with it we can be sure it will be stopped after Service.stopForeground() to avoid crash.
-        // AR bug https://wearezeta.atlassian.net/browse/AR-3471
-        val stopOnGoingCallService = OngoingCallService.stopIntent(context)
-        context.startService(stopOnGoingCallService)
+        stopService(OngoingCallService::class)
     }
 
     // Persistent WebSocket

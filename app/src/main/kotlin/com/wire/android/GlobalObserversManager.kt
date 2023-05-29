@@ -5,6 +5,8 @@ import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.notification.NotificationChannelsManager
+import com.wire.android.notification.NotificationConstants.ONGOING_CALL_CHANNEL_ID
+import com.wire.android.notification.NotificationConstants.ONGOING_CALL_CHANNEL_NAME
 import com.wire.android.notification.WireNotificationManager
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.CoreLogic

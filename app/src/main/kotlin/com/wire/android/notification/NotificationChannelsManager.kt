@@ -64,10 +64,12 @@ class NotificationChannelsManager @Inject constructor(
             val groupId = createNotificationChannelGroup(user.id, user.handle ?: user.name ?: user.id.value)
 
             createIncomingCallsChannel(groupId, user.id)
-            createOngoingNotificationChannel(groupId, user.id)
             createMessagesNotificationChannel(user.id, groupId)
             createPingNotificationChannel(user.id, groupId)
         }
+
+        // OngoingCall is not user specific channel, but common for all users.
+        createOngoingNotificationChannel()
     }
 
     /**
@@ -113,15 +115,14 @@ class NotificationChannelsManager @Inject constructor(
         notificationManagerCompat.createNotificationChannel(notificationChannel)
     }
 
-    private fun createOngoingNotificationChannel(groupId: String, userId: UserId) {
-        val chanelId = NotificationConstants.getOngoingChannelId(userId)
+    private fun createOngoingNotificationChannel() {
+        val chanelId = NotificationConstants.ONGOING_CALL_CHANNEL_ID
         val notificationChannel = NotificationChannelCompat
             .Builder(chanelId, NotificationManagerCompat.IMPORTANCE_MAX)
             .setName(NotificationConstants.ONGOING_CALL_CHANNEL_NAME)
             .setVibrationEnabled(false)
             .setImportance(NotificationManagerCompat.IMPORTANCE_MAX)
             .setSound(null, null)
-            .setGroup(groupId)
             .build()
 
         notificationManagerCompat.createNotificationChannel(notificationChannel)

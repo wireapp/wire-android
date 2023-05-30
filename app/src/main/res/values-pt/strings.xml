@@ -1034,4 +1034,5 @@ Por favor, use o gerenciamento de equipe (%1$s) neste backend.</string>
     <string name="label_debug_data">Debug data</string>
     <string name="title_internal_debugging">Internal debugging</string>
     <string name="label_log_options_description">"This stores anonymized troubleshooting information locally. "</string>
+    <string name="label_no_application_found_open_downloads_folder">"No application found to open downloads folder"</string>
 </resources>

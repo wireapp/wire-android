@@ -48,7 +48,7 @@ class MessageComposerStateHolder(
     val inputFocusRequester: FocusRequester,
 ) {
 
-    val messageComposition: MessageComposition by mutableStateOf(MessageComposition(TextFieldValue("")))
+    private var messageComposition: MessageComposition by mutableStateOf(MessageComposition(TextFieldValue("")))
     var messageComposerState: MessageComposerState by mutableStateOf(
         MessageComposerState.InActive(messageComposition)
     )
@@ -73,7 +73,13 @@ class MessageComposerStateHolder(
 
 }
 
-data class MessageComposition(val text: TextFieldValue)
+data class MessageComposition(val textFieldValue: TextFieldValue) {
+
+    fun updateTextFieldValue(textFieldValue: TextFieldValue): MessageComposition {
+        return copy(textFieldValue = textFieldValue)
+    }
+
+}
 
 sealed class MessageCompositionInputType {
     object Composing : MessageCompositionInputType()

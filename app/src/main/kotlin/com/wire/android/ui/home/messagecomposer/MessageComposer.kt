@@ -244,7 +244,7 @@ fun InActiveMessageComposer(
                 )
             }
 
-            Text(inActiveComposerState.messageComposition.text.text,
+            Text(inActiveComposerState.messageComposition.textFieldValue.text,
                 modifier = Modifier
                     .fillMaxWidth()
                     .wrapContentHeight()
@@ -359,7 +359,7 @@ fun ActiveMessageComposingInput(
     when (inputType) {
         MessageCompositionInputType.Composing -> {
             ComposingInput(
-                messageText = messageComposition.text,
+                messageText = messageComposition.textFieldValue,
                 inputSize = inputSize,
                 onFocused = { },
                 focusRequester = FocusRequester(),
@@ -369,7 +369,7 @@ fun ActiveMessageComposingInput(
 
         MessageCompositionInputType.Editing -> {
             EditingInput(
-                messageText = messageComposition.text,
+                messageText = messageComposition.textFieldValue,
                 inputSize = inputSize,
                 onFocused = { },
                 focusRequester = FocusRequester(),
@@ -379,7 +379,7 @@ fun ActiveMessageComposingInput(
 
         MessageCompositionInputType.Ephemeral -> {
             SelfDeletingInput(
-                messageText = messageComposition.text,
+                messageText = messageComposition.textFieldValue,
                 inputSize = inputSize,
                 onFocused = { },
                 focusRequester = FocusRequester(),

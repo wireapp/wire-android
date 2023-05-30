@@ -25,14 +25,12 @@ import androidx.compose.ui.text.input.TextFieldValue
 sealed class MessageComposerState {
 
     data class Active(
-        val messageComposition: MessageComposition,
+        var messageComposition: MessageComposition,
         private val generalOptionItem: AdditionalOptionSubMenuState,
         private val messageCompositionInputType: MessageCompositionInputType.Composing,
         private val messageCompositionInputSize: MessageCompositionInputSize,
         private val additionalOptionsState: AdditionalOptionMenuState,
     ) : MessageComposerState() {
-
-        var messageCompositionState: MessageComposition by mutableStateOf(messageComposition)
 
         var inputType: MessageCompositionInputType by mutableStateOf(messageCompositionInputType)
 
@@ -50,8 +48,8 @@ sealed class MessageComposerState {
 //            onShowSelfDeletionOption = onShowSelfDeletionOption,
 //            showSelfDeletingOption = showSelfDeletingOption,
 
-        fun messageTextChanged(it: TextFieldValue) {
-            messageCompositionState = messageCompositionState.copy(it)
+        fun messageTextChanged(textFieldValue: TextFieldValue) {
+            messageComposition = messageComposition.updateTextFieldValue(textFieldValue)
         }
     }
 

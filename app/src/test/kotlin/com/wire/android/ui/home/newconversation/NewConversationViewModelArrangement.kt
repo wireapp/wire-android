@@ -101,7 +101,7 @@ internal class NewConversationViewModelArrangement {
 
         coEvery { getAllKnownUsers() } returns flowOf(GetAllContactsResult.Success(listOf(KNOWN_USER)))
 
-        coEvery { getAllServices(any()) } returns flowOf(listOf<ServiceDetails>())
+        coEvery { getAllServices() } returns flowOf(listOf<ServiceDetails>())
     }
 
     @MockK

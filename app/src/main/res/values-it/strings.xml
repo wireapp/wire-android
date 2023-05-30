@@ -612,6 +612,8 @@ Fino a 500 persone possono unirsi a una conversazione di gruppo.</string>
     <string name="label_learn_more_searching_user">Scopri di pi&#249;</string>
     <string name="label_no_results_found">Nessun risultato trovato. Riprova.</string>
     <string name="label_general_error">C\'&#232; stato un errore.</string>
+    <string name="label_add_member_people">People</string>
+    <string name="label_add_member_services">Services</string>
     <!-- Snackbar messages -->
     <string name="error_unknown_title">C\'&#232; stato un errore.</string>
     <string name="error_unknown_message">Riprova.</string>

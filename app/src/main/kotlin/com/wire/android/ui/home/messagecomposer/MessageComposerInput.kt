@@ -147,7 +147,8 @@ private fun EnabledMessageComposerInput(
                 modifier = Modifier.background(colorsScheme().messageComposerBackgroundColor),
                 onPingClicked = actions.onPingClicked,
                 onSelfDeletionOptionButtonClicked = actions.onSelfDeletionOptionButtonClicked,
-                showSelfDeletingOption = showSelfDeletingOption
+                showSelfDeletingOption = true,
+                onGifButtonClicked = {}
             )
         }
         if (membersToMention.isNotEmpty() && messageComposeInputState.isExpanded) {

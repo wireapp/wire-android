@@ -131,7 +131,7 @@ class AddMembersToConversationViewModel @Inject constructor(
         }
 
     override suspend fun getInitialServices(): Flow<SearchResult> =
-        getAllServices(viewModelScope).map { result ->
+        getAllServices().map { result ->
             SearchResult.Success(result.map(contactMapper::fromService))
         }
 

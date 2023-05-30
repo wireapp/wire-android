@@ -377,10 +377,14 @@ enum class NavigationItem(
 
     AddConversationParticipants(
         primaryRoute = ADD_CONVERSATION_PARTICIPANTS,
-        canonicalRoute = "$ADD_CONVERSATION_PARTICIPANTS/{$EXTRA_CONVERSATION_ID}",
+        canonicalRoute = "$ADD_CONVERSATION_PARTICIPANTS/{$EXTRA_CONVERSATION_ID}/{$EXTRA_IS_SERVICES_ALLOWED}",
         content = { AddMembersSearchRouter() }
     ) {
-        override fun getRouteWithArgs(arguments: List<Any>): String = routeWithConversationIdArg(arguments)
+        override fun getRouteWithArgs(arguments: List<Any>): String {
+            val conversationId: QualifiedID = arguments.filterIsInstance<QualifiedID>()[0]
+            val isServicesAllowed: Boolean = arguments.filterIsInstance<Boolean>()[0]
+            return "$primaryRoute/$conversationId/$isServicesAllowed"
+        }
     },
 
     GroupConversationAllParticipants(
@@ -584,6 +588,7 @@ const val EXTRA_BACK_NAVIGATION_ARGUMENTS = "extra_back_navigation_arguments"
 
 const val EXTRA_EDIT_GUEST_ACCESS_PARAMS = "extra_edit_guest_access_params"
 const val EXTRA_BOT_SERVICE_ID = "extra_bot_service_id"
+const val EXTRA_IS_SERVICES_ALLOWED = "extra_is_services_allowed"
 
 const val EXTRA_SSO_LOGIN_RESULT = "sso_login_result"
 

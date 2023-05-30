@@ -158,9 +158,9 @@ class ServiceDetailsViewModel @Inject constructor(
             )
                 .combine(observeGroupInfo(), ::Pair)
                 .flowOn(dispatchers.io())
-                .collect { (serviceMemberId: QualifiedID?, groupInfo: ServiceDetailsGroupState) ->
+                .collect { (_, groupInfo: ServiceDetailsGroupState) ->
                     updateViewStateButton(
-                        serviceMemberId = serviceMemberId,
+                        serviceMemberId = null,
                         groupInfo = groupInfo
                     )
                 }

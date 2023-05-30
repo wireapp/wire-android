@@ -325,7 +325,6 @@ sealed class UIMessageContent {
         class HistoryLost : SystemMessage(R.drawable.ic_info, R.string.label_system_message_conversation_history_lost, true)
 
         data class ConversationMessageCreated(
-            val author: UIText,
             val date: String
         ) : SystemMessage(
             R.drawable.ic_conversation,

@@ -101,9 +101,9 @@ class NotificationChannelsManager @Inject constructor(
             .setUsage(getAudioAttributeUsageByOsLevel())
             .build()
 
-        val chanelId = NotificationConstants.getIncomingChannelId(userId)
+        val channelId = NotificationConstants.getIncomingChannelId(userId)
         val notificationChannel = NotificationChannelCompat
-            .Builder(chanelId, NotificationManagerCompat.IMPORTANCE_MAX)
+            .Builder(channelId, NotificationManagerCompat.IMPORTANCE_MAX)
             .setName(NotificationConstants.INCOMING_CALL_CHANNEL_NAME)
             .setImportance(NotificationManagerCompat.IMPORTANCE_MAX)
             .setSound(incomingCallSoundUri, audioAttributes)
@@ -116,9 +116,9 @@ class NotificationChannelsManager @Inject constructor(
     }
 
     private fun createOngoingNotificationChannel() {
-        val chanelId = NotificationConstants.ONGOING_CALL_CHANNEL_ID
+        val channelId = NotificationConstants.ONGOING_CALL_CHANNEL_ID
         val notificationChannel = NotificationChannelCompat
-            .Builder(chanelId, NotificationManagerCompat.IMPORTANCE_MAX)
+            .Builder(channelId, NotificationManagerCompat.IMPORTANCE_MAX)
             .setName(NotificationConstants.ONGOING_CALL_CHANNEL_NAME)
             .setVibrationEnabled(false)
             .setImportance(NotificationManagerCompat.IMPORTANCE_MAX)

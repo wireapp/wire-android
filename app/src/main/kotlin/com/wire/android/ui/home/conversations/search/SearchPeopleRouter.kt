@@ -30,11 +30,9 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.LocalOverscrollConfiguration
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -68,7 +66,6 @@ import com.wire.android.ui.home.newconversation.common.SelectParticipantsButtons
 import com.wire.android.ui.home.newconversation.common.SelectParticipantsButtonsRow
 import com.wire.android.ui.home.newconversation.contacts.ContactsScreen
 import com.wire.android.ui.home.newconversation.model.Contact
-import com.wire.android.ui.theme.wireDimensions
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.ImmutableMap
 import kotlinx.coroutines.launch
@@ -178,7 +175,6 @@ fun SearchPeopleContent(
                             tabs = SearchPeopleTabItem.values().toList(),
                             selectedTabIndex = currentTabState,
                             onTabChange = { scope.launch { pagerState.animateScrollToPage(it) } },
-                            modifier = Modifier.padding(top = MaterialTheme.wireDimensions.spacing64x),
                             divider = {} // no divider
                         )
                     }

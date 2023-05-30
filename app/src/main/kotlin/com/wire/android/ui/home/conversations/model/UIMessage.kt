@@ -331,6 +331,13 @@ sealed class UIMessageContent {
             R.drawable.ic_conversation,
             R.string.label_system_message_conversation_started
         )
+
+        data class ConversationStartedWithMembers(
+            val memberNames: List<UIText>
+        ) : SystemMessage(
+            R.drawable.ic_contact,
+            R.string.label_system_message_conversation_started_with_members
+        )
     }
 }
 

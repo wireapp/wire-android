@@ -20,7 +20,6 @@
 
 package com.wire.android.mapper
 
-import androidx.compose.ui.text.toUpperCase
 import com.wire.android.R
 import com.wire.android.ui.home.conversations.findUser
 import com.wire.android.ui.home.conversations.model.UIMessageContent
@@ -208,7 +207,10 @@ class SystemMessageContentMapper @Inject constructor(
                     )
                 }
 
-            is MemberChange.CreationAdded -> null // todo: add
+            is MemberChange.CreationAdded -> {
+                UIMessageContent.SystemMessage.ConversationStartedWithMembers(memberNames = memberNameList)
+            }
+
             is MemberChange.FailedToAdd -> null
         }
     }

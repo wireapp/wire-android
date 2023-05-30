@@ -195,6 +195,7 @@ private fun getColorFilter(message: SystemMessage): ColorFilter? {
         is SystemMessage.NewConversationReceiptMode,
         is SystemMessage.ConversationMessageTimerActivated,
         is SystemMessage.ConversationMessageCreated,
+        is SystemMessage.ConversationStartedWithMembers,
         is SystemMessage.ConversationMessageTimerDeactivated -> ColorFilter.tint(colorsScheme().onBackground)
     }
 }
@@ -303,6 +304,7 @@ private val SystemMessage.expandable
         is SystemMessage.ConversationMessageTimerActivated -> false
         is SystemMessage.ConversationMessageTimerDeactivated -> false
         is SystemMessage.ConversationMessageCreated -> false
+        is SystemMessage.ConversationStartedWithMembers -> this.memberNames.size > EXPANDABLE_THRESHOLD
     }
 
 private fun List<String>.toUserNamesListString(res: Resources) = when {
@@ -360,6 +362,11 @@ fun SystemMessage.annotatedString(
 
         is SystemMessage.ConversationMessageTimerDeactivated -> arrayOf(author.asString(res))
         is SystemMessage.ConversationMessageCreated -> arrayOf(author.asString(res))
+        is SystemMessage.ConversationStartedWithMembers ->
+            arrayOf(
+                memberNames.limitUserNamesList(res, if (expanded) memberNames.size else EXPANDABLE_THRESHOLD)
+                    .toUserNamesListString(res)
+            )
     }
 
     return res.annotatedText(stringResId, normalStyle, boldStyle, normalColor, boldColor, *args)

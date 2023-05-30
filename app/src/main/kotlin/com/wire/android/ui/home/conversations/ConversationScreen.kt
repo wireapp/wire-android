@@ -489,7 +489,7 @@ private fun ConversationScreenContent(
 
     MessageComposer(
         messageComposerStateHolder = messageComposerState,
-        messageContent = {
+        messageListContent = {
             MessageList(
                 lazyPagingMessages = lazyPagingMessages,
                 lazyListState = lazyListState,

@@ -86,7 +86,7 @@ import kotlin.time.Duration
 @Composable
 fun MessageComposer(
     messageComposerStateHolder: MessageComposerStateHolder,
-    messageContent: @Composable () -> Unit,
+    messageListContent: @Composable () -> Unit,
     onSendTextMessage: (SendMessageBundle) -> Unit,
     onSendEditTextMessage: (EditMessageBundle) -> Unit,
     onMentionMember: (String?) -> Unit,
@@ -101,10 +101,9 @@ fun MessageComposer(
     tempWritableImageUri: Uri?,
     tempWritableVideoUri: Uri?
 ) {
-
     MessageComposerContent(
         messageComposerStateHolder = messageComposerStateHolder,
-        messagesList = messageContent,
+        messageListContent = messageListContent,
         onTransistionToActive = messageComposerStateHolder::toActive,
         onTransistionToInActive = messageComposerStateHolder::toInActive
     )
@@ -179,20 +178,20 @@ fun MessageComposer(
 @Composable
 private fun MessageComposerContent(
     messageComposerStateHolder: MessageComposerStateHolder,
-    messagesList: @Composable () -> Unit,
+    messageListContent: @Composable () -> Unit,
     onTransistionToActive: (Boolean) -> Unit,
     onTransistionToInActive: () -> Unit
 ) {
     Surface(color = colorsScheme().messageComposerBackgroundColor) {
         when (val messageComposerState = messageComposerStateHolder.messageComposerState) {
             is MessageComposerState.InActive -> InActiveMessageComposer(
-                messagesList = messagesList,
+                messageListContent = messageListContent,
                 inActiveComposerState = messageComposerState,
                 onTransistionToActive = onTransistionToActive
             )
 
             is MessageComposerState.Active -> ActiveMessageComposer(
-                messageContent = messagesList,
+                messageListContent = messageListContent,
                 activeMessageComposerState = messageComposerState,
                 onTransistionToInActive = onTransistionToInActive
             )
@@ -204,11 +203,9 @@ private fun MessageComposerContent(
     }
 }
 
-typealias transistionToActive = (Boolean) -> Unit
-
 @Composable
 fun InActiveMessageComposer(
-    messagesList: @Composable () -> Unit,
+    messageListContent: @Composable () -> Unit,
     onTransistionToActive: (Boolean) -> Unit,
     inActiveComposerState: MessageComposerState.InActive
 ) {
@@ -231,7 +228,7 @@ fun InActiveMessageComposer(
                 .fillMaxWidth()
                 .weight(1f)
         ) {
-            messagesList()
+            messageListContent()
         }
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -259,7 +256,7 @@ fun InActiveMessageComposer(
 
 @Composable
 fun ActiveMessageComposer(
-    messageContent: @Composable () -> Unit,
+    messageListContent: @Composable () -> Unit,
     activeMessageComposerState: MessageComposerState.Active,
     onTransistionToInActive: () -> Unit
 ) {
@@ -306,10 +303,10 @@ fun ActiveMessageComposer(
                         .fillMaxWidth()
                         .weight(1f)
                 ) {
-                    messageContent()
+                    messageListContent()
                 }
                 ActiveMessageComposingInput(
-                    messageText = activeMessageComposerState.messageComposition,
+                    messageComposition = activeMessageComposerState.messageComposition,
                     inputType = activeMessageComposerState.inputType,
                     inputSize = activeMessageComposerState.inputSize,
                     onMessageTextChanged = activeMessageComposerState::messageTextChanged
@@ -354,7 +351,7 @@ fun ActiveMessageComposer(
 
 @Composable
 fun ActiveMessageComposingInput(
-    messageText: MessageComposition,
+    messageComposition: MessageComposition,
     inputType: MessageCompositionInputType,
     inputSize: MessageCompositionInputSize,
     onMessageTextChanged: (TextFieldValue) -> Unit
@@ -362,7 +359,7 @@ fun ActiveMessageComposingInput(
     when (inputType) {
         MessageCompositionInputType.Composing -> {
             ComposingInput(
-                messageText = messageText.text,
+                messageText = messageComposition.text,
                 inputSize = inputSize,
                 onFocused = { },
                 focusRequester = FocusRequester(),
@@ -372,7 +369,7 @@ fun ActiveMessageComposingInput(
 
         MessageCompositionInputType.Editing -> {
             EditingInput(
-                messageText = messageText.text,
+                messageText = messageComposition.text,
                 inputSize = inputSize,
                 onFocused = { },
                 focusRequester = FocusRequester(),
@@ -382,7 +379,7 @@ fun ActiveMessageComposingInput(
 
         MessageCompositionInputType.Ephemeral -> {
             SelfDeletingInput(
-                messageText = messageText.text,
+                messageText = messageComposition.text,
                 inputSize = inputSize,
                 onFocused = { },
                 focusRequester = FocusRequester(),
@@ -462,6 +459,7 @@ fun AttachmentAndAdditionalOptionsMenuItems(
                 true,
                 isMentionActive,
                 false,
+                isEditMessage = false,
                 isFileSharingEnabled,
                 onMentionButtonClicked = onMentionButtonClicked,
                 onAdditionalOptionButtonClicked = onAdditionalOptionButtonClicked,

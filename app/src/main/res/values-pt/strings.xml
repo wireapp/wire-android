@@ -170,7 +170,7 @@ Escolha uma senha forte para proteger o arquivo de backup.</string>
     <string name="welcome_footer_text">Quer conversar com amigos e familiares?</string>
     <string name="welcome_footer_link">Crie uma conta privada gratuitamente</string>
     <string name="welcome_button_create_personal_account">Criar uma conta pessoal</string>
-    <string name="welcome_screen_carousel_item_message_1">Bem-vindo ao Wire, a plataforma de colaboração mais segura!</string>
+    <string name="welcome_screen_carousel_item_message_1">Boas-vindas ao Wire, a plataforma de colaboração mais segura!</string>
     <string name="welcome_screen_carousel_item_message_2">Total confidência de que suas informações estão seguras</string>
     <string name="welcome_screen_carousel_item_message_3">Áudio e videoconferencias com até 50 participantes</string>
     <string name="welcome_screen_carousel_item_message_4">Compartilhamento seguro de arquivos com equipes e clientes</string>
@@ -182,7 +182,7 @@ Escolha uma senha forte para proteger o arquivo de backup.</string>
 URL do Backend:
 %2$s</string>
     <string name="server_details_dialog_title">Backend local</string>
-    <string name="welcome_migration_dialog_title">Bem-vindo ao nosso novo aplicativo para Android 👋</string>
+    <string name="welcome_migration_dialog_title">Boas-vindas ao nosso novo aplicativo para Android 👋</string>
     <string name="welcome_migration_dialog_content">Recriamos o aplicativo para torná-lo mais útil para todos.
 
 Descubra mais sobre o aplicativo da Wire - novas opções e melhor acessibilidade, com a mesma segurança.</string>
@@ -840,7 +840,7 @@ URL do backend:
     <string name="label_key_packages_count">Contagem de Pacotes de Chave: %1$s</string>
     <string name="label_mls_client_id">ID do Cliente MLS: %1$s</string>
     <string name="conversation_empty_list_description">Conecte-se com outros usuários ou crie um novo grupo para começar a colaborar!</string>
-    <string name="conversation_empty_list_title">Bem-vindo 👋</string>
+    <string name="conversation_empty_list_title">Boas-vindas 👋</string>
     <string name="label_no_conversation_found">Nenhuma conversa foi encontrada.</string>
     <string name="label_connect_with_new_users">Conecte-se com novos usuários ou comece uma nova conversa</string>
     <string name="label_reactions">Reações</string>

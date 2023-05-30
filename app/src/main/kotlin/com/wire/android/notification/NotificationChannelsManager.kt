@@ -64,10 +64,12 @@ class NotificationChannelsManager @Inject constructor(
             val groupId = createNotificationChannelGroup(user.id, user.handle ?: user.name ?: user.id.value)
 
             createIncomingCallsChannel(groupId, user.id)
-            createOngoingNotificationChannel(groupId, user.id)
             createMessagesNotificationChannel(user.id, groupId)
             createPingNotificationChannel(user.id, groupId)
         }
+
+        // OngoingCall is not user specific channel, but common for all users.
+        createOngoingNotificationChannel()
     }
 
     /**
@@ -99,9 +101,9 @@ class NotificationChannelsManager @Inject constructor(
             .setUsage(getAudioAttributeUsageByOsLevel())
             .build()
 
-        val chanelId = NotificationConstants.getIncomingChannelId(userId)
+        val channelId = NotificationConstants.getIncomingChannelId(userId)
         val notificationChannel = NotificationChannelCompat
-            .Builder(chanelId, NotificationManagerCompat.IMPORTANCE_MAX)
+            .Builder(channelId, NotificationManagerCompat.IMPORTANCE_MAX)
             .setName(NotificationConstants.INCOMING_CALL_CHANNEL_NAME)
             .setImportance(NotificationManagerCompat.IMPORTANCE_MAX)
             .setSound(incomingCallSoundUri, audioAttributes)
@@ -113,15 +115,14 @@ class NotificationChannelsManager @Inject constructor(
         notificationManagerCompat.createNotificationChannel(notificationChannel)
     }
 
-    private fun createOngoingNotificationChannel(groupId: String, userId: UserId) {
-        val chanelId = NotificationConstants.getOngoingChannelId(userId)
+    private fun createOngoingNotificationChannel() {
+        val channelId = NotificationConstants.ONGOING_CALL_CHANNEL_ID
         val notificationChannel = NotificationChannelCompat
-            .Builder(chanelId, NotificationManagerCompat.IMPORTANCE_MAX)
+            .Builder(channelId, NotificationManagerCompat.IMPORTANCE_MAX)
             .setName(NotificationConstants.ONGOING_CALL_CHANNEL_NAME)
             .setVibrationEnabled(false)
             .setImportance(NotificationManagerCompat.IMPORTANCE_MAX)
             .setSound(null, null)
-            .setGroup(groupId)
             .build()
 
         notificationManagerCompat.createNotificationChannel(notificationChannel)

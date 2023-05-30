@@ -638,6 +638,8 @@ Do grupy mo&#380;e do&#322;&#261;czy&#263; maksymalnie 500 os&#243;b.</string>
     <string name="label_learn_more_searching_user">Dowiedz si&#281; wi&#281;cej</string>
     <string name="label_no_results_found">Nie znaleziono wynik&#243;w. Prosz&#281; spr&#243;buj ponownie.</string>
     <string name="label_general_error">Wyst&#261;pi&#322; problem</string>
+    <string name="label_add_member_people">People</string>
+    <string name="label_add_member_services">Services</string>
     <!-- Snackbar messages -->
     <string name="error_unknown_title">Wyst&#261;pi&#322; problem</string>
     <string name="error_unknown_message">Spr&#243;buj ponownie</string>

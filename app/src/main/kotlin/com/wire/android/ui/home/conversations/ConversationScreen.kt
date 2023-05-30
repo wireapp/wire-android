@@ -432,14 +432,14 @@ private fun ConversationScreen(
                     tempWritableImageUri = tempWritableImageUri,
                     tempWritableVideoUri = tempWritableVideoUri
                 )
-
-                MenuModalSheetLayout(
-                    header = menuModalHeader,
-                    sheetState = conversationScreenState.modalBottomSheetState,
-                    coroutineScope = conversationScreenState.coroutineScope,
-                    menuItems = menuItems
-                )
             }
+
+            MenuModalSheetLayout(
+                header = menuModalHeader,
+                sheetState = conversationScreenState.modalBottomSheetState,
+                coroutineScope = conversationScreenState.coroutineScope,
+                menuItems = menuItems
+            )
         }
     )
 

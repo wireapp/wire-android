@@ -27,7 +27,7 @@
     <string name="label_cancel">Cancelar</string>
     <string name="label_confirm">Confirmar</string>
     <string name="label_continue">Continuar</string>
-    <string name="label_apply">Apply</string>
+    <string name="label_apply">Aplicar</string>
     <string name="label_save">Salvar</string>
     <string name="label_get_started">Começar</string>
     <string name="label_remove">Remover</string>
@@ -54,8 +54,8 @@
     <string name="label_federated_membership">Federado</string>
     <string name="label_update">Atualizar</string>
     <string name="label_close">Fechar</string>
-    <string name="label_download">Download</string>
-    <string name="label_open_asset_externally">Open</string>
+    <string name="label_download">Baixar</string>
+    <string name="label_open_asset_externally">Abrir</string>
     <string name="label_show">Mostrar</string>
     <string name="label_show_all">Mostrar tudo</string>
     <string name="label_show_less">Mostrar menos</string>
@@ -80,7 +80,7 @@
     <string name="content_description_muted_conversation">Conversa silenciada</string>
     <string name="content_description_check">Marca de seleção</string>
     <string name="content_description_download_icon">Ícone de download</string>
-    <string name="content_description_open_asset_icon">Open icon</string>
+    <string name="content_description_open_asset_icon">Ícone abrir</string>
     <string name="content_description_add_to_favourite">Adicionar aos Favoritos</string>
     <string name="content_description_move_to_folder">Mover para pasta</string>
     <string name="content_description_move_to_archive">Arquivar</string>

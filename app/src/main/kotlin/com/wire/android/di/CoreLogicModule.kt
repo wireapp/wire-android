@@ -99,7 +99,9 @@ import com.wire.kalium.logic.feature.selfdeletingMessages.ObserveTeamSettingsSel
 import com.wire.kalium.logic.feature.selfdeletingMessages.PersistNewSelfDeletionTimerUseCase
 import com.wire.kalium.logic.feature.server.ServerConfigForAccountUseCase
 import com.wire.kalium.logic.feature.service.GetServiceByIdUseCase
+import com.wire.kalium.logic.feature.service.ObserveAllServicesUseCase
 import com.wire.kalium.logic.feature.service.ObserveIsServiceMemberUseCase
+import com.wire.kalium.logic.feature.service.SearchServicesByNameUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.GetSessionsUseCase
 import com.wire.kalium.logic.feature.session.UpdateCurrentSessionUseCase
@@ -713,6 +715,22 @@ class UseCaseModule {
         @CurrentAccount currentAccount: UserId
     ): RemoveMemberFromConversationUseCase =
         coreLogic.getSessionScope(currentAccount).conversations.removeMemberFromConversation
+
+    @ViewModelScoped
+    @Provides
+    fun provideObserveAllServicesUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): ObserveAllServicesUseCase =
+        coreLogic.getSessionScope(currentAccount).service.observeAllServices
+
+    @ViewModelScoped
+    @Provides
+    fun provideSearchServicesByNameUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): SearchServicesByNameUseCase =
+        coreLogic.getSessionScope(currentAccount).service.searchServicesByName
 
     @ViewModelScoped
     @Provides

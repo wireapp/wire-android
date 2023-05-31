@@ -37,6 +37,7 @@ import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.TeamId
 import com.wire.kalium.logic.data.publicuser.model.UserSearchResult
+import com.wire.kalium.logic.data.service.ServiceDetails
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.UserAssetId
@@ -49,6 +50,7 @@ import com.wire.kalium.logic.feature.publicuser.GetAllContactsUseCase
 import com.wire.kalium.logic.feature.publicuser.search.SearchKnownUsersUseCase
 import com.wire.kalium.logic.feature.publicuser.search.SearchPublicUsersUseCase
 import com.wire.kalium.logic.feature.publicuser.search.SearchUsersResult
+import com.wire.kalium.logic.feature.service.ObserveAllServicesUseCase
 import com.wire.kalium.logic.feature.user.IsMLSEnabledUseCase
 import com.wire.kalium.logic.feature.user.IsSelfATeamMemberUseCaseImpl
 import io.mockk.MockKAnnotations
@@ -98,6 +100,8 @@ internal class NewConversationViewModelArrangement {
         )
 
         coEvery { getAllKnownUsers() } returns flowOf(GetAllContactsResult.Success(listOf(KNOWN_USER)))
+
+        coEvery { getAllServices() } returns flowOf(listOf<ServiceDetails>())
     }
 
     @MockK
@@ -132,6 +136,9 @@ internal class NewConversationViewModelArrangement {
 
     @MockK
     private lateinit var savedStateHandle: SavedStateHandle
+
+    @MockK
+    private lateinit var getAllServices: ObserveAllServicesUseCase
 
     private companion object {
         val CONVERSATION_ID = ConversationId(value = "userId", domain = "domainId")
@@ -199,7 +206,8 @@ internal class NewConversationViewModelArrangement {
             sendConnectionRequest = sendConnectionRequestUseCase,
             dispatchers = TestDispatcherProvider(),
             isMLSEnabled = isMLSEnabledUseCase,
-            isSelfATeamMember = isSelfTeamMember
+            isSelfATeamMember = isSelfTeamMember,
+            getAllServices = getAllServices
         )
     }
 

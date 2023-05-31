@@ -143,7 +143,7 @@
     <string name="content_description_calling_call_unmuted">Chiamata non mutata</string>
     <string name="content_description_calling_call_paused_camera">Pausa della fotocamera</string>
     <string name="content_description_more_emojis">Altro emojis</string>
-    <string name="content_description_self_deletion_selector_button">Toggle self deletion mode, button</string>
+    <string name="content_description_self_deletion_selector_button">Attiva/Disattiva modalità auto-eliminazione, pulsante</string>
     <!-- Non translatable strings-->
     <!-- Navigation -->
     <string name="vault_screen_title">Cassetto</string>
@@ -332,7 +332,7 @@ Un messaggio eliminato non pu&#242; essere ripristinato.</string>
     <string name="conversations_calls_tab_title">Chiamate</string>
     <string name="conversations_mentions_tab_title">Menzioni</string>
     <string name="sent_a_message_with_content">ha inviato un messaggio con contenuto %s</string>
-    <string name="sent_a_message_with_unknown_content">sent a message with unknown content</string>
+    <string name="sent_a_message_with_unknown_content">invia un messaggio con contenuti sconosciuti</string>
     <string name="new_group_title">Nuovo Gruppo</string>
     <string name="new_group_description">Fino a 500 persone possono unirsi a una conversazione di gruppo.</string>
     <string name="group_name_title">Nome del Gruppo</string>
@@ -374,8 +374,8 @@ Fino a 500 persone possono unirsi a una conversazione di gruppo.</string>
     <string name="conversation_participant_you_label">(Tu)</string>
     <string name="conversation_details_is_classified">LIVELLO DI SICUREZZA: VS-NfD</string>
     <string name="conversation_details_is_not_classified">Livello di sicurezza: NON CLASSIFICATO. </string>
-    <string name="conversation_options_self_deleting_messages_label">Self-deleting messages</string>
-    <string name="conversation_options_self_deleting_messages_description">When this is on, all messages in this group will disappear after a certain time.</string>
+    <string name="conversation_options_self_deleting_messages_label">Autodistruzione dei messaggi</string>
+    <string name="conversation_options_self_deleting_messages_description">Quando attivo, tutti i messaggi in questo gruppo scompariranno dopo un certo periodo di tempo.</string>
     <string name="conversation_options_guests_label">Ospiti</string>
     <string name="conversation_details_guest_description">Con questa opzione ATTIVA, persone al di fuori del tuo team possono unirsi a questa conversazione.</string>
     <string name="conversation_options_guest_description">Attiva questa opzione per aprire questa conversazione a persone al di fuori del tuo team, anche se non hanno Wire.</string>
@@ -408,7 +408,7 @@ Fino a 500 persone possono unirsi a una conversazione di gruppo.</string>
     <string name="message_details_reactions_empty_text">Ancora nessuno ha reagito a questo messaggio &#128561;</string>
     <string name="message_details_reactions_empty_learn_more">Scopri di pi&#249; sulle reazioni</string>
     <string name="message_details_read_receipts_empty_text">Ancora nessuno ha letto questo messaggio &#128064;</string>
-    <string name="message_details_read_receipts_empty_learn_more">Learn more about read receipts</string>
+    <string name="message_details_read_receipts_empty_learn_more">Scopri di più sulle Ricevute di lettura</string>
     <!-- Attachment options -->
     <string name="attachment_share_file">Allega File</string>
     <string name="attachment_share_image">Allega Immagine</string>
@@ -420,7 +420,7 @@ Fino a 500 persone possono unirsi a una conversazione di gruppo.</string>
     <string name="user_profile_title">Profilo Utente</string>
     <string name="user_profile_close_description">Chiudi profilo utente</string>
     <string name="user_profile_logout">Logout</string>
-    <string name="user_profile_other_accs">Your Other Accounts</string>
+    <string name="user_profile_other_accs">Gli Altri Tuoi Profili</string>
     <string name="user_profile_status_availability">Disponibilità</string>
     <string name="user_profile_status_available">Disponibile</string>
     <string name="user_profile_status_busy">Occupato</string>
@@ -433,14 +433,14 @@ Fino a 500 persone possono unirsi a una conversazione di gruppo.</string>
     <string name="user_profile_group_member">Member of the group &#8221;%s&#8221;</string>
     <string name="user_profile_group_role">RUOLO</string>
     <string name="user_profile_role_in_group">Role in &#8221;%s&#8221;</string>
-    <string name="user_profile_role_change_error">There was an error trying to change the role. Please check your internet connection and try again</string>
+    <string name="user_profile_role_change_error">Si è verificato un errore provando a modificare il ruolo. Sei pregato di controllare la tua connessione a Internet e di riprovare</string>
     <string name="user_profile_unblock_user">Sblocca Utente</string>
     <string name="user_profile_group_remove_button">Rimuovi dal gruppo</string>
     <string name="user_profile_logging_out_progress">Disconnessione...</string>
     <!-- Remove Conversation Member Dialog -->
     <string name="dialog_remove_conversation_member_title">Rimuovere dal gruppo?</string>
-    <string name="dialog_remove_conversation_member_description">%1$s (@%2$s) will not be able to send or receive messages in this conversation.</string>
-    <string name="dialog_remove_conversation_member_error">There was an error while removing the participant from the group</string>
+    <string name="dialog_remove_conversation_member_description">%1$s (@%2$s) non potrà inviare o ricevere i messaggi in questa conversazione.</string>
+    <string name="dialog_remove_conversation_member_error">Si è verificato un errore rimuovendo il partecipante dal gruppo</string>
     <string name="group_role_admin">Amministratore</string>
     <string name="group_role_member">Membro</string>
     <!-- Logout Wipe Data Dialog -->
@@ -512,8 +512,8 @@ Fino a 500 persone possono unirsi a una conversazione di gruppo.</string>
     <string name="label_system_message_you_called">%1$s ha chiamato</string>
     <string name="label_system_message_and">%1$s e %2$s</string>
     <plurals name="label_system_message_x_more">
-        <item quantity="one">%1$d more</item>
-        <item quantity="other">%1$d more</item>
+        <item quantity="one">Altro %1$d</item>
+        <item quantity="other">Altri %1$d</item>
     </plurals>
     <string name="label_system_message_blocked_user">%1$s ha bloccato questo utente</string>
     <string name="label_system_message_renamed_the_conversation">%1$s ha rinominato la conversazione
@@ -523,18 +523,18 @@ Fino a 500 persone possono unirsi a una conversazione di gruppo.</string>
     <string name="label_system_message_new_conversation_receipt_mode">Le ricevute di lettura sono %1$s</string>
     <string name="label_system_message_read_receipt_changed_by_self">%1$s ha %2$s le ricevute di lettura per tutti</string>
     <string name="label_system_message_read_receipt_changed_by_other">%1$s ha %2$s le ricevute di lettura per tutti</string>
-    <string name="label_system_message_conversation_message_timer_activated_by_self">%1$s set self-deleting messages to %2$s for everyone</string>
-    <string name="label_system_message_conversation_message_timer_activated_by_other">%1$s set self-deleting messages to %2$s for everyone</string>
+    <string name="label_system_message_conversation_message_timer_activated_by_self">%1$s ha impostato l\'autodistruzione dei messaggi a %2$s per tutti</string>
+    <string name="label_system_message_conversation_message_timer_activated_by_other">%1$s ha impostato l\'autodistruzione dei messaggi a %2$s per tutti</string>
     <string name="label_system_message_activated">attivato</string>
-    <string name="label_system_message_conversation_message_timer_deactivated_by_self">%1$s turned **off** the timer for self-deleting messages for everyone</string>
-    <string name="label_system_message_conversation_message_timer_deactivated_by_other">%1$s turned **off** the timer for self-deleting messages for everyone</string>
+    <string name="label_system_message_conversation_message_timer_deactivated_by_self">%1$s ha **disattivato** il timer per l\'autodistruzione dei messaggi per tutti</string>
+    <string name="label_system_message_conversation_message_timer_deactivated_by_other">%1$s ha **disattivato** il timer per l\'autodistruzione dei messaggi per tutti</string>
     <string name="label_system_message_deactivated">disattivato</string>
     <string name="label_system_message_conversation_history_lost">Non hai usato questo dispositivo per un po\'. Alcuni messaggi potrebbero non essere visualizzati qui.</string>
     <string name="label_system_message_receipt_mode_on">acceso</string>
     <string name="label_system_message_receipt_mode_off">spento</string>
-    <string name="label_system_message_conversation_started_by_self">**You** started the conversation</string>
-    <string name="label_system_message_conversation_started_by_other">%1$s started the conversation</string>
-    <string name="label_system_message_conversation_started_with_members">With %1$s</string>
+    <string name="label_system_message_conversation_started_by_self">**Hai** avviato la conversazione</string>
+    <string name="label_system_message_conversation_started_by_other">%1$s ha avviato la conversazione</string>
+    <string name="label_system_message_conversation_started_with_members">Con %1$s</string>
     <!-- Last messages -->
     <plurals name="last_message_self_added_users">
         <item quantity="one">Hai aggiunto un partecipante alla conversazione</item>
@@ -603,8 +603,8 @@ Fino a 500 persone possono unirsi a una conversazione di gruppo.</string>
         <item quantity="one">%1$d messaggio</item>
         <item quantity="other">%1$d messaggi</item>
     </plurals>
-    <string name="ephemeral_one_to_one_event_message">"Sent a message"</string>
-    <string name="ephemeral_group_event_message">"Someone sent a message"</string>
+    <string name="ephemeral_one_to_one_event_message">"Ha inviato un messaggio"</string>
+    <string name="ephemeral_group_event_message">"Qualcuno ha inviato un messaggio"</string>
     <!--Search Contact-->
     <string name="label_contacts">CONTATTI</string>
     <string name="label_new_group">Nuovo Gruppo</string>
@@ -675,7 +675,7 @@ Fino a 500 persone possono unirsi a una conversazione di gruppo.</string>
     <string name="notification_call_default_caller_name">Qualcuno</string>
     <string name="notification_call_default_group_name">Chiamata di gruppo in entrata</string>
     <!-- Calling-->
-    <string name="calling_constant_bit_rate_indication">Constant Bit Rate</string>
+    <string name="calling_constant_bit_rate_indication">Bit Rate Costante</string>
     <string name="calling_button_label_microphone">Microfono</string>
     <string name="calling_button_label_camera">Fotocamera</string>
     <string name="calling_button_label_speaker">Altoparlante</string>
@@ -698,8 +698,8 @@ Rispondendo qui, verr&#224; riagganciata l\'altra chiamata.</string>
     <string name="calling_ongoing_call_start_anyway">Chiama comunque</string>
     <string name="calling_ongoing_call_join_message_alert">Una chiamata é attiva in un\'altra conversazione.\nSe ti unisci a questa chiamata lascerai l\'altra</string>
     <string name="calling_ongoing_call_join_anyway">Unisciti comunque</string>
-    <string name="calling_ongoing_double_tap_for_full_screen">Double tap on a tile for fullscreen</string>
-    <string name="calling_ongoing_double_tap_to_go_back">Double tap to go back</string>
+    <string name="calling_ongoing_double_tap_for_full_screen">Tocca due volte su un pannello per lo schermo intero</string>
+    <string name="calling_ongoing_double_tap_to_go_back">Tocca due volte su un pannello per tornare indietro</string>
     <string name="calling_feature_unavailable_title_alert">Funzione non disponibile</string>
     <string name="calling_feature_unavailable_message_alert">La possibilità di effetturare chiamate in conferenza é disponibile solo nella version a pagamento di Wire.</string>
     <!-- Connectivity Status Bar -->
@@ -752,14 +752,14 @@ Rispondendo qui, verr&#224; riagganciata l\'altra chiamata.</string>
     <string name="allow_services">Consenti servizi</string>
     <string name="allow_services_description">Apri questa conversazione ai servizi. Puoi sempre cambiarla successivamente.</string>
     <string name="service_details_label">Servizio</string>
-    <string name="service_details_add_service_label">Add To Group</string>
-    <string name="service_details_remove_service_label">Remove From Group</string>
-    <string name="service_remove_success">Service removed from group</string>
-    <string name="service_remove_error">Unable to remove service from group</string>
-    <string name="service_add_success">Service added to group</string>
-    <string name="service_add_error">Unable to add service to group</string>
-    <string name="service_no_information_available_title">No information available</string>
-    <string name="service_no_information_available_subtitle">Try again or reach out to your team admin</string>
+    <string name="service_details_add_service_label">Aggiungi Al Gruppo</string>
+    <string name="service_details_remove_service_label">Rimuovi Dal Gruppo</string>
+    <string name="service_remove_success">Servizio rimosso dal gruppo</string>
+    <string name="service_remove_error">Impossibile rimuovere il servizio dal gruppo</string>
+    <string name="service_add_success">Servizio aggiunto al gruppo</string>
+    <string name="service_add_error">Impossibile aggiungere il servizio al gruppo</string>
+    <string name="service_no_information_available_title">Nessuna informazione disponibile</string>
+    <string name="service_no_information_available_subtitle">Riprova o contatta l\'amministratore del tuo team</string>
     <string name="read_receipts">Ricevute di lettura</string>
     <string name="read_receipts_description">Quando questa opzione è attiva, le persone possono vedere quando i loro messaggi in questa conversazione sono stati letti.</string>
     <string name="disable_guests_dialog_title">Non consentire ospiti?</string>
@@ -849,7 +849,7 @@ URL del backend:
     <string name="label_reactions">Reazioni</string>
     <string name="label_more_comming_soon">(pi&#249; in arrivo presto)</string>
     <string name="label_wait_until_synchronised">Attendere fino a quando l\'app &#232; sincronizzata</string>
-    <string name="label_wait_until_connected">Please wait until the Internet connection is restored</string>
+    <string name="label_wait_until_connected">Sei pregato di attendere il ripristino della connessione a Internet</string>
     <string name="label_textfield_optional_password">Password (opzionale)</string>
     <!--create and restore backup-->
     <string name="backup_dialog_create_backup_set_password_title">Imposta password</string>
@@ -909,7 +909,7 @@ URL del backend:
     <string name="label_manual_migration_title">Migrazione dalla versione 3.82.38</string>
     <string name="start_manual_migration">Avvia manualmente la migrazione dalla versione 3.82.38</string>
     <string name="file_sharing_restricted_learn_more_link">https://support.wire.com/hc/it/articles/4406404582673-How-can-I-restrict-file-sharing-for-my-team-</string>
-    <string name="file_sharing_restricted_description_by_team">You can not share this file because this feature is disabled for this account.</string>
+    <string name="file_sharing_restricted_description_by_team">Non puoi condividere questo file perché questa funzionalità è disabilitata per questo profilo.</string>
     <string name="file_sharing_restricted_description_no_users">Devi essere connesso a Wire prima di poter condividere qualcosa</string>
     <string name="file_sharing_restricted_button_text_no_users">Apri Wire</string>
     <!-- join conversation dialog -->
@@ -921,9 +921,9 @@ URL del backend:
     <string name="join_conversation_via_deeplink_error_max_number_of_participent">Il numero massimo di partecipanti in questa conversazione &#232; stato raggiunto.</string>
     <string name="join_conversation_via_deeplink_error_general">A causa di un errore non sei stato aggiunto alla conversazione di gruppo.</string>
     <!-- edit self-deleting messages -->
-    <string name="self_deleting_messages_title">Self-deleting Messages</string>
-    <string name="self_deleting_messages_option">Enforce message deletion</string>
-    <string name="self_deleting_messages_option_description">When this is on, all messages in this group will disappear after a certain time. This applies to all group participants.</string>
+    <string name="self_deleting_messages_title">Autodistruzione Messaggi</string>
+    <string name="self_deleting_messages_option">Forza eliminazione dei messaggi</string>
+    <string name="self_deleting_messages_option_description">Quando è attivo, tutti i messaggi in questo gruppo scompariranno dopo un certo periodo di tempo. Ciò si applica a tutti i partecipanti del gruppo.</string>
     <string name="self_deleting_messages_folder_timer">Timer</string>
     <!-- guest room link -->
     <string name="folder_label_guest_link">Link ospite</string>
@@ -934,21 +934,21 @@ URL del backend:
     <string name="guest_link_button_revoke_link">Revoca link</string>
     <string name="audio_not_available">Audio non disponibile</string>
     <string name="audio_not_available_explanation">Qualcosa &#232; andato storto durante il download di questo file audio. Chiedi all\'utente che l\'ha inviato di caricarlo di nuovo.</string>
-    <string name="guest_link_generate_error_message">Link couldn\'t be created. Please try again</string>
-    <string name="guest_link_revoke_error_message">Link couldn\'t be revoked. Please try again</string>
+    <string name="guest_link_generate_error_message">Impossibile creare il link. Sei pregato di riprovare</string>
+    <string name="guest_link_revoke_error_message">Impossibile revocare il link. Sei pregato di riprovare</string>
     <string name="revoke_guest__room_link_dialog_text">I nuovi ospiti non potranno unirsi con questo link. Gli ospiti attuali avranno ancora accesso.</string>
     <string name="revoke_guest__room_link_dialog_title">Revocare il link ospite?</string>
     <string name="title_device_key_fingerprint">IMPRONTA CHIAVE DISPOSITIVO</string>
     <string name="label_client_key_fingerprint_not_available">NON DISPONIBILE</string>
-    <string name="guest_room_link_copied">Link copied to clipboard</string>
+    <string name="guest_room_link_copied">Link copiato negli appunti</string>
     <string name="guest_room_link_enabled">La generazione di link ospiti &#232; ora abilitata per tutti gli amministratori di gruppo</string>
     <string name="guest_room_link_disabled">La generazione di link ospiti &#232; stata disabilitata per tutti gli amministratori di gruppo</string>
     <!-- New Device dialog -->
     <string name="new_device_dialog_current_user_title">Il tuo account &#232; stato utilizzato su</string>
-    <string name="new_device_dialog_current_user_message">%1$s\nFrom: %2$s \n\nIf you didn\'t do this, remove the device and reset your password.</string>
+    <string name="new_device_dialog_current_user_message">%1$s\nDa: %2$s \n\nSe non sei stato tu, rimuovi il dispositivo e ripristina la tua password.</string>
     <string name="new_device_dialog_current_user_btn">Gestisci dispositivi</string>
     <string name="new_device_dialog_other_user_title">Il tuo account \"%1$s (@%2$s)\" &#232; stato utilizzato su:</string>
-    <string name="new_device_dialog_other_user_message">%1$s\nFrom: %2$s \n\nIf you didn\'t do this, remove the device (navigate to “Manage Devices” in the Settings section of this account), and reset your password.</string>
+    <string name="new_device_dialog_other_user_message">%1$s\nDa: %2$s \n\nSe non sei stato tu, rimuovi il dispositivo (naviga in \"Gestisci Dispositivi\" nella sezione delle Impostazioni di questo profilo), e ripristina la tua password.</string>
     <string name="new_device_dialog_other_user_btn">Cambia Account</string>
     <string name="label_system_message_joined_the_conversation_by_self">%1$s si è unito alla conversazione</string>
     <string name="label_system_message_joined_the_conversation_by_other">%1$s si è unito alla conversazione</string>
@@ -957,74 +957,75 @@ URL del backend:
     <string name="label_self_client_verification_description">Per verificare il tuo dispositivo, confronta questa impronta digitale con la stessa impronta digitale su un altro dispositivo.</string>
     <string name="label_client_verification_description">Verifica che l\'impronta digitale di questo dispositivo corrisponda all\'impronta digitale mostrata sul dispositivo di %s.</string>
     <string name="label_fingerprint_description">Se le impronte digitali non corrispondono, reimposta la sessione per generare nuove chiavi di crittografia su entrambi i lati.</string>
-    <string name="label_self_fingerprint_description">Share this key fingerprint with other participants in a conversation, so that they can verify it and make sure the conversation is secure.</string>
+    <string name="label_self_fingerprint_description">Condividi l\'impronta digitale di questa chiave con altri partecipanti a una conversazione, così che possano verificarla e assicurarsi che la conversazione sia sicura.</string>
     <string name="unknown_user_name">sconosciuto</string>
-    <string name="device_name_unknown">Unknown device</string>
-    <string name="create_account_email_title">Your Email</string>
-    <string name="settings_myaccount_email_description">Your email is part of your login details for this account. It may be visible to your contacts.</string>
-    <string name="settings_myaccount_email_invalid_imail_error">Please enter a valid email format</string>
-    <string name="settings_myaccount_email_already_in_use_error">The email address you provided has already been  registered. Please try again.</string>
-    <string name="settings_myaccount_email_verification_email_sent">A verification email has been sent to your email %1$s.\n\nYour current email address is not changed until you verified your new one. Please check your email inbox and follow the instructions.</string>
-    <string name="label_resend_verification_email">Resend Verification Email</string>
-    <string name="settings_myaccount_email_generic_error">Something went wrong. Please try again.</string>
-    <string name="settings_myaccount_handle_description">Your username helps others to find you in Wire and connect with you. It is unique in Wire.</string>
-    <string name="create_account_handle_title">Your User Name</string>
+    <string name="device_name_unknown">Dispositivo sconosciuto</string>
+    <string name="create_account_email_title">La Tua Email</string>
+    <string name="settings_myaccount_email_description">La tua email è parte dei tuoi dettagli d\'accesso per questo profilo. Potrebbe essere visibile ai tuoi contatti.</string>
+    <string name="settings_myaccount_email_invalid_imail_error">Sei pregato di inserire un formato dell\'email valido</string>
+    <string name="settings_myaccount_email_already_in_use_error">L\'indirizzo email che hai fornito è già stato 
+registrato. Sei pregato di riprovare.</string>
+    <string name="settings_myaccount_email_verification_email_sent">Un\'email di verifica è stata inviata alla tua email %1$s.\n\nIl tuo indirizzo email corrente non è modificato fino alla verifica di quello nuovo. Sei pregato di controllare la casella della tua email e di seguire le istruzioni.</string>
+    <string name="label_resend_verification_email">Reinvia Email di Verifica</string>
+    <string name="settings_myaccount_email_generic_error">Qualcosa è andato storto. Sei pregato di riprovare.</string>
+    <string name="settings_myaccount_handle_description">Il tuo nome utente aiuta gli altri a trovarti su Wire e a connettersi con te. È univoco per Wire.</string>
+    <string name="create_account_handle_title">Il Tuo Nome Utente</string>
     <!-- Asset limits error messages -->
-    <string name="title_video_could_not_be_sent">Video could not be sent</string>
-    <string name="title_image_could_not_be_sent">Image could not be sent</string>
-    <string name="title_file_could_not_be_sent">File could not be sent</string>
-    <string name="label_shared_video_too_large">You can only share a video up to %d MB.</string>
-    <string name="label_shared_image_too_large">You can only share an image up to %d MB.</string>
-    <string name="label_shared_file_too_large">You can only share a file up to %d MB.</string>
-    <string name="label_file_saved_to_device">The file was saved to your device.</string>
+    <string name="title_video_could_not_be_sent">Impossibile inviare il video</string>
+    <string name="title_image_could_not_be_sent">Impossibile inviare l\'immagine</string>
+    <string name="title_file_could_not_be_sent">Impossibile inviare il file</string>
+    <string name="label_shared_video_too_large">Puoi condividere soltanto video fino a %d MB.</string>
+    <string name="label_shared_image_too_large">Puoi condividere soltanto immagini fino a %d MB.</string>
+    <string name="label_shared_file_too_large">Puoi condividere soltanto file fino a %d MB.</string>
+    <string name="label_file_saved_to_device">Il file è stato salvato sul tuo dispositivo.</string>
     <!-- Expiring messages -->
-    <string name="self_deleting_message_time_left">Self-deleting message • %1$s</string>
-    <string name="self_deleting_message_label">Self-deleting message</string>
-    <string name="self_deleting_messages_team_setting_disabled">Self-deleting messages are disabled.</string>
-    <string name="self_deleting_messages_team_setting_enabled">Self-deleting messages are enabled. You can set a timer before writing a message.</string>
-    <string name="self_deleting_messages_team_setting_enabled_enforced_timeout">Self-deleting messages are now mandatory. New messages will self-delete after %1$s.</string>
-    <string name="automatically_delete_message_after">Automatically delete message after:</string>
-    <string name="label_information_waiting_for_recipient_timer_to_expire_group">After one participant has seen your message and the timer has expired on their side, this note disappears.</string>
-    <string name="label_information_waiting_for_recipient_timer_to_expire_one_to_one">After %1$s has seen your message and the timer has expired on their side, this note disappears.</string>
+    <string name="self_deleting_message_time_left">Autodistruzione messaggi • %1$s</string>
+    <string name="self_deleting_message_label">Autodistruzione messaggi</string>
+    <string name="self_deleting_messages_team_setting_disabled">Autodistruzione messaggi disabilitata.</string>
+    <string name="self_deleting_messages_team_setting_enabled">Autodistruzione messaggi abilitata. Puoi impostare un timer prima di scrivere un messaggio.</string>
+    <string name="self_deleting_messages_team_setting_enabled_enforced_timeout">L\'Autodistruzione messaggi è ora obbligatoria. I nuovi messaggi si autodistruggeranno dopo %1$s.</string>
+    <string name="automatically_delete_message_after">Elimina automaticamente il messaggio dopo:</string>
+    <string name="label_information_waiting_for_recipient_timer_to_expire_group">Dopo che un partecipante ha visualizzato il tuo messaggio e il timer è scaduto dalla sua parte, questa nota scomparirà.</string>
+    <string name="label_information_waiting_for_recipient_timer_to_expire_one_to_one">Dopo che %1$s ha visto il tuo messaggio e che il timer è scaduto dalla sua parte, questa nota scomparirà.</string>
     <plurals name="weeks_left">
-        <item quantity="one">1 week left</item>
-        <item quantity="other">%1$d weeks left</item>
+        <item quantity="one">1 settimana rimanente</item>
+        <item quantity="other">%1$d settimane rimanenti</item>
     </plurals>
     <plurals name="days_left">
-        <item quantity="one">1 day left</item>
-        <item quantity="other">%1$d days left</item>
+        <item quantity="one">1 giorno rimanente</item>
+        <item quantity="other">%1$d giorni rimanenti</item>
     </plurals>
     <plurals name="hours_left">
-        <item quantity="one">1 hour left</item>
-        <item quantity="other">%1$d hours left</item>
+        <item quantity="one">1 ora rimanente</item>
+        <item quantity="other">%1$d ore rimanenti</item>
     </plurals>
     <plurals name="minutes_left">
-        <item quantity="one">1 minute left</item>
-        <item quantity="other">%1$d minutes left</item>
+        <item quantity="one">1 minuto rimanente</item>
+        <item quantity="other">%1$d minuti rimanenti</item>
     </plurals>
     <plurals name="seconds_left">
-        <item quantity="one">1 second left</item>
-        <item quantity="other">%1$d seconds left</item>
+        <item quantity="one">1 secondo rimanente</item>
+        <item quantity="other">%1$d secondi rimanenti</item>
     </plurals>
     <plurals name="weeks_long_label">
-        <item quantity="one">1 week</item>
-        <item quantity="other">%1$d weeks</item>
+        <item quantity="one">1 settimana</item>
+        <item quantity="other">%1$d settimane</item>
     </plurals>
     <plurals name="days_long_label">
-        <item quantity="one">1 day</item>
-        <item quantity="other">%1$d days</item>
+        <item quantity="one">1 giorno</item>
+        <item quantity="other">%1$d giorni</item>
     </plurals>
     <plurals name="hours_long_label">
-        <item quantity="one">1 hour</item>
-        <item quantity="other">%1$d hours</item>
+        <item quantity="one">1 ora</item>
+        <item quantity="other">%1$d ore</item>
     </plurals>
     <plurals name="minutes_long_label">
-        <item quantity="one">1 minute</item>
-        <item quantity="other">%1$d minutes</item>
+        <item quantity="one">1 minuto</item>
+        <item quantity="other">%1$d minuti</item>
     </plurals>
     <plurals name="seconds_long_label">
-        <item quantity="one">1 second</item>
-        <item quantity="other">%1$d seconds</item>
+        <item quantity="one">1 secondo</item>
+        <item quantity="other">%1$d secondi</item>
     </plurals>
     <string name="four_weeks_short_label">4w</string>
     <string name="one_week_short_label">1w</string>
@@ -1033,8 +1034,8 @@ URL del backend:
     <string name="five_minutes_short_label">5m</string>
     <string name="one_minute_short_label">1m</string>
     <string name="ten_seconds_short_label">10s</string>
-    <string name="label_debug_data">Debug data</string>
-    <string name="title_internal_debugging">Internal debugging</string>
-    <string name="label_log_options_description">"This stores anonymized troubleshooting information locally. "</string>
-    <string name="label_no_application_found_open_downloads_folder">"No application found to open downloads folder"</string>
+    <string name="label_debug_data">Dati di debug</string>
+    <string name="title_internal_debugging">Debug interno</string>
+    <string name="label_log_options_description">"Questo memorizza localmente le informazioni anonime di risoluzione dei problemi. "</string>
+    <string name="label_no_application_found_open_downloads_folder">"Nessun'applicazione trovata per aprire la cartella dei download"</string>
 </resources>

@@ -49,7 +49,7 @@ private val readReceiptDateTimeFormat = SimpleDateFormat(
 ).apply { timeZone = TimeZone.getDefault() }
 
 private val dateTimeFormatWithDayOfWeek = SimpleDateFormat(
-    "EEE, MMM dd yyyy, hh:mm a",
+    "EEE, MMM dd, hh:mm a",
     Locale.getDefault()
 ).apply { timeZone = TimeZone.getDefault() }
 

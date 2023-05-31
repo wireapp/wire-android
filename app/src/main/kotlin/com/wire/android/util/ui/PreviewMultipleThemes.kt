@@ -20,6 +20,8 @@ package com.wire.android.util.ui
 import android.content.res.Configuration.UI_MODE_NIGHT_NO
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import androidx.compose.ui.tooling.preview.Preview
+import com.wire.android.ui.theme.WireColorScheme
+import com.wire.android.ui.theme.WireTheme
 
 @Preview(
     name = "Dark theme",
@@ -33,4 +35,15 @@ import androidx.compose.ui.tooling.preview.Preview
     backgroundColor = 0xFFEDEFF0,
     uiMode = UI_MODE_NIGHT_NO
 )
+/**
+ * Helper annotation that adds a preview for Light and Dark theme previews, _i.e._
+ * with [Preview.uiMode] set to [UI_MODE_NIGHT_NO] and [UI_MODE_NIGHT_YES].
+ * It has hardcoded background colors following the [WireColorScheme].
+ *
+ * **Important**
+ *
+ * Just like regular [Preview] annotations, it's important that the composable
+ * preview is actually reactive to the change in theme. So it might be necessary
+ * to wrap the preview in a [WireTheme] block.
+ */
 annotation class PreviewMultipleThemes

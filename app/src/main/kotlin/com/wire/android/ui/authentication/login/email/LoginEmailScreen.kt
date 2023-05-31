@@ -53,7 +53,6 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.ui.authentication.login.LoginError

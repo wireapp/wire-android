@@ -20,7 +20,6 @@
 
 package com.wire.android.ui.common
 
-import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -40,7 +39,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
 import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.theme.WireTheme

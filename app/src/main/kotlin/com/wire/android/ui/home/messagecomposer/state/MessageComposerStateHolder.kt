@@ -73,13 +73,8 @@ class MessageComposerStateHolder(
 
 }
 
-data class MessageComposition(val textFieldValue: TextFieldValue) {
+data class MessageComposition(val textFieldValue: TextFieldValue)
 
-    fun updateTextFieldValue(textFieldValue: TextFieldValue): MessageComposition {
-        return copy(textFieldValue = textFieldValue)
-    }
-
-}
 
 sealed class MessageCompositionInputType {
     object Composing : MessageCompositionInputType()

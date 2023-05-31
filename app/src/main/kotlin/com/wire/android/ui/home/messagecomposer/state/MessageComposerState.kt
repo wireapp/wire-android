@@ -49,7 +49,7 @@ sealed class MessageComposerState {
 //            showSelfDeletingOption = showSelfDeletingOption,
 
         fun messageTextChanged(textFieldValue: TextFieldValue) {
-            messageComposition = messageComposition.updateTextFieldValue(textFieldValue)
+            messageComposition = messageComposition.copy(textFieldValue = textFieldValue)
         }
     }
 

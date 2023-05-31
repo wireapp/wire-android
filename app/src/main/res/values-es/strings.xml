@@ -532,6 +532,9 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
     <string name="label_system_message_conversation_history_lost">No has usado este dispositivo por un tiempo. Es posible que algunos mensajes no aparezcan aqu&#237;.</string>
     <string name="label_system_message_receipt_mode_on">encendido</string>
     <string name="label_system_message_receipt_mode_off">apagado</string>
+    <string name="label_system_message_conversation_started_by_self">**You** started the conversation</string>
+    <string name="label_system_message_conversation_started_by_other">%1$s started the conversation</string>
+    <string name="label_system_message_conversation_started_with_members">With %1$s</string>
     <!-- Last messages -->
     <plurals name="last_message_self_added_users">
         <item quantity="one">Has añadido a 1 persona a la conversación</item>

@@ -54,7 +54,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.colorsScheme
@@ -64,8 +63,10 @@ import com.wire.android.ui.home.conversations.mock.mockMessageWithKnock
 import com.wire.android.ui.home.conversations.model.MessageStatus
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent.SystemMessage
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.annotatedText
 import com.wire.android.util.ui.toUIText
@@ -180,91 +181,103 @@ private fun getColorFilter(message: SystemMessage): ColorFilter? {
     }
 }
 
-@Preview
+@PreviewMultipleThemes
 @Composable
 fun PreviewSystemMessageAdded7Users() {
-    SystemMessageItem(
-        message = mockMessageWithKnock.copy(
-            messageContent = SystemMessage.MemberAdded(
-                "Barbara Cotolina".toUIText(),
-                listOf(
-                    "Albert Lewis".toUIText(),
-                    "Bert Strunk".toUIText(),
-                    "Claudia Schiffer".toUIText(),
-                    "Dorothee Friedrich".toUIText(),
-                    "Erich Weinert".toUIText(),
-                    "Frieda Kahlo".toUIText(),
-                    "Gudrun Gut".toUIText()
+    WireTheme {
+        SystemMessageItem(
+            message = mockMessageWithKnock.copy(
+                messageContent = SystemMessage.MemberAdded(
+                    "Barbara Cotolina".toUIText(),
+                    listOf(
+                        "Albert Lewis".toUIText(),
+                        "Bert Strunk".toUIText(),
+                        "Claudia Schiffer".toUIText(),
+                        "Dorothee Friedrich".toUIText(),
+                        "Erich Weinert".toUIText(),
+                        "Frieda Kahlo".toUIText(),
+                        "Gudrun Gut".toUIText()
+                    )
                 )
             )
         )
-    )
+    }
 }
 
-@Preview
+@PreviewMultipleThemes
 @Composable
 fun PreviewSystemMessageAdded4Users() {
-    SystemMessageItem(
-        message = mockMessageWithKnock.copy(
-            messageContent = SystemMessage.MemberAdded(
-                "Barbara Cotolina".toUIText(),
-                listOf(
-                    "Albert Lewis".toUIText(),
-                    "Bert Strunk".toUIText(),
-                    "Claudia Schiffer".toUIText(),
-                    "Dorothee Friedrich".toUIText()
+    WireTheme {
+        SystemMessageItem(
+            message = mockMessageWithKnock.copy(
+                messageContent = SystemMessage.MemberAdded(
+                    "Barbara Cotolina".toUIText(),
+                    listOf(
+                        "Albert Lewis".toUIText(),
+                        "Bert Strunk".toUIText(),
+                        "Claudia Schiffer".toUIText(),
+                        "Dorothee Friedrich".toUIText()
+                    )
                 )
             )
         )
-    )
+    }
 }
 
-@Preview
+@PreviewMultipleThemes
 @Composable
 fun PreviewSystemMessageRemoved4Users() {
-    SystemMessageItem(
-        message = mockMessageWithKnock.copy(
-            messageContent = SystemMessage.MemberRemoved(
-                "Barbara Cotolina".toUIText(),
-                listOf(
-                    "Albert Lewis".toUIText(),
-                    "Bert Strunk".toUIText(),
-                    "Claudia Schiffer".toUIText(),
-                    "Dorothee Friedrich".toUIText()
+    WireTheme {
+        SystemMessageItem(
+            message = mockMessageWithKnock.copy(
+                messageContent = SystemMessage.MemberRemoved(
+                    "Barbara Cotolina".toUIText(),
+                    listOf(
+                        "Albert Lewis".toUIText(),
+                        "Bert Strunk".toUIText(),
+                        "Claudia Schiffer".toUIText(),
+                        "Dorothee Friedrich".toUIText()
+                    )
                 )
             )
         )
-    )
+    }
 }
 
-@Preview
+@PreviewMultipleThemes
 @Composable
 fun PreviewSystemMessageLeft() {
-    SystemMessageItem(
-        message = mockMessageWithKnock.copy(
-            messageContent = SystemMessage.MemberLeft(UIText.DynamicString("Barbara Cotolina"))
+    WireTheme {
+        SystemMessageItem(
+            message = mockMessageWithKnock.copy(
+                messageContent = SystemMessage.MemberLeft(UIText.DynamicString("Barbara Cotolina"))
+            )
         )
-    )
+    }
 }
 
-@Preview
+@PreviewMultipleThemes
 @Composable
 fun PreviewSystemMessageMissedCall() {
-    SystemMessageItem(
-        message = mockMessageWithKnock.copy(
-            messageContent = SystemMessage.MissedCall.OtherCalled(UIText.DynamicString("Barbara Cotolina"))
+    WireTheme {
+        SystemMessageItem(
+            message = mockMessageWithKnock.copy(
+                messageContent = SystemMessage.MissedCall.OtherCalled(UIText.DynamicString("Barbara Cotolina"))
+            )
         )
-    )
+    }
 }
 
-@Preview
+@PreviewMultipleThemes
 @Composable
 fun PreviewSystemMessageKnock() {
-    SystemMessageItem(
-        message = mockMessageWithKnock.copy(
-            messageContent = SystemMessage.Knock(UIText.DynamicString("Barbara Cotolina"))
+    WireTheme {
+        SystemMessageItem(
+            message = mockMessageWithKnock.copy(
+                messageContent = SystemMessage.Knock(UIText.DynamicString("Barbara Cotolina"))
+            )
         )
-    )
+    }
 }
 
 private val SystemMessage.expandable

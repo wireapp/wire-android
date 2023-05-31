@@ -17,15 +17,18 @@
  */
 package com.wire.android.ui.home.messagecomposer.state
 
+import android.util.Log
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
+import kotlinx.coroutines.flow.MutableStateFlow
 
 sealed class MessageComposerState {
 
     data class Active(
-        var messageComposition: MessageComposition,
+        val messageComposition: MutableState<MessageComposition>,
         private val generalOptionItem: AdditionalOptionSubMenuState,
         private val messageCompositionInputType: MessageCompositionInputType.Composing,
         private val messageCompositionInputSize: MessageCompositionInputSize,
@@ -44,14 +47,17 @@ sealed class MessageComposerState {
             inputType = MessageCompositionInputType.Ephemeral
         }
 
-
-//            onShowSelfDeletionOption = onShowSelfDeletionOption,
-//            showSelfDeletingOption = showSelfDeletingOption,
-
         fun messageTextChanged(textFieldValue: TextFieldValue) {
-            messageComposition = messageComposition.copy(textFieldValue = textFieldValue)
+            messageComposition.update { copy(textFieldValue = textFieldValue) }
         }
-    }
 
-    data class InActive(val messageComposition: MessageComposition) : MessageComposerState()
+        private fun MutableState<MessageComposition>.update(function: MessageComposition.() -> MessageComposition) {
+            value = value.function()
+        }
+
+    }
 }
+
+data class InActive(
+    val messageComposition: MessageComposition
+) : MessageComposerState()

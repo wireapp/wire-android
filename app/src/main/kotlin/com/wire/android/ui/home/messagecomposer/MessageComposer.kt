@@ -244,7 +244,7 @@ fun InActiveMessageComposer(
                 )
             }
 
-            Text(inActiveComposerState.messageComposition.textFieldValue.text,
+            Text(inActiveComposerState.messageComposition.value.textFieldValue.text,
                 modifier = Modifier
                     .fillMaxWidth()
                     .wrapContentHeight()
@@ -306,7 +306,7 @@ fun ActiveMessageComposer(
                     messageListContent()
                 }
                 ActiveMessageComposingInput(
-                    messageComposition = activeMessageComposerState.messageComposition,
+                    messageComposition = activeMessageComposerState.messageComposition.value,
                     inputType = activeMessageComposerState.inputType,
                     inputSize = activeMessageComposerState.inputSize,
                     onMessageTextChanged = activeMessageComposerState::messageTextChanged
@@ -359,7 +359,7 @@ fun ActiveMessageComposingInput(
     when (inputType) {
         MessageCompositionInputType.Composing -> {
             ComposingInput(
-                messageText = messageComposition.textFieldValue,
+                messageText = messageComposition,
                 inputSize = inputSize,
                 onFocused = { },
                 focusRequester = FocusRequester(),
@@ -369,7 +369,7 @@ fun ActiveMessageComposingInput(
 
         MessageCompositionInputType.Editing -> {
             EditingInput(
-                messageText = messageComposition.textFieldValue,
+                messageText = messageComposition,
                 inputSize = inputSize,
                 onFocused = { },
                 focusRequester = FocusRequester(),
@@ -379,7 +379,7 @@ fun ActiveMessageComposingInput(
 
         MessageCompositionInputType.Ephemeral -> {
             SelfDeletingInput(
-                messageText = messageComposition.textFieldValue,
+                messageComposition = messageComposition,
                 inputSize = inputSize,
                 onFocused = { },
                 focusRequester = FocusRequester(),
@@ -475,7 +475,7 @@ fun AttachmentAndAdditionalOptionsMenuItems(
 
 @Composable
 fun SelfDeletingInput(
-    messageText: TextFieldValue,
+    messageComposition: MessageComposition,
     inputSize: MessageCompositionInputSize,
     onFocused: () -> Unit,
     focusRequester: FocusRequester,
@@ -488,7 +488,7 @@ fun SelfDeletingInput(
         verticalAlignment = Alignment.Bottom
     ) {
         _MessageComposerInput(
-            messageText = messageText,
+            messageText = messageComposition.textFieldValue,
             onMessageTextChanged = onMessageTextChanged,
             singleLine = false,
             onFocusChanged = { isFocused -> if (isFocused) onFocused() },
@@ -514,7 +514,7 @@ fun SelfDeletingInput(
 
 @Composable
 fun EditingInput(
-    messageText: TextFieldValue,
+    messageText: MessageComposition,
     inputSize: MessageCompositionInputSize,
     onFocused: () -> Unit,
     focusRequester: FocusRequester,
@@ -527,7 +527,7 @@ fun EditingInput(
         verticalAlignment = Alignment.Bottom
     ) {
         _MessageComposerInput(
-            messageText = messageText,
+            messageText = messageText.textFieldValue,
             onMessageTextChanged = onMessageTextChanged,
             singleLine = false,
             onFocusChanged = { isFocused -> if (isFocused) onFocused() },
@@ -552,7 +552,7 @@ fun EditingInput(
 
 @Composable
 fun ComposingInput(
-    messageText: TextFieldValue,
+    messageText: MessageComposition,
     inputSize: MessageCompositionInputSize,
     onFocused: () -> Unit,
     focusRequester: FocusRequester,
@@ -565,7 +565,7 @@ fun ComposingInput(
         verticalAlignment = Alignment.Bottom
     ) {
         _MessageComposerInput(
-            messageText = messageText,
+            messageText = messageText.textFieldValue,
             onMessageTextChanged = onMessageTextChanged,
             singleLine = false,
             onFocusChanged = { isFocused -> if (isFocused) onFocused() },

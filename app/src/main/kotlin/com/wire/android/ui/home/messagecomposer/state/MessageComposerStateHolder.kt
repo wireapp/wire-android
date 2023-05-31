@@ -21,6 +21,7 @@
 package com.wire.android.ui.home.messagecomposer.state
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -48,9 +49,10 @@ class MessageComposerStateHolder(
     val inputFocusRequester: FocusRequester,
 ) {
 
-    private var messageComposition: MessageComposition by mutableStateOf(MessageComposition(TextFieldValue("")))
+    // globally accessible message composition, containing all the information about the composed message
+    private var messageComposition = mutableStateOf(MessageComposition(TextFieldValue("")))
     var messageComposerState: MessageComposerState by mutableStateOf(
-        MessageComposerState.InActive(messageComposition)
+        MessageComposerState.InActive(messageComposition.value)
     )
         private set
 
@@ -68,12 +70,18 @@ class MessageComposerStateHolder(
     }
 
     fun toInActive() {
-        messageComposerState = MessageComposerState.InActive(messageComposition)
+        messageComposerState = MessageComposerState.InActive(messageComposition.value)
     }
 
 }
 
-data class MessageComposition(val textFieldValue: TextFieldValue)
+data class MessageComposition(
+    val textFieldValue: TextFieldValue
+) {
+
+    val text: String
+        get() = textFieldValue.text
+}
 
 
 sealed class MessageCompositionInputType {

@@ -321,7 +321,7 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
         if (assetsToSend.size > MAX_LIMIT_MEDIA_IMPORT) {
             onSnackbarMessage(ImportMediaSnackbarMessages.MaxAmountOfAssetsReached)
         } else {
-            var jobs: List<Job> = listOf()
+            val jobs: MutableCollection<Job> = mutableListOf()
             assetsToSend.forEach { importedAsset ->
                 val isImage = importedAsset is ImportedMediaAsset.Image
                 val job = viewModelScope.launch {
@@ -332,11 +332,10 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
                         assetDataSize = importedAsset.size,
                         assetMimeType = importedAsset.mimeType,
                         assetWidth = if (isImage) (importedAsset as ImportedMediaAsset.Image).width else 0,
-                        assetHeight = if (isImage) (importedAsset as ImportedMediaAsset.Image).height else 0,
-                        expireAfter = importMediaState.selfDeletingTimer.toDuration().let { if (it == ZERO) null else it }
+                        assetHeight = if (isImage) (importedAsset as ImportedMediaAsset.Image).height else 0
                     )
                 }
-                jobs = jobs.plus(job)
+                jobs.add(job)
                 appLogger.d("Triggered sendAssetMessage job # ${jobs.size} -- path ${importedAsset.dataPath} -- isImage $isImage")
             }
             jobs.joinAll()

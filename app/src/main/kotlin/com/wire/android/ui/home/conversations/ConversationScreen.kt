@@ -293,7 +293,7 @@ private fun ConversationScreen(
     onSendMessage: (SendMessageBundle) -> Unit,
     onSendEditMessage: (EditMessageBundle) -> Unit,
     onDeleteMessage: (String, Boolean) -> Unit,
-    onAttachmentPicked: (UriAsset, Duration?) -> Unit,
+    onAttachmentPicked: (UriAsset) -> Unit,
     onAudioClick: (String) -> Unit,
     onChangeAudioPosition: (String, Int) -> Unit,
     onAssetItemClicked: (String) -> Unit,
@@ -459,7 +459,7 @@ private fun ConversationScreenContent(
     messages: Flow<PagingData<UIMessage>>,
     onSendMessage: (SendMessageBundle) -> Unit,
     onSendEditMessage: (EditMessageBundle) -> Unit,
-    onAttachmentPicked: (UriAsset, Duration?) -> Unit,
+    onAttachmentPicked: (UriAsset) -> Unit,
     onMentionMember: (String?) -> Unit,
     onAssetItemClicked: (String) -> Unit,
     onAudioItemClicked: (String) -> Unit,
@@ -514,11 +514,11 @@ private fun ConversationScreenContent(
         },
         onSendEditTextMessage = onSendEditMessage,
         onAttachmentPicked = remember {
-            { uriAsset, expireAfter ->
+            { uriAsset ->
                 scope.launch {
                     lazyListState.scrollToItem(0)
                 }
-                onAttachmentPicked(uriAsset, expireAfter)
+                onAttachmentPicked(uriAsset)
             }
         },
         onMentionMember = onMentionMember,
@@ -701,7 +701,7 @@ fun PreviewConversationScreen() {
         onSendMessage = { },
         onSendEditMessage = { },
         onDeleteMessage = { _, _ -> },
-        onAttachmentPicked = { _, _ -> },
+        onAttachmentPicked = { _ -> },
         onAssetItemClicked = { },
         onImageFullScreenMode = { _, _ -> },
         onStartCall = { },

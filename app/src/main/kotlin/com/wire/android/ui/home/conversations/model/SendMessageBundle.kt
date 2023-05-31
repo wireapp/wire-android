@@ -23,6 +23,5 @@ import kotlin.time.Duration
 data class SendMessageBundle(
     val message: String,
     val mentions: List<UiMention>,
-    val quotedMessageId: String?,
-    val expireAfter: Duration?
+    val quotedMessageId: String?
 )

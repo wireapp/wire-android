@@ -212,8 +212,7 @@ class MessageComposerViewModel @Inject constructor(
                 conversationId = conversationId,
                 text = sendMessageBundle.message,
                 mentions = sendMessageBundle.mentions.map { it.intoMessageMention() },
-                quotedMessageId = sendMessageBundle.quotedMessageId,
-                expireAfter = sendMessageBundle.expireAfter
+                quotedMessageId = sendMessageBundle.quotedMessageId
             )
         }
     }
@@ -229,7 +228,7 @@ class MessageComposerViewModel @Inject constructor(
         }
     }
 
-    fun sendAttachmentMessage(attachmentBundle: AssetBundle?, expireAfter: Duration?) {
+    fun sendAttachmentMessage(attachmentBundle: AssetBundle?) {
         viewModelScope.launch {
             withContext(dispatchers.io()) {
                 attachmentBundle?.run {
@@ -246,8 +245,7 @@ class MessageComposerViewModel @Inject constructor(
                                 assetWidth = imgWidth,
                                 assetHeight = imgHeight,
                                 assetDataSize = dataSize,
-                                assetMimeType = mimeType,
-                                expireAfter = expireAfter
+                                assetMimeType = mimeType
                             )
                         }
 
@@ -262,8 +260,7 @@ class MessageComposerViewModel @Inject constructor(
                                     assetMimeType = mimeType,
                                     assetDataSize = dataSize,
                                     assetHeight = null,
-                                    assetWidth = null,
-                                    expireAfter = expireAfter
+                                    assetWidth = null
                                 )
                             } catch (e: OutOfMemoryError) {
                                 appLogger.e("There was an OutOfMemory error while uploading the asset")
@@ -383,7 +380,7 @@ class MessageComposerViewModel @Inject constructor(
         }
     }
 
-    fun attachmentPicked(attachmentUri: UriAsset, duration: Duration?) = viewModelScope.launch(dispatchers.io()) {
+    fun attachmentPicked(attachmentUri: UriAsset) = viewModelScope.launch(dispatchers.io()) {
         val tempCachePath = kaliumFileSystem.rootCachePath
         val assetBundle = fileManager.getAssetBundleFromUri(attachmentUri.uri, tempCachePath)
         if (assetBundle != null) {
@@ -391,7 +388,7 @@ class MessageComposerViewModel @Inject constructor(
             // Check [GetAssetSizeLimitUseCase] class for more detailed information about the real limits.
             val maxSizeLimitInBytes = getAssetSizeLimit(isImage = assetBundle.assetType == AttachmentType.IMAGE)
             if (assetBundle.dataSize <= maxSizeLimitInBytes) {
-                sendAttachmentMessage(assetBundle, duration)
+                sendAttachmentMessage(assetBundle)
             } else {
                 if (attachmentUri.saveToDeviceIfInvalid) {
                     with(assetBundle) { fileManager.saveToExternalMediaStorage(fileName, dataPath, dataSize, mimeType, dispatchers) }

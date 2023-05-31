@@ -27,7 +27,7 @@ import androidx.compose.ui.tooling.preview.Preview
     uiMode = UI_MODE_NIGHT_YES
 )
 @Preview(
-    name = " Light theme",
+    name = "Light theme",
     showBackground = true,
     uiMode = UI_MODE_NIGHT_NO
 )

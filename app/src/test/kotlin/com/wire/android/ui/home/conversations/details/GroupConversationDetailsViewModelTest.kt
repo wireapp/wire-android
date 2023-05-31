@@ -487,7 +487,8 @@ class GroupConversationDetailsViewModelTest {
                 lastReadDate = "2022-04-04T16:11:28.388Z",
                 creatorId = null,
                 receiptMode = Conversation.ReceiptMode.ENABLED,
-                messageTimer = null
+                messageTimer = null,
+                userMessageTimer = null
             ),
             legalHoldStatus = LegalHoldStatus.DISABLED,
             hasOngoingCall = false,

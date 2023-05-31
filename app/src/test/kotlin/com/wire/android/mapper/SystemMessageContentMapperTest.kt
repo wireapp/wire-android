@@ -23,6 +23,7 @@ package com.wire.android.mapper
 import android.content.res.Resources
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.framework.TestMessage
+import com.wire.android.framework.TestMessage.CONVERSATION_CREATED_MESSAGE
 import com.wire.android.framework.TestUser
 import com.wire.android.ui.home.conversations.model.UIMessageContent.SystemMessage
 import com.wire.android.ui.home.conversations.name
@@ -70,6 +71,7 @@ class SystemMessageContentMapperTest {
         // Then
         assertTrue(uiContent is SystemMessage.ConversationMessageTimerDeactivated)
     }
+
     @Test
     fun givenMemberDetails_whenMappingToSystemMessageMemberName_thenCorrectValuesShouldBeReturned() = runTest {
         // Given
@@ -122,6 +124,21 @@ class SystemMessageContentMapperTest {
         val resultContentAddedSelf = mapper.mapMemberChangeMessage(contentAddedSelf, userId1, listOf(member1.user))
         val resultMyMissedCall = mapper.mapMessage(missedCallMessage, listOf(selfCaller.user))
         val resultOtherMissedCall = mapper.mapMessage(missedCallMessage, listOf(otherCaller.user))
+
+        val resultStartedWith =
+            mapper.mapMemberChangeMessage(
+                MessageContent.MemberChange.CreationAdded(listOf(userId1, userId2)),
+                userId1, listOf(member1.user, member2.user)
+            )
+
+        val resultStartedWithFailed =
+            mapper.mapMemberChangeMessage(
+                MessageContent.MemberChange.FailedToAdd(listOf(userId1, userId2)),
+                userId1, listOf(member1.user, member2.user)
+            )
+
+        val resultConversationCreated = mapper.mapMessage(CONVERSATION_CREATED_MESSAGE, listOf(member1.user))
+
         // Then
         assertTrue(
             resultContentLeft is SystemMessage.MemberLeft &&
@@ -152,6 +169,20 @@ class SystemMessageContentMapperTest {
         assertTrue(
             resultMyMissedCall is SystemMessage.MissedCall &&
                     (resultMyMissedCall.author as UIText.StringResource).resId == arrangement.messageResourceProvider.memberNameYouTitlecase
+        )
+        assertTrue(
+            resultStartedWith is SystemMessage.ConversationStartedWithMembers &&
+                    resultStartedWith.memberNames.size == 2 &&
+                    resultStartedWith.memberNames[0].asString(arrangement.resources) == member2.name &&
+                    resultStartedWith.memberNames[1].asString(arrangement.resources) == member3.name
+        )
+
+        assertTrue(resultStartedWithFailed == null)
+
+        assertTrue(
+            resultConversationCreated is SystemMessage.ConversationMessageCreated &&
+                    (resultConversationCreated.author as UIText.StringResource).resId == 10584735 &&
+                    resultConversationCreated.date == "SOME-DATE"
         )
     }
 

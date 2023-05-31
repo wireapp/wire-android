@@ -48,11 +48,7 @@ private val readReceiptDateTimeFormat = SimpleDateFormat(
     Locale.getDefault()
 ).apply { timeZone = TimeZone.getDefault() }
 
-private val dateTimeFormatWithDayOfWeek = SimpleDateFormat(
-    "EEE, MMM dd, hh:mm a",
-    Locale.getDefault()
-).apply { timeZone = TimeZone.getDefault() }
-
+private val fullDateShortTimeFormatter = DateFormat.getDateTimeInstance(DateFormat.FULL, DateFormat.SHORT)
 fun String.formatMediumDateTime(): String? =
     try {
         this.serverDate()?.let { mediumDateTimeFormat.format(it) }
@@ -60,9 +56,9 @@ fun String.formatMediumDateTime(): String? =
         null
     }
 
-fun String.formatMediumDateShortTime(): String? =
+fun String.formatFullDateShortTime(): String? =
     try {
-        this.serverDate()?.let { dateTimeFormatWithDayOfWeek.format(it) }
+        this.serverDate()?.let { fullDateShortTimeFormatter.format(it) }
     } catch (e: ParseException) {
         null
     }
@@ -76,11 +72,11 @@ fun String.serverDate(): Date? = try {
 
 fun String.uiMessageDateTime(): String? = this
     .serverDate()?.let { serverDate ->
-    when (DateUtils.isToday(serverDate.time)) {
-        true -> messageTimeFormatter.format(serverDate)
-        false -> messageDateTimeFormatter.format(serverDate)
+        when (DateUtils.isToday(serverDate.time)) {
+            true -> messageTimeFormatter.format(serverDate)
+            false -> messageDateTimeFormatter.format(serverDate)
+        }
     }
-}
 
 fun Instant.uiReadReceiptDateTime(): String = readReceiptDateTimeFormat.format(Date(this.toEpochMilliseconds()))
 

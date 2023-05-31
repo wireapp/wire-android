@@ -24,7 +24,7 @@ import com.wire.android.R
 import com.wire.android.ui.home.conversations.findUser
 import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMapper.toSelfDeletionDuration
-import com.wire.android.util.formatMediumDateShortTime
+import com.wire.android.util.formatFullDateShortTime
 import com.wire.android.util.orDefault
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.message.Message
@@ -68,7 +68,7 @@ class SystemMessageContentMapper @Inject constructor(
         return UIMessageContent.SystemMessage.ConversationMessageCreated(
             author = authorName,
             isAuthorSelfUser = sender is SelfUser,
-            date.formatMediumDateShortTime().orDefault(date).toUpperCase()
+            date.formatFullDateShortTime().orDefault(date).toUpperCase()
         )
     }
 

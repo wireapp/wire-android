@@ -658,7 +658,6 @@ class WireActivityViewModelTest {
             every { observeSyncStateUseCase() } returns emptyFlow()
             coEvery { observeIfAppUpdateRequired(any()) } returns flowOf(false)
             coEvery { observeNewClients() } returns flowOf()
-//            coEvery { currentScreenManager.observeCurrentScreen(any()) } returns MutableStateFlow(CurrentScreen.SomeOther)
         }
 
         @MockK

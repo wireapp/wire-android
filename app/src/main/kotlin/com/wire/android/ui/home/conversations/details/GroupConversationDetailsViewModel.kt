@@ -346,7 +346,14 @@ class GroupConversationDetailsViewModel @Inject constructor(
     fun navigateToAddParticipants() = viewModelScope.launch {
         navigationManager.navigate(
             command = NavigationCommand(
-                destination = NavigationItem.AddConversationParticipants.getRouteWithArgs(listOf(conversationId))
+                destination = NavigationItem
+                    .AddConversationParticipants
+                    .getRouteWithArgs(
+                        listOf(
+                            conversationId,
+                            groupOptionsState.value.isServicesAllowed
+                        )
+                    )
             )
         )
     }

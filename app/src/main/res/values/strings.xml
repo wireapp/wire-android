@@ -626,6 +626,8 @@
     <string name="label_learn_more_searching_user">Learn more</string>
     <string name="label_no_results_found">No results could be found. Please try again.</string>
     <string name="label_general_error">Something went wrong</string>
+    <string name="label_add_member_people">People</string>
+    <string name="label_add_member_services">Services</string>
     <!-- Snackbar messages -->
     <string name="error_unknown_title">Something went wrong</string>
     <string name="error_unknown_message">Please try again</string>
@@ -1052,4 +1054,6 @@
     <string name="label_debug_data">Debug data</string>
     <string name="title_internal_debugging">Internal debugging</string>
     <string name="label_log_options_description">"This stores anonymized troubleshooting information locally. "</string>
+
+    <string name="label_no_application_found_open_downloads_folder">"No application found to open downloads folder"</string>
 </resources>

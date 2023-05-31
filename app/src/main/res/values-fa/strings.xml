@@ -533,6 +533,9 @@
     <string name="label_system_message_conversation_history_lost">You haven\'t used this device for a while. some messages may not appear here.</string>
     <string name="label_system_message_receipt_mode_on">on</string>
     <string name="label_system_message_receipt_mode_off">off</string>
+    <string name="label_system_message_conversation_started_by_self">**You** started the conversation</string>
+    <string name="label_system_message_conversation_started_by_other">%1$s started the conversation</string>
+    <string name="label_system_message_conversation_started_with_members">With %1$s</string>
     <!-- Last messages -->
     <plurals name="last_message_self_added_users">
         <item quantity="one">You added 1 person to the conversation</item>

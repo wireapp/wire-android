@@ -42,6 +42,8 @@ import com.wire.android.services.ServicesManager
 import com.wire.android.ui.authentication.devices.model.displayName
 import com.wire.android.ui.common.dialogs.CustomBEDeeplinkDialogState
 import com.wire.android.ui.joinConversation.JoinConversationViaCodeState
+import com.wire.android.util.CurrentScreen
+import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.deeplink.DeepLinkProcessor
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.android.util.dispatchers.DispatcherProvider
@@ -69,17 +71,25 @@ import com.wire.kalium.logic.feature.user.webSocketStatus.ObservePersistentWebSo
 import com.wire.kalium.util.DateTimeUtil.toIsoDateTimeString
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.scan
 import kotlinx.coroutines.flow.shareIn
+import kotlinx.coroutines.flow.skip
+import kotlinx.coroutines.flow.take
+import kotlinx.coroutines.flow.takeWhile
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
@@ -103,6 +113,7 @@ class WireActivityViewModel @Inject constructor(
     private val observeSyncStateUseCaseProviderFactory: ObserveSyncStateUseCaseProvider.Factory,
     private val observeIfAppUpdateRequired: ObserveIfAppUpdateRequiredUseCase,
     private val observeNewClients: ObserveNewClientsUseCase,
+    private val currentScreenManager: CurrentScreenManager,
 ) : ViewModel() {
 
     var globalAppState: GlobalAppState by mutableStateOf(GlobalAppState())
@@ -148,29 +159,55 @@ class WireActivityViewModel @Inject constructor(
                 }
         }
         viewModelScope.launch(dispatchers.io()) {
+            val currentScreenStateFlow = currentScreenManager.observeCurrentScreen(this)
             observeNewClients()
                 .collect {
-                    when (it) {
+                    val newClientDialog = when (it) {
                         is NewClientResult.InCurrentAccount -> {
-                            globalAppState = globalAppState.copy(
-                                newClientDialog = NewClientData.CurrentUser(
-                                    it.newClient.registrationTime?.toIsoDateTimeString() ?: "",
-                                    it.newClient.displayName()
-                                )
+                            NewClientData.CurrentUser(
+                                it.newClient.registrationTime?.toIsoDateTimeString() ?: "",
+                                it.newClient.displayName()
                             )
                         }
+
                         is NewClientResult.InOtherAccount -> {
-                            globalAppState = globalAppState.copy(
-                                newClientDialog = NewClientData.OtherUser(
-                                    it.newClient.registrationTime?.toIsoDateTimeString() ?: "",
-                                    it.newClient.displayName(),
-                                    it.userId,
-                                    it.userName,
-                                    it.userHandle
-                                )
+                            NewClientData.OtherUser(
+                                it.newClient.registrationTime?.toIsoDateTimeString() ?: "",
+                                it.newClient.displayName(),
+                                it.userId,
+                                it.userName,
+                                it.userHandle
                             )
                         }
-                        else -> {}
+
+                        else -> null
+                    }
+
+                    newClientDialog?.let {
+                        globalAppState = if (currentScreenStateFlow.value.isGlobalDialogAllowed()) {
+                            globalAppState.copy(newClientDialog = newClientDialog)
+                        } else {
+                            globalAppState.copy(newClientDialogRemembered = newClientDialog)
+                        }
+                    }
+                }
+        }
+
+        viewModelScope.launch {
+            currentScreenManager.observeCurrentScreen(this)
+                .map { it.isGlobalDialogAllowed() }
+                .scan(true to true) { prevPair, newValue -> prevPair.second to newValue }
+                .collect { (wasAllowedOnPrev, isAllowedOnCurrent) ->
+                    if (!wasAllowedOnPrev && isAllowedOnCurrent) {
+                        globalAppState = globalAppState.copy(
+                            newClientDialog = globalAppState.newClientDialogRemembered,
+                            newClientDialogRemembered = null
+                        )
+                    } else if (wasAllowedOnPrev && !isAllowedOnCurrent) {
+                        globalAppState = globalAppState.copy(
+                            newClientDialogRemembered = globalAppState.newClientDialog,
+                            newClientDialog = null
+                        )
                     }
                 }
         }
@@ -261,7 +298,7 @@ class WireActivityViewModel @Inject constructor(
     }
 
     fun dismissNewClientDialog() {
-        globalAppState = globalAppState.copy(newClientDialog = null)
+        globalAppState = globalAppState.copy(newClientDialog = null, newClientDialogRemembered = null)
     }
 
     fun switchAccount(userId: UserId) {
@@ -465,6 +502,18 @@ class WireActivityViewModel @Inject constructor(
             }
         }
     }
+
+    private fun CurrentScreen.isGlobalDialogAllowed(): Boolean = when (this) {
+        CurrentScreen.ImportMedea -> false
+
+        CurrentScreen.InBackground,
+        is CurrentScreen.Conversation,
+        CurrentScreen.Home,
+        is CurrentScreen.IncomingCallScreen,
+        is CurrentScreen.OngoingCallScreen,
+        is CurrentScreen.OtherUserProfile,
+        CurrentScreen.SomeOther -> true
+    }
 }
 
 sealed class CurrentSessionErrorState {
@@ -491,4 +540,5 @@ data class GlobalAppState(
     val updateAppDialog: Boolean = false,
     val conversationJoinedDialog: JoinConversationViaCodeState? = null,
     val newClientDialog: NewClientData? = null,
+    val newClientDialogRemembered: NewClientData? = null,
 )

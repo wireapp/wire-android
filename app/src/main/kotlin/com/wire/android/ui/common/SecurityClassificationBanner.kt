@@ -45,6 +45,8 @@ import com.wire.android.R
 import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.ui.PreviewLightDark
+import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
 
 @Composable
@@ -126,15 +128,7 @@ private fun getIconFor(securityClassificationType: SecurityClassificationType): 
     }
 }
 
-@Preview(
-    name = "Classified Indication - Light Mode",
-    showBackground = true
-)
-@Preview(
-    name = "Classified Indication - Dark Mode",
-    uiMode = Configuration.UI_MODE_NIGHT_YES,
-    showBackground = true
-)
+@PreviewMultipleThemes
 @Composable
 fun PreviewClassifiedIndicator() {
     WireTheme {

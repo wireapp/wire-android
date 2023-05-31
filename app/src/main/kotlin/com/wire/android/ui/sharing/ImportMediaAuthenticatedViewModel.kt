@@ -336,7 +336,6 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
                     )
                 }
                 jobs.add(job)
-                appLogger.d("Triggered sendAssetMessage job # ${jobs.size} -- path ${importedAsset.dataPath} -- isImage $isImage")
             }
             jobs.joinAll()
             navigateToConversation(conversation.conversationId)

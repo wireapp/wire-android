@@ -45,7 +45,6 @@ import com.wire.android.R
 import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireTypography
-import com.wire.android.util.ui.PreviewLightDark
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
 

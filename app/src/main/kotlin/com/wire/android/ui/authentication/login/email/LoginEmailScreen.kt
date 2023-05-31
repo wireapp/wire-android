@@ -72,6 +72,7 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
+import com.wire.android.util.ui.PreviewMultipleThemes
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -277,7 +278,7 @@ private fun LoginButton(modifier: Modifier, loading: Boolean, enabled: Boolean, 
     }
 }
 
-@Preview
+@PreviewMultipleThemes
 @Composable
 fun PreviewLoginEmailScreen() {
     val scope = rememberCoroutineScope()

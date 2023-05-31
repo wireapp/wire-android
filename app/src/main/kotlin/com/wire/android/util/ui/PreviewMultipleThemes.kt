@@ -24,11 +24,13 @@ import androidx.compose.ui.tooling.preview.Preview
 @Preview(
     name = "Dark theme",
     showBackground = true,
+    backgroundColor = 0xFF17181A,
     uiMode = UI_MODE_NIGHT_YES
 )
 @Preview(
     name = "Light theme",
     showBackground = true,
+    backgroundColor = 0xFFEDEFF0,
     uiMode = UI_MODE_NIGHT_NO
 )
 annotation class PreviewMultipleThemes

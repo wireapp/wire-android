@@ -67,7 +67,6 @@ import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.kalium.logic.feature.conversation.InteractionAvailability
 import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
-import kotlin.time.Duration
 
 @Composable
 fun MessageComposer(

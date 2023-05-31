@@ -125,15 +125,19 @@ class FeatureFlagNotificationViewModel @Inject constructor(
     private fun observeTeamSettingsSelfDeletionStatus(userId: UserId) {
         viewModelScope.launch {
             coreLogic.getSessionScope(userId).observeTeamSettingsSelfDeletionStatus().collect { teamSettingsSelfDeletingStatus ->
-                val areSelfDeletedMessagesEnabled = teamSettingsSelfDeletingStatus.enforcedSelfDeletionTimer !is TeamSelfDeleteTimer.Disabled
-                val shouldShowSelfDeletingMessagesDialog = teamSettingsSelfDeletingStatus.hasFeatureChanged ?: false
-                val enforcedTimeoutDuration: SelfDeletionDuration = with(teamSettingsSelfDeletingStatus.enforcedSelfDeletionTimer) {
-                    when(this) {
-                        TeamSelfDeleteTimer.Disabled,
-                        TeamSelfDeleteTimer.Enabled -> SelfDeletionDuration.None
-                        is TeamSelfDeleteTimer.Enforced -> this.enforcedDuration.toSelfDeletionDuration()
+                val areSelfDeletedMessagesEnabled =
+                    teamSettingsSelfDeletingStatus.enforcedSelfDeletionTimer !is TeamSelfDeleteTimer.Disabled
+                val shouldShowSelfDeletingMessagesDialog =
+                    teamSettingsSelfDeletingStatus.hasFeatureChanged ?: false
+                val enforcedTimeoutDuration: SelfDeletionDuration =
+                    with(teamSettingsSelfDeletingStatus.enforcedSelfDeletionTimer) {
+                        when (this) {
+                            TeamSelfDeleteTimer.Disabled,
+                            TeamSelfDeleteTimer.Enabled -> SelfDeletionDuration.None
+
+                            is TeamSelfDeleteTimer.Enforced -> this.enforcedDuration.toSelfDeletionDuration()
+                        }
                     }
-                }
                 featureFlagState = featureFlagState.copy(
                     areSelfDeletedMessagesEnabled = areSelfDeletedMessagesEnabled,
                     shouldShowSelfDeletingMessagesDialog = shouldShowSelfDeletingMessagesDialog,

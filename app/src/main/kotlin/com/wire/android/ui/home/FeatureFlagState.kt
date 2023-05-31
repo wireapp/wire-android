@@ -21,7 +21,6 @@
 package com.wire.android.ui.home
 
 import com.wire.android.ui.home.messagecomposer.state.SelfDeletionDuration
-import com.wire.kalium.logic.feature.selfdeletingMessages.TeamSelfDeleteTimer
 
 data class FeatureFlagState(
     val showFileSharingDialog: Boolean = false,

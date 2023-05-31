@@ -80,7 +80,7 @@
     <string name="content_description_muted_conversation">Conversazione silenziata</string>
     <string name="content_description_check">Segno di spunta</string>
     <string name="content_description_download_icon">Icona di download</string>
-    <string name="content_description_open_asset_icon">Open icon</string>
+    <string name="content_description_open_asset_icon">Apri icona</string>
     <string name="content_description_add_to_favourite">Aggiungi ai preferiti</string>
     <string name="content_description_move_to_folder">Sposta nella cartella</string>
     <string name="content_description_move_to_archive">Sposta in archivio</string>
@@ -532,6 +532,9 @@ Fino a 500 persone possono unirsi a una conversazione di gruppo.</string>
     <string name="label_system_message_conversation_history_lost">Non hai usato questo dispositivo per un po\'. Alcuni messaggi potrebbero non essere visualizzati qui.</string>
     <string name="label_system_message_receipt_mode_on">acceso</string>
     <string name="label_system_message_receipt_mode_off">spento</string>
+    <string name="label_system_message_conversation_started_by_self">**You** started the conversation</string>
+    <string name="label_system_message_conversation_started_by_other">%1$s started the conversation</string>
+    <string name="label_system_message_conversation_started_with_members">With %1$s</string>
     <!-- Last messages -->
     <plurals name="last_message_self_added_users">
         <item quantity="one">Hai aggiunto un partecipante alla conversazione</item>
@@ -748,7 +751,7 @@ Rispondendo qui, verr&#224; riagganciata l\'altra chiamata.</string>
     <string name="allow_guest_switch_description">Apri questa conversazione a persone esterne al tuo team. Puoi sempre cambiarla successivamente.</string>
     <string name="allow_services">Consenti servizi</string>
     <string name="allow_services_description">Apri questa conversazione ai servizi. Puoi sempre cambiarla successivamente.</string>
-    <string name="service_details_label">Service</string>
+    <string name="service_details_label">Servizio</string>
     <string name="service_details_add_service_label">Add To Group</string>
     <string name="service_details_remove_service_label">Remove From Group</string>
     <string name="service_remove_success">Service removed from group</string>
@@ -908,7 +911,7 @@ URL del backend:
     <string name="file_sharing_restricted_learn_more_link">https://support.wire.com/hc/it/articles/4406404582673-How-can-I-restrict-file-sharing-for-my-team-</string>
     <string name="file_sharing_restricted_description_by_team">You can not share this file because this feature is disabled for this account.</string>
     <string name="file_sharing_restricted_description_no_users">Devi essere connesso a Wire prima di poter condividere qualcosa</string>
-    <string name="file_sharing_restricted_button_text_no_users">Open Wire</string>
+    <string name="file_sharing_restricted_button_text_no_users">Apri Wire</string>
     <!-- join conversation dialog -->
     <string name="join_conversation_dialog_title">Unirsi alla conversazione?</string>
     <string name="join_conversation_dialog_message">Sei stato invitato ad una conversazione.\n\n%1$s</string>

@@ -56,8 +56,9 @@ sealed class MessageComposerState {
         }
 
     }
-}
 
-data class InActive(
-    val messageComposition: MessageComposition
-) : MessageComposerState()
+    data class InActive(
+        val messageComposition: MessageComposition
+    ) : MessageComposerState()
+
+}

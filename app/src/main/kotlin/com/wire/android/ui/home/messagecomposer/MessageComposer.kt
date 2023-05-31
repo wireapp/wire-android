@@ -244,7 +244,7 @@ fun InActiveMessageComposer(
                 )
             }
 
-            Text(inActiveComposerState.messageComposition.value.textFieldValue.text,
+            Text(inActiveComposerState.messageComposition.messageText,
                 modifier = Modifier
                     .fillMaxWidth()
                     .wrapContentHeight()

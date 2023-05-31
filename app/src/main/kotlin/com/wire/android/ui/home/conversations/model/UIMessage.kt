@@ -325,10 +325,16 @@ sealed class UIMessageContent {
         class HistoryLost : SystemMessage(R.drawable.ic_info, R.string.label_system_message_conversation_history_lost, true)
 
         data class ConversationMessageCreated(
+            val author: UIText,
+            val isAuthorSelfUser: Boolean = false,
             val date: String
         ) : SystemMessage(
             R.drawable.ic_conversation,
-            R.string.label_system_message_conversation_started
+            if (isAuthorSelfUser) {
+                R.string.label_system_message_conversation_started_by_self
+            } else {
+                R.string.label_system_message_conversation_started_by_other
+            }
         )
 
         data class ConversationStartedWithMembers(

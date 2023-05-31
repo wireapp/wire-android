@@ -56,11 +56,18 @@ class SystemMessageContentMapper @Inject constructor(
         is MessageContent.ConversationReceiptModeChanged -> mapConversationReceiptModeChanged(message.senderUserId, content, members)
         is MessageContent.HistoryLost -> mapConversationHistoryLost()
         is MessageContent.ConversationMessageTimerChanged -> mapConversationTimerChanged(message.senderUserId, content, members)
-        is MessageContent.ConversationCreated -> mapConversationCreated(message.date, members)
+        is MessageContent.ConversationCreated -> mapConversationCreated(message.senderUserId, message.date, members)
     }
 
-    private fun mapConversationCreated(date: String, userList: List<User>): UIMessageContent.SystemMessage {
+    private fun mapConversationCreated(senderUserId: UserId, date: String, userList: List<User>): UIMessageContent.SystemMessage {
+        val sender = userList.findUser(userId = senderUserId)
+        val authorName = mapMemberName(
+            user = sender,
+            type = SelfNameType.ResourceTitleCase
+        )
         return UIMessageContent.SystemMessage.ConversationMessageCreated(
+            author = authorName,
+            isAuthorSelfUser = sender is SelfUser,
             date.formatMediumDateShortTime().orDefault(date).toUpperCase()
         )
     }

@@ -168,7 +168,9 @@ fun SystemMessageItem(message: UIMessage.System) {
                 .fillMaxWidth()
         ) {
             Text(
-                modifier = Modifier.padding(start = dimensions().spacing56x).align(Alignment.CenterVertically),
+                modifier = Modifier
+                    .padding(start = dimensions().spacing56x)
+                    .align(Alignment.CenterVertically),
                 style = MaterialTheme.wireTypography.title03,
                 text = message.messageContent.date
             )
@@ -361,7 +363,7 @@ fun SystemMessage.annotatedString(
         )
 
         is SystemMessage.ConversationMessageTimerDeactivated -> arrayOf(author.asString(res))
-        is SystemMessage.ConversationMessageCreated -> arrayOf()
+        is SystemMessage.ConversationMessageCreated -> arrayOf(author.asString(res))
         is SystemMessage.ConversationStartedWithMembers ->
             arrayOf(
                 memberNames.limitUserNamesList(res, if (expanded) memberNames.size else EXPANDABLE_THRESHOLD)

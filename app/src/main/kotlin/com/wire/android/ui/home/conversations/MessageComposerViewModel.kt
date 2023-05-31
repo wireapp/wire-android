@@ -70,6 +70,7 @@ import com.wire.kalium.logic.feature.conversation.ObserveConversationInteraction
 import com.wire.kalium.logic.feature.conversation.ObserveSecurityClassificationLabelUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationReadDateUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
+import com.wire.kalium.logic.feature.message.RetryFailedMessageUseCase
 import com.wire.kalium.logic.feature.message.SendEditTextMessageUseCase
 import com.wire.kalium.logic.feature.message.SendKnockUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
@@ -98,6 +99,7 @@ class MessageComposerViewModel @Inject constructor(
     private val sendAssetMessage: ScheduleNewAssetMessageUseCase,
     private val sendTextMessage: SendTextMessageUseCase,
     private val sendEditTextMessage: SendEditTextMessageUseCase,
+    private val retryFailedMessageUseCase: RetryFailedMessageUseCase,
     private val deleteMessage: DeleteMessageUseCase,
     private val dispatchers: DispatcherProvider,
     private val isFileSharingEnabled: IsFileSharingEnabledUseCase,
@@ -283,6 +285,12 @@ class MessageComposerViewModel @Inject constructor(
         }
     }
 
+    fun retrySendingMessage(messageId: String) {
+        viewModelScope.launch {
+            retryFailedMessageUseCase(messageId = messageId, conversationId = conversationId)
+        }
+    }
+
     private fun initTempWritableVideoUri() {
         viewModelScope.launch {
             tempWritableVideoUri = fileManager.getTempWritableVideoUri(kaliumFileSystem.rootCachePath)
@@ -324,8 +332,8 @@ class MessageComposerViewModel @Inject constructor(
         }
     }
 
-    fun showDeleteMessageDialog(messageId: String, isMyMessage: Boolean) =
-        if (isMyMessage) {
+    fun showDeleteMessageDialog(messageId: String, deleteForEveryone: Boolean) =
+        if (deleteForEveryone) {
             updateDeleteDialogState {
                 it.copy(
                     forEveryone = DeleteMessageDialogActiveState.Visible(

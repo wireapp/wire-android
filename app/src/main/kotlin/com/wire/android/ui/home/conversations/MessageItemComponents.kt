@@ -13,10 +13,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.spacers.HorizontalSpace
 import com.wire.android.ui.common.spacers.VerticalSpace
+import com.wire.android.ui.home.conversations.mock.mockHeader
 import com.wire.android.ui.home.conversations.model.MessageHeader
 import com.wire.android.ui.home.conversations.model.MessageStatus
 import com.wire.android.ui.theme.wireColorScheme
@@ -25,8 +28,9 @@ import com.wire.kalium.logic.data.user.UserId
 
 @Composable
 internal fun MessageSendFailureWarning(
-    messageStatus: MessageStatus.MessageSendFailureStatus
-    /* TODO: add onRetryClick handler */
+    messageStatus: MessageStatus.MessageSendFailureStatus,
+    onRetryClick: () -> Unit,
+    onCancelClick: () -> Unit
 ) {
     val context = LocalContext.current
     val learnMoreUrl = stringResource(R.string.url_message_details_offline_backends_learn_more)
@@ -34,6 +38,7 @@ internal fun MessageSendFailureWarning(
         LocalTextStyle provides MaterialTheme.typography.labelSmall
     ) {
         Column {
+            VerticalSpace.x4()
             Text(
                 text = messageStatus.errorText.asString(),
                 style = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.error)
@@ -49,16 +54,21 @@ internal fun MessageSendFailureWarning(
                     text = stringResource(R.string.label_learn_more)
                 )
             }
-            // TODO: re-enable when we have a retry mechanism
-//            VerticalSpace.x4()
-//            Row {
-//                WireSecondaryButton(
-//                    text = stringResource(R.string.label_retry),
-//                    onClick = { /* TODO */ },
-//                    minHeight = dimensions().spacing32x,
-//                    fillMaxWidth = false
-//                )
-//            }
+            Row {
+                WireSecondaryButton(
+                    text = stringResource(R.string.label_retry),
+                    onClick = onRetryClick,
+                    minHeight = dimensions().spacing32x,
+                    fillMaxWidth = false
+                )
+                HorizontalSpace.x8()
+                WireSecondaryButton(
+                    text = stringResource(R.string.label_cancel),
+                    onClick = onCancelClick,
+                    minHeight = dimensions().spacing32x,
+                    fillMaxWidth = false
+                )
+            }
         }
     }
 }
@@ -127,4 +137,16 @@ internal fun Modifier.customizeMessageBackground(
     } else {
         this
     }
+}
+
+@Preview
+@Composable
+fun PreviewMessageSendFailureWarning() {
+    MessageSendFailureWarning(MessageStatus.SendFailure, {}, {})
+}
+
+@Preview
+@Composable
+fun PreviewMessageDecryptionFailure() {
+    MessageDecryptionFailure(mockHeader, MessageStatus.DecryptionFailure(false)) { _, _ -> }
 }

@@ -31,6 +31,7 @@ import com.wire.android.ui.home.conversations.MessageItem
 import com.wire.android.ui.home.conversations.SystemMessageItem
 import com.wire.android.ui.home.conversations.info.ConversationDetailsData
 import com.wire.android.ui.home.conversations.mock.mockAssetMessage
+import com.wire.android.ui.home.conversations.mock.mockFooter
 import com.wire.android.ui.home.conversations.mock.mockHeader
 import com.wire.android.ui.home.conversations.mock.mockMessageWithKnock
 import com.wire.android.ui.home.conversations.mock.mockMessageWithText
@@ -52,6 +53,33 @@ fun PreviewMessage() {
                             "Ruiz y Picasso"
                 )
             )
+        ),
+        audioMessagesState = emptyMap(),
+        onLongClicked = {},
+        onAssetMessageClicked = {},
+        onAudioClick = {},
+        onChangeAudioPosition = { _, _ -> },
+        onImageMessageClicked = { _, _ -> },
+        onOpenProfile = { _ -> },
+        onReactionClicked = { _, _ -> },
+        onResetSessionClicked = { _, _ -> },
+        onSelfDeletingMessageRead = {},
+        conversationDetailsData = ConversationDetailsData.None
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewMessageWithReactions() {
+    MessageItem(
+        message = mockMessageWithText.copy(
+            header = mockMessageWithText.header.copy(
+                username = UIText.DynamicString(
+                    "Pablo Diego José Francisco de Paula Juan Nepomuceno María de los Remedios Cipriano de la Santísima Trinidad " +
+                            "Ruiz y Picasso"
+                )
+            ),
+            messageFooter = mockFooter
         ),
         audioMessagesState = emptyMap(),
         onLongClicked = {},
@@ -128,10 +156,13 @@ fun PreviewDeletedMessage() {
 
 @Preview(showBackground = true)
 @Composable
-fun PreviewFailedMessage() {
+fun PreviewFailedSendMessage() {
     MessageItem(
         message = mockMessageWithText.let {
-            it.copy(header = it.header.copy(messageStatus = MessageStatus.SendFailure))
+            it.copy(
+                header = it.header.copy(messageStatus = MessageStatus.SendFailure),
+                messageFooter = mockFooter.copy(reactions = emptyMap(), ownReactions = emptySet())
+            )
         },
         audioMessagesState = emptyMap(),
         onLongClicked = {},
@@ -149,9 +180,33 @@ fun PreviewFailedMessage() {
 
 @Preview(showBackground = true)
 @Composable
-fun PreviewAssetMessage() {
+fun PreviewFailedDecryptionMessage() {
     MessageItem(
-        message = mockAssetMessage(),
+        message = mockMessageWithText.let {
+            it.copy(
+                header = it.header.copy(messageStatus = MessageStatus.DecryptionFailure(false)),
+                messageFooter = mockFooter.copy(reactions = emptyMap(), ownReactions = emptySet())
+            )
+        },
+        audioMessagesState = emptyMap(),
+        onLongClicked = {},
+        onAssetMessageClicked = {},
+        onAudioClick = {},
+        onChangeAudioPosition = { _, _ -> },
+        onImageMessageClicked = { _, _ -> },
+        onOpenProfile = { _ -> },
+        onReactionClicked = { _, _ -> },
+        onResetSessionClicked = { _, _ -> },
+        onSelfDeletingMessageRead = { },
+        conversationDetailsData = ConversationDetailsData.None
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewAssetMessageWithReactions() {
+    MessageItem(
+        message = mockAssetMessage().copy(messageFooter = mockFooter),
         audioMessagesState = emptyMap(),
         onLongClicked = {},
         onAssetMessageClicked = {},

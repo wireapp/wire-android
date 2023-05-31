@@ -28,6 +28,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -155,6 +156,7 @@ fun HomeContent(
                     drawerContainerColor = MaterialTheme.colorScheme.surface,
                     drawerTonalElevation = 0.dp,
                     drawerShape = RectangleShape,
+                    modifier = Modifier.padding(end = 56.dp)
                 ) {
                     HomeDrawer(
                         // TODO: logFilePath does not belong in the UI logic

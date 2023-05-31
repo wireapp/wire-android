@@ -71,7 +71,11 @@ import com.wire.android.util.ui.annotatedText
 import com.wire.android.util.ui.toUIText
 
 @Composable
-fun SystemMessageItem(message: UIMessage.System) {
+fun SystemMessageItem(
+    message: UIMessage.System,
+    onFailedMessageRetryClicked: (String) -> Unit = {},
+    onFailedMessageCancelClicked: (String) -> Unit = {}
+) {
     val fullAvatarOuterPadding = dimensions().userAvatarClickablePadding + dimensions().userAvatarStatusBorderSize
     Row(
         Modifier
@@ -152,7 +156,11 @@ fun SystemMessageItem(message: UIMessage.System) {
                 )
             }
             if (message.sendingFailed) {
-                MessageSendFailureWarning(message.header.messageStatus as MessageStatus.MessageSendFailureStatus)
+                MessageSendFailureWarning(
+                    messageStatus = message.header.messageStatus as MessageStatus.MessageSendFailureStatus,
+                    onRetryClick = remember { { onFailedMessageRetryClicked(message.header.messageId) } },
+                    onCancelClick = remember { { onFailedMessageCancelClicked(message.header.messageId) } },
+                )
             }
         }
     }

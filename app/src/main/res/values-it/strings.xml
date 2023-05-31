@@ -410,7 +410,7 @@ Fino a 500 persone possono unirsi a una conversazione di gruppo.</string>
     <string name="message_details_read_receipts_empty_text">Ancora nessuno ha letto questo messaggio &#128064;</string>
     <string name="message_details_read_receipts_empty_learn_more">Learn more about read receipts</string>
     <!-- Attachment options -->
-    <string name="attachment_share_file">Attach File</string>
+    <string name="attachment_share_file">Allega File</string>
     <string name="attachment_share_image">Allega Immagine</string>
     <string name="attachment_take_photo">Scatta Foto</string>
     <string name="attachment_record_video">Registra un video</string>
@@ -441,7 +441,7 @@ Fino a 500 persone possono unirsi a una conversazione di gruppo.</string>
     <string name="dialog_remove_conversation_member_title">Rimuovere dal gruppo?</string>
     <string name="dialog_remove_conversation_member_description">%1$s (@%2$s) will not be able to send or receive messages in this conversation.</string>
     <string name="dialog_remove_conversation_member_error">There was an error while removing the participant from the group</string>
-    <string name="group_role_admin">Admin</string>
+    <string name="group_role_admin">Amministratore</string>
     <string name="group_role_member">Membro</string>
     <!-- Logout Wipe Data Dialog -->
     <string name="dialog_logout_wipe_data_title">Cancellare i dati?</string>
@@ -525,13 +525,13 @@ Fino a 500 persone possono unirsi a una conversazione di gruppo.</string>
     <string name="label_system_message_read_receipt_changed_by_other">%1$s ha %2$s le ricevute di lettura per tutti</string>
     <string name="label_system_message_conversation_message_timer_activated_by_self">%1$s set self-deleting messages to %2$s for everyone</string>
     <string name="label_system_message_conversation_message_timer_activated_by_other">%1$s set self-deleting messages to %2$s for everyone</string>
-    <string name="label_system_message_activated">activated</string>
+    <string name="label_system_message_activated">attivato</string>
     <string name="label_system_message_conversation_message_timer_deactivated_by_self">%1$s turned **off** the timer for self-deleting messages for everyone</string>
     <string name="label_system_message_conversation_message_timer_deactivated_by_other">%1$s turned **off** the timer for self-deleting messages for everyone</string>
-    <string name="label_system_message_deactivated">deactivated</string>
+    <string name="label_system_message_deactivated">disattivato</string>
     <string name="label_system_message_conversation_history_lost">Non hai usato questo dispositivo per un po\'. Alcuni messaggi potrebbero non essere visualizzati qui.</string>
-    <string name="label_system_message_receipt_mode_on">on</string>
-    <string name="label_system_message_receipt_mode_off">off</string>
+    <string name="label_system_message_receipt_mode_on">acceso</string>
+    <string name="label_system_message_receipt_mode_off">spento</string>
     <!-- Last messages -->
     <plurals name="last_message_self_added_users">
         <item quantity="one">Hai aggiunto un partecipante alla conversazione</item>
@@ -612,8 +612,8 @@ Fino a 500 persone possono unirsi a una conversazione di gruppo.</string>
     <string name="label_learn_more_searching_user">Scopri di pi&#249;</string>
     <string name="label_no_results_found">Nessun risultato trovato. Riprova.</string>
     <string name="label_general_error">C\'&#232; stato un errore.</string>
-    <string name="label_add_member_people">People</string>
-    <string name="label_add_member_services">Services</string>
+    <string name="label_add_member_people">Persone</string>
+    <string name="label_add_member_services">Servizi</string>
     <!-- Snackbar messages -->
     <string name="error_unknown_title">C\'&#232; stato un errore.</string>
     <string name="error_unknown_message">Riprova.</string>

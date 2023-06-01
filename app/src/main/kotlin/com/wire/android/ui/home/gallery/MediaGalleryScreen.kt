@@ -20,16 +20,12 @@
 
 package com.wire.android.ui.home.gallery
 
-import android.app.DownloadManager
-import android.content.Intent
 import android.content.res.Resources
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarResult
@@ -53,8 +49,8 @@ import com.wire.android.ui.edit.ReplyMessageOption
 import com.wire.android.ui.home.conversations.MediaGallerySnackbarMessages
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialog
 import com.wire.android.util.permission.rememberWriteStorageRequestFlow
+import com.wire.android.util.ui.openDownloadFolder
 
-@OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun MediaGalleryScreen(mediaGalleryViewModel: MediaGalleryViewModel = hiltViewModel()) {
     val uiState = mediaGalleryViewModel.mediaGalleryViewState
@@ -70,6 +66,28 @@ fun MediaGalleryScreen(mediaGalleryViewModel: MediaGalleryViewModel = hiltViewMo
         })
 
     with(uiState) {
+        Scaffold(
+            topBar = {
+                MediaGalleryScreenTopAppBar(
+                    title = screenTitle
+                        ?: stringResource(R.string.media_gallery_default_title_name),
+                    onCloseClick = mediaGalleryViewModel::navigateBack,
+                    onOptionsClick = { mediaGalleryScreenState.showContextualMenu(true) }
+                )
+            },
+            content = { internalPadding ->
+                Box(modifier = Modifier.padding(internalPadding)) {
+                    MediaGalleryContent(mediaGalleryViewModel, mediaGalleryScreenState)
+                }
+            },
+            snackbarHost = {
+                SwipeDismissSnackbarHost(
+                    hostState = mediaGalleryScreenState.snackbarHostState,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            },
+        )
+
         MenuModalSheetLayout(
             sheetState = mediaGalleryScreenState.modalBottomSheetState,
             coroutineScope = scope,
@@ -96,29 +114,7 @@ fun MediaGalleryScreen(mediaGalleryViewModel: MediaGalleryViewModel = hiltViewMo
                     mediaGalleryViewModel.onMessageDetailsClicked()
                 }
             )
-        ) {
-            Scaffold(
-                topBar = {
-                    MediaGalleryScreenTopAppBar(
-                        title = screenTitle
-                            ?: stringResource(R.string.media_gallery_default_title_name),
-                        onCloseClick = mediaGalleryViewModel::navigateBack,
-                        onOptionsClick = { mediaGalleryScreenState.showContextualMenu(true) }
-                    )
-                },
-                content = { internalPadding ->
-                    Box(modifier = Modifier.padding(internalPadding)) {
-                        MediaGalleryContent(mediaGalleryViewModel, mediaGalleryScreenState)
-                    }
-                },
-                snackbarHost = {
-                    SwipeDismissSnackbarHost(
-                        hostState = mediaGalleryScreenState.snackbarHostState,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                },
-            )
-        }
+        )
     }
 }
 
@@ -126,13 +122,12 @@ fun MediaGalleryScreen(mediaGalleryViewModel: MediaGalleryViewModel = hiltViewMo
 fun MediaGalleryContent(viewModel: MediaGalleryViewModel, mediaGalleryScreenState: MediaGalleryScreenState) {
     val context = LocalContext.current
     val uiState = viewModel.mediaGalleryViewState
-
     suspend fun showSnackbarMessage(message: String, actionLabel: String?, messageCode: MediaGallerySnackbarMessages) {
         val snackbarResult = mediaGalleryScreenState.snackbarHostState.showSnackbar(message = message, actionLabel = actionLabel)
         when {
             // Show downloads folder when clicking on Snackbar cta button
             messageCode is MediaGallerySnackbarMessages.OnImageDownloaded && snackbarResult == SnackbarResult.ActionPerformed -> {
-                context.startActivity(Intent(DownloadManager.ACTION_VIEW_DOWNLOADS))
+                openDownloadFolder(context)
             }
         }
     }

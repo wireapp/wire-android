@@ -17,26 +17,25 @@
  */
 package com.wire.android.ui.sharing
 
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.ModalBottomSheetState
-import androidx.compose.material.ModalBottomSheetValue
-import androidx.compose.material.rememberModalBottomSheetState
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import com.wire.android.ui.common.bottomsheet.WireModalSheetState
+import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.topappbar.search.SearchBarState
 import com.wire.android.ui.common.topappbar.search.rememberSearchbarState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun rememberImportMediaScreenState(
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     searchBarState: SearchBarState = rememberSearchbarState(),
     coroutineScope: CoroutineScope = rememberCoroutineScope(),
-    bottomSheetState: ModalBottomSheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
+    bottomSheetState: WireModalSheetState = rememberWireModalSheetState()
 ): ImportMediaScreenState {
     return ImportMediaScreenState(
         snackbarHostState = snackbarHostState,
@@ -46,23 +45,22 @@ fun rememberImportMediaScreenState(
     )
 }
 
-@OptIn(ExperimentalMaterialApi::class)
 class ImportMediaScreenState(
     val snackbarHostState: SnackbarHostState,
     val searchBarState: SearchBarState,
     val coroutineScope: CoroutineScope,
-    val bottomSheetState: ModalBottomSheetState
+    val bottomSheetState: WireModalSheetState
 ) {
 
     fun showBottomSheetMenu() {
         coroutineScope.launch {
-            bottomSheetState.animateTo(ModalBottomSheetValue.Expanded)
+            bottomSheetState.show()
         }
     }
 
     fun hideBottomSheetMenu(onComplete: () -> Unit = {}) {
         coroutineScope.launch {
-            bottomSheetState.animateTo(ModalBottomSheetValue.Hidden)
+            bottomSheetState.hide()
             onComplete()
         }
     }

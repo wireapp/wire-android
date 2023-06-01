@@ -27,7 +27,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -48,10 +47,10 @@ import com.wire.android.R
 import com.wire.android.ui.authentication.ServerTitle
 import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
 import com.wire.android.ui.authentication.verificationcode.ResendCodeText
-import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
+import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.common.textfield.CodeFieldValue
 import com.wire.android.ui.common.textfield.CodeTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
@@ -76,7 +75,7 @@ fun CreateAccountCodeScreen(viewModel: CreateAccountCodeViewModel, serverConfig:
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun CodeContent(
     state: CreateAccountCodeViewState,

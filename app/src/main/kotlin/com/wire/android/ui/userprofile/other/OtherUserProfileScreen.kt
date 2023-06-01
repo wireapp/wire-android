@@ -18,6 +18,8 @@
  *
  */
 
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package com.wire.android.ui.userprofile.other
 
 import android.annotation.SuppressLint
@@ -34,10 +36,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.ModalBottomSheetState
-import androidx.compose.material.ModalBottomSheetValue
-import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
@@ -68,6 +66,8 @@ import com.wire.android.ui.common.MoreOptionIcon
 import com.wire.android.ui.common.TabItem
 import com.wire.android.ui.common.WireTabRow
 import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
+import com.wire.android.ui.common.bottomsheet.WireModalSheetState
+import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.calculateCurrentTab
 import com.wire.android.ui.common.dialogs.BlockUserDialogContent
 import com.wire.android.ui.common.dialogs.BlockUserDialogState
@@ -78,9 +78,11 @@ import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.common.topBarElevation
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.visbility.rememberVisibilityState
+import com.wire.android.ui.connection.ConnectionActionButton
 import com.wire.android.ui.home.conversations.details.dialog.ClearConversationContentDialog
 import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.home.conversationslist.model.Membership
+import com.wire.android.ui.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
@@ -94,15 +96,15 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OtherUserProfileScreen(viewModel: OtherUserProfileScreenViewModel = hiltViewModel()) {
-    val snackbarHostState = remember { SnackbarHostState() }
+    val snackbarHostState = LocalSnackbarHostState.current
     val context = LocalContext.current
 
     val scope = rememberCoroutineScope()
 
-    val sheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
+    val sheetState = rememberWireModalSheetState()
     val openBottomSheet: () -> Unit = remember { { scope.launch { sheetState.show() } } }
     val closeBottomSheet: () -> Unit = remember { { scope.launch { sheetState.hide() } } }
 
@@ -115,7 +117,6 @@ fun OtherUserProfileScreen(viewModel: OtherUserProfileScreenViewModel = hiltView
         closeBottomSheet = closeBottomSheet,
         snackbarHostState = snackbarHostState,
         eventsHandler = viewModel,
-        footerEventsHandler = viewModel,
         bottomSheetEventsHandler = viewModel
     )
 
@@ -133,7 +134,6 @@ fun OtherUserProfileScreen(viewModel: OtherUserProfileScreenViewModel = hiltView
 
 @SuppressLint("UnusedCrossfadeTargetStateParameter", "LongParameterList")
 @OptIn(
-    ExperimentalMaterialApi::class,
     ExperimentalPagerApi::class,
     ExperimentalMaterial3Api::class,
 )
@@ -142,11 +142,10 @@ fun OtherProfileScreenContent(
     scope: CoroutineScope,
     state: OtherUserProfileState,
     requestInProgress: Boolean,
-    sheetState: ModalBottomSheetState,
+    sheetState: WireModalSheetState,
     openBottomSheet: () -> Unit,
     closeBottomSheet: () -> Unit,
     eventsHandler: OtherUserProfileEventsHandler,
-    footerEventsHandler: OtherUserProfileFooterEventsHandler,
     bottomSheetEventsHandler: OtherUserProfileBottomSheetEventsHandler,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
 ) {
@@ -211,6 +210,45 @@ fun OtherProfileScreenContent(
         clearConversationDialogState.dismiss()
     }
 
+    CollapsingTopBarScaffold(
+        snackbarHost = {
+            SwipeDismissSnackbarHost(
+                hostState = otherUserProfileScreenState.snackbarHostState,
+                modifier = Modifier.fillMaxWidth()
+            )
+        },
+        topBarHeader = { elevation ->
+            TopBarHeader(
+                state = state,
+                elevation = elevation,
+                onNavigateBack = eventsHandler::navigateBack,
+                openConversationBottomSheet = openConversationBottomSheet
+            )
+        },
+        topBarCollapsing = { TopBarCollapsing(state) },
+        topBarFooter = { TopBarFooter(state, pagerState, tabBarElevationState, tabItems, currentTabState, scope) },
+        content = {
+            Content(
+                state = state,
+                pagerState = pagerState,
+                tabItems = tabItems,
+                otherUserProfileScreenState = otherUserProfileScreenState,
+                lazyListStates = lazyListStates,
+                openChangeRoleBottomSheet = openChangeRoleBottomSheet,
+                openRemoveConversationMemberDialog = removeMemberDialogState::show,
+                getOtherUserClients = eventsHandler::observeClientList,
+                onDeviceClick = eventsHandler::onDeviceClick
+            )
+        },
+        bottomBar = {
+            ContentFooter(
+                state,
+                maxBarElevation
+            )
+        },
+        isSwipeable = state.connectionState == ConnectionState.ACCEPTED
+    )
+
     WireModalSheetLayout(
         sheetState = sheetState,
         coroutineScope = scope,
@@ -225,48 +263,7 @@ fun OtherProfileScreenContent(
                 closeBottomSheet = closeBottomSheet,
             )
         }
-    ) {
-        CollapsingTopBarScaffold(
-            snackbarHost = {
-                SwipeDismissSnackbarHost(
-                    hostState = otherUserProfileScreenState.snackbarHostState,
-                    modifier = Modifier.fillMaxWidth()
-                )
-            },
-            topBarHeader = { elevation ->
-                TopBarHeader(
-                    state = state,
-                    elevation = elevation,
-                    onNavigateBack = eventsHandler::navigateBack,
-                    openConversationBottomSheet = openConversationBottomSheet
-                )
-            },
-            topBarCollapsing = { TopBarCollapsing(state) },
-            topBarFooter = { TopBarFooter(state, pagerState, tabBarElevationState, tabItems, currentTabState, scope) },
-            content = {
-                Content(
-                    state = state,
-                    pagerState = pagerState,
-                    tabItems = tabItems,
-                    otherUserProfileScreenState = otherUserProfileScreenState,
-                    lazyListStates = lazyListStates,
-                    openChangeRoleBottomSheet = openChangeRoleBottomSheet,
-                    openRemoveConversationMemberDialog = removeMemberDialogState::show,
-                    getOtherUserClients = eventsHandler::observeClientList,
-                    onDeviceClick = eventsHandler::onDeviceClick
-                )
-            },
-            bottomBar = {
-                ContentFooter(
-                    state,
-                    maxBarElevation,
-                    footerEventsHandler,
-                    unblockUserDialogState::show
-                )
-            },
-            isSwipeable = state.connectionState == ConnectionState.ACCEPTED
-        )
-    }
+    )
 
     BlockUserDialogContent(
         dialogState = blockUserDialogState,
@@ -419,9 +416,7 @@ private fun Content(
 @Composable
 private fun ContentFooter(
     state: OtherUserProfileState,
-    maxBarElevation: Dp,
-    footerEventsHandler: OtherUserProfileFooterEventsHandler,
-    onUnblockUser: (UnblockUserDialogState) -> Unit
+    maxBarElevation: Dp
 ) {
     AnimatedVisibility(
         visible = !state.isDataLoading,
@@ -435,14 +430,11 @@ private fun ContentFooter(
             Box(modifier = Modifier.padding(all = dimensions().spacing16x)) {
                 // TODO show open conversation button for service bots after AR-2135
                 if (state.membership != Membership.Service) {
-                    OtherUserConnectionActionButton(
-                        state.connectionState,
-                        footerEventsHandler::onSendConnectionRequest,
-                        footerEventsHandler::onOpenConversation,
-                        footerEventsHandler::onCancelConnectionRequest,
-                        footerEventsHandler::onAcceptConnectionRequest,
-                        footerEventsHandler::onIgnoreConnectionRequest
-                    ) { onUnblockUser(UnblockUserDialogState(state.userName, state.userId)) }
+                    ConnectionActionButton(
+                        state.userId,
+                        state.userName,
+                        state.connectionState
+                    )
                 }
             }
         }
@@ -455,7 +447,6 @@ enum class OtherUserProfileTabItem(@StringRes override val titleResId: Int) : Ta
     DEVICES(R.string.user_profile_devices_tab);
 }
 
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 @Preview(name = "Connected")
 fun PreviewOtherProfileScreenContent() {
@@ -463,14 +454,13 @@ fun PreviewOtherProfileScreenContent() {
         OtherProfileScreenContent(
             rememberCoroutineScope(),
             OtherUserProfileState.PREVIEW.copy(connectionState = ConnectionState.ACCEPTED), false,
-            rememberModalBottomSheetState(ModalBottomSheetValue.Hidden),
+            rememberWireModalSheetState(),
             {}, {}, OtherUserProfileEventsHandler.PREVIEW,
-            OtherUserProfileFooterEventsHandler.PREVIEW, OtherUserProfileBottomSheetEventsHandler.PREVIEW
+            OtherUserProfileBottomSheetEventsHandler.PREVIEW
         )
     }
 }
 
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 @Preview(name = "Not Connected")
 fun PreviewOtherProfileScreenContentNotConnected() {
@@ -478,9 +468,9 @@ fun PreviewOtherProfileScreenContentNotConnected() {
         OtherProfileScreenContent(
             rememberCoroutineScope(),
             OtherUserProfileState.PREVIEW.copy(connectionState = ConnectionState.CANCELLED), false,
-            rememberModalBottomSheetState(ModalBottomSheetValue.Hidden),
+            rememberWireModalSheetState(),
             {}, {}, OtherUserProfileEventsHandler.PREVIEW,
-            OtherUserProfileFooterEventsHandler.PREVIEW, OtherUserProfileBottomSheetEventsHandler.PREVIEW
+            OtherUserProfileBottomSheetEventsHandler.PREVIEW
         )
     }
 }

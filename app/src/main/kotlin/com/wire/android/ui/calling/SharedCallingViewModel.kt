@@ -40,6 +40,7 @@ import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.call.ConversationType
 import com.wire.kalium.logic.data.call.VideoState
+import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
@@ -61,7 +62,6 @@ import com.wire.kalium.logic.feature.conversation.ObserveSecurityClassificationL
 import com.wire.kalium.logic.util.PlatformView
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.collectLatest
@@ -145,7 +145,6 @@ class SharedCallingViewModel @Inject constructor(
         }
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     private suspend fun observeScreenState() {
         currentScreenManager.observeCurrentScreen(viewModelScope).collect {
             if (it == CurrentScreen.InBackground) {
@@ -200,7 +199,7 @@ class SharedCallingViewModel @Inject constructor(
                 callStatus = call.status,
                 callerName = call.callerName,
                 isCameraOn = call.isCameraOn,
-                isCbrEnabled = call.isCbrEnabled && call.conversationType.equals(ConversationType.OneOnOne)
+                isCbrEnabled = call.isCbrEnabled && call.conversationType == Conversation.Type.ONE_ON_ONE
             )
         }
     }
@@ -212,7 +211,7 @@ class SharedCallingViewModel @Inject constructor(
                     isMuted = it.isMuted,
                     callStatus = it.status,
                     isCameraOn = it.isCameraOn,
-                    isCbrEnabled = it.isCbrEnabled && call.conversationType.equals(ConversationType.OneOnOne),
+                    isCbrEnabled = it.isCbrEnabled && call.conversationType == Conversation.Type.ONE_ON_ONE,
                     callerName = it.callerName,
                     participants = it.participants.map { participant -> uiCallParticipantMapper.toUICallParticipant(participant) }
                 )

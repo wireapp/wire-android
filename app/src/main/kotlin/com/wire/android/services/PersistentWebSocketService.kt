@@ -47,7 +47,6 @@ import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
 import com.wire.kalium.logic.feature.user.webSocketStatus.ObservePersistentWebSocketConnectionStatusUseCase
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
@@ -67,7 +66,6 @@ class PersistentWebSocketService : Service() {
         CoroutineScope(SupervisorJob() + dispatcherProvider.io())
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     @Inject
     lateinit var notificationManager: WireNotificationManager
 
@@ -91,7 +89,6 @@ class PersistentWebSocketService : Service() {
         generateForegroundNotification()
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         scope.launch {
             coreLogic.getGlobalScope().observePersistentWebSocketConnectionStatus().let { result ->

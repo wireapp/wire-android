@@ -143,7 +143,7 @@ fun EditMessageMenuItems(
         )
     } else {
         return buildList {
-            if (isSending) {
+            if (isAvailable) {
                 add { ReactionOption(onReactionItemClick) }
                 add { MessageDetailsMenuOption(onDetailsItemClick) }
                 if (isCopyable) add { CopyItemMenuOption(onCopyItemClick) }

@@ -572,6 +572,7 @@ class WireActivityViewModelTest {
         val (_, viewModel) = Arrangement()
             .withNoCurrentSession()
             .withNewClient(NewClientResult.InCurrentAccount(TestClient.CLIENT))
+            .withCurrentScreen(MutableStateFlow<CurrentScreen>(CurrentScreen.SomeOther))
             .arrange()
 
         assertEquals(
@@ -585,6 +586,7 @@ class WireActivityViewModelTest {
         val (_, viewModel) = Arrangement()
             .withNoCurrentSession()
             .withNewClient(NewClientResult.InOtherAccount(TestClient.CLIENT, USER_ID, "name", "handle"))
+            .withCurrentScreen(MutableStateFlow<CurrentScreen>(CurrentScreen.SomeOther))
             .arrange()
 
         assertEquals(

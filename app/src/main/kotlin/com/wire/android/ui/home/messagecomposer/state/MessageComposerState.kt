@@ -24,52 +24,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
 
 sealed class MessageComposerState {
-
-    class Active(
-        val messageComposition: MutableState<MessageComposition>,
-        additionalOptionMenuState: AdditionalOptionMenuState,
-        additionalOptionsSubMenuState: AdditionalOptionSubMenuState,
-        messageCompositionInputType: MessageCompositionInputType.Composing,
-        messageCompositionInputSize: MessageCompositionInputSize,
-    ) : MessageComposerState() {
-
-        var messageCompositionInputType: MessageCompositionInputType by mutableStateOf(messageCompositionInputType)
-
-        var inputSize: MessageCompositionInputSize by mutableStateOf(messageCompositionInputSize)
-
-        var additionalOptionMenuState: AdditionalOptionMenuState by mutableStateOf(additionalOptionMenuState)
-
-        var additionalOptionsSubMenuState: AdditionalOptionSubMenuState by mutableStateOf(additionalOptionsSubMenuState)
-
-        fun toEphemeralInputType() {
-            messageCompositionInputType = MessageCompositionInputType.Ephemeral
-        }
-
-        fun messageTextChanged(textFieldValue: TextFieldValue) {
-            messageComposition.update { copy(textFieldValue = textFieldValue) }
-        }
-
-        fun toggleAttachmentOptions() {
-            additionalOptionsSubMenuState =
-                if (additionalOptionsSubMenuState == AdditionalOptionSubMenuState.AttachFile) {
-                    AdditionalOptionSubMenuState.None
-                } else {
-                    AdditionalOptionSubMenuState.AttachFile
-                }
-        }
-
-
-        fun toggleGifMenu() {
-
-        }
-
-        private fun MutableState<MessageComposition>.update(function: MessageComposition.() -> MessageComposition) {
-            value = value.function()
-        }
-    }
-
-    data class InActive(
-        val messageComposition: MessageComposition
-    ) : MessageComposerState()
+    object Active : MessageComposerState()
+    object InActive : MessageComposerState()
 
 }

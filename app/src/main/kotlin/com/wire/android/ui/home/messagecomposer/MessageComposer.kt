@@ -22,6 +22,7 @@ package com.wire.android.ui.home.messagecomposer
 
 import android.net.Uri
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -32,12 +33,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -179,129 +182,111 @@ private fun MessageComposerContent(
     onTransistionToActive: (Boolean) -> Unit,
     onTransistionToInActive: () -> Unit
 ) {
-    Surface(color = colorsScheme().messageComposerBackgroundColor) {
-        when (val messageComposerState = messageComposerStateHolder.messageComposerState) {
-            is MessageComposerState.InActive -> InActiveMessageComposer(
-                messageListContent = messageListContent,
-                inActiveComposerState = messageComposerState,
-                onTransistionToActive = onTransistionToActive
-            )
+    with(messageComposerStateHolder) {
+        Surface(color = colorsScheme().messageComposerBackgroundColor) {
+            BoxWithConstraints(Modifier.fillMaxSize()) {
+                val currentScreenHeight: Dp = with(LocalDensity.current) { constraints.maxHeight.toDp() }
 
-            is MessageComposerState.Active -> ActiveMessageComposer(
-                messageListContent = messageListContent,
-                activeMessageComposerState = messageComposerState,
-                onTransistionToInActive = onTransistionToInActive
-            )
-        }
+                // when MessageComposer is composed for the first time we do not know the height until users opens the keyboard
+                var keyboardHeight: KeyboardHeight by remember { mutableStateOf(KeyboardHeight.NotKnown) }
+
+                if (KeyboardHelper.isKeyboardVisible()) {
+                    val calculatedKeyboardHeight = KeyboardHelper.getCalculatedKeyboardHeight()
+                    val notKnownAndCalculated =
+                        keyboardHeight is KeyboardHeight.NotKnown && calculatedKeyboardHeight > 0.dp
+                    val knownAndDifferent =
+                        keyboardHeight is KeyboardHeight.Known && keyboardHeight.height != calculatedKeyboardHeight
+                    if (notKnownAndCalculated || knownAndDifferent) {
+                        keyboardHeight = KeyboardHeight.Known(calculatedKeyboardHeight)
+                    }
+                }
+
+                Column(
+                    Modifier
+                        .fillMaxWidth()
+                        .height(currentScreenHeight)
+                ) {
+                    Column(
+                        Modifier
+                            .weight(1f)
+                            .fillMaxWidth()
+                    ) {
+                        Box(
+                            Modifier
+                                .pointerInput(Unit) {
+                                    detectTapGestures(
+                                        onPress = {
+                                            onTransistionToInActive()
+                                        },
+                                        onDoubleTap = { /* Called on Double Tap */ },
+                                        onLongPress = { /* Called on Long Press */ },
+                                        onTap = { /* Called on Tap */ }
+                                    )
+                                }
+                                .background(color = colorsScheme().backgroundVariant)
+                                .fillMaxWidth()
+                                .weight(1f)
+                        ) {
+                            messageListContent()
+                        }
+                        MessageComposingInput(
+                            messageComposition = messageComposition,
+                            inputType = messageCompositionInputType,
+                            inputSize = inputSize,
+                            onMessageTextChanged = ::messageTextChanged
+                        )
+                        AdditionalOptionsMenu(
+                            additionalOptionsState = additionalOptionMenuState,
+                            onEphemeralOptionItemClicked = ::toEphemeralInputType,
+                            onAttachmentOptionClicked = ::toggleAttachmentOptions,
+                            onGifButtonClicked = ::toggleGifMenu
+                        )
+                    }
+
+                    val additionalOptionSubMenuVisible =
+                        additionalOptionsSubMenuState != AdditionalOptionSubMenuState.Hidden
+                                && !KeyboardHelper.isKeyboardVisible()
+
+                    val isTransitionToOpenKeyboardOngoing =
+                        additionalOptionsSubMenuState == AdditionalOptionSubMenuState.Hidden
+                                && !KeyboardHelper.isKeyboardVisible()
+
+                    if (additionalOptionSubMenuVisible) {
+                        AdditionalOptionSubMenu(
+                            additionalOptionsSubMenuState,
+                            modifier = Modifier
+                                .height(keyboardHeight.height)
+                                .fillMaxWidth()
+                                .background(colorsScheme().messageComposerBackgroundColor)
+                        )
+                    }
+                    // This covers the situation when the user switches from attachment options to the input keyboard - there is a moment when
+                    // both attachmentOptionsDisplayed and isKeyboardVisible are false, but right after that keyboard shows, so if we know that
+                    // the input already has a focus, we can show an empty Box which has a height of the keyboard to prevent flickering.
+                    else if (isTransitionToOpenKeyboardOngoing) {
+                        Box(
+                            modifier = Modifier
+                                .height(keyboardHeight.height)
+                                .fillMaxWidth()
+                        )
+                    }
+                }
+            }
 //        BackHandler(messageComposerState.messageComposeInputState.attachmentOptionsDisplayed) {
 //            messageComposerState.hideAttachmentOptions()
 //            messageComposerState.toInactive()
 //        }
-    }
-}
-
-@Composable
-fun ActiveMessageComposer(
-    messageListContent: @Composable () -> Unit,
-    activeMessageComposerState: MessageComposerState.Active,
-    onTransistionToInActive: () -> Unit
-) {
-    BoxWithConstraints(Modifier.fillMaxSize()) {
-        val currentScreenHeight: Dp = with(LocalDensity.current) { constraints.maxHeight.toDp() }
-
-        // when MessageComposer is composed for the first time we do not know the height until users opens the keyboard
-        var keyboardHeight: KeyboardHeight by remember { mutableStateOf(KeyboardHeight.NotKnown) }
-
-        if (KeyboardHelper.isKeyboardVisible()) {
-            val calculatedKeyboardHeight = KeyboardHelper.getCalculatedKeyboardHeight()
-            val notKnownAndCalculated =
-                keyboardHeight is KeyboardHeight.NotKnown && calculatedKeyboardHeight > 0.dp
-            val knownAndDifferent =
-                keyboardHeight is KeyboardHeight.Known && keyboardHeight.height != calculatedKeyboardHeight
-            if (notKnownAndCalculated || knownAndDifferent) {
-                keyboardHeight = KeyboardHeight.Known(calculatedKeyboardHeight)
-            }
-        }
-
-        Column(
-            Modifier
-                .fillMaxWidth()
-                .height(currentScreenHeight)
-        ) {
-            Column(
-                Modifier
-                    .weight(1f)
-                    .fillMaxWidth()
-            ) {
-                Box(
-                    Modifier
-                        .pointerInput(Unit) {
-                            detectTapGestures(
-                                onPress = {
-                                    onTransistionToInActive()
-                                },
-                                onDoubleTap = { /* Called on Double Tap */ },
-                                onLongPress = { /* Called on Long Press */ },
-                                onTap = { /* Called on Tap */ }
-                            )
-                        }
-                        .background(color = colorsScheme().backgroundVariant)
-                        .fillMaxWidth()
-                        .weight(1f)
-                ) {
-                    messageListContent()
-                }
-                ActiveMessageComposingInput(
-                    messageComposition = activeMessageComposerState.messageComposition.value,
-                    inputType = activeMessageComposerState.messageCompositionInputType,
-                    inputSize = activeMessageComposerState.inputSize,
-                    onMessageTextChanged = activeMessageComposerState::messageTextChanged
-                )
-                AdditionalOptionsMenu(
-                    additionalOptionsState = activeMessageComposerState.additionalOptionMenuState,
-                    onEphemeralOptionItemClicked = activeMessageComposerState::toEphemeralInputType,
-                    onAttachmentOptionClicked = activeMessageComposerState::toggleAttachmentOptions,
-                    onGifButtonClicked = activeMessageComposerState::toggleGifMenu
-                )
-            }
-
-            val additionalOptionSubMenuVisible =
-                activeMessageComposerState.additionalOptionsSubMenuState != AdditionalOptionSubMenuState.None
-                        && !KeyboardHelper.isKeyboardVisible()
-
-            val isTransitionToOpenKeyboardOngoing =
-                activeMessageComposerState.additionalOptionsSubMenuState == AdditionalOptionSubMenuState.None
-                        && !KeyboardHelper.isKeyboardVisible()
-
-            if (additionalOptionSubMenuVisible) {
-                AdditionalOptionSubMenu(
-                    activeMessageComposerState.additionalOptionsSubMenuState,
-                    modifier = Modifier
-                        .height(keyboardHeight.height)
-                        .fillMaxWidth()
-                        .background(colorsScheme().messageComposerBackgroundColor)
-                )
-            }
-            // This covers the situation when the user switches from attachment options to the input keyboard - there is a moment when
-            // both attachmentOptionsDisplayed and isKeyboardVisible are false, but right after that keyboard shows, so if we know that
-            // the input already has a focus, we can show an empty Box which has a height of the keyboard to prevent flickering.
-            else if (isTransitionToOpenKeyboardOngoing) {
-                Box(
-                    modifier = Modifier
-                        .height(keyboardHeight.height)
-                        .fillMaxWidth()
-                )
-            }
         }
     }
 }
 
 @Composable
-fun ActiveMessageComposingInput(
+fun MessageComposingInput(
     messageComposition: MessageComposition,
     inputType: MessageCompositionInputType,
     inputSize: MessageCompositionInputSize,
-    onMessageTextChanged: (TextFieldValue) -> Unit
+    onTransistionToActive: (Boolean) -> Unit,
+    onMessageTextChanged: (TextFieldValue) -> Unit,
 ) {
     when (inputType) {
         MessageCompositionInputType.Composing -> {
@@ -333,6 +318,45 @@ fun ActiveMessageComposingInput(
                 onMessageTextChanged = onMessageTextChanged
             )
         }
+
+        MessageCompositionInputType.Inactive -> {
+            InactiveInput(
+                messageComposition = messageComposition,
+                onTransistionToActive = ::toActive ,
+                onFocused = { },
+                focusRequester = FocusRequester()
+            )
+        }
+    }
+}
+
+@Composable
+fun InactiveInput(
+    messageComposition: MessageComposition,
+    onTransistionToActive : (Boolean) -> Unit,
+    onFocused: () -> Unit,
+    focusRequester: FocusRequester
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .fillMaxWidth()
+            .wrapContentHeight()
+    ) {
+        Box(modifier = Modifier.padding(start = dimensions().spacing8x)) {
+            AdditionalOptionButton(
+                isSelected = false,
+                isEnabled = true,
+                onClick = { onTransistionToActive(true) }
+            )
+        }
+
+        Text(inActiveComposerState.messageComposition.messageText,
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight()
+                .clickable { onTransistionToActive(false) }
+        )
     }
 }
 
@@ -388,7 +412,7 @@ fun AdditionalOptionSubMenu(
         AdditionalOptionSubMenuState.Gif -> {}
         AdditionalOptionSubMenuState.RecordAudio -> {}
         AdditionalOptionSubMenuState.AttachImage -> {}
-        AdditionalOptionSubMenuState.None -> {}
+        AdditionalOptionSubMenuState.Hidden -> {}
     }
 }
 

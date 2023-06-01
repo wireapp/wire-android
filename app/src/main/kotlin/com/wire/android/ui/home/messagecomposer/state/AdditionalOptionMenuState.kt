@@ -19,13 +19,14 @@
 package com.wire.android.ui.home.messagecomposer.state
 
 sealed class AdditionalOptionMenuState {
+    object Hidden : AdditionalOptionMenuState()
     object AttachmentAndAdditionalOptionsMenu : AdditionalOptionMenuState()
 
     object RichTextEditing : AdditionalOptionMenuState()
 }
 
 enum class AdditionalOptionSubMenuState {
-    None,
+    Hidden,
     AttachFile,
     RecordAudio,
     AttachImage,

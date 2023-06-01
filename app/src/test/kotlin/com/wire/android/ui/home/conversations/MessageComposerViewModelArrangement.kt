@@ -210,7 +210,7 @@ internal class MessageComposerViewModelArrangement {
             isFileSharingEnabled = isFileSharingEnabledUseCase,
             wireSessionImageLoader = wireSessionImageLoader,
             kaliumFileSystem = fakeKaliumFileSystem,
-            updateConversationReadDateUseCase = updateConversationReadDateUseCase,
+            updateConversationReadDate = updateConversationReadDateUseCase,
             observeConversationInteractionAvailability = observeConversationInteractionAvailabilityUseCase,
             observeSecurityClassificationLabel = observeSecurityClassificationType,
             contactMapper = contactMapper,
@@ -220,10 +220,10 @@ internal class MessageComposerViewModelArrangement {
             pingRinger = pingRinger,
             sendKnockUseCase = sendKnockUseCase,
             fileManager = fileManager,
-            enqueueMessageSelfDeletionUseCase = enqueueMessageSelfDeletionUseCase,
+            enqueueMessageSelfDeletion = enqueueMessageSelfDeletionUseCase,
             observeSelfDeletingMessages = observeConversationSelfDeletionStatus,
             persistNewSelfDeletingStatus = persistSelfDeletionStatus,
-            retryFailedMessageUseCase = retryFailedMessageUseCase
+            retryFailedMessage = retryFailedMessageUseCase
         )
     }
 

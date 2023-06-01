@@ -19,9 +19,9 @@
  */
 
 @file:Suppress("TooManyFunctions")
+
 package com.wire.android.ui.home.newconversation.common
 
-import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -53,6 +53,7 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
+import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.feature.selfdeletingMessages.SelfDeletionTimer
 import kotlin.time.Duration.Companion.ZERO
 import kotlin.time.DurationUnit
@@ -231,45 +232,9 @@ fun PreviewSelectParticipantsButtonsRowDisabledButton() {
     SelectParticipantsButtonsRow(selectedParticipantsCount = 0, mainButtonText = "Continue", onMainButtonClick = {})
 }
 
-@Preview
+@PreviewMultipleThemes
 @Composable
 fun PreviewSendContentWithSelfDeletionButton() {
-    SendContentButton(
-        mainButtonText = "Send",
-        count = 1,
-        onMainButtonClick = {},
-        onSelfDeletionTimerClicked = {},
-        selfDeletionTimer = SelfDeletionTimer.Enabled(ZERO)
-    )
-}
-
-@Preview
-@Composable
-fun PreviewSendContentWithSelfDeletionDisabledButton() {
-    SendContentButton(
-        mainButtonText = "Self-deleting messages",
-        count = 0,
-        onMainButtonClick = {},
-        onSelfDeletionTimerClicked = {},
-        selfDeletionTimer = SelfDeletionTimer.Enabled(10.toDuration(DurationUnit.SECONDS))
-    )
-}
-
-@Preview
-@Composable
-fun PreviewSendContentWithSelfDeletionSelectedButton() {
-    SendContentButton(
-        mainButtonText = "Self-deleting messages",
-        count = 1,
-        onMainButtonClick = {},
-        onSelfDeletionTimerClicked = {},
-        selfDeletionTimer = SelfDeletionTimer.Enabled(10.toDuration(DurationUnit.SECONDS))
-    )
-}
-
-@Preview(uiMode = UI_MODE_NIGHT_YES, showBackground = true)
-@Composable
-fun PreviewDarkModeSendContentWithSelfDeletionButton() {
     WireTheme {
         SendContentButton(
             mainButtonText = "Send",
@@ -281,23 +246,23 @@ fun PreviewDarkModeSendContentWithSelfDeletionButton() {
     }
 }
 
-@Preview(uiMode = UI_MODE_NIGHT_YES, showBackground = true)
+@PreviewMultipleThemes
 @Composable
-fun PreviewDarkModeSendContentWithSelfDeletionDisabledButton() {
+fun PreviewSendContentWithSelfDeletionDisabledButton() {
     WireTheme {
         SendContentButton(
             mainButtonText = "Self-deleting messages",
             count = 0,
             onMainButtonClick = {},
             onSelfDeletionTimerClicked = {},
-            selfDeletionTimer = SelfDeletionTimer.Enabled(ZERO)
+            selfDeletionTimer = SelfDeletionTimer.Enabled(10.toDuration(DurationUnit.SECONDS))
         )
     }
 }
 
-@Preview(uiMode = UI_MODE_NIGHT_YES, showBackground = true)
+@PreviewMultipleThemes
 @Composable
-fun PreviewDarkModeSendContentWithSelfDeletionSelectedButton() {
+fun PreviewSendContentWithSelfDeletionSelectedButton() {
     WireTheme {
         SendContentButton(
             mainButtonText = "Self-deleting messages",

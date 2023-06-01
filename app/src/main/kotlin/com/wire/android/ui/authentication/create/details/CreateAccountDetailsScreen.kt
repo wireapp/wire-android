@@ -229,7 +229,6 @@ private fun DetailsContent(
                             }
                         )
                     }
-
                 }
 
                 item {

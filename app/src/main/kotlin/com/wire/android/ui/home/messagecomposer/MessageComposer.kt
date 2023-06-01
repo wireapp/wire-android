@@ -22,7 +22,6 @@ package com.wire.android.ui.home.messagecomposer
 
 import android.net.Uri
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -33,14 +32,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -204,57 +201,6 @@ private fun MessageComposerContent(
 }
 
 @Composable
-fun InActiveMessageComposer(
-    messageListContent: @Composable () -> Unit,
-    onTransistionToActive: (Boolean) -> Unit,
-    inActiveComposerState: MessageComposerState.InActive
-) {
-    Column(
-        Modifier
-            .fillMaxWidth()
-            .fillMaxHeight()
-    ) {
-        Box(
-            Modifier
-                .pointerInput(Unit) {
-                    detectTapGestures(
-                        onPress = {},
-                        onDoubleTap = { /* Called on Double Tap */ },
-                        onLongPress = { /* Called on Long Press */ },
-                        onTap = { /* Called on Tap */ }
-                    )
-                }
-                .background(color = colorsScheme().backgroundVariant)
-                .fillMaxWidth()
-                .weight(1f)
-        ) {
-            messageListContent()
-        }
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
-                .fillMaxWidth()
-                .wrapContentHeight()
-        ) {
-            Box(modifier = Modifier.padding(start = dimensions().spacing8x)) {
-                AdditionalOptionButton(
-                    isSelected = false,
-                    isEnabled = true,
-                    onClick = { onTransistionToActive(true) }
-                )
-            }
-
-            Text(inActiveComposerState.messageComposition.messageText,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .wrapContentHeight()
-                    .clickable { onTransistionToActive(false) }
-            )
-        }
-    }
-}
-
-@Composable
 fun ActiveMessageComposer(
     messageListContent: @Composable () -> Unit,
     activeMessageComposerState: MessageComposerState.Active,
@@ -307,28 +253,29 @@ fun ActiveMessageComposer(
                 }
                 ActiveMessageComposingInput(
                     messageComposition = activeMessageComposerState.messageComposition.value,
-                    inputType = activeMessageComposerState.inputType,
+                    inputType = activeMessageComposerState.messageCompositionInputType,
                     inputSize = activeMessageComposerState.inputSize,
                     onMessageTextChanged = activeMessageComposerState::messageTextChanged
                 )
                 AdditionalOptionsMenu(
-                    additionalOptionsState = activeMessageComposerState.additionalOptionsMenuState,
+                    additionalOptionsState = activeMessageComposerState.additionalOptionMenuState,
                     onEphemeralOptionItemClicked = activeMessageComposerState::toEphemeralInputType,
-
-                    )
+                    onAttachmentOptionClicked = activeMessageComposerState::toggleAttachmentOptions,
+                    onGifButtonClicked = activeMessageComposerState::toggleGifMenu
+                )
             }
 
             val additionalOptionSubMenuVisible =
-                activeMessageComposerState.additionalOptionsMenuState.additionalOptionsSubMenuState != AdditionalOptionSubMenuState.None
-                && !KeyboardHelper.isKeyboardVisible()
+                activeMessageComposerState.additionalOptionsSubMenuState != AdditionalOptionSubMenuState.None
+                        && !KeyboardHelper.isKeyboardVisible()
 
             val isTransitionToOpenKeyboardOngoing =
-                activeMessageComposerState.additionalOptionsMenuState.additionalOptionsSubMenuState == AdditionalOptionSubMenuState.None
+                activeMessageComposerState.additionalOptionsSubMenuState == AdditionalOptionSubMenuState.None
                         && !KeyboardHelper.isKeyboardVisible()
 
             if (additionalOptionSubMenuVisible) {
                 AdditionalOptionSubMenu(
-                    activeMessageComposerState.additionalOptionsMenuState.additionalOptionsSubMenuState,
+                    activeMessageComposerState.additionalOptionsSubMenuState,
                     modifier = Modifier
                         .height(keyboardHeight.height)
                         .fillMaxWidth()
@@ -392,16 +339,18 @@ fun ActiveMessageComposingInput(
 @Composable
 fun AdditionalOptionsMenu(
     additionalOptionsState: AdditionalOptionMenuState,
-    onEphemeralOptionItemClicked: () -> Unit
+    onEphemeralOptionItemClicked: () -> Unit,
+    onAttachmentOptionClicked: () -> Unit,
+    onGifButtonClicked: () -> Unit
 ) {
     when (additionalOptionsState) {
         is AdditionalOptionMenuState.AttachmentAndAdditionalOptionsMenu -> {
             AttachmentAndAdditionalOptionsMenuItems(
-                isMentionActive = false,
+                isMentionActive = true,
                 isFileSharingEnabled = true,
                 onMentionButtonClicked = onEphemeralOptionItemClicked,
-                onAdditionalOptionButtonClicked = additionalOptionsState::toggleAttachmentMenu,
-                onGifButtonClicked = additionalOptionsState::toggleGifMenu,
+                onAttachmentOptionClicked = onAttachmentOptionClicked,
+                onGifButtonClicked = onGifButtonClicked,
                 onSelfDeletionOptionButtonClicked = {},  // TODO(Refactor): Add correct value
                 showSelfDeletingOption = true, // TODO(Refactor): Add correct value
                 modifier = Modifier
@@ -409,8 +358,11 @@ fun AdditionalOptionsMenu(
         }
 
         is AdditionalOptionMenuState.RichTextEditing -> {
-            Box(Modifier.background(Color.Red).size(128.dp))
-
+            Box(
+                Modifier
+                    .background(Color.Red)
+                    .size(128.dp)
+            )
         }
     }
 }
@@ -445,7 +397,7 @@ fun AttachmentAndAdditionalOptionsMenuItems(
     isMentionActive: Boolean,
     isFileSharingEnabled: Boolean,
     onMentionButtonClicked: () -> Unit,
-    onAdditionalOptionButtonClicked: () -> Unit = {},
+    onAttachmentOptionClicked: () -> Unit = {},
     onPingClicked: () -> Unit = {},
     onSelfDeletionOptionButtonClicked: () -> Unit,
     showSelfDeletingOption: Boolean,
@@ -456,13 +408,13 @@ fun AttachmentAndAdditionalOptionsMenuItems(
         Divider(color = MaterialTheme.wireColorScheme.outline)
         Box(Modifier.wrapContentSize()) {
             MessageComposeActions(
-                true,
+                false,
                 isMentionActive,
                 false,
                 isEditMessage = false,
                 isFileSharingEnabled,
                 onMentionButtonClicked = onMentionButtonClicked,
-                onAdditionalOptionButtonClicked = onAdditionalOptionButtonClicked,
+                onAdditionalOptionButtonClicked = onAttachmentOptionClicked,
                 onPingButtonClicked = onPingClicked,
                 onSelfDeletionOptionButtonClicked = onSelfDeletionOptionButtonClicked,
                 showSelfDeletingOption = showSelfDeletingOption,

@@ -90,14 +90,7 @@ sealed class MessageCompositionInputType {
     object Ephemeral : MessageCompositionInputType()
 }
 
-enum class AdditionalOptionSubMenuState {
-    None,
-    AttachFile,
-    RecordAudio,
-    AttachImage,
-    Emoji,
-    Gif;
-}
+
 
 enum class MessageCompositionInputSize {
     COLLAPSED,

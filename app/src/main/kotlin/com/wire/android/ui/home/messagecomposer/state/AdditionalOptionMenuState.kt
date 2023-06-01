@@ -15,44 +15,20 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
+
 package com.wire.android.ui.home.messagecomposer.state
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
-
 sealed class AdditionalOptionMenuState {
-    abstract var additionalOptionsSubMenuState: AdditionalOptionSubMenuState
+    object AttachmentAndAdditionalOptionsMenu : AdditionalOptionMenuState()
 
-    class AttachmentAndAdditionalOptionsMenu : AdditionalOptionMenuState() {
+    object RichTextEditing : AdditionalOptionMenuState()
+}
 
-        override var additionalOptionsSubMenuState: AdditionalOptionSubMenuState by mutableStateOf(
-            AdditionalOptionSubMenuState.None
-        )
-
-        fun toggleAttachmentMenu() {
-            additionalOptionsSubMenuState =
-                if (additionalOptionsSubMenuState == AdditionalOptionSubMenuState.AttachFile) {
-                    AdditionalOptionSubMenuState.None
-                } else {
-                    AdditionalOptionSubMenuState.AttachFile
-                }
-        }
-
-        fun toggleGifMenu() {
-            additionalOptionsSubMenuState =
-                if (additionalOptionsSubMenuState == AdditionalOptionSubMenuState.Gif) {
-                    AdditionalOptionSubMenuState.None
-                } else {
-                    AdditionalOptionSubMenuState.Gif
-                }
-        }
-
-    }
-
-    object RichTextEditing : AdditionalOptionMenuState() {
-        override var additionalOptionsSubMenuState: AdditionalOptionSubMenuState by mutableStateOf(
-            AdditionalOptionSubMenuState.None
-        )
-    }
+enum class AdditionalOptionSubMenuState {
+    None,
+    AttachFile,
+    RecordAudio,
+    AttachImage,
+    Emoji,
+    Gif;
 }

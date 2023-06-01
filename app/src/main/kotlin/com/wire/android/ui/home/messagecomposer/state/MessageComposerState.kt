@@ -17,44 +17,55 @@
  */
 package com.wire.android.ui.home.messagecomposer.state
 
-import android.util.Log
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
-import kotlinx.coroutines.flow.MutableStateFlow
 
 sealed class MessageComposerState {
 
-    data class Active(
+    class Active(
         val messageComposition: MutableState<MessageComposition>,
-        private val generalOptionItem: AdditionalOptionSubMenuState,
-        private val messageCompositionInputType: MessageCompositionInputType.Composing,
-        private val messageCompositionInputSize: MessageCompositionInputSize,
-        private val additionalOptionsState: AdditionalOptionMenuState,
+        additionalOptionMenuState: AdditionalOptionMenuState,
+        additionalOptionsSubMenuState: AdditionalOptionSubMenuState,
+        messageCompositionInputType: MessageCompositionInputType.Composing,
+        messageCompositionInputSize: MessageCompositionInputSize,
     ) : MessageComposerState() {
 
-        var inputType: MessageCompositionInputType by mutableStateOf(messageCompositionInputType)
+        var messageCompositionInputType: MessageCompositionInputType by mutableStateOf(messageCompositionInputType)
 
         var inputSize: MessageCompositionInputSize by mutableStateOf(messageCompositionInputSize)
 
-        val additionalOptionsMenuState: AdditionalOptionMenuState by mutableStateOf(
-            additionalOptionsState
-        )
+        var additionalOptionMenuState: AdditionalOptionMenuState by mutableStateOf(additionalOptionMenuState)
+
+        var additionalOptionsSubMenuState: AdditionalOptionSubMenuState by mutableStateOf(additionalOptionsSubMenuState)
 
         fun toEphemeralInputType() {
-            inputType = MessageCompositionInputType.Ephemeral
+            messageCompositionInputType = MessageCompositionInputType.Ephemeral
         }
 
         fun messageTextChanged(textFieldValue: TextFieldValue) {
             messageComposition.update { copy(textFieldValue = textFieldValue) }
         }
 
+        fun toggleAttachmentOptions() {
+            additionalOptionsSubMenuState =
+                if (additionalOptionsSubMenuState == AdditionalOptionSubMenuState.AttachFile) {
+                    AdditionalOptionSubMenuState.None
+                } else {
+                    AdditionalOptionSubMenuState.AttachFile
+                }
+        }
+
+
+        fun toggleGifMenu() {
+
+        }
+
         private fun MutableState<MessageComposition>.update(function: MessageComposition.() -> MessageComposition) {
             value = value.function()
         }
-
     }
 
     data class InActive(

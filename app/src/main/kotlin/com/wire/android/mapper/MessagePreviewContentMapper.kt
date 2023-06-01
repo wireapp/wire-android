@@ -254,6 +254,9 @@ fun MessagePreview.uiLastMessageContent(): UILastMessageContent {
                 is WithUser.MissedCall -> UILastMessageContent.TextMessage(
                     MessageBody(UIText.PluralResource(R.plurals.unread_event_call, 1, 1))
                 )
+
+                is WithUser.MembersCreationAdded -> UILastMessageContent.None
+                is WithUser.MembersFailedToAdd -> UILastMessageContent.None
             }
         }
 

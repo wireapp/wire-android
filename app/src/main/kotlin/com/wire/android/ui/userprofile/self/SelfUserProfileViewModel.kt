@@ -20,7 +20,6 @@
 
 package com.wire.android.ui.userprofile.self
 
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -61,7 +60,6 @@ import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
 import com.wire.kalium.logic.feature.user.UpdateSelfAvailabilityStatusUseCase
 import com.wire.kalium.logic.featureFlags.KaliumConfigs
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
@@ -76,8 +74,6 @@ import javax.inject.Inject
 
 // Suppress for now after removing mockMethodForAvatar it should not complain
 @Suppress("TooManyFunctions", "LongParameterList")
-@ExperimentalMaterial3Api
-@ExperimentalCoroutinesApi
 @HiltViewModel
 class SelfUserProfileViewModel @Inject constructor(
     @CurrentAccount private val selfUserId: UserId,

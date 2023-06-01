@@ -14,9 +14,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.Divider
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHostState
@@ -45,7 +43,6 @@ import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
 import com.wire.android.ui.common.button.WirePrimaryButton
-import com.wire.android.ui.common.button.wirePrimaryButtonColors
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
@@ -101,7 +98,6 @@ fun ImportMediaContent(
     BackHandler { unauthorizedViewModel.navigateBack() }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ImportMediaRestrictedContent(
     fileSharingRestrictedState: FeatureFlagState.SharingRestrictedState,
@@ -134,7 +130,6 @@ fun ImportMediaRestrictedContent(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable
 fun ImportMediaRegularContent(authorizedViewModel: ImportMediaAuthenticatedViewModel = hiltViewModel()) {
     val context = LocalContext.current
@@ -146,6 +141,32 @@ fun ImportMediaRegularContent(authorizedViewModel: ImportMediaAuthenticatedViewM
     val importMediaScreenState = rememberImportMediaScreenState()
 
     with(authorizedViewModel.importMediaState) {
+        Scaffold(
+            topBar = {
+                WireCenterAlignedTopAppBar(
+                    elevation = 0.dp,
+                    onNavigationPressed = authorizedViewModel::navigateBack,
+                    title = stringResource(id = R.string.import_media_content_title),
+                    actions = {
+                        UserProfileAvatar(
+                            avatarData = UserAvatarData(avatarAsset),
+                            clickable = remember { Clickable(enabled = false) { } }
+                        )
+                    }
+                )
+            },
+            snackbarHost = {
+                SwipeDismissSnackbarHost(
+                    hostState = importMediaScreenState.snackbarHostState,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            },
+            modifier = Modifier.background(colorsScheme().background),
+            content = { internalPadding ->
+                ImportMediaContent(this, internalPadding, authorizedViewModel, importMediaScreenState.searchBarState)
+            },
+            bottomBar = { ImportMediaBottomBar(authorizedViewModel, importMediaScreenState) }
+        )
         MenuModalSheetLayout(
             menuItems = SelfDeletionMenuItems(
                 currentlySelected = authorizedViewModel.importMediaState.selfDeletingTimer.toDuration().toSelfDeletionDuration(),
@@ -154,39 +175,11 @@ fun ImportMediaRegularContent(authorizedViewModel: ImportMediaAuthenticatedViewM
             ),
             sheetState = importMediaScreenState.bottomSheetState,
             coroutineScope = importMediaScreenState.coroutineScope
-        ) {
-            Scaffold(
-                topBar = {
-                    WireCenterAlignedTopAppBar(
-                        elevation = 0.dp,
-                        onNavigationPressed = authorizedViewModel::navigateBack,
-                        title = stringResource(id = R.string.import_media_content_title),
-                        actions = {
-                            UserProfileAvatar(
-                                avatarData = UserAvatarData(avatarAsset),
-                                clickable = remember { Clickable(enabled = false) { } }
-                            )
-                        }
-                    )
-                },
-                snackbarHost = {
-                    SwipeDismissSnackbarHost(
-                        hostState = importMediaScreenState.snackbarHostState,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                },
-                modifier = Modifier.background(colorsScheme().background),
-                content = { internalPadding ->
-                    ImportMediaContent(this, internalPadding, authorizedViewModel, importMediaScreenState.searchBarState)
-                },
-                bottomBar = { ImportMediaBottomBar(authorizedViewModel, importMediaScreenState) }
-            )
-        }
+        )
     }
     SnackBarMessage(authorizedViewModel.infoMessage, importMediaScreenState.snackbarHostState)
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ImportMediaLoggedOutContent(
     viewModel: ImportMediaUnauthenticatedViewModel,
@@ -269,20 +262,16 @@ private fun ImportMediaBottomBar(
 ) {
     val selfDeletionTimer = importMediaViewModel.importMediaState.selfDeletingTimer
     val shortDurationLabel = selfDeletionTimer.toDuration().toSelfDeletionDuration().shortLabel
-    val (mainButtonText, mainButtonColors) = if (selfDeletionTimer.toDuration() > Duration.ZERO) {
-        "${stringResource(id = R.string.self_deleting_message_label)} (${shortDurationLabel.asString()})" to wirePrimaryButtonColors().copy(
-            enabled = colorsScheme().onPrimaryButtonEnabled,
-            onEnabled = colorsScheme().primaryButtonEnabled
-        )
+    val mainButtonText = if (selfDeletionTimer.toDuration() > Duration.ZERO) {
+        "${stringResource(id = R.string.self_deleting_message_label)} (${shortDurationLabel.asString()})"
     } else {
-        stringResource(id = R.string.import_media_send_button_title) to wirePrimaryButtonColors()
+        stringResource(id = R.string.import_media_send_button_title)
     }
     SendContentButton(
         mainButtonText = mainButtonText,
         count = importMediaViewModel.currentSelectedConversationsCount(),
         onMainButtonClick = importMediaViewModel::checkRestrictionsAndSendImportedMedia,
         selfDeletionTimer = selfDeletionTimer,
-        mainButtonColors = mainButtonColors,
         onSelfDeletionTimerClicked = importMediaScreenState::showBottomSheetMenu,
     )
 }
@@ -365,7 +354,7 @@ private fun ImportMediaContent(
             ),
             conversationsAddedToGroup = state.selectedConversationItem,
             isSelectableList = true,
-            onConversationSelectedOnRadioGroup = importMediaViewModel::addConversationItemToGroupSelection,
+            onConversationSelectedOnRadioGroup = importMediaViewModel::onConversationClicked,
             searchQuery = searchBarState.searchQuery.text,
             onOpenConversation = importMediaViewModel::onConversationClicked,
             onEditConversation = {},
@@ -395,7 +384,6 @@ fun PreviewImportMediaScreen() {
     ImportMediaScreen(hiltViewModel())
 }
 
-@OptIn(ExperimentalMaterialApi::class)
 @Preview(showBackground = true)
 @Composable
 fun PreviewImportMediaBottomBar() {

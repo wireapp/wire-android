@@ -48,9 +48,17 @@ private val readReceiptDateTimeFormat = SimpleDateFormat(
     Locale.getDefault()
 ).apply { timeZone = TimeZone.getDefault() }
 
+private val fullDateShortTimeFormatter = DateFormat.getDateTimeInstance(DateFormat.FULL, DateFormat.SHORT)
 fun String.formatMediumDateTime(): String? =
     try {
         this.serverDate()?.let { mediumDateTimeFormat.format(it) }
+    } catch (e: ParseException) {
+        null
+    }
+
+fun String.formatFullDateShortTime(): String? =
+    try {
+        this.serverDate()?.let { fullDateShortTimeFormatter.format(it) }
     } catch (e: ParseException) {
         null
     }

@@ -52,6 +52,7 @@ data class WireDimensions(
     val homeDrawerLogoVerticalPadding: Dp,
     val homeDrawerLogoWidth: Dp,
     val homeDrawerLogoHeight: Dp,
+    val homeDrawerSheetEndPadding: Dp,
     // FAB
     val fabIconSize: Dp,
     // BottomNavigation
@@ -210,6 +211,7 @@ private val DefaultPhonePortraitWireDimensions: WireDimensions = WireDimensions(
     homeDrawerLogoVerticalPadding = 32.dp,
     homeDrawerLogoWidth = 80.dp,
     homeDrawerLogoHeight = 24.dp,
+    homeDrawerSheetEndPadding = 56.dp,
     fabIconSize = 16.dp,
     bottomNavigationHorizontalPadding = 8.dp,
     bottomNavigationVerticalPadding = 4.dp,

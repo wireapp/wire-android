@@ -623,7 +623,7 @@ class WireActivityViewModelTest {
     }
 
     @Test
-    fun `given newClient is registered when current screen changed to one that do not allow dialog, then remember NewClient dialog state`() {
+    fun `given newClient is registered when current screen changed to ImportMedea, then remember NewClient dialog state`() {
         val currentScreenFlow = MutableStateFlow<CurrentScreen>(CurrentScreen.SomeOther)
         val (_, viewModel) = Arrangement()
             .withNoCurrentSession()

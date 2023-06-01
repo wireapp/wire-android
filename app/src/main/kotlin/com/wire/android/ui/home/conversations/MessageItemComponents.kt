@@ -179,7 +179,6 @@ private fun SingleUserDeliveryFailure(
                 ),
                 textAlign = TextAlign.Start
             )
-
         }
         if (partialDeliveryFailureContent.noClients.isNotEmpty()) {
             Text(
@@ -282,5 +281,3 @@ private fun Modifier.offlineBackendsLearnMoreClickableModifier(
     val learnMoreUrl = stringResource(R.string.url_message_details_offline_backends_learn_more)
     this.clickable { CustomTabsHelper.launchUrl(context, learnMoreUrl) }
 }
-
-

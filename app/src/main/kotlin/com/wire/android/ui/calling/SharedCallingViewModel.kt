@@ -27,6 +27,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.appLogger
 import com.wire.android.mapper.UICallParticipantMapper
 import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.media.CallRinger
@@ -70,7 +71,6 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @Suppress("LongParameterList", "TooManyFunctions")
@@ -198,6 +198,7 @@ class SharedCallingViewModel @Inject constructor(
             callState = callState.copy(
                 callStatus = call.status,
                 callerName = call.callerName,
+                isCameraOn = call.isCameraOn,
                 isCbrEnabled = call.isCbrEnabled && call.conversationType == Conversation.Type.ONE_ON_ONE
             )
         }
@@ -209,6 +210,7 @@ class SharedCallingViewModel @Inject constructor(
                 callState = callState.copy(
                     isMuted = it.isMuted,
                     callStatus = it.status,
+                    isCameraOn = it.isCameraOn,
                     isCbrEnabled = it.isCbrEnabled && call.conversationType == Conversation.Type.ONE_ON_ONE,
                     callerName = it.callerName,
                     participants = it.participants.map { participant -> uiCallParticipantMapper.toUICallParticipant(participant) }
@@ -237,9 +239,11 @@ class SharedCallingViewModel @Inject constructor(
     fun toggleSpeaker() {
         viewModelScope.launch {
             if (callState.isSpeakerOn) {
+                appLogger.i("SharedCallingViewModel: turning off speaker..")
                 callState = callState.copy(isSpeakerOn = false)
                 turnLoudSpeakerOff()
             } else {
+                appLogger.i("SharedCallingViewModel: turning on speaker..")
                 callState = callState.copy(isSpeakerOn = true)
                 turnLoudSpeakerOn()
             }
@@ -249,9 +253,11 @@ class SharedCallingViewModel @Inject constructor(
     fun flipCamera() {
         viewModelScope.launch {
             if (callState.isOnFrontCamera) {
+                appLogger.i("SharedCallingViewModel: flipping to back facing camera..")
                 callState = callState.copy(isOnFrontCamera = false)
                 flipToBackCamera(conversationId)
             } else {
+                appLogger.i("SharedCallingViewModel: flipping to front facing camera..")
                 callState = callState.copy(isOnFrontCamera = true)
                 flipToFrontCamera(conversationId)
             }
@@ -262,9 +268,11 @@ class SharedCallingViewModel @Inject constructor(
         viewModelScope.launch {
             callState.isMuted?.let {
                 if (it) {
+                    appLogger.i("SharedCallingViewModel: un-muting call..")
                     callState = callState.copy(isMuted = false)
                     unMuteCall(conversationId, !isOnPreviewScreen)
                 } else {
+                    appLogger.i("SharedCallingViewModel: muting call..")
                     callState = callState.copy(isMuted = true)
                     muteCall(conversationId, !isOnPreviewScreen)
                 }
@@ -274,6 +282,7 @@ class SharedCallingViewModel @Inject constructor(
 
     fun toggleVideo() {
         viewModelScope.launch {
+            appLogger.i("SharedCallingViewModel: toggling video to ${!callState.isCameraOn}..")
             callState = callState.copy(
                 isCameraOn = !callState.isCameraOn
             )
@@ -282,24 +291,25 @@ class SharedCallingViewModel @Inject constructor(
 
     fun clearVideoPreview() {
         viewModelScope.launch {
+            appLogger.i("SharedCallingViewModel: clearing video preview..")
             setVideoPreview(conversationId, PlatformView(null))
             updateVideoState(conversationId, VideoState.STOPPED)
         }
     }
 
     fun setVideoPreview(view: View?) {
-        viewModelScope.launch {
-            withContext(dispatchers.default()) {
-                setVideoPreview(conversationId, PlatformView(null))
-                setVideoPreview(conversationId, PlatformView(view))
-                updateVideoState(conversationId, VideoState.STARTED)
-            }
+        viewModelScope.launch(dispatchers.default()) {
+            appLogger.i("SharedCallingViewModel: setting video preview..")
+            setVideoPreview(conversationId, PlatformView(null))
+            setVideoPreview(conversationId, PlatformView(view))
+            updateVideoState(conversationId, VideoState.STARTED)
         }
     }
 
     fun stopVideo() {
         viewModelScope.launch {
             if (callState.isCameraOn) {
+                appLogger.i("SharedCallingViewModel: stopping video..")
                 callState = callState.copy(isCameraOn = false, isSpeakerOn = false)
                 clearVideoPreview()
                 turnLoudSpeakerOff()

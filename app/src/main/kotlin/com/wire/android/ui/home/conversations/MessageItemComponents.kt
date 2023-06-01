@@ -13,7 +13,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dimensions
@@ -22,8 +21,10 @@ import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.home.conversations.mock.mockHeader
 import com.wire.android.ui.home.conversations.model.MessageHeader
 import com.wire.android.ui.home.conversations.model.MessageStatus
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.util.CustomTabsHelper
+import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.user.UserId
 
 @Composable
@@ -139,14 +140,18 @@ internal fun Modifier.customizeMessageBackground(
     }
 }
 
-@Preview
+@PreviewMultipleThemes
 @Composable
 fun PreviewMessageSendFailureWarning() {
-    MessageSendFailureWarning(MessageStatus.SendFailure, {}, {})
+    WireTheme {
+        MessageSendFailureWarning(MessageStatus.SendFailure, {}, {})
+    }
 }
 
-@Preview
+@PreviewMultipleThemes
 @Composable
 fun PreviewMessageDecryptionFailure() {
-    MessageDecryptionFailure(mockHeader, MessageStatus.DecryptionFailure(false)) { _, _ -> }
+    WireTheme {
+        MessageDecryptionFailure(mockHeader, MessageStatus.DecryptionFailure(false)) { _, _ -> }
+    }
 }

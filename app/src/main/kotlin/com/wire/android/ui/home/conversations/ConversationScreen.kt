@@ -20,8 +20,6 @@
 
 package com.wire.android.ui.home.conversations
 
-import android.app.DownloadManager
-import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -86,6 +84,7 @@ import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.util.permission.CallingAudioRequestFlow
 import com.wire.android.util.permission.rememberCallingRecordAudioBluetoothRequestFlow
 import com.wire.android.util.ui.UIText
+import com.wire.android.util.ui.openDownloadFolder
 import com.wire.kalium.logic.NetworkFailure
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.user.UserId
@@ -432,14 +431,14 @@ private fun ConversationScreen(
                     tempWritableImageUri = tempWritableImageUri,
                     tempWritableVideoUri = tempWritableVideoUri
                 )
-
-                MenuModalSheetLayout(
-                    header = menuModalHeader,
-                    sheetState = conversationScreenState.modalBottomSheetState,
-                    coroutineScope = conversationScreenState.coroutineScope,
-                    menuItems = menuItems
-                )
             }
+
+            MenuModalSheetLayout(
+                header = menuModalHeader,
+                sheetState = conversationScreenState.modalBottomSheetState,
+                coroutineScope = conversationScreenState.coroutineScope,
+                menuItems = menuItems
+            )
         }
     )
 
@@ -578,7 +577,7 @@ private fun SnackBarMessage(
             )
             // Show downloads folder when clicking on Snackbar cta button
             if (it is OnFileDownloaded && snackbarResult == SnackbarResult.ActionPerformed) {
-                context.startActivity(Intent(DownloadManager.ACTION_VIEW_DOWNLOADS))
+                openDownloadFolder(context)
             }
         }
     }

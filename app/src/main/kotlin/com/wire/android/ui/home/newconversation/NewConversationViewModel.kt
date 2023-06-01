@@ -45,6 +45,7 @@ import com.wire.kalium.logic.feature.conversation.CreateGroupConversationUseCase
 import com.wire.kalium.logic.feature.publicuser.GetAllContactsUseCase
 import com.wire.kalium.logic.feature.publicuser.search.SearchKnownUsersUseCase
 import com.wire.kalium.logic.feature.publicuser.search.SearchPublicUsersUseCase
+import com.wire.kalium.logic.feature.service.ObserveAllServicesUseCase
 import com.wire.kalium.logic.feature.user.IsMLSEnabledUseCase
 import com.wire.kalium.logic.feature.user.IsSelfATeamMemberUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -59,6 +60,7 @@ class NewConversationViewModel @Inject constructor(
     getAllKnownUsers: GetAllContactsUseCase,
     searchKnownUsers: SearchKnownUsersUseCase,
     searchPublicUsers: SearchPublicUsersUseCase,
+    getAllServices: ObserveAllServicesUseCase,
     contactMapper: ContactMapper,
     isMLSEnabled: IsMLSEnabledUseCase,
     dispatchers: DispatcherProvider,
@@ -71,7 +73,8 @@ class NewConversationViewModel @Inject constructor(
     searchPublicUsers = searchPublicUsers,
     contactMapper = contactMapper,
     dispatcher = dispatchers,
-    navigationManager = navigationManager
+    navigationManager = navigationManager,
+    getAllServices = getAllServices
 ) {
 
     var newGroupState: GroupMetadataState by mutableStateOf(

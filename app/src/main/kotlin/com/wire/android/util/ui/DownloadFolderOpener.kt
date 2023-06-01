@@ -14,19 +14,20 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
+package com.wire.android.util.ui
 
-package com.wire.android.ui.home.conversations.details.editselfdeletingmessages
+import android.app.DownloadManager
+import android.content.ActivityNotFoundException
+import android.content.Context
+import android.content.Intent
+import android.widget.Toast
 
-import com.wire.android.ui.home.messagecomposer.state.SelfDeletionDuration
-
-data class EditSelfDeletingMessagesState(
-    val isEnabled: Boolean = false,
-    val isLoading: Boolean = true,
-    val locallySelected: SelfDeletionDuration? = null,
-    val remotelySelected: SelfDeletionDuration? = null,
-) {
-    fun didDurationChange() = locallySelected != remotelySelected
+fun openDownloadFolder(context: Context) {
+    val errorToastMessage = context.resources.getString(com.wire.android.R.string.label_no_application_found_open_downloads_folder)
+    try {
+        context.startActivity(Intent(DownloadManager.ACTION_VIEW_DOWNLOADS))
+    } catch (e: ActivityNotFoundException) {
+        Toast.makeText(context, errorToastMessage, Toast.LENGTH_SHORT).show()
+    }
 }

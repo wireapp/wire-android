@@ -611,7 +611,7 @@ class WireActivityViewModelTest {
             .withCurrentScreen(currentScreenFlow)
             .arrange()
 
-        currentScreenFlow.value = CurrentScreen.ImportMedea
+        currentScreenFlow.value = CurrentScreen.ImportMedia
         newClientFlow.emit(NewClientResult.InCurrentAccount(TestClient.CLIENT))
 
         advanceUntilIdle()
@@ -633,7 +633,7 @@ class WireActivityViewModelTest {
             .withCurrentScreen(currentScreenFlow)
             .arrange()
 
-        currentScreenFlow.value = CurrentScreen.ImportMedea
+        currentScreenFlow.value = CurrentScreen.ImportMedia
 
         assertEquals(
             NewClientData.CurrentUser(TestClient.CLIENT.registrationTime?.toIsoDateTimeString()!!, TestClient.CLIENT.displayName()),

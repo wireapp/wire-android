@@ -497,7 +497,7 @@ class WireActivityViewModel @Inject constructor(
     }
 
     private fun CurrentScreen.isGlobalDialogAllowed(): Boolean = when (this) {
-        CurrentScreen.ImportMedea -> false
+        CurrentScreen.ImportMedia -> false
 
         CurrentScreen.InBackground,
         is CurrentScreen.Conversation,
@@ -533,5 +533,8 @@ data class GlobalAppState(
     val updateAppDialog: Boolean = false,
     val conversationJoinedDialog: JoinConversationViaCodeState? = null,
     val newClientDialog: NewClientData? = null,
+    // In cases when the new client comes and we need to inform user about it, but user is in some screen that doesn't allow dialogs,
+    // we need to store that state somewhere and show the dialog later when it's possible.
+    // This field is not used in Compose, only for storing and using latter.
     val newClientDialogRemembered: NewClientData? = null,
 )

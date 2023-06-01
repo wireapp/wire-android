@@ -59,7 +59,7 @@ fun EditMessageMenuItems(
     val localFeatureVisibilityFlags = LocalFeatureVisibilityFlags.current
     val localContext = LocalContext.current
     val isCopyable = message.isTextMessage
-    val isAvailable = message.isAvailable
+    val isSending = message.isSending
     val isAssetMessage = message.messageContent is UIMessageContent.AssetMessage
             || message.messageContent is UIMessageContent.ImageMessage
             || message.messageContent is UIMessageContent.AudioAssetMessage
@@ -143,7 +143,7 @@ fun EditMessageMenuItems(
         )
     } else {
         return buildList {
-            if (isAvailable) {
+            if (isSending) {
                 add { ReactionOption(onReactionItemClick) }
                 add { MessageDetailsMenuOption(onDetailsItemClick) }
                 if (isCopyable) add { CopyItemMenuOption(onCopyItemClick) }

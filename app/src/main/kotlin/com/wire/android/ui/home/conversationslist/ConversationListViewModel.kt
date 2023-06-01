@@ -20,7 +20,6 @@
 
 package com.wire.android.ui.home.conversationslist
 
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -95,7 +94,6 @@ import kotlinx.coroutines.withContext
 import java.util.Date
 import javax.inject.Inject
 
-@ExperimentalMaterial3Api
 @Suppress("MagicNumber", "TooManyFunctions", "LongParameterList")
 @HiltViewModel
 class ConversationListViewModel @Inject constructor(

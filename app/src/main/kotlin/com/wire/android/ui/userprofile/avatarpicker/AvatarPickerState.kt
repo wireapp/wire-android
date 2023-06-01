@@ -22,26 +22,25 @@ package com.wire.android.ui.userprofile.avatarpicker
 
 import android.content.Context
 import android.net.Uri
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.ModalBottomSheetState
-import androidx.compose.material.ModalBottomSheetValue
-import androidx.compose.material.rememberModalBottomSheetState
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
+import com.wire.android.ui.common.bottomsheet.WireModalSheetState
+import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.imagepreview.AvatarPickerFlow
 import com.wire.android.ui.common.imagepreview.rememberPickPictureState
 import com.wire.android.util.ui.UIText
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun rememberAvatarPickerState(
     coroutineScope: CoroutineScope = rememberCoroutineScope(),
-    modalBottomSheetState: ModalBottomSheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden),
+    modalBottomSheetState: WireModalSheetState = rememberWireModalSheetState(),
     onImageSelected: (Uri) -> Unit,
     onPictureTaken: () -> Unit,
     targetPictureFileUri: Uri
@@ -62,12 +61,11 @@ fun rememberAvatarPickerState(
     }
 }
 
-@OptIn(ExperimentalMaterialApi::class)
 class AvatarPickerState(
     private val context: Context,
     private val coroutineScope: CoroutineScope,
     val snackbarHostState: SnackbarHostState,
-    val modalBottomSheetState: ModalBottomSheetState,
+    val modalBottomSheetState: WireModalSheetState,
     private val avatarPickerFlow: AvatarPickerFlow,
 ) {
 

@@ -23,7 +23,7 @@ package com.wire.android.ui.common.bottomsheet.conversation
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.Text
+import androidx.compose.material3.Text
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -90,7 +90,7 @@ internal fun ConversationMainSheetContent(
                     )
                 }
             },
-            customBottomPadding = dimensions().spacing8x
+            customVerticalPadding = dimensions().spacing8x
         ),
         menuItems = buildList<@Composable () -> Unit> {
             if (conversationSheetContent.canEditNotifications()) {

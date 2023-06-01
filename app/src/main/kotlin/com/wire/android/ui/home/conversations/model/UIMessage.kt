@@ -48,7 +48,7 @@ import kotlin.time.Duration
 
 sealed class UIMessage(
     open val header: MessageHeader,
-    open val source: MessageSource,
+    open val source: MessageSource
 ) {
 
     data class Regular(
@@ -250,8 +250,11 @@ sealed class UIMessageContent {
             val isSelfTriggered: Boolean = false
         ) : SystemMessage(
             R.drawable.ic_add,
-            if (isSelfTriggered) R.string.label_system_message_joined_the_conversation_by_self
-            else R.string.label_system_message_joined_the_conversation_by_other
+            if (isSelfTriggered) {
+                R.string.label_system_message_joined_the_conversation_by_self
+            } else {
+                R.string.label_system_message_joined_the_conversation_by_other
+            }
         )
 
         data class MemberRemoved(
@@ -268,8 +271,11 @@ sealed class UIMessageContent {
             val isSelfTriggered: Boolean = false
         ) : SystemMessage(
             R.drawable.ic_minus,
-            if (isSelfTriggered) R.string.label_system_message_left_the_conversation_by_self
-            else R.string.label_system_message_left_the_conversation_by_other
+            if (isSelfTriggered) {
+                R.string.label_system_message_left_the_conversation_by_self
+            } else {
+                R.string.label_system_message_left_the_conversation_by_other
+            }
         )
 
         sealed class MissedCall(
@@ -300,8 +306,11 @@ sealed class UIMessageContent {
             val isAuthorSelfUser: Boolean = false
         ) : SystemMessage(
             R.drawable.ic_view,
-            if (isAuthorSelfUser) R.string.label_system_message_read_receipt_changed_by_self
-            else R.string.label_system_message_read_receipt_changed_by_other
+            if (isAuthorSelfUser) {
+                R.string.label_system_message_read_receipt_changed_by_self
+            } else {
+                R.string.label_system_message_read_receipt_changed_by_other
+            }
         )
 
         data class ConversationMessageTimerActivated(
@@ -310,20 +319,46 @@ sealed class UIMessageContent {
             val selfDeletionDuration: SelfDeletionDuration
         ) : SystemMessage(
             R.drawable.ic_timer,
-            if (isAuthorSelfUser) R.string.label_system_message_conversation_message_timer_activated_by_self
-            else R.string.label_system_message_conversation_message_timer_activated_by_other
+            if (isAuthorSelfUser) {
+                R.string.label_system_message_conversation_message_timer_activated_by_self
+            } else {
+                R.string.label_system_message_conversation_message_timer_activated_by_other
+            }
         )
 
         data class ConversationMessageTimerDeactivated(
             val author: UIText,
-            val isAuthorSelfUser: Boolean = false,
+            val isAuthorSelfUser: Boolean = false
         ) : SystemMessage(
             R.drawable.ic_timer,
-            if (isAuthorSelfUser) R.string.label_system_message_conversation_message_timer_deactivated_by_self
-            else R.string.label_system_message_conversation_message_timer_deactivated_by_other
+            if (isAuthorSelfUser) {
+                R.string.label_system_message_conversation_message_timer_deactivated_by_self
+            } else {
+                R.string.label_system_message_conversation_message_timer_deactivated_by_other
+            }
         )
 
         class HistoryLost : SystemMessage(R.drawable.ic_info, R.string.label_system_message_conversation_history_lost, true)
+
+        data class ConversationMessageCreated(
+            val author: UIText,
+            val isAuthorSelfUser: Boolean = false,
+            val date: String
+        ) : SystemMessage(
+            R.drawable.ic_conversation,
+            if (isAuthorSelfUser) {
+                R.string.label_system_message_conversation_started_by_self
+            } else {
+                R.string.label_system_message_conversation_started_by_other
+            }
+        )
+
+        data class ConversationStartedWithMembers(
+            val memberNames: List<UIText>
+        ) : SystemMessage(
+            R.drawable.ic_contact,
+            R.string.label_system_message_conversation_started_with_members
+        )
     }
 }
 

@@ -172,6 +172,15 @@ object TestMessage {
         status = Message.Status.SENT
     )
 
+    val CONVERSATION_CREATED_MESSAGE = Message.System(
+        id = "messageID",
+        content = MessageContent.ConversationCreated,
+        conversationId = ConversationId("convo-id", "convo.domain"),
+        date = "some-date",
+        senderUserId = UserId("user-id", "domain"),
+        status = Message.Status.SENT
+    )
+
     val PREVIEW = MessagePreview(
         id = "messageId",
         conversationId = ConversationId("value", "domain"),

@@ -31,7 +31,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -63,7 +62,6 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun LoginSSOScreen(
     ssoLoginResult: DeepLinkResult.SSOLogin?,
@@ -139,7 +137,7 @@ private fun SSOCodeInput(
     ssoCode: TextFieldValue,
     error: String?,
     onCodeChange: (TextFieldValue) -> Unit,
-    //todo: temporary to show to pointing server
+    // TODO: temporary to show to pointing server
     serverTitle: String
 ) {
     WireTextField(

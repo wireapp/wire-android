@@ -39,7 +39,6 @@ import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.RequestVideoStreamsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
@@ -48,8 +47,7 @@ import javax.inject.Inject
 
 @Suppress("LongParameterList")
 @HiltViewModel
-class OngoingCallViewModel @OptIn(ExperimentalCoroutinesApi::class)
-@Inject constructor(
+class OngoingCallViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     qualifiedIdMapper: QualifiedIdMapper,
     private val navigationManager: NavigationManager,
@@ -75,7 +73,6 @@ class OngoingCallViewModel @OptIn(ExperimentalCoroutinesApi::class)
         showDoubleTapToast()
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     private suspend fun observeCurrentCall() {
         establishedCalls()
             .distinctUntilChanged()

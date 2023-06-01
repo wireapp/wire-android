@@ -53,7 +53,6 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.ui.authentication.login.LoginError
@@ -72,6 +71,7 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
+import com.wire.android.util.ui.PreviewMultipleThemes
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -277,7 +277,7 @@ private fun LoginButton(modifier: Modifier, loading: Boolean, enabled: Boolean, 
     }
 }
 
-@Preview
+@PreviewMultipleThemes
 @Composable
 fun PreviewLoginEmailScreen() {
     val scope = rememberCoroutineScope()

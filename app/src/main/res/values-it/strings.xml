@@ -27,6 +27,7 @@
     <string name="label_cancel">Annulla</string>
     <string name="label_confirm">Conferma</string>
     <string name="label_continue">Continua</string>
+    <string name="label_apply">Apply</string>
     <string name="label_save">Salva</string>
     <string name="label_get_started">Inizia</string>
     <string name="label_remove">Rimuovi</string>
@@ -142,6 +143,7 @@
     <string name="content_description_calling_call_unmuted">Chiamata non mutata</string>
     <string name="content_description_calling_call_paused_camera">Pausa della fotocamera</string>
     <string name="content_description_more_emojis">Altro emojis</string>
+    <string name="content_description_self_deletion_selector_button">Toggle self deletion mode, button</string>
     <!-- Non translatable strings-->
     <!-- Navigation -->
     <string name="vault_screen_title">Cassetto</string>
@@ -372,6 +374,8 @@ Fino a 500 persone possono unirsi a una conversazione di gruppo.</string>
     <string name="conversation_participant_you_label">(Tu)</string>
     <string name="conversation_details_is_classified">LIVELLO DI SICUREZZA: VS-NfD</string>
     <string name="conversation_details_is_not_classified">Livello di sicurezza: NON CLASSIFICATO. </string>
+    <string name="conversation_options_self_deleting_messages_label">Self-deleting messages</string>
+    <string name="conversation_options_self_deleting_messages_description">When this is on, all messages in this group will disappear after a certain time.</string>
     <string name="conversation_options_guests_label">Ospiti</string>
     <string name="conversation_details_guest_description">Con questa opzione ATTIVA, persone al di fuori del tuo team possono unirsi a questa conversazione.</string>
     <string name="conversation_options_guest_description">Attiva questa opzione per aprire questa conversazione a persone al di fuori del tuo team, anche se non hanno Wire.</string>
@@ -519,6 +523,12 @@ Fino a 500 persone possono unirsi a una conversazione di gruppo.</string>
     <string name="label_system_message_new_conversation_receipt_mode">Le ricevute di lettura sono %1$s</string>
     <string name="label_system_message_read_receipt_changed_by_self">%1$s ha %2$s le ricevute di lettura per tutti</string>
     <string name="label_system_message_read_receipt_changed_by_other">%1$s ha %2$s le ricevute di lettura per tutti</string>
+    <string name="label_system_message_conversation_message_timer_activated_by_self">%1$s set self-deleting messages to %2$s for everyone</string>
+    <string name="label_system_message_conversation_message_timer_activated_by_other">%1$s set self-deleting messages to %2$s for everyone</string>
+    <string name="label_system_message_activated">activated</string>
+    <string name="label_system_message_conversation_message_timer_deactivated_by_self">%1$s turned **off** the timer for self-deleting messages for everyone</string>
+    <string name="label_system_message_conversation_message_timer_deactivated_by_other">%1$s turned **off** the timer for self-deleting messages for everyone</string>
+    <string name="label_system_message_deactivated">deactivated</string>
     <string name="label_system_message_conversation_history_lost">Non hai usato questo dispositivo per un po\'. Alcuni messaggi potrebbero non essere visualizzati qui.</string>
     <string name="label_system_message_receipt_mode_on">on</string>
     <string name="label_system_message_receipt_mode_off">off</string>
@@ -683,6 +693,8 @@ Rispondendo qui, verr&#224; riagganciata l\'altra chiamata.</string>
     <string name="calling_ongoing_call_start_anyway">Chiama comunque</string>
     <string name="calling_ongoing_call_join_message_alert">Una chiamata é attiva in un\'altra conversazione.\nSe ti unisci a questa chiamata lascerai l\'altra</string>
     <string name="calling_ongoing_call_join_anyway">Unisciti comunque</string>
+    <string name="calling_ongoing_double_tap_for_full_screen">Double tap on a tile for fullscreen</string>
+    <string name="calling_ongoing_double_tap_to_go_back">Double tap to go back</string>
     <string name="calling_feature_unavailable_title_alert">Funzione non disponibile</string>
     <string name="calling_feature_unavailable_message_alert">La possibilità di effetturare chiamate in conferenza é disponibile solo nella version a pagamento di Wire.</string>
     <!-- Connectivity Status Bar -->
@@ -734,6 +746,15 @@ Rispondendo qui, verr&#224; riagganciata l\'altra chiamata.</string>
     <string name="allow_guest_switch_description">Apri questa conversazione a persone esterne al tuo team. Puoi sempre cambiarla successivamente.</string>
     <string name="allow_services">Consenti servizi</string>
     <string name="allow_services_description">Apri questa conversazione ai servizi. Puoi sempre cambiarla successivamente.</string>
+    <string name="service_details_label">Service</string>
+    <string name="service_details_add_service_label">Add To Group</string>
+    <string name="service_details_remove_service_label">Remove From Group</string>
+    <string name="service_remove_success">Service removed from group</string>
+    <string name="service_remove_error">Unable to remove service from group</string>
+    <string name="service_add_success">Service added to group</string>
+    <string name="service_add_error">Unable to add service to group</string>
+    <string name="service_no_information_available_title">No information available</string>
+    <string name="service_no_information_available_subtitle">Try again or reach out to your team admin</string>
     <string name="read_receipts">Ricevute di lettura</string>
     <string name="read_receipts_description">Quando questa opzione è attiva, le persone possono vedere quando i loro messaggi in questa conversazione sono stati letti.</string>
     <string name="disable_guests_dialog_title">Non consentire ospiti?</string>
@@ -807,7 +828,7 @@ URL del backend:
     <string name="label_enable_logging">Abilita la registrazione</string>
     <string name="label_proteus_option_title">Proteus</string>
     <string name="label_enable_encrypted_proteus_storage">Abilita la memorizzazione Proteus cifrata</string>
-    <string name="label_debug_title">Debug</string>
+    <string name="label_debug_title">Debug Settings</string>
     <string name="label_client_option_title">ID del client</string>
     <string name="label_device_id">ID dispositivo: %1$s</string>
     <string name="label_code_commit_id">Hash del commit: %1$s</string>
@@ -894,6 +915,11 @@ URL del backend:
     <string name="join_conversation_via_deeplink_error_link_expired">Il link per questa conversazione di gruppo &#232; scaduto o la conversazione &#232; stata impostata come privata.</string>
     <string name="join_conversation_via_deeplink_error_max_number_of_participent">Il numero massimo di partecipanti in questa conversazione &#232; stato raggiunto.</string>
     <string name="join_conversation_via_deeplink_error_general">A causa di un errore non sei stato aggiunto alla conversazione di gruppo.</string>
+    <!-- edit self-deleting messages -->
+    <string name="self_deleting_messages_title">Self-deleting Messages</string>
+    <string name="self_deleting_messages_option">Enforce message deletion</string>
+    <string name="self_deleting_messages_option_description">When this is on, all messages in this group will disappear after a certain time. This applies to all group participants.</string>
+    <string name="self_deleting_messages_folder_timer">Timer</string>
     <!-- guest room link -->
     <string name="folder_label_guest_link">Link ospite</string>
     <string name="guest_link_description">Invita altri con un link a questa conversazione. Chiunque abbia il link pu&#242; unirsi alla conversazione, anche se non ha Wire.</string>
@@ -928,8 +954,6 @@ URL del backend:
     <string name="label_fingerprint_description">Se le impronte digitali non corrispondono, reimposta la sessione per generare nuove chiavi di crittografia su entrambi i lati.</string>
     <string name="label_self_fingerprint_description">Share this key fingerprint with other participants in a conversation, so that they can verify it and make sure the conversation is secure.</string>
     <string name="unknown_user_name">sconosciuto</string>
-    <string name="self_deleting_message_time_left">Self-deleting message • %1$s</string>
-    <string name="self_deleting_message_label">Self-deleting message</string>
     <string name="device_name_unknown">Unknown device</string>
     <string name="create_account_email_title">Your Email</string>
     <string name="settings_myaccount_email_description">Your email is part of your login details for this account. It may be visible to your contacts.</string>
@@ -940,6 +964,7 @@ URL del backend:
     <string name="settings_myaccount_email_generic_error">Something went wrong. Please try again.</string>
     <string name="settings_myaccount_handle_description">Your username helps others to find you in Wire and connect with you. It is unique in Wire.</string>
     <string name="create_account_handle_title">Your User Name</string>
+    <!-- Asset limits error messages -->
     <string name="title_video_could_not_be_sent">Video could not be sent</string>
     <string name="title_image_could_not_be_sent">Image could not be sent</string>
     <string name="title_file_could_not_be_sent">File could not be sent</string>
@@ -947,7 +972,15 @@ URL del backend:
     <string name="label_shared_image_too_large">You can only share an image up to %d MB.</string>
     <string name="label_shared_file_too_large">You can only share a file up to %d MB.</string>
     <string name="label_file_saved_to_device">The file was saved to your device.</string>
-    <!-- Expirable messages -->
+    <!-- Expiring messages -->
+    <string name="self_deleting_message_time_left">Self-deleting message • %1$s</string>
+    <string name="self_deleting_message_label">Self-deleting message</string>
+    <string name="self_deleting_messages_team_setting_disabled">Self-deleting messages are disabled.</string>
+    <string name="self_deleting_messages_team_setting_enabled">Self-deleting messages are enabled. You can set a timer before writing a message.</string>
+    <string name="self_deleting_messages_team_setting_enabled_enforced_timeout">Self-deleting messages are now mandatory. New messages will self-delete after %1$s.</string>
+    <string name="automatically_delete_message_after">Automatically delete message after:</string>
+    <string name="label_information_waiting_for_recipient_timer_to_expire_group">After one participant has seen your message and the timer has expired on their side, this note disappears.</string>
+    <string name="label_information_waiting_for_recipient_timer_to_expire_one_to_one">After %1$s has seen your message and the timer has expired on their side, this note disappears.</string>
     <plurals name="weeks_left">
         <item quantity="one">1 week left</item>
         <item quantity="other">%1$d weeks left</item>
@@ -968,4 +1001,34 @@ URL del backend:
         <item quantity="one">1 second left</item>
         <item quantity="other">%1$d seconds left</item>
     </plurals>
+    <plurals name="weeks_long_label">
+        <item quantity="one">1 week</item>
+        <item quantity="other">%1$d weeks</item>
+    </plurals>
+    <plurals name="days_long_label">
+        <item quantity="one">1 day</item>
+        <item quantity="other">%1$d days</item>
+    </plurals>
+    <plurals name="hours_long_label">
+        <item quantity="one">1 hour</item>
+        <item quantity="other">%1$d hours</item>
+    </plurals>
+    <plurals name="minutes_long_label">
+        <item quantity="one">1 minute</item>
+        <item quantity="other">%1$d minutes</item>
+    </plurals>
+    <plurals name="seconds_long_label">
+        <item quantity="one">1 second</item>
+        <item quantity="other">%1$d seconds</item>
+    </plurals>
+    <string name="four_weeks_short_label">4w</string>
+    <string name="one_week_short_label">1w</string>
+    <string name="one_day_short_label">1d</string>
+    <string name="one_hour_short_label">1h</string>
+    <string name="five_minutes_short_label">5m</string>
+    <string name="one_minute_short_label">1m</string>
+    <string name="ten_seconds_short_label">10s</string>
+    <string name="label_debug_data">Debug data</string>
+    <string name="title_internal_debugging">Internal debugging</string>
+    <string name="label_log_options_description">"This stores anonymized troubleshooting information locally. "</string>
 </resources>

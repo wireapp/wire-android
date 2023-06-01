@@ -24,13 +24,14 @@ import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.home.messagecomposer.state.SelfDeletionDuration
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.CustomTabsHelper
+import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
 fun FileRestrictionDialog(
@@ -130,20 +131,26 @@ fun WelcomeNewUserDialog(
     )
 }
 
-@Preview
+@PreviewMultipleThemes
 @Composable
 fun previewFileRestrictionDialog() {
-    FileRestrictionDialog(true) {}
+    WireTheme {
+        FileRestrictionDialog(true) {}
+    }
 }
 
-@Preview
+@PreviewMultipleThemes
 @Composable
 fun previewGuestRoomLinkFeatureFlagDialog() {
-    GuestRoomLinkFeatureFlagDialog(true) {}
+    WireTheme {
+        GuestRoomLinkFeatureFlagDialog(true) {}
+    }
 }
 
-@Preview
+@PreviewMultipleThemes
 @Composable
 fun previewWelcomeNewUserDialog() {
-    WelcomeNewUserDialog({})
+    WireTheme {
+        WelcomeNewUserDialog({})
+    }
 }

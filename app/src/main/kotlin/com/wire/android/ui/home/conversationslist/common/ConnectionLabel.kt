@@ -21,7 +21,7 @@
 package com.wire.android.ui.home.conversationslist.common
 
 import androidx.annotation.StringRes
-import androidx.compose.material.Text
+import androidx.compose.material3.Text
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource

@@ -34,7 +34,7 @@ import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.configuration.FileSharingStatus
 import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.feature.selfdeletingMessages.TeamSelfDeleteTimer
+import com.wire.kalium.logic.feature.selfDeletingMessages.TeamSelfDeleteTimer
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel

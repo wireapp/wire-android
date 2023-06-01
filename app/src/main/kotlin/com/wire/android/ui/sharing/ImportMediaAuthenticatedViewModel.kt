@@ -47,9 +47,9 @@ import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.feature.asset.GetAssetSizeLimitUseCase
 import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationListDetailsUseCase
-import com.wire.kalium.logic.feature.selfdeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
-import com.wire.kalium.logic.feature.selfdeletingMessages.PersistNewSelfDeletionTimerUseCase
-import com.wire.kalium.logic.feature.selfdeletingMessages.SelfDeletionTimer
+import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
+import com.wire.kalium.logic.feature.selfDeletingMessages.PersistNewSelfDeletionTimerUseCase
+import com.wire.kalium.logic.feature.selfDeletingMessages.SelfDeletionTimer
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi

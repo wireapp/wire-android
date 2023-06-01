@@ -50,7 +50,7 @@ import com.wire.android.util.WHITE_SPACE
 import com.wire.android.util.ui.toUIText
 import com.wire.kalium.logic.data.message.mention.MessageMention
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.feature.selfdeletingMessages.SelfDeletionTimer
+import com.wire.kalium.logic.feature.selfDeletingMessages.SelfDeletionTimer
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlin.time.Duration.Companion.ZERO

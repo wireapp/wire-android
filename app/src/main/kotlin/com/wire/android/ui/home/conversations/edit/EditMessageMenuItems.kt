@@ -59,7 +59,7 @@ fun EditMessageMenuItems(
     val localFeatureVisibilityFlags = LocalFeatureVisibilityFlags.current
     val localContext = LocalContext.current
     val isCopyable = message.isTextMessage
-    val isSending = message.isSending
+    val isAvailable = message.isAvailable && !message.isPending
     val isAssetMessage = message.messageContent is UIMessageContent.AssetMessage
             || message.messageContent is UIMessageContent.ImageMessage
             || message.messageContent is UIMessageContent.AudioAssetMessage

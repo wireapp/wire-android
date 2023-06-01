@@ -317,7 +317,8 @@ class MediaGalleryViewModelTest {
                 accessRole = listOf(Conversation.AccessRole.NON_TEAM_MEMBER),
                 creatorId = null,
                 receiptMode = Conversation.ReceiptMode.ENABLED,
-                messageTimer = null
+                messageTimer = null,
+                userMessageTimer = null
             ),
             otherUser = OtherUser(
                 QualifiedID("other-user-id", "domain-id"),

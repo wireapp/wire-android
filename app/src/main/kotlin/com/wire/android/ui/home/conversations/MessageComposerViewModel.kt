@@ -48,7 +48,7 @@ import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogActiveSt
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogHelper
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogsState
 import com.wire.android.ui.home.conversations.model.AssetBundle
-import com.wire.android.ui.home.conversations.model.AttachmentType
+import com.wire.kalium.logic.data.asset.AttachmentType
 import com.wire.android.ui.home.conversations.model.EditMessageBundle
 import com.wire.android.ui.home.conversations.model.SendMessageBundle
 import com.wire.android.ui.home.conversations.model.UIMessage
@@ -70,6 +70,7 @@ import com.wire.kalium.logic.feature.conversation.ObserveConversationInteraction
 import com.wire.kalium.logic.feature.conversation.ObserveSecurityClassificationLabelUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationReadDateUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
+import com.wire.kalium.logic.feature.message.RetryFailedMessageUseCase
 import com.wire.kalium.logic.feature.message.SendEditTextMessageUseCase
 import com.wire.kalium.logic.feature.message.SendKnockUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
@@ -97,19 +98,20 @@ class MessageComposerViewModel @Inject constructor(
     private val sendAssetMessage: ScheduleNewAssetMessageUseCase,
     private val sendTextMessage: SendTextMessageUseCase,
     private val sendEditTextMessage: SendEditTextMessageUseCase,
+    private val retryFailedMessage: RetryFailedMessageUseCase,
     private val deleteMessage: DeleteMessageUseCase,
     private val dispatchers: DispatcherProvider,
     private val isFileSharingEnabled: IsFileSharingEnabledUseCase,
     private val observeConversationInteractionAvailability: ObserveConversationInteractionAvailabilityUseCase,
     private val wireSessionImageLoader: WireSessionImageLoader,
     private val kaliumFileSystem: KaliumFileSystem,
-    private val updateConversationReadDateUseCase: UpdateConversationReadDateUseCase,
+    private val updateConversationReadDate: UpdateConversationReadDateUseCase,
     private val observeSecurityClassificationLabel: ObserveSecurityClassificationLabelUseCase,
     private val contactMapper: ContactMapper,
     private val membersToMention: MembersToMentionUseCase,
     private val getAssetSizeLimit: GetAssetSizeLimitUseCase,
     private val sendKnockUseCase: SendKnockUseCase,
-    private val enqueueMessageSelfDeletionUseCase: EnqueueMessageSelfDeletionUseCase,
+    private val enqueueMessageSelfDeletion: EnqueueMessageSelfDeletionUseCase,
     private val observeSelfDeletingMessages: ObserveSelfDeletionTimerSettingsForConversationUseCase,
     private val persistNewSelfDeletingStatus: PersistNewSelfDeletionTimerUseCase,
     private val pingRinger: PingRinger,
@@ -279,6 +281,12 @@ class MessageComposerViewModel @Inject constructor(
         }
     }
 
+    fun retrySendingMessage(messageId: String) {
+        viewModelScope.launch {
+            retryFailedMessage(messageId = messageId, conversationId = conversationId)
+        }
+    }
+
     private fun initTempWritableVideoUri() {
         viewModelScope.launch {
             tempWritableVideoUri = fileManager.getTempWritableVideoUri(kaliumFileSystem.rootCachePath)
@@ -320,8 +328,8 @@ class MessageComposerViewModel @Inject constructor(
         }
     }
 
-    fun showDeleteMessageDialog(messageId: String, isMyMessage: Boolean) =
-        if (isMyMessage) {
+    fun showDeleteMessageDialog(messageId: String, deleteForEveryone: Boolean) =
+        if (deleteForEveryone) {
             updateDeleteDialogState {
                 it.copy(
                     forEveryone = DeleteMessageDialogActiveState.Visible(
@@ -346,12 +354,12 @@ class MessageComposerViewModel @Inject constructor(
 
     fun updateConversationReadDate(utcISO: String) {
         viewModelScope.launch(dispatchers.io()) {
-            updateConversationReadDateUseCase(conversationId, Instant.parse(utcISO))
+            updateConversationReadDate(conversationId, Instant.parse(utcISO))
         }
     }
 
     fun startSelfDeletion(uiMessage: UIMessage.Regular) {
-        enqueueMessageSelfDeletionUseCase(conversationId, uiMessage.header.messageId)
+        enqueueMessageSelfDeletion(conversationId, uiMessage.header.messageId)
     }
 
     fun updateSelfDeletingMessages(newSelfDeletionTimer: SelfDeletionTimer) = viewModelScope.launch {

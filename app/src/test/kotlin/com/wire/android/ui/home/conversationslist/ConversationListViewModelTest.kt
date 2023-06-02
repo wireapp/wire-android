@@ -50,6 +50,7 @@ import com.wire.kalium.logic.feature.conversation.ClearConversationContentUseCas
 import com.wire.kalium.logic.feature.conversation.ConversationUpdateStatusResult
 import com.wire.kalium.logic.feature.conversation.LeaveConversationUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationListDetailsUseCase
+import com.wire.kalium.logic.feature.conversation.RefreshConversationsWithoutMetadataUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
 import com.wire.kalium.logic.feature.publicuser.RefreshUsersWithoutMetadataUseCase
 import com.wire.kalium.logic.feature.team.DeleteTeamConversationUseCase
@@ -111,6 +112,10 @@ class ConversationListViewModelTest {
     @MockK
     private lateinit var refreshUsersWithoutMetadata: RefreshUsersWithoutMetadataUseCase
 
+    @MockK
+    private lateinit var refreshConversationsWithoutMetadata: RefreshConversationsWithoutMetadataUseCase
+
+
     @BeforeEach
     fun setUp() {
         MockKAnnotations.init(this, relaxUnitFun = true)
@@ -132,6 +137,7 @@ class ConversationListViewModelTest {
                 endCall = endCall,
                 observeEstablishedCalls = observeEstablishedCalls,
                 refreshUsersWithoutMetadata = refreshUsersWithoutMetadata,
+                refreshConversationsWithoutMetadata = refreshConversationsWithoutMetadata,
                 userTypeMapper = UserTypeMapper(),
             )
 

@@ -84,6 +84,7 @@ import com.wire.kalium.logic.feature.message.GetMessageByIdUseCase
 import com.wire.kalium.logic.feature.message.GetNotificationsUseCase
 import com.wire.kalium.logic.feature.message.ObserveMessageReactionsUseCase
 import com.wire.kalium.logic.feature.message.ObserveMessageReceiptsUseCase
+import com.wire.kalium.logic.feature.message.RetryFailedMessageUseCase
 import com.wire.kalium.logic.feature.message.SendEditTextMessageUseCase
 import com.wire.kalium.logic.feature.message.SendKnockUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
@@ -483,6 +484,13 @@ class UseCaseModule {
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
     ): SendEditTextMessageUseCase = coreLogic.getSessionScope(currentAccount).messages.sendEditTextMessage
+
+    @ViewModelScoped
+    @Provides
+    fun provideRetryFailedMessageUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): RetryFailedMessageUseCase = coreLogic.getSessionScope(currentAccount).messages.retryFailedMessage
 
     @ViewModelScoped
     @Provides

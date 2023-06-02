@@ -510,3 +510,7 @@ private fun MessageStatusLabel(messageStatus: MessageStatus) {
         StatusBox(it.asString())
     }
 }
+
+private fun Message.DownloadStatus.isSaved(): Boolean {
+   return this == Message.DownloadStatus.SAVED_EXTERNALLY || this == Message.DownloadStatus.SAVED_INTERNALLY
+}

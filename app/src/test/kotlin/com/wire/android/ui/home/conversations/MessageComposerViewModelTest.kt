@@ -26,9 +26,10 @@ import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogActiveState
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogsState
 import com.wire.android.ui.home.conversations.model.AssetBundle
-import com.wire.android.ui.home.conversations.model.AttachmentType
+import com.wire.kalium.logic.data.asset.AttachmentType
 import com.wire.android.ui.home.conversations.model.UriAsset
 import com.wire.kalium.logic.feature.asset.GetAssetSizeLimitUseCaseImpl.Companion.ASSET_SIZE_DEFAULT_LIMIT_BYTES
+import com.wire.kalium.logic.feature.selfDeletingMessages.SelfDeletionTimer
 import io.mockk.coVerify
 import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -38,6 +39,8 @@ import org.amshove.kluent.internal.assertEquals
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import kotlin.time.DurationUnit
+import kotlin.time.toDuration
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class)
@@ -164,7 +167,7 @@ class MessageComposerViewModelTest {
         viewModel.sendAttachmentMessage(mockedAttachment)
 
         // Then
-        coVerify(exactly = 1) { arrangement.sendAssetMessage.invoke(any(), any(), any(), any(), any(), any(), any(), any()) }
+        coVerify(exactly = 1) { arrangement.sendAssetMessage.invoke(any(), any(), any(), any(), any(), any(), any()) }
     }
 
     @Test
@@ -189,7 +192,7 @@ class MessageComposerViewModelTest {
         viewModel.sendAttachmentMessage(mockedAttachment)
 
         // Then
-        coVerify(exactly = 1) { arrangement.sendAssetMessage.invoke(any(), any(), any(), any(), any(), any(), any(), any()) }
+        coVerify(exactly = 1) { arrangement.sendAssetMessage.invoke(any(), any(), any(), any(), any(), any(), any()) }
     }
 
     @Test
@@ -204,7 +207,7 @@ class MessageComposerViewModelTest {
         // When
         viewModel.sendAttachmentMessage(mockedAttachment)
 
-        coVerify(inverse = true) { arrangement.sendAssetMessage.invoke(any(), any(), any(), any(), any(), any(), any(), any()) }
+        coVerify(inverse = true) { arrangement.sendAssetMessage.invoke(any(), any(), any(), any(), any(), any(), any()) }
     }
 
     @Test
@@ -226,7 +229,7 @@ class MessageComposerViewModelTest {
             viewModel.attachmentPicked(mockedUri)
 
             // Then
-            coVerify(inverse = true) { arrangement.sendAssetMessage.invoke(any(), any(), any(), any(), any(), any(), any(), any()) }
+            coVerify(inverse = true) { arrangement.sendAssetMessage.invoke(any(), any(), any(), any(), any(), any(), any()) }
             assert(viewModel.messageComposerViewState.assetTooLargeDialogState is AssetTooLargeDialogState.Visible)
     }
 
@@ -250,7 +253,7 @@ class MessageComposerViewModelTest {
                 viewModel.attachmentPicked(mockedUri)
 
                 // Then
-                coVerify(inverse = true) { arrangement.sendAssetMessage.invoke(any(), any(), any(), any(), any(), any(), any(), any()) }
+                coVerify(inverse = true) { arrangement.sendAssetMessage.invoke(any(), any(), any(), any(), any(), any(), any()) }
                 assert(viewModel.messageComposerViewState.assetTooLargeDialogState is AssetTooLargeDialogState.Visible)
         }
 
@@ -275,7 +278,7 @@ class MessageComposerViewModelTest {
             viewModel.attachmentPicked(mockedUri)
 
             // Then
-            coVerify(inverse = true) { arrangement.sendAssetMessage.invoke(any(), any(), any(), any(), any(), any(), any(), any()) }
+            coVerify(inverse = true) { arrangement.sendAssetMessage.invoke(any(), any(), any(), any(), any(), any(), any()) }
             coVerify { arrangement.fileManager.saveToExternalMediaStorage(any(), any(), any(), any(), any()) }
             assert(viewModel.messageComposerViewState.assetTooLargeDialogState is AssetTooLargeDialogState.Visible)
         }
@@ -299,7 +302,7 @@ class MessageComposerViewModelTest {
                 viewModel.attachmentPicked(mockedUri)
 
                 // Then
-                coVerify(inverse = true) { arrangement.sendAssetMessage.invoke(any(), any(), any(), any(), any(), any(), any(), any()) }
+                coVerify(inverse = true) { arrangement.sendAssetMessage.invoke(any(), any(), any(), any(), any(), any(), any()) }
                 assertEquals(ConversationSnackbarMessages.ErrorPickingAttachment, awaitItem())
             }
         }
@@ -321,7 +324,7 @@ class MessageComposerViewModelTest {
             viewModel.sendAttachmentMessage(mockedAttachment)
 
             // Then
-            coVerify(exactly = 1) { arrangement.sendAssetMessage.invoke(any(), any(), any(), any(), any(), any(), any(), any()) }
+            coVerify(exactly = 1) { arrangement.sendAssetMessage.invoke(any(), any(), any(), any(), any(), any(), any()) }
             assert(viewModel.messageComposerViewState.assetTooLargeDialogState is AssetTooLargeDialogState.Hidden)
     }
 
@@ -338,5 +341,42 @@ class MessageComposerViewModelTest {
         // Then
         coVerify(exactly = 1) { arrangement.sendKnockUseCase.invoke(any(), any()) }
         verify(exactly = 1) { arrangement.pingRinger.ping(any(), isReceivingPing = false) }
+    }
+
+    @Test
+    fun `given that a user updates the self-deleting message timer, when invoked, then the timer gets successfully updated`() = runTest {
+        // Given
+        val expectedDuration = 1.toDuration(DurationUnit.HOURS)
+        val expectedTimer = SelfDeletionTimer.Enabled(expectedDuration)
+        val (arrangement, viewModel) = MessageComposerViewModelArrangement()
+            .withSuccessfulViewModelInit()
+            .withPersistSelfDeletionStatus()
+            .arrange()
+
+        // When
+        viewModel.updateSelfDeletingMessages(expectedTimer)
+
+        // Then
+        coVerify(exactly = 1) { arrangement.persistSelfDeletionStatus.invoke(arrangement.conversationId, expectedTimer) }
+        assert(viewModel.messageComposerViewState.selfDeletionTimer is SelfDeletionTimer.Enabled)
+        assert(viewModel.messageComposerViewState.selfDeletionTimer.toDuration() == expectedDuration)
+    }
+
+    @Test
+    fun `given a valid observed enforced self-deleting message timer, when invoked, then the timer gets successfully updated`() = runTest {
+        // Given
+        val expectedDuration = 1.toDuration(DurationUnit.DAYS)
+        val expectedTimer = SelfDeletionTimer.Enabled(expectedDuration)
+        val (arrangement, viewModel) = MessageComposerViewModelArrangement()
+            .withSuccessfulViewModelInit()
+            .withObserveSelfDeletingStatus(expectedTimer)
+            .arrange()
+
+        // When
+
+        // Then
+        coVerify(exactly = 1) { arrangement.observeConversationSelfDeletionStatus.invoke(arrangement.conversationId, true) }
+        assert(viewModel.messageComposerViewState.selfDeletionTimer is SelfDeletionTimer.Enabled)
+        assert(viewModel.messageComposerViewState.selfDeletionTimer.toDuration() == expectedDuration)
     }
 }

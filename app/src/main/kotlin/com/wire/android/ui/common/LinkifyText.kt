@@ -25,8 +25,8 @@ import android.text.SpannableString
 import android.text.style.URLSpan
 import android.text.util.Linkify
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.material.LocalTextStyle
-import androidx.compose.material.Text
+import androidx.compose.material3.LocalTextStyle
+import androidx.compose.material3.Text
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -107,7 +107,7 @@ fun LinkifyText(
             }
             if (text is UIText.DynamicString && text.mentions.isNotEmpty()) {
                 text.mentions.forEach {
-                    if (it.length <= 0 || (it.start + it.length) >= textAsString.length) {
+                    if (it.length <= 0 || it.start >= length || it.start + it.length > length) {
                         return@forEach
                     }
                     addStyle(

@@ -33,6 +33,7 @@ object AndroidNdk {
 
 object AndroidClient {
     const val appId = "com.wire.android"
+    const val namespace = appId
     val versionCode = Versionizer().versionCode
     const val versionName = "4.2.0"
     const val testRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -82,10 +83,9 @@ object Libraries {
         const val desugaring = "1.1.5"
         const val workManager = "2.8.1"
         const val fragment = "1.5.6"
-        const val compose = "1.3.1"
+        const val compose = "1.4.1"
         const val composeCompiler = "1.4.6"
-        const val composeMaterial = "1.3.1"
-        const val composeMaterial3 = "1.0.1"
+        const val composeMaterial3 = "1.1.0"
         const val composeActivity = "1.6.1"
         const val composeNavigation = "2.5.3"
         const val accompanist = "0.28.0"
@@ -107,6 +107,7 @@ object Libraries {
         const val ktxDateTime = "0.4.0"
         const val ktxSerialization = "1.3.2"
         const val ktxImmutableCollections = "0.3.5"
+        const val resaca = "2.3.4"
     }
 
     // AndroidX Dependencies
@@ -117,12 +118,13 @@ object Libraries {
     const val fragment                  = "androidx.fragment:fragment:${Versions.fragment}"
     const val composeUi                 = "androidx.compose.ui:ui:${Versions.compose}"
     const val composeFoundation         = "androidx.compose.foundation:foundation:${Versions.compose}"
-    const val composeMaterial           = "androidx.compose.material:material:${Versions.composeMaterial}"
+    const val composeMaterial           = "androidx.compose.material:material:${Versions.compose}"
     const val composeMaterial3          = "androidx.compose.material3:material3:${Versions.composeMaterial3}"
+    const val composeMaterialIcons      = "androidx.compose.material:material-ripple:${Versions.compose}"
+    const val composeMaterialRipple     = "androidx.compose.material:material-icons-extended:${Versions.compose}"
     const val composeTooling            = "androidx.compose.ui:ui-tooling:${Versions.compose}"
     const val composePreview            = "androidx.compose.ui:ui-tooling-preview:${Versions.compose}"
     const val composeActivity           = "androidx.activity:activity-compose:${Versions.composeActivity}"
-    const val composeIcons              = "androidx.compose.material:material-icons-extended:${Versions.compose}"
     const val composeNavigation         = "androidx.navigation:navigation-compose:${Versions.composeNavigation}"
     const val composeConstraintLayout   = "androidx.constraintlayout:constraintlayout-compose:${Versions.composeConstraint}"
     const val composeRuntimeLiveData    = "androidx.compose.runtime:runtime-livedata:${Versions.compose}"
@@ -148,6 +150,7 @@ object Libraries {
     const val coilCompose               = "io.coil-kt:coil-compose:${Versions.coil}"
     const val dataDog                   = "com.datadoghq:dd-sdk-android:${Versions.dataDog}"
     const val dataDogCompose            = "com.datadoghq:dd-sdk-android-compose:${Versions.dataDog}"
+    const val resaca                    = "com.github.sebaslogen.resaca:resaca:${Versions.resaca}"
 
     object Hilt {
         const val android = "com.google.dagger:hilt-android:${Versions.hilt}"
@@ -156,6 +159,7 @@ object Libraries {
         const val navigationCompose = "androidx.hilt:hilt-navigation-compose:${Versions.composeHiltNavigation}"
         const val hiltTest = "com.google.dagger:hilt-android-testing:${Versions.hilt}"
         const val hiltWork = "androidx.hilt:hilt-work:${Versions.hiltWork}"
+        const val resaca = "com.github.sebaslogen.resaca:resacahilt:${Versions.resaca}"
     }
 
     object Lifecycle {

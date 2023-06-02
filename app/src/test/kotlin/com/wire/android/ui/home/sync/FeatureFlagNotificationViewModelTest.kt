@@ -11,9 +11,11 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.AccountInfo
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
+import com.wire.kalium.logic.feature.user.MarkSelfDeletionStatusAsNotifiedUseCase
 import com.wire.kalium.logic.feature.user.guestroomlink.MarkGuestLinkFeatureFlagAsNotChangedUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.verify
@@ -64,7 +66,7 @@ class FeatureFlagNotificationViewModelTest {
     fun givenLoggedInUser_whenFileSharingRestrictedForTeam_thenSharingRestricted() = runTest(mainThreadSurrogate) {
         val (_, viewModel) = Arrangement()
             .withCurrentSessions(CurrentSessionResult.Success(AccountInfo.Valid(TestUser.USER_ID)))
-            .withFileSharingStatus(flowOf(FileSharingStatus(false, false)))
+            .withFileSharingStatus(flowOf(FileSharingStatus(FileSharingStatus.Value.Disabled, false)))
             .arrange()
         viewModel.initialSync()
         advanceUntilIdle()
@@ -97,7 +99,7 @@ class FeatureFlagNotificationViewModelTest {
     fun givenLoggedInUser_whenFileSharingAllowed_thenSharingNotRestricted() = runTest(mainThreadSurrogate) {
         val (_, viewModel) = Arrangement()
             .withCurrentSessions(CurrentSessionResult.Success(AccountInfo.Valid(TestUser.USER_ID)))
-            .withFileSharingStatus(flowOf(FileSharingStatus(true, false)))
+            .withFileSharingStatus(flowOf(FileSharingStatus(FileSharingStatus.Value.EnabledAll, false)))
             .arrange()
         viewModel.initialSync()
         advanceUntilIdle()
@@ -108,12 +110,27 @@ class FeatureFlagNotificationViewModelTest {
         )
     }
 
+    @Test
+    fun givenSelfDeletionDialogIsShown_whenDismissingIt_thenInvokeMarkSelfDeletionStatusAsNotified() = runTest(mainThreadSurrogate) {
+        val (arrangement, viewModel) = Arrangement()
+            .withCurrentSessions(CurrentSessionResult.Success(AccountInfo.Valid(UserId("value", "domain"))))
+            .arrange()
+        viewModel.initialSync()
+        advanceUntilIdle()
+        viewModel.dismissSelfDeletingMessagesDialog()
+        advanceUntilIdle()
+
+        coVerify(exactly = 1) { arrangement.markSelfDeletingStatusAsNotified() }
+        assertEquals(false, viewModel.featureFlagState.shouldShowSelfDeletingMessagesDialog)
+    }
+
     private inner class Arrangement {
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
             coEvery { navigationManager.navigateBack(any()) } returns Unit
             coEvery { currentSession() } returns CurrentSessionResult.Success(AccountInfo.Valid(TestUser.USER_ID))
             coEvery { coreLogic.getSessionScope(any()).observeSyncState() } returns flowOf(SyncState.Live)
+            coEvery { coreLogic.getSessionScope(any()).observeTeamSettingsSelfDeletionStatus() } returns flowOf()
         }
 
         @MockK
@@ -126,6 +143,9 @@ class FeatureFlagNotificationViewModelTest {
         lateinit var markGuestLinkFeatureFlagAsNotChanged: MarkGuestLinkFeatureFlagAsNotChangedUseCase
 
         @MockK
+        lateinit var markSelfDeletingStatusAsNotified: MarkSelfDeletionStatusAsNotifiedUseCase
+
+        @MockK
         lateinit var navigationManager: NavigationManager
 
         val viewModel: FeatureFlagNotificationViewModel = FeatureFlagNotificationViewModel(
@@ -135,6 +155,7 @@ class FeatureFlagNotificationViewModelTest {
 
         init {
             every { coreLogic.getSessionScope(any()).markGuestLinkFeatureFlagAsNotChanged } returns markGuestLinkFeatureFlagAsNotChanged
+            every { coreLogic.getSessionScope(any()).markSelfDeletingMessagesAsNotified } returns markSelfDeletingStatusAsNotified
             coEvery { coreLogic.getSessionScope(any()).observeFileSharingStatus.invoke() } returns flowOf()
             coEvery { coreLogic.getSessionScope(any()).observeGuestRoomLinkFeatureFlag.invoke() } returns flowOf()
         }

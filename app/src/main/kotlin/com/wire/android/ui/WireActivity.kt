@@ -28,7 +28,7 @@ import androidx.activity.viewModels
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.Column
-import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
@@ -65,6 +65,7 @@ import com.wire.android.ui.common.topappbar.CommonTopAppBarViewModel
 import com.wire.android.ui.joinConversation.JoinConversationViaCodeState
 import com.wire.android.ui.joinConversation.JoinConversationViaDeepLinkDialog
 import com.wire.android.ui.joinConversation.JoinConversationViaInviteLinkError
+import com.wire.android.ui.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.userprofile.self.MaxAccountReachedDialog
 import com.wire.android.util.CurrentScreenManager
@@ -80,10 +81,10 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.onSubscription
 import javax.inject.Inject
 
 @OptIn(
-    ExperimentalMaterial3Api::class,
     ExperimentalComposeUiApi::class,
     ExperimentalCoroutinesApi::class
 )
@@ -130,10 +131,13 @@ class WireActivity : AppCompatActivity() {
         onComplete: () -> Unit
     ) {
         setContent {
+            val snackbarHostState = remember { SnackbarHostState() }
+
             CompositionLocalProvider(
                 LocalFeatureVisibilityFlags provides FeatureVisibilityFlags,
                 LocalSyncStateObserver provides SyncStateObserver(viewModel.observeSyncFlowState),
-                LocalCustomUiConfigurationProvider provides CustomUiConfigurationProvider
+                LocalCustomUiConfigurationProvider provides CustomUiConfigurationProvider,
+                LocalSnackbarHostState provides snackbarHostState
             ) {
                 WireTheme {
                     Column {
@@ -161,27 +165,29 @@ class WireActivity : AppCompatActivity() {
         val scope = rememberCoroutineScope()
         NavigationGraph(
             navController = navController,
-            startDestination = startDestination,
-            onComplete = onComplete
+            startDestination = startDestination
         )
         // This setup needs to be done after the navigation graph is created, because building the graph takes some time,
         // and if any NavigationCommand is executed before the graph is fully built, it will cause a NullPointerException.
-        setUpNavigation(navController, scope)
+        setUpNavigation(navController, onComplete, scope)
     }
 
     @Composable
     private fun setUpNavigation(
         navController: NavHostController,
+        onComplete: () -> Unit,
         scope: CoroutineScope
     ) {
         val currentKeyboardController by rememberUpdatedState(LocalSoftwareKeyboardController.current)
         val currentNavController by rememberUpdatedState(navController)
         LaunchedEffect(scope) {
-            navigationManager.navigateState.onEach { command ->
-                if (command == null) return@onEach
-                currentKeyboardController?.hide()
-                currentNavController.navigateToItem(command)
-            }.launchIn(scope)
+            navigationManager.navigateState
+                .onSubscription { onComplete() }
+                .onEach { command ->
+                    if (command == null) return@onEach
+                    currentKeyboardController?.hide()
+                    currentNavController.navigateToItem(command)
+                }.launchIn(scope)
 
             navigationManager.navigateBack.onEach {
                 if (!currentNavController.popWithArguments(it)) finish()
@@ -190,9 +196,9 @@ class WireActivity : AppCompatActivity() {
 
         DisposableEffect(navController) {
             val updateScreenSettingsListener = NavController.OnDestinationChangedListener { controller, _, _ ->
-                    currentKeyboardController?.hide()
-                    updateScreenSettings(controller)
-                }
+                currentKeyboardController?.hide()
+                updateScreenSettings(controller)
+            }
             navController.addOnDestinationChangedListener(updateScreenSettingsListener)
             navController.addOnDestinationChangedListener(currentScreenManager)
 
@@ -396,6 +402,7 @@ class WireActivity : AppCompatActivity() {
         super.onSaveInstanceState(outState)
     }
 
+    @Suppress("ComplexCondition")
     private fun handleDeepLink(
         intent: Intent?,
         savedInstanceState: Bundle? = null
@@ -403,11 +410,13 @@ class WireActivity : AppCompatActivity() {
         if (intent == null
             || intent.flags and Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY != 0
             || savedInstanceState?.getBoolean(HANDLED_DEEPLINK_FLAG, false) == true
+            || intent.getBooleanExtra(HANDLED_DEEPLINK_FLAG, false)
         ) {
             return
+        } else {
+            viewModel.handleDeepLink(intent)
+            intent.putExtra(HANDLED_DEEPLINK_FLAG, true)
         }
-
-        viewModel.handleDeepLink(intent)
     }
 
     companion object {

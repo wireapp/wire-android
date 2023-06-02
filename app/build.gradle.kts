@@ -48,6 +48,7 @@ repositories {
 
 android {
     compileSdk = AndroidSdk.compile
+    namespace = AndroidClient.namespace
 
     defaultConfig {
         applicationId = AndroidClient.appId
@@ -157,10 +158,14 @@ dependencies {
     // Compose
     implementation(Libraries.composeUi)
     implementation(Libraries.composeFoundation)
-    implementation(Libraries.composeMaterial3)
+    // we still cannot get rid of material2 because swipeable is still missing - https://issuetracker.google.com/issues/229839039
+    // https://developer.android.com/jetpack/compose/designsystems/material2-material3#components-and
     implementation(Libraries.composeMaterial)
+    implementation(Libraries.composeMaterial3)
+    // the only libraries with material2 packages that can be used with material3 are icons and ripple
+    implementation(Libraries.composeMaterialIcons)
+    implementation(Libraries.composeMaterialRipple)
     implementation(Libraries.composePreview)
-    implementation(Libraries.composeIcons)
     implementation(Libraries.composeActivity)
     implementation(Libraries.composeNavigation)
     implementation(Libraries.composeConstraintLayout)
@@ -182,6 +187,10 @@ dependencies {
     implementation(Libraries.Hilt.android)
     implementation(Libraries.Hilt.navigationCompose)
     kapt(Libraries.Hilt.compiler)
+
+    // smaller view models
+    implementation (Libraries.resaca)
+    implementation (Libraries.Hilt.resaca)
 
     // firebase
     implementation(platform(Libraries.Firebase.firebaseBOM))

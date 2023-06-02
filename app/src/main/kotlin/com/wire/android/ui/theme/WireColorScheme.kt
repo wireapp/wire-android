@@ -98,7 +98,7 @@ data class WireColorScheme(
     val classifiedBannerBackgroundColor: Color,
     val classifiedBannerForegroundColor: Color,
     val unclassifiedBannerBackgroundColor: Color,
-    val unclassifiedBannerForegroundColor: Color
+    val unclassifiedBannerForegroundColor: Color,
 ) {
     fun toColorScheme(): ColorScheme = ColorScheme(
         primary = primary,
@@ -227,7 +227,7 @@ private val LightWireColorScheme = WireColorScheme(
     classifiedBannerBackgroundColor = WireColorPalette.LightGreen50,
     classifiedBannerForegroundColor = WireColorPalette.LightGreen500,
     unclassifiedBannerBackgroundColor = WireColorPalette.LightRed600,
-    unclassifiedBannerForegroundColor = Color.White
+    unclassifiedBannerForegroundColor = Color.White,
 )
 
 // Dark WireColorScheme
@@ -252,9 +252,9 @@ private val DarkWireColorScheme = WireColorScheme(
     secondaryButtonEnabled = WireColorPalette.Gray90, onSecondaryButtonEnabled = Color.White,
     secondaryButtonEnabledOutline = WireColorPalette.Gray100,
     secondaryButtonDisabled = WireColorPalette.Gray95, onSecondaryButtonDisabled = WireColorPalette.Gray70,
-    secondaryButtonDisabledOutline = WireColorPalette.Gray90,
+    secondaryButtonDisabledOutline = WireColorPalette.Gray80,
     secondaryButtonSelected = WireColorPalette.DarkBlue800, onSecondaryButtonSelected = Color.White,
-    secondaryButtonSelectedOutline = WireColorPalette.DarkBlue700,
+    secondaryButtonSelectedOutline = WireColorPalette.DarkBlue600,
     secondaryButtonRipple = Color.White,
     tertiaryButtonEnabled = Color.Transparent, onTertiaryButtonEnabled = Color.White,
     tertiaryButtonDisabled = Color.Transparent, onTertiaryButtonDisabled = WireColorPalette.Gray60,
@@ -330,7 +330,7 @@ private val DarkWireColorScheme = WireColorScheme(
     classifiedBannerBackgroundColor = WireColorPalette.DarkGreen900,
     classifiedBannerForegroundColor = WireColorPalette.DarkGreen500,
     unclassifiedBannerBackgroundColor = WireColorPalette.DarkRed500,
-    unclassifiedBannerForegroundColor = Color.Black
+    unclassifiedBannerForegroundColor = Color.Black,
 )
 
 @PackagePrivate

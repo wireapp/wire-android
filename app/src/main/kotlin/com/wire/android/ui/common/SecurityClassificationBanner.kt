@@ -20,7 +20,6 @@
 
 package com.wire.android.ui.common
 
-import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -28,9 +27,9 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.Divider
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
+import androidx.compose.material3.Divider
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -40,10 +39,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
+import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
 
 @Composable
@@ -53,6 +53,7 @@ fun SecurityClassificationBanner(
 ) {
     if (securityClassificationType != SecurityClassificationType.NONE) {
         Column {
+            VerticalSpace.x8()
             Divider(color = getDividerColorFor(securityClassificationType))
             Row(
                 horizontalArrangement = Arrangement.Center,
@@ -124,15 +125,7 @@ private fun getIconFor(securityClassificationType: SecurityClassificationType): 
     }
 }
 
-@Preview(
-    name = "Classified Indication - Light Mode",
-    showBackground = true
-)
-@Preview(
-    name = "Classified Indication - Dark Mode",
-    uiMode = Configuration.UI_MODE_NIGHT_YES,
-    showBackground = true
-)
+@PreviewMultipleThemes
 @Composable
 fun PreviewClassifiedIndicator() {
     WireTheme {

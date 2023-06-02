@@ -21,10 +21,7 @@
 package com.wire.android.ui.home.conversations
 
 import android.content.Context
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.ModalBottomSheetState
-import androidx.compose.material.ModalBottomSheetValue
-import androidx.compose.material.rememberModalBottomSheetState
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -37,15 +34,17 @@ import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.AnnotatedString
 import com.wire.android.R
+import com.wire.android.ui.common.bottomsheet.WireModalSheetState
+import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.home.conversations.model.UIMessage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun rememberConversationScreenState(
     snackBarHostState: SnackbarHostState = remember { SnackbarHostState() },
-    bottomSheetState: ModalBottomSheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden),
+    bottomSheetState: WireModalSheetState = rememberWireModalSheetState(),
     coroutineScope: CoroutineScope = rememberCoroutineScope()
 ): ConversationScreenState {
     val context = LocalContext.current
@@ -63,26 +62,24 @@ fun rememberConversationScreenState(
 }
 
 // todo: pass directly the strings, to avoid passing the context
-@OptIn(ExperimentalMaterialApi::class)
 class ConversationScreenState(
     val context: Context,
     val clipboardManager: ClipboardManager,
     val snackBarHostState: SnackbarHostState,
-    val modalBottomSheetState: ModalBottomSheetState,
+    val modalBottomSheetState: WireModalSheetState,
     val coroutineScope: CoroutineScope
 ) {
 
-    var selectedMessage by mutableStateOf<UIMessage.Regular?>(null)
+    var bottomSheetMenuType: BottomSheetMenuType by mutableStateOf(BottomSheetMenuType.None)
 
     fun showEditContextMenu(message: UIMessage.Regular) {
-        selectedMessage = message
-
-        coroutineScope.launch { modalBottomSheetState.animateTo(ModalBottomSheetValue.Expanded) }
+        bottomSheetMenuType = BottomSheetMenuType.Edit(message)
+        coroutineScope.launch { modalBottomSheetState.show() }
     }
 
-    fun hideEditContextMenu(onComplete: () -> Unit = {}) {
+    fun hideContextMenu(onComplete: () -> Unit = {}) {
         coroutineScope.launch {
-            modalBottomSheetState.animateTo(ModalBottomSheetValue.Hidden)
+            modalBottomSheetState.hide()
             onComplete()
         }
     }
@@ -90,8 +87,21 @@ class ConversationScreenState(
     fun copyMessage(text: String) {
         clipboardManager.setText(AnnotatedString(text))
         coroutineScope.launch {
-            modalBottomSheetState.animateTo(ModalBottomSheetValue.Hidden)
+            modalBottomSheetState.hide()
             snackBarHostState.showSnackbar(context.getString(R.string.info_message_copied))
         }
+    }
+
+    fun showSelfDeletionContextMenu() {
+        bottomSheetMenuType = BottomSheetMenuType.SelfDeletion
+        coroutineScope.launch { modalBottomSheetState.show() }
+    }
+
+    sealed class BottomSheetMenuType {
+        class Edit(val selectedMessage: UIMessage.Regular) : BottomSheetMenuType()
+
+        object SelfDeletion : BottomSheetMenuType()
+
+        object None : BottomSheetMenuType()
     }
 }

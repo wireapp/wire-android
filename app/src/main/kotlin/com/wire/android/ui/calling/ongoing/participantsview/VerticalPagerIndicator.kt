@@ -26,22 +26,24 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.ContentAlpha
-import androidx.compose.material.LocalContentAlpha
-import androidx.compose.material.LocalContentColor
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.PagerState
+import com.google.accompanist.pager.rememberPagerState
+import com.wire.android.ui.common.colorsScheme
+import com.wire.android.ui.common.dimensions
 
 /**
  * Updating VerticalPagerIndicator from com.google.accompanist.pager to have the ability to add a border to the pager indicator
@@ -51,9 +53,9 @@ import com.google.accompanist.pager.PagerState
 fun VerticalPagerIndicator(
     pagerState: PagerState,
     modifier: Modifier = Modifier,
-    activeColor: Color = LocalContentColor.current.copy(alpha = LocalContentAlpha.current),
-    inactiveColor: Color = activeColor.copy(ContentAlpha.disabled),
-    inactiveBorderColor: Color = Color.White,
+    activeColor: Color = colorsScheme().primary,
+    inactiveColor: Color = colorsScheme().surface,
+    inactiveBorderColor: Color = colorsScheme().uncheckedColor,
     inactiveBorderWidth: Dp = 1.dp,
     indicatorHeight: Dp = 8.dp,
     indicatorWidth: Dp = indicatorHeight,
@@ -104,4 +106,14 @@ fun VerticalPagerIndicator(
                 )
         )
     }
+}
+
+@OptIn(ExperimentalPagerApi::class)
+@Preview
+@Composable
+fun PreviewVerticalPagerIndicator() {
+    VerticalPagerIndicator(
+        modifier = Modifier.padding(dimensions().spacing4x),
+        pagerState = rememberPagerState()
+    )
 }

@@ -24,12 +24,10 @@ import android.content.res.Resources
 import androidx.annotation.PluralsRes
 import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import com.wire.kalium.logic.data.message.mention.MessageMention
 
-@OptIn(ExperimentalComposeUiApi::class)
 sealed class UIText {
     data class DynamicString(
         val value: String,
@@ -60,6 +58,51 @@ sealed class UIText {
         is DynamicString -> value
         is StringResource -> resources.getString(resId, *formatArgs)
         is PluralResource -> resources.getQuantityString(resId, count, *formatArgs)
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || javaClass != other.javaClass) return false
+
+        return when (this) {
+            is DynamicString -> {
+                other as DynamicString
+                value == other.value && mentions == other.mentions
+            }
+
+            is StringResource -> {
+                other as StringResource
+                resId == other.resId && formatArgs.contentEquals(other.formatArgs)
+            }
+
+            is PluralResource -> {
+                other as PluralResource
+                resId == other.resId && count == other.count &&
+                        formatArgs.contentEquals(other.formatArgs)
+            }
+        }
+    }
+
+    override fun hashCode(): Int {
+        var result = javaClass.hashCode()
+        when (this) {
+            is DynamicString -> {
+                result += value.hashCode()
+                result += mentions.hashCode()
+            }
+
+            is StringResource -> {
+                result += resId
+                result += formatArgs.contentHashCode()
+            }
+
+            is PluralResource -> {
+                result += resId
+                result += count
+                result += formatArgs.contentHashCode()
+            }
+        }
+        return result
     }
 }
 

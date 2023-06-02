@@ -22,9 +22,13 @@ package com.wire.android.mapper
 
 import com.wire.android.model.ImageAsset
 import com.wire.android.model.UserAvatarData
+import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.ui.userprofile.common.UsernameMapper.mapUserLabel
+import com.wire.android.util.EMPTY
 import com.wire.android.util.ui.WireSessionImageLoader
+import com.wire.kalium.logic.data.service.ServiceDetails
+import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.OtherUser
 import javax.inject.Inject
 
@@ -47,6 +51,22 @@ class ContactMapper
                 ),
                 membership = userTypeMapper.toMembership(userType),
                 connectionState = otherUser.connectionStatus
+            )
+        }
+    }
+
+    fun fromService(service: ServiceDetails): Contact {
+        with(service) {
+            return Contact(
+                id = id.id,
+                domain = id.provider,
+                name = name,
+                label = String.EMPTY,
+                avatarData = UserAvatarData(
+                    asset = previewAssetId?.let { ImageAsset.UserAvatarAsset(wireSessionImageLoader, it) }
+                ),
+                membership = Membership.Service,
+                connectionState = ConnectionState.ACCEPTED
             )
         }
     }

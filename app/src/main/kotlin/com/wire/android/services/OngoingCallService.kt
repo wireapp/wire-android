@@ -64,6 +64,11 @@ class OngoingCallService : Service() {
         CoroutineScope(SupervisorJob() + dispatcherProvider.default())
     }
 
+    override fun onCreate() {
+        super.onCreate()
+        generatePlaceholderForegroundNotification()
+    }
+
     override fun onBind(intent: Intent?): IBinder? {
         return null
     }
@@ -104,6 +109,12 @@ class OngoingCallService : Service() {
     private fun generateForegroundNotification(callName: String, conversationId: String, userId: UserId) {
         appLogger.i("generating foregroundNotification for OngoingCallService..")
         val notification: Notification = callNotificationManager.getOngoingCallNotification(callName, conversationId, userId)
+        startForeground(CALL_ONGOING_NOTIFICATION_ID, notification)
+    }
+
+    private fun generatePlaceholderForegroundNotification() {
+        appLogger.i("generating foregroundNotification placeholder for OngoingCallService..")
+        val notification: Notification = callNotificationManager.getOngoingCallPlaceholderNotification()
         startForeground(CALL_ONGOING_NOTIFICATION_ID, notification)
     }
 

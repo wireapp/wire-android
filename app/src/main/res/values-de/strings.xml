@@ -27,6 +27,7 @@
     <string name="label_cancel">Abbrechen</string>
     <string name="label_confirm">Bestätigen</string>
     <string name="label_continue">Weiter</string>
+    <string name="label_apply">Anwenden</string>
     <string name="label_save">Speichern</string>
     <string name="label_get_started">Loslegen</string>
     <string name="label_remove">Entfernen</string>
@@ -142,6 +143,7 @@
     <string name="content_description_calling_call_unmuted">Call Unmuted</string>
     <string name="content_description_calling_call_paused_camera">Paused Camera</string>
     <string name="content_description_more_emojis">More emojis</string>
+    <string name="content_description_self_deletion_selector_button">Toggle self deletion mode, button</string>
     <!-- Non translatable strings-->
     <!-- Navigation -->
     <string name="vault_screen_title">Tresor</string>
@@ -375,6 +377,8 @@
     <string name="conversation_participant_you_label">(Sie)</string>
     <string name="conversation_details_is_classified">SICHERHEITSNIVEAU: VS-NfD</string>
     <string name="conversation_details_is_not_classified">SICHERHEITSNIVEAU: NICHT EINGESTUFT</string>
+    <string name="conversation_options_self_deleting_messages_label">Selbstlöschende Nachrichten</string>
+    <string name="conversation_options_self_deleting_messages_description">Wenn diese Option aktiviert ist, verschwinden alle Nachrichten in dieser Gruppe nach einer bestimmten Zeit.</string>
     <string name="conversation_options_guests_label">Gäste</string>
     <string name="conversation_details_guest_description">Wenn diese Option aktiviert ist, können Personen außerhalb des Teams an dieser Unterhaltung teilnehmen</string>
     <string name="conversation_options_guest_description">Aktivieren Sie diese Option, um die Unterhaltung für Personen außerhalb Ihres Teams zu öffnen – auch wenn diese Wire nicht nutzen.</string>
@@ -521,6 +525,12 @@
     <string name="label_system_message_new_conversation_receipt_mode">Lesebestätigungen sind %1$s</string>
     <string name="label_system_message_read_receipt_changed_by_self">%1$s haben Lesebestätigungen für alle %2$sgeschaltet</string>
     <string name="label_system_message_read_receipt_changed_by_other">%1$s hat Lesebestätigungen für alle %2$sgeschaltet</string>
+    <string name="label_system_message_conversation_message_timer_activated_by_self">%1$s haben selbstlöschende Nachrichten für alle auf %2$s gestellt</string>
+    <string name="label_system_message_conversation_message_timer_activated_by_other">%1$s hat selbstlöschende Nachrichten für alle auf %2$s gestellt</string>
+    <string name="label_system_message_activated">aktiviert</string>
+    <string name="label_system_message_conversation_message_timer_deactivated_by_self">%1$s haben selbstlöschende Nachrichten für alle **ausgeschaltet**</string>
+    <string name="label_system_message_conversation_message_timer_deactivated_by_other">%1$s hat selbstlöschende Nachrichten für alle **ausgeschaltet**</string>
+    <string name="label_system_message_deactivated">deaktiviert</string>
     <string name="label_system_message_conversation_history_lost">Sie haben das Gerät eine Weile nicht benutzt. Einige Nachrichten werden hier eventuell nicht angezeigt.</string>
     <string name="label_system_message_receipt_mode_on">ein</string>
     <string name="label_system_message_receipt_mode_off">aus</string>
@@ -684,6 +694,8 @@
     <string name="calling_ongoing_call_start_anyway">Trotzdem anrufen</string>
     <string name="calling_ongoing_call_join_message_alert">In einer anderen Unterhaltung ist ein Anruf aktiv.\nDiesen Anruf anzunehmen, beendet den anderen.</string>
     <string name="calling_ongoing_call_join_anyway">Trotzdem beitreten</string>
+    <string name="calling_ongoing_double_tap_for_full_screen">Für Vollbildmodus auf eine Kachel doppeltippen</string>
+    <string name="calling_ongoing_double_tap_to_go_back">Zum Zurückgehen doppeltippen</string>
     <string name="calling_feature_unavailable_title_alert">Funktion nicht verfügbar</string>
     <string name="calling_feature_unavailable_message_alert">Die Option, eine Telefonkonferenz zu starten, ist nur in der kostenpflichtigen Version verfügbar.</string>
     <!-- Connectivity Status Bar -->
@@ -739,6 +751,15 @@
     <string name="allow_guest_switch_description">Öffnen Sie diese Unterhaltung für Personen außerhalb Ihres Teams. Diese Einstellung kann später jederzeit geändert werden.</string>
     <string name="allow_services">Dienste zulassen</string>
     <string name="allow_services_description">Öffnen Sie diese Unterhaltung für Dienste. Diese Einstellung kann später jederzeit geändert werden.</string>
+    <string name="service_details_label">Dienst</string>
+    <string name="service_details_add_service_label">Zur Gruppe hinzufügen</string>
+    <string name="service_details_remove_service_label">Aus Gruppe entfernen</string>
+    <string name="service_remove_success">Dienst aus Gruppe entfernt</string>
+    <string name="service_remove_error">Dienst kann nicht aus Gruppe entfernt werden</string>
+    <string name="service_add_success">Dienst zur Gruppe hinzugefügt</string>
+    <string name="service_add_error">Dienst kann nicht zur Gruppe hinzugefügt werden</string>
+    <string name="service_no_information_available_title">Keine Informationen verfügbar</string>
+    <string name="service_no_information_available_subtitle">Versuchen Sie es erneut oder wenden Sie sich an Ihren Team-Admin</string>
     <string name="read_receipts">Lesebestätigungen</string>
     <string name="read_receipts_description">Wenn diese Option aktiviert ist, können Sender sehen, wenn ihre Nachrichten gelesen werden.</string>
     <string name="disable_guests_dialog_title">Gäste nicht zulassen?</string>
@@ -806,7 +827,7 @@
     <string name="label_enable_logging">Protokollierung aktivieren</string>
     <string name="label_proteus_option_title">Proteus</string>
     <string name="label_enable_encrypted_proteus_storage">Verschlüsselte Proteus-Speicherung aktivieren</string>
-    <string name="label_debug_title">Fehlerbehebung</string>
+    <string name="label_debug_title">Debug Settings</string>
     <string name="label_client_option_title">Client-ID</string>
     <string name="label_device_id">Geräte-ID: %1$s</string>
     <string name="label_code_commit_id">Commit-Hash: %1$s</string>
@@ -893,6 +914,11 @@
     <string name="join_conversation_via_deeplink_error_link_expired">Der Link zu dieser Gruppenunterhaltung ist abgelaufen oder nicht mehr gültig.</string>
     <string name="join_conversation_via_deeplink_error_max_number_of_participent">Die maximale Teilnehmeranzahl in dieser Unterhaltung wurde erreicht.</string>
     <string name="join_conversation_via_deeplink_error_general">Aufgrund eines Fehlers konnten Sie nicht zur Gruppenunterhaltung hinzugefügt werden.</string>
+    <!-- edit self-deleting messages -->
+    <string name="self_deleting_messages_title">Selbstlöschende Nachrichten</string>
+    <string name="self_deleting_messages_option">Löschen von Nachrichten erzwingen</string>
+    <string name="self_deleting_messages_option_description">Wenn diese Option aktiviert ist, verschwinden alle Nachrichten in dieser Gruppe nach einer bestimmten Zeit. Dies gilt für alle Teilnehmer der Gruppe.</string>
+    <string name="self_deleting_messages_folder_timer">Timer</string>
     <!-- guest room link -->
     <string name="folder_label_guest_link">Gäste-Link</string>
     <string name="guest_link_description">Laden Sie andere mit einem Link zu dieser Unterhaltung ein. Jeder kann mit dem Link an der Unterhaltung teilnehmen – auch ohne Wire.</string>
@@ -927,8 +953,6 @@
     <string name="label_fingerprint_description">Falls die Fingerabdrücke nicht übereinstimmen, setzen Sie die Session zurück, um neue Schlüssel auf beiden Seiten zu erstellen.</string>
     <string name="label_self_fingerprint_description">Teilen Sie diesen Schlüssel-Fingerabdruck mit anderen Teilnehmern einer Unterhaltung, damit diese ihn überprüfen und sicherstellen können, dass die Unterhaltung sicher ist.</string>
     <string name="unknown_user_name">unbekannt</string>
-    <string name="self_deleting_message_time_left">Selbstlöschende Nachricht • %1$s</string>
-    <string name="self_deleting_message_label">Selbstlöschende Nachricht</string>
     <string name="device_name_unknown">Unbekanntes Gerät</string>
     <string name="create_account_email_title">Ihre E-Mail-Adresse</string>
     <string name="settings_myaccount_email_description">Ihre E-Mail-Adresse ist Teil Ihrer Anmeldedaten für dieses Benutzerkonto. Sie kann für Ihre Kontakte sichtbar sein.</string>
@@ -938,8 +962,9 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="settings_myaccount_email_verification_email_sent">Wir haben Ihnen eine Bestätigungsmail an Ihre E-Mail-Adresse %1$s geschickt.\n\nIhre aktuelle E-Mail-Adresse wird erst geändert, wenn Ihre neue Adresse verifiziert ist. Überprüfen Sie Ihren Posteingang und folgen Sie den Anweisungen.</string>
     <string name="label_resend_verification_email">Bestätigungsmail erneut senden</string>
     <string name="settings_myaccount_email_generic_error">Ein Fehler ist aufgetreten, bitte erneut versuchen.</string>
-    <string name="settings_myaccount_handle_description">Your username helps others to find you in Wire and connect with you. It is unique in Wire.</string>
-    <string name="create_account_handle_title">Your User Name</string>
+    <string name="settings_myaccount_handle_description">Ihr Benutzername hilft anderen, Sie in Wire zu finden und sich mit Ihnen zu verbinden. Er ist einzigartig in Wire.</string>
+    <string name="create_account_handle_title">Ihr Benutzername</string>
+    <!-- Asset limits error messages -->
     <string name="title_video_could_not_be_sent">Video konnte nicht gesendet werden</string>
     <string name="title_image_could_not_be_sent">Bild konnte nicht gesendet werden</string>
     <string name="title_file_could_not_be_sent">Datei konnte nicht gesendet werden</string>
@@ -947,7 +972,15 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="label_shared_image_too_large">Sie können Bilder bis zu %d MB senden.</string>
     <string name="label_shared_file_too_large">Sie können Dateien bis zu %d MB senden.</string>
     <string name="label_file_saved_to_device">Datei wurde auf Ihrem Gerät gespeichert.</string>
-    <!-- Expirable messages -->
+    <!-- Expiring messages -->
+    <string name="self_deleting_message_time_left">Selbstlöschende Nachricht • %1$s</string>
+    <string name="self_deleting_message_label">Selbstlöschende Nachricht</string>
+    <string name="self_deleting_messages_team_setting_disabled">Selbstlöschende Nachrichten sind deaktiviert.</string>
+    <string name="self_deleting_messages_team_setting_enabled">Selbstlöschende Nachrichten sind aktiviert. Sie können einen Timer setzen, bevor Sie eine Nachricht schreiben.</string>
+    <string name="self_deleting_messages_team_setting_enabled_enforced_timeout">Selbstlöschende Nachrichten sind ab jetzt verbindlich. Neue Nachrichten werden nach %1$s gelöscht.</string>
+    <string name="automatically_delete_message_after">Nachrichten automatisch löschen nach:</string>
+    <string name="label_information_waiting_for_recipient_timer_to_expire_group">Nachdem eine Person Ihre Nachricht gesehen hat und deren Timer abgelaufen ist, verschwindet diese Notiz.</string>
+    <string name="label_information_waiting_for_recipient_timer_to_expire_one_to_one">Nachdem %1$s Ihre Nachricht gesehen hat und der Timer abgelaufen ist, verschwindet diese Notiz.</string>
     <plurals name="weeks_left">
         <item quantity="one">Noch 1 Woche</item>
         <item quantity="other">Noch %1$d Wochen</item>
@@ -968,4 +1001,34 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
         <item quantity="one">Noch 1 Sekunde</item>
         <item quantity="other">Noch %1$d Sekunden</item>
     </plurals>
+    <plurals name="weeks_long_label">
+        <item quantity="one">1 Woche</item>
+        <item quantity="other">%1$d Wochen</item>
+    </plurals>
+    <plurals name="days_long_label">
+        <item quantity="one">1 Tag</item>
+        <item quantity="other">%1$d Tage</item>
+    </plurals>
+    <plurals name="hours_long_label">
+        <item quantity="one">1 Stunde</item>
+        <item quantity="other">%1$d Stunden</item>
+    </plurals>
+    <plurals name="minutes_long_label">
+        <item quantity="one">1 Minute</item>
+        <item quantity="other">%1$d Minuten</item>
+    </plurals>
+    <plurals name="seconds_long_label">
+        <item quantity="one">1 Sekunde</item>
+        <item quantity="other">%1$d Sekunden</item>
+    </plurals>
+    <string name="four_weeks_short_label">4 Wo</string>
+    <string name="one_week_short_label">1 Wo</string>
+    <string name="one_day_short_label">1Tag</string>
+    <string name="one_hour_short_label">1 Std</string>
+    <string name="five_minutes_short_label">5 Min</string>
+    <string name="one_minute_short_label">1 Min.</string>
+    <string name="ten_seconds_short_label">10 Sek</string>
+    <string name="label_debug_data">Debug data</string>
+    <string name="title_internal_debugging">Internal debugging</string>
+    <string name="label_log_options_description">"This stores anonymized troubleshooting information locally. "</string>
 </resources>

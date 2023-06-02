@@ -24,36 +24,65 @@ import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
+import com.wire.android.ui.home.messagecomposer.state.SelfDeletionDuration
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.CustomTabsHelper
+import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
 fun FileRestrictionDialog(
-    featureFlagState: FeatureFlagState,
+    isFileSharingEnabled: Boolean,
     hideDialogStatus: () -> Unit,
 ) {
-    if (featureFlagState.showFileSharingDialog) {
-        val text: String = if (featureFlagState.isFileSharingEnabledState) {
-            stringResource(id = R.string.sharing_files_enabled)
-        } else {
-            stringResource(id = R.string.sharing_files_disabled)
+    val text: String = stringResource(id = if (isFileSharingEnabled) R.string.sharing_files_enabled else R.string.sharing_files_disabled)
+
+    WireDialog(
+        title = stringResource(id = R.string.team_settings_changed),
+        text = text,
+        onDismiss = hideDialogStatus,
+        optionButton1Properties = WireDialogButtonProperties(
+            onClick = hideDialogStatus,
+            text = stringResource(id = R.string.label_ok),
+            type = WireDialogButtonType.Primary,
+        )
+    )
+}
+
+@Composable
+fun SelfDeletingMessagesDialog(
+    areSelfDeletingMessagesEnabled: Boolean,
+    enforcedTimeout: SelfDeletionDuration,
+    hideDialogStatus: () -> Unit,
+) {
+    val formattedTimeout = enforcedTimeout.longLabel.asString()
+    val text: String = when {
+        areSelfDeletingMessagesEnabled && enforcedTimeout == SelfDeletionDuration.None -> {
+            stringResource(id = R.string.self_deleting_messages_team_setting_enabled)
         }
 
-        WireDialog(
-            title = stringResource(id = R.string.team_settings_changed),
-            text = text,
-            onDismiss = hideDialogStatus,
-            optionButton1Properties = WireDialogButtonProperties(
-                onClick = hideDialogStatus,
-                text = stringResource(id = R.string.label_ok),
-                type = WireDialogButtonType.Primary,
-            )
-        )
+        areSelfDeletingMessagesEnabled -> {
+            stringResource(R.string.self_deleting_messages_team_setting_enabled_enforced_timeout, formattedTimeout)
+        }
+
+        else -> {
+            stringResource(id = R.string.self_deleting_messages_team_setting_disabled)
+        }
     }
+
+    WireDialog(
+        title = stringResource(id = R.string.team_settings_changed),
+        text = text,
+        onDismiss = hideDialogStatus,
+        optionButton1Properties = WireDialogButtonProperties(
+            onClick = hideDialogStatus,
+            text = stringResource(id = R.string.label_ok),
+            type = WireDialogButtonType.Primary,
+        )
+    )
 }
 
 @Composable
@@ -61,11 +90,8 @@ fun GuestRoomLinkFeatureFlagDialog(
     isGuestRoomLinkEnabled: Boolean,
     onDismiss: () -> Unit,
 ) {
-    val text: String = if (isGuestRoomLinkEnabled) {
-        stringResource(id = R.string.guest_room_link_enabled)
-    } else {
-        stringResource(id = R.string.guest_room_link_disabled)
-    }
+    val text: String =
+        stringResource(id = if (isGuestRoomLinkEnabled) R.string.guest_room_link_enabled else R.string.guest_room_link_disabled)
 
     WireDialog(
         title = stringResource(id = R.string.team_settings_changed),
@@ -105,20 +131,26 @@ fun WelcomeNewUserDialog(
     )
 }
 
-@Preview
+@PreviewMultipleThemes
 @Composable
 fun previewFileRestrictionDialog() {
-    FileRestrictionDialog(FeatureFlagState()) {}
+    WireTheme {
+        FileRestrictionDialog(true) {}
+    }
 }
 
-@Preview
+@PreviewMultipleThemes
 @Composable
 fun previewGuestRoomLinkFeatureFlagDialog() {
-    GuestRoomLinkFeatureFlagDialog(true) {}
+    WireTheme {
+        GuestRoomLinkFeatureFlagDialog(true) {}
+    }
 }
 
-@Preview
+@PreviewMultipleThemes
 @Composable
 fun previewWelcomeNewUserDialog() {
-    WelcomeNewUserDialog({})
+    WireTheme {
+        WelcomeNewUserDialog({})
+    }
 }

@@ -19,23 +19,24 @@
   ~
   -->
 <resources>
-    <string name="app_version">Versi&#243;n de la aplicaci&#243;n: %s</string>
-    <string name="build_variant_name">Variante de construcci&#243;n: %s</string>
+    <string name="app_version">Versión de la aplicación: %s</string>
+    <string name="build_variant_name">Variante de construcción: %s</string>
     <string name="label_new">Nuevo</string>
-    <string name="label_login">Iniciar sesi&#243;n</string>
-    <string name="label_ok">Aceptar</string>
+    <string name="label_login">Iniciar sesión</string>
+    <string name="label_ok">OK</string>
     <string name="label_cancel">Cancelar</string>
     <string name="label_confirm">Confirmar</string>
     <string name="label_continue">Continuar</string>
+    <string name="label_apply">Aplicar</string>
     <string name="label_save">Guardar</string>
     <string name="label_get_started">Empezar</string>
     <string name="label_remove">Eliminar</string>
     <string name="label_proceed">Proceder</string>
     <string name="label_leave">Salir</string>
     <string name="label_add_device">Agregar Dispositivo</string>
-    <string name="label_learn_more">Aprender m&#225;s</string>
+    <string name="label_learn_more">Saber más</string>
     <string name="label_removing">Eliminando...</string>
-    <string name="label_logging_in">Iniciando sesi&#243;n...</string>
+    <string name="label_logging_in">Iniciando sesión…</string>
     <string name="label_membership_guest">Invitado</string>
     <string name="label_membership_external">Externo</string>
     <string name="label_membership_service">Servicio</string>
@@ -46,9 +47,9 @@
     <string name="label_message_receive_failure">Error de descarga</string>
     <string name="label_message_decryption_failure_message">El mensaje no se pudo descifrar.</string>
     <string name="label_message_decryption_failure_informative_message">Intenta restablecer la sesión para generar nuevas claves de cifrado.</string>
-    <string name="label_message_knock">%s llam&#243;</string>
+    <string name="label_message_knock">%s hizo ping</string>
     <string name="label_try_again">Intentar de nuevo</string>
-    <string name="label_reset_session">Restablecer la sesi&#243;n</string>
+    <string name="label_reset_session">Restablecer la sesión</string>
     <string name="label_reset_session_success">Sesión restablecida con éxito</string>
     <string name="label_federated_membership">Federado</string>
     <string name="label_update">Actualizar</string>
@@ -97,7 +98,7 @@
     <string name="content_description_new_conversation">Comenzar una nueva conversaci&#243;n</string>
     <string name="content_description_back_button">Bot&#243;n de volver</string>
     <string name="content_description_send_button">Enviar</string>
-    <string name="content_description_timed_message_button">Mensajes con autodestrucci&#243;n, bot&#243;n</string>
+    <string name="content_description_timed_message_button">Mensaje con autoborrado, botón</string>
     <string name="content_description_close_button">Bot&#243;n de cerrar</string>
     <string name="content_description_menu_button">Navegaci&#243;n principal</string>
     <string name="content_description_drop_down_icon">Flecha hacia abajo</string>
@@ -142,6 +143,7 @@
     <string name="content_description_calling_call_unmuted">Llamada reanudada</string>
     <string name="content_description_calling_call_paused_camera">C&#225;mara pausada</string>
     <string name="content_description_more_emojis">M&#225;s emojis</string>
+    <string name="content_description_self_deletion_selector_button">Cambiar modo de autoborrado, botón</string>
     <!-- Non translatable strings-->
     <!-- Navigation -->
     <string name="vault_screen_title">Caja fuerte</string>
@@ -372,6 +374,8 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
     <string name="conversation_participant_you_label">(Tú)</string>
     <string name="conversation_details_is_classified">NIVEL DE SEGURIDAD: VS-NfD</string>
     <string name="conversation_details_is_not_classified">NIVEL DE SEGURIDAD: NO CLASIFICADO</string>
+    <string name="conversation_options_self_deleting_messages_label">Mensajes con auto-borrado</string>
+    <string name="conversation_options_self_deleting_messages_description">Cuando esté activado, todos los mensajes de este grupo desaparecerán después de un cierto tiempo.</string>
     <string name="conversation_options_guests_label">Invitados</string>
     <string name="conversation_details_guest_description">Cuando est&#225; activo, personas fuera de su equipo pueden unirse a esta conversaci&#243;n.</string>
     <string name="conversation_options_guest_description">Active esta opci&#243;n para abrir esta conversaci&#243;n a personas fuera de su equipo, incluso si no tienen Wire.</string>
@@ -519,6 +523,12 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
     <string name="label_system_message_new_conversation_receipt_mode">Los recibos de lectura est&#225;n %1$s</string>
     <string name="label_system_message_read_receipt_changed_by_self">%1$s cambi&#243; los recibos de lectura %2$s para todos</string>
     <string name="label_system_message_read_receipt_changed_by_other">%1$s cambi&#243; los recibos de lectura %2$s para todos</string>
+    <string name="label_system_message_conversation_message_timer_activated_by_self">%1$s estableciste mensajes de auto-borrado a %2$s para todos</string>
+    <string name="label_system_message_conversation_message_timer_activated_by_other">%1$s estableció mensajes de auto-borrado a %2$s para todos</string>
+    <string name="label_system_message_activated">ha activado</string>
+    <string name="label_system_message_conversation_message_timer_deactivated_by_self">%1$s **desactivaste** los mensajes de auto-borrado para todos</string>
+    <string name="label_system_message_conversation_message_timer_deactivated_by_other">%1$s **desactivó** los mensajes de auto-borrado para todos</string>
+    <string name="label_system_message_deactivated">ha desactivado</string>
     <string name="label_system_message_conversation_history_lost">No has usado este dispositivo por un tiempo. Es posible que algunos mensajes no aparezcan aqu&#237;.</string>
     <string name="label_system_message_receipt_mode_on">encendido</string>
     <string name="label_system_message_receipt_mode_off">apagado</string>
@@ -682,6 +692,8 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
     <string name="calling_ongoing_call_start_anyway">Llamar de todos modos</string>
     <string name="calling_ongoing_call_join_message_alert">Hay una llamada activa en otra conversaci&#243;n. Unirse a esta llamada colgar&#225; la otra.</string>
     <string name="calling_ongoing_call_join_anyway">Unirse de todos modos</string>
+    <string name="calling_ongoing_double_tap_for_full_screen">Toca dos veces para pantalla completa</string>
+    <string name="calling_ongoing_double_tap_to_go_back">Toca dos veces para volver atrás</string>
     <string name="calling_feature_unavailable_title_alert">Caracter&#237;stica no disponible</string>
     <string name="calling_feature_unavailable_message_alert">La opci&#243;n de iniciar una llamada en conferencia solo est&#225; disponible en la versi&#243;n de pago de Wire.</string>
     <!-- Connectivity Status Bar -->
@@ -734,6 +746,15 @@ Hasta 500 personas pueden unirse a una conversaci&#243;n en grupo.</string>
     <string name="allow_guest_switch_description">Abra esta conversaci&#243;n a personas fuera de su equipo. Siempre puede cambiarlo m&#225;s tarde.</string>
     <string name="allow_services">Permitir servicios</string>
     <string name="allow_services_description">Abra esta conversaci&#243;n a servicios. Siempre puede cambiarlo m&#225;s tarde.</string>
+    <string name="service_details_label">Servicio</string>
+    <string name="service_details_add_service_label">Añadir al grupo</string>
+    <string name="service_details_remove_service_label">Eliminar del grupo</string>
+    <string name="service_remove_success">Servicio eliminado del grupo</string>
+    <string name="service_remove_error">No se pudo eliminar el servicio del grupo</string>
+    <string name="service_add_success">Servicio añadido al grupo</string>
+    <string name="service_add_error">No se pudo añadir el servicio al grupo</string>
+    <string name="service_no_information_available_title">Ninguna información disponible</string>
+    <string name="service_no_information_available_subtitle">Inténtalo de nuevo o contacta con el administrador de tu equipo</string>
     <string name="read_receipts">Recibos de lectura</string>
     <string name="read_receipts_description">Cuando est&#225; activado, las personas pueden ver cu&#225;ndo sus mensajes en esta conversaci&#243;n han sido le&#237;dos.</string>
     <string name="disable_guests_dialog_title">&#191;No permitir invitados?</string>
@@ -807,7 +828,7 @@ URL del backend:
     <string name="label_enable_logging">Habilitar registro</string>
     <string name="label_proteus_option_title">Proteus</string>
     <string name="label_enable_encrypted_proteus_storage">Habilitar almacenamiento encriptado de Proteus</string>
-    <string name="label_debug_title">Depuraci&#243;n</string>
+    <string name="label_debug_title">Ajustes de Depuración</string>
     <string name="label_client_option_title">ID de cliente</string>
     <string name="label_device_id">ID de dispositivo: %1$s</string>
     <string name="label_code_commit_id">Hash de confirmaci&#243;n: %1$s</string>
@@ -896,6 +917,11 @@ URL del backend:
     <string name="join_conversation_via_deeplink_error_link_expired">El enlace a esta conversaci&#243;n grupal ha expirado o la conversaci&#243;n se ha configurado como privada.</string>
     <string name="join_conversation_via_deeplink_error_max_number_of_participent">Se ha alcanzado el n&#250;mero m&#225;ximo de participantes en esta conversaci&#243;n.</string>
     <string name="join_conversation_via_deeplink_error_general">Debido a un error, no se pudo agregar a la conversaci&#243;n grupal.</string>
+    <!-- edit self-deleting messages -->
+    <string name="self_deleting_messages_title">Mensajes con auto-borrado</string>
+    <string name="self_deleting_messages_option">Forzar auto-borrado de mensajes</string>
+    <string name="self_deleting_messages_option_description">Cuando esté activado, todos los mensajes de este grupo desaparecerán después de un cierto tiempo. Esto se aplica a todos los participantes del grupo.</string>
+    <string name="self_deleting_messages_folder_timer">Contador</string>
     <!-- guest room link -->
     <string name="folder_label_guest_link">Enlace de invitado</string>
     <string name="guest_link_description">Invita a otros con un enlace a esta conversaci&#243;n. Cualquier persona con el enlace puede unirse a la conversaci&#243;n, incluso si no tiene Wire.</string>
@@ -905,15 +931,15 @@ URL del backend:
     <string name="guest_link_button_revoke_link">Revocar enlace</string>
     <string name="audio_not_available">Audio no disponible</string>
     <string name="audio_not_available_explanation">Algo sali&#243; mal al descargar este archivo de audio. P&#237;dele al remitente que lo vuelva a subir.</string>
-    <string name="guest_link_generate_error_message">Link couldn\'t be created. Please try again</string>
-    <string name="guest_link_revoke_error_message">Link couldn\'t be revoked. Please try again</string>
+    <string name="guest_link_generate_error_message">Hubo un error al crear el enlace. Por favor, inténtalo de nuevo</string>
+    <string name="guest_link_revoke_error_message">Hubo un error al revocar el enlace. Por favor, inténtalo de nuevo</string>
     <string name="revoke_guest__room_link_dialog_text">Los nuevos invitados no podr&#225;n unirse con este enlace. Los invitados actuales a&#250;n tendr&#225;n acceso.</string>
     <string name="revoke_guest__room_link_dialog_title">&#191;Revocar enlace de invitado?</string>
     <string name="title_device_key_fingerprint">HU&#201;LLA DIGITAL DE LA LLAVE DEL DISPOSITIVO</string>
     <string name="label_client_key_fingerprint_not_available">NO DISPONIBLE</string>
-    <string name="guest_room_link_copied">Link copied to clipboard</string>
-    <string name="guest_room_link_enabled">La generaci&#243;n de enlaces de invitado ahora est&#225; activada para todos los administradores del grupo</string>
-    <string name="guest_room_link_disabled">La generaci&#243;n de enlaces de invitado ahora est&#225; desactivada para todos los administradores del grupo</string>
+    <string name="guest_room_link_copied">Enlace copiado al portapapeles</string>
+    <string name="guest_room_link_enabled">La generación de enlaces de invitado ahora está activada para todos los administradores del grupo</string>
+    <string name="guest_room_link_disabled">La generación de enlaces de invitado ahora está desactivada para todos los administradores del grupo</string>
     <!-- New Device dialog -->
     <string name="new_device_dialog_current_user_title">Su cuenta se utiliz&#243; en</string>
     <string name="new_device_dialog_current_user_message">%1$s\nDesde: %2$s \n\nSi no fuiste tú, elimina el dispositivo y restablece tu contraseña.</string>
@@ -930,8 +956,6 @@ URL del backend:
     <string name="label_fingerprint_description">Si las huellas digitales no coinciden, restablezca la sesi&#243;n para generar nuevas claves de cifrado en ambos lados.</string>
     <string name="label_self_fingerprint_description">Comparte esta huella digital con otros participantes en una conversación, para que puedan verificarla y asegurarse de que la conversación es segura.</string>
     <string name="unknown_user_name">desconocido</string>
-    <string name="self_deleting_message_time_left">Mensaje con autoborrado • %1$s</string>
-    <string name="self_deleting_message_label">Mensaje con autoborrado</string>
     <string name="device_name_unknown">Dispositivo desconocido</string>
     <string name="create_account_email_title">Tu Email</string>
     <string name="settings_myaccount_email_description">Tu correo electrónico es parte de tus datos de acceso para esta cuenta. Puede ser visible para tus contactos.</string>
@@ -940,8 +964,9 @@ URL del backend:
     <string name="settings_myaccount_email_verification_email_sent">Se ha enviado un correo electrónico de verificación a tu correo electrónico %1$s.\n\nTu dirección de correo electrónico actual no se actualizará hasta que verifiques la nueva. Por favor, revisa tu bandeja de entrada y sigue las instrucciones.</string>
     <string name="label_resend_verification_email">Reenviar el correo de verificación</string>
     <string name="settings_myaccount_email_generic_error">Algo salió mal. Por favor inténtalo de nuevo.</string>
-    <string name="settings_myaccount_handle_description">Your username helps others to find you in Wire and connect with you. It is unique in Wire.</string>
-    <string name="create_account_handle_title">Your User Name</string>
+    <string name="settings_myaccount_handle_description">Tu nombre de usuario ayuda a otros a encontrarte en Wire y a conectar contigo. Es único en Wire.</string>
+    <string name="create_account_handle_title">Tu nombre de usuario</string>
+    <!-- Asset limits error messages -->
     <string name="title_video_could_not_be_sent">El video no se pudo enviar</string>
     <string name="title_image_could_not_be_sent">La imagen no se pudo enviar</string>
     <string name="title_file_could_not_be_sent">No se pudo enviar el archivo</string>
@@ -949,7 +974,15 @@ URL del backend:
     <string name="label_shared_image_too_large">Solo puedes compartir imágenes de hasta %d MB.</string>
     <string name="label_shared_file_too_large">Solo puedes compartir archivos hasta %d MB.</string>
     <string name="label_file_saved_to_device">El archivo se guardó en tu dispositivo.</string>
-    <!-- Expirable messages -->
+    <!-- Expiring messages -->
+    <string name="self_deleting_message_time_left">Mensaje con autoborrado • %1$s</string>
+    <string name="self_deleting_message_label">Mensaje con autoborrado</string>
+    <string name="self_deleting_messages_team_setting_disabled">Los mensajes de auto-borrado están deshabilitados.</string>
+    <string name="self_deleting_messages_team_setting_enabled">Los mensajes de auto-borrado están habilitados. Puedes configurar un temporizador antes de escribir un mensaje.</string>
+    <string name="self_deleting_messages_team_setting_enabled_enforced_timeout">El modo auto-borrado para enviar mensajes es obligatorio ahora en tu cuenta. Los nuevos mensajes enviados se eliminarán automáticamente después de %1$s.</string>
+    <string name="automatically_delete_message_after">Borrar el mensaje automáticamente después de:</string>
+    <string name="label_information_waiting_for_recipient_timer_to_expire_group">Una vez que un participante haya visto tu mensaje y su temporizador de éste haya finalizado, esta nota desaparecerá.</string>
+    <string name="label_information_waiting_for_recipient_timer_to_expire_one_to_one">Después de que %1$s haya visto tu mensaje y el temporizador haya caducado en su lado, esta nota desaparecerá.</string>
     <plurals name="weeks_left">
         <item quantity="one">Falta 1 semana</item>
         <item quantity="other">Faltan %1$d semanas</item>
@@ -970,4 +1003,34 @@ URL del backend:
         <item quantity="one">Falta 1 segundo</item>
         <item quantity="other">Faltan %1$d segundos</item>
     </plurals>
+    <plurals name="weeks_long_label">
+        <item quantity="one">1 semana</item>
+        <item quantity="other">%1$d semanas</item>
+    </plurals>
+    <plurals name="days_long_label">
+        <item quantity="one">1 día</item>
+        <item quantity="other">%1$d días</item>
+    </plurals>
+    <plurals name="hours_long_label">
+        <item quantity="one">1 hora</item>
+        <item quantity="other">%1$d horas</item>
+    </plurals>
+    <plurals name="minutes_long_label">
+        <item quantity="one">1 minuto</item>
+        <item quantity="other">%1$d minutos</item>
+    </plurals>
+    <plurals name="seconds_long_label">
+        <item quantity="one">1 segundo</item>
+        <item quantity="other">%1$d segundos</item>
+    </plurals>
+    <string name="four_weeks_short_label">4sem</string>
+    <string name="one_week_short_label">1sem</string>
+    <string name="one_day_short_label">1d</string>
+    <string name="one_hour_short_label">1h</string>
+    <string name="five_minutes_short_label">5min</string>
+    <string name="one_minute_short_label">1m</string>
+    <string name="ten_seconds_short_label">10s</string>
+    <string name="label_debug_data">Datos de depuración</string>
+    <string name="title_internal_debugging">Depuración interna</string>
+    <string name="label_log_options_description">"Esto almacena información anónima de solución de problemas localmente. "</string>
 </resources>

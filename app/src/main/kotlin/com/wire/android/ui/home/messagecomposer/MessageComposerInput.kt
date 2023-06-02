@@ -35,7 +35,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.material.Divider
+import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -60,6 +60,9 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.home.conversations.messages.QuotedMessagePreview
 import com.wire.android.ui.home.conversations.model.UIQuotedMessage
+import com.wire.android.ui.home.messagecomposer.state.MessageComposeInputSize
+import com.wire.android.ui.home.messagecomposer.state.MessageComposeInputState
+import com.wire.android.ui.home.messagecomposer.state.MessageComposeInputType
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.kalium.logic.feature.conversation.InteractionAvailability
@@ -78,12 +81,14 @@ internal fun MessageComposerInput(
     actions: MessageComposerInputActions,
     inputFocusRequester: FocusRequester,
     isFileSharingEnabled: Boolean,
+    showSelfDeletingOption: Boolean
 ) {
     when (interactionAvailability) {
         InteractionAvailability.BLOCKED_USER -> BlockedUserComposerInput(securityClassificationType)
         InteractionAvailability.DELETED_USER -> DeletedUserComposerInput(securityClassificationType)
         InteractionAvailability.NOT_MEMBER, InteractionAvailability.DISABLED ->
             MessageComposerClassifiedBanner(securityClassificationType, PaddingValues(vertical = dimensions().spacing16x))
+
         InteractionAvailability.ENABLED -> {
             EnabledMessageComposerInput(
                 transition = transition,
@@ -93,13 +98,13 @@ internal fun MessageComposerInput(
                 membersToMention = membersToMention,
                 actions = actions,
                 inputFocusRequester = inputFocusRequester,
-                isFileSharingEnabled = isFileSharingEnabled
+                isFileSharingEnabled = isFileSharingEnabled,
+                showSelfDeletingOption = showSelfDeletingOption
             )
         }
     }
 }
 
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 private fun EnabledMessageComposerInput(
     transition: Transition<MessageComposeInputState>,
@@ -109,7 +114,8 @@ private fun EnabledMessageComposerInput(
     membersToMention: List<Contact>,
     actions: MessageComposerInputActions,
     inputFocusRequester: FocusRequester,
-    isFileSharingEnabled: Boolean
+    isFileSharingEnabled: Boolean,
+    showSelfDeletingOption: Boolean
 ) {
     Box {
         var currentSelectedLineIndex by remember { mutableStateOf(0) }
@@ -139,7 +145,9 @@ private fun EnabledMessageComposerInput(
                 startMention = actions.startMention,
                 onAdditionalOptionButtonClicked = actions.onAdditionalOptionButtonClicked,
                 modifier = Modifier.background(colorsScheme().messageComposerBackgroundColor),
-                onPingClicked = actions.onPingClicked
+                onPingClicked = actions.onPingClicked,
+                onSelfDeletionOptionButtonClicked = actions.onSelfDeletionOptionButtonClicked,
+                showSelfDeletingOption = showSelfDeletingOption
             )
         }
         if (membersToMention.isNotEmpty() && messageComposeInputState.isExpanded) {
@@ -148,7 +156,6 @@ private fun EnabledMessageComposerInput(
     }
 }
 
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 private fun MessageComposeInput(
     transition: Transition<MessageComposeInputState>,
@@ -207,12 +214,13 @@ private fun MessageComposeInput(
             onAdditionalOptionButtonClicked = actions.onAdditionalOptionButtonClicked,
             onEditCancelButtonClicked = actions.onEditCancelButtonClicked,
             onEditSaveButtonClicked = actions.onEditSaveButtonClicked,
+            onChangeSelfDeletionTimeClicked = actions.onSelfDeletionOptionButtonClicked,
             isFileSharingEnabled = isFileSharingEnabled,
         )
     }
 }
 
-@ExperimentalAnimationApi
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
 private fun CollapseIconButtonBox(
     transition: Transition<MessageComposeInputState>,
@@ -265,7 +273,9 @@ data class MessageComposerInputActions(
     val onAdditionalOptionButtonClicked: () -> Unit = {},
     val onEditSaveButtonClicked: () -> Unit = {},
     val onEditCancelButtonClicked: () -> Unit = {},
-    val onPingClicked: () -> Unit = {}
+    val onPingClicked: () -> Unit = {},
+    val onSelfDeletionOptionButtonClicked: () -> Unit = { },
+    val onSendSelfDeletingMessageClicked: () -> Unit = {}
 )
 
 @Composable
@@ -278,7 +288,8 @@ private fun generatePreviewWithState(state: MessageComposeInputState) {
         membersToMention = listOf(),
         actions = MessageComposerInputActions(),
         inputFocusRequester = FocusRequester(),
-        isFileSharingEnabled = true
+        isFileSharingEnabled = true,
+        showSelfDeletingOption = true
     )
 }
 

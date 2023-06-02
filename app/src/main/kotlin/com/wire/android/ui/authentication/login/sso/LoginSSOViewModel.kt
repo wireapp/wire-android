@@ -21,7 +21,6 @@
 package com.wire.android.ui.authentication.login.sso
 
 import androidx.annotation.VisibleForTesting
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
@@ -47,7 +46,6 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @Suppress("LongParameterList")
-@ExperimentalMaterialApi
 @HiltViewModel
 class LoginSSOViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
@@ -197,4 +195,3 @@ private fun SSOLoginSessionResult.Failure.toLoginError() = when (this) {
     SSOLoginSessionResult.Failure.InvalidCookie -> LoginError.DialogError.InvalidSSOCookie
     is SSOLoginSessionResult.Failure.Generic -> LoginError.DialogError.GenericError(this.genericFailure)
 }
-

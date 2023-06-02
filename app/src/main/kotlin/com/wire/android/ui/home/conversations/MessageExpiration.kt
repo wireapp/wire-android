@@ -24,13 +24,13 @@ import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 
 @Composable
-fun rememberSelfDeletionTimer(expirationStatus: ExpirationStatus): SelfDeletionTimer.SelfDeletionTimerState {
+fun rememberSelfDeletionTimer(expirationStatus: ExpirationStatus): SelfDeletionTimerHelper.SelfDeletionTimerState {
     val context = LocalContext.current
 
-    return remember { SelfDeletionTimer(context).fromExpirationStatus(expirationStatus) }
+    return remember { SelfDeletionTimerHelper(context).fromExpirationStatus(expirationStatus) }
 }
 
-class SelfDeletionTimer(private val context: Context) {
+class SelfDeletionTimerHelper(private val context: Context) {
 
     fun fromExpirationStatus(expirationStatus: ExpirationStatus): SelfDeletionTimerState {
         return if (expirationStatus is ExpirationStatus.Expirable) {
@@ -218,21 +218,25 @@ class SelfDeletionTimer(private val context: Context) {
              * alpha value is equal to the ratio = 1 / 2.5 = 0.4
              */
             fun alphaBackgroundColor(): Float {
-                val timeElapsed = expireAfter - timeLeft
-                val timeElapsedRatio = timeElapsed / expireAfter
+                return if (timeLeft > ZERO) {
+                    val timeElapsed = expireAfter - timeLeft
+                    val timeElapsedRatio = timeElapsed / expireAfter
 
-                return if (timeElapsedRatio < LOW_END_TIME_ELAPSED_RATIO_BOUNDARY_FOR_PROPORTIONAL_ALPHA_CHANGE) {
-                    INVISIBLE_BACKGROUND_COLOR_ALPHA_VALUE
-                } else if (LOW_END_TIME_ELAPSED_RATIO_BOUNDARY_FOR_PROPORTIONAL_ALPHA_CHANGE <= timeElapsedRatio
-                    && timeElapsedRatio <= HIGH_END_TIME_ELAPSED_RATIO_BOUNDARY_FOR_PROPORTIONAL_ALPHA_CHANGE
-                ) {
-                    val halfTimeSlice = expireAfter.times(HALF_RATIO_VALUE)
-                    val quarterTimeLeftSlice = expireAfter.times(QUARTER_RATIO_VALUE)
+                    return if (timeElapsedRatio < LOW_END_TIME_ELAPSED_RATIO_BOUNDARY_FOR_PROPORTIONAL_ALPHA_CHANGE) {
+                        INVISIBLE_BACKGROUND_COLOR_ALPHA_VALUE
+                    } else if (LOW_END_TIME_ELAPSED_RATIO_BOUNDARY_FOR_PROPORTIONAL_ALPHA_CHANGE <= timeElapsedRatio
+                        && timeElapsedRatio <= HIGH_END_TIME_ELAPSED_RATIO_BOUNDARY_FOR_PROPORTIONAL_ALPHA_CHANGE
+                    ) {
+                        val halfTimeSlice = expireAfter.times(HALF_RATIO_VALUE)
+                        val quarterTimeLeftSlice = expireAfter.times(QUARTER_RATIO_VALUE)
 
-                    val durationInBetweenHalfTimeAndQuarterSlice = halfTimeSlice - quarterTimeLeftSlice
-                    val timeElapsedFromHalfTimeSlice = timeElapsed - halfTimeSlice
+                        val durationInBetweenHalfTimeAndQuarterSlice = halfTimeSlice - quarterTimeLeftSlice
+                        val timeElapsedFromHalfTimeSlice = timeElapsed - halfTimeSlice
 
-                    (timeElapsedFromHalfTimeSlice / durationInBetweenHalfTimeAndQuarterSlice).toFloat()
+                        (timeElapsedFromHalfTimeSlice / durationInBetweenHalfTimeAndQuarterSlice).toFloat()
+                    } else {
+                        OPAQUE_BACKGROUND_COLOR_ALPHA_VALUE
+                    }
                 } else {
                     OPAQUE_BACKGROUND_COLOR_ALPHA_VALUE
                 }
@@ -246,7 +250,7 @@ class SelfDeletionTimer(private val context: Context) {
 @Composable
 fun startDeletionTimer(
     message: UIMessage.Regular,
-    expirableTimer: SelfDeletionTimer.SelfDeletionTimerState.Expirable,
+    expirableTimer: SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable,
     onStartMessageSelfDeletion: (UIMessage.Regular) -> Unit
 ) {
     message.messageContent?.let {
@@ -290,7 +294,7 @@ fun startDeletionTimer(
 
 @Composable
 private fun startAssetDeletion(
-    expirableTimer: SelfDeletionTimer.SelfDeletionTimerState.Expirable,
+    expirableTimer: SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable,
     onSelfDeletingMessageRead: () -> Unit,
     downloadStatus: Message.DownloadStatus
 ) {

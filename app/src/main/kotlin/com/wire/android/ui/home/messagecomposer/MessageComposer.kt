@@ -29,13 +29,12 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material.Divider
+import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
@@ -57,9 +56,13 @@ import com.wire.android.ui.common.KeyboardHelper
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.home.conversations.mention.MemberItemToMention
 import com.wire.android.ui.home.conversations.model.EditMessageBundle
+import com.wire.android.ui.home.conversations.model.SendMessageBundle
 import com.wire.android.ui.home.conversations.model.UriAsset
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.messagecomposer.attachment.AttachmentOptions
+import com.wire.android.ui.home.messagecomposer.state.MessageComposeInputState
+import com.wire.android.ui.home.messagecomposer.state.MessageComposeInputType
+import com.wire.android.ui.home.messagecomposer.state.MessageComposerState
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.kalium.logic.feature.conversation.InteractionAvailability
@@ -67,9 +70,9 @@ import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
 
 @Composable
 fun MessageComposer(
-    messageComposerState: MessageComposerInnerState,
+    messageComposerState: MessageComposerState,
     messageContent: @Composable () -> Unit,
-    onSendTextMessage: (String, List<UiMention>, messageId: String?) -> Unit,
+    onSendTextMessage: (SendMessageBundle) -> Unit,
     onSendEditTextMessage: (EditMessageBundle) -> Unit,
     onMentionMember: (String?) -> Unit,
     onAttachmentPicked: (UriAsset) -> Unit,
@@ -78,16 +81,24 @@ fun MessageComposer(
     securityClassificationType: SecurityClassificationType,
     membersToMention: List<Contact>,
     onPingClicked: () -> Unit,
+    onShowSelfDeletionOption: () -> Unit,
+    showSelfDeletingOption: Boolean,
     tempWritableImageUri: Uri?,
     tempWritableVideoUri: Uri?
 ) {
     BoxWithConstraints {
         val onSendButtonClicked = remember {
             {
+                val expireAfter = (messageComposerState.messageComposeInputState as? MessageComposeInputState.Active)?.let {
+                    (it.type as? MessageComposeInputType.SelfDeletingMessage)
+                }?.selfDeletionDuration?.value
+
                 onSendTextMessage(
-                    messageComposerState.messageComposeInputState.messageText.text,
-                    messageComposerState.mentions,
-                    messageComposerState.quotedMessageData?.messageId,
+                    SendMessageBundle(
+                        message = messageComposerState.messageComposeInputState.messageText.text,
+                        mentions = messageComposerState.mentions,
+                        quotedMessageId = messageComposerState.quotedMessageData?.messageId
+                    )
                 )
                 messageComposerState.quotedMessageData = null
                 messageComposerState.setMessageTextValue(TextFieldValue(""))
@@ -103,7 +114,7 @@ fun MessageComposer(
                         EditMessageBundle(
                             originalMessageId = originalMessageId,
                             newContent = messageComposerState.messageComposeInputState.messageText.text,
-                            newMentions = messageComposerState.mentions,
+                            messageComposerState.mentions,
                         )
                     )
                 }
@@ -134,6 +145,8 @@ fun MessageComposer(
             onEditSaveButtonClicked = onSendEditButtonClicked,
             onMentionPicked = onMentionPicked,
             onPingClicked = onPingClicked,
+            onShowSelfDeletionOption = onShowSelfDeletionOption,
+            showSelfDeletingOption = showSelfDeletingOption,
             tempWritableImageUri = tempWritableImageUri,
             tempWritableVideoUri = tempWritableVideoUri
         )
@@ -141,11 +154,10 @@ fun MessageComposer(
 }
 
 @Suppress("ComplexMethod", "ComplexCondition")
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun MessageComposer(
     messagesContent: @Composable () -> Unit,
-    messageComposerState: MessageComposerInnerState,
+    messageComposerState: MessageComposerState,
     isFileSharingEnabled: Boolean,
     interactionAvailability: InteractionAvailability,
     membersToMention: List<Contact>,
@@ -156,7 +168,9 @@ private fun MessageComposer(
     onSendButtonClicked: () -> Unit,
     onEditSaveButtonClicked: () -> Unit,
     onMentionPicked: (Contact) -> Unit,
-    onPingClicked: () -> Unit
+    onPingClicked: () -> Unit,
+    onShowSelfDeletionOption: () -> Unit,
+    showSelfDeletingOption: Boolean
 ) {
     Surface(color = colorsScheme().messageComposerBackgroundColor) {
         val transition = updateTransition(
@@ -188,6 +202,8 @@ private fun MessageComposer(
                         && !isKeyboardVisible
                         && interactionAvailability == InteractionAvailability.ENABLED
 
+                // Whenever the user closes the keyboard manually that is not clicking outside of the input text field
+                // but for example pressing the back button when the keyboard is visible
                 LaunchedEffect(isKeyboardVisible) {
                     if (!isKeyboardVisible && !messageComposerState.messageComposeInputState.attachmentOptionsDisplayed) {
                         if (!messageComposerState.messageComposeInputState.isEditMessage) {
@@ -237,6 +253,7 @@ private fun MessageComposer(
                         quotedMessageData = messageComposerState.quotedMessageData,
                         membersToMention = membersToMention,
                         inputFocusRequester = messageComposerState.inputFocusRequester,
+                        showSelfDeletingOption = showSelfDeletingOption,
                         actions = remember(messageComposerState) {
                             MessageComposerInputActions(
                                 onMessageTextChanged = messageComposerState::setMessageTextValue,
@@ -259,7 +276,8 @@ private fun MessageComposer(
                                     messageComposerState.showAttachmentOptions()
                                 },
                                 onEditSaveButtonClicked = onEditSaveButtonClicked,
-                                onEditCancelButtonClicked = messageComposerState::closeEditToInactive
+                                onEditCancelButtonClicked = messageComposerState::closeEditToInactive,
+                                onSelfDeletionOptionButtonClicked = onShowSelfDeletionOption
                             )
                         }
                     )
@@ -271,7 +289,9 @@ private fun MessageComposer(
                 // we get the effect of overlapping it
                 if (attachmentOptionsVisible) {
                     AttachmentOptions(
-                        onAttachmentPicked = onAttachmentPicked,
+                        onAttachmentPicked = remember {
+                            { onAttachmentPicked(it) }
+                        },
                         isFileSharingEnabled = isFileSharingEnabled,
                         tempWritableImageUri = tempWritableImageUri,
                         tempWritableVideoUri = tempWritableVideoUri,

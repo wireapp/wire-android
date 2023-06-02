@@ -27,7 +27,7 @@ object NotificationConstants {
 
     private const val INCOMING_CALL_CHANNEL_ID = "com.wire.android.notification_incoming_call_channel"
     const val INCOMING_CALL_CHANNEL_NAME = "Incoming calls"
-    private const val ONGOING_CALL_CHANNEL_ID = "com.wire.android.notification_ongoing_call_channel"
+    const val ONGOING_CALL_CHANNEL_ID = "com.wire.android.notification_ongoing_call_channel"
     const val ONGOING_CALL_CHANNEL_NAME = "Ongoing calls"
 
     const val WEB_SOCKET_CHANNEL_ID = "com.wire.android.persistent_web_socket_channel"
@@ -67,14 +67,12 @@ object NotificationConstants {
     fun getMessagesChannelId(userId: UserId): String = getChanelIdForUser(userId, MESSAGE_CHANNEL_ID)
     fun getPingsChannelId(userId: UserId): String = getChanelIdForUser(userId, PING_CHANNEL_ID)
     fun getIncomingChannelId(userId: UserId): String = getChanelIdForUser(userId, INCOMING_CALL_CHANNEL_ID)
-    fun getOngoingChannelId(userId: UserId): String = getChanelIdForUser(userId, ONGOING_CALL_CHANNEL_ID)
 
     /**
      * @return NotificationChannelId [String] specific for user, use it to post a notifications.
      * @param userId [UserId] which received the notification
      * @param channelIdPrefix prefix of the NotificationChannelId,
-     * one of [NotificationConstants.ONGOING_CALL_CHANNEL_ID], [NotificationConstants.INCOMING_CALL_CHANNEL_ID],
-     * [NotificationConstants.MESSAGE_CHANNEL_ID].
+     * one of [NotificationConstants.INCOMING_CALL_CHANNEL_ID], [NotificationConstants.MESSAGE_CHANNEL_ID].
      */
     private fun getChanelIdForUser(userId: UserId, channelIdPrefix: String): String = "$channelIdPrefix.$userId"
 }

@@ -36,7 +36,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -95,7 +94,6 @@ fun WelcomeScreen(viewModel: WelcomeViewModel = hiltViewModel()) {
     WelcomeContent(viewModel)
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun WelcomeContent(viewModel: WelcomeViewModel) {
     val enterpriseDisabledWithProxyDialogState = rememberVisibilityState<FeatureDisabledWithProxyDialogState>()

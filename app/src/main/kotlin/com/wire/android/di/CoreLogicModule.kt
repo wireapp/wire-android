@@ -59,9 +59,11 @@ import com.wire.kalium.logic.feature.client.UpdateClientVerificationStatusUseCas
 import com.wire.kalium.logic.feature.connection.BlockUserUseCase
 import com.wire.kalium.logic.feature.connection.UnblockUserUseCase
 import com.wire.kalium.logic.feature.conversation.AddMemberToConversationUseCase
+import com.wire.kalium.logic.feature.conversation.AddServiceToConversationUseCase
 import com.wire.kalium.logic.feature.conversation.ClearConversationContentUseCase
 import com.wire.kalium.logic.feature.conversation.CreateGroupConversationUseCase
 import com.wire.kalium.logic.feature.conversation.GetAllContactsNotInConversationUseCase
+import com.wire.kalium.logic.feature.conversation.GetConversationUnreadEventsCountUseCase
 import com.wire.kalium.logic.feature.conversation.GetOrCreateOneToOneConversationUseCase
 import com.wire.kalium.logic.feature.conversation.GetOtherUserSecurityClassificationLabelUseCase
 import com.wire.kalium.logic.feature.conversation.LeaveConversationUseCase
@@ -81,6 +83,7 @@ import com.wire.kalium.logic.feature.message.GetMessageByIdUseCase
 import com.wire.kalium.logic.feature.message.GetNotificationsUseCase
 import com.wire.kalium.logic.feature.message.ObserveMessageReactionsUseCase
 import com.wire.kalium.logic.feature.message.ObserveMessageReceiptsUseCase
+import com.wire.kalium.logic.feature.message.RetryFailedMessageUseCase
 import com.wire.kalium.logic.feature.message.SendEditTextMessageUseCase
 import com.wire.kalium.logic.feature.message.SendKnockUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
@@ -91,7 +94,14 @@ import com.wire.kalium.logic.feature.publicuser.GetAllContactsUseCase
 import com.wire.kalium.logic.feature.publicuser.GetKnownUserUseCase
 import com.wire.kalium.logic.feature.publicuser.search.SearchKnownUsersUseCase
 import com.wire.kalium.logic.feature.publicuser.search.SearchPublicUsersUseCase
+import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
+import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveTeamSettingsSelfDeletingStatusUseCase
+import com.wire.kalium.logic.feature.selfDeletingMessages.PersistNewSelfDeletionTimerUseCase
 import com.wire.kalium.logic.feature.server.ServerConfigForAccountUseCase
+import com.wire.kalium.logic.feature.service.GetServiceByIdUseCase
+import com.wire.kalium.logic.feature.service.ObserveAllServicesUseCase
+import com.wire.kalium.logic.feature.service.ObserveIsServiceMemberUseCase
+import com.wire.kalium.logic.feature.service.SearchServicesByNameUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.GetSessionsUseCase
 import com.wire.kalium.logic.feature.session.UpdateCurrentSessionUseCase
@@ -102,6 +112,7 @@ import com.wire.kalium.logic.feature.user.GetUserInfoUseCase
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
 import com.wire.kalium.logic.feature.user.IsReadOnlyAccountUseCase
 import com.wire.kalium.logic.feature.user.MarkFileSharingChangeAsNotifiedUseCase
+import com.wire.kalium.logic.feature.user.MarkSelfDeletionStatusAsNotifiedUseCase
 import com.wire.kalium.logic.feature.user.ObserveUserInfoUseCase
 import com.wire.kalium.logic.feature.user.ObserveValidAccountsUseCase
 import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
@@ -474,6 +485,13 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
+    fun provideRetryFailedMessageUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): RetryFailedMessageUseCase = coreLogic.getSessionScope(currentAccount).messages.retryFailedMessage
+
+    @ViewModelScoped
+    @Provides
     fun provideSendKnockUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
@@ -684,11 +702,35 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
+    fun provideAddServiceToConversationUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): AddServiceToConversationUseCase =
+        coreLogic.getSessionScope(currentAccount).conversations.addServiceToConversationUseCase
+
+    @ViewModelScoped
+    @Provides
     fun provideRemoveMemberFromConversationUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
     ): RemoveMemberFromConversationUseCase =
         coreLogic.getSessionScope(currentAccount).conversations.removeMemberFromConversation
+
+    @ViewModelScoped
+    @Provides
+    fun provideObserveAllServicesUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): ObserveAllServicesUseCase =
+        coreLogic.getSessionScope(currentAccount).service.observeAllServices
+
+    @ViewModelScoped
+    @Provides
+    fun provideSearchServicesByNameUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): SearchServicesByNameUseCase =
+        coreLogic.getSessionScope(currentAccount).service.searchServicesByName
 
     @ViewModelScoped
     @Provides
@@ -986,6 +1028,34 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
+    fun provideMarkSelfDeletingMessagesAsNotified(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): MarkSelfDeletionStatusAsNotifiedUseCase = coreLogic.getSessionScope(currentAccount).markSelfDeletingMessagesAsNotified
+
+    @ViewModelScoped
+    @Provides
+    fun provideObserveTeamSettingsSelfDeletionStatusFlagUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): ObserveTeamSettingsSelfDeletingStatusUseCase = coreLogic.getSessionScope(currentAccount).observeTeamSettingsSelfDeletionStatus
+
+    @ViewModelScoped
+    @Provides
+    fun provideObserveSelfDeletionTimerSettingsForConversationUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): ObserveSelfDeletionTimerSettingsForConversationUseCase = coreLogic.getSessionScope(currentAccount).observeSelfDeletingMessages
+
+    @ViewModelScoped
+    @Provides
+    fun providePersistNewSelfDeletingMessagesUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): PersistNewSelfDeletionTimerUseCase = coreLogic.getSessionScope(currentAccount).persistNewSelfDeletionStatus
+
+    @ViewModelScoped
+    @Provides
     fun provideImageUtil(): ImageUtil = ImageUtil
 
     @ViewModelScoped
@@ -993,37 +1063,38 @@ class UseCaseModule {
     fun provideGetClientDetailsUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
-    ): ObserveClientDetailsUseCase =
-        coreLogic.getSessionScope(currentAccount).client.observeClientDetailsUseCase
+    ): ObserveClientDetailsUseCase = coreLogic.getSessionScope(currentAccount).client.observeClientDetailsUseCase
 
     @ViewModelScoped
     @Provides
     fun provideGenerateGuestRoomLinkUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
-    ): GenerateGuestRoomLinkUseCase =
-        coreLogic.getSessionScope(currentAccount).conversations.generateGuestRoomLink
+    ): GenerateGuestRoomLinkUseCase = coreLogic.getSessionScope(currentAccount).conversations.generateGuestRoomLink
 
     @ViewModelScoped
     @Provides
     fun provideRevokeGuestRoomLinkUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
-    ): RevokeGuestRoomLinkUseCase =
-        coreLogic.getSessionScope(currentAccount).conversations.revokeGuestRoomLink
+    ): RevokeGuestRoomLinkUseCase = coreLogic.getSessionScope(currentAccount).conversations.revokeGuestRoomLink
 
     @ViewModelScoped
     @Provides
     fun provideObserveGuestRoomLinkUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
-    ): ObserveGuestRoomLinkUseCase =
-        coreLogic.getSessionScope(currentAccount).conversations.observeGuestRoomLink
+    ): ObserveGuestRoomLinkUseCase = coreLogic.getSessionScope(currentAccount).conversations.observeGuestRoomLink
 
     @ViewModelScoped
     @Provides
     fun provideObserveGuestRoomLinkFeatureFlagUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
         coreLogic.getSessionScope(currentAccount).observeGuestRoomLinkFeatureFlag
+
+    @ViewModelScoped
+    @Provides
+    fun provideUpdateMessageTimerUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).conversations.updateMessageTimer
 
     @ViewModelScoped
     @Provides
@@ -1048,7 +1119,7 @@ class UseCaseModule {
     fun provideEnqueueMessageSelfDeletionUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
-    ): EnqueueMessageSelfDeletionUseCase = coreLogic.getSessionScope(currentAccount).enqueueMessageSelfDeletionUseCase
+    ): EnqueueMessageSelfDeletionUseCase = coreLogic.getSessionScope(currentAccount).messages.enqueueMessageSelfDeletion
 
     @ViewModelScoped
     @Provides
@@ -1073,4 +1144,28 @@ class UseCaseModule {
         @CurrentAccount currentAccount: UserId
     ): UpdateEmailUseCase =
         coreLogic.getSessionScope(currentAccount).users.updateEmail
+
+    @ViewModelScoped
+    @Provides
+    fun provideGetConversationUnreadEventsCountUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): GetConversationUnreadEventsCountUseCase =
+        coreLogic.getSessionScope(currentAccount).conversations.getConversationUnreadEventsCountUseCase
+
+    @ViewModelScoped
+    @Provides
+    fun provideObserveIsServiceMemberUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): ObserveIsServiceMemberUseCase =
+        coreLogic.getSessionScope(currentAccount).service.observeIsServiceMember
+
+    @ViewModelScoped
+    @Provides
+    fun provideGetServiceByIdUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): GetServiceByIdUseCase =
+        coreLogic.getSessionScope(currentAccount).service.getServiceById
 }

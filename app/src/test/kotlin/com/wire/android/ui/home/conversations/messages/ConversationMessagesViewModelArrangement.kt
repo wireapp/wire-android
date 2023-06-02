@@ -28,7 +28,7 @@ import com.wire.android.media.audiomessage.AudioState
 import com.wire.android.media.audiomessage.ConversationAudioMessagePlayer
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.conversations.model.AssetBundle
-import com.wire.android.ui.home.conversations.model.AttachmentType
+import com.wire.kalium.logic.data.asset.AttachmentType
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.usecase.GetMessagesForConversationUseCase
 import com.wire.android.util.FileManager
@@ -41,6 +41,7 @@ import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
 import com.wire.kalium.logic.feature.asset.UpdateAssetMessageDownloadStatusUseCase
 import com.wire.kalium.logic.feature.asset.UpdateDownloadStatusResult
+import com.wire.kalium.logic.feature.conversation.GetConversationUnreadEventsCountUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.message.GetMessageByIdUseCase
 import com.wire.kalium.logic.feature.message.ToggleReactionUseCase
@@ -101,6 +102,9 @@ class ConversationMessagesViewModelArrangement {
     @MockK
     lateinit var conversationAudioMessagePlayer: ConversationAudioMessagePlayer
 
+    @MockK
+    lateinit var getConversationUnreadEventsCount: GetConversationUnreadEventsCountUseCase
+
     private val viewModel: ConversationMessagesViewModel by lazy {
         ConversationMessagesViewModel(
             navigationManager,
@@ -115,7 +119,8 @@ class ConversationMessagesViewModelArrangement {
             getMessagesForConversationUseCase,
             toggleReaction,
             resetSession,
-            conversationAudioMessagePlayer
+            conversationAudioMessagePlayer,
+            getConversationUnreadEventsCount
         )
     }
 
@@ -128,7 +133,8 @@ class ConversationMessagesViewModelArrangement {
             qualifiedIdMapper.fromStringToQualifiedID("some-dummy-value@some.dummy.domain")
         } returns QualifiedID("some-dummy-value", "some.dummy.domain")
         coEvery { observeConversationDetails(any()) } returns flowOf()
-        coEvery { getMessagesForConversationUseCase(any()) } returns messagesChannel.consumeAsFlow()
+        coEvery { getMessagesForConversationUseCase(any(), any()) } returns messagesChannel.consumeAsFlow()
+        coEvery { getConversationUnreadEventsCount(any()) } returns GetConversationUnreadEventsCountUseCase.Result.Success(0L)
         coEvery { updateAssetMessageDownloadStatus(any(), any(), any()) } returns UpdateDownloadStatusResult.Success
     }
 
@@ -144,6 +150,10 @@ class ConversationMessagesViewModelArrangement {
         every { fileManager.openWithExternalApp(any(), any(), any()) }.answers {
             viewModel.hideOnAssetDownloadedDialog()
         }
+    }
+
+    fun withConversationUnreadEventsCount(result: GetConversationUnreadEventsCountUseCase.Result) = apply {
+        coEvery { getConversationUnreadEventsCount(any()) } returns result
     }
 
     fun withGetMessageByIdReturning(message: Message) = apply {

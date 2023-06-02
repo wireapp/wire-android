@@ -24,6 +24,7 @@ import android.view.View
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -31,16 +32,18 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.BottomSheetScaffold
-import androidx.compose.material.BottomSheetValue
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.Text
-import androidx.compose.material.rememberBottomSheetScaffoldState
-import androidx.compose.material.rememberBottomSheetState
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SheetValue
+import androidx.compose.material3.Text
+import androidx.compose.material3.rememberBottomSheetScaffoldState
+import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -57,12 +60,15 @@ import com.wire.android.ui.calling.controlbuttons.HangUpButton
 import com.wire.android.ui.calling.controlbuttons.MicrophoneButton
 import com.wire.android.ui.calling.controlbuttons.SpeakerButton
 import com.wire.android.ui.calling.model.UICallParticipant
+import com.wire.android.ui.calling.ongoing.fullscreen.DoubleTapToast
+import com.wire.android.ui.calling.ongoing.fullscreen.FullScreenTile
+import com.wire.android.ui.calling.ongoing.fullscreen.SelectedParticipant
 import com.wire.android.ui.calling.ongoing.participantsview.VerticalCallingPager
 import com.wire.android.ui.common.SecurityClassificationBanner
+import com.wire.android.ui.common.bottomsheet.WireBottomSheetScaffold
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
-import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.wireColorScheme
@@ -87,6 +93,7 @@ fun OngoingCallScreen(
             isCbrEnabled = isCbrEnabled,
             isOnFrontCamera = isOnFrontCamera,
             classificationType = securityClassificationType,
+            shouldShowDoubleTapToast = ongoingCallViewModel.shouldShowDoubleTapToast,
             toggleSpeaker = sharedCallingViewModel::toggleSpeaker,
             toggleMute = sharedCallingViewModel::toggleMute,
             hangUpCall = sharedCallingViewModel::hangUpCall,
@@ -95,15 +102,14 @@ fun OngoingCallScreen(
             setVideoPreview = sharedCallingViewModel::setVideoPreview,
             clearVideoPreview = sharedCallingViewModel::clearVideoPreview,
             navigateBack = sharedCallingViewModel::navigateBack,
-            requestVideoStreams = ongoingCallViewModel::requestVideoStreams
+            requestVideoStreams = ongoingCallViewModel::requestVideoStreams,
+            hideDoubleTapToast = ongoingCallViewModel::hideDoubleTapToast
         )
-        isCameraOn?.let {
-            BackHandler(enabled = it, sharedCallingViewModel::navigateBack)
-        }
+        BackHandler(enabled = isCameraOn, sharedCallingViewModel::navigateBack)
     }
 }
 
-@OptIn(ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun OngoingCallContent(
     conversationName: ConversationName?,
@@ -113,6 +119,7 @@ private fun OngoingCallContent(
     isOnFrontCamera: Boolean,
     isSpeakerOn: Boolean,
     isCbrEnabled: Boolean,
+    shouldShowDoubleTapToast: Boolean,
     classificationType: SecurityClassificationType,
     toggleSpeaker: () -> Unit,
     toggleMute: () -> Unit,
@@ -122,25 +129,31 @@ private fun OngoingCallContent(
     setVideoPreview: (view: View) -> Unit,
     clearVideoPreview: () -> Unit,
     navigateBack: () -> Unit,
+    hideDoubleTapToast: () -> Unit,
     requestVideoStreams: (participants: List<UICallParticipant>) -> Unit
 ) {
+
     val sheetInitialValue =
-        if (classificationType == SecurityClassificationType.NONE) BottomSheetValue.Collapsed else BottomSheetValue.Expanded
-    val sheetState = rememberBottomSheetState(
+        if (classificationType == SecurityClassificationType.NONE) SheetValue.PartiallyExpanded else SheetValue.Expanded
+    val sheetState = rememberStandardBottomSheetState(
         initialValue = sheetInitialValue
     ).also {
         LaunchedEffect(Unit) {
             // Same issue with expanded on other sheets, we need to use animateTo to fully expand programmatically.
-            it.animateTo(sheetInitialValue)
+            if (sheetInitialValue == SheetValue.PartiallyExpanded) it.partialExpand()
+            else it.expand()
         }
     }
 
     val scaffoldState = rememberBottomSheetScaffoldState(
         bottomSheetState = sheetState
     )
-    BottomSheetScaffold(
-        sheetBackgroundColor = colorsScheme().background,
-        backgroundColor = colorsScheme().background,
+
+    var shouldOpenFullScreen by remember { mutableStateOf(false) }
+    var selectedParticipantForFullScreen by remember { mutableStateOf(SelectedParticipant()) }
+
+    WireBottomSheetScaffold(
+        sheetDragHandle = null,
         topBar = {
             OngoingCallTopBar(
                 conversationName = when (conversationName) {
@@ -152,7 +165,6 @@ private fun OngoingCallContent(
                 onCollapse = navigateBack
             )
         },
-        sheetShape = RoundedCornerShape(topStart = dimensions().corner16x, topEnd = dimensions().corner16x),
         sheetPeekHeight = dimensions().defaultSheetPeekHeight,
         scaffoldState = scaffoldState,
         sheetContent = {
@@ -170,40 +182,80 @@ private fun OngoingCallContent(
             )
         },
     ) {
-        if (participants.isEmpty()) {
-            Column(
-                modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                WireCircularProgressIndicator(
-                    progressColor = MaterialTheme.wireColorScheme.onSurface,
-                    modifier = Modifier.align(Alignment.CenterHorizontally),
-                    size = dimensions().spacing32x
+        BoxWithConstraints(
+            modifier = Modifier
+                .padding(
+                    top = it.calculateTopPadding(),
+                    bottom = dimensions().defaultSheetPeekHeight
                 )
-                Text(
-                    text = stringResource(id = R.string.connectivity_status_bar_connecting),
-                    modifier = Modifier.align(Alignment.CenterHorizontally),
-                )
-            }
-        } else {
-            Box(
-                modifier = Modifier.padding(
-                    bottom = 95.dp
-                )
-            ) {
-                val topAppBarAndBottomSheetHeight = if (isCbrEnabled) APP_BAR_AND_BOTTOM_SHEET_HEIGHT_WITH_CBR_INDICATOR
-                else DEFAULT_TOP_APP_BAR_AND_BOTTOM_SHEET_HEIGHT
+        ) {
 
-                VerticalCallingPager(
-                    participants = participants,
-                    isSelfUserCameraOn = isCameraOn,
-                    isSelfUserMuted = isMuted,
-                    topAppBarAndBottomSheetHeight = topAppBarAndBottomSheetHeight,
-                    onSelfVideoPreviewCreated = setVideoPreview,
-                    onSelfClearVideoPreview = clearVideoPreview,
-                    requestVideoStreams = requestVideoStreams
-                )
+            if (participants.isEmpty()) {
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    WireCircularProgressIndicator(
+                        progressColor = MaterialTheme.wireColorScheme.onSurface,
+                        modifier = Modifier.align(Alignment.CenterHorizontally),
+                        size = dimensions().spacing32x
+                    )
+                    Text(
+                        text = stringResource(id = R.string.connectivity_status_bar_connecting),
+                        modifier = Modifier.align(Alignment.CenterHorizontally),
+                    )
+                }
+            } else {
+                Box(
+                    modifier = Modifier.fillMaxSize()
+                ) {
+
+                    // if there is only one in the call, do not allow full screen
+                    if (participants.size == 1) {
+                        shouldOpenFullScreen = false
+                    }
+
+                    // if we are on full screen, and that user left the call, then we leave the full screen
+                    if (participants.find { user -> user.id == selectedParticipantForFullScreen.userId } == null) {
+                        shouldOpenFullScreen = false
+                    }
+
+                    if (shouldOpenFullScreen) {
+                        hideDoubleTapToast()
+                        FullScreenTile(
+                            selectedParticipant = selectedParticipantForFullScreen,
+                            height = this@BoxWithConstraints.maxHeight - dimensions().spacing4x
+                        ) {
+                            shouldOpenFullScreen = !shouldOpenFullScreen
+                        }
+                    } else {
+                        VerticalCallingPager(
+                            participants = participants,
+                            isSelfUserCameraOn = isCameraOn,
+                            isSelfUserMuted = isMuted,
+                            contentHeight = this@BoxWithConstraints.maxHeight,
+                            onSelfVideoPreviewCreated = setVideoPreview,
+                            onSelfClearVideoPreview = clearVideoPreview,
+                            requestVideoStreams = requestVideoStreams,
+                            onDoubleTap = { selectedUserId, selectedClientId, isSelf ->
+                                selectedParticipantForFullScreen = SelectedParticipant(
+                                    userId = selectedUserId,
+                                    clientId = selectedClientId,
+                                    isSelfUser = isSelf
+                                )
+                                shouldOpenFullScreen = !shouldOpenFullScreen
+                            }
+                        )
+                        DoubleTapToast(
+                            modifier = Modifier.align(Alignment.TopCenter),
+                            enabled = shouldShowDoubleTapToast,
+                            text = stringResource(id = R.string.calling_ongoing_double_tap_for_full_screen)
+                        ) {
+                            hideDoubleTapToast()
+                        }
+                    }
+                }
             }
         }
     }
@@ -252,36 +304,37 @@ private fun CallingControls(
     onToggleVideo: () -> Unit,
     flipCamera: () -> Unit,
 ) {
-    Row(
-        horizontalArrangement = Arrangement.SpaceEvenly,
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = dimensions().spacing16x)
-    ) {
-        MicrophoneButton(isMuted = isMuted) { toggleMute() }
-        CameraButton(
-            isCameraOn = isCameraOn,
-            onCameraPermissionDenied = { },
-            onCameraButtonClicked = onToggleVideo
-        )
+    Column {
+        Row(
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = dimensions().spacing16x)
+        ) {
+            MicrophoneButton(isMuted = isMuted) { toggleMute() }
+            CameraButton(
+                isCameraOn = isCameraOn,
+                onCameraPermissionDenied = { },
+                onCameraButtonClicked = onToggleVideo
+            )
 
-        SpeakerButton(
-            isSpeakerOn = isSpeakerOn,
-            onSpeakerButtonClicked = toggleSpeaker
-        )
+            SpeakerButton(
+                isSpeakerOn = isSpeakerOn,
+                onSpeakerButtonClicked = toggleSpeaker
+            )
 
-        if (isCameraOn) {
-            CameraFlipButton(isOnFrontCamera, flipCamera)
+            if (isCameraOn) {
+                CameraFlipButton(isOnFrontCamera, flipCamera)
+            }
+
+            HangUpButton(
+                modifier = Modifier.size(MaterialTheme.wireDimensions.defaultCallingHangUpButtonSize),
+                onHangUpButtonClicked = onHangUpCall
+            )
         }
-
-        HangUpButton(
-            modifier = Modifier.size(MaterialTheme.wireDimensions.defaultCallingHangUpButtonSize),
-            onHangUpButtonClicked = onHangUpCall
-        )
+        SecurityClassificationBanner(classificationType)
     }
-    VerticalSpace.x8()
-    SecurityClassificationBanner(classificationType)
 }
 
 @Composable
@@ -289,6 +342,3 @@ private fun CallingControls(
 fun PreviewOngoingCallTopBar() {
     OngoingCallTopBar("Default", true) { }
 }
-
-private const val DEFAULT_TOP_APP_BAR_AND_BOTTOM_SHEET_HEIGHT = 185
-private const val APP_BAR_AND_BOTTOM_SHEET_HEIGHT_WITH_CBR_INDICATOR = 200

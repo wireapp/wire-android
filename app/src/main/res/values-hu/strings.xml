@@ -709,10 +709,10 @@
     <!-- Connections -->
     <string name="connection_label_connect">Kapcsolódás</string>
     <string name="connection_label_cancel_request">Kérelem visszavonása</string>
-    <string name="connection_label_member_not_belongs_to_team">This user does not belong to your team. If they accept your connection request, they are available as a contact</string>
-    <string name="connection_label_member_not_conneted">When your connection request is accepted, you can communicate directly with this contact.</string>
-    <string name="connection_request_sent">Connection request sent</string>
-    <string name="connection_request_canceled">Connection request canceled</string>
+    <string name="connection_label_member_not_belongs_to_team">Ez a felhasználó nem tartozik a csapatához. Ha ő elfogadja az Ön kapcsolódási kérelmét, elérhető lesz partnerként</string>
+    <string name="connection_label_member_not_conneted">Ha a kapcsolódási kérelmét elfogadják, közvetlenül tud kommunikálni ezzel a partnerrel.</string>
+    <string name="connection_request_sent">Kapcsolódási kérelem elküldve</string>
+    <string name="connection_request_canceled">Kapcsolódási kérelem visszavonva</string>
     <string name="connection_request_ignored">You ignored %1$s\'s request</string>
     <string name="connection_request_accepted">Connection request accepted</string>
     <string name="connection_request_sent_error">Connection request could not be sent</string>

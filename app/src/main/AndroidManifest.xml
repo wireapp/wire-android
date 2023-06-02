@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Wire
   ~ Copyright (C) 2023 Wire Swiss GmbH
   ~
@@ -70,8 +69,7 @@
             android:roundIcon="@mipmap/ic_launcher_round"
             android:supportsRtl="false"
             android:theme="@style/AppTheme.SplashScreen"
-            tools:replace="android:allowBackup,android:supportsRtl"
-            >
+            tools:replace="android:allowBackup,android:supportsRtl">
 
         <activity
                 android:name=".ui.WireActivity"
@@ -79,7 +77,6 @@
                 android:hardwareAccelerated="true"
                 android:launchMode="singleTask"
                 android:screenOrientation="portrait"
-                android:showOnLockScreen="true"
                 android:theme="@style/AppTheme.SplashScreen"
                 android:windowSoftInputMode="adjustResize|stateHidden">
             <intent-filter>
@@ -217,7 +214,7 @@
         </service>
 
         <receiver
-                android:name=".ui.debugscreen.StartServiceReceiver"
+                android:name=".ui.debug.StartServiceReceiver"
                 android:enabled="true"
                 android:exported="false">
             <intent-filter>

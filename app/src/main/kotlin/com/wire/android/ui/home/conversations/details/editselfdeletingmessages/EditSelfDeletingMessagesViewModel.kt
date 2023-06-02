@@ -36,7 +36,7 @@ import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.feature.conversation.messagetimer.UpdateMessageTimerUseCase
-import com.wire.kalium.logic.feature.selfdeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
+import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -93,18 +93,10 @@ class EditSelfDeletingMessagesViewModel @Inject constructor(
 
     fun updateSelfDeletingMessageOption(shouldBeEnabled: Boolean) {
         viewModelScope.launch {
-            state = state.copy(isEnabled = shouldBeEnabled)
-            if (!shouldBeEnabled) {
-                state = state.copy(isLoading = true)
-                state = when (updateMessageTimer(conversationId, null)) {
-                    is UpdateMessageTimerUseCase.Result.Failure -> state.copy(isEnabled = true)
-                    UpdateMessageTimerUseCase.Result.Success -> state.copy(
-                        isEnabled = false,
-                        locallySelected = null,
-                        remotelySelected = null
-                    )
-                }
-                state = state.copy(isLoading = false)
+            state = if (shouldBeEnabled) {
+                state.copy(isEnabled = true)
+            } else {
+                state.copy(isEnabled = false, locallySelected = null)
             }
         }
     }
@@ -116,22 +108,23 @@ class EditSelfDeletingMessagesViewModel @Inject constructor(
     fun applyNewDuration() {
         viewModelScope.launch {
             val currentSelectedDuration = state.locallySelected
-            state = when (updateMessageTimer(conversationId, currentSelectedDuration!!.value.inWholeMilliseconds)) {
+            state = when (updateMessageTimer(conversationId, currentSelectedDuration?.value?.inWholeMilliseconds)) {
                 is UpdateMessageTimerUseCase.Result.Failure -> {
                     appLogger.e("Failed to update self deleting enforced duration for conversation=${conversationId.toLogString()} " +
-                            "with new duration=${currentSelectedDuration.name}")
+                            "with new duration=${currentSelectedDuration?.name}")
                     state.copy(isLoading = true)
                 }
 
                 UpdateMessageTimerUseCase.Result.Success -> {
                     appLogger.d("Success updating self deleting enforced duration for conversation=${conversationId.toLogString()} " +
-                            "with new duration=${currentSelectedDuration.name}")
+                            "with new duration=${currentSelectedDuration?.name}")
                     state.copy(
                         isLoading = false,
                         remotelySelected = currentSelectedDuration
                     )
                 }
             }
+            navigateBack()
         }
     }
 

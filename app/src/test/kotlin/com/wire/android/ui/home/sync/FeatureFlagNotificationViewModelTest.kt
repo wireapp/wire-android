@@ -15,6 +15,7 @@ import com.wire.kalium.logic.feature.user.MarkSelfDeletionStatusAsNotifiedUseCas
 import com.wire.kalium.logic.feature.user.guestroomlink.MarkGuestLinkFeatureFlagAsNotChangedUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.verify
@@ -119,7 +120,7 @@ class FeatureFlagNotificationViewModelTest {
         viewModel.dismissSelfDeletingMessagesDialog()
         advanceUntilIdle()
 
-        verify(exactly = 1) { arrangement.markSelfDeletingStatusAsNotified() }
+        coVerify(exactly = 1) { arrangement.markSelfDeletingStatusAsNotified() }
         assertEquals(false, viewModel.featureFlagState.shouldShowSelfDeletingMessagesDialog)
     }
 

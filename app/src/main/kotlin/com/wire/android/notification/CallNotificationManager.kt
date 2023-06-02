@@ -102,7 +102,7 @@ class CallNotificationManager @Inject constructor(private val context: Context) 
     }
 
     fun getOngoingCallNotification(callName: String, conversationId: String, userId: UserId): Notification {
-        val channelId = NotificationConstants.getOngoingChannelId(userId)
+        val channelId = NotificationConstants.ONGOING_CALL_CHANNEL_ID
         return NotificationCompat.Builder(context, channelId)
             .setContentTitle(callName)
             .setContentText(context.getString(R.string.notification_ongoing_call_content))
@@ -118,6 +118,26 @@ class CallNotificationManager @Inject constructor(private val context: Context) 
             .build()
     }
 
+    /**
+     * @return placeholder Notification for OngoingCall, that can be shown immediately after starting the Service
+     * (e.g. in [android.app.Service.onCreate]). It has no any [NotificationCompat.Action], on click - just opens the app.
+     * This notification should be replace by the user-specific notification (with corresponding [NotificationCompat.Action],
+     * [android.content.Intent] and title) once it's possible (e.g. in [android.app.Service.onStartCommand])
+     */
+    fun getOngoingCallPlaceholderNotification(): Notification {
+        val channelId = NotificationConstants.ONGOING_CALL_CHANNEL_ID
+        return NotificationCompat.Builder(context, channelId)
+            .setContentText(context.getString(R.string.notification_ongoing_call_content))
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setCategory(NotificationCompat.CATEGORY_CALL)
+            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+            .setSmallIcon(R.drawable.notification_icon_small)
+            .setAutoCancel(true)
+            .setOngoing(true)
+            .setContentIntent(openAppPendingIntent(context))
+            .build()
+    }
+
     // Notifications content
     private fun getNotificationBody(call: Call) =
         when (call.conversationType) {
@@ -126,6 +146,7 @@ class CallNotificationManager @Inject constructor(private val context: Context) 
                 (call.callerTeamName?.let { "$name @$it" } ?: name)
                     .let { context.getString(R.string.notification_group_call_content, it) }
             }
+
             else -> context.getString(R.string.notification_incoming_call_content)
         }
 

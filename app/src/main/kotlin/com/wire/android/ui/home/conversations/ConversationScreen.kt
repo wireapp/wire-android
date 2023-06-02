@@ -20,8 +20,6 @@
 
 package com.wire.android.ui.home.conversations
 
-import android.app.DownloadManager
-import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -30,8 +28,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.Composable
@@ -88,12 +84,13 @@ import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.util.permission.CallingAudioRequestFlow
 import com.wire.android.util.permission.rememberCallingRecordAudioBluetoothRequestFlow
 import com.wire.android.util.ui.UIText
+import com.wire.android.util.ui.openDownloadFolder
 import com.wire.kalium.logic.NetworkFailure
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.call.usecase.ConferenceCallingResult
 import com.wire.kalium.logic.feature.conversation.InteractionAvailability
-import com.wire.kalium.logic.feature.selfdeletingMessages.SelfDeletionTimer
+import com.wire.kalium.logic.feature.selfDeletingMessages.SelfDeletionTimer
 import com.wire.kalium.util.DateTimeUtil
 import kotlinx.collections.immutable.ImmutableMap
 import kotlinx.coroutines.CoroutineScope
@@ -103,7 +100,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Instant
-import kotlin.time.Duration
 import kotlin.time.Duration.Companion.ZERO
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -222,7 +218,8 @@ fun ConversationScreen(
         currentSelfDeletionTimer = messageComposerViewModel.messageComposerViewState.selfDeletionTimer,
         onNewSelfDeletingMessagesStatus = messageComposerViewModel::updateSelfDeletingMessages,
         tempWritableImageUri = messageComposerViewModel.tempWritableImageUri,
-        tempWritableVideoUri = messageComposerViewModel.tempWritableVideoUri
+        tempWritableVideoUri = messageComposerViewModel.tempWritableVideoUri,
+        onFailedMessageRetryClicked = messageComposerViewModel::retrySendingMessage
     )
     DeleteMessageDialog(
         state = messageComposerViewModel.deleteMessageDialogsState,
@@ -283,7 +280,6 @@ private fun StartCallAudioBluetoothPermissionCheckFlow(
     // TODO display an error dialog
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Suppress("LongParameterList")
 @Composable
 private fun ConversationScreen(
@@ -297,7 +293,7 @@ private fun ConversationScreen(
     onSendMessage: (SendMessageBundle) -> Unit,
     onSendEditMessage: (EditMessageBundle) -> Unit,
     onDeleteMessage: (String, Boolean) -> Unit,
-    onAttachmentPicked: (UriAsset, Duration?) -> Unit,
+    onAttachmentPicked: (UriAsset) -> Unit,
     onAudioClick: (String) -> Unit,
     onChangeAudioPosition: (String, Int) -> Unit,
     onAssetItemClicked: (String) -> Unit,
@@ -318,7 +314,8 @@ private fun ConversationScreen(
     currentSelfDeletionTimer: SelfDeletionTimer,
     onNewSelfDeletingMessagesStatus: (SelfDeletionTimer) -> Unit,
     tempWritableImageUri: Uri?,
-    tempWritableVideoUri: Uri?
+    tempWritableVideoUri: Uri?,
+    onFailedMessageRetryClicked: (String) -> Unit
 ) {
     val conversationScreenState = rememberConversationScreenState()
     val messageComposerState = rememberMessageComposerState()
@@ -380,71 +377,74 @@ private fun ConversationScreen(
         ConversationScreenState.BottomSheetMenuType.None -> emptyList()
     }
 
-    MenuModalSheetLayout(
-        header = menuModalHeader,
-        sheetState = conversationScreenState.modalBottomSheetState,
-        coroutineScope = conversationScreenState.coroutineScope,
-        menuItems = menuItems
-    ) {
-        Scaffold(
-            topBar = {
-                Column {
-                    ConversationScreenTopAppBar(
-                        conversationInfoViewState = conversationInfoViewState,
-                        onBackButtonClick = onBackButtonClick,
-                        onDropDownClick = onDropDownClick,
-                        isDropDownEnabled = conversationInfoViewState.hasUserPermissionToEdit,
-                        onSearchButtonClick = { },
-                        onPhoneButtonClick = onStartCall,
-                        hasOngoingCall = conversationCallViewState.hasOngoingCall,
-                        onJoinCallButtonClick = onJoinCall,
-                        isInteractionEnabled = messageComposerViewState.interactionAvailability == InteractionAvailability.ENABLED
-                    )
-                    ConversationBanner(bannerMessage)
-                }
-            },
-            snackbarHost = {
-                SwipeDismissSnackbarHost(
-                    hostState = conversationScreenState.snackBarHostState,
-                    modifier = Modifier.fillMaxWidth()
+    Scaffold(
+        topBar = {
+            Column {
+                ConversationScreenTopAppBar(
+                    conversationInfoViewState = conversationInfoViewState,
+                    onBackButtonClick = onBackButtonClick,
+                    onDropDownClick = onDropDownClick,
+                    isDropDownEnabled = conversationInfoViewState.hasUserPermissionToEdit,
+                    onSearchButtonClick = { },
+                    onPhoneButtonClick = onStartCall,
+                    hasOngoingCall = conversationCallViewState.hasOngoingCall,
+                    onJoinCallButtonClick = onJoinCall,
+                    isInteractionEnabled = messageComposerViewState.interactionAvailability == InteractionAvailability.ENABLED
                 )
-            },
-            content = { internalPadding ->
-                Box(modifier = Modifier.padding(internalPadding)) {
-                    ConversationScreenContent(
-                        interactionAvailability = messageComposerViewState.interactionAvailability,
-                        membersToMention = messageComposerViewState.mentionsToSelect,
-                        audioMessagesState = conversationMessagesViewState.audioMessagesState,
-                        isFileSharingEnabled = messageComposerViewState.isFileSharingEnabled,
-                        lastUnreadMessageInstant = conversationMessagesViewState.firstUnreadInstant,
-                        unreadEventCount = conversationMessagesViewState.firstuUnreadEventIndex,
-                        conversationState = messageComposerViewState,
-                        conversationDetailsData = conversationInfoViewState.conversationDetailsData,
-                        messageComposerState = messageComposerState,
-                        messages = conversationMessagesViewState.messages,
-                        onSendMessage = onSendMessage,
-                        onSendEditMessage = onSendEditMessage,
-                        onAttachmentPicked = onAttachmentPicked,
-                        onMentionMember = onMentionMember,
-                        onAssetItemClicked = onAssetItemClicked,
-                        onAudioItemClicked = onAudioClick,
-                        onChangeAudioPosition = onChangeAudioPosition,
-                        onImageFullScreenMode = onImageFullScreenMode,
-                        onReactionClicked = onReactionClick,
-                        onResetSessionClicked = onResetSessionClick,
-                        onOpenProfile = onOpenProfile,
-                        onUpdateConversationReadDate = onUpdateConversationReadDate,
-                        onShowEditingOptions = conversationScreenState::showEditContextMenu,
-                        onShowSelfDeletionOption = conversationScreenState::showSelfDeletionContextMenu,
-                        onPingClicked = onPingClicked,
-                        onSelfDeletingMessageRead = onSelfDeletingMessageRead,
-                        tempWritableImageUri = tempWritableImageUri,
-                        tempWritableVideoUri = tempWritableVideoUri
-                    )
-                }
+                ConversationBanner(bannerMessage)
             }
-        )
-    }
+        },
+        snackbarHost = {
+            SwipeDismissSnackbarHost(
+                hostState = conversationScreenState.snackBarHostState,
+                modifier = Modifier.fillMaxWidth()
+            )
+        },
+        content = { internalPadding ->
+            Box(modifier = Modifier.padding(internalPadding)) {
+                ConversationScreenContent(
+                    interactionAvailability = messageComposerViewState.interactionAvailability,
+                    membersToMention = messageComposerViewState.mentionsToSelect,
+                    audioMessagesState = conversationMessagesViewState.audioMessagesState,
+                    isFileSharingEnabled = messageComposerViewState.isFileSharingEnabled,
+                    lastUnreadMessageInstant = conversationMessagesViewState.firstUnreadInstant,
+                    unreadEventCount = conversationMessagesViewState.firstuUnreadEventIndex,
+                    conversationState = messageComposerViewState,
+                    conversationDetailsData = conversationInfoViewState.conversationDetailsData,
+                    messageComposerState = messageComposerState,
+                    messages = conversationMessagesViewState.messages,
+                    onSendMessage = onSendMessage,
+                    onSendEditMessage = onSendEditMessage,
+                    onAttachmentPicked = onAttachmentPicked,
+                    onMentionMember = onMentionMember,
+                    onAssetItemClicked = onAssetItemClicked,
+                    onAudioItemClicked = onAudioClick,
+                    onChangeAudioPosition = onChangeAudioPosition,
+                    onImageFullScreenMode = onImageFullScreenMode,
+                    onReactionClicked = onReactionClick,
+                    onResetSessionClicked = onResetSessionClick,
+                    onOpenProfile = onOpenProfile,
+                    onUpdateConversationReadDate = onUpdateConversationReadDate,
+                    onShowEditingOptions = conversationScreenState::showEditContextMenu,
+                    onShowSelfDeletionOption = conversationScreenState::showSelfDeletionContextMenu,
+                    onPingClicked = onPingClicked,
+                    onSelfDeletingMessageRead = onSelfDeletingMessageRead,
+                    tempWritableImageUri = tempWritableImageUri,
+                    tempWritableVideoUri = tempWritableVideoUri,
+                    onFailedMessageCancelClicked = remember { { onDeleteMessage(it, false) } },
+                    onFailedMessageRetryClicked = onFailedMessageRetryClicked
+                )
+            }
+
+            MenuModalSheetLayout(
+                header = menuModalHeader,
+                sheetState = conversationScreenState.modalBottomSheetState,
+                coroutineScope = conversationScreenState.coroutineScope,
+                menuItems = menuItems
+            )
+        }
+    )
+
     SnackBarMessage(composerMessages, conversationMessages, conversationScreenState)
 }
 
@@ -462,7 +462,7 @@ private fun ConversationScreenContent(
     messages: Flow<PagingData<UIMessage>>,
     onSendMessage: (SendMessageBundle) -> Unit,
     onSendEditMessage: (EditMessageBundle) -> Unit,
-    onAttachmentPicked: (UriAsset, Duration?) -> Unit,
+    onAttachmentPicked: (UriAsset) -> Unit,
     onMentionMember: (String?) -> Unit,
     onAssetItemClicked: (String) -> Unit,
     onAudioItemClicked: (String) -> Unit,
@@ -478,7 +478,9 @@ private fun ConversationScreenContent(
     onSelfDeletingMessageRead: (UIMessage.Regular) -> Unit,
     tempWritableImageUri: Uri?,
     tempWritableVideoUri: Uri?,
-    conversationDetailsData: ConversationDetailsData
+    conversationDetailsData: ConversationDetailsData,
+    onFailedMessageRetryClicked: (String) -> Unit,
+    onFailedMessageCancelClicked: (String) -> Unit
 ) {
     val scope = rememberCoroutineScope()
 
@@ -506,7 +508,9 @@ private fun ConversationScreenContent(
                 onResetSessionClicked = onResetSessionClicked,
                 onSelfDeletingMessageRead = onSelfDeletingMessageRead,
                 onShowEditingOption = onShowEditingOptions,
-                conversationDetailsData = conversationDetailsData
+                conversationDetailsData = conversationDetailsData,
+                onFailedMessageCancelClicked = onFailedMessageCancelClicked,
+                onFailedMessageRetryClicked = onFailedMessageRetryClicked
             )
         },
         onSendTextMessage = { messageBundle ->
@@ -517,11 +521,11 @@ private fun ConversationScreenContent(
         },
         onSendEditTextMessage = onSendEditMessage,
         onAttachmentPicked = remember {
-            { uriAsset, expireAfter ->
+            { uriAsset ->
                 scope.launch {
                     lazyListState.scrollToItem(0)
                 }
-                onAttachmentPicked(uriAsset, expireAfter)
+                onAttachmentPicked(uriAsset)
             }
         },
         onMentionMember = onMentionMember,
@@ -580,7 +584,7 @@ private fun SnackBarMessage(
             )
             // Show downloads folder when clicking on Snackbar cta button
             if (it is OnFileDownloaded && snackbarResult == SnackbarResult.ActionPerformed) {
-                context.startActivity(Intent(DownloadManager.ACTION_VIEW_DOWNLOADS))
+                openDownloadFolder(context)
             }
         }
     }
@@ -602,7 +606,9 @@ fun MessageList(
     onResetSessionClicked: (senderUserId: UserId, clientId: String?) -> Unit,
     onShowEditingOption: (UIMessage.Regular) -> Unit,
     onSelfDeletingMessageRead: (UIMessage.Regular) -> Unit,
-    conversationDetailsData: ConversationDetailsData
+    conversationDetailsData: ConversationDetailsData,
+    onFailedMessageRetryClicked: (String) -> Unit,
+    onFailedMessageCancelClicked: (String) -> Unit
 ) {
     val mostRecentMessage = lazyPagingMessages.itemCount.takeIf { it > 0 }?.let { lazyPagingMessages[0] }
 
@@ -657,10 +663,16 @@ fun MessageList(
                         onReactionClicked = onReactionClicked,
                         onResetSessionClicked = onResetSessionClicked,
                         onSelfDeletingMessageRead = onSelfDeletingMessageRead,
+                        onFailedMessageCancelClicked = onFailedMessageCancelClicked,
+                        onFailedMessageRetryClicked = onFailedMessageRetryClicked
                     )
                 }
 
-                is UIMessage.System -> SystemMessageItem(message = message)
+                is UIMessage.System -> SystemMessageItem(
+                    message = message,
+                    onFailedMessageCancelClicked = onFailedMessageCancelClicked,
+                    onFailedMessageRetryClicked = onFailedMessageRetryClicked
+                )
             }
         }
     }
@@ -704,7 +716,7 @@ fun PreviewConversationScreen() {
         onSendMessage = { },
         onSendEditMessage = { },
         onDeleteMessage = { _, _ -> },
-        onAttachmentPicked = { _, _ -> },
+        onAttachmentPicked = { _ -> },
         onAssetItemClicked = { },
         onImageFullScreenMode = { _, _ -> },
         onStartCall = { },
@@ -725,6 +737,7 @@ fun PreviewConversationScreen() {
         currentSelfDeletionTimer = SelfDeletionTimer.Enabled(ZERO),
         onNewSelfDeletingMessagesStatus = {},
         tempWritableImageUri = null,
-        tempWritableVideoUri = null
+        tempWritableVideoUri = null,
+        onFailedMessageRetryClicked = {}
     )
 }

@@ -29,11 +29,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.BottomSheetScaffold
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.rememberBottomSheetScaffoldState
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -48,7 +46,7 @@ import com.wire.android.ui.calling.common.CallVideoPreview
 import com.wire.android.ui.calling.common.CallerDetails
 import com.wire.android.ui.calling.controlbuttons.CallOptionsControls
 import com.wire.android.ui.calling.controlbuttons.HangUpButton
-import com.wire.android.ui.common.colorsScheme
+import com.wire.android.ui.common.bottomsheet.WireBottomSheetScaffold
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.wireDimensions
 
@@ -70,7 +68,7 @@ fun InitiatingCallScreen(
     }
 }
 
-@OptIn(ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun InitiatingCallContent(
     callState: CallState,
@@ -87,12 +85,10 @@ private fun InitiatingCallContent(
 
     val scaffoldState = rememberBottomSheetScaffoldState()
 
-    BottomSheetScaffold(
-        sheetShape = RoundedCornerShape(topStart = dimensions().corner16x, topEnd = dimensions().corner16x),
-        backgroundColor = colorsScheme().background,
-        sheetBackgroundColor = colorsScheme().surface,
+    WireBottomSheetScaffold(
+        sheetDragHandle = null,
         scaffoldState = scaffoldState,
-        sheetGesturesEnabled = false,
+        sheetSwipeEnabled = false,
         sheetPeekHeight = dimensions().defaultInitiatingCallSheetPeekHeight,
         sheetContent = {
             Column(

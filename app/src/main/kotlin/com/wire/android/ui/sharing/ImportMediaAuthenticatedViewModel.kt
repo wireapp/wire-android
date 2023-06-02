@@ -48,22 +48,22 @@ import com.wire.kalium.logic.feature.asset.GetAssetSizeLimitUseCase
 import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageResult
 import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationListDetailsUseCase
-import com.wire.kalium.logic.feature.selfdeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
-import com.wire.kalium.logic.feature.selfdeletingMessages.PersistNewSelfDeletionTimerUseCase
-import com.wire.kalium.logic.feature.selfdeletingMessages.SelfDeletionTimer
+import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
+import com.wire.kalium.logic.feature.selfDeletingMessages.PersistNewSelfDeletionTimerUseCase
+import com.wire.kalium.logic.feature.selfDeletingMessages.SelfDeletionTimer
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -118,18 +118,16 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
         }
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     private suspend fun observeConversationWithSearch() = viewModelScope.launch {
-        combine(
-            observeConversationListDetails()
-                .map {
-                    it.mapNotNull { conversationDetails ->
-                        conversationDetails.toConversationItem(
-                            wireSessionImageLoader,
-                            userTypeMapper
-                        )
-                    }
-                }, searchQueryFlow
-        ) { conversations, searchQuery ->
+        searchQueryFlow.mapLatest { searchQuery ->
+            val conversations = observeConversationListDetails().first()
+                .mapNotNull { conversationDetails ->
+                    conversationDetails.toConversationItem(
+                        wireSessionImageLoader,
+                        userTypeMapper
+                    )
+                }
             val searchResult =
                 if (searchQuery.isEmpty()) conversations else searchShareableConversation(
                     conversations,
@@ -159,7 +157,7 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
         }
     }
 
-    fun addConversationItemToGroupSelection(conversation: ConversationItem) =
+    private fun addConversationItemToGroupSelection(conversation: ConversationItem) =
         viewModelScope.launch {
             // TODO: change this conversation item to a list of conversation items in case we want to support
             // sharing to multiple conversations
@@ -324,7 +322,7 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
         if (assetsToSend.size > MAX_LIMIT_MEDIA_IMPORT) {
             onSnackbarMessage(ImportMediaSnackbarMessages.MaxAmountOfAssetsReached)
         } else {
-            var jobs: List<Job> = listOf()
+            val jobs: MutableCollection<Job> = mutableListOf()
             assetsToSend.forEach { importedAsset ->
                 val isImage = importedAsset is ImportedMediaAsset.Image
                 val job = viewModelScope.launch {
@@ -336,23 +334,15 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
                         assetMimeType = importedAsset.mimeType,
                         assetWidth = if (isImage) (importedAsset as ImportedMediaAsset.Image).width else 0,
                         assetHeight = if (isImage) (importedAsset as ImportedMediaAsset.Image).height else 0,
-                        expireAfter = importMediaState.selfDeletingTimer.toDuration().let { if (it == ZERO) null else it }
                     ).also {
                         if (it is ScheduleNewAssetMessageResult.Failure) {
-                            appLogger.e(
-                                "Failed to import asset message to conversationId=${conversation.conversationId.toLogString()} " +
-                                        "with self deletion timer: ${importMediaState.selfDeletingTimer.toLogString()}"
-                            )
+                            appLogger.e("Failed to import asset message to conversationId=${conversation.conversationId.toLogString()} ")
                         } else {
-                            appLogger.d(
-                                "Successfully imported asset message to conversationId=${conversation.conversationId.toLogString()}"
-                                        + "with self deletion timer: ${importMediaState.selfDeletingTimer.toLogString()}"
-                            )
+                            appLogger.d("Success importing asset message to conversationId=${conversation.conversationId.toLogString()}")
                         }
                     }
                 }
-                jobs = jobs.plus(job)
-                appLogger.d("Triggered sendAssetMessage job # ${jobs.size} -- path ${importedAsset.dataPath} -- isImage $isImage")
+                jobs.add(job)
             }
             jobs.joinAll()
             navigateToConversation(conversation.conversationId)
@@ -375,8 +365,11 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
                 selfDeletingTimer = SelfDeletionTimer.Enabled(selfDeletionDuration.value)
             )
             appLogger.d(
-                "New self deletion timer picked by user for conversationId=${conversationId.toLogString()} with selfDeletingTimer=" +
-                        importMediaState.selfDeletingTimer.toLogString()
+                "${SelfDeletionTimer.TAG}: ${
+                    importMediaState.selfDeletingTimer.toLogString(
+                        "user timer update for conversationId=${conversationId.toLogString()} on ImportMediaScreen"
+                    )
+                }"
             )
             persistNewSelfDeletionTimerUseCase(
                 conversationId = conversationId,
@@ -388,7 +381,7 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
         navigationManager.navigate(
             NavigationCommand(
                 NavigationItem.Conversation.getRouteWithArgs(listOf(conversationId)),
-                backStackMode = BackStackMode.REMOVE_CURRENT
+                backStackMode = BackStackMode.CLEAR_TILL_START
             )
         )
     }
@@ -408,8 +401,8 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
         val fileMetadata = uri.getMetadataFromUri(context)
         val tempAssetPath = kaliumFileSystem.tempFilePath(assetKey)
         val mimeType = fileMetadata.mimeType.ifEmpty { importedAssetMimeType }
-        when {
-            isAboveLimit(isImageFile(mimeType), fileMetadata.size) -> null
+        return@withContext when {
+            isAboveLimit(isImageFile(mimeType), fileMetadata.sizeInBytes) -> null
             isImageFile(mimeType) -> {
                 // Only resample the image if it is too large
                 val resampleSize = uri.resampleImageAndCopyToTempPath(
@@ -424,9 +417,9 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
                     tempAssetPath
                 )
 
-                return@withContext ImportedMediaAsset.Image(
+                ImportedMediaAsset.Image(
                     name = fileMetadata.name,
-                    size = fileMetadata.size,
+                    size = fileMetadata.sizeInBytes,
                     mimeType = mimeType,
                     dataPath = tempAssetPath,
                     dataUri = uri,
@@ -438,9 +431,9 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
 
             else -> {
                 fileManager.copyToPath(uri, tempAssetPath)
-                return@withContext ImportedMediaAsset.GenericAsset(
+                ImportedMediaAsset.GenericAsset(
                     name = fileMetadata.name,
-                    size = fileMetadata.size,
+                    size = fileMetadata.sizeInBytes,
                     mimeType = mimeType,
                     dataPath = tempAssetPath,
                     dataUri = uri,
@@ -450,14 +443,14 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
         }
     }
 
-    private suspend fun isAboveLimit(isImage: Boolean, size: Long): Boolean {
-        val assetLimitForCurrentUser = getAssetSizeLimit(isImage).toInt()
-        val sizeOf1MB = SIZE_OF_1_MB * SIZE_OF_1_MB
-        val isAboveLimit = size > assetLimitForCurrentUser
+    private suspend fun isAboveLimit(isImage: Boolean, sizeInBytes: Long): Boolean {
+        val assetLimitInBytesForCurrentUser = getAssetSizeLimit(isImage).toInt()
+        val sizeOf1MB = SIZE_OF_1_MB
+        val isAboveLimit = sizeInBytes > assetLimitInBytesForCurrentUser
         if (isAboveLimit) {
             onSnackbarMessage(
                 ImportMediaSnackbarMessages.MaxAssetSizeExceeded(
-                    assetLimitForCurrentUser.div(sizeOf1MB)
+                    assetLimitInBytesForCurrentUser.div(sizeOf1MB)
                 )
             )
         }
@@ -470,7 +463,7 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
 
     private companion object {
         const val MAX_LIMIT_MEDIA_IMPORT = 20
-        const val SIZE_OF_1_MB = 1024
+        const val SIZE_OF_1_MB = 1024 * 1024
     }
 }
 

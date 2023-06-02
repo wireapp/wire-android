@@ -49,7 +49,7 @@ import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 import javax.inject.Singleton
 
-@ExperimentalCoroutinesApi
+@OptIn(ExperimentalCoroutinesApi::class)
 @Singleton
 class CurrentScreenManager @Inject constructor(
     @ApplicationContext val context: Context,

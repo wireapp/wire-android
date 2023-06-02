@@ -24,7 +24,6 @@ import android.app.NotificationManager
 import android.content.Context
 import android.media.AudioAttributes
 import android.media.MediaPlayer
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.core.app.NotificationManagerCompat
 import com.wire.android.BuildConfig
 import com.wire.android.mapper.MessageResourceProvider
@@ -51,7 +50,6 @@ object AppModule {
     @Provides
     fun provideCurrentAppVersion(): Int = BuildConfig.VERSION_CODE
 
-    @ExperimentalMaterial3Api
     @Singleton
     @Provides
     fun provideNavigationManager() = NavigationManager()

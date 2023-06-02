@@ -545,6 +545,9 @@
     <string name="label_system_message_conversation_history_lost">You haven\'t used this device for a while. some messages may not appear here.</string>
     <string name="label_system_message_receipt_mode_on">on</string>
     <string name="label_system_message_receipt_mode_off">off</string>
+    <string name="label_system_message_conversation_started_by_self">**You** started the conversation</string>
+    <string name="label_system_message_conversation_started_by_other">%1$s started the conversation</string>
+    <string name="label_system_message_conversation_started_with_members">With %1$s</string>
     <!-- Last messages -->
     <plurals name="last_message_self_added_users">
         <item quantity="one">You added 1 person to the conversation</item>
@@ -626,6 +629,8 @@
     <string name="label_learn_more_searching_user">Learn more</string>
     <string name="label_no_results_found">No results could be found. Please try again.</string>
     <string name="label_general_error">Something went wrong</string>
+    <string name="label_add_member_people">People</string>
+    <string name="label_add_member_services">Services</string>
     <!-- Snackbar messages -->
     <string name="error_unknown_title">Something went wrong</string>
     <string name="error_unknown_message">Please try again</string>
@@ -841,7 +846,7 @@
     <string name="label_enable_logging">Enable Logging</string>
     <string name="label_proteus_option_title">Proteus</string>
     <string name="label_enable_encrypted_proteus_storage">Enable encrypted proteus storage</string>
-    <string name="label_debug_title">Debug</string>
+    <string name="label_debug_title">Debug Settings</string>
     <string name="label_client_option_title">Client ID</string>
     <string name="label_device_id">Device ID: %1$s</string>
     <string name="label_code_commit_id">Commit Hash: %1$s</string>
@@ -1049,4 +1054,9 @@
     <string name="five_minutes_short_label">5m</string>
     <string name="one_minute_short_label">1m</string>
     <string name="ten_seconds_short_label">10s</string>
+    <string name="label_debug_data">Debug data</string>
+    <string name="title_internal_debugging">Internal debugging</string>
+    <string name="label_log_options_description">"This stores anonymized troubleshooting information locally. "</string>
+
+    <string name="label_no_application_found_open_downloads_folder">"No application found to open downloads folder"</string>
 </resources>

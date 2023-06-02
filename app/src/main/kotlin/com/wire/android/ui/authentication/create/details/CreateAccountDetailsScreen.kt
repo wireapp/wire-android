@@ -22,10 +22,8 @@ package com.wire.android.ui.authentication.create.details
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.imeNestedScroll
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -87,7 +85,7 @@ fun CreateAccountDetailsScreen(viewModel: CreateAccountDetailsViewModel, serverC
     )
 }
 
-@OptIn(ExperimentalLayoutApi::class, ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun DetailsContent(
     state: CreateAccountDetailsViewState,
@@ -138,7 +136,6 @@ private fun DetailsContent(
                 verticalArrangement = Arrangement.Top,
                 modifier = Modifier
                     .weight(weight = 1f)
-                    .imeNestedScroll()
             ) {
                 item {
                     Text(

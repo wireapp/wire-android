@@ -29,7 +29,6 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.text.KeyboardActions
@@ -268,7 +267,6 @@ private fun EmailFooter(state: CreateAccountEmailViewState, onLoginPressed: () -
         modifier = Modifier
             .fillMaxWidth()
             .padding(MaterialTheme.wireDimensions.spacing16x)
-            .imePadding()
     )
 }
 

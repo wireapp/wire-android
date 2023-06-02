@@ -68,6 +68,7 @@ import com.wire.kalium.logic.feature.conversation.ObserveConversationInteraction
 import com.wire.kalium.logic.feature.conversation.ObserveSecurityClassificationLabelUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationReadDateUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
+import com.wire.kalium.logic.feature.message.RetryFailedMessageUseCase
 import com.wire.kalium.logic.feature.message.SendEditTextMessageUseCase
 import com.wire.kalium.logic.feature.message.SendKnockUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
@@ -191,6 +192,9 @@ internal class MessageComposerViewModelArrangement {
     @MockK
     lateinit var persistSelfDeletionStatus: PersistNewSelfDeletionTimerUseCase
 
+    @MockK
+    lateinit var retryFailedMessageUseCase: RetryFailedMessageUseCase
+
     private val fakeKaliumFileSystem = FakeKaliumFileSystem()
 
     private val viewModel by lazy {
@@ -206,7 +210,7 @@ internal class MessageComposerViewModelArrangement {
             isFileSharingEnabled = isFileSharingEnabledUseCase,
             wireSessionImageLoader = wireSessionImageLoader,
             kaliumFileSystem = fakeKaliumFileSystem,
-            updateConversationReadDateUseCase = updateConversationReadDateUseCase,
+            updateConversationReadDate = updateConversationReadDateUseCase,
             observeConversationInteractionAvailability = observeConversationInteractionAvailabilityUseCase,
             observeSecurityClassificationLabel = observeSecurityClassificationType,
             contactMapper = contactMapper,
@@ -216,9 +220,10 @@ internal class MessageComposerViewModelArrangement {
             pingRinger = pingRinger,
             sendKnockUseCase = sendKnockUseCase,
             fileManager = fileManager,
-            enqueueMessageSelfDeletionUseCase = enqueueMessageSelfDeletionUseCase,
+            enqueueMessageSelfDeletion = enqueueMessageSelfDeletionUseCase,
             observeSelfDeletingMessages = observeConversationSelfDeletionStatus,
-            persistNewSelfDeletingStatus = persistSelfDeletionStatus
+            persistNewSelfDeletingStatus = persistSelfDeletionStatus,
+            retryFailedMessage = retryFailedMessageUseCase
         )
     }
 

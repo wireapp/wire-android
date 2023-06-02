@@ -218,7 +218,8 @@ fun ConversationScreen(
         currentSelfDeletionTimer = messageComposerViewModel.messageComposerViewState.selfDeletionTimer,
         onNewSelfDeletingMessagesStatus = messageComposerViewModel::updateSelfDeletingMessages,
         tempWritableImageUri = messageComposerViewModel.tempWritableImageUri,
-        tempWritableVideoUri = messageComposerViewModel.tempWritableVideoUri
+        tempWritableVideoUri = messageComposerViewModel.tempWritableVideoUri,
+        onFailedMessageRetryClicked = messageComposerViewModel::retrySendingMessage
     )
     DeleteMessageDialog(
         state = messageComposerViewModel.deleteMessageDialogsState,
@@ -313,7 +314,8 @@ private fun ConversationScreen(
     currentSelfDeletionTimer: SelfDeletionTimer,
     onNewSelfDeletingMessagesStatus: (SelfDeletionTimer) -> Unit,
     tempWritableImageUri: Uri?,
-    tempWritableVideoUri: Uri?
+    tempWritableVideoUri: Uri?,
+    onFailedMessageRetryClicked: (String) -> Unit
 ) {
     val conversationScreenState = rememberConversationScreenState()
     val messageComposerState = rememberMessageComposerState()
@@ -428,7 +430,9 @@ private fun ConversationScreen(
                     onPingClicked = onPingClicked,
                     onSelfDeletingMessageRead = onSelfDeletingMessageRead,
                     tempWritableImageUri = tempWritableImageUri,
-                    tempWritableVideoUri = tempWritableVideoUri
+                    tempWritableVideoUri = tempWritableVideoUri,
+                    onFailedMessageCancelClicked = remember { { onDeleteMessage(it, false) } },
+                    onFailedMessageRetryClicked = onFailedMessageRetryClicked
                 )
             }
 
@@ -474,7 +478,9 @@ private fun ConversationScreenContent(
     onSelfDeletingMessageRead: (UIMessage.Regular) -> Unit,
     tempWritableImageUri: Uri?,
     tempWritableVideoUri: Uri?,
-    conversationDetailsData: ConversationDetailsData
+    conversationDetailsData: ConversationDetailsData,
+    onFailedMessageRetryClicked: (String) -> Unit,
+    onFailedMessageCancelClicked: (String) -> Unit
 ) {
     val scope = rememberCoroutineScope()
 
@@ -502,7 +508,9 @@ private fun ConversationScreenContent(
                 onResetSessionClicked = onResetSessionClicked,
                 onSelfDeletingMessageRead = onSelfDeletingMessageRead,
                 onShowEditingOption = onShowEditingOptions,
-                conversationDetailsData = conversationDetailsData
+                conversationDetailsData = conversationDetailsData,
+                onFailedMessageCancelClicked = onFailedMessageCancelClicked,
+                onFailedMessageRetryClicked = onFailedMessageRetryClicked
             )
         },
         onSendTextMessage = { messageBundle ->
@@ -598,7 +606,9 @@ fun MessageList(
     onResetSessionClicked: (senderUserId: UserId, clientId: String?) -> Unit,
     onShowEditingOption: (UIMessage.Regular) -> Unit,
     onSelfDeletingMessageRead: (UIMessage.Regular) -> Unit,
-    conversationDetailsData: ConversationDetailsData
+    conversationDetailsData: ConversationDetailsData,
+    onFailedMessageRetryClicked: (String) -> Unit,
+    onFailedMessageCancelClicked: (String) -> Unit
 ) {
     val mostRecentMessage = lazyPagingMessages.itemCount.takeIf { it > 0 }?.let { lazyPagingMessages[0] }
 
@@ -653,10 +663,16 @@ fun MessageList(
                         onReactionClicked = onReactionClicked,
                         onResetSessionClicked = onResetSessionClicked,
                         onSelfDeletingMessageRead = onSelfDeletingMessageRead,
+                        onFailedMessageCancelClicked = onFailedMessageCancelClicked,
+                        onFailedMessageRetryClicked = onFailedMessageRetryClicked
                     )
                 }
 
-                is UIMessage.System -> SystemMessageItem(message = message)
+                is UIMessage.System -> SystemMessageItem(
+                    message = message,
+                    onFailedMessageCancelClicked = onFailedMessageCancelClicked,
+                    onFailedMessageRetryClicked = onFailedMessageRetryClicked
+                )
             }
         }
     }
@@ -721,6 +737,7 @@ fun PreviewConversationScreen() {
         currentSelfDeletionTimer = SelfDeletionTimer.Enabled(ZERO),
         onNewSelfDeletingMessagesStatus = {},
         tempWritableImageUri = null,
-        tempWritableVideoUri = null
+        tempWritableVideoUri = null,
+        onFailedMessageRetryClicked = {}
     )
 }

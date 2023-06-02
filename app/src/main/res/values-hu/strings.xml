@@ -713,60 +713,60 @@
     <string name="connection_label_member_not_conneted">Ha a kapcsolódási kérelmét elfogadják, közvetlenül tud kommunikálni ezzel a partnerrel.</string>
     <string name="connection_request_sent">Kapcsolódási kérelem elküldve</string>
     <string name="connection_request_canceled">Kapcsolódási kérelem visszavonva</string>
-    <string name="connection_request_ignored">You ignored %1$s\'s request</string>
-    <string name="connection_request_accepted">Connection request accepted</string>
-    <string name="connection_request_sent_error">Connection request could not be sent</string>
-    <string name="connection_request_accept_error">Connection request could not be accepted</string>
-    <string name="connection_request_ignore_error">Connection request could not be ignored</string>
-    <string name="connection_request_cancel_error">Connection request could not be canceled</string>
-    <string name="connection_pending_message">Wants to connect</string>
-    <string name="connection_pending_label">pending</string>
-    <string name="connection_label_user_wants_to_conect">This user wants to connect with you.</string>
-    <string name="connection_label_accepting_request_description">If you accept their request, they will be added as a contact and you two can communicate directly.</string>
-    <string name="connection_label_accept">Accept</string>
-    <string name="connection_label_ignore">Ignore</string>
+    <string name="connection_request_ignored">Ön elutasította %1$s kérelmét</string>
+    <string name="connection_request_accepted">Kapcsolódási kérelem elfogadva</string>
+    <string name="connection_request_sent_error">A kapcsolódási kérelmet nem sikerült elküldeni</string>
+    <string name="connection_request_accept_error">A kapcsolódási kérelmet nem sikerült jóváhagyni</string>
+    <string name="connection_request_ignore_error">A kapcsolódási kérelmet nem sikerült elutasítani</string>
+    <string name="connection_request_cancel_error">A kapcsolódási kérelmet nem sikerült visszavonni</string>
+    <string name="connection_pending_message">Szeretne kapcsolódni</string>
+    <string name="connection_pending_label">függőben</string>
+    <string name="connection_label_user_wants_to_conect">Ez a felhasználó szeretne kapcsolódni Önhöz.</string>
+    <string name="connection_label_accepting_request_description">Ha jóváhagyja a kérelmét, bekerül a partnerek közé, és közvetlenül tudnak kommunikálni egymással.</string>
+    <string name="connection_label_accept">Elfogadás</string>
+    <string name="connection_label_ignore">Elutasítás</string>
     <!-- Gallery -->
-    <string name="media_gallery_default_title_name">Media Gallery</string>
-    <string name="media_gallery_on_image_downloaded">Saved to Downloads folder</string>
-    <string name="media_gallery_on_image_download_error">There was an error when saving the image to
-        Downloads folder. Please check your Internet connection and try again
+    <string name="media_gallery_default_title_name">Média galéria</string>
+    <string name="media_gallery_on_image_downloaded">Mentve a Letöltések mappába</string>
+    <string name="media_gallery_on_image_download_error">Hiba történt a fájl mentésekor a
+        Letöltések mappába. Ellenőrizze internetkapcsolatát, és próbálja újra
     </string>
     <!--sso dialog-->
-    <string name="sso_error_dialog_title">Unable to log in with SSO</string>
-    <string name="sso_error_dialog_message">Please try again. If this does not help, contact your
-        admin and provide this code:\n%d\"
+    <string name="sso_error_dialog_title">Nem tud SSO-val bejelentkezni</string>
+    <string name="sso_error_dialog_message">Próbálja újra. Ha ez sem segít, vegye fel a kapcsolatot a
+        rendszergazdával, és adja át ezt a kódot:\n%d\"
     </string>
-    <string name="asset_download_dialog_default_title">Download file</string>
-    <string name="empty_group_label">Unnamed conversation</string>
-    <string name="label_show_more">Show More</string>
+    <string name="asset_download_dialog_default_title">Fájl letöltése</string>
+    <string name="empty_group_label">Név nélküli beszélgetés</string>
+    <string name="label_show_more">Mutasson többet</string>
     <!--prohibited asset messages -->
-    <string name="prohibited_images_message">Receiving images is prohibited</string>
-    <string name="prohibited_videos_message">Receiving videos is prohibited</string>
-    <string name="prohibited_audio_message">Receiving audio messages is prohibited</string>
-    <string name="prohibited_file_message">Receiving files is prohibited</string>
-    <string name="team_settings_changed">Team Settings Changed</string>
-    <string name="sharing_files_enabled">Sharing and receiving files of any type is now enabled</string>
-    <string name="sharing_files_disabled">Sharing and receiving files of any type is now disabled</string>
+    <string name="prohibited_images_message">Képek fogadása tilos</string>
+    <string name="prohibited_videos_message">Videók fogadása tilos</string>
+    <string name="prohibited_audio_message">Hangüzenetek fogadása tilos</string>
+    <string name="prohibited_file_message">Fájlok fogadása tilos</string>
+    <string name="team_settings_changed">A csapatbeállítások módosultak</string>
+    <string name="sharing_files_enabled">Bármilyen típusú fájl megosztása és fogadása mostantól engedélyezve</string>
+    <string name="sharing_files_disabled">Bármilyen típusú fájl megosztása és fogadása mostantól tiltva</string>
     <!--wire dropdown-->
-    <string name="wire_dropdown_default_indicator">" (default)"</string>
-    <string name="wire_dropdown_placeholder">Select an Item</string>
-    <string name="change">Change</string>
-    <string name="allow_guests">Allow guests</string>
-    <string name="allow_guest_switch_description">Open this conversation to people outside your team. You can always change it later.</string>
-    <string name="allow_services">Allow services</string>
-    <string name="allow_services_description">Open this conversation to services. You can always change it later.</string>
-    <string name="service_details_label">Service</string>
-    <string name="service_details_add_service_label">Add To Group</string>
-    <string name="service_details_remove_service_label">Remove From Group</string>
-    <string name="service_remove_success">Service removed from group</string>
-    <string name="service_remove_error">Unable to remove service from group</string>
-    <string name="service_add_success">Service added to group</string>
-    <string name="service_add_error">Unable to add service to group</string>
-    <string name="service_no_information_available_title">No information available</string>
-    <string name="service_no_information_available_subtitle">Try again or reach out to your team admin</string>
-    <string name="read_receipts">Read receipts</string>
-    <string name="read_receipts_description">When this is on, people can see when their messages in this conversation are read.</string>
-    <string name="disable_guests_dialog_title">Not Allow Guests?</string>
+    <string name="wire_dropdown_default_indicator">" (alapértelmezett)"</string>
+    <string name="wire_dropdown_placeholder">Jelöljön ki egy elemet</string>
+    <string name="change">Módosítás</string>
+    <string name="allow_guests">Vendégek engedélyezése</string>
+    <string name="allow_guest_switch_description">Megnyitja a beszélgetést a csapatán kívüli személyek számára is. Ezt később bármikor megváltoztathatja.</string>
+    <string name="allow_services">Szolgáltatások engedélyezése</string>
+    <string name="allow_services_description">Megnyitja a beszélgetést a szolgáltatások számára is. Ezt később bármikor megváltoztathatja.</string>
+    <string name="service_details_label">Szolgáltatás</string>
+    <string name="service_details_add_service_label">Hozzáadás a csoporthoz</string>
+    <string name="service_details_remove_service_label">Eltávolítás a csoportból</string>
+    <string name="service_remove_success">A szolgáltatás eltávolítva a csoportból</string>
+    <string name="service_remove_error">A szolgáltatást nem sikerült eltávolítani a csoportból</string>
+    <string name="service_add_success">Szolgáltatás hozzáadva a csoporthoz</string>
+    <string name="service_add_error">A szolgáltatást nem sikerült hozzáadni a csoporthoz</string>
+    <string name="service_no_information_available_title">Nincs elérhető információ</string>
+    <string name="service_no_information_available_subtitle">Próbálja újra, vagy forduljon a csapatadminisztrátorhoz</string>
+    <string name="read_receipts">Olvasási visszaigazolások</string>
+    <string name="read_receipts_description">Amikor ez be van kapcsolva, az emberek láthatják, mikor olvasták el a beszélgetés üzeneteit.</string>
+    <string name="disable_guests_dialog_title">Vendégek ne legyenek engedélyezve?</string>
     <string name="disable_guests_dialog_description">Az előző lépésben kijelölt vendégek nem lesznek részesei a csoportnak, ha nem engedélyezi a vendég hozzáférést.</string>
     <string name="disable_guests_dialog_button">Vendégek nem engedélyezettek</string>
     <!--block user dialog -->
@@ -830,16 +830,16 @@
     <string name="label_mls_option_title">MLS DATA</string>
     <string name="label_enable_logging">Enable Logging</string>
     <string name="label_proteus_option_title">Proteus</string>
-    <string name="label_enable_encrypted_proteus_storage">Enable encrypted proteus storage</string>
-    <string name="label_debug_title">Debug Settings</string>
-    <string name="label_client_option_title">Client ID</string>
-    <string name="label_device_id">Device ID: %1$s</string>
-    <string name="label_code_commit_id">Commit Hash: %1$s</string>
-    <string name="label_client_id">Client ID: %1$s</string>
-    <string name="label_client_added_time">ADDED</string>
-    <string name="label_client_device_id">DEVICE ID</string>
-    <string name="label_key_packages_count">Key-packages count: %1$s</string>
-    <string name="label_mls_client_id">MLS-client ID: %1$s</string>
+    <string name="label_enable_encrypted_proteus_storage">Titkosított Proteus tároló endedélyezése</string>
+    <string name="label_debug_title">Hibakeresési beállítások</string>
+    <string name="label_client_option_title">Kliens ID</string>
+    <string name="label_device_id">Eszköz ID: %1$s</string>
+    <string name="label_code_commit_id">Beküldés ellenőrzőértéke: %1$s</string>
+    <string name="label_client_id">Kliens ID: %1$s</string>
+    <string name="label_client_added_time">HOZZÁADVA</string>
+    <string name="label_client_device_id">ESZKÖZ ID</string>
+    <string name="label_key_packages_count">Kulcscsomagok száma: %1$s</string>
+    <string name="label_mls_client_id">MLS-kliens ID: %1$s</string>
     <string name="conversation_empty_list_description">Connect with others or create a new group to start collaborating!</string>
     <string name="conversation_empty_list_title">Welcome 👋</string>
     <string name="label_no_conversation_found">No conversations could be found.</string>

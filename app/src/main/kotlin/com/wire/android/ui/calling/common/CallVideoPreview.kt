@@ -41,6 +41,7 @@ fun CallVideoPreview(
                 modifier = Modifier.fillMaxSize(),
                 factory = {
                     val videoPreview = VideoPreview(it)
+                    videoPreview.setShouldFill(true)
                     onVideoPreviewCreated(videoPreview)
                     videoPreview
                 }

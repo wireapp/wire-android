@@ -23,6 +23,7 @@ package com.wire.android.mapper
 import android.content.res.Resources
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.framework.TestMessage
+import com.wire.android.framework.TestMessage.CONVERSATION_CREATED_MESSAGE
 import com.wire.android.framework.TestUser
 import com.wire.android.ui.home.conversations.model.UIMessageContent.SystemMessage
 import com.wire.android.ui.home.conversations.name
@@ -70,6 +71,7 @@ class SystemMessageContentMapperTest {
         // Then
         assertTrue(uiContent is SystemMessage.ConversationMessageTimerDeactivated)
     }
+
     @Test
     fun givenMemberDetails_whenMappingToSystemMessageMemberName_thenCorrectValuesShouldBeReturned() = runTest {
         // Given
@@ -86,12 +88,12 @@ class SystemMessageContentMapperTest {
         // Then
         assertTrue(selfName is UIText.DynamicString && selfName.value == selfMemberDetails.name)
         assertTrue(
-            selfResLower is UIText.StringResource
-                    && selfResLower.resId == arrangement.messageResourceProvider.memberNameYouLowercase
+            selfResLower is UIText.StringResource &&
+                selfResLower.resId == arrangement.messageResourceProvider.memberNameYouLowercase
         )
         assertTrue(
-            selfResTitle is UIText.StringResource
-                    && selfResTitle.resId == arrangement.messageResourceProvider.memberNameYouTitlecase
+            selfResTitle is UIText.StringResource &&
+                selfResTitle.resId == arrangement.messageResourceProvider.memberNameYouTitlecase
         )
         assertTrue(deleted is UIText.StringResource && deleted.resId == arrangement.messageResourceProvider.memberNameDeleted)
         assertTrue(otherName is UIText.DynamicString && otherName.value == otherMemberDetails.name)
@@ -101,58 +103,96 @@ class SystemMessageContentMapperTest {
     fun givenServerContent_whenMappingToUIMessageContent_thenCorrectValuesShouldBeReturned() = runTest {
         // Given
         val (arrangement, mapper) = Arrangement().arrange()
-        val userId1 = UserId("user-id1", "user-domain")
-        val userId2 = UserId("user-id2", "user-domain")
-        val userId3 = UserId("user-id3", "user-domain")
-        val contentLeft = MessageContent.MemberChange.Removed(listOf(userId1))
-        val contentRemoved = MessageContent.MemberChange.Removed(listOf(userId2))
-        val contentAdded = MessageContent.MemberChange.Added(listOf(userId2, userId3))
-        val contentAddedSelf = MessageContent.MemberChange.Added(listOf(userId1))
         val member1 = TestUser.MEMBER_OTHER.copy(TestUser.OTHER_USER.copy(id = userId1))
-        val member2 = TestUser.MEMBER_OTHER.copy(TestUser.OTHER_USER.copy(id = userId2))
-        val member3 = TestUser.MEMBER_OTHER.copy(TestUser.OTHER_USER.copy(id = userId3))
         val missedCallMessage = TestMessage.MISSED_CALL_MESSAGE
         val selfCaller = MemberDetails(TestUser.SELF_USER.copy(id = missedCallMessage.senderUserId), Member.Role.Admin)
         val otherCallerInfo = (member1.user as OtherUser).copy(id = missedCallMessage.senderUserId)
         val otherCaller = member1.copy(user = otherCallerInfo)
         // When
+
+        val resultMyMissedCall = mapper.mapMessage(missedCallMessage, listOf(selfCaller.user))
+        val resultOtherMissedCall = mapper.mapMessage(missedCallMessage, listOf(otherCaller.user))
+
+        val resultConversationCreated = mapper.mapMessage(CONVERSATION_CREATED_MESSAGE, listOf(member1.user))
+
+        // Then
+        assertTrue(
+            resultOtherMissedCall is SystemMessage.MissedCall &&
+                resultOtherMissedCall.author.asString(arrangement.resources) == TestUser.OTHER_USER.name
+        )
+        assertTrue(
+            resultMyMissedCall is SystemMessage.MissedCall &&
+                (resultMyMissedCall.author as UIText.StringResource).resId == arrangement.messageResourceProvider.memberNameYouTitlecase
+        )
+
+        assertTrue(
+            resultConversationCreated is SystemMessage.ConversationMessageCreated &&
+                (resultConversationCreated.author as UIText.StringResource).resId == 10584735 &&
+                resultConversationCreated.date == "SOME-DATE"
+        )
+    }
+
+    fun givenServerContent_whenMappingMemberChangeMessagesToUIMessageContent_thenCorrectValuesShouldBeReturned() {
+        val (arrangement, mapper) = Arrangement().arrange()
+        val contentLeft = MessageContent.MemberChange.Removed(listOf(userId1))
+        val contentRemoved = MessageContent.MemberChange.Removed(listOf(userId2))
+        val contentAdded = MessageContent.MemberChange.Added(listOf(userId2, userId3))
+        val contentAddedSelf = MessageContent.MemberChange.Added(listOf(userId1))
+
+        val member1 = TestUser.MEMBER_OTHER.copy(TestUser.OTHER_USER.copy(id = userId1))
+        val member2 = TestUser.MEMBER_OTHER.copy(TestUser.OTHER_USER.copy(id = userId2))
+        val member3 = TestUser.MEMBER_OTHER.copy(TestUser.OTHER_USER.copy(id = userId3))
+
         val resultContentLeft = mapper.mapMemberChangeMessage(contentLeft, userId1, listOf(member1.user))
         val resultContentRemoved = mapper.mapMemberChangeMessage(contentRemoved, userId1, listOf(member1.user, member2.user))
         val resultContentAdded = mapper.mapMemberChangeMessage(contentAdded, userId1, listOf(member1.user, member2.user, member3.user))
         val resultContentAddedSelf = mapper.mapMemberChangeMessage(contentAddedSelf, userId1, listOf(member1.user))
-        val resultMyMissedCall = mapper.mapMessage(missedCallMessage, listOf(selfCaller.user))
-        val resultOtherMissedCall = mapper.mapMessage(missedCallMessage, listOf(otherCaller.user))
-        // Then
+
         assertTrue(
             resultContentLeft is SystemMessage.MemberLeft &&
-                    resultContentLeft.author.asString(arrangement.resources) == member1.name
+                resultContentLeft.author.asString(arrangement.resources) == member1.name
         )
         assertTrue(
             resultContentRemoved is SystemMessage.MemberRemoved &&
-                    resultContentRemoved.author.asString(arrangement.resources) == member1.name &&
-                    resultContentRemoved.memberNames.size == 1 &&
-                    resultContentRemoved.memberNames[0].asString(arrangement.resources) == member2.name
+                resultContentRemoved.author.asString(arrangement.resources) == member1.name &&
+                resultContentRemoved.memberNames.size == 1 &&
+                resultContentRemoved.memberNames[0].asString(arrangement.resources) == member2.name
 
         )
         assertTrue(
             resultContentAdded is SystemMessage.MemberAdded &&
-                    resultContentAdded.author.asString(arrangement.resources) == member1.name &&
-                    resultContentAdded.memberNames.size == 2 &&
-                    resultContentAdded.memberNames[0].asString(arrangement.resources) == member2.name &&
-                    resultContentAdded.memberNames[1].asString(arrangement.resources) == member3.name
+                resultContentAdded.author.asString(arrangement.resources) == member1.name &&
+                resultContentAdded.memberNames.size == 2 &&
+                resultContentAdded.memberNames[0].asString(arrangement.resources) == member2.name &&
+                resultContentAdded.memberNames[1].asString(arrangement.resources) == member3.name
         )
         assertTrue(
             resultContentAddedSelf is SystemMessage.MemberJoined &&
-                    resultContentAddedSelf.author.asString(arrangement.resources) == member1.name
+                resultContentAddedSelf.author.asString(arrangement.resources) == member1.name
         )
+
+        val resultStartedWith =
+            mapper.mapMemberChangeMessage(
+                MessageContent.MemberChange.CreationAdded(listOf(userId1, userId2)),
+                userId1,
+                listOf(member1.user, member2.user)
+            )
+
+        val resultStartedWithFailed =
+            mapper.mapMemberChangeMessage(
+                MessageContent.MemberChange.FailedToAdd(listOf(userId1, userId2)),
+                userId1,
+                listOf(member1.user, member2.user)
+            )
+
         assertTrue(
-            resultOtherMissedCall is SystemMessage.MissedCall &&
-                    resultOtherMissedCall.author.asString(arrangement.resources) == TestUser.OTHER_USER.name
+            resultStartedWith is SystemMessage.ConversationStartedWithMembers &&
+                resultStartedWith.memberNames.size == 2 &&
+                resultStartedWith.memberNames[0].asString(arrangement.resources) == member2.name &&
+                resultStartedWith.memberNames[1].asString(arrangement.resources) == member3.name
         )
-        assertTrue(
-            resultMyMissedCall is SystemMessage.MissedCall &&
-                    (resultMyMissedCall.author as UIText.StringResource).resId == arrangement.messageResourceProvider.memberNameYouTitlecase
-        )
+
+        assertTrue(resultStartedWithFailed == null)
     }
 
     private class Arrangement {
@@ -176,5 +216,11 @@ class SystemMessageContentMapperTest {
         }
 
         fun arrange() = this to messageContentMapper
+    }
+
+    private companion object {
+        val userId1 = UserId("user-id1", "user-domain")
+        val userId2 = UserId("user-id2", "user-domain")
+        val userId3 = UserId("user-id3", "user-domain")
     }
 }

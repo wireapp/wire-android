@@ -74,9 +74,9 @@ import com.wire.kalium.logic.feature.message.SendEditTextMessageUseCase
 import com.wire.kalium.logic.feature.message.SendKnockUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.message.ephemeral.EnqueueMessageSelfDeletionUseCase
-import com.wire.kalium.logic.feature.selfdeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
-import com.wire.kalium.logic.feature.selfdeletingMessages.PersistNewSelfDeletionTimerUseCase
-import com.wire.kalium.logic.feature.selfdeletingMessages.SelfDeletionTimer
+import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
+import com.wire.kalium.logic.feature.selfDeletingMessages.PersistNewSelfDeletionTimerUseCase
+import com.wire.kalium.logic.feature.selfDeletingMessages.SelfDeletionTimer
 import com.wire.kalium.logic.feature.user.IsFileSharingEnabledUseCase
 import com.wire.kalium.logic.functional.onFailure
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -86,7 +86,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.Instant
 import javax.inject.Inject
-import kotlin.time.Duration
 import com.wire.kalium.logic.data.id.QualifiedID as ConversationId
 
 @Suppress("LongParameterList", "TooManyFunctions")
@@ -212,8 +211,7 @@ class MessageComposerViewModel @Inject constructor(
                 conversationId = conversationId,
                 text = sendMessageBundle.message,
                 mentions = sendMessageBundle.mentions.map { it.intoMessageMention() },
-                quotedMessageId = sendMessageBundle.quotedMessageId,
-                expireAfter = sendMessageBundle.expireAfter
+                quotedMessageId = sendMessageBundle.quotedMessageId
             )
         }
     }
@@ -229,7 +227,7 @@ class MessageComposerViewModel @Inject constructor(
         }
     }
 
-    fun sendAttachmentMessage(attachmentBundle: AssetBundle?, expireAfter: Duration?) {
+    fun sendAttachmentMessage(attachmentBundle: AssetBundle?) {
         viewModelScope.launch {
             withContext(dispatchers.io()) {
                 attachmentBundle?.run {
@@ -246,8 +244,7 @@ class MessageComposerViewModel @Inject constructor(
                                 assetWidth = imgWidth,
                                 assetHeight = imgHeight,
                                 assetDataSize = dataSize,
-                                assetMimeType = mimeType,
-                                expireAfter = expireAfter
+                                assetMimeType = mimeType
                             )
                         }
 
@@ -262,8 +259,7 @@ class MessageComposerViewModel @Inject constructor(
                                     assetMimeType = mimeType,
                                     assetDataSize = dataSize,
                                     assetHeight = null,
-                                    assetWidth = null,
-                                    expireAfter = expireAfter
+                                    assetWidth = null
                                 )
                             } catch (e: OutOfMemoryError) {
                                 appLogger.e("There was an OutOfMemory error while uploading the asset")
@@ -383,7 +379,7 @@ class MessageComposerViewModel @Inject constructor(
         }
     }
 
-    fun attachmentPicked(attachmentUri: UriAsset, duration: Duration?) = viewModelScope.launch(dispatchers.io()) {
+    fun attachmentPicked(attachmentUri: UriAsset) = viewModelScope.launch(dispatchers.io()) {
         val tempCachePath = kaliumFileSystem.rootCachePath
         val assetBundle = fileManager.getAssetBundleFromUri(attachmentUri.uri, tempCachePath)
         if (assetBundle != null) {
@@ -391,7 +387,7 @@ class MessageComposerViewModel @Inject constructor(
             // Check [GetAssetSizeLimitUseCase] class for more detailed information about the real limits.
             val maxSizeLimitInBytes = getAssetSizeLimit(isImage = assetBundle.assetType == AttachmentType.IMAGE)
             if (assetBundle.dataSize <= maxSizeLimitInBytes) {
-                sendAttachmentMessage(assetBundle, duration)
+                sendAttachmentMessage(assetBundle)
             } else {
                 if (attachmentUri.saveToDeviceIfInvalid) {
                     with(assetBundle) { fileManager.saveToExternalMediaStorage(fileName, dataPath, dataSize, mimeType, dispatchers) }

@@ -34,7 +34,10 @@ data class SearchPeopleState(
     val searchResult: ImmutableMap<SearchResultTitle, ContactSearchResult> = persistentMapOf(),
     val noneSearchSucceed: Boolean = false,
     val contactsAddedToGroup: ImmutableList<Contact> = persistentListOf(),
-    val isGroupCreationContext: Boolean = true
+    val isGroupCreationContext: Boolean = true,
+    val servicesInitialContacts: SearchResultState = SearchResultState.Initial,
+    val servicesSearchResult: SearchResultState = SearchResultState.Initial,
+    val isServicesAllowed: Boolean = false
 )
 
 sealed class ContactSearchResult(val searchResultState: SearchResultState) {

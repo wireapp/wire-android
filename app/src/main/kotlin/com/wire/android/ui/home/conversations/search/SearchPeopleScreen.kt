@@ -31,6 +31,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -42,9 +43,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.model.Clickable
-import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.home.conversations.search.widget.SearchFailureBox
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.util.extension.folderWithElements
@@ -61,6 +62,7 @@ fun SearchAllPeopleScreen(
     onRemoveFromGroup: (Contact) -> Unit,
     onOpenUserProfile: (Contact) -> Unit,
     onAddContactClicked: (Contact) -> Unit,
+    lazyListState: LazyListState = rememberLazyListState()
 ) {
     if (searchQuery.isEmpty()) {
         EmptySearchQueryScreen()
@@ -76,7 +78,8 @@ fun SearchAllPeopleScreen(
                     onAddToGroup = onAddToGroup,
                     onRemoveContactFromGroup = onRemoveFromGroup,
                     onOpenUserProfile = onOpenUserProfile,
-                    onAddContactClicked = onAddContactClicked
+                    onAddContactClicked = onAddContactClicked,
+                    lazyListState = lazyListState
                 )
             }
         }
@@ -92,9 +95,9 @@ private fun SearchResult(
     onRemoveContactFromGroup: (Contact) -> Unit,
     onOpenUserProfile: (Contact) -> Unit,
     onAddContactClicked: (Contact) -> Unit,
+    lazyListState: LazyListState = rememberLazyListState()
 ) {
     val searchPeopleScreenState = rememberSearchPeopleScreenState()
-    val lazyListState = rememberLazyListState()
     val context = LocalContext.current
 
     Column {
@@ -173,9 +176,7 @@ private fun LazyListScope.internalSearchResults(
             )
         }
         // We do not display anything on Initial or Empty state
-        SearchResultState.Initial, SearchResultState.EmptyResult -> {
-        }
-
+        SearchResultState.Initial, SearchResultState.EmptyResult -> { }
     }
 }
 
@@ -231,7 +232,9 @@ private fun LazyListScope.internalSuccessItem(
 ) {
     if (searchResult.isNotEmpty()) {
         folderWithElements(header = searchTitle,
-            items = (if (showAllItems) searchResult else searchResult.take(DEFAULT_SEARCH_RESULT_ITEM_SIZE))
+            items = (if (showAllItems) searchResult else searchResult.take(
+                DEFAULT_SEARCH_RESULT_ITEM_SIZE
+            ))
                 .associateBy { it.id }) { contact ->
             with(contact) {
                 InternalContactSearchResultItem(
@@ -279,7 +282,8 @@ private fun LazyListScope.externalSuccessItem(
     onOpenUserProfile: (Contact) -> Unit,
     onAddContactClicked: (Contact) -> Unit,
 ) {
-    val itemsList = if (showAllItems) searchResult else searchResult.take(DEFAULT_SEARCH_RESULT_ITEM_SIZE)
+    val itemsList =
+        if (showAllItems) searchResult else searchResult.take(DEFAULT_SEARCH_RESULT_ITEM_SIZE)
 
     folderWithElements(
         header = searchTitle,

@@ -20,8 +20,6 @@
 
 package com.wire.android.ui.home.gallery
 
-import android.app.DownloadManager
-import android.content.Intent
 import android.content.res.Resources
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -51,6 +49,7 @@ import com.wire.android.ui.edit.ReplyMessageOption
 import com.wire.android.ui.home.conversations.MediaGallerySnackbarMessages
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialog
 import com.wire.android.util.permission.rememberWriteStorageRequestFlow
+import com.wire.android.util.ui.openDownloadFolder
 
 @Composable
 fun MediaGalleryScreen(mediaGalleryViewModel: MediaGalleryViewModel = hiltViewModel()) {
@@ -123,13 +122,12 @@ fun MediaGalleryScreen(mediaGalleryViewModel: MediaGalleryViewModel = hiltViewMo
 fun MediaGalleryContent(viewModel: MediaGalleryViewModel, mediaGalleryScreenState: MediaGalleryScreenState) {
     val context = LocalContext.current
     val uiState = viewModel.mediaGalleryViewState
-
     suspend fun showSnackbarMessage(message: String, actionLabel: String?, messageCode: MediaGallerySnackbarMessages) {
         val snackbarResult = mediaGalleryScreenState.snackbarHostState.showSnackbar(message = message, actionLabel = actionLabel)
         when {
             // Show downloads folder when clicking on Snackbar cta button
             messageCode is MediaGallerySnackbarMessages.OnImageDownloaded && snackbarResult == SnackbarResult.ActionPerformed -> {
-                context.startActivity(Intent(DownloadManager.ACTION_VIEW_DOWNLOADS))
+                openDownloadFolder(context)
             }
         }
     }

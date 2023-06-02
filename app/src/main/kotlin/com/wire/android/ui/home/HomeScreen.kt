@@ -68,6 +68,7 @@ import com.wire.android.ui.home.sync.FeatureFlagNotificationViewModel
 import com.wire.android.util.permission.rememberRequestPushNotificationsPermissionFlow
 import kotlinx.collections.immutable.ImmutableMap
 import kotlinx.collections.immutable.persistentMapOf
+import kotlinx.coroutines.launch
 
 @Composable
 fun HomeScreen(
@@ -133,6 +134,11 @@ fun HomeScreen(
         navigateToItem = homeViewModel::navigateTo
     )
 
+    BackHandler(homeScreenState.drawerState.isOpen) {
+        homeScreenState.coroutineScope.launch {
+            homeScreenState.drawerState.close()
+        }
+    }
     BackHandler(homeScreenState.searchBarState.isSearchActive) {
         homeScreenState.searchBarState.closeSearch()
     }
@@ -155,6 +161,7 @@ fun HomeContent(
                     drawerContainerColor = MaterialTheme.colorScheme.surface,
                     drawerTonalElevation = 0.dp,
                     drawerShape = RectangleShape,
+                    modifier = Modifier.padding(end = dimensions().homeDrawerSheetEndPadding)
                 ) {
                     HomeDrawer(
                         // TODO: logFilePath does not belong in the UI logic

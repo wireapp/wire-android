@@ -46,6 +46,7 @@ import com.wire.kalium.logic.feature.publicuser.GetAllContactsUseCase
 import com.wire.kalium.logic.feature.publicuser.search.SearchKnownUsersUseCase
 import com.wire.kalium.logic.feature.publicuser.search.SearchPublicUsersUseCase
 import com.wire.kalium.logic.feature.publicuser.search.SearchUsersResult
+import com.wire.kalium.logic.feature.service.ObserveAllServicesUseCase
 import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -57,6 +58,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
@@ -67,6 +69,7 @@ open class SearchAllPeopleViewModel(
     private val getAllKnownUsers: GetAllContactsUseCase,
     private val searchKnownUsers: SearchKnownUsersUseCase,
     private val searchPublicUsers: SearchPublicUsersUseCase,
+    private val getAllServices: ObserveAllServicesUseCase,
     private val contactMapper: ContactMapper,
     private val dispatcher: DispatcherProvider,
     sendConnectionRequest: SendConnectionRequestUseCase,
@@ -87,12 +90,15 @@ open class SearchAllPeopleViewModel(
                 searchQueryTextFieldFlow,
                 selectedContactsFlow
             ) { initialContacts, publicResult, knownResult, searchQuery, selectedContacts ->
+
                 SearchPeopleState(
                     initialContacts = initialContacts,
                     searchQuery = searchQuery,
                     searchResult = persistentMapOf(
                         SearchResultTitle(R.string.label_contacts) to knownResult,
-                        SearchResultTitle(R.string.label_public_wire) to publicResult.filterContacts(knownResult)
+                        SearchResultTitle(R.string.label_public_wire) to publicResult.filterContacts(
+                            knownResult
+                        )
                     ),
                     noneSearchSucceed =
                     (publicResult.searchResultState is SearchResultState.Failure
@@ -112,8 +118,17 @@ open class SearchAllPeopleViewModel(
         .map { result ->
             when (result) {
                 is GetAllContactsResult.Failure -> SearchResult.Failure(R.string.label_general_error)
-                is GetAllContactsResult.Success -> SearchResult.Success(result.allContacts.map(contactMapper::fromOtherUser))
+                is GetAllContactsResult.Success -> SearchResult.Success(
+                    result.allContacts.map(
+                        contactMapper::fromOtherUser
+                    )
+                )
             }
+        }
+
+    override suspend fun getInitialServices(): Flow<SearchResult> =
+        getAllServices().map { result ->
+            SearchResult.Success(result.map(contactMapper::fromService))
         }
 
     override suspend fun searchKnownPeople(searchTerm: String): Flow<ContactSearchResult.InternalContact> =
@@ -127,7 +142,10 @@ open class SearchAllPeopleViewModel(
 
                 is SearchUsersResult.Success -> ContactSearchResult.InternalContact(
                     if (result.userSearchResult.result.isEmpty()) SearchResultState.EmptyResult
-                    else SearchResultState.Success(result.userSearchResult.result.map(contactMapper::fromOtherUser).toImmutableList())
+                    else SearchResultState.Success(
+                        result.userSearchResult.result.map(contactMapper::fromOtherUser)
+                            .toImmutableList()
+                    )
                 )
             }
         }
@@ -146,11 +164,21 @@ open class SearchAllPeopleViewModel(
 
                 is SearchUsersResult.Success -> ContactSearchResult.ExternalContact(
                     if (result.userSearchResult.result.isEmpty()) SearchResultState.EmptyResult
-                    else SearchResultState.Success(result.userSearchResult.result.map(contactMapper::fromOtherUser).toImmutableList())
+                    else SearchResultState.Success(
+                        result.userSearchResult.result.map(contactMapper::fromOtherUser)
+                            .toImmutableList()
+                    )
                 )
             }
         }
             .flowOn(dispatcher.io())
+    }
+
+    override suspend fun searchServices(searchTerm: String): Flow<SearchResultState> {
+        // TODO(Service): This only needs to be implemented when adding services to group when
+        // group is being created.
+        // Currently not supported.
+        return flowOf(SearchResultState.EmptyResult)
     }
 
     private fun ContactSearchResult.filterContacts(contactSearchResult: ContactSearchResult): ContactSearchResult {
@@ -209,7 +237,7 @@ abstract class PublicWithKnownPeopleSearchViewModel(
 @OptIn(ExperimentalCoroutinesApi::class)
 abstract class KnownPeopleSearchViewModel(
     navigationManager: NavigationManager
-) : SearchPeopleViewModel(
+) : SearchServicesViewModel(
     navigationManager = navigationManager
 ) {
 
@@ -249,6 +277,18 @@ abstract class SearchPeopleViewModel(
                         .sortedBy { it.name.lowercase() }
                         .toImmutableList()
                 )
+            }
+        }
+    }
+
+    suspend fun initialServicesResultFlow() = getInitialServices().map { result ->
+        when (result) {
+            is SearchResult.Failure -> {
+                SearchResultState.Failure(result.failureString)
+            }
+
+            is SearchResult.Success -> {
+                SearchResultState.Success(result.contacts.toImmutableList())
             }
         }
     }
@@ -320,6 +360,8 @@ abstract class SearchPeopleViewModel(
     }
 
     abstract fun getInitialContacts(): Flow<SearchResult>
+
+    abstract suspend fun getInitialServices(): Flow<SearchResult>
 }
 
 // Different use cases could return different type for the search, we are making sure here

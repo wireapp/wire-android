@@ -28,8 +28,8 @@ import com.wire.android.ui.home.conversations.details.participants.usecase.Obser
 import com.wire.android.ui.home.messagecomposer.state.SelfDeletionDuration
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.feature.conversation.messagetimer.UpdateMessageTimerUseCase
-import com.wire.kalium.logic.feature.selfdeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
-import com.wire.kalium.logic.feature.selfdeletingMessages.SelfDeletionTimer
+import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
+import com.wire.kalium.logic.feature.selfDeletingMessages.SelfDeletionTimer
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.every

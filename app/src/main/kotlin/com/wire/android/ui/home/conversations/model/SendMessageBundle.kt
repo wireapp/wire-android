@@ -18,11 +18,9 @@
 package com.wire.android.ui.home.conversations.model
 
 import com.wire.android.ui.home.messagecomposer.model.UiMention
-import kotlin.time.Duration
 
 data class SendMessageBundle(
     val message: String,
     val mentions: List<UiMention>,
-    val quotedMessageId: String?,
-    val expireAfter: Duration?
+    val quotedMessageId: String?
 )

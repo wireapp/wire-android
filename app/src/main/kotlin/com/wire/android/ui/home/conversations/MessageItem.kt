@@ -98,7 +98,9 @@ fun MessageItem(
     onOpenProfile: (String) -> Unit,
     onReactionClicked: (String, String) -> Unit,
     onResetSessionClicked: (senderUserId: UserId, clientId: String?) -> Unit,
-    onSelfDeletingMessageRead: (UIMessage.Regular) -> Unit
+    onSelfDeletingMessageRead: (UIMessage.Regular) -> Unit,
+    onFailedMessageRetryClicked: (String) -> Unit = {},
+    onFailedMessageCancelClicked: (String) -> Unit = {}
 ) {
     with(message) {
         val selfDeletionTimerState = rememberSelfDeletionTimer(expirationStatus)
@@ -227,10 +229,13 @@ fun MessageItem(
                                 onResetSessionClicked = onResetSessionClicked
                             )
                         }
-                    }
-
-                    if (message.sendingFailed) {
-                        MessageSendFailureWarning(header.messageStatus as MessageStatus.MessageSendFailureStatus)
+                        if (message.sendingFailed) {
+                            MessageSendFailureWarning(
+                                messageStatus = header.messageStatus as MessageStatus.MessageSendFailureStatus,
+                                onRetryClick = remember { { onFailedMessageRetryClicked(header.messageId) } },
+                                onCancelClick = remember { { onFailedMessageCancelClicked(header.messageId) } },
+                            )
+                        }
                     }
                 }
             }
@@ -351,7 +356,7 @@ private fun MessageFooter(
         FlowRow(
             mainAxisSpacing = dimensions().spacing4x,
             crossAxisSpacing = dimensions().spacing6x,
-            modifier = Modifier.padding(vertical = dimensions().spacing4x)
+            modifier = Modifier.padding(top = dimensions().spacing4x)
         ) {
             messageFooter.reactions.entries
                 .sortedBy { it.key }

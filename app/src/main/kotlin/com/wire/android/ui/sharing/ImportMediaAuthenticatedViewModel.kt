@@ -366,7 +366,7 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
         navigationManager.navigate(
             NavigationCommand(
                 NavigationItem.Conversation.getRouteWithArgs(listOf(conversationId)),
-                backStackMode = BackStackMode.REMOVE_CURRENT
+                backStackMode = BackStackMode.CLEAR_TILL_START
             )
         )
     }

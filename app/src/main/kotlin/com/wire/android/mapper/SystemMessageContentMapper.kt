@@ -31,6 +31,8 @@ import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.MessageContent
 import com.wire.kalium.logic.data.message.MessageContent.MemberChange
 import com.wire.kalium.logic.data.message.MessageContent.MemberChange.Added
+import com.wire.kalium.logic.data.message.MessageContent.MemberChange.CreationAdded
+import com.wire.kalium.logic.data.message.MessageContent.MemberChange.FailedToAdd
 import com.wire.kalium.logic.data.message.MessageContent.MemberChange.Removed
 import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.SelfUser
@@ -208,11 +210,12 @@ class SystemMessageContentMapper @Inject constructor(
                     )
                 }
 
-            is MemberChange.CreationAdded -> {
+            is CreationAdded -> {
                 UIMessageContent.SystemMessage.ConversationStartedWithMembers(memberNames = memberNameList)
             }
 
-            is MemberChange.FailedToAdd -> null
+            is FailedToAdd ->
+                UIMessageContent.SystemMessage.MemberFailedToAdd(memberNames = memberNameList)
         }
     }
 

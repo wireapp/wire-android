@@ -359,6 +359,13 @@ sealed class UIMessageContent {
             R.drawable.ic_contact,
             R.string.label_system_message_conversation_started_with_members
         )
+
+        data class MemberFailedToAdd(
+            val memberNames: List<UIText>
+        ) : SystemMessage(
+            R.drawable.ic_info,
+            R.string.label_system_message_conversation_started_with_members
+        )
     }
 }
 

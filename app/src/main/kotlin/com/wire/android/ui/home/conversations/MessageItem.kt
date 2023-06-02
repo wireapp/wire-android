@@ -268,9 +268,7 @@ fun MessageExpireLabel(messageContent: UIMessageContent?, timeLeft: String) {
 
         is UIMessageContent.AssetMessage -> {
             StatusBox(
-                statusText = if (messageContent.downloadStatus == Message.DownloadStatus.SAVED_INTERNALLY ||
-                    messageContent.downloadStatus == Message.DownloadStatus.SAVED_EXTERNALLY
-                ) {
+                statusText = if (messageContent.downloadStatus.isSaved()) {
                     stringResource(
                         R.string.self_deleting_message_time_left,
                         timeLeft
@@ -283,9 +281,7 @@ fun MessageExpireLabel(messageContent: UIMessageContent?, timeLeft: String) {
 
         is UIMessageContent.AudioAssetMessage -> {
             StatusBox(
-                statusText = if (messageContent.downloadStatus == Message.DownloadStatus.SAVED_INTERNALLY ||
-                    messageContent.downloadStatus == Message.DownloadStatus.SAVED_EXTERNALLY
-                ) {
+                statusText = if (messageContent.downloadStatus.isSaved()) {
                     stringResource(
                         R.string.self_deleting_message_time_left,
                         timeLeft
@@ -298,9 +294,7 @@ fun MessageExpireLabel(messageContent: UIMessageContent?, timeLeft: String) {
 
         is UIMessageContent.ImageMessage -> {
             StatusBox(
-                statusText = if (messageContent.downloadStatus == Message.DownloadStatus.SAVED_INTERNALLY ||
-                    messageContent.downloadStatus == Message.DownloadStatus.SAVED_EXTERNALLY
-                ) {
+                statusText = if (messageContent.downloadStatus.isSaved()) {
                     stringResource(
                         R.string.self_deleting_message_time_left,
                         timeLeft

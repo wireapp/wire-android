@@ -28,6 +28,7 @@ import com.wire.android.ui.edit.ReplyMessageOption
 @Composable
 fun AssetEditMenuItems(
     isEphemeral: Boolean,
+    isUploading: Boolean = false,
     onDeleteClick: () -> Unit,
     onDetailsClick: () -> Unit,
     onShareAsset: () -> Unit,
@@ -37,12 +38,14 @@ fun AssetEditMenuItems(
     onOpenAsset: (() -> Unit)? = null
 ): List<@Composable () -> Unit> {
     return buildList {
-        if (!isEphemeral) add { ReactionOption(onReactionClick) }
-        add { MessageDetailsMenuOption(onDetailsClick) }
-        if (!isEphemeral) add { ReplyMessageOption(onReplyClick) }
-        add { DownloadAssetExternallyOption(onDownloadAsset) }
-        if (!isEphemeral) add { ShareAssetMenuOption(onShareAsset) }
-        if (onOpenAsset != null && !isEphemeral) add { OpenAssetExternallyOption(onOpenAsset) }
+        if (!isUploading) {
+            if (!isEphemeral) add { ReactionOption(onReactionClick) }
+            add { MessageDetailsMenuOption(onDetailsClick) }
+            if (!isEphemeral) add { ReplyMessageOption(onReplyClick) }
+            add { DownloadAssetExternallyOption(onDownloadAsset) }
+            if (!isEphemeral) add { ShareAssetMenuOption(onShareAsset) }
+            if (onOpenAsset != null && !isEphemeral) add { OpenAssetExternallyOption(onOpenAsset) }
+        }
         add { DeleteItemMenuOption(onDeleteClick) }
     }
 }

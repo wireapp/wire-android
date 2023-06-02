@@ -101,14 +101,14 @@ fun EditMessageMenuItems(
             }
         }
     }
-    val onDownloadAssetClick = remember(message) {
+    val onDownloadAssetItemClick = remember(message) {
         {
             hideEditMessageMenu {
                 onDownloadAssetClick(message.header.messageId)
             }
         }
     }
-    val onOpenAssetClick = remember(message) {
+    val onOpenAssetItemClick = remember(message) {
         {
             hideEditMessageMenu {
                 onOpenAssetClick(message.header.messageId)
@@ -116,36 +116,29 @@ fun EditMessageMenuItems(
         }
     }
 
-    return when (message.messageContent) {
-        is UIMessageContent.AssetMessage, is UIMessageContent.AudioAssetMessage,
-        is UIMessageContent.RestrictedAsset, is UIMessageContent.ImageMessage -> {
-            AssetEditMenuItems(
-                isEphemeral = message.expirationStatus is ExpirationStatus.Expirable,
-                onDeleteClick = onDeleteItemClick,
-                onDetailsClick = onDetailsItemClick,
-                onShareAsset = onShareAssetClick,
-                onDownloadAsset = onDownloadAssetClick,
-                onReplyClick = onReplyItemClick,
-                onReactionClick = onReactionItemClick,
-                onOpenAsset = onOpenAssetClick
-            )
-        }
-
-        is UIMessageContent.TextMessage -> {
-            TextMessageEditMenuItems(
-                isEphemeral = message.expirationStatus is ExpirationStatus.Expirable,
-                onDeleteClick = onDeleteItemClick,
-                onDetailsClick = onDetailsItemClick,
-                onReactionClick = onReactionItemClick,
-                onEditClick = onEditItemClick,
-                onCopyClick = onCopyItemClick,
-                onReplyClick = onReplyItemClick
-            )
-        }
-
-        else -> {
-            emptyList()
-        }
+    if (message.isAssetMessage) {
+        AssetEditMenuItems(
+            isEphemeral = message.expirationStatus is ExpirationStatus.Expirable,
+            isUploading = message.isPending,
+            onDeleteClick = onDeleteItemClick,
+            onDetailsClick = onDetailsItemClick,
+            onShareAsset = onShareAssetClick,
+            onDownloadAsset = onDownloadAssetItemClick,
+            onReplyClick = onReplyItemClick,
+            onReactionClick = onReactionItemClick,
+            onOpenAsset = onOpenAssetItemClick
+        )
+    } else {
+        TextMessageEditMenuItems(
+            isEphemeral = message.expirationStatus is ExpirationStatus.Expirable,
+            isUploading = message.isPending,
+            onDeleteClick = onDeleteItemClick,
+            onDetailsClick = onDetailsItemClick,
+            onReactionClick = onReactionItemClick,
+            onEditClick = if (message.isMyMessage) onEditItemClick else null,
+            onCopyClick = onCopyItemClick,
+            onReplyClick = onReplyItemClick
+        )
     }
 }
 

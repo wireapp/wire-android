@@ -952,14 +952,14 @@
     <string name="label_system_message_joined_the_conversation_by_other">%1$s csatlakozott a beszélgetéshez</string>
     <string name="label_client_verified">Ellenőrizve</string>
     <string name="label_client_unverified">Nincs ellenőrizve</string>
-    <string name="label_self_client_verification_description">To verify your own device, compare this key fingerprint with the same key fingerprint on another device.</string>
-    <string name="label_client_verification_description">Verify that this device fingerprint matches the fingerprint shown on %s’s device.</string>
-    <string name="label_fingerprint_description">If fingerprints don’t match, reset the session to generate new encryption keys on both sides.</string>
-    <string name="label_self_fingerprint_description">Share this key fingerprint with other participants in a conversation, so that they can verify it and make sure the conversation is secure.</string>
-    <string name="unknown_user_name">unknown</string>
-    <string name="device_name_unknown">Unknown device</string>
-    <string name="create_account_email_title">Your Email</string>
-    <string name="settings_myaccount_email_description">Your email is part of your login details for this account. It may be visible to your contacts.</string>
+    <string name="label_self_client_verification_description">Saját eszköze ellenőrzéséhez vesse össze ezt a kulcs ujjlenyomatot egy másik eszközön található azonos kulcs ujjlenyomattal.</string>
+    <string name="label_client_verification_description">Ellenőrizze, hogy ez az eszköz ujjlenyomat egyezik-e a(z) %s eszközén látható ujjlenyomattal.</string>
+    <string name="label_fingerprint_description">Ha az ujjlenyomatok nem egyeznek, állítsa vissza a munkamenet, így mindkét oldalon új titkosítási kulcsok jönnek létre.</string>
+    <string name="label_self_fingerprint_description">Ossza meg ezt a kulcs ujjlenyomatot a beszélgetés többi résztvevőjével, így ők ellenőrizhetik azt, és meggyőződhetnek arról, hogy a beszélgetés biztonságos.</string>
+    <string name="unknown_user_name">ismeretlen</string>
+    <string name="device_name_unknown">Ismeretlen eszköz</string>
+    <string name="create_account_email_title">Az Ön e-mail címe</string>
+    <string name="settings_myaccount_email_description">Az Ön e-mail címe ezen fiók bejelentkezési adatainak része. Partnerei számára esetleg látható lehet.</string>
     <string name="settings_myaccount_email_invalid_imail_error">Please enter a valid email format</string>
     <string name="settings_myaccount_email_already_in_use_error">The email address you provided has already been  registered. Please try again.</string>
     <string name="settings_myaccount_email_verification_email_sent">A verification email has been sent to your email %1$s.\n\nYour current email address is not changed until you verified your new one. Please check your email inbox and follow the instructions.</string>

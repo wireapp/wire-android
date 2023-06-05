@@ -43,7 +43,6 @@ import com.wire.kalium.logic.data.call.VideoState
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.QualifiedID
-import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.feature.call.Call
 import com.wire.kalium.logic.feature.call.CallStatus
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
@@ -78,7 +77,6 @@ import javax.inject.Inject
 class SharedCallingViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val navigationManager: NavigationManager,
-    qualifiedIdMapper: QualifiedIdMapper,
     private val conversationDetails: ObserveConversationDetailsUseCase,
     private val allCalls: GetAllCallsWithSortedParticipantsUseCase,
     private val endCall: EndCallUseCase,

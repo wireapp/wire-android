@@ -35,7 +35,6 @@ import com.wire.android.util.CurrentScreen
 import com.wire.android.util.CurrentScreenManager
 import com.wire.kalium.logic.data.call.CallClient
 import com.wire.kalium.logic.data.id.QualifiedID
-import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.RequestVideoStreamsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -49,7 +48,6 @@ import javax.inject.Inject
 @HiltViewModel
 class OngoingCallViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    qualifiedIdMapper: QualifiedIdMapper,
     private val navigationManager: NavigationManager,
     private val establishedCalls: ObserveEstablishedCallsUseCase,
     private val requestVideoStreams: RequestVideoStreamsUseCase,

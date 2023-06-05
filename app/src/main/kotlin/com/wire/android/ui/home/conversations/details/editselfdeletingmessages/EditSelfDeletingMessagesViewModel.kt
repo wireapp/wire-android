@@ -33,7 +33,6 @@ import com.wire.android.ui.home.messagecomposer.state.SelfDeletionDuration
 import com.wire.android.ui.navArgs
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.id.QualifiedID
-import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.feature.conversation.messagetimer.UpdateMessageTimerUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -52,8 +51,7 @@ class EditSelfDeletingMessagesViewModel @Inject constructor(
     private val observeConversationMembers: ObserveParticipantsForConversationUseCase,
     private val observeSelfDeletionTimerSettingsForConversation: ObserveSelfDeletionTimerSettingsForConversationUseCase,
     private val updateMessageTimer: UpdateMessageTimerUseCase,
-    savedStateHandle: SavedStateHandle,
-    qualifiedIdMapper: QualifiedIdMapper,
+    savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
     private val editSelfDeletingMessagesNavArgs: EditSelfDeletingMessagesNavArgs = savedStateHandle.navArgs()

@@ -31,7 +31,6 @@ import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.destinations.OngoingCallScreenDestination
 import com.wire.android.ui.navArgs
 import com.wire.kalium.logic.data.id.QualifiedID
-import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.IsLastCallClosedUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
@@ -47,7 +46,6 @@ import javax.inject.Inject
 @HiltViewModel
 class InitiatingCallViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    qualifiedIdMapper: QualifiedIdMapper,
     private val navigationManager: NavigationManager,
     private val observeEstablishedCalls: ObserveEstablishedCallsUseCase,
     private val startCall: StartCallUseCase,

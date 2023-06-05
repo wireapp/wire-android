@@ -35,7 +35,6 @@ import com.wire.android.ui.home.conversations.details.GroupDetailsBaseViewModel
 import com.wire.android.ui.navArgs
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.id.QualifiedID
-import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.RenameConversationUseCase
 import com.wire.kalium.logic.feature.conversation.RenamingResult
@@ -57,8 +56,7 @@ class EditConversationMetadataViewModel @Inject constructor(
     private val dispatcher: DispatcherProvider,
     private val observeConversationDetails: ObserveConversationDetailsUseCase,
     private val renameConversation: RenameConversationUseCase,
-    override val savedStateHandle: SavedStateHandle,
-    qualifiedIdMapper: QualifiedIdMapper
+    override val savedStateHandle: SavedStateHandle
 ) : GroupDetailsBaseViewModel(savedStateHandle) {
 
     private val editConversationNameNavArgs: EditConversationNameNavArgs = savedStateHandle.navArgs()

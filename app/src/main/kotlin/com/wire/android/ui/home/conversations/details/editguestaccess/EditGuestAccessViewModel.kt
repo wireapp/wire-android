@@ -32,7 +32,6 @@ import com.wire.android.ui.navArgs
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.QualifiedID
-import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationAccessRoleUseCase
 import com.wire.kalium.logic.feature.conversation.guestroomlink.GenerateGuestRoomLinkResult
@@ -65,8 +64,7 @@ class EditGuestAccessViewModel @Inject constructor(
     private val revokeGuestRoomLink: RevokeGuestRoomLinkUseCase,
     private val observeGuestRoomLink: ObserveGuestRoomLinkUseCase,
     private val observeGuestRoomLinkFeatureFlag: ObserveGuestRoomLinkFeatureFlagUseCase,
-    savedStateHandle: SavedStateHandle,
-    qualifiedIdMapper: QualifiedIdMapper,
+    savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
     private val editGuestAccessNavArgs: EditGuestAccessNavArgs = savedStateHandle.navArgs()

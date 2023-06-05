@@ -35,7 +35,6 @@ import com.wire.android.ui.home.conversations.details.participants.model.UIParti
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
 import com.wire.android.ui.navArgs
 import com.wire.kalium.logic.data.id.QualifiedID
-import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.user.BotService
 import com.wire.kalium.logic.data.user.UserId
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -46,8 +45,7 @@ import javax.inject.Inject
 open class GroupConversationParticipantsViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val navigationManager: NavigationManager,
-    private val observeConversationMembers: ObserveParticipantsForConversationUseCase,
-    qualifiedIdMapper: QualifiedIdMapper
+    private val observeConversationMembers: ObserveParticipantsForConversationUseCase
 ) : GroupDetailsBaseViewModel(savedStateHandle) {
 
     open val maxNumberOfItems get() = -1 // -1 means return whole list

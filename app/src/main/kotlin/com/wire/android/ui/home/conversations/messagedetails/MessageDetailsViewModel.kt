@@ -31,7 +31,6 @@ import com.wire.android.ui.home.conversations.messagedetails.usecase.ObserveReac
 import com.wire.android.ui.home.conversations.messagedetails.usecase.ObserveReceiptsForMessageUseCase
 import com.wire.android.ui.navArgs
 import com.wire.kalium.logic.data.id.QualifiedID
-import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.message.receipt.ReceiptType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -39,7 +38,6 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MessageDetailsViewModel @Inject constructor(
-    qualifiedIdMapper: QualifiedIdMapper,
     override val savedStateHandle: SavedStateHandle,
     private val navigationManager: NavigationManager,
     private val observeReactionsForMessage: ObserveReactionsForMessageUseCase,

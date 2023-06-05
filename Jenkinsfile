@@ -93,21 +93,19 @@ pipeline {
                         String stageName = "Build $flavor"
                         dynamicStages[stageName] = {
                             stage(stageName) {
-                                steps {
-                                    build(
-                                            job: 'AR-build-pipeline',
-                                            parameters: [
-                                                    string(name: 'SOURCE_BRANCH', value: env.BRANCH_NAME),
-                                                    string(name: 'BUILD_TYPE', value: buildType),
-                                                    string(name: 'FLAVOR', value: flavor),
-                                                    booleanParam(name: 'UPLOAD_TO_S3', value: false),
-                                                    booleanParam(name: 'TRY_UPLOAD_TO_PLAYSTORE', value: false),
-                                                    booleanParam(name: 'RUN_UNIT_TEST', value: true),
-                                                    booleanParam(name: 'RUN_ACCEPTANCE_TESTS', value: false),
-                                                    booleanParam(name: 'RUN_STATIC_CODE_ANALYSIS', value: false)
-                                            ]
-                                    )
-                                }
+                                build(
+                                        job: 'AR-build-pipeline',
+                                        parameters: [
+                                                string(name: 'SOURCE_BRANCH', value: env.BRANCH_NAME),
+                                                string(name: 'BUILD_TYPE', value: buildType),
+                                                string(name: 'FLAVOR', value: flavor),
+                                                booleanParam(name: 'UPLOAD_TO_S3', value: false),
+                                                booleanParam(name: 'TRY_UPLOAD_TO_PLAYSTORE', value: false),
+                                                booleanParam(name: 'RUN_UNIT_TEST', value: true),
+                                                booleanParam(name: 'RUN_ACCEPTANCE_TESTS', value: false),
+                                                booleanParam(name: 'RUN_STATIC_CODE_ANALYSIS', value: false)
+                                        ]
+                                )
                             }
                         }
                     }

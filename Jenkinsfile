@@ -74,8 +74,10 @@ def postGithubComment(String changeId, String body) {
 }
 
 pipeline {
-    node {
-        label 'spawner'
+    agent {
+        node {
+            label 'spawner'
+        }
     }
 
     options { disableConcurrentBuilds(abortPrevious: true) }
@@ -93,21 +95,30 @@ pipeline {
         }
 
         stage("run pipeline") {
-            parallel {
-                for (flavor in flavorList) {
-                    String buildType = defineBuildType(flavor)
-                    stage("Build $flavor") {
-                        build job: 'AR-builder', parameters: [
-                                [$class: 'StringParameterValue', name: 'SOURCE_BRANCH', value: env.BRANCH_NAME],
-                                [$class: 'StringParameterValue', name: 'BUILD_TYPE', value: buildType],
-                                [$class: 'StringParameterValue', name: 'FLAVOR', value: flavor],
-                                [$class: 'BooleanParameterValue', name: 'UPLOAD_TO_S3', value: false],
-                                [$class: 'BooleanParameterValue', name: 'TRY_UPLOAD_TO_PLAYSTORE', value: false],
-                                [$class: 'BooleanParameterValue', name: 'RUN_UNIT_TEST', value: false],
-                                [$class: 'BooleanParameterValue', name: 'RUN_ACCEPTANCE_TESTS', value: false],
-                                [$class: 'BooleanParameterValue', name: 'RUN_STATIC_CODE_ANALYSIS', value: false]
-                        ]
+            steps {
+                script {
+                    def dynamicStages = [:]
+                    for (flavor in flavorList) {
+                        String buildType = defineBuildType(flavor)
+                        String stageName = "Build $flavor"
+                        dynamicStages[stageName] = {
+                            stage(stageName) {
+                                steps {
+                                    build job: 'AR-builder', parameters: [
+                                            [$class: 'StringParameterValue', name: 'SOURCE_BRANCH', value: env.BRANCH_NAME],
+                                            [$class: 'StringParameterValue', name: 'BUILD_TYPE', value: buildType],
+                                            [$class: 'StringParameterValue', name: 'FLAVOR', value: flavor],
+                                            [$class: 'BooleanParameterValue', name: 'UPLOAD_TO_S3', value: false],
+                                            [$class: 'BooleanParameterValue', name: 'TRY_UPLOAD_TO_PLAYSTORE', value: false],
+                                            [$class: 'BooleanParameterValue', name: 'RUN_UNIT_TEST', value: true],
+                                            [$class: 'BooleanParameterValue', name: 'RUN_ACCEPTANCE_TESTS', value: false],
+                                            [$class: 'BooleanParameterValue', name: 'RUN_STATIC_CODE_ANALYSIS', value: false]
+                                    ]
+                                }
+                            }
+                        }
                     }
+                    parallel dynamicStages
                 }
             }
         }

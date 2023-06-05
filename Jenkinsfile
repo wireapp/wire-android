@@ -16,7 +16,7 @@ List<String> defineFlavor() {
     } else if (branchName == "internal") {
         return ['Internal']
     }
-    return ['Dev']
+    return ['Dev', 'Staging']
 }
 
 String defineBuildType(String flavor) {
@@ -100,11 +100,11 @@ pipeline {
                                                 string(name: 'CHANGE_BRANCH', value: env.CHANGE_BRANCH),
                                                 string(name: 'BUILD_TYPE', value: buildType),
                                                 string(name: 'FLAVOR', value: flavor),
-                                                booleanParam(name: 'UPLOAD_TO_S3', value: false),
+                                                booleanParam(name: 'UPLOAD_TO_S3', value: true),
                                                 booleanParam(name: 'TRY_UPLOAD_TO_PLAYSTORE', value: false),
-                                                booleanParam(name: 'RUN_UNIT_TEST', value: false),
-                                                booleanParam(name: 'RUN_ACCEPTANCE_TESTS', value: false),
-                                                booleanParam(name: 'RUN_STATIC_CODE_ANALYSIS', value: false)
+                                                booleanParam(name: 'RUN_UNIT_TEST', value: true),
+                                                booleanParam(name: 'RUN_ACCEPTANCE_TESTS', value: true),
+                                                booleanParam(name: 'RUN_STATIC_CODE_ANALYSIS', value: true)
                                         ]
                                 )
                             }

@@ -45,52 +45,6 @@ fun rememberMessageComposerStateHolder(): MessageComposerStateHolder {
     return remember { MessageComposerStateHolder(focusManager, inputFocusRequester) }
 }
 
-sealed class MessageComposerState {
-    data class InActive(val messageComposition: MessageComposition) : MessageComposerState()
-    class Active(
-        private val focusManager: FocusManager,
-        val focusRequester: FocusRequester,
-        private val messageCompositionState: MutableState<MessageComposition>,
-        defaultAdditionalOptionMenuState: AdditionalOptionMenuState = AdditionalOptionMenuState.AttachmentAndAdditionalOptionsMenu,
-        defaultAdditionalOptionsSubMenuState: AdditionalOptionSubMenuState = AdditionalOptionSubMenuState.Hidden,
-    ) : MessageComposerState() {
-
-        val messageCompositionInputState = MessageCompositionInputState(messageCompositionState)
-
-        var additionalOptionMenuState: AdditionalOptionMenuState by mutableStateOf(defaultAdditionalOptionMenuState)
-            private set
-
-        var additionalOptionsSubMenuState: AdditionalOptionSubMenuState by mutableStateOf(defaultAdditionalOptionsSubMenuState)
-            private set
-
-        fun toEphemeralInputType() {
-            messageCompositionInputState.toEphemeral()
-        }
-
-        fun toggleAttachmentOptions() {
-            additionalOptionsSubMenuState =
-                if (additionalOptionsSubMenuState == AdditionalOptionSubMenuState.AttachFile) {
-                    focusRequester.requestFocus()
-                    AdditionalOptionSubMenuState.Hidden
-                } else {
-                    focusManager.clearFocus()
-                    AdditionalOptionSubMenuState.AttachFile
-                }
-        }
-
-        fun onInputFocused() {
-            additionalOptionsSubMenuState = AdditionalOptionSubMenuState.Hidden
-        }
-
-        fun toggleGifMenu() {
-
-        }
-
-        fun messageTextChanged(textFieldValue: TextFieldValue) {
-            messageCompositionState.value = messageCompositionState.value.copy(textFieldValue = textFieldValue)
-        }
-    }
-}
 
 class MessageComposerStateHolder(
     val focusManager: FocusManager,
@@ -128,45 +82,7 @@ data class MessageComposition(
         get() = textFieldValue.text
 }
 
-class MessageCompositionInputState(val messageCompositionState: MutableState<MessageComposition>) {
 
-    var inputType: MessageCompositionInputType by mutableStateOf(MessageCompositionInputType.Composing(messageCompositionState))
-        private set
-
-    var inputSize: MessageCompositionInputSize by mutableStateOf(MessageCompositionInputSize.COLLAPSED)
-        private set
-
-    fun toEphemeral() {
-        inputType = MessageCompositionInputType.Ephemeral
-    }
-
-    fun toFullscreen(){
-        inputSize = MessageCompositionInputSize.EXPANDED
-    }
-
-    fun toCollapsed(){
-        inputSize = MessageCompositionInputSize.COLLAPSED
-    }
-
-}
-
-sealed class MessageCompositionInputType {
-    class Composing(val messageCompositionState: MutableState<MessageComposition>) : MessageCompositionInputType() {
-
-        val isSendButtonEnabled by derivedStateOf {
-            messageCompositionState.value.messageText.isNotBlank()
-        }
-
-    }
-
-    object Editing : MessageCompositionInputType()
-    object Ephemeral : MessageCompositionInputType()
-}
-
-enum class MessageCompositionInputSize {
-    COLLAPSED,
-    EXPANDED;
-}
 
 //@Composable
 //fun rememberMessageComposerState(): MessageComposerState {

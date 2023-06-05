@@ -29,10 +29,8 @@ import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.model.ImageAsset
 import com.wire.android.navigation.BackStackMode
-import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.EXTRA_GROUP_DELETED_NAME
 import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.navigation.SavedStateViewModel
 import com.wire.android.navigation.getBackNavArg

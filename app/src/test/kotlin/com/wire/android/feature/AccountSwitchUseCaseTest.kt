@@ -23,8 +23,9 @@ package com.wire.android.feature
 import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.ui.destinations.HomeScreenDestination
+import com.wire.android.ui.destinations.WelcomeScreenDestination
 import com.wire.kalium.logic.data.logout.LogoutReason
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.AccountInfo
@@ -51,7 +52,7 @@ class AccountSwitchUseCaseTest {
     fun `given current session is valid, when SwitchToAccount is called , then update current session and the user is navigated to the home screen`() =
         runTest {
             val expectedNavigationCommand = NavigationCommand(
-                NavigationItem.Home.getRouteWithArgs(),
+                HomeScreenDestination,
                 BackStackMode.CLEAR_WHOLE
             )
 
@@ -77,7 +78,7 @@ class AccountSwitchUseCaseTest {
     fun `given current session is valid and there are no other sessions, when SwitchToNextAccountOrWelcome , then update current session and the user is navigated to the welcome screen`() =
         runTest {
             val expectedNavigationCommand = NavigationCommand(
-                NavigationItem.Welcome.getRouteWithArgs(),
+                WelcomeScreenDestination,
                 BackStackMode.CLEAR_WHOLE
             )
 
@@ -106,7 +107,7 @@ class AccountSwitchUseCaseTest {
         val switchTO = ACCOUNT_VALID_2
 
         val expectedNavigationCommand = NavigationCommand(
-            NavigationItem.Home.getRouteWithArgs(),
+            HomeScreenDestination,
             BackStackMode.CLEAR_WHOLE
         )
 

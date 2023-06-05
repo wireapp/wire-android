@@ -26,9 +26,11 @@ import com.wire.android.config.mockUri
 import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.model.UserAvatarData
 import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.common.dialogs.BlockUserDialogState
+import com.wire.android.ui.destinations.ConversationScreenDestination
+import com.wire.android.ui.destinations.NewConversationRouterDestination
+import com.wire.android.ui.destinations.OngoingCallScreenDestination
 import com.wire.android.ui.home.conversations.model.UILastMessageContent
 import com.wire.android.ui.home.conversationslist.model.BadgeEventType
 import com.wire.android.ui.home.conversationslist.model.BlockingState
@@ -145,7 +147,7 @@ class ConversationListViewModelTest {
     fun `given a conversations list, when opening a new conversation, then should delegate call to manager to NewConversation`() = runTest {
         conversationListViewModel.openNewConversation()
 
-        coVerify(exactly = 1) { navigationManager.navigate(NavigationCommand(NavigationItem.NewConversation.getRouteWithArgs())) }
+        coVerify(exactly = 1) { navigationManager.navigate(NavigationCommand(NewConversationRouterDestination)) }
     }
 
     @Test
@@ -156,11 +158,7 @@ class ConversationListViewModelTest {
             coVerify(exactly = 1) {
                 navigationManager.navigate(
                     NavigationCommand(
-                        NavigationItem.Conversation.getRouteWithArgs(
-                            listOf(
-                                conversationId
-                            )
-                        )
+                        ConversationScreenDestination(conversationId)
                     )
                 )
             }
@@ -176,11 +174,7 @@ class ConversationListViewModelTest {
         coVerify(exactly = 1) {
             navigationManager.navigate(
                 NavigationCommand(
-                    NavigationItem.OngoingCall.getRouteWithArgs(
-                        listOf(
-                            conversationId
-                        )
-                    )
+                    OngoingCallScreenDestination(conversationId)
                 )
             )
         }

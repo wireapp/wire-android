@@ -30,7 +30,6 @@ import com.wire.android.di.CurrentAccount
 import com.wire.android.migration.failure.UserMigrationStatus
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.destinations.MigrationScreenDestination
 import com.wire.android.util.DataDogLogger

@@ -81,8 +81,6 @@ import com.wire.android.ui.calling.incoming.IncomingCallScreen
 import com.wire.android.ui.calling.initiating.InitiatingCallScreen
 import com.wire.android.ui.calling.ongoing.OngoingCallScreen
 import com.wire.android.ui.debug.DebugScreen
-import com.wire.android.ui.destinations.DirectionDestination
-import com.wire.android.ui.destinations.WelcomeScreenDestination
 import com.wire.android.ui.home.HomeScreen
 import com.wire.android.ui.home.conversations.ConversationScreen
 import com.wire.android.ui.home.conversations.details.GroupConversationDetailsScreen

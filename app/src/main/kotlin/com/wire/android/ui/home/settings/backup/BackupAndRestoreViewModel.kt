@@ -32,7 +32,6 @@ import com.wire.android.BuildConfig
 import com.wire.android.appLogger
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.destinations.HomeScreenDestination
 import com.wire.android.util.FileManager

@@ -23,7 +23,8 @@ package com.wire.android.ui.home.conversations.info
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.framework.TestUser
 import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.NavigationItem
+import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
+import com.wire.android.ui.destinations.SelfUserProfileScreenDestination
 import com.wire.android.ui.home.conversations.mockConversationDetailsGroup
 import com.wire.android.ui.home.conversations.withMockConversationDetailsOneOnOne
 import com.wire.android.util.EMPTY
@@ -59,7 +60,7 @@ class ConversationInfoViewModelTest {
         viewModel.navigateToProfile(userId.toString())
         // Then
         coVerify(exactly = 1) {
-            arrangement.navigationManager.navigate(NavigationCommand(NavigationItem.SelfUserProfile.getRouteWithArgs()))
+            arrangement.navigationManager.navigate(NavigationCommand(SelfUserProfileScreenDestination))
         }
     }
 
@@ -76,7 +77,7 @@ class ConversationInfoViewModelTest {
         viewModel.navigateToProfile(userId.toString())
         // Then
         coVerify(exactly = 1) {
-            arrangement.navigationManager.navigate(NavigationCommand(NavigationItem.SelfUserProfile.getRouteWithArgs()))
+            arrangement.navigationManager.navigate(NavigationCommand(SelfUserProfileScreenDestination))
         }
     }
 
@@ -97,7 +98,7 @@ class ConversationInfoViewModelTest {
         viewModel.navigateToProfile(userId.toString())
         // Then
         coVerify(exactly = 1) {
-            arrangement.navigationManager.navigate(NavigationCommand(NavigationItem.OtherUserProfile.getRouteWithArgs(listOf(userId))))
+            arrangement.navigationManager.navigate(NavigationCommand(OtherUserProfileScreenDestination(userId)))
         }
     }
 
@@ -120,7 +121,7 @@ class ConversationInfoViewModelTest {
             // Then
             coVerify(exactly = 1) {
                 arrangement.navigationManager.navigate(
-                    NavigationCommand(NavigationItem.OtherUserProfile.getRouteWithArgs(listOf(userId, arrangement.conversationId)))
+                    NavigationCommand(OtherUserProfileScreenDestination(userId, arrangement.conversationId))
                 )
             }
         cancel()

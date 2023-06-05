@@ -23,7 +23,6 @@ package com.wire.android.ui.settings
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.destinations.NetworkSettingsScreenDestination
 import dagger.hilt.android.lifecycle.HiltViewModel

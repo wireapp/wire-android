@@ -32,7 +32,6 @@ import com.wire.android.appLogger
 import com.wire.android.mapper.ContactMapper
 import com.wire.android.model.SnackBarMessage
 import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
 import com.wire.android.ui.home.newconversation.model.Contact

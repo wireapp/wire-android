@@ -24,7 +24,6 @@ import com.wire.android.di.ApplicationScope
 import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.destinations.HomeScreenDestination
 import com.wire.android.ui.destinations.WelcomeScreenDestination

@@ -65,7 +65,6 @@ import javax.inject.Inject
 class MediaGalleryViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     wireSessionImageLoader: WireSessionImageLoader,
-    qualifiedIdMapper: QualifiedIdMapper,
     private val navigationManager: NavigationManager,
     private val getConversationDetails: ObserveConversationDetailsUseCase,
     private val dispatchers: DispatcherProvider,

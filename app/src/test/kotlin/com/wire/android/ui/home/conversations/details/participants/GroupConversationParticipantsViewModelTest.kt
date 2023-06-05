@@ -26,8 +26,9 @@ import com.wire.android.config.mockUri
 import com.wire.android.mapper.testUIParticipant
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
+import com.wire.android.ui.destinations.SelfUserProfileScreenDestination
 import com.wire.android.ui.home.conversations.details.GroupConversationDetailsViewModel
 import com.wire.android.ui.home.conversations.details.participants.model.ConversationParticipantsData
 import com.wire.android.ui.home.conversations.details.participants.model.UIParticipant
@@ -85,9 +86,7 @@ class GroupConversationParticipantsViewModelTest {
         coVerify {
             arrangement.navigationManager.navigate(
                 NavigationCommand(
-                    NavigationItem.OtherUserProfile.getRouteWithArgs(
-                        listOf(member.id, arrangement.qualifiedId)
-                    )
+                    OtherUserProfileScreenDestination(member.id, arrangement.qualifiedId)
                 )
             )
         }
@@ -102,7 +101,7 @@ class GroupConversationParticipantsViewModelTest {
         viewModel.openProfile(member)
         // Then
         coVerify {
-            arrangement.navigationManager.navigate(NavigationCommand(NavigationItem.SelfUserProfile.getRouteWithArgs()))
+            arrangement.navigationManager.navigate(NavigationCommand(SelfUserProfileScreenDestination))
         }
     }
 }

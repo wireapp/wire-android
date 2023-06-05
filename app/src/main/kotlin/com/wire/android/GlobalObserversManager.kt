@@ -2,7 +2,6 @@ package com.wire.android
 
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.notification.NotificationChannelsManager
 import com.wire.android.notification.WireNotificationManager

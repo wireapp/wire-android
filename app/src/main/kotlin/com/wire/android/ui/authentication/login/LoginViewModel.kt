@@ -32,10 +32,9 @@ import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.di.ClientScopeProvider
 import com.wire.android.navigation.BackStackMode
-import com.wire.android.navigation.EXTRA_USER_HANDLE
 import com.wire.android.navigation.EXTRA_SSO_LOGIN_RESULT
+import com.wire.android.navigation.EXTRA_USER_HANDLE
 import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.destinations.HomeScreenDestination
 import com.wire.android.ui.destinations.InitialSyncScreenDestination

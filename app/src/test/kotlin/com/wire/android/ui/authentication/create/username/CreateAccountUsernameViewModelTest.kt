@@ -25,9 +25,9 @@ import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.mockUri
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.NavigationItemDestinationsRoutes
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.authentication.create.common.handle.HandleUpdateErrorState
+import com.wire.android.ui.destinations.InitialSyncScreenDestination
 import com.wire.android.util.EMPTY
 import com.wire.kalium.logic.NetworkFailure
 import com.wire.kalium.logic.feature.auth.ValidateUserHandleResult
@@ -138,7 +138,7 @@ class CreateAccountUsernameViewModelTest {
         coVerify(exactly = 2) { validateUserHandleUseCase.invoke(username) }
         coVerify(exactly = 1) { setUserHandleUseCase.invoke(username) }
         coVerify(exactly = 1) {
-            navigationManager.navigate(NavigationCommand(NavigationItemDestinationsRoutes.INITIAL_SYNC, BackStackMode.CLEAR_WHOLE))
+            navigationManager.navigate(NavigationCommand(InitialSyncScreenDestination, BackStackMode.CLEAR_WHOLE))
         }
     }
 

@@ -24,8 +24,10 @@ import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.mockUri
 import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.ui.destinations.CreatePersonalAccountScreenDestination
+import com.wire.android.ui.destinations.CreateTeamScreenDestination
+import com.wire.android.ui.destinations.LoginScreenDestination
 import com.wire.android.util.newServerConfig
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import com.wire.kalium.logic.feature.session.GetSessionsUseCase
@@ -70,7 +72,7 @@ class WelcomeViewModelTest {
     fun `given a navigation, when it's go to login, then should emit NavigationCommand login`() = runTest {
         welcomeViewModel.goToLogin()
 
-        coVerify(exactly = 1) { navigationManager.navigate(NavigationCommand(NavigationItem.Login.getRouteWithArgs())) }
+        coVerify(exactly = 1) { navigationManager.navigate(NavigationCommand(LoginScreenDestination())) }
     }
 
     @Test
@@ -78,14 +80,14 @@ class WelcomeViewModelTest {
         runTest {
             welcomeViewModel.goToCreatePrivateAccount()
 
-            coVerify(exactly = 1) { navigationManager.navigate(NavigationCommand(NavigationItem.CreatePersonalAccount.getRouteWithArgs())) }
+            coVerify(exactly = 1) { navigationManager.navigate(NavigationCommand(CreatePersonalAccountScreenDestination)) }
         }
 
     @Test
     fun `given a navigation, when it's go to create enterprise account, then should emit NavigationCommand create team`() = runTest {
         welcomeViewModel.goToCreateEnterpriseAccount()
 
-        coVerify(exactly = 1) { navigationManager.navigate(NavigationCommand(NavigationItem.CreateTeam.getRouteWithArgs())) }
+        coVerify(exactly = 1) { navigationManager.navigate(NavigationCommand(CreateTeamScreenDestination)) }
     }
 
     @Test

@@ -23,7 +23,6 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.navigation.EXTRA_NEW_EMAIL
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.navArgs
 import com.wire.kalium.logic.feature.user.UpdateEmailUseCase

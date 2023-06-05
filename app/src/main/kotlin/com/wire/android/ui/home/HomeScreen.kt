@@ -55,7 +55,6 @@ import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.spec.Direction
 import com.wire.android.R
 import com.wire.android.navigation.HomeNavigationItem
-import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.hiltSavedStateViewModel
 import com.wire.android.ui.common.CollapsingTopBarScaffold
 import com.wire.android.ui.common.FloatingActionButton

@@ -31,9 +31,7 @@ import com.wire.android.appLogger
 import com.wire.android.migration.MigrationData
 import com.wire.android.migration.MigrationManager
 import com.wire.android.navigation.BackStackMode
-import com.wire.android.navigation.EXTRA_USER_ID
 import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.destinations.HomeScreenDestination
 import com.wire.android.ui.destinations.LoginScreenDestination
@@ -42,7 +40,6 @@ import com.wire.android.ui.navArgs
 import com.wire.android.workmanager.worker.enqueueMigrationWorker
 import com.wire.android.workmanager.worker.enqueueSingleUserMigrationWorker
 import com.wire.kalium.logger.obfuscateId
-import com.wire.kalium.logic.data.id.QualifiedIdMapperImpl
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel

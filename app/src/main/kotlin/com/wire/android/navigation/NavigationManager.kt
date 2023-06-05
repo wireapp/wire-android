@@ -21,7 +21,6 @@
 package com.wire.android.navigation
 
 import com.ramcosta.composedestinations.spec.Direction
-import com.wire.android.ui.destinations.Destination
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 

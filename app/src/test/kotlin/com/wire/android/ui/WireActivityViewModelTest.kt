@@ -37,6 +37,10 @@ import com.wire.android.navigation.NavigationManager
 import com.wire.android.services.ServicesManager
 import com.wire.android.ui.authentication.devices.model.displayName
 import com.wire.android.ui.common.dialogs.CustomBEDeeplinkDialogState
+import com.wire.android.ui.destinations.ConversationScreenDestination
+import com.wire.android.ui.destinations.IncomingCallScreenDestination
+import com.wire.android.ui.destinations.LoginScreenDestination
+import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
 import com.wire.android.ui.joinConversation.JoinConversationViaCodeState
 import com.wire.android.util.deeplink.DeepLinkProcessor
 import com.wire.android.util.deeplink.DeepLinkResult
@@ -114,7 +118,7 @@ class WireActivityViewModelTest {
 
         coVerify(exactly = 1) {
             arrangement.navigationManager.navigate(
-                NavigationCommand(NavigationItem.Login.getRouteWithArgs(listOf(result)), BackStackMode.UPDATE_EXISTED)
+                NavigationCommand(LoginScreenDestination(ssoLoginResult = result), BackStackMode.UPDATE_EXISTED)
             )
         }
         assertEquals(NavigationItem.Home.getRouteWithArgs(), viewModel.startNavigationRoute())
@@ -177,7 +181,7 @@ class WireActivityViewModelTest {
         coVerify(exactly = 1) {
             arrangement.navigationManager.navigate(
                 NavigationCommand(
-                    NavigationItem.Login.getRouteWithArgs(listOf(ssoLogin)),
+                    LoginScreenDestination(ssoLoginResult = ssoLogin),
                     BackStackMode.UPDATE_EXISTED
                 )
             )
@@ -198,7 +202,7 @@ class WireActivityViewModelTest {
         coVerify(exactly = 1) {
             arrangement.navigationManager.navigate(
                 NavigationCommand(
-                    NavigationItem.Login.getRouteWithArgs(listOf(ssoLogin)),
+                    LoginScreenDestination(ssoLoginResult = ssoLogin),
                     BackStackMode.UPDATE_EXISTED
                 )
             )
@@ -218,7 +222,7 @@ class WireActivityViewModelTest {
         coVerify(exactly = 1) {
             arrangement.navigationManager.navigate(
                 NavigationCommand(
-                    NavigationItem.Login.getRouteWithArgs(listOf("handle")),
+                    LoginScreenDestination("handle"),
                     BackStackMode.UPDATE_EXISTED
                 )
             )
@@ -238,7 +242,7 @@ class WireActivityViewModelTest {
             coVerify(exactly = 1) {
                 arrangement.navigationManager.navigate(
                     NavigationCommand(
-                        NavigationItem.Login.getRouteWithArgs(listOf("handle")),
+                        LoginScreenDestination("handle"),
                         BackStackMode.UPDATE_EXISTED
                     )
                 )
@@ -258,7 +262,7 @@ class WireActivityViewModelTest {
             assertEquals(NavigationItem.Home.getRouteWithArgs(), viewModel.startNavigationRoute())
             coVerify(exactly = 1) {
                 arrangement.navigationManager.navigate(
-                    NavigationCommand(NavigationItem.IncomingCall.getRouteWithArgs(listOf(conversationsId)))
+                    NavigationCommand(IncomingCallScreenDestination(conversationsId))
                 )
             }
     }
@@ -276,7 +280,7 @@ class WireActivityViewModelTest {
         assertEquals(NavigationItem.Welcome.getRouteWithArgs(), viewModel.startNavigationRoute())
         coVerify(exactly = 0) {
             arrangement.navigationManager.navigate(
-                NavigationCommand(NavigationItem.IncomingCall.getRouteWithArgs(listOf(conversationsId)))
+                NavigationCommand(IncomingCallScreenDestination(conversationsId))
             )
         }
     }
@@ -294,7 +298,7 @@ class WireActivityViewModelTest {
         assertEquals(NavigationItem.Home.getRouteWithArgs(), viewModel.startNavigationRoute())
         coVerify(exactly = 1) {
             arrangement.navigationManager.navigate(
-                NavigationCommand(NavigationItem.Conversation.getRouteWithArgs(listOf(conversationsId)), BackStackMode.UPDATE_EXISTED)
+                NavigationCommand(ConversationScreenDestination(conversationsId), BackStackMode.UPDATE_EXISTED)
             )
         }
     }
@@ -327,7 +331,7 @@ class WireActivityViewModelTest {
         assertEquals(NavigationItem.Home.getRouteWithArgs(), viewModel.startNavigationRoute())
         coVerify(exactly = 1) {
             arrangement.navigationManager.navigate(
-                NavigationCommand(NavigationItem.OtherUserProfile.getRouteWithArgs(listOf(userId)), BackStackMode.UPDATE_EXISTED)
+                NavigationCommand(OtherUserProfileScreenDestination(userId), BackStackMode.UPDATE_EXISTED)
             )
         }
     }
@@ -425,7 +429,7 @@ class WireActivityViewModelTest {
         viewModel.globalAppState.conversationJoinedDialog `should be equal to` null
         coVerify(exactly = 1) {
             arrangement.navigationManager.navigate(
-                NavigationCommand(NavigationItem.Conversation.getRouteWithArgs(listOf(conversationId)), BackStackMode.UPDATE_EXISTED)
+                NavigationCommand(ConversationScreenDestination(conversationId), BackStackMode.UPDATE_EXISTED)
             )
         }
     }

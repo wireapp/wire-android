@@ -6,12 +6,10 @@ import com.wire.android.config.mockUri
 import com.wire.android.framework.TestUser
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.destinations.VerifyEmailScreenDestination
 import com.wire.android.ui.home.settings.account.email.updateEmail.ChangeEmailState
 import com.wire.android.ui.home.settings.account.email.updateEmail.ChangeEmailViewModel
-import com.wire.android.ui.home.settings.account.email.verifyEmail.VerifyEmailNavArgs
 import com.wire.kalium.logic.NetworkFailure
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.UpdateEmailUseCase

@@ -36,7 +36,6 @@ import androidx.compose.ui.unit.dp
 import com.ramcosta.composedestinations.spec.Direction
 import com.wire.android.R
 import com.wire.android.model.Clickable
-import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.SupportScreenDestination
 import com.wire.android.ui.common.RowItemTemplate
 import com.wire.android.ui.common.clickable

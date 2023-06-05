@@ -83,17 +83,6 @@ pipeline {
     options { disableConcurrentBuilds(abortPrevious: true) }
 
     stages {
-
-        stage('Load Env Variables') {
-            steps {
-                configFileProvider([
-                        configFile(fileId: env.GROOVY_ENV_VARS_REFERENCE_FILE_NAME, variable: 'GROOVY_FILE_THAT_SETS_VARIABLES')
-                ]) {
-                    load env.GROOVY_FILE_THAT_SETS_VARIABLES
-                }
-            }
-        }
-
         stage("run pipeline") {
             steps {
                 script {
@@ -105,16 +94,19 @@ pipeline {
                         dynamicStages[stageName] = {
                             stage(stageName) {
                                 steps {
-                                    build job: 'AR-builder', parameters: [
-                                            [$class: 'StringParameterValue', name: 'SOURCE_BRANCH', value: env.BRANCH_NAME],
-                                            [$class: 'StringParameterValue', name: 'BUILD_TYPE', value: buildType],
-                                            [$class: 'StringParameterValue', name: 'FLAVOR', value: flavor],
-                                            [$class: 'BooleanParameterValue', name: 'UPLOAD_TO_S3', value: false],
-                                            [$class: 'BooleanParameterValue', name: 'TRY_UPLOAD_TO_PLAYSTORE', value: false],
-                                            [$class: 'BooleanParameterValue', name: 'RUN_UNIT_TEST', value: true],
-                                            [$class: 'BooleanParameterValue', name: 'RUN_ACCEPTANCE_TESTS', value: false],
-                                            [$class: 'BooleanParameterValue', name: 'RUN_STATIC_CODE_ANALYSIS', value: false]
-                                    ]
+                                    build(
+                                            job: 'AR-build-pipeline',
+                                            parameters: [
+                                                    string(name: 'SOURCE_BRANCH', value: env.BRANCH_NAME),
+                                                    string(name: 'BUILD_TYPE', value: buildType),
+                                                    string(name: 'FLAVOR', value: flavor),
+                                                    booleanParam(name: 'UPLOAD_TO_S3', value: false),
+                                                    booleanParam(name: 'TRY_UPLOAD_TO_PLAYSTORE', value: false),
+                                                    booleanParam(name: 'RUN_UNIT_TEST', value: true),
+                                                    booleanParam(name: 'RUN_ACCEPTANCE_TESTS', value: false),
+                                                    booleanParam(name: 'RUN_STATIC_CODE_ANALYSIS', value: false)
+                                            ]
+                                    )
                                 }
                             }
                         }

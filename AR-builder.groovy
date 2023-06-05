@@ -252,8 +252,8 @@ pipeline {
                     sh './gradlew runUnitTests'
                 }
 
-                publishHTML(allowMissing: true, alwaysLinkToLastBuild: true, keepAll: true, reportDir: "app/build/reports/tests/test${flavor}${buildType}UnitTest/", reportFiles: 'index.html', reportName: 'Unit Test Report', reportTitles: 'Unit Test')
-                zip archive: true, defaultExcludes: false, dir: "app/build/reports/tests/test${flavor}${buildType}UnitTest/", overwrite: true, glob: "", zipFile: "unit-tests-android.zip"
+                publishHTML(allowMissing: true, alwaysLinkToLastBuild: true, keepAll: true, reportDir: "app/build/reports/tests/test${params.FLAVOR}${params.BUILD_TYPE}UnitTest/", reportFiles: 'index.html', reportName: 'Unit Test Report', reportTitles: 'Unit Test')
+                zip archive: true, defaultExcludes: false, dir: "app/build/reports/tests/test${params.FLAVOR}${params.BUILD_TYPE}UnitTest/", overwrite: true, glob: "", zipFile: "unit-tests-android.zip"
             }
         }
 
@@ -308,8 +308,8 @@ pipeline {
                     sh './gradlew runAcceptanceTests'
                 }
 
-                publishHTML(allowMissing: true, alwaysLinkToLastBuild: true, keepAll: true, reportDir: "app/build/reports/androidTests/connected/flavors/${env.FLAVOR..toLowerCase()}", reportFiles: 'index.html', reportName: 'Acceptance Test Report', reportTitles: 'Acceptance Test')
-                zip archive: true, defaultExcludes: false, dir: "app/build/reports/androidTests/connected/flavors/${env.FLAVOR..toLowerCase()}", overwrite: true, glob: "", zipFile: "integration-tests-android.zip"
+                publishHTML(allowMissing: true, alwaysLinkToLastBuild: true, keepAll: true, reportDir: "app/build/reports/androidTests/connected/flavors/${params.FLAVOR.toLowerCase()}", reportFiles: 'index.html', reportName: 'Acceptance Test Report', reportTitles: 'Acceptance Test')
+                zip archive: true, defaultExcludes: false, dir: "app/build/reports/androidTests/connected/flavors/${params.FLAVOR.toLowerCase()}", overwrite: true, glob: "", zipFile: "integration-tests-android.zip"
             }
         }
 
@@ -321,14 +321,14 @@ pipeline {
                 }
 
                 withGradle() {
-                    sh './gradlew assemble${flavor}${buildType}'
+                    sh './gradlew assemble${params.FLAVOR}${params.BUILD_TYPE}'
                 }
             }
         }
 
         stage('Bundle AAB') {
             when {
-                expression { env.buildType == 'Release' }
+                expression { params.BUILD_TYPE == 'Release' }
             }
             steps {
                 script {
@@ -336,7 +336,7 @@ pipeline {
                 }
 
                 withGradle() {
-                    sh './gradlew bundle${flavor}${buildType}'
+                    sh './gradlew bundle${params.FLAVOR}${params.BUILD_TYPE}'
                 }
             }
         }
@@ -345,18 +345,18 @@ pipeline {
             parallel {
                 stage('AAB') {
                     when {
-                        expression { env.buildType == 'Release' }
+                        expression { params.BUILD_TYPE == 'Release' }
                     }
                     steps {
-                        sh "ls -la app/build/outputs/bundle/${env.FLAVOR..toLowerCase()}${buildType.capitalize()}/"
-                        archiveArtifacts(artifacts: "app/build/outputs/bundle/${env.FLAVOR..toLowerCase()}${buildType.capitalize()}/com.wire.android-*.aab", allowEmptyArchive: true, onlyIfSuccessful: true)
+                        sh "ls -la app/build/outputs/bundle/${params.FLAVOR.toLowerCase()}${params.BUILD_TYPE.capitalize()}/"
+                        archiveArtifacts(artifacts: "app/build/outputs/bundle/${params.FLAVOR.toLowerCase()}${params.BUILD_TYPE.capitalize()}/com.wire.android-*.aab", allowEmptyArchive: true, onlyIfSuccessful: true)
                     }
                 }
 
                 stage('APK') {
                     steps {
-                        sh "ls -la app/build/outputs/apk/${env.FLAVOR..toLowerCase()}/${env.BUILD_TYPE..toLowerCase()}/"
-                        archiveArtifacts(artifacts: "app/build/outputs/apk/${env.FLAVOR..toLowerCase()}/${env.BUILD_TYPE..toLowerCase()}/com.wire.android-*.apk, app/build/**/mapping/**/*.txt, app/build/**/logs/**/*.txt", allowEmptyArchive: true, onlyIfSuccessful: true)
+                        sh "ls -la app/build/outputs/apk/${params.FLAVOR.toLowerCase()}/${params.BUILD_TYPE.toLowerCase()}/"
+                        archiveArtifacts(artifacts: "app/build/outputs/apk/${params.FLAVOR.toLowerCase()}/${params.BUILD_TYPE.toLowerCase()}/com.wire.android-*.apk, app/build/**/mapping/**/*.txt, app/build/**/logs/**/*.txt", allowEmptyArchive: true, onlyIfSuccessful: true)
                     }
                 }
             }
@@ -372,10 +372,10 @@ pipeline {
                         echo 'Checking folder before S3 Bucket upload'
                         sh "ls -la app/build/outputs/apk/${params.FLAVOR.toLowerCase()}/${params.BUILD_TYPE.toLowerCase()}/"
                         echo 'Uploading file to S3 Bucket'
-                        s3Upload(acl: 'Private', workingDir: "app/build/outputs/apk/${params.FLAVOR.toLowerCase()}/${paramsparams.BUILD_TYPE.toLowerCase()}/", includePathPattern: 'com.wire.android-*.apk', bucket: 'z-lohika', path: "megazord/android/reloaded/${env.FLAVOR..toLowerCase()}/${env.BUILD_TYPE..toLowerCase()}/")
+                        s3Upload(acl: 'Private', workingDir: "app/build/outputs/apk/${params.FLAVOR.toLowerCase()}/${paramsparams.BUILD_TYPE.toLowerCase()}/", includePathPattern: 'com.wire.android-*.apk', bucket: 'z-lohika', path: "megazord/android/reloaded/${params.FLAVOR.toLowerCase()}/${params.BUILD_TYPE.toLowerCase()}/")
                         script {
                             if (params.SOURCE_BRANCH.startsWith("PR-") || params.SOURCE_BRANCH == "develop") {
-                                s3Upload(acl: 'Private', workingDir: "app/build/outputs/apk/${params.FLAVOR.toLowerCase()}/${params.BUILD_TYPE.toLowerCase()}/", includePathPattern: 'com.wire.android-*.apk', bucket: 'z-lohika', path: "megazord/android/reloaded/by-branch/${env.SOURCE_BRANCH}/")
+                                s3Upload(acl: 'Private', workingDir: "app/build/outputs/apk/${params.FLAVOR.toLowerCase()}/${params.BUILD_TYPE.toLowerCase()}/", includePathPattern: 'com.wire.android-*.apk', bucket: 'z-lohika', path: "megazord/android/reloaded/by-branch/${params.SOURCE_BRANCH}/")
                             }
                         }
                     }

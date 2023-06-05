@@ -42,6 +42,19 @@ def postGithubComment(String changeId, String body) {
 
 }
 
+def defineTrackName() {
+//    def overwrite = env.CUSTOM_TRACK
+//    def branchName = env.BRANCH_NAME
+//
+//    if (overwrite != null) {
+//        return overwrite
+//    } else if (branchName == "main") {
+//        return 'internal'
+//    }
+    return 'None'
+}
+
+
 pipeline {
     agent {
         docker {

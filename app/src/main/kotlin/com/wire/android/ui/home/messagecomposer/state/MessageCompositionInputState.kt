@@ -23,7 +23,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 
-class MessageCompositionInputState(messageCompositionState: MutableState<MessageComposition>) {
+class MessageCompositionInputState(private val messageCompositionState: MutableState<MessageComposition>) {
 
     var inputType: MessageCompositionInputType by mutableStateOf(MessageCompositionInputType.Composing(messageCompositionState))
         private set
@@ -32,21 +32,21 @@ class MessageCompositionInputState(messageCompositionState: MutableState<Message
         private set
 
     fun toEphemeral() {
-        inputType = MessageCompositionInputType.Ephemeral
+        inputType = MessageCompositionInputType.Ephemeral(messageCompositionState)
     }
 
-    fun toFullscreen(){
+    fun toFullscreen() {
         size = MessageCompositionInputSize.EXPANDED
     }
 
-    fun toCollapsed(){
+    fun toCollapsed() {
         size = MessageCompositionInputSize.COLLAPSED
     }
 
 }
 
-sealed class MessageCompositionInputType {
-    class Composing(val messageCompositionState: MutableState<MessageComposition>) : MessageCompositionInputType() {
+sealed class MessageCompositionInputType(val messageCompositionState: MutableState<MessageComposition>) {
+    class Composing(messageCompositionState: MutableState<MessageComposition>) : MessageCompositionInputType(messageCompositionState) {
 
         val isSendButtonEnabled by derivedStateOf {
             messageCompositionState.value.messageText.isNotBlank()
@@ -54,8 +54,8 @@ sealed class MessageCompositionInputType {
 
     }
 
-    object Editing : MessageCompositionInputType()
-    object Ephemeral : MessageCompositionInputType()
+    class Editing(messageCompositionState: MutableState<MessageComposition>) : MessageCompositionInputType(messageCompositionState)
+    class Ephemeral(messageCompositionState: MutableState<MessageComposition>) : MessageCompositionInputType(messageCompositionState)
 }
 
 enum class MessageCompositionInputSize {

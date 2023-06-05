@@ -294,7 +294,7 @@ private fun MessageComposingInput(
                 )
             }
 
-            MessageCompositionInputType.Editing -> {
+            is MessageCompositionInputType.Editing -> {
 //                EditingInput(
 //                    inputState = messageCompositionInputState,
 //                    onFocused = onInputFocused,
@@ -303,16 +303,15 @@ private fun MessageComposingInput(
 //                )
             }
 
-            MessageCompositionInputType.Ephemeral -> {
-//                SelfDeletingInput(
-//                    inputState = messageCompositionInputState,
-//                    onFocused = onInputFocused,
-//                    focusRequester = focusRequester,
-//                    onMessageTextChanged = onMessageTextChanged
-//                )
+            is MessageCompositionInputType.Ephemeral -> {
+                SelfDeletingInput(
+                    inputSize = size,
+                    inputType = type,
+                    onFocused = onInputFocused,
+                    focusRequester = focusRequester,
+                    onMessageTextChanged = onMessageTextChanged
+                )
             }
-
-
         }
     }
 }
@@ -393,6 +392,7 @@ private fun AdditionalOptionSubMenu(
                 modifier = modifier
             )
         }
+
         AdditionalOptionSubMenuState.Emoji -> {}
         AdditionalOptionSubMenuState.Gif -> {}
         AdditionalOptionSubMenuState.RecordAudio -> {}
@@ -435,39 +435,41 @@ private fun AttachmentAndAdditionalOptionsMenuItems(
 
 @Composable
 private fun SelfDeletingInput(
-    messageComposition: MessageComposition,
+    inputType: MessageCompositionInputType.Ephemeral,
     inputSize: MessageCompositionInputSize,
     onFocused: () -> Unit,
     focusRequester: FocusRequester,
     onMessageTextChanged: (TextFieldValue) -> Unit
 ) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .wrapContentHeight(),
-        verticalAlignment = Alignment.Bottom
-    ) {
-        _MessageComposerInput(
-            messageText = messageComposition.textFieldValue,
-            onMessageTextChanged = onMessageTextChanged,
-            singleLine = false,
-            onFocusChanged = { isFocused -> if (isFocused) onFocused() },
-            focusRequester = focusRequester,
+    with(inputType) {
+        Row(
             modifier = Modifier
-                .weight(1f)
-                .then(
-                    when (inputSize) {
-                        MessageCompositionInputSize.COLLAPSED -> Modifier.heightIn(max = dimensions().messageComposerActiveInputMaxHeight)
-                        MessageCompositionInputSize.EXPANDED -> Modifier.fillMaxHeight()
-                    }
-                )
-        )
-        MessageSendActions(
-            onSendButtonClicked = {
+                .fillMaxWidth()
+                .wrapContentHeight(),
+            verticalAlignment = Alignment.Bottom
+        ) {
+            _MessageComposerInput(
+                messageText = messageCompositionState.value.textFieldValue,
+                onMessageTextChanged = onMessageTextChanged,
+                singleLine = false,
+                onFocusChanged = { isFocused -> if (isFocused) onFocused() },
+                focusRequester = focusRequester,
+                modifier = Modifier
+                    .weight(1f)
+                    .then(
+                        when (inputSize) {
+                            MessageCompositionInputSize.COLLAPSED -> Modifier.heightIn(max = dimensions().messageComposerActiveInputMaxHeight)
+                            MessageCompositionInputSize.EXPANDED -> Modifier.fillMaxHeight()
+                        }
+                    )
+            )
+            MessageSendActions(
+                onSendButtonClicked = {
 
-            },
-            sendButtonEnabled = true
-        )
+                },
+                sendButtonEnabled = true
+            )
+        }
     }
 }
 

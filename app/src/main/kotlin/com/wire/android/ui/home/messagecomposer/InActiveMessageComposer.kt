@@ -28,6 +28,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material.Text
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -43,47 +44,49 @@ fun InActiveMessageComposer(
     onTransistionToActive: (Boolean) -> Unit,
     inActiveComposerState: Dupa.InActive
 ) {
-    Column(
-        Modifier
-            .fillMaxWidth()
-            .fillMaxHeight()
-    ) {
-        Box(
+    Surface(color = colorsScheme().messageComposerBackgroundColor) {
+        Column(
             Modifier
-                .pointerInput(Unit) {
-                    detectTapGestures(
-                        onPress = {},
-                        onDoubleTap = { /* Called on Double Tap */ },
-                        onLongPress = { /* Called on Long Press */ },
-                        onTap = { /* Called on Tap */ }
-                    )
-                }
-                .background(color = colorsScheme().backgroundVariant)
                 .fillMaxWidth()
-                .weight(1f)
+                .fillMaxHeight()
         ) {
-            messageListContent()
-        }
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
-                .fillMaxWidth()
-                .wrapContentHeight()
-        ) {
-            Box(modifier = Modifier.padding(start = dimensions().spacing8x)) {
-                AdditionalOptionButton(
-                    isSelected = false,
-                    isEnabled = true,
-                    onClick = { onTransistionToActive(true) }
-                )
+            Box(
+                Modifier
+                    .pointerInput(Unit) {
+                        detectTapGestures(
+                            onPress = {},
+                            onDoubleTap = { /* Called on Double Tap */ },
+                            onLongPress = { /* Called on Long Press */ },
+                            onTap = { /* Called on Tap */ }
+                        )
+                    }
+                    .background(color = colorsScheme().backgroundVariant)
+                    .fillMaxWidth()
+                    .weight(1f)
+            ) {
+                messageListContent()
             }
-
-            Text(inActiveComposerState.messageComposition.messageText,
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
                     .fillMaxWidth()
                     .wrapContentHeight()
-                    .clickable { onTransistionToActive(false) }
-            )
+            ) {
+                Box(modifier = Modifier.padding(start = dimensions().spacing8x)) {
+                    AdditionalOptionButton(
+                        isSelected = false,
+                        isEnabled = true,
+                        onClick = { onTransistionToActive(true) }
+                    )
+                }
+
+                Text(inActiveComposerState.messageComposition.messageText,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .wrapContentHeight()
+                        .clickable { onTransistionToActive(false) }
+                )
+            }
         }
     }
 }

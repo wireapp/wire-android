@@ -87,8 +87,7 @@ sealed class Dupa {
         }
 
         fun messageTextChanged(textFieldValue: TextFieldValue) {
-
-//        messageComposition.update { copy(textFieldValue = textFieldValue) }
+            messageComposition = messageComposition.copy(textFieldValue = textFieldValue)
         }
 
 
@@ -104,7 +103,7 @@ class MessageComposerStateHolder(
     val inputFocusRequester: FocusRequester
 ) {
 
-    private var messageComposition = mutableStateOf<MessageComposition>(MessageComposition(TextFieldValue("")))
+    private var messageComposition = mutableStateOf(MessageComposition(TextFieldValue("")))
 
     var dupa: Dupa by mutableStateOf(Dupa.InActive(messageComposition.value))
 

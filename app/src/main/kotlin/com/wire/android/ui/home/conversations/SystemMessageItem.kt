@@ -140,7 +140,9 @@ fun SystemMessageItem(
                     normalStyle = MaterialTheme.wireTypography.body01,
                     boldStyle = MaterialTheme.wireTypography.body02,
                     normalColor = MaterialTheme.wireColorScheme.secondaryText,
-                    boldColor = MaterialTheme.wireColorScheme.onBackground
+                    boldColor = MaterialTheme.wireColorScheme.onBackground,
+                    errorColor = MaterialTheme.wireColorScheme.error,
+                    isErrorString = message.addingFailed
                 )
             )
             if (message.messageContent is SystemMessage.Knock) {
@@ -194,6 +196,7 @@ private fun getColorFilter(message: SystemMessage): ColorFilter? {
         is SystemMessage.MissedCall.OtherCalled -> null
         is SystemMessage.MissedCall.YouCalled -> null
         is SystemMessage.Knock -> ColorFilter.tint(colorsScheme().primary)
+        is SystemMessage.MemberFailedToAdd -> ColorFilter.tint(colorsScheme().error)
         is SystemMessage.MemberAdded,
         is SystemMessage.MemberJoined,
         is SystemMessage.MemberLeft,
@@ -207,7 +210,6 @@ private fun getColorFilter(message: SystemMessage): ColorFilter? {
         is SystemMessage.ConversationMessageTimerActivated,
         is SystemMessage.ConversationMessageCreated,
         is SystemMessage.ConversationStartedWithMembers,
-        is SystemMessage.MemberFailedToAdd,
         is SystemMessage.ConversationMessageTimerDeactivated -> ColorFilter.tint(colorsScheme().onBackground)
     }
 }
@@ -355,7 +357,9 @@ fun SystemMessage.annotatedString(
     normalStyle: TextStyle,
     boldStyle: TextStyle,
     normalColor: Color,
-    boldColor: Color
+    boldColor: Color,
+    errorColor: Color,
+    isErrorString: Boolean = false
 ): AnnotatedString {
     val args = when (this) {
         is SystemMessage.MemberAdded ->
@@ -399,7 +403,7 @@ fun SystemMessage.annotatedString(
         )
     }
 
-    return res.annotatedText(stringResId, normalStyle, boldStyle, normalColor, boldColor, *args)
+    return res.annotatedText(stringResId, normalStyle, boldStyle, normalColor, boldColor, errorColor, isErrorString, *args)
 }
 
 private const val EXPANDABLE_THRESHOLD = 4

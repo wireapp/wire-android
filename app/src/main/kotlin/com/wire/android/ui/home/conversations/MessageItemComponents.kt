@@ -47,8 +47,6 @@ internal fun MessageSendFailureWarning(
     onRetryClick: () -> Unit,
     onCancelClick: () -> Unit
 ) {
-    val context = LocalContext.current
-    val learnMoreUrl = stringResource(R.string.url_message_details_offline_backends_learn_more)
     CompositionLocalProvider(
         LocalTextStyle provides MaterialTheme.typography.labelSmall
     ) {
@@ -59,15 +57,7 @@ internal fun MessageSendFailureWarning(
                 style = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.error)
             )
             if (messageStatus is MessageStatus.SendRemotelyFailure) {
-                Text(
-                    modifier = Modifier
-                        .clickable { CustomTabsHelper.launchUrl(context, learnMoreUrl) },
-                    style = LocalTextStyle.current.copy(
-                        color = MaterialTheme.wireColorScheme.onTertiaryButtonSelected,
-                        textDecoration = TextDecoration.Underline
-                    ),
-                    text = stringResource(R.string.label_learn_more)
-                )
+                OfflineBackendLearnMoreLink()
             }
             Row {
                 WireSecondaryButton(
@@ -146,14 +136,7 @@ private fun MultiUserDeliveryFailure(
                     ),
                     textAlign = TextAlign.Start
                 )
-                Text(
-                    modifier = Modifier.offlineBackendsLearnMoreClickableModifier(),
-                    style = LocalTextStyle.current.copy(
-                        color = MaterialTheme.wireColorScheme.onTertiaryButtonSelected,
-                        textDecoration = TextDecoration.Underline
-                    ),
-                    text = stringResource(R.string.label_learn_more)
-                )
+                OfflineBackendLearnMoreLink()
             }
         }
         VerticalSpace.x4()
@@ -207,14 +190,7 @@ private fun SingleUserDeliveryFailure(
                 textAlign = TextAlign.Start
             )
         }
-        Text(
-            modifier = Modifier.offlineBackendsLearnMoreClickableModifier(),
-            style = LocalTextStyle.current.copy(
-                color = MaterialTheme.wireColorScheme.onTertiaryButtonSelected,
-                textDecoration = TextDecoration.Underline
-            ),
-            text = stringResource(R.string.label_learn_more)
-        )
+        OfflineBackendLearnMoreLink()
         VerticalSpace.x4()
     }
 }
@@ -286,11 +262,16 @@ internal fun Modifier.customizeMessageBackground(
 }
 
 @Composable
-private fun Modifier.offlineBackendsLearnMoreClickableModifier(
-    context: Context = LocalContext.current
-) = run {
+internal fun OfflineBackendLearnMoreLink(context: Context = LocalContext.current) {
     val learnMoreUrl = stringResource(R.string.url_message_details_offline_backends_learn_more)
-    this.clickable { CustomTabsHelper.launchUrl(context, learnMoreUrl) }
+    Text(
+        modifier = Modifier.clickable { CustomTabsHelper.launchUrl(context, learnMoreUrl) },
+        style = LocalTextStyle.current.copy(
+            color = MaterialTheme.wireColorScheme.onTertiaryButtonSelected,
+            textDecoration = TextDecoration.Underline
+        ),
+        text = stringResource(R.string.label_learn_more)
+    )
 }
 
 @PreviewMultipleThemes

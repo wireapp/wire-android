@@ -98,7 +98,9 @@ fun MessageItem(
     onOpenProfile: (String) -> Unit,
     onReactionClicked: (String, String) -> Unit,
     onResetSessionClicked: (senderUserId: UserId, clientId: String?) -> Unit,
-    onSelfDeletingMessageRead: (UIMessage.Regular) -> Unit
+    onSelfDeletingMessageRead: (UIMessage.Regular) -> Unit,
+    onFailedMessageRetryClicked: (String) -> Unit = {},
+    onFailedMessageCancelClicked: (String) -> Unit = {}
 ) {
     with(message) {
         val selfDeletionTimerState = rememberSelfDeletionTimer(expirationStatus)
@@ -130,23 +132,19 @@ fun MessageItem(
             } else {
                 0.dp
             }
+            val halfItemBottomPadding = dimensions().messageItemBottomPadding / 2
             Row(
                 Modifier
+                    .fillMaxWidth()
+                    .combinedClickable(
+                        enabled = message.isAvailable,
+                        onClick = { }, // TODO: implement some action onClick
+                        onLongClick = remember(message) { { onLongClicked(message) } }
+                    )
                     .padding(
                         end = dimensions().spacing16x,
-                        bottom = dimensions().messageItemBottomPadding - fullAvatarOuterPadding
-                    )
-                    .fillMaxWidth()
-                    .then(
-                        if (!message.isDeleted) {
-                            Modifier.combinedClickable(
-                                // TODO: implement some action onClick
-                                onClick = { },
-                                onLongClick = { onLongClicked(message) }
-                            )
-                        } else {
-                            Modifier
-                        }
+                        top = halfItemBottomPadding - fullAvatarOuterPadding,
+                        bottom = halfItemBottomPadding
                     )
             ) {
                 Spacer(Modifier.padding(start = dimensions().spacing8x - fullAvatarOuterPadding))
@@ -189,7 +187,7 @@ fun MessageItem(
                     if (!isDeleted) {
                         if (!decryptionFailed) {
                             val currentOnAssetClicked = remember {
-                                Clickable(enabled = true, onClick = {
+                                Clickable(enabled = isAvailable, onClick = {
                                     onAssetMessageClicked(header.messageId)
                                 }, onLongClick = {
                                     onLongClicked(message)
@@ -197,7 +195,7 @@ fun MessageItem(
                             }
 
                             val currentOnImageClick = remember {
-                                Clickable(enabled = true, onClick = {
+                                Clickable(enabled = isAvailable, onClick = {
                                     onImageMessageClicked(
                                         message,
                                         source == MessageSource.Self
@@ -206,7 +204,9 @@ fun MessageItem(
                                     onLongClicked(message)
                                 })
                             }
-                            val onLongClick = remember { { onLongClicked(message) } }
+                            val onLongClick: (() -> Unit)? = remember(message) {
+                                if (isAvailable) { { onLongClicked(message) } } else null
+                            }
                             MessageContent(
                                 message = message,
                                 messageContent = messageContent,
@@ -229,11 +229,14 @@ fun MessageItem(
                                 onResetSessionClicked = onResetSessionClicked
                             )
                         }
+                        if (message.sendingFailed) {
+                            MessageSendFailureWarning(
+                                messageStatus = header.messageStatus as MessageStatus.MessageSendFailureStatus,
+                                onRetryClick = remember { { onFailedMessageRetryClicked(header.messageId) } },
+                                onCancelClick = remember { { onFailedMessageCancelClicked(header.messageId) } },
+                            )
+                        }
                     }
-                }
-
-                if (message.sendingFailed) {
-                    MessageSendFailureWarning(header.messageStatus as MessageStatus.MessageSendFailureStatus)
                 }
             }
         }
@@ -349,25 +352,27 @@ private fun MessageFooter(
     messageFooter: MessageFooter,
     onReactionClicked: (String, String) -> Unit
 ) {
-    FlowRow(
-        mainAxisSpacing = dimensions().spacing4x,
-        crossAxisSpacing = dimensions().spacing6x,
-        modifier = Modifier.padding(vertical = dimensions().spacing4x)
-    ) {
-        messageFooter.reactions.entries
-            .sortedBy { it.key }
-            .forEach {
-                val reaction = it.key
-                val count = it.value
-                ReactionPill(
-                    emoji = reaction,
-                    count = count,
-                    isOwn = messageFooter.ownReactions.contains(reaction),
-                    onTap = {
-                        onReactionClicked(messageFooter.messageId, reaction)
-                    }
-                )
-            }
+    if (messageFooter.reactions.entries.isNotEmpty()) { // to eliminate adding unnecessary paddings when the list is empty
+        FlowRow(
+            mainAxisSpacing = dimensions().spacing4x,
+            crossAxisSpacing = dimensions().spacing6x,
+            modifier = Modifier.padding(top = dimensions().spacing4x)
+        ) {
+            messageFooter.reactions.entries
+                .sortedBy { it.key }
+                .forEach {
+                    val reaction = it.key
+                    val count = it.value
+                    ReactionPill(
+                        emoji = reaction,
+                        count = count,
+                        isOwn = messageFooter.ownReactions.contains(reaction),
+                        onTap = {
+                            onReactionClicked(messageFooter.messageId, reaction)
+                        }
+                    )
+                }
+        }
     }
 }
 

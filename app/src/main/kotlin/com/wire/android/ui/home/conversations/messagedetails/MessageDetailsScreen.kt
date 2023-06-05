@@ -28,10 +28,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.ModalBottomSheetValue
-import androidx.compose.material.rememberModalBottomSheetState
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHostState
@@ -57,7 +53,6 @@ import com.google.accompanist.pager.rememberPagerState
 import com.wire.android.R
 import com.wire.android.ui.common.TabItem
 import com.wire.android.ui.common.WireTabRow
-import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
 import com.wire.android.ui.common.calculateCurrentTab
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.common.topBarElevation
@@ -101,8 +96,6 @@ fun MessageDetailsScreen(viewModel: MessageDetailsViewModel = hiltViewModel()) {
 
 @OptIn(
     ExperimentalPagerApi::class,
-    ExperimentalMaterialApi::class,
-    ExperimentalMaterial3Api::class,
     ExperimentalComposeUiApi::class,
     ExperimentalFoundationApi::class
 )
@@ -121,75 +114,69 @@ private fun MessageDetailsScreenContent(
     val currentTabState by remember { derivedStateOf { pagerState.calculateCurrentTab() } }
     val elevationState by remember { derivedStateOf { lazyListStates[currentTabState].topBarElevation(maxAppBarElevation) } }
 
-    val sheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
     val snackbarHostState = remember { SnackbarHostState() }
 
-    WireModalSheetLayout(
-        sheetState = sheetState,
-        coroutineScope = rememberCoroutineScope(),
-        sheetContent = {}
-    ) {
-        val tabItems = provideMessageDetailsTabItems(
-            messageDetailsState = messageDetailsState,
-            isSelfMessage = messageDetailsState.isSelfMessage
-        )
-        Scaffold(
-            topBar = {
-                WireCenterAlignedTopAppBar(
-                    elevation = elevationState,
-                    title = stringResource(R.string.message_details_title),
-                    navigationIconType = NavigationIconType.Close,
-                    onNavigationPressed = onBackPressed
-                ) {
-                    WireTabRow(
-                        tabs = tabItems,
-                        selectedTabIndex = currentTabState,
-                        onTabChange = { scope.launch { pagerState.animateScrollToPage(it) } },
-                        modifier = Modifier.padding(top = MaterialTheme.wireDimensions.spacing16x),
-                        divider = {} // no divider
+    val tabItems = provideMessageDetailsTabItems(
+        messageDetailsState = messageDetailsState,
+        isSelfMessage = messageDetailsState.isSelfMessage
+    )
+    Scaffold(
+        topBar = {
+            WireCenterAlignedTopAppBar(
+                elevation = elevationState,
+                title = stringResource(R.string.message_details_title),
+                navigationIconType = NavigationIconType.Close,
+                onNavigationPressed = onBackPressed
+            ) {
+                WireTabRow(
+                    tabs = tabItems,
+                    selectedTabIndex = currentTabState,
+                    onTabChange = { scope.launch { pagerState.animateScrollToPage(it) } },
+                    modifier = Modifier.padding(top = MaterialTheme.wireDimensions.spacing16x),
+                    divider = {} // no divider
+                )
+            }
+        },
+        modifier = Modifier.fillMaxHeight(),
+        snackbarHost = {
+            SwipeDismissSnackbarHost(
+                hostState = snackbarHostState,
+                modifier = Modifier.fillMaxWidth()
+            )
+        },
+    ) { internalPadding ->
+        var focusedTabIndex: Int by remember { mutableStateOf(initialPageIndex) }
+        val keyboardController = LocalSoftwareKeyboardController.current
+        val focusManager = LocalFocusManager.current
+
+        CompositionLocalProvider(LocalOverscrollConfiguration provides null) {
+            HorizontalPager(
+                state = pagerState,
+                count = tabItems.size,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(internalPadding)
+            ) { pageIndex ->
+                when (MessageDetailsTab.values()[pageIndex]) {
+                    MessageDetailsTab.REACTIONS -> MessageDetailsReactions(
+                        reactionsData = messageDetailsState.reactionsData,
+                        lazyListState = lazyListStates[pageIndex],
+                        onReactionsLearnMore = onReactionsLearnMore
+                    )
+
+                    MessageDetailsTab.READ_RECEIPTS -> MessageDetailsReadReceipts(
+                        readReceiptsData = messageDetailsState.readReceiptsData,
+                        lazyListState = lazyListStates[pageIndex],
+                        onReadReceiptsLearnMore = onReadReceiptsLearnMore
                     )
                 }
-            },
-            modifier = Modifier.fillMaxHeight(),
-            snackbarHost = {
-                SwipeDismissSnackbarHost(
-                    hostState = snackbarHostState,
-                    modifier = Modifier.fillMaxWidth()
-                )
-            },
-        ) { internalPadding ->
-            var focusedTabIndex: Int by remember { mutableStateOf(initialPageIndex) }
-            val keyboardController = LocalSoftwareKeyboardController.current
-            val focusManager = LocalFocusManager.current
+            }
 
-            CompositionLocalProvider(LocalOverscrollConfiguration provides null) {
-                HorizontalPager(
-                    state = pagerState,
-                    count = tabItems.size,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(internalPadding)
-                ) { pageIndex ->
-                    when (MessageDetailsTab.values()[pageIndex]) {
-                        MessageDetailsTab.REACTIONS -> MessageDetailsReactions(
-                            reactionsData = messageDetailsState.reactionsData,
-                            lazyListState = lazyListStates[pageIndex],
-                            onReactionsLearnMore = onReactionsLearnMore
-                        )
-                        MessageDetailsTab.READ_RECEIPTS -> MessageDetailsReadReceipts(
-                            readReceiptsData = messageDetailsState.readReceiptsData,
-                            lazyListState = lazyListStates[pageIndex],
-                            onReadReceiptsLearnMore = onReadReceiptsLearnMore
-                        )
-                    }
-                }
-
-                LaunchedEffect(pagerState.isScrollInProgress, focusedTabIndex, pagerState.currentPage) {
-                    if (!pagerState.isScrollInProgress && focusedTabIndex != pagerState.currentPage) {
-                        keyboardController?.hide()
-                        focusManager.clearFocus()
-                        focusedTabIndex = pagerState.currentPage
-                    }
+            LaunchedEffect(pagerState.isScrollInProgress, focusedTabIndex, pagerState.currentPage) {
+                if (!pagerState.isScrollInProgress && focusedTabIndex != pagerState.currentPage) {
+                    keyboardController?.hide()
+                    focusManager.clearFocus()
+                    focusedTabIndex = pagerState.currentPage
                 }
             }
         }
@@ -222,5 +209,3 @@ private fun provideMessageDetailsTabItems(
 }
 
 data class MessageDetailsTabItem(@StringRes override val titleResId: Int, val count: Int) : TabItem
-
-

@@ -48,7 +48,7 @@ import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogActiveSt
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogHelper
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogsState
 import com.wire.android.ui.home.conversations.model.AssetBundle
-import com.wire.android.ui.home.conversations.model.AttachmentType
+import com.wire.kalium.logic.data.asset.AttachmentType
 import com.wire.android.ui.home.conversations.model.EditMessageBundle
 import com.wire.android.ui.home.conversations.model.SendMessageBundle
 import com.wire.android.ui.home.conversations.model.UIMessage
@@ -57,11 +57,11 @@ import com.wire.android.util.FileManager
 import com.wire.android.util.ImageUtil
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.WireSessionImageLoader
+import com.wire.kalium.logic.configuration.FileSharingStatus
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.feature.asset.GetAssetSizeLimitUseCase
-import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageResult
 import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageUseCase
 import com.wire.kalium.logic.feature.conversation.InteractionAvailability
 import com.wire.kalium.logic.feature.conversation.IsInteractionAvailableResult
@@ -70,13 +70,14 @@ import com.wire.kalium.logic.feature.conversation.ObserveConversationInteraction
 import com.wire.kalium.logic.feature.conversation.ObserveSecurityClassificationLabelUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationReadDateUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
+import com.wire.kalium.logic.feature.message.RetryFailedMessageUseCase
 import com.wire.kalium.logic.feature.message.SendEditTextMessageUseCase
 import com.wire.kalium.logic.feature.message.SendKnockUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.message.ephemeral.EnqueueMessageSelfDeletionUseCase
-import com.wire.kalium.logic.feature.selfdeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
-import com.wire.kalium.logic.feature.selfdeletingMessages.PersistNewSelfDeletionTimerUseCase
-import com.wire.kalium.logic.feature.selfdeletingMessages.SelfDeletionTimer
+import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
+import com.wire.kalium.logic.feature.selfDeletingMessages.PersistNewSelfDeletionTimerUseCase
+import com.wire.kalium.logic.feature.selfDeletingMessages.SelfDeletionTimer
 import com.wire.kalium.logic.feature.user.IsFileSharingEnabledUseCase
 import com.wire.kalium.logic.functional.onFailure
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -86,7 +87,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.Instant
 import javax.inject.Inject
-import kotlin.time.Duration
 import com.wire.kalium.logic.data.id.QualifiedID as ConversationId
 
 @Suppress("LongParameterList", "TooManyFunctions")
@@ -98,19 +98,20 @@ class MessageComposerViewModel @Inject constructor(
     private val sendAssetMessage: ScheduleNewAssetMessageUseCase,
     private val sendTextMessage: SendTextMessageUseCase,
     private val sendEditTextMessage: SendEditTextMessageUseCase,
+    private val retryFailedMessage: RetryFailedMessageUseCase,
     private val deleteMessage: DeleteMessageUseCase,
     private val dispatchers: DispatcherProvider,
     private val isFileSharingEnabled: IsFileSharingEnabledUseCase,
     private val observeConversationInteractionAvailability: ObserveConversationInteractionAvailabilityUseCase,
     private val wireSessionImageLoader: WireSessionImageLoader,
     private val kaliumFileSystem: KaliumFileSystem,
-    private val updateConversationReadDateUseCase: UpdateConversationReadDateUseCase,
+    private val updateConversationReadDate: UpdateConversationReadDateUseCase,
     private val observeSecurityClassificationLabel: ObserveSecurityClassificationLabelUseCase,
     private val contactMapper: ContactMapper,
     private val membersToMention: MembersToMentionUseCase,
     private val getAssetSizeLimit: GetAssetSizeLimitUseCase,
     private val sendKnockUseCase: SendKnockUseCase,
-    private val enqueueMessageSelfDeletionUseCase: EnqueueMessageSelfDeletionUseCase,
+    private val enqueueMessageSelfDeletion: EnqueueMessageSelfDeletionUseCase,
     private val observeSelfDeletingMessages: ObserveSelfDeletionTimerSettingsForConversationUseCase,
     private val persistNewSelfDeletingStatus: PersistNewSelfDeletionTimerUseCase,
     private val pingRinger: PingRinger,
@@ -206,17 +207,13 @@ class MessageComposerViewModel @Inject constructor(
         }
     }
 
-    fun sendMessage(
-        sendMessageBundle: SendMessageBundle
-    ) {
-
+    fun sendMessage(sendMessageBundle: SendMessageBundle) {
         viewModelScope.launch {
             sendTextMessage(
                 conversationId = conversationId,
                 text = sendMessageBundle.message,
                 mentions = sendMessageBundle.mentions.map { it.intoMessageMention() },
-                quotedMessageId = sendMessageBundle.quotedMessageId,
-                expireAfter = sendMessageBundle.expireAfter
+                quotedMessageId = sendMessageBundle.quotedMessageId
             )
         }
     }
@@ -232,7 +229,7 @@ class MessageComposerViewModel @Inject constructor(
         }
     }
 
-    fun sendAttachmentMessage(attachmentBundle: AssetBundle?, expireAfter: Duration?) {
+    fun sendAttachmentMessage(attachmentBundle: AssetBundle?) {
         viewModelScope.launch {
             withContext(dispatchers.io()) {
                 attachmentBundle?.run {
@@ -242,45 +239,34 @@ class MessageComposerViewModel @Inject constructor(
                                 kaliumFileSystem,
                                 attachmentBundle.dataPath
                             )
-                            val result = sendAssetMessage(
+                            sendAssetMessage(
                                 conversationId = conversationId,
                                 assetDataPath = dataPath,
                                 assetName = fileName,
                                 assetWidth = imgWidth,
                                 assetHeight = imgHeight,
                                 assetDataSize = dataSize,
-                                assetMimeType = mimeType,
-                                expireAfter = expireAfter
+                                assetMimeType = mimeType
                             )
-                            if (result is ScheduleNewAssetMessageResult.Failure) {
-                                onSnackbarMessage(ConversationSnackbarMessages.ErrorSendingImage)
-                            }
                         }
 
                         AttachmentType.VIDEO,
-                        AttachmentType.GENERIC_FILE -> {
+                        AttachmentType.GENERIC_FILE,
+                        AttachmentType.AUDIO -> {
                             try {
-                                val result = sendAssetMessage(
+                                sendAssetMessage(
                                     conversationId = conversationId,
                                     assetDataPath = dataPath,
                                     assetName = fileName,
                                     assetMimeType = mimeType,
                                     assetDataSize = dataSize,
                                     assetHeight = null,
-                                    assetWidth = null,
-                                    expireAfter = expireAfter
+                                    assetWidth = null
                                 )
-                                if (result is ScheduleNewAssetMessageResult.Failure) {
-                                    onSnackbarMessage(ConversationSnackbarMessages.ErrorSendingAsset)
-                                }
                             } catch (e: OutOfMemoryError) {
                                 appLogger.e("There was an OutOfMemory error while uploading the asset")
                                 onSnackbarMessage(ConversationSnackbarMessages.ErrorSendingAsset)
                             }
-                        }
-
-                        AttachmentType.AUDIO -> {
-                            // TODO()
                         }
                     }
                 }
@@ -292,6 +278,12 @@ class MessageComposerViewModel @Inject constructor(
         viewModelScope.launch {
             pingRinger.ping(R.raw.ping_from_me, isReceivingPing = false)
             sendKnockUseCase(conversationId = conversationId, hotKnock = false)
+        }
+    }
+
+    fun retrySendingMessage(messageId: String) {
+        viewModelScope.launch {
+            retryFailedMessage(messageId = messageId, conversationId = conversationId)
         }
     }
 
@@ -323,16 +315,21 @@ class MessageComposerViewModel @Inject constructor(
     }
 
     private fun setFileSharingStatus() {
+        // TODO: handle restriction when sending assets
         viewModelScope.launch {
-            val isFileSharingEnabled = isFileSharingEnabled().isFileSharingEnabled
-            if (isFileSharingEnabled != null) {
-                messageComposerViewState = messageComposerViewState.copy(isFileSharingEnabled = isFileSharingEnabled)
+            when (isFileSharingEnabled().state) {
+                FileSharingStatus.Value.Disabled,
+                is FileSharingStatus.Value.EnabledSome ->
+                    messageComposerViewState = messageComposerViewState.copy(isFileSharingEnabled = false)
+
+                FileSharingStatus.Value.EnabledAll ->
+                    messageComposerViewState = messageComposerViewState.copy(isFileSharingEnabled = true)
             }
         }
     }
 
-    fun showDeleteMessageDialog(messageId: String, isMyMessage: Boolean) =
-        if (isMyMessage) {
+    fun showDeleteMessageDialog(messageId: String, deleteForEveryone: Boolean) =
+        if (deleteForEveryone) {
             updateDeleteDialogState {
                 it.copy(
                     forEveryone = DeleteMessageDialogActiveState.Visible(
@@ -357,12 +354,12 @@ class MessageComposerViewModel @Inject constructor(
 
     fun updateConversationReadDate(utcISO: String) {
         viewModelScope.launch(dispatchers.io()) {
-            updateConversationReadDateUseCase(conversationId, Instant.parse(utcISO))
+            updateConversationReadDate(conversationId, Instant.parse(utcISO))
         }
     }
 
     fun startSelfDeletion(uiMessage: UIMessage.Regular) {
-        enqueueMessageSelfDeletionUseCase(conversationId, uiMessage.header.messageId)
+        enqueueMessageSelfDeletion(conversationId, uiMessage.header.messageId)
     }
 
     fun updateSelfDeletingMessages(newSelfDeletionTimer: SelfDeletionTimer) = viewModelScope.launch {
@@ -390,7 +387,7 @@ class MessageComposerViewModel @Inject constructor(
         }
     }
 
-    fun attachmentPicked(attachmentUri: UriAsset, duration: Duration?) = viewModelScope.launch(dispatchers.io()) {
+    fun attachmentPicked(attachmentUri: UriAsset) = viewModelScope.launch(dispatchers.io()) {
         val tempCachePath = kaliumFileSystem.rootCachePath
         val assetBundle = fileManager.getAssetBundleFromUri(attachmentUri.uri, tempCachePath)
         if (assetBundle != null) {
@@ -398,7 +395,7 @@ class MessageComposerViewModel @Inject constructor(
             // Check [GetAssetSizeLimitUseCase] class for more detailed information about the real limits.
             val maxSizeLimitInBytes = getAssetSizeLimit(isImage = assetBundle.assetType == AttachmentType.IMAGE)
             if (assetBundle.dataSize <= maxSizeLimitInBytes) {
-                sendAttachmentMessage(assetBundle, duration)
+                sendAttachmentMessage(assetBundle)
             } else {
                 if (attachmentUri.saveToDeviceIfInvalid) {
                     with(assetBundle) { fileManager.saveToExternalMediaStorage(fileName, dataPath, dataSize, mimeType, dispatchers) }

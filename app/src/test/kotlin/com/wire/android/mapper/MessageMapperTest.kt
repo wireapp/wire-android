@@ -139,7 +139,7 @@ class MessageMapperTest {
         time: String?,
         source: MessageSource = MessageSource.Self,
         membership: Membership = Membership.None,
-        status: MessageStatus = MessageStatus.Untouched
+        status: MessageStatus = MessageStatus.Untouched()
     ) = uiMessage?.source == source && uiMessage.header.membership == membership
             && uiMessage.header.messageTime.formattedDate == time && uiMessage.header.messageStatus == status
 
@@ -165,9 +165,6 @@ class MessageMapperTest {
             coEvery { userTypeMapper.toMembership(any()) } returns Membership.Guest
             coEvery { messageContentMapper.fromMessage(any(), any()) } returns TextMessage(
                 MessageBody(UIText.DynamicString("some message text"))
-            )
-            coEvery { messageContentMapper.toSystemMessageMemberName(any(), any()) } returns UIText.DynamicString(
-                "username"
             )
             every { isoFormatter.fromISO8601ToTimeFormat(any()) } answers { firstArg<String>().uiMessageDateTime() ?: "" }
         }

@@ -29,10 +29,12 @@ import com.wire.android.appLogger
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.ui.home.FeatureFlagState
 import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMapper.toSelfDeletionDuration
+import com.wire.android.ui.home.messagecomposer.state.SelfDeletionDuration
 import com.wire.kalium.logic.CoreLogic
+import com.wire.kalium.logic.configuration.FileSharingStatus
 import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.feature.selfdeletingMessages.SelfDeletionTimer
+import com.wire.kalium.logic.feature.selfDeletingMessages.TeamSelfDeleteTimer
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -88,13 +90,17 @@ class FeatureFlagNotificationViewModel @Inject constructor(
 
     private fun setFileSharingState(userId: UserId) = viewModelScope.launch {
         coreLogic.getSessionScope(userId).observeFileSharingStatus().collect { fileSharingStatus ->
-            fileSharingStatus.isFileSharingEnabled?.let {
-                val fileSharingRestrictedState = if (it) FeatureFlagState.SharingRestrictedState.NONE
-                else FeatureFlagState.SharingRestrictedState.RESTRICTED_IN_TEAM
+            fileSharingStatus.state?.let {
+                // TODO: handle restriction when sending assets
+                val (fileSharingRestrictedState, state) = if (it is FileSharingStatus.Value.EnabledAll) {
+                    FeatureFlagState.SharingRestrictedState.NONE to true
+                } else {
+                    FeatureFlagState.SharingRestrictedState.RESTRICTED_IN_TEAM to false
+                }
 
                 featureFlagState = featureFlagState.copy(
                     fileSharingRestrictedState = fileSharingRestrictedState,
-                    isFileSharingEnabledState = it
+                    isFileSharingEnabledState = state
                 )
             }
             fileSharingStatus.isStatusChanged?.let {
@@ -116,13 +122,26 @@ class FeatureFlagNotificationViewModel @Inject constructor(
         }
     }
 
-    private suspend fun observeTeamSettingsSelfDeletionStatus(userId: UserId) {
+    private fun observeTeamSettingsSelfDeletionStatus(userId: UserId) {
         viewModelScope.launch {
             coreLogic.getSessionScope(userId).observeTeamSettingsSelfDeletionStatus().collect { teamSettingsSelfDeletingStatus ->
+                val areSelfDeletedMessagesEnabled =
+                    teamSettingsSelfDeletingStatus.enforcedSelfDeletionTimer !is TeamSelfDeleteTimer.Disabled
+                val shouldShowSelfDeletingMessagesDialog =
+                    teamSettingsSelfDeletingStatus.hasFeatureChanged ?: false
+                val enforcedTimeoutDuration: SelfDeletionDuration =
+                    with(teamSettingsSelfDeletingStatus.enforcedSelfDeletionTimer) {
+                        when (this) {
+                            TeamSelfDeleteTimer.Disabled,
+                            TeamSelfDeleteTimer.Enabled -> SelfDeletionDuration.None
+
+                            is TeamSelfDeleteTimer.Enforced -> this.enforcedDuration.toSelfDeletionDuration()
+                        }
+                    }
                 featureFlagState = featureFlagState.copy(
-                    areSelfDeletedMessagesEnabled = teamSettingsSelfDeletingStatus.enforcedSelfDeletionTimer !is SelfDeletionTimer.Disabled,
-                    shouldShowSelfDeletingMessagesDialog = teamSettingsSelfDeletingStatus.hasFeatureChanged ?: false,
-                    enforcedTimeoutDuration = teamSettingsSelfDeletingStatus.enforcedSelfDeletionTimer.toDuration().toSelfDeletionDuration()
+                    areSelfDeletedMessagesEnabled = areSelfDeletedMessagesEnabled,
+                    shouldShowSelfDeletingMessagesDialog = shouldShowSelfDeletingMessagesDialog,
+                    enforcedTimeoutDuration = enforcedTimeoutDuration
                 )
             }
         }

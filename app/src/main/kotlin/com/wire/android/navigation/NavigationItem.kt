@@ -21,8 +21,6 @@
 package com.wire.android.navigation
 
 import androidx.compose.animation.fadeOut
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDeepLink
@@ -81,7 +79,7 @@ import com.wire.android.ui.authentication.welcome.WelcomeScreen
 import com.wire.android.ui.calling.incoming.IncomingCallScreen
 import com.wire.android.ui.calling.initiating.InitiatingCallScreen
 import com.wire.android.ui.calling.ongoing.OngoingCallScreen
-import com.wire.android.ui.debugscreen.DebugScreen
+import com.wire.android.ui.debug.DebugScreen
 import com.wire.android.ui.home.HomeScreen
 import com.wire.android.ui.home.conversations.ConversationScreen
 import com.wire.android.ui.home.conversations.details.GroupConversationDetailsScreen
@@ -95,9 +93,6 @@ import com.wire.android.ui.home.conversations.search.AddMembersSearchRouter
 import com.wire.android.ui.home.gallery.MediaGalleryScreen
 import com.wire.android.ui.home.newconversation.NewConversationRouter
 import com.wire.android.ui.home.settings.account.MyAccountScreen
-import com.wire.android.ui.home.settings.account.displayname.ChangeDisplayNameScreen
-import com.wire.android.ui.home.settings.account.email.updateEmail.ChangeEmailScreen
-import com.wire.android.ui.home.settings.account.email.verifyEmail.VerifyEmailScreen
 import com.wire.android.ui.home.settings.account.displayname.ChangeDisplayNameScreen
 import com.wire.android.ui.home.settings.account.email.updateEmail.ChangeEmailScreen
 import com.wire.android.ui.home.settings.account.email.verifyEmail.VerifyEmailScreen
@@ -127,7 +122,6 @@ import kotlinx.serialization.json.Json
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets.UTF_8
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 /**
  * The class encapsulating the app main navigational items.
  */
@@ -383,10 +377,14 @@ enum class NavigationItem(
 
     AddConversationParticipants(
         primaryRoute = ADD_CONVERSATION_PARTICIPANTS,
-        canonicalRoute = "$ADD_CONVERSATION_PARTICIPANTS/{$EXTRA_CONVERSATION_ID}",
+        canonicalRoute = "$ADD_CONVERSATION_PARTICIPANTS/{$EXTRA_CONVERSATION_ID}/{$EXTRA_IS_SERVICES_ALLOWED}",
         content = { AddMembersSearchRouter() }
     ) {
-        override fun getRouteWithArgs(arguments: List<Any>): String = routeWithConversationIdArg(arguments)
+        override fun getRouteWithArgs(arguments: List<Any>): String {
+            val conversationId: QualifiedID = arguments.filterIsInstance<QualifiedID>()[0]
+            val isServicesAllowed: Boolean = arguments.filterIsInstance<Boolean>()[0]
+            return "$primaryRoute/$conversationId/$isServicesAllowed"
+        }
     },
 
     GroupConversationAllParticipants(
@@ -562,8 +560,10 @@ object NavigationItemDestinationsRoutes {
 }
 
 const val EXTRA_USER_ID = "extra_user_id"
+const val EXTRA_USER_NAME = "extra_user_name"
 const val EXTRA_USER_DOMAIN = "extra_user_domain"
 const val EXTRA_USER_HANDLE = "extra_user_handle"
+const val EXTRA_CONNECTION_STATE = "extra_connection_state"
 
 const val EXTRA_NEW_EMAIL = "extra_new_email"
 
@@ -588,6 +588,7 @@ const val EXTRA_BACK_NAVIGATION_ARGUMENTS = "extra_back_navigation_arguments"
 
 const val EXTRA_EDIT_GUEST_ACCESS_PARAMS = "extra_edit_guest_access_params"
 const val EXTRA_BOT_SERVICE_ID = "extra_bot_service_id"
+const val EXTRA_IS_SERVICES_ALLOWED = "extra_is_services_allowed"
 
 const val EXTRA_SSO_LOGIN_RESULT = "sso_login_result"
 

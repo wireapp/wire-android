@@ -36,7 +36,6 @@ import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHostState
@@ -87,7 +86,6 @@ import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SelfUserProfileScreen(viewModelSelf: SelfUserProfileViewModel = hiltViewModel()) {
     SelfUserProfileContent(
@@ -108,7 +106,7 @@ fun SelfUserProfileScreen(viewModelSelf: SelfUserProfileViewModel = hiltViewMode
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun SelfUserProfileContent(
     state: SelfUserProfileState,
@@ -242,7 +240,6 @@ private fun SelfUserProfileContent(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun mapErrorCodeToString(errorCode: ErrorCodes): String {
     return when (errorCode) {
@@ -269,7 +266,7 @@ private fun SelfUserProfileTopBar(
                 fillMaxWidth = false,
                 minHeight = dimensions().userProfileLogoutBtnHeight,
                 state = WireButtonState.Error,
-                clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
+                clickBlockParams = ClickBlockParams(blockWhenSyncing = false, blockWhenConnecting = false),
             )
         }
     )

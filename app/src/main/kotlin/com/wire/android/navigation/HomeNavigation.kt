@@ -22,9 +22,6 @@ package com.wire.android.navigation
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
-import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
@@ -37,9 +34,6 @@ import com.wire.android.ui.home.conversationslist.ConversationRouterHomeBridge
 import com.wire.android.ui.home.settings.SettingsScreen
 import com.wire.android.ui.home.vault.VaultScreen
 
-@ExperimentalAnimationApi
-@ExperimentalMaterialApi
-@ExperimentalMaterial3Api
 internal fun navigateToItemInHome(
     navController: NavController,
     item: HomeNavigationItem
@@ -55,9 +49,6 @@ internal fun navigateToItemInHome(
     }
 }
 
-@ExperimentalMaterialApi
-@ExperimentalMaterial3Api
-@ExperimentalAnimationApi
 @Suppress("LongParameterList")
 enum class HomeNavigationItem(
     val route: String,

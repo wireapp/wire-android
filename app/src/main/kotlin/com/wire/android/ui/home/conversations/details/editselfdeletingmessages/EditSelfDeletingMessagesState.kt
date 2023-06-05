@@ -21,11 +21,12 @@
 package com.wire.android.ui.home.conversations.details.editselfdeletingmessages
 
 import com.wire.android.ui.home.messagecomposer.state.SelfDeletionDuration
-import kotlin.time.Duration
 
 data class EditSelfDeletingMessagesState(
     val isEnabled: Boolean = false,
-    val selfDeletingDuration: Duration = Duration.ZERO,
     val isLoading: Boolean = true,
-    val currentlySelected: SelfDeletionDuration? = null
-)
+    val locallySelected: SelfDeletionDuration? = null,
+    val remotelySelected: SelfDeletionDuration? = null,
+) {
+    fun didDurationChange() = locallySelected != remotelySelected
+}

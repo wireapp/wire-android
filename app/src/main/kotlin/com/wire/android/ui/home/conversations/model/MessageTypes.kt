@@ -27,6 +27,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
@@ -45,6 +46,7 @@ import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMess
 import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMessageParams
 import com.wire.android.ui.home.conversations.model.messagetypes.image.ImportedImageMessage
 import com.wire.android.ui.theme.wireColorScheme
+import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.Message.DownloadStatus.DOWNLOAD_IN_PROGRESS
@@ -84,6 +86,7 @@ fun MessageImage(
 ) {
     Box(
         Modifier
+            .padding(top = MaterialTheme.wireDimensions.spacing4x)
             .clip(shape = RoundedCornerShape(dimensions().messageAssetBorderRadius))
             .background(
                 color = MaterialTheme.wireColorScheme.onPrimary, shape = RoundedCornerShape(dimensions().messageAssetBorderRadius)
@@ -101,19 +104,19 @@ fun MessageImage(
             )
     ) {
         when {
-            asset != null -> {
-                if (isImportedMediaAsset) ImportedImageMessage(asset, shouldFillMaxWidth)
-                else DisplayableImageMessage(asset, imgParams)
-            }
-
             // Trying to upload the asset
             uploadStatus == UPLOAD_IN_PROGRESS || downloadStatus == DOWNLOAD_IN_PROGRESS -> {
                 ImageMessageInProgress(imgParams, downloadStatus == DOWNLOAD_IN_PROGRESS)
             }
 
+            asset != null -> {
+                if (isImportedMediaAsset) ImportedImageMessage(asset, shouldFillMaxWidth)
+                else DisplayableImageMessage(asset, imgParams)
+            }
+
             // Show error placeholder
             uploadStatus == FAILED_UPLOAD || downloadStatus == FAILED_DOWNLOAD -> {
-                ImageMessageFailed(downloadStatus == FAILED_DOWNLOAD)
+                ImageMessageFailed(imgParams, downloadStatus == FAILED_DOWNLOAD)
             }
         }
     }

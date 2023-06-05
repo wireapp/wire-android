@@ -52,6 +52,7 @@ data class WireDimensions(
     val homeDrawerLogoVerticalPadding: Dp,
     val homeDrawerLogoWidth: Dp,
     val homeDrawerLogoHeight: Dp,
+    val homeDrawerSheetEndPadding: Dp,
     // FAB
     val fabIconSize: Dp,
     // BottomNavigation
@@ -95,6 +96,7 @@ data class WireDimensions(
     val buttonCornerSize: Dp,
     val buttonSmallCornerSize: Dp,
     val badgeSmallMinSize: DpSize,
+    val onMoreOptionsButtonCornerRadius: Dp,
     // Dialog
     val dialogButtonsSpacing: Dp,
     val dialogTextsSpacing: Dp,
@@ -209,6 +211,7 @@ private val DefaultPhonePortraitWireDimensions: WireDimensions = WireDimensions(
     homeDrawerLogoVerticalPadding = 32.dp,
     homeDrawerLogoWidth = 80.dp,
     homeDrawerLogoHeight = 24.dp,
+    homeDrawerSheetEndPadding = 56.dp,
     fabIconSize = 16.dp,
     bottomNavigationHorizontalPadding = 8.dp,
     bottomNavigationVerticalPadding = 4.dp,
@@ -240,6 +243,7 @@ private val DefaultPhonePortraitWireDimensions: WireDimensions = WireDimensions(
     buttonVerticalContentPadding = 8.dp,
     buttonCornerSize = 12.dp,
     buttonSmallCornerSize = 12.dp,
+    onMoreOptionsButtonCornerRadius = 16.dp,
     badgeSmallMinSize = DpSize(32.dp, 24.dp),
     dialogButtonsSpacing = 8.dp,
     dialogTextsSpacing = 16.dp,
@@ -314,7 +318,7 @@ private val DefaultPhonePortraitWireDimensions: WireDimensions = WireDimensions(
     defaultIncomingCallSheetPeekHeight = 280.dp,
     callingIncomingUserAvatarSize = 128.dp,
     initiatingCallHangUpButtonSize = 72.dp,
-    messageItemBottomPadding = 12.dp,
+    messageItemBottomPadding = 16.dp,
     conversationOptionsItemMinHeight = 57.dp,
     ongoingCallLabelHeight = 28.dp,
     audioMessageHeight = 48.dp,

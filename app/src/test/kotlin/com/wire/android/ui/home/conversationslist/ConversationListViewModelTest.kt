@@ -20,7 +20,6 @@
 
 package com.wire.android.ui.home.conversationslist
 
-import androidx.compose.material3.ExperimentalMaterial3Api
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
@@ -65,7 +64,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
-@OptIn(ExperimentalCoroutinesApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class)
 // TODO write more tests
 class ConversationListViewModelTest {

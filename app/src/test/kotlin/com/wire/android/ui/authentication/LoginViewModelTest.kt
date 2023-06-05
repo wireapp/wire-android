@@ -20,7 +20,6 @@
 
 package com.wire.android.ui.authentication
 
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.datastore.UserDataStoreProvider
@@ -41,7 +40,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
-@OptIn(ExperimentalMaterialApi::class, ExperimentalCoroutinesApi::class)
+@OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class)
 class LoginViewModelTest {
 

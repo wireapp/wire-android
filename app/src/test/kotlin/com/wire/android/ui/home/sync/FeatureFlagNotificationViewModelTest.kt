@@ -15,6 +15,7 @@ import com.wire.kalium.logic.feature.user.MarkSelfDeletionStatusAsNotifiedUseCas
 import com.wire.kalium.logic.feature.user.guestroomlink.MarkGuestLinkFeatureFlagAsNotChangedUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.verify
@@ -65,7 +66,7 @@ class FeatureFlagNotificationViewModelTest {
     fun givenLoggedInUser_whenFileSharingRestrictedForTeam_thenSharingRestricted() = runTest(mainThreadSurrogate) {
         val (_, viewModel) = Arrangement()
             .withCurrentSessions(CurrentSessionResult.Success(AccountInfo.Valid(TestUser.USER_ID)))
-            .withFileSharingStatus(flowOf(FileSharingStatus(false, false)))
+            .withFileSharingStatus(flowOf(FileSharingStatus(FileSharingStatus.Value.Disabled, false)))
             .arrange()
         viewModel.initialSync()
         advanceUntilIdle()
@@ -98,7 +99,7 @@ class FeatureFlagNotificationViewModelTest {
     fun givenLoggedInUser_whenFileSharingAllowed_thenSharingNotRestricted() = runTest(mainThreadSurrogate) {
         val (_, viewModel) = Arrangement()
             .withCurrentSessions(CurrentSessionResult.Success(AccountInfo.Valid(TestUser.USER_ID)))
-            .withFileSharingStatus(flowOf(FileSharingStatus(true, false)))
+            .withFileSharingStatus(flowOf(FileSharingStatus(FileSharingStatus.Value.EnabledAll, false)))
             .arrange()
         viewModel.initialSync()
         advanceUntilIdle()
@@ -119,7 +120,7 @@ class FeatureFlagNotificationViewModelTest {
         viewModel.dismissSelfDeletingMessagesDialog()
         advanceUntilIdle()
 
-        verify(exactly = 1) { arrangement.markSelfDeletingStatusAsNotified() }
+        coVerify(exactly = 1) { arrangement.markSelfDeletingStatusAsNotified() }
         assertEquals(false, viewModel.featureFlagState.shouldShowSelfDeletingMessagesDialog)
     }
 

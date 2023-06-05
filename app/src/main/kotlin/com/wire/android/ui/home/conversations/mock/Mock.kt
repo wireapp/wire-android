@@ -28,6 +28,7 @@ import coil.request.DefaultRequestOptions
 import coil.request.Disposable
 import coil.request.ImageRequest
 import coil.request.ImageResult
+import com.wire.android.model.ImageAsset
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.home.conversations.model.MessageBody
@@ -41,19 +42,21 @@ import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.WireSessionImageLoader
+import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserAssetId
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 
 val mockFooter = MessageFooter("", mapOf("👍" to 1), setOf("👍"))
+val mockEmptyFooter = MessageFooter("", emptyMap(), emptySet())
 
 val mockHeader = MessageHeader(
     username = UIText.DynamicString("John Doe"),
     membership = Membership.Guest,
     isLegalHold = true,
     messageTime = MessageTime("12.23pm"),
-    messageStatus = MessageStatus.Untouched,
+    messageStatus = MessageStatus.Untouched(),
     messageId = "",
     connectionState = ConnectionState.ACCEPTED,
     isSenderDeleted = false,
@@ -74,7 +77,7 @@ val mockMessageWithText = UIMessage.Regular(
         )
     ),
     source = MessageSource.Self,
-    messageFooter = mockFooter
+    messageFooter = mockEmptyFooter
 )
 
 val mockMessageWithKnock = UIMessage.System(
@@ -104,7 +107,7 @@ fun mockAssetMessage(uploadStatus: Message.UploadStatus = Message.UploadStatus.U
         membership = Membership.Guest,
         isLegalHold = true,
         messageTime = MessageTime("12.23pm"),
-        messageStatus = MessageStatus.Untouched,
+        messageStatus = MessageStatus.Untouched(),
         messageId = "",
         connectionState = ConnectionState.ACCEPTED,
         isSenderDeleted = false,
@@ -118,7 +121,7 @@ fun mockAssetMessage(uploadStatus: Message.UploadStatus = Message.UploadStatus.U
         uploadStatus = uploadStatus,
         downloadStatus = Message.DownloadStatus.NOT_DOWNLOADED
     ),
-    messageFooter = mockFooter,
+    messageFooter = mockEmptyFooter,
     source = MessageSource.Self
 )
 
@@ -127,25 +130,30 @@ fun mockedImg(
     uploadStatus: Message.UploadStatus = Message.UploadStatus.UPLOADED,
     downloadStatus: Message.DownloadStatus = Message.DownloadStatus.SAVED_INTERNALLY
 ) = UIMessageContent.ImageMessage(
-    UserAssetId("a", "domain"), null, 0, 0, uploadStatus = uploadStatus, downloadStatus = downloadStatus
+    UserAssetId("a", "domain"),
+    ImageAsset.PrivateAsset(mockImageLoader, ConversationId("id", "domain"), "messageId", true),
+    800, 600, uploadStatus = uploadStatus, downloadStatus = downloadStatus
 )
 
 @Suppress("MagicNumber")
-fun mockedImageUIMessage(uploadStatus: Message.UploadStatus = Message.UploadStatus.UPLOADED) = UIMessage.Regular(
+fun mockedImageUIMessage(
+    uploadStatus: Message.UploadStatus = Message.UploadStatus.UPLOADED,
+    messageStatus: MessageStatus = MessageStatus.Untouched(false),
+) = UIMessage.Regular(
     userAvatarData = UserAvatarData(null, UserAvailabilityStatus.AVAILABLE),
     header = MessageHeader(
         username = UIText.DynamicString("John Doe"),
         membership = Membership.External,
         isLegalHold = false,
         messageTime = MessageTime("12.23pm"),
-        messageStatus = MessageStatus.Edited("May 31, 2022 12.24pm"),
+        messageStatus = messageStatus,
         messageId = "4",
         connectionState = ConnectionState.ACCEPTED,
         isSenderDeleted = false,
         isSenderUnavailable = false
     ),
     messageContent = mockedImg(uploadStatus),
-    messageFooter = mockFooter,
+    messageFooter = mockEmptyFooter,
     source = MessageSource.Self
 )
 
@@ -158,7 +166,7 @@ fun getMockedMessages(): List<UIMessage> = listOf(
             membership = Membership.Guest,
             isLegalHold = true,
             messageTime = MessageTime("12.23pm"),
-            messageStatus = MessageStatus.Untouched,
+            messageStatus = MessageStatus.Untouched(),
             messageId = "1",
             connectionState = ConnectionState.ACCEPTED,
             isSenderDeleted = false,

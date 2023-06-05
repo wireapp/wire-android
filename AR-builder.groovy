@@ -53,7 +53,7 @@ pipeline {
     parameters {
         string(name: 'SOURCE_BRANCH', description: 'Branch to build from')
         string(name: 'BUILD_TYPE', choices: ['Compatrelease', 'Debug', 'Release', 'Compat'], description: 'Build Type for the Client')
-        choice(name: 'FLAVOR', choices: ['Prod'], description: 'Product Flavor to build')
+        choice(name: 'FLAVOR', choices: ['Prod', 'Dev', 'Staging','Internal', 'Beta'], description: 'Product Flavor to build')
         booleanParam(name: 'UPLOAD_TO_S3', defaultValue: false, description: 'Boolean Flag to define if the build should be uploaded to S3')
         booleanParam(name: 'TRY_UPLOAD_TO_PLAYSTORE', defaultValue: false, description: 'Boolean Flag to define if the build should be uploaded to Playstore')
         booleanParam(name: 'RUN_UNIT_TEST', defaultValue: true, description: 'Boolean Flag to define if the unit tests should be run')

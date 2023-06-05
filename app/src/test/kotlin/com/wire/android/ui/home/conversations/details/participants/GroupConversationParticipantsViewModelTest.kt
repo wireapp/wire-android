@@ -124,8 +124,7 @@ internal class GroupConversationParticipantsViewModelArrangement {
         GroupConversationParticipantsViewModel(
             savedStateHandle,
             navigationManager,
-            observeParticipantsForConversationUseCase,
-            qualifiedIdMapper
+            observeParticipantsForConversationUseCase
         )
     }
     val conversationId = "some-dummy-value@some.dummy.domain"

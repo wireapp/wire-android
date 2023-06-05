@@ -57,7 +57,7 @@ internal fun MessageSendFailureWarning(
                 style = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.error)
             )
             if (messageStatus is MessageStatus.SendRemotelyFailure) {
-                OfflineBackendLearnMoreLink()
+                OfflineBackendsLearnMoreLink()
             }
             Row {
                 WireSecondaryButton(
@@ -136,7 +136,7 @@ private fun MultiUserDeliveryFailure(
                     ),
                     textAlign = TextAlign.Start
                 )
-                OfflineBackendLearnMoreLink()
+                OfflineBackendsLearnMoreLink()
             }
         }
         VerticalSpace.x4()
@@ -190,7 +190,7 @@ private fun SingleUserDeliveryFailure(
                 textAlign = TextAlign.Start
             )
         }
-        OfflineBackendLearnMoreLink()
+        OfflineBackendsLearnMoreLink()
         VerticalSpace.x4()
     }
 }
@@ -262,7 +262,7 @@ internal fun Modifier.customizeMessageBackground(
 }
 
 @Composable
-internal fun OfflineBackendLearnMoreLink(context: Context = LocalContext.current) {
+internal fun OfflineBackendsLearnMoreLink(context: Context = LocalContext.current) {
     val learnMoreUrl = stringResource(R.string.url_message_details_offline_backends_learn_more)
     Text(
         modifier = Modifier.clickable { CustomTabsHelper.launchUrl(context, learnMoreUrl) },

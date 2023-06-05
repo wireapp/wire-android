@@ -73,6 +73,7 @@ sealed class MessageComposerState {
                     focusRequester.requestFocus()
                     AdditionalOptionSubMenuState.Hidden
                 } else {
+                    focusManager.clearFocus()
                     AdditionalOptionSubMenuState.AttachFile
                 }
         }

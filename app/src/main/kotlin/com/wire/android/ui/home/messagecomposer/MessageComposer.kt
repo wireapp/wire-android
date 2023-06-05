@@ -296,10 +296,11 @@ private fun MessageComposingInput(
     focusRequester: FocusRequester
 ) {
     with(messageCompositionInputState) {
-        when (inputType) {
-            MessageCompositionInputType.Composing -> {
+        when (val type = inputType) {
+            is MessageCompositionInputType.Composing -> {
                 ComposingInput(
-                    inputState = messageCompositionInputState,
+                    inputSize = inputSize,
+                    inputType = type,
                     onFocused = onInputFocused,
                     focusRequester = focusRequester,
                     onMessageTextChanged = onMessageTextChanged
@@ -323,6 +324,8 @@ private fun MessageComposingInput(
 //                    onMessageTextChanged = onMessageTextChanged
 //                )
             }
+
+
         }
     }
 }
@@ -525,12 +528,13 @@ fun EditingInput(
 
 @Composable
 fun ComposingInput(
-    inputState: MessageCompositionInputState,
+    inputSize: MessageCompositionInputSize,
+    inputType: MessageCompositionInputType.Composing,
     onFocused: () -> Unit,
     focusRequester: FocusRequester,
     onMessageTextChanged: (TextFieldValue) -> Unit
 ) {
-    with(inputState) {
+    with(inputType) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -559,7 +563,7 @@ fun ComposingInput(
                 onSendButtonClicked = {
 
                 },
-                sendButtonEnabled = inputState.isSendButtonEnabled
+                sendButtonEnabled = inputType.isSendButtonEnabled
             )
         }
     }

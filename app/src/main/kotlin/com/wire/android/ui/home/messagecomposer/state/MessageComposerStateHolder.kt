@@ -130,24 +130,35 @@ data class MessageComposition(
 
 class MessageCompositionInputState(val messageCompositionState: MutableState<MessageComposition>) {
 
-    var inputType: MessageCompositionInputType by mutableStateOf(MessageCompositionInputType.Composing)
+    var inputType: MessageCompositionInputType by mutableStateOf(MessageCompositionInputType.Composing(messageCompositionState))
         private set
 
     var inputSize: MessageCompositionInputSize by mutableStateOf(MessageCompositionInputSize.COLLAPSED)
         private set
 
-    val isSendButtonEnabled by derivedStateOf {
-        messageCompositionState.value.messageText.isNotBlank()
-    }
-
     fun toEphemeral() {
         inputType = MessageCompositionInputType.Ephemeral
+    }
+
+    fun toFullscreen(){
+        inputSize = MessageCompositionInputSize.EXPANDED
+    }
+
+    fun toCollapsed(){
+        inputSize = MessageCompositionInputSize.COLLAPSED
     }
 
 }
 
 sealed class MessageCompositionInputType {
-    object Composing : MessageCompositionInputType()
+    class Composing(val messageCompositionState: MutableState<MessageComposition>) : MessageCompositionInputType() {
+
+        val isSendButtonEnabled by derivedStateOf {
+            messageCompositionState.value.messageText.isNotBlank()
+        }
+
+    }
+
     object Editing : MessageCompositionInputType()
     object Ephemeral : MessageCompositionInputType()
 }

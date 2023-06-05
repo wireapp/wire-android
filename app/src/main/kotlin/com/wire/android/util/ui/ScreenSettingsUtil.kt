@@ -28,7 +28,7 @@ import com.wire.android.navigation.ScreenMode
 import com.wire.android.navigation.getCurrentNavigationItem
 
 fun Activity.updateScreenSettings(navController: NavController) {
-    val screenMode = navController.getCurrentNavigationItem()?.screenMode
+    val screenMode = navController.getCurrentNavigationItem()?.screenMode // TODO: replace NavigationItem with Destination
     updateScreenSettings(screenMode)
 }
 

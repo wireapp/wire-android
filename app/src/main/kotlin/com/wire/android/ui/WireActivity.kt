@@ -162,7 +162,9 @@ class WireActivity : AppCompatActivity() {
         startDestination: Route,
         onComplete: () -> Unit
     ) {
-        val navController = rememberTrackingAnimatedNavController { NavigationItem.fromRoute(it)?.itemName }
+        val navController = rememberTrackingAnimatedNavController {
+            NavGraphs.root.destinationsByRoute[it]?.route // TODO: create `when` with names for all directions?
+        }
         val scope = rememberCoroutineScope()
         NavigationGraph(
             navController = navController,

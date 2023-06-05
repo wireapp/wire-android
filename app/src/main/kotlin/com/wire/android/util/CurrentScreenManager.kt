@@ -89,7 +89,7 @@ class CurrentScreenManager @Inject constructor(
     }
 
     override fun onDestinationChanged(controller: NavController, destination: NavDestination, arguments: Bundle?) {
-        val currentItem = controller.getCurrentNavigationItem()
+        val currentItem = controller.getCurrentNavigationItem() // TODO: replace NavigationItem with Destination
         currentScreenState.value = CurrentScreen.fromNavigationItem(currentItem, arguments, isOnForegroundFlow.value)
     }
 

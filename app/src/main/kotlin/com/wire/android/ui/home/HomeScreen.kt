@@ -50,6 +50,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootNavGraph
+import com.ramcosta.composedestinations.spec.Direction
 import com.wire.android.R
 import com.wire.android.navigation.HomeNavigationItem
 import com.wire.android.navigation.NavigationItem
@@ -70,6 +73,8 @@ import kotlinx.collections.immutable.ImmutableMap
 import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.coroutines.launch
 
+@RootNavGraph
+@Destination //TODO: back nav args
 @Composable
 fun HomeScreen(
     backNavArgs: ImmutableMap<String, Any> = persistentMapOf(),
@@ -151,7 +156,7 @@ fun HomeContent(
     conversationListState: ConversationListState,
     onNewConversationClick: () -> Unit,
     onSelfUserClick: () -> Unit,
-    navigateToItem: (NavigationItem) -> Unit
+    navigateToItem: (Direction) -> Unit
 ) {
     with(homeStateHolder) {
         ModalNavigationDrawer(

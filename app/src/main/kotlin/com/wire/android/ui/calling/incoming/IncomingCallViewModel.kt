@@ -33,6 +33,8 @@ import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.ui.destinations.OngoingCallScreenDestination
+import com.wire.android.ui.navArgs
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
@@ -64,10 +66,8 @@ class IncomingCallViewModel @Inject constructor(
     private val endCall: EndCallUseCase,
 ) : ViewModel() {
 
-    private val incomingCallConversationId: QualifiedID =
-        qualifiedIdMapper.fromStringToQualifiedID(checkNotNull(savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)) {
-            "No conversationId was provided via savedStateHandle to IncomingCallViewModel"
-        })
+    private val incomingCallNavArgs: IncomingCallNavArgs = savedStateHandle.navArgs()
+    private val incomingCallConversationId: QualifiedID = incomingCallNavArgs.conversationId
 
     lateinit var observeIncomingCallJob: Job
     var establishedCallConversationId: ConversationId? = null
@@ -160,7 +160,7 @@ class IncomingCallViewModel @Inject constructor(
 
                 navigationManager.navigate(
                     command = NavigationCommand(
-                        destination = NavigationItem.OngoingCall.getRouteWithArgs(listOf(incomingCallConversationId)),
+                        destination = OngoingCallScreenDestination(incomingCallConversationId),
                         backStackMode = BackStackMode.REMOVE_CURRENT_AND_REPLACE
                     )
                 )

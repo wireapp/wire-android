@@ -30,6 +30,8 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
 import com.wire.android.migration.MigrationData
 import com.wire.android.ui.common.SettingUpWireScreenContent
@@ -39,6 +41,11 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.EMPTY
 import com.wire.android.util.ui.stringWithStyledArgs
 
+
+@RootNavGraph
+@Destination(
+    navArgsDelegate = MigrationNavArgs::class
+)
 @Composable
 fun MigrationScreen(viewModel: MigrationViewModel = hiltViewModel()) {
     MigrationScreenContent(viewModel.state, viewModel::retry, viewModel::finish, viewModel::accountLogin)

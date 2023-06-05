@@ -20,6 +20,8 @@
 
 package com.wire.android.navigation
 
+import com.ramcosta.composedestinations.spec.Direction
+import com.wire.android.ui.destinations.Destination
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 
@@ -46,7 +48,7 @@ data class NavigationCommand(
     /**
      * The destination route of the component we want to navigate to.
      */
-    val destination: String,
+    val destination: Direction,
 
     /**
      * Whether we want to clear the previously added screens on the backstack, only until the current one, or none of them.

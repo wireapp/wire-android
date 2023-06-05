@@ -30,6 +30,7 @@ import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.EXTRA_EDIT_GUEST_ACCESS_PARAMS
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
+import com.wire.android.ui.navArgs
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.QualifiedID
@@ -72,16 +73,9 @@ class EditGuestAccessViewModel @Inject constructor(
     qualifiedIdMapper: QualifiedIdMapper,
 ) : ViewModel() {
 
-    val conversationId: QualifiedID = qualifiedIdMapper.fromStringToQualifiedID(
-        checkNotNull(savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)) {
-            "No conversationId was provided via savedStateHandle to EditGuestAccessViewModel"
-        }
-    )
-
-    private val accessParams =
-        Json.decodeFromString<EditGuestAccessParams>(checkNotNull(savedStateHandle.get<String>(EXTRA_EDIT_GUEST_ACCESS_PARAMS)) {
-            "No accessParams was provided via savedStateHandle to EditGuestAccessViewModel"
-        })
+    private val editGuestAccessNavArgs: EditGuestAccessNavArgs = savedStateHandle.navArgs()
+    val conversationId: QualifiedID = editGuestAccessNavArgs.conversationId
+    private val accessParams = editGuestAccessNavArgs.editGuessAccessParams
 
     var editGuestAccessState by mutableStateOf(
         EditGuestAccessState(

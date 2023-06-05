@@ -44,6 +44,7 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
+import com.ramcosta.composedestinations.spec.Route
 import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.appLogger
@@ -127,7 +128,7 @@ class WireActivity : AppCompatActivity() {
     }
 
     private fun setComposableContent(
-        startDestination: String,
+        startDestination: Route,
         onComplete: () -> Unit
     ) {
         setContent {
@@ -158,7 +159,7 @@ class WireActivity : AppCompatActivity() {
 
     @Composable
     fun setUpNavigationGraph(
-        startDestination: String,
+        startDestination: Route,
         onComplete: () -> Unit
     ) {
         val navController = rememberTrackingAnimatedNavController { NavigationItem.fromRoute(it)?.itemName }

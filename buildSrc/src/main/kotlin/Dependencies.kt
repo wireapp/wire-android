@@ -42,6 +42,7 @@ object AndroidClient {
 object BuildPlugins {
     object Versions {
         const val gradleVersion = "7.5.1"
+        const val kspVersion = "1.8.20-1.0.10"
     }
 
     const val androidApplication = "com.android.application"
@@ -54,6 +55,7 @@ object BuildPlugins {
     const val hilt = "dagger.hilt.android.plugin"
     const val junit5 = "de.mannodermaus.android-junit5"
     const val serialization = "plugin.serialization"
+    const val ksp = "com.google.devtools.ksp"
 }
 
 object ScriptPlugins {
@@ -88,6 +90,7 @@ object Libraries {
         const val composeMaterial3 = "1.1.0"
         const val composeActivity = "1.6.1"
         const val composeNavigation = "2.5.3"
+        const val composeDestinations = "1.8.42-beta"
         const val accompanist = "0.28.0"
         const val composeConstraint = "1.0.1"
         const val hilt = "2.45"
@@ -126,6 +129,8 @@ object Libraries {
     const val composePreview            = "androidx.compose.ui:ui-tooling-preview:${Versions.compose}"
     const val composeActivity           = "androidx.activity:activity-compose:${Versions.composeActivity}"
     const val composeNavigation         = "androidx.navigation:navigation-compose:${Versions.composeNavigation}"
+    const val composeDestinationsCore   = "io.github.raamcosta.compose-destinations:animations-core:${Versions.composeDestinations}"
+    const val composeDestinationsKsp    = "io.github.raamcosta.compose-destinations:ksp:${Versions.composeDestinations}"
     const val composeConstraintLayout   = "androidx.constraintlayout:constraintlayout-compose:${Versions.composeConstraint}"
     const val composeRuntimeLiveData    = "androidx.compose.runtime:runtime-livedata:${Versions.compose}"
     const val dataStore                 = "androidx.datastore:datastore-preferences:${Versions.dataStore}"

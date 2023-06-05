@@ -31,6 +31,7 @@ import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
 import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMapper.toSelfDeletionDuration
 import com.wire.android.ui.home.messagecomposer.state.SelfDeletionDuration
+import com.wire.android.ui.navArgs
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
@@ -56,11 +57,8 @@ class EditSelfDeletingMessagesViewModel @Inject constructor(
     qualifiedIdMapper: QualifiedIdMapper,
 ) : ViewModel() {
 
-    private val conversationId: QualifiedID = qualifiedIdMapper.fromStringToQualifiedID(
-        checkNotNull(savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)) {
-            "No conversationId was provided via savedStateHandle to EditSelfDeletingMessagesViewModel"
-        }
-    )
+    private val editSelfDeletingMessagesNavArgs: EditSelfDeletingMessagesNavArgs = savedStateHandle.navArgs()
+    private val conversationId: QualifiedID = editSelfDeletingMessagesNavArgs.conversationId
 
     var state by mutableStateOf(
         EditSelfDeletingMessagesState()

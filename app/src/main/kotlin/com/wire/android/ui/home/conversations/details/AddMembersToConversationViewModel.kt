@@ -32,6 +32,8 @@ import com.wire.android.navigation.EXTRA_IS_SERVICES_ALLOWED
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.ui.destinations.ServiceDetailsScreenDestination
+import com.wire.android.ui.home.conversations.search.AddMembersSearchNavArgs
 import com.wire.android.ui.home.conversations.search.ContactSearchResult
 import com.wire.android.ui.home.conversations.search.KnownPeopleSearchViewModel
 import com.wire.android.ui.home.conversations.search.SearchPeopleState
@@ -39,6 +41,8 @@ import com.wire.android.ui.home.conversations.search.SearchResult
 import com.wire.android.ui.home.conversations.search.SearchResultState
 import com.wire.android.ui.home.conversations.search.SearchResultTitle
 import com.wire.android.ui.home.newconversation.model.Contact
+import com.wire.android.ui.navArgs
+import com.wire.android.ui.userprofile.service.ServiceDetailsNavArgs
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
@@ -82,11 +86,9 @@ class AddMembersToConversationViewModel @Inject constructor(
     navigationManager = navigationManager
 ) {
 
-    private val conversationId: QualifiedID = qualifiedIdMapper.fromStringToQualifiedID(
-        savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)!!
-    )
-    private val isServicesAllowed: Boolean = savedStateHandle
-        .get<String>(EXTRA_IS_SERVICES_ALLOWED)!!.toBoolean()
+    private val addMembersSearchNavArgs: AddMembersSearchNavArgs = savedStateHandle.navArgs()
+    private val conversationId: QualifiedID = addMembersSearchNavArgs.conversationId
+    private val isServicesAllowed: Boolean = addMembersSearchNavArgs.isServicesAllowed
 
     var state: SearchPeopleState by mutableStateOf(SearchPeopleState(isGroupCreationContext = false))
 
@@ -191,14 +193,12 @@ class AddMembersToConversationViewModel @Inject constructor(
         viewModelScope.launch {
             navigationManager.navigate(
                 command = NavigationCommand(
-                    destination = NavigationItem.ServiceDetails.getRouteWithArgs(
-                        listOf(
+                    destination = ServiceDetailsScreenDestination(
                             BotService(
                                 id = contact.id,
                                 provider = contact.domain
                             ),
                             conversationId
-                        )
                     )
                 )
             )

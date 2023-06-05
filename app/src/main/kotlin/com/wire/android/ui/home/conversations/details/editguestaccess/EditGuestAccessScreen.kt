@@ -40,6 +40,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.rememberTopBarElevationState
@@ -52,6 +54,10 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.copyLinkToClipboard
 import com.wire.android.util.shareViaIntent
 
+@RootNavGraph
+@Destination(
+    navArgsDelegate = EditGuestAccessNavArgs::class
+)
 @Composable
 fun EditGuestAccessScreen(
     editGuestAccessViewModel: EditGuestAccessViewModel = hiltViewModel(),

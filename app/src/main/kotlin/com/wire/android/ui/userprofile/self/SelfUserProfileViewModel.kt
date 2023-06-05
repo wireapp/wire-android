@@ -38,6 +38,9 @@ import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.notification.NotificationChannelsManager
 import com.wire.android.notification.WireNotificationManager
+import com.wire.android.ui.destinations.AppSettingsScreenDestination
+import com.wire.android.ui.destinations.AvatarPickerScreenDestination
+import com.wire.android.ui.destinations.WelcomeScreenDestination
 import com.wire.android.ui.userprofile.self.dialog.StatusDialogData
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.WireSessionImageLoader
@@ -244,13 +247,13 @@ class SelfUserProfileViewModel @Inject constructor(
                     is SelfServerConfigUseCase.Result.Success -> result.serverLinks.links
                 }
             authServerConfigProvider.updateAuthServer(selfServerLinks)
-            navigationManager.navigate(NavigationCommand(NavigationItem.Welcome.getRouteWithArgs()))
+            navigationManager.navigate(NavigationCommand(WelcomeScreenDestination))
         }
     }
 
     fun editProfile() {
         viewModelScope.launch { // TODO change to "Your Account Settings" when implemented
-            navigationManager.navigate(NavigationCommand(NavigationItem.AppSettings.getRouteWithArgs()))
+            navigationManager.navigate(NavigationCommand(AppSettingsScreenDestination))
         }
     }
 
@@ -309,7 +312,7 @@ class SelfUserProfileViewModel @Inject constructor(
 
     fun onChangeProfilePictureClicked() {
         viewModelScope.launch {
-            navigationManager.navigate(NavigationCommand(NavigationItem.ProfileImagePicker.getRouteWithArgs()))
+            navigationManager.navigate(NavigationCommand(AvatarPickerScreenDestination))
         }
     }
 

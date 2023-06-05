@@ -25,6 +25,7 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.ui.destinations.NetworkSettingsScreenDestination
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -37,7 +38,7 @@ class SettingsViewModel
         viewModelScope.launch {
             navigationManager.navigate(
                 NavigationCommand(
-                    NavigationItem.NetworkSettings.getRouteWithArgs()
+                    NetworkSettingsScreenDestination
                 )
             )
         }

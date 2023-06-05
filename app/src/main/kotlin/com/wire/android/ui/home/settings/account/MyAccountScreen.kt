@@ -39,6 +39,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.navigation.hiltSavedStateViewModel
@@ -61,6 +63,8 @@ import com.wire.android.util.extension.folderWithElements
 import kotlinx.collections.immutable.ImmutableMap
 import kotlinx.collections.immutable.persistentMapOf
 
+@RootNavGraph
+@Destination // TODO: back nav args
 @Composable
 fun MyAccountScreen(
     backNavArgs: ImmutableMap<String, Any> = persistentMapOf(),

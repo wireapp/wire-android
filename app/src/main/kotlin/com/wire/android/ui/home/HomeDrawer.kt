@@ -49,12 +49,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.ramcosta.composedestinations.spec.Direction
 import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.navigation.HomeNavigationItem
 import com.wire.android.navigation.HomeNavigationItem.Settings
-import com.wire.android.navigation.NavigationItem
-import com.wire.android.navigation.NavigationItem.Support
+import com.wire.android.navigation.SupportScreenDestination
 import com.wire.android.navigation.isExternalRoute
 import com.wire.android.ui.common.Logo
 import com.wire.android.ui.common.dimensions
@@ -77,7 +77,7 @@ fun HomeDrawer(
     logFilePath: String,
     currentRoute: String?,
     navigateToHomeItem: (HomeNavigationItem) -> Unit,
-    navigateToItem: (NavigationItem) -> Unit,
+    navigateToItem: (Direction) -> Unit,
     onCloseDrawer: () -> Unit,
 ) {
     val context = LocalContext.current
@@ -104,8 +104,8 @@ fun HomeDrawer(
         fun navigateAndCloseDrawer(item: Any) {
             when (item) {
                 is HomeNavigationItem -> navigateToHomeItem(item)
-                is NavigationItem -> when (item.isExternalRoute()) {
-                    true -> CustomTabsHelper.launchUrl(context, item.getRouteWithArgs())
+                is Direction -> when (item.isExternalRoute()) {
+                    true -> CustomTabsHelper.launchUrl(context, item.route)
                     false -> navigateToItem(item)
                 }
 
@@ -130,7 +130,7 @@ fun HomeDrawer(
 
         val bottomItems = buildList {
             add(Settings)
-            add(Support)
+            add(SupportScreenDestination)
         }
 
         bottomItems.forEach { item ->
@@ -211,12 +211,12 @@ data class DrawerItemData(@StringRes val title: Int?, @DrawableRes val icon: Int
 private fun Any.getDrawerData(): DrawerItemData =
     when (this) {
         is HomeNavigationItem -> DrawerItemData(this.title, this.icon)
-        Support -> DrawerItemData(R.string.support_screen_title, R.drawable.ic_support)
+        SupportScreenDestination -> DrawerItemData(R.string.support_screen_title, R.drawable.ic_support)
         else -> DrawerItemData(null, null)
     }
 
 fun Any.route() = when (this) {
     is HomeNavigationItem -> this.route
-    is NavigationItem -> this.getRouteWithArgs()
+    is Direction -> this.route
     else -> null
 }

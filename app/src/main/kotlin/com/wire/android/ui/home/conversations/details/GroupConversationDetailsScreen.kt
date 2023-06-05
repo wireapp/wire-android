@@ -53,6 +53,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
 import com.wire.android.navigation.hiltSavedStateViewModel
 import com.wire.android.ui.common.MoreOptionIcon
@@ -89,6 +91,10 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
 
+@RootNavGraph
+@Destination( // TODO: back nav args
+    navArgsDelegate = GroupConversationDetailsNavArgs::class
+)
 @Composable
 fun GroupConversationDetailsScreen(
     backNavArgs: ImmutableMap<String, Any> = persistentMapOf(),

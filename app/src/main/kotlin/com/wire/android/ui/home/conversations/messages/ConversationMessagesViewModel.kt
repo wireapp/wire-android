@@ -40,12 +40,15 @@ import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.navigation.SavedStateViewModel
 import com.wire.android.navigation.getBackNavArg
+import com.wire.android.ui.destinations.MessageDetailsScreenDestination
+import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.OnResetSession
 import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.kalium.logic.data.asset.AttachmentType
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.usecase.GetMessagesForConversationUseCase
+import com.wire.android.ui.navArgs
 import com.wire.android.util.FileManager
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.startFileShareIntent
@@ -97,9 +100,8 @@ class ConversationMessagesViewModel @Inject constructor(
 
     var conversationViewState by mutableStateOf(ConversationMessagesViewState())
 
-    private val conversationId: QualifiedID = qualifiedIdMapper.fromStringToQualifiedID(
-        savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)!!
-    )
+    private val conversationNavArgs: ConversationNavArgs = savedStateHandle.navArgs()
+    val conversationId: QualifiedID = conversationNavArgs.conversationId
 
     private var lastImageMessageShownOnGallery: UIMessage.Regular? = null
     private val _infoMessage = MutableSharedFlow<SnackBarMessage>()
@@ -251,9 +253,7 @@ class ConversationMessagesViewModel @Inject constructor(
         viewModelScope.launch {
             navigationManager.navigate(
                 command = NavigationCommand(
-                    destination = NavigationItem.MessageDetails.getRouteWithArgs(
-                        listOf(conversationId, messageId, isSelfMessage)
-                    )
+                    destination = MessageDetailsScreenDestination(conversationId, messageId, isSelfMessage)
                 )
             )
         }

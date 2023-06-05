@@ -39,6 +39,7 @@ import com.wire.android.notification.NotificationConstants.WEB_SOCKET_CHANNEL_ID
 import com.wire.android.notification.NotificationConstants.WEB_SOCKET_CHANNEL_NAME
 import com.wire.android.notification.WireNotificationManager
 import com.wire.android.notification.openAppPendingIntent
+import com.wire.android.ui.destinations.IncomingCallScreenDestination
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.id.ConversationId
@@ -125,7 +126,7 @@ class PersistentWebSocketService : Service() {
 
     private fun openIncomingCall(conversationId: ConversationId) {
         scope.launch {
-            navigationManager.navigate(NavigationCommand(NavigationItem.IncomingCall.getRouteWithArgs(listOf(conversationId))))
+            navigationManager.navigate(NavigationCommand(IncomingCallScreenDestination(conversationId)))
         }
     }
 

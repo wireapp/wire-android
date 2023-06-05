@@ -32,6 +32,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.navigation.rememberTrackingAnimatedNavController
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.home.conversations.search.SearchPeopleRouter
@@ -39,6 +41,8 @@ import com.wire.android.ui.home.newconversation.common.NewConversationNavigation
 import com.wire.android.ui.home.newconversation.groupOptions.GroupOptionScreen
 import com.wire.android.ui.home.newconversation.newgroup.NewGroupScreen
 
+@RootNavGraph
+@Destination
 @Composable
 fun NewConversationRouter() {
     val newConversationViewModel: NewConversationViewModel = hiltViewModel()

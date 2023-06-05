@@ -34,6 +34,7 @@ import com.wire.android.media.CallRinger
 import com.wire.android.model.ImageAsset
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.ui.navArgs
 import com.wire.android.util.CurrentScreen
 import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.dispatchers.DispatcherProvider
@@ -102,11 +103,8 @@ class SharedCallingViewModel @Inject constructor(
 
     var callState by mutableStateOf(CallState())
 
-    val conversationId: QualifiedID = qualifiedIdMapper.fromStringToQualifiedID(
-        checkNotNull(savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)) {
-            "No conversationId was provided via savedStateHandle to SharedCallingViewModel"
-        }
-    )
+    private val callingNavArgs: CallingNavArgs = savedStateHandle.navArgs()
+    val conversationId: QualifiedID = callingNavArgs.conversationId
 
     init {
         viewModelScope.launch {

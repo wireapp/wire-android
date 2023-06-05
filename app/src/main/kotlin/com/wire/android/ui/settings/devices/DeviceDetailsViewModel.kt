@@ -15,6 +15,7 @@ import com.wire.android.navigation.SavedStateViewModel
 import com.wire.android.ui.authentication.devices.model.Device
 import com.wire.android.ui.authentication.devices.remove.RemoveDeviceDialogState
 import com.wire.android.ui.authentication.devices.remove.RemoveDeviceError
+import com.wire.android.ui.navArgs
 import com.wire.android.ui.settings.devices.model.DeviceDetailsState
 import com.wire.kalium.logic.data.client.DeleteClientParam
 import com.wire.kalium.logic.data.conversation.ClientId
@@ -47,12 +48,9 @@ class DeviceDetailsViewModel @Inject constructor(
     private val observeUserInfo: ObserveUserInfoUseCase
 ) : SavedStateViewModel(savedStateHandle) {
 
-    private val deviceId: ClientId = ClientId(
-        savedStateHandle.get<String>(EXTRA_DEVICE_ID)!!
-    )
-
-    private val userId: UserId =
-        savedStateHandle.get<String>(EXTRA_USER_ID)!!.let { QualifiedIdMapperImpl(null).fromStringToQualifiedID(it) }
+    private val deviceDetailsNavArgs: DeviceDetailsNavArgs = savedStateHandle.navArgs()
+    private val deviceId: ClientId = deviceDetailsNavArgs.clientId
+    private val userId: UserId = deviceDetailsNavArgs.userId
 
     var state: DeviceDetailsState by mutableStateOf(DeviceDetailsState(isSelfClient = isSelfClient))
         private set

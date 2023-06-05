@@ -52,6 +52,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
 import com.wire.android.ui.common.CollapsingTopBarScaffold
 import com.wire.android.ui.common.TabItem
@@ -70,6 +72,10 @@ import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.ImmutableMap
 import kotlinx.coroutines.launch
 
+@RootNavGraph
+@Destination(
+    navArgsDelegate = AddMembersSearchNavArgs::class
+)
 @Composable
 fun AddMembersSearchRouter(
     addMembersToConversationViewModel: AddMembersToConversationViewModel = hiltViewModel()

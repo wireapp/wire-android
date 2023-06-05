@@ -25,6 +25,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.navigation.EXTRA_NEW_EMAIL
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.ui.navArgs
 import com.wire.kalium.logic.feature.user.UpdateEmailUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -40,8 +41,8 @@ class VerifyEmailViewModel @Inject constructor(
     var state: VerifyEmailState by mutableStateOf(VerifyEmailState())
         private set
 
-    val newEmail: String? =
-        savedStateHandle.get<String>(EXTRA_NEW_EMAIL)
+    private val verifyEmailNavArgs: VerifyEmailNavArgs = savedStateHandle.navArgs()
+    val newEmail: String? = verifyEmailNavArgs.newEmail
 
     init {
         if (newEmail == null) {

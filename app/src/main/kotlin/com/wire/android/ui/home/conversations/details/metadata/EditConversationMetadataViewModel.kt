@@ -33,6 +33,7 @@ import com.wire.android.ui.common.groupname.GroupMetadataState
 import com.wire.android.ui.common.groupname.GroupNameMode
 import com.wire.android.ui.common.groupname.GroupNameValidator
 import com.wire.android.ui.home.conversations.details.GroupDetailsBaseViewModel
+import com.wire.android.ui.navArgs
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
@@ -61,9 +62,8 @@ class EditConversationMetadataViewModel @Inject constructor(
     qualifiedIdMapper: QualifiedIdMapper
 ) : GroupDetailsBaseViewModel(savedStateHandle) {
 
-    private val conversationId: QualifiedID = qualifiedIdMapper.fromStringToQualifiedID(
-        savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)!!
-    )
+    private val editConversationNameNavArgs: EditConversationNameNavArgs = savedStateHandle.navArgs()
+    private val conversationId: QualifiedID = editConversationNameNavArgs.conversationId
 
     var editConversationState by mutableStateOf(GroupMetadataState(mode = GroupNameMode.EDITION))
         private set

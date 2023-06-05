@@ -31,6 +31,7 @@ import com.wire.android.appLogger
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.calling.model.UICallParticipant
+import com.wire.android.ui.navArgs
 import com.wire.android.util.CurrentScreen
 import com.wire.android.util.CurrentScreenManager
 import com.wire.kalium.logic.data.call.CallClient
@@ -56,9 +57,8 @@ class OngoingCallViewModel @Inject constructor(
     private val currentScreenManager: CurrentScreenManager,
 ) : ViewModel() {
 
-    private val conversationId: QualifiedID = qualifiedIdMapper.fromStringToQualifiedID(
-        savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)!!
-    )
+    private val ongoingCallNavArgs: OngoingCallNavArgs = savedStateHandle.navArgs()
+    private val conversationId: QualifiedID = ongoingCallNavArgs.conversationId
 
     var shouldShowDoubleTapToast by mutableStateOf(false)
     private var doubleTapIndicatorCountDownTimer: CountDownTimer? = null

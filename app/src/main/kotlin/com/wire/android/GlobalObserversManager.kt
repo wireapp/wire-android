@@ -6,6 +6,7 @@ import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.notification.NotificationChannelsManager
 import com.wire.android.notification.WireNotificationManager
+import com.wire.android.ui.destinations.IncomingCallScreenDestination
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.id.ConversationId
@@ -73,7 +74,7 @@ class GlobalObserversManager @Inject constructor(
 
     private fun openIncomingCall(conversationId: ConversationId) {
         scope.launch {
-            navigationManager.navigate(NavigationCommand(NavigationItem.IncomingCall.getRouteWithArgs(listOf(conversationId))))
+            navigationManager.navigate(NavigationCommand(IncomingCallScreenDestination(conversationId)))
         }
     }
 }

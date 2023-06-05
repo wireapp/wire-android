@@ -29,6 +29,7 @@ plugins {
     id(BuildPlugins.kotlinParcelize)
     id(BuildPlugins.hilt)
     id(BuildPlugins.junit5)
+    id(BuildPlugins.ksp) version BuildPlugins.Versions.kspVersion
     kotlin(BuildPlugins.kapt)
     kotlin(BuildPlugins.serialization) version Libraries.Versions.kotlin
 
@@ -168,6 +169,8 @@ dependencies {
     implementation(Libraries.composePreview)
     implementation(Libraries.composeActivity)
     implementation(Libraries.composeNavigation)
+    implementation(Libraries.composeDestinationsCore)
+    ksp(Libraries.composeDestinationsKsp)
     implementation(Libraries.composeConstraintLayout)
     implementation(Libraries.accompanistPager)
     implementation(Libraries.accompanistSystemUI)

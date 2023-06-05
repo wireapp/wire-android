@@ -29,6 +29,8 @@ import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.ui.destinations.VerifyEmailScreenDestination
+import com.wire.android.ui.home.settings.account.email.verifyEmail.VerifyEmailNavArgs
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.UpdateEmailUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -97,7 +99,7 @@ class ChangeEmailViewModel @Inject constructor(
         viewModelScope.launch {
             navigationManager.navigate(
                 NavigationCommand(
-                    NavigationItem.VerifyEmailAddress.getRouteWithArgs(listOf(state.email.text)),
+                    VerifyEmailScreenDestination(state.email.text),
                     BackStackMode.REMOVE_CURRENT
                 )
             )

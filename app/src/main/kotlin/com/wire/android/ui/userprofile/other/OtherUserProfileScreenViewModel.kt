@@ -39,9 +39,11 @@ import com.wire.android.ui.authentication.devices.model.Device
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationSheetContent
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationTypeDetail
 import com.wire.android.ui.common.dialogs.BlockUserDialogState
+import com.wire.android.ui.destinations.DeviceDetailsScreenDestination
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveConversationRoleForUserUseCase
 import com.wire.android.ui.home.conversationslist.model.BlockState
 import com.wire.android.ui.home.conversationslist.model.DialogState
+import com.wire.android.ui.navArgs
 import com.wire.android.ui.userprofile.common.UsernameMapper.mapUserLabel
 import com.wire.android.ui.userprofile.group.RemoveConversationMemberState
 import com.wire.android.ui.userprofile.other.OtherUserProfileInfoMessageType.BlockingUserOperationError
@@ -114,8 +116,9 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     qualifiedIdMapper: QualifiedIdMapper
 ) : ViewModel(), OtherUserProfileEventsHandler, OtherUserProfileBottomSheetEventsHandler {
 
-    private val userId: QualifiedID = savedStateHandle.get<String>(EXTRA_USER_ID)!!.toQualifiedID(qualifiedIdMapper)
-    private val conversationId: QualifiedID? = savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)?.toQualifiedID(qualifiedIdMapper)
+    private val otherUserProfileNavArgs: OtherUserProfileNavArgs = savedStateHandle.navArgs()
+    private val userId: QualifiedID = otherUserProfileNavArgs.userId
+    private val conversationId: QualifiedID? = otherUserProfileNavArgs.conversationId
 
     var state: OtherUserProfileState by mutableStateOf(OtherUserProfileState(
         userId = userId,
@@ -159,7 +162,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     override fun onDeviceClick(device: Device) {
         viewModelScope.launch {
             navigationManager.navigate(
-                NavigationCommand(NavigationItem.DeviceDetails.getRouteWithArgs(listOf(device.clientId, userId)))
+                NavigationCommand(DeviceDetailsScreenDestination(userId, device.clientId))
             )
         }
     }

@@ -30,6 +30,10 @@ import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.navigation.SavedStateViewModel
+import com.wire.android.ui.destinations.InitiatingCallScreenDestination
+import com.wire.android.ui.destinations.OngoingCallScreenDestination
+import com.wire.android.ui.home.conversations.ConversationNavArgs
+import com.wire.android.ui.navArgs
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
@@ -62,9 +66,9 @@ class ConversationCallViewModel @Inject constructor(
     private val isConferenceCallingEnabled: IsEligibleToStartCallUseCase
 ) : SavedStateViewModel(savedStateHandle) {
 
-    val conversationId: QualifiedID = qualifiedIdMapper.fromStringToQualifiedID(
-        savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)!!
-    )
+    private val conversationNavArgs: ConversationNavArgs = savedStateHandle.navArgs()
+    val conversationId: QualifiedID = conversationNavArgs.conversationId
+
     var conversationCallViewState by mutableStateOf(ConversationCallViewState())
 
     var establishedCallConversationId: QualifiedID? = null
@@ -114,7 +118,7 @@ class ConversationCallViewModel @Inject constructor(
                 answerCall(conversationId = conversationId)
                 navigationManager.navigate(
                     command = NavigationCommand(
-                        destination = NavigationItem.OngoingCall.getRouteWithArgs(listOf(conversationId))
+                        destination = OngoingCallScreenDestination(conversationId)
                     )
                 )
             }
@@ -136,7 +140,7 @@ class ConversationCallViewModel @Inject constructor(
             }
             navigationManager.navigate(
                 command = NavigationCommand(
-                    destination = NavigationItem.InitiatingCall.getRouteWithArgs(listOf(conversationId))
+                    destination = InitiatingCallScreenDestination(conversationId)
                 )
             )
         }

@@ -36,6 +36,12 @@ import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.navigation.SavedStateViewModel
 import com.wire.android.navigation.getBackNavArg
+import com.wire.android.ui.destinations.GroupConversationDetailsScreenDestination
+import com.wire.android.ui.destinations.HomeScreenDestination
+import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
+import com.wire.android.ui.destinations.SelfUserProfileScreenDestination
+import com.wire.android.ui.home.conversations.ConversationNavArgs
+import com.wire.android.ui.navArgs
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.WireSessionImageLoader
@@ -67,9 +73,8 @@ class ConversationInfoViewModel @Inject constructor(
 
     var conversationInfoViewState by mutableStateOf(ConversationInfoViewState())
 
-    val conversationId: QualifiedID = qualifiedIdMapper.fromStringToQualifiedID(
-        savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)!!
-    )
+    private val conversationNavArgs: ConversationNavArgs = savedStateHandle.navArgs()
+    val conversationId: QualifiedID = conversationNavArgs.conversationId
 
     private lateinit var selfUserId: UserId
 
@@ -181,15 +186,13 @@ class ConversationInfoViewModel @Inject constructor(
         when (val data = conversationInfoViewState.conversationDetailsData) {
             is ConversationDetailsData.OneOne -> navigationManager.navigate(
                 command = NavigationCommand(
-                    destination = NavigationItem.OtherUserProfile.getRouteWithArgs(
-                        listOf(data.otherUserId)
-                    )
+                    destination = OtherUserProfileScreenDestination(userId = data.otherUserId)
                 )
             )
 
             is ConversationDetailsData.Group -> navigationManager.navigate(
                 command = NavigationCommand(
-                    destination = NavigationItem.GroupConversationDetails.getRouteWithArgs(listOf(data.conversationId))
+                    destination = GroupConversationDetailsScreenDestination(conversationId = data.conversationId)
                 )
             )
 
@@ -213,11 +216,11 @@ class ConversationInfoViewModel @Inject constructor(
     }
 
     private suspend fun navigateToSelfProfile() =
-        navigationManager.navigate(NavigationCommand(NavigationItem.SelfUserProfile.getRouteWithArgs()))
+        navigationManager.navigate(NavigationCommand(SelfUserProfileScreenDestination))
 
     private suspend fun navigateToOtherProfile(id: UserId, conversationId: QualifiedID? = null) =
-        navigationManager.navigate(NavigationCommand(NavigationItem.OtherUserProfile.getRouteWithArgs(listOfNotNull(id, conversationId))))
+        navigationManager.navigate(NavigationCommand(OtherUserProfileScreenDestination(userId = id, conversationId = conversationId)))
 
     private suspend fun navigateToHome() =
-        navigationManager.navigate(NavigationCommand(NavigationItem.Home.getRouteWithArgs(), BackStackMode.UPDATE_EXISTED))
+        navigationManager.navigate(NavigationCommand(HomeScreenDestination, BackStackMode.UPDATE_EXISTED))
 }

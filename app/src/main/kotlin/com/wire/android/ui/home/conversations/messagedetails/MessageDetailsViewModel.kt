@@ -32,6 +32,7 @@ import com.wire.android.navigation.NavigationManager
 import com.wire.android.navigation.SavedStateViewModel
 import com.wire.android.ui.home.conversations.messagedetails.usecase.ObserveReactionsForMessageUseCase
 import com.wire.android.ui.home.conversations.messagedetails.usecase.ObserveReceiptsForMessageUseCase
+import com.wire.android.ui.navArgs
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.message.receipt.ReceiptType
@@ -48,12 +49,10 @@ class MessageDetailsViewModel @Inject constructor(
     private val observeReceiptsForMessage: ObserveReceiptsForMessageUseCase
 ) : SavedStateViewModel(savedStateHandle) {
 
-    private val conversationId: QualifiedID = qualifiedIdMapper
-        .fromStringToQualifiedID(savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)!!)
-
-    private val messageId: String = savedStateHandle.get<String>(EXTRA_MESSAGE_ID)!!
-
-    private val isSelfMessage: Boolean = savedStateHandle.get<String>(EXTRA_IS_SELF_MESSAGE)!!.toBoolean()
+    private val messageDetailsNavArgs: MessageDetailsNavArgs = savedStateHandle.navArgs()
+    private val conversationId: QualifiedID = messageDetailsNavArgs.conversationId
+    private val messageId: String = messageDetailsNavArgs.messageId
+    private val isSelfMessage: Boolean = messageDetailsNavArgs.isSelfMessage
 
     var messageDetailsState: MessageDetailsState by mutableStateOf(MessageDetailsState())
 

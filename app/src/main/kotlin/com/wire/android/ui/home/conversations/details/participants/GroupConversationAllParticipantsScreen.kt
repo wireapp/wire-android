@@ -36,6 +36,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
 import com.wire.android.ui.common.rememberTopBarElevationState
 import com.wire.android.ui.common.topappbar.NavigationIconType
@@ -43,6 +45,10 @@ import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.home.conversations.details.participants.model.UIParticipant
 import com.wire.android.ui.theme.WireTheme
 
+@RootNavGraph
+@Destination(
+    navArgsDelegate = GroupConversationAllParticipantsNavArgs::class
+)
 @Composable
 fun GroupConversationAllParticipantsScreen(viewModel: GroupConversationParticipantsViewModel = hiltViewModel()) {
     GroupConversationAllParticipantsContent(

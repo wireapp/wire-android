@@ -36,6 +36,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
 import com.wire.android.ui.common.bottomsheet.MenuBottomSheetItem
 import com.wire.android.ui.common.bottomsheet.MenuItemIcon
@@ -51,6 +53,10 @@ import com.wire.android.ui.home.conversations.delete.DeleteMessageDialog
 import com.wire.android.util.permission.rememberWriteStorageRequestFlow
 import com.wire.android.util.ui.openDownloadFolder
 
+@RootNavGraph
+@Destination(
+    navArgsDelegate = MediaGalleryNavArgs::class
+)
 @Composable
 fun MediaGalleryScreen(mediaGalleryViewModel: MediaGalleryViewModel = hiltViewModel()) {
     val uiState = mediaGalleryViewModel.mediaGalleryViewState

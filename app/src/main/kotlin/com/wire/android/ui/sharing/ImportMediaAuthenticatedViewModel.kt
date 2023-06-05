@@ -24,6 +24,8 @@ import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.ui.destinations.ConversationScreenDestination
+import com.wire.android.ui.destinations.HomeScreenDestination
 import com.wire.android.ui.home.conversations.search.SearchPeopleViewModel
 import com.wire.android.ui.home.conversationslist.model.BlockState
 import com.wire.android.ui.home.conversationslist.model.ConversationInfo
@@ -260,7 +262,7 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
     fun navigateBack() = viewModelScope.launch(dispatchers.main()) {
         navigationManager.navigate(
             NavigationCommand(
-                NavigationItem.Home.getRouteWithArgs(),
+                HomeScreenDestination,
                 BackStackMode.REMOVE_CURRENT
             )
         )
@@ -365,7 +367,7 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
     private suspend fun navigateToConversation(conversationId: ConversationId) {
         navigationManager.navigate(
             NavigationCommand(
-                NavigationItem.Conversation.getRouteWithArgs(listOf(conversationId)),
+                ConversationScreenDestination(conversationId),
                 backStackMode = BackStackMode.CLEAR_TILL_START
             )
         )

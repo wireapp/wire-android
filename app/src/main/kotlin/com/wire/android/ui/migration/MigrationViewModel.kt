@@ -35,6 +35,10 @@ import com.wire.android.navigation.EXTRA_USER_ID
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.ui.destinations.HomeScreenDestination
+import com.wire.android.ui.destinations.LoginScreenDestination
+import com.wire.android.ui.destinations.WelcomeScreenDestination
+import com.wire.android.ui.navArgs
 import com.wire.android.workmanager.worker.enqueueMigrationWorker
 import com.wire.android.workmanager.worker.enqueueSingleUserMigrationWorker
 import com.wire.kalium.logger.obfuscateId
@@ -57,9 +61,8 @@ class MigrationViewModel @Inject constructor(
     var state: MigrationState by mutableStateOf(MigrationState.InProgress(MigrationData.Progress.Type.UNKNOWN))
         private set
 
-    private val migrationType: MigrationType = savedStateHandle.get<String>(EXTRA_USER_ID)?.let {
-        QualifiedIdMapperImpl(null).fromStringToQualifiedID(it)
-    }?.let { MigrationType.SingleUser(it) } ?: MigrationType.Full
+    private val migrationNavArgs: MigrationNavArgs = savedStateHandle.navArgs()
+    private val migrationType: MigrationType = migrationNavArgs.userId?.let { MigrationType.SingleUser(it) } ?: MigrationType.Full
 
     init {
         viewModelScope.launch {
@@ -83,7 +86,7 @@ class MigrationViewModel @Inject constructor(
                 CurrentSessionResult.Failure.SessionNotFound -> navigateToLogin(userHandle)
                 is CurrentSessionResult.Success -> navigationManager.navigate(
                     NavigationCommand(
-                        NavigationItem.Home.getRouteWithArgs(),
+                        HomeScreenDestination,
                         BackStackMode.CLEAR_WHOLE
                     )
                 )
@@ -147,16 +150,16 @@ class MigrationViewModel @Inject constructor(
     private suspend fun navigateAfterMigration() {
         when (getCurrentSession()) {
             is CurrentSessionResult.Success ->
-                navigationManager.navigate(NavigationCommand(NavigationItem.Home.getRouteWithArgs(), BackStackMode.CLEAR_WHOLE))
+                navigationManager.navigate(NavigationCommand(HomeScreenDestination, BackStackMode.CLEAR_WHOLE))
 
             else ->
-                navigationManager.navigate(NavigationCommand(NavigationItem.Welcome.getRouteWithArgs(), BackStackMode.CLEAR_WHOLE))
+                navigationManager.navigate(NavigationCommand(WelcomeScreenDestination, BackStackMode.CLEAR_WHOLE))
         }
     }
 
     private suspend fun navigateToLogin(userHandle: String) {
         navigationManager.navigate(
-            NavigationCommand(NavigationItem.Login.getRouteWithArgs(listOf(userHandle)), BackStackMode.CLEAR_WHOLE)
+            NavigationCommand(LoginScreenDestination(userHandle), BackStackMode.CLEAR_WHOLE)
         )
     }
 }

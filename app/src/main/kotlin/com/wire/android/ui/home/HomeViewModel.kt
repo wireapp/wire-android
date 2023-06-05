@@ -25,6 +25,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import com.ramcosta.composedestinations.spec.Direction
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.migration.userDatabase.ShouldTriggerMigrationForUserUserCase
 import com.wire.android.model.ImageAsset.UserAvatarAsset
@@ -37,6 +38,10 @@ import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.navigation.SavedStateViewModel
 import com.wire.android.navigation.getBackNavArg
+import com.wire.android.ui.destinations.CreateAccountUsernameScreenDestination
+import com.wire.android.ui.destinations.MigrationScreenDestination
+import com.wire.android.ui.destinations.RegisterDeviceScreenDestination
+import com.wire.android.ui.destinations.SelfUserProfileScreenDestination
 import com.wire.android.util.LogFileWriter
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.feature.client.NeedsToRegisterClientUseCase
@@ -77,7 +82,7 @@ class HomeViewModel @Inject constructor(
                 shouldTriggerMigrationForUser(userId) -> {
                     navigationManager.navigate(
                         NavigationCommand(
-                            NavigationItem.Migration.getRouteWithArgs(listOf(userId)),
+                            MigrationScreenDestination(userId),
                             BackStackMode.CLEAR_WHOLE
                         )
                     )
@@ -86,7 +91,7 @@ class HomeViewModel @Inject constructor(
                 needsToRegisterClient() -> { // check if the client has been registered and open the proper screen if not
                     navigationManager.navigate(
                         NavigationCommand(
-                            NavigationItem.RegisterDevice.getRouteWithArgs(),
+                            RegisterDeviceScreenDestination,
                             BackStackMode.CLEAR_WHOLE
                         )
                     )
@@ -95,7 +100,7 @@ class HomeViewModel @Inject constructor(
                 getSelf().first().handle.isNullOrEmpty() -> { // check if the user handle has been set and open the proper screen if not
                     navigationManager.navigate(
                         NavigationCommand(
-                            NavigationItem.CreateUsername.getRouteWithArgs(),
+                            CreateAccountUsernameScreenDestination,
                             BackStackMode.CLEAR_WHOLE
                         )
                     )
@@ -141,11 +146,11 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun navigateTo(item: NavigationItem) {
+    fun navigateTo(item: Direction) {
         viewModelScope.launch {
-            navigationManager.navigate(NavigationCommand(destination = item.getRouteWithArgs()))
+            navigationManager.navigate(NavigationCommand(destination = item))
         }
     }
 
-    fun navigateToSelfUserProfile() = viewModelScope.launch { navigateTo(NavigationItem.SelfUserProfile) }
+    fun navigateToSelfUserProfile() = viewModelScope.launch { navigateTo(SelfUserProfileScreenDestination) }
 }

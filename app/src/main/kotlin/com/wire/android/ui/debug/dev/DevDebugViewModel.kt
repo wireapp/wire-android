@@ -32,6 +32,7 @@ import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.ui.destinations.MigrationScreenDestination
 import com.wire.android.util.DataDogLogger
 import com.wire.android.util.EMPTY
 import com.wire.android.util.LogFileWriter
@@ -186,7 +187,7 @@ class DevDebugViewModel
         viewModelScope.launch {
             navigationManager.navigate(
                 NavigationCommand(
-                    NavigationItem.Migration.getRouteWithArgs(listOf(currentAccount)),
+                    MigrationScreenDestination(currentAccount),
                     BackStackMode.CLEAR_WHOLE
                 )
             )

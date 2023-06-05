@@ -37,6 +37,9 @@ import com.wire.android.navigation.EXTRA_SSO_LOGIN_RESULT
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.ui.destinations.HomeScreenDestination
+import com.wire.android.ui.destinations.InitialSyncScreenDestination
+import com.wire.android.ui.destinations.RemoveDeviceScreenDestination
 import com.wire.android.util.EMPTY
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.kalium.logic.data.client.ClientCapability
@@ -146,9 +149,9 @@ open class LoginViewModel @Inject constructor(
     @VisibleForTesting
     fun navigateAfterRegisterClientSuccess(userId: UserId) = viewModelScope.launch {
         if (userDataStoreProvider.getOrCreate(userId).initialSyncCompleted.first()) {
-            navigationManager.navigate(NavigationCommand(NavigationItem.Home.getRouteWithArgs(), BackStackMode.CLEAR_WHOLE))
+            navigationManager.navigate(NavigationCommand(HomeScreenDestination, BackStackMode.CLEAR_WHOLE))
         } else {
-            navigationManager.navigate(NavigationCommand(NavigationItem.InitialSync.getRouteWithArgs(), BackStackMode.CLEAR_WHOLE))
+            navigationManager.navigate(NavigationCommand(InitialSyncScreenDestination, BackStackMode.CLEAR_WHOLE))
         }
     }
 
@@ -157,7 +160,7 @@ open class LoginViewModel @Inject constructor(
     }
 
     private fun navigateToRemoveDevicesScreen() = viewModelScope.launch {
-        navigationManager.navigate(NavigationCommand(NavigationItem.RemoveDevices.getRouteWithArgs(), BackStackMode.CLEAR_WHOLE))
+        navigationManager.navigate(NavigationCommand(RemoveDeviceScreenDestination, BackStackMode.CLEAR_WHOLE))
     }
 
     fun updateTheApp() {

@@ -30,6 +30,8 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.navigation.hiltSavedStateViewModel
@@ -63,6 +65,10 @@ import com.wire.kalium.logic.data.conversation.ClientId
 import kotlinx.collections.immutable.ImmutableMap
 import kotlinx.collections.immutable.persistentMapOf
 
+@RootNavGraph
+@Destination(
+    navArgsDelegate = DeviceDetailsNavArgs::class
+)
 @Composable
 fun DeviceDetailsScreen(
     backNavArgs: ImmutableMap<String, Any> = persistentMapOf(),

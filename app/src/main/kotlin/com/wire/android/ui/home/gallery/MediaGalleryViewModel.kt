@@ -28,8 +28,6 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.model.ImageAsset
-import com.wire.android.model.parseIntoPrivateImageAsset
-import com.wire.android.navigation.EXTRA_IMAGE_DATA
 import com.wire.android.navigation.EXTRA_ON_MESSAGE_DETAILS_CLICKED
 import com.wire.android.navigation.EXTRA_ON_MESSAGE_REACTED
 import com.wire.android.navigation.EXTRA_ON_MESSAGE_REPLIED
@@ -38,6 +36,7 @@ import com.wire.android.ui.home.conversations.MediaGallerySnackbarMessages
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogActiveState
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogHelper
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogsState
+import com.wire.android.ui.navArgs
 import com.wire.android.util.FileManager
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.startFileShareIntent
@@ -81,10 +80,12 @@ class MediaGalleryViewModel @Inject constructor(
     private val _snackbarMessage = MutableSharedFlow<MediaGallerySnackbarMessages>()
     val snackbarMessage = _snackbarMessage.asSharedFlow()
 
-    val imageAssetId: ImageAsset.PrivateAsset =
-        savedStateHandle.get<String>(EXTRA_IMAGE_DATA)!!.parseIntoPrivateImageAsset(
-            wireSessionImageLoader,
-            qualifiedIdMapper
+    private val mediaGalleryNavArgs: MediaGalleryNavArgs = savedStateHandle.navArgs()
+    val imageAssetId: ImageAsset.PrivateAsset = ImageAsset.PrivateAsset(
+        wireSessionImageLoader,
+        mediaGalleryNavArgs.conversationId,
+        mediaGalleryNavArgs.messageId,
+        mediaGalleryNavArgs.isSelfAsset
         )
 
     val deleteMessageHelper = DeleteMessageDialogHelper(

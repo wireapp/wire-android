@@ -26,6 +26,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.ramcosta.composedestinations.spec.Route
 import com.wire.android.BuildConfig
 import com.wire.android.appLogger
 import com.wire.android.di.AuthServerConfigProvider
@@ -41,6 +42,17 @@ import com.wire.android.navigation.NavigationManager
 import com.wire.android.services.ServicesManager
 import com.wire.android.ui.authentication.devices.model.displayName
 import com.wire.android.ui.common.dialogs.CustomBEDeeplinkDialogState
+import com.wire.android.ui.destinations.ConversationScreenDestination
+import com.wire.android.ui.destinations.HomeScreenDestination
+import com.wire.android.ui.destinations.ImportMediaScreenDestination
+import com.wire.android.ui.destinations.IncomingCallScreenDestination
+import com.wire.android.ui.destinations.LoginScreenDestination
+import com.wire.android.ui.destinations.MigrationScreenDestination
+import com.wire.android.ui.destinations.OngoingCallScreenDestination
+import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
+import com.wire.android.ui.destinations.SelfDevicesScreenDestination
+import com.wire.android.ui.destinations.SelfUserProfileScreenDestination
+import com.wire.android.ui.destinations.WelcomeScreenDestination
 import com.wire.android.ui.joinConversation.JoinConversationViaCodeState
 import com.wire.android.util.deeplink.DeepLinkProcessor
 import com.wire.android.util.deeplink.DeepLinkResult
@@ -202,10 +214,10 @@ class WireActivityViewModel @Inject constructor(
         }
     }
 
-    fun startNavigationRoute(): String = when {
-        shouldGoToMigration() -> NavigationItem.Migration.getRouteWithArgs()
-        shouldGoToWelcome() -> NavigationItem.Welcome.getRouteWithArgs()
-        else -> NavigationItem.Home.getRouteWithArgs()
+    fun startNavigationRoute(): Route = when {
+        shouldGoToMigration() -> MigrationScreenDestination
+        shouldGoToWelcome() -> WelcomeScreenDestination
+        else -> HomeScreenDestination
     }
 
     fun isSharingIntent(intent: Intent?): Boolean {
@@ -255,7 +267,7 @@ class WireActivityViewModel @Inject constructor(
             if (checkNumberOfSessions() == BuildConfig.MAX_ACCOUNTS) {
                 globalAppState = globalAppState.copy(maxAccountDialog = true)
             } else {
-                navigateTo(NavigationCommand(NavigationItem.Welcome.getRouteWithArgs()))
+                navigateTo(NavigationCommand(WelcomeScreenDestination))
             }
         }
     }
@@ -285,35 +297,35 @@ class WireActivityViewModel @Inject constructor(
     }
 
     fun openDeviceManager() {
-        navigateTo(NavigationCommand(NavigationItem.SelfDevices.getRouteWithArgs()))
+        navigateTo(NavigationCommand(SelfDevicesScreenDestination))
     }
 
     private fun navigateToImportMediaScreen() {
-        navigateTo(NavigationCommand(NavigationItem.ImportMedia.getRouteWithArgs(), backStackMode = BackStackMode.UPDATE_EXISTED))
+        navigateTo(NavigationCommand(ImportMediaScreenDestination, backStackMode = BackStackMode.UPDATE_EXISTED))
     }
 
     private fun openIncomingCall(conversationId: ConversationId) {
-        navigateTo(NavigationCommand(NavigationItem.IncomingCall.getRouteWithArgs(listOf(conversationId))))
+        navigateTo(NavigationCommand(IncomingCallScreenDestination(conversationId)))
     }
 
     private fun openOngoingCall(conversationId: ConversationId) {
-        navigateTo(NavigationCommand(NavigationItem.OngoingCall.getRouteWithArgs(listOf(conversationId))))
+        navigateTo(NavigationCommand(OngoingCallScreenDestination(conversationId)))
     }
 
     private fun openConversation(conversationId: ConversationId) {
-        navigateTo(NavigationCommand(NavigationItem.Conversation.getRouteWithArgs(listOf(conversationId)), BackStackMode.UPDATE_EXISTED))
+        navigateTo(NavigationCommand(ConversationScreenDestination(conversationId), BackStackMode.UPDATE_EXISTED))
     }
 
     private fun openOtherUserProfile(userId: QualifiedID) {
-        navigateTo(NavigationCommand(NavigationItem.OtherUserProfile.getRouteWithArgs(listOf(userId)), BackStackMode.UPDATE_EXISTED))
+        navigateTo(NavigationCommand(OtherUserProfileScreenDestination(userId), BackStackMode.UPDATE_EXISTED))
     }
 
     private fun openMigrationLogin(userHandle: String) {
-        navigateTo(NavigationCommand(NavigationItem.Login.getRouteWithArgs(listOf(userHandle)), BackStackMode.UPDATE_EXISTED))
+        navigateTo(NavigationCommand(LoginScreenDestination(userHandle = userHandle), BackStackMode.UPDATE_EXISTED))
     }
 
     private fun openSsoLogin(ssoLogin: DeepLinkResult.SSOLogin) {
-        navigateTo(NavigationCommand(NavigationItem.Login.getRouteWithArgs(listOf(ssoLogin)), BackStackMode.UPDATE_EXISTED))
+        navigateTo(NavigationCommand(LoginScreenDestination(ssoLoginResult = ssoLogin), BackStackMode.UPDATE_EXISTED))
     }
 
     private fun navigateTo(command: NavigationCommand) {
@@ -434,7 +446,7 @@ class WireActivityViewModel @Inject constructor(
 
     fun openProfile() {
         dismissMaxAccountDialog()
-        navigateTo(NavigationCommand(NavigationItem.SelfUserProfile.getRouteWithArgs()))
+        navigateTo(NavigationCommand(SelfUserProfileScreenDestination))
     }
 
     fun dismissMaxAccountDialog() {

@@ -33,6 +33,7 @@ import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.common.groupname.GroupMetadataState
 import com.wire.android.ui.common.groupname.GroupNameValidator
+import com.wire.android.ui.destinations.ConversationScreenDestination
 import com.wire.android.ui.home.conversations.search.SearchAllPeopleViewModel
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.newconversation.groupOptions.GroupOptionState
@@ -211,7 +212,7 @@ class NewConversationViewModel @Inject constructor(
                 newGroupState = newGroupState.copy(isLoading = false)
                 navigationManager.navigate(
                     command = NavigationCommand(
-                        destination = NavigationItem.Conversation.getRouteWithArgs(listOf(result.conversation.id)),
+                        destination = ConversationScreenDestination(result.conversation.id),
                         backStackMode = BackStackMode.REMOVE_CURRENT
                     )
                 )

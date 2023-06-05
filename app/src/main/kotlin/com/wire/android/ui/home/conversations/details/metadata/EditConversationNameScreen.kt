@@ -22,8 +22,14 @@ package com.wire.android.ui.home.conversations.details.metadata
 
 import androidx.compose.runtime.Composable
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.ui.common.groupname.GroupNameScreen
 
+@RootNavGraph
+@Destination(
+    navArgsDelegate = EditConversationNameNavArgs::class
+)
 @Composable
 fun EditConversationNameScreen(viewModel: EditConversationMetadataViewModel = hiltViewModel()) {
     with(viewModel.editConversationState) {

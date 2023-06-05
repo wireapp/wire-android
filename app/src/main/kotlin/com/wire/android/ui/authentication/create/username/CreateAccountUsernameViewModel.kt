@@ -31,6 +31,7 @@ import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.authentication.create.common.handle.HandleUpdateErrorState
+import com.wire.android.ui.destinations.InitialSyncScreenDestination
 import com.wire.kalium.logic.feature.auth.ValidateUserHandleResult
 import com.wire.kalium.logic.feature.auth.ValidateUserHandleUseCase
 import com.wire.kalium.logic.feature.user.SetUserHandleResult
@@ -110,7 +111,7 @@ class CreateAccountUsernameViewModel @Inject constructor(
             if (usernameError is HandleUpdateErrorState.None) {
                 navigationManager.navigate(
                     NavigationCommand(
-                        NavigationItem.InitialSync.getRouteWithArgs(),
+                        InitialSyncScreenDestination,
                         BackStackMode.CLEAR_WHOLE
                     )
                 )

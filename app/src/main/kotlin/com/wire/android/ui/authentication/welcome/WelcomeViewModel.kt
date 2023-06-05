@@ -29,6 +29,9 @@ import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.ui.destinations.CreatePersonalAccountScreenDestination
+import com.wire.android.ui.destinations.CreateTeamScreenDestination
+import com.wire.android.ui.destinations.LoginScreenDestination
 import com.wire.kalium.logic.feature.auth.AccountInfo
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import com.wire.kalium.logic.feature.session.GetSessionsUseCase
@@ -88,15 +91,15 @@ class WelcomeViewModel @Inject constructor(
     fun isProxyEnabled() = state.apiProxy != null
 
     fun goToLogin() {
-        navigate(NavigationCommand(NavigationItem.Login.getRouteWithArgs()))
+        navigate(NavigationCommand(LoginScreenDestination()))
     }
 
     fun goToCreateEnterpriseAccount() {
-        navigate(NavigationCommand(NavigationItem.CreateTeam.getRouteWithArgs()))
+        navigate(NavigationCommand(CreateTeamScreenDestination))
     }
 
     fun goToCreatePrivateAccount() {
-        navigate(NavigationCommand(NavigationItem.CreatePersonalAccount.getRouteWithArgs()))
+        navigate(NavigationCommand(CreatePersonalAccountScreenDestination))
     }
 
     private fun navigate(navigationCommand: NavigationCommand) {

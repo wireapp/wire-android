@@ -41,6 +41,8 @@ import com.wire.android.ui.authentication.create.email.CreateAccountEmailViewMod
 import com.wire.android.ui.authentication.create.email.CreateAccountEmailViewState
 import com.wire.android.ui.authentication.create.overview.CreateAccountOverviewViewModel
 import com.wire.android.ui.common.textfield.CodeFieldValue
+import com.wire.android.ui.destinations.LoginScreenDestination
+import com.wire.android.ui.destinations.RemoveDeviceScreenDestination
 import com.wire.android.util.WillNeverOccurError
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.user.UserId
@@ -190,7 +192,7 @@ abstract class CreateAccountBaseViewModel(
         viewModelScope.launch {
             navigationManager.navigate(
                 NavigationCommand(
-                    NavigationItem.Login.getRouteWithArgs(),
+                    LoginScreenDestination(),
                     BackStackMode.CLEAR_TILL_START
                 )
             )
@@ -381,7 +383,7 @@ abstract class CreateAccountBaseViewModel(
             error = CreateAccountCodeViewState.CodeError.None
         )
         viewModelScope.launch {
-            navigationManager.navigate(NavigationCommand(NavigationItem.RemoveDevices.getRouteWithArgs(), BackStackMode.CLEAR_WHOLE))
+            navigationManager.navigate(NavigationCommand(RemoveDeviceScreenDestination, BackStackMode.CLEAR_WHOLE))
         }
     }
 

@@ -36,6 +36,9 @@ import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.navigation.SavedStateViewModel
 import com.wire.android.navigation.getBackNavArg
+import com.wire.android.ui.destinations.ChangeDisplayNameScreenDestination
+import com.wire.android.ui.destinations.ChangeEmailScreenDestination
+import com.wire.android.ui.destinations.ChangeHandleScreenDestination
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.team.Team
@@ -138,7 +141,7 @@ class MyAccountViewModel @Inject constructor(
         viewModelScope.launch {
             navigationManager.navigate(
                 NavigationCommand(
-                    destination = NavigationItem.EditDisplayName.getRouteWithArgs(),
+                    destination = ChangeDisplayNameScreenDestination,
                     backStackMode = BackStackMode.NONE
                 )
             )
@@ -149,7 +152,7 @@ class MyAccountViewModel @Inject constructor(
         viewModelScope.launch {
             navigationManager.navigate(
                 NavigationCommand(
-                    destination = NavigationItem.EditEmailAddress.getRouteWithArgs(),
+                    destination = ChangeEmailScreenDestination,
                     backStackMode = BackStackMode.NONE
                 )
             )
@@ -160,7 +163,7 @@ class MyAccountViewModel @Inject constructor(
         viewModelScope.launch {
             navigationManager.navigate(
                 NavigationCommand(
-                    destination = NavigationItem.EditHandle.getRouteWithArgs(),
+                    destination = ChangeHandleScreenDestination,
                     backStackMode = BackStackMode.NONE
                 )
             )

@@ -36,6 +36,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.model.SnackBarMessage
@@ -66,6 +68,8 @@ import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.coroutines.flow.SharedFlow
 import kotlin.time.Duration
 
+@RootNavGraph
+@Destination
 @Composable
 fun ImportMediaScreen(
     importMediaViewModel: ImportMediaUnauthenticatedViewModel = hiltViewModel(),

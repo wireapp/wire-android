@@ -30,6 +30,8 @@ import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.ui.destinations.OngoingCallScreenDestination
+import com.wire.android.ui.navArgs
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
@@ -56,11 +58,8 @@ class InitiatingCallViewModel @Inject constructor(
     private val callRinger: CallRinger
 ) : ViewModel() {
 
-    private val conversationId: QualifiedID = qualifiedIdMapper.fromStringToQualifiedID(
-        checkNotNull(savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)) {
-            "No conversationId was provided via savedStateHandle to InitiatingCallViewModel"
-        }
-    )
+    private val initiatingCallNavArgs: InitiatingCallNavArgs = savedStateHandle.navArgs()
+    private val conversationId: QualifiedID = initiatingCallNavArgs.conversationId
 
     private val callStartTime: Long = Calendar.getInstance().timeInMillis
     private var wasCallHangUp: Boolean = false
@@ -106,7 +105,7 @@ class InitiatingCallViewModel @Inject constructor(
         callRinger.ring(R.raw.ready_to_talk, isLooping = false, isIncomingCall = false)
         navigationManager.navigate(
             command = NavigationCommand(
-                destination = NavigationItem.OngoingCall.getRouteWithArgs(listOf(conversationId)),
+                destination = OngoingCallScreenDestination(conversationId),
                 backStackMode = BackStackMode.REMOVE_CURRENT
             )
         )

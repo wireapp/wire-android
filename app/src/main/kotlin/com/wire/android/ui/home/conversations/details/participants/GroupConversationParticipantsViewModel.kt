@@ -29,9 +29,13 @@ import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
+import com.wire.android.ui.destinations.SelfUserProfileScreenDestination
+import com.wire.android.ui.destinations.ServiceDetailsScreenDestination
 import com.wire.android.ui.home.conversations.details.GroupDetailsBaseViewModel
 import com.wire.android.ui.home.conversations.details.participants.model.UIParticipant
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
+import com.wire.android.ui.navArgs
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.user.BotService
@@ -52,9 +56,8 @@ open class GroupConversationParticipantsViewModel @Inject constructor(
 
     var groupParticipantsState: GroupConversationParticipantsState by mutableStateOf(GroupConversationParticipantsState())
 
-    private val conversationId: QualifiedID = qualifiedIdMapper.fromStringToQualifiedID(
-        savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)!!
-    )
+    private  val groupConversationAllParticipantsNavArgs: GroupConversationAllParticipantsNavArgs = savedStateHandle.navArgs()
+    private val conversationId: QualifiedID = groupConversationAllParticipantsNavArgs.conversationId
 
     init {
         observeConversationMembers()
@@ -80,12 +83,12 @@ open class GroupConversationParticipantsViewModel @Inject constructor(
     }
 
     private suspend fun navigateToSelfProfile() =
-        navigationManager.navigate(NavigationCommand(NavigationItem.SelfUserProfile.getRouteWithArgs()))
+        navigationManager.navigate(NavigationCommand(SelfUserProfileScreenDestination))
 
     private suspend fun navigateToOtherProfile(id: UserId) =
-        navigationManager.navigate(NavigationCommand(NavigationItem.OtherUserProfile.getRouteWithArgs(listOf(id, conversationId))))
+        navigationManager.navigate(NavigationCommand(OtherUserProfileScreenDestination(id, conversationId)))
 
     private suspend fun navigateToServiceProfile(botServiceId: BotService) {
-        navigationManager.navigate(NavigationCommand(NavigationItem.ServiceDetails.getRouteWithArgs(listOf(botServiceId, conversationId))))
+        navigationManager.navigate(NavigationCommand(ServiceDetailsScreenDestination(botServiceId, conversationId)))
     }
 }

@@ -33,12 +33,21 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import com.ramcosta.composedestinations.spec.Direction
 import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.navigation.NavigationItem
+import com.wire.android.navigation.SupportScreenDestination
 import com.wire.android.ui.common.RowItemTemplate
 import com.wire.android.ui.common.clickable
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.destinations.AppSettingsScreenDestination
+import com.wire.android.ui.destinations.BackupAndRestoreScreenDestination
+import com.wire.android.ui.destinations.DebugScreenDestination
+import com.wire.android.ui.destinations.MyAccountScreenDestination
+import com.wire.android.ui.destinations.NetworkSettingsScreenDestination
+import com.wire.android.ui.destinations.PrivacySettingsConfigScreenDestination
+import com.wire.android.ui.destinations.SelfDevicesScreenDestination
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.UIText
@@ -77,46 +86,46 @@ fun SettingsItem(
     )
 }
 
-enum class SettingsItem(val id: String, val title: UIText, val navigationItem: NavigationItem) {
+enum class SettingsItem(val id: String, val title: UIText, val direction: Direction) {
     AppSettings(
         id = "general_app_settings",
         title = UIText.StringResource(R.string.app_settings_screen_title),
-        navigationItem = NavigationItem.AppSettings
+        direction = AppSettingsScreenDestination
     ),
     YourAccount(
         id = "your_account_settings",
         title = UIText.StringResource(R.string.settings_your_account_label),
-        navigationItem = NavigationItem.MyAccount
+        direction = MyAccountScreenDestination
     ),
     NetworkSettings(
         id = "network_settings",
         title = UIText.StringResource(R.string.settings_network_settings_label),
-        navigationItem = NavigationItem.NetworkSettings
+        direction = NetworkSettingsScreenDestination
     ),
     ManageDevices(
         id = "manage_devices",
         title = UIText.StringResource(R.string.settings_manage_devices_label),
-        navigationItem = NavigationItem.SelfDevices
+        direction = SelfDevicesScreenDestination
     ),
     PrivacySettings(
         id = "privacy_settings",
         title = UIText.StringResource(R.string.settings_privacy_settings_label),
-        navigationItem = NavigationItem.PrivacySettings
+        direction = PrivacySettingsConfigScreenDestination
     ),
 
     BackupAndRestore(
         id = "backups_backup_and_restore",
         title = UIText.StringResource(R.string.backup_and_restore_screen_title),
-        navigationItem = NavigationItem.BackupAndRestore
+        direction = BackupAndRestoreScreenDestination
     ),
     Support(
         id = "other_support",
         title = UIText.StringResource(R.string.support_screen_title),
-        navigationItem = NavigationItem.Support
+        direction = SupportScreenDestination
     ),
     DebugSettings(
         id = "other_debug_settings",
         title = UIText.StringResource(R.string.debug_settings_screen_title),
-        navigationItem = NavigationItem.Debug
+        direction = DebugScreenDestination
     );
 }

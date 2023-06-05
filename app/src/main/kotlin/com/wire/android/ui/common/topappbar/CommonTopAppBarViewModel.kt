@@ -29,6 +29,8 @@ import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.ui.calling.ongoing.OngoingCallNavArgs
+import com.wire.android.ui.destinations.OngoingCallScreenDestination
 import com.wire.android.util.CurrentScreen
 import com.wire.android.util.CurrentScreenManager
 import com.wire.kalium.logic.CoreLogic
@@ -120,7 +122,7 @@ class CommonTopAppBarViewModel @Inject constructor(
             viewModelScope.launch {
                 navigationManager.navigate(
                     command = NavigationCommand(
-                        destination = NavigationItem.OngoingCall.getRouteWithArgs(listOf(convId))
+                        destination = OngoingCallScreenDestination(convId)
                     )
                 )
             }

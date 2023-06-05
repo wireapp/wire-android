@@ -22,11 +22,12 @@ package com.wire.android.navigation
 
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
+import com.ramcosta.composedestinations.navigation.navigate
 import com.wire.android.appLogger
 import com.wire.kalium.logger.obfuscateId
 
 internal fun NavController.navigateToItem(command: NavigationCommand) {
-    appLogger.d("[$TAG] -> command: ${command.destination.obfuscateId()}")
+    appLogger.d("[$TAG] -> command: ${command.destination.route.obfuscateId()}")
     currentBackStackEntry?.savedStateHandle?.remove<Map<String, Any>>(EXTRA_BACK_NAVIGATION_ARGUMENTS)
     navigate(command.destination) {
         when (command.backStackMode) {
@@ -34,20 +35,20 @@ internal fun NavController.navigateToItem(command: NavigationCommand) {
                 val inclusive = command.backStackMode == BackStackMode.CLEAR_WHOLE
                 popBackStack(inclusive) { backQueue.firstOrNull { it.destination.route != null } }
             }
+
             BackStackMode.REMOVE_CURRENT -> {
                 popBackStack(true) { backQueue.lastOrNull { it.destination.route != null } }
             }
+
             BackStackMode.REMOVE_CURRENT_AND_REPLACE -> {
                 popBackStack(true) { backQueue.lastOrNull { it.destination.route != null } }
-                NavigationItem.fromRoute(command.destination)?.let { navItem ->
-                    popBackStack(true) { backQueue.firstOrNull { it.destination.route == navItem.getCanonicalRoute() } }
-                }
+                popBackStack(true) { backQueue.firstOrNull { it.destination.route == command.destination.route } }
             }
+
             BackStackMode.UPDATE_EXISTED -> {
-                NavigationItem.fromRoute(command.destination)?.let { navItem ->
-                    popBackStack(true) { backQueue.firstOrNull { it.destination.route == navItem.getCanonicalRoute() } }
-                }
+                popBackStack(true) { backQueue.firstOrNull { it.destination.route == command.destination.route } }
             }
+
             BackStackMode.NONE -> {
             }
         }

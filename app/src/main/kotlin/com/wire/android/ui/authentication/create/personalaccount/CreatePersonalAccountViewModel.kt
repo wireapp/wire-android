@@ -30,6 +30,7 @@ import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.authentication.create.common.CreateAccountBaseViewModel
 import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
+import com.wire.android.ui.destinations.CreateAccountSummaryScreenDestination
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.ValidateEmailUseCase
 import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase
@@ -91,7 +92,7 @@ class CreatePersonalAccountViewModel @Inject constructor(
         viewModelScope.launch {
             navigationManager.navigate(
                 NavigationCommand(
-                    NavigationItem.CreateAccountSummary.getRouteWithArgs(listOf(CreateAccountFlowType.CreatePersonalAccount)),
+                    CreateAccountSummaryScreenDestination(CreateAccountFlowType.CreatePersonalAccount),
                     BackStackMode.CLEAR_WHOLE
                 )
             )

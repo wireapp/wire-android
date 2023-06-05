@@ -26,6 +26,8 @@ import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.ui.destinations.HomeScreenDestination
+import com.wire.android.ui.destinations.WelcomeScreenDestination
 import com.wire.kalium.logic.data.logout.LogoutReason
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.AccountInfo
@@ -89,11 +91,11 @@ class AccountSwitchUseCase @Inject constructor(
     }
 
     private suspend fun switch(userId: UserId?, current: AccountInfo?) {
-        val navigationDestination = (userId?.let { NavigationItem.Home } ?: run {
+        val navigationDestination = (userId?.let { HomeScreenDestination }) ?: run {
             // if there are no more accounts, we need to change the auth server config to the one of the current user
             current?.let { updateAuthServer(it.userId) }
-            NavigationItem.Welcome
-        }).getRouteWithArgs()
+            WelcomeScreenDestination
+        }
 
         when (updateCurrentSession(userId)) {
             is UpdateCurrentSessionUseCase.Result.Success -> {

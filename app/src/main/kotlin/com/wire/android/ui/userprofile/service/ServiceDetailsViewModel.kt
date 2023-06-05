@@ -11,6 +11,7 @@ import com.wire.android.navigation.EXTRA_BOT_SERVICE_ID
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveConversationRoleForUserUseCase
+import com.wire.android.ui.navArgs
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.WireSessionImageLoader
@@ -57,9 +58,8 @@ class ServiceDetailsViewModel @Inject constructor(
     qualifiedIdMapper: QualifiedIdMapper
 ) : ViewModel() {
 
-    private val _serviceId: ServiceId? =
-        serviceDetailsMapper.fromStringToServiceId(savedStateHandle.get<String>(EXTRA_BOT_SERVICE_ID)!!)
-    private lateinit var serviceId: ServiceId
+    private val serviceDetailsNavArgs: ServiceDetailsNavArgs = savedStateHandle.navArgs()
+    private val serviceId: ServiceId = serviceDetailsMapper.fromBotServiceToServiceId(serviceDetailsNavArgs.botService)
     private val conversationId: QualifiedID =
         savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)!!.toQualifiedID(qualifiedIdMapper)
 
@@ -71,20 +71,16 @@ class ServiceDetailsViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            _serviceId?.let {
-                serviceId = it
+            serviceDetailsState = serviceDetailsState.copy(
+                serviceId = serviceId,
+                conversationId = conversationId,
+                isDataLoading = true,
+                isAvatarLoading = true
+            )
 
-                serviceDetailsState = serviceDetailsState.copy(
-                    serviceId = serviceId,
-                    conversationId = conversationId,
-                    isDataLoading = true,
-                    isAvatarLoading = true
-                )
-
-                selfUserId = observeSelfUser().first().id
-                getServiceDetailsAndUpdateViewState()
-                observeIsServiceConversationMember()
-            } ?: serviceNotFound()
+            selfUserId = observeSelfUser().first().id
+            getServiceDetailsAndUpdateViewState()
+            observeIsServiceConversationMember()
         }
     }
 

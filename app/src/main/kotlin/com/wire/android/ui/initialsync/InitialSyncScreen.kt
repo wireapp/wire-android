@@ -23,8 +23,12 @@ package com.wire.android.ui.initialsync
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.ui.common.SettingUpWireScreenContent
 
+@RootNavGraph
+@Destination
 @Composable
 fun InitialSyncScreen(viewModel: InitialSyncViewModel = hiltViewModel()) {
     SettingUpWireScreenContent()

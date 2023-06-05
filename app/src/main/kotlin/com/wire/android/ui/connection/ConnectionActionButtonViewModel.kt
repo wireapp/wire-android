@@ -38,6 +38,7 @@ import com.wire.android.navigation.EXTRA_USER_NAME
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.ui.destinations.ConversationScreenDestination
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.id.QualifiedID
@@ -206,7 +207,7 @@ class ConnectionActionButtonViewModelImpl @Inject constructor(
                 is CreateConversationResult.Success ->
                     navigationManager.navigate(
                         command = NavigationCommand(
-                            destination = NavigationItem.Conversation.getRouteWithArgs(listOf(result.conversation.id)),
+                            destination = ConversationScreenDestination(result.conversation.id),
                             backStackMode = BackStackMode.UPDATE_EXISTED
                         )
                     )

@@ -36,6 +36,10 @@ import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationTypeDetail
 import com.wire.android.ui.common.dialogs.BlockUserDialogState
+import com.wire.android.ui.destinations.ConversationScreenDestination
+import com.wire.android.ui.destinations.NewConversationRouterDestination
+import com.wire.android.ui.destinations.OngoingCallScreenDestination
+import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
 import com.wire.android.ui.home.HomeSnackbarState
 import com.wire.android.ui.home.conversations.model.UILastMessageContent
 import com.wire.android.ui.home.conversations.search.SearchPeopleViewModel
@@ -273,7 +277,7 @@ class ConversationListViewModel @Inject constructor(
         viewModelScope.launch {
             navigationManager.navigate(
                 command = NavigationCommand(
-                    destination = NavigationItem.Conversation.getRouteWithArgs(listOf(conversationId))
+                    destination = ConversationScreenDestination(conversationId)
                 )
             )
         }
@@ -283,7 +287,7 @@ class ConversationListViewModel @Inject constructor(
         viewModelScope.launch {
             navigationManager.navigate(
                 command = NavigationCommand(
-                    destination = NavigationItem.NewConversation.getRouteWithArgs()
+                    destination = NewConversationRouterDestination
                 )
             )
         }
@@ -293,9 +297,7 @@ class ConversationListViewModel @Inject constructor(
         viewModelScope.launch {
             navigationManager.navigate(
                 command = NavigationCommand(
-                    destination = NavigationItem.OtherUserProfile.getRouteWithArgs(
-                        listOf(profileId)
-                    )
+                    destination = OtherUserProfileScreenDestination(userId = profileId)
                 )
             )
         }
@@ -333,7 +335,7 @@ class ConversationListViewModel @Inject constructor(
                 answerCall(conversationId = conversationId)
                 navigationManager.navigate(
                     command = NavigationCommand(
-                        destination = NavigationItem.OngoingCall.getRouteWithArgs(listOf(conversationId))
+                        destination = OngoingCallScreenDestination(conversationId)
                     )
                 )
             }

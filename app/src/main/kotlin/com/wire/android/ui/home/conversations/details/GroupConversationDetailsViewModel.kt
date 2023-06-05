@@ -37,6 +37,11 @@ import com.wire.android.navigation.NavigationManager
 import com.wire.android.navigation.getBackNavArg
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationSheetContent
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationTypeDetail
+import com.wire.android.ui.destinations.AddMembersSearchRouterDestination
+import com.wire.android.ui.destinations.EditConversationNameScreenDestination
+import com.wire.android.ui.destinations.EditGuestAccessScreenDestination
+import com.wire.android.ui.destinations.EditSelfDeletingMessagesScreenDestination
+import com.wire.android.ui.destinations.GroupConversationAllParticipantsScreenDestination
 import com.wire.android.ui.home.conversations.details.editguestaccess.EditGuestAccessParams
 import com.wire.android.ui.home.conversations.details.menu.GroupConversationDetailsBottomSheetEventsHandler
 import com.wire.android.ui.home.conversations.details.options.GroupConversationOptionsState
@@ -44,6 +49,7 @@ import com.wire.android.ui.home.conversations.details.participants.GroupConversa
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
 import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.home.conversationslist.model.GroupDialogState
+import com.wire.android.ui.navArgs
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.uiText
@@ -109,9 +115,8 @@ class GroupConversationDetailsViewModel @Inject constructor(
 
     override val maxNumberOfItems: Int get() = MAX_NUMBER_OF_PARTICIPANTS
 
-    private val conversationId: QualifiedID = qualifiedIdMapper.fromStringToQualifiedID(
-        savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)!!
-    )
+    private val groupConversationDetailsNavArgs: GroupConversationDetailsNavArgs = savedStateHandle.navArgs()
+    private val conversationId: QualifiedID = groupConversationDetailsNavArgs.conversationId
 
     var conversationSheetContent: ConversationSheetContent? by mutableStateOf(null)
         private set
@@ -338,7 +343,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
     fun navigateToFullParticipantsList() = viewModelScope.launch {
         navigationManager.navigate(
             command = NavigationCommand(
-                destination = NavigationItem.GroupConversationAllParticipants.getRouteWithArgs(listOf(conversationId))
+                destination = GroupConversationAllParticipantsScreenDestination(conversationId)
             )
         )
     }
@@ -346,14 +351,10 @@ class GroupConversationDetailsViewModel @Inject constructor(
     fun navigateToAddParticipants() = viewModelScope.launch {
         navigationManager.navigate(
             command = NavigationCommand(
-                destination = NavigationItem
-                    .AddConversationParticipants
-                    .getRouteWithArgs(
-                        listOf(
-                            conversationId,
-                            groupOptionsState.value.isServicesAllowed
-                        )
-                    )
+                destination = AddMembersSearchRouterDestination(
+                    conversationId,
+                    groupOptionsState.value.isServicesAllowed
+                )
             )
         )
     }
@@ -416,7 +417,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
         viewModelScope.launch {
             navigationManager.navigate(
                 command = NavigationCommand(
-                    destination = NavigationItem.EditConversationName.getRouteWithArgs(listOf(conversationId))
+                    destination = EditConversationNameScreenDestination(conversationId)
                 )
             )
         }
@@ -426,9 +427,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
         viewModelScope.launch {
             navigationManager.navigate(
                 command = NavigationCommand(
-                    destination = NavigationItem.EditSelfDeletingMessages.getRouteWithArgs(
-                        listOf(conversationId)
-                    )
+                    destination = EditSelfDeletingMessagesScreenDestination(conversationId)
                 )
             )
         }
@@ -439,14 +438,12 @@ class GroupConversationDetailsViewModel @Inject constructor(
             viewModelScope.launch {
                 navigationManager.navigate(
                     command = NavigationCommand(
-                        destination = NavigationItem.EditGuestAccess.getRouteWithArgs(
-                            listOf(
-                                EditGuestAccessParams(
-                                    groupOptionsState.value.isGuestAllowed,
-                                    groupOptionsState.value.isServicesAllowed,
-                                    groupOptionsState.value.isUpdatingGuestAllowed
-                                ),
-                                conversationId
+                        destination = EditGuestAccessScreenDestination(
+                            conversationId,
+                            EditGuestAccessParams(
+                                groupOptionsState.value.isGuestAllowed,
+                                groupOptionsState.value.isServicesAllowed,
+                                groupOptionsState.value.isUpdatingGuestAllowed
                             )
                         )
                     )

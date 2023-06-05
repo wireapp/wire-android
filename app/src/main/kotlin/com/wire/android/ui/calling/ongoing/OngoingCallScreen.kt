@@ -51,6 +51,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
 import com.wire.android.ui.calling.ConversationName
 import com.wire.android.ui.calling.SharedCallingViewModel
@@ -77,6 +79,10 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
 import java.util.Locale
 
+@RootNavGraph
+@Destination(
+    navArgsDelegate = OngoingCallNavArgs::class
+)
 @Composable
 fun OngoingCallScreen(
     ongoingCallViewModel: OngoingCallViewModel = hiltViewModel(),

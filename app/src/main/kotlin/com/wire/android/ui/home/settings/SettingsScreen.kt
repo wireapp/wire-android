@@ -49,9 +49,9 @@ fun SettingsScreen(
         lazyListState = lazyListState,
         onItemClicked = remember {
             {
-                when (it.navigationItem.isExternalRoute()) {
-                    true -> CustomTabsHelper.launchUrl(context, it.navigationItem.getRouteWithArgs())
-                    false -> viewModel.navigateTo(it.navigationItem)
+                when (it.direction.isExternalRoute()) {
+                    true -> CustomTabsHelper.launchUrl(context, it.direction.route)
+                    false -> viewModel.navigateTo(it.direction)
                 }
             }
         }

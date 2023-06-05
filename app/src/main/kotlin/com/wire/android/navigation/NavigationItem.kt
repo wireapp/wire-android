@@ -24,6 +24,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDeepLink
+import com.ramcosta.composedestinations.spec.Direction
 import com.wire.android.BuildConfig
 import com.wire.android.model.ImageAsset
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.ADD_CONVERSATION_PARTICIPANTS
@@ -80,6 +81,8 @@ import com.wire.android.ui.calling.incoming.IncomingCallScreen
 import com.wire.android.ui.calling.initiating.InitiatingCallScreen
 import com.wire.android.ui.calling.ongoing.OngoingCallScreen
 import com.wire.android.ui.debug.DebugScreen
+import com.wire.android.ui.destinations.DirectionDestination
+import com.wire.android.ui.destinations.WelcomeScreenDestination
 import com.wire.android.ui.home.HomeScreen
 import com.wire.android.ui.home.conversations.ConversationScreen
 import com.wire.android.ui.home.conversations.details.GroupConversationDetailsScreen
@@ -593,6 +596,7 @@ const val EXTRA_IS_SERVICES_ALLOWED = "extra_is_services_allowed"
 const val EXTRA_SSO_LOGIN_RESULT = "sso_login_result"
 
 fun NavigationItem.isExternalRoute() = this.getRouteWithArgs().startsWith("http")
+fun Direction.isExternalRoute() = this.route.startsWith("http")
 
 data class ContentParams(
     val navBackStackEntry: NavBackStackEntry,

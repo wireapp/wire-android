@@ -46,6 +46,8 @@ import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemsIndexed
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.media.audiomessage.AudioState
@@ -93,6 +95,7 @@ import com.wire.kalium.logic.feature.conversation.InteractionAvailability
 import com.wire.kalium.logic.feature.selfDeletingMessages.SelfDeletionTimer
 import com.wire.kalium.util.DateTimeUtil
 import kotlinx.collections.immutable.ImmutableMap
+import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -112,9 +115,13 @@ private const val MAXIMUM_SCROLLED_MESSAGES_UNTIL_AUTOSCROLL_STOPS = 5
 private const val AGGREGATION_TIME_WINDOW: Int = 30000
 
 // TODO: !! this screen definitely needs a refactor and some cleanup !!
+@RootNavGraph
+@Destination( // TODO: back nav args
+    navArgsDelegate = ConversationNavArgs::class
+)
 @Composable
 fun ConversationScreen(
-    backNavArgs: ImmutableMap<String, Any>,
+    backNavArgs: ImmutableMap<String, Any> = persistentMapOf(),
     commonTopAppBarViewModel: CommonTopAppBarViewModel = hiltViewModel(),
     conversationInfoViewModel: ConversationInfoViewModel = hiltSavedStateViewModel(backNavArgs = backNavArgs),
     conversationBannerViewModel: ConversationBannerViewModel = hiltSavedStateViewModel(backNavArgs = backNavArgs),

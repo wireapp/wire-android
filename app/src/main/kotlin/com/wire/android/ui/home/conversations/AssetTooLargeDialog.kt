@@ -27,7 +27,7 @@ import com.wire.android.R
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
-import com.wire.android.ui.home.conversations.model.AttachmentType
+import com.wire.kalium.logic.data.asset.AttachmentType
 
 @Composable
 fun AssetTooLargeDialog(dialogState: AssetTooLargeDialogState, hideDialog: () -> Unit) {

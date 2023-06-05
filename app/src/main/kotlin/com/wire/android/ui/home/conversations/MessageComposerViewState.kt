@@ -20,11 +20,11 @@
 
 package com.wire.android.ui.home.conversations
 
-import com.wire.android.ui.home.conversations.model.AttachmentType
+import com.wire.kalium.logic.data.asset.AttachmentType
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.kalium.logic.feature.conversation.InteractionAvailability
 import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
-import com.wire.kalium.logic.feature.selfdeletingMessages.SelfDeletionTimer
+import com.wire.kalium.logic.feature.selfDeletingMessages.SelfDeletionTimer
 import kotlin.time.Duration.Companion.ZERO
 
 data class MessageComposerViewState(

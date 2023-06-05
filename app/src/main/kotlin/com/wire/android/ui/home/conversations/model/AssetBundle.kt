@@ -21,9 +21,7 @@
 package com.wire.android.ui.home.conversations.model
 
 import android.net.Uri
-import com.wire.kalium.logic.data.asset.isAudioMimeType
-import com.wire.kalium.logic.data.asset.isDisplayableImageMimeType
-import com.wire.kalium.logic.data.asset.isVideoMimeType
+import com.wire.kalium.logic.data.asset.AttachmentType
 import okio.Path
 
 /**
@@ -36,20 +34,6 @@ data class AssetBundle(
     val fileName: String,
     val assetType: AttachmentType
 )
-
-enum class AttachmentType {
-    // TODO: Add video or any other sort of specific asset type later on
-    IMAGE, GENERIC_FILE, AUDIO, VIDEO;
-
-    companion object {
-        fun fromMimeTypeString(mimeType: String): AttachmentType = when {
-            isDisplayableImageMimeType(mimeType) -> IMAGE
-            isAudioMimeType(mimeType) -> AUDIO
-            isVideoMimeType(mimeType) -> VIDEO
-            else -> GENERIC_FILE
-        }
-    }
-}
 
 /**
  * @param uri Uri of the asset

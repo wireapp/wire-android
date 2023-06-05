@@ -25,6 +25,7 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -72,7 +73,11 @@ import com.wire.android.util.ui.annotatedText
 import com.wire.android.util.ui.toUIText
 
 @Composable
-fun SystemMessageItem(message: UIMessage.System) {
+fun SystemMessageItem(
+    message: UIMessage.System,
+    onFailedMessageRetryClicked: (String) -> Unit = {},
+    onFailedMessageCancelClicked: (String) -> Unit = {}
+) {
     val fullAvatarOuterPadding = dimensions().userAvatarClickablePadding + dimensions().userAvatarStatusBorderSize
     Row(
         Modifier
@@ -99,8 +104,11 @@ fun SystemMessageItem(message: UIMessage.System) {
                     contentAlignment = Alignment.Center
                 ) {
                     val size =
-                        if (message.messageContent.isSmallIcon) dimensions().systemMessageIconSize
-                        else dimensions().systemMessageIconLargeSize
+                        if (message.messageContent.isSmallIcon) {
+                            dimensions().systemMessageIconSize
+                        } else {
+                            dimensions().systemMessageIconLargeSize
+                        }
                     Image(
                         painter = painterResource(id = message.messageContent.iconResId),
                         contentDescription = null,
@@ -153,8 +161,28 @@ fun SystemMessageItem(message: UIMessage.System) {
                 )
             }
             if (message.sendingFailed) {
-                MessageSendFailureWarning(message.header.messageStatus as MessageStatus.MessageSendFailureStatus)
+                MessageSendFailureWarning(
+                    messageStatus = message.header.messageStatus as MessageStatus.MessageSendFailureStatus,
+                    onRetryClick = remember { { onFailedMessageRetryClicked(message.header.messageId) } },
+                    onCancelClick = remember { { onFailedMessageCancelClicked(message.header.messageId) } },
+                )
             }
+        }
+    }
+    if (message.messageContent is SystemMessage.ConversationMessageCreated) {
+        Row(
+            Modifier
+                .background(colorsScheme().background)
+                .height(dimensions().spacing24x)
+                .fillMaxWidth()
+        ) {
+            Text(
+                modifier = Modifier
+                    .padding(start = dimensions().spacing56x)
+                    .align(Alignment.CenterVertically),
+                style = MaterialTheme.wireTypography.title03,
+                text = message.messageContent.date
+            )
         }
     }
 }
@@ -177,6 +205,8 @@ private fun getColorFilter(message: SystemMessage): ColorFilter? {
         is SystemMessage.HistoryLost,
         is SystemMessage.NewConversationReceiptMode,
         is SystemMessage.ConversationMessageTimerActivated,
+        is SystemMessage.ConversationMessageCreated,
+        is SystemMessage.ConversationStartedWithMembers,
         is SystemMessage.ConversationMessageTimerDeactivated -> ColorFilter.tint(colorsScheme().onBackground)
     }
 }
@@ -296,6 +326,8 @@ private val SystemMessage.expandable
         is SystemMessage.HistoryLost -> false
         is SystemMessage.ConversationMessageTimerActivated -> false
         is SystemMessage.ConversationMessageTimerDeactivated -> false
+        is SystemMessage.ConversationMessageCreated -> false
+        is SystemMessage.ConversationStartedWithMembers -> this.memberNames.size > EXPANDABLE_THRESHOLD
     }
 
 private fun List<String>.toUserNamesListString(res: Resources) = when {
@@ -305,8 +337,9 @@ private fun List<String>.toUserNamesListString(res: Resources) = when {
 }
 
 private fun List<UIText>.limitUserNamesList(res: Resources, threshold: Int): List<String> =
-    if (this.size <= threshold) this.map { it.asString(res) }
-    else {
+    if (this.size <= threshold) {
+        this.map { it.asString(res) }
+    } else {
         val moreCount = this.size - (threshold - 1) // the last visible place is taken by "and X more"
         this.take(threshold - 1)
             .map { it.asString(res) }
@@ -351,6 +384,12 @@ fun SystemMessage.annotatedString(
         )
 
         is SystemMessage.ConversationMessageTimerDeactivated -> arrayOf(author.asString(res))
+        is SystemMessage.ConversationMessageCreated -> arrayOf(author.asString(res))
+        is SystemMessage.ConversationStartedWithMembers ->
+            arrayOf(
+                memberNames.limitUserNamesList(res, if (expanded) memberNames.size else EXPANDABLE_THRESHOLD)
+                    .toUserNamesListString(res)
+            )
     }
 
     return res.annotatedText(stringResId, normalStyle, boldStyle, normalColor, boldColor, *args)

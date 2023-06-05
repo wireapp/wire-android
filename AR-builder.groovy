@@ -318,8 +318,9 @@ pipeline {
             steps {
                 script {
                     last_started = env.STAGE_NAME
+                    String assembleCommand = "./gradlew assemble${params.FLAVOR}${params.BUILD_TYPE}"
                     withGradle() {
-                        sh './gradlew assemble${params.FLAVOR}${params.BUILD_TYPE}'
+                        sh assembleCommand
                     }
                 }
             }
@@ -332,8 +333,9 @@ pipeline {
             steps {
                 script {
                     last_started = env.STAGE_NAME
+                    String bundleCommand = "./gradlew bundle${params.FLAVOR}${params.BUILD_TYPE}"
                     withGradle() {
-                        sh './gradlew bundle${params.FLAVOR}${params.BUILD_TYPE}'
+                        sh bundleCommand
                     }
                 }
             }

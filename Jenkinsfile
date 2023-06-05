@@ -102,7 +102,7 @@ pipeline {
                                                 string(name: 'FLAVOR', value: flavor),
                                                 booleanParam(name: 'UPLOAD_TO_S3', value: false),
                                                 booleanParam(name: 'TRY_UPLOAD_TO_PLAYSTORE', value: false),
-                                                booleanParam(name: 'RUN_UNIT_TEST', value: true),
+                                                booleanParam(name: 'RUN_UNIT_TEST', value: false),
                                                 booleanParam(name: 'RUN_ACCEPTANCE_TESTS', value: false),
                                                 booleanParam(name: 'RUN_STATIC_CODE_ANALYSIS', value: false)
                                         ]

@@ -525,7 +525,6 @@ fun EditingInput(
 
 @Composable
 fun ComposingInput(
-    messageComposition: MessageComposition,
     inputState: MessageCompositionInputState,
     onFocused: () -> Unit,
     focusRequester: FocusRequester,
@@ -539,7 +538,7 @@ fun ComposingInput(
             verticalAlignment = Alignment.Bottom
         ) {
             _MessageComposerInput(
-                messageText = messageComposition.textFieldValue,
+                messageText = messageCompositionState.value.textFieldValue,
                 onMessageTextChanged = onMessageTextChanged,
                 singleLine = false,
                 onFocusChanged = { isFocused -> if (isFocused) onFocused() },

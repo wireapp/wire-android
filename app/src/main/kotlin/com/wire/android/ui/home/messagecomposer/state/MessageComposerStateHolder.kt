@@ -22,6 +22,7 @@ package com.wire.android.ui.home.messagecomposer.state
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -49,14 +50,12 @@ sealed class MessageComposerState {
     class Active(
         private val focusManager: FocusManager,
         val focusRequester: FocusRequester,
-        defaultMessageComposition: MutableState<MessageComposition>,
+        private val messageCompositionState: MutableState<MessageComposition>,
         defaultAdditionalOptionMenuState: AdditionalOptionMenuState = AdditionalOptionMenuState.AttachmentAndAdditionalOptionsMenu,
         defaultAdditionalOptionsSubMenuState: AdditionalOptionSubMenuState = AdditionalOptionSubMenuState.Hidden,
     ) : MessageComposerState() {
-        var messageComposition by defaultMessageComposition
-            private set
 
-        val messageCompositionInputState = MessageCompositionInputState(messageComposition)
+        val messageCompositionInputState = MessageCompositionInputState(messageCompositionState)
 
         var additionalOptionMenuState: AdditionalOptionMenuState by mutableStateOf(defaultAdditionalOptionMenuState)
             private set
@@ -87,7 +86,7 @@ sealed class MessageComposerState {
         }
 
         fun messageTextChanged(textFieldValue: TextFieldValue) {
-            messageComposition = messageComposition.copy(textFieldValue = textFieldValue)
+            messageCompositionState.value = messageCompositionState.value.copy(textFieldValue = textFieldValue)
         }
     }
 }
@@ -97,15 +96,15 @@ class MessageComposerStateHolder(
     val focusRequester: FocusRequester
 ) {
 
-    private var messageComposition = mutableStateOf(MessageComposition(TextFieldValue("")))
+    private var messageCompositionState = mutableStateOf(MessageComposition(TextFieldValue("")))
 
-    var messageComposerState: MessageComposerState by mutableStateOf(MessageComposerState.InActive(messageComposition.value))
+    var messageComposerState: MessageComposerState by mutableStateOf(MessageComposerState.InActive(messageCompositionState.value))
 
     fun toActive(showAttachmentOption: Boolean) {
         messageComposerState = MessageComposerState.Active(
             focusManager = focusManager,
             focusRequester = focusRequester,
-            defaultMessageComposition = messageComposition,
+            messageCompositionState = messageCompositionState,
             defaultAdditionalOptionsSubMenuState = if (showAttachmentOption) {
                 AdditionalOptionSubMenuState.AttachFile
             } else {
@@ -128,15 +127,17 @@ data class MessageComposition(
         get() = textFieldValue.text
 }
 
-class MessageCompositionInputState(private val messageComposition: MessageComposition) {
+class MessageCompositionInputState(val messageCompositionState: MutableState<MessageComposition>) {
 
     var inputType: MessageCompositionInputType by mutableStateOf(MessageCompositionInputType.Composing)
         private set
 
     var inputSize: MessageCompositionInputSize by mutableStateOf(MessageCompositionInputSize.COLLAPSED)
         private set
-    val isSendButtonEnabled: Boolean
-        get() = messageComposition.messageText.isNotBlank()
+
+    val isSendButtonEnabled by derivedStateOf {
+        messageCompositionState.value.messageText.isNotBlank()
+    }
 
     fun toEphemeral() {
         inputType = MessageCompositionInputType.Ephemeral

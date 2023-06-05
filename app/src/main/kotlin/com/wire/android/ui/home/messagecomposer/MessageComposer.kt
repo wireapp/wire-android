@@ -67,10 +67,11 @@ import com.wire.android.ui.home.conversations.model.UriAsset
 import com.wire.android.ui.home.messagecomposer.attachment.AttachmentOptionsComponent
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionMenuState
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSubMenuState
-import com.wire.android.ui.home.messagecomposer.state.Dupa
+import com.wire.android.ui.home.messagecomposer.state.MessageComposerState
 import com.wire.android.ui.home.messagecomposer.state.MessageComposerStateHolder
 import com.wire.android.ui.home.messagecomposer.state.MessageComposition
 import com.wire.android.ui.home.messagecomposer.state.MessageCompositionInputSize
+import com.wire.android.ui.home.messagecomposer.state.MessageCompositionInputState
 import com.wire.android.ui.home.messagecomposer.state.MessageCompositionInputType
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.ui.theme.wireColorScheme
@@ -98,8 +99,8 @@ fun MessageComposer(
     tempWritableImageUri: Uri?,
     tempWritableVideoUri: Uri?
 ) {
-    when (val state = messageComposerStateHolder.dupa) {
-        is Dupa.Active -> {
+    when (val state = messageComposerStateHolder.messageComposerState) {
+        is MessageComposerState.Active -> {
             ActiveMessageComposer(
                 activeMessageComposerState = state,
                 messageListContent = messageListContent,
@@ -107,7 +108,7 @@ fun MessageComposer(
             )
         }
 
-        is Dupa.InActive -> {
+        is MessageComposerState.InActive -> {
             InActiveMessageComposer(
                 inActiveComposerState = state,
                 messageListContent = messageListContent,
@@ -185,7 +186,7 @@ fun MessageComposer(
 
 @Composable
 private fun ActiveMessageComposer(
-    activeMessageComposerState: Dupa.Active,
+    activeMessageComposerState: MessageComposerState.Active,
     messageListContent: @Composable () -> Unit,
     onTransistionToInActive: () -> Unit
 ) {
@@ -237,12 +238,10 @@ private fun ActiveMessageComposer(
                             messageListContent()
                         }
                         MessageComposingInput(
-                            messageComposition = messageComposition,
-                            inputType = inputType,
-                            inputSize = inputSize,
+                            messageCompositionInputState = messageCompositionInputState,
                             focusRequester = focusRequester,
                             onInputFocused = ::onInputFocused,
-                            onMessageTextChanged = ::messageTextChanged,
+                            onMessageTextChanged = ::messageTextChanged
                         )
                         AdditionalOptionsMenu(
                             additionalOptionsState = additionalOptionMenuState,
@@ -290,43 +289,40 @@ private fun ActiveMessageComposer(
 }
 
 @Composable
-fun MessageComposingInput(
-    messageComposition: MessageComposition,
-    inputType: MessageCompositionInputType,
-    inputSize: MessageCompositionInputSize,
-    focusRequester: FocusRequester,
+private fun MessageComposingInput(
+    messageCompositionInputState: MessageCompositionInputState,
     onInputFocused: () -> Unit,
     onMessageTextChanged: (TextFieldValue) -> Unit,
+    focusRequester: FocusRequester
 ) {
-    when (inputType) {
-        MessageCompositionInputType.Composing -> {
-            ComposingInput(
-                messageText = messageComposition,
-                inputSize = inputSize,
-                onFocused = onInputFocused,
-                focusRequester = focusRequester,
-                onMessageTextChanged = onMessageTextChanged
-            )
-        }
+    with(messageCompositionInputState) {
+        when (inputType) {
+            MessageCompositionInputType.Composing -> {
+                ComposingInput(
+                    inputState = messageCompositionInputState,
+                    onFocused = onInputFocused,
+                    focusRequester = focusRequester,
+                    onMessageTextChanged = onMessageTextChanged
+                )
+            }
 
-        MessageCompositionInputType.Editing -> {
-            EditingInput(
-                messageText = messageComposition,
-                inputSize = inputSize,
-                onFocused = onInputFocused,
-                focusRequester = focusRequester,
-                onMessageTextChanged = onMessageTextChanged
-            )
-        }
+            MessageCompositionInputType.Editing -> {
+//                EditingInput(
+//                    inputState = messageCompositionInputState,
+//                    onFocused = onInputFocused,
+//                    focusRequester = focusRequester,
+//                    onMessageTextChanged = onMessageTextChanged
+//                )
+            }
 
-        MessageCompositionInputType.Ephemeral -> {
-            SelfDeletingInput(
-                messageComposition = messageComposition,
-                inputSize = inputSize,
-                onFocused = onInputFocused,
-                focusRequester = focusRequester,
-                onMessageTextChanged = onMessageTextChanged
-            )
+            MessageCompositionInputType.Ephemeral -> {
+//                SelfDeletingInput(
+//                    inputState = messageCompositionInputState,
+//                    onFocused = onInputFocused,
+//                    focusRequester = focusRequester,
+//                    onMessageTextChanged = onMessageTextChanged
+//                )
+            }
         }
     }
 }
@@ -529,42 +525,44 @@ fun EditingInput(
 
 @Composable
 fun ComposingInput(
-    messageText: MessageComposition,
-    inputSize: MessageCompositionInputSize,
+    messageComposition: MessageComposition,
+    inputState: MessageCompositionInputState,
     onFocused: () -> Unit,
     focusRequester: FocusRequester,
     onMessageTextChanged: (TextFieldValue) -> Unit
 ) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .wrapContentHeight(),
-        verticalAlignment = Alignment.Bottom
-    ) {
-        _MessageComposerInput(
-            messageText = messageText.textFieldValue,
-            onMessageTextChanged = onMessageTextChanged,
-            singleLine = false,
-            onFocusChanged = { isFocused -> if (isFocused) onFocused() },
-            focusRequester = focusRequester,
+    with(inputState) {
+        Row(
             modifier = Modifier
-                .weight(1f)
-                .then(
-                    when (inputSize) {
-                        MessageCompositionInputSize.COLLAPSED -> Modifier.heightIn(
-                            max = dimensions().messageComposerActiveInputMaxHeight
-                        )
+                .fillMaxWidth()
+                .wrapContentHeight(),
+            verticalAlignment = Alignment.Bottom
+        ) {
+            _MessageComposerInput(
+                messageText = messageComposition.textFieldValue,
+                onMessageTextChanged = onMessageTextChanged,
+                singleLine = false,
+                onFocusChanged = { isFocused -> if (isFocused) onFocused() },
+                focusRequester = focusRequester,
+                modifier = Modifier
+                    .weight(1f)
+                    .then(
+                        when (inputSize) {
+                            MessageCompositionInputSize.COLLAPSED -> Modifier.heightIn(
+                                max = dimensions().messageComposerActiveInputMaxHeight
+                            )
 
-                        MessageCompositionInputSize.EXPANDED -> Modifier.fillMaxHeight()
-                    }
-                )
-        )
-        MessageSendActions(
-            onSendButtonClicked = {
+                            MessageCompositionInputSize.EXPANDED -> Modifier.fillMaxHeight()
+                        }
+                    )
+            )
+            MessageSendActions(
+                onSendButtonClicked = {
 
-            },
-            sendButtonEnabled = true
-        )
+                },
+                sendButtonEnabled = inputState.isSendButtonEnabled
+            )
+        }
     }
 }
 

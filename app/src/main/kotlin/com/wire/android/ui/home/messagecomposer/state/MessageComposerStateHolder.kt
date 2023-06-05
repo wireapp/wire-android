@@ -44,33 +44,28 @@ fun rememberMessageComposerStateHolder(): MessageComposerStateHolder {
     return remember { MessageComposerStateHolder(focusManager, inputFocusRequester) }
 }
 
-sealed class Dupa {
-    data class InActive(val messageComposition: MessageComposition) : Dupa()
+sealed class MessageComposerState {
+    data class InActive(val messageComposition: MessageComposition) : MessageComposerState()
     class Active(
         private val focusManager: FocusManager,
         val focusRequester: FocusRequester,
-        messageComposition: MutableState<MessageComposition>,
-        additionalOptionMenuState: AdditionalOptionMenuState = AdditionalOptionMenuState.AttachmentAndAdditionalOptionsMenu,
-        additionalOptionsSubMenuState: AdditionalOptionSubMenuState = AdditionalOptionSubMenuState.Hidden,
-        inputType: MessageCompositionInputType = MessageCompositionInputType.Composing,
-        inputSize: MessageCompositionInputSize = MessageCompositionInputSize.COLLAPSED
-    ) : Dupa() {
-        var messageComposition by messageComposition
-            private set
-        var inputType: MessageCompositionInputType by mutableStateOf(inputType)
+        defaultMessageComposition: MutableState<MessageComposition>,
+        defaultAdditionalOptionMenuState: AdditionalOptionMenuState = AdditionalOptionMenuState.AttachmentAndAdditionalOptionsMenu,
+        defaultAdditionalOptionsSubMenuState: AdditionalOptionSubMenuState = AdditionalOptionSubMenuState.Hidden,
+    ) : MessageComposerState() {
+        var messageComposition by defaultMessageComposition
             private set
 
-        var inputSize: MessageCompositionInputSize by mutableStateOf(inputSize)
+        val messageCompositionInputState = MessageCompositionInputState(messageComposition)
+
+        var additionalOptionMenuState: AdditionalOptionMenuState by mutableStateOf(defaultAdditionalOptionMenuState)
             private set
 
-        var additionalOptionMenuState: AdditionalOptionMenuState by mutableStateOf(additionalOptionMenuState)
-            private set
-
-        var additionalOptionsSubMenuState: AdditionalOptionSubMenuState by mutableStateOf(additionalOptionsSubMenuState)
+        var additionalOptionsSubMenuState: AdditionalOptionSubMenuState by mutableStateOf(defaultAdditionalOptionsSubMenuState)
             private set
 
         fun toEphemeralInputType() {
-            inputType = MessageCompositionInputType.Ephemeral
+            messageCompositionInputState.toEphemeral()
         }
 
         fun toggleAttachmentOptions() {
@@ -79,7 +74,6 @@ sealed class Dupa {
                     focusRequester.requestFocus()
                     AdditionalOptionSubMenuState.Hidden
                 } else {
-                    focusManager.clearFocus()
                     AdditionalOptionSubMenuState.AttachFile
                 }
         }
@@ -105,64 +99,14 @@ class MessageComposerStateHolder(
 
     private var messageComposition = mutableStateOf(MessageComposition(TextFieldValue("")))
 
-    var dupa: Dupa by mutableStateOf(Dupa.InActive(messageComposition.value))
-
-
-    //    var messageComposition by mutableStateOf(MessageComposition(TextFieldValue("")))
-//    private set
-//    var messageCompositionInputType: MessageCompositionInputType by mutableStateOf(MessageCompositionInputType.Composing)
-//        private set
-//
-//    var inputSize: MessageCompositionInputSize by mutableStateOf(MessageCompositionInputSize.COLLAPSED)
-//        private set
-//
-//    var additionalOptionMenuState: AdditionalOptionMenuState by mutableStateOf(AdditionalOptionMenuState.Hidden)
-//        private set
-//
-//    var additionalOptionsSubMenuState: AdditionalOptionSubMenuState by mutableStateOf(AdditionalOptionSubMenuState.Hidden)
-//        private set
-//
-//    fun toActive(showAttachmentOption: Boolean) {
-//
-//    }
-//
-//    fun toEphemeralInputType() {
-//        messageCompositionInputType = MessageCompositionInputType.Ephemeral
-//    }
-//
-//    fun toggleAttachmentOptions() {
-//        additionalOptionsSubMenuState =
-//            if (additionalOptionsSubMenuState == AdditionalOptionSubMenuState.AttachFile) {
-//                AdditionalOptionSubMenuState.Hidden
-//            } else {
-//                AdditionalOptionSubMenuState.AttachFile
-//            }
-//    }
-//
-//    fun toggleGifMenu() {
-//
-//    }
-//
-//    fun messageTextChanged(textFieldValue: TextFieldValue) {
-//
-////        messageComposition.update { copy(textFieldValue = textFieldValue) }
-//    }
-//
-//
-//    fun toInActive() {
-//
-//    }
-//
-//    private fun MutableState<MessageComposition>.update(function: MessageComposition.() -> MessageComposition) {
-//        value = value.function()
-//    }
+    var messageComposerState: MessageComposerState by mutableStateOf(MessageComposerState.InActive(messageComposition.value))
 
     fun toActive(showAttachmentOption: Boolean) {
-        dupa = Dupa.Active(
+        messageComposerState = MessageComposerState.Active(
             focusManager = focusManager,
             focusRequester = focusRequester,
-            messageComposition = messageComposition,
-            additionalOptionsSubMenuState = if (showAttachmentOption) {
+            defaultMessageComposition = messageComposition,
+            defaultAdditionalOptionsSubMenuState = if (showAttachmentOption) {
                 AdditionalOptionSubMenuState.AttachFile
             } else {
                 AdditionalOptionSubMenuState.Hidden
@@ -182,6 +126,22 @@ data class MessageComposition(
 
     val messageText: String
         get() = textFieldValue.text
+}
+
+class MessageCompositionInputState(private val messageComposition: MessageComposition) {
+
+    var inputType: MessageCompositionInputType by mutableStateOf(MessageCompositionInputType.Composing)
+        private set
+
+    var inputSize: MessageCompositionInputSize by mutableStateOf(MessageCompositionInputSize.COLLAPSED)
+        private set
+    val isSendButtonEnabled: Boolean
+        get() = messageComposition.messageText.isNotBlank()
+
+    fun toEphemeral() {
+        inputType = MessageCompositionInputType.Ephemeral
+    }
+
 }
 
 sealed class MessageCompositionInputType {

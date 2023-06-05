@@ -70,7 +70,7 @@ import com.wire.android.ui.home.conversations.model.UriAsset
 import com.wire.android.ui.home.messagecomposer.attachment.AttachmentOptionsComponent
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionMenuState
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSubMenuState
-import com.wire.android.ui.home.messagecomposer.state.MessageComposerState
+import com.wire.android.ui.home.messagecomposer.state.Dupa
 import com.wire.android.ui.home.messagecomposer.state.MessageComposerStateHolder
 import com.wire.android.ui.home.messagecomposer.state.MessageComposition
 import com.wire.android.ui.home.messagecomposer.state.MessageCompositionInputSize
@@ -101,12 +101,20 @@ fun MessageComposer(
     tempWritableImageUri: Uri?,
     tempWritableVideoUri: Uri?
 ) {
-    MessageComposerContent(
-        messageComposerStateHolder = messageComposerStateHolder,
-        messageListContent = messageListContent,
-        onTransistionToActive = messageComposerStateHolder::toActive,
-        onTransistionToInActive = messageComposerStateHolder::toInActive
-    )
+
+
+    when(val state = messageComposerStateHolder.dupa){
+        is Dupa.Active -> {
+            ActiveMessageComposer(
+                activeMessageComposerState = state,
+                messageListContent = messageListContent,
+                onTransistionToInActive = messageComposerStateHolder::toInActive
+            )
+        }
+        is Dupa.InActive -> {
+
+        }
+    }
 //    BoxWithConstraints {
 //        val onSendButtonClicked = remember {
 //            {
@@ -176,13 +184,12 @@ fun MessageComposer(
 }
 
 @Composable
-private fun MessageComposerContent(
-    messageComposerStateHolder: MessageComposerStateHolder,
+private fun ActiveMessageComposer(
+    activeMessageComposerState: Dupa.Active,
     messageListContent: @Composable () -> Unit,
-    onTransistionToActive: (Boolean) -> Unit,
     onTransistionToInActive: () -> Unit
 ) {
-    with(messageComposerStateHolder) {
+    with(activeMessageComposerState) {
         Surface(color = colorsScheme().messageComposerBackgroundColor) {
             BoxWithConstraints(Modifier.fillMaxSize()) {
                 val currentScreenHeight: Dp = with(LocalDensity.current) { constraints.maxHeight.toDp() }
@@ -233,7 +240,7 @@ private fun MessageComposerContent(
                             messageComposition = messageComposition,
                             inputType = messageCompositionInputType,
                             inputSize = inputSize,
-                            onMessageTextChanged = ::messageTextChanged
+                            onMessageTextChanged = ::messageTextChanged,
                         )
                         AdditionalOptionsMenu(
                             additionalOptionsState = additionalOptionMenuState,
@@ -285,7 +292,6 @@ fun MessageComposingInput(
     messageComposition: MessageComposition,
     inputType: MessageCompositionInputType,
     inputSize: MessageCompositionInputSize,
-    onTransistionToActive: (Boolean) -> Unit,
     onMessageTextChanged: (TextFieldValue) -> Unit,
 ) {
     when (inputType) {
@@ -318,47 +324,38 @@ fun MessageComposingInput(
                 onMessageTextChanged = onMessageTextChanged
             )
         }
-
-        MessageCompositionInputType.Inactive -> {
-            InactiveInput(
-                messageComposition = messageComposition,
-                onTransistionToActive = ::toActive ,
-                onFocused = { },
-                focusRequester = FocusRequester()
-            )
-        }
     }
 }
-
-@Composable
-fun InactiveInput(
-    messageComposition: MessageComposition,
-    onTransistionToActive : (Boolean) -> Unit,
-    onFocused: () -> Unit,
-    focusRequester: FocusRequester
-) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier
-            .fillMaxWidth()
-            .wrapContentHeight()
-    ) {
-        Box(modifier = Modifier.padding(start = dimensions().spacing8x)) {
-            AdditionalOptionButton(
-                isSelected = false,
-                isEnabled = true,
-                onClick = { onTransistionToActive(true) }
-            )
-        }
-
-        Text(inActiveComposerState.messageComposition.messageText,
-            modifier = Modifier
-                .fillMaxWidth()
-                .wrapContentHeight()
-                .clickable { onTransistionToActive(false) }
-        )
-    }
-}
+//
+//@Composable
+//fun InactiveInput(
+//    messageComposition: MessageComposition,
+//    onTransistionToActive : (Boolean) -> Unit,
+//    onFocused: () -> Unit,
+//    focusRequester: FocusRequester
+//) {
+//    Row(
+//        verticalAlignment = Alignment.CenterVertically,
+//        modifier = Modifier
+//            .fillMaxWidth()
+//            .wrapContentHeight()
+//    ) {
+//        Box(modifier = Modifier.padding(start = dimensions().spacing8x)) {
+//            AdditionalOptionButton(
+//                isSelected = false,
+//                isEnabled = true,
+//                onClick = { onTransistionToActive(true) }
+//            )
+//        }
+//
+//        Text(inActiveComposerState.messageComposition.messageText,
+//            modifier = Modifier
+//                .fillMaxWidth()
+//                .wrapContentHeight()
+//                .clickable { onTransistionToActive(false) }
+//        )
+//    }
+//}
 
 @Composable
 fun AdditionalOptionsMenu(
@@ -387,6 +384,10 @@ fun AdditionalOptionsMenu(
                     .background(Color.Red)
                     .size(128.dp)
             )
+        }
+
+        AdditionalOptionMenuState.Hidden -> {
+
         }
     }
 }

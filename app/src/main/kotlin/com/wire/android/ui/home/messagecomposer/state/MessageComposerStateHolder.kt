@@ -45,15 +45,15 @@ fun rememberMessageComposerStateHolder(): MessageComposerStateHolder {
 }
 
 
-sealed class Dupa{
-    sealed class InActive : Dupa() {
+sealed class Dupa {
+    data class InActive(val messageComposition: MessageComposition) : Dupa() {
 
     }
 
-    sealed class Active : Dupa(){
-        var messageComposition by mutableStateOf(MessageComposition(TextFieldValue("")))
+    class Active(messageComposition: MutableState<MessageComposition>) : Dupa() {
+        var messageComposition by messageComposition
             private set
-        var messageCompositionInputType: MessageCompositionInputType by mutableStateOf(MessageCompositionInputType.Inactive)
+        var messageCompositionInputType: MessageCompositionInputType by mutableStateOf(MessageCompositionInputType.Composing)
             private set
 
         var inputSize: MessageCompositionInputSize by mutableStateOf(MessageCompositionInputSize.COLLAPSED)
@@ -103,53 +103,67 @@ class MessageComposerStateHolder(
     val focusManager: FocusManager,
     val inputFocusRequester: FocusRequester
 ) {
-    var messageComposition by mutableStateOf(MessageComposition(TextFieldValue("")))
-    private set
-    var messageCompositionInputType: MessageCompositionInputType by mutableStateOf(MessageCompositionInputType.Inactive)
-        private set
 
-    var inputSize: MessageCompositionInputSize by mutableStateOf(MessageCompositionInputSize.COLLAPSED)
-        private set
+    private var messageComposition = mutableStateOf<MessageComposition>(MessageComposition(TextFieldValue("")))
 
-    var additionalOptionMenuState: AdditionalOptionMenuState by mutableStateOf(AdditionalOptionMenuState.Hidden)
-        private set
+    var dupa: Dupa by mutableStateOf(Dupa.InActive(messageComposition.value))
 
-    var additionalOptionsSubMenuState: AdditionalOptionSubMenuState by mutableStateOf(AdditionalOptionSubMenuState.Hidden)
-        private set
+
+    //    var messageComposition by mutableStateOf(MessageComposition(TextFieldValue("")))
+//    private set
+//    var messageCompositionInputType: MessageCompositionInputType by mutableStateOf(MessageCompositionInputType.Composing)
+//        private set
+//
+//    var inputSize: MessageCompositionInputSize by mutableStateOf(MessageCompositionInputSize.COLLAPSED)
+//        private set
+//
+//    var additionalOptionMenuState: AdditionalOptionMenuState by mutableStateOf(AdditionalOptionMenuState.Hidden)
+//        private set
+//
+//    var additionalOptionsSubMenuState: AdditionalOptionSubMenuState by mutableStateOf(AdditionalOptionSubMenuState.Hidden)
+//        private set
+//
+//    fun toActive(showAttachmentOption: Boolean) {
+//
+//    }
+//
+//    fun toEphemeralInputType() {
+//        messageCompositionInputType = MessageCompositionInputType.Ephemeral
+//    }
+//
+//    fun toggleAttachmentOptions() {
+//        additionalOptionsSubMenuState =
+//            if (additionalOptionsSubMenuState == AdditionalOptionSubMenuState.AttachFile) {
+//                AdditionalOptionSubMenuState.Hidden
+//            } else {
+//                AdditionalOptionSubMenuState.AttachFile
+//            }
+//    }
+//
+//    fun toggleGifMenu() {
+//
+//    }
+//
+//    fun messageTextChanged(textFieldValue: TextFieldValue) {
+//
+////        messageComposition.update { copy(textFieldValue = textFieldValue) }
+//    }
+//
+//
+//    fun toInActive() {
+//
+//    }
+//
+//    private fun MutableState<MessageComposition>.update(function: MessageComposition.() -> MessageComposition) {
+//        value = value.function()
+//    }
 
     fun toActive(showAttachmentOption: Boolean) {
-
+        dupa = Dupa.Active(messageComposition)
     }
-
-    fun toEphemeralInputType() {
-        messageCompositionInputType = MessageCompositionInputType.Ephemeral
-    }
-
-    fun toggleAttachmentOptions() {
-        additionalOptionsSubMenuState =
-            if (additionalOptionsSubMenuState == AdditionalOptionSubMenuState.AttachFile) {
-                AdditionalOptionSubMenuState.Hidden
-            } else {
-                AdditionalOptionSubMenuState.AttachFile
-            }
-    }
-
-    fun toggleGifMenu() {
-
-    }
-
-    fun messageTextChanged(textFieldValue: TextFieldValue) {
-
-//        messageComposition.update { copy(textFieldValue = textFieldValue) }
-    }
-
 
     fun toInActive() {
 
-    }
-
-    private fun MutableState<MessageComposition>.update(function: MessageComposition.() -> MessageComposition) {
-        value = value.function()
     }
 }
 
@@ -162,7 +176,6 @@ data class MessageComposition(
 }
 
 sealed class MessageCompositionInputType {
-    object Inactive : MessageCompositionInputType()
     object Composing : MessageCompositionInputType()
     object Editing : MessageCompositionInputType()
     object Ephemeral : MessageCompositionInputType()

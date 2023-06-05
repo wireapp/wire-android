@@ -96,7 +96,8 @@ pipeline {
                                 build(
                                         job: 'AR-build-pipeline',
                                         parameters: [
-                                                string(name: 'SOURCE_BRANCH', value: 'ci/multi_build_pipeline'),
+                                                string(name: 'SOURCE_BRANCH', value: env.BRANCH_NAME),
+                                                string(name: 'CHANGE_BRANCH', value: env.CHANGE_BRANCH),
                                                 string(name: 'BUILD_TYPE', value: buildType),
                                                 string(name: 'FLAVOR', value: flavor),
                                                 booleanParam(name: 'UPLOAD_TO_S3', value: false),

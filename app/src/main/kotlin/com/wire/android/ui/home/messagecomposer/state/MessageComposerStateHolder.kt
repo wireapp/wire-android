@@ -44,10 +44,11 @@ fun rememberMessageComposerStateHolder(): MessageComposerStateHolder {
     return remember { MessageComposerStateHolder(focusManager, inputFocusRequester) }
 }
 
-
 sealed class Dupa {
     data class InActive(val messageComposition: MessageComposition) : Dupa()
     class Active(
+        private val focusManager: FocusManager,
+        val focusRequester: FocusRequester,
         messageComposition: MutableState<MessageComposition>,
         additionalOptionMenuState: AdditionalOptionMenuState = AdditionalOptionMenuState.AttachmentAndAdditionalOptionsMenu,
         additionalOptionsSubMenuState: AdditionalOptionSubMenuState = AdditionalOptionSubMenuState.Hidden,
@@ -75,10 +76,16 @@ sealed class Dupa {
         fun toggleAttachmentOptions() {
             additionalOptionsSubMenuState =
                 if (additionalOptionsSubMenuState == AdditionalOptionSubMenuState.AttachFile) {
+                    focusRequester.requestFocus()
                     AdditionalOptionSubMenuState.Hidden
                 } else {
+                    focusManager.clearFocus()
                     AdditionalOptionSubMenuState.AttachFile
                 }
+        }
+
+        fun onInputFocused() {
+            additionalOptionsSubMenuState = AdditionalOptionSubMenuState.Hidden
         }
 
         fun toggleGifMenu() {
@@ -93,7 +100,7 @@ sealed class Dupa {
 
 class MessageComposerStateHolder(
     val focusManager: FocusManager,
-    val inputFocusRequester: FocusRequester
+    val focusRequester: FocusRequester
 ) {
 
     private var messageComposition = mutableStateOf(MessageComposition(TextFieldValue("")))
@@ -152,7 +159,9 @@ class MessageComposerStateHolder(
 
     fun toActive(showAttachmentOption: Boolean) {
         dupa = Dupa.Active(
-            messageComposition,
+            focusManager = focusManager,
+            focusRequester = focusRequester,
+            messageComposition = messageComposition,
             additionalOptionsSubMenuState = if (showAttachmentOption) {
                 AdditionalOptionSubMenuState.AttachFile
             } else {

@@ -240,6 +240,8 @@ private fun ActiveMessageComposer(
                             messageComposition = messageComposition,
                             inputType = inputType,
                             inputSize = inputSize,
+                            focusRequester = focusRequester,
+                            onInputFocused = ::onInputFocused,
                             onMessageTextChanged = ::messageTextChanged,
                         )
                         AdditionalOptionsMenu(
@@ -292,6 +294,8 @@ fun MessageComposingInput(
     messageComposition: MessageComposition,
     inputType: MessageCompositionInputType,
     inputSize: MessageCompositionInputSize,
+    focusRequester: FocusRequester,
+    onInputFocused: () -> Unit,
     onMessageTextChanged: (TextFieldValue) -> Unit,
 ) {
     when (inputType) {
@@ -299,8 +303,8 @@ fun MessageComposingInput(
             ComposingInput(
                 messageText = messageComposition,
                 inputSize = inputSize,
-                onFocused = { },
-                focusRequester = FocusRequester(),
+                onFocused = onInputFocused,
+                focusRequester = focusRequester,
                 onMessageTextChanged = onMessageTextChanged
             )
         }
@@ -309,8 +313,8 @@ fun MessageComposingInput(
             EditingInput(
                 messageText = messageComposition,
                 inputSize = inputSize,
-                onFocused = { },
-                focusRequester = FocusRequester(),
+                onFocused = onInputFocused,
+                focusRequester = focusRequester,
                 onMessageTextChanged = onMessageTextChanged
             )
         }
@@ -319,8 +323,8 @@ fun MessageComposingInput(
             SelfDeletingInput(
                 messageComposition = messageComposition,
                 inputSize = inputSize,
-                onFocused = { },
-                focusRequester = FocusRequester(),
+                onFocused = onInputFocused,
+                focusRequester = focusRequester,
                 onMessageTextChanged = onMessageTextChanged
             )
         }
@@ -384,10 +388,6 @@ fun AdditionalOptionsMenu(
                     .background(Color.Red)
                     .size(128.dp)
             )
-        }
-
-        AdditionalOptionMenuState.Hidden -> {
-
         }
     }
 }

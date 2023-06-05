@@ -101,9 +101,7 @@ fun MessageComposer(
     tempWritableImageUri: Uri?,
     tempWritableVideoUri: Uri?
 ) {
-
-
-    when(val state = messageComposerStateHolder.dupa){
+    when (val state = messageComposerStateHolder.dupa) {
         is Dupa.Active -> {
             ActiveMessageComposer(
                 activeMessageComposerState = state,
@@ -111,8 +109,13 @@ fun MessageComposer(
                 onTransistionToInActive = messageComposerStateHolder::toInActive
             )
         }
-        is Dupa.InActive -> {
 
+        is Dupa.InActive -> {
+            InActiveMessageComposer(
+                inActiveComposerState = state,
+                messageListContent = messageListContent,
+                onTransistionToActive = messageComposerStateHolder::toActive
+            )
         }
     }
 //    BoxWithConstraints {

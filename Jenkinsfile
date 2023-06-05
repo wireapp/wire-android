@@ -98,6 +98,7 @@ pipeline {
             steps {
                 script {
                     def dynamicStages = [:]
+                    List<String> flavorList = defineFlavor()
                     for (flavor in flavorList) {
                         String buildType = defineBuildType(flavor)
                         String stageName = "Build $flavor"
@@ -125,7 +126,6 @@ pipeline {
     }
 
     environment {
-        flavorList = defineFlavor()
         trackName = defineTrackName()
     }
 
@@ -139,11 +139,6 @@ pipeline {
             }
 
             wireSend(secret: env.WIRE_BOT_SECRET, message: "**[#${BUILD_NUMBER} Link](${BUILD_URL})** [${BRANCH_NAME}] - ❌ FAILED ($last_started) 👎")
-        }
-
-        success {
-            script {
-            }
         }
 
         aborted {

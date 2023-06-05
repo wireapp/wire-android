@@ -52,7 +52,7 @@ pipeline {
     }
     parameters {
         string(name: 'SOURCE_BRANCH', description: 'Branch or PR name to')
-        string(name: 'CHANGE_BRANCH', description: 'Change branch name to build')
+        string(name: 'CHANGE_BRANCH', description: 'Change branch name to build only used to checkout the correct branch if  you need the branch name use SOURCE_BRANCH')
         choice(name: 'BUILD_TYPE', choices: ['Compatrelease', 'Debug', 'Release', 'Compat'], description: 'Build Type for the Client')
         choice(name: 'FLAVOR', choices: ['Prod', 'Dev', 'Staging','Internal', 'Beta'], description: 'Product Flavor to build')
         booleanParam(name: 'UPLOAD_TO_S3', defaultValue: false, description: 'Boolean Flag to define if the build should be uploaded to S3')
@@ -385,7 +385,7 @@ pipeline {
     environment {
         propertiesFile = 'local.properties'
         adbPort = '5555'
-        emulatorPrefix = "${BRANCH_NAME.replaceAll('/', '_')}"
+        emulatorPrefix = "${SOURCE_BRANCH.replaceAll('/', '_')}"
         trackName = defineTrackName()
         ENABLE_SIGNING = "TRUE"
     }
@@ -399,7 +399,7 @@ pipeline {
                 }
             }
 
-            wireSend(secret: env.WIRE_BOT_SECRET, message: "**[#${BUILD_NUMBER} Link](${BUILD_URL})** [${BRANCH_NAME}] - ❌ FAILED ($last_started) 👎")
+            wireSend(secret: env.WIRE_BOT_SECRET, message: "**[#${BUILD_NUMBER} Link](${BUILD_URL})** [${SOURCE_BRANCH}] - ❌ FAILED ($last_started) 👎")
         }
 
         success {
@@ -429,11 +429,11 @@ pipeline {
             }
 
             sh './gradlew jacocoReport'
-            wireSend(secret: env.WIRE_BOT_SECRET, message: "**[#${BUILD_NUMBER} Link](${BUILD_URL})** [${BRANCH_NAME}] - ✅ SUCCESS 🎉" + "\nLast 5 commits:\n```text\n$lastCommits\n```")
+            wireSend(secret: env.WIRE_BOT_SECRET, message: "**[#${BUILD_NUMBER} Link](${BUILD_URL})** [${SOURCE_BRANCH}] - ✅ SUCCESS 🎉" + "\nLast 5 commits:\n```text\n$lastCommits\n```")
         }
 
         aborted {
-            wireSend(secret: env.WIRE_BOT_SECRET, message: "**[#${BUILD_NUMBER} Link](${BUILD_URL})** [${BRANCH_NAME}] - ❌ ABORTED ($last_started) ")
+            wireSend(secret: env.WIRE_BOT_SECRET, message: "**[#${BUILD_NUMBER} Link](${BUILD_URL})** [${SOURCE_BRANCH}] - ❌ ABORTED ($last_started) ")
         }
 
         always {

@@ -19,7 +19,6 @@
 package com.wire.android.ui.home.messagecomposer.state
 
 sealed class AdditionalOptionMenuState {
-    object Hidden : AdditionalOptionMenuState()
     object AttachmentAndAdditionalOptionsMenu : AdditionalOptionMenuState()
 
     object RichTextEditing : AdditionalOptionMenuState()

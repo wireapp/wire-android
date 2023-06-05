@@ -34,13 +34,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.home.messagecomposer.state.Dupa
 import com.wire.android.ui.home.messagecomposer.state.MessageComposerState
 
 @Composable
 fun InActiveMessageComposer(
     messageListContent: @Composable () -> Unit,
     onTransistionToActive: (Boolean) -> Unit,
-    inActiveComposerState: MessageComposerState.InActive
+    inActiveComposerState: Dupa.InActive
 ) {
     Column(
         Modifier

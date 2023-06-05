@@ -91,7 +91,7 @@ import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.call.usecase.ConferenceCallingResult
 import com.wire.kalium.logic.feature.conversation.InteractionAvailability
-import com.wire.kalium.logic.feature.selfdeletingMessages.SelfDeletionTimer
+import com.wire.kalium.logic.feature.selfDeletingMessages.SelfDeletionTimer
 import com.wire.kalium.util.DateTimeUtil
 import kotlinx.collections.immutable.ImmutableMap
 import kotlinx.coroutines.CoroutineScope
@@ -101,7 +101,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Instant
-import kotlin.time.Duration
 import kotlin.time.Duration.Companion.ZERO
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -220,7 +219,8 @@ fun ConversationScreen(
         currentSelfDeletionTimer = messageComposerViewModel.messageComposerViewState.selfDeletionTimer,
         onNewSelfDeletingMessagesStatus = messageComposerViewModel::updateSelfDeletingMessages,
         tempWritableImageUri = messageComposerViewModel.tempWritableImageUri,
-        tempWritableVideoUri = messageComposerViewModel.tempWritableVideoUri
+        tempWritableVideoUri = messageComposerViewModel.tempWritableVideoUri,
+        onFailedMessageRetryClicked = messageComposerViewModel::retrySendingMessage
     )
     DeleteMessageDialog(
         state = messageComposerViewModel.deleteMessageDialogsState,
@@ -294,7 +294,7 @@ private fun ConversationScreen(
     onSendMessage: (SendMessageBundle) -> Unit,
     onSendEditMessage: (EditMessageBundle) -> Unit,
     onDeleteMessage: (String, Boolean) -> Unit,
-    onAttachmentPicked: (UriAsset, Duration?) -> Unit,
+    onAttachmentPicked: (UriAsset) -> Unit,
     onAudioClick: (String) -> Unit,
     onChangeAudioPosition: (String, Int) -> Unit,
     onAssetItemClicked: (String) -> Unit,
@@ -315,7 +315,8 @@ private fun ConversationScreen(
     currentSelfDeletionTimer: SelfDeletionTimer,
     onNewSelfDeletingMessagesStatus: (SelfDeletionTimer) -> Unit,
     tempWritableImageUri: Uri?,
-    tempWritableVideoUri: Uri?
+    tempWritableVideoUri: Uri?,
+    onFailedMessageRetryClicked: (String) -> Unit
 ) {
     val conversationScreenState = rememberConversationScreenState()
     val messageComposerState = rememberMessageComposerStateHolder()
@@ -430,7 +431,9 @@ private fun ConversationScreen(
                     onPingClicked = onPingClicked,
                     onSelfDeletingMessageRead = onSelfDeletingMessageRead,
                     tempWritableImageUri = tempWritableImageUri,
-                    tempWritableVideoUri = tempWritableVideoUri
+                    tempWritableVideoUri = tempWritableVideoUri,
+                    onFailedMessageCancelClicked = remember { { onDeleteMessage(it, false) } },
+                    onFailedMessageRetryClicked = onFailedMessageRetryClicked
                 )
             }
 
@@ -460,7 +463,7 @@ private fun ConversationScreenContent(
     messages: Flow<PagingData<UIMessage>>,
     onSendMessage: (SendMessageBundle) -> Unit,
     onSendEditMessage: (EditMessageBundle) -> Unit,
-    onAttachmentPicked: (UriAsset, Duration?) -> Unit,
+    onAttachmentPicked: (UriAsset) -> Unit,
     onMentionMember: (String?) -> Unit,
     onAssetItemClicked: (String) -> Unit,
     onAudioItemClicked: (String) -> Unit,
@@ -476,7 +479,9 @@ private fun ConversationScreenContent(
     onSelfDeletingMessageRead: (UIMessage.Regular) -> Unit,
     tempWritableImageUri: Uri?,
     tempWritableVideoUri: Uri?,
-    conversationDetailsData: ConversationDetailsData
+    conversationDetailsData: ConversationDetailsData,
+    onFailedMessageRetryClicked: (String) -> Unit,
+    onFailedMessageCancelClicked: (String) -> Unit
 ) {
     val scope = rememberCoroutineScope()
 
@@ -504,7 +509,9 @@ private fun ConversationScreenContent(
                 onResetSessionClicked = onResetSessionClicked,
                 onSelfDeletingMessageRead = onSelfDeletingMessageRead,
                 onShowEditingOption = onShowEditingOptions,
-                conversationDetailsData = conversationDetailsData
+                conversationDetailsData = conversationDetailsData,
+                onFailedMessageCancelClicked = onFailedMessageCancelClicked,
+                onFailedMessageRetryClicked = onFailedMessageRetryClicked
             )
         },
         onSendTextMessage = { messageBundle ->
@@ -515,11 +522,11 @@ private fun ConversationScreenContent(
         },
         onSendEditTextMessage = onSendEditMessage,
         onAttachmentPicked = remember {
-            { uriAsset, expireAfter ->
+            { uriAsset, _ ->
                 scope.launch {
                     lazyListState.scrollToItem(0)
                 }
-                onAttachmentPicked(uriAsset, expireAfter)
+                onAttachmentPicked(uriAsset)
             }
         },
         onMentionMember = onMentionMember,
@@ -600,7 +607,9 @@ fun MessageList(
     onResetSessionClicked: (senderUserId: UserId, clientId: String?) -> Unit,
     onShowEditingOption: (UIMessage.Regular) -> Unit,
     onSelfDeletingMessageRead: (UIMessage.Regular) -> Unit,
-    conversationDetailsData: ConversationDetailsData
+    conversationDetailsData: ConversationDetailsData,
+    onFailedMessageRetryClicked: (String) -> Unit,
+    onFailedMessageCancelClicked: (String) -> Unit
 ) {
     val mostRecentMessage = lazyPagingMessages.itemCount.takeIf { it > 0 }?.let { lazyPagingMessages[0] }
 
@@ -655,10 +664,16 @@ fun MessageList(
                         onReactionClicked = onReactionClicked,
                         onResetSessionClicked = onResetSessionClicked,
                         onSelfDeletingMessageRead = onSelfDeletingMessageRead,
+                        onFailedMessageCancelClicked = onFailedMessageCancelClicked,
+                        onFailedMessageRetryClicked = onFailedMessageRetryClicked
                     )
                 }
 
-                is UIMessage.System -> SystemMessageItem(message = message)
+                is UIMessage.System -> SystemMessageItem(
+                    message = message,
+                    onFailedMessageCancelClicked = onFailedMessageCancelClicked,
+                    onFailedMessageRetryClicked = onFailedMessageRetryClicked
+                )
             }
         }
     }
@@ -702,7 +717,7 @@ fun PreviewConversationScreen() {
         onSendMessage = { },
         onSendEditMessage = { },
         onDeleteMessage = { _, _ -> },
-        onAttachmentPicked = { _, _ -> },
+        onAttachmentPicked = { _ -> },
         onAssetItemClicked = { },
         onImageFullScreenMode = { _, _ -> },
         onStartCall = { },
@@ -723,6 +738,7 @@ fun PreviewConversationScreen() {
         currentSelfDeletionTimer = SelfDeletionTimer.Enabled(ZERO),
         onNewSelfDeletingMessagesStatus = {},
         tempWritableImageUri = null,
-        tempWritableVideoUri = null
+        tempWritableVideoUri = null,
+        onFailedMessageRetryClicked = {}
     )
 }

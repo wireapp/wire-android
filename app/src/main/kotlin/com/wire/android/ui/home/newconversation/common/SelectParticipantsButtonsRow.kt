@@ -18,10 +18,11 @@
  *
  */
 
+@file:Suppress("TooManyFunctions")
+
 package com.wire.android.ui.home.newconversation.common
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -36,7 +37,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -44,18 +44,20 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import com.wire.android.R
 import com.wire.android.model.ClickBlockParams
-import com.wire.android.ui.common.button.WireButtonColors
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.button.WireSecondaryButton
-import com.wire.android.ui.common.button.wirePrimaryButtonColors
 import com.wire.android.ui.common.button.wireSecondaryButtonColors
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
-import com.wire.kalium.logic.feature.selfdeletingMessages.SelfDeletionTimer
+import com.wire.android.util.ui.PreviewMultipleThemes
+import com.wire.kalium.logic.feature.selfDeletingMessages.SelfDeletionTimer
 import kotlin.time.Duration.Companion.ZERO
+import kotlin.time.DurationUnit
+import kotlin.time.toDuration
 
 @Composable
 fun SelectParticipantsButtonsAlwaysEnabled(
@@ -84,7 +86,6 @@ fun SelectParticipantsButtonsAlwaysEnabled(
 fun SendContentButton(
     mainButtonText: String,
     count: Int,
-    mainButtonColors: WireButtonColors = wirePrimaryButtonColors(),
     onMainButtonClick: () -> Unit,
     selfDeletionTimer: SelfDeletionTimer = SelfDeletionTimer.Disabled,
     onSelfDeletionTimerClicked: () -> Unit,
@@ -100,14 +101,12 @@ fun SendContentButton(
                 modifier = Modifier.padding(end = dimensions().spacing12x),
                 colorFilter = ColorFilter.tint(
                     when {
-                        selfDeletionTimer.toDuration() > ZERO -> colorsScheme().primaryButtonEnabled
                         count > 0 -> colorsScheme().onPrimaryButtonEnabled
                         else -> colorsScheme().onPrimaryButtonDisabled
                     }
                 )
             )
         },
-        mainButtonColors = mainButtonColors,
         mainButtonText = mainButtonText,
         shouldAllowNoSelectionContinue = false,
         onMainButtonClick = onMainButtonClick,
@@ -130,7 +129,6 @@ fun SelectParticipantsButtonsRow(
     selectedParticipantsCount: Int = 0,
     mainButtonText: String,
     shouldAllowNoSelectionContinue: Boolean = true,
-    mainButtonColors: WireButtonColors = wirePrimaryButtonColors(),
     elevation: Dp = MaterialTheme.wireDimensions.bottomNavigationShadowElevation,
     modifier: Modifier = Modifier,
     onMainButtonClick: () -> Unit,
@@ -152,7 +150,6 @@ fun SelectParticipantsButtonsRow(
                 text = buttonText,
                 leadingIcon = leadingIcon,
                 onClick = onMainButtonClick,
-                colors = mainButtonColors,
                 state = computeMainButtonState(selectedParticipantsCount, shouldAllowNoSelectionContinue),
                 clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
                 modifier = Modifier
@@ -178,9 +175,6 @@ fun SelfDeletionTimerButton(
             .padding(start = dimensions().spacing16x)
             .size(dimensions().spacing48x)
             .clip(RoundedCornerShape(size = dimensions().onMoreOptionsButtonCornerRadius))
-            .background(
-                color = if (isSelected) colorsScheme().onSecondaryButtonSelected else colorsScheme().secondaryButtonEnabled,
-            )
     ) {
         WireSecondaryButton(
             leadingIcon = {
@@ -188,13 +182,23 @@ fun SelfDeletionTimerButton(
                     painter = painterResource(id = R.drawable.ic_timer),
                     contentDescription = stringResource(id = R.string.content_description_self_deletion_selector_button),
                     colorFilter = ColorFilter.tint(
-                        if (isSelected) colorsScheme().secondaryButtonSelected else colorsScheme().onSecondaryButtonEnabled
-                    ),
+                        when {
+                            isDisabled -> colorsScheme().onPrimaryButtonDisabled
+                            isSelected -> colorsScheme().onPrimaryButtonSelected
+                            else -> colorsScheme().onSecondaryButtonEnabled
+                        }
+                    )
                 )
             },
-            state = if (isDisabled) WireButtonState.Disabled else WireButtonState.Default,
+            state = when {
+                isDisabled -> WireButtonState.Disabled
+                isSelected -> WireButtonState.Selected
+                else -> WireButtonState.Default
+            },
             colors = wireSecondaryButtonColors().copy(
-                enabled = Color.Transparent
+                disabled = colorsScheme().primaryButtonDisabled,
+                selected = colorsScheme().primaryButtonEnabled,
+                selectedOutline = colorsScheme().primaryButtonEnabled,
             ),
             onClick = onSelfDeletionTimerClicked,
             shape = RoundedCornerShape(size = dimensions().onMoreOptionsButtonCornerRadius),
@@ -226,4 +230,46 @@ fun PreviewSelectParticipantsButtonsRowWithoutMoreButton() {
 @Composable
 fun PreviewSelectParticipantsButtonsRowDisabledButton() {
     SelectParticipantsButtonsRow(selectedParticipantsCount = 0, mainButtonText = "Continue", onMainButtonClick = {})
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewSendContentWithSelfDeletionButton() {
+    WireTheme {
+        SendContentButton(
+            mainButtonText = "Send",
+            count = 1,
+            onMainButtonClick = {},
+            onSelfDeletionTimerClicked = {},
+            selfDeletionTimer = SelfDeletionTimer.Enabled(ZERO)
+        )
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewSendContentWithSelfDeletionDisabledButton() {
+    WireTheme {
+        SendContentButton(
+            mainButtonText = "Self-deleting messages",
+            count = 0,
+            onMainButtonClick = {},
+            onSelfDeletionTimerClicked = {},
+            selfDeletionTimer = SelfDeletionTimer.Enabled(10.toDuration(DurationUnit.SECONDS))
+        )
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewSendContentWithSelfDeletionSelectedButton() {
+    WireTheme {
+        SendContentButton(
+            mainButtonText = "Self-deleting messages",
+            count = 1,
+            onMainButtonClick = {},
+            onSelfDeletionTimerClicked = {},
+            selfDeletionTimer = SelfDeletionTimer.Enabled(10.toDuration(DurationUnit.SECONDS))
+        )
+    }
 }

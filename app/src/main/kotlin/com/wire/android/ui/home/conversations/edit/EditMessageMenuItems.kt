@@ -59,7 +59,7 @@ fun EditMessageMenuItems(
     val localFeatureVisibilityFlags = LocalFeatureVisibilityFlags.current
     val localContext = LocalContext.current
     val isCopyable = message.isTextMessage
-    val isAvailable = message.isAvailable
+    val isAvailable = message.isAvailable && !message.isPending
     val isAssetMessage = message.messageContent is UIMessageContent.AssetMessage
             || message.messageContent is UIMessageContent.ImageMessage
             || message.messageContent is UIMessageContent.AudioAssetMessage
@@ -152,8 +152,8 @@ fun EditMessageMenuItems(
                 if (isGenericAsset) add { OpenAssetExternallyOption(onOpenAssetClick) }
                 if (isEditable) { add { EditMessageMenuOption(onEditItemClick) } }
                 if (isAssetMessage) { add { ShareAssetMenuOption(onShareAsset) } }
-                add { DeleteItemMenuOption(onDeleteItemClick) }
             }
+            add { DeleteItemMenuOption(onDeleteItemClick) }
         }
     }
 }

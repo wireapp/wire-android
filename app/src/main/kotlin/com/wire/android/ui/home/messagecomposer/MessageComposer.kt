@@ -84,20 +84,7 @@ import kotlin.time.Duration
 @Composable
 fun MessageComposer(
     messageComposerStateHolder: MessageComposerStateHolder,
-    messageListContent: @Composable () -> Unit,
-    onSendTextMessage: (SendMessageBundle) -> Unit,
-    onSendEditTextMessage: (EditMessageBundle) -> Unit,
-    onMentionMember: (String?) -> Unit,
-    onAttachmentPicked: (UriAsset, Duration?) -> Unit,
-    isFileSharingEnabled: Boolean,
-    interactionAvailability: InteractionAvailability,
-    securityClassificationType: SecurityClassificationType,
-    membersToMention: List<Contact>,
-    onPingClicked: () -> Unit,
-    onShowSelfDeletionOption: () -> Unit,
-    showSelfDeletingOption: Boolean,
-    tempWritableImageUri: Uri?,
-    tempWritableVideoUri: Uri?
+    messageListContent: @Composable () -> Unit
 ) {
     when (val state = messageComposerStateHolder.messageComposerState) {
         is MessageComposerState.Active -> {
@@ -299,7 +286,7 @@ private fun MessageComposingInput(
         when (val type = inputType) {
             is MessageCompositionInputType.Composing -> {
                 ComposingInput(
-                    inputSize = inputSize,
+                    inputSize = size,
                     inputType = type,
                     onFocused = onInputFocused,
                     focusRequester = focusRequester,
@@ -361,7 +348,7 @@ private fun MessageComposingInput(
 //}
 
 @Composable
-fun AdditionalOptionsMenu(
+private fun AdditionalOptionsMenu(
     additionalOptionsState: AdditionalOptionMenuState,
     onEphemeralOptionItemClicked: () -> Unit,
     onAttachmentOptionClicked: () -> Unit,
@@ -375,8 +362,8 @@ fun AdditionalOptionsMenu(
                 onMentionButtonClicked = onEphemeralOptionItemClicked,
                 onAttachmentOptionClicked = onAttachmentOptionClicked,
                 onGifButtonClicked = onGifButtonClicked,
-                onSelfDeletionOptionButtonClicked = {},  // TODO(Refactor): Add correct value
-                showSelfDeletingOption = true, // TODO(Refactor): Add correct value
+                onSelfDeletionOptionButtonClicked = onEphemeralOptionItemClicked,
+                showSelfDeletingOption = true,
                 modifier = Modifier
             )
         }
@@ -392,13 +379,12 @@ fun AdditionalOptionsMenu(
 }
 
 @Composable
-fun AdditionalOptionSubMenu(
+private fun AdditionalOptionSubMenu(
     additionalOptionsState: AdditionalOptionSubMenuState,
     modifier: Modifier
 ) {
     when (additionalOptionsState) {
         AdditionalOptionSubMenuState.AttachFile -> {
-            // TODO(Refactor): Add correct values below
             AttachmentOptionsComponent(
                 onAttachmentPicked = {},
                 tempWritableImageUri = null,
@@ -407,7 +393,6 @@ fun AdditionalOptionSubMenu(
                 modifier = modifier
             )
         }
-
         AdditionalOptionSubMenuState.Emoji -> {}
         AdditionalOptionSubMenuState.Gif -> {}
         AdditionalOptionSubMenuState.RecordAudio -> {}
@@ -417,7 +402,7 @@ fun AdditionalOptionSubMenu(
 }
 
 @Composable
-fun AttachmentAndAdditionalOptionsMenuItems(
+private fun AttachmentAndAdditionalOptionsMenuItems(
     isMentionActive: Boolean,
     isFileSharingEnabled: Boolean,
     onMentionButtonClicked: () -> Unit,
@@ -448,9 +433,8 @@ fun AttachmentAndAdditionalOptionsMenuItems(
     }
 }
 
-
 @Composable
-fun SelfDeletingInput(
+private fun SelfDeletingInput(
     messageComposition: MessageComposition,
     inputSize: MessageCompositionInputSize,
     onFocused: () -> Unit,

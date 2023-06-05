@@ -33,6 +33,7 @@ sealed class MessageComposerState {
         private val messageCompositionState: MutableState<MessageComposition>,
         defaultAdditionalOptionMenuState: AdditionalOptionMenuState = AdditionalOptionMenuState.AttachmentAndAdditionalOptionsMenu,
         defaultAdditionalOptionsSubMenuState: AdditionalOptionSubMenuState = AdditionalOptionSubMenuState.Hidden,
+        private val onShowEphemeralOptionsMenu: () -> Unit
     ) : MessageComposerState() {
 
         val messageCompositionInputState = MessageCompositionInputState(messageCompositionState)
@@ -45,6 +46,7 @@ sealed class MessageComposerState {
 
         fun toEphemeralInputType() {
             messageCompositionInputState.toEphemeral()
+            onShowEphemeralOptionsMenu()
         }
 
         fun toggleAttachmentOptions() {

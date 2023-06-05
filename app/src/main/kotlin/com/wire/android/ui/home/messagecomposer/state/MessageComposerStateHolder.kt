@@ -21,8 +21,6 @@
 package com.wire.android.ui.home.messagecomposer.state
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -38,17 +36,26 @@ import com.wire.android.util.WHITE_SPACE
 import com.wire.kalium.logic.data.message.mention.MessageMention
 
 @Composable
-fun rememberMessageComposerStateHolder(): MessageComposerStateHolder {
+fun rememberMessageComposerStateHolder(
+    onShowEphemeralOptionsMenu: () -> Unit
+): MessageComposerStateHolder {
     val focusManager = LocalFocusManager.current
     val inputFocusRequester = remember { FocusRequester() }
 
-    return remember { MessageComposerStateHolder(focusManager, inputFocusRequester) }
+    return remember {
+        MessageComposerStateHolder(
+            focusManager,
+            inputFocusRequester,
+            onShowEphemeralOptionsMenu
+        )
+    }
 }
 
 
 class MessageComposerStateHolder(
     val focusManager: FocusManager,
-    val focusRequester: FocusRequester
+    private val focusRequester: FocusRequester,
+    private val onShowEphemeralOptionsMenu: () -> Unit
 ) {
 
     private var messageCompositionState = mutableStateOf(MessageComposition(TextFieldValue("")))
@@ -59,6 +66,7 @@ class MessageComposerStateHolder(
         messageComposerState = MessageComposerState.Active(
             focusManager = focusManager,
             focusRequester = focusRequester,
+            onShowEphemeralOptionsMenu = onShowEphemeralOptionsMenu,
             messageCompositionState = messageCompositionState,
             defaultAdditionalOptionsSubMenuState = if (showAttachmentOption) {
                 AdditionalOptionSubMenuState.AttachFile
@@ -69,7 +77,9 @@ class MessageComposerStateHolder(
     }
 
     fun toInActive() {
-
+        messageComposerState = MessageComposerState.InActive(
+            messageCompositionState.value
+        )
     }
 
 }
@@ -81,7 +91,6 @@ data class MessageComposition(
     val messageText: String
         get() = textFieldValue.text
 }
-
 
 
 //@Composable

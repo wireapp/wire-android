@@ -28,7 +28,7 @@ class MessageCompositionInputState(messageCompositionState: MutableState<Message
     var inputType: MessageCompositionInputType by mutableStateOf(MessageCompositionInputType.Composing(messageCompositionState))
         private set
 
-    var inputSize: MessageCompositionInputSize by mutableStateOf(MessageCompositionInputSize.COLLAPSED)
+    var size: MessageCompositionInputSize by mutableStateOf(MessageCompositionInputSize.COLLAPSED)
         private set
 
     fun toEphemeral() {
@@ -36,11 +36,11 @@ class MessageCompositionInputState(messageCompositionState: MutableState<Message
     }
 
     fun toFullscreen(){
-        inputSize = MessageCompositionInputSize.EXPANDED
+        size = MessageCompositionInputSize.EXPANDED
     }
 
     fun toCollapsed(){
-        inputSize = MessageCompositionInputSize.COLLAPSED
+        size = MessageCompositionInputSize.COLLAPSED
     }
 
 }

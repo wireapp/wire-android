@@ -319,7 +319,9 @@ private fun ConversationScreen(
     onFailedMessageRetryClicked: (String) -> Unit
 ) {
     val conversationScreenState = rememberConversationScreenState()
-    val messageComposerState = rememberMessageComposerStateHolder()
+    val messageComposerState = rememberMessageComposerStateHolder(
+            onShowEphemeralOptionsMenu = { conversationScreenState.showSelfDeletionContextMenu() }
+        )
     val context = LocalContext.current
 
     LaunchedEffect(conversationMessagesViewModel.savedStateHandle) {
@@ -352,8 +354,8 @@ private fun ConversationScreen(
                 onDeleteClick = onDeleteMessage,
                 onReactionClick = onReactionClick,
                 onDetailsClick = onMessageDetailsClick,
-                onReplyClick = {  },
-                onEditClick = { _, _ , _ ->  },
+                onReplyClick = { },
+                onEditClick = { _, _, _ -> },
                 onShareAsset = {
                     menuType.selectedMessage.header.messageId.let {
                         conversationMessagesViewModel.shareAsset(context, it)
@@ -483,8 +485,6 @@ private fun ConversationScreenContent(
     onFailedMessageRetryClicked: (String) -> Unit,
     onFailedMessageCancelClicked: (String) -> Unit
 ) {
-    val scope = rememberCoroutineScope()
-
     val lazyPagingMessages = messages.collectAsLazyPagingItems()
 
     val lazyListState = rememberSaveable(unreadEventCount, lazyPagingMessages, saver = LazyListState.Saver) {
@@ -513,32 +513,7 @@ private fun ConversationScreenContent(
                 onFailedMessageCancelClicked = onFailedMessageCancelClicked,
                 onFailedMessageRetryClicked = onFailedMessageRetryClicked
             )
-        },
-        onSendTextMessage = { messageBundle ->
-            scope.launch {
-                lazyListState.scrollToItem(0)
-            }
-            onSendMessage(messageBundle)
-        },
-        onSendEditTextMessage = onSendEditMessage,
-        onAttachmentPicked = remember {
-            { uriAsset, _ ->
-                scope.launch {
-                    lazyListState.scrollToItem(0)
-                }
-                onAttachmentPicked(uriAsset)
-            }
-        },
-        onMentionMember = onMentionMember,
-        onShowSelfDeletionOption = onShowSelfDeletionOption,
-        showSelfDeletingOption = true,
-        isFileSharingEnabled = isFileSharingEnabled,
-        interactionAvailability = interactionAvailability,
-        securityClassificationType = conversationState.securityClassificationType,
-        membersToMention = membersToMention,
-        onPingClicked = onPingClicked,
-        tempWritableImageUri = tempWritableImageUri,
-        tempWritableVideoUri = tempWritableVideoUri
+        }
     )
 
     // TODO: uncomment when we have the "scroll to bottom" button implemented

@@ -74,18 +74,7 @@ fun otherUserProfilePendingIntent(context: Context, destinationUserId: String, u
 fun callMessagePendingIntent(context: Context, conversationId: String, userId: String?): PendingIntent =
     messagePendingIntent(context, conversationId, userId)
 
-fun summaryMessagePendingIntent(context: Context): PendingIntent {
-    val intent = Intent(context.applicationContext, WireActivity::class.java).apply {
-        flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-    }
-
-    return PendingIntent.getActivity(
-        context.applicationContext,
-        MESSAGE_NOTIFICATIONS_SUMMARY_REQUEST_CODE,
-        intent,
-        PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
-    )
-}
+fun summaryMessagePendingIntent(context: Context): PendingIntent = openAppPendingIntent(context)
 
 fun replyMessagePendingIntent(context: Context, conversationId: String, userId: String?): PendingIntent = PendingIntent.getBroadcast(
     context,
@@ -186,7 +175,11 @@ fun openMigrationLoginPendingIntent(context: Context, userHandle: String): Pendi
     )
 
 fun openAppPendingIntent(context: Context): PendingIntent {
-    val appIntent = Intent(context.applicationContext, WireActivity::class.java)
+    val appIntent = Intent(context.applicationContext, WireActivity::class.java).apply {
+        // pass empty URI so the OS will call onNewIntent instead of onCreate
+        // for the WireActivity, keeping it open
+        data = Uri.Builder().build()
+    }
     return PendingIntent.getActivity(
         context.applicationContext,
         MESSAGE_NOTIFICATIONS_SUMMARY_REQUEST_CODE,

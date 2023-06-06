@@ -22,7 +22,6 @@
 
 package com.wire.android.util
 
-import android.content.Context
 import android.os.Bundle
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
@@ -36,7 +35,6 @@ import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapperImpl
 import com.wire.kalium.logic.data.id.toQualifiedID
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -46,20 +44,30 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.stateIn
+import java.util.concurrent.atomic.AtomicInteger
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @Singleton
 class CurrentScreenManager @Inject constructor(
-    @ApplicationContext val context: Context,
     screenStateObserver: ScreenStateObserver
 ) : DefaultLifecycleObserver,
     NavController.OnDestinationChangedListener {
 
     private val currentScreenState = MutableStateFlow<CurrentScreen>(CurrentScreen.SomeOther)
+
+    /**
+     * An integer that counts up when a screen appears, and counts down when
+     * the screen goes to the background.
+     * Better than a simple boolean in cases where an activity is re-started,
+     * which may result the new instance being shown BEFORE the old instance being hidden.
+     */
+    private val foregroundCount = AtomicInteger(0)
     private val isOnForegroundFlow = MutableStateFlow(false)
-    private val isAppVisibleFlow = screenStateObserver.screenStateFlow.combine(isOnForegroundFlow) { isScreenOn, isOnForeground ->
+    private val isAppVisibleFlow = screenStateObserver.screenStateFlow.combine(
+        isOnForegroundFlow
+    ) { isScreenOn, isOnForeground ->
         isOnForeground && isScreenOn
     }
 
@@ -79,13 +87,21 @@ class CurrentScreenManager @Inject constructor(
     override fun onResume(owner: LifecycleOwner) {
         super.onResume(owner)
         appLogger.i("${TAG}: onResume called")
-        isOnForegroundFlow.value = true
+        foregroundCount.getAndUpdate { currentValue ->
+            val newValue = maxOf(0, currentValue + 1)
+            isOnForegroundFlow.value = newValue > 0
+            newValue
+        }
     }
 
     override fun onStop(owner: LifecycleOwner) {
         super.onStop(owner)
         appLogger.i("${TAG}: onStop called")
-        isOnForegroundFlow.value = false
+        foregroundCount.getAndUpdate { currentValue ->
+            val newValue = maxOf(0, currentValue - 1)
+            isOnForegroundFlow.value = newValue > 0
+            newValue
+        }
     }
 
     override fun onDestinationChanged(controller: NavController, destination: NavDestination, arguments: Bundle?) {

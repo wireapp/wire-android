@@ -51,6 +51,7 @@ import com.wire.kalium.logic.feature.conversation.ObserveConversationListDetails
 import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.PersistNewSelfDeletionTimerUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.SelfDeletionTimer
+import com.wire.kalium.logic.feature.selfDeletingMessages.SelfDeletionTimer.Companion.SELF_DELETION_LOG_TAG
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -354,7 +355,14 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
             selfDeletingTimer = observeSelfDeletionSettingsForConversation(
                 conversationId = conversationId,
                 considerSelfUserSettings = true
-            ).first()
+            ).first().also { timer ->
+                if (timer !is SelfDeletionTimer.Disabled) {
+                    val logMap = timer.toLogString(
+                        "User timer update for conversationId=${conversationId.toLogString()} on ImportMediaScreen"
+                    )
+                    appLogger.d("$SELF_DELETION_LOG_TAG: $logMap")
+                }
+            }
         )
     }
 
@@ -364,13 +372,10 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
             importMediaState = importMediaState.copy(
                 selfDeletingTimer = SelfDeletionTimer.Enabled(selfDeletionDuration.value)
             )
-            appLogger.d(
-                "${SelfDeletionTimer.TAG}: ${
-                    importMediaState.selfDeletingTimer.toLogString(
-                        "user timer update for conversationId=${conversationId.toLogString()} on ImportMediaScreen"
-                    )
-                }"
+            val logMap = importMediaState.selfDeletingTimer.toLogString(
+                "user timer update for conversationId=${conversationId.toLogString()} on ImportMediaScreen"
             )
+            appLogger.d("$SELF_DELETION_LOG_TAG: $logMap")
             persistNewSelfDeletionTimerUseCase(
                 conversationId = conversationId,
                 newSelfDeletionTimer = importMediaState.selfDeletingTimer

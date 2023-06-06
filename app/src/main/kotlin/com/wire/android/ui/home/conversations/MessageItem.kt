@@ -204,7 +204,7 @@ fun MessageItem(
                                     onLongClicked(message)
                                 })
                             }
-                            val onLongClick: (() -> Unit)? = remember(message) {
+                            val onLongClick: (() -> Unit)? = remember {
                                 if (isAvailable) { { onLongClicked(message) } } else null
                             }
                             MessageContent(

@@ -95,6 +95,7 @@ pipeline {
                             stage(stageName) {
                                 build(
                                         job: 'AR-build-pipeline',
+                                        waitForStart: true,
                                         parameters: [
                                                 string(name: 'SOURCE_BRANCH', value: env.BRANCH_NAME),
                                                 string(name: 'CHANGE_BRANCH', value: env.CHANGE_BRANCH),

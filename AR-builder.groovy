@@ -73,7 +73,7 @@ pipeline {
         booleanParam(name: 'RUN_UNIT_TEST', defaultValue: true, description: 'Boolean Flag to define if the unit tests should be run')
         booleanParam(name: 'RUN_ACCEPTANCE_TESTS', defaultValue: true, description: 'Boolean Flag to define if the acceptance tests should be run')
         booleanParam(name: 'RUN_STATIC_CODE_ANALYSIS', defaultValue: true, description: 'Boolean Flag to define if the static code analysis should be run')
-        string(name: 'GitHub_CHANGE_ID', description: 'Change ID of the PR used to post comments to GH')
+        string(name: 'GITHUB_CHANGE_ID', description: 'Change ID of the PR used to post comments to GH')
     }
 //    options { disableConcurrentBuilds(abortPrevious: true) }
 
@@ -409,7 +409,7 @@ pipeline {
             script {
                 if (env.SOURCE_BRANCH.startsWith('PR-')) {
                     def payload = "Build [${env.BUILD_NUMBER}](${env.BUILD_URL}) **failed**."
-                    postGithubComment(params.GitHub_CHANGE_ID, payload)
+                    postGithubComment(params.GITHUB_CHANGE_ID, payload)
                 }
             }
 
@@ -438,7 +438,7 @@ pipeline {
                         }
                     }
 
-                    postGithubComment(params.GitHub_CHANGE_ID, payload)
+                    postGithubComment(params.GITHUB_CHANGE_ID, payload)
                 }
             }
 

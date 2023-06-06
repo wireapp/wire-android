@@ -67,7 +67,6 @@ import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.kalium.logic.feature.conversation.InteractionAvailability
 import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
-import kotlin.time.Duration
 
 @Composable
 fun MessageComposer(
@@ -76,7 +75,7 @@ fun MessageComposer(
     onSendTextMessage: (SendMessageBundle) -> Unit,
     onSendEditTextMessage: (EditMessageBundle) -> Unit,
     onMentionMember: (String?) -> Unit,
-    onAttachmentPicked: (UriAsset, Duration?) -> Unit,
+    onAttachmentPicked: (UriAsset) -> Unit,
     isFileSharingEnabled: Boolean,
     interactionAvailability: InteractionAvailability,
     securityClassificationType: SecurityClassificationType,
@@ -98,8 +97,7 @@ fun MessageComposer(
                     SendMessageBundle(
                         message = messageComposerState.messageComposeInputState.messageText.text,
                         mentions = messageComposerState.mentions,
-                        quotedMessageId = messageComposerState.quotedMessageData?.messageId,
-                        expireAfter = expireAfter
+                        quotedMessageId = messageComposerState.quotedMessageData?.messageId
                     )
                 )
                 messageComposerState.quotedMessageData = null
@@ -163,7 +161,7 @@ private fun MessageComposer(
     isFileSharingEnabled: Boolean,
     interactionAvailability: InteractionAvailability,
     membersToMention: List<Contact>,
-    onAttachmentPicked: (UriAsset, Duration?) -> Unit,
+    onAttachmentPicked: (UriAsset) -> Unit,
     securityClassificationType: SecurityClassificationType,
     tempWritableImageUri: Uri?,
     tempWritableVideoUri: Uri?,
@@ -292,12 +290,7 @@ private fun MessageComposer(
                 if (attachmentOptionsVisible) {
                     AttachmentOptions(
                         onAttachmentPicked = remember {
-                            {
-                                val expireAfter = (messageComposerState.messageComposeInputState as? MessageComposeInputState.Active)?.let {
-                                    (it.type as? MessageComposeInputType.SelfDeletingMessage)
-                                }?.selfDeletionDuration?.value
-                                onAttachmentPicked(it, expireAfter)
-                            }
+                            { onAttachmentPicked(it) }
                         },
                         isFileSharingEnabled = isFileSharingEnabled,
                         tempWritableImageUri = tempWritableImageUri,

@@ -43,7 +43,6 @@ import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
 import com.wire.android.ui.common.button.WirePrimaryButton
-import com.wire.android.ui.common.button.wirePrimaryButtonColors
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
@@ -263,20 +262,16 @@ private fun ImportMediaBottomBar(
 ) {
     val selfDeletionTimer = importMediaViewModel.importMediaState.selfDeletingTimer
     val shortDurationLabel = selfDeletionTimer.toDuration().toSelfDeletionDuration().shortLabel
-    val (mainButtonText, mainButtonColors) = if (selfDeletionTimer.toDuration() > Duration.ZERO) {
-        "${stringResource(id = R.string.self_deleting_message_label)} (${shortDurationLabel.asString()})" to wirePrimaryButtonColors().copy(
-            enabled = colorsScheme().onPrimaryButtonEnabled,
-            onEnabled = colorsScheme().primaryButtonEnabled
-        )
+    val mainButtonText = if (selfDeletionTimer.toDuration() > Duration.ZERO) {
+        "${stringResource(id = R.string.self_deleting_message_label)} (${shortDurationLabel.asString()})"
     } else {
-        stringResource(id = R.string.import_media_send_button_title) to wirePrimaryButtonColors()
+        stringResource(id = R.string.import_media_send_button_title)
     }
     SendContentButton(
         mainButtonText = mainButtonText,
         count = importMediaViewModel.currentSelectedConversationsCount(),
         onMainButtonClick = importMediaViewModel::checkRestrictionsAndSendImportedMedia,
         selfDeletionTimer = selfDeletionTimer,
-        mainButtonColors = mainButtonColors,
         onSelfDeletionTimerClicked = importMediaScreenState::showBottomSheetMenu,
     )
 }

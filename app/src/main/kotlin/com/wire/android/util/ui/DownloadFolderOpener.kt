@@ -14,32 +14,20 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
+package com.wire.android.util.ui
 
-package com.wire.android.ui.home.conversations.model
+import android.app.DownloadManager
+import android.content.ActivityNotFoundException
+import android.content.Context
+import android.content.Intent
+import android.widget.Toast
 
-import android.net.Uri
-import com.wire.kalium.logic.data.asset.AttachmentType
-import okio.Path
-
-/**
- * Represents a set of metadata information of an asset message
- */
-data class AssetBundle(
-    val mimeType: String,
-    val dataPath: Path,
-    val dataSize: Long,
-    val fileName: String,
-    val assetType: AttachmentType
-)
-
-/**
- * @param uri Uri of the asset
- * @param saveToDeviceIfInvalid if true then the asset will be copied to the public "media" directory if it's invalid (e.g. too large)
- */
-data class UriAsset(
-    val uri: Uri,
-    val saveToDeviceIfInvalid: Boolean = false
-)
+fun openDownloadFolder(context: Context) {
+    val errorToastMessage = context.resources.getString(com.wire.android.R.string.label_no_application_found_open_downloads_folder)
+    try {
+        context.startActivity(Intent(DownloadManager.ACTION_VIEW_DOWNLOADS))
+    } catch (e: ActivityNotFoundException) {
+        Toast.makeText(context, errorToastMessage, Toast.LENGTH_SHORT).show()
+    }
+}

@@ -28,6 +28,9 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.R
 import com.wire.android.mapper.ContactMapper
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
+import com.wire.android.navigation.EXTRA_IS_SERVICES_ALLOWED
+import com.wire.android.navigation.NavigationCommand
+import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.conversations.search.ContactSearchResult
 import com.wire.android.ui.home.conversations.search.KnownPeopleSearchViewModel
@@ -35,21 +38,27 @@ import com.wire.android.ui.home.conversations.search.SearchPeopleState
 import com.wire.android.ui.home.conversations.search.SearchResult
 import com.wire.android.ui.home.conversations.search.SearchResultState
 import com.wire.android.ui.home.conversations.search.SearchResultTitle
+import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.publicuser.ConversationMemberExcludedOptions
 import com.wire.kalium.logic.data.publicuser.SearchUsersOptions
+import com.wire.kalium.logic.data.user.BotService
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.conversation.AddMemberToConversationUseCase
 import com.wire.kalium.logic.feature.conversation.GetAllContactsNotInConversationUseCase
 import com.wire.kalium.logic.feature.conversation.Result
 import com.wire.kalium.logic.feature.publicuser.search.SearchKnownUsersUseCase
+import com.wire.kalium.logic.feature.service.ObserveAllServicesUseCase
+import com.wire.kalium.logic.feature.service.SearchServicesByNameUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -60,8 +69,10 @@ import com.wire.kalium.logic.feature.publicuser.search.SearchUsersResult as Know
 @HiltViewModel
 class AddMembersToConversationViewModel @Inject constructor(
     private val getAllContactsNotInConversation: GetAllContactsNotInConversationUseCase,
+    private val getAllServices: ObserveAllServicesUseCase,
     private val contactMapper: ContactMapper,
     private val addMemberToConversation: AddMemberToConversationUseCase,
+    private val searchServicesByName: SearchServicesByNameUseCase,
     private val dispatchers: DispatcherProvider,
     private val searchKnownUsers: SearchKnownUsersUseCase,
     savedStateHandle: SavedStateHandle,
@@ -74,6 +85,8 @@ class AddMembersToConversationViewModel @Inject constructor(
     private val conversationId: QualifiedID = qualifiedIdMapper.fromStringToQualifiedID(
         savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)!!
     )
+    private val isServicesAllowed: Boolean = savedStateHandle
+        .get<String>(EXTRA_IS_SERVICES_ALLOWED)!!.toBoolean()
 
     var state: SearchPeopleState by mutableStateOf(SearchPeopleState(isGroupCreationContext = false))
 
@@ -83,15 +96,25 @@ class AddMembersToConversationViewModel @Inject constructor(
                 initialContactResultFlow(),
                 knownPeopleSearchQueryFlow,
                 searchQueryTextFieldFlow,
-                selectedContactsFlow
-            ) { initialContacts, knownResult, searchQuery, selectedContacts ->
+                selectedContactsFlow,
+                combine(initialServicesResultFlow(), servicesSearchQueryFlow, ::Pair)
+            ) { initialContacts,
+                knownResult,
+                searchQuery,
+                selectedContacts,
+                services ->
+                val initialServices = services.first
+                val servicesSearchResult = services.second
                 SearchPeopleState(
                     initialContacts = initialContacts,
                     searchQuery = searchQuery,
                     searchResult = persistentMapOf(SearchResultTitle(R.string.label_contacts) to knownResult),
                     noneSearchSucceed = knownResult.searchResultState is SearchResultState.Failure,
                     contactsAddedToGroup = selectedContacts.toImmutableList(),
-                    isGroupCreationContext = false
+                    isGroupCreationContext = false,
+                    servicesInitialContacts = initialServices,
+                    servicesSearchResult = servicesSearchResult,
+                    isServicesAllowed = isServicesAllowed
                 )
             }.collect { updatedState ->
                 state = updatedState
@@ -105,6 +128,11 @@ class AddMembersToConversationViewModel @Inject constructor(
                 is Result.Failure -> SearchResult.Failure(R.string.label_general_error)
                 is Result.Success -> SearchResult.Success(result.contactsNotInConversation.map(contactMapper::fromOtherUser))
             }
+        }
+
+    override suspend fun getInitialServices(): Flow<SearchResult> =
+        getAllServices().map { result ->
+            SearchResult.Success(result.map(contactMapper::fromService))
         }
 
     override suspend fun searchKnownPeople(searchTerm: String): Flow<ContactSearchResult.InternalContact> {
@@ -132,6 +160,20 @@ class AddMembersToConversationViewModel @Inject constructor(
         }
     }
 
+    override suspend fun searchServices(searchTerm: String): Flow<SearchResultState> {
+        val searchServices = searchServicesByName(search = searchTerm)
+
+        return flowOf(
+            if (searchServices.first().isEmpty()) {
+                SearchResultState.Failure(R.string.label_no_results_found)
+            } else {
+                SearchResultState.Success(
+                    searchServices.first().map(contactMapper::fromService).toImmutableList()
+                )
+            }
+        )
+    }
+
     fun addMembersToConversation() {
         viewModelScope.launch {
             withContext(dispatchers.io()) {
@@ -142,6 +184,24 @@ class AddMembersToConversationViewModel @Inject constructor(
                 )
             }
             navigationManager.navigateBack()
+        }
+    }
+
+    fun onServiceClicked(contact: Contact) {
+        viewModelScope.launch {
+            navigationManager.navigate(
+                command = NavigationCommand(
+                    destination = NavigationItem.ServiceDetails.getRouteWithArgs(
+                        listOf(
+                            BotService(
+                                id = contact.id,
+                                provider = contact.domain
+                            ),
+                            conversationId
+                        )
+                    )
+                )
+            )
         }
     }
 }

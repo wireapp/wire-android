@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -36,6 +37,7 @@ import com.wire.android.model.Clickable
 import com.wire.android.ui.common.clickable
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.theme.wireTypography
 
 private enum class Visibility {
     VISIBLE,
@@ -78,6 +80,7 @@ fun DoubleTapToast(
                     start = dimensions().spacing16x,
                     end = dimensions().spacing16x,
                 ),
+                style = MaterialTheme.wireTypography.label01,
                 color = Color.White,
                 text = text
             )

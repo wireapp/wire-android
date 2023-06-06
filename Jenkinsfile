@@ -90,13 +90,13 @@ pipeline {
                     List<String> flavorList = defineFlavor()
                     for (flavor in flavorList) {
                         String buildType = defineBuildType(flavor)
-                        String stageName = "Build$flavor$buildType"
-                        String buildName = "Build $flavor$buildType"
+                        String stageName = "Build $flavor$buildType"
                         String runId = "${env.BUILD_NUMBER}$flavor$buildType"
                         dynamicStages[stageName] = {
-                            stage(buildName) {
-                                build(
+                            stage(stageName) {
+                                waitForBuild(
                                         job: 'AR-build-pipeline',
+                                        runId: runId,
                                         parameters: [
                                                 string(name: 'SOURCE_BRANCH', value: env.BRANCH_NAME),
                                                 string(name: 'CHANGE_BRANCH', value: env.CHANGE_BRANCH),

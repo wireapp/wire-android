@@ -16,7 +16,7 @@ List<String> defineFlavor() {
     } else if (branchName == "internal") {
         return ['Internal']
     }
-    return ['Dev', 'Staging']
+    return ['Staging', 'Dev']
 }
 
 String defineBuildType(String flavor) {
@@ -90,11 +90,11 @@ pipeline {
                     List<String> flavorList = defineFlavor()
                     for (flavor in flavorList) {
                         String buildType = defineBuildType(flavor)
-                        String stageName = "Build $flavor"
+                        String stageName = "Build$flavor$buildType"
                         String buildName = "Build $flavor$buildType"
                         String runId = "${env.BUILD_NUMBER}$flavor$buildType"
                         dynamicStages[stageName] = {
-                            stage(stageName) {
+                            stage(buildName) {
                                 build(
                                         job: 'AR-build-pipeline',
                                         parameters: [

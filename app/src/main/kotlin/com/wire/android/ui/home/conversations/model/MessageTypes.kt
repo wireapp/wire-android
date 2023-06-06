@@ -20,13 +20,11 @@
 
 package com.wire.android.ui.home.conversations.model
 
-import android.text.util.Linkify
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -37,7 +35,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import com.wire.android.model.Clickable
 import com.wire.android.model.ImageAsset
-import com.wire.android.ui.common.LinkifyText
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.model.messagetypes.asset.MessageAsset
 import com.wire.android.ui.home.conversations.model.messagetypes.image.DisplayableImageMessage
@@ -45,14 +42,21 @@ import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMess
 import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMessageInProgress
 import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMessageParams
 import com.wire.android.ui.home.conversations.model.messagetypes.image.ImportedImageMessage
+import com.wire.android.ui.markdown.MDDocument
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
-import com.wire.android.ui.theme.wireTypography
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.Message.DownloadStatus.DOWNLOAD_IN_PROGRESS
 import com.wire.kalium.logic.data.message.Message.DownloadStatus.FAILED_DOWNLOAD
 import com.wire.kalium.logic.data.message.Message.UploadStatus.FAILED_UPLOAD
 import com.wire.kalium.logic.data.message.Message.UploadStatus.UPLOAD_IN_PROGRESS
+import org.commonmark.Extension
+import org.commonmark.ext.gfm.strikethrough.StrikethroughExtension
+import org.commonmark.ext.gfm.tables.TablesExtension
+import org.commonmark.node.Document
+import org.commonmark.parser.Parser
+import java.util.Arrays
+
 
 // TODO: Here we actually need to implement some logic that will distinguish MentionLabel with Body of the message,
 //       waiting for the backend to implement mapping logic for the MessageBody
@@ -62,15 +66,22 @@ internal fun MessageBody(
     onLongClick: (() -> Unit)? = null,
     onOpenProfile: (String) -> Unit,
 ) {
-    LinkifyText(
-        text = messageBody.message,
-        mask = Linkify.WEB_URLS or Linkify.EMAIL_ADDRESSES,
-        color = MaterialTheme.colorScheme.onBackground,
-        onLongClick = onLongClick,
-        modifier = Modifier.defaultMinSize(minHeight = dimensions().spacing20x),
-        style = MaterialTheme.wireTypography.body01,
-        onOpenProfile = onOpenProfile
-    )
+    val extensions: List<Extension> = listOf(
+        StrikethroughExtension.builder().requireTwoTildes(true).build(),
+        TablesExtension.create()
+        )
+
+    val document = Parser.builder().extensions(extensions).build().parse(messageBody.message.asString()) as Document
+    MDDocument(document) // TODO KBX improve
+//    LinkifyText(
+//        text = messageBody.message,
+//        mask = Linkify.WEB_URLS or Linkify.EMAIL_ADDRESSES,
+//        color = MaterialTheme.colorScheme.onBackground,
+//        onLongClick = onLongClick,
+//        modifier = Modifier.defaultMinSize(minHeight = dimensions().spacing20x),
+//        style = MaterialTheme.wireTypography.body01,
+//        onOpenProfile = onOpenProfile
+//    )
 }
 
 @OptIn(ExperimentalFoundationApi::class)

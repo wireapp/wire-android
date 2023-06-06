@@ -115,6 +115,9 @@ sealed class CurrentScreen {
     // Incoming call screen is opened
     data class IncomingCallScreen(val id: QualifiedID) : CurrentScreen()
 
+    // Import media screen is opened
+    object ImportMedia : CurrentScreen()
+
     // Some other screen is opened, kinda "do nothing screen"
     object SomeOther : CurrentScreen()
 
@@ -155,6 +158,7 @@ sealed class CurrentScreen {
                         ?.let { IncomingCallScreen(it) }
                         ?: SomeOther
                 }
+                NavigationItem.ImportMedia -> ImportMedia
                 else -> SomeOther
             }
         }

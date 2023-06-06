@@ -108,6 +108,7 @@ object Libraries {
         const val ktxSerialization = "1.3.2"
         const val ktxImmutableCollections = "0.3.5"
         const val resaca = "2.3.4"
+        const val openIdAppAuth = "0.11.1"
     }
 
     // AndroidX Dependencies
@@ -185,6 +186,10 @@ object Libraries {
     object Paging {
         const val runtime = "androidx.paging:paging-runtime:${Versions.paging3}"
         const val compose = "androidx.paging:paging-compose:${Versions.paging3Compose}"
+    }
+
+    object OAuth {
+        const val openIdAppAuth = "net.openid:appauth:${Versions.openIdAppAuth}"
     }
 }
 

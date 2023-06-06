@@ -17,6 +17,7 @@
  */
 package com.wire.android.ui.debug.dev
 
+import android.content.Context
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -28,6 +29,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -88,6 +90,11 @@ fun DevDebugContent() {
                         }
                     )
                 }
+
+                GetE2EICertificateSwitch(
+                    enrollE2EI = devDebugViewModel::getE2EICertificate
+                )
+
                 LogOptions(
                     isLoggingEnabled = isLoggingEnabled,
                     onLoggingEnabledChange = devDebugViewModel::setLoggingEnabledState,
@@ -190,6 +197,37 @@ private fun EnableEncryptedProteusStorageSwitch(
         }
     )
 }
+
+
+@Composable
+private fun GetE2EICertificateSwitch(
+    enrollE2EI: (context: Context) -> Unit
+) {
+    val context = LocalContext.current
+    Column {
+        FolderHeader(stringResource(R.string.debug_settings_api_versioning_title))
+        RowItemTemplate(modifier = Modifier.wrapContentWidth(),
+            title = {
+                Text(
+                    style = MaterialTheme.wireTypography.body01,
+                    color = MaterialTheme.wireColorScheme.onBackground,
+                    text = stringResource(R.string.label_get_e2ei_cetificate),
+                    modifier = Modifier.padding(start = dimensions().spacing8x)
+                )
+            },
+            actions = {
+                WirePrimaryButton(
+                    onClick = {
+                        enrollE2EI(context)
+                    },
+                    text = stringResource(R.string.label_get_e2ei_cetificate),
+                    fillMaxWidth = false
+                )
+            }
+        )
+    }
+}
+
 
 @Composable
 private fun DevelopmentApiVersioningOptions(

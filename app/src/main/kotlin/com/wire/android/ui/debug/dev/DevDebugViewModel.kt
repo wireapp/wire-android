@@ -27,6 +27,7 @@ import androidx.lifecycle.viewModelScope
 import co.touchlab.kermit.platformLogWriter
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.di.CurrentAccount
+import com.wire.android.feature.OAuthUseCase
 import com.wire.android.migration.failure.UserMigrationStatus
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
@@ -35,6 +36,7 @@ import com.wire.android.navigation.NavigationManager
 import com.wire.android.util.DataDogLogger
 import com.wire.android.util.EMPTY
 import com.wire.android.util.LogFileWriter
+import com.wire.android.util.extension.getActivity
 import com.wire.kalium.logger.KaliumLogLevel
 import com.wire.kalium.logic.CoreLogger
 import com.wire.kalium.logic.data.user.UserId
@@ -72,6 +74,7 @@ class DevDebugViewModel
     private val updateApiVersions: UpdateApiVersionsScheduler,
     private val globalDataStore: GlobalDataStore,
     private val restartSlowSyncProcessForRecovery: RestartSlowSyncProcessForRecoveryUseCase,
+    private val oAuthUseCase: OAuthUseCase
 ) : ViewModel() {
 
     val logPath: String = logFileWriter.activeLoggingFile.absolutePath
@@ -161,6 +164,10 @@ class DevDebugViewModel
         viewModelScope.launch {
             restartSlowSyncProcessForRecovery()
         }
+    }
+
+    fun getE2EICertificate(context: Context) {
+        oAuthUseCase.invoke(context.getActivity()!!)
     }
 
     fun setLoggingEnabledState(isEnabled: Boolean) {

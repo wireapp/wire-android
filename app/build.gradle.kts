@@ -239,6 +239,9 @@ dependencies {
     // Development dependencies
     debugImplementation(DevLibraries.leakCanary)
 
+    // oauth dependencies
+    implementation(Libraries.OAuth.openIdAppAuth)
+
     // Internal, dev, beta and staging only tracking & logging
 
     devImplementation(Libraries.dataDog)

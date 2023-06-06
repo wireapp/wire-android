@@ -172,7 +172,7 @@ fun SystemMessageItem(
                 MessageSendFailureWarning(
                     messageStatus = message.header.messageStatus as MessageStatus.MessageSendFailureStatus,
                     onRetryClick = remember { { onFailedMessageRetryClicked(message.header.messageId) } },
-                    onCancelClick = remember { { onFailedMessageCancelClicked(message.header.messageId) } },
+                    onCancelClick = remember { { onFailedMessageCancelClicked(message.header.messageId) } }
                 )
             }
         }
@@ -347,7 +347,9 @@ private fun List<String>.toUserNamesListString(res: Resources) = when {
 }
 
 private fun List<UIText>.limitUserNamesList(
-    res: Resources, threshold: Int, @PluralsRes quantityString: Int = R.plurals.label_system_message_x_more
+    res: Resources,
+    threshold: Int,
+    @PluralsRes quantityString: Int = R.plurals.label_system_message_x_more
 ): List<String> =
     if (this.size <= threshold) {
         this.map { it.asString(res) }
@@ -409,7 +411,7 @@ fun SystemMessage.annotatedString(
             memberNames.limitUserNamesList(
                 res,
                 if (expanded) memberNames.size else EXPANDABLE_THRESHOLD,
-                R.plurals.label_system_message_conversation_failed_add_x_members,
+                R.plurals.label_system_message_conversation_failed_add_x_members
             ).toUserNamesListString(res)
         )
     }

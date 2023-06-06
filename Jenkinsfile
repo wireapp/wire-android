@@ -104,7 +104,7 @@ pipeline {
                                                 booleanParam(name: 'TRY_UPLOAD_TO_PLAYSTORE', value: false),
                                                 booleanParam(name: 'RUN_UNIT_TEST', value: true),
                                                 booleanParam(name: 'RUN_ACCEPTANCE_TESTS', value: true),
-                                                booleanParam(name: 'RUN_STATIC_CODE_ANALYSIS', value: true)
+                                                booleanParam(name: 'RUN_STATIC_CODE_ANALYSIS', value: true),
                                                 string(name: 'GitHub_CHANGE_ID', value: env.CHANGE_ID)
                                         ]
                                 )

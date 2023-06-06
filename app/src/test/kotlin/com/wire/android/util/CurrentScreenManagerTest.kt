@@ -111,6 +111,5 @@ class CurrentScreenManagerTest {
         fun arrange() = this to CurrentScreenManager(
             screenStateObserver
         )
-
     }
 }

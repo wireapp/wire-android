@@ -88,15 +88,16 @@ pipeline {
                 script {
                     def dynamicStages = [:]
                     List<String> flavorList = defineFlavor()
+                    Int index = 0
                     for (flavor in flavorList) {
                         String buildType = defineBuildType(flavor)
                         String stageName = "Build $flavor$buildType"
                         String runId = "${env.BUILD_NUMBER}$flavor$buildType"
                         dynamicStages[stageName] = {
                             stage(stageName) {
-                                waitForBuild(
+                                build(
                                         job: 'AR-build-pipeline',
-                                        runId: runId,
+                                        quietPeriod: index * 10,
                                         parameters: [
                                                 string(name: 'SOURCE_BRANCH', value: env.BRANCH_NAME),
                                                 string(name: 'CHANGE_BRANCH', value: env.CHANGE_BRANCH),
@@ -107,11 +108,13 @@ pipeline {
                                                 booleanParam(name: 'RUN_UNIT_TEST', value: true),
                                                 booleanParam(name: 'RUN_ACCEPTANCE_TESTS', value: true),
                                                 booleanParam(name: 'RUN_STATIC_CODE_ANALYSIS', value: true),
-                                                string(name: 'GitHub_CHANGE_ID', value: env.CHANGE_ID)
+                                                string(name: 'GitHub_CHANGE_ID', value: env.CHANGE_ID),
+                                                run(name: 'RUN_ID', runId: runId)
                                         ]
                                 )
                             }
                         }
+                        index++
                     }
                     parallel dynamicStages
                 }

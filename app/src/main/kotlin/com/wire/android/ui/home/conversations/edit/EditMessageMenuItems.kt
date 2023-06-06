@@ -116,7 +116,7 @@ fun EditMessageMenuItems(
         }
     }
 
-    if (message.isAssetMessage) {
+    return if (message.isAssetMessage) {
         AssetEditMenuItems(
             isEphemeral = message.expirationStatus is ExpirationStatus.Expirable,
             isUploading = message.isPending,

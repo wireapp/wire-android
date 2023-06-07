@@ -534,9 +534,9 @@
     <string name="label_system_message_conversation_history_lost">Sie haben das Gerät eine Weile nicht benutzt. Einige Nachrichten werden hier eventuell nicht angezeigt.</string>
     <string name="label_system_message_receipt_mode_on">ein</string>
     <string name="label_system_message_receipt_mode_off">aus</string>
-    <string name="label_system_message_conversation_started_by_self">**You** started the conversation</string>
-    <string name="label_system_message_conversation_started_by_other">%1$s started the conversation</string>
-    <string name="label_system_message_conversation_started_with_members">With %1$s</string>
+    <string name="label_system_message_conversation_started_by_self">**Sie** haben die Unterhaltung begonnen</string>
+    <string name="label_system_message_conversation_started_by_other">%1$s hat die Unterhaltung begonnen</string>
+    <string name="label_system_message_conversation_started_with_members">Mit %1$s</string>
     <!-- Last messages -->
     <plurals name="last_message_self_added_users">
         <item quantity="one">Sie haben 1 Person zur Unterhaltung hinzugefügt</item>
@@ -618,7 +618,7 @@
     <string name="label_no_results_found">Keine Ergebnisse, bitte erneut versuchen.</string>
     <string name="label_general_error">Ein Fehler ist aufgetreten</string>
     <string name="label_add_member_people">People</string>
-    <string name="label_add_member_services">Services</string>
+    <string name="label_add_member_services">Dienste</string>
     <!-- Snackbar messages -->
     <string name="error_unknown_title">Ein Fehler ist aufgetreten</string>
     <string name="error_unknown_message">Bitte erneut versuchen</string>
@@ -832,7 +832,7 @@
     <string name="label_enable_logging">Protokollierung aktivieren</string>
     <string name="label_proteus_option_title">Proteus</string>
     <string name="label_enable_encrypted_proteus_storage">Verschlüsselte Proteus-Speicherung aktivieren</string>
-    <string name="label_debug_title">Debug Settings</string>
+    <string name="label_debug_title">Fehlerbehebung</string>
     <string name="label_client_option_title">Client-ID</string>
     <string name="label_device_id">Geräte-ID: %1$s</string>
     <string name="label_code_commit_id">Commit-Hash: %1$s</string>

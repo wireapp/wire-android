@@ -23,6 +23,7 @@ package com.wire.android.ui.common.textfield
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
@@ -52,9 +53,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -102,6 +105,8 @@ internal fun WireTextField(
     modifier: Modifier = Modifier,
     onSelectedLineIndexChanged: (Int) -> Unit = { },
     onLineBottomYCoordinateChanged: (Float) -> Unit = { },
+    shouldDetectTaps: Boolean = false,
+    onTap: (Offset) -> Unit = { },
 ) {
     val enabled = state !is WireTextFieldState.Disabled
     var updatedText by remember { mutableStateOf(value) }
@@ -155,7 +160,9 @@ internal fun WireTextField(
                     state,
                     placeholderTextStyle,
                     inputMinHeight,
-                    colors
+                    colors,
+                    shouldDetectTaps,
+                    onTap
                 )
             },
             onTextLayout = {
@@ -218,11 +225,21 @@ private fun InnerText(
     state: WireTextFieldState = WireTextFieldState.Default,
     placeholderTextStyle: TextStyle = MaterialTheme.wireTypography.body01,
     inputMinHeight: Dp = 48.dp,
-    colors: WireTextFieldColors = wireTextFieldColors()
+    colors: WireTextFieldColors = wireTextFieldColors(),
+    shouldDetectTaps: Boolean = false,
+    onClick: (Offset) -> Unit = { }
 ) {
+    var modifier: Modifier = Modifier
+    if (shouldDetectTaps) {
+        modifier = modifier.pointerInput(Unit) {
+            detectTapGestures(onTap = onClick)
+        }
+    }
+
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.heightIn(min = inputMinHeight)
+        modifier = modifier
+            .heightIn(min = inputMinHeight)
     ) {
 
         val trailingOrStateIcon: @Composable (() -> Unit)? = when {

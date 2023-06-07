@@ -115,7 +115,6 @@ class ConversationListViewModelTest {
     @MockK
     private lateinit var refreshConversationsWithoutMetadata: RefreshConversationsWithoutMetadataUseCase
 
-
     @BeforeEach
     fun setUp() {
         MockKAnnotations.init(this, relaxUnitFun = true)

@@ -557,6 +557,10 @@
     <string name="label_system_message_conversation_started_by_self">**You** started the conversation</string>
     <string name="label_system_message_conversation_started_by_other">%1$s started the conversation</string>
     <string name="label_system_message_conversation_started_with_members">With %1$s</string>
+    <string name="label_system_message_conversation_failed_add_members_details">%s could not be added to the group as their backend could not be reached.</string>
+    <plurals name="label_system_message_conversation_failed_add_x_members">
+        <item quantity="other">%1$d more</item>
+    </plurals>
     <!-- Last messages -->
     <plurals name="last_message_self_added_users">
         <item quantity="one">You added 1 person to the conversation</item>

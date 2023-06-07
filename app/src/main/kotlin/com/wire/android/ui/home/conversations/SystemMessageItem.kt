@@ -21,6 +21,7 @@
 package com.wire.android.ui.home.conversations
 
 import android.content.res.Resources
+import androidx.annotation.PluralsRes
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
@@ -120,18 +121,20 @@ fun SystemMessageItem(
             }
         }
         Spacer(Modifier.padding(start = dimensions().spacing16x))
-        Column {
+        Column(
+            Modifier
+                .defaultMinSize(minHeight = dimensions().spacing20x)
+                .animateContentSize(
+                    animationSpec = spring(
+                        dampingRatio = Spring.DampingRatioLowBouncy,
+                        stiffness = Spring.StiffnessMediumLow
+                    )
+                )
+        ) {
             val context = LocalContext.current
             var expanded: Boolean by remember { mutableStateOf(false) }
             Text(
-                modifier = Modifier
-                    .defaultMinSize(minHeight = dimensions().spacing20x)
-                    .animateContentSize(
-                        animationSpec = spring(
-                            dampingRatio = Spring.DampingRatioLowBouncy,
-                            stiffness = Spring.StiffnessMediumLow
-                        )
-                    ),
+                modifier = Modifier.defaultMinSize(minHeight = dimensions().spacing20x),
                 style = MaterialTheme.wireTypography.body01,
                 lineHeight = MaterialTheme.wireTypography.body02.lineHeight,
                 text = message.messageContent.annotatedString(
@@ -140,9 +143,14 @@ fun SystemMessageItem(
                     normalStyle = MaterialTheme.wireTypography.body01,
                     boldStyle = MaterialTheme.wireTypography.body02,
                     normalColor = MaterialTheme.wireColorScheme.secondaryText,
-                    boldColor = MaterialTheme.wireColorScheme.onBackground
+                    boldColor = MaterialTheme.wireColorScheme.onBackground,
+                    errorColor = MaterialTheme.wireColorScheme.error,
+                    isErrorString = message.addingFailed
                 )
             )
+            if (message.addingFailed && expanded) {
+                OfflineBackendsLearnMoreLink()
+            }
             if (message.messageContent is SystemMessage.Knock) {
                 VerticalSpace.x8()
             }
@@ -164,7 +172,7 @@ fun SystemMessageItem(
                 MessageSendFailureWarning(
                     messageStatus = message.header.messageStatus as MessageStatus.MessageSendFailureStatus,
                     onRetryClick = remember { { onFailedMessageRetryClicked(message.header.messageId) } },
-                    onCancelClick = remember { { onFailedMessageCancelClicked(message.header.messageId) } },
+                    onCancelClick = remember { { onFailedMessageCancelClicked(message.header.messageId) } }
                 )
             }
         }
@@ -194,6 +202,7 @@ private fun getColorFilter(message: SystemMessage): ColorFilter? {
         is SystemMessage.MissedCall.OtherCalled -> null
         is SystemMessage.MissedCall.YouCalled -> null
         is SystemMessage.Knock -> ColorFilter.tint(colorsScheme().primary)
+        is SystemMessage.MemberFailedToAdd -> ColorFilter.tint(colorsScheme().error)
         is SystemMessage.MemberAdded,
         is SystemMessage.MemberJoined,
         is SystemMessage.MemberLeft,
@@ -328,6 +337,7 @@ private val SystemMessage.expandable
         is SystemMessage.ConversationMessageTimerDeactivated -> false
         is SystemMessage.ConversationMessageCreated -> false
         is SystemMessage.ConversationStartedWithMembers -> this.memberNames.size > EXPANDABLE_THRESHOLD
+        is SystemMessage.MemberFailedToAdd -> this.memberNames.size > EXPANDABLE_THRESHOLD
     }
 
 private fun List<String>.toUserNamesListString(res: Resources) = when {
@@ -336,14 +346,18 @@ private fun List<String>.toUserNamesListString(res: Resources) = when {
     else -> res.getString(R.string.label_system_message_and, this.dropLast(1).joinToString(", "), this.last())
 }
 
-private fun List<UIText>.limitUserNamesList(res: Resources, threshold: Int): List<String> =
+private fun List<UIText>.limitUserNamesList(
+    res: Resources,
+    threshold: Int,
+    @PluralsRes quantityString: Int = R.plurals.label_system_message_x_more
+): List<String> =
     if (this.size <= threshold) {
         this.map { it.asString(res) }
     } else {
         val moreCount = this.size - (threshold - 1) // the last visible place is taken by "and X more"
         this.take(threshold - 1)
             .map { it.asString(res) }
-            .plus(res.getQuantityString(R.plurals.label_system_message_x_more, moreCount, moreCount))
+            .plus(res.getQuantityString(quantityString, moreCount, moreCount))
     }
 
 @Suppress("LongParameterList", "SpreadOperator", "ComplexMethod")
@@ -353,7 +367,9 @@ fun SystemMessage.annotatedString(
     normalStyle: TextStyle,
     boldStyle: TextStyle,
     normalColor: Color,
-    boldColor: Color
+    boldColor: Color,
+    errorColor: Color,
+    isErrorString: Boolean = false
 ): AnnotatedString {
     val args = when (this) {
         is SystemMessage.MemberAdded ->
@@ -390,9 +406,17 @@ fun SystemMessage.annotatedString(
                 memberNames.limitUserNamesList(res, if (expanded) memberNames.size else EXPANDABLE_THRESHOLD)
                     .toUserNamesListString(res)
             )
+
+        is SystemMessage.MemberFailedToAdd -> arrayOf(
+            memberNames.limitUserNamesList(
+                res,
+                if (expanded) memberNames.size else EXPANDABLE_THRESHOLD,
+                R.plurals.label_system_message_conversation_failed_add_x_members
+            ).toUserNamesListString(res)
+        )
     }
 
-    return res.annotatedText(stringResId, normalStyle, boldStyle, normalColor, boldColor, *args)
+    return res.annotatedText(stringResId, normalStyle, boldStyle, normalColor, boldColor, errorColor, isErrorString, *args)
 }
 
 private const val EXPANDABLE_THRESHOLD = 4

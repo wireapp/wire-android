@@ -45,11 +45,13 @@ import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.feature.asset.GetAssetSizeLimitUseCase
+import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageResult
 import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationListDetailsUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.PersistNewSelfDeletionTimerUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.SelfDeletionTimer
+import com.wire.kalium.logic.feature.selfDeletingMessages.SelfDeletionTimer.Companion.SELF_DELETION_LOG_TAG
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -332,8 +334,14 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
                         assetDataSize = importedAsset.size,
                         assetMimeType = importedAsset.mimeType,
                         assetWidth = if (isImage) (importedAsset as ImportedMediaAsset.Image).width else 0,
-                        assetHeight = if (isImage) (importedAsset as ImportedMediaAsset.Image).height else 0
-                    )
+                        assetHeight = if (isImage) (importedAsset as ImportedMediaAsset.Image).height else 0,
+                    ).also {
+                        if (it is ScheduleNewAssetMessageResult.Failure) {
+                            appLogger.e("Failed to import asset message to conversationId=${conversation.conversationId.toLogString()} ")
+                        } else {
+                            appLogger.d("Success importing asset message to conversationId=${conversation.conversationId.toLogString()}")
+                        }
+                    }
                 }
                 jobs.add(job)
             }
@@ -347,17 +355,29 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
             selfDeletingTimer = observeSelfDeletionSettingsForConversation(
                 conversationId = conversationId,
                 considerSelfUserSettings = true
-            ).first()
+            ).first().also { timer ->
+                if (timer !is SelfDeletionTimer.Disabled) {
+                    val logMap = timer.toLogString(
+                        "User timer update for conversationId=${conversationId.toLogString()} on ImportMediaScreen"
+                    )
+                    appLogger.d("$SELF_DELETION_LOG_TAG: $logMap")
+                }
+            }
         )
     }
 
     fun onNewSelfDeletionTimerPicked(selfDeletionDuration: SelfDeletionDuration) =
         viewModelScope.launch {
+            val conversationId = importMediaState.selectedConversationItem.first().conversationId
             importMediaState = importMediaState.copy(
                 selfDeletingTimer = SelfDeletionTimer.Enabled(selfDeletionDuration.value)
             )
+            val logMap = importMediaState.selfDeletingTimer.toLogString(
+                "user timer update for conversationId=${conversationId.toLogString()} on ImportMediaScreen"
+            )
+            appLogger.d("$SELF_DELETION_LOG_TAG: $logMap")
             persistNewSelfDeletionTimerUseCase(
-                conversationId = importMediaState.selectedConversationItem.first().conversationId,
+                conversationId = conversationId,
                 newSelfDeletionTimer = importMediaState.selfDeletingTimer
             )
         }
@@ -386,8 +406,8 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
         val fileMetadata = uri.getMetadataFromUri(context)
         val tempAssetPath = kaliumFileSystem.tempFilePath(assetKey)
         val mimeType = fileMetadata.mimeType.ifEmpty { importedAssetMimeType }
-        when {
-            isAboveLimit(isImageFile(mimeType), fileMetadata.size) -> null
+        return@withContext when {
+            isAboveLimit(isImageFile(mimeType), fileMetadata.sizeInBytes) -> null
             isImageFile(mimeType) -> {
                 // Only resample the image if it is too large
                 val resampleSize = uri.resampleImageAndCopyToTempPath(
@@ -402,9 +422,9 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
                     tempAssetPath
                 )
 
-                return@withContext ImportedMediaAsset.Image(
+                ImportedMediaAsset.Image(
                     name = fileMetadata.name,
-                    size = fileMetadata.size,
+                    size = fileMetadata.sizeInBytes,
                     mimeType = mimeType,
                     dataPath = tempAssetPath,
                     dataUri = uri,
@@ -416,9 +436,9 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
 
             else -> {
                 fileManager.copyToPath(uri, tempAssetPath)
-                return@withContext ImportedMediaAsset.GenericAsset(
+                ImportedMediaAsset.GenericAsset(
                     name = fileMetadata.name,
-                    size = fileMetadata.size,
+                    size = fileMetadata.sizeInBytes,
                     mimeType = mimeType,
                     dataPath = tempAssetPath,
                     dataUri = uri,
@@ -428,14 +448,14 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
         }
     }
 
-    private suspend fun isAboveLimit(isImage: Boolean, size: Long): Boolean {
-        val assetLimitForCurrentUser = getAssetSizeLimit(isImage).toInt()
-        val sizeOf1MB = SIZE_OF_1_MB * SIZE_OF_1_MB
-        val isAboveLimit = size > assetLimitForCurrentUser
+    private suspend fun isAboveLimit(isImage: Boolean, sizeInBytes: Long): Boolean {
+        val assetLimitInBytesForCurrentUser = getAssetSizeLimit(isImage).toInt()
+        val sizeOf1MB = SIZE_OF_1_MB
+        val isAboveLimit = sizeInBytes > assetLimitInBytesForCurrentUser
         if (isAboveLimit) {
             onSnackbarMessage(
                 ImportMediaSnackbarMessages.MaxAssetSizeExceeded(
-                    assetLimitForCurrentUser.div(sizeOf1MB)
+                    assetLimitInBytesForCurrentUser.div(sizeOf1MB)
                 )
             )
         }
@@ -448,7 +468,7 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
 
     private companion object {
         const val MAX_LIMIT_MEDIA_IMPORT = 20
-        const val SIZE_OF_1_MB = 1024
+        const val SIZE_OF_1_MB = 1024 * 1024
     }
 }
 

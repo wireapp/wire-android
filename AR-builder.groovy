@@ -42,15 +42,14 @@ def postGithubComment(String changeId, String body) {
 
 }
 
-def defineTrackName() {
-//    def overwrite = env.CUSTOM_TRACK
-//    def branchName = env.BRANCH_NAME
-//
-//    if (overwrite != null) {
-//        return overwrite
-//    } else if (branchName == "main") {
-//        return 'internal'
-//    }
+def defineTrackName(String branchName) {
+    def overwrite = env.CUSTOM_TRACK
+
+    if(overwrite != null) {
+        return overwrite
+    } else if (branchName == "main") {
+        return 'internal'
+    }
     return 'None'
 }
 
@@ -81,7 +80,7 @@ pipeline {
         propertiesFile = 'local.properties'
         adbPort = '5555'
         emulatorPrefix = "${SOURCE_BRANCH.replaceAll('/', '_')}"
-        trackName = defineTrackName()
+        trackName = defineTrackName(params.SOURCE_BRANCH)
         ENABLE_SIGNING = "TRUE"
     }
 

@@ -91,7 +91,6 @@ pipeline {
                     for (flavor in flavorList) {
                         String buildType = defineBuildType(flavor)
                         String stageName = "Build $flavor$buildType"
-                        String runId = "${env.BUILD_NUMBER}$flavor$buildType"
                         dynamicStages[stageName] = {
                             stage(stageName) {
                                 build(
@@ -106,7 +105,7 @@ pipeline {
                                                 booleanParam(name: 'RUN_UNIT_TEST', value: true),
                                                 booleanParam(name: 'RUN_ACCEPTANCE_TESTS', value: true),
                                                 booleanParam(name: 'RUN_STATIC_CODE_ANALYSIS', value: true),
-                                                string(name: 'GitHub_CHANGE_ID', value: env.CHANGE_ID)                                        ]
+                                                string(name: 'GITHUB_CHANGE_ID', value: env.CHANGE_ID)                                        ]
                                 )
                             }
                         }

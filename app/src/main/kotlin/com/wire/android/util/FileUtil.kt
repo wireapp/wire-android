@@ -368,7 +368,7 @@ private fun Cursor.getValidMimeType(): String =
 private fun Cursor.getValidSize(): Long =
     getColumnIndex(SIZE).run { takeIf { it > -1 }?.let { getLong(it) } ?: 0L }
 
-data class FileMetaData(val name: String = "", val size: Long = 0L, val mimeType: String = "")
+data class FileMetaData(val name: String = "", val sizeInBytes: Long = 0L, val mimeType: String = "")
 
 fun isImageFile(mimeType: String?): Boolean {
     return mimeType != null && mimeType.startsWith("image/")

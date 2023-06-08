@@ -74,7 +74,6 @@ pipeline {
         booleanParam(name: 'RUN_ACCEPTANCE_TESTS', defaultValue: true, description: 'Boolean Flag to define if the acceptance tests should be run')
         booleanParam(name: 'RUN_STATIC_CODE_ANALYSIS', defaultValue: true, description: 'Boolean Flag to define if the static code analysis should be run')
         string(name: 'GITHUB_CHANGE_ID', description: 'Change ID of the PR used to post comments to GH')
-        run(name: 'RUN_ID', description: 'Run ID')
     }
 //    options { disableConcurrentBuilds(abortPrevious: true) }
 

@@ -75,7 +75,6 @@ pipeline {
         booleanParam(name: 'RUN_STATIC_CODE_ANALYSIS', defaultValue: true, description: 'Boolean Flag to define if the static code analysis should be run')
         string(name: 'GITHUB_CHANGE_ID', description: 'Change ID of the PR used to post comments to GH')
     }
-    options { disableConcurrentBuilds(abortPrevious: false) }
 
 
     environment {

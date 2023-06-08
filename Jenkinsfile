@@ -92,21 +92,23 @@ pipeline {
                         String buildType = defineBuildType(flavor)
                         String stageName = "Build $flavor$buildType"
                         dynamicStages[stageName] = {
-                            stage(stageName) {
-                                build(
-                                        job: 'AR-build-pipeline',
-                                        parameters: [
-                                                string(name: 'SOURCE_BRANCH', value: env.BRANCH_NAME),
-                                                string(name: 'CHANGE_BRANCH', value: env.CHANGE_BRANCH),
-                                                string(name: 'BUILD_TYPE', value: buildType),
-                                                string(name: 'FLAVOR', value: flavor),
-                                                booleanParam(name: 'UPLOAD_TO_S3', value: true),
-                                                booleanParam(name: 'TRY_UPLOAD_TO_PLAYSTORE', value: false),
-                                                booleanParam(name: 'RUN_UNIT_TEST', value: true),
-                                                booleanParam(name: 'RUN_ACCEPTANCE_TESTS', value: true),
-                                                booleanParam(name: 'RUN_STATIC_CODE_ANALYSIS', value: true),
-                                                string(name: 'GITHUB_CHANGE_ID', value: env.CHANGE_ID)                                        ]
-                                )
+                            node(stageName) {
+                                stage(stageName) {
+                                    build(
+                                            job: 'AR-build-pipeline',
+                                            parameters: [
+                                                    string(name: 'SOURCE_BRANCH', value: env.BRANCH_NAME),
+                                                    string(name: 'CHANGE_BRANCH', value: env.CHANGE_BRANCH),
+                                                    string(name: 'BUILD_TYPE', value: buildType),
+                                                    string(name: 'FLAVOR', value: flavor),
+                                                    booleanParam(name: 'UPLOAD_TO_S3', value: true),
+                                                    booleanParam(name: 'TRY_UPLOAD_TO_PLAYSTORE', value: false),
+                                                    booleanParam(name: 'RUN_UNIT_TEST', value: true),
+                                                    booleanParam(name: 'RUN_ACCEPTANCE_TESTS', value: true),
+                                                    booleanParam(name: 'RUN_STATIC_CODE_ANALYSIS', value: true),
+                                                    string(name: 'GITHUB_CHANGE_ID', value: env.CHANGE_ID)]
+                                    )
+                                }
                             }
                         }
                     }

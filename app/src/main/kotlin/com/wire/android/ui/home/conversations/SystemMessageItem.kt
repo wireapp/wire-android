@@ -337,7 +337,7 @@ private val SystemMessage.expandable
         is SystemMessage.ConversationMessageTimerDeactivated -> false
         is SystemMessage.ConversationMessageCreated -> false
         is SystemMessage.ConversationStartedWithMembers -> this.memberNames.size > EXPANDABLE_THRESHOLD
-        is SystemMessage.MemberFailedToAdd -> this.memberNames.size > EXPANDABLE_THRESHOLD
+        is SystemMessage.MemberFailedToAdd -> this.usersCount > EXPANDABLE_THRESHOLD
     }
 
 private fun List<String>.toUserNamesListString(res: Resources) = when {
@@ -408,9 +408,9 @@ fun SystemMessage.annotatedString(
             )
 
         is SystemMessage.MemberFailedToAdd -> arrayOf(
-            memberNames.limitUserNamesList(
+            memberNames.values.flatten().limitUserNamesList(
                 res,
-                if (expanded) memberNames.size else EXPANDABLE_THRESHOLD,
+                if (expanded) usersCount else EXPANDABLE_THRESHOLD,
                 R.plurals.label_system_message_conversation_failed_add_x_members
             ).toUserNamesListString(res)
         )

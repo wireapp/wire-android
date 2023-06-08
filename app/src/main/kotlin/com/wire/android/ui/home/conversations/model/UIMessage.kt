@@ -363,11 +363,13 @@ sealed class UIMessageContent {
         )
 
         data class MemberFailedToAdd(
-            val memberNames: List<UIText>
+            val memberNames: Map<String, List<UIText>>
         ) : SystemMessage(
             R.drawable.ic_info,
             R.string.label_system_message_conversation_failed_add_members_details
-        )
+        ) {
+            val usersCount = memberNames.values.flatten().size
+        }
     }
 }
 

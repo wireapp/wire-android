@@ -115,7 +115,9 @@ class LoginSSOViewModel @Inject constructor(
                         is FetchSSOSettingsUseCase.Result.Failure -> {}
                         is FetchSSOSettingsUseCase.Result.Success -> {
                             it.defaultSSOCode?.let { ssoCode ->
-                                authScope.ssoLoginScope.initiate(SSOInitiateLoginUseCase.Param.WithRedirect("wire-${ssoCode}" )).let { result ->
+                                authScope.ssoLoginScope.initiate(
+                                    SSOInitiateLoginUseCase.Param.WithRedirect("wire-${ssoCode}")
+                                ).let { result ->
                                     when (result) {
                                         is SSOInitiateLoginResult.Failure -> updateSSOLoginError(result.toLoginSSOError())
                                         is SSOInitiateLoginResult.Success -> openWebUrl(result.requestUrl)

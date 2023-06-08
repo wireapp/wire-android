@@ -75,6 +75,8 @@ pipeline {
         booleanParam(name: 'RUN_STATIC_CODE_ANALYSIS', defaultValue: true, description: 'Boolean Flag to define if the static code analysis should be run')
         string(name: 'GITHUB_CHANGE_ID', description: 'Change ID of the PR used to post comments to GH')
     }
+    options { disableConcurrentBuilds(abortPrevious: false) }
+
 
     environment {
         propertiesFile = 'local.properties'
@@ -91,15 +93,14 @@ pipeline {
                     steps {
                         script {
                             last_started = env.STAGE_NAME
-                            sh '''echo ANDROID_HOME: $ANDROID_HOME
-                                    echo NDK_HOME: $NDK_HOME
-                                    echo Flavor: $params.FLAVOR
-                                    echo BuildType: $params.BUILD_TYPE
-                                    echo AdbPort: $adbPort
-                                    echo EmulatorPrefix: $emulatorPrefix
-                                    echo TrackName: $trackName
-                                    echo ChangeId: $CHANGE_ID
-                                    '''
+                            sh "echo ANDROID_HOME: $ANDROID_HOME \n" +
+                                    "echo NDK_HOME: $NDK_HOME \n" +
+                                    "echo Flavor: ${params.FLAVOR}\n" +
+                                    "echo BuildType: ${params.BUILD_TYPE}\n" +
+                                    "echo AdbPort: $adbPort \n" +
+                                    "echo EmulatorPrefix: $emulatorPrefix \n" +
+                                    "echo TrackName: $trackName \n" +
+                                    "echo ChangeId: $CHANGE_ID \n"
                         }
                     }
                 }

@@ -88,7 +88,8 @@ pipeline {
                 script {
                     def dynamicStages = [:]
                     List<String> flavorList = defineFlavor()
-                    for (flavor in flavorList) {
+                    for (x in flavorList) {
+                        String flavor = x
                         String buildType = defineBuildType(flavor)
                         String stageName = "Build $flavor$buildType"
                         dynamicStages[stageName] = {

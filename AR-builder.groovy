@@ -93,14 +93,14 @@ pipeline {
                     steps {
                         script {
                             last_started = env.STAGE_NAME
-                            sh "echo ANDROID_HOME: $ANDROID_HOME \n" +
-                                    "echo NDK_HOME: $NDK_HOME \n" +
+                            sh '''echo ANDROID_HOME: $ANDROID_HOME \n''' +
+                                    '''echo NDK_HOME: $NDK_HOME \n''' +
                                     "echo Flavor: ${params.FLAVOR}\n" +
                                     "echo BuildType: ${params.BUILD_TYPE}\n" +
-                                    "echo AdbPort: $adbPort \n" +
-                                    "echo EmulatorPrefix: $emulatorPrefix \n" +
-                                    "echo TrackName: $trackName \n" +
-                                    "echo ChangeId: $CHANGE_ID \n"
+                                    '''echo AdbPort: $adbPort \n''' +
+                                    '''echo EmulatorPrefix: $emulatorPrefix \n'''+
+                                    '''echo TrackName: $trackName \n''' +
+                                    '''echo ChangeId: $CHANGE_ID \n'''
                         }
                     }
                 }

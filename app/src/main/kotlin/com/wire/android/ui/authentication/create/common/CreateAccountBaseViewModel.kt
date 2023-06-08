@@ -131,10 +131,12 @@ abstract class CreateAccountBaseViewModel(
                         emailState = emailState.copy(showServerVersionNotSupportedDialog = true)
                         return@launch
                     }
+
                     is FetchApiVersionResult.Failure.TooNewVersion -> {
                         emailState = emailState.copy(showClientUpdateDialog = true)
                         return@launch
                     }
+
                     is FetchApiVersionResult.Failure.Generic -> {
                         return@launch
                     }
@@ -167,10 +169,12 @@ abstract class CreateAccountBaseViewModel(
                         // TODO: show dialog
                         return@launch
                     }
+
                     is AutoVersionAuthScopeUseCase.Result.Failure.TooNewVersion -> {
                         // TODO: show dialog
                         return@launch
                     }
+
                     is AutoVersionAuthScopeUseCase.Result.Failure.Generic -> {
                         return@launch
                     }
@@ -225,8 +229,10 @@ abstract class CreateAccountBaseViewModel(
             val detailsError = when {
                 !validatePasswordUseCase(detailsState.password.text) ->
                     CreateAccountDetailsViewState.DetailsError.TextFieldError.InvalidPasswordError
+
                 detailsState.password.text != detailsState.confirmPassword.text ->
                     CreateAccountDetailsViewState.DetailsError.TextFieldError.PasswordsNotMatchingError
+
                 else -> CreateAccountDetailsViewState.DetailsError.None
             }
             detailsState = detailsState.copy(
@@ -261,10 +267,12 @@ abstract class CreateAccountBaseViewModel(
                         // TODO: show dialog
                         return@launch
                     }
+
                     is AutoVersionAuthScopeUseCase.Result.Failure.TooNewVersion -> {
                         // TODO: show dialog
                         return@launch
                     }
+
                     is AutoVersionAuthScopeUseCase.Result.Failure.Generic -> {
                         return@launch
                     }
@@ -288,10 +296,12 @@ abstract class CreateAccountBaseViewModel(
                         // TODO: show dialog
                         return@launch
                     }
+
                     is AutoVersionAuthScopeUseCase.Result.Failure.TooNewVersion -> {
                         // TODO: show dialog
                         return@launch
                     }
+
                     is AutoVersionAuthScopeUseCase.Result.Failure.Generic -> {
                         return@launch
                     }
@@ -306,6 +316,7 @@ abstract class CreateAccountBaseViewModel(
                         updateCodeErrorState(it.toCodeError())
                         return@launch
                     }
+
                     is RegisterResult.Success -> it
                 }
             }
@@ -321,6 +332,7 @@ abstract class CreateAccountBaseViewModel(
                         updateCodeErrorState(it.toCodeError())
                         return@launch
                     }
+
                     is AddAuthenticatedUserUseCase.Result.Success -> it.userId
                 }
             }
@@ -330,6 +342,7 @@ abstract class CreateAccountBaseViewModel(
                         updateCodeErrorState(it.toCodeError())
                         return@launch
                     }
+
                     is RegisterClientResult.Success -> {
                         onCodeSuccess()
                     }
@@ -347,6 +360,7 @@ abstract class CreateAccountBaseViewModel(
                 email = emailState.email.text.trim().lowercase(),
                 emailActivationCode = codeState.code.text.text
             )
+
         CreateAccountFlowType.CreateTeam ->
             RegisterParam.Team(
                 firstName = detailsState.firstName.text.trim(),
@@ -423,6 +437,7 @@ private fun RegisterClientResult.Failure.toCodeError() = when (this) {
     is RegisterClientResult.Failure.Generic -> CreateAccountCodeViewState.CodeError.DialogError.GenericError(this.genericFailure)
     is RegisterClientResult.Failure.InvalidCredentials ->
         throw WillNeverOccurError("RegisterClient: wrong password when register client after creating a new account")
+
     is RegisterClientResult.Failure.PasswordAuthRequired ->
         throw WillNeverOccurError("RegisterClient: password required to register client after creating new account with email")
 }
@@ -441,5 +456,6 @@ private fun RegisterResult.Failure.toCodeError() = when (this) {
 private fun AddAuthenticatedUserUseCase.Result.Failure.toCodeError() = when (this) {
     is AddAuthenticatedUserUseCase.Result.Failure.Generic ->
         CreateAccountCodeViewState.CodeError.DialogError.GenericError(this.genericFailure)
+
     AddAuthenticatedUserUseCase.Result.Failure.UserAlreadyExists -> CreateAccountCodeViewState.CodeError.DialogError.UserAlreadyExists
 }

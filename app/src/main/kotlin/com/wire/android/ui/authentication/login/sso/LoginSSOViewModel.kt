@@ -99,18 +99,21 @@ class LoginSSOViewModel @Inject constructor(
     @VisibleForTesting
     fun domainLookupFlow() {
         viewModelScope.launch {
-            val defaultAuthScope: AuthenticationScope = coreLogic.versionedAuthenticationScope(authServerConfigProvider.defaultServerLinks()).invoke().let {
-                when (it) {
-                    is AutoVersionAuthScopeUseCase.Result.Failure.Generic,
-                    AutoVersionAuthScopeUseCase.Result.Failure.TooNewVersion,
-                    AutoVersionAuthScopeUseCase.Result.Failure.UnknownServerVersion -> {
-                        loginState = loginState.copy(loginError = LoginError.DialogError.ServerVersionNotSupported)
-                        return@launch
-                    }
+            val defaultAuthScope: AuthenticationScope =
+                coreLogic.versionedAuthenticationScope(
+                    authServerConfigProvider.defaultServerLinks()
+                )().let {
+                    when (it) {
+                        is AutoVersionAuthScopeUseCase.Result.Failure.Generic,
+                        AutoVersionAuthScopeUseCase.Result.Failure.TooNewVersion,
+                        AutoVersionAuthScopeUseCase.Result.Failure.UnknownServerVersion -> {
+                            loginState = loginState.copy(loginError = LoginError.DialogError.ServerVersionNotSupported)
+                            return@launch
+                        }
 
-                    is AutoVersionAuthScopeUseCase.Result.Success -> it.authenticationScope
+                        is AutoVersionAuthScopeUseCase.Result.Success -> it.authenticationScope
+                    }
                 }
-            }
 
             defaultAuthScope.domainLookup(loginState.userInput.text).also {
                 when (it) {

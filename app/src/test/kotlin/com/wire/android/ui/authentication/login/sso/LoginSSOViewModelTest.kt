@@ -147,7 +147,7 @@ class LoginSSOViewModelTest {
         every { savedStateHandle.set(any(), any<String>()) } returns Unit
         every { clientScopeProviderFactory.create(any()).clientScope } returns clientScope
         every { clientScope.getOrRegister } returns getOrRegisterClientUseCase
-        every { authenticationScope.ssoLoginScope.fetchSSOSettings } returns fetchSSOSettings
+
         authServerConfigProvider.updateAuthServer(newServerConfig(1).links)
 
         coEvery {

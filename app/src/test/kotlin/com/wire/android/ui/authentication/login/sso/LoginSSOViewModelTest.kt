@@ -107,8 +107,7 @@ class LoginSSOViewModelTest {
     @MockK
     private lateinit var getSSOLoginSessionUseCase: GetSSOLoginSessionUseCase
 
-    @MockK
-    private lateinit var authServerConfigProvider: AuthServerConfigProvider
+    private val authServerConfigProvider: AuthServerConfigProvider = AuthServerConfigProvider()
 
     @MockK
     private lateinit var userDataStoreProvider: UserDataStoreProvider
@@ -140,7 +139,9 @@ class LoginSSOViewModelTest {
         every { savedStateHandle.set(any(), any<String>()) } returns Unit
         every { clientScopeProviderFactory.create(any()).clientScope } returns clientScope
         every { clientScope.getOrRegister } returns getOrRegisterClientUseCase
-        every { authServerConfigProvider.authServer.value } returns newServerConfig(1).links
+
+        authServerConfigProvider.updateAuthServer(newServerConfig(1).links)
+
         coEvery {
             autoVersionAuthScopeUseCase()
         } returns AutoVersionAuthScopeUseCase.Result.Success(
@@ -177,9 +178,10 @@ class LoginSSOViewModelTest {
     }
 
     @Test
-    fun `given button is clicked, when logging in, then show loading`() {
+    fun `given sso code and button is clicked, when logging in, then show loading`() {
         val scheduler = TestCoroutineScheduler()
         Dispatchers.setMain(StandardTestDispatcher(scheduler))
+        every { validateEmailUseCase(any()) } returns false
         coEvery { ssoInitiateLoginUseCase(any()) } returns SSOInitiateLoginResult.Success("")
 
         loginViewModel.onSSOCodeChange(TextFieldValue("abc"))
@@ -194,13 +196,14 @@ class LoginSSOViewModelTest {
     }
 
     @Test
-    fun `given button is clicked, when login returns Success, then open the web url from the response`() {
+    fun `given sso code and button is clicked, when login returns Success, then open the web url from the response`() {
         val scheduler = TestCoroutineScheduler()
         Dispatchers.setMain(StandardTestDispatcher(scheduler))
         val ssoCode = "wire-fd994b20-b9af-11ec-ae36-00163e9b33ca"
         val param = SSOInitiateLoginUseCase.Param.WithRedirect(ssoCode)
         val url = "https://wire.com/sso"
         coEvery { ssoInitiateLoginUseCase(param) } returns SSOInitiateLoginResult.Success(url)
+        every { validateEmailUseCase(any()) } returns false
         loginViewModel.onSSOCodeChange(TextFieldValue(ssoCode))
 
         runTest {
@@ -212,8 +215,9 @@ class LoginSSOViewModelTest {
     }
 
     @Test
-    fun `given button is clicked, when login returns InvalidCodeFormat error, then InvalidCodeFormatError is passed`() {
+    fun `given sso code and  button is clicked, when login returns InvalidCodeFormat error, then InvalidCodeFormatError is passed`() {
         coEvery { ssoInitiateLoginUseCase(any()) } returns SSOInitiateLoginResult.Failure.InvalidCodeFormat
+        every { validateEmailUseCase(any()) } returns false
 
         runTest { loginViewModel.login() }
 
@@ -221,8 +225,9 @@ class LoginSSOViewModelTest {
     }
 
     @Test
-    fun `given button is clicked, when login returns InvalidCode error, then InvalidCodeError is passed`() {
+    fun `given  sso code and button is clicked, when login returns InvalidCode error, then InvalidCodeError is passed`() {
         coEvery { ssoInitiateLoginUseCase(any()) } returns SSOInitiateLoginResult.Failure.InvalidCode
+        every { validateEmailUseCase(any()) } returns false
 
         runTest { loginViewModel.login() }
 
@@ -230,8 +235,9 @@ class LoginSSOViewModelTest {
     }
 
     @Test
-    fun `given button is clicked, when login returns InvalidRequest error, then GenericError IllegalArgument is passed`() {
+    fun `given sso code and button is clicked, when login returns InvalidRequest error, then GenericError IllegalArgument is passed`() {
         coEvery { ssoInitiateLoginUseCase(any()) } returns SSOInitiateLoginResult.Failure.InvalidRedirect
+        every { validateEmailUseCase(any()) } returns false
 
         runTest { loginViewModel.login() }
 
@@ -245,9 +251,10 @@ class LoginSSOViewModelTest {
     }
 
     @Test
-    fun `given button is clicked, when login returns Generic error, then GenericError is passed`() {
+    fun `given sso code and button is clicked, when login returns Generic error, then GenericError is passed`() {
         val networkFailure = NetworkFailure.NoNetworkConnection(null)
         coEvery { ssoInitiateLoginUseCase(any()) } returns SSOInitiateLoginResult.Failure.Generic(networkFailure)
+        every { validateEmailUseCase(any()) } returns false
 
         runTest { loginViewModel.login() }
 

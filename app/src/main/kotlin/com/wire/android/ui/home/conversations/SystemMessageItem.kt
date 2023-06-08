@@ -451,32 +451,45 @@ fun SystemMessage.annotatedString(
 //                    R.plurals.label_system_message_conversation_failed_add_x_members
 //                ).toUserNamesByDomainListString(res)
 //            )
-            var summary = res.annotatedText(
-                R.string.label_system_message_conversation_failed_add_members_summary,
-                normalStyle,
-                boldStyle,
-                normalColor,
-                boldColor,
-                errorColor,
-                isErrorString,
-                this.usersCount.toString()
-            )
-
-            if (expanded) {
-                summary = summary.plus(
-                    res.annotatedText(
-                        stringResId, normalStyle, boldStyle, normalColor, boldColor, errorColor, isErrorString,
-                        *arrayOf(
-                            "=)", "foma"
-                        )
-                    )
-                )
-            }
-            return summary
+            return this.toAnnotatedText(res, normalStyle, boldStyle, normalColor, boldColor, errorColor, isErrorString, expanded)
         }
     }
 
     return res.annotatedText(stringResId, normalStyle, boldStyle, normalColor, boldColor, errorColor, isErrorString, *args)
+}
+
+private fun SystemMessage.MemberFailedToAdd.toAnnotatedText(
+    res: Resources,
+    normalStyle: TextStyle,
+    boldStyle: TextStyle,
+    normalColor: Color,
+    boldColor: Color,
+    errorColor: Color,
+    isErrorString: Boolean,
+    expanded: Boolean
+): AnnotatedString {
+    var summary = res.annotatedText(
+        R.string.label_system_message_conversation_failed_add_members_summary,
+        normalStyle,
+        boldStyle,
+        normalColor,
+        boldColor,
+        errorColor,
+        isErrorString,
+        this.usersCount.toString()
+    )
+
+    if (expanded) {
+        summary = summary.plus(
+            res.annotatedText(
+                stringResId, normalStyle, boldStyle, normalColor, boldColor, errorColor, isErrorString,
+                *arrayOf(
+                    "=)", "foma"
+                )
+            )
+        )
+    }
+    return summary
 }
 
 private const val EXPANDABLE_THRESHOLD = 4

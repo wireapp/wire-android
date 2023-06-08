@@ -92,7 +92,7 @@ pipeline {
                         String buildType = defineBuildType(flavor)
                         String stageName = "Build $flavor$buildType"
                         dynamicStages[stageName] = {
-                            node(stageName) {
+                            node {
                                 stage(stageName) {
                                     build(
                                             job: 'AR-build-pipeline',

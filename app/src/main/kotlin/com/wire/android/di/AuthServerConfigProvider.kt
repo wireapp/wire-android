@@ -51,5 +51,6 @@ class AuthServerConfigProvider @Inject constructor() {
     fun updateAuthServer(serverConfig: ServerConfig) {
         _authServer.value = serverConfig.links
     }
-    fun defaultServerLinks()  = defaultBackendConfigs
+
+    fun defaultServerLinks() = defaultBackendConfigs
 }

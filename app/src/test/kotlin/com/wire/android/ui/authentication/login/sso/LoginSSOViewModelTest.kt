@@ -77,9 +77,7 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import kotlinx.datetime.Instant
-import okio.IOException
 import org.amshove.kluent.internal.assertEquals
-import org.amshove.kluent.internal.assertFalse
 import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeInstanceOf
@@ -541,6 +539,30 @@ class LoginSSOViewModelTest {
         assertTrue(loginViewModel.loginState.loginError is LoginError.DialogError.GenericError)
         assertEquals(expected, (loginViewModel.loginState.loginError as LoginError.DialogError.GenericError).coreFailure)
         assertFalse(loginViewModel.loginState.ssoLoginLoading)
+    }
+
+    @Test
+    fun `given email, when clicking login, then start the domain lookup flow`() {
+        val expected = newServerConfig(2).links
+        every { validateEmailUseCase(any()) } returns true
+        coEvery { authenticationScope.domainLookup(any()) } returns DomainLookupUseCase.Result.Success(expected)
+        loginViewModel.onSSOCodeChange(TextFieldValue("email@wire.com"))
+
+        runTest { loginViewModel.domainLookupFlow() }
+
+        coVerify(exactly = 1) { authenticationScope.domainLookup("email@wire.com") }
+        assertEquals(expected, loginViewModel.loginState.customServerDialogState!!.serverLinks)
+    }
+
+    @Test
+    fun `given backend switch confirmed, then auth server provider is updated`() {
+        val expected = newServerConfig(2).links
+        every { validateEmailUseCase(any()) } returns true
+        loginViewModel.loginState = loginViewModel.loginState.copy(customServerDialogState = CustomServerDialogState(expected))
+
+        loginViewModel.onCustomServerDialogConfirm()
+
+        assertEquals(authServerConfigProvider.authServer.value, expected)
     }
 
     companion object {

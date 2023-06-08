@@ -59,7 +59,7 @@ import com.wire.android.ui.calling.ProximitySensorManager
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
-import com.wire.android.ui.common.dialogs.CustomBEDeeplinkDialog
+import com.wire.android.ui.common.dialogs.CustomServerDialog
 import com.wire.android.ui.common.topappbar.CommonTopAppBar
 import com.wire.android.ui.common.topappbar.CommonTopAppBarViewModel
 import com.wire.android.ui.joinConversation.JoinConversationViaCodeState
@@ -213,7 +213,7 @@ class WireActivity : AppCompatActivity() {
     private fun handleDialogs() {
         updateAppDialog({ updateTheApp() }, viewModel.globalAppState.updateAppDialog)
         joinConversationDialog(viewModel.globalAppState.conversationJoinedDialog)
-        customBackendDialog(viewModel.globalAppState.customBackendDialog.shouldShowDialog)
+        customBackendDialog()
         maxAccountDialog(viewModel::openProfile, viewModel::dismissMaxAccountDialog, viewModel.globalAppState.maxAccountDialog)
         accountLoggedOutDialog(viewModel.globalAppState.blockUserUI)
         newClientDialog(
@@ -265,9 +265,16 @@ class WireActivity : AppCompatActivity() {
     }
 
     @Composable
-    private fun customBackendDialog(shouldShow: Boolean) {
-        if (shouldShow) {
-            CustomBEDeeplinkDialog(viewModel)
+    private fun customBackendDialog() {
+        with(viewModel) {
+            if (globalAppState.customBackendDialog != null) {
+                CustomServerDialog(
+                    serverLinksTitle = globalAppState.customBackendDialog!!.serverLinks.title,
+                    serverLinksApi = globalAppState.customBackendDialog!!.serverLinks.api,
+                    onDismiss = this::dismissCustomBackendDialog,
+                    onConfirm = this::customBackendDialogProceedButtonClicked
+                )
+            }
         }
     }
 

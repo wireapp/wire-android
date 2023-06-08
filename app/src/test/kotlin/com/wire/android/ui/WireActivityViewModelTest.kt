@@ -36,7 +36,7 @@ import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.services.ServicesManager
 import com.wire.android.ui.authentication.devices.model.displayName
-import com.wire.android.ui.common.dialogs.CustomBEDeeplinkDialogState
+import com.wire.android.ui.common.dialogs.CustomServerDialogState
 import com.wire.android.ui.joinConversation.JoinConversationViaCodeState
 import com.wire.android.util.CurrentScreen
 import com.wire.android.util.CurrentScreenManager
@@ -45,6 +45,7 @@ import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.android.util.newServerConfig
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.CoreLogic
+import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.UserId
@@ -139,7 +140,7 @@ class WireActivityViewModelTest {
 
         coVerify(exactly = 0) { arrangement.navigationManager.navigate(any()) }
         assertEquals(NavigationItem.Home.getRouteWithArgs(), viewModel.startNavigationRoute())
-        assertEquals(newServerConfig(1).links, viewModel.globalAppState.customBackendDialog.serverLinks)
+        assertEquals(newServerConfig(1).links, viewModel.globalAppState.customBackendDialog!!.serverLinks)
     }
 
     @Test
@@ -153,7 +154,7 @@ class WireActivityViewModelTest {
 
         assertEquals(NavigationItem.Welcome.getRouteWithArgs(), viewModel.startNavigationRoute())
         coVerify(exactly = 0) { arrangement.navigationManager.navigate(any()) }
-        assertEquals(newServerConfig(1).links, viewModel.globalAppState.customBackendDialog.serverLinks)
+        assertEquals(newServerConfig(1).links, viewModel.globalAppState.customBackendDialog!!.serverLinks)
     }
 
     @Test
@@ -168,7 +169,7 @@ class WireActivityViewModelTest {
 
         assertEquals(NavigationItem.Migration.getRouteWithArgs(), viewModel.startNavigationRoute())
         coVerify(exactly = 0) { arrangement.navigationManager.navigate(any()) }
-        assertEquals(CustomBEDeeplinkDialogState(), viewModel.globalAppState.customBackendDialog)
+        assertEquals(CustomServerDialogState(ServerConfig.STAGING), viewModel.globalAppState.customBackendDialog)
     }
 
     @Test

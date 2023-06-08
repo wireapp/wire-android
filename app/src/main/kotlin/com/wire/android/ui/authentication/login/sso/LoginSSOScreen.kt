@@ -51,16 +51,15 @@ import com.wire.android.ui.authentication.login.LoginErrorDialog
 import com.wire.android.ui.authentication.login.LoginState
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
+import com.wire.android.ui.common.dialogs.CustomServerDialog
 import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.deeplink.DeepLinkResult
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.launch
 
 @Composable
 fun LoginSSOScreen(
@@ -78,13 +77,14 @@ fun LoginSSOScreen(
         scrollState = scrollState,
         loginState = loginSSOViewModel.loginState,
         onCodeChange = loginSSOViewModel::onSSOCodeChange,
-        onDialogDismiss = loginSSOViewModel::onDialogDismiss,
+        onErrorDialogDismiss = loginSSOViewModel::onDialogDismiss,
         onRemoveDeviceOpen = loginSSOViewModel::onTooManyDevicesError,
         // TODO: replace with retrieved ServerConfig from sso login
-        onLoginButtonClick = suspend { loginSSOViewModel.login() },
-        scope = scope,
-        ssoLoginResult,
-        serverTitle = loginSSOViewModel.serverConfig.title
+        onLoginButtonClick = loginSSOViewModel::login,
+        ssoLoginResult = ssoLoginResult,
+        serverTitle = loginSSOViewModel.serverConfig.title,
+        onCustomServerDialogDismiss = loginSSOViewModel::onCustomServerDialogDismiss,
+        onCustomServerDialogConfirm = loginSSOViewModel::onCustomServerDialogConfirm
     )
 
     LaunchedEffect(loginSSOViewModel) {
@@ -97,21 +97,26 @@ private fun LoginSSOContent(
     scrollState: ScrollState,
     loginState: LoginState,
     onCodeChange: (TextFieldValue) -> Unit,
-    onDialogDismiss: () -> Unit,
+    onErrorDialogDismiss: () -> Unit,
     onRemoveDeviceOpen: () -> Unit,
-    onLoginButtonClick: suspend () -> Unit,
-    scope: CoroutineScope,
+    onLoginButtonClick: () -> Unit,
+    onCustomServerDialogDismiss: () -> Unit,
+    onCustomServerDialogConfirm: () -> Unit,
     ssoLoginResult: DeepLinkResult.SSOLogin?,
-    // todo: temporary to show to pointing server
     serverTitle: String
 ) {
     Column(
-        modifier = Modifier.fillMaxHeight().verticalScroll(scrollState).padding(MaterialTheme.wireDimensions.spacing16x)
+        modifier = Modifier
+            .fillMaxHeight()
+            .verticalScroll(scrollState)
+            .padding(MaterialTheme.wireDimensions.spacing16x)
     ) {
         Spacer(modifier = Modifier.height(MaterialTheme.wireDimensions.spacing32x))
         SSOCodeInput(
-            modifier = Modifier.fillMaxWidth().padding(bottom = MaterialTheme.wireDimensions.spacing16x),
-            ssoCode = loginState.ssoCode,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = MaterialTheme.wireDimensions.spacing16x),
+            ssoCode = loginState.userInput,
             onCodeChange = onCodeChange,
             error = when (loginState.loginError) {
                 LoginError.TextFieldError.InvalidValue -> stringResource(R.string.login_error_invalid_sso_code_format)
@@ -121,13 +126,25 @@ private fun LoginSSOContent(
         )
         Spacer(modifier = Modifier.weight(1f))
         LoginButton(
-            modifier = Modifier.fillMaxWidth(), loading = loginState.ssoLoginLoading, enabled = loginState.ssoLoginEnabled
-        ) { scope.launch { onLoginButtonClick() } }
+            modifier = Modifier.fillMaxWidth(),
+            loading = loginState.ssoLoginLoading,
+            enabled = loginState.ssoLoginEnabled,
+            onClick = onLoginButtonClick
+        )
     }
     if (loginState.loginError is LoginError.DialogError) {
-        LoginErrorDialog(loginState.loginError, onDialogDismiss, {}, ssoLoginResult)
+        LoginErrorDialog(loginState.loginError, onErrorDialogDismiss, {}, ssoLoginResult)
     } else if (loginState.loginError is LoginError.TooManyDevicesError) {
         onRemoveDeviceOpen()
+    }
+
+    if (loginState.customServerDialogState != null) {
+        CustomServerDialog(
+            serverLinksTitle = loginState.customServerDialogState.serverLinks.title,
+            serverLinksApi = loginState.customServerDialogState.serverLinks.api,
+            onDismiss = onCustomServerDialogDismiss,
+            onConfirm = onCustomServerDialogConfirm
+        )
     }
 }
 
@@ -137,7 +154,6 @@ private fun SSOCodeInput(
     ssoCode: TextFieldValue,
     error: String?,
     onCodeChange: (TextFieldValue) -> Unit,
-    // TODO: temporary to show to pointing server
     serverTitle: String
 ) {
     WireTextField(
@@ -162,7 +178,9 @@ private fun LoginButton(modifier: Modifier, loading: Boolean, enabled: Boolean, 
             state = if (enabled) WireButtonState.Default else WireButtonState.Disabled,
             loading = loading,
             interactionSource = interactionSource,
-            modifier = Modifier.fillMaxWidth().testTag("ssoLoginButton")
+            modifier = Modifier
+                .fillMaxWidth()
+                .testTag("ssoLoginButton")
         )
     }
 }
@@ -171,6 +189,6 @@ private fun LoginButton(modifier: Modifier, loading: Boolean, enabled: Boolean, 
 @Composable
 fun PreviewLoginSSOScreen() {
     WireTheme(isPreview = true) {
-        LoginSSOContent(rememberScrollState(), LoginState(), {}, {}, {}, suspend {}, rememberCoroutineScope(), null, "Test Server")
+        LoginSSOContent(rememberScrollState(), LoginState(), {}, {}, {}, {}, {}, {}, null,  "Test Server")
     }
 }

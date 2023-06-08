@@ -27,14 +27,20 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.di.ClientScopeProvider
+import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.authentication.login.LoginError
 import com.wire.android.ui.authentication.login.LoginViewModel
 import com.wire.android.ui.authentication.login.toLoginError
 import com.wire.android.ui.authentication.login.updateSSOLoginEnabled
+import com.wire.android.ui.common.dialogs.CustomServerDialogState
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.kalium.logic.CoreFailure
+import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
+import com.wire.kalium.logic.feature.auth.AuthenticationScope
+import com.wire.kalium.logic.feature.auth.DomainLookupUseCase
+import com.wire.kalium.logic.feature.auth.ValidateEmailUseCase
 import com.wire.kalium.logic.feature.auth.autoVersioningAuth.AutoVersionAuthScopeUseCase
 import com.wire.kalium.logic.feature.auth.sso.SSOInitiateLoginResult
 import com.wire.kalium.logic.feature.auth.sso.SSOInitiateLoginUseCase
@@ -49,8 +55,9 @@ import javax.inject.Inject
 @HiltViewModel
 class LoginSSOViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
-    private val authScope: AutoVersionAuthScopeUseCase,
     private val addAuthenticatedUser: AddAuthenticatedUserUseCase,
+    private val validateEmailUseCase: ValidateEmailUseCase,
+    @KaliumCoreLogic coreLogic: CoreLogic,
     clientScopeProviderFactory: ClientScopeProvider.Factory,
     navigationManager: NavigationManager,
     authServerConfigProvider: AuthServerConfigProvider,
@@ -60,13 +67,69 @@ class LoginSSOViewModel @Inject constructor(
     navigationManager,
     clientScopeProviderFactory,
     authServerConfigProvider,
-    userDataStoreProvider
+    userDataStoreProvider,
+    coreLogic
 ) {
 
     var openWebUrl = MutableSharedFlow<String>()
 
     fun login() {
         loginState = loginState.copy(ssoLoginLoading = true, loginError = LoginError.None).updateSSOLoginEnabled()
+
+        loginState.userInput.text.also {
+            if (validateEmailUseCase(it)) {
+                domainLookupFlow()
+            } else {
+                ssoLoginWithCodeFlow()
+            }
+        }
+    }
+
+    fun onCustomServerDialogDismiss() {
+        loginState = loginState.copy(customServerDialogState = null)
+    }
+
+    fun onCustomServerDialogConfirm() {
+        if (loginState.customServerDialogState != null) {
+            authServerConfigProvider.updateAuthServer(loginState.customServerDialogState!!.serverLinks)
+        }
+        loginState = loginState.copy(customServerDialogState = null)
+    }
+
+    private fun domainLookupFlow() {
+        viewModelScope.launch {
+            val defaultAuthScope: AuthenticationScope = coreLogic.versionedAuthenticationScope(authServerConfigProvider.defaultServerLinks()).invoke().let {
+                when (it) {
+                    is AutoVersionAuthScopeUseCase.Result.Failure.Generic,
+                    AutoVersionAuthScopeUseCase.Result.Failure.TooNewVersion,
+                    AutoVersionAuthScopeUseCase.Result.Failure.UnknownServerVersion -> {
+                        loginState = loginState.copy(loginError = LoginError.DialogError.ServerVersionNotSupported)
+                        return@launch
+                    }
+
+                    is AutoVersionAuthScopeUseCase.Result.Success -> it.authenticationScope
+                }
+            }
+
+            defaultAuthScope.domainLookup(loginState.userInput.text).also {
+                when (it) {
+                    is DomainLookupUseCase.Result.Failure -> {
+                        loginState = loginState.copy(ssoLoginLoading = false, loginError = it.toLoginError())
+                    }
+
+                    is DomainLookupUseCase.Result.Success -> {
+                        loginState = loginState.copy(
+                            ssoLoginLoading = false,
+                            loginError = LoginError.None,
+                            customServerDialogState = CustomServerDialogState(it.serverLinks)
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    private fun ssoLoginWithCodeFlow() {
         viewModelScope.launch {
             val authScope =
                 authScope().let {
@@ -77,17 +140,19 @@ class LoginSSOViewModel @Inject constructor(
                             loginState = loginState.copy(loginError = LoginError.DialogError.ServerVersionNotSupported)
                             return@launch
                         }
+
                         is AutoVersionAuthScopeUseCase.Result.Failure.TooNewVersion -> {
                             loginState = loginState.copy(loginError = LoginError.DialogError.ClientUpdateRequired)
                             return@launch
                         }
+
                         is AutoVersionAuthScopeUseCase.Result.Failure.Generic -> {
                             return@launch
                         }
                     }
                 }
 
-            authScope.ssoLoginScope.initiate(SSOInitiateLoginUseCase.Param.WithRedirect(loginState.ssoCode.text)).let { result ->
+            authScope.ssoLoginScope.initiate(SSOInitiateLoginUseCase.Param.WithRedirect(loginState.userInput.text)).let { result ->
                 when (result) {
                     is SSOInitiateLoginResult.Failure -> updateSSOLoginError(result.toLoginSSOError())
                     is SSOInitiateLoginResult.Success -> openWebUrl(result.requestUrl)
@@ -110,10 +175,12 @@ class LoginSSOViewModel @Inject constructor(
                             loginState = loginState.copy(loginError = LoginError.DialogError.ServerVersionNotSupported)
                             return@launch
                         }
+
                         is AutoVersionAuthScopeUseCase.Result.Failure.TooNewVersion -> {
                             loginState = loginState.copy(loginError = LoginError.DialogError.ClientUpdateRequired)
                             return@launch
                         }
+
                         is AutoVersionAuthScopeUseCase.Result.Failure.Generic -> {
                             return@launch
                         }
@@ -125,6 +192,7 @@ class LoginSSOViewModel @Inject constructor(
                         updateSSOLoginError(it.toLoginError())
                         return@launch
                     }
+
                     is SSOLoginSessionResult.Success -> it
                 }
             }
@@ -140,6 +208,7 @@ class LoginSSOViewModel @Inject constructor(
                         updateSSOLoginError(it.toLoginError())
                         return@launch
                     }
+
                     is AddAuthenticatedUserUseCase.Result.Success -> it.userId
                 }
             }
@@ -148,6 +217,7 @@ class LoginSSOViewModel @Inject constructor(
                     is RegisterClientResult.Success -> {
                         navigateAfterRegisterClientSuccess(storedUserId)
                     }
+
                     is RegisterClientResult.Failure -> {
                         updateSSOLoginError(it.toLoginError())
                         return@launch
@@ -159,10 +229,10 @@ class LoginSSOViewModel @Inject constructor(
 
     fun onSSOCodeChange(newText: TextFieldValue) {
         // in case an error is showing e.g. inline error is should be cleared
-        if (loginState.loginError is LoginError.TextFieldError && newText != loginState.ssoCode) {
+        if (loginState.loginError is LoginError.TextFieldError && newText != loginState.userInput) {
             clearSSOLoginError()
         }
-        loginState = loginState.copy(ssoCode = newText).updateSSOLoginEnabled()
+        loginState = loginState.copy(userInput = newText).updateSSOLoginEnabled()
         savedStateHandle.set(SSO_CODE_SAVED_STATE_KEY, newText.text)
     }
 

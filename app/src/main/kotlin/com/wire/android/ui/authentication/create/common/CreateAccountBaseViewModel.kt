@@ -29,6 +29,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.di.ClientScopeProvider
+import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
@@ -42,6 +43,7 @@ import com.wire.android.ui.authentication.create.email.CreateAccountEmailViewSta
 import com.wire.android.ui.authentication.create.overview.CreateAccountOverviewViewModel
 import com.wire.android.ui.common.textfield.CodeFieldValue
 import com.wire.android.util.WillNeverOccurError
+import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
@@ -64,7 +66,7 @@ abstract class CreateAccountBaseViewModel(
     private val navigationManager: NavigationManager,
     private val validateEmailUseCase: ValidateEmailUseCase,
     private val validatePasswordUseCase: ValidatePasswordUseCase,
-    private val authScope: AutoVersionAuthScopeUseCase,
+    @KaliumCoreLogic private val coreLogic: CoreLogic,
     private val addAuthenticatedUser: AddAuthenticatedUserUseCase,
     private val clientScopeProviderFactory: ClientScopeProvider.Factory,
     private val authServerConfigProvider: AuthServerConfigProvider,
@@ -157,7 +159,7 @@ abstract class CreateAccountBaseViewModel(
     final override fun onTermsAccept() {
         emailState = emailState.copy(loading = true, continueEnabled = false, termsDialogVisible = false, termsAccepted = true)
         viewModelScope.launch {
-            val authScope = authScope().let {
+            val authScope = coreLogic.versionedAuthenticationScope(serverConfig)().let {
                 when (it) {
                     is AutoVersionAuthScopeUseCase.Result.Success -> it.authenticationScope
 
@@ -251,7 +253,7 @@ abstract class CreateAccountBaseViewModel(
     final override fun resendCode() {
         codeState = codeState.copy(loading = true)
         viewModelScope.launch {
-            val authScope = authScope().let {
+            val authScope = coreLogic.versionedAuthenticationScope(serverConfig)().let {
                 when (it) {
                     is AutoVersionAuthScopeUseCase.Result.Success -> it.authenticationScope
 
@@ -278,7 +280,7 @@ abstract class CreateAccountBaseViewModel(
     private fun onCodeContinue() {
         codeState = codeState.copy(loading = true)
         viewModelScope.launch {
-            val authScope = authScope().let {
+            val authScope = coreLogic.versionedAuthenticationScope(serverConfig)().let {
                 when (it) {
                     is AutoVersionAuthScopeUseCase.Result.Success -> it.authenticationScope
 

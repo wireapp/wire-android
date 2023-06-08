@@ -37,6 +37,7 @@ import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.android.util.deeplink.SSOFailureCodes
 import com.wire.android.util.newServerConfig
 import com.wire.kalium.logic.CoreFailure
+import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.NetworkFailure
 import com.wire.kalium.logic.configuration.server.CommonApiVersionType
 import com.wire.kalium.logic.configuration.server.ServerConfig
@@ -50,6 +51,7 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.AuthTokens
 import com.wire.kalium.logic.feature.auth.AuthenticationScope
+import com.wire.kalium.logic.feature.auth.ValidateEmailUseCase
 import com.wire.kalium.logic.feature.auth.autoVersioningAuth.AutoVersionAuthScopeUseCase
 import com.wire.kalium.logic.feature.auth.sso.GetSSOLoginSessionUseCase
 import com.wire.kalium.logic.feature.auth.sso.SSOInitiateLoginResult
@@ -115,10 +117,17 @@ class LoginSSOViewModelTest {
     private lateinit var autoVersionAuthScopeUseCase: AutoVersionAuthScopeUseCase
 
     @MockK
+    private lateinit var coreLogic: CoreLogic
+
+    @MockK
     private lateinit var authenticationScope: AuthenticationScope
 
     @MockK
     private lateinit var navigationManager: NavigationManager
+
+    @MockK
+    private lateinit var validateEmailUseCase: ValidateEmailUseCase
+
     private lateinit var loginViewModel: LoginSSOViewModel
 
     private val userId: QualifiedID = QualifiedID("userId", "domain")
@@ -139,11 +148,13 @@ class LoginSSOViewModelTest {
         )
         every { authenticationScope.ssoLoginScope.initiate } returns ssoInitiateLoginUseCase
         every { authenticationScope.ssoLoginScope.getLoginSession } returns getSSOLoginSessionUseCase
+        every { coreLogic.versionedAuthenticationScope(any()) } returns autoVersionAuthScopeUseCase
 
         loginViewModel = LoginSSOViewModel(
             savedStateHandle,
-            autoVersionAuthScopeUseCase,
             addAuthenticatedUserUseCase,
+            validateEmailUseCase,
+            coreLogic,
             clientScopeProviderFactory,
             navigationManager,
             authServerConfigProvider,

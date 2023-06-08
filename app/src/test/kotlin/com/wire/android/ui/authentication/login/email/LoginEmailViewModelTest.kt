@@ -39,6 +39,7 @@ import com.wire.android.ui.common.textfield.CodeFieldValue
 import com.wire.android.util.EMPTY
 import com.wire.android.util.newServerConfig
 import com.wire.kalium.logic.CoreFailure
+import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.NetworkFailure
 import com.wire.kalium.logic.configuration.server.CommonApiVersionType
 import com.wire.kalium.logic.configuration.server.ServerConfig
@@ -113,6 +114,9 @@ class LoginEmailViewModelTest {
     private lateinit var autoVersionAuthScopeUseCase: AutoVersionAuthScopeUseCase
 
     @MockK
+    private lateinit var coreLogic: CoreLogic
+
+    @MockK
     private lateinit var requestSecondFactorCodeUseCase: RequestSecondFactorVerificationCodeUseCase
 
     @MockK
@@ -146,14 +150,15 @@ class LoginEmailViewModelTest {
 
         every { authenticationScope.login } returns loginUseCase
         every { authenticationScope.requestSecondFactorVerificationCode } returns requestSecondFactorCodeUseCase
+        every { coreLogic.versionedAuthenticationScope(any()) } returns autoVersionAuthScopeUseCase
         loginViewModel = LoginEmailViewModel(
-            autoVersionAuthScopeUseCase,
             addAuthenticatedUserUseCase,
             clientScopeProviderFactory,
             savedStateHandle,
             navigationManager,
             authServerConfigProvider,
             userDataStoreProvider,
+            coreLogic,
             TestDispatcherProvider()
         )
     }

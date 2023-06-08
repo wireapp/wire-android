@@ -189,6 +189,6 @@ private fun LoginButton(modifier: Modifier, loading: Boolean, enabled: Boolean, 
 @Composable
 fun PreviewLoginSSOScreen() {
     WireTheme(isPreview = true) {
-        LoginSSOContent(rememberScrollState(), LoginState(), {}, {}, {}, {}, {}, {}, null,  "Test Server")
+        LoginSSOContent(rememberScrollState(), LoginState(), {}, {}, {}, {}, {}, {}, null, "Test Server")
     }
 }

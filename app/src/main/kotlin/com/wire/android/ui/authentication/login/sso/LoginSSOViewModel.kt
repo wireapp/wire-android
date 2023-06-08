@@ -96,7 +96,8 @@ class LoginSSOViewModel @Inject constructor(
         loginState = loginState.copy(customServerDialogState = null)
     }
 
-    private fun domainLookupFlow() {
+    @VisibleForTesting
+    fun domainLookupFlow() {
         viewModelScope.launch {
             val defaultAuthScope: AuthenticationScope = coreLogic.versionedAuthenticationScope(authServerConfigProvider.defaultServerLinks()).invoke().let {
                 when (it) {

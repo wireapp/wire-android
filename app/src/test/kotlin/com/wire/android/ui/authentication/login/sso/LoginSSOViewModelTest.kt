@@ -32,6 +32,7 @@ import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItemDestinationsRoutes
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.authentication.login.LoginError
+import com.wire.android.ui.common.dialogs.CustomServerDialogState
 import com.wire.android.util.EMPTY
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.android.util.deeplink.SSOFailureCodes
@@ -51,6 +52,7 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.AuthTokens
 import com.wire.kalium.logic.feature.auth.AuthenticationScope
+import com.wire.kalium.logic.feature.auth.DomainLookupUseCase
 import com.wire.kalium.logic.feature.auth.ValidateEmailUseCase
 import com.wire.kalium.logic.feature.auth.autoVersioningAuth.AutoVersionAuthScopeUseCase
 import com.wire.kalium.logic.feature.auth.sso.GetSSOLoginSessionUseCase
@@ -75,6 +77,7 @@ import kotlinx.coroutines.test.TestCoroutineScheduler
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import kotlinx.datetime.Instant
+import org.amshove.kluent.internal.assertEquals
 import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeInstanceOf
@@ -382,6 +385,30 @@ class LoginSSOViewModelTest {
         coVerify(exactly = 1) { getSSOLoginSessionUseCase(any()) }
         coVerify(exactly = 1) { addAuthenticatedUserUseCase(any(), any(), any(), any()) }
         verify(exactly = 0) { loginViewModel.navigateAfterRegisterClientSuccess(any()) }
+    }
+
+    @Test
+    fun `given email, when clicking login, then start the domain lookup flow`() {
+        val expected = newServerConfig(2).links
+        every { validateEmailUseCase(any()) } returns true
+        coEvery { authenticationScope.domainLookup(any()) } returns DomainLookupUseCase.Result.Success(expected)
+        loginViewModel.onSSOCodeChange(TextFieldValue("email@wire.com"))
+
+        runTest { loginViewModel.domainLookupFlow() }
+
+        coVerify(exactly = 1) { authenticationScope.domainLookup("email@wire.com") }
+        assertEquals(expected, loginViewModel.loginState.customServerDialogState!!.serverLinks)
+    }
+
+    @Test
+    fun `given backend switch confirmed, then auth server provider is updated`() {
+        val expected = newServerConfig(2).links
+        every { validateEmailUseCase(any()) } returns true
+        loginViewModel.loginState = loginViewModel.loginState.copy(customServerDialogState = CustomServerDialogState(expected))
+
+        loginViewModel.onCustomServerDialogConfirm()
+
+        assertEquals(authServerConfigProvider.authServer.value, expected)
     }
 
     companion object {

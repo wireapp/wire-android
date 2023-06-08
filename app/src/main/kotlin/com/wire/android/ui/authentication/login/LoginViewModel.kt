@@ -104,7 +104,8 @@ open class LoginViewModel @Inject constructor(
             isProxyEnabled = serverConfig.apiProxy != null
         )
     )
-        protected set
+        @VisibleForTesting
+        set
 
     open fun updateSSOLoginError(error: LoginError) {
         loginState = if (error is LoginError.None) {

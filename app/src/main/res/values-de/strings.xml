@@ -617,7 +617,7 @@
     <string name="label_learn_more_searching_user">Mehr erfahren</string>
     <string name="label_no_results_found">Keine Ergebnisse, bitte erneut versuchen.</string>
     <string name="label_general_error">Ein Fehler ist aufgetreten</string>
-    <string name="label_add_member_people">People</string>
+    <string name="label_add_member_people">Personen</string>
     <string name="label_add_member_services">Dienste</string>
     <!-- Snackbar messages -->
     <string name="error_unknown_title">Ein Fehler ist aufgetreten</string>
@@ -1035,6 +1035,6 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="ten_seconds_short_label">10 Sek</string>
     <string name="label_debug_data">Debug data</string>
     <string name="title_internal_debugging">Internal debugging</string>
-    <string name="label_log_options_description">"This stores anonymized troubleshooting information locally. "</string>
+    <string name="label_log_options_description">"Dadurch werden anonymisierte Informationen zur Fehlerbehebung lokal gespeichert. "</string>
     <string name="label_no_application_found_open_downloads_folder">"No application found to open downloads folder"</string>
 </resources>

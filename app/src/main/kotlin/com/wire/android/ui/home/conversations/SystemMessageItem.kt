@@ -340,12 +340,32 @@ private val SystemMessage.expandable
         is SystemMessage.MemberFailedToAdd -> this.usersCount > EXPANDABLE_THRESHOLD
     }
 
-private fun List<String>.toUserNamesListString(res: Resources) = when {
+/**
+ * Creates a string from a list of user names, e.g. "x, y and z" if its greater than 1, or just "x" if its 1.
+ */
+private fun List<String>.toUserNamesListString(res: Resources): String = when {
     this.isEmpty() -> ""
     this.size == 1 -> this[0]
     else -> res.getString(R.string.label_system_message_and, this.dropLast(1).joinToString(", "), this.last())
 }
 
+//private fun Map<String, List<String>>.toUserNamesByDomainListString(res: Resources): String = when {
+//    this.values.isEmpty() -> ""
+//    this.values.flatten().size == 1 -> this.values.flatten()[0].first().toString()
+//    else -> {
+//        this.entries.joinToString("\n\n") {
+//            res.getString(
+//                R.string.label_system_message_conversation_failed_add_members_details,
+//                it.value.joinToString(", "),
+//                it.key
+//            )
+//        }
+//    }
+//}
+
+/**
+ * Limits the list of user names to a certain threshold, e.g. "x, y and 3 more" if its greater than threshold 3, or just "x, y" if less than.
+ */
 private fun List<UIText>.limitUserNamesList(
     res: Resources,
     threshold: Int,
@@ -359,6 +379,22 @@ private fun List<UIText>.limitUserNamesList(
             .map { it.asString(res) }
             .plus(res.getQuantityString(quantityString, moreCount, moreCount))
     }
+
+//private fun Map<String, List<UIText>>.limitUserNamesListByDomain(
+//    res: Resources,
+//    threshold: Int,
+//    @PluralsRes quantityString: Int = R.plurals.label_system_message_x_more
+//): Map<String, List<String>> =
+//    if (this.entries.size == 1 && this.values.flatten().size <= threshold) {
+//        this.mapValues { entry -> entry.value.map { it.asString(res) } }
+//    } else {
+//        this.mapValues { a ->
+//            val moreCount = a.value.size - (threshold - 1) // the last visible place is taken by "and X more"
+//            a.value.take(threshold - 1)
+//                .map { it.asString(res) }
+//                .plus(res.getQuantityString(quantityString, moreCount, moreCount))
+//        }
+//    }
 
 @Suppress("LongParameterList", "SpreadOperator", "ComplexMethod")
 fun SystemMessage.annotatedString(
@@ -407,13 +443,37 @@ fun SystemMessage.annotatedString(
                     .toUserNamesListString(res)
             )
 
-        is SystemMessage.MemberFailedToAdd -> arrayOf(
-            memberNames.values.flatten().limitUserNamesList(
-                res,
-                if (expanded) usersCount else EXPANDABLE_THRESHOLD,
-                R.plurals.label_system_message_conversation_failed_add_x_members
-            ).toUserNamesListString(res)
-        )
+        is SystemMessage.MemberFailedToAdd -> {
+//            arrayOf(
+//                memberNames.limitUserNamesListByDomain(
+//                    res,
+//                    if (expanded) usersCount else EXPANDABLE_THRESHOLD,
+//                    R.plurals.label_system_message_conversation_failed_add_x_members
+//                ).toUserNamesByDomainListString(res)
+//            )
+            var summary = res.annotatedText(
+                R.string.label_system_message_conversation_failed_add_members_summary,
+                normalStyle,
+                boldStyle,
+                normalColor,
+                boldColor,
+                errorColor,
+                isErrorString,
+                this.usersCount.toString()
+            )
+
+            if (expanded) {
+                summary = summary.plus(
+                    res.annotatedText(
+                        stringResId, normalStyle, boldStyle, normalColor, boldColor, errorColor, isErrorString,
+                        *arrayOf(
+                            "=)", "foma"
+                        )
+                    )
+                )
+            }
+            return summary
+        }
     }
 
     return res.annotatedText(stringResId, normalStyle, boldStyle, normalColor, boldColor, errorColor, isErrorString, *args)

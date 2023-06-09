@@ -78,6 +78,8 @@ sealed class UIMessage(
         val decryptionFailed: Boolean = header.messageStatus is DecryptionFailure
         val receivingFailed: Boolean = header.messageStatus == ReceiveFailure || decryptionFailed
         val addingFailed: Boolean = messageContent is UIMessageContent.SystemMessage.MemberFailedToAdd
+        val singleUserAddFailed: Boolean =
+            messageContent is UIMessageContent.SystemMessage.MemberFailedToAdd && messageContent.usersCount == 1
     }
 }
 

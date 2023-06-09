@@ -408,7 +408,7 @@ fun SystemMessage.annotatedString(
             )
 
         is SystemMessage.MemberFailedToAdd ->
-            return this.toAnnotatedText(
+            return this.toFailedToAddAnnotatedText(
                 res, normalStyle, boldStyle, normalColor, boldColor, errorColor, isErrorString,
                 if (usersCount > SINGLE_EXPANDABLE_THRESHOLD) expanded else true
             )
@@ -418,7 +418,7 @@ fun SystemMessage.annotatedString(
 }
 
 @Suppress("LongParameterList", "SpreadOperator", "ComplexMethod")
-private fun SystemMessage.MemberFailedToAdd.toAnnotatedText(
+private fun SystemMessage.MemberFailedToAdd.toFailedToAddAnnotatedText(
     res: Resources,
     normalStyle: TextStyle,
     boldStyle: TextStyle,
@@ -428,34 +428,38 @@ private fun SystemMessage.MemberFailedToAdd.toAnnotatedText(
     isErrorString: Boolean,
     expanded: Boolean
 ): AnnotatedString {
-    var summary = AnnotatedString("")
-    if (usersCount > SINGLE_EXPANDABLE_THRESHOLD) {
-        summary = res.annotatedText(
-            R.string.label_system_message_conversation_failed_add_members_summary,
-            normalStyle,
-            boldStyle,
-            normalColor,
-            boldColor,
-            errorColor,
-            isErrorString,
-            this.usersCount.toString()
+    val failedToAddAnnotatedText = AnnotatedString.Builder()
+    val shouldAddMultipleUsersSummary = usersCount > SINGLE_EXPANDABLE_THRESHOLD
+    if (shouldAddMultipleUsersSummary) {
+        failedToAddAnnotatedText.append(
+            res.annotatedText(
+                R.string.label_system_message_conversation_failed_add_members_summary,
+                normalStyle,
+                boldStyle,
+                normalColor,
+                boldColor,
+                errorColor,
+                isErrorString,
+                this.usersCount.toString()
+            )
         )
     }
 
     if (expanded) {
-        memberNames.map {
-            res.annotatedText(
-                stringResId, normalStyle, boldStyle, normalColor, boldColor, errorColor, isErrorString,
-                *arrayOf(
-                    it.value.limitUserNamesList(res, it.value.size).toUserNamesListString(res),
-                    it.key
+        memberNames.onEachIndexed { index, entry ->
+            failedToAddAnnotatedText.append(
+                res.annotatedText(
+                    stringResId, normalStyle, boldStyle, normalColor, boldColor, errorColor, isErrorString,
+                    *arrayOf(
+                        entry.value.limitUserNamesList(res, entry.value.size).toUserNamesListString(res),
+                        entry.key
+                    )
                 )
             )
-        }.forEach {
-            summary = summary.plus(it)
+            if (index < memberNames.size - 1) failedToAddAnnotatedText.append("\n")
         }
     }
-    return summary
+    return failedToAddAnnotatedText.toAnnotatedString()
 }
 
 private const val EXPANDABLE_THRESHOLD = 4

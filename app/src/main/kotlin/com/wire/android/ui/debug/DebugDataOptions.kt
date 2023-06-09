@@ -50,6 +50,8 @@ import com.wire.android.ui.home.conversationslist.common.FolderHeader
 import com.wire.android.ui.home.settings.SettingsItem
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.getDeviceId
+import com.wire.android.util.getGitBuildId
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.keypackage.MLSKeyPackageCountResult
 import com.wire.kalium.logic.feature.keypackage.MLSKeyPackageCountUseCase
@@ -61,18 +63,20 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-//region DebugDataOptionsVewModel
+//region DebugDataOptionsViewModel
 data class DebugDataOptionsState(
     val isEncryptedProteusStorageEnabled: Boolean = false,
     val keyPackagesCount: Int = 0,
     val mslClientId: String = "null",
     val mlsErrorMessage: String = "null",
-    val isManualMigrationAllowed: Boolean = false
+    val isManualMigrationAllowed: Boolean = false,
+    val debugId: String = "null",
+    val commitish: String = "null"
 )
 
 @Suppress("LongParameterList")
 @HiltViewModel
-class DebugDataOptionsVewModel
+class DebugDataOptionsViewModel
 @Inject constructor(
     @ApplicationContext private val context: Context,
     @CurrentAccount val currentAccount: UserId,
@@ -86,15 +90,22 @@ class DebugDataOptionsVewModel
     var state by mutableStateOf(
         DebugDataOptionsState()
     )
+
     init {
         observeEncryptedProteusStorageState()
         observeMlsMetadata()
         checkIfCanTriggerManualMigration()
+        state = state.copy(
+            debugId = context.getDeviceId() ?: "null",
+            commitish = context.getGitBuildId()
+        )
     }
 
-    fun enableEncryptedProteusStorage() {
-        viewModelScope.launch {
-            globalDataStore.setEncryptedProteusStorageEnabled(true)
+    fun enableEncryptedProteusStorage(enabled: Boolean) {
+        if (enabled) {
+            viewModelScope.launch {
+                globalDataStore.setEncryptedProteusStorageEnabled(true)
+            }
         }
     }
 
@@ -175,15 +186,15 @@ class DebugDataOptionsVewModel
 fun DebugDataOptions(
     appVersion: String,
     buildVariant: String,
-    commitish: String,
-    debugId: String,
     onCopyText: (String) -> Unit
 ) {
 
-    val viewModel: DebugDataOptionsVewModel = hiltViewModel()
+    val viewModel: DebugDataOptionsViewModel = hiltViewModel()
 
     Column {
+
         FolderHeader(stringResource(R.string.label_debug_data))
+
         SettingsItem(
             title = stringResource(R.string.app_version),
             text = appVersion,
@@ -193,6 +204,7 @@ fun DebugDataOptions(
                 onClick = { onCopyText(appVersion) }
             )
         )
+
         SettingsItem(
             title = stringResource(R.string.build_variant_name),
             text = buildVariant,
@@ -202,35 +214,34 @@ fun DebugDataOptions(
                 onClick = { onCopyText(buildVariant) }
             )
         )
+
         SettingsItem(
             title = stringResource(R.string.label_code_commit_id),
-            text = buildVariant,
+            text = viewModel.state.commitish,
             trailingIcon = R.drawable.ic_copy,
             onIconPressed = Clickable(
                 enabled = true,
-                onClick = { onCopyText(buildVariant) }
+                onClick = { onCopyText(viewModel.state.commitish) }
             )
         )
+
         if (BuildConfig.PRIVATE_BUILD) {
+
             SettingsItem(
                 title = stringResource(R.string.debug_id),
-                text = debugId,
+                text = viewModel.state.debugId,
                 trailingIcon = R.drawable.ic_copy,
                 onIconPressed = Clickable(
                     enabled = true,
-                    onClick = { onCopyText(debugId) }
+                    onClick = { onCopyText(viewModel.state.debugId) }
                 )
             )
-        }
-        if (BuildConfig.PRIVATE_BUILD) {
+
             ProteusOptions(
                 isEncryptedStorageEnabled = viewModel.state.isEncryptedProteusStorageEnabled,
-                onEncryptedStorageEnabledChange = { enabled ->
-                    if (enabled) {
-                        viewModel.enableEncryptedProteusStorage()
-                    }
-                }
+                onEncryptedStorageEnabledChange = viewModel::enableEncryptedProteusStorage
             )
+
             MLSOptions(
                 keyPackagesCount = viewModel.state.keyPackagesCount,
                 mlsClientId = viewModel.state.mslClientId,
@@ -238,8 +249,10 @@ fun DebugDataOptions(
                 restartSlowSyncForRecovery = viewModel::restartSlowSyncForRecovery,
                 onCopyText = onCopyText
             )
+
             DevelopmentApiVersioningOptions(onForceLatestDevelopmentApiChange = viewModel::forceUpdateApiVersions)
         }
+
         FolderHeader("Other Debug Options")
         if (viewModel.state.isManualMigrationAllowed) {
             ManualMigrationOptions(

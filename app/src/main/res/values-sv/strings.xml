@@ -19,27 +19,27 @@
   ~
   -->
 <resources>
-    <string name="app_version">App version: %s</string>
-    <string name="build_variant_name">Build variant: %s</string>
-    <string name="label_new">New</string>
-    <string name="label_login">Login</string>
+    <string name="app_version">Appens version: %s</string>
+    <string name="build_variant_name">Variant av byggnationen: %s</string>
+    <string name="label_new">Ny</string>
+    <string name="label_login">Logga in</string>
     <string name="label_ok">OK</string>
-    <string name="label_cancel">Cancel</string>
-    <string name="label_confirm">Confirm</string>
-    <string name="label_continue">Continue</string>
-    <string name="label_apply">Apply</string>
-    <string name="label_save">Save</string>
-    <string name="label_get_started">Get Started</string>
-    <string name="label_remove">Remove</string>
-    <string name="label_proceed">Proceed</string>
-    <string name="label_leave">Leave</string>
-    <string name="label_add_device">Add Device</string>
-    <string name="label_learn_more">Learn more</string>
-    <string name="label_removing">Removing…</string>
-    <string name="label_logging_in">Logging in…</string>
-    <string name="label_membership_guest">Guest</string>
-    <string name="label_membership_external">External</string>
-    <string name="label_membership_service">Service</string>
+    <string name="label_cancel">Avbryt</string>
+    <string name="label_confirm">Bekräfta</string>
+    <string name="label_continue">Fortsätt</string>
+    <string name="label_apply">Verkställ</string>
+    <string name="label_save">Spara</string>
+    <string name="label_get_started">Kom igång</string>
+    <string name="label_remove">Ta bort</string>
+    <string name="label_proceed">Gå vidare</string>
+    <string name="label_leave">Lämna</string>
+    <string name="label_add_device">Lägg till enhet</string>
+    <string name="label_learn_more">Lär dig mer</string>
+    <string name="label_removing">Tar bort…</string>
+    <string name="label_logging_in">Loggar in…</string>
+    <string name="label_membership_guest">Gäst</string>
+    <string name="label_membership_external">Extern</string>
+    <string name="label_membership_service">Tjänst</string>
     <string name="label_user_deleted">Deleted</string>
     <string name="label_message_sent_failure">Message could not be sent.</string>
     <string name="label_message_edit_sent_failure">The edited message could not be sent due to connectivity issues.</string>

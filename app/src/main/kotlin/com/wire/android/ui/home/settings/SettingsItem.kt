@@ -21,7 +21,6 @@
 package com.wire.android.ui.home.settings
 
 import androidx.annotation.DrawableRes
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -36,11 +35,9 @@ import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.navigation.NavigationItem
-import com.wire.android.ui.common.Icon
 import com.wire.android.ui.common.RowItemTemplate
 import com.wire.android.ui.common.clickable
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.home.FileRestrictionDialog
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography

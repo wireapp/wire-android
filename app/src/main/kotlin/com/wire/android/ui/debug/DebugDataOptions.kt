@@ -50,7 +50,6 @@ import com.wire.android.ui.home.conversationslist.common.FolderHeader
 import com.wire.android.ui.home.settings.SettingsItem
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
-import com.wire.android.util.EMPTY
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.keypackage.MLSKeyPackageCountResult
 import com.wire.kalium.logic.feature.keypackage.MLSKeyPackageCountUseCase
@@ -66,8 +65,8 @@ import javax.inject.Inject
 data class DebugDataOptionsState(
     val isEncryptedProteusStorageEnabled: Boolean = false,
     val keyPackagesCount: Int = 0,
-    val mslClientId: String = String.EMPTY,
-    val mlsErrorMessage: String = String.EMPTY,
+    val mslClientId: String = "null",
+    val mlsErrorMessage: String = "null",
     val isManualMigrationAllowed: Boolean = false
 )
 
@@ -84,15 +83,14 @@ class DebugDataOptionsVewModel
     private val restartSlowSyncProcessForRecovery: RestartSlowSyncProcessForRecoveryUseCase
 ) : ViewModel() {
 
+    var state by mutableStateOf(
+        DebugDataOptionsState()
+    )
     init {
         observeEncryptedProteusStorageState()
         observeMlsMetadata()
         checkIfCanTriggerManualMigration()
     }
-
-    var state by mutableStateOf(
-        DebugDataOptionsState()
-    )
 
     fun enableEncryptedProteusStorage() {
         viewModelScope.launch {
@@ -130,7 +128,7 @@ class DebugDataOptionsVewModel
         }
     }
 
-    // If status is NoNeed, it means that the user has already been migrated in and older app version
+    // If status is NoNeed, it means that the user has already been migrated in and older app version,
     // or it is a new install
     // this is why we check the existence of the database file
     private fun checkIfCanTriggerManualMigration() {
@@ -169,12 +167,9 @@ class DebugDataOptionsVewModel
             }
         }
     }
-
     //endregion
-
 }
-//endRegion
-
+//endregion
 
 @Composable
 fun DebugDataOptions(
@@ -259,16 +254,24 @@ fun DebugDataOptions(
 private fun ManualMigrationOptions(
     onManualMigrationClicked: () -> Unit,
 ) {
-    Column {
-        SettingsItem(
-            title = stringResource(R.string.label_manual_migration_title),
-            text = stringResource(R.string.start_manual_migration),
-            onRowPressed = Clickable(
-                enabled = true,
-                onClick = onManualMigrationClicked
+    RowItemTemplate(
+        modifier = Modifier.wrapContentWidth(),
+        title = {
+            Text(
+                style = MaterialTheme.wireTypography.body01,
+                color = MaterialTheme.wireColorScheme.onBackground,
+                text = stringResource(R.string.label_manual_migration_title),
+                modifier = Modifier.padding(start = dimensions().spacing8x)
             )
-        )
-    }
+        },
+        actions = {
+            WirePrimaryButton(
+                onClick = onManualMigrationClicked,
+                text = stringResource(R.string.start_manual_migration),
+                fillMaxWidth = false
+            )
+        }
+    )
 }
 //endregion
 
@@ -337,19 +340,27 @@ private fun MLSOptions(
                 onClick = { onCopyText(mlsClientId) }
             )
         )
-        SettingsItem(
-            title = stringResource(R.string.label_restart_slowsync_for_recovery),
-            text = "Restart SlowSync to attempt recovery",
-            trailingIcon = R.drawable.ic_reply,
-            onIconPressed = Clickable(
-                enabled = true,
-                onClick = restartSlowSyncForRecovery
-            )
+        RowItemTemplate(
+            modifier = Modifier.wrapContentWidth(),
+            title = {
+                Text(
+                    style = MaterialTheme.wireTypography.body01,
+                    color = MaterialTheme.wireColorScheme.onBackground,
+                    text = stringResource(R.string.label_restart_slowsync_for_recovery),
+                    modifier = Modifier.padding(start = dimensions().spacing8x)
+                )
+            },
+            actions = {
+                WirePrimaryButton(
+                    onClick = restartSlowSyncForRecovery,
+                    text = stringResource(R.string.restart_slowsync_for_recovery_button),
+                    fillMaxWidth = false
+                )
+            }
         )
     }
 }
 //endregion
-
 
 //region Proteus Options
 @Composable

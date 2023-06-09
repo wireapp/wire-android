@@ -44,6 +44,7 @@ import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import com.wire.android.util.getDeviceId
 import com.wire.android.util.getGitBuildId
 import com.wire.android.util.getMimeType
 import com.wire.android.util.getUrisOfFilesInDirectory
@@ -57,6 +58,8 @@ fun DebugScreen() {
 
 @Composable
 private fun UserDebugContent() {
+
+    val context = LocalContext.current
     val userDebugViewModel: UserDebugViewModel = hiltViewModel()
     val debugContentState: DebugContentState = rememberDebugContentState(userDebugViewModel.logPath)
 
@@ -86,8 +89,8 @@ private fun UserDebugContent() {
                 DebugDataOptions(
                     appVersion = BuildConfig.VERSION_NAME,
                     buildVariant = "${BuildConfig.FLAVOR}${BuildConfig.BUILD_TYPE.replaceFirstChar { it.uppercase() }}",
-                    debugId = debugId,
-                    commitish = "",
+                    debugId = context.getDeviceId() ?: "null",
+                    commitish = context.getGitBuildId(),
                     onCopyText = debugContentState::copyToClipboard
                 )
             }

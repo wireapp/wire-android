@@ -429,8 +429,8 @@ private fun SystemMessage.MemberFailedToAdd.toFailedToAddAnnotatedText(
     expanded: Boolean
 ): AnnotatedString {
     val failedToAddAnnotatedText = AnnotatedString.Builder()
-    val shouldAddMultipleUsersSummary = usersCount > SINGLE_EXPANDABLE_THRESHOLD
-    if (shouldAddMultipleUsersSummary) {
+    val isMultipleUsersFailure = usersCount > SINGLE_EXPANDABLE_THRESHOLD
+    if (isMultipleUsersFailure) {
         failedToAddAnnotatedText.append(
             res.annotatedText(
                 R.string.label_system_message_conversation_failed_add_members_summary,
@@ -446,6 +446,7 @@ private fun SystemMessage.MemberFailedToAdd.toFailedToAddAnnotatedText(
     }
 
     if (expanded) {
+        if (isMultipleUsersFailure) failedToAddAnnotatedText.append("\n")
         memberNames.onEachIndexed { index, entry ->
             failedToAddAnnotatedText.append(
                 res.annotatedText(

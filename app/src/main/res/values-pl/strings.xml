@@ -969,10 +969,11 @@ Prosimy u&#380;y&#263; zarz&#261;dzania zespo&#322;ami (%1$s) na tym &#347;rodow
     <string name="guest_room_link_disabled">Generowanie link&#243;w dla go&#347;ci jest teraz wy&#322;&#261;czone dla wszystkich administrator&#243;w grupy</string>
     <!-- New Device dialog -->
     <string name="new_device_dialog_current_user_title">Twoje konto zosta&#322;o u&#380;yte na</string>
-    <string name="new_device_dialog_current_user_message">%1$s\nOd: %2$s \n\nJeśli tego nie zrobiłeś, usuń urządzenie i zresetuj swoje hasło.</string>
+    <string name="new_device_dialog_message_defice_info">%1$s\nOd: %2$s \n</string>
+    <string name="new_device_dialog_current_user_message">%1$s\nJeśli tego nie zrobiłeś, usuń urządzenie i zresetuj swoje hasło.</string>
     <string name="new_device_dialog_current_user_btn">Zarz&#261;dzaj urz&#261;dzeniami</string>
     <string name="new_device_dialog_other_user_title">Twoje konto \"%1$s (@%2$s)\" zosta&#322;o u&#380;yte na</string>
-    <string name="new_device_dialog_other_user_message">%1$s\nOd: %2$s \n\nJeśli tego nie zrobiłeś, usuń urządzenie (przejdź do sekcji \"Zarządzaj swoimi urządzeniami\" w ustawieniach tego konta) i zresetuj swoje hasło.</string>
+    <string name="new_device_dialog_other_user_message">%1$s\nJeśli tego nie zrobiłeś, usuń urządzenie (przejdź do sekcji \"Zarządzaj swoimi urządzeniami\" w ustawieniach tego konta) i zresetuj swoje hasło.</string>
     <string name="new_device_dialog_other_user_btn">Prze&#322;&#261;cz konto</string>
     <string name="label_system_message_joined_the_conversation_by_self">%1$s do&#322;&#261;czy&#322; do rozmowy</string>
     <string name="label_system_message_joined_the_conversation_by_other">%1$s do&#322;&#261;czy&#322; do rozmowy</string>

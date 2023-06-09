@@ -50,6 +50,7 @@ import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.configuration.server.ServerConfig
+import com.wire.kalium.logic.data.client.Client
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.logout.LogoutReason
@@ -57,6 +58,7 @@ import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.appVersioning.ObserveIfAppUpdateRequiredUseCase
 import com.wire.kalium.logic.feature.auth.AccountInfo
+import com.wire.kalium.logic.feature.client.ClearNewClientsForUserUseCase
 import com.wire.kalium.logic.feature.client.NewClientResult
 import com.wire.kalium.logic.feature.client.ObserveNewClientsUseCase
 import com.wire.kalium.logic.feature.conversation.CheckConversationInviteCodeUseCase
@@ -81,7 +83,6 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.scan
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -106,6 +107,7 @@ class WireActivityViewModel @Inject constructor(
     private val observeSyncStateUseCaseProviderFactory: ObserveSyncStateUseCaseProvider.Factory,
     private val observeIfAppUpdateRequired: ObserveIfAppUpdateRequiredUseCase,
     private val observeNewClients: ObserveNewClientsUseCase,
+    private val clearNewClientsForUser: ClearNewClientsForUserUseCase,
     private val currentScreenManager: CurrentScreenManager,
 ) : ViewModel() {
 
@@ -152,56 +154,14 @@ class WireActivityViewModel @Inject constructor(
                 }
         }
         viewModelScope.launch(dispatchers.io()) {
-            val currentScreenStateFlow = currentScreenManager.observeCurrentScreen(this)
-            observeNewClients()
-                .collect {
-                    val newClientDialog = when (it) {
-                        is NewClientResult.InCurrentAccount -> {
-                            NewClientData.CurrentUser(
-                                it.newClient.registrationTime?.toIsoDateTimeString() ?: "",
-                                it.newClient.displayName()
-                            )
-                        }
-
-                        is NewClientResult.InOtherAccount -> {
-                            NewClientData.OtherUser(
-                                it.newClient.registrationTime?.toIsoDateTimeString() ?: "",
-                                it.newClient.displayName(),
-                                it.userId,
-                                it.userName,
-                                it.userHandle
-                            )
-                        }
-
-                        else -> null
-                    }
-
-                    newClientDialog?.let {
-                        globalAppState = if (currentScreenStateFlow.value.isGlobalDialogAllowed()) {
-                            globalAppState.copy(newClientDialog = newClientDialog)
-                        } else {
-                            globalAppState.copy(newClientDialogRemembered = newClientDialog)
-                        }
-                    }
-                }
-        }
-
-        viewModelScope.launch {
             currentScreenManager.observeCurrentScreen(this)
-                .map { it.isGlobalDialogAllowed() }
-                .scan(true to true) { prevPair, newValue -> prevPair.second to newValue }
-                .collect { (wasAllowedOnPrev, isAllowedOnCurrent) ->
-                    if (!wasAllowedOnPrev && isAllowedOnCurrent) {
-                        globalAppState = globalAppState.copy(
-                            newClientDialog = globalAppState.newClientDialogRemembered,
-                            newClientDialogRemembered = null
-                        )
-                    } else if (wasAllowedOnPrev && !isAllowedOnCurrent) {
-                        globalAppState = globalAppState.copy(
-                            newClientDialogRemembered = globalAppState.newClientDialog,
-                            newClientDialog = null
-                        )
-                    }
+                .flatMapLatest {
+                    if (it.isGlobalDialogAllowed()) observeNewClients()
+                    else flowOf(NewClientResult.Empty)
+                }
+                .collect {
+                    val newClientDialog = NewClientsDialogData.fromUseCaseResul(it)
+                    globalAppState = globalAppState.copy(newClientDialog = newClientDialog)
                 }
         }
     }
@@ -290,8 +250,9 @@ class WireActivityViewModel @Inject constructor(
         }
     }
 
-    fun dismissNewClientDialog() {
-        globalAppState = globalAppState.copy(newClientDialog = null, newClientDialogRemembered = null)
+    fun dismissNewClientDialog(userId: UserId) {
+        globalAppState = globalAppState.copy(newClientDialog = null)
+        viewModelScope.launch { clearNewClientsForUser(userId) }
     }
 
     fun switchAccount(userId: UserId) {
@@ -497,7 +458,8 @@ class WireActivityViewModel @Inject constructor(
     }
 
     private fun CurrentScreen.isGlobalDialogAllowed(): Boolean = when (this) {
-        CurrentScreen.ImportMedia -> false
+        CurrentScreen.ImportMedia,
+        CurrentScreen.DeviceManager -> false
 
         CurrentScreen.InBackground,
         is CurrentScreen.Conversation,
@@ -515,15 +477,47 @@ sealed class CurrentSessionErrorState {
     object SessionExpired : CurrentSessionErrorState()
 }
 
-sealed class NewClientData(open val date: String, open val deviceInfo: UIText) {
-    data class CurrentUser(override val date: String, override val deviceInfo: UIText) : NewClientData(date, deviceInfo)
+sealed class NewClientsDialogData(open val clientsInfo: List<NewClientData>, open val userId: UserId) {
+    data class CurrentUser(
+        override val clientsInfo: List<NewClientData>,
+        override val userId: UserId
+    ) : NewClientsDialogData(clientsInfo, userId)
+
     data class OtherUser(
-        override val date: String,
-        override val deviceInfo: UIText,
-        val userId: UserId,
+        override val clientsInfo: List<NewClientData>,
+        override val userId: UserId,
         val userName: String?,
         val userHandle: String?
-    ) : NewClientData(date, deviceInfo)
+    ) : NewClientsDialogData(clientsInfo, userId)
+
+    companion object {
+        fun fromUseCaseResul(result: NewClientResult): NewClientsDialogData? = when (result) {
+            is NewClientResult.InCurrentAccount -> {
+                CurrentUser(
+                    result.newClients.map(NewClientData::fromClient),
+                    result.userId
+                )
+            }
+
+            is NewClientResult.InOtherAccount -> {
+                OtherUser(
+                    result.newClients.map(NewClientData::fromClient),
+                    result.userId,
+                    result.userName,
+                    result.userHandle
+                )
+            }
+
+            else -> null
+        }
+    }
+}
+
+data class NewClientData(val date: String, val deviceInfo: UIText) {
+    companion object {
+        fun fromClient(client: Client): NewClientData =
+            NewClientData(client.registrationTime?.toIsoDateTimeString() ?: "", client.displayName())
+    }
 }
 
 data class GlobalAppState(
@@ -532,9 +526,5 @@ data class GlobalAppState(
     val blockUserUI: CurrentSessionErrorState? = null,
     val updateAppDialog: Boolean = false,
     val conversationJoinedDialog: JoinConversationViaCodeState? = null,
-    val newClientDialog: NewClientData? = null,
-    // In cases when the new client comes and we need to inform user about it, but user is in some screen that doesn't allow dialogs,
-    // we need to store that state somewhere and show the dialog later when it's possible.
-    // This field is not used in Compose, only for storing and using latter.
-    val newClientDialogRemembered: NewClientData? = null,
+    val newClientDialog: NewClientsDialogData? = null
 )

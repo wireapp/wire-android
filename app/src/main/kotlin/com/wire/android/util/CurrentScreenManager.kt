@@ -117,6 +117,8 @@ sealed class CurrentScreen {
 
     // Import media screen is opened
     object ImportMedia : CurrentScreen()
+    // SelfDevices screen is opened
+    object DeviceManager : CurrentScreen()
 
     // Some other screen is opened, kinda "do nothing screen"
     object SomeOther : CurrentScreen()
@@ -159,6 +161,7 @@ sealed class CurrentScreen {
                         ?: SomeOther
                 }
                 NavigationItem.ImportMedia -> ImportMedia
+                NavigationItem.SelfDevices -> DeviceManager
                 else -> SomeOther
             }
         }

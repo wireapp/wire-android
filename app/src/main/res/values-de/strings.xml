@@ -19,8 +19,8 @@
   ~
   -->
 <resources>
-    <string name="app_version">App-Version: %s</string>
-    <string name="build_variant_name">Version: %s</string>
+    <string name="app_version">App version</string>
+    <string name="build_variant_name">Build variant</string>
     <string name="label_new">Neu</string>
     <string name="label_login">Anmelden</string>
     <string name="label_ok">OK</string>
@@ -827,10 +827,11 @@
     <string name="label_logs_option_title">Protokolle</string>
     <string name="label_share_logs">Protokolle teilen</string>
     <string name="label_delete_logs">Alle Protokolle löschen</string>
-    <string name="label_restart_slowsync_for_recovery">SlowSync zur Wiederherstellung neu starten</string>
-    <string name="label_mls_option_title">MLS-DATEN</string>
+    <string name="label_restart_slowsync_for_recovery">Restart slow sync</string>
+    <string name="restart_slowsync_for_recovery_button">Restart</string>
+    <string name="label_mls_option_title">MLS Options</string>
     <string name="label_enable_logging">Protokollierung aktivieren</string>
-    <string name="label_proteus_option_title">Proteus</string>
+    <string name="label_proteus_option_title">Proteus Options</string>
     <string name="label_enable_encrypted_proteus_storage">Verschlüsselte Proteus-Speicherung aktivieren</string>
     <string name="label_debug_title">Fehlerbehebung</string>
     <string name="label_client_option_title">Client-ID</string>
@@ -839,8 +840,8 @@
     <string name="label_client_id">Client-ID: %1$s</string>
     <string name="label_client_added_time">HINZUGEFÜGT</string>
     <string name="label_client_device_id">GERÄTE-ID</string>
-    <string name="label_key_packages_count">Anzahl der Schlüssel-Pakete: %1$s</string>
-    <string name="label_mls_client_id">MLS-Client-ID: %1$s</string>
+    <string name="label_key_packages_count">Key-packages count</string>
+    <string name="label_mls_client_id">MLS Client ID</string>
     <string name="conversation_empty_list_description">Verbinden Sie sich mit anderen oder erstellen Sie eine neue Gruppe, um zu kommunizieren!</string>
     <string name="conversation_empty_list_title">Willkommen 👋</string>
     <string name="label_no_conversation_found">Keine Unterhaltungen gefunden.</string>
@@ -906,7 +907,7 @@
     <!-- session reset -->
     <string name="label_system_message_session_reset">%1$s konnte einige Ihrer Nachrichten nicht entschlüsseln, hat das Problem aber gelöst. Dies betraf alle Unterhaltungen, die Sie gemeinsam nutzen.</string>
     <string name="label_manual_migration_title">Migration von Version 3.82.38</string>
-    <string name="start_manual_migration">Starten Sie die Migration von Version 3.82.38 manuell</string>
+    <string name="start_manual_migration">Start</string>
     <string name="file_sharing_restricted_learn_more_link">https://support.wire.com/hc/de/articles/4406404582673-Wie-kann-ich-die-Dateifreigabe-für-mein-Team-einschränken-</string>
     <string name="file_sharing_restricted_description_by_team">Sie können diese Datei nicht teilen, da diese Funktion deaktiviert ist.</string>
     <string name="file_sharing_restricted_description_no_users">Sie müssen sich bei Wire anmelden, bevor Sie etwas freigeben können</string>

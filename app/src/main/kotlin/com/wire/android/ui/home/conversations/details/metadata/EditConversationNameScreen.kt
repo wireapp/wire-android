@@ -21,24 +21,38 @@
 package com.wire.android.ui.home.conversations.details.metadata
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
+import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.wire.android.ui.common.groupname.GroupNameScreen
+import kotlinx.coroutines.launch
 
 @RootNavGraph
 @Destination(
     navArgsDelegate = EditConversationNameNavArgs::class
 )
 @Composable
-fun EditConversationNameScreen(viewModel: EditConversationMetadataViewModel = hiltViewModel()) {
-    with(viewModel.editConversationState) {
+fun EditConversationNameScreen(
+    viewModel: EditConversationMetadataViewModel = hiltViewModel(),
+    resultNavigator: ResultBackNavigator<Boolean>
+) {
+    val scope = rememberCoroutineScope()
+    with(viewModel) {
         GroupNameScreen(
-            newGroupState = this,
-            onGroupNameChange = viewModel::onGroupNameChange,
-            onGroupNameErrorAnimated = viewModel::onGroupNameErrorAnimated,
-            onContinuePressed = viewModel::saveNewGroupName,
-            onBackPressed = viewModel::navigateBack
+            newGroupState = editConversationState,
+            onGroupNameChange = ::onGroupNameChange,
+            onGroupNameErrorAnimated = ::onGroupNameErrorAnimated,
+            onContinuePressed = {
+                scope.launch {
+                    val job = saveNewGroupName()
+                    job.join()
+                    resultNavigator.setResult(isNameChanged)
+                    resultNavigator.navigateBack()
+                }
+            },
+            onBackPressed = ::navigateBack
         )
     }
 }

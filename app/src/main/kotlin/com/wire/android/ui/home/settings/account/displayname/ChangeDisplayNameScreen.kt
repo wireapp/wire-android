@@ -36,6 +36,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -44,6 +45,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
+import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.wire.android.R
 import com.wire.android.ui.common.Icon
 import com.wire.android.ui.common.ShakeAnimation
@@ -58,16 +60,28 @@ import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
+import kotlinx.coroutines.launch
 
 @RootNavGraph
 @Destination
 @Composable
-fun ChangeDisplayNameScreen(viewModel: ChangeDisplayNameViewModel = hiltViewModel()) {
+fun ChangeDisplayNameScreen(
+    viewModel: ChangeDisplayNameViewModel = hiltViewModel(),
+    resultNavigator: ResultBackNavigator<Boolean>? = null // TODO: make it non nullable after refactoring NavigationItem
+) {
+    val scope = rememberCoroutineScope()
     with(viewModel) {
         ChangeDisplayNameContent(
             displayNameState,
             ::onNameChange,
-            ::saveDisplayName,
+            {
+                scope.launch {
+                    val job = saveDisplayName()
+                    job.join()
+                    resultNavigator?.setResult(viewModel.isNameChanged)
+                    resultNavigator?.navigateBack()
+                }
+            },
             ::onNameErrorAnimated,
             ::navigateBack
         )
@@ -171,6 +185,7 @@ private fun computeNameErrorState(error: DisplayNameState.NameError) =
             DisplayNameState.NameError.TextFieldError.NameEmptyError -> WireTextFieldState.Error(
                 stringResource(id = R.string.settings_myaccount_display_name_error)
             )
+
             DisplayNameState.NameError.TextFieldError.NameExceedLimitError -> WireTextFieldState.Error(
                 stringResource(id = R.string.settings_myaccount_display_name_exceeded_limit_error)
             )

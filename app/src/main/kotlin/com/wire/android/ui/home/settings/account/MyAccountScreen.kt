@@ -31,9 +31,9 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -41,7 +41,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
+import com.ramcosta.composedestinations.result.NavResult
+import com.ramcosta.composedestinations.result.ResultRecipient
 import com.wire.android.R
+import com.wire.android.appLogger
 import com.wire.android.model.Clickable
 import com.wire.android.navigation.hiltSavedStateViewModel
 import com.wire.android.ui.common.Icon
@@ -50,33 +53,57 @@ import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import com.wire.android.ui.destinations.ChangeDisplayNameScreenDestination
 import com.wire.android.ui.home.settings.account.AccountDetailsItem.DisplayName
 import com.wire.android.ui.home.settings.account.AccountDetailsItem.Domain
 import com.wire.android.ui.home.settings.account.AccountDetailsItem.Email
 import com.wire.android.ui.home.settings.account.AccountDetailsItem.Team
 import com.wire.android.ui.home.settings.account.AccountDetailsItem.Username
-import com.wire.android.ui.home.settings.account.MyAccountViewModel.SettingsOperationResult
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.extension.folderWithElements
 import kotlinx.collections.immutable.ImmutableMap
 import kotlinx.collections.immutable.persistentMapOf
+import kotlinx.coroutines.launch
 
 @RootNavGraph
-@Destination // TODO: back nav args
+@Destination
 @Composable
 fun MyAccountScreen(
     backNavArgs: ImmutableMap<String, Any> = persistentMapOf(),
-    viewModel: MyAccountViewModel = hiltSavedStateViewModel(backNavArgs = backNavArgs)
+    viewModel: MyAccountViewModel = hiltSavedStateViewModel(backNavArgs = backNavArgs),
+    resultRecipient: ResultRecipient<ChangeDisplayNameScreenDestination, Boolean>
 ) {
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
     with(viewModel.myAccountState) {
         MyAccountContent(
             accountDetailItems = mapToUISections(viewModel, this),
             forgotPasswordUrl = this.changePasswordUrl,
-            checkPendingSnackBarMessages = viewModel::checkForPendingMessages,
-            onNavigateBack = viewModel::navigateBack
+            onNavigateBack = viewModel::navigateBack,
+            snackbarHostState = snackbarHostState,
         )
+    }
+    val tryAgainSnackBarMessage = stringResource(id = R.string.error_unknown_message)
+    val successSnackBarMessage = stringResource(id = R.string.settings_myaccount_display_name_updated)
+
+    resultRecipient.onNavResult { result ->
+        when (result) {
+            is NavResult.Canceled -> {
+                appLogger.i("Error with receiving navigation back args")
+            }
+
+            is NavResult.Value -> {
+                scope.launch {
+                    if (result.value) {
+                        snackbarHostState.showSnackbar(successSnackBarMessage)
+                    } else {
+                        snackbarHostState.showSnackbar(tryAgainSnackBarMessage)
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -110,17 +137,10 @@ private fun clickableActionIfPossible(shouldDisableAction: Boolean, action: () -
 fun MyAccountContent(
     accountDetailItems: List<AccountDetailsItem> = emptyList(),
     forgotPasswordUrl: String?,
-    checkPendingSnackBarMessages: () -> SettingsOperationResult = { SettingsOperationResult.None },
-    onNavigateBack: () -> Unit = {}
+    onNavigateBack: () -> Unit = {},
+    snackbarHostState: SnackbarHostState
 ) {
     val context = LocalContext.current
-    val snackbarHostState = remember { SnackbarHostState() }
-    LaunchedEffect(Unit) {
-        val result = checkPendingSnackBarMessages()
-        if (result is SettingsOperationResult.Result) {
-            snackbarHostState.showSnackbar(result.message.asString(context.resources))
-        }
-    }
 
     Scaffold(
         topBar = {
@@ -193,6 +213,7 @@ fun PreviewMyAccountScreen() {
             Email("bob@wire.com", Clickable(enabled = true) {}),
             Team("Wire")
         ),
-        forgotPasswordUrl = "http://wire.com"
+        forgotPasswordUrl = "http://wire.com",
+        snackbarHostState = remember { SnackbarHostState() }
     )
 }

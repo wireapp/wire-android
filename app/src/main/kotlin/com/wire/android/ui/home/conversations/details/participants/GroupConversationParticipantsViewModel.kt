@@ -34,6 +34,7 @@ import com.wire.android.ui.home.conversations.details.GroupDetailsBaseViewModel
 import com.wire.android.ui.home.conversations.details.participants.model.UIParticipant
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
 import com.wire.android.ui.navArgs
+import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.BotService
 import com.wire.kalium.logic.data.user.UserId
@@ -53,7 +54,7 @@ open class GroupConversationParticipantsViewModel @Inject constructor(
     var groupParticipantsState: GroupConversationParticipantsState by mutableStateOf(GroupConversationParticipantsState())
 
     private  val groupConversationAllParticipantsNavArgs: GroupConversationAllParticipantsNavArgs = savedStateHandle.navArgs()
-    private val conversationId: QualifiedID = groupConversationAllParticipantsNavArgs.conversationId
+    private val conversationId: QualifiedID = ConversationId(groupConversationAllParticipantsNavArgs.conversationId.value, groupConversationAllParticipantsNavArgs.conversationId.domain)
 
     init {
         observeConversationMembers()

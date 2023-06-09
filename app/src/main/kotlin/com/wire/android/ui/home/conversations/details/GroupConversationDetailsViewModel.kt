@@ -27,12 +27,8 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.wire.android.R
 import com.wire.android.appLogger
-import com.wire.android.navigation.EXTRA_GROUP_DELETED_NAME
-import com.wire.android.navigation.EXTRA_GROUP_NAME_CHANGED
-import com.wire.android.navigation.EXTRA_LEFT_GROUP
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationManager
-import com.wire.android.navigation.getBackNavArg
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationSheetContent
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationTypeDetail
 import com.wire.android.ui.destinations.AddMembersSearchRouterDestination
@@ -72,6 +68,7 @@ import com.wire.kalium.logic.feature.team.Result
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.IsMLSEnabledUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -90,6 +87,7 @@ import javax.inject.Inject
 @Suppress("TooManyFunctions", "LongParameterList")
 @HiltViewModel
 class GroupConversationDetailsViewModel @Inject constructor(
+//    private val navigator: DestinationsNavigator,
     private val navigationManager: NavigationManager,
     private val dispatcher: DispatcherProvider,
     private val observeConversationDetails: ObserveConversationDetailsUseCase,
@@ -121,6 +119,11 @@ class GroupConversationDetailsViewModel @Inject constructor(
     val groupOptionsState: StateFlow<GroupConversationOptionsState> = _groupOptionsState
 
     var requestInProgress: Boolean by mutableStateOf(false)
+        private set
+
+    var hasLeftGroup: Boolean = false
+        private set
+    var isGroupDeleted: Boolean = false
         private set
 
     init {
@@ -185,7 +188,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
         }
     }
 
-    fun leaveGroup(leaveGroupState: GroupDialogState) {
+    fun leaveGroup(leaveGroupState: GroupDialogState): Job =
         viewModelScope.launch {
             requestInProgress = true
             val response = withContext(dispatcher.io()) {
@@ -198,34 +201,24 @@ class GroupConversationDetailsViewModel @Inject constructor(
                 is RemoveMemberFromConversationUseCase.Result.Failure -> showSnackBarMessage(response.cause.uiText())
 
                 RemoveMemberFromConversationUseCase.Result.Success -> {
-                    navigationManager.navigateBack(
-                        mapOf(
-                            EXTRA_LEFT_GROUP to true,
-                        )
-                    )
+                    hasLeftGroup = true
                 }
             }
             requestInProgress = false
         }
-    }
 
-    fun deleteGroup(groupState: GroupDialogState) {
-        viewModelScope.launch {
-            requestInProgress = true
-            when (val response = withContext(dispatcher.io()) { deleteTeamConversation(groupState.conversationId) }) {
-                is Result.Failure.GenericFailure -> showSnackBarMessage(response.coreFailure.uiText())
-                Result.Failure.NoTeamFailure -> showSnackBarMessage(CoreFailure.Unknown(null).uiText())
-                Result.Success -> {
-                    navigationManager.navigateBack(
-                        mapOf(
-                            EXTRA_GROUP_DELETED_NAME to groupState.conversationName,
-                        )
-                    )
-                }
+    fun deleteGroup(groupState: GroupDialogState) = viewModelScope.launch {
+        requestInProgress = true
+        when (val response = withContext(dispatcher.io()) { deleteTeamConversation(groupState.conversationId) }) {
+            is Result.Failure.GenericFailure -> showSnackBarMessage(response.coreFailure.uiText())
+            Result.Failure.NoTeamFailure -> showSnackBarMessage(CoreFailure.Unknown(null).uiText())
+            Result.Success -> {
+                isGroupDeleted = true
             }
         }
         requestInProgress = false
     }
+
 
     fun onServicesUpdate(enableServices: Boolean) {
         updateState(groupOptionsState.value.copy(loadingServicesOption = true, isServicesAllowed = enableServices))
@@ -446,21 +439,6 @@ class GroupConversationDetailsViewModel @Inject constructor(
                 )
             }
         }
-    }
-
-    fun checkForPendingMessages(): GroupMetadataOperationResult {
-        return with(savedStateHandle) {
-            when (getBackNavArg<Boolean>(EXTRA_GROUP_NAME_CHANGED)) {
-                true -> GroupMetadataOperationResult.Result(UIText.StringResource(R.string.conversation_options_renamed))
-                false -> GroupMetadataOperationResult.Result(UIText.StringResource(R.string.error_unknown_message))
-                else -> GroupMetadataOperationResult.None
-            }
-        }
-    }
-
-    sealed interface GroupMetadataOperationResult {
-        object None : GroupMetadataOperationResult
-        class Result(val message: UIText) : GroupMetadataOperationResult
     }
 
     companion object {

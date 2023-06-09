@@ -149,19 +149,19 @@ sealed class CurrentScreen {
                 return InBackground
             }
             return when (currentItem) {
-                NavigationItem.Home -> Home
-                NavigationItem.Conversation -> {
-                    arguments?.getString(EXTRA_CONVERSATION_ID)
-                        ?.toQualifiedID(qualifiedIdMapper)
-                        ?.let { Conversation(it) }
-                        ?: SomeOther
-                }
-                NavigationItem.OtherUserProfile -> {
-                    arguments?.getString(EXTRA_CONVERSATION_ID)
-                        ?.toQualifiedID(qualifiedIdMapper)
-                        ?.let { OtherUserProfile(it) }
-                        ?: SomeOther
-                }
+//                NavigationItem.Home -> Home
+//                NavigationItem.Conversation -> {
+//                    arguments?.getString(EXTRA_CONVERSATION_ID)
+//                        ?.toQualifiedID(qualifiedIdMapper)
+//                        ?.let { Conversation(it) }
+//                        ?: SomeOther
+//                }
+//                NavigationItem.OtherUserProfile -> {
+//                    arguments?.getString(EXTRA_CONVERSATION_ID)
+//                        ?.toQualifiedID(qualifiedIdMapper)
+//                        ?.let { OtherUserProfile(it) }
+//                        ?: SomeOther
+//                }
                 NavigationItem.OngoingCall -> {
                     arguments?.getString(EXTRA_CONVERSATION_ID)
                         ?.toQualifiedID(qualifiedIdMapper)

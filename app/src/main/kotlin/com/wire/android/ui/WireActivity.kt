@@ -85,10 +85,7 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onSubscription
 import javax.inject.Inject
 
-@OptIn(
-    ExperimentalComposeUiApi::class,
-    ExperimentalCoroutinesApi::class
-)
+@OptIn(ExperimentalComposeUiApi::class)
 @AndroidEntryPoint
 @Suppress("TooManyFunctions")
 class WireActivity : AppCompatActivity() {

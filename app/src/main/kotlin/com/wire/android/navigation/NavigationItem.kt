@@ -26,36 +26,29 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDeepLink
 import com.ramcosta.composedestinations.spec.Direction
 import com.wire.android.BuildConfig
-import com.wire.android.model.ImageAsset
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.ADD_CONVERSATION_PARTICIPANTS
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.APP_SETTINGS
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.BACKUP_AND_RESTORE
-import com.wire.android.navigation.NavigationItemDestinationsRoutes.CONVERSATION
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.CREATE_ACCOUNT_SUMMARY
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.CREATE_ACCOUNT_USERNAME
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.CREATE_PERSONAL_ACCOUNT
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.CREATE_TEAM
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.DEBUG
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.DEVICE_DETAILS
-import com.wire.android.navigation.NavigationItemDestinationsRoutes.EDIT_CONVERSATION_NAME
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.EDIT_DISPLAY_NAME
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.EDIT_EMAIL
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.EDIT_GUEST_ACCESS
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.EDIT_HANDLE
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.EDIT_SELF_DELETING_MESSAGES
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.GROUP_CONVERSATION_ALL_PARTICIPANTS
-import com.wire.android.navigation.NavigationItemDestinationsRoutes.GROUP_CONVERSATION_DETAILS
-import com.wire.android.navigation.NavigationItemDestinationsRoutes.HOME
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.IMAGE_PICKER
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.IMPORT_MEDIA
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.INCOMING_CALL
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.INITIAL_SYNC
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.INITIATING_CALL
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.LOGIN
-import com.wire.android.navigation.NavigationItemDestinationsRoutes.MEDIA_GALLERY
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.MESSAGE_DETAILS
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.MIGRATION
-import com.wire.android.navigation.NavigationItemDestinationsRoutes.MY_ACCOUNT
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.NETWORK_SETTINGS
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.NEW_CONVERSATION
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.ONGOING_CALL
@@ -81,19 +74,13 @@ import com.wire.android.ui.calling.incoming.IncomingCallScreen
 import com.wire.android.ui.calling.initiating.InitiatingCallScreen
 import com.wire.android.ui.calling.ongoing.OngoingCallScreen
 import com.wire.android.ui.debug.DebugScreen
-import com.wire.android.ui.home.HomeScreen
-import com.wire.android.ui.home.conversations.ConversationScreen
-import com.wire.android.ui.home.conversations.details.GroupConversationDetailsScreen
 import com.wire.android.ui.home.conversations.details.editguestaccess.EditGuestAccessParams
 import com.wire.android.ui.home.conversations.details.editguestaccess.EditGuestAccessScreen
 import com.wire.android.ui.home.conversations.details.editselfdeletingmessages.EditSelfDeletingMessagesScreen
-import com.wire.android.ui.home.conversations.details.metadata.EditConversationNameScreen
 import com.wire.android.ui.home.conversations.details.participants.GroupConversationAllParticipantsScreen
 import com.wire.android.ui.home.conversations.messagedetails.MessageDetailsScreen
 import com.wire.android.ui.home.conversations.search.AddMembersSearchRouter
-import com.wire.android.ui.home.gallery.MediaGalleryScreen
 import com.wire.android.ui.home.newconversation.NewConversationRouter
-import com.wire.android.ui.home.settings.account.MyAccountScreen
 import com.wire.android.ui.home.settings.account.displayname.ChangeDisplayNameScreen
 import com.wire.android.ui.home.settings.account.email.updateEmail.ChangeEmailScreen
 import com.wire.android.ui.home.settings.account.email.verifyEmail.VerifyEmailScreen
@@ -210,12 +197,6 @@ enum class NavigationItem(
         animationConfig = NavigationAnimationConfig.CustomAnimation(smoothSlideInFromRight(), smoothSlideOutFromLeft())
     ),
 
-    Home(
-        primaryRoute = HOME,
-        content = { HomeScreen(it.navBackStackEntry.savedStateHandle.getBackNavArgs()) },
-        animationConfig = NavigationAnimationConfig.DelegatedAnimation
-    ),
-
     InitialSync(
         primaryRoute = INITIAL_SYNC,
         content = { InitialSyncScreen() },
@@ -295,30 +276,11 @@ enum class NavigationItem(
         content = { },
     ),
 
-    MyAccount(
-        primaryRoute = MY_ACCOUNT,
-        content = { MyAccountScreen(it.navBackStackEntry.savedStateHandle.getBackNavArgs()) }
-    ),
-
     SelfUserProfile(
         primaryRoute = SELF_USER_PROFILE,
         content = { SelfUserProfileScreen() },
         animationConfig = NavigationAnimationConfig.CustomAnimation(expandInToView(), shrinkOutFromView())
     ),
-
-    OtherUserProfile(
-        primaryRoute = OTHER_USER_PROFILE,
-        canonicalRoute = "$OTHER_USER_PROFILE?$EXTRA_USER_ID={$EXTRA_USER_ID}&$EXTRA_CONVERSATION_ID={$EXTRA_CONVERSATION_ID}",
-        content = { OtherUserProfileScreen() },
-        animationConfig = NavigationAnimationConfig.NoAnimation
-    ) {
-        override fun getRouteWithArgs(arguments: List<Any>): String {
-            val userId: QualifiedID = arguments.filterIsInstance<QualifiedID>()[0]
-            val conversationId: QualifiedID? = arguments.filterIsInstance<QualifiedID>().getOrNull(1)
-            val baseRoute = "$primaryRoute?$EXTRA_USER_ID=$userId"
-            return conversationId?.let { "$baseRoute&$EXTRA_CONVERSATION_ID=$it" } ?: baseRoute
-        }
-    },
 
     ServiceDetails(
         primaryRoute = SERVICE_DETAILS,
@@ -338,19 +300,6 @@ enum class NavigationItem(
         content = { AvatarPickerScreen() },
     ),
 
-    Conversation(
-        primaryRoute = CONVERSATION,
-        canonicalRoute = "$CONVERSATION?$EXTRA_CONVERSATION_ID={$EXTRA_CONVERSATION_ID}",
-        content = { ConversationScreen(backNavArgs = it.navBackStackEntry.savedStateHandle.getBackNavArgs()) },
-        animationConfig = NavigationAnimationConfig.NoAnimation
-    ) {
-        override fun getRouteWithArgs(arguments: List<Any>): String {
-            val conversationIdString: String = arguments.filterIsInstance<ConversationId>().firstOrNull()?.toString()
-                ?: "{$EXTRA_CONVERSATION_ID}"
-            return "$CONVERSATION?$EXTRA_CONVERSATION_ID=$conversationIdString"
-        }
-    },
-
     MessageDetails(
         primaryRoute = MESSAGE_DETAILS,
         canonicalRoute = "$MESSAGE_DETAILS?$EXTRA_CONVERSATION_ID={$EXTRA_CONVERSATION_ID}" +
@@ -366,14 +315,6 @@ enum class NavigationItem(
             return "$MESSAGE_DETAILS?$EXTRA_CONVERSATION_ID=$conversationIdString" +
                     "&$EXTRA_MESSAGE_ID=$messageIdString&$EXTRA_IS_SELF_MESSAGE=$isSelfMessage"
         }
-    },
-
-    GroupConversationDetails(
-        primaryRoute = GROUP_CONVERSATION_DETAILS,
-        canonicalRoute = "$GROUP_CONVERSATION_DETAILS/{$EXTRA_CONVERSATION_ID}",
-        content = { GroupConversationDetailsScreen(it.navBackStackEntry.savedStateHandle.getBackNavArgs()) },
-    ) {
-        override fun getRouteWithArgs(arguments: List<Any>): String = routeWithConversationIdArg(arguments)
     },
 
     AddConversationParticipants(
@@ -401,14 +342,6 @@ enum class NavigationItem(
         canonicalRoute = NEW_CONVERSATION,
         content = { NewConversationRouter() }
     ),
-
-    EditConversationName(
-        primaryRoute = EDIT_CONVERSATION_NAME,
-        canonicalRoute = "$EDIT_CONVERSATION_NAME/{$EXTRA_CONVERSATION_ID}",
-        content = { EditConversationNameScreen() }
-    ) {
-        override fun getRouteWithArgs(arguments: List<Any>): String = routeWithConversationIdArg(arguments)
-    },
 
     EditGuestAccess(
         primaryRoute = EDIT_GUEST_ACCESS,
@@ -476,18 +409,6 @@ enum class NavigationItem(
         }
     },
 
-    Gallery(
-        primaryRoute = MEDIA_GALLERY,
-        canonicalRoute = "$MEDIA_GALLERY/{$EXTRA_IMAGE_DATA}",
-        content = { MediaGalleryScreen() }
-    ) {
-        override fun getRouteWithArgs(arguments: List<Any>): String {
-            val imageAssetId: ImageAsset.PrivateAsset? = arguments.filterIsInstance<ImageAsset.PrivateAsset>().firstOrNull()
-            val mappedArgs = imageAssetId?.toString() ?: ""
-            return imageAssetId?.run { "$primaryRoute/$mappedArgs" } ?: primaryRoute
-        }
-    },
-
     ImportMedia(
         primaryRoute = IMPORT_MEDIA,
         content = { ImportMediaScreen() }
@@ -524,16 +445,12 @@ object NavigationItemDestinationsRoutes {
     const val CREATE_PERSONAL_ACCOUNT = "create_personal_account_screen"
     const val CREATE_ACCOUNT_USERNAME = "create_account_username_screen"
     const val CREATE_ACCOUNT_SUMMARY = "create_account_summary_screen"
-    const val HOME = "home_landing_screen"
     const val INITIAL_SYNC = "initial_sync_screen"
     const val SELF_USER_PROFILE = "self_user_profile_screen"
     const val OTHER_USER_PROFILE = "other_user_profile_screen"
     const val SERVICE_DETAILS = "service_details_screen"
-    const val CONVERSATION = "detailed_conversation_screen"
-    const val EDIT_CONVERSATION_NAME = "edit_conversation_name_screen"
     const val EDIT_GUEST_ACCESS = "edit_guest_access_screen"
     const val EDIT_SELF_DELETING_MESSAGES = "edit_self_deleting_messages_screen"
-    const val GROUP_CONVERSATION_DETAILS = "group_conversation_details_screen"
     const val MESSAGE_DETAILS = "message_details_screen"
     const val GROUP_CONVERSATION_ALL_PARTICIPANTS = "group_conversation_all_participants_screen"
     const val ADD_CONVERSATION_PARTICIPANTS = "add_conversation_participants"
@@ -541,7 +458,6 @@ object NavigationItemDestinationsRoutes {
     const val SELF_DEVICES = "self_devices_screen"
     const val PRIVACY_SETTINGS = "privacy_settings"
     const val BACKUP_AND_RESTORE = "backup_and_restore_screen"
-    const val MY_ACCOUNT = "my_account_screen"
     const val EDIT_DISPLAY_NAME = "edit_display_name_screen"
     const val EDIT_EMAIL = "edit_email_screen"
     const val VERIFY_EMAIL = "verify_email_screen"
@@ -555,14 +471,12 @@ object NavigationItemDestinationsRoutes {
     const val ONGOING_CALL = "ongoing_call_screen"
     const val INITIATING_CALL = "initiating_call_screen"
     const val INCOMING_CALL = "incoming_call_screen"
-    const val MEDIA_GALLERY = "media_gallery"
     const val NETWORK_SETTINGS = "network_settings_screen"
     const val IMPORT_MEDIA = "import_media"
 }
 
 const val EXTRA_USER_ID = "extra_user_id"
 const val EXTRA_USER_NAME = "extra_user_name"
-const val EXTRA_USER_DOMAIN = "extra_user_domain"
 const val EXTRA_USER_HANDLE = "extra_user_handle"
 const val EXTRA_CONNECTION_STATE = "extra_connection_state"
 
@@ -570,19 +484,11 @@ const val EXTRA_NEW_EMAIL = "extra_new_email"
 
 const val EXTRA_CONVERSATION_ID = "extra_conversation_id"
 const val EXTRA_CREATE_ACCOUNT_FLOW_TYPE = "extra_create_account_flow_type"
-const val EXTRA_IMAGE_DATA = "extra_image_data"
 const val EXTRA_MESSAGE_ID = "extra_message_id"
 const val EXTRA_IS_SELF_MESSAGE = "extra_is_self_message"
 const val EXTRA_MESSAGE_TO_DELETE_ID = "extra_message_to_delete"
 const val EXTRA_MESSAGE_TO_DELETE_IS_SELF = "extra_message_to_delete_is_self"
 const val EXTRA_DEVICE_ID = "extra_device_id"
-const val EXTRA_ON_MESSAGE_REACTED = "extra_on_message_reacted"
-const val EXTRA_ON_MESSAGE_REPLIED = "extra_on_message_replied"
-const val EXTRA_ON_MESSAGE_DETAILS_CLICKED = "extra_on_message_details_clicked"
-const val EXTRA_CONNECTION_IGNORED_USER_NAME = "extra_connection_ignored_user_name"
-const val EXTRA_GROUP_DELETED_NAME = "extra_group_deleted_name"
-const val EXTRA_GROUP_NAME_CHANGED = "extra_group_name_changed"
-const val EXTRA_LEFT_GROUP = "extra_left_group"
 const val EXTRA_SETTINGS_DISPLAY_NAME_CHANGED = "extra_settings_display_name_changed"
 
 const val EXTRA_BACK_NAVIGATION_ARGUMENTS = "extra_back_navigation_arguments"

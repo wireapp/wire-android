@@ -17,8 +17,24 @@
  */
 package com.wire.android.ui.home.conversations.details
 
+import android.os.Parcelable
+import com.wire.android.ui.home.gallery.MediaGalleryActionType
 import com.wire.kalium.logic.data.id.ConversationId
+import kotlinx.parcelize.Parcelize
 
 data class GroupConversationDetailsNavArgs(
     val conversationId: ConversationId
 )
+
+@Parcelize
+data class GroupConversationDetailsNavBackArgs(
+    val groupConversationActionType: GroupConversationActionType,
+    val hasLeftGroup: Boolean = false,
+    val isGroupDeleted: Boolean = false,
+    val conversationName: String,
+) : Parcelable
+
+enum class GroupConversationActionType {
+    LEAVE_GROUP,
+    DELETE_GROUP
+}

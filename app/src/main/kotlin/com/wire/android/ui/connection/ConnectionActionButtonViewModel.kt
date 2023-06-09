@@ -31,7 +31,6 @@ import com.wire.android.model.finishAction
 import com.wire.android.model.performAction
 import com.wire.android.model.updateState
 import com.wire.android.navigation.BackStackMode
-import com.wire.android.navigation.EXTRA_CONNECTION_IGNORED_USER_NAME
 import com.wire.android.navigation.EXTRA_CONNECTION_STATE
 import com.wire.android.navigation.EXTRA_USER_ID
 import com.wire.android.navigation.EXTRA_USER_NAME
@@ -57,6 +56,7 @@ import com.wire.kalium.logic.feature.connection.UnblockUserUseCase
 import com.wire.kalium.logic.feature.conversation.CreateConversationResult
 import com.wire.kalium.logic.feature.conversation.GetOrCreateOneToOneConversationUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
@@ -69,7 +69,7 @@ interface ConnectionActionButtonViewModel {
     fun onSendConnectionRequest()
     fun onCancelConnectionRequest()
     fun onAcceptConnectionRequest()
-    fun onIgnoreConnectionRequest()
+    fun onIgnoreConnectionRequest(): Job
     fun onUnblockUser()
     fun onOpenConversation()
 }
@@ -90,10 +90,13 @@ class ConnectionActionButtonViewModelImpl @Inject constructor(
 ) : ConnectionActionButtonViewModel, ViewModel() {
 
     private val userId: QualifiedID = savedStateHandle.get<String>(EXTRA_USER_ID)!!.toQualifiedID(qualifiedIdMapper)
-    private val userName: String = savedStateHandle.get<String>(EXTRA_USER_NAME)!!
+    val userName: String = savedStateHandle.get<String>(EXTRA_USER_NAME)!!
     private val extraConnectionState: ConnectionState = ConnectionState.valueOf(savedStateHandle.get<String>(EXTRA_CONNECTION_STATE)!!)
 
     private var state: ActionableState<ConnectionState> by mutableStateOf(ActionableState(extraConnectionState))
+
+    var isConnectionIgnored: Boolean = false
+        private set
 
     private val _infoMessage = MutableSharedFlow<UIText>()
     val infoMessage = _infoMessage.asSharedFlow()
@@ -154,24 +157,18 @@ class ConnectionActionButtonViewModelImpl @Inject constructor(
         }
     }
 
-    override fun onIgnoreConnectionRequest() {
-        viewModelScope.launch {
-            state = state.performAction()
-            when (ignoreConnectionRequest(userId)) {
-                is IgnoreConnectionRequestUseCaseResult.Failure -> {
-                    appLogger.d(("Couldn't ignore a connect request to user $userId"))
-                    state = state.finishAction()
-                    _infoMessage.emit(UIText.StringResource(R.string.connection_request_ignore_error))
-                }
+    override fun onIgnoreConnectionRequest(): Job = viewModelScope.launch {
+        state = state.performAction()
+        when (ignoreConnectionRequest(userId)) {
+            is IgnoreConnectionRequestUseCaseResult.Failure -> {
+                appLogger.d(("Couldn't ignore a connect request to user $userId"))
+                state = state.finishAction()
+                _infoMessage.emit(UIText.StringResource(R.string.connection_request_ignore_error))
+            }
 
-                is IgnoreConnectionRequestUseCaseResult.Success -> {
-                    state = state.updateState(ConnectionState.IGNORED)
-                    navigationManager.navigateBack(
-                        mapOf(
-                            EXTRA_CONNECTION_IGNORED_USER_NAME to userName
-                        )
-                    )
-                }
+            is IgnoreConnectionRequestUseCaseResult.Success -> {
+                state = state.updateState(ConnectionState.IGNORED)
+                isConnectionIgnored = true
             }
         }
     }
@@ -225,7 +222,7 @@ class ConnectionActionButtonPreviewModel(private val state: ActionableState<Conn
     override fun onSendConnectionRequest() {}
     override fun onCancelConnectionRequest() {}
     override fun onAcceptConnectionRequest() {}
-    override fun onIgnoreConnectionRequest() {}
+    override fun onIgnoreConnectionRequest() = Job()
     override fun onUnblockUser() {}
     override fun onOpenConversation() {}
 }

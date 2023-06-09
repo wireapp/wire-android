@@ -29,11 +29,9 @@ import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.model.ImageAsset
 import com.wire.android.navigation.BackStackMode
-import com.wire.android.navigation.EXTRA_GROUP_DELETED_NAME
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.navigation.SavedStateViewModel
-import com.wire.android.navigation.getBackNavArg
 import com.wire.android.ui.destinations.GroupConversationDetailsScreenDestination
 import com.wire.android.ui.destinations.HomeScreenDestination
 import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
@@ -94,9 +92,9 @@ class ConversationInfoViewModel @Inject constructor(
 
     private suspend fun handleConversationDetailsResult(conversationDetailsResult: ObserveConversationDetailsUseCase.Result) {
         when (conversationDetailsResult) {
-            is ObserveConversationDetailsUseCase.Result.Failure -> handleConversationDetailsFailure(
-                conversationDetailsResult.storageFailure
-            )
+            is ObserveConversationDetailsUseCase.Result.Failure -> {
+                // Nothing to do
+            }
 
             is ObserveConversationDetailsUseCase.Result.Success -> handleConversationDetails(
                 conversationDetailsResult.conversationDetails
@@ -104,27 +102,11 @@ class ConversationInfoViewModel @Inject constructor(
         }
     }
 
-    /**
-     * TODO: This right now handles only the case when a conversation details doesn't exists.
-     * Later we'll have to expand the error cases to different behaviors
-     */
-    private suspend fun handleConversationDetailsFailure(failure: StorageFailure) {
-        when (failure) {
-            is StorageFailure.DataNotFound -> {
-                if (savedStateHandle.getBackNavArg<String>(EXTRA_GROUP_DELETED_NAME) != null) {
-                    // do nothing - this group has just been deleted and it's already handled in MessageComposerViewModel
-                } else {
-                    navigateToHome()
-                }
-            }
-            is StorageFailure.Generic -> appLogger.e("An error occurred when fetching details of the conversation", failure.rootCause)
-        }
-    }
-
     private fun handleConversationDetails(conversationDetails: ConversationDetails) {
         val (isConversationUnavailable, _) = when (conversationDetails) {
             is ConversationDetails.OneOne -> conversationDetails.otherUser
                 .run { isUnavailableUser to (connectionStatus == ConnectionState.BLOCKED) }
+
             else -> false to false
         }
 
@@ -190,7 +172,7 @@ class ConversationInfoViewModel @Inject constructor(
 
             is ConversationDetailsData.Group -> navigationManager.navigate(
                 command = NavigationCommand(
-                    destination = GroupConversationDetailsScreenDestination(conversationId = data.conversationId)
+                    destination = GroupConversationDetailsScreenDestination(conversationId = conversationId)
                 )
             )
 

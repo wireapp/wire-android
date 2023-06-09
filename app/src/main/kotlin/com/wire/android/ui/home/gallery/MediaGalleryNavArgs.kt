@@ -17,10 +17,26 @@
  */
 package com.wire.android.ui.home.gallery
 
+import android.os.Parcelable
 import com.wire.kalium.logic.data.id.ConversationId
+import kotlinx.parcelize.Parcelize
 
 data class MediaGalleryNavArgs(
     val conversationId: ConversationId,
     val messageId: String,
     val isSelfAsset: Boolean
 )
+
+@Parcelize
+data class MediaGalleryNavBackArgs(
+    val messageId: String,
+    val emoji: String? = null,
+    val isSelfAsset: Boolean = false,
+    val mediaGalleryActionType: MediaGalleryActionType
+) : Parcelable
+
+enum class MediaGalleryActionType {
+    REPLY,
+    REACT,
+    DETAIL
+}

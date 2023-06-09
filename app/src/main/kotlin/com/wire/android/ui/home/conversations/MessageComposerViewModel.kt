@@ -31,15 +31,12 @@ import com.wire.android.appLogger
 import com.wire.android.mapper.ContactMapper
 import com.wire.android.media.PingRinger
 import com.wire.android.model.SnackBarMessage
-import com.wire.android.navigation.EXTRA_GROUP_DELETED_NAME
-import com.wire.android.navigation.EXTRA_LEFT_GROUP
 import com.wire.android.navigation.EXTRA_MESSAGE_TO_DELETE_ID
 import com.wire.android.navigation.EXTRA_MESSAGE_TO_DELETE_IS_SELF
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.navigation.SavedStateViewModel
 import com.wire.android.navigation.getBackNavArg
-import com.wire.android.navigation.getBackNavArgs
 import com.wire.android.ui.destinations.MediaGalleryScreenDestination
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorDeletingMessage
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogActiveState
@@ -189,15 +186,8 @@ class MessageComposerViewModel @Inject constructor(
 
         val messageToDeleteIsSelf = savedStateHandle.getBackNavArg<Boolean>(EXTRA_MESSAGE_TO_DELETE_IS_SELF)
 
-        val groupDeletedName = savedStateHandle.getBackNavArg<String>(EXTRA_GROUP_DELETED_NAME)
-
-        val leftGroup = savedStateHandle.getBackNavArg(EXTRA_LEFT_GROUP) ?: false
-
         if (messageToDeleteId != null && messageToDeleteIsSelf != null) {
             showDeleteMessageDialog(messageToDeleteId, messageToDeleteIsSelf)
-        }
-        if (leftGroup || groupDeletedName != null) {
-            navigateBack(savedStateHandle.getBackNavArgs())
         }
     }
 
@@ -361,9 +351,9 @@ class MessageComposerViewModel @Inject constructor(
         persistNewSelfDeletingStatus(conversationId, newSelfDeletionTimer)
     }
 
-    fun navigateBack(previousBackStackPassedArgs: Map<String, Any> = mapOf()) {
+    fun navigateBack() {
         viewModelScope.launch {
-            navigationManager.navigateBack(previousBackStackPassedArgs)
+            navigationManager.navigateBack()
         }
     }
 

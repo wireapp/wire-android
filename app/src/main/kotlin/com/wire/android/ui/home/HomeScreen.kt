@@ -52,8 +52,11 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
+import com.ramcosta.composedestinations.result.NavResult
+import com.ramcosta.composedestinations.result.ResultRecipient
 import com.ramcosta.composedestinations.spec.Direction
 import com.wire.android.R
+import com.wire.android.appLogger
 import com.wire.android.navigation.HomeNavigationItem
 import com.wire.android.navigation.hiltSavedStateViewModel
 import com.wire.android.ui.common.CollapsingTopBarScaffold
@@ -64,6 +67,10 @@ import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.common.topappbar.search.SearchTopBar
+import com.wire.android.ui.destinations.ConversationScreenDestination
+import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
+import com.wire.android.ui.home.conversations.details.GroupConversationActionType
+import com.wire.android.ui.home.conversations.details.GroupConversationDetailsNavBackArgs
 import com.wire.android.ui.home.conversationslist.ConversationListState
 import com.wire.android.ui.home.conversationslist.ConversationListViewModel
 import com.wire.android.ui.home.sync.FeatureFlagNotificationViewModel
@@ -73,13 +80,15 @@ import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.coroutines.launch
 
 @RootNavGraph
-@Destination //TODO: back nav args
+@Destination
 @Composable
 fun HomeScreen(
     backNavArgs: ImmutableMap<String, Any> = persistentMapOf(),
     homeViewModel: HomeViewModel = hiltSavedStateViewModel(backNavArgs = backNavArgs),
     featureFlagNotificationViewModel: FeatureFlagNotificationViewModel = hiltViewModel(),
-    conversationListViewModel: ConversationListViewModel = hiltViewModel(), // TODO: move required elements from this one to HomeViewModel?
+    conversationListViewModel: ConversationListViewModel = hiltViewModel(), // TODO: move required elements from this one to HomeViewModel?,
+    groupDetailsScreenResultRecipient: ResultRecipient<ConversationScreenDestination, GroupConversationDetailsNavBackArgs>,
+    otherUserProfileScreenResultRecipient: ResultRecipient<OtherUserProfileScreenDestination, String>,
 ) {
     homeViewModel.checkRequirements()
     featureFlagNotificationViewModel.loadInitialSync()
@@ -88,7 +97,6 @@ fun HomeScreen(
         onPermissionDenied = { /** TODO: Show a dialog rationale explaining why the permission is needed **/ })
 
     LaunchedEffect(homeViewModel.savedStateHandle) {
-        homeViewModel.checkPendingSnackbarState()?.let(homeScreenState::setSnackBarState)
         showNotificationsFlow.launch()
     }
 
@@ -145,6 +153,38 @@ fun HomeScreen(
     }
     BackHandler(homeScreenState.searchBarState.isSearchActive) {
         homeScreenState.searchBarState.closeSearch()
+    }
+
+    groupDetailsScreenResultRecipient.onNavResult { result ->
+        when (result) {
+            is NavResult.Canceled -> {
+                appLogger.i("Error with receiving navigation back args from groupDetails in ConversationScreen")
+            }
+
+            is NavResult.Value -> {
+                when (result.value.groupConversationActionType) {
+                    GroupConversationActionType.LEAVE_GROUP -> {
+                        homeScreenState.setSnackBarState(HomeSnackbarState.LeftConversationSuccess)
+                    }
+
+                    GroupConversationActionType.DELETE_GROUP -> {
+                        val groupDeletedSnackBar = HomeSnackbarState.DeletedConversationGroupSuccess(result.value.conversationName)
+                        homeScreenState.setSnackBarState(groupDeletedSnackBar)
+                    }
+                }
+            }
+        }
+    }
+
+    otherUserProfileScreenResultRecipient.onNavResult { result ->
+        when (result) {
+            is NavResult.Canceled -> {
+                appLogger.i("Error with receiving navigation back args from OtherUserProfile in ConversationScreen")
+            }
+            is NavResult.Value -> {
+                homeScreenState.setSnackBarState(HomeSnackbarState.SuccessConnectionIgnoreRequest(result.value))
+            }
+        }
     }
 }
 

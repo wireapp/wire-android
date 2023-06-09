@@ -33,7 +33,10 @@ import androidx.compose.ui.Modifier
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.SurfaceBackgroundWrapper
 import com.wire.android.ui.common.clickable
+import com.wire.android.ui.home.FileRestrictionDialog
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
+import com.wire.android.util.ui.PreviewMultipleThemes
 
 
 //TODO: added onRowClick only for UI-Design purpose
@@ -56,4 +59,3 @@ fun RowItem(
         }
     }
 }
-

@@ -36,30 +36,41 @@ import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.navigation.NavigationItem
+import com.wire.android.ui.common.Icon
 import com.wire.android.ui.common.RowItemTemplate
 import com.wire.android.ui.common.clickable
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.home.FileRestrictionDialog
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
 
 @Composable
 fun SettingsItem(
-    title: String,
+    title: String? = null,
+    text: String,
     @DrawableRes trailingIcon: Int? = null,
     onRowPressed: Clickable = Clickable(false),
     onIconPressed: Clickable = Clickable(false)
 ) {
     RowItemTemplate(
         title = {
-            Row {
+            if (!title.isNullOrBlank()) {
                 Text(
-                    style = MaterialTheme.wireTypography.body01,
-                    color = MaterialTheme.wireColorScheme.onBackground,
+                    style = MaterialTheme.wireTypography.label01,
+                    color = MaterialTheme.wireColorScheme.secondaryText,
                     text = title,
                     modifier = Modifier.padding(start = dimensions().spacing8x)
                 )
             }
+            Text(
+                style = MaterialTheme.wireTypography.body01,
+                color = MaterialTheme.wireColorScheme.onBackground,
+                text = text,
+                modifier = Modifier.padding(start = dimensions().spacing8x)
+            )
         },
         actions = {
             trailingIcon?.let {
@@ -119,4 +130,16 @@ enum class SettingsItem(val id: String, val title: UIText, val navigationItem: N
         title = UIText.StringResource(R.string.debug_settings_screen_title),
         navigationItem = NavigationItem.Debug
     );
+}
+
+@PreviewMultipleThemes
+@Composable
+fun previewFileRestrictionDialog() {
+    WireTheme {
+        SettingsItem(
+            title = "Some Setting",
+            text = "This is the value of the setting",
+            trailingIcon = R.drawable.ic_copy
+        )
+    }
 }

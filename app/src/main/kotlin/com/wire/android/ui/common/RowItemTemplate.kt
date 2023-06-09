@@ -27,8 +27,11 @@ import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.wire.android.model.Clickable
+import com.wire.android.ui.home.FileRestrictionDialog
 import com.wire.android.ui.home.conversationslist.common.RowItem
 import com.wire.android.ui.theme.DEFAULT_WEIGHT
+import com.wire.android.ui.theme.WireTheme
+import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
 fun RowItemTemplate(

@@ -44,14 +44,14 @@ import javax.inject.Inject
 
 data class UserDebugState(
     val isLoggingEnabled: Boolean = false,
-    val clientId: String = String.EMPTY
+    val clientId: String = String.EMPTY,
+    val debugId: String = String.EMPTY
 )
 
 @Suppress("LongParameterList")
 @HiltViewModel
 class UserDebugViewModel
 @Inject constructor(
-    @ApplicationContext private val context: Context,
     @CurrentAccount val currentAccount: UserId,
     private val navigationManager: NavigationManager,
     private val logFileWriter: LogFileWriter,
@@ -81,7 +81,7 @@ class UserDebugViewModel
     private fun observeCurrentClientId() {
         viewModelScope.launch {
             currentClientIdUseCase().collect {
-                val clientId = it?.let { clientId -> clientId.value } ?: "Client not fount"
+                val clientId = it?.let { clientId -> clientId.value } ?: "null"
                 state = state.copy(clientId = clientId)
             }
         }

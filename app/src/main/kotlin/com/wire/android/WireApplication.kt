@@ -81,6 +81,7 @@ class WireApplication : Application(), Configuration.Provider {
             .build()
     }
 
+
     override fun onCreate() {
         super.onCreate()
 

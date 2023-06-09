@@ -176,22 +176,7 @@ class DevDebugViewModel
         }
     }
 
-    fun enableEncryptedProteusStorage() {
-        viewModelScope.launch {
-            globalDataStore.setEncryptedProteusStorageEnabled(true)
-        }
-    }
 
-    fun onStartManualMigration() {
-        viewModelScope.launch {
-            navigationManager.navigate(
-                NavigationCommand(
-                    NavigationItem.Migration.getRouteWithArgs(listOf(currentAccount)),
-                    BackStackMode.CLEAR_WHOLE
-                )
-            )
-        }
-    }
 
     fun forceUpdateApiVersions() {
         updateApiVersions.scheduleImmediateApiVersionUpdate()

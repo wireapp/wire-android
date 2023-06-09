@@ -17,25 +17,181 @@
  */
 package com.wire.android.ui.debug
 
+import android.content.Context
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.wire.android.BuildConfig
 import com.wire.android.R
+import com.wire.android.datastore.GlobalDataStore
+import com.wire.android.di.CurrentAccount
+import com.wire.android.migration.failure.UserMigrationStatus
 import com.wire.android.model.Clickable
+import com.wire.android.navigation.BackStackMode
+import com.wire.android.navigation.NavigationCommand
+import com.wire.android.navigation.NavigationItem
+import com.wire.android.navigation.NavigationManager
+import com.wire.android.ui.common.RowItemTemplate
+import com.wire.android.ui.common.WireSwitch
+import com.wire.android.ui.common.button.WirePrimaryButton
+import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversationslist.common.FolderHeader
 import com.wire.android.ui.home.settings.SettingsItem
+import com.wire.android.ui.theme.wireColorScheme
+import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.EMPTY
+import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.keypackage.MLSKeyPackageCountResult
+import com.wire.kalium.logic.feature.keypackage.MLSKeyPackageCountUseCase
+import com.wire.kalium.logic.sync.incremental.RestartSlowSyncProcessForRecoveryUseCase
+import com.wire.kalium.logic.sync.periodic.UpdateApiVersionsScheduler
+import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
+import javax.inject.Inject
+
+//region DebugDataOptionsVewModel
+data class DebugDataOptionsState(
+    val isEncryptedProteusStorageEnabled: Boolean = false,
+    val keyPackagesCount: Int = 0,
+    val mslClientId: String = String.EMPTY,
+    val mlsErrorMessage: String = String.EMPTY,
+    val isManualMigrationAllowed: Boolean = false
+)
+
+@Suppress("LongParameterList")
+@HiltViewModel
+class DebugDataOptionsVewModel
+@Inject constructor(
+    @ApplicationContext private val context: Context,
+    @CurrentAccount val currentAccount: UserId,
+    private val navigationManager: NavigationManager,
+    private val globalDataStore: GlobalDataStore,
+    private val updateApiVersions: UpdateApiVersionsScheduler,
+    private val mlsKeyPackageCountUseCase: MLSKeyPackageCountUseCase,
+    private val restartSlowSyncProcessForRecovery: RestartSlowSyncProcessForRecoveryUseCase
+) : ViewModel() {
+
+    init {
+        observeEncryptedProteusStorageState()
+        observeMlsMetadata()
+        checkIfCanTriggerManualMigration()
+    }
+
+    var state by mutableStateOf(
+        DebugDataOptionsState()
+    )
+
+    fun enableEncryptedProteusStorage() {
+        viewModelScope.launch {
+            globalDataStore.setEncryptedProteusStorageEnabled(true)
+        }
+    }
+
+    fun restartSlowSyncForRecovery() {
+        viewModelScope.launch {
+            restartSlowSyncProcessForRecovery()
+        }
+    }
+
+    fun onStartManualMigration() {
+        viewModelScope.launch {
+            navigationManager.navigate(
+                NavigationCommand(
+                    NavigationItem.Migration.getRouteWithArgs(listOf(currentAccount)),
+                    BackStackMode.CLEAR_WHOLE
+                )
+            )
+        }
+    }
+
+    fun forceUpdateApiVersions() {
+        updateApiVersions.scheduleImmediateApiVersionUpdate()
+    }
+
+    //region Private
+    private fun observeEncryptedProteusStorageState() {
+        viewModelScope.launch {
+            globalDataStore.isEncryptedProteusStorageEnabled().collect {
+                state = state.copy(isEncryptedProteusStorageEnabled = it)
+            }
+        }
+    }
+
+    // If status is NoNeed, it means that the user has already been migrated in and older app version
+    // or it is a new install
+    // this is why we check the existence of the database file
+    private fun checkIfCanTriggerManualMigration() {
+        viewModelScope.launch {
+            globalDataStore.getUserMigrationStatus(currentAccount.value).first().let { migrationStatus ->
+                if (migrationStatus != UserMigrationStatus.NoNeed) {
+                    context.getDatabasePath(currentAccount.value).let {
+                        state = state.copy(isManualMigrationAllowed = (it.exists() && it.isFile))
+                    }
+                }
+            }
+        }
+    }
+
+    private fun observeMlsMetadata() {
+        viewModelScope.launch {
+            mlsKeyPackageCountUseCase().let {
+                when (it) {
+                    is MLSKeyPackageCountResult.Success -> {
+                        state = state.copy(
+                            keyPackagesCount = it.count,
+                            mslClientId = it.clientId.value
+                        )
+                    }
+
+                    is MLSKeyPackageCountResult.Failure.NetworkCallFailure -> {
+                        state = state.copy(mlsErrorMessage = "Network Error!")
+                    }
+
+                    is MLSKeyPackageCountResult.Failure.FetchClientIdFailure -> {
+                        state = state.copy(mlsErrorMessage = "ClientId Fetch Error!")
+                    }
+
+                    is MLSKeyPackageCountResult.Failure.Generic -> {}
+                }
+            }
+        }
+    }
+
+    //endregion
+
+}
+//endRegion
+
 
 @Composable
 fun DebugDataOptions(
     appVersion: String,
     buildVariant: String,
-    clientId: String,
+    commitish: String,
+    debugId: String,
     onCopyText: (String) -> Unit
 ) {
+
+    val viewModel: DebugDataOptionsVewModel = hiltViewModel()
+
     Column {
         FolderHeader(stringResource(R.string.label_debug_data))
         SettingsItem(
-            title = appVersion,
+            title = stringResource(R.string.app_version),
+            text = appVersion,
             trailingIcon = R.drawable.ic_copy,
             onIconPressed = Clickable(
                 enabled = true,
@@ -43,7 +199,8 @@ fun DebugDataOptions(
             )
         )
         SettingsItem(
-            title = buildVariant,
+            title = stringResource(R.string.build_variant_name),
+            text = buildVariant,
             trailingIcon = R.drawable.ic_copy,
             onIconPressed = Clickable(
                 enabled = true,
@@ -51,12 +208,184 @@ fun DebugDataOptions(
             )
         )
         SettingsItem(
-            title = clientId,
+            title = stringResource(R.string.label_code_commit_id),
+            text = buildVariant,
             trailingIcon = R.drawable.ic_copy,
             onIconPressed = Clickable(
                 enabled = true,
-                onClick = { onCopyText(clientId) }
+                onClick = { onCopyText(buildVariant) }
+            )
+        )
+        if (BuildConfig.PRIVATE_BUILD) {
+            SettingsItem(
+                title = stringResource(R.string.debug_id),
+                text = debugId,
+                trailingIcon = R.drawable.ic_copy,
+                onIconPressed = Clickable(
+                    enabled = true,
+                    onClick = { onCopyText(debugId) }
+                )
+            )
+        }
+        if (BuildConfig.PRIVATE_BUILD) {
+            ProteusOptions(
+                isEncryptedStorageEnabled = viewModel.state.isEncryptedProteusStorageEnabled,
+                onEncryptedStorageEnabledChange = { enabled ->
+                    if (enabled) {
+                        viewModel.enableEncryptedProteusStorage()
+                    }
+                }
+            )
+            MLSOptions(
+                keyPackagesCount = viewModel.state.keyPackagesCount,
+                mlsClientId = viewModel.state.mslClientId,
+                mlsErrorMessage = viewModel.state.mlsErrorMessage,
+                restartSlowSyncForRecovery = viewModel::restartSlowSyncForRecovery,
+                onCopyText = onCopyText
+            )
+            DevelopmentApiVersioningOptions(onForceLatestDevelopmentApiChange = viewModel::forceUpdateApiVersions)
+        }
+        FolderHeader("Other Debug Options")
+        if (viewModel.state.isManualMigrationAllowed) {
+            ManualMigrationOptions(
+                onManualMigrationClicked = viewModel::onStartManualMigration
+            )
+        }
+    }
+}
+
+//region Scala Migration Options
+@Composable
+private fun ManualMigrationOptions(
+    onManualMigrationClicked: () -> Unit,
+) {
+    Column {
+        SettingsItem(
+            title = stringResource(R.string.label_manual_migration_title),
+            text = stringResource(R.string.start_manual_migration),
+            onRowPressed = Clickable(
+                enabled = true,
+                onClick = onManualMigrationClicked
             )
         )
     }
 }
+//endregion
+
+//region Development API Options
+@Composable
+private fun DevelopmentApiVersioningOptions(
+    onForceLatestDevelopmentApiChange: () -> Unit
+) {
+    FolderHeader(stringResource(R.string.debug_settings_api_versioning_title))
+    RowItemTemplate(
+        modifier = Modifier.wrapContentWidth(),
+        title = {
+            Text(
+                style = MaterialTheme.wireTypography.body01,
+                color = MaterialTheme.wireColorScheme.onBackground,
+                text = stringResource(R.string.debug_settings_force_api_versioning_update),
+                modifier = Modifier.padding(start = dimensions().spacing8x)
+            )
+        },
+        actions = {
+            WirePrimaryButton(
+                onClick = onForceLatestDevelopmentApiChange,
+                text = stringResource(R.string.debug_settings_force_api_versioning_update_button_text),
+                fillMaxWidth = false
+            )
+        }
+    )
+}
+//endregion
+
+//region MLS Options
+@Composable
+private fun MLSOptions(
+    keyPackagesCount: Int,
+    mlsClientId: String,
+    mlsErrorMessage: String,
+    onCopyText: (String) -> Unit,
+    restartSlowSyncForRecovery: () -> Unit
+) {
+    FolderHeader(stringResource(R.string.label_mls_option_title))
+    Column {
+        SettingsItem(
+            title = "Error Message",
+            text = mlsErrorMessage,
+            trailingIcon = R.drawable.ic_copy,
+            onIconPressed = Clickable(
+                enabled = true,
+                onClick = restartSlowSyncForRecovery
+            )
+        )
+        SettingsItem(
+            title = stringResource(R.string.label_key_packages_count),
+            text = keyPackagesCount.toString(),
+            trailingIcon = R.drawable.ic_copy,
+            onIconPressed = Clickable(
+                enabled = true,
+                onClick = { onCopyText(keyPackagesCount.toString()) }
+            )
+        )
+        SettingsItem(
+            title = stringResource(R.string.label_mls_client_id),
+            text = mlsClientId,
+            trailingIcon = R.drawable.ic_copy,
+            onIconPressed = Clickable(
+                enabled = true,
+                onClick = { onCopyText(mlsClientId) }
+            )
+        )
+        SettingsItem(
+            title = stringResource(R.string.label_restart_slowsync_for_recovery),
+            text = "Restart SlowSync to attempt recovery",
+            trailingIcon = R.drawable.ic_reply,
+            onIconPressed = Clickable(
+                enabled = true,
+                onClick = restartSlowSyncForRecovery
+            )
+        )
+    }
+}
+//endregion
+
+
+//region Proteus Options
+@Composable
+private fun ProteusOptions(
+    isEncryptedStorageEnabled: Boolean,
+    onEncryptedStorageEnabledChange: (Boolean) -> Unit,
+) {
+    FolderHeader(stringResource(R.string.label_proteus_option_title))
+    EnableEncryptedProteusStorageSwitch(
+        isEnabled = isEncryptedStorageEnabled,
+        onCheckedChange = onEncryptedStorageEnabledChange
+    )
+}
+
+@Composable
+private fun EnableEncryptedProteusStorageSwitch(
+    isEnabled: Boolean = false,
+    onCheckedChange: ((Boolean) -> Unit)?,
+) {
+    RowItemTemplate(
+        title = {
+            Text(
+                style = MaterialTheme.wireTypography.body01,
+                color = MaterialTheme.wireColorScheme.onBackground,
+                text = stringResource(R.string.label_enable_encrypted_proteus_storage),
+                modifier = Modifier.padding(start = dimensions().spacing8x)
+            )
+        },
+        actions = {
+            WireSwitch(
+                checked = isEnabled,
+                onCheckedChange = onCheckedChange,
+                enabled = !isEnabled,
+                modifier = Modifier.padding(end = dimensions().spacing16x)
+            )
+        }
+    )
+}
+//endregion

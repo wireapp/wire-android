@@ -19,8 +19,8 @@
   ~
   -->
 <resources>
-    <string name="app_version">App version: %s</string>
-    <string name="build_variant_name">Build variant: %s</string>
+    <string name="app_version">App version</string>
+    <string name="build_variant_name">Build variant</string>
     <string name="label_new">New</string>
     <string name="label_login">Login</string>
     <string name="label_ok">OK</string>
@@ -41,7 +41,7 @@
     <string name="label_membership_external">External</string>
     <string name="label_membership_service">Service</string>
     <string name="label_user_deleted">Deleted</string>
-    <string name="label_message_sent_failure">Message could not be sent.</string>
+    <string name="label_message_sent_failure">Message could not be sent due to connectivity issues.</string>
     <string name="label_message_edit_sent_failure">The edited message could not be sent due to connectivity issues.</string>
     <string name="label_message_sent_remotely_failure">Message could not be sent, as the backend %s appears to be offline.</string>
     <string name="label_message_receive_failure">Download Error</string>
@@ -529,7 +529,7 @@
     <string name="label_system_message_conversation_message_timer_deactivated_by_self">%1$s turned **off** the timer for self-deleting messages for everyone</string>
     <string name="label_system_message_conversation_message_timer_deactivated_by_other">%1$s turned **off** the timer for self-deleting messages for everyone</string>
     <string name="label_system_message_deactivated">deactivated</string>
-    <string name="label_system_message_conversation_history_lost">YOU HAVEN\'T USED THIS DEVICE FOR A WHILE. SOME MESSAGES MAY NOT APPEAR HERE.</string>
+    <string name="label_system_message_conversation_history_lost">You haven\'t used this device for a while. some messages may not appear here.</string>
     <string name="label_system_message_receipt_mode_on">on</string>
     <string name="label_system_message_receipt_mode_off">off</string>
     <string name="label_system_message_conversation_started_by_self">**You** started the conversation</string>
@@ -814,10 +814,11 @@
     <string name="label_logs_option_title">Logs</string>
     <string name="label_share_logs">Share Logs</string>
     <string name="label_delete_logs">Delete All Logs</string>
-    <string name="label_restart_slowsync_for_recovery">Restart SlowSync for Recovery</string>
-    <string name="label_mls_option_title">MLS DATA</string>
+    <string name="label_restart_slowsync_for_recovery">Restart slow sync</string>
+    <string name="restart_slowsync_for_recovery_button">Restart</string>
+    <string name="label_mls_option_title">MLS Options</string>
     <string name="label_enable_logging">Enable Logging</string>
-    <string name="label_proteus_option_title">Proteus</string>
+    <string name="label_proteus_option_title">Proteus Options</string>
     <string name="label_enable_encrypted_proteus_storage">Enable encrypted proteus storage</string>
     <string name="label_debug_title">Debug Settings</string>
     <string name="label_client_option_title">Client ID</string>
@@ -826,8 +827,8 @@
     <string name="label_client_id">Client ID: %1$s</string>
     <string name="label_client_added_time">ADDED</string>
     <string name="label_client_device_id">DEVICE ID</string>
-    <string name="label_key_packages_count">Key-packages count: %1$s</string>
-    <string name="label_mls_client_id">MLS-client ID: %1$s</string>
+    <string name="label_key_packages_count">Key-packages count</string>
+    <string name="label_mls_client_id">MLS Client ID</string>
     <string name="conversation_empty_list_description">Connect with others or create a new group to start collaborating!</string>
     <string name="conversation_empty_list_title">Welcome 👋</string>
     <string name="label_no_conversation_found">No conversations could be found.</string>
@@ -893,7 +894,7 @@
     <!-- session reset -->
     <string name="label_system_message_session_reset">%1$s was unable to decrypt some of your messages but has solved the issue. This affected all conversations you share together.</string>
     <string name="label_manual_migration_title">Migrate from version 3.82.38</string>
-    <string name="start_manual_migration">Start migration form version 3.82.38 manually</string>
+    <string name="start_manual_migration">Start</string>
     <string name="file_sharing_restricted_learn_more_link">https://support.wire.com/hc/en-us/articles/4406404582673-How-can-I-restrict-file-sharing-for-my-team-</string>
     <string name="file_sharing_restricted_description_by_team">You can not share this file because this feature is disabled for this account.</string>
     <string name="file_sharing_restricted_description_no_users">You need to be logged in to Wire before you can share anything</string>

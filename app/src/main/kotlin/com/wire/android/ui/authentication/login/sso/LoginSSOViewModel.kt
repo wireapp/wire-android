@@ -115,8 +115,11 @@ class LoginSSOViewModel @Inject constructor(
                         is FetchSSOSettingsUseCase.Result.Failure -> {}
                         is FetchSSOSettingsUseCase.Result.Success -> {
                             it.defaultSSOCode?.let { ssoCode ->
+                                val ssoCodeWithPrefix = ssoCode.startsWith("wire-").let { hasPrefix ->
+                                    if (hasPrefix) ssoCode else "wire-$ssoCode"
+                                }
                                 authScope.ssoLoginScope.initiate(
-                                    SSOInitiateLoginUseCase.Param.WithRedirect("wire-${ssoCode}")
+                                    SSOInitiateLoginUseCase.Param.WithRedirect(ssoCodeWithPrefix)
                                 ).let { result ->
                                     when (result) {
                                         is SSOInitiateLoginResult.Failure -> updateSSOLoginError(result.toLoginSSOError())

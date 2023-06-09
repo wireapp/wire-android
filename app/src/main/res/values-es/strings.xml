@@ -19,8 +19,8 @@
   ~
   -->
 <resources>
-    <string name="app_version">Versión de la aplicación: %s</string>
-    <string name="build_variant_name">Variante de construcción: %s</string>
+    <string name="app_version">App version</string>
+    <string name="build_variant_name">Build variant</string>
     <string name="label_new">Nuevo</string>
     <string name="label_login">Iniciar sesión</string>
     <string name="label_ok">OK</string>
@@ -828,10 +828,11 @@ URL del backend:
     <string name="label_logs_option_title">Registros</string>
     <string name="label_share_logs">Compartir registros</string>
     <string name="label_delete_logs">Eliminar todos los registros</string>
-    <string name="label_restart_slowsync_for_recovery">Reiniciar SlowSync para recuperaci&#243;n</string>
-    <string name="label_mls_option_title">DATOS DE MLS</string>
+    <string name="label_restart_slowsync_for_recovery">Restart slow sync</string>
+    <string name="restart_slowsync_for_recovery_button">Restart</string>
+    <string name="label_mls_option_title">MLS Options</string>
     <string name="label_enable_logging">Habilitar registro</string>
-    <string name="label_proteus_option_title">Proteus</string>
+    <string name="label_proteus_option_title">Proteus Options</string>
     <string name="label_enable_encrypted_proteus_storage">Habilitar almacenamiento encriptado de Proteus</string>
     <string name="label_debug_title">Ajustes de Depuración</string>
     <string name="label_client_option_title">ID de cliente</string>
@@ -840,8 +841,8 @@ URL del backend:
     <string name="label_client_id">ID de cliente: %1$s</string>
     <string name="label_client_added_time">A&#209;ADIDO</string>
     <string name="label_client_device_id">ID de dispositivo</string>
-    <string name="label_key_packages_count">N&#250;mero de paquetes de claves: %1$s</string>
-    <string name="label_mls_client_id">ID de cliente de MLS: %1$s</string>
+    <string name="label_key_packages_count">Key-packages count</string>
+    <string name="label_mls_client_id">MLS Client ID</string>
     <string name="conversation_empty_list_description">&#161;Con&#233;ctate con otros o crea un nuevo grupo para empezar a colaborar!</string>
     <string name="conversation_empty_list_title">Bienvenido &#128075;</string>
     <string name="label_no_conversation_found">No se encontraron conversaciones.</string>
@@ -907,7 +908,7 @@ URL del backend:
     <!-- session reset -->
     <string name="label_system_message_session_reset">%1$s no pudo descifrar algunos de tus mensajes pero ha resuelto el problema. Esto afect&#243; a todas las conversaciones que compartes juntos.</string>
     <string name="label_manual_migration_title">Migrar desde la versi&#243;n 3.82.38</string>
-    <string name="start_manual_migration">Iniciar migraci&#243;n desde la versi&#243;n 3.82.38 manualmente</string>
+    <string name="start_manual_migration">Start</string>
     <string name="file_sharing_restricted_learn_more_link">https://support.wire.com/hc/en-us/articles/4406404582673-How-can-I-restrict-file-sharing-for-my-team-</string>
     <string name="file_sharing_restricted_description_by_team">No puedes compartir este archivo porque esta función está deshabilitada para esta cuenta.</string>
     <string name="file_sharing_restricted_description_no_users">Necesitas iniciar sesión en Wire antes de poder compartir nada</string>

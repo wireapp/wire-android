@@ -215,8 +215,20 @@ class SystemMessageContentMapper @Inject constructor(
             }
 
             is FailedToAdd ->
-                UIMessageContent.SystemMessage.MemberFailedToAdd(memberNames = memberNameList)
+                UIMessageContent.SystemMessage.MemberFailedToAdd(mapFailedToAddUsersByDomain(content.members, userList))
         }
+    }
+
+    private fun mapFailedToAddUsersByDomain(members: List<UserId>, userList: List<User>): Map<String, List<UIText>> {
+        val memberNameList = members.groupBy { it.domain }.mapValues {
+            it.value.map { userId ->
+                mapMemberName(
+                    user = userList.findUser(userId = userId),
+                    type = SelfNameType.ResourceLowercase
+                )
+            }
+        }
+        return memberNameList
     }
 
     private fun mapConversationHistoryLost(): UIMessageContent.SystemMessage = UIMessageContent.SystemMessage.HistoryLost()

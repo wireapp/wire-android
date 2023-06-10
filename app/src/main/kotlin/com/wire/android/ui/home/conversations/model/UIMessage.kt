@@ -78,6 +78,8 @@ sealed class UIMessage(
         val decryptionFailed: Boolean = header.messageStatus is DecryptionFailure
         val receivingFailed: Boolean = header.messageStatus == ReceiveFailure || decryptionFailed
         val addingFailed: Boolean = messageContent is UIMessageContent.SystemMessage.MemberFailedToAdd
+        val singleUserAddFailed: Boolean =
+            messageContent is UIMessageContent.SystemMessage.MemberFailedToAdd && messageContent.usersCount == 1
     }
 }
 
@@ -363,11 +365,13 @@ sealed class UIMessageContent {
         )
 
         data class MemberFailedToAdd(
-            val memberNames: List<UIText>
+            val memberNames: Map<String, List<UIText>>
         ) : SystemMessage(
             R.drawable.ic_info,
             R.string.label_system_message_conversation_failed_add_members_details
-        )
+        ) {
+            val usersCount = memberNames.values.flatten().size
+        }
     }
 }
 

@@ -148,7 +148,7 @@ fun SystemMessageItem(
                     isErrorString = message.addingFailed
                 )
             )
-            if (message.addingFailed && expanded) {
+            if ((message.addingFailed && expanded) || message.singleUserAddFailed) {
                 OfflineBackendsLearnMoreLink()
             }
             if (message.messageContent is SystemMessage.Knock) {
@@ -337,10 +337,10 @@ private val SystemMessage.expandable
         is SystemMessage.ConversationMessageTimerDeactivated -> false
         is SystemMessage.ConversationMessageCreated -> false
         is SystemMessage.ConversationStartedWithMembers -> this.memberNames.size > EXPANDABLE_THRESHOLD
-        is SystemMessage.MemberFailedToAdd -> this.memberNames.size > EXPANDABLE_THRESHOLD
+        is SystemMessage.MemberFailedToAdd -> this.usersCount > SINGLE_EXPANDABLE_THRESHOLD
     }
 
-private fun List<String>.toUserNamesListString(res: Resources) = when {
+private fun List<String>.toUserNamesListString(res: Resources): String = when {
     this.isEmpty() -> ""
     this.size == 1 -> this[0]
     else -> res.getString(R.string.label_system_message_and, this.dropLast(1).joinToString(", "), this.last())
@@ -407,16 +407,61 @@ fun SystemMessage.annotatedString(
                     .toUserNamesListString(res)
             )
 
-        is SystemMessage.MemberFailedToAdd -> arrayOf(
-            memberNames.limitUserNamesList(
-                res,
-                if (expanded) memberNames.size else EXPANDABLE_THRESHOLD,
-                R.plurals.label_system_message_conversation_failed_add_x_members
-            ).toUserNamesListString(res)
-        )
+        is SystemMessage.MemberFailedToAdd ->
+            return this.toFailedToAddAnnotatedText(
+                res, normalStyle, boldStyle, normalColor, boldColor, errorColor, isErrorString,
+                if (usersCount > SINGLE_EXPANDABLE_THRESHOLD) expanded else true
+            )
     }
 
     return res.annotatedText(stringResId, normalStyle, boldStyle, normalColor, boldColor, errorColor, isErrorString, *args)
 }
 
+@Suppress("LongParameterList", "SpreadOperator", "ComplexMethod")
+private fun SystemMessage.MemberFailedToAdd.toFailedToAddAnnotatedText(
+    res: Resources,
+    normalStyle: TextStyle,
+    boldStyle: TextStyle,
+    normalColor: Color,
+    boldColor: Color,
+    errorColor: Color,
+    isErrorString: Boolean,
+    expanded: Boolean
+): AnnotatedString {
+    val failedToAddAnnotatedText = AnnotatedString.Builder()
+    val isMultipleUsersFailure = usersCount > SINGLE_EXPANDABLE_THRESHOLD
+    if (isMultipleUsersFailure) {
+        failedToAddAnnotatedText.append(
+            res.annotatedText(
+                R.string.label_system_message_conversation_failed_add_members_summary,
+                normalStyle,
+                boldStyle,
+                normalColor,
+                boldColor,
+                errorColor,
+                isErrorString,
+                this.usersCount.toString()
+            )
+        )
+    }
+
+    if (expanded) {
+        if (isMultipleUsersFailure) failedToAddAnnotatedText.append("\n")
+        memberNames.onEachIndexed { index, entry ->
+            failedToAddAnnotatedText.append(
+                res.annotatedText(
+                    stringResId, normalStyle, boldStyle, normalColor, boldColor, errorColor, isErrorString,
+                    *arrayOf(
+                        entry.value.limitUserNamesList(res, entry.value.size).toUserNamesListString(res),
+                        entry.key
+                    )
+                )
+            )
+            if (index < memberNames.size - 1) failedToAddAnnotatedText.append("\n")
+        }
+    }
+    return failedToAddAnnotatedText.toAnnotatedString()
+}
+
 private const val EXPANDABLE_THRESHOLD = 4
+private const val SINGLE_EXPANDABLE_THRESHOLD = 1

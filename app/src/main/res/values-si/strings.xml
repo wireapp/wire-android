@@ -19,7 +19,7 @@
   ~
   -->
 <resources>
-    <string name="app_version">App version</string>
+    <string name="app_version">යෙදුමේ අනුවාදය</string>
     <string name="build_variant_name">Build variant</string>
     <string name="label_new">නව</string>
     <string name="label_login">පිවිසෙන්න</string>
@@ -33,7 +33,7 @@
     <string name="label_remove">ඉවත් කරන්න</string>
     <string name="label_proceed">Proceed</string>
     <string name="label_leave">හැරයන්න</string>
-    <string name="label_add_device">Add Device</string>
+    <string name="label_add_device">උපාංගයක් යොදන්න</string>
     <string name="label_learn_more">තව දැනගන්න</string>
     <string name="label_removing">ඉවත් වෙමින්…</string>
     <string name="label_logging_in">පිවිසෙමින්…</string>
@@ -77,7 +77,7 @@
     <string name="content_description_search_back">Search back icon</string>
     <string name="content_description_clear_content">අන්තර්ගතය මකන්න</string>
     <string name="content_description_user_avatar">පැතිකඩ ඡායාරූපය</string>
-    <string name="content_description_muted_conversation">Muted conversation</string>
+    <string name="content_description_muted_conversation">නිහඬ කළ සංවාදය</string>
     <string name="content_description_check">හරි ලකුණ</string>
     <string name="content_description_download_icon">බාගැනීමේ නිරූපකය</string>
     <string name="content_description_open_asset_icon">ඇරීමේ නිරූපකය</string>
@@ -100,12 +100,12 @@
     <string name="content_description_send_button">යවන්න</string>
     <string name="content_description_timed_message_button">Self-deleting messages, button</string>
     <string name="content_description_close_button">වැසීමේ බොත්තම</string>
-    <string name="content_description_menu_button">Main navigation</string>
+    <string name="content_description_menu_button">ප්‍රධාන යාත්‍රණය</string>
     <string name="content_description_drop_down_icon">Drop down arrow</string>
     <string name="content_description_remove_devices_screen_device_item_icon">Device item</string>
-    <string name="content_description_remove_devices_screen_remove_icon">Remove device</string>
-    <string name="content_description_avatar_preview">Preview of profile picture</string>
-    <string name="content_description_choose_from_gallery">Choose from gallery</string>
+    <string name="content_description_remove_devices_screen_remove_icon">උපාංගය ඉවත් කරන්න</string>
+    <string name="content_description_avatar_preview">පැතිකඩ රූපයෙහි පෙරදසුන</string>
+    <string name="content_description_choose_from_gallery">එකතුවෙන් තෝරන්න</string>
     <string name="content_description_take_a_picture">ඡායාරූපයක් ගන්න</string>
     <string name="content_description_right_arrow">දකුණු ඊතලය</string>
     <string name="content_description_left_arrow">ආපසු යන්න</string>
@@ -163,12 +163,12 @@
     <string name="settings_other_group_title">වෙනත්</string>
     <string name="settings_backup_info">Create a backup to preserve your conversation history. You can use this to restore history if you lose your device or switch to a new one.\n\nChoose a strong password to protect the backup file.</string>
     <string name="settings_backup_create">Create a Backup</string>
-    <string name="settings_backup_restore">Restore from Backup</string>
+    <string name="settings_backup_restore">උපස්ථයකින් ප්‍රත්‍යර්පණය</string>
     <!-- Welcome -->
     <string name="welcome_footer_text">Want to chat with friends and family?</string>
     <string name="welcome_footer_link">Create a private account for free</string>
-    <string name="welcome_button_create_personal_account">Create a Personal Account</string>
-    <string name="welcome_screen_carousel_item_message_1">Welcome to Wire, the most secure collaboration platform!</string>
+    <string name="welcome_button_create_personal_account">පෞද්. ගිණුමක් සාදන්න</string>
+    <string name="welcome_screen_carousel_item_message_1">වයර් වෙත පිළිගනිමු, වඩාත් ආරක්‍ෂිතම සහයෝගිත්‍ව වේදිකාව!</string>
     <string name="welcome_screen_carousel_item_message_2">Absolute confidence your information is\u00A0secure</string>
     <string name="welcome_screen_carousel_item_message_3">Encrypted audio &amp; video conferencing with up\u00A0to 50\u00A0participants</string>
     <string name="welcome_screen_carousel_item_message_4">Secure file sharing with teams and\u00A0clients</string>

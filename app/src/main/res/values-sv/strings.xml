@@ -20,7 +20,7 @@
   -->
 <resources>
     <string name="app_version">App version</string>
-    <string name="build_variant_name">Build variant</string>
+    <string name="build_variant_name">Bygg-variant</string>
     <string name="label_new">Ny</string>
     <string name="label_login">Logga in</string>
     <string name="label_ok">OK</string>
@@ -40,7 +40,7 @@
     <string name="label_membership_guest">Gäst</string>
     <string name="label_membership_external">Extern</string>
     <string name="label_membership_service">Tjänst</string>
-    <string name="label_user_deleted">Deleted</string>
+    <string name="label_user_deleted">Togs bort</string>
     <string name="label_message_sent_failure">Message could not be sent.</string>
     <string name="label_message_edit_sent_failure">Det redigerade meddelandet kunde inte skickas till följd av problem med anslutningen.</string>
     <string name="label_message_sent_remotely_failure">Meddelandet kunde inte skickas då bakänden %s verkar vara offline.</string>
@@ -51,7 +51,7 @@
     <string name="label_try_again">Försök igen</string>
     <string name="label_reset_session">Återställ session</string>
     <string name="label_reset_session_success">Återställningen av sessionen lyckades</string>
-    <string name="label_federated_membership">Federated</string>
+    <string name="label_federated_membership">Federerade</string>
     <string name="label_update">Uppdatera</string>
     <string name="label_close">Stäng</string>
     <string name="label_download">Hämta</string>
@@ -71,16 +71,16 @@
     <string name="label_and">och</string>
     <string name="label_retry">Försök igen</string>
     <!-- Content descriptions https://wearezeta.atlassian.net/wiki/spaces/AR/pages/122520039/Code+Style+Guideline#Content-description-strings -->
-    <string name="content_description_app_logo">App Logo</string>
-    <string name="content_description_reveal_password">Show password</string>
-    <string name="content_description_hide_password">Hide password</string>
+    <string name="content_description_app_logo">Appens logga</string>
+    <string name="content_description_reveal_password">Visa lösenord</string>
+    <string name="content_description_hide_password">Dölj lösenord</string>
     <string name="content_description_search_back">Search back icon</string>
-    <string name="content_description_clear_content">Clear content</string>
-    <string name="content_description_user_avatar">Profile picture</string>
-    <string name="content_description_muted_conversation">Muted conversation</string>
-    <string name="content_description_check">Check mark</string>
-    <string name="content_description_download_icon">Download icon</string>
-    <string name="content_description_open_asset_icon">Open icon</string>
+    <string name="content_description_clear_content">Rensa bort innehåll</string>
+    <string name="content_description_user_avatar">Profilbild</string>
+    <string name="content_description_muted_conversation">Tystad konversation</string>
+    <string name="content_description_check">Bock</string>
+    <string name="content_description_download_icon">Hämta ikon</string>
+    <string name="content_description_open_asset_icon">Öppna ikon</string>
     <string name="content_description_add_to_favourite">Add to Favorites</string>
     <string name="content_description_move_to_folder">Move to folder</string>
     <string name="content_description_move_to_archive">Move to archive</string>

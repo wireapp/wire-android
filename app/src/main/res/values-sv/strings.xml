@@ -19,7 +19,7 @@
   ~
   -->
 <resources>
-    <string name="app_version">App version</string>
+    <string name="app_version">Appens version</string>
     <string name="build_variant_name">Bygg-variant</string>
     <string name="label_new">Ny</string>
     <string name="label_login">Logga in</string>

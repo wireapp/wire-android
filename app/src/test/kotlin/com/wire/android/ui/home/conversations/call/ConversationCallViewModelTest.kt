@@ -21,8 +21,6 @@ import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.navigation.NavigationManager
 import com.wire.kalium.logic.data.id.ConversationId
-import com.wire.kalium.logic.data.id.QualifiedID
-import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.feature.call.usecase.AnswerCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.IsEligibleToStartCallUseCase
@@ -66,9 +64,6 @@ class ConversationCallViewModelTest {
     @MockK
     private lateinit var isConferenceCallingEnabled: IsEligibleToStartCallUseCase
 
-    @MockK
-    private lateinit var qualifiedIdMapper: QualifiedIdMapper
-
     private lateinit var conversationCallViewModel: ConversationCallViewModel
 
     @BeforeEach
@@ -77,12 +72,8 @@ class ConversationCallViewModelTest {
         val dummyConversationId = "some-dummy-value@some.dummy.domain"
         every { savedStateHandle.get<String>(any()) } returns dummyConversationId
         every { savedStateHandle[any()] = any<String>() } returns Unit
-        coEvery {
-            qualifiedIdMapper.fromStringToQualifiedID("some-dummy-value@some.dummy.domain")
-        } returns QualifiedID("some-dummy-value", "some.dummy.domain")
 
         conversationCallViewModel = ConversationCallViewModel(
-            qualifiedIdMapper = qualifiedIdMapper,
             savedStateHandle = savedStateHandle,
             observeOngoingCalls = observeOngoingCalls,
             observeEstablishedCalls = observeEstablishedCalls,

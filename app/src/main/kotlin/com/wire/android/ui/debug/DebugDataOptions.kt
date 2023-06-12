@@ -40,12 +40,12 @@ import com.wire.android.migration.failure.UserMigrationStatus
 import com.wire.android.model.Clickable
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.common.RowItemTemplate
 import com.wire.android.ui.common.WireSwitch
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.destinations.MigrationScreenDestination
 import com.wire.android.ui.home.conversationslist.common.FolderHeader
 import com.wire.android.ui.home.settings.SettingsItem
 import com.wire.android.ui.theme.wireColorScheme
@@ -119,7 +119,7 @@ class DebugDataOptionsViewModel
         viewModelScope.launch {
             navigationManager.navigate(
                 NavigationCommand(
-                    NavigationItem.Migration.getRouteWithArgs(listOf(currentAccount)),
+                    MigrationScreenDestination(currentAccount),
                     BackStackMode.CLEAR_WHOLE
                 )
             )

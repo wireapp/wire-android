@@ -38,7 +38,6 @@ import com.wire.kalium.logic.data.conversation.ConversationDetails.OneOne
 import com.wire.kalium.logic.data.conversation.LegalHoldStatus
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus.AllAllowed
 import com.wire.kalium.logic.data.id.QualifiedID
-import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
@@ -229,9 +228,6 @@ class MediaGalleryViewModelTest {
         lateinit var fileManager: FileManager
 
         @MockK
-        private lateinit var qualifiedIdMapper: QualifiedIdMapper
-
-        @MockK
         lateinit var deleteMessage: DeleteMessageUseCase
 
         init {
@@ -239,8 +235,6 @@ class MediaGalleryViewModelTest {
             val dummyPrivateAsset = "some-conversationId:some-message-id:true"
             MockKAnnotations.init(this, relaxUnitFun = true)
             every { savedStateHandle.get<String>(any()) } returns dummyPrivateAsset
-            every { qualifiedIdMapper.fromStringToQualifiedID(any()) } returns dummyConversationId
-
             coEvery { deleteMessage(any(), any(), any()) } returns Either.Right(Unit)
         }
 
@@ -286,7 +280,6 @@ class MediaGalleryViewModelTest {
         fun arrange() = this to MediaGalleryViewModel(
             savedStateHandle,
             wireSessionImageLoader,
-            qualifiedIdMapper,
             navigationManager,
             getConversationDetails,
             TestDispatcherProvider(),

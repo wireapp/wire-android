@@ -59,13 +59,14 @@ import com.wire.kalium.logic.data.message.Message.UploadStatus.UPLOAD_IN_PROGRES
 @Composable
 internal fun MessageBody(
     messageBody: MessageBody,
+    isAvailable: Boolean,
     onLongClick: (() -> Unit)? = null,
     onOpenProfile: (String) -> Unit,
 ) {
     LinkifyText(
         text = messageBody.message,
         mask = Linkify.WEB_URLS or Linkify.EMAIL_ADDRESSES,
-        color = MaterialTheme.colorScheme.onBackground,
+        color = if (isAvailable) MaterialTheme.wireColorScheme.secondaryText else MaterialTheme.colorScheme.onBackground,
         onLongClick = onLongClick,
         modifier = Modifier.defaultMinSize(minHeight = dimensions().spacing20x),
         style = MaterialTheme.wireTypography.body01,

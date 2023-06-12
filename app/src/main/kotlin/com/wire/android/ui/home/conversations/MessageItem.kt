@@ -54,6 +54,7 @@ import com.wire.android.ui.common.UserBadge
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.spacers.HorizontalSpace
 import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.common.typography
 import com.wire.android.ui.home.conversations.info.ConversationDetailsData
@@ -209,17 +210,23 @@ fun MessageItem(
                                     { onLongClicked(message) }
                                 } else null
                             }
-                            MessageContent(
-                                message = message,
-                                messageContent = messageContent,
-                                audioMessagesState = audioMessagesState,
-                                onAudioClick = onAudioClick,
-                                onChangeAudioPosition = onChangeAudioPosition,
-                                onAssetClick = currentOnAssetClicked,
-                                onImageClick = currentOnImageClick,
-                                onLongClick = onLongClick,
-                                onOpenProfile = onOpenProfile
-                            )
+                            Row {
+                                Box(modifier = Modifier.weight(1F)) {
+                                    MessageContent(
+                                        message = message,
+                                        messageContent = messageContent,
+                                        audioMessagesState = audioMessagesState,
+                                        onAudioClick = onAudioClick,
+                                        onChangeAudioPosition = onChangeAudioPosition,
+                                        onAssetClick = currentOnAssetClicked,
+                                        onImageClick = currentOnImageClick,
+                                        onLongClick = onLongClick,
+                                        onOpenProfile = onOpenProfile
+                                    )
+                                }
+                                HorizontalSpace.x4()
+                                MessageStatusIndicator(message)
+                            }
                             MessageFooter(
                                 messageFooter,
                                 onReactionClicked
@@ -412,7 +419,7 @@ private fun Username(username: String, modifier: Modifier = Modifier) {
 @Suppress("ComplexMethod")
 @Composable
 private fun MessageContent(
-    message: UIMessage,
+    message: UIMessage.Regular,
     messageContent: UIMessageContent.Regular?,
     audioMessagesState: Map<String, AudioState>,
     onAssetClick: Clickable,
@@ -432,19 +439,22 @@ private fun MessageContent(
         )
 
         is UIMessageContent.TextMessage -> {
-            messageContent.messageBody.quotedMessage?.let {
-                VerticalSpace.x4()
-                when (it) {
-                    is UIQuotedMessage.UIQuotedData -> QuotedMessage(it)
-                    UIQuotedMessage.UnavailableData -> QuotedUnavailable(QuotedMessageStyle.COMPLETE)
+            Column {
+                messageContent.messageBody.quotedMessage?.let {
+                    VerticalSpace.x4()
+                    when (it) {
+                        is UIQuotedMessage.UIQuotedData -> QuotedMessage(it)
+                        UIQuotedMessage.UnavailableData -> QuotedUnavailable(QuotedMessageStyle.COMPLETE)
+                    }
+                    VerticalSpace.x4()
                 }
-                VerticalSpace.x4()
+                MessageBody(
+                    messageBody = messageContent.messageBody,
+                    isAvailable = message.isPending || !message.isAvailable,
+                    onLongClick = onLongClick,
+                    onOpenProfile = onOpenProfile
+                )
             }
-            MessageBody(
-                messageBody = messageContent.messageBody,
-                onLongClick = onLongClick,
-                onOpenProfile = onOpenProfile
-            )
         }
 
         is UIMessageContent.AssetMessage -> MessageGenericAsset(
@@ -517,5 +527,5 @@ private fun MessageStatusLabel(messageStatus: MessageStatus) {
 }
 
 private fun Message.DownloadStatus.isSaved(): Boolean {
-   return this == Message.DownloadStatus.SAVED_EXTERNALLY || this == Message.DownloadStatus.SAVED_INTERNALLY
+    return this == Message.DownloadStatus.SAVED_EXTERNALLY || this == Message.DownloadStatus.SAVED_INTERNALLY
 }

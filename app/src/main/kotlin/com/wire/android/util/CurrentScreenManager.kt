@@ -38,7 +38,6 @@ import com.wire.android.ui.destinations.OngoingCallScreenDestination
 import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -118,7 +117,7 @@ class CurrentScreenManager @Inject constructor(
 
     override fun onDestinationChanged(controller: NavController, destination: NavDestination, arguments: Bundle?) {
         val currentItem = destination.toDestination()
-        currentScreenState.value = CurrentScreen.fromNavigationItem(
+        currentScreenState.value = CurrentScreen.fromDestination(
             currentItem,
             arguments,
             isApplicationVisibleFlow.value

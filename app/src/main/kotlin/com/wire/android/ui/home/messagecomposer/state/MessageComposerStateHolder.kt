@@ -63,8 +63,6 @@ class MessageComposerStateHolder(
     var messageComposerState: MessageComposerState by mutableStateOf(MessageComposerState.InActive(messageCompositionState.value))
 
     fun toActive(showAttachmentOption: Boolean) {
-        focusRequester.requestFocus()
-
         messageComposerState = MessageComposerState.Active(
             focusManager = focusManager,
             focusRequester = focusRequester,

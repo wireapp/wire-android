@@ -30,9 +30,10 @@ import com.wire.android.navigation.EXTRA_USER_ID
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveConversationRoleForUserUseCase
 import com.wire.android.ui.home.conversationslist.model.Membership
+import com.wire.android.ui.navArgs
+import com.wire.android.ui.userprofile.other.OtherUserProfileScreenViewModelTest.Companion.CONVERSATION_ID
+import com.wire.android.ui.userprofile.other.OtherUserProfileScreenViewModelTest.Companion.USER_ID
 import com.wire.android.util.ui.WireSessionImageLoader
-import com.wire.kalium.logic.data.id.QualifiedID
-import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.feature.client.ObserveClientsByUserIdUseCase
 import com.wire.kalium.logic.feature.client.PersistOtherUserClientsUseCase
 import com.wire.kalium.logic.feature.connection.BlockUserResult
@@ -77,9 +78,6 @@ internal class OtherUserProfileViewModelArrangement {
 
     @MockK
     lateinit var userTypeMapper: UserTypeMapper
-
-    @MockK
-    lateinit var qualifiedIdMapper: QualifiedIdMapper
 
     @MockK
     lateinit var updateConversationMemberRoleUseCase: UpdateConversationMemberRoleUseCase
@@ -129,17 +127,16 @@ internal class OtherUserProfileViewModelArrangement {
             persistOtherUserClientsUseCase,
             clearConversationContent,
             getOtherUserSecurityClassificationLabel,
-            savedStateHandle,
-            qualifiedIdMapper
+            savedStateHandle
         )
     }
 
     init {
         MockKAnnotations.init(this, relaxUnitFun = true)
         mockUri()
-        every { savedStateHandle.get<String>(EXTRA_USER_ID) } returns OtherUserProfileScreenViewModelTest.CONVERSATION_ID.toString()
+        every { savedStateHandle.get<String>(EXTRA_USER_ID) } returns CONVERSATION_ID.toString()
         every { savedStateHandle.get<String>(EXTRA_CONVERSATION_ID) } returns
-                OtherUserProfileScreenViewModelTest.CONVERSATION_ID.toString()
+                CONVERSATION_ID.toString()
         coEvery {
             observeConversationRoleForUserUseCase.invoke(any(), any())
         } returns flowOf(OtherUserProfileScreenViewModelTest.CONVERSATION_ROLE_DATA)
@@ -151,10 +148,7 @@ internal class OtherUserProfileViewModelArrangement {
         )
         coEvery { observeSelfUser() } returns flowOf(TestUser.SELF_USER)
         every { userTypeMapper.toMembership(any()) } returns Membership.None
-        coEvery {
-            qualifiedIdMapper.fromStringToQualifiedID("some_value@some_domain")
-        } returns QualifiedID("some_value", "some_domain")
-        coEvery { getOrCreateOneToOneConversation(OtherUserProfileScreenViewModelTest.USER_ID) } returns CreateConversationResult.Success(
+        coEvery { getOrCreateOneToOneConversation(USER_ID) } returns CreateConversationResult.Success(
             OtherUserProfileScreenViewModelTest.CONVERSATION
         )
         coEvery { navigationManager.navigate(command = any()) } returns Unit

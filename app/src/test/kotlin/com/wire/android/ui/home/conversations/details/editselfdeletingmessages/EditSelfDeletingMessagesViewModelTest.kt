@@ -26,7 +26,6 @@ import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.conversations.details.participants.model.ConversationParticipantsData
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
 import com.wire.android.ui.home.messagecomposer.state.SelfDeletionDuration
-import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.feature.conversation.messagetimer.UpdateMessageTimerUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.SelfDeletionTimer
@@ -99,9 +98,6 @@ class EditSelfDeletingMessagesViewModelTest {
         private lateinit var observeSelfDeletionTimerSettingsForConversation: ObserveSelfDeletionTimerSettingsForConversationUseCase
 
         @MockK
-        private lateinit var qualifiedIdMapper: QualifiedIdMapper
-
-        @MockK
         private lateinit var updateMessageTimer: UpdateMessageTimerUseCase
 
         private val viewModel by lazy {
@@ -111,7 +107,6 @@ class EditSelfDeletingMessagesViewModelTest {
                 dispatcher = TestDispatcherProvider(),
                 observeConversationMembers = observerConversationMembers,
                 observeSelfDeletionTimerSettingsForConversation = observeSelfDeletionTimerSettingsForConversation,
-                qualifiedIdMapper = qualifiedIdMapper,
                 updateMessageTimer = updateMessageTimer
             )
         }
@@ -121,7 +116,6 @@ class EditSelfDeletingMessagesViewModelTest {
             MockKAnnotations.init(this, relaxUnitFun = true)
             every { savedStateHandle.get<String>(EXTRA_CONVERSATION_ID) } returns dummyConversationId
             coEvery { observerConversationMembers(any()) } returns flowOf(ConversationParticipantsData(isSelfAnAdmin = true))
-            every { qualifiedIdMapper.fromStringToQualifiedID(any()) } returns TestConversation.ID
         }
 
         fun withSelfDeletingMessagesGroupSettings(settings: SelfDeletionTimer) = apply {

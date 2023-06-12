@@ -24,7 +24,6 @@ import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
 import com.wire.android.framework.TestUser
 import com.wire.android.navigation.EXTRA_BOT_SERVICE_ID
-import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.conversations.details.participants.usecase.ConversationRoleData
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveConversationRoleForUserUseCase
@@ -35,7 +34,6 @@ import com.wire.kalium.logic.StorageFailure
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
-import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.service.ServiceDetails
 import com.wire.kalium.logic.data.service.ServiceId
 import com.wire.kalium.logic.data.user.UserId
@@ -50,10 +48,10 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import junit.framework.TestCase.assertEquals
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
-import org.amshove.kluent.internal.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -330,9 +328,6 @@ class ServiceDetailsViewModelTest {
         @MockK
         lateinit var savedStateHandle: SavedStateHandle
 
-        @MockK
-        lateinit var qualifiedIdMapper: QualifiedIdMapper
-
         private val viewModel by lazy {
             ServiceDetailsViewModel(
                 navigationManager,
@@ -345,18 +340,13 @@ class ServiceDetailsViewModelTest {
                 removeMemberFromConversation,
                 addServiceToConversation,
                 serviceDetailsMapper,
-                savedStateHandle,
-                qualifiedIdMapper
+                savedStateHandle
             )
         }
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
             mockUri()
-            every { savedStateHandle.get<String>(EXTRA_CONVERSATION_ID) } returns CONVERSATION_ID.toString()
-            coEvery {
-                qualifiedIdMapper.fromStringToQualifiedID("conversationId@conversationDomain")
-            } returns QualifiedID("conversationId", "conversationDomain")
             coEvery { navigationManager.navigate(command = any()) } returns Unit
             coEvery { observeSelfUser() } returns flowOf(TestUser.SELF_USER)
         }

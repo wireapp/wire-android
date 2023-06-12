@@ -39,15 +39,12 @@ import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.util.FileManager
 import com.wire.android.util.ImageUtil
 import com.wire.android.util.ui.UIText
-import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.configuration.FileSharingStatus
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.LegalHoldStatus
 import com.wire.kalium.logic.data.id.ConversationId
-import com.wire.kalium.logic.data.id.QualifiedID
-import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.OtherUser
@@ -104,10 +101,6 @@ internal class MessageComposerViewModelArrangement {
         coEvery { observeOngoingCallsUseCase() } returns flowOf(listOf())
         coEvery { observeEstablishedCallsUseCase() } returns flowOf(listOf())
         coEvery { observeSyncState() } returns flowOf(SyncState.Live)
-        every {
-            qualifiedIdMapper.fromStringToQualifiedID("some-dummy-value@some.dummy.domain")
-        } returns QualifiedID("some-dummy-value", "some.dummy.domain")
-
         every { pingRinger.ping(any(), any()) } returns Unit
         coEvery { sendKnockUseCase(any(), any()) } returns Either.Right(Unit)
         coEvery { fileManager.getTempWritableVideoUri(any(), any()) } returns Uri.parse("video.mp4")
@@ -119,9 +112,6 @@ internal class MessageComposerViewModelArrangement {
 
     @MockK
     lateinit var navigationManager: NavigationManager
-
-    @MockK
-    lateinit var qualifiedIdMapper: QualifiedIdMapper
 
     @MockK
     lateinit var sendTextMessage: SendTextMessageUseCase
@@ -140,9 +130,6 @@ internal class MessageComposerViewModelArrangement {
 
     @MockK
     lateinit var observeOngoingCallsUseCase: ObserveOngoingCallsUseCase
-
-    @MockK
-    private lateinit var wireSessionImageLoader: WireSessionImageLoader
 
     @MockK
     private lateinit var observeEstablishedCallsUseCase: ObserveEstablishedCallsUseCase
@@ -201,14 +188,12 @@ internal class MessageComposerViewModelArrangement {
         MessageComposerViewModel(
             savedStateHandle = savedStateHandle,
             navigationManager = navigationManager,
-            qualifiedIdMapper = qualifiedIdMapper,
             sendTextMessage = sendTextMessage,
             sendEditTextMessage = sendEditTextMessage,
             sendAssetMessage = sendAssetMessage,
             deleteMessage = deleteMessage,
             dispatchers = TestDispatcherProvider(),
             isFileSharingEnabled = isFileSharingEnabledUseCase,
-            wireSessionImageLoader = wireSessionImageLoader,
             kaliumFileSystem = fakeKaliumFileSystem,
             updateConversationReadDate = updateConversationReadDateUseCase,
             observeConversationInteractionAvailability = observeConversationInteractionAvailabilityUseCase,

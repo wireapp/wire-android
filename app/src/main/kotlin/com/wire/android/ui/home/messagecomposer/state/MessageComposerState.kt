@@ -36,10 +36,6 @@ sealed class MessageComposerState {
         private val onShowEphemeralOptionsMenu: () -> Unit
     ) : MessageComposerState() {
 
-        init {
-//            focusRequester.requestFocus()
-        }
-
         val messageCompositionInputState = MessageCompositionInputState(messageCompositionState)
 
         var additionalOptionMenuState: AdditionalOptionMenuState by mutableStateOf(defaultAdditionalOptionMenuState)

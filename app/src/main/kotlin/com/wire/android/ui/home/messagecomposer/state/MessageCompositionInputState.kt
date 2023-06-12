@@ -25,7 +25,7 @@ import androidx.compose.runtime.setValue
 
 class MessageCompositionInputState(private val messageCompositionState: MutableState<MessageComposition>) {
 
-    var inputType: MessageCompositionInputType by mutableStateOf(MessageCompositionInputType.Composing(messageCompositionState))
+    var inputType: MessageCompositionInputType by mutableStateOf(MessageCompositionInputType.Composing(messageCompositionState, true))
         private set
 
     var size: MessageCompositionInputSize by mutableStateOf(MessageCompositionInputSize.COLLAPSED)
@@ -46,7 +46,8 @@ class MessageCompositionInputState(private val messageCompositionState: MutableS
 }
 
 sealed class MessageCompositionInputType(val messageCompositionState: MutableState<MessageComposition>) {
-    class Composing(messageCompositionState: MutableState<MessageComposition>) : MessageCompositionInputType(messageCompositionState) {
+    class Composing(messageCompositionState: MutableState<MessageComposition>, val focusOnStart: Boolean) :
+        MessageCompositionInputType(messageCompositionState) {
 
         val isSendButtonEnabled by derivedStateOf {
             messageCompositionState.value.messageText.isNotBlank()

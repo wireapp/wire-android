@@ -21,6 +21,7 @@
 package com.wire.android.ui.home.messagecomposer
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -31,12 +32,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -61,6 +64,7 @@ import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.wireTextFieldColors
+import com.wire.android.ui.common.typography
 import com.wire.android.ui.home.messagecomposer.attachment.AttachmentOptionsComponent
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionMenuState
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSubMenuState
@@ -456,12 +460,23 @@ private fun SelfDeletingInput(
                         }
                     )
             )
-            MessageSendActions(
-                onSendButtonClicked = {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = "test",
+                    style = typography().label02,
+                    color = colorsScheme().primary,
+                    modifier = Modifier
+                        .padding(horizontal = dimensions().spacing16x)
+                        .clickable(enabled = true) {
+                            // Don't allow clicking the duration picker if the self-deleting duration is enforced from TM Settings
 
-                },
-                sendButtonEnabled = true
-            )
+                        }
+                )
+                ScheduleMessageButton(
+                    onSendButtonClicked = {},
+                    sendButtonEnabled = true
+                )
+            }
         }
     }
 }
@@ -513,10 +528,6 @@ fun ComposingInput(
     focusRequester: FocusRequester,
     onMessageTextChanged: (TextFieldValue) -> Unit
 ) {
-    LaunchedEffect(Unit) {
-        focusRequester.requestFocus()
-    }
-
     with(inputType) {
         Row(
             modifier = Modifier
@@ -548,6 +559,12 @@ fun ComposingInput(
                 },
                 sendButtonEnabled = inputType.isSendButtonEnabled
             )
+        }
+
+        LaunchedEffect(Unit) {
+            if (focusOnStart) {
+                focusRequester.requestFocus()
+            }
         }
     }
 }

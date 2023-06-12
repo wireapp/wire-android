@@ -56,7 +56,6 @@ import com.wire.kalium.logic.feature.connection.UnblockUserUseCase
 import com.wire.kalium.logic.feature.conversation.CreateConversationResult
 import com.wire.kalium.logic.feature.conversation.GetOrCreateOneToOneConversationUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
@@ -69,7 +68,7 @@ interface ConnectionActionButtonViewModel {
     fun onSendConnectionRequest()
     fun onCancelConnectionRequest()
     fun onAcceptConnectionRequest()
-    fun onIgnoreConnectionRequest(onSuccess: () -> Unit): Job
+    fun onIgnoreConnectionRequest(onSuccess: () -> Unit)
     fun onUnblockUser()
     fun onOpenConversation()
 }
@@ -154,21 +153,24 @@ class ConnectionActionButtonViewModelImpl @Inject constructor(
         }
     }
 
-    override fun onIgnoreConnectionRequest(onSuccess: () -> Unit): Job = viewModelScope.launch {
-        state = state.performAction()
-        when (ignoreConnectionRequest(userId)) {
-            is IgnoreConnectionRequestUseCaseResult.Failure -> {
-                appLogger.d(("Couldn't ignore a connect request to user $userId"))
-                state = state.finishAction()
-                _infoMessage.emit(UIText.StringResource(R.string.connection_request_ignore_error))
-            }
+    override fun onIgnoreConnectionRequest(onSuccess: () -> Unit) {
+        viewModelScope.launch {
+            state = state.performAction()
+            when (ignoreConnectionRequest(userId)) {
+                is IgnoreConnectionRequestUseCaseResult.Failure -> {
+                    appLogger.d(("Couldn't ignore a connect request to user $userId"))
+                    state = state.finishAction()
+                    _infoMessage.emit(UIText.StringResource(R.string.connection_request_ignore_error))
+                }
 
-            is IgnoreConnectionRequestUseCaseResult.Success -> {
-                state = state.updateState(ConnectionState.IGNORED)
-                onSuccess()
+                is IgnoreConnectionRequestUseCaseResult.Success -> {
+                    state = state.updateState(ConnectionState.IGNORED)
+                    onSuccess()
+                }
             }
         }
     }
+
 
     override fun onUnblockUser() {
         viewModelScope.launch {
@@ -219,7 +221,7 @@ class ConnectionActionButtonPreviewModel(private val state: ActionableState<Conn
     override fun onSendConnectionRequest() {}
     override fun onCancelConnectionRequest() {}
     override fun onAcceptConnectionRequest() {}
-    override fun onIgnoreConnectionRequest(onSuccess: () -> Unit) = Job()
+    override fun onIgnoreConnectionRequest(onSuccess: () -> Unit) {}
     override fun onUnblockUser() {}
     override fun onOpenConversation() {}
 }

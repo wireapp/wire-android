@@ -55,6 +55,7 @@ import com.wire.kalium.logic.feature.auth.AuthenticationScope
 import com.wire.kalium.logic.feature.auth.DomainLookupUseCase
 import com.wire.kalium.logic.feature.auth.ValidateEmailUseCase
 import com.wire.kalium.logic.feature.auth.autoVersioningAuth.AutoVersionAuthScopeUseCase
+import com.wire.kalium.logic.feature.auth.sso.FetchSSOSettingsUseCase
 import com.wire.kalium.logic.feature.auth.sso.GetSSOLoginSessionUseCase
 import com.wire.kalium.logic.feature.auth.sso.SSOInitiateLoginResult
 import com.wire.kalium.logic.feature.auth.sso.SSOInitiateLoginUseCase
@@ -130,6 +131,9 @@ class LoginSSOViewModelTest {
     @MockK
     private lateinit var validateEmailUseCase: ValidateEmailUseCase
 
+    @MockK
+    private lateinit var fetchSSOSettings: FetchSSOSettingsUseCase
+
     private lateinit var loginViewModel: LoginSSOViewModel
 
     private val userId: QualifiedID = QualifiedID("userId", "domain")
@@ -142,7 +146,7 @@ class LoginSSOViewModelTest {
         every { savedStateHandle.set(any(), any<String>()) } returns Unit
         every { clientScopeProviderFactory.create(any()).clientScope } returns clientScope
         every { clientScope.getOrRegister } returns getOrRegisterClientUseCase
-
+        every { authenticationScope.ssoLoginScope.fetchSSOSettings } returns fetchSSOSettings
         authServerConfigProvider.updateAuthServer(newServerConfig(1).links)
 
         coEvery {
@@ -409,6 +413,37 @@ class LoginSSOViewModelTest {
         loginViewModel.onCustomServerDialogConfirm()
 
         assertEquals(authServerConfigProvider.authServer.value, expected)
+    }
+
+    @Test
+    fun `given backend switch confirmed, when the new server have a default sso code, then initiate sso login`() {
+        val expected = newServerConfig(2).links
+        every { validateEmailUseCase(any()) } returns true
+        coEvery { fetchSSOSettings.invoke() } returns FetchSSOSettingsUseCase.Result.Success("ssoCode")
+        loginViewModel.loginState = loginViewModel.loginState.copy(customServerDialogState = CustomServerDialogState(expected))
+
+        loginViewModel.onCustomServerDialogConfirm()
+
+        assertEquals(authServerConfigProvider.authServer.value, expected)
+        coVerify(exactly = 1) {
+            fetchSSOSettings.invoke()
+            ssoInitiateLoginUseCase.invoke("wire-ssoCode")
+        }
+    }
+
+    @Test
+    fun `given backend switch confirmed, when the new server have NO default sso code, then initiate sso login`() {
+        val expected = newServerConfig(2).links
+        every { validateEmailUseCase(any()) } returns true
+        coEvery { fetchSSOSettings.invoke() } returns FetchSSOSettingsUseCase.Result.Success(null)
+        loginViewModel.loginState = loginViewModel.loginState.copy(customServerDialogState = CustomServerDialogState(expected))
+
+        loginViewModel.onCustomServerDialogConfirm()
+
+        assertEquals(authServerConfigProvider.authServer.value, expected)
+        coVerify(exactly = 1) { fetchSSOSettings.invoke() }
+
+        coVerify(exactly = 0) { ssoInitiateLoginUseCase.invoke(any()) }
     }
 
     companion object {

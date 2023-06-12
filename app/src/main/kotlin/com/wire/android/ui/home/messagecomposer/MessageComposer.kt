@@ -21,25 +21,23 @@
 package com.wire.android.ui.home.messagecomposer
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -54,6 +52,7 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.Dp
@@ -63,14 +62,13 @@ import com.wire.android.ui.common.KeyboardHelper
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.textfield.WireTextField
+import com.wire.android.ui.common.textfield.WireTextFieldColors
 import com.wire.android.ui.common.textfield.wireTextFieldColors
-import com.wire.android.ui.common.typography
 import com.wire.android.ui.home.messagecomposer.attachment.AttachmentOptionsComponent
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionMenuState
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSubMenuState
 import com.wire.android.ui.home.messagecomposer.state.MessageComposerState
 import com.wire.android.ui.home.messagecomposer.state.MessageComposerStateHolder
-import com.wire.android.ui.home.messagecomposer.state.MessageComposition
 import com.wire.android.ui.home.messagecomposer.state.MessageCompositionInputSize
 import com.wire.android.ui.home.messagecomposer.state.MessageCompositionInputState
 import com.wire.android.ui.home.messagecomposer.state.MessageCompositionInputType
@@ -96,7 +94,7 @@ fun MessageComposer(
             InActiveMessageComposer(
                 inActiveComposerState = state,
                 messageListContent = messageListContent,
-                onTransistionToActive = messageComposerStateHolder::toActive
+                onTransistionToActive = messageComposerStateHolder::toComposing
             )
         }
     }
@@ -221,12 +219,7 @@ private fun ActiveMessageComposer(
                         ) {
                             messageListContent()
                         }
-                        MessageComposingInput(
-                            messageCompositionInputState = messageCompositionInputState,
-                            focusRequester = focusRequester,
-                            onInputFocused = ::onInputFocused,
-                            onMessageTextChanged = ::messageTextChanged
-                        )
+                        test(messageCompositionInputState)
                         AdditionalOptionsMenu(
                             additionalOptionsState = additionalOptionMenuState,
                             onEphemeralOptionItemClicked = ::toEphemeralInputType,
@@ -271,77 +264,6 @@ private fun ActiveMessageComposer(
         }
     }
 }
-
-@Composable
-private fun MessageComposingInput(
-    messageCompositionInputState: MessageCompositionInputState,
-    onInputFocused: () -> Unit,
-    onMessageTextChanged: (TextFieldValue) -> Unit,
-    focusRequester: FocusRequester
-) {
-    with(messageCompositionInputState) {
-        when (val type = inputType) {
-            is MessageCompositionInputType.Composing -> {
-                ComposingInput(
-                    inputSize = size,
-                    inputType = type,
-                    onFocused = onInputFocused,
-                    focusRequester = focusRequester,
-                    onMessageTextChanged = onMessageTextChanged
-                )
-            }
-
-            is MessageCompositionInputType.Editing -> {
-//                EditingInput(
-//                    inputState = messageCompositionInputState,
-//                    onFocused = onInputFocused,
-//                    focusRequester = focusRequester,
-//                    onMessageTextChanged = onMessageTextChanged
-//                )
-            }
-
-            is MessageCompositionInputType.Ephemeral -> {
-                SelfDeletingInput(
-                    inputSize = size,
-                    inputType = type,
-                    onFocused = onInputFocused,
-                    focusRequester = focusRequester,
-                    onMessageTextChanged = onMessageTextChanged
-                )
-            }
-        }
-    }
-}
-//
-//@Composable
-//fun InactiveInput(
-//    messageComposition: MessageComposition,
-//    onTransistionToActive : (Boolean) -> Unit,
-//    onFocused: () -> Unit,
-//    focusRequester: FocusRequester
-//) {
-//    Row(
-//        verticalAlignment = Alignment.CenterVertically,
-//        modifier = Modifier
-//            .fillMaxWidth()
-//            .wrapContentHeight()
-//    ) {
-//        Box(modifier = Modifier.padding(start = dimensions().spacing8x)) {
-//            AdditionalOptionButton(
-//                isSelected = false,
-//                isEnabled = true,
-//                onClick = { onTransistionToActive(true) }
-//            )
-//        }
-//
-//        Text(inActiveComposerState.messageComposition.messageText,
-//            modifier = Modifier
-//                .fillMaxWidth()
-//                .wrapContentHeight()
-//                .clickable { onTransistionToActive(false) }
-//        )
-//    }
-//}
 
 @Composable
 private fun AdditionalOptionsMenu(
@@ -431,64 +353,67 @@ private fun AttachmentAndAdditionalOptionsMenuItems(
 }
 
 @Composable
-private fun SelfDeletingInput(
-    inputType: MessageCompositionInputType.Ephemeral,
-    inputSize: MessageCompositionInputSize,
-    onFocused: () -> Unit,
-    focusRequester: FocusRequester,
-    onMessageTextChanged: (TextFieldValue) -> Unit
-) {
-    with(inputType) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .wrapContentHeight(),
-            verticalAlignment = Alignment.Bottom
-        ) {
+fun test(messageCompositionInputState: MessageCompositionInputState) {
+    with(messageCompositionInputState) {
+        MessageComposerInputRow(action = {
+            when (val inputType = type) {
+                is MessageCompositionInputType.Composing -> MessageSendActions(
+                    onSendButtonClicked = {},
+                    sendButtonEnabled = inputType.isSendButtonEnabled
+                )
+
+                is MessageCompositionInputType.SelfDeleting -> SelfDeletingActions(sendButtonEnabled = true, {})
+                else -> {}
+            }
+        }, input = {
+            val focusManager = LocalFocusManager.current
+            val focusRequester = remember { FocusRequester() }
+
             _MessageComposerInput(
-                messageText = messageCompositionState.value.textFieldValue,
-                onMessageTextChanged = onMessageTextChanged,
+                messageText = type.messageCompositionState.value.textFieldValue,
+                onMessageTextChanged = { },
                 singleLine = false,
-                onFocusChanged = { isFocused -> if (isFocused) onFocused() },
+                onFocusChanged = { isFocused ->
+                    if (isFocused) {
+                    }
+                },
                 focusRequester = focusRequester,
                 modifier = Modifier
                     .weight(1f)
                     .then(
-                        when (inputSize) {
+                        when (size) {
                             MessageCompositionInputSize.COLLAPSED -> Modifier.heightIn(max = dimensions().messageComposerActiveInputMaxHeight)
                             MessageCompositionInputSize.EXPANDED -> Modifier.fillMaxHeight()
                         }
                     )
             )
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    text = "test",
-                    style = typography().label02,
-                    color = colorsScheme().primary,
-                    modifier = Modifier
-                        .padding(horizontal = dimensions().spacing16x)
-                        .clickable(enabled = true) {
-                            // Don't allow clicking the duration picker if the self-deleting duration is enforced from TM Settings
 
-                        }
-                )
-                ScheduleMessageButton(
-                    onSendButtonClicked = {},
-                    sendButtonEnabled = true
-                )
+            LaunchedEffect(inputFocused) {
+                if (inputFocused) focusRequester.requestFocus()
+                else focusManager.clearFocus()
             }
-        }
+        },
+            bottomAction = {
+                when (val inputType = type) {
+                    is MessageCompositionInputType.Editing -> {
+                        MessageEditActions(
+                            onEditSaveButtonClicked = { },
+                            onEditCancelButtonClicked = { },
+                            editButtonEnabled = true
+                        )
+                    }
+
+                    else -> {}
+                }
+            })
     }
 }
 
-
 @Composable
-fun EditingInput(
-    messageText: MessageComposition,
-    inputSize: MessageCompositionInputSize,
-    onFocused: () -> Unit,
-    focusRequester: FocusRequester,
-    onMessageTextChanged: (TextFieldValue) -> Unit
+fun MessageComposerInputRow(
+    action: @Composable () -> Unit,
+    input: @Composable RowScope.() -> Unit,
+    bottomAction: @Composable () -> Unit
 ) {
     Row(
         modifier = Modifier
@@ -496,76 +421,8 @@ fun EditingInput(
             .wrapContentHeight(),
         verticalAlignment = Alignment.Bottom
     ) {
-        _MessageComposerInput(
-            messageText = messageText.textFieldValue,
-            onMessageTextChanged = onMessageTextChanged,
-            singleLine = false,
-            onFocusChanged = { isFocused -> if (isFocused) onFocused() },
-            focusRequester = focusRequester,
-            modifier = Modifier
-                .weight(1f)
-                .then(
-                    when (inputSize) {
-                        MessageCompositionInputSize.COLLAPSED -> Modifier.heightIn(max = dimensions().messageComposerActiveInputMaxHeight)
-                        MessageCompositionInputSize.EXPANDED -> Modifier.fillMaxHeight()
-                    }
-                )
-        )
-        MessageSendActions(
-            onSendButtonClicked = {
-
-            },
-            sendButtonEnabled = true
-        )
-    }
-}
-
-@Composable
-fun ComposingInput(
-    inputSize: MessageCompositionInputSize,
-    inputType: MessageCompositionInputType.Composing,
-    onFocused: () -> Unit,
-    focusRequester: FocusRequester,
-    onMessageTextChanged: (TextFieldValue) -> Unit
-) {
-    with(inputType) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .wrapContentHeight(),
-            verticalAlignment = Alignment.Bottom
-        ) {
-            _MessageComposerInput(
-                messageText = messageCompositionState.value.textFieldValue,
-                onMessageTextChanged = onMessageTextChanged,
-                singleLine = false,
-                onFocusChanged = { isFocused -> if (isFocused) onFocused() },
-                focusRequester = focusRequester,
-                modifier = Modifier
-                    .weight(1f)
-                    .then(
-                        when (inputSize) {
-                            MessageCompositionInputSize.COLLAPSED -> Modifier.heightIn(
-                                max = dimensions().messageComposerActiveInputMaxHeight
-                            )
-
-                            MessageCompositionInputSize.EXPANDED -> Modifier.fillMaxHeight()
-                        }
-                    )
-            )
-            MessageSendActions(
-                onSendButtonClicked = {
-
-                },
-                sendButtonEnabled = inputType.isSendButtonEnabled
-            )
-        }
-
-        LaunchedEffect(Unit) {
-            if (focusOnStart) {
-                focusRequester.requestFocus()
-            }
-        }
+        input()
+        action()
     }
 }
 
@@ -576,6 +433,11 @@ fun _MessageComposerInput(
     singleLine: Boolean,
     onFocusChanged: (Boolean) -> Unit = {},
     focusRequester: FocusRequester,
+    colors: WireTextFieldColors = wireTextFieldColors(
+        backgroundColor = Color.Transparent,
+        borderColor = Color.Transparent,
+        focusColor = Color.Transparent
+    ),
     modifier: Modifier = Modifier,
     onSelectedLineIndexChanged: (Int) -> Unit = { },
     onLineBottomYCoordinateChanged: (Float) -> Unit = { }
@@ -583,11 +445,7 @@ fun _MessageComposerInput(
     WireTextField(
         value = messageText,
         onValueChange = onMessageTextChanged,
-        colors = wireTextFieldColors(
-            backgroundColor = Color.Transparent,
-            borderColor = Color.Transparent,
-            focusColor = Color.Transparent
-        ),
+        colors = colors,
         singleLine = singleLine,
         maxLines = Int.MAX_VALUE,
         textStyle = MaterialTheme.wireTypography.body01,

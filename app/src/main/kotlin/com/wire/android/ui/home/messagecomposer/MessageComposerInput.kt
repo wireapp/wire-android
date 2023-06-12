@@ -69,157 +69,157 @@ import com.wire.kalium.logic.feature.conversation.InteractionAvailability
 import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
 import io.github.esentsov.PackagePrivate
 
-@PackagePrivate
-@Composable
-internal fun MessageComposerInput(
-    transition: Transition<MessageComposeInputState>,
-    interactionAvailability: InteractionAvailability,
-    securityClassificationType: SecurityClassificationType,
-    messageComposeInputState: MessageComposeInputState,
-    quotedMessageData: UIQuotedMessage.UIQuotedData?,
-    membersToMention: List<Contact>,
-    actions: MessageComposerInputActions,
-    inputFocusRequester: FocusRequester,
-    isFileSharingEnabled: Boolean,
-    showSelfDeletingOption: Boolean
-) {
-    when (interactionAvailability) {
-        InteractionAvailability.BLOCKED_USER -> BlockedUserComposerInput(securityClassificationType)
-        InteractionAvailability.DELETED_USER -> DeletedUserComposerInput(securityClassificationType)
-        InteractionAvailability.NOT_MEMBER, InteractionAvailability.DISABLED ->
-            MessageComposerClassifiedBanner(securityClassificationType, PaddingValues(vertical = dimensions().spacing16x))
-
-        InteractionAvailability.ENABLED -> {
-            EnabledMessageComposerInput(
-                transition = transition,
-                securityClassificationType = securityClassificationType,
-                messageComposeInputState = messageComposeInputState,
-                quotedMessageData = quotedMessageData,
-                membersToMention = membersToMention,
-                actions = actions,
-                inputFocusRequester = inputFocusRequester,
-                isFileSharingEnabled = isFileSharingEnabled,
-                showSelfDeletingOption = showSelfDeletingOption
-            )
-        }
-    }
-}
-
-@Composable
-private fun EnabledMessageComposerInput(
-    transition: Transition<MessageComposeInputState>,
-    securityClassificationType: SecurityClassificationType,
-    messageComposeInputState: MessageComposeInputState,
-    quotedMessageData: UIQuotedMessage.UIQuotedData?,
-    membersToMention: List<Contact>,
-    actions: MessageComposerInputActions,
-    inputFocusRequester: FocusRequester,
-    isFileSharingEnabled: Boolean,
-    showSelfDeletingOption: Boolean
-) {
-    Box {
-        var currentSelectedLineIndex by remember { mutableStateOf(0) }
-        var cursorCoordinateY by remember { mutableStateOf(0F) }
-        Column {
-            MessageComposeInput(
-                transition = transition,
-                messageComposeInputState = messageComposeInputState,
-                quotedMessageData = quotedMessageData,
-                securityClassificationType = securityClassificationType,
-                onSelectedLineIndexChange = { currentSelectedLineIndex = it },
-                onLineBottomCoordinateChange = { cursorCoordinateY = it },
-                actions = actions,
-                inputFocusRequester = inputFocusRequester,
-                isFileSharingEnabled = isFileSharingEnabled,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .let {
-                        if (messageComposeInputState.isExpanded) it.weight(1f)
-                        else it.wrapContentHeight()
-                    }
-            )
-            MessageComposeActionsBox(
-                transition = transition,
-                isMentionActive = membersToMention.isNotEmpty(),
-                isFileSharingEnabled = isFileSharingEnabled,
-                startMention = actions.startMention,
-                onAdditionalOptionButtonClicked = actions.onAdditionalOptionButtonClicked,
-                modifier = Modifier.background(colorsScheme().messageComposerBackgroundColor),
-                onPingClicked = actions.onPingClicked,
-                onSelfDeletionOptionButtonClicked = actions.onSelfDeletionOptionButtonClicked,
-                showSelfDeletingOption = true,
-                onGifButtonClicked = {}
-            )
-        }
-        if (membersToMention.isNotEmpty() && messageComposeInputState.isExpanded) {
-            DropDownMentionsSuggestions(currentSelectedLineIndex, cursorCoordinateY, membersToMention, actions.onMentionPicked)
-        }
-    }
-}
-
-@Composable
-private fun MessageComposeInput(
-    transition: Transition<MessageComposeInputState>,
-    messageComposeInputState: MessageComposeInputState,
-    quotedMessageData: UIQuotedMessage.UIQuotedData?,
-    securityClassificationType: SecurityClassificationType,
-    onSelectedLineIndexChange: (Int) -> Unit,
-    onLineBottomCoordinateChange: (Float) -> Unit,
-    actions: MessageComposerInputActions,
-    inputFocusRequester: FocusRequester,
-    isFileSharingEnabled: Boolean,
-    modifier: Modifier
-) {
-    Column(
-        modifier = modifier
-            .background(
-                if (messageComposeInputState.isEditMessage) colorsScheme().messageComposerEditBackgroundColor
-                else colorsScheme().messageComposerBackgroundColor
-            )
-    ) {
-        val isClassifiedConversation = securityClassificationType != SecurityClassificationType.NONE
-        if (isClassifiedConversation) {
-            Box(Modifier.wrapContentSize()) {
-                VerticalSpace.x8()
-                SecurityClassificationBanner(securityClassificationType = securityClassificationType)
-            }
-        }
-        Divider(color = MaterialTheme.wireColorScheme.outline)
-        CollapseIconButtonBox(
-            transition = transition,
-            toggleFullScreen = actions.onToggleFullScreen
-        )
-
-        if (quotedMessageData != null) {
-            Row(modifier = Modifier.padding(horizontal = dimensions().spacing8x)) {
-                QuotedMessagePreview(
-                    quotedMessageData = quotedMessageData,
-                    onCancelReply = actions.onCancelReply
-                )
-            }
-        }
-        // Row wrapping the AdditionalOptionButton() when we are in Enabled state and MessageComposerInput()
-        // when we are in the Fullscreen state, we want to align the TextField to Top of the Row,
-        // when other we center it vertically. Once we go to Fullscreen, we set the weight to 1f
-        // so that it fills the whole Row which is = height of the whole screen - height of TopBar -
-        // - height of container with additional options
-        MessageComposerInputRow(
-            transition = transition,
-            messageComposeInputState = messageComposeInputState,
-            onMessageTextChanged = actions.onMessageTextChanged,
-            onInputFocusChanged = actions.onInputFocusChanged,
-            focusRequester = inputFocusRequester,
-            onSendButtonClicked = actions.onSendButtonClicked,
-            onSelectedLineIndexChanged = onSelectedLineIndexChange,
-            onLineBottomYCoordinateChanged = onLineBottomCoordinateChange,
-            onAdditionalOptionButtonClicked = actions.onAdditionalOptionButtonClicked,
-            onEditCancelButtonClicked = actions.onEditCancelButtonClicked,
-            onEditSaveButtonClicked = actions.onEditSaveButtonClicked,
-            onChangeSelfDeletionTimeClicked = actions.onSelfDeletionOptionButtonClicked,
-            isFileSharingEnabled = isFileSharingEnabled,
-        )
-    }
-}
+//@PackagePrivate
+//@Composable
+//internal fun MessageComposerInput(
+//    transition: Transition<MessageComposeInputState>,
+//    interactionAvailability: InteractionAvailability,
+//    securityClassificationType: SecurityClassificationType,
+//    messageComposeInputState: MessageComposeInputState,
+//    quotedMessageData: UIQuotedMessage.UIQuotedData?,
+//    membersToMention: List<Contact>,
+//    actions: MessageComposerInputActions,
+//    inputFocusRequester: FocusRequester,
+//    isFileSharingEnabled: Boolean,
+//    showSelfDeletingOption: Boolean
+//) {
+//    when (interactionAvailability) {
+//        InteractionAvailability.BLOCKED_USER -> BlockedUserComposerInput(securityClassificationType)
+//        InteractionAvailability.DELETED_USER -> DeletedUserComposerInput(securityClassificationType)
+//        InteractionAvailability.NOT_MEMBER, InteractionAvailability.DISABLED ->
+//            MessageComposerClassifiedBanner(securityClassificationType, PaddingValues(vertical = dimensions().spacing16x))
+//
+//        InteractionAvailability.ENABLED -> {
+//            EnabledMessageComposerInput(
+//                transition = transition,
+//                securityClassificationType = securityClassificationType,
+//                messageComposeInputState = messageComposeInputState,
+//                quotedMessageData = quotedMessageData,
+//                membersToMention = membersToMention,
+//                actions = actions,
+//                inputFocusRequester = inputFocusRequester,
+//                isFileSharingEnabled = isFileSharingEnabled,
+//                showSelfDeletingOption = showSelfDeletingOption
+//            )
+//        }
+//    }
+//}
+//
+//@Composable
+//private fun EnabledMessageComposerInput(
+//    transition: Transition<MessageComposeInputState>,
+//    securityClassificationType: SecurityClassificationType,
+//    messageComposeInputState: MessageComposeInputState,
+//    quotedMessageData: UIQuotedMessage.UIQuotedData?,
+//    membersToMention: List<Contact>,
+//    actions: MessageComposerInputActions,
+//    inputFocusRequester: FocusRequester,
+//    isFileSharingEnabled: Boolean,
+//    showSelfDeletingOption: Boolean
+//) {
+//    Box {
+//        var currentSelectedLineIndex by remember { mutableStateOf(0) }
+//        var cursorCoordinateY by remember { mutableStateOf(0F) }
+//        Column {
+//            MessageComposeInput(
+//                transition = transition,
+//                messageComposeInputState = messageComposeInputState,
+//                quotedMessageData = quotedMessageData,
+//                securityClassificationType = securityClassificationType,
+//                onSelectedLineIndexChange = { currentSelectedLineIndex = it },
+//                onLineBottomCoordinateChange = { cursorCoordinateY = it },
+//                actions = actions,
+//                inputFocusRequester = inputFocusRequester,
+//                isFileSharingEnabled = isFileSharingEnabled,
+//                modifier = Modifier
+//                    .fillMaxWidth()
+//                    .let {
+//                        if (messageComposeInputState.isExpanded) it.weight(1f)
+//                        else it.wrapContentHeight()
+//                    }
+//            )
+//            MessageComposeActionsBox(
+//                transition = transition,
+//                isMentionActive = membersToMention.isNotEmpty(),
+//                isFileSharingEnabled = isFileSharingEnabled,
+//                startMention = actions.startMention,
+//                onAdditionalOptionButtonClicked = actions.onAdditionalOptionButtonClicked,
+//                modifier = Modifier.background(colorsScheme().messageComposerBackgroundColor),
+//                onPingClicked = actions.onPingClicked,
+//                onSelfDeletionOptionButtonClicked = actions.onSelfDeletionOptionButtonClicked,
+//                showSelfDeletingOption = true,
+//                onGifButtonClicked = {}
+//            )
+//        }
+//        if (membersToMention.isNotEmpty() && messageComposeInputState.isExpanded) {
+//            DropDownMentionsSuggestions(currentSelectedLineIndex, cursorCoordinateY, membersToMention, actions.onMentionPicked)
+//        }
+//    }
+//}
+//
+//@Composable
+//private fun MessageComposeInput(
+//    transition: Transition<MessageComposeInputState>,
+//    messageComposeInputState: MessageComposeInputState,
+//    quotedMessageData: UIQuotedMessage.UIQuotedData?,
+//    securityClassificationType: SecurityClassificationType,
+//    onSelectedLineIndexChange: (Int) -> Unit,
+//    onLineBottomCoordinateChange: (Float) -> Unit,
+//    actions: MessageComposerInputActions,
+//    inputFocusRequester: FocusRequester,
+//    isFileSharingEnabled: Boolean,
+//    modifier: Modifier
+//) {
+//    Column(
+//        modifier = modifier
+//            .background(
+//                if (messageComposeInputState.isEditMessage) colorsScheme().messageComposerEditBackgroundColor
+//                else colorsScheme().messageComposerBackgroundColor
+//            )
+//    ) {
+//        val isClassifiedConversation = securityClassificationType != SecurityClassificationType.NONE
+//        if (isClassifiedConversation) {
+//            Box(Modifier.wrapContentSize()) {
+//                VerticalSpace.x8()
+//                SecurityClassificationBanner(securityClassificationType = securityClassificationType)
+//            }
+//        }
+//        Divider(color = MaterialTheme.wireColorScheme.outline)
+//        CollapseIconButtonBox(
+//            transition = transition,
+//            toggleFullScreen = actions.onToggleFullScreen
+//        )
+//
+//        if (quotedMessageData != null) {
+//            Row(modifier = Modifier.padding(horizontal = dimensions().spacing8x)) {
+//                QuotedMessagePreview(
+//                    quotedMessageData = quotedMessageData,
+//                    onCancelReply = actions.onCancelReply
+//                )
+//            }
+//        }
+//        // Row wrapping the AdditionalOptionButton() when we are in Enabled state and MessageComposerInput()
+//        // when we are in the Fullscreen state, we want to align the TextField to Top of the Row,
+//        // when other we center it vertically. Once we go to Fullscreen, we set the weight to 1f
+//        // so that it fills the whole Row which is = height of the whole screen - height of TopBar -
+//        // - height of container with additional options
+//        MessageComposerInputRow(
+//            transition = transition,
+//            messageComposeInputState = messageComposeInputState,
+//            onMessageTextChanged = actions.onMessageTextChanged,
+//            onInputFocusChanged = actions.onInputFocusChanged,
+//            focusRequester = inputFocusRequester,
+//            onSendButtonClicked = actions.onSendButtonClicked,
+//            onSelectedLineIndexChanged = onSelectedLineIndexChange,
+//            onLineBottomYCoordinateChanged = onLineBottomCoordinateChange,
+//            onAdditionalOptionButtonClicked = actions.onAdditionalOptionButtonClicked,
+//            onEditCancelButtonClicked = actions.onEditCancelButtonClicked,
+//            onEditSaveButtonClicked = actions.onEditSaveButtonClicked,
+//            onChangeSelfDeletionTimeClicked = actions.onSelfDeletionOptionButtonClicked,
+//            isFileSharingEnabled = isFileSharingEnabled,
+//        )
+//    }
+//}
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
@@ -279,41 +279,41 @@ data class MessageComposerInputActions(
     val onSendSelfDeletingMessageClicked: () -> Unit = {}
 )
 
-@Composable
-private fun generatePreviewWithState(state: MessageComposeInputState) {
-    EnabledMessageComposerInput(
-        transition = updateTransition(targetState = state, label = ""),
-        securityClassificationType = SecurityClassificationType.NONE,
-        messageComposeInputState = state,
-        quotedMessageData = null,
-        membersToMention = listOf(),
-        actions = MessageComposerInputActions(),
-        inputFocusRequester = FocusRequester(),
-        isFileSharingEnabled = true,
-        showSelfDeletingOption = true
-    )
-}
-
-@Preview
-@Composable
-fun PreviewEnabledMessageComposerInputInactive() {
-    generatePreviewWithState(MessageComposeInputState.Inactive())
-}
-
-@Preview
-@Composable
-fun PreviewEnabledMessageComposerInputActiveCollapsed() {
-    generatePreviewWithState(MessageComposeInputState.Active(size = MessageComposeInputSize.COLLAPSED))
-}
-
-@Preview
-@Composable
-fun PreviewEnabledMessageComposerInputActiveExpanded() {
-    generatePreviewWithState(MessageComposeInputState.Active(size = MessageComposeInputSize.EXPANDED))
-}
-
-@Preview
-@Composable
-fun PreviewEnabledMessageComposerInputActiveEdit() {
-    generatePreviewWithState(MessageComposeInputState.Active(type = MessageComposeInputType.EditMessage("", "")))
-}
+//@Composable
+//private fun generatePreviewWithState(state: MessageComposeInputState) {
+//    EnabledMessageComposerInput(
+//        transition = updateTransition(targetState = state, label = ""),
+//        securityClassificationType = SecurityClassificationType.NONE,
+//        messageComposeInputState = state,
+//        quotedMessageData = null,
+//        membersToMention = listOf(),
+//        actions = MessageComposerInputActions(),
+//        inputFocusRequester = FocusRequester(),
+//        isFileSharingEnabled = true,
+//        showSelfDeletingOption = true
+//    )
+//}
+//
+//@Preview
+//@Composable
+//fun PreviewEnabledMessageComposerInputInactive() {
+//    generatePreviewWithState(MessageComposeInputState.Inactive())
+//}
+//
+//@Preview
+//@Composable
+//fun PreviewEnabledMessageComposerInputActiveCollapsed() {
+//    generatePreviewWithState(MessageComposeInputState.Active(size = MessageComposeInputSize.COLLAPSED))
+//}
+//
+//@Preview
+//@Composable
+//fun PreviewEnabledMessageComposerInputActiveExpanded() {
+//    generatePreviewWithState(MessageComposeInputState.Active(size = MessageComposeInputSize.EXPANDED))
+//}
+//
+//@Preview
+//@Composable
+//fun PreviewEnabledMessageComposerInputActiveEdit() {
+//    generatePreviewWithState(MessageComposeInputState.Active(type = MessageComposeInputType.EditMessage("", "")))
+//}

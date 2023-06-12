@@ -20,11 +20,15 @@
 
 package com.wire.android.ui.home.messagecomposer
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
@@ -32,7 +36,9 @@ import com.wire.android.model.ClickBlockParams
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryIconButton
 import com.wire.android.ui.common.button.wireSendPrimaryButtonColors
+import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.typography
 
 @Composable
 fun MessageSendActions(
@@ -50,22 +56,37 @@ fun MessageSendActions(
     }
 }
 
+
 @Composable
-fun ScheduleMessageButton(
+fun SelfDeletingActions(
     sendButtonEnabled: Boolean,
     onSendButtonClicked: () -> Unit
 ) {
-    WirePrimaryIconButton(
-        onButtonClicked = onSendButtonClicked,
-        iconResource = R.drawable.ic_timer,
-        contentDescription = R.string.content_description_send_button,
-        state = if (sendButtonEnabled) WireButtonState.Default else WireButtonState.Disabled,
-        shape = RoundedCornerShape(dimensions().spacing20x),
-        colors = wireSendPrimaryButtonColors(),
-        clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = false),
-        minHeight = dimensions().spacing40x,
-        minWidth = dimensions().spacing40x
-    )
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Text(
+            text = "test",
+            style = typography().label02,
+            color = colorsScheme().primary,
+            modifier = Modifier
+                .padding(horizontal = dimensions().spacing16x)
+                .clickable(enabled = true) {
+
+                    // Don't allow clicking the duration picker if the self-deleting duration is enforced from TM Settings
+
+                }
+        )
+        WirePrimaryIconButton(
+            onButtonClicked = onSendButtonClicked,
+            iconResource = R.drawable.ic_timer,
+            contentDescription = R.string.content_description_send_button,
+            state = if (sendButtonEnabled) WireButtonState.Default else WireButtonState.Disabled,
+            shape = RoundedCornerShape(dimensions().spacing20x),
+            colors = wireSendPrimaryButtonColors(),
+            clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = false),
+            minHeight = dimensions().spacing40x,
+            minWidth = dimensions().spacing40x
+        )
+    }
 }
 
 @Composable

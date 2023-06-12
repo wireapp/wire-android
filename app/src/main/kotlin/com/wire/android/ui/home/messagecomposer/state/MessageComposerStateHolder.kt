@@ -25,9 +25,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.focus.FocusManager
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.TextFieldValue
 import com.wire.android.ui.home.messagecomposer.model.UiMention
 import com.wire.android.util.MENTION_SYMBOL
@@ -39,13 +36,8 @@ import com.wire.kalium.logic.data.message.mention.MessageMention
 fun rememberMessageComposerStateHolder(
     onShowEphemeralOptionsMenu: () -> Unit
 ): MessageComposerStateHolder {
-    val focusManager = LocalFocusManager.current
-    val inputFocusRequester = remember { FocusRequester() }
-
     return remember {
         MessageComposerStateHolder(
-            focusManager,
-            inputFocusRequester,
             onShowEphemeralOptionsMenu
         )
     }
@@ -53,8 +45,6 @@ fun rememberMessageComposerStateHolder(
 
 
 class MessageComposerStateHolder(
-    val focusManager: FocusManager,
-    private val focusRequester: FocusRequester,
     private val onShowEphemeralOptionsMenu: () -> Unit
 ) {
 
@@ -62,17 +52,25 @@ class MessageComposerStateHolder(
 
     var messageComposerState: MessageComposerState by mutableStateOf(MessageComposerState.InActive(messageCompositionState.value))
 
-    fun toActive(showAttachmentOption: Boolean) {
+    fun toComposing(showAttachmentOption: Boolean) {
         messageComposerState = MessageComposerState.Active(
-            focusManager = focusManager,
-            focusRequester = focusRequester,
             onShowEphemeralOptionsMenu = onShowEphemeralOptionsMenu,
             messageCompositionState = messageCompositionState,
+            defaultInputFocused = !showAttachmentOption,
             defaultAdditionalOptionsSubMenuState = if (showAttachmentOption) {
                 AdditionalOptionSubMenuState.AttachFile
             } else {
                 AdditionalOptionSubMenuState.Hidden
             }
+        )
+    }
+
+    fun toEdit() {
+        messageComposerState = MessageComposerState.Active(
+            onShowEphemeralOptionsMenu = onShowEphemeralOptionsMenu,
+            messageCompositionState = messageCompositionState,
+            defaultAdditionalOptionsSubMenuState = AdditionalOptionSubMenuState.Hidden,
+            defaultInputType = MessageCompositionInputType.Editing(messageCompositionState)
         )
     }
 

@@ -23,16 +23,22 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 
-class MessageCompositionInputState(private val messageCompositionState: MutableState<MessageComposition>) {
-
-    var inputType: MessageCompositionInputType by mutableStateOf(MessageCompositionInputType.Composing(messageCompositionState, true))
+class MessageCompositionInputState(
+    private val messageCompositionState: MutableState<MessageComposition>,
+    defaultInputFocused: Boolean = true,
+    defaultInputType: MessageCompositionInputType = MessageCompositionInputType.Composing(messageCompositionState),
+    defaultInputSize: MessageCompositionInputSize = MessageCompositionInputSize.COLLAPSED
+) {
+    var inputFocused: Boolean by mutableStateOf(defaultInputFocused)
+        private set
+    var type: MessageCompositionInputType by mutableStateOf(defaultInputType)
         private set
 
-    var size: MessageCompositionInputSize by mutableStateOf(MessageCompositionInputSize.COLLAPSED)
+    var size: MessageCompositionInputSize by mutableStateOf(defaultInputSize)
         private set
 
-    fun toEphemeral() {
-        inputType = MessageCompositionInputType.Ephemeral(messageCompositionState)
+    fun toEphemeral(onShowEphemeralOptionsMenu: () -> Unit) {
+        type = MessageCompositionInputType.SelfDeleting(messageCompositionState, onShowEphemeralOptionsMenu)
     }
 
     fun toFullscreen() {
@@ -43,10 +49,18 @@ class MessageCompositionInputState(private val messageCompositionState: MutableS
         size = MessageCompositionInputSize.COLLAPSED
     }
 
+    fun clearFocus() {
+        inputFocused = false
+    }
+
+    fun focusInput() {
+        inputFocused = true
+    }
+
 }
 
 sealed class MessageCompositionInputType(val messageCompositionState: MutableState<MessageComposition>) {
-    class Composing(messageCompositionState: MutableState<MessageComposition>, val focusOnStart: Boolean) :
+    class Composing(messageCompositionState: MutableState<MessageComposition>) :
         MessageCompositionInputType(messageCompositionState) {
 
         val isSendButtonEnabled by derivedStateOf {
@@ -56,7 +70,13 @@ sealed class MessageCompositionInputType(val messageCompositionState: MutableSta
     }
 
     class Editing(messageCompositionState: MutableState<MessageComposition>) : MessageCompositionInputType(messageCompositionState)
-    class Ephemeral(messageCompositionState: MutableState<MessageComposition>) : MessageCompositionInputType(messageCompositionState)
+    class SelfDeleting(messageCompositionState: MutableState<MessageComposition>, private val onShowEphemeralOptionsMenu: () -> Unit) :
+        MessageCompositionInputType(messageCompositionState) {
+
+        fun showSelfDeletingTimeOption() {
+            onShowEphemeralOptionsMenu()
+        }
+    }
 }
 
 enum class MessageCompositionInputSize {

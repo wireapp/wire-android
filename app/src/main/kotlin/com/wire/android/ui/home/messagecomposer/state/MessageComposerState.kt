@@ -28,15 +28,21 @@ import androidx.compose.ui.text.input.TextFieldValue
 sealed class MessageComposerState {
     data class InActive(val messageComposition: MessageComposition) : MessageComposerState()
     class Active(
-        private val focusManager: FocusManager,
-        val focusRequester: FocusRequester,
         private val messageCompositionState: MutableState<MessageComposition>,
         defaultAdditionalOptionMenuState: AdditionalOptionMenuState = AdditionalOptionMenuState.AttachmentAndAdditionalOptionsMenu,
+        defaultInputFocused: Boolean = true,
+        defaultInputType: MessageCompositionInputType = MessageCompositionInputType.Composing(messageCompositionState),
+        defaultInputSize: MessageCompositionInputSize = MessageCompositionInputSize.COLLAPSED,
         defaultAdditionalOptionsSubMenuState: AdditionalOptionSubMenuState = AdditionalOptionSubMenuState.Hidden,
         private val onShowEphemeralOptionsMenu: () -> Unit
     ) : MessageComposerState() {
 
-        val messageCompositionInputState = MessageCompositionInputState(messageCompositionState)
+        val messageCompositionInputState = MessageCompositionInputState(
+            messageCompositionState = messageCompositionState,
+            defaultInputFocused = defaultInputFocused,
+            defaultInputType = defaultInputType,
+            defaultInputSize = defaultInputSize
+        )
 
         var additionalOptionMenuState: AdditionalOptionMenuState by mutableStateOf(defaultAdditionalOptionMenuState)
             private set
@@ -45,17 +51,18 @@ sealed class MessageComposerState {
             private set
 
         fun toEphemeralInputType() {
-            messageCompositionInputState.toEphemeral()
-            onShowEphemeralOptionsMenu()
+            messageCompositionInputState.toEphemeral(
+                onShowEphemeralOptionsMenu
+            )
         }
 
         fun toggleAttachmentOptions() {
             additionalOptionsSubMenuState =
                 if (additionalOptionsSubMenuState == AdditionalOptionSubMenuState.AttachFile) {
-                    focusRequester.requestFocus()
+                    messageCompositionInputState.focusInput()
                     AdditionalOptionSubMenuState.Hidden
                 } else {
-                    focusManager.clearFocus()
+                    messageCompositionInputState.clearFocus()
                     AdditionalOptionSubMenuState.AttachFile
                 }
         }

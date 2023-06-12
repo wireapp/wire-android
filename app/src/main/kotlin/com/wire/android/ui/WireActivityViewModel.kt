@@ -53,6 +53,8 @@ import com.wire.android.ui.destinations.SelfDevicesScreenDestination
 import com.wire.android.ui.destinations.SelfUserProfileScreenDestination
 import com.wire.android.ui.destinations.WelcomeScreenDestination
 import com.wire.android.ui.joinConversation.JoinConversationViaCodeState
+import com.wire.android.util.CurrentScreen
+import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.deeplink.DeepLinkProcessor
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.android.util.dispatchers.DispatcherProvider
@@ -90,6 +92,7 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.scan
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -114,6 +117,7 @@ class WireActivityViewModel @Inject constructor(
     private val observeSyncStateUseCaseProviderFactory: ObserveSyncStateUseCaseProvider.Factory,
     private val observeIfAppUpdateRequired: ObserveIfAppUpdateRequiredUseCase,
     private val observeNewClients: ObserveNewClientsUseCase,
+    private val currentScreenManager: CurrentScreenManager,
 ) : ViewModel() {
 
     var globalAppState: GlobalAppState by mutableStateOf(GlobalAppState())
@@ -159,29 +163,55 @@ class WireActivityViewModel @Inject constructor(
                 }
         }
         viewModelScope.launch(dispatchers.io()) {
+            val currentScreenStateFlow = currentScreenManager.observeCurrentScreen(this)
             observeNewClients()
                 .collect {
-                    when (it) {
+                    val newClientDialog = when (it) {
                         is NewClientResult.InCurrentAccount -> {
-                            globalAppState = globalAppState.copy(
-                                newClientDialog = NewClientData.CurrentUser(
-                                    it.newClient.registrationTime?.toIsoDateTimeString() ?: "",
-                                    it.newClient.displayName()
-                                )
+                            NewClientData.CurrentUser(
+                                it.newClient.registrationTime?.toIsoDateTimeString() ?: "",
+                                it.newClient.displayName()
                             )
                         }
+
                         is NewClientResult.InOtherAccount -> {
-                            globalAppState = globalAppState.copy(
-                                newClientDialog = NewClientData.OtherUser(
-                                    it.newClient.registrationTime?.toIsoDateTimeString() ?: "",
-                                    it.newClient.displayName(),
-                                    it.userId,
-                                    it.userName,
-                                    it.userHandle
-                                )
+                            NewClientData.OtherUser(
+                                it.newClient.registrationTime?.toIsoDateTimeString() ?: "",
+                                it.newClient.displayName(),
+                                it.userId,
+                                it.userName,
+                                it.userHandle
                             )
                         }
-                        else -> {}
+
+                        else -> null
+                    }
+
+                    newClientDialog?.let {
+                        globalAppState = if (currentScreenStateFlow.value.isGlobalDialogAllowed()) {
+                            globalAppState.copy(newClientDialog = newClientDialog)
+                        } else {
+                            globalAppState.copy(newClientDialogRemembered = newClientDialog)
+                        }
+                    }
+                }
+        }
+
+        viewModelScope.launch {
+            currentScreenManager.observeCurrentScreen(this)
+                .map { it.isGlobalDialogAllowed() }
+                .scan(true to true) { prevPair, newValue -> prevPair.second to newValue }
+                .collect { (wasAllowedOnPrev, isAllowedOnCurrent) ->
+                    if (!wasAllowedOnPrev && isAllowedOnCurrent) {
+                        globalAppState = globalAppState.copy(
+                            newClientDialog = globalAppState.newClientDialogRemembered,
+                            newClientDialogRemembered = null
+                        )
+                    } else if (wasAllowedOnPrev && !isAllowedOnCurrent) {
+                        globalAppState = globalAppState.copy(
+                            newClientDialogRemembered = globalAppState.newClientDialog,
+                            newClientDialog = null
+                        )
                     }
                 }
         }
@@ -272,7 +302,7 @@ class WireActivityViewModel @Inject constructor(
     }
 
     fun dismissNewClientDialog() {
-        globalAppState = globalAppState.copy(newClientDialog = null)
+        globalAppState = globalAppState.copy(newClientDialog = null, newClientDialogRemembered = null)
     }
 
     fun switchAccount(userId: UserId) {
@@ -476,6 +506,18 @@ class WireActivityViewModel @Inject constructor(
             }
         }
     }
+
+    private fun CurrentScreen.isGlobalDialogAllowed(): Boolean = when (this) {
+        CurrentScreen.ImportMedia -> false
+
+        CurrentScreen.InBackground,
+        is CurrentScreen.Conversation,
+        CurrentScreen.Home,
+        is CurrentScreen.IncomingCallScreen,
+        is CurrentScreen.OngoingCallScreen,
+        is CurrentScreen.OtherUserProfile,
+        CurrentScreen.SomeOther -> true
+    }
 }
 
 sealed class CurrentSessionErrorState {
@@ -502,4 +544,8 @@ data class GlobalAppState(
     val updateAppDialog: Boolean = false,
     val conversationJoinedDialog: JoinConversationViaCodeState? = null,
     val newClientDialog: NewClientData? = null,
+    // In cases when the new client comes and we need to inform user about it, but user is in some screen that doesn't allow dialogs,
+    // we need to store that state somewhere and show the dialog later when it's possible.
+    // This field is not used in Compose, only for storing and using latter.
+    val newClientDialogRemembered: NewClientData? = null,
 )

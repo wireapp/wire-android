@@ -20,7 +20,6 @@
 
 package com.wire.android.ui.debug
 
-import android.content.Context
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -38,20 +37,20 @@ import com.wire.kalium.logic.CoreLogger
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.client.ObserveCurrentClientIdUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 data class UserDebugState(
     val isLoggingEnabled: Boolean = false,
-    val clientId: String = String.EMPTY
+    val clientId: String = String.EMPTY,
+    val commitish: String = String.EMPTY,
+    val debugId: String = String.EMPTY
 )
 
 @Suppress("LongParameterList")
 @HiltViewModel
 class UserDebugViewModel
 @Inject constructor(
-    @ApplicationContext private val context: Context,
     @CurrentAccount val currentAccount: UserId,
     private val navigationManager: NavigationManager,
     private val logFileWriter: LogFileWriter,
@@ -68,23 +67,6 @@ class UserDebugViewModel
     init {
         observeLoggingState()
         observeCurrentClientId()
-    }
-
-    private fun observeLoggingState() {
-        viewModelScope.launch {
-            globalDataStore.isLoggingEnabled().collect {
-                state = state.copy(isLoggingEnabled = it)
-            }
-        }
-    }
-
-    private fun observeCurrentClientId() {
-        viewModelScope.launch {
-            currentClientIdUseCase().collect {
-                val clientId = it?.let { clientId -> clientId.value } ?: "Client not fount"
-                state = state.copy(clientId = clientId)
-            }
-        }
     }
 
     fun deleteLogs() {
@@ -105,4 +87,25 @@ class UserDebugViewModel
     }
 
     fun navigateBack() = viewModelScope.launch { navigationManager.navigateBack() }
+
+    //region Private
+
+    private fun observeLoggingState() {
+        viewModelScope.launch {
+            globalDataStore.isLoggingEnabled().collect {
+                state = state.copy(isLoggingEnabled = it)
+            }
+        }
+    }
+
+    private fun observeCurrentClientId() {
+        viewModelScope.launch {
+            currentClientIdUseCase().collect {
+                val clientId = it?.let { clientId -> clientId.value } ?: "null"
+                state = state.copy(clientId = clientId)
+            }
+        }
+    }
+
+    //endregion
 }

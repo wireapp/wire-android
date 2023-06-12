@@ -46,7 +46,6 @@ import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
-import com.wire.android.ui.debug.dev.DevDebugContent
 import com.wire.android.util.getMimeType
 import com.wire.android.util.getUrisOfFilesInDirectory
 import com.wire.android.util.multipleFileSharingIntent
@@ -56,15 +55,12 @@ import java.io.File
 @Destination
 @Composable
 fun DebugScreen() {
-    if (BuildConfig.DEBUG) {
-        DevDebugContent()
-    } else {
-        UserDebugContent()
-    }
+    UserDebugContent()
 }
 
 @Composable
 private fun UserDebugContent() {
+
     val userDebugViewModel: UserDebugViewModel = hiltViewModel()
     val debugContentState: DebugContentState = rememberDebugContentState(userDebugViewModel.logPath)
 
@@ -94,7 +90,6 @@ private fun UserDebugContent() {
                 DebugDataOptions(
                     appVersion = BuildConfig.VERSION_NAME,
                     buildVariant = "${BuildConfig.FLAVOR}${BuildConfig.BUILD_TYPE.replaceFirstChar { it.uppercase() }}",
-                    clientId = clientId,
                     onCopyText = debugContentState::copyToClipboard
                 )
             }
@@ -142,7 +137,7 @@ data class DebugContentState(
         intent.type = fileUris.firstOrNull()?.getMimeType(context) ?: "text/plain"
         // Get all other mime types and add them
         val mimeTypes = fileUris.drop(1).mapNotNull { it.getMimeType(context) }
-        intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes.toTypedArray())
+        intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes.toSet().toTypedArray())
         context.startActivity(intent)
     }
 }

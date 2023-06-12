@@ -40,7 +40,6 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.test.TestCoroutineScope
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
 
@@ -116,10 +115,8 @@ class ConnectionPolicyManagerTest {
         @MockK
         lateinit var migrationManager: MigrationManager
 
-        var coroutineScope = TestCoroutineScope()
-
         private val connectionPolicyManager by lazy {
-            ConnectionPolicyManager(currentScreenManager, coreLogic, TestDispatcherProvider(), migrationManager, coroutineScope)
+            ConnectionPolicyManager(currentScreenManager, coreLogic, TestDispatcherProvider(), migrationManager)
         }
 
         init {
@@ -134,11 +131,11 @@ class ConnectionPolicyManagerTest {
         }
 
         fun withAppInTheBackground() = apply {
-            every { currentScreenManager.isAppOnForegroundFlow() } returns MutableStateFlow(false)
+            every { currentScreenManager.isAppVisibleFlow() } returns MutableStateFlow(false)
         }
 
         fun withAppInTheForeground() = apply {
-            every { currentScreenManager.isAppOnForegroundFlow() } returns MutableStateFlow(true)
+            every { currentScreenManager.isAppVisibleFlow() } returns MutableStateFlow(true)
         }
 
         fun withCurrentSession(userId: UserId) = apply {

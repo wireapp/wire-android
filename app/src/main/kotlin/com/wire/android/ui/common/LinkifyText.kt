@@ -29,8 +29,10 @@ import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.Text
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
@@ -216,14 +218,19 @@ private fun ClickableText(
 ) {
     val layoutResult = remember { mutableStateOf<TextLayoutResult?>(null) }
 
+    // to provide current lambdas and states otherwise it will use the ones it got when starting a LaunchedEffect inside pointerInput
+    val currentOnClick by rememberUpdatedState(newValue = onClick)
+    val currentOnLongClick by rememberUpdatedState(newValue = onLongClick)
+    val currentLayoutResult by rememberUpdatedState(layoutResult)
+
     val pressIndicator = Modifier.pointerInput(Unit) {
         detectTapGestures(
             onTap = { pos ->
-                layoutResult.value?.let { layoutResult ->
-                    onClick(layoutResult.getOffsetForPosition(pos))
+                currentLayoutResult.value?.let { layoutResult ->
+                    currentOnClick(layoutResult.getOffsetForPosition(pos))
                 }
             },
-            onLongPress = { onLongClick?.invoke() }
+            onLongPress = { currentOnLongClick?.invoke() }
         )
     }
     Text(

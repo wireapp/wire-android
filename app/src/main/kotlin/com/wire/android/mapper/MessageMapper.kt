@@ -183,13 +183,13 @@ class MessageMapper @Inject constructor(
                 isoFormatter.fromISO8601ToTimeFormat(
                     utcISO = (message.editStatus as Message.EditStatus.Edited).lastTimeStamp
                 ),
-                message.status == Message.Status.PENDING
+                message.status
             )
 
         message is Message.Regular && message.content is MessageContent.FailedDecryption ->
             MessageStatus.DecryptionFailure((message.content as MessageContent.FailedDecryption).isDecryptionResolved)
 
-        else -> MessageStatus.Untouched(message.status == Message.Status.PENDING)
+        else -> MessageStatus.Untouched(message.status)
     }
 
     private fun getUserAvatarData(sender: User?) = UserAvatarData(

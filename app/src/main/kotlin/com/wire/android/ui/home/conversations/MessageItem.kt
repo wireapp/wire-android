@@ -225,7 +225,14 @@ fun MessageItem(
                                     )
                                 }
                                 HorizontalSpace.x4()
-                                MessageStatusIndicator(message)
+                                if (isMyMessage) {
+                                    MessageStatusIndicator(
+                                        message.header.messageStatus.status,
+                                        Modifier.padding(top = dimensions().spacing2x)
+                                    )
+                                } else {
+                                    HorizontalSpace.x16()
+                                }
                             }
                             MessageFooter(
                                 messageFooter,

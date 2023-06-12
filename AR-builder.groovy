@@ -389,6 +389,7 @@ pipeline {
                                     params.UPLOAD_TO_S3 &&
                                     env.trackName != 'None' &&
                                     params.FLAVOR == 'Beta' &&
+                                    params.BUILD_TYPE == 'Release' &&
                                     params.CHANGE_ID == null
                         }
                     }
@@ -403,14 +404,16 @@ pipeline {
                 stage('Upload to Wire Prod') {
                     when {
                         expression {
+                            false &&
                             params.UPLOAD_TO_PLAYSTORE_ENABLED &&
                                     params.RUN_ACCEPTANCE_TESTS &&
                                     params.RUN_UNIT_TEST &&
                                     params.RUN_STATIC_CODE_ANALYSIS &&
                                     params.UPLOAD_TO_S3 &&
-                                    env.trackName == 'internal' &&
+                                    env.trackName != 'None' &&
                                     params.FLAVOR == 'Prod' &&
                                     params.SOURCE_BRANCH == 'prod' &&
+                                    params.BUILD_TYPE == 'Compatrelease' &&
                                     params.CHANGE_ID == null
                         }
                     }
@@ -418,7 +421,32 @@ pipeline {
                         echo 'Checking folder before prod playstore upload'
                         sh "ls -la app/build/outputs/bundle/${params.FLAVOR.toLowerCase()}${params.BUILD_TYPE.capitalize()}/"
                         echo 'Uploading file to prod Playstore track ${trackName}'
-                        androidApkUpload(googleCredentialsId: "${env.GOOGLE_PLAY_CREDS}", filesPattern: "app/build/outputs/bundle/${params.FLAVOR.toLowerCase()}${params.BUILD_TYPE.capitalize()}/com.wire.android-*.aab", trackName: "${trackName}", rolloutPercentage: '100', releaseName: "${trackName} Release")
+                        androidApkUpload(googleCredentialsId: "${env.GOOGLE_PLAY_CREDS}", filesPattern: "app/build/outputs/bundle/${params.FLAVOR.toLowerCase()}${params.BUILD_TYPE.capitalize()}/com.wire.android-*.aab", trackName: "internal", rolloutPercentage: '100', releaseName: "${trackName} Release")
+                    }
+                }
+
+                stage('Upload to Wire Internal') {
+                    when {
+                        expression {
+                            // TODO: remove this condition when we will have prod release
+                            false &&
+                            params.UPLOAD_TO_PLAYSTORE_ENABLED &&
+                                    params.RUN_ACCEPTANCE_TESTS &&
+                                    params.RUN_UNIT_TEST &&
+                                    params.RUN_STATIC_CODE_ANALYSIS &&
+                                    params.UPLOAD_TO_S3 &&
+                                    env.trackName != 'None' &&
+                                    params.FLAVOR == 'Internal' &&
+                                    params.SOURCE_BRANCH == 'prod' &&
+                                    params.BUILD_TYPE == 'Compat' &&
+                                    params.CHANGE_ID == null
+                        }
+                    }
+                    steps {
+                        echo 'Checking folder before prod playstore upload'
+                        sh "ls -la app/build/outputs/bundle/${params.FLAVOR.toLowerCase()}${params.BUILD_TYPE.capitalize()}/"
+                        echo 'Uploading file to prod Playstore track ${trackName}'
+                        androidApkUpload(googleCredentialsId: "${env.GOOGLE_PLAY_CREDS}", filesPattern: "app/build/outputs/bundle/${params.FLAVOR.toLowerCase()}${params.BUILD_TYPE.capitalize()}/com.wire.android-*.aab", trackName: "${env.WIRE_ANDROID_INTERNAL_TRACK_NAME}", rolloutPercentage: '100', releaseName: "${env.WIRE_ANDROID_INTERNAL_TRACK_NAME} Release")
                     }
                 }
             }

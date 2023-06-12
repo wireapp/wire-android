@@ -58,7 +58,7 @@ fun LogOptions(
         )
         if (isLoggingEnabled) {
             SettingsItem(
-                title = stringResource(R.string.label_share_logs),
+                text = stringResource(R.string.label_share_logs),
                 trailingIcon = R.drawable.ic_entypo_share,
                 onIconPressed = Clickable(
                     enabled = true,
@@ -67,7 +67,7 @@ fun LogOptions(
             )
 
             SettingsItem(
-                title = stringResource(R.string.label_delete_logs),
+                text = stringResource(R.string.label_delete_logs),
                 trailingIcon = R.drawable.ic_delete,
                 onIconPressed = Clickable(
                     enabled = true,

@@ -59,14 +59,14 @@ class CurrentScreenManager @Inject constructor(
 
     /**
      * An integer that counts up when a screen appears, and counts down when
-     * the screen goes to the background.
+     * the screen goes away.
      * Better than a simple boolean in cases where an activity is re-started,
      * which may result the new instance being shown BEFORE the old instance being hidden.
      */
-    private val foregroundCount = AtomicInteger(0)
-    private val isOnForegroundFlow = MutableStateFlow(false)
+    private val visibilityCount = AtomicInteger(0)
+    private val isApplicationVisibleFlow = MutableStateFlow(false)
     private val isAppVisibleFlow = screenStateObserver.screenStateFlow.combine(
-        isOnForegroundFlow
+        isApplicationVisibleFlow
     ) { isScreenOn, isOnForeground ->
         isOnForeground && isScreenOn
     }
@@ -80,16 +80,24 @@ class CurrentScreenManager @Inject constructor(
         .stateIn(scope)
 
     /**
-     * Informs if the UI was visible at least once since the app started
+     * Informs if the UI is visible at the moment.
+     * Visibility doesn't necessarily mean being on the foreground. For example,
+     * if the device screen is split into multiple activities, and the app is currently not being focused,
+     * the app is considered to be on the background, but **still visible and working** fine.
      */
-    fun isAppOnForegroundFlow(): StateFlow<Boolean> = isOnForegroundFlow
+    fun isAppVisibleFlow(): StateFlow<Boolean> = isApplicationVisibleFlow
 
     override fun onResume(owner: LifecycleOwner) {
         super.onResume(owner)
         appLogger.i("${TAG}: onResume called")
-        foregroundCount.getAndUpdate { currentValue ->
+    }
+
+    override fun onStart(owner: LifecycleOwner) {
+        super.onStart(owner)
+        appLogger.i("${TAG}: onStart called")
+        visibilityCount.getAndUpdate { currentValue ->
             val newValue = maxOf(0, currentValue + 1)
-            isOnForegroundFlow.value = newValue > 0
+            isApplicationVisibleFlow.value = newValue > 0
             newValue
         }
     }
@@ -97,16 +105,20 @@ class CurrentScreenManager @Inject constructor(
     override fun onStop(owner: LifecycleOwner) {
         super.onStop(owner)
         appLogger.i("${TAG}: onStop called")
-        foregroundCount.getAndUpdate { currentValue ->
+        visibilityCount.getAndUpdate { currentValue ->
             val newValue = maxOf(0, currentValue - 1)
-            isOnForegroundFlow.value = newValue > 0
+            isApplicationVisibleFlow.value = newValue > 0
             newValue
         }
     }
 
     override fun onDestinationChanged(controller: NavController, destination: NavDestination, arguments: Bundle?) {
         val currentItem = controller.getCurrentNavigationItem() // TODO: replace NavigationItem with Destination
-        currentScreenState.value = CurrentScreen.fromNavigationItem(currentItem, arguments, isOnForegroundFlow.value)
+        currentScreenState.value = CurrentScreen.fromNavigationItem(
+            currentItem,
+            arguments,
+            isApplicationVisibleFlow.value
+        )
     }
 
     companion object {

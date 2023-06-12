@@ -119,7 +119,7 @@ private fun LazyListScope.folderWithElements(
         items = items.associateBy { it.id }
     ) { settingsItem ->
         SettingsItem(
-            title = settingsItem.title.asString(),
+            text = settingsItem.title.asString(),
             onRowPressed = remember { Clickable(enabled = true) { onItemClicked(settingsItem) } }
         )
     }

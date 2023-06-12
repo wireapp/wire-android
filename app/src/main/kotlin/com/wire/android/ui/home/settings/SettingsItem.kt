@@ -21,7 +21,6 @@
 package com.wire.android.ui.home.settings
 
 import androidx.annotation.DrawableRes
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -47,27 +46,36 @@ import com.wire.android.ui.destinations.MyAccountScreenDestination
 import com.wire.android.ui.destinations.NetworkSettingsScreenDestination
 import com.wire.android.ui.destinations.PrivacySettingsConfigScreenDestination
 import com.wire.android.ui.destinations.SelfDevicesScreenDestination
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
 
 @Composable
 fun SettingsItem(
-    title: String,
+    title: String? = null,
+    text: String,
     @DrawableRes trailingIcon: Int? = null,
     onRowPressed: Clickable = Clickable(false),
     onIconPressed: Clickable = Clickable(false)
 ) {
     RowItemTemplate(
         title = {
-            Row {
+            if (!title.isNullOrBlank()) {
                 Text(
-                    style = MaterialTheme.wireTypography.body01,
-                    color = MaterialTheme.wireColorScheme.onBackground,
+                    style = MaterialTheme.wireTypography.label01,
+                    color = MaterialTheme.wireColorScheme.secondaryText,
                     text = title,
                     modifier = Modifier.padding(start = dimensions().spacing8x)
                 )
             }
+            Text(
+                style = MaterialTheme.wireTypography.body01,
+                color = MaterialTheme.wireColorScheme.onBackground,
+                text = text,
+                modifier = Modifier.padding(start = dimensions().spacing8x)
+            )
         },
         actions = {
             trailingIcon?.let {
@@ -127,4 +135,16 @@ enum class SettingsItem(val id: String, val title: UIText, val direction: Direct
         title = UIText.StringResource(R.string.debug_settings_screen_title),
         direction = DebugScreenDestination
     );
+}
+
+@PreviewMultipleThemes
+@Composable
+fun previewFileRestrictionDialog() {
+    WireTheme {
+        SettingsItem(
+            title = "Some Setting",
+            text = "This is the value of the setting",
+            trailingIcon = R.drawable.ic_copy
+        )
+    }
 }

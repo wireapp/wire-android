@@ -32,15 +32,17 @@ import com.wire.android.framework.TestUser
 import com.wire.android.migration.MigrationManager
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.services.ServicesManager
 import com.wire.android.ui.authentication.devices.model.displayName
 import com.wire.android.ui.common.dialogs.CustomBEDeeplinkDialogState
 import com.wire.android.ui.destinations.ConversationScreenDestination
+import com.wire.android.ui.destinations.HomeScreenDestination
 import com.wire.android.ui.destinations.IncomingCallScreenDestination
 import com.wire.android.ui.destinations.LoginScreenDestination
+import com.wire.android.ui.destinations.MigrationScreenDestination
 import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
+import com.wire.android.ui.destinations.WelcomeScreenDestination
 import com.wire.android.ui.joinConversation.JoinConversationViaCodeState
 import com.wire.android.util.deeplink.DeepLinkProcessor
 import com.wire.android.util.deeplink.DeepLinkResult
@@ -92,7 +94,7 @@ class WireActivityViewModelTest {
         viewModel.handleDeepLink(null)
 
         val startDestination = viewModel.startNavigationRoute()
-        assertEquals(NavigationItem.Home.getRouteWithArgs(), startDestination)
+        assertEquals(HomeScreenDestination, startDestination)
     }
 
     @Test
@@ -103,7 +105,7 @@ class WireActivityViewModelTest {
 
         viewModel.handleDeepLink(null)
 
-        assertEquals(NavigationItem.Welcome.getRouteWithArgs(), viewModel.startNavigationRoute())
+        assertEquals(WelcomeScreenDestination, viewModel.startNavigationRoute())
     }
 
     @Test
@@ -121,7 +123,7 @@ class WireActivityViewModelTest {
                 NavigationCommand(LoginScreenDestination(ssoLoginResult = result), BackStackMode.UPDATE_EXISTED)
             )
         }
-        assertEquals(NavigationItem.Home.getRouteWithArgs(), viewModel.startNavigationRoute())
+        assertEquals(HomeScreenDestination, viewModel.startNavigationRoute())
     }
 
     @Test
@@ -133,9 +135,9 @@ class WireActivityViewModelTest {
 
             viewModel.handleDeepLink(mockedIntent())
 
-            coVerify(exactly = 0) { arrangement.navigationManager.navigate(any()) }
-            assertEquals(NavigationItem.Home.getRouteWithArgs(), viewModel.startNavigationRoute())
-            assertEquals(newServerConfig(1).links, viewModel.globalAppState.customBackendDialog.serverLinks)
+        coVerify(exactly = 0) { arrangement.navigationManager.navigate(any()) }
+        assertEquals(HomeScreenDestination, viewModel.startNavigationRoute())
+        assertEquals(newServerConfig(1).links, viewModel.globalAppState.customBackendDialog.serverLinks)
     }
 
     @Test
@@ -147,7 +149,7 @@ class WireActivityViewModelTest {
 
         viewModel.handleDeepLink(mockedIntent())
 
-        assertEquals(NavigationItem.Welcome.getRouteWithArgs(), viewModel.startNavigationRoute())
+        assertEquals(WelcomeScreenDestination, viewModel.startNavigationRoute())
         coVerify(exactly = 0) { arrangement.navigationManager.navigate(any()) }
         assertEquals(newServerConfig(1).links, viewModel.globalAppState.customBackendDialog.serverLinks)
     }
@@ -162,7 +164,7 @@ class WireActivityViewModelTest {
 
         viewModel.handleDeepLink(mockedIntent())
 
-        assertEquals(NavigationItem.Migration.getRouteWithArgs(), viewModel.startNavigationRoute())
+        assertEquals(MigrationScreenDestination, viewModel.startNavigationRoute())
         coVerify(exactly = 0) { arrangement.navigationManager.navigate(any()) }
         assertEquals(CustomBEDeeplinkDialogState(), viewModel.globalAppState.customBackendDialog)
     }
@@ -177,7 +179,7 @@ class WireActivityViewModelTest {
 
         viewModel.handleDeepLink(mockedIntent())
 
-        assertEquals(NavigationItem.Home.getRouteWithArgs(), viewModel.startNavigationRoute())
+        assertEquals(HomeScreenDestination, viewModel.startNavigationRoute())
         coVerify(exactly = 1) {
             arrangement.navigationManager.navigate(
                 NavigationCommand(
@@ -198,7 +200,7 @@ class WireActivityViewModelTest {
 
         viewModel.handleDeepLink(mockedIntent())
 
-        assertEquals(NavigationItem.Welcome.getRouteWithArgs(), viewModel.startNavigationRoute())
+        assertEquals(WelcomeScreenDestination, viewModel.startNavigationRoute())
         coVerify(exactly = 1) {
             arrangement.navigationManager.navigate(
                 NavigationCommand(
@@ -218,7 +220,7 @@ class WireActivityViewModelTest {
 
         viewModel.handleDeepLink(mockedIntent())
 
-        assertEquals(NavigationItem.Home.getRouteWithArgs(), viewModel.startNavigationRoute())
+        assertEquals(HomeScreenDestination, viewModel.startNavigationRoute())
         coVerify(exactly = 1) {
             arrangement.navigationManager.navigate(
                 NavigationCommand(
@@ -238,14 +240,14 @@ class WireActivityViewModelTest {
 
             viewModel.handleDeepLink(mockedIntent())
 
-            assertEquals(NavigationItem.Welcome.getRouteWithArgs(), viewModel.startNavigationRoute())
-            coVerify(exactly = 1) {
-                arrangement.navigationManager.navigate(
-                    NavigationCommand(
-                        LoginScreenDestination("handle"),
-                        BackStackMode.UPDATE_EXISTED
-                    )
+        assertEquals(WelcomeScreenDestination, viewModel.startNavigationRoute())
+        coVerify(exactly = 1) {
+            arrangement.navigationManager.navigate(
+                NavigationCommand(
+                    LoginScreenDestination("handle"),
+                    BackStackMode.UPDATE_EXISTED
                 )
+            )
         }
     }
 
@@ -259,12 +261,12 @@ class WireActivityViewModelTest {
 
             viewModel.handleDeepLink(mockedIntent())
 
-            assertEquals(NavigationItem.Home.getRouteWithArgs(), viewModel.startNavigationRoute())
-            coVerify(exactly = 1) {
-                arrangement.navigationManager.navigate(
-                    NavigationCommand(IncomingCallScreenDestination(conversationsId))
-                )
-            }
+        assertEquals(HomeScreenDestination, viewModel.startNavigationRoute())
+        coVerify(exactly = 1) {
+            arrangement.navigationManager.navigate(
+                NavigationCommand(IncomingCallScreenDestination(conversationsId))
+            )
+        }
     }
 
     @Test
@@ -277,7 +279,7 @@ class WireActivityViewModelTest {
 
         viewModel.handleDeepLink(mockedIntent())
 
-        assertEquals(NavigationItem.Welcome.getRouteWithArgs(), viewModel.startNavigationRoute())
+        assertEquals(WelcomeScreenDestination, viewModel.startNavigationRoute())
         coVerify(exactly = 0) {
             arrangement.navigationManager.navigate(
                 NavigationCommand(IncomingCallScreenDestination(conversationsId))
@@ -295,7 +297,7 @@ class WireActivityViewModelTest {
 
         viewModel.handleDeepLink(mockedIntent())
 
-        assertEquals(NavigationItem.Home.getRouteWithArgs(), viewModel.startNavigationRoute())
+        assertEquals(HomeScreenDestination, viewModel.startNavigationRoute())
         coVerify(exactly = 1) {
             arrangement.navigationManager.navigate(
                 NavigationCommand(ConversationScreenDestination(conversationsId), BackStackMode.UPDATE_EXISTED)
@@ -312,7 +314,7 @@ class WireActivityViewModelTest {
 
         viewModel.handleDeepLink(mockedIntent())
 
-        assertEquals(NavigationItem.Welcome.getRouteWithArgs(), viewModel.startNavigationRoute())
+        assertEquals(WelcomeScreenDestination, viewModel.startNavigationRoute())
         coVerify(exactly = 0) {
             arrangement.navigationManager.navigate(any())
         }
@@ -328,7 +330,7 @@ class WireActivityViewModelTest {
 
         viewModel.handleDeepLink(mockedIntent())
 
-        assertEquals(NavigationItem.Home.getRouteWithArgs(), viewModel.startNavigationRoute())
+        assertEquals(HomeScreenDestination, viewModel.startNavigationRoute())
         coVerify(exactly = 1) {
             arrangement.navigationManager.navigate(
                 NavigationCommand(OtherUserProfileScreenDestination(userId), BackStackMode.UPDATE_EXISTED)
@@ -345,7 +347,7 @@ class WireActivityViewModelTest {
 
         viewModel.handleDeepLink(mockedIntent())
 
-        assertEquals(NavigationItem.Welcome.getRouteWithArgs(), viewModel.startNavigationRoute())
+        assertEquals(WelcomeScreenDestination, viewModel.startNavigationRoute())
         coVerify(exactly = 0) {
             arrangement.navigationManager.navigate(any())
         }

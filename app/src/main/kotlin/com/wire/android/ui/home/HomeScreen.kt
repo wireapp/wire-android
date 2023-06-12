@@ -55,6 +55,7 @@ import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.spec.Direction
 import com.wire.android.R
 import com.wire.android.navigation.HomeNavigationItem
+import com.wire.android.navigation.WakeUpScreenPopUpNavigationAnimation
 import com.wire.android.navigation.hiltSavedStateViewModel
 import com.wire.android.ui.common.CollapsingTopBarScaffold
 import com.wire.android.ui.common.FloatingActionButton
@@ -73,7 +74,9 @@ import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.coroutines.launch
 
 @RootNavGraph
-@Destination //TODO: back nav args
+@Destination(
+    style = WakeUpScreenPopUpNavigationAnimation::class
+) //TODO: back nav args
 @Composable
 fun HomeScreen(
     backNavArgs: ImmutableMap<String, Any> = persistentMapOf(),

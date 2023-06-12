@@ -53,8 +53,11 @@ open class GroupConversationParticipantsViewModel @Inject constructor(
 
     var groupParticipantsState: GroupConversationParticipantsState by mutableStateOf(GroupConversationParticipantsState())
 
-    private  val groupConversationAllParticipantsNavArgs: GroupConversationAllParticipantsNavArgs = savedStateHandle.navArgs()
-    private val conversationId: QualifiedID = ConversationId(groupConversationAllParticipantsNavArgs.conversationId.value, groupConversationAllParticipantsNavArgs.conversationId.domain)
+    private val groupConversationAllParticipantsNavArgs: GroupConversationAllParticipantsNavArgs = savedStateHandle.navArgs()
+    private val conversationId: QualifiedID = ConversationId(
+        groupConversationAllParticipantsNavArgs.conversationId.value,
+        groupConversationAllParticipantsNavArgs.conversationId.domain
+    )
 
     init {
         observeConversationMembers()

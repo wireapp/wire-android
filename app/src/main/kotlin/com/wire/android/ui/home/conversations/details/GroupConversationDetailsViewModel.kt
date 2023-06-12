@@ -222,7 +222,6 @@ class GroupConversationDetailsViewModel @Inject constructor(
         }
     }
 
-
     fun onServicesUpdate(enableServices: Boolean) {
         updateState(groupOptionsState.value.copy(loadingServicesOption = true, isServicesAllowed = enableServices))
         when (enableServices) {

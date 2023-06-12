@@ -305,7 +305,7 @@ class ConversationMessagesViewModel @Inject constructor(
         lastImageMessageShownOnGallery = message
     }
 
-    fun onReply(messageId: String) : UIMessage.Regular? {
+    fun onReply(messageId: String): UIMessage.Regular? {
         lastImageMessageShownOnGallery?.let { onFullscreenMessage ->
             // We need to reset the lastImageMessageShownOnGallery as we are already handling it here
             updateImageOnFullscreenMode(null)

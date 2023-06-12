@@ -100,7 +100,6 @@ class AccountSwitchUseCaseTest {
             }
         }
 
-
     @Test
     fun `given current session is invalid , when switching to account , then update current session and delete the old one`() = runTest {
         val currentAccount = ACCOUNT_INVALID_3
@@ -140,9 +139,7 @@ class AccountSwitchUseCaseTest {
             AccountInfo.Invalid(UserId("userId_invalid_3", "domain_invalid_3"), LogoutReason.SELF_SOFT_LOGOUT)
         val ACCOUNT_INVALID_4 =
             AccountInfo.Invalid(UserId("userId_invalid_4", "domain_invalid_4"), LogoutReason.SELF_SOFT_LOGOUT)
-
     }
-
 
     private class Arrangement {
 

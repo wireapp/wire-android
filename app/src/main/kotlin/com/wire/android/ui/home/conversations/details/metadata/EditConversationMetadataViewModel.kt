@@ -105,7 +105,6 @@ class EditConversationMetadataViewModel @Inject constructor(
         }
     }
 
-
     fun navigateBack() {
         viewModelScope.launch { navigationManager.navigateBack() }
     }

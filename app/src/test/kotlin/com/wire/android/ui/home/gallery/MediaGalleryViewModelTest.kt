@@ -287,7 +287,6 @@ class MediaGalleryViewModelTest {
             fileManager,
             deleteMessage
         )
-
     }
 
     private fun mockedConversationDetails(

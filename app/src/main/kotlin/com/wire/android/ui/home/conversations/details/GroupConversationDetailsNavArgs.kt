@@ -18,7 +18,6 @@
 package com.wire.android.ui.home.conversations.details
 
 import android.os.Parcelable
-import com.wire.android.ui.home.gallery.MediaGalleryActionType
 import com.wire.kalium.logic.data.id.ConversationId
 import kotlinx.parcelize.Parcelize
 

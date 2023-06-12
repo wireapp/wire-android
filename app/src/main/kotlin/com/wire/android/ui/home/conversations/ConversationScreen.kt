@@ -124,6 +124,7 @@ private const val MAXIMUM_SCROLLED_MESSAGES_UNTIL_AUTOSCROLL_STOPS = 5
 private const val AGGREGATION_TIME_WINDOW: Int = 30000
 
 // TODO: !! this screen definitely needs a refactor and some cleanup !!
+@Suppress("ComplexMethod")
 @RootNavGraph
 @Destination( // TODO: back nav args
     navArgsDelegate = ConversationNavArgs::class
@@ -256,7 +257,6 @@ fun ConversationScreen(
         dialogState = messageComposerViewModel.messageComposerViewState.assetTooLargeDialogState,
         hideDialog = messageComposerViewModel::hideAssetTooLargeError
     )
-
 
     groupDetailsScreenResultRecipient.onNavResult { result ->
         when (result) {

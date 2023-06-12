@@ -100,7 +100,5 @@ class ConversationBannerViewModel @Inject constructor(
             (containsService) -> UIText.StringResource(R.string.conversation_banner_services_active)
             else -> null
         }
-
     }
-
 }

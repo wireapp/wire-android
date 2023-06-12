@@ -361,7 +361,6 @@ abstract class CreateAccountBaseViewModel(
     private fun updateCodeErrorState(codeError: CreateAccountCodeViewState.CodeError) {
         codeState = if (codeError is CreateAccountCodeViewState.CodeError.None) {
             codeState.copy(error = codeError)
-
         } else {
             codeState.copy(loading = false, error = codeError)
         }

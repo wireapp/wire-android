@@ -41,7 +41,6 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.EMPTY
 import com.wire.android.util.ui.stringWithStyledArgs
 
-
 @RootNavGraph
 @Destination(
     navArgsDelegate = MigrationNavArgs::class

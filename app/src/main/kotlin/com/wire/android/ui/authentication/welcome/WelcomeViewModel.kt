@@ -50,7 +50,6 @@ class WelcomeViewModel @Inject constructor(
 
     var isThereActiveSession by mutableStateOf(false)
 
-
     init {
         observerAuthServer()
         checkNumberOfSessions()

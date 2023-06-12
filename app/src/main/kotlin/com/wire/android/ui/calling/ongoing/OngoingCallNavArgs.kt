@@ -22,4 +22,4 @@ import com.wire.kalium.logic.data.id.ConversationId
 
 data class OngoingCallNavArgs(
     override val conversationId: ConversationId
-): CallingNavArgs
+) : CallingNavArgs

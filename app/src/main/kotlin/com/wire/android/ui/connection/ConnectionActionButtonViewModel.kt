@@ -171,7 +171,6 @@ class ConnectionActionButtonViewModelImpl @Inject constructor(
         }
     }
 
-
     override fun onUnblockUser() {
         viewModelScope.launch {
             state = state.performAction()

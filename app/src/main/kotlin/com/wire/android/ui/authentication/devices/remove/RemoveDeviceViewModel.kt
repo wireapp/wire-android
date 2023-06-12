@@ -108,6 +108,7 @@ class RemoveDeviceViewModel @Inject constructor(
                     updateStateIfDialogVisible { state.copy(error = RemoveDeviceError.GenericError(passwordRequiredResult.cause)) }
                     return@launch
                 }
+
                 is IsPasswordRequiredUseCase.Result.Success -> passwordRequiredResult.value
             }
             when (isPasswordRequired) {
@@ -129,6 +130,7 @@ class RemoveDeviceViewModel @Inject constructor(
                 is RegisterClientResult.Failure.PasswordAuthRequired -> {
                     /* the check for password is done before this function is called */
                 }
+
                 is RegisterClientResult.Failure.Generic -> state = state.copy(error = RemoveDeviceError.GenericError(result.genericFailure))
                 is RegisterClientResult.Failure.InvalidCredentials -> state = state.copy(error = RemoveDeviceError.InvalidCredentialsError)
                 is RegisterClientResult.Failure.TooManyClients -> loadClientsList()
@@ -144,6 +146,7 @@ class RemoveDeviceViewModel @Inject constructor(
             is DeleteClientResult.Failure.Generic -> {
                 state = state.copy(error = RemoveDeviceError.GenericError(deleteResult.genericFailure))
             }
+
             DeleteClientResult.Failure.InvalidCredentials -> state = state.copy(error = RemoveDeviceError.InvalidCredentialsError)
             DeleteClientResult.Failure.PasswordAuthRequired -> showDeleteClientDialog(device)
             DeleteClientResult.Success -> {
@@ -165,7 +168,6 @@ class RemoveDeviceViewModel @Inject constructor(
         }
     }
 
-
     private fun showDeleteClientDialog(device: Device) {
         state = state.copy(
             error = RemoveDeviceError.None,
@@ -185,8 +187,7 @@ class RemoveDeviceViewModel @Inject constructor(
     private suspend fun navigateAfterRegisterClientSuccess() =
         if (userDataStore.initialSyncCompleted.first()) {
             navigationManager.navigate(NavigationCommand(HomeScreenDestination, BackStackMode.CLEAR_WHOLE))
-        }
-        else {
+        } else {
             navigationManager.navigate(NavigationCommand(InitialSyncScreenDestination, BackStackMode.CLEAR_WHOLE))
         }
 

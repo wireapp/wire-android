@@ -52,7 +52,6 @@ import com.wire.android.navigation.NavigationItemDestinationsRoutes.MIGRATION
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.NETWORK_SETTINGS
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.NEW_CONVERSATION
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.ONGOING_CALL
-import com.wire.android.navigation.NavigationItemDestinationsRoutes.OTHER_USER_PROFILE
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.PRIVACY_SETTINGS
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.REGISTER_DEVICE
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.REMOVE_DEVICES
@@ -95,7 +94,6 @@ import com.wire.android.ui.settings.devices.DeviceDetailsScreen
 import com.wire.android.ui.settings.devices.SelfDevicesScreen
 import com.wire.android.ui.sharing.ImportMediaScreen
 import com.wire.android.ui.userprofile.avatarpicker.AvatarPickerScreen
-import com.wire.android.ui.userprofile.other.OtherUserProfileScreen
 import com.wire.android.ui.userprofile.self.SelfUserProfileScreen
 import com.wire.android.ui.userprofile.service.ServiceDetailsScreen
 import com.wire.android.util.deeplink.DeepLinkResult

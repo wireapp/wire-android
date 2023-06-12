@@ -49,7 +49,7 @@ class AccountSwitchUseCaseTest {
 
     @Suppress("MaxLineLength")
     @Test
-    fun `given current session is valid, when SwitchToAccount is called , then update current session and the user is navigated to the home screen`() =
+    fun `given current session is valid, when SwitchToAccount is called , then update current session and navigate to home screen`() =
         runTest {
             val expectedNavigationCommand = NavigationCommand(
                 HomeScreenDestination,
@@ -75,7 +75,7 @@ class AccountSwitchUseCaseTest {
 
     @Suppress("MaxLineLength")
     @Test
-    fun `given current session is valid and there are no other sessions, when SwitchToNextAccountOrWelcome , then update current session and the user is navigated to the welcome screen`() =
+    fun `given one current session is valid, when SwitchToNextAccountOrWelcome, then update the session and navigate to welcome screen`() =
         runTest {
             val expectedNavigationCommand = NavigationCommand(
                 WelcomeScreenDestination,
@@ -201,6 +201,5 @@ class AccountSwitchUseCaseTest {
         }
 
         fun arrange() = this to accountSwitchUseCase
-
     }
 }

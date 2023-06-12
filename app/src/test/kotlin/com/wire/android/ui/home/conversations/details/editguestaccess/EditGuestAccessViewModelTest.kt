@@ -28,7 +28,6 @@ import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
 import com.wire.kalium.logic.CoreFailure
-import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationAccessRoleUseCase
 import com.wire.kalium.logic.feature.conversation.guestroomlink.GenerateGuestRoomLinkResult
@@ -56,9 +55,6 @@ class EditGuestAccessViewModelTest {
 
     @MockK
     lateinit var navigationManager: NavigationManager
-
-    @MockK
-    private lateinit var qualifiedIdMapper: QualifiedIdMapper
 
     @MockK
     lateinit var updateConversationAccessRoleUseCase: UpdateConversationAccessRoleUseCase
@@ -98,7 +94,6 @@ class EditGuestAccessViewModelTest {
             revokeGuestRoomLink = revokeGuestRoomLink,
             observeGuestRoomLink = observeGuestRoomLink,
             savedStateHandle = savedStateHandle,
-            qualifiedIdMapper = qualifiedIdMapper,
             observeGuestRoomLinkFeatureFlag = observeGuestRoomLinkFeatureFlag
         )
     }

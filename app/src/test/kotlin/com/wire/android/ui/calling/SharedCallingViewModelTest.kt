@@ -31,8 +31,6 @@ import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.call.VideoState
 import com.wire.kalium.logic.data.id.ConversationId
-import com.wire.kalium.logic.data.id.QualifiedID
-import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.FlipToBackCameraUseCase
 import com.wire.kalium.logic.feature.call.usecase.FlipToFrontCameraUseCase
@@ -105,9 +103,6 @@ class SharedCallingViewModelTest {
     private lateinit var observeSpeaker: ObserveSpeakerUseCase
 
     @MockK
-    private lateinit var qualifiedIdMapper: QualifiedIdMapper
-
-    @MockK
     private lateinit var callRinger: CallRinger
 
     @MockK
@@ -137,9 +132,6 @@ class SharedCallingViewModelTest {
         MockKAnnotations.init(this)
         every { savedStateHandle.get<String>(any()) } returns dummyConversationId
         every { savedStateHandle.set(any(), any<String>()) } returns Unit
-        coEvery {
-            qualifiedIdMapper.fromStringToQualifiedID("some-dummy-value@some.dummy.domain")
-        } returns QualifiedID("some-dummy-value", "some.dummy.domain")
 
         sharedCallingViewModel = SharedCallingViewModel(
             savedStateHandle = savedStateHandle,
@@ -161,7 +153,6 @@ class SharedCallingViewModelTest {
             wireSessionImageLoader = wireSessionImageLoader,
             userTypeMapper = userTypeMapper,
             currentScreenManager = currentScreenManager,
-            qualifiedIdMapper = qualifiedIdMapper,
             observeSecurityClassificationLabel = observeSecurityClassificationLabel,
             dispatchers = TestDispatcherProvider()
         )

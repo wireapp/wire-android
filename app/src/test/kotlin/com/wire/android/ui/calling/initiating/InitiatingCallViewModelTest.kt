@@ -24,8 +24,6 @@ import androidx.lifecycle.SavedStateHandle
 import com.wire.android.media.CallRinger
 import com.wire.android.navigation.NavigationManager
 import com.wire.kalium.logic.data.id.ConversationId
-import com.wire.kalium.logic.data.id.QualifiedID
-import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.IsLastCallClosedUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
@@ -112,9 +110,6 @@ class InitiatingCallViewModelTest {
         private lateinit var startCall: StartCallUseCase
 
         @MockK
-        private lateinit var qualifiedIdMapper: QualifiedIdMapper
-
-        @MockK
         lateinit var callRinger: CallRinger
 
         @MockK
@@ -131,8 +126,7 @@ class InitiatingCallViewModelTest {
                 startCall = startCall,
                 endCall = endCall,
                 isLastCallClosed = isLastCallClosed,
-                callRinger = callRinger,
-                qualifiedIdMapper = qualifiedIdMapper
+                callRinger = callRinger
             )
         }
 
@@ -141,9 +135,6 @@ class InitiatingCallViewModelTest {
             MockKAnnotations.init(this)
             every { savedStateHandle.get<String>(any()) } returns "${dummyConversationId.value}@${dummyConversationId.domain}"
             every { savedStateHandle.set(any(), any<String>()) } returns Unit
-            every {
-                qualifiedIdMapper.fromStringToQualifiedID("some-dummy-value@some.dummy.domain")
-            } returns QualifiedID("some-dummy-value", "some.dummy.domain")
             coEvery { navigationManager.navigateBack(any()) } returns Unit
             coEvery { establishedCalls() } returns flowOf(emptyList())
         }

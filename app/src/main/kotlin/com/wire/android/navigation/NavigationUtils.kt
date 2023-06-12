@@ -89,11 +89,6 @@ internal fun NavController.popWithArguments(arguments: Map<String, Any>?): Boole
 internal fun NavDestination.toDestination(): Destination? =
     this.route?.let { currentRoute -> NavGraphs.root.destinationsByRoute[currentRoute] }
 
-internal fun NavController.getCurrentDestination(): Destination? =
-    this.currentDestination?.route?.let { currentRoute ->
-        NavGraphs.root.destinationsByRoute[currentRoute]
-    }
-
 fun String.getPrimaryRoute(): String {
     val splitByQuestion = this.split("?")
     val splitBySlash = this.split("/")

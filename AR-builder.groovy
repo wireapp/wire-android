@@ -68,7 +68,7 @@ pipeline {
         choice(name: 'BUILD_TYPE', choices: ['Compatrelease', 'Debug', 'Release', 'Compat'], description: 'Build Type for the Client')
         choice(name: 'FLAVOR', choices: ['Prod', 'Dev', 'Staging', 'Internal', 'Beta'], description: 'Product Flavor to build')
         booleanParam(name: 'UPLOAD_TO_S3', defaultValue: false, description: 'Boolean Flag to define if the build should be uploaded to S3')
-        booleanParam(name: 'TRY_UPLOAD_TO_PLAYSTORE', defaultValue: false, description: 'Boolean Flag to define if the build should be uploaded to Playstore')
+        booleanParam(name: 'UPLOAD_TO_PLAYSTORE_ENABLED', defaultValue: false, description: 'Boolean Flag to define if the build should be uploaded to Playstore')
         booleanParam(name: 'RUN_UNIT_TEST', defaultValue: true, description: 'Boolean Flag to define if the unit tests should be run')
         booleanParam(name: 'RUN_ACCEPTANCE_TESTS', defaultValue: true, description: 'Boolean Flag to define if the acceptance tests should be run')
         booleanParam(name: 'RUN_STATIC_CODE_ANALYSIS', defaultValue: true, description: 'Boolean Flag to define if the static code analysis should be run')
@@ -379,9 +379,10 @@ pipeline {
                         }
                     }
                 }
-                stage('Playstore') {
+                stage('Upload to Wire Beta') {
                     when {
                         expression {
+                            params.UPLOAD_TO_PLAYSTORE_ENABLED &&
                             params.RUN_ACCEPTANCE_TESTS &&
                                     params.RUN_UNIT_TEST &&
                                     params.RUN_STATIC_CODE_ANALYSIS &&
@@ -396,6 +397,28 @@ pipeline {
                         sh "ls -la app/build/outputs/bundle/${params.FLAVOR.toLowerCase()}${params.BUILD_TYPE.capitalize()}/"
                         echo 'Uploading file to Playstore track ${trackName}'
                         androidApkUpload(googleCredentialsId: 'google play access', filesPattern: "app/build/outputs/bundle/${params.FLAVOR.toLowerCase()}${params.BUILD_TYPE.capitalize()}/com.wire.android-*.aab", trackName: "${trackName}", rolloutPercentage: '100', releaseName: "${trackName} Release")
+                    }
+                }
+
+                stage('Upload to Wire Prod') {
+                    when {
+                        expression {
+                            params.UPLOAD_TO_PLAYSTORE_ENABLED &&
+                                    params.RUN_ACCEPTANCE_TESTS &&
+                                    params.RUN_UNIT_TEST &&
+                                    params.RUN_STATIC_CODE_ANALYSIS &&
+                                    params.UPLOAD_TO_S3 &&
+                                    env.trackName == 'internal' &&
+                                    params.FLAVOR == 'Prod' &&
+                                    params.SOURCE_BRANCH == 'prod' &&
+                                    params.CHANGE_ID == null
+                        }
+                    }
+                    steps {
+                        echo 'Checking folder before prod playstore upload'
+                        sh "ls -la app/build/outputs/bundle/${params.FLAVOR.toLowerCase()}${params.BUILD_TYPE.capitalize()}/"
+                        echo 'Uploading file to prod Playstore track ${trackName}'
+                        androidApkUpload(googleCredentialsId: "${env.GOOGLE_PLAY_CREDS}", filesPattern: "app/build/outputs/bundle/${params.FLAVOR.toLowerCase()}${params.BUILD_TYPE.capitalize()}/com.wire.android-*.aab", trackName: "${trackName}", rolloutPercentage: '100', releaseName: "${trackName} Release")
                     }
                 }
             }

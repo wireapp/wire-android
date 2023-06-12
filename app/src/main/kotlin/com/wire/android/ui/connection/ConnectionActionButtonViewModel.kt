@@ -69,7 +69,7 @@ interface ConnectionActionButtonViewModel {
     fun onSendConnectionRequest()
     fun onCancelConnectionRequest()
     fun onAcceptConnectionRequest()
-    fun onIgnoreConnectionRequest(): Job
+    fun onIgnoreConnectionRequest(onSuccess: () -> Unit): Job
     fun onUnblockUser()
     fun onOpenConversation()
 }
@@ -94,9 +94,6 @@ class ConnectionActionButtonViewModelImpl @Inject constructor(
     private val extraConnectionState: ConnectionState = ConnectionState.valueOf(savedStateHandle.get<String>(EXTRA_CONNECTION_STATE)!!)
 
     private var state: ActionableState<ConnectionState> by mutableStateOf(ActionableState(extraConnectionState))
-
-    var isConnectionIgnored: Boolean = false
-        private set
 
     private val _infoMessage = MutableSharedFlow<UIText>()
     val infoMessage = _infoMessage.asSharedFlow()
@@ -157,7 +154,7 @@ class ConnectionActionButtonViewModelImpl @Inject constructor(
         }
     }
 
-    override fun onIgnoreConnectionRequest(): Job = viewModelScope.launch {
+    override fun onIgnoreConnectionRequest(onSuccess: () -> Unit): Job = viewModelScope.launch {
         state = state.performAction()
         when (ignoreConnectionRequest(userId)) {
             is IgnoreConnectionRequestUseCaseResult.Failure -> {
@@ -168,7 +165,7 @@ class ConnectionActionButtonViewModelImpl @Inject constructor(
 
             is IgnoreConnectionRequestUseCaseResult.Success -> {
                 state = state.updateState(ConnectionState.IGNORED)
-                isConnectionIgnored = true
+                onSuccess()
             }
         }
     }
@@ -222,7 +219,7 @@ class ConnectionActionButtonPreviewModel(private val state: ActionableState<Conn
     override fun onSendConnectionRequest() {}
     override fun onCancelConnectionRequest() {}
     override fun onAcceptConnectionRequest() {}
-    override fun onIgnoreConnectionRequest() = Job()
+    override fun onIgnoreConnectionRequest(onSuccess: () -> Unit) = Job()
     override fun onUnblockUser() {}
     override fun onOpenConversation() {}
 }

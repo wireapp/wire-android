@@ -27,7 +27,6 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.wire.android.ui.common.groupname.GroupNameScreen
-import kotlinx.coroutines.launch
 
 @RootNavGraph
 @Destination(
@@ -38,19 +37,17 @@ fun EditConversationNameScreen(
     viewModel: EditConversationMetadataViewModel = hiltViewModel(),
     resultNavigator: ResultBackNavigator<Boolean>
 ) {
-    val scope = rememberCoroutineScope()
     with(viewModel) {
         GroupNameScreen(
             newGroupState = editConversationState,
             onGroupNameChange = ::onGroupNameChange,
             onGroupNameErrorAnimated = ::onGroupNameErrorAnimated,
             onContinuePressed = {
-                scope.launch {
-                    val job = saveNewGroupName()
-                    job.join()
-                    resultNavigator.setResult(isNameChanged)
-                    resultNavigator.navigateBack()
-                }
+                saveNewGroupName(
+                    onFailure = { resultNavigator.setResult(false) },
+                    onSuccess = { resultNavigator.setResult(true) }
+                )
+                resultNavigator.navigateBack()
             },
             onBackPressed = ::navigateBack
         )

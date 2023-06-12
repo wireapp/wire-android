@@ -36,7 +36,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -60,7 +59,6 @@ import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
-import kotlinx.coroutines.launch
 
 @RootNavGraph
 @Destination
@@ -69,18 +67,16 @@ fun ChangeDisplayNameScreen(
     viewModel: ChangeDisplayNameViewModel = hiltViewModel(),
     resultNavigator: ResultBackNavigator<Boolean>? = null // TODO: make it non nullable after refactoring NavigationItem
 ) {
-    val scope = rememberCoroutineScope()
     with(viewModel) {
         ChangeDisplayNameContent(
             displayNameState,
             ::onNameChange,
             {
-                scope.launch {
-                    val job = saveDisplayName()
-                    job.join()
-                    resultNavigator?.setResult(viewModel.isNameChanged)
-                    resultNavigator?.navigateBack()
-                }
+                saveDisplayName(
+                    onFailure = { resultNavigator?.setResult(false) },
+                    onSuccess = { resultNavigator?.setResult(true) }
+                )
+                resultNavigator?.navigateBack()
             },
             ::onNameErrorAnimated,
             ::navigateBack

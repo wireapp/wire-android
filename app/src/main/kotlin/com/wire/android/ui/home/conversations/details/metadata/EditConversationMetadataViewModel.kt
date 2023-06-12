@@ -64,9 +64,6 @@ class EditConversationMetadataViewModel @Inject constructor(
     var editConversationState by mutableStateOf(GroupMetadataState(mode = GroupNameMode.EDITION))
         private set
 
-    var isNameChanged = false
-        private set
-
     init {
         observeConversationDetails()
     }
@@ -96,10 +93,15 @@ class EditConversationMetadataViewModel @Inject constructor(
         editConversationState = GroupNameValidator.onGroupNameErrorAnimated(editConversationState)
     }
 
-    fun saveNewGroupName() = viewModelScope.launch {
-        when (withContext(dispatcher.io()) { renameConversation(conversationId, editConversationState.groupName.text) }) {
-            is RenamingResult.Failure -> isNameChanged = false
-            is RenamingResult.Success -> isNameChanged = true
+    fun saveNewGroupName(
+        onFailure: () -> Unit,
+        onSuccess: () -> Unit,
+    ) {
+        viewModelScope.launch {
+            when (withContext(dispatcher.io()) { renameConversation(conversationId, editConversationState.groupName.text) }) {
+                is RenamingResult.Failure -> onFailure()
+                is RenamingResult.Success -> onSuccess()
+            }
         }
     }
 

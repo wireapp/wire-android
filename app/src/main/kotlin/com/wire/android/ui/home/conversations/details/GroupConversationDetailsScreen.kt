@@ -113,13 +113,11 @@ fun GroupConversationDetailsScreen(
         onAddParticipantsPressed = viewModel::navigateToAddParticipants,
         groupParticipantsState = viewModel.groupParticipantsState,
         onLeaveGroup = {
-            scope.launch {
-                val job = viewModel.leaveGroup(it)
-                job.join()
+            viewModel.leaveGroup(it) {
                 resultNavigator.setResult(
                     GroupConversationDetailsNavBackArgs(
                         groupConversationActionType = GroupConversationActionType.LEAVE_GROUP,
-                        hasLeftGroup = viewModel.hasLeftGroup,
+                        hasLeftGroup = true,
                         conversationName = it.conversationName
                     )
                 )
@@ -127,13 +125,11 @@ fun GroupConversationDetailsScreen(
             }
         },
         onDeleteGroup = {
-            scope.launch {
-                val job = viewModel.deleteGroup(it)
-                job.join()
+            viewModel.deleteGroup(it) {
                 resultNavigator.setResult(
                     GroupConversationDetailsNavBackArgs(
                         groupConversationActionType = GroupConversationActionType.DELETE_GROUP,
-                        isGroupDeleted = viewModel.isGroupDeleted,
+                        isGroupDeleted = true,
                         conversationName = it.conversationName
                     )
                 )

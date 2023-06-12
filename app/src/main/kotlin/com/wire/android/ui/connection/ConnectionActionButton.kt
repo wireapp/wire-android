@@ -24,7 +24,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.painterResource
@@ -46,7 +45,6 @@ import com.wire.android.ui.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.snackbar.collectAndShowSnackbar
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserId
-import kotlinx.coroutines.launch
 
 @Composable
 fun ConnectionActionButton(
@@ -55,8 +53,6 @@ fun ConnectionActionButton(
     connectionStatus: ConnectionState,
     onConnectionRequestIgnored: (String) -> Unit = {},
 ) {
-    val scope = rememberCoroutineScope()
-
     val viewModel: ConnectionActionButtonViewModel = if (LocalInspectionMode.current) {
         ConnectionActionButtonPreviewModel(ActionableState(connectionStatus))
     } else {
@@ -120,13 +116,8 @@ fun ConnectionActionButton(
                 loading = viewModel.actionableState().isPerformingAction,
                 state = WireButtonState.Error,
                 onClick = {
-                    scope.launch {
-                        val job = viewModel.onIgnoreConnectionRequest()
-                        job.join()
-
-                        if ((viewModel as ConnectionActionButtonViewModelImpl).isConnectionIgnored) {
-                            onConnectionRequestIgnored(viewModel.userName)
-                        }
+                    viewModel.onIgnoreConnectionRequest {
+                        onConnectionRequestIgnored((viewModel as ConnectionActionButtonViewModelImpl).userName)
                     }
                 },
                 clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),

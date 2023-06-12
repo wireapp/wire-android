@@ -68,7 +68,6 @@ import com.wire.kalium.logic.feature.team.Result
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.IsMLSEnabledUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -119,11 +118,6 @@ class GroupConversationDetailsViewModel @Inject constructor(
     val groupOptionsState: StateFlow<GroupConversationOptionsState> = _groupOptionsState
 
     var requestInProgress: Boolean by mutableStateOf(false)
-        private set
-
-    var hasLeftGroup: Boolean = false
-        private set
-    var isGroupDeleted: Boolean = false
         private set
 
     init {
@@ -188,7 +182,10 @@ class GroupConversationDetailsViewModel @Inject constructor(
         }
     }
 
-    fun leaveGroup(leaveGroupState: GroupDialogState): Job =
+    fun leaveGroup(
+        leaveGroupState: GroupDialogState,
+        onSuccess: () -> Unit
+    ) {
         viewModelScope.launch {
             requestInProgress = true
             val response = withContext(dispatcher.io()) {
@@ -201,22 +198,28 @@ class GroupConversationDetailsViewModel @Inject constructor(
                 is RemoveMemberFromConversationUseCase.Result.Failure -> showSnackBarMessage(response.cause.uiText())
 
                 RemoveMemberFromConversationUseCase.Result.Success -> {
-                    hasLeftGroup = true
+                    onSuccess()
                 }
             }
             requestInProgress = false
         }
+    }
 
-    fun deleteGroup(groupState: GroupDialogState) = viewModelScope.launch {
-        requestInProgress = true
-        when (val response = withContext(dispatcher.io()) { deleteTeamConversation(groupState.conversationId) }) {
-            is Result.Failure.GenericFailure -> showSnackBarMessage(response.coreFailure.uiText())
-            Result.Failure.NoTeamFailure -> showSnackBarMessage(CoreFailure.Unknown(null).uiText())
-            Result.Success -> {
-                isGroupDeleted = true
+    fun deleteGroup(
+        groupState: GroupDialogState,
+        onSuccess: () -> Unit
+    ) {
+        viewModelScope.launch {
+            requestInProgress = true
+            when (val response = withContext(dispatcher.io()) { deleteTeamConversation(groupState.conversationId) }) {
+                is Result.Failure.GenericFailure -> showSnackBarMessage(response.coreFailure.uiText())
+                Result.Failure.NoTeamFailure -> showSnackBarMessage(CoreFailure.Unknown(null).uiText())
+                Result.Success -> {
+                    onSuccess()
+                }
             }
+            requestInProgress = false
         }
-        requestInProgress = false
     }
 
 

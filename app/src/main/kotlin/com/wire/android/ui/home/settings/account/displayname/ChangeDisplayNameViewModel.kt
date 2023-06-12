@@ -32,7 +32,6 @@ import com.wire.kalium.logic.feature.user.DisplayNameUpdateResult
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.UpdateDisplayNameUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.shareIn
@@ -48,9 +47,6 @@ class ChangeDisplayNameViewModel @Inject constructor(
 ) : ViewModel() {
 
     var displayNameState: DisplayNameState by mutableStateOf(DisplayNameState())
-        private set
-
-    var isNameChanged: Boolean = false
         private set
 
     init {
@@ -109,10 +105,15 @@ class ChangeDisplayNameViewModel @Inject constructor(
         }
     }
 
-    fun saveDisplayName(): Job = viewModelScope.launch {
-        when (updateDisplayName(displayNameState.displayName.text)) {
-            is DisplayNameUpdateResult.Failure -> isNameChanged = false
-            is DisplayNameUpdateResult.Success -> isNameChanged = true
+    fun saveDisplayName(
+        onFailure: () -> Unit,
+        onSuccess: () -> Unit,
+    ) {
+        viewModelScope.launch {
+            when (updateDisplayName(displayNameState.displayName.text)) {
+                is DisplayNameUpdateResult.Failure -> onFailure()
+                is DisplayNameUpdateResult.Success -> onSuccess()
+            }
         }
     }
 

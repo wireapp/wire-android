@@ -45,7 +45,7 @@ def postGithubComment(String changeId, String body) {
 def defineTrackName(String branchName) {
     def overwrite = env.CUSTOM_TRACK
 
-    if(overwrite != null) {
+    if (overwrite != null) {
         return overwrite
     } else if (branchName == "main") {
         return 'internal'
@@ -96,7 +96,7 @@ pipeline {
                                     "echo Flavor: ${params.FLAVOR}\n" +
                                     "echo BuildType: ${params.BUILD_TYPE}\n" +
                                     '''echo AdbPort: $adbPort \n''' +
-                                    '''echo EmulatorPrefix: $emulatorPrefix \n'''+
+                                    '''echo EmulatorPrefix: $emulatorPrefix \n''' +
                                     '''echo TrackName: $trackName \n''' +
                                     '''echo ChangeId: $CHANGE_ID \n'''
                         }
@@ -383,7 +383,7 @@ pipeline {
                     when {
                         expression {
                             params.UPLOAD_TO_PLAYSTORE_ENABLED &&
-                            params.RUN_ACCEPTANCE_TESTS &&
+                                    params.RUN_ACCEPTANCE_TESTS &&
                                     params.RUN_UNIT_TEST &&
                                     params.RUN_STATIC_CODE_ANALYSIS &&
                                     params.UPLOAD_TO_S3 &&
@@ -397,7 +397,7 @@ pipeline {
                         echo 'Checking folder before playstore upload'
                         sh "ls -la app/build/outputs/bundle/${params.FLAVOR.toLowerCase()}${params.BUILD_TYPE.capitalize()}/"
                         echo 'Uploading file to Playstore track ${trackName}'
-                        androidApkUpload(googleCredentialsId: 'google play access', filesPattern: "app/build/outputs/bundle/${params.FLAVOR.toLowerCase()}${params.BUILD_TYPE.capitalize()}/com.wire.android-*.aab", trackName: "${trackName}", rolloutPercentage: '100', releaseName: "${trackName} Release")
+                        androidApkUpload(googleCredentialsId: "${env.GOOGLE_PLAY_CREDS}", filesPattern: "app/build/outputs/bundle/${params.FLAVOR.toLowerCase()}${params.BUILD_TYPE.capitalize()}/com.wire.android-*.aab", trackName: "${trackName}", rolloutPercentage: '100', releaseName: "${trackName} Release")
                     }
                 }
 
@@ -405,7 +405,7 @@ pipeline {
                     when {
                         expression {
                             false &&
-                            params.UPLOAD_TO_PLAYSTORE_ENABLED &&
+                                    params.UPLOAD_TO_PLAYSTORE_ENABLED &&
                                     params.RUN_ACCEPTANCE_TESTS &&
                                     params.RUN_UNIT_TEST &&
                                     params.RUN_STATIC_CODE_ANALYSIS &&
@@ -421,7 +421,13 @@ pipeline {
                         echo 'Checking folder before prod playstore upload'
                         sh "ls -la app/build/outputs/bundle/${params.FLAVOR.toLowerCase()}${params.BUILD_TYPE.capitalize()}/"
                         echo 'Uploading file to prod Playstore track ${trackName}'
-                        androidApkUpload(googleCredentialsId: "${env.GOOGLE_PLAY_CREDS}", filesPattern: "app/build/outputs/bundle/${params.FLAVOR.toLowerCase()}${params.BUILD_TYPE.capitalize()}/com.wire.android-*.aab", trackName: "potato", rolloutPercentage: '100', releaseName: "${trackName} Release")
+                        androidApkUpload(
+                                googleCredentialsId: "${env.GOOGLE_PLAY_CREDS}",
+                                filesPattern: "app/build/outputs/bundle/${params.FLAVOR.toLowerCase()}${params.BUILD_TYPE.capitalize()}/com.wire.android-*.aab",
+                                trackName: "potato",
+                                rolloutPercentage: '0',
+                                releaseName: "potato Release"
+                        )
                     }
                 }
 
@@ -430,7 +436,7 @@ pipeline {
                         expression {
                             // TODO: remove this condition when we will have prod release
                             false &&
-                            params.UPLOAD_TO_PLAYSTORE_ENABLED &&
+                                    params.UPLOAD_TO_PLAYSTORE_ENABLED &&
                                     params.RUN_ACCEPTANCE_TESTS &&
                                     params.RUN_UNIT_TEST &&
                                     params.RUN_STATIC_CODE_ANALYSIS &&
@@ -446,7 +452,13 @@ pipeline {
                         echo 'Checking folder before prod playstore upload'
                         sh "ls -la app/build/outputs/bundle/${params.FLAVOR.toLowerCase()}${params.BUILD_TYPE.capitalize()}/"
                         echo 'Uploading file to prod Playstore track ${trackName}'
-                        androidApkUpload(googleCredentialsId: "${env.GOOGLE_PLAY_CREDS}", filesPattern: "app/build/outputs/bundle/${params.FLAVOR.toLowerCase()}${params.BUILD_TYPE.capitalize()}/com.wire.android-*.aab", trackName: "${env.WIRE_ANDROID_INTERNAL_TRACK_NAME}", rolloutPercentage: '100', releaseName: "${env.WIRE_ANDROID_INTERNAL_TRACK_NAME} Release")
+                        androidApkUpload(
+                                googleCredentialsId: "${env.GOOGLE_PLAY_CREDS}",
+                                filesPattern: "app/build/outputs/bundle/${params.FLAVOR.toLowerCase()}${params.BUILD_TYPE.capitalize()}/com.wire.android-*.aab",
+                                trackName: "${env.WIRE_ANDROID_INTERNAL_TRACK_NAME}",
+                                rolloutPercentage: '100',
+                                releaseName: "${env.WIRE_ANDROID_INTERNAL_TRACK_NAME} Release"
+                        )
                     }
                 }
             }

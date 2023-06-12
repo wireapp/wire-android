@@ -412,7 +412,7 @@ pipeline {
                                     params.UPLOAD_TO_S3 &&
                                     env.trackName != 'None' &&
                                     params.FLAVOR == 'Prod' &&
-                                    params.SOURCE_BRANCH == 'prod' &&
+//                                    params.SOURCE_BRANCH == 'prod' &&
                                     params.BUILD_TYPE == 'Compatrelease' &&
                                     params.CHANGE_ID == null
                         }
@@ -421,7 +421,7 @@ pipeline {
                         echo 'Checking folder before prod playstore upload'
                         sh "ls -la app/build/outputs/bundle/${params.FLAVOR.toLowerCase()}${params.BUILD_TYPE.capitalize()}/"
                         echo 'Uploading file to prod Playstore track ${trackName}'
-                        androidApkUpload(googleCredentialsId: "${env.GOOGLE_PLAY_CREDS}", filesPattern: "app/build/outputs/bundle/${params.FLAVOR.toLowerCase()}${params.BUILD_TYPE.capitalize()}/com.wire.android-*.aab", trackName: "internal", rolloutPercentage: '100', releaseName: "${trackName} Release")
+                        androidApkUpload(googleCredentialsId: "${env.GOOGLE_PLAY_CREDS}", filesPattern: "app/build/outputs/bundle/${params.FLAVOR.toLowerCase()}${params.BUILD_TYPE.capitalize()}/com.wire.android-*.aab", trackName: "potato", rolloutPercentage: '100', releaseName: "${trackName} Release")
                     }
                 }
 

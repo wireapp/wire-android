@@ -32,7 +32,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.Divider
@@ -49,7 +48,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
@@ -85,7 +83,7 @@ fun MessageComposer(
             ActiveMessageComposer(
                 activeMessageComposerState = state,
                 messageListContent = messageListContent,
-                onTransistionToInActive = messageComposerStateHolder::toInActive
+                onTransitionToInActive = messageComposerStateHolder::toInActive
             )
         }
 
@@ -103,7 +101,7 @@ fun MessageComposer(
 private fun ActiveMessageComposer(
     activeMessageComposerState: MessageComposerState.Active,
     messageListContent: @Composable () -> Unit,
-    onTransistionToInActive: () -> Unit
+    onTransitionToInActive: () -> Unit
 ) {
     with(activeMessageComposerState) {
         Surface(color = colorsScheme().messageComposerBackgroundColor) {
@@ -139,7 +137,7 @@ private fun ActiveMessageComposer(
                                 .pointerInput(Unit) {
                                     detectTapGestures(
                                         onPress = {
-                                            onTransistionToInActive()
+                                            onTransitionToInActive()
                                         },
                                         onDoubleTap = { /* Called on Double Tap */ },
                                         onLongPress = { /* Called on Long Press */ },
@@ -165,7 +163,7 @@ private fun ActiveMessageComposer(
                             onGifButtonClicked = ::toggleGifMenu,
                             onPingClicked = { },
                             onRichTextEditingButtonClicked = ::toRichTextEditing,
-                            onCloseRichTextEditingButtonClicked = ::toComposingInputType,
+                            onCloseRichTextEditingButtonClicked = ::closeRichTextEditing,
                         )
                     }
 
@@ -199,7 +197,7 @@ private fun ActiveMessageComposer(
                 }
             }
             BackHandler(additionalOptionsSubMenuState != AdditionalOptionSubMenuState.Hidden) {
-                onTransistionToInActive()
+                onTransitionToInActive()
             }
         }
     }

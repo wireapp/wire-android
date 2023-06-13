@@ -75,11 +75,11 @@ sealed class MessageComposerState {
         }
 
         fun toRichTextEditing() {
-
+            additionalOptionMenuState = AdditionalOptionMenuState.RichTextEditing
         }
 
-        fun toComposingInputType() {
-            messageCompositionInputState.toComposing()
+        fun closeRichTextEditing() {
+            additionalOptionMenuState = AdditionalOptionMenuState.AttachmentAndAdditionalOptionsMenu
         }
 
         fun messageTextChanged(textFieldValue: TextFieldValue) {

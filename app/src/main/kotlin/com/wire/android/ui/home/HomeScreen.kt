@@ -76,7 +76,7 @@ import kotlinx.coroutines.launch
 @RootNavGraph
 @Destination(
     style = WakeUpScreenPopUpNavigationAnimation::class
-) //TODO: back nav args
+) // TODO: back nav args
 @Composable
 fun HomeScreen(
     backNavArgs: ImmutableMap<String, Any> = persistentMapOf(),

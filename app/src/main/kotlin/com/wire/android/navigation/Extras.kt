@@ -36,5 +36,3 @@ const val EXTRA_LEFT_GROUP = "extra_left_group"
 const val EXTRA_SETTINGS_DISPLAY_NAME_CHANGED = "extra_settings_display_name_changed"
 
 const val EXTRA_BACK_NAVIGATION_ARGUMENTS = "extra_back_navigation_arguments"
-
-

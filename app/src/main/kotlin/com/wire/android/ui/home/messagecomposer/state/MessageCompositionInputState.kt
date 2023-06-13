@@ -17,11 +17,16 @@
  */
 package com.wire.android.ui.home.messagecomposer.state
 
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.Color
+import com.wire.android.ui.common.colorsScheme
+import com.wire.android.ui.common.textfield.WireTextFieldColors
+import com.wire.android.ui.common.textfield.wireTextFieldColors
 
 class MessageCompositionInputState(
     private val messageCompositionState: MutableState<MessageComposition>,
@@ -39,6 +44,10 @@ class MessageCompositionInputState(
 
     fun toEphemeral(onShowEphemeralOptionsMenu: () -> Unit) {
         type = MessageCompositionInputType.SelfDeleting(messageCompositionState, onShowEphemeralOptionsMenu)
+    }
+
+    fun toComposing() {
+        type = MessageCompositionInputType.Composing(messageCompositionState)
     }
 
     fun toFullscreen() {
@@ -60,8 +69,18 @@ class MessageCompositionInputState(
 }
 
 sealed class MessageCompositionInputType(val messageCompositionState: MutableState<MessageComposition>) {
-    class Composing(messageCompositionState: MutableState<MessageComposition>) :
-        MessageCompositionInputType(messageCompositionState) {
+    @Composable
+    open fun inputTextColor(): WireTextFieldColors = wireTextFieldColors(
+        backgroundColor = Color.Transparent,
+        borderColor = Color.Transparent,
+        focusColor = Color.Transparent,
+        placeholderColor = colorsScheme().secondaryText
+    )
+
+    @Composable
+    open fun backgroundColor(): Color = colorsScheme().messageComposerBackgroundColor
+
+    class Composing(messageCompositionState: MutableState<MessageComposition>) : MessageCompositionInputType(messageCompositionState) {
 
         val isSendButtonEnabled by derivedStateOf {
             messageCompositionState.value.messageText.isNotBlank()
@@ -69,12 +88,25 @@ sealed class MessageCompositionInputType(val messageCompositionState: MutableSta
 
     }
 
-    class Editing(messageCompositionState: MutableState<MessageComposition>) : MessageCompositionInputType(messageCompositionState)
+    class Editing(messageCompositionState: MutableState<MessageComposition>) : MessageCompositionInputType(messageCompositionState) {
+
+        @Composable
+        override fun backgroundColor(): Color = colorsScheme().messageComposerEditBackgroundColor
+
+    }
+
     class SelfDeleting(
         messageCompositionState: MutableState<MessageComposition>,
         private val onShowEphemeralOptionsMenu: () -> Unit
-    ) :
-        MessageCompositionInputType(messageCompositionState) {
+    ) : MessageCompositionInputType(messageCompositionState) {
+        @Composable
+        override fun inputTextColor() =
+            wireTextFieldColors(
+                backgroundColor = Color.Transparent,
+                borderColor = Color.Transparent,
+                focusColor = Color.Transparent,
+                placeholderColor = colorsScheme().primary
+            )
 
         fun showSelfDeletingTimeOption() {
             onShowEphemeralOptionsMenu()

@@ -60,7 +60,8 @@ fun MessageSendActions(
 @Composable
 fun SelfDeletingActions(
     sendButtonEnabled: Boolean,
-    onSendButtonClicked: () -> Unit
+    onSendButtonClicked: () -> Unit,
+    onChangeSelfDeletionClicked: () -> Unit
 ) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         Text(
@@ -70,9 +71,8 @@ fun SelfDeletingActions(
             modifier = Modifier
                 .padding(horizontal = dimensions().spacing16x)
                 .clickable(enabled = true) {
-
                     // Don't allow clicking the duration picker if the self-deleting duration is enforced from TM Settings
-
+                    onChangeSelfDeletionClicked()
                 }
         )
         WirePrimaryIconButton(

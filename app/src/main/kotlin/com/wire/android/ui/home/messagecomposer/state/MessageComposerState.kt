@@ -68,11 +68,18 @@ sealed class MessageComposerState {
         fun onInputFocused() {
             messageCompositionInputState.inputFocus()
             additionalOptionsSubMenuState = AdditionalOptionSubMenuState.Hidden
-
         }
 
         fun toggleGifMenu() {
 
+        }
+
+        fun toRichTextEditing() {
+
+        }
+
+        fun toComposingInputType() {
+            messageCompositionInputState.toComposing()
         }
 
         fun messageTextChanged(textFieldValue: TextFieldValue) {

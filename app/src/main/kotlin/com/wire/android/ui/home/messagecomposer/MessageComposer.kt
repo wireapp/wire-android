@@ -20,13 +20,13 @@
 
 package com.wire.android.ui.home.messagecomposer
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -63,7 +63,6 @@ import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.WireTextFieldColors
-import com.wire.android.ui.common.textfield.wireTextFieldColors
 import com.wire.android.ui.home.messagecomposer.attachment.AttachmentOptionsComponent
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionMenuState
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSubMenuState
@@ -155,6 +154,7 @@ private fun ActiveMessageComposer(
                         }
                         MessageComposerInput(
                             messageCompositionInputState = messageCompositionInputState,
+                            onMessageTextChanged = ::messageTextChanged,
                             onFocused = ::onInputFocused,
                             onSendButtonClicked = {}
                         )
@@ -163,7 +163,9 @@ private fun ActiveMessageComposer(
                             onEphemeralOptionItemClicked = ::toEphemeralInputType,
                             onAttachmentOptionClicked = ::toggleAttachmentOptions,
                             onGifButtonClicked = ::toggleGifMenu,
-                            onPingClicked = { }
+                            onPingClicked = { },
+                            onRichTextEditingButtonClicked = ::toRichTextEditing,
+                            onCloseRichTextEditingButtonClicked = ::toComposingInputType,
                         )
                     }
 
@@ -196,10 +198,9 @@ private fun ActiveMessageComposer(
                     }
                 }
             }
-//        BackHandler(messageComposerState.messageComposeInputState.attachmentOptionsDisplayed) {
-//            messageComposerState.hideAttachmentOptions()
-//            messageComposerState.toInactive()
-//        }
+            BackHandler(additionalOptionsSubMenuState != AdditionalOptionSubMenuState.Hidden) {
+                onTransistionToInActive()
+            }
         }
     }
 }
@@ -210,7 +211,9 @@ private fun AdditionalOptionsMenu(
     onEphemeralOptionItemClicked: () -> Unit,
     onAttachmentOptionClicked: () -> Unit,
     onGifButtonClicked: () -> Unit,
-    onPingClicked: () -> Unit
+    onPingClicked: () -> Unit,
+    onRichTextEditingButtonClicked: () -> Unit,
+    onCloseRichTextEditingButtonClicked: () -> Unit
 ) {
     when (additionalOptionsState) {
         is AdditionalOptionMenuState.AttachmentAndAdditionalOptionsMenu -> {
@@ -221,6 +224,7 @@ private fun AdditionalOptionsMenu(
                 onAttachmentOptionClicked = onAttachmentOptionClicked,
                 onGifButtonClicked = onGifButtonClicked,
                 onSelfDeletionOptionButtonClicked = onEphemeralOptionItemClicked,
+                onRichEditingButtonClicked = onRichTextEditingButtonClicked,
                 onPingClicked = onPingClicked,
                 showSelfDeletingOption = true,
                 modifier = Modifier
@@ -228,10 +232,11 @@ private fun AdditionalOptionsMenu(
         }
 
         is AdditionalOptionMenuState.RichTextEditing -> {
-            Box(
-                Modifier
-                    .background(Color.Red)
-                    .size(128.dp)
+            RichTextOptions(
+                onRichTextHeaderButtonClicked = {},
+                onRichTextBoldButtonClicked = {},
+                onRichTextItalicButtonClicked = {},
+                onCloseRichTextEditingButtonClicked = onCloseRichTextEditingButtonClicked
             )
         }
     }
@@ -271,6 +276,7 @@ private fun AttachmentAndAdditionalOptionsMenuItems(
     onSelfDeletionOptionButtonClicked: () -> Unit,
     showSelfDeletingOption: Boolean,
     onGifButtonClicked: () -> Unit = {},
+    onRichEditingButtonClicked: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     Column(modifier.wrapContentSize()) {
@@ -287,7 +293,8 @@ private fun AttachmentAndAdditionalOptionsMenuItems(
                 onPingButtonClicked = onPingClicked,
                 onSelfDeletionOptionButtonClicked = onSelfDeletionOptionButtonClicked,
                 showSelfDeletingOption = showSelfDeletingOption,
-                onGifButtonClicked = onGifButtonClicked
+                onGifButtonClicked = onGifButtonClicked,
+                onRichEditingButtonClicked = onRichEditingButtonClicked
             )
         }
     }
@@ -296,8 +303,9 @@ private fun AttachmentAndAdditionalOptionsMenuItems(
 @Composable
 fun MessageComposerInput(
     messageCompositionInputState: MessageCompositionInputState,
-    onFocused: () -> Unit,
+    onMessageTextChanged: (TextFieldValue) -> Unit,
     onSendButtonClicked: () -> Unit,
+    onFocused: () -> Unit,
 ) {
     val focusManager = LocalFocusManager.current
     val focusRequester = remember { FocusRequester() }
@@ -307,74 +315,74 @@ fun MessageComposerInput(
         else focusManager.clearFocus()
     }
 
-    Column {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .wrapContentHeight(),
-            verticalAlignment = Alignment.Bottom
-        ) {
-            _MessageComposerInput(
-                messageText = messageCompositionInputState.type.messageCompositionState.value.textFieldValue,
-                onMessageTextChanged = { },
-                singleLine = false,
-                onFocusChanged = { isFocused ->
-                    if (isFocused) onFocused()
-                },
-                focusRequester = focusRequester,
+    with(messageCompositionInputState) {
+        Column(modifier = Modifier.background(type.backgroundColor())) {
+            Row(
                 modifier = Modifier
-                    .weight(1f)
-                    .then(
-                        when (messageCompositionInputState.size) {
-                            MessageCompositionInputSize.COLLAPSED -> Modifier.heightIn(max = dimensions().messageComposerActiveInputMaxHeight)
-                            MessageCompositionInputSize.EXPANDED -> Modifier.fillMaxHeight()
-                        }
+                    .fillMaxWidth()
+                    .wrapContentHeight(),
+                verticalAlignment = Alignment.Bottom
+            ) {
+                _MessageComposerInput(
+                    colors = type.inputTextColor(),
+                    messageText = type.messageCompositionState.value.textFieldValue,
+                    onMessageTextChanged = onMessageTextChanged,
+                    singleLine = false,
+                    onFocusChanged = { isFocused ->
+                        if (isFocused) onFocused()
+                    },
+                    focusRequester = focusRequester,
+                    modifier = Modifier
+                        .weight(1f)
+                        .then(
+                            when (messageCompositionInputState.size) {
+                                MessageCompositionInputSize.COLLAPSED -> Modifier.heightIn(max = dimensions().messageComposerActiveInputMaxHeight)
+                                MessageCompositionInputSize.EXPANDED -> Modifier.fillMaxHeight()
+                            }
+                        )
+                )
+
+                when (val inputType = type) {
+                    is MessageCompositionInputType.Composing -> MessageSendActions(
+                        onSendButtonClicked = onSendButtonClicked,
+                        sendButtonEnabled = inputType.isSendButtonEnabled
                     )
-            )
 
-            when (val inputType = messageCompositionInputState.type) {
-                is MessageCompositionInputType.Composing -> MessageSendActions(
-                    onSendButtonClicked = onSendButtonClicked,
-                    sendButtonEnabled = inputType.isSendButtonEnabled
-                )
+                    is MessageCompositionInputType.SelfDeleting -> SelfDeletingActions(
+                        sendButtonEnabled = true,
+                        onSendButtonClicked = onSendButtonClicked,
+                        onChangeSelfDeletionClicked = inputType::showSelfDeletingTimeOption
+                    )
 
-                is MessageCompositionInputType.SelfDeleting -> SelfDeletingActions(
-                    sendButtonEnabled = true,
-                    onSendButtonClicked = onSendButtonClicked
-                )
+                    else -> {}
+                }
+            }
+            when (type) {
+                is MessageCompositionInputType.Editing -> {
+                    MessageEditActions(
+                        onEditSaveButtonClicked = { },
+                        onEditCancelButtonClicked = ::toComposing,
+                        editButtonEnabled = true
+                    )
+                }
 
                 else -> {}
             }
-        }
-        when (messageCompositionInputState.type) {
-            is MessageCompositionInputType.Editing -> {
-                MessageEditActions(
-                    onEditSaveButtonClicked = { },
-                    onEditCancelButtonClicked = { },
-                    editButtonEnabled = true
-                )
-            }
-
-            else -> {}
         }
     }
 }
 
 @Composable
 fun _MessageComposerInput(
+    focusRequester: FocusRequester,
+    colors: WireTextFieldColors,
+    singleLine: Boolean,
     messageText: TextFieldValue,
     onMessageTextChanged: (TextFieldValue) -> Unit,
-    singleLine: Boolean,
     onFocusChanged: (Boolean) -> Unit = {},
-    focusRequester: FocusRequester,
-    colors: WireTextFieldColors = wireTextFieldColors(
-        backgroundColor = Color.Transparent,
-        borderColor = Color.Transparent,
-        focusColor = Color.Transparent
-    ),
-    modifier: Modifier = Modifier,
     onSelectedLineIndexChanged: (Int) -> Unit = { },
-    onLineBottomYCoordinateChanged: (Float) -> Unit = { }
+    onLineBottomYCoordinateChanged: (Float) -> Unit = { },
+    modifier: Modifier = Modifier
 ) {
     WireTextField(
         value = messageText,

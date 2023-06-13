@@ -51,49 +51,49 @@ import com.wire.android.ui.home.messagecomposer.state.MessageComposeInputState
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 
-@OptIn(ExperimentalAnimationApi::class)
-@Composable
-fun MessageComposeActionsBox(
-    transition: Transition<MessageComposeInputState>,
-    isMentionActive: Boolean,
-    isFileSharingEnabled: Boolean,
-    startMention: () -> Unit,
-    onAdditionalOptionButtonClicked: () -> Unit,
-    onPingClicked: () -> Unit,
-    onSelfDeletionOptionButtonClicked: () -> Unit,
-    showSelfDeletingOption: Boolean,
-    onGifButtonClicked : () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    Column(modifier.wrapContentSize()) {
-        Divider(color = MaterialTheme.wireColorScheme.outline)
-        Box(Modifier.wrapContentSize()) {
-            transition.AnimatedContent(
-                contentKey = { state -> state is MessageComposeInputState.Active },
-                transitionSpec = {
-                    slideInVertically { fullHeight -> fullHeight / 2 } + fadeIn() with
-                            slideOutVertically { fullHeight -> fullHeight / 2 } + fadeOut()
-                }
-            ) { state ->
-                if (state is MessageComposeInputState.Active) {
-                    MessageComposeActions(
-                        state.isEphemeral,
-                        state.attachmentOptionsDisplayed,
-                        isMentionActive,
-                        state.isEditMessage,
-                        isFileSharingEnabled,
-                        startMention,
-                        onAdditionalOptionButtonClicked,
-                        onPingClicked,
-                        onSelfDeletionOptionButtonClicked,
-                        showSelfDeletingOption,
-                        onGifButtonClicked
-                    )
-                }
-            }
-        }
-    }
-}
+//@OptIn(ExperimentalAnimationApi::class)
+//@Composable
+//fun MessageComposeActionsBox(
+//    transition: Transition<MessageComposeInputState>,
+//    isMentionActive: Boolean,
+//    isFileSharingEnabled: Boolean,
+//    startMention: () -> Unit,
+//    onAdditionalOptionButtonClicked: () -> Unit,
+//    onPingClicked: () -> Unit,
+//    onSelfDeletionOptionButtonClicked: () -> Unit,
+//    showSelfDeletingOption: Boolean,
+//    onGifButtonClicked: () -> Unit,
+//    modifier: Modifier = Modifier,
+//) {
+//    Column(modifier.wrapContentSize()) {
+//        Divider(color = MaterialTheme.wireColorScheme.outline)
+//        Box(Modifier.wrapContentSize()) {
+//            transition.AnimatedContent(
+//                contentKey = { state -> state is MessageComposeInputState.Active },
+//                transitionSpec = {
+//                    slideInVertically { fullHeight -> fullHeight / 2 } + fadeIn() with
+//                            slideOutVertically { fullHeight -> fullHeight / 2 } + fadeOut()
+//                }
+//            ) { state ->
+//                if (state is MessageComposeInputState.Active) {
+//                    MessageComposeActions(
+//                        state.isEphemeral,
+//                        state.attachmentOptionsDisplayed,
+//                        isMentionActive,
+//                        state.isEditMessage,
+//                        isFileSharingEnabled,
+//                        startMention,
+//                        onAdditionalOptionButtonClicked,
+//                        onPingClicked,
+//                        onSelfDeletionOptionButtonClicked,
+//                        showSelfDeletingOption,
+//                        onGifButtonClicked
+//                    )
+//                }
+//            }
+//        }
+//    }
+//}
 
 @Composable
 fun MessageComposeActions(
@@ -107,7 +107,8 @@ fun MessageComposeActions(
     onPingButtonClicked: () -> Unit,
     onSelfDeletionOptionButtonClicked: () -> Unit,
     showSelfDeletingOption: Boolean,
-    onGifButtonClicked: () -> Unit
+    onGifButtonClicked: () -> Unit,
+    onRichEditingButtonClicked: () -> Unit
 ) {
     val localFeatureVisibilityFlags = LocalFeatureVisibilityFlags.current
 
@@ -124,7 +125,7 @@ fun MessageComposeActions(
                 isEnabled = isFileSharingEnabled,
                 onClick = onAdditionalOptionButtonClicked
             )
-            if (RichTextIcon) RichTextEditingAction()
+            RichTextEditingAction(onRichEditingButtonClicked)
             if (!isEditMessage && EmojiIcon) AddEmojiAction()
             if (!isEditMessage && GifIcon) AddGifAction(true, onGifButtonClicked)
             if (!isEditMessage && showSelfDeletingOption) SelfDeletingMessageAction(
@@ -138,9 +139,9 @@ fun MessageComposeActions(
 }
 
 @Composable
-private fun RichTextEditingAction() {
+private fun RichTextEditingAction(onButtonClicked: () -> Unit) {
     WireSecondaryIconButton(
-        onButtonClicked = {},
+        onButtonClicked = onButtonClicked,
         clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
         iconResource = R.drawable.ic_rich_text,
         contentDescription = R.string.content_description_conversation_enable_rich_text_mode
@@ -217,7 +218,7 @@ fun PreviewMessageActionsBox() {
             .height(dimensions().spacing56x)
     ) {
         AdditionalOptionButton(isSelected = false, isEnabled = true, onClick = {})
-        RichTextEditingAction()
+        RichTextEditingAction({})
         AddEmojiAction()
         AddGifAction(false, {})
         AddMentionAction(isSelected = false, addMentionAction = {})

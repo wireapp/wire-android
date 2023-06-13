@@ -105,7 +105,9 @@ fun MessageItem(
 ) {
     with(message) {
         val selfDeletionTimerState = rememberSelfDeletionTimer(expirationStatus)
-        if (selfDeletionTimerState is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable) {
+        if (selfDeletionTimerState is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable &&
+            !message.isPending
+        ) {
             startDeletionTimer(
                 message = message,
                 expirableTimer = selfDeletionTimerState,

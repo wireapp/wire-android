@@ -19,8 +19,8 @@
   ~
   -->
 <resources>
-    <string name="app_version">App version</string>
-    <string name="build_variant_name">Build variant</string>
+    <string name="app_version">Alkalmazás verzió</string>
+    <string name="build_variant_name">Kiadás</string>
     <string name="label_new">Új</string>
     <string name="label_login">Bejelentkezés</string>
     <string name="label_ok">OK</string>
@@ -826,11 +826,11 @@
     <string name="label_logs_option_title">Naplók</string>
     <string name="label_share_logs">Naplók megosztása</string>
     <string name="label_delete_logs">Összes napló törlése</string>
-    <string name="label_restart_slowsync_for_recovery">Restart slow sync</string>
-    <string name="restart_slowsync_for_recovery_button">Restart</string>
-    <string name="label_mls_option_title">MLS Options</string>
+    <string name="label_restart_slowsync_for_recovery">Lassú szinkronizálás újraindítása</string>
+    <string name="restart_slowsync_for_recovery_button">Újraindítás</string>
+    <string name="label_mls_option_title">MLS beállítások</string>
     <string name="label_enable_logging">Naplózás engedélyezése</string>
-    <string name="label_proteus_option_title">Proteus Options</string>
+    <string name="label_proteus_option_title">Proteus beállítások</string>
     <string name="label_enable_encrypted_proteus_storage">Titkosított Proteus tároló endedélyezése</string>
     <string name="label_debug_title">Hibakeresési beállítások</string>
     <string name="label_client_option_title">Kliens ID</string>
@@ -839,8 +839,8 @@
     <string name="label_client_id">Kliens ID: %1$s</string>
     <string name="label_client_added_time">HOZZÁADVA</string>
     <string name="label_client_device_id">ESZKÖZ ID</string>
-    <string name="label_key_packages_count">Key-packages count</string>
-    <string name="label_mls_client_id">MLS Client ID</string>
+    <string name="label_key_packages_count">Kulcscsomagok száma</string>
+    <string name="label_mls_client_id">MLS kliens ID</string>
     <string name="conversation_empty_list_description">Kapcsolódjon másokhoz, vagy alkosson új csoportot a közös munka megkezdéséhez!</string>
     <string name="conversation_empty_list_title">Üdvözöljük 👋</string>
     <string name="label_no_conversation_found">Nem található beszélgetés.</string>
@@ -906,7 +906,7 @@
     <!-- session reset -->
     <string name="label_system_message_session_reset">%1$s nem tudta visszafejteni néhány üzenetét, de megoldotta a problémát. Ez érintette az összes közös beszélgetésüket.</string>
     <string name="label_manual_migration_title">Átlépés a 3.82.38-as verzióról</string>
-    <string name="start_manual_migration">Start</string>
+    <string name="start_manual_migration">Indítás</string>
     <string name="file_sharing_restricted_learn_more_link">https://support.wire.com/hc/en-us/articles/4406404582673-How-can-I-restrict-file-sharing-for-my-team-</string>
     <string name="file_sharing_restricted_description_by_team">Nem tudja megosztani ezt a fájlt, mivel ez a lehetőség le van tiltva e fiók számára.</string>
     <string name="file_sharing_restricted_description_no_users">Be kell jelentkeznie a Wire-be, mielőtt bármit is meg tudna osztani</string>
@@ -1037,5 +1037,5 @@ Kérjük, próbálja meg újra.</string>
     <string name="title_internal_debugging">Belső hibakeresés</string>
     <string name="label_log_options_description">"Ez helyileg tárolja az anonimizált hibaelhárítási információkat. "</string>
     <string name="label_no_application_found_open_downloads_folder">"Nem található alkalmazás a letöltési mappa megnyitásához"</string>
-    <string name="notification_obfuscated_message">Someone sent a Message</string>
+    <string name="notification_obfuscated_message">Valaki egy üzenetet küldött</string>
 </resources>

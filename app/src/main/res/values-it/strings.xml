@@ -1039,4 +1039,5 @@ registrato. Sei pregato di riprovare.</string>
     <string name="title_internal_debugging">Debug interno</string>
     <string name="label_log_options_description">"Questo memorizza localmente le informazioni anonime di risoluzione dei problemi. "</string>
     <string name="label_no_application_found_open_downloads_folder">"Nessun'applicazione trovata per aprire la cartella dei download"</string>
+    <string name="notification_obfuscated_message">Someone sent a Message</string>
 </resources>

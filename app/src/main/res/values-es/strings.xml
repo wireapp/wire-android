@@ -1040,4 +1040,5 @@ URL del backend:
     <string name="title_internal_debugging">Depuración interna</string>
     <string name="label_log_options_description">"Esto almacena información anónima de solución de problemas localmente. "</string>
     <string name="label_no_application_found_open_downloads_folder">"No application found to open downloads folder"</string>
+    <string name="notification_obfuscated_message">Someone sent a Message</string>
 </resources>

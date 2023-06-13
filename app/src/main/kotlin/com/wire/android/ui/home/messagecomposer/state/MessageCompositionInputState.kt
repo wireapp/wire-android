@@ -53,7 +53,7 @@ class MessageCompositionInputState(
         inputFocused = false
     }
 
-    fun focusInput() {
+    fun inputFocus() {
         inputFocused = true
     }
 
@@ -70,7 +70,10 @@ sealed class MessageCompositionInputType(val messageCompositionState: MutableSta
     }
 
     class Editing(messageCompositionState: MutableState<MessageComposition>) : MessageCompositionInputType(messageCompositionState)
-    class SelfDeleting(messageCompositionState: MutableState<MessageComposition>, private val onShowEphemeralOptionsMenu: () -> Unit) :
+    class SelfDeleting(
+        messageCompositionState: MutableState<MessageComposition>,
+        private val onShowEphemeralOptionsMenu: () -> Unit
+    ) :
         MessageCompositionInputType(messageCompositionState) {
 
         fun showSelfDeletingTimeOption() {

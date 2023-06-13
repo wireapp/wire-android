@@ -70,6 +70,7 @@ class MessageComposerStateHolder(
             onShowEphemeralOptionsMenu = onShowEphemeralOptionsMenu,
             messageCompositionState = messageCompositionState,
             defaultAdditionalOptionsSubMenuState = AdditionalOptionSubMenuState.Hidden,
+            defaultInputFocused = true,
             defaultInputType = MessageCompositionInputType.Editing(messageCompositionState)
         )
     }

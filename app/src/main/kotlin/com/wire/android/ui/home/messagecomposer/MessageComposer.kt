@@ -98,72 +98,6 @@ fun MessageComposer(
             )
         }
     }
-//    BoxWithConstraints {
-//        val onSendButtonClicked = remember {
-//            {
-//                val expireAfter = (messageComposerState.messageComposeInputState as? MessageComposeInputState.Active)?.let {
-//                    (it.type as? MessageComposeInputType.SelfDeletingMessage)
-//                }?.selfDeletionDuration?.value
-//
-//                onSendTextMessage(
-//                    SendMessageBundle(
-//                        message = messageComposerState.messageComposeInputState.messageText.text,
-//                        mentions = messageComposerState.mentions,
-//                        quotedMessageId = messageComposerState.quotedMessageData?.messageId,
-//                        expireAfter = expireAfter
-//                    )
-//                )
-//                messageComposerState.quotedMessageData = null
-//                messageComposerState.setMessageTextValue(TextFieldValue(""))
-//            }
-//        }
-//
-//        val onSendEditButtonClicked = remember {
-//            {
-//                (messageComposerState.messageComposeInputState as? MessageComposeInputState.Active)?.let {
-//                    (it.type as? MessageComposeInputType.EditMessage)?.messageId
-//                }?.let { originalMessageId ->
-//                    onSendEditTextMessage(
-//                        EditMessageBundle(
-//                            originalMessageId = originalMessageId,
-//                            newContent = messageComposerState.messageComposeInputState.messageText.text,
-//                            messageComposerState.mentions,
-//                        )
-//                    )
-//                }
-//                messageComposerState.closeEditToInactive()
-//            }
-//        }
-//
-//        val onMentionPicked = remember {
-//            { contact: Contact ->
-//                messageComposerState.addMention(contact)
-//            }
-//        }
-//
-//        LaunchedEffect(Unit) {
-//            messageComposerState.mentionQueryFlowState
-//                .collect { onMentionMember(it) }
-//        }
-//
-//        MessageComposer(
-//            messagesContent = messageContent,
-//            messageComposerState = messageComposerState,
-//            isFileSharingEnabled = isFileSharingEnabled,
-//            interactionAvailability = interactionAvailability,
-//            membersToMention = membersToMention,
-//            onAttachmentPicked = onAttachmentPicked,
-//            securityClassificationType = securityClassificationType,
-//            onSendButtonClicked = onSendButtonClicked,
-//            onEditSaveButtonClicked = onSendEditButtonClicked,
-//            onMentionPicked = onMentionPicked,
-//            onPingClicked = onPingClicked,
-//            onShowSelfDeletionOption = onShowSelfDeletionOption,
-//            showSelfDeletingOption = showSelfDeletingOption,
-//            tempWritableImageUri = tempWritableImageUri,
-//            tempWritableVideoUri = tempWritableVideoUri
-//        )
-//    }
 }
 
 @Composable
@@ -219,12 +153,17 @@ private fun ActiveMessageComposer(
                         ) {
                             messageListContent()
                         }
-                        test(messageCompositionInputState)
+                        MessageComposerInput(
+                            messageCompositionInputState = messageCompositionInputState,
+                            onFocused = ::onInputFocused,
+                            onSendButtonClicked = {}
+                        )
                         AdditionalOptionsMenu(
                             additionalOptionsState = additionalOptionMenuState,
                             onEphemeralOptionItemClicked = ::toEphemeralInputType,
                             onAttachmentOptionClicked = ::toggleAttachmentOptions,
-                            onGifButtonClicked = ::toggleGifMenu
+                            onGifButtonClicked = ::toggleGifMenu,
+                            onPingClicked = { }
                         )
                     }
 
@@ -270,7 +209,8 @@ private fun AdditionalOptionsMenu(
     additionalOptionsState: AdditionalOptionMenuState,
     onEphemeralOptionItemClicked: () -> Unit,
     onAttachmentOptionClicked: () -> Unit,
-    onGifButtonClicked: () -> Unit
+    onGifButtonClicked: () -> Unit,
+    onPingClicked: () -> Unit
 ) {
     when (additionalOptionsState) {
         is AdditionalOptionMenuState.AttachmentAndAdditionalOptionsMenu -> {
@@ -281,6 +221,7 @@ private fun AdditionalOptionsMenu(
                 onAttachmentOptionClicked = onAttachmentOptionClicked,
                 onGifButtonClicked = onGifButtonClicked,
                 onSelfDeletionOptionButtonClicked = onEphemeralOptionItemClicked,
+                onPingClicked = onPingClicked,
                 showSelfDeletingOption = true,
                 modifier = Modifier
             )
@@ -353,76 +294,69 @@ private fun AttachmentAndAdditionalOptionsMenuItems(
 }
 
 @Composable
-fun test(messageCompositionInputState: MessageCompositionInputState) {
-    with(messageCompositionInputState) {
-        MessageComposerInputRow(action = {
-            when (val inputType = type) {
-                is MessageCompositionInputType.Composing -> MessageSendActions(
-                    onSendButtonClicked = {},
-                    sendButtonEnabled = inputType.isSendButtonEnabled
-                )
+fun MessageComposerInput(
+    messageCompositionInputState: MessageCompositionInputState,
+    onFocused: () -> Unit,
+    onSendButtonClicked: () -> Unit,
+) {
+    val focusManager = LocalFocusManager.current
+    val focusRequester = remember { FocusRequester() }
 
-                is MessageCompositionInputType.SelfDeleting -> SelfDeletingActions(sendButtonEnabled = true, {})
-                else -> {}
-            }
-        }, input = {
-            val focusManager = LocalFocusManager.current
-            val focusRequester = remember { FocusRequester() }
+    LaunchedEffect(messageCompositionInputState.inputFocused) {
+        if (messageCompositionInputState.inputFocused) focusRequester.requestFocus()
+        else focusManager.clearFocus()
+    }
 
+    Column {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight(),
+            verticalAlignment = Alignment.Bottom
+        ) {
             _MessageComposerInput(
-                messageText = type.messageCompositionState.value.textFieldValue,
+                messageText = messageCompositionInputState.type.messageCompositionState.value.textFieldValue,
                 onMessageTextChanged = { },
                 singleLine = false,
                 onFocusChanged = { isFocused ->
-                    if (isFocused) {
-                    }
+                    if (isFocused) onFocused()
                 },
                 focusRequester = focusRequester,
                 modifier = Modifier
                     .weight(1f)
                     .then(
-                        when (size) {
+                        when (messageCompositionInputState.size) {
                             MessageCompositionInputSize.COLLAPSED -> Modifier.heightIn(max = dimensions().messageComposerActiveInputMaxHeight)
                             MessageCompositionInputSize.EXPANDED -> Modifier.fillMaxHeight()
                         }
                     )
             )
 
-            LaunchedEffect(inputFocused) {
-                if (inputFocused) focusRequester.requestFocus()
-                else focusManager.clearFocus()
+            when (val inputType = messageCompositionInputState.type) {
+                is MessageCompositionInputType.Composing -> MessageSendActions(
+                    onSendButtonClicked = onSendButtonClicked,
+                    sendButtonEnabled = inputType.isSendButtonEnabled
+                )
+
+                is MessageCompositionInputType.SelfDeleting -> SelfDeletingActions(
+                    sendButtonEnabled = true,
+                    onSendButtonClicked = onSendButtonClicked
+                )
+
+                else -> {}
             }
-        },
-            bottomAction = {
-                when (val inputType = type) {
-                    is MessageCompositionInputType.Editing -> {
-                        MessageEditActions(
-                            onEditSaveButtonClicked = { },
-                            onEditCancelButtonClicked = { },
-                            editButtonEnabled = true
-                        )
-                    }
+        }
+        when (messageCompositionInputState.type) {
+            is MessageCompositionInputType.Editing -> {
+                MessageEditActions(
+                    onEditSaveButtonClicked = { },
+                    onEditCancelButtonClicked = { },
+                    editButtonEnabled = true
+                )
+            }
 
-                    else -> {}
-                }
-            })
-    }
-}
-
-@Composable
-fun MessageComposerInputRow(
-    action: @Composable () -> Unit,
-    input: @Composable RowScope.() -> Unit,
-    bottomAction: @Composable () -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .wrapContentHeight(),
-        verticalAlignment = Alignment.Bottom
-    ) {
-        input()
-        action()
+            else -> {}
+        }
     }
 }
 

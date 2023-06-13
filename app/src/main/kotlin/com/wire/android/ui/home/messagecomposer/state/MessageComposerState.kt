@@ -21,8 +21,6 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.focus.FocusManager
-import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.text.input.TextFieldValue
 
 sealed class MessageComposerState {
@@ -59,7 +57,7 @@ sealed class MessageComposerState {
         fun toggleAttachmentOptions() {
             additionalOptionsSubMenuState =
                 if (additionalOptionsSubMenuState == AdditionalOptionSubMenuState.AttachFile) {
-                    messageCompositionInputState.focusInput()
+                    messageCompositionInputState.inputFocus()
                     AdditionalOptionSubMenuState.Hidden
                 } else {
                     messageCompositionInputState.clearFocus()
@@ -68,7 +66,9 @@ sealed class MessageComposerState {
         }
 
         fun onInputFocused() {
+            messageCompositionInputState.inputFocus()
             additionalOptionsSubMenuState = AdditionalOptionSubMenuState.Hidden
+
         }
 
         fun toggleGifMenu() {

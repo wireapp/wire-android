@@ -355,7 +355,7 @@ private fun ConversationScreen(
                 onReactionClick = onReactionClick,
                 onDetailsClick = onMessageDetailsClick,
                 onReplyClick = { },
-                onEditClick = { _, _, _ -> },
+                onEditClick = { _, _, _ -> messageComposerState.toEdit() },
                 onShareAsset = {
                     menuType.selectedMessage.header.messageId.let {
                         conversationMessagesViewModel.shareAsset(context, it)

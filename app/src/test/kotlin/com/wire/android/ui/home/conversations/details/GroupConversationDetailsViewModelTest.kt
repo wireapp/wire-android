@@ -37,8 +37,6 @@ import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.LegalHoldStatus
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
-import com.wire.kalium.logic.data.id.QualifiedID
-import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.id.TeamId
 import com.wire.kalium.logic.data.team.Team
 import com.wire.kalium.logic.feature.conversation.ClearConversationContentUseCase
@@ -545,9 +543,6 @@ internal class GroupConversationDetailsViewModelArrangement {
     @MockK
     lateinit var observeSelfDeletionTimerSettingsForConversation: ObserveSelfDeletionTimerSettingsForConversationUseCase
 
-    @MockK
-    private lateinit var qualifiedIdMapper: QualifiedIdMapper
-
     private val conversationDetailsChannel = Channel<ConversationDetails>(capacity = Channel.UNLIMITED)
 
     private val observeParticipantsForConversationChannel = Channel<ConversationParticipantsData>(capacity = Channel.UNLIMITED)
@@ -564,7 +559,6 @@ internal class GroupConversationDetailsViewModelArrangement {
             updateConversationAccessRole = updateConversationAccessRoleUseCase,
             getSelfTeam = getSelfTeamUseCase,
             savedStateHandle = savedStateHandle,
-            qualifiedIdMapper = qualifiedIdMapper,
             updateConversationMutedStatus = updateConversationMutedStatus,
             clearConversationContent = clearConversationContentUseCase,
             updateConversationReceiptMode = updateConversationReceiptMode,
@@ -584,12 +578,6 @@ internal class GroupConversationDetailsViewModelArrangement {
         coEvery { observeParticipantsForConversationUseCase(any(), any()) } returns flowOf()
         coEvery { getSelfTeamUseCase() } returns flowOf(null)
         coEvery { isMLSEnabledUseCase() } returns true
-        coEvery {
-            qualifiedIdMapper.fromStringToQualifiedID("some-dummy-value@some.dummy.domain")
-        } returns QualifiedID("some-dummy-value", "some.dummy.domain")
-        coEvery {
-            qualifiedIdMapper.fromStringToQualifiedID("conv_id@domain")
-        } returns QualifiedID("conv_id", "domain")
         coEvery { updateConversationMutedStatus(any(), any(), any()) } returns ConversationUpdateStatusResult.Success
         coEvery { observeSelfDeletionTimerSettingsForConversation(any(), any()) } returns flowOf(SelfDeletionTimer.Disabled)
     }

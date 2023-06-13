@@ -30,6 +30,9 @@ import com.wire.android.navigation.EXTRA_USER_ID
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveConversationRoleForUserUseCase
 import com.wire.android.ui.home.conversationslist.model.Membership
+import com.wire.android.ui.navArgs
+import com.wire.android.ui.userprofile.other.OtherUserProfileScreenViewModelTest.Companion.CONVERSATION_ID
+import com.wire.android.ui.userprofile.other.OtherUserProfileScreenViewModelTest.Companion.USER_ID
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.feature.client.ObserveClientsByUserIdUseCase
 import com.wire.kalium.logic.feature.client.PersistOtherUserClientsUseCase
@@ -131,9 +134,9 @@ internal class OtherUserProfileViewModelArrangement {
     init {
         MockKAnnotations.init(this, relaxUnitFun = true)
         mockUri()
-        every { savedStateHandle.get<String>(EXTRA_USER_ID) } returns OtherUserProfileScreenViewModelTest.CONVERSATION_ID.toString()
+        every { savedStateHandle.get<String>(EXTRA_USER_ID) } returns CONVERSATION_ID.toString()
         every { savedStateHandle.get<String>(EXTRA_CONVERSATION_ID) } returns
-                OtherUserProfileScreenViewModelTest.CONVERSATION_ID.toString()
+                CONVERSATION_ID.toString()
         coEvery {
             observeConversationRoleForUserUseCase.invoke(any(), any())
         } returns flowOf(OtherUserProfileScreenViewModelTest.CONVERSATION_ROLE_DATA)
@@ -145,7 +148,7 @@ internal class OtherUserProfileViewModelArrangement {
         )
         coEvery { observeSelfUser() } returns flowOf(TestUser.SELF_USER)
         every { userTypeMapper.toMembership(any()) } returns Membership.None
-        coEvery { getOrCreateOneToOneConversation(OtherUserProfileScreenViewModelTest.USER_ID) } returns CreateConversationResult.Success(
+        coEvery { getOrCreateOneToOneConversation(USER_ID) } returns CreateConversationResult.Success(
             OtherUserProfileScreenViewModelTest.CONVERSATION
         )
         coEvery { navigationManager.navigate(command = any()) } returns Unit

@@ -29,7 +29,6 @@ import com.wire.android.util.CurrentScreenManager
 import com.wire.kalium.logic.data.call.CallClient
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
-import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.RequestVideoStreamsUseCase
 import io.mockk.MockKAnnotations
@@ -63,9 +62,6 @@ class OngoingCallViewModelTest {
     private lateinit var requestVideoStreams: RequestVideoStreamsUseCase
 
     @MockK
-    private lateinit var qualifiedIdMapper: QualifiedIdMapper
-
-    @MockK
     private lateinit var currentScreenManager: CurrentScreenManager
 
     private lateinit var ongoingCallViewModel: OngoingCallViewModel
@@ -78,13 +74,9 @@ class OngoingCallViewModelTest {
         MockKAnnotations.init(this)
         every { savedStateHandle.get<String>(any()) } returns dummyConversationId
         every { savedStateHandle.set(any(), any<String>()) } returns Unit
-        coEvery {
-            qualifiedIdMapper.fromStringToQualifiedID("some-dummy-value@some.dummy.domain")
-        } returns QualifiedID("some-dummy-value", "some.dummy.domain")
 
         ongoingCallViewModel = OngoingCallViewModel(
             savedStateHandle = savedStateHandle,
-            qualifiedIdMapper = qualifiedIdMapper,
             navigationManager = navigationManager,
             establishedCalls = establishedCall,
             requestVideoStreams = requestVideoStreams,

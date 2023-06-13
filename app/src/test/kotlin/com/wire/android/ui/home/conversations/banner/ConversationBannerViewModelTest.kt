@@ -28,8 +28,6 @@ import com.wire.android.framework.TestConversationDetails
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.ui.home.conversations.banner.usecase.ObserveConversationMembersByTypesUseCase
 import com.wire.kalium.logic.data.id.ConversationId
-import com.wire.kalium.logic.data.id.QualifiedID
-import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.user.type.UserType
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import io.mockk.MockKAnnotations
@@ -104,9 +102,6 @@ private class Arrangement {
     private lateinit var savedStateHandle: SavedStateHandle
 
     @MockK
-    private lateinit var qualifiedIdMapper: QualifiedIdMapper
-
-    @MockK
     lateinit var observeConversationMembersByTypesUseCase: ObserveConversationMembersByTypesUseCase
 
     @MockK
@@ -114,7 +109,6 @@ private class Arrangement {
 
     private val viewModel by lazy {
         ConversationBannerViewModel(
-            qualifiedIdMapper,
             savedStateHandle,
             observeConversationMembersByTypesUseCase,
             observeConversationDetailsUseCase,
@@ -126,9 +120,6 @@ private class Arrangement {
         // Tests setup
         MockKAnnotations.init(this, relaxUnitFun = true)
         mockUri()
-        every {
-            qualifiedIdMapper.fromStringToQualifiedID("some-dummy-value@some.dummy.domain")
-        } returns QualifiedID("some-dummy-value", "some.dummy.domain")
         every { savedStateHandle.get<String>(EXTRA_CONVERSATION_ID) } returns conversationId
         // Default empty values
         coEvery { observeConversationMembersByTypesUseCase(any()) } returns flowOf()

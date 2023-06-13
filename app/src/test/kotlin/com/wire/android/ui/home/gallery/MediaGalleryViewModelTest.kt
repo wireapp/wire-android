@@ -235,7 +235,6 @@ class MediaGalleryViewModelTest {
             val dummyPrivateAsset = "some-conversationId:some-message-id:true"
             MockKAnnotations.init(this, relaxUnitFun = true)
             every { savedStateHandle.get<String>(any()) } returns dummyPrivateAsset
-
             coEvery { deleteMessage(any(), any(), any()) } returns Either.Right(Unit)
         }
 

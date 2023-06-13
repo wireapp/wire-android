@@ -19,6 +19,7 @@ package com.wire.android.ui.userprofile.service
 
 import com.ramcosta.composedestinations.navargs.DestinationsNavTypeSerializer
 import com.ramcosta.composedestinations.navargs.NavTypeSerializer
+import com.wire.android.util.EMPTY
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.VALUE_DOMAIN_SEPARATOR
 import com.wire.kalium.logic.data.user.BotService
@@ -31,5 +32,11 @@ data class ServiceDetailsNavArgs(
 @NavTypeSerializer
 class BotServiceNavTypeSerializer : DestinationsNavTypeSerializer<BotService> {
     override fun toRouteString(value: BotService): String = value.toString()
-    override fun fromRouteString(routeStr: String): BotService = routeStr.split(VALUE_DOMAIN_SEPARATOR).let { BotService(it[0], it[1]) }
+    override fun fromRouteString(routeString: String): BotService = routeString.split(VALUE_DOMAIN_SEPARATOR).takeIf {
+        it.size > 1
+    }?.let {
+        BotService(it.first(), it.last())
+    } ?: run {
+        BotService(routeString, String.EMPTY)
+    }
 }

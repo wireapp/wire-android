@@ -42,7 +42,7 @@ object AndroidClient {
 object BuildPlugins {
     object Versions {
         const val gradleVersion = "7.5.1"
-        const val kspVersion = "1.8.20-1.0.10"
+        const val kspVersion = "1.8.20-1.0.11"
     }
 
     const val androidApplication = "com.android.application"

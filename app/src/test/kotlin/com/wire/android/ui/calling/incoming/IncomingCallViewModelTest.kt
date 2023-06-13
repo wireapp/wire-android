@@ -25,8 +25,6 @@ import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.media.CallRinger
 import com.wire.android.navigation.NavigationManager
 import com.wire.kalium.logic.data.id.ConversationId
-import com.wire.kalium.logic.data.id.QualifiedID
-import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.feature.call.usecase.AnswerCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.GetIncomingCallsUseCase
@@ -76,9 +74,6 @@ class IncomingCallViewModelTest {
     @MockK
     private lateinit var muteCall: MuteCallUseCase
 
-    @MockK
-    private lateinit var qualifiedIdMapper: QualifiedIdMapper
-
     private lateinit var viewModel: IncomingCallViewModel
 
     @BeforeEach
@@ -86,9 +81,6 @@ class IncomingCallViewModelTest {
         MockKAnnotations.init(this)
         val dummyConversationId = "some-dummy-value@some.dummy.domain"
         every { savedStateHandle.get<String>(any()) } returns dummyConversationId
-        coEvery {
-            qualifiedIdMapper.fromStringToQualifiedID("some-dummy-value@some.dummy.domain")
-        } returns QualifiedID("some-dummy-value", "some.dummy.domain")
 
         // Default empty values
         coEvery { navigationManager.navigateBack() } returns Unit
@@ -107,8 +99,7 @@ class IncomingCallViewModelTest {
             callRinger = callRinger,
             observeEstablishedCalls = observeEstablishedCalls,
             endCall = endCall,
-            muteCall = muteCall,
-            qualifiedIdMapper = qualifiedIdMapper
+            muteCall = muteCall
         )
     }
 

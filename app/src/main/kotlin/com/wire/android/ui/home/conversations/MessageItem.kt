@@ -63,6 +63,7 @@ import com.wire.android.ui.home.conversations.messages.QuotedMessageStyle
 import com.wire.android.ui.home.conversations.messages.QuotedUnavailable
 import com.wire.android.ui.home.conversations.messages.ReactionPill
 import com.wire.android.ui.home.conversations.model.MessageBody
+import com.wire.android.ui.home.conversations.model.MessageFlowStatus
 import com.wire.android.ui.home.conversations.model.MessageFooter
 import com.wire.android.ui.home.conversations.model.MessageGenericAsset
 import com.wire.android.ui.home.conversations.model.MessageHeader
@@ -115,7 +116,7 @@ fun MessageItem(
             )
         }
 
-        val backgroundColorModifier = if (message.sendingFailed || message.receivingFailed) {
+        val backgroundColorModifier = if (message.sendingFailed || message.decryptionFailed) {
             Modifier.background(colorsScheme().messageErrorBackgroundColor)
         } else if (selfDeletionTimerState is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable && !message.isDeleted) {
             val color by animateColorAsState(
@@ -229,7 +230,7 @@ fun MessageItem(
                                 HorizontalSpace.x4()
                                 if (isMyMessage) {
                                     MessageStatusIndicator(
-                                        message.header.messageStatus.status,
+                                        message.header.messageStatus.flowStatus,
                                         Modifier.padding(top = dimensions().spacing2x)
                                     )
                                 } else {
@@ -243,13 +244,13 @@ fun MessageItem(
                         } else {
                             MessageDecryptionFailure(
                                 messageHeader = header,
-                                decryptionStatus = header.messageStatus as MessageStatus.DecryptionFailure,
+                                decryptionStatus = header.messageStatus.flowStatus as MessageFlowStatus.Failure.Decryption,
                                 onResetSessionClicked = onResetSessionClicked
                             )
                         }
                         if (message.sendingFailed) {
                             MessageSendFailureWarning(
-                                messageStatus = header.messageStatus as MessageStatus.MessageSendFailureStatus,
+                                messageStatus = header.messageStatus.flowStatus as MessageFlowStatus.Failure.Send,
                                 onRetryClick = remember { { onFailedMessageRetryClicked(header.messageId) } },
                                 onCancelClick = remember { { onFailedMessageCancelClicked(header.messageId) } },
                             )

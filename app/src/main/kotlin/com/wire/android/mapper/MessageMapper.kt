@@ -24,6 +24,8 @@ import com.wire.android.R
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.home.conversations.findUser
 import com.wire.android.ui.home.conversations.model.ExpirationStatus
+import com.wire.android.ui.home.conversations.model.MessageEditStatus
+import com.wire.android.ui.home.conversations.model.MessageFlowStatus
 import com.wire.android.ui.home.conversations.model.MessageFooter
 import com.wire.android.ui.home.conversations.model.MessageHeader
 import com.wire.android.ui.home.conversations.model.MessageSource
@@ -113,12 +115,14 @@ class MessageMapper @Inject constructor(
                     expirationStatus = provideExpirationData(message)
                 )
             }
+
             is UIMessageContent.SystemMessage ->
                 UIMessage.System(
                     messageContent = content,
                     source = if (sender is SelfUser) MessageSource.Self else MessageSource.OtherUser,
                     header = provideMessageHeader(sender, message),
                 )
+
             null -> null
             /**
              * IncompleteAssetMessage is a displayable asset that's missing the remote data.
@@ -167,29 +171,28 @@ class MessageMapper @Inject constructor(
         clientId = (message as? Message.Sendable)?.senderClientId
     )
 
-    private fun getMessageStatus(message: Message.Standalone) = when {
-        message.status == Message.Status.FAILED && message is Message.Regular && message.editStatus is Message.EditStatus.Edited ->
-            MessageStatus.EditSendFailure(
-                isoFormatter.fromISO8601ToTimeFormat(
-                    utcISO = (message.editStatus as Message.EditStatus.Edited).lastTimeStamp
+    private fun getMessageStatus(message: Message.Standalone): MessageStatus {
+        val isMessageEdited = message is Message.Regular && message.editStatus is Message.EditStatus.Edited
+        return MessageStatus(
+            flowStatus = when (message.status) {
+                Message.Status.PENDING -> MessageFlowStatus.Sending
+                Message.Status.SENT -> MessageFlowStatus.Sent
+                Message.Status.READ -> MessageFlowStatus.Read(1) // TODO add read count
+                Message.Status.FAILED -> MessageFlowStatus.Failure.Send.Locally(isMessageEdited)
+                Message.Status.FAILED_REMOTELY -> MessageFlowStatus.Failure.Send.Remotely(isMessageEdited, message.conversationId.domain)
+            },
+            editStatus = if (message is Message.Regular && message.editStatus is Message.EditStatus.Edited) {
+                MessageEditStatus.Edited(
+                    isoFormatter.fromISO8601ToTimeFormat(
+                        utcISO = (message.editStatus as Message.EditStatus.Edited).lastTimeStamp
+                    )
                 )
-            )
-
-        message.status == Message.Status.FAILED -> MessageStatus.SendFailure
-        message.status == Message.Status.FAILED_REMOTELY -> MessageStatus.SendRemotelyFailure(message.conversationId.domain)
-        message.visibility == Message.Visibility.DELETED -> MessageStatus.Deleted
-        message is Message.Regular && message.editStatus is Message.EditStatus.Edited ->
-            MessageStatus.Edited(
-                isoFormatter.fromISO8601ToTimeFormat(
-                    utcISO = (message.editStatus as Message.EditStatus.Edited).lastTimeStamp
-                ),
-                message.status
-            )
-
-        message is Message.Regular && message.content is MessageContent.FailedDecryption ->
-            MessageStatus.DecryptionFailure((message.content as MessageContent.FailedDecryption).isDecryptionResolved)
-
-        else -> MessageStatus.Untouched(message.status)
+            } else {
+                MessageEditStatus.NonEdited
+            },
+            expirationStatus = provideExpirationData(message),
+            isDeleted = message.visibility == Message.Visibility.DELETED
+        )
     }
 
     private fun getUserAvatarData(sender: User?) = UserAvatarData(

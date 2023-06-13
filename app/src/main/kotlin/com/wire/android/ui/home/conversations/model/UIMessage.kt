@@ -26,9 +26,6 @@ import androidx.compose.runtime.Stable
 import com.wire.android.R
 import com.wire.android.model.ImageAsset
 import com.wire.android.model.UserAvatarData
-import com.wire.android.ui.home.conversations.model.MessageStatus.DecryptionFailure
-import com.wire.android.ui.home.conversations.model.MessageStatus.Deleted
-import com.wire.android.ui.home.conversations.model.MessageStatus.ReceiveFailure
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.messagecomposer.state.SelfDeletionDuration
 import com.wire.android.util.ui.UIText
@@ -55,12 +52,11 @@ sealed class UIMessage(
         val expirationStatus: ExpirationStatus = ExpirationStatus.NotExpirable
     ) : UIMessage(header, source) {
         val isTextMessage = messageContent is UIMessageContent.TextMessage
-        val isDeleted: Boolean = header.messageStatus == Deleted
-        val sendingFailed: Boolean = header.messageStatus is MessageStatus.MessageSendFailureStatus
-        val decryptionFailed: Boolean = header.messageStatus is DecryptionFailure
-        val receivingFailed: Boolean = header.messageStatus == ReceiveFailure || decryptionFailed
-        val isAvailable: Boolean = !isDeleted && !sendingFailed && !receivingFailed
-        val isPending: Boolean = header.messageStatus.status == Message.Status.PENDING
+        val isDeleted: Boolean = header.messageStatus.isDeleted
+        val sendingFailed: Boolean = header.messageStatus.flowStatus is MessageFlowStatus.Failure.Send
+        val decryptionFailed: Boolean = header.messageStatus.flowStatus is MessageFlowStatus.Failure.Decryption
+        val isAvailable: Boolean = !isDeleted && !sendingFailed && !decryptionFailed
+        val isPending: Boolean = header.messageStatus.flowStatus == MessageFlowStatus.Sending
         val isMyMessage = source == MessageSource.Self
     }
 
@@ -69,9 +65,9 @@ sealed class UIMessage(
         override val source: MessageSource,
         val messageContent: UIMessageContent.SystemMessage
     ) : UIMessage(header, source) {
-        val sendingFailed: Boolean = header.messageStatus is MessageStatus.MessageSendFailureStatus
-        val decryptionFailed: Boolean = header.messageStatus is DecryptionFailure
-        val receivingFailed: Boolean = header.messageStatus == ReceiveFailure || decryptionFailed
+        val sendingFailed: Boolean = header.messageStatus.flowStatus is MessageFlowStatus.Failure.Send
+        val decryptionFailed: Boolean = header.messageStatus.flowStatus is MessageFlowStatus.Failure.Decryption
+
     }
 }
 
@@ -106,45 +102,67 @@ sealed class ExpirationStatus {
     object NotExpirable : ExpirationStatus()
 }
 
-sealed class MessageStatus(
-    open val errorText: UIText? = null, // error description text shown below the content of the message
-    open val badgeText: UIText? = null, // text shown between the user name and the content in the outlined box with a text inside
-    open val status: Message.Status = Message.Status.SENT
+sealed class MessageEditStatus {
+    object NonEdited : MessageEditStatus()
+    data class Edited(val formattedEditTimeStamp: String) : MessageEditStatus()
+}
+
+sealed class MessageFlowStatus {
+
+    object Sending : MessageFlowStatus()
+    object Sent : MessageFlowStatus()
+    sealed class Failure(val errorText: UIText) : MessageFlowStatus() {
+        sealed class Send(errorText: UIText) : Failure(errorText) {
+            data class Locally(val isEdited: Boolean) : Send(
+                if (isEdited) {
+                    UIText.StringResource(R.string.label_message_edit_sent_failure)
+                } else {
+                    UIText.StringResource(R.string.label_message_sent_failure)
+                }
+            )
+
+            data class Remotely(val isEdited: Boolean, val backendWithFailure: String) : Send(
+                if (isEdited) {
+                    UIText.StringResource(
+                        R.string.label_message_edit_sent_remotely_failure,
+                        backendWithFailure
+                    )
+                } else {
+                    UIText.StringResource(
+                        R.string.label_message_sent_remotely_failure,
+                        backendWithFailure
+                    )
+                }
+            )
+        }
+
+        data class Decryption(val isDecryptionResolved: Boolean) : Failure(
+            UIText.StringResource(R.string.label_message_decryption_failure_message)
+        )
+    }
+
+    object Delivered : MessageFlowStatus()
+
+    data class Read(val count: Int) : MessageFlowStatus()
+
+}
+
+data class MessageStatus(
+    val flowStatus: MessageFlowStatus,
+    val editStatus: MessageEditStatus = MessageEditStatus.NonEdited,
+    val expirationStatus: ExpirationStatus = ExpirationStatus.NotExpirable,
+    val isDeleted: Boolean = false
 ) {
-    sealed class MessageSendFailureStatus : MessageStatus() {
-        abstract override val errorText: UIText
-        override val status: Message.Status = Message.Status.FAILED
-    }
 
-    data class Untouched(override val status: Message.Status) : MessageStatus()
-    object Deleted : MessageStatus() {
-        override val badgeText: UIText = UIText.StringResource(R.string.deleted_message_text)
-    }
+    // text shown between the user name and the content in the outlined box with a text inside
+    val badgeText: UIText? = when {
+        isDeleted -> UIText.StringResource(R.string.deleted_message_text)
+        editStatus is MessageEditStatus.Edited -> UIText.StringResource(
+            R.string.label_message_status_edited_with_date,
+            editStatus.formattedEditTimeStamp
+        )
 
-    data class Edited(val formattedEditTimeStamp: String, override val status: Message.Status) : MessageStatus() {
-        override val badgeText: UIText = UIText.StringResource(R.string.label_message_status_edited_with_date, formattedEditTimeStamp)
-    }
-
-    data class EditSendFailure(val formattedEditTimeStamp: String) : MessageSendFailureStatus() {
-        override val errorText: UIText = UIText.StringResource(R.string.label_message_edit_sent_failure)
-        override val badgeText: UIText = UIText.StringResource(R.string.label_message_status_edited_with_date, formattedEditTimeStamp)
-    }
-
-    object SendFailure : MessageSendFailureStatus() {
-        override val errorText: UIText = UIText.StringResource(R.string.label_message_sent_failure)
-    }
-
-    data class SendRemotelyFailure(val backendWithFailure: String) : MessageSendFailureStatus() {
-        override val errorText: UIText = UIText.StringResource(R.string.label_message_sent_remotely_failure, backendWithFailure)
-        override val status: Message.Status = Message.Status.FAILED_REMOTELY
-    }
-
-    object ReceiveFailure : MessageStatus() {
-        override val errorText: UIText = UIText.StringResource(R.string.label_message_receive_failure)
-    }
-
-    data class DecryptionFailure(val isDecryptionResolved: Boolean) : MessageStatus() {
-        override val errorText: UIText = UIText.StringResource(R.string.label_message_decryption_failure_message)
+        else -> null
     }
 }
 

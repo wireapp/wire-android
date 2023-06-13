@@ -25,35 +25,36 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
 import com.wire.android.ui.common.spacers.HorizontalSpace
+import com.wire.android.ui.home.conversations.model.MessageFlowStatus
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.util.ui.PreviewMultipleThemes
-import com.wire.kalium.logic.data.message.Message
 
 @Composable
-fun MessageStatusIndicator(status: Message.Status, modifier: Modifier = Modifier) {
+fun MessageStatusIndicator(status: MessageFlowStatus, modifier: Modifier = Modifier) {
     when (status) {
-        Message.Status.PENDING -> Icon(
+        MessageFlowStatus.Sending -> Icon(
             modifier = modifier,
             painter = painterResource(id = R.drawable.ic_message_sending),
             tint = MaterialTheme.wireColorScheme.onTertiaryButtonDisabled,
             contentDescription = stringResource(R.string.content_description_message_sending_status),
         )
 
-        Message.Status.FAILED, Message.Status.FAILED_REMOTELY -> Icon(
+        is MessageFlowStatus.Failure -> Icon(
             modifier = modifier,
             painter = painterResource(id = R.drawable.ic_message_error),
             tint = MaterialTheme.wireColorScheme.error,
             contentDescription = stringResource(R.string.content_description_message_error_status),
         )
         // TODO handle read, sent and delivered status
-//        Message.Status.SENT -> Icon(
+//        MessageFlowStatus.Sent -> Icon(
 //            modifier = modifier,
 //            painter = painterResource(id = R.drawable.ic_message_delivered),
 //            tint = MaterialTheme.wireColorScheme.onTertiaryButtonDisabled,
 //            contentDescription = stringResource(R.string.content_description_message_delivered_status),
 //        )
-//        Message.Status.READ -> {}
+//        is MessageFlowStatus.Read -> {}
+//        MessageFlowStatus.Delivered -> TODO()
         else -> HorizontalSpace.x16()
     }
 }
@@ -62,7 +63,7 @@ fun MessageStatusIndicator(status: Message.Status, modifier: Modifier = Modifier
 @Composable
 fun PreviewMessageStatusFailed() {
     WireTheme {
-        MessageStatusIndicator(Message.Status.FAILED)
+        MessageStatusIndicator(MessageFlowStatus.Failure.Send.Locally(false))
     }
 }
 
@@ -70,6 +71,6 @@ fun PreviewMessageStatusFailed() {
 @Composable
 fun PreviewMessageStatusSending() {
     WireTheme {
-        MessageStatusIndicator(Message.Status.PENDING)
+        MessageStatusIndicator(MessageFlowStatus.Sending)
     }
 }

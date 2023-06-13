@@ -141,7 +141,6 @@ class AccountSwitchUseCaseTest {
             AccountInfo.Invalid(UserId("userId_invalid_4", "domain_invalid_4"), LogoutReason.SELF_SOFT_LOGOUT)
     }
 
-
     private class Arrangement {
 
         @Mock

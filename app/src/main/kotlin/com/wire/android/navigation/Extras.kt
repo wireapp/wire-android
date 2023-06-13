@@ -21,6 +21,7 @@
 package com.wire.android.navigation
 
 const val EXTRA_USER_ID = "extra_user_id"
+const val EXTRA_CONVERSATION_ID = "extra_conversation_id"
 const val EXTRA_USER_NAME = "extra_user_name"
 const val EXTRA_CONNECTION_STATE = "extra_connection_state"
 

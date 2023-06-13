@@ -16,7 +16,7 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 
-@file:Suppress("MatchingDeclarationName")
+@file:Suppress("MatchingDeclarationName", "Filename")
 
 package com.wire.android.navigation
 

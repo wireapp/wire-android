@@ -1037,4 +1037,5 @@ Kérjük, próbálja meg újra.</string>
     <string name="title_internal_debugging">Belső hibakeresés</string>
     <string name="label_log_options_description">"Ez helyileg tárolja az anonimizált hibaelhárítási információkat. "</string>
     <string name="label_no_application_found_open_downloads_folder">"Nem található alkalmazás a letöltési mappa megnyitásához"</string>
+    <string name="notification_obfuscated_message">Someone sent a Message</string>
 </resources>

@@ -77,7 +77,6 @@ class ServiceDetailsViewModel @Inject constructor(
             getServiceDetailsAndUpdateViewState()?.let {
                 observeIsServiceConversationMember()
             }
-
         }
     }
 

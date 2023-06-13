@@ -46,7 +46,7 @@ import org.junit.jupiter.api.extension.ExtensionContext
  * @ExtendWith(NavigationTestExtension::class)
  */
 @ExperimentalCoroutinesApi
-class NavigationTestExtension() : BeforeEachCallback, AfterEachCallback {
+class NavigationTestExtension : BeforeEachCallback, AfterEachCallback {
     override fun beforeEach(context: ExtensionContext?) {
         mockkStatic("com.wire.android.ui.NavArgsGettersKt")
         NavGraphs.root.destinations.forEach { mockkObject(it) }

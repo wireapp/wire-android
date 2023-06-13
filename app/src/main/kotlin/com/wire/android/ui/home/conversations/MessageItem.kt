@@ -231,7 +231,7 @@ fun MessageItem(
                                     MessageStatusIndicator(
                                         message.header.messageStatus.flowStatus,
                                         Modifier.padding(
-                                            top = if(message.isTextContentWithoutQuote) dimensions().spacing2x else dimensions().spacing4x,
+                                            top = if (message.isTextContentWithoutQuote) dimensions().spacing2x else dimensions().spacing4x,
                                             start = dimensions().spacing8x,
                                         )
                                     )

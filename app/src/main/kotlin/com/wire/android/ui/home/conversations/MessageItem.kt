@@ -104,7 +104,9 @@ fun MessageItem(
 ) {
     with(message) {
         val selfDeletionTimerState = rememberSelfDeletionTimer(expirationStatus)
-        if (selfDeletionTimerState is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable) {
+        if (selfDeletionTimerState is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable &&
+            !message.isPending
+        ) {
             startDeletionTimer(
                 message = message,
                 expirableTimer = selfDeletionTimerState,
@@ -186,7 +188,7 @@ fun MessageItem(
                     }
                     if (!isDeleted) {
                         if (!decryptionFailed) {
-                            val currentOnAssetClicked = remember {
+                            val currentOnAssetClicked = remember(message) {
                                 Clickable(enabled = isAvailable, onClick = {
                                     onAssetMessageClicked(header.messageId)
                                 }, onLongClick = {
@@ -194,7 +196,7 @@ fun MessageItem(
                                 })
                             }
 
-                            val currentOnImageClick = remember {
+                            val currentOnImageClick = remember(message) {
                                 Clickable(enabled = isAvailable, onClick = {
                                     onImageMessageClicked(
                                         message,
@@ -204,7 +206,7 @@ fun MessageItem(
                                     onLongClicked(message)
                                 })
                             }
-                            val onLongClick: (() -> Unit)? = remember {
+                            val onLongClick: (() -> Unit)? = remember(message) {
                                 if (isAvailable) {
                                     { onLongClicked(message) }
                                 } else null
@@ -517,5 +519,5 @@ private fun MessageStatusLabel(messageStatus: MessageStatus) {
 }
 
 private fun Message.DownloadStatus.isSaved(): Boolean {
-   return this == Message.DownloadStatus.SAVED_EXTERNALLY || this == Message.DownloadStatus.SAVED_INTERNALLY
+    return this == Message.DownloadStatus.SAVED_EXTERNALLY || this == Message.DownloadStatus.SAVED_INTERNALLY
 }

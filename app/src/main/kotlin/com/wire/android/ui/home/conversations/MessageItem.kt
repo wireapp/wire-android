@@ -98,7 +98,9 @@ fun MessageItem(
     onOpenProfile: (String) -> Unit,
     onReactionClicked: (String, String) -> Unit,
     onResetSessionClicked: (senderUserId: UserId, clientId: String?) -> Unit,
-    onSelfDeletingMessageRead: (UIMessage.Regular) -> Unit
+    onSelfDeletingMessageRead: (UIMessage.Regular) -> Unit,
+    onFailedMessageRetryClicked: (String) -> Unit = {},
+    onFailedMessageCancelClicked: (String) -> Unit = {}
 ) {
     with(message) {
         val selfDeletionTimerState = rememberSelfDeletionTimer(expirationStatus)
@@ -202,8 +204,10 @@ fun MessageItem(
                                     onLongClicked(message)
                                 })
                             }
-                            val onLongClick: (() -> Unit)? = remember(message) {
-                                if (isAvailable) { { onLongClicked(message) } } else null
+                            val onLongClick: (() -> Unit)? = remember {
+                                if (isAvailable) {
+                                    { onLongClicked(message) }
+                                } else null
                             }
                             MessageContent(
                                 message = message,
@@ -227,10 +231,13 @@ fun MessageItem(
                                 onResetSessionClicked = onResetSessionClicked
                             )
                         }
-                    }
-
-                    if (message.sendingFailed) {
-                        MessageSendFailureWarning(header.messageStatus as MessageStatus.MessageSendFailureStatus)
+                        if (message.sendingFailed) {
+                            MessageSendFailureWarning(
+                                messageStatus = header.messageStatus as MessageStatus.MessageSendFailureStatus,
+                                onRetryClick = remember { { onFailedMessageRetryClicked(header.messageId) } },
+                                onCancelClick = remember { { onFailedMessageCancelClicked(header.messageId) } },
+                            )
+                        }
                     }
                 }
             }
@@ -266,33 +273,40 @@ fun MessageExpireLabel(messageContent: UIMessageContent?, timeLeft: String) {
 
         is UIMessageContent.AssetMessage -> {
             StatusBox(
-                statusText = if (messageContent.downloadStatus == Message.DownloadStatus.SAVED_INTERNALLY
-                    || messageContent.downloadStatus == Message.DownloadStatus.SAVED_EXTERNALLY
-                ) stringResource(
-                    R.string.self_deleting_message_time_left,
-                    timeLeft
-                )
-                else stringResource(R.string.self_deleting_message_label, timeLeft)
+                statusText = if (messageContent.downloadStatus.isSaved()) {
+                    stringResource(
+                        R.string.self_deleting_message_time_left,
+                        timeLeft
+                    )
+                } else {
+                    stringResource(R.string.self_deleting_message_label, timeLeft)
+                }
             )
         }
 
         is UIMessageContent.AudioAssetMessage -> {
             StatusBox(
-                statusText = if (messageContent.downloadStatus == Message.DownloadStatus.SAVED_INTERNALLY) stringResource(
-                    R.string.self_deleting_message_time_left,
-                    timeLeft
-                )
-                else stringResource(R.string.self_deleting_message_label, timeLeft)
+                statusText = if (messageContent.downloadStatus.isSaved()) {
+                    stringResource(
+                        R.string.self_deleting_message_time_left,
+                        timeLeft
+                    )
+                } else {
+                    stringResource(R.string.self_deleting_message_label, timeLeft)
+                }
             )
         }
 
         is UIMessageContent.ImageMessage -> {
             StatusBox(
-                statusText = if (messageContent.downloadStatus == Message.DownloadStatus.SAVED_INTERNALLY) stringResource(
-                    R.string.self_deleting_message_time_left,
-                    timeLeft
-                )
-                else stringResource(R.string.self_deleting_message_label, timeLeft)
+                statusText = if (messageContent.downloadStatus.isSaved()) {
+                    stringResource(
+                        R.string.self_deleting_message_time_left,
+                        timeLeft
+                    )
+                } else {
+                    stringResource(R.string.self_deleting_message_label, timeLeft)
+                }
             )
         }
 
@@ -351,7 +365,7 @@ private fun MessageFooter(
         FlowRow(
             mainAxisSpacing = dimensions().spacing4x,
             crossAxisSpacing = dimensions().spacing6x,
-            modifier = Modifier.padding(vertical = dimensions().spacing4x)
+            modifier = Modifier.padding(top = dimensions().spacing4x)
         ) {
             messageFooter.reactions.entries
                 .sortedBy { it.key }
@@ -500,4 +514,8 @@ private fun MessageStatusLabel(messageStatus: MessageStatus) {
     messageStatus.badgeText?.let {
         StatusBox(it.asString())
     }
+}
+
+private fun Message.DownloadStatus.isSaved(): Boolean {
+   return this == Message.DownloadStatus.SAVED_EXTERNALLY || this == Message.DownloadStatus.SAVED_INTERNALLY
 }

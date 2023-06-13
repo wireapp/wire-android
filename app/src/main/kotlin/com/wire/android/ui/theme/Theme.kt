@@ -20,6 +20,7 @@
 
 package com.wire.android.ui.theme
 
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -39,7 +40,9 @@ fun WireTheme(
     CompositionLocalProvider(
         LocalWireColors provides wireColorScheme,
         LocalWireTypography provides wireTypography,
-        LocalWireDimensions provides wireDimensions
+        LocalWireDimensions provides wireDimensions,
+        // we need to provide our default content color dependent on the current colorScheme, otherwise it's Color.Black
+        LocalContentColor provides wireColorScheme.onBackground
     ) {
         MaterialTheme(
             colorScheme = wireColorScheme.toColorScheme(),

@@ -24,7 +24,7 @@ import android.content.Context
 import android.net.Uri
 import com.wire.android.appLogger
 import com.wire.android.ui.home.conversations.model.AssetBundle
-import com.wire.android.ui.home.conversations.model.AttachmentType
+import com.wire.kalium.logic.data.asset.AttachmentType
 import com.wire.android.util.dispatchers.DefaultDispatcherProvider
 import com.wire.android.util.dispatchers.DispatcherProvider
 import dagger.hilt.android.qualifiers.ApplicationContext

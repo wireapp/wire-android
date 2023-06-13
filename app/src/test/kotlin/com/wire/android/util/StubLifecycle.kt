@@ -14,32 +14,18 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
+package com.wire.android.util
 
-package com.wire.android.ui.home.conversations.model
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleObserver
+import androidx.lifecycle.LifecycleOwner
 
-import android.net.Uri
-import com.wire.kalium.logic.data.asset.AttachmentType
-import okio.Path
+class StubLifecycle(override var currentState: State = State.CREATED) : Lifecycle() {
 
-/**
- * Represents a set of metadata information of an asset message
- */
-data class AssetBundle(
-    val mimeType: String,
-    val dataPath: Path,
-    val dataSize: Long,
-    val fileName: String,
-    val assetType: AttachmentType
-)
+    override fun addObserver(observer: LifecycleObserver) = Unit
 
-/**
- * @param uri Uri of the asset
- * @param saveToDeviceIfInvalid if true then the asset will be copied to the public "media" directory if it's invalid (e.g. too large)
- */
-data class UriAsset(
-    val uri: Uri,
-    val saveToDeviceIfInvalid: Boolean = false
-)
+    override fun removeObserver(observer: LifecycleObserver) = Unit
+}
+
+class StubLifecycleOwner(override val lifecycle: Lifecycle = StubLifecycle()) : LifecycleOwner

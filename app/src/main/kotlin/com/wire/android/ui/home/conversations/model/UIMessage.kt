@@ -59,7 +59,8 @@ sealed class UIMessage(
         val sendingFailed: Boolean = header.messageStatus is MessageStatus.MessageSendFailureStatus
         val decryptionFailed: Boolean = header.messageStatus is DecryptionFailure
         val receivingFailed: Boolean = header.messageStatus == ReceiveFailure || decryptionFailed
-        val isAvailable: Boolean = !isDeleted && !sendingFailed && !receivingFailed && !header.messageStatus.isPending
+        val isAvailable: Boolean = !isDeleted && !sendingFailed && !receivingFailed
+        val isPending: Boolean = header.messageStatus.isPending
         val isMyMessage = source == MessageSource.Self
     }
 

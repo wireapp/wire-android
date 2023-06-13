@@ -1038,4 +1038,5 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="title_internal_debugging">Internal debugging</string>
     <string name="label_log_options_description">"Dadurch werden anonymisierte Informationen zur Fehlerbehebung lokal gespeichert. "</string>
     <string name="label_no_application_found_open_downloads_folder">"Keine Anwendung zum Öffnen des Download-Ordners gefunden"</string>
+    <string name="notification_obfuscated_message">Someone sent a Message</string>
 </resources>

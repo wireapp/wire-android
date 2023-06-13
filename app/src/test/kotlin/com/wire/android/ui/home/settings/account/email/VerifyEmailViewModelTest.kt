@@ -19,9 +19,11 @@ package com.wire.android.ui.home.settings.account.email
 
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
-import com.wire.android.navigation.EXTRA_NEW_EMAIL
+import com.wire.android.config.NavigationTestExtension
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.ui.home.settings.account.email.verifyEmail.VerifyEmailNavArgs
 import com.wire.android.ui.home.settings.account.email.verifyEmail.VerifyEmailViewModel
+import com.wire.android.ui.navArgs
 import com.wire.kalium.logic.feature.user.UpdateEmailUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -34,6 +36,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(CoroutineTestExtension::class)
+@ExtendWith(NavigationTestExtension::class)
 @OptIn(ExperimentalCoroutinesApi::class)
 class VerifyEmailViewModelTest {
 
@@ -81,7 +84,7 @@ class VerifyEmailViewModelTest {
         }
 
         fun withNewEmail(email: String?) = apply {
-            every { savedStateHandle.get<String>(EXTRA_NEW_EMAIL) } returns email
+            every { savedStateHandle.navArgs<VerifyEmailNavArgs>() } returns VerifyEmailNavArgs(newEmail = email)
         }
 
         fun withUpdateEmailResult(result: UpdateEmailUseCase.Result) = apply {

@@ -16,6 +16,7 @@ import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.StorageFailure
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.QualifiedID
+import com.wire.kalium.logic.data.service.ServiceDetails
 import com.wire.kalium.logic.data.service.ServiceId
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.conversation.AddServiceToConversationUseCase
@@ -73,8 +74,10 @@ class ServiceDetailsViewModel @Inject constructor(
             )
 
             selfUserId = observeSelfUser().first().id
-            getServiceDetailsAndUpdateViewState()
-            observeIsServiceConversationMember()
+            getServiceDetailsAndUpdateViewState()?.let {
+                observeIsServiceConversationMember()
+            }
+
         }
     }
 
@@ -118,9 +121,9 @@ class ServiceDetailsViewModel @Inject constructor(
         }
     }
 
-    private suspend fun getServiceDetailsAndUpdateViewState() {
-        viewModelScope.launch {
-            getServiceById(serviceId = serviceId)?.let { service ->
+    private suspend fun getServiceDetailsAndUpdateViewState(): ServiceDetails? =
+        getServiceById(serviceId = serviceId).also { service ->
+            if (service != null) {
                 val serviceAvatarAsset = service.completeAssetId?.let { asset ->
                     ImageAsset.UserAvatarAsset(wireSessionImageLoader, asset)
                 }
@@ -131,9 +134,8 @@ class ServiceDetailsViewModel @Inject constructor(
                     serviceAvatarAsset = serviceAvatarAsset,
                     serviceDetails = service
                 )
-            } ?: serviceNotFound()
+            } else serviceNotFound()
         }
-    }
 
     private suspend fun observeGroupInfo(): Flow<ServiceDetailsGroupState> {
         return observeConversationRoleForUser(conversationId, selfUserId)
@@ -146,7 +148,6 @@ class ServiceDetailsViewModel @Inject constructor(
     }
 
     private suspend fun observeIsServiceConversationMember() {
-        viewModelScope.launch {
             observeIsServiceMember(
                 serviceId = serviceId,
                 conversationId = conversationId
@@ -160,7 +161,6 @@ class ServiceDetailsViewModel @Inject constructor(
                         groupInfo = groupInfo
                     )
                 }
-        }
     }
 
     private fun serviceNotFound() {

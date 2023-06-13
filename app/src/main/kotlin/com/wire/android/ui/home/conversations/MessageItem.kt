@@ -146,7 +146,7 @@ fun MessageItem(
                         onLongClick = remember(message) { { onLongClicked(message) } }
                     )
                     .padding(
-                        end = dimensions().spacing16x,
+                        end = dimensions().spacing12x,
                         top = halfItemBottomPadding - fullAvatarOuterPadding,
                         bottom = halfItemBottomPadding
                     )
@@ -227,14 +227,16 @@ fun MessageItem(
                                         onOpenProfile = onOpenProfile
                                     )
                                 }
-                                HorizontalSpace.x4()
                                 if (isMyMessage) {
                                     MessageStatusIndicator(
                                         message.header.messageStatus.flowStatus,
-                                        Modifier.padding(top = dimensions().spacing2x)
+                                        Modifier.padding(
+                                            top = if(message.isTextContentWithoutQuote) dimensions().spacing2x else dimensions().spacing4x,
+                                            start = dimensions().spacing8x,
+                                        )
                                     )
                                 } else {
-                                    HorizontalSpace.x16()
+                                    HorizontalSpace.x24()
                                 }
                             }
                             MessageFooter(

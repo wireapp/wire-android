@@ -58,6 +58,7 @@ sealed class UIMessage(
         val isAvailable: Boolean = !isDeleted && !sendingFailed && !decryptionFailed
         val isPending: Boolean = header.messageStatus.flowStatus == MessageFlowStatus.Sending
         val isMyMessage = source == MessageSource.Self
+        val isTextContentWithoutQuote = messageContent is UIMessageContent.TextMessage && messageContent.messageBody.quotedMessage == null
     }
 
     data class System(
@@ -67,7 +68,6 @@ sealed class UIMessage(
     ) : UIMessage(header, source) {
         val sendingFailed: Boolean = header.messageStatus.flowStatus is MessageFlowStatus.Failure.Send
         val decryptionFailed: Boolean = header.messageStatus.flowStatus is MessageFlowStatus.Failure.Decryption
-
     }
 }
 
@@ -144,7 +144,6 @@ sealed class MessageFlowStatus {
     object Delivered : MessageFlowStatus()
 
     data class Read(val count: Int) : MessageFlowStatus()
-
 }
 
 data class MessageStatus(

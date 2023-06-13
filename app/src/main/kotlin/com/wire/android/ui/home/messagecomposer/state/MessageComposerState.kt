@@ -170,6 +170,32 @@ data class MessageComposerState(
         inputFocusRequester.requestFocus()
     }
 
+    fun toRichTextEditingOptions(
+        originalText: String
+    ) {
+        messageComposeInputState = MessageComposeInputState.Active(
+            messageText = messageComposeInputState.messageText,
+            type = MessageComposeInputType.RichTextFormattingMessage(
+                messageId = ((messageComposeInputState as? MessageComposeInputState.Active)
+                    ?.type as? MessageComposeInputType.EditMessage)
+                    ?.messageId,
+                originalText = originalText,
+                previousInputType = (messageComposeInputState as? MessageComposeInputState.Active)
+                    ?.type
+                    ?: MessageComposeInputType.NewMessage(attachmentOptionsDisplayed = false)
+            )
+        )
+    }
+
+    fun toCloseRichTextEditingOptions() {
+        messageComposeInputState = MessageComposeInputState.Active(
+            messageText = messageComposeInputState.messageText,
+            type = ((messageComposeInputState as MessageComposeInputState.Active)
+                .type as MessageComposeInputType.RichTextFormattingMessage)
+                .previousInputType
+        )
+    }
+
     fun showAttachmentOptions() = changeAttachmentOptionsVisibility(true)
     fun hideAttachmentOptions() = changeAttachmentOptionsVisibility(false)
     private fun changeAttachmentOptionsVisibility(newValue: Boolean) {

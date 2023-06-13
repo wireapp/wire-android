@@ -88,16 +88,30 @@ sealed class MessageComposeInputState {
     val isEditMessage: Boolean
         get() = this is Active && this.type is MessageComposeInputType.EditMessage
     val editSaveButtonEnabled: Boolean
-        get() = this is Active && this.type is MessageComposeInputType.EditMessage && messageText.text.trim().isNotBlank()
-                && messageText.text != this.type.originalText
+        get() = this is Active
+                && ((this.type is MessageComposeInputType.EditMessage
+                            && messageText.text != this.type.originalText)
+                    || (this.type is MessageComposeInputType.RichTextFormattingMessage
+                            && messageText.text != this.type.originalText))
+                && messageText.text.trim().isNotBlank()
     val sendButtonEnabled: Boolean
-        get() = this is Active && this.type is MessageComposeInputType.NewMessage && messageText.text.trim().isNotBlank()
+        get() = this is Active
+                && (this.type is MessageComposeInputType.NewMessage
+                || this.type is MessageComposeInputType.RichTextFormattingMessage)
+                && messageText.text.trim().isNotBlank()
 
     val sendEphemeralMessageButtonEnabled: Boolean
-        get() = this is Active && this.type is MessageComposeInputType.SelfDeletingMessage && messageText.text.trim().isNotBlank()
+        get() = this is Active
+                && (this.type is MessageComposeInputType.SelfDeletingMessage
+                || this.type is MessageComposeInputType.RichTextFormattingMessage)
+                && messageText.text.trim().isNotBlank()
 
     val isEphemeral: Boolean
         get() = this is Active && this.type is MessageComposeInputType.SelfDeletingMessage
+
+    val isRichTextFormatting: Boolean
+        get() = this is Active
+                && this.type is MessageComposeInputType.RichTextFormattingMessage
 }
 
 enum class MessageComposeInputSize {
@@ -125,6 +139,13 @@ sealed class MessageComposeInputType {
         val selfDeletionDuration: SelfDeletionDuration,
         val isEnforced: Boolean,
         val attachmentOptionsDisplayed: Boolean = false
+    ) : MessageComposeInputType()
+
+    @Stable
+    data class RichTextFormattingMessage(
+        val messageId: String?,
+        val originalText: String,
+        val previousInputType: MessageComposeInputType
     ) : MessageComposeInputType()
 }
 

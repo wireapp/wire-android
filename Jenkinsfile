@@ -16,7 +16,7 @@ List<String> defineFlavor() {
     } else if (branchName == "internal") {
         return ['Internal']
     }
-    return ['Internal', 'Dev', 'Prod']
+    return ['Internal', 'Dev']
 }
 
 String defineBuildType(String flavor) {
@@ -33,18 +33,6 @@ String defineBuildType(String flavor) {
     }
     // use the scala client signing keys for testing upgrades.
     return "Compat"
-}
-
-def defineTrackName() {
-    def overwrite = env.CUSTOM_TRACK
-    def branchName = env.BRANCH_NAME
-
-    if (overwrite != null) {
-        return overwrite
-    } else if (branchName == "main") {
-        return 'internal'
-    }
-    return 'None'
 }
 
 String shellQuote(String s) {
@@ -117,10 +105,6 @@ pipeline {
                 }
             }
         }
-    }
-
-    environment {
-        trackName = defineTrackName()
     }
 
     post {

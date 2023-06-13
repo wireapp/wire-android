@@ -53,7 +53,6 @@ def defineTrackName(String branchName) {
     return 'None'
 }
 
-
 pipeline {
     agent {
         docker {
@@ -387,46 +386,51 @@ pipeline {
                                     params.RUN_UNIT_TEST &&
                                     params.RUN_STATIC_CODE_ANALYSIS &&
                                     params.UPLOAD_TO_S3 &&
-                                    env.trackName != 'None' &&
                                     params.FLAVOR == 'Beta' &&
                                     params.BUILD_TYPE == 'Release' &&
                                     params.CHANGE_ID == null
                         }
                     }
                     steps {
+                        def trackName = "internal"
                         echo 'Checking folder before playstore upload'
                         sh "ls -la app/build/outputs/bundle/${params.FLAVOR.toLowerCase()}${params.BUILD_TYPE.capitalize()}/"
-                        echo 'Uploading file to Playstore track ${trackName}'
-                        androidApkUpload(googleCredentialsId: "${env.GOOGLE_PLAY_CREDS}", filesPattern: "app/build/outputs/bundle/${params.FLAVOR.toLowerCase()}${params.BUILD_TYPE.capitalize()}/com.wire.android-*.aab", trackName: "${trackName}", rolloutPercentage: '100', releaseName: "${trackName} Release")
+                        echo 'Uploading file to Playstore track internal'
+                        androidApkUpload(
+                                googleCredentialsId: "${env.GOOGLE_PLAY_CREDS}",
+                                filesPattern: "app/build/outputs/bundle/${params.FLAVOR.toLowerCase()}${params.BUILD_TYPE.capitalize()}/com.wire.android-*.aab",
+                                trackName: trackName,
+                                rolloutPercentage: '100',
+                                releaseName: "${trackName} Release"
+                        )
                     }
                 }
 
                 stage('Upload to Wire Prod') {
                     when {
                         expression {
-                            false &&
-                                    params.UPLOAD_TO_PLAYSTORE_ENABLED &&
+                            params.UPLOAD_TO_PLAYSTORE_ENABLED &&
                                     params.RUN_ACCEPTANCE_TESTS &&
                                     params.RUN_UNIT_TEST &&
                                     params.RUN_STATIC_CODE_ANALYSIS &&
                                     params.UPLOAD_TO_S3 &&
-                                    env.trackName != 'None' &&
                                     params.FLAVOR == 'Prod' &&
-//                                    params.SOURCE_BRANCH == 'prod' &&
+                                    params.SOURCE_BRANCH == 'prod' &&
                                     params.BUILD_TYPE == 'Compatrelease' &&
                                     params.CHANGE_ID == null
                         }
                     }
                     steps {
+                        def trackName = env.WIRE_ANDROID_PROD_TRACK_NAME
                         echo 'Checking folder before prod playstore upload'
                         sh "ls -la app/build/outputs/bundle/${params.FLAVOR.toLowerCase()}${params.BUILD_TYPE.capitalize()}/"
-                        echo 'Uploading file to prod Playstore track ${trackName}'
+                        echo "Uploading file to prod Playstore track ${trackName}"
                         androidApkUpload(
                                 googleCredentialsId: "${env.GOOGLE_PLAY_CREDS}",
                                 filesPattern: "app/build/outputs/bundle/${params.FLAVOR.toLowerCase()}${params.BUILD_TYPE.capitalize()}/com.wire.android-*.aab",
-                                trackName: "potato",
-                                rolloutPercentage: '0',
-                                releaseName: "potato Release"
+                                trackName: trackName,
+                                rolloutPercentage: '100',
+                                releaseName: "${trackName} Release"
                         )
                     }
                 }
@@ -434,30 +438,29 @@ pipeline {
                 stage('Upload to Wire Internal') {
                     when {
                         expression {
-                            // TODO: remove this condition when we will have prod release
-                            false &&
-                                    params.UPLOAD_TO_PLAYSTORE_ENABLED &&
+                            params.UPLOAD_TO_PLAYSTORE_ENABLED &&
                                     params.RUN_ACCEPTANCE_TESTS &&
                                     params.RUN_UNIT_TEST &&
                                     params.RUN_STATIC_CODE_ANALYSIS &&
                                     params.UPLOAD_TO_S3 &&
-                                    env.trackName != 'None' &&
                                     params.FLAVOR == 'Internal' &&
-                                    params.SOURCE_BRANCH == 'prod' &&
+                                    // TODO: re add this condition
+                                    // params.SOURCE_BRANCH == 'Internal' &&
                                     params.BUILD_TYPE == 'Compat' &&
                                     params.CHANGE_ID == null
                         }
                     }
                     steps {
+                        def trackName = "Alpha"
                         echo 'Checking folder before prod playstore upload'
                         sh "ls -la app/build/outputs/bundle/${params.FLAVOR.toLowerCase()}${params.BUILD_TYPE.capitalize()}/"
                         echo 'Uploading file to prod Playstore track ${trackName}'
                         androidApkUpload(
                                 googleCredentialsId: "${env.GOOGLE_PLAY_CREDS}",
                                 filesPattern: "app/build/outputs/bundle/${params.FLAVOR.toLowerCase()}${params.BUILD_TYPE.capitalize()}/com.wire.android-*.aab",
-                                trackName: "${env.WIRE_ANDROID_INTERNAL_TRACK_NAME}",
+                                trackName: trackName,
                                 rolloutPercentage: '100',
-                                releaseName: "${env.WIRE_ANDROID_INTERNAL_TRACK_NAME} Release"
+                                releaseName: "${trackName} Release"
                         )
                     }
                 }

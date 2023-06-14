@@ -23,10 +23,9 @@ package com.wire.android.ui.home.conversations.banner
 import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
 import com.wire.android.config.CoroutineTestExtension
+import com.wire.android.config.NavigationTestExtension
 import com.wire.android.config.mockUri
 import com.wire.android.framework.TestConversationDetails
-import com.wire.android.navigation.EXTRA_CONVERSATION_ID
-import com.wire.android.config.NavigationTestExtension
 import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.ui.home.conversations.banner.usecase.ObserveConversationMembersByTypesUseCase
 import com.wire.android.ui.navArgs

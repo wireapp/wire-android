@@ -35,7 +35,6 @@ import com.wire.android.ui.navArgs
 import com.wire.android.util.CurrentScreen
 import com.wire.android.util.CurrentScreenManager
 import com.wire.kalium.logic.data.call.CallClient
-import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.RequestVideoStreamsUseCase
@@ -58,7 +57,6 @@ class OngoingCallViewModel @Inject constructor(
 
     private val ongoingCallNavArgs: CallingNavArgs = savedStateHandle.navArgs()
     private val conversationId: QualifiedID = ongoingCallNavArgs.conversationId
-
 
     var shouldShowDoubleTapToast by mutableStateOf(false)
     private var doubleTapIndicatorCountDownTimer: CountDownTimer? = null

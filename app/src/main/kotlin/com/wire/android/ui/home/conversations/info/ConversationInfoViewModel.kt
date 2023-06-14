@@ -27,12 +27,10 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.wire.android.R
 import com.wire.android.model.ImageAsset
-import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.navigation.SavedStateViewModel
 import com.wire.android.ui.destinations.GroupConversationDetailsScreenDestination
-import com.wire.android.ui.destinations.HomeScreenDestination
 import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
 import com.wire.android.ui.destinations.SelfUserProfileScreenDestination
 import com.wire.android.ui.home.conversations.ConversationNavArgs

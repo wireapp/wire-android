@@ -82,14 +82,15 @@ class GroupConversationParticipantsViewModelTest {
         // Given
         val member = testUIParticipant(0).copy(isSelf = false)
         val (arrangement, viewModel) = GroupConversationParticipantsViewModelArrangement().arrange()
+        val otherUserProfileScreen = OtherUserProfileScreenDestination(member.id, arrangement.conversationId)
+
         // When
-        viewModel.openProfile(member)
+        viewModel.openProfile(member, otherUserProfileScreen)
+
         // Then
         coVerify(exactly = 1) {
             arrangement.navigationManager.navigate(
-                NavigationCommand(
-                    OtherUserProfileScreenDestination(member.id, arrangement.conversationId)
-                )
+                NavigationCommand(otherUserProfileScreen)
             )
         }
     }
@@ -104,14 +105,13 @@ class GroupConversationParticipantsViewModelTest {
             botService = botService
         )
         val (arrangement, viewModel) = GroupConversationParticipantsViewModelArrangement().arrange()
+        val serviceScreen = ServiceDetailsScreenDestination(botService, arrangement.conversationId)
         // When
-        viewModel.openProfile(member)
+        viewModel.openProfile(member, serviceScreen)
         // Then
         coVerify(exactly = 1) {
             arrangement.navigationManager.navigate(
-                NavigationCommand(
-                    ServiceDetailsScreenDestination(botService, arrangement.conversationId)
-                )
+                NavigationCommand(serviceScreen)
             )
         }
     }

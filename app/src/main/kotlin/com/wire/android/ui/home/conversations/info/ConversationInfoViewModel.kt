@@ -25,6 +25,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import com.ramcosta.composedestinations.spec.Direction
 import com.wire.android.R
 import com.wire.android.model.ImageAsset
 import com.wire.android.navigation.NavigationCommand
@@ -177,23 +178,31 @@ class ConversationInfoViewModel @Inject constructor(
         }
     }
 
-    fun navigateToProfile(mentionUserId: String) {
+    fun navigateToProfile(mentionUserId: String, direction: Direction? = null) {
         viewModelScope.launch {
             if (selfUserId.toString() == mentionUserId) {
                 navigateToSelfProfile()
             } else {
                 val userId = qualifiedIdMapper.fromStringToQualifiedID(mentionUserId)
                 when (conversationInfoViewState.conversationDetailsData) {
-                    is ConversationDetailsData.Group -> navigateToOtherProfile(userId, conversationId)
-                    else -> navigateToOtherProfile(userId)
+                    is ConversationDetailsData.Group -> navigateToOtherProfile(
+                        direction ?: OtherUserProfileScreenDestination(userId, conversationId)
+                    )
+                    else -> {
+                        navigateToOtherProfile(direction ?: OtherUserProfileScreenDestination(userId))
+                    }
                 }
             }
         }
     }
 
-    private suspend fun navigateToSelfProfile() =
+    private suspend fun navigateToSelfProfile() {
         navigationManager.navigate(NavigationCommand(SelfUserProfileScreenDestination))
+    }
 
-    private suspend fun navigateToOtherProfile(id: UserId, conversationId: QualifiedID? = null) =
-        navigationManager.navigate(NavigationCommand(OtherUserProfileScreenDestination(id, conversationId)))
+    private suspend fun navigateToOtherProfile(
+        direction: Direction
+    ) {
+        navigationManager.navigate(NavigationCommand(direction))
+    }
 }

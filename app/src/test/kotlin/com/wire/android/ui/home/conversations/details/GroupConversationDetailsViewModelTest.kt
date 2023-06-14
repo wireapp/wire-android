@@ -23,13 +23,16 @@ package com.wire.android.ui.home.conversations.details
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
-import com.wire.android.framework.TestConversation
 import com.wire.android.framework.TestUser
 import com.wire.android.mapper.testUIParticipant
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.config.NavigationTestExtension
+import com.wire.android.navigation.EXTRA_CONVERSATION_ID
+import com.wire.android.ui.calling.OngoingCallViewModelTest.Companion.conversationId
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationSheetContent
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationTypeDetail
+import com.wire.android.ui.home.conversations.details.GroupConversationDetailsViewModelTest.Companion.dummyConversationId
+import com.wire.android.ui.home.conversations.details.participants.GroupConversationAllParticipantsNavArgs
 import com.wire.android.ui.home.conversations.details.participants.model.ConversationParticipantsData
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
 import com.wire.android.ui.navArgs
@@ -569,12 +572,18 @@ internal class GroupConversationDetailsViewModelArrangement {
         )
     }
 
+    val conversationId = ConversationId("some-dummy-value", "some.dummy.domain")
+
     init {
+
         // Tests setup
         MockKAnnotations.init(this, relaxUnitFun = true)
+
         every { savedStateHandle.navArgs<GroupConversationDetailsNavArgs>() } returns GroupConversationDetailsNavArgs(
-            conversationId = TestConversation.ID
+            conversationId = conversationId
         )
+        every { savedStateHandle.get<String>(EXTRA_CONVERSATION_ID) } returns dummyConversationId.toString()
+
         // Default empty values
         coEvery { observeConversationDetails(any()) } returns flowOf()
         coEvery { observerSelfUser() } returns flowOf(TestUser.SELF_USER)
@@ -586,10 +595,7 @@ internal class GroupConversationDetailsViewModelArrangement {
     }
 
     fun withSavedStateConversationId(conversationId: ConversationId) = apply {
-//        every { savedStateHandle.get<String>(EXTRA_CONVERSATION_ID) } returns conversationId.toString()
-        every { savedStateHandle.navArgs<GroupConversationDetailsNavArgs>() } returns GroupConversationDetailsNavArgs(
-            conversationId = conversationId
-        )
+        every { savedStateHandle.get<String>(EXTRA_CONVERSATION_ID) } returns conversationId.toString()
     }
 
     suspend fun withConversationDetailUpdate(conversationDetails: ConversationDetails) = apply {

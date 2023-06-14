@@ -95,12 +95,14 @@ class ConversationInfoViewModelTest {
         coEvery {
             arrangement.qualifiedIdMapper.fromStringToQualifiedID("other@domain")
         } returns QualifiedID("other", "domain")
+        val otherScreen = OtherUserProfileScreenDestination(userId)
 
         // When
-        viewModel.navigateToProfile(userId.toString())
+        viewModel.navigateToProfile(userId.toString(), otherScreen)
+
         // Then
         coVerify(exactly = 1) {
-            arrangement.navigationManager.navigate(NavigationCommand(OtherUserProfileScreenDestination(userId)))
+            arrangement.navigationManager.navigate(NavigationCommand(otherScreen))
         }
     }
 
@@ -113,17 +115,20 @@ class ConversationInfoViewModelTest {
             .withConversationDetailUpdate(groupDetails)
             .withSelfUser()
             .arrange()
+        val otherScreen = OtherUserProfileScreenDestination(userId, arrangement.conversationId)
+
         coEvery {
             arrangement.qualifiedIdMapper.fromStringToQualifiedID("other@domain")
         } returns QualifiedID("other", "domain")
+
         launch { viewModel.observeConversationDetails() }.run {
             advanceUntilIdle()
             // When
-            viewModel.navigateToProfile(userId.toString())
+            viewModel.navigateToProfile(userId.toString(), otherScreen)
             // Then
             coVerify(exactly = 1) {
                 arrangement.navigationManager.navigate(
-                    NavigationCommand(OtherUserProfileScreenDestination(userId, arrangement.conversationId))
+                    NavigationCommand(otherScreen)
                 )
             }
             cancel()

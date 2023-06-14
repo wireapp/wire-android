@@ -151,6 +151,7 @@ private fun CloseButton(
     }
 }
 
-const val RICH_TEXT_MARKDOWN_HEADER = "#### "
+const val RICH_TEXT_MARKDOWN_MULTIPLIER = 2
+const val RICH_TEXT_MARKDOWN_HEADER = "# "
 const val RICH_TEXT_MARKDOWN_BOLD = "**"
 const val RICH_TEXT_MARKDOWN_ITALIC = "_"

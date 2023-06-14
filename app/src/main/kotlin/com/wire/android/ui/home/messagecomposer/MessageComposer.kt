@@ -400,44 +400,45 @@ private fun addOrRemoveMessageMarkdown(
 
     val range = originalValue.selection
     val selectedText = originalValue.getSelectedText()
-    val markdownSize = markdown.length
-    val markdownSizeComplete = markdownSize * 2
+    val stringBuilder = StringBuilder(originalValue.annotatedString)
+    val markdownLength = markdown.length
+    val markdownLengthComplete =
+        if (isHeader) markdownLength else (markdownLength * RICH_TEXT_MARKDOWN_MULTIPLIER)
 
-
-    val (text, start, end) = if (selectedText.contains(markdown)) {
+    val rangeEnd = if (selectedText.contains(markdown)) {
         // Remove Markdown
-        val stringBuilder = StringBuilder(originalValue.annotatedString)
         stringBuilder.replace(
             range.start,
             range.end,
             selectedText.toString().replace(markdown, String.EMPTY)
         )
 
-        Triple(
-            stringBuilder.toString(),
-            range.start,
-            (range.end - if (isHeader) markdownSize else markdownSizeComplete)
-        )
+        range.end - markdownLengthComplete
     } else {
         // Add Markdown
-        val stringBuilder = StringBuilder(originalValue.annotatedString)
         stringBuilder.insert(range.start, markdown)
-        if (isHeader.not()) stringBuilder.insert(range.end + markdownSize, markdown)
+        if (isHeader.not()) stringBuilder.insert(range.end + markdownLength, markdown)
 
-        Triple(
-            stringBuilder.toString(),
-            range.start,
-            (range.end + if (isHeader) markdownSize else markdownSizeComplete)
-        )
+        range.end + markdownLengthComplete
+    }
+
+    val (selectionStart, selectionEnd) = if (range.start == range.end) {
+        if (isHeader) Pair(rangeEnd, rangeEnd)
+        else {
+            val middleMarkdownRange = rangeEnd - markdownLength
+            Pair(middleMarkdownRange, middleMarkdownRange)
+        }
+    } else {
+        Pair(range.start, rangeEnd)
     }
 
     // Set new text
     messageComposerState.setMessageTextValue(
         text = TextFieldValue(
-            text = text,
+            text = stringBuilder.toString(),
             selection = TextRange(
-                start = start,
-                end = end
+                start = selectionStart,
+                end = selectionEnd
             )
         )
     )

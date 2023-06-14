@@ -44,6 +44,7 @@
     <string name="label_message_sent_failure">Wiadomo&#347;&#263; nie mog&#322;a zosta&#263; wys&#322;ana ze wzgl&#281;du na problemy z po&#322;&#261;czeniem.</string>
     <string name="label_message_edit_sent_failure">Edytowana wiadomo&#347;&#263; nie mog&#322;a zosta&#263; wys&#322;ana ze wzgl&#281;du na problemy z po&#322;&#261;czeniem.</string>
     <string name="label_message_sent_remotely_failure">Wiadomo&#347;&#263; nie mog&#322;a zosta&#263; wys&#322;ana, poniewa&#380; &#347;rodowisko %s wydaje si&#281; by&#263; niedost&#281;pne.</string>
+    <string name="label_message_edit_sent_remotely_failure">The edited message could not be sent, as the backend %s appears to be offline.</string>
     <string name="label_message_receive_failure">B&#322;&#261;d Pobierania</string>
     <string name="label_message_decryption_failure_message">Wiadomo&#347;&#263; nie mog&#322;a zosta&#263; odszyfrowana.</string>
     <string name="label_message_decryption_failure_informative_message">Spr&#243;buj zresetowa&#263; sesj&#281;, aby wygenerowa&#263; nowe klucze szyfrowania.</string>
@@ -144,6 +145,11 @@
     <string name="content_description_calling_call_paused_camera">Kamera zatrzymana</string>
     <string name="content_description_more_emojis">Wi&#281;cej emotikon&#243;w</string>
     <string name="content_description_self_deletion_selector_button">Toggle self deletion mode, button</string>
+    <string name="content_description_message_sending_status">Message sending status</string>
+    <string name="content_description_message_sent_status">Message sent status</string>
+    <string name="content_description_message_error_status">Message error status</string>
+    <string name="content_description_message_delivered_status">Message delivered status</string>
+    <string name="content_description_message_read_status">Message read status</string>
     <!-- Non translatable strings-->
     <!-- Navigation -->
     <string name="vault_screen_title">Skrytka</string>

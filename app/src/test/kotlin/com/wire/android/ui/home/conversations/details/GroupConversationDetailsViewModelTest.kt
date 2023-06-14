@@ -30,6 +30,7 @@ import com.wire.android.navigation.NavigationManager
 import com.wire.android.config.NavigationTestExtension
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationSheetContent
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationTypeDetail
+import com.wire.android.ui.home.conversations.details.GroupConversationDetailsViewModelTest.Companion.dummyConversationId
 import com.wire.android.ui.home.conversations.details.participants.model.ConversationParticipantsData
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
 import com.wire.android.ui.navArgs

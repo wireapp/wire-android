@@ -159,7 +159,7 @@ class RegisterDeviceViewModelTest {
             registerClientUseCase(any())
         }
         coVerify(exactly = 1) {
-            navigationManager.navigate(NavigationCommand(RemoveDeviceScreenDestination, BackStackMode.CLEAR_WHOLE))
+            navigationManager.navigate(NavigationCommand(RemoveDeviceScreenDestination))
         }
     }
 

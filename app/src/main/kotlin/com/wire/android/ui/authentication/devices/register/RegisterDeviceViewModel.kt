@@ -32,6 +32,7 @@ import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.destinations.HomeScreenDestination
 import com.wire.android.ui.destinations.InitialSyncScreenDestination
+import com.wire.android.ui.destinations.RemoveDeviceScreenDestination
 import com.wire.kalium.logic.feature.client.GetOrRegisterClientUseCase
 import com.wire.kalium.logic.feature.client.RegisterClientResult
 import com.wire.kalium.logic.feature.client.RegisterClientUseCase
@@ -62,6 +63,7 @@ class RegisterDeviceViewModel @Inject constructor(
                     is IsPasswordRequiredUseCase.Result.Failure -> {
                         updateErrorState(RegisterDeviceError.GenericError(it.cause))
                     }
+
                     is IsPasswordRequiredUseCase.Result.Success -> {
                         updateState(state.copy(isPasswordRequired = it.value))
                     }
@@ -96,16 +98,19 @@ class RegisterDeviceViewModel @Inject constructor(
             is RegisterClientResult.Success -> {
                 navigateAfterRegisterClientSuccess()
             }
+
             is RegisterClientResult.Failure.Generic -> state = state.copy(
                 loading = false,
                 continueEnabled = true,
                 error = RegisterDeviceError.GenericError(registerDeviceResult.genericFailure)
             )
+
             is RegisterClientResult.Failure.InvalidCredentials -> state = state.copy(
                 loading = false,
                 continueEnabled = true,
                 error = RegisterDeviceError.InvalidCredentialsError
             )
+
             is RegisterClientResult.Failure.PasswordAuthRequired -> state = state.copy(
                 loading = false,
                 isPasswordRequired = true
@@ -127,8 +132,9 @@ class RegisterDeviceViewModel @Inject constructor(
         state = newState
     }
 
-    private suspend fun navigateToRemoveDevicesScreen() =
-        navigationManager.navigate(NavigationCommand(HomeScreenDestination, BackStackMode.CLEAR_WHOLE))
+    private suspend fun navigateToRemoveDevicesScreen() = navigationManager.navigate(
+        NavigationCommand(RemoveDeviceScreenDestination)
+    )
 
     private suspend fun navigateAfterRegisterClientSuccess() =
         if (userDataStore.initialSyncCompleted.first()) {

@@ -59,7 +59,6 @@ class OngoingCallViewModel @Inject constructor(
     private val ongoingCallNavArgs: CallingNavArgs = savedStateHandle.navArgs()
     private val conversationId: QualifiedID = ongoingCallNavArgs.conversationId
 
-
     var shouldShowDoubleTapToast by mutableStateOf(false)
     private var doubleTapIndicatorCountDownTimer: CountDownTimer? = null
 

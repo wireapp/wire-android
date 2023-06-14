@@ -88,7 +88,7 @@ class ConversationInfoViewModel @Inject constructor(
         observeConversationDetails(conversationId).collect(::handleConversationDetailsResult)
     }
 
-    private suspend fun handleConversationDetailsResult(conversationDetailsResult: ObserveConversationDetailsUseCase.Result) {
+    private fun handleConversationDetailsResult(conversationDetailsResult: ObserveConversationDetailsUseCase.Result) {
         when (conversationDetailsResult) {
             is ObserveConversationDetailsUseCase.Result.Failure -> {
                 // Nothing to do
@@ -198,7 +198,4 @@ class ConversationInfoViewModel @Inject constructor(
 
     private suspend fun navigateToOtherProfile(id: UserId, conversationId: QualifiedID? = null) =
         navigationManager.navigate(NavigationCommand(OtherUserProfileScreenDestination(id, conversationId)))
-
-    private suspend fun navigateToHome() =
-        navigationManager.navigate(NavigationCommand(HomeScreenDestination, BackStackMode.UPDATE_EXISTED))
 }

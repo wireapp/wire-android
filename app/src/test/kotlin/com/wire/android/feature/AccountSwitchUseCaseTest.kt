@@ -100,7 +100,6 @@ class AccountSwitchUseCaseTest {
             }
         }
 
-
     @Test
     fun givenCurrentSessionIsInvalid_whenSwitchingToAccount_thenUpdateCurrentSessionAndDeleteTheOldOne() = runTest {
         val currentAccount = ACCOUNT_INVALID_3

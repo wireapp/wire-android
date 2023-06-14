@@ -86,7 +86,6 @@ import javax.inject.Inject
 @Suppress("TooManyFunctions", "LongParameterList")
 @HiltViewModel
 class GroupConversationDetailsViewModel @Inject constructor(
-//    private val navigator: DestinationsNavigator,
     private val navigationManager: NavigationManager,
     private val dispatcher: DispatcherProvider,
     private val observeConversationDetails: ObserveConversationDetailsUseCase,

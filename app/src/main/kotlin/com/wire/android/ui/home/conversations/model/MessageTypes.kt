@@ -63,9 +63,11 @@ import java.util.Arrays
 @Composable
 internal fun MessageBody(
     messageBody: MessageBody,
+    isAvailable: Boolean,
     onLongClick: (() -> Unit)? = null,
     onOpenProfile: (String) -> Unit,
 ) {
+
     val extensions: List<Extension> = listOf(
         StrikethroughExtension.builder().requireTwoTildes(true).build(),
         TablesExtension.create()
@@ -76,7 +78,7 @@ internal fun MessageBody(
 //    LinkifyText(
 //        text = messageBody.message,
 //        mask = Linkify.WEB_URLS or Linkify.EMAIL_ADDRESSES,
-//        color = MaterialTheme.colorScheme.onBackground,
+//        color = if (isAvailable) MaterialTheme.colorScheme.onBackground else MaterialTheme.wireColorScheme.secondaryText,
 //        onLongClick = onLongClick,
 //        modifier = Modifier.defaultMinSize(minHeight = dimensions().spacing20x),
 //        style = MaterialTheme.wireTypography.body01,

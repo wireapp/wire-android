@@ -81,29 +81,6 @@ import org.commonmark.node.StrongEmphasis
 import org.commonmark.node.ThematicBreak
 import org.commonmark.node.Text as nodeText
 
-
-/**
- * These functions will render a tree of Markdown nodes parsed with CommonMark.
- * Images will be rendered using Chris Banes Accompanist library (which uses Coil)
- *
- * To use this, you need the following two dependencies:
- * implementation "com.atlassian.commonmark:commonmark:0.15.2"
- * implementation "dev.chrisbanes.accompanist:accompanist-coil:0.2.0"
- *
- * The following is an example of how to use this:
- * ```
- * val parser = Parser.builder().build()
- * val root = parser.parse(MIXED_MD) as Document
- * val markdownComposer = MarkdownComposer()
- *
- * MarkdownComposerTheme {
- *    MDDocument(root)
- * }
- * ```
- */
-private const val TAG_URL = "url"
-private const val TAG_IMAGE_URL = "imageUrl"
-
 @Composable
 fun MDDocument(document: Document) {
     MDBlockChildren(document)
@@ -113,7 +90,7 @@ fun MDDocument(document: Document) {
 fun MDBlockChildren(parent: Node) {
     var child = parent.firstChild
     while (child != null) {
-        com.wire.android.appLogger.d("KBX $child")
+        appLogger.d("KBX $child")
         when (child) {
             is Document -> MDDocument(child)
             is BlockQuote -> MDBlockQuote(child)
@@ -465,3 +442,6 @@ fun MarkdownText(text: AnnotatedString, style: TextStyle) {
         maxLines = Int.MAX_VALUE
     )
 }
+
+private const val TAG_URL = "url"
+private const val TAG_IMAGE_URL = "imageUrl"

@@ -462,7 +462,7 @@ private fun MessageContent(
                 }
                 MessageBody(
                     messageBody = messageContent.messageBody,
-                    isAvailable = message.isPending || !message.isAvailable,
+                    isAvailable = !message.isPending && message.isAvailable,
                     onLongClick = onLongClick,
                     onOpenProfile = onOpenProfile
                 )

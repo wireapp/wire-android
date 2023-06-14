@@ -68,7 +68,7 @@ interface ConnectionActionButtonViewModel {
     fun onSendConnectionRequest()
     fun onCancelConnectionRequest()
     fun onAcceptConnectionRequest()
-    fun onIgnoreConnectionRequest(onSuccess: () -> Unit)
+    fun onIgnoreConnectionRequest(onSuccess: (userName: String) -> Unit)
     fun onUnblockUser()
     fun onOpenConversation()
 }
@@ -153,7 +153,7 @@ class ConnectionActionButtonViewModelImpl @Inject constructor(
         }
     }
 
-    override fun onIgnoreConnectionRequest(onSuccess: () -> Unit) {
+    override fun onIgnoreConnectionRequest(onSuccess: (userName: String) -> Unit) {
         viewModelScope.launch {
             state = state.performAction()
             when (ignoreConnectionRequest(userId)) {
@@ -165,7 +165,7 @@ class ConnectionActionButtonViewModelImpl @Inject constructor(
 
                 is IgnoreConnectionRequestUseCaseResult.Success -> {
                     state = state.updateState(ConnectionState.IGNORED)
-                    onSuccess()
+                    onSuccess(userName)
                 }
             }
         }
@@ -220,7 +220,7 @@ class ConnectionActionButtonPreviewModel(private val state: ActionableState<Conn
     override fun onSendConnectionRequest() {}
     override fun onCancelConnectionRequest() {}
     override fun onAcceptConnectionRequest() {}
-    override fun onIgnoreConnectionRequest(onSuccess: () -> Unit) {}
+    override fun onIgnoreConnectionRequest(onSuccess: (userName: String) -> Unit) {}
     override fun onUnblockUser() {}
     override fun onOpenConversation() {}
 }

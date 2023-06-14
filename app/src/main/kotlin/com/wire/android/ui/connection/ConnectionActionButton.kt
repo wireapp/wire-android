@@ -117,7 +117,7 @@ fun ConnectionActionButton(
                 state = WireButtonState.Error,
                 onClick = {
                     viewModel.onIgnoreConnectionRequest {
-                        onConnectionRequestIgnored((viewModel as ConnectionActionButtonViewModelImpl).userName)
+                        onConnectionRequestIgnored(it)
                     }
                 },
                 clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),

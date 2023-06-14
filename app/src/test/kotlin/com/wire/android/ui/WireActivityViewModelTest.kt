@@ -81,7 +81,6 @@ import org.amshove.kluent.`should be equal to`
 import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
-//@ExtendWith(CoroutineTestExtension::class)
 class WireActivityViewModelTest {
 
     @Test
@@ -573,7 +572,7 @@ class WireActivityViewModelTest {
             .arrange()
 
         assertEquals(
-            NewClientsDialogData.CurrentUser(listOf( NewClientData.fromClient(TestClient.CLIENT)), USER_ID),
+            NewClientsDialogData.CurrentUser(listOf(NewClientData.fromClient(TestClient.CLIENT)), USER_ID),
             viewModel.globalAppState.newClientDialog
         )
     }
@@ -588,7 +587,7 @@ class WireActivityViewModelTest {
 
         assertEquals(
             NewClientsDialogData.OtherUser(
-                listOf( NewClientData.fromClient(TestClient.CLIENT)),
+                listOf(NewClientData.fromClient(TestClient.CLIENT)),
                 USER_ID,
                 "name",
                 "handle"

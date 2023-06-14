@@ -21,11 +21,9 @@
 package com.wire.android.ui.home.settings.account.displayname
 
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.framework.TestUser
-import com.wire.android.navigation.EXTRA_SETTINGS_DISPLAY_NAME_CHANGED
 import com.wire.android.navigation.NavigationManager
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.feature.user.DisplayNameUpdateResult
@@ -49,31 +47,39 @@ import org.junit.jupiter.api.extension.ExtendWith
 class ChangeDisplayNameViewModelTest {
 
     @Test
-    fun `when saving the new display name, and ok then should navigate back indicating EXTRA_SETTINGS_DISPLAY_NAME_CHANGED success`() =
+    fun `given useCase runs successfully, when saveDisplayName is invoked, then onSuccess callback is invoked`() =
         runTest {
-            val (arrangement, viewModel) = Arrangement()
+            var isSuccess = false
+            var isFailed = false
+            val (_, viewModel) = Arrangement()
                 .withUserSaveNameResult(DisplayNameUpdateResult.Success)
                 .arrange()
 
-            viewModel.saveDisplayName()
+            viewModel.saveDisplayName(
+                onFailure = { isFailed = true },
+                onSuccess = { isSuccess = true }
+            )
 
-            coVerify {
-                arrangement.navigationManager.navigateBack(eq(mapOf(EXTRA_SETTINGS_DISPLAY_NAME_CHANGED to true)))
-            }
+            assertEquals(false, isFailed)
+            assertEquals(true, isSuccess)
         }
 
     @Test
-    fun `when saving the new display name, and fails then should navigate back indicating EXTRA_SETTINGS_DISPLAY_NAME_CHANGED failure`() =
+    fun `given useCase fails, when saveDisplayName is invoked, then onFailure callback is invoked`() =
         runTest {
-            val (arrangement, viewModel) = Arrangement()
+            var isSuccess = false
+            var isFailed = false
+            val (_, viewModel) = Arrangement()
                 .withUserSaveNameResult(DisplayNameUpdateResult.Failure(CoreFailure.Unknown(Error())))
                 .arrange()
 
-            viewModel.saveDisplayName()
+            viewModel.saveDisplayName(
+                onFailure = { isFailed = true },
+                onSuccess = { isSuccess = true }
+            )
 
-            coVerify {
-                arrangement.navigationManager.navigateBack(eq(mapOf(EXTRA_SETTINGS_DISPLAY_NAME_CHANGED to false)))
-            }
+            assertEquals(true, isFailed)
+            assertEquals(false, isSuccess)
         }
 
     @Test
@@ -150,9 +156,6 @@ class ChangeDisplayNameViewModelTest {
         @MockK
         lateinit var updateDisplayNameUseCase: UpdateDisplayNameUseCase
 
-        @MockK
-        private lateinit var savedStateHandle: SavedStateHandle
-
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
             coEvery { getSelfUserUseCase() } returns flowOf(TestUser.SELF_USER)
@@ -162,12 +165,11 @@ class ChangeDisplayNameViewModelTest {
             coEvery { updateDisplayNameUseCase(any()) } returns result
         }
 
-        fun arrange() =
-            this to ChangeDisplayNameViewModel(
-                getSelfUserUseCase,
-                updateDisplayNameUseCase,
-                navigationManager,
-                TestDispatcherProvider()
-            )
+        fun arrange() = this to ChangeDisplayNameViewModel(
+            getSelfUserUseCase,
+            updateDisplayNameUseCase,
+            navigationManager,
+            TestDispatcherProvider()
+        )
     }
 }

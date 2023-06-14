@@ -133,7 +133,7 @@ fun EditMessageMenuItems(
         }
     }
 
-    if (message.expirationStatus is ExpirationStatus.Expirable) {
+    if (message.header.messageStatus.expirationStatus is ExpirationStatus.Expirable) {
         return EphemeralMessageEditMenuItems(
             message = message,
             onDetailsClick = onDetailsItemClick,

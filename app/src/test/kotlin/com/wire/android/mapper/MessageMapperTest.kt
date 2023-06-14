@@ -24,6 +24,8 @@ import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.framework.TestMessage
 import com.wire.android.framework.TestUser
 import com.wire.android.ui.home.conversations.model.MessageBody
+import com.wire.android.ui.home.conversations.model.MessageEditStatus
+import com.wire.android.ui.home.conversations.model.MessageFlowStatus
 import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.model.MessageStatus
 import com.wire.android.ui.home.conversations.model.UIMessage
@@ -103,7 +105,6 @@ class MessageMapperTest {
         val uiMessage4 = mapper.toUIMessage(members, message4)
         // Then
         assert(
-
             checkMessageData(
                 uiMessage = uiMessage1,
                 time = message1.date.uiMessageDateTime()
@@ -115,21 +116,24 @@ class MessageMapperTest {
                 time = message2.date.uiMessageDateTime(),
                 source = MessageSource.OtherUser,
                 membership = Membership.Guest,
-                status = MessageStatus.SendFailure
+                status = MessageStatus(flowStatus = MessageFlowStatus.Failure.Send.Locally(false))
             )
         )
         assert(
             checkMessageData(
                 uiMessage = uiMessage3,
                 time = message3.date.uiMessageDateTime(),
-                status = MessageStatus.Edited(now.uiMessageDateTime() ?: "")
+                status = MessageStatus(
+                    flowStatus = MessageFlowStatus.Sent,
+                    editStatus = MessageEditStatus.Edited(now.uiMessageDateTime() ?: "")
+                )
             )
         )
         assert(
             checkMessageData(
                 uiMessage = uiMessage4,
                 time = message4.date.uiMessageDateTime(),
-                status = MessageStatus.Deleted
+                status = MessageStatus(flowStatus = MessageFlowStatus.Sent, isDeleted = true)
             )
         )
     }
@@ -139,9 +143,16 @@ class MessageMapperTest {
         time: String?,
         source: MessageSource = MessageSource.Self,
         membership: Membership = Membership.None,
-        status: MessageStatus = MessageStatus.Untouched()
-    ) = uiMessage?.source == source && uiMessage.header.membership == membership
-            && uiMessage.header.messageTime.formattedDate == time && uiMessage.header.messageStatus == status
+        status: MessageStatus = MessageStatus(flowStatus = MessageFlowStatus.Sent)
+    ): Boolean {
+        return (uiMessage?.source == source && uiMessage.header.membership == membership
+                && uiMessage.header.messageTime.formattedDate == time
+                && uiMessage.header.messageStatus.flowStatus == status.flowStatus
+                && uiMessage.header.messageStatus.isDeleted == status.isDeleted
+                && uiMessage.header.messageStatus.editStatus == status.editStatus
+                && uiMessage.header.messageStatus.expirationStatus == status.expirationStatus
+                )
+    }
 
     private class Arrangement {
         @MockK
@@ -173,7 +184,7 @@ class MessageMapperTest {
 
         fun testMessage(
             senderUserId: UserId,
-            status: Message.Status = Message.Status.READ,
+            status: Message.Status = Message.Status.SENT,
             visibility: Message.Visibility = Message.Visibility.VISIBLE,
             editStatus: Message.EditStatus = Message.EditStatus.NotEdited,
             date: String

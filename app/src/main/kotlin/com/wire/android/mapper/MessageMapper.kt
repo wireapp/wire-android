@@ -111,8 +111,7 @@ class MessageMapper @Inject constructor(
                     source = if (sender is SelfUser) MessageSource.Self else MessageSource.OtherUser,
                     header = provideMessageHeader(sender, message),
                     messageFooter = footer,
-                    userAvatarData = getUserAvatarData(sender),
-                    expirationStatus = provideExpirationData(message)
+                    userAvatarData = getUserAvatarData(sender)
                 )
             }
 

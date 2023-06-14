@@ -68,6 +68,7 @@ sealed class NotificationMessage(open val author: NotificationMessageAuthor?, op
     data class ObfuscatedMessage(
         override val time: Long
     ) : NotificationMessage(null, time)
+
     data class Text(
         override val author: NotificationMessageAuthor,
         override val time: Long,

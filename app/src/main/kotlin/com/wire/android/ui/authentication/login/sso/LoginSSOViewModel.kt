@@ -42,6 +42,7 @@ import com.wire.kalium.logic.feature.auth.AuthenticationScope
 import com.wire.kalium.logic.feature.auth.DomainLookupUseCase
 import com.wire.kalium.logic.feature.auth.ValidateEmailUseCase
 import com.wire.kalium.logic.feature.auth.autoVersioningAuth.AutoVersionAuthScopeUseCase
+import com.wire.kalium.logic.feature.auth.sso.FetchSSOSettingsUseCase
 import com.wire.kalium.logic.feature.auth.sso.SSOInitiateLoginResult
 import com.wire.kalium.logic.feature.auth.sso.SSOInitiateLoginUseCase
 import com.wire.kalium.logic.feature.auth.sso.SSOLoginSessionResult
@@ -90,10 +91,46 @@ class LoginSSOViewModel @Inject constructor(
     }
 
     fun onCustomServerDialogConfirm() {
-        if (loginState.customServerDialogState != null) {
-            authServerConfigProvider.updateAuthServer(loginState.customServerDialogState!!.serverLinks)
+        viewModelScope.launch {
+            if (loginState.customServerDialogState != null) {
+                authServerConfigProvider.updateAuthServer(loginState.customServerDialogState!!.serverLinks)
+
+                val authScope = coreLogic.versionedAuthenticationScope(loginState.customServerDialogState!!.serverLinks)().let {
+                    when (it) {
+                        is AutoVersionAuthScopeUseCase.Result.Failure.Generic,
+                        AutoVersionAuthScopeUseCase.Result.Failure.TooNewVersion,
+                        AutoVersionAuthScopeUseCase.Result.Failure.UnknownServerVersion -> {
+                            loginState = loginState.copy(customServerDialogState = null)
+                            return@launch
+                        }
+
+                        is AutoVersionAuthScopeUseCase.Result.Success -> {
+                            it.authenticationScope
+                        }
+                    }
+                }
+
+                authScope.ssoLoginScope.fetchSSOSettings().also {
+                    when (it) {
+                        is FetchSSOSettingsUseCase.Result.Failure -> {}
+                        is FetchSSOSettingsUseCase.Result.Success -> {
+                            it.defaultSSOCode?.let { ssoCode ->
+                                val ssoCodeWithPrefix = if (ssoCode.startsWith("wire-")) ssoCode else "wire-$ssoCode"
+                                authScope.ssoLoginScope.initiate(
+                                    SSOInitiateLoginUseCase.Param.WithRedirect(ssoCodeWithPrefix)
+                                ).let { result ->
+                                    when (result) {
+                                        is SSOInitiateLoginResult.Failure -> updateSSOLoginError(result.toLoginSSOError())
+                                        is SSOInitiateLoginResult.Success -> openWebUrl(result.requestUrl)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                loginState = loginState.copy(customServerDialogState = null)
+            }
         }
-        loginState = loginState.copy(customServerDialogState = null)
     }
 
     @VisibleForTesting

@@ -26,6 +26,7 @@ import app.cash.turbine.test
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.framework.TestMessage
 import com.wire.android.framework.TestMessage.GENERIC_ASSET_CONTENT
+import com.wire.android.config.NavigationTestExtension
 import com.wire.android.ui.home.conversations.mockUITextMessage
 import com.wire.kalium.logic.StorageFailure
 import com.wire.kalium.logic.data.message.MessageContent
@@ -44,6 +45,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class)
+@ExtendWith(NavigationTestExtension::class)
 class ConversationMessagesViewModelTest {
 
     @Test

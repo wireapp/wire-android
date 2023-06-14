@@ -36,6 +36,7 @@ import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.model.MessageStatus
 import com.wire.android.ui.home.conversations.model.MessageTime
 import com.wire.android.ui.home.conversations.model.UIMessage
+import com.wire.android.ui.navArgs
 import com.wire.android.util.FileManager
 import com.wire.android.util.ImageUtil
 import com.wire.android.util.ui.UIText
@@ -94,7 +95,7 @@ internal class MessageComposerViewModelArrangement {
         // Tests setup
         MockKAnnotations.init(this, relaxUnitFun = true)
         mockUri()
-        every { savedStateHandle.get<String>(any()) } returns conversationId.toString()
+        every { savedStateHandle.navArgs<ConversationNavArgs>() } returns ConversationNavArgs(conversationId = conversationId)
 
         // Default empty values
         every { isFileSharingEnabledUseCase() } returns FileSharingStatus(FileSharingStatus.Value.EnabledAll, null)

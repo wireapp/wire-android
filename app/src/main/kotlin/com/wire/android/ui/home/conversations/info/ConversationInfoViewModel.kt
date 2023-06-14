@@ -117,6 +117,7 @@ class ConversationInfoViewModel @Inject constructor(
                     navigateToHome()
                 }
             }
+
             is StorageFailure.Generic -> appLogger.e("An error occurred when fetching details of the conversation", failure.rootCause)
         }
     }
@@ -125,6 +126,7 @@ class ConversationInfoViewModel @Inject constructor(
         val (isConversationUnavailable, _) = when (conversationDetails) {
             is ConversationDetails.OneOne -> conversationDetails.otherUser
                 .run { isUnavailableUser to (connectionStatus == ConnectionState.BLOCKED) }
+
             else -> false to false
         }
 
@@ -217,7 +219,7 @@ class ConversationInfoViewModel @Inject constructor(
         navigationManager.navigate(NavigationCommand(SelfUserProfileScreenDestination))
 
     private suspend fun navigateToOtherProfile(id: UserId, conversationId: QualifiedID? = null) =
-        navigationManager.navigate(NavigationCommand(OtherUserProfileScreenDestination(userId = id, conversationId = conversationId)))
+        navigationManager.navigate(NavigationCommand(OtherUserProfileScreenDestination(id, conversationId)))
 
     private suspend fun navigateToHome() =
         navigationManager.navigate(NavigationCommand(HomeScreenDestination, BackStackMode.UPDATE_EXISTED))

@@ -26,9 +26,11 @@ import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.framework.FakeKaliumFileSystem
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.config.NavigationTestExtension
 import com.wire.android.ui.home.conversations.MediaGallerySnackbarMessages
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogActiveState
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogsState
+import com.wire.android.ui.navArgs
 import com.wire.android.util.FileManager
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.CoreFailure
@@ -65,6 +67,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class)
+@ExtendWith(NavigationTestExtension::class)
 class MediaGalleryViewModelTest {
 
     @Test
@@ -234,7 +237,12 @@ class MediaGalleryViewModelTest {
             // Tests setup
             val dummyPrivateAsset = "some-conversationId:some-message-id:true"
             MockKAnnotations.init(this, relaxUnitFun = true)
-            every { savedStateHandle.get<String>(any()) } returns dummyPrivateAsset
+            every { savedStateHandle.navArgs<MediaGalleryNavArgs>() } returns MediaGalleryNavArgs(
+                conversationId = dummyConversationId,
+                messageId = dummyPrivateAsset,
+                isSelfAsset = true
+            )
+
             coEvery { deleteMessage(any(), any(), any()) } returns Either.Right(Unit)
         }
 

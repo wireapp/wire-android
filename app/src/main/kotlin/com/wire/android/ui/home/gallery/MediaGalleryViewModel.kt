@@ -84,7 +84,7 @@ class MediaGalleryViewModel @Inject constructor(
         mediaGalleryNavArgs.conversationId,
         mediaGalleryNavArgs.messageId,
         mediaGalleryNavArgs.isSelfAsset
-        )
+    )
 
     val deleteMessageHelper = DeleteMessageDialogHelper(
         viewModelScope,

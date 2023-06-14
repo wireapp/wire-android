@@ -28,8 +28,10 @@ import com.wire.android.media.CallRinger
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.ui.calling.CallingNavArgs
 import com.wire.android.ui.destinations.OngoingCallScreenDestination
 import com.wire.android.ui.navArgs
+import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.IsLastCallClosedUseCase
@@ -54,7 +56,7 @@ class InitiatingCallViewModel @Inject constructor(
     private val callRinger: CallRinger
 ) : ViewModel() {
 
-    private val initiatingCallNavArgs: InitiatingCallNavArgs = savedStateHandle.navArgs()
+    private val initiatingCallNavArgs: CallingNavArgs = savedStateHandle.navArgs()
     private val conversationId: QualifiedID = initiatingCallNavArgs.conversationId
 
     private val callStartTime: Long = Calendar.getInstance().timeInMillis
@@ -101,7 +103,7 @@ class InitiatingCallViewModel @Inject constructor(
         callRinger.ring(R.raw.ready_to_talk, isLooping = false, isIncomingCall = false)
         navigationManager.navigate(
             command = NavigationCommand(
-                destination = OngoingCallScreenDestination(conversationId),
+                destination = OngoingCallScreenDestination(initiatingCallNavArgs.conversationId),
                 backStackMode = BackStackMode.REMOVE_CURRENT
             )
         )

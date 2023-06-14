@@ -24,15 +24,16 @@ import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.mockUri
 import com.wire.android.mapper.testUIParticipant
-import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.config.NavigationTestExtension
 import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
 import com.wire.android.ui.destinations.SelfUserProfileScreenDestination
 import com.wire.android.ui.home.conversations.details.GroupConversationDetailsViewModel
 import com.wire.android.ui.home.conversations.details.participants.model.ConversationParticipantsData
 import com.wire.android.ui.home.conversations.details.participants.model.UIParticipant
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
+import com.wire.android.ui.navArgs
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
@@ -51,6 +52,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class)
+@ExtendWith(NavigationTestExtension::class)
 class GroupConversationParticipantsViewModelTest {
 
     private fun testSize(givenParticipantsSize: Int, expectedParticipantsSize: Int) = runTest {
@@ -137,7 +139,9 @@ internal class GroupConversationParticipantsViewModelArrangement {
         every {
             qualifiedIdMapper.fromStringToQualifiedID("some-dummy-value@some.dummy.domain")
         } returns QualifiedID("some-dummy-value", "some.dummy.domain")
-        every { savedStateHandle.get<String>(EXTRA_CONVERSATION_ID) } returns conversationId
+        every { savedStateHandle.navArgs<GroupConversationAllParticipantsNavArgs>() } returns GroupConversationAllParticipantsNavArgs(
+            conversationId = qualifiedId
+        )
         // Default empty values
         coEvery { observeParticipantsForConversationUseCase(any(), any()) } returns flowOf()
     }

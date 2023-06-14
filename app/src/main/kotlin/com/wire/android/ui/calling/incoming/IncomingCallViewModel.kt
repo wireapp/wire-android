@@ -26,11 +26,13 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.ramcosta.composedestinations.spec.Direction
 import com.wire.android.R
 import com.wire.android.media.CallRinger
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.ui.calling.CallingNavArgs
 import com.wire.android.ui.destinations.OngoingCallScreenDestination
 import com.wire.android.ui.navArgs
 import com.wire.kalium.logic.data.id.ConversationId
@@ -62,8 +64,8 @@ class IncomingCallViewModel @Inject constructor(
     private val endCall: EndCallUseCase,
 ) : ViewModel() {
 
-    private val incomingCallNavArgs: IncomingCallNavArgs = savedStateHandle.navArgs()
-    private val incomingCallConversationId: QualifiedID = incomingCallNavArgs.conversationId
+    private val incomingCallNavArgs: CallingNavArgs = savedStateHandle.navArgs()
+    private val conversationId: QualifiedID = incomingCallNavArgs.conversationId
 
     lateinit var observeIncomingCallJob: Job
     var establishedCallConversationId: ConversationId? = null
@@ -96,7 +98,7 @@ class IncomingCallViewModel @Inject constructor(
 
     private suspend fun observeIncomingCall() {
         incomingCalls().distinctUntilChanged().collect { calls ->
-            calls.find { call -> call.conversationId == incomingCallConversationId }.also {
+            calls.find { call -> call.conversationId == conversationId }.also {
                 if (it == null) {
                     onCallClosed()
                 }
@@ -114,7 +116,7 @@ class IncomingCallViewModel @Inject constructor(
     fun declineCall() {
         viewModelScope.launch {
             observeIncomingCallJob.cancel()
-            launch { rejectCall(conversationId = incomingCallConversationId) }
+            launch { rejectCall(conversationId = conversationId) }
             launch {
                 navigationManager.navigateBack()
                 callRinger.stop()
@@ -142,7 +144,7 @@ class IncomingCallViewModel @Inject constructor(
         }
     }
 
-    fun acceptCall() {
+    fun acceptCall(direction: Direction = OngoingCallScreenDestination(incomingCallNavArgs.conversationId)) {
         viewModelScope.launch {
             if (incomingCallState.hasEstablishedCall) {
                 showJoinCallAnywayDialog()
@@ -152,11 +154,11 @@ class IncomingCallViewModel @Inject constructor(
                 dismissJoinCallAnywayDialog()
                 observeIncomingCallJob.cancel()
 
-                acceptCall(conversationId = incomingCallConversationId)
+                acceptCall(conversationId = conversationId)
 
                 navigationManager.navigate(
                     command = NavigationCommand(
-                        destination = OngoingCallScreenDestination(incomingCallConversationId),
+                        destination = direction,
                         backStackMode = BackStackMode.REMOVE_CURRENT_AND_REPLACE
                     )
                 )

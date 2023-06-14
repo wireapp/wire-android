@@ -25,8 +25,10 @@ import com.wire.android.config.mockUri
 import com.wire.android.framework.TestUser
 import com.wire.android.navigation.EXTRA_BOT_SERVICE_ID
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.config.NavigationTestExtension
 import com.wire.android.ui.home.conversations.details.participants.usecase.ConversationRoleData
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveConversationRoleForUserUseCase
+import com.wire.android.ui.navArgs
 import com.wire.android.ui.userprofile.other.OtherUserProfileScreenViewModelTest
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.CoreFailure
@@ -36,6 +38,7 @@ import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.service.ServiceDetails
 import com.wire.kalium.logic.data.service.ServiceId
+import com.wire.kalium.logic.data.user.BotService
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.conversation.AddServiceToConversationUseCase
 import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
@@ -57,6 +60,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class)
+@ExtendWith(NavigationTestExtension::class)
 class ServiceDetailsViewModelTest {
 
     @Test
@@ -352,7 +356,13 @@ class ServiceDetailsViewModelTest {
         }
 
         fun withServiceId(serviceId: String) = apply {
-            every { savedStateHandle.get<String>(EXTRA_BOT_SERVICE_ID) } returns serviceId
+            every { savedStateHandle.navArgs<ServiceDetailsNavArgs>() } returns ServiceDetailsNavArgs(
+                botService = BotService(
+                    id = serviceId,
+                    provider = providerId
+                ),
+                conversationId = CONVERSATION_ID
+            )
         }
 
         suspend fun withConversationRoleForUser(roleData: ConversationRoleData) = apply {

@@ -27,9 +27,11 @@ import com.wire.android.config.mockUri
 import com.wire.android.media.audiomessage.AudioState
 import com.wire.android.media.audiomessage.ConversationAudioMessagePlayer
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.usecase.GetMessagesForConversationUseCase
+import com.wire.android.ui.navArgs
 import com.wire.android.util.FileManager
 import com.wire.kalium.logic.data.asset.AttachmentType
 import com.wire.kalium.logic.data.id.ConversationId
@@ -118,7 +120,7 @@ class ConversationMessagesViewModelArrangement {
         // Tests setup
         MockKAnnotations.init(this, relaxUnitFun = true)
         mockUri()
-        every { savedStateHandle.get<String>(any()) } returns conversationId.toString()
+        every { savedStateHandle.navArgs<ConversationNavArgs>() } returns ConversationNavArgs(conversationId = conversationId)
         coEvery { observeConversationDetails(any()) } returns flowOf()
         coEvery { getMessagesForConversationUseCase(any(), any()) } returns messagesChannel.consumeAsFlow()
         coEvery { getConversationUnreadEventsCount(any()) } returns GetConversationUnreadEventsCountUseCase.Result.Success(0L)

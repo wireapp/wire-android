@@ -6,6 +6,8 @@ import com.wire.android.framework.TestClient
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.authentication.devices.remove.RemoveDeviceDialogState
 import com.wire.android.ui.authentication.devices.remove.RemoveDeviceError
+import com.wire.android.config.NavigationTestExtension
+import com.wire.android.ui.navArgs
 import com.wire.android.ui.settings.devices.DeviceDetailsViewModelTest.Arrangement.Companion.CLIENT_ID
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.NetworkFailure
@@ -36,6 +38,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class)
+@ExtendWith(NavigationTestExtension::class)
 class DeviceDetailsViewModelTest {
 
     @Test
@@ -47,7 +50,7 @@ class DeviceDetailsViewModelTest {
             .arrange()
 
         // then
-        assertEquals(CLIENT_ID, viewModel.state?.device?.clientId)
+        assertEquals(CLIENT_ID, viewModel.state.device.clientId)
     }
 
     @Test
@@ -248,7 +251,11 @@ class DeviceDetailsViewModelTest {
         }
 
         fun withRequiredMockSetup() = apply {
-            every { savedStateHandle.get<String>(any()) } returns "SOMETHING"
+            every { savedStateHandle.navArgs<DeviceDetailsNavArgs>() } returns DeviceDetailsNavArgs(
+                userId = currentUserId,
+                clientId = CLIENT_ID
+            )
+
             coEvery { navigationManager.navigate(any()) } returns Unit
         }
 

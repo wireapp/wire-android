@@ -19,6 +19,6 @@ package com.wire.android.ui.calling
 
 import com.wire.kalium.logic.data.id.ConversationId
 
-interface CallingNavArgs {
+data class CallingNavArgs(
     val conversationId: ConversationId
-}
+)

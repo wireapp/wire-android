@@ -48,6 +48,10 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemsIndexed
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
+import com.ramcosta.composedestinations.result.NavResult.Canceled
+import com.ramcosta.composedestinations.result.NavResult.Value
+import com.ramcosta.composedestinations.result.ResultBackNavigator
+import com.ramcosta.composedestinations.result.ResultRecipient
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.media.audiomessage.AudioState
@@ -61,6 +65,8 @@ import com.wire.android.ui.common.dialogs.calling.OngoingActiveCallDialog
 import com.wire.android.ui.common.error.CoreFailureErrorDialog
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.common.topappbar.CommonTopAppBarViewModel
+import com.wire.android.ui.destinations.GroupConversationDetailsScreenDestination
+import com.wire.android.ui.destinations.MediaGalleryScreenDestination
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorDownloadingAsset
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.OnFileDownloaded
 import com.wire.android.ui.home.conversations.banner.ConversationBanner
@@ -68,6 +74,7 @@ import com.wire.android.ui.home.conversations.banner.ConversationBannerViewModel
 import com.wire.android.ui.home.conversations.call.ConversationCallViewModel
 import com.wire.android.ui.home.conversations.call.ConversationCallViewState
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialog
+import com.wire.android.ui.home.conversations.details.GroupConversationDetailsNavBackArgs
 import com.wire.android.ui.home.conversations.edit.EditMessageMenuItems
 import com.wire.android.ui.home.conversations.info.ConversationDetailsData
 import com.wire.android.ui.home.conversations.info.ConversationInfoViewModel
@@ -79,6 +86,8 @@ import com.wire.android.ui.home.conversations.model.SendMessageBundle
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UriAsset
 import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMenuItems
+import com.wire.android.ui.home.gallery.MediaGalleryActionType
+import com.wire.android.ui.home.gallery.MediaGalleryNavBackArgs
 import com.wire.android.ui.home.messagecomposer.MessageComposer
 import com.wire.android.ui.home.messagecomposer.state.MessageComposerState
 import com.wire.android.ui.home.messagecomposer.state.rememberMessageComposerState
@@ -115,6 +124,7 @@ private const val MAXIMUM_SCROLLED_MESSAGES_UNTIL_AUTOSCROLL_STOPS = 5
 private const val AGGREGATION_TIME_WINDOW: Int = 30000
 
 // TODO: !! this screen definitely needs a refactor and some cleanup !!
+@Suppress("ComplexMethod")
 @RootNavGraph
 @Destination( // TODO: back nav args
     navArgsDelegate = ConversationNavArgs::class
@@ -127,10 +137,14 @@ fun ConversationScreen(
     conversationBannerViewModel: ConversationBannerViewModel = hiltSavedStateViewModel(backNavArgs = backNavArgs),
     conversationCallViewModel: ConversationCallViewModel = hiltSavedStateViewModel(backNavArgs = backNavArgs),
     conversationMessagesViewModel: ConversationMessagesViewModel = hiltSavedStateViewModel(backNavArgs = backNavArgs),
-    messageComposerViewModel: MessageComposerViewModel = hiltSavedStateViewModel(backNavArgs = backNavArgs)
+    messageComposerViewModel: MessageComposerViewModel = hiltSavedStateViewModel(backNavArgs = backNavArgs),
+    groupDetailsScreenResultRecipient: ResultRecipient<GroupConversationDetailsScreenDestination, GroupConversationDetailsNavBackArgs>,
+    mediaGalleryScreenResultRecipient: ResultRecipient<MediaGalleryScreenDestination, MediaGalleryNavBackArgs>,
+    resultNavigator: ResultBackNavigator<GroupConversationDetailsNavBackArgs>
 ) {
     val coroutineScope = rememberCoroutineScope()
     val showDialog = remember { mutableStateOf(ConversationScreenDialogType.NONE) }
+    val messageComposerState = rememberMessageComposerState()
 
     val startCallAudioPermissionCheck = StartCallAudioBluetoothPermissionCheckFlow {
         conversationCallViewModel.navigateToInitiatingCallScreen()
@@ -226,7 +240,8 @@ fun ConversationScreen(
         onNewSelfDeletingMessagesStatus = messageComposerViewModel::updateSelfDeletingMessages,
         tempWritableImageUri = messageComposerViewModel.tempWritableImageUri,
         tempWritableVideoUri = messageComposerViewModel.tempWritableVideoUri,
-        onFailedMessageRetryClicked = messageComposerViewModel::retrySendingMessage
+        onFailedMessageRetryClicked = messageComposerViewModel::retrySendingMessage,
+        messageComposerState = messageComposerState
     )
     DeleteMessageDialog(
         state = messageComposerViewModel.deleteMessageDialogsState,
@@ -242,6 +257,46 @@ fun ConversationScreen(
         dialogState = messageComposerViewModel.messageComposerViewState.assetTooLargeDialogState,
         hideDialog = messageComposerViewModel::hideAssetTooLargeError
     )
+
+    groupDetailsScreenResultRecipient.onNavResult { result ->
+        when (result) {
+            is Canceled -> {
+                appLogger.i("Error with receiving navigation back args from groupDetails in ConversationScreen")
+            }
+            is Value -> {
+                resultNavigator.setResult(result.value)
+                resultNavigator.navigateBack()
+            }
+        }
+    }
+
+    mediaGalleryScreenResultRecipient.onNavResult { result ->
+        when (result) {
+            is Canceled -> {
+                appLogger.i("Error with receiving navigation back args from mediaGallery in ConversationScreen")
+            }
+            is Value -> {
+                when (result.value.mediaGalleryActionType) {
+                    MediaGalleryActionType.REPLY -> {
+                        conversationMessagesViewModel.onReply(result.value.messageId)?.let {
+                            coroutineScope.launch {
+                                withSmoothScreenLoad {
+                                    messageComposerState.reply(it)
+                                }
+                            }
+                        }
+                    }
+                    MediaGalleryActionType.REACT -> {
+                        result.value.emoji?.let { conversationMessagesViewModel.toggleReaction(result.value.messageId, it) }
+                    }
+
+                    MediaGalleryActionType.DETAIL -> {
+                        conversationMessagesViewModel.onMessageDetailClick(result.value.messageId, result.value.isSelfAsset)
+                    }
+                }
+            }
+        }
+    }
 }
 
 @Suppress("LongParameterList")
@@ -262,17 +317,14 @@ private fun startCallIfPossible(
                     startCallAudioPermissionCheck.launch()
                     ConversationScreenDialogType.NONE
                 }
-
                 ConferenceCallingResult.Disabled.Established -> {
                     onOpenOngoingCallScreen()
                     ConversationScreenDialogType.NONE
                 }
-
                 ConferenceCallingResult.Disabled.OngoingCall -> ConversationScreenDialogType.ONGOING_ACTIVE_CALL
                 ConferenceCallingResult.Disabled.Unavailable -> ConversationScreenDialogType.CALLING_FEATURE_UNAVAILABLE
                 else -> ConversationScreenDialogType.NONE
             }
-
             showDialog.value = dialogValue
         }
     }
@@ -322,22 +374,11 @@ private fun ConversationScreen(
     onNewSelfDeletingMessagesStatus: (SelfDeletionTimer) -> Unit,
     tempWritableImageUri: Uri?,
     tempWritableVideoUri: Uri?,
-    onFailedMessageRetryClicked: (String) -> Unit
+    onFailedMessageRetryClicked: (String) -> Unit,
+    messageComposerState: MessageComposerState,
 ) {
     val conversationScreenState = rememberConversationScreenState()
-    val messageComposerState = rememberMessageComposerState()
     val context = LocalContext.current
-
-    LaunchedEffect(conversationMessagesViewModel.savedStateHandle) {
-        // We need to check if we come from the media gallery screen and the user triggered any action there like reply
-        conversationMessagesViewModel.checkPendingActions(
-            onMessageReply = {
-                withSmoothScreenLoad {
-                    messageComposerState.reply(it)
-                }
-            }
-        )
-    }
 
     LaunchedEffect(currentSelfDeletionTimer) {
         messageComposerState.updateSelfDeletionTime(currentSelfDeletionTimer)
@@ -745,6 +786,7 @@ fun PreviewConversationScreen() {
         onNewSelfDeletingMessagesStatus = {},
         tempWritableImageUri = null,
         tempWritableVideoUri = null,
+        messageComposerState = rememberMessageComposerState(),
         onFailedMessageRetryClicked = {}
     )
 }

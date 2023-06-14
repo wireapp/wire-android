@@ -23,6 +23,7 @@ package com.wire.android.ui.home.conversations.info
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.framework.TestUser
 import com.wire.android.navigation.NavigationCommand
+import com.wire.android.config.NavigationTestExtension
 import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
 import com.wire.android.ui.destinations.SelfUserProfileScreenDestination
 import com.wire.android.ui.home.conversations.mockConversationDetailsGroup
@@ -45,6 +46,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class)
+@ExtendWith(NavigationTestExtension::class)
 class ConversationInfoViewModelTest {
 
     @Test
@@ -124,7 +126,7 @@ class ConversationInfoViewModelTest {
                     NavigationCommand(OtherUserProfileScreenDestination(userId, arrangement.conversationId))
                 )
             }
-        cancel()
+            cancel()
         }
     }
 

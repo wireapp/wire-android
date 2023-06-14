@@ -123,7 +123,7 @@ class EditSelfDeletingMessagesViewModel @Inject constructor(
         }
     }
 
-    fun navigateBack(args: Map<String, Boolean> = mapOf()) {
-        viewModelScope.launch { navigationManager.navigateBack(args) }
+    fun navigateBack() {
+        viewModelScope.launch { navigationManager.navigateBack() }
     }
 }

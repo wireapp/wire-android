@@ -21,11 +21,12 @@ import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.framework.TestConversation
-import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.config.NavigationTestExtension
 import com.wire.android.ui.home.conversations.details.participants.model.ConversationParticipantsData
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
 import com.wire.android.ui.home.messagecomposer.state.SelfDeletionDuration
+import com.wire.android.ui.navArgs
 import com.wire.kalium.logic.feature.conversation.messagetimer.UpdateMessageTimerUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.SelfDeletionTimer
@@ -44,6 +45,7 @@ import kotlin.time.Duration.Companion.minutes
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class)
+@ExtendWith(NavigationTestExtension::class)
 class EditSelfDeletingMessagesViewModelTest {
 
     @Test
@@ -112,9 +114,11 @@ class EditSelfDeletingMessagesViewModelTest {
         }
 
         init {
-            val dummyConversationId = TestConversation.ID.toString()
             MockKAnnotations.init(this, relaxUnitFun = true)
-            every { savedStateHandle.get<String>(EXTRA_CONVERSATION_ID) } returns dummyConversationId
+            every { savedStateHandle.navArgs<EditSelfDeletingMessagesNavArgs>() } returns EditSelfDeletingMessagesNavArgs(
+                conversationId = TestConversation.ID
+            )
+
             coEvery { observerConversationMembers(any()) } returns flowOf(ConversationParticipantsData(isSelfAnAdmin = true))
         }
 

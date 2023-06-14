@@ -114,12 +114,14 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     private val userId: QualifiedID = otherUserProfileNavArgs.userId
     private val conversationId: QualifiedID? = otherUserProfileNavArgs.conversationId
 
-    var state: OtherUserProfileState by mutableStateOf(OtherUserProfileState(
-        userId = userId,
-        conversationId = conversationId,
-        isDataLoading = true,
-        isAvatarLoading = true
-    ))
+    var state: OtherUserProfileState by mutableStateOf(
+        OtherUserProfileState(
+            userId = userId,
+            conversationId = conversationId,
+            isDataLoading = true,
+            isAvatarLoading = true
+        )
+    )
     var requestInProgress: Boolean by mutableStateOf(false)
 
     private val _infoMessage = MutableSharedFlow<UIText>()

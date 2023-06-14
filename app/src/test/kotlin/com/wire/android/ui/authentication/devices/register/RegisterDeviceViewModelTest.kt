@@ -82,13 +82,12 @@ class RegisterDeviceViewModelTest {
         mockUri()
         coEvery { isPasswordRequiredUseCase() } returns IsPasswordRequiredUseCase.Result.Success(true)
         every { userDataStore.initialSyncCompleted } returns flowOf(true)
-        registerDeviceViewModel =
-            RegisterDeviceViewModel(
-                navigationManager,
-                registerClientUseCase,
-                isPasswordRequiredUseCase,
-                userDataStore
-            )
+        registerDeviceViewModel = RegisterDeviceViewModel(
+            navigationManager,
+            registerClientUseCase,
+            isPasswordRequiredUseCase,
+            userDataStore
+        )
     }
 
     @Test

@@ -38,6 +38,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
+import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.wire.android.R
 import com.wire.android.ui.common.bottomsheet.MenuBottomSheetItem
 import com.wire.android.ui.common.bottomsheet.MenuItemIcon
@@ -58,7 +59,10 @@ import com.wire.android.util.ui.openDownloadFolder
     navArgsDelegate = MediaGalleryNavArgs::class
 )
 @Composable
-fun MediaGalleryScreen(mediaGalleryViewModel: MediaGalleryViewModel = hiltViewModel()) {
+fun MediaGalleryScreen(
+    mediaGalleryViewModel: MediaGalleryViewModel = hiltViewModel(),
+    resultNavigator: ResultBackNavigator<MediaGalleryNavBackArgs>
+) {
     val uiState = mediaGalleryViewModel.mediaGalleryViewState
     val mediaGalleryScreenState = rememberMediaGalleryScreenState()
     val scope = rememberCoroutineScope()
@@ -109,15 +113,35 @@ fun MediaGalleryScreen(mediaGalleryViewModel: MediaGalleryViewModel = hiltViewMo
                 },
                 onReactionClick = { emoji ->
                     mediaGalleryScreenState.showContextualMenu(false)
-                    mediaGalleryViewModel.onMessageReacted(emoji)
+                    resultNavigator.setResult(
+                        MediaGalleryNavBackArgs(
+                            messageId = mediaGalleryViewModel.imageAssetId.messageId,
+                            emoji = emoji,
+                            mediaGalleryActionType = MediaGalleryActionType.REACT
+                        )
+                    )
+                    resultNavigator.navigateBack()
                 },
                 onImageReplied = {
                     mediaGalleryScreenState.showContextualMenu(false)
-                    mediaGalleryViewModel.onMessageReplied()
+                    resultNavigator.setResult(
+                        MediaGalleryNavBackArgs(
+                            messageId = mediaGalleryViewModel.imageAssetId.messageId,
+                            mediaGalleryActionType = MediaGalleryActionType.REPLY
+                        )
+                    )
+                    resultNavigator.navigateBack()
                 },
                 onMessageDetails = {
                     mediaGalleryScreenState.showContextualMenu(false)
-                    mediaGalleryViewModel.onMessageDetailsClicked()
+                    resultNavigator.setResult(
+                        MediaGalleryNavBackArgs(
+                            messageId = mediaGalleryViewModel.imageAssetId.messageId,
+                            isSelfAsset = mediaGalleryViewModel.imageAssetId.isSelfAsset,
+                            mediaGalleryActionType = MediaGalleryActionType.DETAIL
+                        )
+                    )
+                    resultNavigator.navigateBack()
                 }
             )
         )

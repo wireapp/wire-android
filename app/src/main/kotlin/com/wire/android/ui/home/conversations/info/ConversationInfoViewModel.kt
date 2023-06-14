@@ -26,14 +26,11 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.wire.android.R
-import com.wire.android.appLogger
 import com.wire.android.model.ImageAsset
 import com.wire.android.navigation.BackStackMode
-import com.wire.android.navigation.EXTRA_GROUP_DELETED_NAME
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.navigation.SavedStateViewModel
-import com.wire.android.navigation.getBackNavArg
 import com.wire.android.ui.destinations.GroupConversationDetailsScreenDestination
 import com.wire.android.ui.destinations.HomeScreenDestination
 import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
@@ -44,7 +41,6 @@ import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.android.util.ui.toUIText
-import com.wire.kalium.logic.StorageFailure
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
@@ -92,11 +88,11 @@ class ConversationInfoViewModel @Inject constructor(
         observeConversationDetails(conversationId).collect(::handleConversationDetailsResult)
     }
 
-    private suspend fun handleConversationDetailsResult(conversationDetailsResult: ObserveConversationDetailsUseCase.Result) {
+    private fun handleConversationDetailsResult(conversationDetailsResult: ObserveConversationDetailsUseCase.Result) {
         when (conversationDetailsResult) {
-            is ObserveConversationDetailsUseCase.Result.Failure -> handleConversationDetailsFailure(
-                conversationDetailsResult.storageFailure
-            )
+            is ObserveConversationDetailsUseCase.Result.Failure -> {
+                // Nothing to do
+            }
 
             is ObserveConversationDetailsUseCase.Result.Success -> handleConversationDetails(
                 conversationDetailsResult.conversationDetails
@@ -104,27 +100,11 @@ class ConversationInfoViewModel @Inject constructor(
         }
     }
 
-    /**
-     * TODO: This right now handles only the case when a conversation details doesn't exists.
-     * Later we'll have to expand the error cases to different behaviors
-     */
-    private suspend fun handleConversationDetailsFailure(failure: StorageFailure) {
-        when (failure) {
-            is StorageFailure.DataNotFound -> {
-                if (savedStateHandle.getBackNavArg<String>(EXTRA_GROUP_DELETED_NAME) != null) {
-                    // do nothing - this group has just been deleted and it's already handled in MessageComposerViewModel
-                } else {
-                    navigateToHome()
-                }
-            }
-            is StorageFailure.Generic -> appLogger.e("An error occurred when fetching details of the conversation", failure.rootCause)
-        }
-    }
-
     private fun handleConversationDetails(conversationDetails: ConversationDetails) {
         val (isConversationUnavailable, _) = when (conversationDetails) {
             is ConversationDetails.OneOne -> conversationDetails.otherUser
                 .run { isUnavailableUser to (connectionStatus == ConnectionState.BLOCKED) }
+
             else -> false to false
         }
 
@@ -190,7 +170,7 @@ class ConversationInfoViewModel @Inject constructor(
 
             is ConversationDetailsData.Group -> navigationManager.navigate(
                 command = NavigationCommand(
-                    destination = GroupConversationDetailsScreenDestination(conversationId = data.conversationId)
+                    destination = GroupConversationDetailsScreenDestination(conversationId = conversationId)
                 )
             )
 
@@ -217,8 +197,5 @@ class ConversationInfoViewModel @Inject constructor(
         navigationManager.navigate(NavigationCommand(SelfUserProfileScreenDestination))
 
     private suspend fun navigateToOtherProfile(id: UserId, conversationId: QualifiedID? = null) =
-        navigationManager.navigate(NavigationCommand(OtherUserProfileScreenDestination(userId = id, conversationId = conversationId)))
-
-    private suspend fun navigateToHome() =
-        navigationManager.navigate(NavigationCommand(HomeScreenDestination, BackStackMode.UPDATE_EXISTED))
+        navigationManager.navigate(NavigationCommand(OtherUserProfileScreenDestination(id, conversationId)))
 }

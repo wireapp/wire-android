@@ -30,13 +30,9 @@ import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.migration.userDatabase.ShouldTriggerMigrationForUserUserCase
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.navigation.BackStackMode
-import com.wire.android.navigation.EXTRA_CONNECTION_IGNORED_USER_NAME
-import com.wire.android.navigation.EXTRA_GROUP_DELETED_NAME
-import com.wire.android.navigation.EXTRA_LEFT_GROUP
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.navigation.SavedStateViewModel
-import com.wire.android.navigation.getBackNavArg
 import com.wire.android.ui.destinations.CreateAccountUsernameScreenDestination
 import com.wire.android.ui.destinations.MigrationScreenDestination
 import com.wire.android.ui.destinations.RegisterDeviceScreenDestination
@@ -87,6 +83,7 @@ class HomeViewModel @Inject constructor(
                     )
                     return@launch
                 }
+
                 needsToRegisterClient() -> { // check if the client has been registered and open the proper screen if not
                     navigationManager.navigate(
                         NavigationCommand(
@@ -96,6 +93,7 @@ class HomeViewModel @Inject constructor(
                     )
                     return@launch
                 }
+
                 getSelf().first().handle.isNullOrEmpty() -> { // check if the user handle has been set and open the proper screen if not
                     navigationManager.navigate(
                         NavigationCommand(
@@ -105,6 +103,7 @@ class HomeViewModel @Inject constructor(
                     )
                     return@launch
                 }
+
                 shouldDisplayWelcomeToARScreen() -> {
                     homeState = homeState.copy(shouldDisplayWelcomeMessage = true)
                 }
@@ -114,17 +113,6 @@ class HomeViewModel @Inject constructor(
 
     private suspend fun shouldDisplayWelcomeToARScreen() =
         globalDataStore.isMigrationCompleted() && !globalDataStore.isWelcomeScreenPresented()
-
-    fun checkPendingSnackbarState(): HomeSnackbarState? {
-        return with(savedStateHandle) {
-            getBackNavArg<String>(EXTRA_CONNECTION_IGNORED_USER_NAME)
-                ?.let { HomeSnackbarState.SuccessConnectionIgnoreRequest(it) }
-                ?: getBackNavArg<String>(EXTRA_GROUP_DELETED_NAME)
-                    ?.let { HomeSnackbarState.DeletedConversationGroupSuccess(it) }
-                ?: getBackNavArg<Boolean>(EXTRA_LEFT_GROUP)
-                    ?.let { if (it) HomeSnackbarState.LeftConversationSuccess else null }
-        }
-    }
 
     private fun loadUserAvatar() {
         viewModelScope.launch {

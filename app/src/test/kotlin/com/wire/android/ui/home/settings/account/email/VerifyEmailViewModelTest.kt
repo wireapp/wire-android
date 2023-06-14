@@ -21,7 +21,6 @@ import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension
 import com.wire.android.navigation.NavigationManager
-import com.wire.android.ui.home.settings.account.email.verifyEmail.VerifyEmailNavArgs
 import com.wire.android.ui.home.settings.account.email.verifyEmail.VerifyEmailViewModel
 import com.wire.android.ui.navArgs
 import com.wire.kalium.logic.feature.user.UpdateEmailUseCase
@@ -38,6 +37,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 @ExtendWith(CoroutineTestExtension::class)
 @ExtendWith(NavigationTestExtension::class)
 @OptIn(ExperimentalCoroutinesApi::class)
+@ExtendWith(NavigationTestExtension::class)
 class VerifyEmailViewModelTest {
 
     @Test

@@ -23,15 +23,17 @@ package com.wire.android.ui.home.conversations.details
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
+import com.wire.android.framework.TestConversation
 import com.wire.android.framework.TestUser
 import com.wire.android.mapper.testUIParticipant
-import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.config.NavigationTestExtension
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationSheetContent
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationTypeDetail
-import com.wire.android.ui.home.conversations.details.GroupConversationDetailsViewModelTest.Companion.dummyConversationId
+import com.wire.android.ui.home.conversations.details.editselfdeletingmessages.EditSelfDeletingMessagesNavArgs
 import com.wire.android.ui.home.conversations.details.participants.model.ConversationParticipantsData
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
+import com.wire.android.ui.navArgs
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.LegalHoldStatus
@@ -70,6 +72,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class)
+@ExtendWith(NavigationTestExtension::class)
 class GroupConversationDetailsViewModelTest {
     @Test
     fun `given a group conversation, when solving the conversation name, then the name of the conversation is used`() = runTest {
@@ -569,9 +572,10 @@ internal class GroupConversationDetailsViewModelArrangement {
 
     init {
         // Tests setup
-        val dummyConversationId = dummyConversationId.toString()
         MockKAnnotations.init(this, relaxUnitFun = true)
-        every { savedStateHandle.get<String>(EXTRA_CONVERSATION_ID) } returns dummyConversationId
+        every { savedStateHandle.navArgs<GroupConversationDetailsNavArgs>() } returns GroupConversationDetailsNavArgs(
+            conversationId = TestConversation.ID
+        )
         // Default empty values
         coEvery { observeConversationDetails(any()) } returns flowOf()
         coEvery { observerSelfUser() } returns flowOf(TestUser.SELF_USER)
@@ -583,7 +587,10 @@ internal class GroupConversationDetailsViewModelArrangement {
     }
 
     fun withSavedStateConversationId(conversationId: ConversationId) = apply {
-        every { savedStateHandle.get<String>(EXTRA_CONVERSATION_ID) } returns conversationId.toString()
+//        every { savedStateHandle.get<String>(EXTRA_CONVERSATION_ID) } returns conversationId.toString()
+        every { savedStateHandle.navArgs<GroupConversationDetailsNavArgs>() } returns GroupConversationDetailsNavArgs(
+            conversationId = conversationId
+        )
     }
 
     suspend fun withConversationDetailUpdate(conversationDetails: ConversationDetails) = apply {

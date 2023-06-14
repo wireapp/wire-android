@@ -197,7 +197,7 @@ class ConversationInfoViewModel @Inject constructor(
         navigationManager.navigate(NavigationCommand(SelfUserProfileScreenDestination))
 
     private suspend fun navigateToOtherProfile(id: UserId, conversationId: QualifiedID? = null) =
-        navigationManager.navigate(NavigationCommand(OtherUserProfileScreenDestination(userId = id, conversationId = conversationId)))
+        navigationManager.navigate(NavigationCommand(OtherUserProfileScreenDestination(id, conversationId)))
 
     private suspend fun navigateToHome() =
         navigationManager.navigate(NavigationCommand(HomeScreenDestination, BackStackMode.UPDATE_EXISTED))

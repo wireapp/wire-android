@@ -158,7 +158,7 @@ class WireActivity : AppCompatActivity() {
         onComplete: () -> Unit
     ) {
         val navController = rememberTrackingAnimatedNavController {
-            NavGraphs.root.destinationsByRoute[it]?.route // TODO: create `when` with names for all directions?
+            NavGraphs.root.destinationsByRoute[it]?.let { it::class.simpleName } // there is a proguard rule for Routes
         }
         val scope = rememberCoroutineScope()
         NavigationGraph(
@@ -193,9 +193,9 @@ class WireActivity : AppCompatActivity() {
         }
 
         DisposableEffect(navController) {
-            val updateScreenSettingsListener = NavController.OnDestinationChangedListener { controller, _, _ ->
+            val updateScreenSettingsListener = NavController.OnDestinationChangedListener { _, navDestination, _ ->
                 currentKeyboardController?.hide()
-                updateScreenSettings(controller)
+                updateScreenSettings(navDestination)
             }
             navController.addOnDestinationChangedListener(updateScreenSettingsListener)
             navController.addOnDestinationChangedListener(currentScreenManager)

@@ -86,7 +86,11 @@ open class GroupConversationParticipantsViewModel @Inject constructor(
         navigationManager.navigate(NavigationCommand(SelfUserProfileScreenDestination))
 
     private suspend fun navigateToOtherProfile(id: UserId) =
-        navigationManager.navigate(NavigationCommand(OtherUserProfileScreenDestination(id, conversationId)))
+        navigationManager.navigate(
+            NavigationCommand(
+                OtherUserProfileScreenDestination(id, conversationId)
+            )
+        )
 
     private suspend fun navigateToServiceProfile(botServiceId: BotService) {
         navigationManager.navigate(NavigationCommand(ServiceDetailsScreenDestination(botServiceId, conversationId)))

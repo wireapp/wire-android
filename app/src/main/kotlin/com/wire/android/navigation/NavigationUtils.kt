@@ -22,8 +22,12 @@ package com.wire.android.navigation
 
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
+import androidx.navigation.NavDestination
 import com.ramcosta.composedestinations.navigation.navigate
+import com.ramcosta.composedestinations.spec.Direction
 import com.wire.android.appLogger
+import com.wire.android.ui.NavGraphs
+import com.wire.android.ui.destinations.Destination
 import com.wire.kalium.logger.obfuscateId
 
 internal fun NavController.navigateToItem(command: NavigationCommand) {
@@ -82,10 +86,8 @@ internal fun NavController.popWithArguments(arguments: Map<String, Any>?): Boole
     return popBackStack()
 }
 
-internal fun NavController.getCurrentNavigationItem(): NavigationItem? =
-    this.currentDestination?.route?.let { currentRoute ->
-        NavigationItem.fromRoute(currentRoute)
-    }
+internal fun NavDestination.toDestination(): Destination? =
+    this.route?.let { currentRoute -> NavGraphs.root.destinationsByRoute[currentRoute] }
 
 fun String.getPrimaryRoute(): String {
     val splitByQuestion = this.split("?")
@@ -100,3 +102,5 @@ fun String.getPrimaryRoute(): String {
 }
 
 private const val TAG = "NavigationUtils"
+
+fun Direction.isExternalRoute() = this.route.startsWith("http")

@@ -23,6 +23,9 @@ package com.wire.android.ui.calling.initiating
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.media.CallRinger
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.ui.calling.CallingNavArgs
+import com.wire.android.config.NavigationTestExtension
+import com.wire.android.ui.navArgs
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.IsLastCallClosedUseCase
@@ -44,8 +47,10 @@ import kotlinx.coroutines.test.setMain
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 
 @OptIn(ExperimentalCoroutinesApi::class)
+@ExtendWith(NavigationTestExtension::class)
 class InitiatingCallViewModelTest {
 
     private val dispatcher = StandardTestDispatcher()
@@ -133,8 +138,8 @@ class InitiatingCallViewModelTest {
         init {
             val dummyConversationId = ConversationId("some-dummy-value", "some.dummy.domain")
             MockKAnnotations.init(this)
-            every { savedStateHandle.get<String>(any()) } returns "${dummyConversationId.value}@${dummyConversationId.domain}"
-            every { savedStateHandle.set(any(), any<String>()) } returns Unit
+            every { savedStateHandle.navArgs<CallingNavArgs>() } returns CallingNavArgs(conversationId = dummyConversationId)
+
             coEvery { navigationManager.navigateBack(any()) } returns Unit
             coEvery { establishedCalls() } returns flowOf(emptyList())
         }

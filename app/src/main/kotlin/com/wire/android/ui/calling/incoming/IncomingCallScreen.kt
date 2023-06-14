@@ -42,6 +42,7 @@ import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.ui.calling.CallState
+import com.wire.android.ui.calling.CallingNavArgs
 import com.wire.android.ui.calling.SharedCallingViewModel
 import com.wire.android.ui.calling.common.CallVideoPreview
 import com.wire.android.ui.calling.common.CallerDetails
@@ -58,7 +59,7 @@ import com.wire.kalium.logic.data.call.ConversationType
 
 @RootNavGraph
 @Destination(
-    navArgsDelegate = IncomingCallNavArgs::class
+    navArgsDelegate = CallingNavArgs::class
 )
 @Composable
 fun IncomingCallScreen(
@@ -119,7 +120,7 @@ private fun IncomingCallContent(
         sheetContent = {
             CallOptionsControls(
                 isMuted = callState.isMuted ?: true,
-                isCameraOn = callState.isCameraOn ?: false,
+                isCameraOn = callState.isCameraOn,
                 isSpeakerOn = callState.isSpeakerOn,
                 toggleSpeaker = toggleSpeaker,
                 toggleMute = toggleMute,
@@ -175,7 +176,7 @@ private fun IncomingCallContent(
     ) {
         Box {
             CallVideoPreview(
-                isCameraOn = callState.isCameraOn ?: false,
+                isCameraOn = callState.isCameraOn,
                 onVideoPreviewCreated = onVideoPreviewCreated,
                 onSelfClearVideoPreview = onSelfClearVideoPreview
             )

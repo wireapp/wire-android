@@ -25,14 +25,13 @@ import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
 import com.wire.android.framework.TestUser
 import com.wire.android.mapper.UserTypeMapper
-import com.wire.android.navigation.EXTRA_CONVERSATION_ID
-import com.wire.android.navigation.EXTRA_USER_ID
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveConversationRoleForUserUseCase
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.userprofile.other.OtherUserProfileScreenViewModelTest.Companion.CONVERSATION_ID
 import com.wire.android.ui.userprofile.other.OtherUserProfileScreenViewModelTest.Companion.USER_ID
 import com.wire.android.util.ui.WireSessionImageLoader
+import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.feature.client.ObserveClientsByUserIdUseCase
 import com.wire.kalium.logic.feature.client.PersistOtherUserClientsUseCase
 import com.wire.kalium.logic.feature.connection.BlockUserResult
@@ -133,9 +132,12 @@ internal class OtherUserProfileViewModelArrangement {
     init {
         MockKAnnotations.init(this, relaxUnitFun = true)
         mockUri()
-        every { savedStateHandle.get<String>(EXTRA_USER_ID) } returns CONVERSATION_ID.toString()
-        every { savedStateHandle.get<String>(EXTRA_CONVERSATION_ID) } returns
-                CONVERSATION_ID.toString()
+
+        every { savedStateHandle.navArgs<OtherUserProfileNavArgs>() } returns OtherUserProfileNavArgs(
+            conversationId = CONVERSATION_ID,
+            userId = USER_ID
+        )
+
         coEvery {
             observeConversationRoleForUserUseCase.invoke(any(), any())
         } returns flowOf(OtherUserProfileScreenViewModelTest.CONVERSATION_ROLE_DATA)
@@ -162,12 +164,15 @@ internal class OtherUserProfileViewModelArrangement {
         coEvery { updateConversationMemberRoleUseCase(any(), any(), any()) } returns result
     }
 
-    fun withConversationIdInSavedState(conversationIdString: String?) = apply {
-        every { savedStateHandle.get<String>(eq(EXTRA_CONVERSATION_ID)) } returns conversationIdString
+    fun withConversationIdInSavedState(conversationId: ConversationId?) = apply {
+        every { savedStateHandle.navArgs<OtherUserProfileNavArgs>() } returns OtherUserProfileNavArgs(
+            userId = USER_ID,
+            conversationId = conversationId
+        )
     }
 
     fun withGetOneToOneConversation(result: CreateConversationResult) = apply {
-        coEvery { getOrCreateOneToOneConversation(OtherUserProfileScreenViewModelTest.USER_ID) } returns result
+        coEvery { getOrCreateOneToOneConversation(USER_ID) } returns result
     }
 
     suspend fun withUserInfo(result: GetUserInfoResult) = apply {

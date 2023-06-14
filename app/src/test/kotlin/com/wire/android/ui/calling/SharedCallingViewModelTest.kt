@@ -22,11 +22,13 @@ package com.wire.android.ui.calling
 
 import android.view.View
 import androidx.lifecycle.SavedStateHandle
+import com.wire.android.config.NavigationTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.mapper.UICallParticipantMapper
 import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.media.CallRinger
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.ui.navArgs
 import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.call.VideoState
@@ -57,7 +59,9 @@ import kotlinx.coroutines.test.setMain
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 
+@ExtendWith(NavigationTestExtension::class)
 class SharedCallingViewModelTest {
 
     @MockK
@@ -128,10 +132,9 @@ class SharedCallingViewModelTest {
     fun setup() {
         val scheduler = TestCoroutineScheduler()
         Dispatchers.setMain(StandardTestDispatcher(scheduler))
-        val dummyConversationId = "some-dummy-value@some.dummy.domain"
+        val dummyConversationId = ConversationId("some-dummy-value", "some.dummy.domain")
         MockKAnnotations.init(this)
-        every { savedStateHandle.get<String>(any()) } returns dummyConversationId
-        every { savedStateHandle.set(any(), any<String>()) } returns Unit
+        every { savedStateHandle.navArgs<CallingNavArgs>() } returns CallingNavArgs(conversationId = dummyConversationId)
 
         sharedCallingViewModel = SharedCallingViewModel(
             savedStateHandle = savedStateHandle,

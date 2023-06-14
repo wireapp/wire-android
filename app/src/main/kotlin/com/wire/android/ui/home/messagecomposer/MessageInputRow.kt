@@ -59,6 +59,7 @@ import com.wire.android.ui.home.messagecomposer.state.MessageComposeInputType
 import com.wire.android.ui.home.messagecomposer.state.SelfDeletionDuration
 import com.wire.android.ui.theme.wireTypography
 
+@Suppress("ComplexMethod")
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun MessageComposerInputRow(

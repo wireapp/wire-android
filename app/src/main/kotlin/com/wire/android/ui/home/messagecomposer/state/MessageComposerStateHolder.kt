@@ -52,7 +52,7 @@ class MessageComposerStateHolder(
 
     var messageComposerState: MessageComposerState by mutableStateOf(MessageComposerState.InActive(messageCompositionState.value))
 
-    fun toComposing(showAttachmentOption: Boolean) {
+    fun toComposing(showAttachmentOption: Boolean = false) {
         messageComposerState = MessageComposerState.Active(
             onShowEphemeralOptionsMenu = onShowEphemeralOptionsMenu,
             messageCompositionState = messageCompositionState,
@@ -70,7 +70,6 @@ class MessageComposerStateHolder(
             onShowEphemeralOptionsMenu = onShowEphemeralOptionsMenu,
             messageCompositionState = messageCompositionState,
             defaultAdditionalOptionsSubMenuState = AdditionalOptionSubMenuState.Hidden,
-            defaultInputFocused = true,
             defaultInputType = MessageCompositionInputType.Editing(messageCompositionState)
         )
     }
@@ -81,11 +80,17 @@ class MessageComposerStateHolder(
         )
     }
 
+    fun toAudioRecording() {
+        messageComposerState = MessageComposerState.AudioRecording
+    }
+
 }
 
 data class MessageComposition(
     val textFieldValue: TextFieldValue
 ) {
+
+    val hasAttachments: Boolean = false
 
     val messageText: String
         get() = textFieldValue.text

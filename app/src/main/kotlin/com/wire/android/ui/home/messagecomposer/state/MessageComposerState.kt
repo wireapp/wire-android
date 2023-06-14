@@ -27,10 +27,8 @@ sealed class MessageComposerState {
     data class InActive(val messageComposition: MessageComposition) : MessageComposerState()
     class Active(
         private val messageCompositionState: MutableState<MessageComposition>,
-        defaultAdditionalOptionMenuState: AdditionalOptionMenuState = AdditionalOptionMenuState.AttachmentAndAdditionalOptionsMenu,
         defaultInputFocused: Boolean = true,
         defaultInputType: MessageCompositionInputType = MessageCompositionInputType.Composing(messageCompositionState),
-        defaultInputSize: MessageCompositionInputSize = MessageCompositionInputSize.COLLAPSED,
         defaultAdditionalOptionsSubMenuState: AdditionalOptionSubMenuState = AdditionalOptionSubMenuState.Hidden,
         private val onShowEphemeralOptionsMenu: () -> Unit
     ) : MessageComposerState() {
@@ -39,11 +37,7 @@ sealed class MessageComposerState {
             messageCompositionState = messageCompositionState,
             defaultInputFocused = defaultInputFocused,
             defaultInputType = defaultInputType,
-            defaultInputSize = defaultInputSize
         )
-
-        var additionalOptionMenuState: AdditionalOptionMenuState by mutableStateOf(defaultAdditionalOptionMenuState)
-            private set
 
         var additionalOptionsSubMenuState: AdditionalOptionSubMenuState by mutableStateOf(defaultAdditionalOptionsSubMenuState)
             private set
@@ -74,16 +68,10 @@ sealed class MessageComposerState {
 
         }
 
-        fun toRichTextEditing() {
-            additionalOptionMenuState = AdditionalOptionMenuState.RichTextEditing
-        }
-
-        fun closeRichTextEditing() {
-            additionalOptionMenuState = AdditionalOptionMenuState.AttachmentAndAdditionalOptionsMenu
-        }
-
         fun messageTextChanged(textFieldValue: TextFieldValue) {
             messageCompositionState.value = messageCompositionState.value.copy(textFieldValue = textFieldValue)
         }
     }
+
+    object AudioRecording : MessageComposerState()
 }

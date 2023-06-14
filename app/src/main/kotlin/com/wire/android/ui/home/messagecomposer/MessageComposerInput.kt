@@ -24,6 +24,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.Transition
 import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -223,97 +224,31 @@ import io.github.esentsov.PackagePrivate
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
-private fun CollapseIconButtonBox(
-    transition: Transition<MessageComposeInputState>,
-    toggleFullScreen: () -> Unit
+fun CollapseButton(
+    onCollapseClick: () -> Unit
 ) {
-    transition.AnimatedVisibility(visible = { state -> (state is MessageComposeInputState.Active) }) {
-        Box(
-            contentAlignment = Alignment.Center,
-            modifier = Modifier
-                .fillMaxWidth()
-                .wrapContentHeight()
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = Modifier
+            .fillMaxWidth()
+            .wrapContentHeight()
+    ) {
+//        val collapseButtonRotationDegree by animateFloatAsState(
+//            label = stringResource(R.string.animation_label_button_rotation_degree_transition)
+//        ) { state ->
+//            if (state.isExpanded) 180f
+//            else 0f
+//        }
+        IconButton(
+            onClick = onCollapseClick,
+            modifier = Modifier.size(20.dp)
         ) {
-            val collapseButtonRotationDegree by transition.animateFloat(
-                label = stringResource(R.string.animation_label_button_rotation_degree_transition)
-            ) { state ->
-                if (state.isExpanded) 180f
-                else 0f
-            }
-            CollapseIconButton(
-                onCollapseClick = toggleFullScreen,
-                collapseRotation = collapseButtonRotationDegree
+            Icon(
+                painter = painterResource(id = R.drawable.ic_collapse),
+                contentDescription = stringResource(R.string.content_description_drop_down_icon),
+                tint = colorsScheme().onSecondaryButtonDisabled,
+                modifier = Modifier.rotate(180f)
             )
         }
     }
 }
-
-@Composable
-private fun CollapseIconButton(onCollapseClick: () -> Unit, modifier: Modifier = Modifier, collapseRotation: Float = 0f) {
-    IconButton(
-        onClick = onCollapseClick,
-        modifier = modifier.size(20.dp)
-    ) {
-        Icon(
-            painter = painterResource(id = R.drawable.ic_collapse),
-            contentDescription = stringResource(R.string.content_description_drop_down_icon),
-            tint = colorsScheme().onSecondaryButtonDisabled,
-            modifier = Modifier.rotate(collapseRotation)
-        )
-    }
-}
-
-data class MessageComposerInputActions(
-    val onMessageTextChanged: (TextFieldValue) -> Unit = {},
-    val onSendButtonClicked: () -> Unit = {},
-    val onToggleFullScreen: () -> Unit = {},
-    val onMentionPicked: (Contact) -> Unit = {},
-    val onCancelReply: () -> Unit = {},
-    val startMention: () -> Unit = {},
-    val onInputFocusChanged: (Boolean) -> Unit = {},
-    val onAdditionalOptionButtonClicked: () -> Unit = {},
-    val onEditSaveButtonClicked: () -> Unit = {},
-    val onEditCancelButtonClicked: () -> Unit = {},
-    val onPingClicked: () -> Unit = {},
-    val onSelfDeletionOptionButtonClicked: () -> Unit = { },
-    val onSendSelfDeletingMessageClicked: () -> Unit = {}
-)
-
-//@Composable
-//private fun generatePreviewWithState(state: MessageComposeInputState) {
-//    EnabledMessageComposerInput(
-//        transition = updateTransition(targetState = state, label = ""),
-//        securityClassificationType = SecurityClassificationType.NONE,
-//        messageComposeInputState = state,
-//        quotedMessageData = null,
-//        membersToMention = listOf(),
-//        actions = MessageComposerInputActions(),
-//        inputFocusRequester = FocusRequester(),
-//        isFileSharingEnabled = true,
-//        showSelfDeletingOption = true
-//    )
-//}
-//
-//@Preview
-//@Composable
-//fun PreviewEnabledMessageComposerInputInactive() {
-//    generatePreviewWithState(MessageComposeInputState.Inactive())
-//}
-//
-//@Preview
-//@Composable
-//fun PreviewEnabledMessageComposerInputActiveCollapsed() {
-//    generatePreviewWithState(MessageComposeInputState.Active(size = MessageComposeInputSize.COLLAPSED))
-//}
-//
-//@Preview
-//@Composable
-//fun PreviewEnabledMessageComposerInputActiveExpanded() {
-//    generatePreviewWithState(MessageComposeInputState.Active(size = MessageComposeInputSize.EXPANDED))
-//}
-//
-//@Preview
-//@Composable
-//fun PreviewEnabledMessageComposerInputActiveEdit() {
-//    generatePreviewWithState(MessageComposeInputState.Active(type = MessageComposeInputType.EditMessage("", "")))
-//}

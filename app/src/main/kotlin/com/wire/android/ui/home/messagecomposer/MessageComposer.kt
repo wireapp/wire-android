@@ -48,6 +48,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
@@ -94,6 +95,25 @@ fun MessageComposer(
                 onTransistionToActive = messageComposerStateHolder::toComposing
             )
         }
+
+        is MessageComposerState.AudioRecording -> {
+            AudioRecordingComposer(
+                onCloseAudioRecordingClicked = messageComposerStateHolder::toComposing
+            )
+        }
+    }
+}
+
+// TODO:: simple audio recorder place holder for later
+@Composable
+fun AudioRecordingComposer(onCloseAudioRecordingClicked: () -> Unit) {
+    Box(
+        Modifier
+            .fillMaxWidth()
+            .height(360.dp)
+            .background(Color.Red)
+    ) {
+
     }
 }
 
@@ -136,9 +156,7 @@ private fun ActiveMessageComposer(
                             Modifier
                                 .pointerInput(Unit) {
                                     detectTapGestures(
-                                        onPress = {
-                                            onTransitionToInActive()
-                                        },
+                                        onPress = { onTransitionToInActive() },
                                         onDoubleTap = { /* Called on Double Tap */ },
                                         onLongPress = { /* Called on Long Press */ },
                                         onTap = { /* Called on Tap */ }
@@ -150,23 +168,29 @@ private fun ActiveMessageComposer(
                         ) {
                             messageListContent()
                         }
-                        MessageComposerInput(
-                            messageCompositionInputState = messageCompositionInputState,
-                            onMessageTextChanged = ::messageTextChanged,
-                            onFocused = ::onInputFocused,
-                            onSendButtonClicked = {}
-                        )
-                        AdditionalOptionsMenu(
-                            additionalOptionsState = additionalOptionMenuState,
-                            onEphemeralOptionItemClicked = ::toEphemeralInputType,
-                            onAttachmentOptionClicked = ::toggleAttachmentOptions,
-                            onGifButtonClicked = ::toggleGifMenu,
-                            onPingClicked = { },
-                            onRichTextEditingButtonClicked = ::toRichTextEditing,
-                            onCloseRichTextEditingButtonClicked = ::closeRichTextEditing,
-                        )
+                        Column(
+                            Modifier
+                                .fillMaxWidth()
+                                .background(Color.Magenta)
+                        ) {
+                            MessageComposerInput(
+                                messageCompositionInputState = messageCompositionInputState,
+                                onMessageTextChanged = ::messageTextChanged,
+                                onSendButtonClicked = { },
+                                onFocused = ::onInputFocused,
+                                modifier = Modifier.then(
+                                    if (messageCompositionInputState.inputSize == MessageCompositionInputSize.COLLAPSED) Modifier.wrapContentHeight()
+                                    else Modifier.weight(1f)
+                                )
+                            )
+                            AdditionalOptionsMenu(
+                                onEphemeralOptionItemClicked = ::toEphemeralInputType,
+                                onAttachmentOptionClicked = ::toggleAttachmentOptions,
+                                onGifButtonClicked = ::toggleGifMenu,
+                                onPingClicked = { },
+                            )
+                        }
                     }
-
                     val additionalOptionSubMenuVisible =
                         additionalOptionsSubMenuState != AdditionalOptionSubMenuState.Hidden
                                 && !KeyboardHelper.isKeyboardVisible()
@@ -177,11 +201,13 @@ private fun ActiveMessageComposer(
 
                     if (additionalOptionSubMenuVisible) {
                         AdditionalOptionSubMenu(
-                            additionalOptionsSubMenuState,
+                            additionalOptionsState = additionalOptionsSubMenuState,
                             modifier = Modifier
                                 .height(keyboardHeight.height)
                                 .fillMaxWidth()
-                                .background(colorsScheme().messageComposerBackgroundColor)
+                                .background(
+                                    colorsScheme().messageComposerBackgroundColor
+                                )
                         )
                     }
                     // This covers the situation when the user switches from attachment options to the input keyboard - there is a moment when
@@ -205,37 +231,41 @@ private fun ActiveMessageComposer(
 
 @Composable
 private fun AdditionalOptionsMenu(
-    additionalOptionsState: AdditionalOptionMenuState,
     onEphemeralOptionItemClicked: () -> Unit,
     onAttachmentOptionClicked: () -> Unit,
     onGifButtonClicked: () -> Unit,
     onPingClicked: () -> Unit,
-    onRichTextEditingButtonClicked: () -> Unit,
-    onCloseRichTextEditingButtonClicked: () -> Unit
+    modifier: Modifier = Modifier
 ) {
-    when (additionalOptionsState) {
-        is AdditionalOptionMenuState.AttachmentAndAdditionalOptionsMenu -> {
-            AttachmentAndAdditionalOptionsMenuItems(
-                isMentionActive = true,
-                isFileSharingEnabled = true,
-                onMentionButtonClicked = onEphemeralOptionItemClicked,
-                onAttachmentOptionClicked = onAttachmentOptionClicked,
-                onGifButtonClicked = onGifButtonClicked,
-                onSelfDeletionOptionButtonClicked = onEphemeralOptionItemClicked,
-                onRichEditingButtonClicked = onRichTextEditingButtonClicked,
-                onPingClicked = onPingClicked,
-                showSelfDeletingOption = true,
-                modifier = Modifier
-            )
-        }
+    var additionalOptionState: AdditionalOptionMenuState by remember { mutableStateOf(AdditionalOptionMenuState.AttachmentAndAdditionalOptionsMenu) }
 
-        is AdditionalOptionMenuState.RichTextEditing -> {
-            RichTextOptions(
-                onRichTextHeaderButtonClicked = {},
-                onRichTextBoldButtonClicked = {},
-                onRichTextItalicButtonClicked = {},
-                onCloseRichTextEditingButtonClicked = onCloseRichTextEditingButtonClicked
-            )
+    Box(modifier) {
+        when (additionalOptionState) {
+            is AdditionalOptionMenuState.AttachmentAndAdditionalOptionsMenu -> {
+                AttachmentAndAdditionalOptionsMenuItems(
+                    isMentionActive = true,
+                    isFileSharingEnabled = true,
+                    onMentionButtonClicked = onEphemeralOptionItemClicked,
+                    onAttachmentOptionClicked = onAttachmentOptionClicked,
+                    onGifButtonClicked = onGifButtonClicked,
+                    onSelfDeletionOptionButtonClicked = onEphemeralOptionItemClicked,
+                    onRichEditingButtonClicked = { additionalOptionState = AdditionalOptionMenuState.RichTextEditing },
+                    onPingClicked = onPingClicked,
+                    showSelfDeletingOption = true,
+                    modifier = Modifier.background(Color.Black)
+                )
+            }
+
+            is AdditionalOptionMenuState.RichTextEditing -> {
+                RichTextOptions(
+                    onRichTextHeaderButtonClicked = {},
+                    onRichTextBoldButtonClicked = {},
+                    onRichTextItalicButtonClicked = {},
+                    onCloseRichTextEditingButtonClicked = {
+                        additionalOptionState = AdditionalOptionMenuState.AttachmentAndAdditionalOptionsMenu
+                    }
+                )
+            }
         }
     }
 }
@@ -279,31 +309,30 @@ private fun AttachmentAndAdditionalOptionsMenuItems(
 ) {
     Column(modifier.wrapContentSize()) {
         Divider(color = MaterialTheme.wireColorScheme.outline)
-        Box(Modifier.wrapContentSize()) {
-            MessageComposeActions(
-                false,
-                isMentionActive,
-                false,
-                isEditMessage = false,
-                isFileSharingEnabled,
-                onMentionButtonClicked = onMentionButtonClicked,
-                onAdditionalOptionButtonClicked = onAttachmentOptionClicked,
-                onPingButtonClicked = onPingClicked,
-                onSelfDeletionOptionButtonClicked = onSelfDeletionOptionButtonClicked,
-                showSelfDeletingOption = showSelfDeletingOption,
-                onGifButtonClicked = onGifButtonClicked,
-                onRichEditingButtonClicked = onRichEditingButtonClicked
-            )
-        }
+        MessageComposeActions(
+            false,
+            isMentionActive,
+            false,
+            isEditMessage = false,
+            isFileSharingEnabled,
+            onMentionButtonClicked = onMentionButtonClicked,
+            onAdditionalOptionButtonClicked = onAttachmentOptionClicked,
+            onPingButtonClicked = onPingClicked,
+            onSelfDeletionOptionButtonClicked = onSelfDeletionOptionButtonClicked,
+            showSelfDeletingOption = showSelfDeletingOption,
+            onGifButtonClicked = onGifButtonClicked,
+            onRichEditingButtonClicked = onRichEditingButtonClicked
+        )
     }
 }
 
 @Composable
-fun MessageComposerInput(
+private fun MessageComposerInput(
     messageCompositionInputState: MessageCompositionInputState,
     onMessageTextChanged: (TextFieldValue) -> Unit,
     onSendButtonClicked: () -> Unit,
     onFocused: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     val focusManager = LocalFocusManager.current
     val focusRequester = remember { FocusRequester() }
@@ -314,14 +343,24 @@ fun MessageComposerInput(
     }
 
     with(messageCompositionInputState) {
-        Column(modifier = Modifier.background(type.backgroundColor())) {
+        Column(
+            modifier = Modifier
+                .background(Color.Red)
+                .then(modifier)
+        ) {
+            CollapseButton(
+                onCollapseClick = {
+                    inputSize = if (inputSize == MessageCompositionInputSize.COLLAPSED) MessageCompositionInputSize.EXPANDED
+                    else MessageCompositionInputSize.COLLAPSED
+                }
+            )
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .wrapContentHeight(),
                 verticalAlignment = Alignment.Bottom
             ) {
-                _MessageComposerInput(
+                MessageComposerTextInput(
                     colors = type.inputTextColor(),
                     messageText = type.messageCompositionState.value.textFieldValue,
                     onMessageTextChanged = onMessageTextChanged,
@@ -333,26 +372,27 @@ fun MessageComposerInput(
                     modifier = Modifier
                         .weight(1f)
                         .then(
-                            when (messageCompositionInputState.size) {
+                            when (inputSize) {
                                 MessageCompositionInputSize.COLLAPSED -> Modifier.heightIn(max = dimensions().messageComposerActiveInputMaxHeight)
                                 MessageCompositionInputSize.EXPANDED -> Modifier.fillMaxHeight()
                             }
                         )
                 )
+                Row(Modifier.wrapContentSize()) {
+                    when (val inputType = type) {
+                        is MessageCompositionInputType.Composing -> MessageSendActions(
+                            onSendButtonClicked = onSendButtonClicked,
+                            sendButtonEnabled = inputType.isSendButtonEnabled
+                        )
 
-                when (val inputType = type) {
-                    is MessageCompositionInputType.Composing -> MessageSendActions(
-                        onSendButtonClicked = onSendButtonClicked,
-                        sendButtonEnabled = inputType.isSendButtonEnabled
-                    )
+                        is MessageCompositionInputType.SelfDeleting -> SelfDeletingActions(
+                            sendButtonEnabled = true,
+                            onSendButtonClicked = onSendButtonClicked,
+                            onChangeSelfDeletionClicked = inputType::showSelfDeletingTimeOption
+                        )
 
-                    is MessageCompositionInputType.SelfDeleting -> SelfDeletingActions(
-                        sendButtonEnabled = true,
-                        onSendButtonClicked = onSendButtonClicked,
-                        onChangeSelfDeletionClicked = inputType::showSelfDeletingTimeOption
-                    )
-
-                    else -> {}
+                        else -> {}
+                    }
                 }
             }
             when (type) {
@@ -371,7 +411,7 @@ fun MessageComposerInput(
 }
 
 @Composable
-fun _MessageComposerInput(
+fun MessageComposerTextInput(
     focusRequester: FocusRequester,
     colors: WireTextFieldColors,
     singleLine: Boolean,

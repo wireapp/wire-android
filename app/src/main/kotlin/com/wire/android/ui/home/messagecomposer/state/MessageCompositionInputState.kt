@@ -22,6 +22,7 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import com.wire.android.ui.common.colorsScheme
@@ -29,18 +30,16 @@ import com.wire.android.ui.common.textfield.WireTextFieldColors
 import com.wire.android.ui.common.textfield.wireTextFieldColors
 
 class MessageCompositionInputState(
-    private val messageCompositionState: MutableState<MessageComposition>,
+    val messageCompositionState: MutableState<MessageComposition>,
     defaultInputFocused: Boolean = true,
-    defaultInputType: MessageCompositionInputType = MessageCompositionInputType.Composing(messageCompositionState),
-    defaultInputSize: MessageCompositionInputSize = MessageCompositionInputSize.COLLAPSED
+    defaultInputType: MessageCompositionInputType = MessageCompositionInputType.Composing(messageCompositionState)
 ) {
     var inputFocused: Boolean by mutableStateOf(defaultInputFocused)
         private set
     var type: MessageCompositionInputType by mutableStateOf(defaultInputType)
         private set
 
-    var size: MessageCompositionInputSize by mutableStateOf(defaultInputSize)
-        private set
+    var inputSize by   mutableStateOf(MessageCompositionInputSize.COLLAPSED)
 
     fun toEphemeral(onShowEphemeralOptionsMenu: () -> Unit) {
         type = MessageCompositionInputType.SelfDeleting(messageCompositionState, onShowEphemeralOptionsMenu)
@@ -48,14 +47,6 @@ class MessageCompositionInputState(
 
     fun toComposing() {
         type = MessageCompositionInputType.Composing(messageCompositionState)
-    }
-
-    fun toFullscreen() {
-        size = MessageCompositionInputSize.EXPANDED
-    }
-
-    fun toCollapsed() {
-        size = MessageCompositionInputSize.COLLAPSED
     }
 
     fun clearFocus() {
@@ -66,9 +57,19 @@ class MessageCompositionInputState(
         inputFocused = true
     }
 
+    fun toFullscreen(){
+        inputSize = MessageCompositionInputSize.EXPANDED
+    }
+
+    fun toCollapsed(){
+        inputSize = MessageCompositionInputSize.COLLAPSED
+    }
+
 }
 
-sealed class MessageCompositionInputType(val messageCompositionState: MutableState<MessageComposition>) {
+sealed class MessageCompositionInputType(
+    val messageCompositionState: MutableState<MessageComposition>
+) {
     @Composable
     open fun inputTextColor(): WireTextFieldColors = wireTextFieldColors(
         backgroundColor = Color.Transparent,

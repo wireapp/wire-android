@@ -73,12 +73,13 @@ class RemoveDeviceViewModel @Inject constructor(
         viewModelScope.launch {
             state = state.copy(isLoadingClientsList = true)
             val selfClientsResult = fetchSelfClientsFromRemote()
-            if (selfClientsResult is SelfClientsResult.Success)
+            if (selfClientsResult is SelfClientsResult.Success) {
                 state = state.copy(
                     isLoadingClientsList = false,
                     deviceList = selfClientsResult.clients.filter { it.type == ClientType.Permanent }.map { Device(it) },
                     removeDeviceDialogState = RemoveDeviceDialogState.Hidden
                 )
+            }
         }
     }
 
@@ -116,7 +117,6 @@ class RemoveDeviceViewModel @Inject constructor(
                 }
                 // no password needed so we can delete the device and register a client
                 false -> deleteClient(null, device)
-
             }
         }
     }
@@ -165,7 +165,6 @@ class RemoveDeviceViewModel @Inject constructor(
         }
     }
 
-
     private fun showDeleteClientDialog(device: Device) {
         state = state.copy(
             error = RemoveDeviceError.None,
@@ -183,10 +182,11 @@ class RemoveDeviceViewModel @Inject constructor(
 
     @VisibleForTesting
     private suspend fun navigateAfterRegisterClientSuccess() =
-        if (userDataStore.initialSyncCompleted.first())
+        if (userDataStore.initialSyncCompleted.first()) {
             navigationManager.navigate(NavigationCommand(HomeScreenDestination, BackStackMode.CLEAR_WHOLE))
-        else
+        } else {
             navigationManager.navigate(NavigationCommand(InitialSyncScreenDestination, BackStackMode.CLEAR_WHOLE))
+        }
 
     private companion object {
         const val REGISTER_CLIENT_AFTER_DELETE_DELAY = 2000L

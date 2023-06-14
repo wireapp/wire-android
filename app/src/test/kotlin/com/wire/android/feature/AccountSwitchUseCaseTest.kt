@@ -49,7 +49,7 @@ class AccountSwitchUseCaseTest {
 
     @Suppress("MaxLineLength")
     @Test
-    fun `given current session is valid, when SwitchToAccount is called , then update current session and the user is navigated to the home screen`() =
+    fun givenCurrentSessionIsValid_whenSwitchingToAccountIsCalled_thenUpdateCurrentSessionAndTheUserIsNavigatedToHome() =
         runTest {
             val expectedNavigationCommand = NavigationCommand(
                 HomeScreenDestination,
@@ -75,7 +75,7 @@ class AccountSwitchUseCaseTest {
 
     @Suppress("MaxLineLength")
     @Test
-    fun `given current session is valid and there are no other sessions, when SwitchToNextAccountOrWelcome , then update current session and the user is navigated to the welcome screen`() =
+    fun givenCurrentSessionIsValidAndNoOtherSessions_whenSwitchToNextAccountOrWelcome_thenUpdateCurrentSessionAndNavigateToWelcome() =
         runTest {
             val expectedNavigationCommand = NavigationCommand(
                 WelcomeScreenDestination,
@@ -100,9 +100,8 @@ class AccountSwitchUseCaseTest {
             }
         }
 
-
     @Test
-    fun `given current session is invalid , when switching to account , then update current session and delete the old one`() = runTest {
+    fun givenCurrentSessionIsInvalid_whenSwitchingToAccount_thenUpdateCurrentSessionAndDeleteTheOldOne() = runTest {
         val currentAccount = ACCOUNT_INVALID_3
         val switchTO = ACCOUNT_VALID_2
 
@@ -140,9 +139,7 @@ class AccountSwitchUseCaseTest {
             AccountInfo.Invalid(UserId("userId_invalid_3", "domain_invalid_3"), LogoutReason.SELF_SOFT_LOGOUT)
         val ACCOUNT_INVALID_4 =
             AccountInfo.Invalid(UserId("userId_invalid_4", "domain_invalid_4"), LogoutReason.SELF_SOFT_LOGOUT)
-
     }
-
 
     private class Arrangement {
 
@@ -204,6 +201,5 @@ class AccountSwitchUseCaseTest {
         }
 
         fun arrange() = this to accountSwitchUseCase
-
     }
 }

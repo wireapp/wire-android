@@ -28,13 +28,16 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination
 import com.wire.android.appLogger
-import com.wire.android.navigation.EXTRA_CONVERSATION_ID
-import com.wire.android.navigation.NavigationItem
-import com.wire.android.navigation.getCurrentNavigationItem
+import com.wire.android.navigation.toDestination
+import com.wire.android.ui.destinations.ConversationScreenDestination
+import com.wire.android.ui.destinations.Destination
+import com.wire.android.ui.destinations.HomeScreenDestination
+import com.wire.android.ui.destinations.ImportMediaScreenDestination
+import com.wire.android.ui.destinations.IncomingCallScreenDestination
+import com.wire.android.ui.destinations.OngoingCallScreenDestination
+import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
-import com.wire.kalium.logic.data.id.QualifiedIdMapperImpl
-import com.wire.kalium.logic.data.id.toQualifiedID
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -113,8 +116,8 @@ class CurrentScreenManager @Inject constructor(
     }
 
     override fun onDestinationChanged(controller: NavController, destination: NavDestination, arguments: Bundle?) {
-        val currentItem = controller.getCurrentNavigationItem() // TODO: replace NavigationItem with Destination
-        currentScreenState.value = CurrentScreen.fromNavigationItem(
+        val currentItem = destination.toDestination()
+        currentScreenState.value = CurrentScreen.fromDestination(
             currentItem,
             arguments,
             isApplicationVisibleFlow.value
@@ -153,40 +156,28 @@ sealed class CurrentScreen {
     object InBackground : CurrentScreen()
 
     companion object {
-        val qualifiedIdMapper = QualifiedIdMapperImpl(null)
 
         @Suppress("ComplexMethod")
-        fun fromNavigationItem(currentItem: NavigationItem?, arguments: Bundle?, isAppVisible: Boolean): CurrentScreen {
+        fun fromDestination(destination: Destination?, arguments: Bundle?, isAppVisible: Boolean): CurrentScreen {
             if (!isAppVisible) {
                 return InBackground
             }
-            return when (currentItem) {
-                NavigationItem.Home -> Home
-                NavigationItem.Conversation -> {
-                    arguments?.getString(EXTRA_CONVERSATION_ID)
-                        ?.toQualifiedID(qualifiedIdMapper)
-                        ?.let { Conversation(it) }
-                        ?: SomeOther
-                }
-                NavigationItem.OtherUserProfile -> {
-                    arguments?.getString(EXTRA_CONVERSATION_ID)
-                        ?.toQualifiedID(qualifiedIdMapper)
-                        ?.let { OtherUserProfile(it) }
-                        ?: SomeOther
-                }
-                NavigationItem.OngoingCall -> {
-                    arguments?.getString(EXTRA_CONVERSATION_ID)
-                        ?.toQualifiedID(qualifiedIdMapper)
-                        ?.let { OngoingCallScreen(it) }
-                        ?: SomeOther
-                }
-                NavigationItem.IncomingCall -> {
-                    arguments?.getString(EXTRA_CONVERSATION_ID)
-                        ?.toQualifiedID(qualifiedIdMapper)
-                        ?.let { IncomingCallScreen(it) }
-                        ?: SomeOther
-                }
-                NavigationItem.ImportMedia -> ImportMedia
+            return when (destination) {
+                is HomeScreenDestination -> Home
+                is ConversationScreenDestination ->
+                    Conversation(destination.argsFrom(arguments).conversationId)
+
+                is OtherUserProfileScreenDestination ->
+                    destination.argsFrom(arguments).conversationId?.let { OtherUserProfile(it) } ?: SomeOther
+
+                is OngoingCallScreenDestination ->
+                    OngoingCallScreen(destination.argsFrom(arguments).conversationId)
+
+                is IncomingCallScreenDestination ->
+                    IncomingCallScreen(destination.argsFrom(arguments).conversationId)
+
+                is ImportMediaScreenDestination -> ImportMedia
+
                 else -> SomeOther
             }
         }

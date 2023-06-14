@@ -27,6 +27,21 @@ import org.junit.jupiter.api.extension.AfterEachCallback
 import org.junit.jupiter.api.extension.BeforeEachCallback
 import org.junit.jupiter.api.extension.ExtensionContext
 
+/**
+ * This extension provides a way to mock navigation arguments getters.
+ * It can be used to mock getting navigation arguments from savedStateHandle, like: savedStateHandle.navArgs()
+ * or to get arguments from the specific Destination object, like: ExampleScreenDestination.argsFrom(savedStateHandle).
+ *
+ * Add this JUnit 5 extension to your test class using
+ * @JvmField
+ * @RegisterExtension
+ * val navigationTestExtension = NavigationTestExtension()
+ *
+ * or:
+ *
+ * Annotating the class with
+ * @ExtendWith(NavigationTestExtension::class)
+ */
 @ExperimentalCoroutinesApi
 class NavigationTestExtension : BeforeEachCallback, AfterEachCallback {
     override fun beforeEach(context: ExtensionContext?) {

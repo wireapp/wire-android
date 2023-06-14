@@ -23,12 +23,13 @@ package com.wire.android.util.ui
 import android.app.Activity
 import android.os.Build
 import android.view.WindowManager
-import androidx.navigation.NavController
+import androidx.navigation.NavDestination
 import com.wire.android.navigation.ScreenMode
-import com.wire.android.navigation.getCurrentNavigationItem
+import com.wire.android.navigation.ScreenModeStyle
+import com.wire.android.navigation.toDestination
 
-fun Activity.updateScreenSettings(navController: NavController) {
-    val screenMode = navController.getCurrentNavigationItem()?.screenMode // TODO: replace NavigationItem with Destination
+fun Activity.updateScreenSettings(navDestination: NavDestination) {
+    val screenMode = (navDestination.toDestination()?.style as? ScreenModeStyle)?.screenMode ?: ScreenMode.NONE
     updateScreenSettings(screenMode)
 }
 

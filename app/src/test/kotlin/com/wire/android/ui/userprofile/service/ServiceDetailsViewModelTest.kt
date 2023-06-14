@@ -20,13 +20,14 @@ package com.wire.android.ui.userprofile.service
 import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
 import com.wire.android.config.CoroutineTestExtension
+import com.wire.android.config.NavigationTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
 import com.wire.android.framework.TestUser
-import com.wire.android.navigation.EXTRA_BOT_SERVICE_ID
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.conversations.details.participants.usecase.ConversationRoleData
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveConversationRoleForUserUseCase
+import com.wire.android.ui.navArgs
 import com.wire.android.ui.userprofile.other.OtherUserProfileScreenViewModelTest
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.CoreFailure
@@ -36,6 +37,7 @@ import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.service.ServiceDetails
 import com.wire.kalium.logic.data.service.ServiceId
+import com.wire.kalium.logic.data.user.BotService
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.conversation.AddServiceToConversationUseCase
 import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
@@ -48,22 +50,23 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
-import junit.framework.TestCase.assertEquals
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class)
+@ExtendWith(NavigationTestExtension::class)
 class ServiceDetailsViewModelTest {
 
     @Test
     fun `given user clicks on navigate back, then navigates back`() = runTest {
         // given
         val (arrangement, viewModel) = Arrangement()
-            .withServiceId(serviceId = stringServiceId)
+            .withService(service = BOT_SERVICE)
             .withServiceDetails(serviceDetails = SERVICE_DETAILS)
             .withConversationRoleForUser(roleData = CONVERSATION_ROLE_DATA)
             .withIsServiceMember(eitherMember = EITHER_MEMBER_ID)
@@ -83,7 +86,7 @@ class ServiceDetailsViewModelTest {
         runTest {
             // given
             val (_, viewModel) = Arrangement()
-                .withServiceId(serviceId = stringServiceId)
+                .withService(service = BOT_SERVICE)
                 .withServiceDetails(serviceDetails = SERVICE_DETAILS)
                 .withConversationRoleForUser(roleData = CONVERSATION_ROLE_DATA)
                 .withIsServiceMember(eitherMember = EITHER_MEMBER_ID)
@@ -104,7 +107,7 @@ class ServiceDetailsViewModelTest {
         runTest {
             // given
             val (_, viewModel) = Arrangement()
-                .withServiceId(serviceId = stringServiceId)
+                .withService(service = BOT_SERVICE)
                 .withServiceDetails(serviceDetails = SERVICE_DETAILS)
                 .withConversationRoleForUser(roleData = CONVERSATION_ROLE_DATA)
                 .withIsServiceMember(eitherMember = Either.Left(StorageFailure.DataNotFound))
@@ -124,7 +127,7 @@ class ServiceDetailsViewModelTest {
         runTest {
             // given
             val (_, viewModel) = Arrangement()
-                .withServiceId(serviceId = stringServiceId)
+                .withService(service = BOT_SERVICE)
                 .withServiceDetails(serviceDetails = SERVICE_DETAILS)
                 .withConversationRoleForUser(
                     roleData = CONVERSATION_ROLE_DATA.copy(
@@ -149,7 +152,7 @@ class ServiceDetailsViewModelTest {
         runTest {
             // given
             val (_, viewModel) = Arrangement()
-                .withServiceId(serviceId = "serviceId_MissingProvider")
+                .withService(service = BOT_SERVICE)
                 .withServiceDetails(serviceDetails = null)
                 .withConversationRoleForUser(roleData = CONVERSATION_ROLE_DATA)
                 .withIsServiceMember(eitherMember = Either.Left(StorageFailure.DataNotFound))
@@ -169,7 +172,7 @@ class ServiceDetailsViewModelTest {
         runTest {
             // given
             val (arrangement, viewModel) = Arrangement()
-                .withServiceId(serviceId = stringServiceId)
+                .withService(service = BOT_SERVICE)
                 .withServiceDetails(serviceDetails = SERVICE_DETAILS)
                 .withConversationRoleForUser(roleData = CONVERSATION_ROLE_DATA)
                 .withIsServiceMember(eitherMember = EITHER_MEMBER_ID)
@@ -196,7 +199,7 @@ class ServiceDetailsViewModelTest {
         runTest {
             // given
             val (arrangement, viewModel) = Arrangement()
-                .withServiceId(serviceId = stringServiceId)
+                .withService(service = BOT_SERVICE)
                 .withServiceDetails(serviceDetails = SERVICE_DETAILS)
                 .withConversationRoleForUser(roleData = CONVERSATION_ROLE_DATA)
                 .withIsServiceMember(eitherMember = EITHER_MEMBER_ID)
@@ -223,7 +226,7 @@ class ServiceDetailsViewModelTest {
         runTest {
             // given
             val (arrangement, viewModel) = Arrangement()
-                .withServiceId(serviceId = stringServiceId)
+                .withService(service = BOT_SERVICE)
                 .withServiceDetails(serviceDetails = SERVICE_DETAILS)
                 .withConversationRoleForUser(roleData = CONVERSATION_ROLE_DATA)
                 .withIsServiceMember(eitherMember = EITHER_MEMBER_ID)
@@ -250,7 +253,7 @@ class ServiceDetailsViewModelTest {
         runTest {
             // given
             val (arrangement, viewModel) = Arrangement()
-                .withServiceId(serviceId = stringServiceId)
+                .withService(service = BOT_SERVICE)
                 .withServiceDetails(serviceDetails = SERVICE_DETAILS)
                 .withConversationRoleForUser(roleData = CONVERSATION_ROLE_DATA)
                 .withIsServiceMember(eitherMember = EITHER_MEMBER_ID)
@@ -275,8 +278,8 @@ class ServiceDetailsViewModelTest {
     companion object {
         const val serviceId = "serviceId"
         const val providerId = "providerId"
-        val stringServiceId = "$serviceId@$providerId"
-        val SERVICE_ID = ServiceId(id = "serviceId", provider = "providerId")
+        val SERVICE_ID = ServiceId(id = serviceId, provider = providerId)
+        val BOT_SERVICE = BotService(id = serviceId, provider = providerId)
         val CONVERSATION_ID = ConversationId(value = "conversationId", domain = "conversationDomain")
         val MEMBER_ID = QualifiedID(value = "memberValue", domain = "memberDomain")
         val EITHER_MEMBER_ID = Either.Right(MEMBER_ID)
@@ -351,8 +354,8 @@ class ServiceDetailsViewModelTest {
             coEvery { observeSelfUser() } returns flowOf(TestUser.SELF_USER)
         }
 
-        fun withServiceId(serviceId: String) = apply {
-            every { savedStateHandle.get<String>(EXTRA_BOT_SERVICE_ID) } returns serviceId
+        fun withService(service: BotService) = apply {
+            every { savedStateHandle.navArgs<ServiceDetailsNavArgs>() } returns ServiceDetailsNavArgs(service, CONVERSATION_ID)
         }
 
         suspend fun withConversationRoleForUser(roleData: ConversationRoleData) = apply {

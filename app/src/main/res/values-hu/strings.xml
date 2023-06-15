@@ -147,9 +147,9 @@
     <string name="content_description_self_deletion_selector_button">Önmegsemmisítő mód kapcsológombja</string>
     <string name="content_description_message_sending_status">Üzenet küldése állapot</string>
     <string name="content_description_message_sent_status">Üzenet elküldve állapot</string>
-    <string name="content_description_message_error_status">Message error status</string>
-    <string name="content_description_message_delivered_status">Message delivered status</string>
-    <string name="content_description_message_read_status">Message read status</string>
+    <string name="content_description_message_error_status">Üzenet hiba állapot</string>
+    <string name="content_description_message_delivered_status">Üzenet kézbesítve állapot</string>
+    <string name="content_description_message_read_status">Üzenet olvasva állapot</string>
     <!-- Non translatable strings-->
     <!-- Navigation -->
     <string name="vault_screen_title">Széf</string>

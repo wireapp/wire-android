@@ -453,15 +453,14 @@ pipeline {
                                     params.RUN_STATIC_CODE_ANALYSIS &&
                                     params.UPLOAD_TO_S3 &&
                                     params.FLAVOR == 'Internal' &&
-                                    // TODO: re add this condition
-                                    // params.SOURCE_BRANCH == 'Internal' &&
+                                    params.SOURCE_BRANCH == 'Internal' &&
                                     params.BUILD_TYPE == 'Compat' &&
                                     params.CHANGE_ID == null
                         }
                     }
                     steps {
                         script {
-                            def trackName = "Alpha"
+                            def trackName = env.WIRE_ANDROID_INTERNAL_TRACK_NAME
                             echo 'Checking folder before prod playstore upload'
                             sh "ls -la app/build/outputs/bundle/${params.FLAVOR.toLowerCase()}${params.BUILD_TYPE.capitalize()}/"
                             echo 'Uploading file to prod Playstore track ${trackName}'

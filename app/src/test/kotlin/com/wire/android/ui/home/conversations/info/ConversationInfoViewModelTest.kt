@@ -21,9 +21,9 @@
 package com.wire.android.ui.home.conversations.info
 
 import com.wire.android.config.CoroutineTestExtension
+import com.wire.android.config.NavigationTestExtension
 import com.wire.android.framework.TestUser
 import com.wire.android.navigation.NavigationCommand
-import com.wire.android.config.NavigationTestExtension
 import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
 import com.wire.android.ui.destinations.SelfUserProfileScreenDestination
 import com.wire.android.ui.home.conversations.mockConversationDetailsGroup
@@ -36,6 +36,7 @@ import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.UserId
 import io.mockk.coEvery
 import io.mockk.coVerify
+import junit.framework.TestCase.assertTrue
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -98,11 +99,13 @@ class ConversationInfoViewModelTest {
         val otherScreen = OtherUserProfileScreenDestination(userId)
 
         // When
-        viewModel.navigateToProfile(userId.toString(), otherScreen)
+        viewModel.navigateToProfile(userId.toString())
 
         // Then
         coVerify(exactly = 1) {
-            arrangement.navigationManager.navigate(NavigationCommand(otherScreen))
+            arrangement.navigationManager.navigate(
+                withArg { assertTrue(it.destination.route == otherScreen.route) }
+            )
         }
     }
 
@@ -124,11 +127,11 @@ class ConversationInfoViewModelTest {
         launch { viewModel.observeConversationDetails() }.run {
             advanceUntilIdle()
             // When
-            viewModel.navigateToProfile(userId.toString(), otherScreen)
+            viewModel.navigateToProfile(userId.toString())
             // Then
             coVerify(exactly = 1) {
                 arrangement.navigationManager.navigate(
-                    NavigationCommand(otherScreen)
+                    withArg { assertTrue(it.destination.route == otherScreen.route) }
                 )
             }
             cancel()

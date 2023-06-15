@@ -144,7 +144,7 @@ class IncomingCallViewModel @Inject constructor(
         }
     }
 
-    fun acceptCall(direction: Direction = OngoingCallScreenDestination(incomingCallNavArgs.conversationId)) {
+    fun acceptCall() {
         viewModelScope.launch {
             if (incomingCallState.hasEstablishedCall) {
                 showJoinCallAnywayDialog()
@@ -158,7 +158,7 @@ class IncomingCallViewModel @Inject constructor(
 
                 navigationManager.navigate(
                     command = NavigationCommand(
-                        destination = direction,
+                        destination = OngoingCallScreenDestination(incomingCallNavArgs.conversationId),
                         backStackMode = BackStackMode.REMOVE_CURRENT_AND_REPLACE
                     )
                 )

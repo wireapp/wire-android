@@ -21,12 +21,12 @@
 package com.wire.android.ui.calling.incoming
 
 import androidx.lifecycle.SavedStateHandle
-import com.ramcosta.composedestinations.spec.Direction
 import com.wire.android.config.CoroutineTestExtension
+import com.wire.android.config.NavigationTestExtension
 import com.wire.android.media.CallRinger
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.calling.CallingNavArgs
-import com.wire.android.config.NavigationTestExtension
+import com.wire.android.ui.destinations.OngoingCallScreenDestination
 import com.wire.android.ui.navArgs
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.feature.call.usecase.AnswerCallUseCase
@@ -41,6 +41,7 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.verify
+import junit.framework.TestCase
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.amshove.kluent.internal.assertEquals
 import org.junit.jupiter.api.BeforeEach
@@ -79,15 +80,11 @@ class IncomingCallViewModelTest {
     @MockK
     private lateinit var muteCall: MuteCallUseCase
 
-    @MockK
-    private lateinit var direction: Direction
-
     private lateinit var viewModel: IncomingCallViewModel
 
     @BeforeEach
     fun setUp() {
         MockKAnnotations.init(this)
-        val dummyConversationId = ConversationId("some-dummy-value", "some.dummy.domain")
         every { savedStateHandle.navArgs<CallingNavArgs>() } returns CallingNavArgs(conversationId = dummyConversationId)
 
         // Default empty values
@@ -126,21 +123,30 @@ class IncomingCallViewModelTest {
         coEvery { navigationManager.navigate(command = any()) } returns Unit
         coEvery { acceptCall(conversationId = any()) } returns Unit
         every { callRinger.stop() } returns Unit
+        val expectedRoute = OngoingCallScreenDestination(dummyConversationId).route
 
-        viewModel.acceptCall(direction)
+        viewModel.acceptCall()
 
         coVerify(exactly = 1) { acceptCall(conversationId = any()) }
         verify(exactly = 1) { callRinger.stop() }
         coVerify(inverse = true) { endCall(any()) }
         assertEquals(false, viewModel.incomingCallState.shouldShowJoinCallAnywayDialog)
-        coVerify(exactly = 1) { navigationManager.navigate(command = any()) }
+        coVerify(exactly = 1) {
+            navigationManager.navigate(
+                withArg {
+                    TestCase.assertTrue(
+                        it.destination.route == expectedRoute
+                    )
+                }
+            )
+        }
     }
 
     @Test
     fun `given an ongoing call, when user tries to accept an incoming call, then show JoinCallAnywayDialog`() {
         viewModel.incomingCallState = viewModel.incomingCallState.copy(hasEstablishedCall = true)
 
-        viewModel.acceptCall(direction)
+        viewModel.acceptCall()
 
         assertEquals(true, viewModel.incomingCallState.shouldShowJoinCallAnywayDialog)
         coVerify(inverse = true) { acceptCall(conversationId = any()) }
@@ -167,5 +173,9 @@ class IncomingCallViewModelTest {
         viewModel.dismissJoinCallAnywayDialog()
 
         assertEquals(false, viewModel.incomingCallState.shouldShowJoinCallAnywayDialog)
+    }
+
+    companion object {
+        val dummyConversationId = ConversationId("some-dummy-value", "some.dummy.domain")
     }
 }

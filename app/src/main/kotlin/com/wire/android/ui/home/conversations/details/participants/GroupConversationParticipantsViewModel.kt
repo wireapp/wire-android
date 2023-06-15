@@ -35,7 +35,10 @@ import com.wire.android.ui.home.conversations.details.GroupDetailsBaseViewModel
 import com.wire.android.ui.home.conversations.details.participants.model.UIParticipant
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
 import com.wire.android.ui.navArgs
+import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
+import com.wire.kalium.logic.data.user.BotService
+import com.wire.kalium.logic.data.user.UserId
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -71,13 +74,13 @@ open class GroupConversationParticipantsViewModel @Inject constructor(
         navigationManager.navigateBack()
     }
 
-    fun openProfile(participant: UIParticipant, direction: Direction? = null) = viewModelScope.launch {
+    fun openProfile(participant: UIParticipant) = viewModelScope.launch {
         if (participant.isSelf) {
             navigateToSelfProfile()
         } else if (participant.isService && participant.botService != null) {
-            navigateToServiceProfile(direction ?: ServiceDetailsScreenDestination(participant.botService, conversationId))
+            navigateToServiceProfile(participant.botService)
         } else {
-            navigateToOtherProfile(direction ?: OtherUserProfileScreenDestination(participant.id, conversationId))
+            navigateToOtherProfile(participant.id)
         }
     }
 
@@ -85,11 +88,11 @@ open class GroupConversationParticipantsViewModel @Inject constructor(
         navigationManager.navigate(NavigationCommand(SelfUserProfileScreenDestination))
     }
 
-    private suspend fun navigateToOtherProfile(direction: Direction) {
-        navigationManager.navigate(NavigationCommand(direction))
+    private suspend fun navigateToOtherProfile(userId: UserId) {
+        navigationManager.navigate(NavigationCommand(OtherUserProfileScreenDestination(userId, conversationId)))
     }
 
-    private suspend fun navigateToServiceProfile(direction: Direction) {
-        navigationManager.navigate(NavigationCommand(direction))
+    private suspend fun navigateToServiceProfile(botService: BotService) {
+        navigationManager.navigate(NavigationCommand(ServiceDetailsScreenDestination(botService, conversationId)))
     }
 }

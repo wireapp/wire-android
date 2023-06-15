@@ -25,7 +25,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
-import com.ramcosta.composedestinations.spec.Direction
 import com.wire.android.R
 import com.wire.android.model.ImageAsset
 import com.wire.android.navigation.NavigationCommand
@@ -41,6 +40,7 @@ import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.android.util.ui.toUIText
 import com.wire.kalium.logic.data.conversation.ConversationDetails
+import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.user.ConnectionState
@@ -178,18 +178,16 @@ class ConversationInfoViewModel @Inject constructor(
         }
     }
 
-    fun navigateToProfile(mentionUserId: String, direction: Direction? = null) {
+    fun navigateToProfile(mentionUserId: String) {
         viewModelScope.launch {
             if (selfUserId.toString() == mentionUserId) {
                 navigateToSelfProfile()
             } else {
                 val userId = qualifiedIdMapper.fromStringToQualifiedID(mentionUserId)
                 when (conversationInfoViewState.conversationDetailsData) {
-                    is ConversationDetailsData.Group -> navigateToOtherProfile(
-                        direction ?: OtherUserProfileScreenDestination(userId, conversationId)
-                    )
+                    is ConversationDetailsData.Group -> navigateToOtherProfile(userId, conversationId)
                     else -> {
-                        navigateToOtherProfile(direction ?: OtherUserProfileScreenDestination(userId))
+                        navigateToOtherProfile(userId)
                     }
                 }
             }
@@ -201,8 +199,9 @@ class ConversationInfoViewModel @Inject constructor(
     }
 
     private suspend fun navigateToOtherProfile(
-        direction: Direction
+        userId: UserId,
+        conversationId: ConversationId? = null
     ) {
-        navigationManager.navigate(NavigationCommand(direction))
+        navigationManager.navigate(NavigationCommand(OtherUserProfileScreenDestination(userId, conversationId)))
     }
 }

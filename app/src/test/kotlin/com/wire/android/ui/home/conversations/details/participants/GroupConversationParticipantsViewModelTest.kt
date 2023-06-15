@@ -42,6 +42,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import junit.framework.TestCase
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.consumeAsFlow
@@ -82,15 +83,18 @@ class GroupConversationParticipantsViewModelTest {
         // Given
         val member = testUIParticipant(0).copy(isSelf = false)
         val (arrangement, viewModel) = GroupConversationParticipantsViewModelArrangement().arrange()
-        val otherUserProfileScreen = OtherUserProfileScreenDestination(member.id, arrangement.conversationId)
-
+        val expectedRoute = OtherUserProfileScreenDestination(member.id, arrangement.conversationId).route
         // When
-        viewModel.openProfile(member, otherUserProfileScreen)
+        viewModel.openProfile(member)
 
         // Then
         coVerify(exactly = 1) {
             arrangement.navigationManager.navigate(
-                NavigationCommand(otherUserProfileScreen)
+                withArg {
+                    TestCase.assertTrue(
+                        it.destination.route == expectedRoute
+                    )
+                }
             )
         }
     }
@@ -105,13 +109,19 @@ class GroupConversationParticipantsViewModelTest {
             botService = botService
         )
         val (arrangement, viewModel) = GroupConversationParticipantsViewModelArrangement().arrange()
-        val serviceScreen = ServiceDetailsScreenDestination(botService, arrangement.conversationId)
+        val expectedRoute = ServiceDetailsScreenDestination(botService, arrangement.conversationId).route
+
         // When
-        viewModel.openProfile(member, serviceScreen)
+        viewModel.openProfile(member)
+
         // Then
         coVerify(exactly = 1) {
             arrangement.navigationManager.navigate(
-                NavigationCommand(serviceScreen)
+                withArg {
+                    TestCase.assertTrue(
+                        it.destination.route == expectedRoute
+                    )
+                }
             )
         }
     }

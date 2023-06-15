@@ -90,7 +90,7 @@ tasks.withType(DetektCreateBaselineTask::class) {
     baseline.set(file("$rootDir/config/detekt/baseline.xml"))
 
     include("**/*.kt")
-    exclude("**/*.kts", "*/build/*", "/buildSrc")
+    exclude("**/*.kts", "*/build/**/*", "/buildSrc")
 }
 
 tasks.register("staticCodeAnalysis") {

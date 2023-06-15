@@ -44,7 +44,7 @@
     <string name="label_message_sent_failure">Message could not be sent.</string>
     <string name="label_message_edit_sent_failure">Az üzenetet nem sikerült elküldeni kapcsolati problémák miatt.</string>
     <string name="label_message_sent_remotely_failure">Az üzenetet nem sikerült elküldeni, mivel a(z) %s nem üzemel.</string>
-    <string name="label_message_edit_sent_remotely_failure">The edited message could not be sent, as the backend %s appears to be offline.</string>
+    <string name="label_message_edit_sent_remotely_failure">Az üzenetet nem sikerült elküldeni, mivel a(z) %s kiszolgáló nem üzemel.</string>
     <string name="label_message_receive_failure">Letöltési hiba</string>
     <string name="label_message_decryption_failure_message">Az üzenetet nem sikerült dekódolni.</string>
     <string name="label_message_decryption_failure_informative_message">Próbálja meg visszaállítani a munkamenetet, hogy új titkosítási kulcsot generáljon.</string>
@@ -145,8 +145,8 @@
     <string name="content_description_calling_call_paused_camera">Kamera felfüggesztve</string>
     <string name="content_description_more_emojis">További hangulatjelek</string>
     <string name="content_description_self_deletion_selector_button">Önmegsemmisítő mód kapcsológombja</string>
-    <string name="content_description_message_sending_status">Message sending status</string>
-    <string name="content_description_message_sent_status">Message sent status</string>
+    <string name="content_description_message_sending_status">Üzenet küldése állapot</string>
+    <string name="content_description_message_sent_status">Üzenet elküldve állapot</string>
     <string name="content_description_message_error_status">Message error status</string>
     <string name="content_description_message_delivered_status">Message delivered status</string>
     <string name="content_description_message_read_status">Message read status</string>

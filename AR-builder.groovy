@@ -392,17 +392,19 @@ pipeline {
                         }
                     }
                     steps {
-                        def trackName = "internal"
-                        echo 'Checking folder before playstore upload'
-                        sh "ls -la app/build/outputs/bundle/${params.FLAVOR.toLowerCase()}${params.BUILD_TYPE.capitalize()}/"
-                        echo 'Uploading file to Playstore track internal'
-                        androidApkUpload(
-                                googleCredentialsId: "${env.GOOGLE_PLAY_CREDS}",
-                                filesPattern: "app/build/outputs/bundle/${params.FLAVOR.toLowerCase()}${params.BUILD_TYPE.capitalize()}/com.wire.android-*.aab",
-                                trackName: trackName,
-                                rolloutPercentage: '100',
-                                releaseName: "${trackName} Release"
-                        )
+                        script {
+                            def trackName = "internal"
+                            echo 'Checking folder before playstore upload'
+                            sh "ls -la app/build/outputs/bundle/${params.FLAVOR.toLowerCase()}${params.BUILD_TYPE.capitalize()}/"
+                            echo 'Uploading file to Playstore track internal'
+                            androidApkUpload(
+                                    googleCredentialsId: "${env.GOOGLE_PLAY_CREDS}",
+                                    filesPattern: "app/build/outputs/bundle/${params.FLAVOR.toLowerCase()}${params.BUILD_TYPE.capitalize()}/com.wire.android-*.aab",
+                                    trackName: trackName,
+                                    rolloutPercentage: '100',
+                                    releaseName: "${trackName} Release"
+                            )
+                        }
                     }
                 }
 
@@ -421,17 +423,19 @@ pipeline {
                         }
                     }
                     steps {
-                        def trackName = env.WIRE_ANDROID_PROD_TRACK_NAME
-                        echo 'Checking folder before prod playstore upload'
-                        sh "ls -la app/build/outputs/bundle/${params.FLAVOR.toLowerCase()}${params.BUILD_TYPE.capitalize()}/"
-                        echo "Uploading file to prod Playstore track ${trackName}"
-                        androidApkUpload(
-                                googleCredentialsId: "${env.GOOGLE_PLAY_CREDS}",
-                                filesPattern: "app/build/outputs/bundle/${params.FLAVOR.toLowerCase()}${params.BUILD_TYPE.capitalize()}/com.wire.android-*.aab",
-                                trackName: trackName,
-                                rolloutPercentage: '100',
-                                releaseName: "${trackName} Release"
-                        )
+                        script {
+                            def trackName = env.WIRE_ANDROID_PROD_TRACK_NAME
+                            echo 'Checking folder before prod playstore upload'
+                            sh "ls -la app/build/outputs/bundle/${params.FLAVOR.toLowerCase()}${params.BUILD_TYPE.capitalize()}/"
+                            echo "Uploading file to prod Playstore track ${trackName}"
+                            androidApkUpload(
+                                    googleCredentialsId: "${env.GOOGLE_PLAY_CREDS}",
+                                    filesPattern: "app/build/outputs/bundle/${params.FLAVOR.toLowerCase()}${params.BUILD_TYPE.capitalize()}/com.wire.android-*.aab",
+                                    trackName: trackName,
+                                    rolloutPercentage: '100',
+                                    releaseName: "${trackName} Release"
+                            )
+                        }
                     }
                 }
 
@@ -451,17 +455,19 @@ pipeline {
                         }
                     }
                     steps {
-                        def trackName = "Alpha"
-                        echo 'Checking folder before prod playstore upload'
-                        sh "ls -la app/build/outputs/bundle/${params.FLAVOR.toLowerCase()}${params.BUILD_TYPE.capitalize()}/"
-                        echo 'Uploading file to prod Playstore track ${trackName}'
-                        androidApkUpload(
-                                googleCredentialsId: "${env.GOOGLE_PLAY_CREDS}",
-                                filesPattern: "app/build/outputs/bundle/${params.FLAVOR.toLowerCase()}${params.BUILD_TYPE.capitalize()}/com.wire.android-*.aab",
-                                trackName: trackName,
-                                rolloutPercentage: '100',
-                                releaseName: "${trackName} Release"
-                        )
+                        script {
+                            def trackName = "Alpha"
+                            echo 'Checking folder before prod playstore upload'
+                            sh "ls -la app/build/outputs/bundle/${params.FLAVOR.toLowerCase()}${params.BUILD_TYPE.capitalize()}/"
+                            echo 'Uploading file to prod Playstore track ${trackName}'
+                            androidApkUpload(
+                                    googleCredentialsId: "${env.GOOGLE_PLAY_CREDS}",
+                                    filesPattern: "app/build/outputs/bundle/${params.FLAVOR.toLowerCase()}${params.BUILD_TYPE.capitalize()}/com.wire.android-*.aab",
+                                    trackName: trackName,
+                                    rolloutPercentage: '100',
+                                    releaseName: "${trackName} Release"
+                            )
+                        }
                     }
                 }
             }

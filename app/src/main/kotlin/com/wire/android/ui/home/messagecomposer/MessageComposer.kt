@@ -142,16 +142,18 @@ private fun ActiveMessageComposer(
                     }
                 }
 
+                val makeTheContentAsBigAsScreenHeightWithoutKeyboard = Modifier
+                    .fillMaxWidth()
+                    .height(currentScreenHeight)
+
                 Column(
-                    Modifier
-                        .fillMaxWidth()
-                        .height(currentScreenHeight)
+                    makeTheContentAsBigAsScreenHeightWithoutKeyboard
                 ) {
-                    Column(
-                        Modifier
-                            .weight(1f)
-                            .fillMaxWidth()
-                    ) {
+                    val fillRemainingSpaceAmongThisAndAdditionalSubMenu = Modifier
+                        .weight(1f)
+                        .fillMaxWidth()
+
+                    Column(fillRemainingSpaceAmongThisAndAdditionalSubMenu) {
                         Box(
                             Modifier
                                 .pointerInput(Unit) {
@@ -169,19 +171,19 @@ private fun ActiveMessageComposer(
                             messageListContent()
                         }
                         Column(
-                            Modifier
-                                .fillMaxWidth()
-                                .background(Color.Magenta)
+                            Modifier.wrapContentSize()
                         ) {
+                            val fillRemainingSpaceOrWrapContent =
+                                if (messageCompositionInputState.inputSize == MessageCompositionInputSize.COLLAPSED)
+                                    Modifier.wrapContentHeight()
+                                else Modifier.weight(1f)
+
                             MessageComposerInput(
                                 messageCompositionInputState = messageCompositionInputState,
                                 onMessageTextChanged = ::messageTextChanged,
                                 onSendButtonClicked = { },
                                 onFocused = ::onInputFocused,
-                                modifier = Modifier.then(
-                                    if (messageCompositionInputState.inputSize == MessageCompositionInputSize.COLLAPSED) Modifier.wrapContentHeight()
-                                    else Modifier.weight(1f)
-                                )
+                                modifier = fillRemainingSpaceOrWrapContent
                             )
                             AdditionalOptionsMenu(
                                 onEphemeralOptionItemClicked = ::toEphemeralInputType,
@@ -344,9 +346,7 @@ private fun MessageComposerInput(
 
     with(messageCompositionInputState) {
         Column(
-            modifier = Modifier
-                .background(Color.Red)
-                .then(modifier)
+            modifier = modifier
         ) {
             CollapseButton(
                 onCollapseClick = {
@@ -360,6 +360,11 @@ private fun MessageComposerInput(
                     .wrapContentHeight(),
                 verticalAlignment = Alignment.Bottom
             ) {
+                val stretchToMaxParentConstraintHeightOrWithInBoundary = when (inputSize) {
+                    MessageCompositionInputSize.COLLAPSED -> Modifier.heightIn(max = dimensions().messageComposerActiveInputMaxHeight)
+                    MessageCompositionInputSize.EXPANDED -> Modifier.fillMaxHeight()
+                }
+
                 MessageComposerTextInput(
                     colors = type.inputTextColor(),
                     messageText = type.messageCompositionState.value.textFieldValue,
@@ -369,14 +374,7 @@ private fun MessageComposerInput(
                         if (isFocused) onFocused()
                     },
                     focusRequester = focusRequester,
-                    modifier = Modifier
-                        .weight(1f)
-                        .then(
-                            when (inputSize) {
-                                MessageCompositionInputSize.COLLAPSED -> Modifier.heightIn(max = dimensions().messageComposerActiveInputMaxHeight)
-                                MessageCompositionInputSize.EXPANDED -> Modifier.fillMaxHeight()
-                            }
-                        )
+                    modifier = stretchToMaxParentConstraintHeightOrWithInBoundary
                 )
                 Row(Modifier.wrapContentSize()) {
                     when (val inputType = type) {

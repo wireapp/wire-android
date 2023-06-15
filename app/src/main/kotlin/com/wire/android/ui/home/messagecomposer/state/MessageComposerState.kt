@@ -29,6 +29,7 @@ sealed class MessageComposerState {
         private val messageCompositionState: MutableState<MessageComposition>,
         defaultInputFocused: Boolean = true,
         defaultInputType: MessageCompositionInputType = MessageCompositionInputType.Composing(messageCompositionState),
+        defaultInputSize: MessageCompositionInputSize = MessageCompositionInputSize.COLLAPSED,
         defaultAdditionalOptionsSubMenuState: AdditionalOptionSubMenuState = AdditionalOptionSubMenuState.Hidden,
         private val onShowEphemeralOptionsMenu: () -> Unit
     ) : MessageComposerState() {
@@ -37,6 +38,7 @@ sealed class MessageComposerState {
             messageCompositionState = messageCompositionState,
             defaultInputFocused = defaultInputFocused,
             defaultInputType = defaultInputType,
+            defaultInputSize = defaultInputSize
         )
 
         var additionalOptionsSubMenuState: AdditionalOptionSubMenuState by mutableStateOf(defaultAdditionalOptionsSubMenuState)

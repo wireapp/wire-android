@@ -32,14 +32,15 @@ import com.wire.android.ui.common.textfield.wireTextFieldColors
 class MessageCompositionInputState(
     val messageCompositionState: MutableState<MessageComposition>,
     defaultInputFocused: Boolean = true,
-    defaultInputType: MessageCompositionInputType = MessageCompositionInputType.Composing(messageCompositionState)
+    defaultInputType: MessageCompositionInputType = MessageCompositionInputType.Composing(messageCompositionState),
+    defaultInputSize: MessageCompositionInputSize = MessageCompositionInputSize.EXPANDED
 ) {
     var inputFocused: Boolean by mutableStateOf(defaultInputFocused)
         private set
     var type: MessageCompositionInputType by mutableStateOf(defaultInputType)
         private set
 
-    var inputSize by   mutableStateOf(MessageCompositionInputSize.COLLAPSED)
+    var inputSize by mutableStateOf(defaultInputSize)
 
     fun toEphemeral(onShowEphemeralOptionsMenu: () -> Unit) {
         type = MessageCompositionInputType.SelfDeleting(messageCompositionState, onShowEphemeralOptionsMenu)
@@ -57,11 +58,11 @@ class MessageCompositionInputState(
         inputFocused = true
     }
 
-    fun toFullscreen(){
+    fun toFullscreen() {
         inputSize = MessageCompositionInputSize.EXPANDED
     }
 
-    fun toCollapsed(){
+    fun toCollapsed() {
         inputSize = MessageCompositionInputSize.COLLAPSED
     }
 

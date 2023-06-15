@@ -90,10 +90,17 @@ sealed class MessageCompositionInputType(
 
     }
 
-    class Editing(messageCompositionState: MutableState<MessageComposition>) : MessageCompositionInputType(messageCompositionState) {
+    class Editing(
+        messageCompositionState: MutableState<MessageComposition>,
+        val messageCompositionSnapShot: MessageComposition
+    ) : MessageCompositionInputType(messageCompositionState) {
 
         @Composable
         override fun backgroundColor(): Color = colorsScheme().messageComposerEditBackgroundColor
+
+        val isEditButtonEnabled by derivedStateOf {
+            messageCompositionState.value.messageText != messageCompositionSnapShot.messageText
+        }
 
     }
 

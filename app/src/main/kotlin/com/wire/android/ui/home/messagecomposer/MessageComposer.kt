@@ -149,11 +149,11 @@ private fun ActiveMessageComposer(
                 Column(
                     makeTheContentAsBigAsScreenHeightWithoutKeyboard
                 ) {
-                    val fillRemainingSpaceAmongThisAndAdditionalSubMenu = Modifier
+                    val fillRemainingSpaceBetweenThisAndAdditionalSubMenu = Modifier
                         .weight(1f)
                         .fillMaxWidth()
 
-                    Column(fillRemainingSpaceAmongThisAndAdditionalSubMenu) {
+                    Column(fillRemainingSpaceBetweenThisAndAdditionalSubMenu) {
                         Box(
                             Modifier
                                 .pointerInput(Unit) {
@@ -363,7 +363,7 @@ private fun MessageComposerInput(
                 val stretchToMaxParentConstraintHeightOrWithInBoundary = when (inputSize) {
                     MessageCompositionInputSize.COLLAPSED -> Modifier.heightIn(max = dimensions().messageComposerActiveInputMaxHeight)
                     MessageCompositionInputSize.EXPANDED -> Modifier.fillMaxHeight()
-                }
+                }.weight(1f)
 
                 MessageComposerTextInput(
                     colors = type.inputTextColor(),
@@ -393,12 +393,12 @@ private fun MessageComposerInput(
                     }
                 }
             }
-            when (type) {
+            when (val inputType = type) {
                 is MessageCompositionInputType.Editing -> {
                     MessageEditActions(
                         onEditSaveButtonClicked = { },
                         onEditCancelButtonClicked = ::toComposing,
-                        editButtonEnabled = true
+                        editButtonEnabled = inputType.isEditButtonEnabled
                     )
                 }
 

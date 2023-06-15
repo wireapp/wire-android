@@ -17,6 +17,7 @@
  */
 package com.wire.android.ui.debug
 
+import android.app.Activity
 import android.content.Context
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
@@ -36,6 +37,7 @@ import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.di.CurrentAccount
+import com.wire.android.feature.OAuthUseCase
 import com.wire.android.migration.failure.UserMigrationStatus
 import com.wire.android.model.Clickable
 import com.wire.android.navigation.BackStackMode
@@ -50,6 +52,7 @@ import com.wire.android.ui.home.conversationslist.common.FolderHeader
 import com.wire.android.ui.home.settings.SettingsItem
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.extension.getActivity
 import com.wire.android.util.getDeviceId
 import com.wire.android.util.getGitBuildId
 import com.wire.kalium.logic.data.user.UserId
@@ -62,6 +65,20 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import com.wire.kalium.logic.functional.onSuccess
+import com.wire.kalium.logic.feature.e2ei.EnrolE2EIUseCase
+import com.wire.kalium.logic.feature.e2ei.E2EIEnrolmentResult
+import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
+import com.wire.android.di.ApplicationScope
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
+import com.wire.kalium.logic.functional.Either
+import androidx.compose.ui.platform.LocalContext
+import com.wire.android.ui.authentication.create.code.CreateAccountCodeViewState
+import com.wire.android.ui.common.WireDialog
+import com.wire.android.ui.common.WireDialogButtonProperties
+import com.wire.android.ui.common.WireDialogButtonType
 
 //region DebugDataOptionsViewModel
 data class DebugDataOptionsState(
@@ -71,7 +88,9 @@ data class DebugDataOptionsState(
     val mlsErrorMessage: String = "null",
     val isManualMigrationAllowed: Boolean = false,
     val debugId: String = "null",
-    val commitish: String = "null"
+    val commitish: String = "null",
+    val certificate: String ="null",
+    val showCertificate: Boolean = false
 )
 
 @Suppress("LongParameterList")
@@ -84,7 +103,8 @@ class DebugDataOptionsViewModel
     private val globalDataStore: GlobalDataStore,
     private val updateApiVersions: UpdateApiVersionsScheduler,
     private val mlsKeyPackageCountUseCase: MLSKeyPackageCountUseCase,
-    private val restartSlowSyncProcessForRecovery: RestartSlowSyncProcessForRecoveryUseCase
+    private val restartSlowSyncProcessForRecovery: RestartSlowSyncProcessForRecoveryUseCase,
+    private val enrolE2EIUseCase: EnrolE2EIUseCase
 ) : ViewModel() {
 
     var state by mutableStateOf(
@@ -124,6 +144,32 @@ class DebugDataOptionsViewModel
                 )
             )
         }
+    }
+
+    fun getE2EICertificate(context: Context) {
+        val oAuth = OAuthUseCase(context)
+        val oAuthIntent = oAuth.invoke()
+        val resultLauncher = context.getActivity()!!.activityResultRegistry.register(
+            OAuthUseCase.OAUTH_ACTIVITY_RESULT_KEY, ActivityResultContracts.StartActivityForResult()
+        ) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                oAuth.handleAuthorizationResponse(result.data!!)
+                if(OAuthUseCase.idToken.isNotEmpty()){
+                    viewModelScope.launch {
+                    enrolE2EIUseCase.invoke(OAuthUseCase.idToken).onSuccess {
+                        if (it is E2EIEnrolmentResult.Success) {
+                            state = state.copy(
+                                certificate = it.stepDetails,
+                                showCertificate = true
+                            )
+                        }
+                    }
+                    }
+                }
+            }
+        }
+        resultLauncher.launch(oAuthIntent)
+
     }
 
     fun forceUpdateApiVersions() {
@@ -224,7 +270,6 @@ fun DebugDataOptions(
                 onClick = { onCopyText(viewModel.state.commitish) }
             )
         )
-
         if (BuildConfig.PRIVATE_BUILD) {
 
             SettingsItem(
@@ -236,7 +281,25 @@ fun DebugDataOptions(
                     onClick = { onCopyText(viewModel.state.debugId) }
                 )
             )
-
+            GetE2EICertificateSwitch(
+                enrollE2EI = viewModel::getE2EICertificate
+            )
+            if (viewModel.state.showCertificate == true ) {
+                WireDialog(
+                    title = "E2EI Certificate in PEM format",
+                    text = viewModel.state.certificate,
+                    onDismiss = { viewModel.state = viewModel.state.copy(
+                        showCertificate = false,
+                    ) },
+                    optionButton1Properties = WireDialogButtonProperties(
+                        onClick = { viewModel.state = viewModel.state.copy(
+                            showCertificate = false,
+                        ) },
+                        text = "OK",
+                        type = WireDialogButtonType.Primary,
+                    )
+                )
+            }
             ProteusOptions(
                 isEncryptedStorageEnabled = viewModel.state.isEncryptedProteusStorageEnabled,
                 onEncryptedStorageEnabledChange = viewModel::enableEncryptedProteusStorage
@@ -253,12 +316,43 @@ fun DebugDataOptions(
             DevelopmentApiVersioningOptions(onForceLatestDevelopmentApiChange = viewModel::forceUpdateApiVersions)
         }
 
+
+
         FolderHeader("Other Debug Options")
         if (viewModel.state.isManualMigrationAllowed) {
             ManualMigrationOptions(
                 onManualMigrationClicked = viewModel::onStartManualMigration
             )
         }
+    }
+}
+
+@Composable
+private fun GetE2EICertificateSwitch(
+    enrollE2EI: (context: Context) -> Unit
+) {
+    val context = LocalContext.current
+    Column {
+        FolderHeader(stringResource(R.string.debug_settings_e2ei_enrollment_title))
+        RowItemTemplate(modifier = Modifier.wrapContentWidth(),
+            title = {
+                Text(
+                    style = MaterialTheme.wireTypography.body01,
+                    color = MaterialTheme.wireColorScheme.onBackground,
+                    text = stringResource(R.string.label_get_e2ei_cetificate),
+                    modifier = Modifier.padding(start = dimensions().spacing8x)
+                )
+            },
+            actions = {
+                WirePrimaryButton(
+                    onClick = {
+                        enrollE2EI(context)
+                    },
+                    text = stringResource(R.string.label_get_e2ei_cetificate),
+                    fillMaxWidth = false
+                )
+            }
+        )
     }
 }
 

@@ -18,15 +18,20 @@
 package com.wire.android.feature
 
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.Context
+import android.content.DialogInterface
 import android.content.Intent
 import android.net.Uri
 import android.util.Base64
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import com.wire.android.di.ApplicationScope
 import com.wire.kalium.logic.feature.e2ei.EnrolE2EIUseCase
+import com.wire.kalium.logic.feature.e2ei.E2EIEnrolmentResult
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import com.wire.kalium.logic.functional.Either
 import net.openid.appauth.AppAuthConfiguration
 import net.openid.appauth.AuthState
 import net.openid.appauth.AuthorizationException
@@ -39,15 +44,19 @@ import net.openid.appauth.browser.BrowserAllowList
 import net.openid.appauth.browser.VersionedBrowserMatcher
 import java.security.MessageDigest
 import java.security.SecureRandom
+import com.wire.kalium.logic.functional.onSuccess
 import javax.inject.Inject
 import androidx.appcompat.app.AppCompatActivity
+import com.wire.android.ui.common.WireDialog
+import com.wire.android.ui.common.WireDialogButtonProperties
+import com.wire.android.ui.common.WireDialogButtonType
+import com.wire.android.util.dispatchers.DispatcherProvider
+import com.wire.android.util.extension.getActivity
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
+import com.wire.kalium.logic.CoreFailure
 
-
-class OAuthUseCase @Inject constructor(
-    private val enrolE2EIUseCase: EnrolE2EIUseCase,
-    private val context: Context,
-    @ApplicationScope private val coroutineScope: CoroutineScope
-    ) {
+class OAuthUseCase(context: Context) {
     private var authState: AuthState = AuthState()
     private var authorizationService: AuthorizationService
     private var authServiceConfig: AuthorizationServiceConfiguration = AuthorizationServiceConfiguration(
@@ -61,22 +70,12 @@ class OAuthUseCase @Inject constructor(
 
     init {
         authorizationService = AuthorizationService(
-            context, appAuthConfiguration
+        context, appAuthConfiguration
         )
     }
 
-    operator fun invoke(activity: AppCompatActivity) {
-        val authIntent = authorizationService.getAuthorizationRequestIntent(getAuthorizationRequest())
-
-        val resultLauncher = activity.activityResultRegistry.register(
-            OAUTH_ACTIVITY_RESULT_KEY, ActivityResultContracts.StartActivityForResult()
-        ) { result ->
-            if (result.resultCode == Activity.RESULT_OK) {
-                handleAuthorizationResponse(result.data!!)
-            }
-        }
-        resultLauncher.launch(authIntent)
-    }
+    fun invoke() =
+        authorizationService.getAuthorizationRequestIntent(getAuthorizationRequest())
 
 
     private fun getAuthorizationRequest() = AuthorizationRequest.Builder(
@@ -104,7 +103,6 @@ class OAuthUseCase @Inject constructor(
         return Base64.encodeToString(hash, ENCODING)
     }
 
-
     fun handleAuthorizationResponse(intent: Intent) {
         val authorizationResponse: AuthorizationResponse? = AuthorizationResponse.fromIntent(intent)
         val error = AuthorizationException.fromIntent(intent)
@@ -112,22 +110,27 @@ class OAuthUseCase @Inject constructor(
         authState = AuthState(authorizationResponse, error)
 
         val tokenExchangeRequest = authorizationResponse!!.createTokenExchangeRequest()
-        authorizationService.performTokenRequest(tokenExchangeRequest) { response, exception ->
+        authorizationService!!.performTokenRequest(tokenExchangeRequest) { response, exception ->
             if (exception != null) {
                 authState = AuthState()
             } else {
                 if (response != null) {
                     authState.update(response, exception)
-                    coroutineScope.launch {
-                        enrolE2EIUseCase.invoke(response.idToken.toString())
-                    }
-                    //todo: Mojtaba: we need to handle the error state and show something to the user
+                    idToken = response.idToken.toString()
                 }
             }
         }
     }
 
+    sealed class OAuthResult {
+        data class Success(val idToken: String) : OAuthResult()
+
+        data class Failed(val reason: String) : OAuthResult()
+    }
+
     companion object {
+
+        var idToken = ""
         val OAUTH_ACTIVITY_RESULT_KEY = "OAuthActivityResult"
 
         val SCOPE_PROFILE = "profile"

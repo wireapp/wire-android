@@ -58,6 +58,10 @@ import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
+import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.layout.wrapContentSize
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -158,6 +162,7 @@ private fun WireDialogContent(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(contentPadding)
+                .verticalScroll(rememberScrollState())
         ) {
             Text(
                 text = title,
@@ -176,7 +181,6 @@ private fun WireDialogContent(
                     it.invoke()
                 }
             }
-
             if (buttonsHorizontalAlignment)
                 Row(Modifier.padding(top = MaterialTheme.wireDimensions.dialogButtonsSpacing)) {
                     dismissButtonProperties.getButton(Modifier.weight(1f))
@@ -210,8 +214,10 @@ private fun WireDialogButtonProperties?.getButton(modifier: Modifier = Modifier)
             when (type) {
                 WireDialogButtonType.Primary ->
                     WirePrimaryButton(onClick = onClick, text = text, state = state, loading = loading, modifier = modifier)
+
                 WireDialogButtonType.Secondary ->
                     WireSecondaryButton(onClick = onClick, text = text, state = state, loading = loading, modifier = modifier)
+
                 WireDialogButtonType.Tertiary ->
                     WireTertiaryButton(onClick = onClick, text = text, state = state, loading = loading, modifier = modifier)
             }

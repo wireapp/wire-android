@@ -21,15 +21,12 @@
 package com.wire.android.ui.home.conversations.info
 
 import androidx.lifecycle.SavedStateHandle
-import com.ramcosta.composedestinations.spec.Direction
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
 import com.wire.android.framework.TestUser
 import com.wire.android.navigation.NavigationManager
-import com.wire.android.ui.destinations.TypedDestination
 import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.ui.navArgs
-import com.wire.android.ui.userprofile.other.OtherUserProfileNavArgs
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.ConversationId

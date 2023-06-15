@@ -26,7 +26,6 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ramcosta.composedestinations.spec.Direction
 import com.wire.android.R
 import com.wire.android.media.CallRinger
 import com.wire.android.navigation.BackStackMode

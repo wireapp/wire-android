@@ -26,11 +26,10 @@ import com.wire.android.config.NavigationTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.framework.TestUser
 import com.wire.android.mapper.testUIParticipant
-import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationSheetContent
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationTypeDetail
-import com.wire.android.ui.home.conversations.details.GroupConversationDetailsViewModelTest.Companion.dummyConversationId
+import com.wire.android.ui.home.conversations.details.participants.GroupConversationAllParticipantsNavArgs
 import com.wire.android.ui.home.conversations.details.participants.model.ConversationParticipantsData
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
 import com.wire.android.ui.navArgs
@@ -188,7 +187,6 @@ class GroupConversationDetailsViewModelTest {
         val details = testGroup
 
         val (_, viewModel) = GroupConversationDetailsViewModelArrangement()
-            .withSavedStateConversationId(details.conversation.id)
             .withUpdateConversationAccessUseCaseReturns(
                 UpdateConversationAccessRoleUseCase.Result.Success
             ).withConversationDetailUpdate(details)
@@ -215,7 +213,6 @@ class GroupConversationDetailsViewModelTest {
         val details = testGroup
 
         val (arrangement, viewModel) = GroupConversationDetailsViewModelArrangement()
-            .withSavedStateConversationId(details.conversation.id)
             .withUpdateConversationAccessUseCaseReturns(
                 UpdateConversationAccessRoleUseCase.Result.Success
             ).withConversationDetailUpdate(details)
@@ -254,7 +251,6 @@ class GroupConversationDetailsViewModelTest {
         val details = testGroup
 
         val (arrangement, viewModel) = GroupConversationDetailsViewModelArrangement()
-            .withSavedStateConversationId(details.conversation.id)
             .withUpdateConversationAccessUseCaseReturns(
                 UpdateConversationAccessRoleUseCase.Result.Success
             ).withConversationDetailUpdate(details)
@@ -577,10 +573,12 @@ internal class GroupConversationDetailsViewModelArrangement {
         // Tests setup
         MockKAnnotations.init(this, relaxUnitFun = true)
 
+        every { savedStateHandle.navArgs<GroupConversationAllParticipantsNavArgs>() } returns GroupConversationAllParticipantsNavArgs(
+            conversationId = conversationId
+        )
         every { savedStateHandle.navArgs<GroupConversationDetailsNavArgs>() } returns GroupConversationDetailsNavArgs(
             conversationId = conversationId
         )
-        every { savedStateHandle.get<String>(EXTRA_CONVERSATION_ID) } returns dummyConversationId.toString()
 
         // Default empty values
         coEvery { observeConversationDetails(any()) } returns flowOf()
@@ -590,10 +588,6 @@ internal class GroupConversationDetailsViewModelArrangement {
         coEvery { isMLSEnabledUseCase() } returns true
         coEvery { updateConversationMutedStatus(any(), any(), any()) } returns ConversationUpdateStatusResult.Success
         coEvery { observeSelfDeletionTimerSettingsForConversation(any(), any()) } returns flowOf(SelfDeletionTimer.Disabled)
-    }
-
-    fun withSavedStateConversationId(conversationId: ConversationId) = apply {
-        every { savedStateHandle.get<String>(EXTRA_CONVERSATION_ID) } returns conversationId.toString()
     }
 
     suspend fun withConversationDetailUpdate(conversationDetails: ConversationDetails) = apply {

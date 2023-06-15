@@ -30,19 +30,19 @@ import com.wire.android.ui.common.textfield.wireTextFieldColors
 
 class MessageCompositionInputState(
     val messageCompositionState: MutableState<MessageComposition>,
-    defaultInputFocused: Boolean = true,
-    defaultInputType: MessageCompositionInputType = MessageCompositionInputType.Composing(messageCompositionState),
-    defaultInputSize: MessageCompositionInputSize = MessageCompositionInputSize.EXPANDED
+    inputFocused: Boolean = true,
+    inputType: MessageCompositionInputType = MessageCompositionInputType.Composing(messageCompositionState),
+    inputSize: MessageCompositionInputSize = MessageCompositionInputSize.EXPANDED
 ) {
-    var inputFocused: Boolean by mutableStateOf(defaultInputFocused)
+    var inputFocused: Boolean by mutableStateOf(inputFocused)
         private set
-    var type: MessageCompositionInputType by mutableStateOf(defaultInputType)
+    var inputType: MessageCompositionInputType by mutableStateOf(inputType)
         private set
 
-    var inputSize by mutableStateOf(defaultInputSize)
+    var inputSize by mutableStateOf(inputSize)
 
-    fun toEphemeral(onShowEphemeralOptionsMenu: () -> Unit) {
-        type = MessageCompositionInputType.SelfDeleting(messageCompositionState, onShowEphemeralOptionsMenu)
+    fun toSelfDeleting(onShowEphemeralOptionsMenu: () -> Unit) {
+        inputType = MessageCompositionInputType.SelfDeleting(messageCompositionState, onShowEphemeralOptionsMenu)
     }
 
     fun clearFocus() {
@@ -55,7 +55,7 @@ class MessageCompositionInputState(
 
     fun cancelEditing() {
         messageCompositionState.value = MessageComposition.DEFAULT
-        type = MessageCompositionInputType.Composing(messageCompositionState)
+        inputType = MessageCompositionInputType.Composing(messageCompositionState)
     }
 
 }

@@ -26,7 +26,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 sealed class MessageComposerState {
     data class InActive(val messageComposition: MessageComposition) : MessageComposerState()
     class Active(
-        private val messageCompositionState: MutableState<MessageComposition>,
+        val messageCompositionState: MutableState<MessageComposition>,
         defaultInputFocused: Boolean = true,
         defaultInputType: MessageCompositionInputType = MessageCompositionInputType.Composing(messageCompositionState),
         defaultInputSize: MessageCompositionInputSize = MessageCompositionInputSize.COLLAPSED,
@@ -36,16 +36,16 @@ sealed class MessageComposerState {
 
         val messageCompositionInputState = MessageCompositionInputState(
             messageCompositionState = messageCompositionState,
-            defaultInputFocused = defaultInputFocused,
-            defaultInputType = defaultInputType,
-            defaultInputSize = defaultInputSize
+            inputFocused = defaultInputFocused,
+            inputType = defaultInputType,
+            inputSize = defaultInputSize
         )
 
         var additionalOptionsSubMenuState: AdditionalOptionSubMenuState by mutableStateOf(defaultAdditionalOptionsSubMenuState)
             private set
 
         fun toEphemeralInputType() {
-            messageCompositionInputState.toEphemeral(
+            messageCompositionInputState.toSelfDeleting(
                 onShowEphemeralOptionsMenu
             )
         }
@@ -66,14 +66,18 @@ sealed class MessageComposerState {
             additionalOptionsSubMenuState = AdditionalOptionSubMenuState.Hidden
         }
 
-        fun toggleGifMenu() {
-
-        }
-
         fun messageTextChanged(textFieldValue: TextFieldValue) {
-            messageCompositionState.value = messageCompositionState.value.copy(textFieldValue = textFieldValue)
+            messageCompositionState.update {
+                it.copy(textFieldValue = textFieldValue)
+            }
         }
+
     }
 
     object AudioRecording : MessageComposerState()
+}
+
+fun MutableState<MessageComposition>.update(block: (MessageComposition) -> MessageComposition) {
+    val currentValue = value
+    value = block(currentValue)
 }

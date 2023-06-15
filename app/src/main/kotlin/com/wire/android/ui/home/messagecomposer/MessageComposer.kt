@@ -23,6 +23,7 @@ package com.wire.android.ui.home.messagecomposer
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -32,8 +33,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -57,11 +60,15 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
+import com.wire.android.model.Clickable
 import com.wire.android.ui.common.KeyboardHelper
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.WireTextFieldColors
+import com.wire.android.ui.home.conversations.mention.MemberItemToMention
+import com.wire.android.ui.home.conversations.messages.QuotedMessagePreview
+import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.messagecomposer.attachment.AttachmentOptionsComponent
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionMenuState
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSubMenuState
@@ -70,6 +77,7 @@ import com.wire.android.ui.home.messagecomposer.state.MessageComposerStateHolder
 import com.wire.android.ui.home.messagecomposer.state.MessageCompositionInputSize
 import com.wire.android.ui.home.messagecomposer.state.MessageCompositionInputState
 import com.wire.android.ui.home.messagecomposer.state.MessageCompositionInputType
+import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.KeyboardHeight
@@ -158,7 +166,6 @@ private fun ActiveMessageComposer(
                             .fillMaxWidth()
                             .weight(1f)
 
-
                         Box(
                             Modifier
                                 .pointerInput(Unit) {
@@ -173,6 +180,12 @@ private fun ActiveMessageComposer(
                                 .then(fillRemainingSpaceBetweenMessageListContentAndMessageComposer)
                         ) {
                             messageListContent()
+                            if (messageCompositionState.value.mentions.isNotEmpty()) {
+                                MembersMentionList(
+                                    membersToMention = messageCompositionState.value.mentions,
+                                    onMentionPicked = { }
+                                )
+                            }
                         }
                         Column(
                             Modifier.wrapContentSize()
@@ -192,7 +205,7 @@ private fun ActiveMessageComposer(
                             AdditionalOptionsMenu(
                                 onEphemeralOptionItemClicked = ::toEphemeralInputType,
                                 onAttachmentOptionClicked = ::toggleAttachmentOptions,
-                                onGifButtonClicked = ::toggleGifMenu,
+                                onGifButtonClicked = { },
                                 onPingClicked = { },
                             )
                         }
@@ -358,6 +371,17 @@ private fun MessageComposerInput(
                     else MessageCompositionInputSize.COLLAPSED
                 }
             )
+
+            val quotedMessage = messageCompositionState.value.quotedMessage
+            if (quotedMessage != null) {
+                Row(modifier = Modifier.padding(horizontal = dimensions().spacing8x)) {
+                    QuotedMessagePreview(
+                        quotedMessageData = quotedMessage,
+                        onCancelReply =
+                    )
+                }
+            }
+
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -370,8 +394,8 @@ private fun MessageComposerInput(
                 }.weight(1f)
 
                 MessageComposerTextInput(
-                    colors = type.inputTextColor(),
-                    messageText = type.messageCompositionState.value.textFieldValue,
+                    colors = inputType.inputTextColor(),
+                    messageText = inputType.messageCompositionState.value.textFieldValue,
                     onMessageTextChanged = onMessageTextChanged,
                     singleLine = false,
                     onFocusChanged = { isFocused ->
@@ -381,7 +405,7 @@ private fun MessageComposerInput(
                     modifier = stretchToMaxParentConstraintHeightOrWithInBoundary
                 )
                 Row(Modifier.wrapContentSize()) {
-                    when (val inputType = type) {
+                    when (val inputType = inputType) {
                         is MessageCompositionInputType.Composing -> MessageSendActions(
                             onSendButtonClicked = onSendButtonClicked,
                             sendButtonEnabled = inputType.isSendButtonEnabled
@@ -397,7 +421,7 @@ private fun MessageComposerInput(
                     }
                 }
             }
-            when (val inputType = type) {
+            when (val inputType = inputType) {
                 is MessageCompositionInputType.Editing -> {
                     MessageEditActions(
                         onEditSaveButtonClicked = { },
@@ -622,38 +646,38 @@ fun MessageComposerTextInput(
 //    }
 //}
 //
-//@Composable
-//private fun MembersMentionList(
-//    membersToMention: List<Contact>,
-//    onMentionPicked: (Contact) -> Unit
-//) {
-//    Column(
-//        modifier = Modifier.fillMaxHeight(),
-//        verticalArrangement = Arrangement.Bottom
-//    ) {
-//        if (membersToMention.isNotEmpty()) Divider()
-//        LazyColumn(
-//            modifier = Modifier.background(colorsScheme().background),
-//            reverseLayout = true
-//        ) {
-//            membersToMention.forEach {
-//                if (it.membership != Membership.Service) {
-//                    item {
-//                        MemberItemToMention(
-//                            avatarData = it.avatarData,
-//                            name = it.name,
-//                            label = it.label,
-//                            membership = it.membership,
-//                            clickable = Clickable(enabled = true) { onMentionPicked(it) },
-//                            modifier = Modifier
-//                        )
-//                        Divider(
-//                            color = MaterialTheme.wireColorScheme.divider,
-//                            thickness = Dp.Hairline
-//                        )
-//                    }
-//                }
-//            }
-//        }
-//    }
-//}
+@Composable
+private fun MembersMentionList(
+    membersToMention: List<Contact>,
+    onMentionPicked: (Contact) -> Unit
+) {
+    Column(
+        modifier = Modifier.fillMaxHeight(),
+        verticalArrangement = Arrangement.Bottom
+    ) {
+        if (membersToMention.isNotEmpty()) Divider()
+        LazyColumn(
+            modifier = Modifier.background(colorsScheme().background),
+            reverseLayout = true
+        ) {
+            membersToMention.forEach {
+                if (it.membership != Membership.Service) {
+                    item {
+                        MemberItemToMention(
+                            avatarData = it.avatarData,
+                            name = it.name,
+                            label = it.label,
+                            membership = it.membership,
+                            clickable = Clickable { onMentionPicked(it) },
+                            modifier = Modifier
+                        )
+                        Divider(
+                            color = MaterialTheme.wireColorScheme.divider,
+                            thickness = Dp.Hairline
+                        )
+                    }
+                }
+            }
+        }
+    }
+}

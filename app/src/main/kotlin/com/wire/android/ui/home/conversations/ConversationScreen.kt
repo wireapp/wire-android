@@ -354,7 +354,7 @@ private fun ConversationScreen(
                 onDeleteClick = onDeleteMessage,
                 onReactionClick = onReactionClick,
                 onDetailsClick = onMessageDetailsClick,
-                onReplyClick = { },
+                onReplyClick =  messageComposerState::toReply,
                 onEditClick = { _, messageText, _ -> messageComposerState.toEdit(messageText) },
                 onShareAsset = {
                     menuType.selectedMessage.header.messageId.let {

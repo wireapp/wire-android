@@ -33,12 +33,12 @@ import org.junit.jupiter.api.extension.ExtendWith
 class CurrentScreenManagerTest {
 
     @Test
-    fun givenInitialState_whenThereIsNoResumeEvent_thenAppShouldNotBeOnForeground() = runTest {
+    fun givenInitialState_whenThereIsNoStartEvent_thenAppShouldNotBeOnForeground() = runTest {
         val (_, currentScreenManager) = Arrangement()
             .withScreenStateFlow(MutableStateFlow(true))
             .arrange()
 
-        currentScreenManager.isAppOnForegroundFlow().test {
+        currentScreenManager.isAppVisibleFlow().test {
             awaitItem() shouldBe false
             expectNoEvents()
             cancel()
@@ -46,14 +46,14 @@ class CurrentScreenManagerTest {
     }
 
     @Test
-    fun givenInitialState_whenThereIsAResumeEvent_thenAppShouldBeOnForeground() = runTest {
+    fun givenInitialState_whenThereIsAStartEvent_thenAppShouldBeOnForeground() = runTest {
         val (_, currentScreenManager) = Arrangement()
             .withScreenStateFlow(MutableStateFlow(true))
             .arrange()
 
-        currentScreenManager.isAppOnForegroundFlow().test {
+        currentScreenManager.isAppVisibleFlow().test {
             awaitItem() shouldBe false
-            currentScreenManager.onResume(StubLifecycleOwner())
+            currentScreenManager.onStart(StubLifecycleOwner())
             awaitItem() shouldBe true
             expectNoEvents()
             cancel()
@@ -61,35 +61,35 @@ class CurrentScreenManagerTest {
     }
 
     @Test
-    fun givenTwoResumes_whenTheresASingleStop_shouldStillMarkAsAppOnForeground() = runTest {
+    fun givenTwoStarts_whenTheresASingleStop_shouldStillMarkAsAppOnForeground() = runTest {
         val (_, currentScreenManager) = Arrangement()
             .withScreenStateFlow(MutableStateFlow(true))
             .arrange()
 
-        currentScreenManager.onResume(StubLifecycleOwner())
-        currentScreenManager.onResume(StubLifecycleOwner())
+        currentScreenManager.onStart(StubLifecycleOwner())
+        currentScreenManager.onStart(StubLifecycleOwner())
 
         currentScreenManager.onStop(StubLifecycleOwner())
 
-        currentScreenManager.isAppOnForegroundFlow().test {
+        currentScreenManager.isAppVisibleFlow().test {
             awaitItem() shouldBe true
             cancelAndIgnoreRemainingEvents()
         }
     }
 
     @Test
-    fun givenTwoResumes_whenTheresAreTwoStops_shouldNotBeOnTheForeground() = runTest {
+    fun givenTwoStarts_whenTheresAreTwoStops_shouldNotBeOnTheForeground() = runTest {
         val (_, currentScreenManager) = Arrangement()
             .withScreenStateFlow(MutableStateFlow(true))
             .arrange()
 
-        currentScreenManager.onResume(StubLifecycleOwner())
-        currentScreenManager.onResume(StubLifecycleOwner())
+        currentScreenManager.onStart(StubLifecycleOwner())
+        currentScreenManager.onStart(StubLifecycleOwner())
 
         currentScreenManager.onStop(StubLifecycleOwner())
         currentScreenManager.onStop(StubLifecycleOwner())
 
-        currentScreenManager.isAppOnForegroundFlow().test {
+        currentScreenManager.isAppVisibleFlow().test {
             awaitItem() shouldBe false
             cancelAndIgnoreRemainingEvents()
         }

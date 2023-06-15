@@ -34,6 +34,11 @@ object HorizontalSpace {
     }
 
     @Composable
+    fun x4() {
+        Spacer(Modifier.width(dimensions().spacing4x))
+    }
+
+    @Composable
     fun x8() {
         Spacer(Modifier.width(dimensions().spacing8x))
     }
@@ -41,6 +46,11 @@ object HorizontalSpace {
     @Composable
     fun x16() {
         Spacer(Modifier.width(dimensions().spacing16x))
+    }
+
+    @Composable
+    fun x24() {
+        Spacer(Modifier.width(dimensions().spacing24x))
     }
 
     @Composable

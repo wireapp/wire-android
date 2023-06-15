@@ -146,7 +146,13 @@ fun PreviewDeletedMessage() {
     WireTheme {
         MessageItem(
             message = mockMessageWithText.let {
-                it.copy(header = it.header.copy(messageStatus = MessageStatus.Deleted))
+                it.copy(
+                    header = it.header.copy(
+                        messageStatus = MessageStatus(
+                            flowStatus = MessageFlowStatus.Delivered, isDeleted = true
+                        )
+                    )
+                )
             },
             audioMessagesState = emptyMap(),
             onLongClicked = {},
@@ -170,7 +176,11 @@ fun PreviewFailedSendMessage() {
         MessageItem(
             message = mockMessageWithText.let {
                 it.copy(
-                    header = it.header.copy(messageStatus = MessageStatus.SendFailure),
+                    header = it.header.copy(
+                        messageStatus = MessageStatus(
+                            flowStatus = MessageFlowStatus.Failure.Send.Locally(false)
+                        )
+                    ),
                     messageFooter = mockFooter.copy(reactions = emptyMap(), ownReactions = emptySet())
                 )
             },
@@ -196,7 +206,11 @@ fun PreviewFailedDecryptionMessage() {
         MessageItem(
             message = mockMessageWithText.let {
                 it.copy(
-                    header = it.header.copy(messageStatus = MessageStatus.DecryptionFailure(false)),
+                    header = it.header.copy(
+                        messageStatus = MessageStatus(
+                            flowStatus = MessageFlowStatus.Failure.Decryption(false)
+                        )
+                    ),
                     messageFooter = mockFooter.copy(reactions = emptyMap(), ownReactions = emptySet())
                 )
             },
@@ -353,7 +367,7 @@ fun PreviewImageMessageFailedUpload() {
         MessageItem(
             message = mockedImageUIMessage(
                 uploadStatus = Message.UploadStatus.FAILED_UPLOAD,
-                messageStatus = MessageStatus.SendFailure
+                messageStatus = MessageStatus(flowStatus = MessageFlowStatus.Failure.Send.Locally(false))
             ),
             audioMessagesState = emptyMap(),
             onLongClicked = {},
@@ -480,7 +494,7 @@ fun PreviewAggregatedMessagesWithErrorMessage() {
             MessageItem(
                 message = mockMessageWithText.copy(
                     header = mockHeader.copy(
-                        messageStatus = MessageStatus.SendFailure
+                        messageStatus = MessageStatus(flowStatus = MessageFlowStatus.Failure.Send.Locally(false))
                     )
                 ),
                 showAuthor = false,

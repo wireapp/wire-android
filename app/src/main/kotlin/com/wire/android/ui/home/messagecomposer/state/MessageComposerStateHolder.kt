@@ -21,6 +21,7 @@
 package com.wire.android.ui.home.messagecomposer.state
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -43,14 +44,15 @@ fun rememberMessageComposerStateHolder(
     }
 }
 
-
 class MessageComposerStateHolder(
     private val onShowEphemeralOptionsMenu: () -> Unit
 ) {
 
     private var messageCompositionState = mutableStateOf(MessageComposition(TextFieldValue("")))
 
-    var messageComposerState: MessageComposerState by mutableStateOf(MessageComposerState.InActive(messageCompositionState.value))
+    var messageComposerState: MessageComposerState by mutableStateOf(
+        MessageComposerState.InActive(messageCompositionState.value)
+    )
 
     fun toComposing(showAttachmentOption: Boolean = false) {
         messageComposerState = MessageComposerState.Active(
@@ -65,7 +67,11 @@ class MessageComposerStateHolder(
         )
     }
 
-    fun toEdit() {
+    fun toEdit(editMessageText: String) {
+        messageCompositionState.value = messageCompositionState.value.copy(
+            textFieldValue = TextFieldValue(editMessageText)
+        )
+
         messageComposerState = MessageComposerState.Active(
             onShowEphemeralOptionsMenu = onShowEphemeralOptionsMenu,
             messageCompositionState = messageCompositionState,
@@ -86,22 +92,22 @@ class MessageComposerStateHolder(
     fun toAudioRecording() {
         messageComposerState = MessageComposerState.AudioRecording
     }
-
 }
 
 data class MessageComposition(
     val textFieldValue: TextFieldValue
 ) {
-
-    val hasAttachments: Boolean = false
+    companion object {
+        val DEFAULT = MessageComposition(TextFieldValue(""))
+    }
 
     val messageText: String
         get() = textFieldValue.text
 }
 
 
-//@Composable
-//fun rememberMessageComposerState(): MessageComposerState {
+// @Composable
+// fun rememberMessageComposerState(): MessageComposerState {
 //    val context = LocalContext.current
 //
 //    val mentionSpanStyle = SpanStyle(
@@ -120,15 +126,15 @@ data class MessageComposition(
 //            mentionSpanStyle = mentionSpanStyle
 //        )
 //    }
-//}
+// }
 //
-//@Suppress("TooManyFunctions")
-//data class MessageComposerState(
+// @Suppress("TooManyFunctions")
+// data class MessageComposerState(
 //    val context: Context,
 //    val focusManager: FocusManager,
 //    val inputFocusRequester: FocusRequester,
 //    private val mentionSpanStyle: SpanStyle
-//) {
+// ) {
 //    var messageComposeInputState: MessageComposeInputState by mutableStateOf(MessageComposeInputState.Inactive())
 //        private set
 //
@@ -265,13 +271,13 @@ data class MessageComposition(
 //            AnnotatedString.Range(mentionSpanStyle, mention.start, mention.start + mention.length)
 //        }
 //
-////        return text.copy(
-////            annotatedString = AnnotatedString(
-////                text.annotatedString.text,
-////                spanStyles,
-////                text.annotatedString.paragraphStyles
-////            )
-////        )
+// //        return text.copy(
+// //            annotatedString = AnnotatedString(
+// //                text.annotatedString.text,
+// //                spanStyles,
+// //                text.annotatedString.paragraphStyles
+// //            )
+// //        )
 //        return text
 //    }
 //
@@ -409,17 +415,19 @@ data class MessageComposition(
 //        // We shouldn't show the self-deleting option if there is a compulsory duration already set on the team settings level
 //        this !is SelfDeletionTimer.Disabled && !isEnforced
 //    }
-//}
+// }
 
 private fun TextFieldValue.currentMentionStartIndex(): Int {
     val lastIndexOfAt = text.lastIndexOf(String.MENTION_SYMBOL, selection.min - 1)
 
     return when {
         (lastIndexOfAt <= 0) ||
-                (text[lastIndexOfAt - 1].toString() in listOf(
-                    String.WHITE_SPACE,
-                    String.NEW_LINE_SYMBOL
-                )) -> lastIndexOfAt
+                (
+                        text[lastIndexOfAt - 1].toString() in listOf(
+                            String.WHITE_SPACE,
+                            String.NEW_LINE_SYMBOL
+                        )
+                        ) -> lastIndexOfAt
 
         else -> -1
     }

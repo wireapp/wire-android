@@ -154,6 +154,11 @@ private fun ActiveMessageComposer(
                         .fillMaxWidth()
 
                     Column(fillRemainingSpaceBetweenThisAndAdditionalSubMenu) {
+                        val fillRemainingSpaceBetweenMessageListContentAndMessageComposer = Modifier
+                            .fillMaxWidth()
+                            .weight(1f)
+
+
                         Box(
                             Modifier
                                 .pointerInput(Unit) {
@@ -165,8 +170,7 @@ private fun ActiveMessageComposer(
                                     )
                                 }
                                 .background(color = colorsScheme().backgroundVariant)
-                                .fillMaxWidth()
-                                .weight(1f)
+                                .then(fillRemainingSpaceBetweenMessageListContentAndMessageComposer)
                         ) {
                             messageListContent()
                         }
@@ -397,7 +401,7 @@ private fun MessageComposerInput(
                 is MessageCompositionInputType.Editing -> {
                     MessageEditActions(
                         onEditSaveButtonClicked = { },
-                        onEditCancelButtonClicked = ::toComposing,
+                        onEditCancelButtonClicked = ::cancelEditing,
                         editButtonEnabled = inputType.isEditButtonEnabled
                     )
                 }
@@ -407,6 +411,7 @@ private fun MessageComposerInput(
         }
     }
 }
+
 
 @Composable
 fun MessageComposerTextInput(

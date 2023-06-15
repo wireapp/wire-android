@@ -22,7 +22,6 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import com.wire.android.ui.common.colorsScheme
@@ -46,10 +45,6 @@ class MessageCompositionInputState(
         type = MessageCompositionInputType.SelfDeleting(messageCompositionState, onShowEphemeralOptionsMenu)
     }
 
-    fun toComposing() {
-        type = MessageCompositionInputType.Composing(messageCompositionState)
-    }
-
     fun clearFocus() {
         inputFocused = false
     }
@@ -58,15 +53,13 @@ class MessageCompositionInputState(
         inputFocused = true
     }
 
-    fun toFullscreen() {
-        inputSize = MessageCompositionInputSize.EXPANDED
-    }
-
-    fun toCollapsed() {
-        inputSize = MessageCompositionInputSize.COLLAPSED
+    fun cancelEditing() {
+        messageCompositionState.value = MessageComposition.DEFAULT
+        type = MessageCompositionInputType.Composing(messageCompositionState)
     }
 
 }
+
 
 sealed class MessageCompositionInputType(
     val messageCompositionState: MutableState<MessageComposition>

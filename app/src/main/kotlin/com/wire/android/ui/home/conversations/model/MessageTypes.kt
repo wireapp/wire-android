@@ -25,6 +25,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -42,9 +43,13 @@ import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMess
 import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMessageInProgress
 import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMessageParams
 import com.wire.android.ui.home.conversations.model.messagetypes.image.ImportedImageMessage
+import com.wire.android.ui.markdown.DisplayMention
 import com.wire.android.ui.markdown.MDDocument
+import com.wire.android.ui.markdown.NodeData
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
+import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.Message.DownloadStatus.DOWNLOAD_IN_PROGRESS
 import com.wire.kalium.logic.data.message.Message.DownloadStatus.FAILED_DOWNLOAD
@@ -55,7 +60,6 @@ import org.commonmark.ext.gfm.strikethrough.StrikethroughExtension
 import org.commonmark.ext.gfm.tables.TablesExtension
 import org.commonmark.node.Document
 import org.commonmark.parser.Parser
-import java.util.Arrays
 
 
 // TODO: Here we actually need to implement some logic that will distinguish MentionLabel with Body of the message,
@@ -71,10 +75,50 @@ internal fun MessageBody(
     val extensions: List<Extension> = listOf(
         StrikethroughExtension.builder().requireTwoTildes(true).build(),
         TablesExtension.create()
-        )
+    )
+
+    val uiText = messageBody.message
+
+    var text: String? = null
+    val displayMentions = if (uiText is UIText.DynamicString) {
+
+        val stringBuilder: StringBuilder = StringBuilder(uiText.value)
+        uiText.mentions.sortedBy { it.start }.reversed().map {
+
+            val mentionName = uiText.value.substring(
+                it.start,
+                it.start + it.length
+            )
+            stringBuilder.insert(it.start, "[mention]")
+            DisplayMention(
+                it.userId,
+                it.length,
+                it.isSelfMention,
+                mentionName
+            )
+
+        }.also {
+            text = stringBuilder.toString()
+        }
+    } else {
+        text = messageBody.message.asString()
+        listOf()
+    }
+
+
+    val nodeData = NodeData(
+        modifier = Modifier.defaultMinSize(minHeight = dimensions().spacing20x),
+        color = if (isAvailable) MaterialTheme.colorScheme.onBackground else MaterialTheme.wireColorScheme.secondaryText,
+        style = MaterialTheme.wireTypography.body01,
+        colorScheme = MaterialTheme.wireColorScheme,
+        typography = MaterialTheme.wireTypography,
+        mentions = displayMentions,
+        onLongClick = onLongClick,
+        onOpenProfile = onOpenProfile
+    )
 
     val document = Parser.builder().extensions(extensions).build().parse(messageBody.message.asString()) as Document
-    MDDocument(document) // TODO KBX improve
+    MDDocument(document, nodeData) // TODO KBX improve
 //    LinkifyText(
 //        text = messageBody.message,
 //        mask = Linkify.WEB_URLS or Linkify.EMAIL_ADDRESSES,

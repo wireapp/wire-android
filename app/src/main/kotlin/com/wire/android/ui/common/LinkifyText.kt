@@ -52,7 +52,7 @@ import androidx.compose.ui.unit.TextUnit
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.util.ui.UIText
 
-@Suppress("ComplexMethod")
+@Suppress("ComplexMethod, LongParameterList")
 @Composable
 fun LinkifyText(
     text: UIText,
@@ -60,11 +60,6 @@ fun LinkifyText(
     modifier: Modifier = Modifier,
     linkEntire: Boolean = false,
     color: Color = Color.Unspecified,
-    fontSize: TextUnit = TextUnit.Unspecified,
-    fontStyle: FontStyle? = null,
-    fontWeight: FontWeight? = null,
-    fontFamily: FontFamily? = null,
-    letterSpacing: TextUnit = TextUnit.Unspecified,
     textDecoration: TextDecoration? = null,
     textAlign: TextAlign? = null,
     lineHeight: TextUnit = TextUnit.Unspecified,
@@ -136,14 +131,8 @@ fun LinkifyText(
             text = annotatedString,
             modifier = modifier,
             color = color,
-            fontSize = fontSize,
-            fontStyle = fontStyle,
-            fontWeight = fontWeight,
-            fontFamily = fontFamily,
-            letterSpacing = letterSpacing,
             textDecoration = textDecoration,
             textAlign = textAlign,
-            lineHeight = lineHeight,
             overflow = overflow,
             softWrap = softWrap,
             maxLines = maxLines,
@@ -178,11 +167,6 @@ fun LinkifyText(
             text = annotatedString,
             modifier = modifier,
             color = color,
-            fontSize = fontSize,
-            fontStyle = fontStyle,
-            fontWeight = fontWeight,
-            fontFamily = fontFamily,
-            letterSpacing = letterSpacing,
             textDecoration = textDecoration,
             textAlign = textAlign,
             lineHeight = lineHeight,
@@ -196,18 +180,12 @@ fun LinkifyText(
 }
 
 @Composable
-private fun ClickableText(
+fun ClickableText(
     text: AnnotatedString,
     modifier: Modifier = Modifier,
     color: Color = Color.Unspecified,
-    fontSize: TextUnit = TextUnit.Unspecified,
-    fontStyle: FontStyle? = null,
-    fontWeight: FontWeight? = null,
-    fontFamily: FontFamily? = null,
-    letterSpacing: TextUnit = TextUnit.Unspecified,
     textDecoration: TextDecoration? = null,
     textAlign: TextAlign? = null,
-    lineHeight: TextUnit = TextUnit.Unspecified,
     overflow: TextOverflow = TextOverflow.Clip,
     softWrap: Boolean = true,
     maxLines: Int = Int.MAX_VALUE,
@@ -237,14 +215,8 @@ private fun ClickableText(
         text = text,
         modifier = modifier.then(pressIndicator),
         color = color,
-        fontSize = fontSize,
-        fontStyle = fontStyle,
-        fontWeight = fontWeight,
-        fontFamily = fontFamily,
-        letterSpacing = letterSpacing,
         textDecoration = textDecoration,
         textAlign = textAlign,
-        lineHeight = lineHeight,
         overflow = overflow,
         softWrap = softWrap,
         maxLines = maxLines,
@@ -256,13 +228,13 @@ private fun ClickableText(
     )
 }
 
-private data class LinkInfo(
+data class LinkInfo(
     val url: String,
     val start: Int,
     val end: Int
 )
 
-private class SpannableStr(source: CharSequence) : SpannableString(source) {
+class SpannableStr(source: CharSequence) : SpannableString(source) {
     companion object {
         fun getLinkInfos(text: String, mask: Int = Linkify.ALL): List<LinkInfo> {
             val spannableStr = SpannableStr(text)

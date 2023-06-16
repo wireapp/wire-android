@@ -17,30 +17,17 @@
  */
 package com.wire.android.ui.markdown
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
+import android.text.util.Linkify
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.appendInlineContent
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextLayoutResult
@@ -49,19 +36,17 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.TextUnit
 import com.wire.android.appLogger
-import com.wire.android.ui.common.divider.WireDivider
-import com.wire.android.ui.theme.WireColorScheme
-import com.wire.android.ui.theme.wireColorScheme
+import com.wire.android.ui.common.ClickableText
+import com.wire.android.ui.common.SpannableStr
+import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.wireTypography
 import org.commonmark.ext.gfm.strikethrough.Strikethrough
 import org.commonmark.ext.gfm.tables.TableBlock
-import org.commonmark.ext.gfm.tables.TableBody
-import org.commonmark.ext.gfm.tables.TableCell
-import org.commonmark.ext.gfm.tables.TableHead
 import org.commonmark.node.BlockQuote
 import org.commonmark.node.BulletList
 import org.commonmark.node.Code
@@ -73,214 +58,65 @@ import org.commonmark.node.Heading
 import org.commonmark.node.Image
 import org.commonmark.node.IndentedCodeBlock
 import org.commonmark.node.Link
-import org.commonmark.node.ListBlock
 import org.commonmark.node.Node
 import org.commonmark.node.OrderedList
 import org.commonmark.node.Paragraph
 import org.commonmark.node.StrongEmphasis
+import org.commonmark.node.Text
 import org.commonmark.node.ThematicBreak
 import org.commonmark.node.Text as nodeText
 
 @Composable
-fun MDDocument(document: Document) {
-    MDBlockChildren(document)
+fun MDDocument(document: Document, nodeData: NodeData) {
+    MDBlockChildren(document, nodeData)
 }
 
 @Composable
-fun MDBlockChildren(parent: Node) {
+fun MDBlockChildren(parent: Node, nodeData: NodeData) {
     var child = parent.firstChild
     while (child != null) {
-        appLogger.d("KBX $child")
         when (child) {
-            is Document -> MDDocument(child)
-            is BlockQuote -> MDBlockQuote(child)
-            is ThematicBreak -> MDThematicBreak(child)
-            is Heading -> MDHeading(child)
-            is Paragraph -> MDParagraph(child)
+            is Document -> MDDocument(child, nodeData)
+            is BlockQuote -> MDBlockQuote(child, nodeData)
+            is ThematicBreak -> MDThematicBreak()
+            is Heading -> MDHeading(child, nodeData)
+            is Paragraph -> MDParagraph(child, nodeData)
             is FencedCodeBlock -> MDFencedCodeBlock(child)
             is IndentedCodeBlock -> MDIndentedCodeBlock(child)
             is Image -> MDImage(child)
-            is BulletList -> MDBulletList(child)
-            is OrderedList -> MDOrderedList(child)
-            is TableBlock -> MDTable(child)
+            is BulletList -> MDBulletList(child, nodeData)
+            is OrderedList -> MDOrderedList(child, nodeData)
+            is TableBlock -> MDTable(child, nodeData)
         }
         child = child.next
     }
 }
 
 @Composable
-@Suppress("MagicNumber")
-fun MDHeading(heading: Heading) {
-    val style = when (heading.level) {
-        1 -> MaterialTheme.typography.headlineLarge
-        2 -> MaterialTheme.typography.headlineMedium
-        3 -> MaterialTheme.typography.headlineSmall
-        4 -> MaterialTheme.typography.bodyLarge
-        5 -> MaterialTheme.typography.bodyMedium
-        6 -> MaterialTheme.typography.bodySmall
-        else -> {
-            // Invalid header...
-            MDBlockChildren(heading)
-            return
-        }
-    }
-    val padding = if (heading.parent is Document) 8.dp else 0.dp
-    Box(modifier = Modifier.padding(bottom = padding)) {
-        val text = buildAnnotatedString {
-            inlineChildren(heading, this, MaterialTheme.wireColorScheme)
-        }
-        MarkdownText(text, style)
-    }
-}
-
-@Composable
-fun MDParagraph(paragraph: Paragraph) {
+fun MDParagraph(paragraph: Paragraph, nodeData: NodeData) {
     if (paragraph.firstChild is Image && paragraph.firstChild == paragraph.lastChild) {
         // Paragraph with single image
         MDImage(paragraph.firstChild as Image)
     } else {
-        val padding = if (paragraph.parent is Document) 8.dp else 0.dp
+        val padding = if (paragraph.parent is Document) dimensions().spacing8x else dimensions().spacing0x
         Box(modifier = Modifier.padding(bottom = padding)) {
-            val styledText = buildAnnotatedString {
+            val annotatedString = buildAnnotatedString {
                 pushStyle(MaterialTheme.wireTypography.body01.toSpanStyle())
-                inlineChildren(paragraph, this, MaterialTheme.wireColorScheme)
+                inlineChildren(paragraph, this, nodeData)
                 pop()
             }
-            MarkdownText(styledText, MaterialTheme.wireTypography.body01)
+            MarkdownText(annotatedString,
+                style = nodeData.style,
+                onLongClick = nodeData.onLongClick,
+                onOpenProfile = nodeData.onOpenProfile)
         }
     }
-}
-
-@Composable
-fun MDImage(image: Image) {
-    Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-//        CoilImage(data = image.destination)
-    }
-}
-
-@Composable
-fun MDBulletList(bulletList: BulletList) {
-    val marker = "\u2022"
-    MDListItems(bulletList) {
-        val text = buildAnnotatedString {
-            pushStyle(MaterialTheme.wireTypography.body01.toSpanStyle())
-            append("$marker ")
-            inlineChildren(it, this, MaterialTheme.wireColorScheme)
-            pop()
-        }
-        MarkdownText(text, MaterialTheme.wireTypography.body01)
-    }
-}
-
-@Composable
-fun MDOrderedList(orderedList: OrderedList) {
-    var number = orderedList.startNumber
-    val delimiter = orderedList.delimiter
-    MDListItems(orderedList) {
-        val text = buildAnnotatedString {
-            pushStyle(MaterialTheme.wireTypography.body01.toSpanStyle())
-            append("${number++}$delimiter ")
-            inlineChildren(it, this, MaterialTheme.wireColorScheme)
-            pop()
-        }
-        MarkdownText(text, MaterialTheme.wireTypography.body01)
-    }
-}
-
-@Composable
-fun MDListItems(listBlock: ListBlock, item: @Composable (node: Node) -> Unit) {
-    val bottom = if (listBlock.parent is Document) 8.dp else 0.dp
-    val start = if (listBlock.parent is Document) 0.dp else 8.dp
-    Column(modifier = Modifier.padding(start = start, bottom = bottom)) {
-        var listItem = listBlock.firstChild
-        while (listItem != null) {
-            var child = listItem.firstChild
-            while (child != null) {
-                when (child) {
-                    is BulletList -> MDBulletList(child)
-                    is OrderedList -> MDOrderedList(child)
-                    else -> item(child)
-                }
-                child = child.next
-            }
-            listItem = listItem.next
-        }
-    }
-}
-
-@Composable
-fun MDBlockQuote(blockQuote: BlockQuote) {
-    val color = MaterialTheme.wireColorScheme.onBackground
-    Column(modifier = Modifier
-        .drawBehind {
-            drawLine(
-                color = color,
-                strokeWidth = 2f,
-                start = Offset(12.dp.value, 0f),
-                end = Offset(12.dp.value, size.height)
-            )
-        }
-        .padding(start = 16.dp, top = 4.dp, bottom = 4.dp)) {
-
-        var child = blockQuote.firstChild
-        while (child != null) {
-            when (child) {
-                is BlockQuote -> MDBlockQuote(child)
-                else -> {
-                    val text = buildAnnotatedString {
-                        pushStyle(
-                            MaterialTheme.wireTypography.body01.toSpanStyle()
-                                .plus(SpanStyle(fontStyle = FontStyle.Italic))
-                        )
-                        inlineChildren(child, this, MaterialTheme.wireColorScheme)
-                        pop()
-                    }
-                    Text(text)
-                }
-            }
-            child = child.next
-        }
-    }
-}
-
-@Composable
-fun MDFencedCodeBlock(fencedCodeBlock: FencedCodeBlock) {
-    appLogger.d("KBY ${fencedCodeBlock.info}")
-    Text(
-        text = fencedCodeBlock.literal,
-        fontFamily = FontFamily.Monospace,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(4.dp)
-            .background(Color.Gray.copy(alpha = 0.2f))
-            .border(1.dp, Color.LightGray, shape = RoundedCornerShape(4.dp))
-            .padding(4.dp)
-    )
-}
-
-@Composable
-fun MDIndentedCodeBlock(indentedCodeBlock: IndentedCodeBlock) {
-    Text(
-        text = indentedCodeBlock.literal,
-        fontFamily = FontFamily.Monospace,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(4.dp)
-            .background(Color.Gray.copy(alpha = 0.2f))
-            .border(1.dp, Color.LightGray, shape = RoundedCornerShape(4.dp))
-            .padding(4.dp)
-    )
-}
-
-@Composable
-fun MDThematicBreak(thematicBreak: ThematicBreak) {
-    WireDivider(MaterialTheme.wireColorScheme.outline, modifier = Modifier.padding(vertical = 8.dp))
 }
 
 fun inlineChildren(
     parent: Node,
     annotatedString: AnnotatedString.Builder,
-    colors: WireColorScheme
+    nodeData: NodeData
 ) {
     var child = parent.firstChild
     while (child != null) {
@@ -288,52 +124,65 @@ fun inlineChildren(
             is Paragraph -> inlineChildren(
                 child,
                 annotatedString,
-                colors
+                nodeData
             )
 
-            is nodeText -> annotatedString.append(
-                child.literal
-                    .replace("(c)", "©")
-                    .replace("(C)", "©")
-                    .replace("(r)", "®")
-                    .replace("(R)", "®")
-                    .replace("(tm)", "™")
-                    .replace("(TM)", "™")
-                    .replace("+-", "±")
-            )
+            is nodeText -> {
+                val textWithTypograps = convertTypoGraphs(child)
+
+                // TODO remove workaround after mentions properly implemented
+                if (parent is Paragraph && parent.parent is Document) {
+                    appendLinks(
+                        annotatedString,
+                        textWithTypograps,
+                        nodeData
+                    )
+                } else {
+                    annotatedString.append(textWithTypograps)
+                }
+            }
 
             is Image -> {
                 annotatedString.appendInlineContent(TAG_IMAGE_URL, child.destination)
             }
 
             is Emphasis -> {
-                annotatedString.pushStyle(SpanStyle(fontStyle = FontStyle.Italic))
+                annotatedString.pushStyle(
+                    SpanStyle(
+                        fontFamily = nodeData.typography.body05.fontFamily,
+                        fontStyle = FontStyle.Italic
+                    )
+                )
                 inlineChildren(
                     child,
                     annotatedString,
-                    colors
+                    nodeData
                 )
                 annotatedString.pop()
             }
 
             is StrongEmphasis -> {
-                annotatedString.pushStyle(SpanStyle(fontWeight = FontWeight.Bold))
+                annotatedString.pushStyle(
+                    SpanStyle(
+                        fontFamily = nodeData.typography.body02.fontFamily,
+                        fontWeight = FontWeight.Bold
+                    )
+                )
                 inlineChildren(
                     child,
                     annotatedString,
-                    colors
+                    nodeData
                 )
                 annotatedString.pop()
             }
 
             is Code -> {
-                annotatedString.pushStyle(TextStyle(fontFamily = FontFamily.Monospace, background = Color.Green).toSpanStyle())
+                annotatedString.pushStyle(TextStyle(fontFamily = FontFamily.Monospace).toSpanStyle())
                 annotatedString.append(child.literal)
                 annotatedString.pop()
             }
 
             is HardLineBreak -> {
-                annotatedString.pushStyle(TextStyle(fontFamily = FontFamily.Monospace).toSpanStyle())
                 annotatedString.append("\n")
                 annotatedString.pop()
             }
@@ -341,7 +190,7 @@ fun inlineChildren(
             is Link -> {
                 annotatedString.pushStyle(
                     SpanStyle(
-                        color = colors.primary,
+                        color = nodeData.colorScheme.primary,
                         textDecoration = TextDecoration.Underline
                     )
                 )
@@ -349,7 +198,7 @@ fun inlineChildren(
                 inlineChildren(
                     child,
                     annotatedString,
-                    colors
+                    nodeData
                 )
                 annotatedString.pop()
                 annotatedString.pop()
@@ -357,7 +206,7 @@ fun inlineChildren(
 
             is Strikethrough -> {
                 annotatedString.pushStyle(SpanStyle(textDecoration = TextDecoration.LineThrough))
-                inlineChildren(child, annotatedString, colors)
+                inlineChildren(child, annotatedString, nodeData)
                 annotatedString.pop()
             }
         }
@@ -365,83 +214,141 @@ fun inlineChildren(
     }
 }
 
-@Composable
-fun MDTable(tableBlock: TableBlock) {
-    val tableData = mutableListOf<List<AnnotatedString>>()
-    var child = tableBlock.firstChild
-    // Parse the table block
-    while (child != null) {
-        when (child) {
-            is TableHead -> {
-                var rowNode = child.firstChild
-                while (rowNode != null) {
-                    val row = parseRow(rowNode, MaterialTheme.wireColorScheme)
-                    tableData.add(row)
-                    rowNode = rowNode.next
-                }
-            }
-
-            is TableBody -> {
-                var rowNode = child.firstChild
-                while (rowNode != null) {
-                    val row = parseRow(rowNode, MaterialTheme.wireColorScheme)
-                    tableData.add(row)
-                    rowNode = rowNode.next
-                }
-            }
-        }
-        child = child.next
-    }
-
-    val columnCount = tableData.firstOrNull()?.size ?: 0
-
-    // Create a table
-    Column {
-        tableData.forEachIndexed { rowIndex, row ->
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(if (rowIndex == 0) Color.LightGray else Color.White)
-            ) {
-                for (columnIndex in 0 until columnCount) {
-                    Text(
-                        text = row[columnIndex].toString(),
-                        modifier = Modifier
-                            .weight(1f)
-                            .padding(8.dp)
-                            .border(0.5.dp, Color.Gray)
-                    )
-                }
-            }
-        }
-    }
-}
-
-private fun parseRow(tableRow: Node, colors: WireColorScheme): List<AnnotatedString> {
-    val row = mutableListOf<AnnotatedString>()
-    var child = tableRow.firstChild
-    while (child != null) {
-        if (child is TableCell) {
-            val cellText = buildAnnotatedString {
-                inlineChildren(child, this, colors)
-            }
-            row.add(cellText)
-        }
-        child = child.next
-    }
-    return row
-}
+private fun convertTypoGraphs(child: Text) = child.literal
+    .replace("(c)", "©")
+    .replace("(C)", "©")
+    .replace("(r)", "®")
+    .replace("(R)", "®")
+    .replace("(tm)", "™")
+    .replace("(TM)", "™")
+    .replace("+-", "±")
 
 @Composable
-fun MarkdownText(text: AnnotatedString, style: TextStyle) {
-    val layoutResult = remember { mutableStateOf<TextLayoutResult?>(null) }
-    Text(
-        text,
-        style = style,
-        onTextLayout = { layoutResult.value = it },
-        maxLines = Int.MAX_VALUE
-    )
+fun MarkdownText(
+    annotatedString: AnnotatedString,
+    modifier: Modifier = Modifier,
+    color: Color = Color.Unspecified,
+    textAlign: TextAlign? = null,
+    lineHeight: TextUnit = TextUnit.Unspecified,
+    overflow: TextOverflow = TextOverflow.Clip,
+    softWrap: Boolean = true,
+    maxLines: Int = Int.MAX_VALUE,
+    onTextLayout: (TextLayoutResult) -> Unit = {},
+    style: TextStyle = LocalTextStyle.current,
+    clickable: Boolean = true,
+    onClickLink: ((linkText: String) -> Unit)? = null,
+    onLongClick: (() -> Unit)?,
+    onOpenProfile: (String) -> Unit
+) {
+    val uriHandler = LocalUriHandler.current
+
+    if (clickable) {
+        ClickableText(
+            text = annotatedString,
+            modifier = modifier,
+            color = color,
+            textAlign = textAlign,
+            overflow = overflow,
+            softWrap = softWrap,
+            maxLines = maxLines,
+            onTextLayout = onTextLayout,
+            style = style,
+            onClick = { offset ->
+                annotatedString.getStringAnnotations(
+                    tag = TAG_URL,
+                    start = offset,
+                    end = offset,
+                ).firstOrNull()?.let { result ->
+                    uriHandler.openUri(result.item)
+                    onClickLink?.invoke(annotatedString.substring(result.start, result.end))
+                }
+
+                annotatedString.getStringAnnotations(
+                    tag = TAG_MENTION,
+                    start = offset,
+                    end = offset
+                ).firstOrNull()?.let { result ->
+                    onOpenProfile(result.item)
+                }
+            },
+            onLongClick = onLongClick
+        )
+    } else {
+        Text(
+            text = annotatedString,
+            modifier = modifier,
+            color = color,
+            textAlign = textAlign,
+            lineHeight = lineHeight,
+            overflow = overflow,
+            softWrap = softWrap,
+            maxLines = maxLines,
+            onTextLayout = onTextLayout,
+            style = style
+        )
+    }
+
 }
 
-private const val TAG_URL = "url"
+fun appendLinks(
+    annotatedString: AnnotatedString.Builder,
+    string: String,
+    nodeData: NodeData
+) {
+    val textAsString = string
+    val linkInfos = SpannableStr.getLinkInfos(textAsString, Linkify.WEB_URLS or Linkify.EMAIL_ADDRESSES)
+
+    // TODO remove [mention] if string contains it and save startIndex for each mentions
+    with(annotatedString) {
+        append(textAsString)
+        with(nodeData.colorScheme) {
+            linkInfos.forEach {
+                if (it.end - it.start <= 0) {
+                    return@forEach
+                }
+                addStyle(
+                    style = SpanStyle(
+                        color = primary,
+                        textDecoration = TextDecoration.Underline
+                    ),
+                    start = it.start,
+                    end = it.end
+                )
+                addStringAnnotation(
+                    tag = TAG_URL,
+                    annotation = it.url,
+                    start = it.start,
+                    end = it.end
+                )
+            }
+            // TODO use previously saved mention position
+//            if (nodeData.mentions.isNotEmpty() && textAsString.contains("[mention]")) {
+//                nodeData.mentions.forEach {
+//                    if (it.length <= 0 || it.start >= length || it.start + it.length > length) {
+//                        return@forEach
+//                    }
+//                    addStyle(
+//                        style = SpanStyle(
+//                            fontWeight = nodeData.typography.body02.fontWeight,
+//                            color = onPrimaryVariant,
+//                            background = if (it.isSelfMention) primaryVariant else Color.Unspecified
+//                        ),
+//                        start = it.start,
+//                        end = it.start + it.length
+//                    )
+//                    addStringAnnotation(
+//                        tag = TAG_MENTION,
+//                        annotation = it.userId.toString(),
+//                        start = it.start,
+//                        end = it.start + it.length
+//                    )
+//                }
+//            }
+        }
+    }
+}
+
+private const val TAG_URL = "linkTag"
 private const val TAG_IMAGE_URL = "imageUrl"
+private const val TAG_MENTION = "mentionTag"
+

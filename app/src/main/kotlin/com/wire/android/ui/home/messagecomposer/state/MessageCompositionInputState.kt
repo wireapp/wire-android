@@ -28,38 +28,6 @@ import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.textfield.WireTextFieldColors
 import com.wire.android.ui.common.textfield.wireTextFieldColors
 
-class MessageCompositionInputState(
-    val messageCompositionState: MutableState<MessageComposition>,
-    inputFocused: Boolean = true,
-    inputType: MessageCompositionInputType = MessageCompositionInputType.Composing(messageCompositionState),
-    inputSize: MessageCompositionInputSize = MessageCompositionInputSize.EXPANDED
-) {
-    var inputFocused: Boolean by mutableStateOf(inputFocused)
-        private set
-    var inputType: MessageCompositionInputType by mutableStateOf(inputType)
-        private set
-
-    var inputSize by mutableStateOf(inputSize)
-
-    fun toSelfDeleting(onShowEphemeralOptionsMenu: () -> Unit) {
-        inputType = MessageCompositionInputType.SelfDeleting(messageCompositionState, onShowEphemeralOptionsMenu)
-    }
-
-    fun clearFocus() {
-        inputFocused = false
-    }
-
-    fun inputFocus() {
-        inputFocused = true
-    }
-
-    fun cancelEditing() {
-        messageCompositionState.value = MessageComposition.DEFAULT
-        inputType = MessageCompositionInputType.Composing(messageCompositionState)
-    }
-
-}
-
 
 sealed class MessageCompositionInputType(
     val messageCompositionState: MutableState<MessageComposition>

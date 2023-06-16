@@ -22,62 +22,67 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
+//
+//sealed class MessageComposerState {
 
-sealed class MessageComposerState {
-    data class InActive(val messageComposition: MessageComposition) : MessageComposerState()
-    class Active(
-        val messageCompositionState: MutableState<MessageComposition>,
-        defaultInputFocused: Boolean = true,
-        defaultInputType: MessageCompositionInputType = MessageCompositionInputType.Composing(messageCompositionState),
-        defaultInputSize: MessageCompositionInputSize = MessageCompositionInputSize.COLLAPSED,
-        defaultAdditionalOptionsSubMenuState: AdditionalOptionSubMenuState = AdditionalOptionSubMenuState.Hidden,
-        private val onShowEphemeralOptionsMenu: () -> Unit
-    ) : MessageComposerState() {
+//    fun updateSelfDeletionDuration(){
+//
+//    }
+//
+//    data class InActive(val messageComposition: MessageComposition) : MessageComposerState()
+//    class Active(
+//        val messageCompositionState: MutableState<MessageComposition>,
+//        defaultInputFocused: Boolean = true,
+//        defaultInputType: MessageCompositionInputType = MessageCompositionInputType.Composing(messageCompositionState),
+//        defaultInputSize: MessageCompositionInputSize = MessageCompositionInputSize.COLLAPSED,
+//        defaultAdditionalOptionsSubMenuState: AdditionalOptionSubMenuState = AdditionalOptionSubMenuState.Hidden,
+//        private val onShowEphemeralOptionsMenu: () -> Unit
+//    ) : MessageComposerState() {
+//
+//        val messageCompositionInputState = MessageCompositionInputState(
+//            messageCompositionState = messageCompositionState,
+//            inputFocused = defaultInputFocused,
+//            inputType = defaultInputType,
+//            inputSize = defaultInputSize
+//        )
+//
+//        var additionalOptionsSubMenuState: AdditionalOptionSubMenuState by mutableStateOf(defaultAdditionalOptionsSubMenuState)
+//            private set
+//
+//        fun toEphemeralInputType() {
+//            messageCompositionInputState.toSelfDeleting(
+//                onShowEphemeralOptionsMenu
+//            )
+//        }
+//
+//        fun toggleAttachmentOptions() {
+//            additionalOptionsSubMenuState =
+//                if (additionalOptionsSubMenuState == AdditionalOptionSubMenuState.AttachFile) {
+//                    messageCompositionInputState.inputFocus()
+//                    AdditionalOptionSubMenuState.Hidden
+//                } else {
+//                    messageCompositionInputState.clearFocus()
+//                    AdditionalOptionSubMenuState.AttachFile
+//                }
+//        }
+//
+//        fun onInputFocused() {
+//            messageCompositionInputState.inputFocus()
+//            additionalOptionsSubMenuState = AdditionalOptionSubMenuState.Hidden
+//        }
+//
+//        fun messageTextChanged(textFieldValue: TextFieldValue) {
+//            messageCompositionState.update {
+//                it.copy(messageTextFieldValue = textFieldValue)
+//            }
+//        }
+//
+//    }
+//
+//    object AudioRecording : MessageComposerState()
+//}
 
-        val messageCompositionInputState = MessageCompositionInputState(
-            messageCompositionState = messageCompositionState,
-            inputFocused = defaultInputFocused,
-            inputType = defaultInputType,
-            inputSize = defaultInputSize
-        )
-
-        var additionalOptionsSubMenuState: AdditionalOptionSubMenuState by mutableStateOf(defaultAdditionalOptionsSubMenuState)
-            private set
-
-        fun toEphemeralInputType() {
-            messageCompositionInputState.toSelfDeleting(
-                onShowEphemeralOptionsMenu
-            )
-        }
-
-        fun toggleAttachmentOptions() {
-            additionalOptionsSubMenuState =
-                if (additionalOptionsSubMenuState == AdditionalOptionSubMenuState.AttachFile) {
-                    messageCompositionInputState.inputFocus()
-                    AdditionalOptionSubMenuState.Hidden
-                } else {
-                    messageCompositionInputState.clearFocus()
-                    AdditionalOptionSubMenuState.AttachFile
-                }
-        }
-
-        fun onInputFocused() {
-            messageCompositionInputState.inputFocus()
-            additionalOptionsSubMenuState = AdditionalOptionSubMenuState.Hidden
-        }
-
-        fun messageTextChanged(textFieldValue: TextFieldValue) {
-            messageCompositionState.update {
-                it.copy(messageTextFieldValue = textFieldValue)
-            }
-        }
-
-    }
-
-    object AudioRecording : MessageComposerState()
-}
-
-fun MutableState<MessageComposition>.update(block: (MessageComposition) -> MessageComposition) {
-    val currentValue = value
-    value = block(currentValue)
-}
+//fun MutableState<MessageComposition>.update(block: (MessageComposition) -> MessageComposition) {
+//    val currentValue = value
+//    value = block(currentValue)
+//}

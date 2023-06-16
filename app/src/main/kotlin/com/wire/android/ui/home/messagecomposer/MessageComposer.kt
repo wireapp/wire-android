@@ -72,10 +72,9 @@ import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.messagecomposer.attachment.AttachmentOptionsComponent
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionMenuState
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSubMenuState
-import com.wire.android.ui.home.messagecomposer.state.MessageComposerState
 import com.wire.android.ui.home.messagecomposer.state.MessageComposerStateHolder
 import com.wire.android.ui.home.messagecomposer.state.MessageCompositionInputSize
-import com.wire.android.ui.home.messagecomposer.state.MessageCompositionInputState
+
 import com.wire.android.ui.home.messagecomposer.state.MessageCompositionInputType
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.ui.theme.wireColorScheme
@@ -87,29 +86,11 @@ fun MessageComposer(
     messageComposerStateHolder: MessageComposerStateHolder,
     messageListContent: @Composable () -> Unit
 ) {
-    when (val state = messageComposerStateHolder.messageComposerState) {
-        is MessageComposerState.Active -> {
-            ActiveMessageComposer(
-                activeMessageComposerState = state,
-                messageListContent = messageListContent,
-                onTransitionToInActive = messageComposerStateHolder::toInActive
-            )
-        }
-
-        is MessageComposerState.InActive -> {
-            InActiveMessageComposer(
-                inActiveComposerState = state,
-                messageListContent = messageListContent,
-                onTransistionToActive = messageComposerStateHolder::toComposing
-            )
-        }
-
-        is MessageComposerState.AudioRecording -> {
-            AudioRecordingComposer(
-                onCloseAudioRecordingClicked = messageComposerStateHolder::toComposing
-            )
-        }
-    }
+    ActiveMessageComposer(
+        activeMessageComposerState = messageComposerStateHolder,
+        messageListContent = messageListContent,
+        onTransitionToInActive = messageComposerStateHolder::toInActive
+    )
 }
 
 // TODO:: simple audio recorder place holder for later
@@ -127,7 +108,7 @@ fun AudioRecordingComposer(onCloseAudioRecordingClicked: () -> Unit) {
 
 @Composable
 private fun ActiveMessageComposer(
-    activeMessageComposerState: MessageComposerState.Active,
+    activeMessageComposerState: MessageComposerStateHolder,
     messageListContent: @Composable () -> Unit,
     onTransitionToInActive: () -> Unit
 ) {
@@ -191,20 +172,23 @@ private fun ActiveMessageComposer(
                             Modifier.wrapContentSize()
                         ) {
                             val fillRemainingSpaceOrWrapContent =
-                                if (messageCompositionInputState.inputSize == MessageCompositionInputSize.COLLAPSED)
+                                if (inputSize == MessageCompositionInputSize.COLLAPSED)
                                     Modifier.wrapContentHeight()
                                 else Modifier.weight(1f)
 
                             MessageComposerInput(
-                                messageCompositionInputState = messageCompositionInputState,
-                                onMessageTextChanged = ::messageTextChanged,
+                                inputFocused = inputFocused,
+                                messageCompositionInputState = inputType,
+                                messageCompositionInputSize = inputSize,
+                                onMessageTextChanged = { },
                                 onSendButtonClicked = { },
-                                onFocused = ::onInputFocused,
+                                onFocused = { },
+                                onCollapseButtonClicked = { },
                                 modifier = fillRemainingSpaceOrWrapContent
                             )
                             AdditionalOptionsMenu(
-                                onEphemeralOptionItemClicked = ::toEphemeralInputType,
-                                onAttachmentOptionClicked = ::toggleAttachmentOptions,
+                                onEphemeralOptionItemClicked = {},
+                                onAttachmentOptionClicked = {},
                                 onGifButtonClicked = { },
                                 onPingClicked = { },
                             )
@@ -347,17 +331,20 @@ private fun AttachmentAndAdditionalOptionsMenuItems(
 
 @Composable
 private fun MessageComposerInput(
-    messageCompositionInputState: MessageCompositionInputState,
+    inputFocused: Boolean,
+    messageCompositionInputState: MessageCompositionInputType,
+    messageCompositionInputSize: MessageCompositionInputSize,
     onMessageTextChanged: (TextFieldValue) -> Unit,
     onSendButtonClicked: () -> Unit,
+    onCollapseButtonClicked: () -> Unit,
     onFocused: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val focusManager = LocalFocusManager.current
     val focusRequester = remember { FocusRequester() }
 
-    LaunchedEffect(messageCompositionInputState.inputFocused) {
-        if (messageCompositionInputState.inputFocused) focusRequester.requestFocus()
+    LaunchedEffect(inputFocused) {
+        if (inputFocused) focusRequester.requestFocus()
         else focusManager.clearFocus()
     }
 
@@ -367,8 +354,7 @@ private fun MessageComposerInput(
         ) {
             CollapseButton(
                 onCollapseClick = {
-                    inputSize = if (inputSize == MessageCompositionInputSize.COLLAPSED) MessageCompositionInputSize.EXPANDED
-                    else MessageCompositionInputSize.COLLAPSED
+                    onCollapseButtonClicked()
                 }
             )
 
@@ -388,14 +374,14 @@ private fun MessageComposerInput(
                     .wrapContentHeight(),
                 verticalAlignment = Alignment.Bottom
             ) {
-                val stretchToMaxParentConstraintHeightOrWithInBoundary = when (inputSize) {
+                val stretchToMaxParentConstraintHeightOrWithInBoundary = when (messageCompositionInputSize) {
                     MessageCompositionInputSize.COLLAPSED -> Modifier.heightIn(max = dimensions().messageComposerActiveInputMaxHeight)
                     MessageCompositionInputSize.EXPANDED -> Modifier.fillMaxHeight()
                 }.weight(1f)
 
                 MessageComposerTextInput(
-                    colors = inputType.inputTextColor(),
-                    messageText = inputType.messageCompositionState.value.messageTextFieldValue,
+                    colors = messageCompositionInputState.inputTextColor(),
+                    messageText = messageCompositionInputState.messageCompositionState.value.messageTextFieldValue,
                     onMessageTextChanged = onMessageTextChanged,
                     singleLine = false,
                     onFocusChanged = { isFocused ->
@@ -405,7 +391,7 @@ private fun MessageComposerInput(
                     modifier = stretchToMaxParentConstraintHeightOrWithInBoundary
                 )
                 Row(Modifier.wrapContentSize()) {
-                    when (val inputType = inputType) {
+                    when (val inputType = messageCompositionInputState) {
                         is MessageCompositionInputType.Composing -> MessageSendActions(
                             onSendButtonClicked = onSendButtonClicked,
                             sendButtonEnabled = inputType.isSendButtonEnabled
@@ -421,11 +407,11 @@ private fun MessageComposerInput(
                     }
                 }
             }
-            when (val inputType = inputType) {
+            when (val inputType = messageCompositionInputState) {
                 is MessageCompositionInputType.Editing -> {
                     MessageEditActions(
                         onEditSaveButtonClicked = { },
-                        onEditCancelButtonClicked = ::cancelEditing,
+                        onEditCancelButtonClicked = {},
                         editButtonEnabled = inputType.isEditButtonEnabled
                     )
                 }

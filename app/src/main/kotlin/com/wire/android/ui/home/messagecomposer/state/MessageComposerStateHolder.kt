@@ -22,6 +22,7 @@ package com.wire.android.ui.home.messagecomposer.state
 
 import android.content.Context
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -47,12 +48,11 @@ import com.wire.kalium.logic.feature.conversation.InteractionAvailability
 import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
 import com.wire.kalium.logic.feature.selfDeletingMessages.SelfDeletionTimer
 import kotlin.time.Duration
-import kotlin.time.Duration.Companion.minutes
 
 @Composable
 fun rememberMessageComposerStateHolder(
     isFileSharingEnabled: Boolean = true,
-    selfDeletionTimer: SelfDeletionTimer = SelfDeletionTimer.Enabled(5.minutes),
+    selfDeletionTimer: SelfDeletionTimer = SelfDeletionTimer.Enabled(Duration.ZERO),
     interactionAvailability: InteractionAvailability = InteractionAvailability.ENABLED,
     securityClassificationType: SecurityClassificationType = SecurityClassificationType.NONE,
     onShowEphemeralOptionsMenu: () -> Unit
@@ -80,40 +80,38 @@ class MessageComposerStateHolder(
     private val onShowEphemeralOptionsMenu: () -> Unit
 ) {
 
-    private var messageCompositionState = mutableStateOf(
+    var messageCompositionState = mutableStateOf(
         MessageComposition(
             selfDeletionDuration = selfDeletionTimer.toDuration()
         )
     )
+        private set
+    var inputFocused: Boolean by mutableStateOf(false)
+        private set
+    var inputType: MessageCompositionInputType by mutableStateOf(
+        MessageCompositionInputType.Composing(messageCompositionState)
+    )
+        private set
 
-    private var _inputType: MessageCompositionInputType =
-        MessageCompositionInputType.Composing(messageCompositionState, onShowEphemeralOptionsMenu)
+    var inputSize by mutableStateOf(MessageCompositionInputSize.COLLAPSED)
+        private set
 
-    private var _inputSize: MessageCompositionInputSize = MessageCompositionInputSize.COLLAPSED
     var additionalOptionsSubMenuState: AdditionalOptionSubMenuState by mutableStateOf(AdditionalOptionSubMenuState.Hidden)
         private set
 
-
-    var messageComposerState: MessageComposerState by mutableStateOf(
-        MessageComposerState.InActive(messageCompositionState.value)
-    )
-
     fun toComposing(showAttachmentOption: Boolean = false) {
-        val inputType = if (true)
+        inputFocused = !showAttachmentOption
+        inputType = if (messageCompositionState.value.selfDeletionDuration != Duration.ZERO) {
             MessageCompositionInputType.SelfDeleting(messageCompositionState, onShowEphemeralOptionsMenu)
-        else MessageCompositionInputType.Composing(messageCompositionState)
+        } else {
+            MessageCompositionInputType.Composing(messageCompositionState)
+        }
 
-        messageComposerState = MessageComposerState.Active(
-            onShowEphemeralOptionsMenu = onShowEphemeralOptionsMenu,
-            messageCompositionState = messageCompositionState,
-            defaultInputType = inputType,
-            defaultInputFocused = !showAttachmentOption,
-            defaultAdditionalOptionsSubMenuState = if (showAttachmentOption) {
-                AdditionalOptionSubMenuState.AttachFile
-            } else {
-                AdditionalOptionSubMenuState.Hidden
-            }
-        )
+        additionalOptionsSubMenuState = if (showAttachmentOption) {
+            AdditionalOptionSubMenuState.AttachFile
+        } else {
+            AdditionalOptionSubMenuState.Hidden
+        }
     }
 
     fun toEdit(editMessageText: String) {
@@ -122,15 +120,9 @@ class MessageComposerStateHolder(
                 messageTextFieldValue = TextFieldValue(editMessageText)
             )
         }
-        messageComposerState = MessageComposerState.Active(
-            onShowEphemeralOptionsMenu = onShowEphemeralOptionsMenu,
-            messageCompositionState = messageCompositionState,
-            defaultAdditionalOptionsSubMenuState = AdditionalOptionSubMenuState.Hidden,
-            defaultInputType = MessageCompositionInputType.Editing(
-                messageCompositionState = messageCompositionState,
-                messageCompositionSnapShot = messageCompositionState.value
-            )
-        )
+
+        inputFocused = true
+        inputType = MessageCompositionInputType.Editing(messageCompositionState, messageCompositionState.value)
     }
 
     fun toReply(message: UIMessage.Regular) {
@@ -153,17 +145,13 @@ class MessageComposerStateHolder(
                 )
             }
 
-            messageComposerState = MessageComposerState.Active(
-                onShowEphemeralOptionsMenu = onShowEphemeralOptionsMenu,
-                messageCompositionState = messageCompositionState,
-            )
+            inputFocused = true
+            inputType = MessageCompositionInputType.Composing(messageCompositionState)
         }
     }
 
-    fun toInActive() {
-        messageComposerState = MessageComposerState.InActive(
-            messageCompositionState.value
-        )
+    fun cancelReply() {
+
     }
 
     private fun mapToQuotedContent(message: UIMessage.Regular) =
@@ -195,6 +183,23 @@ class MessageComposerStateHolder(
                 null
             }
         }
+
+    fun toInActive() {
+//        messageComposerState = MessageComposerState.InActive(
+//            messageCompositionState.value
+//        )
+    }
+
+    fun updateSelfDeletionTime(selfDeletionTimer: SelfDeletionTimer) {
+        messageCompositionState.update {
+            it.copy(selfDeletionDuration = selfDeletionTimer.toDuration())
+        }
+    }
+}
+
+fun MutableState<MessageComposition>.update(block: (MessageComposition) -> MessageComposition) {
+    val currentValue = value
+    value = block(currentValue)
 }
 
 data class MessageComposition(
@@ -209,12 +214,18 @@ data class MessageComposition(
             quotedMessage = null,
             mentions = listOf(
                 Contact(
-                    id = "", domain = "", name = "", avatarData = UserAvatarData(
+                    id = "",
+                    domain = "",
+                    name = "",
+                    avatarData = UserAvatarData(
                         asset = null,
                         availabilityStatus = UserAvailabilityStatus.AVAILABLE,
                         connectionState = null,
                         membership = Membership.Admin
-                    ), label = "", connectionState = ConnectionState.ACCEPTED, membership = Membership.None
+                    ),
+                    label = "",
+                    connectionState = ConnectionState.ACCEPTED,
+                    membership = Membership.None
                 )
             ),
             selfDeletionDuration = Duration.ZERO
@@ -223,9 +234,7 @@ data class MessageComposition(
 
     val messageText: String
         get() = messageTextFieldValue.text
-
 }
-
 
 //
 // @Suppress("TooManyFunctions")

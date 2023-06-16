@@ -47,12 +47,12 @@ import com.wire.kalium.logic.feature.conversation.InteractionAvailability
 import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
 import com.wire.kalium.logic.feature.selfDeletingMessages.SelfDeletionTimer
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.minutes
 
 @Composable
 fun rememberMessageComposerStateHolder(
-    isSelfDeletionAllowed: Boolean = true,
     isFileSharingEnabled: Boolean = true,
-    selfDeletionTimer: SelfDeletionTimer = SelfDeletionTimer.Enabled(Duration.ZERO),
+    selfDeletionTimer: SelfDeletionTimer = SelfDeletionTimer.Enabled(5.minutes),
     interactionAvailability: InteractionAvailability = InteractionAvailability.ENABLED,
     securityClassificationType: SecurityClassificationType = SecurityClassificationType.NONE,
     onShowEphemeralOptionsMenu: () -> Unit
@@ -62,7 +62,6 @@ fun rememberMessageComposerStateHolder(
     return remember {
         MessageComposerStateHolder(
             context = context,
-            isSelfDeletionAllowed = isSelfDeletionAllowed,
             isFileSharingEnabled = isFileSharingEnabled,
             selfDeletionTimer = selfDeletionTimer,
             interactionAvailability = interactionAvailability,
@@ -74,7 +73,6 @@ fun rememberMessageComposerStateHolder(
 
 class MessageComposerStateHolder(
     private val context: Context,
-    private val isSelfDeletionAllowed: Boolean = true,
     private val isFileSharingEnabled: Boolean = true,
     private val selfDeletionTimer: SelfDeletionTimer = SelfDeletionTimer.Enabled(Duration.ZERO),
     private val interactionAvailability: InteractionAvailability = InteractionAvailability.ENABLED,
@@ -82,16 +80,33 @@ class MessageComposerStateHolder(
     private val onShowEphemeralOptionsMenu: () -> Unit
 ) {
 
-    private var messageCompositionState = mutableStateOf(MessageComposition.DEFAULT)
+    private var messageCompositionState = mutableStateOf(
+        MessageComposition(
+            selfDeletionDuration = selfDeletionTimer.toDuration()
+        )
+    )
+
+    private var _inputType: MessageCompositionInputType =
+        MessageCompositionInputType.Composing(messageCompositionState, onShowEphemeralOptionsMenu)
+
+    private var _inputSize: MessageCompositionInputSize = MessageCompositionInputSize.COLLAPSED
+    var additionalOptionsSubMenuState: AdditionalOptionSubMenuState by mutableStateOf(AdditionalOptionSubMenuState.Hidden)
+        private set
+
 
     var messageComposerState: MessageComposerState by mutableStateOf(
         MessageComposerState.InActive(messageCompositionState.value)
     )
 
     fun toComposing(showAttachmentOption: Boolean = false) {
+        val inputType = if (true)
+            MessageCompositionInputType.SelfDeleting(messageCompositionState, onShowEphemeralOptionsMenu)
+        else MessageCompositionInputType.Composing(messageCompositionState)
+
         messageComposerState = MessageComposerState.Active(
             onShowEphemeralOptionsMenu = onShowEphemeralOptionsMenu,
             messageCompositionState = messageCompositionState,
+            defaultInputType = inputType,
             defaultInputFocused = !showAttachmentOption,
             defaultAdditionalOptionsSubMenuState = if (showAttachmentOption) {
                 AdditionalOptionSubMenuState.AttachFile
@@ -183,9 +198,10 @@ class MessageComposerStateHolder(
 }
 
 data class MessageComposition(
-    val messageTextFieldValue: TextFieldValue,
-    val quotedMessage: UIQuotedMessage.UIQuotedData?,
-    val mentions: List<Contact>
+    val messageTextFieldValue: TextFieldValue = TextFieldValue(""),
+    val quotedMessage: UIQuotedMessage.UIQuotedData? = null,
+    val mentions: List<Contact> = emptyList(),
+    val selfDeletionDuration: Duration = Duration.ZERO
 ) {
     companion object {
         val DEFAULT = MessageComposition(
@@ -200,7 +216,8 @@ data class MessageComposition(
                         membership = Membership.Admin
                     ), label = "", connectionState = ConnectionState.ACCEPTED, membership = Membership.None
                 )
-            )
+            ),
+            selfDeletionDuration = Duration.ZERO
         )
     }
 

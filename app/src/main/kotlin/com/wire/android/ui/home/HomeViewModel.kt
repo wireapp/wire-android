@@ -28,11 +28,7 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.migration.userDatabase.ShouldTriggerMigrationForUserUserCase
 import com.wire.android.model.ImageAsset.UserAvatarAsset
-import com.wire.android.navigation.EXTRA_CONNECTION_IGNORED_USER_NAME
-import com.wire.android.navigation.EXTRA_GROUP_DELETED_NAME
-import com.wire.android.navigation.EXTRA_LEFT_GROUP
 import com.wire.android.navigation.SavedStateViewModel
-import com.wire.android.navigation.getBackNavArg
 import com.wire.android.util.LogFileWriter
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.feature.client.NeedsToRegisterClientUseCase
@@ -84,17 +80,6 @@ class HomeViewModel @Inject constructor(
 
     private suspend fun shouldDisplayWelcomeToARScreen() =
         globalDataStore.isMigrationCompleted() && !globalDataStore.isWelcomeScreenPresented()
-
-    fun checkPendingSnackbarState(): HomeSnackbarState? {
-        return with(savedStateHandle) {
-            getBackNavArg<String>(EXTRA_CONNECTION_IGNORED_USER_NAME)
-                ?.let { HomeSnackbarState.SuccessConnectionIgnoreRequest(it) }
-                ?: getBackNavArg<String>(EXTRA_GROUP_DELETED_NAME)
-                    ?.let { HomeSnackbarState.DeletedConversationGroupSuccess(it) }
-                ?: getBackNavArg<Boolean>(EXTRA_LEFT_GROUP)
-                    ?.let { if (it) HomeSnackbarState.LeftConversationSuccess else null }
-        }
-    }
 
     private fun loadUserAvatar() {
         viewModelScope.launch {

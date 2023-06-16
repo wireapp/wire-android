@@ -26,7 +26,10 @@ import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.mockUri
 import com.wire.android.framework.TestConversationDetails
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
+import com.wire.android.config.NavigationTestExtension
+import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.ui.home.conversations.banner.usecase.ObserveConversationMembersByTypesUseCase
+import com.wire.android.ui.navArgs
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.type.UserType
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
@@ -44,6 +47,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class)
+@ExtendWith(NavigationTestExtension::class)
 class ConversationBannerViewModelTest {
 
     @Test
@@ -114,13 +118,13 @@ private class Arrangement {
             observeConversationDetailsUseCase,
         )
     }
-    val conversationId = "some-dummy-value@some.dummy.domain"
+    val conversationId = ConversationId("some-dummy-value", "some.dummy.domain")
 
     init {
         // Tests setup
         MockKAnnotations.init(this, relaxUnitFun = true)
         mockUri()
-        every { savedStateHandle.get<String>(EXTRA_CONVERSATION_ID) } returns conversationId
+        every { savedStateHandle.navArgs<ConversationNavArgs>() } returns ConversationNavArgs(conversationId = conversationId)
         // Default empty values
         coEvery { observeConversationMembersByTypesUseCase(any()) } returns flowOf()
     }

@@ -61,6 +61,7 @@ import com.google.accompanist.pager.PagerState
 import com.google.accompanist.pager.rememberPagerState
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
+import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.wire.android.R
 import com.wire.android.ui.authentication.devices.model.Device
 import com.wire.android.ui.common.CollapsingTopBarScaffold
@@ -104,7 +105,10 @@ import kotlinx.coroutines.launch
 )
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun OtherUserProfileScreen(viewModel: OtherUserProfileScreenViewModel = hiltViewModel()) {
+fun OtherUserProfileScreen(
+    viewModel: OtherUserProfileScreenViewModel = hiltViewModel(),
+    resultNavigator: ResultBackNavigator<String>
+) {
     val snackbarHostState = LocalSnackbarHostState.current
     val context = LocalContext.current
 
@@ -123,7 +127,11 @@ fun OtherUserProfileScreen(viewModel: OtherUserProfileScreenViewModel = hiltView
         closeBottomSheet = closeBottomSheet,
         snackbarHostState = snackbarHostState,
         eventsHandler = viewModel,
-        bottomSheetEventsHandler = viewModel
+        bottomSheetEventsHandler = viewModel,
+        onIgnoreConnectionRequest = {
+            resultNavigator.setResult(it)
+            resultNavigator.navigateBack()
+        }
     )
 
     LaunchedEffect(Unit) {
@@ -139,10 +147,7 @@ fun OtherUserProfileScreen(viewModel: OtherUserProfileScreenViewModel = hiltView
 }
 
 @SuppressLint("UnusedCrossfadeTargetStateParameter", "LongParameterList")
-@OptIn(
-    ExperimentalPagerApi::class,
-    ExperimentalMaterial3Api::class,
-)
+@OptIn(ExperimentalPagerApi::class)
 @Composable
 fun OtherProfileScreenContent(
     scope: CoroutineScope,
@@ -154,6 +159,7 @@ fun OtherProfileScreenContent(
     eventsHandler: OtherUserProfileEventsHandler,
     bottomSheetEventsHandler: OtherUserProfileBottomSheetEventsHandler,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
+    onIgnoreConnectionRequest: (String) -> Unit = { }
 ) {
     val otherUserProfileScreenState = rememberOtherUserProfileScreenState(snackbarHostState)
     val blockUserDialogState = rememberVisibilityState<BlockUserDialogState>()
@@ -249,7 +255,8 @@ fun OtherProfileScreenContent(
         bottomBar = {
             ContentFooter(
                 state,
-                maxBarElevation
+                maxBarElevation,
+                onIgnoreConnectionRequest
             )
         },
         isSwipeable = state.connectionState == ConnectionState.ACCEPTED
@@ -422,7 +429,8 @@ private fun Content(
 @Composable
 private fun ContentFooter(
     state: OtherUserProfileState,
-    maxBarElevation: Dp
+    maxBarElevation: Dp,
+    onIgnoreConnectionRequest: (String) -> Unit = {},
 ) {
     AnimatedVisibility(
         visible = !state.isDataLoading,
@@ -439,7 +447,8 @@ private fun ContentFooter(
                     ConnectionActionButton(
                         state.userId,
                         state.userName,
-                        state.connectionState
+                        state.connectionState,
+                        onIgnoreConnectionRequest
                     )
                 }
             }

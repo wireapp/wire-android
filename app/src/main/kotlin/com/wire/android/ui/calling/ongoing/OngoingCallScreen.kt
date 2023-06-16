@@ -54,6 +54,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
+import com.wire.android.ui.calling.CallingNavArgs
 import com.wire.android.ui.calling.ConversationName
 import com.wire.android.ui.calling.SharedCallingViewModel
 import com.wire.android.ui.calling.controlbuttons.CameraButton
@@ -81,7 +82,7 @@ import java.util.Locale
 
 @RootNavGraph
 @Destination(
-    navArgsDelegate = OngoingCallNavArgs::class
+    navArgsDelegate = CallingNavArgs::class
 )
 @Composable
 fun OngoingCallScreen(

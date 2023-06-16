@@ -34,7 +34,6 @@ import com.wire.kalium.logic.feature.user.UpdateDisplayNameUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
-import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
@@ -156,7 +155,6 @@ class ChangeDisplayNameViewModelTest {
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
-            every { savedStateHandle.get<String>(any()) } returns "SOMETHING"
             coEvery { getSelfUserUseCase() } returns flowOf(TestUser.SELF_USER)
         }
 

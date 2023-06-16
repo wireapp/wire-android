@@ -44,6 +44,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
+import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.wire.android.R
 import com.wire.android.ui.common.Icon
 import com.wire.android.ui.common.ShakeAnimation
@@ -62,12 +63,21 @@ import com.wire.android.ui.theme.wireTypography
 @RootNavGraph
 @Destination
 @Composable
-fun ChangeDisplayNameScreen(viewModel: ChangeDisplayNameViewModel = hiltViewModel()) {
+fun ChangeDisplayNameScreen(
+    viewModel: ChangeDisplayNameViewModel = hiltViewModel(),
+    resultNavigator: ResultBackNavigator<Boolean>? = null // TODO: make it non nullable after refactoring NavigationItem
+) {
     with(viewModel) {
         ChangeDisplayNameContent(
             displayNameState,
             ::onNameChange,
-            ::saveDisplayName,
+            {
+                saveDisplayName(
+                    onFailure = { resultNavigator?.setResult(false) },
+                    onSuccess = { resultNavigator?.setResult(true) }
+                )
+                resultNavigator?.navigateBack()
+            },
             ::onNameErrorAnimated,
             ::navigateBack
         )
@@ -171,6 +181,7 @@ private fun computeNameErrorState(error: DisplayNameState.NameError) =
             DisplayNameState.NameError.TextFieldError.NameEmptyError -> WireTextFieldState.Error(
                 stringResource(id = R.string.settings_myaccount_display_name_error)
             )
+
             DisplayNameState.NameError.TextFieldError.NameExceedLimitError -> WireTextFieldState.Error(
                 stringResource(id = R.string.settings_myaccount_display_name_exceeded_limit_error)
             )

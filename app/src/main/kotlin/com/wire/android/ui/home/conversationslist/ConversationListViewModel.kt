@@ -475,6 +475,7 @@ class ConversationListViewModel @Inject constructor(
             homeSnackBarState.emit(HomeSnackbarState.ClearConversationContentSuccess(isGroup))
         }
     }
+
     companion object {
         const val DELAY_END_CALL = 200L
     }

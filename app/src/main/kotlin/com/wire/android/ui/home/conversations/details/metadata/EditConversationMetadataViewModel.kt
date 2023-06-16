@@ -26,7 +26,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
-import com.wire.android.navigation.EXTRA_GROUP_NAME_CHANGED
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.common.groupname.GroupMetadataState
 import com.wire.android.ui.common.groupname.GroupNameMode
@@ -94,16 +93,19 @@ class EditConversationMetadataViewModel @Inject constructor(
         editConversationState = GroupNameValidator.onGroupNameErrorAnimated(editConversationState)
     }
 
-    fun saveNewGroupName() {
+    fun saveNewGroupName(
+        onFailure: () -> Unit,
+        onSuccess: () -> Unit,
+    ) {
         viewModelScope.launch {
             when (withContext(dispatcher.io()) { renameConversation(conversationId, editConversationState.groupName.text) }) {
-                is RenamingResult.Failure -> navigateBack(mapOf(EXTRA_GROUP_NAME_CHANGED to false))
-                is RenamingResult.Success -> navigateBack(mapOf(EXTRA_GROUP_NAME_CHANGED to true))
+                is RenamingResult.Failure -> onFailure()
+                is RenamingResult.Success -> onSuccess()
             }
         }
     }
 
-    fun navigateBack(args: Map<String, Boolean> = mapOf()) {
-        viewModelScope.launch { navigationManager.navigateBack(args) }
+    fun navigateBack() {
+        viewModelScope.launch { navigationManager.navigateBack() }
     }
 }

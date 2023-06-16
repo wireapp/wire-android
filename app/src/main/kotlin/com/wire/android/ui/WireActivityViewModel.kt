@@ -356,7 +356,12 @@ class WireActivityViewModel @Inject constructor(
     }
 
     private fun openOtherUserProfile(userId: QualifiedID) {
-        navigateTo(NavigationCommand(OtherUserProfileScreenDestination(userId), BackStackMode.UPDATE_EXISTED))
+        navigateTo(
+            NavigationCommand(
+                OtherUserProfileScreenDestination(userId),
+                BackStackMode.UPDATE_EXISTED
+            )
+        )
     }
 
     private fun openMigrationLogin(userHandle: String) {

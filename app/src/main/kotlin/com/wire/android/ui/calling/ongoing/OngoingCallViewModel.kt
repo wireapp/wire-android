@@ -29,11 +29,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.ui.calling.CallingNavArgs
 import com.wire.android.ui.calling.model.UICallParticipant
 import com.wire.android.ui.navArgs
 import com.wire.android.util.CurrentScreen
 import com.wire.android.util.CurrentScreenManager
 import com.wire.kalium.logic.data.call.CallClient
+import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.RequestVideoStreamsUseCase
@@ -54,7 +56,7 @@ class OngoingCallViewModel @Inject constructor(
     private val currentScreenManager: CurrentScreenManager,
 ) : ViewModel() {
 
-    private val ongoingCallNavArgs: OngoingCallNavArgs = savedStateHandle.navArgs()
+    private val ongoingCallNavArgs: CallingNavArgs = savedStateHandle.navArgs()
     private val conversationId: QualifiedID = ongoingCallNavArgs.conversationId
 
     var shouldShowDoubleTapToast by mutableStateOf(false)

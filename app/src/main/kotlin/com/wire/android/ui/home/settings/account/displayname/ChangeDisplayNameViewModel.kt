@@ -26,18 +26,17 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.navigation.EXTRA_SETTINGS_DISPLAY_NAME_CHANGED
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.feature.user.DisplayNameUpdateResult
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.UpdateDisplayNameUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @HiltViewModel
 class ChangeDisplayNameViewModel @Inject constructor(
@@ -76,6 +75,7 @@ class ChangeDisplayNameViewModel @Inject constructor(
                     error = DisplayNameState.NameError.TextFieldError.NameEmptyError
                 )
             }
+
             cleanText.count() > NAME_MAX_COUNT -> {
                 displayNameState.copy(
                     animatedNameError = true,
@@ -84,6 +84,7 @@ class ChangeDisplayNameViewModel @Inject constructor(
                     error = DisplayNameState.NameError.TextFieldError.NameExceedLimitError
                 )
             }
+
             cleanText == displayNameState.originalDisplayName -> {
                 displayNameState.copy(
                     animatedNameError = false,
@@ -92,6 +93,7 @@ class ChangeDisplayNameViewModel @Inject constructor(
                     error = DisplayNameState.NameError.None
                 )
             }
+
             else -> {
                 displayNameState.copy(
                     animatedNameError = false,
@@ -103,11 +105,14 @@ class ChangeDisplayNameViewModel @Inject constructor(
         }
     }
 
-    fun saveDisplayName() {
+    fun saveDisplayName(
+        onFailure: () -> Unit,
+        onSuccess: () -> Unit,
+    ) {
         viewModelScope.launch {
             when (updateDisplayName(displayNameState.displayName.text)) {
-                is DisplayNameUpdateResult.Failure -> navigateBack(mapOf(EXTRA_SETTINGS_DISPLAY_NAME_CHANGED to false))
-                is DisplayNameUpdateResult.Success -> navigateBack(mapOf(EXTRA_SETTINGS_DISPLAY_NAME_CHANGED to true))
+                is DisplayNameUpdateResult.Failure -> onFailure()
+                is DisplayNameUpdateResult.Success -> onSuccess()
             }
         }
     }
@@ -116,8 +121,8 @@ class ChangeDisplayNameViewModel @Inject constructor(
         displayNameState = displayNameState.copy(animatedNameError = false)
     }
 
-    fun navigateBack(args: Map<String, Boolean> = mapOf()) {
-        viewModelScope.launch { navigationManager.navigateBack(args) }
+    fun navigateBack() {
+        viewModelScope.launch { navigationManager.navigateBack() }
     }
 
     companion object {

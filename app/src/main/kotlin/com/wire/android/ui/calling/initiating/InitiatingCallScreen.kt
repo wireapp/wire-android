@@ -43,6 +43,7 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
 import com.wire.android.ui.calling.CallState
+import com.wire.android.ui.calling.CallingNavArgs
 import com.wire.android.ui.calling.SharedCallingViewModel
 import com.wire.android.ui.calling.common.CallVideoPreview
 import com.wire.android.ui.calling.common.CallerDetails
@@ -54,7 +55,7 @@ import com.wire.android.ui.theme.wireDimensions
 
 @RootNavGraph
 @Destination(
-    navArgsDelegate = InitiatingCallNavArgs::class
+    navArgsDelegate = CallingNavArgs::class
 )
 @Composable
 fun InitiatingCallScreen(

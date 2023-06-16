@@ -20,6 +20,9 @@ package com.wire.android.ui.home.conversations.call
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.config.NavigationTestExtension
+import com.wire.android.ui.home.conversations.ConversationNavArgs
+import com.wire.android.ui.navArgs
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.feature.call.usecase.AnswerCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
@@ -38,6 +41,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(CoroutineTestExtension::class)
+@ExtendWith(NavigationTestExtension::class)
 class ConversationCallViewModelTest {
 
     @MockK
@@ -69,9 +73,8 @@ class ConversationCallViewModelTest {
     @BeforeEach
     fun setUp() {
         MockKAnnotations.init(this)
-        val dummyConversationId = "some-dummy-value@some.dummy.domain"
-        every { savedStateHandle.get<String>(any()) } returns dummyConversationId
-        every { savedStateHandle[any()] = any<String>() } returns Unit
+        val conversationId = ConversationId("some-dummy-value", "some.dummy.domain")
+        every { savedStateHandle.navArgs<ConversationNavArgs>() } returns ConversationNavArgs(conversationId = conversationId)
 
         conversationCallViewModel = ConversationCallViewModel(
             savedStateHandle = savedStateHandle,

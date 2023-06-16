@@ -31,7 +31,6 @@ import com.wire.android.framework.TestClient
 import com.wire.android.framework.TestUser
 import com.wire.android.migration.MigrationManager
 import com.wire.android.navigation.BackStackMode
-import com.wire.android.navigation.Navigate
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.services.ServicesManager
 import com.wire.android.ui.authentication.devices.model.displayName

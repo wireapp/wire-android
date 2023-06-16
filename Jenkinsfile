@@ -71,6 +71,12 @@ pipeline {
     options { disableConcurrentBuilds(abortPrevious: true) }
 
     stages {
+        stage("check builder file") {
+            steps {
+                readTrusted "AR-builder.groovy"
+            }
+        }
+
         stage("run pipeline") {
             steps {
                 script {

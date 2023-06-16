@@ -42,7 +42,7 @@ sealed class HomeRequirement {
     object CreateAccountUsername : HomeRequirement()
     object None : HomeRequirement()
 
-    fun navigate(navigate: (NavigationCommand) -> Unit) = when(this) {
+    fun navigate(navigate: (NavigationCommand) -> Unit) = when (this) {
         is Migration -> navigate(NavigationCommand(MigrationScreenDestination(this.userId), BackStackMode.CLEAR_WHOLE))
         is RegisterDevice -> navigate(NavigationCommand(RegisterDeviceScreenDestination, BackStackMode.CLEAR_WHOLE))
         is CreateAccountUsername -> navigate(NavigationCommand(CreateAccountUsernameScreenDestination, BackStackMode.CLEAR_WHOLE))

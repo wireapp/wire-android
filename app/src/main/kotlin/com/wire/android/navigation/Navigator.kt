@@ -23,8 +23,12 @@ import androidx.navigation.NavHostController
 import com.wire.android.ui.NavGraphs
 
 class Navigator(val finish: () -> Unit, val navController: NavHostController) {
-    fun navigate(navigationCommand: NavigationCommand) { navController.navigateToItem(navigationCommand) }
-    fun navigateBack() { if(!navController.popBackStack()) finish() }
+    fun navigate(navigationCommand: NavigationCommand) {
+        navController.navigateToItem(navigationCommand)
+    }
+    fun navigateBack() {
+        if (!navController.popBackStack()) finish()
+    }
 }
 
 @Composable

@@ -69,7 +69,7 @@ class HomeViewModel @Inject constructor(
                     onRequirement(HomeRequirement.Migration(userId))
                 needsToRegisterClient() -> // check if the client has been registered and open the proper screen if not
                     onRequirement(HomeRequirement.RegisterDevice)
-                getSelf().first().handle.isNullOrEmpty() ->  // check if the user handle has been set and open the proper screen if not
+                getSelf().first().handle.isNullOrEmpty() -> // check if the user handle has been set and open the proper screen if not
                     onRequirement(HomeRequirement.CreateAccountUsername)
                 shouldDisplayWelcomeToARScreen() -> {
                     homeState = homeState.copy(shouldDisplayWelcomeMessage = true)

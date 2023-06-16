@@ -89,7 +89,7 @@ internal fun MessageBody(
                 it.start,
                 it.start + it.length
             )
-            stringBuilder.insert(it.start, "[mention]")
+            stringBuilder.insert(it.start, "[mention_${it.userId}]")
             DisplayMention(
                 it.userId,
                 it.length,
@@ -117,7 +117,7 @@ internal fun MessageBody(
         onOpenProfile = onOpenProfile
     )
 
-    val document = Parser.builder().extensions(extensions).build().parse(messageBody.message.asString()) as Document
+    val document = Parser.builder().extensions(extensions).build().parse(text) as Document
     MDDocument(document, nodeData) // TODO KBX improve
 //    LinkifyText(
 //        text = messageBody.message,

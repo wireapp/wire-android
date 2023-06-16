@@ -45,6 +45,7 @@ import com.wire.android.ui.common.ClickableText
 import com.wire.android.ui.common.SpannableStr
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.wireTypography
+import com.wire.kalium.logic.data.message.mention.MessageMention
 import org.commonmark.ext.gfm.strikethrough.Strikethrough
 import org.commonmark.ext.gfm.tables.TableBlock
 import org.commonmark.node.BlockQuote
@@ -64,6 +65,7 @@ import org.commonmark.node.Paragraph
 import org.commonmark.node.StrongEmphasis
 import org.commonmark.node.Text
 import org.commonmark.node.ThematicBreak
+import java.lang.StringBuilder
 import org.commonmark.node.Text as nodeText
 
 @Composable
@@ -105,10 +107,12 @@ fun MDParagraph(paragraph: Paragraph, nodeData: NodeData) {
                 inlineChildren(paragraph, this, nodeData)
                 pop()
             }
-            MarkdownText(annotatedString,
+            MarkdownText(
+                annotatedString,
                 style = nodeData.style,
                 onLongClick = nodeData.onLongClick,
-                onOpenProfile = nodeData.onOpenProfile)
+                onOpenProfile = nodeData.onOpenProfile
+            )
         }
     }
 }
@@ -130,16 +134,11 @@ fun inlineChildren(
             is nodeText -> {
                 val textWithTypograps = convertTypoGraphs(child)
 
-                // TODO remove workaround after mentions properly implemented
-                if (parent is Paragraph && parent.parent is Document) {
-                    appendLinks(
-                        annotatedString,
-                        textWithTypograps,
-                        nodeData
-                    )
-                } else {
-                    annotatedString.append(textWithTypograps)
-                }
+                appendLinks(
+                    annotatedString,
+                    textWithTypograps,
+                    nodeData
+                )
             }
 
             is Image -> {
@@ -295,12 +294,37 @@ fun appendLinks(
     string: String,
     nodeData: NodeData
 ) {
-    val textAsString = string
-    val linkInfos = SpannableStr.getLinkInfos(textAsString, Linkify.WEB_URLS or Linkify.EMAIL_ADDRESSES)
+    val linkInfos = SpannableStr.getLinkInfos(string, Linkify.WEB_URLS or Linkify.EMAIL_ADDRESSES)
+    val stringBuilder = StringBuilder(string)
 
     // TODO remove [mention] if string contains it and save startIndex for each mentions
+    val mentionList: List<MessageMention> = if (stringBuilder.contains("[mention_") && nodeData.mentions.isNotEmpty()) {
+        nodeData.mentions.mapNotNull { displayMention ->
+            val mentionWithUserId = "[mention_${displayMention.userId}]"
+            val length = mentionWithUserId.length
+            val startIndex = stringBuilder.indexOf(mentionWithUserId)
+            if (startIndex != -1) {
+                appLogger.d("KBX index $startIndex length $length $stringBuilder")
+                stringBuilder.replace(startIndex, length, "")
+                appLogger.d("KBX $stringBuilder")
+
+                MessageMention(
+                    startIndex,
+                    displayMention.length,
+                    displayMention.userId,
+                    displayMention.isSelfMention
+                )
+            } else {
+                null
+            }
+        }
+    } else {
+        listOf()
+    }
+
+
     with(annotatedString) {
-        append(textAsString)
+        append(stringBuilder)
         with(nodeData.colorScheme) {
             linkInfos.forEach {
                 if (it.end - it.start <= 0) {
@@ -322,28 +346,28 @@ fun appendLinks(
                 )
             }
             // TODO use previously saved mention position
-//            if (nodeData.mentions.isNotEmpty() && textAsString.contains("[mention]")) {
-//                nodeData.mentions.forEach {
-//                    if (it.length <= 0 || it.start >= length || it.start + it.length > length) {
-//                        return@forEach
-//                    }
-//                    addStyle(
-//                        style = SpanStyle(
-//                            fontWeight = nodeData.typography.body02.fontWeight,
-//                            color = onPrimaryVariant,
-//                            background = if (it.isSelfMention) primaryVariant else Color.Unspecified
-//                        ),
-//                        start = it.start,
-//                        end = it.start + it.length
-//                    )
-//                    addStringAnnotation(
-//                        tag = TAG_MENTION,
-//                        annotation = it.userId.toString(),
-//                        start = it.start,
-//                        end = it.start + it.length
-//                    )
-//                }
-//            }
+            if (mentionList.isNotEmpty()) {
+                mentionList.forEach {
+                    if (it.length <= 0 || it.start >= length || it.start + it.length > length) {
+                        return@forEach
+                    }
+                    addStyle(
+                        style = SpanStyle(
+                            fontWeight = nodeData.typography.body02.fontWeight,
+                            color = onPrimaryVariant,
+                            background = if (it.isSelfMention) primaryVariant else Color.Unspecified
+                        ),
+                        start = it.start,
+                        end = it.start + it.length
+                    )
+                    addStringAnnotation(
+                        tag = TAG_MENTION,
+                        annotation = it.userId.toString(),
+                        start = it.start,
+                        end = it.start + it.length
+                    )
+                }
+            }
         }
     }
 }

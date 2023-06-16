@@ -318,18 +318,23 @@ private fun ConversationScreen(
     tempWritableVideoUri: Uri?,
     onFailedMessageRetryClicked: (String) -> Unit
 ) {
-    val conversationScreenState = rememberConversationScreenState()
-    val messageComposerState = rememberMessageComposerStateHolder(
-            onShowEphemeralOptionsMenu = { conversationScreenState.showSelfDeletionContextMenu() }
-        )
     val context = LocalContext.current
+    val conversationScreenState = rememberConversationScreenState()
+
+    val messageComposerState = rememberMessageComposerStateHolder(
+        interactionAvailability = messageComposerViewState.interactionAvailability,
+        isFileSharingEnabled = messageComposerViewState.isFileSharingEnabled,
+        securityClassificationType = messageComposerViewState.securityClassificationType,
+        selfDeletionTimer = messageComposerViewState.selfDeletionTimer,
+        onShowEphemeralOptionsMenu = { conversationScreenState.showSelfDeletionContextMenu() }
+    )
 
     LaunchedEffect(conversationMessagesViewModel.savedStateHandle) {
         // We need to check if we come from the media gallery screen and the user triggered any action there like reply
         conversationMessagesViewModel.checkPendingActions(
             onMessageReply = {
                 withSmoothScreenLoad {
-//                    messageComposerState.reply(it)
+                    messageComposerState.toReply(it)
                 }
             }
         )
@@ -354,7 +359,7 @@ private fun ConversationScreen(
                 onDeleteClick = onDeleteMessage,
                 onReactionClick = onReactionClick,
                 onDetailsClick = onMessageDetailsClick,
-                onReplyClick =  messageComposerState::toReply,
+                onReplyClick = messageComposerState::toReply,
                 onEditClick = { _, messageText, _ -> messageComposerState.toEdit(messageText) },
                 onShareAsset = {
                     menuType.selectedMessage.header.messageId.let {

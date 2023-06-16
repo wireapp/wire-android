@@ -43,23 +43,42 @@ import com.wire.android.util.ui.toUIText
 import com.wire.kalium.logic.data.message.mention.MessageMention
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
+import com.wire.kalium.logic.feature.conversation.InteractionAvailability
+import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
+import com.wire.kalium.logic.feature.selfDeletingMessages.SelfDeletionTimer
+import kotlin.time.Duration
 
 @Composable
 fun rememberMessageComposerStateHolder(
+    isSelfDeletionAllowed: Boolean = true,
+    isFileSharingEnabled: Boolean = true,
+    selfDeletionTimer: SelfDeletionTimer = SelfDeletionTimer.Enabled(Duration.ZERO),
+    interactionAvailability: InteractionAvailability = InteractionAvailability.ENABLED,
+    securityClassificationType: SecurityClassificationType = SecurityClassificationType.NONE,
     onShowEphemeralOptionsMenu: () -> Unit
 ): MessageComposerStateHolder {
     val context = LocalContext.current
 
     return remember {
         MessageComposerStateHolder(
-            context,
-            onShowEphemeralOptionsMenu
+            context = context,
+            isSelfDeletionAllowed = isSelfDeletionAllowed,
+            isFileSharingEnabled = isFileSharingEnabled,
+            selfDeletionTimer = selfDeletionTimer,
+            interactionAvailability = interactionAvailability,
+            securityClassificationType = securityClassificationType,
+            onShowEphemeralOptionsMenu = onShowEphemeralOptionsMenu
         )
     }
 }
 
 class MessageComposerStateHolder(
     private val context: Context,
+    private val isSelfDeletionAllowed: Boolean = true,
+    private val isFileSharingEnabled: Boolean = true,
+    private val selfDeletionTimer: SelfDeletionTimer = SelfDeletionTimer.Enabled(Duration.ZERO),
+    private val interactionAvailability: InteractionAvailability = InteractionAvailability.ENABLED,
+    private val securityClassificationType: SecurityClassificationType = SecurityClassificationType.NONE,
     private val onShowEphemeralOptionsMenu: () -> Unit
 ) {
 

@@ -29,9 +29,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.TextFieldValue
 import com.wire.android.appLogger
+import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.conversations.model.UIQuotedMessage
+import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.messagecomposer.model.UiMention
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.util.MENTION_SYMBOL
@@ -39,6 +41,8 @@ import com.wire.android.util.NEW_LINE_SYMBOL
 import com.wire.android.util.WHITE_SPACE
 import com.wire.android.util.ui.toUIText
 import com.wire.kalium.logic.data.message.mention.MessageMention
+import com.wire.kalium.logic.data.user.ConnectionState
+import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 
 @Composable
 fun rememberMessageComposerStateHolder(
@@ -81,7 +85,7 @@ class MessageComposerStateHolder(
     fun toEdit(editMessageText: String) {
         messageCompositionState.update {
             it.copy(
-                textFieldValue = TextFieldValue(editMessageText)
+                messageTextFieldValue = TextFieldValue(editMessageText)
             )
         }
         messageComposerState = MessageComposerState.Active(
@@ -99,7 +103,7 @@ class MessageComposerStateHolder(
         val senderId = message.header.userId ?: return
 
         mapToQuotedContent(message)?.let { quotedContent ->
-            val quotedData = UIQuotedMessage.UIQuotedData(
+            val quotedMessage = UIQuotedMessage.UIQuotedData(
                 messageId = message.header.messageId,
                 senderId = senderId,
                 senderName = message.header.username,
@@ -110,8 +114,8 @@ class MessageComposerStateHolder(
 
             messageCompositionState.update {
                 it.copy(
-                    textFieldValue = TextFieldValue(""),
-                    quotedMessage = quotedData
+                    messageTextFieldValue = TextFieldValue(""),
+                    quotedMessage = quotedMessage
                 )
             }
 
@@ -160,20 +164,29 @@ class MessageComposerStateHolder(
 }
 
 data class MessageComposition(
-    val textFieldValue: TextFieldValue,
+    val messageTextFieldValue: TextFieldValue,
     val quotedMessage: UIQuotedMessage.UIQuotedData?,
     val mentions: List<Contact>
 ) {
     companion object {
         val DEFAULT = MessageComposition(
-            textFieldValue = TextFieldValue(text = ""),
+            messageTextFieldValue = TextFieldValue(text = ""),
             quotedMessage = null,
-            mentions = emptyList()
+            mentions = listOf(
+                Contact(
+                    id = "", domain = "", name = "", avatarData = UserAvatarData(
+                        asset = null,
+                        availabilityStatus = UserAvailabilityStatus.AVAILABLE,
+                        connectionState = null,
+                        membership = Membership.Admin
+                    ), label = "", connectionState = ConnectionState.ACCEPTED, membership = Membership.None
+                )
+            )
         )
     }
 
     val messageText: String
-        get() = textFieldValue.text
+        get() = messageTextFieldValue.text
 
 }
 
@@ -186,7 +199,7 @@ data class MessageComposition(
 //    val inputFocusRequester: FocusRequester,
 //    private val mentionSpanStyle: SpanStyle
 // ) {
-/
+
 //    fun startMention() {
 //        val beforeSelection = messageComposeInputState.messageText.text
 //            .subSequence(0, messageComposeInputState.messageText.selection.min)
@@ -317,7 +330,7 @@ data class MessageComposition(
 //            _mentionQueryFlowState.value = null
 //        }
 //    }
-/
+
 //
 //    fun shouldShowSelfDeletionOption(): Boolean = with(currentSelfDeletionTimer) {
 //        // We shouldn't show the self-deleting option if there is a compulsory duration already set on the team settings level

@@ -377,7 +377,7 @@ private fun MessageComposerInput(
                 Row(modifier = Modifier.padding(horizontal = dimensions().spacing8x)) {
                     QuotedMessagePreview(
                         quotedMessageData = quotedMessage,
-                        onCancelReply =
+                        onCancelReply = {}
                     )
                 }
             }
@@ -395,7 +395,7 @@ private fun MessageComposerInput(
 
                 MessageComposerTextInput(
                     colors = inputType.inputTextColor(),
-                    messageText = inputType.messageCompositionState.value.textFieldValue,
+                    messageText = inputType.messageCompositionState.value.messageTextFieldValue,
                     onMessageTextChanged = onMessageTextChanged,
                     singleLine = false,
                     onFocusChanged = { isFocused ->

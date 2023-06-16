@@ -68,7 +68,7 @@ sealed class MessageComposerState {
 
         fun messageTextChanged(textFieldValue: TextFieldValue) {
             messageCompositionState.update {
-                it.copy(textFieldValue = textFieldValue)
+                it.copy(messageTextFieldValue = textFieldValue)
             }
         }
 

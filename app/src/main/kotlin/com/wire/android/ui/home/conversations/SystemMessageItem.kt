@@ -62,7 +62,7 @@ import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.home.conversations.mock.mockMessageWithKnock
-import com.wire.android.ui.home.conversations.model.MessageStatus
+import com.wire.android.ui.home.conversations.model.MessageFlowStatus
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent.SystemMessage
 import com.wire.android.ui.theme.WireTheme
@@ -82,7 +82,7 @@ fun SystemMessageItem(
     val fullAvatarOuterPadding = dimensions().userAvatarClickablePadding + dimensions().userAvatarStatusBorderSize
     Row(
         Modifier
-            .customizeMessageBackground(message.sendingFailed, message.receivingFailed)
+            .customizeMessageBackground(message.sendingFailed, message.decryptionFailed)
             .padding(
                 end = dimensions().spacing16x,
                 start = dimensions().spacing8x,
@@ -170,7 +170,7 @@ fun SystemMessageItem(
             }
             if (message.sendingFailed) {
                 MessageSendFailureWarning(
-                    messageStatus = message.header.messageStatus as MessageStatus.MessageSendFailureStatus,
+                    messageStatus = message.header.messageStatus.flowStatus as MessageFlowStatus.Failure.Send,
                     onRetryClick = remember { { onFailedMessageRetryClicked(message.header.messageId) } },
                     onCancelClick = remember { { onFailedMessageCancelClicked(message.header.messageId) } }
                 )

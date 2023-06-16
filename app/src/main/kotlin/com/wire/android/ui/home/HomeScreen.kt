@@ -28,10 +28,13 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.material3.DrawerDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
@@ -46,6 +49,7 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.min
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.compose.NavHost
@@ -157,20 +161,23 @@ fun HomeContent(
         ModalNavigationDrawer(
             drawerState = drawerState,
             drawerContent = {
-                ModalDrawerSheet(
-                    drawerContainerColor = MaterialTheme.colorScheme.surface,
-                    drawerTonalElevation = 0.dp,
-                    drawerShape = RectangleShape,
-                    modifier = Modifier.padding(end = dimensions().homeDrawerSheetEndPadding)
-                ) {
-                    HomeDrawer(
-                        // TODO: logFilePath does not belong in the UI logic
-                        logFilePath = homeState.logFilePath,
-                        currentRoute = currentNavigationItem.route,
-                        navigateToHomeItem = ::navigateTo,
-                        navigateToItem = navigateToItem,
-                        onCloseDrawer = ::closeDrawer
-                    )
+                BoxWithConstraints {
+                    val maxWidth = min(this.maxWidth - dimensions().homeDrawerSheetEndPadding, DrawerDefaults.MaximumDrawerWidth)
+                    ModalDrawerSheet(
+                        drawerContainerColor = MaterialTheme.colorScheme.surface,
+                        drawerTonalElevation = 0.dp,
+                        drawerShape = RectangleShape,
+                        modifier = Modifier.widthIn(max = maxWidth)
+                    ) {
+                        HomeDrawer(
+                            // TODO: logFilePath does not belong in the UI logic
+                            logFilePath = homeState.logFilePath,
+                            currentRoute = currentNavigationItem.route,
+                            navigateToHomeItem = ::navigateTo,
+                            navigateToItem = navigateToItem,
+                            onCloseDrawer = ::closeDrawer
+                        )
+                    }
                 }
             },
             gesturesEnabled = drawerState.isOpen,

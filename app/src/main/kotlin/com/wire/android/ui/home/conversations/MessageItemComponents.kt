@@ -32,8 +32,8 @@ import com.wire.android.ui.common.spacers.HorizontalSpace
 import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.home.conversations.mock.mockHeader
 import com.wire.android.ui.home.conversations.model.DeliveryStatusContent
+import com.wire.android.ui.home.conversations.model.MessageFlowStatus
 import com.wire.android.ui.home.conversations.model.MessageHeader
-import com.wire.android.ui.home.conversations.model.MessageStatus
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.util.CustomTabsHelper
@@ -43,7 +43,7 @@ import com.wire.kalium.logic.data.user.UserId
 
 @Composable
 internal fun MessageSendFailureWarning(
-    messageStatus: MessageStatus.MessageSendFailureStatus,
+    messageStatus: MessageFlowStatus.Failure.Send,
     onRetryClick: () -> Unit,
     onCancelClick: () -> Unit
 ) {
@@ -56,7 +56,7 @@ internal fun MessageSendFailureWarning(
                 text = messageStatus.errorText.asString(),
                 style = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.error)
             )
-            if (messageStatus is MessageStatus.SendRemotelyFailure) {
+            if (messageStatus is MessageFlowStatus.Failure.Send.Remotely) {
                 OfflineBackendsLearnMoreLink()
             }
             Row {
@@ -198,7 +198,7 @@ private fun SingleUserDeliveryFailure(
 @Composable
 internal fun MessageDecryptionFailure(
     messageHeader: MessageHeader,
-    decryptionStatus: MessageStatus.DecryptionFailure,
+    decryptionStatus: MessageFlowStatus.Failure.Decryption,
     onResetSessionClicked: (senderUserId: UserId, clientId: String?) -> Unit
 ) {
     val context = LocalContext.current
@@ -278,7 +278,7 @@ internal fun OfflineBackendsLearnMoreLink(context: Context = LocalContext.curren
 @Composable
 fun PreviewMessageSendFailureWarning() {
     WireTheme {
-        MessageSendFailureWarning(MessageStatus.SendFailure, {}, {})
+        MessageSendFailureWarning(MessageFlowStatus.Failure.Send.Locally(false), {}, {})
     }
 }
 
@@ -286,6 +286,6 @@ fun PreviewMessageSendFailureWarning() {
 @Composable
 fun PreviewMessageDecryptionFailure() {
     WireTheme {
-        MessageDecryptionFailure(mockHeader, MessageStatus.DecryptionFailure(false)) { _, _ -> }
+        MessageDecryptionFailure(mockHeader, MessageFlowStatus.Failure.Decryption(false)) { _, _ -> }
     }
 }

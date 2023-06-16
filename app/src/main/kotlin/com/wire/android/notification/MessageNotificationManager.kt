@@ -144,21 +144,31 @@ class MessageNotificationManager
                             is NotificationMessage.ConnectionRequest -> {
                                 setContentIntent(otherUserProfilePendingIntent(context, it.authorId, userIdString))
                             }
+
                             is NotificationMessage.ConversationDeleted -> {
                                 setContentIntent(openAppPendingIntent(context))
                             }
+
                             is NotificationMessage.Comment -> {
                                 setContentIntent(messagePendingIntent(context, conversation.id, userIdString))
                                 addAction(getActionReply(context, conversation.id, userIdString))
                             }
+
                             is NotificationMessage.Knock -> {
                                 setChannelId(NotificationConstants.getPingsChannelId(userId))
                                 setContentIntent(messagePendingIntent(context, conversation.id, userIdString))
                             }
+
                             is NotificationMessage.Text -> {
                                 setContentIntent(messagePendingIntent(context, conversation.id, userIdString))
                                 addAction(getActionReply(context, conversation.id, userIdString))
                             }
+
+                            is NotificationMessage.ObfuscatedMessage -> {
+                                setContentIntent(messagePendingIntent(context, conversation.id, userIdString))
+                                addAction(getActionReply(context, conversation.id, userIdString))
+                            }
+
                             null -> {
                                 setContentIntent(messagePendingIntent(context, conversation.id, userIdString))
                                 addAction(getActionReply(context, conversation.id, userIdString))
@@ -246,8 +256,10 @@ class MessageNotificationManager
     private fun NotificationMessage.intoStyledMessage(): NotificationCompat.MessagingStyle.Message {
         val sender = Person.Builder()
             .apply {
-                setName(author.name)
-                author.image?.toBitmap()?.let {
+                author?.name.also {
+                    setName(it)
+                }
+                author?.image?.toBitmap()?.let {
                     setIcon(IconCompat.createWithAdaptiveBitmap(it))
                 }
             }
@@ -259,6 +271,7 @@ class MessageNotificationManager
             is NotificationMessage.ConnectionRequest -> italicTextFromResId(R.string.notification_connection_request)
             is NotificationMessage.ConversationDeleted -> italicTextFromResId(R.string.notification_conversation_deleted)
             is NotificationMessage.Knock -> italicTextFromResId(R.string.notification_knock)
+            is NotificationMessage.ObfuscatedMessage -> italicTextFromResId(R.string.notification_obfuscated_message)
         }
         return NotificationCompat.MessagingStyle.Message(message, time, sender)
     }

@@ -21,11 +21,31 @@
 package com.wire.android.ui.home
 
 import com.wire.android.model.ImageAsset
+import com.wire.android.navigation.BackStackMode
+import com.wire.android.navigation.NavigationCommand
+import com.wire.android.ui.destinations.CreateAccountUsernameScreenDestination
+import com.wire.android.ui.destinations.MigrationScreenDestination
+import com.wire.android.ui.destinations.RegisterDeviceScreenDestination
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
+import com.wire.kalium.logic.data.user.UserId
 
 data class HomeState(
     val avatarAsset: ImageAsset.UserAvatarAsset? = null,
     val status: UserAvailabilityStatus = UserAvailabilityStatus.NONE,
     val logFilePath: String,
-    val shouldDisplayWelcomeMessage: Boolean = false,
+    val shouldDisplayWelcomeMessage: Boolean = false
 )
+
+sealed class HomeRequirement {
+    data class Migration(val userId: UserId) : HomeRequirement()
+    object RegisterDevice : HomeRequirement()
+    object CreateAccountUsername : HomeRequirement()
+    object None : HomeRequirement()
+
+    fun navigate(navigate: (NavigationCommand) -> Unit) = when(this) {
+        is Migration -> navigate(NavigationCommand(MigrationScreenDestination(this.userId), BackStackMode.CLEAR_WHOLE))
+        is RegisterDevice -> navigate(NavigationCommand(RegisterDeviceScreenDestination, BackStackMode.CLEAR_WHOLE))
+        is CreateAccountUsername -> navigate(NavigationCommand(CreateAccountUsernameScreenDestination, BackStackMode.CLEAR_WHOLE))
+        is None -> null
+    }
+}

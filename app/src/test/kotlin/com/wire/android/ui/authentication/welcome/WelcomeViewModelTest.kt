@@ -48,9 +48,6 @@ import org.junit.jupiter.api.extension.ExtendWith
 class WelcomeViewModelTest {
 
     @MockK
-    lateinit var navigationManager: NavigationManager
-
-    @MockK
     lateinit var authServerConfigProvider: AuthServerConfigProvider
 
     @MockK
@@ -65,35 +62,6 @@ class WelcomeViewModelTest {
         every { authServerConfigProvider.authServer } returns MutableStateFlow(newServerConfig(1).links)
         coEvery { authServerConfigProvider.authServer.value } returns newServerConfig(1).links
         coEvery { getSessions() } returns GetAllSessionsResult.Success(listOf())
-        welcomeViewModel = WelcomeViewModel(navigationManager, authServerConfigProvider, getSessions)
-    }
-
-    @Test
-    fun `given a navigation, when it's go to login, then should emit NavigationCommand login`() = runTest {
-        welcomeViewModel.goToLogin()
-
-        coVerify(exactly = 1) { navigationManager.navigate(NavigationCommand(LoginScreenDestination())) }
-    }
-
-    @Test
-    fun `given a navigation, when it's go to create private account, then should emit NavigationCommand create personal account`() =
-        runTest {
-            welcomeViewModel.goToCreatePrivateAccount()
-
-            coVerify(exactly = 1) { navigationManager.navigate(NavigationCommand(CreatePersonalAccountScreenDestination)) }
-        }
-
-    @Test
-    fun `given a navigation, when it's go to create enterprise account, then should emit NavigationCommand create team`() = runTest {
-        welcomeViewModel.goToCreateEnterpriseAccount()
-
-        coVerify(exactly = 1) { navigationManager.navigate(NavigationCommand(CreateTeamScreenDestination)) }
-    }
-
-    @Test
-    fun `given a navigation, when navigating back, then should delegate call to navigation manager back`() = runTest {
-        welcomeViewModel.navigateBack()
-
-        coVerify(exactly = 1) { navigationManager.navigateBack() }
+        welcomeViewModel = WelcomeViewModel(authServerConfigProvider, getSessions)
     }
 }

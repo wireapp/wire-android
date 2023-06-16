@@ -30,6 +30,7 @@ import com.wire.android.datastore.UserDataStore
 import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.di.CurrentAccount
 import com.wire.android.feature.AccountSwitchUseCase
+import com.wire.android.feature.SwitchAccountActions
 import com.wire.android.feature.SwitchAccountParam
 import com.wire.android.mapper.OtherAccountMapper
 import com.wire.android.model.ImageAsset.UserAvatarAsset
@@ -202,7 +203,7 @@ class SelfUserProfileViewModel @Inject constructor(
 
     fun navigateBack() = viewModelScope.launch { navigationManager.navigateBack() }
 
-    fun logout(wipeData: Boolean) {
+    fun logout(wipeData: Boolean, switchAccountActions: SwitchAccountActions) {
         viewModelScope.launch {
             userProfileState = userProfileState.copy(isLoggingOut = true)
             launch {
@@ -220,13 +221,15 @@ class SelfUserProfileViewModel @Inject constructor(
 
             notificationManager.stopObservingOnLogout(selfUserId)
             notificationChannelsManager.deleteChannelGroup(selfUserId)
-            accountSwitch(SwitchAccountParam.SwitchToNextAccountOrWelcome)
+            accountSwitch(SwitchAccountParam.TryToSwitchToNextAccount)
+                .callAction(switchAccountActions)
         }
     }
 
-    fun switchAccount(userId: UserId) {
+    fun switchAccount(userId: UserId, switchAccountActions: SwitchAccountActions) {
         viewModelScope.launch {
             accountSwitch(SwitchAccountParam.SwitchToAccount(userId))
+                .callAction(switchAccountActions)
         }
     }
 

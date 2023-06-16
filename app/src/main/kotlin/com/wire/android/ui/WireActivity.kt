@@ -50,10 +50,12 @@ import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.config.CustomUiConfigurationProvider
 import com.wire.android.config.LocalCustomUiConfigurationProvider
+import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationGraph
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.navigation.navigateToItem
 import com.wire.android.navigation.popWithArguments
+import com.wire.android.navigation.rememberNavigator
 import com.wire.android.navigation.rememberTrackingAnimatedNavController
 import com.wire.android.ui.calling.ProximitySensorManager
 import com.wire.android.ui.common.WireDialog
@@ -79,6 +81,8 @@ import com.wire.kalium.logic.data.user.UserId
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onSubscription
@@ -161,17 +165,15 @@ class WireActivity : AppCompatActivity() {
         startDestination: Route,
         onComplete: () -> Unit
     ) {
-        val navController = rememberTrackingAnimatedNavController {
-            NavGraphs.root.destinationsByRoute[it]?.let { it::class.simpleName } // there is a proguard rule for Routes
-        }
+        val navigator = rememberNavigator(this::finish)
         val scope = rememberCoroutineScope()
         NavigationGraph(
-            navController = navController,
+            navigator = navigator,
             startDestination = startDestination
         )
         // This setup needs to be done after the navigation graph is created, because building the graph takes some time,
         // and if any NavigationCommand is executed before the graph is fully built, it will cause a NullPointerException.
-        setUpNavigation(navController, onComplete, scope)
+        setUpNavigation(navigator.navController, onComplete, scope)
     }
 
     @Composable
@@ -183,6 +185,7 @@ class WireActivity : AppCompatActivity() {
         val currentKeyboardController by rememberUpdatedState(LocalSoftwareKeyboardController.current)
         val currentNavController by rememberUpdatedState(navController)
         LaunchedEffect(scope) {
+            // TODO: remove when NavigationManager is not used anymore
             navigationManager.navigateState
                 .onSubscription { onComplete() }
                 .onEach { command ->
@@ -194,6 +197,13 @@ class WireActivity : AppCompatActivity() {
             navigationManager.navigateBack.onEach {
                 if (!currentNavController.popWithArguments(it)) finish()
             }.launchIn(scope)
+
+            viewModel.navigator.navigationCommands
+                .onSubscription { onComplete() }
+                .onEach { command ->
+                    currentKeyboardController?.hide()
+                    currentNavController.navigateToItem(command)
+                }.launchIn(scope)
         }
 
         DisposableEffect(navController) {

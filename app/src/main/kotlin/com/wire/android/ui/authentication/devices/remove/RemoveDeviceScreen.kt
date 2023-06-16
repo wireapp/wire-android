@@ -31,6 +31,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -41,6 +42,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
+import com.wire.android.feature.NavigationSwitchAccountActions
+import com.wire.android.navigation.Navigator
 import com.wire.android.ui.authentication.devices.DeviceItem
 import com.wire.android.ui.authentication.devices.common.ClearSessionState
 import com.wire.android.ui.authentication.devices.common.ClearSessionViewModel
@@ -60,7 +63,7 @@ import com.wire.android.util.dialogErrorStrings
 @RootNavGraph
 @Destination
 @Composable
-fun RemoveDeviceScreen() {
+fun RemoveDeviceScreen(navigator: Navigator) {
     val viewModel: RemoveDeviceViewModel = hiltViewModel()
     val clearSessionViewModel: ClearSessionViewModel = hiltViewModel()
     val state: RemoveDeviceState = viewModel.state
@@ -76,7 +79,9 @@ fun RemoveDeviceScreen() {
         onDialogDismiss = viewModel::onDialogDismissed,
         onErrorDialogDismiss = viewModel::clearDeleteClientError,
         onBackButtonClicked = clearSessionViewModel::onBackButtonClicked,
-        onCancelLoginClicked = clearSessionViewModel::onCancelLoginClicked,
+        onCancelLoginClicked = remember(clearSessionViewModel, navigator) {
+            { clearSessionViewModel.onCancelLoginClicked(NavigationSwitchAccountActions(navigator::navigate)) }
+        },
         onProceedLoginClicked = clearSessionViewModel::onProceedLoginClicked
     )
 }

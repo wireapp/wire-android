@@ -22,26 +22,27 @@ package com.wire.android.ui.home.conversations.details.participants
 
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
+import com.wire.android.config.NavigationTestExtension
 import com.wire.android.config.mockUri
 import com.wire.android.mapper.testUIParticipant
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationManager
-import com.wire.android.config.NavigationTestExtension
 import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
 import com.wire.android.ui.destinations.SelfUserProfileScreenDestination
+import com.wire.android.ui.destinations.ServiceDetailsScreenDestination
 import com.wire.android.ui.home.conversations.details.GroupConversationDetailsViewModel
 import com.wire.android.ui.home.conversations.details.participants.model.ConversationParticipantsData
 import com.wire.android.ui.home.conversations.details.participants.model.UIParticipant
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
 import com.wire.android.ui.navArgs
 import com.wire.kalium.logic.data.id.ConversationId
-import com.wire.kalium.logic.data.id.QualifiedID
-import com.wire.kalium.logic.data.id.QualifiedIdMapper
+import com.wire.kalium.logic.data.user.BotService
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import junit.framework.TestCase
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.consumeAsFlow
@@ -82,14 +83,45 @@ class GroupConversationParticipantsViewModelTest {
         // Given
         val member = testUIParticipant(0).copy(isSelf = false)
         val (arrangement, viewModel) = GroupConversationParticipantsViewModelArrangement().arrange()
+        val expectedRoute = OtherUserProfileScreenDestination(member.id, arrangement.conversationId).route
         // When
         viewModel.openProfile(member)
+
         // Then
-        coVerify {
+        coVerify(exactly = 1) {
             arrangement.navigationManager.navigate(
-                NavigationCommand(
-                    OtherUserProfileScreenDestination(member.id, arrangement.qualifiedId)
-                )
+                withArg {
+                    TestCase.assertTrue(
+                        it.destination.route == expectedRoute
+                    )
+                }
+            )
+        }
+    }
+
+    @Test
+    fun `given a service, when clicking on other profile, then navigate to other service screen`() = runTest {
+        // Given
+        val botService = BotService("some-service", "some-service-provider")
+        val member = testUIParticipant(0).copy(
+            isSelf = false,
+            isService = true,
+            botService = botService
+        )
+        val (arrangement, viewModel) = GroupConversationParticipantsViewModelArrangement().arrange()
+        val expectedRoute = ServiceDetailsScreenDestination(botService, arrangement.conversationId).route
+
+        // When
+        viewModel.openProfile(member)
+
+        // Then
+        coVerify(exactly = 1) {
+            arrangement.navigationManager.navigate(
+                withArg {
+                    TestCase.assertTrue(
+                        it.destination.route == expectedRoute
+                    )
+                }
             )
         }
     }
@@ -102,7 +134,7 @@ class GroupConversationParticipantsViewModelTest {
         // When
         viewModel.openProfile(member)
         // Then
-        coVerify {
+        coVerify(exactly = 1) {
             arrangement.navigationManager.navigate(NavigationCommand(SelfUserProfileScreenDestination))
         }
     }
@@ -117,9 +149,6 @@ internal class GroupConversationParticipantsViewModelArrangement {
     lateinit var navigationManager: NavigationManager
 
     @MockK
-    private lateinit var qualifiedIdMapper: QualifiedIdMapper
-
-    @MockK
     lateinit var observeParticipantsForConversationUseCase: ObserveParticipantsForConversationUseCase
     private val conversationMembersChannel = Channel<ConversationParticipantsData>(capacity = Channel.UNLIMITED)
     private val viewModel by lazy {
@@ -129,18 +158,15 @@ internal class GroupConversationParticipantsViewModelArrangement {
             observeParticipantsForConversationUseCase
         )
     }
-    val conversationId = "some-dummy-value@some.dummy.domain"
-    val qualifiedId = ConversationId("some-dummy-value", "some.dummy.domain")
+
+    val conversationId = ConversationId("some-dummy-value", "some.dummy.domain")
 
     init {
         // Tests setup
         MockKAnnotations.init(this, relaxUnitFun = true)
         mockUri()
-        every {
-            qualifiedIdMapper.fromStringToQualifiedID("some-dummy-value@some.dummy.domain")
-        } returns QualifiedID("some-dummy-value", "some.dummy.domain")
         every { savedStateHandle.navArgs<GroupConversationAllParticipantsNavArgs>() } returns GroupConversationAllParticipantsNavArgs(
-            conversationId = qualifiedId
+            conversationId = conversationId
         )
         // Default empty values
         coEvery { observeParticipantsForConversationUseCase(any(), any()) } returns flowOf()

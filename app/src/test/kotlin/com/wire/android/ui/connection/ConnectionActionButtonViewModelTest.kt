@@ -117,12 +117,11 @@ class ConnectionActionButtonViewModelTest {
             assertEquals(ConnectionState.PENDING, viewModel.actionableState().state)
 
             // when
-            viewModel.onIgnoreConnectionRequest()
+            viewModel.onIgnoreConnectionRequest {}
 
             // then
             coVerify { arrangement.ignoreConnectionRequest.invoke(eq(TestUser.USER_ID)) }
             assertEquals(ConnectionState.IGNORED, viewModel.actionableState().state)
-            coVerify { arrangement.navigationManager.navigateBack(any()) }
         }
 
     @Test

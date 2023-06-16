@@ -40,11 +40,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.TextUnit
-import com.wire.android.appLogger
 import com.wire.android.ui.common.ClickableText
 import com.wire.android.ui.common.SpannableStr
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.EMPTY
 import com.wire.kalium.logic.data.message.mention.MessageMention
 import org.commonmark.ext.gfm.strikethrough.Strikethrough
 import org.commonmark.ext.gfm.tables.TableBlock
@@ -304,9 +304,7 @@ fun appendLinks(
             val length = mentionWithUserId.length
             val startIndex = stringBuilder.indexOf(mentionWithUserId)
             if (startIndex != -1) {
-                appLogger.d("KBX index $startIndex length $length $stringBuilder")
-                stringBuilder.replace(startIndex, length, "")
-                appLogger.d("KBX $stringBuilder")
+                stringBuilder.replace(startIndex, startIndex + length, String.EMPTY)
 
                 MessageMention(
                     startIndex,

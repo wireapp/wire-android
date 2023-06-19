@@ -190,12 +190,20 @@ class MessageComposerState(
     }
 
     fun toActive(showAttachmentOption: Boolean) {
-        inputFocused = true
+        inputFocused = !showAttachmentOption
         inputState = MessageCompositionInputState.ACTIVE
         additionalOptionsSubMenuState = if (showAttachmentOption) {
             AdditionalOptionSubMenuState.AttachFile
         } else {
             AdditionalOptionSubMenuState.Hidden
+        }
+    }
+
+    fun onMessageTextChanged(messageTextFieldValue: TextFieldValue) {
+        messageComposition.update {
+            it.copy(
+                messageTextFieldValue = messageTextFieldValue
+            )
         }
     }
 

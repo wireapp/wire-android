@@ -245,7 +245,7 @@ private fun ActiveMessageComposer(
                                 inputFocused = inputFocused,
                                 messageCompositionInputState = inputType,
                                 messageCompositionInputSize = inputSize,
-                                onMessageTextChanged = { },
+                                onMessageTextChanged = ::onMessageTextChanged,
                                 onSendButtonClicked = { },
                                 onFocused = ::onInputFocused,
                                 onCollapseButtonClicked = ::toggleFullScreenInput,

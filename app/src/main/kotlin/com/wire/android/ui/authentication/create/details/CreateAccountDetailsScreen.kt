@@ -58,7 +58,6 @@ import com.wire.android.R
 import com.wire.android.ui.authentication.ServerTitle
 import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
 import com.wire.android.ui.authentication.create.common.CreateAccountNavArgs
-import com.wire.android.ui.authentication.create.common.CreateAccountViewModel
 import com.wire.android.ui.authentication.create.common.CreatePersonalAccountNavGraph
 import com.wire.android.ui.authentication.create.common.CreateTeamAccountNavGraph
 import com.wire.android.ui.common.button.WireButtonState
@@ -83,32 +82,33 @@ import kotlinx.coroutines.launch
 @Composable
 fun CreateAccountDetailsScreen(
     navigator: DestinationsNavigator,
-    viewModel: CreateAccountViewModel,
     createAccountDetailsViewModel: CreateAccountDetailsViewModel = hiltViewModel()
 ) {
     clearAutofillTree()
-    DetailsContent(
-        state = createAccountDetailsViewModel.detailsState,
-        onFirstNameChange = {
-            createAccountDetailsViewModel.onDetailsChange(
-                it,
-                CreateAccountDetailsViewModel.DetailsFieldType.FirstName
-            )
-        },
-        onLastNameChange = { createAccountDetailsViewModel.onDetailsChange(it, CreateAccountDetailsViewModel.DetailsFieldType.LastName) },
-        onPasswordChange = { createAccountDetailsViewModel.onDetailsChange(it, CreateAccountDetailsViewModel.DetailsFieldType.Password) },
-        onConfirmPasswordChange = {
-            createAccountDetailsViewModel.onDetailsChange(
-                it,
-                CreateAccountDetailsViewModel.DetailsFieldType.ConfirmPassword
-            )
-        },
-        onTeamNameChange = { createAccountDetailsViewModel.onDetailsChange(it, CreateAccountDetailsViewModel.DetailsFieldType.TeamName) },
-        onBackPressed = { navigator.navigateUp() },
-        onContinuePressed = { createAccountDetailsViewModel.onDetailsContinue() },
-        onErrorDismiss = createAccountDetailsViewModel::onDetailsErrorDismiss,
-        serverConfig = viewModel.serverConfig
-    )
+    with(createAccountDetailsViewModel) {
+        DetailsContent(
+            state = detailsState,
+            onFirstNameChange = {
+                onDetailsChange(
+                    it,
+                    CreateAccountDetailsViewModel.DetailsFieldType.FirstName
+                )
+            },
+            onLastNameChange = { onDetailsChange(it, CreateAccountDetailsViewModel.DetailsFieldType.LastName) },
+            onPasswordChange = { onDetailsChange(it, CreateAccountDetailsViewModel.DetailsFieldType.Password) },
+            onConfirmPasswordChange = {
+                onDetailsChange(
+                    it,
+                    CreateAccountDetailsViewModel.DetailsFieldType.ConfirmPassword
+                )
+            },
+            onTeamNameChange = { onDetailsChange(it, CreateAccountDetailsViewModel.DetailsFieldType.TeamName) },
+            onBackPressed = { navigator.navigateUp() },
+            onContinuePressed = { onDetailsContinue() },
+            onErrorDismiss = ::onDetailsErrorDismiss,
+            serverConfig = serverConfig
+        )
+    }
 }
 
 @OptIn(ExperimentalComposeUiApi::class)

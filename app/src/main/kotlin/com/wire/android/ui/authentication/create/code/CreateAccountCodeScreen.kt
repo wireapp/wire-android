@@ -50,7 +50,6 @@ import com.wire.android.R
 import com.wire.android.ui.authentication.ServerTitle
 import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
 import com.wire.android.ui.authentication.create.common.CreateAccountNavArgs
-import com.wire.android.ui.authentication.create.common.CreateAccountViewModel
 import com.wire.android.ui.authentication.create.common.CreatePersonalAccountNavGraph
 import com.wire.android.ui.authentication.create.common.CreateTeamAccountNavGraph
 import com.wire.android.ui.authentication.verificationcode.ResendCodeText
@@ -75,7 +74,6 @@ import com.wire.kalium.logic.configuration.server.ServerConfig
 @Composable
 fun CreateAccountCodeScreen(
     navigator: DestinationsNavigator,
-    viewModel: CreateAccountViewModel,
     createAccountCodeViewModel: CreateAccountCodeViewModel = hiltViewModel()
 ) {
     with(createAccountCodeViewModel) {
@@ -86,7 +84,7 @@ fun CreateAccountCodeScreen(
             onBackPressed = { navigator.navigateUp() },
             onErrorDismiss = ::onCodeErrorDismiss,
             onRemoveDeviceOpen = ::onTooManyDevicesError,
-            serverConfig = viewModel.serverConfig
+            serverConfig = serverConfig
         )
     }
 }

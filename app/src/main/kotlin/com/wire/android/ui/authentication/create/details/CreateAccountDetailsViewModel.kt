@@ -24,12 +24,14 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.authentication.create.common.CreateAccountNavArgs
 import com.wire.android.ui.authentication.create.common.UserRegistrationInfo
 import com.wire.android.ui.destinations.CreateAccountCodeScreenDestination
 import com.wire.android.ui.navArgs
+import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -40,12 +42,15 @@ import javax.inject.Inject
 class CreateAccountDetailsViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val validatePasswordUseCase: ValidatePasswordUseCase,
+    private val authServerConfigProvider: AuthServerConfigProvider,
     private val navigationManager: NavigationManager
 ) : ViewModel() {
 
     private var createAccountArg: CreateAccountNavArgs = savedStateHandle.navArgs()
 
     var detailsState: CreateAccountDetailsViewState by mutableStateOf(CreateAccountDetailsViewState(createAccountArg.flowType))
+
+    val serverConfig: ServerConfig.Links = authServerConfigProvider.authServer.value
 
     fun onDetailsChange(newText: TextFieldValue, fieldType: DetailsFieldType) {
         detailsState = when (fieldType) {

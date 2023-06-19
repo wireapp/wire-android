@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.ui.authentication.create.common
+package com.wire.android.ui.authentication.create.overview
 
 import androidx.lifecycle.ViewModel
 import com.wire.android.di.AuthServerConfigProvider
@@ -24,7 +24,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
 @HiltViewModel
-class CreateAccountViewModel @Inject constructor(
+class CreateAccountOverviewViewModel @Inject constructor(
     private val authServerConfigProvider: AuthServerConfigProvider,
 ) : ViewModel() {
     val serverConfig: ServerConfig.Links = authServerConfigProvider.authServer.value

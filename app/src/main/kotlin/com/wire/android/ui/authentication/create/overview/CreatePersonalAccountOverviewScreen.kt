@@ -48,7 +48,6 @@ import com.wire.android.R
 import com.wire.android.ui.authentication.ServerTitle
 import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
 import com.wire.android.ui.authentication.create.common.CreateAccountNavArgs
-import com.wire.android.ui.authentication.create.common.CreateAccountViewModel
 import com.wire.android.ui.authentication.create.common.CreatePersonalAccountNavGraph
 import com.wire.android.ui.authentication.create.common.CreateTeamAccountNavGraph
 import com.wire.android.ui.common.button.WirePrimaryButton
@@ -63,7 +62,7 @@ import com.wire.kalium.logic.configuration.server.ServerConfig
 @Destination
 @Composable
 fun CreatePersonalAccountOverviewScreen(
-    viewModel: CreateAccountViewModel,
+    viewModel: CreateAccountOverviewViewModel,
     navigator: DestinationsNavigator
 ) {
     with(CreateAccountFlowType.CreatePersonalAccount) {
@@ -87,7 +86,7 @@ fun CreatePersonalAccountOverviewScreen(
 @Destination
 @Composable
 fun CreateTeamAccountOverviewScreen(
-    viewModel: CreateAccountViewModel,
+    viewModel: CreateAccountOverviewViewModel,
     navigator: DestinationsNavigator
 ) {
     with(CreateAccountFlowType.CreateTeam) {

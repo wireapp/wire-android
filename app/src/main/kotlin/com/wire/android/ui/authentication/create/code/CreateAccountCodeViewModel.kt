@@ -24,6 +24,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.di.ClientScopeProvider
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
@@ -36,6 +37,7 @@ import com.wire.android.ui.destinations.CreateAccountSummaryScreenDestination
 import com.wire.android.ui.destinations.RemoveDeviceScreenDestination
 import com.wire.android.ui.navArgs
 import com.wire.android.util.WillNeverOccurError
+import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.autoVersioningAuth.AutoVersionAuthScopeUseCase
@@ -55,10 +57,13 @@ class CreateAccountCodeViewModel @Inject constructor(
     private val authScope: AutoVersionAuthScopeUseCase,
     private val addAuthenticatedUser: AddAuthenticatedUserUseCase,
     private val clientScopeProviderFactory: ClientScopeProvider.Factory,
+    private val authServerConfigProvider: AuthServerConfigProvider,
     private val navigationManager: NavigationManager
 ) : ViewModel() {
 
     private var createAccountArg: CreateAccountNavArgs = savedStateHandle.navArgs()
+
+    val serverConfig: ServerConfig.Links = authServerConfigProvider.authServer.value
 
     var codeState: CreateAccountCodeViewState by mutableStateOf(CreateAccountCodeViewState(createAccountArg.flowType))
 

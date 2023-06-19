@@ -32,6 +32,7 @@ import com.wire.android.ui.authentication.create.common.CreateAccountNavArgs
 import com.wire.android.ui.authentication.create.common.UserRegistrationInfo
 import com.wire.android.ui.destinations.CreateAccountDetailsScreenDestination
 import com.wire.android.ui.navArgs
+import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.feature.auth.ValidateEmailUseCase
 import com.wire.kalium.logic.feature.auth.autoVersioningAuth.AutoVersionAuthScopeUseCase
 import com.wire.kalium.logic.feature.register.RequestActivationCodeResult
@@ -58,6 +59,8 @@ class CreateAccountEmailViewModel @Inject constructor(
         private set
 
     val isPersonalAccountFlow = createAccountArg.flowType == CreateAccountFlowType.CreatePersonalAccount
+
+    val serverConfig: ServerConfig.Links = authServerConfigProvider.authServer.value
 
     fun tosUrl(): String = authServerConfigProvider.authServer.value.tos
 

@@ -109,9 +109,12 @@ sealed class MessageComposeInputState {
         get() = this is Active && this.type is MessageComposeInputType.SelfDeletingMessage
 
     val isRichTextFormattingOptionsDisplayed: Boolean
-        get() = (this is Active && this.type is MessageComposeInputType.NewMessage && this.type.richTextFormattingOptionsDisplayed)
-                || (this is Active && this.type is MessageComposeInputType.EditMessage && this.type.richTextFormattingOptionsDisplayed)
-                || (this is Active && this.type is MessageComposeInputType.SelfDeletingMessage && this.type.richTextFormattingOptionsDisplayed)
+        get() = (this is Active && this.type is MessageComposeInputType.NewMessage
+                && this.type.richTextFormattingOptionsDisplayed)
+                || (this is Active && this.type is MessageComposeInputType.EditMessage
+                && this.type.richTextFormattingOptionsDisplayed)
+                || (this is Active && this.type is MessageComposeInputType.SelfDeletingMessage
+                && this.type.richTextFormattingOptionsDisplayed)
 }
 
 enum class MessageComposeInputSize {

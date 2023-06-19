@@ -28,8 +28,8 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationManager
-import com.wire.android.ui.destinations.CreatePersonalAccountScreenDestination
-import com.wire.android.ui.destinations.CreateTeamScreenDestination
+import com.wire.android.ui.destinations.CreatePersonalAccountOverviewScreenDestination
+import com.wire.android.ui.destinations.CreateTeamAccountOverviewScreenDestination
 import com.wire.android.ui.destinations.LoginScreenDestination
 import com.wire.kalium.logic.feature.auth.AccountInfo
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
@@ -93,11 +93,11 @@ class WelcomeViewModel @Inject constructor(
     }
 
     fun goToCreateEnterpriseAccount() {
-        navigate(NavigationCommand(CreateTeamScreenDestination))
+        navigate(NavigationCommand(CreateTeamAccountOverviewScreenDestination))
     }
 
     fun goToCreatePrivateAccount() {
-        navigate(NavigationCommand(CreatePersonalAccountScreenDestination))
+        navigate(NavigationCommand(CreatePersonalAccountOverviewScreenDestination()))
     }
 
     private fun navigate(navigationCommand: NavigationCommand) {

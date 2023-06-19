@@ -25,8 +25,8 @@ import com.wire.android.config.mockUri
 import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationManager
-import com.wire.android.ui.destinations.CreatePersonalAccountScreenDestination
-import com.wire.android.ui.destinations.CreateTeamScreenDestination
+import com.wire.android.ui.destinations.CreatePersonalAccountOverviewScreenDestination
+import com.wire.android.ui.destinations.CreateTeamAccountOverviewScreenDestination
 import com.wire.android.ui.destinations.LoginScreenDestination
 import com.wire.android.util.newServerConfig
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
@@ -36,6 +36,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import junit.framework.TestCase
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
@@ -80,14 +81,32 @@ class WelcomeViewModelTest {
         runTest {
             welcomeViewModel.goToCreatePrivateAccount()
 
-            coVerify(exactly = 1) { navigationManager.navigate(NavigationCommand(CreatePersonalAccountScreenDestination)) }
+            val expectedRoute = CreatePersonalAccountOverviewScreenDestination.route
+            coVerify(exactly = 1) {
+                navigationManager.navigate(
+                    withArg {
+                        TestCase.assertTrue(
+                            it.destination.route == expectedRoute
+                        )
+                    }
+                )
+            }
         }
 
     @Test
     fun `given a navigation, when it's go to create enterprise account, then should emit NavigationCommand create team`() = runTest {
         welcomeViewModel.goToCreateEnterpriseAccount()
 
-        coVerify(exactly = 1) { navigationManager.navigate(NavigationCommand(CreateTeamScreenDestination)) }
+        val expectedRoute = CreateTeamAccountOverviewScreenDestination.route
+        coVerify(exactly = 1) {
+            navigationManager.navigate(
+                withArg {
+                    TestCase.assertTrue(
+                        it.destination.route == expectedRoute
+                    )
+                }
+            )
+        }
     }
 
     @Test

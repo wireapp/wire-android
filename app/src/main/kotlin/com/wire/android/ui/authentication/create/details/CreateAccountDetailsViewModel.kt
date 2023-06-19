@@ -14,27 +14,100 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
- *
- *
  */
-
 package com.wire.android.ui.authentication.create.details
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
-import com.wire.kalium.logic.configuration.server.ServerConfig
+import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.wire.android.navigation.NavigationCommand
+import com.wire.android.navigation.NavigationManager
+import com.wire.android.ui.authentication.create.common.CreateAccountNavArgs
+import com.wire.android.ui.authentication.create.common.UserRegistrationInfo
+import com.wire.android.ui.destinations.CreateAccountCodeScreenDestination
+import com.wire.android.ui.navArgs
+import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-interface CreateAccountDetailsViewModel {
-    val detailsState: CreateAccountDetailsViewState
-    fun goBackToPreviousStep()
-    fun onDetailsContinue()
-    fun onDetailsChange(newText: TextFieldValue, fieldType: DetailsFieldType)
-    fun onDetailsErrorDismiss()
+// TODO: Cover this viewModel  with unit test
+@HiltViewModel
+class CreateAccountDetailsViewModel @Inject constructor(
+    savedStateHandle: SavedStateHandle,
+    private val validatePasswordUseCase: ValidatePasswordUseCase,
+    private val navigationManager: NavigationManager
+) : ViewModel() {
+
+    private var createAccountArg: CreateAccountNavArgs = savedStateHandle.navArgs()
+
+    var detailsState: CreateAccountDetailsViewState by mutableStateOf(CreateAccountDetailsViewState(createAccountArg.flowType))
+
+    fun onDetailsChange(newText: TextFieldValue, fieldType: DetailsFieldType) {
+        detailsState = when (fieldType) {
+            DetailsFieldType.FirstName -> detailsState.copy(firstName = newText)
+            DetailsFieldType.LastName -> detailsState.copy(lastName = newText)
+            DetailsFieldType.Password -> detailsState.copy(password = newText)
+            DetailsFieldType.ConfirmPassword -> detailsState.copy(confirmPassword = newText)
+            DetailsFieldType.TeamName -> detailsState.copy(teamName = newText)
+        }.let {
+            it.copy(
+                error = CreateAccountDetailsViewState.DetailsError.None,
+                continueEnabled = it.fieldsNotEmpty() && !it.loading
+            )
+        }
+    }
+
+    fun onDetailsContinue() {
+        detailsState = detailsState.copy(loading = true, continueEnabled = false)
+        viewModelScope.launch {
+            val detailsError = when {
+                !validatePasswordUseCase(detailsState.password.text) ->
+                    CreateAccountDetailsViewState.DetailsError.TextFieldError.InvalidPasswordError
+
+                detailsState.password.text != detailsState.confirmPassword.text ->
+                    CreateAccountDetailsViewState.DetailsError.TextFieldError.PasswordsNotMatchingError
+
+                else -> CreateAccountDetailsViewState.DetailsError.None
+            }
+            detailsState = detailsState.copy(
+                loading = false,
+                continueEnabled = true,
+                error = detailsError
+            )
+            if (detailsState.error is CreateAccountDetailsViewState.DetailsError.None) onDetailsSuccess()
+        }
+    }
+
+    private fun onDetailsSuccess() {
+        viewModelScope.launch {
+            navigationManager.navigate(
+                command = NavigationCommand(
+                    destination = CreateAccountCodeScreenDestination(
+                        createAccountArg.copy(
+                            userRegistrationInfo = createAccountArg.userRegistrationInfo.copy(
+                                firstName = detailsState.firstName.text.trim(),
+                                lastName = detailsState.lastName.text.trim(),
+                                password = detailsState.password.text,
+                                teamName = detailsState.teamName.text.trim()
+                            )
+                        )
+                    )
+                )
+            )
+        }
+    }
+
+    fun onDetailsErrorDismiss() {
+        detailsState = detailsState.copy(error = CreateAccountDetailsViewState.DetailsError.None)
+    }
 
     enum class DetailsFieldType {
         FirstName, LastName, Password, ConfirmPassword, TeamName
     }
 
-    companion object {
-        const val EMAIL = "email"
-    }
 }

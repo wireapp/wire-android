@@ -953,10 +953,11 @@
     <string name="guest_room_link_disabled">Hivatkozások létrehozása mostantól tiltott minden csoportadminisztrátornak</string>
     <!-- New Device dialog -->
     <string name="new_device_dialog_current_user_title">Fiókja legutóbbi használata:</string>
-    <string name="new_device_dialog_current_user_message">%1$s\nInnen: %2$s\n\nHa ez nem Ön volt, törölje az eszközt, és változtassa meg a jelszavát.</string>
+    <string name="new_device_dialog_message_defice_info">%1$s\nFrom: %2$s \n</string>
+    <string name="new_device_dialog_current_user_message">%1$s\nIf you didn\'t do this, remove the device and reset your password.</string>
     <string name="new_device_dialog_current_user_btn">Eszközök kezelése</string>
     <string name="new_device_dialog_other_user_title">Az Ön “%1$s (@%2$s)” fiókja legutóbbi használata:</string>
-    <string name="new_device_dialog_other_user_message">%1$s\nInnen: %2$s\n\nHa ez nem Ön volt, törölje az eszközt (menjen az “Eszközök kezelése” rovatba a fiók Beállítások menüjében), és változtassa meg a jelszavát.</string>
+    <string name="new_device_dialog_other_user_message">%1$s\nIf you didn\'t do this, remove the device (navigate to “Manage Devices” in the Settings section of this account), and reset your password.</string>
     <string name="new_device_dialog_other_user_btn">Fiók váltása</string>
     <string name="label_system_message_joined_the_conversation_by_self">%1$s csatlakozott a beszélgetéshez</string>
     <string name="label_system_message_joined_the_conversation_by_other">%1$s csatlakozott a beszélgetéshez</string>

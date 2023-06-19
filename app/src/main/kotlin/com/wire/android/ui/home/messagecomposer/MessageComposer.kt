@@ -47,7 +47,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.input.getSelectedText
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
@@ -65,6 +67,7 @@ import com.wire.android.ui.home.messagecomposer.state.MessageComposeInputType
 import com.wire.android.ui.home.messagecomposer.state.MessageComposerState
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.ui.theme.wireColorScheme
+import com.wire.android.util.EMPTY
 import com.wire.kalium.logic.feature.conversation.InteractionAvailability
 import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
 
@@ -277,7 +280,33 @@ private fun MessageComposer(
                                 },
                                 onEditSaveButtonClicked = onEditSaveButtonClicked,
                                 onEditCancelButtonClicked = messageComposerState::closeEditToInactive,
-                                onSelfDeletionOptionButtonClicked = onShowSelfDeletionOption
+                                onSelfDeletionOptionButtonClicked = onShowSelfDeletionOption,
+                                onRichTextEditingButtonClicked = {
+                                    messageComposerState.toActive()
+                                    messageComposerState.showRichTextEditingOptions()
+                                },
+                                onCloseRichTextEditingButtonClicked = {
+                                    messageComposerState.hideRichTextEditingOptions()
+                                },
+                                toRichTextEditingHeader = {
+                                    addOrRemoveMessageMarkdown(
+                                        messageComposerState = messageComposerState,
+                                        markdown = RICH_TEXT_MARKDOWN_HEADER,
+                                        isHeader = true
+                                    )
+                                },
+                                toRichTextEditingBold = {
+                                    addOrRemoveMessageMarkdown(
+                                        messageComposerState = messageComposerState,
+                                        markdown = RICH_TEXT_MARKDOWN_BOLD
+                                    )
+                                },
+                                toRichTextEditingItalic = {
+                                    addOrRemoveMessageMarkdown(
+                                        messageComposerState = messageComposerState,
+                                        markdown = RICH_TEXT_MARKDOWN_ITALIC
+                                    )
+                                }
                             )
                         }
                     )
@@ -358,6 +387,61 @@ private fun MembersMentionList(
             }
         }
     }
+}
+
+private fun addOrRemoveMessageMarkdown(
+    messageComposerState: MessageComposerState,
+    markdown: String,
+    isHeader: Boolean = false
+) {
+    val originalValue = messageComposerState
+        .messageComposeInputState
+        .messageText
+
+    val range = originalValue.selection
+    val selectedText = originalValue.getSelectedText()
+    val stringBuilder = StringBuilder(originalValue.annotatedString)
+    val markdownLength = markdown.length
+    val markdownLengthComplete =
+        if (isHeader) markdownLength else (markdownLength * RICH_TEXT_MARKDOWN_MULTIPLIER)
+
+    val rangeEnd = if (selectedText.contains(markdown)) {
+        // Remove Markdown
+        stringBuilder.replace(
+            range.start,
+            range.end,
+            selectedText.toString().replace(markdown, String.EMPTY)
+        )
+
+        range.end - markdownLengthComplete
+    } else {
+        // Add Markdown
+        stringBuilder.insert(range.start, markdown)
+        if (isHeader.not()) stringBuilder.insert(range.end + markdownLength, markdown)
+
+        range.end + markdownLengthComplete
+    }
+
+    val (selectionStart, selectionEnd) = if (range.start == range.end) {
+        if (isHeader) Pair(rangeEnd, rangeEnd)
+        else {
+            val middleMarkdownRange = rangeEnd - markdownLength
+            Pair(middleMarkdownRange, middleMarkdownRange)
+        }
+    } else {
+        Pair(range.start, rangeEnd)
+    }
+
+    // Set new text
+    messageComposerState.setMessageTextValue(
+        text = TextFieldValue(
+            text = stringBuilder.toString(),
+            selection = TextRange(
+                start = selectionStart,
+                end = selectionEnd
+            )
+        )
+    )
 }
 
 sealed class KeyboardHeight(open val height: Dp) {

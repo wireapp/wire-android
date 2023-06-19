@@ -7,7 +7,6 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.model.ImageAsset
-import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveConversationRoleForUserUseCase
 import com.wire.android.ui.navArgs
 import com.wire.android.util.dispatchers.DispatcherProvider
@@ -41,7 +40,6 @@ import javax.inject.Inject
 @Suppress("LongParameterList")
 @HiltViewModel
 class ServiceDetailsViewModel @Inject constructor(
-    private val navigationManager: NavigationManager,
     private val dispatchers: DispatcherProvider,
     private val observeSelfUser: GetSelfUserUseCase,
     private val getServiceById: GetServiceByIdUseCase,
@@ -79,8 +77,6 @@ class ServiceDetailsViewModel @Inject constructor(
             }
         }
     }
-
-    fun navigateBack() = viewModelScope.launch { navigationManager.navigateBack() }
 
     fun addService() {
         viewModelScope.launch {

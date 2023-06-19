@@ -72,11 +72,9 @@ open class SearchAllPeopleViewModel(
     private val getAllServices: ObserveAllServicesUseCase,
     private val contactMapper: ContactMapper,
     private val dispatcher: DispatcherProvider,
-    sendConnectionRequest: SendConnectionRequestUseCase,
-    navigationManager: NavigationManager,
+    sendConnectionRequest: SendConnectionRequestUseCase
 ) : PublicWithKnownPeopleSearchViewModel(
     sendConnectionRequest = sendConnectionRequest,
-    navigationManager = navigationManager
 ) {
 
     var state: SearchPeopleState by mutableStateOf(SearchPeopleState(isGroupCreationContext = true))
@@ -202,10 +200,7 @@ open class SearchAllPeopleViewModel(
 
 abstract class PublicWithKnownPeopleSearchViewModel(
     private val sendConnectionRequest: SendConnectionRequestUseCase,
-    navigationManager: NavigationManager
-) : KnownPeopleSearchViewModel(
-    navigationManager = navigationManager
-) {
+) : KnownPeopleSearchViewModel() {
 
     protected val publicPeopleSearchQueryFlow = mutableSearchQueryFlow
         .flatMapLatest { searchTerm ->
@@ -235,11 +230,7 @@ abstract class PublicWithKnownPeopleSearchViewModel(
 }
 
 @OptIn(ExperimentalCoroutinesApi::class)
-abstract class KnownPeopleSearchViewModel(
-    navigationManager: NavigationManager
-) : SearchServicesViewModel(
-    navigationManager = navigationManager
-) {
+abstract class KnownPeopleSearchViewModel : SearchServicesViewModel() {
 
     protected val knownPeopleSearchQueryFlow = mutableSearchQueryFlow
         .flatMapLatest { searchTerm ->
@@ -252,9 +243,7 @@ abstract class KnownPeopleSearchViewModel(
     abstract suspend fun searchKnownPeople(searchTerm: String): Flow<ContactSearchResult.InternalContact>
 }
 
-abstract class SearchPeopleViewModel(
-    val navigationManager: NavigationManager
-) : ViewModel() {
+abstract class SearchPeopleViewModel: ViewModel() {
     companion object {
         const val DEFAULT_SEARCH_QUERY_DEBOUNCE = 500L
     }
@@ -336,22 +325,6 @@ abstract class SearchPeopleViewModel(
     fun removeContactsFromGroup(contacts: Set<Contact>) {
         viewModelScope.launch {
             selectedContactsFlow.emit(selectedContactsFlow.value - contacts)
-        }
-    }
-
-    fun openUserProfile(contact: Contact) {
-        viewModelScope.launch {
-            navigationManager.navigate(
-                command = NavigationCommand(
-                    destination = OtherUserProfileScreenDestination(QualifiedID(contact.id, contact.domain))
-                )
-            )
-        }
-    }
-
-    fun close() {
-        viewModelScope.launch {
-            navigationManager.navigateBack()
         }
     }
 

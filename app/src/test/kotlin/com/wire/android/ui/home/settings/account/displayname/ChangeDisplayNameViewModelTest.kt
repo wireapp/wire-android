@@ -31,10 +31,12 @@ import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.feature.user.DisplayNameUpdateResult
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.UpdateDisplayNameUseCase
+import io.mockk.Called
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.impl.annotations.MockK
+import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
@@ -49,30 +51,32 @@ import org.junit.jupiter.api.extension.ExtendWith
 class ChangeDisplayNameViewModelTest {
 
     @Test
-    fun `when saving the new display name, and ok then should navigate back indicating EXTRA_SETTINGS_DISPLAY_NAME_CHANGED success`() =
+    fun `when saving the new display name, and ok then should call success`() =
         runTest {
             val (arrangement, viewModel) = Arrangement()
                 .withUserSaveNameResult(DisplayNameUpdateResult.Success)
                 .arrange()
 
-            viewModel.saveDisplayName()
+            viewModel.saveDisplayName(arrangement.onFailure, arrangement.onSuccess)
 
-            coVerify {
-                arrangement.navigationManager.navigateBack(eq(mapOf(EXTRA_SETTINGS_DISPLAY_NAME_CHANGED to true)))
+            verify {
+                arrangement.onSuccess()
+                arrangement.onFailure wasNot Called
             }
         }
 
     @Test
-    fun `when saving the new display name, and fails then should navigate back indicating EXTRA_SETTINGS_DISPLAY_NAME_CHANGED failure`() =
+    fun `when saving the new display name, and fails then should call failure`() =
         runTest {
             val (arrangement, viewModel) = Arrangement()
                 .withUserSaveNameResult(DisplayNameUpdateResult.Failure(CoreFailure.Unknown(Error())))
                 .arrange()
 
-            viewModel.saveDisplayName()
+            viewModel.saveDisplayName(arrangement.onFailure, arrangement.onSuccess)
 
-            coVerify {
-                arrangement.navigationManager.navigateBack(eq(mapOf(EXTRA_SETTINGS_DISPLAY_NAME_CHANGED to false)))
+            verify {
+                arrangement.onFailure()
+                arrangement.onSuccess wasNot Called
             }
         }
 
@@ -152,6 +156,12 @@ class ChangeDisplayNameViewModelTest {
 
         @MockK
         private lateinit var savedStateHandle: SavedStateHandle
+
+        @MockK(relaxed = true)
+        lateinit var onSuccess: () -> Unit
+
+        @MockK(relaxed = true)
+        lateinit var onFailure: () -> Unit
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)

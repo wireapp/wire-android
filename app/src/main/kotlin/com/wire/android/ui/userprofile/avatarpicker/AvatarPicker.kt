@@ -36,6 +36,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -47,6 +48,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
+import com.wire.android.navigation.Navigator
 import com.wire.android.ui.common.ArrowRightIcon
 import com.wire.android.ui.common.bottomsheet.MenuBottomSheetItem
 import com.wire.android.ui.common.bottomsheet.MenuItemIcon
@@ -72,7 +74,10 @@ import okio.Path
 @RootNavGraph
 @Destination
 @Composable
-fun AvatarPickerScreen(viewModel: AvatarPickerViewModel = hiltViewModel()) {
+fun AvatarPickerScreen(
+    navigator: Navigator,
+    viewModel: AvatarPickerViewModel = hiltViewModel()
+) {
     val context = LocalContext.current
 
     val targetAvatarPath = viewModel.defaultAvatarPath
@@ -92,8 +97,8 @@ fun AvatarPickerScreen(viewModel: AvatarPickerViewModel = hiltViewModel()) {
     AvatarPickerContent(
         viewModel = viewModel,
         state = state,
-        onCloseClick = viewModel::navigateBack,
-        onSaveClick = viewModel::uploadNewPickedAvatarAndBack
+        onCloseClick = navigator::navigateBack,
+        onSaveClick = remember(navigator, viewModel) { { viewModel.uploadNewPickedAvatar(navigator::navigateBack) } }
     )
 }
 

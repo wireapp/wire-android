@@ -30,6 +30,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -38,6 +39,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
+import com.wire.android.navigation.Navigator
 import com.wire.android.ui.common.button.WireButtonState.Default
 import com.wire.android.ui.common.button.WireButtonState.Disabled
 import com.wire.android.ui.common.button.WirePrimaryButton
@@ -55,12 +57,17 @@ import com.wire.android.util.ui.stringWithStyledArgs
     navArgsDelegate = VerifyEmailNavArgs::class
 )
 @Composable
-fun VerifyEmailScreen(viewModel: VerifyEmailViewModel = hiltViewModel()) {
+fun VerifyEmailScreen(
+    navigator: Navigator,
+    viewModel: VerifyEmailViewModel = hiltViewModel()
+) {
     VerifyEmailContent(
         state = viewModel.state,
-        onBackPressed = viewModel::onBackPressed,
-        onResendVerificationEmailClicked = viewModel::onResendVerificationEmailClicked,
-        newEmail = viewModel.newEmail.orEmpty()
+        onBackPressed = navigator::navigateBack,
+        onResendVerificationEmailClicked = remember(viewModel, navigator) {
+            { viewModel.onResendVerificationEmailClicked(navigator::navigateBack) }
+        },
+        newEmail = viewModel.newEmail
     )
 }
 

@@ -20,7 +20,6 @@
 
 package com.wire.android.ui.userprofile.other
 
-import com.wire.android.ui.authentication.devices.model.Device
 import com.wire.android.ui.common.dialogs.BlockUserDialogState
 import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.userprofile.group.RemoveConversationMemberState
@@ -28,16 +27,13 @@ import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
-import kotlinx.coroutines.Job
 
 @Suppress("TooManyFunctions")
 interface OtherUserProfileEventsHandler {
-    fun navigateBack(): Job
     fun onBlockUser(blockUserState: BlockUserDialogState)
     fun onRemoveConversationMember(state: RemoveConversationMemberState)
     fun onUnblockUser(userId: UserId)
     fun observeClientList()
-    fun onDeviceClick(device: Device)
 
     companion object {
         @Suppress("TooManyFunctions")
@@ -46,10 +42,6 @@ interface OtherUserProfileEventsHandler {
             override fun onRemoveConversationMember(state: RemoveConversationMemberState) {}
             override fun onUnblockUser(userId: UserId) {}
             override fun observeClientList() {}
-            override fun onDeviceClick(device: Device) {}
-            override fun navigateBack(): Job {
-                TODO()
-            }
         }
     }
 }

@@ -55,6 +55,8 @@ import com.google.accompanist.pager.rememberPagerState
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
+import com.wire.android.navigation.NavigationCommand
+import com.wire.android.navigation.Navigator
 import com.wire.android.ui.common.CollapsingTopBarScaffold
 import com.wire.android.ui.common.TabItem
 import com.wire.android.ui.common.WireTabRow
@@ -63,11 +65,15 @@ import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.topappbar.search.SearchTopBar
 import com.wire.android.ui.common.topappbar.search.rememberSearchbarState
+import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
+import com.wire.android.ui.destinations.ServiceDetailsScreenDestination
 import com.wire.android.ui.home.conversations.details.AddMembersToConversationViewModel
 import com.wire.android.ui.home.newconversation.common.SelectParticipantsButtonsAlwaysEnabled
 import com.wire.android.ui.home.newconversation.common.SelectParticipantsButtonsRow
 import com.wire.android.ui.home.newconversation.contacts.ContactsScreen
 import com.wire.android.ui.home.newconversation.model.Contact
+import com.wire.kalium.logic.data.id.QualifiedID
+import com.wire.kalium.logic.data.user.BotService
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.ImmutableMap
 import kotlinx.coroutines.launch
@@ -78,6 +84,8 @@ import kotlinx.coroutines.launch
 )
 @Composable
 fun AddMembersSearchRouter(
+    navigator: Navigator,
+    navArgs: AddMembersSearchNavArgs,
     addMembersToConversationViewModel: AddMembersToConversationViewModel = hiltViewModel()
 ) {
     SearchPeopleContent(
@@ -85,14 +93,26 @@ fun AddMembersSearchRouter(
         searchTitle = stringResource(id = R.string.label_add_participants),
         actionButtonTitle = stringResource(id = R.string.label_continue),
         onSearchQueryChanged = addMembersToConversationViewModel::searchQueryChanged,
-        onOpenUserProfile = addMembersToConversationViewModel::openUserProfile,
+        onOpenUserProfile = remember(addMembersToConversationViewModel, navigator) {
+            { contact: Contact ->
+                OtherUserProfileScreenDestination(QualifiedID(contact.id, contact.domain))
+                    .let { navigator.navigate(NavigationCommand(it)) }
+            }
+        },
         onAddContactToGroup = addMembersToConversationViewModel::addContactToGroup,
         onRemoveContactFromGroup = addMembersToConversationViewModel::removeContactFromGroup,
-        // Members search does not have the option to add a contact
-        onAddContact = { },
-        onGroupSelectionSubmitAction = addMembersToConversationViewModel::addMembersToConversation,
-        onClose = addMembersToConversationViewModel::close,
-        onServiceClicked = addMembersToConversationViewModel::onServiceClicked,
+// Members search does not have the option to add a contact
+        onAddContact = {},
+        onGroupSelectionSubmitAction = remember(navigator, addMembersToConversationViewModel) {
+            { addMembersToConversationViewModel.addMembersToConversation(navigator::navigateBack) }
+        },
+        onClose = navigator::navigateBack,
+        onServiceClicked = remember(navigator, navArgs) {
+            { contact: Contact ->
+                ServiceDetailsScreenDestination(BotService(contact.id, contact.domain), navArgs.conversationId)
+                    .let { navigator.navigate(NavigationCommand(it)) }
+            }
+        },
         screenType = SearchPeopleScreenType.CONVERSATION_DETAILS
     )
 }
@@ -101,18 +121,20 @@ fun AddMembersSearchRouter(
 fun SearchPeopleRouter(
     onGroupSelectionSubmitAction: () -> Unit,
     searchAllPeopleViewModel: SearchAllPeopleViewModel,
+    onClose: () -> Unit,
+    onOpenUserProfile: (Contact) -> Unit
 ) {
     SearchPeopleContent(
         searchPeopleState = searchAllPeopleViewModel.state,
         searchTitle = stringResource(id = R.string.label_new_conversation),
         actionButtonTitle = stringResource(id = R.string.label_new_group),
         onSearchQueryChanged = searchAllPeopleViewModel::searchQueryChanged,
-        onOpenUserProfile = searchAllPeopleViewModel::openUserProfile,
+        onOpenUserProfile = onOpenUserProfile,
         onAddContactToGroup = searchAllPeopleViewModel::addContactToGroup,
         onRemoveContactFromGroup = searchAllPeopleViewModel::removeContactFromGroup,
         onAddContact = searchAllPeopleViewModel::addContact,
         onGroupSelectionSubmitAction = onGroupSelectionSubmitAction,
-        onClose = searchAllPeopleViewModel::close,
+        onClose = onClose,
         onServiceClicked = { },
         screenType = SearchPeopleScreenType.NEW_CONVERSATION
     )

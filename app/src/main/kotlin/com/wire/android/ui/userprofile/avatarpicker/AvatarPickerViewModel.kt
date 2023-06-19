@@ -33,7 +33,6 @@ import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.datastore.UserDataStore
 import com.wire.android.model.SnackBarMessage
-import com.wire.android.navigation.NavigationManager
 import com.wire.android.util.AvatarImageManager
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.toByteArray
@@ -57,7 +56,6 @@ import javax.inject.Inject
 @HiltViewModel
 @Suppress("LongParameterList")
 class AvatarPickerViewModel @Inject constructor(
-    private val navigationManager: NavigationManager,
     private val dataStore: UserDataStore,
     private val getAvatarAsset: GetAvatarAssetUseCase,
     private val uploadUserAvatar: UploadUserAvatarUseCase,
@@ -105,7 +103,7 @@ class AvatarPickerViewModel @Inject constructor(
         pictureState = PictureState.Picked(updatedUri)
     }
 
-    fun uploadNewPickedAvatarAndBack() {
+    fun uploadNewPickedAvatar(onSuccess: () -> Unit) {
         val imgUri = pictureState.avatarUri
 
         viewModelScope.launch {
@@ -117,7 +115,7 @@ class AvatarPickerViewModel @Inject constructor(
             when (val result = uploadUserAvatar(avatarPath, imageDataSize)) {
                 is UploadAvatarResult.Success -> {
                     dataStore.updateUserAvatarAssetId(result.userAssetId.toString())
-                    navigateBack()
+                    onSuccess()
                 }
                 is UploadAvatarResult.Failure -> {
                     when (result.coreFailure) {
@@ -133,8 +131,6 @@ class AvatarPickerViewModel @Inject constructor(
     private suspend fun showInfoMessage(type: SnackBarMessage) {
         _infoMessage.emit(type.uiText)
     }
-
-    fun navigateBack() = viewModelScope.launch(dispatchers.main()) { navigationManager.navigateBack() }
 
     @Stable
     sealed class PictureState(open val avatarUri: Uri) {

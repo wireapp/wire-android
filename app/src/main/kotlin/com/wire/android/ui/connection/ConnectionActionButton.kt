@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.painterResource
@@ -43,6 +44,7 @@ import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.snackbar.collectAndShowSnackbar
+import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserId
 
@@ -52,6 +54,7 @@ fun ConnectionActionButton(
     userName: String,
     connectionStatus: ConnectionState,
     onConnectionRequestIgnored: (String) -> Unit = {},
+    onOpenConversation: (ConversationId) -> Unit = {}
 ) {
     val viewModel: ConnectionActionButtonViewModel = if (LocalInspectionMode.current) {
         ConnectionActionButtonPreviewModel(ActionableState(connectionStatus))
@@ -79,7 +82,9 @@ fun ConnectionActionButton(
         ConnectionState.ACCEPTED -> WirePrimaryButton(
             text = stringResource(R.string.label_open_conversation),
             loading = viewModel.actionableState().isPerformingAction,
-            onClick = viewModel::onOpenConversation,
+            onClick = remember(viewModel, onOpenConversation) {
+                { viewModel.onOpenConversation(onOpenConversation) }
+            },
         )
 
         ConnectionState.IGNORED -> WirePrimaryButton(

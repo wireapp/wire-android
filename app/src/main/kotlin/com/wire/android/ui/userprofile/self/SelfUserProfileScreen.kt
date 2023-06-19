@@ -100,9 +100,7 @@ fun SelfUserProfileScreen(
     SelfUserProfileContent(
         state = viewModelSelf.userProfileState,
         onCloseClick = viewModelSelf::navigateBack,
-        logout = remember(viewModelSelf, navigator) {
-            { viewModelSelf.logout(it, NavigationSwitchAccountActions(navigator::navigate)) }
-        },
+        logout = { viewModelSelf.logout(it, NavigationSwitchAccountActions(navigator::navigate)) },
         onChangeUserProfilePicture = viewModelSelf::onChangeProfilePictureClicked,
         onEditClick = viewModelSelf::editProfile,
         onStatusClicked = viewModelSelf::changeStatusClick,
@@ -112,9 +110,7 @@ fun SelfUserProfileScreen(
         onNotShowRationaleAgainChange = viewModelSelf::dialogCheckBoxStateChanged,
         onMessageShown = viewModelSelf::clearErrorMessage,
         onMaxAccountReachedDialogDismissed = viewModelSelf::onMaxAccountReachedDialogDismissed,
-        onOtherAccountClick = remember(viewModelSelf, navigator) {
-            { viewModelSelf.switchAccount(it, NavigationSwitchAccountActions(navigator::navigate)) }
-        },
+        onOtherAccountClick = { viewModelSelf.switchAccount(it, NavigationSwitchAccountActions(navigator::navigate)) },
         isUserInCall = viewModelSelf::isUserInCall
     )
 }

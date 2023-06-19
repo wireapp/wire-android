@@ -26,7 +26,6 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ramcosta.composedestinations.spec.Direction
 import com.wire.android.R
 import com.wire.android.media.CallRinger
 import com.wire.android.navigation.BackStackMode
@@ -144,7 +143,7 @@ class IncomingCallViewModel @Inject constructor(
         }
     }
 
-    fun acceptCall(direction: Direction = OngoingCallScreenDestination(incomingCallNavArgs.conversationId)) {
+    fun acceptCall() {
         viewModelScope.launch {
             if (incomingCallState.hasEstablishedCall) {
                 showJoinCallAnywayDialog()
@@ -158,7 +157,7 @@ class IncomingCallViewModel @Inject constructor(
 
                 navigationManager.navigate(
                     command = NavigationCommand(
-                        destination = direction,
+                        destination = OngoingCallScreenDestination(incomingCallNavArgs.conversationId),
                         backStackMode = BackStackMode.REMOVE_CURRENT_AND_REPLACE
                     )
                 )

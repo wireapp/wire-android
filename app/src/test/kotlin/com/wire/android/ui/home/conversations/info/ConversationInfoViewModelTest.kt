@@ -21,9 +21,9 @@
 package com.wire.android.ui.home.conversations.info
 
 import com.wire.android.config.CoroutineTestExtension
+import com.wire.android.config.NavigationTestExtension
 import com.wire.android.framework.TestUser
 import com.wire.android.navigation.NavigationCommand
-import com.wire.android.config.NavigationTestExtension
 import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
 import com.wire.android.ui.destinations.SelfUserProfileScreenDestination
 import com.wire.android.ui.home.conversations.mockConversationDetailsGroup
@@ -36,6 +36,7 @@ import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.UserId
 import io.mockk.coEvery
 import io.mockk.coVerify
+import junit.framework.TestCase.assertTrue
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -95,12 +96,16 @@ class ConversationInfoViewModelTest {
         coEvery {
             arrangement.qualifiedIdMapper.fromStringToQualifiedID("other@domain")
         } returns QualifiedID("other", "domain")
+        val otherScreen = OtherUserProfileScreenDestination(userId)
 
         // When
         viewModel.navigateToProfile(userId.toString())
+
         // Then
         coVerify(exactly = 1) {
-            arrangement.navigationManager.navigate(NavigationCommand(OtherUserProfileScreenDestination(userId)))
+            arrangement.navigationManager.navigate(
+                withArg { assertTrue(it.destination.route == otherScreen.route) }
+            )
         }
     }
 
@@ -113,9 +118,12 @@ class ConversationInfoViewModelTest {
             .withConversationDetailUpdate(groupDetails)
             .withSelfUser()
             .arrange()
+        val otherScreen = OtherUserProfileScreenDestination(userId, arrangement.conversationId)
+
         coEvery {
             arrangement.qualifiedIdMapper.fromStringToQualifiedID("other@domain")
         } returns QualifiedID("other", "domain")
+
         launch { viewModel.observeConversationDetails() }.run {
             advanceUntilIdle()
             // When
@@ -123,7 +131,7 @@ class ConversationInfoViewModelTest {
             // Then
             coVerify(exactly = 1) {
                 arrangement.navigationManager.navigate(
-                    NavigationCommand(OtherUserProfileScreenDestination(userId, arrangement.conversationId))
+                    withArg { assertTrue(it.destination.route == otherScreen.route) }
                 )
             }
             cancel()

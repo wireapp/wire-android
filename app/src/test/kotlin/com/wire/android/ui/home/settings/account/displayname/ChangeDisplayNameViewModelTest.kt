@@ -49,33 +49,39 @@ import org.junit.jupiter.api.extension.ExtendWith
 class ChangeDisplayNameViewModelTest {
 
     @Test
-    fun `when saving the new display name, and ok then should call success`() =
+    fun `given useCase runs successfully, when saveDisplayName is invoked, then onSuccess callback is invoked`() =
         runTest {
-            val (arrangement, viewModel) = Arrangement()
+            var isSuccess = false
+            var isFailed = false
+            val (_, viewModel) = Arrangement()
                 .withUserSaveNameResult(DisplayNameUpdateResult.Success)
                 .arrange()
 
-            viewModel.saveDisplayName(arrangement.onFailure, arrangement.onSuccess)
+            viewModel.saveDisplayName(
+                onFailure = { isFailed = true },
+                onSuccess = { isSuccess = true }
+            )
 
-            verify {
-                arrangement.onSuccess()
-                arrangement.onFailure wasNot Called
-            }
+            assertEquals(false, isFailed)
+            assertEquals(true, isSuccess)
         }
 
     @Test
-    fun `when saving the new display name, and fails then should call failure`() =
+    fun `given useCase fails, when saveDisplayName is invoked, then onFailure callback is invoked`() =
         runTest {
-            val (arrangement, viewModel) = Arrangement()
+            var isSuccess = false
+            var isFailed = false
+            val (_, viewModel) = Arrangement()
                 .withUserSaveNameResult(DisplayNameUpdateResult.Failure(CoreFailure.Unknown(Error())))
                 .arrange()
 
-            viewModel.saveDisplayName(arrangement.onFailure, arrangement.onSuccess)
+            viewModel.saveDisplayName(
+                onFailure = { isFailed = true },
+                onSuccess = { isSuccess = true }
+            )
 
-            verify {
-                arrangement.onFailure()
-                arrangement.onSuccess wasNot Called
-            }
+            assertEquals(true, isFailed)
+            assertEquals(false, isSuccess)
         }
 
     @Test
@@ -152,12 +158,6 @@ class ChangeDisplayNameViewModelTest {
         @MockK
         lateinit var updateDisplayNameUseCase: UpdateDisplayNameUseCase
 
-        @MockK(relaxed = true)
-        lateinit var onSuccess: () -> Unit
-
-        @MockK(relaxed = true)
-        lateinit var onFailure: () -> Unit
-
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
             coEvery { getSelfUserUseCase() } returns flowOf(TestUser.SELF_USER)
@@ -167,12 +167,11 @@ class ChangeDisplayNameViewModelTest {
             coEvery { updateDisplayNameUseCase(any()) } returns result
         }
 
-        fun arrange() =
-            this to ChangeDisplayNameViewModel(
-                getSelfUserUseCase,
-                updateDisplayNameUseCase,
-                navigationManager,
-                TestDispatcherProvider()
-            )
+        fun arrange() = this to ChangeDisplayNameViewModel(
+            getSelfUserUseCase,
+            updateDisplayNameUseCase,
+            navigationManager,
+            TestDispatcherProvider()
+        )
     }
 }

@@ -24,12 +24,12 @@ import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension
 import com.wire.android.config.TestDispatcherProvider
-import com.wire.android.framework.TestConversation
 import com.wire.android.framework.TestUser
 import com.wire.android.mapper.testUIParticipant
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationSheetContent
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationTypeDetail
+import com.wire.android.ui.home.conversations.details.participants.GroupConversationAllParticipantsNavArgs
 import com.wire.android.ui.home.conversations.details.participants.model.ConversationParticipantsData
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
 import com.wire.android.ui.navArgs
@@ -187,7 +187,6 @@ class GroupConversationDetailsViewModelTest {
         val details = testGroup
 
         val (_, viewModel) = GroupConversationDetailsViewModelArrangement()
-            .withSavedStateConversationId(details.conversation.id)
             .withUpdateConversationAccessUseCaseReturns(
                 UpdateConversationAccessRoleUseCase.Result.Success
             ).withConversationDetailUpdate(details)
@@ -214,7 +213,6 @@ class GroupConversationDetailsViewModelTest {
         val details = testGroup
 
         val (arrangement, viewModel) = GroupConversationDetailsViewModelArrangement()
-            .withSavedStateConversationId(details.conversation.id)
             .withUpdateConversationAccessUseCaseReturns(
                 UpdateConversationAccessRoleUseCase.Result.Success
             ).withConversationDetailUpdate(details)
@@ -253,7 +251,6 @@ class GroupConversationDetailsViewModelTest {
         val details = testGroup
 
         val (arrangement, viewModel) = GroupConversationDetailsViewModelArrangement()
-            .withSavedStateConversationId(details.conversation.id)
             .withUpdateConversationAccessUseCaseReturns(
                 UpdateConversationAccessRoleUseCase.Result.Success
             ).withConversationDetailUpdate(details)
@@ -569,12 +566,20 @@ internal class GroupConversationDetailsViewModelArrangement {
         )
     }
 
+    val conversationId = ConversationId("some-dummy-value", "some.dummy.domain")
+
     init {
+
         // Tests setup
         MockKAnnotations.init(this, relaxUnitFun = true)
-        every { savedStateHandle.navArgs<GroupConversationDetailsNavArgs>() } returns GroupConversationDetailsNavArgs(
-            conversationId = TestConversation.ID
+
+        every { savedStateHandle.navArgs<GroupConversationAllParticipantsNavArgs>() } returns GroupConversationAllParticipantsNavArgs(
+            conversationId = conversationId
         )
+        every { savedStateHandle.navArgs<GroupConversationDetailsNavArgs>() } returns GroupConversationDetailsNavArgs(
+            conversationId = conversationId
+        )
+
         // Default empty values
         coEvery { observeConversationDetails(any()) } returns flowOf()
         coEvery { observerSelfUser() } returns flowOf(TestUser.SELF_USER)
@@ -583,13 +588,6 @@ internal class GroupConversationDetailsViewModelArrangement {
         coEvery { isMLSEnabledUseCase() } returns true
         coEvery { updateConversationMutedStatus(any(), any(), any()) } returns ConversationUpdateStatusResult.Success
         coEvery { observeSelfDeletionTimerSettingsForConversation(any(), any()) } returns flowOf(SelfDeletionTimer.Disabled)
-    }
-
-    fun withSavedStateConversationId(conversationId: ConversationId) = apply {
-//        every { savedStateHandle.get<String>(EXTRA_CONVERSATION_ID) } returns conversationId.toString()
-        every { savedStateHandle.navArgs<GroupConversationDetailsNavArgs>() } returns GroupConversationDetailsNavArgs(
-            conversationId = conversationId
-        )
     }
 
     suspend fun withConversationDetailUpdate(conversationDetails: ConversationDetails) = apply {

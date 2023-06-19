@@ -40,6 +40,7 @@ import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.android.util.ui.toUIText
 import com.wire.kalium.logic.data.conversation.ConversationDetails
+import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.user.ConnectionState
@@ -185,15 +186,22 @@ class ConversationInfoViewModel @Inject constructor(
                 val userId = qualifiedIdMapper.fromStringToQualifiedID(mentionUserId)
                 when (conversationInfoViewState.conversationDetailsData) {
                     is ConversationDetailsData.Group -> navigateToOtherProfile(userId, conversationId)
-                    else -> navigateToOtherProfile(userId)
+                    else -> {
+                        navigateToOtherProfile(userId)
+                    }
                 }
             }
         }
     }
 
-    private suspend fun navigateToSelfProfile() =
+    private suspend fun navigateToSelfProfile() {
         navigationManager.navigate(NavigationCommand(SelfUserProfileScreenDestination))
+    }
 
-    private suspend fun navigateToOtherProfile(id: UserId, conversationId: QualifiedID? = null) =
-        navigationManager.navigate(NavigationCommand(OtherUserProfileScreenDestination(id, conversationId)))
+    private suspend fun navigateToOtherProfile(
+        userId: UserId,
+        conversationId: ConversationId? = null
+    ) {
+        navigationManager.navigate(NavigationCommand(OtherUserProfileScreenDestination(userId, conversationId)))
+    }
 }

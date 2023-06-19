@@ -31,7 +31,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -79,9 +78,7 @@ fun RegisterDeviceScreen(navigator: Navigator) {
         onContinuePressed = viewModel::onContinue,
         onErrorDismiss = viewModel::onErrorDismiss,
         onBackButtonClicked = clearSessionViewModel::onBackButtonClicked,
-        onCancelLoginClicked = remember(clearSessionViewModel, navigator) {
-            { clearSessionViewModel.onCancelLoginClicked(NavigationSwitchAccountActions(navigator::navigate)) }
-        },
+        onCancelLoginClicked = { clearSessionViewModel.onCancelLoginClicked(NavigationSwitchAccountActions(navigator::navigate)) },
         onProceedLoginClicked = clearSessionViewModel::onProceedLoginClicked
     )
 }

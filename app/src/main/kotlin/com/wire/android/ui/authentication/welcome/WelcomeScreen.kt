@@ -70,8 +70,6 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.wire.android.R
 import com.wire.android.config.LocalCustomUiConfigurationProvider
-import com.wire.android.navigation.Navigate
-import com.wire.android.navigation.NavigateBack
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.ui.authentication.ServerTitle
@@ -113,8 +111,8 @@ fun WelcomeScreen(
 private fun WelcomeContent(
     isThereActiveSession: Boolean,
     state: ServerConfig.Links,
-    navigateBack: NavigateBack,
-    navigate: Navigate
+    navigateBack: () -> Unit,
+    navigate: (NavigationCommand) -> Unit
 ) {
     val enterpriseDisabledWithProxyDialogState = rememberVisibilityState<FeatureDisabledWithProxyDialogState>()
     val createPersonalAccountDisabledWithProxyDialogState = rememberVisibilityState<FeatureDisabledWithProxyDialogState>()

@@ -331,14 +331,6 @@ private fun MessageComposerInput(
     onFocused: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val focusManager = LocalFocusManager.current
-    val focusRequester = remember { FocusRequester() }
-
-    LaunchedEffect(inputFocused) {
-        if (inputFocused) focusRequester.requestFocus()
-        else focusManager.clearFocus()
-    }
-
     with(messageCompositionInputState) {
         Column(
             modifier = modifier
@@ -373,6 +365,7 @@ private fun MessageComposerInput(
                 }.weight(1f)
 
                 MessageComposerTextInput(
+                    inputFocused = inputFocused,
                     colors = messageCompositionInputState.inputTextColor(),
                     messageText = messageCompositionInputState.messageCompositionState.value.messageTextFieldValue,
                     onMessageTextChanged = onMessageTextChanged,
@@ -380,7 +373,6 @@ private fun MessageComposerInput(
                     onFocusChanged = { isFocused ->
                         if (isFocused) onFocused()
                     },
-                    focusRequester = focusRequester,
                     modifier = stretchToMaxParentConstraintHeightOrWithInBoundary
                 )
                 Row(Modifier.wrapContentSize()) {
@@ -415,10 +407,29 @@ private fun MessageComposerInput(
     }
 }
 
+@Composable
+fun SelfDeletingInput() {
+
+}
+
+@Composable
+fun InActiveInput() {
+
+}
+
+@Composable
+fun EditingInput() {
+
+}
+
+@Composable
+fun ComposingInput() {
+
+}
 
 @Composable
 fun MessageComposerTextInput(
-    focusRequester: FocusRequester,
+    inputFocused: Boolean,
     colors: WireTextFieldColors,
     singleLine: Boolean,
     messageText: TextFieldValue,
@@ -428,6 +439,15 @@ fun MessageComposerTextInput(
     onLineBottomYCoordinateChanged: (Float) -> Unit = { },
     modifier: Modifier = Modifier
 ) {
+    val focusManager = LocalFocusManager.current
+    val focusRequester = remember { FocusRequester() }
+
+    LaunchedEffect(inputFocused) {
+        if (inputFocused) focusRequester.requestFocus()
+        else focusManager.clearFocus()
+    }
+
+
     WireTextField(
         value = messageText,
         onValueChange = onMessageTextChanged,

@@ -48,6 +48,7 @@ import com.wire.kalium.logic.feature.conversation.InteractionAvailability
 import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
 import com.wire.kalium.logic.feature.selfDeletingMessages.SelfDeletionTimer
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.minutes
 
 @Composable
 fun rememberMessageComposerState(
@@ -63,7 +64,7 @@ fun rememberMessageComposerState(
         MessageComposerState(
             context = context,
             isFileSharingEnabled = isFileSharingEnabled,
-            selfDeletionTimer = selfDeletionTimer,
+            selfDeletionTimer = SelfDeletionTimer.Enabled(5.minutes),
             interactionAvailability = interactionAvailability,
             securityClassificationType = securityClassificationType,
             onShowEphemeralOptionsMenu = onShowEphemeralOptionsMenu

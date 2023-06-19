@@ -112,7 +112,6 @@ fun MessageComposer(
             {
                 (messageComposerState.messageComposeInputState as? MessageComposeInputState.Active)?.let {
                     (it.type as? MessageComposeInputType.EditMessage)?.messageId
-                        ?: (it.type as? MessageComposeInputType.RichTextFormattingMessage)?.messageId
                 }?.let { originalMessageId ->
                     onSendEditTextMessage(
                         EditMessageBundle(
@@ -283,11 +282,12 @@ private fun MessageComposer(
                                 onEditCancelButtonClicked = messageComposerState::closeEditToInactive,
                                 onSelfDeletionOptionButtonClicked = onShowSelfDeletionOption,
                                 onRichTextEditingButtonClicked = {
-                                    messageComposerState.toRichTextEditingOptions(
-                                        originalText = messageComposerState.messageComposeInputState.messageText.text
-                                    )
+                                    messageComposerState.toActive()
+                                    messageComposerState.showRichTextEditingOptions()
                                 },
-                                onCloseRichTextEditingButtonClicked = messageComposerState::toCloseRichTextEditingOptions,
+                                onCloseRichTextEditingButtonClicked = {
+                                    messageComposerState.hideRichTextEditingOptions()
+                                },
                                 toRichTextEditingHeader = {
                                     addOrRemoveMessageMarkdown(
                                         messageComposerState = messageComposerState,

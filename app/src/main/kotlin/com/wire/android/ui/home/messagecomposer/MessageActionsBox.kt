@@ -67,7 +67,6 @@ fun MessageComposeActionsBox(
     onRichTextEditingHeaderButtonClicked: () -> Unit,
     onRichTextEditingBoldButtonClicked: () -> Unit,
     onRichTextEditingItalicButtonClicked: () -> Unit,
-    showRichTextEditingOptions: Boolean,
     modifier: Modifier = Modifier
 ) {
     Column(modifier.wrapContentSize()) {
@@ -92,7 +91,7 @@ fun MessageComposeActionsBox(
                         onPingClicked,
                         onSelfDeletionOptionButtonClicked,
                         showSelfDeletingOption,
-                        showRichTextEditingOptions,
+                        state.isRichTextFormattingOptionsDisplayed,
                         onRichTextEditingButtonClicked,
                         onCloseRichTextEditingButtonClicked,
                         onRichTextEditingHeaderButtonClicked,
@@ -117,7 +116,7 @@ private fun MessageComposeActions(
     onPingClicked: () -> Unit,
     onSelfDeletionOptionButtonClicked: () -> Unit,
     showSelfDeletingOption: Boolean,
-    richTextEditingSelected: Boolean,
+    richTextEditingDisplayed: Boolean,
     onRichTextEditingButtonClicked: () -> Unit,
     onCloseRichTextEditingButtonClicked: () -> Unit,
     onRichTextEditingHeaderButtonClicked: () -> Unit,
@@ -128,12 +127,12 @@ private fun MessageComposeActions(
 
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = if (richTextEditingSelected) Arrangement.SpaceBetween else Arrangement.SpaceEvenly,
+        horizontalArrangement = if (richTextEditingDisplayed) Arrangement.SpaceBetween else Arrangement.SpaceEvenly,
         modifier = Modifier
             .fillMaxWidth()
             .height(dimensions().spacing56x)
     ) {
-        if (richTextEditingSelected) {
+        if (richTextEditingDisplayed) {
             RichTextOptions(
                 onRichTextHeaderButtonClicked = onRichTextEditingHeaderButtonClicked,
                 onRichTextBoldButtonClicked = onRichTextEditingBoldButtonClicked,

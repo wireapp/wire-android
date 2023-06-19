@@ -128,13 +128,7 @@ fun MessageComposerInputRow(
                 onSelectedLineIndexChanged = onSelectedLineIndexChanged,
                 onLineBottomYCoordinateChanged = onLineBottomYCoordinateChanged
             )
-            AnimatedVisibility(
-                messageComposeInputState.isEditMessage
-                        || (messageComposeInputState.isRichTextFormatting
-                        && ((messageComposeInputState as? MessageComposeInputState.Active)
-                    ?.type as? MessageComposeInputType.RichTextFormattingMessage)
-                    ?.previousInputType is MessageComposeInputType.EditMessage)
-            ) {
+            AnimatedVisibility(messageComposeInputState.isEditMessage) {
                 MessageEditActions(
                     onEditSaveButtonClicked = onEditSaveButtonClicked,
                     onEditCancelButtonClicked = onEditCancelButtonClicked,
@@ -143,11 +137,7 @@ fun MessageComposerInputRow(
             }
         }
         if (messageComposeInputState is MessageComposeInputState.Active) {
-            val type = if (messageComposeInputState.type
-                        is MessageComposeInputType.RichTextFormattingMessage
-            ) messageComposeInputState.type.previousInputType else messageComposeInputState.type
-
-            when (type) {
+            when (val type = messageComposeInputState.type) {
                 is MessageComposeInputType.NewMessage ->
                     MessageSendActions(
                         onSendButtonClicked = onSendButtonClicked,

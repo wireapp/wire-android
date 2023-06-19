@@ -152,8 +152,7 @@ private fun EnabledMessageComposerInput(
                 onCloseRichTextEditingButtonClicked = actions.onCloseRichTextEditingButtonClicked,
                 onRichTextEditingHeaderButtonClicked = actions.toRichTextEditingHeader,
                 onRichTextEditingBoldButtonClicked = actions.toRichTextEditingBold,
-                onRichTextEditingItalicButtonClicked = actions.toRichTextEditingItalic,
-                showRichTextEditingOptions = messageComposeInputState.isRichTextFormatting
+                onRichTextEditingItalicButtonClicked = actions.toRichTextEditingItalic
             )
         }
         if (membersToMention.isNotEmpty() && messageComposeInputState.isExpanded) {

@@ -629,7 +629,7 @@ class WireActivityViewModelTest {
     }
 
     @Test
-    fun `when dismissNewClientsDialog is called, then cleared NewClients for user`()  {
+    fun `when dismissNewClientsDialog is called, then cleared NewClients for user`() {
         val (arrangement, viewModel) = Arrangement()
             .arrange()
 

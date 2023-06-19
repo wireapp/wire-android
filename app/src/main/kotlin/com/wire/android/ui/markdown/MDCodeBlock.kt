@@ -22,12 +22,14 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.unit.dp
+import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.theme.wireColorScheme
+import org.commonmark.node.FencedCodeBlock
 import org.commonmark.node.IndentedCodeBlock
 
 @Composable
@@ -37,9 +39,29 @@ fun MDIndentedCodeBlock(indentedCodeBlock: IndentedCodeBlock) {
         fontFamily = FontFamily.Monospace,
         modifier = Modifier
             .fillMaxWidth()
-            .padding(4.dp)
-            .background(Color.Gray.copy(alpha = 0.2f))
-            .border(1.dp, Color.LightGray, shape = RoundedCornerShape(4.dp))
-            .padding(4.dp)
+            .padding(dimensions().spacing4x)
+            .background(MaterialTheme.wireColorScheme.outlineVariant)
+            .border(
+                dimensions().spacing1x, MaterialTheme.wireColorScheme.outline,
+                shape = RoundedCornerShape(dimensions().spacing4x)
+            )
+            .padding(dimensions().spacing4x)
+    )
+}
+
+@Composable
+fun MDFencedCodeBlock(fencedCodeBlock: FencedCodeBlock) {
+    Text(
+        text = fencedCodeBlock.literal,
+        fontFamily = FontFamily.Monospace,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(dimensions().spacing4x)
+            .background(MaterialTheme.wireColorScheme.outlineVariant)
+            .border(
+                dimensions().spacing1x, MaterialTheme.wireColorScheme.outline,
+                shape = RoundedCornerShape(dimensions().spacing4x)
+            )
+            .padding(dimensions().spacing4x)
     )
 }

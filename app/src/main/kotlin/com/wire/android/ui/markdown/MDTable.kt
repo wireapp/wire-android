@@ -18,18 +18,17 @@
 package com.wire.android.ui.markdown
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Text
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.unit.dp
+import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.theme.wireColorScheme
 import org.commonmark.ext.gfm.tables.TableBlock
 import org.commonmark.ext.gfm.tables.TableBody
 import org.commonmark.ext.gfm.tables.TableCell
@@ -37,16 +36,16 @@ import org.commonmark.ext.gfm.tables.TableHead
 import org.commonmark.node.Node
 
 @Composable
-fun MDTable(tableBlock: TableBlock, nodeData: NodeData) {
-    val tableData = mutableListOf<List<AnnotatedString>>()
+fun MDTable(tableBlock: TableBlock, nodeData: NodeData, onMentionsUpdate: (List<DisplayMention>) -> Unit) {
+    val tableData = mutableListOf<List<RowData>>()
     var child = tableBlock.firstChild
-    // Parse the table block
+
     while (child != null) {
         when (child) {
             is TableHead -> {
                 var rowNode = child.firstChild
                 while (rowNode != null) {
-                    val row = parseRow(rowNode, nodeData)
+                    val row = parseRow(rowNode, nodeData, true, onMentionsUpdate)
                     tableData.add(row)
                     rowNode = rowNode.next
                 }
@@ -55,7 +54,7 @@ fun MDTable(tableBlock: TableBlock, nodeData: NodeData) {
             is TableBody -> {
                 var rowNode = child.firstChild
                 while (rowNode != null) {
-                    val row = parseRow(rowNode, nodeData)
+                    val row = parseRow(rowNode, nodeData, false, onMentionsUpdate)
                     tableData.add(row)
                     rowNode = rowNode.next
                 }
@@ -72,15 +71,16 @@ fun MDTable(tableBlock: TableBlock, nodeData: NodeData) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(if (rowIndex == 0) Color.LightGray else Color.White)
+                    .background(if (row[rowIndex].isHeader) MaterialTheme.wireColorScheme.outline else MaterialTheme.wireColorScheme.background)
             ) {
                 for (columnIndex in 0 until columnCount) {
-                    Text(
-                        text = row[columnIndex].toString(),
+                    MarkdownText(
+                        annotatedString = row[columnIndex].annotatedString,
                         modifier = Modifier
                             .weight(1f)
-                            .padding(8.dp)
-                            .border(0.5.dp, Color.Gray)
+                            .padding(dimensions().spacing8x),
+                        onLongClick = nodeData.onLongClick,
+                        onOpenProfile = nodeData.onOpenProfile
                     )
                 }
             }
@@ -88,17 +88,24 @@ fun MDTable(tableBlock: TableBlock, nodeData: NodeData) {
     }
 }
 
-private fun parseRow(tableRow: Node, nodeData: NodeData): List<AnnotatedString> {
-    val row = mutableListOf<AnnotatedString>()
+private fun parseRow(
+    tableRow: Node,
+    nodeData: NodeData,
+    isHeader: Boolean,
+    onMentionsUpdate: (List<DisplayMention>) -> Unit
+): List<RowData> {
+    val rowsData = mutableListOf<RowData>()
     var child = tableRow.firstChild
     while (child != null) {
         if (child is TableCell) {
             val cellText = buildAnnotatedString {
-                inlineChildren(child, this, nodeData)
+                onMentionsUpdate(inlineChildren(child, this, nodeData))
             }
-            row.add(cellText)
+            rowsData.add(RowData(cellText, isHeader))
         }
         child = child.next
     }
-    return row
+    return rowsData
 }
+
+data class RowData(val annotatedString: AnnotatedString, val isHeader: Boolean)

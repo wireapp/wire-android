@@ -45,6 +45,7 @@ import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMess
 import com.wire.android.ui.home.conversations.model.messagetypes.image.ImportedImageMessage
 import com.wire.android.ui.markdown.DisplayMention
 import com.wire.android.ui.markdown.MDDocument
+import com.wire.android.ui.markdown.MarkdownConsts.MENTION_MARK
 import com.wire.android.ui.markdown.NodeData
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
@@ -71,40 +72,7 @@ internal fun MessageBody(
     onLongClick: (() -> Unit)? = null,
     onOpenProfile: (String) -> Unit,
 ) {
-
-    val extensions: List<Extension> = listOf(
-        StrikethroughExtension.builder().requireTwoTildes(true).build(),
-        TablesExtension.create()
-    )
-
-    val uiText = messageBody.message
-
-    var text: String? = null
-    val displayMentions = if (uiText is UIText.DynamicString) {
-
-        val stringBuilder: StringBuilder = StringBuilder(uiText.value)
-        uiText.mentions.sortedBy { it.start }.reversed().map {
-
-            val mentionName = uiText.value.substring(
-                it.start,
-                it.start + it.length
-            )
-            stringBuilder.insert(it.start, "[mention_${it.userId}]")
-            DisplayMention(
-                it.userId,
-                it.length,
-                it.isSelfMention,
-                mentionName
-            )
-
-        }.also {
-            text = stringBuilder.toString()
-        }
-    } else {
-        text = messageBody.message.asString()
-        listOf()
-    }
-
+    val (displayMentions, text) = convertToDisplayMentions(messageBody.message, messageBody.message.asString())
 
     val nodeData = NodeData(
         modifier = Modifier.defaultMinSize(minHeight = dimensions().spacing20x),
@@ -117,17 +85,12 @@ internal fun MessageBody(
         onOpenProfile = onOpenProfile
     )
 
-    val document = Parser.builder().extensions(extensions).build().parse(text) as Document
-    MDDocument(document, nodeData) // TODO KBX improve
-//    LinkifyText(
-//        text = messageBody.message,
-//        mask = Linkify.WEB_URLS or Linkify.EMAIL_ADDRESSES,
-//        color = if (isAvailable) MaterialTheme.colorScheme.onBackground else MaterialTheme.wireColorScheme.secondaryText,
-//        onLongClick = onLongClick,
-//        modifier = Modifier.defaultMinSize(minHeight = dimensions().spacing20x),
-//        style = MaterialTheme.wireTypography.body01,
-//        onOpenProfile = onOpenProfile
-//    )
+    val extensions: List<Extension> = listOf(
+        StrikethroughExtension.builder().requireTwoTildes(true).build(),
+        TablesExtension.create()
+    )
+
+    MDDocument(Parser.builder().extensions(extensions).build().parse(text) as Document, nodeData)
 }
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -200,4 +163,26 @@ internal fun MessageGenericAsset(
         shouldFillMaxWidth,
         isImportedMediaAsset
     )
+}
+
+// converting all mentions to display mentions in order to easier find them after converting to markdown document
+private fun convertToDisplayMentions(uiText: UIText, textMessage: String): Pair<List<DisplayMention>, String> {
+    return if (uiText is UIText.DynamicString) {
+        val stringBuilder: StringBuilder = StringBuilder(uiText.value)
+        val mentions = uiText.mentions.sortedBy { it.start }.reversed()
+        val mentionList = mentions.map {
+            val mentionName = uiText.value.substring(it.start, it.start + it.length)
+            stringBuilder.insert(it.start + it.length, MENTION_MARK)
+            stringBuilder.insert(it.start, MENTION_MARK)
+            DisplayMention(
+                it.userId,
+                it.length,
+                it.isSelfMention,
+                mentionName
+            )
+        }.reversed()
+        Pair(mentionList, stringBuilder.toString())
+    } else {
+        Pair(listOf(), textMessage)
+    }
 }

@@ -18,33 +18,21 @@
 package com.wire.android.ui.markdown
 
 import android.text.util.Linkify
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.appendInlineContent
-import androidx.compose.material3.LocalTextStyle
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.TextUnit
-import com.wire.android.ui.common.ClickableText
 import com.wire.android.ui.common.SpannableStr
-import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.theme.wireTypography
-import com.wire.android.util.EMPTY
+import com.wire.android.ui.markdown.MarkdownConsts.MENTION_MARK
+import com.wire.android.ui.markdown.MarkdownConsts.TAG_IMAGE_URL
+import com.wire.android.ui.markdown.MarkdownConsts.TAG_URL
 import com.wire.kalium.logic.data.message.mention.MessageMention
 import org.commonmark.ext.gfm.strikethrough.Strikethrough
 import org.commonmark.ext.gfm.tables.TableBlock
@@ -65,7 +53,6 @@ import org.commonmark.node.Paragraph
 import org.commonmark.node.StrongEmphasis
 import org.commonmark.node.Text
 import org.commonmark.node.ThematicBreak
-import java.lang.StringBuilder
 import org.commonmark.node.Text as nodeText
 
 @Composable
@@ -76,44 +63,30 @@ fun MDDocument(document: Document, nodeData: NodeData) {
 @Composable
 fun MDBlockChildren(parent: Node, nodeData: NodeData) {
     var child = parent.firstChild
+
+    var updateMentions = nodeData.mentions
+
     while (child != null) {
+        val updatedNodeData = nodeData.copy(mentions = updateMentions)
         when (child) {
-            is Document -> MDDocument(child, nodeData)
-            is BlockQuote -> MDBlockQuote(child, nodeData)
+            is Document -> MDDocument(child, updatedNodeData)
+            is BlockQuote -> MDBlockQuote(child, updatedNodeData)
             is ThematicBreak -> MDThematicBreak()
-            is Heading -> MDHeading(child, nodeData)
-            is Paragraph -> MDParagraph(child, nodeData)
+            is Heading -> MDHeading(child, updatedNodeData)
+            is Paragraph -> MDParagraph(child, updatedNodeData) {
+                updateMentions = it
+            }
+
             is FencedCodeBlock -> MDFencedCodeBlock(child)
             is IndentedCodeBlock -> MDIndentedCodeBlock(child)
             is Image -> MDImage(child)
-            is BulletList -> MDBulletList(child, nodeData)
-            is OrderedList -> MDOrderedList(child, nodeData)
-            is TableBlock -> MDTable(child, nodeData)
+            is BulletList -> MDBulletList(child, updatedNodeData)
+            is OrderedList -> MDOrderedList(child, updatedNodeData)
+            is TableBlock -> MDTable(child, updatedNodeData) {
+                updateMentions = it
+            }
         }
         child = child.next
-    }
-}
-
-@Composable
-fun MDParagraph(paragraph: Paragraph, nodeData: NodeData) {
-    if (paragraph.firstChild is Image && paragraph.firstChild == paragraph.lastChild) {
-        // Paragraph with single image
-        MDImage(paragraph.firstChild as Image)
-    } else {
-        val padding = if (paragraph.parent is Document) dimensions().spacing8x else dimensions().spacing0x
-        Box(modifier = Modifier.padding(bottom = padding)) {
-            val annotatedString = buildAnnotatedString {
-                pushStyle(MaterialTheme.wireTypography.body01.toSpanStyle())
-                inlineChildren(paragraph, this, nodeData)
-                pop()
-            }
-            MarkdownText(
-                annotatedString,
-                style = nodeData.style,
-                onLongClick = nodeData.onLongClick,
-                onOpenProfile = nodeData.onOpenProfile
-            )
-        }
     }
 }
 
@@ -121,23 +94,25 @@ fun inlineChildren(
     parent: Node,
     annotatedString: AnnotatedString.Builder,
     nodeData: NodeData
-) {
+): List<DisplayMention> {
     var child = parent.firstChild
+
+    var updatedMentions = nodeData.mentions
+
     while (child != null) {
         when (child) {
-            is Paragraph -> inlineChildren(
-                child,
-                annotatedString,
-                nodeData
-            )
+            is Paragraph ->
+                updatedMentions = inlineChildren(
+                    child,
+                    annotatedString,
+                    nodeData.copy(mentions = updatedMentions),
+                )
 
             is nodeText -> {
-                val textWithTypograps = convertTypoGraphs(child)
-
-                appendLinks(
+                updatedMentions = appendLinksAndMentions(
                     annotatedString,
-                    textWithTypograps,
-                    nodeData
+                    convertTypoGraphs(child),
+                    nodeData.copy(mentions = updatedMentions)
                 )
             }
 
@@ -152,7 +127,7 @@ fun inlineChildren(
                         fontStyle = FontStyle.Italic
                     )
                 )
-                inlineChildren(
+                updatedMentions = inlineChildren(
                     child,
                     annotatedString,
                     nodeData
@@ -167,7 +142,7 @@ fun inlineChildren(
                         fontWeight = FontWeight.Bold
                     )
                 )
-                inlineChildren(
+                updatedMentions = inlineChildren(
                     child,
                     annotatedString,
                     nodeData
@@ -194,7 +169,7 @@ fun inlineChildren(
                     )
                 )
                 annotatedString.pushStringAnnotation(TAG_URL, child.destination)
-                inlineChildren(
+                updatedMentions = inlineChildren(
                     child,
                     annotatedString,
                     nodeData
@@ -205,107 +180,36 @@ fun inlineChildren(
 
             is Strikethrough -> {
                 annotatedString.pushStyle(SpanStyle(textDecoration = TextDecoration.LineThrough))
-                inlineChildren(child, annotatedString, nodeData)
+                updatedMentions = inlineChildren(child, annotatedString, nodeData)
                 annotatedString.pop()
             }
         }
         child = child.next
     }
+
+    return updatedMentions
 }
 
-private fun convertTypoGraphs(child: Text) = child.literal
-    .replace("(c)", "©")
-    .replace("(C)", "©")
-    .replace("(r)", "®")
-    .replace("(R)", "®")
-    .replace("(tm)", "™")
-    .replace("(TM)", "™")
-    .replace("+-", "±")
-
-@Composable
-fun MarkdownText(
-    annotatedString: AnnotatedString,
-    modifier: Modifier = Modifier,
-    color: Color = Color.Unspecified,
-    textAlign: TextAlign? = null,
-    lineHeight: TextUnit = TextUnit.Unspecified,
-    overflow: TextOverflow = TextOverflow.Clip,
-    softWrap: Boolean = true,
-    maxLines: Int = Int.MAX_VALUE,
-    onTextLayout: (TextLayoutResult) -> Unit = {},
-    style: TextStyle = LocalTextStyle.current,
-    clickable: Boolean = true,
-    onClickLink: ((linkText: String) -> Unit)? = null,
-    onLongClick: (() -> Unit)?,
-    onOpenProfile: (String) -> Unit
-) {
-    val uriHandler = LocalUriHandler.current
-
-    if (clickable) {
-        ClickableText(
-            text = annotatedString,
-            modifier = modifier,
-            color = color,
-            textAlign = textAlign,
-            overflow = overflow,
-            softWrap = softWrap,
-            maxLines = maxLines,
-            onTextLayout = onTextLayout,
-            style = style,
-            onClick = { offset ->
-                annotatedString.getStringAnnotations(
-                    tag = TAG_URL,
-                    start = offset,
-                    end = offset,
-                ).firstOrNull()?.let { result ->
-                    uriHandler.openUri(result.item)
-                    onClickLink?.invoke(annotatedString.substring(result.start, result.end))
-                }
-
-                annotatedString.getStringAnnotations(
-                    tag = TAG_MENTION,
-                    start = offset,
-                    end = offset
-                ).firstOrNull()?.let { result ->
-                    onOpenProfile(result.item)
-                }
-            },
-            onLongClick = onLongClick
-        )
-    } else {
-        Text(
-            text = annotatedString,
-            modifier = modifier,
-            color = color,
-            textAlign = textAlign,
-            lineHeight = lineHeight,
-            overflow = overflow,
-            softWrap = softWrap,
-            maxLines = maxLines,
-            onTextLayout = onTextLayout,
-            style = style
-        )
-    }
-
-}
-
-fun appendLinks(
+fun appendLinksAndMentions(
     annotatedString: AnnotatedString.Builder,
     string: String,
     nodeData: NodeData
-) {
-    val linkInfos = SpannableStr.getLinkInfos(string, Linkify.WEB_URLS or Linkify.EMAIL_ADDRESSES)
+): List<DisplayMention> {
+
     val stringBuilder = StringBuilder(string)
+    val updatedMentions = nodeData.mentions.toMutableList()
 
-    // TODO remove [mention] if string contains it and save startIndex for each mentions
-    val mentionList: List<MessageMention> = if (stringBuilder.contains("[mention_") && nodeData.mentions.isNotEmpty()) {
+    // get mentions from text, remove mention marks and update position of mentions
+    val mentionList: List<MessageMention> = if (stringBuilder.contains(MENTION_MARK) && updatedMentions.isNotEmpty()) {
         nodeData.mentions.mapNotNull { displayMention ->
-            val mentionWithUserId = "[mention_${displayMention.userId}]"
-            val length = mentionWithUserId.length
-            val startIndex = stringBuilder.indexOf(mentionWithUserId)
-            if (startIndex != -1) {
-                stringBuilder.replace(startIndex, startIndex + length, String.EMPTY)
+            val markedMentionLength = (MENTION_MARK + displayMention.mentionUserName + MENTION_MARK).length
+            val startIndex = stringBuilder.indexOf(MENTION_MARK + displayMention.mentionUserName + MENTION_MARK)
+            val endIndex = startIndex + markedMentionLength
 
+            if (startIndex != -1) {
+                stringBuilder.replace(startIndex, endIndex, displayMention.mentionUserName)
+                // remove mention from list to not use the same mention twice
+                updatedMentions.removeAt(0)
                 MessageMention(
                     startIndex,
                     displayMention.length,
@@ -320,8 +224,9 @@ fun appendLinks(
         listOf()
     }
 
+    val linkInfos = SpannableStr.getLinkInfos(stringBuilder.toString(), Linkify.WEB_URLS or Linkify.EMAIL_ADDRESSES)
 
-    with(annotatedString) {
+    val append = buildAnnotatedString {
         append(stringBuilder)
         with(nodeData.colorScheme) {
             linkInfos.forEach {
@@ -343,7 +248,7 @@ fun appendLinks(
                     end = it.end
                 )
             }
-            // TODO use previously saved mention position
+
             if (mentionList.isNotEmpty()) {
                 mentionList.forEach {
                     if (it.length <= 0 || it.start >= length || it.start + it.length > length) {
@@ -359,7 +264,7 @@ fun appendLinks(
                         end = it.start + it.length
                     )
                     addStringAnnotation(
-                        tag = TAG_MENTION,
+                        tag = MarkdownConsts.TAG_MENTION,
                         annotation = it.userId.toString(),
                         start = it.start,
                         end = it.start + it.length
@@ -368,9 +273,15 @@ fun appendLinks(
             }
         }
     }
+    annotatedString.append(append)
+    return updatedMentions
 }
 
-private const val TAG_URL = "linkTag"
-private const val TAG_IMAGE_URL = "imageUrl"
-private const val TAG_MENTION = "mentionTag"
-
+private fun convertTypoGraphs(child: Text) = child.literal
+    .replace("(c)", "©")
+    .replace("(C)", "©")
+    .replace("(r)", "®")
+    .replace("(R)", "®")
+    .replace("(tm)", "™")
+    .replace("(TM)", "™")
+    .replace("+-", "±")

@@ -198,9 +198,10 @@ dependencies {
 
     implementation(Libraries.workManager)
 
-    implementation("org.commonmark:commonmark:0.21.0") // TODO KBX extract version
-    implementation("org.commonmark:commonmark-ext-gfm-strikethrough:0.21.0")
-    implementation("org.commonmark:commonmark-ext-gfm-tables:0.21.0")
+    // commonMark
+    implementation(Libraries.CommonMark.core)
+    implementation(Libraries.CommonMark.strikethrough)
+    implementation(Libraries.CommonMark.tables)
 
     // TODO: remove or move to Libraries
     implementation("androidx.appcompat:appcompat:1.4.0")

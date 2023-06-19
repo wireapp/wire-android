@@ -163,7 +163,6 @@ class CreateAccountEmailViewModel @Inject constructor(
     }
 }
 
-
 private fun RequestActivationCodeResult.toEmailError() = when (this) {
     RequestActivationCodeResult.Failure.AlreadyInUse -> CreateAccountEmailViewState.EmailError.TextFieldError.AlreadyInUseError
     RequestActivationCodeResult.Failure.BlacklistedEmail -> CreateAccountEmailViewState.EmailError.TextFieldError.BlacklistedEmailError

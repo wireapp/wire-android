@@ -28,7 +28,6 @@ import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.authentication.create.common.CreateAccountNavArgs
-import com.wire.android.ui.authentication.create.common.UserRegistrationInfo
 import com.wire.android.ui.destinations.CreateAccountCodeScreenDestination
 import com.wire.android.ui.navArgs
 import com.wire.kalium.logic.configuration.server.ServerConfig
@@ -42,7 +41,7 @@ import javax.inject.Inject
 class CreateAccountDetailsViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val validatePasswordUseCase: ValidatePasswordUseCase,
-    private val authServerConfigProvider: AuthServerConfigProvider,
+    authServerConfigProvider: AuthServerConfigProvider,
     private val navigationManager: NavigationManager
 ) : ViewModel() {
 
@@ -114,5 +113,4 @@ class CreateAccountDetailsViewModel @Inject constructor(
     enum class DetailsFieldType {
         FirstName, LastName, Password, ConfirmPassword, TeamName
     }
-
 }

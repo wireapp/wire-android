@@ -32,4 +32,3 @@ annotation class CreatePersonalAccountNavGraph(
 annotation class CreateTeamAccountNavGraph(
     val start: Boolean = false
 )
-

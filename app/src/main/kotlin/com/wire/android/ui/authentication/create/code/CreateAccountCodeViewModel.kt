@@ -57,7 +57,7 @@ class CreateAccountCodeViewModel @Inject constructor(
     private val authScope: AutoVersionAuthScopeUseCase,
     private val addAuthenticatedUser: AddAuthenticatedUserUseCase,
     private val clientScopeProviderFactory: ClientScopeProvider.Factory,
-    private val authServerConfigProvider: AuthServerConfigProvider,
+    authServerConfigProvider: AuthServerConfigProvider,
     private val navigationManager: NavigationManager
 ) : ViewModel() {
 
@@ -136,6 +136,7 @@ class CreateAccountCodeViewModel @Inject constructor(
             )
     }
 
+    @Suppress("ComplexMethod")
     private fun onCodeContinue() {
         codeState = codeState.copy(loading = true)
         viewModelScope.launch {
@@ -266,5 +267,3 @@ class CreateAccountCodeViewModel @Inject constructor(
         RequestActivationCodeResult.Success -> CreateAccountCodeViewState.CodeError.None
     }
 }
-
-

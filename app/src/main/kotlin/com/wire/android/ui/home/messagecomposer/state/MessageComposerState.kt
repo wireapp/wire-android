@@ -70,7 +70,7 @@ fun rememberMessageComposerState(
 
 class MessageComposerState(
     private val context: Context,
-    private val isFileSharingEnabled: Boolean = true,
+     val isFileSharingEnabled: Boolean = true,
     private val selfDeletionTimer: SelfDeletionTimer = SelfDeletionTimer.Enabled(Duration.ZERO),
     private val interactionAvailability: InteractionAvailability = InteractionAvailability.ENABLED,
     private val securityClassificationType: SecurityClassificationType = SecurityClassificationType.NONE,

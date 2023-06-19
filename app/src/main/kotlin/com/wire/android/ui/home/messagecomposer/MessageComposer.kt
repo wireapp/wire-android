@@ -147,7 +147,7 @@ private fun InActiveMessageComposer(
                     Box(modifier = Modifier.padding(start = dimensions().spacing8x)) {
                         AdditionalOptionButton(
                             isSelected = false,
-                            isEnabled = true,
+                            isEnabled = isFileSharingEnabled,
                             onClick = { onTransitionToActive(true) }
                         )
                     }

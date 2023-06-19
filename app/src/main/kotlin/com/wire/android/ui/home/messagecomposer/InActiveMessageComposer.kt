@@ -35,57 +35,57 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.home.messagecomposer.state.MessageComposerState
+//import com.wire.android.ui.home.messagecomposer.state.MessageComposerState
 
-@Composable
-fun InActiveMessageComposer(
-    messageListContent: @Composable () -> Unit,
-    onTransistionToActive: (Boolean) -> Unit,
-    inActiveComposerState: MessageComposerState.InActive
-) {
-    Surface(color = colorsScheme().messageComposerBackgroundColor) {
-        Column(
-            Modifier
-                .fillMaxWidth()
-                .fillMaxHeight()
-        ) {
-            Box(
-                Modifier
-                    .pointerInput(Unit) {
-                        detectTapGestures(
-                            onPress = {},
-                            onDoubleTap = { /* Called on Double Tap */ },
-                            onLongPress = { /* Called on Long Press */ },
-                            onTap = { /* Called on Tap */ }
-                        )
-                    }
-                    .background(color = colorsScheme().backgroundVariant)
-                    .fillMaxWidth()
-                    .weight(1f)
-            ) {
-                messageListContent()
-            }
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .wrapContentHeight()
-            ) {
-                Box(modifier = Modifier.padding(start = dimensions().spacing8x)) {
-                    AdditionalOptionButton(
-                        isSelected = false,
-                        isEnabled = true,
-                        onClick = { onTransistionToActive(true) }
-                    )
-                }
-
-                Text(inActiveComposerState.messageComposition.messageText,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .wrapContentHeight()
-                        .clickable { onTransistionToActive(false) }
-                )
-            }
-        }
-    }
-}
+//@Composable
+//fun InActiveMessageComposer(
+//    messageListContent: @Composable () -> Unit,
+//    onTransistionToActive: (Boolean) -> Unit,
+//    inActiveComposerState: MessageComposerState.InActive
+//) {
+//    Surface(color = colorsScheme().messageComposerBackgroundColor) {
+//        Column(
+//            Modifier
+//                .fillMaxWidth()
+//                .fillMaxHeight()
+//        ) {
+//            Box(
+//                Modifier
+//                    .pointerInput(Unit) {
+//                        detectTapGestures(
+//                            onPress = {},
+//                            onDoubleTap = { /* Called on Double Tap */ },
+//                            onLongPress = { /* Called on Long Press */ },
+//                            onTap = { /* Called on Tap */ }
+//                        )
+//                    }
+//                    .background(color = colorsScheme().backgroundVariant)
+//                    .fillMaxWidth()
+//                    .weight(1f)
+//            ) {
+//                messageListContent()
+//            }
+//            Row(
+//                verticalAlignment = Alignment.CenterVertically,
+//                modifier = Modifier
+//                    .fillMaxWidth()
+//                    .wrapContentHeight()
+//            ) {
+//                Box(modifier = Modifier.padding(start = dimensions().spacing8x)) {
+//                    AdditionalOptionButton(
+//                        isSelected = false,
+//                        isEnabled = true,
+//                        onClick = { onTransistionToActive(true) }
+//                    )
+//                }
+//
+//                Text(inActiveComposerState.messageComposition.messageText,
+//                    modifier = Modifier
+//                        .fillMaxWidth()
+//                        .wrapContentHeight()
+//                        .clickable { onTransistionToActive(false) }
+//                )
+//            }
+//        }
+//    }
+//}

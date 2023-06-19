@@ -72,7 +72,7 @@ import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.messagecomposer.attachment.AttachmentOptionsComponent
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionMenuState
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSubMenuState
-import com.wire.android.ui.home.messagecomposer.state.MessageComposerStateHolder
+import com.wire.android.ui.home.messagecomposer.state.MessageComposerState
 import com.wire.android.ui.home.messagecomposer.state.MessageCompositionInputSize
 
 import com.wire.android.ui.home.messagecomposer.state.MessageCompositionInputType
@@ -83,36 +83,24 @@ import com.wire.android.util.ui.KeyboardHeight
 
 @Composable
 fun MessageComposer(
-    messageComposerStateHolder: MessageComposerStateHolder,
+    messageComposerState: MessageComposerState,
     messageListContent: @Composable () -> Unit
 ) {
-    ActiveMessageComposer(
-        activeMessageComposerState = messageComposerStateHolder,
+    MessageComposerContent(
+        messageComposerState = messageComposerState,
         messageListContent = messageListContent,
-        onTransitionToInActive = messageComposerStateHolder::toInActive
+        onTransitionToInActive = messageComposerState::toInActive
     )
 }
 
-// TODO:: simple audio recorder place holder for later
-@Composable
-fun AudioRecordingComposer(onCloseAudioRecordingClicked: () -> Unit) {
-    Box(
-        Modifier
-            .fillMaxWidth()
-            .height(360.dp)
-            .background(Color.Red)
-    ) {
-
-    }
-}
 
 @Composable
-private fun ActiveMessageComposer(
-    activeMessageComposerState: MessageComposerStateHolder,
+private fun MessageComposerContent(
+    messageComposerState: MessageComposerState,
     messageListContent: @Composable () -> Unit,
     onTransitionToInActive: () -> Unit
 ) {
-    with(activeMessageComposerState) {
+    with(messageComposerState) {
         Surface(color = colorsScheme().messageComposerBackgroundColor) {
             BoxWithConstraints(Modifier.fillMaxSize()) {
                 val currentScreenHeight: Dp = with(LocalDensity.current) { constraints.maxHeight.toDp() }
@@ -182,46 +170,49 @@ private fun ActiveMessageComposer(
                                 messageCompositionInputSize = inputSize,
                                 onMessageTextChanged = { },
                                 onSendButtonClicked = { },
-                                onFocused = { },
-                                onCollapseButtonClicked = { },
+                                onFocused = ::onInputFocused,
+                                onCollapseButtonClicked = ::toggleFullScreenInput,
                                 modifier = fillRemainingSpaceOrWrapContent
                             )
                             AdditionalOptionsMenu(
-                                onEphemeralOptionItemClicked = {},
+                                onOnSelfDeletingOptionClicked = {},
                                 onAttachmentOptionClicked = {},
-                                onGifButtonClicked = { },
-                                onPingClicked = { },
+                                onGifOptionClicked = { },
+                                onPingOptionClicked = { },
                             )
                         }
                     }
-                    val additionalOptionSubMenuVisible =
-                        additionalOptionsSubMenuState != AdditionalOptionSubMenuState.Hidden
-                                && !KeyboardHelper.isKeyboardVisible()
 
-                    val isTransitionToOpenKeyboardOngoing =
-                        additionalOptionsSubMenuState == AdditionalOptionSubMenuState.Hidden
-                                && !KeyboardHelper.isKeyboardVisible()
+                    if (inputType !is MessageCompositionInputType.InActive) {
+                        val additionalOptionSubMenuVisible =
+                            additionalOptionsSubMenuState != AdditionalOptionSubMenuState.Hidden
+                                    && !KeyboardHelper.isKeyboardVisible()
 
-                    if (additionalOptionSubMenuVisible) {
-                        AdditionalOptionSubMenu(
-                            additionalOptionsState = additionalOptionsSubMenuState,
-                            modifier = Modifier
-                                .height(keyboardHeight.height)
-                                .fillMaxWidth()
-                                .background(
-                                    colorsScheme().messageComposerBackgroundColor
-                                )
-                        )
-                    }
-                    // This covers the situation when the user switches from attachment options to the input keyboard - there is a moment when
-                    // both attachmentOptionsDisplayed and isKeyboardVisible are false, but right after that keyboard shows, so if we know that
-                    // the input already has a focus, we can show an empty Box which has a height of the keyboard to prevent flickering.
-                    else if (isTransitionToOpenKeyboardOngoing) {
-                        Box(
-                            modifier = Modifier
-                                .height(keyboardHeight.height)
-                                .fillMaxWidth()
-                        )
+                        val isTransitionToOpenKeyboardOngoing =
+                            additionalOptionsSubMenuState == AdditionalOptionSubMenuState.Hidden
+                                    && !KeyboardHelper.isKeyboardVisible()
+
+                        if (additionalOptionSubMenuVisible) {
+                            AdditionalOptionSubMenu(
+                                additionalOptionsState = additionalOptionsSubMenuState,
+                                modifier = Modifier
+                                    .height(keyboardHeight.height)
+                                    .fillMaxWidth()
+                                    .background(
+                                        colorsScheme().messageComposerBackgroundColor
+                                    )
+                            )
+                        }
+                        // This covers the situation when the user switches from attachment options to the input keyboard - there is a moment when
+                        // both attachmentOptionsDisplayed and isKeyboardVisible are false, but right after that keyboard shows, so if we know that
+                        // the input already has a focus, we can show an empty Box which has a height of the keyboard to prevent flickering.
+                        else if (isTransitionToOpenKeyboardOngoing) {
+                            Box(
+                                modifier = Modifier
+                                    .height(keyboardHeight.height)
+                                    .fillMaxWidth()
+                            )
+                        }
                     }
                 }
             }
@@ -234,10 +225,10 @@ private fun ActiveMessageComposer(
 
 @Composable
 private fun AdditionalOptionsMenu(
-    onEphemeralOptionItemClicked: () -> Unit,
+    onOnSelfDeletingOptionClicked: () -> Unit,
     onAttachmentOptionClicked: () -> Unit,
-    onGifButtonClicked: () -> Unit,
-    onPingClicked: () -> Unit,
+    onGifOptionClicked: () -> Unit,
+    onPingOptionClicked: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     var additionalOptionState: AdditionalOptionMenuState by remember { mutableStateOf(AdditionalOptionMenuState.AttachmentAndAdditionalOptionsMenu) }
@@ -248,12 +239,12 @@ private fun AdditionalOptionsMenu(
                 AttachmentAndAdditionalOptionsMenuItems(
                     isMentionActive = true,
                     isFileSharingEnabled = true,
-                    onMentionButtonClicked = onEphemeralOptionItemClicked,
+                    onMentionButtonClicked = onOnSelfDeletingOptionClicked,
                     onAttachmentOptionClicked = onAttachmentOptionClicked,
-                    onGifButtonClicked = onGifButtonClicked,
-                    onSelfDeletionOptionButtonClicked = onEphemeralOptionItemClicked,
+                    onGifButtonClicked = onGifOptionClicked,
+                    onSelfDeletionOptionButtonClicked = onOnSelfDeletingOptionClicked,
                     onRichEditingButtonClicked = { additionalOptionState = AdditionalOptionMenuState.RichTextEditing },
-                    onPingClicked = onPingClicked,
+                    onPingClicked = onPingOptionClicked,
                     showSelfDeletingOption = true,
                     modifier = Modifier.background(Color.Black)
                 )
@@ -352,11 +343,13 @@ private fun MessageComposerInput(
         Column(
             modifier = modifier
         ) {
-            CollapseButton(
-                onCollapseClick = {
-                    onCollapseButtonClicked()
-                }
-            )
+            if (messageCompositionInputState !is MessageCompositionInputType.InActive) {
+                CollapseButton(
+                    onCollapseClick = {
+                        onCollapseButtonClicked()
+                    }
+                )
+            }
 
             val quotedMessage = messageCompositionState.value.quotedMessage
             if (quotedMessage != null) {
@@ -391,28 +384,28 @@ private fun MessageComposerInput(
                     modifier = stretchToMaxParentConstraintHeightOrWithInBoundary
                 )
                 Row(Modifier.wrapContentSize()) {
-                    when (val inputType = messageCompositionInputState) {
+                    when (messageCompositionInputState) {
                         is MessageCompositionInputType.Composing -> MessageSendActions(
                             onSendButtonClicked = onSendButtonClicked,
-                            sendButtonEnabled = inputType.isSendButtonEnabled
+                            sendButtonEnabled = messageCompositionInputState.isSendButtonEnabled
                         )
 
                         is MessageCompositionInputType.SelfDeleting -> SelfDeletingActions(
                             sendButtonEnabled = true,
                             onSendButtonClicked = onSendButtonClicked,
-                            onChangeSelfDeletionClicked = inputType::showSelfDeletingTimeOption
+                            onChangeSelfDeletionClicked = messageCompositionInputState::showSelfDeletingTimeOption
                         )
 
                         else -> {}
                     }
                 }
             }
-            when (val inputType = messageCompositionInputState) {
+            when (messageCompositionInputState) {
                 is MessageCompositionInputType.Editing -> {
                     MessageEditActions(
                         onEditSaveButtonClicked = { },
                         onEditCancelButtonClicked = {},
-                        editButtonEnabled = inputType.isEditButtonEnabled
+                        editButtonEnabled = messageCompositionInputState.isEditButtonEnabled
                     )
                 }
 

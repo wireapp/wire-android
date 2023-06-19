@@ -78,9 +78,9 @@ import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UriAsset
 import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMenuItems
 import com.wire.android.ui.home.messagecomposer.MessageComposer
-import com.wire.android.ui.home.messagecomposer.state.MessageComposerStateHolder
+import com.wire.android.ui.home.messagecomposer.state.MessageComposerState
 import com.wire.android.ui.home.messagecomposer.state.SelfDeletionDuration
-import com.wire.android.ui.home.messagecomposer.state.rememberMessageComposerStateHolder
+import com.wire.android.ui.home.messagecomposer.state.rememberMessageComposerState
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.util.permission.CallingAudioRequestFlow
 import com.wire.android.util.permission.rememberCallingRecordAudioBluetoothRequestFlow
@@ -321,7 +321,7 @@ private fun ConversationScreen(
     val context = LocalContext.current
     val conversationScreenState = rememberConversationScreenState()
 
-    val messageComposerState = rememberMessageComposerStateHolder(
+    val messageComposerState = rememberMessageComposerState(
         interactionAvailability = messageComposerViewState.interactionAvailability,
         isFileSharingEnabled = messageComposerViewState.isFileSharingEnabled,
         securityClassificationType = messageComposerViewState.securityClassificationType,
@@ -466,7 +466,7 @@ private fun ConversationScreenContent(
     unreadEventCount: Int,
     conversationState: MessageComposerViewState,
     audioMessagesState: Map<String, AudioState>,
-    messageComposerState: MessageComposerStateHolder,
+    messageComposerState: MessageComposerState,
     messages: Flow<PagingData<UIMessage>>,
     onSendMessage: (SendMessageBundle) -> Unit,
     onSendEditMessage: (EditMessageBundle) -> Unit,
@@ -497,7 +497,7 @@ private fun ConversationScreenContent(
     }
 
     MessageComposer(
-        messageComposerStateHolder = messageComposerState,
+        messageComposerState = messageComposerState,
         messageListContent = {
             MessageList(
                 lazyPagingMessages = lazyPagingMessages,

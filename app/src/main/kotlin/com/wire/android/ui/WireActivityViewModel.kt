@@ -160,7 +160,7 @@ class WireActivityViewModel @Inject constructor(
                     else flowOf(NewClientResult.Empty)
                 }
                 .collect {
-                    val newClientDialog = NewClientsDialogData.fromUseCaseResul(it)
+                    val newClientDialog = NewClientsData.fromUseCaseResul(it)
                     globalAppState = globalAppState.copy(newClientDialog = newClientDialog)
                 }
         }
@@ -250,7 +250,7 @@ class WireActivityViewModel @Inject constructor(
         }
     }
 
-    fun dismissNewClientDialog(userId: UserId) {
+    fun dismissNewClientsDialog(userId: UserId) {
         globalAppState = globalAppState.copy(newClientDialog = null)
         viewModelScope.launch { clearNewClientsForUser(userId) }
     }
@@ -477,31 +477,31 @@ sealed class CurrentSessionErrorState {
     object SessionExpired : CurrentSessionErrorState()
 }
 
-sealed class NewClientsDialogData(open val clientsInfo: List<NewClientData>, open val userId: UserId) {
+sealed class NewClientsData(open val clientsInfo: List<NewClientInfo>, open val userId: UserId) {
     data class CurrentUser(
-        override val clientsInfo: List<NewClientData>,
+        override val clientsInfo: List<NewClientInfo>,
         override val userId: UserId
-    ) : NewClientsDialogData(clientsInfo, userId)
+    ) : NewClientsData(clientsInfo, userId)
 
     data class OtherUser(
-        override val clientsInfo: List<NewClientData>,
+        override val clientsInfo: List<NewClientInfo>,
         override val userId: UserId,
         val userName: String?,
         val userHandle: String?
-    ) : NewClientsDialogData(clientsInfo, userId)
+    ) : NewClientsData(clientsInfo, userId)
 
     companion object {
-        fun fromUseCaseResul(result: NewClientResult): NewClientsDialogData? = when (result) {
+        fun fromUseCaseResul(result: NewClientResult): NewClientsData? = when (result) {
             is NewClientResult.InCurrentAccount -> {
                 CurrentUser(
-                    result.newClients.map(NewClientData::fromClient),
+                    result.newClients.map(NewClientInfo::fromClient),
                     result.userId
                 )
             }
 
             is NewClientResult.InOtherAccount -> {
                 OtherUser(
-                    result.newClients.map(NewClientData::fromClient),
+                    result.newClients.map(NewClientInfo::fromClient),
                     result.userId,
                     result.userName,
                     result.userHandle
@@ -513,10 +513,10 @@ sealed class NewClientsDialogData(open val clientsInfo: List<NewClientData>, ope
     }
 }
 
-data class NewClientData(val date: String, val deviceInfo: UIText) {
+data class NewClientInfo(val date: String, val deviceInfo: UIText) {
     companion object {
-        fun fromClient(client: Client): NewClientData =
-            NewClientData(client.registrationTime?.toIsoDateTimeString() ?: "", client.displayName())
+        fun fromClient(client: Client): NewClientInfo =
+            NewClientInfo(client.registrationTime?.toIsoDateTimeString() ?: "", client.displayName())
     }
 }
 
@@ -526,5 +526,5 @@ data class GlobalAppState(
     val blockUserUI: CurrentSessionErrorState? = null,
     val updateAppDialog: Boolean = false,
     val conversationJoinedDialog: JoinConversationViaCodeState? = null,
-    val newClientDialog: NewClientsDialogData? = null
+    val newClientDialog: NewClientsData? = null
 )

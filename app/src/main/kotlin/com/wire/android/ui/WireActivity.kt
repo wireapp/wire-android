@@ -220,7 +220,7 @@ class WireActivity : AppCompatActivity() {
             viewModel.globalAppState.newClientDialog,
             viewModel::openDeviceManager,
             viewModel::switchAccount,
-            viewModel::dismissNewClientDialog
+            viewModel::dismissNewClientsDialog
         )
     }
 
@@ -333,7 +333,7 @@ class WireActivity : AppCompatActivity() {
 
     @Composable
     private fun newClientDialog(
-        data: NewClientsDialogData?,
+        data: NewClientsData?,
         openDeviceManager: () -> Unit,
         switchAccount: (UserId) -> Unit,
         dismiss: (UserId) -> Unit
@@ -352,14 +352,14 @@ class WireActivity : AppCompatActivity() {
                 )
             }.joinToString("")
             when (data) {
-                is NewClientsDialogData.OtherUser -> {
+                is NewClientsData.OtherUser -> {
                     title = stringResource(R.string.new_device_dialog_other_user_title, data.userName ?: "", data.userHandle ?: "")
                     text = stringResource(R.string.new_device_dialog_other_user_message, devicesList)
                     btnText = stringResource(R.string.new_device_dialog_other_user_btn)
                     btnAction = { switchAccount(data.userId) }
                 }
 
-                is NewClientsDialogData.CurrentUser -> {
+                is NewClientsData.CurrentUser -> {
                     title = stringResource(R.string.new_device_dialog_current_user_title)
                     text = stringResource(R.string.new_device_dialog_current_user_message, devicesList)
                     btnText = stringResource(R.string.new_device_dialog_current_user_btn)

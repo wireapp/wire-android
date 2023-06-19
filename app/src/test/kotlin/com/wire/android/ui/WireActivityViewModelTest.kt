@@ -572,7 +572,7 @@ class WireActivityViewModelTest {
             .arrange()
 
         assertEquals(
-            NewClientsDialogData.CurrentUser(listOf(NewClientData.fromClient(TestClient.CLIENT)), USER_ID),
+            NewClientsData.CurrentUser(listOf(NewClientInfo.fromClient(TestClient.CLIENT)), USER_ID),
             viewModel.globalAppState.newClientDialog
         )
     }
@@ -586,8 +586,8 @@ class WireActivityViewModelTest {
             .arrange()
 
         assertEquals(
-            NewClientsDialogData.OtherUser(
-                listOf(NewClientData.fromClient(TestClient.CLIENT)),
+            NewClientsData.OtherUser(
+                listOf(NewClientInfo.fromClient(TestClient.CLIENT)),
                 USER_ID,
                 "name",
                 "handle"
@@ -626,6 +626,16 @@ class WireActivityViewModelTest {
         currentScreenFlow.value = CurrentScreen.ImportMedia
 
         assertEquals(null, viewModel.globalAppState.newClientDialog)
+    }
+
+    @Test
+    fun `when dismissNewClientsDialog is called, then cleared NewClients for user`()  {
+        val (arrangement, viewModel) = Arrangement()
+            .arrange()
+
+        viewModel.dismissNewClientsDialog(USER_ID)
+
+        coVerify(exactly = 1) { arrangement.clearNewClientsForUser(USER_ID) }
     }
 
     private class Arrangement {

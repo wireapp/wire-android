@@ -52,7 +52,6 @@ fun RichTextOptions(
             .fillMaxHeight()
     ) {
         val modifier = Modifier
-            .fillMaxWidth()
             .weight(1f)
             .padding(horizontal = dimensions().spacing0x)
 
@@ -83,9 +82,9 @@ private fun HeaderButton(
         onButtonClicked = onRichTextHeaderButtonClicked,
         iconResource = R.drawable.ic_rich_text_header,
         contentDescription = R.string.content_description_conversation_rich_text_header,
-        iconModifier = modifier,
         modifier = modifier
             .padding(start = dimensions().spacing8x),
+        fillMaxWidth = true,
         shape = RoundedCornerShape(
             topStart = MaterialTheme.wireDimensions.buttonCornerSize,
             bottomStart = MaterialTheme.wireDimensions.buttonCornerSize,
@@ -104,8 +103,8 @@ private fun BoldButton(
         onButtonClicked = onRichTextBoldButtonClicked,
         iconResource = R.drawable.ic_rich_text_bold,
         contentDescription = R.string.content_description_conversation_rich_text_bold,
-        iconModifier = modifier,
         modifier = modifier,
+        fillMaxWidth = true,
         shape = RoundedCornerShape(
             topStart = MaterialTheme.wireDimensions.spacing0x,
             bottomStart = MaterialTheme.wireDimensions.spacing0x,
@@ -124,8 +123,8 @@ private fun ItalicButton(
         onButtonClicked = onRichTextItalicButtonClicked,
         iconResource = R.drawable.ic_rich_text_italic,
         contentDescription = R.string.content_description_conversation_rich_text_italic,
-        iconModifier = modifier,
         modifier = modifier,
+        fillMaxWidth = true,
         shape = RoundedCornerShape(
             topStart = MaterialTheme.wireDimensions.spacing0x,
             bottomStart = MaterialTheme.wireDimensions.spacing0x,

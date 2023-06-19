@@ -54,7 +54,7 @@ fun WireSecondaryIconButton(
     colors: WireButtonColors = wireSecondaryButtonColors(),
     clickBlockParams: ClickBlockParams = ClickBlockParams(),
     modifier: Modifier = Modifier,
-    iconModifier: Modifier = Modifier
+    fillMaxWidth: Boolean = false
 ) {
     WireSecondaryButton(
         onClick = onButtonClicked,
@@ -62,7 +62,7 @@ fun WireSecondaryIconButton(
             Icon(
                 painter = painterResource(id = iconResource),
                 contentDescription = stringResource(contentDescription),
-                modifier = iconModifier
+                modifier = Modifier
                     .size(iconSize)
             )
         },
@@ -74,7 +74,7 @@ fun WireSecondaryIconButton(
         state = state,
         colors = colors,
         clickBlockParams = clickBlockParams,
-        fillMaxWidth = false,
+        fillMaxWidth = fillMaxWidth,
         modifier = modifier
     )
 }

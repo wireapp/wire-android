@@ -31,7 +31,6 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -79,9 +78,7 @@ fun RemoveDeviceScreen(navigator: Navigator) {
         onDialogDismiss = viewModel::onDialogDismissed,
         onErrorDialogDismiss = viewModel::clearDeleteClientError,
         onBackButtonClicked = clearSessionViewModel::onBackButtonClicked,
-        onCancelLoginClicked = remember(clearSessionViewModel, navigator) {
-            { clearSessionViewModel.onCancelLoginClicked(NavigationSwitchAccountActions(navigator::navigate)) }
-        },
+        onCancelLoginClicked = { clearSessionViewModel.onCancelLoginClicked(NavigationSwitchAccountActions(navigator::navigate)) },
         onProceedLoginClicked = clearSessionViewModel::onProceedLoginClicked
     )
 }

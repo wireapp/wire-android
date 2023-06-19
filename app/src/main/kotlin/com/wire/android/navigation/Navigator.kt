@@ -38,6 +38,3 @@ fun rememberNavigator(finish: () -> Unit): Navigator {
     }
     return remember(finish, navController) { Navigator(finish, navController) }
 }
-
-typealias Navigate = (NavigationCommand) -> Unit
-typealias NavigateBack = () -> Unit

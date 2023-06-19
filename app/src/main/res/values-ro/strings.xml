@@ -950,10 +950,11 @@
     <string name="guest_room_link_disabled">Generating guest links is now disabled for all group admins</string>
     <!-- New Device dialog -->
     <string name="new_device_dialog_current_user_title">Your account was used on</string>
-    <string name="new_device_dialog_current_user_message">%1$s\nFrom: %2$s \n\nIf you didn\'t do this, remove the device and reset your password.</string>
+    <string name="new_device_dialog_message_defice_info">%1$s\nFrom: %2$s \n</string>
+    <string name="new_device_dialog_current_user_message">%1$s\nIf you didn\'t do this, remove the device and reset your password.</string>
     <string name="new_device_dialog_current_user_btn">Manage Devices</string>
     <string name="new_device_dialog_other_user_title">Your account “%1$s (@%2$s)” was used on:</string>
-    <string name="new_device_dialog_other_user_message">%1$s\nFrom: %2$s \n\nIf you didn\'t do this, remove the device (navigate to “Manage Devices” in the Settings section of this account), and reset your password.</string>
+    <string name="new_device_dialog_other_user_message">%1$s\nIf you didn\'t do this, remove the device (navigate to “Manage Devices” in the Settings section of this account), and reset your password.</string>
     <string name="new_device_dialog_other_user_btn">Switch Account</string>
     <string name="label_system_message_joined_the_conversation_by_self">%1$s joined the conversation</string>
     <string name="label_system_message_joined_the_conversation_by_other">%1$s joined the conversation</string>

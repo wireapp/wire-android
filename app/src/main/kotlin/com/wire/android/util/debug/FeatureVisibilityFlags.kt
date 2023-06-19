@@ -49,7 +49,7 @@ object FeatureVisibilityFlags {
     const val BackUpSettings = true
     const val AudioMessagesIcon = false
     const val ShareLocationIcon = false
-    const val RichTextIcon = false
+    const val RichTextIcon = true
     const val EmojiIcon = false
     const val GifIcon = false
     const val PingIcon = true

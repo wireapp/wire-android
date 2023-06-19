@@ -93,6 +93,9 @@
     <string name="content_description_welcome_wire_logo">Wire</string>
     <string name="content_description_conversation_search_icon">Icona di ricerca conversazione</string>
     <string name="content_description_conversation_enable_rich_text_mode">Abilita la modalit&#224; di testo avanzata</string>
+    <string name="content_description_conversation_rich_text_header">Rich text formatting Header</string>
+    <string name="content_description_conversation_rich_text_bold">Rich text formatting Bold</string>
+    <string name="content_description_conversation_rich_text_italic">Rich text formatting Italic</string>
     <string name="content_description_conversation_send_emoticon">Invia emoticon</string>
     <string name="content_description_conversation_send_gif">Invia GIF</string>
     <string name="content_description_conversation_mention_someone">Menziona qualcuno</string>

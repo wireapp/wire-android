@@ -84,11 +84,15 @@ sealed class MessageCompositionInputType(
         }
     }
 
-    class InActive(messageCompositionState: MutableState<MessageComposition>) : MessageCompositionInputType(messageCompositionState)
 
 }
 
 enum class MessageCompositionInputSize {
     COLLAPSED,
     EXPANDED;
+}
+
+enum class MessageCompositionInputState {
+    ACTIVE,
+    INACTIVE
 }

@@ -30,11 +30,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.TextFieldValue
 import com.wire.android.appLogger
-import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.conversations.model.UIQuotedMessage
-import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.messagecomposer.model.UiMention
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.util.MENTION_SYMBOL
@@ -42,8 +40,6 @@ import com.wire.android.util.NEW_LINE_SYMBOL
 import com.wire.android.util.WHITE_SPACE
 import com.wire.android.util.ui.toUIText
 import com.wire.kalium.logic.data.message.mention.MessageMention
-import com.wire.kalium.logic.data.user.ConnectionState
-import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.feature.conversation.InteractionAvailability
 import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
 import com.wire.kalium.logic.feature.selfDeletingMessages.SelfDeletionTimer
@@ -81,7 +77,7 @@ class MessageComposerState(
     private val onShowEphemeralOptionsMenu: () -> Unit
 ) {
 
-    var messageCompositionState = mutableStateOf(
+    var messageComposition = mutableStateOf(
         MessageComposition(
             selfDeletionDuration = selfDeletionTimer.toDuration()
         )
@@ -90,7 +86,12 @@ class MessageComposerState(
     var inputFocused: Boolean by mutableStateOf(false)
         private set
     var inputType: MessageCompositionInputType by mutableStateOf(
-        MessageCompositionInputType.InActive(messageCompositionState)
+        MessageCompositionInputType.Composing(messageComposition)
+    )
+        private set
+
+    var inputState: MessageCompositionInputState by mutableStateOf(
+        MessageCompositionInputState.INACTIVE
     )
         private set
 
@@ -104,28 +105,8 @@ class MessageComposerState(
     )
         private set
 
-    fun toComposing(showAttachmentOption: Boolean = false) {
-        inputFocused = !showAttachmentOption
-        inputType = if (messageCompositionState.value.selfDeletionDuration != Duration.ZERO) {
-            MessageCompositionInputType.SelfDeleting(
-                messageCompositionState = messageCompositionState,
-                onShowEphemeralOptionsMenu = onShowEphemeralOptionsMenu
-            )
-        } else {
-            MessageCompositionInputType.Composing(
-                messageCompositionState = messageCompositionState
-            )
-        }
-
-        additionalOptionsSubMenuState = if (showAttachmentOption) {
-            AdditionalOptionSubMenuState.AttachFile
-        } else {
-            AdditionalOptionSubMenuState.Hidden
-        }
-    }
-
     fun toEdit(editMessageText: String) {
-        messageCompositionState.update {
+        messageComposition.update {
             it.copy(
                 messageTextFieldValue = TextFieldValue(editMessageText)
             )
@@ -133,8 +114,8 @@ class MessageComposerState(
 
         inputFocused = true
         inputType = MessageCompositionInputType.Editing(
-            messageCompositionState = messageCompositionState,
-            messageCompositionSnapShot = messageCompositionState.value
+            messageCompositionState = messageComposition,
+            messageCompositionSnapShot = messageComposition.value
         )
     }
 
@@ -151,7 +132,7 @@ class MessageComposerState(
                 quotedContent = quotedContent
             )
 
-            messageCompositionState.update {
+            messageComposition.update {
                 it.copy(
                     messageTextFieldValue = TextFieldValue(""),
                     quotedMessage = quotedMessage
@@ -160,13 +141,13 @@ class MessageComposerState(
 
             inputFocused = true
             inputType = MessageCompositionInputType.Composing(
-                messageCompositionState = messageCompositionState
+                messageCompositionState = messageComposition
             )
         }
     }
 
     fun cancelReply() {
-        messageCompositionState.update {
+        messageComposition.update {
             it.copy(
                 quotedMessage = null
             )
@@ -204,24 +185,23 @@ class MessageComposerState(
         }
 
     fun toInActive() {
-//        messageComposerState = MessageComposerState.InActive(
-//            messageCompositionState.value
-//        )
+        inputFocused = false
+        inputState = MessageCompositionInputState.INACTIVE
     }
 
-    fun updateSelfDeletionTime(selfDeletionTimer: SelfDeletionTimer) {
-        messageCompositionState.update {
-            it.copy(selfDeletionDuration = selfDeletionTimer.toDuration())
+    fun toActive(showAttachmentOption: Boolean) {
+        inputFocused = true
+        inputState = MessageCompositionInputState.ACTIVE
+        additionalOptionsSubMenuState = if (showAttachmentOption) {
+            AdditionalOptionSubMenuState.AttachFile
+        } else {
+            AdditionalOptionSubMenuState.Hidden
         }
     }
 
     fun onInputFocused() {
-        if (inputType is MessageCompositionInputType.InActive) {
-            inputType = MessageCompositionInputType.Composing(messageCompositionState)
-        }
-
+        inputType = MessageCompositionInputType.Composing(messageComposition)
         inputFocused = true
-
     }
 
     fun toggleFullScreenInput() {
@@ -231,6 +211,8 @@ class MessageComposerState(
             MessageCompositionInputSize.COLLAPSED
         }
     }
+
+
 }
 
 

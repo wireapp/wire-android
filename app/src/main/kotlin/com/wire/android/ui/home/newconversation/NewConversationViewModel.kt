@@ -27,12 +27,8 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
 import com.wire.android.mapper.ContactMapper
-import com.wire.android.navigation.BackStackMode
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.common.groupname.GroupMetadataState
 import com.wire.android.ui.common.groupname.GroupNameValidator
-import com.wire.android.ui.destinations.ConversationScreenDestination
 import com.wire.android.ui.home.conversations.search.SearchAllPeopleViewModel
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.newconversation.groupOptions.GroupOptionState

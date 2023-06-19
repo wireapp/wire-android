@@ -17,7 +17,6 @@
  */
 package com.wire.android.ui.home.conversations.search
 
-import com.wire.android.navigation.NavigationManager
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flatMapLatest

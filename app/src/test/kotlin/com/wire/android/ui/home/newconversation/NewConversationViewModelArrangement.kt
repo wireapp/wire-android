@@ -20,7 +20,6 @@
 
 package com.wire.android.ui.home.newconversation
 
-import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
 import com.wire.android.framework.TestUser
@@ -129,9 +128,6 @@ internal class NewConversationViewModelArrangement {
 
     @MockK
     lateinit var isSelfTeamMember: IsSelfATeamMemberUseCaseImpl
-
-    @MockK
-    private lateinit var savedStateHandle: SavedStateHandle
 
     @MockK
     private lateinit var getAllServices: ObserveAllServicesUseCase

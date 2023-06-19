@@ -21,11 +21,9 @@
 package com.wire.android.ui.home.settings.account.displayname
 
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.framework.TestUser
-import com.wire.android.navigation.EXTRA_SETTINGS_DISPLAY_NAME_CHANGED
 import com.wire.android.navigation.NavigationManager
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.feature.user.DisplayNameUpdateResult
@@ -153,9 +151,6 @@ class ChangeDisplayNameViewModelTest {
 
         @MockK
         lateinit var updateDisplayNameUseCase: UpdateDisplayNameUseCase
-
-        @MockK
-        private lateinit var savedStateHandle: SavedStateHandle
 
         @MockK(relaxed = true)
         lateinit var onSuccess: () -> Unit

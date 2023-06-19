@@ -27,7 +27,6 @@ import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.datastore.UserDataStore
 import com.wire.android.framework.FakeKaliumFileSystem
-import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.userprofile.avatarpicker.AvatarPickerViewModel
 import com.wire.android.util.AvatarImageManager
 import com.wire.android.util.FileManager
@@ -129,8 +128,6 @@ class AvatarPickerViewModelTest {
         val context = mockk<Context>()
 
         val onSuccess = mockk<() -> Unit>(relaxed = true)
-
-        val fileManager = FileManager(context)
 
         @MockK
         private lateinit var qualifiedIdMapper: QualifiedIdMapper

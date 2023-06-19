@@ -31,13 +31,9 @@ import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.mapper.ContactMapper
 import com.wire.android.model.SnackBarMessage
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.NavigationManager
-import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.UIText
-import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.connection.SendConnectionRequestResult
 import com.wire.kalium.logic.feature.connection.SendConnectionRequestUseCase

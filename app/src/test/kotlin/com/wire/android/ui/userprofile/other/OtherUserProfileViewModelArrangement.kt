@@ -25,7 +25,6 @@ import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
 import com.wire.android.framework.TestUser
 import com.wire.android.mapper.UserTypeMapper
-import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveConversationRoleForUserUseCase
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.navArgs

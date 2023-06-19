@@ -954,10 +954,11 @@
     <string name="guest_room_link_disabled">Erstellen von Gäste-Links ist nun für alle Gruppen-Admins deaktiviert</string>
     <!-- New Device dialog -->
     <string name="new_device_dialog_current_user_title">Ihr Benutzerkonto wurde verwendet</string>
-    <string name="new_device_dialog_current_user_message">%1$s\nAuf: %2$s \n\nIWenn Sie dies nicht getan haben, entfernen Sie das Gerät und setzen Sie Ihr Passwort zurück.</string>
+    <string name="new_device_dialog_message_defice_info">%1$s\nFrom: %2$s \n</string>
+    <string name="new_device_dialog_current_user_message">%1$s\nIf you didn\'t do this, remove the device and reset your password.</string>
     <string name="new_device_dialog_current_user_btn">Geräte verwalten</string>
     <string name="new_device_dialog_other_user_title">Ihr Benutzerkonto \"%1$s (@%2$s)” wurde verwendet:</string>
-    <string name="new_device_dialog_other_user_message">%1$s\nAuf: %2$s \n\nIWenn Sie dies nicht getan haben, entfernen Sie das Gerät, indem Sie in den Einstellungen \"Geräte verwalten\" auswählen, und setzen Sie Ihr Passwort zurück.</string>
+    <string name="new_device_dialog_other_user_message">%1$s\nIf you didn\'t do this, remove the device (navigate to “Manage Devices” in the Settings section of this account), and reset your password.</string>
     <string name="new_device_dialog_other_user_btn">Benutzerkonto wechseln</string>
     <string name="label_system_message_joined_the_conversation_by_self">%1$s sind der Unterhaltung beigetreten</string>
     <string name="label_system_message_joined_the_conversation_by_other">%1$s Ist der Unterhaltung beigetreten</string>

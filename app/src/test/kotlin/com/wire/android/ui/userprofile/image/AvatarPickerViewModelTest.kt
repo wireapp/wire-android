@@ -29,7 +29,6 @@ import com.wire.android.datastore.UserDataStore
 import com.wire.android.framework.FakeKaliumFileSystem
 import com.wire.android.ui.userprofile.avatarpicker.AvatarPickerViewModel
 import com.wire.android.util.AvatarImageManager
-import com.wire.android.util.FileManager
 import com.wire.android.util.resampleImageAndCopyToTempPath
 import com.wire.android.util.toByteArray
 import com.wire.kalium.logic.CoreFailure.Unknown

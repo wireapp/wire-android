@@ -46,6 +46,7 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.wire.android.R
+import com.wire.android.navigation.Navigator
 import com.wire.android.ui.common.Icon
 import com.wire.android.ui.common.ShakeAnimation
 import com.wire.android.ui.common.button.WireButtonState.Default
@@ -65,7 +66,8 @@ import com.wire.android.ui.theme.wireTypography
 @Composable
 fun ChangeDisplayNameScreen(
     viewModel: ChangeDisplayNameViewModel = hiltViewModel(),
-    resultNavigator: ResultBackNavigator<Boolean>? = null // TODO: make it non nullable after refactoring NavigationItem
+    navigator: Navigator,
+    resultNavigator: ResultBackNavigator<Boolean>
 ) {
     with(viewModel) {
         ChangeDisplayNameContent(
@@ -73,13 +75,13 @@ fun ChangeDisplayNameScreen(
             ::onNameChange,
             {
                 saveDisplayName(
-                    onFailure = { resultNavigator?.setResult(false) },
-                    onSuccess = { resultNavigator?.setResult(true) }
+                    onFailure = { resultNavigator.setResult(false) },
+                    onSuccess = { resultNavigator.setResult(true) }
                 )
-                resultNavigator?.navigateBack()
+                resultNavigator.navigateBack()
             },
             ::onNameErrorAnimated,
-            ::navigateBack
+            navigator::navigateBack
         )
     }
 }

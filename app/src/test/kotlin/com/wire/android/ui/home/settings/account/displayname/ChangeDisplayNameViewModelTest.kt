@@ -24,17 +24,13 @@ import androidx.compose.ui.text.input.TextFieldValue
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.framework.TestUser
-import com.wire.android.navigation.NavigationManager
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.feature.user.DisplayNameUpdateResult
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.UpdateDisplayNameUseCase
-import io.mockk.Called
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
-import io.mockk.coVerify
 import io.mockk.impl.annotations.MockK
-import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
@@ -139,18 +135,7 @@ class ChangeDisplayNameViewModelTest {
         assertFalse(viewModel.displayNameState.animatedNameError)
     }
 
-    @Test
-    fun `when navigating back requested, then should delegate call to manager navigateBack`() = runTest {
-        val (arrangement, viewModel) = Arrangement().arrange()
-        viewModel.navigateBack()
-
-        coVerify(exactly = 1) { arrangement.navigationManager.navigateBack() }
-    }
-
     private class Arrangement {
-
-        @MockK
-        lateinit var navigationManager: NavigationManager
 
         @MockK
         lateinit var getSelfUserUseCase: GetSelfUserUseCase
@@ -170,7 +155,6 @@ class ChangeDisplayNameViewModelTest {
         fun arrange() = this to ChangeDisplayNameViewModel(
             getSelfUserUseCase,
             updateDisplayNameUseCase,
-            navigationManager,
             TestDispatcherProvider()
         )
     }

@@ -18,7 +18,6 @@
 package com.wire.android.ui.markdown
 
 import android.text.util.Linkify
-import androidx.compose.foundation.text.appendInlineContent
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
@@ -31,7 +30,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import com.wire.android.ui.common.SpannableStr
 import com.wire.android.ui.markdown.MarkdownConsts.MENTION_MARK
-import com.wire.android.ui.markdown.MarkdownConsts.TAG_IMAGE_URL
 import com.wire.android.ui.markdown.MarkdownConsts.TAG_URL
 import com.wire.kalium.logic.data.message.mention.MessageMention
 import org.commonmark.ext.gfm.strikethrough.Strikethrough
@@ -89,6 +87,7 @@ fun MDBlockChildren(parent: Node, nodeData: NodeData) {
     }
 }
 
+@Suppress("LongMethod")
 fun inlineChildren(
     parent: Node,
     annotatedString: AnnotatedString.Builder,
@@ -193,6 +192,7 @@ fun inlineChildren(
     return updatedMentions
 }
 
+@Suppress("LongMethod")
 fun appendLinksAndMentions(
     annotatedString: AnnotatedString.Builder,
     string: String,

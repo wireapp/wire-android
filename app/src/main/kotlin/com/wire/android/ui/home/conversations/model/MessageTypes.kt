@@ -62,7 +62,6 @@ import org.commonmark.ext.gfm.tables.TablesExtension
 import org.commonmark.node.Document
 import org.commonmark.parser.Parser
 
-
 // TODO: Here we actually need to implement some logic that will distinguish MentionLabel with Body of the message,
 //       waiting for the backend to implement mapping logic for the MessageBody
 @Composable

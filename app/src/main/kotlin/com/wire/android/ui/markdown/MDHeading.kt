@@ -39,7 +39,8 @@ fun MDHeading(heading: Heading, nodeData: NodeData) {
         6 -> nodeData.typography.title01
         else -> null
     }
-    if(style !=  null) {
+
+    if (style != null) {
         val padding = if (heading.parent is Document) dimensions().spacing8x else dimensions().spacing0x
         Box(modifier = Modifier.padding(bottom = padding)) {
             val text = buildAnnotatedString {

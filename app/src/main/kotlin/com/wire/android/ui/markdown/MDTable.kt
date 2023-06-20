@@ -67,11 +67,17 @@ fun MDTable(tableBlock: TableBlock, nodeData: NodeData, onMentionsUpdate: (List<
 
     // Create a table
     Column {
-        tableData.forEachIndexed { rowIndex, row ->
+        tableData.forEach {  row ->
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(if (row.firstOrNull()?.isHeader == true) MaterialTheme.wireColorScheme.outline else MaterialTheme.wireColorScheme.background)
+                    .background(
+                        if (row.firstOrNull()?.isHeader == true) {
+                            MaterialTheme.wireColorScheme.outline
+                        } else {
+                            MaterialTheme.wireColorScheme.background
+                        }
+                    )
             ) {
                 for (columnIndex in 0 until columnCount) {
                     MarkdownText(

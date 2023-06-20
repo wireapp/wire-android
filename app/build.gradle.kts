@@ -142,7 +142,6 @@ dependencies {
     implementation(Libraries.coil)
     implementation(Libraries.coilGif)
     implementation(Libraries.coilCompose)
-    implementation(Libraries.coilSvg)
 
     /** lifecycle **/
     // ViewModel

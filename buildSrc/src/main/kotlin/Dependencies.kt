@@ -149,7 +149,6 @@ object Libraries {
     const val coil                      = "io.coil-kt:coil:${Versions.coil}"
     const val coilGif                   = "io.coil-kt:coil-gif:${Versions.coil}"
     const val coilCompose               = "io.coil-kt:coil-compose:${Versions.coil}"
-    const val coilSvg                   = "io.coil-kt:coil-svg:${Versions.coil}"
     const val dataDog                   = "com.datadoghq:dd-sdk-android:${Versions.dataDog}"
     const val dataDogCompose            = "com.datadoghq:dd-sdk-android-compose:${Versions.dataDog}"
     const val resaca                    = "com.github.sebaslogen.resaca:resaca:${Versions.resaca}"

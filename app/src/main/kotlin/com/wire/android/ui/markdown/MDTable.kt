@@ -67,7 +67,7 @@ fun MDTable(tableBlock: TableBlock, nodeData: NodeData, onMentionsUpdate: (List<
 
     // Create a table
     Column {
-        tableData.forEach {  row ->
+        tableData.forEach { row ->
             Row(
                 modifier = Modifier
                     .fillMaxWidth()

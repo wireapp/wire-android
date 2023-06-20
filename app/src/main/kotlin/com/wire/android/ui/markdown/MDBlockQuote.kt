@@ -28,7 +28,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.unit.dp
+import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import org.commonmark.node.BlockQuote
@@ -36,16 +36,17 @@ import org.commonmark.node.BlockQuote
 @Composable
 fun MDBlockQuote(blockQuote: BlockQuote, nodeData: NodeData) {
     val color = MaterialTheme.wireColorScheme.onBackground
+    val xOffset = dimensions().spacing12x.value
     Column(modifier = Modifier
         .drawBehind {
             drawLine(
                 color = color,
                 strokeWidth = 2f,
-                start = Offset(12.dp.value, 0f),
-                end = Offset(12.dp.value, size.height)
+                start = Offset(xOffset, 0f),
+                end = Offset(xOffset, size.height)
             )
         }
-        .padding(start = 16.dp, top = 4.dp, bottom = 4.dp)) {
+        .padding(start = dimensions().spacing16x, top = dimensions().spacing4x, bottom = dimensions().spacing4x)) {
 
         var child = blockQuote.firstChild
         while (child != null) {

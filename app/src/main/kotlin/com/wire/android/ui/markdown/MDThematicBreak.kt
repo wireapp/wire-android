@@ -21,11 +21,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
+import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.divider.WireDivider
 import com.wire.android.ui.theme.wireColorScheme
 
 @Composable
 fun MDThematicBreak() {
-    WireDivider(MaterialTheme.wireColorScheme.outline, modifier = Modifier.padding(vertical = 8.dp))
+    WireDivider(MaterialTheme.wireColorScheme.outline, modifier = Modifier.padding(vertical = dimensions().spacing8x))
 }

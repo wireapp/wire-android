@@ -20,6 +20,7 @@
 
 package com.wire.android.ui.home.conversations.model
 
+import android.content.res.Resources
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -33,6 +34,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.wire.android.model.Clickable
 import com.wire.android.model.ImageAsset
@@ -71,7 +73,7 @@ internal fun MessageBody(
     onLongClick: (() -> Unit)? = null,
     onOpenProfile: (String) -> Unit,
 ) {
-    val (displayMentions, text) = convertToDisplayMentions(messageBody.message, messageBody.message.asString())
+    val (displayMentions, text) = mapToDisplayMentions(messageBody.message, LocalContext.current.resources)
 
     val nodeData = NodeData(
         modifier = Modifier.defaultMinSize(minHeight = dimensions().spacing20x),
@@ -164,8 +166,15 @@ internal fun MessageGenericAsset(
     )
 }
 
-// converting all mentions to display mentions in order to easier find them after converting to markdown document
-private fun convertToDisplayMentions(uiText: UIText, textMessage: String): Pair<List<DisplayMention>, String> {
+/**
+ * Maps all mentions to DisplayMention in order to find them easier after converting
+ * to markdown document as positions changes due to markdown characters.
+ *
+ * @param uiText: UIText - Message to be displayed as UIText
+ *
+ * @return Pair<List<DisplayMention>, String>
+ */
+private fun mapToDisplayMentions(uiText: UIText, resources: Resources): Pair<List<DisplayMention>, String> {
     return if (uiText is UIText.DynamicString) {
         val stringBuilder: StringBuilder = StringBuilder(uiText.value)
         val mentions = uiText.mentions.sortedBy { it.start }.reversed()
@@ -182,6 +191,6 @@ private fun convertToDisplayMentions(uiText: UIText, textMessage: String): Pair<
         }.reversed()
         Pair(mentionList, stringBuilder.toString())
     } else {
-        Pair(listOf(), textMessage)
+        Pair(listOf(), uiText.asString(resources))
     }
 }

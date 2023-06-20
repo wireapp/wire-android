@@ -191,7 +191,7 @@ fun ConversationScreen(
             messageComposerViewModel.navigateToGallery(
                 messageId = message.header.messageId,
                 isSelfMessage = isSelfMessage,
-                isEphemeral = message.expirationStatus is ExpirationStatus.Expirable,
+                isEphemeral = message.header.messageStatus.expirationStatus is ExpirationStatus.Expirable,
             )
             conversationMessagesViewModel.updateImageOnFullscreenMode(message)
         },

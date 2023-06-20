@@ -33,7 +33,7 @@ import com.wire.android.appLogger
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.conversations.model.UIQuotedMessage
-import com.wire.android.ui.home.messagecomposer.model.UiMention
+import com.wire.android.ui.home.messagecomposer.UiMention
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.util.MENTION_SYMBOL
 import com.wire.android.util.NEW_LINE_SYMBOL
@@ -44,7 +44,6 @@ import com.wire.kalium.logic.feature.conversation.InteractionAvailability
 import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
 import com.wire.kalium.logic.feature.selfDeletingMessages.SelfDeletionTimer
 import kotlin.time.Duration
-import kotlin.time.Duration.Companion.minutes
 
 @Composable
 fun rememberMessageComposerState(
@@ -156,7 +155,7 @@ class MessageComposerState(
         }
     }
 
-    private fun mapToQuotedContent(message: UIMessage.Regular) =
+     fun mapToQuotedContent(message: UIMessage.Regular) =
         when (val messageContent = message.messageContent) {
             is UIMessageContent.AssetMessage -> UIQuotedMessage.UIQuotedData.GenericAsset(
                 assetName = messageContent.assetName,

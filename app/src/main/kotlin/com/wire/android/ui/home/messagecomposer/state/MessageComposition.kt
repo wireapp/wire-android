@@ -17,22 +17,91 @@
  */
 package com.wire.android.ui.home.messagecomposer.state
 
+import android.content.Context
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
+import com.wire.android.appLogger
+import com.wire.android.ui.home.conversations.model.UIMessage
+import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.conversations.model.UIQuotedMessage
 import com.wire.android.ui.home.messagecomposer.UiMention
-import com.wire.android.util.EMPTY
 import com.wire.android.util.MENTION_SYMBOL
 import com.wire.android.util.NEW_LINE_SYMBOL
 import com.wire.android.util.WHITE_SPACE
+import com.wire.android.util.ui.toUIText
 import com.wire.kalium.logic.feature.selfDeletingMessages.SelfDeletionTimer
 import kotlin.time.Duration
 
-class MessageCompositionHolder(default: MessageComposition) {
+class MessageCompositionHolder(private val context: Context) {
 
-    val messageComposition: MutableState<MessageComposition> = mutableStateOf(default)
+    val messageComposition: MutableState<MessageComposition> = mutableStateOf(MessageComposition.DEFAULT)
+
+    fun setReply(message: UIMessage.Regular) {
+        val senderId = message.header.userId ?: return
+
+        mapToQuotedContent(message)?.let { quotedContent ->
+            val quotedMessage = UIQuotedMessage.UIQuotedData(
+                messageId = message.header.messageId,
+                senderId = senderId,
+                senderName = message.header.username,
+                originalMessageDateDescription = "".toUIText(),
+                editedTimeDescription = "".toUIText(),
+                quotedContent = quotedContent
+            )
+
+            messageComposition.update {
+                it.copy(
+                    messageTextFieldValue = TextFieldValue(""),
+                    quotedMessage = quotedMessage
+                )
+            }
+        }
+    }
+
+    fun clearReply() {
+        messageComposition.update {
+            it.copy(quotedMessage = null)
+        }
+    }
+
+    private fun mapToQuotedContent(message: UIMessage.Regular) =
+        when (val messageContent = message.messageContent) {
+            is UIMessageContent.AssetMessage -> UIQuotedMessage.UIQuotedData.GenericAsset(
+                assetName = messageContent.assetName,
+                assetMimeType = messageContent.assetExtension
+            )
+
+            is UIMessageContent.RestrictedAsset -> UIQuotedMessage.UIQuotedData.GenericAsset(
+                assetName = messageContent.assetName,
+                assetMimeType = messageContent.mimeType
+            )
+
+            is UIMessageContent.TextMessage -> UIQuotedMessage.UIQuotedData.Text(
+                value = messageContent.messageBody.message.asString(context.resources)
+            )
+
+            is UIMessageContent.AudioAssetMessage -> UIQuotedMessage.UIQuotedData.AudioMessage
+
+            is UIMessageContent.ImageMessage -> messageContent.asset?.let {
+                UIQuotedMessage.UIQuotedData.DisplayableImage(
+                    displayable = messageContent.asset
+                )
+            }
+
+            else -> {
+                appLogger.w("Attempting to reply to an unsupported message type of content = $messageContent")
+                null
+            }
+        }
+
+    fun setMessageText(messageTextFieldValue: TextFieldValue) {
+        messageComposition.update {
+            it.copy(
+                messageTextFieldValue = messageTextFieldValue
+            )
+        }
+    }
 
 }
 
@@ -81,8 +150,6 @@ data class MessageComposition(
 //
 //        return TextRange(beforeSelection.length + 1)
     }
-
-
 }
 
 fun MutableState<MessageComposition>.update(block: (MessageComposition) -> MessageComposition) {

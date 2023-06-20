@@ -27,21 +27,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
-import com.wire.android.appLogger
 import com.wire.android.ui.home.conversations.model.UIMessage
-import com.wire.android.ui.home.conversations.model.UIMessageContent
-import com.wire.android.ui.home.conversations.model.UIQuotedMessage
 import com.wire.android.ui.home.messagecomposer.UiMention
-import com.wire.android.ui.home.newconversation.model.Contact
-import com.wire.android.util.EMPTY
-import com.wire.android.util.MENTION_SYMBOL
-import com.wire.android.util.NEW_LINE_SYMBOL
-import com.wire.android.util.WHITE_SPACE
-import com.wire.android.util.ui.toUIText
 import com.wire.kalium.logic.data.message.mention.MessageMention
-import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.conversation.InteractionAvailability
 import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
 import com.wire.kalium.logic.feature.selfDeletingMessages.SelfDeletionTimer
@@ -78,7 +67,10 @@ class MessageComposerState(
     private val onShowEphemeralOptionsMenu: () -> Unit
 ) {
 
-    val messageCompositionHolder = MessageCompositionHolder(MessageComposition.DEFAULT)
+    private val messageCompositionHolder = MessageCompositionHolder(context)
+
+    val messageComposition
+        get() = messageCompositionHolder.messageComposition.value
 
     var inputFocused: Boolean by mutableStateOf(false)
         private set
@@ -104,68 +96,16 @@ class MessageComposerState(
         private set
 
     fun toReply(message: UIMessage.Regular) {
-        val senderId = message.header.userId ?: return
+        messageCompositionHolder.setReply(message)
 
-        mapToQuotedContent(message)?.let { quotedContent ->
-            val quotedMessage = UIQuotedMessage.UIQuotedData(
-                messageId = message.header.messageId,
-                senderId = senderId,
-                senderName = message.header.username,
-                originalMessageDateDescription = "".toUIText(),
-                editedTimeDescription = "".toUIText(),
-                quotedContent = quotedContent
-            )
-
-            messageCompositionHolder.messageComposition.update {
-                it.copy(
-                    messageTextFieldValue = TextFieldValue(""),
-                    quotedMessage = quotedMessage
-                )
-            }
-
-            inputFocused = true
-            inputType = MessageCompositionInputType.Composing(
-                messageCompositionState = messageCompositionHolder.messageComposition
-            )
-        }
+        inputFocused = true
+        inputType = MessageCompositionInputType.Composing(
+            messageCompositionState = messageCompositionHolder.messageComposition
+        )
     }
 
-    private fun mapToQuotedContent(message: UIMessage.Regular) =
-        when (val messageContent = message.messageContent) {
-            is UIMessageContent.AssetMessage -> UIQuotedMessage.UIQuotedData.GenericAsset(
-                assetName = messageContent.assetName,
-                assetMimeType = messageContent.assetExtension
-            )
-
-            is UIMessageContent.RestrictedAsset -> UIQuotedMessage.UIQuotedData.GenericAsset(
-                assetName = messageContent.assetName,
-                assetMimeType = messageContent.mimeType
-            )
-
-            is UIMessageContent.TextMessage -> UIQuotedMessage.UIQuotedData.Text(
-                value = messageContent.messageBody.message.asString(context.resources)
-            )
-
-            is UIMessageContent.AudioAssetMessage -> UIQuotedMessage.UIQuotedData.AudioMessage
-
-            is UIMessageContent.ImageMessage -> messageContent.asset?.let {
-                UIQuotedMessage.UIQuotedData.DisplayableImage(
-                    displayable = messageContent.asset
-                )
-            }
-
-            else -> {
-                appLogger.w("Attempting to reply to an unsupported message type of content = $messageContent")
-                null
-            }
-        }
-
     fun cancelReply() {
-        messageCompositionHolder.messageComposition.update {
-            it.copy(
-                quotedMessage = null
-            )
-        }
+        messageCompositionHolder.clearReply()
     }
 
     fun toInActive() {
@@ -184,12 +124,7 @@ class MessageComposerState(
     }
 
     fun toEdit(editMessageText: String) {
-        messageCompositionHolder.messageComposition.update {
-            it.copy(
-                messageTextFieldValue = TextFieldValue(editMessageText)
-            )
-        }
-
+        messageCompositionHolder.setMessageText(TextFieldValue(editMessageText))
         inputFocused = true
         inputType = MessageCompositionInputType.Editing(
             messageCompositionState = messageCompositionHolder.messageComposition,
@@ -203,11 +138,7 @@ class MessageComposerState(
     }
 
     fun onMessageTextChanged(messageTextFieldValue: TextFieldValue) {
-        messageCompositionHolder.messageComposition.update {
-            it.copy(
-                messageTextFieldValue = messageTextFieldValue
-            )
-        }
+        messageCompositionHolder.setMessageText(messageTextFieldValue)
     }
 
     fun onInputFocused() {

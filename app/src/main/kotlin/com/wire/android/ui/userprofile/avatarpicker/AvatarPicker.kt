@@ -97,7 +97,7 @@ fun AvatarPickerScreen(
         viewModel = viewModel,
         state = state,
         onCloseClick = navigator::navigateBack,
-        onSaveClick =  { viewModel.uploadNewPickedAvatar(navigator::navigateBack) }
+        onSaveClick = { viewModel.uploadNewPickedAvatar(navigator::navigateBack) }
     )
 }
 

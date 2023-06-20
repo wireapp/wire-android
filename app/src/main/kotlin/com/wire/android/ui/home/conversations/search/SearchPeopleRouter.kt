@@ -93,25 +93,19 @@ fun AddMembersSearchRouter(
         searchTitle = stringResource(id = R.string.label_add_participants),
         actionButtonTitle = stringResource(id = R.string.label_continue),
         onSearchQueryChanged = addMembersToConversationViewModel::searchQueryChanged,
-        onOpenUserProfile = remember(addMembersToConversationViewModel, navigator) {
-            { contact: Contact ->
-                OtherUserProfileScreenDestination(QualifiedID(contact.id, contact.domain))
-                    .let { navigator.navigate(NavigationCommand(it)) }
-            }
+        onOpenUserProfile = { contact: Contact ->
+            OtherUserProfileScreenDestination(QualifiedID(contact.id, contact.domain))
+                .let { navigator.navigate(NavigationCommand(it)) }
         },
         onAddContactToGroup = addMembersToConversationViewModel::addContactToGroup,
         onRemoveContactFromGroup = addMembersToConversationViewModel::removeContactFromGroup,
 // Members search does not have the option to add a contact
         onAddContact = {},
-        onGroupSelectionSubmitAction = remember(navigator, addMembersToConversationViewModel) {
-            { addMembersToConversationViewModel.addMembersToConversation(navigator::navigateBack) }
-        },
+        onGroupSelectionSubmitAction = { addMembersToConversationViewModel.addMembersToConversation(navigator::navigateBack) },
         onClose = navigator::navigateBack,
-        onServiceClicked = remember(navigator, navArgs) {
-            { contact: Contact ->
-                ServiceDetailsScreenDestination(BotService(contact.id, contact.domain), navArgs.conversationId)
-                    .let { navigator.navigate(NavigationCommand(it)) }
-            }
+        onServiceClicked = { contact: Contact ->
+            ServiceDetailsScreenDestination(BotService(contact.id, contact.domain), navArgs.conversationId)
+                .let { navigator.navigate(NavigationCommand(it)) }
         },
         screenType = SearchPeopleScreenType.CONVERSATION_DETAILS
     )

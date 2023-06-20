@@ -87,11 +87,9 @@ fun NewConversationRouter(
                             )
                         },
                         onClose = navigator::navigateBack,
-                        onOpenUserProfile = remember(navigator) {
-                            { contact: Contact ->
-                                OtherUserProfileScreenDestination(QualifiedID(contact.id, contact.domain))
-                                    .let { navigator.navigate(NavigationCommand(it)) }
-                            }
+                        onOpenUserProfile = { contact: Contact ->
+                            OtherUserProfileScreenDestination(QualifiedID(contact.id, contact.domain))
+                                .let { navigator.navigate(NavigationCommand(it)) }
                         },
                     )
                 }
@@ -121,20 +119,14 @@ fun NewConversationRouter(
                 content = {
                     GroupOptionScreen(
                         onBackPressed = newConversationNavController::popBackStack,
-                        onCreateGroup = remember(newConversationViewModel, navigator) {
-                            { newConversationViewModel.createGroup(::navigateToGroup) }
-                        },
+                        onCreateGroup = { newConversationViewModel.createGroup(::navigateToGroup) },
                         groupOptionState = newConversationViewModel.groupOptionsState,
                         onAllowGuestChanged = newConversationViewModel::onAllowGuestStatusChanged,
                         onAllowServicesChanged = newConversationViewModel::onAllowServicesStatusChanged,
                         onReadReceiptChanged = newConversationViewModel::onReadReceiptStatusChanged,
                         onAllowGuestsDialogDismissed = newConversationViewModel::onAllowGuestsDialogDismissed,
-                        onAllowGuestsClicked = remember(newConversationViewModel, navigator) {
-                            { newConversationViewModel.onAllowGuestsClicked(::navigateToGroup) }
-                        },
-                        onNotAllowGuestsClicked = remember(newConversationViewModel, navigator) {
-                            { newConversationViewModel.onNotAllowGuestClicked(::navigateToGroup) }
-                        },
+                        onAllowGuestsClicked = { newConversationViewModel.onAllowGuestsClicked(::navigateToGroup) },
+                        onNotAllowGuestsClicked = { newConversationViewModel.onNotAllowGuestClicked(::navigateToGroup) },
                         onErrorDismissed = newConversationViewModel::onGroupOptionsErrorDismiss
                     )
                 }

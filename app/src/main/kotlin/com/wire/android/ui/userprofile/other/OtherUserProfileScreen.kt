@@ -140,12 +140,8 @@ fun OtherUserProfileScreen(
             resultNavigator.setResult(it)
             resultNavigator.navigateBack()
         },
-        onOpenConversation = remember(navigator) {
-            { navigator.navigate(NavigationCommand(ConversationScreenDestination(it), BackStackMode.UPDATE_EXISTED)) }
-        },
-        onOpenDeviceDetails = remember(navigator, navArgs) {
-            { navigator.navigate(NavigationCommand(DeviceDetailsScreenDestination(navArgs.userId, it.clientId))) }
-        },
+        onOpenConversation = { navigator.navigate(NavigationCommand(ConversationScreenDestination(it), BackStackMode.UPDATE_EXISTED)) },
+        onOpenDeviceDetails = { navigator.navigate(NavigationCommand(DeviceDetailsScreenDestination(navArgs.userId, it.clientId))) },
         navigateBack = navigator::navigateBack
     )
 

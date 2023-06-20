@@ -24,7 +24,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.painterResource
@@ -82,9 +81,7 @@ fun ConnectionActionButton(
         ConnectionState.ACCEPTED -> WirePrimaryButton(
             text = stringResource(R.string.label_open_conversation),
             loading = viewModel.actionableState().isPerformingAction,
-            onClick = remember(viewModel, onOpenConversation) {
-                { viewModel.onOpenConversation(onOpenConversation) }
-            },
+            onClick = { viewModel.onOpenConversation(onOpenConversation) },
         )
 
         ConnectionState.IGNORED -> WirePrimaryButton(

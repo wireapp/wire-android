@@ -36,7 +36,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -98,7 +97,7 @@ fun AvatarPickerScreen(
         viewModel = viewModel,
         state = state,
         onCloseClick = navigator::navigateBack,
-        onSaveClick = remember(navigator, viewModel) { { viewModel.uploadNewPickedAvatar(navigator::navigateBack) } }
+        onSaveClick =  { viewModel.uploadNewPickedAvatar(navigator::navigateBack) }
     )
 }
 

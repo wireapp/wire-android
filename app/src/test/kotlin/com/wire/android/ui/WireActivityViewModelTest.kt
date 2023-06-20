@@ -32,7 +32,6 @@ import com.wire.android.framework.TestUser
 import com.wire.android.migration.MigrationManager
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.NavigationManager
 import com.wire.android.services.ServicesManager
 import com.wire.android.ui.authentication.devices.model.displayName
 import com.wire.android.ui.common.dialogs.CustomBEDeeplinkDialogState
@@ -127,7 +126,7 @@ class WireActivityViewModelTest {
         viewModel.handleDeepLink(mockedIntent())
 
         coVerify(exactly = 1) {
-            arrangement.navigationManager.navigate(
+            arrangement.navigator.navigate(
                 NavigationCommand(LoginScreenDestination(ssoLoginResult = result), BackStackMode.UPDATE_EXISTED)
             )
         }
@@ -143,7 +142,7 @@ class WireActivityViewModelTest {
 
         viewModel.handleDeepLink(mockedIntent())
 
-        coVerify(exactly = 0) { arrangement.navigationManager.navigate(any()) }
+        coVerify(exactly = 0) { arrangement.navigator.navigate(any()) }
         assertEquals(HomeScreenDestination, viewModel.startNavigationRoute())
         assertEquals(newServerConfig(1).links, viewModel.globalAppState.customBackendDialog.serverLinks)
     }
@@ -158,7 +157,7 @@ class WireActivityViewModelTest {
         viewModel.handleDeepLink(mockedIntent())
 
         assertEquals(WelcomeScreenDestination, viewModel.startNavigationRoute())
-        coVerify(exactly = 0) { arrangement.navigationManager.navigate(any()) }
+        coVerify(exactly = 0) { arrangement.navigator.navigate(any()) }
         assertEquals(newServerConfig(1).links, viewModel.globalAppState.customBackendDialog.serverLinks)
     }
 
@@ -173,7 +172,7 @@ class WireActivityViewModelTest {
         viewModel.handleDeepLink(mockedIntent())
 
         assertEquals(MigrationScreenDestination, viewModel.startNavigationRoute())
-        coVerify(exactly = 0) { arrangement.navigationManager.navigate(any()) }
+        coVerify(exactly = 0) { arrangement.navigator.navigate(any()) }
         assertEquals(CustomBEDeeplinkDialogState(), viewModel.globalAppState.customBackendDialog)
     }
 
@@ -189,7 +188,7 @@ class WireActivityViewModelTest {
 
         assertEquals(HomeScreenDestination, viewModel.startNavigationRoute())
         coVerify(exactly = 1) {
-            arrangement.navigationManager.navigate(
+            arrangement.navigator.navigate(
                 NavigationCommand(
                     LoginScreenDestination(ssoLoginResult = ssoLogin),
                     BackStackMode.UPDATE_EXISTED
@@ -210,7 +209,7 @@ class WireActivityViewModelTest {
 
         assertEquals(WelcomeScreenDestination, viewModel.startNavigationRoute())
         coVerify(exactly = 1) {
-            arrangement.navigationManager.navigate(
+            arrangement.navigator.navigate(
                 NavigationCommand(
                     LoginScreenDestination(ssoLoginResult = ssoLogin),
                     BackStackMode.UPDATE_EXISTED
@@ -230,7 +229,7 @@ class WireActivityViewModelTest {
 
         assertEquals(HomeScreenDestination, viewModel.startNavigationRoute())
         coVerify(exactly = 1) {
-            arrangement.navigationManager.navigate(
+            arrangement.navigator.navigate(
                 NavigationCommand(
                     LoginScreenDestination("handle"),
                     BackStackMode.UPDATE_EXISTED
@@ -250,7 +249,7 @@ class WireActivityViewModelTest {
 
         assertEquals(WelcomeScreenDestination, viewModel.startNavigationRoute())
         coVerify(exactly = 1) {
-            arrangement.navigationManager.navigate(
+            arrangement.navigator.navigate(
                 NavigationCommand(
                     LoginScreenDestination("handle"),
                     BackStackMode.UPDATE_EXISTED
@@ -271,7 +270,7 @@ class WireActivityViewModelTest {
 
         assertEquals(HomeScreenDestination, viewModel.startNavigationRoute())
         coVerify(exactly = 1) {
-            arrangement.navigationManager.navigate(
+            arrangement.navigator.navigate(
                 NavigationCommand(IncomingCallScreenDestination(conversationsId))
             )
         }
@@ -289,7 +288,7 @@ class WireActivityViewModelTest {
 
         assertEquals(WelcomeScreenDestination, viewModel.startNavigationRoute())
         coVerify(exactly = 0) {
-            arrangement.navigationManager.navigate(
+            arrangement.navigator.navigate(
                 NavigationCommand(IncomingCallScreenDestination(conversationsId))
             )
         }
@@ -307,7 +306,7 @@ class WireActivityViewModelTest {
 
         assertEquals(HomeScreenDestination, viewModel.startNavigationRoute())
         coVerify(exactly = 1) {
-            arrangement.navigationManager.navigate(
+            arrangement.navigator.navigate(
                 NavigationCommand(ConversationScreenDestination(conversationsId), BackStackMode.UPDATE_EXISTED)
             )
         }
@@ -324,7 +323,7 @@ class WireActivityViewModelTest {
 
         assertEquals(WelcomeScreenDestination, viewModel.startNavigationRoute())
         coVerify(exactly = 0) {
-            arrangement.navigationManager.navigate(any())
+            arrangement.navigator.navigate(any())
         }
     }
 
@@ -340,7 +339,7 @@ class WireActivityViewModelTest {
 
         assertEquals(HomeScreenDestination, viewModel.startNavigationRoute())
         coVerify(exactly = 1) {
-            arrangement.navigationManager.navigate(
+            arrangement.navigator.navigate(
                 NavigationCommand(OtherUserProfileScreenDestination(userId), BackStackMode.UPDATE_EXISTED)
             )
         }
@@ -357,7 +356,7 @@ class WireActivityViewModelTest {
 
         assertEquals(WelcomeScreenDestination, viewModel.startNavigationRoute())
         coVerify(exactly = 0) {
-            arrangement.navigationManager.navigate(any())
+            arrangement.navigator.navigate(any())
         }
     }
 
@@ -369,7 +368,7 @@ class WireActivityViewModelTest {
 
         viewModel.handleDeepLink(null)
 
-        coVerify(exactly = 0) { arrangement.navigationManager.navigate(any()) }
+        coVerify(exactly = 0) { arrangement.navigator.navigate(any()) }
     }
 
     @Test
@@ -380,7 +379,7 @@ class WireActivityViewModelTest {
 
         viewModel.handleDeepLink(null)
 
-        coVerify(exactly = 0) { arrangement.navigationManager.navigate(any()) }
+        coVerify(exactly = 0) { arrangement.navigator.navigate(any()) }
     }
 
     @Test
@@ -416,7 +415,7 @@ class WireActivityViewModelTest {
             key,
             domain
         )
-        coVerify(exactly = 0) { arrangement.navigationManager.navigate(any()) }
+        coVerify(exactly = 0) { arrangement.navigator.navigate(any()) }
     }
 
     @Test
@@ -438,7 +437,7 @@ class WireActivityViewModelTest {
 
         viewModel.globalAppState.conversationJoinedDialog `should be equal to` null
         coVerify(exactly = 1) {
-            arrangement.navigationManager.navigate(
+            arrangement.navigator.navigate(
                 NavigationCommand(ConversationScreenDestination(conversationId), BackStackMode.UPDATE_EXISTED)
             )
         }
@@ -461,7 +460,7 @@ class WireActivityViewModelTest {
 
         viewModel.joinConversationViaCode(code, key, domain)
         viewModel.globalAppState.conversationJoinedDialog `should be equal to` null
-        coVerify(exactly = 1) { arrangement.navigationManager.navigate(any()) }
+        coVerify(exactly = 1) { arrangement.navigator.navigate(any()) }
     }
 
     @Test
@@ -481,7 +480,7 @@ class WireActivityViewModelTest {
 
         viewModel.joinConversationViaCode(code, key, domain)
         viewModel.globalAppState.conversationJoinedDialog `should be equal to` null
-        coVerify(exactly = 1) { arrangement.navigationManager.navigate(any()) }
+        coVerify(exactly = 1) { arrangement.navigator.navigate(any()) }
     }
 
     @Test
@@ -500,7 +499,7 @@ class WireActivityViewModelTest {
 
         viewModel.joinConversationViaCode(code, key, domain)
         viewModel.globalAppState.conversationJoinedDialog `should be equal to` null
-        coVerify(exactly = 0) { arrangement.navigationManager.navigate(any()) }
+        coVerify(exactly = 0) { arrangement.navigator.navigate(any()) }
     }
 
     @Test
@@ -520,7 +519,7 @@ class WireActivityViewModelTest {
 
         viewModel.joinConversationViaCode(code, key, domain)
         viewModel.globalAppState.conversationJoinedDialog `should be equal to` null
-        coVerify(exactly = 0) { arrangement.navigationManager.navigate(any()) }
+        coVerify(exactly = 0) { arrangement.navigator.navigate(any()) }
     }
 
     @Test
@@ -659,7 +658,7 @@ class WireActivityViewModelTest {
             coEvery { currentSessionFlow() } returns flowOf()
             coEvery { getServerConfigUseCase(any()) } returns GetServerConfigResult.Success(newServerConfig(1).links)
             coEvery { deepLinkProcessor(any()) } returns DeepLinkResult.Unknown
-            coEvery { navigationManager.navigate(any()) } returns Unit
+            coEvery { navigator.navigate(any()) } returns Unit
             coEvery { getSessionsUseCase.invoke() }
             coEvery { migrationManager.shouldMigrate() } returns false
             every { observeSyncStateUseCaseProviderFactory.create(any()).observeSyncState } returns observeSyncStateUseCase
@@ -678,7 +677,7 @@ class WireActivityViewModelTest {
         lateinit var deepLinkProcessor: DeepLinkProcessor
 
         @MockK
-        lateinit var navigationManager: NavigationManager
+        lateinit var navigator: WireActivityNavigator
 
         @MockK
         lateinit var getSessionsUseCase: GetSessionsUseCase
@@ -720,7 +719,6 @@ class WireActivityViewModelTest {
                 currentSessionFlow = currentSessionFlow,
                 getServerConfigUseCase = getServerConfigUseCase,
                 deepLinkProcessor = deepLinkProcessor,
-                navigationManager = navigationManager,
                 authServerConfigProvider = authServerConfigProvider,
                 getSessions = getSessionsUseCase,
                 accountSwitch = switchAccount,
@@ -729,8 +727,8 @@ class WireActivityViewModelTest {
                 observeSyncStateUseCaseProviderFactory = observeSyncStateUseCaseProviderFactory,
                 observeIfAppUpdateRequired = observeIfAppUpdateRequired,
                 observeNewClients = observeNewClients,
-                currentScreenManager = currentScreenManager,
-            )
+                currentScreenManager = currentScreenManager
+            ).also { it.navigator = navigator }
         }
 
         fun withSomeCurrentSession(): Arrangement = apply {

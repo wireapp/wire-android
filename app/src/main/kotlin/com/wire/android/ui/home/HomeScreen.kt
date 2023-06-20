@@ -38,6 +38,7 @@ import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.RectangleShape
@@ -58,8 +59,10 @@ import com.ramcosta.composedestinations.spec.Direction
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.navigation.HomeNavigationItem
+import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.WakeUpScreenPopUpNavigationAnimation
 import com.wire.android.navigation.hiltSavedStateViewModel
+import com.wire.android.navigation.Navigator
 import com.wire.android.ui.common.CollapsingTopBarScaffold
 import com.wire.android.ui.common.FloatingActionButton
 import com.wire.android.ui.common.WireBottomNavigationBar
@@ -68,6 +71,7 @@ import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.common.topappbar.search.SearchTopBar
+import com.wire.android.ui.destinations.SelfUserProfileScreenDestination
 import com.wire.android.ui.destinations.ConversationScreenDestination
 import com.wire.android.ui.destinations.OtherUserProfileScreenDestination
 import com.wire.android.ui.home.conversations.details.GroupConversationActionType
@@ -86,6 +90,7 @@ import kotlinx.coroutines.launch
 )
 @Composable
 fun HomeScreen(
+    navigator: Navigator,
     backNavArgs: ImmutableMap<String, Any> = persistentMapOf(),
     homeViewModel: HomeViewModel = hiltSavedStateViewModel(backNavArgs = backNavArgs),
     featureFlagNotificationViewModel: FeatureFlagNotificationViewModel = hiltViewModel(),
@@ -93,7 +98,7 @@ fun HomeScreen(
     groupDetailsScreenResultRecipient: ResultRecipient<ConversationScreenDestination, GroupConversationDetailsNavBackArgs>,
     otherUserProfileScreenResultRecipient: ResultRecipient<OtherUserProfileScreenDestination, String>,
 ) {
-    homeViewModel.checkRequirements()
+    homeViewModel.checkRequirements() { it.navigate(navigator::navigate) }
     featureFlagNotificationViewModel.loadInitialSync()
     val homeScreenState = rememberHomeScreenState()
     val showNotificationsFlow = rememberRequestPushNotificationsPermissionFlow(
@@ -145,8 +150,8 @@ fun HomeScreen(
         homeStateHolder = homeScreenState,
         conversationListState = conversationListViewModel.conversationListState,
         onNewConversationClick = conversationListViewModel::openNewConversation,
-        onSelfUserClick = homeViewModel::navigateToSelfUserProfile,
-        navigateToItem = homeViewModel::navigateTo
+        onSelfUserClick = remember(navigator) { { navigator.navigate(NavigationCommand(SelfUserProfileScreenDestination)) } },
+        navigateToItem = remember(navigator) { { navigator.navigate(NavigationCommand(it)) } }
     )
 
     BackHandler(homeScreenState.drawerState.isOpen) {

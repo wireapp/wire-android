@@ -22,6 +22,7 @@ package com.wire.android.util
 
 import android.net.Uri
 import com.wire.android.feature.AccountSwitchUseCase
+import com.wire.android.feature.SwitchAccountResult
 import com.wire.android.util.deeplink.DeepLinkProcessor
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.android.util.deeplink.SSOFailureCodes
@@ -54,7 +55,7 @@ class DeepLinkProcessorTest {
     @BeforeEach
     fun setup() {
         MockKAnnotations.init(this)
-        coEvery { accountSwitchUseCase(any()) } returns Unit
+        coEvery { accountSwitchUseCase(any()) } returns SwitchAccountResult.SwitchedToAnotherAccount
         deepLinkProcessor = DeepLinkProcessor(accountSwitchUseCase, currentSession)
     }
 

@@ -24,7 +24,6 @@ import com.wire.android.di.ApplicationScope
 import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.destinations.HomeScreenDestination
 import com.wire.android.ui.destinations.WelcomeScreenDestination
 import com.wire.kalium.logic.data.logout.LogoutReason
@@ -48,7 +47,6 @@ import javax.inject.Singleton
 @Singleton
 class AccountSwitchUseCase @Inject constructor(
     private val updateCurrentSession: UpdateCurrentSessionUseCase,
-    private val navigationManager: NavigationManager,
     private val getSessions: GetSessionsUseCase,
     private val getCurrentSession: CurrentSessionUseCase,
     private val deleteSession: DeleteSessionUseCase,
@@ -65,17 +63,15 @@ class AccountSwitchUseCase @Inject constructor(
             }
         }
 
-    suspend operator fun invoke(params: SwitchAccountParam) {
-
+    suspend operator fun invoke(params: SwitchAccountParam): SwitchAccountResult {
         val current = currentAccount
-        when (params) {
+        return when (params) {
             is SwitchAccountParam.SwitchToAccount -> switch(params.userId, current.await())
-            SwitchAccountParam.SwitchToNextAccountOrWelcome -> switchToNextAccountOrWelcome(current.await())
+            SwitchAccountParam.TryToSwitchToNextAccount -> getNextAccountIfPossibleAndSwitch(current.await())
         }
     }
 
-    private suspend fun switchToNextAccountOrWelcome(current: AccountInfo?) {
-
+    private suspend fun getNextAccountIfPossibleAndSwitch(current: AccountInfo?): SwitchAccountResult {
         val nextSessionId: UserId? = getSessions().let {
             when (it) {
                 is GetAllSessionsResult.Failure.Generic -> null
@@ -86,26 +82,23 @@ class AccountSwitchUseCase @Inject constructor(
                     }?.userId
             }
         }
-        switch(nextSessionId, current)
+        return switch(nextSessionId, current)
     }
 
-    private suspend fun switch(userId: UserId?, current: AccountInfo?) {
-        val navigationDestination = (userId?.let { HomeScreenDestination }) ?: run {
+    private suspend fun switch(userId: UserId?, current: AccountInfo?): SwitchAccountResult {
+        val successResult = (userId?.let { SwitchAccountResult.SwitchedToAnotherAccount }) ?: run {
             // if there are no more accounts, we need to change the auth server config to the one of the current user
             current?.let { updateAuthServer(it.userId) }
-            WelcomeScreenDestination
+            SwitchAccountResult.NoOtherAccountToSwitch
         }
-
-        when (updateCurrentSession(userId)) {
+        return when (updateCurrentSession(userId)) {
             is UpdateCurrentSessionUseCase.Result.Success -> {
-                navigationManager.navigate(NavigationCommand(navigationDestination, BackStackMode.CLEAR_WHOLE))
+                current?.also {
+                    handleOldSession(it)
+                }
+                successResult
             }
-            is UpdateCurrentSessionUseCase.Result.Failure -> {
-                return
-            }
-        }
-        current?.also {
-            handleOldSession(it)
+            is UpdateCurrentSessionUseCase.Result.Failure -> SwitchAccountResult.Failure
         }
     }
 
@@ -148,6 +141,28 @@ class AccountSwitchUseCase @Inject constructor(
 }
 
 sealed class SwitchAccountParam {
-    object SwitchToNextAccountOrWelcome : SwitchAccountParam()
+    object TryToSwitchToNextAccount : SwitchAccountParam()
     data class SwitchToAccount(val userId: UserId) : SwitchAccountParam()
+}
+
+sealed class SwitchAccountResult {
+    object Failure : SwitchAccountResult()
+    object SwitchedToAnotherAccount : SwitchAccountResult()
+    object NoOtherAccountToSwitch : SwitchAccountResult()
+
+    fun callAction(actions: SwitchAccountActions) = when (this) {
+        NoOtherAccountToSwitch -> actions.noOtherAccountToSwitch()
+        SwitchedToAnotherAccount -> actions.switchedToAnotherAccount()
+        else -> { /* do nothing */ }
+    }
+}
+
+interface SwitchAccountActions {
+    fun switchedToAnotherAccount()
+    fun noOtherAccountToSwitch()
+}
+
+class NavigationSwitchAccountActions(val navigate: (NavigationCommand) -> Unit) : SwitchAccountActions {
+    override fun switchedToAnotherAccount() = navigate(NavigationCommand(HomeScreenDestination, BackStackMode.CLEAR_WHOLE))
+    override fun noOtherAccountToSwitch() = navigate(NavigationCommand(WelcomeScreenDestination, BackStackMode.CLEAR_WHOLE))
 }

@@ -171,7 +171,7 @@ internal fun MessageGenericAsset(
  * to markdown document as positions changes due to markdown characters.
  *
  * @param uiText: UIText - Message to be displayed as UIText
- *
+ * @param resources: Resources - To be able to get String out of UIText message
  * @return Pair<List<DisplayMention>, String>
  */
 private fun mapToDisplayMentions(uiText: UIText, resources: Resources): Pair<List<DisplayMention>, String> {

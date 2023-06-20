@@ -377,7 +377,7 @@ pipeline {
                         echo 'Uploading file to S3 Bucket'
                         s3Upload(acl: 'Private', workingDir: "app/build/outputs/apk/${params.FLAVOR.toLowerCase()}/${params.BUILD_TYPE.toLowerCase()}/", includePathPattern: 'com.wire.android-*.apk', bucket: 'z-lohika', path: "megazord/android/reloaded/${params.FLAVOR.toLowerCase()}/${params.BUILD_TYPE.toLowerCase()}/")
                         script {
-                            if (params.SOURCE_BRANCH.startsWith("PR-") || params.SOURCE_BRANCH == "develop") {
+                            if (params.SOURCE_BRANCH.startsWith("PR-") || params.SOURCE_BRANCH == "develop" || params.SOURCE_BRANCH == "release/candidate") {
                                 s3Upload(acl: 'Private', workingDir: "app/build/outputs/apk/${params.FLAVOR.toLowerCase()}/${params.BUILD_TYPE.toLowerCase()}/", includePathPattern: 'com.wire.android-*.apk', bucket: 'z-lohika', path: "megazord/android/reloaded/by-branch/${params.SOURCE_BRANCH}/")
                             }
                         }

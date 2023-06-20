@@ -252,7 +252,7 @@ private fun ActiveMessageComposer(
                                 modifier = fillRemainingSpaceOrWrapContent
                             )
                             AdditionalOptionsMenu(
-                                onOnSelfDeletingOptionClicked = {},
+                                onOnSelfDeletingOptionClicked = ::toSelfDeleting,
                                 onAttachmentOptionClicked = {},
                                 onGifOptionClicked = { },
                                 onPingOptionClicked = { },

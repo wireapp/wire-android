@@ -74,7 +74,7 @@ fun SelfDeletingActions(
 ) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         Text(
-            text = selfDeletionTimer.toDuration().toSelfDeletionDuration().shortLabel.toString(),
+            text = selfDeletionTimer.toDuration().toSelfDeletionDuration().shortLabel.asString(),
             style = typography().label02,
             color = colorsScheme().primary,
             modifier = Modifier

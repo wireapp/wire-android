@@ -60,7 +60,7 @@ fun rememberMessageComposerState(
         MessageComposerState(
             context = context,
             isFileSharingEnabled = isFileSharingEnabled,
-            selfDeletionTimer = SelfDeletionTimer.Enabled(5.minutes),
+            selfDeletionTimer = selfDeletionTimer,
             interactionAvailability = interactionAvailability,
             securityClassificationType = securityClassificationType,
             onShowEphemeralOptionsMenu = onShowEphemeralOptionsMenu
@@ -70,7 +70,7 @@ fun rememberMessageComposerState(
 
 class MessageComposerState(
     private val context: Context,
-     val isFileSharingEnabled: Boolean = true,
+    val isFileSharingEnabled: Boolean = true,
     private val selfDeletionTimer: SelfDeletionTimer = SelfDeletionTimer.Enabled(Duration.ZERO),
     private val interactionAvailability: InteractionAvailability = InteractionAvailability.ENABLED,
     private val securityClassificationType: SecurityClassificationType = SecurityClassificationType.NONE,
@@ -79,7 +79,7 @@ class MessageComposerState(
 
     var messageComposition = mutableStateOf(
         MessageComposition(
-            selfDeletionDuration = selfDeletionTimer.toDuration()
+            selfDeletionTimer = selfDeletionTimer
         )
     )
         private set
@@ -218,6 +218,10 @@ class MessageComposerState(
         } else {
             MessageCompositionInputSize.COLLAPSED
         }
+    }
+
+    fun toSelfDeleting(){
+        inputType = MessageCompositionInputType.SelfDeleting(messageComposition, onShowEphemeralOptionsMenu)
     }
 
 

@@ -20,55 +20,53 @@
 
 package com.wire.android.ui.home.messagecomposer
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.animation.core.Transition
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
-import com.wire.android.ui.common.SecurityClassificationBanner
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.common.spacers.VerticalSpace
+import com.wire.android.ui.common.textfield.WireTextField
+import com.wire.android.ui.common.textfield.WireTextFieldColors
+import com.wire.android.ui.common.textfield.wireTextFieldColors
 import com.wire.android.ui.home.conversations.messages.QuotedMessagePreview
-import com.wire.android.ui.home.conversations.model.UIQuotedMessage
-import com.wire.android.ui.home.messagecomposer.state.MessageComposeInputSize
-import com.wire.android.ui.home.messagecomposer.state.MessageComposeInputState
-import com.wire.android.ui.home.messagecomposer.state.MessageComposeInputType
-import com.wire.android.ui.home.newconversation.model.Contact
-import com.wire.android.ui.theme.wireColorScheme
+import com.wire.android.ui.home.messagecomposer.state.MessageCompositionInputSize
+import com.wire.android.ui.home.messagecomposer.state.MessageCompositionInputType
+import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.ui.stringWithStyledArgs
 import com.wire.kalium.logic.feature.conversation.InteractionAvailability
 import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
-import io.github.esentsov.PackagePrivate
 
 //@PackagePrivate
 //@Composable
@@ -222,28 +220,157 @@ import io.github.esentsov.PackagePrivate
 //    }
 //}
 
+@Composable
+fun InActiveMessageComposerInput(messageText: TextFieldValue, onMessageComposerFocused: () -> Unit) {
+    MessageComposerTextInput(
+        inputFocused = false,
+        colors = wireTextFieldColors(
+            backgroundColor = Color.Transparent,
+            borderColor = Color.Transparent,
+            focusColor = Color.Transparent,
+            placeholderColor = colorsScheme().secondaryText
+        ),
+        messageText = messageText,
+        onMessageTextChanged = { },
+        singleLine = false,
+        onFocusChanged = { isFocused ->
+            if (isFocused) {
+                onMessageComposerFocused()
+            }
+        }
+    )
+}
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.res.vectorResource
-import com.wire.android.R
-import com.wire.android.ui.common.colorsScheme
-import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.theme.wireTypography
-import com.wire.android.util.ui.stringWithStyledArgs
-import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
+@Composable
+fun ActiveMessageComposerInput(
+    inputFocused: Boolean,
+    securityClassificationType: SecurityClassificationType,
+    interactionAvailability: InteractionAvailability,
+    messageCompositionInputState: MessageCompositionInputType,
+    messageCompositionInputSize: MessageCompositionInputSize,
+    onMessageTextChanged: (TextFieldValue) -> Unit,
+    onSendButtonClicked: () -> Unit,
+    onCollapseButtonClicked: () -> Unit,
+    onFocused: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    with(messageCompositionInputState) {
+        Column(
+            modifier = modifier
+        ) {
+            CollapseButton(
+                onCollapseClick = {
+                    onCollapseButtonClicked()
+                }
+            )
+
+            val quotedMessage = messageCompositionState.value.quotedMessage
+            if (quotedMessage != null) {
+                Row(modifier = Modifier.padding(horizontal = dimensions().spacing8x)) {
+                    QuotedMessagePreview(
+                        quotedMessageData = quotedMessage,
+                        onCancelReply = {}
+                    )
+                }
+            }
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentHeight(),
+                verticalAlignment = Alignment.Bottom
+            ) {
+                val stretchToMaxParentConstraintHeightOrWithInBoundary = when (messageCompositionInputSize) {
+                    MessageCompositionInputSize.COLLAPSED -> Modifier.heightIn(max = dimensions().messageComposerActiveInputMaxHeight)
+                    MessageCompositionInputSize.EXPANDED -> Modifier.fillMaxHeight()
+                }.weight(1f)
+
+                MessageComposerTextInput(
+                    inputFocused = inputFocused,
+                    colors = messageCompositionInputState.inputTextColor(),
+                    messageText = messageCompositionInputState.messageCompositionState.value.messageTextFieldValue,
+                    onMessageTextChanged = onMessageTextChanged,
+                    singleLine = false,
+                    onFocusChanged = { isFocused ->
+                        if (isFocused) onFocused()
+                    },
+                    modifier = stretchToMaxParentConstraintHeightOrWithInBoundary
+                )
+                Row(Modifier.wrapContentSize()) {
+                    when (messageCompositionInputState) {
+                        is MessageCompositionInputType.Composing -> MessageSendActions(
+                            onSendButtonClicked = onSendButtonClicked,
+                            sendButtonEnabled = messageCompositionInputState.isSendButtonEnabled
+                        )
+
+                        is MessageCompositionInputType.SelfDeleting -> SelfDeletingActions(
+                            selfDeletionTimer = messageCompositionInputState.messageCompositionState.value.selfDeletionTimer,
+                            sendButtonEnabled = messageCompositionInputState.isSendButtonEnabled,
+                            onSendButtonClicked = onSendButtonClicked,
+                            onChangeSelfDeletionClicked = messageCompositionInputState::showSelfDeletingTimeOption
+                        )
+
+                        else -> {}
+                    }
+                }
+            }
+            when (messageCompositionInputState) {
+                is MessageCompositionInputType.Editing -> {
+                    MessageEditActions(
+                        onEditSaveButtonClicked = { },
+                        onEditCancelButtonClicked = {},
+                        editButtonEnabled = messageCompositionInputState.isEditButtonEnabled
+                    )
+                }
+
+                else -> {}
+            }
+        }
+    }
+}
+
+@Composable
+private fun MessageComposerTextInput(
+    inputFocused: Boolean,
+    colors: WireTextFieldColors,
+    singleLine: Boolean,
+    messageText: TextFieldValue,
+    onMessageTextChanged: (TextFieldValue) -> Unit,
+    onFocusChanged: (Boolean) -> Unit = {},
+    onSelectedLineIndexChanged: (Int) -> Unit = { },
+    onLineBottomYCoordinateChanged: (Float) -> Unit = { },
+    modifier: Modifier = Modifier
+) {
+    val focusManager = LocalFocusManager.current
+    val focusRequester = remember { FocusRequester() }
+
+    LaunchedEffect(inputFocused) {
+        if (inputFocused) focusRequester.requestFocus()
+        else focusManager.clearFocus()
+    }
+
+
+    WireTextField(
+        value = messageText,
+        onValueChange = onMessageTextChanged,
+        colors = colors,
+        singleLine = singleLine,
+        maxLines = Int.MAX_VALUE,
+        textStyle = MaterialTheme.wireTypography.body01,
+        // Add an extra space so that the cursor is placed one space before "Type a message"
+        placeholderText = " " + stringResource(R.string.label_type_a_message),
+        modifier = modifier.then(
+            Modifier
+                .onFocusChanged { focusState ->
+                    onFocusChanged(focusState.isFocused)
+                }
+                .focusRequester(focusRequester)
+        ),
+        onSelectedLineIndexChanged = onSelectedLineIndexChanged,
+        onLineBottomYCoordinateChanged = onLineBottomYCoordinateChanged
+    )
+}
+
 
 @Composable
 fun BlockedUserComposerInput(securityClassificationType: SecurityClassificationType) {
@@ -280,27 +407,6 @@ fun BlockedUserComposerInput(securityClassificationType: SecurityClassificationT
     }
     MessageComposerClassifiedBanner(securityClassificationType = securityClassificationType)
 }
-
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.vectorResource
-import com.wire.android.R
-import com.wire.android.ui.common.colorsScheme
-import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.theme.wireTypography
-import com.wire.android.util.ui.stringWithStyledArgs
-import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
 
 @Composable
 fun DeletedUserComposerInput(securityClassificationType: SecurityClassificationType) {
@@ -340,7 +446,7 @@ fun DeletedUserComposerInput(securityClassificationType: SecurityClassificationT
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
-fun CollapseButton(
+private fun CollapseButton(
     onCollapseClick: () -> Unit
 ) {
     Box(

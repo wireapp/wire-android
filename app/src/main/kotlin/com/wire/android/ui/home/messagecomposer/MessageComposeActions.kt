@@ -35,51 +35,6 @@ import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WireSecondaryIconButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.util.debug.LocalFeatureVisibilityFlags
-
-//@OptIn(ExperimentalAnimationApi::class)
-//@Composable
-//fun MessageComposeActionsBox(
-//    transition: Transition<MessageComposeInputState>,
-//    isMentionActive: Boolean,
-//    isFileSharingEnabled: Boolean,
-//    startMention: () -> Unit,
-//    onAdditionalOptionButtonClicked: () -> Unit,
-//    onPingClicked: () -> Unit,
-//    onSelfDeletionOptionButtonClicked: () -> Unit,
-//    showSelfDeletingOption: Boolean,
-//    onGifButtonClicked: () -> Unit,
-//    modifier: Modifier = Modifier,
-//) {
-//    Column(modifier.wrapContentSize()) {
-//        Divider(color = MaterialTheme.wireColorScheme.outline)
-//        Box(Modifier.wrapContentSize()) {
-//            transition.AnimatedContent(
-//                contentKey = { state -> state is MessageComposeInputState.Active },
-//                transitionSpec = {
-//                    slideInVertically { fullHeight -> fullHeight / 2 } + fadeIn() with
-//                            slideOutVertically { fullHeight -> fullHeight / 2 } + fadeOut()
-//                }
-//            ) { state ->
-//                if (state is MessageComposeInputState.Active) {
-//                    MessageComposeActions(
-//                        state.isEphemeral,
-//                        state.attachmentOptionsDisplayed,
-//                        isMentionActive,
-//                        state.isEditMessage,
-//                        isFileSharingEnabled,
-//                        startMention,
-//                        onAdditionalOptionButtonClicked,
-//                        onPingClicked,
-//                        onSelfDeletionOptionButtonClicked,
-//                        showSelfDeletingOption,
-//                        onGifButtonClicked
-//                    )
-//                }
-//            }
-//        }
-//    }
-//}
-
 @Composable
 fun MessageComposeActions(
     selfDeletingOptionSelected: Boolean,

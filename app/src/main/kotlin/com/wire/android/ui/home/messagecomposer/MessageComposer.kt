@@ -33,7 +33,6 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
@@ -42,35 +41,24 @@ import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.KeyboardHelper
 import com.wire.android.ui.common.SecurityClassificationBanner
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.spacers.VerticalSpace
-import com.wire.android.ui.common.textfield.WireTextField
-import com.wire.android.ui.common.textfield.WireTextFieldColors
 import com.wire.android.ui.home.conversations.mention.MemberItemToMention
-import com.wire.android.ui.home.conversations.messages.QuotedMessagePreview
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionMenuState
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSubMenuState
@@ -78,10 +66,8 @@ import com.wire.android.ui.home.messagecomposer.state.MessageComposerState
 import com.wire.android.ui.home.messagecomposer.state.MessageCompositionInputSize
 import com.wire.android.ui.home.messagecomposer.state.MessageCompositionInputState
 
-import com.wire.android.ui.home.messagecomposer.state.MessageCompositionInputType
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.ui.theme.wireColorScheme
-import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.KeyboardHeight
 import com.wire.kalium.logic.feature.conversation.InteractionAvailability
 import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
@@ -99,14 +85,14 @@ fun MessageComposer(
                 MessageComposerClassifiedBanner(securityClassificationType, PaddingValues(vertical = dimensions().spacing16x))
 
             InteractionAvailability.ENABLED -> {
-                EnabledMessageComposerInput(messageComposerState, messageListContent)
+                EnabledMessageComposer(messageComposerState, messageListContent)
             }
         }
     }
 }
 
 @Composable
-private fun EnabledMessageComposerInput(
+private fun EnabledMessageComposer(
     messageComposerState: MessageComposerState,
     messageListContent: @Composable () -> Unit
 ) {
@@ -186,24 +172,15 @@ private fun InActiveMessageComposer(
                         )
                     }
 
-                    MessageComposerTextInput(
-                        inputFocused = false,
-                        colors = inputType.inputTextColor(),
+                    InActiveMessageComposerInput(
                         messageText = inputType.messageCompositionState.value.messageTextFieldValue,
-                        onMessageTextChanged = { },
-                        singleLine = false,
-                        onFocusChanged = { isFocused ->
-                            if (isFocused) {
-                                onTransitionToActive(false)
-                            }
-                        }
+                        onMessageComposerFocused = { onTransitionToActive(false) }
                     )
                 }
             }
         }
     }
 }
-
 
 @Composable
 private fun ActiveMessageComposer(
@@ -276,7 +253,7 @@ private fun ActiveMessageComposer(
                                     Modifier.wrapContentHeight()
                                 else Modifier.weight(1f)
 
-                            MessageComposerInput(
+                            ActiveMessageComposerInput(
                                 inputFocused = inputFocused,
                                 messageCompositionInputState = inputType,
                                 messageCompositionInputSize = inputSize,
@@ -335,265 +312,3 @@ private fun ActiveMessageComposer(
     }
 }
 
-@Composable
-private fun AdditionalOptionsMenu(
-    onOnSelfDeletingOptionClicked: () -> Unit,
-    onAttachmentOptionClicked: () -> Unit,
-    onGifOptionClicked: () -> Unit,
-    onPingOptionClicked: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    var additionalOptionState: AdditionalOptionMenuState by remember { mutableStateOf(AdditionalOptionMenuState.AttachmentAndAdditionalOptionsMenu) }
-
-    Box(modifier) {
-        when (additionalOptionState) {
-            is AdditionalOptionMenuState.AttachmentAndAdditionalOptionsMenu -> {
-                AttachmentAndAdditionalOptionsMenuItems(
-                    isMentionActive = true,
-                    isFileSharingEnabled = true,
-                    onMentionButtonClicked = onOnSelfDeletingOptionClicked,
-                    onAttachmentOptionClicked = onAttachmentOptionClicked,
-                    onGifButtonClicked = onGifOptionClicked,
-                    onSelfDeletionOptionButtonClicked = onOnSelfDeletingOptionClicked,
-                    onRichEditingButtonClicked = { additionalOptionState = AdditionalOptionMenuState.RichTextEditing },
-                    onPingClicked = onPingOptionClicked,
-                    showSelfDeletingOption = true,
-                    modifier = Modifier.background(Color.Black)
-                )
-            }
-
-            is AdditionalOptionMenuState.RichTextEditing -> {
-                RichTextOptions(
-                    onRichTextHeaderButtonClicked = {},
-                    onRichTextBoldButtonClicked = {},
-                    onRichTextItalicButtonClicked = {},
-                    onCloseRichTextEditingButtonClicked = {
-                        additionalOptionState = AdditionalOptionMenuState.AttachmentAndAdditionalOptionsMenu
-                    }
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun AdditionalOptionSubMenu(
-    additionalOptionsState: AdditionalOptionSubMenuState,
-    modifier: Modifier
-) {
-    when (additionalOptionsState) {
-        AdditionalOptionSubMenuState.AttachFile -> {
-            AttachmentOptionsComponent(
-                onAttachmentPicked = {},
-                tempWritableImageUri = null,
-                tempWritableVideoUri = null,
-                isFileSharingEnabled = true,
-                modifier = modifier
-            )
-        }
-
-        AdditionalOptionSubMenuState.Emoji -> {}
-        AdditionalOptionSubMenuState.Gif -> {}
-        AdditionalOptionSubMenuState.RecordAudio -> {}
-        AdditionalOptionSubMenuState.AttachImage -> {}
-        AdditionalOptionSubMenuState.Hidden -> {}
-    }
-}
-
-@Composable
-private fun AttachmentAndAdditionalOptionsMenuItems(
-    isMentionActive: Boolean,
-    isFileSharingEnabled: Boolean,
-    onMentionButtonClicked: () -> Unit,
-    onAttachmentOptionClicked: () -> Unit = {},
-    onPingClicked: () -> Unit = {},
-    onSelfDeletionOptionButtonClicked: () -> Unit,
-    showSelfDeletingOption: Boolean,
-    onGifButtonClicked: () -> Unit = {},
-    onRichEditingButtonClicked: () -> Unit = {},
-    modifier: Modifier = Modifier
-) {
-    Column(modifier.wrapContentSize()) {
-        Divider(color = MaterialTheme.wireColorScheme.outline)
-        MessageComposeActions(
-            false,
-            isMentionActive,
-            false,
-            isEditMessage = false,
-            isFileSharingEnabled,
-            onMentionButtonClicked = onMentionButtonClicked,
-            onAdditionalOptionButtonClicked = onAttachmentOptionClicked,
-            onPingButtonClicked = onPingClicked,
-            onSelfDeletionOptionButtonClicked = onSelfDeletionOptionButtonClicked,
-            showSelfDeletingOption = showSelfDeletingOption,
-            onGifButtonClicked = onGifButtonClicked,
-            onRichEditingButtonClicked = onRichEditingButtonClicked
-        )
-    }
-}
-
-@Composable
-private fun MessageComposerInput(
-    inputFocused: Boolean,
-    securityClassificationType: SecurityClassificationType,
-    interactionAvailability: InteractionAvailability,
-    messageCompositionInputState: MessageCompositionInputType,
-    messageCompositionInputSize: MessageCompositionInputSize,
-    onMessageTextChanged: (TextFieldValue) -> Unit,
-    onSendButtonClicked: () -> Unit,
-    onCollapseButtonClicked: () -> Unit,
-    onFocused: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    with(messageCompositionInputState) {
-        Column(
-            modifier = modifier
-        ) {
-            CollapseButton(
-                onCollapseClick = {
-                    onCollapseButtonClicked()
-                }
-            )
-
-            val quotedMessage = messageCompositionState.value.quotedMessage
-            if (quotedMessage != null) {
-                Row(modifier = Modifier.padding(horizontal = dimensions().spacing8x)) {
-                    QuotedMessagePreview(
-                        quotedMessageData = quotedMessage,
-                        onCancelReply = {}
-                    )
-                }
-            }
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .wrapContentHeight(),
-                verticalAlignment = Alignment.Bottom
-            ) {
-                val stretchToMaxParentConstraintHeightOrWithInBoundary = when (messageCompositionInputSize) {
-                    MessageCompositionInputSize.COLLAPSED -> Modifier.heightIn(max = dimensions().messageComposerActiveInputMaxHeight)
-                    MessageCompositionInputSize.EXPANDED -> Modifier.fillMaxHeight()
-                }.weight(1f)
-
-                MessageComposerTextInput(
-                    inputFocused = inputFocused,
-                    colors = messageCompositionInputState.inputTextColor(),
-                    messageText = messageCompositionInputState.messageCompositionState.value.messageTextFieldValue,
-                    onMessageTextChanged = onMessageTextChanged,
-                    singleLine = false,
-                    onFocusChanged = { isFocused ->
-                        if (isFocused) onFocused()
-                    },
-                    modifier = stretchToMaxParentConstraintHeightOrWithInBoundary
-                )
-                Row(Modifier.wrapContentSize()) {
-                    when (messageCompositionInputState) {
-                        is MessageCompositionInputType.Composing -> MessageSendActions(
-                            onSendButtonClicked = onSendButtonClicked,
-                            sendButtonEnabled = messageCompositionInputState.isSendButtonEnabled
-                        )
-
-                        is MessageCompositionInputType.SelfDeleting -> SelfDeletingActions(
-                            selfDeletionTimer = messageCompositionInputState.messageCompositionState.value.selfDeletionTimer,
-                            sendButtonEnabled = messageCompositionInputState.isSendButtonEnabled,
-                            onSendButtonClicked = onSendButtonClicked,
-                            onChangeSelfDeletionClicked = messageCompositionInputState::showSelfDeletingTimeOption
-                        )
-
-                        else -> {}
-                    }
-                }
-            }
-            when (messageCompositionInputState) {
-                is MessageCompositionInputType.Editing -> {
-                    MessageEditActions(
-                        onEditSaveButtonClicked = { },
-                        onEditCancelButtonClicked = {},
-                        editButtonEnabled = messageCompositionInputState.isEditButtonEnabled
-                    )
-                }
-
-                else -> {}
-            }
-        }
-    }
-}
-
-@Composable
-private fun MessageComposerTextInput(
-    inputFocused: Boolean,
-    colors: WireTextFieldColors,
-    singleLine: Boolean,
-    messageText: TextFieldValue,
-    onMessageTextChanged: (TextFieldValue) -> Unit,
-    onFocusChanged: (Boolean) -> Unit = {},
-    onSelectedLineIndexChanged: (Int) -> Unit = { },
-    onLineBottomYCoordinateChanged: (Float) -> Unit = { },
-    modifier: Modifier = Modifier
-) {
-    val focusManager = LocalFocusManager.current
-    val focusRequester = remember { FocusRequester() }
-
-    LaunchedEffect(inputFocused) {
-        if (inputFocused) focusRequester.requestFocus()
-        else focusManager.clearFocus()
-    }
-
-
-    WireTextField(
-        value = messageText,
-        onValueChange = onMessageTextChanged,
-        colors = colors,
-        singleLine = singleLine,
-        maxLines = Int.MAX_VALUE,
-        textStyle = MaterialTheme.wireTypography.body01,
-        // Add an extra space so that the cursor is placed one space before "Type a message"
-        placeholderText = " " + stringResource(R.string.label_type_a_message),
-        modifier = modifier.then(
-            Modifier
-                .onFocusChanged { focusState ->
-                    onFocusChanged(focusState.isFocused)
-                }
-                .focusRequester(focusRequester)
-        ),
-        onSelectedLineIndexChanged = onSelectedLineIndexChanged,
-        onLineBottomYCoordinateChanged = onLineBottomYCoordinateChanged
-    )
-}
-
-@Composable
-private fun MembersMentionList(
-    membersToMention: List<Contact>,
-    onMentionPicked: (Contact) -> Unit
-) {
-    Column(
-        modifier = Modifier.fillMaxHeight(),
-        verticalArrangement = Arrangement.Bottom
-    ) {
-        if (membersToMention.isNotEmpty()) Divider()
-        LazyColumn(
-            modifier = Modifier.background(colorsScheme().background),
-            reverseLayout = true
-        ) {
-            membersToMention.forEach {
-                if (it.membership != Membership.Service) {
-                    item {
-                        MemberItemToMention(
-                            avatarData = it.avatarData,
-                            name = it.name,
-                            label = it.label,
-                            membership = it.membership,
-                            clickable = Clickable { onMentionPicked(it) },
-                            modifier = Modifier
-                        )
-                        Divider(
-                            color = MaterialTheme.wireColorScheme.divider,
-                            thickness = Dp.Hairline
-                        )
-                    }
-                }
-            }
-        }
-    }
-}
